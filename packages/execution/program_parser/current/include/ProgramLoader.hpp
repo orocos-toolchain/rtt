@@ -46,7 +46,7 @@ namespace ORO_Execution
         /**
          * List of executed functions.
          */
-        typedef std::vector<FunctionGraph*> Functions;
+        typedef std::vector< ProgramInterfacePtr > Functions;
 
         /**
          * Executes all not exported functions in \a target's

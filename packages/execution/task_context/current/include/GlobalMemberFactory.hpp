@@ -34,84 +34,80 @@
 #include "FactoryExceptions.hpp"
 #include "ArgumentDescription.hpp"
 #include "MemberFactoryComposite.hpp"
+#include "MethodC.hpp"
 
 namespace ORO_Execution
 {
 
   /**
-   * @brief This is a sort of registry for DataSourceFactory's.
+   * @brief A browsable factory for task member functions.
    *
    * It is the DataSource equivalent of GlobalCommandFactory.  You may
    * be interested to check the documentation of that class for more
-   * info.. Components register and unregister their factories under a
-   * certain name, and the parser can ask for the factory registered
-   * under a certain name..
+   * info. A task registers and unregister its factories under a
+   * certain name, and the user can ask for the factory registered
+   * under a certain name.
    * @ingroup globalFactory
    */
   class GlobalMemberFactory
   {
-    typedef std::map<std::string, const MemberFactoryInterface*> map_t;
+      typedef std::map<std::string, const MemberFactoryInterface*> map_t;
   public:
-    GlobalMemberFactory()
-      {
-      }
-    ~GlobalMemberFactory()
-      {
-          for (map_t::iterator r = mdata.begin(); r != mdata.end(); ++r )
-              delete r->second;
-      }
+      GlobalMemberFactory();
 
-  bool hasMember(
-    const std::string& objectname,
-    const std::string& source )
-  {
-    const MemberFactoryInterface* o = getObjectFactory( objectname );
-    if ( o ) return o->hasMember( source );
-    else return false;
-  };
+      ~GlobalMemberFactory();
 
-    /**
-     * Register a factory under a certain name..  This does 
-     * transfer ownership.
-     */
+      /**
+       * Create an invocable member function.
+       * Use this function as in:
+       @verbatim
+       MethodC cc = create("this", "methodName").arg( 3 ).arg(d).arg(5.0);
+       cc.execute();
+       @verbatim
+       * Also variables or reference to variables may be given
+       * within arg().
+       * @see MethodC
+       * @throw name_not_found_exception
+       * @throw wrong_number_of_args_exception
+       * @throw wrong_types_of_args_exception
+       */
+      MethodC create(const std::string& object,
+                     const std::string& command) const;
+                        
+      /**
+       * Inspect if a given object has a given member function.
+       */
+      bool hasMember(const std::string& objectname,
+                     const std::string& fun ) const;
+
+      /**
+       * Register a factory under a certain name.  This does 
+       * transfer ownership.
+       */
       void registerObject( const std::string& name,
-                           const MemberFactoryInterface* fact )
-      {
-          if ( mdata.count( name ) != 0 )
-              fact = new MemberFactoryComposite( mdata[name], fact );
-          mdata[name] = fact;
-      }
+                           const MemberFactoryInterface* fact );
 
-    void unregisterObject( const std::string& name )
-      {
-          if ( mdata.count( name ) ) {
-              delete mdata[ name ];
-              mdata.erase( name );
-          }
-      };
+      /**
+       * Remove a factory with a certain name.  This does 
+       * destroy the factory.
+       */
+      void unregisterObject( const std::string& name );
 
-    /**
-     * @brief Ask for the factory registered by a certain name..
-     *
-     * @return the requested factory, or 0, indicating no factory
-     * has been registered under that name..
-     */
-    const MemberFactoryInterface* getObjectFactory( const std::string& name ) const
-      {
-        map_t::const_iterator i = mdata.find( name );
-        if ( i == mdata.end() ) return 0;
-        else return i->second;
-      };
+      /**
+       * @brief Get a factory registered by a certain name.
+       *
+       * @return The requested factory, or 0, indicating no factory
+       * has been registered under that name.
+       */
+      const MemberFactoryInterface* getObjectFactory( const std::string& name ) const;
 
-      std::vector<std::string> getObjectList() const
-      {
-          std::vector<std::string> mlist;
-          for (map_t::const_iterator r = mdata.begin(); r != mdata.end(); ++r )
-              mlist.push_back( r->first );
-          return mlist;
-      }
+      /**
+       * Get a list of all registered objects.
+       */
+      std::vector<std::string> getObjectList() const;
+
   private:
-    map_t mdata;
+      map_t mdata;
   };
 }
 

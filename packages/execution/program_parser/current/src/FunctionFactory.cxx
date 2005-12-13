@@ -28,6 +28,7 @@
  
 #include <execution/FunctionFactory.hpp>
 
+#include <execution/ExecutionEngine.hpp>
 #include "execution/CommandComposite.hpp"
 #include "execution/CommandBinary.hpp"
 #include "execution/CommandExecFunction.hpp"
@@ -48,15 +49,14 @@ namespace ORO_Execution
 {
     using namespace boost;
 
-        FunctionFactory::FunctionFactory(Processor* procs) : proc(procs) {}
+        FunctionFactory::FunctionFactory(ExecutionEngine* procs) : proc(procs) {}
         FunctionFactory::~FunctionFactory() {
             while( !funcmap.empty() ) {
-                delete funcmap.begin()->second;
                 funcmap.erase(funcmap.begin());
             }
         }
 
-        void FunctionFactory::addFunction(const std::string& name, FunctionGraph* f ) 
+        void FunctionFactory::addFunction(const std::string& name, shared_ptr<ProgramInterface> f ) 
         {
             funcmap[name] = f;
         }
@@ -90,7 +90,7 @@ namespace ORO_Execution
         {
             if ( !hasCommand(command) )
                 throw name_not_found_exception();
-            FunctionGraph* orig = funcmap.find(command)->second;
+            shared_ptr<ProgramInterface> orig = funcmap.find(command)->second;
             std::vector<TaskAttributeBase*> origlist = orig->getArguments();
 
             PropertyBag ret;
@@ -105,7 +105,7 @@ namespace ORO_Execution
             if ( !hasCommand(command) )
                 throw name_not_found_exception();
 
-            FunctionGraph* orig = funcmap.find(command)->second;
+            shared_ptr<ProgramInterface> orig = funcmap.find(command)->second;
             std::vector<TaskAttributeBase*> origlist = orig->getArguments();
             std::vector< ArgumentDescription > mlist;
             for ( std::vector<TaskAttributeBase*>::const_iterator it = origlist.begin();
@@ -143,7 +143,7 @@ namespace ORO_Execution
                 throw name_not_found_exception();
 
             // check if correct number of args :
-            FunctionGraph* orig = funcmap.find(command)->second;
+            shared_ptr<ProgramInterface> orig = funcmap.find(command)->second;
             std::vector<TaskAttributeBase*> origlist = orig->getArguments();
             if ( args.size() != origlist.size() )
                 throw wrong_number_of_args_exception( origlist.size(), args.size() );
@@ -152,7 +152,7 @@ namespace ORO_Execution
             // copy the local variables, but clone() the remote datasources.
             std::map<const DataSourceBase*, DataSourceBase*> replacementdss;
             assert( orig );
-            boost::shared_ptr<FunctionGraph> fcopy( orig->copy( replacementdss ) );
+            boost::shared_ptr<ProgramInterface> fcopy( orig->copy( replacementdss ) );
             assert( fcopy );
             // create commands that init all the args :
             CommandComposite* icom=  new CommandComposite();
@@ -172,10 +172,10 @@ namespace ORO_Execution
             }
 
             // the args of the copy can now safely be removed (saves memory):
-            fcopy->clearArguments();
+            //fcopy->clearArguments();
                 
             // the command gets ownership of the new function :
-            CommandExecFunction* ecom = new CommandExecFunction( fcopy, proc );
+            CommandExecFunction* ecom = new CommandExecFunction( fcopy, proc->getProgramProcessor() );
             ConditionInterface*  con = ecom->createCondition();
             // first init, then dispatch the function.
             // init->execute() : once(asyn), ecom->execute() : until done (syn)

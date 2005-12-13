@@ -35,6 +35,8 @@
 #include "execution/ExpressionParser.hpp"
 #include "execution/ValueChangeParser.hpp"
 #include "execution/CommandParser.hpp"
+#include "execution/ProgramTask.hpp"
+#include "execution/StateMachineTask.hpp"
 #include "execution/DataSourceCommand.hpp"
 #include "corelib/ConditionInterface.hpp"
 
@@ -47,13 +49,13 @@ namespace ORO_Execution
 {
   using namespace detail;
 
-  std::vector<FunctionGraph*> Parser::parseFunction( const std::string& file, TaskContext* c)
+  Parser::ParsedFunctions Parser::parseFunction( const std::string& file, TaskContext* c)
   {
       std::ifstream inputfile(file.c_str());
       return this->parseFunction( inputfile, c, file );
   }
 
-  std::vector<FunctionGraph*> Parser::parseFunction( std::istream& s, TaskContext* c, const std::string& filename)
+  Parser::ParsedFunctions Parser::parseFunction( std::istream& s, TaskContext* c, const std::string& filename)
   {
     our_buffer_t function;
 
@@ -68,17 +70,17 @@ namespace ORO_Execution
 
     // The internal parser.
     ProgramGraphParser gram( parsebegin, c );
-    std::vector<FunctionGraph*> ret = gram.parseFunction( parsebegin, parseend );
+    ParsedFunctions ret = gram.parseFunction( parsebegin, parseend );
     return ret;
   }
 
-  std::vector<ProgramGraph*> Parser::parseProgram( const std::string& file, TaskContext* c)
+  Parser::ParsedPrograms Parser::parseProgram( const std::string& file, TaskContext* c)
   {
       std::ifstream inputfile(file.c_str());
       return this->parseProgram( inputfile, c, file );
   }
 
-  std::vector<ProgramGraph*> Parser::parseProgram( std::istream& s, TaskContext* c, const std::string& filename)
+  Parser::ParsedPrograms Parser::parseProgram( std::istream& s, TaskContext* c, const std::string& filename)
   {
     our_buffer_t program;
 
@@ -93,18 +95,18 @@ namespace ORO_Execution
 
     // The internal parser.
     ProgramGraphParser gram( parsebegin, c );
-    std::vector<ProgramGraph*> ret = gram.parse( parsebegin, parseend );
+    ParsedPrograms ret = gram.parse( parsebegin, parseend );
 
     return ret;
   }
 
-  std::vector<ParsedStateMachine*> Parser::parseStateMachine( const std::string& file, TaskContext* c)
+  Parser::ParsedStateMachines Parser::parseStateMachine( const std::string& file, TaskContext* c)
   {
       std::ifstream inputfile(file.c_str());
       return this->parseStateMachine( inputfile, c, file );
   }
 
-  std::vector<ParsedStateMachine*> Parser::parseStateMachine( std::istream& s, TaskContext* c, const std::string& filename)
+  Parser::ParsedStateMachines Parser::parseStateMachine( std::istream& s, TaskContext* c, const std::string& filename)
   {
       // This code is copied from parseProgram()
 
@@ -121,7 +123,7 @@ namespace ORO_Execution
 
     // The internal parser.
     StateGraphParser gram( parsebegin, c );
-    std::vector<ParsedStateMachine*> ret;
+    Parser::ParsedStateMachines ret;
     try {
       ret = gram.parse( parsebegin, parseend );
     }

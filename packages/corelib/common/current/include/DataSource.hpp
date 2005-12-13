@@ -73,7 +73,7 @@ namespace ORO_CoreLib
        */
       virtual result_t get() const = 0;
 
-      virtual void evaluate() const { this->get(); }
+      virtual bool evaluate() const { this->get(); return true; }
 
       virtual DataSource<T>* clone() const = 0;
 
@@ -104,6 +104,41 @@ namespace ORO_CoreLib
       return detail::DataSourceTypeInfo< T >::getType() + detail::DataSourceTypeInfo< T >::getQualifier();
           
   }
+    
+    // Template specialisation in case T is a bool
+  template<>
+  class DataSource<bool>
+    : public DataSourceBase
+  {
+  protected:
+      virtual ~DataSource();
+  public:
+      /**
+       * value_t is bool
+       */
+      typedef bool value_t;
+      typedef bool result_t;
+      
+      typedef boost::intrusive_ptr<DataSource<bool> > shared_ptr;
+
+      /**
+       * Return the data as type \a bool.
+       */
+      virtual result_t get() const = 0;
+
+      virtual bool evaluate() const { return this->get(); }
+
+      virtual DataSource<bool>* clone() const = 0;
+
+      virtual DataSource<bool>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) = 0;
+
+      virtual std::string getType() const;
+
+      /**
+       * Return usefull type info in a human readable format.
+       */
+      static  std::string GetType();
+  };
 
   /**
    * A DataSource which has set() methods.

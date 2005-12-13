@@ -31,6 +31,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/call_traits.hpp>
 #include <boost/bind.hpp>
+#include <boost/weak_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <vector>
 #include <map>
@@ -522,10 +524,10 @@ namespace ORO_Execution
   }
 
   template<typename ComponentT, typename ResultT, typename FunctorT>
-  TemplateFactoryPart< DataSource<ComponentT*>, ResultT>*
+  TemplateFactoryPart< DataSource< boost::weak_ptr<ComponentT> >, ResultT>*
   fun_fact_ds( FunctorT fun, const char* desc )
   {
-    return new TemplateFactoryFunctorPart0< DataSource<ComponentT*>, ResultT, FunctorT>(
+    return new TemplateFactoryFunctorPart0< DataSource<boost::weak_ptr<ComponentT> >, ResultT, FunctorT>(
       fun, desc );
   }
 
@@ -540,10 +542,10 @@ namespace ORO_Execution
 
   template<typename ComponentT, typename ResultT,
            typename Arg1T, typename FunctorT>
-  TemplateFactoryPart< DataSource<ComponentT*>, ResultT>*
+  TemplateFactoryPart< DataSource< boost::weak_ptr<ComponentT> >, ResultT>*
   fun_fact_ds( FunctorT fun, const char* desc, const char* an, const char* ad )
   {
-    return new TemplateFactoryFunctorPart1< DataSource<ComponentT*>, ResultT, FunctorT,
+    return new TemplateFactoryFunctorPart1< DataSource<boost::weak_ptr<ComponentT> >, ResultT, FunctorT,
       Arg1T>( fun, desc, an, ad );
   }
 

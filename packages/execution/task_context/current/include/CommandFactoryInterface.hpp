@@ -33,7 +33,6 @@
 #include <utility>
 #include "FactoryExceptions.hpp"
 #include "ArgumentDescription.hpp"
-#include "Processor.hpp"
 #include <corelib/PropertyBag.hpp>
 #include <corelib/CommandInterface.hpp>
 #include <corelib/ConditionInterface.hpp>
@@ -128,7 +127,7 @@ namespace ORO_Execution
              */
             virtual ComCon create( const std::string& command,
                                    const ORO_CoreLib::PropertyBag& args,
-                                   bool asyn = true) const = 0;
+                                   bool asyn) const = 0;
 
             /**
              * @brief Create a Command passing DataSources as the arguments.
@@ -149,7 +148,7 @@ namespace ORO_Execution
             virtual ComCon create(
                 const std::string& command,
                 const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args,
-                bool asyn = true ) const = 0;
+                bool asyn ) const = 0;
 
             /**
              * @brief Create a Command passing DataSources as the arguments.
@@ -171,7 +170,7 @@ namespace ORO_Execution
             virtual ComCon create(
                 const std::string& command,
                 const std::vector<ORO_CoreLib::DataSourceBase*>& args,
-                bool asyn = true ) const = 0;
+                bool asyn ) const = 0;
 
     };
 };

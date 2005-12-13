@@ -28,7 +28,6 @@
 #ifndef PROGRAMGRAPH_HPP
 #define PROGRAMGRAPH_HPP
 
-#include "Processor.hpp"
 #include "FunctionGraph.hpp"
 
 #include <utility>                   // for std::pair
@@ -38,16 +37,13 @@
 
 namespace ORO_Execution
 {
-    class ProgramCommands;
-    class TaskContext;
 
     /**
-     * @brief This class represents a program consisting of
+     * @brief This class builds a program consisting of
      * data contained in a program graph tree, based on the
      * Boost Graph Library.
      */
-    class ProgramGraph
-        : public FunctionGraph
+    class FunctionGraphBuilder
     {
     public:
 
@@ -71,12 +67,11 @@ namespace ORO_Execution
         typedef FunctionGraph::Edge ConditionEdge ;
 
         /**
-         * Constructs an empty program (NOPprogram).
-         *
+         * Constructs a Function graph builder.
          */
-        ProgramGraph(const std::string& _name, TaskContext* tc);
+        FunctionGraphBuilder();
 
-        virtual ~ProgramGraph();
+        ~FunctionGraphBuilder();
 
         /**
          * Set the line number of the build command node.
@@ -86,31 +81,30 @@ namespace ORO_Execution
 
         void setName(const std::string& _name);
 
-        TaskContext* getTaskContext() const;
-
         /**
-         * Start a new function. Build is the start of the
-         * function.
+         * Start building a new function.
          */
-        FunctionGraph* startFunction( const std::string& fname );
+        FunctionGraphPtr startFunction( const std::string& fname );
 
         /**
          * Function return is detected inside the function.
+         * Do not confuse with endFunction().
          *
-         *
-         * @param fn The FunctionGraph created earlier with
-         *        startFunction().
+         * @param cond The Condition under which to return.
+         * @param line The line number of that line in the function.
          */
-        void returnFunction( ConditionInterface* cond, FunctionGraph* fn);
+        void returnFunction( ConditionInterface* cond, int line );
 
-        void returnProgram( ConditionInterface* cond );
         /**
-         * Function end is detected.
-         *
-         * @param fn The FunctionGraph created earlier with
-         *        startFunction().
+         * Finish building the function and return the result.
+         * @return the finished function.
          */
-        void endFunction( FunctionGraph* fn, int line);
+        FunctionGraphPtr endFunction( int line = 0 );
+
+        /**
+         * Return a pointer to the function being built, zero if none.
+         */
+        FunctionGraphPtr getFunction();
 
         void startIfStatement( ConditionInterface* cond, int linenumber );
         void endIfBlock(int linenumber);
@@ -171,22 +165,6 @@ namespace ORO_Execution
         void setCommand( CommandNode vert, CommandInterface* comm);
 
         /**
-         * A new program is started.
-         *
-         */
-        CommandNode startProgram();
-
-        /**
-         * Program end is detected. After this method is called,
-         * no more build methods may be called.
-         * @param finalCommand The command to run when the program is
-         *        finished.  If you pass 0 for this argument ( the
-         *        default ), the value new CommandNOP()
-         *        will be used.
-         */
-        void endProgram( CommandInterface* finalCommand, int line);
-
-        /**
          * Append a function to the build CommandNode.
          *
          * @param fn   The Function to append from the build CommandNode
@@ -194,7 +172,7 @@ namespace ORO_Execution
          *
          * @return the last CommandNode of the appended function.
          */
-        CommandNode appendFunction( ConditionInterface* cond, FunctionGraph* fn, std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> fnargs);
+        CommandNode appendFunction( ConditionInterface* cond, FunctionGraphPtr fn, std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> fnargs);
 
         /**
          * Put a function in the build CommandNode.
@@ -203,7 +181,7 @@ namespace ORO_Execution
          *
          * @return the last CommandNode of the appended function.
          */
-        CommandNode setFunction( FunctionGraph* fn, std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> fnargs);
+        CommandNode setFunction( FunctionGraphPtr fn, std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> fnargs);
 
         /**
          * Proceed to the 'next' CommandNode.
@@ -228,12 +206,14 @@ namespace ORO_Execution
          */
         void connectToNext( CommandNode v, ConditionInterface* cond );
 
+#if 0
         /**
          * Insert the given command at the front of this program,
          * replacing the build root command, and having it pass to
          * the build root command with a ConditionTrue.
          */
         void prependCommand( CommandInterface* command, int line_nr = 0 );
+#endif
 
         /**
          * Return the build CommandNode.
@@ -262,14 +242,13 @@ namespace ORO_Execution
 
     private:
 
+        FunctionGraphPtr func;
+
         /**
          * The graph currently working on.
          */
         Graph* graph;
 
-        TaskContext* progcontext;
-
-        ProgramCommands* comms;
         /**
          * @brief A stack which keeps track of branch points.
          *

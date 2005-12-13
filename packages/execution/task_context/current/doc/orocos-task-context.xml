@@ -1405,7 +1405,10 @@ cd                  quit
       <title>Adding Events</title>
       <para>Events are explained in detail in the &coreman;.
 	To add Real-Time events to your task, you can simply 
-	instantiate it with a given name :
+	instantiate it with a given name and add it to the
+	<classname>EventService</classname> of your task and/or
+	register it with the Event nameserver by providing a
+	name upon construction:
       </para>
       <programlisting>
   #include &lt;execution/TaskContext.hpp&gt;
@@ -1417,9 +1420,13 @@ cd                  quit
      int data;
   public:
      MyTask()
-	: TaskContext("myTask"),
-	  myEvent("theEvent"), data(0)
-     {}
+	: TaskContext("myTask"),       
+	  myEvent("theEvent"),    // add "theEvent" to the nameserver
+	  data(0)
+     {
+         // add same event to task's eventService (used for scripting).
+         this->eventService->addEvent( "theEvent", myEvent );
+     }
 
      // ...
      void foo() 
@@ -1429,8 +1436,7 @@ cd                  quit
   }; </programlisting>
       <para>
 	Another Task can then subscribe a handler to that Event,
-	and should provide its Processor's task as asynchronous
-	completer using <methodname>getTask()</methodname> :
+	using its EventService.
       </para>
       <programlisting>
   #include &lt;execution/TaskContext.hpp&gt;
@@ -1441,9 +1447,10 @@ cd                  quit
   {
      ORO_CoreLib::TaskPreemptible ptask;
      int inputdata;
+     Handle eventhandle;
   public:
      MyOtherTask()
-	: TaskContext("myTask"),
+	: TaskContext("myOtherTask"),
           ptask( 0.01, this->getProcessor() ),
 	  inputdata(0)
      {
@@ -1453,10 +1460,14 @@ cd                  quit
      {
         assert( proc->getTask() != 0 );
 
-	// connect bar with 'theEvent'
-        ORO_CoreLib::Event&lt; void (int) &gt;::nameserver.getObject("theEvent")
-           ->connect( boost::bind( &amp;MyOtherTask::bar, this), 
-                      proc->getTask() );
+        // Setup an asynchronous event handler 'bar'.
+        eventhandle =
+	  ORO_CoreLib::Event&lt; void (int) &gt;::nameserver.getObject("theEvent")
+            ->setup( boost::bind( &amp;MyOtherTask::bar, this), 
+                     proc->getTask() );
+
+	// connect it.
+        eventhandle.connect();
      }
 	
      // The event handler :
@@ -1468,7 +1479,18 @@ cd                  quit
       <para>
 	Anytime "theEvent" is fired, bar() will be called asynchronously
 	in the Task's thread, guaranteeing thread-safe data exchange,
-	thus not requiring any mutex locks.
+	thus not requiring any mutex locks. The Orocos scripting framework
+	will use the EventService to lookup events, an event can then
+	be emitted from within a script, using <function>emit</function>:
+      </para>
+      <programlisting>  program myProgram {
+    //...
+    emit theEvent( 5 )
+    // ...
+  }</programlisting>
+      <para>
+	Scripts can only react to events by using the StateMachine
+	infrastructure. See the Program Parser Manual.
       </para>
     </sect2>
   </sect1>

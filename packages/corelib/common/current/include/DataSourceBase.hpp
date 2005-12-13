@@ -5,6 +5,7 @@
 #include <boost/intrusive_ptr.hpp>
 #include <map>
 #include <string>
+#include <os/oro_atomic.h>
 
 namespace ORO_CoreLib
 {
@@ -40,27 +41,27 @@ namespace ORO_CoreLib
          much desired, and that refcounting happens in an efficient way,
          which is also nice :)
       */
-    int refcount;
+      atomic_t refcount;
   protected:
       /** the destructor is private.  You are not allowed to delete this
        * class yourself, use a shared pointer !
        */
-    virtual ~DataSourceBase();
+      virtual ~DataSourceBase();
   public:
       /**
        * Use this type to store a pointer to a DataSourceBase.
        */
       typedef boost::intrusive_ptr<DataSourceBase> shared_ptr;
 
-      DataSourceBase() : refcount( 0 ) {};
+      DataSourceBase();
       /**
        * Increase the reference count by one.
        */
-      void ref() { ++refcount; };
+      void ref();
       /**
        * Decrease the reference count by one and delete this on zero.
        */
-      void deref() { if ( --refcount <= 0 ) delete this; };
+      void deref();
 
       /**
        * Reset the data to initial values.
@@ -69,8 +70,10 @@ namespace ORO_CoreLib
 
       /**
        * Force an evaluation of the DataSourceBase.
+       * @return true on successful evaluation.
+       * If the DataSource itself contains a boolean, return that boolean.
        */
-      virtual void evaluate() const = 0;
+      virtual bool evaluate() const = 0;
 
       /**
        * Return a shallow clone of this DataSource. This method

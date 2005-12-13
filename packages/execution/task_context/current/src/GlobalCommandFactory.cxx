@@ -34,7 +34,7 @@ namespace ORO_Execution {
 
   bool GlobalCommandFactory::hasCommand(
     const std::string& objectname,
-    const std::string& com )
+    const std::string& com ) const
   {
     const CommandFactoryInterface* o = getObjectFactory( objectname );
     if ( o ) return o->hasCommand( com );
@@ -87,7 +87,7 @@ namespace ORO_Execution {
         return mlist;
     }
 
-    Processor* GlobalCommandFactory::getCommandProcessor() const {
+    CommandProcessor* GlobalCommandFactory::getCommandProcessor() const {
         return eproc->getCommandProcessor();
     }
 }

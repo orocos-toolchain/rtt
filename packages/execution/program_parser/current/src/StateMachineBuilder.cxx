@@ -33,18 +33,16 @@
 namespace ORO_Execution {
   using namespace detail;
   StateMachineBuilder::StateMachineBuilder(
-    ParsedStateMachine* tc )
+    ParsedStateMachinePtr tc )
     : templatecontext( tc )
   {
   }
 
   StateMachineBuilder::~StateMachineBuilder()
   {
-      // template is !owned by __states TC.
-      delete templatecontext;
   }
 
-  ParsedStateMachine* StateMachineBuilder::build(bool instantiate)
+  ParsedStateMachinePtr StateMachineBuilder::build(bool instantiate)
   {
     std::map<const DataSourceBase*, DataSourceBase*> dsmap;
     return templatecontext->copy( dsmap, instantiate );

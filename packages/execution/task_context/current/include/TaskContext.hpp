@@ -39,7 +39,7 @@
 
 namespace ORO_Execution
 {
-    class Processor;
+    class CommandProcessor;
 
     /**
      * A TaskContext groups the operations, events, datasources,
@@ -49,13 +49,15 @@ namespace ORO_Execution
      * When a peer is added, the (script) programs of this task can access
      * the peer using peername.methodname() or peername.objname.methodname().
      * The commands of this TaskContext must be executed by this TaskContext's
-     * Processor (which is what scripts take care of). The methods and datasources
+     * CommandProcessor (which is what scripts take care of). The methods and datasources
      * can be queried by any peer TaskContext at any time.
      *
-     * The Processor::step() must be invoked seperately from a PeriodicTask or other TaskInterface
-     * implementation, as long as that Task is not started, this TaskContext will not accept any commands.
-     * In this way, the user of this class can determine himself at which
-     * point and at which moment remote commands and local programs can be executed.
+     * The ExecutionEngine::step() must be invoked seperately from a
+     * PeriodicTask or other TaskInterface implementation, as long as
+     * that Task is not started, this TaskContext will not accept any
+     * commands.  In this way, the user of this class can determine
+     * himself at which point and at which moment remote commands and
+     * local programs can be executed.
      */
     class TaskContext
     {
@@ -73,21 +75,19 @@ namespace ORO_Execution
 
         /**
          * Create a TaskContext visible with \a name.
-         * It's ExecutionEngine will be newly constructed with private command, event,
-         * program and state machine processors.
+         * It's ExecutionEngine will be newly constructed with private 
+         * ExecutionEngine processing its commands, events,
+         * programs and state machines.
          */
         TaskContext( const std::string& name );
 
         /**
-         * Create a TaskContext visible with \a name, which commands are processed
-         * by \a cproc, programs by \a pproc and state machines by \a smproc.
-         * If a null Processor is given, a default one is constructed.
-         * Use this constructor to share processors among task contexts, such that
+         * Create a TaskContext visible with \a name. Its commands
+         * programs and state machines are processed by \a parent.
+         * Use this constructor to share execution engines among task contexts, such that
          * the execution of their functionality is serialised (executed in the same thread).
-         * @todo \a pproc and \a smproc are still unused. The ExecutionEngine only uses the first Processor to
-         * execute commands, programs and state machines.
          */
-        TaskContext(const std::string& name, Processor* cproc, Processor* pproc = 0, Processor* smproc = 0 );
+        TaskContext(const std::string& name, ExecutionEngine* parent );
 
         ~TaskContext();
 
@@ -160,6 +160,37 @@ namespace ORO_Execution
          */
         TaskContext* getPeer(const std::string& peer_name ) const;
 
+        /**
+         * Get a const pointer to the ExecutionEngine of this Task.
+         * @see getExecutionEngine()
+         */
+        const ExecutionEngine* engine() const
+        {
+            return &ee;
+        }
+
+        /**
+         * Get a const pointer to the ExecutionEngine of this Task.
+         * @see engine()
+         */
+        const ExecutionEngine* getExecutionEngine() const
+        {
+            return &ee;
+        }
+
+        /**
+         * Get a pointer to the ExecutionEngine of this Task.
+         * @see getExecutionEngine()
+         */
+        ExecutionEngine* engine()
+        {
+            return &ee;
+        }
+
+        /**
+         * Get a pointer to the ExecutionEngine of this Task.
+         * @see engine()
+         */
         ExecutionEngine* getExecutionEngine()
         {
             return &ee;
@@ -169,37 +200,93 @@ namespace ORO_Execution
          * Returns the Processor of this task.
          * @deprecated by getExecutionEngine()
          */
-        Processor* getProcessor() const
+        ExecutionEngine* getProcessor()
         {
-            return ee.getCommandProcessor();
+            return &ee;
         }
 
         /**
-         * Sets a new Processor of this task.
-         * @deprecated by getExecutionEngine()
+         * The Commands of this TaskContext.
          */
-        void setProcessor(Processor* newProc);
+        GlobalCommandFactory* commands() {
+            return &commandFactory;
+        }
+
+        /**
+         * The Commands of this TaskContext.
+         */
+        const GlobalCommandFactory* commands() const{
+            return &commandFactory;
+        }
+
+        /**
+         * The Methods of this TaskContext.
+         */
+        GlobalMethodFactory* methods() {
+            return &methodFactory;
+        }
+
+        /**
+         * The Methods of this TaskContext.
+         */
+        const GlobalMethodFactory* methods() const{
+            return &methodFactory;
+        }
+
+        /**
+         * The task-local values ( attributes and properties ) of this TaskContext.
+         */
+        AttributeRepository* attributes() {
+            return &attributeRepository;
+        }
+
+        /**
+         * The task-local values ( attributes and properties ) of this TaskContext.
+         */
+        const AttributeRepository* attributes() const{
+            return &attributeRepository;
+        }
+
+        /**
+         * The task-local events ( 'signals' ) of this TaskContext.
+         */
+        EventService* events() {
+            return &eventService;
+        }
+
+        /**
+         * The task-local events ( 'signals' ) of this TaskContext.
+         */
+        const EventService* events() const{
+            return &eventService;
+        }
+
 
         /**
          * The Command Factory of this TaskContext.
+         * @deprecated by commands()
          */
         GlobalCommandFactory    commandFactory;
         /**
          * The DataSource Factory of this TaskContext.
+         * @deprecated by methods()
          */
         GlobalDataSourceFactory dataFactory;
         /**
          * The Method Factory of this TaskContext.
+         * @deprecated by methods()
          */
         GlobalMethodFactory     methodFactory;
 
         /**
          * The task-local values ( attributes ) of this TaskContext.
+         * @deprecated by attributes()
          */
         AttributeRepository     attributeRepository;
 
         /**
          * The task-local events ( 'signals' ) of this TaskContext.
+         * @deprecated by events()
          */
         EventService            eventService;
     };

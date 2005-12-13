@@ -29,6 +29,7 @@
 #include "execution/FunctionGraph.hpp"
 #include "GraphCopier.hpp"
 #include "execution/TaskAttribute.hpp"
+#include "execution/ProgramTask.hpp"
 
 #include "corelib/CommandNOP.hpp"
 #include "corelib/ConditionFalse.hpp"
@@ -46,13 +47,13 @@ namespace ORO_Execution
     using ORO_CoreLib::ConditionTrue;
 
     FunctionGraph::FunctionGraph(const std::string& _name)
-        : myName(_name)
+        : myName(_name), pausing(false), mstep(false), context(0)
     {
         // the start vertex of our function graph
-        start = add_vertex( program );
-        put(vertex_exec, program, start, VertexNode::normal_node );
-        exit = add_vertex( program );
-        put(vertex_exec, program, exit, VertexNode::normal_node);
+        startv = add_vertex( program );
+        put(vertex_exec, program, startv, VertexNode::normal_node );
+        exitv = add_vertex( program );
+        put(vertex_exec, program, exitv, VertexNode::normal_node);
     }
 
     FunctionGraph::FunctionGraph( const FunctionGraph& orig )
@@ -64,11 +65,11 @@ namespace ORO_Execution
         for ( it=v1; it != v2; ++it)
             if ( get( vertex_exec, program, *it) == VertexNode::func_start_node )
                 break;
-        start = *v1;
+        startv = *v1;
         for ( it=v1; it != v2; ++it)
             if ( get( vertex_exec, program, *it) == VertexNode::func_exit_node )
                 break;
-        exit = *v1;
+        exitv = *v1;
 
         // Copy-clone over the TAB pointers.
         std::vector<TaskAttributeBase*> argsvect = orig.getArguments();
@@ -80,8 +81,8 @@ namespace ORO_Execution
 
     void FunctionGraph::finish()
     {
-        put(vertex_exec, program, start, VertexNode::func_start_node );
-        put(vertex_exec, program, exit, VertexNode::func_exit_node);
+        put(vertex_exec, program, startv, VertexNode::func_start_node );
+        put(vertex_exec, program, exitv, VertexNode::func_exit_node);
 
         // Because we use listS, we need to re-index the map :-(
         // If we do not do this, it can not be copied by the copy_graph
@@ -103,22 +104,87 @@ namespace ORO_Execution
         std::vector<TaskAttributeBase*>::iterator it = args.begin();
         for ( ; it != args.end(); ++it)
             delete *it;
+        this->handleUnload();
     }
 
-    bool FunctionGraph::executeAll()
+    void FunctionGraph::setProgramTask(ProgramTask* mytask)
     {
-        static const int maxsteps = 5000;
-        int count = 0;
-        bool result = true;
-
-        while ( current != exit && count++ <= maxsteps && result )
-            result = executeStep();
-        if (result)
-            finished = true;
-        else
-            error    = true;
-        return result;
+        context = mytask;
     }
+
+    void FunctionGraph::handleUnload()
+    {
+        // just kill off the interface.
+        if ( context && context->getPeer("programs") )
+            context->getPeer("programs")->removePeer( context->getName() );
+        delete context;
+        context = 0;
+    }
+
+
+    bool FunctionGraph::start()
+    {
+        if ( !pp || !pp->getTask() || !pp->getTask()->isRunning() )
+            return false;
+        if ( pStatus == Status::stopped || pStatus == Status::paused) {
+            pStatus = Status::running;
+            return true;
+        }
+        return false;
+    }
+
+    bool FunctionGraph::pause()
+    {
+        if ( pp ) {
+            pausing = true;
+            return true;
+        }
+        return false;
+    }
+
+    bool FunctionGraph::step()
+    {
+        if ( pp && (pStatus == Status::paused) && mstep == false) {
+            mstep = true;
+            return true;
+        }
+        return false;
+    }
+
+    bool FunctionGraph::stepDone() const
+    {
+        return mstep == false;
+    }
+
+    bool FunctionGraph::execute()
+    {
+        if (pausing) {
+            pStatus = Status::paused;
+            pausing = false;
+            return true;
+        }
+        switch (pStatus) {
+        case Status::running:
+            return this->executeUntil();
+            break;
+        case Status::paused:
+            if (mstep) {
+                mstep = false;
+                return this->executeStep();
+            } else
+                return true;
+            break;
+        case Status::error:
+        case Status::unloaded:
+            return false;
+            break;
+        case Status::stopped:
+            return true;
+            break;
+        }
+        return false;
+    }
+            
 
     bool FunctionGraph::executeUntil()
     {
@@ -145,7 +211,7 @@ namespace ORO_Execution
             previous = current;
             // execute the current command.
             if ( !cmap[current].execute() ) {
-                error = true;
+                pStatus = Status::error;
                 return false;
             }
         
@@ -163,7 +229,8 @@ namespace ORO_Execution
         } while ( previous != current ); // keep going if we found a new node
 
         // check finished state
-        finished = (current == exit);
+        if (current == exitv)
+            this->stop();
         return true; // we need to wait.
     }
 
@@ -187,7 +254,7 @@ namespace ORO_Execution
 
         // execute the current command.
         if ( !cmap[current].execute() ) {
-            error = true;
+            pStatus = Status::error;
             return false;
         }
 
@@ -197,23 +264,30 @@ namespace ORO_Execution
             if ( emap[*ei].evaluate() )
             {
                 current = boost::target(*ei, program);
-                finished = (current == exit);
+                if (current == exitv)
+                    this->stop();
                 // a new node has been found ...
                 // it will be executed in the next step.
                 return true;
             }
         } 
         // check finished state
-        finished = (current == exit);
+        if (current == exitv)
+            this->stop();
         return true; // no new branch found yet !
     }
 
-    void FunctionGraph::reset()
+    void FunctionGraph::reset() {
+        this->stop();
+    }
+
+    bool FunctionGraph::stop()
     {
-        current = start;
-        previous = exit;
-        error   = false;
-        finished= false;
+        // stop even works if no pp is present
+        current = startv;
+        previous = exitv;
+        pStatus = Status::stopped;
+        return true;
     }
 
     const std::string& FunctionGraph::getName() const
@@ -250,8 +324,8 @@ namespace ORO_Execution
         FunctionGraph* ret = new FunctionGraph( getName() );
 
         // clear out unneccessary vertices ( we will copy new ones below )
-        remove_vertex( ret->start, ret->program );
-        remove_vertex( ret->exit, ret->program );
+        remove_vertex( ret->startv, ret->program );
+        remove_vertex( ret->exitv, ret->program );
 
         indexmap_t indexmap = get( vertex_index, program );
         // here we assume that the indexing of program is set properly...
@@ -273,14 +347,17 @@ namespace ORO_Execution
                            edge_copy( GraphEdgeCopier( program, ret->program, replacementdss ) ).
                            orig_to_copy( o2cmap ) );
 
-        ret->start = o2cmap[start];
-        ret->exit = o2cmap[exit];
+        ret->startv = o2cmap[startv];
+        ret->exitv = o2cmap[exitv];
         ret->current = o2cmap[current];
         ret->previous = o2cmap[previous];
 
         // so that ret itself can be copied again :
         ret->finish();
 
+        // copy progproc state also
+        if (this->pp)
+            ret->setProgramProcessor(pp);
 //         std::cerr << "Resulted in :" <<std::endl;
 //         ret->debugPrintout();
 

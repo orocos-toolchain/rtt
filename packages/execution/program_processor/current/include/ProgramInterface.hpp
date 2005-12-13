@@ -29,43 +29,70 @@
 #define	PROGRAMINTERFACE_HPP
 
 #include <string>
+#include <corelib/DataSourceBase.hpp>
+#include <execution/TaskAttribute.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace ORO_Execution
 {
-	
+	class ProgramProcessor;
+    class ProgramInterface;
+    typedef boost::shared_ptr<ProgramInterface> ProgramInterfacePtr;
+    typedef boost::weak_ptr<ProgramInterface> ProgramInterfaceWPtr;
+
 	/**
 	 * @brief A Program represents a collection of 
 	 * instructions that can be stepwise executed.
 	 */
 	class ProgramInterface
 	{
-    protected:
-        bool error;
-        bool finished;
     public:
-        ProgramInterface() : error(false), finished(false) {}
-        virtual ~ProgramInterface()
-        {}
+        /**
+         * Enumerates the statuses of a ProgramInterface.
+         */
+        struct Status {
+            enum ProgramStatus { stopped, running, paused, error, unloaded };
+        };
+    protected:
+        Status::ProgramStatus pStatus;
+        ProgramProcessor* pp;
+        virtual void handleUnload();
+    public:
+        ProgramInterface(ProgramProcessor* progp = 0);
+
+        virtual ~ProgramInterface();
+
+        void setProgramProcessor(ProgramProcessor* progp);
+
+        ProgramProcessor* getProgramProcessor() const { return pp; }
 
         /**
-         * Execute the next logical step of this program interface.
-         * @return false if a program error occured.
+         * Start the execution of this program.
          */
-        virtual bool executeStep()= 0;
+        virtual bool start() = 0;
 
         /**
-         * Execute all steps of this program interface.
-         * @return false if a program error occured.
+         * Pause or start-and-pause the execution of this program.
          */
-        virtual bool executeAll()= 0;
+        virtual bool pause() = 0;
 
         /**
-         * Execute as much steps until the program needs to
-         * wait on a condition to become true. This is the
-         * 'golden middle way' betweenf \a executeStep() and \a executeAll().
+         * Execute a single action when paused.
+         */
+        virtual bool step() = 0;
+
+        /**
+         * Stop the execution of this program.
+         */
+        virtual bool stop() = 0;
+
+        /**
+         * Execute as much actions until the program needs to
+         * wait on a condition to become true. When paused,
+         * only execute one action.
          * @return false if a program error occured.
          */
-        virtual bool executeUntil()= 0;
+        virtual bool execute()= 0;
 
         /**
          * Reset the execution point to the beginning of this program interface.
@@ -73,19 +100,36 @@ namespace ORO_Execution
         virtual void reset() = 0;
 	
         /**
-         * Returns true if the program has finished executing.
+         * Returns true if the program is running.
          */
-        inline bool isFinished() const { return finished; }
+        inline bool isRunning() const { return pStatus == Status::running; }
+	
+        /**
+         * Returns true if the program is paused.
+         */
+        inline bool isPaused() const { return pStatus == Status::paused; }
+	
+        /**
+         * Returns true if the program is not executing (stopped) or not loaded.
+         */
+        inline bool isStopped() const { return pStatus == Status::stopped || pStatus == Status::unloaded ; }
 	
         /**
          * Returns true if the program is in error.
          */
-        inline bool inError() const { return error; }
+        inline bool inError() const { return pStatus == Status::error; }
+
+        virtual bool stepDone() const = 0;
 	
         /**
          * Return the current 'line number' of the program.
          */
         virtual int getLineNumber() const = 0;
+
+        /**
+         * Return the current status of the program.
+         */
+        Status::ProgramStatus getStatus() const { return pStatus; }
 
         /**
          * Return the program text to which \a getLineNumber()
@@ -97,6 +141,32 @@ namespace ORO_Execution
          * Programs can be refered to by name.
          */
         virtual const std::string& getName() const = 0;
+
+        /**
+         * Get the argument list of this program.
+         */
+        virtual std::vector<TaskAttributeBase*> getArguments() const = 0;
+
+        /**
+         * Clone this Program.  This will produce a completely
+         * new instance, that has nothing in common with this one.
+         * It takes care to properly map identical DataSources to
+         * identical DataSources.
+         *
+         * @param alreadyMappedData A map of some DataSources used in
+         *   this program to new DataSources that should replace them
+         *   in the new Program.  This is provided, because in some
+         *   cases the outside world also keeps references to
+         *   datasources used somewhere in this programgraph.  It is
+         *   then important that when this Program is copied, the
+         *   outside world has a way to get a reference to the
+         *   corresponding datasources in the new program.  We do this
+         *   by allowing it to map some datasources itself, and simply
+         *   provide us a list of its mappings.
+         */
+        virtual ProgramInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& replacementdss ) const = 0;
+
+        virtual ProgramInterface* clone() const = 0;
 	};
 
 

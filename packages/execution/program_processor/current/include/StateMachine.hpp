@@ -41,6 +41,8 @@
 #include <string>
 #include <utility>
 #include <boost/tuple/tuple.hpp>
+#include <boost/weak_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace ORO_Execution
 {
@@ -49,6 +51,11 @@ namespace ORO_Execution
 
     class TaskContext;
     class EventService;
+    class StateMachineProcessor;
+
+    class StateMachine;
+    typedef boost::shared_ptr<StateMachine> StateMachinePtr;
+    typedef boost::weak_ptr<StateMachine> StateMachineWPtr;
 
     /**
      * @brief A hierarchical StateMachine which is
@@ -60,28 +67,45 @@ namespace ORO_Execution
      */
     class StateMachine
     {
+        enum PrivateStatus { nill, gostop, goreset, pausing } smpStatus;
+
+        static std::string emptyString;
+    public:
+        /**
+         * Enumerates all possible state machine statuses.
+         */
+        struct Status {
+            enum StateMachineStatus {inactive, activating, active, requesting, running, stopping, stopped, resetting, deactivating, paused, error, unloaded };
+        };
+    private:
         /**
          * The key is the current state, the value is the transition condition to
          * another state with a certain priority (int), on a line (int), with a transition program
          */
-        typedef std::vector< boost::tuple<ConditionInterface*, StateInterface*, int, int, ProgramInterface*> > TransList;
+        typedef std::vector< boost::tuple<ConditionInterface*, StateInterface*, int, int, boost::shared_ptr<ProgramInterface> > > TransList;
         typedef std::map< StateInterface*, TransList > TransitionMap;
         typedef std::multimap< StateInterface*, std::pair<ConditionInterface*, int> > PreConditionMap;
         typedef std::vector< boost::tuple<EventService*,
                                           std::string, std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>,
                                           StateInterface*,
-                                          ConditionInterface*, ProgramInterface*, 
+                                          ConditionInterface*, boost::shared_ptr<ProgramInterface>, 
                                           ORO_CoreLib::Handle,
-                                          StateInterface*, ProgramInterface*> > EventList;
+                                          StateInterface*, boost::shared_ptr<ProgramInterface> > > EventList;
         typedef std::map< StateInterface*, EventList > EventMap;
-        std::vector<StateMachine*> _children;
-        StateMachine* _parent;
+        std::vector<StateMachinePtr> _children;
+        typedef boost::weak_ptr<StateMachine> StateMachineParentPtr;
+        StateMachineParentPtr _parent;
     protected:
         std::string _name;
         ORO_CoreLib::EventProcessor* eproc;
+        Status::StateMachineStatus smStatus;
+        StateMachineProcessor* smp;
+
+        // Hook to denote to subclasses that we are unloaded.
+        virtual void handleUnload();
     public:
 
-        typedef std::vector<StateMachine*> ChildList;
+        typedef std::vector<StateMachinePtr> ChildList;
 
         /**
          * The destructor is virtual since ParsedStateMachine still inherits
@@ -94,7 +118,7 @@ namespace ORO_Execution
          * Set \a parent to zero for the top state machine. The initial Status of
          * a StateMachine is always inactive.
          */
-        StateMachine(StateMachine* parent, const std::string& name="Default");
+        StateMachine(StateMachinePtr parent, const std::string& name="Default");
 
         /**
          * Create a new StateMachine in a TaskContext with an optional parent.
@@ -102,17 +126,111 @@ namespace ORO_Execution
          * a StateMachine is always inactive.
          * @param ep The EventProcessor of this StateMachine when transition events are used.
          */
-        StateMachine(StateMachine* parent, ORO_CoreLib::EventProcessor* ep, const std::string& name="Default");
+        StateMachine(StateMachinePtr parent, ORO_CoreLib::EventProcessor* ep, const std::string& name="Default");
+
+        void setStateMachineProcessor(StateMachineProcessor* smproc) {
+            smp = smproc;
+            if (smp)
+                smStatus = Status::inactive;
+            else {
+                smStatus = Status::unloaded;
+                this->handleUnload();
+            }
+        }
 
         /**
-         * Get the active status of this StateMachine.
+         * Request a transition to a given state.
+         */
+        bool requestState(const std::string& statename) {
+            StateInterface* tmp = this->getState(statename);
+            if (tmp) {
+                return this->requestStateChange( tmp );
+            }
+            return false;
+        }
+
+        /**
+         * Check if the state machine is in a given state.
+         */
+        bool inState(const std::string& state) const {
+            StateInterface* copy = this->currentState();
+            if (copy == 0)
+                return false;
+            return copy->getName() == state;
+        }
+
+        /**
+         * Return name of current state, empty string if not active.
+         */
+        const std::string& getCurrentStateName() const {
+            StateInterface* copy = this->currentState();
+            if (copy == 0)
+                return emptyString;
+            return copy->getName();
+        }
+
+        /**
+         * Strictly active, means active and not in a transition.
+         */
+        inline bool isStrictlyActive() const {
+            return this->isActive() && !this->inTransition();
+        }
+
+        /**
+         * Inspect if we are in the initial state.
+         */
+        inline bool inInitialState() const {
+            return initstate == current;// && !_sc->inTransition();
+        }
+
+        /**
+         * Inspect if we are in the final state.
+         */
+        inline bool inFinalState() const {
+            return finistate == current;// && !this->inTransition();
+        }
+
+        /**
+         * When isPaused(), return true if no step is pending, when
+         * isReactive(), return isStrictlyActive()
+         */
+        bool stepDone() const {
+            if ( isPaused() )
+                return !mstep;
+            return isStrictlyActive();
+        }
+
+        /**
+         * Returns true if the state machine is activated.
          */
         inline bool isActive() const { return current != 0; }
 
         /**
+         * Returns true if the state machine is in the final state,
+         * after a stop() directive.
+         */
+        inline bool isStopped() const { return smStatus == Status::stopped; }
+
+        /**
          * Get the error status of this StateMachine.
          */
-        inline bool inError() const { return error; }
+        inline bool inError() const { return smStatus == Status::error; }
+
+        /**
+         * Query if the state machine is currently reacting only to events.
+         */
+        inline bool isReactive() const { return current != 0 && smStatus != Status::running; }
+
+        /**
+         * Query if the state machine is reacting to events \em and 
+         * evaluating transition conditions.
+         */
+        inline bool isAutomatic() const { return smStatus == Status::running; }
+
+        /**
+         * Query if the state machine is paused.
+         */
+        inline bool isPaused() const { return smStatus == Status::paused; }
 
         /**
          * Start this StateMachine. The Initial state will be entered.
@@ -120,9 +238,53 @@ namespace ORO_Execution
         bool activate();
 
         /**
-         * Stop this StateMachine. The current state is left.
+         * Pause the state machine.
+         */
+        bool pause();
+
+        /**
+         * Execute a single action if the state machine is paused or
+         * evaluate the transition conditions if the state machine is reactive.
+         */
+        bool step();
+
+        /**
+         * Enter automatic mode: evaluating the transition conditions continuously.
+         */
+        bool automatic();
+
+        /**
+         * Enter automatic mode: evaluating the transition conditions continuously.
+         */
+        bool start();
+
+        /**
+         * Bring the state machine to the safe final state and wait for events
+         * or requests.
+         */
+        bool stop();
+
+        /**
+         * Reset the state machine from the final state to the initial state and
+         * wait for events or requests.
+         */
+        bool reset();
+
+        /**
+         * Switch to reactive mode from automatic mode.
+         */
+        bool reactive();
+
+        /**
+         * Stop this StateMachine. The current state is left unconditionally.
          */
         bool deactivate();
+
+        /**
+         * Used by the StateMachineProcessor to execute the next action(s) or
+         * state transitions.
+         */
+        bool execute();
 
         /**
          * Search from the current state a candidate next state.
@@ -151,7 +313,7 @@ namespace ORO_Execution
          * Request going to the Final State. This will always
          * proceed.
          */
-        void requestFinalState();
+        bool requestFinalState();
 
         /**
          * Request going to the Initial State. This function will only
@@ -186,6 +348,11 @@ namespace ORO_Execution
         StateInterface* getState( const std::string & name ) const;
 
         /**
+         * Get the status of this state machine.
+         */
+        Status::StateMachineStatus getStatus() const;
+
+        /**
          * Add a State. If already present, changes nothing.
          */
         void addState( StateInterface* s );
@@ -202,7 +369,7 @@ namespace ORO_Execution
          * @retval false
          *          if the transition is not allowed
          */
-        bool requestState( StateInterface * s_n );
+        bool requestStateChange( StateInterface * s_n );
 
         /**
          * Execute any pending State (exit, entry, handle) programs.
@@ -282,7 +449,7 @@ namespace ORO_Execution
          *        condition \a cnd
          */
         void transitionSet( StateInterface* from, StateInterface* to,
-                            ConditionInterface* cnd, ProgramInterface* transprog,
+                            ConditionInterface* cnd, boost::shared_ptr<ProgramInterface> transprog,
                             int priority, int line);
 
         /**
@@ -307,8 +474,9 @@ namespace ORO_Execution
         bool createEventTransition( EventService* es,
                                     const std::string& ename, std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> args,
                                     StateInterface* from, StateInterface* to,
-                                    ConditionInterface* guard, ProgramInterface* transprog,
-                                    StateInterface* elseto = 0, ProgramInterface* elseprog = 0 );
+                                    ConditionInterface* guard, boost::shared_ptr<ProgramInterface> transprog,
+                                    StateInterface* elseto = 0, boost::shared_ptr<ProgramInterface> elseprog =
+                                    boost::shared_ptr<ProgramInterface>() );
 
         /**
          * Set the initial state of this StateMachine.
@@ -366,12 +534,12 @@ namespace ORO_Execution
         /**
          * Get the parent, returns zero if no parent.
          */
-        StateMachine* getParent() const
+        StateMachinePtr getParent() const
         {
-            return _parent;
+            return _parent.lock();
         }
 
-        void setParent(StateMachine* parent)
+        void setParent(StateMachinePtr parent)
         {
             _parent = parent;
         }
@@ -384,7 +552,7 @@ namespace ORO_Execution
             return _children;
         }
 
-        void addChild( StateMachine* child ) {
+        void addChild( StateMachinePtr child ) {
             _children.push_back( child );
         }
 
@@ -421,6 +589,7 @@ namespace ORO_Execution
          * currently executed.
          */ 
         bool interruptible() const;
+
     protected:
         /**
          * A map keeping track of all States and conditional transitions
@@ -502,8 +671,7 @@ namespace ORO_Execution
 
         std::pair<PreConditionMap::const_iterator,PreConditionMap::const_iterator> prec_it;
         bool checking_precond;
-
-        bool error;
+        bool mstep;
 
         int evaluating;
     }; 

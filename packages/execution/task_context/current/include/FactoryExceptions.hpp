@@ -37,6 +37,10 @@
  */
 namespace ORO_Execution
 {
+    /**
+     * Exception thrown when a factory is requested to 
+     * create an object with an unknown name.
+     */
     struct name_not_found_exception 
         : public std::exception
   {
@@ -47,6 +51,10 @@ namespace ORO_Execution
       virtual const char* what() const throw();
   };
 
+    /**
+     * Exception thrown when a factory is requested to 
+     * create an object but the wrong number of arguments was given.
+     */
   struct wrong_number_of_args_exception
       : public std::exception
   {
@@ -58,6 +66,10 @@ namespace ORO_Execution
       virtual const char* what() const throw();
   };
 
+    /**
+     * Exception thrown when a factory is requested to 
+     * create an object, but a wrong argument type was given.
+     */
   struct wrong_types_of_args_exception
       : public std::exception
   {
@@ -72,6 +84,12 @@ namespace ORO_Execution
       virtual const char* what() const throw();
   };
 
+    /**
+     * Exception thrown when a factory is requested to 
+     * create an object, and one of the arguments needed to
+     * be an lvalue (AssignableDataSource) and an rvalue
+     * (plain DataSource) was given.
+     */
   struct non_lvalue_args_exception
       : public std::exception
   {

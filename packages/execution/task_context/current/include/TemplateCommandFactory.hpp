@@ -90,17 +90,24 @@ namespace ORO_Execution
     : public CommandInterface
   {
       FunctorT fun;
-      typename DataSource<CompT*>::shared_ptr ds;
+      typedef boost::weak_ptr<CompT> CompW;
+      typedef boost::shared_ptr<CompT> CompS;
+      typename DataSource<CompW>::shared_ptr ds;
   public:
-      FunctorCommandDS( DataSource<CompT*>* c, FunctorT f )
+      FunctorCommandDS( DataSource<CompW>* c, FunctorT f )
           : fun( f ), ds(c)
       {
       }
     bool execute()
       {
           // the Component pointer is stored in a DataSource
-          CompT* comp =  ds->get();
-          return fun( comp );
+          CompS c = ds->get().lock();
+          if (c) {
+              CompT* ct = c.get();
+              return fun( ct );
+          } else {
+              return false; // destroyed.
+          }
       }
 
       virtual CommandInterface* clone() const
@@ -163,17 +170,21 @@ namespace ORO_Execution
   {
       FunctorT fun;
       typename DataSource<Arg1T>::shared_ptr aa;
-      typename DataSource<CompT*>::shared_ptr ds;
+      typename DataSource<boost::weak_ptr<CompT> >::shared_ptr ds;
   public:
-      FunctorCommandDS1( DataSource<CompT*>* c, FunctorT f, DataSource<Arg1T>* a )
+      FunctorCommandDS1( DataSource<boost::weak_ptr<CompT> >* c, FunctorT f, DataSource<Arg1T>* a )
         : fun( f ), aa( a ), ds(c)
       {
       };
       bool execute()
       {
         Arg1T a = aa->get();
-        CompT* comp =  ds->get();
-        return fun( comp, a );
+        boost::shared_ptr<CompT> c =  ds->get().lock();
+        if (c){
+            CompT* ct = c.get();
+            return fun( ct, a );
+        } else
+            return false;
       };
       void reset()
       {
@@ -286,14 +297,14 @@ namespace ORO_Execution
 
   template<typename CompT, typename FunctorT>
   FunctorCommandDS<CompT, FunctorT>*
-  newFunctorCommand( DataSource<CompT*>* c, FunctorT f )
+  newFunctorCommand( DataSource< boost::weak_ptr<CompT> >* c, FunctorT f )
   {
     return new FunctorCommandDS<CompT, FunctorT>(c, f );
   };
 
   template<typename CompT, typename FunctorT, typename Arg1T>
   FunctorCommandDS1<CompT, FunctorT, Arg1T>*
-  newFunctorCommand( DataSource<CompT*>* c, FunctorT f, DataSource<Arg1T>* a )
+  newFunctorCommand( DataSource<boost::weak_ptr<CompT> >* c, FunctorT f, DataSource<Arg1T>* a )
   {
     return new FunctorCommandDS1<CompT, FunctorT, Arg1T>(c, f, a );
   };
@@ -556,7 +567,7 @@ namespace ORO_Execution
       };
 
     template<typename ComponentT >
-    CommandInterface* operator()( DataSource<ComponentT*>* c ) const
+    CommandInterface* operator()( DataSource<boost::weak_ptr<ComponentT> >* c ) const
       {
         return newFunctorCommand( c, f );
       };
@@ -565,7 +576,7 @@ namespace ORO_Execution
        * DataSource arguments Generators.
        */
     template<typename ComponentT, typename Arg1T >
-    CommandInterface* operator()( DataSource<ComponentT*>* c, DataSource<Arg1T>* a ) const
+    CommandInterface* operator()( DataSource<boost::weak_ptr<ComponentT> >* c, DataSource<Arg1T>* a ) const
       {
         return newFunctorCommand( c, f, a );
       };
@@ -605,7 +616,7 @@ namespace ORO_Execution
       };
 
     template<typename ComponentT, typename Arg1T>
-    CommandInterface* operator()( DataSource<ComponentT*>* c, Arg1T a ) const
+    CommandInterface* operator()( DataSource<boost::weak_ptr<ComponentT> >* c, Arg1T a ) const
       {
         return newFunctorCommand( c, boost::bind( f, _1, a ) );
       };
@@ -673,18 +684,22 @@ namespace ORO_Execution
     : public ConditionInterface
   {
       FunctorT fun;
-      typename DataSource<CompT*>::shared_ptr ds;
+      typename DataSource< boost::weak_ptr<CompT> >::shared_ptr ds;
       bool invert;
   public:
-    FunctorConditionDS( DataSource<CompT*>* c, FunctorT f, bool _invert )
+    FunctorConditionDS( DataSource<boost::weak_ptr<CompT> >* c, FunctorT f, bool _invert )
         : fun( f ), ds(c), invert(_invert)
       {
       }
     bool evaluate()
       {
           // logical XOR :
-          CompT* comp = ds->get();
-          return fun( comp ) != invert;
+          boost::shared_ptr<CompT> c = ds->get().lock();
+          if (c){
+              CompT* ct = c.get();
+              return fun( ct ) != invert;
+          } else
+              return false;
       }
     ConditionInterface* clone() const
       {
@@ -705,20 +720,24 @@ namespace ORO_Execution
     : public ConditionInterface
   {
       FunctorT fun;
-      typename DataSource<CompT*>::shared_ptr ds;
+      typename DataSource<boost::weak_ptr<CompT> >::shared_ptr ds;
       typename DataSource<Arg1T>::shared_ptr aa;
       bool invert;
   public:
-    FunctorConditionDS1( DataSource<CompT*>* c, FunctorT f, DataSource<Arg1T>* a, bool _invert )
+    FunctorConditionDS1( DataSource<boost::weak_ptr<CompT> >* c, FunctorT f, DataSource<Arg1T>* a, bool _invert )
         : fun( f ), ds(c), aa(a), invert(_invert)
       {
       }
     bool evaluate()
       {
           Arg1T a =  aa->get();
-          CompT* comp = ds->get();
+          boost::shared_ptr<CompT> c = ds->get().lock();
           // logical XOR :
-          return fun( comp, a ) != invert;
+          if (c) {
+              CompT* ct = c.get();
+              return fun( ct, a ) != invert;
+          } else
+              return false;
       }
     ConditionInterface* clone() const
       {
@@ -845,7 +864,7 @@ namespace ORO_Execution
   };
 
   template<typename CompT, typename FunctorT>
-  ConditionInterface* newFunctorCondition( DataSource<CompT*>* c, FunctorT fun, bool _invert )
+  ConditionInterface* newFunctorCondition( DataSource<boost::weak_ptr<CompT> >* c, FunctorT fun, bool _invert )
   {
     return new FunctorConditionDS<CompT, FunctorT>(c, fun, _invert );
   };
@@ -858,7 +877,7 @@ namespace ORO_Execution
   };
 
   template<typename CompT, typename FunctorT, typename Arg1T>
-  ConditionInterface* newFunctorCondition( DataSource<CompT*>* c, FunctorT fun, DataSource<Arg1T>* a, bool _invert )
+  ConditionInterface* newFunctorCondition( DataSource<boost::weak_ptr<CompT> >* c, FunctorT fun, DataSource<Arg1T>* a, bool _invert )
   {
     return new FunctorConditionDS1<CompT, FunctorT, Arg1T>(c, fun, a,  _invert );
   };
@@ -906,7 +925,7 @@ namespace ORO_Execution
       };
 
     template<typename ComponentT>
-    ConditionInterface* operator()( DataSource<ComponentT*>* comp ) const
+    ConditionInterface* operator()( DataSource<boost::weak_ptr<ComponentT> >* comp ) const
       {
         return newFunctorCondition( comp, fun, invert );
       };
@@ -915,7 +934,7 @@ namespace ORO_Execution
        * DataSource Arguments Generator.
        */
     template<typename ComponentT, typename Arg1T>
-    ConditionInterface* operator()( DataSource<ComponentT*>* comp, DataSource<Arg1T>* a ) const
+    ConditionInterface* operator()( DataSource<boost::weak_ptr<ComponentT> >* comp, DataSource<Arg1T>* a ) const
       {
         return newFunctorCondition( comp, fun, a, invert );
       };
@@ -951,7 +970,7 @@ namespace ORO_Execution
       };
 
     template<typename ComponentT, typename Arg1T>
-    ConditionInterface* operator()( DataSource<ComponentT*>* comp, Arg1T a ) const
+    ConditionInterface* operator()( DataSource<boost::weak_ptr<ComponentT> >* comp, Arg1T a ) const
       {
         return newFunctorCondition( comp, boost::bind( fun, _1, a ), invert );
       };
@@ -1017,7 +1036,7 @@ namespace ORO_Execution
 
   // store the Component in a DataSource too !
   template<typename ComponentT>
-  detail::TemplateFactoryPart< DataSource<ComponentT* >, ComCon>*
+  detail::TemplateFactoryPart< DataSource< boost::weak_ptr<ComponentT> >, ComCon>*
   command_ds( bool (ComponentT::*comf)(), bool (ComponentT::*conf)() const,
            const char* desc , bool _invert = false)
   {
@@ -1029,7 +1048,7 @@ namespace ORO_Execution
   };
 
   template<typename ComponentT, typename Arg1T>
-  detail::TemplateFactoryPart< DataSource<ComponentT* >, ComCon>*
+  detail::TemplateFactoryPart< DataSource<boost::weak_ptr<ComponentT> >, ComCon>*
   command_ds( bool (ComponentT::*comf)(Arg1T),
               bool (ComponentT::*conf)(Arg1T) const,
               const char* desc , const char* arg1name, const char* arg1desc, bool _invert = false)
@@ -1042,7 +1061,7 @@ namespace ORO_Execution
   };
 
   template<typename ComponentT, typename Arg1T>
-  detail::TemplateFactoryPart< DataSource<ComponentT* >, ComCon>*
+  detail::TemplateFactoryPart< DataSource<boost::weak_ptr<ComponentT> >, ComCon>*
   command_ds( bool (ComponentT::*comf)(Arg1T),
               bool (ComponentT::*conf)() const,
               const char* desc , const char* arg1name, const char* arg1desc, bool _invert = false)
@@ -1304,10 +1323,10 @@ namespace ORO_Execution
      * Specialisation where Component is stored in a DataSource
      */
   template<typename ComponentT>
-  TemplateCommandFactory< DataSource<ComponentT*> >*
-  newCommandFactory( DataSource<ComponentT*>* comp )
+  TemplateCommandFactory< DataSource<boost::weak_ptr<ComponentT> > >*
+  newCommandFactory( DataSource<boost::weak_ptr<ComponentT> >* comp )
   {
-    return new TemplateCommandFactory< DataSource<ComponentT*> >( comp );
+    return new TemplateCommandFactory< DataSource<boost::weak_ptr<ComponentT> > >( comp );
   };
 }
 

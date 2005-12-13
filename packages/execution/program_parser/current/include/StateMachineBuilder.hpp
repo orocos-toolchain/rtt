@@ -27,10 +27,9 @@
 
 #include <map>
 #include <string>
+#include "ParsedStateMachine.hpp"
 
 namespace ORO_Execution {
-
-    class ParsedStateMachine;
 
     namespace detail {
 
@@ -48,17 +47,17 @@ namespace ORO_Execution {
     {
     public:
         StateMachineBuilder(
-            ParsedStateMachine* templatecontext );
+            ParsedStateMachinePtr templatecontext );
 
         ~StateMachineBuilder();
 
         /**
          * Throws wrong_context_params_exception if params is wrong...
          */
-        ParsedStateMachine* build( bool instantiate );
+        ParsedStateMachinePtr build( bool instantiate );
 
-        ParsedStateMachine* item() { return templatecontext; }
+        ParsedStateMachinePtr item() { return templatecontext; }
     private:
-        ParsedStateMachine* templatecontext;
+        ParsedStateMachinePtr templatecontext;
     };
 }}

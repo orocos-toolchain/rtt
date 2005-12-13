@@ -125,19 +125,27 @@ namespace ORO_Execution
     class FunctorDataSourceDS0
       : public DataSource< typename FunctorT::result_type >
     {
-      typename DataSource<ComponentT*>::shared_ptr ds;
-      mutable FunctorT gen;
-    typedef typename FunctorT::result_type value_t;
     public:
-      FunctorDataSourceDS0(DataSource<ComponentT*>*c, FunctorT g )
+        typedef typename FunctorT::result_type value_t;
+        typedef typename DataSource<value_t>::value_t plain_t;
+    private:
+        typename DataSource<boost::weak_ptr<ComponentT> >::shared_ptr ds;
+        mutable FunctorT gen;
+        static plain_t empty_return;
+    public:
+      FunctorDataSourceDS0(DataSource<boost::weak_ptr<ComponentT> >*c, FunctorT g )
         : ds(c), gen( g )
         {
         }
 
       value_t get() const
         {
-            ComponentT* c = ds->get(); 
-            return gen( c );
+            boost::shared_ptr<ComponentT> c = ds->get().lock();
+            if(c) {
+                ComponentT* ct = c.get();
+                return gen( ct );
+            }else
+                return empty_return;
         }
 
         virtual DataSource<value_t>* clone() const
@@ -149,26 +157,38 @@ namespace ORO_Execution
           return new FunctorDataSourceDS0<ComponentT, FunctorT>( ds->copy(alreadyCloned),  gen );
         }
     };
+        // static empty return type.
+        template<typename ComponentT, typename FunctorT>
+        typename FunctorDataSourceDS0<ComponentT, FunctorT>::plain_t
+        FunctorDataSourceDS0<ComponentT, FunctorT>::empty_return;
 
   template<typename ComponentT, typename FunctorT, typename Arg1T>
   class FunctorDataSourceDS1
       : public DataSource< typename FunctorT::result_type >
   {
-      typename DataSource<ComponentT*>::shared_ptr ds;
-      mutable FunctorT gen;
-    typedef typename FunctorT::result_type value_t;
-      typename DataSource<Arg1T>::shared_ptr arg1;
   public:
-    FunctorDataSourceDS1(DataSource<ComponentT*>* c, FunctorT g, DataSource<Arg1T>* a1 )
+    typedef typename FunctorT::result_type value_t;
+    typedef typename DataSource<value_t>::value_t plain_t;
+  private:
+      typename DataSource<boost::weak_ptr<ComponentT> >::shared_ptr ds;
+      mutable FunctorT gen;
+      typename DataSource<Arg1T>::shared_ptr arg1;
+      static plain_t empty_return;
+  public:
+    FunctorDataSourceDS1(DataSource<boost::weak_ptr<ComponentT> >* c, FunctorT g, DataSource<Arg1T>* a1 )
       : ds(c), gen( g ), arg1( a1 )
       {
-      };
+      }
 
     value_t get() const
       {
         Arg1T a = arg1->get();
-        ComponentT* c = ds->get(); 
-        return gen( c, a );
+        boost::shared_ptr<ComponentT> c = ds->get().lock(); 
+        if (c) {
+            ComponentT* ct = c.get();
+            return gen( ct, a );
+        } else
+            return empty_return;
       }
 
     virtual DataSource<value_t>* clone() const
@@ -180,6 +200,10 @@ namespace ORO_Execution
         return new FunctorDataSourceDS1<ComponentT, FunctorT, Arg1T>( ds->copy(alreadyCloned),  gen, arg1->copy( alreadyCloned ) );
       }
   };
+        // static empty return type.
+        template<typename ComponentT, typename FunctorT, typename A>
+        typename FunctorDataSourceDS1<ComponentT, FunctorT, A>::plain_t
+        FunctorDataSourceDS1<ComponentT, FunctorT, A>::empty_return;
 
   template<typename FunctorT, typename Arg1T, typename Arg2T>
   class FunctorDataSource2
@@ -311,14 +335,14 @@ namespace ORO_Execution
 
   template<typename CompT, typename FunctorT>
   DataSource<typename FunctorT::result_type>*
-  newFunctorDataSource( DataSource<CompT*>* c, FunctorT g )
+  newFunctorDataSource( DataSource<boost::weak_ptr<CompT> >* c, FunctorT g )
   {
     return new FunctorDataSourceDS0<CompT, FunctorT>(c, g );
   };
 
   template<typename CompT, typename FunctorT, typename Arg1T>
   DataSource<typename FunctorT::result_type>*
-  newFunctorDataSource( DataSource<CompT*>* c,  FunctorT g, DataSource<Arg1T>* a )
+  newFunctorDataSource( DataSource<boost::weak_ptr<CompT> >* c,  FunctorT g, DataSource<Arg1T>* a )
   {
     return new FunctorDataSourceDS1<CompT, FunctorT, Arg1T>(c, g, a );
   };
@@ -412,7 +436,7 @@ namespace ORO_Execution
       : fun( f )
       {
       }
-    DataSource<ResultT>* operator()( DataSource<ComponentT*>* c) const
+    DataSource<ResultT>* operator()( DataSource<boost::weak_ptr<ComponentT> >* c) const
       {
         return newFunctorDataSource( c, boost::bind( fun, _1 ) );
       }
@@ -429,11 +453,11 @@ namespace ORO_Execution
       : fun( f )
       {
       }
-    DataSource<ResultT>* operator()( DataSource<ComponentT*>* c, Arg1T a ) const
+    DataSource<ResultT>* operator()( DataSource<boost::weak_ptr<ComponentT> >* c, Arg1T a ) const
       {
         return newFunctorDataSource( c, boost::bind( fun, _1, a ) );
       }
-    DataSource<ResultT>* operator()( DataSource<ComponentT*>* c, DataSource<Arg1T>* a ) const
+    DataSource<ResultT>* operator()( DataSource<boost::weak_ptr<ComponentT> >* c, DataSource<Arg1T>* a ) const
       {
         return newFunctorDataSource( c, boost::bind( fun, _1, _2 ), a );
       }
@@ -734,7 +758,7 @@ namespace ORO_Execution
   };
 
   template<typename ComponentT, typename ResultT>
-  detail::TemplateFactoryPart< DataSource<typename detail::CompType<ComponentT>::type*>,
+  detail::TemplateFactoryPart< DataSource<boost::weak_ptr<typename detail::CompType<ComponentT>::type> >,
                       DataSourceBase*>*
   MEMBER_DS( ResultT (ComponentT::*fun)() const, const char* desc)
   {
@@ -746,7 +770,7 @@ namespace ORO_Execution
   };
 
   template<typename ComponentT, typename ResultT, typename Arg1T>
-  detail::TemplateFactoryPart< DataSource<typename detail::CompType<ComponentT>::type*>,
+  detail::TemplateFactoryPart< DataSource<boost::weak_ptr<typename detail::CompType<ComponentT>::type> >,
                       DataSourceBase*>*
   MEMBER_DS( ResultT (ComponentT::*fun)( Arg1T ) const, const char* desc,
         const char* a1n, const char* a1d )
@@ -845,7 +869,7 @@ namespace ORO_Execution
   };
 
   template<typename ComponentT, typename ResultT>
-  detail::TemplateFactoryPart< DataSource<typename detail::CompType<ComponentT>::type*>,
+  detail::TemplateFactoryPart< DataSource<boost::weak_ptr<typename detail::CompType<ComponentT>::type> >,
                       DataSourceBase*>*
   MEMBER_DS( ResultT (ComponentT::*fun)() , const char* desc)
   {
@@ -857,7 +881,7 @@ namespace ORO_Execution
   };
 
   template<typename ComponentT, typename ResultT, typename Arg1T>
-  detail::TemplateFactoryPart< DataSource<typename detail::CompType<ComponentT>::type*>,
+  detail::TemplateFactoryPart< DataSource<boost::weak_ptr<typename detail::CompType<ComponentT>::type> >,
                       DataSourceBase*>*
   MEMBER_DS( ResultT (ComponentT::*fun)( Arg1T ) , const char* desc,
         const char* a1n, const char* a1d )

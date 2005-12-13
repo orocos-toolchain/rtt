@@ -3,11 +3,15 @@
 
 #include <corelib/RunnableInterface.hpp>
 #include <corelib/TaskInterface.hpp>
-#include <execution/Processor.hpp>
+#include <execution/CommandProcessor.hpp>
+#include <execution/ProgramProcessor.hpp>
+#include <execution/StateMachineProcessor.hpp>
 
+namespace ORO_OS {
+    class Semaphore;
+}
 namespace ORO_Execution
 {
-
     /**
      * An execution engine serialises the execution of all commands, programs,
      * state machines and incomming events for a task.
@@ -18,54 +22,76 @@ namespace ORO_Execution
         : public ORO_CoreLib::RunnableInterface
     {
     protected:
-        bool cproc_owner, pproc_owner, smproc_owner;
+        ORO_OS::Semaphore* work_sem;
+        ORO_OS::Semaphore* loop_sem;
+        TaskContext*     taskc;
+        ExecutionEngine* mainee;
 
-        // to be replaced by classes 'CommandProcessor','ProgramProcessor', and 'StateMachineProcessor'.
-        Processor* cproc;
-        Processor* pproc;
-        Processor* smproc;
+        CommandProcessor* cproc;
+        ProgramProcessor* pproc;
+        StateMachineProcessor* smproc;
+        ORO_CoreLib::EventProcessor* eproc;
 
+        std::vector<ExecutionEngine*> children;
+
+        bool eerun;
     public:
         /**
          * Create an execution engine with a CommandProcessor, ProgramProcessor 
          * and StateMachineProcessor. The EventProcessor is the event processor
-         * of this task. If you provide \a cp, \a pp or \a smp, the given Processors
-         * will not be executed by this ExecutionEngine and it is assumed that they
-         * are under control of an external ExecutionEngine. If none is provided,
-         * they are internally created, managed and executed.
+         * of this task. If you provide another ExecutionEngine as argument,
+         * this execution engine delegates all requests to that execution engine
+         * and does itself nothing.
          */
-        ExecutionEngine( Processor* cp = 0, Processor* pp = 0, Processor* smp = 0 );
+        ExecutionEngine( TaskContext* owner, ExecutionEngine* other_ee = 0 );
         
         ~ExecutionEngine();
 
         virtual bool initialize();
 
         virtual void step();
+        virtual void loop();
+        virtual bool breakLoop();
 
         virtual void finalize();
 
         virtual void setTask(ORO_CoreLib::TaskInterface* t);
 
-        Processor* getCommandProcessor() const {
-            return cproc;
+        ExecutionEngine* getParent();
+
+        TaskContext* getTaskContext() { return taskc; }
+
+        void reparent(ExecutionEngine* new_parent);
+
+        CommandProcessor* commands() const {
+            return mainee ? mainee->getCommandProcessor() : cproc;
         }
 
-        Processor* getProgramProcessor() const {
-            return pproc;
+        ProgramProcessor* programs() const {
+            return mainee ? mainee->getProgramProcessor() : pproc;
         }
 
-        Processor* getStateMachineProcessor() const {
-            return smproc;
+        StateMachineProcessor* states() const {
+            return mainee ? mainee->getStateMachineProcessor() : smproc;
         }
 
-        void setCommandProcessor(Processor* cp);
+        ORO_CoreLib::EventProcessor* events() const;
 
-        void setProgramProcessor(Processor* pp);
+        CommandProcessor* getCommandProcessor() const {
+            return mainee ? mainee->getCommandProcessor() : cproc;
+        }
 
-        void setStateMachineProcessor(Processor* smp);
+        ProgramProcessor* getProgramProcessor() const {
+            return mainee ? mainee->getProgramProcessor() : pproc;
+        }
+
+        StateMachineProcessor* getStateMachineProcessor() const {
+            return mainee ? mainee->getStateMachineProcessor() : smproc;
+        }
 
         ORO_CoreLib::EventProcessor* getEventProcessor() const;
-};
+
+    };
 
 }
 #endif

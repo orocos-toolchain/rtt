@@ -38,14 +38,13 @@
 #include "execution/StateMachineBuilder.hpp"
 #include "execution/DataSourceFactory.hpp"
 #include "execution/TaskContext.hpp"
+#include "execution/StateMachineTask.hpp"
 #include "execution/mystd.hpp"
 
-#include "execution/Processor.hpp"
 #include "execution/CommandComposite.hpp"
 #include "corelib/ConditionTrue.hpp"
 #include "corelib/ConditionInvert.hpp"
 #include "execution/StateDescription.hpp"
-#include "execution/ProgramGraph.hpp"
 #include "execution/ParsedStateMachine.hpp"
 
 #include <iostream>
@@ -96,17 +95,15 @@ namespace ORO_Execution
           curcontext( 0 ),
           mpositer( positer ),
           ln_offset(0),
-          curtemplatecontext( 0 ),
-          curinstantiatedcontext( 0 ),
+          curtemplate(),
+          curinstantiatedcontext(),
           curcontextbuilder( 0 ),
           curinitialstateflag( false ),
           curfinalstateflag( false ),
           curstate( 0 ),
           curnonprecstate( 0 ),
           progParser( 0 ),
-          transProgram( 0 ),
           elsestate(0),
-          elseProgram(0),
           curcondition( 0 ),
           isroot(false),
           selectln(0),
@@ -291,10 +288,10 @@ namespace ORO_Execution
         assert( !curstate );
 
         std::string def(s, f);
-        if ( curtemplatecontext->getState( def ) != 0 )
+        if ( curtemplate->getState( def ) != 0 )
         {
-            assert( dynamic_cast<StateDescription*>( curtemplatecontext->getState( def ) ) );
-            StateDescription* existingstate = static_cast<StateDescription*>( curtemplatecontext->getState( def ) );
+            assert( dynamic_cast<StateDescription*>( curtemplate->getState( def ) ) );
+            StateDescription* existingstate = static_cast<StateDescription*>( curtemplate->getState( def ) );
             if ( existingstate->isDefined() )
                 throw parse_exception_semantic_error("state " + def + " redefined.");
             else
@@ -303,8 +300,8 @@ namespace ORO_Execution
         }
         else
         {
-            curstate = new StateDescription(def, mpositer.get_position().line - ln_offset ); // create an empty state
-            curtemplatecontext->addState( curstate );
+            curstate = new StateDescription(def, curtemplate->getTaskContext()->engine()->programs(), mpositer.get_position().line - ln_offset ); // create an empty state
+            curtemplate->addState( curstate );
         }
 
     }
@@ -313,15 +310,15 @@ namespace ORO_Execution
     {
         if ( curinitialstateflag )
         {
-            if ( curtemplatecontext->getInitialState() )
+            if ( curtemplate->getInitialState() )
                 throw parse_exception_semantic_error( "Attempt to define more than one initial state." );
-            else curtemplatecontext->setInitialState( curstate );
+            else curtemplate->setInitialState( curstate );
         }
         if ( curfinalstateflag )
         {
-            if ( curtemplatecontext->getFinalState() )
+            if ( curtemplate->getFinalState() )
                 throw parse_exception_semantic_error( "Attempt to define more than one final state." );
-            else curtemplatecontext->setFinalState( curstate );
+            else curtemplate->setFinalState( curstate );
         }
 
         assert( curstate );
@@ -344,7 +341,7 @@ namespace ORO_Execution
         programBody = progParser->bodyParser();
     }
 
-    FunctionGraph* StateGraphParser::finishProgram()
+    ProgramInterfacePtr StateGraphParser::finishProgram()
     {
         return progParser->bodyParserResult();
     }
@@ -380,12 +377,14 @@ namespace ORO_Execution
     void StateGraphParser::seentransprog()
     {
         transProgram = finishProgram();
+        transProgram->setProgramProcessor(curtemplate->getTaskContext()->engine()->programs());
     }
 
     void StateGraphParser::seenelseprog()
     {
         // reuse transProgram to store else progr. See seenselect().
         transProgram = finishProgram();
+        transProgram->setProgramProcessor(curtemplate->getTaskContext()->engine()->programs());
     }
 
     void StateGraphParser::seenelse()
@@ -427,14 +426,14 @@ namespace ORO_Execution
     {
         std::string state_id(s,f);
         StateInterface* next_state;
-        if ( curtemplatecontext->getState( state_id ) != 0 )
+        if ( curtemplate->getState( state_id ) != 0 )
         {
-            next_state = curtemplatecontext->getState( state_id );
+            next_state = curtemplate->getState( state_id );
         }
         else
         {
-            next_state = new StateDescription(state_id, 1); // create an empty state
-            curtemplatecontext->addState( next_state );
+            next_state = new StateDescription(state_id,curtemplate->getTaskContext()->engine()->programs(), 1); // create an empty state
+            curtemplate->addState( next_state );
         }
         assert( next_state );
 
@@ -446,17 +445,17 @@ namespace ORO_Execution
             if ( selectln == 0)
                 selectln = mpositer.get_position().line - ln_offset;
 //             if ( elsestate != 0)
-//                 curtemplatecontext->transitionSet( curstate, next_state, curcondition->clone(), transProgram, elsestate, elseProgram, rank--, selectln );
+//                 curtemplate->transitionSet( curstate, next_state, curcondition->clone(), transProgram, elsestate, elseProgram, rank--, selectln );
 //             else
-            curtemplatecontext->transitionSet( curstate, next_state, curcondition->clone(), transProgram, rank--, selectln );
+            curtemplate->transitionSet( curstate, next_state, curcondition->clone(), transProgram, rank--, selectln );
         } else {
             bool res;
 //             if ( elsestate != 0)
-//                 res = curtemplatecontext->createEventTransition( &(peer->eventService), evname, evargs, curstate, next_state, curcondition->clone(), transProgram, elsestate, elseProgram );
+//                 res = curtemplate->createEventTransition( &(peer->eventService), evname, evargs, curstate, next_state, curcondition->clone(), transProgram, elsestate, elseProgram );
 //             else
-            res = curtemplatecontext->createEventTransition( &(peer->eventService), evname, evargs, curstate, next_state, curcondition->clone(), transProgram );
+            res = curtemplate->createEventTransition( &(peer->eventService), evname, evargs, curstate, next_state, curcondition->clone(), transProgram );
             elsestate = 0;
-            elseProgram = 0;
+            elseProgram.reset();
             if (res == false)
                 throw parse_exception_fatal_semantic_error("In state "+curstate->getName()+": Event "+evname+" not found in Task "+peer->getName() );
         }
@@ -466,7 +465,7 @@ namespace ORO_Execution
         delete curcondition;
         curcondition = 0;
         selectln = 0;
-        transProgram = 0;
+        transProgram.reset();
     }
 
     void StateGraphParser::seeneventtrans() {
@@ -483,7 +482,7 @@ namespace ORO_Execution
         conditionparser->reset();
         selectln = mpositer.get_position().line - ln_offset;
 
-        curtemplatecontext->preconditionSet(curstate, curcondition, selectln );
+        curtemplate->preconditionSet(curstate, curcondition, selectln );
         selectln = 0;
         curcondition = 0;
     }
@@ -491,54 +490,54 @@ namespace ORO_Execution
 
     void StateGraphParser::seenstatecontextend()
     {
-        assert( curtemplatecontext );
+        assert( curtemplate );
         assert( ! curstate );
 
         // Check if the Initial and Final States are ok.
-        if ( curtemplatecontext->getInitialState() == 0 )
+        if ( curtemplate->getInitialState() == 0 )
             throw parse_exception_semantic_error("No initial state defined.");
-        if ( curtemplatecontext->getFinalState() == 0 )
+        if ( curtemplate->getFinalState() == 0 )
             throw parse_exception_semantic_error("No final state defined.");
 
-        if ( curtemplatecontext->getStateList().empty() )
+        if ( curtemplate->getStateList().empty() )
             throw parse_exception_semantic_error("No states defined in this state context !");
 
         // Check if all States are defined.
-        vector<string> states = curtemplatecontext->getStateList();
+        vector<string> states = curtemplate->getStateList();
         for( vector<string>::const_iterator it = states.begin(); it != states.end(); ++it)
         {
-            assert( dynamic_cast<StateDescription*>( curtemplatecontext->getState( *it ) ) );
-            StateDescription* sd = static_cast<StateDescription*>( curtemplatecontext->getState( *it ) );
+            assert( dynamic_cast<StateDescription*>( curtemplate->getState( *it ) ) );
+            StateDescription* sd = static_cast<StateDescription*>( curtemplate->getState( *it ) );
             if ( !sd->isDefined() )
                 throw parse_exception_semantic_error("State " + *it + " not defined, but referenced to.");
         }
 
         // prepend the commands for initialising the subMachine
         // variables..
-        assert( curtemplatecontext->getInitCommand() == 0);
+        assert( curtemplate->getInitCommand() == 0);
         if ( varinitcommands.size() > 1 )
             {
                 CommandComposite* comcom = new CommandComposite;
                 for ( std::vector<CommandInterface*>::iterator i = varinitcommands.begin();
                       i != varinitcommands.end(); ++i )
                     comcom->add( *i );
-                curtemplatecontext->setInitCommand( comcom );
+                curtemplate->setInitCommand( comcom );
             }
         else if (varinitcommands.size() == 1 )
-            curtemplatecontext->setInitCommand( *varinitcommands.begin() );
+            curtemplate->setInitCommand( *varinitcommands.begin() );
 
         varinitcommands.clear();
 
         // remove temporary subMachine peers from current task.
-        for( StateMachine::ChildList::const_iterator it= curtemplatecontext->getChildren().begin();
-             it != curtemplatecontext->getChildren().end(); ++it ) {
-            ParsedStateMachine* psc = dynamic_cast<ParsedStateMachine*>( *it );
+        for( StateMachine::ChildList::const_iterator it= curtemplate->getChildren().begin();
+             it != curtemplate->getChildren().end(); ++it ) {
+            ParsedStateMachine* psc = dynamic_cast<ParsedStateMachine*>( it->get() );
             if (psc)
                 context->removePeer( psc->getTaskContext()->getName() );
         }
 
         // finally : 
-        curtemplatecontext->finish();
+        curtemplate->finish();
 
         delete progParser;
         progParser = 0;
@@ -549,15 +548,15 @@ namespace ORO_Execution
         expressionparser->setStack(context);
         conditionparser->setStack(context);
 
-        StateMachineBuilder* scb = new StateMachineBuilder( curtemplatecontext );
+        StateMachineBuilder* scb = new StateMachineBuilder( curtemplate );
         contextbuilders[curcontextname] = scb;
 
         // save curcontextname for saveText.
         curcontext = 0;
-        curtemplatecontext = 0;
+        curtemplate.reset();
     }
 
-    std::vector<ParsedStateMachine*> StateGraphParser::parse( iter_t& begin, iter_t end )
+    std::vector<ParsedStateMachinePtr> StateGraphParser::parse( iter_t& begin, iter_t end )
     {
         skip_parser_t skip_parser = SKIP_PARSER;
         iter_pol_t iter_policy( skip_parser );
@@ -580,7 +579,7 @@ namespace ORO_Execution
                     mpositer.get_position().file, mpositer.get_position().line,
                     mpositer.get_position().column );
             }
-            std::vector<ParsedStateMachine*> ret = ORO_std::values( rootcontexts );
+            std::vector<ParsedStateMachinePtr> ret = ORO_std::values( rootcontexts );
             rootcontexts.clear();
             return ret;
         }
@@ -633,8 +632,8 @@ namespace ORO_Execution
         // so make sure it is set correctly again (I hate this global variable approach, it should be a member of commonparser !)
         eol_skip_functor::skipeol = true;
         selectln = 0;
-        delete transProgram;
-        transProgram = 0;
+        transProgram.reset();
+        elseProgram.reset();
         delete argsparser;
         argsparser = 0;
         delete curcondition;
@@ -645,29 +644,27 @@ namespace ORO_Execution
         curnonprecstate = 0;
         // we own curcontextbuilder, but not through this pointer...
         curcontextbuilder = 0;
-        delete curinstantiatedcontext;
-        curinstantiatedcontext = 0;
+        curinstantiatedcontext.reset();
         // If non null, there was a parse-error, undo all :
-        if ( curtemplatecontext )
+        if ( curtemplate )
         {
           // remove all 'this' data factories
-          curtemplatecontext->getTaskContext()->dataFactory.unregisterObject( "this" );
-          curtemplatecontext->getTaskContext()->methodFactory.unregisterObject( "this" );
+          curtemplate->getTaskContext()->dataFactory.unregisterObject( "this" );
+          curtemplate->getTaskContext()->methodFactory.unregisterObject( "this" );
 
           // remove temporary subMachine peers from current task.
-          for( StateMachine::ChildList::const_iterator it= curtemplatecontext->getChildren().begin();
-               it != curtemplatecontext->getChildren().end(); ++it ) {
-              ParsedStateMachine* psc = dynamic_cast<ParsedStateMachine*>( *it );
+          for( StateMachine::ChildList::const_iterator it= curtemplate->getChildren().begin();
+               it != curtemplate->getChildren().end(); ++it ) {
+              ParsedStateMachine* psc = dynamic_cast<ParsedStateMachine*>( it->get() );
               if (psc)
                   context->removePeer( psc->getTaskContext()->getName() );
           }
 
           // remove the type from __states
-          context->getPeer("__states")->removePeer( curtemplatecontext->getTaskContext()->getName() ) ;
+          context->getPeer("__states")->removePeer( curtemplate->getTaskContext()->getName() ) ;
 
           // will also delete all children : 
-          delete curtemplatecontext;
-          curtemplatecontext = 0;
+          curtemplate.reset();
         }
         // should be empty in most cases :
         for ( std::vector<CommandInterface*>::iterator i = varinitcommands.begin();
@@ -702,7 +699,7 @@ namespace ORO_Execution
         TaskContext* __s = context->getPeer("__states");
         if ( __s == 0 ) {
             // install the __states if not yet present.
-            __s = new TaskContext("__states", context->getProcessor() );
+            __s = new TaskContext("__states", context->getExecutionEngine() );
             context->addPeer( __s );
         }
 
@@ -710,12 +707,12 @@ namespace ORO_Execution
         if ( __s->hasPeer( curcontextname ) )
             throw parse_exception_semantic_error("State Context " + curcontextname + " redefined.");
 
-        curtemplatecontext = new ParsedStateMachine();
+        curtemplate.reset(new ParsedStateMachine());
         // Connect the new SC to the relevant contexts.
         // 'sc' acts as a stack for storing variables.
-        curcontext = new TaskContext(curcontextname, context->getProcessor() );
+        curcontext = new StateMachineTask(curtemplate, context->getExecutionEngine() );
         __s->addPeer( curcontext );   // store in __states.
-        curtemplatecontext->setTaskContext( curcontext ); // store.
+        curtemplate->setTaskContext( curcontext ); // store.
         
         // add the 'task' peer :
         curcontext->addPeer( context, "task" );
@@ -731,7 +728,7 @@ namespace ORO_Execution
         conditionparser->setStack(curcontext);
 
         // set the 'type' name :
-        curtemplatecontext->setName( curcontextname, false );
+        curtemplate->setName( curcontextname, false );
     }
 
     void StateGraphParser::storeOffset() {
@@ -757,11 +754,11 @@ namespace ORO_Execution
         assert( curnonprecstate == 0 );
         curnonprecstate = curstate->postponeState();
         // add the postponed state in PSM :
-        curtemplatecontext->addState( curnonprecstate );
+        curtemplate->addState( curnonprecstate );
     }
 
     void StateGraphParser::seenpreconditions() {
-        curtemplatecontext->transitionSet( curstate, curnonprecstate, new ConditionTrue, rank--, mpositer.get_position().line - ln_offset );
+        curtemplate->transitionSet( curstate, curnonprecstate, new ConditionTrue, rank--, mpositer.get_position().line - ln_offset );
         curstate->setDefined( true );
         curstate = curnonprecstate;
         curnonprecstate = 0;
@@ -786,7 +783,7 @@ namespace ORO_Execution
         TaskContext* __s = context->getPeer("states");
         if ( __s == 0 ) {
             // install the __states if not yet present.
-            __s = new TaskContext("states", context->getProcessor() );
+            __s = new TaskContext("states", context->getExecutionEngine() );
             context->addPeer( __s );
             __s->addPeer(context, "task");
         }
@@ -797,14 +794,14 @@ namespace ORO_Execution
         __s->connectPeers( curinstantiatedcontext->getTaskContext() );
         curinstantiatedcontext->getTaskContext()->addPeer(context, "task");
 
-        curinstantiatedcontext = 0;
+        curinstantiatedcontext.reset();
         curinstcontextname.clear();
     }
 
     void StateGraphParser::seensubMachineinstantiation() {
-        if ( find_if( curtemplatecontext->getChildren().begin(),
-                      curtemplatecontext->getChildren().end(),
-                      bind( equal_to<string>(), bind(&StateMachine::getName,_1), curinstcontextname )) != curtemplatecontext->getChildren().end() )
+        if ( find_if( curtemplate->getChildren().begin(),
+                      curtemplate->getChildren().end(),
+                      bind( equal_to<string>(), bind(&StateMachine::getName,_1), curinstcontextname )) != curtemplate->getChildren().end() )
             throw parse_exception_semantic_error( "SubMachine \"" + curinstcontextname + "\" already defined." );
 
         // Since we parse in the task context, we must _temporarily_
@@ -817,8 +814,8 @@ namespace ORO_Execution
                 "\"  already used as peer name in task '"+context->getName()+"'." );
             
 
-        curtemplatecontext->addChild( curinstantiatedcontext );
-        curtemplatecontext->getTaskContext()->addPeer( curinstantiatedcontext->getTaskContext() );
+        curtemplate->addChild( curinstantiatedcontext );
+        curtemplate->getTaskContext()->addPeer( curinstantiatedcontext->getTaskContext() );
         // we add this statecontext to the list of variables, so that the
         // user can refer to it by its name...
         //detail::ParsedAlias<std::string>* pv = new detail::ParsedAlias<std::string>( curinstantiatedcontext->getNameDS() );
@@ -826,7 +823,7 @@ namespace ORO_Execution
 
         curinstantiatedcontext->setName(curinstcontextname, false ); // not recursive !
 
-        curinstantiatedcontext = 0;
+        curinstantiatedcontext.reset();
         curinstcontextname.clear();
     }
 
@@ -870,8 +867,8 @@ namespace ORO_Execution
         // Create a full depth copy (including subMachines)
         // if RootMachine, make special copy which fixes attributes such
         // that on subsequent copy() they keep pointing to same var.
-        // use auto_ptr to release on throw's below.
-        auto_ptr<ParsedStateMachine> nsc( curcontextbuilder->build( isroot ) );
+        // use shared_ptr to release on throw's below.
+        ParsedStateMachinePtr nsc( curcontextbuilder->build( isroot ) );
 
         // we stored the attributes which are params of nsc 
         // in the build operation :
@@ -902,8 +899,7 @@ namespace ORO_Execution
 
         }
 
-        curinstantiatedcontext = nsc.get();
-        nsc.release();
+        curinstantiatedcontext = nsc;
 
         // prepend the commands for initialising the subMachine
         // parameters
@@ -940,10 +936,11 @@ namespace ORO_Execution
       std::vector<TaskAttributeBase*> tbases = valuechangeparser->definedValues();
       assert( pnames.size() == tbases.size() );
       for (unsigned int i = 0; i < pnames.size(); ++i)
-          curtemplatecontext->addParameter( pnames[i] , tbases[i] );
+          curtemplate->addParameter( pnames[i] , tbases[i] );
       valuechangeparser->reset();
   }
 
+#if 0
   void StateGraphParser::seenscvcsubMachinename( iter_t begin, iter_t end )
   {
     // will fail if we have had our parse rule failing before (
@@ -958,5 +955,6 @@ namespace ORO_Execution
     assert( curscvcparamname.empty() );
     curscvcparamname = std::string( begin, end );
   }
+#endif
 
 }

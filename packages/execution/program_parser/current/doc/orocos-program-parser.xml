@@ -322,6 +322,24 @@
   	  </para>
 	</sect4>
 	<sect4>
+	  <title>Task Events</title>
+	  <para>
+	    Events are quite similar to methods and commands.
+	    An event is <emphasis>emitted</emphasis> and is given
+	    arguments, providing data.
+	  </para>
+	    <programlisting>  // emitting an event:
+  emit sometask.eventname( argument1, argument2, ..., argumentN ) </programlisting>
+	  <para>
+	    In this case, the task 'sometask' has an event 'eventname'
+	    which takes 'N' arguments. Other tasks subscribed to this
+	    event will receive the event synchronously or asynchronously
+	    with these arguments. More information about events can be
+	    found in the CoreLib manual.  The event must be added to the
+	    task as described in the task infrastructure manual.
+	  </para>
+	</sect4>
+	<sect4>
 	  <title>Constants, Variables and Aliases</title>
 	  <para>
 	    Constants, variables and aliases allow you to work with
@@ -486,15 +504,18 @@
 	  <para>
 	    Likewise, the following operators are available for the
 	    geometry types :
-	    <programlisting>  var frame f
+	    <programlisting>  var frame f1, f2, f3
   var rotation r
   var vector   v
   var twist    t
   var wrench   w
   // ...
   
-  set v = f.p          // read the position
-  set r = f.R          // read the rotation
+  set f1 = f2.inv * f3 // frame transformations: inverse of f2 times f3
+
+  set v = f1.p          // read the position
+  set r = f1.R          // read the rotation
+  set r = f1.R.inv      // read the inverse rotation
 
   set v = t.vel        // read the translational velocity
   set v = t.rot        // read the rotational velocity
@@ -510,7 +531,7 @@
 	    You can not use the '.' operator in the reverse direction.
 	    thus the following code is invalid :
 	    <programlisting>  set f.p = v         // Invalid !
-  set f.R = r          // Invalid !</programlisting>
+  set f1.R = r          // Invalid !</programlisting>
             These are thus read-only accessors and can thus not be written to.
 	    To change them, you'll have to use a constructor from the next
 	    section.
@@ -548,6 +569,9 @@
   // using the vector x as the origin, and rotation
   // rot as the rotation..
   var frame f = frame( vect, rot )
+
+  // or changing its vector and/or rotation:
+  f = frame( -f.p, f.M.inv )
   
   // Double6D is a commonly used type in Orocos
   // and has been recently introduced in the parser
@@ -990,7 +1014,7 @@
       <para>
 	A <classname>StateMachine</classname> is the state machine used in the &orocos;
 	  system.  It contains a collection of states, and each state
-	  defines a Program on entry of the state, when it is handled
+	  defines a Program on entry of the state, when it is run
 	  and on exit.  It also defines all transitions to a next
 	  state.  A StateMachine must be loaded in a Task's Processor ( see
 	  <ulink url="orocos-program-processor.html"> The Online
@@ -1017,7 +1041,7 @@
 	  keeps record of programs to be executed at certain
 	  occasions.  There are exactly three programs in every state:
 	  the entry program ( which will be executed each time the state
-	  is entered ), the handle program ( which
+	  is entered ), the run program ( which
 	  will be executed every time the state is the active state )
 	  and the exit program ( which will be executed when the state
 	  is left and another state is entered ).
@@ -1032,15 +1056,60 @@
 	A StateMachine can have any number of states.  It needs to
 	have exactly one "initial state", which is the state that will
 	be entered when the StateMachine is first activated.
-	There is also exactly one final state, which is entered
-	when the StateMachine is stopped.
+	There is also exactly one final state, which is
+        <emphasis>automatically<emphasis> entered when the StateMachine is stopped.
 	<emphasis>This means that the transition from any state to the
 	  final state must always be meaningful.</emphasis>
       </para>
       <para>
 	A State Machine can run in a number of modes. The two
-	most important ones are the automatic mode and the request mode.
+	most important ones are the automatic mode and the event
+        (sometimes 'request') mode.
       </para>
+      <sect3 id="state-request">
+	<title>Event State Change Semantics</title>
+	<para>
+	  In order to enter the event mode, the State Machine
+	  must be activated. When active, two possible causes of
+          state transitions can exist: because an <emphasis>event
+          </emphasis> occured or because a transition was
+          <emphasis>requested</emphasis>.
+	</para>
+	<para> 
+          A state can list to which Orocos (CoreLib) events it reacts,
+          and under which conditions it will make a transition to another
+          state. A state only reacts to events when its entry program
+          is fully executed (done) and an event may be processed when
+          the run program is executed, thus interrupt the run program.
+          The first event that triggers a transition will 'win' and
+          the state reacts to no more events,  executes the event
+          transition program, the state's exit program and finally,
+          the next state is entered and its entry program is executed.
+          The next state now listens for events (if any) to make a 
+          transition or just executes its run program.
+        </para>
+	<para>
+	  Another program can request a transition to a particular 
+          state as well. When the request arrives, the current state
+	  checks its transition conditions and evaluates if a transition to that state
+	  is allowed. These conditions are seperately listed from the event
+          transitions above. If a transition condition is valid,
+          the exit program of the current state
+	  is called and the entry program of the requested state is
+	  called and the requested state's run program is executed. 
+          If a transition to the current state was requested,
+	  only the run program of the current state is executed.
+	</para>
+	<para>
+	  In this mode, it is also possible to request a single
+	  transition to the 'best' next state. All transition conditions
+          are evaluated and the first one that succeeds makes a transition
+          to the target state. This mechanism is
+	  similar to automatic mode below, but only one transition is made
+	  ( or if none, handle is executed ) and then, the state
+	  machine waits again. The step() command triggers this behaviour.
+	</para>
+      </sect3>
       <sect3 id="state-automatic">
 	<title>Automatic State Change Semantics</title>
 	<para>
@@ -1048,38 +1117,14 @@
 	  started with the start() command (see later on).
 	</para>
 	<para>
-	  In automatic mode, the transition table (to other states) of
+	  In automatic mode, After the run program of the current state finishes, 
+          the transition table (to other states) of
 	  the current state is evaluated.  If a transition succeeds,
 	  the exit program of the current state is called and then
 	  the entry program of the next state is called. If no transition
-	  evaluated to true, the handle program of the current state
+	  evaluated to true, the handle program (if any) of the current state
 	  is called. This goes on until the automatic mode is left,
 	  using the pause or stop command.
-	</para>
-      </sect3>
-      <sect3 id="state-request">
-	<title>On Request State Change Semantics</title>
-	<para>
-	  In order to enter the on request mode, the State Machine
-	  must be active, but not running (see later on).
-	</para>
-	<para>
-	  In request mode, nothing happens automatically. The
-	  StateMachine waits for external commands. An external program
-	  can request a transition to a particular state, from the
-	  current state. When the request arrives, the StateMachine
-	  checks the transition table and evaluates if this transition
-	  is allowed. If so, the exit program of the current state
-	  is called and the entry program of the requested state is
-	  called. If a transition to the current state was requested,
-	  the handle program of the current state is executed.
-	</para>
-	<para>
-	  In request mode, it is also possible to request a single
-	  transition to the 'best' next state. This mechanism is
-	  similar to automatic mode, but only one transition is made
-	  ( or if none, handle is executed ) and then, the state
-	  machine waits again. The step() command triggers this behaviour.
 	</para>
       </sect3>
     </sect2>
@@ -1197,9 +1242,9 @@
 	<sect3>
 	  <title>The <function>state</function> Statement</title>
 	  <para>
-	    A state context can have an unlimited number of states.  A
-	    state contains optionally 4 functions : entry, handle,
-	    exit and transitions.  Any one of them is optional, and a
+	    A state machine can have an unlimited number of states.  A
+	    state contains optionally 4 programs : entry, run, handle,
+	    exit.  Any one of them is optional, and a
 	    state can even conceivably be defined empty.
 	  </para>
 	</sect3>
@@ -1208,101 +1253,130 @@
 	    <function>exit</function> Statements</title>
 	  <para>
 	    When a state is entered for the first time, the entry
-	    function is called. When it is left, the exit function is
-	  called. They both a Program to execute.</para>
-<!-- 	<para> There are two event -->
-<!-- 	    configuration statements : <function>connect</function> -->
-<!-- 	    and <function>disconnect</function>. They have the -->
-<!-- 	    following syntax : -->
-<!-- 	    <programlisting> -->
-<!-- StateMachine SomeStateMachine -->
-<!-- { -->
-<!--     Event_Handle handle_name -->
-
-<!--     // ... -->
-<!--     state someState -->
-<!--     { -->
-<!--         entry { -->
-<!-- 	    connect handle_name( "EventName", task.command( args ) ) -->
-<!-- 	} -->
-<!--         exit { -->
-<!-- 	    disconnect handle_name -->
-<!--         } -->
-<!--     } -->
-<!-- } -->
-<!-- 	    </programlisting> -->
-<!-- 	    The event name must correspond to the identifier of a -->
-<!-- 	    nameserved Event&lt;void(void)&gt;. The command is any valid task -->
-<!-- 	    command with its arguments. The arguments will be -->
-<!-- 	    evaluated when the command is called. From that moment on, -->
-<!-- 	    whenever the event "EventName" is raised (this is done -->
-<!-- 	    in another task), the -->
-<!-- 	    command will be executed in the states context (and thus thread). The disconnect -->
-<!-- 	    statement cancels a previously connected handle and may be -->
-<!-- 	    called at any time on any handle. Each handle must be -->
-<!-- 	    declared beforehand on top of the state script, before any -->
-<!-- 	    state is defined. -->
-<!-- 	  </para> -->
+	    program is executed. When it is left, the exit program is
+	    called. The execution semantics are identical to the
+            program scripts above.</para>
+	</sect3>
+	<sect3>
+	  <title>The <function>run</function> Statement</title>
+	  <para>
+            The run program serves to define which activity is done
+            within the state. After the entry program finishes, the
+            run program is immediately started. It may be interrupted
+            by the events that state reacts to. In event mode, the
+            run program is executed once (although it may use an
+            infinite loop to repeatedly execute statements). In
+            automatic mode, when the run program completes, and no
+            transitions to another state can be made (see below)
+            it is started again (in the next execution step).
+          </para>
 	</sect3>
 	<sect3>
 	  <title>The <function>handle</function> and
 	    <function>transitions</function> Statement</title>
 	  <para>
-	    The handle function is called only when no transition can be found to another state
-	    in the next execution step.  The handle function also contains a program.
-	    To leave a state, the transitions
-	    function defines <function>select</function>
-	    statements. These can be guarded by if...then clauses :
+            When the run program returns in automatic mode, the
+            state evaluates its transitions to other states.
+	    The handle program is called only when no transition can be found to another state.
+	    The transitions section defines one or more <function>select</function>
+            <emphasis>state</emphasis> statements. These can be guarded by if...then clauses
+            (the transition conditions):
 	    <programlisting>  // In state XYZ :
   transitions {
     // conditionally select the START state
-    if HMI.startPushed then
-	select START
-    // Fall through state
-    select WAIT
+    if HMI.startPushed then {
+        // (optional)
+        // transition program: HMI.startPushed was true
+        // when finished, go to START state
+    } select START
+
+    // next transition condition, with a transition failure program:
+    if HMI.waiting then
+      select WAIT else {
+        // (optional)
+        // transition failure program: HMI.startPushed was false
+    }
+  } 
+
+  handle {
+     // only executed if no transition above could be made
+     // if startPushed and waiting were false:
+     // ... 
   } </programlisting>
 	    The transitions are checked in the same order as listed.
 	    A transition is allowed to select the current state, but
-	    the onExit and onEntry functions will not be called in that
+	    the exit and entry functions will not be called in that
 	    case. Even more, a transition to the current state is always
 	    considered valid and this can not be overridden.
 	  </para>
 	</sect3>
 	<sect3>
-	  <title>State Preconditions (Experimental)</title>
+	  <title>State Preconditions</title>
 	  <para>
 	    Often it's useful to specify some preconditions that need
-	    to hold before entering a state.  &orocos; states
+	    to hold before entering a state. &orocos; states
 	    explicitly allow for this.  A state's preconditions will
 	    be checked before the state is entered.
 	  </para>
 	  <para>
 	    Preconditions are specified as follows:
 	    <programlisting>  state X {
-    preconditions {
-      // make sure the robot is not moving axis 1 when entering this state
-      if robot.movingAxis( 1 ) then
-          select ERROR_STATE
-    }
+    // make sure the robot is not moving axis 1 when entering this state
+    // and a program is loaded.
+    precondition  robot.movingAxis( 1 ) == false
+    precondition  programLoaded == true
     // ...
   }</programlisting>
-	    As you may have noticed, the syntax for preconditions is
-	    the same as for transitions.  It's simply a set of
-	    conditional select statements.  The only difference is
-	    that preconditions are checked once before entry of the
-	    state, whereas transitions are checked every time the
-	    state is handled.
+            They are checked in addition to transitions to that state
+            and can make such a transition fail, hence block the
+            transition, as if the transition condition in the first place
+            did not succeed.
+	  </para>
+	</sect3>
+	<sect3>
+	  <title>Event Transitions</title>
+	  <para>
+	    An important property of state machines is that they can
+	    react to external (asynchronous) events. Since Orocos
+	    defined an Event framework in the CoreLib, this framework
+	    is used to react to events in this package.
 	  </para>
 	  <para>
-	    The preconditions syntax may change in the future since it
-	    is still experimental. Preconditions are only supported in
-	    automatic mode and not in request mode ( it's impossible
-	    to request a state which has preconditions ). Future
-	    implementations may just list the preconditions which must
-	    be true, which will be 'chained' (Logical AND) with the
-	    transitions of the current state. It is the current state
-	    that then should decide what to do if it can not enter the
-	    target state.
+	    Event transitions are specified as:
+	    <programlisting>  state X {
+    var int a, b
+    var double d
+    transition peertask.the_event(a, b, d) if (a+b &amp; 10 &amp;&amp; d >1.3) then {
+       // transition succeeds, transition program:
+       // ...
+    } select ONE_STATE else {
+       // transition fails, failure program:
+       // ...
+    } select OTHER_STATE
+
+    // other events likewise...
+  }</programlisting>
+            Both the transition programs and the the select statements are optional,
+	    but at least a program or select statement must be given.
+	    In this example, if the <function>peertask</function> emits <function>the_event</function>,
+	    the event arguments are stored in a, b and d. The <function>if ... then</function>
+	    statement may check these variables and any other state variables and methods
+	    to evaluate the transition. If it succeeds, an optional transition program
+	    may be given and a target state <function>select</function>ed (ONE_STATE).
+	    if the transition fails, an optional failure program may be given and an
+	    optional <function>select</function> (OTHER_STATE) statement may be given.
+	    The number of arguments must match the number of arguments of the used event.
+	    The event is processed as an asynchronous callback, thus in the thread or task
+	    of the StateMachine's processor.
+	  </para>
+	  <para>
+	    Event transitions are enabled after the entry program and
+	    before the exit program (also in automatic mode).  All events
+	    are processed in a state until the first event that leads
+	    to a valid state transition. In the mean time, the run program
+	    or handle programs may continue, but will be interrupted if an
+	    event occurs. The event transition program and/or exit program
+	    may or must thus perform the necessary cleanup.
 	  </para>
 	</sect3>
       </sect2>

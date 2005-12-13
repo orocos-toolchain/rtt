@@ -83,7 +83,7 @@ namespace ORO_Execution
 
         virtual void reset() { orig_->reset(); }
 
-        virtual void evaluate() const { orig_->evaluate(); }
+        virtual bool evaluate() const { return orig_->evaluate(); }
 
         virtual DataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
@@ -127,7 +127,7 @@ namespace ORO_Execution
 
         virtual void reset() { orig_->reset(); }
 
-        virtual void evaluate() const { orig_->evaluate(); }
+        virtual bool evaluate() const { return orig_->evaluate(); }
 
         virtual AssignableDataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
@@ -165,7 +165,7 @@ namespace ORO_Execution
 
         virtual void reset() { orig_->reset(); }
 
-        virtual void evaluate() const { orig_->evaluate(); }
+        virtual bool evaluate() const { return orig_->evaluate(); }
 
         virtual DataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
@@ -208,7 +208,7 @@ namespace ORO_Execution
 
         virtual void reset() { orig_->reset(); }
 
-        virtual void evaluate() const { orig_->evaluate(); }
+        virtual bool evaluate() const { return orig_->evaluate(); }
 
         virtual AssignableDataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
@@ -250,7 +250,7 @@ namespace ORO_Execution
 
         virtual void reset() { orig_->reset(); }
 
-        virtual void evaluate() const { orig_->evaluate(); }
+        virtual bool evaluate() const { return orig_->evaluate(); }
 
         virtual DataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
@@ -294,7 +294,7 @@ namespace ORO_Execution
 
         virtual void reset() { orig_->reset(); }
 
-        virtual void evaluate() const { orig_->evaluate(); }
+        virtual bool evaluate() const { return orig_->evaluate(); }
 
         virtual DataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
@@ -332,7 +332,7 @@ namespace ORO_Execution
 
         virtual void reset() { orig_->reset(); }
 
-        virtual void evaluate() const { orig_->evaluate(); }
+        virtual bool evaluate() const { return orig_->evaluate(); }
 
         virtual DataSource<To>* clone() const {
             return new AssignableDataSourceAdaptor( orig_->clone() );

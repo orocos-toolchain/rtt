@@ -29,47 +29,42 @@
 #include "execution/StateDescription.hpp"
 
 namespace ORO_Execution {
+    using namespace ORO_CoreLib;
+
   StateDescription* StateDescription::postponeState()
   {
-    StateDescription* ret = new StateDescription( "__pp__" + getName(), entrypoint );
+    StateDescription* ret = new StateDescription( "__pp__" + getName(), pp, entrypoint );
     ret->setEntryProgram( mentry );
     ret->setRunProgram( mrun );
     ret->setHandleProgram( mhandle );
     ret->setExitProgram( mexit );
     ret->setDefined( isDefined() );
-    // we don't use setEntryProgram cause that deletes the old
-    // program...
-    mentry = mrun = mhandle = mexit = 0;
     setDefined( false );
     return ret;
   }
 
   StateDescription::~StateDescription() {
-            delete mentry;
-            delete mexit;
-            delete mhandle;
-            delete mrun;
   }
 
   StateDescription* StateDescription::copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const
   {
-    StateDescription* ret = new StateDescription( name, entrypoint );
+    StateDescription* ret = new StateDescription( name, pp, entrypoint );
     ret->inited = isDefined();
     if ( mentry )
     {
-      ret->mentry = mentry->copy( replacementdss );
+      ret->setEntryProgram( ProgramInterfacePtr(mentry->copy( replacementdss )) );
     }
     if ( mexit )
     {
-      ret->mexit = mexit->copy( replacementdss );
+      ret->setExitProgram( ProgramInterfacePtr(mexit->copy( replacementdss )) );
     }
     if ( mhandle )
     {
-      ret->mhandle = mhandle->copy( replacementdss );
+      ret->setHandleProgram( ProgramInterfacePtr(mhandle->copy( replacementdss) ));
     }
     if ( mrun )
     {
-      ret->mrun = mrun->copy( replacementdss );
+      ret->setRunProgram( ProgramInterfacePtr(mrun->copy( replacementdss )));
     }
     return ret;
   }

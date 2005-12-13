@@ -37,11 +37,15 @@
 #include "ExpressionParser.hpp"
 #include "TaskContext.hpp"
 #include "ValueChangeParser.hpp"
-#include "ProgramGraph.hpp"
+#include "FunctionGraphBuilder.hpp"
 
 #include <map>
 #include <vector>
 #include <string>
+
+namespace ORO_Execution {
+    class ProgramTask;
+}
 
 namespace ORO_Execution { namespace detail
 {
@@ -56,9 +60,9 @@ namespace ORO_Execution { namespace detail
    */
   class ProgramGraphParser
   {
-      typedef ProgramGraph::CommandNode CommandNode;
-      typedef ProgramGraph::ConditionEdge ConditionEdge;
-      typedef ProgramGraph::Graph  Graph;
+      typedef FunctionGraphBuilder::CommandNode CommandNode;
+      typedef FunctionGraphBuilder::ConditionEdge ConditionEdge;
+      typedef FunctionGraphBuilder::Graph  Graph;
 
       /**
        * The context given to us by the user to root 
@@ -88,13 +92,13 @@ namespace ORO_Execution { namespace detail
       bool try_cmd;
 
       // The current function we are parsing.
-      FunctionGraph* mfunc;
+      FunctionGraphPtr mfunc;
 
       // The function we will call next
-      FunctionGraph* mcallfunc;
+      FunctionGraphPtr mcallfunc;
 
       // A map of all functions
-      typedef std::map<std::string, FunctionGraph*> funcmap;
+      typedef std::map<std::string, FunctionGraphPtr> funcmap;
       funcmap mfuncs;
 
       // the label that the user wants to give to the current
@@ -169,7 +173,7 @@ namespace ORO_Execution { namespace detail
       void seenprogramend();
       void programtext(iter_t, iter_t);
 
-      void ProgramGraphParser::setStack(TaskContext* st);
+      void setStack(TaskContext* st);
       void cleanup();
 
       rule_t newline, terminationclause, jumpdestination, terminationpart, andpart,
@@ -187,8 +191,8 @@ namespace ORO_Execution { namespace detail
       ArgumentsParser* argsparser;
       PeerParser peerparser;
 
-      ProgramGraph* program_graph;
-      std::vector<ProgramGraph*> program_list;
+      boost::shared_ptr<FunctionGraphBuilder> program_builder;
+      std::vector< FunctionGraphPtr > program_list;
 
       CommandInterface* for_init_command;
       CommandInterface* for_incr_command;
@@ -202,13 +206,13 @@ namespace ORO_Execution { namespace detail
        * @brief Tries to parse programs, returns the generated programs on success.
        * @throw file_parse_exception The parser found an error.
        */
-      std::vector<ProgramGraph*> parse( iter_t& begin, iter_t end );
+      std::vector<ProgramInterfacePtr> parse( iter_t& begin, iter_t end );
 
-      std::vector<FunctionGraph*> parseFunction( iter_t& begin, iter_t end );
+      std::vector<ProgramInterfacePtr> parseFunction( iter_t& begin, iter_t end );
 
       void initBodyParser(const std::string& name, TaskContext* stck, int offset);
       rule_t& bodyParser();
-      FunctionGraph* bodyParserResult();
+      ProgramInterfacePtr bodyParserResult();
 
   };
 }}

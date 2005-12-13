@@ -198,7 +198,7 @@ namespace ORO_Execution
 
         if ( line.find(std::string("list ")) == 0 ) { 
             // first make a list of all sensible completions.
-            std::vector<std::string> progs = taskcontext->getProcessor()->getProgramList();
+            std::vector<std::string> progs = taskcontext->getExecutionEngine()->getProgramProcessor()->getProgramList();
             // then see which one matches the already typed line :
             for( std::vector<std::string>::iterator it = progs.begin();
                  it != progs.end();
@@ -207,7 +207,7 @@ namespace ORO_Execution
                 if ( res.find(line) == 0 )
                     completes.push_back( *it ); // if partial match, add.
             }
-            progs = taskcontext->getProcessor()->getStateMachineList();
+            progs = taskcontext->getExecutionEngine()->getStateMachineProcessor()->getStateMachineList();
             for( std::vector<std::string>::iterator it = progs.begin();
                  it != progs.end();
                  ++it) {
@@ -573,7 +573,7 @@ namespace ORO_Execution
         while (1)
             {
                 cout << " In Task "<< taskcontext->getName() << ". (Status of last Command : ";
-                if ( !taskcontext->getProcessor()->isProcessed( lastc ) )
+                if ( !taskcontext->engine()->commands()->isProcessed( lastc ) )
                     cout << "queued )";
                 else {
                     cout << (command == 0 ? "none )" : ( condition == 0 ? "done )"  : (accepted->get() == false ? "fail )" : ( condition->evaluate() == true ? "done )" : "busy )"))));
@@ -642,7 +642,7 @@ namespace ORO_Execution
     {
         if ( taskHistory.size() == 0)
             return;
-        if ( !taskcontext->getProcessor()->isProcessed( lastc ) ) {
+        if ( !taskcontext->engine()->commands()->isProcessed( lastc ) ) {
             Logger::log()<<Logger::Warning
                          << "Previous command was not yet processed by previous Processor." <<Logger::nl
                          << " Can not track command status across tasks."<< Logger::endl;
@@ -678,7 +678,7 @@ namespace ORO_Execution
 
         // We need to release the comms, since taskcontext is changing,
         // and we do not keep track of in which processor the comm was dropped.
-        if ( !taskcontext->getProcessor()->isProcessed( lastc ) ) {
+        if ( !taskcontext->engine()->commands()->isProcessed( lastc ) ) {
             Logger::log()<<Logger::Warning
                          << "Previous command was not yet processed by previous Processor." <<Logger::nl
                          << " Can not track command status across tasks."<< Logger::endl;
@@ -941,7 +941,7 @@ namespace ORO_Execution
             cerr << "Trying Command..."<<nl;
         try {
             comcon = _parser.parseCommand( comm, taskcontext );
-            if ( !taskcontext->getProcessor()->isProcessed( lastc ) ) {
+            if ( !taskcontext->engine()->commands()->isProcessed( lastc ) ) {
                 cerr << "Warning : previous command is not yet processed by Processor." <<nl;
                 // memleak the command, dispose condition...
                 delete condition;
@@ -970,7 +970,7 @@ namespace ORO_Execution
         TryCommand *tcom = new TryCommand( command );
         accepted = tcom->result();
         command = tcom;
-        lastc = taskcontext->getProcessor()->process( command );
+        lastc = taskcontext->engine()->commands()->process( command );
         // returns null if Processor not running or not accepting.
         if ( lastc == 0 ) {
             cerr << "Command not accepted by"<<taskcontext->getName()<<"'s Processor !" << nl;
@@ -1246,9 +1246,9 @@ namespace ORO_Execution
         int ln;
         int start;
         int end;
-        const ProgramInterface* pr = taskcontext->getProcessor()->getProgram( progname );
+        const ProgramInterfacePtr pr = taskcontext->getExecutionEngine()->getProgramProcessor()->getProgram( progname );
         if ( pr ) {
-            ps = taskcontext->getProcessor()->getProgramStatusStr(progname);
+            ps = taskcontext->getExecutionEngine()->getProgramProcessor()->getProgramStatusStr(progname);
             s = toupper(ps[0]);
             txtss.str( pr->getText() );
             ln = pr->getLineNumber();
@@ -1257,9 +1257,9 @@ namespace ORO_Execution
             end   = cl + 10;
             this->listText( txtss, start, end, ln, s);
         }
-        const StateMachine* sm = taskcontext->getProcessor()->getStateMachine( progname );
+        const StateMachinePtr sm = taskcontext->getExecutionEngine()->getStateMachineProcessor()->getStateMachine( progname );
         if ( sm ) {
-            ps = taskcontext->getProcessor()->getStateMachineStatusStr(progname);
+            ps = taskcontext->getExecutionEngine()->getStateMachineProcessor()->getStateMachineStatusStr(progname);
             s = toupper(ps[0]);
             txtss.str( sm->getText() );
             ln = sm->getLineNumber();
@@ -1279,9 +1279,9 @@ namespace ORO_Execution
         int ln;
         int start;
         int end;
-        const ProgramInterface* pr = taskcontext->getProcessor()->getProgram( storedname );
+        const ProgramInterfacePtr pr = taskcontext->getExecutionEngine()->getProgramProcessor()->getProgram( storedname );
         if ( pr ) {
-            ps = taskcontext->getProcessor()->getProgramStatusStr(storedname);
+            ps = taskcontext->getExecutionEngine()->getProgramProcessor()->getProgramStatusStr(storedname);
             s = toupper(ps[0]);
             txtss.str( pr->getText() );
             ln = pr->getLineNumber();
@@ -1291,9 +1291,9 @@ namespace ORO_Execution
             end   = cl + 20;
             this->listText( txtss, start, end, ln, s);
         }
-        const StateMachine* sm = taskcontext->getProcessor()->getStateMachine( storedname );
+        const StateMachinePtr sm = taskcontext->getExecutionEngine()->getStateMachineProcessor()->getStateMachine( storedname );
         if ( sm ) {
-            ps = taskcontext->getProcessor()->getStateMachineStatusStr(storedname);
+            ps = taskcontext->getExecutionEngine()->getStateMachineProcessor()->getStateMachineStatusStr(storedname);
             s = toupper(ps[0]);
             txtss.str( sm->getText() );
             ln = sm->getLineNumber();
@@ -1378,12 +1378,12 @@ namespace ORO_Execution
         std::vector<std::string>::iterator new_end = unique(objlist.begin(), objlist.end());
         copy(objlist.begin(), new_end, std::ostream_iterator<std::string>(cout, " "));
 
-        objlist = peer->getProcessor()->getProgramList();
+        objlist = peer->getExecutionEngine()->getProgramProcessor()->getProgramList();
         if ( !objlist.empty() ) {
             cout <<coloroff<<nl<< " Programs     : "<<coloron;
             copy(objlist.begin(), objlist.end(), std::ostream_iterator<std::string>(cout, " "));
         }
-        objlist = peer->getProcessor()->getStateMachineList();
+        objlist = peer->getExecutionEngine()->getStateMachineProcessor()->getStateMachineList();
         if ( !objlist.empty() ) {
             cout <<coloroff<<nl<< " StateMachines: "<<coloron;
             copy(objlist.begin(), objlist.end(), std::ostream_iterator<std::string>(cout, " "));

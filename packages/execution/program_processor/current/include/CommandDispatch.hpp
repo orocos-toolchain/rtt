@@ -34,10 +34,10 @@
 
 namespace ORO_Execution
 {
-    class Processor;
+    class CommandProcessor;
 
     /**
-     * Dispatch a CommandInterface to a Processor.
+     * Dispatch a CommandInterface to a CommandProcessor.
      * Combine with TryCommand, which provides the DataSource for
      * the constructor.
      * The execute() method will return false from the moment
@@ -50,18 +50,19 @@ namespace ORO_Execution
     {
         AssignableDataSource<bool>::shared_ptr _result;
         bool send;
-        Processor* proc;
+        bool maccepted;
+        CommandProcessor* proc;
         ORO_CoreLib::CommandInterface* com;
     public:
         /**
-         * Create a command to dispatch another command \a c to a Processor \a p.
+         * Create a command to dispatch another command \a c to a CommandProcessor \a p.
          * The result status of \a c must arrive in \a result ( through other means, such as TryCommand ),
          * such that this CommandDispatch
          * can return the result status of the dispatched command \a c.
-         * When dispatching fails ( the Processor does not accept the Command \a c ), 
+         * When dispatching fails ( the CommandProcessor does not accept the Command \a c ), 
          * CommandDispatch will set \a result itself to false.
          */
-        CommandDispatch(Processor* p, CommandInterface* c,  AssignableDataSource<bool>* result );
+        CommandDispatch(CommandProcessor* p, CommandInterface* c,  AssignableDataSource<bool>* result );
 
         /**
          * Be sure only to delete this command if the target processor is
@@ -80,6 +81,12 @@ namespace ORO_Execution
          * the command will be made upon execute().
          */
         void reset();
+
+        bool sent();
+
+        bool accepted();
+
+        bool result();
 
         ORO_CoreLib::CommandInterface* clone() const;
 

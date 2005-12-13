@@ -93,9 +93,9 @@ namespace ORO_Execution
      * is then called in the context of the caller.
      */
     bool GenericTaskContext::start() {
-        if ( this->getProcessor()->getTask() == 0 )
+        if ( this->engine()->getTask() == 0 )
             return false;
-        return this->getProcessor()->getTask()->start();
+        return this->engine()->getTask()->start();
     }
         
     /**
@@ -104,18 +104,18 @@ namespace ORO_Execution
      * is called in the context of the caller.
      */
     bool GenericTaskContext::stop() {
-        if ( this->getProcessor()->getTask() == 0 )
+        if ( this->engine()->getTask() == 0 )
             return false;
-        return this->getProcessor()->getTask()->stop();
+        return this->engine()->getTask()->stop();
     }
   
     /**
      * DataSource to inspect if this Task is running.
      */
     bool GenericTaskContext::isRunning() const {
-        if ( this->getProcessor()->getTask() == 0 )
+        if ( this->engine()->getTask() == 0 )
             return false;
-        return this->getProcessor()->getTask()->isRunning();
+        return this->engine()->getTask()->isRunning();
     }
 
     /**

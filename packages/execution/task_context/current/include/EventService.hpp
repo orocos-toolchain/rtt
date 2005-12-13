@@ -2,6 +2,8 @@
 #define EVENT_SERVICE_HPP
 
 #include "TemplateEventFactory.hpp"
+#include "EventC.hpp"
+#include "ConnectionC.hpp"
 
 namespace ORO_Execution
 {
@@ -14,6 +16,7 @@ namespace ORO_Execution
         struct EventStubInterface
         {
             virtual ~EventStubInterface() {}
+            virtual int arity() const = 0;
             virtual EventHookBase* createReceptor(const std::vector<DataSourceBase::shared_ptr>& args ) = 0;
             virtual DataSourceBase* createEmittor(const std::vector<DataSourceBase::shared_ptr>& args ) = 0;
         };
@@ -34,6 +37,8 @@ namespace ORO_Execution
                 delete mrfact;
                 delete mefact;
             }
+
+            virtual int arity() const { return me->arity(); }
 
             virtual EventHookBase* createReceptor(const std::vector<DataSourceBase::shared_ptr>& args ) {
                 return mrfact->produce( me, args );
@@ -96,29 +101,79 @@ namespace ORO_Execution
         /**
          * Query for the existence of an Event in this Service.
          */
-        bool hasEvent(const std::string& ename)
-        {
-            if ( fact.count(ename) == 0 )
-                return false;
-            return true;
-        }
+        bool hasEvent(const std::string& ename) const;
 
+        /**
+         * Return the number of arguments a given event has.
+         * @retval -1 The event does not exist.
+         * @return The number of arguments (may be zero).
+         */
+        int arity(const std::string& name) const;            
+        
         /**
          * Add an added Event from this Service.
          */
-        bool removeEvent( const std::string& ename ) {
-            Factories::iterator it = fact.find(ename);
-            if ( it == fact.end()  )
-                return false;
-            delete it->second;
-            fact.erase(it);
-            return true;
-        }
+        bool removeEvent( const std::string& ename );
         
-        ~EventService() {
-            for (Factories::iterator it = fact.begin(); it !=fact.end(); ++it )
-                delete it->second;
-        }
+        ~EventService();
+
+        /**
+         * Create a 'handle' to emit events with arguments.
+         * Use this method as in
+         @verbatim
+         createEmit("EventName").arg(2.0).arg(1.0).emit();
+         // or:
+         EventC em = createEmit("EventName").arg(2.0).arg(1.0);
+         em.emit();
+         @endverbatim
+         * Also variables or reference to variables may be given
+         * within arg().
+         * @see EventC
+         * @throw name_not_found_exception
+         * @throw wrong_number_of_args_exception
+         * @throw wrong_types_of_args_exception
+        */
+        EventC createEmit(const std::string& ename) const;
+
+        /**
+         * Create a 'handle' to connect a \b synchronous callback to an event.
+         * Use this method as in
+         @verbatim
+         Handle h = createSynConnection("EventName", &function ).arg( &a ).arg( &b ).handle();
+         h.connect();
+         @endverbatim
+         * Only reference to variables may be given within arg(), to these variables,
+         * the event data is written.
+         * @see ConnectionC
+         * @see Handle
+         * @throw name_not_found_exception
+         * @throw wrong_number_of_args_exception
+         * @throw wrong_types_of_args_exception
+         * @throw non_lvalue_args_exception
+        */
+        ConnectionC createSynConnection(const std::string& ename,
+                                        boost::function<void(void)> func) const;
+
+        /**
+         * Create a 'handle' to connect a \b asynchronous callback to an event.
+         * Use this method as in
+         @verbatim
+         EventProcessor = // e.g.: taskc.events();
+         Handle h = createAsynConnection("EventName", &function, eproc ).arg( &a ).arg( &b ).handle();
+         h.connect();
+         @endverbatim
+         * Only reference to variables may be given within arg(), to these variables,
+         * the event data is written.
+         * @see ConnectionC
+         * @see Handle
+         * @throw name_not_found_exception
+         * @throw wrong_number_of_args_exception
+         * @throw wrong_types_of_args_exception
+         * @throw non_lvalue_args_exception
+        */
+        ConnectionC createAsynConnection(const std::string& ename,
+                                         boost::function<void(void)> func,
+                                         ORO_CoreLib::EventProcessor* ep) const;
 
         /**
          * Setup a synchronous Event handler which will set \a args and
@@ -130,15 +185,8 @@ namespace ORO_Execution
          * where \a Tn is the type of the n'th argument of the Event.
          */
         ORO_CoreLib::Handle setupSyn(const std::string& ename,
-                                boost::function<void(void)> func,          
-                                std::vector<DataSourceBase::shared_ptr> args ) {
-            if ( fact.count(ename) != 1 )
-                return ORO_CoreLib::Handle(); // empty handle.
-            detail::EventHookBase* ehi = fact[ename]->createReceptor( args );
-
-            // ehi is stored _inside_ the connection object !
-            return ehi->setupSyn( func ); 
-        }
+                                     boost::function<void(void)> func,          
+                                     std::vector<DataSourceBase::shared_ptr> args ) const;
         
         /**
          * Setup a asynchronous Event handler which will set \a args and
@@ -155,21 +203,12 @@ namespace ORO_Execution
         ORO_CoreLib::Handle setupAsyn(const std::string& ename,
                                       boost::function<void(void)> afunc,          
                                       const std::vector<DataSourceBase::shared_ptr>& args,
-                                      ORO_CoreLib::TaskInterface* t) {
-            return this->setupAsyn(ename, afunc, args, t->getEventProcessor() );
-        }
+                                      ORO_CoreLib::TaskInterface* t) const;
         
         ORO_CoreLib::Handle setupAsyn(const std::string& ename,
                                       boost::function<void(void)> afunc,          
                                       const std::vector<DataSourceBase::shared_ptr>& args,
-                                      ORO_CoreLib::EventProcessor* ep = ORO_CoreLib::CompletionProcessor::Instance()->getEventProcessor() ) {
-            if ( fact.count(ename) != 1 )
-                return ORO_CoreLib::Handle(); // empty handle.
-            detail::EventHookBase* ehi = fact[ename]->createReceptor( args );
-
-            // ehi is stored _inside_ the connection object !
-            return ehi->setupAsyn( afunc, ep ); 
-        }
+                                      ORO_CoreLib::EventProcessor* ep = ORO_CoreLib::CompletionProcessor::Instance()->getEventProcessor() ) const;
         //!@}
         
         /**
@@ -188,25 +227,16 @@ namespace ORO_Execution
          * @{
          */
         ORO_CoreLib::Handle setupSynAsyn(const std::string& ename,
-                                    boost::function<void(void)> sfunc,
-                                    boost::function<void(void)> afunc,
-                                    const std::vector<DataSourceBase::shared_ptr>& args,
-                                    ORO_CoreLib::TaskInterface* t) {
-            return this->setupSynAsyn(ename, sfunc, afunc, args, t->getEventProcessor() );
-        }
+                                         boost::function<void(void)> sfunc,
+                                         boost::function<void(void)> afunc,
+                                         const std::vector<DataSourceBase::shared_ptr>& args,
+                                         ORO_CoreLib::TaskInterface* t) const;
 
         ORO_CoreLib::Handle setupSynAsyn(const std::string& ename,
-                                    boost::function<void(void)> sfunc,
-                                    boost::function<void(void)> afunc,
-                                    const std::vector<DataSourceBase::shared_ptr>& args,
-                                    ORO_CoreLib::EventProcessor* ep = ORO_CoreLib::CompletionProcessor::Instance()->getEventProcessor() ) {
-            if ( fact.count(ename) != 1 )
-                return ORO_CoreLib::Handle(); // empty handle.
-            detail::EventHookBase* ehi = fact[ename]->createReceptor( args );
-
-            // ehi is stored _inside_ the connection object !
-            return ehi->setupSynAsyn( sfunc, afunc, ep ); 
-        }
+                                         boost::function<void(void)> sfunc,
+                                         boost::function<void(void)> afunc,
+                                         const std::vector<DataSourceBase::shared_ptr>& args,
+                                         ORO_CoreLib::EventProcessor* ep = ORO_CoreLib::CompletionProcessor::Instance()->getEventProcessor() ) const;
         //! @}
 
         /**
@@ -218,15 +248,7 @@ namespace ORO_Execution
          * They be read at the moment of emit().
          * @see DataSourceGenerator for creating the arguments from variables or plain literals.
          */
-        DataSourceBase::shared_ptr setupEmit(const std::string& ename,const std::vector<DataSourceBase::shared_ptr>& args)
-        {
-            if ( fact.count(ename) != 1 )
-                return DataSourceBase::shared_ptr();
-
-            DataSourceBase::shared_ptr result( fact[ename]->createEmittor( args ) );
-
-            return result;
-        }
+        DataSourceBase::shared_ptr setupEmit(const std::string& ename,const std::vector<DataSourceBase::shared_ptr>& args) const;
 
         /*
          * The Global EventService, in which global Events are stored.

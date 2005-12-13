@@ -246,9 +246,9 @@ namespace ORO_Execution
     // must be guarded likewise with wrapCondition().
     // we compare processors, as dispatching is not done if the processor is shared.
     // Also, methods are not dispatched.
-    if ( peer->getProcessor() != context->getProcessor() && !ismethod ) {
+    if ( peer->engine()->commands() != context->engine()->commands() && !ismethod ) {
         tcom = new TryCommand( com );
-        com = new CommandDispatch( peer->getProcessor(), tcom, tcom->result().get() );
+        com = new CommandDispatch( peer->engine()->commands(), tcom, tcom->result().get() );
          // compose impl term cond with accept filter and do not invert the result :
         implcond = new ConditionBinaryComposite< std::logical_and<bool> >( new TryCommandResult( tcom->executed(), false ), implcond);
     }

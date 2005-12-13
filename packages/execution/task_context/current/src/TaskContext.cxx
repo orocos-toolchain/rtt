@@ -32,7 +32,6 @@
 #include <corelib/CompletionProcessor.hpp>
 
 #include "execution/Factories.hpp"
-#include "execution/Processor.hpp"
 
 #include <string>
 #include "execution/mystd.hpp"
@@ -45,6 +44,7 @@ namespace ORO_Execution
 
     TaskContext::TaskContext(const std::string& name)
         :  _task_name(name),
+           ee(this),
            commandFactory( &ee ),
            eventService( &ee )
     {
@@ -54,13 +54,12 @@ namespace ORO_Execution
         // object.  //_task_map[ "this" ] = this;
     }
 
-    TaskContext::TaskContext(const std::string& name, Processor* cproc, Processor* pproc /* = 0*/, Processor* smproc /*= 0*/ )
+    TaskContext::TaskContext(const std::string& name, ExecutionEngine* parent )
         :  _task_name(name),
-           ee( cproc, pproc, smproc ),
+           ee(this, parent ),
            commandFactory( &ee ),
            eventService( &ee )
     {
-        
     }
 
 
@@ -139,11 +138,6 @@ namespace ORO_Execution
             if (this->hasPeer( peer_name ) )
                 return _task_map.find(peer_name)->second;
             return 0;
-        }
-
-        void TaskContext::setProcessor(Processor* newProc) 
-        {
-            ee.setCommandProcessor( newProc );
         }
 
 }

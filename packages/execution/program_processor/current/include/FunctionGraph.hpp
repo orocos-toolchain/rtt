@@ -32,10 +32,13 @@
 #include "EdgeCondition.hpp"
 #include <corelib/CommandNOP.hpp>
 #include "ProgramInterface.hpp"
+#include "TaskAttribute.hpp"
 
 namespace ORO_Execution
 {
-    class TaskAttributeBase; // defined in TaskContext...
+    class FunctionGraph;
+    typedef boost::shared_ptr<FunctionGraph> FunctionGraphPtr;
+    class ProgramTask;
 
     /**
      * This class represents a function. It has
@@ -74,8 +77,8 @@ namespace ORO_Execution
          */
         Graph program;
 
-        Vertex start;
-        Vertex exit;
+        Vertex startv;
+        Vertex exitv;
 
         /**
          * The (unique) name of this program.
@@ -91,6 +94,16 @@ namespace ORO_Execution
          * Ordered arguments (are also in the repository).
          */
         std::vector<TaskAttributeBase*> args;
+
+        bool pausing;
+        bool mstep;
+
+        bool executeUntil();
+        bool executeStep();
+
+        virtual void handleUnload();
+
+        ProgramTask* context;
     public:
         /**
          * Create a FunctionGraph with a given name.
@@ -104,43 +117,37 @@ namespace ORO_Execution
 
         ~FunctionGraph();
 
+        void setProgramTask(ProgramTask* mytask);
+
         /**
          * To be called after a function is constructed.
          */
         void finish();
 
-        virtual bool executeStep();
+        virtual bool start();
 
-        virtual bool executeAll();
+        virtual bool execute();
 
-        virtual bool executeUntil();
+        virtual bool stop();
 
-        virtual void reset();
+        virtual bool pause();
+
+        virtual bool step();
+
+        virtual bool stepDone() const;
 
         /**
-         * Clone this FunctionGraph.  This will produce a completely
-         * new FunctionGraph, that has nothing in common with this one.
-         * It takes care to properly map identical DataSources to
-         * identical DataSources.
-         *
-         * @param alreadyMappedData A map of some DataSources used in
-         *   this program to new DataSources that should replace them
-         *   in the new Program.  This is provided, because in some
-         *   cases the outside world also keeps references to
-         *   datasources used somewhere in this programgraph.  It is
-         *   then important that when this Program is copied, the
-         *   outside world has a way to get a reference to the
-         *   corresponding datasources in the new program.  We do this
-         *   by allowing it to map some datasources itself, and simply
-         *   provide us a list of its mappings.
+         * Identical to \a stop();
          */
-        FunctionGraph* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const;
-
-        FunctionGraph* clone() const;
+        virtual void reset();
 
         virtual int  getLineNumber() const;
 
         virtual const std::string& getName() const;
+
+        virtual FunctionGraph* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const;
+
+        virtual FunctionGraph* clone() const;
 
         /**
          * Set the name of this program.
@@ -159,12 +166,12 @@ namespace ORO_Execution
 
         Vertex startNode() const
         {
-            return start;
+            return startv;
         }
 
         Vertex exitNode() const
         {
-            return exit;
+            return exitv;
         }
 
         const Graph& getGraph() const

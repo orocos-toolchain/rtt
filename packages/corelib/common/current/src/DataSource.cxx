@@ -29,12 +29,32 @@
 
 namespace ORO_CoreLib
 {
+
+    DataSourceBase::DataSourceBase() { atomic_set(&refcount,0); }
+    void DataSourceBase::ref() { atomic_inc(&refcount); }
+    void DataSourceBase::deref() { if ( atomic_dec_and_test(&refcount) ) delete this; }
+
     DataSourceBase::~DataSourceBase()
     {
     }
     
     void DataSourceBase::reset()
     {
+    }
+
+
+    DataSource<bool>::~DataSource()
+    {
+    }
+
+    std::string DataSource<bool>::getType() const
+    {
+        return DataSource<bool>::GetType();
+    }
+
+    std::string DataSource<bool>::GetType()
+    {
+        return detail::DataSourceTypeInfo<bool>::getType() + detail::DataSourceTypeInfo<bool>::getQualifier();
     }
 
     namespace detail {

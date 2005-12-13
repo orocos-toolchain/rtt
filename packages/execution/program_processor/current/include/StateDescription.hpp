@@ -29,36 +29,33 @@
 #define STATE_DESCRIPTION_HPP
 
 #include "execution/StateInterface.hpp"
-#include "execution/FunctionGraph.hpp"
+#include "execution/ProgramInterface.hpp"
 
 namespace ORO_Execution
 {
     /**
      * @brief This class represents a state with all actions stored
-     * in an external StateGraph.
-     *
-     * It keeps track of the entry node,
-     * handler node and exit node of a state in a
-     * StateGraph.
+     * in an external program.
      */
     class StateDescription
         : public StateInterface
     {
-        FunctionGraph* mentry;
-        FunctionGraph* mexit;
-        FunctionGraph* mhandle;
-        FunctionGraph* mrun;
-        bool inited;
+        ProgramInterfacePtr mentry;
+        ProgramInterfacePtr mexit;
+        ProgramInterfacePtr mhandle;
+        ProgramInterfacePtr mrun;
         std::string name;
         int entrypoint;
+        ProgramProcessor* pp;
+        bool inited;
     public:
         /**
          * Construct a new State with entry, exit and handle nodes.
          * The StateGraph owning the nodes is needed for processing each state.
          */
-        StateDescription(const std::string& _name, int linenr )
-            : mentry(0), mexit(0), mhandle(0), mrun(0),
-              inited(false), name(_name), entrypoint(linenr)
+        StateDescription(const std::string& _name, ProgramProcessor* pproc, int linenr )
+            : mentry(), mexit(), mhandle(), mrun(),
+              name(_name), entrypoint(linenr), pp(pproc), inited(false)
         {
         }
 
@@ -84,39 +81,43 @@ namespace ORO_Execution
         StateDescription* postponeState();
 
         ProgramInterface* getEntryProgram() const {
-            return mentry;
+            return mentry.get();
         }
 
         ProgramInterface* getRunProgram() const {
-            return mrun;
+            return mrun.get();
         }
 
         ProgramInterface* getHandleProgram() const {
-            return mhandle;
+            return mhandle.get();
         }
 
         ProgramInterface* getExitProgram() const {
-            return mexit;
+            return mexit.get();
         }
 
-        void setEntryProgram( FunctionGraph* entry ) {
-            delete mentry;
+        void setEntryProgram( ProgramInterfacePtr entry ) {
             mentry = entry;
+            if (mentry)
+                mentry->setProgramProcessor( pp );
         }
 
-        void setRunProgram( FunctionGraph* run ) {
-            delete mrun;
+        void setRunProgram( ProgramInterfacePtr run ) {
             mrun = run;
+            if (mrun)
+                mrun->setProgramProcessor( pp );
         }
 
-        void setHandleProgram( FunctionGraph* handle ) {
-            delete mhandle;
+        void setHandleProgram( ProgramInterfacePtr handle ) {
             mhandle = handle;
+            if (mhandle)
+                mhandle->setProgramProcessor( pp );
         }
 
-        void setExitProgram( FunctionGraph* exit ) {
-            delete mexit;
+        void setExitProgram( ProgramInterfacePtr exit ) {
             mexit = exit;
+            if (mexit)
+                mexit->setProgramProcessor( pp );
         }
 
         bool isDefined() const
@@ -128,7 +129,7 @@ namespace ORO_Execution
             inited = d;
         }
 
-        StateDescription* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const;
+        StateDescription* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& replacementdss ) const;
 
     };
 };

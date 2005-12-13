@@ -36,16 +36,8 @@
 #include <vector>
 #include "parse_exception.hpp"
 #include "DataSource.hpp"
+#include "ProgramInterface.hpp"
 #include "ParsedStateMachine.hpp"
-#include "ProgramGraph.hpp"
-
-namespace ORO_Execution
-{
-    class FunctionGraph;
-    class ProgramGraph;
-    class TaskContext;
-    class ParsedStateMachine;
-}
 
 namespace ORO_CoreLib
 {
@@ -56,6 +48,10 @@ namespace ORO_CoreLib
 
 namespace ORO_Execution
 {
+    class ProgramInterface;
+    class ProgramTask;
+    class StateMachineTask;
+
     using ORO_CoreLib::PropertyBase;
     using ORO_CoreLib::CommandInterface;
     using ORO_CoreLib::ConditionInterface;
@@ -73,7 +69,7 @@ namespace ORO_Execution
         /**
          * List of parsed functions.
          */
-        typedef std::vector<FunctionGraph*> ParsedFunctions;
+        typedef std::vector< ProgramInterfacePtr > ParsedFunctions;
 
         /**
          * @brief Reads out the stream, parses it, and returns a new @ref
@@ -92,7 +88,7 @@ namespace ORO_Execution
         /**
          * List of parsed programs.
          */
-        typedef std::vector<ProgramGraph*> ParsedPrograms;
+        typedef std::vector< ProgramInterfacePtr > ParsedPrograms;
 
         /**
          * @brief Reads out the stream, parses it, and returns a new @ref
@@ -111,7 +107,7 @@ namespace ORO_Execution
         /**
          * List of parsed State Machines.
          */
-        typedef std::vector<ParsedStateMachine*> ParsedStateMachines;
+        typedef std::vector< ParsedStateMachinePtr > ParsedStateMachines;
 
         /**
          * @brief Reads out the stream, parses it, and returns a new @ref

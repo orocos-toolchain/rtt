@@ -33,6 +33,7 @@
 #include <map>
 #include <string>
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 #include "DataSource.hpp"
 
 namespace ORO_Execution
@@ -43,6 +44,7 @@ namespace ORO_Execution
     class FunctionGraph;
     class ParsedStateMachine;
     class ProgramInterface;
+    class StateMachineTask;
 }
 namespace ORO_Execution { namespace detail
 {
@@ -70,14 +72,15 @@ namespace ORO_Execution { namespace detail
       // Our task we are loaded in :
       TaskContext* context;
       // The TC of the current StateMachine
-      TaskContext* curcontext ;
+      StateMachineTask* curcontext ;
       TaskContext* peer;
       our_pos_iter_t& mpositer;
       our_pos_iter_t saveStartPos;
       // offset relative to StateMachine text.
       int ln_offset;
 
-      typedef std::map<std::string, ParsedStateMachine*> contextnamemap_t;
+      typedef boost::shared_ptr<ParsedStateMachine> ParsedStateMachinePtr;
+      typedef std::map<std::string, ParsedStateMachinePtr> contextnamemap_t;
       typedef std::map<std::string, TaskAttributeBase*> contextparams_t;
       typedef std::map<std::string, DataSourceBase::shared_ptr> contextparamvalues_t;
       typedef std::map<std::string, StateDescription*> contextstatesmap_t;
@@ -85,10 +88,10 @@ namespace ORO_Execution { namespace detail
 
       contextnamemap_t rootcontexts;
       contextbuilders_t contextbuilders;
-      ParsedStateMachine* curtemplatecontext;
+      ParsedStateMachinePtr curtemplate;
       std::vector<CommandInterface*> paraminitcommands;
       std::vector<CommandInterface*> varinitcommands;
-      ParsedStateMachine* curinstantiatedcontext;
+      ParsedStateMachinePtr curinstantiatedcontext;
       StateMachineBuilder* curcontextbuilder;
       std::string curinstcontextname;
       contextparamvalues_t curinstcontextparams;
@@ -99,13 +102,14 @@ namespace ORO_Execution { namespace detail
       StateDescription* curstate;
       StateDescription* curnonprecstate;
       ProgramGraphParser* progParser;
-      ProgramInterface* transProgram;
+      boost::shared_ptr<ProgramInterface> transProgram;
       StateDescription* elsestate;
-      ProgramInterface* elseProgram;
+      boost::shared_ptr<ProgramInterface> elseProgram;
       ConditionInterface* curcondition;
+#if 0
       std::string curscvccontextname;
       std::string curscvcparamname;
-
+#endif
       /**
        * used to sort conditions as they are generated and
        * inserted in the StateMachine.
@@ -173,7 +177,7 @@ namespace ORO_Execution { namespace detail
       void seenexit();
       void seenhandle();
       void seenrun();
-      FunctionGraph* finishProgram();
+      boost::shared_ptr<ProgramInterface> finishProgram();
 
       void seencondition();
       void seenendcondition();
@@ -206,9 +210,10 @@ namespace ORO_Execution { namespace detail
       void seencontextvariable();
       void seencontextparam();
 
+#if 0
       void seenscvcsubMachinename( iter_t begin, iter_t end );
       void seenscvcparamname( iter_t begin, iter_t end );
-
+#endif
   public:
     StateGraphParser( iter_t& positer, TaskContext* tc );
     ~StateGraphParser();
@@ -217,7 +222,7 @@ namespace ORO_Execution { namespace detail
     // returned contexts setName() will have been called with the
     // correct name.
     // will throw an file_parse_exception on error
-    std::vector<ParsedStateMachine*> parse( iter_t& begin, iter_t end );
+    std::vector<ParsedStateMachinePtr> parse( iter_t& begin, iter_t end );
   };
 }}
 

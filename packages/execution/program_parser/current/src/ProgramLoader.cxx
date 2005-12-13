@@ -76,10 +76,9 @@ namespace ORO_Execution
               // Load all listed functions in the TaskContext's Processor:
               for( Parser::ParsedFunctions::iterator it = ret.begin(); it != ret.end(); ++it) {
                   Logger::log() << "Queueing Function "<< (*it)->getName() << Logger::endl;
-                  if ( c->getProcessor()->runFunction( *it ) == false) {
+                  if ( c->getExecutionEngine()->getProgramProcessor()->runFunction( it->get() ) == false) {
                       Logger::log() << Logger::Error << "Could not run Function "<< (*it)->getName() <<" :" << Logger::nl;
                       Logger::log() << "Processor not accepting or function queue is full." << Logger::endl;
-                      delete *it;
                   } else
                       exec.push_back( *it ); // is being executed.
               }
@@ -122,11 +121,10 @@ namespace ORO_Execution
               for( Parser::ParsedPrograms::iterator it = pg_list.begin(); it != pg_list.end(); ++it) {
                   try {
                       Logger::log() << Logger::Info << "Loading Program "<< (*it)->getName() << Logger::endl;
-                      c->getProcessor()->loadProgram( *it );
+                      c->getExecutionEngine()->getProgramProcessor()->loadProgram( *it );
                   } catch (program_load_exception& e ) {
                       Logger::log() << Logger::Error << "Could not load Program "<< (*it)->getName() <<" :" << Logger::nl;
                       Logger::log() << e.what() << Logger::endl;
-                      delete *it;
                       error = true;
                   }
               }
@@ -140,7 +138,7 @@ namespace ORO_Execution
         Logger::In in("ProgramLoader::unloadProgram");
         try {
             Logger::log() << Logger::Info << "Unloading Program "<< name << Logger::endl;
-            target->getProcessor()->deleteProgram(name);
+            target->getExecutionEngine()->getProgramProcessor()->unloadProgram(name);
         } catch (program_unload_exception& e ) {
             Logger::log() << Logger::Error << "Could not unload Program "<< name <<" :" << Logger::nl;
             Logger::log() << e.what() << Logger::endl;
@@ -154,7 +152,7 @@ namespace ORO_Execution
         Logger::In in("ProgramLoader::unloadStateMachine");
         try {
             Logger::log() << Logger::Info << "Unloading StateMachine "<< name << Logger::endl;
-            target->getProcessor()->deleteStateMachine(name);
+            target->getExecutionEngine()->getStateMachineProcessor()->unloadStateMachine(name);
         } catch (program_unload_exception& e ) {
             Logger::log() << Logger::Error << "Could not unload StateMachine "<< name <<" :" << Logger::nl;
             Logger::log() << e.what() << Logger::endl;
@@ -198,11 +196,10 @@ namespace ORO_Execution
                 for( Parser::ParsedStateMachines::iterator it = pg_list.begin(); it != pg_list.end(); ++it) {
                     try {
                         Logger::log() << Logger::Info << "Loading StateMachine "<< (*it)->getName() << Logger::endl;
-                        c->getProcessor()->loadStateMachine( *it );
+                        c->getExecutionEngine()->getStateMachineProcessor()->loadStateMachine( *it );
                     } catch (program_load_exception& e ) {
                         Logger::log() << Logger::Error << "Could not load StateMachine "<< (*it)->getName()<<" :" << Logger::nl;
                         Logger::log() << e.what() << Logger::endl;
-                        delete *it;
                         error = true;
                     }
                 }

@@ -39,16 +39,21 @@ namespace ORO_Execution {
     class Processor;
     class TaskAttributeBase;
     class TaskContext;
+    class StateMachineTask;
 
     namespace detail {
         class StateMachineCommands;
     }
 
+    class ParsedStateMachine;
+    typedef boost::shared_ptr<ParsedStateMachine> ParsedStateMachinePtr;
+
     class ParsedStateMachine
         : public StateMachine
     {
         typedef std::map<std::string, TaskAttributeBase*> VisibleWritableValuesMap;
-
+    protected:
+        virtual void handleUnload();
     public:
         ParsedStateMachine();
         virtual ~ParsedStateMachine();
@@ -56,7 +61,7 @@ namespace ORO_Execution {
         /**
          * Create a copy, set instantiate to 'true' if instantiating a RootMachine.
          */
-        ParsedStateMachine* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate = false ) const;
+        ParsedStateMachinePtr copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate = false ) const;
 
         void addParameter( const std::string& name, TaskAttributeBase* var );
 
@@ -77,7 +82,7 @@ namespace ORO_Execution {
 
         TaskContext* getTaskContext() const;
 
-        void setTaskContext(TaskContext* tc);
+        void setTaskContext(StateMachineTask* tc);
 
         bool inState( const std::string& name );
         /**
@@ -89,8 +94,7 @@ namespace ORO_Execution {
 
         boost::shared_ptr<std::string> _text;
 
-        TaskContext* context;
-        detail::StateMachineCommands* sc_coms;
+        StateMachineTask* context;
     };
 }
 

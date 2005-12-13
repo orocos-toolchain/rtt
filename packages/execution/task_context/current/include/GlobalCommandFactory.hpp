@@ -29,6 +29,8 @@
 #define GLOBALCOMMANDFACTORY_HPP
 
 #include "CommandFactoryInterface.hpp"
+#include "CommandProcessor.hpp"
+#include "CommandC.hpp"
 #include <map>
 
 namespace ORO_Execution 
@@ -36,16 +38,13 @@ namespace ORO_Execution
     class ExecutionEngine;
 
     /**
-     * @brief This class is sort of a registry for command factories..
+     * @brief A browsable interface for command factories.
      *
-     * Components can register their factory with us under a certain
-     * name, and then the parser can come and ask us for the factory
-     * by a certain name..  For example, if the parser sees a call to
-     * "object.method()", then it will ask us for the CommandFactory
-     * under the name object, and then ask that CommandFactory for the
-     * command method.  You can think of a CommandFactory as the
-     * virtual table of the object, and this class would then be
-     * something like a namespace linking names to the objects.
+     * A task registers its factories under a certain name, and then
+     * the user can come and ask us for the factory by a certain name.
+     * For example, to invoke a call to "object.command()", get the
+     * CommandFactory under the name object, and then ask that
+     * CommandFactory for the command.
      * @ingroup globalFactory
      */
     class GlobalCommandFactory
@@ -69,7 +68,7 @@ namespace ORO_Execution
        * @param objectname a registered object
        * @param	com a command
        */
-      bool hasCommand(const std::string& objectname,const std::string& com);
+      bool hasCommand(const std::string& objectname,const std::string& com) const;
 
       /*
        * registers a object together with a factory.
@@ -95,9 +94,40 @@ namespace ORO_Execution
       const CommandFactoryInterface* getObjectFactory(
         const std::string& objectname ) const;
 
+        /**
+         * Get a list of all registered factories.
+         */
         std::vector<std::string> getObjectList() const;
 
-        Processor* getCommandProcessor() const;
+        /**
+         * Get the command processor which processes the
+         * commands created by this factory.
+         */
+        CommandProcessor* getCommandProcessor() const;
+
+        /**
+         * Create a command.
+         * Use this function as in:
+         @verbatim
+         CommandC cc = create("this", "doSomething").arg( 3 ).arg(d).arg(5.0);
+         cc.execute();
+         // lateron ...
+         if ( cc.evaluate() ) {
+            // ...
+         }
+         @verbatim
+         * Also variables or reference to variables may be given
+         * within arg().
+         * @see CommandC
+         * @throw name_not_found_exception
+         * @throw wrong_number_of_args_exception
+         * @throw wrong_types_of_args_exception
+         */
+        CommandC create(const std::string& object,
+                        const std::string& command) const {
+            return CommandC(this, object, command, false);
+        }
+                        
     private:
       /**
        * our data..

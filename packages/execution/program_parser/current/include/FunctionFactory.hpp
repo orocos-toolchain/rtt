@@ -33,10 +33,11 @@
 #include "corelib/Property.hpp"
 #include <map>
 #include <string>
+#include "ProgramInterface.hpp"
 
 namespace ORO_Execution
 {
-    class Processor;
+    class ExecutionEngine;
 
     using ORO_CoreLib::Property;
     using ORO_CoreLib::PropertyBag;
@@ -48,14 +49,14 @@ namespace ORO_Execution
     class FunctionFactory
         : public CommandFactoryInterface
     {
-        typedef std::map<std::string, FunctionGraph*> map_t;
+        typedef std::map<std::string, ProgramInterfacePtr > map_t;
         map_t funcmap;
-        Processor* proc;
+        ExecutionEngine* proc;
     public:
-        FunctionFactory(Processor* procs);
+        FunctionFactory(ExecutionEngine* procs);
         ~FunctionFactory();
 
-        void addFunction(const std::string& name, FunctionGraph* f ) ;
+        void addFunction(const std::string& name, ProgramInterfacePtr f ) ;
 
         bool hasCommand(const std::string& com) const ;
 

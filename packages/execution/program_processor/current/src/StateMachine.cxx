@@ -26,6 +26,7 @@
  ***************************************************************************/
 #include "execution/StateMachine.hpp"
 #include <corelib/EventProcessor.hpp>
+#include "execution/StateMachineProcessor.hpp"
 #include "execution/EventService.hpp"
 #include "execution/mystd.hpp"
 #include <corelib/DataSource.hpp>
@@ -43,18 +44,20 @@ namespace ORO_Execution
     using namespace boost;
     using namespace ORO_CoreLib;
 
-    StateMachine::StateMachine(StateMachine* parent, const string& name )
-        : _parent (parent) , _name(name), eproc(0),
+    std::string StateMachine::emptyString;
+
+    StateMachine::StateMachine(StateMachinePtr parent, const string& name )
+        : smpStatus(nill), _parent (parent) , _name(name), eproc(0), smStatus(Status::unloaded), smp(0),
           initstate(0), finistate(0), current( 0 ), next(0), initc(0),
           currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), currentRun(0), currentTrans(0),
-          checking_precond(false), error(false), evaluating(0)
+          checking_precond(false), evaluating(0)
     {}
  
-    StateMachine::StateMachine(StateMachine* parent, EventProcessor* tc, const string& name )
-        : _parent (parent) , _name(name), eproc(tc),
+    StateMachine::StateMachine(StateMachinePtr parent, EventProcessor* tc, const string& name )
+        : _parent (parent) , _name(name), eproc(tc), smStatus(Status::unloaded), smp(0),
           initstate(0), finistate(0), current( 0 ), next(0), initc(0),
           currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), currentRun(0), currentTrans(0),
-          checking_precond(false), error(false), evaluating(0)
+          checking_precond(false), evaluating(0)
     {}
 
    StateMachine::~StateMachine()
@@ -62,26 +65,208 @@ namespace ORO_Execution
         delete initc;
     }
 
+    void StateMachine::handleUnload() {}
 
-    bool StateMachine::requestInitialState()
+    StateMachine::Status::StateMachineStatus StateMachine::getStatus() const {
+        return smStatus;
+    }
+
+    bool StateMachine::pause()
     {
-        // all conditions that must be satisfied to enter the initial state :
-        if ( !currentProg && ( current == initstate || current == finistate ) )
-        {
-            this->requestState( initstate );
+        if ( smStatus != Status::inactive && smStatus != Status::unloaded ) {
+            if (currentProg) {
+                currentProg->pause();
+                currentProg->execute();
+            }
+            smpStatus = pausing;
             return true;
         }
         return false;
     }
 
-    void StateMachine::requestFinalState()
+    bool StateMachine::step()
+    {
+        if ( smStatus == Status::paused && mstep == false ) {
+            mstep = true;
+            return true;
+        }
+        if ( smStatus == Status::active ) {
+            smStatus = Status::requesting;
+            return true;
+        }
+        return false;
+    }
+
+    bool StateMachine::start()
+    {
+        return this->automatic();
+    }
+
+    bool StateMachine::automatic()
+    {
+        // if you go from reactive to automatic, 
+        // first execute the run program, before 
+        // evaluating transitions.
+        if ( smStatus != Status::inactive && smStatus != Status::unloaded ) {
+            smStatus = Status::running;
+            runState( current );
+            return true;
+        }
+        return false;
+    }
+
+    bool StateMachine::reactive()
+    {
+        if ( smStatus != Status::inactive && smStatus != Status::unloaded ) {
+            smStatus = Status::active;
+            return true;
+        }
+        return false;
+    }
+
+    bool StateMachine::stop()
+    {
+        if ( smStatus != Status::inactive && smStatus != Status::unloaded ) {
+            smpStatus = gostop;
+            return true;
+        }
+        return false;
+    }
+
+    bool StateMachine::reset()
+    {
+        // if waiting in final state, go ahead.
+        if ( smStatus == Status::stopped ) {
+            smpStatus = goreset;
+            return true;
+        }
+        return false;
+    }
+
+    bool StateMachine::execute()
+    {
+        // internal transitional issues.
+        switch (smpStatus) {
+        case pausing:
+            smStatus = Status::paused;
+            smpStatus = nill;
+            return !inError();
+            break;
+        case gostop:
+            this->executePending();
+            if ( this->requestFinalState() ) {
+                // test for atomicity :
+                if ( this->inTransition() ) {
+                    smStatus = Status::stopping;
+                } else {
+                    smStatus = Status::stopped;
+                }
+                smpStatus = nill;
+            }
+            return !inError();
+            break;
+        case goreset:
+            if ( this->executePending() ) {
+                this->requestInitialState();
+                if ( this->inTransition() ) {
+                    smStatus = Status::resetting;
+                } else {
+                    smStatus = Status::active;
+                }
+            }
+            smpStatus = nill;
+            return !inError();
+            break;
+        case nill:
+            break;
+        }
+
+        // public visible states.
+        switch (smStatus) {
+        case Status::inactive:
+            return true;
+            break;
+        case Status::requesting:
+            if ( this->executePending() ) {   // if all steps done,
+                this->requestNextState();
+                smStatus = Status::active;
+            }
+            break;
+        case Status::active:
+            this->executePending();
+            break;
+        case Status::running:
+            if ( this->executePending() == false)
+                break;
+            // if all pending done:
+            if (true)
+                this->requestNextState(); // one state at a time
+            else {
+                // ??? Deprecate this ? is this an endless loop with commands ?
+                StateInterface* cur_s = this->currentState();
+                while ( cur_s != this->requestNextState() )  { // go until no transition found.
+                    cur_s = this->currentState();
+                }
+            }
+            break;
+        case Status::paused:
+            if (mstep) {
+                if ( this->executePending(true) )    // if all steps done,
+                    this->requestNextState(true); // one state at a time
+                mstep = false;
+            }
+            break;
+        case Status::error:
+        case Status::unloaded:
+            return false;
+            break;
+        case Status::activating:
+            this->executePending();
+            if ( !this->inTransition() )
+                smStatus = Status::active;
+            break;
+        case Status::stopping:
+            if ( this->executePending() )
+                smStatus = Status::stopped;
+            break;
+        case Status::deactivating:
+            if ( this->executePending() )
+                smStatus = Status::inactive;
+            break;
+        case Status::resetting:
+            if ( this->executePending() )
+                smStatus = Status::active;
+            break;
+        case Status::stopped:
+            this->executePending();
+            if ( current != finistate ) // detect leaving final state by event/request
+                smStatus = Status::active;
+            break;
+        }
+        return !inError();
+    }
+
+    bool StateMachine::requestInitialState()
+    {
+        // all conditions that must be satisfied to enter the initial state :
+        if ( interruptible() && ( current == initstate || current == finistate ) )
+        {
+            // this will try to execute the state change atomically
+            this->requestStateChange( initstate );
+            return true;
+        }
+        return false;
+    }
+
+    bool StateMachine::requestFinalState()
     {
         // if we are inactive or in transition, don't do anything.
-        if ( current == 0 || ( error == false && currentProg ) )
-            return;
+        if ( current == 0 || ( !inError() && !interruptible() ) )
+            return false;
 
-        error = false;
-        this->requestState( finistate );
+        // this will try to execute the state change atomically
+        return this->requestStateChange( finistate );
+        
     }
 
     void StateMachine::changeState(StateInterface* newState, ProgramInterface* transProg, bool stepping) {
@@ -90,6 +275,8 @@ namespace ORO_Execution
                 // this is only true if current state was selected in a transition of current.
                 if ( transProg ) {
                     transProg->reset();
+                    if (transProg->start() == false )
+                        smStatus = Status::error;
                     currentTrans = transProg;
                     currentProg = transProg;
                     // from now on, we are in transition to self !
@@ -115,8 +302,12 @@ namespace ORO_Execution
                 // or when an event arrived ).
                 currentRun = 0;
                 currentHandle = 0;
-                if ( transProg )
+                if ( transProg ) {
                     transProg->reset();
+                    if ( transProg->start() == false )
+                        smStatus = Status::error;
+
+                }
                 currentTrans = transProg;
                 // if error in current Exit, skip it.
                 if ( currentExit && currentExit->inError() )
@@ -133,7 +324,7 @@ namespace ORO_Execution
 
         // schedule a run for the next 'step'.
         // if handle above finished, run will be called directly
-        // in the user's executePending. if handle was not finished
+        // in executePending. if handle was not finished
         // or stepping, it will be called after handle.
         runState( newState );
     }
@@ -163,7 +354,7 @@ namespace ORO_Execution
         // bad idea, user, don't run this if we're not active...
         assert ( current != 0 );
         // only a run program may be interrupted...
-        if ( currentProg && currentProg != currentRun ) {
+        if ( !interruptible() ) {
             return current; // can not accept request, still in transition.
         }
         if ( reqstep == reqend ) { // if nothing to evaluate, just handle()
@@ -180,7 +371,7 @@ namespace ORO_Execution
                     break; // only returned in stepping
                 }
                 if( cres == 1) {
-                    changeState( get<1>(*reqstep), get<4>(*reqstep), stepping );
+                    changeState( get<1>(*reqstep), get<4>(*reqstep).get(), stepping );
                     break; // valid transition
                 }
                 // if cres == -1 : precondition failed, increment reqstep...
@@ -273,12 +464,12 @@ namespace ORO_Execution
         return 0;
     }
 
-    bool StateMachine::requestState( StateInterface * s_n )
+    bool StateMachine::requestStateChange( StateInterface * s_n )
     {
         // bad idea, user, don't run this if we're not active...
         assert ( current != 0 );
 
-        if ( currentProg && currentProg != currentRun ) {
+        if ( !interruptible() ) {
             return false; // can not accept request, still in transition
         }
 
@@ -300,7 +491,7 @@ namespace ORO_Execution
             if ( get<1>(*it1) == s_n
                  && get<0>(*it1)->evaluate()
                  && checkConditions( s_n ) == 1 ) {
-                changeState( s_n, get<4>(*it1) );
+                changeState( s_n, get<4>(*it1).get() );
                 // the request was accepted
                 return true;
             }
@@ -355,11 +546,11 @@ namespace ORO_Execution
 
     void StateMachine::transitionSet( StateInterface* from, StateInterface* to, ConditionInterface* cnd, int priority, int line )
     {
-        this->transitionSet( from, to, cnd, 0, priority, line);
+        this->transitionSet( from, to, cnd, shared_ptr<ProgramInterface>(), priority, line);
     }
 
     void StateMachine::transitionSet( StateInterface* from, StateInterface* to,
-                                      ConditionInterface* cnd, ProgramInterface* transprog,
+                                      ConditionInterface* cnd, boost::shared_ptr<ProgramInterface> transprog,
                                       int priority, int line )
     {
         // we must be inactive.
@@ -377,8 +568,8 @@ namespace ORO_Execution
     bool StateMachine::createEventTransition( EventService* es,
                                               const std::string& ename, vector<DataSourceBase::shared_ptr> args,
                                               StateInterface* from, StateInterface* to,
-                                              ConditionInterface* guard, ProgramInterface* transprog, 
-                                              StateInterface* elseto, ProgramInterface* elseprog )
+                                              ConditionInterface* guard, boost::shared_ptr<ProgramInterface> transprog, 
+                                              StateInterface* elseto, boost::shared_ptr<ProgramInterface> elseprog )
     {
         Logger::In in("StateMachine::createEventTransition");
         if (eproc == 0 ) {
@@ -404,7 +595,7 @@ namespace ORO_Execution
         // get ename from event service, provide args as arguments
         // event should be activated upon entry of 'from'
         // guard is evaluated to get final 'ok'.
-        // event does a requestState( to );
+        // event does a requestStateChange( to );
         // if 'ok', execute transprog during transition.
 
         // Store guard and transprog for copy/clone semantics.
@@ -416,12 +607,12 @@ namespace ORO_Execution
         Handle handle;
         if ( es->getEventProcessor() != eproc ) {// asyn if not same proc.
             Logger::log() << Logger::Debug << "Creating Asynchronous handler for '"<< ename <<"'."<<Logger::endl;
-            handle = es->setupAsyn( ename, bind( &StateMachine::eventTransition, this, from, guard, transprog, to, elseprog, elseto), args,
+            handle = es->setupAsyn( ename, bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto), args,
                                     eproc );
         }
         else {
             Logger::log() << Logger::Debug << "Creating Synchronous handler for '"<< ename <<"'."<<Logger::endl;
-            handle = es->setupSyn( ename, bind( &StateMachine::eventTransition, this, from, guard, transprog, to, elseprog, elseto), args );
+            handle = es->setupSyn( ename, bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto), args );
         }
 
         if ( !handle ) {
@@ -447,15 +638,30 @@ namespace ORO_Execution
         // CompletionProcessor (asyn event arrival). Therefore we must add extra checks :
         // only transition if this event was meant for this state and we are not
         // in transition already.
-        // If condition failse, check precondition 'else' state (if present) and
+        // If condition fails, check precondition 'else' state (if present) and
         // execute else program (may be null).
-        if ( from == current && !this->inTransition() )
+        if ( from == current && !this->inTransition() ) {
             if ( c->evaluate() && checkConditions(to, false) == 1 ) {
+//                 Logger::log() <<Logger::Error <<"Valid transition from "<<from->getName()
+//                               <<" to "<<to->getName()<<"."<<Logger::endl;
                 changeState( to, p );                // valid transition to 'to'.
             }
             else if ( elseto && checkConditions(elseto, false) == 1 ) {
                 changeState( elseto, elsep );        // valid transition to 'elseto'.
             }
+            else {
+//                 Logger::log() <<Logger::Error <<"Rejected transition from "<<from->getName()
+//                               <<" within "<<current->getName()<<": conditions not met"<<Logger::endl;
+            }
+        }
+//         else {
+//             if (this->inTransition() )
+//                 Logger::log() <<Logger::Error <<"Rejected transition from "<<from->getName()
+//                               <<" within "<<current->getName()<<": in transition."<<Logger::endl;
+//             else
+//                 Logger::log() <<Logger::Error <<"Rejected transition from "<<from->getName()
+//                               <<" within "<<current->getName()<<": wrong state."<<Logger::endl;
+//         }
     }
 
 #if 0
@@ -485,6 +691,9 @@ namespace ORO_Execution
         currentExit = s->getExitProgram();
         if ( currentExit ) {
             currentExit->reset();
+            if (currentExit->start() == false)
+                smStatus = Status::error;
+
             if (currentProg == 0 )
                 currentProg = currentExit;
         }
@@ -495,6 +704,8 @@ namespace ORO_Execution
         currentRun = s->getRunProgram();
         if ( currentRun ) {
             currentRun->reset();
+            if (currentRun->start() == false)
+                smStatus = Status::error;
             if (currentProg == 0 )
                 currentProg = currentRun;
         }
@@ -505,6 +716,8 @@ namespace ORO_Execution
         currentHandle = s->getHandleProgram();
         if ( currentHandle ) { 
             currentHandle->reset();
+            if (currentHandle->start() == false)
+                smStatus = Status::error;
             if (currentProg == 0 )
                 currentProg = currentHandle;
         }
@@ -521,6 +734,8 @@ namespace ORO_Execution
         currentEntry = s->getEntryProgram();
         if ( currentEntry ) {
             currentEntry->reset();
+            if (currentEntry->start() == false)
+                smStatus = Status::error;
             if (currentProg == 0 )
                 currentProg = currentEntry;
         }
@@ -536,7 +751,7 @@ namespace ORO_Execution
         // if returns true : a transition (exit/entry) is done
         // and a new state may be requested.
 
-        if ( error )
+        if ( inError() )
             return false;
 
         // first try exit
@@ -632,13 +847,18 @@ namespace ORO_Execution
     {
         // execute this stateprogram and cleanup if needed.
         currentProg = cp;
-        if ( (stepping && currentProg->executeStep() == false )
-             || (!stepping && currentProg->executeUntil() == false) ) {
-            error = true;
+        bool result;
+        if ( stepping )
+            result = currentProg->step();
+        else
+            result = currentProg->execute();
+        if ( result == false) {
+            smStatus = Status::error;
+            smpStatus = nill;
             return false;
         }
 
-        if ( !currentProg->isFinished() )
+        if ( !currentProg->isStopped() )
             return false; 
 
         cp = currentProg = 0;
@@ -646,8 +866,14 @@ namespace ORO_Execution
     }
 
 
+    // in exit/entry or transition programs
     bool StateMachine::inTransition() const {
-        return currentProg != 0  && currentProg != currentRun;
+        return currentProg != 0  && currentProg != currentRun && currentProg != currentHandle;
+    }
+
+    // only run program may be interrupted.
+    bool StateMachine::interruptible() const {
+        return currentProg == 0  || currentProg == currentRun;
     }
 
     void StateMachine::setInitialState( StateInterface* s )
@@ -664,15 +890,23 @@ namespace ORO_Execution
 
     bool StateMachine::activate()
     {
-        if ( current != 0 )
+        // inactive implies loaded, but check additionally if smp is running.
+        if ( smStatus != Status::inactive || !smp->getTask() || !smp->getTask()->isRunning() ) {
             return false;
+        }
 
-        if ( this->checkConditions( getInitialState() ) != 1 )
+        smpStatus = nill;
+
+        if ( this->checkConditions( getInitialState() ) != 1 ) {
             return false; //preconditions not met.
+        }
 
         if ( initc ) {
             initc->reset();
-            initc->execute();
+            if ( initc->execute() == false ) {
+                assert(false);
+                return false; // fail to activate.
+            }
         }
 
         //current = getInitialState();
@@ -680,34 +914,47 @@ namespace ORO_Execution
         reqstep = stateMap.find( next )->second.begin();
         reqend = stateMap.find( next )->second.end();
 
+        smStatus = Status::activating;
         // execute the entry program of the initial state.
-        this->executePending();
+        if ( this->executePending() )
+            smStatus = Status::active;
 
         return true;
     }
 
+
     bool StateMachine::deactivate()
     {
-        if ( current == 0 )
+        if ( current == 0 ) {
+            //assert(false);
             return false;
+        }
 
         // whatever state we are in, leave it.
         // but if current exit is in error, skip it alltogether.
         if ( currentExit && currentExit->inError() )
             currentExit = 0;
-        else
-            leaveState( current );
+        else {
+            // if we stalled, in previous deactivate
+            // even skip/stop exit program.
+            if ( next != 0 )
+                leaveState( current );
+            else
+                currentExit = 0;
+        }
         // do not call enterState( 0 )
+        currentProg = 0;
         currentEntry = 0;
         currentHandle  = 0;
         currentRun  = 0;
         next = 0;
 
-        // reset error flag.
-        error = false;
         // this will execute the exitFunction (if any) and, if successfull,
         // set current to zero (using next).
-        this->executePending();
+        smStatus = Status::deactivating;
+        if ( this->executePending() )
+            smStatus = Status::inactive;
+
         return true;
     }
 }

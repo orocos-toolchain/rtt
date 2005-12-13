@@ -71,24 +71,24 @@ namespace ORO_Execution
          * @{
          */
         /**
-         * Start is a method which starts the Processor's task.
-         * It can not be a command because if the Processor is not running,
+         * Start is a method which starts the execution engine's task.
+         * It can not be a command because if the engine is not running,
          * it does not accept commands. Also, RunnableInterface::initialize()
          * is then called in the context of the caller.
          * You can override this method to do something else or in addition
          * to starting the Processor.
-         * @return false if the Processor was not assigned to a TaskInterface
+         * @return false if the engine was not assigned to a TaskInterface
          * or if initialize() returned false or it was already started.
          */
         virtual bool start();
         
         /**
-         * Stop is a method which stops the Processor's task.
+         * Stop is a method which stops the execution engine's task.
          * RunnableInterface::finalize()
          * is called in the context of the caller.
          * You can override this method to do something else or in addition
-         * to stopping the Processor.
-         * @return false if the Processor was not assigned to a TaskInterface
+         * to stopping the engine.
+         * @return false if the engine was not assigned to a TaskInterface
          * or if it was not running.
          */
         virtual bool stop();

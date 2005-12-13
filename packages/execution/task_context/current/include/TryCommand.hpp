@@ -109,12 +109,12 @@ namespace ORO_Execution
     public:
         /**
          * Pass TryCommand::result() to the first parameter of the command
-         * you want to check. If \a invert is \a true (the default), 
+         * you want to check. If \a invert is \a true, 
          * TryCommandResult::evaluate() will return true if the original command failed.
          * If \a invert is \a false, evaluate() will return the return value of the
          * original command.
          */
-        TryCommandResult( DataSource<bool>::shared_ptr ec, bool invert = true )
+        TryCommandResult( DataSource<bool>::shared_ptr ec, bool invert)
             :c(ec), _invert(invert) {}
 
         ~TryCommandResult() {
