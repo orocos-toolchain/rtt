@@ -23,7 +23,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <execution/Parser.hpp>
-#include <execution/Processor.hpp>
 #include <execution/TaskContext.hpp>
 #include <execution/Factories.hpp>
 #include <string>
@@ -47,7 +46,6 @@ class ProgramTest : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE_END();
 
     Parser parser;
-    Processor gprocessor;
     TaskContext gtc;
     TaskSimulation gtask;
     MethodFactoryInterface* createMethodFactory();
@@ -59,7 +57,7 @@ class ProgramTest : public CppUnit::TestFixture
     void reset();
     void doProgram( const std::string& prog, TaskContext*, bool test=true );
     void finishProgram( TaskContext* , std::string );
-    void loopProgram( FunctionGraph*);
+    void loopProgram( ProgramInterfacePtr );
 
     bool true_genCom() { return true; }
     bool false_genCom() { return false; }

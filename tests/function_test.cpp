@@ -23,7 +23,6 @@
 #include <iostream>
 #include <sstream>
 #include <execution/FunctionGraph.hpp>
-#include <execution/ProgramGraph.hpp>
 #include <corelib/SimulationThread.hpp>
 #include <execution/TemplateFactories.hpp>
 
@@ -34,8 +33,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION( FunctionTest );
 
 
     FunctionTest::FunctionTest()
-        : gtc("root", &gprocessor),
-          gtask( 0.01, &gprocessor )
+        : gtc("root" ),
+          gtask( 0.01, gtc.getExecutionEngine() )
     {}
 
 
@@ -327,7 +326,7 @@ void FunctionTest::testFunctionFail()
 void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool test )
 {
     stringstream progs(prog);
-    std::vector<ProgramGraph*> pg_list;
+    Parser::ParsedPrograms pg_list;
     try {
         pg_list = parser.parseProgram( progs, tc );
     }
@@ -339,8 +338,9 @@ void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool te
         {
             CPPUNIT_ASSERT_MESSAGE("No program parsed in test.", false );
         }
-    tc->getProcessor()->loadProgram( *pg_list.begin() );
-    tc->getProcessor()->startProgram( (*pg_list.begin())->getName() );
+    ProgramProcessor* pp = tc->getExecutionEngine()->getProgramProcessor();
+    pp->loadProgram( *pg_list.begin() );
+    pp->getProgram( (*pg_list.begin())->getName() )->start();
     SimulationThread::Instance()->start();
     gtask.start();
 //     while (1)
@@ -350,16 +350,16 @@ void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool te
 
     if (test ) {
         stringstream errormsg;
-        errormsg << " on line " << gprocessor.getProgram("x")->getLineNumber() <<"."<<endl;
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered" + errormsg.str(), gprocessor.getProgramStatus("x") != Processor::ProgramStatus::error );
-        CPPUNIT_ASSERT_MESSAGE( "Program stalled " + errormsg.str(), gprocessor.getProgramStatus("x") == Processor::ProgramStatus::stopped );
+        errormsg << " on line " << pp->getProgram("x")->getLineNumber() <<"."<<endl;
+        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered" + errormsg.str(), pp->getProgramStatus("x") != ProgramInterface::Status::error );
+        CPPUNIT_ASSERT_MESSAGE( "Program stalled " + errormsg.str(), pp->getProgramStatus("x") == ProgramInterface::Status::stopped );
     }
 }
 
 void FunctionTest::finishFunction(TaskContext* tc, std::string prog_name)
 {
-    tc->getProcessor()->stopProgram( prog_name );
-    tc->getProcessor()->deleteProgram( prog_name );
+    tc->getExecutionEngine()->getProgramProcessor()->getProgram( prog_name )->stop();
+    tc->getExecutionEngine()->getProgramProcessor()->unloadProgram( prog_name );
 
     TaskContext* ptc= tc->getPeer("programs")->getPeer(prog_name);
     tc->getPeer("programs")->removePeer(prog_name);

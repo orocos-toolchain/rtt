@@ -21,6 +21,7 @@
 #include "buffers_test.hpp"
 #include <unistd.h>
 #include <iostream>
+#include <boost/scoped_ptr.hpp>
 
 using namespace std;
 
@@ -38,6 +39,11 @@ struct Dummy {
     bool operator==(const Dummy& d) const
     {
         return d.d1 == d1 && d.d2 == d2 && d.d3 == d3;
+    }
+
+    bool operator!=(const Dummy& d) const
+    {
+        return d.d1 != d1 || d.d2 != d2 || d.d3 != d3;
     }
 
     bool operator<(const Dummy& d) const
@@ -73,6 +79,9 @@ BuffersTest::setUp()
     dataobj  = new DataObjectLockFree<Dummy>("name");
 
     mslist =  new SortedList<Dummy>();
+
+    listlockfree = new ListLockFree<Dummy>(10, 4);
+
 }
 
 
@@ -87,6 +96,8 @@ BuffersTest::tearDown()
     delete dataobj;
 
     delete mslist;
+    
+    delete listlockfree;
 }
 
 void BuffersTest::testAtomic()
@@ -127,6 +138,7 @@ void BuffersTest::testAtomicCounted()
      */
 
     Dummy* d = new Dummy;
+    Dummy* e = new Dummy;
     Dummy* c = d;
 
     CPPUNIT_ASSERT( aqueue->dequeueCounted(c) == 0 );
@@ -149,6 +161,18 @@ void BuffersTest::testAtomicCounted()
     CPPUNIT_ASSERT( aqueue->isFull() == false );
     CPPUNIT_ASSERT( aqueue->isEmpty() == true );
 
+    CPPUNIT_ASSERT( aqueue->enqueueCounted( d ) != 0 );
+    CPPUNIT_ASSERT( aqueue->enqueueCounted( e ) != 0 );
+    CPPUNIT_ASSERT( aqueue->enqueueCounted( d ) != 0 );
+    c = 0;
+    CPPUNIT_ASSERT( aqueue->dequeueCounted( c ) != 0 );
+    CPPUNIT_ASSERT( c == d );
+    CPPUNIT_ASSERT( aqueue->dequeueCounted( c ) != 0 );
+    CPPUNIT_ASSERT( c == e );
+    CPPUNIT_ASSERT( aqueue->dequeueCounted( c ) != 0 );
+    CPPUNIT_ASSERT( c == d );
+
+    delete e;
     delete d;
 }
 
@@ -368,14 +392,14 @@ void BuffersTest::testSortedList()
     CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,4)) == true );
     CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,4)) == false );
 
-    mslist->apply( &addOne );
+    mslist->applyOnData( &addOne );
     CPPUNIT_ASSERT( mslist->hasKey(Dummy(2,3,2)) == true );
     CPPUNIT_ASSERT( mslist->hasKey(Dummy(2,3,3)) == true );
     CPPUNIT_ASSERT( mslist->hasKey(Dummy(2,3,4)) == true );
     CPPUNIT_ASSERT( mslist->hasKey(Dummy(2,3,6)) == true );
     CPPUNIT_ASSERT( mslist->hasKey(Dummy(2,3,7)) == true );
 
-    mslist->apply( &subOne );
+    mslist->applyOnData( &subOne );
     CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,1)) == true );
     CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,2)) == true );
     CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,3)) == true );
@@ -389,4 +413,116 @@ void BuffersTest::testSortedList()
     CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,3)) == true );
     
     CPPUNIT_ASSERT( mslist->empty() );
+}
+
+struct LLFWorker : public ORO_OS::RunnableInterface
+{
+    bool stop;
+    typedef ListLockFree<Dummy> T;
+    T* mlst;
+    int i;
+    int appends;
+    int erases;
+    LLFWorker(T* l ) : stop(false), mlst(l), i(1) {} 
+    bool initialize() {
+        stop = false; i = 1;
+        appends = 0; erases = 0;
+        return true;
+    }
+    void step() {
+        while (stop == false ) {
+            //cout << "Appending, i="<<i<<endl;
+            while ( mlst->append( Dummy(i,i,i) ) ) { ++i; ++appends; }
+            //cout << "Erasing, i="<<i<<endl;
+            while ( mlst->erase( Dummy(i-1,i-1,i-1) ) ) { --i; ++erases; }
+        }
+        //cout << "Stopping, i="<<i<<endl;
+    }
+
+    void finalize() {}
+
+    bool breakLoop() {
+        stop = true;
+        return true;
+    }
+};
+
+struct LLFGrower : public ORO_OS::RunnableInterface
+{
+    bool stop;
+    typedef ListLockFree<Dummy> T;
+    T* mlst;
+    int i;
+    LLFGrower(T* l ) : stop(false), mlst(l), i(1) {} 
+    bool initialize() {
+        stop = false; i = 1;
+        return true;
+    }
+    void step() {
+        // stress growing of list during append/erase.
+        while (stop == false && i < 2500 ) {
+            // reserve is quite slow.
+            mlst->reserve(i);
+            ++i;
+        }
+    }
+
+    void finalize() {}
+
+    bool breakLoop() {
+        stop = true;
+        return true;
+    }
+};
+
+void BuffersTest::testListLockFree()
+{
+    LLFWorker* aworker = new LLFWorker( listlockfree );
+    LLFWorker* bworker = new LLFWorker( listlockfree );
+    LLFWorker* cworker = new LLFWorker( listlockfree );
+    LLFGrower* grower = new LLFGrower( listlockfree );
+
+    {
+        boost::scoped_ptr<SingleThread> athread( new SingleThread(1,"ThreadA", aworker ));
+        boost::scoped_ptr<SingleThread> bthread( new SingleThread(1,"ThreadB", bworker ));
+        boost::scoped_ptr<SingleThread> cthread( new SingleThread(1,"ThreadC", cworker ));
+        boost::scoped_ptr<SingleThread> gthread( new SingleThread(1,"ThreadG", grower ));
+    
+        athread->start();
+        bthread->start();
+        cthread->start();
+
+        sleep(5);
+        gthread->start();
+        sleep(1);
+        gthread->stop();
+        sleep(5);
+    
+        athread->stop();
+        bthread->stop();
+        cthread->stop();
+    }
+
+    cout << "Athread appends: " << aworker->appends<<endl;
+    cout << "Athread erases: " << aworker->erases<<endl;
+    cout << "Bthread appends: " << bworker->appends<<endl;
+    cout << "Bthread erases: " << bworker->erases<<endl;
+    cout << "Cthread appends: " << cworker->appends<<endl;
+    cout << "Cthread erases: " << cworker->erases<<endl;
+    cout << "List capacity: "<< listlockfree->capacity()<<endl;
+    cout << "List size: "<< listlockfree->size()<<endl;
+//     while( listlockfree->empty() == false ) {
+//         Dummy d =  listlockfree->back();
+//         //cout << "Left: "<< d <<endl;
+//         CPPUNIT_ASSERT( listlockfree->erase( d ) );
+//     }
+
+    CPPUNIT_ASSERT( aworker->appends == aworker->erases );
+    CPPUNIT_ASSERT( bworker->appends == bworker->erases );
+    CPPUNIT_ASSERT( cworker->appends == cworker->erases );
+
+    delete aworker;
+    delete bworker;
+    delete cworker;
+    delete grower;
 }

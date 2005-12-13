@@ -92,8 +92,9 @@ parser_test_SOURCES = test-runner.cpp \
 	types_test.cpp types_test.hpp
 
 program_test_SOURCES = test-runner.cpp \
-	function_test.cpp function_test.hpp \
-	program_test.cpp program_test.hpp
+	function_test.cpp function_test.hpp
+
+#	program_test.cpp program_test.hpp
 
 state_test_SOURCES = test-runner.cpp \
 	state_test.cpp state_test.hpp

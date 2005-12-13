@@ -22,7 +22,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <sstream>
-#include <execution/ProgramGraph.hpp>
+#include <execution/FunctionGraph.hpp>
 #include <corelib/SimulationThread.hpp>
 #include <execution/TemplateFactories.hpp>
 
@@ -33,8 +33,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION( ProgramTest );
 
 
     ProgramTest::ProgramTest()
-        : gtc("root", &gprocessor),
-          gtask( 0.01, &gprocessor )
+        : gtc("root"),
+          gtask( 0.01, gtc.engine() )
     {}
 
 
@@ -180,7 +180,7 @@ void ProgramTest::testProgramFailure()
 
     this->doProgram( prog, &gtc, false );
 
-    CPPUNIT_ASSERT( gprocessor.getProgramStatus("x") == Processor::ProgramStatus::error );
+    CPPUNIT_ASSERT( gtc.engine()->programs()->getProgramStatus("x") == ProgramInterface::Status::error );
 
     this->finishProgram( &gtc, "x");
 }
@@ -368,7 +368,7 @@ void ProgramTest::testProgramUntilFail()
         + " }";
     this->doProgram( prog, &gtc, false );
 
-    CPPUNIT_ASSERT( gprocessor.getProgramStatus("x") == Processor::ProgramStatus::error );
+    CPPUNIT_ASSERT( gtc.engine()->programs()->getProgramStatus("x") == ProgramInterface::Status::error );
 
     this->finishProgram( &gtc, "x");
 }
@@ -376,7 +376,7 @@ void ProgramTest::testProgramUntilFail()
 void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test )
 {
     stringstream progs(prog);
-    std::vector<ProgramGraph*> pg_list;
+    Parser::ParsedPrograms pg_list;
     try {
         pg_list = parser.parseProgram( progs, tc );
     }
@@ -388,9 +388,10 @@ void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test
         {
             CPPUNIT_ASSERT( false );
         }
-    tc->getProcessor()->loadProgram( *pg_list.begin() );
-    std::string pname = (*pg_list.begin())->getName();
-    tc->getProcessor()->startProgram( pname );
+    ProgramInterfacePtr pi = *pg_list.begin();
+
+    tc->engine()->programs()->loadProgram( pi );
+    pi->start();
     SimulationThread::Instance()->start();
     gtask.start();
 //     while (1)
@@ -399,16 +400,16 @@ void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test
 
     if (test ) {
         stringstream errormsg;
-        errormsg << " on line " << gprocessor.getProgram( pname )->getLineNumber() <<"."<<endl;
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered" + errormsg.str(), gprocessor.getProgramStatus(pname) != Processor::ProgramStatus::error );
-        CPPUNIT_ASSERT_MESSAGE( "Program stalled " + errormsg.str(), gprocessor.getProgramStatus(pname) == Processor::ProgramStatus::stopped );
+        errormsg << " on line " << pi->getLineNumber() <<"."<<endl;
+        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered" + errormsg.str(), pi->getStatus() != ProgramInterface::Status::error );
+        CPPUNIT_ASSERT_MESSAGE( "Program stalled " + errormsg.str(), pi->getStatus() == ProgramInterface::Status::stopped );
 
         // Xtra test, only do it if all previous went ok :
-        loopProgram( *pg_list.begin() );
+        loopProgram( pi );
     }
 }
 
-void ProgramTest::loopProgram( FunctionGraph* f)
+void ProgramTest::loopProgram( ProgramInterfacePtr f)
 {
     //std::cerr <<std::endl<< "Looping " << f->getName();
     // especially handy for performance testing :
@@ -417,8 +418,8 @@ void ProgramTest::loopProgram( FunctionGraph* f)
     int loops = 100;
     f->reset();
     while ( loops-- != 0 ) {
-        while ( !f->isFinished() && !f->inError() )
-            f->executeUntil();
+        while ( !f->isStopped() && !f->inError() )
+            f->execute();
         f->reset();
         //std::cerr << ".";
     }
@@ -428,8 +429,8 @@ void ProgramTest::loopProgram( FunctionGraph* f)
 void ProgramTest::finishProgram(TaskContext* tc, std::string prog_name)
 {
     gtask.stop();
-    tc->getProcessor()->stopProgram( prog_name );
-    tc->getProcessor()->deleteProgram( prog_name );
+    tc->engine()->programs()->getProgram( prog_name )->stop();
+    tc->engine()->programs()->unloadProgram( prog_name );
 
     TaskContext* ptc= tc->getPeer("programs")->getPeer(prog_name);
     tc->getPeer("programs")->removePeer(prog_name);

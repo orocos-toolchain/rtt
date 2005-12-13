@@ -27,7 +27,6 @@
 #include <execution/Parser.hpp>
 #endif
 
-#include <execution/Processor.hpp>
 #include <execution/TaskContext.hpp>
 #include <execution/Factories.hpp>
 #include <string>

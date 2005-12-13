@@ -37,6 +37,7 @@ class EventServiceTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testEmit1 );
     CPPUNIT_TEST( testEmit2 );
     CPPUNIT_TEST( testEmit3 );
+    CPPUNIT_TEST( testEventC );
     CPPUNIT_TEST_SUITE_END();
 
     ORO_CoreLib::Event<void( void )>* t_event0;
@@ -79,6 +80,7 @@ public:
     void testEmit1();
     void testEmit2();
     void testEmit3();
+    void testEventC();
 };
 
 #endif  // EVENTTEST_H

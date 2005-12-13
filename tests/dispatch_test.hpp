@@ -23,7 +23,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <execution/Parser.hpp>
-#include <execution/Processor.hpp>
+#include <execution/CommandProcessor.hpp>
 #include <execution/TaskContext.hpp>
 #include <execution/Factories.hpp>
 #include <string>
@@ -47,15 +47,12 @@ class DispatchTest : public CppUnit::TestFixture
     //CPPUNIT_TEST( testSendDispatch );
 
     Parser parser;
-    Processor gprocessor;
-    Processor mprocessor;
-    Processor lprocessor;
-    TaskSimulation gtask;
-    TaskSimulation mtask;
-    TaskSimulation ltask;
     TaskContext gtc;
     TaskContext mtc;
     TaskContext ltc;
+    TaskSimulation gtask;
+    TaskSimulation mtask;
+    TaskSimulation ltask;
     MethodFactoryInterface* createMethodFactory();
     CommandFactoryInterface* createCommandFactory();
     DataSourceFactoryInterface* createDataSourceFactory();

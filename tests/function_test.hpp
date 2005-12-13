@@ -23,7 +23,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <execution/Parser.hpp>
-#include <execution/Processor.hpp>
+#include <execution/ExecutionEngine.hpp>
 #include <execution/TaskContext.hpp>
 #include <execution/Factories.hpp>
 #include <string>
@@ -46,7 +46,6 @@ class FunctionTest : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE_END();
 
     Parser parser;
-    Processor gprocessor;
     TaskContext gtc;
     TaskSimulation gtask;
     MethodFactoryInterface* createMethodFactory();

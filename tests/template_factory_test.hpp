@@ -4,7 +4,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <execution/Parser.hpp>
-#include <execution/Processor.hpp>
+#include <execution/CommandProcessor.hpp>
 #include <execution/TaskContext.hpp>
 #include <execution/Factories.hpp>
 #include <string>
@@ -16,18 +16,22 @@ class Template_FactoryTest : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( Template_FactoryTest );
     CPPUNIT_TEST( testMethods );
+    CPPUNIT_TEST( testMethodsC );
     CPPUNIT_TEST( testData );
     CPPUNIT_TEST( testCommands );
+    CPPUNIT_TEST( testCommandsC );
     CPPUNIT_TEST( testManual );
     CPPUNIT_TEST_SUITE_END();
 
     Parser parser;
     TaskContext* tc;
-    Processor processor;
+    TaskInterface* tsim;
+    CommandProcessor processor;
     MethodFactoryInterface* createMethodFactory();
     DataSourceFactoryInterface* createDataSourceFactory();
     CommandFactoryInterface* createCommandFactory();
 
+    void executePrograms(const Parser::ParsedPrograms& pg_list );
     double m0() { return -d0(); }
     double m1(int i) { return -d1(i); }
     double m2(int i, double d) { return -d2(i,d); }
@@ -57,8 +61,10 @@ public:
     void tearDown();
 
     void testMethods();
+    void testMethodsC();
     void testData();
     void testCommands();
+    void testCommandsC();
 
     void testManual();
 };

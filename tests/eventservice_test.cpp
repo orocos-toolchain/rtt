@@ -102,6 +102,22 @@ void EventServiceTest::reset()
     t_completer_bool = false;
 }
 
+void EventServiceTest::setup()
+{
+    es->addEvent( "t_event0", t_event0 );
+    es->addEvent( "t_event1", t_event1 );
+    es->addEvent( "t_event2", t_event2 );
+    es->addEvent( "t_event3", t_event3 );
+}
+
+void EventServiceTest::cleanup()
+{
+    es->removeEvent( "t_event0" );
+    es->removeEvent( "t_event1" );
+    es->removeEvent( "t_event2" );
+    es->removeEvent( "t_event3" );
+}
+
 void EventServiceTest::testAddRemove()
 {
     bool result;
@@ -130,13 +146,6 @@ void EventServiceTest::testAddRemove()
     CPPUNIT_ASSERT( result == false );
 }
 
-void EventServiceTest::setup()
-{
-    es->addEvent( "t_event0", t_event0 );
-    es->addEvent( "t_event1", t_event1 );
-    es->addEvent( "t_event2", t_event2 );
-    es->addEvent( "t_event3", t_event3 );
-}
 void EventServiceTest::testSetupSyn()
 {
     this->setup();
@@ -153,13 +162,6 @@ void EventServiceTest::testSetupSyn()
     this->cleanup();
 }
 
-void EventServiceTest::cleanup()
-{
-    es->removeEvent( "t_event0" );
-    es->removeEvent( "t_event1" );
-    es->removeEvent( "t_event2" );
-    es->removeEvent( "t_event3" );
-}
 void EventServiceTest::testSetupAsyn()
 {
     this->setup();
@@ -386,3 +388,58 @@ void EventServiceTest::testEmit3()
 
     this->cleanup();
 }
+
+
+void EventServiceTest::testEventC()
+{
+    // Test EventC and ConnectionC...
+    Handle h1, h2, h3;
+
+    this->setup();
+
+    try {
+        h1 = es->createSynConnection("t_event3", bind(&EventServiceTest::listener0,this)).
+            arg(t_listener_string).arg(t_listener_double).arg(t_listener_bool).handle();
+    } catch ( std::exception& e ) {
+        CPPUNIT_ASSERT_MESSAGE( e.what(), false );
+    }
+
+    try {
+    h2 = es->createAsynConnection("t_event3", bind(&EventServiceTest::completer0,this),event_proc).
+        arg(t_completer_string).arg(t_completer_double).arg(t_completer_bool).handle();
+    } catch ( std::exception& e ) {
+        CPPUNIT_ASSERT_MESSAGE( e.what(), false );
+    }
+
+    EventC evc;
+    bool evcarg = true;
+    try {
+        evc = es->createEmit("t_event3").argC( std::string("hello") ).argC( 0.1234 ).arg( evcarg );
+    } catch ( std::exception& e ) {
+        CPPUNIT_ASSERT_MESSAGE( e.what(), false );
+    }
+
+    CPPUNIT_ASSERT( h1.connect() );
+    evc.emit();
+    CPPUNIT_ASSERT( t_listener_done );
+    CPPUNIT_ASSERT( t_listener_string == std::string("hello") );
+    CPPUNIT_ASSERT( t_listener_double == 0.1234 );
+    CPPUNIT_ASSERT( t_listener_bool == evcarg );
+    this->reset();
+    CPPUNIT_ASSERT( h1.disconnect() );
+
+    CPPUNIT_ASSERT( h2.connect() );
+    evc.emit();
+    CPPUNIT_ASSERT( !t_completer_done );
+    event_proc->step();
+    CPPUNIT_ASSERT( t_completer_done );
+    CPPUNIT_ASSERT( t_completer_string == std::string("hello") );
+    CPPUNIT_ASSERT( t_completer_double == 0.1234 );
+    CPPUNIT_ASSERT( t_completer_bool == evcarg );
+    this->reset();
+    CPPUNIT_ASSERT( h2.disconnect() );
+
+    this->cleanup();
+
+}
+

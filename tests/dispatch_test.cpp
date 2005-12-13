@@ -21,7 +21,7 @@
 #include "dispatch_test.hpp"
 #include <unistd.h>
 #include <iostream>
-#include <execution/ProgramGraph.hpp>
+#include <execution/FunctionGraph.hpp>
 #include <corelib/SimulationThread.hpp>
 #include <execution/TemplateFactories.hpp>
 
@@ -31,10 +31,12 @@ using namespace std;
 CPPUNIT_TEST_SUITE_REGISTRATION( DispatchTest );
 
 DispatchTest::DispatchTest()
-    : gtask( 0.1, &gprocessor ), mtask(0.05, &mprocessor), ltask(0.01, &lprocessor),
-      gtc("root",  &gprocessor),
-      mtc("space", &mprocessor),
-      ltc("subspace", &lprocessor)
+    : gtc("root"),
+      mtc("space"),
+      ltc("subspace"),
+      gtask(0.1, gtc.engine() ),
+      mtask(0.05, mtc.engine()),
+      ltask(0.01, ltc.engine())
 {}
 
 
@@ -135,9 +137,9 @@ void DispatchTest::testParseDispatch()
 
     this->doDispatch( prog, &gtc );
 
-    CPPUNIT_ASSERT( gprocessor.getProgramStatus("x") != Processor::ProgramStatus::error );
-    CPPUNIT_ASSERT( gprocessor.getProgramStatus("x") != Processor::ProgramStatus::running );
-    CPPUNIT_ASSERT( gprocessor.getProgramStatus("x") == Processor::ProgramStatus::stopped );
+    CPPUNIT_ASSERT( gtc.getExecutionEngine()->getProgramProcessor()->getProgramStatus("x") != ProgramInterface::Status::error );
+    CPPUNIT_ASSERT( gtc.getExecutionEngine()->getProgramProcessor()->getProgramStatus("x") != ProgramInterface::Status::running );
+    CPPUNIT_ASSERT( gtc.getExecutionEngine()->getProgramProcessor()->getProgramStatus("x") == ProgramInterface::Status::stopped );
 
     this->finishDispatch( &gtc, "x");
 }
@@ -151,7 +153,7 @@ void DispatchTest::testDispatchFailure()
 
     this->doDispatch( prog, &gtc );
 
-    CPPUNIT_ASSERT( gprocessor.getProgramStatus("x") == Processor::ProgramStatus::error );
+    CPPUNIT_ASSERT( gtc.getExecutionEngine()->getProgramProcessor()->getProgramStatus("x") == ProgramInterface::Status::error );
 
     this->finishDispatch( &gtc, "x");
 }
@@ -170,8 +172,8 @@ void DispatchTest::testDispatchCondition()
         + " }";
     this->doDispatch( prog, &gtc );
 
-    CPPUNIT_ASSERT( gprocessor.getProgramStatus("x") != Processor::ProgramStatus::error );
-    CPPUNIT_ASSERT( gprocessor.getProgramStatus("x") == Processor::ProgramStatus::stopped );
+    CPPUNIT_ASSERT( gtc.getExecutionEngine()->getProgramProcessor()->getProgramStatus("x") != ProgramInterface::Status::error );
+    CPPUNIT_ASSERT( gtc.getExecutionEngine()->getProgramProcessor()->getProgramStatus("x") == ProgramInterface::Status::stopped );
 
     this->finishDispatch( &gtc, "x");
 }
@@ -188,8 +190,8 @@ void DispatchTest::testDispatchAnd()
         + " }";
     this->doDispatch( prog, &gtc );
 
-    CPPUNIT_ASSERT( gprocessor.getProgramStatus("x") != Processor::ProgramStatus::error );
-    CPPUNIT_ASSERT( gprocessor.getProgramStatus("x") == Processor::ProgramStatus::stopped );
+    CPPUNIT_ASSERT( gtc.getExecutionEngine()->getProgramProcessor()->getProgramStatus("x") != ProgramInterface::Status::error );
+    CPPUNIT_ASSERT( gtc.getExecutionEngine()->getProgramProcessor()->getProgramStatus("x") == ProgramInterface::Status::stopped );
 
     this->finishDispatch( &gtc, "x");
 }
@@ -208,8 +210,9 @@ void DispatchTest::testDispatchTry()
         + " }";
     this->doDispatch( prog, &gtc );
 
-    CPPUNIT_ASSERT( gprocessor.getProgramStatus("x") != Processor::ProgramStatus::error );
-    CPPUNIT_ASSERT( gprocessor.getProgramStatus("x") == Processor::ProgramStatus::stopped );
+    CPPUNIT_ASSERT( gtc.getExecutionEngine()->getProgramProcessor()->getProgramStatus("x") != ProgramInterface::Status::error );
+    CPPUNIT_ASSERT_MESSAGE( "Status was not 'stopped', but "+gtc.engine()->programs()->getProgramStatusStr("x"),
+                            gtc.engine()->programs()->getProgramStatus("x") == ProgramInterface::Status::stopped);
 
     this->finishDispatch( &gtc, "x");
 }
@@ -228,8 +231,8 @@ void DispatchTest::testDispatchUntil()
         + " }";
     this->doDispatch( prog, &gtc );
 
-    CPPUNIT_ASSERT( gprocessor.getProgramStatus("x") != Processor::ProgramStatus::error );
-    CPPUNIT_ASSERT( gprocessor.getProgramStatus("x") == Processor::ProgramStatus::stopped );
+    CPPUNIT_ASSERT( gtc.getExecutionEngine()->getProgramProcessor()->getProgramStatus("x") != ProgramInterface::Status::error );
+    CPPUNIT_ASSERT( gtc.getExecutionEngine()->getProgramProcessor()->getProgramStatus("x") == ProgramInterface::Status::stopped );
 
     this->finishDispatch( &gtc, "x");
 }
@@ -244,7 +247,7 @@ void DispatchTest::testDispatchUntilFail()
         + " }";
     this->doDispatch( prog, &gtc );
 
-    CPPUNIT_ASSERT( gprocessor.getProgramStatus("x") == Processor::ProgramStatus::error );
+    CPPUNIT_ASSERT( gtc.getExecutionEngine()->getProgramProcessor()->getProgramStatus("x") == ProgramInterface::Status::error );
 
     this->finishDispatch( &gtc, "x");
 }
@@ -256,8 +259,8 @@ void DispatchTest::testSendDispatch()
     string prog = "program x { send space.subspace.test.assert(false) \n }";
     this->doDispatch( prog, &gtc );
 
-    CPPUNIT_ASSERT( gprocessor.getProgramStatus("x") != Processor::ProgramStatus::error );
-    CPPUNIT_ASSERT( gprocessor.getProgramStatus("x") == Processor::ProgramStatus::stopped );
+    CPPUNIT_ASSERT( gtc.getExecutionEngine()->getProgramProcessor()->getProgramStatus("x") != ProgramInterface::Status::error );
+    CPPUNIT_ASSERT( gtc.getExecutionEngine()->getProgramProcessor()->getProgramStatus("x") == ProgramInterface::Status::stopped );
 
     this->finishDispatch( &gtc, "x" );
 }
@@ -266,7 +269,7 @@ void DispatchTest::testSendDispatch()
 void DispatchTest::doDispatch( const std::string& prog, TaskContext* tc )
 {
     stringstream progs(prog);
-    std::vector<ProgramGraph*> pg_list;
+    Parser::ParsedPrograms pg_list;
     try {
         pg_list = parser.parseProgram( progs, tc );
     }
@@ -278,12 +281,12 @@ void DispatchTest::doDispatch( const std::string& prog, TaskContext* tc )
         {
             CPPUNIT_ASSERT( false );
         }
-    CPPUNIT_ASSERT( tc->getProcessor()->loadProgram( *pg_list.begin() ) );
+    CPPUNIT_ASSERT( tc->getExecutionEngine()->getProgramProcessor()->loadProgram( *pg_list.begin() ) );
     SimulationThread::Instance()->start();
-    ltask.start();
-    mtask.start();
-    gtask.start();
-    tc->getProcessor()->startProgram( (*pg_list.begin())->getName() );
+    CPPUNIT_ASSERT(ltask.start());
+    CPPUNIT_ASSERT(mtask.start());
+    CPPUNIT_ASSERT(gtask.start());
+    CPPUNIT_ASSERT( tc->getExecutionEngine()->getProgramProcessor()->getProgram( (*pg_list.begin())->getName() )->start() );
     //     while (1)
     sleep(1);
     SimulationThread::Instance()->stop();
@@ -294,8 +297,8 @@ void DispatchTest::finishDispatch(TaskContext* tc, std::string prog_name)
     gtask.stop();
     mtask.stop();
     ltask.stop();
-    tc->getProcessor()->stopProgram( prog_name );
-    CPPUNIT_ASSERT( tc->getProcessor()->deleteProgram( prog_name ) );
+    tc->getExecutionEngine()->getProgramProcessor()->getProgram( prog_name )->stop();
+    CPPUNIT_ASSERT( tc->getExecutionEngine()->getProgramProcessor()->unloadProgram( prog_name ) );
 
     TaskContext* ptc =  tc->getPeer("programs")->getPeer(prog_name);
     tc->getPeer("programs")->removePeer(prog_name);

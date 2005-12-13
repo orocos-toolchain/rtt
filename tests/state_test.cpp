@@ -38,7 +38,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( StateTest );
 
     StateTest::StateTest()
         :gtc("root"),
-         gtask( 0.01, gtc.getExecutionEngine() )
+         gtask( 0.01, gtc.engine() )
     {}
 
 
@@ -287,7 +287,7 @@ void StateTest::testStateFailure()
         this->doState( prog, &gtc, false );
 
         // assert that an error happened :
-        CPPUNIT_ASSERT( gtc.getExecutionEngine()->getStateMachineProcessor()->getStateMachineStatus("x") == Processor::StateMachineStatus::error );
+        CPPUNIT_ASSERT( gtc.getExecutionEngine()->getStateMachineProcessor()->getStateMachineStatus("x") == StateMachine::Status::error );
         
         this->finishState( &gtc, "x");
     }
@@ -533,7 +533,7 @@ void StateTest::testStateSubStateCommands()
         + " final state FINI {\n"
         + " }\n"
         + " }\n"
-        + string("StateMachine X {\n")
+        + string("StateMachine X {\n") // 1
         + " SubMachine Y y1(isnegative = -1.0)\n"
         + " initial state INIT {\n"
         + " entry {\n"
@@ -544,7 +544,6 @@ void StateTest::testStateSubStateCommands()
         + "     do y1.requestState(\"INIT\")\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
         + "     set y1.isnegative = +1.0 \n"
-        // 40 :
         + "     try y1.requestState(\"ISNEGATIVE\") \n "
         + "     catch \n{\n"
         + "         do test.assert( y1.inState(\"INIT\") )\n" // do not leave INIT
@@ -628,10 +627,11 @@ void StateTest::testStateEvents()
         + " final state FINI {\n"
         + " }\n"
         + " }\n" // 40
-        + string("StateMachine X {\n")
+        + string("StateMachine X {\n") // 1
         + " SubMachine Y y1()\n"
         + " initial state INIT {\n"
         + " run {\n"
+        //        + "     do test.assert(false)\n"
         + "     do y1.activate()\n"
         + "     emit d_event(-1.0)\n"
         + "     do nothing\n"
@@ -642,19 +642,26 @@ void StateTest::testStateEvents()
         + "     do test.assert( y1.inState(\"INIT\") )\n"
         + "     emit d_event(+1.0)\n"
 //         + "     do nothing\n"
+        + "     if ( !y1.inState(\"ISPOSITIVE\") ) then\n"
+        + "          do test.assertMsg( false, y1.getState() )\n"
         + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
         + "     do y1.requestState(\"INIT\")\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
         + "     emit b_event(true)\n"
 //         + "     do nothing\n"
-        + "     do test.assert( y1.inState(\"ISTRUE\") )\n"
+        + "     if ( !y1.inState(\"ISTRUE\") ) then\n"
+        + "          do test.assertMsg(false, y1.getState() )\n"
+        + "     do test.assertMsg( y1.inState(\"ISTRUE\"), y1.getState() )\n"
         + "     do y1.requestState(\"INIT\")\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
         + "     emit b_event(false)\n"
 //         + "     do nothing\n"
+        + "     if ( !y1.inState(\"ISFALSE\") ) then\n"
+        + "          do test.assertMsg(false, y1.getState() )\n"
         + "     do test.assert( y1.inState(\"ISFALSE\") )\n"
         + "     do y1.requestState(\"INIT\")\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
+        //+ "     do y1.deactivate()\n"
         + " }\n"
         + " transitions {\n"
         + "     select FINI\n"
@@ -663,6 +670,7 @@ void StateTest::testStateEvents()
         + " final state FINI {\n"
         + " entry {\n"
         + "     do y1.deactivate()\n"
+        //+ "     do test.assert(false)\n"
         + " }\n"
         + " transitions {\n"
         + "     select INIT\n"
@@ -695,7 +703,7 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 {
     stringstream progs(prog);
 #ifndef NOPARSER
-    std::vector<ParsedStateMachine*> pg_list;
+    Parser::ParsedStateMachines pg_list;
 #else
     std::vector<StateMachine*> pg_list;
     sleep(5);
@@ -723,7 +731,7 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
             CPPUNIT_ASSERT( false );
         }
     try {
-        tc->getProcessor()->loadStateMachine( *pg_list.begin() );
+        tc->engine()->states()->loadStateMachine( *pg_list.begin() );
     } 
     catch( const program_load_exception& e)
         {
@@ -734,15 +742,16 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     }
     CPPUNIT_ASSERT( SimulationThread::Instance()->start() );
     CPPUNIT_ASSERT( gtask.start() );
-    CommandInterface* ca = newCommandFunctor(boost::bind(&Processor::activateStateMachine, tc->getProcessor(),(*pg_list.begin())->getName() ));
-    CommandInterface* cs = newCommandFunctor(boost::bind(&Processor::startStateMachine,tc->getProcessor(),(*pg_list.begin())->getName() ) );
+    StateMachinePtr sm = *pg_list.begin();
+    CommandInterface* ca = newCommandFunctor(boost::bind(&StateMachine::activate, sm ));
+    CommandInterface* cs = newCommandFunctor(boost::bind(&StateMachine::automatic,sm ));
 //      cerr << "Before activate :"<<endl;
 //      tc->getPeer("states")->getPeer("x")->debug(true);
     CPPUNIT_ASSERT( ca->execute()  );
-    CPPUNIT_ASSERT_MESSAGE( "Error : Activate Command for '"+(*pg_list.begin())->getName()+"' did not have effect.", (*pg_list.begin())->isActive() );
+    CPPUNIT_ASSERT_MESSAGE( "Error : Activate Command for '"+sm->getName()+"' did not have effect.", sm->isActive() );
 //      cerr << "After activate :"<<endl;
 //      tc->getPeer("states")->getPeer("x")->debug(true);
-    CPPUNIT_ASSERT( gtc.getExecutionEngine()->getCommandProcessor()->process( cs ) != 0 );
+    CPPUNIT_ASSERT( gtc.engine()->commands()->process( cs ) != 0 );
 //     while (1)
     sleep(1);
     delete ca;
@@ -754,54 +763,58 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 //         tc->getPeer("__states")->getPeer("Y")->debug(false);
 //     cerr << "               x.y1 running : "<< (gprocessor.getStateMachineStatus("x.y1") == Processor::StateMachineStatus::running) << endl;
 //     cerr << "               x running : "<< (gprocessor.getStateMachineStatus("x") == Processor::StateMachineStatus::running) << endl;
+    string sline;
     if (test ) {
         // check error status of parent :
-        CPPUNIT_ASSERT_MESSAGE( "Error : State Context '"+(*pg_list.begin())->getName()+"' did not get activated.", (*pg_list.begin())->isActive() );
+        CPPUNIT_ASSERT_MESSAGE( "Error : State Context '"+sm->getName()+"' did not get activated.", sm->isActive() );
         stringstream errormsg;
-        int line = (*pg_list.begin())->getLineNumber();
-        errormsg <<" in StateContext "+(*pg_list.begin())->getName()
-                 <<" in state "<< (*pg_list.begin())->currentState()->getName()
+        int line = sm->getLineNumber();
+        errormsg <<" in StateContext "+sm->getName()
+                 <<" in state "<< sm->currentState()->getName()
                  <<" on line " << line <<" of that StateContext:"<<endl;
-        stringstream sctext( (*pg_list.begin())->getText() );
+        stringstream sctext( sm->getText() );
         int cnt = 1;
         while ( cnt++ <line && sctext ) {
             string garbage;
             getline( sctext, garbage, '\n' );
         }
-        string sline;
         getline( sctext, sline, '\n' );
         errormsg <<"here  > " << sline << endl;
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered" + errormsg.str(), (*pg_list.begin())->inError() == false );
+        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered" + errormsg.str(), sm->inError() == false );
         // check error status of all children:
-        StateMachine::ChildList cl = (*pg_list.begin())->getChildren();
+        StateMachine::ChildList cl = sm->getChildren();
         StateMachine::ChildList::iterator clit = cl.begin();
         while( clit != cl.end() ) {
             stringstream cerrormsg;
             if ( (*clit)->currentState() )
-                cerrormsg <<" in state "<<(*clit)->currentState()->getName()<< " on line " <<  (*clit)->getLineNumber() <<" of that StateContext."<<endl;
+                cerrormsg <<" in state "<<(*clit)->currentState()->getName()<< " on line " <<  (*clit)->getLineNumber() <<" of that StateContext."<<endl <<"here  > " << sline << endl;
             else
-                cerrormsg <<" (deactivated) on line " <<  (*clit)->getLineNumber() <<" of that StateContext."<<endl;
+                cerrormsg <<" (deactivated) on line " <<  (*clit)->getLineNumber() <<" of that StateContext."<<endl<<"here  > " << sline << endl;
             CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered in child "+(*clit)->getName() + cerrormsg.str(), (*clit)->inError() == false );
             ++clit;
         }
     }
-    tc->getProcessor()->stopStateMachine( (*pg_list.begin())->getName() );
+    tc->engine()->states()->getStateMachine( sm->getName() )->stop();
     sleep(1);
-    // after gtask.stop() it must be stopped.
-    CPPUNIT_ASSERT( gtask.stop() );
+    // special property of sim: this does not stop the gtask.
     SimulationThread::Instance()->stop();
     stringstream errormsg;
-    errormsg << " on line " << (*pg_list.begin())->getLineNumber() <<", status is "<< int(gtc.getExecutionEngine()->getStateMachineProcessor()->getStateMachineStatus("x")) <<endl;
-    CPPUNIT_ASSERT_MESSAGE( "StateMachine stalled " + errormsg.str(), gtc.getExecutionEngine()->getStateMachineProcessor()->getStateMachineStatus("x") == Processor::StateMachineStatus::stopped );
+    errormsg << " on line " << sm->getLineNumber() <<", status is "<< gtc.engine()->states()->getStateMachineStatusStr("x") <<endl <<"here  > " << sline << endl;;
+    CPPUNIT_ASSERT_MESSAGE( "StateMachine stalled " + errormsg.str(), sm->isStopped() );
 }
 
 void StateTest::finishState(TaskContext* tc, std::string prog_name)
 {
     // you can call deactivate even when the proc is not running.
     // but deactivation may be 'in progress if exit state has commands in it.
-    CPPUNIT_ASSERT( tc->getProcessor()->deactivateStateMachine( prog_name ) );
+    CPPUNIT_ASSERT( tc->engine()->states()->getStateMachine( prog_name )->deactivate() );
+    CPPUNIT_ASSERT( tc->engine()->states()->getStateMachine( prog_name )->isActive() == false );
+
+    // only stop now, since deactivate won't work if simtask not running.
+    CPPUNIT_ASSERT( gtask.stop() );
+
     try {
-        tc->getProcessor()->deleteStateMachine( prog_name );
+        tc->engine()->states()->unloadStateMachine( prog_name );
     }
     catch( const program_unload_exception& e)
         {

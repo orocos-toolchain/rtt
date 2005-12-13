@@ -23,15 +23,18 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <execution/Parser.hpp>
-#include <execution/Processor.hpp>
+#include <execution/ExecutionEngine.hpp>
 #include <execution/TaskContext.hpp>
 #include <execution/Factories.hpp>
-#include <geometry/frames.h>
 #include <string>
+#include <pkgconf/system.h>
+#ifdef OROPKG_GEOMETRY
+#include <geometry/frames.h>
+using namespace ORO_Geometry;
+#endif
 
 using namespace ORO_CoreLib;
 using namespace ORO_Execution;
-using namespace ORO_Geometry;
 
 class TypesTest : public CppUnit::TestFixture
 {
@@ -45,12 +48,15 @@ class TypesTest : public CppUnit::TestFixture
 
     Parser parser;
     TaskContext* tc;
-    Processor processor;
+    TaskInterface* tsim;
     MethodFactoryInterface* createMethodFactory();
     bool assertBool( bool );
+#ifdef OROPKG_GEOMETRY
     bool equalFrames(const Frame& f1, Frame& f2);
     bool equalVectors(const Vector& f1, Vector& f2);
+#endif
     bool assertMsg( bool, const std::string& msg);
+    void executePrograms(const Parser::ParsedPrograms& pg_list);
 public:
 
     void setUp();

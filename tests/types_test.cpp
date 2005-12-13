@@ -21,13 +21,10 @@
 #include "types_test.hpp"
 #include <unistd.h>
 #include <iostream>
-#include <execution/ProgramGraph.hpp>
+#include <execution/FunctionGraph.hpp>
 #include <execution/TemplateFactories.hpp>
-#include <pkgconf/system.h>
-#ifdef OROPKG_GEOMETRY
-#include <geometry/frames.h>
-using namespace ORO_Geometry;
-#endif
+#include <corelib/TaskSimulation.hpp>
+#include <corelib/SimulationThread.hpp>
 
 using namespace std;
 
@@ -38,15 +35,19 @@ CPPUNIT_TEST_SUITE_REGISTRATION( TypesTest );
 void 
 TypesTest::setUp()
 {
-    tc =  new TaskContext( "root", &processor);
+    tc =  new TaskContext( "root" );
     tc->methodFactory.registerObject("test", this->createMethodFactory() );
+    tsim = new TaskSimulation( 0.001, tc->engine() );
 }
 
 
 void 
 TypesTest::tearDown()
 {
+    tsim->stop();
+    SimulationThread::Instance()->stop();
     delete tc;
+    delete tsim;
 }
 
 
@@ -68,13 +69,16 @@ bool TypesTest::assertMsg( bool b, const std::string& msg) {
                                   "Assert", "bool", "") );
         dat->add( "assertMsg", method( &TypesTest::assertMsg,
                                      "Assert message", "bool", "", "text", "text" ) );
+#ifdef OROPKG_GEOMETRY
         dat->add( "equalFrames", method( &TypesTest::equalFrames,
                                      "Assert equal frames", "f1", "", "f2", "" ) );
         dat->add( "equalVectors", method( &TypesTest::equalVectors,
                                      "Assert equal vectors", "v1", "", "v2", "" ) );
+#endif
         return dat;
     }
 
+#ifdef OROPKG_GEOMETRY
 bool TypesTest::equalFrames(const Frame& f1, Frame& f2)
 {
     return f1 == f2;
@@ -84,12 +88,13 @@ bool TypesTest::equalVectors(const Vector& f1, Vector& f2)
 {
     return f1 == f2;
 }
+#endif
 
 void TypesTest::testEmptyProgram()
 {
     string prog = "";
     stringstream progs(prog);
-    std::vector<ProgramGraph*> pg_list;
+    Parser::ParsedPrograms pg_list;
     try {
         pg_list = parser.parseProgram( progs, tc );
     }
@@ -107,7 +112,7 @@ void TypesTest::testReturnProgram()
 {
     string prog = "program x { return \n }";
     stringstream progs(prog);
-    std::vector<ProgramGraph*> pg_list;
+    Parser::ParsedPrograms pg_list;
     try {
         pg_list = parser.parseProgram( progs, tc);
     }
@@ -120,8 +125,7 @@ void TypesTest::testReturnProgram()
             CPPUNIT_ASSERT( false );
         }
     // execute
-    CPPUNIT_ASSERT( (*pg_list.begin())->executeAll() );
-    delete *pg_list.begin();
+    executePrograms(pg_list);
 }
 
 void TypesTest::testTypes()
@@ -209,7 +213,7 @@ void TypesTest::testTypes()
         "do test.assert( str[10] == '\\0' )\n"+
         "}";
     stringstream progs(prog);
-    std::vector<ProgramGraph*> pg_list;
+    Parser::ParsedPrograms pg_list;
     try {
         pg_list = parser.parseProgram( progs, tc );
     }
@@ -222,13 +226,7 @@ void TypesTest::testTypes()
             CPPUNIT_ASSERT( false );
         }
     // execute
-    if ( (*pg_list.begin())->executeAll() == false ) {
-        stringstream errormsg;
-        errormsg << " Program error on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
-        delete *pg_list.begin();
-        CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
-    }
-    delete *pg_list.begin();
+    executePrograms(pg_list);
 }
 
 void TypesTest::testOperators()
@@ -255,7 +253,7 @@ void TypesTest::testOperators()
 #endif
         "}";
     stringstream progs(prog);
-    std::vector<ProgramGraph*> pg_list;
+    Parser::ParsedPrograms pg_list;
     try {
         pg_list = parser.parseProgram( progs, tc );
     }
@@ -268,13 +266,25 @@ void TypesTest::testOperators()
             CPPUNIT_ASSERT( false );
         }
     // execute
-    if ( (*pg_list.begin())->executeAll() == false ) {
+    executePrograms(pg_list);
+}
+
+void TypesTest::executePrograms(const Parser::ParsedPrograms& pg_list )
+{
+    tc->getExecutionEngine()->getProgramProcessor()->loadProgram( *pg_list.begin() );
+    SimulationThread::Instance()->start();
+    tsim->start();
+    CPPUNIT_ASSERT( (*pg_list.begin())->start() );
+    sleep(1);
+    CPPUNIT_ASSERT( (*pg_list.begin())->stop() );
+    tsim->stop();
+    SimulationThread::Instance()->stop();
+    if ( (*pg_list.begin())->inError() ) {
         stringstream errormsg;
         errormsg << " Program error on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
-        delete *pg_list.begin();
         CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
     }
-    delete *pg_list.begin();
+    tc->engine()->programs()->unloadProgram( (*pg_list.begin())->getName() );
 }
 
 void TypesTest::testProperties()
@@ -336,7 +346,7 @@ void TypesTest::testProperties()
     tc->attributeRepository.addProperty( &pb );
 
     stringstream progs(prog);
-    std::vector<ProgramGraph*> pg_list;
+    Parser::ParsedPrograms pg_list;
     try {
         pg_list = parser.parseProgram( progs, tc );
     }
@@ -349,15 +359,9 @@ void TypesTest::testProperties()
             CPPUNIT_ASSERT( false );
         }
     // execute
-    if ( (*pg_list.begin())->executeAll() == false ) {
-        stringstream errormsg;
-        errormsg << " Program error on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
-        delete *pg_list.begin();
-        CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
-    }
+    executePrograms(pg_list);
     CPPUNIT_ASSERT( pd1.get() == 4.321 );
     CPPUNIT_ASSERT( pd3.get() == 3.0 );
-    delete *pg_list.begin();
 }
 
     

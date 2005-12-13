@@ -317,6 +317,7 @@ void TasksTest::testNonPeriodic()
         sleep(1);
         CPPUNIT_ASSERT( t_run_int_nonper->stepped );
         CPPUNIT_ASSERT( t_run_int_nonper->init );
+        t_task_nonper->stop();
         CPPUNIT_ASSERT( t_run_int_nonper->fini );
         CPPUNIT_ASSERT( !t_task_nonper->isRunning() );
         t_task_nonper->run( 0 );

@@ -453,6 +453,3 @@ void EventTest::testRTEvent()
     CPPUNIT_ASSERT( t_completer_value == true );
 
 }
-
-    
-
