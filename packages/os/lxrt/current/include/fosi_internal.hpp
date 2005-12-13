@@ -87,9 +87,12 @@ namespace ORO_OS
             rt_set_period(mytask, nano2count( nanosecs ));
         }
 
-        INTERNAL_QUAL void rtos_task_wait_period( RTOS_TASK* )
+        INTERNAL_QUAL int rtos_task_wait_period( RTOS_TASK* mytask )
         {
+            // only in RTAI 3.2, this returns overrun or not.
+            // so do not use retval for compatibility reasons.
             rt_task_wait_period();
+            return 0;
         }
 
         INTERNAL_QUAL void rtos_task_delete(RTOS_TASK* mytask) {

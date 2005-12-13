@@ -75,8 +75,11 @@ namespace ORO_OS
             mytask->periodMark = rtos_get_time_ns() + nanosecs;
         }
 
-        INTERNAL_QUAL void rtos_task_wait_period( RTOS_TASK* task )
+        INTERNAL_QUAL int rtos_task_wait_period( RTOS_TASK* task )
         {
+	  if ( task->period == 0 )
+	    return 0;
+
             //rtos_printf("Time is %lld nsec, Mark is %lld nsec.\n",rtos_get_time_ns(), task->periodMark );
             // CALCULATE in nsecs
             NANO_TIME timeRemaining = task->periodMark - rtos_get_time_ns();
@@ -91,6 +94,8 @@ namespace ORO_OS
 
             // next wake-up time :
             task->periodMark += task->period;
+
+	    return 0;
         }
 
         INTERNAL_QUAL void rtos_task_delete(RTOS_TASK* mytask) {
