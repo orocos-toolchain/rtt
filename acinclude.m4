@@ -143,7 +143,7 @@ dnl Check if doxygen is available.
 m4_define([AC_PROG_DOXYGEN],[
 AC_CHECK_PROG(DOXYGEN,doxygen,doxygen,no)
 if test "x$DOXYGEN" = "xno"; then
-	DOXYGEN="@echo Not generating docs from source code"
+	DOXYGEN="echo Not generating docs from source code"
 fi
 AC_SUBST(DOXYGEN)
 ])
@@ -165,7 +165,7 @@ m4_define([AC_PROG_XMLPROCESSOR],[
 AC_CHECK_PROG(xml,xsltproc,xsltproc,no)
 AM_CONDITIONAL(HAVE_XMLPROCESSOR, test "x$xml" = "xxsltproc")
 if test "x$xml" = "xno"; then
-XMLPROCESSOR="@echo"
+XMLPROCESSOR="echo"
 else
 XMLPROCESSOR=$xml
 fi;
@@ -177,7 +177,7 @@ dnl Check if Dia is available.
 m4_define([AC_PROG_DIA],[
 AC_CHECK_PROG(DIA,dia,dia,no)
 dnl if test "x$DIA" = "xno"; then
-dnl DIA="@echo Not generating documentation figures"
+dnl DIA="echo Not generating documentation figures"
 # AC_MSG_WARN([
 # Dia was not found on your system. Using Dia you can generate
 # figures for the documentation for the Orocos project.
@@ -212,7 +212,7 @@ dnl  echo "$0: Dia $DIA_VERSION detected, need 0.90 or newer";
 # or if you are using Debian GNU/Linux just use: apt-get install dia
 # to install Dia.
 # ])
-dnl DIA="@echo Not generating documentation figures"
+dnl DIA="echo Not generating documentation figures"
 dnl else
 dnl AC_MSG_RESULT(ok)
 dnl fi;
@@ -224,7 +224,7 @@ dnl Check if Fop is available.
 m4_define([AC_PROG_FOP],[
 AC_CHECK_PROG(FOP,fop,fop,no)
 if test "x$FOP" = "xno"; then
-FOP="@echo Not generating PDF documentation"
+FOP="echo Not generating PDF documentation"
 # AC_MSG_WARN([
 # FOP was not found on your system. Using FOP you can generate
 # a PDF-file containing the Orocos project documentation.

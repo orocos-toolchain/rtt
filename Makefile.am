@@ -17,6 +17,7 @@ EXTRA_DIST = \
 	packages/support/readline/current/readline.cdl.in \
 	packages/support/rtai/current/rtai.cdl.in \
 	packages/support/gcc/current/gcc.cdl.in \
+	packages/support/corba/current/corba.cdl.in
 	packages/pkgconf/fixhtml.tcl \
         packages/pkgconf/rules.doc \
         packages/pkgconf/rules.mak \
@@ -97,9 +98,9 @@ new_packages:
 	@rm -f .new-pkg-stamp
 	mkdir -p packages
 	@echo "Setting up packages..."
-	@cd packages &&\
+	cd packages &&\
 	export ECOS_REPOSITORY=$(ECOS_REP);\
-	$(ECOSCONFIG) new $(ECOS_TARGET) minimal 2>&1 > /dev/null ;\
+	$(ECOSCONFIG) new $(ECOS_TARGET) minimal 2>&1  ;\
 	if test -f ecos.ecc; then \
 	echo "Setting up support..." ; \
 	$(ECOSCONFIG) add support 2>&1 > /dev/null ; \
