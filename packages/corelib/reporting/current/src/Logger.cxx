@@ -225,25 +225,25 @@ namespace ORO_CoreLib
         switch (ll)
             {
             case Fatal:
-                prefix="[FATAL]";
+                prefix="[ FATAL  ]";
                 break;
             case Critical:
                 prefix="[CRITICAL]";
                 break;
             case Error:
-                prefix="[ERROR]";
+                prefix="[ ERROR  ]";
                 break;
             case Warning:
-                prefix="[Warning]";
+                prefix="[ Warning]";
                 break;
             case Info:
-                prefix="[Info]";
+                prefix="[ Info   ]";
                 break;
             case Debug:
-                prefix="[Debug]";
+                prefix="[ Debug  ]";
                 break;
             case RealTime:
-                prefix="[Real-Time]";
+                prefix="[RealTime]";
                 break;
             case Never:
                 break;
