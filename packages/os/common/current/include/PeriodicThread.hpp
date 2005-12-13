@@ -44,9 +44,14 @@ namespace ORO_CoreLib {
 namespace ORO_OS
 {
     /**
-     * @brief A PeriodicThread executes its step() method (or a RunnableInterface ) periodically.
+     * A PeriodicThread executes its step() method (or a RunnableInterface ) periodically.
      *
-     * It has a fixed priority, a name and a periodicity.
+     * It has a fixed priority, a name and a (changable) periodicity. The common methods
+     * to use are start() and stop().
+     *
+     * Step() Overruns are detected and the threshold to 'emergency stop' the thread can be
+     * set by \a setMaxOverrun(). Overruns must be accumulated 'on average' to trigger this behavior:
+     * one not overrunning step() compensates for one overrunning step().
      */
     class PeriodicThread 
         : public ORO_OS::ThreadInterface 
@@ -94,8 +99,16 @@ namespace ORO_OS
          */
         void getPeriod( secs& s, nsecs& ns ) const;
 
+        /**
+         * Get the periodicity of this thread in seconds.
+         */
         virtual Seconds getPeriod() const;
+
+        /**
+         * Get the periodicity of this thread in nano-seconds.
+         */
         virtual nsecs getPeriodNS() const;
+
         /**
          * Returns whether the thread is running
          */
@@ -128,6 +141,9 @@ namespace ORO_OS
         bool setPeriod(  TIME_SPEC p );
 
         virtual int getPriority() const;
+
+      void setMaxOverrun( int m );
+      int getMaxOverrun() const;
      protected:
         /**
          * Exit the thread 
@@ -144,6 +160,8 @@ namespace ORO_OS
         virtual bool initialize();
 
         virtual void finalize();
+
+      void emergencyStop();
      private:
         /**
          * Do configuration actions when the thread is stopped.
@@ -164,12 +182,12 @@ namespace ORO_OS
          * When set to 1, the thread will run, when set to 0
          * the thread will stop
          */
-        volatile bool running;
+        bool running;
 
         /**
          * True when the thread should go realtime.
          */
-        volatile bool goRealtime;
+        bool goRealtime;
 
         /**
          * The realtime task
@@ -185,7 +203,7 @@ namespace ORO_OS
 
         std::string taskName;
 
-        volatile bool prepareForExit;
+        bool prepareForExit;
 
         rt_sem_t sem;
         rt_sem_t confDone;
@@ -199,12 +217,14 @@ namespace ORO_OS
         // thus we use a void* + static_cast in cxx file.
         void* stopEvent;
 
-        volatile bool wait_for_step;
+        bool wait_for_step;
 
         /**
          * The linux scheduler of this thread. One of SCHED_OTHER, SCHED_RR or SCHED_FIFO.
          */
         int sched_type;
+
+      int maxOverRun;
     };
 
 }

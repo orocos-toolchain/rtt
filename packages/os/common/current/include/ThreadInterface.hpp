@@ -50,7 +50,9 @@ namespace ORO_OS
         typedef long long nsecs;
 
         /**
-         * Run the functionality of a RunnableInterface object.
+         * Run the functionality of one RunnableInterface object.
+	 * Only one RunnableInterface object can be run, the old one is
+	 * disconnected.
          * @param r The object to run or zero to clear.
          * @return true if accepted, false if the thread is running.
          */
@@ -89,7 +91,7 @@ namespace ORO_OS
         /**
          * Returns whether the thread is running
          */
-        virtual inline bool isRunning() const = 0 ;
+        virtual bool isRunning() const = 0 ;
 
         /**
          * Read the name of this task

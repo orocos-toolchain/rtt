@@ -33,6 +33,7 @@
 
 namespace ORO_OS
 {
+  class ThreadInterface;
 
     /**
      * @brief A class for running a certain piece of code in a thread.
@@ -54,9 +55,23 @@ namespace ORO_OS
      */
     class RunnableInterface
     {
+      /**
+       * The thread which runs this RunnableInterface.
+       * Zero if no thread assigned.
+       */
+      ThreadInterface* rthread;
     public:
-        virtual ~RunnableInterface()
-        {}
+      /**
+       * Create a runnable object. The optional constructor parameter
+       * allows the object to attach directly to a thread. Otherwise,
+       * ThreadInterface::run(RunnableInterface*) must be used to
+       * attach this object to a thread. A thread can only run one
+       * RunnableInterface object, use CoreLib tasks otherwise.
+       * @param t The thread this object must attach to.
+       */
+      RunnableInterface(ThreadInterface* t=0);
+
+      virtual ~RunnableInterface();
 
         /**
          * The method that will be called once each time before the periodical
@@ -72,26 +87,38 @@ namespace ORO_OS
 
         /**
          * The method that will be executed once when this
-         * class is run in a non periodic thread.
+         * class is run in a non periodic thread. The default 
+	 * implementation calls step() once.
          */
-        virtual void loop() { this->step(); }
+      virtual void loop();
 
         /**
          * This method is called to break out of the \a loop() method.
          * Reimplement this method to let \a loop() return and return
-         * true on success. When this method is not reimplemented, it
-         * will always return false, denoting that the loop can not
+         * true on success. When this method is not reimplemented by you, it
+         * will always return \a false, denoting that the loop can not
          * be breaked. The safest implementation of breakLoop only returns
          * if \a loop() returns, and may thus itself be blocking.
          * @return true if the loop could be notified to return.
          */
-        virtual bool breakLoop() { return false; }
+      virtual bool breakLoop();
 
         /**
          * The method that will be called once each time after the periodical
          * execution of \a step() ( or non periodical execution of \a loop() ) is stopped.
          */
         virtual void finalize() = 0;
+
+      /**
+       * Get the thread this object is run in.
+       * @return a pointer to the thread or 0 if not run by a thread.
+       */
+      ThreadInterface* getThread() const;
+
+      /**
+       * Set the thread this object will be run in.
+       */
+      virtual void setThread(ThreadInterface* t);
     };
 
 }

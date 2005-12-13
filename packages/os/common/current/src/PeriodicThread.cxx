@@ -73,7 +73,6 @@ using namespace ORO_CoreLib;
 
 #endif
 
-
 namespace ORO_OS
 {
 #ifdef OROPKG_CORELIB_REPORTING
@@ -119,7 +118,7 @@ namespace ORO_OS
                     d = pp.get();
                 }
 # else
-                Logger::log() << Logger::Error<< "PeriodicThread : Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << Logger::endl;
+                Logger::log() << Logger::Warning<< "PeriodicThread : Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << Logger::endl;
 # endif
         } catch( ... )
             {
@@ -135,7 +134,7 @@ namespace ORO_OS
             d->switchOff( bit );
         }
 #endif
-
+	int overruns = 0;
         while ( !task->prepareForExit ) {
             try {
                 /**
@@ -145,6 +144,7 @@ namespace ORO_OS
                     {
                         if( !task->running ) { // more efficient than calling isRunning()
                             // consider this the 'configuration state'
+			    overruns = 0;
                             // drop out of periodic mode:
                             rtos_task_set_period(task->rtos_task, 0);
 //                             Logger::log() << Logger::Info <<task->taskName<<"  signals done !" << Logger::endl;
@@ -170,26 +170,37 @@ namespace ORO_OS
                             if ( d )
                                 d->switchOff( bit );
 #endif
-
-                            if (task->wait_for_step)
-                                rtos_task_wait_period( task->rtos_task );
+			    // return non-zero to indicate overrun.
+			    if ( rtos_task_wait_period( task->rtos_task ) != 0) {
+			      ++overruns;
+			      if ( overruns == task->maxOverRun )
+				break;
+			    } else if ( overruns != 0 )
+			      --overruns;
                         }
                     }
+		if ( overruns == task->maxOverRun ) {
+#ifdef OROPKG_OS_THREAD_SCOPE
+            if ( d )
+                d->switchOff( bit );
+#endif
+            task->emergencyStop();
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::log() << Logger::Fatal << "Periodic Thread "<< task->taskName <<" got too many periodic overruns in step() ("<< overruns << " times), stopped Thread !"<<Logger::nl;
+            Logger::log() <<" See PeriodicThread::setMaxOverrun() for info." << Logger::endl;
+#endif
+		}
             } catch( ... ) {
 #ifdef OROPKG_OS_THREAD_SCOPE
                 if ( d )
                     d->switchOff( bit );
 #endif
-                // set state to not running
-                task->running = false;
-                if ( task->isHardRealtime() )
-                    rtos_task_make_soft_real_time( task->rtos_task );
-                task->finalize();
+                task->emergencyStop();
 #ifdef OROPKG_CORELIB_REPORTING
                 Logger::log() << Logger::Fatal << "Periodic Thread "<< task->taskName <<" caught a C++ exception, stopped thread !"<<Logger::endl;
 #endif
             }
-        }
+        } // while (!prepareForExit)
     
         /**
          * Cleanup stuff
@@ -206,9 +217,20 @@ namespace ORO_OS
         return 0;
     }
 
+  void PeriodicThread::emergencyStop()
+  {
+    // set state to not running
+    this->running = false;
+    // execute finalize in current mode, even if hard.
+    this->finalize();
+    // this is not strictly required...
+    if ( this->isHardRealtime() )
+      rtos_task_make_soft_real_time( this->rtos_task );
+  }
+
     PeriodicThread::PeriodicThread(int _priority, std::string name, Seconds periods, RunnableInterface* r) :
         running(false), goRealtime(false), priority(_priority), prepareForExit(false),
-        runComp(r), wait_for_step(true), sched_type( OROSEM_OS_SCHEDTYPE )
+        runComp(r), wait_for_step(true), sched_type( OROSEM_OS_SCHEDTYPE ), maxOverRun(5)
     {
         int ret;
         rtos_thread_init( this, name );
@@ -238,6 +260,8 @@ namespace ORO_OS
         // Do not call setPeriod(), since the semaphores are not yet used !
         period = Seconds_to_nsecs(periods);
 
+	if (runComp)
+	  runComp->setThread(this);
         pthread_create( &thread, 0, periodicThread, this);
         rtos_sem_wait(&confDone);
     }
@@ -250,6 +274,9 @@ namespace ORO_OS
         rtos_sem_destroy(&confDone);
         rtos_sem_destroy(&sem);
 
+	if (runComp)
+	  runComp->setThread(0);
+
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
         h->disconnect();
         delete h;
@@ -261,7 +288,11 @@ namespace ORO_OS
     {
         if ( isRunning() )
             return false;
+	if (runComp)
+	  runComp->setThread(0);
         runComp = r;
+	if (runComp)
+	  runComp->setThread(this);
         return true;
     }
 
@@ -550,6 +581,16 @@ namespace ORO_OS
     {
         return taskName.c_str();
     }
+
+  void PeriodicThread::setMaxOverrun( int m )
+  {
+    maxOverRun = m;
+  }
+
+  int PeriodicThread::getMaxOverrun() const
+  {
+    return maxOverRun;
+  }
 
     bool PeriodicThread::setScheduler( int sched ) {
         if ( this->isHardRealtime() || this->isRunning() || ( sched != SCHED_OTHER && sched != SCHED_FIFO && sched != SCHED_RR ))

@@ -12,7 +12,7 @@ can only select one OS Package which is called the
     compile startstop.cxx
     compile StartStopManager.cxx
     compile Mutex.cxx
-    compile ThreadInterface.cxx threads.cxx
+    compile ThreadInterface.cxx RunnableInterface.cxx threads.cxx
     compile PeriodicThread.cxx
     compile SingleThread.cxx
     compile main.cxx
