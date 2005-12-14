@@ -24,6 +24,12 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/ 
+
+/**
+ * @file CoreLib.hpp
+ * This file includes the commonly used header files from the 
+ * whole ORO_CoreLib package.
+ */
  
 /**
  * @brief Buffers, DataObjects, Commands, NameServing, Tasks, Events, Timing, Properties
@@ -37,3 +43,11 @@
  * The Orocos CoreLib Online Manual</a>
  */
 namespace ORO_CoreLib {}
+
+#include "Common.hpp"
+#include "Properties.hpp"
+#include "Events.hpp"
+#include "Tasks.hpp"
+#include "Buffers.hpp"
+#include "TimeService.hpp"
+
