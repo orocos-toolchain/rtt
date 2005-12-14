@@ -1,10 +1,10 @@
 
 
-cdl_package OROPKG_OS_FUSION {
-    display "OS Abstraction Layer Fusion"
+cdl_package OROPKG_OS_XENOMAI {
+    display "OS Abstraction Layer Xenomai 2.0"
     description "
 This package is used if you want to compile
-Orocos for (RTAI) Fusion, allowing hard
+Orocos for Xenomai 2.0, allowing
 real-time userspace applications"
 
     include_dir os
@@ -16,7 +16,7 @@ real-time userspace applications"
     implements OROINT_OS_STDCXXLIB
     implements OROINT_OS_LINUX_IOPERM
 
-    requires OROPKG_SUPPORT_FUSION
+    requires OROPKG_SUPPORT_XENOMAI
 
     hardware
 
@@ -47,10 +47,10 @@ to be build and set the correct path, for example
 	    no_define
 	    calculated { "-I".OROBLD_SUPPORT_FUSION_DIR."/include -I".OROBLD_SUPPORT_FUSION_LINUX_HEADERS." " }
 	    description "
-This is the location of your Fusion and Linux kernel installation. It is normally
+This is the location of your Xenomai and Linux kernel installation. It is normally
 detected by the packages configure script and can be specified
-with the argument --with-fusion=path --with-linux=path  and modifyable in
-the \"Detected Support Libraries->Fusion Installation\" 
+with the argument --with-xenomai=path --with-linux=path  and modifyable in
+the \"Detected Support Libraries->Xenomai Installation\" 
 package.
 "
 	}
