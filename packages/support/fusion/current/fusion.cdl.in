@@ -1,20 +1,20 @@
-cdl_package OROPKG_SUPPORT_FUSION {
-    display "Support FUSION Installation"
+cdl_package OROPKG_SUPPORT_XENOMAI {
+    display "Support XENOMAI Installation"
     parent OROPKG_SUPPORT
 
     description " 
 The presence of this package indicates that the configure
-script detected a valid FUSION installation, which can now
+script detected a valid XENOMAI installation, which can now
 be used by other packages."
-    cdl_option OROBLD_SUPPORT_FUSION_DIR {
-	display "FUSION installation directory"
+    cdl_option OROBLD_SUPPORT_XENOMAI_DIR {
+	display "XENOMAI installation directory"
 	description "
-The FUSION installation path, typically
+The XENOMAI installation path, typically
 /usr/realtime or /usr/local/realtime."
 	flavor data
-	default_value { "@FUSION_DIR@" }
+	default_value { "@XENOMAI_DIR@" }
     }
-    cdl_option OROBLD_SUPPORT_FUSION_LINUX_KERNEL {
+    cdl_option OROBLD_SUPPORT_XENOMAI_LINUX_KERNEL {
 	display "Linux kernel directory"
 	description "
 The path to the patched Linux kernel, typically
@@ -22,7 +22,7 @@ The path to the patched Linux kernel, typically
 	flavor data
 	default_value { "@LINUX_KERNEL_DIR@" }
     }
-    cdl_option OROBLD_SUPPORT_FUSION_LINUX_HEADERS {
+    cdl_option OROBLD_SUPPORT_XENOMAI_LINUX_HEADERS {
 	display "Linux headers directory"
 	description "
 The path to the patched Linux kernel headers, typically
@@ -31,9 +31,9 @@ added as include path to the Orocos build flags."
 	flavor data
 	default_value { "@LINUX_KERNEL_HEADERS@" }
     }
-    cdl_option OROBLD_SUPPORT_FUSION_VERSION {
-	display "Detected FUSION Version"
+    cdl_option OROBLD_SUPPORT_XENOMAI_VERSION {
+	display "Detected XENOMAI Version"
 	flavor data
-	default_value { "@FUSION_VERSION@" }
+	default_value { "@XENOMAI_VERSION@" }
     }
 }
