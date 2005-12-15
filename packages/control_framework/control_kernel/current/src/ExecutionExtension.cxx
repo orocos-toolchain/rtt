@@ -261,6 +261,15 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
 
         getKernelContext()->addPeer( &componentTask );
 
+        Logger::In in("ExecutionExtension");
+        if ( this->component() == 0 || this->component()->kernel() == 0 ) {
+            Logger::log() << Logger::Error
+                          << "Can not initialise ExecutionExtension Facet before KernelBaseFunction Facet for Component "
+                          << name <<Logger::nl;
+            Logger::log() << "Reorder you Component's Facets."<<Logger::endl;
+            return false;
+        }
+
         // Create the default start/stop methods.
         TemplateMethodFactory< ComponentBaseInterface >* methods =
             newMethodFactory( this->component() );
@@ -318,10 +327,13 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
                 // Add the PropertyBase to the repos.
                 bool res = componentTask.attributeRepository.addProperty( *it );
                 if (res == false ) {
-                    Logger::log()<<Logger::Error <<"ExecutionExtension: Failed to add Property "+(*it)->getName()+" of "
+                    Logger::log()<<Logger::Error <<"Failed to add Property "+(*it)->getName()+" of "
                                  <<componentTask.getName() << ". Possible duplicate entry in AttributeRepository."<<Logger::endl;
                 }
             }
+        } else {
+            Logger::log() << Logger::Info << "Property Facet for Component "<<name
+                          <<" not present or ordered after Execution Facet: No properties will be visible."<< Logger::endl;
         }
 #endif
         return true;
