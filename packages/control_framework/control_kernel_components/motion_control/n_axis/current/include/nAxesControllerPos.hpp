@@ -79,8 +79,8 @@ namespace ORO_ControlKernel
 					 ORO_ControlKernel::Expects<nAxesControllerPosSetpoint_pos>,
 					 ORO_ControlKernel::Writes<nAxesControllerPosOutput_vel>,
 					 ORO_ControlKernel::MakeFacet<ORO_ControlKernel::PropertyExtension,
-								       ORO_ControlKernel::ExecutionExtension,
-								       ORO_ControlKernel::KernelBaseFunction>::Result > nAxesControllerPos_typedef;
+								      ORO_ControlKernel::KernelBaseFunction,
+								      ORO_ControlKernel::ExecutionExtension>::Result > nAxesControllerPos_typedef;
 
   /**
    * @brief A Joint space ControllerPos which uses a
