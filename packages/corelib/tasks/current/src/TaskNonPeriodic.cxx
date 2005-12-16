@@ -35,7 +35,8 @@
 namespace ORO_CoreLib
 {
     TaskNonPeriodic::TaskNonPeriodic(int priority, RunnableInterface* _r )
-        : ORO_OS::SingleThread(priority, "TaskNonPeriodic" ),proc( new BlockingEventProcessor() ), runner(_r)
+        : ORO_OS::SingleThread(priority, "TaskNonPeriodic" ),proc( new BlockingEventProcessor() ),
+          runner(_r), running(false)
     {
         if ( runner )
             runner->setTask(this);
@@ -43,7 +44,7 @@ namespace ORO_CoreLib
 
     TaskNonPeriodic::TaskNonPeriodic(int priority, const std::string& name, RunnableInterface* _r )
         : ORO_OS::SingleThread(priority, name ),proc( new BlockingEventProcessor() ),
-          runner(_r)
+          runner(_r), running(false)
     {
         if ( runner )
             runner->setTask(this);
@@ -99,7 +100,6 @@ namespace ORO_CoreLib
         return true;
     }
 
-
     void TaskNonPeriodic::finalize() {
         if ( runner )
             runner->finalize();
@@ -107,14 +107,21 @@ namespace ORO_CoreLib
     }
 
     bool TaskNonPeriodic::start() {
-        return SingleThread::start();
+        running = SingleThread::start();
+        return running;
     }
 
     bool TaskNonPeriodic::stop() {
+        running = false;
         return SingleThread::stop();
     }
 
     bool TaskNonPeriodic::isRunning() const {
+        return running;
+    }
+
+    bool TaskNonPeriodic::isActive() const {
+        // active maps to running wrt thread semantics.
         return SingleThread::isRunning();
     }
 

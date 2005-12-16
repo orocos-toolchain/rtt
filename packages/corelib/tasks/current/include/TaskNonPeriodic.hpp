@@ -112,11 +112,14 @@ namespace ORO_CoreLib
 
         virtual bool isRunning() const;
 
+        virtual bool isActive() const;
+
         virtual bool isPeriodic() const;
 
     private:
         BlockingEventProcessor* proc;
         RunnableInterface*      runner;
+        bool running;
 };
 
 }

@@ -87,11 +87,23 @@ namespace ORO_CoreLib
         virtual bool stop() = 0;
 
         /**
-         * Query for the tasks state.
+         * Query if the task is initialized and executing.
+         * This is more strict than isActive(), it is only true
+         * after initialize() is executed and before finalize()
+         * is executed.
          *
          * @return true if it is running, false otherwise
          */
         virtual bool isRunning() const = 0;
+
+        /**
+         * Query if the task is started.
+         * This is less strict than isRunning(), it is true during
+         * initialize(), step() or loop() and finalize().
+         *
+         * @return true if it is active, false otherwise
+         */
+        virtual bool isActive() const = 0;
 
         /**
          * Get the periodicity of this task in Seconds

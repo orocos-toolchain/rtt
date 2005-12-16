@@ -120,6 +120,8 @@ namespace ORO_CoreLib
 
         virtual bool isRunning() const;
 
+        virtual bool isActive() const;
+
         virtual bool isPeriodic() const;
 
         virtual Seconds getPeriod() const;
@@ -165,6 +167,11 @@ namespace ORO_CoreLib
          * State info.
          */
         bool inError;
+
+        /**
+         * State info.
+         */
+        bool active;
 
         /**
          * This tasks period in nanoseconds.

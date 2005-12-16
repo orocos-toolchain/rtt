@@ -82,7 +82,7 @@ namespace ORO_CoreLib
 
     PeriodicTask::PeriodicTask(secs s, nsecs ns, TimerThread* thread, RunnableInterface* r, bool private_event_processor )
         : runner(r),
-          running(false), inError(false),
+          running(false), inError(false), active(false),
           per_ns( secs_to_nsecs(s) + ns),
           thread_(thread),
           eprocessor_( private_event_processor ? new EventProcessor() : 0)
@@ -112,23 +112,30 @@ namespace ORO_CoreLib
 
     bool PeriodicTask::start()
     {
-        if ( isRunning() || !thread_->isRunning() ) return false;
+        if ( isActive() || !thread_->isRunning() ) return false;
 
-        running = true;
+        active = true;
         inError = !this->initialize();
 
+        bool res;
         if ( !inError && timer_ )
-            running = timer_->addTask( this );
+            res = timer_->addTask( this );
         
 
-        if ( running && eprocessor_ )
-            eprocessor_->initialize();
-        return running;
+        if ( res && eprocessor_ ) {
+            res = eprocessor_->initialize();
+            if ( !res ) {
+                this->stop();
+                return false;
+            }
+        }
+        running = true;
+        return true;
     }
 
     bool PeriodicTask::stop()
     {
-        if ( !isRunning() ) return false;
+        if ( !isActive() ) return false;
 
         // since removeTask synchronises, we do not need to mutex-lock
         // stop()
@@ -137,6 +144,7 @@ namespace ORO_CoreLib
             if ( eprocessor_ )
                 eprocessor_->finalize();
             this->finalize();
+            active = false;
             return true;
         }
         return false;
@@ -145,6 +153,11 @@ namespace ORO_CoreLib
     bool PeriodicTask::isRunning() const
     {
         return running;
+    }
+
+    bool PeriodicTask::isActive() const
+    {
+        return active;
     }
 
     Seconds PeriodicTask::getPeriod() const

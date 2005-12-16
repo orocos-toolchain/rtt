@@ -890,8 +890,8 @@ namespace ORO_Execution
 
     bool StateMachine::activate()
     {
-        // inactive implies loaded, but check additionally if smp is running.
-        if ( smStatus != Status::inactive || !smp->getTask() || !smp->getTask()->isRunning() ) {
+        // inactive implies loaded, but check additionally if smp is at least active
+        if ( smStatus != Status::inactive || !smp->getTask() || !smp->getTask()->isActive() ) {
             return false;
         }
 

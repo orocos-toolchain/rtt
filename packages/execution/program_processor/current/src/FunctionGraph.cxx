@@ -124,7 +124,7 @@ namespace ORO_Execution
 
     bool FunctionGraph::start()
     {
-        if ( !pp || !pp->getTask() || !pp->getTask()->isRunning() )
+        if ( !pp || !pp->getTask() || !pp->getTask()->isActive() )
             return false;
         if ( pStatus == Status::stopped || pStatus == Status::paused) {
             pStatus = Status::running;

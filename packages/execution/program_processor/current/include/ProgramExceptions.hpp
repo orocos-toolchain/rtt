@@ -6,8 +6,10 @@
 
 namespace ORO_Execution
 {
-    class ProgramInterface;
-
+    /**
+     * This exception is thrown when a program or state machine
+     * could not be loaded into a ProgramProcessor or StateMachineProcessor.
+     */
     class program_load_exception
         : public std::exception
     {
@@ -24,6 +26,10 @@ namespace ORO_Execution
         }
     };
 
+    /**
+     * This exception is thrown when a program or state machine
+     * could not be unloaded into a ProgramProcessor or StateMachineProcessor.
+     */
     class program_unload_exception
         : public std::exception
     {
