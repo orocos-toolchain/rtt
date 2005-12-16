@@ -39,6 +39,10 @@ namespace ORO_OS
 {
     namespace detail {
 
+        INTERNAL_QUAL int rtos_thread_create(RTOS_THREAD* thread, void * (*start_routine)(void *), ThreadInterface* obj) {
+            return pthread_create(thread, 0, start_routine, obj);
+        }
+
         INTERNAL_QUAL RTOS_TASK* rtos_task_init( ThreadInterface* thread )
         {
             RTOS_TASK* mytask = 0;
@@ -53,6 +57,10 @@ namespace ORO_OS
             // a task must be runnable when rtos_task_init returns.
             //rt_task_resume( mytask );
             return mytask;
+        }
+
+        INTERNAL_QUAL void rtos_task_yield(RTOS_TASK*) {
+            rt_task_yield();
         }
 
         INTERNAL_QUAL void rtos_task_make_hard_real_time(RTOS_TASK*) {

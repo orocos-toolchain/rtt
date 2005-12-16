@@ -36,7 +36,6 @@ namespace ORO_OS
 {
     class MutexLock;
     class MutexTryLock;
-    class ConditionVariableTimed;
 
     /**
      * @brief An object oriented wrapper around a non recursive mutex.
@@ -51,10 +50,7 @@ namespace ORO_OS
     class Mutex 
     {
         friend class ORO_OS::MutexLock;
-
         friend class ORO_OS::MutexTryLock;
-
-        friend class ORO_OS::ConditionVariableTimed;
     protected:
         /**
          * The empty constructor, used for derived classes.

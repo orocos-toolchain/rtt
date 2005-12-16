@@ -51,8 +51,8 @@ namespace ORO_OS
 
         /**
          * Run the functionality of one RunnableInterface object.
-	 * Only one RunnableInterface object can be run, the old one is
-	 * disconnected.
+         * Only one RunnableInterface object can be run, the old one is
+         * disconnected.
          * @param r The object to run or zero to clear.
          * @return true if accepted, false if the thread is running.
          */
@@ -121,8 +121,15 @@ namespace ORO_OS
 
         /**
          * The priority of this Thread.
+         * Zero is the highest priority, 99 the lowest priority.
          */
         virtual int getPriority() const = 0;
+
+        /**
+         * The POSIX compliant priority of this Thread.
+         * 99 is the highest priority, 0 the lowest priority.
+         */
+        virtual int getPosixPriority() const = 0;
 
         /**
          * The unique thread number.

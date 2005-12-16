@@ -260,6 +260,10 @@ namespace ORO_OS
         return true;
     }
 
+    void SingleThread::yield() {
+        rtos_task_yield( rtos_task );
+    }
+
     bool SingleThread::stop() 
     {
         if ( !isRunning() ) return false;

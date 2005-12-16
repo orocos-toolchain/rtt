@@ -25,14 +25,182 @@
  *                                                                         *
  ***************************************************************************/
  
- 
-#include <os/fosi.h>
-#include <sys/poll.h>
-#include <sys/signal.h>
-#include <unistd.h>
-#include <stdarg.h>
+#define OROBLD_OS_INTERNAL
+#include "os/fosi.h"
+#include <assert.h>
 
-#undef rtos_printf
+#ifdef OROBLD_OS_AGNOSTIC
+
+	// hrt is in ticks
+TIME_SPEC ticks2timespec(TICK_TIME hrt)
+{
+	TIME_SPEC timevl;
+	timevl.tv_sec = rt_timer_ticks2ns(hrt) / 1000000000LL;
+	timevl.tv_nsec = rt_timer_ticks2ns(hrt) % 1000000000LL;
+	return timevl;
+}
+
+	// hrt is in ticks
+TICK_TIME timespec2ticks(const TIME_SPEC* ts)
+{
+	return  rt_timer_ns2ticks(ts->tv_nsec + ts->tv_sec*1000000000LL);
+}
+
+// turn this on to have maximum detection of valid system calls.
+#ifdef OROSEM_OS_XENO_CHECK
+#define CHK_XENO_CALL() do { if(rt_task_self() == 0) { \
+        printf("XENO NOT INITIALISED IN THIS THREAD pid=%d,\n\
+    BUT TRIES TO INVOKE XENO FUNCTION >>%s<< ANYWAY\n", getpid(), __FUNCTION__ );\
+        assert( rt_task_self() != 0 ); }\
+        } while(0)
+#define CHK_XENO_PTR(ptr) do { if(ptr == 0) { \
+        printf("TRIED TO PASS NULL POINTER TO XENO IN THREAD pid=%d,\n\
+    IN TRYING TO INVOKE XENO FUNCTION >>%s<<\n", getpid(), __FUNCTION__ );\
+        assert( ptr != 0 ); }\
+        } while(0)
+#else
+#define CHK_XENO_CALL()
+#define CHK_XENO_PTR( a )
+#endif
+    
+NANO_TIME rtos_get_time_ns(void) { return rt_timer_read(); }
+
+TICK_TIME systemTimeGet(void) { return rt_timer_tsc(); }
+
+TICK_TIME systemNSecsTimeGet(void) { return rt_timer_read(); }
+
+TICK_TIME ticksPerSec(void) { return rt_timer_ns2ticks( 1000 * 1000 * 1000 ); }
+
+	TICK_TIME nano2ticks(NANO_TIME t) { return rt_timer_ns2ticks(t); }
+	NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_ticks2ns(t); }
+
+	int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
+	{
+		CHK_XENO_CALL();
+		RTIME ticks = rqtp->tv_sec * 1000000000LL + rqtp->tv_nsec;
+		rt_task_sleep( ticks );
+		return 0;
+	}
+
+     int rtos_sem_init(rt_sem_t* m, int value )
+    {
+        CHK_XENO_CALL();
+		return rt_sem_create( m, 0, value, 0);
+    }
+
+     int rtos_sem_destroy(rt_sem_t* m )
+    {
+        CHK_XENO_CALL();
+        return rt_sem_delete( m );
+    }
+
+     int rtos_sem_signal(rt_sem_t* m )
+    {
+        CHK_XENO_CALL();
+        return rt_sem_v( m );
+    }
+
+     int rtos_sem_wait(rt_sem_t* m )
+    {
+        CHK_XENO_CALL();
+        return rt_sem_p( m, TM_INFINITE );
+    }
+
+     int rtos_sem_trywait(rt_sem_t* m )
+    {
+        CHK_XENO_CALL();
+        return rt_sem_p( m, TM_NONBLOCK);
+    }
+
+     int rtos_sem_value(rt_sem_t* m )
+    {
+        CHK_XENO_CALL();
+		RT_SEM_INFO sinfo;
+        if (rt_sem_inquire(m, &sinfo) == 0 ) {
+			return sinfo.count;
+		}
+		return -1;
+    }
+
+     int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay )
+    {
+        CHK_XENO_CALL();
+        return rt_sem_p(m, nano2ticks(delay) );
+    }
+
+     int rtos_mutex_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)
+    {
+        CHK_XENO_CALL();
+		// a Xenomai mutex is always recursive
+        return rt_mutex_create(m, 0);
+    }
+
+     int rtos_mutex_destroy(rt_mutex_t* m )
+    {
+        CHK_XENO_CALL();
+        return rt_mutex_delete(m);
+    }
+
+     int rtos_mutex_rec_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)
+    {
+        CHK_XENO_CALL();
+		// a Xenomai mutex is always recursive
+        return rt_mutex_create(m, 0);
+    }
+
+     int rtos_mutex_rec_destroy(rt_mutex_t* m )
+    {
+        CHK_XENO_CALL();
+        return rt_mutex_delete(m);
+    }
+
+     int rtos_mutex_lock( rt_mutex_t* m)
+    {
+        CHK_XENO_CALL();
+        return rt_mutex_lock(m, TM_INFINITE);
+    }
+
+#if 0
+     int rtos_mutex_trylock( rt_mutex_t* m)
+    {
+        CHK_XENO_CALL();
+        return rt_mutex_trylock(m);
+    }
+#endif
+
+     int rtos_mutex_unlock( rt_mutex_t* m)
+    {
+        CHK_XENO_CALL();
+        return rt_mutex_unlock(m);
+    }
+
+
+#if 0
+     int rtos_cond_init(rt_cond_t *cond, pthread_condattr_t *cond_attr)
+    {
+        CHK_XENO_CALL();
+        return rt_cond_create(cond, 0);
+    }
+
+     int rtos_cond_destroy(rt_cond_t *cond)
+    {
+        CHK_XENO_CALL();
+        return rt_cond_delete(cond);
+    }
+
+     int rtos_cond_timedwait(rt_cond_t *cond, rt_mutex_t *mutex, const struct timespec *abstime)
+    {
+        CHK_XENO_CALL();
+        return rt_cond_wait(cond, mutex, timespec2ticks(abstime) );
+    }
+
+     int rtos_cond_broadcast(rt_cond_t *cond)
+    {
+        CHK_XENO_CALL();
+        return rt_cond_broadcast(cond);
+    }
+#endif
+
 int rtos_printf(const char *fmt, ...)
 {
     va_list list;
@@ -44,387 +212,4 @@ int rtos_printf(const char *fmt, ...)
     return printf(printkbuf);
 }
 
-
-
-
-
-
-struct ciovec
-{
-
-    struct ciovec * next;
-
-    size_t size;
-    char * data;
-};
-
-#define MAX_NR_CLIENTSOCKETS 2
-struct fifo
-{
-    int sockethandle;
-    int clientsockets[ MAX_NR_CLIENTSOCKETS ];
-    fifohandler handler;
-    int readable;
-
-    pthread_t thread;
-
-    struct ciovec * head;
-
-    struct ciovec * tail;
-
-    pthread_mutex_t mutex;
-
-    int terminate;
-};
-
-#define MAX_NR_FIFOS 64
-struct fifo fifos[ MAX_NR_FIFOS ];
-
-void * fifothread( void * arg );
-
-//#define FOSIDEBUG
-
-int rtosf_create( int fnr, size_t bytes )
-{
-
-    struct sockaddr_un address;
-    char pathname[ UNIX_PATH_MAX ];
-    int * intptr;
-
-#ifdef FOSIDEBUG
-
-    printf( "in rtosf_create\n" );
 #endif
-
-    // we create a unix domain socket ~/dev/rtfXX
-    snprintf( pathname, UNIX_PATH_MAX, "%s/dev/rtf%i", getenv( "HOME" ), fnr );
-    // points into environment, we copy it ourselves
-    address.sun_family = PF_UNIX;
-
-    strncpy( address.sun_path, pathname, UNIX_PATH_MAX );
-
-    if ( ( fnr < 0 ) || ( fnr >= MAX_NR_FIFOS ) )
-        return -1;
-
-    if ( fifos[ fnr ].sockethandle != 0 )
-        return -1;
-
-    fifos[ fnr ].sockethandle = socket( PF_UNIX, SOCK_STREAM, 0 ); // protocols don't exist for unix domain sockets
-
-#ifdef FOSIDEBUG
-
-    rtos_printf( "socket reserved for fifo %i : %i\n", fnr, fifos[ fnr ] );
-
-#endif
-
-    bind( fifos[ fnr ].sockethandle, ( struct sockaddr * ) & address, sizeof( address ) );
-
-    listen( fifos[ fnr ].sockethandle, 5 );
-
-    intptr = ( int * ) malloc( sizeof( int ) );
-
-    *intptr = fnr;
-
-    pthread_create( &fifos[ fnr ].thread, NULL, fifothread, intptr );
-
-    return 0;
-}
-
-void readinbuffer( struct fifo * f, int i )
-{
-    char buffer[ 4096 ];
-    size_t size;
-
-    size = read( f->clientsockets[ i ], buffer, sizeof( buffer ) );
-
-    f->tail->next = malloc( sizeof( struct ciovec ) );
-    f->tail = f->tail->next;
-    f->tail->next = NULL;
-
-    f->tail->size = size;
-    f->tail->data = malloc( size );
-
-    memcpy( f->tail->data, buffer, size );
-}
-
-inline int max( int a, int b )
-{
-    return ( a < b ? b : a );
-};
-
-inline int max3( int a, int b, int c )
-{
-    return max( max( a, b ), c );
-};
-
-void * fifothread( void * arg )
-{
-    int * argument = ( int * ) arg;
-    int fnr = *( ( int * ) arg );
-    fd_set inputs;
-    int i;
-
-#ifdef FOSIDEBUG
-
-    rtos_printf( "now in thread for fifo : %i, socket #%i\n", fnr, fifos[ fnr ] );
-#endif
-
-    pthread_mutex_init( &fifos[ fnr ].mutex, NULL );
-
-    fifos[ fnr ].terminate = 0;
-
-    fifos[ fnr ].head = malloc( sizeof( struct ciovec ) );
-    fifos[ fnr ].tail = fifos[ fnr ].head;
-    fifos[ fnr ].tail->next = NULL;
-
-    free( argument );
-
-    while ( fifos[ fnr ].terminate == 0 )
-    {
-        int tus;
-
-        FD_ZERO( &inputs );
-#ifdef FOSIDEBUG
-
-        rtos_printf( "socket for fifo %i : %i\n", fnr, fifos[ fnr ].sockethandle );
-#endif
-
-        FD_SET( fifos[ fnr ].sockethandle, &inputs );
-
-        if ( ( tus = fifos[ fnr ].clientsockets[ 0 ] ) != 0 )
-        {
-            FD_SET( tus, &inputs );
-#ifdef FOSIDEBUG
-
-            rtos_printf( "including socket #%i\n", fifos[ fnr ].clientsockets[ 0 ] );
-#endif
-
-        }
-
-        if ( ( tus = fifos[ fnr ].clientsockets[ 1 ] ) != 0 )
-        {
-            FD_SET( tus, &inputs );
-#ifdef FOSIDEBUG
-
-            rtos_printf( "including socket #%i\n", fifos[ fnr ].clientsockets[ 1 ] );
-#endif
-
-        }
-
-        select(
-            FD_SETSIZE,
-            &inputs, NULL, NULL, NULL );
-
-#ifdef FOSIDEBUG
-
-        rtos_printf( "FIRE\n" );
-#endif
-
-        pthread_mutex_lock( &fifos[ fnr ].mutex );       // we will now modify fifos[fnr]
-
-        if ( FD_ISSET( fifos[ fnr ].sockethandle, &inputs ) )
-        {
-            int i, j;
-#ifdef FOSIDEBUG
-
-            rtos_printf( "accepting connection fof fifo #%i on socket #%i!!\n", fnr, fifos[ fnr ] );
-#endif
-
-            if ( ( i = accept( fifos[ fnr ].sockethandle, NULL, NULL ) ) < 0 )
-            {
-                perror( "accept" );
-            }
-
-            for ( j = 0; j <= 1; j++ )
-                if ( fifos[ fnr ].clientsockets[ j ] == 0 )
-                {
-                    fifos[ fnr ].clientsockets[ j ] = i;
-                    break;
-                }
-
-            if ( j == 2 )
-                close( i );
-
-#ifdef FOSIDEBUG
-
-            rtos_printf( "accepted connection %i in slot %i!!\n", i, j );
-
-#endif
-
-        }
-
-        for ( i = 0; i < 2; i++ )
-        {
-            tus = fifos[ fnr ].clientsockets[ i ];
-
-            if ( FD_ISSET( tus, &inputs ) )
-            {
-
-                struct pollfd pf;
-                pf.fd = fifos[ fnr ].clientsockets[ i ];
-                pf.events = POLLIN | POLLHUP;
-                poll( &pf, 1, 0 );
-
-                if ( pf.revents && POLLIN )
-                {
-#ifdef FOSIDEBUG
-                    rtos_printf( "calling handler for fifo %i, socket %i : %x\n", fnr, fifos[ fnr ].clientsockets[ i ], fifos[ fnr ].handler );
-#endif
-
-                    readinbuffer( &fifos[ fnr ], i );
-
-                    pthread_mutex_unlock( &fifos[ fnr ].mutex );       // we need to unlock this for read to work
-
-                    ( *( fifos[ fnr ].handler ) ) ( fnr, 'r' );
-
-                    pthread_mutex_lock( &fifos[ fnr ].mutex );       // humhum ... and re-lock it for we'll unlock it again
-                };
-
-                if ( ( pf.revents && POLLHUP ) && ( ~ ( pf.revents && POLLIN ) ) )
-                {
-#ifdef FOSIDEBUG
-                    rtos_printf( "closed connection %i in clientsocket %i!!\n", fnr, fifos[ fnr ].clientsockets[ i ] );
-#endif
-
-                    close( fifos[ fnr ].clientsockets[ i ] );
-                    fifos[ fnr ].clientsockets[ i ] = 0;
-                };
-            };
-        };
-
-        pthread_mutex_unlock( &fifos[ fnr ].mutex );       // we will now modify fifos[fnr]
-    };
-
-    return NULL;
-}
-
-void rtosf_destroy( int fnr )
-{
-    void * returnvalue;
-    char pathname[ UNIX_PATH_MAX ];
-
-#ifdef FOSIDEBUG
-
-    rtos_printf( "rtosf_destroy(%i)\n", fnr );
-#endif
-
-    close( fifos[ fnr ].sockethandle );
-    fifos[ fnr ].terminate = 1;  // this is the termination condition for the thread
-    // NEED to make the thread wake up from select() here
-    pthread_kill( fifos[ fnr ].thread, SIGUSR1 );
-    pthread_join( fifos[ fnr ].thread, &returnvalue );
-    // wait for the threads termination
-    // pthread_join
-    snprintf( pathname, UNIX_PATH_MAX, "%s/dev/rtf%i", getenv( "HOME" ), fnr );
-    unlink( pathname );
-}
-
-int rtosf_get( int fnr, char * msg, size_t bytes )
-{
-#ifdef FOSIDEBUG
-    rtos_printf( "rtosf_get(%i,%x,%u)\n", fnr, msg, bytes );
-#endif
-
-    if ( fifos[ fnr ].head == fifos[ fnr ].tail )
-    {
-#ifdef FOSIDEBUG
-        rtos_printf( "nothing to read\n" );
-#endif
-
-        return 0; // nothing to read
-    }
-
-    if ( bytes == 0 )
-        return 0; // likewise
-
-    pthread_mutex_lock( &fifos[ fnr ].mutex );       // we will now modify fifos[fnr]
-
-    // either the msg is large enough, and we can copy the entire ciovec
-    if ( bytes >= fifos[ fnr ].head->next->size )
-    {
-
-        struct ciovec * tus;
-        size_t size;
-
-        size = fifos[ fnr ].head->next->size;
-        memcpy( msg, fifos[ fnr ].head->next->data, size );
-
-        tus = fifos[ fnr ].head->next->next;
-
-        if ( tus == 0 )
-            tus = fifos[ fnr ].head;       // lijst is leeg
-
-        free( fifos[ fnr ].head->next->data );
-
-        free( fifos[ fnr ].head->next );
-
-        fifos[ fnr ].head->next = tus;
-
-        pthread_mutex_unlock( &fifos[ fnr ].mutex );  // unlock the mutex
-
-        return size;   // return number of bytes "read"
-    }
-
-    else
-    {
-        // or it is not, and we need to return the stuff in pieces
-        // we will need an additional ciovec to contain the remainder of the data
-
-        struct ciovec * tus;
-
-        tus = malloc( sizeof( struct ciovec ) );
-        tus->next = fifos[ fnr ].head->next->next;
-        tus->size = fifos[ fnr ].head->next->size - bytes;
-        tus->data = malloc( tus->size );
-        memcpy( msg, fifos[ fnr ].head->next->data, bytes );
-        memcpy( tus->data, fifos[ fnr ].head->next->data + bytes, tus->size );
-
-        free( fifos[ fnr ].head->data );
-        free( fifos[ fnr ].head );
-
-        fifos[ fnr ].head = tus;
-
-        pthread_mutex_unlock( &fifos[ fnr ].mutex );  // unlock the mutex
-        return bytes;   // return number of bytes "read"
-    };
-
-#ifdef FOSIDEBUG
-
-    rtos_printf( "finito rtosf_get" );
-
-#endif
-
-    pthread_mutex_unlock( &fifos[ fnr ].mutex );       // done
-}
-
-int rtosf_resize( int fnr, size_t size )
-{
-    return 0;
-}
-
-int rtosf_put( int fnr, const char * text, size_t bytes )
-{
-    char * rtosf_put_text = ( char * ) malloc( bytes + 1 );
-    memcpy( rtosf_put_text, text, bytes );
-    // TODO: check if terminator '\0' is needed.
-    rtosf_put_text[ bytes ] = '\0';
-    write( fifos[ fnr ].clientsockets[ 0 ], text, bytes );
-    write( fifos[ fnr ].clientsockets[ 1 ], text, bytes );
-    free( rtosf_put_text );
-    return 0; // no error checking yet
-}
-
-int rtosf_set_handler( int fnr, int ( *h ) ( unsigned int, int ) )
-{
-#ifdef FOSIDEBUG
-    rtos_printf( "Setting handler : %x for fifo %i\n", h, fnr );
-#endif
-
-    fifos[ fnr ].handler = h;
-    return 0; // no error checking, previous handlers are overwritten
-}
-
-void rtosf_remove_all_handlers( int fnr )
-{
-    fifos[ fnr ].handler = 0;
-}

@@ -91,6 +91,7 @@ extern "C" {
 	typedef RT_TASK RTOS_TASK;
 	typedef SEM     RTOS_RTAI_SEM;
 	typedef CND     RTOS_CND;
+	typedef pthread_t RTOS_THREAD;
 
 #else // AGNOSTIC
 
@@ -106,6 +107,7 @@ extern "C" {
     typedef __LXRT_HANDLE_STRUCT RTOS_TASK;
     typedef __LXRT_HANDLE_STRUCT RTOS_RTAI_SEM;
     typedef __LXRT_HANDLE_STRUCT RTOS_CND; 
+	typedef pthread_t RTOS_THREAD;
 #else
     // v24.1.x :
 	typedef struct oro_lxrt_t {
@@ -114,6 +116,7 @@ extern "C" {
     typedef void RTOS_RTAI_TASK;
     typedef __LXRT_HANDLE_STRUCT RTOS_RTAI_SEM;
     typedef void RTOS_RTAI_CND; 
+	typedef pthread_t RTOS_THREAD;
 #endif
 #endif // OROBLD_OS_AGNOSTIC // for RTAI header files.
 

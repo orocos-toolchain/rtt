@@ -24,7 +24,19 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/ 
- 
+
+/**
+ * @file OS.hpp
+ *  This file includes commonly used headers from the Orocos OS package. 
+ */
+
+#include "PeriodicThread.hpp"
+#include "SingleThread.hpp"
+#include "Mutex.hpp"
+#include "MutexLock.hpp"
+#include "Semaphore.hpp"
+#include "CAS.hpp"
+
 /**
  * @brief OS Abstractions such as Mutexes, Semaphores and Threads.
  *

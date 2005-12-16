@@ -94,7 +94,9 @@ namespace ORO_OS
 
         // Reporting available from this point :
 #ifdef OROPKG_CORELIB_REPORTING
-        Logger::log() << Logger::Debug << "Periodic Thread "<< task->taskName <<" created with priority "<<task->priority<<"."<<Logger::endl;
+        Logger::In in("PeriodicThread");
+        Logger::log() << Logger::Debug << task->taskName <<" created with priority "<<task->priority<<"."<<Logger::endl;
+        Logger::log() << Logger::Debug << "(Posix priority "<<task->getPosixPriority()<<".)"<<Logger::endl;
 #endif
 
 #ifdef OROPKG_OS_THREAD_SCOPE
@@ -118,18 +120,18 @@ namespace ORO_OS
                     d = pp.get();
                 }
 # else
-                Logger::log() << Logger::Warning<< "PeriodicThread : Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << Logger::endl;
+                Logger::log() << Logger::Warning<< "Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << Logger::endl;
 # endif
         } catch( ... )
             {
 #ifdef OROPKG_CORELIB_REPORTING
-                Logger::log() << Logger::Error<< "PeriodicThread : Failed to create ThreadScope." << Logger::endl;
+                Logger::log() << Logger::Error<< "Failed to create ThreadScope." << Logger::endl;
 #endif
             }
         if ( d ) {
 #ifdef OROPKG_CORELIB_REPORTING
             Logger::log() << Logger::Info
-                          << "ThreadScope : Periodic Thread "<< task->taskName <<" toggles bit "<< bit << Logger::endl;
+                          << "ThreadScope :"<< task->taskName <<" toggles bit "<< bit << Logger::endl;
 #endif
             d->switchOff( bit );
         }
@@ -144,7 +146,7 @@ namespace ORO_OS
                     {
                         if( !task->running ) { // more efficient than calling isRunning()
                             // consider this the 'configuration state'
-			    overruns = 0;
+                            overruns = 0;
                             // drop out of periodic mode:
                             rtos_task_set_period(task->rtos_task, 0);
 //                             Logger::log() << Logger::Info <<task->taskName<<"  signals done !" << Logger::endl;
@@ -170,23 +172,23 @@ namespace ORO_OS
                             if ( d )
                                 d->switchOff( bit );
 #endif
-			    // return non-zero to indicate overrun.
-			    if ( rtos_task_wait_period( task->rtos_task ) != 0) {
-			      ++overruns;
-			      if ( overruns == task->maxOverRun )
-				break;
-			    } else if ( overruns != 0 )
-			      --overruns;
+                            // return non-zero to indicate overrun.
+                            if ( rtos_task_wait_period( task->rtos_task ) != 0) {
+                                ++overruns;
+                                if ( overruns == task->maxOverRun )
+                                    break;
+                            } else if ( overruns != 0 )
+                                --overruns;
                         }
                     }
-		if ( overruns == task->maxOverRun ) {
+                if ( overruns == task->maxOverRun ) {
 #ifdef OROPKG_OS_THREAD_SCOPE
-            if ( d )
-                d->switchOff( bit );
+                    if ( d )
+                        d->switchOff( bit );
 #endif
             task->emergencyStop();
 #ifdef OROPKG_CORELIB_REPORTING
-            Logger::log() << Logger::Fatal << "Periodic Thread "<< task->taskName <<" got too many periodic overruns in step() ("<< overruns << " times), stopped Thread !"<<Logger::nl;
+            Logger::log() << Logger::Fatal << task->taskName <<" got too many periodic overruns in step() ("<< overruns << " times), stopped Thread !"<<Logger::nl;
             Logger::log() <<" See PeriodicThread::setMaxOverrun() for info." << Logger::endl;
 #endif
 		}
@@ -197,7 +199,7 @@ namespace ORO_OS
 #endif
                 task->emergencyStop();
 #ifdef OROPKG_CORELIB_REPORTING
-                Logger::log() << Logger::Fatal << "Periodic Thread "<< task->taskName <<" caught a C++ exception, stopped thread !"<<Logger::endl;
+                Logger::log() << Logger::Fatal << task->taskName <<" caught a C++ exception, stopped thread !"<<Logger::endl;
 #endif
             }
         } // while (!prepareForExit)
@@ -209,7 +211,7 @@ namespace ORO_OS
             rtos_task_make_soft_real_time( task->rtos_task );
 
 #ifdef OROPKG_CORELIB_REPORTING
-        Logger::log() << Logger::Debug << "Periodic Thread "<< task->taskName <<" exiting."<<Logger::endl;
+        Logger::log() << Logger::Debug << task->taskName <<" exiting."<<Logger::endl;
 #endif
 
         rtos_task_delete( task->rtos_task );
@@ -232,13 +234,18 @@ namespace ORO_OS
         running(false), goRealtime(false), priority(_priority), prepareForExit(false),
         runComp(r), wait_for_step(true), sched_type( OROSEM_OS_SCHEDTYPE ), maxOverRun(5)
     {
+        if (priority < 0 )
+            priority = 0;
+        if (priority > 99 )
+            priority = 99;
         int ret;
         rtos_thread_init( this, name );
         
         ret = rtos_sem_init(&sem, 0);
         if ( ret != 0 ) {
 #ifdef OROPKG_CORELIB_REPORTING
-            Logger::log() << Logger::Critical << "PeriodicThread : could not allocate configuration semaphore 'sem' for "<< taskName <<". Throwing std::bad_alloc."<<Logger::endl;
+            Logger::In in("PeriodicThread");
+            Logger::log() << Logger::Critical << "Could not allocate configuration semaphore 'sem' for "<< taskName <<". Throwing std::bad_alloc."<<Logger::endl;
 #endif
             throw std::bad_alloc();
         }
@@ -246,7 +253,8 @@ namespace ORO_OS
         ret = rtos_sem_init(&confDone, 0);
         if ( ret != 0 ) {
 #ifdef OROPKG_CORELIB_REPORTING
-            Logger::log() << Logger::Critical << "PeriodicThread : could not allocate configuration semaphore 'confDone' for "<< taskName <<". Throwing std::bad_alloc."<<Logger::endl;
+            Logger::In in("PeriodicThread");
+            Logger::log() << Logger::Critical << "Could not allocate configuration semaphore 'confDone' for "<< taskName <<". Throwing std::bad_alloc."<<Logger::endl;
 #endif
             rtos_sem_destroy( &sem );
             throw std::bad_alloc();
@@ -260,9 +268,9 @@ namespace ORO_OS
         // Do not call setPeriod(), since the semaphores are not yet used !
         period = Seconds_to_nsecs(periods);
 
-	if (runComp)
-	  runComp->setThread(this);
-        pthread_create( &thread, 0, periodicThread, this);
+        if (runComp)
+            runComp->setThread(this);
+        rtos_thread_create( &thread, periodicThread, this );
         rtos_sem_wait(&confDone);
     }
     
@@ -527,6 +535,11 @@ namespace ORO_OS
     int PeriodicThread::getPriority() const 
     {
         return priority;
+    }
+
+    int PeriodicThread::getPosixPriority() const 
+    {
+        return 99 - priority;
     }
 
     double PeriodicThread::getPeriod() const

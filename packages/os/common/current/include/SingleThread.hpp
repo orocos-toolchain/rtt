@@ -145,6 +145,10 @@ namespace ORO_OS
         virtual nsecs getPeriodNS() const { return 0; }
 
         virtual int getPriority() const { return priority; }
+        virtual int getPosixPriority() const { return 99 - priority; }
+
+        void yield();
+
     protected:
 
         virtual bool breakLoop();

@@ -45,9 +45,16 @@ namespace ORO_OS
 {
     namespace detail {
 
+        INTERNAL_QUAL int rtos_thread_create(RTOS_THREAD* thread, void * (*start_routine)(void *), ThreadInterface* obj) {
+            return pthread_create(thread, 0, start_routine, obj);
+        }
+
         INTERNAL_QUAL RTOS_TASK* rtos_task_init( ThreadInterface* thread )
         {
             return new GNUTask( thread->getPeriodNS() );
+        }
+
+        INTERNAL_QUAL void rtos_task_yield(RTOS_TASK*) {
         }
 
         INTERNAL_QUAL void rtos_task_make_hard_real_time(RTOS_TASK*) {

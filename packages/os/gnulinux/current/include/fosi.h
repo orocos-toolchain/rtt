@@ -43,6 +43,7 @@ extern "C"
 #include <string.h>
     struct GNUTask;
     typedef struct GNUTask RTOS_TASK;
+	typedef pthread_t      RTOS_THREAD;
 
 	// Orocos Implementation (i386 specific)
 #include "oro_atomic.h"

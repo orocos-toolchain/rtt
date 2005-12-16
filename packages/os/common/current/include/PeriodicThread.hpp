@@ -63,11 +63,11 @@ namespace ORO_OS
         /**
          * Create a Thread with a given priority and a name.
          *
-         * @param priority The priority of the thread, with zero being the highest.
+         * @param priority The priority of the thread, with zero being the highest, 99 being the lowest.
          * @param name     The name of the Thread.
          * @param period   The period in seconds (eg 0.001) of the thread.
          * @param r        The optional RunnableInterface instance to run. If not present,
-         *                 the thread's own RunnableInterface functions are executed.
+         *                 the thread's own virtual functions are executed.
          */
         PeriodicThread(int priority, std::string name, double period, ORO_OS::RunnableInterface* r=0);
     
@@ -142,8 +142,10 @@ namespace ORO_OS
 
         virtual int getPriority() const;
 
-      void setMaxOverrun( int m );
-      int getMaxOverrun() const;
+        virtual int getPosixPriority() const;
+
+        void setMaxOverrun( int m );
+        int getMaxOverrun() const;
      protected:
         /**
          * Exit the thread 
@@ -195,9 +197,9 @@ namespace ORO_OS
         RTOS_TASK* rtos_task;
 
         /**
-         * The userspace thread carying the rt_task.
+         * The thread struct
          */
-        pthread_t thread;
+        RTOS_THREAD thread;
 
         int priority;
 
