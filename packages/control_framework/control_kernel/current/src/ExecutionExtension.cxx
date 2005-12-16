@@ -83,6 +83,10 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
     bool ExecutionExtension::initialize()
     {
         initKernelCommands();
+        tc.engine()->setTask( this->kernel()->getTask() );
+        bool res = tc.engine()->initialize();
+        if ( res == false )
+            return false;
         if ( tc.engine()->states()->getStateMachine("Default") == 0 ) {
             Logger::log() << Logger::Info << "ExecutionExtension : "
                           << "No \"Default\" StateMachine present."<< Logger::endl;
@@ -94,8 +98,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
                 Logger::log() << Logger::Error << "ExecutionExtension : "
                               << "Processor could not start \"Default\" StateMachine."<< Logger::endl;
         }
-        tc.engine()->setTask( this->kernel()->getTask() );
-        return tc.engine()->initialize();
+        return true;
     }
 
 #if 0
