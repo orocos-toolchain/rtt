@@ -114,14 +114,14 @@ namespace ORO_CoreLib
     {
         if ( isRunning() || !thread_->isRunning() ) return false;
 
+        running = true;
         inError = !this->initialize();
 
         if ( !inError && timer_ )
             running = timer_->addTask( this );
-//         else
-//             Logger::log() << Logger::Warning << "PeriodicTask with period "<<this->getPeriod()<< "s failed to initialize() in thread " << this->thread()->taskNameGet() << Logger::endl;
+        
 
-        if ( eprocessor_ )
+        if ( running && eprocessor_ )
             eprocessor_->initialize();
         return running;
     }
