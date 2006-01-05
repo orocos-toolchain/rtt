@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-PACKAGES_INIT([Orocos Packages],0,20,0)
+PACKAGES_INIT([Orocos Packages],0,21,0)
 
 if ! test -e configure.ac; then
    echo "
@@ -43,6 +43,7 @@ DETECT_XERCESCPKG
 DETECT_COMEDIPKG
 DETECT_READLINE
 DETECT_RTAI
+DETECT_XENOMAI
 #DETECT_GCC
 #if I put this in a macro, the $1 sign disapears, and I could not find out
 # how to properly escape it.

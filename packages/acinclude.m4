@@ -121,9 +121,9 @@ else
   else
     # no comedi found
     AC_MSG_RESULT(not found)
-   AC_MSG_WARN([No comedi installation found !
-   (tried : $COMEDI_DIR/comedilib.h and $COMEDI_DIR/linux/comedilib.h).
-   Comedi will be unavailable.])
+   #AC_MSG_WARN([No comedi installation found !
+   #(tried : $COMEDI_DIR/comedilib.h and $COMEDI_DIR/linux/comedilib.h).
+   #Comedi will be unavailable.])
   fi
 fi
 AC_SUBST(COMEDI_DIR)
@@ -235,6 +235,31 @@ if test x"$RTAI_VERSION" = x; then
    RTAI_VERSION=0
 fi
 AC_SUBST(RTAI_VERSION)
+])
+
+m4_define([DETECT_XENOMAI],
+[
+AC_MSG_CHECKING(for XENOMAI 2.0 Installation)
+AC_ARG_WITH(xenomai, [ --with-xenomai[=/usr/realtime] Specify location of XENOMAI ],
+	[ if test x"$withval" != xyes; then XENOMAI_DIR="$withval"; fi ])
+
+if test x"$XENOMAI_DIR" = x; then
+   XENOMAI_DIR="/usr/realtime"
+fi
+
+AC_MSG_RESULT($XENOMAI_DIR with kernel headers in $LINUX_KERNEL_HEADERS)
+
+AC_SUBST(XENOMAI_DIR)
+
+CPPFLAGS="-I$XENOMAI_DIR/include -I$LINUX_KERNEL_HEADERS"
+AC_CHECK_HEADERS([xeno_config.h], [
+    PACKAGES="support/xenomai/current/xenomai.cdl $PACKAGES"
+    XENOMAI_VERSION=2
+],[])
+if test x"$XENOMAI_VERSION" = x; then
+   XENOMAI_VERSION=0
+fi
+AC_SUBST(XENOMAI_VERSION)
 ])
 
 
