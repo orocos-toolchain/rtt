@@ -34,10 +34,14 @@ namespace ORO_Execution
         
     ExecutionEngine::~ExecutionEngine()
     {
-//         if (this->getTask())
-//             this->getTask()->stop();
+        Logger::In in("~ExecutionEngine");
         Logger::log() << Logger::Debug << "Destroying "+taskc->getName()<<Logger::endl;
-        // do this first... this may remove dependent children...
+
+        // it is possible that the mainee is assigned to a task
+        // but that this child EE is already destroyed.
+        if (mainee && this->getTask())
+            this->RunnableInterface::setTask(0);
+
         delete cproc;
         delete pproc;
         delete smproc;
@@ -108,10 +112,17 @@ namespace ORO_Execution
 
     void ExecutionEngine::setTask(TaskInterface* t)
     {
+        Logger::In in("ExecutionEngine::setTask");
+
         if (mainee) {
             // Let parent update RunnableInterface...
             mainee->setTask(t);
         } else {
+            if (t)
+                Logger::log() <<Logger::Debug <<taskc->getName()<<": informing processors of new task."<<Logger::endl;
+            else
+                Logger::log() <<Logger::Debug <<taskc->getName()<<": disconnecting processors of task."<<Logger::endl;
+                
             // I am an orphan.
             if (cproc)
                 cproc->setTask(t);
@@ -129,13 +140,14 @@ namespace ORO_Execution
         for (std::vector<ExecutionEngine*>::iterator it = children.begin(); it !=children.end();++it)
             (*it)->RunnableInterface::setTask( t );
 
-        Logger::In in("ExecutionEngine");
         if (t)
             if ( ! t->isPeriodic() ) {
                 Logger::log() << Logger::Info << taskc->getName()+" is not periodic."<< Logger::endl;
             } else {
                 Logger::log() << Logger::Info << taskc->getName()+" is periodic."<< Logger::endl;
             }
+        else
+            Logger::log() << Logger::Info << taskc->getName()+" is disconnected from its task."<< Logger::endl;
     }
 
     bool ExecutionEngine::initialize() {
