@@ -151,10 +151,30 @@ namespace ORO_ControlKernel
             selectComponent(&dummy_estimator);
             selectComponent(&dummy_effector);
             selectComponent(&dummy_sensor);
+
+            Logger::log() << Logger::Info << "Creating ControlKernelProcess as default Process."<<Logger::endl;
+            ControlKernelProcess* ckp = new ControlKernelProcess("DefaultProcess");
+            this->loadComponent(ckp);
+            this->default_process = ckp;
+            this->process_owner = true;
+
+            std::vector<detail::ExtensionInterface*>::const_iterator it = this->getExtensions().begin();
+            while ( it != this->getExtensions().end() ) {
+                (*it)->finishConstruction();
+                ++it;
+            }
         }
 
         ~BaseKernel()
         {
+
+            if ( this->process_owner ) {
+                unload(this->default_process);
+                delete this->default_process;
+                this->default_process = 0;
+                this->process_owner = false;
+            }
+
             // If kernel destroyed and components present : BAD !
             // User did not cleanup.
             // do not touch the components, they might also be destructed
@@ -177,18 +197,6 @@ namespace ORO_ControlKernel
 
         virtual bool initialize() 
         { 
-            /**
-             * We give the user the option to load his own DefaultProcess
-             * if none loaded, use the ControlKernelProcess as DefaultProcess.
-             */
-            this->default_process = this->processes.getObject("DefaultProcess");
-            if (this->default_process == 0) {
-                ControlKernelProcess* ckp = new ControlKernelProcess("DefaultProcess");
-                this->loadComponent(ckp);
-                this->default_process = ckp;
-                this->process_owner = true;
-                // the KBF will start the component.
-            }
             return Extension::initialize();
         }
 
@@ -200,12 +208,6 @@ namespace ORO_ControlKernel
         virtual void finalize() 
         {
             Extension::finalize();
-            if ( this->process_owner ) {
-                unload(this->default_process);
-                delete this->default_process;
-                this->default_process = 0;
-                this->process_owner = false;
-            }
         }
 
         /**
@@ -216,7 +218,7 @@ namespace ORO_ControlKernel
          * @brief Select a previously loaded Component.
          *
          * This will only succeed if isLoaded(\a c) and
-         * this->isRunning(). Furthermore, if the Components 
+         * this->isActive(). Furthermore, if the Components 
          * componentStartup() method returns false, the previous
          * selected component is again started.
          *
@@ -577,6 +579,15 @@ namespace ORO_ControlKernel
             if ( this->isRunning() ) {
                 Logger::log() << Logger::Error << "Tried to load Component " << c->getName() <<" in running kernel !" << Logger::endl;
                 return false;
+            }
+
+            // detect user defined DefaultProcess.
+            if ( c->getName() == "DefaultProcess" && this->process_owner ) {
+                // if so, destroy our default, such that loadComponent can proceed.
+                this->unload(this->default_process);
+                delete this->default_process;
+                this->default_process = 0;
+                this->process_owner = false;
             }
 
             if ( this->findComponent( c->getName() ) ){

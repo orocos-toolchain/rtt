@@ -41,7 +41,8 @@ namespace ORO_ControlKernel
      */
 
     /**
-     * @defgroup kcomp_support All Available ControlKernel Support Components
+     * @defgroup kcomp_support Support Components
+     * @ingroup kcomps
      */
 
     /**
@@ -103,7 +104,8 @@ namespace ORO_ControlKernel
     };
 
     /**
-     * @defgroup kcomp_process All Available ControlKernel Process Components
+     * @defgroup kcomp_process Process Components
+     * @ingroup kcomps
      */
 
     /**
@@ -209,7 +211,8 @@ namespace ORO_ControlKernel
     };
 
     /**
-     * @defgroup kcomp_controller All Available ControlKernel Controller Components
+     * @defgroup kcomp_controller Controller Components
+     * @ingroup kcomps
      */
 
     /**
@@ -312,7 +315,8 @@ namespace ORO_ControlKernel
     };
 
     /**
-     * @defgroup kcomp_generator All Available ControlKernel Generator Components
+     * @defgroup kcomp_generator Generator Components
+     * @ingroup kcomps
      */
 
     /**
@@ -416,7 +420,8 @@ namespace ORO_ControlKernel
     };
 
     /**
-     * @defgroup kcomp_estimator All Available ControlKernel Estimator Components
+     * @defgroup kcomp_estimator Estimator Components
+     * @ingroup kcomps
      */
 
     /**
@@ -513,7 +518,8 @@ namespace ORO_ControlKernel
 
 
     /**
-     * @defgroup kcomp_effector All Available ControlKernel Effector Components
+     * @defgroup kcomp_effector Effector Components
+     * @ingroup kcomps
      */
 
     /**
@@ -613,7 +619,8 @@ namespace ORO_ControlKernel
     };
 
     /**
-     * @defgroup kcomp_sensor All Available ControlKernel Sensor Components
+     * @defgroup kcomp_sensor Sensor Components
+     * @ingroup kcomps
      */
 
     /**

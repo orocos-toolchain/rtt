@@ -181,6 +181,8 @@ namespace ORO_ControlKernel
 
         virtual bool exportProperties( AttributeRepository& bag );
 
+        virtual void finishConstruction();
+
         TaskContext* getTaskContext()
         {
             return &tc;

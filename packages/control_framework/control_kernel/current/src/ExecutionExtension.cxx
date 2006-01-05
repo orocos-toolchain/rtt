@@ -75,6 +75,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
 
     ExecutionExtension::~ExecutionExtension()
     {
+        tc.engine()->setTask( 0 );
     }
 
     using std::cerr;
@@ -82,21 +83,25 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
 
     bool ExecutionExtension::initialize()
     {
+        Logger::In in("ExecutionExtension");
         initKernelCommands();
         tc.engine()->setTask( this->kernel()->getTask() );
         bool res = tc.engine()->initialize();
-        if ( res == false )
+        if ( res == false ) {
+            Logger::log() << Logger::Error
+                          << "Could not start Kernel's ExecutionEngine."<< Logger::endl;
             return false;
+        }
         if ( tc.engine()->states()->getStateMachine("Default") == 0 ) {
-            Logger::log() << Logger::Info << "ExecutionExtension : "
+            Logger::log() << Logger::Info
                           << "No \"Default\" StateMachine present."<< Logger::endl;
         } else {
             if ( !tc.engine()->states()->getStateMachine("Default")->activate() )
-                Logger::log() << Logger::Error << "ExecutionExtension : "
-                              << "Processor could not activate \"Default\" StateMachine."<< Logger::endl;
+                Logger::log() << Logger::Error
+                              << "Could not activate \"Default\" StateMachine."<< Logger::endl;
             else if ( !tc.engine()->states()->getStateMachine("Default")->start() )
-                Logger::log() << Logger::Error << "ExecutionExtension : "
-                              << "Processor could not start \"Default\" StateMachine."<< Logger::endl;
+                Logger::log() << Logger::Error
+                              << "Could not start \"Default\" StateMachine."<< Logger::endl;
         }
         return true;
     }
@@ -176,14 +181,8 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
         tc.engine()->finalize();
     }
 
-    void ExecutionExtension::initKernelCommands()
+    void ExecutionExtension::finishConstruction()
     {
-        // I wish I could do this cleaner, but I can not do it
-        // in the constructor (to early) and not in initialize (to late).
-        if ( initcommands )
-            return;
-        initcommands = true;
-
         std::vector<detail::ExtensionInterface*>::const_iterator it = base()->getExtensions().begin();
         while ( it != base()->getExtensions().end() )
             {
@@ -210,7 +209,16 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
                     Logger::log() << Logger::Error << "ExecutionExtension: Could not load Properties of "+ base()->getKernelName()+"::"+(*it)->getName()+" as Task Attributes because of duplicate entry."<<Logger::endl;
                 ++it;
             }
-        
+    }
+
+    void ExecutionExtension::initKernelCommands()
+    {
+        // I wish I could do this cleaner, but I can not do it
+        // in the constructor (to early) and not in initialize (to late).
+        if ( initcommands )
+            return;
+        initcommands = true;
+
         // Now load in the DataObjects as DataSources
         std::vector<std::string> objnames;
         objnames.push_back("Inputs");

@@ -193,6 +193,11 @@ namespace ORO_ControlKernel
 #endif
 
             /**
+             * This hook is called at the end of the kernel's constructor.
+             */
+            virtual void finishConstruction() {}
+
+            /**
              * Return a pointer of the kernel of this Extension.
              */
             ControlKernelInterface* base() const { return _kernel; }

@@ -98,6 +98,7 @@ KernelBaseFunction::KernelBaseFunction( ControlKernelInterface* ckip )
     // inform the ControlKernelInterface that we are the KernelBaseFunction.
     kernel()->base( this );
     abortKernelEvent.connect( bind( &KernelBaseFunction::abortHandler, this ), CompletionProcessor::Instance() );
+
 }
 
 KernelBaseFunction::~KernelBaseFunction() {}
@@ -128,7 +129,8 @@ bool KernelBaseFunction::initialize()
             if ( selectComponent(startupGenerator) )
                 if ( selectComponent(startupController) )
                     if (selectComponent(startupEffector) ) {
-                        default_process->startup();
+                        if ( default_process )
+                            default_process->startup();
                         Logger::log() << Logger::Info << "Kernel "<< kernel()->getKernelName() << " started."<< Logger::endl;
                         return true;
                     }
@@ -206,7 +208,8 @@ bool KernelBaseFunction::addComponent(ComponentBaseInterface* comp)
     this->preLoad( comp );
     if (  comp->componentLoaded() )
         {
-            //components.insert( std::make_pair(comp->getName(), comp) );
+            if (comp->getName() == "DefaultProcess")
+                this->default_process = comp;
             this->postLoad( comp );
             return true;
         }
