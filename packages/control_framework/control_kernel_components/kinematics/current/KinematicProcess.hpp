@@ -17,6 +17,10 @@ namespace ORO_ControlKernel
     /**
      * A Process Component which offers a kinematics interface to the
      * other control kernel components.
+     * Use the properties of this component to configure where the
+     * data can be found and under which names, as well as the kinematic
+     * algorithm to use.
+     * @ingroup kcomps kcomp_process
      */
     class KinematicProcess
         : public Process<Expects< ServedTypes<ORO_KinDyn::JointPositions> >,
@@ -39,6 +43,11 @@ namespace ORO_ControlKernel
 
         ORO_KinDyn::JointPositions tmppos;
     public:
+        /**
+         * A Component which reads joint positions and velocities and converts
+         * them into an end effector frame and twist using a kinematic algorithm.
+         * @param name The name of this component in the control kernel.
+         */
         KinematicProcess(const std::string& name)
             : Process<Expects< ServedTypes<ORO_KinDyn::JointPositions> >,
                       Expects< ServedTypes<ORO_KinDyn::JointPositions> >,
