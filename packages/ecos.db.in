@@ -20,6 +20,13 @@ target lxrt {
   }
 }
 
+target xenomai {
+  alias { "Xenomai build" XENO }
+  packages {
+    OROPKG_OS_XENOMAI
+  }
+}
+
 target rtlinux {
   alias { "RTLinux build" RTLINUX }
   packages {
