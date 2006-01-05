@@ -20,32 +20,32 @@ detection of the packages configure script"
     make_object {
 	src/kernelserver.o : $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl $(REPOSITORY)/$(PACKAGE)/src/kernelserver.cxx
 	tao_idl $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl -o src
-	touch $@
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/kernelserver.cxx -o src/$(OBJECT_PREFIX)_kernelserver.o
+	touch $@
     }
 
     make_object {
 	src/KernelInterfaceI.o : $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl $(REPOSITORY)/$(PACKAGE)/src/KernelInterfaceI.cxx
-	touch $@
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/KernelInterfaceI.cxx -o src/$(OBJECT_PREFIX)_KernelInterfaceI.o
+	touch $@
     }
 
     make_object {
 	src/KernelInterfaceS.o : $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl
-	touch $@
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c src/KernelInterfaceS.cpp -o src/$(OBJECT_PREFIX)_KernelInterfaceS.o
+	touch $@
     }
 
 #    make_object {
 #	src/KernelInterfaceS_T.o : $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl
-#	touch $@
 #	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c src/KernelInterfaceS_T.cpp -o src/$(OBJECT_PREFIX)_KernelInterfaceS_T.o
+#	touch $@
 #    }
 
     make_object {
 	src/KernelInterfaceC.o : $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl
-	touch $@
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c src/KernelInterfaceC.cpp -o src/$(OBJECT_PREFIX)_KernelInterfaceC.o
+	touch $@
     }
 
 #    compile KernelInterfaceI.cxx
