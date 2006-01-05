@@ -492,51 +492,43 @@ OROCOS_OUTPUT_INFO
     m4_define([OROCOS_ARG_TARGETOS],[
             AC_MSG_CHECKING(which target OS you want to configure for)
 
+    	    AC_ARG_WITH(linux,
+            	[AC_HELP_STRING([--with-linux],[Specify (patched) Linux path])],
+            	[ with_linux_given=true ],[ with_linux_given=false ])
+
             AC_ARG_WITH(gnulinux,
                 [AC_HELP_STRING([--with-gnulinux],[Use userspace GNU/Linux (NOT REALTIME)])],
                 [
                 AC_MSG_RESULT(GNU/Linux)
 		ECOS_TARGET=gnulinux
                 ],
-                [
-
-                AC_ARG_WITH(rtlinux,
-                    [AC_HELP_STRING([--with-rtlinux],[Use RTLinux])],
-                    [
-                    AC_MSG_RESULT(RTLinux)
-		    ECOS_TARGET=rtlinux
-    ],
     [
     AC_ARG_WITH(rtai,
             [AC_HELP_STRING([--with-rtai],[Use RTAI (non-LXRT)])],
             [
             AC_MSG_RESULT(RTAI)
 	    ECOS_TARGET=rtai
-    	    AC_ARG_WITH(linux,
-            	[AC_HELP_STRING([--with-linux],[Specify RTAI-patched Linux path (non-LXRT)])],
-            	[],[
+            if test $with_linux_given == false; then
 		AC_MSG_ERROR([
 You must specify the location of your patched linux kernel headers when using RTAI.
-For example : --with-linux=/usr/src/linux-rtai				
-])])
+For example : --with-linux=/usr/src/linux-rtai])
+	    fi
     ],
     [
-    AC_ARG_WITH(lxrt,
-            [AC_HELP_STRING([--with-lxrt[=/usr/realtime] ],[Use RTAI/LXRT, specify installation directory])],
+    AC_ARG_WITH(xenomai,
+            [AC_HELP_STRING([--with-xenomai[=/usr/realtime] ],[Use Xenomai, specify installation directory])],
             [
-		if test x"$withval" != xyes; then RTAI_DIR="$withval"; else RTAI_DIR="/usr/realtime"; fi
+		if test x"$withval" != xyes; then XENOMAI_DIR="$withval"; else XENOMAI_DIR="/usr/realtime"; fi
 
-            AC_MSG_RESULT(LXRT)
-	    ECOS_TARGET=lxrt
-	    TARGET_LIBS="-L$RTAI_DIR/lib -llxrt"
-	    TARGET_FLAGS="-I$RTAI_DIR/include"
-    	    AC_ARG_WITH(linux,
-            	[AC_HELP_STRING([--with-linux],[Specify RTAI-patched Linux path (LXRT)])],
-            	[],[
-		AC_MSG_ERROR([
-You must specify the location of your patched linux kernel headers when using RTAI/LXRT.
-For example : --with-linux=/usr/src/linux-rtai				
-])])
+            AC_MSG_RESULT(XENOMAI)
+	    ECOS_TARGET=xenomai
+	    TARGET_LIBS="-L$XENOMAI_DIR/lib -lnative"
+	    TARGET_FLAGS="-I$XENOMAI_DIR/include"
+#             if test $with_linux_given == false; then
+# 		AC_MSG_ERROR([
+# You must specify the location of your patched linux kernel headers when using Xenomai.
+# For example : --with-linux=/usr/src/linux-rtai])
+# 	    fi
     ],
     [
     AC_ARG_WITH(ecos,
@@ -554,14 +546,10 @@ dnl Default to gnulinux
                 ECOS_TARGET=gnulinux
             ]
             )
-    ]
-    )
-    ]
-    )
-    ]
-    )
-    ]
-    )
+    ])
+    ])
+    ])
+    ])
 AC_SUBST(ECOS_TARGET)
 AC_SUBST(TARGET_LIBS)
 AC_SUBST(TARGET_FLAGS)

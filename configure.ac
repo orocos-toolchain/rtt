@@ -7,7 +7,7 @@ AC_PREREQ(2.53)
 #AC_REVISION($revision)
 
 # Initialize Autoconf with package name and version
-AC_INIT(orocos,0.20.0)
+AC_INIT(orocos,0.21.0)
 ACX_MY_ARGS="$*"
 # Store the parameters to pass them to the packages/configure script.
 #ACX_MY_ARGS="$@"
