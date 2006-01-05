@@ -78,7 +78,7 @@ BuffersTest::setUp()
 
     dataobj  = new DataObjectLockFree<Dummy>("name");
 
-    mslist =  new SortedList<Dummy>();
+    //mslist =  new SortedList<Dummy>();
 
     listlockfree = new ListLockFree<Dummy>(10, 4);
 
@@ -95,7 +95,7 @@ BuffersTest::tearDown()
 
     delete dataobj;
 
-    delete mslist;
+    //delete mslist;
     
     delete listlockfree;
 }
@@ -350,6 +350,7 @@ void subOne(Dummy& d)
     --d.d3;
 }
 
+#if 0
 void BuffersTest::testSortedList()
 {
     // 7 elements.
@@ -414,6 +415,7 @@ void BuffersTest::testSortedList()
     
     CPPUNIT_ASSERT( mslist->empty() );
 }
+#endif
 
 struct LLFWorker : public ORO_OS::RunnableInterface
 {
@@ -483,10 +485,10 @@ void BuffersTest::testListLockFree()
     LLFGrower* grower = new LLFGrower( listlockfree );
 
     {
-        boost::scoped_ptr<SingleThread> athread( new SingleThread(1,"ThreadA", aworker ));
-        boost::scoped_ptr<SingleThread> bthread( new SingleThread(1,"ThreadB", bworker ));
-        boost::scoped_ptr<SingleThread> cthread( new SingleThread(1,"ThreadC", cworker ));
-        boost::scoped_ptr<SingleThread> gthread( new SingleThread(1,"ThreadG", grower ));
+        boost::scoped_ptr<SingleThread> athread( new SingleThread(20,"ThreadA", aworker ));
+        boost::scoped_ptr<SingleThread> bthread( new SingleThread(20,"ThreadB", bworker ));
+        boost::scoped_ptr<SingleThread> cthread( new SingleThread(20,"ThreadC", cworker ));
+        boost::scoped_ptr<SingleThread> gthread( new SingleThread(20,"ThreadG", grower ));
     
         athread->start();
         bthread->start();
@@ -503,6 +505,7 @@ void BuffersTest::testListLockFree()
         cthread->stop();
     }
 
+#if 0
     cout << "Athread appends: " << aworker->appends<<endl;
     cout << "Athread erases: " << aworker->erases<<endl;
     cout << "Bthread appends: " << bworker->appends<<endl;
@@ -516,6 +519,7 @@ void BuffersTest::testListLockFree()
 //         //cout << "Left: "<< d <<endl;
 //         CPPUNIT_ASSERT( listlockfree->erase( d ) );
 //     }
+#endif
 
     CPPUNIT_ASSERT( aworker->appends == aworker->erases );
     CPPUNIT_ASSERT( bworker->appends == bworker->erases );

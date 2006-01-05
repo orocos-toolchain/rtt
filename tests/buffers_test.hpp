@@ -26,9 +26,10 @@
 #include <corelib/BufferLockFree.hpp>
 #include <corelib/ListLockFree.hpp>
 #include <corelib/DataObjectInterfaces.hpp>
-#include <corelib/SortedList.hpp>
+//#include <corelib/SortedList.hpp>
 
 #include <os/SingleThread.hpp>
+#include <pkgconf/system.h>
 
 using namespace ORO_CoreLib;
 using namespace ORO_OS;
@@ -42,14 +43,16 @@ class BuffersTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testAtomicCounted );
     CPPUNIT_TEST( testBufLockFree );
     CPPUNIT_TEST( testDObjLockFree );
-    CPPUNIT_TEST( testSortedList );
+    //CPPUNIT_TEST( testSortedList );
+#ifndef OROPKG_OS_XENOMAI
     CPPUNIT_TEST( testListLockFree );
+#endif
     CPPUNIT_TEST_SUITE_END();
 
     AtomicQueue<Dummy*>* aqueue;
     BufferLockFree<Dummy>* lockfree;
     DataObjectLockFree<Dummy>* dataobj;
-    SortedList<Dummy>* mslist;
+    //SortedList<Dummy>* mslist;
 
     ThreadInterface* athread;
     ThreadInterface* bthread;
