@@ -9,8 +9,7 @@ namespace ORO_CoreLib
 {
     /**
      * A single-linked sorted list algorithm invented by Timothy
-     * L. Harris. It will never work on 8bit computers as implemented
-     * here but 16, 32, 64,... computers are fine. You may \b not insert
+     * L. Harris. This implementation is only for 32bit computers. You may \b not insert
      * the same item more than once.
      *
      * The difference between this implementation and Harris' is that we
