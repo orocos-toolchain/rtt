@@ -1,0 +1,56 @@
+cdl_package OROPKG_CORBA {
+    display "Control Task CORBA Framework"
+    description "
+This package allows to tranparantly setup remote Tasks
+and connect to them from local tasks. Only minor CORBA/RPC
+knowledge is required to use this framework.
+"
+    requires OROPKG_EXECUTION_TASK_CONTEXT
+    requires OROPKG_SUPPORT_CORBA
+
+    cdl_option OROPKG_CORBA_CFLAGS_ADD {
+        display "ACE/TAO include path"
+	description "The path is derived from the
+detection of the packages configure script"
+	flavor data
+        default_value { "-I".OROBLD_SUPPORT_ACE_DIR." -I".OROBLD_SUPPORT_TAO_DIR." -I".OROBLD_SUPPORT_TAO_DIR."/orbsvcs" }
+    }
+
+    include_dir corba
+    #include_files ControlTaskS.h ControlTaskC.h ControlTaskServer.hpp ControlTaskProxy.hpp
+
+#     make_object {
+# 	src/kernelserver.o : $(REPOSITORY)/$(PACKAGE)/src/ControlTask.idl $(REPOSITORY)/$(PACKAGE)/src/kernelserver.cxx
+# 	tao_idl $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl -o src
+# 	touch $@
+# 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/kernelserver.cxx -o src/$(OBJECT_PREFIX)_kernelserver.o
+#     }
+
+    make_object {
+	src/ControlTaskI.o : $(REPOSITORY)/$(PACKAGE)/src/ControlTask.idl $(REPOSITORY)/$(PACKAGE)/src/ControlTaskI.cpp
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/ControlTaskI.cpp -o src/$(OBJECT_PREFIX)_ControlTaskI.o
+	touch $@
+    }
+
+    make_object {
+	src/ControlTaskS.o : $(REPOSITORY)/$(PACKAGE)/src/ControlTask.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/ControlTaskS.cpp -o src/$(OBJECT_PREFIX)_ControlTaskS.o
+	touch $@
+    }
+
+#    make_object {
+#	src/ControlTaskS_T.o : $(REPOSITORY)/$(PACKAGE)/src/ControlTask.idl
+#	touch $@
+#	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c src/ControlTaskS_T.cpp -o src/$(OBJECT_PREFIX)_ControlTaskS_T.o
+#    }
+
+    make_object {
+	src/ControlTaskC.o : $(REPOSITORY)/$(PACKAGE)/src/ControlTask.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/ControlTaskC.cpp -o src/$(OBJECT_PREFIX)_ControlTaskC.o
+	touch $@
+    }
+
+    compile ControlTaskProxy.cxx
+    compile ControlTaskServer.cxx
+
+}
