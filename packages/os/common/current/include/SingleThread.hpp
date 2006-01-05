@@ -110,6 +110,11 @@ namespace ORO_OS
         virtual bool isRunning() const;
 
         /**
+         * Returns whether the thread is active
+         */
+        virtual bool isActive() const;
+
+        /**
          * Set the name of this task
          */
         void setName(const char*);
@@ -123,7 +128,7 @@ namespace ORO_OS
         { 
             // This construct is so because
             // the thread itself must call the proper RTAI function.
-            if ( !running ) 
+            if ( !active ) 
                 {
                     goRealtime = true; 
                 }
@@ -132,7 +137,7 @@ namespace ORO_OS
 
         virtual bool makeSoftRealtime()
         { 
-            if ( !running ) 
+            if ( !active ) 
                 {
                     goRealtime = false; 
                 }
@@ -162,9 +167,9 @@ namespace ORO_OS
     private:
         /**
          * When set to 1, the thread will run, when set to 0
-         * the thread will stop
+         * the thread will stop ( isActive() )
          */
-        bool running;
+        bool active;
 
         /**
          * True when the thread should go realtime.
@@ -177,9 +182,10 @@ namespace ORO_OS
         bool prepareForExit;
 
         /**
-         * Is true when in the loop.
+         * Is true when in the loop (isRunning() )
          */
         bool inloop;
+
         /**
          * The realtime task structure created by this object.
          */

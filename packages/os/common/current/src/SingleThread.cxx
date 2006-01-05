@@ -129,7 +129,7 @@ namespace ORO_OS
                 while(1) 
                     {
                         rtos_sem_wait( &(task->sem) );
-                        if ( ! task->running ) {
+                        if ( ! task->active ) {
                             if ( task->prepareForExit )
                                 break;
                             // The configuration might have changed
@@ -162,7 +162,7 @@ namespace ORO_OS
                     rtos_task_make_soft_real_time( task->rtos_task );
                 // set state to not running
                 task->inloop = false;
-                task->running = false;
+                task->active = false;
 #ifdef OROPKG_CORELIB_REPORTING
                 Logger::log() << Logger::Fatal << "Single Thread "<< task->taskName <<" caught a C++ exception, stopping thread !"<<Logger::endl;
 #endif
@@ -189,7 +189,7 @@ namespace ORO_OS
     }
 
     SingleThread::SingleThread(int _priority, const std::string& name, RunnableInterface* r) :
-        running(false), goRealtime(false), prepareForExit(false), inloop(false), priority(_priority),
+        active(false), goRealtime(false), prepareForExit(false), inloop(false), priority(_priority),
         runComp(r)
     {
         rtos_thread_init( this, name);
@@ -209,7 +209,7 @@ namespace ORO_OS
         this->stop();
 
         // Send the message to the thread...
-        running = false;
+        active = false;
         prepareForExit = true;
         rtos_sem_signal( &sem );
         
@@ -232,7 +232,7 @@ namespace ORO_OS
 
     bool SingleThread::run( RunnableInterface* r)
     {
-        if ( isRunning() )
+        if ( isActive() )
             return false;
         runComp = r;
         return true;
@@ -245,8 +245,8 @@ namespace ORO_OS
 
     bool SingleThread::start() 
     {
-        // just signal if already running.
-        if ( isRunning() ) {
+        // just signal if already active.
+        if ( isActive() ) {
             rtos_sem_signal(&sem);
             return true;
         }
@@ -254,7 +254,7 @@ namespace ORO_OS
         if ( this->initialize() == false )
             return false;
 
-        running=true;
+        active=true;
         rtos_sem_signal(&sem);
 
         return true;
@@ -266,21 +266,26 @@ namespace ORO_OS
 
     bool SingleThread::stop() 
     {
-        if ( !isRunning() ) return false;
+        if ( !isActive() ) return false;
 
         // if inloop and breakloop does not work, sorry.
         if ( inloop && this->breakLoop() == false ) {
             return false;
         }
 
-        running = false;
+        active = false;
         this->finalize();
         return true;
     }
 
     bool SingleThread::isRunning() const
     {
-        return running;
+        return inloop;
+    }
+
+    bool SingleThread::isActive() const
+    {
+        return active;
     }
 
     void SingleThread::loop()

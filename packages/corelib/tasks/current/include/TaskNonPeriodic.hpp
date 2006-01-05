@@ -103,6 +103,8 @@ namespace ORO_CoreLib
 
         virtual void finalize();
 
+        virtual bool isPeriodic() const;
+
         virtual bool start();
 
         /**
@@ -114,12 +116,9 @@ namespace ORO_CoreLib
 
         virtual bool isActive() const;
 
-        virtual bool isPeriodic() const;
-
     private:
         BlockingEventProcessor* proc;
         RunnableInterface*      runner;
-        bool running;
 };
 
 }
