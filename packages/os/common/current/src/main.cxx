@@ -69,9 +69,13 @@ const char* catchflag = "--nocatch";
 
 int main(int argc, char** argv)
 {
+    int res = -1;
+
     __os_init(argc, argv);
 
-    int res = -1;
+    {
+        Logger::In in("main()");
+
     bool dotry = true;
     // look for --nocatch flag :
     for( int i=1; i < argc; ++i)
@@ -96,12 +100,12 @@ int main(int argc, char** argv)
                 }
             
 # else
-                Logger::log() << Logger::Error<< "main() : Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << Logger::endl;
+                Logger::log() << Logger::Error<< "Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << Logger::endl;
 # endif
         } catch( ... )
             {
 #ifdef OROPKG_CORELIB_REPORTING
-                Logger::log() << Logger::Error<< "main() thread : Failed to create ThreadScope." << Logger::endl;
+                Logger::log() << Logger::Error<< "Failed to create ThreadScope." << Logger::endl;
 #endif
             }
         if ( d ) {
@@ -151,6 +155,7 @@ int main(int argc, char** argv)
 #ifdef OROPKG_CORELIB_REPORTING
     Logger::log() << Logger::Debug << "ORO_main done." << Logger::endl;
 #endif
+    }
     __os_exit();
 
     return res;
