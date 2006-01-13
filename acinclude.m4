@@ -515,6 +515,22 @@ For example : --with-linux=/usr/src/linux-rtai])
 	    fi
     ],
     [
+    AC_ARG_WITH(lxrt,
+            [AC_HELP_STRING([--with-lxrt[=/usr/realtime] ],[Use Lxrt, specify installation directory])],
+            [
+		if test x"$withval" != xyes; then LXRT_DIR="$withval"; else LXRT_DIR="/usr/realtime"; fi
+
+            AC_MSG_RESULT(LXRT)
+	    ECOS_TARGET=lxrt
+	    TARGET_LIBS="-L$LXRT_DIR/lib -llxrt"
+	    TARGET_FLAGS="-I$LXRT_DIR/include"
+            if test $with_linux_given == false; then
+		AC_MSG_ERROR([
+You must specify the location of your patched linux kernel headers when using Lxrt.
+For example : --with-linux=/usr/src/linux-rtai])
+	    fi
+    ],
+    [
     AC_ARG_WITH(xenomai,
             [AC_HELP_STRING([--with-xenomai[=/usr/realtime] ],[Use Xenomai, specify installation directory])],
             [
@@ -546,6 +562,7 @@ dnl Default to gnulinux
                 ECOS_TARGET=gnulinux
             ]
             )
+    ])
     ])
     ])
     ])
