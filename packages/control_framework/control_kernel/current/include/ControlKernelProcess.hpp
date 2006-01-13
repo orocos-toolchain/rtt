@@ -66,8 +66,15 @@ namespace ORO_ControlKernel
               startupEstimator("Estimator", "", "DefaultEstimator"),
               startupGenerator("Generator", "", "DefaultGenerator"),
               startupController("Controller", "", "DefaultController"),
-              startupEffector("Effector", "", "DefaultEffector")
-        {}
+              startupEffector("Effector", "", "DefaultEffector"),
+              startupComponents("StartupComponents","The Components to be Selected when the kernel is started")
+        {
+            startupComponents.add( &startupSensor );
+            startupComponents.add( &startupEstimator );
+            startupComponents.add( &startupGenerator );
+            startupComponents.add( &startupController );
+            startupComponents.add( &startupEffector );
+        }
 
         /**
          * Upon startup, select user defined components.
@@ -122,11 +129,7 @@ namespace ORO_ControlKernel
 
         bool updateProperties(const PropertyBag& bag)
         {
-            composeProperty(bag, startupSensor);
-            composeProperty(bag, startupEstimator);
-            composeProperty(bag, startupGenerator);
-            composeProperty(bag, startupController);
-            composeProperty(bag, startupEffector);
+            composeProperty(bag, startupComponents);
             composeProperty(bag, frequency);
 
             Logger::log() << Logger::Info << "Control Kernel Process Properties : " << Logger::nl
@@ -144,11 +147,7 @@ namespace ORO_ControlKernel
         void exportProperties(PropertyBag& bag)
         {
             bag.add( &frequency );
-            bag.add( &startupSensor);
-            bag.add( &startupEstimator);
-            bag.add( &startupGenerator);
-            bag.add( &startupController);
-            bag.add( &startupEffector);
+            bag.add( &startupComponents );
         }
 
 #endif
@@ -166,6 +165,7 @@ namespace ORO_ControlKernel
         Property<std::string> startupGenerator;
         Property<std::string> startupController;
         Property<std::string> startupEffector;
+        Property<PropertyBag> startupComponents;
     };
 }
 
