@@ -118,7 +118,7 @@ namespace ORO_Execution
         ~EventService();
 
         /**
-         * Create a 'handle' to emit events with arguments.
+         * Setup a 'handle' to emit events with arguments.
          * Use this method as in
          @verbatim
          createEmit("EventName").arg(2.0).arg(1.0).emit();
@@ -133,10 +133,10 @@ namespace ORO_Execution
          * @throw wrong_number_of_args_exception
          * @throw wrong_types_of_args_exception
         */
-        EventC createEmit(const std::string& ename) const;
+        EventC setupEmit(const std::string& ename) const;
 
         /**
-         * Create a 'handle' to connect a \b synchronous callback to an event.
+         * Setup a 'handle' to connect a \b synchronous callback to an event.
          * Use this method as in
          @verbatim
          Handle h = createSynConnection("EventName", &function ).arg( &a ).arg( &b ).handle();
@@ -151,7 +151,7 @@ namespace ORO_Execution
          * @throw wrong_types_of_args_exception
          * @throw non_lvalue_args_exception
         */
-        ConnectionC createSynConnection(const std::string& ename,
+        ConnectionC setupSynConnection(const std::string& ename,
                                         boost::function<void(void)> func) const;
 
         /**
@@ -171,7 +171,7 @@ namespace ORO_Execution
          * @throw wrong_types_of_args_exception
          * @throw non_lvalue_args_exception
         */
-        ConnectionC createAsynConnection(const std::string& ename,
+        ConnectionC setupAsynConnection(const std::string& ename,
                                          boost::function<void(void)> func,
                                          ORO_CoreLib::EventProcessor* ep) const;
 

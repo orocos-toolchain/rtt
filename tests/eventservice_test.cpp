@@ -398,14 +398,14 @@ void EventServiceTest::testEventC()
     this->setup();
 
     try {
-        h1 = es->createSynConnection("t_event3", bind(&EventServiceTest::listener0,this)).
+        h1 = es->setupSynConnection("t_event3", bind(&EventServiceTest::listener0,this)).
             arg(t_listener_string).arg(t_listener_double).arg(t_listener_bool).handle();
     } catch ( std::exception& e ) {
         CPPUNIT_ASSERT_MESSAGE( e.what(), false );
     }
 
     try {
-    h2 = es->createAsynConnection("t_event3", bind(&EventServiceTest::completer0,this),event_proc).
+    h2 = es->setupAsynConnection("t_event3", bind(&EventServiceTest::completer0,this),event_proc).
         arg(t_completer_string).arg(t_completer_double).arg(t_completer_bool).handle();
     } catch ( std::exception& e ) {
         CPPUNIT_ASSERT_MESSAGE( e.what(), false );
@@ -414,7 +414,7 @@ void EventServiceTest::testEventC()
     EventC evc;
     bool evcarg = true;
     try {
-        evc = es->createEmit("t_event3").argC( std::string("hello") ).argC( 0.1234 ).arg( evcarg );
+        evc = es->setupEmit("t_event3").argC( std::string("hello") ).argC( 0.1234 ).arg( evcarg );
     } catch ( std::exception& e ) {
         CPPUNIT_ASSERT_MESSAGE( e.what(), false );
     }

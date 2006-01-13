@@ -44,16 +44,16 @@ namespace ORO_Execution
             delete it->second;
     }
 
-    EventC EventService::createEmit(const std::string& ename) const {
+    EventC EventService::setupEmit(const std::string& ename) const {
         return EventC(this, ename);
     }
 
-    ConnectionC EventService::createSynConnection(const std::string& ename,
+    ConnectionC EventService::setupSynConnection(const std::string& ename,
                                                   boost::function<void(void)> func) const {
         return ConnectionC(this, ename, func, 0 );
     }
 
-    ConnectionC EventService::createAsynConnection(const std::string& ename,
+    ConnectionC EventService::setupAsynConnection(const std::string& ename,
                                                    boost::function<void(void)> func,
                                                    ORO_CoreLib::EventProcessor* ep) const {
         return ConnectionC(this, ename, func, ep ); 
