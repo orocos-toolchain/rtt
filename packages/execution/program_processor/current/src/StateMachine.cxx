@@ -754,19 +754,7 @@ namespace ORO_Execution
         if ( inError() )
             return false;
 
-        // first try exit
-        if ( currentExit ) {
-            if ( this->executeProgram(currentExit, stepping) == false )
-                return false;
-            // done.
-            // in stepping mode, delay 'true' one executePending().
-            if ( stepping ) {
-                currentProg = currentTrans ? currentTrans : (currentEntry ? currentEntry : currentRun);
-                return false;
-            }
-        }
-
-        // next execute transition program on behalf of current state.
+        // first try to execute transition program on behalf of current state.
         if ( currentTrans ) {
             // exception : transition during handle, first finish handle !
             if ( currentHandle ) {
@@ -778,10 +766,23 @@ namespace ORO_Execution
             // done.
             // in stepping mode, delay 'true' one executePending().
             if ( stepping ) {
-                currentProg = currentEntry ? currentEntry : currentRun;
+                currentProg = currentExit ? currentExit : (currentEntry ? currentEntry : currentRun);
                 return false;
             }
         }
+
+        // last is exit
+        if ( currentExit ) {
+            if ( this->executeProgram(currentExit, stepping) == false )
+                return false;
+            // done.
+            // in stepping mode, delay 'true' one executePending().
+            if ( stepping ) {
+                currentProg = (currentEntry ? currentEntry : currentRun);
+                return false;
+            }
+        }
+
 
         // only reset the reqstep if we changed state.
         // if we did not change state, it will be reset in requestNextState().
