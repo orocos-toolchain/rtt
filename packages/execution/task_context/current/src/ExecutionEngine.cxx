@@ -154,20 +154,20 @@ namespace ORO_Execution
         if ( mainee )
             return true;
 
-        if ( cproc->initialize() ) {
-            if ( pproc->initialize() ) {
-                if( smproc->initialize() ) {
+        if ( pproc->initialize() ) {
+            if ( smproc->initialize() ) {
+                if( cproc->initialize() ) {
                     if (eproc->initialize()) {
                         // non periodic loop() uses this flag to detect breakLoop()
                         if ( !this->getTask()->isPeriodic() )
                             eerun = true;
                         return true;
                     }
-                    smproc->finalize();
+                    cproc->finalize();
                 } 
-                pproc->finalize();
+                smproc->finalize();
             }
-            cproc->finalize();
+            pproc->finalize();
         }
         return false;
     }
@@ -207,8 +207,8 @@ namespace ORO_Execution
         if (mainee)
             return;
         eerun = false;
-        smproc->finalize();
         pproc->finalize();
+        smproc->finalize();
         cproc->finalize();
         eproc->finalize();
     }
