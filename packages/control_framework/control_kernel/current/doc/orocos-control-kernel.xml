@@ -154,6 +154,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>New view on pattern for feedback control.</revremark>
       </revision>
+      <revision>
+	<revnumber>0.22.0</revnumber>
+	<date>Jan 2006</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Process Component type added.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -1866,6 +1872,94 @@ public:
       </sect3>
     </sect2>
     <sect2>
+	<title>Process Components</title>
+	<para>
+	  The Process Components are as important as the Data Flow Components,
+	  since they centralise 'global knowledge'. For example, a Process
+	  Component determines which Data Flow Components are running and in
+	  which order they are executed. Another Process Component contains
+	  all kinematic state information and does kinematic calculations
+	  for the Data Flow Components.
+	</para>
+	<sect3>
+	  <title>The Default Process</title>
+	  <para>
+	    The Control Kernel comes with a "Default" Process Component,
+	    <classname>ControlKernelProcess</classname>, if the user
+	    did not specify one himself. The default Process Component
+	    runs (update()'s) all data flow components in the order
+	    specified above (from Sensors to Effectors). However, as
+	    any kernel component, this component can be started and
+	    stopped as well and an alternative Process component can
+	    update the data flow components.
+	  </para>
+	  <para>
+	    The ControlKernelProcess can be configured to select default
+	    data flow components on startup, for example:
+	    <programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<properties>
+  <struct name="StartupComponents" type="type_less">
+    <description>The Components to be Selected when the kernel is started
+    </description>
+    <simple name="Sensor" type="string">
+      <value>CartesianSensor</value>
+    </simple>
+    <simple name="Estimator" type="string">
+      <value>CartesianEstimator</value>
+    </simple>
+    <simple name="Generator" type="string">
+      <value>CartesianGenerator</value>
+    </simple>
+    <simple name="Controller" type="string">
+      <value>CartesianController</value>
+    </simple>
+    <simple name="Effector" type="string">
+      <value>CartesianEffector</value>
+    </simple>
+  </struct>
+</properties>]]> </programlisting>
+             However, it is probably safer to use a state machine or program
+	     script to start or stop components.
+	  </para>
+	  <para>
+	    The StartupComponents struct contains a list of components
+	    which must be selected when the kernel is started. If it
+	    is not specified, the "Default" components remain in place
+	    and the selection can be done with the <link
+	    linkend="scripting-extension">Execution Extension</link>
+	    (recommended) or manually in your program after the
+	    kerneltask is started. This is only provided to allow
+	    thread-safe selecting components on startup when the
+	    Execution Extension is not used.
+	  </para>
+	  <para>
+	    When the user loads a self-made Process Component with the
+	    name "Default" into the Control Kernel, that one will be
+	    started instead of the ControlKernelProcess.
+	  </para>
+	</sect3>
+	<sect3>
+	  <title>The Kinematic Process Component</title>
+	  <para>
+	    A Process Component can also be a 'service' in that it 
+	    does 'operations' for the data flow components. A classical
+	    service is the Kinematic Process which keeps track of the
+	    joint and cartesian space positions of the robot. Any component
+	    may then ask it to perform a kinematic calculation. The
+	    advantage of centralised kinematics is that only one component
+	    needs to be configured with the correct kinematics and all
+	    other components can depend on it for correct calculations.
+	    The Kinematic Process component is configured through properties
+	    such that recompilation is not required when the kinematics change.
+	  </para>
+	  <para>
+	    The 'kernel_samples' package contains some examples of a
+	    simulated Kuka robot using a Kinematic Process component.
+	    The Doxygen documentation of this component provides more details.
+	  </para>
+	</sect3>
+    </sect2>
+    <sect2>
 	<title>Support Components</title>
 	<para>
 	  Support Components do
@@ -1974,27 +2068,6 @@ public:
   <description>The priority of the kernel.</description>
   <value>NonPreemptible</value></simple>
 </struct>
-
-  <struct name="StartupComponents" type="type_less">
-    <description>The Components to be Selected when the kernel is started
-    </description>
-    <simple name="Sensor" type="string">
-      <value>CartesianSensor</value>
-    </simple>
-    <simple name="Estimator" type="string">
-      <value>CartesianEstimator</value>
-    </simple>
-    <simple name="Generator" type="string">
-      <value>CartesianGenerator</value>
-    </simple>
-    <simple name="Controller" type="string">
-      <value>CartesianController</value>
-    </simple>
-    <simple name="Effector" type="string">
-      <value>CartesianEffector</value>
-    </simple>
-  </struct>
-   
 <struct name="Extensions" type="type_less">
   <simple name="Reporter" type="string">
   <description>The property file of the reporter</description>
@@ -2021,20 +2094,8 @@ public:
 	      </para>
 	    </listitem>
 	    <listitem>
-	      <para>The StartupComponents struct contains a
-		list of components which must be selected when the kernel
-		is started. If it is not specified, the "Default" components
-		remain in place and the selection can be done with the
-		<link linkend="scripting-extension">Execution Extension</link>
-		(recommended) or manually in your program after
-		the kerneltask is started. This is only provided to allow
-		thread-safe selecting components on startup when the 
-		Execution Extension is not used.
-	      </para>
-	    </listitem>
-	    <listitem>
 	      <para>
-		The third specifies the property file for each (possible)
+		The struct "Extensions" specifies the property file for each (possible)
 		extension. If the file is not found, an error is raised
 		. The XML format is further explained
 		in the Property Extension section. It is allowed to define
