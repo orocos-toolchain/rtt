@@ -20,7 +20,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2004,2005</year>
+      <year>2004,2005,2006</year>
       <holder>Peter Soetens</holder>
     </copyright>
     
@@ -44,6 +44,12 @@
 	<date>1 May 2005</date>
 	<authorinitials>PS</authorinitials>
 	<revremark>Moved TaskBrowser to front and updated to ProgramLoader</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.22.0</revnumber>
+	<date>January 2006</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Updates on new Execution Engine</revremark>
       </revision>
     </revhistory>
 
@@ -81,7 +87,7 @@
 	<caption>
 	  <para>
 	    Tasks may run in the same (periodic) thread, in which
-	    case they may also share the same Processor.
+	    case they may also share the same Execution Engine.
 	  </para>
 	</caption>
       </mediaobject>
@@ -132,9 +138,9 @@
 	  </glossdef>
 	</glossentry>
 	<glossentry>
-	  <glossterm>Program Processor</glossterm>
+	  <glossterm>Execution Engine</glossterm>
 	  <glossdef>
-	    <para> provides a binary program-tree, state machines and command
+	    <para> provides a program object-tree, state machines and command
 	      execution framework. In short, it can execute realtime programs
 	      which are composed of command objects.
 	    </para>
@@ -144,7 +150,7 @@
 	  <glossterm>Program Parser</glossterm>
 	  <glossdef>
 	    <para> provides a scripting language which is convertible to
-	    a binary form which can be accepted by the Program Processor.
+	    a binary form which can be accepted by the Execution Engine.
 	      Also provides usefull templates to create realtime command objects
 	      with truely minimal effort.
 	    </para>
@@ -162,7 +168,7 @@
       </glosslist>
     </para>
     <para>
-      You should read the Processor and Program Parser manuals
+      You may also read the Execution Engine and Program Parser manuals
       for more technical (C++) details.
     </para>
   </sect1>
@@ -486,8 +492,8 @@ cd                  quit
       It is useful speaking of a context because it defines
       the context in which the task operates. 
       It defines the interface of the task, its attributes,
-      its peer tasks and uses a 
-      <classname>Processor</classname> to handle its
+      its peer tasks and uses its
+      <classname>ExecutionEngine</classname> to handle its
       programs and to accept commands from other tasks.
     </para>
     <para>
@@ -495,30 +501,21 @@ cd                  quit
     </para>
     <para>
       <programlisting>
-  #include &lt;execution/Processor.hpp&gt;
   #include &lt;execution/TaskContext.hpp&gt;
 
   // we assume this is done in all the following code listings :
   using namespace ORO_Execution;
 
-  Processor   a_processor, b_processor;
-  TaskContext a_task("ATask", &amp;a_processor);
-  TaskContext b_task("BTask", &amp;b_processor);
-
-  // task creates own (default) Processor :
-  TaskContext c_task("CTask");
+  TaskContext a_task("ATask");
       </programlisting>
     </para>
     <para>
-      The first argument is the (unique) name of the task,
-      the second argument is its <classname>Processor</classname>, 
-      which is optional. If none is given, the Processor will
-      be constructed (and deleted) by the TaskContext itself.
+      The argument is the (unique) name of the task.
     </para>
     <para>
       A task's interface consists of : Commands,
-      Methods, DataSources and Attributes, which are all public.
-      We will refer to them as members.
+      Methods, DataSources, Attributes and Properties and Events, which are all public.
+      We will refer to them as <emphasis>members</emphasis>.
       The TaskContext exports the members (to other tasks)
       by means of object factories.
       Which members are exported is up to the application. Upon
@@ -545,16 +542,18 @@ cd                  quit
       </mediaobject>
     </figure>
     <para>
-      The object factories can be accessed as such :
+      The object factories and event service can be accessed as such :
     </para>
     <para>
       <programlisting>
-  a_task.commandFactory.getObjectFactory("objname");
+  a_task.commands()->getObjectFactory("objname");
 
-  a_task.methodFactory.getObjectFactory("objname");
-  a_task.dataFactory.getObjectFactory("objname");
+  a_task.methods()->getObjectFactory("objname");
+  a_task.data()->getObjectFactory("objname");
 
-  a_task.attributeRepository.getAttribute&lt;Type>("attrname");
+  a_task.attributes()->getAttribute&lt;Type>("attrname");
+
+  a_task.events();
       </programlisting>
     </para>
     <sect2>
@@ -605,7 +604,7 @@ cd                  quit
 		     &quot;I&quot;,&quot;Integer passed by reference&quot;,
 	             &quot;V&quot;,&quot;Vector passed by reference&quot; ) ); 
 
-  a_task.methodFactory.registerObject("objname", fact);	</programlisting>
+  a_task.methods()->registerObject("objname", fact);	</programlisting>
       </para>
       <para>
 	The first statement 
@@ -635,13 +634,13 @@ cd                  quit
 	name and description for each of the arguments.
       </para>
 <programlisting>
-  a_task.methodFactory.registerObject("objname", fact);	</programlisting>
+  a_task.methods()->registerObject("objname", fact);	</programlisting>
       <para>
 	Finally, the factory is stored in the method interface of a_task,
 	where it is <emphasis>added</emphasis> to the "objname" methods.
       </para>
       <important>
-	<para>The methodFactory, and all other factories of a TaskContext
+	<para>The method factory, and all other factories of a TaskContext
 	take ownership of the registered or added objects. You are not
 	allowed to delete them.</para>
       </important>
@@ -649,16 +648,70 @@ cd                  quit
 	Using this mechanism, any method of any class can be added to a task's
 	method interface. All methods are grouped in an object
 	namespace ( here &quot;objname&quot; ), which can be served
-	by different classes ( and thus factories ). To invoke this
-	method from a script, one can then write :</para>
+	by different classes ( and thus factories ). 
+      </para>
+      <sect3>
+	<title>Invoking Methods in C++</title>
+	<para>
+	  In order to easily invoke a task's methods from a C++ program,
+	  the <classname>MethodC</classname> class was designed to store
+	  and invoke methods and collect the return values. <classname>MethodC</classname>
+	  objects are created by a task's method factory. For example:
+	</para>
+	<programlisting>  // create a method:
+  MethodC mymeth = a_task.methods()->create("objname", "reset");
+
+  // Call 'reset' of a_task:
+  bool valid = mymeth->execute();  </programlisting>
       <para>
+	Methods can also be given arguments and collect return values. Both constant
+	arguments and variable arguments are supported. The return value
+	must always be stored in a variable:
+      </para>
+      <programlisting>  // used to store the return value:
+  string name;
+  MethodC mymeth = 
+    a_task.methods()->create("objname", "getName").ret( name );
+
+  // Call 'getName' of a_task:
+  bool result = mymeth->execute(); 
+
+  cout &lt;&lt; "Name was: " &lt;&lt; name &lt;&lt; endl; 
+
+  // store return value.
+  double oldvalue;
+  // const argument (note: 'argC'):
+  MethodC mychange_1 =
+      a_task.methods()->create("objname", "changeP").argC(1.0).ret( oldvalue );
+
+  // this example ignores the return value.
+  // variable argument (note: 'arg'):
+  double d_arg = 1.23;
+  MethodC mychange_2 =
+      a_task.methods()->create("objname", "changeP").arg( d );
+
+  // Call 'changeParameter' of a_task with argument '1.0'
+  bool result_1 = mycleanup_1->execute();
+  // oldvalue now contains previous value.
+
+  // Call 'changeParameter' of a_task, reads contents of d_arg.
+  bool result_2 = mycleanup_2->execute();</programlisting>
+       <para>
+	 Any number of arguments can be given (just add
+	 .arg(X).arg(Y).arg(Z) etc ), but an error will be logged when
+	 a wrong number or wrong type of argument is given.
+       </para>
+      </sect3>
+      <sect3>
+	<title>Invoking Methods in Scripts</title>
+	<para>
+	  To invoke
+	methods from a script, one can then write :</para>
+	<para>
 	<programlisting>
   do ATask.objname.changeP( 0.1 )
   // or :
-  set result = ATask.objname.changeP( 0.1 ) // store return value
-
-  var int a
-</programlisting></para>
+  set result = ATask.objname.changeP( 0.1 ) // store return value </programlisting></para>
       <para>
 	If the method should
 	belong to the task's interface without an object, the
@@ -749,31 +802,32 @@ cd                  quit
       </para>
   </sect2>
   <sect2 id="task-attr-rep">
-    <title>The Attribute Repository</title>
+    <title>Task Attributes and Properties</title>
     <para>
-      A TaskContext may have any number of attributes,
+      A TaskContext may have any number of attributes or properties,
       of any type. They can be used by programs in the
       TaskContext to get (and set) configuration data.
       The repository allows to store any C++ value type and
-      also knows how to handle Property objects.
+      also knows how to handle Property objects. Attributes are plain
+      values, while properties can be written to and updated from an XML file.
     </para>
     <sect3>
-      <title>Adding Task Attributes</title>
+      <title>Adding Task Attributes or Properties</title>
       <para>
 	An attribute can be added in the task's
 	<classname>AttributeRepository</classname> like this :</para>
       <para>
 	<programlisting>
-  a_task.attributeRepository.addAttribute( "aflag", bool(false) );
-  a_task.attributeRepository.addAttribute( "max",   int(5) );
+  a_task.attributes()->addAttribute( "aflag", bool(false) );
+  a_task.attributes()->.addAttribute( "max",   int(5) );
       
   Property&lt;std::string&gt; param("Param","Param Description","Value");
-  a_task.attributeRepository.addProperty( &amp;param );
+  a_task.attributes()->addProperty( &amp;param );
 
   // Put param also in a PropertyBag :
   Property&lt;PropertyBag&gt; bagprop("Collection","Collection Description");
   bagprop.get().add( &amp;param );
-  a_task.attributeRepository.addProperty( &amp;bagprop );</programlisting></para>
+  a_task.attributes()->addProperty( &amp;bagprop );</programlisting></para>
       <para>
 	Which inserts an attribute of type bool and int, name 'aflag' and 'max' and initial
 	value of false and 5 to the task's repository. Adding a Property
@@ -786,12 +840,12 @@ cd                  quit
 	changed :</para>
       <para>
 	<programlisting>
-  a_task.attributeRepository.addConstant( "pi", double(3.14) );</programlisting></para>
+  a_task.attributes()->addConstant( "pi", double(3.14) );</programlisting></para>
       <para>
 	You should again be careful for duplicate entries.
       </para>
       <important>
-	<para>The attributeRepository, and all other factories of a TaskContext
+	<para>The attribute repository, and all other factories of a TaskContext
 	take ownership of the registered or added objects. You are not
 	allowed to delete them. Properties are an exception to this rule,
 	they remain owned by you and you may only delete them after a removeProperty().</para>
@@ -805,13 +859,13 @@ cd                  quit
       <para>
 	<programlisting>
   TaskAttribute&lt;bool&gt;* attrb 
-       = a_task.attributeRepository.getAttribute&lt;bool&gt;( "aflag" );
+       = a_task.attributes()->getAttribute&lt;bool&gt;( "aflag" );
 
   bool result = attrb->get();
   assert( result == false );
 
   TaskAttribute&lt;std::string&gt;* attrs 
-       = a_task.attributeRepository.getAttribute&lt;std::string&gt;( "Param" );
+       = a_task.attributes()->getAttribute&lt;std::string&gt;( "Param" );
 
   assert( attrs.get() == "Value" );</programlisting></para>
     </sect3>
@@ -857,16 +911,18 @@ cd                  quit
     </sect3>
   </sect2>
   <sect2>
-      <title>The Command Factory</title>
-      <para>
-	The next factory we discuss is the Command Factory,
-	which produces C++ <classname>CommandInterface</classname>
-	objects which encapsulate a command call to a TaskContext's
-	interface. The philosophy behind commands is explained
-	in the CoreLib, which defines the CommandInterface and
-	in the Program Parser and Processor manuals, which 
-	provide easy to use implementations of this interface.
-      </para>
+    <title>The Command Factory</title>
+    <para>
+      The next factory we discuss is the Command Factory,
+      which produces C++ <classname>CommandInterface</classname>
+      objects which encapsulate a command call to a TaskContext's
+      interface. The philosophy behind commands is explained
+      in the CoreLib, which defines the CommandInterface and
+      in the Program Parser and Execution Engine manuals, which 
+      provide easy to use implementations of this interface.
+    </para>
+    <sect3>
+      <title>Adding Commands to tasks</title>
       <para>
 	To add a command to the Command Factory, one can use
 	the <classname>TemplateCommandFactory</classname>,
@@ -899,7 +955,7 @@ cd                  quit
                      &quot;Start cleanup operation.&quot;,
 	             &quot;factor&quot;, &quot;A factor denoting the thoroughness.&quot; ) );
 
-  a_task.commandFactory.registerObject("objname", fact);</programlisting></para>
+  a_task.commands()->registerObject("objname", fact);</programlisting></para>
       <para>
 	Commands differ from Methods in that they take
 	an extra function which is called the Completion
@@ -941,10 +997,53 @@ cd                  quit
 	strings giving a description and name for every argument.
       </para>
       <important>
-	<para>The commandFactory, and all other factories of a TaskContext
+	<para>The command factory, and all other factories of a TaskContext
 	take ownership of the registered or added objects. You are not
 	allowed to delete them.</para>
       </important>
+    </sect3>
+    <sect3>
+      <title>Invoking Commands in C++</title>
+      <para>
+	Once a command is added to a task's factory, other tasks
+	can make use of that command. The <classname>CommandC</classname>
+	class is especially designed to manage task commands in C++.
+	You can ask a task's factory to create such object:
+      </para>
+      <programlisting>  CommandC mycom = a_task.commands()->create("objname", "startCycle");
+
+  // Send 'startCycle' to a_task.
+  bool result = mycom->execute();
+  // next, check its status:
+  bool accepted = mycom->accepted(); // accepted by execution engine?
+  bool valid = mycom->valid();       // command was valid (well-formed)?
+  bool done = mycom->evaluate();     // command was done?
+      </programlisting>
+      <para>
+	Such commands can also be given arguments. Both constant
+	arguments and variable arguments are supported:
+      </para>
+      <programlisting>  // const argument (note: 'argC'):
+  CommandC mycleanup_1 =
+      a_task.commands()->create("objname", "cleanupMess").argC(1.0);
+
+  // variable argument (note: 'arg'):
+  double d_arg = 1.23;
+  CommandC mycleanup_2 =
+      a_task.commands()->create("objname", "cleanupMess").arg( d );
+
+  // Send 'cleanupMess' to a_task with argument '1.0'
+  bool result_1 = mycleanup_1->execute();
+
+  // Send 'cleanupMess' to a_task, reads contents of d_arg.
+  bool result_2 = mycleanup_2->execute();</programlisting>
+       <para>
+	 Any number of arguments can be given, but an error will be
+	 logged when a wrong number or wrong type of argument is given.
+       </para>
+    </sect3>
+    <sect3>
+      <title>Invoking Commands from Scripts</title>
       <para>
 	The above lets you write in a program script :</para>
       <para>
@@ -967,8 +1066,144 @@ cd                  quit
 	  to access them from program scripts.
 	</para>
       </important>
-    </sect2>
-    <sect2>
+    </sect3>
+  </sect2>
+  <sect2>
+    <title>The Event Service</title>
+    <para>
+      A task may register its events in its interface in order to be
+      used by its state machines and other tasks as well.  The events
+      used by the task context are defined and explained by the Orocos
+      CoreLib. The <classname>EventService</classname> is the
+      main access point to register and locate a task's events.
+    </para>
+    <sect3>
+      <title>Adding Events</title>
+      <para>
+	Events can be easily added to a task's interface:
+	<programlisting>  // create an event with a bool argument:
+  Event&lt; void(bool) &gt; turnSwitch;
+  // add it to the task's interface:
+  a_task.events()->addEvent( "turnSwitch", &amp;turnSwitch ); 
+
+  // create event with three arguments:
+  Event&lt; bool(double, double, double) &gl; moveAxis;
+  a_task.events()->addEvent( "move", &amp;moveAxis );
+	</programlisting>
+	and so on. In practice, the events will be part of the
+	task object itself by defining them in a subclass.
+      </para>
+    </sect3>
+    <sect3>
+      <title>Emitting Events in C++</title>
+      <para>
+	Once events are added, they can be emitted using the
+	<classname>EventC</classname> object. Analogous to
+	commands and methods, arguments can be provided:
+	<programlisting>  EventC move_event 
+    = a_task.events()->setupEmit( "move" ).argC(1.0).argC(2.0).argC(3.0);
+  // emit the event 'move' with given args:
+  bool result = move_event.emit();
+
+  // or with variable arguments:
+  double a = 0.3, b = 0.2, c = 0.1;
+  move_event = a_task.events()->setupEmit("move").arg(a).arg(b).arg(c);
+  // upon emit, read a,b,c:
+  result = move_event.emit(); </programlisting>
+      </para>
+    </sect3>
+    <sect3>
+      <title>Reacting to Events in C++</title>
+      <para>
+	Analogous to emitting an event, one can also react to
+	an event in C++, using the <classname>ConnectionC</classname>
+	object. However, this object is only of intermediate use
+	as event connections can be accessed through the
+	<classname>Handle</classname> object. The first example
+	shows how to setup a synchronous connection to the event
+	of the previous examples:
+	<programlisting>  #include &lt;boost/bind.hpp>
+  class Reactor {
+  public:
+    double a1, a2, a3;
+    void callback() {
+         // ... read a1, a2, a3
+    }
+  };
+
+  Reactor r;
+  ConnectionC reaction
+    = a_task.events()->setupSynConnection("move", boost::bind(&amp;callback, &amp;r))
+         .arg(r.a1).arg(r.a2).arg(r.a3);
+  Handle h = reaction.handle();
+
+  // or in short (note: '.handle()' ):
+  Handle h2 
+    = a_task.events()->setupSynConnection("move", boost::bind(&amp;callback, &amp;r))
+                 .arg(a1).arg(a2).arg(a3).handle();
+    
+  h2.connect(); // connect to event "move"
+
+  move_event.emit(); // see previous example.
+
+  // now r.a1 == 0.3, r.a2 == 0.2, r.a3 == 0.1 
+  // and callback() was called.
+
+  h1.disconnect(); // disconnect again.
+	</programlisting>
+      </para>
+      <para>
+	Analogous to the event example in the CoreLib Manual,
+	a class is made to react to the event. A connection
+	is setup between the "move" event and the "callback"
+	function of "r". The connection can be controlled using
+	the handle to connect or disconnect the reaction to events.
+	When <function>connect()</function> is called, every
+	<function>emit()</function> will call <function>callback()</function>
+	with the given arguments.
+      </para>
+      <para>
+	A second example continues, but uses an asynchronous connection.
+	First a new task (b_task) is created which will handle the event
+	asynchronously. During setup, the EventProcessor of
+	b_task is used to process the event.
+	<programlisting>  TaskContext b_task("BTask");
+  TaskPreemptible ptask_b(0.1);
+  ptask_b.run( &amp;b_task );
+  ptask_b.start();
+
+  Handle h3 
+    = a_task.events()->setupAsynConnection("move",
+                                           boost::bind(&amp;callback, &amp;r),
+                                           b_task.getEventProcessor() )
+                 .arg(a1).arg(a2).arg(a3).handle();
+    
+  h3.connect(); // connect asynchronously to event "move"
+
+  move_event.emit(); // see previous example.
+
+  // wait a bit...
+
+  // now r.a1 == 0.3, r.a2 == 0.2, r.a3 == 0.1 
+  // and callback() was called from within b_task.
+	</programlisting>
+      </para>
+    </sect3>
+    <sect3>
+      <title>Using Events from Scripts</title>
+      <para>
+	Events are as easy to use as methods (above) from within
+	scripts, using the keyword <symbol>emit</symbol>:
+	<programlisting>  emit a_task.move( 1.0, 2.0, 3.0 )</programlisting>
+      </para>
+      <para>
+	It is also possible to react to events from within a state
+	machine in order to change state. We refer to the Program
+	Parser Manual for syntax and examples.
+      </para>
+    </sect3>
+  </sect2>
+  <sect2>
       <title>The DataSource Factories</title>
       <para>
 	DataSources are read-only objects which, when evaluated,
@@ -1013,7 +1248,7 @@ cd                  quit
 	          &quot;a&quot;, &quot;the base&quot;, 
 	          &quot;b&quot;, &quot;the exponent&quot; ) ); 
 
-  a_task.dataFactory.registerObject("objname", fact);	</programlisting></para>
+  a_task.data()->registerObject("objname", fact);	</programlisting></para>
         <para>
 	  which is dus nearly identical to using a method.
 	  Notice the usage of the _number class member. The
@@ -1022,7 +1257,7 @@ cd                  quit
 	  read-only.
 	</para>
 	<important>
-	  <para>The dataFactory, and all other factories of a TaskContext
+	  <para>The data factory, and all other factories of a TaskContext
 	  take ownership of the registered or added objects. You are not
 	  allowed to delete them.</para>
 	</important>
@@ -1047,7 +1282,7 @@ cd                  quit
   MapDataSourceFactory* mdf 
      = new MapDataSourceFactory( storemap, "Thread-safe DataObjects");
 
-  a_task.dataFactory.registerObject("dataobjs", mdf);
+  a_task.data()->registerObject("dataobjs", mdf);
 	</programlisting>
 	<para>
 	  Which uses the thread-safe DataObjectLockFree (which

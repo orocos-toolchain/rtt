@@ -24,7 +24,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2003,2004,2005</year>
+      <year>2003,2004,2005,2006</year>
       <holder>Peter Soetens, Herman Bruyninckx</holder>
     </copyright>
     
@@ -92,6 +92,12 @@
 	<authorinitials>PS</authorinitials>
 	<revremark>Added '.' operator for complex valuetypes. Added ProgramLoader. Added expression-
 	based array and string initialisation.</revremark>
+      </revision> 
+      <revision>
+	<revnumber>0.22.0</revnumber>
+	<date>January 2005</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Extended syntax and updates on events and state machines.</revremark>
       </revision> 
    </revhistory>
 
@@ -601,19 +607,20 @@
   #include &lt;execution/ProgramLoader.hpp&gt;
 
   using namespace ORO_CoreLib;
+  using namespace ORO_Execution;
 
   TaskContext   tc;
-  ORO_CoreLib::TaskPreemptible ptask(0.01, tc->getProcessor() );
+  TaskPreemptible ptask(0.01, tc.engine() );
   ProgramLoader loader;
 
   // Watch Logger output for errors :
   loader.loadProgram( "program.ops", &amp;tc );
 
-  // start the Processor :
-  ptask->start();
+  // start the task :
+  ptask.start();
 
   // start a program :
-  tc.getProcessor()->startProgram("progname");
+  tc.engine()->programs()->getProgram("progname")->start();
 </programlisting>
       <para>
 	The loader will load all programs and functions into tc. Next
@@ -857,6 +864,14 @@
 	</warning>
       </sect3>
       <sect3>
+	<title>Emitting Events</title>
+	<para>
+	  Events are as easy to use as methods (above) from within
+	  scripts, using the keyword <symbol>emit</symbol>:
+	  <programlisting>  emit a_task.move( 1.0, 2.0, 3.0 )</programlisting>
+	</para>
+      </sect3>
+      <sect3>
 	<title>Calling functions</title>
 	<para>
 	  A function can be called by writing :
@@ -1016,9 +1031,9 @@
 	  system.  It contains a collection of states, and each state
 	  defines a Program on entry of the state, when it is run
 	  and on exit.  It also defines all transitions to a next
-	  state.  A StateMachine must be loaded in a Task's Processor ( see
-	  <ulink url="orocos-program-processor.html"> The Online
-	  Processor Manual</ulink> ).
+	  state.  A StateMachine must be loaded in a Task's Execution Engine ( see
+	  <ulink url="orocos-task-context.html"> The Online
+	  Task Context Manual</ulink> ).
 	</para>
       </sect2>
       <sect2>
@@ -1029,7 +1044,7 @@
 	time per period, it checks whether it can transition from
 	that state to another state, and if so makes that
 	transition. By default, only one transition can be made
-	in one Processor execution step.
+	in one Execution Engine step.
       </para>
 <!-- 	<para> -->
 <!-- 	  Every state also has a set of preconditions that need to -->
@@ -1039,12 +1054,13 @@
 	<para>
 	  Besides a list of the possible transitions, every state also
 	  keeps record of programs to be executed at certain
-	  occasions.  There are exactly three programs in every state:
-	  the entry program ( which will be executed each time the state
-	  is entered ), the run program ( which
-	  will be executed every time the state is the active state )
-	  and the exit program ( which will be executed when the state
-	  is left and another state is entered ).
+	  occasions.  There can be up to four (all optional) programs
+	  in every state: the entry program ( which will be executed
+	  each time the state is entered ), the run program ( which
+	  will be executed every time the state is the active state ),
+	  the handle program ( which will be executed if no transition
+	  succeeds ) and the exit program ( which will be executed
+	  when the state is left).
 	</para>
 	<para>
 	  There can be more than one StateMachine.  If there are more
@@ -1057,20 +1073,19 @@
 	have exactly one "initial state", which is the state that will
 	be entered when the StateMachine is first activated.
 	There is also exactly one final state, which is
-        <emphasis>automatically<emphasis> entered when the StateMachine is stopped.
+        <emphasis>automatically</emphasis> entered when the StateMachine is stopped.
 	<emphasis>This means that the transition from any state to the
 	  final state must always be meaningful.</emphasis>
       </para>
       <para>
-	A State Machine can run in a number of modes. The two
-	most important ones are the automatic mode and the event
-        (sometimes 'request') mode.
+	A State Machine can run in two modes. They are the automatic
+	mode and the reactive (also 'event' or 'request') mode.
       </para>
       <sect3 id="state-request">
-	<title>Event State Change Semantics</title>
+	<title>Reactive Mode: State Change Semantics</title>
 	<para>
-	  In order to enter the event mode, the State Machine
-	  must be activated. When active, two possible causes of
+	  In order to enter the reactive mode, the State Machine
+	  must be 'activated'. When active, two possible causes of
           state transitions can exist: because an <emphasis>event
           </emphasis> occured or because a transition was
           <emphasis>requested</emphasis>.
@@ -1082,8 +1097,8 @@
           is fully executed (done) and an event may be processed when
           the run program is executed, thus interrupt the run program.
           The first event that triggers a transition will 'win' and
-          the state reacts to no more events,  executes the event
-          transition program, the state's exit program and finally,
+          the state reacts to no more events, executes the event's transition program,
+	  then the state's exit program, and finally,
           the next state is entered and its entry program is executed.
           The next state now listens for events (if any) to make a 
           transition or just executes its run program.
@@ -1095,7 +1110,7 @@
 	  is allowed. These conditions are seperately listed from the event
           transitions above. If a transition condition is valid,
           the exit program of the current state
-	  is called and the entry program of the requested state is
+	  is called, the transition program and then the entry program of the requested state is
 	  called and the requested state's run program is executed. 
           If a transition to the current state was requested,
 	  only the run program of the current state is executed.
@@ -1111,20 +1126,21 @@
 	</para>
       </sect3>
       <sect3 id="state-automatic">
-	<title>Automatic State Change Semantics</title>
+	<title>Automatic Mode: State Change Semantics</title>
 	<para>
 	  In order to enter automatic mode, the State Machine must be
 	  started with the start() command (see later on).
 	</para>
 	<para>
-	  In automatic mode, After the run program of the current state finishes, 
-          the transition table (to other states) of
+	  In automatic mode, After the run program of the current
+	  state finishes, the transition table (to other states) of
 	  the current state is evaluated.  If a transition succeeds,
-	  the exit program of the current state is called and then
-	  the entry program of the next state is called. If no transition
-	  evaluated to true, the handle program (if any) of the current state
-	  is called. This goes on until the automatic mode is left,
-	  using the pause or stop command.
+	  the transition program is executed, then the exit program of
+	  the current state is called and then the entry program of
+	  the next state is called. If no transition evaluated to
+	  true, the handle program (if any) of the current state is
+	  called. This goes on until the automatic mode is left, using
+	  the pause, stop or reactive command.
 	</para>
       </sect3>
     </sect2>
@@ -1148,20 +1164,21 @@
   #include &lt;execution/ProgramLoader.hpp&gt;
 
   using namespace ORO_CoreLib;
+  using namespace ORO_Execution;
 
   TaskContext   tc;
-  ORO_CoreLib::TaskPreemptible ptask(0.01, tc->getProcessor() );
+  TaskPreemptible ptask(0.01, tc.engine() );
   ProgramLoader loader;
 
   loader.loadStateMachine( "state-machine.osd", &amp;tc );
 
   // start the task's processor :
-  ptask->start();
+  ptask.start();
 
   // activate a state context :
-  tc.getProcessor()->activateStateMachine("MachineInstanceName");
+  tc.engine()->states()->getStateMachine("MachineInstanceName")->activate();
   // start a state context (automatic mode) :
-  tc.getProcessor()->startStateMachine("MachineInstanceName");</programlisting>
+  tc.engine()->states()->getStateMachine("MachineInstanceName")->start();</programlisting>
       <para>
 	The loader loads all instantiated state machines in tc.
 	Next we start the task's Processor.
@@ -1192,8 +1209,12 @@
   {
     initial state <emphasis>myInit</emphasis>
     {
+        // all these programs are optional and can be left out:
         entry {
 	    // entry program
+	}
+	run {
+	    // run program
 	}
 	handle {
 	    // handle program
@@ -1201,9 +1222,6 @@
 	exit {
 	    // exit program
 	}
-<!-- 	preconditions { -->
-<!-- 	    // ordered select statements -->
-<!--         } -->
 	transitions {
 	    // Ordered (conditional) select statements
 	}
@@ -1213,10 +1231,8 @@
 	entry {
 	    // put everything in a safe state.
 	}
-	handle {
-	}
-	exit {
-        }
+	// leave out empty programs...
+
 	transitions {
 	    // ...
 	}
@@ -1620,7 +1636,7 @@
               // set the subcontext's parameter
               set child1.someValue = 2
           }
-          handle
+          run
           {
               set counter = counter + 1
               // set the subcontext's parameters
@@ -1663,14 +1679,14 @@
       </para>
       <programlisting>  do ATask.states.machine.activate()
   do ATask.states.machine.axisx.activate()
-  // now in request mode...
+  // now in reactive mode...
 
   do ATask.states.machine.axisx.start()
   do ATask.states.machine.start()
   // now in automatic mode...
 
   do ATask.states.machine.stop()
-  // again in request mode, in final state
+  // again in reactive mode, in final state
 
   do ATask.states.machine.reset()
   do ATask.states.machine.deactivate()
@@ -1678,7 +1694,7 @@
   // etc. </programlisting>
       <para>
 	The first line activates a root StateMachine, thus it
-	enters the initial state and is put in request mode , the next line
+	enters the initial state and is put in reactive mode , the next line
 	actives its child, the next starts its child, then we
 	start the parent, which bring both in automatic mode.
 	Then the parent is stopped again, reset
@@ -1690,14 +1706,14 @@
 	inspected likewise :</para>
       <programlisting>  var bool res =  ATask.states.machine.isActive()      // Active ?
   set res = ATask.states.machine.axisy.isRunning()     // Running ?
-  set res =  ATask.states.machine.inRequest()          // Waiting for requests ? 
+  set res =  ATask.states.machine.isReactive()          // Waiting for requests or events? 
   var string current = ATask.states.machine.getState() // Get current state
   set res = ATask.states.machine.inState( current )    // inState ?</programlisting>
       <para>
 	which makes it possible to monitor state machines from other
 	scripts or an operator console.</para>
       <sect3 id="request-commands">
-	<title>On Request Mode Commands</title>
+	<title>On Reactive Mode Commands</title>
 	<para>
 	  Consider the following StateMachine :
 	</para>
@@ -1753,8 +1769,8 @@
        // Different ! Executes a single program statement :
        do states.x.step()
 
-       // unpause, by re-entering request Mode :
-       do states.x.requestMode()
+       // unpause, by re-entering reactive Mode :
+       do states.x.reactive()
 
        // we are in ok_1 now, again waiting...
        do states.x.stop()      // go to the final state
@@ -1876,8 +1892,8 @@
 	   start() again.
 	 </para>
 	 <para>
-	   To enter the request mode when the State Machine is in
-	   automatic mode, one can call the requestMode() command,
+	   To enter the reactive mode when the State Machine is in
+	   automatic mode, one can call the reactive() command,
 	   which will finish the program or transition the State
 	   Machine is making and will complete if the State Machine
 	   is ready for requests.

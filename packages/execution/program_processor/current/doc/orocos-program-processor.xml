@@ -9,7 +9,7 @@
 
 <article>
   <articleinfo>
-  <title>The Orocos Program Processor Manual</title>
+  <title>The Orocos Execution Engine Manual</title>
     <authorgroup>
       <author>
         <firstname>Peter</firstname>
@@ -21,16 +21,16 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002, 2003, 2004, 2005</year>
+      <year>2002, 2003, 2004, 2005, 2006</year>
       <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
       <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
     </copyright>
 
     <abstract>
       <para>
-	The Program Processor is the 'execution engine'
-	of Programs and State Machines. It can execute
-	any number of Programs and State Machines in parallel.
+	The 'execution engine' executes
+	Programs, State Machines, commands and events. It can execute
+	any number of Programs and State Machines in parallel in a single thread.
       </para>
     </abstract>
 
@@ -89,6 +89,12 @@
     <authorinitials>ps</authorinitials>
     <revremark>New StateMachine semantics, dumped old StateContext</revremark>
   </revision>
+  <revision>
+    <revnumber>0.22</revnumber>
+    <date>12 Jan 2006</date>
+    <authorinitials>ps</authorinitials>
+    <revremark>Execution Engine added.</revremark>
+  </revision>
   </revhistory>
 
   <legalnotice>
@@ -104,147 +110,117 @@
     </legalnotice>
 
   </articleinfo>
-  
-
-  
   <sect1>
-    <title>Introduction to the Program Processor</title>
+    <title>Introduction to the Execution Engine</title>
     <para>
       &orocos; is meant for building realtime systems. You will find
-      many usefull classes in the Orocos CoreLib to build
-      them, but they would only act as a noninteractive whole. The
-      Execution package allows a user to configure a system, execute
-      user-defined programs on that system and interactively
-      accept commands. A
-      <classname>StateMachine</classname> will hold the
-      user-programmable state machine (representing the system
-      logic). A <classname>ProgramGraph</classname> will hold the
-      user-defined program to be executed. A
-      <classname>Processor</classname> will then represent an
-      execution engine which loads the state machine and
-      program definitions and executes them. Loading
-      a program is however a non-realtime operation, since it performs dynamic
-      memory allocations. Execution of the programs and state machines
-      will happen in real time. The StateMachine executes programs according
-      to an user defined logic, so if we write about program semantics, they
-      hold in plain programs and state machines.
+      many usefull classes in the Orocos CoreLib to build them, but
+      they would only act as a noninteractive whole. The Execution
+      package allows a user to configure a system, execute
+      user-defined programs on that system and interactively accept
+      commands.  An <classname>ExecutionEngine</classname> contains a
+      series of <classname>Processor</classname>s which loads state
+      machine and program definitions and executes them. Execution of
+      the programs and state machines will happen in real-time. In
+      addition, it processes incomming commands and events in
+      real-time as well. The execution engine thus exists of four
+      processors : <classname>ProgramProcessor</classname>,
+      <classname>StateMachineProcessor</classname>,
+      <classname>CommandProcessor</classname> and the
+      <classname>EventProcessor</classname>. The Execution Engine
+      needs to run in a periodic (preferably) or non periodic corelib
+      task in order to execute these processors. 
     </para>
     <para>
-      The Program Processor is not what the user will use directly.
+      This document bundles the execution semantics of the Execution
+      Engine and its processors and is no mandatory literature for
+      understanding the Orocos task execution infrastructure.
+    </para>
+    <para>
+      The ExecutionEngine is not what the user will use directly.
       The user will mainly use the <ulink url="orocos-program-parser.html">
 	Orocos Program Parser</ulink> with the <ulink url="orocos-task-context.html">
-	Orocos Task Infrastructure</ulink>. The Parser
-      generates ProgramGraphs and StateGraphs from user friendly
-      text files, which can then be executed in realtime.
+	Orocos Task Infrastructure</ulink>. The Parser will
+      generate Programs and StateMachines from user friendly
+      text files, which are then executed in realtime.
     </para>
   </sect1>
-  
   <sect1>
-    <title>Executing Commands, Programs and Hierarchical StateMachines</title>
+    <title>The Execution Engine</title>
+    <para>
+      A TaskContext's ExecutionEngine Executes Programs, Hierarchical StateMachines and
+      processes Commands and events.
+    </para>
     <sect2>
-      <title>The Processor</title>
+      <title>Purpose</title>
       <para>
-	The <classname>Processor</classname> is the core class of this package
-	It is capable of loading and processing a state machine and
-	loading and executing additional programs on that system. A
-	system's configuration (or part of) can be defined in a State
-	Machine ( a State Machine is a real-time state machine which
-	iterates over a collection of Orocos States ).  Multiple State
-	Machines can be loaded and started/stopped in parallel. A
-	Program is a sequence of commands and methods, connected to each other
-	through condition evaluation. Also programs can be loaded and
-	run in parallel.
+	The <classname>ExecutionEngine</classname> is the core class
+	of this package.  It executes the decision logic of the
+	TaskContext by executing programs and state machines. Any
+	number of these may be loaded and can be controlled
+	separately. It allows to start, pause, step,... stop programs
+	and state machines. No recompilation is needed in order to use
+	new programs or state machines. Its task is to
+	<emphasis>serialise</emphasis> (do one after the other) the
+	execution of programs, state machines, commands and events
+	such that they are not concurrently executing, and can thus
+	interact thread-safely. A TaskContext is running when it's
+	ExecutionEngine is running. The Task Context provides the
+	<emphasis>interface</emphasis> of the control task, the
+	Execution Engine executes the
+	<emphasis>implementation</emphasis>.
       </para>
     </sect2>
     <sect2>
-      <title>Running the Processor</title>
+      <title>Running the Execution Engine</title>
       <para>
-	The Processor is responsible for accepting command requests
-	from other (realtime) tasks. It uses a non-blocking atomic queue
-	to store incomming requests and fetch-and-execute them in its periodic step,
-	which can be synchronised with tasks of the same priority. It offers
-	thus a thread-safe realtime means of message passing between threads,
-	without intervention of the Operating System.
-	However, before it will accept commands, it must be attached
-	to a periodic task and be started. It implements the
-	<classname>ORO_CoreLib::RunnableInterface</classname> class,
-	which allows it to be run by periodic and non periodic tasks :
+	In order to start a task context, its execution engine must be
+	run in a periodic corelib task.
       </para>
       <programlisting>
-  #include &lt;execution/Processor.hpp&gt;
+  #include &lt;execution/TaskContext.hpp&gt;
   #include &lt;corelib/TaskNonPreemptible.hpp&gt;
 
-  ORO_Execution::Processor proc;
-  ORO_CoreLib::TaskNonPreemptible ptask( 0.01, proc); // see CoreLib doc
+  ORO_Execution::TaskContext mytaskC;
+  ORO_CoreLib::TaskNonPreemptible ptask( 0.01 ); // Periodic task 100Hz.
+
+  ptask.run( mytaskC.engine() ); // run the execution engine.
 
   ptask.start();
-
-  CommandInterface* com = ... // See the last section
-
-  assert ( proc.getTask()->isRunning() );
-  int ticket = proc.process( com ); </programlisting>
+      </programlisting>
       <para>
-	If <parameter>ticket</parameter> is zero, the command was
-	not accepted by the processor, possibly the queue was full
-	or it was not running. You can query if a command has been
-	fetched and executed by calling :
-      </para>
-      <programlisting>
-  if ( proc.isProcessed( ticket ) )
-     // done !
-  else
-     // still busy ! </programlisting>
-      <para>
-	The commands this Processor accepts must be for tasks of the
-	same priority, and each Processor can only be run in one
-	thread. Orocos provides a mechanism to transparantly serialise
-	tasks of equal priority in the same thread, this is explained
-	in the Orocos CoreLib documentation. Take a look at the Task
-	Infrastructure Manual for more elaborate examples of Command
-	queueing. 
-      </para>
-      <figure><title>Tasks Sending Commands</title>
-	<mediaobject>
-	  <imageobject>
-	    <imagedata fileref="TaskCommandSerialisation" />
-	  </imageobject>
-	  <caption>
-	    <para>
-	      Tasks of different threads communicate by sending
-	      commands to each other's Processors. When Task T1,
-	      running in Thread (a), requests that T2, running
-	      in Thread (b) processes a command, the command
-	      is stored in a command queue of that task's Processor.
-	      When T2 runs its Processor, the queue is checked and
-	      the command is executed. T1 can optionally check if
-	      the command was accepted and executed, using a
-	      Completion Condition ( see TaskContext and Program
-	      Parser manuals. )
-	    </para>
-	  </caption>
-	</mediaobject>
-      </figure>
-      <para>
-	In addition to command processing, the Processor provides
-	functions to manipulate Programs and
-	State Machines. The available commands are presented in the
-	figures in the next sections. 
+	After it is started, it will execute all the processors in each
+	periodic step. First the Program Processor, then the State Machine
+	Processor, then the Command Processor and finally the Event Processor.
       </para>
     </sect2>
     <sect2>
-      <title>Programs</title>
+      <title>Executing Programs</title>
       <para>
-	The <classname>ProgramGraph</classname> is a tree composed
+	The <classname>FunctionGraph</classname> is a tree composed
 	of command nodes ( See : <classname>CommandInterface</classname> class ),
 	where each node contains one or more
-	statements. A ProgramGraph keeps track of the start node
+	statements. A FunctionGraph keeps track of the start node
 	and the node to be executed next. As such a program is executed
 	one node at a time and the transition to the next node
 	is done on a given boolean condition ( See :
 	<classname>ConditionInterface</classname> class). The
-	ProgramGraph has a builder interface for constructing
-	nodes and conditions, which is used by other packages to construct valid
-	programs.
+	FunctionGraph is built by the program parser and almost never by
+	the programmer by hand.
+      </para>
+      <para>
+	In order to access (start, stop, pause,...) a loaded program, use :
+	<programlisting>  ProgramInterface* prog = mytaskC.engine()->programs()->getProgram("ProgName");
+  if (prog == 0 ) {
+      // program not found.
+  }
+  int line = prog->getLineNumber();
+  prog->start();
+  // ...
+  prog->pause();
+  // .. etc. 	  
+	</programlisting>
+	All commands are also accessible from within the interactive 'TaskBrowser'.
       </para>
 	<figure><title>Executing Program Statements</title>
 	  <mediaobject>
@@ -258,7 +234,7 @@
 	the <ulink url="orocos-program-parser.html">Orocos
 	  Program Parser</ulink> Manual. The Parser is able to
 	convert Orocos Program Scripts to a Program which can
-	be loaded in the Processor.
+	be loaded in the Program Processor.
       </para>
 	<figure><title>Using a Program</title>
 	  <mediaobject>
@@ -272,36 +248,48 @@
 	an exception. The <exceptionname>program_load_exception</exceptionname>
 	and <exceptionname>program_unload_exception</exceptionname>
 	should be try'ed and catch'ed on load and unload or deletion
-	of a Program in the Processor. Alternatively, you can use the
-	<classname>ProgramLoader</classname> class as a user-friendly 
-	frontend for loading Programs and Functions.
+	of a Program in the Program Processor. 
       </para>
+      <tip>
+	<para>
+	  Alternatively, you can use the
+	  <classname>ProgramLoader</classname> class as a user-friendly 
+	  frontend for loading Programs and Functions in tasks.
+	</para>
+      </tip>
     </sect2>
     <sect2>
-      <title>State Machine and State</title>
+      <title>State Machine and States</title>
       <para>
 	The <classname>StateMachine</classname> is a collection of
-	states, linked to each other through transition definitions. It
-	represents a state machine of the realtime system's logic and
-	may access internal and external data for deciding on its
-	state transitions. Every 'device' has some states or
-	configurations in which a specific action must be taken (on
-	entry, during or on exit) and transitions between states are
-	defined by boundary conditions (guards). Every such state is defined by
-	the <classname>StateInterface</classname>.
-	A state itself is defined by three programs : entry,
-	handle and exit. They are called by the Processor when
-	this state is entered, handled or left. When no state transition
-	took place, handle is called in a periodic execution step
-	of the Processor. Otherwise, first the exit program of the current
-	state is called and then the entry program of the new state
-	is called. The next periodic step will evaluate transition conditions,
-	and if none succeeds, handle will be called, and so on.
+	states, linked to each other through transition
+	definitions. It represents a state machine of the realtime
+	system's logic and may access internal and external data for
+	deciding on its state transitions. Every 'device' has some
+	states or configurations in which a specific action must be
+	taken (on entry, during or on exit) and transitions between
+	states are defined by boundary conditions (guards) or
+	triggered by events. Every such state is defined by the
+	<classname>StateInterface</classname>.  A state itself is
+	defined by four programs : entry, run, handle and exit. They
+	are called by the State Machine Processor when this state is
+	entered, run or left. When no state transition took place,
+	handle is called in a periodic execution step of the State
+	Machine Processor. Otherwise, first the exit program of the
+	current state is called, then the entry program and then the
+	run program of the new state is called. The next periodic step
+	will continue the run program, or when finished, evaluate
+	transition conditions, and if none succeeds, handle will be
+	called, and so on. Events may be processed during the run
+	program. The exit program can check for interuption and clean up
+	if necessary. After the exit program (if any), the transition program
+	is executed (again, if any). 
       </para>
       <para>
 	As transitions define when a state will be left, preconditions
 	are used to define when a state should not be entered, and
-	an alternative must be provided (this feature is under development).
+	function as an extra condition which is checked before the transition
+	is tried.
       </para>
 	<figure><title>Executing a StateMachine</title>
 	  <mediaobject>
@@ -316,6 +304,21 @@
 	convert Orocos State Descriptions to a State Machine
 	wich can be loaded in the Processor.
       </para>
+      <para>
+	In order to access (activate, start, stop, pause,...) a loaded state machine, use :
+	<programlisting>  StateMachine* smach = mytaskC.engine()->states()->getStateMachine("MachineName");
+  if (smach == 0 ) {
+      // state machine not found.
+  }
+  smach->activate();
+  string state = smach->getCurrentStateName();
+  smach->start();
+  // ...
+  smach->stop();
+  // .. etc. 	  
+	</programlisting>
+	All commands are also accessible from within the interactive 'TaskBrowser'.
+      </para>
 	<figure><title>Using a StateMachine</title>
 	  <mediaobject>
 	    <imageobject>
@@ -328,14 +331,75 @@
 	an exception. The <exceptionname>program_load_exception</exceptionname>
 	and <exceptionname>program_unload_exception</exceptionname>
 	should be try'ed and catch'ed on load and unload or deletion
-	of a State Machine in the Processor. Alternatively, you can use the
-	<classname>ProgramLoader</classname> class as a user-friendly 
-	frontend for loading State Machines.
+	of a State Machine in the Processor.
       </para>
+      <tip>
+	<para>
+	  Alternatively, you can use the
+	  <classname>ProgramLoader</classname> class as a
+	  user-friendly frontend for loading State Machines.
+	</para>
+      </tip>
+    </sect2>
+    <sect2>
+      <title>The Command Processor</title>
+      <para>
+	The CommandProcessor is responsible for accepting command
+	requests from other (realtime) tasks. It uses a non-blocking
+	atomic queue to store incomming requests and fetch-and-execute
+	them in its periodic step.  It offers thus a thread-safe
+	realtime means of message passing between threads, without
+	intervention of the Operating System.
+      </para>
+      <programlisting>  #include &lt;execution/TaskContext.hpp&gt;
+
+  CommandInterface* com = ... // Create a command, see the next Section.
+
+  int ticket = mytaskC.engine()->commands()->process( com ); </programlisting>
+      <para>
+	If <parameter>ticket</parameter> is zero, the command was
+	not accepted by the processor, possibly the queue was full
+	or it was not running. You can query if a command has been
+	fetched and executed by calling :
+      </para>
+      <programlisting>
+  if ( mytaskC.engine()->commands()->isProcessed( ticket ) )
+     // done !
+  else
+     // still busy ! </programlisting>
+      <figure><title>Tasks Sending Commands</title>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="TaskCommandSerialisation" />
+	  </imageobject>
+	  <caption>
+	    <para>
+	      Tasks of different threads communicate by sending
+	      commands to each other's Command Processors. When Task T1,
+	      running in Thread (a), requests that T2, running
+	      in Thread (b) processes a command, the command
+	      is stored in a command queue of that task's Command Processor.
+	      When T2 runs its Command Processor, the queue is checked and
+	      the command is executed. T1 can optionally check if
+	      the command was accepted and executed, using a
+	      Completion Condition ( see TaskContext and Program
+	      Parser manuals. )
+	    </para>
+	  </caption>
+	</mediaobject>
+      </figure>
     </sect2>
   </sect1>
   <sect1>
     <title>Creating Commands</title>
+    <note>
+      <para>
+	Since Orocos Version 0.22.0, it is far easier to create commands
+	using the command factories in the TaskContext. Please see the
+	Task Context manual for examples. This section is still valid, but
+	harder to apply in practice.
+      </para>
+    </note>
     <para>
       Apart from the Program and State Machine Commands (which are
       generated by the Parsers), the user can convert C/C++ functions in commands for
@@ -472,10 +536,12 @@
   </sect1>
   <sect1>
     <title>StateMachine and Program Implementation Details</title>
-    <para>
-      This section gives a short description of the inside
-      of Programs and StateMachines, and can be skipped by most users.
-    </para>
+    <note>
+      <para>
+	This section gives a short description of the inside
+	of Programs and StateMachines, and can be skipped by most users.
+      </para>
+    </note>
     <sect2 id="progproc-condition">
       <title>( State ) Transitions : Condition Edge</title>
       <para>
