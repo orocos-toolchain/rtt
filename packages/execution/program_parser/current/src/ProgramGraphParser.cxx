@@ -33,6 +33,8 @@
 #include "corelib/CommandNOP.hpp"
 #include "corelib/CommandDataSource.hpp"
 #include "corelib/ConditionTrue.hpp"
+#include "corelib/Logger.hpp"
+
 #include "execution/DataSourceCondition.hpp"
 #include "execution/ConditionComposite.hpp"
 #include "execution/CommandComposite.hpp"
@@ -49,7 +51,7 @@ namespace ORO_Execution
 {
   using namespace boost;
   using namespace detail;
-  using ORO_CoreLib::CommandNOP;
+  using namespace ORO_CoreLib;
   using ORO_CoreLib::ConditionTrue;
 
     namespace {
@@ -446,6 +448,7 @@ namespace ORO_Execution
           std::map<const DataSourceBase*, DataSourceBase*> dummy;
           cfi->addFunction( mfunc->getName() , ProgramInterfacePtr(mfunc->copy(dummy)) );
           rootc->commandFactory.registerObject("this", cfi );
+          Logger::log() << Logger::Info << "Exported Function '" << mfunc->getName() << "' added to task '"<< rootc->getName() << "'" <<Logger::endl;
       }
 
       delete fcontext;
