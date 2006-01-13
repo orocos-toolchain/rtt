@@ -26,7 +26,7 @@
 #ifdef OROPKG_OS_LXRT
 typedef void comedi_t;
 #else
-struct comedi_t;
+typedef struct comedi_t_struct comedi_t;
 #endif
 
 namespace ORO_DeviceDriver
