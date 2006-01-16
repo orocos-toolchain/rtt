@@ -28,7 +28,16 @@
 #include "corelib/TimerThread.hpp"
 #include "corelib/PeriodicTask.hpp"
 #include "corelib/TaskTimerInterface.hpp"
+#include "pkgconf/corelib_tasks.h"
+
+// this timer is the only correct, synchronising one
+// with respect to step() and finalize()
+#define OROSEM_ONESHOT_TIMER
+#ifdef OROSEM_ONESHOT_TIMER
 #include "corelib/TaskTimerOneShot.hpp"
+#else
+#include "corelib/TaskTimerLockFree.hpp"
+#endif
 #include "corelib/Time.hpp"
 #include "corelib/Logger.hpp"
 #include <pkgconf/corelib_tasks.h>
@@ -41,7 +50,12 @@ namespace ORO_CoreLib
         : PeriodicThread( priority, name, periodicity)
     {
         // create one default timer for the tasks with this periodicity.
-        TaskTimerInterface* timer = new TaskTimerOneShot( Seconds_to_nsecs( periodicity ) );
+        TaskTimerInterface* timer = 
+#ifdef OROSEM_ONESHOT_TIMER
+            new TaskTimerOneShot( Seconds_to_nsecs( periodicity ) );
+#else
+            new TaskTimerLockFree( Seconds_to_nsecs( periodicity ) );
+#endif
         this->timerAdd( timer );
     }
 
