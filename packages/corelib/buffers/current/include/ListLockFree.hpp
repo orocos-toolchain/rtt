@@ -101,6 +101,7 @@ namespace ORO_CoreLib
 
         Storage bufs;
         Item* volatile active;
+        Item* volatile blankp;
 
         // each thread has one 'working' buffer, and one 'active' buffer
         // lock. Thus we require to allocate twice as much buffers as threads,
@@ -120,7 +121,7 @@ namespace ORO_CoreLib
          * A lower number will consume less memory.
 '        */
         ListLockFree(unsigned int lsize, unsigned int threads = ORONUM_OS_MAX_THREADS )
-            : MAX_THREADS( threads ), required(0)
+            : MAX_THREADS( threads ), blankp(0), required(0)
         {
             const unsigned int BUF_NUM = BufNum();
             bufs = newStorage( BUF_NUM, lsize );
@@ -376,7 +377,6 @@ namespace ORO_CoreLib
                 orig = lockAndGetActive( bufptr ); // find active in bufptr
                 // we do this in the loop because bufs can change.
                 nextbuf = findEmptyBuf( bufptr ); // find unused Item in same buf.
-                nextbuf->data.clear();
                 Iterator it( orig->data.begin() );
                 while (it != orig->data.end() && !( *it == item ) ) {
                     nextbuf->data.push_back( *it );
@@ -415,6 +415,103 @@ namespace ORO_CoreLib
             atomic_dec( &orig->count ); //lockAndGetActive
         }
 
+        /**
+         * Apply a function to the non-blanked elements of the list.
+         * If during an apply_and_blank, the erase_and_blank function
+         * is called, that element will not be subject to \a func if
+         * not yet processed. You must not call this function concurrently
+         * from multiple threads.
+         * @param func The function to apply.
+         * @param blank The 'blank' item. Each item of this list will
+         * be compared to this item using operator==(), if it matches, 
+         * it is considered blank, and func is \b not applied.
+         * @see erase_and_blank
+         */
+        template<class Function>
+        void apply_and_blank(Function func, value_t blank )
+        {
+            Storage st;
+            Item* orig = lockAndGetActive(st);
+            Item* newp = findEmptyBuf(st);
+            Iterator it( orig->data.begin() );
+            // first copy the whole list.
+            while ( it != orig->data.end() ) {
+                newp->data.push_back( *it );
+                ++it;
+            }
+            blankp = newp;
+            it = blankp->data.begin();
+            // iterate over copy and skip blanks.
+            while ( it != blankp->data.end() ) {
+                // XXX Race condition: 'it' can be blanked after
+                // comparison or even during func.
+                value_t a = *it;
+                if ( !(a == blank) )
+                    func( a );
+                ++it;
+            }
+            blankp = 0;
+            
+            atomic_dec( &orig->count ); //lockAndGetActive
+            atomic_dec( &newp->count ); //findEmptyBuf
+        }
+
+        /**
+         * Erase an element from the list and blank it if possible.
+         * If during an apply_and_blank, the erase_and_blank function
+         * is called, that element will not be subject to \a func if
+         * not yet processed. You may call this function concurrently
+         * from multiple threads. 
+         * @warning It is possible that \a item is being processed
+         * within apply_and_blank. In that case the 'blank' operation
+         * has no effect.
+         * @param item The item to erase from the list.
+         * @param blank The 'blank' item to use to blank \a item
+         * from the list.
+         * @see apply_and_blank
+         */
+        bool erase_and_blank(value_t item, value_t blank )
+        {
+            Storage st;
+            bool res = this->erase(item);
+            Item* orig = lockAndGetBlank(st);
+            if (orig) {
+                Iterator it( orig->data.begin() );
+                // item may still not be present in the blank-list.
+                while ( *it != item ) {
+                    ++it;
+                    if (it == orig->data.end() ) {
+                        atomic_dec( &orig->count ); //lockAndGetBlank
+                        return res;
+                    }
+                }
+                (*it) = blank;
+                atomic_dec( &orig->count ); //lockAndGetBlank
+            }
+            return res;
+        }
+
+        /**
+         * Find an item in the list such that func( item ) == true.
+         * @param blank The value to return if not found.
+         * @return The item that matches func(item) or blank if none matches.
+         */
+        template<class Function>
+        value_t find_if( Function func, value_t blank = value_t() )
+        {
+            Storage st;
+            Item* orig = lockAndGetActive(st);
+            Iterator it( orig->data.begin() );
+            while ( it != orig->data.end() ) {
+                if (func( *it ) == true ) {
+                    atomic_dec( &orig->count ); //lockAndGetActive
+                    return *it;
+                }
+                ++it;
+            }
+            atomic_dec( &orig->count ); //lockAndGetActive
+            return blank;
+        }
     private:
         /**
          * Item returned is guaranteed to point into bufptr.
@@ -432,6 +529,7 @@ namespace ORO_CoreLib
                     start = &(*bufptr)[0]; // in case of races, rewind
             }
             assert( pointsTo(start, bufptr) );
+            start->data.clear();
             return start; // unique pointer across all threads
         }
 
@@ -477,6 +575,32 @@ namespace ORO_CoreLib
                 // if active is still equal to orig, the increase of orig->count is
                 // surely valid, since no contention (change of active) occured.
             } while ( active != orig );
+            return orig;
+        }
+
+        /**
+         * Get the blank buffer or null if no apply_and_blank operation going on.
+         */
+        Item* lockAndGetBlank(Storage& bufptr) const {
+            Item* orig=0;
+            do {
+                if (orig)
+                    atomic_dec( &orig->count );
+                bufptr = bufs;
+                orig = blankp;
+                if (orig == 0) 
+                    return 0; // no blankp.
+                // also check that orig points into bufptr.
+                if ( pointsTo(orig, bufptr) )
+                    atomic_inc( &orig->count );
+                else {
+                    orig = 0;
+                }
+                // this synchronisation point is 'aggressive' (a _sufficient_ condition)
+                // if active is still equal to orig, the increase of orig->count is
+                // surely valid, since no contention (change of active) occured.
+            } while ( blankp != orig );
+            assert( pointsTo(orig, bufptr) );
             return orig;
         }
 
