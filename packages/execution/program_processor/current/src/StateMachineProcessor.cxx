@@ -2,28 +2,20 @@
 #include "execution/StateMachineProcessor.hpp"
 #include <corelib/Logger.hpp>
 
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/construct.hpp>
-#include <boost/function.hpp>
-#include <os/MutexLock.hpp>
+#include <boost/bind.hpp>
 #include <os/Semaphore.hpp>
 #include <iostream>
 
 namespace ORO_Execution
 {
 
-    //using boost::bind;
-    using namespace boost::lambda;
     using namespace boost;
     using namespace std;
-    using ORO_OS::MutexLock;
     using namespace ORO_CoreLib;
 
 
     StateMachineProcessor::StateMachineProcessor(ORO_OS::Semaphore* work_sem)
-        : states( new StateMap() ),
-          loadmonitor( new ORO_OS::MutexRecursive() ),
+        : states( new StateMap(4) ),
           queuesem( work_sem )
     {
     }
@@ -31,30 +23,26 @@ namespace ORO_Execution
     StateMachineProcessor::~StateMachineProcessor()
     {
         // first deactivate (hard way) all state machines :
-        for( StateMap::iterator i=states->begin(); i != states->end(); ++i) {
-            i->second->deactivate();
-            i->second->deactivate();
-        }
+        states->apply( bind( &StateMachine::deactivate, _1));
+        states->apply( bind( &StateMachine::deactivate, _1));
     
         while ( !states->empty() ) {
             // try to unload all
             try {
-                Logger::log() << Logger::Info << "StateMachineProcessor unloads StateMachine "<< states->begin()->first << "..."<<Logger::endl;
-                this->unloadStateMachine( states->begin()->first );
+                Logger::log() << Logger::Info << "StateMachineProcessor unloads StateMachine "<< states->front()->getName() << "..."<<Logger::endl;
+                this->unloadStateMachine( states->front()->getName() );
             } catch (...) {}
         }
             
         delete states;
-        delete loadmonitor;
     }
 
      StateMachine::Status::StateMachineStatus StateMachineProcessor::getStateMachineStatus(const std::string& name) const
      {
-        state_iter it =
-            states->find( name );
-        if ( it == states->end() )
-            return Status::unloaded;
-        return it->second->getStatus();
+         StateMachinePtr pip = states->find_if( bind(equal_to<string>(), name, bind(&StateMachine::getName, _1)) );
+         if ( pip )
+             return pip->getStatus();
+         return Status::unloaded;
      }
 
      std::string StateMachineProcessor::getStateMachineStatusStr(const std::string& name) const
@@ -120,10 +108,9 @@ namespace ORO_Execution
     {
         // test if already present..., this cannot detect corrupt
         // trees with double names...
-        state_iter it =
-            states->find( sc->getName() );
+        StateMachinePtr pip = states->find_if( bind(equal_to<string>(), sc->getName(), bind(&StateMachine::getName, _1)) );
 
-        if ( it != states->end() ) {
+        if ( pip ) {
             std::string error(
                 "Could not register StateMachine \"" + sc->getName() +
                 "\" with the processor. A StateMachine with that name is already present." );
@@ -145,8 +132,8 @@ namespace ORO_Execution
                 this->recursiveLoadStateMachine( *it );
             }
         
-        MutexLock lock( *loadmonitor );
-        states->insert( make_pair( sc->getName(), sc));
+        states->grow();
+        states->append(sc);
         sc->setStateMachineProcessor(this);
     }
 
@@ -154,20 +141,18 @@ namespace ORO_Execution
     {
         // this does the same as deleteStateMachine, except for deleting
         // the unloaded context..
-        state_iter it =
-            states->find( name );
+        StateMachinePtr pip = states->find_if( bind(equal_to<string>(), name, bind(&StateMachine::getName, _1)) );
 
-        if ( it != states->end() )
-        {
+        if ( pip ) {
             // test if parent ...
-            if ( it->second->getParent() ) {
+            if ( pip->getParent() ) {
                 std::string error(
-                                  "Could not unload StateMachine \"" + it->second->getName() +
+                                  "Could not unload StateMachine \"" + pip->getName() +
                                   "\" with the processor. It is not a root StateMachine." );
                 throw program_unload_exception( error );
             }
-            recursiveCheckUnloadStateMachine( it->second );
-            recursiveUnloadStateMachine( it->second );
+            recursiveCheckUnloadStateMachine( pip );
+            recursiveUnloadStateMachine( pip );
             return true;
         }
         return false;
@@ -190,16 +175,15 @@ namespace ORO_Execution
              it2 != si->getChildren().end();
              ++it2)
             {
-                state_iter it =
-                    states->find( (*it2)->getName() );
-                if ( it == states->end() ) {
+                StateMachinePtr pip = states->find_if( bind(equal_to<string>(), (*it2)->getName(), bind(&StateMachine::getName, _1)) );
+                if ( !pip ) {
                     std::string error(
                               "Could not unload StateMachine \"" + si->getName() +
-                              "\" with the processor. It contains not loaded children." );
+                              "\" with the processor. It contains not loaded child "+ (*it2)->getName() );
                     throw program_unload_exception( error );
                 }
                 // all is ok, check child :
-                this->recursiveCheckUnloadStateMachine( it->second );
+                this->recursiveCheckUnloadStateMachine( pip );
             }
     }
 
@@ -212,35 +196,18 @@ namespace ORO_Execution
             }
         
         // erase this sc :
-        state_iter it2 =
-            states->find( sc->getName() );
+        StateMachinePtr pip = states->find_if( bind(equal_to<string>(), sc->getName(), bind(&StateMachine::getName, _1)) );
 
-        assert( it2 != states->end() ); // we checked that this is possible
+        assert( pip ); // we checked that this is possible
 
-        MutexLock lock( *loadmonitor );
-        states->erase(it2);
+        states->erase(pip);
+        states->shrink();
         sc->setStateMachineProcessor( 0 );
     }
 
 	bool StateMachineProcessor::deleteStateMachine(const std::string& name)
     {
-        state_iter it =
-            states->find( name );
-
-        if ( it != states->end() )
-            {
-                if ( it->second->getParent() ) {
-                    std::string error(
-                                      "Could not unload StateMachine \"" + it->second->getName() +
-                                      "\" with the processor. It is not a root StateMachine." );
-                    throw program_unload_exception( error );
-                }
-                // same pre-conditions for delete as for unload :
-                recursiveCheckUnloadStateMachine( it->second );
-                recursiveUnloadStateMachine( it->second ); // this invalidates it !
-                return true;
-            }
-        return false;
+        return this->unloadStateMachine(name);
     }
 
     bool StateMachineProcessor::initialize()
@@ -248,65 +215,49 @@ namespace ORO_Execution
         return true;
     }
 
+    static void shutdown_hard(StateMachinePtr sc)  {
+        if ( sc->isActive() == false)
+            return;
+        if ( sc->isReactive() )
+            sc->requestFinalState();
+        if ( sc->isAutomatic() )
+            sc->stop();
+        if (sc->currentState() != sc->getFinalState() )
+            sc->execute(); // try one last time
+        if (sc->currentState() != sc->getFinalState() )
+            Logger::log() << Logger::Critical << "StateMachineProcessor failed to bring StateMachine "<< sc->getName()
+                          << " into the final state. Program stalled in state '"
+                          << sc->currentState()->getName()<<"' line number "
+                          << sc->getLineNumber()<<Logger::endl; // critical failure !
+    }
+
     void StateMachineProcessor::finalize()
     {
-        // stop all programs and SCs.
-        {
-            MutexLock lock( *loadmonitor );
-            for(state_iter it = states->begin(); it != states->end(); ++it) {
-                if ( it->second->isActive() == false)
-                    continue;
-                if ( it->second->isReactive() )
-                    it->second->requestFinalState();
-                if ( it->second->isAutomatic() )
-                    it->second->stop();
-                if (it->second->currentState() != it->second->getFinalState() )
-                    it->second->execute(); // try one last time
-                if (it->second->currentState() != it->second->getFinalState() )
-                    Logger::log() << Logger::Critical << "StateMachineProcessor failed to bring StateMachine "<<it->first
-                                  << " into the final state. Program stalled in state '"
-                                  << it->second->currentState()->getName()<<"' line number "
-                                  << it->second->getLineNumber()<<Logger::endl; // critical failure !
-            }
-        }
+        // stop all SCs the 'hard' way.
+        states->apply(bind(&shutdown_hard, _1));
     }
 
 	void StateMachineProcessor::step()
     {
-        {
-            MutexLock lock( *loadmonitor );
-            // Evaluate all states->
-            for(state_iter it = states->begin(); it != states->end(); ++it)
-                it->second->execute();
-        }
+        // Evaluate all states->
+        states->apply(bind(&StateMachine::execute, _1));
     }
 
     const StateMachinePtr StateMachineProcessor::getStateMachine(const std::string& name) const
     {
-        state_iter it =
-            states->find( name );
-
-        if ( it != states->end() )
-            return it->second;
-        return StateMachinePtr();
+        return states->find_if(bind(equal_to<string>(), name, bind(&StateMachine::getName, _1)));
     }
 
     StateMachinePtr StateMachineProcessor::getStateMachine(const std::string& name)
     {
-        state_iter it =
-            states->find( name );
-
-        if ( it != states->end() )
-            return it->second;
-        return StateMachinePtr();
+        return states->find_if(bind(equal_to<string>(), name, bind(&StateMachine::getName, _1)));
     }
 
     std::vector<std::string> StateMachineProcessor::getStateMachineList() const
     {
-        std::vector<std::string> ret;
-        for ( cstate_iter i = states->begin(); i != states->end(); ++i )
-            ret.push_back( i->first );
-        return ret;
+        std::vector<string> sret;
+        states->apply( bind( &vector<string>::push_back, sret, bind( &StateMachine::getName, _1) ) );
+        return sret;
     }
 }
 

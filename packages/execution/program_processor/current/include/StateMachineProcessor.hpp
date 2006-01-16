@@ -35,14 +35,13 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "corelib/ListLockFree.hpp"
 
 #include <pkgconf/execution_program_processor.h>
 
 namespace ORO_OS
 {
     class Semaphore;
-    class Mutex;
-    class MutexRecursive;
 }
 
 namespace ORO_Execution
@@ -123,16 +122,12 @@ namespace ORO_Execution
         void recursiveUnloadStateMachine( StateMachinePtr sc );
         void recursiveCheckUnloadStateMachine( StateMachinePtr si );
 
-        typedef std::map<std::string,StateMachinePtr> StateMap;
+        typedef ORO_CoreLib::ListLockFree<StateMachinePtr> StateMap;
         StateMap*   states;
-        typedef StateMap::iterator state_iter;
-        typedef StateMap::const_iterator cstate_iter;
 
         /**
-         * Guard state list
+         * Work semaphore.
          */
-        ORO_OS::MutexRecursive* loadmonitor;
-
         ORO_OS::Semaphore* queuesem;
     };
 

@@ -30,6 +30,7 @@
 
 #include "corelib/RunnableInterface.hpp"
 #include "corelib/BufferPolicy.hpp"
+#include "corelib/ListLockFree.hpp"
 #include "ProgramExceptions.hpp"
 #include "ProgramInterface.hpp"
 
@@ -41,8 +42,6 @@
 
 namespace ORO_OS
 {
-    class Mutex;
-    class MutexRecursive;
     class Semaphore;
 }
 
@@ -143,19 +142,16 @@ namespace ORO_Execution
         ProgramInterfacePtr getProgram(const std::string& name);
 
     private:
-        typedef std::map<std::string,ProgramInterfacePtr> ProgMap;
+        typedef ORO_CoreLib::ListLockFree<ProgramInterfacePtr> ProgMap;
         ProgMap* programs;
-        typedef ProgMap::iterator program_iter;
-        typedef ProgMap::const_iterator cprogram_iter;
 
         std::vector<ProgramInterface*> funcs;
 
         ORO_CoreLib::AtomicQueue<ProgramInterface*,ORO_CoreLib::NonBlockingPolicy,ORO_CoreLib::NonBlockingPolicy>* f_queue;
 
         /**
-         * Guard load list
+         * Queue semaphore
          */
-        ORO_OS::MutexRecursive* loadmonitor;
         ORO_OS::Semaphore* f_queue_sem;
 
     };

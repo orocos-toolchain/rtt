@@ -4,11 +4,8 @@
 #include <corelib/AtomicQueue.hpp>
 #include <corelib/Logger.hpp>
 
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/construct.hpp>
-#include <boost/function.hpp>
-#include <os/MutexLock.hpp>
+#include <boost/bind.hpp>
+#include <functional>
 #include <os/Semaphore.hpp>
 #include <iostream>
 
@@ -16,14 +13,12 @@ namespace ORO_Execution
 {
     using namespace boost;
     using namespace std;
-    using ORO_OS::MutexLock;
     using namespace ORO_CoreLib;
 
     ProgramProcessor::ProgramProcessor(int f_queue_size, ORO_OS::Semaphore* work_sem)
-        : programs( new ProgMap() ),
+        : programs( new ProgMap(4) ),
           funcs( f_queue_size ),
           f_queue( new ORO_CoreLib::AtomicQueue<ProgramInterface*>(f_queue_size) ),
-          loadmonitor( new ORO_OS::MutexRecursive() ),
           f_queue_sem( work_sem )
     {
     }
@@ -31,23 +26,22 @@ namespace ORO_Execution
     ProgramProcessor::~ProgramProcessor()
     {
         while ( !programs->empty() ) {
-            Logger::log() << Logger::Info << "ProgramProcessor deletes Program "<< programs->begin()->first << "..."<<Logger::endl;
-            programs->begin()->second->stop();
-            this->unloadProgram( programs->begin()->first );
+            Logger::log() << Logger::Info << "ProgramProcessor deletes Program "<< programs->front()->getName() << "..."<<Logger::endl;
+            programs->front()->stop();
+            this->unloadProgram( programs->front()->getName() );
         }
 
         delete programs;
         delete f_queue;
-        delete loadmonitor;
     }
 
      ProgramInterface::Status::ProgramStatus ProgramProcessor::getProgramStatus(const std::string& name) const
      {
-        program_iter it =
-            programs->find( name );
-        if ( it == programs->end() )
-            return Status::unloaded;
-        return it->second->getStatus();
+         ProgramInterfacePtr pip = programs->find_if( bind(equal_to<string>(), name, bind(&ProgramInterface::getName, _1)) );
+
+         if ( pip )
+             return pip->getStatus();
+         return Status::unloaded;
      }
 
      std::string ProgramProcessor::getProgramStatusStr(const std::string& name) const
@@ -75,12 +69,11 @@ namespace ORO_Execution
 
 	bool ProgramProcessor::loadProgram(ProgramInterfacePtr pi)
     {
-        program_iter it =
-            programs->find( pi->getName() );
-        if ( it != programs->end() )
+        ProgramInterfacePtr pip = programs->find_if( boost::bind(equal_to<string>(), pi->getName(), boost::bind(&ProgramInterface::getName, _1)) );
+        if ( pip )
             return false;
-        MutexLock lock( *loadmonitor );
-        programs->insert( make_pair( pi->getName(), pi ) );
+        programs->grow();
+        programs->append( pi );
         pi->setProgramProcessor(this);
         pi->reset();
         return true;
@@ -93,23 +86,22 @@ namespace ORO_Execution
 
 	bool ProgramProcessor::unloadProgram(const std::string& name)
     {
-        program_iter it =
-            programs->find( name );
+        ProgramInterfacePtr pip = programs->find_if( bind(equal_to<string>(), name, bind(&ProgramInterface::getName, _1)) );
 
-        if ( it != programs->end() && it->second->isStopped() )
+        if ( pip && pip->isStopped() )
             {
-                MutexLock lock( *loadmonitor );
-                it->second->setProgramProcessor(0);
-                programs->erase(it);
+                pip->setProgramProcessor(0);
+                programs->erase(pip);
+                programs->shrink();
                 return true;
             }
-        if ( it == programs->end() ) {
+        if ( !pip ) {
                 std::string error(
                                   "Could not unload Program \"" + name +
                                   "\" with the processor. It does not exist." );
                 throw program_unload_exception( error );
             }
-        if ( !it->second->isStopped() ) {
+        if ( !pip->isStopped() ) {
                 std::string error(
                                   "Could not unload Program \"" + name +
                                   "\" with the processor. It is still running." );
@@ -127,22 +119,14 @@ namespace ORO_Execution
     void ProgramProcessor::finalize()
     {
         // stop all programs.
-        {
-            MutexLock lock( *loadmonitor );
-            for( program_iter it = programs->begin(); it != programs->end(); ++it)
-                it->second->stop();
-        }
+        programs->apply( boost::bind(&ProgramInterface::stop, _1));
     }
 
 	void ProgramProcessor::step()
     {
-        {
-            MutexLock lock( *loadmonitor );
 
-            //Execute all normal programs->
-            for(program_iter it=programs->begin(); it != programs->end(); ++it)
-                it->second->execute();
-        }
+        //Execute all normal programs->
+        programs->apply( boost::bind(&ProgramInterface::execute, _1 ) );
 
         // Execute any Function :
         {
@@ -199,30 +183,19 @@ namespace ORO_Execution
 
     std::vector<std::string> ProgramProcessor::getProgramList() const
     {
-        std::vector<std::string> ret;
-        for ( cprogram_iter i = programs->begin(); i != programs->end(); ++i )
-            ret.push_back( i->first );
-        return ret;
+        std::vector<string> sret;
+        programs->apply( bind( &vector<string>::push_back, sret, bind( &ProgramInterface::getName, _1) ) );
+        return sret;
     }
 
     const ProgramInterfacePtr ProgramProcessor::getProgram(const std::string& name) const
     {
-        program_iter it =
-            programs->find( name );
-
-        if ( it != programs->end() )
-            return it->second;
-        return ProgramInterfacePtr();
+        return programs->find_if(bind(equal_to<string>(), name, bind(&ProgramInterface::getName, _1)));
     }
 
     ProgramInterfacePtr ProgramProcessor::getProgram(const std::string& name)
     {
-        program_iter it =
-            programs->find( name );
-
-        if ( it != programs->end() )
-            return it->second;
-        return ProgramInterfacePtr();
+        return programs->find_if(bind(equal_to<string>(), name, bind(&ProgramInterface::getName, _1)));
     }
 }
 
