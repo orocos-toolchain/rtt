@@ -63,7 +63,7 @@ namespace ORO_KinDyn
 	  ki->eccentricitySet(0.);
 	  return ki;
 	}
-	else if (name == "kuka160"){
+	else if (name == "Kuka160"){
 	  SerialmZXXmZXmZ* ki = new SerialmZXXmZXmZ();
           ki->geometrySet( 0.900,0.970,1.080,0.,0.,0.180 );
 	  ki->offsetSet(0.);
