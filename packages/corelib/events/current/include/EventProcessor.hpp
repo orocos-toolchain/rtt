@@ -37,6 +37,7 @@
 #include <os/Semaphore.hpp>
 #include <vector>
 #include "DataObjectInterfaces.hpp"
+#include "ListLockFree.hpp"
 #include "boost/tuple/tuple.hpp"
 
 namespace ORO_CoreLib
@@ -451,9 +452,8 @@ namespace ORO_CoreLib
          * The EC is released when the connection it is used in is
          * deleted *and* it is removed from this vector.
          */
-        typedef std::vector<detail::EventCatcher*> List;
+        typedef ListLockFree<detail::EventCatcher*> List;
         List catchers;
-        mutable ORO_OS::MutexRecursive m;
         boost::shared_ptr<ORO_OS::Semaphore> sem;
         bool active;
         /**
@@ -527,10 +527,8 @@ namespace ORO_CoreLib
                 }
                 break;
             }
-            {
-                ORO_OS::MutexLock lock(m);
-                catchers.push_back( eci.get() );
-            }
+            catchers.grow();
+            catchers.append( eci.get() );
             eci->enabled = this->active;
             eci->mep = this;
             return h;

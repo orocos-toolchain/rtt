@@ -51,62 +51,59 @@ namespace ORO_CoreLib
 
     }
 
+    using namespace detail;
+
     EventProcessor::EventProcessor(boost::shared_ptr<ORO_OS::Semaphore> s)
-        : sem(s), active(false)
+        : catchers(4), sem(s), active(false)
     {
-        // TODO define MAX_ASYN_EVENTS
-        catchers.reserve(128);
     }
 
-    EventProcessor::EventProcessor() : sem( boost::shared_ptr<ORO_OS::Semaphore>() )
+    EventProcessor::EventProcessor()
+        : catchers(4),
+          sem( boost::shared_ptr<ORO_OS::Semaphore>() )
     {
-        // TODO define MAX_ASYN_EVENTS
-        catchers.reserve(128);
+    }
+
+    static void clearEP(EventCatcher* ec) {
+        ec->mep = 0;
     }
 
     EventProcessor::~EventProcessor() {
-        ORO_OS::MutexLock lock(m);
-        for( List::iterator it = catchers.begin(); it != catchers.end(); ++it)
-            if (*it)
-                (*it)->mep = 0; // clear us out
+        // clear us out from catchers such that they do not try
+        // to call destroyed() lateron.
+        catchers.apply( boost::bind(&clearEP,_1) );
         catchers.clear();
     }
 
     void EventProcessor::destroyed( detail::EventCatcher* eci )
     {
-        ORO_OS::MutexLock lock(m);
-        
-        List::iterator it = std::find(catchers.begin(), catchers.end(), eci );
-        if ( it != catchers.end() ) {
-            *it = 0;
-        }
+        catchers.erase( eci );
+        catchers.shrink();
+    }
+
+    static void enableAll( EventCatcher* eci ) {
+        eci->enabled = true;
+    }
+
+    static void disableAll( EventCatcher* eci ) {
+        eci->enabled = false;
     }
 
     bool EventProcessor::initialize() {
         active = true;
-        ORO_OS::MutexLock lock(m);
-        for( List::iterator it = catchers.begin(); it != catchers.end(); ++it)
-            if (*it)
-                (*it)->enabled = true;
+        catchers.apply( boost::bind(&enableAll, _1 ) );
         return true;
     }
 
     void EventProcessor::step() {
         if ( catchers.empty() )
             return;
-        ORO_OS::MutexLock lock(m);
-        for( List::iterator it = catchers.begin(); it != catchers.end(); ++it) {
-            if (*it)
-                (*it)->complete();
-        }
+        catchers.apply( boost::bind(&EventCatcher::complete, _1 ) );
     }
 
     void EventProcessor::finalize() {
         active = false;
-        ORO_OS::MutexLock lock(m);
-        for( List::iterator it = catchers.begin(); it != catchers.end(); ++it)
-            if (*it)
-                (*it)->enabled = false;
+        catchers.apply( boost::bind(&disableAll, _1 ) );
     }
 
     BlockingEventProcessor::BlockingEventProcessor(boost::shared_ptr<ORO_OS::Semaphore> s )
@@ -147,12 +144,11 @@ namespace ORO_CoreLib
         return true;
     }
 
+    static void setSem(boost::shared_ptr<ORO_OS::Semaphore> s, EventCatcher* eci) {
+        eci->sem = s.get();
+    }
+
     void BlockingEventProcessor::setSemaphore( boost::shared_ptr<ORO_OS::Semaphore> s) {
-        ORO_OS::MutexLock lock(m);
-        sem = s;
-        for( List::iterator it = catchers.begin(); it != catchers.end(); ++it) {
-            (*it)->sem = s.get();
-        }
-            
+        catchers.apply( boost::bind(&setSem, s, _1 ) );
     }
 }
