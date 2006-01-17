@@ -201,8 +201,9 @@
 	<para>
 	  The tools you will need are <command>ecosconfig</command>
 	  and <command>configtool</command>. In Debian, you can use
-	  the official Debian version using <screen>  apt-get install
-	  ecosconfig</screen> If this does not work for you, you can
+	  the official Debian version using
+	  <screen>  apt-get install ecosconfig</screen>
+	  If this does not work for you, you can
 	  try the ready-to-use tools in Orocos' tools/bin
 	  subdirectory. The build system will try to locate the tools
 	  in that directory and use them if present.

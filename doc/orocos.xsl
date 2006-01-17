@@ -37,7 +37,7 @@
   <xsl:attribute name="wrap-option">wrap</xsl:attribute>
   <xsl:attribute name="hyphenation-character">&#x21BA;</xsl:attribute>
 </xsl:attribute-set>
-  <xsl:param name="hyphenate.verbatim" select="1"></xsl:param>
+  <xsl:param name="hyphenate.verbatim" select="0"></xsl:param>
   <xsl:param name="monospace.font.family" select="'monospace'"/>
 
 

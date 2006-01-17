@@ -2,7 +2,7 @@ SUBDIRS = .
 
 XMLDOCS=orocos-overview.xml orocos-installation.xml
 # the faq only renders correctly in html, the changes is only for online viewing.
-EXTRAHTMLDOCS=orocos-faq.html orocos-changes.html
+EXTRAHTMLDOCS=orocos-faq.html orocos-changes.html orocos-html.css
 
 EXTRAXMLDOCS= $(shell find $(ECOS_REP) -name "orocos-*.xml" ) $(shell find $(DOC_DIR) -name "orocos-*.xml")
 CLEANXMLDOCS= $(notdir $(EXTRAXMLDOCS))
@@ -39,6 +39,7 @@ EXTRA_DIST = \
 	docrules.mak \
 	orocos.xsl \
 	orocos-html.xsl \
+	orocos-html.css \
 	catalog.xml.in \
 	orocos.ent \
 	docrules.mak \

@@ -26,7 +26,7 @@
   <xsl:param name="admon.graphics.path" select="'images/'"/>
   <xsl:param name="admon.graphics.extension" select="'.png'"/>
 
-  <xsl:param name="shade.verbatim" select="1"></xsl:param>
+  <xsl:param name="html.stylesheet" select="'orocos-html.css'"></xsl:param>
 
 <!-- use this to select the extension for html output across all files. -->
   <xsl:param name="graphic.default.extension" select="'png'"></xsl:param>

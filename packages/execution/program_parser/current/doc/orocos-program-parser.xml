@@ -624,7 +624,7 @@
 </programlisting>
       <para>
 	The loader will load all programs and functions into tc. Next
-	we start the task's processor and finally, the program
+	we start the task's execution engine and finally, the program
 	"progname" is started. Programs can also be started from
 	within other scripts.
       </para>
@@ -645,7 +645,7 @@
 	condition evaluates to true, the program immediately executes
 	the next target node and so on. When no condition evaluates to
 	true, the program 'waits', meaning that it postpones execution
-	to the next periodic execution step of the Processor. This
+	to the next periodic execution step of the Program Processor. This
 	happens typically when the statement was a Task Command. Task Methods
 	and expressions on the other hand typically do not impose a
 	wait, and thus are executed immediately after each other.
@@ -708,7 +708,7 @@
   }  	  </programlisting>
   	  It calls the command "action", on the task "comp", with
   	  the comma-separated list of expressions args as the
-  	  arguments.  The Processor executes the command once, and
+  	  arguments.  The Program Processor executes the command once, and
   	  then checks where to go next using the "completion clauses"
 	  in the until part.  If none are true, then it waits another
 	  tick, and checks them again..
@@ -995,7 +995,7 @@
       <sect3>
 	<title>Starting and Stopping Programs from scripts</title>
 	<para>
-	  Once a program is parsed and loaded into the Processor,
+	  Once a program is parsed and loaded into the Program Processor,
 	  it can be manipulated from another script. This can be
 	  done through the programs subtask of the TaskContext
 	  in which the program was loaded. Assume that you loaded
@@ -1181,7 +1181,7 @@
   tc.engine()->states()->getStateMachine("MachineInstanceName")->start();</programlisting>
       <para>
 	The loader loads all instantiated state machines in tc.
-	Next we start the task's Processor.
+	Next we start the task's Execution Engine.
 	StateMachines have a more complex lifetime than
 	Programs. They need first to be activated, upon which they
 	enter a fixed initial state. When they are started, 
@@ -1431,7 +1431,7 @@
   RootMachine SomeStateMachine someSMinstance </programlisting>
 	    This makes an instantiation of the StateMachine type
 	    SomeStateMachine by the name of 'someSMinstance', which can then
-	    be accessed from other scripts (by that name) or via the Processor.
+	    be accessed from other scripts (by that name).
 	  </para>
 	</sect3>
 	<sect3>
@@ -1530,8 +1530,7 @@
 	    another StateMachine ( which we'll call the parent
 	    StateMachine ).  The parent StateMachine is owner of its
 	    child, and can decide when it needs to be started and
-	    stopped, by calling the processor's startStateMachine and
-	    stopStateMachine methods.
+	    stopped, by invoking the respective methods on its child.
 	  </para>
 	  <sect4>
 	    <title>Instantiating SubMachines</title>
@@ -1670,7 +1669,7 @@
     <sect2>
       <title>Starting and Stopping StateMachines from scripts</title>
       <para>
-	Once a state context is parsed and loaded into the Processor,
+	Once a state context is parsed and loaded into the State Machine Processor,
 	it can be manipulated from another script. This can be
 	done through the "states" subtask of the TaskContext
 	in which the state context was loaded. Assume that you loaded

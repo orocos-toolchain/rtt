@@ -650,6 +650,25 @@ cd                  quit
 	namespace ( here &quot;objname&quot; ), which can be served
 	by different classes ( and thus factories ). 
       </para>
+    <figure id="fig-task-factories">
+      <title>
+	  Template Factories and Classes UML Diagram
+      </title>
+      <mediaobject>
+	<imageobject>
+	  <imagedata fileref="TaskFactories" />
+	</imageobject>
+	<caption>
+	  <para> This diagram demonstrates how TemplateFactories
+	      can be flexibly applied to your class design. They
+	      can represent a single object in the TaskContext
+	      interface, while it is implemented in different classes	
+      ( here : <classname>ClassX</classname> and <classname>YourTask</classname> ).
+	      The "this" object stores the task's members.
+	  </para>
+	</caption>
+      </mediaobject>
+    </figure>
       <sect3>
 	<title>Invoking Methods in C++</title>
 	<para>
@@ -730,25 +749,7 @@ cd                  quit
 	  you may add pure virtual methods to the factory.
 	</emphasis>
       </para>
-    <figure id="fig-task-factories">
-      <title>
-	  Template Factories and Classes UML Diagram
-      </title>
-      <mediaobject>
-	<imageobject>
-	  <imagedata fileref="TaskFactories" />
-	</imageobject>
-	<caption>
-	  <para> This diagram demonstrates how TemplateFactories
-	      can be flexibly applied to your class design. They
-	      can represent a single object in the TaskContext
-	      interface, while it is implemented in different classes
-	      ( here : <classname>ClassX</classname> and <classname>YourTask</classname> ).
-	      The "this" object stores the task's members.
-	  </para>
-	</caption>
-      </mediaobject>
-    </figure>
+      </sect3>
   </sect2>
   <sect2 id="method-args-types">
       <title>Method Argument and Return Types</title>
@@ -819,7 +820,7 @@ cd                  quit
       <para>
 	<programlisting>
   a_task.attributes()->addAttribute( "aflag", bool(false) );
-  a_task.attributes()->.addAttribute( "max",   int(5) );
+  a_task.attributes()->addAttribute( "max",   int(5) );
       
   Property&lt;std::string&gt; param("Param","Param Description","Value");
   a_task.attributes()->addProperty( &amp;param );
@@ -1175,7 +1176,7 @@ cd                  quit
   Handle h3 
     = a_task.events()->setupAsynConnection("move",
                                            boost::bind(&amp;callback, &amp;r),
-                                           b_task.getEventProcessor() )
+                                           b_task.engine()->events() )
                  .arg(a1).arg(a2).arg(a3).handle();
     
   h3.connect(); // connect asynchronously to event "move"
@@ -1382,18 +1383,17 @@ cd                  quit
   <sect1 id="run-tasks">
     <title>Running Tasks</title>
     <para>
-      When a TaskContext is running, it receives its commands from its Processor.
-      The Processor will check periodically for new commands
-      in it's queue
-      and execute programs which are running in the task.
-      Thus to start the task, one needs to start the Processor.
-      As long as it is not started, it will accept no commands
-      and run no programs.
+      When a TaskContext is running, it receives its commands from its
+      Execution Engine.  The Execution Engine will check periodically
+      for new commands in it's queue and execute programs which are
+      running in the task.  Thus to start the task, one needs to start
+      the Execution Engine.  As long as it is not started, it will accept no
+      commands and run no programs.
     </para>
     <sect2>
       <title>Starting Periodic Task Execution</title>
       <para>
-	To run a Processor, you need to use one of the Periodic
+	To run an Execution Engine, you need to use one of the Periodic
 	Task classes from the CoreLib. ( See the &coreman;
 	for more documentation. ) Continued from
 	<xref linkend="basic-task"/> :</para>
@@ -1403,14 +1403,15 @@ cd                  quit
 
   using namespace ORO_CoreLib;
 
-  // ... start the processor of a_task :
-  TaskNonPreemptible periodicTask(0.001, &amp;a_processor);
+  TaskContext* a_task = ... 
+  // ... start the execution engine of a_task :
+  TaskNonPreemptible periodicTask(0.001, a_task->engine() );
   periodicTask.start(); </programlisting></para>
       <para>
-	Which will start the processor of ATask with a timer frequency
+	Which will start the Execution Engine of ATask with a timer frequency
 	of 1kHz. This is the frequency at which state machines are
 	evaluated, program steps taken and commands are accepted
-	and executed. When the processor is stopped again, all programs
+	and executed. When the periodic task is stopped again, all programs
 	are stopped, state machines are brought into the final state and
 	no more commands are accepted.
       </para>
@@ -1425,7 +1426,7 @@ cd                  quit
       </para>
       <programlisting>  #include &lt;execution/PropertyLoader.hpp&gt;
   // ...
-  TaskContext a_task = ...
+  TaskContext* a_task = ...
   PropertyLoader ploader;
   ploader.configure("PropertyFile.cpf", a_task );
   // ...
@@ -1452,7 +1453,7 @@ cd                  quit
 	be grouped into Orocos Program Scripts (ops), which allow
 	programs to be loaded at runtime into a task. The
 	program script is parsed to a command object tree,
-	which can then be executed by the Processor of a task.
+	which can then be executed by the Execution Engine of a task.
       </para>
       <sect3 id="task-context-functions">
 	<title>Functions</title>
@@ -1477,14 +1478,14 @@ cd                  quit
 	  <programlisting>  do ATask.myFun( 1, 2. )</programlisting>
 	  If you omit the export keyword, then the function will not
 	  become available as a command. To use such a function, you need to 
-	  execute it in the Processor ( see below ), or call it in a program,
+	  execute it in the Execution Engine's Program Processor ( see below ), or call it in a program,
 	  which was parsed in the same file (see <xref linkend="task-context-programs" /> ).
 	</para>
 	<para>
 	  Functions must be parsed by the <classname>Parser</classname>,
-	  before they can be executed by the Processor. The Processor
+	  before they can be executed by the Execution Engine. It
 	  executes the Function until it finishes or it goes into error.
-	  In both cases, the Function is removed from the Processor's queue
+	  In both cases, the Function is removed from the queue
 	  and can then safely be deleted (or re-run).</para>
 	<note>
 	  <para>
@@ -1518,12 +1519,10 @@ cd                  quit
 	<title>Programs</title>
 	<para>
 	  Programs are special functions in that they
-	  can be finely controlled by (and are owned by)
-	  the Processor.
+	  can be finely controlled once loaded in
+	  the Program Processor.
 	  A program can be paused, it's variables inspected
 	  and reset while it is loaded in the Processor.
-	  Also, the Processor will delete the program upon
-	  request.
 	  A program script calling the previous function
 	  would look like :</para>
 	<para>
@@ -1574,7 +1573,7 @@ cd                  quit
   var double oldj = programs.foo.j
 	</screen>
 	<para>
-	  Take a look at the &procman; and the Processor
+	  Take a look at the &procman; and the ProgramInterface
 	  class reference for more program related functions.
 	</para>
       </sect3>
@@ -1613,7 +1612,8 @@ cd                  quit
   do states.machine.stop()
   do states.machine.deactivate()
   do states.machine.reset()
-  do states.machine.requestMode()
+  do states.machine.reactive()
+  do states.machine.automatic() // identical to start()
   do states.machine.requestState("StateName")
   ...
 	</screen>
@@ -1623,7 +1623,7 @@ cd                  quit
   set programs.machine.myParam = ...
 	</screen>
 	<para>
-	  Again, take a look at the &procman; and the Processor
+	  Again, take a look at the &procman; and the StateMachine
 	  class reference for more details about state context related functions.
 	</para>
       </sect3>
@@ -1660,7 +1660,7 @@ cd                  quit
 	  data(0)
      {
          // add same event to task's eventService (used for scripting).
-         this->eventService->addEvent( "theEvent", myEvent );
+         this->events()->addEvent( "theEvent", myEvent );
      }
 
      // ...
@@ -1686,7 +1686,7 @@ cd                  quit
   public:
      MyOtherTask()
 	: TaskContext("myOtherTask"),
-          ptask( 0.01, this->getProcessor() ),
+          ptask( 0.01, this->engine() ),
 	  inputdata(0)
      {
      }
@@ -2214,7 +2214,7 @@ cd                  quit
 
   // Execute the command (real-time):
   if ( peer->executeCommand( comcon.first ) ==  false ) {
-       // Processor does not accept commands !
+       // task does not accept commands !
   }
 
   // wait until done :
@@ -2230,8 +2230,8 @@ cd                  quit
 	contains a pointer to the ConditionInterface ( the Completion
 	Condition ).
 	<methodname>executeCommand</methodname> passes
-	the command to the task's processor and returns true if
-	accepted by the processor.
+	the command to the task's command processor and returns true if
+	accepted by the command processor.
 	The alternative is <methodname>queueCommand</methodname> :
       </para>
       <para>
@@ -2241,7 +2241,7 @@ cd                  quit
   if ( qnb == 0 ) {
 	// Error, not accepted !
   }
-  while ( !peer->getProcessor()->isProcessed( qnb ) )
+  while ( !peer->engine()->commands()->isProcessed( qnb ) )
         sleep(1); // wait until the command is processed
 
   while ( comcon.second->evaluate() == false )
