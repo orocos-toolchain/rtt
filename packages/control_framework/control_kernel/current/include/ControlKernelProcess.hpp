@@ -69,11 +69,11 @@ namespace ORO_ControlKernel
               startupEffector("Effector", "", "DefaultEffector"),
               startupComponents("StartupComponents","The Components to be Selected when the kernel is started")
         {
-            startupComponents.add( &startupSensor );
-            startupComponents.add( &startupEstimator );
-            startupComponents.add( &startupGenerator );
-            startupComponents.add( &startupController );
-            startupComponents.add( &startupEffector );
+            startupComponents.value().add( &startupSensor );
+            startupComponents.value().add( &startupEstimator );
+            startupComponents.value().add( &startupGenerator );
+            startupComponents.value().add( &startupController );
+            startupComponents.value().add( &startupEffector );
         }
 
         /**
