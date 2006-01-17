@@ -103,6 +103,16 @@ and rerun the bootstrap.sh script
 
 m4_define([DETECT_COMEDIPKG],
 [
+AC_CHECK_HEADERS([ comedilib.h ],
+[
+PACKAGES="support/comedi/current/comedi.cdl $PACKAGES"
+COMEDI_DIR="."
+],
+[
+
+#
+# THIS part only done if comedilib.h is not in default include path !
+
 AC_MSG_CHECKING(for Comedi dir)
 AC_ARG_WITH(comedi, [ AC_HELP_STRING([--with-comedi=/usr/src/comedi/include],[Specify location of comedilib.h ]) ],
 	            [ if test x"$withval" != xyes; then COMEDI_DIR="$withval";fi],[ COMEDI_DIR="/usr/src/comedi/include" ])
@@ -126,8 +136,10 @@ else
    #Comedi will be unavailable.])
   fi
 fi
+])
 AC_SUBST(COMEDI_DIR)
 ])
+
 
 m4_define([DETECT_CORBAPKG],
 [
