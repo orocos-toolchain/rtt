@@ -31,14 +31,12 @@
 
 namespace ORO_Execution
 {
-	using ORO_CoreLib::CommandInterface;
-	
     /**
      * @brief Based on the software pattern 'composite', this
      * class allows composing command objects into one command object
      */
     class CommandComposite
-        : public CommandInterface
+        : public ORO_CoreLib::CommandInterface
     {
         public:
         CommandComposite() {}
@@ -51,6 +49,7 @@ namespace ORO_Execution
          * Copy-Construct a clone() of all commands
          */
         CommandComposite( const CommandComposite& orig )
+            : ORO_CoreLib::CommandInterface()
         {
             for (std::vector<CommandInterface*>::const_iterator it=orig.vect.begin();it!=orig.vect.end();it++)
                 this->add( (*it)->clone() );

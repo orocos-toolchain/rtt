@@ -33,15 +33,13 @@
 
 namespace ORO_DeviceDriver
 {
-    using namespace ORO_DeviceInterface;
-
     /**
      * A test class which replaces a real device driver.
      * It reproduces on the output what it gets on the input.
      */
     struct FakeAnalogDevice :
-        public AnalogInInterface<unsigned int>,
-        public AnalogOutInterface<unsigned int>
+        public ORO_DeviceInterface::AnalogInInterface<unsigned int>,
+        public ORO_DeviceInterface::AnalogOutInterface<unsigned int>
     {
         unsigned int nbofchans;
         unsigned int* mchannels;
@@ -49,8 +47,8 @@ namespace ORO_DeviceDriver
         double mlowest, mhighest;
 
         FakeAnalogDevice(unsigned int channels=32, unsigned int bin_range=4096, double lowest = -5.0, double highest = +5.0)
-            : AnalogInInterface<unsigned int>("FakeAnalogDevice"),
-              AnalogOutInterface<unsigned int>("FakeAnalogDevice"),
+            : ORO_DeviceInterface::AnalogInInterface<unsigned int>("FakeAnalogDevice"),
+              ORO_DeviceInterface::AnalogOutInterface<unsigned int>("FakeAnalogDevice"),
               nbofchans(channels),
               mchannels( new unsigned int[channels] ),
               mbin_range( bin_range),
@@ -62,11 +60,11 @@ namespace ORO_DeviceDriver
             delete[] mchannels;
         }
 
-        virtual void rangeSet(unsigned int chan, 
-                              unsigned int range) {}
+        virtual void rangeSet(unsigned int /*chan*/, 
+                              unsigned int /*range*/) {}
 
-        virtual void arefSet(unsigned int chan, 
-                             unsigned int aref) {}
+        virtual void arefSet(unsigned int /*chan*/, 
+                             unsigned int /*aref*/) {}
 
         virtual unsigned int nbOfChannels() const {
             return nbofchans;
@@ -98,17 +96,17 @@ namespace ORO_DeviceDriver
             return mbin_range;
         }
 
-        virtual double lowest(unsigned int chan) const
+        virtual double lowest(unsigned int /*chan*/) const
         {
             return mlowest;
         }
 
-        virtual double highest(unsigned int chan) const
+        virtual double highest(unsigned int /*chan*/) const
         {
             return mhighest;
         }
 
-        virtual double resolution(unsigned int chan) const
+        virtual double resolution(unsigned int /*chan*/) const
         {
             return mbin_range/(mhighest-mlowest);
         }

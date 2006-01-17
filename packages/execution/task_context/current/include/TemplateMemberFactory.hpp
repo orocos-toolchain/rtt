@@ -75,7 +75,7 @@ namespace ORO_Execution
         {
             return new FunctorDataSource0( gen );
         }
-      virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )
+        virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& /*alreadyCloned*/ )
         {
           return new FunctorDataSource0<FunctorT>( gen );
         }

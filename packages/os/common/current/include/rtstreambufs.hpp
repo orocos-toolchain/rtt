@@ -150,7 +150,7 @@ namespace rt_std
                 return EOF;
             }
             
-            virtual streamsize sgetn( char* s, streamsize n )
+        virtual streamsize sgetn( char* /*s*/, streamsize /*n*/ )
             {
                 return 0;
             }

@@ -173,7 +173,7 @@ extern "C"
 
     typedef pthread_mutex_t rt_mutex_t;
 
-    static inline int rtos_mutex_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)
+    static inline int rtos_mutex_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr  __attribute__((unused)))
     {
         return pthread_mutex_init(m, 0 );
     }
@@ -183,7 +183,7 @@ extern "C"
         return pthread_mutex_destroy(m);
     }
 
-    static inline int rtos_mutex_rec_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)
+    static inline int rtos_mutex_rec_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr  __attribute__((unused)))
     {
         pthread_mutexattr_t ma_t;
         pthread_mutexattr_init(&ma_t);
@@ -235,7 +235,7 @@ extern "C"
 
 #define rtos_printf printf
 
-    inline void rtos_enable_fpu( pthread_attr_t * pt )
+    inline void rtos_enable_fpu( pthread_attr_t * pt __attribute__((unused)) )
     {}
 
     // RT FIFO emulated by a socket

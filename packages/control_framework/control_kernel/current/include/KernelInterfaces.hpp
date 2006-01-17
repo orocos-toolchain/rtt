@@ -183,7 +183,7 @@ namespace ORO_ControlKernel
             /**
              * @brief Export the properties with configuration data.
              */
-            virtual bool exportProperties( ORO_Execution::AttributeRepository& bag ) { return true; };
+            virtual bool exportProperties( ORO_Execution::AttributeRepository& /*bag*/ ) { return true; };
         
             virtual ORO_Execution::CommandFactoryInterface* createCommandFactory() { return 0; }
 
@@ -522,7 +522,7 @@ namespace ORO_ControlKernel
          * code just before or after the componentLoaded/componentUnloaded
          * method is called on a component.
          */
-        virtual void preLoad(ComponentBaseInterface* comp) {}
+        virtual void preLoad(ComponentBaseInterface* /*comp*/) {}
 
         /**
          * To be overridden in the Kernel implementations.
@@ -530,7 +530,7 @@ namespace ORO_ControlKernel
          * code just before or after the componentLoaded/componentUnloaded
          * method is called on a component.
          */
-        virtual void postLoad(ComponentBaseInterface* comp) {}
+        virtual void postLoad(ComponentBaseInterface* /*comp*/) {}
 
         /**
          * To be overridden in the Kernel implementations.
@@ -538,7 +538,7 @@ namespace ORO_ControlKernel
          * code just before or after the componentLoaded/componentUnloaded
          * method is called on a component.
          */
-        virtual void preUnload(ComponentBaseInterface* comp) {}
+        virtual void preUnload(ComponentBaseInterface* /*comp*/) {}
 
         /**
          * To be overridden in the Kernel implementations.
@@ -546,7 +546,7 @@ namespace ORO_ControlKernel
          * code just before or after the componentLoaded/componentUnloaded
          * method is called on a component.
          */
-        virtual void postUnload(ComponentBaseInterface* comp) {}
+        virtual void postUnload(ComponentBaseInterface* /*comp*/) {}
 
         /**
          * @brief Used to switch two components, unselecting the old

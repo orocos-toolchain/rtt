@@ -1,6 +1,8 @@
 #ifndef ORO_KINDYN_KINEMATICS_JOINT_CONVERTER_HPP
 #define ORO_KINDYN_KINEMATICS_JOINT_CONVERTER_HPP
 
+#include "KinematicsInterface.hpp"
+
 namespace ORO_KinDyn
 {
     /**

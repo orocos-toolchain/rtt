@@ -12,11 +12,11 @@ namespace ORO_CoreLib
     struct NonBlockingPolicy
     {
         NonBlockingPolicy(unsigned int ) {}
-        void push(int i = 1 ) {
+        void push(int /*i*/ = 1 ) {
         }
-        void pop(int i = 1 ) {
+        void pop(int /*i*/ = 1 ) {
         }
-        void reset( int i ) {
+        void reset( int /*i*/ ) {
         }
     };
 

@@ -5,7 +5,9 @@
 #include "DataSource.hpp"
 #include <corelib/Handle.hpp>
 
-class ORO_CoreLib::EventProcessor;
+namespace ORO_CoreLib {
+    class EventProcessor;
+}
 
 namespace ORO_Execution
 {

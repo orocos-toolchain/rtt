@@ -1,6 +1,9 @@
 #ifndef ORO_COMMAND_DATASOURCE_HPP
 #define ORO_COMMAND_DATASOURCE_HPP
 
+#include "DataSource.hpp"
+#include "CommandInterface.hpp"
+
 namespace ORO_CoreLib
 {
     /**

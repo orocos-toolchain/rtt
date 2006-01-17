@@ -379,7 +379,7 @@ namespace ORO_ControlKernel
                 front_end = _data;
             }
 
-            virtual void disconnect( const DataObjectType* _data )
+            virtual void disconnect( const DataObjectType* /*_data*/ )
             {
                 front_end = 0;
             }
@@ -489,7 +489,7 @@ namespace ORO_ControlKernel
                 front_end = _data;
             }
 
-            virtual void disconnect( DataObjectType* _data )
+            virtual void disconnect( DataObjectType* /*_data*/ )
             {
                 front_end = 0;
             }
