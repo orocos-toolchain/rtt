@@ -90,9 +90,9 @@ namespace ORO_CoreLib
             virtual void reportGet(Property<PropertyBag>& report)
             {
                 if (copy)
-                    this->value().add( &bagCopy );
+                    report.value().add( &bagCopy );
                 else
-                    this->value().add( this );
+                    report.value().add( this );
             }
 
             virtual Property<PropertyBag>& reportGet()
