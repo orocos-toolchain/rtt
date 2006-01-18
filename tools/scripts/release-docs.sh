@@ -88,16 +88,20 @@ else
  cd orocos-$VERSION || exit 1
 fi; # press d
 
+if test x$SSH_USER = x; then
+ SSH_USER=psoetens
+fi;
+
 # Docs :
 # Save in version subdir as tar, save latest in doc dir. (saves space).
 cd packages
 if test x$DEV != xyes ; then 
-ssh srv04 "mkdir -p pub_html/orocos/packages/$VERSION/doc"
-ssh srv04 "mkdir -p pub_html/orocos/doc/"
-scp orocos-docs.tar srv04:pub_html/orocos/packages/$VERSION/doc || exit 1
-scp ../build/doc/orocos-manual.tgz srv04:pub_html/orocos/packages/$VERSION/doc/orocos-manual.tgz || exit 1
-scp ../build/orocos-api.tar.bz2 srv04:pub_html/orocos/ || exit 1
-ssh srv04 "cd pub_html/orocos/doc && 
+ssh $SSH_USER@srv04 "mkdir -p pub_html/orocos/packages/$VERSION/doc"
+ssh $SSH_USER@srv04 "mkdir -p pub_html/orocos/doc/"
+scp orocos-docs.tar $SSH_USER@srv04:pub_html/orocos/packages/$VERSION/doc || exit 1
+scp ../build/doc/orocos-manual.tgz $SSH_USER@srv04:pub_html/orocos/packages/$VERSION/doc/orocos-manual.tgz || exit 1
+scp ../build/orocos-api.tar.bz2 $SSH_USER@srv04:pub_html/orocos/ || exit 1
+ssh $SSH_USER@srv04 "cd pub_html/orocos/doc && 
 tar -xf ../packages/$VERSION/doc/orocos-docs.tar && 
 cp ../packages/$VERSION/doc/*.tgz .
 for i in \$(ls *.tgz); do tar -xzf \$i; rm -f \$i; done;
@@ -108,24 +112,28 @@ tar -xjf orocos-api.tar.bz2
 mv orocos-api.tar.bz2 doc/
  " || exit 1
 #copy the images
-scp -r ../doc/images srv04:pub_html/orocos/doc/
+scp -r ../doc/images $SSH_USER@srv04:pub_html/orocos/doc/
+#copy CSS
+scp -r ../doc/*.css $SSH_USER@srv04:pub_html/orocos/doc/
 cd ..
-scp NEWS srv04:pub_html/orocos/packages/$VERSION/NEWS.txt
+scp NEWS $SSH_USER@srv04:pub_html/orocos/packages/$VERSION/NEWS.txt
 else # dev :
-ssh srv04 "mkdir -p pub_html/orocos/doc/latest"
-scp orocos-docs.tar srv04:pub_html/orocos/doc/latest || exit 1
-scp ../build/doc/orocos-manual.tgz srv04:pub_html/orocos/doc/latest/orocos-manual.tgz || exit 1
-scp ../build/orocos-api.tar.bz2 srv04:pub_html/orocos/doc/latest || exit 1
-ssh srv04 "cd pub_html/orocos/doc/latest
+ssh $SSH_USER@srv04 "mkdir -p pub_html/orocos/doc/latest"
+scp orocos-docs.tar $SSH_USER@srv04:pub_html/orocos/doc/latest || exit 1
+scp ../build/doc/orocos-manual.tgz $SSH_USER@srv04:pub_html/orocos/doc/latest/orocos-manual.tgz || exit 1
+scp ../build/orocos-api.tar.bz2 $SSH_USER@srv04:pub_html/orocos/doc/latest || exit 1
+ssh $SSH_USER@srv04 "cd pub_html/orocos/doc/latest
 tar -xf orocos-docs.tar && for i in \$(ls *.tgz); do tar -xzf \$i; rm -f \$i; done;
 rm -rf api && tar -xjf orocos-api.tar.bz2 && mv doc/api api && rmdir doc
  " || exit 1
 #copy the images
-scp -r ../doc/images srv04:pub_html/orocos/doc/latest
+scp -r ../doc/images $SSH_USER@srv04:pub_html/orocos/doc/latest
+#copy CSS
+scp -r ../doc/*.css $SSH_USER@srv04:pub_html/orocos/doc/
 cd ..
 fi
 
 # copy latest news to packages directory :
-scp NEWS srv04:pub_html/orocos/packages/NEWS.txt
+scp NEWS $SSH_USER@srv04:pub_html/orocos/packages/NEWS.txt
 
 
