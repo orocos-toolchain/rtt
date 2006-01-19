@@ -103,17 +103,17 @@ namespace ORO_KinDyn
         mp_base.M( 2, 0 ) = c4 * c5 * s6 + s4 * c6;
         mp_base.M( 0, 0 ) = -s1c23 * mp_base.M( 2, 0 ) - c1 * mp_base.M( 1, 0 ) + s1s23 * s5s6;//OK
         mp_base.M( 1, 0 ) = c1c23 * mp_base.M( 2, 0 ) - s1 * mp_base.M( 1, 0 ) - c1s23 * s5s6;//OK
-	mp_base.M( 2, 0 ) = s23 * mp_base.M( 2, 0 ) + c23 * s5s6;//OK
+	mp_base.M( 2, 0 ) = -s23 * mp_base.M( 2, 0 ) - c23 * s5s6;//OK
 
         mp_base.M( 1, 1 ) = s4 * c5 * c6 + c4 * s6;
         mp_base.M( 2, 1 ) = c4 * c5 * c6 - s4 * s6;
         mp_base.M( 0, 1 ) = -s1c23 * mp_base.M( 2, 1 ) - c1 * mp_base.M( 1, 1 ) + s1s23 * s5c6;//OK
         mp_base.M( 1, 1 ) = c1c23 * mp_base.M( 2, 1 ) - s1 * mp_base.M( 1, 1 ) - c1s23 * s5c6;//OK
-        mp_base.M( 2, 1 ) = s23 * mp_base.M( 2, 1 ) + c23 * s5c6;//OK
+        mp_base.M( 2, 1 ) = - s23 * mp_base.M( 2, 1 ) - c23 * s5c6;//OK
 
 
-        mp_base.M( 0, 2 ) = s1c23 * c4s5 + c1 * s4s5 + s1s23 * c5;//OK
-        mp_base.M( 1, 2 ) = -c1c23 * c4s5 + s1 * s4s5 - c1s23 * c5;//OK
+        mp_base.M( 0, 2 ) = - s1c23 * c4s5 - c1 * s4s5 - s1s23 * c5;//OK
+        mp_base.M( 1, 2 ) = c1c23 * c4s5 - s1 * s4s5 + c1s23 * c5;//OK
         mp_base.M( 2, 2 ) = - s23 * c4s5 + c23 * c5;//OK
 
         /* vertical distance of wrist from shoulder: */
@@ -127,8 +127,8 @@ namespace ORO_KinDyn
         P6z = mp_base.M( 2, 2 ) * l6;
 
         /* Position of wrist: */
-        Pwx =   s1 * dWh;
-        Pwy = - c1 * dWh;
+        Pwx = - s1 * dWh;
+        Pwy = + c1 * dWh;
 	Pwz = l1 + dWv;
 
         /* End effector position = position of last link + position of wrist: */

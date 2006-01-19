@@ -71,15 +71,6 @@ namespace ORO_KinDyn
                 return false;
             WrapperType wq( q );
             double wJ[6][size];
-	    /*Debugging*/
-
-	    /*
-            for(int i1=0; i1 < 6; ++i1)
-                for(int i2=0; i2 < size; ++i2)
-                    wJ[i1][i2] = jac(i1,i2);
-	    return this->jacobianForward( wq, wJ, s);
-	    */
-	    //	    std::cout << " Kinematics6DWrapper::jacobianForward: q: " << wq <<std::endl;
 
 	    bool ret = this->jacobianForward( wq, wJ, s);
 	    
@@ -95,20 +86,12 @@ namespace ORO_KinDyn
             if ( q.size() < size)
                 return false;
             WrapperType wq( q );
-            double wJ[6][size];
-
-	    /*Debugging*/
-	    /*
-            for(int i1=0; i1 < 6; ++i1)
-                for(int i2=0; i2 < size; ++i2)
-                    wJ[i1][i2] = jac(i1,i2);
-            return this->jacobianInverse( wq, wJ, s);
-	    */
+            double wJ[size][6];
 
 	    bool ret = this->jacobianInverse( wq, wJ, s);
 	    
-	    for ( unsigned int i = 0;i<6;i++)
-	      for(unsigned int j = 0;j<size;j++)
+	    for ( unsigned int i = 0;i<size;i++)
+	      for(unsigned int j = 0;j<6;j++)
 		jac(i,j)=wJ[i][j];
 	    
             return ret;

@@ -130,7 +130,9 @@ namespace ORO_KinDyn
         q[0] = - q[0] - M_PI/2.0;
         q[3] = - q[3];
         q[5] = - q[5] + M_PI/2.0;
-
+	
+	//	std::cout << " SerialZYYDWH::jacobianForward: q: "<< q << std::endl;
+	
         return zxxdwh.jacobianForward(q, J, s);
     }
 

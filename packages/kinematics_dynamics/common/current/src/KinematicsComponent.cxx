@@ -63,10 +63,9 @@ namespace ORO_KinDyn
         jointState.resize( mjoints, 0.0 );
         jointDirection.resize( mjoints, 1.0);
         jointOffset.resize( mjoints, 0.0);
-        if (_signs.size() != 0 || _offsets.size() != 0) {
-            kine = new KinematicsJointConverter( kine, _signs, _offsets );
-        }
-        kine = k;
+	if (_signs.size() != 0 || _offsets.size() != 0) {
+	  kine = new KinematicsJointConverter( kine, _signs, _offsets );
+	}
     }
 
     bool KinematicsComponent::jacobianForward( const JointPositions& q, Jacobian& j )
@@ -86,7 +85,7 @@ namespace ORO_KinDyn
     }
     bool KinematicsComponent::positionForward( const JointPositions& q, ORO_Geometry::Frame& mp_base )
     {
-        if ( kine == 0 )
+      if ( kine == 0 )
             return false;
         jointState = q;
         return kine->positionForward(q,mp_base,sings);

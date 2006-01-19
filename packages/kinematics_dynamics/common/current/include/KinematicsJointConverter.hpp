@@ -49,78 +49,99 @@ namespace ORO_KinDyn
     class KinematicsJointConverter
         : public KinematicsInterface
     {
-        /**
-         * The stateless kinlib we use
-         */
-        KinematicsInterface* kine;
-  
-        /**
-         * The windup of each joint
-         */
-        JointPositions jointOffset;
-
-        /**
-         * The direction the joint is going in
-         */
-        JointVelocities jointDirection;
-
-        /**
-         * The signs the joints deviate from the right-turning standard.
-         */
-        JointVelocities jointSign;
-
-        /**
-         * Temporary joint position storage
-         */
-        mutable JointPositions jointPos;
-
-        /**
-         * Temporary joint velocity storage
-         */
-        mutable JointVelocities jointVel;
-
-        /**
-         * The number of joints.
-         */
-        int mjoints;
-        
-        void toRobot(const JointPositions& from, JointPositions& to) const
-        {
-            for(int i=0; i < mjoints; ++i)
-                to[i] = jointSign[i]*from[i] + jointOffset[i];
-        }
-
-        void toKine(const JointPositions& from, JointPositions& to) const
-        {
-            for(int i=0; i < mjoints; ++i)
-                to[i] = jointSign[i]*(from[i] - jointOffset[i]);
-        }
-        void toRobotdot(const JointVelocities& from, JointVelocities& to) const
-        {
-            for(int i=0; i < mjoints; ++i)
-                to[i] = jointSign[i]*from[i];
-        }
-
-        void toKinedot(const JointVelocities& from, JointVelocities& to) const
-        {
-            for(int i=0; i < mjoints; ++i)
-                to[i] = jointSign[i]*(from[i]);
-        }
-        void toRobotdot(const JointPositions& from, JointPositions& to,const JointVelocities& vfrom, JointVelocities& vto) const
-        {
-            for(int i=0; i < mjoints; ++i) {
-                to[i] = jointSign[i]*from[i] - jointOffset[i];
-                vto[i] = jointSign[i]*vfrom[i];
-            }
-        }
-
-        void toKinedot(const JointPositions& from, JointPositions& to,const JointVelocities& vfrom, JointVelocities& vto) const
-        {
-            for(int i=0; i < mjoints; ++i) {
-                to[i] = jointSign[i]*(from[i] - jointOffset[i]);
-                vto[i] = jointSign[i]*(vfrom[i]);
-            }
-        }
+      /**
+       * The stateless kinlib we use
+       */
+      KinematicsInterface* kine;
+      
+      /**
+       * The windup of each joint
+       */
+      JointPositions jointOffset;
+      
+      /**
+       * The direction the joint is going in
+       */
+      JointVelocities jointDirection;
+      
+      /**
+       * The signs the joints deviate from the right-turning standard.
+       */
+      JointVelocities jointSign;
+      
+      /**
+       * Temporary joint position storage
+       */
+      mutable JointPositions jointPos;
+      
+      /**
+       * Temporary joint velocity storage
+       */
+      mutable JointVelocities jointVel;
+      
+      /**
+       * Temporty jacobian storage
+       */
+      mutable Jacobian jacForw;
+      mutable Jacobian jacInv;
+      
+      /**
+       * The number of joints.
+       */
+      int mjoints;
+      
+      void toRobot(const JointPositions& from, JointPositions& to) const
+      {
+	for(int i=0; i < mjoints; ++i)
+	  to[i] = jointSign[i]*from[i] + jointOffset[i];
+      }
+      
+      void toKine(const JointPositions& from, JointPositions& to) const
+      {
+	for(int i=0; i < mjoints; ++i)
+	  to[i] = jointSign[i]*(from[i] - jointOffset[i]);
+      }
+      void toRobotdot(const JointVelocities& from, JointVelocities& to) const
+      {
+	for(int i=0; i < mjoints; ++i)
+	  to[i] = jointSign[i]*from[i];
+      }
+      
+      void toKinedot(const JointVelocities& from, JointVelocities& to) const
+      {
+	for(int i=0; i < mjoints; ++i)
+	  to[i] = jointSign[i]*(from[i]);
+      }
+      void toRobotdot(const JointPositions& from, JointPositions& to,const JointVelocities& vfrom, JointVelocities& vto) const
+      {
+	for(int i=0; i < mjoints; ++i) {
+	  to[i] = jointSign[i]*from[i] - jointOffset[i];
+	  vto[i] = jointSign[i]*vfrom[i];
+	}
+      }
+      
+      void toKinedot(const JointPositions& from, JointPositions& to,const JointVelocities& vfrom, JointVelocities& vto) const
+      {
+	for(int i=0; i < mjoints; ++i) {
+	  to[i] = jointSign[i]*(from[i] - jointOffset[i]);
+	  vto[i] = jointSign[i]*(vfrom[i]);
+	}
+      }
+      void toRobotJac(const Jacobian& from, Jacobian& to) const
+      {
+	for(int i=0; i < 6; i++) {
+	  for(int j=0; j < mjoints; j++)
+	    to(i,j) = jointSign[j]*from(i,j);
+	}
+      }
+      void toKineJac(const Jacobian& from, Jacobian& to) const
+      {
+	for(int i=0; i < mjoints; i++) {
+	  for(int j=0; j < 6; j++)
+	    to(i,j) = jointSign[i]*from(i,j);
+	}
+      }
+      
     public:
         KinematicsJointConverter(KinematicsInterface* original,
                                  const JointVelocities& _signs, 
@@ -148,7 +169,9 @@ namespace ORO_KinDyn
             jointOffset.resize( mjoints, 0.0 );
             jointPos.resize( mjoints, 0.0 );
             jointVel.resize( mjoints, 0.0 );
-        }
+	    jacForw.resize( 6 ,mjoints);
+	    jacInv.resize( mjoints , 6);
+	}
 
         virtual int getNumberOfJoints() const { return kine->getNumberOfJoints(); }
         virtual int maxNumberOfJoints() const { return kine->getNumberOfJoints(); }
@@ -156,46 +179,54 @@ namespace ORO_KinDyn
         virtual bool jacobianForward( const JointVelocities& q,
                                       Jacobian& jac, Singularity& s ) const {
             this->toKine( q, jointPos );
-            return kine->jacobianForward( jointPos, jac, s);
-        }
+            bool res = kine->jacobianForward( jointPos, jacForw, s);
+	    this->toRobotJac( jacForw, jac);
+	    if (!res)
+	      return false;
+	    return true;
+	}
         
         virtual bool jacobianInverse( const JointPositions& q, Jacobian& jac, Singularity& s ) const {
             this->toKine( q, jointPos );
-            return this->jacobianInverse( jointPos, jac, s);
-        }
+            bool res = kine->jacobianInverse( jointPos, jacInv, s);
+	    this->toKineJac( jacInv, jac);
+	    if (!res)
+	      return false;
+	    return true;
+	}
 
         virtual bool positionForward( const JointPositions& q, ORO_Geometry::Frame& mp_base, Singularity& s ) const {
-            this->toKine(q, jointPos);
-            return this->positionForward( jointPos, mp_base, s);
+	  this->toKine(q, jointPos);
+	  return kine->positionForward( jointPos, mp_base, s);
         }
 
         virtual bool positionInverse( const ORO_Geometry::Frame& mp_base, const Configuration conf, JointPositions& q, Singularity& s ) const {
-            bool res = this->positionInverse( mp_base, conf, jointPos, s);
+            bool res = kine->positionInverse( mp_base, conf, jointPos, s);
+            this->toRobot(jointPos, q);
             if (!res)
                 return false;
-            this->toRobot(jointPos, q);
             return true;
         }
 
         virtual bool velocityForward( const JointPositions& q, const JointVelocities& qdot, ORO_Geometry::Frame& pos_base, ORO_Geometry::Twist& vel_base, Singularity& s ) const {
             this->toKinedot(q, jointPos, qdot, jointVel);
-            return this->velocityForward( jointPos, jointVel, pos_base, vel_base, s);
+            return kine->velocityForward( jointPos, jointVel, pos_base, vel_base, s);
         }
 
         virtual bool velocityInverse( const ORO_Geometry::Frame& pos_base, const Configuration conf, const ORO_Geometry::Twist& vel_base, JointPositions& q, JointVelocities& qdot, Singularity& s ) const {
-            bool res = this->velocityInverse( pos_base, conf, vel_base, jointPos, jointVel, s);
-            if (!res)
-                return false;
+            bool res = kine->velocityInverse( pos_base, conf, vel_base, jointPos, jointVel, s);
             this->toRobotdot(jointPos, q, jointVel, qdot);
-            return true;
+	    if (!res)
+                return false;
+	    return true;
         }
 
         virtual bool velocityInverse( const JointPositions& q, const ORO_Geometry::Twist& vel_base, JointVelocities& qdot, Singularity& s ) const {
             this->toKine( q, jointPos);
-            bool res = this->velocityInverse( jointPos, vel_base, jointVel, s);
+            bool res = kine->velocityInverse( jointPos, vel_base, jointVel, s);
+	    this->toRobotdot(jointVel, qdot);
             if (!res)
                 return false;
-            this->toRobotdot(jointVel, qdot);
             return true;
         }
 
