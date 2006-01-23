@@ -59,7 +59,10 @@ namespace ORO_Execution
             try {
                 Logger::log() << Logger::Info << "StateMachineProcessor unloads StateMachine "<< states->front()->getName() << "..."<<Logger::endl;
                 this->unloadStateMachine( states->front()->getName() );
-            } catch (...) {}
+            } catch ( program_load_exception& ple) {
+                Logger::log() << Logger::Error << ple.what() <<Logger::endl;
+                states->erase( states->front() ); // plainly remove it to avoid endless loop.
+            }
         }
             
         delete states;
@@ -155,20 +158,22 @@ namespace ORO_Execution
     void StateMachineProcessor::recursiveLoadStateMachine( StateMachinePtr sc )
     {
         std::vector<StateMachinePtr>::const_iterator it;
+
+        // first load parent.
+        states->grow();
+        states->append(sc);
+        sc->setStateMachineProcessor(this);
+
+        // then load children.
         for (it = sc->getChildren().begin(); it != sc->getChildren().end(); ++it)
             {
                 this->recursiveLoadStateMachine( *it );
             }
         
-        states->grow();
-        states->append(sc);
-        sc->setStateMachineProcessor(this);
     }
 
     bool StateMachineProcessor::unloadStateMachine( const std::string& name )
     {
-        // this does the same as deleteStateMachine, except for deleting
-        // the unloaded context..
         StateMachinePtr pip = states->find_if( bind(equal_to<string>(), name, bind(&StateMachine::getName, _1)) );
 
         if ( pip ) {
@@ -217,7 +222,8 @@ namespace ORO_Execution
 
     void StateMachineProcessor::recursiveUnloadStateMachine(StateMachinePtr sc) {
         std::vector<StateMachinePtr>::const_iterator it;
-        // erase children
+
+        // first erase children
         for (it = sc->getChildren().begin(); it != sc->getChildren().end(); ++it)
             {
                 this->recursiveUnloadStateMachine( *it );
@@ -228,9 +234,11 @@ namespace ORO_Execution
 
         assert( pip ); // we checked that this is possible
 
+        // lastly, unload the parent.
         states->erase(pip);
         states->shrink();
         sc->setStateMachineProcessor( 0 );
+
     }
 
 	bool StateMachineProcessor::deleteStateMachine(const std::string& name)
