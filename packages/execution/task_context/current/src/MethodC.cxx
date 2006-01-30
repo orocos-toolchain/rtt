@@ -45,9 +45,16 @@ namespace ORO_Execution
         DataSourceBase::shared_ptr m;
 
         void checkAndCreate() {
+            // check validity:
+            if ( mgcf == 0 || mgcf->getObjectFactory(mobject) == 0 )
+                throw name_not_found_exception(mobject);
+            if ( ! mgcf->getObjectFactory(mobject)->hasMember(mname) )
+                throw name_not_found_exception(mname);
             size_t sz = mgcf->getObjectFactory(mobject)->getArgumentList(mname).size();
+            // throw if already created.
             if ( m )
                 throw wrong_number_of_args_exception( sz, sz + 1 );
+            // not created, check if it is time to create:
             if ( mgcf->hasMember(mobject, mname) && sz == args.size() ) {
                 // may throw.
                 m = mgcf->getObjectFactory(mobject)->create(mname, args );
