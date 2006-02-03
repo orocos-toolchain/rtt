@@ -973,7 +973,8 @@ namespace ORO_Execution
         lastc = taskcontext->engine()->commands()->process( command );
         // returns null if Processor not running or not accepting.
         if ( lastc == 0 ) {
-            cerr << "Command not accepted by"<<taskcontext->getName()<<"'s Processor !" << nl;
+            cerr << "Command not accepted by current task !" << nl;
+            cerr << "  Start current task or 'cd' to target task." << nl;
             delete command;
             delete condition;
             command = 0;
