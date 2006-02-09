@@ -5,7 +5,8 @@
 [
 <!ENTITY cvs         "<acronym>CVS</acronym>">
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY version     "0.20.0">
+<!ENTITY oldversion  "0.20.0">
+<!ENTITY version     "0.22.0">
 <!ENTITY rtai        "<acronym>RTAI</acronym>">
 <!ENTITY rtos        "<acronym>RTOS</acronym>">
 ]
@@ -21,14 +22,12 @@
     </subtitle>
   </articleinfo>
   <para>
-    This document provides a quick overview of what changed between Orocos 0.18.0 and
-    Orocos 0.20.0. Hence, this release includes all bugfixes of the 0.18.x
+    This document provides a quick overview of what changed between Orocos &oldversion; and
+    Orocos &version;. Hence, this release includes all bugfixes of the &oldversion;
     branch. If your application does not work, look here for
     possible causes and solutions. Also feature additions and improvements
     are documented.
   </para>
-  <para>See also <ulink url="orocos-changes-0.18.1.html">what changed from 0.18.0 to 0.18.1</ulink>.</para>
-  <para>See also <ulink url="orocos-changes-0.18.2.html">what changed from 0.18.1 to 0.18.2</ulink>.</para>
   <section id="caveats">
     <title>Caveats</title>
     <section>
@@ -36,63 +35,19 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  API Change : Some heavily deprecated header files have been
-	  removed or otherwise renamed.  The chance anyone was using
-	  them ( due to compile errors ) remains rather small though.
+	  As warned in the previous release, the (long not maintained)
+	  FIFO infrastructure has been removed. To implement communication between
+	  kernel and user-space, use your OS specific communication primitives.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  API Change : A number of classes have been moved from their
-	  namespace to a sub-namespace 'detail'.  Most users should
-	  not be worried about this, since they were for internal use
-	  only.  You can check the API documentation to see which
-	  classes haved moved to this namespace.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  API Change : The HeartBeatGenerator has been renamed to the
-	  TimeService (also its header file). Also, the
-	  <emphasis>ticksGet()</emphasis> and
-	  <emphasis>secondsGet()</emphasis> functions are deprecated
-	  and renamed to <emphasis>getTicks()</emphasis> and
-	  <emphasis>getSeconds()</emphasis>, for consistency.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  API Change : The PeriodicThread's <function>periodGet</function> and
-	  <function>periodSet</function> have been renamed to
-	  <function>getPeriod</function> and
-	  <function>setPeriod</function>.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  API Change : The SingleThread's <function>step()</function>
-	  function has been renamed to <function>loop()</function>.
-	  Also, the RunnableInterface::loop() function has been added
-	  to allow implementation of a blocking ( non periodic )
-	  alternative to RunnableInterface::step().
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  API Change : SingleThread and PeriodicThread have been
-	  refactored to have a common 'ThreadInterface', which allows
-	  any Task (or RunnableInterface) in the Corelib to get
-	  information about the thread it is running in.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  API Change : The Property 'decomposition' of the vector&lt;double&gt; Property
-	  has been changed. The 'dim' Property changed name to 'Size' and the 'dxy' 
-	  Property changed to the string representation of the number ( as in '1234' ).
-	  The container limit of 100 elements has been lifted. You'll need to adapt 
-	  any XML files that contain this Property structure. The error logging will
-	  inform you about the places that need adaptation.
+	  SingleThread had a semantic change with respect to start() and stop().
+	  Multiple invocations of start() will try to start the loop() function,
+	  but only the first invocation will call initialize(). A stop() will
+	  only call breakLoop() when the loop() function has not returned itself.
+	  If this succeeds, finalize() is called within stop() ( previously after
+	  loop() in the thread. )
 	</para>
       </listitem>
     </itemizedlist>
@@ -102,40 +57,22 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    API Change : The execution semantics of Programs (<classname>ProgramGraph</classname>) and Functions ( <classname>FunctionGraph</classname> )
-	    in the <classname>Processor</classname> has changed. In previous versions, only one line at a time was executed in each 
-	    Processor step(). Now, in a periodic step, as much program lines are executed as possible until a command is reached <emphasis>and</emphasis>
-	    this command is not immediately done ( its completion condition returns <emphasis>false</emphasis> ). The next periodic step will
-	    check if the command is done, and if so, execute again as much as possible <emphasis>etc</emphasis>. To introduce
-	    a pause in your program, issue a <command>do nothing</command> command, which will act as a command which pauses your
-	    program for one step, such that you can wait on changes in a while loop or similar.
+	    API Change : The 'old' <classname>Processor</classname> has been replaced by
+	    the new <classname>ExecutionEngine</classname>, taking over the task of managing
+	    a task's commands, events, state machines etc. It delegates these tasks
+	    to specialised processors (<classname>EventProcessor</classname>,
+	    <classname>CommandProcessor</classname>,<classname>ProgramProcessor</classname> and
+	    <classname>StateMachineProcessor</classname> ).
+	    'Running' a task is now far more easier to setup. 
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    API Change : The execution semantics of State Contexts (<classname>StateContext</classname>) has been changed drastically.
-	    State transitions no longer need to happen atomically. The entry, handle and exit programs are executed with
-	    exactly the same semantics as the Orocos Programs above, which mean they may 'take time'.
-	    To reflect this change, the StateContext has been
-	    renamed to StateMachine in all places, also to avoid confusion with the TaskContext. State Machine programs
-	    may now contain loops, variable assignments, nested commands etc. just like ordinary programs. If your program
-	    does not contain commands, state transitions will still happen atomically, otherwise (if your program
-	    waits for a command to finish ) transitions are only evaluated ( and can thus only be made ) after the
-	    entry or handle program has finished. A State Machine can thus be 'in transition', 'activating', etc.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    API Change : Commands, Methods and DataSources must take
-	    all their arguments <emphasis>by value</emphasis> and return by value. Except for
-	    the types <classname> std::string</classname> and <classname>std::vector&lt;double&gt;</classname>.
-	    Thus :
-	    <programlisting> // Commands,Methods, DataSources :
-  int doXYZ( const Frame&amp; target ) { ... }   // WRONG
-  int doXYZ( Frame target ) { ... }              // Correct
-	      
-  bool checkXYZ( const std::string&amp; target ) { ... }   // Correct
-  bool checkXYZ( std::string target ) { ... }             // WRONG  </programlisting>
+	    API Change : <classname>Program</classname>s and
+	    <classname>StateMachine</classname>s may now be directly
+	    controlled (start, pause, ...) by invoking the respective
+	    methods on these objects. Previously, manipulating these objects needed
+	    to happen through the <classname>Processor</classname>.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -145,34 +82,16 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    API Change : Methods for Component loading, starting, stopping, selecting etc in the ControlKernel have all been
-	    generalised to <methodname>loadComponent</methodname>, <methodname>startComponent</methodname>,
-	    <methodname>selectComponent</methodname> etc. instead of <methodname>selectGenerator</methodname> for
-	    example.
+	    By introduction of the <classname>Process</classname> Component, a new
+	    component which manages or provides services for other components, 
+	    the components which are started by default are managed by the 
+	    <classname>DefaultProcess</classname> Component.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    API Change : Every occurence of the word Aspect (such as in <classname>MakeAspect</classname> ) has been renamed
-	    to Facet, using the correct terminology ( ie a Facet is an Interface of a Component ).
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    API Change : Component ports (Model, Input,...) are now accessed as member pointers, instead of subclasses.
-	    To access a DataObject through a port, use : Model->dObj()->Get() instead of Model::dObj()->Get().
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    API Change : The BufferedControlKernel has been renamed to LockFreeControlKernel. The StandardControlKernel's
-	    Command DataObject is now of the LockFree type ( no components or applications need to be adapted ).
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    API Change : The Control Kernel Components install in the 'control_kernel' directory instead of the 
-	    'kernel_components' directory previously.
+	    Each Component loaded in the Control Kernel has its own 'TaskContext'
+	    to store its commands, properties etc.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -183,9 +102,11 @@
     <itemizedlist>
       <listitem>
 	<para> 
-	  This release is more on code and API quality improvement than on feature addition. Focussing on
-	  error detection/recovery and the overall Real-Time behaviour and easier to use classes. A lot of
-	  bugs got fixed along the way too, but these are not all listed here of course.
+	  All 'locks' (mutexes) have been replaced with lock-free algorithms
+	  for events, commands, programs etc. Such that in a running 
+	  real-time application, no more mutexes are used by the real-time
+	  threads. This has drastically improved performance (no OS kernel
+	  interaction) and time determinism (no more blocking threads).
 	</para>
       </listitem>
     </itemizedlist>
@@ -197,83 +118,20 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    The OS package was cleaned up to remove deprecated classes such as <classname>ConditionVariable</classname>
-	    and <classname>EventInterrupt</classname> and related classes, while a <classname>Semaphore</classname>
-	    class was added.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    <classname> PeriodicThread</classname> and
-	    <classname>SingleThread</classname> implementations guard
-	    against exceptions being thrown in step() or loop(), analogous to
-	    the ORO_main protection against uncaught exception.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    <classname>PeriodicThread</classname> stepping is a bit more efficient.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Compilation flags can be better tweaked in the configuration tool.
-	    It is possible to give your processor architecture and if you want to
-	    optimize for speed or for debugging.
-	    A very sane default has been set, so only change if necessarily. Orocos applications
-	    are recommended to build with the same flags.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Thread monitoring through a digital output device has been added.
-	    An implementation for the parallel port and for comedi devices
-	    has been provided and can be selected in the configuration tool. Your
-	    application can easily access this port through the nameserver as
-	    "ThreadScope".
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The configuration tool allows to tweak compilation flags in
-	    more detail. For example, to optimize for execution time or
-	    for debugging.
+	    64bit support has been added and tested on the AMD64
+	    processors. Device drivers (Comedi, CAN) have not been ported to this platform.
 	  </para>
 	</listitem>
     </itemizedlist>
     </section>
     <section>
-      <title>Gnu/Linux</title>
+      <title>Xenomai</title>
       <itemizedlist>
 	<listitem>
 	  <para>
-	    A race condition in <classname>PeriodicThread</classname>
-	    start()/stop() has been solved. It could lead to
-	    finalize() being called before step() completed.
+	    A port to Xenomai 2.0 has been added. 
 	  </para>
       </listitem>
-    </itemizedlist>
-    </section>
-    <section>
-      <title>LXRT</title>
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    Orocos tries to find an alternative <emphasis>RTAI
-	      Name</emphasis> for its threads if the preconfigured one
-	    is already taken, allowing to run multiple Orocos
-	    applications in parallel.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The default scheduler for PeriodicThreads is now
-	    <option>SCHED_OTHER</option>, thus the default Linux
-	    scheduler. This default can be changed with the
-	    configuration tool. Be warned, inproper use of other
-	    Linux schedulers might lock-up your application.
-	  </para>
-	</listitem>
     </itemizedlist>
     </section>
   </section>
@@ -282,39 +140,9 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  The main manual now contains a version number.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  CoreLib : A Logging section has been added.  DataObject
-	  documentation has been moved to the CoreLib Manual.  A
-	  Priority Inversions section was added. The Property section
-	  has been extended with more examples and text. Events have
-	  been reviewed for correctness and we added figures. The TaskNonPeriodic
-	  documentation was added.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  Control Kernel : Small updates
-	  in the Control Kernel Manual wrt ReportingExtension and PropertyExtension.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The main Orocos manuals are split in two big parts, the Realtime Control
-	  Services Manual and the Robot Control Software Manual.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  API : The Doxygen documentation can be easier build in your local Orocos
-	  build directory with 'make doxy-dist'. The class reference shows the
-	  correct include directive for a header file. The front-page was updated
-	  and the namespaces list shows a more meaningful overview. By moving tons
-	  of classes to the detail namespace, the namespace overview is more readable.
-	  Overall class and member comments have been added.
+	  The manuals have been updated with new examples and the
+	  updated interfaces. As ususual, the Online Doxygen documentation 
+	  has been updated.
 	</para>
       </listitem>
     </itemizedlist>
@@ -324,89 +152,17 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  A Logging framework has been implemented in the <classname>ORO_CoreLib::Logger</classname>
-	  class. This feature should enable tracing and debugging your application much better.
-	  See the CoreLib Manual and API for details. Every Orocos user will be able to
-	  track application progress in an automatically generated <filename>orocos.log</filename> file.
+	  The Event mechanism has been reworked to a new implementation
+	  which is now hard real-time safe, both in emitting events and
+	  connecting/disconnecting event handles. Orocos Events also are no
+	  longer subject to priority inversions or dead-locks.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  The CPFDemarshaller has improved error detection and logging. This has especially
-	  effect on the ControlKernel PropertyExtension.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  DataObjects have been moved into the CoreLib's namespace (from ControlKernel) and are now
-	  usable to all application types.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  Asynchonous Event callbacks may choose the <emphasis>policy</emphasis> of which data
-	  they get on event firing overruns. On overruns, the asynchronous callback will only 
-	  be called once. The default policy is to provide the arguments of the first fire() call,
-	  but it can be changed ( at a slight performance cost ) to contain the arguments of the
-	  last fire() call during the overrun. See the CoreLib manual for more information.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  A new kind of Buffer, <classname>BufferLockFree</classname> has been
-	  added to provide a non blocking, many readers, many writers realtime FIFO queue.
-	  The existing buffers (Circular and Simple) have been revised but remain experimental.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The Periodic Task infrastructure has been completely refactored to allow hard realtime
-	  start/stop of periodic tasks. A start() is O(1) time, a stop() is O(n) time, bounded by the
-	  number of tasks with that period. Also, task execution efficiency has improved 'a lot',
-	  reducing the Orocos layer overhead.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  A new kind of Task, TaskNonPeriodic has been added to provide a framework for non
-	  periodic tasks, which can wait for Events and execute non periodic functionality.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The Event Asynchronous CompletionProcessor is now a TaskNonPeriodic.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The Event implementation has been fixed for handlers with more than two arguments.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  Periodic tasks can use a private Event Processor to handle task specific 
-	  asynchronous events. This instance will not handle asynchronous events if
-	  the periodic task is not running, in contrast with the thread-specific event
-	  processor which handles defered callbacks as long as the thread is running.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The time conversion algorithms in Orocos have had a code review and extra test suite
-	  to validate and guarantee time keeping and conversion correctness.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The DataSource has been moved to CoreLib for use in more Orocos classes.
-	  Properties and DataObjects now support DataSource semantics, which benifits integration
-	  with the Oroocos parser infrastructure.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The Property package is more configurable in the configuration tool.
-	  It allows you for example to select the default Property Marshaller.
+	  A pleathora of lock-free buffers, lists and queues has been added
+	  for real-time (local) data exchange, which is especially beneficial
+	  for communication between hard and soft/not real-time threads.
 	</para>
       </listitem>
     </itemizedlist>
@@ -416,70 +172,26 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  The Reporting extension has been extended with a start() and
-	  a stop() script method which can trigger reporting from your
-	  program scripts. ( <command>do Reporter.start()</command> or
-	  <command>do Reporter.stop()</command> ). Script methods to
-	  control what is reported were added too ( can only be
-	  changed when the Kernel is not running.) Also some reporting
-	  bugs were fixed and reporting is implemented more efficiently.
+	  A new kind of Component, the <classname>Process</classname>
+	  Component has been added to provide a place to implement kinematic
+	  algorithms or fine grained control over which components are
+	  executed and in which order. Two kind of Process Components have
+	  been implemented, the <classname>DefaultProcess</classname> and
+	  the <classname>KinematicProcess</classname>. The Control Kernel example
+	  applications have been updated to use this component type.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  The PropertyExtension is far more robust against, and informative about,
-	  missing or malformed configuration files. Also, if no configuration
-	  file is listed, it tries to configure the components with an empty
-	  PropertyBag. This can be overriden with setting 'IgnoreMissingFiles'
-	  to 1.
+	  We have switched to the Boost::Ublas library for matrix calculations.
+	  The Orocos kinematics interfaces are the first to use these objects
+	  for Jacobian calculations.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  The PropertyExtension has implemented the 'SaveProperties' property flag
-	  which enables a write out of the properties of each component to a file
-	  ( or the original read file ). Also, the PropertyExtension can read/write
-	  properties off a set of components from/to the same file, allowing them
-	  to share properties.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-          The Effector component now reads from Inputs, Models and
-          Outputs ( only Outputs previously ), while the Estimator component
-	  now also reads the Outputs of the previous control action.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  To reduce compilation times, a <methodname>preloadComponent</methodname>
-	  method has been made available to load Components in separate implementation
-	  files, which is usefull if Component and Kernel do not change. It remains
-	  recommended to compile Components in completely separate files in your
-	  application such that the main program file does not take forever to compile.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The Control Kernel exports its DataObjects
-	  (Inputs,SetPoints,...) as DataSources to the Program Parsers
-	  and TaskBrowser.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The Control Kernel exports its Component's Properties as PropertyBags
-	  in its TaskContext, such that the Component's Properties can be read 
-	  and modified from program scripts or the TaskBrowser.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The Control Kernel (and its Extensions) export its Properties
-	  as Attributes in the Kernel's TaskContext. A Kernel.refreshProperties()
-	  script method has been added to force a reread of the current values of the Kernel's
-	  Properties. A Kernel.reloadProperties( filename ) script method has been
-	  added to instruct the reading of a kernel config XML file.
+	  A new Kinematics Process Component has been added to manage 
+	  all kinematics of your controller.
 	</para>
       </listitem>
     </itemizedlist>
@@ -489,89 +201,24 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  The <classname>Parser</classname> class can now also parse local files, instead
-	  of just an <classname>istream</classname>.
+	  The <classname>ExecutionEngine</classname> class has been added to replace the
+	  Processor class and manages access to the processors for commands, events,
+	  programs and state machines.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  The scripting language now also supports the <classname>Twist</classname> and
-	  <classname>Wrench</classname> classes, in addition to the existing <classname>Vector</classname>,
-	  <classname>Rotation</classname> and <classname>Frame</classname> classes. The
-	  types are written non-capital in the scripting language.
+	  The <classname>StateMachine</classname> can now react to events of peer
+	  tasks. A new 'event transition' syntax was added to the scripting language.
+	  The arguments (data) of the events are caught in script variables and
+	  are directly accessible to decide on the transition to another state.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  The scripting language now also supports the <classname>std::vector&lt; double &gt;</classname>. 
-	  It is known as the parser type 'array'. The parser manual contains some practical usage examples.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  If a Program dispatches a command to a Processor which is not running or not
-	  accepting commands, the program will fail (previously it would retry forever).
-	  With the same semantics, the TaskContext and TaskBrowser refuse to execute commands if the Processor
-	  is not running or not accepting commands.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-          To make the creation of a 'rotation' object in the scripting
-          language easier, we now use RollPitchYow angles instead of
-          ZYZ-Euler angles.
-          Example: "var rotation myrotation = rotation(R,P,Y)", with R
-          the rotation around the fixed x-axis, P the rotation around the
-          fixed y-axis and Y the rotation around the fixed z-axis.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The StateMachine can now execute all program syntax, maintaining program execution
-	  semantics ( asynchronous commands versus synchronous methods ).
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The Command Processor can run in a TaskNonPeriodic,
-	  executing Commands in its own thread as they enter the
-	  queue.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The On Request (requestState) Mode for State Machines has been made available in scripting
-	  commands, allowing to request a transition to a particular state by command, in contrast
-	  to the automatic state changes.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  A <classname>ProgramLoader</classname> class was added to
-	  provide user-friendly loading and unloading of all kinds of
-	  scripts into Tasks. A
-	  <classname>GenericTaskContext</classname> class was added
-	  which provides some default script methods for running a
-	  TaskContext. A new introductory example application lets the
-	  new user get more acquiented with Orocos Tasks.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The TaskContext now supports CoreLib Properties and a 
-	  <classname>PropertyLoader</classname> front-end class allows
-	  to configure and save properties to and from XML ( See also
-	  <classname>GenericTaskContext</classname> .) 
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The scripting 'dot' operator has been introduced in the geometry types
-	  (frame, twist, vector,...) which allows to read out individual
-	  members of these types. Examples are : vector.x, twist.rot, rotation.roll,
-	  frame.R.yaw, wrench.torque.y,... They can not be used to set individual
-	  members, but can be used with the geometry constructors as in ie
-	  vector v1 = vector( v2.x, v2.y, 0.).
+	  All processor interaction is now fully lock-free. This means that any
+	  command or event can not cause dead-locks or higher priority threads
+	  to wait within the Orocos framework.
 	</para>
       </listitem>
     </itemizedlist>
@@ -581,29 +228,9 @@
     <itemizedlist>
       <listitem>
 	<para>
-	  KernelClient version 0.4 has been released to take advantage
-	  of the new logging infrastructure (locally and remotely).
-	  Furthermore, a shutdown command is available to shutdown the 
-	  server process (ie remote control kernel). Furthermore,
-	  line number tracking in State Machines has been
-	  implemented.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  KernelClient version 0.5 has split of the Control Kernel server
-	  to the orocos control_framework package. Corba based KernelClient now
-	  builds completely independently of an Orocos installation 
-	  directory.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The TaskBrowser got a face-lift and got a bit smarter too.
-	  It allows changing properties of tasks and even variables
-	  of (running) script programs, doing it all in a very bash-like
-	  way. It can provide information about the type of data and contents
-	  of data available in the scripting environment.
+	  The KernelClient GUI version 0.8 has been released in two
+	  separate packages: one for direct connection to a Control Kernel
+	  and one for connection through CORBA.
 	</para>
       </listitem>
     </itemizedlist>
@@ -613,8 +240,8 @@
     <title>About Orocos</title>
     <para>
       Please send general, non technical, Orocos questions to <ulink
-	url="mailto:orocos at mail.mech.kuleuven.ac.be">
-	orocos at mail.mech.kuleuven.ac.be </ulink>. 
+	url="mailto:orocos at lists.mech.kuleuven.be">
+	orocos at lists.mech.kuleuven.be </ulink>. 
     </para>
     <para>
       These pages are maintained by <ulink
@@ -626,15 +253,15 @@
       web pages and the <ulink
 	url="http://www.orocos.org/documentation.php">Orocos manuals</ulink>. If
       that fails, the  <ulink
-	url="mailto:orocos-dev at mail.mech.kuleuven.ac.be">
-	orocos-dev at mail.mech.kuleuven.ac.be </ulink> mailing list might help.
+	url="mailto:orocos-dev at lists.mech.kuleuven.be">
+	orocos-dev at lists.mech.kuleuven.be </ulink> mailing list might help.
       Please
       send comments on these web pages and the development of Orocos to
       our developer mailing list at  <ulink
-	url="mailto:orocos-dev at mail.mech.kuleuven.ac.be">
-	orocos-dev at mail.mech.kuleuven.ac.be </ulink>. All of
-      our lists have <ulink url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos">public
-	archives</ulink> ( <ulink url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos-dev"> dev public
+	url="mailto:orocos-dev at lists.mech.kuleuven.be">
+	orocos-dev at lists.mech.kuleuven.be </ulink>. All of
+      our lists have <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos">public
+	archives</ulink> ( <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos-dev"> dev public
 	archive</ulink> ) .
       </para>
     <para>
