@@ -113,6 +113,14 @@ namespace ORO_Execution
     {
     }
 
+    ConnectionC& ConnectionC::operator=(const ConnectionC& other)
+    {
+        delete d;
+        d = ( other.d ? new D(*other.d) : 0 );
+        h = other.h;
+        return *this;
+    }
+
     ConnectionC::~ConnectionC()
     {
         delete d;

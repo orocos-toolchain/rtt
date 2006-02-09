@@ -110,8 +110,16 @@ namespace ORO_Execution
     }
 
     MethodC::MethodC(const MethodC& other)
-        : d( other.d ? new D(*other.d) : 0 )
+        : d( other.d ? new D(*other.d) : 0 ), m( d->m ? d->m : 0)
     {
+    }
+
+    MethodC& MethodC::operator=(const MethodC& other)
+    {
+        delete d;
+        d = ( other.d ? new D(*other.d) : 0 );
+        m = other.m;
+        return *this;
     }
 
     MethodC::~MethodC()

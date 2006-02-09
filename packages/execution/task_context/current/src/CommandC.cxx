@@ -46,11 +46,12 @@ namespace ORO_Execution
         ComCon comcon;
         std::vector<DataSourceBase::shared_ptr> args;
         bool masyn;
-        int ticket;
         bool created() {
             return comcon.first != 0;
         }
         void checkAndCreate() {
+            if ( mgcf == 0 ||  mgcf->getObjectFactory(mobject) == 0 )
+                throw name_not_found_exception(mobject);
             size_t sz = mgcf->getObjectFactory(mobject)->getArgumentList(mname).size();
             if ( created() )
                 throw wrong_number_of_args_exception( sz, sz + 1 );
@@ -78,7 +79,7 @@ namespace ORO_Execution
         }
 
         D( const GlobalCommandFactory* gcf, const std::string& obj, const std::string& name, bool asyn)
-            : mgcf(gcf), mobject(obj), mname(name), masyn(asyn), ticket(0)
+            : mgcf(gcf), mobject(obj), mname(name), masyn(asyn)
         {
             comcon.first = 0;
             comcon.second = 0;
@@ -87,8 +88,7 @@ namespace ORO_Execution
 
         D(const D& other)
             : mgcf( other.mgcf), mobject(other.mobject), mname(other.mname),
-              args( other.args ), masyn(other.masyn),
-              ticket(other.ticket)
+              args( other.args ), masyn(other.masyn)
         {
             comcon.first = other.comcon.first->clone();
             comcon.second = other.comcon.second->clone();
@@ -100,30 +100,10 @@ namespace ORO_Execution
             delete comcon.second;
         }
 
-        bool execute() {
-            if ( comcon.first && ticket == 0 ) {
-                ticket = mgcf->getCommandProcessor()->process( comcon.first );
-                return ticket != 0;
-            }
-            return false;
-        }
-
-        bool evaluate() {
-            if (ticket !=0 && mgcf->getCommandProcessor()->isProcessed(ticket) )
-                return comcon.second->evaluate();
-            return false;
-        }
-
-        void reset()
-        {
-            ticket = 0;
-            comcon.first->reset();
-            comcon.second->reset();
-        }
     };
 
     CommandC::CommandC()
-    : d(0), cc()
+        : d(0), cc()
     {
     }
 
@@ -145,6 +125,23 @@ namespace ORO_Execution
             this->cc.first = other.cc.first->clone();
         if (other.cc.second)
             this->cc.second = other.cc.second->clone();
+    }
+
+    CommandC& CommandC::operator=( const CommandC& other )
+    {
+        delete d;
+        delete cc.first;
+        delete cc.second;
+
+        if ( other.d )
+            d = new D(*other.d);
+        else {
+            if (other.cc.first)
+                this->cc.first = other.cc.first->clone();
+            if (other.cc.second)
+                this->cc.second = other.cc.second->clone();
+        }
+        return *this;
     }
 
     CommandC::~CommandC()

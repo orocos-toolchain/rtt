@@ -66,6 +66,11 @@ namespace ORO_Execution
          */
         CommandC(const CommandC& other);
 
+        /**
+         * A CommandC is assignable.
+         */
+        CommandC& operator=( const CommandC& other );
+
         ~CommandC();
 
         /**

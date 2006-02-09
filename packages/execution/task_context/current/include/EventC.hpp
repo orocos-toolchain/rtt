@@ -66,6 +66,11 @@ namespace ORO_Execution
          */
         EventC(const EventC& other);
 
+        /**
+         * A EventC is assignable.
+         */
+        EventC& operator=(const EventC& other);
+
         ~EventC();
 
         /**

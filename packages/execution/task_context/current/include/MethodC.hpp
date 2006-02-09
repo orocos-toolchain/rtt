@@ -67,6 +67,11 @@ namespace ORO_Execution
          */
         MethodC(const MethodC& other);
 
+        /**
+         * A MethodC is assignable.
+         */
+        MethodC& operator=(const MethodC& other);
+
         ~MethodC();
 
         /**

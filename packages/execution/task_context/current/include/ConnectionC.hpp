@@ -71,6 +71,11 @@ namespace ORO_Execution
          */
         ConnectionC(const ConnectionC& other);
 
+        /**
+         * A ConnectionC is assignable;
+         */
+        ConnectionC& operator=(const ConnectionC& other);
+
         ~ConnectionC();
 
         /**

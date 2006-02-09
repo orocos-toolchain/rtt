@@ -102,6 +102,14 @@ namespace ORO_Execution
     {
     }
 
+    EventC& EventC::operator=(const EventC& other)
+    {
+        delete d;
+        d = ( other.d ? new D(*other.d) : 0 );
+        m = other.m;
+        return *this;
+    }
+
     EventC::~EventC()
     {
         delete d;
