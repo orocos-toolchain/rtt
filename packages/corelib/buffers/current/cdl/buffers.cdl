@@ -2,41 +2,15 @@
 cdl_package OROPKG_CORELIB_BUFFERS {
     display "CoreLib Communication buffers"
     description "
-This package contains some buffers we have written when we
-needed buffered data. It is not heavily tested, but might
-prove to be usefull in some cases.
-This packages contains implementations
-of all kinds of buffers for inter-thread or
--process communication."
+This package contains the lock-free communication buffers
+for local (in-process) data exchange. A lock-free single
+linked list and pointer queue is provided as well."
 
     include_dir corelib
     parent OROPKG_CORELIB
     requires OROPKG_CORELIB
 
-    compile WriteCout.cxx
     compile BufferLockFree.cxx
     compile ListLockFree.cxx
     compile DataObjectInterfaces.cxx	
-
-    cdl_component OROPKG_CORELIB_BUFFERS_BUFFERS {
-	flavor bool
-	display "Enable typical buffers"
-	compile BufferCircular.cxx  BufferSimple.cxx
-    }
-
-    cdl_component OROPKG_CORELIB_BUFFERS_RTFIFOS {
-	flavor bool
-	display "Enable Realtime fifos (EXP)"
-	compile FifoRTCommon.cxx  FifoRTIn.cxx  FifoRTOut.cxx
-	active_if OROCFG_CORELIB_EXPERIMENTAL
-    }
-
-    cdl_component OROPKG_CORELIB_BUFFERS_USFIFOS {
-	flavor bool
-	display "Enable userspace fifos (EXP)"
-	compile FifoUSIn.cxx  FifoUSOut.cxx  
-	active_if OROCFG_CORELIB_EXPERIMENTAL
-    }
-
-
 }
