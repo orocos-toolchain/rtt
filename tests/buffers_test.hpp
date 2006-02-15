@@ -44,7 +44,8 @@ class BuffersTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testBufLockFree );
     CPPUNIT_TEST( testDObjLockFree );
     //CPPUNIT_TEST( testSortedList );
-#ifndef OROPKG_OS_XENOMAI
+#ifdef OROPKG_OS_GNULINUX
+    // this test assumes a not real-time OS.
     CPPUNIT_TEST( testListLockFree );
 #endif
     CPPUNIT_TEST_SUITE_END();
