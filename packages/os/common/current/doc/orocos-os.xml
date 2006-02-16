@@ -129,18 +129,18 @@
 	example, a thread can be created, started, paused, scheduled,
 	etc., but each OS uses other function calls to do this.
 	&orocos; prefers C++ interfaces, which led to the
-	<classname>PeriodicThreadInterface</classname> interface and
-	<classname>PeriodicThread</classname> class as the
+	<classname>ORO_OS::PeriodicThreadInterface</classname> interface and
+	<classname>ORO_OS::PeriodicThread</classname> class as the
 	abstractions of a periodic thread. The
-	<classname>SingleThread</classname> is a non periodic thread
+	<classname>ORO_OS::SingleThread</classname> is a non periodic thread
 	which executes the functionality once each time it is started.
 	Each OS implements in its <filename
 	  class="directory">os/&lt;OS-name-here&gt;</filename>
 	directory the specific system calls to get the desired effect.
-	The <classname>Mutex</classname> and
-	<classname>MutexRecursive</classname> classes in combination
-	with the <classname>MutexLock</classname> and
-	<classname>MutexTryLock</classname> classes are also commonly
+	The <classname>ORO_OS::Mutex</classname> and
+	<classname>ORO_OS::MutexRecursive</classname> classes in combination
+	with the <classname>ORO_OS::MutexLock</classname> and
+	<classname>ORO_OS::MutexTryLock</classname> classes are also commonly
 	used abstractions in multithreaded frameworks.
       </para>
       <para>
@@ -439,11 +439,11 @@
 	<para>
 	  An &orocos; thread, which must execute a task periodically,
 	  is defined by the
-	  <classname>PeriodicThreadInterface</classname>. The most
+	  <classname>ORO_OS::ThreadInterface</classname>. The most
 	  common operations are <methodname>start()</methodname>,
 	  <methodname>stop()</methodname> and setting the periodicity.
-	  What is executed is defined in the <classname>
-	    RunnableInterface</classname>. It contains three methods :
+	  What is executed is defined in the 
+	  <classname>ORO_OS::RunnableInterface</classname>. It contains three methods :
 	  <methodname>initialize()</methodname>,
 	  <methodname>step()</methodname> and
 	  <methodname>finalize()</methodname>. You can inherit from
@@ -456,7 +456,7 @@
 	</para>
 	<para>
 	  &orocos; delivers one implementation of the
-	  <classname>PeriodicThreadInterface</classname> : <classname>
+	  <classname>ThreadInterface</classname> : <classname>
 	    PeriodicThread</classname>, which creates a thread
 	  according to the operating system you are compiling for.
 	  However, you are encouraged <emphasis>NOT</emphasis> to use
@@ -485,15 +485,16 @@
 	<title>Non Periodic Threads</title>
 	<para>
 	  For non-periodic threads, which block or do lenghty
-	  calculations, the <classname>SingleThread</classname> class
+	  calculations, the <classname>ORO_OS::SingleThread</classname> class
 	  can be used.  The corelib/task package uses the SingleThread
-	  for the TaskNonPeriodic.  Porting applications to Orocos
+	  for the <classname>ORO_CoreLib::TaskNonPeriodic</classname>.  Porting applications to Orocos
 	  might benifit this class in a first adaptation step. It
 	  has a start() method, which will invoke one single call to
 	  loop() ( in contrast to step() above). It can be
 	  re-started each time the loop() function returns. The
-	  initialise() and finalise() functions are called when the
-	  SingleThread is started and after loop() returns.
+	  initialise() functions is called when the
+	  SingleThread is started the first time. When stopped,
+	  the finalise() function is called after loop() returns.
 	</para>
 	<para>
 	  The user himself is responsible for providing a mechanism
@@ -501,14 +502,15 @@
 	  this mechanism to be implemented in the RunnableInterface::breakLoop()
 	  function, which must return true if the loop() function could be
 	  forced to return. Hence, SingleThread will call breakLoop() in its
-	  stop() method.
+	  stop() method if loop() is still being executed.
 	  The <function>SingleThread::isRunning()</function>
 	  function can be used to check if loop() is being executed or not.
 	</para>
 	<note>
-	  <para>The TaskNonPeriodic in CoreLib provides a better 
-	  integrated implementation for SingleThread and should be
-	  favourably used.</para>
+	  <para>The
+	  <classname>ORO_CoreLib::TaskNonPeriodic</classname> in
+	  CoreLib provides a better integrated implementation for
+	  SingleThread and should be favourably used.</para>
 	</note>
 	<para>
 	  Common uses are :
@@ -573,15 +575,15 @@ if ( pp )
       <sect3>
 	<title>Mutexes</title>
 	<para>
-	  There are two kinds of Mutexes : <classname>Mutex</classname>
-	  and <classname>MutexRecursive</classname>. To lock a mutex, it
+	  There are two kinds of Mutexes : <classname>ORO_OS::Mutex</classname>
+	  and <classname>ORO_OS::MutexRecursive</classname>. To lock a mutex, it
 	  has a method <methodname>lock()</methodname>, to unlock, the method is <methodname>unlock()</methodname> and to
 	  try to lock, it is <methodname>trylock()</methodname>.
 	  A lock() and trylock() on a recursive mutex from the same
 	  thread will always succeed, otherwise, it blocks.
 	</para>
 	<para>
-	  For ease of use, there is a <classname>MutexLock</classname> which
+	  For ease of use, there is a <classname>ORO_OS::MutexLock</classname> which
 	  gets a Mutex as argument in the contstructor. As long as the
 	  MutexLock object exists, the given Mutex is locked. This is
 	  called a scoped lock.
@@ -617,8 +619,8 @@ if ( pp )
       <sect3>
 	<title>Signals and Semaphores</title>
 	<para>
-	  Orocos provides a C++ semaphore abstraction in
-	  <filename>os/Semaphore.hpp</filename>. It is used mainly for 
+	  Orocos provides a C++ semaphore abstraction class
+	  <classname>ORO_OS::Semaphore</classname>. It is used mainly for 
 	  non periodic, blocking tasks or threads. The higher level
 	  Event implementation in CoreLib can be used for thread safe
 	  signalling and data exchange in periodic tasks.
