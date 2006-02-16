@@ -442,7 +442,7 @@ namespace ORO_ControlKernel
             virtual void initDataObject() {}
 
             template< class _DataObjectContainer >
-            void createDataObject(const std::string& name, const std::string& prefix, _DataObjectContainer dummy )
+            void createDataObject(const std::string& name, const std::string& prefix, _DataObjectContainer  )
             {
                 this->initDataObject();
                 // create the dataobject servers (for storage)
@@ -464,7 +464,7 @@ namespace ORO_ControlKernel
              * added, old ones remain.
              */
             template< class _DataObjectContainer >
-            void reloadDataObject( _DataObjectContainer dummy )
+            void reloadDataObject( _DataObjectContainer  )
             {
                 // Reload the DataObject struct, it may be changed by
                 // the writing component.

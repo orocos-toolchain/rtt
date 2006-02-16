@@ -717,7 +717,7 @@ namespace ORO_ControlKernel
 
         //virtual void preUnload(ComponentBaseInterface* comp) { }
 
-        virtual void postUnload(ComponentBaseInterface* comp) {
+        virtual void postUnload(ComponentBaseInterface* ) {
             // erase semantics are wrong and delete to much
             // if multiple comps write the same DO
             //components[ comp->getName() ]->erase();

@@ -176,7 +176,7 @@ namespace ORO_ControlKernel
         }
 
         template< class KernelT >
-        void createDataObject( KernelT* k) {
+        void createDataObject( KernelT* ) {
             // The ProcessComponent does not write to any Data Objects
         }
 
@@ -584,7 +584,7 @@ namespace ORO_ControlKernel
         }
 
         template< class KernelT >
-        void createDataObject( KernelT* k) {
+        void createDataObject( KernelT* ) {
             //NOP
         }
 

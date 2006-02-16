@@ -58,6 +58,7 @@
 #include <corelib/PropertyIntrospection.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/mpl/list.hpp>
+#include <boost/version.hpp>
 
 namespace ORO_ControlKernel
 {
@@ -251,7 +252,7 @@ namespace ORO_ControlKernel
 //             return false;
 //         }
 
-        bool has( const std::string& name, MemberType m = MemberType() ) const
+        bool has( const std::string& name, MemberType = MemberType() ) const
         {
             if ( ns.getObject(prefix + name) )
                 return true;
@@ -562,24 +563,24 @@ namespace ORO_ControlKernel
         bool Get( First<nil_type>& ) {return false;}
         bool Set( First<nil_type>& ) {return false;}
         template< typename pair_type, typename index_type>
-        NameSubClass(const std::string& name, const std::string& prefix, const pair_type& t, index_type index)
+        NameSubClass(const std::string& name, const std::string& prefix, const pair_type& , index_type)
             : DataObjectServer<First<nil_type> >(name, prefix)
         {}
 
-        bool has( const std::string& name, nil_type m = nil_type() ) const
+        bool has( const std::string& , nil_type  = nil_type() ) const
         {
             return false;
         }
         void reg( First<nil_type>* ) {return ;}
         void deReg( First<nil_type>* ) {return ;}
 
-        void inspectReports( PropertyIntrospection* introspector ) const {}
+        void inspectReports( PropertyIntrospection* ) const {}
 
         template< typename pair_type, typename index_type>
-        void load(const pair_type& t, index_type index) {}
+        void load(const pair_type& , index_type ) {}
 
         template< typename pair_type, typename index_type>
-        void recursiveReload(const pair_type& t, index_type index) {}
+        void recursiveReload(const pair_type& , index_type ) {}
     };
 
     /**
@@ -781,7 +782,7 @@ namespace ORO_ControlKernel
             using ServerType::reg;
             using ServerType::deReg;
             template< typename pair_type, typename index_type>
-            NameFrontEnd( const std::string& name, const std::string& prefix, const pair_type& t, index_type index) :
+            NameFrontEnd( const std::string& name, const std::string& prefix, const pair_type& , index_type ) :
                 ServerType(name, prefix)
             {}
 
@@ -792,18 +793,18 @@ namespace ORO_ControlKernel
         struct NameFrontEnd< First<nil_type> >
         {
             template< typename pair_type, typename index_type>
-            NameFrontEnd( const std::string& name, const std::string& prefix, const pair_type& t, index_type index ) {}
+            NameFrontEnd( const std::string& , const std::string& , const pair_type& , index_type  ) {}
             ~NameFrontEnd() {}
             bool Get( First<nil_type>& ) {return false;}
             bool Set( First<nil_type>& ) {return false;}
-            void changePrefix(const std::string& prefix) { }
-            bool has( const std::string& name, nil_type m = nil_type() ) const
+            void changePrefix(const std::string& ) { }
+            bool has( const std::string& , nil_type  = nil_type() ) const
             {
                 return false;
             }
             void reg( First<nil_type>* ) {return ;}
             void deReg( First<nil_type>* ) {return ;}
-            void inspectReports( PropertyIntrospection* introspector ) const {}
+            void inspectReports( PropertyIntrospection*  ) const {}
         };
 
         /**
