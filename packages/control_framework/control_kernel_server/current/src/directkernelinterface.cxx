@@ -242,8 +242,6 @@ namespace ExecutionClient
   {
       TaskContext* comp = task->getPeer( component );
       if ( ! comp ) {
-          Logger::In in("DirectKernelInterface::getCommandss");
-          Logger::log() << Logger::Warning << "No such component: "<<component<<Logger::endl;
           return std::vector<std::string>();
       }
       const CommandFactoryInterface* fact = comp->commands()->getObjectFactory( "this" );
@@ -256,8 +254,6 @@ namespace ExecutionClient
   {
       TaskContext* comp = task->getPeer( component );
       if ( ! comp ) {
-          Logger::In in("DirectKernelInterface::getData");
-          Logger::log() << Logger::Warning << "No such component: "<<component<<Logger::endl;
           return std::vector<std::string>();
       }
       const DataSourceFactoryInterface* fact = comp->datasources()->getObjectFactory( "this" );
@@ -270,8 +266,6 @@ namespace ExecutionClient
   {
       TaskContext* comp = task->getPeer( component );
       if ( ! comp ) {
-          Logger::In in("DirectKernelInterface::getMethods");
-          Logger::log() << Logger::Warning << "No such component: "<<component<<Logger::endl;
           return std::vector<std::string>();
       }
       const MethodFactoryInterface* fact = comp->methods()->getObjectFactory( "this" );
