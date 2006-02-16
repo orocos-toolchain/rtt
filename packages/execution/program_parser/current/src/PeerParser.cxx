@@ -68,13 +68,13 @@ namespace ORO_Execution
 
             // if size() > 1, it must be a peer 
             while ( callqueue.size() > 0 && _peer->hasPeer( callqueue.front() ) ) {
-                //std::cerr<< _peer->getName() <<" has peer " << callqueue.front()<<std::endl;
+//                 std::cerr<< _peer->getName() <<" has peer " << callqueue.front()<<std::endl;
                 _peer = _peer->getPeer( callqueue.front() );
                 callqueue.pop();
             }
 
-            // Something went wrong, a subtask was not found
-            if ( callqueue.size() > 1 ) {
+            // Something went wrong, a subtask was not found:
+            if ( callqueue.size() > 1 || (mfullpath && callqueue.size() != 0) ) {
                 // print to user the mismatch :
                 std::string object = callqueue.front();
                 while ( !callqueue.empty() )
@@ -89,8 +89,8 @@ namespace ORO_Execution
             callqueue.pop();
         }
 
-        PeerParser::PeerParser(TaskContext* c)
-            : mcurobject("this"),context(c), _peer(context)
+        PeerParser::PeerParser(TaskContext* c, bool fullpath)
+            : mcurobject("this"),context(c), _peer(context), mfullpath(fullpath)
         {
             BOOST_SPIRIT_DEBUG_RULE( peerpath );
             BOOST_SPIRIT_DEBUG_RULE( peerlocator );
@@ -126,7 +126,7 @@ namespace ORO_Execution
         std::string name( begin, end );
         name.erase( name.length() -1  ); // compensate for extra "."
         callqueue.push( name );
-        //std::cerr << "seen " << name <<std::endl;
+//         std::cerr << "seen " << name <<std::endl;
     }
 
     void PeerParser::locatepeer( iter_t begin, iter_t end )

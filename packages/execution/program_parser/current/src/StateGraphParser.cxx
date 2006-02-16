@@ -75,7 +75,8 @@ namespace ORO_Execution
         assertion<GraphSyntaxErrors> expect_state(state_expected);
         assertion<GraphSyntaxErrors> expect_handle(handle_expected);
         assertion<GraphSyntaxErrors> expect_transition(transition_expected);
-        assertion<std::string> expect_end("Ending brace expected ( or could not find out what this line means ).");
+        assertion<std::string> expect_end("Ending '}' expected ( or could not find out what this line means ).");
+        assertion<std::string> expect_end_of_state("Exptected ending '}' at end of state ( or could not find out what this line means ).");
         assertion<std::string> expect_if("Wrongly formatted \"if ... then select\" clause.");
         assertion<std::string> expect_select("'select' statement required after emty transition program.");
         assertion<std::string> expect_comma("Expected a comma separator.");
@@ -86,6 +87,8 @@ namespace ORO_Execution
         assertion<std::string> expect_semicolon("Semi colon expected after statement.");
         assertion<std::string> expect_open_parenth( "Open parenthesis expected." );
         assertion<std::string> expect_close_parenth( "Open parenthesis expected." );
+        assertion<std::string> expect_eventselect("'select' statement required after event or transition program.");
+        assertion<std::string> expect_eventargs("Could not parse arguments after event.");
     }
 
 
@@ -113,7 +116,7 @@ namespace ORO_Execution
           valuechangeparser( new ValueChangeParser(context) ),
           expressionparser( new ExpressionParser(context) ),
           argsparser(0),
-          peerparser( new PeerParser(context) )
+          peerparser( new PeerParser(context, true) ) // full-path peer parser for events.
     {
         BOOST_SPIRIT_DEBUG_RULE( production );
         BOOST_SPIRIT_DEBUG_RULE( rootcontextinstantiation );
@@ -200,7 +203,7 @@ namespace ORO_Execution
           >> expect_ident(commonparser->identifier[ bind( &StateGraphParser::statedef, this, _1, _2 ) ])
           >> expect_open(ch_p( '{' ))
           >> statecontent
-          >> expect_end(ch_p( '}' ))[ bind( &StateGraphParser::seenstateend, this ) ];
+          >> expect_end_of_state(ch_p( '}' ))[ bind( &StateGraphParser::seenstateend, this ) ];
 
         // the content of a program can be any number of lines
         // a line is not strictly defined in the sense of text-line.
@@ -236,9 +239,9 @@ namespace ORO_Execution
 
         // event based transition
         transition = str_p("transition")
-            >> peerparser->locator() >> commonparser->identifier[ bind( &StateGraphParser::seeneventname, this,_1,_2)]
-            >> argslist[ bind( &StateGraphParser::seeneventargs, this)]
-            >> selectcommand[ bind( &StateGraphParser::seeneventtrans, this)];
+            >> !peerparser->parser() >> expect_ident(commonparser->identifier[ bind( &StateGraphParser::seeneventname, this,_1,_2)])
+            >> expect_eventargs(argslist[ bind( &StateGraphParser::seeneventargs, this)])
+            >> expect_eventselect(selectcommand[ bind( &StateGraphParser::seeneventtrans, this)]);
 
         // condition based transition.
         // the order of rule "transition" vs "transitions" is important
@@ -405,6 +408,7 @@ namespace ORO_Execution
     void StateGraphParser::seeneventname(iter_t s, iter_t f)
     {
         evname = string(s,f);
+
         // seenselect() will use evname to see if event is causing transition
         assert(evname.length());
         peer    = peerparser->peer();
@@ -453,7 +457,7 @@ namespace ORO_Execution
 //             if ( elsestate != 0)
 //                 res = curtemplate->createEventTransition( &(peer->eventService), evname, evargs, curstate, next_state, curcondition->clone(), transProgram, elsestate, elseProgram );
 //             else
-            res = curtemplate->createEventTransition( &(peer->eventService), evname, evargs, curstate, next_state, curcondition->clone(), transProgram );
+            res = curtemplate->createEventTransition( peer->events(), evname, evargs, curstate, next_state, curcondition->clone(), transProgram );
             elsestate = 0;
             elseProgram.reset();
             if (res == false)

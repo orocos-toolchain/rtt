@@ -52,13 +52,22 @@ namespace ORO_Execution
         std::string mcurobject;
         TaskContext* context;
         TaskContext* _peer;
+        bool mfullpath;
         void done();
 
         void seenobjectname( iter_t begin, iter_t end );
         void locatepeer( iter_t begin, iter_t end );
 
     public:
-        PeerParser(TaskContext* c);
+        /**
+         * Create a PeerParser which starts looking for peers from
+         * a task.
+         * @param c The task to start searching from.
+         * @param fullpath Set to true if the parser() must
+         * resolve the full path and hence, the resulting object()
+         * should always be "this".
+         */
+        PeerParser(TaskContext* c, bool fullpath=false);
 
         /**
          * Change the context in which peers are 
