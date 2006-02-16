@@ -2011,7 +2011,7 @@ cd                  quit
 	                   &quot;Set a device parameter.&quot;,
 	                   &quot;Parameter&quot;, &quot;The number of the parameter.&quot;,
 	                   &quot;New Value&quot;, &quot;The new value for the parameter.&quot;)); 
-         this->methodFactory.registerObject("this", mfact);
+         this->methods()->registerObject("this", mfact);
 
          // Add Data Sources :
          TemplateDataSourceFactory&lt;DeviceInterface&gt;* dfact =
@@ -2023,7 +2023,7 @@ cd                  quit
          dfact-&gt;add(&quot;getError&quot;,
                     data(&amp;DeviceInterface::getError,
 	                 &quot;Get device error status.&quot;));
-         this->datasourceFactory.registerObject("this", dfact);
+         this->data()->registerObject("this", dfact);
 
          // Add Commands :
          TemplateCommandFactory&lt;DeviceInterface&gt;* cfact =
@@ -2032,7 +2032,7 @@ cd                  quit
                         command( &amp;DeviceInterface::updateData,
                                  &amp;DeviceInterface::updated,
                                  &quot;Command data acquisition.&quot; ) );
-         this->commandFactory.registerObject("this", cfact);
+         this->commands()->registerObject("this", cfact);
       }
   };</programlisting>
 	<para>
@@ -2206,7 +2206,7 @@ cd                  quit
   // Create the command and condition :
   try {
      ComCon comcon =
-        peer->commandFactory.getObjectFactory("objname")->
+        peer->commands()->getObjectFactory("objname")->
 	     create("cleanupMess", args );
   } catch ( ... ) {
      // wrong arguments !
@@ -2326,7 +2326,7 @@ cd                  quit
   // Create the method object :
   try {
      DataSourceBase::shared_ptr meth =
-        peer->methodFactory.getObjectFactory("objname")->
+        peer->methods().getObjectFactory("objname")->
 	     create("changeP", args );
   } catch ( ... ) {
      // wrong arguments !
