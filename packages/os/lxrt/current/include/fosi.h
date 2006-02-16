@@ -288,31 +288,6 @@ inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
     }
 
 
-    typedef pthread_cond_t rt_cond_t;
-    static inline int rtos_cond_init(rt_cond_t *cond, pthread_condattr_t *cond_attr)
-    {
-        CHK_LXRT_CALL();
-        return pthread_cond_init_rt(cond, cond_attr);
-    }
-
-    static inline int rtos_cond_destroy(rt_cond_t *cond)
-    {
-        CHK_LXRT_CALL();
-        return pthread_cond_destroy_rt(cond);
-    }
-
-    static inline int rtos_cond_timedwait(rt_cond_t *cond, rt_mutex_t *mutex, const struct timespec *abstime)
-    {
-        CHK_LXRT_CALL();
-        return pthread_cond_timedwait_rt(cond, mutex, abstime);
-    }
-
-    static inline int rtos_cond_broadcast(rt_cond_t *cond)
-    {
-        CHK_LXRT_CALL();
-        return pthread_cond_broadcast_rt(cond);
-    }
-
 inline
 int rtos_printf(const char *fmt, ...)
 {
@@ -363,15 +338,6 @@ int rtos_mutex_trylock( rt_mutex_t* m);
 
 int rtos_mutex_unlock( rt_mutex_t* m);
 
-typedef pthread_cond_t rt_cond_t;
-int rtos_cond_init(rt_cond_t *cond, pthread_condattr_t *cond_attr);
-
-int rtos_cond_destroy(rt_cond_t *cond);
-
-int rtos_cond_timedwait(rt_cond_t *cond, rt_mutex_t *mutex, const struct timespec *abstime);
-
-int rtos_cond_broadcast(rt_cond_t *cond);
-
 int rtos_printf(const char *fmt, ...);
 
 int rtos_sem_init(rt_sem_t* m, int value );
@@ -383,29 +349,6 @@ int rtos_sem_value(rt_sem_t* m );
 int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay );
 
 #endif // OSBLD_OS_AGNOSTIC
-
-
-
-// will become redundant ?
-void rtos_enable_fpu(pthread_attr_t *pa);
-
-// RT FIFO
-
-int rtosf_create(int fnr,size_t bytes);
-
-int rtosf_destroy(int fnr);
-
-int rtosf_put(int fnr, const char * text, size_t bytes);
-
-int rtosf_get(int fnr, char * text, size_t  bytes);
-
-int rtosf_resize(int fnr, size_t bytes) ;
-
-void rtosf_remove_all_handlers(int fnr);
-
-
-int rtosf_set_handler(int fnr, int (*handler)(unsigned int, int));
-
 
 #ifdef __cplusplus
 }

@@ -173,35 +173,6 @@ int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
         return pthread_mutex_unlock_rt(m);
     }
 
-    int rtos_cond_init(rt_cond_t *cond, pthread_condattr_t *cond_attr)
-    {
-        CHK_LXRT_CALL();
-        return pthread_cond_init_rt(cond, cond_attr);
-    }
-
-    int rtos_cond_destroy(rt_cond_t *cond)
-    {
-        CHK_LXRT_CALL();
-		CHK_LXRT_PTR(cond);
-        return pthread_cond_destroy_rt(cond);
-    }
-
-    int rtos_cond_timedwait(rt_cond_t *cond, rt_mutex_t *mutex, const struct timespec *abstime)
-    {
-        CHK_LXRT_CALL();
-		CHK_LXRT_PTR(cond);
-		CHK_LXRT_PTR(mutex);
-		CHK_LXRT_PTR(abstime);
-        return pthread_cond_timedwait_rt(cond, mutex, abstime);
-    }
-
-    int rtos_cond_broadcast(rt_cond_t *cond)
-    {
-        CHK_LXRT_CALL();
-		CHK_LXRT_PTR(cond);
-        return pthread_cond_broadcast_rt(cond);
-    }
-
 int rtos_printf(const char *fmt, ...)
 {
     va_list list;
@@ -217,42 +188,3 @@ int rtos_printf(const char *fmt, ...)
 
 #endif // OROBLD_OS_AGNOSTIC
 
- void rtos_enable_fpu(pthread_attr_t *pa) { return; }
-
-// RT FIFO
-
- int rtosf_create(int fnr,size_t bytes) 
-{
-    return -1;
-};
-
- int rtosf_destroy(int fnr)
-{
-    return -1;
-};
-
- int rtosf_put(int fnr, const char * text, size_t bytes) 
-{
-    return -1;
-};
-
- int rtosf_get(int fnr, char * text, size_t  bytes)
-{
-    return -1;
-};
-
- int rtosf_resize(int fnr, size_t bytes) 
-{
-    return -1;
-};
-
- void rtosf_remove_all_handlers(int fnr)
-{
-}
-
-
- int rtosf_set_handler(int fnr, int (*handler)(unsigned int, int))
-{
-    //	return rtf_create_handler(fnr,X_FIFO_HANDLER(handler));
-    return -1;
-}
