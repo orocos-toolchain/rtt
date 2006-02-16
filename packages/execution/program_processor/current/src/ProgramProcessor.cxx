@@ -212,7 +212,7 @@ namespace ORO_Execution
     std::vector<std::string> ProgramProcessor::getProgramList() const
     {
         std::vector<string> sret;
-        programs->apply( bind( &vector<string>::push_back, sret, bind( &ProgramInterface::getName, _1) ) );
+        programs->apply( bind( &vector<string>::push_back, ref(sret), bind( &ProgramInterface::getName, _1) ) );
         return sret;
     }
 
