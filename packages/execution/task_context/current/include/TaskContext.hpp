@@ -234,16 +234,16 @@ namespace ORO_Execution
         }
 
         /**
-         * The Data of this TaskContext.
+         * The DataSources of this TaskContext.
          */
-        GlobalDataSourceFactory* data() {
+        GlobalDataSourceFactory* datasources() {
             return &dataFactory;
         }
 
         /**
-         * The Data of this TaskContext.
+         * The DataSources of this TaskContext.
          */
-        const GlobalDataSourceFactory* data() const{
+        const GlobalDataSourceFactory* datasources() const{
             return &dataFactory;
         }
 

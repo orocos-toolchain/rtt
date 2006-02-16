@@ -1249,7 +1249,7 @@ cd                  quit
 	          &quot;a&quot;, &quot;the base&quot;, 
 	          &quot;b&quot;, &quot;the exponent&quot; ) ); 
 
-  a_task.data()->registerObject("objname", fact);	</programlisting></para>
+  a_task.datasources()->registerObject("objname", fact);	</programlisting></para>
         <para>
 	  which is dus nearly identical to using a method.
 	  Notice the usage of the _number class member. The
@@ -1283,7 +1283,7 @@ cd                  quit
   MapDataSourceFactory* mdf 
      = new MapDataSourceFactory( storemap, "Thread-safe DataObjects");
 
-  a_task.data()->registerObject("dataobjs", mdf);
+  a_task.datasources()->registerObject("dataobjs", mdf);
 	</programlisting>
 	<para>
 	  Which uses the thread-safe DataObjectLockFree (which
@@ -2023,7 +2023,7 @@ cd                  quit
          dfact-&gt;add(&quot;getError&quot;,
                     data(&amp;DeviceInterface::getError,
 	                 &quot;Get device error status.&quot;));
-         this->data()->registerObject("this", dfact);
+         this->datasources()->registerObject("this", dfact);
 
          // Add Commands :
          TemplateCommandFactory&lt;DeviceInterface&gt;* cfact =
