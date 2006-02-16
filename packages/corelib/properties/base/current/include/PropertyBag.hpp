@@ -193,6 +193,13 @@ namespace ORO_CoreLib
          */
         PropertyBag& operator<<=(const PropertyBag& source);
 
+        /**
+         * The 'add' operator.
+         * Equivalent to add().
+         * @param item The Property to add to this bag.
+         */
+        PropertyBag& operator<<( PropertyBase* item) { this->add(item); return *this; }
+
         const std::string& getType() const { return type;}
 
         void setType(const std::string& newtype) { type = newtype; }
