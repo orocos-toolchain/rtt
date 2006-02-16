@@ -60,10 +60,12 @@ namespace ORO_ControlKernel
     class BackendReportingExtension;
 
     /**
-     * @brief The base class for reporting Components.
+     * The base class for Components which allow internal data periodically be reported
+     * to screen or a log file.
      *
      * @see ReportingExtension
      * @see DefaultFacet
+     * @ingroup compinterf
      */
     class ReportingComponent
         : public detail::ComponentFacetInterface<ReportingExtension>
@@ -140,6 +142,7 @@ namespace ORO_ControlKernel
      * This extension is purely meant for text based data gathering.
      * It can also report DataObjects when used in the NSControlKernel.
      *
+     * @ingroup kernelint
      */
     class ReportingExtension
         :  public detail::ExtensionInterface

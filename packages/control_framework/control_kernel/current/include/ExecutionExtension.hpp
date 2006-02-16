@@ -70,6 +70,7 @@ namespace ORO_ControlKernel
      * @see ExecutionExtension
      * @see ProgramLoader for loading program/state machine scripts into
      * the Component's or Kernel's TaskContext.
+     * @ingroup compinterf
      *
      */
     class ExecutionComponentInterface
@@ -139,6 +140,7 @@ namespace ORO_ControlKernel
      * Furthermore, It contains a Processor which can then execute
      * the generated commands at runtime.
      * @see ExecutionComponentInterface
+     * @ingroup kernelint
      */
     class ExecutionExtension
         : public detail::ExtensionInterface

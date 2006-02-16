@@ -238,12 +238,22 @@ namespace ORO_ControlKernel
     }
 
     /**
+     * @defgroup kernelint Kernel Interfaces (Extensions)
+     * In Orocos, the ControlKernel can be extended with special
+     * interfaces such that it can do more with the components which
+     * are loaded into the Control Kernel. One can extend the
+     * ControlKernel in order to automatically configure its Components,
+     * collect data or expose their 'TaskContext' interface.
+     */
+
+    /**
      * @brief The 'Extension' that updates the components.
      *
      * This Extension is actually the base functionality
      * of a ControlKernel, updating the components, storing general properties,
      * generating kernel events. The Facet it uses is the 
      * ComponentBaseInterface.
+     * @ingroup kernelint
      * 
      */
     struct KernelBaseFunction
@@ -479,10 +489,14 @@ namespace ORO_ControlKernel
          * @param procname The name of the Process Component instance.
          * @return null if not loaded or not found, the Component instance otherwise.
          * @param P The class Type of the Process Component.
+         * Example:
+         * @verbatim 
+         KinematicProcess* kproc = kernel.getProcess<KinematicProcess>("Kinematics");
+         @endverbatim
          */
         template<class P>
         P* getProcess(const std::string& procname) const {
-            return dynamic_cast<P>(processes.getObject(procname));
+            return dynamic_cast<P*>(processes.getObject(procname));
         }
 
         /**

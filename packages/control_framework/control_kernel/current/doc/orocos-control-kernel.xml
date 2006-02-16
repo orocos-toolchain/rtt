@@ -38,7 +38,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002,2003,2004,2005</year>
+      <year>2002,2003,2004,2005,2006</year>
       <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
       <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
     </copyright>
@@ -872,17 +872,15 @@
       </para>
       <para>
 	The feedback loop has five Data Flow Components and five DataObjects:
-	the <emphasis role="strong">Sensor</emphasis> gathers data
+	the <classname>ORO_ControlKernel::Sensor</classname> gathers data
 	from the interfaces to the &ldquo;real world&rdquo;; the
-	<emphasis role="strong">Estimator</emphasis> processes the
+	<classname>ORO_ControlKernel::Estimator</classname> processes the
 	sensor data to estimate (&ldquo;identify&rdquo;) parameters of
 	a mathematical model of that world, as far as needed by the
-	controlled system; the <emphasis
-	  role="strong">Generator</emphasis> receives commands from
+	controlled system; the <classname>ORO_ControlKernel::Generator</classname> receives commands from
 	the user of the application, and produces setpoints, that the
-	<emphasis role="strong">Controller</emphasis> transforms into
-	a control action; finally, the <emphasis
-	  role="strong">Effector</emphasis> applies the outputs
+	<classname>ORO_ControlKernel::Controller</classname> transforms into
+	a control action; finally, the <classname>ORO_ControlKernel::Effector</classname> applies the outputs
 	resulting from this action to the &ldquo;real world&rdquo;. 
       </para>
       <para>
@@ -998,7 +996,7 @@
       </para>
       <para>
 	The data flow is established by the Control Kernel.
-	The <classname>StandardControlKernel</classname> is an
+	The <classname>ORO_ControlKernel::StandardControlKernel</classname> is an
 	implementation  with non distributed
 	Data Flow Components. It allows efficient stand alone
 	control applications.
@@ -1009,7 +1007,7 @@
   typedef StandardControlKernel<> MyKernel;]]> </programlisting>
       <para>
 	This defines the type <type>MyKernel</type> as being a
-	<classname>StandardControlKernel&lt;&gt;</classname>.
+	<classname>ORO_ControlKernel::StandardControlKernel</classname>&lt;&gt;.
 	The StandardControlKernel can be given template parameter,
 	but this is explained in the next section.
 	Next you can create an instance of your new
@@ -1083,7 +1081,7 @@
 		role="strong">HeartBeat</emphasis> is needed in a
 	      distributed control system, in order to keep the clocks
 	      of all processors synchronized to a virtual
-	      &ldquo;network time&rdquo; (The Orocos CoreLib HeartBeatGenerator
+	      &ldquo;network time&rdquo; (The Orocos CoreLib TimeService
 	      already implements a part of this functionality).
 	    </para>
 	  </listitem>
@@ -1138,7 +1136,7 @@
 	connected.
       </para>
       <para>
-	Data Flow Components access DataObjects always in the same generic way
+	Data Flow Components access <classname>ORO_CoreLib::DataObject</classname>s always in the same generic way
 	with <function>Get()</function> and <function>Set()</function>
 	methods, acting on a <emphasis>Port</emphasis> of the
 	DataObject. (A Port acts more or less like a
@@ -1186,7 +1184,7 @@
 	<title>Creating your own Data Flow Component</title>
 	<para>
 	  As mentioned before, creating a
-	  <classname>StandardControlKernel</classname> makes
+	  <classname>ORO_ControlKernel::StandardControlKernel</classname> makes
 	  <classname>DefaultComponents</classname> which do not
 	  act on the Data Flow.
 	  The control kernel is equipped with the
@@ -1197,7 +1195,7 @@
 	  Defining your own Component functionality works as in the
 	  following example for the Generator Component:
 	</para>
-	<programlisting><![CDATA[  #include <control_kernel/BaseComponents.hpp>
+	<programlisting>  #include &lt;control_kernel/BaseComponents.hpp>
 
   using namespace ORO_ControlKernel;
 
@@ -1205,20 +1203,20 @@
   // see later.
 
   class MyGenerator 
-      : public Generator< 
-	  Expects<MG_InputData>,
-	  Expects<NoModel>,
-	  Expects<MG_CommandData>,
-	  Writes<MG_SetPointData> 
+      : public <classname>ORO_ControlKernel::Generator</classname>&lt; 
+	  <classname>ORO_ControlKernel::Expects</classname>&lt;MG_InputData>,
+	  Expects&lt;NoModel>,
+	  Expects&lt;MG_CommandData>,
+	  <classname>ORO_ControlKernel::Writes</classname>&lt;MG_SetPointData> 
 	  >
   { 
   public:
-      MyGenerator( const std::string& name = "MyGeneratorName") // this name must be unique !
-	  : Generator< 
-	  Expects<MG_InputData>,
-	  Expects<NoModel>,
-	  Expects<MG_CommandData>,
-	  Writes<MG_SetPointData> 
+      MyGenerator( const std::string&amp; name = "MyGeneratorName") // this name must be unique !
+	  : Generator&lt; 
+	  Expects&lt;MG_InputData>,
+	  Expects&lt;NoModel>,
+	  Expects&lt;MG_CommandData>,
+	  Writes&lt;MG_SetPointData> 
 	  >( name ) {}
       void pull() 
       { 
@@ -1234,12 +1232,12 @@
       } 
 
       // ...
-  };]]>	</programlisting>
+  };</programlisting>
 	<para>
 	  This defines a class <classname>MyGenerator</classname>,
-	  which is derived from the <type>ORO_ControlKernel::Generator</type> class,
-	  and implements the three <classname>DataFlowInterface</classname>
-	  ( which is a base class from <classname>Generator</classname> ) method calls,
+	  which is derived from the <classname>ORO_ControlKernel::Generator</classname> class,
+	  and implements the three <classname>ORO_ControlKernel::DataFlowInterface</classname>
+	  ( which is a base class from <classname>ORO_ControlKernel::Generator</classname> ) method calls,
 	  <function>pull()</function>,
 	  <function>calculate()</function>, and
 	  <function>push()</function>. (More on these method calls
@@ -1247,7 +1245,7 @@
 	  text.)
 	</para>
 	<para>
-	  The <classname>Generator</classname> base class needs at least four template
+	  The <classname>ORO_ControlKernel::Generator</classname> base class needs at least four template
 	  parameters in a specified order. The first three denote
 	  what objects the Component expects in the Data Flow.
 	  The last template argument denotes what the Generator
@@ -1270,7 +1268,7 @@
 	  the default name "MyGeneratorName".
 	  It can
 	  be used with the <function>loadComponent()</function> method
-	  call of the <classname>StandardControlKernel</classname>.
+	  call of the <classname>ORO_ControlKernel::StandardControlKernel</classname>.
 	  The next line could then be:
 	</para>
 	<programlisting>
@@ -1294,7 +1292,7 @@
   first_kernel.startup( &amp;my_gen );</programlisting>
 	<para>
 	  Starting is enabling a Data Flow Component to operate on the
-	  Data Objects, ie, the <classname>DataFlowInterface</classname> of the Component is called. This
+	  Data Objects, ie, the <classname>ORO_ControlKernel::DataFlowInterface</classname> of the Component is called. This
 	  does not mean that a not started component is not accessible.
 	  It can still accept commands, report variables etc.
 	</para>
@@ -1345,8 +1343,8 @@
 	<para>
 	  A Data Flow Component implementation must derive from its
 	  Component base class which gets the data types as 
-	  template parameters using <classname>Expects&lt;...&gt;</classname>
-	  and <classname>Writes&lt;...&gt;</classname>, as seen in the previous
+	  template parameters using <classname>ORO_ControlKernel::Expects</classname>&lt;...&gt;
+	  and <classname>ORO_ControlKernel::Writes</classname>&lt;...&gt;, as seen in the previous
 	  section.
 	  A DataType is defined
 	  in a special way. An example shows what a DataType is :
@@ -1362,8 +1360,8 @@
 	    (&ldquo;Velocity&rdquo;) in the SetPoint DataObject is done
 	    as follows:
 	  </para>
-	  <programlisting><![CDATA[  struct MG_SetPointData
-     : public ServedTypes<Frame, double>
+	  <programlisting>  struct MG_SetPointData
+     : public ServedTypes&lt;<classname>ORO_Geometry::Frame</classname>, double>
   {
     MG_SetPointData()
     {
@@ -1371,7 +1369,7 @@
       this->insert( make_pair(0, "BasePosition"));
       this->insert( make_pair(1, "Velocity"));
     }
-  };]]>  </programlisting>
+  };</programlisting>
 	  <para>
 	    The numbers correspond to the n'th type ( as in ServedTypes&lt; Type0, Type1,...&gt; )
 	    listed in the ServedTypes list. So "EndPosition" and
@@ -1379,7 +1377,7 @@
 	  </para>
 	</example>
 	<para>
-	  In the <type>ServedTypes</type> list, you can specify from
+	  In the <classname>ServedTypes</classname> list, you can specify from
 	  zero to ten different types which the Component will produce. Each
 	  type may only occur once in that list. If you don't want to
 	  produce any type, you should make an empty list, denoted by
@@ -1409,10 +1407,10 @@
 	    This example shows how a Data Flow Component
 	    indicates which kind of data it expects.
 	  </para>
-	  <programlisting><![CDATA[  struct MG_InputData
-    : public ServedTypes<Frame, double>
+	  <programlisting>  struct MG_InputData
+    : public ServedTypes&lt;Frame, double>
   {
-  };]]>  </programlisting>
+  };</programlisting>
 	  <para>
 	    In this case, one or more Frames and one or more doubles
 	    are expected.
@@ -1422,11 +1420,11 @@
 	  If a type of DataObject is not used (for example the Model),
 	  then, the Component uses the Expects&lt;NoModel&gt; construct. For
 	  Each Data Object type, there is such a class predefined :
-	  <classname>NoInput</classname>,
-	  <classname>NoModel</classname>,
-	  <classname>NoCommand</classname>,
-	  <classname>NoSetPoint</classname>,
-	  <classname>NoOutput</classname>.
+	  <classname>ORO_ControlKernel::NoInput</classname>,
+	  <classname>ORO_ControlKernel::NoModel</classname>,
+	  <classname>ORO_ControlKernel::NoCommand</classname>,
+	  <classname>ORO_ControlKernel::NoSetPoint</classname>,
+	  <classname>ORO_ControlKernel::NoOutput</classname>.
 	</para>
 	<para>
 	  To get hold of a pointer to the DataObject from 
@@ -1446,32 +1444,32 @@
 	    must be accessed like a normal DataObject to
 	    <function>Get()</function> or <function>Set()</function> the Data.
 	  </para>
-	<programlisting>  <![CDATA[class MyGenerator 
-      : public Generator< 
-	  Expects<MG_InputData>,
-	  Expects<NoModel>,
-	  Expects<MG_CommandData>,
-	  Writes<MG_SetPointData> 
+	<programlisting>class MyGenerator 
+      : public <classname>ORO_ControlKernel::Generator</classname>&lt; 
+	  <classname>ORO_ControlKernel::Expects</classname>&lt;MG_InputData>,
+	  Expects&lt;NoModel>,
+	  Expects&lt;MG_CommandData>,
+	  <classname>ORO_ControlKernel::Writes</classname>&lt;MG_SetPointData> 
 	  >
 { 
-  typedef Generator<Expects<MG_InputData>,
-	            Expects<NoModel>,
-	            Expects<MG_CommandData>,
-	            Writes<MG_SetPointData> > BaseGen;
+  typedef Generator&lt;Expects&lt;MG_InputData>,
+	            Expects&lt;NoModel>,
+	            Expects&lt;MG_CommandData>,
+	            Writes&lt;MG_SetPointData> > BaseGen;
   
   // Our internal copy of the data
-  Frame end_frame;
+  <classname>ORO_Geometry::Frame</classname> end_frame;
   Frame base_frame;	    
   double tool_temp;
   Frame input_f;
 
   // Shared Pointers to the DataObjects
-  DataObjectInterface<double>::shared_ptr tool_temp_dobj;
-  DataObjectInterface<Frame>::shared_ptr input_f_dobj;
+  <classname>ORO_CoreLib::DataObjectInterface</classname>&lt;double>::shared_ptr tool_temp_dobj;
+  DataObjectInterface&lt;Frame>::shared_ptr input_f_dobj;
 
-  DataObjectInterface<double>::shared_ptr velocity_dobj;
-  DataObjectInterface<Frame>::shared_ptr base_f_dobj;
-  DataObjectInterface<Frame>::shared_ptr end_f_dobj;
+  DataObjectInterface&lt;double>::shared_ptr velocity_dobj;
+  DataObjectInterface&lt;Frame>::shared_ptr base_f_dobj;
+  DataObjectInterface&lt;Frame>::shared_ptr end_f_dobj;
 
 public:
   // See earlier code examples for constructor ...
@@ -1479,10 +1477,10 @@ public:
   bool componentLoaded()
   {
     // called when the component is loaded into the kernel.
-    // Early Resolving of Writes<> DataObjects :
-    if ( !SetPoint::dObj()->Get("EndPosition", end_f_dobj ) ||
-         !SetPoint::dObj()->Get("BasePosition", base_f_dobj ) ||
-         !SetPoint::dObj()->Get("Velocity", velocity_dobj )
+    // Early Resolving of Writes&lt;> DataObjects :
+    if ( !SetPoint->dObj()->Get("EndPosition", end_f_dobj ) ||
+         !SetPoint->dObj()->Get("BasePosition", base_f_dobj ) ||
+         !SetPoint->dObj()->Get("Velocity", velocity_dobj )
 	)
     { 
 	  // Error, "Velocity", "EndPosition" or "BasePosition" not found !
@@ -1494,9 +1492,9 @@ public:
   bool componentStartup()
   {
     // called when the component is started in the kernel.
-    // Early Resolving of Expects<> DataObjects :
-    if ( !Input::dObj()->Get("Temperature", tool_temp_dobj ) ||
-	  !Input::dObj()->Get("EndPosition", input_f_dobj ))
+    // Early Resolving of Expects&lt;> DataObjects :
+    if ( !Input->dObj()->Get("Temperature", tool_temp_dobj ) ||
+	  !Input->dObj()->Get("EndPosition", input_f_dobj ))
     { 
 	  // Error, "Temperature" or "EndPosition"  not found !
 	  return false;
@@ -1520,7 +1518,7 @@ public:
       velocity_dobj->Set( velocity );	    
   }
 
-};]]>  </programlisting>
+};</programlisting>
 	</example>
 	<para>
 	  No matter which kind of DataObject type the ControlKernel
@@ -1535,7 +1533,7 @@ public:
       <sect3 id="pull-calculate-push">
 	<title>Inserting Functionality in Components</title> 
 	<para>
-	  As seen above, each Component has the <classname>DataFlowInterface</classname>
+	  As seen above, each Component has the <classname>ORO_ControlKernel::DataFlowInterface</classname>
 	   methods <function>pull()</function>,
 	  <function>calculate()</function>, and
 	  <function>push()</function>, for data exchange and data
@@ -1569,7 +1567,7 @@ public:
 	  setpoint for the Controller Component at a &ldquo;high
 	  frequency&rdquo;. The Component Builder can implement
 	  this behavior by overriding the update() method,
-	  defined in the <classname>DataFlowInterface</classname>.
+	  defined in the <classname>ORO_ControlKernel::DataFlowInterface</classname>.
 	</para>
       </sect3>
 
@@ -1754,16 +1752,16 @@ public:
 	<para>
 	  Each DefaultComponent (and thus each Component you will
 	  insert into a Kernel) is a subclass of the class
-	  <classname>ComponentBaseInterface</classname>, defined in
+	  <classname>ORO_ControlKernel::ComponentBaseInterface</classname>, defined in
 	  the file <filename>ComponentInterfaces.hpp</filename>. This
 	  interface allows each Component to locate the Control Kernel
 	  in which it is loaded by the <function>kernel()</function>
 	  method, which returns a pointer to the
-	  <classname>KernelBaseFunction</classname>,
+	  <classname>ORO_ControlKernel::KernelBaseFunction</classname>,
 	  <emphasis>i.e.</emphasis> the base class of each Control
-	  Kernel. The <classname>ComponentBaseInterface</classname>
+	  Kernel. The <classname>ORO_ControlKernel::ComponentBaseInterface</classname>
 	  defines the Hook methods which a Component can
-	  override, and the <classname>KernelBaseFunction</classname>
+	  override, and the <classname>ORO_ControlKernel::KernelBaseFunction</classname>
 	  interface allows them to access the Standard Control Kernel
 	  Events. See the Doxygen API documentation for the full
 	  documentation of these interfaces. The CoreLib manual
@@ -1874,18 +1872,20 @@ public:
     <sect2>
 	<title>Process Components</title>
 	<para>
-	  The Process Components are as important as the Data Flow Components,
-	  since they centralise 'global knowledge'. For example, a Process
-	  Component determines which Data Flow Components are running and in
-	  which order they are executed. Another Process Component contains
-	  all kinematic state information and does kinematic calculations
-	  for the Data Flow Components.
+	  The <classname>ORO_ControlKernel::Process</classname> Components are complementary to the Data Flow
+	  Components. While Data Flow components distribute (decouple)
+	  data flow, the Process components centralise 'global
+	  knowledge' in the Control Kernel. For example, a Process
+	  Component may determine which Data Flow Components are running
+	  and in which order they are executed. Or, a Process
+	  Component can contain all kinematic state information and does
+	  kinematic calculations for the Data Flow Components.
 	</para>
 	<sect3>
 	  <title>The Default Process</title>
 	  <para>
 	    The Control Kernel comes with a "Default" Process Component,
-	    <classname>ControlKernelProcess</classname>, if the user
+	    <classname>ORO_ControlKernel::ControlKernelProcess</classname>, if the user
 	    did not specify one himself. The default Process Component
 	    runs (update()'s) all data flow components in the order
 	    specified above (from Sensors to Effectors). However, as
@@ -1941,9 +1941,9 @@ public:
 	<sect3>
 	  <title>The Kinematic Process Component</title>
 	  <para>
-	    A Process Component can also be a 'service' in that it 
+	    A <classname>ORO_ControlKernel::Process</classname> Component can also be a 'service' in that it 
 	    does 'operations' for the data flow components. A classical
-	    service is the Kinematic Process which keeps track of the
+	    service is the <classname>ORO_ControlKernel::KinematicProcess</classname> which keeps track of the
 	    joint and cartesian space positions of the robot. Any component
 	    may then ask it to perform a kinematic calculation. The
 	    advantage of centralised kinematics is that only one component
@@ -1951,6 +1951,24 @@ public:
 	    other components can depend on it for correct calculations.
 	    The Kinematic Process component is configured through properties
 	    such that recompilation is not required when the kinematics change.
+	  </para>
+	  <para>
+	    In the likely case that your robot type is not supported,
+	    you can load your own kinematic algorithm implemented
+	    using the <classname>ORO_KinDyn::KinematicsInterface</classname>, into 
+	    the framework by invoking:
+	    <programlisting>  <classname>ORO_ControlKernel::KinematicProcess</classname> kproc("Kinematics");
+
+  <classname>ORO_KinDyn::KinematicsInterface</classname>* newKine = ... // create your algorithm
+
+// initialise positive joint directions to 1.0
+  ORO_KinDyn::JointVelocities joint_signs(newKine->maxNumberOfJoints(), 1.0);
+
+// initialise positive joint offsets to 0.0
+  ORO_KinDyn::JointPositions joint_offsets(newKine->maxNumberOfJoints(), 0.0);
+
+// load new algorithm:
+  kproc.getKinematics()->setKinematics( newKine, joint_signs, joint_offsets );</programlisting>
 	  </para>
 	  <para>
 	    The 'kernel_samples' package contains some examples of a
@@ -2046,7 +2064,7 @@ public:
 	  the result (a PropertyBag) to the
 	  <function>updateProperties(const PropertyBag &amp;
 	    bag)</function> method of the
-	  <classname>KernelBaseFunction</classname> base class of the
+	  <classname>ORO_ControlKernel::KernelBaseFunction</classname> base class of the
 	  kernel. If you want to add your own configuration options to
 	  a Kernel subclass (which is quite common), you can define an
 	  updateKernelProperties(const PropertyBag &amp; bag) method
@@ -2115,7 +2133,7 @@ public:
       <sect3>
 	<title>Accessing the Configuration parameters</title>
 	<para>
-	  Each Component inherits from the <classname>ComponentBaseInterface</classname>
+	  Each Component inherits from the <classname>ORO_ControlKernel::ComponentBaseInterface</classname>
 	  which provides, among others, the <function>bool inKernel() const</function>
 	  function and the <function>KernelBaseFunction* kernel() const</function>
 	  function. The former returns true if the component is loaded in
@@ -2197,14 +2215,14 @@ public:
     </para>
     <para>
       Each Control Kernel has a default Extension, the
-      <classname>KernelBaseFunction</classname>, coupled with the
-      <classname>ComponentBaseInterface</classname> Facet. It defines
+      <classname>ORO_ControlKernel::KernelBaseFunction</classname>, coupled with the
+      <classname>ORO_ControlKernel::ComponentBaseInterface</classname> Facet. It defines
       the basic Data Flow Component interaction features that each Control
       Kernel has. The most important one of these interaction features
       is calling the <function>update()</function> methods of the
       Components and changing the Components' state when the Control
       Kernel is started or stopped. In most applications, the
-      <classname>KernelBaseFunction</classname> is the first Extension
+      <classname>ORO_ControlKernel::KernelBaseFunction</classname> is the first Extension
       to be executed.
     </para>
     <para>
@@ -2265,21 +2283,21 @@ public:
 	      <tbody>
 		<row>
 		  <entry>
-		    void exportReports( PropertyBag&amp; bag )
+		    void exportReports( <classname>ORO_CoreLib::PropertyBag</classname>&amp; bag )
 		  </entry>
 		  <entry>The component needs to fill the bag with its
 		    own Properties which will be read after each
 		    Control Kernel cycle. This is how the Extension
 		    knows what the Component wants to report.
 		  </entry>
-		  <entry>ReportingExtension, CORBAExtension</entry>
+		  <entry><classname>ORO_ControlKernel::ReportingExtension</classname>, CORBAExtension</entry>
 		</row>
 		<row>
-		  <entry>bool updateProperties( const PropertyBag&amp; bag )</entry>
+		  <entry>bool updateProperties( const <classname>ORO_CoreLib::PropertyBag</classname>&amp; bag )</entry>
 		  <entry>The Component can use the Properties found in the bag to
 		    update its own properties. The Extension got the Properties from
 		    a CPF file.</entry>
-		  <entry>PropertyExtension</entry>
+		  <entry><classname>ORO_ControlKernel::PropertyExtension</classname></entry>
 		</row>
 		<row>
 		  <entry>void exportProperties( PropertyBag&amp; bag )</entry>
@@ -2288,7 +2306,7 @@ public:
 		    such that they can be read out from within another
 		    part of the program.
 		  </entry>
-		  <entry>PropertyExtension</entry>
+		  <entry><classname>ORO_ControlKernel::PropertyExtension</classname></entry>
 		</row>
 		<row>
 		  <entry>
@@ -2296,12 +2314,12 @@ public:
 		  </entry>
 		  <entry>
 		    This function is needed to export Component
-		    functions as DataSources which a Component wants to
+		    functions as datasources which a Component wants to
 		    expose to the &orocos; scripting language. What the
 		    function needs to contain is documented in the
 		    &orocos; Program Parser and Task Infrastructure manual.
 		  </entry>
-		  <entry>ExecutionExtension</entry>
+		  <entry><classname>ORO_ControlKernel::ExecutionExtension</classname></entry>
 		</row>
 		<row>
 		  <entry>
@@ -2314,7 +2332,7 @@ public:
 		    function needs to contain is documented in the
 		    &orocos; Program Parser and Task Infrastructure manual.
 		  </entry>
-		  <entry>ExecutionExtension</entry>
+		  <entry><classname>ORO_ControlKernel::ExecutionExtension</classname></entry>
 		</row>
 		<row>
 		  <entry>
@@ -2327,7 +2345,7 @@ public:
 		    function needs to contain is documented in the
 		    &orocos; Program Parser and Task Infrastructure manual.
 		  </entry>
-		  <entry>ExecutionExtension</entry>
+		  <entry><classname>ORO_ControlKernel::ExecutionExtension</classname></entry>
 		</row>
 	      </tbody>
 	    </tgroup>
@@ -2342,28 +2360,28 @@ public:
 	It happens by adding the extra template parameter on creation.
 	To revisit the <type>MyKernel</type> example:
       </para>
-      <programlisting><![CDATA[  // equivalent typedef as before: 
-  typedef StandardControlKernel<KernelBaseFunction> MyKernel;
+      <programlisting>  // equivalent typedef as before: 
+  typedef StandardControlKernel&lt;<classname>ORO_ControlKernel::KernelBaseFunction</classname>> MyKernel;
 
     // adding a new extension to the KernelBaseFunction: 
-  typedef MakeExtension<PropertyExtension, KernelBaseFunction>::Result MyExtension; 
-  typedef StandardControlKernel< MyExtension > MyPropertyKernel;]]> </programlisting>
+  typedef <classname>ORO_ControlKernel::MakeExtension</classname>&lt;<classname>ORO_ControlKernel::PropertyExtension</classname>,<classname>ORO_ControlKernel::KernelBaseFunction</classname>>::Result MyExtension; 
+  typedef StandardControlKernel&lt; MyExtension > MyPropertyKernel;</programlisting>
       <para>
 	As can be seen, Extensions are composed using the
-	<classname>MakeExtension</classname> class, specifying
+	<classname>ORO_ControlKernel::MakeExtension</classname> class, specifying
 	the &lt; First, Second, Third,... &gt; extension. The order
 	First, Second,... determines which Extension is executed before
 	the other. In the example above, the
-	<classname>KernelBaseFunction</classname> is executed by the
+	<classname>ORO_ControlKernel::KernelBaseFunction</classname> is executed by the
 	control kernel after the
-	<classname>PropertyExtension</classname>, as it should be.
+	<classname>ORO_ControlKernel::PropertyExtension</classname>, as it should be.
 	Adding the reporting extension is then analogous:
       </para>
-      <programlisting><![CDATA[  // A control kernel with two additional Extensions:
-  typedef MakeExtension< PropertyExtension,
-	                 KernelBaseFunction,
-	                 ReportingExtension >::Result MySecondExtension;
-  typedef StandardControlKernel < MySecondExtension > MyPropRepKernel;]]> </programlisting>
+      <programlisting>  // A control kernel with two additional Extensions:
+  typedef <classname>ORO_ControlKernel::MakeExtension</classname>&lt; <classname>ORO_ControlKernel::PropertyExtension</classname>,
+	                 <classname>ORO_ControlKernel::KernelBaseFunction</classname>,
+	                 <classname>ORO_ControlKernel::ReportingExtension</classname> >::Result MySecondExtension;
+  typedef <classname>ORO_ControlKernel::StandardControlKernel</classname> &lt; MySecondExtension > MyPropRepKernel;</programlisting>
       <para>
 	The order in which the Extensions are composed is important.
 	If one Extension fails on startup, the other will not be
@@ -2385,7 +2403,7 @@ public:
       <para>
 	If a Component wants to use a kernel Extension, it needs to inherit
 	from the Facet. This is done by using a special construct, called
-	<classname>MakeFacet</classname>. It is, similar to adding an
+	<classname>ORO_ControlKernel::MakeFacet</classname>. It is, similar to adding an
 	Extension to a kernel, given as an extra template parameter
 	to its base class (e.g. Generator).
       </para>
@@ -2404,7 +2422,8 @@ public:
   { 
       // ...
   };]]>	</programlisting>
-	The ComponentBaseInterface is the Facet of the KernelBaseFunction.
+	The <classname>ORO_ControlKernel::ComponentBaseInterface</classname> 
+	is the Facet of the <classname>ORO_ControlKernel::KernelBaseFunction</classname>.
       </para>
       <para>
 	To add an additional Facet to the Component, you must use MakeFacet
@@ -2438,7 +2457,7 @@ public:
       <para>
 	By default, only the Control Kernel has a limited set of
 	properties, Components have none. The
-	<type>PropertyExtension</type> allows to configure Components
+	<classname>ORO_ControlKernel::PropertyExtension</classname> allows to configure Components
 	properties through the kernel. The
 	<filename>properties.cpf</filename> file lists the CPF
 	(Component Property Format) file for each component type.
@@ -2464,8 +2483,8 @@ public:
       <sect3>
 	<title>Using the Property Extension</title>
 	<para>
-	  The PropertyExtension can be added to a
-	  <classname>StandardControlKernel</classname> using the
+	  The <classname>ORO_ControlKernel::PropertyExtension</classname> can be added to a
+	  <classname>ORO_ControlKernel::StandardControlKernel</classname> using the
 	  MakeExtension structure :
 	  <programlisting><![CDATA[  typedef MakeExtension<PropertyExtension, KernelBaseFunction>::Result MyExtension; 
   typedef StandardControlKernel< MyExtension > MyPropertyKernel;]]></programlisting>
@@ -2479,7 +2498,7 @@ public:
       <sect3>
 	<title>Hooks</title>
 	<para>The Property Extension provides two hooks to the Components : the
-	  <function>updateProperties(const PropertyBag&amp;
+	  <function>updateProperties(const <classname>ORO_CoreLib::PropertyBag</classname>&amp;
 	    bag)</function> method and the <function>exportProperties(PropertyBag&amp;
 	    bag)</function> method. In the former, the component must read properties
 	  from the bag and assign his own proper property with the
@@ -2594,7 +2613,7 @@ private:
       <sect3>
 	<title>Configuring the Property Extension</title>
 	<para>
-	  The <type>PropertyExtension</type> can be configured through the CPF
+	  The <classname>ORO_ControlKernel::PropertyExtension</classname> can be configured through the CPF
 	  file given in the Control Kernel configuration file.
 	  An example looks like this:
 	</para>
@@ -2673,7 +2692,7 @@ private:
     <sect2 id="reporting-extension">
       <title>The Reporting (Data Flow Logging) Extension</title>
       <para>
-	A second functional Extension is the Reporting Extension.
+	A second functional Extension is the <classname>ORO_ControlKernel::ReportingExtension</classname>.
 	It enables Components and DataObjects to report (log)
 	the status of internal variables to the screen or to a file,
 	independent of the kernel's execution period. It can be used
@@ -2705,8 +2724,8 @@ private:
       <sect3>
 	<title>Using the Reporting Extension</title>
 	<para>
-	  The ReportingExtension can be added to a
-	  <classname>StandardControlKernel</classname> analogous
+	  The <classname>ORO_ControlKernel::ReportingExtension</classname> can be added to a
+	  <classname>ORO_ControlKernel::StandardControlKernel</classname> analogous
 	  to the PropertyExtension :
 	  <programlisting><![CDATA[  typedef MakeExtension< KernelBaseFunction, ReportingExtension >::Result MyExtension; 
   typedef StandardControlKernel< MyExtension > MyPropertyKernel;]]>  </programlisting>
@@ -2718,7 +2737,7 @@ private:
       <sect3>
 	<title>Configuring the Reporting Extension</title>
 	<para>
-	  The ReportingExtension can be configured through the CPF
+	  The <classname>ORO_ControlKernel::ReportingExtension</classname> can be configured through the CPF
 	  file given in the Control Kernel configuration file.
 	  An example looks like this:
 	</para>
@@ -2917,18 +2936,18 @@ private:
       <para>
 	This extension makes from the Kernel a Task, such that it can
 	be used by the Orocos Task Infrastructure.
-	The Execution Extension allows the kernel to execute &orocos;
+	The <classname>ORO_ControlKernel::ExecutionExtension</classname> allows the kernel to execute &orocos;
 	program scripts and &orocos; state descriptions
 	synchronous with the kernel loop. For convenience,
-	it contains a program parser which will read an std::istream 
-	object to obtain the program text and another one to obtain
-	the state graph.
+	it contains a program parser which will read a file
+	to obtain the program text and another one to obtain
+	the state machine.
       </para>
       <para>
 	The &orocos; execution package contains three manuals which
-	explain the behavior of the Program Processor and the Program
+	explain the behavior of the <classname>ORO_Execution::ExecutionEngine</classname> and the Program
 	and State 
-	Parsers. The Processor can load a state machine which
+	Parsers. The Execution Engine can load a state machine which
 	keeps track of the user defined system states and transitions,
 	which define the states of the machine (Orocos State Descriptions).
 	On top of this it executes a program (Orocos Program Script)
@@ -2936,7 +2955,7 @@ private:
 	may contain loops). A CommandNode contains about one script
 	command with its termination conditions. The Parser converts a
 	program script to a tree of CommandNodes, which is called a
-	Program. The scriptcommands are all functions of kernel
+	Program. The script commands are all functions of kernel
 	components or external objects which have registered
 	themselves to the parser framework.
       </para>
@@ -2970,14 +2989,14 @@ private:
       <sect3>
 	<title>Using the ExecutionExtension</title>
 	<para>
-	  The ExecutionExtension provides a more user friendly 
+	  The <classname>ORO_ControlKernel::ExecutionExtension</classname> provides a more user friendly 
 	  interface for managing Programs and StateMachines.
 	  A StateMachine file and Program file
 	  can be loaded as such :
 	</para>
-      <programlisting><![CDATA[  // adding the extension to the KernelBaseFunction: 
-  typedef MakeExtension<KernelBaseFunction, ExecutionExtension>::Result ExecExtension; 
-  typedef StandardControlKernel<ExecExtension> MyExecKernel;
+      <programlisting>  // adding the extension to the KernelBaseFunction: 
+  typedef <classname>ORO_ControlKernel::MakeExtension</classname>&lt;<classname>ORO_ControlKernel::KernelBaseFunction</classname>, <classname>ORO_ControlKernel::ExecutionExtension</classname>>::Result ExecExtension; 
+  typedef <classname>ORO_ControlKernel::StandardControlKernel</classname>&lt;ExecExtension> MyExecKernel;
 
   MyExecKernel my_kernel;
   // ... load components, then :
@@ -2985,12 +3004,12 @@ private:
     my_kernel.loadStateMachine("state.osd");
     my_kernel.loadProgram("program.ops");
   } catch ( file_parse_exception& fpe ) {
-    cerr << fpe.what() << endl;
+    cerr &lt;&lt; fpe.what() &lt;&lt; endl;
     // parse error.
   } catch ( program_load_exception & ple ) {
-    cerr << ple.what() << endl;
+    cerr &lt;&lt; ple.what() &lt;&lt; endl;
     // parsed fine, but failed to load
-  }   ]]>   </programlisting>
+  } </programlisting>
 	<para>
 	  The Program name is given in the program.ops file.
 	  Both Program and StateMachine can cause parse errors or
@@ -3022,14 +3041,14 @@ private:
 	  for all details.
 	</para>
 	<para>
-	  With this Extension, the Control Kernel exports itself in a <classname>TaskContext</classname>,
+	  With this Extension, the Control Kernel exports itself in a <classname>ORO_Execution::TaskContext</classname>,
 	  which can be used to integrate it with other Orocos tasks.
 	  The name of the task is the kernel name ("Default" by default).
 	  The listing below shows how you can connect the kernel's task to the
-	  <classname>TaskBrowser</classname>.
-	  <programlisting>  TaskContext* kern_task = my_kernel.getTaskContext();
+	  <classname>ORO_Execution::TaskBrowser</classname>.
+	  <programlisting>  <classname>ORO_Execution::TaskContext</classname>* kern_task = my_kernel.getTaskContext();
 
-  TaskBrowser browser( kern_task );
+  <classname>ORO_Execution::TaskBrowser</classname> browser( kern_task );
   browser.loop();	  </programlisting>
 	  The above code snippet will cause a text console to be opened
 	  which allows a user to interface the Control Kernel,
@@ -3095,7 +3114,7 @@ private:
 	  <title>The ExecutionExtension</title>
 	  <para>
 	    The part of the kernel that the parser talks to to get hold of
-	    the API's of the components is the ExecutionExtension.
+	    the API's of the components is the <classname>ORO_ControlKernel::ExecutionExtension</classname>.
 	    It is an &orocos; kernel extension that talks to the kernel
 	    components and keeps a list of their data and command
 	    factories.  If you are composing an &orocos; kernel, then you
@@ -3498,12 +3517,14 @@ program DemoRun {
     <sect2 id="cascade-ns">
       <title>The CascadeControlKernel</title>
       <para>
-	This Kernel is usable for most control loop cascades imaginable.
-	Each cascaded Kernel can have all Components and all DataObjects
-	shared across these Kernels. The
-	limitation that only one Component may write to a certain
-	nameserved DataObject still holds but all the others may read it, independent
-	of the priority level. This is logical since if more than one
+	The
+	<classname>ORO_ControlKernel::CascadeControlKernel</classname>
+	is usable for most control loop cascades imaginable.  Each
+	cascaded Kernel can have all Components and all DataObjects
+	shared across these Kernels. The limitation that only one
+	Component may write to a certain nameserved DataObject still
+	holds but all the others may read it, independent of the
+	priority level. This is logical since if more than one
 	Component writes data into a DataObject, the contents become
 	ambiguous.
       </para>
@@ -3522,13 +3543,13 @@ program DemoRun {
 	look differently than the StandardControlKernel. However, its
 	DataObjects are chosen in such a way that they are fully
 	thread safe and non blocking by using the
-	<link linkend="data-objects">DataObjectBuffer</link>
+	<link linkend="data-objects">DataObjectLockFree</link>
 	implementation. In this Kernel however, you want the prefix
 	to match the one of the other Kernel, so that they share 
 	the same DataObjects.
       </para>
       <para>
-	The Outputs DataObject of a CascadeControlKernel will be
+	The Outputs DataObject of a <classname>ORO_ControlKernel::CascadeControlKernel</classname> will be
 	automatically introduced
 	in the Commands namespace of the other Kernels. One should be
 	aware of possible name clashes. Of course, what one Kernel
@@ -3538,7 +3559,7 @@ program DemoRun {
       </para>
       <para>
 	If you want to extend an existing control kernel with a cascade
-	kernel, you need to use the LockFreeControlKernel
+	kernel, you need to use the <classname>ORO_ControlKernel::LockFreeControlKernel</classname>
 	( instead of the StandardControlKernel), which allows
 	thread-safe and lock-free data access to all DataObjects. See the example below.
       </para>
@@ -3553,17 +3574,17 @@ program DemoRun {
 	    may write to a specific DataObject, while all
 	    the others may read from it.
 	  </para>
-	    <programlisting><![CDATA[// The highest priority kernel is standard
-LockFreeControlKernel<> 
+	    <programlisting>// The highest priority kernel is standard
+<classname>ORO_ControlKernel::LockFreeControlKernel</classname>&lt;> 
     innerKernel("InnerLoop", "my_cascade" );
 
 // A cascade, its outputs get in the command dataobject
 // of "InnerLoop"
-CascadeControlKernel<>
+<classname>ORO_ControlKernel::CascadeControlKernel</classname>&lt;>
     casc2Kernel("MiddleLoop", "my_cascade" );
 
 // same as above
-CascadeControlKernel<> 
+<classname>ORO_ControlKernel::CascadeControlKernel</classname>&lt;> 
     casc3Kernel("OuterLoop", "my_cascade" );
 
 // ... repeat as much as you want
@@ -3572,7 +3593,7 @@ CascadeControlKernel<>
 
 // Configure the kernels using KernelConfig
 
-// Start kernels in seperate tasks and threads]]>  </programlisting>
+// Start kernels in seperate tasks and threads</programlisting>
 	  <para>
 	    The CascadeControlKernel knows it has to put the Outputs of
 	    the Kernel in the namespace of the Commands of all the
@@ -3647,7 +3668,7 @@ CascadeControlKernel<>
 	    <para>If you were using Extensions/Facets such as 
 	      <function>exportReports()</function> or
 	      <function>updateProperties()</function>, you will need an extra
-	      template parameter <classname>MakeFacet</classname>.  See <xref
+	      template parameter <classname>ORO_ControlKernel::MakeFacet</classname>.  See <xref
 		linkend="control-kernel-extensions" /> for
 	      more information.</para>
 	  </note>
@@ -3679,7 +3700,7 @@ CascadeControlKernel<>
   };</programlisting>
       </example>
       <para>
-	If you used the <classname>CompositeDataObject</classname>
+	If you used the <classname>ORO_ControlKernel::CompositeDataObject</classname>
 	to define the Kernel type, this is no longer needed
 	and each component expects or writes its own DataObjects.
       </para>

@@ -48,6 +48,7 @@ namespace ORO_ControlKernel
      * @brief A Component using properties can be extended with this interface
      * to export them to the user or update them with user defined values.
      * @see PropertyExtension
+     * @ingroup compinterf
      */
     class PropertyComponentInterface
         :public detail::ComponentFacetInterface<PropertyExtension>
@@ -107,6 +108,7 @@ namespace ORO_ControlKernel
      * The properties of the PropertyExtension itself contain the filenames 
      * of the component property files.
      * @see PropertyComponentInterface
+     * @ingroup kernelint
      */
     class PropertyExtension
         : public detail::ExtensionInterface

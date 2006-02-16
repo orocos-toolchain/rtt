@@ -108,6 +108,14 @@ namespace ORO_ControlKernel
     }
 
     class KernelBaseFunction;
+    /**
+     * @defgroup compinterf Component Interfaces (Facets)
+     * The various interfaces (facets) the Orocos Control Kernel Components may implement.
+     * Each Component Interface matches a Control Kernel Extension which 'knows'
+     * how to interact with the Component through that interface. 
+     * These interfaces are not application specific, but cover Component properties,
+     * starting and stopping components and logging functionality.
+     */
 
     /**
      * @brief The Base class of each ControlKernel Component
@@ -117,6 +125,7 @@ namespace ORO_ControlKernel
      * This Facet introduces the ability to detect if the component
      * is placed in a ControlKernel and to return a pointer to this kernel.
      * It is the Facet of the KernelBaseFunction.
+     * @ingroup compinterf
      * 
      */
     class ComponentBaseInterface 
