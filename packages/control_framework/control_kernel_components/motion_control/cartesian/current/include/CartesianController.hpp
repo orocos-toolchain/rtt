@@ -37,6 +37,7 @@
 #include <control_kernel/PropertyExtension.hpp>
 #include <control_kernel/ExtensionComposition.hpp>
 #include <control_kernel/BaseComponents.hpp>
+#include <control_kernel/KinematicProcess.hpp>
 #include <corelib/PropertyComposition.hpp>
 
 #include <pkgconf/control_kernel.h>
@@ -46,14 +47,14 @@
 #include "execution/TemplateCommandFactory.hpp"
 #endif
 
-#include "CartesianNSDataObjects.hpp"
+#include "CartesianDataObjects.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
 #endif
 
 /**
- * @file CartesianNSController.hpp
+ * @file CartesianController.hpp
  *
  * This file contains a Controller calculating
  * the reference velocities for 6 axes.
@@ -74,20 +75,20 @@ namespace ORO_ControlKernel
      * @ingroup kcomps kcomp_controller
      */
     class CartesianController
-        : public Controller<Expects<CartesianNSSensorInput>,
-                            Expects<CartesianNSModel>,
-                            Expects<CartesianNSSetPoint>,
-                            Writes<CartesianNSDriveOutput>,
+        : public Controller<Expects<CartesianSensorInput>,
+                            Expects<CartesianModel>,
+                            Expects<CartesianSetPoint>,
+                            Writes<CartesianDriveOutput>,
                             MakeFacet<PropertyExtension, KernelBaseFunction,
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                       ExecutionExtension,
 #endif
                                       ReportingExtension>::Result >
     {
-        typedef Controller<Expects<CartesianNSSensorInput>,
-                           Expects<CartesianNSModel>,
-                           Expects<CartesianNSSetPoint>,
-                           Writes<CartesianNSDriveOutput>,
+        typedef Controller<Expects<CartesianSensorInput>,
+                           Expects<CartesianModel>,
+                           Expects<CartesianSetPoint>,
+                           Writes<CartesianDriveOutput>,
                            MakeFacet<PropertyExtension,
                                      KernelBaseFunction,
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
@@ -96,14 +97,32 @@ namespace ORO_ControlKernel
                                      ReportingExtension>::Result > Base;
     public:
             
-        CartesianController(KinematicsInterface* k) 
-            :  Base("CartesianController"),gain("Gain","The error gain.",0),
-               end_twist("Result Twist",""), kineComp(k), q_err("Velocity Setpoints",""),
-               jpos(k->getNumberOfJoints(),0.0)
+        CartesianController(std::string name = "CartesianController") 
+            :  Base( name ),gain("Gain","The error gain.",0),
+               end_twist("Result Twist",""), q_err("Velocity Setpoints","")
         {
-            q_err.value().resize(k->getNumberOfJoints(), 0.0);
-            q_dot.resize(k->getNumberOfJoints(), 0.0);
-            q_des.resize(k->getNumberOfJoints(), 0.0);
+        }
+
+        virtual bool componentLoaded() {
+            Logger::In in("CartesianController");
+            KinematicProcess* kProc = kernel()->getProcess<KinematicProcess>("Kinematics");
+            if ( kProc == 0 ) {
+                Logger::log() << Logger::Error << "Could not find KinematicProcess with name \"Kinematics\" for kinematic algorithms."<<Logger::nl;
+                Logger::log() << "Load the KinematicProcess Component first."<<Logger::endl;
+                return false;
+            }
+            Logger::log() << Logger::Info << "Found KinematicProcess for kinematic algorithms."<<Logger::endl;
+            kineComp = kProc->getKinematics();
+            if ( kineComp ) {
+                Logger::log() << Logger::Info << "Using kinematic algorithms for "<< kProc->getArchitecture() <<Logger::endl;
+                jpos.resize(kineComp->getNumberOfJoints(),0.0);
+                q_err.value().resize(kineComp->getNumberOfJoints(), 0.0);
+                q_dot.resize(kineComp->getNumberOfJoints(), 0.0);
+                q_des.resize(kineComp->getNumberOfJoints(), 0.0);
+                return true;
+            }
+            Logger::log() << Logger::Error << "KinematicProcess not properly configured. Aborting." <<Logger::endl;
+            return false;
         }
 
         virtual bool componentStartup()
@@ -125,7 +144,6 @@ namespace ORO_ControlKernel
             jpos_DObj->Get( jpos );
             curFrame_DObj->Get( mp_base_frame );
             desFrame_DObj->Get( setpoint_frame );
-            kineComp.setPosition( jpos );
         }
             
         /**
@@ -137,7 +155,7 @@ namespace ORO_ControlKernel
             ee_base = mp_base_frame;
             //ee_base.p = Vector::Zero();
                 
-            if (kineComp.positionInverse(setpoint_frame, q_des ) == false) {
+            if (kineComp->positionInverse(setpoint_frame, q_des ) == false) {
                 for (unsigned int i = 0; i < jpos.size(); ++i) {
                     q_dot[i] = 0.0;
                 }
@@ -192,7 +210,7 @@ namespace ORO_ControlKernel
         Frame ee_base;
         Property<Twist> end_twist;
         ORO_KinDyn::JointPositions q_des;
-        KinematicsComponent kineComp;
+        KinematicsComponent* kineComp;
         Property<ORO_KinDyn::JointPositions> q_err;
 
         ORO_KinDyn::JointPositions jpos;

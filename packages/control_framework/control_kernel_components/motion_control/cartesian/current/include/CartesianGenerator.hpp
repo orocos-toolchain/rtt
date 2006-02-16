@@ -53,14 +53,14 @@
 #include <control_kernel/ExecutionExtension.hpp>
 #endif
 
-#include "CartesianNSDataObjects.hpp"
+#include "CartesianDataObjects.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
 #endif
 
 /**
- * @file CartesianNSGenerator.hpp
+ * @file CartesianGenerator.hpp
  *
  * This file contains a Cartesian Generator doing interpolations.
  */
@@ -79,20 +79,20 @@ namespace ORO_ControlKernel
      * @ingroup kcomps kcomp_generator
      */
     class CartesianGenerator 
-        : public Generator<Expects<CartesianNSSensorInput>,
-                                     Expects<CartesianNSModel>,
-                                     Expects<CartesianNSCommand>,
-                                     Writes<CartesianNSSetPoint>,
+        : public Generator<Expects<CartesianSensorInput>,
+                                     Expects<CartesianModel>,
+                                     Expects<CartesianCommand>,
+                                     Writes<CartesianSetPoint>,
                                      MakeFacet<PropertyExtension, KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                                    , ExecutionExtension
 #endif
                                                    >::Result >
     {
-        typedef Generator<Expects<CartesianNSSensorInput>,
-                          Expects<CartesianNSModel>,
-                          Expects<CartesianNSCommand>,
-                          Writes<CartesianNSSetPoint>,
+        typedef Generator<Expects<CartesianSensorInput>,
+                          Expects<CartesianModel>,
+                          Expects<CartesianCommand>,
+                          Writes<CartesianSetPoint>,
                           MakeFacet<PropertyExtension, KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                      , ExecutionExtension

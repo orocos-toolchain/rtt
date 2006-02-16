@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Apr 22 20:40:59 CEST 2004  CartesianNSSensor.hpp 
+  tag: Peter Soetens  Thu Apr 22 20:40:59 CEST 2004  CartesianSensor.hpp 
 
-                        CartesianNSSensor.hpp -  description
+                        CartesianSensor.hpp -  description
                            -------------------
     begin                : Thu April 22 2004
     copyright            : (C) 2004 Peter Soetens
@@ -43,7 +43,7 @@
 #include "execution/TemplateCommandFactory.hpp"
 #endif
 
-#include "CartesianNSDataObjects.hpp"
+#include "CartesianDataObjects.hpp"
 #include <geometry/MotionProperties.hpp>
 
 #ifdef ORO_PRAGMA_INTERFACE
@@ -51,11 +51,11 @@
 #endif
 
 /**
- * @file CartesianNSComponents.hpp
+ * @file CartesianSensor.hpp
  *
- * This file contains components for
- * use in cartesian path planning. Only Nameserved
- * DataObjects are used.
+ * This file contains a sensor for
+ * use in cartesian path planning. It reads
+ * robot positions from a Simulator.
  */
     
 namespace ORO_ControlKernel
@@ -72,7 +72,7 @@ namespace ORO_ControlKernel
      * @ingroup kcomps kcomp_sensor
      */
     class CartesianSensor
-        : public Sensor< Writes<CartesianNSSensorInput>,
+        : public Sensor< Writes<CartesianSensorInput>,
                          MakeFacet<ReportingExtension,
                                    KernelBaseFunction,
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
@@ -80,7 +80,7 @@ namespace ORO_ControlKernel
 #endif
                                    >::Result >
     {
-        typedef Sensor< Writes<CartesianNSSensorInput>,
+        typedef Sensor< Writes<CartesianSensorInput>,
             MakeFacet<ReportingExtension,
                       KernelBaseFunction,
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION

@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Jul 15 11:21:06 CEST 2004  CartesianNSEstimator.cxx 
+  tag: Peter Soetens  Mon Jan 19 14:11:21 CET 2004  CartesianNSComponents.hpp 
 
-                        CartesianNSEstimator.cxx -  description
+                        CartesianNSComponents.hpp -  description
                            -------------------
-    begin                : Thu July 15 2004
+    begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
-    email                : peter.soetens at mech.kuleuven.ac.be
+    email                : peter.soetens@mech.kuleuven.ac.be
  
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -23,13 +23,27 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/
+ ***************************************************************************/ 
+ 
+#ifndef CARTESIAN_COMPONENTS_HPP
+#define CARTESIAN_COMPONENTS_HPP
 
-#ifdef ORO_PRAGMA_INTERFACE
-#pragma implementation
+
+/**
+ * @file CartesianComponents.hpp
+ *
+ * This file includes components for
+ * use in cartesian path planning.
+ */
+
+
+#include "CartesianDataObjects.hpp"
+#include "CartesianSensor.hpp"
+#include "CartesianEstimator.hpp"
+#include "CartesianController.hpp"
+#include "CartesianGenerator.hpp"
+#include "CartesianEffector.hpp"
+#include "CartesianProcess.hpp"
+
 #endif
-#include "control_kernel/CartesianNSEstimator.hpp"
 
-namespace ORO_ControlKernel {
-
-}

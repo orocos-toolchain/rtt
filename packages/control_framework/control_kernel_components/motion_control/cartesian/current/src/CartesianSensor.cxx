@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Jul 15 11:21:06 CEST 2004  CartesianNSController.cxx 
+  tag: Peter Soetens  Thu Jul 15 11:21:06 CEST 2004  CartesianNSSensor.cxx 
 
-                        CartesianNSController.cxx -  description
+                        CartesianNSSensor.cxx -  description
                            -------------------
     begin                : Thu July 15 2004
     copyright            : (C) 2004 Peter Soetens
@@ -28,7 +28,7 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "control_kernel/CartesianNSController.hpp"
+#include "control_kernel/CartesianSensor.hpp"
 
 namespace ORO_ControlKernel {
 

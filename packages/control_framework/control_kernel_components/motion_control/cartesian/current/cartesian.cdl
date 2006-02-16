@@ -12,10 +12,11 @@ is also provided for testing purposes.
 
     include_dir control_kernel
 
-    compile CartesianNSSensor.cxx
-    compile CartesianNSEffector.cxx
-    compile CartesianNSController.cxx
-    compile CartesianNSGenerator.cxx
-    compile CartesianNSEstimator.cxx
+    compile CartesianSensor.cxx
+    compile CartesianEffector.cxx
+    compile CartesianController.cxx
+    compile CartesianGenerator.cxx
+    compile CartesianEstimator.cxx
     compile CartesianPositionTracker.cxx
+    compile CartesianProcess.cxx
 }

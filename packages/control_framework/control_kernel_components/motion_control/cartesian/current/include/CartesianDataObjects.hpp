@@ -38,10 +38,10 @@
 
 
 /**
- * @file CartesianNSDataObjects.hpp
+ * @file CartesianDataObjects.hpp
  *
  * This file contains all the DataObjects used by the
- * CartesianNS* components.
+ * Cartesian* components.
  */
     
 namespace ORO_ControlKernel
@@ -50,10 +50,10 @@ namespace ORO_ControlKernel
     /**
      * @brief The Nameserved Input DataObjects.
      */
-    struct CartesianNSSensorInput
+    struct CartesianSensorInput
         : public ServedTypes<ORO_KinDyn::JointValues>
     {
-        CartesianNSSensorInput()
+        CartesianSensorInput()
         {
             this->insert(make_pair(0,"JointPositions"));
         }
@@ -62,10 +62,10 @@ namespace ORO_ControlKernel
     /**
      * @brief The Nameserved Command DataObjects.
      */
-    struct CartesianNSCommand
+    struct CartesianCommand
         : public ServedTypes< Trajectory*, Frame>
     {
-        CartesianNSCommand()
+        CartesianCommand()
         {
             // The numbers 0,1 is the type number as in
             // ServedTypes< Type0, Type1, Type2,... >
@@ -78,10 +78,10 @@ namespace ORO_ControlKernel
     /**
      * The SetPoint is expressed in the robot base frame.
      */
-    struct CartesianNSSetPoint
+    struct CartesianSetPoint
         : public ServedTypes<Frame>
     {
-        CartesianNSSetPoint()
+        CartesianSetPoint()
         {
             this->insert( make_pair(0, "EndEffectorFrame"));
         }
@@ -90,10 +90,10 @@ namespace ORO_ControlKernel
     /**
      * The Estimator only estimates the cartesian coordinates.
      */
-    struct CartesianNSModel
+    struct CartesianModel
         : public ServedTypes<Frame>
     {
-        CartesianNSModel() {
+        CartesianModel() {
             this->insert(make_pair(0, "EndEffPosition"));
         }
     };
@@ -101,10 +101,10 @@ namespace ORO_ControlKernel
     /**
      * Calculated joint velocities.
      */
-    struct CartesianNSDriveOutput
+    struct CartesianDriveOutput
         : public ServedTypes<ORO_KinDyn::JointValues>
     {
-        CartesianNSDriveOutput()
+        CartesianDriveOutput()
         {
             this->insert(make_pair(0, "JointVelocities"));
         }

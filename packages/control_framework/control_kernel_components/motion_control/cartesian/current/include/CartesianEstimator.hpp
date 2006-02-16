@@ -48,14 +48,14 @@
 #include "execution/TemplateCommandFactory.hpp"
 #endif
 
-#include "CartesianNSDataObjects.hpp"
+#include "CartesianDataObjects.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
 #endif
 
 /**
- * @file CartesianNSEstimator.hpp
+ * @file CartesianEstimator.hpp
  * Contains an Estimator for calculating the
  * cartesian position from joint positions.
  */
@@ -75,9 +75,9 @@ namespace ORO_ControlKernel
      * @ingroup kcomps kcomp_estimator
      */
     class CartesianEstimator
-        : public Estimator<Expects<CartesianNSSensorInput>,
+        : public Estimator<Expects<CartesianSensorInput>,
                            Expects<NoOutput>,
-                           Writes<CartesianNSModel>,
+                           Writes<CartesianModel>,
                            MakeFacet<PropertyExtension,
                                      KernelBaseFunction,
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
@@ -85,9 +85,9 @@ namespace ORO_ControlKernel
 #endif
                                      >::Result >
     {
-        typedef Estimator<Expects<CartesianNSSensorInput>,
+        typedef Estimator<Expects<CartesianSensorInput>,
                           Expects<NoOutput>,
-                          Writes<CartesianNSModel>,
+                          Writes<CartesianModel>,
                           MakeFacet<PropertyExtension, KernelBaseFunction,
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                     ExecutionExtension
@@ -100,7 +100,7 @@ namespace ORO_ControlKernel
               kineName("Kinematics","The name of the KinematicsStub to use","Kuka361"), kine(0),kineComp(0),
               jpos(6,0.0)
         {
-            kine = KinematicsFactory::create( kineName );
+            kine = KinematicsFactory::Create( kineName );
             if (kine)
                 kineComp = new KinematicsComponent( kine );
         }
@@ -173,7 +173,7 @@ namespace ORO_ControlKernel
         bool setKinematics( const std::string& name )
         {
             KinematicsInterface* _k;
-            if ( (_k = KinematicsFactory::create(name)) != 0 )
+            if ( (_k = KinematicsFactory::Create(name)) != 0 )
                 {
                     delete kineComp;
                     kineName =  name;

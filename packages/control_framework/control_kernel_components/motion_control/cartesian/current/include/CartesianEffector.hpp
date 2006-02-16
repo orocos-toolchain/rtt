@@ -44,14 +44,14 @@
 #include "execution/TemplateCommandFactory.hpp"
 #endif
 
-#include "CartesianNSDataObjects.hpp"
+#include "CartesianDataObjects.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
 #endif
 
 /**
- * @file CartesianNSEffector.hpp
+ * @file CartesianEffector.hpp
  * Contains a dummy Effector which uses a 
  * simulated robot.
  */
@@ -71,14 +71,14 @@ namespace ORO_ControlKernel
      * @ingroup kcomps kcomp_effector
      */
     class CartesianEffector
-        : public Effector< Expects<NoInput>, Expects<NoModel>, Expects<CartesianNSDriveOutput>,
+        : public Effector< Expects<NoInput>, Expects<NoModel>, Expects<CartesianDriveOutput>,
                                      MakeFacet<KernelBaseFunction,
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                                ExecutionExtension,
 #endif
                                                ReportingExtension>::Result >
     {
-        typedef Effector< Expects<NoInput>, Expects<NoModel>, Expects<CartesianNSDriveOutput>,
+        typedef Effector< Expects<NoInput>, Expects<NoModel>, Expects<CartesianDriveOutput>,
                           MakeFacet<KernelBaseFunction,
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
                                     ExecutionExtension,
