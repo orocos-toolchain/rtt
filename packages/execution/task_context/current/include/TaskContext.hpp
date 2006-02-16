@@ -234,6 +234,20 @@ namespace ORO_Execution
         }
 
         /**
+         * The Data of this TaskContext.
+         */
+        GlobalDataSourceFactory* data() {
+            return &dataFactory;
+        }
+
+        /**
+         * The Data of this TaskContext.
+         */
+        const GlobalDataSourceFactory* data() const{
+            return &dataFactory;
+        }
+
+        /**
          * The task-local values ( attributes and properties ) of this TaskContext.
          */
         AttributeRepository* attributes() {
@@ -269,7 +283,7 @@ namespace ORO_Execution
         GlobalCommandFactory    commandFactory;
         /**
          * The DataSource Factory of this TaskContext.
-         * @deprecated by methods()
+         * @deprecated by data()
          */
         GlobalDataSourceFactory dataFactory;
         /**
