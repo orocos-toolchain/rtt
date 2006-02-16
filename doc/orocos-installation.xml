@@ -133,7 +133,7 @@
 	    <thead>
 	      <row>
 		<entry>Program / Library</entry>
-		<entry>Minimum Version</entry>
+		<entry><strong>Minimum</strong> Version</entry>
 		<entry>Description</entry>
 	      </row>
 	    </thead>
@@ -155,12 +155,13 @@
 	      </row>
 	      <row>
 		<entry>Boost C++ Libraries</entry>
-		<entry>0.31.0</entry>
+		<entry>0.32.0 (0.33.0 Recommended!)</entry>
 		<entry><ulink url="http://www.boost.org">Boost.org</ulink></entry>
 	      </row>
 	      <row>
 		<entry>GNU gcc / g++ Compilers</entry>
 		<entry>3.3.0</entry>
+		<entry><ulink url="http://gcc.gnu.org">gcc.gnu.org</ulink></entry>
 	      </row>
 	      <row>
 		<entry>Xerces C++ Parser</entry>
@@ -185,7 +186,8 @@
 	<para>
 	  All these packages are provided by most Linux distributions.
 	  Take also a look on the Orocos.org download page for
-	  the latest information.</para>
+	  the latest information. 
+	</para>
       </sect3>
     </sect2>
     <sect2>
@@ -276,7 +278,7 @@
 	<note>
 	  <para>
 	    The <command>../configure</command> script must be rerun after
-	    you installed missing libraries (like boost, xerces,...).
+	    you installed missing libraries (like Boost, Xerces,...).
 	  </para>
 	</note>
 	<para>
@@ -672,6 +674,94 @@
 	</para>
       </sect3>
     </sect2>
+    <sect2 id="install-config-corba">
+      <title>Configuring for CORBA</title>
+      <para>
+	Orocos is slowly gaining support for CORBA. Orocos
+	is recommended to be used with 'The Ace Orb' or 
+	<emphasis>TAO</emphasis> version prepared by 
+	OCI (Object Computing Inc.). You can find the 
+	latest TAO version on 
+	<ulink url="http://www.theaceorb.com">OCI's TAO
+	website</ulink>. Orocos was tested with OCI's TAO 1.3 and 1.4.
+	The OCI version is far more stable than the versions
+	provided by the DOC group on the <ulink url="http://www.cs.wustl.edu/~schmidt/TAO.html">
+	Real-time CORBA with TAO (The ACE ORB) website</ulink>.
+      </para>
+      <sect3>
+	<title>Finding the TAO installation</title>
+	<para>
+	  Orocos looks for TAO in your standard include
+	  paths, in case your distribution packages TAO.
+	  However, if you prefer to use the OCI version,
+	  you need to add a configure flag to tell Orocos
+	  where to find the <filename>ACE_wrappers</filename> directory:
+	  <screen>../configure --with-tao=/path/to/ACE_wrappers</screen>
+	  Orocos assumes that the ACE headers are then found in
+	  <filename>/path/to/ACE_wrappers/ace</filename>, the
+	  TAO headers are found in <filename>/path/to/ACE_wrappers/TAO/tao</filename>,
+	  the libraries are found in <filename>/path/to/ACE_wrappers/lib</filename>
+	  and the IDL compiler in <filename>/path/to/ACE_wrappers/bin</filename>.
+	  These are all the correct values when using the downloaded
+	  packages.
+	</para>
+      </sect3>
+      <sect3>
+	<title>IDL File Compilation</title>
+	<para>
+	  When Orocos detects the presence of TAO, it immediately
+	  generates the client and server files for all the Orocos IDL
+	  files during the configure step. Thus in order to
+	  re-generate these files, the configure script needs to be
+	  called again. When you do not make use of Orocos' Corba
+	  functionality, these files are not compiled nor used in any
+	  way by the Orocos build.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Application Development with TAO</title>
+	<para>
+	  Once you compile and link your application with Orocos and with the
+	  Corba functionality enabled, you must provide the correct include
+	  and link flags in your own Makefile. More specifically, you must
+	  add:
+	  <itemizedlist>
+	    <listitem>
+	      <para>
+		Compiling : <option>-I/path/to/ACE_wrappers</option>
+	      </para>
+	      <para>
+		This is the ACE build directory in case you use OCI's
+		TAO packages. This option is not needed if you used
+		your distribution's TAO installation, in that case,
+		TAO is in the standard include path.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		Linking : <option>-L/path/to/ACE_wrappers/lib -lTAO -lACE -lTAO_IDL_BE -lTAO_PortableServer -lTAO_CosNaming</option>
+	      </para>
+	      <para>
+		This is again the ACE build directory in case you use OCI's
+		TAO packages. The <emphasis>first</emphasis> option is not needed if you used
+		your distribution's TAO installation, in that case,
+		TAO is in the standard library path.
+	      </para>
+	      <important>
+		<para>
+		  You must also need to add
+		  <filename>/path/to/ACE_wrappers</filename> to the
+		  <filename>/etc/ld.so.conf</filename> file and rerun
+		  <command>ldconfig</command>, such that these libraries
+		  can be found.  Or you can before you start your application
+		  type <screen>export LD_LIBRARY_PATH=/path/to/ACE_wrappers/lib</screen>.
+		</para>
+	      </important>
+	    </listitem>
+	  </itemizedlist>
+	</para>
+      </sect3>
+    </sect2>
     <sect2 id="general_setup_rtai">
       <title >Configuring RTAI</title>
       <para>
@@ -932,7 +1022,7 @@
 	    You can then simply compile your program with a Makefile
 	    resembling this one : 
 	    <programlisting>  CXXFLAGS=-O2 -I/usr/local/orocos/include -D_REENTRANT
-  LDFLAGS=-L/usr/local/orocos/lib -lorocos-<emphasis>&lt;target></emphasis> -lstdc++ -lpthread -lboost_signals -lreadline -lncurses
+  LDFLAGS=-L/usr/local/orocos/lib -lorocos-<emphasis>&lt;target></emphasis> -lstdc++ -lpthread -lreadline -lncurses
 
   all: myprogram.cpp
         g++ myprogram.cpp ${CXXFLAGS} ${LDFLAGS} -o myprogram  </programlisting>
@@ -1265,27 +1355,4 @@
       </para>
     </sect2>
   </sect1>
-  <!--
-  Having a glossary would be very helpfull for those trying to understand
-  &orocos;.
-
-  <glossary>
-  <glossentry id="gnu">
-  <glossterm>Concurrent Versioning System</glossterm>
-  <acronym>CVS</acronym>
-  <glossdef>
-  <para>
-  CVS is a version control system, which allows you to keep old versions
-  of files (usually source code), keep a log of who, when, and why
-  changes occurred, etc., like RCS or SCCS.  Unlike the simpler systems,
-  CVS does not just operate on one file at a time or one directory at a
-  time, but operates on hierarchical collections of directories
-  consisting of version controlled files.
-      </para>
-  <glossseealso otherterm="gnu">GNU</glossseealso>
-    </glossdef>
-  </glossentry>
-</glossary>
-  -->
-
 </article>
