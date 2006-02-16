@@ -108,6 +108,12 @@ of the &orocos; framework.
 	<authorinitials>ps</authorinitials>
 	<revremark>Added DataObject section within Buffer section. Added TaskNonPeriodic.</revremark>
       </revision>
+      <revision>
+	<revnumber>0.22.0</revnumber>
+	<date>15 Feb 2006</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Removed Fifo section.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -196,9 +202,9 @@ of the &orocos; framework.
       <title>Creating a Periodic Thread</title>
       <para>
 	Orocos provides, by default, two hard realtime periodic threads and
-	a non realtime periodic thread. The <classname>ZeroTimeThread</classname>
-	has the highest priority, the <classname>ZeroLatencyThread</classname>
-	has a lower priority and the <classname>NonRealTimeThread</classname>
+	a non realtime periodic thread. The <classname>ORO_CoreLib::ZeroTimeThread</classname>
+	has the highest priority, the <classname>ORO_CoreLib::ZeroLatencyThread</classname>
+	has a lower priority and the <classname>ORO_CoreLib::NonRealTimeThread</classname>
 	has an even lower priority is not realtime at all (but still periodic).
 	If they are needed, Orocos will create and start/stop them automatically,
 	thus the user does not need to know or take care of them. 
@@ -218,7 +224,7 @@ of the &orocos; framework.
 	priority and start the thread. An example is given below. 
 	A PriorityThread is not automatically started like the ZeroTimeThread,
 	ZeroLatencyThread and NonRealTimeThread. It must be done by the
-	user. Furthermore, The PriorityThread is the general case of the
+	user. Furthermore, The <classname>ORO_CoreLib::PriorityThread</classname> is the general case of the
 	above three cases, since its priority can match their priorities
 	as given in the configuration tool.</para>
       <para>
@@ -290,34 +296,34 @@ ORO_main( int argc, char** argv)
 	    </thead>
 	    <tbody>
 	      <row>
-		<entry>TimerThread</entry>
-		<entry>PeriodicTask</entry>
+		<entry><classname>ORO_CoreLib::TimerThreadc</classname></entry>
+		<entry><classname>ORO_CoreLib::PeriodicTask</classname></entry>
 		<!-- one of (entrytbl entry) -->
 	      </row>
 	      <row>
-		<entry>ZeroTimeThread</entry>
-		<entry>TaskNonPreemptible</entry>
+		<entry><classname>ORO_CoreLib::ZeroTimeThread</classname></entry>
+		<entry><classname>ORO_CoreLib::TaskNonPreemptible</classname></entry>
 		<!-- one of (entrytbl entry) -->
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry>ZeroLatencyThread</entry>
-		<entry>TaskPreemptible</entry>
+		<entry><classname>ORO_CoreLib::ZeroLatencyThread</classname></entry>
+		<entry><classname>ORO_CoreLib::TaskPreemptible</classname></entry>
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry>NonRealTimeThread</entry>
-		<entry>TaskNonRealTime</entry>
+		<entry><classname>ORO_CoreLib::NonRealTimeThread</classname></entry>
+		<entry><classname>ORO_CoreLib::TaskNonRealTime</classname></entry>
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry>PriorityThread&lt; N &gt;</entry>
-		<entry>PriorityTask&lt; N &gt;</entry>
+		<entry><classname>ORO_CoreLib::PriorityThread</classname></entry>
+		<entry><classname>ORO_CoreLib::PriorityTask</classname></entry>
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry>SimulationThread</entry>
-		<entry>SimulationTask</entry>
+		<entry><classname>ORO_CoreLib::SimulationThread</classname></entry>
+		<entry><classname>ORO_CoreLib::SimulationTask</classname></entry>
 	      </row>
 	    </tbody>
 	  </tgroup>
@@ -327,7 +333,7 @@ ORO_main( int argc, char** argv)
 	<itemizedlist>
 	  <listitem>
 	    <para>
-	      Implementing the <classname>RunnableInterface</classname>  in another class
+	      Implementing the <classname>ORO_CoreLib::RunnableInterface</classname>  in another class
 	      ( functions initialize, step or loop/breakLoop and finalize ). The RunnableInterface object (i.e. run_impl) can
 	      be assigned to a task using <synopsis> task.run( &amp;run_impl )</synopsis> or
 	      at construction time of a Task : <synopsis> TaskNonPreemptible task( period, &amp;run_impl );</synopsis>.
@@ -497,8 +503,8 @@ ORO_main( int argc, char** argv)
       <title>Periodic Threads Overview</title>
       <para>
 	The high priority thread is the
-	<classname>ZeroTimeThread</classname>. It will execute all
-	<classname>TaskNonPreemptible</classname> Tasks
+	<classname>ORO_CoreLib::ZeroTimeThread</classname>. It will execute all
+	<classname>ORO_CoreLib::TaskNonPreemptible</classname> Tasks
 	synchronically. You can create your own not preemptable task by
 	inheriting from this class. Its name is derived from the fact
 	that some tasks need to be executed in an infinite small
@@ -509,12 +515,12 @@ ORO_main( int argc, char** argv)
       </para>
       <para>
 	The low priority tasks are executed by the
-	<classname>ZeroLatencyThread</classname> class. It will
-	execute all <classname>TaskPreemptible</classname> Tasks
+	<classname>ORO_CoreLib::ZeroLatencyThread</classname> class. It will
+	execute all <classname>ORO_CoreLib::TaskPreemptible</classname> Tasks
 	sequentially, when no non-preemptible tasks are executed.
-	Every <classname>TaskPreemptible</classname> can be preempted
-	by a <classname>TaskNonPreemptible</classname> but not by
-	another <classname>TaskPreemptible</classname>. The
+	Every <classname>ORO_CoreLib::TaskPreemptible</classname> can be preempted
+	by a <classname>ORO_CoreLib::TaskNonPreemptible</classname> but not by
+	another <classname>ORO_CoreLib::TaskPreemptible</classname>. The
 	ZeroLatencyThread has this name because the zero time
 	constraint is dropped, but replaced by the constraint that no
 	latency may occur and thus, execution is still realtime.
@@ -529,12 +535,12 @@ ORO_main( int argc, char** argv)
 	takes finite time. This is the lowest priority thread in the
 	system and it should never lock a resource of the realtime
 	thread. Tasks being executed in the NonRealTimeThread are
-	called <classname>TaskNonRealTime</classname>.
+	called <classname>ORO_CoreLib::TaskNonRealTime</classname>.
       </para>
       <para>
 	The last standard thread type Orocos provides is the 
-	<classname>SimulationThread</classname> which runs
-	<classname>SimulationTask</classname>s. It is special in
+	<classname>ORO_CoreLib::SimulationThread</classname> which runs
+	<classname>ORO_CoreLib::SimulationTask</classname>s. It is special in
 	that it executes all its tasks as fast as possible
 	( thus without periodic sleeps ) and adjusting the
 	system's clock between each <emphasis>step()</emphasis>.
@@ -604,14 +610,14 @@ ORO_main( int argc, char** argv)
       <para>
 	If you want to create a task which reads file-IO, or displays
 	information or does any other possibly blocking operation, the
-	<classname>TaskNonPeriodic</classname> implementation can be
+	<classname>ORO_CoreLib::TaskNonPeriodic</classname> implementation can be
 	used. When it is <function>start()</function>'ed, its loop()
 	method will be called exactly once and then it will stop,
 	after which it can be started again.  Analogous to periodic
 	tasks, the user can implement
 	<function>initialize()</function>, <function>loop()</function>
 	and <function>finalize()</function> functions in a
-	<classname>RunnableInterface</classname> which will be used by
+	<classname>ORO_CoreLib::RunnableInterface</classname> which will be used by
 	the task for executing the user's functions. Alternatively,
 	you can reimplement said functions in a derived class of
 	TaskNonPeriodic. The task's loop() will be executed in its own
@@ -668,8 +674,8 @@ ORO_main( int argc, char** argv)
       <title>Event Driven Tasks</title>
       <para>
 	An alternative way to use non periodic tasks is to use
-	the <classname>ORO_CoreLib::TaskEventDriven</classname>,
-	which can be bound to an <classname>Event</classname> (see <xref linkend="corelib-events" /> )
+	the <classname>ORO_CoreLib::ORO_CoreLib::TaskEventDriven</classname>,
+	which can be bound to an <classname>ORO_CoreLib::Event</classname> (see <xref linkend="corelib-events" /> )
 	and each time the Event is emitted, the step() method will be invoked
 	asynchronously in a given thread.
 	This will happen from the moment the task's start method is called
@@ -786,7 +792,7 @@ ORO_main( int argc, char** argv)
 	  </thead>
 	  <tbody>
 	    <row>
-	      <entry>DataObjectLockFree</entry>
+	      <entry><classname>ORO_CoreLib::DataObjectLockFree</classname></entry>
 	      <entry>
 		<para>Uses a single writer, multiple reader Lock-free implementation.
 		  A read only returns the last written value.
@@ -795,17 +801,26 @@ ORO_main( int argc, char** argv)
 	      </entry>
 	    </row>
 	    <row>
-	      <entry>AtomicQueue</entry>
+	      <entry><classname>ORO_CoreLib::AtomicQueue</classname></entry>
 	      <entry>
 		<para>Uses Compare And Swap (CAS) to store object pointers
 		in an atomic queue. Used by the Processor class to queue incomming Commands.</para>
 	      </entry>
 	    </row>
 	    <row>
-	      <entry>BufferLockFree</entry>
+	      <entry><classname>ORO_CoreLib::BufferLockFree</classname></entry>
 	      <entry>
 		<para>Uses a many writers, multiple readers Lock-free CAS implementation.
 		  A read returns the oldest written value in a FIFO way.
+		</para>
+	      </entry>
+	    </row>
+	    <row>
+	      <entry><classname>ORO_CoreLib::ListLockFree</classname></entry>
+	      <entry>
+		<para>Uses a many writers, multiple readers Lock-free CAS implementation
+		of a single linked list. A special member function 'apply' must be used
+		to manipulate the objects within the list.
 		</para>
 	      </entry>
 	    </row>
@@ -819,13 +834,13 @@ ORO_main( int argc, char** argv)
 	Each Orocos Task (periodic, non periodic and event driven)
 	type has a <function>thread()</function> method in its
 	interface which gives a non-zero pointer to a
-	<classname>ThreadInterface</classname> object which provides
+	<classname>ORO_CoreLib::ThreadInterface</classname> object which provides
 	general thread information such as the priority and periodicity and allows to
 	control the realtimeness of the thread which runs this task. A
 	non periodic task's thread will return a period of zero.
       </para>
       <para>
-	A RunnableInterface can get the same information
+	A <classname>ORO_CoreLib::RunnableInterface</classname> can get the same information
 	through the <function>this->getTask()->thread()</function> method calls.
       </para>
       <para>
@@ -836,16 +851,17 @@ ORO_main( int argc, char** argv)
   <sect1 id="corelib-events">
     <title>Events</title>
     <para>
-      An Event is an object to which one can connect callback functions. When
-      the Event is raised, the connected functions are called one
-      after the other. An Event can carry data and deliver it to the
-      function's arguments. Orocos allows two possibilities of
-      calling the function : synchronous and asynchronous. The former
-      means that when the emit() method is called, all synchronous
-      handlers are called in the same thread. The latter means that
-      the data is stored and the callback function is called in another
-      thread. The thread which will execute the deferred callback
-      is chosen at connection or setup time.
+      An <classname>ORO_CoreLib::Event</classname> is an object to
+      which one can connect callback functions. When the Event is
+      raised, the connected functions are called one after the
+      other. An Event can carry data and deliver it to the function's
+      arguments. Orocos allows two possibilities of calling the
+      function : synchronous and asynchronous. The former means that
+      when the emit() method is called, all synchronous handlers are
+      called in the same thread. The latter means that the data is
+      stored and the callback function is called in another
+      thread. The thread which will execute the deferred callback is
+      chosen at connection or setup time.
     </para>
     <figure><title>Event Handling</title>
     <mediaobject>
@@ -968,9 +984,9 @@ emergencyStop.emit(); // User not notified
       another thread.
     </para>
     <para>
-      You must choose the type of <classname>Event</classname> upon
+      You must choose the type of <classname>ORO_CoreLib::Event</classname> upon
       construction. This can no longer be changed once the
-      <classname>Event</classname> is created. The type is the
+      <classname>ORO_CoreLib::Event</classname> is created. The type is the
       same for the synchronous and asynchronous methods. If the type changes,
       the emit() method must given other arguments. For example :
       <example>
@@ -1005,7 +1021,7 @@ emergencyStop.emit(); // User not notified
     </important>
     </sect2>
     <sect2>
-      <title><function>setup()</function> and the <classname>Handle</classname> object</title>
+      <title><function>setup()</function> and the <classname>ORO_CoreLib::Handle</classname> object</title>
       <para>
 	Event connections can be managed by using a Handle which both <function>connect()</function>
 	and <function>setup()</function> return :
@@ -1065,7 +1081,7 @@ emergencyStop.emit(); // User not notified
       <para>
 	In the example above, there was aparantly no thread choosen.
 	The default thread which executes asynchronous callbacks
-	is called the Completion Processor. This is a non realtime
+	is called the <classname>ORO_CoreLib::CompletionProcessor</classname>. This is a non realtime
 	thread, which means that the reaction time is not bounded.
 	If you want to execute the callback in another thread,
 	an additional argument can be given in the
@@ -1122,7 +1138,7 @@ emergencyStop.emit(); // User not notified
     <sect2>
       <title>Private EventProcessors for Periodic Tasks</title>
       <para>
-	Asynchronous handlers are called in an EventProcessor.
+	Asynchronous handlers are called in an <classname>ORO_CoreLib::EventProcessor</classname>.
 	Each Orocos thread has such an EventProcessor to handle
 	the deferred callbacks of all its tasks. A Periodic task
 	can also have its a private EventProcessor which handles
@@ -1130,7 +1146,7 @@ emergencyStop.emit(); // User not notified
 	and only when it is started. In this way, it resembles better
 	how a non periodic task handles its defered event callbacks.
 	To enable this behavior,
-	a boolean flag must be given upon construction of a PeriodicTask
+	a boolean flag must be given upon construction of a <classname>ORO_CoreLib::PeriodicTask</classname>
 	or any derived task-types :
       </para>
 	<programlisting>  RunnableInterface* my_function = ... ;
@@ -1171,8 +1187,8 @@ emergencyStop.emit(); // User not notified
     <sect2>
       <title>The Completion Processor</title>
       <para>
-	The Completion Processor is implemented using the
-	<classname>Singleton</classname> design pattern, analogous to the
+	The <classname>ORO_CoreLib::CompletionProcessor</classname> is implemented using the
+	Singleton design pattern, analogous to the
 	periodic task threads. It is the lowest priority, not realtime
 	thread in the &orocos; framework. It will execute all
 	asynchronous event callbacks that have to be completed when no other work has to
@@ -1196,15 +1212,15 @@ emergencyStop.emit(); // User not notified
     <sect2>
       <title>The TimeService</title>
       <para>
-	The <classname>TimeService</classname> is implemented using the
-	<classname>Singleton</classname> design pattern.
+	The <classname>ORO_CoreLib::TimeService</classname> is implemented using the
+	Singleton design pattern.
 	You can query it for the current (virtual) time in clock ticks or in seconds.
 	The idea here is that it is responsible for synchronising with other (distributed)
 	cores, for doing, for example compliant motion with two robots. This functionality
 	is not yet implemented though.
       </para>
       <para>
-	When the SimulationThread is used and started, it will change the TimeService's
+	When the <classname>ORO_CoreLib::SimulationThread</classname> is used and started, it will change the TimeService's
 	clock with each period ( to simulate time progress).
 	Also other threads (!) In the system will notice this change, but
 	time is guaranteed to increase monotonously.
@@ -1229,9 +1245,10 @@ emergencyStop.emit(); // User not notified
     <sect2>
       <title>Introduction</title>
       <para>
-	Properties are well known in object oriented programming languages. 
+	Orocos provides properties through the <classname>ORO_CoreLib::Property</classname>
+	class.
 	They are used to store primitive data (float, strings,...) in
-	a 'PropertyBag', which can be changed by the user and has immediate
+	a <classname>ORO_CoreLib::PropertyBag</classname>, which can be changed by the user and has immediate
 	effect on the behaviour of the program. Changing parameters of an
 	algorithm is a good example where properties can be used. Each parameter
 	has a value, a name and a description. The user can ask any PropertyBag
@@ -1288,7 +1305,7 @@ emergencyStop.emit(); // User not notified
       </note>
       <para> Use <methodname>add</methodname> to add Properties to a bag and 
       <methodname>find</methodname> or <methodname>getProperty&lt;T&gt;</methodname> to
-      get a pointer to a <classname>PropertyBase</classname> or <classname>Property&lt;T&gt;</classname> :
+      get a pointer to a <classname>ORO_CoreLib::PropertyBase</classname> or <classname>ORO_CoreLib::Property&lt;T&gt;</classname> :
 	<programlisting>  PropertyBag bag;
   Property&lt;double&gt; w("Weight", "in kilograms", 70.5 );
   Property&lt;int&gt; pc("PostalCode", "", 3462 );
@@ -1315,17 +1332,23 @@ emergencyStop.emit(); // User not notified
     <sect2>
       <title>Marshalling and Demarshalling Properties (Serialization)</title>
       <para>
-	Marshalling is converting an object from machine code to a code suitable
-	for transportation or storage. When an object is marshalled, a copy is made
-	so that it can be restored in its original state. Demarshalling instantiates
-	the object again from the marshalled copy. Common formats of marshalling are
-	writing out properties or efficient binary memory copies. So properties are
-	just an example of objects that can be marshalled. We wrote however specific
-	marshallers for properties and property bags. These are the 
-	SimpleMarshaller, XMLMarshaller, XMLRPCMarshaller, INIMarshaller and
-	the CPFMarshaller. You will need the <ulink
-	url="http://xml.apache.org/xerces-c/index.html">Xerces</ulink> library for the XML
-	related marshalling.
+	Marshalling is converting an object from machine code to a
+	code suitable for transportation or storage. When an object is
+	marshalled, a copy is made so that it can be restored in its
+	original state. Demarshalling instantiates the object again
+	from the marshalled copy. Common formats of marshalling are
+	writing out properties or efficient binary memory copies. So
+	properties are just an example of objects that can be
+	marshalled. We wrote however specific marshallers for
+	properties and property bags. These are the
+	<classname>ORO_CoreLib::SimpleMarshaller</classname>,
+	<classname>ORO_CoreLib::XMLMarshaller</classname>,
+	<classname>ORO_CoreLib::XMLRPCMarshaller</classname>,
+	<classname>ORO_CoreLib::INIMarshaller</classname> and the
+	<classname>ORO_CoreLib::CPFMarshaller</classname>. You will
+	need the <ulink
+	url="http://xml.apache.org/xerces-c/index.html">Xerces</ulink>
+	library for the XML related marshalling.
       </para>
       <para>
 	The (de-)marshallers know how to convert native C++ types, but if you want
@@ -1339,7 +1362,7 @@ emergencyStop.emit(); // User not notified
 	If you are not interested in marshalling your own types, you can enable
 	the 'Default Marshalling' option in the configuration tool, which will
 	generate a default for these two functions for type T in any file where you use
-	a Property&lt;T&gt;.
+	a <classname>ORO_CoreLib::Property</classname>&lt;T&gt;.
       </para>
     </sect2>
   </sect1>
@@ -1362,9 +1385,9 @@ emergencyStop.emit(); // User not notified
     <sect2>
       <title>Using the NameServer</title>
       <para>
-	The header is called <filename>NameServer.hpp
-	</filename> and the API is quite straight forward. The most common usage
-	syntax is given below. The Doxygen documentation contains the full API.
+	The local object server is called
+	<classname>ORO_CoreLib::NameServer</classname>.  The most
+	common usage syntax is given below.
       </para>
       <note><para>
 	The most common use of nameserving is keeping track of pointers to objects.
@@ -1410,11 +1433,11 @@ emergencyStop.emit(); // User not notified
     <para>
       The difference between Buffers and DataObjects is that DataObjects
       are single writer / many readers, while buffers allow many writers and readers.
-      Furthermore, a DataObject always returns the last value written (and a
+      Furthermore, a <classname>ORO_CoreLib::DataObject</classname> always returns the last value written (and a
       write always succeeds), while a buffer
       may implement a FIFO queue to store all written values (and thus can get full).
-      The <classname>DataSourceBase</classname>, <classname>DataSource&lt;T&gt;</classname>
-      and <classname>AssignableDataSource&lt;T&gt;</classname> are interface definitions to
+      The <classname>ORO_CoreLib::DataSourceBase</classname>, <classname>ORO_CoreLib::DataSource&lt;T&gt;</classname>
+      and <classname>ORO_CoreLib::AssignableDataSource&lt;T&gt;</classname> are interface definitions to
       define how data of any type can be exchanged across objects or threads.
       DataObjects implement the DataSource interfaces.
     </para>
@@ -1443,13 +1466,7 @@ emergencyStop.emit(); // User not notified
 	The following buffers are available :
 	<itemizedlist>
 	  <listitem>
-	    <para><emphasis>BufferSimple, BufferCircular</emphasis> :
-	      Are byte buffers, may block and are subject to priority inversions
-	      ( <xref linkend="core-priority-inversions"/> ). 
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para><emphasis>BufferLockFree&lt; T > </emphasis> :
+	    <para><emphasis><classname>ORO_CoreLib::BufferLockFree</classname>&lt; T &gt;</emphasis> :
 	      Is a typed buffer of type <emphasis>T</emphasis> and works as
 	      a FIFO queue for storing elements of type T.
 	      It is lock-free, non blocking and read and writes
@@ -1462,7 +1479,7 @@ emergencyStop.emit(); // User not notified
     <sect2 id="corelib-data-objects">
       <title>DataObjects</title>
       <para>
-	The data inside the DataObjects can be any valid C++ type,
+	The data inside the <classname>ORO_CoreLib::DataObject</classname>s can be any valid C++ type,
 	so mostly people use classes or structs, because these carry
 	more semantics than just (vectors of) doubles. The default
 	constructor of the data is called when the DataObject is
@@ -1482,7 +1499,7 @@ emergencyStop.emit(); // User not notified
 	</example>
       </para>
       <para>
-	The virtual <classname>DataObjectInterface</classname> interface
+	The virtual <classname>ORO_CoreLib::DataObjectInterface</classname> interface
 	provides the <function>Get()</function> and
 	<function>Set()</function> methods that each DataObject must
 	have. Semantically, <function>Set()</function> and
@@ -1493,7 +1510,7 @@ emergencyStop.emit(); // User not notified
 	<itemizedlist>
 	  <listitem>
 	    <para>
-	      <emphasis role="strong">DataObject</emphasis>. This is
+	      <emphasis role="strong"><classname>ORO_CoreLib::DataObject</classname></emphasis>. This is
 	      the most simple DataObject implementation. The
 	      <function>Get()</function> and
 	      <function>Set()</function> methods directly map onto the
@@ -1504,7 +1521,7 @@ emergencyStop.emit(); // User not notified
 	  </listitem>
 	  <listitem>
 	    <para>
-	      <emphasis role="strong">DataObjectLocked</emphasis>.
+	      <emphasis role="strong"><classname>ORO_CoreLib::DataObjectLocked</classname></emphasis>.
 	      This is a thread safe DataObject whose
 	      <function>Set()</function> and
 	      <function>Get()</function> methods are guarded by a
@@ -1516,7 +1533,7 @@ emergencyStop.emit(); // User not notified
 	  <listitem>
 	    <para>
 	      <emphasis
-		role="strong">DataObjectPrioritySet</emphasis>. This
+		role="strong"><classname>ORO_CoreLib::DataObjectPrioritySet</classname></emphasis>. This
 	      is a more complex DataObject which gives always priority
 	      to the thread calling <function>Set()</function>, which
 	      will never block. The thread accessing
@@ -1540,7 +1557,7 @@ emergencyStop.emit(); // User not notified
 	  <listitem>
 	    <para>
 	      <emphasis
-		role="strong">DataObjectPriorityGet</emphasis>. The
+		role="strong"><classname>ORO_CoreLib::DataObjectPriorityGet</classname></emphasis>. The
 	      inverse of <function>DataObjectPrioritySet</function>.
 	      The thread accessing <function>Get()</function> will
 	      never block.
@@ -1548,7 +1565,7 @@ emergencyStop.emit(); // User not notified
 	  </listitem>
 	  <listitem>
 	    <para>
-	      <emphasis role="strong">DataObjectLockFree</emphasis>.
+	      <emphasis role="strong"><classname>ORO_CoreLib::DataObjectLockFree</classname></emphasis>.
 	      This DataObject implements a non blocking reader/writer
 	      buffer which always returns the last written value to
 	      the reader. If the reader is preempted with a write and
@@ -1566,7 +1583,7 @@ emergencyStop.emit(); // User not notified
     <sect2>
       <title>DataSources</title>
       <para>
-	The <classname>DataSource</classname> Interface is the most
+	The <classname>ORO_CoreLib::DataSource</classname> Interface is the most
 	basic interface for exchanging data ( value types ) between
 	objects. They are reference counted ('smart pointers'), such
 	that ownership across many objects must not be managed. This
@@ -1582,11 +1599,14 @@ emergencyStop.emit(); // User not notified
   <sect1 id="core-logging">
     <title>Logging</title>
     <para>
-      Orocos applications can have pretty complex startup and initialisation code.
-      A logging framework helps to track what your program is doing. <emphasis>Logging can
-      only be done in the non-realtime parts of your application, thus not in
-	the Realtime Periodic Tasks !</emphasis> <xref linkend="core-reporting"/> is meant for that.  
+      Orocos applications can have pretty complex startup and
+      initialisation code.  A logging framework, using
+      <classname>ORO_CoreLib::Logger</classname> helps to track what
+      your program is doing.
     </para>
+      <note><para>Logging can
+      only be done in the non-realtime parts of your application, thus not in
+	the Realtime Periodic Tasks ! <xref linkend="core-reporting"/> is meant for that.</para></note>
     <para>
       There are currently 8 loglevels :
       <table>
@@ -1661,7 +1681,7 @@ emergencyStop.emit(); // User not notified
     <para>If you want to disable logging completely, use <screen>export ORO_LOGLEVEL=-1</screen>
       before you start your program.</para>
     <para>
-      For using the <classname>Logger</classname> class in your own application, consult
+      For using the <classname>ORO_CoreLib::Logger</classname> class in your own application, consult
       the API documentation.
     </para>
     <example>
@@ -1672,7 +1692,7 @@ emergencyStop.emit(); // User not notified
   Logger::log() << Logger::Debug << debugstring << data << Logger::endl;
   Logger::log() << " more debug info." << data << Logger::endl; ]]></programlisting>
       <para>As you can see, the Logger can be used like the standard C++ input streams.
-	You may change the Log message's level using the <classname>Logger::...</classname>
+	You may change the Log message's level using the <classname>ORO_CoreLib::Logger::...</classname>
 	enums. The above message could result in :
       </para>
       <screen>
@@ -1686,13 +1706,13 @@ emergencyStop.emit(); // User not notified
       <para>
 	Having a realtime process running is one thing, knowing what its internal status
 	is another. The reporting classes are made in such a way that existing infrastructure can
-	be extended with a Reporting Stub (<classname>ReportExporter</classname> ),
+	be extended with a Reporting Stub (<classname>ORO_CoreLib::ReportExporter</classname> ),
 	which creates reports of the internal state
 	of variables and waits for client requests to update and export the data.
 	A client can then ask each existing Stub to create and
 	deliver a report. A timestamp is used to tag all data. When the client
 	has collected all reports, it may transform it to another format, for example,
-	in a log file or a display on screen. We call these clients <classname>ReportWriter</classname>s
+	in a log file or a display on screen. We call these clients <classname>ORO_CoreLib::ReportWriter</classname>s
 	since they write out the gathered reports in one or another format ( this is called 
 	  <emphasis>marshalling</emphasis> ).
       </para>
@@ -1700,180 +1720,5 @@ emergencyStop.emit(); // User not notified
 	An example of an application which uses the CoreLib reporting infrastructure
 	is the Orocos Control Kernel framework.
       </para>
-  </sect1>
-<!--   <sect1> -->
-<!--     <title>States and the StateMachine</title> -->
-<!--     <sect2> -->
-<!--       <title>Introduction</title> -->
-<!--       <para> -->
-<!-- 	Any complex software component will sooner or later need a way to change state, depending -->
-<!-- 	on how it is used by the other components. The <classname>StateInterface</classname>  -->
-<!-- 	describes how state changes are handled. When the current state is left, its -->
-<!-- 	<function>onExit()</function> method is called. Next, the <function>onEntry()</function> -->
-<!-- 	of the new state is called and right after that its <function>handle()</function> is -->
-<!-- 	called. Each time the current state is again requested, the <function>handle()</function> -->
-<!-- 	is called again (instead of onExit() and onEntry()). -->
-<!--       </para> -->
-<!--       <para> -->
-<!-- 	So the <classname>StateInterface</classname> determines what has to be done, but  -->
-<!-- 	the decision to change state is made in the <classname>StateMachine</classname>. The  -->
-<!-- 	StateMachine keeps track of the current state and all valid state transitions. -->
-<!-- 	One has to 'program' the StateMachine so that it knows which transitions can be made -->
-<!-- 	under which conditions.  -->
-<!--       </para> -->
-<!--     </sect2> -->
-<!--     <sect2> -->
-<!--       <title>The ConditionInterface</title> -->
-<!--       <para> -->
-<!-- 	The ConditionInterface is very basic : -->
-<!-- 	<programlisting> -->
-<!--   <![CDATA[ -->
-<!--   class ConditionInterface -->
-<!--   { -->
-<!--   virtual bool evaluate() = 0; -->
-
-<!--   virtual void reset() {} -->
-<!--   }; -->
-<!--   ]]> -->
-<!-- 	</programlisting> -->
-
-<!-- 	Conditions are classes that evaluate an expression and return the result. This expression -->
-<!-- 	must be defined by the user. Some examples are in the source tree, like <classname> -->
-<!-- 	  ConditionOnce</classname> (returns only true when it is the first time evaluated),  -->
-<!-- 	<classname>CondionTrue</classname> (always returns true), etc. The StateMachine must have for -->
-<!-- 	each state transition a Condition object which it will <function>evaluate()</function> -->
-<!-- 	to determine if the transition is allowed. All condition objects are reset() when the -->
-<!-- 	state is entered. The Condition implementations can optionally provide a reset() method. -->
-<!-- 	All Conditions are reset() just before the new state is entered (onEntry). -->
-<!--       </para> -->
-<!--     </sect2> -->
-<!--     <sect2> -->
-<!--       <title>Programming and Requesting State Transitions</title> -->
-<!--       <para> -->
-<!-- 	Now how does it all work together? First, a StateMachine object is created and -->
-<!-- 	all its possible States.  -->
-<!-- 	<programlisting> -->
-<!--   <![CDATA[ -->
-<!--   StateInit startState; -->
-<!--   StateFini endState; -->
-<!--   StateA aState; -->
-<!--   StateB bState; -->
-<!--   StateError errState; -->
-
-<!--   ConditionTrue cTrue; -->
-<!--   ConditionOnce cOnce; -->
-
-<!--   StateMachine context; -->
-
-<!--   ]]> -->
-<!-- 	</programlisting> -->
-<!-- 	Next, we will tell the <varname>context</varname> object which is the initial state which -->
-<!-- 	state transitions are allowed : -->
-<!-- 	<programlisting> -->
-<!-- 	  <![CDATA[ -->
-<!-- 	  context.initState(&startState, &endState); -->
-
-<!-- 	  context.transitionSet(&startState, &aState, &cOnce); -->
-<!-- 	  context.transitionSet(&aState, &bState, &cTrue); -->
-<!-- 	  context.transitionSet(&aState, &errState, &cTrue); -->
-<!-- 	  context.transitionSet(&bState, &aState, &cTrue); -->
-<!-- 	  context.transitionSet(&bState, &errState, &cTrue); -->
-
-<!-- 	  ]]> -->
-<!-- 	</programlisting> -->
-<!-- 	As you can see, you can only go once from the startState to the aState, then you can -->
-<!-- 	always switch from aState to bState and back. All states are allowed to go to the  -->
-<!-- 	errorstate, but in this example, it will be impossible to leave the errorstate.</para> -->
-<!--       <para> -->
-<!-- 	The StateMachine needs activation before it may be used : -->
-<!-- 	<programlisting> -->
-<!--   <![CDATA[ -->
-<!--   ... -->
-<!--   context.activate();            // brings us in the startState -->
-<!--   context.requestState(&bState); // will return false ! -->
-<!--   context.requestState(&aState); // ok, returns true. -->
-<!--   context.requestState(&bState); // ok, returns true. -->
-<!--   context.requestState(&errState); // returns true, but we are trapped in it. -->
-
-<!--   // we are now in the errState, recover -->
-<!--   context.requestFinalState();   // succeeds always ! -->
-<!--   context.requestInitialState(); // ok from Final or Initial state -->
- 
-<!--   // start over -->
-<!--   ... -->
-<!--    ]]> </programlisting> -->
-<!-- 	When the StateMachine is in the Final State, it can be deactivated, upon which the -->
-<!-- 	Final State is left. -->
-<!-- 	<programlisting> -->
-<!--   context.requestFinalState(); -->
-<!--   context.deactivate();        // context.currentState() == 0 -->
-<!-- 	</programlisting> -->
-<!--       </para> -->
-<!--     </sect2> -->
-<!--     <sect2> -->
-<!--       <title>Practical use of the StateMachine</title> -->
-<!--       <para> -->
-<!-- 	The StateMachine has a method <function>requestNextState()</function> which -->
-<!-- 	tries to make the first valid transition from the current state to the -->
-<!-- 	another state it encounters. To make this workable, transitions can be -->
-<!-- 	given an optional parameter which denotes the priority. It defaults to -->
-<!-- 	zero. A high number denotes a high priority, a low number denotes a  -->
-<!-- 	low priority. -->
-<!--       </para> -->
-<!--       <para> -->
-<!-- 	Writing States and StateMachines in this way is cumbersome. The Orocos Framework has -->
-<!-- 	therefore developped a Program and State -->
-<!-- 	<ulink url="orocos-program-parser.html"> Parser</ulink> and a Program and State -->
-<!-- 	<ulink url="orocos-program-processor.html">Processor</ulink> which allow -->
-<!-- 	to define states and transitions in a scripting language. -->
-<!--       </para> -->
-<!--     </sect2> -->
-<!--   </sect1> -->
-  <sect1>
-    <title>Fifos</title>
-    <sect2>
-      <title>A warning</title>
-      <warning>
-	<para>
-	  The fifos implementation is slightly outdated and unmaintained in the latest releases.
-	  You might expect problems when trying to use them. In the past they were used to
-	  communicate from kernel space to userspace programs, but since the Orocos Framework is now
-	  completely situated in userspace, this communication has become obsolete.
-	  To implement your own kernelspace/userspace communication, use the functions of your OS.</para>
-	<para>
-	  For RTAI/LXRT, also read <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/lxrt/portingtolxrt.html">
-	  the LXRT howto</ulink>.
-	</para>
-      </warning>
-    </sect2>
-    <sect2>
-      <title>Using fifos</title>
-      <para>
-	Fifos are used to send data from one address space to another. For example
-	from realtime to userspace or vice versa. We have four kind of fifos :
-      <itemizedlist>
-	<listitem><para>FifoRTIn : Used to read data in realtime from a realtime fifo</para></listitem>
-	<listitem><para>FifoRTOut: Used to write data in realtime to a realtime fifo</para></listitem>
-	<listitem><para>FifoUSIn : Used to read data in userspace from a realtime fifo</para></listitem>
-	<listitem><para>FifoUSOut: Used to write data in userspace to a realtime fifo</para></listitem>
-      </itemizedlist>
-      Furthermore, one can still use the FifoRTIn/Out in userspace simulations.
-      They will act as if they get their data from real fifos. The API documentation should
-      be clear about how to use them.
-    </para>
-    <para>
-      Components requireing data communition will indicate this with a <classname> WriteInterface
-      </classname>,<classname>ReadInterface</classname> or <classname>ObservableReadInterface
-      </classname> in their constructors argument list.
-      All fifos implement one of these interfaces.
-    </para>
-    <note>
-      <para>
-	For examining which data would be sent through a fifo, one can always temporarily
-	use a <classname>WriteCout</classname> object instead of a fifo, which will print the data
-	to the screen instead of delivering it.
-      </para>
-    </note>
-    </sect2>
   </sect1>
 </article>
