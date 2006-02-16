@@ -189,16 +189,16 @@
     <para>
       The way we interact with TaskContexts during development of an
       Orocos application is through the TaskBrowser.  The
-      <classname>TaskBrowser</classname> is a powerful console tool
+      <classname>ORO_Execution::TaskBrowser</classname> is a powerful console tool
       which helps you to explore, execute and debug
-      <classname>TaskContext</classname>s in running programs. All you
+      <classname>ORO_Execution::TaskContext</classname>s in running programs. All you
       have to do is to instantiate a TaskBrowser and enter its loop()
       method. When the program is started from a console, the
       TaskBrowser takes over user input and output.
     </para>
     <note>
       <para>
-	The <classname>TaskBrowser</classname> is located in the
+	The <classname>ORO_Execution::TaskBrowser</classname> is located in the
 	Orocos Program Parser package and not in the Task Context package.
       </para>
     </note>
@@ -486,18 +486,18 @@ cd                  quit
     <title>Setting Up a Basic Task</title>
     <para>
       Tasks are rather simple entities in &orocos; and are
-      implemented by the <classname>TaskContext</classname> class,
+      implemented by the <classname>ORO_Execution::TaskContext</classname> class,
       which should not be confused with the CoreLib periodic Task
       implementations.
       It is useful speaking of a context because it defines
       the context in which the task operates. 
       It defines the interface of the task, its attributes,
       its peer tasks and uses its
-      <classname>ExecutionEngine</classname> to handle its
+      <classname>ORO_Execution::ExecutionEngine</classname> to handle its
       programs and to accept commands from other tasks.
     </para>
     <para>
-      A <classname>TaskContext</classname> is constructed as :
+      A <classname>ORO_Execution::TaskContext</classname> is constructed as :
     </para>
     <para>
       <programlisting>
@@ -569,7 +569,7 @@ cd                  quit
       </para>
       <para>
 	To add a method to the Method Factory, one can use
-	the <classname>TemplateMethodFactory</classname>,
+	the <classname>ORO_Execution::TemplateMethodFactory</classname>,
 	to easily create method factories :</para>
       <para>
 	<programlisting>
@@ -673,8 +673,8 @@ cd                  quit
 	<title>Invoking Methods in C++</title>
 	<para>
 	  In order to easily invoke a task's methods from a C++ program,
-	  the <classname>MethodC</classname> class was designed to store
-	  and invoke methods and collect the return values. <classname>MethodC</classname>
+	  the <classname>ORO_Execution::MethodC</classname> class was designed to store
+	  and invoke methods and collect the return values. <classname>ORO_Execution::MethodC</classname>
 	  objects are created by a task's method factory. For example:
 	</para>
 	<programlisting>  // create a method:
@@ -816,7 +816,7 @@ cd                  quit
       <title>Adding Task Attributes or Properties</title>
       <para>
 	An attribute can be added in the task's
-	<classname>AttributeRepository</classname> like this :</para>
+	<classname>ORO_Execution::AttributeRepository</classname> like this :</para>
       <para>
 	<programlisting>
   a_task.attributes()->addAttribute( "aflag", bool(false) );
@@ -915,7 +915,7 @@ cd                  quit
     <title>The Command Factory</title>
     <para>
       The next factory we discuss is the Command Factory,
-      which produces C++ <classname>CommandInterface</classname>
+      which produces C++ <classname>ORO_CoreLib::CommandInterface</classname>
       objects which encapsulate a command call to a TaskContext's
       interface. The philosophy behind commands is explained
       in the CoreLib, which defines the CommandInterface and
@@ -926,7 +926,7 @@ cd                  quit
       <title>Adding Commands to tasks</title>
       <para>
 	To add a command to the Command Factory, one can use
-	the <classname>TemplateCommandFactory</classname>,
+	the <classname>ORO_Execution::TemplateCommandFactory</classname>,
 	to easily create command factories :</para>
       <para>
 	<programlisting>
@@ -1007,7 +1007,7 @@ cd                  quit
       <title>Invoking Commands in C++</title>
       <para>
 	Once a command is added to a task's factory, other tasks
-	can make use of that command. The <classname>CommandC</classname>
+	can make use of that command. The <classname>ORO_Execution::CommandC</classname>
 	class is especially designed to manage task commands in C++.
 	You can ask a task's factory to create such object:
       </para>
@@ -1075,7 +1075,7 @@ cd                  quit
       A task may register its events in its interface in order to be
       used by its state machines and other tasks as well.  The events
       used by the task context are defined and explained by the Orocos
-      CoreLib. The <classname>EventService</classname> is the
+      CoreLib. The <classname>ORO_Execution::EventService</classname> is the
       main access point to register and locate a task's events.
     </para>
     <sect3>
@@ -1099,7 +1099,7 @@ cd                  quit
       <title>Emitting Events in C++</title>
       <para>
 	Once events are added, they can be emitted using the
-	<classname>EventC</classname> object. Analogous to
+	<classname>ORO_Execution::EventC</classname> object. Analogous to
 	commands and methods, arguments can be provided:
 	<programlisting>  EventC move_event 
     = a_task.events()->setupEmit( "move" ).argC(1.0).argC(2.0).argC(3.0);
@@ -1117,10 +1117,10 @@ cd                  quit
       <title>Reacting to Events in C++</title>
       <para>
 	Analogous to emitting an event, one can also react to
-	an event in C++, using the <classname>ConnectionC</classname>
+	an event in C++, using the <classname>ORO_Execution::ConnectionC</classname>
 	object. However, this object is only of intermediate use
 	as event connections can be accessed through the
-	<classname>Handle</classname> object. The first example
+	<classname>ORO_Execution::Handle</classname> object. The first example
 	shows how to setup a synchronous connection to the event
 	of the previous examples:
 	<programlisting>  #include &lt;boost/bind.hpp>
@@ -1218,7 +1218,7 @@ cd                  quit
 	<title>The Template DataSource Factory</title>
 	<para>
 	  To add a method to the DataSource Factory, one can use
-	  the <classname>TemplateDataSourceFactory</classname>,
+	  the <classname>ORO_Execution::TemplateDataSourceFactory</classname>,
 	to easily create DataSource factories :</para>
 	<para>
 	<programlisting>
@@ -1267,7 +1267,7 @@ cd                  quit
 	<title>The Map DataSource Factory</title>
 	<para>
 	  If your application has set up DataSources itself (for example,
-	  using CoreLib DataObjects ), the <classname>MapDataSourceFactory</classname>
+	  using CoreLib DataObjects ), the <classname>ORO_Execution::MapDataSourceFactory</classname>
 	  can be used to add them to you TaskContext's DataSource interface.
 	  For example, continued from the program listing of the previous
 	  section :
@@ -1320,7 +1320,7 @@ cd                  quit
 	embedded systems.
       </para>
       <para>
-	The key is to use the <classname>CommandFunctor</classname>,
+	The key is to use the <classname>ORO_Execution::CommandFunctor</classname>,
 	which is explained in detail in the &procman;. Commands
 	created this way can be used analogously as in the next
 	sections.
@@ -1421,7 +1421,7 @@ cd                  quit
       <para>
 	As was seen in <xref linkend="task-attr-rep" />, CoreLib Properties
 	can be added to a task's AttributeRepository. To read and write
-	properties from or to files, you can use the <classname>PropertyLoader</classname>
+	properties from or to files, you can use the <classname>ORO_Execution::PropertyLoader</classname>
 	class. It uses the XML Component Property Format such that it is human readable.
       </para>
       <programlisting>  #include &lt;execution/PropertyLoader.hpp&gt;
@@ -1435,7 +1435,7 @@ cd                  quit
 	 Where 'configure' reads the file and configures updates the task's properties
 	 and 'save' <emphasis>updates</emphasis> the given file with the properties
 	 of the task. It is allowed to share a single file with multiple tasks or
-	 update the task's properties from multiple files. The <classname>GenericTaskContext</classname>
+	 update the task's properties from multiple files. The <classname>ORO_Execution::GenericTaskContext</classname>
 	 has implemented this functionality also as script methods.
        </para>
     </sect2>
@@ -1482,14 +1482,14 @@ cd                  quit
 	  which was parsed in the same file (see <xref linkend="task-context-programs" /> ).
 	</para>
 	<para>
-	  Functions must be parsed by the <classname>Parser</classname>,
+	  Functions must be parsed by the <classname>ORO_Execution::Parser</classname>,
 	  before they can be executed by the Execution Engine. It
 	  executes the Function until it finishes or it goes into error.
 	  In both cases, the Function is removed from the queue
 	  and can then safely be deleted (or re-run).</para>
 	<note>
 	  <para>
-	    The <classname>Parser</classname> and <classname>ProgramLoader</classname> are located in the
+	    The <classname>ORO_Execution::Parser</classname> and <classname>ORO_Execution::ProgramLoader</classname> are located in the
 	    Orocos Program Parser package and not in the Task Context package.
 	  </para>
 	</note>
@@ -1581,7 +1581,7 @@ cd                  quit
 	<title>State Machines</title>
 	<para>
 	  Hierarchical state machines are modelled in Orocos
-	  with the <classname>StateMachine</classname> class.
+	  with the <classname>ORO_Execution::StateMachine</classname> class.
 	  They are like programs in that they can call a
 	  peer task's members, but the calls are grouped
 	  in a state and only executed when the state machine
@@ -1641,7 +1641,7 @@ cd                  quit
       <para>Events are explained in detail in the &coreman;.
 	To add Real-Time events to your task, you can simply 
 	instantiate it with a given name and add it to the
-	<classname>EventService</classname> of your task and/or
+	<classname>ORO_Execution::EventService</classname> of your task and/or
 	register it with the Event nameserver by providing a
 	name upon construction:
       </para>
@@ -1737,7 +1737,7 @@ cd                  quit
       framework in Orocos Tasks.
     </para>
     <sect2>
-      <title>Using the <classname>GenericTaskContext</classname></title>
+      <title>Using the <classname>ORO_Execution::GenericTaskContext</classname></title>
       <para>
 	To help users in setting up quickly a TaskContext, the GenericTaskContext
 	class has been made available which adds some standard methods and
@@ -1763,7 +1763,7 @@ cd                  quit
      do mymethod( arg )
   } </programlisting>
       <para>
-	Load this function with the <classname>ProgramLoader</classname>
+	Load this function with the <classname>ORO_Execution::ProgramLoader</classname>
 	in the TaskContext having 'mymethod', and hard realtime tasks
 	can instruct it to execute that method, without jeopardizing 
 	their own realtime behaviour.
@@ -2261,7 +2261,7 @@ cd                  quit
 	to know the result, two options are possible. One can write a
 	program script, which check command return values (and goes
 	into error if the command fails) or wrap the command in a
-	<classname>TryCommand</classname> .
+	<classname>ORO_Execution::TryCommand</classname> .
       </para>
       <para>
 	Assume you have a command,condition pair as above :</para>

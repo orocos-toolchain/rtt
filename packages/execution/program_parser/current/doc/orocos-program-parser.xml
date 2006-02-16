@@ -270,7 +270,7 @@
 	<sect4>
 	  <title>Task Data Sources</title>
 	  <para>
-	    An Orocos <classname>TaskContext</classname> can export
+	    An Orocos <classname>ORO_Execution::TaskContext</classname> can export
 	    read-only data.  This data can be of any possible type,
 	    and the Parser system retains that type information.
 	    Getting task data is done using an expression of the
@@ -278,7 +278,7 @@
 	  <para>
 	    <programlisting>  task.dataname( argument1, argument2, ..., argumentN )</programlisting></para>
 	  <para>
-	    where "task" is the name of the peer <classname>TaskContext</classname> whose data
+	    where "task" is the name of the peer <classname>ORO_Execution::TaskContext</classname> whose data
 	    you want to access, dataname is the name of the data
 	    member of the task you want to access.  "argument1"
 	    through "argumentN" are the arguments you want to pass to
@@ -598,7 +598,7 @@
 	Assume that you have a program "progname"
 	in a file <filename>program.ops</filename>.
 	You've read the Orocos Task Infrastructure manual and constructed
-	a <classname>TaskContext</classname> which has some methods and is connected to its
+	a <classname>ORO_Execution::TaskContext</classname> which has some methods and is connected to its
 	Peer TaskContexts. Parsing the program is then straightforward :
       </para>
       <programlisting>
@@ -609,9 +609,9 @@
   using namespace ORO_CoreLib;
   using namespace ORO_Execution;
 
-  TaskContext   tc;
-  TaskPreemptible ptask(0.01, tc.engine() );
-  ProgramLoader loader;
+  <classname>ORO_Execution::TaskContext</classname>   tc;
+  <classname>ORO_CoreLib::TaskPreemptible</classname> ptask(0.01, tc.engine() );
+  <classname>ORO_Execution::ProgramLoader</classname> loader;
 
   // Watch Logger output for errors :
   loader.loadProgram( "program.ops", &amp;tc );
@@ -663,7 +663,7 @@
 	  The statements are executed in order, starting at the first.
 	  One statement is executed per tick.  There are currently three
 	  kinds of statements, they are explained below. A program takes
-	  no arguments and is executed by the Program <classname>Processor</classname>.
+	  no arguments and is executed by the <classname>ORO_Execution::ProgramProcessor</classname>.
 	</para>
 	<para>
 	  If any of the statements causes a run-time error, the Program Processor
@@ -1027,7 +1027,7 @@
     <sect2>
       <title>Introduction</title>
       <para>
-	A <classname>StateMachine</classname> is the state machine used in the &orocos;
+	A <classname>ORO_Execution::StateMachine</classname> is the state machine used in the &orocos;
 	  system.  It contains a collection of states, and each state
 	  defines a Program on entry of the state, when it is run
 	  and on exit.  It also defines all transitions to a next
@@ -1154,7 +1154,7 @@
 	Assume that you have a StateMachine "statename"
 	in a file <filename>state-machine.osd</filename>.
 	You've read the Orocos Task Infrastructure manual and constructed
-	a <classname>TaskContext</classname> which has some methods and is connected to its
+	a <classname>ORO_Execution::TaskContext</classname> which has some methods and is connected to its
 	Peer TaskContexts. Parsing the StateMachine is very analogous
 	to parsing Programs:
       </para>
@@ -1166,9 +1166,9 @@
   using namespace ORO_CoreLib;
   using namespace ORO_Execution;
 
-  TaskContext   tc;
-  TaskPreemptible ptask(0.01, tc.engine() );
-  ProgramLoader loader;
+  <classname>ORO_Execution::TaskContext</classname>   tc;
+  <classname>ORO_CoreLib::TaskPreemptible</classname> ptask(0.01, tc.engine() );
+  <classname>ORO_Execution::ProgramLoader</classname> loader;
 
   loader.loadStateMachine( "state-machine.osd", &amp;tc );
 
@@ -2088,6 +2088,12 @@
   </sect1>
   <sect1 id="extending-the-parser">
     <title>Extending the parser</title>
+    <note>
+      <para>
+	This Section is only relevant to persons willing to extend
+	the internals of the Orocos Parser framework.
+      </para>
+    </note>
     <sect2 id="parser-limitations">
       <title>Parser Limitations</title>
       <para>
@@ -2163,10 +2169,10 @@ data[&quot;bool&quot;] = new TemplateTypeInfo&lt;bool&gt;();
       <sect3 id="overloading-operators">
 	<title>Overloading operators</title>
 	<para>
-	  Operator overloads are stored in the class OperatorRegistry
-	  in orocos-tree/parser/src/Operators.hpp.  The list of
+	  Operator overloads are stored in the class <classname>ORO_Execution::OperatorRegistry</classname>
+	  in <filename>Operators.hpp</filename>.  The list of
 	  supported operators is built up in the OperatorRegistry
-	  constructor in the Operators.cpp file.  It looks something
+	  constructor in the <filename>Operators.cxx</filename> file.  It looks something
 	  like this:
 	  <programlisting>
 // boolean stuff:
