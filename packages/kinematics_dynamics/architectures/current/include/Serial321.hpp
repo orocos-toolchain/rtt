@@ -26,8 +26,8 @@
  ***************************************************************************/ 
  
 
-#ifndef SERIAL321_HPP
-#define SERIAL321_HPP
+#ifndef ORO_KINDYN_SERIAL321_HPP
+#define ORO_KINDYN_SERIAL321_HPP
 
 #include "KinematicsComponent.hpp"
 #include "KinematicsInterface.hpp"
@@ -37,56 +37,60 @@
 
 namespace ORO_KinDyn
 {
-    const double M_PI_T2 = 2 * M_PI;
-
-#ifndef SQRT3d2
-    const double SQRT3d2 = 0.8660254037844386; // sqrt(3)/2
-#endif
-#ifndef SQRT3t2
-    const double SQRT3t2 = 3.46410161513775; // 2 sqrt(3)
-#endif
-
-    // from Status6R.h
-
-    /* `Distances' around singular points in which positions are NUMERICALLY
-       considered to be singular: */
-
-    const double EPS_WRIST_ABOVE_BASE = 0.001; // units: m
-    /* decision variable: XY distance between wrist and shoulder */
-
-    const double EPS_ARM_EXTENDED = 0.001; // units: m
-    /* decision variable: distance of wrist to shoulder must lie between
-       sqrt(sq(L2+L3)) and sqrt(sq(L2-L3)). */
-
-    const double EPS_PARALLEL_WRIST = 0.001; // units: dimensionless
-    /* decision variable: sine of flip angle (fifth joint) goes to zero. */
-
-    const double KINEMATICS_EPS = 1.0e-8;
-    /* Considered VERY small in the context of kinematic calculations. */
-
-
     /**
      * This class implements the stateless kinematics calculations
-     * for all kinds of 6DOF Robots
+     * for Serial 6DOF Robots
      *
      */
     class Serial321
         : public Kinematics6DWrapper
     {
+    public:
+
+        static const double M_PI_T2 = 2 * M_PI;
+
+#ifndef SQRT3d2
+        static const double SQRT3d2 = 0.8660254037844386; // sqrt(3)/2
+#endif
+#ifndef SQRT3t2
+        static const double SQRT3t2 = 3.46410161513775; // 2 sqrt(3)
+#endif
+
+        /** `Distances' around singular points in which positions are NUMERICALLY
+            considered to be singular: */
+
+        /** decision variable: XY distance between wrist and shoulder */
+        static const double EPS_WRIST_ABOVE_BASE = 0.001; // units: m
+
+        /** decision variable: distance of wrist to shoulder must lie between
+           sqrt(sq(L2+L3)) and sqrt(sq(L2-L3)). */
+        static const double EPS_ARM_EXTENDED = 0.001; // units: m
+
+        /** decision variable: sine of flip angle (fifth joint) goes to zero. */
+        static const double EPS_PARALLEL_WRIST = 0.001; // units: dimensionless
+
+        /** Considered VERY small in the context of kinematic calculations. */
+        static const double KINEMATICS_EPS = 1.0e-8;
 
     public:
         /**
          * Construct a model for a robot with offset = 0 and eccentricity = 0 and
          * all links of length = 1.
          */
-        Serial321()
-            : offset(0), eccent( 0 )
-        {
-            geometrySet( 1, 1, 1, 1, 1, 1);
-        }
+        Serial321();
 
-        virtual ~Serial321() {}
+        virtual ~Serial321();
 
+        /**
+         * Provide a new clone of this Serial Device.
+         */
+        virtual Serial321* clone() const = 0;
+
+        /**
+         * Returns the kind of serial configuration.
+         */
+        virtual std::string getKind() const = 0;
+        
         /**
          * Set the armlength of all robot arms.
          */
@@ -105,6 +109,25 @@ namespace ORO_KinDyn
         }
 
         /**
+         * Get the link length from links 1 to 6.
+         */
+        virtual double getLinkLength( int link ) const {
+            if ( link == 1 )
+                return l1;
+            if ( link == 2 )
+                return l2;
+            if ( link == 3 )
+                return l3;
+            if ( link == 4 )
+                return l4;
+            if ( link == 5 )
+                return l5;
+            if ( link == 6 )
+                return l6;
+            return 0.0;
+        }
+
+        /**
          * Set the shoulder offset
          * 
          * @param off
@@ -114,6 +137,8 @@ namespace ORO_KinDyn
         {
             offset = off;
         }
+
+        virtual double getOffset() const { return offset;}
 
         /**
          * Set the arm eccentricity
@@ -125,6 +150,8 @@ namespace ORO_KinDyn
         {
             eccent = ecc;
         }
+
+        virtual double getEccentricity() const { return eccent; }
 
         /*
           void singularityRangeSet( const double d_AE, const double d_WAB,

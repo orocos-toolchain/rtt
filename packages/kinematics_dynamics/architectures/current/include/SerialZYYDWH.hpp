@@ -60,6 +60,10 @@ namespace ORO_KinDyn
 
         virtual ~SerialZYYDWH();
 
+        virtual SerialZYYDWH* clone() const { return new SerialZYYDWH(*this); }
+
+        virtual std::string getKind() const { return "ZYYDWH"; }
+
         virtual bool jacobianForward( const ORO_CoreLib::Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;
 
         virtual bool jacobianInverse( const ORO_CoreLib::Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;

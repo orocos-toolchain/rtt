@@ -40,23 +40,33 @@
 namespace ORO_KinDyn
 {
     /**
-     * The KinematicsComponent is meant for following and calculating
+     * The KinematicsComponent is meant for tracking, planning and calculating
      * the current end effector position and direction the joints are
      * moving in.
      *
      * This Component uses a stateless KinematicsInterface instance
      * purely for the calculations and keeps track of kinematic states
      * between two calls. The state includes robot configuration,
-     * joint positions and singularities.
+     * joint positions and singularities. The results of this Component
+     * are always influenced by the current state, it always keeps track of winding up,
+     * independent of the modes given below.
      *
-     * Consecutive calculations which turn out valid (return true)
-     * will always update the internal state of the component. This
-     * class can track changes no larger than 0.5 radians, or about 30
+     * When isTracking() is true, 
+     * consecutive calculations which turn out valid (return true)
+     * will update the internal joint state of the component. This
+     * class can track changes no larger than 0.5 radians, or about 60
      * degrees. You could raise this number to a bit below pi (or 180
      * degrees), but larger deviations than this default mostly denote
      * an error.
      *
+     * When isPlanning() is true (the default), the calculations do not update the
+     * internal joint state, but planned joint positions may not differ more than 0.5
+     * radians from the current robot state. This mode can be used for online
+     * trajectory interpolation, which wants to plan a small change with respect
+     * to the current position.
+     *
      * @see KinematicsInterface
+     * @see KinematicProcess for Control Kernel integration.
      */
     class KinematicsComponent
     {
@@ -77,6 +87,22 @@ namespace ORO_KinDyn
          * Destroy a Kinematics Component.
          */
         ~KinematicsComponent();
+
+        /**
+         * Returns the number of joints the kinematic
+         * algorithms currently can handle.
+         * This function can be used to see how much elements in
+         * the Joint parameters are expected currently.
+         */
+        int getNumberOfJoints() const;
+
+        /**
+         * Returns the maximum number of joints the kinematic
+         * algorithms can handle.
+         * This function can be used to reserve enough elements in
+         * the Joint parameters of the algorithms below.
+         */
+        int maxNumberOfJoints() const;
 
         /**
          * Set a new KinematicsInterface to use for the calculations.
@@ -113,6 +139,41 @@ namespace ORO_KinDyn
         }
 
         /**
+         * Do not implicitly update the internal joint position state
+         * when using the methods below (inverse and forward functions.)
+         * This planning mode allows to plan setpoints in a given configuration,
+         * without updating the internal state of this object.
+         * Explicit updates such as setKinematics() and getPosition() will
+         * always update the internal joint state.
+         */
+        void setPlanningMode() {
+            tracking = false;
+        }
+
+        /**
+         * Implicitly update the internal joint position state when using
+         * the methods below (inverse and forward functions.)
+         * This tracking mode means that the object follows your path implicitly,
+         * such that getFrame() or getPosition() return the latest calculated
+         * joint or frame positions.
+         */
+        void setTrackingMode() {
+            tracking = true;
+        }
+
+        /**
+         * Returns true if this object is not implicitly updating the
+         * current joint positions (the default).
+         */
+        bool isPlanning() const { return !tracking;}
+
+        /**
+         * Returns true if this object is implicitly updating the
+         * current joint positions with the calculations below.
+         */
+        bool isTracking() const { return tracking; }
+            
+        /**
          * Calculate the forward Jacobian and update current joint positions.
          *
          * @param q
@@ -120,7 +181,7 @@ namespace ORO_KinDyn
          * @param jac
          *        The resulting Jacobian. Allocate the memory for this object yourself.
          * @return true if it could be calculated, false otherwise (check for singularities).
-         * @post The internal joint state is updated if it returned true
+         * @post The internal joint state is updated if it returned true and isTracking()
          */
         bool jacobianForward( const JointPositions& q, Jacobian& jac );
   
@@ -141,7 +202,7 @@ namespace ORO_KinDyn
          * @param jac
          *        The resulting inverse Jacobian. Allocate the memory for this object yourself.
          * @return true if it could be calculated, false otherwise (check for singularities).
-         * @post The internal joint state is updated if it returned true
+         * @post The internal joint state is updated if it returned true and isTracking()
          */
         bool jacobianInverse( const JointPositions& q, Jacobian& jac );
 
@@ -162,7 +223,7 @@ namespace ORO_KinDyn
          * @param mp_base
          *        The resulting end frame expressed in the robot base frame.
          * @return true if it could be calculated, false otherwise (check for singularities).
-         * @post The internal joint state is updated if it returned true
+         * @post The internal joint state is updated if it returned true  and isTracking()
          * @see getFrame() for current end frame.
          */
         bool positionForward( const JointPositions& q, ORO_Geometry::Frame& mp_base );
@@ -175,7 +236,7 @@ namespace ORO_KinDyn
          * @param q
          *        The resulting joint positions.
          * @return true if it could be calculated, false otherwise (check for singularities).
-         * @post The internal joint state is updated if it returned true
+         * @post The internal joint state is updated if it returned true and isTracking()
          */
         bool positionInverse( const ORO_Geometry::Frame& mp_base, JointPositions& q );
   
@@ -192,7 +253,7 @@ namespace ORO_KinDyn
          * @param vel_base
          *        The resulting end frame velocity expressed in the robot base frame.
          * @return true if it could be calculated, false otherwise (check for singularities).
-         * @post The internal joint state is updated if it returned true
+         * @post The internal joint state is updated if it returned true and isTracking()
          * @see getVelocity() to get current velocity.
          */
         bool velocityForward( const JointPositions& q, const JointVelocities& qdot, ORO_Geometry::Frame& pos_base, ORO_Geometry::Twist& vel_base );
@@ -210,7 +271,7 @@ namespace ORO_KinDyn
          * @param qdot
          *        The resulting joint velocities.
          * @return true if it could be calculated, false otherwise (check for singularities).
-         * @post The internal joint state is updated if it returned true
+         * @post The internal joint state is updated if it returned true and isTracking()
          */
         bool velocityInverse( const ORO_Geometry::Frame& pos_base, const ORO_Geometry::Twist& vel_base, JointPositions& q, JointVelocities& qdot );
 
@@ -225,7 +286,7 @@ namespace ORO_KinDyn
          * @param qdot
          *        The resulting joint velocities.
          * @return true if it could be calculated, false otherwise (check for singularities).
-         * @post The internal joint state is updated if it returned true
+         * @post The internal joint state is updated if it returned true and isTracking()
          */
         bool velocityInverse( const JointPositions& q, const ORO_Geometry::Twist& vel_base, JointVelocities& qdot );
 
@@ -320,7 +381,7 @@ namespace ORO_KinDyn
          * @param conf
          *        The new configuration to be used in the inverse calculations.
          */
-        void configurationSet(const Configuration& conf)
+        void setConfiguration(const Configuration& conf)
         {
             configState = conf;
         }
@@ -330,7 +391,7 @@ namespace ORO_KinDyn
          *
          * @return The current Configuration
          */
-        Configuration& configurationGet()
+        Configuration& getConfiguration()
         {
             return configState;
         }
@@ -391,6 +452,11 @@ namespace ORO_KinDyn
          * The number of joints.
          */
         int mjoints;
+
+        /**
+         * If true, update joint positions.
+         */
+        bool tracking;
     };
 }
 

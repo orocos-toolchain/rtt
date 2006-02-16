@@ -58,6 +58,10 @@ namespace ORO_KinDyn
         using Kinematics6DWrapper::velocityInverse;
         using Kinematics6DWrapper::configurationGet;
 
+        virtual SerialmZXXmZXmZ* clone() const { return new SerialmZXXmZXmZ(*this); }
+
+        virtual std::string getKind() const { return "mZXXmZXmZ"; }
+
         virtual bool jacobianForward( const ORO_CoreLib::Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;
 
         virtual bool jacobianInverse( const ORO_CoreLib::Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;

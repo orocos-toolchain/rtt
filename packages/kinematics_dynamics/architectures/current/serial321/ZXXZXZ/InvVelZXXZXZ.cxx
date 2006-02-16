@@ -196,6 +196,7 @@ namespace ORO_KinDyn
             /* Z-axes of links 4 and 6 are parallel! q[3] keeps its previous value! */
             s4 = sin( q[ 3 ] );
             c4 = cos( q[ 3 ] );
+            c5 = 1.0;
             s5 = 0.0;
             q[ 4 ] = 0.0;
         }

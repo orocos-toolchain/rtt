@@ -58,6 +58,10 @@ namespace ORO_KinDyn
 
         ~SerialZXXDWH();
 
+        virtual SerialZXXDWH* clone() const { return new SerialZXXDWH(*this); }
+
+        virtual std::string getKind() const { return "ZXXDWH"; }
+
         bool jacobianForward( const ORO_CoreLib::Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;
 
         bool jacobianInverse( const ORO_CoreLib::Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;

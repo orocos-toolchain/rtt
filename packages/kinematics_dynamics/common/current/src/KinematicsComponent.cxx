@@ -29,6 +29,7 @@
 #endif
 #include "kindyn/KinematicsComponent.hpp"
 #include "kindyn/KinematicsJointConverter.hpp"
+#include <corelib/Logger.hpp>
 
 namespace ORO_KinDyn
 {
@@ -39,13 +40,27 @@ namespace ORO_KinDyn
                                               JointVelocities _signs /* = JointVelocities() */, 
                                               JointPositions  _offsets /* = JointPositions()*/ )
         : kine(0),
-          deltaX(0.5)
+          deltaX(0.5),
+          tracking(false)
     {
         this->setKinematics(stateless, _signs, _offsets);
+        Logger::log() << Logger::Info << "KinematicsComponent created. Implicit joint position tracking (initially) disabled."<<Logger::endl;
     }
   
     KinematicsComponent::~KinematicsComponent()
     {
+    }
+
+    int KinematicsComponent::getNumberOfJoints() const {
+        if ( !kine )
+            return 0;
+        return kine->getNumberOfJoints();
+    }
+    
+    int KinematicsComponent::maxNumberOfJoints() const {
+        if ( !kine )
+            return 0;
+        return kine->maxNumberOfJoints();
     }
 
     void KinematicsComponent::setKinematics( KinematicsInterface *k,
@@ -72,7 +87,8 @@ namespace ORO_KinDyn
     {
         if ( kine == 0 )
             return false;
-        jointState = q;
+        if ( tracking )
+            jointState = q;
         return kine->jacobianForward(q,j, sings);
     }
   
@@ -80,14 +96,16 @@ namespace ORO_KinDyn
     {
         if ( kine == 0 )
             return false;
-        jointState = q;
+        if ( tracking )
+            jointState = q;
         return kine->jacobianInverse(q, j, sings);
     }
     bool KinematicsComponent::positionForward( const JointPositions& q, ORO_Geometry::Frame& mp_base )
     {
       if ( kine == 0 )
             return false;
-        jointState = q;
+        if ( tracking )
+            jointState = q;
         return kine->positionForward(q,mp_base,sings);
     }
   
@@ -113,7 +131,8 @@ namespace ORO_KinDyn
     {
         if ( kine == 0 )
             return false;
-        jointState = q;
+        if ( tracking )
+            jointState = q;
         return kine->velocityInverse(q, vel_base,qdot,sings);	    
     }
 
@@ -121,7 +140,8 @@ namespace ORO_KinDyn
     {
         if ( kine == 0 )
             return false;
-        jointState = q;
+        if ( tracking )
+            jointState = q;
         return kine->velocityForward( q, qdot, pos_base, vel_base, sings);
     }
 
@@ -151,7 +171,7 @@ namespace ORO_KinDyn
         bool res = kine->positionInverse(f,c,jointState,sings);
         if ( !res )
             return false;
-        configurationSet(c);
+        setConfiguration(c);
         return true;
     }
 
@@ -227,7 +247,9 @@ namespace ORO_KinDyn
                                 jointDirection[i] = - jointDirection[i];
                         }
                 qtheoretic[i] += jointOffset[i];
-                jointState[i] = qtheoretic[i];
+                // if tracking, update the joint state.
+                if ( tracking )
+                    jointState[i] = qtheoretic[i];
             }
         return true;
     }

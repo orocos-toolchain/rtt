@@ -17,6 +17,7 @@ rotates around the X axis of the base frame, and so on."
 	
 	default_value 1
 
+	compile serial321/Serial321.cxx
 	compile serial321/ZXXDWH/SerialZXXDWH.cxx  serial321/ZYYDWH/SerialZYYDWH.cxx  serial321/ZXXZXZ/SerialZXXZXZ.cxx
 	compile serial321/ZXXDWH/ForJacZXXDWH.cxx  serial321/ZXXDWH/ForPosZXXDWH.cxx  serial321/ZXXDWH/ForVelZXXDWH.cxx  
 	compile serial321/ZXXDWH/InvJacZXXDWH.cxx  serial321/ZXXDWH/InvPosZXXDWH.cxx  serial321/ZXXDWH/InvVelZXXDWH.cxx

@@ -31,15 +31,15 @@
 
     </authorgroup>
     <copyright>
-      <year>2002</year>
-      <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
-      <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
+      <year>2002,2006</year>
+      <holder>Peter.Soetens@mech.kuleuven.be</holder>
+      <holder>Herman.Bruyninckx@mech.kuleuven.be</holder>
     </copyright>
 
     <abstract>
       <para>
 	This document explains the design and implementation of the
-	ControlKernel component.
+	Kinematics package.
       </para>
     </abstract>
 
@@ -124,13 +124,37 @@
 	more. This can clearly be seen from the used interfaces too.
       </para>
       <sect3>
+	<title>Kinematics Value Types</title>
+	<para>
+	  The types used to convert to and from in the kinematic
+	  algorithms are defined in the
+	  <filename>KinematicsTypes.hpp</filename> file in the
+	  <classname>ORO_KinDyn</classname> namespace. For example,
+	  joint positions, values,... are represented by the classes
+	  <classname>JointPositions</classname>,
+	  <classname>JointVelocities</classname>,
+	  <classname>JointAccelerations</classname>,...  which have
+	  the same interface as a
+	  <classname>std::vector&lt;double&gt;</classname>.  Jacobians
+	  are represented by the <classname>Jacobian</classname> class
+	  which has the same interface as a Boost::uBlas Matrix, see
+	  <ulink url="http://www.boost.org/libs/numeric/ublas/doc/">
+	  Boost::uBlas Library</ulink>. The frames, vectors,
+	  twists,...  are used from the
+	  <classname>ORO_Geometry</classname> classes
+	  <classname>ORO_Geometry::Frame</classname>, <classname>ORO_Geometry::Vector</classname>,
+	  <classname>ORO_Geometry::Twist</classname>,...
+	</para>
+      </sect3>
+      <sect3>
 	<title>The KinematicsInterface</title>
 	<para>
-	  This interface describes the library side of the kinematics
+	  The <classname>ORO_KinDyn::KinematicsInterface</classname>
+	  describes the library side of the kinematics
 	  algorithms. The interface allows you to calculate all
 	  forward and inverse jacobians, positions and velocities. A
-	  desired <classname>Configuration</classname> and a
-	  <classname>Singularity</classname> class instance must be
+	  desired <classname>ORO_KinDyn::Configuration</classname> and a
+	  <classname>ORO_KinDyn::Singularity</classname> class instance must be
 	  provide where approriate. How the kinematics are calculated
 	  depends on the actual implementation. We provide the
 	  Featherstone algorithms for many kinds of robots. Only the
@@ -144,7 +168,31 @@
 	  theoretical values, thus does not take into account any
 	  geometry constraints or winding of joints (angles larger
 	  than 360 degrees). All state information is kept in the
-	  <classname>KinematicsComponent</classname>.
+	  <classname>ORO_KinDyn::KinematicsComponent</classname>.
+	</para>
+      </sect3>
+      <sect3>
+	<title>The KinematicsFactory</title>
+	<para>
+	  The <classname>ORO_KinDyn::KinematicsFactory</classname> class can be
+	  used to add or create <classname>ORO_KinDyn::KinematicsInterface</classname>
+	  objects. Currently, only the Kuka 160 and Kuka 361 robots
+	  can be created, but it is designed as such that it can be
+	  extended by users for other robot types. It can save kinematic
+	  device configurations to XML files and read them again later.
+	</para>
+	<para>
+	  To create an object, use:
+	  <programlisting>  #include &lt;kindyn/KinematicsFactory.hpp>
+  //...
+  <classname>ORO_KinDyn::KinematicsInterface</classname>* kine = <classname>ORO_KinDyn::KinematicsFactory</classname>::Create("Kuka160");
+  
+  // or save to file:
+  KinematicsFactory::SaveDevice("Kuka160", "kuka160.xml");
+  // load it again with possibly updated values:
+  KinematicsFactory::LoadDevice("kuka160.xml");
+  // each newly created KinematicsInterface object 
+  // gets the new configuration.</programlisting>
 	</para>
       </sect3>
       <sect3>
@@ -154,15 +202,20 @@
 	  <interfacename>KinematicsInterface</interfacename>, for
 	  doing the calculations, many are needed to keep track of the
 	  current path and configuration of the robot in different
-	  places of your program. The KinematicsComponent makes sure
-	  that between two consecutive calls, the robot stays in the
-	  same configuration and the joints follow a continuous path.
-	  It will return in error when an impossible jump is detected.
-	  It provides methods for setting or extracting the desired
-	  robot configuration. For example, your trajectory generator
-	  and the actual robot might be using a different
+	  places of your program. The
+	  <classname>ORO_KinDyn::KinematicsComponent</classname> makes
+	  sure that between two consecutive calls, the robot stays in
+	  the same configuration and the joints follow a continuous
+	  path.  It will return in error when an impossible jump is
+	  detected.  It provides methods for setting or extracting the
+	  desired robot configuration. For example, your trajectory
+	  generator and the actual robot might be using a different
 	  KinematicsComponent to keep track of the state of the
 	  calculations.
+	</para>
+	<para>
+	  See the <classname>ORO_KinDyn::KinematicProcess</classname> for use
+	  of kinematics in the Control Kernel.
 	</para>
       </sect3>
     </sect2>
