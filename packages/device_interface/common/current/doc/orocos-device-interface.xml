@@ -31,7 +31,7 @@
       
     </authorgroup>
     <copyright>
-      <year>2002,2003,2004</year>
+      <year>2002,2003,2004,2005,2006</year>
       <holder>Peter Soetens, Herman Bruyninckx</holder>
     </copyright>
 
@@ -179,22 +179,22 @@ of the physical interfaces they use underneath. You just want to know the
 	    <tbody>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry>AnalogInInterface</entry>
+		<entry><classname>ORO_DeviceInterface::AnalogInInterface</classname></entry>
 		<entry>Reading analog input channels</entry>
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry>AnalogOutInterface</entry>
+		<entry><classname>ORO_DeviceInterface::AnalogOutInterface</classname></entry>
 		<entry>Writing analog output channels</entry>
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry>DigitalInInterface</entry>
+		<entry><classname>ORO_DeviceInterface::DigitalInInterface</classname></entry>
 		<entry>Reading digital bits</entry>
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry>DigitalOutInterface</entry>
+		<entry><classname>ORO_DeviceInterface::DigitalOutInterface</classname></entry>
 		<entry>Writing digital bits</entry>
 	      </row>
 	      <row>
@@ -204,7 +204,7 @@ of the physical interfaces they use underneath. You just want to know the
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry>EncoderInterface</entry>
+		<entry><classname>ORO_DeviceInterface::EncoderInterface</classname></entry>
 		<entry>A position/turn encoder</entry>
 	      </row>
 	    </tbody>
@@ -216,7 +216,7 @@ of the physical interfaces they use underneath. You just want to know the
 	<title>Logical Device Interfaces</title>
 	<para>
 	  From a logical point of view, the generic
-	  <classname>SensorInterface&lt;T></classname> is an
+	  <classname>ORO_DeviceInterface::SensorInterface</classname>&lt;T> is an
 	  easy to use abstraction for reading any kind 
 	  of data of type T.
 	</para>
@@ -262,18 +262,16 @@ of the physical interfaces they use underneath. You just want to know the
       </para>
       <para>
 	<xref linkend="example_name_service"/> shows how one could query the 
-	<classname>AnalogOutInterface</classname>.
+	<classname>ORO_DeviceInterface::AnalogOutInterface</classname>.
 	  
 	<example id="example_name_service"><title>Using the name service</title>
 	    
 	  <programlisting>
-<![CDATA[
 unsigned int pos;
 new FancyCard("CardName"); // FancyCard implements AnalogOutInterface
-AnalogOutInterface* card = AnalogOutInterface::nameserver.getObject("CardName");
+<classname>ORO_DeviceInterface::AnalogOutInterface</classname>* card = AnalogOutInterface::nameserver.getObject("CardName");
 card->read(pos, 0);    // Read some data
 delete card;
-]]>
 	  </programlisting>
 	</example>
       </para>

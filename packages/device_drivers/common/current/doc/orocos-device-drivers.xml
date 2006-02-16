@@ -148,44 +148,54 @@
       <title>Comedi C++</title>
       <para>
 	We have wrapped Comedi to C++ implementations. It provides
-	<classname>ComediDevice</classname>,
-	<classname>ComediSubDeviceAIn </classname> and <classname>
+	<classname>ORO_DeviceDriver::ComediDevice</classname>,
+	<classname>ORO_DeviceDriver::ComediSubDeviceAIn </classname> and <classname>ORO_DeviceDriver::
 	  ComediSubDeviceAOut</classname> classes which provide basic
 	device access and nameserving. The wrapper classes
-	<classname>ComediSubDeviceAOut</classname> and
-	<classname>ComediSubDeviceAIn</classname> show how the
-	<classname>AnalogOutInterface</classname> and the
-	<classname>AnalogInInterface</classname> interfaces of the Device Interface
+	<classname>ORO_DeviceDriver::ComediSubDeviceAOut</classname> and
+	<classname>ORO_DeviceDriver::ComediSubDeviceAIn</classname> show how the
+	<classname>ORO_DeviceInterface::AnalogOutInterface</classname> and the
+	<classname>ORO_DeviceInterface::AnalogInInterface</classname> interfaces of the Device Interface
 	can be implemented. Likewise, the wrapper classes
-	<classname>ComediSubDeviceDOut</classname> and
-	<classname>ComediSubDeviceDIn</classname> show how the
-	<classname>DigitalOutInterface</classname> and the
-	<classname>DigitalInInterface</classname> interfaces of the Device Interface
+	<classname>ORO_DeviceDriver::ComediSubDeviceDOut</classname> and
+	<classname>ORO_DeviceDriver::ComediSubDeviceDIn</classname> show how the
+	<classname>ORO_DeviceInterface::DigitalOutInterface</classname> and the
+	<classname>ORO_DeviceInterface::DigitalInInterface</classname> interfaces of the Device Interface
 	can be implemented.
       </para>
     </sect2>
     <sect2>
       <title>Logical Device Drivers</title>
       <para>
-	This contains implementation of logical devices such as DigitalInput,
-	DigitalOutput, AnalogInput, AnalogOutput, Axis, AnalogDrive,... they are
-	access-wrappers around the more general IO Interfaces. They require
-	the corresponding Device Interface to communicate with.
+	This contains implementation of logical devices such as
+	<classname>ORO_DeviceDriver::DigitalInput</classname>,
+	<classname>ORO_DeviceDriver::DigitalOutput</classname>,
+	<classname>ORO_DeviceDriver::AnalogInput</classname>,
+	<classname>ORO_DeviceDriver::AnalogOutput</classname>,
+	<classname>ORO_DeviceDriver::Axis</classname>,
+	<classname>ORO_DeviceDriver::AnalogDrive</classname>,... they
+	are access-wrappers around the more general IO
+	Interfaces. They require the corresponding Device Interface to
+	communicate with.
       </para>
       <sect3>
 	<title>Analog and Digital IO</title>
 	<para>
-	  Helpfull utility classes AnalogInput, AnalogOutput, DigitalInput
-	  and DigitalOutput provide a 1 channel access to a device interface.
-	  They take on construction two parameters : the device interface
-	  they should operate on and the channel of that device they
+	  Helpfull utility classes
+	  <classname>ORO_DeviceDriver::AnalogInput</classname>,
+	  <classname>ORO_DeviceDriver::AnalogOutput</classname>,
+	  <classname>ORO_DeviceDriver::DigitalInput</classname> and
+	  <classname>ORO_DeviceDriver::DigitalOutput</classname>
+	  provide a 1 channel access to a device interface.  They take
+	  on construction two parameters : the device interface they
+	  should operate on and the channel of that device they
 	  represent.
 	</para>
       </sect3>
       <sect3>
 	<title>The Axis class</title>
 	<para>
-	  The Axis is parameterised by an Encoder, a Drive and Breaks.
+	  The <classname>ORO_DeviceDriver::Axis</classname> is parameterised by an Encoder, a Drive and Breaks.
 	  It manages these resources in a consistent way, allowing 
 	  callibration and unit ( velocity to volts ) conversions.
 	  The Axis is needed to interpret encoder 'counts' to 
@@ -199,7 +209,8 @@
       <para>
 	Orocos has an application independent implementation of
 	a part of the CANOpen protocol, especially for IO and reading
-	SSI encoders. CANPie is used as the controller abstraction and
+	SSI encoders. CANPie is used as the controller abstraction
+	(see <classname>ORO_DeviceDriver::CANPieController</classname>)and
 	a linux kernel module for the Philips SJA 1000 is provided. The
 	device driver works in realtime with RTAI/LXRT. Node Guarding
 	and proper setup/cleanup are implemented using the Orocos
