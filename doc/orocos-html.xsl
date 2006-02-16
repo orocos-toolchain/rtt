@@ -40,4 +40,51 @@
   <xsl:attribute name="hyphenation-character">&#x21BA;</xsl:attribute>
 </xsl:attribute-set>
 
+<!-- convert classname to to doxygen filenames
+     xsltproc does not support fn:replace, so needed the nwalsh 'string.subst' template
+     to do it, otherwise, the shorter commented line could have been used :-( -->
+<!-- This template only applies if the format is of 
+      
+         <classname>Namespace::Classname</classname>
+     Otherwise, the default docbook style is applied.
+-->
+  <xsl:variable name="orocos.doxygen.path" select="'api/html'" />
+  <xsl:variable name="orocos.doxygen.ext" select="'html'" />
+  <xsl:template match="classname">
+    <xsl:variable name="orocos.doxygen.classname">
+      <xsl:call-template name="string.subst">
+          <xsl:with-param name="string" select="substring-after( ., '::')"></xsl:with-param>
+          <xsl:with-param name="target" select="'_'"></xsl:with-param>
+          <xsl:with-param name="replacement" select="'__'"></xsl:with-param>
+      </xsl:call-template>
+<!--      <xsl:value-of select="substring-after( replace(.,'_','__'), '::')" /> -->
+    </xsl:variable>
+    <xsl:variable name="orocos.doxygen.namespace">
+      <xsl:call-template name="string.subst">
+          <xsl:with-param name="string" select="substring-before( ., '::')"></xsl:with-param>
+          <xsl:with-param name="target" select="'_'"></xsl:with-param>
+          <xsl:with-param name="replacement" select="'__'"></xsl:with-param>
+      </xsl:call-template>
+<!--       <xsl:value-of select="substring-before( replace(.,'_','__'), '::')" /> -->
+<!-- Doxygen escapes the following characters with underscore: -->
+<!--       <xsl:value-of select="replace(.,'_','__')" /> -->
+<!--       <xsl:value-of select="replace(.,'.','_8')" /> -->
+<!--       <xsl:value-of select="replace(.,':','_1')" /> -->
+    </xsl:variable>
+    <xsl:variable name="orocos.doxygen.filename">
+      <xsl:text>class</xsl:text>
+      <xsl:value-of select="$orocos.doxygen.namespace" />
+      <xsl:text>_1_1</xsl:text><!-- ':' maps to '_1' -->
+      <xsl:value-of select="$orocos.doxygen.classname" />
+    </xsl:variable>
+      
+    <xsl:if test="contains(.,'::')">
+      <a href="{$orocos.doxygen.path}/{$orocos.doxygen.filename}.html">
+      <xsl:value-of select="$orocos.doxygen.classname" />
+      </a>
+    </xsl:if>
+  </xsl:template>
+      
+      
+
 </xsl:stylesheet>

@@ -38,6 +38,8 @@
 	  As warned in the previous release, the (long not maintained)
 	  FIFO infrastructure has been removed. To implement communication between
 	  kernel and user-space, use your OS specific communication primitives.
+	  Within the same package, the old 'buffer' implementations were removed
+	  as well.
 	</para>
       </listitem>
       <listitem>
@@ -102,11 +104,12 @@
     <itemizedlist>
       <listitem>
 	<para> 
-	  All 'locks' (mutexes) have been replaced with lock-free algorithms
-	  for events, commands, programs etc. Such that in a running 
-	  real-time application, no more mutexes are used by the real-time
-	  threads. This has drastically improved performance (no OS kernel
-	  interaction) and time determinism (no more blocking threads).
+	  All 'locks' (mutexes) have been replaced with lock-free
+	  algorithms for events, commands, programs etc. Such that in
+	  a running real-time application, no more mutexes are used
+	  when communicating between threads. This has drastically
+	  improved performance (no OS kernel interaction) and time
+	  determinism (no more blocking threads).
 	</para>
       </listitem>
     </itemizedlist>
@@ -145,6 +148,13 @@
 	  has been updated.
 	</para>
       </listitem>
+      <listitem>
+	<para>
+	  The HTML manuals now link to the Doxygen online API,
+	  allowing the user to explore a class interface when it is discussed
+	  in the text.
+	</para>
+      </listitem>
     </itemizedlist>
   </section>
   <section id="corelib">
@@ -175,8 +185,10 @@
 	  A new kind of Component, the <classname>Process</classname>
 	  Component has been added to provide a place to implement kinematic
 	  algorithms or fine grained control over which components are
-	  executed and in which order. Two kind of Process Components have
-	  been implemented, the <classname>DefaultProcess</classname> and
+	  executed and in which order. Each application will have a Process Component.
+	  The <classname>DefaultProcess</classname> just executes all components
+	  in the default order, a <classname>CartesianProcess</classname> executes
+	  the cartesian path interpolation components with a Kinematics Component,
 	  the <classname>KinematicProcess</classname>. The Control Kernel example
 	  applications have been updated to use this component type.
 	</para>
@@ -191,13 +203,16 @@
       <listitem>
 	<para>
 	  A new Kinematics Process Component has been added to manage 
-	  all kinematics of your controller.
+	  all kinematics of your controller. It provides all the kinematic
+	  algorithms as 'methods' in its component interface, and can
+	  be online reconfigured or read information from a property XML
+	  file.
 	</para>
       </listitem>
     </itemizedlist>
   </section>
   <section id="program">
-    <title>Program Processor and Parser Improvements</title>
+    <title>TaskContext, Program Processor and Parser Improvements</title>
     <itemizedlist>
       <listitem>
 	<para>
@@ -219,6 +234,17 @@
 	  All processor interaction is now fully lock-free. This means that any
 	  command or event can not cause dead-locks or higher priority threads
 	  to wait within the Orocos framework.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Sending commands, invoking methods, using events,... Any part of the
+	  <classname>TaskContext</classname> interface creates 'user-friendly'
+	  C++ objects which represent the command, method or event. Lookup
+	  <classname>CommandC</classname>, <classname>MethodC</classname>,
+	  <classname>ConnectionC</classname> and <classname>EventC</classname>
+	  in the manuals and Doxygen pages to get a grip on how to use a
+	  TaskContext's interface without using the scripting.
 	</para>
       </listitem>
     </itemizedlist>
