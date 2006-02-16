@@ -235,45 +235,49 @@ namespace ExecutionClient
 
   std::vector<std::string> ExecutionClient::DirectKernelInterface::getComponents()
   {
-    std::vector<std::string> datasourcecomps = task->dataFactory.getObjectList();
-    std::vector<std::string> commandcomps = task->commandFactory.getObjectList();
-    std::vector<std::string> methodcomps = task->methodFactory.getObjectList();
-    std::sort( datasourcecomps.begin(), datasourcecomps.end() );
-    std::sort( commandcomps.begin(), commandcomps.end() );
-    std::sort( methodcomps.begin(), methodcomps.end() );
-    std::vector<std::string> ret_1;
-    ret_1.reserve( datasourcecomps.size() );
-    std::set_union( datasourcecomps.begin(), datasourcecomps.end(),
-                    commandcomps.begin(), commandcomps.end(), std::back_inserter( ret_1 ) );
-    std::vector<std::string> ret_2;
-    ret_2.reserve( ret_1.size() );
-    std::set_union( ret_1.begin(), ret_1.end(),
-                    methodcomps.begin(), methodcomps.end(), std::back_inserter( ret_2 ) );
-    return ret_2;
+    return task->getPeerList();
   }
 
   std::vector<std::string> ExecutionClient::DirectKernelInterface::getCommands( const std::string& component )
   {
-    const CommandFactoryInterface* fact = task->commandFactory.getObjectFactory( component );
-    if ( ! fact )
-      return std::vector<std::string>();
-    return fact->getCommandList();
+      TaskContext* comp = task->getPeer( component );
+      if ( ! comp ) {
+          Logger::In in("DirectKernelInterface::getCommandss");
+          Logger::log() << Logger::Warning << "No such component: "<<component<<Logger::endl;
+          return std::vector<std::string>();
+      }
+      const CommandFactoryInterface* fact = comp->commands()->getObjectFactory( "this" );
+      if ( !fact )
+          return std::vector<std::string>();
+      return fact->getCommandList();
   }
 
   std::vector<std::string> ExecutionClient::DirectKernelInterface::getData( const std::string& component )
   {
-    const DataSourceFactoryInterface* fact = task->dataFactory.getObjectFactory( component );
-    if ( ! fact )
-      return std::vector<std::string>();
-    return fact->getNames();
+      TaskContext* comp = task->getPeer( component );
+      if ( ! comp ) {
+          Logger::In in("DirectKernelInterface::getData");
+          Logger::log() << Logger::Warning << "No such component: "<<component<<Logger::endl;
+          return std::vector<std::string>();
+      }
+      const DataSourceFactoryInterface* fact = comp->datasources()->getObjectFactory( "this" );
+      if ( !fact )
+          return std::vector<std::string>();
+      return fact->getNames();
   }
 
   std::vector<std::string> ExecutionClient::DirectKernelInterface::getMethods( const std::string& component )
   {
-    const MethodFactoryInterface* fact = task->methodFactory.getObjectFactory( component );
-    if ( ! fact )
-      return std::vector<std::string>();
-    return fact->getNames();
+      TaskContext* comp = task->getPeer( component );
+      if ( ! comp ) {
+          Logger::In in("DirectKernelInterface::getMethods");
+          Logger::log() << Logger::Warning << "No such component: "<<component<<Logger::endl;
+          return std::vector<std::string>();
+      }
+      const MethodFactoryInterface* fact = comp->methods()->getObjectFactory( "this" );
+      if ( !fact )
+          return std::vector<std::string>();
+      return fact->getNames();
   }
 
     void printResult(const std::string& code, DataSourceBase* ds) {
@@ -465,6 +469,9 @@ namespace ExecutionClient
     std::vector<std::string> ret(
       kernelbase->supports.getNameBegin(),
       kernelbase->supports.getNameEnd() );
+    ret.insert( ret.end(),
+      kernelbase->processes.getNameBegin(),
+      kernelbase->processes.getNameEnd() );
     return ret;
   }
 }

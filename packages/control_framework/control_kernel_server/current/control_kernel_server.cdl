@@ -19,7 +19,6 @@ detection of the packages configure script"
 
     make_object {
 	src/kernelserver.o : $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl $(REPOSITORY)/$(PACKAGE)/src/kernelserver.cxx
-	tao_idl $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl -o src
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/kernelserver.cxx -o src/$(OBJECT_PREFIX)_kernelserver.o
 	touch $@
     }
@@ -32,19 +31,19 @@ detection of the packages configure script"
 
     make_object {
 	src/KernelInterfaceS.o : $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl
-	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c src/KernelInterfaceS.cpp -o src/$(OBJECT_PREFIX)_KernelInterfaceS.o
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/KernelInterfaceS.cpp -o src/$(OBJECT_PREFIX)_KernelInterfaceS.o
 	touch $@
     }
 
 #    make_object {
 #	src/KernelInterfaceS_T.o : $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl
-#	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c src/KernelInterfaceS_T.cpp -o src/$(OBJECT_PREFIX)_KernelInterfaceS_T.o
+#	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/KernelInterfaceS_T.cpp -o src/$(OBJECT_PREFIX)_KernelInterfaceS_T.o
 #	touch $@
 #    }
 
     make_object {
 	src/KernelInterfaceC.o : $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl
-	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c src/KernelInterfaceC.cpp -o src/$(OBJECT_PREFIX)_KernelInterfaceC.o
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/KernelInterfaceC.cpp -o src/$(OBJECT_PREFIX)_KernelInterfaceC.o
 	touch $@
     }
 

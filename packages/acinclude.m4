@@ -155,6 +155,15 @@ if [ test -f $ACE_DIR/ace/config-all.h && test -f $TAO_DIR/tao/ORB.h ] ; then
   PACKAGES="support/corba/current/corba.cdl $PACKAGES"
   CPPFLAGS="-I$ACE_DIR -I$TAO_DIR"
   AC_MSG_RESULT(Ace/Tao headers found)
+  if test x$ACE_DIR != x/usr/include; then
+	TAO_IDL=$ACE_DIR/bin/tao_idl;
+  else
+	TAO_IDL=tao_idl;
+  fi
+  for i in $(find . -name *.idl);
+	do $TAO_IDL $CPPFLAGS -I$TAO_DIR/orbsvcs $i -o $(dirname $i)
+  done
+    
 else
   # no corba found
   AC_MSG_RESULT(not found)
