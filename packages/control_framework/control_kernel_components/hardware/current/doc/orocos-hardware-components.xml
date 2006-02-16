@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
-"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd"
 [
 <!ENTITY % oro_ents SYSTEM "http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos.ent" >
 %oro_ents;
@@ -20,9 +20,9 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002-2005</year>
-      <holder><email>Peter.Soetens@mech.kuleuven.ac.be</email></holder>
-      <holder><email>Herman.Bruyninckx@mech.kuleuven.ac.be</email></holder>
+      <year>2002-2006</year>
+      <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
+      <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
     </copyright>
 
     <abstract>
@@ -48,7 +48,7 @@
     <title>Introduction</title>
     <para>
       This package depends on the interfaces defined in the 
-      Orocos Device Interface package and implementations of the
+      Orocos Device Interface and implementations of the
       Orocos Device Drivers package. They must be installed together
       with the Orocos Control Kernel package and the Corelib.
     </para>
@@ -82,7 +82,7 @@
       <sect3>
 	<title>Creating a GenericSensor Component</title>
 	<para>
-	  The GenericSensor is created like all
+	  The <classname>ORO_ControlKernel::GenericSensor</classname> is created like all
 	  the other components in the control framework :
 	  <programlisting>
   GenericSensor   hardw_sens(NUM_CHANS);
@@ -104,12 +104,12 @@
 	  with the name "AIn_1" to the Inputs, which
 	  is updated from an analog_input_card on channel A_CHANNEL_1.
 	  The analog_input_card must implement the <classname>
-	  AnalogInInterface</classname>.
+	  ORO_DeviceInterface::AnalogInInterface</classname>.
 	  If there is already an "AIn_1" DataObject, addAnalogInput
 	  returns false.
 	</para>
 	<para>
-	  The Analog Input can also be read from an Orocos
+	  The <classname>ORO_DeviceDriver::AnalogInput</classname> can also be read from an Orocos
 	  Program Script or State Description :
 	  <programlisting>
   var double result = GenericSensor.value("AIn_1")
@@ -140,7 +140,7 @@
   int A_CHANNEL   = 5;
   hardw_sens.addChannel(A_VIRT_CHAN, analog_input_card, A_CHANNEL );
 	  </programlisting>
-	  Which demonstrates that channel 5 of the AnalogInInterface
+	  Which demonstrates that channel 5 of the <classname>ORO_DeviceInterface::AnalogInInterface</classname>
 	  is inserted in position 1 of the Channel DataObject. If this
 	  channel was already taken, addChannel returns false;
 	</para>
@@ -151,7 +151,7 @@
 	  </programlisting>
 	</para>
 	<para>
-	  The Process Control Components in the kernel_components/process_control
+	  The Process Control Components in the control_kernel_components/process_control
 	  package use virtual channels for their operations.
 	</para>
       </sect3>
@@ -161,10 +161,10 @@
 	  Digital Inputs are not introduced in DataObjects, as digital
 	  signal processing is done in the PLC-like Execution Engine.
 	  The GenericSensor exposes the Digital Inputs to the 
-	  Execution Extension of the Control Kernel.
+	  <classname>ORO_ControlKernel::ExecutionExtension</classname> of the Control Kernel.
 	</para>
 	<para>
-	  A Digital Input is added as such :
+	  A <classname>ORO_DeviceDriver::DigitalInput</classname> is added as such :
 	  <programlisting>
   int D_CHANNEL = 2;
   hardw_sens.addDigitalInput("DIn_1", digital_input_card, D_CHANNEL );
@@ -199,7 +199,7 @@ myKernel.loadSensor( &amp;hardw_sens );	</programlisting>
     <sect2>
       <title>GenericEffector : Effector Hardware Abstraction</title>
       <para>
-	The GenericEffector is very similar to the GenericSensor, but
+	The <classname>ORO_ControlKernel::GenericEffector</classname> is very similar to the GenericSensor, but
 	analog/digital inputs are replaced by the ouputs counterparts.
 	The GenericEffector reads from the Outputs DataObject.
       </para>
@@ -228,13 +228,13 @@ myKernel.loadSensor( &amp;hardw_sens );	</programlisting>
 	  will check the existence of this DataObject in its
 	  componentStartup method (thus when it is started).
 	  The analog_output_card must implement the <classname>
-	  AnalogOutInterface</classname>.
+	  ORO_DeviceInterface::AnalogOutInterface</classname>.
 	  If there is already an "AOut_1" DataObject, addAnalogOutput
 	  returns false.
 	</para>
 	<para>
-	  The Analog Output can also be read from an Orocos
-	  Program Script or State Description :
+	  The <classname>ORO_DeviceDriver::AnalogOutput</classname> can also be read from an Orocos
+	  Program Script or State Machine :
 	  <programlisting>
   var double result = GenericEffector.value("AOut_1")
   var int    raw_result = GenericEffector.rawValue("AOut_1")
@@ -264,7 +264,7 @@ myKernel.loadSensor( &amp;hardw_sens );	</programlisting>
   int A_CHANNEL   = 5;
   hardw_eff.addChannel(A_VIRT_CHAN, analog_output_card, A_CHANNEL );
 	  </programlisting>
-	  Which demonstrates that channel 5 of the AnalogOutInterface
+	  Which demonstrates that channel 5 of the <classname>ORO_DeviceInterface::AnalogOutInterface</classname>
 	  is set to the value of virtual channel 1.
 	  If this virtual 
 	  channel was already taken, addChannel returns false;
@@ -276,7 +276,7 @@ myKernel.loadSensor( &amp;hardw_sens );	</programlisting>
 	  </programlisting>
 	</para>
 	<para>
-	  The Process Control Components in the kernel_components/process_control
+	  The Process Control Components in the control_kernel_components/process_control
 	  package use virtual channels for their operations.
 	</para>
       </sect3>
@@ -327,12 +327,13 @@ myKernel.loadSensor( &amp;hardw_sens );	</programlisting>
   <sect1>
     <title>Using the GenericEffector and GenericSensor</title>
     <para>
-      The GenericEffector and GenericSensor allow for a quick test of the
+      The <classname>ORO_ControlKernel::GenericEffector</classname> 
+      and <classname>ORO_ControlKernel::GenericSensor</classname> allow for a quick test of the
       available hardware. An example can be found in the
       <filename>kernel_samples/hardware_components</filename> directory.
-      A <classname>SignalGenerator</classname> or
-      <classname>SignalTracker</classname> with a
-      <classname>FeedForwardController</classname> can be used to generate
+      A <classname>ORO_ControlKernel::SignalGenerator</classname> or
+      <classname>ORO_ControlKernel::SignalTracker</classname> with a
+      <classname>ORO_ControlKernel::FeedForwardController</classname> can be used to generate
       a signal on an analog ouput, or replicate a signal on an analog input.
       These components can be found in the
       signal_processing and process_control packages.
@@ -356,11 +357,11 @@ myKernel.loadSensor( &amp;hardw_sens );	</programlisting>
 
   int ORO_main() {
     int MAX_CHANNELS = 16;
-    StandardControlKernel&lt;> kernel;
-    PID_Controller pid(MAX_CHANNELS);
-    SignalGenerator gen(MAX_CHANNELS);
-    GenericSensor   hardw_sens(MAX_CHANNELS);
-    GenericEffector hardw_eff(MAX_CHANNELS);
+    <classname>ORO_ControlKernel::StandardControlKernel</classname>&lt;> kernel;
+    <classname>ORO_ControlKernel::PID_Controller</classname> pid(MAX_CHANNELS);
+    <classname>ORO_ControlKernel::SignalGenerator</classname> gen(MAX_CHANNELS);
+    <classname>ORO_ControlKernel::GenericSensor</classname>   hardw_sens(MAX_CHANNELS);
+    <classname>ORO_ControlKernel::GenericEffector</classname> hardw_eff(MAX_CHANNELS);
 
     kernel.loadController( &amp;pid );
     kernel.loadGenerator( &amp;gen );
@@ -371,14 +372,14 @@ myKernel.loadSensor( &amp;hardw_sens );	</programlisting>
     // ...
 
     // configure components from cpf files :
-    KernelConfig kconfig( &amp;kernel );
+    <classname>ORO_ControlKernel::KernelConfig</classname> kconfig( &amp;kernel );
     kconfig.configure();
 
-    ORO_CoreLib::TaskPreemptible ktask(0.01, &amp;kernel );
+    <classname>ORO_CoreLib::TaskPreemptible</classname> ktask(0.01, &amp;kernel );
     ktask.start();
    
     // wait for user interruption ...
-    // ( See also TaskBrowser / TaskContext ).
+    // ( See also <classname>ORO_Execution::TaskBrowser</classname> / <classname>ORO_Execution::TaskContext</classname> ).
 
     ktask.stop();
     return 0;

@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
-"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd"
 [
 <!ENTITY % oro_ents SYSTEM "http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos.ent" >
 %oro_ents;
@@ -20,7 +20,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002-2004</year>
+      <year>2002-2006</year>
       <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
       <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
     </copyright>
@@ -72,29 +72,29 @@
     <sect2>
       <title>Axis Hardware Abstraction</title>
       <para>
-	The Axis is abstracted as a logical device in the
+	The <classname>ORO_DeviceDriver::Axis</classname> is abstracted as a logical device in the
 	device_interface Orocos package. When an axis object
-	is created, it must be given an <classname>AnalogDrive</classname>
+	is created, it must be given an <classname>ORO_DeviceDriver::AnalogDrive</classname>
 	which accepts the drive setpoints. The AnalogDrive is
 	connected to the physical hardware through an
-	<classname>AnalogOutput</classname> (for the signal)
-	and a <classname>DigitalOutput</classname> to enable
+	<classname>ORO_DeviceDriver::AnalogOutput</classname> (for the signal)
+	and a <classname>ORO_DeviceDriver::DigitalOutput</classname> to enable
 	the drive. The Axis abstraction leaves the physical
 	unit which is controlled open, so it can be velocities,
 	torques etc.
       </para>
       <para>
 	Once created, the Axis object accepts optionally a
-	<classname>DigitalOutput</classname> representing the break
-	and a <classname>DigitalInput</classname> representing
+	<classname>ORO_DeviceDriver::DigitalOutput</classname> representing the break
+	and a <classname>ORO_DeviceDriver::DigitalInput</classname> representing
 	a home switch.
       </para>
       <para>
 	An Axis can be given an unlimited amount of sensors
-	( <classname>SensorInterface</classname> ) together with an
+	( <classname>ORO_DeviceInterface::SensorInterface</classname> ) together with an
 	endlimit device (possibly in software) which can disable drive signals 
 	in one or the other direction if the sensor detects
-	to large values. For example an <classname>EncoderPositionSensor</classname>
+	to large values. For example an <classname>ORO_DeviceDriver::EncoderPositionSensor</classname>
 	will be given an endlimit which disables (in software) the drive
 	in the positive direction if the position is to large.
       </para>
@@ -107,7 +107,7 @@
     <sect2>
       <title>The AxisSensor Component</title>
       <para>
-	The AxisSensor Component will introduce an Axis object
+	The <classname>ORO_ControlKernel::AxisSensor</classname> Component will introduce an Axis object
 	into the Control Kernel Sensor Component such that it
 	can be used for control. It creates DataObjects which
 	represent the continuous variables of the Axis and
@@ -121,7 +121,7 @@
 	  The AxisSensor is created like all
 	  the other components in the control framework :
 	  <programlisting>
-  AxisSensor   axis_sens(NUM_CHANS);
+  <classname>ORO_ControlKernel::AxisSensor</classname>   axis_sens(NUM_CHANS);
 	  </programlisting>
 	  Where NUM_CHANS is the maximal number of virtual channels
 	  this Sensor exposes (see later).
@@ -199,7 +199,7 @@
 	  </programlisting>
 	</para>
 	<para>
-	  The Process Control Components in the kernel_components/process_control
+	  The Process Control Components in the control_kernel_components/process_control
 	  package use virtual channels for their operations.
 	</para>
       </sect3>
@@ -207,7 +207,8 @@
     <sect2>
       <title>The AxisEffector Component</title>
       <para>
-	The AxisEffector works similar to the AxisSensor but
+	The <classname>ORO_ControlKernel::AxisEffector</classname> 
+	works similar to the <classname>ORO_ControlKernel::AxisSensor</classname> but
 	does the inverse operations. It reads Output DataObjects
 	and drives an Axis object with the given values. It allows
 	to operate the Axis actively.
@@ -218,7 +219,7 @@
 	  The AxisEffector is created like all
 	  the other components in the control framework :
 	  <programlisting>
-  AxisEffector   axis_eff(NUM_CHANS);
+  <classname>ORO_ControlKernel::AxisEffector</classname>   axis_eff(NUM_CHANS);
 	  </programlisting>
 	  Where NUM_CHANS is the maximal number of virtual channels
 	  this Effector will accept (see later).
@@ -281,7 +282,7 @@
 	  </programlisting>
 	</para>
 	<para>
-	  The Process Control Components in the kernel_components/process_control
+	  The Process Control Components in the control_kernel_components/process_control
 	  package use virtual channels for their operations.
 	</para>
       </sect3>
@@ -300,7 +301,7 @@
 	<para>
 	  As usual :
 	  <programlisting>
-  AxisPositionGenerator   apg(NUM_CHANS);
+  <classname>ORO_ControlKernel::AxisPositionGenerator</classname>   apg(NUM_CHANS);
 	  </programlisting>
 	  Where NUM_CHANS is the maximal number of Axes it can
 	  generate trajectories for.
@@ -384,9 +385,10 @@
       <title>Choosing an Axis Estimator and Controller Component</title>
       <para>
 	For now, no Estimator is available. As Controller, the
-	P_Controller and PID_Controller components of the Process
-	Control Kernel Components package can be used without any
-	adaptation.
+	<classname>ORO_ControlKernel::P_Controller</classname> and
+	<classname>ORO_ControlKernel::PID_Controller</classname>
+	components of the Process Control Kernel Components package
+	can be used without any adaptation.
       </para>
     </sect2>
   </sect1>
@@ -430,53 +432,53 @@
 	      <entry>kernel-samples/cartesian</entry>
 	    </row>
 	    <row>
-	      <entry>CartesianNSGenerator.hpp</entry>
-	      <entry>NSControlKernel</entry>
+	      <entry>CartesianGenerator.hpp</entry>
+	      <entry>StandardControlKernel</entry>
 	      <entry>
 		6DOF Move/MoveTo/Wait Generator.
 	      </entry>
-	      <entry>kernel-samples/cartesian-names,
+	      <entry>kernel-samples/cartesian,
 		kernel-samples/program-state</entry>
 	    </row>
 	    <row>
 	      <entry>CartesianPositionTracker.hpp</entry>
-	      <entry>NSControlKernel</entry>
+	      <entry>StandardControlKernel</entry>
 	      <entry>
 		6DOF tracking Generator. It can track
 		Sensor, Model and Command data.
 	      </entry>
-	      <entry>kernel-samples/cartesian-names,
+	      <entry>kernel-samples/cartesian,
 		kernel-samples/program-state</entry>
 	    </row>
 	    <row>
-	      <entry>CartesianNSController.hpp</entry>
-	      <entry>NSControlKernel</entry>
+	      <entry>CartesianStandardController.hpp</entry>
+	      <entry>StandardControlKernel</entry>
 	      <entry>
 		A simple proportional controller, which does the
 		inverse kinematics and calculates the error and
 		control action on joint level.
 	      </entry>
-	      <entry>kernel-samples/cartesian-names,
+	      <entry>kernel-samples/cartesian,
 		kernel-samples/program-state</entry>
 	    </row>
 	    <row>
-	      <entry>CartesianNSEstimator.hpp</entry>
-	      <entry>NSControlKernel</entry>
+	      <entry>CartesianEstimator.hpp</entry>
+	      <entry>StandardControlKernel</entry>
 	      <entry>
 		Calculates the forward kinematics from joint positions (Sensor
 		Data) to Cartesian space ( Model Data ).
 	      </entry>
-	      <entry>kernel-samples/cartesian-names,
+	      <entry>kernel-samples/cartesian,
 		kernel-samples/program-state</entry>
 	    </row>
 	    <row>
-	      <entry>CartesianNSSensor.hpp CartesianNSEffector.hpp</entry>
-	      <entry>NSControlKernel</entry>
+	      <entry>CartesianSensor.hpp CartesianEffector.hpp</entry>
+	      <entry>StandardControlKernel</entry>
 	      <entry>
 		Simulates a 6-joints robot, just for
 		testing purposes.
 	      </entry>
-	      <entry>kernel-samples/cartesian-names,
+	      <entry>kernel-samples/cartesian,
 		kernel-samples/program-state</entry>
 	    </row>
 	  </tbody>
@@ -486,7 +488,7 @@
     <sect2>
       <title>Generator Component : CartesianGenerator</title>
       <para>
-	The <classname>CartesianGenerator</classname> is the main
+	The <classname>ORO_ControlKernel::CartesianGenerator</classname> is the main
 	access point for accepting move and move-to commands.
 	It can also move to a predefined home position. The Generator
 	can accept commands from four different places. The first place
@@ -640,14 +642,14 @@
     <sect2>
       <title>Generator Component : CartesianPositionTracker</title>
       <para>
-	The <classname>CartesianPositionTracker</classname> is
+	The <classname>ORO_ControlKernel::CartesianPositionTracker</classname> is
 	designed to track (externally) generated position setpoints.
 	The Generator can accept commands from three different places.
 	These places are the Input, Model and Command DataObjects.
 	It is complementary to the 'moveTo' generator.
       </para>
       <para>
-	This component is only available in the NSControlKernel.
+	This component is only available in the StandardControlKernel.
       </para>
       <sect3>
 	<title>Configuration parameters</title>
@@ -724,7 +726,7 @@
 	It is complementary to the 'move' generator.
       </para>
       <para>
-	This component is only available in the NSControlKernel.
+	This component is only available in the StandardControlKernel.
       </para>
       <sect3>
 	<title>Configuration parameters</title>
@@ -784,7 +786,7 @@
     <sect2>
       <title>Controller Component : CartesianController</title>
       <para>
-	The CartesianController takes a end effector frame as 
+	The <classname>ORO_ControlKernel::CartesianController</classname> takes a end effector frame as 
 	setpoint and converts it to desired joint positions.
 	It reads from the Sensor Component the actual joint
 	positions and does a proportional control on the
@@ -795,7 +797,7 @@
     <sect2>
       <title>Estimator Component : CartesianEstimator</title>
       <para>
-	This component calculates the end effector position
+	The <classname>ORO_ControlKernel::Estimator</classname> component calculates the end effector position
 	in the robot base frame, given the joint positions.
 	It must be given a <classname>KinematicsInterface</classname> object
 	to do the forward kinematics.
@@ -804,15 +806,15 @@
     <sect2>
       <title>Sensor Component : CartesianSensor</title>
       <para>
-	The CartesianSensor is a dummy component. It
-	provides joint positions. A real implementation
+	The <classname>ORO_ControlKernel::CartesianSensor</classname> is reads from a
+	<classname>ORO_ControlKernel::Simulator</classname> to get joint positions. A real implementation
 	must provide the same joint positions.
       </para>
     </sect2>
     <sect2>
       <title>Effector Component : CartesianEffector</title>
       <para>
-	The CartesianEffector uses a simulator to integrate
+	The <classname>ORO_ControlKernel::CartesianEffector</classname> uses a <classname>ORO_ControlKernel::Simulator</classname> to integrate
 	the joint velocities into joint positions.
       </para>
     </sect2>
