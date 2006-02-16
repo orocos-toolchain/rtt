@@ -134,7 +134,7 @@ namespace ORO_CoreLib
          * @param _name The name of this DataObject.
          * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObjectLocked(const std::string& _name, const std::string& _prefix = "")
+        DataObjectLocked(const std::string& _name, const std::string&  = "")
             : data(), name(_name) {}
 
         /** 
@@ -233,7 +233,7 @@ namespace ORO_CoreLib
          * @param _name The name of this DataObject.
          * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObjectPrioritySet(const std::string& _name, const std::string& _prefix = "")
+        DataObjectPrioritySet(const std::string& _name, const std::string&  = "")
             : data(), mcopy(), name(_name) {}
 
         /** 
@@ -341,7 +341,7 @@ namespace ORO_CoreLib
          * @param _name The name of this DataObject.
          * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObjectPriorityGet(const std::string& _name, const std::string& _prefix  = std::string())
+        DataObjectPriorityGet(const std::string& _name, const std::string&   = std::string())
             : data(), mcopy(), name(_name) {}
 
         /** 
@@ -499,7 +499,7 @@ namespace ORO_CoreLib
          * @param _name The name of this DataObject.
          * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObjectLockFree(const std::string& _name, const std::string& _prefix  = std::string()) 
+        DataObjectLockFree(const std::string& _name, const std::string&   = std::string()) 
             : read_ptr(&data[ 0 ]), 
               write_ptr(&data[ 1 ]), 
               name(_name)
@@ -623,7 +623,7 @@ namespace ORO_CoreLib
          * @param _name The name of this DataObject.
          * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObject(const std::string& _name, const std::string& _prefix  = std::string())
+        DataObject(const std::string& _name, const std::string&   = std::string())
             : data(), name(_name) {}
 
         /** 
