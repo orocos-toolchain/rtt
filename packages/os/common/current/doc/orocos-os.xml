@@ -129,7 +129,7 @@
 	example, a thread can be created, started, paused, scheduled,
 	etc., but each OS uses other function calls to do this.
 	&orocos; prefers C++ interfaces, which led to the
-	<classname>ORO_OS::PeriodicThreadInterface</classname> interface and
+	<classname>ORO_OS::ThreadInterface</classname> interface and
 	<classname>ORO_OS::PeriodicThread</classname> class as the
 	abstractions of a periodic thread. The
 	<classname>ORO_OS::SingleThread</classname> is a non periodic thread
@@ -456,8 +456,8 @@
 	</para>
 	<para>
 	  &orocos; delivers one implementation of the
-	  <classname>ThreadInterface</classname> : <classname>
-	    PeriodicThread</classname>, which creates a thread
+	  <classname>ORO_OS::ThreadInterface</classname> : <classname>
+	    ORO_OS::PeriodicThread</classname>, which creates a thread
 	  according to the operating system you are compiling for.
 	  However, you are encouraged <emphasis>NOT</emphasis> to use
 	  it! The CoreLib uses this class as a basis to provide a more
@@ -555,7 +555,7 @@
 	  From within any (CoreLib) task, you may then additionally use the
 	  ThreadScope driver as such :
 	</para>
-	<programlisting>  DigitalOutInterface* pp = DigitalOutInterface::nameserver.getObject("ThreadScope");
+	<programlisting>  <classname>ORO_DeviceInterface::DigitalOutInterface</classname>* pp = DigitalOutInterface::nameserver.getObject("ThreadScope");
 if ( pp )
     pp->setBit( this->getTask()->thread()->threadNumber(), value );
   	</programlisting>
@@ -591,10 +591,10 @@ if ( pp )
 	<example>
 	  <title>Locking a Mutex</title>
 	  <para>The first listing shows a complete lock over a function :</para>
-	  <programlisting>  Mutex m;
+	  <programlisting>  <classname>ORO_OS::Mutex</classname> m;
   void foo() {
      int i;
-     MutexLock lock(m);
+     <classname>ORO_OS::MutexLock</classname> lock(m);
      // m is locked.
      // ...
   } // when leaving foo(), m is unlocked.  </programlisting>
@@ -602,12 +602,12 @@ if ( pp )
 	    Any scope is valid, so if the critical section is smaller than
 	    the size of the function, you can :
 	  </para>
-	  <programlisting>  Mutex m;
+	  <programlisting>  <classname>ORO_OS::Mutex</classname> m;
   void bar() {
      int i;
      // non critical section
      {
-        MutexLock lock(m);
+        <classname>ORO_OS::MutexLock</classname> lock(m);
         // m is locked.
         // critical section
      } //  m is unlocked.
@@ -625,7 +625,7 @@ if ( pp )
 	  Event implementation in CoreLib can be used for thread safe
 	  signalling and data exchange in periodic tasks.
 	</para>
-	  <programlisting>  Semaphore sem(0); // initial value is zero.
+	  <programlisting>  <classname>ORO_OS::Semaphore</classname> sem(0); // initial value is zero.
   void foo() {
      // Wait on sem, decrement value (blocking ):
      sem.wait()

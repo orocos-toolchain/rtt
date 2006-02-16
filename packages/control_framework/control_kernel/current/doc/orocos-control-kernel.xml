@@ -3003,10 +3003,10 @@ private:
   try {
     my_kernel.loadStateMachine("state.osd");
     my_kernel.loadProgram("program.ops");
-  } catch ( file_parse_exception& fpe ) {
+  } catch ( file_parse_exception&amp; fpe ) {
     cerr &lt;&lt; fpe.what() &lt;&lt; endl;
     // parse error.
-  } catch ( program_load_exception & ple ) {
+  } catch ( program_load_exception&amp; ple ) {
     cerr &lt;&lt; ple.what() &lt;&lt; endl;
     // parsed fine, but failed to load
   } </programlisting>

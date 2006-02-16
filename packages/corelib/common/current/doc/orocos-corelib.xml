@@ -233,11 +233,11 @@ of the &orocos; framework.
 	<para>
 	    This example shows how to create the PriorityThread.
 	</para>
-	<programlisting><![CDATA[#include "corelib/PriorityTask.hpp"
+	<programlisting>#include "corelib/PriorityTask.hpp"
 
 using namespace ORO_CoreLib;
 
-class KineLoop : public RunnableInterface
+class KineLoop : public <classname>ORO_CoreLib::RunnableInterface</classname>
 {
     bool initialize() { // ...
     }
@@ -257,14 +257,14 @@ ORO_main( int argc, char** argv)
   // 9 : The priority.
   // 0.01 : The period.
   // You have to manually start the thread.
-  PriorityThread<9>::Instance()->setPeriod( 0.01 );
-  PriorityThread<9>::Instance()->start();
+  <classname>ORO_CoreLib::PriorityThread</classname>&lt;9>::Instance()->setPeriod( 0.01 );
+  <classname>ORO_CoreLib::PriorityThread</classname>&lt;9>::Instance()->start();
   // Optional :
-  PriorityThread<9>::Instance()->makeHardRealtime();
+  <classname>ORO_CoreLib::PriorityThread</classname>&lt;9>::Instance()->makeHardRealtime();
 
   // This task is run in the extra thread above,
   // kine_loop inherits from RunnableInterface :
-  PriorityTask<9> own_task( 0.05, &kine_loop ); // 0.05 is multiple of 0.01
+  <classname>ORO_CoreLib::PriorityTask</classname>&lt;9> own_task( 0.05, &amp;kine_loop ); // 0.05 is multiple of 0.01
 
   own_task->start();
 
@@ -273,7 +273,7 @@ ORO_main( int argc, char** argv)
   own_task->stop();
 
   return 0;
-}]]></programlisting>
+}</programlisting>
       </example>
       </para>
     </sect2>
@@ -296,7 +296,7 @@ ORO_main( int argc, char** argv)
 	    </thead>
 	    <tbody>
 	      <row>
-		<entry><classname>ORO_CoreLib::TimerThreadc</classname></entry>
+		<entry><classname>ORO_CoreLib::TimerThread</classname></entry>
 		<entry><classname>ORO_CoreLib::PeriodicTask</classname></entry>
 		<!-- one of (entrytbl entry) -->
 	      </row>
@@ -341,7 +341,7 @@ ORO_main( int argc, char** argv)
   #include &lt;corelib/TaskNonPreemptible.hpp>
 
   class MyPeriodicTask
-	: public ORO_CoreLib::RunnableInterface
+	: public <classname>ORO_CoreLib::RunnableInterface</classname>
   {
   public:
     // ...
@@ -373,11 +373,11 @@ ORO_main( int argc, char** argv)
   MyPeriodicTask run_impl_1;
   MyPeriodicTask run_impl_2;
 
-  TaskNonPreemptible task( 0.01 ); // 100Hz
+  <classname>ORO_CoreLib::TaskNonPreemptible</classname> task( 0.01 ); // 100Hz
   task.run( &amp;run_impl_1 );
   task.start(); // calls 'step()'
 
-  TaskNonPeriodic nptask(12); // priority = 12
+  <classname>ORO_CoreLib::TaskNonPeriodic</classname> nptask(12); // priority = 12
   nptask.run( &amp;run_impl_2);
   task.start(); // calls 'loop()'
 
@@ -390,11 +390,11 @@ ORO_main( int argc, char** argv)
 	      and finalize methods.
 	      <programlisting>
   class MyOtherPeriodicTask
-      : public TaskNonPreemptible
+      : public <classname>ORO_CoreLib::TaskNonPreemptible</classname>
   {
   public :
     MyOtherPeriodicTask()
-      : TaskNonPreemptible( 0.01 ) // 100Hz
+      : <classname>ORO_CoreLib::TaskNonPreemptible</classname>( 0.01 ) // 100Hz
     {
     }
 
@@ -457,7 +457,7 @@ ORO_main( int argc, char** argv)
 	  This example shows how all kinds of tasks can be created. When a task
 	  is started it will add itself to the correct thread.
 	</para>
-	<programlisting><![CDATA[#include "corelib/TaskNonPreemptible.hpp"
+	<programlisting>#include "corelib/TaskNonPreemptible.hpp"
 #include "corelib/TaskPreemptible.hpp"
 #include "corelib/TaskNonRealTime.hpp"
 #include "corelib/PriorityTask.hpp"
@@ -471,14 +471,14 @@ ORO_main( int argc, char** argv)
   // ...
 
   // These tasks are run in the Orocos Thread Model
-  TaskNonPreemptible fast_task1(0.001, &vel_loop);
-  TaskNonPreemptible fast_task2(0.001, &vel_loop);
+  <classname>ORO_CoreLib::TaskNonPreemptible</classname> fast_task1(0.001, &amp;vel_loop);
+  <classname>ORO_CoreLib::TaskNonPreemptible</classname> fast_task2(0.001, &amp;vel_loop);
 
-  TaskPreemptible slow_task(0.01, &pos_loop);
-  TaskNonRealTime nrt_task( 0.1, &display_server );
+  <classname>ORO_CoreLib::TaskPreemptible</classname> slow_task(0.01, &amp;pos_loop);
+  <classname>ORO_CoreLib::TaskNonRealTime</classname> nrt_task( 0.1, &amp;display_server );
 
   // This task is run in the extra thread above
-  PriorityTask<9> own_task( 0.05, &kine_loop ); // 0.05 is multiple of 0.01
+  <classname>ORO_CoreLib::PriorityTask</classname>&lt;9> own_task( 0.05, &amp;kine_loop ); // 0.05 is multiple of 0.01
 
   // All is transparant from here on.
   fast_task1->start();
@@ -496,7 +496,7 @@ ORO_main( int argc, char** argv)
   nrt_task->stop();
 
   return 0;
-}]]></programlisting>
+}</programlisting>
       </example>
     </sect2>
     <sect2>
@@ -556,7 +556,7 @@ ORO_main( int argc, char** argv)
 	periodicity can be changed with the configuration tool, or
 	before its started.
       </para>
-	<programlisting><![CDATA[#include "corelib/SimulationTask.hpp"
+	<programlisting>#include "corelib/SimulationTask.hpp"
 
 using namespace ORO_CoreLib;
 
@@ -568,16 +568,16 @@ ORO_main( int argc, char** argv)
 
   // Manually start the simulation thread
   // 0.001 : The (virtual) period :  no task can run 'faster' than this.
-  SimulationThread::Instance()->periodSet( 0.001 );
-  SimulationThread::Instance()->start();
+  <classname>ORO_CoreLib::SimulationThread</classname>::Instance()->periodSet( 0.001 );
+  <classname>ORO_CoreLib::SimulationThread</classname>::Instance()->start();
 
   // Optional, might hang your program :
-  SimulationThread::Instance()->makeHardRealtime();
+  <classname>ORO_CoreLib::SimulationThread</classname>::Instance()->makeHardRealtime();
 
   // fast_sim_task will measure 0.001s elapses between each step(),
   // slow_sim_task will measure 0.01s elapses in time between each step()
-  SimulationTask fast_sim_task(0.001, &vel_loop);
-  SimulationTask slow_sim_task(0.01, &pos_loop);
+  <classname>ORO_CoreLib::SimulationTask</classname> fast_sim_task(0.001, &amp;vel_loop);
+  <classname>ORO_CoreLib::SimulationTask</classname> slow_sim_task(0.01, &amp;pos_loop);
 
   // All is transparant from here on.
   fast_sim_task->start();
@@ -589,7 +589,7 @@ ORO_main( int argc, char** argv)
   slow_sim_task->stop();
 
   return 0;
-}]]>	</programlisting>
+}</programlisting>
       <warning>
 	<para>
 	  If other threads are running in the same program executable,
@@ -626,7 +626,7 @@ ORO_main( int argc, char** argv)
       </para>
       <programlisting>  int priority = 5;
   
-  TaskNonPeriodic task( priority, blocking_task );
+  <classname>ORO_CoreLib::TaskNonPeriodic</classname> task( priority, blocking_task );
   task.start(); // calls blocking_task->initialize()
 
   // now blocking_task->loop() is called in a thread with priority 5.  </programlisting>
@@ -674,7 +674,7 @@ ORO_main( int argc, char** argv)
       <title>Event Driven Tasks</title>
       <para>
 	An alternative way to use non periodic tasks is to use
-	the <classname>ORO_CoreLib::ORO_CoreLib::TaskEventDriven</classname>,
+	the <classname>ORO_CoreLib::TaskEventDriven</classname>,
 	which can be bound to an <classname>ORO_CoreLib::Event</classname> (see <xref linkend="corelib-events" /> )
 	and each time the Event is emitted, the step() method will be invoked
 	asynchronously in a given thread.
@@ -684,8 +684,8 @@ ORO_main( int argc, char** argv)
 	<programlisting>  #include &lt;corelib/TaskEventDriven.hpp>
 
   //...
-  Event&lt;void(void)> task_event;
-  TaskEventDriven task( &amp;task_event, ZeroTimeThread::Instance(), &amp;run_obj);
+  <classname>ORO_CoreLib::Event</classname>&lt;void(void)> task_event;
+  <classname>ORO_CoreLib::TaskEventDriven</classname> task( &amp;task_event, <classname>ORO_CoreLib::ZeroTimeThread</classname>::Instance(), &amp;run_obj);
 
   task_event.emit(); // nothing happens
 
@@ -739,38 +739,34 @@ ORO_main( int argc, char** argv)
 	  </thead>
 	  <tbody>
 	    <row>
-	      <entry>BufferCircular, BufferSimple, DataObjectLocked</entry>
+	      <entry><classname>ORO_CoreLib::DataObjectLocked</classname></entry>
 	      <entry>
 		<para>Uses Mutex for serialising concurrent access. Alternative
 		Lock-free implementations are possible.</para>
 	      </entry>
 	    </row>
 	    <row>
-	      <entry>Event::emit()</entry>
+	      <entry><classname>ORO_CoreLib::PeriodicTask</classname>::start(), 
+	      <classname>ORO_CoreLib::PeriodicTask</classname>::stop()</entry>
 	      <entry>
-		<para>Uses Mutex for serialising concurrent access.
-		No Alternative implementation is possible, callback execution
-		<emphasis>must</emphasis> be serialised.</para>
-	      </entry>
-	    </row>
-	    <row>
-	      <entry>PeriodicTask::start(), PeriodicTask::stop()</entry>
-	      <entry>
-		<para>( Applies to PriorityTask, TaskNonRealtime, TaskPreemptible and
-		TaskNonPreemptible).
+		<para>( Applies to <classname>ORO_CoreLib::PriorityTask</classname>, 
+		<classname>ORO_CoreLib::TaskNonRealtime</classname>, 
+		<classname>ORO_CoreLib::TaskPreemptible</classname> and
+		<classname>ORO_CoreLib::TaskNonPreemptible</classname>).
 		Uses Mutex for serialising concurrent access.
-		Alternative implementation might be possible in certain
-		cases, however, since stop() guarantees that finalize() will
-		be called <emphasis>after</emphasis> the last step(), it
+		Alternative implementation are incorrect,
+		since stop() guarantees that finalize() will
+		be called <emphasis>after</emphasis> the last step(), hence a
+		mutex/semaphore is used such that it
 		will block until the step() returns and then call finalize().
 		</para>
 	      </entry>
 	    </row>
 	    <row>
-	      <entry>Logger</entry>
+	      <entry><classname>ORO_CoreLib::Logger</classname></entry>
 	      <entry>
 		<para>Uses Mutex for serialising concurrent access.
-		  No Alternative implementation is possible, IO
+		  No Alternative implementation is possible, Std C++ IO
 		  <emphasis>must</emphasis> be serialised.</para>
 	      </entry>
 	    </row>
@@ -824,6 +820,21 @@ ORO_main( int argc, char** argv)
 		</para>
 	      </entry>
 	    </row>
+	    <row>
+	      <entry><classname>ORO_CoreLib::Event</classname>::emit()</entry>
+	      <entry>
+		<para>Uses the ListLockFree above for keeping track of subscribers.
+		Concurrent invocations of emit() will lead to concurrent execution
+		of the subscriber's callback functions.</para>
+	      </entry>
+	    </row>
+	    <row>
+	      <entry><classname>ORO_CoreLib::Handle</classname>::connect() and <classname>ORO_CoreLib::Handle</classname>::disconnect()</entry>
+	      <entry>
+		<para>(Dis)Connection of an event handle is hard real-time and lock-free
+		because of the lock-free event implementation.</para>
+	      </entry>
+	    </row>
 	  </tbody>
 	</tgroup>
       </table>
@@ -834,7 +845,7 @@ ORO_main( int argc, char** argv)
 	Each Orocos Task (periodic, non periodic and event driven)
 	type has a <function>thread()</function> method in its
 	interface which gives a non-zero pointer to a
-	<classname>ORO_CoreLib::ThreadInterface</classname> object which provides
+	<classname>ORO_OS::ThreadInterface</classname> object which provides
 	general thread information such as the priority and periodicity and allows to
 	control the realtimeness of the thread which runs this task. A
 	non periodic task's thread will return a period of zero.
@@ -897,7 +908,7 @@ ORO_main( int argc, char** argv)
 	This example shows how a synchronous and asynchronous handler
 	are connected to an Event.
       </para>
-      <programlisting> <![CDATA[#include <corelib/Event.hpp>
+      <programlisting>#include &lt;corelib/Event.hpp>
 
 using boost::bind;
 
@@ -906,7 +917,7 @@ class SafetyStopRobot
 public:
     void handle_now() {
         // Synchronous Handler code
-    std::cout << " Putting the robot in a safe state fast !" << std::endl;
+    std::cout &lt;&lt; " Putting the robot in a safe state fast !" &lt;&lt; std::endl;
     }
 };
 
@@ -915,7 +926,7 @@ Class NotifyUser
 public:
     void handle_later() {
 	    //Asynchronous Completer code
-	    std::cout << "The program stopped the robot !"<<std::endl;
+	    std::cout &lt;&lt; "The program stopped the robot !"&lt;&lt;std::endl;
     }
 };
 
@@ -923,18 +934,18 @@ public:
 SafetyStopRobot safety;
 NotifyUser      notify;
 
-// The <..> means the callback functions must be of type "void foo(void)"
-Event<void(void)> emergencyStop;
-Handle emergencyHandle;
+// The &lt;..> means the callback functions must be of type "void foo(void)"
+<classname>ORO_CoreLib::Event</classname>&lt;void(void)> emergencyStop;
+<classname>ORO_CoreLib::Handle</classname> emergencyHandle;
 
 // boost::bind is a way to connect the method of an object instance to
 // an event.
-std::cout << "Register apropriate handlers to the Emergency Stop Event\n";
+std::cout &lt;&lt; "Register apropriate handlers to the Emergency Stop Event\n";
 emergencyHandle = 
-   emergencyStop.connect( bind( &SafetyStopRobot::handle_now, &safety),
-	                  bind( &NotifyUser::handle_later, &notify) );
+   emergencyStop.connect( bind( &amp;SafetyStopRobot::handle_now, &amp;safety),
+	                  bind( &amp;NotifyUser::handle_later, &amp;notify) );
 
-std::cout << "Emit the event\n";
+std::cout &lt;&lt; "Emit the event\n";
 emergencyStop.emit();
 
 // Disconnecting the callbacks...
@@ -942,12 +953,10 @@ emergencyHandle.disconnect();
 
 // Add only synchronous callback :
 emergencyHandle = 
-   emergencyStop.connect( bind( &SafetyStopRobot::handle_now, &safety) );
+   emergencyStop.connect( bind( &amp;SafetyStopRobot::handle_now, &amp;safety) );
 
-std::cout << "Doing a quiet safety stop..."<<std::endl;
-emergencyStop.emit(); // User not notified
-
-...]]>     </programlisting>
+std::cout &lt;&lt; "Doing a quiet safety stop..."&lt;&lt;std::endl;
+emergencyStop.emit(); // User not notified</programlisting>
       <screen>
 	  Register apropriate handlers to the Emergency Stop Event
 	  Emit the event
@@ -991,14 +1000,14 @@ emergencyStop.emit(); // User not notified
       the emit() method must given other arguments. For example :
       <example>
 	<title>Event Types</title>
-	<programlisting><![CDATA[  Event<void(void)> e_1;
+	<programlisting>  <classname>ORO_CoreLib::Event</classname>&lt;void(void)> e_1;
   e_1.emit();
 
-  Event<void(int)>  e_2;
+  <classname>ORO_CoreLib::Event</classname>&lt;void(int)>  e_2;
   e_2.emit( 3 );
 
-  Event<void(double,double,double)>  positionEvent;
-  positionEvent.emit( x, y, z);]]></programlisting>
+  <classname>ORO_CoreLib::Event</classname>&lt;void(double,double,double)>  positionEvent;
+  positionEvent.emit( x, y, z);</programlisting>
       </example>
     </para>
     <para>
@@ -1025,8 +1034,8 @@ emergencyStop.emit(); // User not notified
       <para>
 	Event connections can be managed by using a Handle which both <function>connect()</function>
 	and <function>setup()</function> return :
-	<programlisting>  Event&lt;void(int, float)&gt; event;
-  Handle eh;
+	<programlisting>  <classname>ORO_CoreLib::Event</classname>&lt;void(int, float)&gt; event;
+  <classname>ORO_CoreLib::Handle</classname> eh;
 
   // store the connection in 'eh'
   eh = event.connect( ... );
@@ -1042,8 +1051,8 @@ emergencyStop.emit(); // User not notified
 	</programlisting>
 	Handle objects can be copied and will all show the same status.
 	To have a connection setup, but not connected, one can write :
-	<programlisting>  Event&lt;void(int, float)&gt; event;
-  Handle eh;
+	<programlisting>  <classname>ORO_CoreLib::Event</classname>&lt;void(int, float)&gt; event;
+  <classname>ORO_CoreLib::Handle</classname> eh;
 
   // setup : store the connection in 'eh'
   eh = event.setup( ... );
@@ -1087,14 +1096,14 @@ emergencyStop.emit(); // User not notified
 	an additional argument can be given in the
 	<methodname>connect</methodname> or <methodname>setup</methodname> method :
 	<programlisting>
-  event.connect(&amp;syn_func, &amp;asyn_func, ZeroLatencyThread::Instance() );</programlisting>
+  event.connect(&amp;syn_func, &amp;asyn_func, <classname>ORO_CoreLib::ZeroLatencyThread</classname>::Instance() );</programlisting>
 	The above lists how the ZeroLatencyThread will execute the
 	asyn_func if event is emit()'ed. It will do this after it has processed
 	all its tasks. The other Orocos threads can do this likewise :
-	<programlisting>  event.connect(&amp;syn_func, &amp;asyn_func, ZeroTimeThread::Instance() );
-  event.connect(&amp;syn_func, &amp;asyn_func, NonRealTimeThread::Instance() );
-  event.connect(&amp;syn_func, &amp;asyn_func, CompletionProcessor::Instance() ); <emphasis>// Default</emphasis>
-  event.connect(&amp;syn_func, &amp;asyn_func, PriorityThread&lt;N&gt;::Instance() );
+	<programlisting>  event.connect(&amp;syn_func, &amp;asyn_func, <classname>ORO_CoreLib::ZeroTimeThread</classname>::Instance() );
+  event.connect(&amp;syn_func, &amp;asyn_func, <classname>ORO_CoreLib::NonRealTimeThread</classname>::Instance() );
+  event.connect(&amp;syn_func, &amp;asyn_func, <classname>ORO_CoreLib::CompletionProcessor</classname>::Instance() ); <emphasis>// Default</emphasis>
+  event.connect(&amp;syn_func, &amp;asyn_func, <classname>ORO_CoreLib::PriorityThread</classname>&lt;N&gt;::Instance() );
   event.connect(&amp;syn_func, &amp;asyn_func, &amp;nonperiodic_task );	</programlisting>
 	If you would write above listings in a real program, on <function>
 	  event.emit()</function>, the syn_func will be called directly
@@ -1149,8 +1158,8 @@ emergencyStop.emit(); // User not notified
 	a boolean flag must be given upon construction of a <classname>ORO_CoreLib::PeriodicTask</classname>
 	or any derived task-types :
       </para>
-	<programlisting>  RunnableInterface* my_function = ... ;
-  TaskNonPreemptible mytask( 0.01, my_function, true );     // enable private eventproc.
+	<programlisting>  <classname>ORO_CoreLib::RunnableInterface</classname>* my_function = ... ;
+  <classname>ORO_CoreLib::TaskNonPreemptible</classname> mytask( 0.01, my_function, true );     // enable private eventproc.
 
   event.connect(&amp;syn_func, &amp;asyn_func, my_function->getTask() );
   
@@ -1159,7 +1168,7 @@ emergencyStop.emit(); // User not notified
   mytask.start();
   event.emit(); // calls syn_func and after mytask's step(), asyn_func.</programlisting>
        <para>
-	 The private EventProcessor is disabled by default.
+	 The private <classname>ORO_CoreLib::EventProcessor</classname> is disabled by default.
        </para>
     </sect2>
     <sect2>
@@ -1233,7 +1242,7 @@ emergencyStop.emit(); // User not notified
 	<programlisting>  #include &lt;corelib/TimeService.hpp>
   #include &lt;corelib/Time.hpp>
 
-  TimeService::ticks timestamp = TimeService::Instance()->getTicks();
+  TimeService::ticks timestamp = <classname>ORO_CoreLib::TimeService</classname>::Instance()->getTicks();
   //...
 
   Seconds elapsed = TimeService::Instance()->secondsSince( timestamp );	</programlisting>
@@ -1264,13 +1273,12 @@ emergencyStop.emit(); // User not notified
 	  </para>
 	  <para>
 	    <example><title>Using properties</title> 
-	      <programlisting><![CDATA[  ...
+	      <programlisting>
   // a property, respresening a double of value 1.0:
 
-  Property<double> myProp("Parameter A","A demo parameter", 1.0); // not realtime !
+  <classname>ORO_CoreLib::Property</classname>&lt;double> myProp("Parameter A","A demo parameter", 1.0); // not realtime !
   myProp = 10.9; // realtime
-  double a = myProp.get(); // realtime  
-  ...]]>  </programlisting>
+  double a = myProp.get(); // realtime  </programlisting>
 	    </example>
 	  </para>
 	</note>
@@ -1305,10 +1313,10 @@ emergencyStop.emit(); // User not notified
       </note>
       <para> Use <methodname>add</methodname> to add Properties to a bag and 
       <methodname>find</methodname> or <methodname>getProperty&lt;T&gt;</methodname> to
-      get a pointer to a <classname>ORO_CoreLib::PropertyBase</classname> or <classname>ORO_CoreLib::Property&lt;T&gt;</classname> :
-	<programlisting>  PropertyBag bag;
-  Property&lt;double&gt; w("Weight", "in kilograms", 70.5 );
-  Property&lt;int&gt; pc("PostalCode", "", 3462 );
+      get a pointer to a <classname>ORO_CoreLib::PropertyBase</classname> or <classname>ORO_CoreLib::Property</classname>&lt;T&gt; :
+	<programlisting>  <classname>ORO_CoreLib::PropertyBag</classname> bag;
+  <classname>ORO_CoreLib::Property</classname>&lt;double&gt; w("Weight", "in kilograms", 70.5 );
+  <classname>ORO_CoreLib::Property</classname>&lt;int&gt; pc("PostalCode", "", 3462 );
 
   struct BirthDate {
      BirthDate(int d, month m, int y) : day(d), month(m), year(y) {}
@@ -1317,15 +1325,15 @@ emergencyStop.emit(); // User not notified
      int year;
   };
 
-  Property&lt;BirthDate&gt; bd("BirthDate", " in 'BirthDate' format", BirthDate(1, apr, 1977));
+  <classname>ORO_CoreLib::Property</classname>&lt;BirthDate&gt; bd("BirthDate", " in 'BirthDate' format", BirthDate(1, apr, 1977));
 
   bag.add( &amp;w );
   bag.add( &amp;pc );
   bag.add( &amp;bd );
 	
-  PropertyBase* weight = bag.find("PostalCode");    // assert( weight != 0 )
+  <classname>ORO_CoreLib::PropertyBase</classname>* weight = bag.find("PostalCode");    // assert( weight != 0 )
 
-  Property&lt;BirthDate&gt;* bd_bis = bag.getProperty&lt;BirthDate&gt;("BirthDate"); // assert( bd_bis != 0 )
+  <classname>ORO_CoreLib::Property</classname>&lt;BirthDate&gt;* bd_bis = bag.getProperty&lt;BirthDate&gt;("BirthDate"); // assert( bd_bis != 0 )
 	</programlisting>
       </para>
     </sect2>
@@ -1395,7 +1403,7 @@ emergencyStop.emit(); // User not notified
 	returns a pointer when the object is looked up again.</para>
       </note>
       <programlisting>  // A NameServer collecting pointers to ClassA objects
-  NameServer&lt; ClassA* &gt; nameserver;
+  <classname>ORO_CoreLib::NameServer</classname>&lt; ClassA* &gt; nameserver;
   ClassA my_a;
   nameserver.registerObject( &amp;my_a, "ATeam" );
   // ...
@@ -1487,15 +1495,15 @@ emergencyStop.emit(); // User not notified
 	DataObject :
 	<example>
 	  <title>Accessing a DataObject</title>
-	  <programlisting>  <![CDATA[  #include <corelib/DataObjectInterfaces.hpp>
+	  <programlisting>  #include &lt;corelib/DataObjectInterfaces.hpp>
 
   // A DataObject may also contain a class, instead of the simple
   // double in this example
-  DataObjectLockFree<double> my_Do("MyData"); 
+  <classname>ORO_CoreLib::DataObjectLockFree</classname>&lt;double> my_Do("MyData"); 
   my_Do.Set( 3.14 ); 
   double  contents; 
   my_Do.Get( contents );   // contents == 3.14
-  contents  = my_Do.Get(); // equivalent]]>  </programlisting>
+  contents  = my_Do.Get(); // equivalent  </programlisting>
 	</example>
       </para>
       <para>
@@ -1686,11 +1694,11 @@ emergencyStop.emit(); // User not notified
     </para>
     <example>
       <title>Using the Logger class</title>
-      <programlisting>  <![CDATA[  #include <corelib/Logger.hpp>
+      <programlisting>  #include &lt;corelib/Logger.hpp>
 
-  Logger::log() << Logger::Error << "An error Occured : " << 333 << "." << Logger::endl;
-  Logger::log() << Logger::Debug << debugstring << data << Logger::endl;
-  Logger::log() << " more debug info." << data << Logger::endl; ]]></programlisting>
+  <classname>ORO_CoreLib::Logger</classname>::log() &lt;&lt; Logger::Error &lt;&lt; "An error Occured : " &lt;&lt; 333 &lt;&lt; "." &lt;&lt; Logger::endl;
+  <classname>ORO_CoreLib::Logger</classname>::log() &lt;&lt; Logger::Debug &lt;&lt; debugstring &lt;&lt; data &lt;&lt; Logger::endl;
+  <classname>ORO_CoreLib::Logger</classname>::log() &lt;&lt; " more debug info." &lt;&lt; data &lt;&lt; Logger::endl;</programlisting>
       <para>As you can see, the Logger can be used like the standard C++ input streams.
 	You may change the Log message's level using the <classname>ORO_CoreLib::Logger::...</classname>
 	enums. The above message could result in :
