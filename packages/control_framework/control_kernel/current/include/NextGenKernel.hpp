@@ -604,6 +604,15 @@ namespace ORO_ControlKernel
                     //this->removeComponent( c );
                     Logger::log() << Logger::Error << "Trying to load Component " << c->getName();
                     Logger::log() << Logger::Error << " : failed !" << Logger::endl;
+
+                    // In case we just deleted our own DefaultProcess, re-create it:
+                    if ( c->getName() == "DefaultProcess" ) {
+                        ControlKernelProcess* ckp = new ControlKernelProcess("DefaultProcess");
+                        this->loadComponent(ckp);
+                        this->default_process = ckp;
+                        this->process_owner = true;
+                    }
+
                     return false;
                 }
             else
