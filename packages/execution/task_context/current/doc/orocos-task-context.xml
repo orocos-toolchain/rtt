@@ -506,7 +506,7 @@ cd                  quit
   // we assume this is done in all the following code listings :
   using namespace ORO_Execution;
 
-  TaskContext a_task("ATask");
+  <classname>ORO_Execution::TaskContext</classname> a_task("ATask");
       </programlisting>
     </para>
     <para>
@@ -541,21 +541,145 @@ cd                  quit
 	</caption>
       </mediaobject>
     </figure>
+    <sect2><title>Task Application Code</title>
     <para>
-      The object factories and event service can be accessed as such :
+      The user may insert his application code in the
+      <function>startup()</function>,
+      <function>update()</function> and
+      <function>shutdown()</function> functions of a TaskContext
+      by inheriting from that class. Orocos provides an 'enhanced'
+      TaskContext, the <classname>ORO_Execution::GenericTaskContext</classname>
+      which we will use in the examples to encourage users to
+      use this class:
+    </para>
+    <programlisting>  #include &lt;execution/GenericTaskContext.hpp>
+  class MyTask 
+    : public <classname>ORO_Execution::GenericTaskContext</classname>
+  {
+  public:
+       MyTask(std::string name) 
+         : <classname>ORO_Execution::GenericTaskContext(name)</classname>
+       {
+          // see lateron what to put here.
+       }
+  
+       /**
+        * This function contains the application's startup code.
+	* Return false to abort startup.
+	*/
+       bool startup() {
+          // ...
+	  return true;
+       }
+
+       /**
+        * This function is periodically called.
+	*/
+       void update() {
+          // Your algorithm for periodic execution goes inhere
+       }
+
+       /**
+        * This function is called when the task is stopped.
+	*/
+       void shutdown() {
+          // Your cleanup code
+       }
+  };</programlisting>
+    <para>
+      When a TaskContext is started, <function>startup()</function> is
+      called once and may abort the startup sequence by returning
+      false, for example, because of misconfiguration. When all went
+      well, <function>update()</function> is called (a)periodically by
+      the ExecutionEngine, see below.  When the task is stopped,
+      <function>shutdown()</function> is called after the last
+      <function>update()</function>.
+    </para>
+    </sect2>
+    <sect2>
+      <title>Starting Task Execution</title>
+      <para>
+	To run an
+	<classname>ORO_Execution::ExecutionEngine</classname>, you
+	need to use one of the
+	<classname>ORO_CoreLib::TaskInterface</classname> classes from
+	the CoreLib. ( See the &coreman; for more documentation. )
+	The <classname>TaskInterface</classname> object will invoke
+	the ExecutionEngine, which will in turn invoke the application's
+	methods above.
+	<programlisting>
+  #include &lt;corelib/TaskNonPreemptible.hpp&gt;
+
+  using namespace ORO_CoreLib;
+
+  <classname>ORO_Execution::TaskContext</classname>* a_task = new MyTask("the_task")
+  // ... start the execution engine of a_task :
+  <classname>ORO_CoreLib::TaskNonPreemptible</classname> periodicTask(0.001, a_task->engine() );
+  periodicTask.start(); 
+  // ...
+  periodicTask.stop();</programlisting></para>
+      <para>
+	Which will start the Execution Engine of ATask with a timer
+	frequency of 1kHz. This is the frequency at which state
+	machines are evaluated, program steps taken, commands and
+	events are accepted and executed and the application code is
+	run. When the periodic task is stopped again, all programs are
+	stopped, state machines are brought into the final state and
+	no more commands or events are accepted.
+      </para>
+      <para>
+	A TaskContext can also be run in a non periodic task:
+	<programlisting>
+  #include &lt;corelib/TaskNonPeriodic.hpp&gt;
+
+  using namespace ORO_CoreLib;
+
+  <classname>ORO_Execution::TaskContext</classname>* a_task = new MyTask("the_task")
+  // ... start the execution engine of a_task :
+  <classname>ORO_CoreLib::TaskNonPeriodic</classname> nonpTask(5, a_task->engine() );
+  nonpTask.start(); 
+  // ...
+  nonpTask.stop();</programlisting></para>
+      <para>
+	In case the Execution Engine waits for new Commands or Events to
+	come in to be executed. Each time such an event happens, the user's
+	application code (<function>update()</function>) is called as well.
+      </para>
+    </sect2>
+    <sect2>
+      <title>Interfacing the TaskContext</title>
+      <para>
+	During development of your TaskContext, it is handy to connect
+	the <classname>ORO_Execution::TaskBrowser</classname> to your
+	task such that you can interactively manipulate it and it's 
+	properties:
+	<programlisting>  #include &lt;execution/TaskBrowser.hpp>
+  // ... see above
+  <classname>ORO_Execution::TaskBrowser</classname> browser(a_task);
+
+  // Start the interactive console:
+  browser.loop();</programlisting>
+        In which you can start/stop the task and manipulate every
+	aspect of it's interface, as was seen in the previous section.
+      </para>
+    </sect2>
+    <sect2>
+      <title>Introducing the TaskContext's Interface</title>
+      <para>
+	A TaskContext exists of a number of accessor methods which
+	expose a specific part of the interface. These methods are:
     </para>
     <para>
-      <programlisting>
-  a_task.commands()->getObjectFactory("objname");
-
-  a_task.methods()->getObjectFactory("objname");
-  a_task.data()->getObjectFactory("objname");
-
-  a_task.attributes()->getAttribute&lt;Type>("attrname");
-
+      <programlisting>  a_task.commands();
+  a_task.methods();
+  a_task.datasources();
+  a_task.attributes();
   a_task.events();
       </programlisting>
+      The meaning of these factories are explained in the following
+      sections.
     </para>
+    </sect2>
     <sect2>
       <title>The Method Factory</title>
       <para>
@@ -568,14 +692,16 @@ cd                  quit
 	Manual.
       </para>
       <para>
-	To add a method to the Method Factory, one can use
+	To add a TaskContext's method to the Method Factory, one can use
 	the <classname>ORO_Execution::TemplateMethodFactory</classname>,
 	to easily create method factories :</para>
       <para>
 	<programlisting>
   #include &lt;execution/TemplateFactories.hpp&gt;
+  using namespace ORO_Execution;
 
-  class ClassX
+  class MyTask
+    : public <classname>ORO_Execution::GenericTaskContext</classname>
   {
     public:
     void reset() { ... }
@@ -583,37 +709,41 @@ cd                  quit
     double changeParameter(double f) { ... }
     void passByArgument(int&amp; a1, vector&amp; v2) { a1 =...; v2=...; }
     // ...
-  };
+    MyTask(std::string name)
+      : <classname>ORO_Execution::GenericTaskContext(name)</classname>
+    {
+       TemplateMethodFactory&lt;MyTask&gt;* fact =
+	   newMethodFactory( <emphasis>this</emphasis> );
+       fact-&gt;add( &quot;reset&quot;,
+                     method( &amp;MyTask::reset, &quot;Reset the system.&quot; ) );
+       fact-&gt;add( &quot;name&quot;,
+                     method( &amp;MyTask::getName,
+                             &quot;Read out the name of the system.&quot; ) );
+       fact-&gt;add( &quot;changeP&quot;,
+                     method( &amp;MyTask::changeParameter,
+                             &quot;Change a parameter, return the old value.&quot;,
+	                     &quot;New Value&quot;, &quot;The new value for the parameter.&quot; ) ); 
+       fact-&gt;add( &quot;passByArgument&quot;,
+                     method( &amp;MyTask::passByArgument,
+                             &quot;Method which passes results by argument.&quot;,
+		             &quot;I&quot;,&quot;Integer passed by reference&quot;,
+	                     &quot;V&quot;,&quot;Vector passed by reference&quot; ) ); 
 
-  ClassX xobj;
+       this->methods()->registerObject("this", fact);
 
-  TemplateMethodFactory&lt;ClassX&gt;* fact =
-    newMethodFactory( &amp;xobj );
-  fact-&gt;add( &quot;reset&quot;,
-             method( &amp;ClassX::reset, &quot;Reset the system.&quot; ) );
-  fact-&gt;add( &quot;name&quot;,
-             method( &amp;ClassX::getName,
-                     &quot;Read out the name of the system.&quot; ) );
-  fact-&gt;add( &quot;changeP&quot;,
-             method( &amp;ClassX::changeParameter,
-                     &quot;Change a parameter, return the old value.&quot;,
-	             &quot;New Value&quot;, &quot;The new value for the parameter.&quot; ) ); 
-  fact-&gt;add( &quot;passByArgument&quot;,
-             method( &amp;ClassX::passByArgument,
-                     &quot;Method which passes results by argument.&quot;,
-		     &quot;I&quot;,&quot;Integer passed by reference&quot;,
-	             &quot;V&quot;,&quot;Vector passed by reference&quot; ) ); 
-
-  a_task.methods()->registerObject("objname", fact);	</programlisting>
+       // more additions to follow, see below
+     }
+     // ...
+  };</programlisting>
       </para>
       <para>
 	The first statement 
 	<programlisting>
-  TemplateMethodFactory&lt;ClassX&gt;* fact =
-    newMethodFactory( &amp;xobj );
+  TemplateMethodFactory&lt;MyTask&gt;* fact =
+    newMethodFactory( this );
 	</programlisting>
 	constructs a new TemplateMethodFactory, which will create methods
-	for the <emphasis>object</emphasis> 'xobj'. A TemplateMethodFactory
+	for the <emphasis>object</emphasis> 'this'. A TemplateMethodFactory
 	only provides access to one C++ object. 
 	After this factory is constructed, we add
 	methods to it using the add() function.  The add() function requires a
@@ -623,7 +753,7 @@ cd                  quit
       </para>
       <programlisting>
   fact-&gt;add( &quot;reset&quot;,
-             method( &amp;ClassX::reset, &quot;Reset the system.&quot; ) );</programlisting>
+             method( &amp;MyTask::reset, &quot;Reset the system.&quot; ) );</programlisting>
       <para>
 	The <function>method()</function> function requires a pointer to a
 	class function having a number of
@@ -634,10 +764,13 @@ cd                  quit
 	name and description for each of the arguments.
       </para>
 <programlisting>
-  a_task.methods()->registerObject("objname", fact);	</programlisting>
+  this->methods()->registerObject("this", fact);	</programlisting>
       <para>
 	Finally, the factory is stored in the method interface of a_task,
-	where it is <emphasis>added</emphasis> to the "objname" methods.
+	where it is <emphasis>added</emphasis> to the "this" methods.
+	The "this" object represents the public interface of a TaskContext.
+	One may also store the methods in another object, which is then
+	intended for internal use.
       </para>
       <important>
 	<para>The method factory, and all other factories of a TaskContext
@@ -645,10 +778,12 @@ cd                  quit
 	allowed to delete them.</para>
       </important>
       <para>
-	Using this mechanism, any method of any class can be added to a task's
-	method interface. All methods are grouped in an object
-	namespace ( here &quot;objname&quot; ), which can be served
-	by different classes ( and thus factories ). 
+	Using this mechanism, any method of <emphasis>any</emphasis>
+	class can be added to a task's method interface. All methods
+	are grouped in an object namespace ( here &quot;this&quot; ),
+	which can be served by different classes ( and thus factories
+	). For example, you can add methods for an internal object
+	using a separate TemplateFactory.
       </para>
     <figure id="fig-task-factories">
       <title>
@@ -663,7 +798,7 @@ cd                  quit
 	      can be flexibly applied to your class design. They
 	      can represent a single object in the TaskContext
 	      interface, while it is implemented in different classes	
-      ( here : <classname>ClassX</classname> and <classname>YourTask</classname> ).
+      ( here : <classname>MyTask</classname> and <classname>YourTask</classname> ).
 	      The "this" object stores the task's members.
 	  </para>
 	</caption>
@@ -678,7 +813,7 @@ cd                  quit
 	  objects are created by a task's method factory. For example:
 	</para>
 	<programlisting>  // create a method:
-  MethodC mymeth = a_task.methods()->create("objname", "reset");
+  MethodC mymeth = a_task.methods()->create("this", "reset");
 
   // Call 'reset' of a_task:
   bool valid = mymeth->execute();  </programlisting>
@@ -690,7 +825,7 @@ cd                  quit
       <programlisting>  // used to store the return value:
   string name;
   MethodC mymeth = 
-    a_task.methods()->create("objname", "getName").ret( name );
+    a_task.methods()->create("this", "getName").ret( name );
 
   // Call 'getName' of a_task:
   bool result = mymeth->execute(); 
@@ -701,13 +836,13 @@ cd                  quit
   double oldvalue;
   // const argument (note: 'argC'):
   MethodC mychange_1 =
-      a_task.methods()->create("objname", "changeP").argC(1.0).ret( oldvalue );
+      a_task.methods()->create("this", "changeP").argC(1.0).ret( oldvalue );
 
   // this example ignores the return value.
   // variable argument (note: 'arg'):
   double d_arg = 1.23;
   MethodC mychange_2 =
-      a_task.methods()->create("objname", "changeP").arg( d );
+      a_task.methods()->create("this", "changeP").arg( d );
 
   // Call 'changeParameter' of a_task with argument '1.0'
   bool result_1 = mycleanup_1->execute();
@@ -728,18 +863,18 @@ cd                  quit
 	methods from a script, one can then write :</para>
 	<para>
 	<programlisting>
-  do ATask.objname.changeP( 0.1 )
+  do ATask.changeP( 0.1 )
   // or :
-  set result = ATask.objname.changeP( 0.1 ) // store return value </programlisting></para>
+  set result = ATask.changeP( 0.1 ) // store return value </programlisting></para>
       <para>
 	If the method should
-	belong to the task's interface without an object, the
-	&quot;this&quot; object name may be given instead
-	of &quot;objname&quot;. Applied to the
-	above factory, this would result in :</para>
+	belong to the task's interface, the
+	&quot;this&quot; object is assumed.
+	If another &quot;objname&quot; is given instead
+	of &quot;this&quot;, this would result in :</para>
       <para>
 	<programlisting>
-  do ATask.changeP( 0.1 )  </programlisting></para>
+  do ATask.objname.changeP( 0.1 )  </programlisting></para>
       <para>
 	Any number of methods and objects can be added to a
 	TaskContext. Also the methods of the TaskContext
@@ -750,8 +885,8 @@ cd                  quit
 	</emphasis>
       </para>
       </sect3>
-  </sect2>
-  <sect2 id="method-args-types">
+    </sect2>
+    <sect2 id="method-args-types">
       <title>Method Argument and Return Types</title>
       <para>
 	The arguments can be of any type. However, to be compatible with
@@ -818,17 +953,31 @@ cd                  quit
 	An attribute can be added in the task's
 	<classname>ORO_Execution::AttributeRepository</classname> like this :</para>
       <para>
-	<programlisting>
-  a_task.attributes()->addAttribute( "aflag", bool(false) );
-  a_task.attributes()->addAttribute( "max",   int(5) );
-      
-  Property&lt;std::string&gt; param("Param","Param Description","Value");
-  a_task.attributes()->addProperty( &amp;param );
+	<programlisting>  #include &lt;corelib/Property.hpp>
 
-  // Put param also in a PropertyBag :
-  Property&lt;PropertyBag&gt; bagprop("Collection","Collection Description");
-  bagprop.get().add( &amp;param );
-  a_task.attributes()->addProperty( &amp;bagprop );</programlisting></para>
+  class MyTask
+    : public <classname>ORO_Execution::GenericTaskContext</classname>
+  {
+     <classname>ORO_CoreLib::Property</classname>&lt;std::string&gt; param;
+     <classname>ORO_CoreLib::Property</classname>&lt;double&gt; value;
+  public:
+    // ...
+    MyTask(std::string name)
+      : <classname>ORO_Execution::GenericTaskContext(name)</classname>,
+        param("Param","Param Description","The String"),
+	value("Value","Value Description", 1.23 )
+    {
+       // other code here...
+
+       this->attributes()->addAttribute( "aflag", bool(false) );
+       this->attributes()->addAttribute( "max",   int(5) );
+      
+       this->attributes()->addProperty( &amp;param );
+       this->attributes()->addProperty( &amp;value );
+     }
+     // ...
+  };
+</programlisting></para>
       <para>
 	Which inserts an attribute of type bool and int, name 'aflag' and 'max' and initial
 	value of false and 5 to the task's repository. Adding a Property
@@ -841,15 +990,17 @@ cd                  quit
 	changed :</para>
       <para>
 	<programlisting>
-  a_task.attributes()->addConstant( "pi", double(3.14) );</programlisting></para>
+  this->attributes()->addConstant( "pi", double(3.14) );</programlisting></para>
       <para>
 	You should again be careful for duplicate entries.
       </para>
       <important>
-	<para>The attribute repository, and all other factories of a TaskContext
-	take ownership of the registered or added objects. You are not
-	allowed to delete them. Properties are an exception to this rule,
-	they remain owned by you and you may only delete them after a removeProperty().</para>
+	<para>The attribute repository, and all other factories of a
+	TaskContext take ownership of the registered or added
+	objects. You are not allowed to delete them. Properties are an
+	exception to this rule, they remain owned by you and you may
+	only delete them after a
+	<function>removeProperty()</function>.</para>
       </important>
     </sect3>
     <sect3>
@@ -868,7 +1019,7 @@ cd                  quit
   TaskAttribute&lt;std::string&gt;* attrs 
        = a_task.attributes()->getAttribute&lt;std::string&gt;( "Param" );
 
-  assert( attrs.get() == "Value" );</programlisting></para>
+  assert( attrs.get() == "The String" );</programlisting></para>
     </sect3>
     <sect3>
       <title>Accessing Task Attributes in Scripts</title>
@@ -923,40 +1074,52 @@ cd                  quit
       provide easy to use implementations of this interface.
     </para>
     <sect3>
-      <title>Adding Commands to tasks</title>
+      <title>Adding Commands to a TaskContext</title>
       <para>
-	To add a command to the Command Factory, one can use
+	To add a command to the Command Interface, one can use
 	the <classname>ORO_Execution::TemplateCommandFactory</classname>,
 	to easily create command factories :</para>
       <para>
 	<programlisting>
   #include &lt;execution/TemplateFactories.hpp&gt;
 
-  class ClassX
+  class MyTask
+    : public <classname>ORO_Execution::GenericTaskContext</classname>
   {
-    public:
+  public:
+    /**
+     * The first command starts a cycle.
+     */
     bool startCycle() { ... }
     bool cycleDone() const { ... }
 
+    /**
+     * Another command cleans stuff up.
+     */
     bool cleanupMess(double f) { ... }
     bool isMessCleaned() { ... }
-    // ...
-  };
 
-  Class_X x_obj;
-  TemplateCommandFactory&lt;Class_X&gt;* fact =
-    newCommandFactory( &amp;x_obj );
-  fact-&gt;add( &quot;startCycle&quot;, 
-            command( &amp;Class_X::startCycle,
-                     &amp;Class_X::cycleDone,
-                     &quot;Start a new cycle.&quot; ) );
-  fact-&gt;add( &quot;cleanup&quot;,
-            command( &amp;Class_X::cleanupMess,
-                     &amp;Class_X::isMessCleaned,
-                     &quot;Start cleanup operation.&quot;,
-	             &quot;factor&quot;, &quot;A factor denoting the thoroughness.&quot; ) );
+  public:
+    MyTask(std::string name)
+      : <classname>ORO_Execution::GenericTaskContext(name)</classname>
+    {
+      // ... other startup code here
 
-  a_task.commands()->registerObject("objname", fact);</programlisting></para>
+      TemplateCommandFactory&lt;MyTask&gt;* fact =
+          newCommandFactory( <emphasis>this</emphasis> );
+      fact-&gt;add( &quot;startCycle&quot;, 
+                    command( &amp;MyTask::startCycle,
+                             &amp;MyTask::cycleDone,
+                             &quot;Start a new cycle.&quot; ) );
+      fact-&gt;add( &quot;cleanup&quot;,
+                    command( &amp;MyTask::cleanupMess,
+                             &amp;MyTask::isMessCleaned,
+                             &quot;Start cleanup operation.&quot;,
+	                     &quot;factor&quot;, &quot;A factor denoting the thoroughness.&quot; ) );
+
+      this->commands()->registerObject("this", fact);
+    }
+  };</programlisting></para>
       <para>
 	Commands differ from Methods in that they take
 	an extra function which is called the Completion
@@ -969,8 +1132,8 @@ cd                  quit
       </para>
       <programlisting>
   fact-&gt;add( &quot;startCycle&quot;, 
-            command( &amp;Class_X::startCycle,
-                     &amp;Class_X::cycleDone,
+            command( &amp;MyTask::startCycle,
+                     &amp;MyTask::cycleDone,
                      &quot;Start a new cycle.&quot; ) );</programlisting>
       <para>
 	Thus the <function>command()</function> function
@@ -1011,7 +1174,7 @@ cd                  quit
 	class is especially designed to manage task commands in C++.
 	You can ask a task's factory to create such object:
       </para>
-      <programlisting>  CommandC mycom = a_task.commands()->create("objname", "startCycle");
+      <programlisting>  CommandC mycom = a_task.commands()->create("this", "startCycle");
 
   // Send 'startCycle' to a_task.
   bool result = mycom->execute();
@@ -1026,12 +1189,12 @@ cd                  quit
       </para>
       <programlisting>  // const argument (note: 'argC'):
   CommandC mycleanup_1 =
-      a_task.commands()->create("objname", "cleanupMess").argC(1.0);
+      a_task.commands()->create("this", "cleanupMess").argC(1.0);
 
   // variable argument (note: 'arg'):
   double d_arg = 1.23;
   CommandC mycleanup_2 =
-      a_task.commands()->create("objname", "cleanupMess").arg( d );
+      a_task.commands()->create("this", "cleanupMess").arg( d );
 
   // Send 'cleanupMess' to a_task with argument '1.0'
   bool result_1 = mycleanup_1->execute();
@@ -1049,8 +1212,8 @@ cd                  quit
 	The above lets you write in a program script :</para>
       <para>
 	<programlisting>
-  do objname.startCycle()
-  do objname.cleanupMess( 0.1 )	</programlisting></para>
+  do this.startCycle()
+  do this.cleanupMess( 0.1 )	</programlisting></para>
       <para>
 	when the program is loaded in a_task.
       </para>
@@ -1081,18 +1244,29 @@ cd                  quit
     <sect3>
       <title>Adding Events</title>
       <para>
-	Events can be easily added to a task's interface:
-	<programlisting>  // create an event with a bool argument:
-  Event&lt; void(bool) &gt; turnSwitch;
-  // add it to the task's interface:
-  a_task.events()->addEvent( "turnSwitch", &amp;turnSwitch ); 
+	Events can be easily added to a task's interface,
+	much like properties are:
+	<programlisting>  #include &lt;corelib/Event.hpp>
 
-  // create event with three arguments:
-  Event&lt; bool(double, double, double) &gl; moveAxis;
-  a_task.events()->addEvent( "move", &amp;moveAxis );
-	</programlisting>
-	and so on. In practice, the events will be part of the
-	task object itself by defining them in a subclass.
+  class MyTask
+    : public <classname>ORO_Execution::GenericTaskContext</classname>
+  {
+    // An event with a bool argument:
+    <classname>ORO_CoreLib::Event</classname>&lt; void(bool) &gt; turnSwitch;
+    // An event with three arguments:
+    <classname>ORO_CoreLib::Event</classname>&lt; bool(double, double, double) &gl; moveAxis;
+  public:
+    MyTask(std::string name)
+      : <classname>ORO_Execution::GenericTaskContext(name)</classname>
+    {
+      // ... other startup code here
+  
+      // add it to the task's interface:
+      this->events()->addEvent( "turnSwitch", &amp;turnSwitch ); 
+      this->events()->addEvent( "move", &amp;moveAxis );
+    }
+  };</programlisting>
+	and so on.
       </para>
     </sect3>
     <sect3>
@@ -1101,7 +1275,7 @@ cd                  quit
 	Once events are added, they can be emitted using the
 	<classname>ORO_Execution::EventC</classname> object. Analogous to
 	commands and methods, arguments can be provided:
-	<programlisting>  EventC move_event 
+	<programlisting>  <classname>ORO_Execution::EventC</classname> move_event 
     = a_task.events()->setupEmit( "move" ).argC(1.0).argC(2.0).argC(3.0);
   // emit the event 'move' with given args:
   bool result = move_event.emit();
@@ -1133,13 +1307,13 @@ cd                  quit
   };
 
   Reactor r;
-  ConnectionC reaction
+  <classname>ORO_Execution::ConnectionC</classname> reaction
     = a_task.events()->setupSynConnection("move", boost::bind(&amp;callback, &amp;r))
          .arg(r.a1).arg(r.a2).arg(r.a3);
-  Handle h = reaction.handle();
+  <classname>ORO_Corelib::Handle</classname> h = reaction.handle();
 
   // or in short (note: '.handle()' ):
-  Handle h2 
+  <classname>ORO_CoreLib::Handle</classname> h2 
     = a_task.events()->setupSynConnection("move", boost::bind(&amp;callback, &amp;r))
                  .arg(a1).arg(a2).arg(a3).handle();
     
@@ -1166,14 +1340,14 @@ cd                  quit
       <para>
 	A second example continues, but uses an asynchronous connection.
 	First a new task (b_task) is created which will handle the event
-	asynchronously. During setup, the EventProcessor of
+	asynchronously. During setup, the <classname>ORO_CoreLib::EventProcessor</classname> of
 	b_task is used to process the event.
-	<programlisting>  TaskContext b_task("BTask");
-  TaskPreemptible ptask_b(0.1);
+	<programlisting>  <classname>ORO_Execution::TaskContext</classname> b_task("BTask");
+  <classname>ORO_CoreLib::TaskPreemptible</classname> ptask_b(0.1);
   ptask_b.run( &amp;b_task );
   ptask_b.start();
 
-  Handle h3 
+  <classname>ORO_CoreLib::Handle</classname> h3 
     = a_task.events()->setupAsynConnection("move",
                                            boost::bind(&amp;callback, &amp;r),
                                            b_task.engine()->events() )
@@ -1195,7 +1369,7 @@ cd                  quit
       <para>
 	Events are as easy to use as methods (above) from within
 	scripts, using the keyword <symbol>emit</symbol>:
-	<programlisting>  emit a_task.move( 1.0, 2.0, 3.0 )</programlisting>
+	<programlisting>  emit ATask.move( 1.0, 2.0, 3.0 )</programlisting>
       </para>
       <para>
 	It is also possible to react to events from within a state
@@ -1207,12 +1381,12 @@ cd                  quit
   <sect2>
       <title>The DataSource Factories</title>
       <para>
-	DataSources are read-only objects which, when evaluated,
-	return some data. The source of the data can be anything,
-	as long as it takes finite time to get it. DataSources
-	can be combined to new DataSources using algorithmic
-	expressions. The only way they differ from Methods, is
-	that the corresponding C++ function must be const.
+	<classname>ORO_CoreLib::DataSource</classname>s are read-only
+	objects which, when evaluated, return some data. The source of
+	the data can be anything, as long as it takes finite time to
+	get it. DataSources can be combined to new DataSources using
+	algorithmic expressions. The only way they differ from
+	Methods, is that the corresponding C++ function must be const.
       </para>
       <sect3>
 	<title>The Template DataSource Factory</title>
@@ -1224,34 +1398,42 @@ cd                  quit
 	<programlisting>
   #include &lt;execution/TemplateFactories.hpp&gt;
 
-  class ClassX
+  using namespace ORO_Execution;
+
+  class MyTask
+    : public <classname>ORO_Execution::GenericTaskContext</classname>
   {
-    public:
     int _number;
+  public:
     string getName() const { ... }
-    double power(double a, double b) const {}
+    double power(double a, double b) const { ... }
     // ...
-  };
+    MyTask(std::string name)
+      : <classname>ORO_Execution::GenericTaskContext(name)</classname>
+    {
+       // ...
 
-  ClassX xobj;
+       TemplateDataSourceFactory&lt;MyTask&gt;* fact =
+	   newDataSourceFactory( <emphasis>this</emphasis> );
+       fact-&gt;add( &quot;number&quot;,
+                     data( &amp;MyTask::_number,
+                           &quot;the number.&quot; ) );
+       fact-&gt;add( &quot;name&quot;,
+                     data( &amp;MyTask::getName,
+                           &quot;Read out the name.&quot; ) );
+       fact-&gt;add( &quot;power&quot;,
+                     data( &amp;MyTask::power,
+                           &quot;return a to the power of b&quot;,
+	                   &quot;a&quot;, &quot;the base&quot;, 
+	                   &quot;b&quot;, &quot;the exponent&quot; ) ); 
 
-  TemplateDataSourceFactory&lt;ClassX&gt;* fact =
-    newDataSourceFactory( &amp;xobj );
-  fact-&gt;add( &quot;number&quot;,
-            data( &amp;ClassX::_number,
-                  &quot;the number.&quot; ) );
-  fact-&gt;add( &quot;name&quot;,
-            data( &amp;ClassX::getName,
-                  &quot;Read out the name.&quot; ) );
-  fact-&gt;add( &quot;power&quot;,
-            data( &amp;ClassX::power,
-                  &quot;return a to the power of b&quot;,
-	          &quot;a&quot;, &quot;the base&quot;, 
-	          &quot;b&quot;, &quot;the exponent&quot; ) ); 
-
-  a_task.datasources()->registerObject("objname", fact);	</programlisting></para>
+       this->datasources()->registerObject("this", fact);
+     }
+     // ...
+  };</programlisting>
+	</para>
         <para>
-	  which is dus nearly identical to using a method.
+	  which is thus nearly identical to using a method.
 	  Notice the usage of the _number class member. The
 	  factory also accepts class member variables instead
 	  of const functions, but likewise, they are also
@@ -1272,22 +1454,23 @@ cd                  quit
 	  For example, continued from the program listing of the previous
 	  section :
 	</para>
-	<programlisting> DataObjectInterface&lt;MyDataType&gt;* myData 
-     = new DataObjectLockFree&lt;MyDataType&gt;("MyData");
+	<programlisting> <classname>ORO_CoreLib::DataObjectInterface</classname>&lt;MyDataType&gt;* myData 
+     = new <classname>ORO_CoreLib::DataObjectLockFree</classname>&lt;MyDataType&gt;("MyData");
 
-  MapDataSourceFactory::Map storemap;
+  <classname>ORO_Execution::MapDataSourceFactory</classname>::Map storemap;
   storemap["NewData_1"] = myData;
   // store other DataSources...
 
   // finally :
-  MapDataSourceFactory* mdf 
-     = new MapDataSourceFactory( storemap, "Thread-safe DataObjects");
+  <classname>ORO_Execution::MapDataSourceFactory</classname>* mdf 
+     = new <classname>ORO_Execution::MapDataSourceFactory</classname>( storemap, "Thread-safe DataObjects");
 
-  a_task.datasources()->registerObject("dataobjs", mdf);
+  this->datasources()->registerObject("dataobjs", mdf);
 	</programlisting>
 	<para>
-	  Which uses the thread-safe DataObjectLockFree (which
-	  implements DataSource) to exchange data between
+	  Which uses the thread-safe
+	  <classname>ORO_CoreLib::DataObjectLockFree</classname>
+	  (which implements <classname>ORO_CoreLib::DataSource</classname>) to exchange data between
 	  TaskContexts. You must use DataObjectLockFree to exchange
 	  any composite type between threads.
 	</para>
@@ -1309,29 +1492,6 @@ cd                  quit
 	  DataSource should belong to the task's interface.
 	</para>
       </sect3>
-    </sect2>
-    <sect2>
-      <title>Creating Commands Without the Factories</title>
-      <para>
-	It is possible to create a command without the
-	Factory and DataSources. This is the prefered way
-	if you only intend to use C++ commands and no
-	Orocos Program Scripts, which is possible on some
-	embedded systems.
-      </para>
-      <para>
-	The key is to use the <classname>ORO_Execution::CommandFunctor</classname>,
-	which is explained in detail in the &procman;. Commands
-	created this way can be used analogously as in the next
-	sections.
-      </para>
-      <important>
-	<para>
-	  The same restrictions of <xref linkend="method-args-types"
-	  /> hold for the datasource types, when you want
-	  to access them from program scripts.
-	</para>
-      </important>
     </sect2>
   </sect1>
   <sect1 id="connect-tasks">
@@ -1403,9 +1563,9 @@ cd                  quit
 
   using namespace ORO_CoreLib;
 
-  TaskContext* a_task = ... 
+  <classname>ORO_Execution::TaskContext</classname>* a_task = ... 
   // ... start the execution engine of a_task :
-  TaskNonPreemptible periodicTask(0.001, a_task->engine() );
+  <classname>ORO_CoreLib::TaskNonPreemptible</classname> periodicTask(0.001, a_task->engine() );
   periodicTask.start(); </programlisting></para>
       <para>
 	Which will start the Execution Engine of ATask with a timer frequency
@@ -1426,8 +1586,8 @@ cd                  quit
       </para>
       <programlisting>  #include &lt;execution/PropertyLoader.hpp&gt;
   // ...
-  TaskContext* a_task = ...
-  PropertyLoader ploader;
+  <classname>ORO_Execution::TaskContext</classname>* a_task = ...
+  <classname>ORO_Execution::PropertyLoader</classname> ploader;
   ploader.configure("PropertyFile.cpf", a_task );
   // ...
   ploader.save("PropertyFile.cpf", a_task ); </programlisting>
@@ -1498,8 +1658,8 @@ cd                  quit
 	  or <emphasis>add</emphasis> an exported function in a TaskContext's Command API, do :
 	  <programlisting>  #include &lt;execution/ProgramLoader.hpp&gt;
 
-  TaskContext* a_task = ...
-  ProgramLoader loader;
+  <classname>ORO_Execution::TaskContext</classname>* a_task = ...
+  <classname>ORO_Execution::ProgramLoader</classname> loader;
   ProgramLoader::Functions funcs;
 
   funcs = loader.loadFunction( "Functions.ops", a_task );</programlisting>
@@ -1543,8 +1703,8 @@ cd                  quit
 	  <programlisting>
   #include &lt;execution/ProgramLoader.hpp&gt;
 
-  TaskContext* a_task = ...
-  ProgramLoader parser;
+  <classname>ORO_Execution::TaskContext</classname>* a_task = ...
+  <classname>ORO_Execution::ProgramLoader</classname> parser;
 
   loader.loadProgram( "ProgramBar.ops", a_task ); </programlisting></para>
 	<para>
@@ -1594,8 +1754,8 @@ cd                  quit
 	  <programlisting>
   #include &lt;execution/ProgramLoader.hpp&gt;
 
-  TaskContext* a_task = ...
-  ProgramLoader loader;
+  <classname>ORO_Execution::TaskContext</classname>* a_task = ...
+  <classname>ORO_Execution::ProgramLoader</classname> loader;
 
   loader.loadStateMachine( "StateMachineBar.osd", a_task ); </programlisting></para>
 	<para>
@@ -1649,13 +1809,14 @@ cd                  quit
   #include &lt;execution/TaskContext.hpp&gt;
   #include &lt;corelib/Event.hpp&gt;
 
-  class MyTask : public TaskContext
+  class MyTask 
+    : public <classname>ORO_Execution::GenericTaskContext</classname>
   {
-     ORO_CoreLib::Event&lt; void( int ) &gt; myEvent;
+     <classname>ORO_CoreLib::Event</classname>&lt; void( int ) &gt; myEvent;
      int data;
   public:
-     MyTask()
-	: TaskContext("myTask"),       
+     MyTask(std::string name)
+	: <classname>ORO_Execution::GenericTaskContext</classname>(name),
 	  myEvent("theEvent"),    // add "theEvent" to the nameserver
 	  data(0)
      {
@@ -1664,7 +1825,7 @@ cd                  quit
      }
 
      // ...
-     void foo() 
+     void update() 
      {
         myEvent.fire( data );
      }
@@ -1678,17 +1839,19 @@ cd                  quit
   #include &lt;corelib/Event.hpp&gt;
   #include &lt;boost/bind.hpp&gt;
 
-  class MyOtherTask : public TaskContext
+  class MyOtherTask
+    : public <classname>ORO_Execution::GenericTaskContext</classname>
   {
-     ORO_CoreLib::TaskPreemptible ptask;
+     <classname>ORO_CoreLib::TaskPreemptible</classname> ptask;
      int inputdata;
-     Handle eventhandle;
+     <classname>ORO_CoreLib::Handle</classname> eventhandle;
   public:
-     MyOtherTask()
-	: TaskContext("myOtherTask"),
+     MyOtherTask(std::string name)
+	: GenericTaskContext(name),
           ptask( 0.01, this->engine() ),
 	  inputdata(0)
      {
+        this->setUpEvent();
      }
 
      void setUpEvent()
@@ -1697,7 +1860,7 @@ cd                  quit
 
         // Setup an asynchronous event handler 'bar'.
         eventhandle =
-	  ORO_CoreLib::Event&lt; void (int) &gt;::nameserver.getObject("theEvent")
+	  <classname>ORO_CoreLib::Event</classname>&lt; void (int) &gt;::nameserver.getObject("theEvent")
             ->setup( boost::bind( &amp;MyOtherTask::bar, this), 
                      proc->getTask() );
 
@@ -1775,83 +1938,83 @@ cd                  quit
 	When tasks need to synchronise, you have a wide range of
 	options to use. 
       </para>
-<!--       <sect3> -->
-<!-- 	<title>Waiting in States</title> -->
-<!-- 	<para> -->
-<!-- 	  A (sub-)State Machine can pause itself and an extra function -->
-<!-- 	  in the task's interface can provide the key to progress to -->
-<!-- 	  another state. First the StateMachine is loaded in an .osd file  : -->
-<!-- 	</para> -->
-<!-- 	<programlisting> -->
-<!--   StateMachine X { -->
-<!--      // ... -->
-<!--      state y { -->
-<!--         entry { -->
-<!--            // pause myself, no transitions are checked. -->
-<!--            do this.pause() -->
-<!--         } -->
-<!--         transitions { -->
-<!-- 	   // guard this transition. -->
-<!--            if task.checkSomeCondition() then -->
-<!--               select z -->
-<!--         } -->
-<!--      } -->
-<!--      state z { -->
-<!--        // ... -->
-<!--      } -->
-<!--   } -->
+      <sect3>
+	<title>Waiting in States</title>
+	<para>
+	  A (sub-)State Machine can pause itself and an extra function
+	  in the task's interface can provide the key to progress to
+	  another state. First the StateMachine is loaded in an .osd file  :
+	</para>
+	<programlisting>
+  StateMachine X {
+     // ...
+     state y {
+        entry {
+           // pause myself, no transitions are checked.
+           do this.pause()
+        }
+        transitions {
+	   // guard this transition.
+           if task.checkSomeCondition() then
+              select z
+        }
+     }
+     state z {
+       // ...
+     }
+  }
 
-<!--   RootMachine X x</programlisting> -->
-<!-- 	<para>Then, load an ops file which contains :</para> -->
-<!-- 	<programlisting> -->
-<!--   export function progress() { -->
-<!--     // Check if we may progress : -->
-<!--     if this.states.x.inState("y") then { -->
-<!--         // continue : -->
-<!--         do this.states.x.start() -->
-<!--         // OR try single transition : -->
-<!--         do this.states.x.step() -->
-<!--     } -->
-<!--   }</programlisting> -->
-<!-- 	<para> -->
-<!-- 	  A peer task then calls <function>progress()</function> -->
-<!-- 	  which in turn checks if the function is applicable. -->
-<!-- 	  But even then, the responsibility of the transition -->
-<!-- 	  lies within the State Machine. -->
-<!-- 	</para> -->
-<!-- 	<para> -->
-<!-- 	  Off course, the example can be simplified by setting/ -->
-<!-- 	  resetting a boolean flag between function and  -->
-<!-- 	  State Machine. -->
-<!-- 	</para> -->
-<!-- 	<programlisting> -->
-<!--   StateMachine X { -->
-<!--      // ... -->
-<!--      state y { -->
-<!--         transitions { -->
-<!--            if task.progressflag == true then -->
-<!--                 select z -->
-<!--         } -->
-<!--      } -->
-<!--      state z { -->
-<!--        // ... -->
-<!--      } -->
-<!--   } -->
+  RootMachine X x</programlisting>
+	<para>Then, load an ops file which contains :</para>
+	<programlisting>
+  export function progress() {
+    // Check if we may progress :
+    if this.states.x.inState("y") then {
+        // continue :
+        do this.states.x.start()
+        // OR try single transition :
+        do this.states.x.step()
+    }
+  }</programlisting>
+	<para>
+	  A peer task then calls <function>progress()</function>
+	  which in turn checks if the function is applicable.
+	  But even then, the responsibility of the transition
+	  lies within the State Machine.
+	</para>
+	<para>
+	  Off course, the example can be simplified by setting/
+	  resetting a boolean flag between function and
+	  State Machine.
+	</para>
+	<programlisting>
+  StateMachine X {
+     // ...
+     state y {
+        transitions {
+           if task.progressflag == true then
+                select z
+        }
+     }
+     state z {
+       // ...
+     }
+  }
 
-<!--   RootMachine X x</programlisting> -->
-<!-- 	<para>Then, load an ops file which contains :</para> -->
-<!-- 	<programlisting> -->
-<!--   export function progress() { -->
-<!--     // Check if we may progress : -->
-<!--     if this.states.x.inState("y") then { -->
-<!--           set task.progressflag = true -->
-<!--     } -->
-<!--   }</programlisting> -->
-<!-- 	<para> -->
-<!-- 	  When the user or another program calls the progress() command, -->
-<!-- 	  the flag will be set. -->
-<!-- 	</para> -->
-<!--       </sect3> -->
+  RootMachine X x</programlisting>
+	<para>Then, load an ops file which contains :</para>
+	<programlisting>
+  export function progress() {
+    // Check if we may progress :
+    if this.states.x.inState("y") then {
+          set task.progressflag = true
+    }
+  }</programlisting>
+	<para>
+	  When the user or another program calls the progress() command,
+	  the flag will be set.
+	</para>
+      </sect3>
       <sect3>
 	<title>Requesting States</title>
 	<para>
@@ -1986,17 +2149,17 @@ cd                  quit
 	C++ interface to a task's interface.
 	</para>
 	<programlisting>
-  #include &lt;execution/TaskContext.hpp&gt;
+  #include &lt;execution/GenericTaskContext.hpp&gt;
   #include &lt;execution/TemplateFactories.hpp&gt;
   #include "DeviceInterface.hpp"
 
   class TaskDeviceInterface
     : public DeviceInterface,
-      public TaskContext
+      public <classname>ORO_Execution::GenericTaskContext</classname>
   {
   public:
       TaskDeviceInterface()
-        : TaskContext( "DeviceInterface" )
+        : <classname>ORO_Execution::GenericTaskContext</classname>( "DeviceInterface" )
       {
          this->setup();
       }
@@ -2004,7 +2167,7 @@ cd                  quit
       void setup() 
       {
          // Add Methods :
-         TemplateMethodFactory&lt;DeviceInterface&gt;* mfact =
+         <classname>ORO_Execution::TemplateMethodFactory</classname>&lt;DeviceInterface&gt;* mfact =
             newMethodFactory( this );
          mfact-&gt;add(&quot;setParameter&quot;,
                     method(&amp;DeviceInterface::setParameter,
@@ -2014,7 +2177,7 @@ cd                  quit
          this->methods()->registerObject("this", mfact);
 
          // Add Data Sources :
-         TemplateDataSourceFactory&lt;DeviceInterface&gt;* dfact =
+         <classname>ORO_Execution::TemplateDataSourceFactory</classname>&lt;DeviceInterface&gt;* dfact =
             newDataSourceFactory( this );
          dfact-&gt;add( &quot;getParameter&quot;,
                      data(&amp;DeviceInterface::getParameter,
@@ -2026,7 +2189,7 @@ cd                  quit
          this->datasources()->registerObject("this", dfact);
 
          // Add Commands :
-         TemplateCommandFactory&lt;DeviceInterface&gt;* cfact =
+         <classname>ORO_Execution::TemplateCommandFactory</classname>&lt;DeviceInterface&gt;* cfact =
             newCommandFactory( this );
          cfact-&gt;add( &quot;updateData&quot;,
                         command( &amp;DeviceInterface::updateData,
@@ -2176,7 +2339,12 @@ cd                  quit
     </sect2>
   </sect1>
   <sect1>
-    <title>Using Commands and Methods Directly in C++</title>
+    <title>Using Low-level Commands and Methods in C++</title>
+    <note>
+      <para>
+	This section is of no interest to most Orocos users.
+      </para>
+    </note>
     <para>
       Besides using scripts, you can directly build C++ commands or
       methods, although it requires more &quot;red tape&quot;. The

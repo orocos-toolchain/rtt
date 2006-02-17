@@ -182,6 +182,21 @@ namespace ORO_Execution
         if ( mainee )
             return true;
 
+        // call user startup code.
+        if ( taskc->startup() == false )
+            return false;
+
+        // call all children if we are a mainee
+        for (std::vector<ExecutionEngine*>::iterator it = children.begin(); it != children.end();++it){
+            if ( (*it)->taskc->startup() == false ) {
+                std::vector<ExecutionEngine*>::reverse_iterator rit( it );
+                --rit;
+                for ( ; rit != children.rend(); ++rit )
+                    (*rit)->taskc->shutdown();
+                return false;
+            }
+        }
+
         if ( pproc->initialize() ) {
             if ( smproc->initialize() ) {
                 if( cproc->initialize() ) {
@@ -201,17 +216,23 @@ namespace ORO_Execution
     }
 
     void ExecutionEngine::step() {
-        if (mainee)
+        if ( !mainee ) {
+            pproc->step();
+            smproc->step();
+            cproc->step();
+            eproc->step();
+            taskc->update();
+            // call all children as well.
+            for (std::vector<ExecutionEngine*>::iterator it = children.begin(); it != children.end();++it)
+                (*it)->taskc->update();
             return;
-        pproc->step();
-        smproc->step();
-        cproc->step();
-        eproc->step();
+        }
     }
 
     void ExecutionEngine::loop() {
-        if (mainee)
+        if (mainee) {
             return;
+        }
         while( eerun ) {
             work_sem->wait();
             this->step();
@@ -232,13 +253,17 @@ namespace ORO_Execution
     }
 
     void ExecutionEngine::finalize() {
-        if (mainee)
-            return;
-        eerun = false;
-        pproc->finalize();
-        smproc->finalize();
-        cproc->finalize();
-        eproc->finalize();
+        if ( !mainee ) {
+            eerun = false;
+            pproc->finalize();
+            smproc->finalize();
+            cproc->finalize();
+            eproc->finalize();
+            taskc->shutdown();
+            // call all children as well.
+            for (std::vector<ExecutionEngine*>::iterator it = children.begin(); it != children.end();++it)
+                (*it)->taskc->shutdown();
+        }
     }
 
     ORO_CoreLib::EventProcessor* ExecutionEngine::events() const {

@@ -89,7 +89,37 @@ namespace ORO_Execution
          */
         TaskContext(const std::string& name, ExecutionEngine* parent );
 
-        ~TaskContext();
+        virtual ~TaskContext();
+
+        /**
+         * Function where the user must insert his 'startup' code.
+         * This function is called by the ExecutionEngine before it
+         * starts its processors. If it returns \a false, the startup
+         * of the TaskContext is aborted.  The default implementation is an
+         * empty function which returns \a true.
+         */
+        virtual bool startup();
+
+        /**
+         * Function where the user must insert his 'application' code.
+         * When the ExecutionEngine's Task is a PeriodicTask, this
+         * function is called by the ExecutionEngine in each periodic
+         * step after all command, event,... processors. When it's Task is a
+         * TaskNonPeriodic, this function is called after an Event or
+         * Command is received and executed.  It should not loop
+         * forever, since no commands or events are processed when
+         * this function executes.  The default implementation is an
+         * empty function.
+         */
+        virtual void update();
+
+        /**
+         * Function where the user must insert his 'shutdown' code.
+         * This function is called by the ExecutionEngine after it
+         * stops its processors.  The default implementation is an
+         * empty function.
+         */
+        virtual void shutdown();
 
         /**
          * Queue a command.

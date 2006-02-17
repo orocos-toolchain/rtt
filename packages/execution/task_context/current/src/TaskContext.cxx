@@ -72,6 +72,13 @@ namespace ORO_Execution
             attributeRepository.clear();
         }
 
+    bool TaskContext::startup()
+    {}
+    void TaskContext::update()
+    {}
+    void TaskContext::shutdown()
+    {}
+
         bool TaskContext::executeCommand( CommandInterface* c)
         {
             return ee.getCommandProcessor()->process( c ) != 0;
