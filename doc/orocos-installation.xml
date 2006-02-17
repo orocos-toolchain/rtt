@@ -22,7 +22,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002,2003,2004,2005</year>
+      <year>2002,2003,2004,2005,2006</year>
       <holder>Peter Soetens</holder>
     </copyright>
 
@@ -60,6 +60,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>added upgrade section</revremark>
       </revision>
+      <revision>
+	<revnumber>0.22.0</revnumber>
+	<date>17 Feb 2006</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Simplified configuration section, removed RTLinux, added Xenoami</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -87,20 +93,18 @@
       <sect3>
 	<title>Supported platforms (targets)</title>
 	<para>
-	  &orocos; was designed with portability in mind. Currently, we support RTAI and (NEW)LXRT
+	  &orocos; was designed with portability in mind. Currently, we support RTAI/LXRT
 	  (<ulink url="http://www.rtai.org">http://www.rtai.org</ulink>), GNU/Linux
-	  userspace, and very limited RTLinux (<ulink
-	    url="http://www.fsmlabs.com">http://www.fsmlabs.com</ulink> and
-	  <ulink url="http://www.rtlinux-gpl.org/"></ulink>). So,
+	  userspace, Xenomai (<ulink
+	    url="http://www.xenomai.org">Xenomai.org</ulink>). So,
 	  you can first write your software as a normal program, using the framework
 	  for testing and debugging purposes in plain userspace Linux and recompile
 	  later to another target.
 	</para>
 	<para>
-	  RTAI with LXRT is the best supported realtime platform at this moment. RTLinux can
-	  only partially use all &orocos; features, because it lacks a decent
-	  kernel space memory manager. Furthermore, since no Orocos user is using the 
-	  FSMLabs RTLinux port, it is no longer updated.
+	  RTAI/LXRT is the best supported realtime platform at this moment. Xenomai
+	  is a valid alternative as well, but the &orocos; device drivers have not
+	  yet been ported to that platform yet.
 	</para>
       </sect3>
       <sect3>
@@ -133,7 +137,7 @@
 	    <thead>
 	      <row>
 		<entry>Program / Library</entry>
-		<entry><strong>Minimum</strong> Version</entry>
+		<entry><emphasis>Minimum</emphasis> Version</entry>
 		<entry>Description</entry>
 	      </row>
 	    </thead>
@@ -156,17 +160,23 @@
 	      <row>
 		<entry>Boost C++ Libraries</entry>
 		<entry>0.32.0 (0.33.0 Recommended!)</entry>
-		<entry><ulink url="http://www.boost.org">Boost.org</ulink></entry>
+		<entry><ulink
+		url="http://www.boost.org">Boost.org</ulink> Version
+		0.33.0 has a very efficient (time/space) lock-free
+		smart pointer implementation which is used by
+		Orocos.</entry>
 	      </row>
 	      <row>
 		<entry>GNU gcc / g++ Compilers</entry>
 		<entry>3.3.0</entry>
-		<entry><ulink url="http://gcc.gnu.org">gcc.gnu.org</ulink></entry>
+		<entry><ulink url="http://gcc.gnu.org">gcc.gnu.org</ulink>
+		Orocos builds with the GCC 4.x series as well.</entry>
 	      </row>
 	      <row>
 		<entry>Xerces C++ Parser</entry>
 		<entry>2.1</entry>
-		<entry><ulink url="http://xml.apache.org/xerces-c/">Xerces website</ulink></entry>
+		<entry><ulink url="http://xml.apache.org/xerces-c/">Xerces website</ulink>
+		Versions 2.1 until 2.6 are known to work.</entry>
 	      </row>
 	      <row>
 		<entry>GNU Readline Library</entry>
@@ -197,7 +207,6 @@
 	and configuration. It is taken from the eCos operating system,
 	but, apart from the name, has nothing to do with it when used
 	with &orocos;. </para>
-
       <sect3>
 	<title>Orocos Build and Configuration Tools </title>
 	<para>
@@ -205,8 +214,8 @@
 	  and <command>configtool</command>. In Debian, you can use
 	  the official Debian version using
 	  <screen>  apt-get install ecosconfig</screen>
-	  If this does not work for you, you can
-	  try the ready-to-use tools in Orocos' tools/bin
+	  If this does not work for you, Orocos will use
+	  the ready-to-use tools in Orocos' tools/bin
 	  subdirectory. The build system will try to locate the tools
 	  in that directory and use them if present.
 	</para>
@@ -317,7 +326,7 @@
 	  detect available libraries and take some command-line options to point
 	  it in the right direction. Also, it takes the Operating System you want
 	  to configure for as an argument ( <parameter>--with-lxrt</parameter>,
-	  <parameter>--with-gnulinux</parameter>). 
+	  <parameter>--with-gnulinux</parameter>, <parameter>--with-xenomai</parameter>). 
 	</para>
 	<para>
 	  The second stage is when you issue a <command>make configure_packages</command>,
@@ -414,7 +423,7 @@
 	  from that build directory.
 	</para>
 	<para>
-	  If this step fails, it means that you have not everyting installed
+	  If this step fails, it means that you have not everything installed
 	  which is needed for a basic &orocos; build. Most users don't have the
 	  Boost library (<filename>libboost-dev</filename> or
 	  <filename>libboost-devel</filename>) installed.  Please install this
@@ -491,75 +500,31 @@
   <sect1 id="install-configure">
     <title>Configuration</title>
     <sect2>
-      <title>Configuring an Orocos Package</title>
+      <title>Configuring Orocos</title>
+      <para>
+	In your build directory, run <command>../configure</command> or <command>../configure
+	--with-gnulinux</command> to select the os/gnulinux target.
+	Alternative targets are:
+	<itemizedlist>
+	  <listitem><para><option>--with-lxrt[=/usr/realtime]</option></para></listitem>
+	  <listitem><para><option>--with-xenomai[=/usr/realtime]</option></para></listitem>
+	</itemizedlist>
+	The latter targets require the presence of the
+	<option>--with-linux=/path/to/linux</option> option since
+	these targets require Linux headers during the Orocos build.
+	To use the LibC Kernel headers in
+	<filename>/usr/include/linux</filename>, specify
+	<option>--with-linux=/usr</option>.  Watch carefully the
+	output to find any errors.
+      </para>
       <para>
 	By default, the &orocos; library will be built  in
 	<filename class="directory">packages/install</filename>
 	and installed in <filename>/usr/local/orocos</filename>.
       </para>
       <para>
-	You can modify the former by passing a <option>--prefix=</option> option to ecosconfig or
-	change it in the GUI and modify the latter by passing the <option>--prefix=</option>
+	You can modify the latter by passing the <option>--prefix=</option>
 	to <command>configure</command>.
-      </para>
-	<note>
-	  <para>
-	    ecosconfig and configtool both use a different namingscheme
-	    for build directories. configtool uses the
-	    &lt;config_name&gt;-build, &lt;config_name&gt;-mlt, &lt;config_name&gt;-mlt
-	    subdirectories while ecosconfig uses the current dir to build and
-	    the 'install' directory for installation. 
-	  </para>
-	</note>
-	<note>
-	<para>
-	  It is advised to only
-	  use the <command>configtool</command> GUI for generating the orocos.ecc file and
-	  using <command>make</command> for creating a build tree.
-	  </para>
-	</note>
-	<note>
-	  <para>
-	    If you invoke the eCos tools manually (without the make command)
-	    you need to type the following command :
-	    <command>export ECOS_REPOSITORY=/path/to/orocos-trunk/packages</command>
-	    You can then run <command>ecosconfig help</command> or
-	    <command>configtool</command>.
-	  </para>	
-	</note>
-      <para>
-	Just running <command>../configure</command> or <command>../configure
-	  --with-gnulinux</command> selects the os/gnulinux target.
-      </para>
-
-<!-- 	<para> -->
-<!-- 	  When running <command>../configure - -with-rtlinux</command> the configure -->
-<!-- 	  script will select the os/rtlinux target. -->
-<!-- 	</para> -->
-
-<!-- 	<para> -->
-<!-- 	  When running <command>../configure - -with-rtai</command>, the -->
-<!-- configure script will select the os/rtai target -->
-<!-- 	  <tip> -->
-<!-- 	    <para> -->
-<!-- 	      Read <xref linkend="general_setup_rtai"/> about possible patches you -->
-<!-- 	      should apply to RTAI before a run will compile. -->
-<!-- 	    </para> -->
-<!-- 	  </tip> -->
-<!-- 	</para> -->
-      <para>
-	When running
-	<command>../configure --with-lxrt=/usr/local/realtime --with-linux=/usr/src/linux</command>
-	(the path is optional) the configure
-	script will try to find your RTAI installation in <filename>/usr/local/realtime</filename>
-	and select the os/lxrt target. You need to specify the path to your <emphasis>RTAI patched</emphasis>
-	Linux Kernel in case Orocos needs it to build properly.
-	The default path where LXRT is being looked for is
-	<filename>/usr/realtime</filename>, while the default Linux path is
-	<filename>/usr/src/linux</filename>. To use the LibC Kernel headers in
-	<filename>/usr/include/linux</filename>, specify
-	<option>--with-linux=/usr</option>.
-	Watch carefully the output to find any errors.
       </para>
       <para>
 	When the target is selected with configure, you can run
@@ -655,7 +620,7 @@
 	</para>
 	<important>
 	  <para>
-	    Orocos can use ComediLib from the GNU/Linux target
+	    Orocos can use ComediLib from the GNU/Linux or Xenomai target
 	    (non realtime interface), in which case you must
 	    point configure to the 'comedilib' path (for example <filename>/usr/src/comedilib/include</filename>)
 	    and the LXRT target ( realtime interface ), in which
@@ -763,7 +728,7 @@
       </sect3>
     </sect2>
     <sect2 id="general_setup_rtai">
-      <title >Configuring RTAI</title>
+      <title >Configuring for RTAI</title>
       <para>
 	Read first the 'Getting Started' section from <ulink
 	  url="http://people.mech.kuleuven.ac.be/~psoetens/portingtolxrt.html">this 
@@ -785,7 +750,7 @@
 	details.
       </para>
       <para>
-	Next do <command>make menuconfig; make dep; make;</command>
+	Next do <command>make menuconfig; make;</command>
       </para>
       <sect3>
 	<title> RTAI settings </title>
@@ -825,31 +790,6 @@
 	  specify during the Orocos configure step the alternative if you chose so.
 	</para>
       </sect3>
-<!--       <sect3> -->
-<!-- 	<title> Loading RTAI without LXRT (not recommended)</title> -->
-<!-- 	<para> -->
-<!-- 	  To enable RTAI without LXRT run in your rtai directory one of the programs -->
-<!-- 	  <screen> -->
-<!-- ./setsched up    # for uniprocessor systems OR -->
-<!-- ./setsched smp   # for smp systems -->
-<!-- 	  </screen> -->
-<!-- 	  next you can 'make  install'.  -->
-<!-- 	  Make sure that the following RTAI kernel modules are loaded -->
-<!-- 	  <itemizedlist> -->
-<!-- 	    <listitem><para>rtai_cpp</para></listitem> -->
-<!-- 	    <listitem><para>rtai_sched_ext</para></listitem> -->
-<!-- 	    <listitem><para>rtai_bits</para></listitem> -->
-<!-- 	    <listitem><para>rtai_up</para></listitem> -->
-<!-- 	    <listitem><para>rtai_pthread</para></listitem> -->
-<!-- 	    <listitem><para>rtai_sem</para></listitem> -->
-<!-- 	    <listitem><para>rtai_fifos</para></listitem> -->
-<!-- 	    <listitem><para>rtai_hal</para></listitem> -->
-<!-- 	    <listitem><para>adeos</para></listitem> -->
-<!-- 	  </itemizedlist> -->
-<!-- 	  For example, by executing as root: -->
-<!-- 	  <command>modprobe rtai_cpp; modprobe rtai_pthread; modprobe rtai_fifos</command>. -->
-<!--         </para> -->
-<!--       </sect3> -->
       <sect3>
 	<title> Loading RTAI with LXRT</title>
 	<para>
@@ -915,34 +855,91 @@
 	</para>
       </sect3>
     </sect2>
-    <sect2>
-      <title>Configuring for RTLinux</title>
+    <sect2 id="general_setup_xeno">
+      <title >Configuring for Xenomai</title>
       <para>
-	The latest free release of RTLinux was 3.2. RTLinux is no longer supported
-	since no users of Orocos are using it.
+	Xenomai provides a real-time scheduler for Linux applications.
+	It is similar to, and once developed with, RTAI/LXRT, but the
+	project is now independent of RTAI. See
+	<ulink url="http://www.xenomai.org">
+	  the Xenomai home page</ulink>. Xenomai works exclusively
+	  with Linux 2.6 kernels. The patch one needs to apply upon
+	  the Linux kernel can be found in the
+	  <filename>arch/[target]/patches</filename> directory. When
+	  applied, one needs to enable the <option>ADEOS</option> or
+	  <option>IPIPE</option> option during Linux kernel
+	  configuration.
       </para>
-<!--       <para> -->
-<!-- 	For a recent kernel patch, look at <ulink -->
-<!-- 	  url="http://bernia.disca.upv.es/rtportal/apps/upgrades/">RTlinux patches to -->
-<!-- 	  newer Linux kernels</ulink> webpage. The RTLinux  -->
-<!-- 	<ulink url="http://www.fsmlabs.com/">Homepage</ulink> contains more -->
-<!-- 	information. -->
-<!--       </para> -->
-<!--       <sect3> -->
-<!-- 	<title>Loading RTLinux</title> -->
-<!-- 	<para> -->
-<!-- 	  The following RTLinux kernel modules should be loaded in the specified order: -->
-<!-- 	    <orderedlist> -->
-<!-- 	    <listitem><para>rtl</para></listitem> -->
-<!-- 	    <listitem><para>rtl_time</para></listitem> -->
-<!-- 	    <listitem><para>rtl_posixio</para></listitem> -->
-<!-- 	    <listitem><para>rtl_fifo</para></listitem> -->
-<!-- 	    <listitem><para>rtl_sched</para></listitem> -->
-<!-- 	  </orderedlist> -->
-<!-- 	  You can use the <command>modprobe</command> or <command>insmod</command> as root -->
-<!--  	  to load these needed kernel modules. -->
-<!-- 	</para> -->
-<!--       </sect3>  -->
+      <para>
+	When the Linux kernel is built, do in the Xenomai directory:
+	<command>make menuconfig; make;</command>. Consult the
+	README files in the top Xenomai directory for further help
+	with installation.
+      </para>
+      <sect3>
+	<title>Xenomai settings</title>
+	<para>
+	  The default settings for Xenomai are fine for Orocos.  The
+	  only option that requires to be set is the location of the
+	  patched Linux kernel.  After configuring you can run 'make'
+	  and 'make install' in your Xenomai directory.
+	</para>
+	<para>
+	  After installation, Xenomai can be found in
+	  <filename>/usr/realtime</filename>. You'll have to specify
+	  during the Orocos configure step the alternative if you
+	  chose so.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Loading Xenomai</title>
+	<para>
+	  Orocos uses the native Xenomai API to address the real-time scheduler.
+	  The Xenomai kernel modules can be found in <filename>/usr/realtime/modules</filename>.
+	  Thus only the following kernel modules need to be loaded:
+	  <itemizedlist>
+	    <listitem><para>xeno_hal.ko</para></listitem>
+	    <listitem><para>xeno_nucleus.ko</para></listitem>
+	    <listitem><para>xeno_native.ko</para></listitem>
+	  </itemizedlist> in that order.
+	  For example, by executing as root:
+	  <command>insmod xeno_hal.ko; insmod xeno_nucleus.ko; insmod xeno_native.ko</command>.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Compiling Applications with Xenomai</title>
+	<para>
+	  Application which use Xenomai as a target need special flags when being
+	  compiled and linked. Especially :
+	  <itemizedlist>
+	    <listitem>
+	      <para>
+		Compiling : <option>-I/usr/realtime/include</option>
+	      </para>
+	      <para>
+		This is the Xenomai headers installation directory.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		Linking : <option>-L/usr/realtime/lib
+		-lnative</option> for dynamic (.so) linking OR add
+		<option> /usr/realtime/libnative.a </option> for
+		static (.a) linking.
+	      </para>
+	      <important>
+		<para>
+		  You might also need to add
+		  <filename>/usr/realtime/lib</filename> to the
+		  <filename>/etc/ld.so.conf</filename> file and rerun
+		  <command>ldconfig</command>, such that libnative.so
+		  can be found.
+		</para>
+	      </important>
+	    </listitem>
+	  </itemizedlist>
+	</para>
+      </sect3>
     </sect2>
     <sect2>
       <title>Upgrading Your Configuration</title>
@@ -1026,6 +1023,8 @@
 
   all: myprogram.cpp
         g++ myprogram.cpp ${CXXFLAGS} ${LDFLAGS} -o myprogram  </programlisting>
+	    The flags must be extended with compile and link options
+	    for your particular configuration.
 	    As you can see, your application does not have to be
 	    inside the packages directory at all. Applications can
 	    be developped fully out of the Orocos (build) directory.
@@ -1046,23 +1045,6 @@
 	  </note>
 	</para>
 	</example>
-<!--         The short answer is: modify a program in the -->
-<!--         <filename class="directory">tests</filename> directory.  The even -->
-<!--         shorter answer is: <emphasis>There is no main (Neo realized that -->
-<!--         too!). </emphasis>  -->
-<!--         In the current implementation, realtime execution in the kernel -->
-<!--         of your program is provided by inserting kernel modules into the -->
-<!--         kernel using the commands <command>insmod</command> and -->
-<!--         <command>rmmod</command> as the root user. <command>insmod</command> -->
-<!--         will call a function <function>init_module()</function> and -->
-<!--         <command>rmmod</command> will call a function -->
-<!--         <function>cleanup_module()</function>. You must -->
-<!--         provide them, so that when they are called, they start your realtime -->
-<!--         program. You can see an example in <filename>src/module.c</filename>. -->
-<!--         As you will see, <filename>module.c</filename> calls our real C++ -->
-<!--         function which then starts or stops our program. -->
-<!--         <filename>src/moduleStartStop.c</filename> is another example we use -->
-<!--         for starting and stopping the framework in kernel space. -->
       </sect2>
     <sect2>
       <title>Header Files Overview</title>
