@@ -90,22 +90,6 @@
   </chapter>
 
   <chapter>
-    <title>Hardware Device Interfaces</title>
-    <xi:include  href="orocos-device-interface.xml#xpointer(/article/articleinfo/abstract)"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-device-interface.xml#xpointer(/article/sect1[*])"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-  </chapter>
-
-  <chapter>
-    <title>Hardware Device Drivers</title>
-    <xi:include  href="orocos-device-drivers.xml#xpointer(/article/articleinfo/abstract)"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-device-drivers.xml#xpointer(/article/sect1[*])"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-  </chapter>
-
-  <chapter>
     <title>The Task Infrastructure</title>
     <xi:include  href="orocos-task-context.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
@@ -126,6 +110,22 @@
     <xi:include  href="orocos-program-processor.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
     <xi:include  href="orocos-program-processor.xml#xpointer(/article/sect1[*])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </chapter>
+
+  <chapter>
+    <title>Hardware Device Interfaces</title>
+    <xi:include  href="orocos-device-interface.xml#xpointer(/article/articleinfo/abstract)"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="orocos-device-interface.xml#xpointer(/article/sect1[*])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </chapter>
+
+  <chapter>
+    <title>Hardware Device Drivers</title>
+    <xi:include  href="orocos-device-drivers.xml#xpointer(/article/articleinfo/abstract)"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="orocos-device-drivers.xml#xpointer(/article/sect1[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
