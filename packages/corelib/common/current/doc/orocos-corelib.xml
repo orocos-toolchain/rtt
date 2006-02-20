@@ -133,15 +133,22 @@ of the &orocos; framework.
   <sect1>
     <title>Introduction</title>
     <para>
-      This section describes the semantics of the services
+      This Chapter describes the semantics of the services
       available in the &orocos; CoreLib Package.
     </para>
     <para>
       The Orocos OS package allows &orocos; users to build their software 
       on all supported systems with only a recompilation step.  
-      This library, the CoreLib, provides fully thread-safe C++ implementations for (periodic) tasks, 
-      synchronous/asynchronous Events, time measurement, simulations and 
-      provides interfaces which are common for all realtime services.
+      On top of that, this library, the CoreLib, provides:
+      <itemizedlist>
+	<listitem><para>Thread-safe C++ implementations for (periodic) tasks</para></listitem>
+	<listitem><para>Synchronous/Asynchronous Events</para></listitem>
+	<listitem><para>Time measurement</para></listitem>
+	<listitem><para>Application logging and reporting</para></listitem>
+	<listitem><para>Properties and XML configuration</para></listitem>
+	<listitem><para>Lock-free data exchange primitives such as fifo buffers or shared data.</para></listitem>
+      </itemizedlist> 
+      and additionally provides interfaces which are common for all realtime services.
       The CoreLib imposes a hard realtime <emphasis>architecture</emphasis>. 
       <emphasis>
 	The goal of this fixed architecture is to keep 
@@ -162,9 +169,8 @@ of the &orocos; framework.
       The following sections will first introduce the reader to creating
       (periodic) Tasks in the system. Furtheron, they are extended
       with Events. The following sections explain usefull classes which
-      are used throughout the framework such as the HeartBeatGenerator,
-      Properties, Commands, Conditions and the object
-      NameServer.
+      are used throughout the framework such as the TimeService,
+      Properties and the object NameServer.
     </para>
   </sect1>
   <sect1>
@@ -179,8 +185,7 @@ of the &orocos; framework.
       This section gives an introduction to defining periodic tasks
       which run together with other periodic tasks of the
       same priority in the same periodic thread. Non 
-      periodic tasks can run in these threads or are implemented
-      using a non periodic thread.
+      are implemented using a non periodic thread.
     </para>
     <sect2>
       <title>Periodic Tasks Run in Periodic Threads</title>
