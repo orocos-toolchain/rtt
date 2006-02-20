@@ -500,6 +500,11 @@ namespace ORO_Execution
             if (t2 && &(t2->set()) != 0 )
                 return new detail::AssignableDataSourceAdaptor<TResult, TResult&>( t2 );
             
+            // assignable case 2
+            AssignableDataSource<const TResult&>* t3 = dynamic_cast< AssignableDataSource<const TResult&>* >( dsb.get() );
+            if (t3 && &(t3->set()) != 0 )
+                return new detail::AssignableDataSourceAdaptor<const TResult&, TResult&>( t3 );
+            
             // complete type failure.
             return 0;
         }

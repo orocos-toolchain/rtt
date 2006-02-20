@@ -32,6 +32,7 @@
 #include <memory>
 #include <map>
 #include "TaskAttribute.hpp"
+#include "TaskVariable.hpp"
 #include <corelib/Property.hpp>
 #include <corelib/PropertyBag.hpp>
 
@@ -50,6 +51,17 @@ namespace ORO_Execution
         typedef std::map<std::string, TaskAttributeBase*> map_t;
         map_t values;
         ORO_CoreLib::PropertyBag* bag;
+
+        // check the validity of an index
+        template< class T>
+        struct ArrayIndexChecker
+            : public std::binary_function< T, int, bool>
+        {
+            bool operator()(const T& v, int i ) const
+            {
+                return i > -1 && i < (int)(v.size());
+            }
+        };
     public:
 
         /**
@@ -109,6 +121,17 @@ namespace ORO_Execution
         bool addAttribute( const std::string& name, T value )
         {
             return setValue( name, new TaskAttribute<T>( value ));
+        }
+
+        /**
+         * Add a TaskAttribute with a given value.
+         * @see getAttribute
+         */
+        template<class T>
+        bool addAttribute( const std::string& name, std::vector<T> value )
+        {
+            // return by reference type.
+            return setValue( name, new detail::ParsedIndexVariable<const std::vector<T>&,int,T,ArrayIndexChecker<std::vector<T> > >( value ));
         }
 
         /**

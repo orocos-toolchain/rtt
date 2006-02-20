@@ -56,7 +56,7 @@ namespace ORO_Execution
   public:
       typedef boost::intrusive_ptr<VariableDataSource<T> > shared_ptr;
 
-      VariableDataSource( T data )
+      VariableDataSource( typename AssignableDataSource<T>::param_t data )
           : mdata( data )
       {
       }
@@ -177,7 +177,7 @@ namespace ORO_Execution
   public:
       typedef boost::intrusive_ptr< ConstantDataSource<T> > shared_ptr;
 
-      ConstantDataSource( T value )
+      ConstantDataSource( typename AssignableDataSource<T>::param_t value )
           : mdata( value )
       {
       }
