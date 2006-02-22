@@ -189,8 +189,8 @@ class EcosDB :
     def __init__(self, path= ".", file = "ecos.db") :
         self.rawtext = open( path +"/"+ file, 'r').read()
         self.repos   = path
-        self.pkg_name_pat = re.compile(r"\s*package\s+(.+?)\s*{(.*?{.*?}.*?)}",re.S)
-        self.tgt_name_pat = re.compile(r"\s*target\s+(.+?)\s*{(.*?{.*?}.*?{.*?}.*?)}",re.S)
+        self.pkg_name_pat = re.compile(r"\s*package\s+(\S+)\s*{(.*?{.*?}.*?)}",re.S)
+        self.tgt_name_pat = re.compile(r"\s*target\s+(\S+)\s*{(.*?{.*?}.*?{.*?}.*?)}",re.S)
         self.packages = [] # maybe use a dictionary instead of list
         self.targets  = [] # all targets in the db file
         self.alias_dict = {} # when an alias is given, we retrieve the packagename here.
@@ -269,15 +269,28 @@ class Package :
         self.raw_contents = _contents
 
         # search patterns
-        pkg_dir_pat  = re.compile(r"directory\s*(\S+)")
-        pkg_alias_pat= re.compile(r"alias\s+{\s\"(.+?)\"\s+(.+?)\s*}")
-        pkg_script_pat= re.compile(r"script\s+(\S+)\n")
+        pkg_dir_pat  = re.compile(r"directory\s+(\S+)")
+        pkg_alias_pat= re.compile(r"alias\s*{\s*\"(.+?)\"\s+(.+?)\s*}")
+        pkg_script_pat= re.compile(r"script\s+(\S+)")
 
         # extract info
-        self.dir = pkg_dir_pat.search(_contents).group(1)
-        self.description, self.alias = pkg_alias_pat.search(_contents).groups()
-        self.alias = string.split(self.alias)[0] # XXX take only one alias into account
-        self.script = pkg_script_pat.search(_contents).group(1)
+        pkg_match = pkg_dir_pat.search(_contents)
+        if pkg_match != None:
+            self.dir = pkg_match.group(1)
+        else:
+            print "Package "+ self.name +" has no directory entry !"
+        alias_match = pkg_alias_pat.search(_contents)
+        if alias_match != None:
+            self.description, self.alias = alias_match.groups()
+            self.alias = string.split(self.alias)[0] # XXX take only one alias into account
+        else:
+            print "Package "+ self.name +" has no alias entry !"
+        script_match = pkg_script_pat.search(_contents)
+        if script_match != None:
+            self.script = script_match.group(1)
+        else:
+            print "Package "+ self.name +" has no script entry !"
+
     
     def print_output(self, _out=sys.stdout):
         _out.write("package " + self.name + " {")
