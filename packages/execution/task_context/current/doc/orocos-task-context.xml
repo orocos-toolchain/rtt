@@ -51,6 +51,12 @@
 	<authorinitials>PS</authorinitials>
 	<revremark>Updates on new Execution Engine</revremark>
       </revision>
+      <revision>
+	<revnumber>0.22.0</revnumber>
+	<date>17 February 2006</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Went through biggest part of manual to 'prettyfy' examples.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -86,8 +92,7 @@
 	</imageobject>
 	<caption>
 	  <para>
-	    Tasks may run in the same (periodic) thread, in which
-	    case they may also share the same Execution Engine.
+	    Tasks run in (periodic) threads.
 	  </para>
 	</caption>
       </mediaobject>
@@ -140,9 +145,9 @@
 	<glossentry>
 	  <glossterm>Execution Engine</glossterm>
 	  <glossdef>
-	    <para> provides a program object-tree, state machines and command
-	      execution framework. In short, it can execute realtime programs
-	      which are composed of command objects.
+	    <para> provides a real-time program object-tree, state machines and command
+	      execution framework. In short, it can execute real-time programs
+	      which interact with other tasks.
 	    </para>
 	  </glossdef>
 	</glossentry>
@@ -151,8 +156,6 @@
 	  <glossdef>
 	    <para> provides a scripting language which is convertible to
 	    a binary form which can be accepted by the Execution Engine.
-	      Also provides usefull templates to create realtime command objects
-	      with truely minimal effort.
 	    </para>
 	  </glossdef>
 	</glossentry>
@@ -171,14 +174,40 @@
       You may also read the Execution Engine and Program Parser manuals
       for more technical (C++) details.
     </para>
+    <figure id="fig-a-task-context">
+      <title>
+	Schematic Overview of a TaskContext
+      </title>
+      <mediaobject>
+	<imageobject>
+	  <imagedata fileref="ATaskContext" />
+	</imageobject>
+	<caption>
+	  <para>The Execution Flow is formed by Programs and
+	    State Machines sending commands, events,... to Peer Tasks. The Data Flow
+	    is the propagation of data from one task to another, where
+	    one producer can have multiple consumers.
+	  </para>
+	</caption>
+      </mediaobject>
+    </figure>
+    <para>
+      A task's interface consists of : Commands,
+      Methods, DataSources, Attributes and Properties and Events, which are all public.
+      We will refer to them as <emphasis>members</emphasis>.
+      The class <classname>ORO_Execution::TaskContext</classname> 
+      groups all these interfaces and serves as the basic building
+      block of applications. An application developer 'builds'
+      these interfaces using the instructions found in this manual.
+    </para>
   </sect1>
   <sect1>
     <title>An Introductory Example to TaskContexts</title>
     <para>
       This section introduces tasks through the "taskintro"
       application, which can be downloaded from Orocos.org.  It
-      contains 3 TaskContexts, each showing some features and
-      possibilities. The 'FactoringTask' waits for a command to factor
+      contains three TaskContexts, each showing some features and
+      possibilities, <xref linkend="fig-task-intro"/>. The 'FactoringTask' waits for a command to factor
       a number in its primes. When done, it fires an event with the
       result.  The 'ReactiveTask' is a periodic task which waits for
       the events to happen when it is running. The 'PeriodicTask' can
@@ -186,6 +215,21 @@
       command to do so. We show some example commands, but the
       application has more methods and commands than presented here.
     </para>
+    <figure id="fig-task-intro">
+      <title>
+	Schematic Overview of the Example.
+      </title>
+      <mediaobject>
+	<imageobject>
+	  <imagedata fileref="TaskIntro" />
+	</imageobject>
+	<caption>
+	  <para>Three tasks form a network and interact. The
+	  TaskBrowser can visit any task.
+	  </para>
+	</caption>
+      </mediaobject>
+    </figure>
     <para>
       The way we interact with TaskContexts during development of an
       Orocos application is through the TaskBrowser.  The
@@ -198,21 +242,22 @@
     </para>
     <note>
       <para>
-	The <classname>ORO_Execution::TaskBrowser</classname> is located in the
-	Orocos Program Parser package and not in the Task Context package.
+	The <classname>ORO_Execution::TaskBrowser</classname> requires the
+	Orocos Program Parser package to interpret the console input.
       </para>
     </note>
     <programlisting>
   #include &lt;execution/TaskBrowser.hpp&gt;
+  #include &lt;os/main.h&gt;
   // ...
 
   int ORO_main( int, char** )
   {
       // Create your tasks
-      TaskContext* task = ...
+      <classname>ORO_Execution::TaskContext</classname>* task = ...
 
       // when all is setup :
-      TaskBrowser tbrowser( task );
+      <classname>ORO_Execution::TaskBrowser</classname> tbrowser( task );
 
       tbrowser.loop();
       return 0;
@@ -221,7 +266,7 @@
     <para>
       The TaskBrowser uses the GNU readline library to easily
       enter commands to the tasks in your system. This means you
-      can press TAB to complete your commands and the up arrow
+      can press TAB to complete your commands or press the up arrow
       to scroll through previous commands.
     </para>
     <screen>
@@ -322,14 +367,14 @@ PeriodicTask Peers      :  FactoringTask ReactiveTask states
     <para>
       First you get a list of the Properties and Attributes (alphabetical) of
       the current TaskContext. Propeties can be written to disk, attributes
-      are solely for script interaction. Each of them can be changed, except
-      task constants. The current task has only one object: 'this'. The 'this'
-      object serves like a public interface of the TaskContext. Objects can only contain
+      are solely for script interaction. Each of them can be changed (except
+      constants.) In the example, the current task has only one object: 'this'. The 'this'
+      object serves like a public interface of the TaskContext. Objects contain
       methods, commands or datasources. Last, the peers are shown, two other tasks
       and 'states', which denotes that this TaskContext has a StateMachine. Likewise,
       a peer task 'programs' contains all loaded programs.
       To get a list of the Task's interface, you can always type an object name,
-      for example 'this' :
+      for example 'this'.
     </para>
     <screen>
  In Task PeriodicTask. (Status of last Command : none )
@@ -485,7 +530,7 @@ cd                  quit
   <sect1 id="basic-task">
     <title>Setting Up a Basic Task</title>
     <para>
-      Tasks are rather simple entities in &orocos; and are
+      Tasks are 
       implemented by the <classname>ORO_Execution::TaskContext</classname> class,
       which should not be confused with the CoreLib periodic Task
       implementations.
@@ -495,6 +540,12 @@ cd                  quit
       its peer tasks and uses its
       <classname>ORO_Execution::ExecutionEngine</classname> to handle its
       programs and to accept commands from other tasks.
+    </para>
+    <para>
+      This section walks you through the definition of an example task
+      in order to show you how you could build your own task. The 
+      ready-to-execute code of this section can be found in the
+      'simple-task' package on the Download page of the Orocos.org website.
     </para>
     <para>
       A <classname>ORO_Execution::TaskContext</classname> is constructed as :
@@ -524,7 +575,7 @@ cd                  quit
       objects, which have Commands, Methods and/or DataSources,
       which all map to the C++ functions or variables of the task.
     </para>
-    <figure id="fig-a-task-context">
+    <figure id="fig-a-task-context-intro">
       <title>
 	Schematic Overview of a TaskContext
       </title>
@@ -558,7 +609,7 @@ cd                  quit
   {
   public:
        MyTask(std::string name) 
-         : <classname>ORO_Execution::GenericTaskContext(name)</classname>
+         : <classname>ORO_Execution::GenericTaskContext</classname>(name)
        {
           // see lateron what to put here.
        }
@@ -681,7 +732,11 @@ cd                  quit
     </para>
     </sect2>
     <sect2>
-      <title>The Method Factory</title>
+      <title>The Method Interface</title>
+      <note><title>Purpose</title><para>A task's methods are intended
+      to be called 'synchronously' by the caller, i.e. are directly
+      executed like a function. Use it to 'calculate' a result or
+      change a parameter.</para></note>
       <para>
 	The easiest way to access a TaskContext's interface
 	is through Methods. They resemble very much normal C
@@ -693,7 +748,7 @@ cd                  quit
       </para>
       <para>
 	To add a TaskContext's method to the Method Factory, one can use
-	the <classname>ORO_Execution::TemplateMethodFactory</classname>,
+	the <classname>TemplateMethodFactory</classname>,
 	to easily create method factories :</para>
       <para>
 	<programlisting>
@@ -705,31 +760,31 @@ cd                  quit
   {
     public:
     void reset() { ... }
-    string getName() { ... }
+    string getName() const { ... }
     double changeParameter(double f) { ... }
-    void passByArgument(int&amp; a1, vector&amp; v2) { a1 =...; v2=...; }
+    void passByArgument(int&amp; a1, vector&lt;double&gt;&amp; v2) { a1 =...; v2=...; }
     // ...
     MyTask(std::string name)
-      : <classname>ORO_Execution::GenericTaskContext(name)</classname>
+      : <classname>ORO_Execution::GenericTaskContext</classname>(name)
     {
-       TemplateMethodFactory&lt;MyTask&gt;* fact =
+       TemplateMethodFactory&lt;MyTask&gt;* mfact =
 	   newMethodFactory( <emphasis>this</emphasis> );
-       fact-&gt;add( &quot;reset&quot;,
+       mfact-&gt;add( &quot;reset&quot;,
                      method( &amp;MyTask::reset, &quot;Reset the system.&quot; ) );
-       fact-&gt;add( &quot;name&quot;,
+       mfact-&gt;add( &quot;name&quot;,
                      method( &amp;MyTask::getName,
                              &quot;Read out the name of the system.&quot; ) );
-       fact-&gt;add( &quot;changeP&quot;,
+       mfact-&gt;add( &quot;changeP&quot;,
                      method( &amp;MyTask::changeParameter,
                              &quot;Change a parameter, return the old value.&quot;,
 	                     &quot;New Value&quot;, &quot;The new value for the parameter.&quot; ) ); 
-       fact-&gt;add( &quot;passByArgument&quot;,
+       mfact-&gt;add( &quot;passByArgument&quot;,
                      method( &amp;MyTask::passByArgument,
                              &quot;Method which passes results by argument.&quot;,
 		             &quot;I&quot;,&quot;Integer passed by reference&quot;,
 	                     &quot;V&quot;,&quot;Vector passed by reference&quot; ) ); 
 
-       this->methods()->registerObject("this", fact);
+       this->methods()->registerObject("this", mfact);
 
        // more additions to follow, see below
      }
@@ -739,7 +794,7 @@ cd                  quit
       <para>
 	The first statement 
 	<programlisting>
-  TemplateMethodFactory&lt;MyTask&gt;* fact =
+  TemplateMethodFactory&lt;MyTask&gt;* mfact =
     newMethodFactory( this );
 	</programlisting>
 	constructs a new TemplateMethodFactory, which will create methods
@@ -752,7 +807,7 @@ cd                  quit
 	function method().
       </para>
       <programlisting>
-  fact-&gt;add( &quot;reset&quot;,
+  mfact-&gt;add( &quot;reset&quot;,
              method( &amp;MyTask::reset, &quot;Reset the system.&quot; ) );</programlisting>
       <para>
 	The <function>method()</function> function requires a pointer to a
@@ -766,10 +821,10 @@ cd                  quit
 <programlisting>
   this->methods()->registerObject("this", fact);	</programlisting>
       <para>
-	Finally, the factory is stored in the method interface of a_task,
-	where it is <emphasis>added</emphasis> to the "this" methods.
-	The "this" object represents the public interface of a TaskContext.
-	One may also store the methods in another object, which is then
+	Finally, the factory is stored in the method interface of
+	a_task, where it is <emphasis>added</emphasis> to the "this"
+	methods, thus to the public interface of the task.  One
+	may also store the methods in another object, which is then
 	intended for internal use.
       </para>
       <important>
@@ -813,10 +868,10 @@ cd                  quit
 	  objects are created by a task's method factory. For example:
 	</para>
 	<programlisting>  // create a method:
-  MethodC mymeth = a_task.methods()->create("this", "reset");
+  MethodC reset_meth = a_task.methods()->create("this", "reset");
 
   // Call 'reset' of a_task:
-  bool valid = mymeth->execute();  </programlisting>
+  bool valid = reset_meth.execute();  </programlisting>
       <para>
 	Methods can also be given arguments and collect return values. Both constant
 	arguments and variable arguments are supported. The return value
@@ -824,11 +879,11 @@ cd                  quit
       </para>
       <programlisting>  // used to store the return value:
   string name;
-  MethodC mymeth = 
-    a_task.methods()->create("this", "getName").ret( name );
+  MethodC name_meth = 
+    a_task.methods()->create("this", "name").ret( name );
 
-  // Call 'getName' of a_task:
-  bool result = mymeth->execute(); 
+  // Call 'name' of a_task:
+  bool result = name_meth.execute(); 
 
   cout &lt;&lt; "Name was: " &lt;&lt; name &lt;&lt; endl; 
 
@@ -842,14 +897,14 @@ cd                  quit
   // variable argument (note: 'arg'):
   double d_arg = 1.23;
   MethodC mychange_2 =
-      a_task.methods()->create("this", "changeP").arg( d );
+      a_task.methods()->create("this", "changeP").arg( d_arg );
 
   // Call 'changeParameter' of a_task with argument '1.0'
-  bool result_1 = mycleanup_1->execute();
+  bool result_1 = mychange_1.execute();
   // oldvalue now contains previous value.
 
   // Call 'changeParameter' of a_task, reads contents of d_arg.
-  bool result_2 = mycleanup_2->execute();</programlisting>
+  bool result_2 = mychange_2.execute();</programlisting>
        <para>
 	 Any number of arguments can be given (just add
 	 .arg(X).arg(Y).arg(Z) etc ), but an error will be logged when
@@ -938,7 +993,13 @@ cd                  quit
       </para>
   </sect2>
   <sect2 id="task-attr-rep">
-    <title>Task Attributes and Properties</title>
+    <title>The Attributes and Properties Interface</title>
+      <note><title>Purpose</title><para>A task's attributes and
+      properties are intended to configure and tune a task with
+      certain values. Properties have the advantage of being writable
+      to an XML format, hence can store 'persistent' state. Attributes
+      are lightweight values which can be read and written during runtime.
+      </para></note>
     <para>
       A TaskContext may have any number of attributes or properties,
       of any type. They can be used by programs in the
@@ -963,7 +1024,7 @@ cd                  quit
   public:
     // ...
     MyTask(std::string name)
-      : <classname>ORO_Execution::GenericTaskContext(name)</classname>,
+      : <classname>ORO_Execution::GenericTaskContext</classname>(name),
         param("Param","Param Description","The String"),
 	value("Value","Value Description", 1.23 )
     {
@@ -1019,7 +1080,7 @@ cd                  quit
   TaskAttribute&lt;std::string&gt;* attrs 
        = a_task.attributes()->getAttribute&lt;std::string&gt;( "Param" );
 
-  assert( attrs.get() == "The String" );</programlisting></para>
+  assert( attrs->get() == "The String" );</programlisting></para>
     </sect3>
     <sect3>
       <title>Accessing Task Attributes in Scripts</title>
@@ -1063,7 +1124,12 @@ cd                  quit
     </sect3>
   </sect2>
   <sect2>
-    <title>The Command Factory</title>
+    <title>The Command Interface</title>
+      <note><title>Purpose</title><para>A task's commands are intended
+      to be called 'asynchronously', thus <emphasis>sent</emphasis> by the caller
+      to the receiver. Use it to 'reach a goal' in the receiver, typically
+      this takes time to accomplish. Commands are, in contrast with methods,
+      executed by the receiver.</para></note>
     <para>
       The next factory we discuss is the Command Factory,
       which produces C++ <classname>ORO_CoreLib::CommandInterface</classname>
@@ -1077,7 +1143,7 @@ cd                  quit
       <title>Adding Commands to a TaskContext</title>
       <para>
 	To add a command to the Command Interface, one can use
-	the <classname>ORO_Execution::TemplateCommandFactory</classname>,
+	the <classname>TemplateCommandFactory</classname>,
 	to easily create command factories :</para>
       <para>
 	<programlisting>
@@ -1097,27 +1163,27 @@ cd                  quit
      * Another command cleans stuff up.
      */
     bool cleanupMess(double f) { ... }
-    bool isMessCleaned() { ... }
+    bool isMessCleaned() const { ... }
 
   public:
     MyTask(std::string name)
-      : <classname>ORO_Execution::GenericTaskContext(name)</classname>
+      : <classname>ORO_Execution::GenericTaskContext</classname>(name)
     {
       // ... other startup code here
 
-      TemplateCommandFactory&lt;MyTask&gt;* fact =
+      TemplateCommandFactory&lt;MyTask&gt;* cfact =
           newCommandFactory( <emphasis>this</emphasis> );
-      fact-&gt;add( &quot;startCycle&quot;, 
+      cfact-&gt;add( &quot;startCycle&quot;, 
                     command( &amp;MyTask::startCycle,
                              &amp;MyTask::cycleDone,
                              &quot;Start a new cycle.&quot; ) );
-      fact-&gt;add( &quot;cleanup&quot;,
+      cfact-&gt;add( &quot;cleanup&quot;,
                     command( &amp;MyTask::cleanupMess,
                              &amp;MyTask::isMessCleaned,
                              &quot;Start cleanup operation.&quot;,
-	                     &quot;factor&quot;, &quot;A factor denoting the thoroughness.&quot; ) );
+	                     &quot;cfactor&quot;, &quot;A cfactor denoting the thoroughness.&quot; ) );
 
-      this->commands()->registerObject("this", fact);
+      this->commands()->registerObject("this", cfact);
     }
   };</programlisting></para>
       <para>
@@ -1131,7 +1197,7 @@ cd                  quit
 	is not ready to accept a new command.
       </para>
       <programlisting>
-  fact-&gt;add( &quot;startCycle&quot;, 
+  cfact-&gt;add( &quot;startCycle&quot;, 
             command( &amp;MyTask::startCycle,
                      &amp;MyTask::cycleDone,
                      &quot;Start a new cycle.&quot; ) );</programlisting>
@@ -1177,11 +1243,11 @@ cd                  quit
       <programlisting>  CommandC mycom = a_task.commands()->create("this", "startCycle");
 
   // Send 'startCycle' to a_task.
-  bool result = mycom->execute();
+  bool result = mycom.execute();
   // next, check its status:
-  bool accepted = mycom->accepted(); // accepted by execution engine?
-  bool valid = mycom->valid();       // command was valid (well-formed)?
-  bool done = mycom->evaluate();     // command was done?
+  bool accepted = mycom.accepted(); // accepted by execution engine?
+  bool valid = mycom.valid();       // command was valid (well-formed)?
+  bool done = mycom.evaluate();     // command was done?
       </programlisting>
       <para>
 	Such commands can also be given arguments. Both constant
@@ -1189,18 +1255,18 @@ cd                  quit
       </para>
       <programlisting>  // const argument (note: 'argC'):
   CommandC mycleanup_1 =
-      a_task.commands()->create("this", "cleanupMess").argC(1.0);
+      a_task.commands()->create("this", "cleanup").argC(1.0);
 
   // variable argument (note: 'arg'):
   double d_arg = 1.23;
   CommandC mycleanup_2 =
-      a_task.commands()->create("this", "cleanupMess").arg( d );
+      a_task.commands()->create("this", "cleanup").arg( d_arg );
 
-  // Send 'cleanupMess' to a_task with argument '1.0'
-  bool result_1 = mycleanup_1->execute();
+  // Send 'cleanup' to a_task with argument '1.0'
+  bool result_1 = mycleanup_1.execute();
 
-  // Send 'cleanupMess' to a_task, reads contents of d_arg.
-  bool result_2 = mycleanup_2->execute();</programlisting>
+  // Send 'cleanup' to a_task, reads contents of d_arg.
+  bool result_2 = mycleanup_2.execute();</programlisting>
        <para>
 	 Any number of arguments can be given, but an error will be
 	 logged when a wrong number or wrong type of argument is given.
@@ -1213,7 +1279,7 @@ cd                  quit
       <para>
 	<programlisting>
   do this.startCycle()
-  do this.cleanupMess( 0.1 )	</programlisting></para>
+  do this.cleanup( 0.1 )	</programlisting></para>
       <para>
 	when the program is loaded in a_task.
       </para>
@@ -1233,7 +1299,11 @@ cd                  quit
     </sect3>
   </sect2>
   <sect2>
-    <title>The Event Service</title>
+    <title>The Event Interface</title>
+      <note><title>Purpose</title><para>A task's events are intended
+      to be 'emitted', thus <emphasis>published</emphasis> by the task
+      to subscribers. Use it to 'notify' interested parties of a change
+      in the system.</para></note>
     <para>
       A task may register its events in its interface in order to be
       used by its state machines and other tasks as well.  The events
@@ -1254,10 +1324,10 @@ cd                  quit
     // An event with a bool argument:
     <classname>ORO_CoreLib::Event</classname>&lt; void(bool) &gt; turnSwitch;
     // An event with three arguments:
-    <classname>ORO_CoreLib::Event</classname>&lt; bool(double, double, double) &gl; moveAxis;
+    <classname>ORO_CoreLib::Event</classname>&lt; bool(double, double, double) &gt; moveAxis;
   public:
     MyTask(std::string name)
-      : <classname>ORO_Execution::GenericTaskContext(name)</classname>
+      : <classname>ORO_Execution::GenericTaskContext</classname>(name)
     {
       // ... other startup code here
   
@@ -1278,13 +1348,16 @@ cd                  quit
 	<programlisting>  <classname>ORO_Execution::EventC</classname> move_event 
     = a_task.events()->setupEmit( "move" ).argC(1.0).argC(2.0).argC(3.0);
   // emit the event 'move' with given args:
-  bool result = move_event.emit();
+  move_event.emit();
 
   // or with variable arguments:
   double a = 0.3, b = 0.2, c = 0.1;
   move_event = a_task.events()->setupEmit("move").arg(a).arg(b).arg(c);
   // upon emit, read a,b,c:
-  result = move_event.emit(); </programlisting>
+  move_event.emit(); </programlisting>
+      </para>
+      <para>Note that the <function>emit()</function> method does not return
+      a value.
       </para>
     </sect3>
     <sect3>
@@ -1308,14 +1381,14 @@ cd                  quit
 
   Reactor r;
   <classname>ORO_Execution::ConnectionC</classname> reaction
-    = a_task.events()->setupSynConnection("move", boost::bind(&amp;callback, &amp;r))
+    = a_task.events()->setupSynConnection("move", boost::bind(&amp;Reactor::callback, &amp;r))
          .arg(r.a1).arg(r.a2).arg(r.a3);
   <classname>ORO_Corelib::Handle</classname> h = reaction.handle();
 
   // or in short (note: '.handle()' ):
   <classname>ORO_CoreLib::Handle</classname> h2 
-    = a_task.events()->setupSynConnection("move", boost::bind(&amp;callback, &amp;r))
-                 .arg(a1).arg(a2).arg(a3).handle();
+    = a_task.events()->setupSynConnection("move", boost::bind(&amp;Reactor::callback, &amp;r))
+                 .arg(r.a1).arg(r.a2).arg(r.a3).handle();
     
   h2.connect(); // connect to event "move"
 
@@ -1324,7 +1397,7 @@ cd                  quit
   // now r.a1 == 0.3, r.a2 == 0.2, r.a3 == 0.1 
   // and callback() was called.
 
-  h1.disconnect(); // disconnect again.
+  h2.disconnect(); // disconnect again.
 	</programlisting>
       </para>
       <para>
@@ -1379,7 +1452,12 @@ cd                  quit
     </sect3>
   </sect2>
   <sect2>
-      <title>The DataSource Factories</title>
+    <title>The DataSource Interface</title>
+      <note><title>Purpose</title><para>A task's datasources are
+      read-only data the task wishes to export, for example, for
+      logging or allowing other tasks to read internal status
+      variables. A tracking error of a controller task is a 
+      typical datasource.</para></note>
       <para>
 	<classname>ORO_CoreLib::DataSource</classname>s are read-only
 	objects which, when evaluated, return some data. The source of
@@ -1392,7 +1470,7 @@ cd                  quit
 	<title>The Template DataSource Factory</title>
 	<para>
 	  To add a method to the DataSource Factory, one can use
-	  the <classname>ORO_Execution::TemplateDataSourceFactory</classname>,
+	  the <classname>TemplateDataSourceFactory</classname>,
 	to easily create DataSource factories :</para>
 	<para>
 	<programlisting>
@@ -1409,25 +1487,25 @@ cd                  quit
     double power(double a, double b) const { ... }
     // ...
     MyTask(std::string name)
-      : <classname>ORO_Execution::GenericTaskContext(name)</classname>
+      : <classname>ORO_Execution::GenericTaskContext</classname>(name)
     {
        // ...
 
-       TemplateDataSourceFactory&lt;MyTask&gt;* fact =
+       TemplateDataSourceFactory&lt;MyTask&gt;* dfact =
 	   newDataSourceFactory( <emphasis>this</emphasis> );
-       fact-&gt;add( &quot;number&quot;,
+       dfact-&gt;add( &quot;number&quot;,
                      data( &amp;MyTask::_number,
                            &quot;the number.&quot; ) );
-       fact-&gt;add( &quot;name&quot;,
+       dfact-&gt;add( &quot;name&quot;,
                      data( &amp;MyTask::getName,
                            &quot;Read out the name.&quot; ) );
-       fact-&gt;add( &quot;power&quot;,
+       dfact-&gt;add( &quot;power&quot;,
                      data( &amp;MyTask::power,
                            &quot;return a to the power of b&quot;,
 	                   &quot;a&quot;, &quot;the base&quot;, 
 	                   &quot;b&quot;, &quot;the exponent&quot; ) ); 
 
-       this->datasources()->registerObject("this", fact);
+       this->datasources()->registerObject("this", dfact);
      }
      // ...
   };</programlisting>
@@ -1541,41 +1619,15 @@ cd                  quit
     </para>
   </sect1>
   <sect1 id="run-tasks">
-    <title>Running Tasks</title>
+    <title>Using Tasks</title>
     <para>
       When a TaskContext is running, it receives its commands from its
       Execution Engine.  The Execution Engine will check periodically
       for new commands in it's queue and execute programs which are
-      running in the task.  Thus to start the task, one needs to start
+      running in the task.  Thus to start using the task, one needs to start
       the Execution Engine.  As long as it is not started, it will accept no
       commands and run no programs.
     </para>
-    <sect2>
-      <title>Starting Periodic Task Execution</title>
-      <para>
-	To run an Execution Engine, you need to use one of the Periodic
-	Task classes from the CoreLib. ( See the &coreman;
-	for more documentation. ) Continued from
-	<xref linkend="basic-task"/> :</para>
-      <para>
-	<programlisting>
-  #include &lt;corelib/TaskNonPreemptible.hpp&gt;
-
-  using namespace ORO_CoreLib;
-
-  <classname>ORO_Execution::TaskContext</classname>* a_task = ... 
-  // ... start the execution engine of a_task :
-  <classname>ORO_CoreLib::TaskNonPreemptible</classname> periodicTask(0.001, a_task->engine() );
-  periodicTask.start(); </programlisting></para>
-      <para>
-	Which will start the Execution Engine of ATask with a timer frequency
-	of 1kHz. This is the frequency at which state machines are
-	evaluated, program steps taken and commands are accepted
-	and executed. When the periodic task is stopped again, all programs
-	are stopped, state machines are brought into the final state and
-	no more commands are accepted.
-      </para>
-    </sect2>
     <sect2 id="task-property-config">
       <title>Task Property Configuration</title>
       <para>
@@ -1592,28 +1644,26 @@ cd                  quit
   // ...
   ploader.save("PropertyFile.cpf", a_task ); </programlisting>
        <para>
-	 Where 'configure' reads the file and configures updates the task's properties
-	 and 'save' <emphasis>updates</emphasis> the given file with the properties
-	 of the task. It is allowed to share a single file with multiple tasks or
-	 update the task's properties from multiple files. The <classname>ORO_Execution::GenericTaskContext</classname>
-	 has implemented this functionality also as script methods.
+	 Where 'configure' reads the file and configures updates the
+	 task's properties and 'save' <emphasis>updates</emphasis> the
+	 given file with the properties of the task. It is allowed to
+	 share a single file with multiple tasks or update the task's
+	 properties from multiple files. Fortunately, the
+	 <classname>ORO_Execution::GenericTaskContext</classname> has
+	 implemented this functionality also as script methods, thus
+	 you do not need to do this manually.
        </para>
     </sect2>
     <sect2>
       <title>Task Program Scripts</title>
       <para>
-	Commands are a Real-Time means of communication between tasks.
-	They are asynchronous method calls from one task to another,
-	without caring for multi-threaded locking issues.
-	A command can be rejected if the other task is not running, which 
-	can be detected by the sending task.
-      </para>
-      <para>
-	Commands can 
-	be grouped into Orocos Program Scripts (ops), which allow
-	programs to be loaded at runtime into a task. The
-	program script is parsed to a command object tree,
-	which can then be executed by the Execution Engine of a task.
+	A program script is a <emphasis>Real-Time</emphasis>
+	functional program which calls methods and sends commands to
+	tasks, depending on classical functional logic.  Orocos
+	Program Scripts (ops) are loaded at runtime into a task. The
+	program script is parsed to an object tree, which can then be
+	executed by the <classname>ORO_Execution::ExecutionEngine</classname>'s 
+	<classname>ORO_Execution::ProgramProcessor</classname> of a task.
       </para>
       <sect3 id="task-context-functions">
 	<title>Functions</title>
@@ -1632,7 +1682,7 @@ cd                  quit
   } 
   // repeat... </programlisting></para>
 	<para>
-	  where the optional export keyword makes the function
+	  where the optional <option>export</option> keyword makes the function
 	  available as a task's command ( which will fail
 	  if one of its contained commands fail ) :
 	  <programlisting>  do ATask.myFun( 1, 2. )</programlisting>
@@ -1649,8 +1699,10 @@ cd                  quit
 	  and can then safely be deleted (or re-run).</para>
 	<note>
 	  <para>
-	    The <classname>ORO_Execution::Parser</classname> and <classname>ORO_Execution::ProgramLoader</classname> are located in the
-	    Orocos Program Parser package and not in the Task Context package.
+	    The <classname>ORO_Execution::Parser</classname> and
+	    <classname>ORO_Execution::ProgramLoader</classname> are
+	    located in the Orocos Program Parser package and not in
+	    the Task Context package.
 	  </para>
 	</note>
 	<para>
@@ -1669,9 +1721,8 @@ cd                  quit
 	  <para>
 	    Using loadFunction with functions that require arguments will
 	    execute the functions with default initialisation of the arguments.
-	    Use the 'low-level' Orocos API (Parser and Processor) to initialise
-	    and execute functions with arguments. Otherwise, use programs to
-	    call such functions.
+	    It is easier to <option>export</option> the function and invoke it
+	    as a Command. Otherwise, use programs to call such functions.
 	  </para>
 	</warning>
       </sect3>
@@ -1680,9 +1731,10 @@ cd                  quit
 	<para>
 	  Programs are special functions in that they
 	  can be finely controlled once loaded in
-	  the Program Processor.
+	  the <classname>ORO_Execution::ProgramProcessor</classname>.
 	  A program can be paused, it's variables inspected
-	  and reset while it is loaded in the Processor.
+	  and reset while it is loaded in the Processor. It provides
+	  thus more funcitonality than a mere function.
 	  A program script calling the previous function
 	  would look like :</para>
 	<para>
@@ -1733,8 +1785,9 @@ cd                  quit
   var double oldj = programs.foo.j
 	</screen>
 	<para>
-	  Take a look at the &procman; and the ProgramInterface
-	  class reference for more program related functions.
+	  Take a look at the &procman; and the
+	  <classname>ORO_Execution::ProgramInterface</classname> class
+	  reference for more program related functions.
 	</para>
       </sect3>
       <sect3>
@@ -1775,7 +1828,6 @@ cd                  quit
   do states.machine.reactive()
   do states.machine.automatic() // identical to start()
   do states.machine.requestState("StateName")
-  ...
 	</screen>
 	<para>As with programs, you can inspect and change the
 	variables of a loaded StateMachine.</para>
@@ -1795,101 +1847,6 @@ cd                  quit
 	  Orocos scripts.
 	</para>
       </sect3>
-    </sect2>
-    <sect2>
-      <title>Adding Events</title>
-      <para>Events are explained in detail in the &coreman;.
-	To add Real-Time events to your task, you can simply 
-	instantiate it with a given name and add it to the
-	<classname>ORO_Execution::EventService</classname> of your task and/or
-	register it with the Event nameserver by providing a
-	name upon construction:
-      </para>
-      <programlisting>
-  #include &lt;execution/TaskContext.hpp&gt;
-  #include &lt;corelib/Event.hpp&gt;
-
-  class MyTask 
-    : public <classname>ORO_Execution::GenericTaskContext</classname>
-  {
-     <classname>ORO_CoreLib::Event</classname>&lt; void( int ) &gt; myEvent;
-     int data;
-  public:
-     MyTask(std::string name)
-	: <classname>ORO_Execution::GenericTaskContext</classname>(name),
-	  myEvent("theEvent"),    // add "theEvent" to the nameserver
-	  data(0)
-     {
-         // add same event to task's eventService (used for scripting).
-         this->events()->addEvent( "theEvent", myEvent );
-     }
-
-     // ...
-     void update() 
-     {
-        myEvent.fire( data );
-     }
-  }; </programlisting>
-      <para>
-	Another Task can then subscribe a handler to that Event,
-	using its EventService.
-      </para>
-      <programlisting>
-  #include &lt;execution/TaskContext.hpp&gt;
-  #include &lt;corelib/Event.hpp&gt;
-  #include &lt;boost/bind.hpp&gt;
-
-  class MyOtherTask
-    : public <classname>ORO_Execution::GenericTaskContext</classname>
-  {
-     <classname>ORO_CoreLib::TaskPreemptible</classname> ptask;
-     int inputdata;
-     <classname>ORO_CoreLib::Handle</classname> eventhandle;
-  public:
-     MyOtherTask(std::string name)
-	: GenericTaskContext(name),
-          ptask( 0.01, this->engine() ),
-	  inputdata(0)
-     {
-        this->setUpEvent();
-     }
-
-     void setUpEvent()
-     {
-        assert( proc->getTask() != 0 );
-
-        // Setup an asynchronous event handler 'bar'.
-        eventhandle =
-	  <classname>ORO_CoreLib::Event</classname>&lt; void (int) &gt;::nameserver.getObject("theEvent")
-            ->setup( boost::bind( &amp;MyOtherTask::bar, this), 
-                     proc->getTask() );
-
-	// connect it.
-        eventhandle.connect();
-     }
-	
-     // The event handler :
-     void bar( int in ) 
-     {
-	this-&gt;inputdata = in;
-     }
-  }; </programlisting>
-      <para>
-	Anytime "theEvent" is fired, bar() will be called asynchronously
-	in the Task's thread, guaranteeing thread-safe data exchange,
-	thus not requiring any mutex locks. The Orocos scripting framework
-	will use the EventService to lookup events, an event can then
-	be emitted from within a script, using <function>emit</function>:
-      </para>
-      <programlisting>  program myProgram {
-    //...
-    emit theEvent( 5 )
-    // ...
-  }</programlisting>
-      <para>
-	Scripts can only react to events by using the StateMachine
-	infrastructure. See the Program Parser Manual.
-      </para>
     </sect2>
   </sect1>
   <sect1>
@@ -2167,7 +2124,7 @@ cd                  quit
       void setup() 
       {
          // Add Methods :
-         <classname>ORO_Execution::TemplateMethodFactory</classname>&lt;DeviceInterface&gt;* mfact =
+         TemplateMethodFactory&lt;DeviceInterface&gt;* mfact =
             newMethodFactory( this );
          mfact-&gt;add(&quot;setParameter&quot;,
                     method(&amp;DeviceInterface::setParameter,
@@ -2177,7 +2134,7 @@ cd                  quit
          this->methods()->registerObject("this", mfact);
 
          // Add Data Sources :
-         <classname>ORO_Execution::TemplateDataSourceFactory</classname>&lt;DeviceInterface&gt;* dfact =
+         TemplateDataSourceFactory&lt;DeviceInterface&gt;* dfact =
             newDataSourceFactory( this );
          dfact-&gt;add( &quot;getParameter&quot;,
                      data(&amp;DeviceInterface::getParameter,
@@ -2189,7 +2146,7 @@ cd                  quit
          this->datasources()->registerObject("this", dfact);
 
          // Add Commands :
-         <classname>ORO_Execution::TemplateCommandFactory</classname>&lt;DeviceInterface&gt;* cfact =
+         TemplateCommandFactory&lt;DeviceInterface&gt;* cfact =
             newCommandFactory( this );
          cfact-&gt;add( &quot;updateData&quot;,
                         command( &amp;DeviceInterface::updateData,
@@ -2375,7 +2332,7 @@ cd                  quit
   try {
      ComCon comcon =
         peer->commands()->getObjectFactory("objname")->
-	     create("cleanupMess", args );
+	     create("cleanup", args );
   } catch ( ... ) {
      // wrong arguments !
   }
@@ -2511,12 +2468,12 @@ cd                  quit
       <para>
 	The method factory can throw exceptions if the number of
 	arguments, the type of arguments or the command names are
-	unknown.  It returns a <classname>DataSourceBase*</classname>
+	unknown.  It returns a <classname>DataSourceBase</classname>
 	pointer which you <emphasis>must</emphasis> store in a
-	<classname>DataSourceBase::shared_ptr</classname> object, such
+	<classname>DataSourceBase</classname>::shared_ptr object, such
 	that memory deallocation can be managed. If you want the return
 	value of the method, you need to adapt it first to a DataSource
-	of the correct type. <classname>AdaptDataSource&gt;T&lt;()(arg)</classname>
+	of the correct type. <classname>AdaptDataSource</classname>&gt;T&lt;()(arg)
 	will return null if the argument can not be converted to to T.
 	Upon success you can then use the <function>get()</function>
 	function to execute the method <emphasis>and</emphasis> collect
@@ -2531,7 +2488,7 @@ cd                  quit
 	A method, command or completion condition may store the results in its arguments, given
 	that the DataSources are of type <classname>AssignableDataSource</classname>.
 	After the command or method finished, you find the new values in the objects
-	referenced by <classname>vector&lt;DataSourceBase::shared_ptr&gt;</classname>.
+	referenced by vector&lt;DataSourceBase::shared_ptr&gt;.
       </para>
     </sect2>
   </sect1>
