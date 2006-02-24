@@ -12,6 +12,7 @@
 
 <!--- NOTE I HAVE EDITED /usr/share/xml/docbook/stylesheet/nwalsh/fo/qandaset.xsl
       TO WORK AROUND AN DUPLICATE "id" BUG IN FOP : (presented patch is inverted)
+
 Patching the stylesheet is fairly straightforward. Here's the diff from my 
 environment:
 
@@ -320,7 +321,8 @@ Alex Russell
 	  <para>
 	    For running an Orocos application, you need an Intel Pentium-like Processor with minimum 32MB RAM,
 	    but much depends on the application itself. Orocos has not been tested
-	    on other (PowerPC, ARM,...) processors, but an FPU unit (or emulation) is surely needed.
+	    on other (PowerPC, ARM,...) processors, but an FPU unit (or emulation) and
+	    Compare-And-Swap processor instruction is surely needed. See also below.
 	  </para>
 	</answer>
       </qandaentry>
@@ -334,7 +336,7 @@ Alex Russell
 	<answer>
 	  <para>
 	    You can download the 'taskintro' application from the download page.
-	    The RealTime Control Services manual gives a short walk-through in Chapter 7.
+	    The RealTime Control Services manual gives a short walk-through in Chapter 5.
 	    You need to download, build 'control_services' and install Orocos on your system 
 	    to be able to compile the demo.
 	  </para>
