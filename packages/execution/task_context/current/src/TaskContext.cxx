@@ -73,7 +73,9 @@ namespace ORO_Execution
         }
 
     bool TaskContext::startup()
-    {}
+    {
+        return true;
+    }
     void TaskContext::update()
     {}
     void TaskContext::shutdown()

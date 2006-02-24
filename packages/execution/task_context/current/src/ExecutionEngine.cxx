@@ -104,6 +104,9 @@ namespace ORO_Execution
     }
 
     void ExecutionEngine::reparent(ExecutionEngine* new_parent) {
+        Logger::In in("ExecutionEngine");
+        Logger::log() << Logger::Debug << "Reparenting "+taskc->getName()<<Logger::endl;
+
         if (new_parent == this || new_parent == mainee)
             return;
         // first remove from old parent.
@@ -183,8 +186,10 @@ namespace ORO_Execution
             return true;
 
         // call user startup code.
-        if ( taskc->startup() == false )
+        if ( taskc->startup() == false ) {
+            //Logger::log() << Logger::Error << "ExecutionEngine's task startup() failed!" << Logger::endl;
             return false;
+        }
 
         // call all children if we are a mainee
         for (std::vector<ExecutionEngine*>::iterator it = children.begin(); it != children.end();++it){
@@ -193,6 +198,7 @@ namespace ORO_Execution
                 --rit;
                 for ( ; rit != children.rend(); ++rit )
                     (*rit)->taskc->shutdown();
+                //Logger::log() << Logger::Error << "ExecutionEngine's children's startup() failed!" << Logger::endl;
                 return false;
             }
         }
@@ -212,6 +218,7 @@ namespace ORO_Execution
             }
             pproc->finalize();
         }
+        //Logger::log() << Logger::Error << "ExecutionEngine's processors failed!" << Logger::endl;
         return false;
     }
 
