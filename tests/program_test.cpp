@@ -391,12 +391,12 @@ void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test
     ProgramInterfacePtr pi = *pg_list.begin();
 
     tc->engine()->programs()->loadProgram( pi );
-    pi->start();
-    SimulationThread::Instance()->start();
-    gtask.start();
+    CPPUNIT_ASSERT( SimulationThread::Instance()->start() );
+    CPPUNIT_ASSERT( gtask.start() );
+    CPPUNIT_ASSERT( pi->start() );
 //     while (1)
     sleep(1);
-    SimulationThread::Instance()->stop();
+    CPPUNIT_ASSERT( SimulationThread::Instance()->stop() );
 
     if (test ) {
         stringstream errormsg;
@@ -428,8 +428,8 @@ void ProgramTest::loopProgram( ProgramInterfacePtr f)
 
 void ProgramTest::finishProgram(TaskContext* tc, std::string prog_name)
 {
-    gtask.stop();
-    tc->engine()->programs()->getProgram( prog_name )->stop();
+    CPPUNIT_ASSERT( gtask.stop() );
+    CPPUNIT_ASSERT( tc->engine()->programs()->getProgram( prog_name )->stop() );
     tc->engine()->programs()->unloadProgram( prog_name );
 
     TaskContext* ptc= tc->getPeer("programs")->getPeer(prog_name);
