@@ -52,7 +52,7 @@ namespace ORO_CoreLib
     
     PeriodicTask::PeriodicTask(Seconds period, TimerThread* thread, RunnableInterface* r, bool private_event_processor )
       : runner(r),
-	running(false), inError(false), active(false),
+	running(false), active(false),
 	thread_(thread), eprocessor_( private_event_processor ? new EventProcessor() : 0)
     {
         per_ns = Seconds_to_nsecs( period );
@@ -84,7 +84,7 @@ namespace ORO_CoreLib
 
     PeriodicTask::PeriodicTask(secs s, nsecs ns, TimerThread* thread, RunnableInterface* r, bool private_event_processor )
         : runner(r),
-          running(false), inError(false), active(false),
+          running(false), active(false),
           per_ns( secs_to_nsecs(s) + ns),
           thread_(thread),
           eprocessor_( private_event_processor ? new EventProcessor() : 0)
@@ -114,16 +114,19 @@ namespace ORO_CoreLib
 
     bool PeriodicTask::start()
     {
-        if ( isActive() || !thread_->isRunning() )
-	  return false;
+        if ( !timer_ || isActive() || !thread_->isRunning() )
+            return false;
 	
         active = true;
-        inError = !this->initialize();
+        bool inError = !this->initialize();
+        if ( inError ) {
+            //Logger::log() << Logger::Error << "PeriodicTask : initialize() returned false " << Logger::endl;
+            active = false;
+            return false;
+        }
 
         bool res;
-        if ( !inError && timer_ )
-            res = timer_->addTask( this );
-        
+        res = timer_->addTask( this );
 
         if ( res && eprocessor_ ) {
             res = eprocessor_->initialize();
@@ -169,10 +172,10 @@ namespace ORO_CoreLib
     }
 
     bool PeriodicTask::initialize() { 
-      if (runner != 0)
-	return runner->initialize();
-      else
-	return true;
+        if (runner != 0)
+            return runner->initialize();
+        else
+            return true;
     }
 
     void PeriodicTask::doStep()

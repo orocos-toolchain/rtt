@@ -53,6 +53,7 @@ class TasksTest : public CppUnit::TestFixture
 
     // Runnable Interface Test :
     CPPUNIT_TEST( testRunnableInterface );
+    CPPUNIT_TEST( testFailInit );
     
     // Allocation Test : [disabled, kills RTAI/LXRT]
     CPPUNIT_TEST( testAddAllocate );
@@ -74,6 +75,7 @@ class TasksTest : public CppUnit::TestFixture
     TestRunnableInterface*  t_run_int_p;
     TestRunnableInterface*  t_run_int_nrt;
     TestRunnableInterface*  t_run_int_prio;
+    TestRunnableInterface*  t_run_int_fail;
 
     RunnableInterface* t_run_allocate;
     TestSelfRemove* t_self_remove;
@@ -101,7 +103,8 @@ public:
     void testAllocation();
     void testRemoveAllocate();
     void testAddAllocate();
-    
+
+    void testFailInit();
     void testRunnableInterface();
     void testAddRunnableInterface();
     void testRunnableInterfaceInit();

@@ -166,11 +166,6 @@ namespace ORO_CoreLib
         /**
          * State info.
          */
-        bool inError;
-
-        /**
-         * State info.
-         */
         bool active;
 
         /**

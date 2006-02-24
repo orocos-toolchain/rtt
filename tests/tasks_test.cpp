@@ -178,6 +178,7 @@ TasksTest::setUp()
     t_run_int_p =    new TestRunnableInterface(true);
     t_run_int_nrt =  new TestRunnableInterface(true);
     t_run_int_prio = new TestRunnableInterface(true);
+    t_run_int_fail = new TestRunnableInterface(false);
 
     t_run_allocate = new TestAllocate();
     t_self_remove  = new TestSelfRemove();
@@ -199,10 +200,30 @@ TasksTest::tearDown()
     delete t_run_int_p;
     delete t_run_int_nrt;
     delete t_run_int_prio;
+    delete t_run_int_fail;
 
     delete t_run_allocate;
     delete t_self_remove;
     delete tti;
+}
+
+void TasksTest::testFailInit()
+{
+    t_task_np->run( t_run_int_fail );
+    t_task_p->run( t_run_int_fail );
+    t_task_nrt->run( t_run_int_fail );
+    t_task_prio->run( t_run_int_fail );
+
+    CPPUNIT_ASSERT( !t_task_np->start() );
+    CPPUNIT_ASSERT( !t_task_p->start() );
+    CPPUNIT_ASSERT( !t_task_nrt->start() );
+    CPPUNIT_ASSERT( !t_task_prio->start() );
+
+    CPPUNIT_ASSERT( !t_task_np->stop() );
+    CPPUNIT_ASSERT( !t_task_p->stop() );
+    CPPUNIT_ASSERT( !t_task_nrt->stop() );
+    CPPUNIT_ASSERT( !t_task_prio->stop() );
+
 }
 
 void TasksTest::testOverrun()
