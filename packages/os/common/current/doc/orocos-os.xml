@@ -295,6 +295,12 @@
 	change the target processor.
       </para>
       <para>
+	In order to start your port, look at the <filename>fosi_interace.h</filename>
+	and <filename>fosi_internal_interface.h</filename> files in
+	the os/common package. These two files list the C function
+	signatures of all to be ported functions in order to support
+	a new OS. The main categories are: time reading, mutexes,
+	semaphores and threads.
 	The easiest way to port Orocos to another operating sytem, 
 	is to copy the gnulinux package into a new target and start
 	modifying the functions to match those in your OS. This package
