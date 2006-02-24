@@ -76,15 +76,8 @@ namespace ORO_Execution
         return EventC(this, ename);
     }
 
-    ConnectionC EventService::setupSynConnection(const std::string& ename,
-                                                  boost::function<void(void)> func) const {
-        return ConnectionC(this, ename, func, 0 );
-    }
-
-    ConnectionC EventService::setupAsynConnection(const std::string& ename,
-                                                   boost::function<void(void)> func,
-                                                   ORO_CoreLib::EventProcessor* ep) const {
-        return ConnectionC(this, ename, func, ep ); 
+    ConnectionC EventService::setupConnection(const std::string& ename) const {
+        return ConnectionC(this, ename );
     }
 
     ORO_CoreLib::Handle EventService::setupSyn(const std::string& ename,
@@ -101,41 +94,45 @@ namespace ORO_Execution
     ORO_CoreLib::Handle EventService::setupAsyn(const std::string& ename,
                                                 boost::function<void(void)> afunc,          
                                                 const std::vector<DataSourceBase::shared_ptr>& args,
-                                                ORO_CoreLib::TaskInterface* t) const {
-        return this->setupAsyn(ename, afunc, args, t->getEventProcessor() );
+                                                ORO_CoreLib::TaskInterface* t,
+                                                ORO_CoreLib::EventProcessor::AsynStorageType s_type) const {
+        return this->setupAsyn(ename, afunc, args, t->getEventProcessor(), s_type );
     }
         
     ORO_CoreLib::Handle EventService::setupAsyn(const std::string& ename,
                                                 boost::function<void(void)> afunc,          
                                                 const std::vector<DataSourceBase::shared_ptr>& args,
-                                                ORO_CoreLib::EventProcessor* ep /* = ORO_CoreLib::CompletionProcessor::Instance()->getEventProcessor()*/ ) const {
+                                                ORO_CoreLib::EventProcessor* ep /* = ORO_CoreLib::CompletionProcessor::Instance()->getEventProcessor()*/,
+                                                ORO_CoreLib::EventProcessor::AsynStorageType s_type) const {
         if ( fact.count(ename) != 1 )
             return ORO_CoreLib::Handle(); // empty handle.
         detail::EventHookBase* ehi = fact.find(ename)->second->createReceptor( args );
 
         // ehi is stored _inside_ the connection object !
-        return ehi->setupAsyn( afunc, ep ); 
+        return ehi->setupAsyn( afunc, ep, s_type ); 
     }
 
     ORO_CoreLib::Handle EventService::setupSynAsyn(const std::string& ename,
                                                    boost::function<void(void)> sfunc,
                                                    boost::function<void(void)> afunc,
                                                    const std::vector<DataSourceBase::shared_ptr>& args,
-                                                   ORO_CoreLib::TaskInterface* t) const {
-        return this->setupSynAsyn(ename, sfunc, afunc, args, t->getEventProcessor() );
+                                                   ORO_CoreLib::TaskInterface* t,
+                                                   ORO_CoreLib::EventProcessor::AsynStorageType s_type) const {
+        return this->setupSynAsyn(ename, sfunc, afunc, args, t->getEventProcessor(), s_type );
     }
 
     ORO_CoreLib::Handle EventService::setupSynAsyn(const std::string& ename,
                                                    boost::function<void(void)> sfunc,
                                                    boost::function<void(void)> afunc,
                                                    const std::vector<DataSourceBase::shared_ptr>& args,
-                                                   ORO_CoreLib::EventProcessor* ep /*= ORO_CoreLib::CompletionProcessor::Instance()->getEventProcessor()*/ ) const {
+                                                   ORO_CoreLib::EventProcessor* ep /*= ORO_CoreLib::CompletionProcessor::Instance()->getEventProcessor()*/,
+                                                   ORO_CoreLib::EventProcessor::AsynStorageType s_type) const {
         if ( fact.count(ename) != 1 )
             return ORO_CoreLib::Handle(); // empty handle.
         detail::EventHookBase* ehi = fact.find(ename)->second->createReceptor( args );
 
         // ehi is stored _inside_ the connection object !
-        return ehi->setupSynAsyn( sfunc, afunc, ep ); 
+        return ehi->setupSynAsyn( sfunc, afunc, ep, s_type ); 
     }
 
     DataSourceBase::shared_ptr EventService::setupEmit(const std::string& ename,const std::vector<DataSourceBase::shared_ptr>& args) const

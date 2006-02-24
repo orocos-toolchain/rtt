@@ -32,54 +32,78 @@
 #include <corelib/EventProcessor.hpp>
 #include <corelib/Logger.hpp>
 #include <vector>
+#include <boost/bind.hpp>
 
 namespace ORO_Execution
 {
     using namespace ORO_CoreLib;
+    using namespace detail;
+    using namespace boost;
     
     class ConnectionC::D
     {
     public:
         const EventService* mgcf;
         std::string mname;
-        std::vector<DataSourceBase::shared_ptr> args;
-        boost::function<void(void)> mfunc;
+        EventCallBack* syn_ecb;
+        EventCallBack* asyn_ecb;
+        ORO_CoreLib::EventProcessor::AsynStorageType ms_type;
         EventProcessor* mep;
         Handle h;
+        sigslot::handle sh;
+        sigslot::handle ash;
 
+        /**
+         * This method creates connections and stores the Handle objects 
+         * in \a h.
+         */
         void checkAndCreate() {
-            int sz = mgcf->arity(mname);
-            if ( sz == -1 )
-                throw name_not_found_exception(mname);
-            if ( h )
-                throw wrong_number_of_args_exception( sz, sz + 1 );
-            if ( mgcf->hasEvent(mname) && size_t(sz) == args.size() ) {
-                Logger::log() << Logger::Debug << "Creating connection to "+ mname +"."<<Logger::endl;
-                // may throw.
-                if ( mep )
-                    h = mgcf->setupAsyn(mname, mfunc, args, mep );
-                else
-                    h = mgcf->setupSyn(mname, mfunc, args);
-                args.clear();
+            Logger::In in("ConnectionC");
+            Handle asynh;
+            Handle synh;
+            if (syn_ecb ) {
+                Logger::log() << Logger::Info << "Creating Syn connection to "+ mname +"."<<Logger::endl;
+                synh = mgcf->setupSyn(mname, bind(&EventCallBack::callback, syn_ecb), syn_ecb->args());
+                syn_ecb = 0;
             }
+            if (asyn_ecb) {
+                Logger::log() << Logger::Info << "Creating Asyn connection to "+ mname +"."<<Logger::endl;
+                asynh = mgcf->setupAsyn(mname, bind(&EventCallBack::callback, asyn_ecb), asyn_ecb->args(), mep, ms_type);
+                asyn_ecb = 0;
+            }
+            // compose 'end' handle with syn and asyn connection:
+            if (synh && asynh )
+                h = Handle( synh.sighandle1(), asynh.sighandle1() );
+            else if (synh)
+                h = synh;
+            else if (asynh)
+                h = asynh;
         }
 
-        void newarg(DataSourceBase::shared_ptr na)
-        {
-            this->args.push_back( na );
-            this->checkAndCreate();
+        void callback(EventCallBack* ecb) { 
+            if (syn_ecb) {
+                Logger::log() << Logger::Error << "Ignoring added Synchronous 'callback': already present."<<Logger::endl;
+                return;
+            }
+            syn_ecb = ecb; 
+        }
+        void callback(EventCallBack* ecb, EventProcessor* ep, ORO_CoreLib::EventProcessor::AsynStorageType s_type) {
+            if (asyn_ecb) {
+                Logger::log() << Logger::Error << "Ignoring added Asynchronous 'callback': already present."<<Logger::endl;
+                return;
+            }
+            asyn_ecb = ecb; mep = ep; ms_type = s_type;
         }
 
-        D( const EventService* gcf, const std::string& name,
-           boost::function<void(void)> func, EventProcessor* ep)
-            : mgcf(gcf), mname(name), mfunc(func), mep(ep), h()
+        D( const EventService* gcf, const std::string& name)
+            : mgcf(gcf), mname(name), syn_ecb(0), asyn_ecb(0), mep(0), h()
         {
-            this->checkAndCreate();
         }
 
         D(const D& other)
             : mgcf( other.mgcf), mname(other.mname),
-              args( other.args ), mfunc(other.mfunc), h( other.h )
+              syn_ecb( other.syn_ecb ), asyn_ecb( other.asyn_ecb ),
+              mep(other.mep), h( other.h )
         {
         }
 
@@ -87,29 +111,28 @@ namespace ORO_Execution
         {
         }
 
-        Handle handle() const {
+        /**
+         * When handle is invoked, all the created connections
+         * are returned.
+         */
+        Handle handle() {
+            this->checkAndCreate();
             return h;
         }
 
     };
 
     ConnectionC::ConnectionC()
-    : d(0), h()
+        : d(0)
     {}
     
-    ConnectionC::ConnectionC(const EventService* gcf, const std::string& name,
-                             boost::function<void(void)> func, EventProcessor* ep)
-        : d( new D( gcf, name, func, ep) ), h()
+    ConnectionC::ConnectionC(const EventService* gcf, const std::string& name)
+        : d( gcf ? new D( gcf, name ) : 0 )
     {
-        h = d->handle();
-        if (h) {
-            delete d;
-            d = 0;
-        }
     }
 
     ConnectionC::ConnectionC(const ConnectionC& other)
-        : d( other.d ? new D(*other.d) : 0 ), h( other.h )
+        : d( other.d ? new D(*other.d) : 0 )
     {
     }
 
@@ -117,7 +140,6 @@ namespace ORO_Execution
     {
         delete d;
         d = ( other.d ? new D(*other.d) : 0 );
-        h = other.h;
         return *this;
     }
 
@@ -126,20 +148,40 @@ namespace ORO_Execution
         delete d;
     }
 
-    ConnectionC& ConnectionC::arg( DataSourceBase::shared_ptr a )
+    ConnectionC& ConnectionC::mcallback( EventCallBack* ecb)
     {
-        if (d)
-            d->newarg( a );
-        if ( d && d->handle() ) {
-            h = d->handle();
-            Logger::log() << Logger::Debug << "Connection to "+ d->mname +" Created."<<Logger::endl;
-            delete d;
-            d = 0;
+        Logger::In in("ConnectionC");
+        if (d ) {
+            d->callback( ecb );
+        } else {
+            Logger::log() << Logger::Warning << "Ignoring added 'callback' on empty Connection."<<Logger::endl;
         }
         return *this;
     }
 
-    Handle ConnectionC::handle() const {
+    ConnectionC& ConnectionC::mcallback( EventCallBack* ecb, EventProcessor* ep, ORO_CoreLib::EventProcessor::AsynStorageType s_type)
+    {
+        Logger::In in("ConnectionC");
+        if (d) {
+            d->callback( ecb, ep, s_type );
+        } else {
+            Logger::log() << Logger::Warning << "Ignoring added 'callback' on empty Connection."<<Logger::endl;
+        }
+        return *this;
+    }
+
+    Handle ConnectionC::handle() {
+        Logger::In in("ConnectionC");
+
+        Handle h;
+        if (d)
+            h = d->handle();
+
+        // now check if we actually got a valid handle
+        // if nothing new was added, 'h' still has the previous added connections.
+        if ( !h ) {
+            Logger::log() << Logger::Warning << "Empty Connection. Returned invalid handle to Event "+ (d ? d->mname : "") +"."<<Logger::endl;
+        }
         return h;
     }
 }

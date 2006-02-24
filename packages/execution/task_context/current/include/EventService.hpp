@@ -164,44 +164,20 @@ namespace ORO_Execution
         EventC setupEmit(const std::string& ename) const;
 
         /**
-         * Setup a 'handle' to connect a \b synchronous callback to an event.
+         * Setup a ConnectionC object to connect a number of synchronous or asynchronous callbacks to an event.
          * Use this method as in
          @verbatim
-         Handle h = createSynConnection("EventName", &function ).arg( &a ).arg( &b ).handle();
+         Handle h = setupConnection("EventName").callback( &my_function ).handle();
+         h.connect();
+         // or for adding a class method:
+         h = setupConnection("EventName").callback( boost::bind( &MyClass::function, obj) ).handle();
          h.connect();
          @endverbatim
-         * Only reference to variables may be given within arg(), to these variables,
-         * the event data is written.
          * @see ConnectionC
          * @see Handle
          * @throw name_not_found_exception
-         * @throw wrong_number_of_args_exception
-         * @throw wrong_types_of_args_exception
-         * @throw non_lvalue_args_exception
-        */
-        ConnectionC setupSynConnection(const std::string& ename,
-                                        boost::function<void(void)> func) const;
-
-        /**
-         * Create a 'handle' to connect a \b asynchronous callback to an event.
-         * Use this method as in
-         @verbatim
-         EventProcessor = // e.g.: taskc.events();
-         Handle h = createAsynConnection("EventName", &function, eproc ).arg( &a ).arg( &b ).handle();
-         h.connect();
-         @endverbatim
-         * Only reference to variables may be given within arg(), to these variables,
-         * the event data is written.
-         * @see ConnectionC
-         * @see Handle
-         * @throw name_not_found_exception
-         * @throw wrong_number_of_args_exception
-         * @throw wrong_types_of_args_exception
-         * @throw non_lvalue_args_exception
-        */
-        ConnectionC setupAsynConnection(const std::string& ename,
-                                         boost::function<void(void)> func,
-                                         ORO_CoreLib::EventProcessor* ep) const;
+         */
+        ConnectionC setupConnection(const std::string& ename) const;
 
         /**
          * Setup a synchronous Event handler which will set \a args and
@@ -226,17 +202,21 @@ namespace ORO_Execution
          * where \a Tn is the type of the n'th argument of the Event.
          * @param t The task in which the \a args will be set and \a afunc will be called.
          * @param ep The EventProcessor in which the \a args will be set and \a afunc will be called.
+         * @param s_type The method used when event overruns happen. By default, only the first event
+         * is propagated to the callbacks.
          * @{
          */
         ORO_CoreLib::Handle setupAsyn(const std::string& ename,
                                       boost::function<void(void)> afunc,          
                                       const std::vector<DataSourceBase::shared_ptr>& args,
-                                      ORO_CoreLib::TaskInterface* t) const;
+                                      ORO_CoreLib::TaskInterface* t,
+                                      ORO_CoreLib::EventProcessor::AsynStorageType s_type = ORO_CoreLib::EventProcessor::OnlyFirst) const;
         
         ORO_CoreLib::Handle setupAsyn(const std::string& ename,
                                       boost::function<void(void)> afunc,          
                                       const std::vector<DataSourceBase::shared_ptr>& args,
-                                      ORO_CoreLib::EventProcessor* ep = ORO_CoreLib::CompletionProcessor::Instance()->getEventProcessor() ) const;
+                                      ORO_CoreLib::EventProcessor* ep = ORO_CoreLib::CompletionProcessor::Instance()->getEventProcessor(),
+                                      ORO_CoreLib::EventProcessor::AsynStorageType s_type = ORO_CoreLib::EventProcessor::OnlyFirst) const;
         //!@}
         
         /**
@@ -252,19 +232,23 @@ namespace ORO_Execution
          * where \a Tn is the type of the n'th argument of the Event.
          * @param t The task in which the \a args will be set and \a afunc will be called.
          * @param ep The EventProcessor in which the \a args will be set and \a afunc will be called.
+         * @param s_type The method used when event overruns happen. By default, only the first event
+         * is propagated to the callbacks.
          * @{
          */
         ORO_CoreLib::Handle setupSynAsyn(const std::string& ename,
                                          boost::function<void(void)> sfunc,
                                          boost::function<void(void)> afunc,
                                          const std::vector<DataSourceBase::shared_ptr>& args,
-                                         ORO_CoreLib::TaskInterface* t) const;
+                                         ORO_CoreLib::TaskInterface* t,
+                                         ORO_CoreLib::EventProcessor::AsynStorageType s_type = ORO_CoreLib::EventProcessor::OnlyFirst) const;
 
         ORO_CoreLib::Handle setupSynAsyn(const std::string& ename,
                                          boost::function<void(void)> sfunc,
                                          boost::function<void(void)> afunc,
                                          const std::vector<DataSourceBase::shared_ptr>& args,
-                                         ORO_CoreLib::EventProcessor* ep = ORO_CoreLib::CompletionProcessor::Instance()->getEventProcessor() ) const;
+                                         ORO_CoreLib::EventProcessor* ep = ORO_CoreLib::CompletionProcessor::Instance()->getEventProcessor(),
+                                         ORO_CoreLib::EventProcessor::AsynStorageType s_type = ORO_CoreLib::EventProcessor::OnlyFirst) const;
         //! @}
 
         /**

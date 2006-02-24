@@ -67,15 +67,15 @@ namespace ORO_Execution{
                 return msetupSyn();
             }
 
-            Handle setupAsyn(boost::function<void(void)> afunc, EventProcessor* t ) {
+            Handle setupAsyn(boost::function<void(void)> afunc, EventProcessor* t,ORO_CoreLib::EventProcessor::AsynStorageType s_type ) {
                 mafunc = afunc;
-                return msetupAsyn(t);
+                return msetupAsyn(t, s_type);
             }
 
-            Handle setupSynAsyn(boost::function<void(void)> sfunc, boost::function<void(void)> afunc, EventProcessor* t ) {
+            Handle setupSynAsyn(boost::function<void(void)> sfunc, boost::function<void(void)> afunc, EventProcessor* t,ORO_CoreLib::EventProcessor::AsynStorageType s_type ) {
                 msfunc = sfunc;
                 mafunc = afunc;
-                return msetupSynAsyn(t);
+                return msetupSynAsyn(t, s_type);
             }
         protected:
             boost::function<void(void)> msfunc;
@@ -83,9 +83,9 @@ namespace ORO_Execution{
 
             virtual Handle msetupSyn( ) = 0;
 
-            virtual Handle msetupAsyn( EventProcessor* t ) = 0;
+            virtual Handle msetupAsyn( EventProcessor* t,ORO_CoreLib::EventProcessor::AsynStorageType s_type ) = 0;
 
-            virtual Handle msetupSynAsyn( EventProcessor* t ) = 0;
+            virtual Handle msetupSynAsyn( EventProcessor* t,ORO_CoreLib::EventProcessor::AsynStorageType s_type ) = 0;
         };
 
         template<typename EventT>
@@ -111,15 +111,15 @@ namespace ORO_Execution{
                 return h;
             }
 
-            Handle msetupAsyn( EventProcessor* t ) {
-                Handle h = msource->setup( boost::bind(&This::asynop,boost::shared_ptr<This>(this)), t );
+            Handle msetupAsyn( EventProcessor* t,ORO_CoreLib::EventProcessor::AsynStorageType s_type ) {
+                Handle h = msource->setup( boost::bind(&This::asynop,boost::shared_ptr<This>(this)), t, s_type );
                 //seh = 0;
                 return h;
             }
 
-            Handle msetupSynAsyn( EventProcessor* t ) {
+            Handle msetupSynAsyn( EventProcessor* t,ORO_CoreLib::EventProcessor::AsynStorageType s_type ) {
                 boost::shared_ptr<This> seh(this);
-                Handle h = msource->setup( boost::bind(&This::synop,seh), boost::bind(&This::asynop,seh), t );
+                Handle h = msource->setup( boost::bind(&This::synop,seh), boost::bind(&This::asynop,seh), t, s_type );
                 return h;
             }
 
@@ -162,15 +162,15 @@ namespace ORO_Execution{
                 return h;
             }
 
-            Handle msetupAsyn( EventProcessor* t ) {
-                Handle h = msource->setup( boost::bind(&This::asynop,boost::shared_ptr<This>(this),_1), t );
+            Handle msetupAsyn( EventProcessor* t,ORO_CoreLib::EventProcessor::AsynStorageType s_type ) {
+                Handle h = msource->setup( boost::bind(&This::asynop,boost::shared_ptr<This>(this),_1), t, s_type );
                 //seh = 0;
                 return h;
             }
 
-            Handle msetupSynAsyn( EventProcessor* t ) {
+            Handle msetupSynAsyn( EventProcessor* t, ORO_CoreLib::EventProcessor::AsynStorageType s_type ) {
                 boost::shared_ptr<This> seh(this);
-                Handle h = msource->setup( boost::bind(&This::synop,seh,_1), boost::bind(&This::asynop,seh,_1), t );
+                Handle h = msource->setup( boost::bind(&This::synop,seh,_1), boost::bind(&This::asynop,seh,_1), t, s_type );
                 return h;
             }
 
@@ -220,14 +220,14 @@ namespace ORO_Execution{
                 return h;
             }
 
-            Handle msetupAsyn( EventProcessor* t ) {
-                Handle h = msource->setup( boost::bind(&This::asynop,boost::shared_ptr<This>(this),_1,_2), t );
+            Handle msetupAsyn( EventProcessor* t, ORO_CoreLib::EventProcessor::AsynStorageType s_type ) {
+                Handle h = msource->setup( boost::bind(&This::asynop,boost::shared_ptr<This>(this),_1,_2), t, s_type );
                 return h;
             }
 
-            Handle msetupSynAsyn( EventProcessor* t ) {
+            Handle msetupSynAsyn( EventProcessor* t,ORO_CoreLib::EventProcessor::AsynStorageType s_type ) {
                 boost::shared_ptr<This> seh(this);
-                Handle h = msource->setup( boost::bind(&This::synop,seh,_1,_2), boost::bind(&This::asynop,seh,_1,_2), t );
+                Handle h = msource->setup( boost::bind(&This::synop,seh,_1,_2), boost::bind(&This::asynop,seh,_1,_2), t, s_type );
                 return h;
             }
 
@@ -282,14 +282,14 @@ namespace ORO_Execution{
                 return h;
             }
 
-            Handle msetupAsyn( EventProcessor* t ) {
-                Handle h = msource->setup( boost::bind(&This::asynop,boost::shared_ptr<This>(this),_1,_2,_3), t );
+            Handle msetupAsyn( EventProcessor* t, ORO_CoreLib::EventProcessor::AsynStorageType s_type ) {
+                Handle h = msource->setup( boost::bind(&This::asynop,boost::shared_ptr<This>(this),_1,_2,_3), t, s_type );
                 return h;
             }
 
-            Handle msetupSynAsyn( EventProcessor* t ) {
+            Handle msetupSynAsyn( EventProcessor* t, ORO_CoreLib::EventProcessor::AsynStorageType s_type ) {
                 boost::shared_ptr<This> seh(this);
-                Handle h = msource->setup( boost::bind(&This::synop,seh,_1,_2,_3), boost::bind(&This::asynop,seh,_1,_2,_3), t );
+                Handle h = msource->setup( boost::bind(&This::synop,seh,_1,_2,_3), boost::bind(&This::asynop,seh,_1,_2,_3), t, s_type );
                 return h;
             }
 
@@ -402,7 +402,7 @@ namespace ORO_Execution{
                 return new TemplateFactoryFunctorPart0<EventT,EventHookBase*,EventHookGenerator>( EventHookGenerator(), "Event Hook" );
             }
             TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
-                return method<EventT,typename EventT::result_type>(&EventT::emit, "Event Emittor");
+                return method<EventT,typename EventT::emit_type>(&EventT::emit, "Event Emittor");
             }
         };
         
@@ -419,7 +419,7 @@ namespace ORO_Execution{
                 }
 
                 TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
-                    return method<EventT,typename EventT::result_type, typename EventT::arg1_type>(&EventT::emit, "Event Emittor",
+                    return method<EventT,typename EventT::emit_type, typename EventT::arg1_type>(&EventT::emit, "Event Emittor",
                                   "arg1", "description");
                 }
         };
@@ -438,7 +438,7 @@ namespace ORO_Execution{
                 }
 
                 TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
-                    return method<EventT,typename EventT::result_type, typename EventT::arg1_type, typename EventT::arg2_type>(&EventT::emit, "Event Emittor",
+                    return method<EventT,typename EventT::emit_type, typename EventT::arg1_type, typename EventT::arg2_type>(&EventT::emit, "Event Emittor",
                                   "arg1", "description",
                                   "arg2", "description");
                 }
@@ -460,7 +460,7 @@ namespace ORO_Execution{
                 }
 
                 TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
-                    return method<EventT,typename EventT::result_type, typename EventT::arg1_type, typename EventT::arg2_type, 
+                    return method<EventT,typename EventT::emit_type, typename EventT::arg1_type, typename EventT::arg2_type, 
                         typename EventT::arg3_type>(&EventT::emit, "Event Emittor",
                                   "arg1", "description",
                                   "arg2", "description",

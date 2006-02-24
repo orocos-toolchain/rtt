@@ -1371,44 +1371,71 @@ cd                  quit
 	shows how to setup a synchronous connection to the event
 	of the previous examples:
 	<programlisting>  #include &lt;boost/bind.hpp>
+  /**
+   * Example: Connect a class method to an Event.
+   */
   class Reactor {
   public:
-    double a1, a2, a3;
-    void callback() {
-         // ... read a1, a2, a3
+    void react_callback(double a1, double a2, double a3) {
+         // use a1, a2, a3
     }
   };
 
+  /**
+   * Example: Connect a 'C' function to an Event.
+   */
+  void foo_callback( double a1, double a2, double a3 ) {
+      // use a1, a2, a3
+  }
+
+  // Class callback:
   Reactor r;
   <classname>ORO_Execution::ConnectionC</classname> reaction
-    = a_task.events()->setupSynConnection("move", boost::bind(&amp;Reactor::callback, &amp;r))
-         .arg(r.a1).arg(r.a2).arg(r.a3);
+    = a_task.events()->setupConnection("move");
+  reaction.callback(&amp;r, &amp;Reactor::callback ));
   <classname>ORO_Corelib::Handle</classname> h = reaction.handle();
 
   // or in short (note: '.handle()' ):
   <classname>ORO_CoreLib::Handle</classname> h2 
-    = a_task.events()->setupSynConnection("move", boost::bind(&amp;Reactor::callback, &amp;r))
-                 .arg(r.a1).arg(r.a2).arg(r.a3).handle();
+    = a_task.events()->setupConnection("move")
+                 .callback( &amp;r, &amp;Reactor::react_callback )
+                 .handle();
     
   h2.connect(); // connect to event "move"
 
   move_event.emit(); // see previous example.
 
-  // now r.a1 == 0.3, r.a2 == 0.2, r.a3 == 0.1 
-  // and callback() was called.
+  // now Reactor::callback() was called.
 
   h2.disconnect(); // disconnect again.
-	</programlisting>
+
+  // 'C' Function callback:
+  h2 = a_task.events()->setupConnection("move")
+                 .callback( &amp;foo_callback )
+                 .handle();
+
+  h2.connect();
+  move_event.emit()
+
+  // now foo_callback is called with arguments.	</programlisting>
       </para>
+      <note>
+	<para>
+	  Using the <function>boost::bind</function> function is not yet supported
+	  in this interface. You must provide the object and function seperately
+	  in <function>callback()</function>.
+	</para>
+      </note>
       <para>
 	Analogous to the event example in the CoreLib Manual,
 	a class is made to react to the event. A connection
-	is setup between the "move" event and the "callback"
+	is setup between the "move" event and the <function>react_callback</function>
 	function of "r". The connection can be controlled using
 	the handle to connect or disconnect the reaction to events.
 	When <function>connect()</function> is called, every
-	<function>emit()</function> will call <function>callback()</function>
-	with the given arguments.
+	<function>emit()</function> will call <function>react_callback()</function>
+	with the given arguments. Using a 'C' function works analogous as shown
+	above.
       </para>
       <para>
 	A second example continues, but uses an asynchronous connection.
@@ -1421,10 +1448,9 @@ cd                  quit
   ptask_b.start();
 
   <classname>ORO_CoreLib::Handle</classname> h3 
-    = a_task.events()->setupAsynConnection("move",
-                                           boost::bind(&amp;callback, &amp;r),
-                                           b_task.engine()->events() )
-                 .arg(a1).arg(a2).arg(a3).handle();
+    = a_task.events()->setupConnection("move")
+                            .callback(&amp;r, &amp;react_callback,
+                                      b_task.engine()->events() ).handle();
     
   h3.connect(); // connect asynchronously to event "move"
 
@@ -1432,9 +1458,11 @@ cd                  quit
 
   // wait a bit...
 
-  // now r.a1 == 0.3, r.a2 == 0.2, r.a3 == 0.1 
-  // and callback() was called from within b_task.
+  // now react_callback() was called from within b_task's execution engine.
 	</programlisting>
+	Note that after passing the object and function, the EventProcessor
+	of b_task is added in the <function>callback</function> method, such
+	that the callback is executed in b_task's thread.
       </para>
     </sect3>
     <sect3>
