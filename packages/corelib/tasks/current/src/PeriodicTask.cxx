@@ -114,8 +114,10 @@ namespace ORO_CoreLib
 
     bool PeriodicTask::start()
     {
-        if ( !timer_ || isActive() || !thread_->isRunning() )
+        if ( !timer_ || isActive() || !thread_->isRunning() ) {
+            //Logger::log() << Logger::Error << "PeriodicTask : no timer, already active or thread not running." << Logger::endl;
             return false;
+        }
 	
         active = true;
         bool inError = !this->initialize();
@@ -127,8 +129,14 @@ namespace ORO_CoreLib
 
         bool res;
         res = timer_->addTask( this );
+        if ( res == false ) {
+            //Logger::log() << Logger::Error << "PeriodicTask : addTask() returned false " << Logger::endl;
+            this->finalize();
+            active = false;
+            return false;
+        }
 
-        if ( res && eprocessor_ ) {
+        if ( eprocessor_ ) {
             res = eprocessor_->initialize();
             if ( !res ) {
                 this->stop();
