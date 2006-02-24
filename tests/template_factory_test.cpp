@@ -45,10 +45,12 @@ void
 Template_FactoryTest::setUp()
 {
     tc =  new TaskContext( "root" );
-    tc->methodFactory.registerObject("methods", this->createMethodFactory() );
-    tc->commandFactory.registerObject("commands", this->createCommandFactory() );
-    tc->dataFactory.registerObject("data", this->createDataSourceFactory() );
+    tc->methods()->registerObject("methods", this->createMethodFactory() );
+    tc->commands()->registerObject("commands", this->createCommandFactory() );
+    tc->datasources()->registerObject("data", this->createDataSourceFactory() );
+    tc->events()->addEvent("FloatEvent", &t_event_float);
     tsim = new TaskSimulation(0.001, tc->engine() );
+    event_proc = new EventProcessor();
 }
 
 
@@ -61,6 +63,7 @@ Template_FactoryTest::tearDown()
     SimulationThread::Instance()->stop();
     delete tc;
     delete tsim;
+    delete event_proc;
 }
 
 bool Template_FactoryTest::assertBool( bool b) { 
@@ -329,3 +332,75 @@ void Template_FactoryTest::testManual()
     res = GenerateDataSource()( empty1.get(), empty2.get(), empty3.get(), empty4.get() );
     CPPUNIT_ASSERT( res.size() == 4 );
 }
+
+
+int Template_FactoryTest::float_listener(float a, float b)
+{
+    Logger::log() << Logger::Debug << "float_listener "<< a<<", "<<b<<Logger::endl;
+    float_sum += a + b;
+    return 1;
+}
+
+int Template_FactoryTest::float_completer(float a, float b)
+{
+    Logger::log() << Logger::Debug << "float_completer "<< a<<", "<<b<<Logger::endl;
+    float_sub -= (a + b);
+    return 1; // ignored...
+}
+
+
+void Template_FactoryTest::testEventC()
+{
+    float_sum = 0;
+    float_sub = 0;
+    // use CompletionProcessor for completer
+    CompletionProcessor::Instance()->stop();
+    ConnectionC cc = tc->events()->setupConnection("FloatEvent");
+    cc.callback( this, &Template_FactoryTest::float_listener );
+    cc.callback( this, &Template_FactoryTest::float_completer, CompletionProcessor::Instance()->getEventProcessor() );
+    Handle h = cc.handle();
+
+    h.connect();
+
+    EventC mevent = tc->events()->setupEmit("FloatEvent").argC(float(1.0)).argC(float(4.0));
+    mevent.emit();
+    CPPUNIT_ASSERT_EQUAL( float(5.0), float_sum );
+    CPPUNIT_ASSERT_EQUAL( float(0.0),  float_sub );
+
+    float a = 10.0, b = 5.0;
+    mevent = tc->events()->setupEmit("FloatEvent").arg(a).arg(b);
+    mevent.emit();
+    CPPUNIT_ASSERT_EQUAL( float(20.0), float_sum );
+    CPPUNIT_ASSERT_EQUAL( float(0.0),  float_sub );
+
+    CompletionProcessor::Instance()->start();
+    
+    h.disconnect();
+    float_sum = 0;
+    float_sub = 0;
+
+    // use event processor
+    event_proc->initialize();
+
+    cc = tc->events()->setupConnection("FloatEvent").callback( this, &Template_FactoryTest::float_listener);
+    cc.callback( this, &Template_FactoryTest::float_completer, event_proc, ORO_CoreLib::EventProcessor::OnlyLast );
+    h = cc.handle();
+
+    h.connect();
+
+    // simulate overrun :
+    mevent = tc->events()->setupEmit("FloatEvent").argC(float(1.0)).argC(float(4.0));
+    mevent.emit();
+    CPPUNIT_ASSERT_EQUAL( float(5.0), float_sum );
+
+    mevent = tc->events()->setupEmit("FloatEvent").arg(a).arg(b);
+    mevent.emit();
+    CPPUNIT_ASSERT_EQUAL( float(20.0), float_sum );
+
+    event_proc->step();
+    event_proc->finalize();
+    // asyn handlers should reach only last total.
+    CPPUNIT_ASSERT_EQUAL( float(-15.0), float_sub );
+    h.disconnect();
+}
+

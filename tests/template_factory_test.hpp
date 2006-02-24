@@ -40,6 +40,7 @@ class Template_FactoryTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testCommands );
     CPPUNIT_TEST( testCommandsC );
     CPPUNIT_TEST( testManual );
+    CPPUNIT_TEST( testEventC );
     CPPUNIT_TEST_SUITE_END();
 
     Parser parser;
@@ -49,6 +50,12 @@ class Template_FactoryTest : public CppUnit::TestFixture
     MethodFactoryInterface* createMethodFactory();
     DataSourceFactoryInterface* createDataSourceFactory();
     CommandFactoryInterface* createCommandFactory();
+
+    ORO_CoreLib::Event<int( float, float )> t_event_float;
+    int float_listener(float a, float b);
+    int float_completer(float a, float b);
+    ORO_CoreLib::EventProcessor* event_proc;
+    float float_sum, float_sub;
 
     void executePrograms(const Parser::ParsedPrograms& pg_list );
     double m0() { return -d0(); }
@@ -84,6 +91,7 @@ public:
     void testData();
     void testCommands();
     void testCommandsC();
+    void testEventC();
 
     void testManual();
 };

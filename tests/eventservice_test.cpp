@@ -79,31 +79,37 @@ void EventServiceTest::completer0(void)
 
 void EventServiceTest::listener1(const std::string& s)
 {
+    t_listener_done = true;
     t_listener_string=s;
 }
 void EventServiceTest::completer1(const std::string&s) 
 {
+    t_completer_done = true;
     t_completer_string=s;
 }
 void EventServiceTest::listener2(const std::string& s, double f )
 {
+    t_listener_done = true;
     t_listener_string=s;
     t_listener_double=f;
 }
 void EventServiceTest::completer2(const std::string& s, double f)
 {
+    t_completer_done = true;
     t_completer_string=s;
     t_completer_double=f;
 }
 
 void EventServiceTest::listener3(std::string s, double f, bool b)
 {
+    t_listener_done = true;
     t_listener_string=s;
     t_listener_double=f;
     t_listener_bool=b;
 }
 void EventServiceTest::completer3(std::string s, double f, bool b )
 {
+    t_completer_done = true;
     t_completer_string=s;
     t_completer_double=f;
     t_completer_bool=b;
@@ -408,6 +414,9 @@ void EventServiceTest::testEmit3()
     this->cleanup();
 }
 
+void Foo3(string, double, bool)
+{
+}
 
 void EventServiceTest::testEventC()
 {
@@ -417,15 +426,14 @@ void EventServiceTest::testEventC()
     this->setup();
 
     try {
-        h1 = es->setupSynConnection("t_event3", bind(&EventServiceTest::listener0,this)).
-            arg(t_listener_string).arg(t_listener_double).arg(t_listener_bool).handle();
+        //h1 = es->setupConnection("t_event3").callback( Foo3 ).handle();
+        h1 = es->setupConnection("t_event3").callback( this, &EventServiceTest::listener3 ).handle();
     } catch ( std::exception& e ) {
         CPPUNIT_ASSERT_MESSAGE( e.what(), false );
     }
 
     try {
-    h2 = es->setupAsynConnection("t_event3", bind(&EventServiceTest::completer0,this),event_proc).
-        arg(t_completer_string).arg(t_completer_double).arg(t_completer_bool).handle();
+        h2 = es->setupConnection("t_event3").callback( this, &EventServiceTest::completer3 ,event_proc).handle();
     } catch ( std::exception& e ) {
         CPPUNIT_ASSERT_MESSAGE( e.what(), false );
     }

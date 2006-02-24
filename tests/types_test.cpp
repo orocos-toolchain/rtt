@@ -276,7 +276,6 @@ void TypesTest::executePrograms(const Parser::ParsedPrograms& pg_list )
     tsim->start();
     CPPUNIT_ASSERT( (*pg_list.begin())->start() );
     sleep(1);
-    CPPUNIT_ASSERT( (*pg_list.begin())->stop() );
     tsim->stop();
     SimulationThread::Instance()->stop();
     if ( (*pg_list.begin())->inError() ) {
@@ -284,6 +283,13 @@ void TypesTest::executePrograms(const Parser::ParsedPrograms& pg_list )
         errormsg << " Program error on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
         CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
     }
+
+    if ( (*pg_list.begin())->isRunning() ) {
+        stringstream errormsg;
+        errormsg << " Program still running on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
+        CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
+    }
+    CPPUNIT_ASSERT( (*pg_list.begin())->stop() );
     tc->engine()->programs()->unloadProgram( (*pg_list.begin())->getName() );
 }
 
@@ -360,8 +366,8 @@ void TypesTest::testProperties()
         }
     // execute
     executePrograms(pg_list);
-    CPPUNIT_ASSERT( pd1.get() == 4.321 );
-    CPPUNIT_ASSERT( pd3.get() == 3.0 );
+    CPPUNIT_ASSERT_EQUAL( 4.321, pd1.get() );
+    CPPUNIT_ASSERT_EQUAL( 3.0, pd3.get() );
 }
 
     

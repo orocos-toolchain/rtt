@@ -234,20 +234,22 @@ void EventTest::testSelfRemoval()
 {
     SelfRemover runobj(*t_event);
     TaskSimulation task(0.01, &runobj);
-    task.start();
+    CPPUNIT_ASSERT( SimulationThread::Instance()->start() );
+    CPPUNIT_ASSERT( task.start() );
     sleep(1);
-    task.stop();
-    SimulationThread::Instance()->stop();
+    CPPUNIT_ASSERT( task.stop() );
+    CPPUNIT_ASSERT( SimulationThread::Instance()->stop() );
 }
 
 void EventTest::testCrossRemoval()
 {
     CrossRemover runobj(*t_event);
     TaskSimulation task(0.01, &runobj);
-    task.start();
+    CPPUNIT_ASSERT( SimulationThread::Instance()->start() );
+    CPPUNIT_ASSERT( task.start() );
     sleep(1);
-    task.stop();
-    SimulationThread::Instance()->stop();
+    CPPUNIT_ASSERT( task.stop() );
+    CPPUNIT_ASSERT( SimulationThread::Instance()->stop() );
 }
 
 void EventTest::testBlockingTask()

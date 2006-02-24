@@ -333,7 +333,7 @@ void TasksTest::testNonPeriodic()
         scoped_ptr<TaskNonPeriodic> t_task_nonper
             ( new TaskNonPeriodic( 14 ) );
 
-        t_task_nonper->run( t_run_int_nonper.get() );
+        CPPUNIT_ASSERT( t_task_nonper->run( t_run_int_nonper.get() ) );
         CPPUNIT_ASSERT( t_task_nonper->start() );
         sleep(1);
         CPPUNIT_ASSERT( t_run_int_nonper->stepped );
@@ -341,22 +341,22 @@ void TasksTest::testNonPeriodic()
         CPPUNIT_ASSERT( t_task_nonper->stop() );
         CPPUNIT_ASSERT( t_run_int_nonper->fini );
         CPPUNIT_ASSERT( !t_task_nonper->isRunning() );
-        t_task_nonper->run( 0 );
+        CPPUNIT_ASSERT( t_task_nonper->run( 0 ) );
         CPPUNIT_ASSERT( t_task_nonper->start() );
         // now blocks on events :
         CPPUNIT_ASSERT( t_task_nonper->isActive() );
         sleep(1);
         CPPUNIT_ASSERT( t_task_nonper->isRunning() );
         CPPUNIT_ASSERT( t_task_nonper->stop() );
-        // this is fragile, stop() is not fully synchronising...
-        //CPPUNIT_ASSERT( !t_task_nonper->isRunning() );
+        // stop() should be fully synchronising...
+        CPPUNIT_ASSERT( !t_task_nonper->isRunning() );
     }
 }
 
 void TasksTest::testSelfRemove()
 {
-    t_task_np->run(t_self_remove);
-    t_task_np->start();
+    CPPUNIT_ASSERT( t_task_np->run(t_self_remove) );
+    CPPUNIT_ASSERT( t_task_np->start() );
     sleep(1);
     CPPUNIT_ASSERT( !t_task_np->isRunning() );
     CPPUNIT_ASSERT( t_self_remove->fini );
@@ -417,10 +417,10 @@ void TasksTest::testRemoveRunnableInterface()
 
 void TasksTest::testStart()
 {
-    t_task_np->start();
-    t_task_p->start();
-    t_task_nrt->start();
-    t_task_prio->start();
+    CPPUNIT_ASSERT( t_task_np->start() );
+    CPPUNIT_ASSERT( t_task_p->start());
+    CPPUNIT_ASSERT( t_task_nrt->start());
+    CPPUNIT_ASSERT( t_task_prio->start());
     
     CPPUNIT_ASSERT( t_task_np->isRunning() );
     CPPUNIT_ASSERT( t_task_p->isRunning() );
@@ -450,10 +450,10 @@ void TasksTest::testRunnableInterfaceExecution() {
 
 void TasksTest::testStop()
 {
-    t_task_np->stop();
-    t_task_p->stop();
-    t_task_nrt->stop();
-    t_task_prio->stop();
+    CPPUNIT_ASSERT( t_task_np->stop());
+    CPPUNIT_ASSERT( t_task_p->stop());
+    CPPUNIT_ASSERT( t_task_nrt->stop());
+    CPPUNIT_ASSERT( t_task_prio->stop());
     
     CPPUNIT_ASSERT( !t_task_np->isRunning() );
     CPPUNIT_ASSERT( !t_task_p->isRunning() );

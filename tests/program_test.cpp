@@ -60,6 +60,7 @@ ProgramTest::setUp()
 void 
 ProgramTest::tearDown()
 {
+    SimulationThread::Instance()->stop();
     gtask.stop();
     gtc.methodFactory.unregisterObject( "test" );
     gtc.commandFactory.unregisterObject( "test" );

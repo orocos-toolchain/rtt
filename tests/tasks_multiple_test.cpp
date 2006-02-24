@@ -60,18 +60,19 @@ CPPUNIT_TEST_SUITE_REGISTRATION( TasksMultipleTest );
         
         nr_of_p = p_tasks.size();
         nr_of_np = np_tasks.size();
-        for (NPI i=np_tasks.begin(); i != np_tasks.end(); ++i) 
-            {
-                (*i)->start();
-            }
-        for (PI i=p_tasks.begin(); i != p_tasks.end(); ++i) 
-            {
-                (*i)->start();
-            }
     }
 
     void TasksMultipleTest::testMultiple()
     {
+        for (NPI i=np_tasks.begin(); i != np_tasks.end(); ++i) 
+            {
+                CPPUNIT_ASSERT( (*i)->start() );
+            }
+        for (PI i=p_tasks.begin(); i != p_tasks.end(); ++i) 
+            {
+                CPPUNIT_ASSERT( (*i)->start() );
+            }
+
         int runs = 0;
 
         // we lower the 'load' if the period is too short.
@@ -84,14 +85,14 @@ CPPUNIT_TEST_SUITE_REGISTRATION( TasksMultipleTest );
 
         while ( runs++ != 100/correction ) {
             if ( np_tasks[runningNp]->isRunning() )
-                np_tasks[runningNp]->stop();
+                CPPUNIT_ASSERT( np_tasks[runningNp]->stop() );
             if ( !np_tasks[runningNp - 1]->isRunning() )
-                np_tasks[runningNp - 1]->start();
+                CPPUNIT_ASSERT( np_tasks[runningNp - 1]->start() );
 
             if ( p_tasks[runningP]->isRunning() )
-                p_tasks[runningP]->stop();
+                CPPUNIT_ASSERT( p_tasks[runningP]->stop() );
             if ( !p_tasks[runningP - 1]->isRunning() )
-                p_tasks[runningP - 1]->start();
+                CPPUNIT_ASSERT( p_tasks[runningP - 1]->start() );
 
             if ( ++runningP == nr_of_p) runningP = 1;
             if ( ++runningNp == nr_of_np) runningNp = 1;
@@ -102,12 +103,12 @@ CPPUNIT_TEST_SUITE_REGISTRATION( TasksMultipleTest );
         for (NPI i=np_tasks.begin(); i != np_tasks.end(); ++i) 
             {
                 if ( (*i)->isRunning() )
-                    (*i)->stop();
+                    CPPUNIT_ASSERT( (*i)->stop() );
             }
         for (PI i=p_tasks.begin(); i != p_tasks.end(); ++i) 
             {
                 if ( (*i)->isRunning() )
-                    (*i)->stop();
+                    CPPUNIT_ASSERT( (*i)->stop() );
             }
 
         for (unsigned int i=0; i < nr_of_np; ++i) 
