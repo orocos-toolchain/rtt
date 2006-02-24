@@ -155,7 +155,7 @@ namespace ORO_CoreLib
      if ( !handle ) {
         // not valid !
      }
-     * @endverbatim
+     @endverbatim
      */
     class Handle
     {
@@ -170,6 +170,15 @@ namespace ORO_CoreLib
         Handle();
         ~Handle();
 
+        /**
+         * Get the first internal sigslot handle.
+         */
+        sigslot::handle sighandle1() const { return _c; }
+
+        /**
+         * Get the second internal sigslot handle.
+         */
+        sigslot::handle sighandle2() const { return _c2; }
 #if 0
         Handle& operator=(const Handle& h);
 
