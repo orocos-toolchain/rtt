@@ -33,6 +33,7 @@
 #include "execution/ConditionComposite.hpp"
 #include "execution/ConditionBoolDataSource.hpp"
 #include "execution/FactoryExceptions.hpp"
+#include "corelib/Logger.hpp"
 #include <vector>
 
 namespace ORO_Execution
@@ -46,16 +47,19 @@ namespace ORO_Execution
         ComCon comcon;
         std::vector<DataSourceBase::shared_ptr> args;
         bool masyn;
-        bool created() {
-            return comcon.first != 0;
-        }
+
         void checkAndCreate() {
-            if ( mgcf == 0 ||  mgcf->getObjectFactory(mobject) == 0 )
+            Logger::In in("CommandC");
+            if ( mgcf->getObjectFactory(mobject) == 0 ) {
+                Logger::log() <<Logger::Error << "No '"<<mobject<<"' object in this Command Factory."<<Logger::endl;
                 throw name_not_found_exception(mobject);
+            }
+            if (  mgcf->hasCommand(mobject, mname) == false ) {
+                Logger::log() <<Logger::Error << "No such command '"+mname+"' in '"+mobject+"' Command Factory."<<Logger::endl;
+                throw name_not_found_exception(mname);
+            }
             size_t sz = mgcf->getObjectFactory(mobject)->getArgumentList(mname).size();
-            if ( created() )
-                throw wrong_number_of_args_exception( sz, sz + 1 );
-            if ( mgcf->hasCommand(mobject, mname) && sz == args.size() ) {
+            if ( sz == args.size() ) {
                 // may throw.
                 comcon = mgcf->getObjectFactory(mobject)->create(mname, args, false );
                 // command: dispatch a try of the command, collect results to evaluate condition.
@@ -108,7 +112,7 @@ namespace ORO_Execution
     }
 
     CommandC::CommandC(const GlobalCommandFactory* gcf, const std::string& obj, const std::string& name, bool asyn)
-        : d( new D( gcf, obj, name, asyn) ), cc()
+        : d( gcf ? new D( gcf, obj, name, asyn) : 0 ), cc()
     {
         if ( d->comcon.first ) {
             this->cc.first = d->comcon.first->clone();
@@ -155,6 +159,9 @@ namespace ORO_Execution
     {
         if (d)
             d->newarg( a );
+        else {
+            Logger::log() <<Logger::Warning << "Extra argument discarded for CommandC."<<Logger::endl;
+        }
         if ( d && d->comcon.first ) {
             this->cc.first = d->comcon.first->clone();
             this->cc.second = d->comcon.second->clone();
@@ -168,6 +175,14 @@ namespace ORO_Execution
         // execute dispatch command
         if (cc.first)
             return cc.first->execute();
+        else {
+            Logger::log() <<Logger::Error << "execute() called on incomplete CommandC."<<Logger::endl;
+            if (d) {
+                size_t sz = d->mgcf->getObjectFactory(d->mobject)->getArity( d->mname );
+                Logger::log() <<Logger::Error << "Wrong number of arguments provided for command '"+d->mname+"'"<<Logger::nl;
+                Logger::log() <<Logger::Error << "Expected "<< sz << ", got: " << d->args.size() <<Logger::endl;
+            }
+        }
         return false;
     }
 

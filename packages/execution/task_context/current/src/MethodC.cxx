@@ -30,32 +30,36 @@
 #include "execution/MethodC.hpp"
 #include "execution/FactoryExceptions.hpp"
 #include "execution/DataSourceCommand.hpp"
+#include "corelib/Logger.hpp"
 #include <vector>
 
 namespace ORO_Execution
 {
+    using namespace ORO_CoreLib;
     
     class MethodC::D
     {
+    public:
         const GlobalMethodFactory* mgcf;
         std::string mobject, mname;
         std::vector<DataSourceBase::shared_ptr> args;
         TaskAttributeBase* rta;
-    public:
         DataSourceBase::shared_ptr m;
 
         void checkAndCreate() {
+            Logger::In in("MethodC");
             // check validity:
-            if ( mgcf == 0 || mgcf->getObjectFactory(mobject) == 0 )
+            if ( mgcf->getObjectFactory(mobject) == 0 ) {
+                Logger::log() <<Logger::Error << "No '"<<mobject<<"' object in this Method Factory."<<Logger::endl;
                 throw name_not_found_exception(mobject);
-            if ( ! mgcf->getObjectFactory(mobject)->hasMember(mname) )
+            }
+            if ( ! mgcf->getObjectFactory(mobject)->hasMember(mname) ) {
+                Logger::log() <<Logger::Error << "No such method '"+mname+"' in '"+mobject+"' Method Factory."<<Logger::endl;
                 throw name_not_found_exception(mname);
+            }
             size_t sz = mgcf->getObjectFactory(mobject)->getArgumentList(mname).size();
-            // throw if already created.
-            if ( m )
-                throw wrong_number_of_args_exception( sz, sz + 1 );
             // not created, check if it is time to create:
-            if ( mgcf->hasMember(mobject, mname) && sz == args.size() ) {
+            if ( sz == args.size() ) {
                 // may throw.
                 m = mgcf->getObjectFactory(mobject)->create(mname, args );
                 args.clear();
@@ -100,7 +104,7 @@ namespace ORO_Execution
     }
 
     MethodC::MethodC(const GlobalMethodFactory* gcf, const std::string& obj, const std::string& name)
-        : d( new D( gcf, obj, name) ), m()
+        : d( gcf ? new D( gcf, obj, name) : 0 ), m()
     {
         if ( d->m ) {
             this->m = d->m;
@@ -110,7 +114,7 @@ namespace ORO_Execution
     }
 
     MethodC::MethodC(const MethodC& other)
-        : d( other.d ? new D(*other.d) : 0 ), m( d->m ? d->m : 0)
+        : d( other.d ? new D(*other.d) : 0 ), m( other.m ? other.m : 0)
     {
     }
 
@@ -131,6 +135,9 @@ namespace ORO_Execution
     {
         if (d)
             d->newarg( a );
+        else {
+            Logger::log() <<Logger::Warning << "Extra argument discarded for MethodC."<<Logger::endl;
+        }
         if ( d && d->m ) {
             this->m = d->m;
             delete d;
@@ -158,6 +165,14 @@ namespace ORO_Execution
     bool MethodC::execute() {
         if (m)
             return m->evaluate();
+        else {
+            Logger::log() <<Logger::Error << "execute() called on incomplete MethodC."<<Logger::endl;
+            if (d) {
+                size_t sz = d->mgcf->getObjectFactory(d->mobject)->getArity(d->mname);
+                Logger::log() <<Logger::Error << "Wrong number of arguments provided for method '"+d->mname+"'"<<Logger::nl;
+                Logger::log() <<Logger::Error << "Expected "<< sz << ", got: " << d->args.size() <<Logger::endl;
+            }
+        }
         return false;
     }
 

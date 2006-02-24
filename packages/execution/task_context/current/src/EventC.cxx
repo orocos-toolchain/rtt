@@ -29,10 +29,12 @@
 #include "execution/EventService.hpp"
 #include "execution/EventC.hpp"
 #include "execution/FactoryExceptions.hpp"
+#include "corelib/Logger.hpp"
 #include <vector>
 
 namespace ORO_Execution
 {
+    using namespace ORO_CoreLib;
     
     class EventC::D
     {
@@ -43,10 +45,13 @@ namespace ORO_Execution
         DataSourceBase::shared_ptr m;
 
         void checkAndCreate() {
+            Logger::In in("EventC");
+            if ( mgcf == 0 || mgcf->hasEvent(mname) == false ) {
+                Logger::log() <<Logger::Error << "No '"<<mname<<"' event found in the EventService."<<Logger::endl;
+                throw name_not_found_exception(mname);
+            }
             size_t sz = mgcf->arity(mname);
-            if ( m )
-                throw wrong_number_of_args_exception( sz, sz + 1 );
-            if ( mgcf->hasEvent(mname) && sz == args.size() ) {
+            if ( sz == args.size() ) {
                 // may throw.
                 m = mgcf->setupEmit(mname, args );
                 args.clear();
@@ -119,6 +124,9 @@ namespace ORO_Execution
     {
         if (d)
             d->newarg( a );
+        else {
+            Logger::log() <<Logger::Warning << "Extra argument discarded for EventC."<<Logger::endl;
+        }
 
         if (d && d->m) {
             this->m = d->m;
@@ -132,5 +140,15 @@ namespace ORO_Execution
     void EventC::emit() {
         if (m)
             m->evaluate();
+        else {
+            Logger::log() <<Logger::Error << "emit() called on incomplete EventC."<<Logger::endl;
+            if (d) {
+                size_t sz = d->mgcf->arity(d->mname);
+                if ( m ) {
+                    Logger::log() <<Logger::Error << "Wrong number of arguments provided for event '"+d->mname+"'"<<Logger::nl;
+                    Logger::log() <<Logger::Error << "Expected "<< sz << ", got: " << d->args.size() <<Logger::endl;
+                }
+            }
+        }
     }
 }
