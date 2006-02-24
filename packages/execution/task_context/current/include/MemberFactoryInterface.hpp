@@ -89,6 +89,12 @@ namespace ORO_Execution
        */
       virtual std::vector< ArgumentDescription > getArgumentList( const std::string& method ) const = 0;
 
+      /**
+       * Returns the arity (number of arguments) of this method.
+       * @retval -1 When the method does not exist.
+       */
+      virtual int getArity(const std::string& com ) const = 0;
+
     /**
      * Users of this class need to be able to find out what types of
      * arguments are needed for a certain datum.  This method returns

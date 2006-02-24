@@ -28,7 +28,7 @@
  
 #ifndef GENERIC_TASK_CONTEXT_HPP
 #define GENERIC_TASK_CONTEXT_HPP
-// our base class :
+
 #include <execution/TaskContext.hpp>
 
 namespace ORO_Execution

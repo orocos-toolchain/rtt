@@ -57,120 +57,126 @@ namespace ORO_Execution
      */
     class CommandFactoryInterface
     {
-        public:
-            virtual ~CommandFactoryInterface();
+    public:
+        virtual ~CommandFactoryInterface();
 
-            /**
-             * @brief Return whether the command com is available..
-             * throws nothing.
-             */
-            virtual bool hasCommand(const std::string& com) const = 0;
+        /**
+         * @brief Return whether the command com is available..
+         * throws nothing.
+         */
+        virtual bool hasCommand(const std::string& com) const = 0;
 
-            /**
-             * @brief Return a list of all available commands.
-             * throws nothing.
-             */
-            virtual std::vector<std::string> getCommandList() const = 0;
+        /**
+         * @brief Return a list of all available commands.
+         * throws nothing.
+         */
+        virtual std::vector<std::string> getCommandList() const = 0;
 
-            /**
-             * @brief Return the result type of a given command.
-             * @param com The command to get the description from.
-             */
-            virtual std::string getResultType( const std::string& com ) const = 0;
+        /**
+         * Returns the arity (number of arguments) of this command.
+         * @retval -1 When the command does not exist.
+         */
+        virtual int getArity(const std::string& com ) const = 0;
 
-            /**
-             * @brief Return the description of a given command.
-             * @param com The command to get the description from.
-             */
-            virtual std::string getDescription( const std::string& com ) const = 0;
+        /**
+         * @brief Return the result type of a given command.
+         * @param com The command to get the description from.
+         */
+        virtual std::string getResultType( const std::string& com ) const = 0;
 
-            /**
-             * @brief Used to find out what types of arguments
-             * a command needs.
-             *
-             * This method returns a PropertyBag
-             * containing Property's of the types of the arguments..
-             * The user can then fill up this PropertyBag, and
-             * construct a command with it via the create method
-             * below.
-             *
-             * Note that the Properties in the property bag have been
-             * constructed using new, and the caller gains their
-             * ownership.  You should explicitly call
-             * deleteProperties on the bag after you're done with it.
-             * Store the PropertyBag in a PropertyBagOwner if you're
-             * affraid you'll forget it.
-             *
-             * @throw name_not_found_exception
-             */
-            virtual ORO_CoreLib::PropertyBag
-            getArgumentSpec( const std::string& command ) const = 0;
+        /**
+         * @brief Return the description of a given command.
+         * @param com The command to get the description from.
+         */
+        virtual std::string getDescription( const std::string& com ) const = 0;
+
+        /**
+         * @brief Used to find out what types of arguments
+         * a command needs.
+         *
+         * This method returns a PropertyBag
+         * containing Property's of the types of the arguments..
+         * The user can then fill up this PropertyBag, and
+         * construct a command with it via the create method
+         * below.
+         *
+         * Note that the Properties in the property bag have been
+         * constructed using new, and the caller gains their
+         * ownership.  You should explicitly call
+         * deleteProperties on the bag after you're done with it.
+         * Store the PropertyBag in a PropertyBagOwner if you're
+         * affraid you'll forget it.
+         *
+         * @throw name_not_found_exception
+         */
+        virtual ORO_CoreLib::PropertyBag
+        getArgumentSpec( const std::string& command ) const = 0;
 
         /**
          * @brief Return the list of arguments of a certain command.
          */
         virtual std::vector< ArgumentDescription > getArgumentList( const std::string& command ) const = 0;
 
-            /**
-             * @brief The companion to getArgumentSpec().  It takes a
-             * PropertyBag, containing Property's of the same type and
-             * in the same order as the ones that getArgumentSpec()
-             * returned, and constructs a ComCon with it.
-             *
-             * this does not delete the properties in bag, as stated
-             * above, if you obtained the propertybag from
-             * getArgumentSpec, then you're responsible to delete
-             * it.
-             * @throw name_not_found_exception
-             * @throw wrong_number_of_args_exception
-             * @throw wrong_types_of_args_exception
-             */
-            virtual ComCon create( const std::string& command,
-                                   const ORO_CoreLib::PropertyBag& args,
-                                   bool asyn) const = 0;
+        /**
+         * @brief The companion to getArgumentSpec().  It takes a
+         * PropertyBag, containing Property's of the same type and
+         * in the same order as the ones that getArgumentSpec()
+         * returned, and constructs a ComCon with it.
+         *
+         * this does not delete the properties in bag, as stated
+         * above, if you obtained the propertybag from
+         * getArgumentSpec, then you're responsible to delete
+         * it.
+         * @throw name_not_found_exception
+         * @throw wrong_number_of_args_exception
+         * @throw wrong_types_of_args_exception
+         */
+        virtual ComCon create( const std::string& command,
+                               const ORO_CoreLib::PropertyBag& args,
+                               bool asyn) const = 0;
 
-            /**
-             * @brief Create a Command passing DataSources as the arguments.
-             *
-             * In this case, the command factory should *not* read out
-             * the DataSource's, but it should return a Command and a
-             * Condition that store the DataSources, and read them out
-             * in their execute() and evaluate() methods.  They should
-             * of course both keep a reference to the DataSource's
-             * that they store.  These are rather complicated
-             * requirements, you are encouraged to look at the
-             * TemplateCommandFactory or its helper classes to do
-             * (some of) the work for you.
-             * @throw name_not_found_exception
-             * @throw wrong_number_of_args_exception
-             * @throw wrong_types_of_args_exception
-             */
-            virtual ComCon create(
-                const std::string& command,
-                const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args,
-                bool asyn ) const = 0;
+        /**
+         * @brief Create a Command passing DataSources as the arguments.
+         *
+         * In this case, the command factory should *not* read out
+         * the DataSource's, but it should return a Command and a
+         * Condition that store the DataSources, and read them out
+         * in their execute() and evaluate() methods.  They should
+         * of course both keep a reference to the DataSource's
+         * that they store.  These are rather complicated
+         * requirements, you are encouraged to look at the
+         * TemplateCommandFactory or its helper classes to do
+         * (some of) the work for you.
+         * @throw name_not_found_exception
+         * @throw wrong_number_of_args_exception
+         * @throw wrong_types_of_args_exception
+         */
+        virtual ComCon create(
+                              const std::string& command,
+                              const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args,
+                              bool asyn ) const = 0;
 
-            /**
-             * @brief Create a Command passing DataSources as the arguments.
-             *
-             * In this case, the command factory should *not* read out
-             * the DataSource's, but it should return a Command and a
-             * Condition that store the DataSources, and read them out
-             * in their execute() and evaluate() methods.  They should
-             * of course both keep a reference to the DataSource's
-             * that they store.  These are rather complicated
-             * requirements, you are encouraged to look at the
-             * TemplateCommandFactory or its helper classes to do
-             * (some of) the work for you.
-             * @throw name_not_found_exception
-             * @throw wrong_number_of_args_exception
-             * @throw wrong_types_of_args_exception
-             * @deprecated by create( const std::string&,const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& )
-             */
-            virtual ComCon create(
-                const std::string& command,
-                const std::vector<ORO_CoreLib::DataSourceBase*>& args,
-                bool asyn ) const = 0;
+        /**
+         * @brief Create a Command passing DataSources as the arguments.
+         *
+         * In this case, the command factory should *not* read out
+         * the DataSource's, but it should return a Command and a
+         * Condition that store the DataSources, and read them out
+         * in their execute() and evaluate() methods.  They should
+         * of course both keep a reference to the DataSource's
+         * that they store.  These are rather complicated
+         * requirements, you are encouraged to look at the
+         * TemplateCommandFactory or its helper classes to do
+         * (some of) the work for you.
+         * @throw name_not_found_exception
+         * @throw wrong_number_of_args_exception
+         * @throw wrong_types_of_args_exception
+         * @deprecated by create( const std::string&,const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& )
+         */
+        virtual ComCon create(
+                              const std::string& command,
+                              const std::vector<ORO_CoreLib::DataSourceBase*>& args,
+                              bool asyn ) const = 0;
 
     };
 };

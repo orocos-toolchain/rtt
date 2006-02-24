@@ -114,6 +114,14 @@ namespace ORO_Execution
             return mlist;
         }
 
+        int FunctionFactory::getArity( const std::string& foo ) const
+        {
+            map_t::const_iterator orig = funcmap.find(foo);
+            if ( orig == funcmap.end() )
+                return -1;
+            return orig->second->getArguments().size();
+        }
+
         ComCon FunctionFactory::create( const std::string& command,
                        const ORO_CoreLib::PropertyBag& args,
                        bool ) const {

@@ -658,6 +658,11 @@ namespace ORO_Execution
           return _TF::getArgumentList( method );
       }
 
+       int getArity(const std::string& method ) const 
+      {
+          return _TF::getArity(method);
+      }
+
     DataSourceBase* create(
       const std::string& name,
       const ORO_CoreLib::PropertyBag& args ) const

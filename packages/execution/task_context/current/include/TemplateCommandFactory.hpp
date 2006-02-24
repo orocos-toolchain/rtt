@@ -1261,6 +1261,10 @@ namespace ORO_Execution
         return _TF::hasMember( com );
       }
 
+      int getArity(const std::string& com ) const {
+          return _TF::getArity( com );
+      }
+
     std::string getDescription( const std::string& com ) const
       {
         return _TF::getDescription( com );

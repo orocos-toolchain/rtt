@@ -70,6 +70,7 @@ namespace ORO_Execution
 
         std::vector< ArgumentDescription > getArgumentList( const std::string& command ) const;
 
+        int getArity( const std::string& foo ) const;
         ComCon create( const std::string& command,
                        const ORO_CoreLib::PropertyBag& args,
                        bool asyn = true ) const;

@@ -80,6 +80,12 @@ namespace ORO_Execution
             return other->getDescription(com);
         }
 
+        virtual int getArity(const std::string& com ) const {
+            if ( one->hasCommand( com ) )
+                return one->getArity(com);
+            return other->getArity(com);
+        }
+
         ORO_CoreLib::PropertyBag
         getArgumentSpec( const std::string& command ) const
         {

@@ -173,6 +173,12 @@ namespace ORO_Execution
        * the ArgumentDescription format.
        */
       virtual std::vector<ArgumentDescription> getArgumentList() const = 0;
+
+      /**
+       * Returns the arity (number of arguments) of this part.
+       */
+      virtual int arity() const = 0;
+
       /**
        * Create one part (function object) for a given component.
        * @param com The target object whose function is called.
@@ -213,6 +219,8 @@ namespace ORO_Execution
       {
         return std::vector<ArgumentDescription>();
       }
+
+      int arity() const { return 0; }
 
     ResultT produce(
       ComponentT* comp,
@@ -260,6 +268,8 @@ namespace ORO_Execution
         ret.add( new Property<first_argument_type>( arg1name, arg1desc ) );
         return ret;
       }
+
+      int arity() const { return 1; }
 
     ResultT produce(
       ComponentT* comp,
@@ -320,6 +330,8 @@ namespace ORO_Execution
         ret.add( new Property<second_argument_type>( arg2name, arg2desc ) );
         return ret;
       }
+
+      int arity() const { return 2; }
 
     ResultT produce( ComponentT* comp, const std::vector<DataSourceBase::shared_ptr>& args, bool read_now ) const
       {
@@ -393,6 +405,8 @@ namespace ORO_Execution
           mlist.push_back( ArgumentDescription( arg3name, arg3desc, DataSource<third_argument_type>::GetType() ) );
           return mlist;
       }
+
+      int arity() const { return 3; }
 
     ResultT produce( ComponentT* comp, const std::vector<DataSourceBase::shared_ptr>& args, bool read_now ) const
       {
@@ -477,6 +491,8 @@ namespace ORO_Execution
           mlist.push_back( ArgumentDescription( arg4name, arg4desc, DataSource<fourth_argument_type>::GetType() ) );
           return mlist;
       }
+
+      int arity() const { return 4; }
 
     ResultT produce( ComponentT* comp, const std::vector<DataSourceBase::shared_ptr>& args, bool read_now ) const
       {
@@ -624,6 +640,13 @@ namespace ORO_Execution
     bool hasMember( const std::string& name ) const
       {
         return data.find( name ) != data.end();
+      }
+
+      int getArity( const std::string& name ) const
+      {
+          typename map_t::const_iterator i = data.find( name );
+          if ( i == data.end() ) return -1;
+          return i->second->arity();
       }
 
     ResultT produce( const std::string& name, const ORO_CoreLib::PropertyBag& args ) const
