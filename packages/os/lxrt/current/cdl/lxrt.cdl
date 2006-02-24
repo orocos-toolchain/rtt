@@ -20,6 +20,7 @@ support for all packages used in Orocos."
     implements OROINT_OS_TARGET
     implements OROINT_OS_STDCXXLIB
     implements OROINT_OS_MAIN
+    implements OROINT_OS_MAIN_THREAD
     implements OROINT_OS_LINUX_IOPERM
 
     cdl_option OROSEM_OS_LXRT_CHECK {

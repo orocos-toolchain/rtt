@@ -16,6 +16,7 @@ real-time userspace applications"
     implements OROINT_OS_TARGET
     implements OROINT_OS_STDCXXLIB
     implements OROINT_OS_MAIN
+    implements OROINT_OS_MAIN_THREAD
     implements OROINT_OS_LINUX_IOPERM
 
     requires OROPKG_SUPPORT_XENOMAI

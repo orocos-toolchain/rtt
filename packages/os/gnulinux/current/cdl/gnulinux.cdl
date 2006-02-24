@@ -17,6 +17,7 @@ debugging other packages."
     implements OROINT_OS_TARGET
     implements OROINT_OS_STDCXXLIB
     implements OROINT_OS_LINUX_IOPERM
+    implements OROINT_OS_MAIN
 
 
     cdl_component OROBLD_OS_ENABLE_LINUX_KERNEL {

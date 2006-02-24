@@ -53,7 +53,7 @@ using ORO_CoreLib::Logger;
 using ORO_CoreLib::TimeService;
 #endif
  
-#ifdef HAVE_MANUAL_MAIN
+#ifdef ORO_OS_HAVE_MAIN_THREAD
 #include "os/MainThread.hpp"
 
 static ORO_OS::MainThread* mainT;
@@ -65,11 +65,11 @@ static ORO_OS::StartStopManager* initM;
 extern "C"
 int __os_init(int argc, char** argv )
 {
-#ifdef HAVE_MANUAL_CRT
+#ifdef ORO_OS_HAVE_MANUAL_CRT
     DO_GLOBAL_CTORS();
 #endif
 
-#ifdef HAVE_MANUAL_MAIN
+#ifdef ORO_OS_HAVE_MAIN_THREAD
     // this must be called to init the os scheduler, which is used in
     // any ComponentActive. Call this only once EVER.
     mainT = ORO_OS::MainThread::Instance();
@@ -98,7 +98,7 @@ void __os_exit(void)
     initM->stop();
     ORO_OS::StartStopManager::Release();
 
-#if defined(HAVE_MANUAL_MAIN) && defined(OROPKG_CORELIB_REPORTING)
+#if defined(ORO_OS_HAVE_MAIN_THREAD) && defined(OROPKG_CORELIB_REPORTING)
     // This should be the (one but) last message to be logged :
     Logger::log() << Logger::Debug << "Stopping MainThread." << Logger::endl;
 #endif
@@ -112,11 +112,11 @@ void __os_exit(void)
     TimeService::Release();
 #endif
     // Stop Main Thread
-#ifdef HAVE_MANUAL_MAIN
+#ifdef ORO_OS_HAVE_MAIN_THREAD
     ORO_OS::MainThread::Release();
 #endif
 
-#ifdef HAVE_MANUAL_CRT
+#ifdef ORO_OS_HAVE_MANUAL_CRT
     DO_GLOBAL_DTORS();
 #endif
 }

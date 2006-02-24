@@ -29,7 +29,13 @@
  * @file main.cxx
  * This file contains the start-up code of the framework
  * and will call in turn the user's ORO_main() function.
+ * Only compile the main() function if the OS calls it.
+ * Otherwise, your port (ie target) must compile a file
+ * which calls the user's ORO_main function.
+ * (See os.cdl)
  */
+#include "pkgconf/os.h"
+#ifdef ORO_OS_HAVE_MAIN
 
 #include <os/startstop.h>
 #include <os/main.h>
@@ -44,7 +50,6 @@
 #include "corelib/Logger.hpp"
 using ORO_CoreLib::Logger;
 #endif
-#include "pkgconf/os.h"
 
 #ifdef OROPKG_DEVICE_INTERFACE
 # include "pkgconf/device_interface.h"
@@ -160,3 +165,5 @@ int main(int argc, char** argv)
 
     return res;
 }
+
+#endif // ORO_OS_HAVE_MAIN

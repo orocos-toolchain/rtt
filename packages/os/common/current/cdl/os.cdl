@@ -315,14 +315,21 @@ compilation times."
 	display "Target calls global constructors"
 	flavor bool
 	requires OROINT_OS_GLOBAL_CRT <= 1
-	define HAVE_MANUAL_CRT
+	define ORO_OS_HAVE_MANUAL_CRT
     }
 
     cdl_interface OROINT_OS_MAIN {
-	display "Target which simulates a main function"
+	display "Target which calls the main() function"
 	flavor bool
 	requires OROINT_OS_MAIN <= 1
-	define HAVE_MANUAL_MAIN
+	define ORO_OS_HAVE_MAIN
+    }
+
+    cdl_interface OROINT_OS_MAIN_THREAD {
+	display "Target with MainThread class"
+	flavor bool
+	requires OROINT_OS_MAIN <= 1
+	define ORO_OS_HAVE_MAIN_THREAD
     }
 
     cdl_interface OROINT_OS_LINUX_IOPERM {
