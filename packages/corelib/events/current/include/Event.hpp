@@ -72,7 +72,14 @@ namespace ORO_CoreLib
         typedef _Signature Signature;
         typedef _SlotFunction SlotFunction;
 
+        /**
+         * The result type of the function signature.
+         */
         typedef typename boost::function_traits<_Signature>::result_type result_type;
+        /**
+         * The result type of emit().
+         */
+        typedef void emit_type;
 
         /**
          * Create a named Synchronous/Asynchronous Event.
