@@ -82,7 +82,7 @@ namespace ORO_CoreLib
                 //ATOMIC_INIT(count);
                 atomic_set(&count,-1);
             }
-            atomic_t count;  // refcount
+            mutable atomic_t count;  // refcount
             std::vector<T> data;
         };
 
@@ -138,7 +138,7 @@ namespace ORO_CoreLib
         {
             Item* nextbuf = findEmptyBuf(); // find unused Item in bufs
             nextbuf->data.clear();
-            Item* orig=0;
+            const Item* orig=0;
             int items = 0;
             do {
                 if (orig)
@@ -167,7 +167,7 @@ namespace ORO_CoreLib
         {
             write_policy.pop();
             Item* usingbuf = findEmptyBuf(); // find unused Item in bufs
-            Item* orig=0;
+            const Item* orig=0;
             do {
                 if (orig)
                     atomic_dec(&orig->count);
@@ -202,7 +202,7 @@ namespace ORO_CoreLib
         {
             write_policy.pop();
             Item* usingbuf = findEmptyBuf(); // find unused Item in bufs
-            Item* orig=0;
+            const Item* orig=0;
             int towrite  = items.size();
             do {
                 if (orig)
@@ -237,12 +237,21 @@ namespace ORO_CoreLib
             return this->Pop( res );
         }
 
+        value_t front() const {
+            const Item* orig = lockAndGetActive();
+            value_t ret = value_t();
+            if ( !orig->data.empty() )
+                ret = orig->data.front();
+            atomic_dec( &orig->count );
+            return ret;
+        }
+
         bool Pop( reference_t item )
         {
             read_policy.pop();
             Item* nextbuf = findEmptyBuf(); // find unused Item in bufs
             nextbuf->data.clear();
-            Item* orig=0;
+            const Item* orig=0;
             do {
                 if (orig)
                     atomic_dec(&orig->count);
@@ -250,7 +259,7 @@ namespace ORO_CoreLib
                 if ( orig->data.empty() ) {
                     atomic_dec( &orig->count );
                     atomic_dec( &nextbuf->count );
-		    read_policy.push();
+                    read_policy.push();
                     return false;
                 }
                 item = orig->data.front();
@@ -279,7 +288,7 @@ namespace ORO_CoreLib
             read_policy.pop(); // read at least 1 item.
             Item* nextbuf = findEmptyBuf(); // find unused Item in bufs
             nextbuf->data.clear(); // an empty buffer will become active next.
-            Item* orig=0;
+            const Item* orig=0;
             do {
                 if (orig)
                     atomic_dec(&orig->count);
@@ -310,8 +319,8 @@ namespace ORO_CoreLib
 
         // This is a kind-of smart-pointer implementation
         // We could move it into Item itself and overload operator=
-        Item* lockAndGetActive() {
-            Item* orig=0;
+        const Item* lockAndGetActive() const {
+            const Item* orig=0;
             do {
                 if (orig)
                     atomic_dec( &orig->count );

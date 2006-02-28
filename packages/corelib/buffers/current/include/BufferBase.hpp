@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 10 16:16:58 CEST 2002  ReadInterface.hpp 
+  tag: Peter Soetens  Thu Oct 10 16:16:57 CEST 2002  BufferInterface.hpp 
 
-                        ReadInterface.hpp -  description
+                        BufferInterface.hpp -  description
                            -------------------
     begin                : Thu October 10 2002
     copyright            : (C) 2002 Peter Soetens
@@ -25,57 +25,52 @@
  *                                                                         *
  ***************************************************************************/ 
  
+#ifndef ORO_CORELIB_BUFFERBASE_HPP
+#define ORO_CORELIB_BUFFERBASE_HPP
 
-#ifndef ORO_CORELIB_READINTERFACE_HPP
-#define ORO_CORELIB_READINTERFACE_HPP
-
-#include <boost/call_traits.hpp>
-#include <vector>
-#include "BufferBase.hpp"
+#include <boost/shared_ptr.hpp>
 
 namespace ORO_CoreLib
 {
-
     /**
-     * This interface describes a read interface for value types.
-     * @param T The value type read from this buffer.
+     * Any Buffer has a capacity, size and can be empty or full.
+     * This class contains the type-independent methods of a Buffer.
      */
-    template<class T>
-    class ReadInterface
-        : public virtual BufferBase
+    class BufferBase
     {
     public:
-        typedef T value_t;
-        typedef typename boost::call_traits<T>::reference reference_t;
-
         typedef unsigned int size_t;
 
-        /**
-         * Read the oldest value from the buffer.
-         * @param item is to be set with a value from the buffer.
-         * @return true if something was read.
-         */
-        virtual bool Pop( reference_t item) = 0;
+        typedef boost::shared_ptr< BufferBase > shared_ptr;
 
-        /**
-         * Read the whole buffer.
-         * @param items is to be filled with all values in the buffer,
-         * with \a items.begin() the oldest value.
-         * @return the number of items read.
-         */
-        virtual size_t Pop( std::vector<value_t>& items ) = 0;
-
-        /**
-         * Get the next value to be Pop()'ed, or
-         * the default value if empty.
-         */
-        virtual value_t front() const = 0;
-
-        virtual ~ReadInterface()
+        virtual ~BufferBase()
         {}
 
+        /**
+         * Returns the maximum number of items that can be stored in the
+         * buffer.
+         * @return maximum number of items.
+         */
+        virtual size_t capacity() const = 0;
+
+        /**
+         * Returns the actual number of items that are stored in the
+         * buffer.
+         * @return number of items.
+         */
+        virtual size_t size() const = 0;
+
+        /**
+         * Check if this buffer is empty.
+         * @return true if empty
+         */
+        virtual bool empty() const = 0;
+
+        /**
+         * Clears all contents of this buffer.
+         */
+        virtual void clear() = 0;
     };
 }
 
-#endif // READINTERFACE_HPP
-
+#endif

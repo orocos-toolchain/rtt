@@ -30,6 +30,7 @@
 
 #include "ReadInterface.hpp"
 #include "WriteInterface.hpp"
+#include <boost/shared_ptr.hpp>
 
 namespace ORO_CoreLib
 {
@@ -46,33 +47,10 @@ namespace ORO_CoreLib
         typedef T value_t;
         typedef unsigned int size_t;
 
+        typedef boost::shared_ptr< BufferInterface<T> > shared_ptr;
+
         virtual ~BufferInterface()
         {}
-
-        /**
-         * Returns the maximum number of items that can be stored in the
-         * buffer.
-         * @return maximum number of items.
-         */
-        virtual size_t capacity() const = 0;
-
-        /**
-         * Returns the actual number of items that are stored in the
-         * buffer.
-         * @return number of items.
-         */
-        virtual size_t size() const = 0;
-
-        /**
-         * Check if this buffer is empty.
-         * @return true if empty
-         */
-        virtual bool empty() const = 0;
-
-        /**
-         * Clears all contents of this buffer.
-         */
-        virtual void clear() = 0;
     };
 }
 

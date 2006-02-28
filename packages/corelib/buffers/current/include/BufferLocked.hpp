@@ -111,6 +111,14 @@ namespace ORO_CoreLib
             return quant;
         }
 
+        value_t front() const
+        {
+            ORO_OS::MutexLock locker(lock);
+            value_t item = value_t();
+            if ( !buf.empty() )
+                item = buf.front();
+            return item;
+        }
         size_t capacity() const {
             ORO_OS::MutexLock locker(lock);
             return buf.capacity();
@@ -124,6 +132,10 @@ namespace ORO_CoreLib
         void clear() {
             ORO_OS::MutexLock locker(lock);
             buf.clear();
+        }
+
+        bool empty() const {
+            return buf.empty();
         }
     private:
         std::vector<T> buf;

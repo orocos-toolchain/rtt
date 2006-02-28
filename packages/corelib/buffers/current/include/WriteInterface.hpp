@@ -30,6 +30,7 @@
 
 #include <boost/call_traits.hpp>
 #include <vector>
+#include "BufferBase.hpp"
 
 namespace ORO_CoreLib
 {
@@ -39,6 +40,7 @@ namespace ORO_CoreLib
      */
     template<class T>
     class WriteInterface
+        : public virtual BufferBase
     {
     public:
         typedef T value_t;
