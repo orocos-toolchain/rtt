@@ -69,13 +69,9 @@ namespace ORO_Execution
         mfact->add( "unloadStateMachine",
                     method( &GenericTaskContext::unloadStateMachine, "Unload an Orocos State Description from a file.",
                             "StateMachineName", "A name of a Root StateMachine instantiation.") );
-        this->methodFactory.registerObject("this", mfact); 
-
-        // Register our datasources :
-        TemplateDataSourceFactory<GenericTaskContext>* dsfact = newDataSourceFactory( this );
-        dsfact->add( "isRunning",
-                     data( &GenericTaskContext::isRunning, "Is this GenericTaskContext started ?" ) );
-        this->dataFactory.registerObject("this", dsfact); 
+        mfact->add( "isRunning",
+                    method( &GenericTaskContext::isRunning, "Is this GenericTaskContext started ?" ) );
+        this->methods()->registerObject("this", mfact); 
     }
 
     GenericTaskContext::~GenericTaskContext()
