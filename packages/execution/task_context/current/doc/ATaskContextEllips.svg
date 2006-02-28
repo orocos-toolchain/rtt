@@ -1,0 +1,927 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1062.9921"
+   height="814.96063"
+   viewBox="2 4 30 23"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.32"
+   sodipodi:docname="ATaskContextEllips.svg"
+   sodipodi:docbase="/home/sspr/src/orocos-trunk/packages/execution/task_context/current/doc"
+   version="1.0"
+   x="0.0000000"
+   y="0.0000000">
+  <metadata
+     id="metadata257">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs255" />
+  <sodipodi:namedview
+     inkscape:window-height="706"
+     inkscape:window-width="965"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     inkscape:zoom="0.42210628"
+     inkscape:cx="531.49603"
+     inkscape:cy="407.48032"
+     inkscape:window-x="51"
+     inkscape:window-y="0"
+     inkscape:current-layer="layer4" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer6"
+     inkscape:label="Drawing">
+    <g
+       id="g4275">
+      <rect
+         id="rect4"
+         height="15.000000"
+         width="8.0499001"
+         y="7.0000000"
+         x="2.9500999"
+         style="fill:#add8e6"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect6"
+         height="15.000000"
+         width="8.0499001"
+         y="7.0000000"
+         x="2.9500999"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000;stroke-dasharray:0.20000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect8"
+         height="3.0000000"
+         width="4.0000000"
+         y="19.000000"
+         x="12.000000"
+         style="fill:#bffcbf"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect10"
+         height="3.0000000"
+         width="4.0000000"
+         y="19.000000"
+         x="12.000000"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.079999998;stroke-dasharray:1.0000000 0.40000000 0.20000000 0.40000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect12"
+         height="11.000000"
+         width="4.0000000"
+         y="7.0000000"
+         x="12.000000"
+         style="fill:#bffbbf"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect14"
+         height="11.000000"
+         width="4.0000000"
+         y="7.0000000"
+         x="12.000000"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.079999998;stroke-dasharray:1.0000000 0.40000000 0.20000000 0.40000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect16"
+         height="17.000000"
+         width="11.200100"
+         y="6.0000000"
+         x="21.000000"
+         style="fill:#add8e6"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect18"
+         height="17.000000"
+         width="11.200100"
+         y="6.0000000"
+         x="21.000000"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect20"
+         height="4.0850000"
+         width="6.2301002"
+         y="6.5650001"
+         x="24.270000"
+         style="fill:#ffa500"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect22"
+         height="4.0850000"
+         width="6.2301002"
+         y="6.5650001"
+         x="24.270000"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect24"
+         height="4.0000000"
+         width="6.0000000"
+         y="7.0000000"
+         x="24.000000"
+         style="fill:#ffa500"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect26"
+         height="4.0000000"
+         width="6.0000000"
+         y="7.0000000"
+         x="24.000000"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect28"
+         height="3.0000000"
+         width="4.0000000"
+         y="6.0000000"
+         x="17.000000"
+         style="fill:#90ee90"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect30"
+         height="3.0000000"
+         width="4.0000000"
+         y="6.0000000"
+         x="17.000000"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <text
+         id="text32"
+         y="7.6500001"
+         x="19.000099"
+         style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Events</text>
+      <rect
+         id="rect34"
+         height="3.0000000"
+         width="4.0000000"
+         y="16.000000"
+         x="17.000000"
+         style="fill:#90ee90"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect36"
+         height="3.0000000"
+         width="4.0000000"
+         y="16.000000"
+         x="17.000000"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <text
+         id="text38"
+         y="17.6"
+         x="18.9501"
+         style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Methods</text>
+      <rect
+         id="rect40"
+         height="4.0000000"
+         width="4.0000000"
+         y="19.000000"
+         x="17.000000"
+         style="fill:#90ee90"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect42"
+         height="4.0000000"
+         width="4.0000000"
+         y="19.000000"
+         x="17.000000"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <text
+         id="text44"
+         y="5"
+         x="19"
+         style="font-size:0.89999998px;font-style:italic;font-weight:700;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Public</text>
+      <text
+         id="text46"
+         y="5.9000001"
+         x="19"
+         style="font-size:0.89999998px;font-style:italic;font-weight:700;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Interface</text>
+      <text
+         id="text48"
+         y="8"
+         x="27"
+         style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">State Machines,</text>
+      <text
+         id="text50"
+         y="8.8000002"
+         x="27"
+         style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Programs,</text>
+      <text
+         id="text52"
+         y="9.6000004"
+         x="27"
+         style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Functions,</text>
+      <text
+         id="text54"
+         y="10.4"
+         x="27"
+         style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Commands</text>
+      <text
+         id="text56"
+         y="21"
+         x="19"
+         style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Data-Flow</text>
+      <text
+         id="text58"
+         y="21.799999"
+         x="19"
+         style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Ports</text>
+      <line
+         id="line60"
+         y2="14.000000"
+         x2="16.513201"
+         y1="14.000000"
+         x1="10.000000"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon62"
+         points="16.888200,14.000000 16.388200,14.250000 16.513200,14.000000 16.388200,13.750000 16.888200,14.000000 "
+         style="fill:#000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon64"
+         points="16.888200,14.000000 16.388200,14.250000 16.513200,14.000000 16.388200,13.750000 16.888200,14.000000 "
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <line
+         id="line66"
+         y2="20.000000"
+         x2="16.513201"
+         y1="20.000000"
+         x1="10.786900"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon68"
+         points="10.411900,20.000000 10.911900,19.750000 10.786900,20.000000 10.911900,20.250000 10.411900,20.000000 "
+         style="fill:#000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon70"
+         points="10.411900,20.000000 10.911900,19.750000 10.786900,20.000000 10.911900,20.250000 10.411900,20.000000 "
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon72"
+         points="16.888200,20.000000 16.388200,20.250000 16.513200,20.000000 16.388200,19.750000 16.888200,20.000000 "
+         style="fill:#000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon74"
+         points="16.888200,20.000000 16.388200,20.250000 16.513200,20.000000 16.388200,19.750000 16.888200,20.000000 "
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <line
+         id="line76"
+         y2="8.0000000"
+         x2="21.486799"
+         y1="8.0000000"
+         x1="24.000000"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon78"
+         points="21.111800,8.0000000 21.611800,7.7500000 21.486800,8.0000000 21.611800,8.2500000 21.111800,8.0000000 "
+         style="fill:#000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon80"
+         points="21.111800,8.0000000 21.611800,7.7500000 21.486800,8.0000000 21.611800,8.2500000 21.111800,8.0000000 "
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <line
+         id="line82"
+         y2="14.000000"
+         x2="24.113300"
+         y1="14.000000"
+         x1="21.000000"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon84"
+         points="24.488300,14.000000 23.988300,14.250000 24.113300,14.000000 23.988300,13.750000 24.488300,14.000000 "
+         style="fill:#000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon86"
+         points="24.488300,14.000000 23.988300,14.250000 24.113300,14.000000 23.988300,13.750000 24.488300,14.000000 "
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <line
+         id="line88"
+         y2="18.000000"
+         x2="22.513201"
+         y1="18.000000"
+         x1="21.000000"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon90"
+         points="22.888200,18.000000 22.388200,18.250000 22.513200,18.000000 22.388200,17.750000 22.888200,18.000000 "
+         style="fill:#000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon92"
+         points="22.888200,18.000000 22.388200,18.250000 22.513200,18.000000 22.388200,17.750000 22.888200,18.000000 "
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <line
+         id="line94"
+         y2="8.0463896"
+         x2="10.736900"
+         y1="8.0000000"
+         x1="17.000000"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon96"
+         points="10.361900,8.0491700 10.860000,7.7954800 10.736900,8.0463900 10.863700,8.2954600 10.361900,8.0491700 "
+         style="fill:#000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon98"
+         points="10.361900,8.0491700 10.860000,7.7954800 10.736900,8.0463900 10.863700,8.2954600 10.361900,8.0491700 "
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <text
+         id="text100"
+         y="22.35"
+         x="28.6001"
+         style="font-size:1.0000000px;font-style:italic;font-weight:700;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">A Task Context</text>
+      <text
+         id="text102"
+         y="5.25"
+         x="26.000099"
+         style="font-size:0.89999998px;font-style:italic;font-weight:700;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Implementation</text>
+      <text
+         id="text104"
+         y="10"
+         x="14"
+         style="font-size:0.80000001px;font-style:normal;font-weight:700;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Execution</text>
+      <text
+         id="text106"
+         y="10.8"
+         x="14"
+         style="font-size:0.80000001px;font-style:normal;font-weight:700;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Flow</text>
+      <text
+         id="text108"
+         y="21"
+         x="14"
+         style="font-size:0.80000001px;font-style:normal;font-weight:700;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Data</text>
+      <text
+         id="text110"
+         y="21.799999"
+         x="14"
+         style="font-size:0.80000001px;font-style:normal;font-weight:700;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Flow</text>
+      <text
+         id="text116"
+         y="13.8"
+         x="14"
+         style="font-size:0.80000001px;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Send</text>
+      <text
+         id="text118"
+         y="7.75"
+         x="13.95"
+         style="font-size:0.80000001px;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">React</text>
+      <text
+         id="text120"
+         y="19.700001"
+         x="14"
+         style="font-size:0.80000001px;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Read/Write</text>
+      <rect
+         id="rect122"
+         height="3.0000000"
+         width="4.0000000"
+         y="9.0000000"
+         x="17.000000"
+         style="fill:#90ee90"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect124"
+         height="3.0000000"
+         width="4.0000000"
+         y="9.0000000"
+         x="17.000000"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <text
+         id="text126"
+         y="10.3"
+         x="19.0501"
+         style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Attributes,</text>
+      <text
+         id="text128"
+         y="11.1"
+         x="19.0501"
+         style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Properties</text>
+      <line
+         id="line130"
+         y2="10.000000"
+         x2="23.513201"
+         y1="10.000000"
+         x1="21.486799"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon132"
+         points="21.111800,10.000000 21.611800,9.7500000 21.486800,10.000000 21.611800,10.250000 21.111800,10.000000 "
+         style="fill:#000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon134"
+         points="21.111800,10.000000 21.611800,9.7500000 21.486800,10.000000 21.611800,10.250000 21.111800,10.000000 "
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon136"
+         points="23.888200,10.000000 23.388200,10.250000 23.513200,10.000000 23.388200,9.7500000 23.888200,10.000000 "
+         style="fill:#000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon138"
+         points="23.888200,10.000000 23.388200,10.250000 23.513200,10.000000 23.388200,9.7500000 23.888200,10.000000 "
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect140"
+         height="4.0000000"
+         width="4.0000000"
+         y="12.000000"
+         x="17.000000"
+         style="fill:#90ee90"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect142"
+         height="4.0000000"
+         width="4.0000000"
+         y="12.000000"
+         x="17.000000"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <text
+         sodipodi:linespacing="125.00000%"
+         id="text144"
+         y="14.3"
+         x="19.000099"
+         style="font-size:0.67733335px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125.00000%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;font-family:Sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Commands</text>
+      <rect
+         id="rect146"
+         height="2.0000000"
+         width="5.3999000"
+         y="13.000000"
+         x="24.600100"
+         style="fill:#ff4040"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect148"
+         height="2.0000000"
+         width="5.3999000"
+         y="13.000000"
+         x="24.600100"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <text
+         id="text150"
+         y="13.7"
+         x="27.3001"
+         style="font-size:1.0000000px;font-style:italic;font-weight:700;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Execution</text>
+      <text
+         id="text152"
+         y="14.7"
+         x="27.3001"
+         style="font-size:1.0000000px;font-style:italic;font-weight:700;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Engine</text>
+      <rect
+         id="rect154"
+         height="2.0000000"
+         width="7.0000000"
+         y="17.000000"
+         x="23.000000"
+         style="fill:#daff00"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect156"
+         height="2.0000000"
+         width="7.0000000"
+         y="17.000000"
+         x="23.000000"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <text
+         sodipodi:linespacing="125.00000%"
+         id="text158"
+         y="18.15"
+         x="26.6001"
+         style="font-size:0.62088895px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125.00000%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;font-family:Sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">C++ Class Methods</text>
+      <text
+         id="text160"
+         y="23"
+         x="7"
+         style="font-size:1.0000000px;font-style:italic;font-weight:700;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">A Task's</text>
+      <text
+         id="text162"
+         y="24"
+         x="7"
+         style="font-size:1.0000000px;font-style:italic;font-weight:700;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Peers</text>
+      <line
+         id="line164"
+         y2="17.000000"
+         x2="16.513201"
+         y1="17.000000"
+         x1="10.000000"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon166"
+         points="16.888200,17.000000 16.388200,17.250000 16.513200,17.000000 16.388200,16.750000 16.888200,17.000000 "
+         style="fill:#000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon168"
+         points="16.888200,17.000000 16.388200,17.250000 16.513200,17.000000 16.388200,16.750000 16.888200,17.000000 "
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <text
+         id="text172"
+         y="16.799999"
+         x="14"
+         style="font-size:0.80000001px;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Call</text>
+      <line
+         id="line174"
+         y2="11.486600"
+         x2="26.986900"
+         y1="12.850000"
+         x1="26.950100"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon176"
+         points="26.997000,11.111800 27.233400,11.618300 26.986900,11.486600 26.733600,11.604800 26.997000,11.111800 "
+         style="fill:#000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon178"
+         points="26.997000,11.111800 27.233400,11.618300 26.986900,11.486600 26.733600,11.604800 26.997000,11.111800 "
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <text
+         id="text180"
+         y="12.35"
+         x="28.650101"
+         style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Executes</text>
+      <text
+         id="text184"
+         y="13.7"
+         x="22.650101"
+         style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Queued</text>
+      <polyline
+         id="polyline186"
+         points="21,15 22,15 22,18 23,18 "
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polyline
+         id="polyline188"
+         points="21.4644,21 31.3001,21 31.3001,9 30.4644,9 "
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.079999998"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon190"
+         points="21.089400,21.000000 21.589400,20.750000 21.464400,21.000000 21.589400,21.250000 21.089400,21.000000 "
+         style="fill:#000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon192"
+         points="21.089400,21.000000 21.589400,20.750000 21.464400,21.000000 21.589400,21.250000 21.089400,21.000000 "
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.079999998"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon194"
+         points="30.089400,9.0000000 30.589400,8.7500000 30.464400,9.0000000 30.589400,9.2500000 30.089400,9.0000000 "
+         style="fill:#000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon196"
+         points="30.089400,9.0000000 30.589400,8.7500000 30.464400,9.0000000 30.589400,9.2500000 30.089400,9.0000000 "
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.079999998"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <line
+         id="line198"
+         y2="11.003600"
+         x2="16.513201"
+         y1="11.046400"
+         x1="10.636900"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon200"
+         points="10.261900,11.049200 10.760100,10.795500 10.636900,11.046400 10.763700,11.295500 10.261900,11.049200 "
+         style="fill:#000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon202"
+         points="10.261900,11.049200 10.760100,10.795500 10.636900,11.046400 10.763700,11.295500 10.261900,11.049200 "
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon204"
+         points="16.888200,11.000800 16.390000,11.254500 16.513200,11.003600 16.386400,10.754500 16.888200,11.000800 "
+         style="fill:#000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon206"
+         points="16.888200,11.000800 16.390000,11.254500 16.513200,11.003600 16.386400,10.754500 16.888200,11.000800 "
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <text
+         id="text208"
+         y="16.35"
+         x="23.582321"
+         style="font-size:0.80000001px;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">map to</text>
+      <text
+         id="text210"
+         y="7.6999998"
+         x="22.8001"
+         style="font-size:0.80000001px;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">emit</text>
+      <text
+         id="text212"
+         y="9.75"
+         x="22.5501"
+         style="font-size:0.80000001px;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">R-W</text>
+      <text
+         id="text214"
+         y="20.799999"
+         x="25.9501"
+         style="font-size:0.80000001px;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Read-Write ( R-W )</text>
+      <line
+         id="line216"
+         y2="23.486799"
+         x2="26.600000"
+         y1="26.049999"
+         x1="26.600100"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon218"
+         points="26.600000,23.111800 26.850000,23.611800 26.600000,23.486800 26.350000,23.611800 26.600000,23.111800 "
+         style="fill:#000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <polygon
+         id="polygon220"
+         points="26.600000,23.111800 26.850000,23.611800 26.600000,23.486800 26.350000,23.611800 26.600000,23.111800 "
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <text
+         id="text222"
+         y="24.450001"
+         x="28.650101"
+         style="font-size:0.80000001px;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">getPeers(),</text>
+      <text
+         id="text224"
+         y="25.25"
+         x="28.650101"
+         style="font-size:0.80000001px;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">addPeer(),</text>
+      <text
+         id="text226"
+         y="26.049999"
+         x="28.650101"
+         style="font-size:0.80000001px;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">...</text>
+      <text
+         id="text228"
+         y="24.5"
+         x="24.3501"
+         style="font-size:0.80000001px;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Browsing</text>
+      <rect
+         id="rect232"
+         height="12.400000"
+         width="6.2301002"
+         y="8.0000000"
+         x="4.0000000"
+         style="fill:#ffa500"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect234"
+         height="12.400000"
+         width="6.2301002"
+         y="8.0000000"
+         x="4.0000000"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect236"
+         height="12.565000"
+         width="6.0000000"
+         y="8.4350004"
+         x="3.7300000"
+         style="fill:#ffa500"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <rect
+         id="rect238"
+         height="12.565000"
+         width="6.0000000"
+         y="8.4350004"
+         x="3.7300000"
+         style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
+         transform="translate(-6.504341e-8,-1.383550e-6)" />
+      <text
+         id="text240"
+         y="12.9"
+         x="6.8000998"
+         style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">State Machines,</text>
+      <text
+         id="text242"
+         y="13.7"
+         x="6.8000998"
+         style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Programs and</text>
+      <text
+         id="text244"
+         y="14.5"
+         x="6.8000998"
+         style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Functions</text>
+      <text
+         id="text246"
+         y="15.3"
+         x="6.8000998"
+         style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">running in</text>
+      <text
+         id="text248"
+         y="16.1"
+         x="6.8000998"
+         style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Peer</text>
+      <text
+         id="text250"
+         y="16.9"
+         x="6.8000998"
+         style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">Task Contexts</text>
+      <text
+         id="text252"
+         y="11.7"
+         x="13.5501"
+         style="font-size:0.80000001px;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+         transform="translate(-6.504341e-8,-1.383550e-6)">R-W</text>
+    </g>
+  </g>
+  <text
+     style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+     x="10.1"
+     y="17.450001"
+     id="text112" />
+  <text
+     style="font-size:0.80000001px;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+     x="14"
+     y="13"
+     id="text114" />
+  <text
+     style="font-size:0.80000001px;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+     x="14"
+     y="16"
+     id="text170" />
+  <text
+     style="font-size:0.80000001px;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+     x="22.650101"
+     y="12.9"
+     id="text182" />
+  <text
+     style="font-size:0.80000001px;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
+     x="24.3501"
+     y="25.299999"
+     id="text230" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer1"
+     inkscape:label="DataFlow"
+     style="display:none">
+    <path
+       style="fill:#ffffff;fill-opacity:1.0000000;stroke:none;stroke-width:3.9999998;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
+       d="M -2.1562500,-2.8750000 L -2.1562500,824.93750 L 1127.3438,824.93750 L 1127.3438,-2.8750000 L -2.1562500,-2.8750000 z M 503.59375,490.34375 C 525.94007,490.88146 548.51588,493.23701 570.65625,497.56250 C 687.51485,520.39275 748.89472,589.67851 708.65625,653.34375 L 707.40625,655.21875 C 664.81932,719.18358 534.42574,752.38177 416.34375,729.31250 C 298.26175,706.24324 237.00680,635.62105 279.59375,571.65625 C 314.19565,519.68485 406.75968,488.01365 503.59375,490.34375 z "
+       transform="matrix(2.822222e-2,0.000000,0.000000,2.822222e-2,2.000000,3.999999)"
+       id="rect1556" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Methods"
+     style="display:none">
+    <path
+       style="fill:#ffffff;fill-opacity:1.0000000;stroke:none;stroke-width:4.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
+       d="M -9.4687500,-9.4687500 L -9.4687500,833.90625 L 1094.5000,833.90625 L 1094.5000,-9.4687500 L -9.4687500,-9.4687500 z M 651.81250,377.21875 C 682.18838,377.63239 712.87283,379.45387 742.96875,382.78125 C 901.81738,400.34344 985.22833,453.61926 930.53125,502.59375 L 638.09375,471.90625 L 928.87500,504.06250 C 870.98557,553.26742 693.73033,578.80854 533.21875,561.06250 C 372.70716,543.31644 289.42308,488.95493 347.31250,439.75000 C 394.34765,399.77099 520.18370,375.42632 651.81250,377.21875 z "
+       transform="matrix(2.822222e-2,0.000000,0.000000,2.822222e-2,2.000000,3.999999)"
+       id="rect3741" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="Commands"
+     style="display:none">
+    <path
+       style="fill:#ffffff;fill-opacity:1.0000000;stroke:none;stroke-width:4.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000;display:inline"
+       d="M -20.500000,-14.218750 L -20.500000,829.15625 L 1111.9062,829.15625 L 1111.9062,-14.218750 L -20.500000,-14.218750 z M 616.18750,268.43750 C 624.35122,268.34789 632.55445,268.35672 640.78125,268.46875 C 671.15716,268.88239 701.84161,270.70387 731.93750,274.03125 C 890.78614,291.59343 974.19707,344.86926 919.50000,393.84375 L 627.06250,363.15625 L 917.84375,395.31250 C 859.95433,444.51742 682.69905,470.05855 522.18750,452.31250 C 361.67593,434.56646 278.39185,380.20491 336.28125,331.00000 C 380.37673,293.51969 493.73172,269.78159 616.18750,268.43750 z "
+       transform="matrix(2.822222e-2,0.000000,0.000000,2.822222e-2,2.000000,3.999999)"
+       id="path3754" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="Properties"
+     style="display:inline">
+    <path
+       style="fill:#ffffff;fill-opacity:1.0000000;stroke:none;stroke-width:4.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000;display:inline"
+       d="M -19.187500,-7.0937500 L -19.187500,836.28125 L 1113.2188,836.28125 L 1113.2188,-7.0937500 L -19.187500,-7.0937500 z M 601.50000,147.56250 C 609.66372,147.47289 617.86694,147.48171 626.09375,147.59375 C 656.46963,148.00739 687.15414,149.82884 717.25000,153.15625 C 876.09867,170.71857 959.50954,223.99426 904.81250,272.96875 L 612.37500,242.28125 L 903.15625,274.43750 C 845.26686,323.64243 668.01152,349.18355 507.50000,331.43750 C 346.98846,313.69144 263.70419,259.32990 321.59375,210.12500 C 365.68922,172.64442 479.04424,148.90660 601.50000,147.56250 z "
+       transform="matrix(2.822222e-2,0.000000,0.000000,2.822222e-2,2.000000,3.999999)"
+       id="path3762" />
+    <rect
+       style="fill:#ffffff;fill-opacity:0.0000000;stroke:none;stroke-width:4.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000;display:inline"
+       id="rect4403"
+       width="17.851746"
+       height="5.7500005"
+       x="10.257268"
+       y="7.9404030"
+       inkscape:export-filename="/home/sspr/src/orocos-trunk/packages/execution/task_context/current/doc/EventInterface.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <rect
+       inkscape:export-ydpi="90.000000"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-filename="/home/sspr/src/orocos-trunk/packages/execution/task_context/current/doc/PropertyInterface.png"
+       y="7.8735423"
+       x="10.282463"
+       height="5.7500005"
+       width="17.851746"
+       id="rect5132"
+       style="fill:#ffffff;fill-opacity:0.0000000;stroke:none;stroke-width:4.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000;display:inline" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer5"
+     inkscape:label="Events"
+     style="display:none">
+    <path
+       transform="matrix(2.822222e-2,0.000000,0.000000,2.822222e-2,2.000000,3.999999)"
+       style="fill:#ffffff;fill-opacity:1.0000000;stroke:none;stroke-width:4.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000;display:inline"
+       d="M -25.812500,-11.375000 L -25.812500,832.00000 L 1106.5938,832.00000 L 1106.5938,-11.375000 L -25.812500,-11.375000 z M 610.87500,29.281250 C 619.03877,29.191640 627.24194,29.200461 635.46875,29.312500 C 665.84463,29.726146 696.52911,31.547594 726.62500,34.875000 C 885.47366,52.437302 968.88457,105.71266 914.18750,154.68750 L 621.75000,124.00000 L 912.53125,156.15625 C 854.64182,205.36152 677.38652,230.90230 516.87500,213.15625 C 356.36345,195.41007 273.07970,141.04898 330.96875,91.843750 C 375.06421,54.363160 488.41924,30.625347 610.87500,29.281250 z "
+       id="path3770" />
+  </g>
+</svg>

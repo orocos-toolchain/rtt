@@ -37,6 +37,7 @@
 #include "execution/mystd.hpp"
 #include "execution/DataSource.hpp"
 #include "execution/TaskAttribute.hpp"
+#include "execution/ConnectionInterface.hpp"
 
 namespace ORO_Execution
 {
@@ -72,6 +73,75 @@ namespace ORO_Execution
             attributeRepository.clear();
         }
 
+    void TaskContext::exportPorts()
+    {
+        DataFlowInterface::Ports myports = this->ports()->getPorts();
+        for (DataFlowInterface::Ports::iterator it = myports.begin();
+             it != myports.end();
+             ++it) {
+            if ( this->datasources()->getObjectFactory( (*it)->getName() ) == 0 ) {
+                // Add the port to the method interface.
+                DataSourceFactoryInterface* ms =  (*it)->createDataSources();
+                if ( ms )
+                    this->datasources()->registerObject( (*it)->getName(), ms );
+            }
+        }
+    }
+
+    void TaskContext::connectDataFlow( TaskContext* peer )
+    {
+        const std::string& location = this->getName();
+        Logger::In in( location.c_str()  );
+        // connect our write ports to the read ports of 'peer'.
+        DataFlowInterface::Ports myports = this->ports()->getPorts();
+        for (DataFlowInterface::Ports::iterator it = myports.begin();
+             it != myports.end();
+             ++it) {
+            // Then try to get the peer port's connection
+            PortInterface* peerport = peer->ports()->getPort( (*it)->getName() );
+            if ( !peerport ) {
+                Logger::log() <<Logger::Warning<< "Peer Task "<<peer->getName() <<" has no Port " << (*it)->getName() << Logger::endl;
+                continue;
+            }
+
+            // Detect already connected port.
+            if ( (*it)->connection() ) {
+                // ask peer to connect to us:
+                if ( peerport->connectTo( *it ) ) {
+                    Logger::log() <<Logger::Info<< "Connected Port " << (*it)->getName()
+                                  << "of peer Task "<<peer->getName() << " to existing connection." << Logger::endl;
+                }
+                else
+                    Logger::log() <<Logger::Error<< "Failed to connect Port" << (*it)->getName()
+                                  << " of peer Task "<<peer->getName() << " to existing connection." << Logger::endl;
+                continue;
+            }
+            // OK, not yet connected, try to connect.
+
+            // detect existing peer port connection.
+            if ( peerport->connection() ) {
+                if ( (*it)->connectTo( peerport ) ) {
+                    Logger::log() <<Logger::Info<< "Added Port " << (*it)->getName()
+                                  << " to existing connection of peer Task "<<peer->getName() << "." << Logger::endl;
+                }
+                else
+                    Logger::log() <<Logger::Error<< "Failed to connect Port" << (*it)->getName()
+                                  << " to existing connection of peer Task "<<peer->getName() << "." << Logger::endl;
+                continue;
+            }
+                
+            // Last resort: create new connection.
+            ConnectionInterface::shared_ptr con = (*it)->createConnection( peerport );
+            if ( !con ) {
+                // real error msg will be produced by factory itself.
+                Logger::log() <<Logger::Debug<< "Failed to connect Port " << (*it)->getName() << " to peer Task "<<peer->getName() <<"." << Logger::endl;
+            } else {
+                con->connect();
+                Logger::log() <<Logger::Info<< "Connected Port " << (*it)->getName() << " to peer Task "<<peer->getName() <<"." << Logger::endl;
+            }
+        }
+    }
+
     bool TaskContext::startup()
     {
         return true;
@@ -98,6 +168,9 @@ namespace ORO_Execution
             if ( _task_map.count( alias ) != 0 )
                 return false;
             _task_map[ alias ] = peer;
+            this->connectDataFlow(peer);
+            this->exportPorts();
+            peer->exportPorts();
             return true;
         }
 
@@ -112,7 +185,7 @@ namespace ORO_Execution
             if ( _task_map.count( peer->getName() ) != 0
                  || peer->hasPeer( _task_name ) )
                 return false;
-            _task_map[ peer->getName() ] = peer;
+            this->addPeer ( peer );
             peer->addPeer ( this );
             return true;
         }

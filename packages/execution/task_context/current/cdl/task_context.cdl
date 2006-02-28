@@ -32,4 +32,5 @@ task programs."
     compile MethodC.cxx
     compile EventC.cxx
     compile ConnectionC.cxx
+    compile ConnectionInterface.cxx
 }

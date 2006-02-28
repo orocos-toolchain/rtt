@@ -32,6 +32,7 @@
 #include "Factories.hpp"
 #include "AttributeRepository.hpp"
 #include "EventService.hpp"
+#include "DataFlowInterface.hpp"
 #include "ExecutionEngine.hpp"
 
 #include <string>
@@ -70,6 +71,9 @@ namespace ORO_Execution
         PeerMap         _task_map;
 
         ExecutionEngine ee;
+
+        void connectDataFlow( TaskContext* peer );
+        void exportPorts();
     public:
         typedef std::vector< std::string > PeerList;
 
@@ -305,6 +309,19 @@ namespace ORO_Execution
             return &eventService;
         }
 
+        /**
+         * Get the Data flow ports of this task.
+         */
+        DataFlowInterface* ports() {
+            return &dataPorts;
+        }
+
+        /**
+         * Get the Data flow ports of this task.
+         */
+        const DataFlowInterface* ports() const {
+            return &dataPorts;
+        }
 
         /**
          * The Command Factory of this TaskContext.
@@ -333,6 +350,11 @@ namespace ORO_Execution
          * @deprecated by events()
          */
         EventService            eventService;
+
+        /**
+         * The task-local ports.
+         */
+        DataFlowInterface dataPorts;
     };
 }
 
