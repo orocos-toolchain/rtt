@@ -112,4 +112,13 @@
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
+  <chapter>
+    <title>Hardware Device Drivers</title>
+    <xi:include  href="orocos-device-drivers.xml#xpointer(/article/articleinfo/abstract)"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="orocos-device-drivers.xml#xpointer(/article/sect1[*])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </chapter>
+
+
 </book>
