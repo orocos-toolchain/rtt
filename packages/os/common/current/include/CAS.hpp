@@ -40,8 +40,8 @@ namespace ORO_OS
      * it with \a value, and return \a true. Otherwise,
      * return \a false.
      */
-    template< class T >
-    bool CAS( volatile T* addr, const T& expected, const T& value) {
+    template< class T, class V, class W >
+    bool CAS( volatile T* addr, const V& expected, const W& value) {
         return expected == cmpxchg(addr, expected, value);
     }
 
