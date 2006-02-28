@@ -1,0 +1,114 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+[
+<!ENTITY % oro_ents SYSTEM "http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos.ent" >
+%oro_ents;
+]
+>
+
+<book>
+  <bookinfo>
+    <title>
+      The Orocos Application Builder's Manual
+    </title>
+    <subtitle><emphasis>Open RObot COntrol Software</emphasis>
+    </subtitle>
+    <subtitle>&oversion;</subtitle>
+    <authorgroup>
+      <author>
+	<firstname>Peter</firstname>
+	<surname>Soetens</surname>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2002,2003,2004,2005,2006</year>
+      <holder>Herman Bruyninckx, Peter Soetens</holder>
+    </copyright>
+
+    <abstract>
+      <para>
+	This document gives an introduction to building your own
+	applications for the <ulink
+	url="http://www.orocos.org">&orocos;</ulink> <emphasis> ( Open
+	RObot COntrol Software ) </emphasis> project using existing
+	Orocos components.
+      </para>
+    </abstract>
+
+    <legalnotice>
+      <para>
+	Orocos Version &oversion;.
+      </para>
+      <para>
+	Permission is granted to copy, distribute and/or modify this document
+	under the terms of the GNU Free Documentation License, Version 1.1 or
+	any later version published by the Free Software Foundation, with no
+	Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+	Texts. A copy of this license can be found at
+	<ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
+  </bookinfo>
+  <chapter>
+    <title>How to Read this Manual</title>
+    <para>
+      This manual is for Software developers who wish to use, combine and extend
+      software components of the Orocos framework. The Orocos hardware
+      abstraction is included as well to describe the hardware interface
+      some common Orocos components expect.
+    </para>
+    <sect1><title>Deploying Components</title>
+    <para>
+      This Chapter explains how to deploy Orocos Components
+      in an application environment.
+    </para></sect1>
+    <sect1><title>Component Reference</title>
+    <para>
+      This Chapter lists the available 'ready to use'
+      Orocos components which may be connected to setup an
+      application.
+    </para></sect1>
+    <sect1><title>Programming Applications</title>
+    <para>
+      The Orocos Scripting Chapter details how to write programs and state
+      machines which interact with your components. As such
+      you can 'inject' the application logic in one or
+      more components.
+    </para>
+    </sect1>
+  </chapter>
+  <!--
+  <chapter>
+    <title>Deploying Components</title>
+    <xi:include  href="orocos-applications.xml#xpointer(/article/articleinfo/abstract)"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="orocos-applications.xml#xpointer(/article/sect1[*])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </chapter>
+  <chapter>
+    <title>Component Reference</title>
+    <xi:include  href="orocos-components.xml#xpointer(/article/articleinfo/abstract)"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="orocos-components.xml#xpointer(/article/sect1[*])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </chapter>
+  -->
+  <chapter>
+    <title>Orocos Scripting</title>
+    <xi:include  href="orocos-program-parser.xml#xpointer(/article/articleinfo/abstract)"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="orocos-program-parser.xml#xpointer(/article/sect1[*])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </chapter>
+
+  <chapter>
+    <title>Hardware Device Interfaces</title>
+    <xi:include  href="orocos-device-interface.xml#xpointer(/article/articleinfo/abstract)"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="orocos-device-interface.xml#xpointer(/article/sect1[*])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </chapter>
+
+</book>

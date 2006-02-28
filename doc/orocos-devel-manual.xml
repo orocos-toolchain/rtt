@@ -1,0 +1,142 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+[
+<!ENTITY % oro_ents SYSTEM "http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos.ent" >
+%oro_ents;
+]
+>
+
+<book>
+  <bookinfo>
+    <title>
+      The Orocos Open Realtime Control Services Developer's Manual
+    </title>
+    <subtitle><emphasis>Open RObot COntrol Software</emphasis>
+    </subtitle>
+    <subtitle>&oversion;</subtitle>
+    <authorgroup>
+      <author>
+	<firstname>Peter</firstname>
+	<surname>Soetens</surname>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2002,2003,2004,2005,2006</year>
+      <holder>Herman Bruyninckx, Peter Soetens</holder>
+    </copyright>
+
+    <abstract>
+      <para>
+	This document delves deeply into
+	the <ulink url="http://www.orocos.org">&orocos;</ulink>
+	<emphasis> ( Open RObot COntrol Software ) </emphasis> infrastructure.
+	It targets developers which wish to extend or understand Orocos.
+      </para>
+    </abstract>
+
+    <legalnotice>
+      <para>
+	Orocos Version &oversion;.
+      </para>
+      <para>
+	Permission is granted to copy, distribute and/or modify this document
+	under the terms of the GNU Free Documentation License, Version 1.1 or
+	any later version published by the Free Software Foundation, with no
+	Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+	Texts. A copy of this license can be found at
+	<ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
+  </bookinfo>
+  <chapter>
+    <title>How to Read this Manual</title>
+    <para>
+      This manual is for Software developers who wish to extend
+      the Orocos framework.
+    </para>
+    <para>
+      The first Chapter details the classes and concepts of the
+      OS abstraction layer. It is useful to understand the 
+      Orocos threading mechanism and how Orocos can be ported
+      to other platforms.
+    </para>
+    <para>
+      The second and third Chapters document the Core Library and Task
+      Infrastructure and are the same
+      as the one found in the Component Builder's manual.
+    </para>
+    <para>
+      The fourth Chapter shows some mechanisms on how 
+      to use CoreLib primitives behind the scenes in the 
+      Task Infrastructure.
+    </para>
+    <para>
+      The fifth Chapter details the workings of the Execution Engine
+      and how it uses the various 'Processor' types to handle
+      program execution and communication.
+    </para>
+    <para>
+      The last Chapter details on how to extend the Orocos
+      Parser framework with user defined types.
+    </para>
+  </chapter>
+  <chapter>
+    <title>Operating System Abstraction</title>
+    <xi:include  href="orocos-os.xml#xpointer(/article/articleinfo/abstract)"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="orocos-os.xml#xpointer(/article/sect1[*])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </chapter>
+
+  <chapter>
+    <title>Core Library</title>
+    <xi:include  href="orocos-corelib.xml#xpointer(/article/articleinfo/abstract)"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="orocos-corelib.xml#xpointer(/article/sect1[*])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </chapter>
+
+  <chapter>
+    <title>Inside The Core Library</title>
+    <xi:include  href="orocos-corelib-devel.xml#xpointer(/article/articleinfo/abstract)"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="orocos-corelib-devel.xml#xpointer(/article/sect1[*])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </chapter>
+
+
+  <chapter>
+    <title>The Task Infrastructure</title>
+    <xi:include  href="orocos-task-context.xml#xpointer(/article/articleinfo/abstract)"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="orocos-task-context.xml#xpointer(/article/sect1[*])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </chapter>
+
+  <chapter>
+    <title>Inside The Task Infrastructure</title>
+    <xi:include  href="orocos-task-context-devel.xml#xpointer(/article/articleinfo/abstract)"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="orocos-task-context-devel.xml#xpointer(/article/sect1[*])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </chapter>
+
+  <chapter>
+    <title>Inside The Execution Engine</title>
+    <xi:include  href="orocos-program-processor.xml#xpointer(/article/articleinfo/abstract)"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="orocos-program-processor.xml#xpointer(/article/sect1[*])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </chapter>
+
+  <chapter>
+    <title>Inside The Program Script Parser</title>
+    <xi:include  href="orocos-program-parser-devel.xml#xpointer(/article/articleinfo/abstract)"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="orocos-program-parser-devel.xml#xpointer(/article/sect1[*])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </chapter>
+
+</book>

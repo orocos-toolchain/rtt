@@ -59,19 +59,14 @@ endif
 
 docs: $(DOC)
 
-manual: pngimages gifimages
-	-cp -a $(EXTRAXMLDOCS) .
-	-cp -a $(EXTRAGIF) .
-	$(RM)  orocos-manual.html orocos-manual.pdf 
-	$(MAKE) orocos-manual.html orocos-manual.pdf XSL_PDF_PARAMS="--stringparam admon.graphics.path ../../doc/images/"
-	$(RM) $(CLEANXMLDOCS)
-	$(RM) $(CLEANGIF)
+ORO_USER_MANUALS=orocos-user-manual orocos-components-manual orocos-devel-manual orocos-control-manual
+ORO_MANUAL_TARGETS= $(addsuffix .html, $(ORO_USER_MANUALS) ) $(addsuffix .pdf, $(ORO_USER_MANUALS) )
 
-control-manual: pngimages gifimages
+manuals: pngimages gifimages
 	-cp -a $(EXTRAXMLDOCS) .
 	-cp -a $(EXTRAGIF) .
-	$(RM)  orocos-control-manual.html orocos-control-manual.pdf 
-	$(MAKE) orocos-control-manual.html orocos-control-manual.pdf XSL_PDF_PARAMS="--stringparam admon.graphics.path ../../doc/images/"
+	$(RM) $(ORO_MANUAL_TARGETS)
+	$(MAKE) $(ORO_MANUAL_TARGETS) XSL_PDF_PARAMS="--stringparam admon.graphics.path ../../doc/images/"
 	$(RM) $(CLEANXMLDOCS)
 	$(RM) $(CLEANGIF)
 
@@ -91,5 +86,4 @@ clean-local:
 	$(RM) -r $(subst orocos-,,$(basename $(XMLDOCS)))
 	$(RM) $(CLEANXMLDOCS)
 	$(RM) $(CLEANJPG)
-	$(RM)  orocos-manual.html orocos-manual.ps orocos-manual.pdf 
-	$(RM)  orocos-control-manual.html orocos-control-manual.ps orocos-control-manual.pdf 
+	$(RM) $(ORO_MANUAL_TARGETS)

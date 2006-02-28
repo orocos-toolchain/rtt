@@ -26,7 +26,7 @@ JPGIMGS= $(patsubst %.png,%.jpg,$(PNGS))
 EPSIMGS= $(patsubst %.dia,%.eps,$(DIAS))
 PNGIMGS= $(patsubst %.dia,%.png,$(DIAS)) $(patsubst %.png,%.png,$(PNGS))
 TIFFIMGS=$(patsubst %.dia,%.tiff,$(DIAS))
-GIFIMGS=$(patsubst %.dia,%.gif,$(DIAS))
+GIFIMGS=$(patsubst %.png,%.gif,$(PNGIMGS))
 
 .PHONY=doc-dist docxml dochtml docpdf docps doctxt epsimages pngimages
 
@@ -111,6 +111,9 @@ gifimages: $(GIFIMGS)
 	$(CONVERT) $< $@
 
 %.gif:%.png
+	$(CONVERT) $< $@
+
+%.gif:%.eps
 	$(CONVERT) $< $@
 
 doc-clean:
