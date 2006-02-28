@@ -37,6 +37,14 @@
 
 namespace ORO_CoreLib
 {
+    class DataSourceBase;
+}
+
+void intrusive_ptr_add_ref( ORO_CoreLib::DataSourceBase* p );
+void intrusive_ptr_release( ORO_CoreLib::DataSourceBase* p );
+
+namespace ORO_CoreLib
+{
   /**
    * @brief The base class for all DataSource's
    *
@@ -60,6 +68,10 @@ namespace ORO_CoreLib
    */
   class DataSourceBase
   {
+  protected:
+      friend void ::intrusive_ptr_add_ref( ORO_CoreLib::DataSourceBase* p );
+      friend void ::intrusive_ptr_release( ORO_CoreLib::DataSourceBase* p );
+
       /**
          We keep the refcount ourselves.  We aren't using
          boost::shared_ptr, because boost::intrusive_ptr is better,
@@ -70,7 +82,7 @@ namespace ORO_CoreLib
          which is also nice :)
       */
       atomic_t refcount;
-  protected:
+
       /** the destructor is private.  You are not allowed to delete this
        * class yourself, use a shared pointer !
        */
@@ -126,8 +138,5 @@ namespace ORO_CoreLib
       virtual std::string getType() const = 0;
   };
 }
-
-void intrusive_ptr_add_ref( ORO_CoreLib::DataSourceBase* p );
-void intrusive_ptr_release( ORO_CoreLib::DataSourceBase* p );
 
 #endif
