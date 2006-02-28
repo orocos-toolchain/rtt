@@ -10,7 +10,7 @@
 <article>
   <articleinfo>
     <title>
-      The Orocos Program Parser Manual
+      The Orocos Scripting Manual
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis></subtitle>
     <authorgroup>
@@ -30,8 +30,7 @@
     
     <abstract>
       <para>
-	This document describes the &orocos; Parser system, in the
-	different ways it can be used and extended.
+	This document describes the &orocos; Scripting system.
       </para>
     </abstract>
     
@@ -97,7 +96,8 @@
 	<revnumber>0.22.0</revnumber>
 	<date>January 2005</date>
 	<authorinitials>PS</authorinitials>
-	<revremark>Extended syntax and updates on events and state machines.</revremark>
+	<revremark>Extended syntax and updates on events and state machines.
+	Split off the developer specific info.</revremark>
       </revision> 
    </revhistory>
 
@@ -118,62 +118,23 @@
   <sect1 id="intro">
     <title>Introduction</title>
     <para>
-      The &orocos; Parser allows users of the &orocos; system to write
+      The &orocos; Scripting language allows users of the &orocos; system to write
       programs and state machines controlling the system in a
       user-friendly realtime script language.  The advantage of scripting is
       that it is easily extendible and does not need recompilation of
-      the main program. It is implemented using the Boost.Spirit
-      parser library, and should be fairly easy to work with.
-    </para>
-    <para>
-      There are three ways that people need to use the &orocos; Parser
-      framework, and the documentation is split up accordingly.  The
-      following chapters each deal with one of these aspects, and can
-      be read separately.  You are encouraged to skip ahead to the
-      part that interests you.
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    <link linkend="program-syntax">Writing &orocos; Programs and State Descriptions for Orocos Task Contexts.</link>
-	    Introduction to syntax and terminology.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    <ulink url="orocos-task-context.html">
-	      Exporting the API of an &orocos; Task to the
-	      &orocos; Parser.
-	    </ulink> This is explained in the Task Infrastructure manual.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    <link linkend="extending-the-parser">
-	      Extending the &orocos; parser to support extra types,
-	      overload existing operators, and/or add new operators.
-	    </link>
-	    If you want to push the parser to <emphasis>your</emphasis> limits.
-	  </para>
-	</listitem>
-      </itemizedlist>
-      This documentation tackles only these three aspects.  If you
-      want to do more advanced things with the &orocos; Parser system,
-      you'll have to dig into the source code. It should be fairly
-      well documented.
+      the main program.
     </para>
   </sect1>
 
-  <sect1 id="program-syntax">
-    <title>Orocos Program Scripts</title>
-    <sect2 id="program-syntax-general-concepts">
-      <title>General concepts</title>
-      <para>
-	Before starting to explain Program Syntax, it is necessary to
-	explain some general concepts that are used throughout the
-	program syntax.
-      </para>
-      <sect3 id="program-syntax-comments">
-	<title>Comments</title>
+  <sect1 id="program-syntax-general-concepts">
+    <title>General Scripting Concepts</title>
+    <para>
+      Before starting to explain Program Syntax, it is necessary to
+      explain some general concepts that are used throughout the
+      program syntax.
+    </para>
+    <sect2 id="program-syntax-comments">
+      <title>Comments</title>
 	<para>
 	  Various sorts of comments are supported in the syntax.  Here
 	  is a small listing showing the various syntaxes:
@@ -192,8 +153,8 @@
 	  Whitespace is in general ignored, except for the fact that it
 	  is used to separate tokens.
 	</para>
-      </sect3>
-      <sect3 id="program-syntax-identifiers">
+      </sect2>
+      <sect2 id="program-syntax-identifiers">
 	<title>Identifiers</title>
 	<para>
 	  Identifiers are names that the user can assign to variables,
@@ -255,8 +216,8 @@
 	  each of the letters are reserved, and cannot be used as
 	  identifiers. 
 	</para>
-      </sect3>
-      <sect3 id="program-syntax-expressions">
+      </sect2>
+      <sect2 id="program-syntax-expressions">
 	<title>Expressions</title>
 	<para>
 	  Expressions are a general concept used throughout the Parser
@@ -267,43 +228,7 @@
 	  type-checking.  Expressions can be constructed in various
 	  ways, that are described below...
 	</para>
-	<sect4>
-	  <title>Task Data Sources</title>
-	  <para>
-	    An Orocos <classname>ORO_Execution::TaskContext</classname> can export
-	    read-only data.  This data can be of any possible type,
-	    and the Parser system retains that type information.
-	    Getting task data is done using an expression of the
-	    following form:</para>
-	  <para>
-	    <programlisting>  task.dataname( argument1, argument2, ..., argumentN )</programlisting></para>
-	  <para>
-	    where "task" is the name of the peer <classname>ORO_Execution::TaskContext</classname> whose data
-	    you want to access, dataname is the name of the data
-	    member of the task you want to access.  "argument1"
-	    through "argumentN" are the arguments you want to pass to
-	    the data call, and can be any kind of expression.  If a
-	    data call needs no arguments, the parentheses can be left
-	    out, like this:</para>
-	    <programlisting>  // equivalent to task.dataname()
-  task.dataname</programlisting>
-	</sect4>
-	<sect4>
-	  <title>Task Methods</title>
-	  <para>
-	    Methods are analogous to the data in the previous section.
-	    But they can both be used in expressions and executed as a command.
-	    For example, a method returning a boolean can be used
-	    in an 'if' clause and in a 'do' statement (see below).
-	  </para>
-	    <programlisting>  // executed as a method :
-  bool result = task.methodname( argument1, argument2, ..., argumentN )
-
-  // executed as a command :
-  do task.methodname( argument1, argument2, ..., argumentN )</programlisting>
-	  <para>The boolean return value is optional and can be of any type (including void).</para>
-	</sect4>
-	<sect4>
+	<sect3>
 	  <title>Literals</title>
 	  <para>
 	    Literal values of various types are supported: string,
@@ -326,26 +251,8 @@
   // and another one..
   1.23e10  	    </programlisting>
   	  </para>
-	</sect4>
-	<sect4>
-	  <title>Task Events</title>
-	  <para>
-	    Events are quite similar to methods and commands.
-	    An event is <emphasis>emitted</emphasis> and is given
-	    arguments, providing data.
-	  </para>
-	    <programlisting>  // emitting an event:
-  emit sometask.eventname( argument1, argument2, ..., argumentN ) </programlisting>
-	  <para>
-	    In this case, the task 'sometask' has an event 'eventname'
-	    which takes 'N' arguments. Other tasks subscribed to this
-	    event will receive the event synchronously or asynchronously
-	    with these arguments. More information about events can be
-	    found in the CoreLib manual.  The event must be added to the
-	    task as described in the task infrastructure manual.
-	  </para>
-	</sect4>
-	<sect4>
+	</sect3>
+	<sect3>
 	  <title>Constants, Variables and Aliases</title>
 	  <para>
 	    Constants, variables and aliases allow you to work with
@@ -389,8 +296,8 @@
 	    rotation, vector, frame, double6D. See the last section
 	    of the Parser Manual to see how to extend it with custom types.
 	  </para>
-	</sect4>
-	<sect4>
+	</sect3>
+	<sect3>
 	  <title>Strings and Arrays</title>
 	  <para>
 	    For convenience, two variable size types have been
@@ -474,8 +381,8 @@
 	    if you try to read an item out of range, the result will return 0.0, or for
 	    strings, the null character.
 	  </para>
-	</sect4>
-	<sect4>
+	</sect3>
+	<sect3>
 	  <title>Operators</title>
 	  <para>
 	    Expressions can be combined using the C-style operators
@@ -486,8 +393,8 @@
 	    Java and similar languages. In general all that you would
 	    expect, is present.
 	  </para>
-	</sect4>
-	<sect4>
+	</sect3>
+	<sect3>
 	  <title>The '.' Operator</title>
 	  <para>
 	    Some value types, like vector, rotation, array, string in
@@ -542,8 +449,8 @@
 	    To change them, you'll have to use a constructor from the next
 	    section.
 	  </para>
-	</sect4>
-	<sect4>
+	</sect3>
+	<sect3>
 	  <title>Constructors</title>
 	  <para>
 	    For some special types, a special kind of operator is
@@ -585,9 +492,8 @@
   set d6[0] = 1.0
   var double d0 = d6[0]
   set d6 = double6d( 1., 2., 3., 4., 5., 6. ) </programlisting>
-	</sect4>
-      </sect3>
-    </sect2>
+	</sect3>
+      </sect2>
     <sect2>
       <title>Parsing and Loading Programs</title>
       <para>
@@ -629,23 +535,22 @@
 	within other scripts.
       </para>
     </sect2>
+  </sect1>
+  <sect1 id="program-syntax">
+    <title>Orocos Program Scripts</title>
     <sect2 id="program-semantics">
-      <title>Program Semantics</title>
+      <title>Program Execution Semantics</title>
       <para>
-	An &orocos; program is a list of statements, quite similar
+	An &orocos; program script is a list of statements, quite similar
 	to a C program. Programs can call C/C++ functions and functions
 	can be loaded into the system, such that other programs
-	can call them.
+	can call them. Program scripts are executed by the Execution Engine.
       </para>
       <para>
-	A program's statement is located in a node. Nodes are
-	connected to each other by arches containing boolean
-	conditions. A Processor which executes a program, executes  a
-	statement and then checks each arch's conditions. If a
-	condition evaluates to true, the program immediately executes
-	the next target node and so on. When no condition evaluates to
-	true, the program 'waits', meaning that it postpones execution
-	to the next periodic execution step of the Program Processor. This
+	In general, program statements are executed immediately one after
+	the other. However, when the program needs to wait for a result,
+	the Execution Engine temporarily postpones program execution and
+	will try again in the next execution period. This
 	happens typically when the statement was a Task Command. Task Methods
 	and expressions on the other hand typically do not impose a
 	wait, and thus are executed immediately after each other.
@@ -660,46 +565,144 @@
     // an arbitrary number of statements
   }	</programlisting>
 	<para>
-	  The statements are executed in order, starting at the first.
-	  One statement is executed per tick.  There are currently three
-	  kinds of statements, they are explained below. A program takes
-	  no arguments and is executed by the <classname>ORO_Execution::ProgramProcessor</classname>.
-	</para>
-	<para>
-	  If any of the statements causes a run-time error, the Program Processor
-	  will put the program in the error state and stop executing it.
-	  It is the task of other logic (like state machines, see below)
-	  to detect such failures. 
+	  The statements are executed in order, starting at the first
+	  and following the logical execution path imposed by your
+	  program's structure. If any of the statements causes a
+	  run-time error, the Program Processor will put the program
+	  in the error state and stop executing it.  It is the task of
+	  other logic (like state machines, see below) to detect such
+	  failures.
 	</para>
       </sect3>
       <sect3>
-	<title><symbol>function</symbol></title>
-	<para>Statements
-	can be grouped in functions. A function can only call a function
-	which is earlier defined. Thus recursive function calling is not allowed.
+	<title>Variable <symbol>set</symbol> Statements</title>
+	<para>
+	  A variable <symbol>set</symbol> statement is a statement that sets a variable
+	  to a certain value.  It looks like this:
+	  <programlisting>
+  set variablename = <emphasis>expression</emphasis>
+	  </programlisting>
+	  Variablename is the name of the variable you want to assign
+	  to.  It should already have been defined.  Expression is an
+	  expression of the same type as the type of the variable.
 	</para>
-	<programlisting>  function func_name( int arg1, double arg2 ) {
-    // an arbitrary number of statements
+      </sect3>
+      <sect3>
+	<title>The if then else Statement</title>
+	<para>	A Program script can contain if..then..else blocks, very similar
+	to C syntax.
+</para>	  <programlisting>
+  if <emphasis>condition</emphasis> then <emphasis>statement</emphasis> 
+  [ else <emphasis>statement</emphasis> ]
+  // or :
+  if <emphasis>condition</emphasis> then {
+    <emphasis>statement</emphasis>
+    // ...
+  } [ else {
+    <emphasis>statement</emphasis>
+    // ...
+  } ]	  </programlisting>
+	<para>
+	  It is thus possible to group statements. Each statement can
+	  be another if clause. An else is always referring to the last
+	  if, just like in C/C++. If you like, you can also write
+	  parentheses around the condition. The else statement is
+	  optional.
+	</para>
+      </sect3>
+      <sect3>
+	<title>The for Statement</title>
+	<para>
+	  The for statement is almost equal to the C language.
+	  The first statement initialises a variable or is empty.
+	  The condition contains a boolean expression (use 'true'
+	  to simulate an empty condition).
+	  The second statement changes a variable or is empty.
+	  <programlisting>
+  for ( <emphasis>statement</emphasis>; <emphasis>condition</emphasis>; <emphasis>statement</emphasis> )
+        <emphasis>statement</emphasis>
+  // or :
+  for ( <emphasis>statement</emphasis>; <emphasis>condition</emphasis>; <emphasis>statement</emphasis> ) {
+        <emphasis>statement</emphasis>
+        // ...
+  }  </programlisting>
+	</para>
+      </sect3>
+      <sect3>
+	<title>The while Statement</title>
+	<para>
+	  The while statement is another looping primitive in 
+	  the Orocos script language. A <symbol>do</symbol> statement is not
+	  ( yet ) implemented</para>
+	  <programlisting>
+  while <emphasis>condition</emphasis> 
+      <emphasis>statement</emphasis>
+  // or :
+  while <emphasis>condition</emphasis> {
+      <emphasis>statement</emphasis>
+      // ...
+  }  </programlisting>
+	<para>
+	  As with the if statement, you can optionally put
+	  parentheses around the condition.
+	</para>
+      </sect3>
+      <sect3>
+	<title>The break Statement</title>
+	<para>
+	  To break out of a while or for loop, the 
+	  break statement is available. It will break
+	  out of the innermost loop, in case of nesting.
+	</para>
+	  <programlisting>
+  var int i = 0
+  while <emphasis>true</emphasis>  {
+      set i = i + 1
+      if i == 50 then
+          <emphasis>break</emphasis> 
+      // ...
+  }  </programlisting>
+	<para>
+	  It can be used likewise in a for loop.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Invoking Task Methods</title>
+	<para>
+	  Methods behave like calling C functions. They take
+	  arguments and return a value immediately. They can be
+	  used in expressions or stand alone in a do statement :</para>
+	  <programlisting>
+  // ignore the return value :
+  do comp.method( args )
+  
+  // this will only work if the method returns a boolean :
+  if ( comp.method( args ) ) {
+  	    // ...
   }
   
-  export function func_nameN(bool arg) {
-    // ...
-  }</programlisting>
-        <para>
-	  A function can have any number of arguments, which are passed
-  	  by value, but it returns no value.
-  	  A function can be exported, in which case it becomes a public
-	  available command (see below), which will fail if one of its
-	  commands fails. Exporting functions is a powerfull means to
-	  build reusable code in the scripting framework, since an
-	  external task can transparantly call a function or
-	  call a C++ command.
+  // use another method in an expression :
+  set data = comp.getResult( args ) * 20. / comp.dataValue 
+	  </programlisting>
+	<para>
+	  Methods are executed directly one after the other.
 	</para>
+	<warning>
+	  <para>
+	    A method returning a boolean result, may
+	    cause a run-time program error if
+	    it returns false. If this is not wanted, use 'try'
+	    instead of 'do'. If the method returns
+	    nothing or something else than bool, 
+	    the result will be ignored in a do
+	    statement.
+	  </para>
+	</warning>
       </sect3>
       <sect3>
-	<title>Command Call Statements</title>
+	<title>Invoking Task Commands</title>
 	<para>
-	  A command call statement is a statement that calls a certain
+	  A command statement is a statement that calls a certain
 	  command, and defines some reactions. It looks like:
 	  <programlisting>  do comp.action( args ) until {
     if condition then continue
@@ -720,17 +723,6 @@
 	    meant to detect alternative end conditions of a command.
 	  </para>
 	</note>
-	<para>
-	  Sometimes, you want to continue executing the command, while
-	  checking the completion conditions, instead of only
-	  executing it the first time..  In that case, you can put the
-	  keyword "sync" before the command call.
-	  <programlisting>  // continue moving to the right until you hit the wall..
-  do sync robot.move( robot.position + vector( 1.0, 0.0, 0.0 ) )
-      until { if robot.hitWall() then return }  </programlisting>
-	  The example above may be a bit stupid, but it only serves to
-	  show the use of the sync keyword..
-	</para>
 	<para>
 	  A completion clause always looks like</para>
 	  <programlisting>  if condition then continue
@@ -827,48 +819,45 @@
 	</sect4>
       </sect3>
       <sect3>
-	<title>Method Call Statements</title>
-	<para>
-	  Methods behave like traditional functions. They take
-	  arguments and return a value immediately. They can be
-	  used in expressions or stand alone in a do statement :</para>
-	  <programlisting>
-  // ignore the return value :
-  do comp.method( args )
-  
-  // this will only work if the method returns a boolean :
-  if ( comp.method( args ) ) {
-  	    // ...
-  }
-  
-  // use another method in an expression :
-  set data = comp.getResult( args ) * 20. / comp.dataValue 
-	  </programlisting>
-	<para>
-	  A method can thus transparantly be used like a
-	  command, which implicit completion condition
-	  is always true, which means, the next statement is
-	  executed immediately after the method returns.
-	</para>
-	<warning>
+	<title>Emitting Task Events</title>
 	  <para>
-	    A method returning a boolean result, will
-	    behave like a command. This means that if
-	    it returns false, it will be seen as a
-	    reject. If this is not wanted, use 'try'
-	    instead of 'do'. If the method returns
-	    nothing or something else than bool, 
-	    the result will be ignored in a do
-	    statement.
+	    Events are quite similar to methods and commands.
+	    An event is <emphasis>emitted</emphasis> and is given
+	    arguments, providing data.
 	  </para>
-	</warning>
+	    <programlisting>  // emitting an event:
+  emit sometask.eventname( argument1, argument2, ..., argumentN ) </programlisting>
+	  <para>
+	    In this case, the task 'sometask' has an event 'eventname'
+	    which takes 'N' arguments. Other tasks subscribed to this
+	    event will receive the event synchronously or asynchronously
+	    with these arguments. More information about events can be
+	    found in the CoreLib manual.  The event must be added to the
+	    task as described in the task infrastructure manual.
+	  </para>
       </sect3>
       <sect3>
-	<title>Emitting Events</title>
-	<para>
-	  Events are as easy to use as methods (above) from within
-	  scripts, using the keyword <symbol>emit</symbol>:
-	  <programlisting>  emit a_task.move( 1.0, 2.0, 3.0 )</programlisting>
+	<title><symbol>function</symbol></title>
+	<para>Statements
+	can be grouped in functions. A function can only call a function
+	which is earlier defined. Thus recursive function calling is not allowed.
+	</para>
+	<programlisting>  function func_name( int arg1, double arg2 ) {
+    // an arbitrary number of statements
+  }
+  
+  export function func_nameN(bool arg) {
+    // ...
+  }</programlisting>
+        <para>
+	  A function can have any number of arguments, which are passed
+  	  by value, but it returns no value.
+  	  A function can be exported, in which case it becomes a public
+	  available command, which will fail if one of its
+	  commands fails. Exporting functions is a powerfull means to
+	  build reusable code in the scripting framework, since an
+	  external task can transparantly call a function or
+	  call a C++ command.
 	</para>
       </sect3>
       <sect3>
@@ -889,113 +878,22 @@
 	</para>
       </sect3>
       <sect3>
-	<title>Variable Set Statements</title>
-	<para>
-	  A variable set statement is a statement that sets a variable
-	  to a certain value.  It looks like this:
-	  <programlisting>
-  set variablename = expression
-	  </programlisting>
-	  Variablename is the name of the variable you want to assign
-	  to.  It should already have been defined.  Expression is an
-	  expression of the same type as the type of the variable.
-	</para>
-      </sect3>
-      <sect3>
-	<title>The if then else Statement</title>
-	<para>	A Program script can contain if..then..else blocks, very similar
-	to C syntax.
-</para>	  <programlisting>
-  if <emphasis>condition</emphasis> then <emphasis>statement</emphasis> 
-  [ else <emphasis>statement</emphasis> ]
-  // or :
-  if <emphasis>condition</emphasis> then {
-    <emphasis>statement</emphasis>
-    // ...
-  } [ else {
-    <emphasis>statement</emphasis>
-    // ...
-  } ]	  </programlisting>
-	<para>
-	  It is thus possible to group statements. Each statement can
-	  be another if clause. An else is always referring to the last
-	  if, just like in C/C++. If you like, you can also write
-	  parentheses around the condition. The else statement is
-	  optional.
-	</para>
-      </sect3>
-      <sect3>
-	<title>The for Statement</title>
-	<para>
-	  The for statement is almost equal to the C language.
-	  The first statement initialises a variable or is empty.
-	  The condition contains a boolean expression (use 'true'
-	  to simulate an empty condition).
-	  The second statement changes a variable or is empty.
-	  <programlisting>
-  for ( <emphasis>statement</emphasis>; <emphasis>condition</emphasis>; <emphasis>statement</emphasis> )
-        <emphasis>statement</emphasis>
-  // or :
-  for ( <emphasis>statement</emphasis>; <emphasis>condition</emphasis>; <emphasis>statement</emphasis> ) {
-        <emphasis>statement</emphasis>
-        // ...
-  }  </programlisting>
-	</para>
-      </sect3>
-      <sect3>
-	<title>The while Statement</title>
-	<para>
-	  The while statement is another looping primitive in 
-	  the Orocos script language. A do statement is not
-	  ( yet ) implemented</para>
-	  <programlisting>
-  while <emphasis>condition</emphasis> 
-      <emphasis>statement</emphasis>
-  // or :
-  while <emphasis>condition</emphasis> {
-      <emphasis>statement</emphasis>
-      // ...
-  }  </programlisting>
-	<para>
-	  As with the if statement, you can optionally put
-	  parentheses around the condition.
-	</para>
-      </sect3>
-      <sect3>
-	<title>The break Statement</title>
-	<para>
-	  To break out of a while or for loop, the 
-	  break statement is available. It will break
-	  out of the innermost loop, in case of nesting.
-	</para>
-	  <programlisting>
-  var int i = 0
-  while <emphasis>true</emphasis>  {
-      set i = i + 1
-      if i == 50 then
-          <emphasis>break</emphasis> 
-      // ...
-  }  </programlisting>
-	<para>
-	  It can be used likewise in a for loop.
-	</para>
-      </sect3>
-      <sect3>
 	<title>Waiting : The 'nothing' Command</title>
 	<para>
 	  A special command 'nothing' is provided, and I'm sure you
-	  can already guess what it does..  It is useful to implement
+	  can already guess what it does...  It is useful to implement
 	  statements, where the completion list is really the only
 	  useful thing to do. The nothing command's completion condition
 	  will pause execution exactly one execution step, it can thus
 	  also be inserted between methods to force execution to pause
-	  and resume in the next execution step.
+	  and resume in the next execution period.
 	</para>
       </sect3>
-      <sect3>
+    </sect2>
+    <sect2>
 	<title>Starting and Stopping Programs from scripts</title>
 	<para>
-	  Once a program is parsed and loaded into the Program Processor,
+	  Once a program is parsed and loaded into the Execution Engine,
 	  it can be manipulated from another script. This can be
 	  done through the programs subtask of the TaskContext
 	  in which the program was loaded. Assume that you loaded
@@ -1019,7 +917,6 @@
   set res = ATask.programs.progname.isPaused()</programlisting>
 	<para>
 	  which all return a boolean indicating true or false.</para>
-      </sect3>
     </sect2>
   </sect1>
   <sect1>
@@ -1034,8 +931,8 @@
 	  state.  A StateMachine must be loaded in a Task's Execution Engine ( see
 	  <ulink url="orocos-task-context.html"> The Online
 	  Task Context Manual</ulink> ).
-	</para>
-      </sect2>
+      </para>
+    </sect2>
       <sect2>
 	<title>StateMachine Workings</title>
 	<para>
@@ -1046,20 +943,15 @@
 	transition. By default, only one transition can be made
 	in one Execution Engine step.
       </para>
-<!-- 	<para> -->
-<!-- 	  Every state also has a set of preconditions that need to -->
-<!-- 	  hold at its entry.  If these don't hold, the StateMachine -->
-<!-- 	  will enter into an error state. -->
-<!-- 	</para> -->
 	<para>
 	  Besides a list of the possible transitions, every state also
 	  keeps record of programs to be executed at certain
 	  occasions.  There can be up to four (all optional) programs
-	  in every state: the entry program ( which will be executed
-	  each time the state is entered ), the run program ( which
+	  in every state: the <symbol>entry</symbol> program ( which will be executed
+	  each time the state is entered ), the <symbol>run</symbol> program ( which
 	  will be executed every time the state is the active state ),
-	  the handle program ( which will be executed if no transition
-	  succeeds ) and the exit program ( which will be executed
+	  the <symbol>handle</symbol> program ( which will be executed if no transition
+	  succeeds ) and the <symbol>exit</symbol> program ( which will be executed
 	  when the state is left).
 	</para>
 	<para>
@@ -1090,6 +982,13 @@
           </emphasis> occured or because a transition was
           <emphasis>requested</emphasis>.
 	</para>
+	<figure><title>State Change Semantics in Reactive Mode</title>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="ReactiveState" />
+	  </imageobject>
+	</mediaobject>
+	</figure>
 	<para> 
           A state can list to which Orocos (CoreLib) events it reacts,
           and under which conditions it will make a transition to another
@@ -1131,6 +1030,20 @@
 	  In order to enter automatic mode, the State Machine must be
 	  started with the start() command (see later on).
 	</para>
+	<note><para>
+	  This mechanism is in addition to 'reactive' mode. A
+	  state machine in automatic mode still reacts to events.
+	</para></note>
+	<figure><title>State Change Semantics in Automatic Mode</title>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="AutomaticState" />
+	  </imageobject>
+	  <caption><para>The automatic mode additionally actively evaluates
+	  guard conditions. Event reaction remains in effect, but is not shown
+	  in this diagram.</para></caption>
+	</mediaobject>
+	</figure>
 	<para>
 	  In automatic mode, After the run program of the current
 	  state finishes, the transition table (to other states) of
@@ -2085,162 +1998,5 @@
   	do HMI.display("Program Ended\n")
   }  </programlisting>
     </example>
-  </sect1>
-  <sect1 id="extending-the-parser">
-    <title>Extending the parser</title>
-    <note>
-      <para>
-	This Section is only relevant to persons willing to extend
-	the internals of the Orocos Parser framework.
-      </para>
-    </note>
-    <sect2 id="parser-limitations">
-      <title>Parser Limitations</title>
-      <para>
-	For various reasons, during the development of the &orocos;
-	parser, it has proven necessary to hard-code various things,
-	mostly relating to the defined types, and the operations
-	supported on them.  The parser supports using different types
-	of objects than the predefined ones, but the major limitations
-	are:
-	<itemizedlist>
-	  <listitem>
-	    <para>
-	      It does not know of <type>unsigned int</type>. It can not call
-	      component methods with <type>unsigned int</type> arguments.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Only a hardcoded set of types can be used as variables,
-	      constants and aliases.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Operators like +, *, >= etc. are only supported for a
-	      hardcoded set of types.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      For some types like vectors, rotations and frames,
-	      special syntax was added.  Currently, this is limited to
-	      the so-called constructors, that allow you to construct
-	      e.g. a vector from three doubles.
-	    </para>
-	  </listitem>
-	</itemizedlist>
-      </para>
-    </sect2>
-    <sect2 id="alleviating-parser-limitations">
-      <title>Alleviating the Limitations</title>
-      <para>
-	We will address the ways to address the various limitations in
-	the same order as they were given above..
-      </para>
-      <sect3 id="adding-types">
-	<title>Adding value types</title>
-	<para>
-	  Adding types that can be used as variables, constants or
-	  aliases should be very trivial.  It should suffise to simply
-	  add a single line to a single file.
-	</para>
-	<para>
-	  The value types supported are kept in the TypesRepository
-	  class in orocos-tree/parser/src/Types.hpp.  The list of
-	  value types is constructed in the TypesRepository
-	  constructor in the Types.cpp file.  It looks something like
-	  the following:
-	  <programlisting>
-data[&quot;int&quot;] = new TemplateTypeInfo&lt;int&gt;();
-data[&quot;string&quot;] = new TemplateTypeInfo&lt;std::string&gt;();
-data[&quot;double&quot;] = new TemplateTypeInfo&lt;double&gt;();
-data[&quot;bool&quot;] = new TemplateTypeInfo&lt;bool&gt;();
-	  </programlisting>
-	  Adding your own type comes down to just adding a similar
-	  line there.  There are however some restrictions on what
-	  types can be used (like having a proper, publically
-	  accessible copy constructor, e.g. ), but if you have
-	  properly designed your class as a normal C++ value-based
-	  class, then there should be no problem.
-	</para>
-      </sect3>
-      <sect3 id="overloading-operators">
-	<title>Overloading operators</title>
-	<para>
-	  Operator overloads are stored in the class <classname>ORO_Execution::OperatorRegistry</classname>
-	  in <filename>Operators.hpp</filename>.  The list of
-	  supported operators is built up in the OperatorRegistry
-	  constructor in the <filename>Operators.cxx</filename> file.  It looks something
-	  like this:
-	  <programlisting>
-// boolean stuff:
-add( newUnaryOperator( &quot;!&quot;, std::logical_not&lt;bool&gt;() ) );
-add( newBinaryOperator( &quot;&amp;&amp;&quot;, std::logical_and&lt;bool&gt;() ) );
-add( newBinaryOperator( &quot;||&quot;, std::logical_or&lt;bool&gt;() ) );
-add( newBinaryOperator( &quot;==&quot;, std::equal_to&lt;bool&gt;() ) );
-add( newBinaryOperator( &quot;!=&quot;, std::not_equal_to&lt;bool&gt;() ) );
-	  </programlisting>
-	  Adding your own should not be terribly hard.  The hardest
-	  part is that as the second argument to newUnaryOperator,
-	  newBinaryOperator or newTernaryOperator, you need to specify
-	  a STL Adaptable Functor, and even though the STL provides
-	  many predefined one's, it does not provide all possible
-	  combinations, and you might end up having to write your
-	  own..  The STL does not at all provide any "ternary
-	  operators", so if you need one of those, you'll definitely
-	  have to write it yourself.
-	</para>
-	<para>
-	  Note that this section is only about adding overloads for
-	  existing operators, if you want to add new operators, you
-	  should look at the <link linkend="adding-syntax">next
-	  section</link>.
-	</para>
-      </sect3>
-      <sect3 id="adding-syntax">
-	<title>Adding special syntax</title>
-	<para>
-	  This section will explain how to add a custom constructor,
-	  or a custom operator, that you will then be able to use in
-	  expressions..  The operator can take one to three arguments
-	  of any type, and can return any type..
-	</para>
-	<para>
-	  You need to do two things in order to do this: 
-	  <itemizedlist>
-	    <listitem>
-	      <para>make the parser know about the new syntax</para>
-	    </listitem>
-	    <listitem>
-	      <para>tell the parser what the new syntax means</para>
-	    </listitem>
-	  </itemizedlist>
-	</para>
-	<para>
-	  You should make the parser aware of the new syntax in the
-	  file execution/program-parser/src/ExpressionParser.cxx.  There, in
-	  the ExpressionParser constructor, the syntax of an
-	  expression is defined.  There, you should add the new
-	  syntax.  I'm afraid I can't explain you other than either
-	  copying from an existing syntax or reading the Boost.spirit
-	  documentation.  You need to couple your new syntax with a
-	  semantic action like &quot;bind(
-	  &amp;ExpressionParser::seen_binary, this, &quot;%&quot; )
-	  for a binary action that you want to give the name "%".  The
-	  name &quot;%&quot; is just an identifier that should be
-	  unique to your new operator, it can be any string you want.
-	</para>
-	<para>
-	  Next, you need to define the operator in Operators.cpp, in
-	  much the same way as you should do for <link
-	  linkend="overloading-operators">overloading an existing
-	  operator</link>.  However, instead of then using an existing string
-	  like "+", you should use the string you chose while defining
-	  your new syntax above.
-	</para>
-      </sect3>
-    </sect2>
   </sect1>
 </article>

@@ -39,17 +39,17 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2002-2005</year>
+      <year>2002-2006</year>
       <holder>Peter Soetens, Herman Bruyninckx</holder>
     </copyright>
 
     <abstract>
       <para>
-	This document explains the design and implementation of the
+	This document explains the principles of the
 	<emphasis>Core Library</emphasis> of &orocos;, the <emphasis>Open
-RObot COntrol Software</emphasis> project. The CoreLib provides
-infrastructural support for the functional and application components
-of the &orocos; framework.
+	RObot COntrol Software</emphasis> project. The CoreLib provides
+	infrastructural support for the functional and application components
+	of the &orocos; framework.
       </para>
     </abstract>
 
@@ -112,7 +112,7 @@ of the &orocos; framework.
 	<revnumber>0.22.0</revnumber>
 	<date>15 Feb 2006</date>
 	<authorinitials>ps</authorinitials>
-	<revremark>Removed Fifo section.</revremark>
+	<revremark>Removed Fifo section. Split off developer specific info.</revremark>
       </revision>
     </revhistory>
 
@@ -137,9 +137,7 @@ of the &orocos; framework.
       available in the &orocos; CoreLib Package.
     </para>
     <para>
-      The Orocos OS package allows &orocos; users to build their software 
-      on all supported systems with only a recompilation step.  
-      On top of that, this library, the CoreLib, provides:
+      The CoreLib provides:
       <itemizedlist>
 	<listitem><para>Thread-safe C++ implementations for (periodic) tasks</para></listitem>
 	<listitem><para>Synchronous/Asynchronous Events</para></listitem>
@@ -149,16 +147,19 @@ of the &orocos; framework.
 	<listitem><para>Lock-free data exchange primitives such as fifo buffers or shared data.</para></listitem>
       </itemizedlist> 
       and additionally provides interfaces which are common for all realtime services.
-      The CoreLib imposes a hard realtime <emphasis>architecture</emphasis>. 
-      <emphasis>
-	The goal of this fixed architecture is to keep 
+      The CoreLib imposes a hard realtime <emphasis>architecture</emphasis>:
+    </para>
+    <blockquote>
+      <para>
+	<emphasis> The goal of this fixed architecture is to keep 
 	applications deterministic, by avoiding the classical pitfalls of
 	letting application programmers freely choose the priorities of their
 	tasks, and their communication primitives. Practice has indeed showed
 	that most programmers do not succeed in strictly decoupling the
 	functional and algorithmic parts of their code from the OS-specific
 	primitives used to execute them.</emphasis>
-    </para>
+      </para>
+    </blockquote>
     <para>
       Of course, the realtime performance depends not only on
       the underlying operating system 
@@ -175,6 +176,11 @@ of the &orocos; framework.
   </sect1>
   <sect1>
     <title>Periodic and non Periodic Tasks</title>
+    <note>
+      <para>In future versions of Orocos the CoreLib 'Task' classes may
+      be renamed to 'Activity' in order to avoid confusion with the
+      higher level 'TaskContext' concept.</para>
+    </note>
     <para>
       Threads are the major cause of headaches in multithreaded
       systems programmers heads. Synchronisation, data protection,
@@ -700,150 +706,6 @@ ORO_main( int argc, char** argv)
   task.stop();       // finalize()s task</programlisting>
       </para>
     </sect2>
-    <sect2 id="core-priority-inversions">
-      <title>Priority Inversions</title>
-      <para>
-	A Priority inversion is the term used to indicate a scheduling situation
-	in which a high priority thread is blocked on a resource which is held
-	by a low priority thread, while a medium priority thread is running,
-	preventing the low priority thread to free the resource for the high
-	priority thread. 
-      </para>
-      <para>
-	The result is an inverted priority because a medium priority thread
-	is running while the high priority thread should be runnen, hence, 
-	the medium priority thread has, in practice, a higher priority than
-	the high priority thread.
-      </para>
-      <para>
-	There are roughly said two solution to this problem. 1. Do 
-	not block on resources from high priority threads. 2. Use priority
-	inheritance, where a thread gets the priority of the highest priority
-	thread being blocked on a resource it holds. Once it releases the
-	resource, its priority goes back to normal and the high priority thread
-	can resume.
-      </para>
-      <para>
-	In essence, Orocos does not know of priority inversions and does not
-	know if the underlying Operating System properly solves this common
-	situation. Furthermore, it can be prooven that there are situations 
-	where priority inheritance does not work.
-	Therefore, we try to provide as much as possible lock-free
-	implementations of inter-thread messaging. <xref linkend="core-priority-inversion-table"/>
-	lists the know uses of Orocos which <emphasis>might</emphasis> lead
-	to priority inversion. 
-      </para>
-      <table id="core-priority-inversion-table">
-	<title>Classes Possibly Subject to Priority Inversion</title>
-	<tgroup cols="2">
-	  <thead>
-	    <row>
-	      <entry>Class/method</entry>
-	      <entry>Rationale</entry>
-	    </row>
-	  </thead>
-	  <tbody>
-	    <row>
-	      <entry><classname>ORO_CoreLib::DataObjectLocked</classname></entry>
-	      <entry>
-		<para>Uses Mutex for serialising concurrent access. Alternative
-		Lock-free implementations are possible.</para>
-	      </entry>
-	    </row>
-	    <row>
-	      <entry><classname>ORO_CoreLib::PeriodicTask</classname>::start(), 
-	      <classname>ORO_CoreLib::PeriodicTask</classname>::stop()</entry>
-	      <entry>
-		<para>( Applies to <classname>ORO_CoreLib::PriorityTask</classname>, 
-		<classname>ORO_CoreLib::TaskNonRealtime</classname>, 
-		<classname>ORO_CoreLib::TaskPreemptible</classname> and
-		<classname>ORO_CoreLib::TaskNonPreemptible</classname>).
-		Uses Mutex for serialising concurrent access.
-		Alternative implementation are incorrect,
-		since stop() guarantees that finalize() will
-		be called <emphasis>after</emphasis> the last step(), hence a
-		mutex/semaphore is used such that it
-		will block until the step() returns and then call finalize().
-		</para>
-	      </entry>
-	    </row>
-	    <row>
-	      <entry><classname>ORO_CoreLib::Logger</classname></entry>
-	      <entry>
-		<para>Uses Mutex for serialising concurrent access.
-		  No Alternative implementation is possible, Std C++ IO
-		  <emphasis>must</emphasis> be serialised.</para>
-	      </entry>
-	    </row>
-	  </tbody>
-	</tgroup>
-      </table>
-      <para><xref linkend="core-lock-free-table"/> shows communication infrastructure
-	in Orocos which is especially designed to be lock-free and which is thus 
-	not subject to priority inversions. It is our aim to shrink the former
-	table and grow the latter in Orocos' development lifetime.</para>
-      <table id="core-lock-free-table">
-	<title>Classes Not Subject to Priority Inversion</title>
-	<tgroup cols="2">
-	  <thead>
-	    <row>
-	      <entry>Class/method</entry>
-	      <entry>Rationale</entry>
-	    </row>
-	  </thead>
-	  <tbody>
-	    <row>
-	      <entry><classname>ORO_CoreLib::DataObjectLockFree</classname></entry>
-	      <entry>
-		<para>Uses a single writer, multiple reader Lock-free implementation.
-		  A read only returns the last written value.
-		  Used by the ControlKernel application to communicate data between
-		  Components.</para>
-	      </entry>
-	    </row>
-	    <row>
-	      <entry><classname>ORO_CoreLib::AtomicQueue</classname></entry>
-	      <entry>
-		<para>Uses Compare And Swap (CAS) to store object pointers
-		in an atomic queue. Used by the Processor class to queue incomming Commands.</para>
-	      </entry>
-	    </row>
-	    <row>
-	      <entry><classname>ORO_CoreLib::BufferLockFree</classname></entry>
-	      <entry>
-		<para>Uses a many writers, multiple readers Lock-free CAS implementation.
-		  A read returns the oldest written value in a FIFO way.
-		</para>
-	      </entry>
-	    </row>
-	    <row>
-	      <entry><classname>ORO_CoreLib::ListLockFree</classname></entry>
-	      <entry>
-		<para>Uses a many writers, multiple readers Lock-free CAS implementation
-		of a single linked list. A special member function 'apply' must be used
-		to manipulate the objects within the list.
-		</para>
-	      </entry>
-	    </row>
-	    <row>
-	      <entry><classname>ORO_CoreLib::Event</classname>::emit()</entry>
-	      <entry>
-		<para>Uses the ListLockFree above for keeping track of subscribers.
-		Concurrent invocations of emit() will lead to concurrent execution
-		of the subscriber's callback functions.</para>
-	      </entry>
-	    </row>
-	    <row>
-	      <entry><classname>ORO_CoreLib::Handle</classname>::connect() and <classname>ORO_CoreLib::Handle</classname>::disconnect()</entry>
-	      <entry>
-		<para>(Dis)Connection of an event handle is hard real-time and lock-free
-		because of the lock-free event implementation.</para>
-	      </entry>
-	    </row>
-	  </tbody>
-	</tgroup>
-      </table>
-    </sect2>
     <sect2>
       <title>Collecting Thread Information from Tasks</title>
       <para>
@@ -1272,9 +1134,10 @@ emergencyStop.emit(); // User not notified</programlisting>
 	provide enough information for succesfully using them in your Software Component.
 	<note>
 	  <para>
-	    Reading and writing a properties value can be done in realtime. Every other 
-	    transaction, like marshalling, demarshalling or building the property
-	    is not a realtime operation.
+	    Reading and writing a properties value can be done in
+	    realtime. Every other transaction, like marshalling
+	    (writing to disk), demarshalling (reading from disk) or
+	    building the property is not a realtime operation.
 	  </para>
 	  <para>
 	    <example><title>Using properties</title> 
@@ -1384,7 +1247,7 @@ emergencyStop.emit(); // User not notified</programlisting>
     <sect2>
       <title>Introduction</title>
       <para>
-	A key element in the &orocos; framework is what we call the strong typed
+	A useful element in the &orocos; framework is what we call the strong typed
 	nameserver. It is a (string based) nameserver which stores name, object pairs
 	of only one type of object in the local program. 
 	Off course, polymorphism allows us to collect many
@@ -1436,23 +1299,18 @@ emergencyStop.emit(); // User not notified</programlisting>
     </sect2>
   </sect1>
   <sect1>
-    <title>Buffers, DataObjects and DataSources</title>
+    <title>Buffers and DataObjects</title>
     <para>
       Orocos provides some basic inter-thread buffering mechanisms in the
-      <filename>corelib/buffers</filename> package. The user should be aware of
-      <xref linkend="core-priority-inversions"/>
-      when using the 'locked' buffers (which use a Mutex).
+      <filename>corelib/buffers</filename> package.
     </para>
     <para>
       The difference between Buffers and DataObjects is that DataObjects
-      are single writer / many readers, while buffers allow many writers and readers.
-      Furthermore, a <classname>ORO_CoreLib::DataObject</classname> always returns the last value written (and a
+      always contain a single value, while buffers may be empty, full or contain
+      a number of values.
+      Thus a <classname>ORO_CoreLib::DataObject</classname> always returns the last value written (and a
       write always succeeds), while a buffer
       may implement a FIFO queue to store all written values (and thus can get full).
-      The <classname>ORO_CoreLib::DataSourceBase</classname>, <classname>ORO_CoreLib::DataSource&lt;T&gt;</classname>
-      and <classname>ORO_CoreLib::AssignableDataSource&lt;T&gt;</classname> are interface definitions to
-      define how data of any type can be exchanged across objects or threads.
-      DataObjects implement the DataSource interfaces.
     </para>
     <figure><title>DataObjects versus Buffers</title>
     <mediaobject>
@@ -1469,25 +1327,33 @@ emergencyStop.emit(); // User not notified</programlisting>
     <sect2 id="corelib-buffers">
       <title>Buffers</title>
       <para>
-	There are two kinds of buffers presently available in Orocos. The
-	<emphasis>byte</emphasis> buffers and the <emphasis>typed</emphasis>
-	buffers. The former write a number of bytes and might get deprecated. The
-	latter is a templated (typed) buffer which can write any kind of data
-	( thus also chars ) to a threadsafe buffer.
+	The <classname>ORO_CoreLib::BufferInterface</classname>&lt;T&gt; provides
+	the interface for Orocos buffers. Currently the <classname>ORO_CoreLib::BufferLockFree</classname>&lt;T&gt;
+	is a typed buffer of type <emphasis>T</emphasis> and works as
+	a FIFO queue for storing elements of type T.
+	It is lock-free, non blocking and read and writes
+	happen in bounded time. It is not subject to priority inversions.
       </para>
-      <para>
-	The following buffers are available :
-	<itemizedlist>
-	  <listitem>
-	    <para><emphasis><classname>ORO_CoreLib::BufferLockFree</classname>&lt; T &gt;</emphasis> :
-	      Is a typed buffer of type <emphasis>T</emphasis> and works as
-	      a FIFO queue for storing elements of type T.
-	      It is lock-free, non blocking and read and writes
-	      happen in bounded time. It is not subject to  <xref linkend="core-priority-inversions"/>. 
-	    </para>
-	  </listitem>
-	</itemizedlist>
-	</para>
+	<example>
+	  <title>Accessing a Buffer</title>
+	  <programlisting>  #include &lt;corelib/BufferLockFree.hpp>
+
+  // A Buffer may also contain a class, instead of the simple
+  // double in this example
+  // A buffer with size 10:
+  <classname>ORO_CoreLib::BufferLockFree</classname>&lt;double> my_Buf( 10 ); 
+  if ( my_Buf.Push( 3.14 ) ) {
+     // ok. not full.
+  }
+  double  contents; 
+  if ( my_Buf.Pop( contents ) ) {
+     // ok. not empty.
+     // contents == 3.14
+  }</programlisting></example>
+       <para>
+	 Both <function>Push()</function> and <function>Pop()</function>
+	 return a boolean to indicate failure or success.
+       </para>
     </sect2>
     <sect2 id="corelib-data-objects">
       <title>DataObjects</title>
@@ -1517,95 +1383,7 @@ emergencyStop.emit(); // User not notified</programlisting>
 	<function>Set()</function> methods that each DataObject must
 	have. Semantically, <function>Set()</function> and
 	<function>Get()</function> copy all contents of the
-	DataObject. This interface has multiple
-	implementations, depending on the specific data access locking
-	needs:
-	<itemizedlist>
-	  <listitem>
-	    <para>
-	      <emphasis role="strong"><classname>ORO_CoreLib::DataObject</classname></emphasis>. This is
-	      the most simple DataObject implementation. The
-	      <function>Get()</function> and
-	      <function>Set()</function> methods directly map onto the
-	      contents and can always be inlined by the compiler. It
-	      offers no thread safety, but maximum efficiency for
-	      copying data.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      <emphasis role="strong"><classname>ORO_CoreLib::DataObjectLocked</classname></emphasis>.
-	      This is a thread safe DataObject whose
-	      <function>Set()</function> and
-	      <function>Get()</function> methods are guarded by a
-	      single mutex. The second thread accessing this object
-	      will always block, which is not always appropriate in a
-	      realtime system.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      <emphasis
-		role="strong"><classname>ORO_CoreLib::DataObjectPrioritySet</classname></emphasis>. This
-	      is a more complex DataObject which gives always priority
-	      to the thread calling <function>Set()</function>, which
-	      will never block. The thread accessing
-	      <function>Get()</function> will block if the
-	      <function>Set()</function> thread is accessing the
-	      contents. It is mainly used for sharing data between two
-	      kernels, running at different priorities.
-	    </para>
-	    <note>
-	      <para>
-		This DataObject will only work if the
-		<function>Set()</function> thread has the highest
-		priority. When the inverse is true, data corruption
-		will occur. It is obvious that this DataObject can
-		only be used if both threads have static priorities
-		(which is the case for all threads in the &orocos;
-		framework).
-	      </para>
-	    </note>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      <emphasis
-		role="strong"><classname>ORO_CoreLib::DataObjectPriorityGet</classname></emphasis>. The
-	      inverse of <function>DataObjectPrioritySet</function>.
-	      The thread accessing <function>Get()</function> will
-	      never block.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      <emphasis role="strong"><classname>ORO_CoreLib::DataObjectLockFree</classname></emphasis>.
-	      This DataObject implements a non blocking reader/writer
-	      buffer which always returns the last written value to
-	      the reader. If the reader is preempted with a write and
-	      a read, the last read will return a newer value, while
-	      the first read continues to read the uncorrupted old
-	      value.  The depth of this buffer must be readers+3, for
-	      the algorithm to succeed in doing every write. Apart
-	      from memory consumption, it is one of the best
-	      thread-safe DataObject implementations.
-	    </para>
-	  </listitem>
-	</itemizedlist>
-      </para>
-    </sect2>
-    <sect2>
-      <title>DataSources</title>
-      <para>
-	The <classname>ORO_CoreLib::DataSource</classname> Interface is the most
-	basic interface for exchanging data ( value types ) between
-	objects. They are reference counted ('smart pointers'), such
-	that ownership across many objects must not be managed. This
-	interface is used in the TaskContext Infrastructure to define how
-	tasks can exchange data.
-      </para>
-      <para>
-	The DataObjectInterface implements the DataSource interface,
-	and thus all Orocos DataObject types are DataSources.
+	DataObject.
       </para>
     </sect2>
   </sect1>
@@ -1619,7 +1397,7 @@ emergencyStop.emit(); // User not notified</programlisting>
     </para>
       <note><para>Logging can
       only be done in the non-realtime parts of your application, thus not in
-	the Realtime Periodic Tasks ! <xref linkend="core-reporting"/> is meant for that.</para></note>
+	the Realtime Periodic Tasks !</para></note>
     <para>
       There are currently 8 loglevels :
       <table>
@@ -1713,25 +1491,5 @@ emergencyStop.emit(); // User not notified</programlisting>
   0.124 [Debug] &lt;contents of debugstring and data >
   0.125 [Debug]  more debug info. &lt;...data...> </screen>
     </example>
-  </sect1>
-  <sect1 id="core-reporting">
-    <title>Reporting</title>
-      <para>
-	Having a realtime process running is one thing, knowing what its internal status
-	is another. The reporting classes are made in such a way that existing infrastructure can
-	be extended with a Reporting Stub (<classname>ORO_CoreLib::ReportExporter</classname> ),
-	which creates reports of the internal state
-	of variables and waits for client requests to update and export the data.
-	A client can then ask each existing Stub to create and
-	deliver a report. A timestamp is used to tag all data. When the client
-	has collected all reports, it may transform it to another format, for example,
-	in a log file or a display on screen. We call these clients <classname>ORO_CoreLib::ReportWriter</classname>s
-	since they write out the gathered reports in one or another format ( this is called 
-	  <emphasis>marshalling</emphasis> ).
-      </para>
-      <para>
-	An example of an application which uses the CoreLib reporting infrastructure
-	is the Orocos Control Kernel framework.
-      </para>
   </sect1>
 </article>

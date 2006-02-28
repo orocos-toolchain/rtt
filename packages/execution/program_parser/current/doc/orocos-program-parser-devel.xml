@@ -1,0 +1,233 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+[
+<!ENTITY % oro_ents SYSTEM "http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos.ent" >
+%oro_ents;
+]
+>
+
+<article>
+  <articleinfo>
+    <title>
+      Inside The Orocos Program Parser Manual
+    </title>
+    <subtitle><emphasis>Open RObot COntrol Software</emphasis></subtitle>
+    <authorgroup>
+      <author>
+	<firstname>Dominique</firstname>
+	<surname>Devriese</surname>
+      </author>
+      <author>
+	<firstname>Peter</firstname>
+	<surname>Soetens</surname>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2006</year>
+      <holder>Peter Soetens, Herman Bruyninckx</holder>
+    </copyright>
+    
+    <abstract>
+      <para>
+	This document describes the insides &orocos; Parser system, in the
+	different ways it can be used and extended.
+      </para>
+    </abstract>
+    
+    <revhistory>
+      <revision>
+	<revnumber>0.22.0</revnumber>
+	<date>January 2005</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Split off main manual.</revremark>
+      </revision> 
+   </revhistory>
+
+    <legalnotice>
+      <para>
+	Permission is granted to copy, distribute and/or modify this document
+	under the terms of the GNU Free Documentation License, Version 1.1 or
+	any later version published by the Free Software Foundation, with no
+	Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+	Texts. A copy of this license can be found at
+	<ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
+
+  </articleinfo>
+
+  <sect1 id="intro">
+    <title>Introduction</title>
+    <para>
+      The &orocos; Parser allows users of the &orocos; system to write
+      programs and state machines controlling the system in a
+      user-friendly realtime script language.  The advantage of scripting is
+      that it is easily extendible and does not need recompilation of
+      the main program. It is implemented using the Boost.Spirit
+      parser library, and should be fairly easy to work with.
+    </para>
+    <para>
+      This document is about extending the &orocos; parser to support extra types,
+      overload existing operators, and/or add new operators.
+    </para>
+  </sect1>
+  <sect1 id="extending-the-parser">
+    <title>Extending the parser</title>
+    <note>
+      <para>
+	This Section is only relevant to persons willing to extend
+	the internals of the Orocos Parser framework.
+      </para>
+    </note>
+    <sect2 id="parser-limitations">
+      <title>Parser Limitations</title>
+      <para>
+	For various reasons, during the development of the &orocos;
+	parser, it has proven necessary to hard-code various things,
+	mostly relating to the defined types, and the operations
+	supported on them.  The parser supports using different types
+	of objects than the predefined ones, but the major limitations
+	are:
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      It does not know of <type>unsigned int</type>. It can not call
+	      component methods with <type>unsigned int</type> arguments.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Only a hardcoded set of types can be used as variables,
+	      constants and aliases.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Operators like +, *, >= etc. are only supported for a
+	      hardcoded set of types.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      For some types like vectors, rotations and frames,
+	      special syntax was added.  Currently, this is limited to
+	      the so-called constructors, that allow you to construct
+	      e.g. a vector from three doubles.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+    </sect2>
+    <sect2 id="alleviating-parser-limitations">
+      <title>Alleviating the Limitations</title>
+      <para>
+	We will address the ways to address the various limitations in
+	the same order as they were given above..
+      </para>
+      <sect3 id="adding-types">
+	<title>Adding value types</title>
+	<para>
+	  Adding types that can be used as variables, constants or
+	  aliases should be very trivial.  It should suffise to simply
+	  add a single line to a single file.
+	</para>
+	<para>
+	  The value types supported are kept in the TypesRepository
+	  class in orocos-tree/parser/src/Types.hpp.  The list of
+	  value types is constructed in the TypesRepository
+	  constructor in the Types.cpp file.  It looks something like
+	  the following:
+	  <programlisting>
+data[&quot;int&quot;] = new TemplateTypeInfo&lt;int&gt;();
+data[&quot;string&quot;] = new TemplateTypeInfo&lt;std::string&gt;();
+data[&quot;double&quot;] = new TemplateTypeInfo&lt;double&gt;();
+data[&quot;bool&quot;] = new TemplateTypeInfo&lt;bool&gt;();
+	  </programlisting>
+	  Adding your own type comes down to just adding a similar
+	  line there.  There are however some restrictions on what
+	  types can be used (like having a proper, publically
+	  accessible copy constructor, e.g. ), but if you have
+	  properly designed your class as a normal C++ value-based
+	  class, then there should be no problem.
+	</para>
+      </sect3>
+      <sect3 id="overloading-operators">
+	<title>Overloading operators</title>
+	<para>
+	  Operator overloads are stored in the class <classname>ORO_Execution::OperatorRegistry</classname>
+	  in <filename>Operators.hpp</filename>.  The list of
+	  supported operators is built up in the OperatorRegistry
+	  constructor in the <filename>Operators.cxx</filename> file.  It looks something
+	  like this:
+	  <programlisting>
+// boolean stuff:
+add( newUnaryOperator( &quot;!&quot;, std::logical_not&lt;bool&gt;() ) );
+add( newBinaryOperator( &quot;&amp;&amp;&quot;, std::logical_and&lt;bool&gt;() ) );
+add( newBinaryOperator( &quot;||&quot;, std::logical_or&lt;bool&gt;() ) );
+add( newBinaryOperator( &quot;==&quot;, std::equal_to&lt;bool&gt;() ) );
+add( newBinaryOperator( &quot;!=&quot;, std::not_equal_to&lt;bool&gt;() ) );
+	  </programlisting>
+	  Adding your own should not be terribly hard.  The hardest
+	  part is that as the second argument to newUnaryOperator,
+	  newBinaryOperator or newTernaryOperator, you need to specify
+	  a STL Adaptable Functor, and even though the STL provides
+	  many predefined one's, it does not provide all possible
+	  combinations, and you might end up having to write your
+	  own..  The STL does not at all provide any "ternary
+	  operators", so if you need one of those, you'll definitely
+	  have to write it yourself.
+	</para>
+	<para>
+	  Note that this section is only about adding overloads for
+	  existing operators, if you want to add new operators, you
+	  should look at the <link linkend="adding-syntax">next
+	  section</link>.
+	</para>
+      </sect3>
+      <sect3 id="adding-syntax">
+	<title>Adding special syntax</title>
+	<para>
+	  This section will explain how to add a custom constructor,
+	  or a custom operator, that you will then be able to use in
+	  expressions..  The operator can take one to three arguments
+	  of any type, and can return any type..
+	</para>
+	<para>
+	  You need to do two things in order to do this: 
+	  <itemizedlist>
+	    <listitem>
+	      <para>make the parser know about the new syntax</para>
+	    </listitem>
+	    <listitem>
+	      <para>tell the parser what the new syntax means</para>
+	    </listitem>
+	  </itemizedlist>
+	</para>
+	<para>
+	  You should make the parser aware of the new syntax in the
+	  file execution/program-parser/src/ExpressionParser.cxx.  There, in
+	  the ExpressionParser constructor, the syntax of an
+	  expression is defined.  There, you should add the new
+	  syntax.  I'm afraid I can't explain you other than either
+	  copying from an existing syntax or reading the Boost.spirit
+	  documentation.  You need to couple your new syntax with a
+	  semantic action like &quot;bind(
+	  &amp;ExpressionParser::seen_binary, this, &quot;%&quot; )
+	  for a binary action that you want to give the name "%".  The
+	  name &quot;%&quot; is just an identifier that should be
+	  unique to your new operator, it can be any string you want.
+	</para>
+	<para>
+	  Next, you need to define the operator in Operators.cpp, in
+	  much the same way as you should do for <link
+	  linkend="overloading-operators">overloading an existing
+	  operator</link>.  However, instead of then using an existing string
+	  like "+", you should use the string you chose while defining
+	  your new syntax above.
+	</para>
+      </sect3>
+    </sect2>
+  </sect1>
+</article>
