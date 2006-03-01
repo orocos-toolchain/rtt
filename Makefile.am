@@ -16,6 +16,7 @@ EXTRA_DIST = \
 	packages/support/xercesc/current/xercesc.cdl.in \
 	packages/support/readline/current/readline.cdl.in \
 	packages/support/rtai/current/rtai.cdl.in \
+	packages/support/xenomai/current/xenomai.cdl.in \
 	packages/support/gcc/current/gcc.cdl.in \
 	packages/support/corba/current/corba.cdl.in
 	packages/pkgconf/fixhtml.tcl \
