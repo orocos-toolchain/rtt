@@ -54,6 +54,11 @@ namespace ORO_Execution
             return mmap.find( s ) != mmap.end();
         }
 
+    int MapDataSourceFactory::getArity( const std::string& ) const
+    {
+        return 0;
+    }
+
         std::vector<ArgumentDescription> MapDataSourceFactory::getArgumentList( const std::string& method ) const
         {
             // we don't support arguments here...

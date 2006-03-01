@@ -57,6 +57,7 @@ namespace ORO_Execution
         std::vector<std::string> getNames() const;
         bool hasMember( const std::string& s ) const;
         std::vector<ArgumentDescription> getArgumentList( const std::string& method ) const;
+        int getArity(const std::string& name) const;
         ORO_CoreLib::PropertyBag getArgumentSpec( const std::string& method ) const;
         DataSourceBase* create( const std::string& name, const ORO_CoreLib::PropertyBag& args ) const;
         DataSourceBase* create( const std::string& name, const std::vector<DataSourceBase*>& args ) const;
