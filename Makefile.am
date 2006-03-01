@@ -18,7 +18,7 @@ EXTRA_DIST = \
 	packages/support/rtai/current/rtai.cdl.in \
 	packages/support/xenomai/current/xenomai.cdl.in \
 	packages/support/gcc/current/gcc.cdl.in \
-	packages/support/corba/current/corba.cdl.in
+	packages/support/corba/current/corba.cdl.in \
 	packages/pkgconf/fixhtml.tcl \
         packages/pkgconf/rules.doc \
         packages/pkgconf/rules.mak \
