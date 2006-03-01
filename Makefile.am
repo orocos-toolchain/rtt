@@ -12,6 +12,7 @@ EXTRA_DIST = \
 	doc/CODING_STYLE.txt \
 	packages/support/common/current/support.cdl.in \
 	packages/support/boost/current/boost.cdl.in \
+	packages/support/boost/current/include \
 	packages/support/comedi/current/comedi.cdl.in \
 	packages/support/xercesc/current/xercesc.cdl.in \
 	packages/support/readline/current/readline.cdl.in \
@@ -53,7 +54,7 @@ check-headers: clean_headers init_packages inst-headers
 	for i in $$(find . -name "*.h" -o -name "*.hpp"); do \
 	echo  "Checking $$i..." ;\
 	echo -e "#include <$$i>\n" > $$tname ;\
-	${CC} -pipe -W -Wall -S $$tname -I. ;\
+	${CC} -pipe -Wall -S $$tname -I. ;\
 	done ; rm $$tname $$(basename $$tname cpp)s
 
 clean-local: clean_packages

@@ -18,7 +18,8 @@ AC_CONFIG_SRCDIR([config.h.in])
 AM_CONFIG_HEADER([config.h])
 
 dnl Initialize Automake
-AM_INIT_AUTOMAKE(1.6.0)
+
+AM_INIT_AUTOMAKE([gnu tar-ustar])
 
 OROCOS_GENERAL(AC_PACKAGE_NAME,AC_PACKAGE_VERSION)
 
