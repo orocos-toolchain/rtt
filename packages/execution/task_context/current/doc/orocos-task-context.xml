@@ -74,7 +74,7 @@
 
   </articleinfo>
 
-  <sect1 id="task-context-intro">
+  <section id="task-context-intro">
     <title>Introduction</title>
     <para>
       This manual documents how multi-threaded tasks can be defined in &orocos;
@@ -202,8 +202,8 @@
       block of applications. A component developer 'builds'
       these interfaces using the instructions found in this manual.
     </para>
-  </sect1>
-  <sect1>
+  </section>
+  <section>
     <title>An Introductory Example to TaskContexts</title>
     <para>
       This section introduces tasks through the "taskintro"
@@ -528,8 +528,8 @@ cd                  quit
       it is a very useful tool. The next sections show how you can add
       properties, commands, methods etc to a TaskContext.
     </para>
-  </sect1>
-  <sect1 id="basic-task">
+  </section>
+  <section id="basic-task">
     <title>Setting Up a Basic Task</title>
     <para>
       Tasks are 
@@ -599,7 +599,7 @@ cd                  quit
       the Execution Engine.  As long as it is not started, it will accept no
       commands and run no programs.
     </para>
-    <sect2><title>Task Application Code</title>
+    <section><title>Task Application Code</title>
     <para>
       The user may insert his application code in the
       <function>startup()</function>,
@@ -653,8 +653,8 @@ cd                  quit
       <function>shutdown()</function> is called after the last
       <function>update()</function>.
     </para>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>Starting Task Execution</title>
       <para>
 	The functionality of a task, i.e. its algorithm, is executed
@@ -704,8 +704,8 @@ cd                  quit
 	come in to be executed. Each time such an event happens, the user's
 	application code (<function>update()</function>) is called as well.
       </para>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>Interfacing the TaskContext</title>
       <para>
 	During development of your TaskContext, it is handy to connect
@@ -721,8 +721,8 @@ cd                  quit
         In which you can start/stop the task and manipulate every
 	aspect of it's interface, as was seen in the previous section.
       </para>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>Introducing the TaskContext's Interface</title>
       <para>
 	A TaskContext exists of a number of accessor methods which
@@ -738,8 +738,8 @@ cd                  quit
       The meaning of these factories are explained in the following
       sections.
     </para>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>The Data Flow Interface</title>
       <note><title>Purpose</title><para>The 'Data Flow' is
       a 'stream of data' between tasks. A classical control
@@ -768,7 +768,7 @@ cd                  quit
 	write-only and read-write access to the buffered data.
 	The example below shows all these possiblities.
       </para>
-      <sect3>
+      <section>
 	<title>Setting up the Data Flow Interface</title>
 	<para>
 	  Any kind of data can be exchanged (also user defined types)
@@ -847,8 +847,8 @@ cd                  quit
 	This connection will then take precedence. 
 	</para>
       </note>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>Using the Data Flow Interface in C++</title>
 	<para>
 	  The Data Flow interface is used by your task from within
@@ -921,8 +921,8 @@ cd                  quit
 	  <function>buffer</function> returns a
 	  <classname>ORO_CoreLib::BufferInterface</classname>.
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>Using Data Flow in Scripts</title>
 	<para>
 	  When a Port is connected, it becomes available to the
@@ -968,9 +968,9 @@ cd                  quit
 	  is not necessary. See the Scripting Manual for a full
 	  overview of the syntax.
 	</para>
-      </sect3>
-    </sect2>
-    <sect2>
+      </section>
+    </section>
+    <section>
       <title>The Method Interface</title>
       <note><title>Purpose</title><para>A task's methods are intended
       to be called 'synchronously' by the caller, i.e. are directly
@@ -1006,8 +1006,8 @@ cd                  quit
     void reset() { ... }
     string getName() const { ... }
     double changeParameter(double f) { ... }
-    void passByArgument(int&amp; a1, vector&lt;double&gt;&amp; v2) { a1 =...; v2=...; }
     // ...
+
     MyTask(std::string name)
       : <classname>ORO_Execution::GenericTaskContext</classname>(name)
     {
@@ -1022,11 +1022,6 @@ cd                  quit
                      method( &amp;MyTask::changeParameter,
                              &quot;Change a parameter, return the old value.&quot;,
 	                     &quot;New Value&quot;, &quot;The new value for the parameter.&quot; ) ); 
-       mfact-&gt;add( &quot;passByArgument&quot;,
-                     method( &amp;MyTask::passByArgument,
-                             &quot;Method which passes results by argument.&quot;,
-		             &quot;I&quot;,&quot;Integer passed by reference&quot;,
-	                     &quot;V&quot;,&quot;Vector passed by reference&quot; ) ); 
 
        this->methods()->registerObject("this", mfact);
 
@@ -1041,11 +1036,16 @@ cd                  quit
   TemplateMethodFactory&lt;MyTask&gt;* mfact =
     newMethodFactory( this );
 	</programlisting>
-	constructs a new TemplateMethodFactory, which will create methods
-	for the <emphasis>object</emphasis> 'this'. A TemplateMethodFactory
-	only provides access to one C++ object. 
-	After this factory is constructed, we add
-	methods to it using the add() function.  The add() function requires a
+	constructs a new TemplateMethodFactory, which will create
+	methods for the <emphasis>object</emphasis> 'this'. You need
+	to supply the C++ type of the object as a template
+	parameter, here the class <classname>MyTask</classname>. 
+	Each Method object created by this TemplateMethodFactory will be 
+	invoked on that object. Any number of methods with
+	any kind of arguments can be added.
+
+	After this factory is constructed, we add methods
+	to it using the add() function.  The add() function requires a
 	name for the added method, and information on the method to be
 	associated with that name.  The latter is generated using the
 	function method().
@@ -1054,9 +1054,10 @@ cd                  quit
   mfact-&gt;add( &quot;reset&quot;,
              method( &amp;MyTask::reset, &quot;Reset the system.&quot; ) );</programlisting>
       <para>
-	The <function>method()</function> function requires a pointer to a
-	class function having a number of
-	arguments, and returning the appropriate result.  The function's
+	The <function>method()</function> function requires a pointer
+	to a class function of the earlier provided type
+	(<classname>MyTask</classname>), having a number of arguments,
+	and returning the appropriate result.  The function's
 	signature will automatically define the signature in the
 	exported API.  After the class function pointer follows a C
 	string containing a description of the function, followed by a
@@ -1065,11 +1066,11 @@ cd                  quit
 <programlisting>
   this->methods()->registerObject("this", fact);	</programlisting>
       <para>
-	Finally, the factory is stored in the method interface of
-	a_task, where it is <emphasis>added</emphasis> to the "this"
-	methods, thus to the public interface of the task.  One
-	may also store the methods in another object, which is then
-	intended for internal use.
+	Finally, the factory is stored in the Method interface of
+	a_task, where it is added to the "this" methods, thus to the
+	public interface of the task.  One may also store the methods
+	in an object with a different name, which is then intended for
+	internal use.
       </para>
       <important>
 	<para>The method factory, and all other factories of a TaskContext
@@ -1099,7 +1100,7 @@ cd                  quit
 	</caption>
       </mediaobject>
     </figure>
-      <sect3>
+      <section>
 	<title>Invoking Methods in C++</title>
 	<para>
 	  In order to easily invoke a task's methods from a C++ program,
@@ -1150,8 +1151,8 @@ cd                  quit
 	 .arg(X).arg(Y).arg(Z) etc ), but an error will be logged when
 	 a wrong number or wrong type of argument is given.
        </para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>Invoking Methods in Scripts</title>
 	<para>
 	  To invoke
@@ -1179,9 +1180,9 @@ cd                  quit
 	  you may add pure virtual methods to the factory.
 	</emphasis>
       </para>
-      </sect3>
-    </sect2>
-    <sect2 id="method-args-types">
+      </section>
+    </section>
+    <section id="method-args-types">
       <title>Method Argument and Return Types</title>
       <para>
 	The arguments can be of any type. However, to be compatible with
@@ -1231,8 +1232,8 @@ cd                  quit
 	but the parser will (unless properly extended) not be able to store them
 	in a parser variable.
       </para>
-  </sect2>
-  <sect2 id="task-attr-rep">
+  </section>
+  <section id="task-attr-rep">
     <title>The Attributes and Properties Interface</title>
       <note><title>Purpose</title><para>A task's attributes and
       properties are intended to configure and tune a task with
@@ -1254,7 +1255,7 @@ cd                  quit
       also knows how to handle Property objects. Attributes are plain
       variables, while properties can be written to and updated from an XML file.
     </para>
-    <sect3>
+    <section>
       <title>Adding Task Attributes or Properties</title>
       <para>
 	An attribute can be added in the task's
@@ -1309,8 +1310,8 @@ cd                  quit
 	only delete them after a
 	<function>removeProperty()</function>.</para>
       </important>
-    </sect3>
-    <sect3>
+    </section>
+    <section>
       <title>Accessing Task Attributes in C++</title>
       <para>
 	To get a value from the repository,
@@ -1327,8 +1328,8 @@ cd                  quit
        = a_task.attributes()->getAttribute&lt;std::string&gt;( "Param" );
 
   assert( attrs->get() == "The String" );</programlisting></para>
-    </sect3>
-    <sect3>
+    </section>
+    <section>
       <title>Accessing Task Attributes in Scripts</title>
       <para>
 	A program script can access the above attributes as in</para>
@@ -1359,17 +1360,17 @@ cd                  quit
 	  the attribute types, when you want to access them from program scripts.
 	</para>
       </important>
-    </sect3>
-    <sect3>
+    </section>
+    <section>
       <title>Storing and Loading Task Properties</title>
       <para>
 	See <xref linkend="task-property-config" /> for storing and loading
 	the Properties in a AttributeRepository to and from files, in order
 	to save a TaskContext's state.
       </para>
-    </sect3>
-  </sect2>
-  <sect2>
+    </section>
+  </section>
+  <section>
     <title>The Command Interface</title>
       <note><title>Purpose</title><para>A task's commands are intended
       to be called 'asynchronously', thus <emphasis>sent</emphasis> by the caller
@@ -1387,7 +1388,7 @@ cd                  quit
       objects which encapsulate a command call to a TaskContext's
       interface.
     </para>
-    <sect3>
+    <section>
       <title>Adding Commands to a TaskContext</title>
       <para>
 	To add a command to the Command Interface, one can use
@@ -1479,8 +1480,8 @@ cd                  quit
 	take ownership of the registered or added objects. You are not
 	allowed to delete them.</para>
       </important>
-    </sect3>
-    <sect3>
+    </section>
+    <section>
       <title>Invoking Commands in C++</title>
       <para>
 	Once a command is added to a task's factory, other tasks
@@ -1519,8 +1520,8 @@ cd                  quit
 	 Any number of arguments can be given, but an error will be
 	 logged when a wrong number or wrong type of argument is given.
        </para>
-    </sect3>
-    <sect3>
+    </section>
+    <section>
       <title>Invoking Commands from Scripts</title>
       <para>
 	The above lets you write in a program script :</para>
@@ -1544,9 +1545,9 @@ cd                  quit
 	  to access them from program scripts.
 	</para>
       </important>
-    </sect3>
-  </sect2>
-  <sect2>
+    </section>
+  </section>
+  <section>
     <title>The Event Interface</title>
       <note><title>Purpose</title><para>A task's events are intended
       to be 'emitted', thus <emphasis>published</emphasis> by the task
@@ -1564,7 +1565,7 @@ cd                  quit
       CoreLib. The <classname>ORO_Execution::EventService</classname> is the
       main access point to register and locate a task's events.
     </para>
-    <sect3>
+    <section>
       <title>Adding Events</title>
       <para>
 	Events can be easily added to a task's interface,
@@ -1591,8 +1592,8 @@ cd                  quit
   };</programlisting>
 	and so on.
       </para>
-    </sect3>
-    <sect3>
+    </section>
+    <section>
       <title>Emitting Events in C++</title>
       <para>
 	Once events are added, they can be emitted using the
@@ -1612,8 +1613,8 @@ cd                  quit
       <para>Note that the <function>emit()</function> method does not return
       a value.
       </para>
-    </sect3>
-    <sect3>
+    </section>
+    <section>
       <title>Reacting to Events in C++</title>
       <para>
 	Analogous to emitting an event, one can also react to
@@ -1717,8 +1718,8 @@ cd                  quit
 	of b_task is added in the <function>callback</function> method, such
 	that the callback is executed in b_task's thread.
       </para>
-    </sect3>
-    <sect3>
+    </section>
+    <section>
       <title>Using Events from Scripts</title>
       <para>
 	Events are as easy to use as methods (above) from within
@@ -1730,11 +1731,11 @@ cd                  quit
 	machine in order to change state. We refer to the Program
 	Parser Manual for syntax and examples.
       </para>
-    </sect3>
-  </sect2>
-  </sect1>
-  <sect1 id="connect-tasks">
-    <title>Connecting Tasks</title>
+    </section>
+  </section>
+  </section>
+  <section id="connect-tasks">
+    <title>Task Connections</title>
     <para>
       A Real-Time system contains multiple concurrent
       tasks which must communicate to each other.
@@ -1749,6 +1750,40 @@ cd                  quit
       networks as well as complete flat or circular networks or any
       kind of mixed network.
     </para>
+    <section><title>Connecting Tasks</title>
+    <example><title>TaskContext Peer Topology Example</title>
+    <para>This diagram shows some possible topologies. Four tasks,
+    "A", "B", "C" and "D" have each a port "MyData" and a port "MyData2".
+    The example demonstrates that connections are always made from
+    writer (sender) to reader (receiver).
+    </para>
+    <mediaobject>
+	<imageobject>
+	  <imagedata fileref="DataFlowTopology" />
+	</imageobject>
+	<caption>
+	  <para>
+	    Example networks.
+	  </para>
+	</caption>
+    </mediaobject>
+    <para>
+      The first network has two writers and two readers for "MyData".
+      It can be formed starting from "A" and adding "B","C"
+      and "D" as peers of "A" respectively. Since the network started from
+      "A" all peers share the same connection. The same network could have
+      been formed starting from "B". The second diagram connects
+      "A" to "C" and then "B" to "D". Two connections are now made and if
+      the application tries to connect "B" to "C", this will fail since
+      the "MyData" Port of "C" already participates in a connection.
+    </para>
+    <para>
+      The third network has one writer and three readers for "MyData2".
+      It can now only be formed starting from "D" and adding "A","B" and "C"
+      as peers to "D". Combining both network one and three is possible
+      by merely invoking all the 'addPeer' methods in the correct order.
+    </para>
+    </example>
     <para>
       Peers are connected as such (<methodname>hasPeer</methodname> takes a string 
       argument ):</para>
@@ -1790,15 +1825,70 @@ cd                  quit
     <para>
       The peer connection graph can be traversed at arbitrary
       depth. Thus you can access your peer's peers.
+    </para></section>
+    <section><title>Disconnecting Tasks</title>
+    <para>
+      Tasks can be disconnected from a network by invoking
+      <function>disconnect()</function> on that task. It will
+      inform all its peers that it has left the network and
+      disconnect all its ports. This does not mean that
+      all data flow connections are deleted. As long as one task's
+      port still participates in a connection, the connections
+      exist. When the last port disconnects, the data flow connection
+      is cleaned up as well.
     </para>
-  </sect1>
-  <sect1 id="run-tasks">
+    <example><title>TaskContext Peer Disconnection Example</title>
+    <para>(1) shows what would happen if tasks "A" and "B"
+    are disconnected from the network. (2) shows what would happen if
+    the connection itself is disconnected.
+    </para>
+    <mediaobject>
+	<imageobject>
+	  <imagedata fileref="DataFlowDisconnect" />
+	</imageobject>
+	<caption>
+	  <para>
+	    Disconnecting tasks.
+	  </para>
+	</caption>
+    </mediaobject>
+    <para> When <function>A.disconnect()</function> is called (1),
+    it removes its participation from the "MyData" connection.
+    The same happens for <function>B.disconnect()</function>.
+    "C" and "D" read then from a connection which has no more
+    writers. Adding "A" again to the network would make "A"
+    again a writer of "MyData". If both "C" and "D" call disconnect
+    as well, the "MyData" connection is cleaned up.
+      <programlisting>  a_task.disconnect();
+  assert( !a_task.hasPeer( &amp;b_task.getName() ) 
+          &amp;&amp; !b_task.hasPeer( &amp;a_task.getName() );
+
+  b_task.disconnect();
+  assert( !c_task.hasPeer( &amp;b_task.getName() ) 
+          &amp;&amp; ! d_task.hasPeer( &amp;b_task.getName() );</programlisting>
+    </para>
+    <para>
+      Data Flow connections can be disconnected (2) as
+      well, in which case all ports are disconnected.
+      <programlisting>  ConnectionInterface::shared_ptr con = a_task.ports()->getPort("MyData")->connection();
+  if (con)
+    con->disconnect();
+
+  assert( !a_task.ports()->getPort("MyData").connected() );
+  assert( !b_task.ports()->getPort("MyData").connected() );
+  assert( !c_task.ports()->getPort("MyData").connected() );
+  assert( !d_task.ports()->getPort("MyData").connected() ); </programlisting>
+    </para>
+    </example>
+    </section>
+  </section>
+  <section id="run-tasks">
     <title>Using Tasks</title>
     <para>
       This section elaborates on the interface all Task Contexts have
       from a 'Task user' perspective.
     </para>
-    <sect2 id="task-property-config">
+    <section id="task-property-config">
       <title>Task Property Configuration</title>
       <para>
 	As was seen in <xref linkend="task-attr-rep" />,
@@ -1821,8 +1911,8 @@ cd                  quit
 	 share a single file with multiple tasks or update the task's
 	 properties from multiple files.
        </para>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>Task Scripts</title>
       <para>
 	Orocos supports two types of scripts:
@@ -1840,7 +1930,7 @@ cd                  quit
 	<classname>ORO_Execution::ExecutionEngine</classname> of a
 	task.
       </para>
-      <sect3 id="task-context-programs">
+      <section id="task-context-programs">
 	<title>Program Scripts</title>
 	<para>
 	  Program can be finely controlled once loaded in
@@ -1905,8 +1995,8 @@ cd                  quit
        // Execution Engine not running ?
     }
   }</programlisting>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>State Machines</title>
 	<para>
 	  Hierarchical state machines are modelled in Orocos
@@ -1950,25 +2040,25 @@ cd                  quit
 	  The Scripting Manual goes in great detail on how to 
 	  construct and control State Machines.
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>Further Reading</title>
 	<para>
 	  In addition to this text, be sure to read the &parseman;
 	  such that you get a grip of the full power of Real-Time
 	  Orocos scripts.
 	</para>
-      </sect3>
-    </sect2>
-  </sect1>
-  <sect1>
+      </section>
+    </section>
+  </section>
+  <section>
     <title>Advanced Techniques</title>
     <para>
       If you master the above methods of setting up tasks, this section
       gives some advanced uses for integrating your existing application
       framework in Orocos Tasks.
     </para>
-    <sect2>
+    <section>
       <title>Using the <classname>ORO_Execution::GenericTaskContext</classname></title>
       <para>
 	To help users in setting up quickly a TaskContext, the GenericTaskContext
@@ -1979,8 +2069,8 @@ cd                  quit
 	You can download an introduction to setting up TaskContexts which
 	uses this class from the Orocos.org download page.
       </para>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>Wrapping Methods in Functions</title>
       <para>
 	Methods are always executed in the thread of the caller. If a 
@@ -2000,14 +2090,14 @@ cd                  quit
 	can instruct it to execute that method, without jeopardizing 
 	their own realtime behaviour.
       </para>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>Waiting for Something : Synchronisation</title>
       <para>
 	When tasks need to synchronise, you have a wide range of
 	options to use. 
       </para>
-      <sect3>
+      <section>
 	<title>Waiting in States</title>
 	<para>
 	  A (sub-)State Machine can pause itself and an extra function
@@ -2083,8 +2173,8 @@ cd                  quit
 	  When the user or another program calls the progress() command,
 	  the flag will be set.
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>Requesting States</title>
 	<para>
 	  A State Machine can be used such that it waits for state
@@ -2174,9 +2264,9 @@ cd                  quit
 	  All these methods can of course also be called from parent
 	  to child State Machine, or across tasks.
 	</para>
-      </sect3>
-    </sect2>
-    <sect2>
+      </section>
+    </section>
+    <section>
       <title>Polymorphism : Task Interfaces</title>
       <para>
 	Most projects have define their own task interfaces in C++.
@@ -2212,7 +2302,7 @@ cd                  quit
 	task. Luckily for you, C++ polymorphism can be transparantly
 	adopted in Orocos TaskContexts. This is how it goes.
       </para>
-      <sect3>
+      <section>
 	<title>Step 1 : Export the interface</title>
 	<para>We construct a TaskContext, which exports your
 	C++ interface to a task's interface.
@@ -2272,8 +2362,8 @@ cd                  quit
 	  in the previous sections. Also note that the TaskContext's name
 	  is fixed to "DeviceInterface". This is not obligatory though.
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>Step 2 : Inherit from the new interface</title>
 	<para>Your DeviceInterface implementations now
 	  only need to inherit from <classname>TaskDeviceInterface</classname>
@@ -2295,8 +2385,8 @@ cd                  quit
     // etc.
   };
 	</programlisting>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>Step 3 : Add the task to other tasks</title>
 	<para>
 	  The new TaskContext can now be added to other tasks.
@@ -2322,8 +2412,8 @@ cd                  quit
 	  state contexts which use that peer so that they reference
 	  the new peer and its C++ implementation.
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>Step 4 : Use the task's interface</title>
 	<para>To make the example complete, here is an example
 	script which could run in the supervisor task :
@@ -2404,7 +2494,7 @@ cd                  quit
 	    </itemizedlist>
 	  </listitem>
 	</itemizedlist>
-      </sect3>
-    </sect2>
-  </sect1>
+      </section>
+    </section>
+  </section>
 </article>

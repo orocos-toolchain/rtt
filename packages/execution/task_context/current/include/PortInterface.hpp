@@ -4,6 +4,7 @@
 #include <string>
 #include "ConnectionTypes.hpp"
 #include "ConnectionInterface.hpp"
+#include "DataSourceFactoryInterface.hpp"
 
 namespace ORO_Execution
 {
@@ -17,14 +18,22 @@ namespace ORO_Execution
     {
     protected:
         std::string portname;
-        PortInterface(const std::string& name) : portname(name) {}
+        PortInterface(const std::string& name);
     public:
-        virtual ~PortInterface() {}
+        virtual ~PortInterface();
 
         /**
          * Get the name of this Port.
          */
         const std::string& getName() const { return portname;}
+
+        /**
+         * Change the name of this unconnected Port.
+         * One can only change the name when it is not yet connected.
+         * @retval true if !this->connected(), the name has changed.
+         * @retval false if this->connected(), the name has not been changed.
+         */
+        bool setName(const std::string& name);
 
         /**
          * Inspect if this Port is connected with another Port.
@@ -50,11 +59,7 @@ namespace ORO_Execution
          * If \a other does not yet participate in a Connection, this method fails.
          * @return true upon success, false otherwise.
          */
-        virtual bool connectTo( PortInterface* other ) {
-            if ( other->connection() == 0 )
-                return false;
-            return this->connectTo( other->connection() );
-        }
+        virtual bool connectTo( PortInterface* other );
 
         /**
          * No longer participate in a connection.
@@ -64,18 +69,13 @@ namespace ORO_Execution
         /**
          * Create a connection to another port.
          */
-        virtual ConnectionInterface::shared_ptr createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree)
-        {
-            return ConnectionInterface::shared_ptr();
-        }
+        virtual ConnectionInterface::shared_ptr createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
 
         /**
          * Create accessor DataSources for this Port, for addition to a
          * DataSource interface.
          */
-        virtual DataSourceFactoryInterface* createDataSources() {
-            return 0;
-        }
+        virtual DataSourceFactoryInterface* createDataSources();
     };
 
 }

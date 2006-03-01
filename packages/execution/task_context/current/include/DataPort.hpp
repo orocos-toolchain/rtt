@@ -30,6 +30,10 @@ namespace ORO_Execution
          */
         ReadDataPort(const std::string& name) : PortInterface(name), mconn() {}
 
+        ~ReadDataPort() {
+            if (mconn)
+                mconn->removeReader(this);
+        }
         /**
          * Get the buffer to read from. The Task may use this to read from a
          * Buffer connected to this port.
@@ -99,6 +103,11 @@ namespace ORO_Execution
          * @param name The name of this port.
          */
         WriteDataPort(const std::string& name) : PortInterface(name), mconn() {}
+
+        ~WriteDataPort() {
+            if (mconn)
+                mconn->removeWriter(this);
+        }
 
         /**
          * Connect a readable buffer to this Port.

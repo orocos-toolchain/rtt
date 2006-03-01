@@ -34,6 +34,10 @@
 #include "execution/Factories.hpp"
 
 #include <string>
+#include <algorithm>
+#include <functional>
+#include <boost/bind.hpp>
+#include <boost/mem_fn.hpp>
 #include "execution/mystd.hpp"
 #include "execution/DataSource.hpp"
 #include "execution/TaskAttribute.hpp"
@@ -42,6 +46,8 @@
 namespace ORO_Execution
 {
     using namespace ORO_CoreLib;
+    using namespace boost;
+    using namespace std;
 
     TaskContext::TaskContext(const std::string& name)
         :  _task_name(name),
@@ -71,6 +77,19 @@ namespace ORO_Execution
             // could be used though, but parsed programs would still contain
             // pointers to non existing peers.
             attributeRepository.clear();
+
+            // remove from all users.
+            while( !musers.empty() ) {
+                musers.front()->removePeer(this);
+            }
+            // since we are destroyed, be sure that the peer no longer
+            // has a 'user' pointer to us.
+            while ( !_task_map.empty() ) {
+                _task_map.begin()->second->removeUser(this);
+                _task_map.erase( _task_map.begin() );
+            }
+            // Do not call this->disconnect() !!!
+            // Ports are probably already destructed by user code.
         }
 
     void TaskContext::exportPorts()
@@ -161,6 +180,18 @@ namespace ORO_Execution
             return ee.getCommandProcessor()->process( c );
         }
 
+    void TaskContext::addUser( TaskContext* peer )
+    {
+        musers.push_back(peer);
+    }
+
+    void TaskContext::removeUser( TaskContext* peer )
+    {
+        Users::iterator it = find(musers.begin(), musers.end(), peer);
+        if ( it != musers.end() )
+            musers.erase(it);
+    }
+
         bool TaskContext::addPeer( TaskContext* peer, std::string alias )
         {
             if ( alias.empty() )
@@ -168,6 +199,7 @@ namespace ORO_Execution
             if ( _task_map.count( alias ) != 0 )
                 return false;
             _task_map[ alias ] = peer;
+            peer->addUser( this );
             this->connectDataFlow(peer);
             this->exportPorts();
             peer->exportPorts();
@@ -176,8 +208,21 @@ namespace ORO_Execution
 
         void TaskContext::removePeer( const std::string& name )
         {
-            if ( _task_map.end() != _task_map.find( name ) )
+            PeerMap::iterator it = _task_map.find( name );
+            if ( _task_map.end() != it ) {
+                it->second->removeUser( this );
                 _task_map.erase( _task_map.find( name ) );
+            }
+        }
+
+        void TaskContext::removePeer( TaskContext* peer )
+        {
+            for( PeerMap::iterator it = _task_map.begin(); it != _task_map.end(); ++it)
+                if ( it->second == peer ) {
+                    peer->removeUser( this );
+                    _task_map.erase( it );
+                    return;
+                }
         }
 
         bool TaskContext::connectPeers( TaskContext* peer )
@@ -190,14 +235,31 @@ namespace ORO_Execution
             return true;
         }
 
+    void TaskContext::disconnect() {
+        Logger::In in( this->getName().c_str()  );
+        // disconnect all our ports
+        DataFlowInterface::Ports myports = this->ports()->getPorts();
+        for (DataFlowInterface::Ports::iterator it = myports.begin();
+             it != myports.end();
+             ++it) {
+            (*it)->disconnect();
+            this->datasources()->unregisterObject( (*it)->getName() );
+        }
+
+        // remove from all users.
+        for( Users::iterator it = musers.begin(); it != musers.end(); ++it)
+            (*it)->removePeer(this);
+
+        // clear own map.
+        _task_map.clear();
+    }
+
         void TaskContext::disconnectPeers( const std::string& name )
         {
             if ( _task_map.end() != _task_map.find( name ) ) {
                 TaskContext* peer = _task_map.find(name)->second;
-                if ( peer->hasPeer( _task_name ) ) {
-                    _task_map.erase( _task_map.find( name ) );
-                    peer->removePeer( _task_name );
-                }
+                this->removePeer(peer);
+                peer->removePeer(this);
             }
         }
 

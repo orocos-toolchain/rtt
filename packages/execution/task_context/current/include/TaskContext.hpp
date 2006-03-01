@@ -59,6 +59,10 @@ namespace ORO_Execution
      * commands.  In this way, the user of this class can determine
      * himself at which point and at which moment remote commands and
      * local programs can be executed.
+     *
+     * In order to disconnect this task from its peers, use disconnect(), which
+     * will disconnect all the Data Flow Ports and remove this object from its
+     * Peers.
      */
     class TaskContext
     {
@@ -68,12 +72,28 @@ namespace ORO_Execution
         std::string    _task_name;
     
         typedef std::map< std::string, TaskContext* > PeerMap;
+        typedef std::vector< TaskContext* > Users;
+        // map of the tasks we are using
         PeerMap         _task_map;
+        // map of the tasks that are using us.
+        Users         musers;
 
         ExecutionEngine ee;
 
         void connectDataFlow( TaskContext* peer );
         void exportPorts();
+
+        /**
+         * Inform this TaskContext that \a user is using
+         * our services.
+         */
+        void addUser(TaskContext* user);
+
+        /**
+         * Inform this TaskContext that \a user is no longer using
+         * our services.
+         */
+        void removeUser(TaskContext* user);
     public:
         typedef std::vector< std::string > PeerList;
 
@@ -167,19 +187,31 @@ namespace ORO_Execution
         void removePeer( const std::string& name );
 
         /**
+         * Remove a one-way connection from this task to a peer task.
+         */
+        void removePeer( TaskContext* peer );
+
+        /**
          * Add a two-way connection from  this task to a peer task.
-         * This method is strict : both peers must not be connected to succeed.
          */
         bool connectPeers( TaskContext* peer );
 
         /**
+         * Disconnect this TaskContext from it's peers.
+         * All its Data Flow Ports are disconnected from the connections but
+         * the connections themselves may continue to exist to serve other TaskContexts.
+         * This method invokes removePeer() as well on the peers listed in this->getPeerList().
+         */
+        void disconnect();
+
+        /**
          * Remove a two-way connection from this task to a peer task.
-         * This method is strict : both peers must be connected to succeed.
          */
         void disconnectPeers( const std::string& name );
 
         /**
-         * Return a standard container which contains all the Peer's names
+         * Return a standard container which contains all the Peer names
+         * of this TaskContext.
          */
         PeerList getPeerList() const;
 
