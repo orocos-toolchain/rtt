@@ -32,13 +32,16 @@
 <!-- use this to select the image type used for pdf / ps output across all files. -->
   <xsl:param name="graphic.default.extension" select="'gif'"></xsl:param>
 
-<xsl:attribute-set name="monospace.verbatim.properties" 
-                   use-attribute-sets="verbatim.properties monospace.properties">
-  <xsl:attribute name="wrap-option">wrap</xsl:attribute>
-  <xsl:attribute name="hyphenation-character">&#x21BA;</xsl:attribute>
-</xsl:attribute-set>
   <xsl:param name="hyphenate.verbatim" select="0"></xsl:param>
-  <xsl:param name="monospace.font.family" select="'monospace'"/>
+
+<xsl:attribute-set name="monospace.verbatim.properties"
+		   use-attribute-sets="verbatim.properties">
+  <xsl:attribute name="wrap-option">wrap</xsl:attribute>
+  <xsl:attribute name="hyphenation-character">\</xsl:attribute>
+  <xsl:attribute name="font-size">11pt</xsl:attribute>
+</xsl:attribute-set>
+
+  <xsl:param name="monospace.font.family" select="'Times'"/>
 
 <!-- convert classname to to doxygen filenames
      xsltproc does not support fn:replace, so needed the nwalsh 'string.subst' template
@@ -84,6 +87,7 @@
     </xsl:if>
   </xsl:template>
 
+  <xsl:param name="body.font.master" select="12" />
 
 <!--   <xsl:param name="linenumbering.extension" select="0"></xsl:param> -->
 <!--   <xsl:param name="use.extensions" select="1"></xsl:param> -->

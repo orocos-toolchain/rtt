@@ -3,7 +3,7 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
 "/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd" 
 [
-<!ENTITY % oro_ents SYSTEM "http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos.ent" >
+<!ENTITY % oro_ents SYSTEM "http://people.mech.kuleuven.be/~psoetens/orocos/doc/orocos.ent" >
 %oro_ents;
 ]
 >
@@ -336,12 +336,12 @@
 	</para>
 	  <informalfigure>
 	    <mediaobject>
-	      <imageobject role="html">
+	      <imageobject>
 		<imagedata fileref="ConfigTool" />
 	      </imageobject>
-	      <imageobject role="fo">
-		<imagedata format="JPG" fileref="ConfigTool.jpg" />
-	      </imageobject>
+<!-- 	      <imageobject role="fo"> -->
+<!-- 		<imagedata format="JPG" fileref="ConfigTool.jpg" /> -->
+<!-- 	      </imageobject> -->
 	    </mediaobject>
 	  </informalfigure>
 	<para>
@@ -541,12 +541,12 @@
 	  </para>
 	  <informalfigure>
 	    <mediaobject>
-	      <imageobject role="html">
+	      <imageobject>
 		<imagedata fileref="ConfigToolPackages" />
 	      </imageobject>
-	      <imageobject role="fo">
-		<imagedata format="JPG" fileref="ConfigToolPackages.jpg" />
-	      </imageobject>
+<!-- 	      <imageobject role="fo"> -->
+<!-- 		<imagedata format="JPG" fileref="ConfigToolPackages.jpg" /> -->
+<!-- 	      </imageobject> -->
 	    </mediaobject>
 	  </informalfigure>
 	</listitem>
@@ -559,12 +559,12 @@
 	  </para>
 	  <informalfigure>
 	    <mediaobject>
-	      <imageobject role="html">
+	      <imageobject>
 		<imagedata fileref="ConfigToolAdmin" />
 	      </imageobject>
-	      <imageobject role="fo">
-		<imagedata format="JPG" fileref="ConfigToolAdmin.jpg" />
-	      </imageobject>
+<!-- 	      <imageobject role="fo"> -->
+<!-- 		<imagedata format="JPG" fileref="ConfigToolAdmin.jpg" /> -->
+<!-- 	      </imageobject> -->
 	    </mediaobject>
 	  </informalfigure>
 	</listitem>
@@ -580,12 +580,12 @@
       </para>
       <informalfigure>
 	<mediaobject>
-	  <imageobject role="html">
+	  <imageobject>
 	    <imagedata fileref="ConfigToolFlags" />
 	  </imageobject>
-	  <imageobject role="fo">
-	    <imagedata format="JPG" fileref="ConfigToolFlags.jpg" />
-	  </imageobject>
+<!-- 	  <imageobject role="fo"> -->
+<!-- 	    <imagedata format="JPG" fileref="ConfigToolFlags.jpg" /> -->
+<!-- 	  </imageobject> -->
 	</mediaobject>
       </informalfigure>
       <para>
@@ -731,7 +731,7 @@
       <title >Configuring for RTAI</title>
       <para>
 	Read first the 'Getting Started' section from <ulink
-	  url="http://people.mech.kuleuven.ac.be/~psoetens/portingtolxrt.html">this 
+	  url="http://people.mech.kuleuven.be/~psoetens/portingtolxrt.html">this 
 	  page</ulink> if you are not familiar with RTAI installation
       </para>
       <para>
@@ -809,7 +809,7 @@
 	</para>
 	<para>For a more detailed description of what LXRT really is,
 	  you can read the LXRT HOWTO 
-	  <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/lxrt/portingtolxrt.html">here</ulink>
+	  <ulink url="http://people.mech.kuleuven.be/~psoetens/lxrt/portingtolxrt.html">here</ulink>
 	</para>
       </sect3>
       <sect3>

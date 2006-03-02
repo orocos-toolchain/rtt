@@ -106,7 +106,7 @@
       Your feedback and suggestions are greatly appreciated. Please, use the
       project's 
       <ulink
-	url="http://lists.mech.kuleuven.ac.be/mailman/listinfo/orocos">mailinglist</ulink> for this purpose.
+	url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos">mailinglist</ulink> for this purpose.
     </para>
   </sect1>
   <sect1 id="audience">
@@ -249,7 +249,7 @@
       roadmap when considering incorporation of contributions to the
       project. However, they always welcome a motivated discussion
       about these topics on the project's <ulink
-	url="http://lists.mech.kuleuven.ac.be/mailman/listinfo/orocos">
+	url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos">
 	mailinglist. </ulink>
     </para>
     <sect2 id="proj-dev-req">
@@ -703,7 +703,7 @@ The documentation of the Core Package contains more details.
       with the classical attributes of a 
       <ulink url="http://www.orocos.org">web page</ulink> and a 
       <ulink
-	url="http://lists.mech.kuleuven.ac.be/mailman/listinfo/orocos">mailinglist
+	url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos">mailinglist
       </ulink>,
       stimulated quite some discussions and exchanges of ideas.
     </para>

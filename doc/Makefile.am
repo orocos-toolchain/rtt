@@ -60,7 +60,7 @@ endif
 docs: $(DOC)
 
 ORO_USER_MANUALS=orocos-user-manual orocos-components-manual orocos-devel-manual orocos-control-manual
-ORO_MANUAL_TARGETS= $(addsuffix .html, $(ORO_USER_MANUALS) ) $(addsuffix .pdf, $(ORO_USER_MANUALS) )
+ORO_MANUAL_TARGETS= $(addsuffix .pdf, $(ORO_USER_MANUALS) ) $(addsuffix .html, $(ORO_USER_MANUALS) )
 
 manuals: pngimages gifimages
 	-cp -a $(EXTRAXMLDOCS) .
