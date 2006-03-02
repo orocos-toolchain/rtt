@@ -7,7 +7,7 @@ AC_PREREQ(2.53)
 #AC_REVISION($revision)
 
 # Initialize Autoconf with package name and version
-AC_INIT(orocos,0.21.0)
+AC_INIT(orocos,0.23.0)
 ACX_MY_ARGS="$*"
 # Store the parameters to pass them to the packages/configure script.
 #ACX_MY_ARGS="$@"
@@ -19,7 +19,7 @@ AM_CONFIG_HEADER([config.h])
 
 dnl Initialize Automake
 
-AM_INIT_AUTOMAKE([gnu tar-ustar])
+AM_INIT_AUTOMAKE([gnu])
 
 OROCOS_GENERAL(AC_PACKAGE_NAME,AC_PACKAGE_VERSION)
 
