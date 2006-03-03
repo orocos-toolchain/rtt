@@ -404,7 +404,7 @@ namespace ORO_ControlKernel
         virtual void exportProperties( PropertyBag& bag)
         {
             bag.add( &max_vel );
-            bag.add( &max_vel );
+            bag.add( &max_acc );
             bag.add( &interpol_prop );
             bag.add( &homepos );
             bag.add( &hometime );
