@@ -2,7 +2,7 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 [
-<!ENTITY % oro_ents SYSTEM "http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos.ent" >
+<!ENTITY % oro_ents SYSTEM "http://people.mech.kuleuven.be/~psoetens/orocos/doc/orocos.ent" >
 %oro_ents;
 ]
 >
@@ -22,8 +22,8 @@
     </authorgroup>
     <copyright>
       <year>2003,2004,2005</year>
-      <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
-      <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
+      <holder>Peter.Soetens@mech.kuleuven.be</holder>
+      <holder>Herman.Bruyninckx@mech.kuleuven.be</holder>
     </copyright>
 
     <abstract>
@@ -74,7 +74,7 @@
 	and userspace and a mechanism to communicate between both
 	(called LXRT Extensions). If you want to convert your own
 	device driver to RTAI/LXRT like within Orocos, you can read
-	the <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/lxrt/portingtolxrt.html">
+	the <ulink url="http://people.mech.kuleuven.be/~psoetens/lxrt/portingtolxrt.html">
 	  Porting to LXRT HOWTO</ulink>.
       </para>
     </sect2>
@@ -141,7 +141,7 @@
       <classname>ORO_DeviceDriver</classname> namespace. An Orocos
       Device Driver is a class which implements one or more interfaces
       of the <ulink
-	url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-device-interface.html"> 
+	url="http://people.mech.kuleuven.be/~psoetens/orocos/doc/orocos-device-interface.html"> 
 	Device Interface</ulink>.
     </para>
     <sect2>

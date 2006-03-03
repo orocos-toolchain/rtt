@@ -78,11 +78,16 @@
       <xsl:value-of select="$orocos.doxygen.classname" />
     </xsl:variable>
       
-    <xsl:if test="contains(.,'::')">
+    <xsl:choose>
+    <xsl:when test="contains(.,'::')">
       <a href="{$orocos.doxygen.path}/{$orocos.doxygen.filename}.html">
       <xsl:value-of select="$orocos.doxygen.classname" />
       </a>
-    </xsl:if>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="inline.monoseq"/>
+    </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
       
       

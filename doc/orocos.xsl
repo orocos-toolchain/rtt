@@ -81,10 +81,15 @@
       <xsl:value-of select="$orocos.doxygen.classname" />
     </xsl:variable>
       
-    <xsl:if test="contains(.,'::')">
+    <xsl:choose>
+    <xsl:when test="contains(.,'::')">
       <!-- Only print the class name, no ulink or similar generated yet... -->
       <xsl:value-of select="$orocos.doxygen.classname" />
-    </xsl:if>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="inline.monoseq"/>
+    </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:param name="body.font.master" select="12" />

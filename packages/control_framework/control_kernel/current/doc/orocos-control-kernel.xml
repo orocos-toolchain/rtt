@@ -2,7 +2,7 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 [
-<!ENTITY % oro_ents SYSTEM "http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos.ent" >
+<!ENTITY % oro_ents SYSTEM "http://people.mech.kuleuven.be/~psoetens/orocos/doc/orocos.ent" >
 %oro_ents;
 ]
 >
@@ -39,8 +39,8 @@
     </authorgroup>
     <copyright>
       <year>2002,2003,2004,2005,2006</year>
-      <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
-      <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
+      <holder>Peter.Soetens@mech.kuleuven.be</holder>
+      <holder>Herman.Bruyninckx@mech.kuleuven.be</holder>
     </copyright>
 
     <abstract>
@@ -249,7 +249,7 @@
 	    It can collect many well-designed control applications,
 	    via contributions of users, and continuously improve on
 	    them via discussion on the <ulink
-	      url="http://mail.mech.kuleuven.ac.be/mailman/listinfo/orocos-dev">developers' 
+	      url="http://mail.mech.kuleuven.be/mailman/listinfo/orocos-dev">developers' 
 	      mailing list</ulink>.
 	  </para>
 	</listitem>
@@ -329,7 +329,7 @@
       <tip>
 	<para>
 	We advise you to read first the &orocos; <ulink
-	  url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-manual.html">
+	  url="http://people.mech.kuleuven.be/~psoetens/orocos/doc/orocos-manual.html">
         RealTime Control Services </ulink> 
 	documentation before going on. That document explains Events,
 	Tasks versus Threads, NameServing, and many other basic

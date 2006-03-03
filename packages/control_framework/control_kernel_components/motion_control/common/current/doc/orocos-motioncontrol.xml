@@ -2,7 +2,7 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd"
 [
-<!ENTITY % oro_ents SYSTEM "http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos.ent" >
+<!ENTITY % oro_ents SYSTEM "http://people.mech.kuleuven.be/~psoetens/orocos/doc/orocos.ent" >
 %oro_ents;
 ]
 >
@@ -21,8 +21,8 @@
     </authorgroup>
     <copyright>
       <year>2002-2006</year>
-      <holder>Peter.Soetens@mech.kuleuven.ac.be</holder>
-      <holder>Herman.Bruyninckx@mech.kuleuven.ac.be</holder>
+      <holder>Peter.Soetens@mech.kuleuven.be</holder>
+      <holder>Herman.Bruyninckx@mech.kuleuven.be</holder>
     </copyright>
 
     <abstract>

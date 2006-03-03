@@ -28,20 +28,7 @@
          uri="schema/dtd/4.3/docbookx.dtd" />
 
     </group>
-    <group xml:base="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/">
-    <system
-         systemId="orocos.ent"
-         uri="../doc/orocos.ent" />
-    <!-- To resolve short stylesheet references -->
-<!--     <uri -->
-<!-- 	name="images/" -->
-<!-- 	uri="../doc/images/" /> -->
-    <uri
-        name="orocos.xsl"
-        uri="../doc/orocos.xsl" />
-    <uri
-        name="orocos-html.xsl"
-        uri="../doc/orocos-html.xsl" />
 
-  </group>
+    <system systemId="http://people.mech.kuleuven.be/~psoetens/orocos/doc/orocos.ent" uri="../doc/orocos.ent" />
+
 </catalog>
