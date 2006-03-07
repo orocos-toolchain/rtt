@@ -104,6 +104,9 @@ gifimages: $(GIFIMGS)
 	$(DIA) -t png --nosplash $<
 	if test x$(srcdir) != x -a ! $(srcdir)/. -ef . ;then mv -f $(srcdir)/$@ .; fi
 
+%.png:%.svg
+	inkscape -d 45 $< -e $@
+
 %.jpg:%.png
 	$(CONVERT) -quality $(JPGQUALITY) $< $@
 
