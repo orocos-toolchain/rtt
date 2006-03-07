@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1000.0000pt"
+   height="1000.0000pt"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.42"
+   sodipodi:docbase="/home/sspr/Projecten/OpenRTC/Eindhoven06"
+   sodipodi:docname="RealTimeToolkit.svg"
+   inkscape:export-filename="/home/sspr/Projecten/OpenRTC/Eindhoven06/RealTimeToolkit.png"
+   inkscape:export-xdpi="90.000000"
+   inkscape:export-ydpi="90.000000">
+  <defs
+     id="defs4">
+    <linearGradient
+       id="linearGradient4541">
+      <stop
+         style="stop-color:#0000fa;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop4543" />
+      <stop
+         style="stop-color:#0000ae;stop-opacity:0.28865978;"
+         offset="1.0000000"
+         id="stop4545" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4521">
+      <stop
+         id="stop4523"
+         offset="0"
+         style="stop-color:#0b0bff;stop-opacity:1;" />
+      <stop
+         style="stop-color:#0b0bff;stop-opacity:0.69803922;"
+         offset="0.50000000"
+         id="stop4525" />
+      <stop
+         id="stop4527"
+         offset="1.0000000"
+         style="stop-color:#0b0bff;stop-opacity:0.40206185;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4503">
+      <stop
+         style="stop-color:#0a0aff;stop-opacity:1.0000000;"
+         offset="0.0000000"
+         id="stop4505" />
+      <stop
+         id="stop4519"
+         offset="0.50000000"
+         style="stop-color:#0b0bff;stop-opacity:0.69803922;" />
+      <stop
+         style="stop-color:#0b0bff;stop-opacity:0.40206185;"
+         offset="1.0000000"
+         id="stop4507" />
+    </linearGradient>
+    <marker
+       inkscape:stockid="Arrow2Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Lend"
+       style="overflow:visible;">
+      <path
+         sodipodi:nodetypes="cccc"
+         id="path2190"
+         style="font-size:12.0;fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round;"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(1.1) rotate(180) translate(-5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="TriangleOutM"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="TriangleOutM"
+       style="overflow:visible">
+      <path
+         sodipodi:nodetypes="cccc"
+         id="path2122"
+         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
+         transform="scale(0.4)" />
+    </marker>
+    <marker
+       inkscape:stockid="Dot_l"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Dot_l"
+       style="overflow:visible">
+      <path
+         id="path41"
+         d="M -2.5,-1.0 C -2.5,1.7600000 -4.7400000,4.0 -7.5,4.0 C -10.260000,4.0 -12.5,1.7600000 -12.5,-1.0 C -12.5,-3.7600000 -10.260000,-6.0 -7.5,-6.0 C -4.7400000,-6.0 -2.5,-3.7600000 -2.5,-1.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;marker-end:none"
+         transform="scale(0.8) translate(7.125493, 1)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Send"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Send"
+       style="overflow:visible;">
+      <path
+         sodipodi:nodetypes="cccc"
+         id="path2184"
+         style="font-size:12.0;fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round;"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(0.3) rotate(180) translate(-5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Mend"
+       style="overflow:visible;">
+      <path
+         sodipodi:nodetypes="cccc"
+         id="path2187"
+         style="font-size:12.0;fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round;"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(0.6) rotate(180) translate(-5,0)" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.48125773"
+     inkscape:cx="647.81367"
+     inkscape:cy="531.35967"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     inkscape:window-width="965"
+     inkscape:window-height="706"
+     inkscape:window-x="51"
+     inkscape:window-y="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <image
+       id="image2257"
+       height="221.00000"
+       width="259.00000"
+       sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/toolkit.png"
+       xlink:href="toolkit.png"
+       x="190.92038"
+       y="855.03064" />
+    <text
+       xml:space="preserve"
+       style="font-size:48.000000px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125.00000%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Charter"
+       x="308.99173"
+       y="1045.5306"
+       id="text2260"
+       sodipodi:linespacing="125.00000%"><tspan
+         sodipodi:role="line"
+         id="tspan2262"
+         x="308.99173"
+         y="1045.5306"
+         style="font-size:48.000000px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;line-height:125.00000%;writing-mode:lr-tb;text-anchor:middle;fill:#ffffff;fill-opacity:1.0000000;font-family:FreeSans">RTT</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:48.000000px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125.00000%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Charter"
+       x="308.99176"
+       y="1145.5306"
+       id="text2264"
+       sodipodi:linespacing="125.00000%"><tspan
+         sodipodi:role="line"
+         x="308.99176"
+         y="1145.5306"
+         id="tspan10377">Real-Time Toolkit</tspan></text>
+    <g
+       id="g2687"
+       transform="translate(-137.3371,58.19367)">
+      <rect
+         y="67.142853"
+         x="290.00000"
+         height="211.42857"
+         width="214.28572"
+         id="rect2270"
+         style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:8.6999998;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:0.80000001;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000" />
+      <image
+         y="116.14283"
+         x="304.28577"
+         xlink:href="ACMotor.jpg"
+         sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/ACMotor.jpg"
+         width="177.14285"
+         height="106.99429"
+         id="image2298" />
+    </g>
+    <g
+       id="g2691"
+       transform="translate(-323.5568,46.55493)">
+      <rect
+         y="338.57141"
+         x="574.28571"
+         height="211.42857"
+         width="214.28572"
+         id="rect2268"
+         style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:8.6999998;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:0.80000001;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000" />
+      <image
+         y="373.28577"
+         x="582.78571"
+         xlink:href="gear-image.jpg"
+         sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
+         width="194.42857"
+         height="138.68330"
+         id="image2683" />
+    </g>
+    <g
+       id="g2819"
+       transform="translate(-174.5810,172.2533)">
+      <rect
+         y="70.000008"
+         x="578.57141"
+         height="211.42857"
+         width="214.28572"
+         id="rect2274"
+         style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:8.6999998;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:0.80000001;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000" />
+      <image
+         y="74.808189"
+         x="615.34082"
+         xlink:href="robot.png"
+         sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/robot.png"
+         width="140.96295"
+         height="194.52887"
+         id="image2732" />
+    </g>
+    <g
+       id="g2815"
+       transform="translate(-200.1862,-16.29423)">
+      <rect
+         y="330.00000"
+         x="292.85715"
+         height="211.42857"
+         width="214.28572"
+         id="rect2272"
+         style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:8.6999998;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:0.80000001;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000" />
+      <image
+         y="356.70947"
+         x="302.17593"
+         xlink:href="Meter_1.png"
+         sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/Meter_1.png"
+         width="188.39293"
+         height="149.64000"
+         id="image2812" />
+    </g>
+    <g
+       id="g4537"
+       transform="matrix(0.880485,0.000000,0.000000,1.000000,41.01479,-7.272570)"
+       style="fill:#0000ff;fill-opacity:1.0000000">
+      <path
+         sodipodi:nodetypes="ccccc"
+         id="path2836"
+         d="M 343.34912,814.14356 C 335.49298,820.13312 324.39187,840.17968 324.39187,840.17968 L 311.92454,686.36636 L 282.82770,686.36636 L 343.52975,644.66130"
+         style="fill:#0000ff;fill-opacity:1.0000000;fill-rule:evenodd;stroke:#000000;stroke-width:1.0657097px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000" />
+      <path
+         style="fill:#0000ff;fill-opacity:1.0000000;fill-rule:evenodd;stroke:#000000;stroke-width:1.0657099;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+         d="M 343.00833,814.14356 L 362.43291,840.10179 L 374.43291,686.36636 L 403.52975,686.36636 L 342.82770,644.66130"
+         id="path2838"
+         sodipodi:nodetypes="ccccc" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:48.000000px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125.00000%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Charter"
+       x="371.9111"
+       y="85.576401"
+       id="text2849"
+       sodipodi:linespacing="125.00000%"><tspan
+         sodipodi:role="line"
+         id="tspan2851"
+         x="371.91110"
+         y="85.576401">Control Components</tspan></text>
+    <g
+       id="g2944"
+       transform="translate(2.327747,263.0354)">
+      <text
+         sodipodi:linespacing="125.00000%"
+         id="text2853"
+         y="107.07634"
+         x="984.6369"
+         style="font-size:48.000000px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125.00000%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Charter"
+         xml:space="preserve"><tspan
+           y="107.07634"
+           x="984.63690"
+           id="tspan2855"
+           sodipodi:role="line">Control Applications</tspan></text>
+      <g
+         style="stroke:#000000;stroke-width:8.4186144;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+         transform="matrix(0.619318,0.000000,0.000000,0.619318,340.9359,122.8904)"
+         id="g2866">
+        <rect
+           style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:8.4186144;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
+           id="rect2868"
+           width="214.28572"
+           height="211.42857"
+           x="574.28571"
+           y="338.57141" />
+        <image
+           style="stroke:#000000;stroke-width:8.4186144;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+           id="image2870"
+           height="138.68330"
+           width="194.42857"
+           sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
+           xlink:href="gear-image.jpg"
+           x="582.78571"
+           y="373.28577" />
+      </g>
+      <g
+         style="stroke:#000000;stroke-width:8.4186144;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+         transform="matrix(0.619318,0.000000,0.000000,0.619318,623.1374,125.2183)"
+         id="g2872">
+        <rect
+           style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:8.4186144;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
+           id="rect2874"
+           width="214.28572"
+           height="211.42857"
+           x="574.28571"
+           y="338.57141" />
+        <image
+           style="stroke:#000000;stroke-width:8.4186144;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+           id="image2876"
+           height="138.68330"
+           width="194.42857"
+           sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
+           xlink:href="gear-image.jpg"
+           x="582.78571"
+           y="373.28577" />
+      </g>
+      <g
+         style="stroke:#000000;stroke-width:8.4186144;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+         transform="matrix(0.619318,0.000000,0.000000,0.619318,474.1615,318.4212)"
+         id="g2878">
+        <rect
+           style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:8.4186144;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
+           id="rect2880"
+           width="214.28572"
+           height="211.42857"
+           x="574.28571"
+           y="338.57141" />
+        <image
+           style="stroke:#000000;stroke-width:8.4186144;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+           id="image2882"
+           height="138.68330"
+           width="194.42857"
+           sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
+           xlink:href="gear-image.jpg"
+           x="582.78571"
+           y="373.28577" />
+      </g>
+      <g
+         transform="translate(74.48790,-9.310987)"
+         id="g2932">
+        <rect
+           style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:5.2137995;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
+           id="rect2886"
+           width="132.71100"
+           height="130.94153"
+           x="762.32239"
+           y="160.32066" />
+        <image
+           id="image2929"
+           height="119.78026"
+           width="113.90868"
+           sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/computer_screen.jpg"
+           xlink:href="computer_screen.jpg"
+           x="771.63214"
+           y="165.90131" />
+      </g>
+      <path
+         id="path2936"
+         d="M 756.51769,463.22160 L 828.67784,595.90317"
+         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:5.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
+      <path
+         id="path2938"
+         d="M 1036.6164,468.02421 L 964.45624,600.70578"
+         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:5.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
+      <path
+         id="path2940"
+         d="M 826.35009,393.38920 L 975.32588,393.38920"
+         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:5.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
+      <path
+         id="path2942"
+         d="M 835.90876,198.66108 L 763.74860,331.34265"
+         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:5.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
+    </g>
+    <g
+       id="g3736"
+       transform="translate(4.155777,-18.70100)">
+      <path
+         d="M 1126.6295 448.09125 A 19.785847 19.785847 0 1 1  1087.0578,448.09125 A 19.785847 19.785847 0 1 1  1126.6295 448.09125 z"
+         sodipodi:ry="19.785847"
+         sodipodi:rx="19.785847"
+         sodipodi:cy="448.09125"
+         sodipodi:cx="1106.8436"
+         id="path3726"
+         style="fill:#0b0bff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:5.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
+         sodipodi:type="arc" />
+      <path
+         id="path3728"
+         d="M 1107.5147,466.63596 L 1107.5147,533.12839 L 1079.4632,561.17989"
+         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:4.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
+      <path
+         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:4.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+         d="M 1107.4632,466.63596 L 1107.4632,533.12839 L 1135.5147,561.17989"
+         id="path3730" />
+      <path
+         id="path3732"
+         d="M 1105.4368,491.57062 L 1084.6579,512.34951"
+         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:4.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
+      <path
+         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:4.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+         d="M 1108.6579,491.57062 L 1129.4368,512.34951"
+         id="path3734" />
+    </g>
+    <path
+       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:3.5000000;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow2Lend);stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+       d="M 1078.1906,433.38974 L 1005.4645,450.01285"
+       id="path3743" />
+    <g
+       id="g4549"
+       transform="matrix(-0.471685,0.743483,-1.121179,-0.711305,1723.597,474.6447)"
+       style="fill:#0000ff;fill-opacity:1.0000000">
+      <path
+         sodipodi:nodetypes="ccccc"
+         id="path4551"
+         d="M 343.34912,814.14356 C 335.49298,820.13312 324.39187,840.17968 324.39187,840.17968 L 311.92454,686.36636 L 282.82770,686.36636 L 343.52975,644.66130"
+         style="fill:#0000ff;fill-opacity:1.0000000;fill-rule:evenodd;stroke:#000000;stroke-width:0.92486012px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000" />
+      <path
+         style="fill:#0000ff;fill-opacity:1.0000000;fill-rule:evenodd;stroke:#000000;stroke-width:0.92486036;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+         d="M 343.00833,814.14356 L 362.43291,840.10179 L 374.43291,686.36636 L 403.52975,686.36636 L 342.82770,644.66130"
+         id="path4553"
+         sodipodi:nodetypes="ccccc" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:32.000000px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125.00000%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Charter"
+       x="188.46477"
+       y="728.44995"
+       id="text10365"
+       sodipodi:linespacing="125.00000%"><tspan
+         sodipodi:role="line"
+         id="tspan10367"
+         x="188.46477"
+         y="728.44995">Build</tspan><tspan
+         sodipodi:role="line"
+         x="188.46477"
+         y="768.44995"
+         id="tspan10369">Components</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:32.000000px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125.00000%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Charter"
+       x="849.51282"
+       y="117.73209"
+       id="text10371"
+       sodipodi:linespacing="125.00000%"><tspan
+         sodipodi:role="line"
+         id="tspan10373"
+         x="849.51282"
+         y="117.73209">Build</tspan><tspan
+         sodipodi:role="line"
+         x="849.51282"
+         y="157.73209"
+         id="tspan10375">Applications</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:32.000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr;text-anchor:middle;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Charter"
+       x="297.13809"
+       y="1191.8191"
+       id="text10379"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan10381"
+         x="297.13809"
+         y="1191.8191">C++ Classes</tspan></text>
+  </g>
+</svg>
