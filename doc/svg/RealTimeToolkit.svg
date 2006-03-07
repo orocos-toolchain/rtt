@@ -141,7 +141,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="0.48125773"
      inkscape:cx="647.81367"
-     inkscape:cy="531.35967"
+     inkscape:cy="472.13445"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      inkscape:window-width="965"
@@ -252,18 +252,17 @@
          id="image2732" />
     </g>
     <g
-       id="g2815"
-       transform="translate(-200.1862,-16.29423)">
+       id="g1389">
       <rect
-         y="330.00000"
-         x="292.85715"
+         y="313.70578"
+         x="92.670944"
          height="211.42857"
          width="214.28572"
          id="rect2272"
          style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:8.6999998;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:0.80000001;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000" />
       <image
-         y="356.70947"
-         x="302.17593"
+         y="340.41525"
+         x="101.98973"
          xlink:href="Meter_1.png"
          sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/Meter_1.png"
          width="188.39293"
