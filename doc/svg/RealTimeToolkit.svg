@@ -14,7 +14,7 @@
    id="svg2"
    sodipodi:version="0.32"
    inkscape:version="0.42"
-   sodipodi:docbase="/home/sspr/Projecten/OpenRTC/Eindhoven06"
+   sodipodi:docbase="/home/sspr/src/orocos-trunk/doc/svg"
    sodipodi:docname="RealTimeToolkit.svg"
    inkscape:export-filename="/home/sspr/Projecten/OpenRTC/Eindhoven06/RealTimeToolkit.png"
    inkscape:export-xdpi="90.000000"
@@ -141,7 +141,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="0.48125773"
      inkscape:cx="647.81367"
-     inkscape:cy="472.13445"
+     inkscape:cy="638.36555"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      inkscape:window-width="965"
@@ -168,7 +168,7 @@
        height="221.00000"
        width="259.00000"
        sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/toolkit.png"
-       xlink:href="toolkit.png"
+       xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/toolkit.png"
        x="190.92038"
        y="855.03064" />
     <text
@@ -207,26 +207,25 @@
       <image
          y="116.14283"
          x="304.28577"
-         xlink:href="ACMotor.jpg"
+         xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/ACMotor.jpg"
          sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/ACMotor.jpg"
          width="177.14285"
          height="106.99429"
          id="image2298" />
     </g>
     <g
-       id="g2691"
-       transform="translate(-323.5568,46.55493)">
+       id="g1395">
       <rect
-         y="338.57141"
-         x="574.28571"
+         y="385.12634"
+         x="250.72891"
          height="211.42857"
          width="214.28572"
          id="rect2268"
          style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:8.6999998;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:0.80000001;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000" />
       <image
-         y="373.28577"
-         x="582.78571"
-         xlink:href="gear-image.jpg"
+         y="419.84070"
+         x="259.22891"
+         xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
          sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
          width="194.42857"
          height="138.68330"
@@ -245,7 +244,7 @@
       <image
          y="74.808189"
          x="615.34082"
-         xlink:href="robot.png"
+         xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/robot.png"
          sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/robot.png"
          width="140.96295"
          height="194.52887"
@@ -263,7 +262,7 @@
       <image
          y="340.41525"
          x="101.98973"
-         xlink:href="Meter_1.png"
+         xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/Meter_1.png"
          sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/Meter_1.png"
          width="188.39293"
          height="149.64000"
@@ -295,85 +294,78 @@
          id="tspan2851"
          x="371.91110"
          y="85.576401">Control Components</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:48.000000px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125.00000%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Charter"
+       x="986.96466"
+       y="370.11172"
+       id="text2853"
+       sodipodi:linespacing="125.00000%"><tspan
+         sodipodi:role="line"
+         id="tspan2855"
+         x="986.96466"
+         y="370.11172">Control Applications</tspan></text>
     <g
-       id="g2944"
-       transform="translate(2.327747,263.0354)">
-      <text
-         sodipodi:linespacing="125.00000%"
-         id="text2853"
-         y="107.07634"
-         x="984.6369"
-         style="font-size:48.000000px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125.00000%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Charter"
-         xml:space="preserve"><tspan
-           y="107.07634"
-           x="984.63690"
-           id="tspan2855"
-           sodipodi:role="line">Control Applications</tspan></text>
+       id="g1435">
       <g
-         style="stroke:#000000;stroke-width:8.4186144;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
-         transform="matrix(0.619318,0.000000,0.000000,0.619318,340.9359,122.8904)"
-         id="g2866">
+         id="g1427">
         <rect
-           style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:8.4186144;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
+           style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:5.2137995;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
            id="rect2868"
-           width="214.28572"
-           height="211.42857"
-           x="574.28571"
-           y="338.57141" />
+           width="132.71100"
+           height="130.94153"
+           x="698.92908"
+           y="595.60919" />
         <image
            style="stroke:#000000;stroke-width:8.4186144;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
            id="image2870"
-           height="138.68330"
-           width="194.42857"
+           height="85.889069"
+           width="120.41312"
            sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
-           xlink:href="gear-image.jpg"
-           x="582.78571"
-           y="373.28577" />
+           xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
+           x="704.19330"
+           y="617.10840" />
       </g>
       <g
-         style="stroke:#000000;stroke-width:8.4186144;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
-         transform="matrix(0.619318,0.000000,0.000000,0.619318,623.1374,125.2183)"
-         id="g2872">
+         id="g1423">
         <rect
-           style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:8.4186144;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
+           style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:5.2137995;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
            id="rect2874"
-           width="214.28572"
-           height="211.42857"
-           x="574.28571"
-           y="338.57141" />
+           width="132.71100"
+           height="130.94153"
+           x="981.13055"
+           y="597.93707" />
         <image
            style="stroke:#000000;stroke-width:8.4186144;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
            id="image2876"
-           height="138.68330"
-           width="194.42857"
+           height="85.889069"
+           width="120.41312"
            sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
-           xlink:href="gear-image.jpg"
-           x="582.78571"
-           y="373.28577" />
+           xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
+           x="986.39478"
+           y="619.43628" />
       </g>
       <g
-         style="stroke:#000000;stroke-width:8.4186144;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
-         transform="matrix(0.619318,0.000000,0.000000,0.619318,474.1615,318.4212)"
-         id="g2878">
+         id="g1431">
         <rect
-           style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:8.4186144;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
+           style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:5.2137995;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
            id="rect2880"
-           width="214.28572"
-           height="211.42857"
-           x="574.28571"
-           y="338.57141" />
+           width="132.71100"
+           height="130.94153"
+           x="832.15466"
+           y="791.13995" />
         <image
            style="stroke:#000000;stroke-width:8.4186144;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
            id="image2882"
-           height="138.68330"
-           width="194.42857"
+           height="85.889069"
+           width="120.41312"
            sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
-           xlink:href="gear-image.jpg"
-           x="582.78571"
-           y="373.28577" />
+           xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
+           x="837.41888"
+           y="812.63922" />
       </g>
       <g
-         transform="translate(74.48790,-9.310987)"
+         transform="translate(76.81565,253.7244)"
          id="g2932">
         <rect
            style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:5.2137995;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
@@ -387,60 +379,60 @@
            height="119.78026"
            width="113.90868"
            sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/computer_screen.jpg"
-           xlink:href="computer_screen.jpg"
+           xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/computer_screen.jpg"
            x="771.63214"
            y="165.90131" />
       </g>
       <path
          id="path2936"
-         d="M 756.51769,463.22160 L 828.67784,595.90317"
+         d="M 758.84544,726.25700 L 831.00559,858.93857"
          style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:5.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
       <path
          id="path2938"
-         d="M 1036.6164,468.02421 L 964.45624,600.70578"
+         d="M 1038.9441,731.05961 L 966.78399,863.74118"
          style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:5.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
       <path
          id="path2940"
-         d="M 826.35009,393.38920 L 975.32588,393.38920"
+         d="M 828.67784,656.42460 L 977.65363,656.42460"
          style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:5.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
       <path
          id="path2942"
-         d="M 835.90876,198.66108 L 763.74860,331.34265"
+         d="M 838.23651,461.69648 L 766.07635,594.37805"
          style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:5.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
+      <g
+         transform="translate(4.155777,-18.70100)"
+         id="g3736">
+        <path
+           sodipodi:type="arc"
+           style="fill:#0b0bff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:5.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
+           id="path3726"
+           sodipodi:cx="1106.8436"
+           sodipodi:cy="448.09125"
+           sodipodi:rx="19.785847"
+           sodipodi:ry="19.785847"
+           d="M 1126.6295 448.09125 A 19.785847 19.785847 0 1 1  1087.0578,448.09125 A 19.785847 19.785847 0 1 1  1126.6295 448.09125 z" />
+        <path
+           style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:4.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+           d="M 1107.5147,466.63596 L 1107.5147,533.12839 L 1079.4632,561.17989"
+           id="path3728" />
+        <path
+           id="path3730"
+           d="M 1107.4632,466.63596 L 1107.4632,533.12839 L 1135.5147,561.17989"
+           style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:4.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
+        <path
+           style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:4.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
+           d="M 1105.4368,491.57062 L 1084.6579,512.34951"
+           id="path3732" />
+        <path
+           id="path3734"
+           d="M 1108.6579,491.57062 L 1129.4368,512.34951"
+           style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:4.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
+      </g>
+      <path
+         id="path3743"
+         d="M 1078.1906,433.38974 L 1005.4645,450.01285"
+         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:3.5000000;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow2Lend);stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
     </g>
-    <g
-       id="g3736"
-       transform="translate(4.155777,-18.70100)">
-      <path
-         d="M 1126.6295 448.09125 A 19.785847 19.785847 0 1 1  1087.0578,448.09125 A 19.785847 19.785847 0 1 1  1126.6295 448.09125 z"
-         sodipodi:ry="19.785847"
-         sodipodi:rx="19.785847"
-         sodipodi:cy="448.09125"
-         sodipodi:cx="1106.8436"
-         id="path3726"
-         style="fill:#0b0bff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:5.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
-         sodipodi:type="arc" />
-      <path
-         id="path3728"
-         d="M 1107.5147,466.63596 L 1107.5147,533.12839 L 1079.4632,561.17989"
-         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:4.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
-      <path
-         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:4.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
-         d="M 1107.4632,466.63596 L 1107.4632,533.12839 L 1135.5147,561.17989"
-         id="path3730" />
-      <path
-         id="path3732"
-         d="M 1105.4368,491.57062 L 1084.6579,512.34951"
-         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:4.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000" />
-      <path
-         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:4.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
-         d="M 1108.6579,491.57062 L 1129.4368,512.34951"
-         id="path3734" />
-    </g>
-    <path
-       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:3.5000000;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow2Lend);stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
-       d="M 1078.1906,433.38974 L 1005.4645,450.01285"
-       id="path3743" />
     <g
        id="g4549"
        transform="matrix(-0.471685,0.743483,-1.121179,-0.711305,1723.597,474.6447)"

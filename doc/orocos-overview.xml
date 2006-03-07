@@ -57,6 +57,12 @@
 	<revremark>Added Application Stack figure, removed confusing
 	  objects and components section, adapted vision :-)</revremark>
       </revision>
+      <revision>
+	<revnumber>0.22.0</revnumber>
+	<date>7 March 2006</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Added section 'Building Orocos Applications"</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -154,17 +160,6 @@
 	    functionality is rich and well documented, and the component can be
 	    used as a stand-alone part in various applications.
 	  </para>
-	  <para>
-	    Components come in roughly three different types. The simplest is an
-	    object-oriented <emphasis>class hierarchy</emphasis>, offering direct
-	    access to the objects data and functionality. The medium-level
-	    component provides <emphasis>monitored access</emphasis> to the
-	    objects' functionality, in the sense that it guarantees that different
-	    accesses do not interfere with each other, and that the object always
-	    remains in a consistent state. The highest-level Component has the
-	    properties as described in the <emphasis>CORBA Component
-	      Model</emphasis>. 
-	  </para>
 	</listitem>
 	<listitem>
 	  <para>
@@ -205,6 +200,291 @@
       (commercial and non-commercial) Application Builders.
     </para>
   </sect1>
+  <sect1>
+    <title>Orocos Project Software Overview</title>
+    <para>
+      The Orocos project spawned a couple of largely independent
+      software projects. The documentation you are reading is about
+      the Realtime Control Software located on the Orocos.org webpage.
+      The other projects are :
+      <itemizedlist>
+	<listitem>
+	  <para>At KTH Stockholm, several releases have been made for
+	    component-based robotic systems, and the project has been
+	    renamed to <ulink
+	      url="http://orca-robotics.sourceforge.net/">Orca</ulink>.</para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Although not a project funded partner, the FAW Ulm
+	    maintains Free CORBA communication patterns for modular
+	    robotics : <ulink
+	      url="http://www1.faw.uni-ulm.de/orocos/">OROCOS@FAW</ulink>.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </para>
+    <sect2>
+      <title>Building Orocos Applications</title>
+      <para>
+	Orocos applications are composed of software components, which form
+	an application specific network. When using Orocos, you can choose
+	to use predefined components, contributed by the community, or
+	build your own component, using the Orocos Real-Time Toolkit. 
+	This section introduces both ways of building applications.
+      </para>
+      <figure id="fig-orocos-toolkit">
+	<title>
+	  Orocos Real-Time Toolkit
+	</title>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="svg/RealTimeToolkit" />
+	  </imageobject>
+	</mediaobject>
+      </figure>
+      <para>
+	The lowest level of Orocos will exist out of 3 independent libraries:
+	The "Real-Time Toolkit", the "Bayesian Filtering Library" and the "Kinematics 
+	and Dynamics Library". The project is currently refactoring some parts 
+	in preparation of the 1.0 release. These changes are marked with 
+	a version number such as [v1.0].
+      </para>
+      <sect3>
+	<title>Real-Time Toolkit (RTT)</title>
+	<para>
+	  This is a set of C++ classes which allows a developer to
+	  build Orocos components. It provides the OS
+	  abstraction, low-level device drivers and device interfaces,
+	  and the 'task infrastructure' to build components.  It also
+	  encapsulates any distribution (CORBA [v0.24.0]) specific code required
+	  to distribute components. This is what we are now calling
+	  the 'Real-Time Control Services' on our website. The aim is that beginning
+	  Orocos users will not be working immediately with this
+	  toolkit.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Bayesian Filtering Library (BFL)</title>
+	<para>
+	  This C++ library can be used independent of Orocos today but will get a more 
+	  prominent place on the Orocos webpage. It will be used by Orocos Components
+	  which (actively) do intelligent sensor processing [v1.0]. Current BFL users will 
+	  still be able to use this library as before.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Kinematics and Dynamics Library (KDL)</title>
+	<para>
+	  This C++ library is today integrated within Orocos as the 'geometry' and 
+	  'kindyn' packages. It will be split off [v1.0] as an independent library for 
+	  kinematics usable by developers who do not wish to use the Real-Time Toolkit. 
+	  Credits go to Erwin Aertbelien who developed a major part of this library, 
+	  and new candidates are ready to take over the job.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Control Components</title>
+	<para>
+	  The layer above these three libraries is taken by the Orocos
+	  "Control Component". A distributable entity which has a
+	  control oriented interface.  
+	</para>
+	<figure id="fig-orocos-component-interface">
+	  <title>
+	    Orocos Control Component Interface
+	  </title>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="svg/ComponentInterface" />
+	  </imageobject>
+	  </mediaobject>
+	</figure>
+	<para>
+	  A single component may be well
+	  capable of controlling a whole machine, or is just a 'small'
+	  part in a whole network of components, for example an
+	  interpolator or kinematic component. The components are
+	  built with the "Real-Time Toolkit" and optionally make use
+	  of the BFL or KDL or any other library (like a vision
+	  toolkit). Most users will interface components through their
+	  (XML) properties or command/method interface in order to
+	  configure their applications. The current Orocos 'Control
+	  Kernel' components need to be converted in order to fit in
+	  this description and are to be split off in separate
+	  packages [v1.0]. 
+	</para>
+	<para>
+	  The Component interface is defined by the
+	  'TaskContext' class as released in version 0.22.0 and
+	  described in the "Component Builders Guide".
+	</para>
+	<para>
+	  There are five distinct ways in which an Orocos
+	  component can be interfaced: through its properties,
+	  events, methods, commands and data flow ports
+	  (<xref linkend="fig-orocos-component-interface" />).
+	  These are all optional interfaces. The purpose and
+	  use of these interfaces is documented in the
+	  Orocos Component Builder's Manual. Each component
+	  documents its interface as well. To get a grip
+	  on what these interfaces mean, here are some
+	  fictuous component interfaces for a 'Robot' Component:
+	<itemizedlist>
+	  <listitem>
+	    <para><emphasis>Properties:</emphasis>
+	    Are run-time modifyable parameters, stored
+	    in XML files. For example:
+	    "Kinematic Algorithm", "Control Parameters", 
+	    "Homing Position", "ToolType",...</para>
+	  </listitem>
+	  <listitem>
+	    <para><emphasis>Events:</emphasis> 
+	    Provide a 'callback' mechanism to 'publish'
+	    a change to 'subscribers'. For example:
+	    "Position Reached", "Emergency Stop", 
+	    "Object Grasped",...</para>
+	  </listitem>
+	  <listitem>
+	    <para><emphasis>Methods:</emphasis> Are callable by other
+	    components to 'calculate' a result immediately, just like
+	    a 'C' function. For example: "getTrackingError()",
+	    "openGripper()", "writeData("filename")", "isMoving()",
+	    ...</para>
+	  </listitem>
+	  <listitem>
+	    <para><emphasis>Commands:</emphasis> Are 'sent' by other
+	    components to instruct the receiver to 'reach a goal' For
+	    example: "moveTo(pos, velocity)", "home()",...</para>
+	  </listitem>
+	  <listitem>
+	    <para><emphasis>Data-Flow Ports:</emphasis> Are a 'raw'
+	    data transport mechanism to communicate buffered or
+	    un-buffered data between components.  For example:
+	    "JointSetpoints", "EndEffectorFrame",
+	    "FeedForward",...</para>
+	  </listitem>
+	</itemizedlist>
+	</para>
+	<para>
+	  Besides defining the above component communication
+	  mechanisms, Orocos allows the Component or Application
+	  Builder to write hierarchical state machines which use these
+	  primitives. This is the Orocos way of defining your
+	  application specific logic. State machines can be (un-)loaded
+	  at runtime in any component.
+	<figure id="fig-orocos-component-implementation">
+	  <title>
+	    Orocos Control Component Implementation
+	  </title>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="svg/ComponentImplementation" />
+	  </imageobject>
+	  </mediaobject>
+	</figure>
+	</para>
+      </sect3>
+      <sect3>
+	<title>Application Templates</title>
+	<para>
+	  The layer above the Control Components is formed by the
+	  "Application Templates". These are the kick-start 'Component
+	  tapers' which do nothing more than selecting and connecting
+	  a few components which work well together in order to
+	  realise a running application. An application template
+	  should be so simple that any Orocos user can pick one and
+	  modify it, hence it is the first thing a new user will
+	  encounter. An application template should be explainable on
+	  one page with one figure explaining the architecture. The
+	  current "Control Kernel" application template does not fit
+	  that description very well and will disappear as such [v1.0]. Also,
+	  an application template will have no longer any relation to
+	  'C++' templates.
+	</para>
+      </sect3>
+    </sect2>
+    <sect2>
+      <title>Orocos Real-Time Toolkit Software Structure</title>
+      <para>
+	The realtime control software is structured in layers on top
+	of the hardware target (CPU) and the devices (IO).
+      </para>
+      <figure id="fig-orocos-app-stack">
+	<title>
+	  Realtime Control Software Overview
+	</title>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="ApplicationStack" />
+	  </imageobject>
+	</mediaobject>
+      </figure>
+      <para>
+	Every Orocos layer in <xref linkend="fig-orocos-app-stack" /> is
+	documented seperately. All Orocos software communicates
+	through Operating System abstractions with the underlying OS
+	or through Device Interfaces with the IO hardware. On the left
+	side on top of the OS Abstraction is the Core Library, which
+	presents infrastructure for writing realtime (periodic) tasks,
+	including many communication primitives. On top of that is the
+	Real-Time Toolkit, which allows to define browsable components
+	which are capable of receiving (remote) commands, process 
+	programs and hierarchical state machines and share realtime data
+	with other tasks. Your application may use that infrastructure
+	to define its own tasks and set up communication between them.
+      </para>
+      <para>
+	On the right side, lives the Device Abstraction stack.
+	The Operating System already provides a device driver model,
+	Orocos device drivers map that model to machine or robot control specific
+	Device Interfaces. An Orocos Device combines a number of these interface
+	into an object representing a physical entity. It may represent
+	a complete machine, or just a mere Sensor or Axis, such that your
+	application can communicate with physical meaningful devices (
+	instead of IO ports).
+      </para>
+      <para>
+	Because of the Openness of Orocos, your application does not need
+	to <emphasis>take-all-or-leave-all</emphasis>. You can pick out
+	the level of abstraction which suits you best for a given application.
+      </para>
+    </sect2>
+
+    <!--
+	This is confusing since not accurate.
+    <sect2 id="proj-structure">
+      <title>Code directory structure: the Packages</title>
+      <para>
+	The functionality available in &orocos; is structured in a number of
+	sub-projects; each of these is called a
+	<emphasis>(&orocos;) Package</emphasis>.
+	A Package contains a coherent and related set of functionality, in the
+	form of documentation, and <emphasis>class libraries</emphasis> and
+	<emphasis>components</emphasis>.
+      </para>
+      <para>
+	The following Packages exist, or will be created in the near future:
+	corelib, kinematics and dynamics, device interface, device drivers,
+	control kernel, applications, estimation, execution,
+	operating system, robots, XY tables.
+      </para>
+      <para>
+	The directories of each Package contain a detailed documentation of
+	the Package in their local <filename class="directory">/doc</filename>
+	directories.
+      </para>
+	<para>
+	  The packages directory is mostly found under the orocos
+	  directory. The orocos directory holds some general documentation
+	  in the doc directory (like this manual) and scripts for setting
+	  up a working packages directory. This means that, unless you are
+	  very familiar with the packaging system, you should first install
+	  the base system before trying to install a package.
+	</para>
+      </sect2>
+      -->
+    </sect1>
   <sect1 id="vision">
     <title>Vision</title>
     <para>
@@ -511,108 +791,6 @@
       </para>
     </sect2>
   </sect1>
-  <sect1>
-    <title>Project Software</title>
-    <para>
-      The Orocos project spawned a couple of largely independent
-      software projects. The documentation you are reading is about
-      the Realtime Control Software located on the Orocos.org webpage.
-      The other projects are :
-      <itemizedlist>
-	<listitem>
-	  <para>At KTH Stockholm, several releases have been made for
-	    component-based robotic systems, and the project has been
-	    renamed to <ulink
-	      url="http://orca-robotics.sourceforge.net/">Orca</ulink>.</para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Although not a project funded partner, the FAW Ulm
-	    maintains Free CORBA communication patterns for modular
-	    robotics : <ulink
-	      url="http://www1.faw.uni-ulm.de/orocos/">OROCOS@FAW</ulink>.
-	  </para>
-	</listitem>
-      </itemizedlist>
-    </para>
-    <sect2>
-      <title>Orocos Realtime Control Software Structure</title>
-      <para>
-	The realtime control software is structured in layers on top
-	of the hardware target (CPU) and the devices (IO).
-      </para>
-      <figure id="fig-orocos-app-stack">
-	<title>
-	  Realtime Control Software Overview
-	</title>
-	<mediaobject>
-	  <imageobject>
-	    <imagedata fileref="ApplicationStack" />
-	  </imageobject>
-	</mediaobject>
-      </figure>
-      <para>
-	Every Orocos layer in <xref linkend="fig-orocos-app-stack" /> is
-	documented seperately. All Orocos software communicates
-	through Operating System abstractions with the underlying OS
-	or through Device Interfaces with the IO hardware. On the left
-	side on top of the OS Abstraction is the Core Library, which
-	presents infrastructure for writing realtime (periodic) tasks,
-	including many communication primitives. On top of that is the
-	Task Infrastructure, which allows to define browsable task objects
-	which are capable of receiving (remote) commands, process 
-	programs and hierarchical state machines and share realtime data
-	with other tasks. Your application may use that infrastructure
-	to define its own tasks and set up communication between them.
-      </para>
-      <para>
-	On the right side, lives the Device Abstraction stack.
-	The Operating System already provides a device driver model,
-	Orocos device drivers map that model to machine or robot control specific
-	Device Interfaces. An Orocos Device combines a number of these interface
-	into an object representing a physical entity. It may represent
-	a complete machine, or just a mere Sensor or Axis, such that your
-	application can communicate with physical meaningful devices (
-	instead of IO ports).
-      </para>
-      <para>
-	Because of the Openness of Orocos, your application does not need
-	to <emphasis>take-all-or-leave-all</emphasis>. You can pick out
-	the level of abstraction which suits you best for a given application.
-      </para>
-    </sect2>
-    <sect2 id="proj-structure">
-      <title>Code directory structure: the Packages</title>
-      <para>
-	The functionality available in &orocos; is structured in a number of
-	sub-projects; each of these is called a
-	<emphasis>(&orocos;) Package</emphasis>.
-	A Package contains a coherent and related set of functionality, in the
-	form of documentation, and <emphasis>class libraries</emphasis> and
-	<emphasis>components</emphasis>.
-      </para>
-      <para>
-	The following Packages exist, or will be created in the near future:
-	corelib, kinematics and dynamics, device interface, device drivers,
-	control kernel, applications, estimation, execution,
-	operating system, robots, XY tables.
-      </para>
-      <para>
-	The directories of each Package contain a detailed documentation of
-	the Package in their local <filename class="directory">/doc</filename>
-	directories.
-      </para>
-	<para>
-	  The packages directory is mostly found under the orocos
-	  directory. The orocos directory holds some general documentation
-	  in the doc directory (like this manual) and scripts for setting
-	  up a working packages directory. This means that, unless you are
-	  very familiar with the packaging system, you should first install
-	  the base system before trying to install a package.
-	</para>
-      </sect2>
-    </sect1>
-
 <!---
 <sect1 id="objects-components">
 <title>Objects and Components</title>

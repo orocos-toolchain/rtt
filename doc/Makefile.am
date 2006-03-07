@@ -24,7 +24,9 @@ DOCBOOKS= applications-doc.sgml  deep-shallow-api.sgml      \
 
 DIAS=ApplicationStack.dia
 PNGS= ConfigTool.png ConfigToolAdmin.png \
-      ConfigToolPackages.png ConfigToolFlags.png
+      ConfigToolPackages.png ConfigToolFlags.png \
+      svg/RealTimeToolkit.png svg/ComponentInterface.png \
+      svg/ComponentImplementation.png
 
 FOP_STYLESHEET := $(srcdir)/orocos.xsl
 HTML_STYLESHEET := $(srcdir)/orocos-html.xsl
@@ -55,9 +57,12 @@ else
 DOC = dochtml
 endif
 
-.PHONY: docs docchunks manual control-manual
+.PHONY: docs docchunks manuals prepdocs
 
-docs: $(DOC)
+docs: prepdocs $(DOC)
+
+prepdocs:
+	mkdir -p svg
 
 ORO_USER_MANUALS=orocos-user-manual orocos-components-manual orocos-devel-manual orocos-control-manual
 ORO_MANUAL_TARGETS= $(addsuffix .pdf, $(ORO_USER_MANUALS) ) $(addsuffix .html, $(ORO_USER_MANUALS) )
@@ -87,3 +92,4 @@ clean-local:
 	$(RM) $(CLEANXMLDOCS)
 	$(RM) $(CLEANJPG)
 	$(RM) $(ORO_MANUAL_TARGETS)
+	$(RM) svg
