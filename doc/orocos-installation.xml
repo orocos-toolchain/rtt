@@ -1174,167 +1174,26 @@
       </para>
     </sect2>
   </sect1>
-  <sect1 id="technical-install">
-    <title>Installation Technical Details</title>
+  <sect1 id="cross-compile">
+    <title>Cross Compiling Orocos</title>
     <para>
-      This section groups some technical installation instructions
-      for Orocos developers.
+      This section lists some points of attention when
+      cross-compiling Orocos.
     </para>
     <sect2>
-      <title>Introduction to the eCos toolset</title>
+      <title>Compilation</title>
       <para>
-	This section goes into more detail how package management
-	is done behind the scenes and is optional literature for
-	the average user.
+	The 'autoconf' system Orocos is using is not very
+	suitable for out of the box cross compilation. It is
+	hence advised to:
       </para>
-      <para>
-	The above make commands are optional. Take a
-	look at the Makefile to see what they really do. A
-	standard eCos configuration goes as follows :
-	  <orderedlist>
-	    <listitem>
-	      <para>Set the environment variable :
-		<screen>export ECOS_REPOSITORY=/path/to/orocos-&oversion;/packages/</screen>
-		All The ecos tools need this variable to be able to work
-		on the packages. The make targets did this automatically,
-		but if you want to invoke the tools yourself, you need to
-		set it once.
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>Install any new .epk packages using
-		<screen><command>ecosadmin.tcl add filename.epk</command></screen> in the 
-		packages directory.
-	      </para>
-	      <para>
-		This only adds a package to the repository, it does not mean it is
-		automatically compiled ! Adding a package to a configuration in
-		the next steps will assure that it is compiled.
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>
-		Go to the eCos build directory. In Orocos this is :
-		<screen><filename>orocos-&oversion;/build/packages</filename></screen>
-	      But technically, it can be any directory
-		where you create an orocos.ecc configuration file.
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>Start a new build using the
-		<screen><command>ecosconfig new gnulinux  corelib-os</command></screen>
-	      command. Where
-		<option>gnulinux</option> or <option>lxrt</option> is
-		the target name and <option>corelib-os</option> is the
-		template name. A template selects a number of packages
-		which belong together. You are allowed to put your own
-		template in
-		<filename>orocos-&oversion;/packages/templates</filename>.
-		All this information (with default options)
-		is written in the <filename>orocos.ecc</filename> file
-		<warning>
-		  <para>This will overwrite any previous orocos.ecc
-		    configuration file in that directory !</para>
-		</warning>
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>Add all detected support packages. The make target
-		new_packages does this by running :
-		<screen><command>  for i in $(find $ECOS_REPOSITORY/support -name "*.cdl"); do \
-  ecosconfig add support_$(basename $i .cdl); done </command></screen>
-		They will all be added to the orocos.ecc file.
-		Fortunately, you can also add the support (or any other) packages
-		in the graphical configtool menu->Build->Packages.
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>
-		Select additional packages for your build with the graphical
-		configtool or with
-	      <screen><command>ecosconfig add package_name</command></screen>
-	      Configtool will give you a list
-		of all available packages in the repository if you go to
-		menu->Build->Packages and
-		<screen><command>ecosconfig list</command></screen> does the same.
-		This will add the package and its options to the orocos.ecc
-		file (which contains configuration info of each selected package).
-		Now the packages will show up when you run configtool or
-		run <command>ecosconfig check</command>.
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>Configure the selected packages with the graphical
-		program <screen><command>configtool orocos.ecc</command></screen>
-	      Save and exit.</para>
-	    </listitem>
-	    <listitem>
-	      <para>Create the makefiles using
-		<screen><command>ecosconfig tree</command></screen>
-	      The build tree is setup now. You need to run this command
-	      each time you change the configuration in the above step !</para>
-	    </listitem>
-	    <listitem>
-	      <para>Compile using
-		<screen><command>make</command></screen>
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>The results (headers and libtarget.a)
-		are in the install directory.</para>
-	    </listitem>
-	  </orderedlist>
-	</para>
-    </sect2>
-    <sect2>
-      <title>Installing Orocos from Subversion (similar to CVS)</title>
-      <para>
-	This section will do its best to help you through the
-	Subversion ( svn ) installation process.
-	Installing &orocos; from &svn; is optional and requires
-	some familiarity with the tools we use. It is only advised for
-	Orocos developers.
-      </para>
-      <para>
-	The commands below show how to obtain the <emphasis>orocos-trunk</emphasis>
-	Package Tree from the Subversion tree (read-only)
-	<screen width="60">  svn co http://svn.mech.kuleuven.be/repos/orocos/orocos-trunk 
-  cd orocos-trunk </screen>
-	So, make sure you have
-	the Subversion program installed, i.e., the command "svn" works on your
-	 system. The repository is web-browsable through a
-	 <ulink url="http://svn.mech.kuleuven.be/browse/orocos">ViewCVS frontend
-	 </ulink>.
-      </para>
-      <para>
-	The next step requires that you use
-	<ulink url="http://www.gnu.org/software/automake/">automake</ulink>
-	version 1.7.3 and
-	<ulink url="http://www.gnu.org/software/autoconf/">autconf</ulink>
-	version 2.54 or later. You can check your
-	versions with the <parameter>--version</parameter> option:
-	<screen>  $ automake --version
-  automake (GNU automake) 1.7.3
-   ...
-  $ autoconf --version
-  autoconf (GNU Autoconf) 2.54	</screen>
-	<note>
-	  <para> You need these programs if you intend to modify the makefiles</para>
-	</note>
-	When you get something similar, proceed with calling the <command>
-	  ./autogen.sh </command> command in the base directory
-	, in order to initialize the <filename>autoconf</filename> 
-	and <filename>automake</filename> files:
-	<screen>  ./autogen.sh</screen>
-	The configure script will detect the installed software on your
-	system and generate the appropriate scripts.
-      </para>
-      <para>
-	The next steps are exactly the same as when you install the system
-	starting from a so-called &ldquo;epk&rdquo; package, as explained in the
-	next section. Of course, you don't have to apply the
-	<command>ecosadmin.tcl</command> command when installing from &svn;.
-      </para>
+      <itemizedlist>
+	<listitem><para>Run plain "configure", as if you were building
+	for the host.</para></listitem>
+	<listitem><para>Start the configtool with "make configure_packages"</para></listitem>
+	<listitem><para>Use the configtool's "Global Build Options" to set your compiler and include paths.</para></listitem>
+	<listitem><para>Compile Orocos with "make cross"</para></listitem>
+      </itemizedlist>
     </sect2>
   </sect1>
 </article>

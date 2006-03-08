@@ -137,6 +137,8 @@ test_all_packages: .all-stamp
 
 all_packages: packages
 
+cross_packages: cross
+
 # make all dist-packages
 # it will exit if no ecos.ecc file is found.
 dist_packages:
@@ -153,6 +155,15 @@ packages: init_packages
 	cd packages &&\
 	{ test -f ecos.ecc || exit 0; } &&\
 	{ $(MAKE) -C . CC=$(CC) || exit -1; } &&\
+	ECOS_REPOSITORY=$(ECOS_REP) $(ECOSCONFIG) export .upgrade.ecc &&\
+	cd install/lib && ln -sf libtarget.a liborocos-$(ECOS_TARGET).a
+
+# make all packages from current template with ecosconfig compiler.
+# in packages dir, then export the config info.
+cross: init_packages
+	cd packages &&\
+	{ test -f ecos.ecc || exit 0; } &&\
+	{ $(MAKE) -C . || exit -1; } &&\
 	ECOS_REPOSITORY=$(ECOS_REP) $(ECOSCONFIG) export .upgrade.ecc &&\
 	cd install/lib && ln -sf libtarget.a liborocos-$(ECOS_TARGET).a
 
