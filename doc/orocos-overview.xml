@@ -205,8 +205,8 @@
     <para>
       The Orocos project spawned a couple of largely independent
       software projects. The documentation you are reading is about
-      the Realtime Control Software located on the Orocos.org webpage.
-      The other projects are :
+      the Real-Time Control Software located on the Orocos.org webpage.
+      The other <emphasis>not real-time</emphasis> projects are :
       <itemizedlist>
 	<listitem>
 	  <para>At KTH Stockholm, several releases have been made for
@@ -216,13 +216,15 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    Although not a project funded partner, the FAW Ulm
+	    Although not a project funded partner, the FH Ulm
 	    maintains Free CORBA communication patterns for modular
 	    robotics : <ulink
-	      url="http://www1.faw.uni-ulm.de/orocos/">OROCOS@FAW</ulink>.
+	      url="http://www.rz.fh-ulm.de/~cschlege/orocos/">Orocos::SmartSoft</ulink>.
 	  </para>
 	</listitem>
       </itemizedlist>
+      The documentation you are reading now is targetted at industrial
+      robotics and real-time control.
     </para>
     <sect2>
       <title>Building Orocos Applications</title>
