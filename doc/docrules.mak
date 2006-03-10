@@ -105,6 +105,7 @@ gifimages: $(GIFIMGS)
 	if test x$(srcdir) != x -a ! $(srcdir)/. -ef . ;then mv -f $(srcdir)/$@ .; fi
 
 %.png:%.svg
+	mkdir -p svg
 	inkscape -d 45 $< -e $@
 
 %.jpg:%.png

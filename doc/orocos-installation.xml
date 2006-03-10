@@ -959,8 +959,8 @@
 	  your old build tree, followed by <command>make
 	    new_packages</command> and <command>ecosconfig import
 	    /tmp/savefile.ecc</command> in your new build tree.
-	  ( manually invoking ecosconfig requires setting ECOS_REPOSITORY, 
-	   <xref linkend="technical-install" /> ).
+	  ( manually invoking ecosconfig requires setting ECOS_REPOSITORY )
+	    to your packages directory).
 	</para>
       </note>
     </sect2>
