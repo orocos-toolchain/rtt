@@ -1,6 +1,6 @@
 SUBDIRS = .
 
-XMLDOCS=orocos-overview.xml orocos-installation.xml
+XMLDOCS=orocos-overview.xml orocos-installation.xml orocos-overview-devel.xml
 # the faq only renders correctly in html, the changes is only for online viewing.
 EXTRAHTMLDOCS=orocos-faq.html orocos-changes.html orocos-html.css
 
@@ -22,11 +22,10 @@ DOCBOOKS= applications-doc.sgml  deep-shallow-api.sgml      \
 	decoupling.sgml        general-dynamics-doc.sgml  \
 	kindyn-doc.sgml       robot-api.sgml 
 
-DIAS=ApplicationStack.dia
 PNGS= ConfigTool.png ConfigToolAdmin.png \
       ConfigToolPackages.png ConfigToolFlags.png \
       svg/RealTimeToolkit.png svg/ComponentInterface.png \
-      svg/ComponentImplementation.png
+      svg/ComponentImplementation.png ApplicationStack.png
 
 FOP_STYLESHEET := $(srcdir)/orocos.xsl
 HTML_STYLESHEET := $(srcdir)/orocos-html.xsl

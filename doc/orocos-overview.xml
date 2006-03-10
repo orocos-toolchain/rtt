@@ -30,14 +30,13 @@
 
     </authorgroup>
     <copyright>
-      <year>2002,2003,2004,2005</year>
+      <year>2002,2003,2004,2005,2006</year>
       <holder>Herman Bruyninckx, Peter Soetens</holder>
     </copyright>
 
     <abstract>
       <para>
-	This document explains the goals, vision, design, implementation and
-	packages of 
+	This document gives an application oriented overview of
 	<ulink url="http://www.orocos.org">&orocos;</ulink>,
 	the <emphasis>Open RObot COntrol Software</emphasis> project. 
       </para>
@@ -79,7 +78,7 @@
 
   </articleinfo>
 
-  <sect1 id="whatis">
+  <section id="whatis">
     <title>What is Orocos?</title>
     <para>
       &ldquo;&orocos;&rdquo; is the acronym of the
@@ -114,8 +113,8 @@
       <ulink
 	url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos">mailinglist</ulink> for this purpose.
     </para>
-  </sect1>
-  <sect1 id="audience">
+  </section>
+  <section id="audience">
     <title>Target audience</title>
     <para>
       Robotics is a very broad field, and many roboticists are pursuing
@@ -199,42 +198,16 @@
       architecture. Serving the needs of the End Users is left to
       (commercial and non-commercial) Application Builders.
     </para>
-  </sect1>
-  <sect1>
-    <title>Orocos Project Software Overview</title>
+  </section>
+  <section>
+    <title>Building Orocos Applications</title>
     <para>
-      The Orocos project spawned a couple of largely independent
-      software projects. The documentation you are reading is about
-      the Real-Time Control Software located on the Orocos.org webpage.
-      The other <emphasis>not real-time</emphasis> projects are :
-      <itemizedlist>
-	<listitem>
-	  <para>At KTH Stockholm, several releases have been made for
-	    component-based robotic systems, and the project has been
-	    renamed to <ulink
-	      url="http://orca-robotics.sourceforge.net/">Orca</ulink>.</para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Although not a project funded partner, the FH Ulm
-	    maintains Free CORBA communication patterns for modular
-	    robotics : <ulink
-	      url="http://www.rz.fh-ulm.de/~cschlege/orocos/">Orocos::SmartSoft</ulink>.
-	  </para>
-	</listitem>
-      </itemizedlist>
-      The documentation you are reading now is targetted at industrial
-      robotics and real-time control.
+      Orocos applications are composed of software components, which form
+      an application specific network. When using Orocos, you can choose
+      to use predefined components, contributed by the community, or
+      build your own component, using the Orocos Real-Time Toolkit. 
+      This section introduces both ways of building applications.
     </para>
-    <sect2>
-      <title>Building Orocos Applications</title>
-      <para>
-	Orocos applications are composed of software components, which form
-	an application specific network. When using Orocos, you can choose
-	to use predefined components, contributed by the community, or
-	build your own component, using the Orocos Real-Time Toolkit. 
-	This section introduces both ways of building applications.
-      </para>
       <figure id="fig-orocos-toolkit">
 	<title>
 	  Orocos Real-Time Toolkit
@@ -245,50 +218,33 @@
 	  </imageobject>
 	</mediaobject>
       </figure>
-      <para>
-	The lowest level of Orocos will exist out of 3 independent libraries:
-	The "Real-Time Toolkit", the "Bayesian Filtering Library" and the "Kinematics 
-	and Dynamics Library". The project is currently refactoring some parts 
-	in preparation of the 1.0 release. These changes are marked with 
-	a version number such as [v1.0].
-      </para>
-      <sect3>
-	<title>Real-Time Toolkit (RTT)</title>
+      <section>
+	<title>Application Templates</title>
 	<para>
-	  This is a set of C++ classes which allows a developer to
-	  build Orocos components. It provides the OS
-	  abstraction, low-level device drivers and device interfaces,
-	  and the 'task infrastructure' to build components.  It also
-	  encapsulates any distribution (CORBA [v0.24.0]) specific code required
-	  to distribute components. This is what we are now calling
-	  the 'Real-Time Control Services' on our website. The aim is that beginning
-	  Orocos users will not be working immediately with this
-	  toolkit.
+	  The layer above the Control Components is formed by the
+	  The "Application Templates" are the kick-start 'Component
+	  tapers' which do nothing more than selecting and connecting
+	  a few components which work well together in order to
+	  realise a running application. An application template
+	  should be so simple that any Orocos user can pick one and
+	  modify it, hence it is the first thing a new user will
+	  encounter. An application template should be explainable on
+	  one page with one figure explaining the architecture.
 	</para>
-      </sect3>
-      <sect3>
-	<title>Bayesian Filtering Library (BFL)</title>
-	<para>
-	  This C++ library can be used independent of Orocos today but will get a more 
-	  prominent place on the Orocos webpage. It will be used by Orocos Components
-	  which (actively) do intelligent sensor processing [v1.0]. Current BFL users will 
-	  still be able to use this library as before.
-	</para>
-      </sect3>
-      <sect3>
-	<title>Kinematics and Dynamics Library (KDL)</title>
-	<para>
-	  This C++ library is today integrated within Orocos as the 'geometry' and 
-	  'kindyn' packages. It will be split off [v1.0] as an independent library for 
-	  kinematics usable by developers who do not wish to use the Real-Time Toolkit. 
-	  Credits go to Erwin Aertbelien who developed a major part of this library, 
-	  and new candidates are ready to take over the job.
-	</para>
-      </sect3>
-      <sect3>
+	<note>
+	  <para>We are currently reworking the template infrastructure
+	  to match this description.  The current "Control Kernel"
+	  application template does not fit that description very well
+	  and will disappear as such [v1.0]. Also, an application
+	  template will have no longer any relation to 'C++'
+	  templates.
+	  </para>
+	</note>
+      </section>
+      <section>
 	<title>Control Components</title>
 	<para>
-	  The layer above these three libraries is taken by the Orocos
+	  Applications are constructed using the Orocos
 	  "Control Component". A distributable entity which has a
 	  control oriented interface.  
 	</para>
@@ -303,19 +259,21 @@
 	  </mediaobject>
 	</figure>
 	<para>
-	  A single component may be well
-	  capable of controlling a whole machine, or is just a 'small'
-	  part in a whole network of components, for example an
-	  interpolator or kinematic component. The components are
-	  built with the "Real-Time Toolkit" and optionally make use
-	  of the BFL or KDL or any other library (like a vision
-	  toolkit). Most users will interface components through their
-	  (XML) properties or command/method interface in order to
-	  configure their applications. The current Orocos 'Control
+	  A single component may be well capable of controlling a
+	  whole machine, or is just a 'small' part in a whole network
+	  of components, for example an interpolator or kinematic
+	  component. The components are built with the "Real-Time
+	  Toolkit" and optionally make use of any other library (like
+	  a vision or kinematics toolkit). Most users will interface components
+	  through their (XML) properties or command/method interface
+	  in order to configure their applications.
+	</para>
+	<note><para>
+	  The current Orocos 'Control
 	  Kernel' components need to be converted in order to fit in
 	  this description and are to be split off in separate
-	  packages [v1.0]. 
-	</para>
+	  packages [v1.0].
+	</para></note>
 	<para>
 	  The Component interface is defined by the
 	  'TaskContext' class as released in version 0.22.0 and
@@ -327,7 +285,7 @@
 	  events, methods, commands and data flow ports
 	  (<xref linkend="fig-orocos-component-interface" />).
 	  These are all optional interfaces. The purpose and
-	  use of these interfaces is documented in the
+	  use of these interface 'types' is documented in the
 	  Orocos Component Builder's Manual. Each component
 	  documents its interface as well. To get a grip
 	  on what these interfaces mean, here are some
@@ -357,7 +315,13 @@
 	  <listitem>
 	    <para><emphasis>Commands:</emphasis> Are 'sent' by other
 	    components to instruct the receiver to 'reach a goal' For
-	    example: "moveTo(pos, velocity)", "home()",...</para>
+	    example: "moveTo(pos, velocity)", "home()",... A command
+	    cannot, in general, be completely executed
+	    instantaneously, so the caller should not block and wait
+	    for its completion. But the Command object offers all
+	    functionalities to let the caller know about the progress
+	    in the execution of the command.
+	    </para>
 	  </listitem>
 	  <listitem>
 	    <para><emphasis>Data-Flow Ports:</emphasis> Are a 'raw'
@@ -377,7 +341,7 @@
 	  at runtime in any component.
 	<figure id="fig-orocos-component-implementation">
 	  <title>
-	    Orocos Control Component Implementation
+	    Orocos Control Component State Machines.
 	  </title>
 	  <mediaobject>
 	    <imageobject>
@@ -386,627 +350,77 @@
 	  </mediaobject>
 	</figure>
 	</para>
-      </sect3>
-      <sect3>
-	<title>Application Templates</title>
+      </section>
+      <section><title>Orocos Toolkits</title>
+      <para>
+	The lowest level of Orocos will exist out of 3 independent libraries:
+	The "Real-Time Toolkit", the "Bayesian Filtering Library" and the "Kinematics 
+	and Dynamics Library". The project is currently refactoring some parts 
+	in preparation of the 1.0 release. These changes are marked with 
+	a version number such as [v1.0].
+      </para>
+      <section>
+	<title>Real-Time Toolkit (RTT)</title>
 	<para>
-	  The layer above the Control Components is formed by the
-	  "Application Templates". These are the kick-start 'Component
-	  tapers' which do nothing more than selecting and connecting
-	  a few components which work well together in order to
-	  realise a running application. An application template
-	  should be so simple that any Orocos user can pick one and
-	  modify it, hence it is the first thing a new user will
-	  encounter. An application template should be explainable on
-	  one page with one figure explaining the architecture. The
-	  current "Control Kernel" application template does not fit
-	  that description very well and will disappear as such [v1.0]. Also,
-	  an application template will have no longer any relation to
-	  'C++' templates.
+	  This is a set of C++ classes which allows a developer to
+	  build Orocos components. It provides the OS
+	  abstraction, low-level device drivers and device interfaces,
+	  and the 'task infrastructure' to build components.  It also
+	  encapsulates any distribution (using CORBA [v0.24.0]) specific code required
+	  to distribute components. This is what we are now calling
+	  the 'Real-Time Control Services' on our website. The 
+	  <emphasis>real-time</emphasis> stands for time determinism and
+	  thread-safety but does not automatically require a real-time
+	  Operating System to be useful. The aim is that beginning
+	  Orocos users will not be working immediately with this
+	  toolkit, but use the ready made components instead.
 	</para>
-      </sect3>
-    </sect2>
-    <sect2>
-      <title>Orocos Real-Time Toolkit Software Structure</title>
-      <para>
-	The realtime control software is structured in layers on top
-	of the hardware target (CPU) and the devices (IO).
-      </para>
-      <figure id="fig-orocos-app-stack">
-	<title>
-	  Realtime Control Software Overview
-	</title>
-	<mediaobject>
-	  <imageobject>
-	    <imagedata fileref="ApplicationStack" />
-	  </imageobject>
-	</mediaobject>
-      </figure>
-      <para>
-	Every Orocos layer in <xref linkend="fig-orocos-app-stack" /> is
-	documented seperately. All Orocos software communicates
-	through Operating System abstractions with the underlying OS
-	or through Device Interfaces with the IO hardware. On the left
-	side on top of the OS Abstraction is the Core Library, which
-	presents infrastructure for writing realtime (periodic) tasks,
-	including many communication primitives. On top of that is the
-	Real-Time Toolkit, which allows to define browsable components
-	which are capable of receiving (remote) commands, process 
-	programs and hierarchical state machines and share realtime data
-	with other tasks. Your application may use that infrastructure
-	to define its own tasks and set up communication between them.
-      </para>
-      <para>
-	On the right side, lives the Device Abstraction stack.
-	The Operating System already provides a device driver model,
-	Orocos device drivers map that model to machine or robot control specific
-	Device Interfaces. An Orocos Device combines a number of these interface
-	into an object representing a physical entity. It may represent
-	a complete machine, or just a mere Sensor or Axis, such that your
-	application can communicate with physical meaningful devices (
-	instead of IO ports).
-      </para>
-      <para>
-	Because of the Openness of Orocos, your application does not need
-	to <emphasis>take-all-or-leave-all</emphasis>. You can pick out
-	the level of abstraction which suits you best for a given application.
-      </para>
-    </sect2>
-
-    <!--
-	This is confusing since not accurate.
-    <sect2 id="proj-structure">
-      <title>Code directory structure: the Packages</title>
-      <para>
-	The functionality available in &orocos; is structured in a number of
-	sub-projects; each of these is called a
-	<emphasis>(&orocos;) Package</emphasis>.
-	A Package contains a coherent and related set of functionality, in the
-	form of documentation, and <emphasis>class libraries</emphasis> and
-	<emphasis>components</emphasis>.
-      </para>
-      <para>
-	The following Packages exist, or will be created in the near future:
-	corelib, kinematics and dynamics, device interface, device drivers,
-	control kernel, applications, estimation, execution,
-	operating system, robots, XY tables.
-      </para>
-      <para>
-	The directories of each Package contain a detailed documentation of
-	the Package in their local <filename class="directory">/doc</filename>
-	directories.
-      </para>
+      </section>
+      <section>
+	<title>Bayesian Filtering Library (BFL)</title>
 	<para>
-	  The packages directory is mostly found under the orocos
-	  directory. The orocos directory holds some general documentation
-	  in the doc directory (like this manual) and scripts for setting
-	  up a working packages directory. This means that, unless you are
-	  very familiar with the packaging system, you should first install
-	  the base system before trying to install a package.
+	  This C++ library can be used independently of Orocos today but will get a more 
+	  prominent place on the Orocos webpage. It will be used by Orocos Components
+	  which (actively) do intelligent sensor processing [v1.0]. Current BFL users will 
+	  still be able to use this library as before.
 	</para>
-      </sect2>
-      -->
-    </sect1>
-  <sect1 id="vision">
-    <title>Vision</title>
+      </section>
+      <section>
+	<title>Kinematics and Dynamics Library (KDL)</title>
+	<para>
+	  This C++ library is today integrated within Orocos as the 'geometry' and 
+	  'kindyn' packages. It will be split off [v1.0] as an independent library for 
+	  kinematics usable by developers who do not wish to use the Real-Time Toolkit. 
+	  Credits go to Erwin Aertbelien who developed a major part of this library, 
+	  and new candidates are ready to take over the job.
+	</para>
+      </section>
+    </section>
+  </section>
+  <section>
+    <title>Related 'Orocos' Projects</title>
     <para>
-      <blockquote>
-	<para>
-	  <emphasis> The long-term goal of &orocos; is to provide
-	    <emphasis>all necessary</emphasis> software
-	    <emphasis>infrastructure</emphasis>, for <emphasis>all
-	      possible</emphasis> robots (manipulator arms, mobile
-	    robots, humanoids, rehabilitation devices, etc.) and
-	    industrial machines ( machinetools, automation systems,
-	    etc.) </emphasis>
-	</para>
-      </blockquote> This is a very ambitious goal, and will inevitably
-      lead to a very large code tree, various sub-projects, and
-      contributors that are only interested in one or two of these
-      sub-projects. So, the danger of arriving at a chaotic and
-      incoherent project is real. This danger will be fought by
-      adhering to a clear &ldquo;roadmap&rdquo;, or
-      &ldquo;vision&rdquo; for both of the following aspects
-      (discussed in more detail in the following Sections):
-      <orderedlist>
+      The Orocos project spawned a couple of largely independent
+      software projects. The documentation you are reading is about
+      the Real-Time Control Software located on the Orocos.org webpage.
+      The other <emphasis>not real-time</emphasis> projects are :
+      <itemizedlist>
 	<listitem>
-	  <para>
-	    <emphasis>Software engineering requirements.</emphasis>
-	  </para>
-	  <para>
-	    What quality and approach are expected from contributions
-	    to the project?
-	  </para>
+	  <para>At KTH Stockholm, several releases have been made for
+	    component-based robotic systems, and the project has been
+	    renamed to <ulink
+	      url="http://orca-robotics.sourceforge.net/">Orca</ulink>.</para>
 	</listitem>
 	<listitem>
 	  <para>
-	    <emphasis>Structure of the source code.</emphasis>
-	  </para>
-	  <para>
-	    How is the project structured into sub-projects?
+	    Although not a project funded partner, the FH Ulm
+	    maintains Free CORBA communication patterns for modular
+	    robotics : <ulink
+	      url="http://www.rz.fh-ulm.de/~cschlege/orocos/">Orocos::SmartSoft</ulink>.
 	  </para>
 	</listitem>
-      </orderedlist> The project maintainers will <emphasis>strictly
-	impose</emphasis> adherence to the project's vision and
-      roadmap when considering incorporation of contributions to the
-      project. However, they always welcome a motivated discussion
-      about these topics on the project's <ulink
-	url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos">
-	mailinglist. </ulink>
+      </itemizedlist>
+      This documentation is targetted at industrial robotics and real-time control.
     </para>
-    <sect2 id="proj-dev-req">
-      <title>Software engineering requirements</title>
-      <para>
-	&orocos; has a vision on <emphasis>how</emphasis> developers should
-	design, implement and present new functionality, in order to guarantee
-	the project's coherence and scalability. These are the software
-	engineering guidelines that support the implementation of the
-	project's vision:
-	<orderedlist>
-
-	  <listitem>
-	    <para>
-	      <emphasis>Object-oriented design.</emphasis>
-	    </para>
-	    <para>
-	      This seems an obvious requirement for modern-day software development.
-	      However, the experience within the project has learned that designing
-	      an appropriate class hierarchy is a <emphasis>major</emphasis>
-	      challenge, mainly because of the diversity of the field.
-	    </para>
-	  </listitem>
-
-	  <listitem>
-	    <para>
-	      <emphasis>Extreme decoupling and modularity.</emphasis>
-	    </para>
-	    <para>
-	      This is the fundamental criterium to keep in mind when designing
-	      and/or refactoring the project's class hierarchy.
-	      Object classes encapsulate data and activities, and the choice of
-	      classes should be such that:
-	      <itemizedlist>
-
-		<listitem>
-		  <para>
-		    The implementation of one class should not rely on knowing something
-		    about the internals of another class. Relying on such knowledge is
-		    called <emphasis>coupling</emphasis> between both classes, and this
-		    must be avoided at all costs, because it prevents the independent
-		    evolution or re-implementation of the classes.
-		  </para>
-		</listitem>
-
-		<listitem>
-		  <para>
-		    Every class should have an interface that fits more or less on one
-		    single page. Elaborate interfaces are a sign that the implemented
-		    functionality may better be split into multiple objects.
-		  </para>
-		</listitem>
-
-	      </itemizedlist>
-	      The strong desire to <emphasis>decouple</emphasis> software parts
-	      wherever possible is a key feature of the project; it may seem a bit
-	      of an overkill for each individual application built with the &orocos;
-	      code (and hence a burden for the individual contributor), but for the
-	      whole project it is expected to become its major competitive advantage.
-	    </para>
-	  </listitem>
-	  
-	  <listitem>
-	    <para>
-	      <emphasis>Small and shallow interfaces.</emphasis>
-	    </para>
-	    <para>
-	      It is useful to separate the <emphasis>interface</emphasis> of a
-	      certain functionality from its <emphasis>implementation</emphasis> (as
-	      a class or as a component). The interfaces are what Application
-	      Builders and End Users need to construct their programs; the
-	      class and component implementations are contructed by the Framework and
-	      Component Builders.
-	    </para>
-	    <para>
-	      Separated interfaces give more flexibility in changing
-	      implementations, and in allowing &ldquo;third-party&rdquo; providers
-	      of components. They also allow to discuss functionality without being
-	      biased by possible implementations problems or opportunities.
-	    </para>
-	    <para>
-	      &orocos; prefers interfaces that are:
-	      <itemizedlist>
-
-		<listitem>
-		  <para><emphasis>Small.</emphasis>
-		    This improves the focus of the interface, and hence (hopefully) its
-		    quality. In this sense, it corresponds to the minimality requirement
-		    discussed below.  Another motivation is that &orocos; wants to avoid
-		    &ldquo;exceptions&rdquo; in implementations of the interfaces: when
-		    the interface is large, the chance increases that a particular
-		    developer will not be able to provide a <emphasis>complete</emphasis>
-		    implementation. In that case, the implementation must return an
-		    exception &ldquo;functionality not implemented&rdquo;, and this
-		    complicates the execution logic of the component that uses the
-		    interface, and reduces the real-time performance.
-		  </para>
-		</listitem>
-
-		<listitem>
-		  <para><emphasis>Shallow.</emphasis>
-		    In an object-oriented paradigm, much functionality is provided by
-		    class <emphasis>hierarchies</emphasis>. Every hierarchy may seem
-		    natural in the context on one particular application, but it will most
-		    certainly not be natural in other applications. For example, a
-		    robotics engineer may find it normal to have a &ldquo;robot&rdquo;
-		    object at the top of a large and deep hierarchy. But that same word
-		    &ldquo;robot&rdquo; will not be well received by machine tool builders
-		    that construct milling machines, or laser cutters. Although most of
-		    the functionality of motion control and task execution will be the
-		    same in both application areas. Therefore, class hierarchies should
-		    not be deep.
-		  </para>
-		</listitem>
-
-	      </itemizedlist>
-	      In addition to the technical reasons to use small and shallow
-	      interfaces, they are a key feature for free software projects that
-	      expect significant contributions from their community: the complexity
-	      of the whole system can only be tackled by restricting the scope of
-	      each individual piece of code. An <emphasis>increased
-		flexibility</emphasis> is a derived property that comes for free.
-	    </para>
-	  </listitem>
-
-	  <listitem>
-	    <para>
-	      <emphasis>Distributable.</emphasis>
-	    </para>
-	    <para>
-	      Future machine control systems will most certainly use multiple
-	      processors, connected through a network with sensors and actuators
-	      that most probably will have their own embedded intelligence.
-	      Hence, the robot/machine control software will have to be scalable and
-	      distributable.
-	    </para>
-	    <para>
-	      Having a design that is modular and maximally decoupled fulfills already
-	      more than half of the requirements for such distributed control
-	      systems. The other half will come from making software components
-	      with an internal design that allows their different parts to cooperate
-	      over a network.
-	    </para>
-	    <para>
-	      Two software aspects are important in this respect: the ubiquitous use
-	      of <emphasis>events</emphasis> for synchronization, and of a
-	      <emphasis>virtual (network) time</emphasis> (instead of the time
-	      delivered by the local processor). Both events and virtual time are
-	      general <emphasis>abstractions</emphasis>, that are easily mapped on
-	      corresponding primitives of the particular operating system the
-	      component is running on. For example, a hardware interrupt is also an
-	      event, and for the logic of a component it almost never matters
-	      whether the event comes from the hardware or from a local
-	      &ldquo;stub&rdquo; of remote hardware.
-	      So, make sure that your components don't use system calls 
-	      that tie them to a particular operating system or a particular device.
-	    </para>
-	    <para>
-	      &orocos; provides <emphasis>abstraction layers</emphasis> for both the
-	      operating system and the interfacing hardware. These abstractions
-	      follow the principles of minimality and decoupling. Especially for the
-	      operating system abstraction this is a big advantage, because typical
-	      (real-time) OSs tend to have way too large and too primitive APIs,
-	      that are easily abused.
-	    </para>
-	  </listitem>
-
-	  <listitem>
-	    <para>
-	      <emphasis>Minimalistic.</emphasis>
-	    </para>
-	    <para>
-	      Developers should only offer features that are
-	      <emphasis>absolutely</emphasis> necessary: practical experience has
-	      learned that the availability of superfluous APIs leads to
-	      implementations with similar functionality but with different
-	      implementations. And, worse, to implementations where the programmers
-	      do not know very well what parts of the available functionality to
-	      use.  Both effects lead to <emphasis>sub-optimal</emphasis> results,
-	      and applications that are more difficult to re-use and maintain.
-	    </para>
-	    <para>
-	    </para>
-	  </listitem>
-
-	  <listitem>
-	    <para>
-	      <emphasis>Platform independent.</emphasis>
-	    </para>
-	    <para>
-	      Because of its Free Software nature, Linux is the normal environment
-	      for both host development and target runtimes. This can in practice
-	      lead very quickly to an unperceived bias towards Linux, that would
-	      compromise the portability to other operating systems. Developers must
-	      try to use only portable language constructs.
-	    </para>
-	    <para>
-	      Of course, sooner or later, the project will be confronted with the
-	      trade-off between portability and the choice for a particular desired
-	      feature that can not be supported by all initially targeted platforms.
-	      These trade-offs must be discussed on the mailinglist.
-	    </para>
-	  </listitem>
-
-	  <listitem>
-	    <para>
-	      <emphasis>Thorough large-scale design.</emphasis>
-	    </para>
-	    <para>
-	      Developers must <emphasis>always</emphasis> consider that their
-	      designs will possibly be used in a very complex, distributed and hard
-	      real-time implementation. Therefore, the design of such large-scale
-	      robotics systems must be made clear before starting the implementation
-	      of classes and components. And the implementators must provide
-	      contributions that can safely and efficiently work in such
-	      large-scale systems.
-	    </para>
-	    <para>
-	      One particular item is <emphasis>real-time</emphasis>: if an algorithm
-	      <emphasis>is</emphasis> inherently real-time (i.e., it has a
-	      deterministic execution time), then its implementation
-	      <emphasis>must</emphasis> be implemented with constructs that are
-	      real-time safe. For example, all variables and temporary objects must
-	      be allocated before execution of the functionality proper, and no
-	      exceptions or run-time type checking must be used. (So, Java
-	      and C++ programmers need to be careful.)
-	    </para>
-	  </listitem>
-
-	</orderedlist>
-      </para>
-      <para>
-	All these requirements illustrate the project's emphasis on
-	<emphasis>design</emphasis>: most things in robotics have already been
-	tried out in various ways, so the &orocos; implementation should
-	<emphasis>at least</emphasis> be as good as the best of these
-	tried-out predecessors. In addition, &orocos; aims at a number of
-	extra features, such as &ldquo;ultimate generality&rdquo;.
-	This generality is the reason why the project follows a development
-	approach which is maybe a bit different from traditional free software
-	projects: the trade-off during the current development is towards
-	having a very well thought-out and very general design, and not in the
-	first place towards adding as many functionality features as possible.
-	This approach is motivated by the observation that all existing robot
-	control software packages are very difficult to use in applications
-	that are different from the first application they were built for. And
-	that sharing source or binary code is very hard in practice, because
-	of ill-defined interfaces, that are most often also strongly coupled
-	to one particular application.
-      </para>
-      <para>
-	The development approach of the project follows from the
-	above-mentioned vision: the project works in a &ldquo;bottom-up&rdquo;
-	fashion, on small interfaces at a time, <emphasis>but</emphasis> while
-	keeping the long-term goal in mind. So, it is currently building the
-	lowest levels of the framework, such as the hard real-time
-	&ldquo;Core&rdquo;, motion control functionality, primitives for
-	communication between &orocos; components, robot kinematics, etc.
-      </para>
-    </sect2>
-  </sect1>
-<!---
-<sect1 id="objects-components">
-<title>Objects and Components</title>
-<para>
-The basic functionality of &orocos; is implemented in libraries of 
-object classes. Objects are the building blocks for encapsulation and
-modularity; their functionality is accessed by directly calling the
-member and data functions on objects created by those libraries. But
-&orocos; also want to offer &ldquo;higher-level&rdquo; objects:
-<itemizedlist>
-
-<listitem>
-<para>
-<emphasis>Monitors.</emphasis>
-</para>
-<para>
-A Monitor, or &ldquo;protected object&rdquo; doesn't allow direct
-calls on its member and data functions. Instead, it implements its own
-internal <emphasis>serialization</emphasis> mechanism to allow only
-one calling client at a time to really access the object.
-</para>
-<para>
-Monitors offer more protection, and are hence better suited to be used
-in a &ldquo;hostile&rdquo; application environment, but they are much
-less efficient than &ldquo;naked&rdquo; objects.
-</para>
-</listitem>
-
-<listitem>
-<para>
-<emphasis>Components.</emphasis>
-</para>
-<para>
-A Component is also an encapsulation for the functionalities of one or
-more objects, but it is more: it behaves as a full application in
-itself, that can dynamically be created or deleted, possibly while
-preserving its state during the period it is deactivated. A Component
-also notifies a so-called <emphasis>broker agent</emphasis> when it
-comes on-line, what kind of services it offers, and how these services
-must be accessed. This means that it allows other Components to
-discover it on-line, and to &ldquo;browse&rdquo; its interface. 
-</para>
-</listitem>
-
-</itemizedlist>
-&orocos; is inspired by the <emphasis>CORBA</emphasis>
-specification for components (version 3.0 of the CORBA standard). This
-doesn't mean at all that CORBA will be the default way to access
-&orocos;' functionalities (especially not at the real time level), but
-it would be stupid not to use the experience, suggestions and tools
-available in the CORBA world.
-</para>
-<para>
-&orocos; imposes a consistent framework interface for its components;
-i.e., they use the same API to be activated/deactivated, configured
-and accessed in an application that runs in the &orocos; Core. Most
-&orocos; Packages will contain one or more Components in the idl 
-subdirectory.
-</para>
-<para>
-The documentation of the Core Package contains more details.
-</para>
-</sect1>
--->
-
-  <sect1 id="history">
-    <title>Project history</title>
-    <para>
-      The idea for starting a Free Software project for robot control was
-      born in December 2000, motivated by over two decades of rather
-      disappointing experiences and failures in trying to use commercial
-      robot control software for advanced robotics research. The idea,
-      together with a draft of a possible project proposal, was launched on
-      the mailinglist of <ulink url="http://www.euron.org/">EURON</ulink>,
-      the European Robotics Network. This email gave rise to a lot of
-      responses, even though it was sent during the Christmas period. Within
-      about two weeks, a proposal was made ready, and sent to the European
-      Union. Contacts with the responsible Officer made clear that the size
-      of the project had to be very modest, so that only three partners were
-      selected: K.U.Leuven in Belgium, LAAS Toulouse in France, and KTH
-      Stockholm in Sweden. Each of these three groups would later receive
-      only one full man-year of support. The EU-sponsored project started in
-      September 2001, and has a duration for two years.
-    </para>
-    <para>
-      The EU sponsoring also provides some travel grants to invite
-      non-sponsored people to the &orocos; project meetings. This, together
-      with the classical attributes of a 
-      <ulink url="http://www.orocos.org">web page</ulink> and a 
-      <ulink
-	url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos">mailinglist
-      </ulink>,
-      stimulated quite some discussions and exchanges of ideas.
-    </para>
-    <para>
-      A first version of the hard real-time core was released in the
-      Summer of 2002, but it was very preliminary and hard to use. In
-      November 2002, the first version was released with which 
-      simple position and velocity control of a six degrees-of-freedom
-      robot manipulator arm was possible. 
-    </para>
-    <para>
-      After the EU sponsored project was finished, the project partners
-      continued to improve on the delivered software. The realtime
-      Orocos framework developments at the KU Leuven, knew already 6 major software
-      ( see <ulink url="download.php">Downloads</ulink> )
-      releases after september 2003. At KTH Stockholm, several releases
-      have been made for component-based robotic systems,
-      and the project has been renamed to
-      <ulink url="http://orca-robotics.sourceforge.net/">Orca</ulink>. Although
-      not a project funded partner, the FAW Ulm maintains Free CORBA 
-      communication patterns for modular robotics :
-      <ulink url="http://www1.faw.uni-ulm.de/orocos/">OROCOS@FAW</ulink>.
-    </para>
-
-    <para>
-      Because of its applicability to industrial applications, the
-      realtime Orocos framework has grown into the machine
-      control field and outgrown its robotics roots. The modularity
-      of Orocos packages reflects this versatility. Currently,
-      the <ulink url="http://www.fmtc.be">Flanders Mechatronics Technology
-	Centre</ulink> funds the development of the realtime Orocos framework
-      and coordinates the integration of Orocos in industrial machines
-      of machinetool builders.
-    </para>
-
-  </sect1>
-  <bibliography>
-    <title>Bibliography</title>
-
-    <biblioentry xreflabel="posa96">
-      <title>Pattern-oriented software architecture: a system of
-	patterns
-      </title>
-      <authorgroup>
-	<author>
-	  <firstname>Frank</firstname>
-	  <surname>Buschmann</surname>
-	</author>
-	<author>
-	  <firstname>Regine</firstname>
-	  <surname>Meunier</surname>
-	</author>
-	<author>
-	  <firstname>Hans</firstname>
-	  <surname>Rohnert</surname>
-	</author>
-      </authorgroup>
-      <pubdate>1996</pubdate>
-      <publisher> <publishername>Wiley Chicester</publishername>
-      </publisher>
-    </biblioentry>
-
-    <biblioentry xreflabel="gof94">
-      <title>Design Patterns Elements of Reusable Object-Oriented
-	Software
-      </title>
-      <authorgroup>
-	<author>
-	  <firstname>Erich</firstname>
-	  <surname>Gamma</surname>
-	</author>
-	<author>
-	  <firstname>Richard</firstname>
-	  <surname>Helm</surname>
-	</author>
-	<author>
-	  <firstname>Ralph</firstname>
-	  <surname>Johnson</surname>
-	</author>
-	<author>
-	  <firstname>John</firstname>
-	  <surname>Vlissides</surname>
-	</author>
-      </authorgroup>
-      <pubdate>1994</pubdate>
-      <publisher> <publishername>Addison Wesley</publishername>
-      </publisher>
-    </biblioentry>
-
-
-    <biblioentry xreflabel="Johnson97">
-      <biblioset relation="article">
-	<title>Frameworks = (components + patterns)</title>
-	<authorgroup>
-	  <author>
-	    <firstname>R. E.</firstname>
-	    <surname>Johnson</surname>
-	  </author>
-	</authorgroup>
-	<pagenums>39&ndash;42</pagenums>
-	<volumenum>40</volumenum><issuenum>10</issuenum>
-	<pubdate>1997</pubdate>
-      </biblioset>
-      <biblioset relation="journal">
-	<title>Communications of the ACM</title>
-      </biblioset>
-    </biblioentry> 
-
-    <biblioentry xreflabel="Szyperski98">
-      <biblioset relation="book">
-	<title>Component Software: Beyond Object-Oriented
-	  Programming</title>
-	<authorgroup>
-	  <author>
-	    <firstname>C,</firstname>
-	    <surname>Szyperski</surname>
-	  </author>
-	</authorgroup>
-	<publisher>
-	  <publishername>Addison Wesley</publishername>
-	</publisher>
-	<pubdate>1998</pubdate>
-      </biblioset>
-    </biblioentry> 
-  </bibliography>
+  </section>
 </article>

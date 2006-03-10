@@ -81,6 +81,33 @@
       The last Chapter details on how to extend the Orocos
       Parser framework with user defined types.
     </para>
+    <section id="proj-structure">
+      <title>Code directory structure: the Packages</title>
+      <para>
+	The functionality available in &orocos; is structured in a number of
+	sub-projects; each of these is called a
+	<emphasis>(&orocos;) Package</emphasis>.
+	A Package contains a coherent and related set of functionality, in the
+	form of documentation and <emphasis>class libraries</emphasis>.
+      </para>
+      <para>
+	The following Packages exist, or will be created in the near future:
+	corelib, kinematics and dynamics, device interface, device drivers,
+	control kernel, applications, estimation, execution,
+	operating system, robots, XY tables.
+      </para>
+      <para>
+	The directories of each Package contain a detailed documentation of
+	the Package in their local <filename class="directory">/doc</filename>
+	directories.
+      </para>
+      <para>
+	The packages directory is mostly found under the orocos
+	directory. The orocos directory holds some general documentation
+	in the doc directory (like this manual) and scripts for setting
+	up a working packages directory.
+      </para>
+    </section>
   </chapter>
   <chapter>
     <title>Build System</title>

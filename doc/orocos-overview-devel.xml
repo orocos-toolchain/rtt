@@ -1,0 +1,446 @@
+<?xml version='1.0'?>
+
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd" 
+[
+<!ENTITY cvs         "<acronym>CVS</acronym>">
+<!ENTITY orocos      "<acronym>Orocos</acronym>">
+<!ENTITY rtai        "<acronym>RTAI</acronym>">
+<!ENTITY rtos        "<acronym>RTOS</acronym>">
+]
+>
+
+<article>
+ <articleinfo>
+    <title>
+      Introduction for Orocos developers
+    </title>
+    <subtitle><emphasis>Open RObot COntrol Software</emphasis>
+    </subtitle>
+    <authorgroup>
+      <author>
+	<firstname>Herman</firstname>
+	<surname>Bruyninckx</surname>
+      </author>
+      
+      <author>
+	<firstname>Peter</firstname>
+	<surname>Soetens</surname>
+      </author>
+
+    </authorgroup>
+    <copyright>
+      <year>2006</year>
+      <holder>Herman Bruyninckx, Peter Soetens</holder>
+    </copyright>
+
+    <abstract>
+      <para>
+	This document explains the goals, vision, design, implementation and
+	packages of 
+	<ulink url="http://www.orocos.org">&orocos;</ulink>,
+	the <emphasis>Open RObot COntrol Software</emphasis> project. 
+      </para>
+    </abstract>
+
+    <revhistory>
+      <revision>
+	<revnumber>0.22.0</revnumber>
+	<date>10 March 2006</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Created from Orocos Overview document</revremark>
+      </revision>
+    </revhistory>
+
+    <legalnotice>
+      <para>
+	Permission is granted to copy, distribute and/or modify this document
+	under the terms of the GNU Free Documentation License, Version 1.1 or
+	any later version published by the Free Software Foundation, with no
+	Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+	Texts. A copy of this license can be found at
+	<ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
+
+  </articleinfo>
+  <sect1 id="vision">
+    <title>Development Vision</title>
+    <para>
+      Developing code for the Orocos project is guided by
+      <orderedlist>
+	<listitem>
+	  <para>
+	    <emphasis>Software engineering requirements.</emphasis>
+	  </para>
+	  <para>
+	    What quality and approach are expected from contributions
+	    to the project?
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <emphasis>Structure of the source code.</emphasis>
+	  </para>
+	  <para>
+	    How is the project structured into sub-projects?
+	  </para>
+	</listitem>
+      </orderedlist> The project maintainers will <emphasis>strictly
+	impose</emphasis> adherence to the project's vision and
+      roadmap when considering incorporation of contributions to the
+      project. However, they always welcome a motivated discussion
+      about these topics on the project's <ulink
+	url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos">
+	mailinglist. </ulink>
+    </para>
+    <sect2 id="proj-dev-req">
+      <title>Software engineering requirements</title>
+      <para>
+	&orocos; has a vision on <emphasis>how</emphasis> developers should
+	design, implement and present new functionality, in order to guarantee
+	the project's coherence and scalability. These are the software
+	engineering guidelines that support the implementation of the
+	project's vision:
+	<orderedlist>
+
+	  <listitem>
+	    <para>
+	      <emphasis>Object-oriented design.</emphasis>
+	    </para>
+	    <para>
+	      This seems an obvious requirement for modern-day software development.
+	      However, the experience within the project has learned that designing
+	      an appropriate class hierarchy is a <emphasis>major</emphasis>
+	      challenge, mainly because of the diversity of the field.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para>
+	      <emphasis>Extreme decoupling and modularity.</emphasis>
+	    </para>
+	    <para>
+	      This is the fundamental criterium to keep in mind when designing
+	      and/or refactoring the project's class hierarchy.
+	      Object classes encapsulate data and activities, and the choice of
+	      classes should be such that:
+	      <itemizedlist>
+
+		<listitem>
+		  <para>
+		    The implementation of one class should not rely on knowing something
+		    about the internals of another class. Relying on such knowledge is
+		    called <emphasis>coupling</emphasis> between both classes, and this
+		    must be avoided at all costs, because it prevents the independent
+		    evolution or re-implementation of the classes.
+		  </para>
+		</listitem>
+
+		<listitem>
+		  <para>
+		    Every class should have an interface that fits more or less on one
+		    single page. Elaborate interfaces are a sign that the implemented
+		    functionality may better be split into multiple objects.
+		  </para>
+		</listitem>
+
+	      </itemizedlist>
+	      The strong desire to <emphasis>decouple</emphasis> software parts
+	      wherever possible is a key feature of the project; it may seem a bit
+	      of an overkill for each individual application built with the &orocos;
+	      code (and hence a burden for the individual contributor), but for the
+	      whole project it is expected to become its major competitive advantage.
+	    </para>
+	  </listitem>
+	  
+	  <listitem>
+	    <para>
+	      <emphasis>Small and shallow interfaces.</emphasis>
+	    </para>
+	    <para>
+	      It is useful to separate the <emphasis>interface</emphasis> of a
+	      certain functionality from its <emphasis>implementation</emphasis> (as
+	      a class or as a component). The interfaces are what Application
+	      Builders and End Users need to construct their programs; the
+	      class and component implementations are contructed by the Framework and
+	      Component Builders.
+	    </para>
+	    <para>
+	      Separated interfaces give more flexibility in changing
+	      implementations, and in allowing &ldquo;third-party&rdquo; providers
+	      of components. They also allow to discuss functionality without being
+	      biased by possible implementations problems or opportunities.
+	    </para>
+	    <para>
+	      &orocos; prefers interfaces that are:
+	      <itemizedlist>
+
+		<listitem>
+		  <para><emphasis>Small.</emphasis>
+		    This improves the focus of the interface, and hence (hopefully) its
+		    quality. In this sense, it corresponds to the minimality requirement
+		    discussed below.  Another motivation is that &orocos; wants to avoid
+		    &ldquo;exceptions&rdquo; in implementations of the interfaces: when
+		    the interface is large, the chance increases that a particular
+		    developer will not be able to provide a <emphasis>complete</emphasis>
+		    implementation. In that case, the implementation must return an
+		    exception &ldquo;functionality not implemented&rdquo;, and this
+		    complicates the execution logic of the component that uses the
+		    interface, and reduces the real-time performance.
+		  </para>
+		</listitem>
+
+		<listitem>
+		  <para><emphasis>Shallow.</emphasis>
+		    In an object-oriented paradigm, much functionality is provided by
+		    class <emphasis>hierarchies</emphasis>. Every hierarchy may seem
+		    natural in the context on one particular application, but it will most
+		    certainly not be natural in other applications. For example, a
+		    robotics engineer may find it normal to have a &ldquo;robot&rdquo;
+		    object at the top of a large and deep hierarchy. But that same word
+		    &ldquo;robot&rdquo; will not be well received by machine tool builders
+		    that construct milling machines, or laser cutters. Although most of
+		    the functionality of motion control and task execution will be the
+		    same in both application areas. Therefore, class hierarchies should
+		    not be deep.
+		  </para>
+		</listitem>
+
+	      </itemizedlist>
+	      In addition to the technical reasons to use small and shallow
+	      interfaces, they are a key feature for free software projects that
+	      expect significant contributions from their community: the complexity
+	      of the whole system can only be tackled by restricting the scope of
+	      each individual piece of code. An <emphasis>increased
+		flexibility</emphasis> is a derived property that comes for free.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para>
+	      <emphasis>Distributable.</emphasis>
+	    </para>
+	    <para>
+	      Future machine control systems will most certainly use multiple
+	      processors, connected through a network with sensors and actuators
+	      that most probably will have their own embedded intelligence.
+	      Hence, the robot/machine control software will have to be scalable and
+	      distributable.
+	    </para>
+	    <para>
+	      Having a design that is modular and maximally decoupled fulfills already
+	      more than half of the requirements for such distributed control
+	      systems. The other half will come from making software components
+	      with an internal design that allows their different parts to cooperate
+	      over a network.
+	    </para>
+	    <para>
+	      Two software aspects are important in this respect: the ubiquitous use
+	      of <emphasis>events</emphasis> for synchronization, and of a
+	      <emphasis>virtual (network) time</emphasis> (instead of the time
+	      delivered by the local processor). Both events and virtual time are
+	      general <emphasis>abstractions</emphasis>, that are easily mapped on
+	      corresponding primitives of the particular operating system the
+	      component is running on. For example, a hardware interrupt is also an
+	      event, and for the logic of a component it almost never matters
+	      whether the event comes from the hardware or from a local
+	      &ldquo;stub&rdquo; of remote hardware.
+	      So, make sure that your components don't use system calls 
+	      that tie them to a particular operating system or a particular device.
+	    </para>
+	    <para>
+	      &orocos; provides <emphasis>abstraction layers</emphasis> for both the
+	      operating system and the interfacing hardware. These abstractions
+	      follow the principles of minimality and decoupling. Especially for the
+	      operating system abstraction this is a big advantage, because typical
+	      (real-time) OSs tend to have way too large and too primitive APIs,
+	      that are easily abused.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para>
+	      <emphasis>Minimalistic.</emphasis>
+	    </para>
+	    <para>
+	      Developers should only offer features that are
+	      <emphasis>absolutely</emphasis> necessary: practical experience has
+	      learned that the availability of superfluous APIs leads to
+	      implementations with similar functionality but with different
+	      implementations. And, worse, to implementations where the programmers
+	      do not know very well what parts of the available functionality to
+	      use.  Both effects lead to <emphasis>sub-optimal</emphasis> results,
+	      and applications that are more difficult to re-use and maintain.
+	    </para>
+	    <para>
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para>
+	      <emphasis>Platform independent.</emphasis>
+	    </para>
+	    <para>
+	      Because of its Free Software nature, Linux is the normal environment
+	      for both host development and target runtimes. This can in practice
+	      lead very quickly to an unperceived bias towards Linux, that would
+	      compromise the portability to other operating systems. Developers must
+	      try to use only portable language constructs.
+	    </para>
+	    <para>
+	      Of course, sooner or later, the project will be confronted with the
+	      trade-off between portability and the choice for a particular desired
+	      feature that can not be supported by all initially targeted platforms.
+	      These trade-offs must be discussed on the mailinglist.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para>
+	      <emphasis>Thorough large-scale design.</emphasis>
+	    </para>
+	    <para>
+	      Developers must <emphasis>always</emphasis> consider that their
+	      designs will possibly be used in a very complex, distributed and hard
+	      real-time implementation. Therefore, the design of such large-scale
+	      robotics systems must be made clear before starting the implementation
+	      of classes and components. And the implementators must provide
+	      contributions that can safely and efficiently work in such
+	      large-scale systems.
+	    </para>
+	    <para>
+	      One particular item is <emphasis>real-time</emphasis>: if an algorithm
+	      <emphasis>is</emphasis> inherently real-time (i.e., it has a
+	      deterministic execution time), then its implementation
+	      <emphasis>must</emphasis> be implemented with constructs that are
+	      real-time safe. For example, all variables and temporary objects must
+	      be allocated before execution of the functionality proper, and no
+	      exceptions or run-time type checking must be used. (So, Java
+	      and C++ programmers need to be careful.)
+	    </para>
+	  </listitem>
+
+	</orderedlist>
+      </para>
+      <para>
+	All these requirements illustrate the project's emphasis on
+	<emphasis>design</emphasis>: most things in robotics have already been
+	tried out in various ways, so the &orocos; implementation should
+	<emphasis>at least</emphasis> be as good as the best of these
+	tried-out predecessors. In addition, &orocos; aims at a number of
+	extra features, such as &ldquo;ultimate generality&rdquo;.
+	This generality is the reason why the project follows a development
+	approach which is maybe a bit different from traditional free software
+	projects: the trade-off during the current development is towards
+	having a very well thought-out and very general design, and not in the
+	first place towards adding as many functionality features as possible.
+	This approach is motivated by the observation that all existing robot
+	control software packages are very difficult to use in applications
+	that are different from the first application they were built for. And
+	that sharing source or binary code is very hard in practice, because
+	of ill-defined interfaces, that are most often also strongly coupled
+	to one particular application.
+      </para>
+      <para>
+	The development approach of the project follows from the
+	above-mentioned vision: the project works in a &ldquo;bottom-up&rdquo;
+	fashion, on small interfaces at a time, <emphasis>but</emphasis> while
+	keeping the long-term goal in mind. So, it is currently building the
+	lowest levels of the framework, such as the hard real-time
+	&ldquo;Core&rdquo;, motion control functionality, primitives for
+	communication between &orocos; components, robot kinematics, etc.
+      </para>
+    </sect2>
+  </sect1>
+  <bibliography>
+    <title>Bibliography</title>
+
+    <biblioentry xreflabel="posa96">
+      <title>Pattern-oriented software architecture: a system of
+	patterns
+      </title>
+      <authorgroup>
+	<author>
+	  <firstname>Frank</firstname>
+	  <surname>Buschmann</surname>
+	</author>
+	<author>
+	  <firstname>Regine</firstname>
+	  <surname>Meunier</surname>
+	</author>
+	<author>
+	  <firstname>Hans</firstname>
+	  <surname>Rohnert</surname>
+	</author>
+      </authorgroup>
+      <pubdate>1996</pubdate>
+      <publisher> <publishername>Wiley Chicester</publishername>
+      </publisher>
+    </biblioentry>
+
+    <biblioentry xreflabel="gof94">
+      <title>Design Patterns Elements of Reusable Object-Oriented
+	Software
+      </title>
+      <authorgroup>
+	<author>
+	  <firstname>Erich</firstname>
+	  <surname>Gamma</surname>
+	</author>
+	<author>
+	  <firstname>Richard</firstname>
+	  <surname>Helm</surname>
+	</author>
+	<author>
+	  <firstname>Ralph</firstname>
+	  <surname>Johnson</surname>
+	</author>
+	<author>
+	  <firstname>John</firstname>
+	  <surname>Vlissides</surname>
+	</author>
+      </authorgroup>
+      <pubdate>1994</pubdate>
+      <publisher> <publishername>Addison Wesley</publishername>
+      </publisher>
+    </biblioentry>
+
+
+    <biblioentry xreflabel="Johnson97">
+      <biblioset relation="article">
+	<title>Frameworks = (components + patterns)</title>
+	<authorgroup>
+	  <author>
+	    <firstname>R. E.</firstname>
+	    <surname>Johnson</surname>
+	  </author>
+	</authorgroup>
+	<pagenums>39&ndash;42</pagenums>
+	<volumenum>40</volumenum><issuenum>10</issuenum>
+	<pubdate>1997</pubdate>
+      </biblioset>
+      <biblioset relation="journal">
+	<title>Communications of the ACM</title>
+      </biblioset>
+    </biblioentry> 
+
+    <biblioentry xreflabel="Szyperski98">
+      <biblioset relation="book">
+	<title>Component Software: Beyond Object-Oriented
+	  Programming</title>
+	<authorgroup>
+	  <author>
+	    <firstname>C,</firstname>
+	    <surname>Szyperski</surname>
+	  </author>
+	</authorgroup>
+	<publisher>
+	  <publishername>Addison Wesley</publishername>
+	</publisher>
+	<pubdate>1998</pubdate>
+      </biblioset>
+    </biblioentry> 
+  </bibliography>
+</article>
