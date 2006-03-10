@@ -21,14 +21,13 @@
  * This file translates the FOSI (Framework Operating System Interface) from
  * orocos calls to native RTOS calls  
  *
- * TODO : split in multiple files
  */
 
 #ifndef __FOSI_H
 #define __FOSI_H
 
-#ifndef _XOPEN_SOURCE
-#define _XOPEN_SOURCE 600   // use all Posix features.
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE   // use all Posix features (and then some).
 #endif
 
 #define HAVE_FOSI_API
