@@ -85,15 +85,14 @@
       <emphasis><ulink url="http://www.orocos.org">Open Robot Control
 	  Software</ulink></emphasis> project. The project's aim is to develop
       a general-purpose, free software, and modular <emphasis>framework</emphasis>
-      for <emphasis>robot control</emphasis> (including extensive and
-      high-quality documentation).
+      for <emphasis>robot</emphasis>and <emphasis>machine control</emphasis>.
     </para>
     <para>
       A framework is a set of source code from which applications in a
       particular domain can be made <citation>Johnson97</citation>). So, the
       framework is not an application
       in itself, but it provides the infrastructure and the functionalities to
-      build applications.  Usually, application builders must fill
+      build applications in C++.  Usually, application builders must fill
       in some &ldquo;hot spots&rdquo; that are specific to their
       application, and hence, which cannot be provided by the framework.
     </para>
@@ -117,20 +116,20 @@
   <section id="audience">
     <title>Target audience</title>
     <para>
-      Robotics is a very broad field, and many roboticists are pursuing
-      quite different goals, dealing with different levels of
-      complexity, real-time control constraints, application areas, user
-      interaction, etc.  So, because the robotics community is not
-      homogeneous, &orocos; targets
-      four different categories of &ldquo;Users&rdquo; (or, in the first
-      place, &ldquo;Developers&rdquo;):
+      Robotics or machine control in general is a very broad field,
+      and many roboticists are pursuing quite different goals, dealing
+      with different levels of complexity, real-time control
+      constraints, application areas, user interaction, etc.  So,
+      because the robotics community is not homogeneous, &orocos;
+      targets four different categories of &ldquo;Users&rdquo; (or, in
+      the first place, &ldquo;Developers&rdquo;):
       <orderedlist>
 	<listitem>
 	  <para>
 	    <emphasis>Framework Builders.</emphasis>
 	  </para>
 	  <para>
-	    These developers do not work on any specific robotics application, but
+	    These developers do not work on any specific application, but
 	    they provide the infrastructure code to support applications. This
 	    level of supporting code is most often neglected in robot software
 	    projects, because in the (rather limited) scope of each individual 
@@ -140,7 +139,7 @@
 	    &orocos; project, the supporting code (the &ldquo;Framework&rdquo;)
 	    gets a lot of attention. The hope is, of course, that this work will
 	    pay of by facilitating the developments for the other
-	    &ldquo;Users&rdquo;.
+	    &ldquo;Builders&rdquo;.
 	  </para>
 	</listitem>
 	<listitem>
@@ -148,16 +147,14 @@
 	    <emphasis>Component Builders.</emphasis>
 	  </para>
 	  <para>
-	    These developers implement basic robotics functionality, on top of the
-	    generic Framework. The functionality is offered as a
-	    &ldquo;service&rdquo;, in the form of a <emphasis>(Software)
-	      Component</emphasis>, <citation>Szyperski98</citation>. Such a
-	    component is not (necessarily) a full application in itself, but the
-	    Component Builders do their best to
-	    provide high-quality functionality, in an application-independent way.
-	    That is, the <emphasis>programming interface</emphasis> to the robotics
-	    functionality is rich and well documented, and the component can be
-	    used as a stand-alone part in various applications.
+	    Components provide a &ldquo;service&rdquo; within an
+	    application.  Using the infrastructure of the framework, a
+	    Component Builder describes the interface of a service and
+	    provides one or more implementations. For example a 
+	    Kinematics Component may be designed as such that it can
+	    &ldquo;serve&rdquo; different kinematic architectures.
+	    Other examples are Components to hardware devices, Components
+	    for diagnostics, safety or simulation.
 	  </para>
 	</listitem>
 	<listitem>
@@ -168,7 +165,7 @@
 	    These developers use the &orocos;' Framework and Components, and
 	    integrate them into one particular application. That means that they
 	    add a specific, application-dependent
-	    <emphasis>architecture</emphasis> and <emphasis>API</emphasis> on top
+	    <emphasis>architecture</emphasis> on top
 	    of the functionalities offered by the Framework and the Components.
 	    An example Orocos application is the Orocos Control Kernel, which
 	    provides an application framework for (motion) control, with a set

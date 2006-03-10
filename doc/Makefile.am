@@ -91,4 +91,4 @@ clean-local:
 	$(RM) $(CLEANXMLDOCS)
 	$(RM) $(CLEANJPG)
 	$(RM) $(ORO_MANUAL_TARGETS)
-	$(RM) svg
+	$(RM) -r svg
