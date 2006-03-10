@@ -545,10 +545,16 @@ cd                  quit
     </para>
     <para>
       This section walks you through the definition of an example task
-      in order to show you how you could build your own task. The 
-      ready-to-execute code of this section can be found in the
-      'simple-task' package on the Download page of the Orocos.org website.
+      in order to show you how you could build your own task.
     </para>
+    <important>
+      <para>
+	The ready-to-execute code of this section can be found in the
+	'simple-task' package on the <ulink
+	url="http://www.orocos.org/download.html">Download</ulink>
+	page of the Orocos.org website.
+      </para>
+    </important>
     <para>
       A <classname>ORO_Execution::TaskContext</classname> is constructed as :
     </para>
@@ -770,6 +776,14 @@ cd                  quit
       </para>
       <section>
 	<title>Setting up the Data Flow Interface</title>
+	<important>
+	  <para>
+	    The ready-to-execute code of this section can be found in the
+	    'dataflow-task' package on the <ulink
+	    url="http://www.orocos.org/download.html">Download</ulink>
+	    page of the Orocos.org website.
+	  </para>
+	</important>
 	<para>
 	  Any kind of data can be exchanged (also user defined types)
 	  but for readability, only the 'double' C type is used here.
@@ -782,7 +796,7 @@ cd                  quit
     // Read-only data port:
     <classname>ORO_Execution::ReadDataPort</classname>&lt;double&gt; indatPort;
     // Read-Write data port:
-    <classname>ORO_Execution::DataPort</classname>&lt;double&gt; outdatPort;
+    <classname>ORO_Execution::WriteDataPort</classname>&lt;double&gt; outdatPort;
 
     // Read-only buffer port:
     <classname>ORO_Execution::ReadBufferPort</classname>&lt;double&gt; inbufPort;
@@ -800,11 +814,11 @@ cd                  quit
 	outbufPort("Packet_1", 15), // note: buffer size
 	rwbufPort("Packet_2", 30)
     {
-       this->ports()->add( &amp;indatPort );
-       this->ports()->add( &amp;outdatPort );
-       this->ports()->add( &amp;inbufPort );
-       this->ports()->add( &amp;outbufPort );
-       this->ports()->add( &amp;rwbufPort );
+       this->ports()->addPort( &amp;indatPort );
+       this->ports()->addPort( &amp;outdatPort );
+       this->ports()->addPort( &amp;inbufPort );
+       this->ports()->addPort( &amp;outbufPort );
+       this->ports()->addPort( &amp;rwbufPort );
 
        // more additions to follow, see below
      }
