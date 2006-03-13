@@ -46,7 +46,6 @@ EXTRA_DIST = \
 	docrules.mak \
 	$(XMLDOCS) \
 	$(DOCBOOKS) \
-	$(DIAS) \
 	$(HTMLDOCS) \
 	$(PNGIMGS)
 
