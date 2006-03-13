@@ -51,11 +51,11 @@ inst-headers:
 check-headers: clean_headers init_packages inst-headers
 	cd packages/install/include ;\
 	tname=$$(tempfile -p check -s .cpp) ;\
-	for i in $$(find . -name "*.h" -o -name "*.hpp"); do \
+	for i in $$(find . -maxdepth 2 -name "*.h" -o -name "*.hpp"); do \
 	echo  "Checking $$i..." ;\
 	echo -e "#include <$$i>\n" > $$tname ;\
 	${CC} -pipe -Wall -S $$tname -I. ;\
-	done ; rm $$tname $$(basename $$tname cpp)s
+	done ; rm -f $$tname $$(basename $$tname cpp)s
 
 clean-local: clean_packages
 
