@@ -26,6 +26,9 @@
  ***************************************************************************/
  
  
+#ifndef ORO_CORELIB_SIGNAL_HPP
+#error "Do not include this file directly, but only through Signal.hpp"
+#endif
 
 #ifndef OROCOS_SIGNAL_TEMPLATE_HEADER_INCLUDED
 #define OROCOS_SIGNAL_TEMPLATE_HEADER_INCLUDED

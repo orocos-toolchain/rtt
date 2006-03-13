@@ -39,7 +39,7 @@ namespace ORO_Execution
         : public virtual ConnectionInterface
     {
         typedef boost::intrusive_ptr< ReadConnectionInterface<T> > shared_ptr;
-        virtual ReadInterface<T>* read() = 0;
+        virtual ORO_CoreLib::ReadInterface<T>* read() = 0;
     };
 
     template<class T>
@@ -47,7 +47,7 @@ namespace ORO_Execution
         : public virtual ConnectionInterface
     {
         typedef boost::intrusive_ptr< WriteConnectionInterface<T> > shared_ptr;
-        virtual WriteInterface<T>* write() = 0;
+        virtual ORO_CoreLib::WriteInterface<T>* write() = 0;
     };
 
     template<class T>
@@ -55,7 +55,7 @@ namespace ORO_Execution
         : public ReadConnectionInterface<T>, public WriteConnectionInterface<T>
     {
         typedef boost::intrusive_ptr< BufferConnectionInterface<T> > shared_ptr;
-        virtual BufferInterface<T>* buffer() = 0;
+        virtual ORO_CoreLib::BufferInterface<T>* buffer() = 0;
     };
 
 }

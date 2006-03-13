@@ -43,9 +43,9 @@ namespace ORO_Execution
     class BufferDataSource
         : public ORO_CoreLib::DataSource<T>
     {
-        typename BufferInterface<T>::shared_ptr  mbuf;
+        typename ORO_CoreLib::BufferInterface<T>::shared_ptr  mbuf;
     public:
-        BufferDataSource(typename BufferInterface<T>::shared_ptr buf )
+        BufferDataSource(typename ORO_CoreLib::BufferInterface<T>::shared_ptr buf )
             : mbuf( buf )
         {
         }
@@ -58,7 +58,7 @@ namespace ORO_Execution
             return new BufferDataSource<T>( mbuf );
         }
 
-        BufferDataSource<T>* copy(std::map<const DataSourceBase*, DataSourceBase*>& clones) {
+        BufferDataSource<T>* copy(std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& clones) {
             clones[this] = this;
             return this;
         }

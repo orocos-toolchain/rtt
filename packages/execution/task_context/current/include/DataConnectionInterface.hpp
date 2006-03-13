@@ -40,9 +40,9 @@ namespace ORO_Execution
     {
         typedef boost::intrusive_ptr< DataConnectionInterface<T> > shared_ptr;
 
-        virtual const DataObjectInterface<T>* data() const = 0;
+        virtual const ORO_CoreLib::DataObjectInterface<T>* data() const = 0;
 
-        virtual DataObjectInterface<T>* data() = 0;
+        virtual ORO_CoreLib::DataObjectInterface<T>* data() = 0;
     };
 
 }

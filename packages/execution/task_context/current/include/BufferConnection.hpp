@@ -49,7 +49,7 @@ namespace ORO_Execution
         typedef T DataType;
         typedef ReadBufferPort<DataType> Reader;
         typedef WriteBufferPort<DataType> Writer;
-        typename BufferInterface<T>::shared_ptr buf;
+        typename ORO_CoreLib::BufferInterface<T>::shared_ptr buf;
         typedef std::vector<Reader*> RList;
         RList readers;
         typedef std::vector<Writer*> WList;

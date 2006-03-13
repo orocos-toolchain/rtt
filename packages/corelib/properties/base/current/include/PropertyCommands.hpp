@@ -25,13 +25,16 @@
  *                                                                         *
  ***************************************************************************/
  
+#ifndef ORO_PROPERTY_HPP
+// #error "Do not include this file directly, but only through Property.hpp"
+#else
  
 #ifndef ORO_CORELIB_PROPERTY_COMMANDS
 #define ORO_CORELIB_PROPERTY_COMMANDS
 
 #include "CommandInterface.hpp"
 #include "DataSource.hpp"
-#include "Property.hpp"
+
 
 namespace ORO_CoreLib
 {
@@ -134,4 +137,5 @@ namespace ORO_CoreLib
 
 }
 
+#endif
 #endif

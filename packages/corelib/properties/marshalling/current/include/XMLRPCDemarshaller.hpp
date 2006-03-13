@@ -183,7 +183,13 @@ namespace ORO_CoreLib
                         string_value = XMLString::transcode( chars );
 							
                             break;
-                    }
+                    // TODO convert content to these types
+					case STATE_INT:
+					case STATE_CHAR:
+					case STATE_DOUBLE:
+					case STATE_PROPERTIES:
+                        break;
+                }
             }
 
 

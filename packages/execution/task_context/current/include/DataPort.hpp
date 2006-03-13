@@ -32,6 +32,7 @@
 #include <string>
 #include "PortInterface.hpp"
 #include "DataConnectionInterface.hpp"
+#include "TemplateDataSourceFactory.hpp"
 #include "ConnectionTypes.hpp"
 
 namespace ORO_Execution
@@ -67,7 +68,7 @@ namespace ORO_Execution
          * Buffer connected to this port.
          * @return 0 if !connected(), the buffer otherwise.
          */
-        const DataObjectInterface<T>* data() const { return mconn ? mconn->data() : 0; }
+        const ORO_CoreLib::DataObjectInterface<T>* data() const { return mconn ? mconn->data() : 0; }
 
         /**
          * Connect a readable buffer to this Port.
@@ -94,8 +95,8 @@ namespace ORO_Execution
         virtual DataSourceFactoryInterface* createDataSources() {
             if ( !mconn )
                 return 0;
-            TemplateDataSourceFactory<DataObjectInterface<T> >* datas = newDataSourceFactory( mconn->data() );
-            datas->add("Get", ORO_Execution::data( &DataObjectInterface<T>::Get, "Get the current value of this Data Object"));
+            TemplateDataSourceFactory<ORO_CoreLib::DataObjectInterface<T> >* datas = newDataSourceFactory( mconn->data() );
+            datas->add("Get", ORO_Execution::data( &ORO_CoreLib::DataObjectInterface<T>::Get, "Get the current value of this Data Object"));
             return datas;
         }
 
@@ -124,7 +125,7 @@ namespace ORO_Execution
          * Buffer connected to this port.
          * @return 0 if !connected(), the buffer otherwise.
          */
-        DataObjectInterface<T>* data() { return mconn ? mconn->data() : 0; }
+        ORO_CoreLib::DataObjectInterface<T>* data() { return mconn ? mconn->data() : 0; }
 
         /**
          * Construct an unconnected Port to a readable buffer.
@@ -162,9 +163,9 @@ namespace ORO_Execution
         virtual DataSourceFactoryInterface* createDataSources() {
             if ( !mconn )
                 return 0;
-            TemplateDataSourceFactory<DataObjectInterface<T> >* datas = newDataSourceFactory( mconn->data() );
-            datas->add("Get", ORO_Execution::data( &DataObjectInterface<T>::Get, "Get the current value of this Data Object"));
-            datas->add("Set", ORO_Execution::data( &DataObjectInterface<T>::Set, "Set the current value of this Data Object",
+            TemplateDataSourceFactory<ORO_CoreLib::DataObjectInterface<T> >* datas = newDataSourceFactory( mconn->data() );
+            datas->add("Get", ORO_Execution::data( &ORO_CoreLib::DataObjectInterface<T>::Get, "Get the current value of this Data Object"));
+            datas->add("Set", ORO_Execution::data( &ORO_CoreLib::DataObjectInterface<T>::Set, "Set the current value of this Data Object",
                                     "Value", "The new value.") );
             return datas;
         }

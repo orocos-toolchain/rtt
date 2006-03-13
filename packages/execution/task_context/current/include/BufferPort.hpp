@@ -32,7 +32,7 @@
 #include <string>
 #include "PortInterface.hpp"
 #include "BufferConnectionInterface.hpp"
-#include "TemplateMethodFactory.hpp"
+#include "TemplateDataSourceFactory.hpp"
 #include "MemberFactoryComposite.hpp"
 
 namespace ORO_Execution
@@ -53,7 +53,7 @@ namespace ORO_Execution
          * Buffer connected to this port.
          * @return 0 if !connected(), the buffer otherwise.
          */
-        virtual ReadInterface<T>* read() const { return mconn ? mconn->read() : 0; }
+        virtual ORO_CoreLib::ReadInterface<T>* read() const { return mconn ? mconn->read() : 0; }
 
         /**
          * Construct an unconnected Port to a readable buffer.
@@ -91,16 +91,16 @@ namespace ORO_Execution
         virtual DataSourceFactoryInterface* createDataSources() {
             if ( !mconn )
                 return 0;
-            TemplateDataSourceFactory<ReadInterface<T> >* datas = newDataSourceFactory( mconn->read() );
-            bool (ReadInterface<T>::*PopPtr)(typename ReadInterface<T>::reference_t) = &ReadInterface<T>::Pop;
+            TemplateDataSourceFactory<ORO_CoreLib::ReadInterface<T> >* datas = newDataSourceFactory( mconn->read() );
+            bool (ORO_CoreLib::ReadInterface<T>::*PopPtr)(typename ORO_CoreLib::ReadInterface<T>::reference_t) = &ORO_CoreLib::ReadInterface<T>::Pop;
             datas->add( "Pop", data( PopPtr, "Pop a single value from the Buffer. Returns false if empty.",
                                      "Val", "The value returned by argument.") );
-            datas->add( "front", data( &ReadInterface<T>::front, "Get the next to be popped value from the buffer. Returns default value if buffer is empty."));
+            datas->add( "front", data( &ORO_CoreLib::ReadInterface<T>::front, "Get the next to be popped value from the buffer. Returns default value if buffer is empty."));
 
-            TemplateDataSourceFactory<BufferBase>* datab = newDataSourceFactory<BufferBase>( mconn->read() );
-            datab->add("size", data( &BufferBase::size, "Get the used size of the buffer."));
-            datab->add("capacity", data( &BufferBase::capacity, "Get the capacity of the buffer."));
-            datab->add("empty", data( &BufferBase::empty, "Inspect if the buffer is empty."));
+            TemplateDataSourceFactory<ORO_CoreLib::BufferBase>* datab = newDataSourceFactory<ORO_CoreLib::BufferBase>( mconn->read() );
+            datab->add("size", data( &ORO_CoreLib::BufferBase::size, "Get the used size of the buffer."));
+            datab->add("capacity", data( &ORO_CoreLib::BufferBase::capacity, "Get the capacity of the buffer."));
+            datab->add("empty", data( &ORO_CoreLib::BufferBase::empty, "Inspect if the buffer is empty."));
             return new MemberFactoryComposite( datas, datab );
 
         }
@@ -147,7 +147,7 @@ namespace ORO_Execution
          * Get the buffer to write from.
          * @return 0 if !connected(), the buffer otherwise.
          */
-        virtual WriteInterface<T>* write() const { return mconn ? mconn->write() : 0; }
+        virtual ORO_CoreLib::WriteInterface<T>* write() const { return mconn ? mconn->write() : 0; }
 
         virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
 
@@ -174,15 +174,15 @@ namespace ORO_Execution
         virtual DataSourceFactoryInterface* createDataSources() {
             if ( !mconn )
                 return 0;
-            TemplateDataSourceFactory<WriteInterface<T> >* datas = newDataSourceFactory( mconn->write() );
-            bool (WriteInterface<T>::*PushPtr)(typename WriteInterface<T>::param_t) = &WriteInterface<T>::Push;
+            TemplateDataSourceFactory<ORO_CoreLib::WriteInterface<T> >* datas = newDataSourceFactory( mconn->write() );
+            bool (ORO_CoreLib::WriteInterface<T>::*PushPtr)(typename ORO_CoreLib::WriteInterface<T>::param_t) = &ORO_CoreLib::WriteInterface<T>::Push;
             datas->add("Push", data( PushPtr, "Push a single value in the Buffer. Returns false if full.",
                                         "Val", "The value.") );
 
-            TemplateDataSourceFactory<BufferBase>* datab = newDataSourceFactory<BufferBase>( mconn->write() );
-            datab->add("size", data( &BufferBase::size, "Get the used size of the buffer."));
-            datab->add("capacity", data( &BufferBase::capacity, "Get the capacity of the buffer."));
-            datab->add("empty", data( &BufferBase::empty, "Inspect if the buffer is empty."));
+            TemplateDataSourceFactory<ORO_CoreLib::BufferBase>* datab = newDataSourceFactory<ORO_CoreLib::BufferBase>( mconn->write() );
+            datab->add("size", data( &ORO_CoreLib::BufferBase::size, "Get the used size of the buffer."));
+            datab->add("capacity", data( &ORO_CoreLib::BufferBase::capacity, "Get the capacity of the buffer."));
+            datab->add("empty", data( &ORO_CoreLib::BufferBase::empty, "Inspect if the buffer is empty."));
             return new MemberFactoryComposite( datas, datab );
         }
     };
@@ -221,7 +221,7 @@ namespace ORO_Execution
          * Get the buffer to write from.
          * @return 0 if !connected(), the buffer otherwise.
          */
-        virtual BufferInterface<T>* buffer() const { return mconn ? mconn->buffer() : 0; }
+        virtual ORO_CoreLib::BufferInterface<T>* buffer() const { return mconn ? mconn->buffer() : 0; }
 
         virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
 
@@ -269,20 +269,20 @@ namespace ORO_Execution
         virtual DataSourceFactoryInterface* createDataSources() {
             if ( !mconn )
                 return 0;
-            TemplateDataSourceFactory<BufferInterface<T> >* datas = newDataSourceFactory( mconn->buffer() );
-            bool (BufferInterface<T>::*PushPtr)(typename BufferInterface<T>::param_t) = &BufferInterface<T>::Push;
-            bool (BufferInterface<T>::*PopPtr)(typename BufferInterface<T>::reference_t) = &BufferInterface<T>::Pop;
-            typename BufferInterface<T>::value_t (BufferInterface<T>::*FrontPtr)() const = &BufferInterface<T>::front;
+            TemplateDataSourceFactory<ORO_CoreLib::BufferInterface<T> >* datas = newDataSourceFactory( mconn->buffer() );
+            bool (ORO_CoreLib::BufferInterface<T>::*PushPtr)(typename ORO_CoreLib::BufferInterface<T>::param_t) = &ORO_CoreLib::BufferInterface<T>::Push;
+            bool (ORO_CoreLib::BufferInterface<T>::*PopPtr)(typename ORO_CoreLib::BufferInterface<T>::reference_t) = &ORO_CoreLib::BufferInterface<T>::Pop;
+            typename ORO_CoreLib::BufferInterface<T>::value_t (ORO_CoreLib::BufferInterface<T>::*FrontPtr)() const = &ORO_CoreLib::BufferInterface<T>::front;
             datas->add("Push", data( PushPtr, "Push a single value in the Buffer. Returns false if full.",
                                         "Val", "The value.") );
             datas->add("Pop", data( PopPtr, "Pop a single value from the Buffer. Returns false if empty.",
                                        "Val", "The value returned by argument.") );
             datas->add("front", data( FrontPtr, "Get the next to be popped value from the buffer. Returns default value if buffer is empty."));
 
-            TemplateDataSourceFactory<BufferBase>* datab = newDataSourceFactory<BufferBase>( mconn->buffer() );
-            datab->add("size", data( &BufferBase::size, "Get the used size of the buffer."));
-            datab->add("capacity", data( &BufferBase::capacity, "Get the capacity of the buffer."));
-            datab->add("empty", data( &BufferBase::empty, "Inspect if the buffer is empty."));
+            TemplateDataSourceFactory<ORO_CoreLib::BufferBase>* datab = newDataSourceFactory<ORO_CoreLib::BufferBase>( mconn->buffer() );
+            datab->add("size", data( &ORO_CoreLib::BufferBase::size, "Get the used size of the buffer."));
+            datab->add("capacity", data( &ORO_CoreLib::BufferBase::capacity, "Get the capacity of the buffer."));
+            datab->add("empty", data( &ORO_CoreLib::BufferBase::empty, "Inspect if the buffer is empty."));
             return new MemberFactoryComposite( datas, datab );
         }
     };

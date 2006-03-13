@@ -30,9 +30,12 @@
 #define ORO_EXEC_EVENT_CALLBACK_HPP
 
 #include <vector>
+#include <boost/bind.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/function.hpp>
 #include "boost/function_types/function_type_arity.hpp"
 #include "boost/function_types/function_type_parameter.hpp"
+#include "DataSource.hpp"
 
 namespace ORO_Execution {
     namespace detail {

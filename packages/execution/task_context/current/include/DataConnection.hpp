@@ -29,7 +29,7 @@
 #ifndef ORO_EXECUTION_DATA_CONNECTION_HPP
 #define ORO_EXECUTION_DATA_CONNECTION_HPP
 
-#include "PortInterface.hpp"
+#include "DataPort.hpp"
 #include "DataConnectionInterface.hpp"
 
 namespace ORO_Execution
@@ -43,7 +43,7 @@ namespace ORO_Execution
         :public DataConnectionInterface<T>
     {
         typedef T DataType;
-        typename DataObjectInterface<T>::shared_ptr buf;
+        typename ORO_CoreLib::DataObjectInterface<T>::shared_ptr buf;
         typedef std::vector<ReadDataPort<DataType>*> RList;
         RList readers;
         typedef std::vector<WriteDataPort<DataType>*> WList;
@@ -59,7 +59,7 @@ namespace ORO_Execution
 
         ~DataConnection() { }
 
-        virtual DataSourceBase::shared_ptr getDataSource() const {
+        virtual ORO_CoreLib::DataSourceBase::shared_ptr getDataSource() const {
             return buf;
         }
 
@@ -91,9 +91,9 @@ namespace ORO_Execution
             return false;
         }
         
-        virtual DataObjectInterface<T>* data() { return buf.get(); }
+        virtual ORO_CoreLib::DataObjectInterface<T>* data() { return buf.get(); }
 
-        virtual const DataObjectInterface<T>* data() const { return buf.get(); }
+        virtual const ORO_CoreLib::DataObjectInterface<T>* data() const { return buf.get(); }
 
         virtual bool addReader(PortInterface* r)
         {

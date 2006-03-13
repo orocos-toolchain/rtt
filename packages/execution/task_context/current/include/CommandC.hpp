@@ -31,6 +31,13 @@
 
 #include <string>
 #include "DataSource.hpp"
+#include <utility>
+
+namespace ORO_CoreLib
+{
+    class CommandInterface;
+    class ConditionInterface;
+}
 
 namespace ORO_Execution
 {
@@ -46,7 +53,7 @@ namespace ORO_Execution
          */
         class D;
         D* d;
-        ComCon cc;
+        std::pair<ORO_CoreLib::CommandInterface*,ORO_CoreLib::ConditionInterface*> cc;
     public:
         /**
          * The default constructor
