@@ -124,25 +124,9 @@ namespace ORO_OS
          */
         virtual const char* getName() const;
 
-        virtual bool makeHardRealtime() 
-        { 
-            // This construct is so because
-            // the thread itself must call the proper RTAI function.
-            if ( !active ) 
-                {
-                    goRealtime = true; 
-                }
-            return goRealtime; 
-        }
+        virtual bool makeHardRealtime();
 
-        virtual bool makeSoftRealtime()
-        { 
-            if ( !active ) 
-                {
-                    goRealtime = false; 
-                }
-            return !goRealtime; 
-        }
+        virtual bool makeSoftRealtime();
 
         virtual bool isHardRealtime() const;
 

@@ -230,6 +230,29 @@ namespace ORO_OS
         }
     }
 
+    bool SingleThread::makeHardRealtime() 
+    { 
+        // This construct is so because
+        // the thread itself must call the proper RTAI function.
+        if ( !active ) 
+            {
+                goRealtime = true;
+                rtos_sem_signal(&sem);
+            }
+        return goRealtime; 
+    }
+
+    bool SingleThread::makeSoftRealtime()
+    { 
+        if ( !active ) 
+            {
+                goRealtime = false; 
+                rtos_sem_signal(&sem);
+            }
+        return !goRealtime; 
+    }
+
+
     bool SingleThread::run( RunnableInterface* r)
     {
         if ( isActive() )
