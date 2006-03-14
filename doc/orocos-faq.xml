@@ -373,7 +373,12 @@ Alex Russell
 	  <para>The first message I get is 'Segmentation fault' !</para>
 	</question>
 	<answer>
-	  <para>Check if your rtai_lxrt and rtai_sem kernel modules are loaded.</para>
+	  <para>Check if your rtai_lxrt and rtai_sem kernel modules are loaded <emphasis>and</emphasis>
+	  rtai_up is <emphasis>not</emphasis> loaded.</para>
+	  <para>
+	    If that does not help, set <screen>export ORO_LOGLEVEL=6</screen> and
+	    send the output to the Orocos-dev mailinglist.
+	  </para>
 	</answer>
       </qandaentry>
       <qandaentry>
