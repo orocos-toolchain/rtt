@@ -77,7 +77,7 @@ namespace ORO_Execution
         struct Status {
             enum StateMachineStatus {inactive, activating, active, requesting, running, stopping, stopped, resetting, deactivating, paused, error, unloaded };
         };
-    private:
+    protected:
         /**
          * The key is the current state, the value is the transition condition to
          * another state with a certain priority (int), on a line (int), with a transition program
@@ -95,7 +95,7 @@ namespace ORO_Execution
         std::vector<StateMachinePtr> _children;
         typedef boost::weak_ptr<StateMachine> StateMachineParentPtr;
         StateMachineParentPtr _parent;
-    protected:
+
         std::string _name;
         ORO_CoreLib::EventProcessor* eproc;
         Status::StateMachineStatus smStatus;
