@@ -448,6 +448,33 @@ Alex Russell
       </qandaentry>
     </qandadiv>
     <qandadiv>
+      <title>C++ Application Questions</title>
+      <qandaentry>
+	<question>
+	  <para>It says: "[CRITICAL] PeriodicTask with period 0.005s failed to
+	  schedule in thread ZeroTimeThread which has period 0.01s." 
+	  How do I change the frequency of the threads ?</para>
+	</question>
+	<answer>
+	  <para>The frequency of the ZeroTimeThread is a configuration option in the Ecos 
+	  config tool (make configure_packages). It's under:
+<screen>
+"CoreLib, core classes and Interfaces"
+-> "CoreLib Periodic Task/Thread Infrastructure"
+   -> "Properties of the ZeroTimeThread"
+</screen></para><para>
+It can also be changed at runtime. To do so, include this at the very 
+beginning of your ORO_Main():
+<programlisting>    // change frequency of nonrealtimethread
+    //===========================
+    ZeroTimeThread::Instance()->stop();
+    ZeroTimeThread::Instance()->setPeriod(0.001);
+    ZeroTimeThread::Instance()->start();</programlisting>
+	  The same holds for the other Thread types. See also the 'CoreLib' Manual.</para>
+	</answer>
+      </qandaentry>
+    </qandadiv>
+    <qandadiv>
       <title>Orocos Design Questions</title>
       <qandaentry>
 	<question>
