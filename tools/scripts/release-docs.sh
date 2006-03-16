@@ -71,8 +71,8 @@ cd build
   make clean
   make docs
   cd doc
-  make manual control-manual
-  tar -czf orocos-manual.tgz *.png *.pdf *.html ||exit 1
+  make manuals
+  tar -czf orocos-manual.tgz $(find . -name "*.png") *.pdf *.html  ||exit 1
   cd ..
 cd ..
 
