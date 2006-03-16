@@ -28,6 +28,7 @@
 // include OS-internal fosi as first file.
 #include "os/fosi_internal.hpp"
 #include <os/SingleThread.hpp>
+#include <os/MutexLock.hpp>
 
 // extern package config headers.
 #include "pkgconf/system.h"
@@ -144,9 +145,14 @@ namespace ORO_OS
                             if ( d )
                                 d->switchOn( bit );
 #endif
-                            task->inloop = true;
-                            task->loop();
-                            task->inloop = false;
+                            {
+                                // this mutex guarantees that stop() waits
+                                // until loop() returns.
+                                MutexLock lock(task->breaker);
+                                task->inloop = true;
+                                task->loop();
+                                task->inloop = false;
+                            }
 #ifdef OROPKG_OS_THREAD_SCOPE
                             if ( d )
                                 d->switchOff( bit );
@@ -206,7 +212,16 @@ namespace ORO_OS
     
     SingleThread::~SingleThread() 
     {
-        this->stop();
+#ifdef OROPKG_CORELIB_REPORTING
+        Logger::In in("~SingleThread");
+#endif
+        if ( this->stop() == false )
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::log() << Logger::Error << "Failed to stop thread "<< taskName <<"."<<Logger::endl;
+#else
+        ; // intentional !
+#endif
+
 
         // Send the message to the thread...
         active = false;
@@ -220,7 +235,7 @@ namespace ORO_OS
 
         if ( pthread_join(thread,0) != 0 ) {
 #ifdef OROPKG_CORELIB_REPORTING
-            Logger::log() << Logger::Error << "SingleThread: Failed to join with thread "<< taskName <<"."<<Logger::endl;
+            Logger::log() << Logger::Error << "Failed to join with thread "<< taskName <<"."<<Logger::endl;
 #endif
         }
         else {
@@ -274,10 +289,12 @@ namespace ORO_OS
             return true;
         }
 
-        if ( this->initialize() == false )
-            return false;
-
         active=true;
+        if ( this->initialize() == false ) {
+            active = false;
+            return false;
+        }
+
         rtos_sem_signal(&sem);
 
         return true;
@@ -292,12 +309,16 @@ namespace ORO_OS
         if ( !isActive() ) return false;
 
         // if inloop and breakloop does not work, sorry.
-        if ( inloop && this->breakLoop() == false ) {
-            return false;
+        if ( inloop ) { 
+            if ( !this->breakLoop() )
+                return false;
+            // breakLoop was ok, wait for loop() to return.
+            MutexLock lock(breaker);
         }
+        // from this point on, inloop == false
 
-        active = false;
         this->finalize();
+        active = false;
         return true;
     }
 

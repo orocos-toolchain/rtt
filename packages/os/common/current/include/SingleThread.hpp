@@ -35,6 +35,7 @@
 
 #include <os/RunnableInterface.hpp>
 #include <os/ThreadInterface.hpp>
+#include <os/Mutex.hpp>
 
 #include <string>
 
@@ -205,6 +206,11 @@ namespace ORO_OS
          * The possible Runnable to run in this Component
          */
         ORO_OS::RunnableInterface* runComp;
+
+        /**
+         * Used to implement synchronising breakLoop().
+         */
+        Mutex breaker;
     };
 
 }

@@ -95,9 +95,9 @@ struct TestRunnableInterface
     bool result;
     bool init, stepped, fini;
 
-    TestRunnableInterface(bool fail)
+    TestRunnableInterface(bool res)
     {
-        this->reset(fail);
+        this->reset(res);
     }
 
     bool initialize() {
@@ -111,8 +111,8 @@ struct TestRunnableInterface
         fini   = true;
     }
 
-    void reset(bool fail) {
-        result = fail;
+    void reset(bool res) {
+        result = res;
         init = false;
         stepped = false;
         fini = false;

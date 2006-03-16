@@ -123,6 +123,10 @@ struct Runner : public RunnableInterface
         this->getTask()->getEventProcessor()->loop(); // wait for our own event.
     }
 
+    bool breakLoop() {
+        return this->getTask()->getEventProcessor()->breakLoop();
+    }
+
     void finalize() {
         h.disconnect();
     }
@@ -221,11 +225,11 @@ void EventTest::testTask()
     Event<void(int)> event;
     Runner runobj(event);
     TaskSimulation task(0.01, &runobj);
-    SimulationThread::Instance()->start();
-    task.start();
+    CPPUNIT_ASSERT(SimulationThread::Instance()->start());
+    CPPUNIT_ASSERT(task.start());
     sleep(1);
-    task.stop();
-    SimulationThread::Instance()->stop();
+    CPPUNIT_ASSERT(task.stop());
+    CPPUNIT_ASSERT(SimulationThread::Instance()->stop());
 
     CPPUNIT_ASSERT( runobj.result );
 }
@@ -257,9 +261,9 @@ void EventTest::testBlockingTask()
     Event<void(int)> event;
     Runner runobj(event);
     TaskNonPeriodic task(15, &runobj);
-    task.start();
+    CPPUNIT_ASSERT(task.start());
     sleep(1);
-    task.stop();
+    CPPUNIT_ASSERT(task.stop());
 
     CPPUNIT_ASSERT( runobj.result );
 }
@@ -269,7 +273,7 @@ void EventTest::testEventArgs()
     float_sum = 0;
     float_sub = 0;
     // use CompletionProcessor for completer
-    CompletionProcessor::Instance()->stop();
+    CPPUNIT_ASSERT(CompletionProcessor::Instance()->stop());
     Handle h = t_event_float->connect(boost::bind(&EventTest::float_listener, this,_1,_2),
                                       boost::bind(&EventTest::float_completer, this, _1, _2));
 
@@ -281,7 +285,7 @@ void EventTest::testEventArgs()
     CPPUNIT_ASSERT_EQUAL( float(20.0), float_sum );
     CPPUNIT_ASSERT_EQUAL( float(0.0),  float_sub );
 
-    CompletionProcessor::Instance()->start();
+    CPPUNIT_ASSERT(CompletionProcessor::Instance()->start());
     
     h.disconnect();
     float_sum = 0;

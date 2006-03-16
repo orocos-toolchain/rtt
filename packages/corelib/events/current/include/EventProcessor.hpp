@@ -543,8 +543,6 @@ namespace ORO_CoreLib
     class BlockingEventProcessor
         : public EventProcessor
     {
-    protected:
-        ORO_OS::Mutex breaker;
     public:
         /**
          * Create a blocking (non periodic) EventProcessor, which will wait on ORO_OS::Semaphore  \a s.

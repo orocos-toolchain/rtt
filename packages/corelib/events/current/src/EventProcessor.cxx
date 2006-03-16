@@ -125,8 +125,6 @@ namespace ORO_CoreLib
     }
 
     void BlockingEventProcessor::loop() {
-        //build critical section around loop()
-        ORO_OS::MutexLock lock( breaker );
         while ( active )
             {
                 this->step();
@@ -138,9 +136,6 @@ namespace ORO_CoreLib
     bool BlockingEventProcessor::breakLoop() {
         active = false;
         sem->signal();
-        {
-            ORO_OS::MutexLock lock( breaker ); // force a block until loop returns.
-        }
         return true;
     }
 
