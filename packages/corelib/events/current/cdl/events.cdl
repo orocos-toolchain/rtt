@@ -51,23 +51,12 @@ The name must be unique with respect to other threads."
 	    default_value {"\"CompletionProcessor\""}
 	    #legal_values string
 	}
-	cdl_option ORONUM_CORELIB_EVENTS_CP_PERIOD {
-	    display "The periodicity of the completion processor in seconds"
-	    description "
-Indicates the time between processing two completion requests.
-Since the request is inherently deferred (delayed), this value should mostly not
-be smaller then 0.01 second."
-	    flavor data
-	    default_value 0.05
-	    #legal_values positive number
-	}
 	cdl_option ORONUM_CORELIB_EVENTS_CP_PRIORITY {
 	    display "The priority of the completion processor"
             description "
-Every thread needs a priority. The completion processor is by
-default not realtime though, so this value is less important."
+Every thread needs a priority. The completion processor should probably have a low priority."
 	    flavor data
-	    default_value 5
+	    default_value 20
 	    #legal_values positive number
 	}
     }
