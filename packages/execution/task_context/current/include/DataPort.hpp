@@ -181,8 +181,8 @@ namespace ORO_Execution
     template<class T>
     ConnectionInterface::shared_ptr WriteDataPort<T>::createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type)
     {
-        ConnectionFactory cf;
-        return ConnectionInterface::shared_ptr ( cf.createDataObject<T>(this, other, con_type) );
+        ConnectionFactory<T> cf;
+        return ConnectionInterface::shared_ptr ( cf.createDataObject(this, other, con_type) );
     }
 }
 

@@ -41,14 +41,14 @@ namespace ORO_Execution
     /**
      * Builds Connections (buffers or data objects) between
      * the ports of tasks.
+     * @param T The contents type of the buffers or data objects.
      */
+    template<class T>
     class ConnectionFactory
     {
     public:
-        template<class T>
         BufferConnectionInterface<T>* createBuffer(PortInterface* writer, PortInterface* reader, int size, ConnectionTypes::ConnectionType type = ConnectionTypes::lockfree);
 
-        template<class T>
         DataConnectionInterface<T>* createDataObject(PortInterface* writer, PortInterface* reader, ConnectionTypes::ConnectionType type = ConnectionTypes::lockfree);
 
     };
@@ -64,7 +64,7 @@ namespace ORO_Execution
 {
 
         template<class T>
-        BufferConnectionInterface<T>* ConnectionFactory::createBuffer(PortInterface* writer, PortInterface* reader, int size, ConnectionTypes::ConnectionType type )
+        BufferConnectionInterface<T>* ConnectionFactory<T>::createBuffer(PortInterface* writer, PortInterface* reader, int size, ConnectionTypes::ConnectionType type )
         {
             using ORO_CoreLib::Logger;
             WriteBufferPort<T>* wt = dynamic_cast<WriteBufferPort<T>*>( writer );
@@ -87,7 +87,7 @@ namespace ORO_Execution
         }
 
         template<class T>
-        DataConnectionInterface<T>* ConnectionFactory::createDataObject(PortInterface* writer, PortInterface* reader, ConnectionTypes::ConnectionType type)
+        DataConnectionInterface<T>* ConnectionFactory<T>::createDataObject(PortInterface* writer, PortInterface* reader, ConnectionTypes::ConnectionType type)
         {
             using ORO_CoreLib::Logger;
             WriteDataPort<T>* wt = dynamic_cast<WriteDataPort<T>*>( writer );

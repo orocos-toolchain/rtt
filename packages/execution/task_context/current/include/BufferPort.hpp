@@ -295,8 +295,8 @@ namespace ORO_Execution
     template<class T>
     ConnectionInterface::shared_ptr WriteBufferPort<T>::createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type )
         {
-            ConnectionFactory cf;
-            return ConnectionInterface::shared_ptr (cf.createBuffer<T>(this, other, buf_size, con_type));
+            ConnectionFactory<T> cf;
+            return ConnectionInterface::shared_ptr (cf.createBuffer(this, other, buf_size, con_type));
         }
 }
 #endif

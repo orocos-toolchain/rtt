@@ -850,9 +850,9 @@ cd                  quit
 	  <programlisting>  #include &lt;execution/ConnectionFactory.hpp&gt;
   // ...
   int buf_size = 100;
-  ConnectionFactory cf;
+  ConnectionFactory&lt;double&gt; cf;
   ConnectionInterface::shared_ptr con =
-    cf.createBuffer&lt;double&gt;(a_task->ports()->getPort("SetPoint_X"), 
+    cf.createBuffer(a_task->ports()->getPort("SetPoint_X"), 
                             b_task->ports()->getPort("SetPoint_X"), 
                             buf_size);
   if (con)
