@@ -26,6 +26,7 @@
 #include <corelib/BufferLockFree.hpp>
 #include <corelib/ListLockFree.hpp>
 #include <corelib/DataObjectInterfaces.hpp>
+#include <corelib/MemoryPool.hpp>
 //#include <corelib/SortedList.hpp>
 
 #include <os/SingleThread.hpp>
@@ -48,6 +49,7 @@ class BuffersTest : public CppUnit::TestFixture
     // this test assumes a not real-time OS.
     CPPUNIT_TEST( testListLockFree );
 #endif
+    CPPUNIT_TEST( testMemoryPool );
     CPPUNIT_TEST_SUITE_END();
 
     AtomicQueue<Dummy*>* aqueue;
@@ -59,6 +61,10 @@ class BuffersTest : public CppUnit::TestFixture
     ThreadInterface* bthread;
 
     ListLockFree<Dummy>* listlockfree;
+    MemoryPool<Dummy>* mpool;
+    MemoryPool<std::vector<Dummy> >* vpool;
+    FixedSizeMemoryPool<Dummy>* fmpool;
+    FixedSizeMemoryPool<std::vector<Dummy> >* fvpool;
 public:
 
     void setUp();
@@ -68,6 +74,7 @@ public:
     void testAtomicCounted();
     void testBufLockFree();
     void testDObjLockFree();
+    void testMemoryPool();
 
     void testSortedList();
 

@@ -32,6 +32,8 @@
 #include "os/CAS.hpp"
 #include "BufferPolicy.hpp"
 #include "BufferInterface.hpp"
+#include "AtomicQueue.hpp"
+#include "MemoryPool.hpp"
 #include <vector>
 
 #ifdef ORO_PRAGMA_INTERFACE
@@ -48,9 +50,8 @@ namespace ORO_CoreLib
      * data of type \a T in a FIFO way. Optionally block (synchronize) on an
      * \a empty of \a full buffer (See \a Policy below ). The
      * default Policy is thus completely Asynchronous (non-blocking).
-     * No memory allocation is done during read or write, but the maximum number
-     * of threads which can access this object is defined by
-     * MAX_THREADS.
+     * No memory allocation is done during read or write, any number of threads
+     * may access this buffer concurrently.
      * @param T The value type to be stored in the Buffer.
      * Example : BufferLockFree<A> is a buffer which holds values of type A.
      * @param ReadPolicy The Policy to block (wait) on \a empty (during read),
@@ -65,92 +66,45 @@ namespace ORO_CoreLib
         : public BufferInterface<T>
     {
     public:
-        /** 
-         * @brief The maximum number of threads.
-         *
-         * The number of threads which may concurrently access this buffer.
-         */
-        const unsigned int MAX_THREADS;
-
         typedef typename ReadInterface<T>::reference_t reference_t;
         typedef typename WriteInterface<T>::param_t param_t;
         typedef typename BufferInterface<T>::size_t size_t;
         typedef T value_t;
     private:
-        struct Item {
-            Item()  {
-                //ATOMIC_INIT(count);
-                atomic_set(&count,-1);
-            }
-            mutable atomic_t count;  // refcount
-            std::vector<T> data;
-        };
-
-        Item* bufs;
-        Item* volatile active;
-
-        WritePolicy write_policy;
-        ReadPolicy read_policy;
+        typedef T Item;
+        AtomicQueue<Item*,ReadPolicy,WritePolicy> bufs;
+        // is mutable because of reference counting.
+        mutable FixedSizeMemoryPool<Item> mpool;
     public:
         /**
          * Create a lock-free buffer wich can store \a bufsize elements.
          * @param bufsize the capacity of the buffer.
-         * @param threads the number of threads which may concurrently
-         * read or write this buffer. Defaults to ORONUM_OS_MAX_THREADS, but you
-         * may lower this number in case not all threads will read this buffer.
-         * A lower number will consume less memory.
 '         */
-        BufferLockFree(unsigned int bufsize, unsigned int threads = ORONUM_OS_MAX_THREADS )
-            : MAX_THREADS( threads ), write_policy( bufsize ), read_policy(0)
+        BufferLockFree( unsigned int bufsize )
+            : bufs( bufsize ), mpool(bufsize)
         {
-            // each thread has one 'working' buffer, and one 'active' buffer
-            // lock.
-            const unsigned int BUF_NUM = MAX_THREADS * 2;
-            bufs = new Item[ BUF_NUM ];
-            for (unsigned int i=0; i < BUF_NUM; ++i) {
-                bufs[i].data.reserve( bufsize ); // pre-allocate
-            }
-            // bootstrap the first buffer :
-            active = bufs;
-            atomic_inc( &active->count );
-        }
-
-        ~BufferLockFree() {
-            delete[] bufs;
         }
 
         size_t capacity() const
         {
-            return active->data.capacity();
+            return bufs.capacity();
         }
 
         size_t size() const
         {
-            return active->data.size();
+            return bufs.size();
         }
 
         bool empty() const
         {
-            return active->data.empty();
+            return bufs.isEmpty();
         }
 
         void clear()
         {
-            Item* nextbuf = findEmptyBuf(); // find unused Item in bufs
-            nextbuf->data.clear();
-            const Item* orig=0;
-            int items = 0;
-            do {
-                if (orig)
-                    atomic_dec(&orig->count);
-                orig = lockAndGetActive();
-                items = orig->data.size();
-            } while ( CAS(&active, orig, nextbuf ) == false );
-            atomic_dec( &orig->count ); // lockAndGetActive
-            atomic_dec( &orig->count ); // ref count
-            // update policies.
-            read_policy.pop(items);
-            write_policy.push(items);
+            Item* item;
+            while ( bufs.dequeue(item) )
+                mpool.deallocate( item );
         }
 
         /**
@@ -165,25 +119,16 @@ namespace ORO_CoreLib
 
         bool Push( param_t item) 
         {
-            write_policy.pop();
-            Item* usingbuf = findEmptyBuf(); // find unused Item in bufs
-            const Item* orig=0;
-            do {
-                if (orig)
-                    atomic_dec(&orig->count);
-                orig = lockAndGetActive();
-                if ( orig->data.size() == orig->data.capacity() ) { // check for full
-                    atomic_dec( &orig->count );
-                    atomic_dec( &usingbuf->count );
-                    write_policy.push();
-                    return false;
-                }
-                usingbuf->data = orig->data;
-                usingbuf->data.push_back( item );
-            } while ( CAS(&active, orig, usingbuf ) ==false);
-            atomic_dec( &orig->count ); // lockAndGetActive()
-            atomic_dec( &orig->count ); // set buffer free
-            read_policy.push();
+            Item* mitem = mpool.allocate();
+            if ( mitem == 0 ) // queue full.
+                return false;
+            // copy over.
+            *mitem = item;
+            if (bufs.enqueue( mitem ) == false ) { // can this ever happen ?
+                //mpool.deallocate( mitem );
+                //return false;
+                assert(false && "Race detected in Push()");
+            }
             return true;
         }
 
@@ -200,29 +145,12 @@ namespace ORO_CoreLib
 
         size_t Push(const std::vector<T>& items)
         {
-            write_policy.pop();
-            Item* usingbuf = findEmptyBuf(); // find unused Item in bufs
-            const Item* orig=0;
             int towrite  = items.size();
-            do {
-                if (orig)
-                    atomic_dec(&orig->count);
-                orig = lockAndGetActive();
-                int maxwrite = orig->data.capacity() - orig->data.size();
-                if ( maxwrite == 0 ) {
-                    atomic_dec( &orig->count ); // lockAndGetActive()
-                    atomic_dec( &usingbuf->count ); // findEmptyBuf()
-                    return 0;
-                }
-                if ( towrite > maxwrite )
-                    towrite = maxwrite;
-                usingbuf->data = orig->data;
-                usingbuf->data.insert( usingbuf->data.end(), items.begin(), items.begin() + towrite );
-            } while ( CAS(&active, orig, usingbuf ) ==false );
-            atomic_dec( &orig->count ); // lockAndGetActive()
-            atomic_dec( &orig->count ); // set buffer free
-            read_policy.push( towrite );
-            return towrite;
+            typename std::vector<T>::const_iterator it;
+            for(  it = items.begin(); it != items.end(); ++it)
+                if ( this->Push( *it ) == false )
+                    break;
+            return towrite - (items.end() - it);
         }
 
 
@@ -238,36 +166,26 @@ namespace ORO_CoreLib
         }
 
         value_t front() const {
-            const Item* orig = lockAndGetActive();
-            value_t ret = value_t();
-            if ( !orig->data.empty() )
-                ret = orig->data.front();
-            atomic_dec( &orig->count );
+            Item* orig;
+            orig = bufs.lockfront(mpool);
+            // if orig == 0, then queue is empty
+            if (orig == 0)
+                return value_t();
+            
+            // ok, copy, unlock and return front.
+            value_t ret = *orig;
+            mpool.unlock( orig );
             return ret;
         }
 
         bool Pop( reference_t item )
         {
-            read_policy.pop();
-            Item* nextbuf = findEmptyBuf(); // find unused Item in bufs
-            nextbuf->data.clear();
-            const Item* orig=0;
-            do {
-                if (orig)
-                    atomic_dec(&orig->count);
-                orig = lockAndGetActive();
-                if ( orig->data.empty() ) {
-                    atomic_dec( &orig->count );
-                    atomic_dec( &nextbuf->count );
-                    read_policy.push();
-                    return false;
-                }
-                item = orig->data.front();
-                nextbuf->data.insert( nextbuf->data.begin(), orig->data.begin()+1, orig->data.end() );
-            } while ( CAS(&active, orig, nextbuf ) ==false );
-            atomic_dec( &orig->count ); // lockAndGetActive
-            atomic_dec( &orig->count ); // ref count
-            write_policy.push();
+            Item* ipop;
+            if (bufs.dequeue( ipop ) == false )
+                return false;
+            item = *ipop;
+            if (mpool.deallocate( ipop ) == false )
+                assert(false);
             return true;
         }
 
@@ -285,52 +203,14 @@ namespace ORO_CoreLib
 
         size_t Pop(std::vector<T>& items )
         {
-            read_policy.pop(); // read at least 1 item.
-            Item* nextbuf = findEmptyBuf(); // find unused Item in bufs
-            nextbuf->data.clear(); // an empty buffer will become active next.
-            const Item* orig=0;
-            do {
-                if (orig)
-                    atomic_dec(&orig->count);
-                orig = lockAndGetActive();
-                items = orig->data;
-            } while ( CAS(&active, orig, nextbuf ) == false );
-            atomic_dec( &orig->count ); //lockAndGetActive
-            atomic_dec( &orig->count ); //ref count
-            read_policy.pop( items.size() ); // pop additional read data.
-            write_policy.push( items.size() );
-            return items.size();
-        }
-
-    private:
-        // If MAX_THREADS is large enough, this will always succeed :
-        Item* findEmptyBuf() {
-            Item* start = bufs;
-            while( true ) {
-                if ( atomic_inc_and_test( &start->count ) )
-                    break;
-                atomic_dec( &start->count );
-                ++start;
-                if (start == bufs+MAX_THREADS*2 ) // BUF_NUM
-                    start = bufs; // in case of races, rewind
+            Item* ipop;
+            items.clear();
+            while( bufs.dequeue(ipop) ) {
+                items.push_back( *ipop );
+                if (mpool.deallocate(ipop) == false)
+                    assert(false);
             }
-            return start; // unique pointer across all threads
-        }
-
-        // This is a kind-of smart-pointer implementation
-        // We could move it into Item itself and overload operator=
-        const Item* lockAndGetActive() const {
-            const Item* orig=0;
-            do {
-                if (orig)
-                    atomic_dec( &orig->count );
-                orig = active;
-                atomic_inc( &orig->count );
-                // this synchronisation point is 'aggressive' (a _sufficient_ condition)
-                // if active is still equal to orig, the increase of orig->count is
-                // surely valid, since no contention (change of active) occured.
-            } while ( active != orig );
-            return orig;
+            return items.size();
         }
 
     };

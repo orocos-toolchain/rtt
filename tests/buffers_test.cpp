@@ -82,6 +82,11 @@ BuffersTest::setUp()
 
     listlockfree = new ListLockFree<Dummy>(10, 4);
 
+    mpool = new MemoryPool<Dummy>(QS);
+    vpool = new MemoryPool<std::vector<Dummy> >(QS, std::vector<Dummy>(QS) );
+
+    fmpool = new FixedSizeMemoryPool<Dummy>(QS);
+    fvpool = new FixedSizeMemoryPool<std::vector<Dummy> >(QS, std::vector<Dummy>(QS));
 }
 
 
@@ -98,6 +103,11 @@ BuffersTest::tearDown()
     //delete mslist;
     
     delete listlockfree;
+
+    delete mpool;
+    delete vpool;
+    delete fmpool;
+    delete fvpool;
 }
 
 void BuffersTest::testAtomic()
@@ -109,23 +119,31 @@ void BuffersTest::testAtomic()
     Dummy* d = new Dummy;
     Dummy* c = d;
 
-    CPPUNIT_ASSERT( aqueue->capacity() == QS );
+    CPPUNIT_ASSERT_EQUAL( size_t(QS), aqueue->capacity() );
+    CPPUNIT_ASSERT_EQUAL( size_t(0), aqueue->size() );
     CPPUNIT_ASSERT( aqueue->isFull() == false );
     CPPUNIT_ASSERT( aqueue->isEmpty() == true );
     CPPUNIT_ASSERT( aqueue->dequeue(c) == false );
     CPPUNIT_ASSERT( c == d );
 
-    for ( int i = 0; i < QS; ++i)
+    for ( int i = 0; i < QS; ++i) {
         CPPUNIT_ASSERT( aqueue->enqueue( d ) == true);
+        CPPUNIT_ASSERT_EQUAL( size_t(i+1), aqueue->size() );
+    }
+    CPPUNIT_ASSERT_EQUAL( size_t(QS), aqueue->capacity() );
     CPPUNIT_ASSERT( aqueue->isFull() == true );
     CPPUNIT_ASSERT( aqueue->isEmpty() == false );
     CPPUNIT_ASSERT( aqueue->enqueue( d ) == false );
+    CPPUNIT_ASSERT_EQUAL( size_t(QS), aqueue->size() );
 
     aqueue->dequeue( d );
     CPPUNIT_ASSERT( aqueue->isFull() == false );
+    CPPUNIT_ASSERT_EQUAL( size_t(QS-1), aqueue->size() );
 
-    for ( int i = 0; i < QS - 1 ; ++i)
+    for ( int i = 0; i < QS - 1 ; ++i) {
         CPPUNIT_ASSERT( aqueue->dequeue( d ) == true);
+        CPPUNIT_ASSERT_EQUAL( size_t(QS - 2 - i), aqueue->size() );
+    }
     CPPUNIT_ASSERT( aqueue->isFull() == false );
     CPPUNIT_ASSERT( aqueue->isEmpty() == true );
 
@@ -188,26 +206,40 @@ void BuffersTest::testBufLockFree()
     Dummy r;
 
     CPPUNIT_ASSERT( lockfree->read(r) == false );
+    CPPUNIT_ASSERT( lockfree->front() == r ); // return default if empty.
 
     CPPUNIT_ASSERT( lockfree->write( *d ) );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->read(r) );
     CPPUNIT_ASSERT( r == *d );
 
     CPPUNIT_ASSERT( lockfree->write( *c ) );
+    CPPUNIT_ASSERT( lockfree->front() == *c );
     CPPUNIT_ASSERT( lockfree->read(r) );
     CPPUNIT_ASSERT( r == *c );
 
     CPPUNIT_ASSERT( lockfree->write( *d ) );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->write( *c ) );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->write( *d ) );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->write( *c ) );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->write( *d ) );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->write( *c ) );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->write( *d ) );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->write( *c ) );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->write( *d ) );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->write( *c ) );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->write( *c ) == false );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->write( *c ) == false );
     CPPUNIT_ASSERT( lockfree->write( *c ) == false );
     CPPUNIT_ASSERT( lockfree->write( *c ) == false );
@@ -221,43 +253,63 @@ void BuffersTest::testBufLockFree()
     CPPUNIT_ASSERT( lockfree->write( *c ) == false );
     CPPUNIT_ASSERT( lockfree->read(r) );
     CPPUNIT_ASSERT( r == *d );
+    CPPUNIT_ASSERT( lockfree->front() == *c );
     CPPUNIT_ASSERT( lockfree->read(r) );
     CPPUNIT_ASSERT( r == *c );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->read(r) );
     CPPUNIT_ASSERT( r == *d );
+    CPPUNIT_ASSERT( lockfree->front() == *c );
     CPPUNIT_ASSERT( lockfree->read(r) );
     CPPUNIT_ASSERT( r == *c );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->read(r) );
     CPPUNIT_ASSERT( r == *d );
+    CPPUNIT_ASSERT( lockfree->front() == *c );
 
     // start writing again half-way
     CPPUNIT_ASSERT( lockfree->write( *d ) );
+    CPPUNIT_ASSERT( lockfree->front() == *c );
     CPPUNIT_ASSERT( lockfree->write( *c ) );
+    CPPUNIT_ASSERT( lockfree->front() == *c );
     CPPUNIT_ASSERT( lockfree->write( *d ) );
+    CPPUNIT_ASSERT( lockfree->front() == *c );
     CPPUNIT_ASSERT( lockfree->write( *c ) );
+    CPPUNIT_ASSERT( lockfree->front() == *c );
     CPPUNIT_ASSERT( lockfree->write( *d ) );
+    CPPUNIT_ASSERT( lockfree->front() == *c );
 
     CPPUNIT_ASSERT( lockfree->read(r) );
     CPPUNIT_ASSERT( r == *c );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->read(r) );
     CPPUNIT_ASSERT( r == *d );
+    CPPUNIT_ASSERT( lockfree->front() == *c );
     CPPUNIT_ASSERT( lockfree->read(r) );
     CPPUNIT_ASSERT( r == *c );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->read(r) );
     CPPUNIT_ASSERT( r == *d );
+    CPPUNIT_ASSERT( lockfree->front() == *c );
     CPPUNIT_ASSERT( lockfree->read(r) );
     CPPUNIT_ASSERT( r == *c );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->read(r) );
     CPPUNIT_ASSERT( r == *d );
+    CPPUNIT_ASSERT( lockfree->front() == *c );
     CPPUNIT_ASSERT( lockfree->read(r) );
     CPPUNIT_ASSERT( r == *c );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->read(r) );
     CPPUNIT_ASSERT( r == *d );
+    CPPUNIT_ASSERT( lockfree->front() == *c );
     CPPUNIT_ASSERT( lockfree->read(r) );
     CPPUNIT_ASSERT( r == *c );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->read(r) );
     CPPUNIT_ASSERT( r == *d );
 
+    CPPUNIT_ASSERT( lockfree->front() == *d );
     CPPUNIT_ASSERT( lockfree->read(r) == false );
     CPPUNIT_ASSERT( lockfree->read(r) == false );
     CPPUNIT_ASSERT( lockfree->read(r) == false );
@@ -271,6 +323,7 @@ void BuffersTest::testBufLockFree()
     CPPUNIT_ASSERT( lockfree->read(r) == false );
 
     CPPUNIT_ASSERT( lockfree->write( *c ) );
+    CPPUNIT_ASSERT( lockfree->front() == *c );
     CPPUNIT_ASSERT( lockfree->write( *d ) );
     CPPUNIT_ASSERT( lockfree->write( *c ) );
     CPPUNIT_ASSERT( lockfree->write( *d ) );
@@ -283,7 +336,9 @@ void BuffersTest::testBufLockFree()
     CPPUNIT_ASSERT( v[2] == *c );
     CPPUNIT_ASSERT( v[3] == *d );
     CPPUNIT_ASSERT( v[4] == *c );
+    CPPUNIT_ASSERT( lockfree->front() == *d );
 
+    size_t sz = 10;
     CPPUNIT_ASSERT( lockfree->write( *c ) );
     CPPUNIT_ASSERT( lockfree->write( *d ) );
     CPPUNIT_ASSERT( lockfree->write( v ) == v.size() );
@@ -302,7 +357,7 @@ void BuffersTest::testBufLockFree()
     CPPUNIT_ASSERT( lockfree->write( v ) == 0 );
     CPPUNIT_ASSERT( lockfree->write( v ) == 0 );
     CPPUNIT_ASSERT( lockfree->write( v ) == 0 );
-    CPPUNIT_ASSERT( 10 == lockfree->read(v) );
+    CPPUNIT_ASSERT_EQUAL( sz, lockfree->read(v) );
     CPPUNIT_ASSERT( v[0] == *c );
     CPPUNIT_ASSERT( v[1] == *d );
     CPPUNIT_ASSERT( v[2] == *c );
@@ -334,6 +389,110 @@ void BuffersTest::testDObjLockFree()
     CPPUNIT_ASSERT_EQUAL( d , dataobj->Get() );
 
     delete c;
+}
+
+void BuffersTest::testMemoryPool()
+{
+    // Test initial conditions.
+    size_t sz = QS;
+    // for MemoryPool
+    CPPUNIT_ASSERT_EQUAL( sz, mpool->size() );
+    CPPUNIT_ASSERT_EQUAL( sz, vpool->size() );
+    // for FixedSizeMemoryPool
+    CPPUNIT_ASSERT_EQUAL( sz, fmpool->size() );
+    CPPUNIT_ASSERT_EQUAL( sz, fvpool->size() );
+    // Capacity test
+    CPPUNIT_ASSERT_EQUAL( sz, mpool->capacity() );
+    CPPUNIT_ASSERT_EQUAL( sz, vpool->capacity() );
+    CPPUNIT_ASSERT_EQUAL( sz, fmpool->capacity() );
+    CPPUNIT_ASSERT_EQUAL( sz, fvpool->capacity() );
+
+    // test default initialiser:
+    for (size_t i = 0; i <3*sz; ++i ) {
+        // MemoryPool:
+        std::vector<Dummy>* v = vpool->allocate();
+        CPPUNIT_ASSERT_EQUAL( sz, v->size() );
+        CPPUNIT_ASSERT_EQUAL( sz, v->capacity() );
+        CPPUNIT_ASSERT(vpool->deallocate( v ));
+
+        // FixedSizeMemoryPool:
+        v = fvpool->allocate();
+        CPPUNIT_ASSERT_EQUAL( sz, v->size() );
+        CPPUNIT_ASSERT_EQUAL( sz, v->capacity() );
+        CPPUNIT_ASSERT( fvpool->deallocate( v ) );
+    }
+
+    // test Allocation.
+    std::vector<Dummy*> mpv;
+    // MemoryPool:
+    for (size_t i = 0; i <sz; ++i ) {
+        mpv.push_back( mpool->allocate() );
+        CPPUNIT_ASSERT_EQUAL( sz - i -1 , mpool->size());
+        CPPUNIT_ASSERT_EQUAL( sz, mpool->capacity() );
+    }
+    for (size_t i = 0; i <sz; ++i ) {
+        CPPUNIT_ASSERT(mpool->deallocate( mpv.front() ));
+        mpv.erase( mpv.begin() );
+        CPPUNIT_ASSERT_EQUAL( i + 1 , mpool->size());
+        CPPUNIT_ASSERT_EQUAL( sz, mpool->capacity() );
+    }
+    CPPUNIT_ASSERT( mpv.size() == 0 );
+    // FixedSizeMemoryPool:
+    for (size_t i = 0; i <sz; ++i ) {
+        mpv.push_back( fmpool->allocate() );
+        CPPUNIT_ASSERT_EQUAL( sz - i -1 , fmpool->size());
+        CPPUNIT_ASSERT_EQUAL( sz, fmpool->capacity() );
+    }
+    for (size_t i = 0; i <sz; ++i ) {
+        CPPUNIT_ASSERT( fmpool->deallocate( mpv.front() ) );
+        mpv.erase( mpv.begin() );
+        CPPUNIT_ASSERT_EQUAL( i + 1 , fmpool->size());
+        CPPUNIT_ASSERT_EQUAL( sz, fmpool->capacity() );
+    }
+
+    // test capacity increasing:
+    for (size_t i = 0; i <sz; ++i ) {
+        mpool->reserve();
+        vpool->reserve();
+    }
+    CPPUNIT_ASSERT_EQUAL( sz, mpool->capacity() );
+    CPPUNIT_ASSERT_EQUAL( sz, mpool->size() );
+    CPPUNIT_ASSERT_EQUAL( sz, vpool->capacity() );
+    CPPUNIT_ASSERT_EQUAL( sz, vpool->size() );
+
+    // the following reserve() allocates new chunks.
+    mpool->reserve();
+    vpool->reserve();
+    CPPUNIT_ASSERT_EQUAL( sz + 2*sz, mpool->capacity() );
+    CPPUNIT_ASSERT_EQUAL( sz + 2*sz, mpool->size() );
+    CPPUNIT_ASSERT_EQUAL( sz + 2*sz, vpool->capacity() );
+    CPPUNIT_ASSERT_EQUAL( sz + 2*sz, vpool->size() );
+    for (size_t i = 0; i <sz; ++i ) {
+        mpool->reserve();
+        vpool->reserve();
+    }
+    CPPUNIT_ASSERT_EQUAL( sz + 2*sz, mpool->capacity() );
+    CPPUNIT_ASSERT_EQUAL( sz + 2*sz, mpool->size() );
+    CPPUNIT_ASSERT_EQUAL( sz + 2*sz, vpool->capacity() );
+    CPPUNIT_ASSERT_EQUAL( sz + 2*sz, vpool->size() );
+
+    // Extra:
+    // test default initialiser for extra reserved chunks:
+    std::vector< std::vector<Dummy>* > vv;
+    for (size_t i = 0; i < sz+ 2*sz; ++i ) {
+        // MemoryPool:
+        std::vector<Dummy>* v = vpool->allocate();
+        vv.push_back( v );
+        CPPUNIT_ASSERT_EQUAL( sz, v->size() );
+        CPPUNIT_ASSERT_EQUAL( sz, v->capacity() );
+    }
+    CPPUNIT_ASSERT_EQUAL( size_t(0), vpool->size() );
+    for (size_t i = 0; i < sz+ 2*sz; ++i ) {
+        // MemoryPool:
+        CPPUNIT_ASSERT( vpool->deallocate( vv.back() ) );
+        vv.erase( vv.end() - 1 );
+    }
+
 }
 
 void addOne(Dummy& d)

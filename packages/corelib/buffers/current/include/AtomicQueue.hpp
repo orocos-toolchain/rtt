@@ -158,7 +158,7 @@ namespace ORO_CoreLib
          * Inspect if the Queue is full.
          * @return true if full, false otherwise.
          */
-        bool isFull()
+        bool isFull() const
         {
             // two cases where the queue is full : 
             // if wptr is one behind rptr or if wptr is at end
@@ -170,7 +170,7 @@ namespace ORO_CoreLib
          * Inspect if the Queue is empty.
          * @return true if empty, false otherwise.
          */
-        bool isEmpty()
+        bool isEmpty() const
         {
             // empty if nothing to read.
             return _rptr->first == 0;
@@ -179,9 +179,18 @@ namespace ORO_CoreLib
         /**
          * Return the maximum number of items this queue can contain.
          */
-        int capacity()
+        size_t capacity() const
         {
             return _size -1;
+        }
+
+        /**
+         * Return the number of elements in the queue.
+         */
+        size_t size() const
+        {
+            int c = (_wptr - _rptr);
+            return c >= 0 ? c : c + _size;
         }
 
         /**
@@ -236,6 +245,37 @@ namespace ORO_CoreLib
             loc->first   = 0; // this releases the cell to write to.
             write_policy.push();
             return true;
+        }
+
+        /**
+         * Return the next to be read value.
+         */
+        const T front() const
+        {
+            return _rptr;
+        }
+
+        /**
+         * Return the next to be read value and lock
+         * it in a MemoryPool, such that it is not freed.
+         * The returned pointer must be unlock()'ed by the
+         * user's code.
+         */
+        template<class MPoolType>
+        T lockfront(MPoolType& mp) const
+        {
+            CachePtrType loc=0;
+            bool was_locked = false;
+            do {
+                if (was_locked)
+                    mp.unlock(loc->first);
+                loc = _rptr;
+                if (loc->first == 0)
+                    return 0;
+                was_locked = mp.lock(loc->first);
+                // retry if lock failed or read moved.
+            } while( !was_locked || loc != _rptr ); // obstruction detection.
+            return loc->first;
         }
 
         /**
