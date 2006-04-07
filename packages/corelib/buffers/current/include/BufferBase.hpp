@@ -39,7 +39,7 @@ namespace ORO_CoreLib
     class BufferBase
     {
     public:
-        typedef unsigned int size_t;
+        typedef unsigned int size_type;
 
         typedef boost::shared_ptr< BufferBase > shared_ptr;
 
@@ -51,14 +51,14 @@ namespace ORO_CoreLib
          * buffer.
          * @return maximum number of items.
          */
-        virtual size_t capacity() const = 0;
+        virtual size_type capacity() const = 0;
 
         /**
          * Returns the actual number of items that are stored in the
          * buffer.
          * @return number of items.
          */
-        virtual size_t size() const = 0;
+        virtual size_type size() const = 0;
 
         /**
          * Check if this buffer is empty.

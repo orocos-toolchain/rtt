@@ -424,7 +424,7 @@ namespace ORO_CoreLib
      * preempted by a High Priority thread :
      *
      *   L\H | Set | Get |
-     *   Set | NA  | Ok  |
+     *   Set | Ok  | Ok  |
      *   Get | Ok  | Ok  |
      *
      * legend : L : Low Priority thread
@@ -433,7 +433,7 @@ namespace ORO_CoreLib
      *          NA : Not allowed !
      * @endverbatim
      * Further, multiple reads may occur before, during and after
-     * a write operation simultaneously. The buffer needs readers+3
+     * a write operation simultaneously. The buffer needs readers+2*writers
      * elements to be guaranteed non blocking.
      */
     template<class T>
@@ -507,6 +507,25 @@ namespace ORO_CoreLib
             // prepare the buffer.
             for (unsigned int i = 0; i < BUF_LEN-1; ++i)
                 data[i].next = &data[i+1];
+            data[BUF_LEN-1].next = &data[0];
+        }
+
+        /** 
+         * Construct a DataObjectLockFree by name.
+         * 
+         * @param _name The name of this DataObject.
+         * @param initial_value The initial value of this DataObject.
+         */
+        DataObjectLockFree(const std::string& _name, const T& initial_value, bool ) 
+            : read_ptr(&data[ 0 ]), 
+              write_ptr(&data[ 1 ]), 
+              name(_name)
+        {
+            // prepare the buffer.
+            for (unsigned int i = 0; i < BUF_LEN-1; ++i) {
+                data[i].data = initial_value;
+                data[i].next = &data[i+1];
+            }
             data[BUF_LEN-1].next = &data[0];
         }
 

@@ -68,7 +68,7 @@ namespace ORO_CoreLib
     public:
         typedef typename ReadInterface<T>::reference_t reference_t;
         typedef typename WriteInterface<T>::param_t param_t;
-        typedef typename BufferInterface<T>::size_t size_t;
+        typedef typename BufferInterface<T>::size_type size_type;
         typedef T value_t;
     private:
         typedef T Item;
@@ -80,17 +80,17 @@ namespace ORO_CoreLib
          * Create a lock-free buffer wich can store \a bufsize elements.
          * @param bufsize the capacity of the buffer.
 '         */
-        BufferLockFree( unsigned int bufsize )
-            : bufs( bufsize ), mpool(bufsize)
+        BufferLockFree( unsigned int bufsize, const T& initial_value = T() )
+            : bufs( bufsize ), mpool(bufsize, initial_value)
         {
         }
 
-        size_t capacity() const
+        size_type capacity() const
         {
             return bufs.capacity();
         }
 
-        size_t size() const
+        size_type size() const
         {
             return bufs.size();
         }
@@ -139,11 +139,11 @@ namespace ORO_CoreLib
          * @return the number of values written (may be less than d.size())
          * @deprecated by Push(const std::vector<T>& item)
          */
-        size_t write( const std::vector<T>& d) {
+        size_type write( const std::vector<T>& d) {
             return this->Push( d );
         }
 
-        size_t Push(const std::vector<T>& items)
+        size_type Push(const std::vector<T>& items)
         {
             int towrite  = items.size();
             typename std::vector<T>::const_iterator it;
@@ -196,12 +196,12 @@ namespace ORO_CoreLib
          * @return the number of items read.
          * @deprecated by Pop( std::vector<T>& items )
          */
-        size_t read(std::vector<T>& res)
+        size_type read(std::vector<T>& res)
         {
             return this->Pop( res );
         }
 
-        size_t Pop(std::vector<T>& items )
+        size_type Pop(std::vector<T>& items )
         {
             Item* ipop;
             items.clear();

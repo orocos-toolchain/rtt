@@ -97,6 +97,8 @@ namespace ORO_CoreLib
     public:
         typedef T* pointer;
 
+        typedef unsigned int size_type;
+
         /**
          * Initialise the memory pool and already allocate some
          * memory.
@@ -135,8 +137,8 @@ namespace ORO_CoreLib
         /**
          * Returns the number of elements currently available.
          */
-        size_t size() const {
-            size_t res(0);
+        size_type size() const {
+            size_type res(0);
             // return the sum of all queued items.
             for ( typename PoolType::const_iterator it = mpool.begin(); it != mpool.end(); ++it )
                 res += it->first->size();
@@ -146,7 +148,7 @@ namespace ORO_CoreLib
         /**
          * Returns the maximum number of elements.
          */
-        size_t capacity() const {
+        size_type capacity() const {
             return alloc_cnt;
         }
 
@@ -237,7 +239,7 @@ namespace ORO_CoreLib
          * Returns how many times a piece of memory
          * is used.
          */
-        size_t useCount( pointer m ) {
+        size_type useCount( pointer m ) {
             return atomic_read( &static_cast< Item* >(m)->rc );
         }
     };
@@ -251,6 +253,12 @@ namespace ORO_CoreLib
     template<class T>
     class FixedSizeMemoryPool
     {
+    public:
+        typedef T* pointer;
+
+        typedef unsigned int size_type;
+
+    protected:
         /**
          * Adds a reference count.
          */
@@ -271,7 +279,7 @@ namespace ORO_CoreLib
         /**
          * For each additional pool, also store the location of the Item pointer.
          */
-        void make_pool( size_t growsize )
+        void make_pool( size_type growsize )
         {
             mpit = new Item[growsize];
             for( unsigned int i = 0; i < growsize; ++i ) {
@@ -288,13 +296,11 @@ namespace ORO_CoreLib
         Item* mpit;
 
     public:
-        typedef T* pointer;
-
         /**
          * Initialise the memory pool with \a fixed_size elements.
          * @param fixed_size the number of elements, must be at least 1.
          */
-        FixedSizeMemoryPool(unsigned int fixed_size, const T& initial_value = T() )
+        FixedSizeMemoryPool(size_type fixed_size, const T& initial_value = T() )
             : mpool(fixed_size == 0 ? 1 : fixed_size), minit( initial_value ), mpit(0)
         {
             this->make_pool(fixed_size);
@@ -311,14 +317,14 @@ namespace ORO_CoreLib
         /**
          * Returns the number of elements currently available.
          */
-        size_t size() const {
+        size_type size() const {
             return mpool.size();
         }
 
         /**
          * Returns the maximum number of elements.
          */
-        size_t capacity() const {
+        size_type capacity() const {
             return mpool.capacity();
         }
 

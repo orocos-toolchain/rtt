@@ -46,7 +46,7 @@ namespace ORO_CoreLib
         typedef T value_t;
         typedef typename boost::call_traits<T>::param_type param_t;
 
-        typedef unsigned int size_t;
+        typedef unsigned int size_type;
 
         /**
          * Write a single value to the buffer.
@@ -60,7 +60,7 @@ namespace ORO_CoreLib
          * @param items the values to write
          * @return the number of values written (may be less than items.size())
          */
-        virtual size_t Push( const std::vector<value_t>& items ) = 0;
+        virtual size_type Push( const std::vector<value_t>& items ) = 0;
 
         virtual ~WriteInterface()
         {}

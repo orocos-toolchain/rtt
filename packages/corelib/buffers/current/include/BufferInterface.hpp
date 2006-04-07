@@ -45,7 +45,7 @@ namespace ORO_CoreLib
     {
     public:
         typedef T value_t;
-        typedef unsigned int size_t;
+        typedef unsigned int size_type;
 
         typedef boost::shared_ptr< BufferInterface<T> > shared_ptr;
 

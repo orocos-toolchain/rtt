@@ -48,7 +48,7 @@ namespace ORO_CoreLib
         typedef T value_t;
         typedef typename boost::call_traits<T>::reference reference_t;
 
-        typedef unsigned int size_t;
+        typedef unsigned int size_type;
 
         /**
          * Read the oldest value from the buffer.
@@ -63,7 +63,7 @@ namespace ORO_CoreLib
          * with \a items.begin() the oldest value.
          * @return the number of items read.
          */
-        virtual size_t Pop( std::vector<value_t>& items ) = 0;
+        virtual size_type Pop( std::vector<value_t>& items ) = 0;
 
         /**
          * Get the next value to be Pop()'ed, or

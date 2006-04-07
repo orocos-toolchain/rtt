@@ -52,13 +52,13 @@ namespace ORO_CoreLib
 
         typedef typename ReadInterface<T>::reference_t reference_t;
         typedef typename WriteInterface<T>::param_t param_t;
-        typedef typename BufferInterface<T>::size_t size_t;
+        typedef typename BufferInterface<T>::size_type size_type;
         typedef T value_t;
 
         /**
          * Create a buffer of size \a size.
          */
-        BufferLocked( size_t size )
+        BufferLocked( size_type size )
             : buf()
         {
             buf.reserve(size);
@@ -78,7 +78,7 @@ namespace ORO_CoreLib
             return true;
         }
 
-        size_t Push(const std::vector<T>& items)
+        size_type Push(const std::vector<T>& items)
         {
             ORO_OS::MutexLock locker(lock);
             typename std::vector<T>::const_iterator itl( items.begin() );
@@ -99,7 +99,7 @@ namespace ORO_CoreLib
             return true;
         }
 
-        size_t Pop(std::vector<T>& items )
+        size_type Pop(std::vector<T>& items )
         {
             ORO_OS::MutexLock locker(lock);
             int quant = 0;
@@ -119,12 +119,13 @@ namespace ORO_CoreLib
                 item = buf.front();
             return item;
         }
-        size_t capacity() const {
+
+        size_type capacity() const {
             ORO_OS::MutexLock locker(lock);
             return buf.capacity();
         }
 
-        size_t size() const {
+        size_type size() const {
             ORO_OS::MutexLock locker(lock);
             return buf.size();
         }

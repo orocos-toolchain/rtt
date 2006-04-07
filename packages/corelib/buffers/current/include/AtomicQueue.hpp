@@ -138,6 +138,8 @@ namespace ORO_CoreLib
         // non-copyable !
         AtomicQueue( const AtomicQueue<T>& );
     public:
+        typedef unsigned int size_type;
+
         /**
          * Create an AtomicQueue with queue size \a size.
          * @param size The size of the queue, should be 1 or greater.
@@ -179,7 +181,7 @@ namespace ORO_CoreLib
         /**
          * Return the maximum number of items this queue can contain.
          */
-        size_t capacity() const
+        size_type capacity() const
         {
             return _size -1;
         }
@@ -187,7 +189,7 @@ namespace ORO_CoreLib
         /**
          * Return the number of elements in the queue.
          */
-        size_t size() const
+        size_type size() const
         {
             int c = (_wptr - _rptr);
             return c >= 0 ? c : c + _size;
