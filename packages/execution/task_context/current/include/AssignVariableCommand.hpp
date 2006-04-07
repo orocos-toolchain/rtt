@@ -100,9 +100,10 @@ namespace ORO_Execution
 
       bool execute()
       {
-          if ( lhs->get().capacity() < rhs->get().size() )
+          S result = rhs->get();
+          if ( lhs->get().capacity() < result.size() )
               return false;
-          lhs->set( rhs->get() );
+          lhs->set( result );
           return true;
       }
 
