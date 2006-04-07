@@ -101,6 +101,8 @@ namespace ORO_Execution
             datab->add("size", data( &ORO_CoreLib::BufferBase::size, "Get the used size of the buffer."));
             datab->add("capacity", data( &ORO_CoreLib::BufferBase::capacity, "Get the capacity of the buffer."));
             datab->add("empty", data( &ORO_CoreLib::BufferBase::empty, "Inspect if the buffer is empty."));
+            datab->add("full", data( &ORO_CoreLib::BufferBase::full, "Inspect if the buffer is full."));
+
             return new MemberFactoryComposite( datas, datab );
 
         }
@@ -183,6 +185,7 @@ namespace ORO_Execution
             datab->add("size", data( &ORO_CoreLib::BufferBase::size, "Get the used size of the buffer."));
             datab->add("capacity", data( &ORO_CoreLib::BufferBase::capacity, "Get the capacity of the buffer."));
             datab->add("empty", data( &ORO_CoreLib::BufferBase::empty, "Inspect if the buffer is empty."));
+            datab->add("full", data( &ORO_CoreLib::BufferBase::full, "Inspect if the buffer is full."));
             return new MemberFactoryComposite( datas, datab );
         }
     };
@@ -283,6 +286,7 @@ namespace ORO_Execution
             datab->add("size", data( &ORO_CoreLib::BufferBase::size, "Get the used size of the buffer."));
             datab->add("capacity", data( &ORO_CoreLib::BufferBase::capacity, "Get the capacity of the buffer."));
             datab->add("empty", data( &ORO_CoreLib::BufferBase::empty, "Inspect if the buffer is empty."));
+            datab->add("full", data( &ORO_CoreLib::BufferBase::full, "Inspect if the buffer is full."));
             return new MemberFactoryComposite( datas, datab );
         }
     };
