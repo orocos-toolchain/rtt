@@ -927,10 +927,10 @@ namespace ORO_Execution
     // array :
     add( newUnaryOperator( "array", array_ctor() ) );
     add( newBinaryOperator( "[]", array_index() ) );
-#if 0
     add( newBinaryOperator( "==", std::equal_to<const std::vector<double>&>() ) );
     add( newBinaryOperator( "!=", std::not_equal_to<const std::vector<double>&>() ) );
 
+#if 0
     // causes memory allocation....
     add( newUnaryOperator( "-", std::negate<const std::vector<double>&>() ) );
     add( newBinaryOperator( "*", std::multiplies<const std::vector<double>&>() ) );
