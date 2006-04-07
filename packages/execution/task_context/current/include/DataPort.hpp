@@ -39,7 +39,7 @@ namespace ORO_Execution
 {
     /**
      * A Port to a readable DataObject.
-     * @param T The type of the data of the buffer.
+     * @param T The type of the data of the data object.
      */
     template<class T>
     class ReadDataPort
@@ -54,7 +54,7 @@ namespace ORO_Execution
 
     public:
         /**
-         * Construct an unconnected Port to a readable buffer.
+         * Construct an unconnected Port to a readable data object.
          * @param name The name of this port.
          */
         ReadDataPort(const std::string& name) : PortInterface(name), mconn() {}
@@ -64,14 +64,14 @@ namespace ORO_Execution
                 mconn->removeReader(this);
         }
         /**
-         * Get the buffer to read from. The Task may use this to read from a
-         * Buffer connected to this port.
-         * @return 0 if !connected(), the buffer otherwise.
+         * Get the data object to read from. The Task may use this to read from a
+         * Data object connection connected to this port.
+         * @return 0 if !connected(), the Data Object otherwise.
          */
         const ORO_CoreLib::DataObjectInterface<T>* data() const { return mconn ? mconn->data() : 0; }
 
         /**
-         * Connect a readable buffer to this Port.
+         * Connect a readable data object connection to this Port.
          */
         bool connect(typename DataConnectionInterface<T>::shared_ptr conn) { 
             if ( mconn || !conn )
@@ -103,13 +103,14 @@ namespace ORO_Execution
     };
 
     /**
-     * A Port to a readable Buffer.
-     * @param T The type of the data of the buffer.
+     * A Port to a readable Data Object.
+     * @param T The type of the data of the Data Object.
      */
     template<class T>
     class WriteDataPort
         : public PortInterface
     {
+    public:
         typedef T DataType;
     protected:
         /**
@@ -121,17 +122,25 @@ namespace ORO_Execution
         ConnectionInterface::shared_ptr createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
 
         /**
-         * Get the buffer to read from. The Task may use this to read from a
-         * Buffer connected to this port.
-         * @return 0 if !connected(), the buffer otherwise.
+         * Get the data object to read from. The Task may use this to read from a
+         * Data Object connected to this port.
+         * @return 0 if !connected(), the data object otherwise.
          */
         ORO_CoreLib::DataObjectInterface<T>* data() { return mconn ? mconn->data() : 0; }
 
         /**
-         * Construct an unconnected Port to a readable buffer.
+         * Get the data object to read from. The Task may use this to read from a
+         * Data Object connected to this port.
+         * @return 0 if !connected(), the data object otherwise.
+         */
+        const ORO_CoreLib::DataObjectInterface<T>* data() const { return mconn ? mconn->data() : 0; }
+
+        /**
+         * Construct an unconnected Port to a writable DataObject.
          * @param name The name of this port.
          */
-        WriteDataPort(const std::string& name) : PortInterface(name), mconn() {}
+        WriteDataPort(const std::string& name)
+            : PortInterface(name), mconn() {}
 
         ~WriteDataPort() {
             if (mconn)
@@ -139,7 +148,7 @@ namespace ORO_Execution
         }
 
         /**
-         * Connect a readable buffer to this Port.
+         * Connect an existing data object connection to this Port.
          */
         bool connect(typename DataConnectionInterface<T>::shared_ptr conn) { 
             if ( mconn || !conn )
