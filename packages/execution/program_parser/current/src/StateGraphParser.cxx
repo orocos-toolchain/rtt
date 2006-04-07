@@ -209,8 +209,15 @@ namespace ORO_Execution
         // a line is not strictly defined in the sense of text-line.
         statecontent = *statecontentline;
 
-        // a can contain a statement.
-        statecontentline = entry | preconditions | run | handle | transitions | exit;
+        // a state can contain various programs and variable definitions
+        statecontentline =
+            entry
+            | preconditions
+            | run
+            | handle
+            | transitions
+            | exit
+            | contextmemvar[lambda::var(eol_skip_functor::skipeol) = false] >> commonparser->eos[lambda::var(eol_skip_functor::skipeol) = true];
 
         precondition = str_p( "precondition")
             >> conditionparser->parser()[ bind( &StateGraphParser::seenprecondition, this)] ;
