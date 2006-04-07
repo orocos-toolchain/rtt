@@ -336,7 +336,7 @@ Alex Russell
 	<answer>
 	  <para>
 	    You can download the 'taskintro' application from the download page.
-	    The RealTime Control Services manual gives a short walk-through in Chapter 5.
+	    The Component Builder's Manual gives a short walk-through in the first Chapter.
 	    You need to download, build 'control_services' and install Orocos on your system 
 	    to be able to compile the demo.
 	  </para>
@@ -367,7 +367,71 @@ Alex Russell
       </qandaentry>
     </qandadiv>
     <qandadiv>
+      <title>Runtime Problems/Crashes with Orocos</title>
+      <para>
+	This section covers 'general' causes of crashes.
+	If you are using RTAI, also check out the next Section.
+      </para>
+      <qandaentry>
+	<question>
+	  <para>The first message I get is 'Segmentation fault' !</para>
+	</question>
+	<answer>
+	  <para>Maybe you are mixing C++ libraries or compiler versions.
+	  In this case, the linker shows a warning, which most users ignore
+	  though. In order to check if your libraries are correctly setup, do:
+	  <screen>$ cd build/tests;
+$ ldd core-test
+        linux-gate.so.1 =>  (0xffffe000)
+        libcppunit-1.10.so.2 => /usr/lib/libcppunit-1.10.so.2 (0xb7f54000)
+        libdl.so.2 => /lib/tls/i686/cmov/libdl.so.2 (0xb7f4f000)
+        libpthread.so.0 => /lib/tls/i686/cmov/libpthread.so.0 (0xb7f3c000)
+        libstdc++.so.6 => /usr/lib/libstdc++.so.6 (0xb7e56000)
+        libm.so.6 => /lib/tls/i686/cmov/libm.so.6 (0xb7e33000)
+        libgcc_s.so.1 => /lib/libgcc_s.so.1 (0xb7e28000)
+        libc.so.6 => /lib/tls/i686/cmov/libc.so.6 (0xb7cfa000)
+        /lib/ld-linux.so.2 (0xb7fcc000)</screen> You should only see
+	<emphasis>one</emphasis> libstdc++ library listed, thus if you see:
+	<screen>  ....
+        libstdc++.so.6 => /usr/lib/libstdc++.so.6 (0xb78a9000)
+        libgcc_s.so.1 => /lib/libgcc_s.so.1 (0xb789e000)
+        libc.so.6 => /lib/tls/i686/cmov/libc.so.6 (0xb7770000)
+        libstdc++.so.5 => /usr/lib/libstdc++.so.5 (0xb76b6000)
+        ....</screen>
+	the double occurence of 'libstdc++' is the cause of the crash. </para>
+	<para>
+	  Compile all your libraries (cppunit, orocos,...) with the
+	  same compiler.
+	</para>
+	</answer>
+      </qandaentry>
+      <qandaentry>
+	<question>
+	  <para>I get sporadic crashes on my SMP or hyper-threading system.</para>
+	</question>
+	<answer>
+	  <para>Select the 'Build for SMP' option under 'Global Build Options'
+	  of the graphical configuration tool. This will enable the 'CONFIG_SMP'
+	  flag.</para>
+	</answer>
+	<answer>
+	  <para>With some distributions, you can disable the 'Hide
+	  System includes from Orocos' option in under 'OS Abstraction
+	  Layer' in the graphical configuration tool. Orocos requires some
+	  assembler instructions to be present (such as in atomic.h). Since
+	  most distributions do not deliver these files (correctly), Orocos
+	  uses a default implementation, which may not be correct for your
+	  platform. This flag tells Orocos to use the system headers. Orocos
+	  will not compile if they are not present or not fit.</para>
+	</answer>
+      </qandaentry>
+    </qandadiv>
+    <qandadiv>
       <title>Runtime Problems with RTAI/LXRT</title>
+      <para>This section documents causes of crashes that only occur when you
+      run orocos for LXRT and disapear when you run the same program under GNU/Linux.
+      See also the section above.
+      </para>
       <qandaentry>
 	<question>
 	  <para>The first message I get is 'Segmentation fault' !</para>
