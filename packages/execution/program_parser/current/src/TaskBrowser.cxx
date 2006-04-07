@@ -81,6 +81,10 @@ namespace ORO_Execution
     using namespace ORO_CoreLib;
     using namespace std;
 
+    string TaskBrowser::red("\e[m\e[1;31m");
+    string TaskBrowser::green("\e[m\e[1;32m");
+    string TaskBrowser::blue("\e[m\e[1;34m");
+
     /**
      * Our own defined "\n"
      */
@@ -107,7 +111,8 @@ namespace ORO_Execution
             }
 
         /* Get a line from the user. */
-        line_read = readline ( prompt.c_str() );
+        std::string p = coloroff + prompt + green;
+        line_read = readline ( p.c_str() );
 
         /* If the line has any text in it,
            save it on the history. */
@@ -186,6 +191,9 @@ namespace ORO_Execution
             tbcoms.push_back(".unloadProgram "); 
             tbcoms.push_back(".loadStateMachine "); 
             tbcoms.push_back(".unloadStateMachine "); 
+            tbcoms.push_back(".light"); 
+            tbcoms.push_back(".dark"); 
+            tbcoms.push_back(".nocolors"); 
 
             // then see which one matches the already typed line :
             for( std::vector<std::string>::iterator it = tbcoms.begin();
@@ -543,6 +551,8 @@ namespace ORO_Execution
         taskcontext = _c;
         rl_completion_append_character = '\0'; // avoid adding spaces
         rl_attempted_completion_function = &TaskBrowser::orocos_hmi_completion;
+        
+        this->setColorTheme( darkbg );
     }
 
     TaskBrowser::~TaskBrowser() {
@@ -551,7 +561,6 @@ namespace ORO_Execution
                 free (line_read);
             }
     }
-
 
     /**
      * @brief Call this method from ORO_main() to 
@@ -568,15 +577,15 @@ namespace ORO_Execution
             coloron <<
             "  This console reader allows you to browse and manipulate TaskContexts."<<nl<<
             "  You can type in a command, datasource, method, expression or change variables."<<nl;
-        cout <<"  (type '"<<underline<<"help"<<coloron<<"' for instructions)"<<nl;
+        cout <<"  (type '"<<underline<<"help"<<coloroff<<coloron<<"' for instructions)"<<nl;
         cout << "    TAB completion and HISTORY is available ('bash' like)" <<coloroff<<nl<<nl;
         while (1)
             {
-                cout << " In Task "<< taskcontext->getName() << ". (Status of last Command : ";
+                cout << " In Task "<<green<< taskcontext->getName() <<coloroff<< ". (Status of last Command : ";
                 if ( !taskcontext->engine()->commands()->isProcessed( lastc ) )
-                    cout << "queued )";
+                    cout << blue << "queued "<<coloroff<<")";
                 else {
-                    cout << (command == 0 ? "none )" : ( condition == 0 ? "done )"  : (accepted->get() == false ? "fail )" : ( condition->evaluate() == true ? "done )" : "busy )"))));
+                    cout << (command == 0 ? "none )" : ( condition == 0 ? (green+"done"+coloroff+" )")  : (accepted->get() == false ? (red+"fail"+coloroff+" )") : ( condition->evaluate() == true ? (green+"done"+coloroff+" )") : (blue+"busy"+coloroff+" )")))));
                     if ( condition != 0 && accepted->get() && condition->evaluate() ) {
                         // at this point the command is out of the Processor queue...
                         // dispose condition, condition might evaluate an invalidated object,
@@ -593,6 +602,7 @@ namespace ORO_Execution
 
                 // Call readline wrapper :
                 std::string command( rl_gets() ); // copy over to string
+                cout << coloroff;
                 if ( command == "quit" ) {
                     // Intercept no Ctrl-C
                     signal( SIGINT, SIG_DFL );
@@ -668,27 +678,42 @@ namespace ORO_Execution
         const char* wbg = "\033[02;";
         // colors in palettes:
         const char* r = "31m";
-        const char* g = "31m";
-        const char* b = "31m";
+        const char* g = "32m";
+        const char* b = "34m";
         const char* con = "31m";
-        const char* coff = "";
-        const char* und  = "";
+        const char* coff = "\e[m";
+        const char* und  = "\e[4m";
 
         switch (t)
             {
-            case ColorTheme::nocolors:
+            case nocolors:
                 green.clear();
                 red.clear();
                 blue.clear();
                 coloron.clear();
                 coloroff.clear();
                 underline.clear();
+                return;
                 break;
-            case ColorTheme::darkbg:
+            case darkbg:
+                green = dbg;
+                red = dbg;
+                blue = dbg;
+                coloron = dbg;
                 break;
-            case ColorTheme::whitebg:
+            case whitebg:
+                green = wbg;
+                red = wbg;
+                blue = wbg;
+                coloron = wbg;
                 break;
             }
+        green += g;
+        red += r;
+        blue += b;
+        coloron += con;
+        coloroff = coff;
+        underline = und;
     }
 
     void TaskBrowser::switchTaskContext(std::string& c) {
@@ -843,6 +868,21 @@ namespace ORO_Execution
                 cout << "Done."<<endl;
             else
                 cout << "Failed."<<endl;
+            return;
+        }
+        if ( instr == "dark") {
+            this->setColorTheme(darkbg);
+            cout << nl << "Setting Color Theme for "+green+"dark"+coloroff+" backgrounds."<<endl;
+            return;
+        }
+        if ( instr == "light") {
+            this->setColorTheme(whitebg);
+            cout << nl << "Setting Color Theme for "+green+"light"+coloroff+" backgrounds."<<endl;
+            return;
+        }
+        if ( instr == "nocolors") {
+            this->setColorTheme(nocolors);
+            cout <<nl << "Disabling all colors"<<endl;
             return;
         }
         cerr << "Unknown Browser Action : "<< act <<endl;
@@ -1268,6 +1308,10 @@ namespace ORO_Execution
         cout << "   For programs : 'E':Error, 'S':Stopped, 'R':Running, 'P':Paused"<<nl;
         cout << "   For state machines : <the same as programs> + 'A':Active, 'I':Inactive"<<nl;
 
+        cout <<titlecol("Changing Colors")<<nl;
+        cout << "  You can inform the TaskBrowser of your background color by typing "<<comcol(".dark")<<nl;
+        cout << "  "<<comcol(".light")<<", or "<<comcol(".nocolors")<<" to increase readability."<<nl;
+
     }
 
     void TaskBrowser::printProgram(const std::string& progname, int cl /*= -1*/) {
@@ -1370,36 +1414,42 @@ namespace ORO_Execution
         if ( this->findPeer( peerp+"." ) == 0 )
             return;
 
-        cout <<nl<<" In "<<peer->getName()<< " - Attributes :"<<nl;
-        PropertyBag* bag = peer->attributeRepository.properties();
+        cout <<nl<<" Listing "<< green << peer->getName()<<coloroff<< " :"<<nl;
+
         std::vector<std::string> objlist = peer->attributeRepository.attributes();
-        // Print Attributes:
-        for( std::vector<std::string>::iterator it = objlist.begin(); it != objlist.end(); ++it) {
-            DataSourceBase::shared_ptr pds = peer->attributeRepository.getValue(*it)->toDataSource();
-            cout << ((bag && bag->find(*it)) ? " (Property ) " : " (Attribute) ")
-                 << setw(11)<< pds->getType()<< " "
-                 << coloron <<setw(14)<<left<< *it << coloroff;
-            this->printResult( pds.get(), false ); // do not recurse
-            if (bag && bag->find(*it)) {
-                cout<<" ("<< bag->find(*it)->getDescription() <<')'<< nl;
-            } else
-                cout <<nl;
-        }
-        // Print Properties:
-        if (bag) {
-            for( PropertyBag::iterator it = bag->begin(); it != bag->end(); ++it) {
-                if (peer->attributeRepository.getValue( (*it)->getName() ) )
-                    continue; // atributes were already printed above
-                DataSourceBase::shared_ptr pds = (*it)->createDataSource();
-                cout << " (Property ) "
+        cout <<nl<<" Attributes   : ";
+        if ( !objlist.empty() ) {
+            cout << nl;
+            PropertyBag* bag = peer->attributeRepository.properties();
+            // Print Attributes:
+            for( std::vector<std::string>::iterator it = objlist.begin(); it != objlist.end(); ++it) {
+                DataSourceBase::shared_ptr pds = peer->attributeRepository.getValue(*it)->toDataSource();
+                cout << ((bag && bag->find(*it)) ? " (Property ) " : " (Attribute) ")
                      << setw(11)<< pds->getType()<< " "
-                     << coloron <<setw(14)<<left<< (*it)->getName() << coloroff;
+                     << coloron <<setw(14)<<left<< *it << coloroff;
                 this->printResult( pds.get(), false ); // do not recurse
-                cout<<" ("<< (*it)->getDescription() <<')'<< nl;
+                if (bag && bag->find(*it)) {
+                    cout<<" ("<< bag->find(*it)->getDescription() <<')'<< nl;
+                } else
+                    cout <<nl;
             }
+            // Print Properties:
+            if (bag) {
+                for( PropertyBag::iterator it = bag->begin(); it != bag->end(); ++it) {
+                    if (peer->attributeRepository.getValue( (*it)->getName() ) )
+                        continue; // atributes were already printed above
+                    DataSourceBase::shared_ptr pds = (*it)->createDataSource();
+                    cout << " (Property ) "
+                         << setw(11)<< pds->getType()<< " "
+                         << coloron <<setw(14)<<left<< (*it)->getName() << coloroff;
+                    this->printResult( pds.get(), false ); // do not recurse
+                    cout<<" ("<< (*it)->getDescription() <<')'<< nl;
+                }
+            }
+        } else {
+            cout <<coloron<< "(none)" << coloroff<<nl;
         }
 
-        cout <<nl<< " Objects      : "<<coloron;
         objlist = peer->commandFactory.getObjectList();
         std::vector<std::string> objlist2 = peer->dataFactory.getObjectList();
         objlist.insert(objlist.end(), objlist2.begin(), objlist2.end() );
@@ -1407,7 +1457,21 @@ namespace ORO_Execution
         objlist.insert(objlist.end(), objlist2.begin(), objlist2.end() );
         sort(objlist.begin(), objlist.end() );
         std::vector<std::string>::iterator new_end = unique(objlist.begin(), objlist.end());
-        copy(objlist.begin(), new_end, std::ostream_iterator<std::string>(cout, " "));
+        cout <<nl<< " Objects      : "<<coloron;
+        if ( !objlist.empty() ) {
+            copy(objlist.begin(), new_end, std::ostream_iterator<std::string>(cout, " "));
+        } else {
+            cout << "(none)" <<coloroff <<nl;
+        }
+
+        cout <<coloroff<<nl<< " Events       : "<<coloron;
+        objlist = peer->events()->getEvents();
+        if ( !objlist.empty() ) {
+            copy(objlist.begin(), objlist.end(), std::ostream_iterator<std::string>(cout, " "));
+        } else {
+            cout << "(none)";
+        }
+        cout << coloroff << nl;
 
         objlist = peer->getExecutionEngine()->getProgramProcessor()->getProgramList();
         if ( !objlist.empty() ) {

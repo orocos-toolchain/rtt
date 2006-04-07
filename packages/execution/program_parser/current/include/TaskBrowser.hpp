@@ -249,6 +249,21 @@ namespace ORO_Execution
          */
         static std::string coloroff;
 
+        /**
+         * The red color.
+         */
+        static std::string red;
+
+        /**
+         * The green color.
+         */
+        static std::string green;
+
+        /**
+         * The blue color.
+         */
+        static std::string blue;
+
         /** 
          * Evaluate command
          */
