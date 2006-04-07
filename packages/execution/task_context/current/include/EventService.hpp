@@ -132,6 +132,11 @@ namespace ORO_Execution
         bool hasEvent(const std::string& ename) const;
 
         /**
+         * Get a list of all the events.
+         */
+        std::vector<std::string> getEvents() const;
+
+        /**
          * Return the number of arguments a given event has.
          * @retval -1 The event does not exist.
          * @return The number of arguments (may be zero).

@@ -129,6 +129,17 @@ namespace ORO_Execution
         void doPrint( ORO_CoreLib::DataSourceBase* ds, bool recurse);
 
     public:
+
+        /**
+         * The kinds of color themes the TaskBrowser supports.
+         */
+        enum ColorTheme { nocolors, //!< Do not use colors
+                          darkbg, //!< Use colors suitable for a dark background
+                          whitebg  //!< Use colors suitable for a white background
+        };
+
+        void setColorTheme( ColorTheme t );
+
         /**
          * Switch to a peer TaskContext using a \a path . For
          * example, "mypeer.otherpeer.targetpeer".

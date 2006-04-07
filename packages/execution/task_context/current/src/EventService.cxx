@@ -52,6 +52,18 @@ namespace ORO_Execution
         return true;
     }
 
+    std::vector<std::string> EventService::getEvents() const
+    {
+        std::vector<std::string> elist;
+        Factories::const_iterator fit = fact.begin();
+        while ( fit != fact.end() )
+            {
+                elist.push_back( fit->first );
+                ++fit;
+            }
+        return elist;
+    }
+
     int EventService::arity(const std::string& name) const {
         if ( this->hasEvent(name) == false )
             return -1;

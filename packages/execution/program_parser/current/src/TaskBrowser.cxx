@@ -661,6 +661,36 @@ namespace ORO_Execution
         taskHistory.pop_front();
     }
 
+    void TaskBrowser::setColorTheme(ColorTheme t)
+    {
+        // background color palettes:
+        const char* dbg = "\033[01;";
+        const char* wbg = "\033[02;";
+        // colors in palettes:
+        const char* r = "31m";
+        const char* g = "31m";
+        const char* b = "31m";
+        const char* con = "31m";
+        const char* coff = "";
+        const char* und  = "";
+
+        switch (t)
+            {
+            case ColorTheme::nocolors:
+                green.clear();
+                red.clear();
+                blue.clear();
+                coloron.clear();
+                coloroff.clear();
+                underline.clear();
+                break;
+            case ColorTheme::darkbg:
+                break;
+            case ColorTheme::whitebg:
+                break;
+            }
+    }
+
     void TaskBrowser::switchTaskContext(std::string& c) {
         // if nothing new found, return.
         if ( this->findPeer( c + "." ) == 0  || peer == taskcontext )

@@ -119,7 +119,7 @@ namespace ORO_Execution
             // Then try to get the peer port's connection
             PortInterface* peerport = peer->ports()->getPort( (*it)->getName() );
             if ( !peerport ) {
-                Logger::log() <<Logger::Warning<< "Peer Task "<<peer->getName() <<" has no Port " << (*it)->getName() << Logger::endl;
+                Logger::log() <<Logger::Info<< "Peer Task "<<peer->getName() <<" has no Port " << (*it)->getName() << Logger::endl;
                 continue;
             }
 
