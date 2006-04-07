@@ -36,6 +36,7 @@ class Template_FactoryTest : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE( Template_FactoryTest );
     CPPUNIT_TEST( testMethods );
     CPPUNIT_TEST( testMethodsC );
+    CPPUNIT_TEST( testUserMethods );
     CPPUNIT_TEST( testData );
     CPPUNIT_TEST( testCommands );
     CPPUNIT_TEST( testCommandsC );
@@ -48,6 +49,7 @@ class Template_FactoryTest : public CppUnit::TestFixture
     TaskInterface* tsim;
     CommandProcessor processor;
     MethodFactoryInterface* createMethodFactory();
+    MethodFactoryInterface* createUserMethodFactory();
     DataSourceFactoryInterface* createDataSourceFactory();
     CommandFactoryInterface* createCommandFactory();
 
@@ -63,6 +65,12 @@ class Template_FactoryTest : public CppUnit::TestFixture
     double m2(int i, double d) { return -d2(i,d); }
     double m3(int i, double d, bool c) { return -d3(i,d,c); }
     double m4(int i, double d, bool c, std::string s) { return -d4(i,d,c,s); }
+
+    Double6D umd(Double6D d) { return d; }
+    const std::vector<double>& umcrv(const std::vector<double>& d) { return d; }
+    std::vector<double> umv( std::vector<double> d) { return d; }
+    const std::vector<double> umcv(const std::vector<double> d) { return d; }
+    std::vector<double>& umrv( std::vector<double>& d) { return d; }
 
     double d0() const { return 1.0; }
     double d1(int i) const { return 2.0; }
@@ -88,6 +96,7 @@ public:
 
     void testMethods();
     void testMethodsC();
+    void testUserMethods();
     void testData();
     void testCommands();
     void testCommandsC();

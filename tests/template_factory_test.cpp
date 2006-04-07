@@ -46,6 +46,7 @@ Template_FactoryTest::setUp()
 {
     tc =  new TaskContext( "root" );
     tc->methods()->registerObject("methods", this->createMethodFactory() );
+    tc->methods()->registerObject("umethods", this->createUserMethodFactory() );
     tc->commands()->registerObject("commands", this->createCommandFactory() );
     tc->datasources()->registerObject("data", this->createDataSourceFactory() );
     tc->events()->addEvent("FloatEvent", &t_event_float);
@@ -82,6 +83,19 @@ MethodFactoryInterface* Template_FactoryTest::createMethodFactory()
     dat->add( "m2", method( &Template_FactoryTest::m2, "M2","a","ad","a","ad") );
     dat->add( "m3", method( &Template_FactoryTest::m3, "M3","a","ad","a","ad","a","ad") );
     dat->add( "m4", method( &Template_FactoryTest::m4, "M4","a","ad","a","ad","a","ad","a","ad") );
+    return dat;
+}
+
+MethodFactoryInterface* Template_FactoryTest::createUserMethodFactory()
+{
+    TemplateMethodFactory< Template_FactoryTest >* dat =
+        newMethodFactory( this );
+
+    dat->add( "umd", method( &Template_FactoryTest::umd, "umd", "D0", "D0") );
+    dat->add( "umv", method( &Template_FactoryTest::umv, "umv", "V0", "V0") );
+    dat->add( "umcv", method( &Template_FactoryTest::umcv, "umv", "V0", "V0") );
+    dat->add( "umcrv", method( &Template_FactoryTest::umcrv, "umv", "V0", "V0") );
+    dat->add( "umrv", method( &Template_FactoryTest::umrv, "umv", "V0", "V0") );
     return dat;
 }
 
@@ -149,6 +163,46 @@ void Template_FactoryTest::testMethods()
         +" do methods.assert( r == -4.0 )\n"
         +" set r = methods.m4(1, 1.0, true, \"hello\")\n"
         +" do methods.assert( r == -5.0 )\n"
+        +"}";
+    stringstream progs(prog);
+    Parser::ParsedPrograms pg_list;
+    try {
+        pg_list = parser.parseProgram( progs, tc);
+    }
+    catch( const file_parse_exception& exc )
+        {
+            CPPUNIT_ASSERT_MESSAGE(exc.what(), false );
+        }
+    if ( pg_list.empty() )
+        {
+            CPPUNIT_ASSERT( false );
+        }
+    // execute
+    executePrograms( pg_list );
+}
+
+void Template_FactoryTest::testUserMethods()
+{
+    string prog = std::string("program x {\n")
+        +" var double6d din = double6d(0.0,1.0,2.0,3.0,4.0,5.0)\n"
+        +" var double6d dout\n"
+        +" set dout = umethods.umd(din)\n"
+        +" do methods.assert( din == dout )\n"
+        +" var array vin = array(4)\n"
+        +" for (var int i=0; i !=4; set i = i+1 )\n"
+        +"      set vin[i] = 1.0*i\n"
+        +" var array vout1\n"
+        +" var array vout2\n"
+        +" var array vout3\n"
+        +" var array vout4\n"
+        //+" set vout1 = umethods.umv(vin)\n"
+        //+" do methods.assert( vin == vout1 )\n"
+        //+" set vout2 = umethods.umcv(vin)\n"
+        //+" do methods.assert( vin == vout2 )\n"
+        +" set vout3 = umethods.umcrv(vin)\n"
+        +" do methods.assert( vin == vout3 )\n"
+        //+" set vout4 = umethods.umrv(vin)\n"
+        //+" do methods.assert( vin == vout4 )\n"
         +"}";
     stringstream progs(prog);
     Parser::ParsedPrograms pg_list;
