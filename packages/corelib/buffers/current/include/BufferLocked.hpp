@@ -138,6 +138,11 @@ namespace ORO_CoreLib
         bool empty() const {
             return buf.empty();
         }
+
+        bool full() const {
+            ORO_OS::MutexLock locker(lock);
+            return buf.size() ==  buf.capacity();
+        }
     private:
         std::vector<T> buf;
         mutable ORO_OS::Mutex lock;

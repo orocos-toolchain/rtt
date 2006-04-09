@@ -100,6 +100,11 @@ namespace ORO_CoreLib
             return bufs.isEmpty();
         }
 
+        bool full() const
+        {
+            return bufs.isFull();
+        }
+
         void clear()
         {
             Item* item;

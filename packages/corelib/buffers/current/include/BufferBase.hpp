@@ -62,9 +62,15 @@ namespace ORO_CoreLib
 
         /**
          * Check if this buffer is empty.
-         * @return true if empty
+         * @return true if size() == 0
          */
         virtual bool empty() const = 0;
+
+        /**
+         * Check if this buffer is full.
+         * @return true if size() == capacity()
+         */
+        virtual bool full() const = 0;
 
         /**
          * Clears all contents of this buffer.
