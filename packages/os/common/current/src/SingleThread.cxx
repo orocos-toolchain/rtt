@@ -215,7 +215,7 @@ namespace ORO_OS
 #ifdef OROPKG_CORELIB_REPORTING
         Logger::In in("~SingleThread");
 #endif
-        if ( this->stop() == false )
+        if ( this->isRunning() && this->stop() == false )
 #ifdef OROPKG_CORELIB_REPORTING
             Logger::log() << Logger::Error << "Failed to stop thread "<< taskName <<"."<<Logger::endl;
 #else
