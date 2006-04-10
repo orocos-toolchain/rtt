@@ -89,10 +89,16 @@ namespace ORO_OS
         Logger::log() << Logger::Info << "Sched Policy : RTAI Periodic Timer ticks at "<<ORODAT_OS_LXRT_PERIODIC_TICK<<" seconds." << Logger::endl;
 #endif
 #else
-        // XXX Debugging, this works
         // BE SURE TO SET rt_preempt_always(1) when using one shot mode
         rt_set_oneshot_mode();
+        // only call this function for RTAI 3.0 or older
+#if defined(CONFIG_RTAI_VERSION_MINOR) && defined(CONFIG_RTAI_VERSION_MAJOR)
+#  if CONFIG_RTAI_VERSION_MAJOR == 3 && CONFIG_RTAI_VERSION_MINOR == 0
         rt_preempt_always(1);
+#  endif
+#else
+        rt_preempt_always(1);
+#endif
         start_rt_timer(0);
 #ifdef OROPKG_CORELIB_REPORTING
         Logger::log() << Logger::Info << "Sched Policy : RTAI Periodic Timer runs in preemptive 'one-shot' mode." << Logger::endl;
@@ -119,4 +125,6 @@ namespace ORO_OS
     }
 
     MainThread* MainThread::mt;
+
+    MainThread::Functor::~Functor() {}
 }

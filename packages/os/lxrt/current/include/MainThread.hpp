@@ -114,6 +114,7 @@ namespace ORO_OS
          */
         struct Functor
         {
+            virtual ~Functor();
             virtual void operator() () const = 0;
         };
 
