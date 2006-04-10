@@ -36,6 +36,7 @@
 #include "Serial321.hpp"
 #include <boost/shared_ptr.hpp>
 #include <map>
+#include "SerialZXXZXZ.hpp"
 
 
 namespace ORO_KinDyn
