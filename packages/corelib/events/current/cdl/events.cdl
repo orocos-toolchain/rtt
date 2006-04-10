@@ -10,27 +10,18 @@ synchronous and asynchronous event handling."
     requires OROPKG_CORELIB
 
     implements OROINT_CORELIB_EVENT_INTERFACE
+    implements OROINT_CORELIB_COMPLETION_INTERFACE
 
     compile EventProcessor.cxx
     compile signal_base.cxx
     compile Handle.cxx
-
-    cdl_option OROSEM_CORELIB_EVENTS_ASYN {
-	display "Enable asynchronous event completion."
-	description "
-This means a part of the event (called the completion)
-can be deferred to another thread."
-	flavor bool
-	compile CompletionProcessor.cxx
-	implements OROINT_CORELIB_COMPLETION_INTERFACE
-    }
+    compile CompletionProcessor.cxx
 
     cdl_component OROPKG_CORELIB_EVENTS_CP {
 	display "Completion Processor Properties"
 	description "
 The Completion Processor is a thread which processes
 periodically deferred completion requests of events."
-        active_if OROSEM_CORELIB_EVENTS_ASYN
 	flavor none
 
         cdl_option OROSEM_CORELIB_EVENTS_AUTOSTART {
@@ -41,7 +32,7 @@ automatically in the background so that the application does
 no longer have to do so."
 	    flavor bool
 	    default_value 1
-    }
+        }
 
 	cdl_option ORODAT_CORELIB_EVENTS_CP_NAME {
 	    display "The name of the completion processor"
