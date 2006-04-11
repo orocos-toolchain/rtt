@@ -32,6 +32,7 @@
 #include <corelib/CommandInterface.hpp>
 
 #include "DataSource.hpp"
+#include "DataSourceAdaptor.hpp"
 #include "AssignVariableCommand.hpp"
 
 namespace ORO_Execution
@@ -199,7 +200,7 @@ namespace ORO_Execution
     CommandInterface* assignCommand( DataSourceBase::shared_ptr rhs, bool ) const
       {
         DataSourceBase::shared_ptr r( rhs );
-        DataSource<T>* t = dynamic_cast<DataSource<T>*>( r.get() );
+        DataSource<T>* t = AdaptDataSource<T>()( r );
         if ( t )
             return new detail::AssignVariableCommand<T>( data.get(), t );
         DataSource< typename AssignableDataSource<T>::const_reference_t >* ct

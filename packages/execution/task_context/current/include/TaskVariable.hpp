@@ -30,6 +30,7 @@
 
 #include "TaskAttribute.hpp"
 #include "AssignVariableCommand.hpp"
+#include "DataSourceAdaptor.hpp"
 
 namespace ORO_Execution
 {
@@ -63,7 +64,7 @@ namespace ORO_Execution
     CommandInterface* assignCommand( DataSourceBase::shared_ptr rhs, bool ) const
       {
         DataSourceBase::shared_ptr r( rhs );
-        DataSource<T>* t = dynamic_cast<DataSource<T>*>( r.get() );
+        DataSource<T>* t = AdaptDataSource<T>()( r );
         if ( ! t ) {
             throw bad_assignment();
         }
@@ -111,7 +112,7 @@ namespace ORO_Execution
     CommandInterface* assignCommand( DataSourceBase::shared_ptr rhs, bool ) const
       {
         DataSourceBase::shared_ptr r( rhs );
-        DataSource<T>* t = dynamic_cast<DataSource<T>*>( r.get() );
+        DataSource<T>* t = AdaptDataSource<T>()( r );
         if ( ! t )
           throw bad_assignment();
         return new AssignVariableCommand<T>( data.get(), t );
@@ -121,10 +122,10 @@ namespace ORO_Execution
       {
         DataSourceBase::shared_ptr r( rhs );
         DataSourceBase::shared_ptr i( index );
-        DataSource<SetType>* t = dynamic_cast<DataSource<SetType>*>( r.get() );
+        DataSource<SetType>* t = AdaptDataSource<SetType>()( r );
         if ( ! t )
           throw bad_assignment();
-        DataSource<Index>* ind = dynamic_cast<DataSource<Index>*>( i.get() );
+        DataSource<Index>* ind = AdaptDataSource<Index>()( i );
         if ( ! ind )
           throw bad_assignment();
         return new AssignIndexCommand<T, Index, SetType, Pred>(data.get(), ind ,t );
@@ -165,7 +166,7 @@ namespace ORO_Execution
     CommandInterface* assignCommand( DataSourceBase::shared_ptr rhs, bool ) const
       {
         DataSourceBase::shared_ptr r( rhs );
-        DataSource<T>* t = dynamic_cast<DataSource<T>*>( r.get() );
+        DataSource<T>* t = AdaptDataSource<T>()( r );
         if ( ! t )
           throw bad_assignment();
         return new AssignContainerCommand<T>( this->data.get(), t );
@@ -207,7 +208,7 @@ namespace ORO_Execution
     CommandInterface* assignCommand( DataSourceBase::shared_ptr rhs, bool ) const
       {
         DataSourceBase::shared_ptr r( rhs );
-        DataSource<T>* t = dynamic_cast<DataSource<T>*>( r.get() );
+        DataSource<T>* t = AdaptDataSource<T>()( r );
         if ( ! t )
           throw bad_assignment();
          // this single line causes the existence of this class. I wonder if I could

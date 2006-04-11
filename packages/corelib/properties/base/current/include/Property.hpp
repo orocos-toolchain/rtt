@@ -34,6 +34,7 @@
 #include "PropertyBag.hpp"
 #include "PropertyCommands.hpp"
 #include "PropertyDataSource.hpp"
+#include "DataSourceAdaptor.hpp"
 #include <boost/type_traits.hpp>
 
 #ifdef HAVE_STRING
@@ -250,7 +251,7 @@ namespace ORO_CoreLib
         }
 
         virtual CommandInterface* refreshCommand( DataSourceBase* other) {
-            DataSource<T>* origin = dynamic_cast< DataSource<T>* >( other );
+            DataSource<T>* origin = AdaptDataSource<T>()( DataSourceBase::shared_ptr(other) );
             if ( origin != 0 )
                 return new detail::RefreshPropertyFromDSCommand<T>(this, origin);
             DataSource< const_reference_t >* corigin
