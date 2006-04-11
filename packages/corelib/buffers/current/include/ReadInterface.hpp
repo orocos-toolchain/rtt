@@ -48,7 +48,7 @@ namespace ORO_CoreLib
         typedef T value_t;
         typedef typename boost::call_traits<T>::reference reference_t;
 
-        typedef unsigned int size_type;
+        typedef BufferBase::size_type size_type;
 
         /**
          * Read the oldest value from the buffer.

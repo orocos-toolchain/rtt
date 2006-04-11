@@ -46,7 +46,7 @@ namespace ORO_CoreLib
         typedef T value_t;
         typedef typename boost::call_traits<T>::param_type param_t;
 
-        typedef unsigned int size_type;
+        typedef BufferBase::size_type size_type;
 
         /**
          * Write a single value to the buffer.

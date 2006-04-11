@@ -39,7 +39,7 @@ namespace ORO_CoreLib
     class BufferBase
     {
     public:
-        typedef unsigned int size_type;
+        typedef int size_type;
 
         typedef boost::shared_ptr< BufferBase > shared_ptr;
 
