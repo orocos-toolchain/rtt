@@ -1,0 +1,208 @@
+
+cdl_package OROPKG_CORELIB_TASKS {
+    display "CoreLib Periodic Task/Thread Infrastructure"
+    description "
+This packages allows you to create Periodic Tasks and (realtime) Threads.
+Tasks of equal priority are serialised in the same thread.
+Therefore, Orocos specifies in advance three types of threads
+with different priorities and semantics. Each thread has a different
+type of periodic task associated with it. 
+"
+    include_dir corelib
+
+    parent OROPKG_CORELIB
+    requires OROPKG_CORELIB
+
+    compile PeriodicTask.cxx   TaskNonPreemptible.cxx  TaskPreemptible.cxx    ZeroTimeThread.cxx
+    compile NonRealTimeThread.cxx  TimerThread.cxx  TaskNonRealtime.cxx     ZeroLatencyThread.cxx
+    compile SimulationThread.cxx TaskSimulation.cxx TaskEventDriven.cxx    TaskNonPeriodic.cxx
+    compile TaskTimerSequencer.cxx TaskTimerOneShot.cxx TaskTimerLockFree.cxx
+    compile CoreRunnableInterface.cxx
+
+    cdl_option ORONUM_CORELIB_TASKS_PRIOLIMIT {
+	display "Maximum hard realtime thread priority"
+	description "
+Any thread with a priority higher than this number will not
+be running realtime by default. This is used by the 
+PriorityThread to determine if it should be a hard or soft
+realtime thread. (High priority means lower number)
+"
+	default_value 10
+    }
+
+    cdl_option OROSEM_CORELIB_TASKS_AUTOSTART {
+	display "Automatically start Orocos threads"
+	description "
+This option will automatically start the predefined Orocos threads
+(listed below) on program startup and stop them on program exit.
+A Task itself must still be started or stopped by the program.
+This wil NOT START the SIMULATIONTHREAD. It would eat all your
+cpu cycles if so. You have to start this thread in your code.
+"
+	flavor bool
+	default_value 1
+    }
+
+    cdl_component OROPKG_CORELIB_TASKS_ZTT {
+	display "Properties of the ZeroTimeThread"
+        description "
+The Zero Time Thread is a thread which tries to execute
+its tasks in, ideally, zero time. Execution time is only
+minimal if it is the highest priority thread.
+The Task associated with the ZeroTimeThread is the
+TaskNonPreemptible."
+	flavor none
+	cdl_option ORODAT_CORELIB_TASKS_ZTT_NAME {
+	    display "The name of the ZeroTimeThread"
+	    description "
+The name must be unique with respect to other threads."
+	    flavor data
+	    default_value {"\"ZeroTimeThread\""}
+	}
+
+	cdl_option ORONUM_CORELIB_TASKS_ZTT_PRIORITY {
+	    display "The priority of the ZeroTimeThread"
+            description "
+This should be the highest priority thread in your system,
+thus having the lowest value (e.g. 0)."
+	    flavor data
+	    default_value 0
+            legal_values 0 to 255
+	}
+
+	cdl_option ORONUM_CORELIB_TASKS_ZTT_PERIOD {
+	    display "The period of the ZeroTimeThread in sec"
+	    description "
+Indicates the time between processing all tasks. No 
+TaskNonPreemptible can have a smaller periodicity
+(thus higher frequency) than this value."
+	    flavor data
+	    default_value 0.01
+	}
+    }
+
+    cdl_component OROPKG_CORELIB_TASKS_ZLT {
+	display "Properties of the ZeroLatencyThread"
+        description "
+The Zero Latency Thread is a thread which tries to execute
+its tasks with, ideally, no additional latency
+(meaning, without missing deadlines). This can be satisfied if it
+can only be preempted by the ZeroTimeThread (which ideally
+takes no time). Thus the ZeroLatencyThread must be the
+second highest priority thread.
+The Task associated with the ZeroLatencyThread is the
+TaskPreemptible."
+	flavor none
+	cdl_option ORODAT_CORELIB_TASKS_ZLT_NAME {
+	    display "The name of the ZeroLatencyThread"
+	    description "
+The name must be unique with respect to other threads."
+	    flavor data
+	    default_value {"\"ZeroLatencyThread\""}
+	}
+
+	cdl_option ORONUM_CORELIB_TASKS_ZLT_PRIORITY {
+	    display "The priority of the ZeroLatencyThread"
+            description "
+This should be the second highest priority thread in your system.
+Having the one but highest priority (e.g. 1)."
+	    flavor data
+	    default_value 1
+            legal_values (ORONUM_CORELIB_TASKS_ZTT_PRIORITY+1) to 255
+	}
+	cdl_option ORONUM_CORELIB_TASKS_ZLT_PERIOD {
+	    display "The period of the ZeroLatencyThread in sec"
+	    description "
+Indicates the time between processing all tasks. No 
+TaskPreemptible can have a smaller periodicity
+(thus higher frequency) than this value."
+	    flavor data
+	    default_value 0.05
+	}
+    }
+
+    cdl_component OROPKG_CORELIB_TASKS_NRT {
+	display "Properties of the NonRealTimeThread"
+	description "
+When the properties are disabled, It takes over the properties of the Events
+CompletionProcessor.
+This third type of thread allows periodic execution
+of non realtime tasks. It can be preempted by the
+ZeroTime and ZeroLatency Threads. It is hard to predict
+if the tasks in this thread will meet their deadlines.
+The Task of the NonRealTimeThread is the TaskNonRealTime.
+"
+	flavor none
+	active_if !OROSEM_CORELIB_TASKS_INTEGRATE_COMPLETION
+
+	cdl_option ORODAT_CORELIB_TASKS_NRT_NAME {
+	    display "The name of the NonRealTimeThread"
+	    description "
+The name must be unique with respect to other threads."
+	    flavor data
+	    default_value {"\"NonRealTimeThread\""}
+	}
+
+	cdl_option ORONUM_CORELIB_TASKS_NRT_PRIORITY {
+	    display "The priority of the NonRealTimeThread"
+            description "
+This should be a lower priority thread compared to the
+ZeroTime and ZeroLatency threads,
+thus having the lowest value (e.g. 2)."
+	    flavor data
+	    default_value 2
+            legal_values (ORONUM_CORELIB_TASKS_ZLT_PRIORITY+1) to 255
+	}
+	cdl_option ORONUM_CORELIB_TASKS_NRT_PERIOD {
+	    display "The period of the NonRealTimeThread in sec"
+	    description "
+Indicates the time between processing all tasks. No 
+TaskNonRealTime can have a smaller periodicity
+(thus higher frequency) than this value."
+	    flavor data
+	    default_value 0.1
+	}
+    }
+    cdl_component OROPKG_CORELIB_TASKS_SIM {
+	display "Properties of the SimulationThread"
+        description "
+The Simulation Thread is a thread which tries to execute
+its tasks as fast as possible. It sets the system clock
+before each task is started such that the simulation
+is transparant for the tasks.
+The Task associated with the SimulationThread is the
+TaskSimulation."
+	flavor none
+	cdl_option ORODAT_CORELIB_TASKS_SIM_NAME {
+	    display "The name of the SimulationThread"
+	    description "
+The name must be unique with respect to other threads."
+	    flavor data
+	    default_value {"\"SimulationThread\""}
+	}
+
+	cdl_option ORONUM_CORELIB_TASKS_SIM_PRIORITY {
+	    display "The priority of the SimulationThread"
+            description "
+This value is quite arbitrary, but might be of importance
+if other threads communicate with this thread. In a fixed
+priority scheme, no thread will with lower priority."
+	    flavor data
+	    default_value 255
+            legal_values 0 to 255
+	}
+
+	cdl_option ORONUM_CORELIB_TASKS_SIM_PERIOD {
+	    display "The period of the SimulationThread in sec"
+	    description "
+Indicates the minimum period of a task. No 
+TaskSimulation can have a smaller periodicity
+(thus higher frequency) than this value."
+	    flavor data
+	    default_value 0.001
+	}
+    }
+
+
+}
+
