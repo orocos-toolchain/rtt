@@ -411,14 +411,15 @@ void BuffersTest::testMemoryPool()
     for (MemoryPool<Dummy>::size_type i = 0; i <3*sz; ++i ) {
         // MemoryPool:
         std::vector<Dummy>* v = vpool->allocate();
-        CPPUNIT_ASSERT_EQUAL( sz, v->size() );
-        CPPUNIT_ASSERT_EQUAL( sz, v->capacity() );
+        std::vector<Dummy>::size_type szv = QS;
+        CPPUNIT_ASSERT_EQUAL( szv, v->size() );
+        CPPUNIT_ASSERT_EQUAL( szv, v->capacity() );
         CPPUNIT_ASSERT(vpool->deallocate( v ));
 
         // FixedSizeMemoryPool:
         v = fvpool->allocate();
-        CPPUNIT_ASSERT_EQUAL( sz, v->size() );
-        CPPUNIT_ASSERT_EQUAL( sz, v->capacity() );
+        CPPUNIT_ASSERT_EQUAL( szv, v->size() );
+        CPPUNIT_ASSERT_EQUAL( szv, v->capacity() );
         CPPUNIT_ASSERT( fvpool->deallocate( v ) );
     }
 
@@ -482,9 +483,10 @@ void BuffersTest::testMemoryPool()
     for (MemoryPool<Dummy>::size_type i = 0; i < sz+ 2*sz; ++i ) {
         // MemoryPool:
         std::vector<Dummy>* v = vpool->allocate();
+        std::vector<Dummy>::size_type szv = QS;
         vv.push_back( v );
-        CPPUNIT_ASSERT_EQUAL( sz, v->size() );
-        CPPUNIT_ASSERT_EQUAL( sz, v->capacity() );
+        CPPUNIT_ASSERT_EQUAL( szv, v->size() );
+        CPPUNIT_ASSERT_EQUAL( szv, v->capacity() );
     }
     CPPUNIT_ASSERT_EQUAL( MemoryPool<Dummy>::size_type(0), vpool->size() );
     for (MemoryPool<Dummy>::size_type i = 0; i < sz+ 2*sz; ++i ) {

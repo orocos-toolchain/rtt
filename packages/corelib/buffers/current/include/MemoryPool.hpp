@@ -52,6 +52,12 @@ namespace ORO_CoreLib
     template<class T>
     class MemoryPool
     {
+    public:
+        typedef T* pointer;
+
+        typedef unsigned int size_type;
+
+    protected:
         struct Item;
         /** The pool stores memory as void pointers */
         typedef AtomicQueue<void*> QueueType;
@@ -84,7 +90,7 @@ namespace ORO_CoreLib
         /**
          * For each additional pool, also store the location of the Item pointer.
          */
-        void make_pool( size_t growsize )
+        void make_pool( size_type growsize )
         {
             Item* newit = new Item[growsize];
             mpool.push_back( std::make_pair(QueueTypePtr(new QueueType( growsize )), newit) );
@@ -95,10 +101,6 @@ namespace ORO_CoreLib
             assert( mpool.back().first->size() == growsize );
         }
     public:
-        typedef T* pointer;
-
-        typedef unsigned int size_type;
-
         /**
          * Initialise the memory pool and already allocate some
          * memory.
