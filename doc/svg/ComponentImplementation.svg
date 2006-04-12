@@ -14,7 +14,7 @@
    id="svg4555"
    sodipodi:version="0.32"
    inkscape:version="0.42"
-   sodipodi:docbase="/home/sspr/Projecten/OpenRTC/Eindhoven06"
+   sodipodi:docbase="/home/sspr/src/orocos-trunk/doc/svg"
    sodipodi:docname="ComponentImplementation.svg"
    inkscape:export-filename="/home/sspr/Projecten/OpenRTC/Eindhoven06/ComponentImplementation.png"
    inkscape:export-xdpi="90.000000"
@@ -184,7 +184,7 @@
          x="240.93475"
          y="580.57129">Component</tspan></text>
     <rect
-       style="fill:#ffffff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:8.6999998;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:0.80000001;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
+       style="fill:#ffbf3e;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:8.6999998;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:0.80000001;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
        id="rect2274"
        width="359.80609"
        height="355.00867"
@@ -272,7 +272,7 @@
        sodipodi:nodetypes="cccc" />
     <path
        sodipodi:type="arc"
-       style="opacity:1.0000000;color:#000000;fill:#0000ff;fill-opacity:0.63687152;fill-rule:nonzero;stroke:#000000;stroke-width:1.5612019;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000;visibility:visible;display:inline;overflow:visible"
+       style="opacity:1.0000000;color:#000000;fill:#0086ff;fill-opacity:1.0000000;fill-rule:nonzero;stroke:#000000;stroke-width:1.5612019;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000;visibility:visible;display:inline;overflow:visible"
        id="path7945"
        sodipodi:cx="556.55652"
        sodipodi:cy="178.88313"
@@ -404,10 +404,6 @@
        style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:3.0000000;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow2Mend);stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
        d="M 554.91918,199.24578 L 500.04741,199.24578"
        id="path9565" />
-    <path
-       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:3.0000000;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow2Mend);stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
-       d="M 493.76535,482.91964 L 548.63712,482.91964"
-       id="path9567" />
     <text
        xml:space="preserve"
        style="font-size:28.000000px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Charter"
@@ -424,19 +420,11 @@
          y="177.17255"
          id="tspan9573">Communication</tspan></text>
     <image
-       id="image9617"
-       height="102.00000"
-       width="143.00000"
-       sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.png"
-       xlink:href="gear-image.png"
-       x="731.97949"
-       y="176.87576" />
-    <image
        id="image9622"
        height="102.00000"
        width="143.00000"
        sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.png"
-       xlink:href="gear-image.png"
+       xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.png"
        x="728.30182"
        y="357.12845" />
     <rect
@@ -446,14 +434,6 @@
        height="139.13913"
        x="820.13702"
        y="264.93622" />
-    <image
-       id="image9620"
-       height="102.00000"
-       width="143.00000"
-       sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.png"
-       xlink:href="gear-image.png"
-       x="814.28717"
-       y="280.74020" />
     <text
        xml:space="preserve"
        style="font-size:28.000000px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Charter"
@@ -498,5 +478,21 @@
          id="tspan6595"
          x="221.46213"
          y="485.49161">S4</tspan></text>
+    <image
+       y="180.22694"
+       x="741.96277"
+       xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/ACMotor.jpg"
+       sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/ACMotor.jpg"
+       width="126.86277"
+       height="76.625122"
+       id="image2298" />
+    <image
+       y="268.08511"
+       x="809.87036"
+       xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/Meter_1.png"
+       sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/Meter_1.png"
+       width="154.51962"
+       height="122.73452"
+       id="image2812" />
   </g>
 </svg>
