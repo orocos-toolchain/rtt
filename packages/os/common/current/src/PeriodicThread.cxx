@@ -500,7 +500,7 @@ namespace ORO_OS
         if ( isRunning() )
             return false;
 
-        period = long(s) + long( (s - long(s) )* 1000*1000*1000);
+        period = Seconds_to_nsecs(s);
 
         // signal change to thread.
         rtos_sem_signal(&sem);
