@@ -19,7 +19,7 @@
  
 
 #include "tasks_multiple_test.hpp"
-#include <corelib/TaskTimerInterface.hpp>
+#include <corelib/TimerInterface.hpp>
 #include <corelib/ZeroTimeThread.hpp>
 #include <corelib/ZeroLatencyThread.hpp>
 #include <corelib/NonRealTimeThread.hpp>
@@ -30,20 +30,20 @@ using namespace ORO_CoreLib;
 using namespace ORO_CoreLib::detail;
 
 // Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( TasksMultipleTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( ActivitiesMultipleTest );
 
-    void TasksMultipleTest::setUp()
+    void ActivitiesMultipleTest::setUp()
     {
-        nr_of_p = TaskTimerInterface::MAX_TASKS/2;
-        nr_of_np = TaskTimerInterface::MAX_TASKS/2;
+        nr_of_p = TimerInterface::MAX_ACTIVITIES/2;
+        nr_of_np = TimerInterface::MAX_ACTIVITIES/2;
         runningP = 1; 
         runningNp = 1; // see step() why it's 1 and not 0
-        errInitNP = "Not all TaskNonPreemptible::init() or finalize() functions were called\n";
-        errStepNP = "Not all TaskNonPreemptible::step() functions were called\n";
-        errFinNP = "Not all TaskNonPreemptible::finalize() or finalize() functions were called\n";
-        errInitP ="Not all TaskPreemptible::init() functions were called\n";
-        errStepP ="Not all TaskPreemptible::step() functions were called\n";
-        errFinP ="Not all TaskPreemptible::finalize() functions were called\n";
+        errInitNP = "Not all NonPreemptibleActivity::init() or finalize() functions were called\n";
+        errStepNP = "Not all NonPreemptibleActivity::step() functions were called\n";
+        errFinNP = "Not all NonPreemptibleActivity::finalize() or finalize() functions were called\n";
+        errInitP ="Not all PreemptibleActivity::init() functions were called\n";
+        errStepP ="Not all PreemptibleActivity::step() functions were called\n";
+        errFinP ="Not all PreemptibleActivity::finalize() functions were called\n";
 
         np_tasks.reserve(nr_of_np); 
         p_tasks.reserve(nr_of_p);
@@ -62,7 +62,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( TasksMultipleTest );
         nr_of_np = np_tasks.size();
     }
 
-    void TasksMultipleTest::testMultiple()
+    void ActivitiesMultipleTest::testMultiple()
     {
         for (NPI i=np_tasks.begin(); i != np_tasks.end(); ++i) 
             {
@@ -153,7 +153,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( TasksMultipleTest );
         //CPPUNIT_ASSERT_MESSAGE(errFinP, totFins == (nr_of_p-2) * 10 );
     }
 
-    void TasksMultipleTest::tearDown()
+    void ActivitiesMultipleTest::tearDown()
     {
         // stop to be sure that task does not access memory during destruction.
         for (NPI i=np_tasks.begin(); i != np_tasks.end(); ++i) 

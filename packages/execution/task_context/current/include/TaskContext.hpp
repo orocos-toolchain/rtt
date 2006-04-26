@@ -54,7 +54,7 @@ namespace ORO_Execution
      * can be queried by any peer TaskContext at any time.
      *
      * The ExecutionEngine::step() must be invoked seperately from a
-     * PeriodicTask or other TaskInterface implementation, as long as
+     * PeriodicTask or other ActivityInterface implementation, as long as
      * that Task is not started, this TaskContext will not accept any
      * commands.  In this way, the user of this class can determine
      * himself at which point and at which moment remote commands and

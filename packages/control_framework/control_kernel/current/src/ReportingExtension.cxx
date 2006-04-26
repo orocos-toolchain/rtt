@@ -154,14 +154,14 @@ namespace ORO_ControlKernel
         }
     }
 
-//     TaskInterface* ReportingExtension::getTask() const
+//     ActivityInterface* ReportingExtension::getActivity() const
 //     {
-//         return base->getTask();
+//         return base->getActivity();
 //     }
     
-//     void ReportingExtension::setTask( TaskInterface* task )
+//     void ReportingExtension::setActivity( ActivityInterface* task )
 //     {
-//         base->setTask( task );
+//         base->setActivity( task );
 //     }
 
     bool ReportingExtension::initialize()
@@ -223,7 +223,7 @@ namespace ORO_ControlKernel
                                 tmp_run = tmp_ptr;
                                 reporter = tmp_ptr;
                             }
-                        reporterTask = new TaskNonRealTime(period, tmp_run);
+                        reporterTask = new NonRealTimeActivity(period, tmp_run);
                         serverOwner = true;
                     }
             }
@@ -231,7 +231,7 @@ namespace ORO_ControlKernel
             Logger::log() << Logger::Info
                           << "Re-using running ReportServer \""
                           << reportServer <<"\". Properties for Reporting of this Kernel have no effect !"<< Logger::endl;
-            if ( tmp_run->getTask()->isRunning() ) {
+            if ( tmp_run->getActivity()->isRunning() ) {
                 Logger::log() << Logger::Warning <<"ReportServer "<<reportServer<<" already running."<<Logger::nl;
                 Logger::log() << "The data of this kernel will only be reported after a "<<reportServer
                               << ".stop() and then "<<reportServer<<".start() again." <<Logger::nl;
@@ -532,7 +532,7 @@ namespace ORO_ControlKernel
 
     bool ReportingExtension::reportComponent( const std::string& comp )
     {
-        if ( comp_map.count( comp ) == 0 || (kernel()->getTask() && kernel()->getTask()->isRunning()) )
+        if ( comp_map.count( comp ) == 0 || (kernel()->getActivity() && kernel()->getActivity()->isRunning()) )
             return false;
         rep_comps.push_back( comp );
         return true;
@@ -540,7 +540,7 @@ namespace ORO_ControlKernel
 
     bool ReportingExtension::reportDataObject( const std::string& dob )
     {
-        if ( kernel()->getTask() && kernel()->getTask()->isRunning() )
+        if ( kernel()->getActivity() && kernel()->getActivity()->isRunning() )
             return false;
         rep_dos.push_back( dob );
         return true;
@@ -548,7 +548,7 @@ namespace ORO_ControlKernel
 
     bool ReportingExtension::unreportDataObject( const std::string& dob )
     {
-        if ( kernel()->getTask() && kernel()->getTask()->isRunning() )
+        if ( kernel()->getActivity() && kernel()->getActivity()->isRunning() )
             return false;
         RepList::iterator it = find( rep_dos.begin(), rep_dos.end(), dob );
         if ( it != rep_dos.end() ) {
@@ -560,7 +560,7 @@ namespace ORO_ControlKernel
 
     bool ReportingExtension::unreportComponent( const std::string& comp )
     {
-        if ( kernel()->getTask() && kernel()->getTask()->isRunning() )
+        if ( kernel()->getActivity() && kernel()->getActivity()->isRunning() )
             return false;
         RepList::iterator it = find( rep_comps.begin(), rep_comps.end(), comp );
         if ( it != rep_comps.end() ) {

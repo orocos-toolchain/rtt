@@ -214,7 +214,7 @@ namespace ORO_Execution
         ORO_CoreLib::Handle setupAsyn(const std::string& ename,
                                       boost::function<void(void)> afunc,          
                                       const std::vector<DataSourceBase::shared_ptr>& args,
-                                      ORO_CoreLib::TaskInterface* t,
+                                      ORO_CoreLib::ActivityInterface* t,
                                       ORO_CoreLib::EventProcessor::AsynStorageType s_type = ORO_CoreLib::EventProcessor::OnlyFirst) const;
         
         ORO_CoreLib::Handle setupAsyn(const std::string& ename,
@@ -245,7 +245,7 @@ namespace ORO_Execution
                                          boost::function<void(void)> sfunc,
                                          boost::function<void(void)> afunc,
                                          const std::vector<DataSourceBase::shared_ptr>& args,
-                                         ORO_CoreLib::TaskInterface* t,
+                                         ORO_CoreLib::ActivityInterface* t,
                                          ORO_CoreLib::EventProcessor::AsynStorageType s_type = ORO_CoreLib::EventProcessor::OnlyFirst) const;
 
         ORO_CoreLib::Handle setupSynAsyn(const std::string& ename,

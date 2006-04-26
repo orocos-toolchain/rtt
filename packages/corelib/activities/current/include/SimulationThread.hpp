@@ -36,21 +36,25 @@
 namespace ORO_CoreLib
 {
 
-    class TaskSimulation;
+    class SimulationActivity;
     class TimeService;
     /**
-     * This thread is the simulated realtime thread in the
-     * Orocos system. It behaves (to the TaskSimulation) like a perfect scheduler.
+     * This thread is the simulated real-time periodic thread in the
+     * Orocos system. It behaves (to the SimulationActivity) like a
+     * perfect scheduler by executing all activities one after the
+     * other in a continuous loop and updating the system time, such
+     * that it appears to the activities as they are executed periodically.
      * 
-     * It Uses the Singleton pattern, since there will be only one.
+     * All your activities in the same program must be a SimulationActivity for this
+     * to work, since the TimeService global time is updated when this thread runs.
      *
-     * @see PeriodicThread, ZeroTimeThread
+     * @see TimerThread, ZeroTimeThread
      */
     class SimulationThread
         : public TimerThread
     {
     public:
-        static SimulationThread* Instance();
+        static TimerThreadPtr Instance();
 
         /**
          * Releases the SimulationThread
@@ -65,17 +69,24 @@ namespace ORO_CoreLib
          */
         virtual ~SimulationThread();
 
-        using TimerThread::start;
+        virtual bool start()
+        {
+            maxsteps_ = 0;
+            return TimerThread::start();
+        }
 
         /**
          * Only run the simulation \a maxsteps time steps, then stop the SimulationThread.
+         * @return false if maxsteps == 0 or if thread could not be started.
          */
         virtual bool start(unsigned int maxsteps)
         {
+            if (maxsteps == 0)
+                return false;
             maxsteps_ = maxsteps;
             return TimerThread::start();
         }
-                           
+
     protected:
         bool initialize();
         void step();
@@ -91,7 +102,7 @@ namespace ORO_CoreLib
         /**
          * Our only instance of the SimulationThread
          */
-        static SimulationThread* _instance;
+        static TimerThreadPtr _instance;
 
         /**
          * The System clock.

@@ -319,7 +319,7 @@ void ProgramTest::testProgramTry()
     this->finishProgram( &gtc, "progtry");
 }
 
-void ProgramTest::testTaskProgram()
+void ProgramTest::testProgramTask()
 {
     // see if checking a remote condition works
     string prog = string("export function foo {\n")

@@ -32,10 +32,10 @@
 #include "corelib/Logger.hpp"
 #endif
 
-#include "corelib/TaskNonRealTime.hpp"
-#include "pkgconf/corelib_tasks.h"
+#include "corelib/NonRealTimeActivity.hpp"
+#include "pkgconf/corelib_activities.h"
 
-#ifdef OROSEM_CORELIB_TASKS_AUTOSTART
+#ifdef OROSEM_CORELIB_ACTIVITIES_AUTOSTART
 #include <os/StartStopManager.hpp>
 namespace ORO_CoreLib
 {
@@ -61,41 +61,36 @@ namespace ORO_CoreLib
 namespace ORO_CoreLib
 {
 
-    NonRealTimeThread* NonRealTimeThread::cp;
+    TimerThreadPtr NonRealTimeThread::cp;
 
-    NonRealTimeThread* NonRealTimeThread::Instance()
+    TimerThreadPtr NonRealTimeThread::Instance()
     {
-        if ( cp == 0 )
+        if ( !cp )
             {
-                cp = new NonRealTimeThread();
+                cp.reset( new NonRealTimeThread() );
             }
         return cp;
     }
 
     bool NonRealTimeThread::Release()
     {
-        if ( cp != 0 )
-            {
-                delete cp;
-                cp = 0;
-                return true;
-            }
-        return false;
+        cp.reset();
+        return true;
     }
 
     NonRealTimeThread::NonRealTimeThread()
-        : TimerThread(ORONUM_CORELIB_TASKS_NRT_PRIORITY, ORODAT_CORELIB_TASKS_NRT_NAME, ORONUM_CORELIB_TASKS_NRT_PERIOD )
+        : TimerThread(ORONUM_CORELIB_ACTIVITIES_NRT_PRIORITY, ORODAT_CORELIB_ACTIVITIES_NRT_NAME, ORONUM_CORELIB_ACTIVITIES_NRT_PERIOD )
     {
 #ifdef OROPKG_CORELIB_REPORTING
-        Logger::log() << Logger::Info << ORODAT_CORELIB_TASKS_NRT_NAME <<" created with "<< ORONUM_CORELIB_TASKS_NRT_PERIOD <<"s periodicity";
-        Logger::log() << Logger::Info << " and priority " << ORONUM_CORELIB_TASKS_NRT_PRIORITY << Logger::endl;
+        Logger::log() << Logger::Info << ORODAT_CORELIB_ACTIVITIES_NRT_NAME <<" created with "<< ORONUM_CORELIB_ACTIVITIES_NRT_PERIOD <<"s periodicity";
+        Logger::log() << Logger::Info << " and priority " << ORONUM_CORELIB_ACTIVITIES_NRT_PRIORITY << Logger::endl;
 #endif
     }
 
     NonRealTimeThread::~NonRealTimeThread()
     {
 #ifdef OROPKG_CORELIB_REPORTING
-        Logger::log() << Logger::Debug << ORODAT_CORELIB_TASKS_NRT_NAME <<" destructor." << Logger::endl;
+        Logger::log() << Logger::Debug << ORODAT_CORELIB_ACTIVITIES_NRT_NAME <<" destructor." << Logger::endl;
 #endif
     }
 }

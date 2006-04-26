@@ -21,9 +21,9 @@
 #include <corelib/Logger.hpp>
 #include <corelib/PriorityThread.hpp>
 #include <corelib/RunnableInterface.hpp>
-#include <corelib/TaskSimulation.hpp>
+#include <corelib/SimulationActivity.hpp>
 #include <corelib/SimulationThread.hpp>
-#include <corelib/TaskNonPeriodic.hpp>
+#include <corelib/NonPeriodicActivity.hpp>
 
 #include <execution/EventService.hpp>
 #include <execution/DataSourceGenerator.hpp>

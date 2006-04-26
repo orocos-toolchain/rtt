@@ -121,9 +121,9 @@
 	      <classname>ORO_CoreLib::PeriodicTask</classname>::stop()</entry>
 	      <entry>
 		<para>( Applies to <classname>ORO_CoreLib::PriorityTask</classname>, 
-		<classname>ORO_CoreLib::TaskNonRealtime</classname>, 
-		<classname>ORO_CoreLib::TaskPreemptible</classname> and
-		<classname>ORO_CoreLib::TaskNonPreemptible</classname>).
+		<classname>ORO_CoreLib::NonRealtimeActivity</classname>, 
+		<classname>ORO_CoreLib::PreemptibleActivity</classname> and
+		<classname>ORO_CoreLib::NonPreemptibleActivity</classname>).
 		Uses Mutex for serialising concurrent access.
 		Alternative implementation are incorrect,
 		since stop() guarantees that finalize() will

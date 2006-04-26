@@ -75,7 +75,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
 
     ExecutionExtension::~ExecutionExtension()
     {
-        tc.engine()->setTask( 0 );
+        tc.engine()->setActivity( 0 );
     }
 
     using std::cerr;
@@ -85,7 +85,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
     {
         Logger::In in("ExecutionExtension");
         initKernelCommands();
-        tc.engine()->setTask( this->kernel()->getTask() );
+        tc.engine()->setActivity( this->kernel()->getActivity() );
         bool res = tc.engine()->initialize();
         if ( res == false ) {
             Logger::log() << Logger::Error
@@ -177,7 +177,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
             def->stop();
             def->deactivate();
         }
-        //tc.engine()->setTask(0);
+        //tc.engine()->setActivity(0);
         tc.engine()->finalize();
     }
 

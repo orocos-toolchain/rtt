@@ -37,7 +37,7 @@ namespace ORO_CoreLib
         if ( this->owner_task && this->owner_task->isRunning() ) {
             Logger::In in("~RunnableInterface()");
             Logger::log() << Logger::Critical
-                    <<"Task still running, but RunnableInterface destroyed! Stop the task"
+                    <<"Activity still running, but RunnableInterface destroyed! Stop the task"
                     " before deleting this object. Crash may be imminent."<<Logger::endl;
         }
         if ( this->owner_task )
@@ -46,9 +46,9 @@ namespace ORO_CoreLib
     
   RunnableInterface::RunnableInterface() : owner_task(0) {}
 
-  TaskInterface* RunnableInterface::getTask() const { return owner_task; }
+  ActivityInterface* RunnableInterface::getActivity() const { return owner_task; }
 
-  void RunnableInterface::setTask( TaskInterface* task ) {
+  void RunnableInterface::setActivity( ActivityInterface* task ) {
     owner_task = task;
   }
  

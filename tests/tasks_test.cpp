@@ -25,8 +25,9 @@
 #include <corelib/ZeroTimeThread.hpp>
 #include <corelib/ZeroLatencyThread.hpp>
 #include <corelib/NonRealTimeThread.hpp>
-#include <corelib/PriorityThread.hpp>
-#include <corelib/TaskTimerOneShot.hpp>
+#include <corelib/PeriodicActivity.hpp>
+#include <corelib/TimerOneShot.hpp>
+#include <corelib/TimeService.hpp>
 
 #include <boost/scoped_ptr.hpp>
 
@@ -34,7 +35,7 @@ using namespace std;
 using namespace boost;
 
 // Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( TasksTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( ActivitiesTest );
 
 using namespace ORO_CoreLib;
 using namespace ORO_CoreLib::detail;
@@ -158,7 +159,7 @@ struct TestSelfRemove
     void step() {
         ++c;
         if (c == 5)
-            this->getTask()->stop();
+            this->getActivity()->stop();
     }
     void finalize() {
         fini = true;
@@ -166,13 +167,12 @@ struct TestSelfRemove
 };
 
 void 
-TasksTest::setUp()
+ActivitiesTest::setUp()
 {
-    PriorityThread<15>::Instance()->start();
-    t_task_np = new TaskNonPreemptible( ZeroTimeThread::Instance()->getPeriod() );
-    t_task_p = new TaskPreemptible( ZeroLatencyThread::Instance()->getPeriod() );
-    t_task_nrt = new TaskNonRealTime( NonRealTimeThread::Instance()->getPeriod() );
-    t_task_prio = new PriorityTask<15>( PriorityThread<15>::Instance()->getPeriod() );
+    t_task_np = new NonPreemptibleActivity( ZeroTimeThread::Instance()->getPeriod() );
+    t_task_p = new PreemptibleActivity( ZeroLatencyThread::Instance()->getPeriod() );
+    t_task_nrt = new NonRealTimeActivity( NonRealTimeThread::Instance()->getPeriod() );
+    t_task_prio = new PeriodicActivity( 15, 0.01 );
 
     t_run_int_np =   new TestRunnableInterface(true);
     t_run_int_p =    new TestRunnableInterface(true);
@@ -183,14 +183,13 @@ TasksTest::setUp()
     t_run_allocate = new TestAllocate();
     t_self_remove  = new TestSelfRemove();
 
-    tti = new TaskTimerOneShot(1);
+    tti = new TimerOneShot(1);
 }
 
 
 void 
-TasksTest::tearDown()
+ActivitiesTest::tearDown()
 {
-    PriorityThread<15>::Release();
     delete t_task_np;
     delete t_task_p;
     delete t_task_nrt;
@@ -207,7 +206,7 @@ TasksTest::tearDown()
     delete tti;
 }
 
-void TasksTest::testFailInit()
+void ActivitiesTest::testFailInit()
 {
     t_task_np->run( t_run_int_fail );
     t_task_p->run( t_run_int_fail );
@@ -226,7 +225,7 @@ void TasksTest::testFailInit()
 
 }
 
-void TasksTest::testOverrun()
+void ActivitiesTest::testOverrun()
 {
   bool r = false;
   // create
@@ -248,7 +247,7 @@ void TasksTest::testOverrun()
 }
 
 
-void TasksTest::testThreads()
+void ActivitiesTest::testThreads()
 {
   bool r = false;
   // create
@@ -284,54 +283,54 @@ void TasksTest::testThreads()
   t->run(0);
 }
 
-void TasksTest::testTimer()
+void ActivitiesTest::testTimer()
 {
-    TaskPreemptible t_task_lst( ZeroLatencyThread::Instance()->getPeriod() );
+    PreemptibleActivity t_task_lst( ZeroLatencyThread::Instance()->getPeriod() );
 
     // Add 5 tasks.
-    CPPUNIT_ASSERT( tti->addTask( t_task_np ) );
-    CPPUNIT_ASSERT( tti->addTask( t_task_p ) );
-    CPPUNIT_ASSERT( tti->addTask( t_task_nrt ) );
-    CPPUNIT_ASSERT( tti->addTask( t_task_prio ) );
-    CPPUNIT_ASSERT( tti->addTask( &t_task_lst ) );
+    CPPUNIT_ASSERT( tti->addActivity( t_task_np ) );
+    CPPUNIT_ASSERT( tti->addActivity( t_task_p ) );
+    CPPUNIT_ASSERT( tti->addActivity( t_task_nrt ) );
+    CPPUNIT_ASSERT( tti->addActivity( t_task_prio ) );
+    CPPUNIT_ASSERT( tti->addActivity( &t_task_lst ) );
 
     // Remove last :
-    CPPUNIT_ASSERT( tti->removeTask( &t_task_lst ) );
+    CPPUNIT_ASSERT( tti->removeActivity( &t_task_lst ) );
     tti->tick();
 
     // Remove First:
-    CPPUNIT_ASSERT( tti->removeTask( t_task_np ) );
+    CPPUNIT_ASSERT( tti->removeActivity( t_task_np ) );
     tti->tick();
 
     // Remove middle :
-    CPPUNIT_ASSERT( tti->removeTask( t_task_nrt ) );
+    CPPUNIT_ASSERT( tti->removeActivity( t_task_nrt ) );
     tti->tick();
 
-    CPPUNIT_ASSERT( tti->addTask( t_task_np ) );
-    CPPUNIT_ASSERT( tti->addTask( t_task_nrt ) );
-    CPPUNIT_ASSERT( tti->addTask( &t_task_lst ) );
+    CPPUNIT_ASSERT( tti->addActivity( t_task_np ) );
+    CPPUNIT_ASSERT( tti->addActivity( t_task_nrt ) );
+    CPPUNIT_ASSERT( tti->addActivity( &t_task_lst ) );
 
     //Remove 2 in middle :
-    CPPUNIT_ASSERT( tti->removeTask( t_task_prio ) );
-    CPPUNIT_ASSERT( tti->removeTask( t_task_nrt ) );
+    CPPUNIT_ASSERT( tti->removeActivity( t_task_prio ) );
+    CPPUNIT_ASSERT( tti->removeActivity( t_task_nrt ) );
     tti->tick();
 
     //Remove all :
-    CPPUNIT_ASSERT( tti->removeTask( t_task_np ) );
-    CPPUNIT_ASSERT( tti->removeTask( t_task_p ) );
-    CPPUNIT_ASSERT( tti->removeTask( &t_task_lst ) );
+    CPPUNIT_ASSERT( tti->removeActivity( t_task_np ) );
+    CPPUNIT_ASSERT( tti->removeActivity( t_task_p ) );
+    CPPUNIT_ASSERT( tti->removeActivity( &t_task_lst ) );
     tti->tick();
 
 }
 
-void TasksTest::testNonPeriodic()
+void ActivitiesTest::testNonPeriodic()
 {
     scoped_ptr<TestRunnableInterface> t_run_int_nonper
         ( new TestRunnableInterface(true) );
     // force ordering of scoped_ptr destruction.
     {
-        scoped_ptr<TaskNonPeriodic> t_task_nonper
-            ( new TaskNonPeriodic( 14 ) );
+        scoped_ptr<NonPeriodicActivity> t_task_nonper
+            ( new NonPeriodicActivity( 14 ) );
 
         CPPUNIT_ASSERT( t_task_nonper->run( t_run_int_nonper.get() ) );
         CPPUNIT_ASSERT( t_task_nonper->start() );
@@ -353,7 +352,7 @@ void TasksTest::testNonPeriodic()
     }
 }
 
-void TasksTest::testSelfRemove()
+void ActivitiesTest::testSelfRemove()
 {
     CPPUNIT_ASSERT( t_task_np->run(t_self_remove) );
     CPPUNIT_ASSERT( t_task_np->start() );
@@ -362,14 +361,14 @@ void TasksTest::testSelfRemove()
     CPPUNIT_ASSERT( t_self_remove->fini );
 }
 
-void TasksTest::testStartStop()
+void ActivitiesTest::testStartStop()
 {
     testStart();
     testPause();
     testStop();
 }
 
-void TasksTest::testRunnableInterface()
+void ActivitiesTest::testRunnableInterface()
 {
     testAddRunnableInterface();
     testStart();
@@ -380,7 +379,7 @@ void TasksTest::testRunnableInterface()
     testRemoveRunnableInterface();
 }
 
-void TasksTest::testAllocation()
+void ActivitiesTest::testAllocation()
 {
     testAddAllocate();
     testStart();
@@ -389,7 +388,7 @@ void TasksTest::testAllocation()
     testRemoveAllocate();
 }
 
-void TasksTest::testAddRunnableInterface()
+void ActivitiesTest::testAddRunnableInterface()
 {
     bool adding_np = t_task_np->run( t_run_int_np );
     CPPUNIT_ASSERT( adding_np );
@@ -401,7 +400,7 @@ void TasksTest::testAddRunnableInterface()
     CPPUNIT_ASSERT( adding_prio );
 }
 
-void TasksTest::testRemoveRunnableInterface()
+void ActivitiesTest::testRemoveRunnableInterface()
 {
 
     CPPUNIT_ASSERT( t_run_int_np->fini );
@@ -415,7 +414,7 @@ void TasksTest::testRemoveRunnableInterface()
     CPPUNIT_ASSERT( t_task_prio->run( 0 ) );
 }
 
-void TasksTest::testStart()
+void ActivitiesTest::testStart()
 {
     CPPUNIT_ASSERT( t_task_np->start() );
     CPPUNIT_ASSERT( t_task_p->start());
@@ -428,19 +427,19 @@ void TasksTest::testStart()
     CPPUNIT_ASSERT( t_task_prio->isRunning() );
 }
 
-void TasksTest::testPause()
+void ActivitiesTest::testPause()
 {
     sleep(1);
 }
 
-void TasksTest::testRunnableInterfaceInit() {
+void ActivitiesTest::testRunnableInterfaceInit() {
     CPPUNIT_ASSERT( t_run_int_np->init );
     CPPUNIT_ASSERT( t_run_int_p->init );
     CPPUNIT_ASSERT( t_run_int_nrt->init );
     CPPUNIT_ASSERT( t_run_int_prio->init );
 }
 
-void TasksTest::testRunnableInterfaceExecution() {
+void ActivitiesTest::testRunnableInterfaceExecution() {
 
     CPPUNIT_ASSERT( t_run_int_np->stepped );
     CPPUNIT_ASSERT( t_run_int_p->stepped );
@@ -448,7 +447,7 @@ void TasksTest::testRunnableInterfaceExecution() {
     CPPUNIT_ASSERT( t_run_int_prio->stepped );
 }
 
-void TasksTest::testStop()
+void ActivitiesTest::testStop()
 {
     CPPUNIT_ASSERT( t_task_np->stop());
     CPPUNIT_ASSERT( t_task_p->stop());
@@ -461,12 +460,12 @@ void TasksTest::testStop()
     CPPUNIT_ASSERT( !t_task_prio->isRunning() );
 }
 
-void TasksTest::testAddAllocate()
+void ActivitiesTest::testAddAllocate()
 {
     CPPUNIT_ASSERT( t_task_np->run( t_run_allocate ) );
 }
 
-void TasksTest::testRemoveAllocate()
+void ActivitiesTest::testRemoveAllocate()
 {
     CPPUNIT_ASSERT( t_task_np->run( 0 ) );
 }

@@ -26,14 +26,14 @@
  ***************************************************************************/
 
 #include "corelib/ZeroTimeThread.hpp"
-#include "corelib/TaskNonPreemptible.hpp"
+#include "corelib/NonPreemptibleActivity.hpp"
 #include "corelib/Time.hpp"
 #include "corelib/Logger.hpp"
 
-#include <pkgconf/corelib_tasks.h>
+#include <pkgconf/corelib_activities.h>
 
 
-#ifdef OROSEM_CORELIB_TASKS_AUTOSTART
+#ifdef OROSEM_CORELIB_ACTIVITIES_AUTOSTART
 #include <os/StartStopManager.hpp>
 namespace ORO_CoreLib
 {
@@ -59,13 +59,13 @@ namespace ORO_CoreLib
 namespace ORO_CoreLib
 {
     // The static class variables
-    ZeroTimeThread* ZeroTimeThread::_instance;
+    TimerThreadPtr ZeroTimeThread::_instance;
 
-    ZeroTimeThread* ZeroTimeThread::Instance()
+    TimerThreadPtr ZeroTimeThread::Instance()
     {
-        if ( _instance == 0 )
+        if ( !_instance )
         {
-            _instance = new ZeroTimeThread();
+            _instance.reset( new ZeroTimeThread() );
         }
 
         return _instance;
@@ -73,30 +73,24 @@ namespace ORO_CoreLib
 
     bool ZeroTimeThread::Release()
     {
-        if ( _instance != 0 )
-        {
-            delete _instance;
-            _instance = 0;
-            return true;
-        }
-
-        return false;
+        _instance.reset();
+        return true;
     }
 
 
     ZeroTimeThread::ZeroTimeThread()
-        : TimerThread(ORONUM_CORELIB_TASKS_ZTT_PRIORITY,
-                        ORODAT_CORELIB_TASKS_ZTT_NAME, 
-                        ORONUM_CORELIB_TASKS_ZTT_PERIOD )
+        : TimerThread(ORONUM_CORELIB_ACTIVITIES_ZTT_PRIORITY,
+                        ORODAT_CORELIB_ACTIVITIES_ZTT_NAME, 
+                        ORONUM_CORELIB_ACTIVITIES_ZTT_PERIOD )
     {
         makeHardRealtime();
-        Logger::log() << Logger::Info << ORODAT_CORELIB_TASKS_ZTT_NAME <<" created with "<< ORONUM_CORELIB_TASKS_ZTT_PERIOD <<"s periodicity";
-        Logger::log() << Logger::Info << " and priority " << ORONUM_CORELIB_TASKS_ZTT_PRIORITY << Logger::endl;
+        Logger::log() << Logger::Info << ORODAT_CORELIB_ACTIVITIES_ZTT_NAME <<" created with "<< ORONUM_CORELIB_ACTIVITIES_ZTT_PERIOD <<"s periodicity";
+        Logger::log() << Logger::Info << " and priority " << ORONUM_CORELIB_ACTIVITIES_ZTT_PRIORITY << Logger::endl;
     }
 
     ZeroTimeThread::~ZeroTimeThread()
     {
-        Logger::log() << Logger::Debug << ORODAT_CORELIB_TASKS_ZTT_NAME <<" destructor." << Logger::endl;
+        Logger::log() << Logger::Debug << ORODAT_CORELIB_ACTIVITIES_ZTT_NAME <<" destructor." << Logger::endl;
     }
 
 }

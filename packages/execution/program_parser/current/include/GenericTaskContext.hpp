@@ -77,7 +77,7 @@ namespace ORO_Execution
          * is then called in the context of the caller.
          * You can override this method to do something else or in addition
          * to starting the Processor.
-         * @return false if the engine was not assigned to a TaskInterface
+         * @return false if the engine was not assigned to a ActivityInterface
          * or if initialize() returned false or it was already started.
          */
         virtual bool start();
@@ -88,15 +88,15 @@ namespace ORO_Execution
          * is called in the context of the caller.
          * You can override this method to do something else or in addition
          * to stopping the engine.
-         * @return false if the engine was not assigned to a TaskInterface
+         * @return false if the engine was not assigned to a ActivityInterface
          * or if it was not running.
          */
         virtual bool stop();
   
         /**
          * DataSource to inspect if this Task is running.
-         * Defaults to this->getProcessor()->getTask()
-         * && this->getProcessor()->getTask()->isRunning()
+         * Defaults to this->getProcessor()->getActivity()
+         * && this->getProcessor()->getActivity()->isRunning()
          */
         virtual bool isRunning() const;
 

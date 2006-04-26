@@ -29,27 +29,27 @@
 #define CORELIB_RUNNABLE_INTERFACE_HPP
 
 #include "os/RunnableInterface.hpp"
-#include "TaskInterface.hpp"
+#include "ActivityInterface.hpp"
 
 namespace ORO_CoreLib
 {
     /**
      * This class adds
-     * Task specific semantics to ORO_OS::RunnableInterface and sits in the ORO_CoreLib
+     * Activity specific semantics to ORO_OS::RunnableInterface and sits in the ORO_CoreLib
      * namespace. Applications should always use this class
      * instead of the ORO_OS version.
      *
-     * The getTask() method is guaranteed to return a valid task
+     * The getActivity() method is guaranteed to return a valid task
      * pointer during initialize(), step() or loop() and finalize(). This allows
      * the RunnableInterface to query the task's period(icity), ThreadInterface
      * and EventProcessor. Consequently, initialize() knows whether
-     * step() or loop() will be called ( depending on TaskInterface::isPeriodic() ).
-     * @see TaskInterface
+     * step() or loop() will be called ( depending on ActivityInterface::isPeriodic() ).
+     * @see ActivityInterface
      */
     class RunnableInterface
         : public ORO_OS::RunnableInterface
     {
-        TaskInterface* owner_task;
+        ActivityInterface* owner_task;
     public:
         RunnableInterface();
 
@@ -63,18 +63,18 @@ namespace ORO_CoreLib
          * Zero denotes that no task is present to run
          * it, and hence no detailed information is available.
          *
-         * @return The Task which runs this RunnableInterface.
+         * @return The Activity which runs this RunnableInterface.
          */
-        TaskInterface* getTask() const;
+        ActivityInterface* getActivity() const;
 
         /**
          * @brief Set the task this interface is run in.
          *
          * A Zero means no task is running it.
          *
-         * @param task The TaskInterface running this interface.
+         * @param task The ActivityInterface running this interface.
          */
-      virtual void setTask( TaskInterface* task );
+      virtual void setActivity( ActivityInterface* task );
     };
 }
 

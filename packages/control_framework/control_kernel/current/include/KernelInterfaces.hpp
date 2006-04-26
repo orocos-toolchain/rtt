@@ -278,7 +278,7 @@ namespace ORO_ControlKernel
         /**
          * Get the Task of the ControlKernelInterface.
          */
-        TaskInterface* getTask() const;
+        ActivityInterface* getActivity() const;
 
         /**
          * Get the name of the ControlKernelInterface.
@@ -289,7 +289,7 @@ namespace ORO_ControlKernel
          * @brief Returns true if the kernel is running, false
          * otherwise.
          */
-        bool isRunning() const { return getTask() && getTask()->isRunning(); }
+        bool isRunning() const { return getActivity() && getActivity()->isRunning(); }
 
         /**
          * @brief Get the running periodicity in seconds.
@@ -386,8 +386,8 @@ namespace ORO_ControlKernel
          *         true if successful
          */
         bool startKernel() {
-            if ( this->kernel()->getTask() )
-                return this->kernel()->getTask()->start();
+            if ( this->kernel()->getActivity() )
+                return this->kernel()->getActivity()->start();
             return false;
         }
 
@@ -397,8 +397,8 @@ namespace ORO_ControlKernel
          *         true if successful
          */
         bool stopKernel() {
-            if ( this->kernel()->getTask() ) {
-                this->kernel()->getTask()->stop();
+            if ( this->kernel()->getActivity() ) {
+                this->kernel()->getActivity()->stop();
                 return true;
             }
             return false;
@@ -411,7 +411,7 @@ namespace ORO_ControlKernel
          */
         void abortKernel()
         {
-            if ( getTask() )
+            if ( getActivity() )
                 abortKernelEvent.fire(); // dispatch to completion processor
         }
     
@@ -589,8 +589,8 @@ namespace ORO_ControlKernel
         Property<double> frequency;
 
         void abortHandler() {
-            if ( getTask() )
-                getTask()->stop();
+            if ( getActivity() )
+                getActivity()->stop();
         }
     protected:
         /**

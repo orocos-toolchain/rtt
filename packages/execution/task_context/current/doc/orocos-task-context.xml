@@ -77,7 +77,7 @@
   <section id="task-context-intro">
     <title>Introduction</title>
     <para>
-      This manual documents how multi-threaded tasks can be defined in &orocos;
+      This manual documents how multi-threaded components can be defined in &orocos;
       such that they form a thread-safe robotics/machine control application.
       Each control component is defined as a "TaskContext", which defines 
       the "context" in which the component task is executed. The context
@@ -101,16 +101,15 @@
       </mediaobject>
     </figure>
     <para>
-      A task is a basic unit of functionality which executes one or more (realtime)
-      programs in a single thread. 
-      The program can vary from a mere C function over a realtime program script
-      to a realtime hierarchical state machine. The focus is completely on 
-      thread-safe time determinism. Meaning, that the system is free of priority-inversions,
-      and all operations are lock-free (also data sharing and other forms of communication
-      such as events and commands). This is done using the mechanisms of the &orocos;
-      Real-Time CoreLib which allows each task to run in its own thread or share
-      threads. Real-Time tasks can communicate with non Real-Time tasks (and vice versa)
-      transparantly. 
+      A task is a basic unit of functionality which executes one or
+      more (realtime) programs in a single thread.  The program can
+      vary from a mere C function over a realtime program script to a
+      realtime hierarchical state machine. The focus is completely on
+      thread-safe time determinism. Meaning, that the system is free
+      of priority-inversions, and all operations are lock-free (also
+      data sharing and other forms of communication such as events and
+      commands).  Real-Time tasks can communicate with non Real-Time
+      tasks (and vice versa) transparantly.
     </para>
     <para>
       The Orocos Task Infrastructure enables :
@@ -140,7 +139,7 @@
 	  <glossterm>CoreLib</glossterm>
 	  <glossdef>
 	    <para> provides the Event infrastructure,
-	      Task-thread mapping, Properties and lock-free queueing
+	      activity to thread mapping, Properties and lock-free data exchange
 	      implementations.
 	    </para>
 	  </glossdef>
@@ -664,47 +663,54 @@ cd                  quit
       <title>Starting Task Execution</title>
       <para>
 	The functionality of a task, i.e. its algorithm, is executed
-	in a thread by the Execution Engine.  To run an
+	by the Execution Engine.  To run an
 	<classname>ORO_Execution::ExecutionEngine</classname>, you
 	need to use one of the
-	<classname>ORO_CoreLib::TaskInterface</classname> classes from
-	the CoreLib. ( See the &coreman; for more documentation. ) The
-	<classname>TaskInterface</classname> object will invoke the
-	ExecutionEngine, which will in turn invoke the application's
-	methods above.
+	<classname>ORO_CoreLib::ActivityInterface</classname> classes
+	from the CoreLib, for example
+	<classname>ORO_CoreLib::PeriodicActivity</classname> or
+	<classname>ORO_CoreLib::NonPeriodicActivity</classname>.
+	These classes will allocate a thread which executes the
+	Execution Engine. ( See the &coreman; for more documentation
+	about activities. ) The choosen
+	<classname>ActivityInterface</classname> object will invoke
+	the Execution Engine, which will in turn invoke the
+	application's methods above.
 	<programlisting>
-  #include &lt;corelib/TaskNonPreemptible.hpp&gt;
+  #include &lt;corelib/PeriodicActivity.hpp&gt;
 
   using namespace ORO_CoreLib;
 
   <classname>ORO_Execution::TaskContext</classname>* a_task = new MyTask("the_task")
+  // create a periodic activity with priority=5, period=1000Hz
+  <classname>ORO_CoreLib::PeriodicActivity</classname> act(5, 0.001, a_task->engine() );
   // ... start the execution engine of a_task :
-  <classname>ORO_CoreLib::TaskNonPreemptible</classname> periodicTask(0.001, a_task->engine() );
-  periodicTask.start(); 
+  act.start(); 
   // ...
-  periodicTask.stop();</programlisting></para>
+  act.stop();</programlisting></para>
       <para>
 	Which will run the Execution Engine of "ATask" with a timer
 	frequency of 1kHz. This is the frequency at which state
 	machines are evaluated, program steps taken, commands and
 	events are accepted and executed and the application code is
-	run. When the periodic task is stopped again, all programs are
+	run. When the periodic activity is stopped again, all programs are
 	stopped, state machines are brought into the final state and
 	no more commands or events are accepted.
       </para>
       <para>
-	A TaskContext can also be run in a non periodic task:
+	A TaskContext can also be run in a non periodic activity:
 	<programlisting>
-  #include &lt;corelib/TaskNonPeriodic.hpp&gt;
+  #include &lt;corelib/NonPeriodicActivity.hpp&gt;
 
   using namespace ORO_CoreLib;
 
   <classname>ORO_Execution::TaskContext</classname>* a_task = new MyTask("the_task")
+  // create a non periodic activity with priority=5
+  <classname>ORO_CoreLib::NonPeriodicActivity</classname> nonpAct(5, a_task->engine() );
   // ... start the execution engine of a_task :
-  <classname>ORO_CoreLib::TaskNonPeriodic</classname> nonpTask(5, a_task->engine() );
-  nonpTask.start(); 
+  nonpAct.start();
   // ...
-  nonpTask.stop();</programlisting></para>
+  nonpAct.stop();</programlisting></para>
       <para>
 	In case the Execution Engine waits for new Commands or Events to
 	come in to be executed. Each time such an event happens, the user's

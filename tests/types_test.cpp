@@ -23,7 +23,7 @@
 #include <iostream>
 #include <execution/FunctionGraph.hpp>
 #include <execution/TemplateFactories.hpp>
-#include <corelib/TaskSimulation.hpp>
+#include <corelib/SimulationActivity.hpp>
 #include <corelib/SimulationThread.hpp>
 
 using namespace std;
@@ -37,7 +37,7 @@ TypesTest::setUp()
 {
     tc =  new TaskContext( "root" );
     tc->methodFactory.registerObject("test", this->createMethodFactory() );
-    tsim = new TaskSimulation( 0.001, tc->engine() );
+    tsim = new SimulationActivity( 0.001, tc->engine() );
 }
 
 

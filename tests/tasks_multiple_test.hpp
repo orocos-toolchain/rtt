@@ -23,9 +23,9 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <corelib/TaskNonRealTime.hpp>
-#include <corelib/TaskPreemptible.hpp>
-#include <corelib/TaskNonPreemptible.hpp>
+#include <corelib/NonRealTimeActivity.hpp>
+#include <corelib/PreemptibleActivity.hpp>
+#include <corelib/NonPreemptibleActivity.hpp>
 
 using namespace ORO_CoreLib;
 
@@ -76,18 +76,18 @@ public:
     unsigned int nrOfOKStops() { return okstops;}
 };
 
-typedef DummyTask<TaskPreemptible> DummyPTask;
-typedef DummyTask<TaskNonPreemptible> DummyNPTask;
+typedef DummyTask<PreemptibleActivity> DummyPTask;
+typedef DummyTask<NonPreemptibleActivity> DummyNPTask;
 
 /**
  * Test for starting and stopping tasks
  */
-class TasksMultipleTest
+class ActivitiesMultipleTest
     : public CppUnit::TestFixture
 {
 public:
-    CPPUNIT_TEST_SUITE( TasksMultipleTest );
-    // Test Many Tasks :
+    CPPUNIT_TEST_SUITE( ActivitiesMultipleTest );
+    // Test Many Activities :
     CPPUNIT_TEST( testMultiple );
     CPPUNIT_TEST_SUITE_END();
 

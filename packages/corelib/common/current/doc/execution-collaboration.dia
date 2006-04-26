@@ -68,13 +68,13 @@
         <dia:point val="9,2"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="8.95,1.95;13.8,3.85"/>
+        <dia:rectangle val="8.95,1.95;13.85,3.85"/>
       </dia:attribute>
       <dia:attribute name="elem_corner">
         <dia:point val="9,2"/>
       </dia:attribute>
       <dia:attribute name="elem_width">
-        <dia:real val="4.75"/>
+        <dia:real val="4.7999999999999998"/>
       </dia:attribute>
       <dia:attribute name="elem_height">
         <dia:real val="1.7999999999999998"/>
@@ -97,7 +97,7 @@
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="11.375,3.05"/>
+            <dia:point val="11.4,3.05"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
@@ -150,13 +150,13 @@
         <dia:point val="4.65,7.45"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="4.6,7.4;10.45,9.3"/>
+        <dia:rectangle val="4.6,7.4;10.7,9.3"/>
       </dia:attribute>
       <dia:attribute name="elem_corner">
         <dia:point val="4.65,7.45"/>
       </dia:attribute>
       <dia:attribute name="elem_width">
-        <dia:real val="5.75"/>
+        <dia:real val="6"/>
       </dia:attribute>
       <dia:attribute name="elem_height">
         <dia:real val="1.7999999999999998"/>
@@ -179,7 +179,7 @@
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="7.525,8.5"/>
+            <dia:point val="7.65,8.5"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
@@ -232,13 +232,13 @@
         <dia:point val="18.75,7.25"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="18.7,7.2;23.25,9.5"/>
+        <dia:rectangle val="18.7,7.2;22.05,9.5"/>
       </dia:attribute>
       <dia:attribute name="elem_corner">
         <dia:point val="18.75,7.25"/>
       </dia:attribute>
       <dia:attribute name="elem_width">
-        <dia:real val="4.4500000000000002"/>
+        <dia:real val="3.25"/>
       </dia:attribute>
       <dia:attribute name="elem_height">
         <dia:real val="2.1999999999999993"/>
@@ -252,7 +252,7 @@
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#:TaskTimer#</dia:string>
+            <dia:string>#:Timer#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="arial" style="0" name="Helvetica"/>
@@ -261,7 +261,7 @@
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="20.775,8.7"/>
+            <dia:point val="20.175,8.7"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
@@ -314,7 +314,7 @@
         <dia:point val="11.375,3.8"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="7.2,3.72931;11.4457,7.77468"/>
+        <dia:rectangle val="7.21351,3.72931;11.4457,7.77468"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
         <dia:point val="11.375,3.8"/>
@@ -342,7 +342,7 @@
         <dia:point val="10.4,8.35"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="10.35,7.55;18.8,8.75"/>
+        <dia:rectangle val="10.35,7.6;18.8,8.75"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
         <dia:point val="10.4,8.35"/>
@@ -370,13 +370,13 @@
         <dia:point val="14.995,14.165"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="14.945,14.115;21.795,16.015"/>
+        <dia:rectangle val="14.945,14.115;22.695,16.015"/>
       </dia:attribute>
       <dia:attribute name="elem_corner">
         <dia:point val="14.995,14.165"/>
       </dia:attribute>
       <dia:attribute name="elem_width">
-        <dia:real val="6.75"/>
+        <dia:real val="7.6500000000000004"/>
       </dia:attribute>
       <dia:attribute name="elem_height">
         <dia:real val="1.8000000000000007"/>
@@ -390,7 +390,7 @@
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#:Nonpreemtable task#</dia:string>
+            <dia:string>#:Nonpreemtable activity#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="arial" style="0" name="Helvetica"/>
@@ -399,7 +399,7 @@
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="18.37,15.215"/>
+            <dia:point val="18.82,15.215"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
@@ -452,11 +452,11 @@
         <dia:point val="20.975,9.45"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="17.9957,9.38206;22.3,14.4022"/>
+        <dia:rectangle val="18.4354,9.38374;22.4,14.3768"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
         <dia:point val="20.975,9.45"/>
-        <dia:point val="18.37,14.165"/>
+        <dia:point val="18.82,14.165"/>
       </dia:attribute>
       <dia:attribute name="line_colour">
         <dia:color val="#000000"/>
@@ -468,7 +468,7 @@
         <dia:enum val="0"/>
       </dia:attribute>
       <dia:attribute name="text_pos">
-        <dia:point val="21.05,12.8"/>
+        <dia:point val="21.275,12.8"/>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O2" connection="6"/>
@@ -500,7 +500,7 @@
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#TaskTimers can have different
+            <dia:string>#Timers can have different
 periodicities f.e. 10ms and 100ms.#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
@@ -510,7 +510,7 @@ periodicities f.e. 10ms and 100ms.#</dia:string>
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="19.5,5.3"/>
+            <dia:point val="19.5,5.35"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>

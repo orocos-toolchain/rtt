@@ -37,7 +37,7 @@
 #endif
 #include <control_kernel/ExtensionComposition.hpp>
 #include <corelib/PropertyComposition.hpp>
-#include <corelib/TaskNonRealTime.hpp>
+#include <corelib/NonRealTimeActivity.hpp>
 
 #include <os/MutexLock.hpp>
 #include <sstream>
@@ -70,7 +70,7 @@ namespace ORO_ControlKernel
                                               , ExecutionExtension
 #endif
                                               >::Result >,
-          public ORO_CoreLib::TaskNonRealTime
+          public ORO_CoreLib::NonRealTimeActivity
     {
         typedef SupportComponent< MakeFacet<KernelBaseFunction
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
@@ -84,12 +84,12 @@ namespace ORO_ControlKernel
         std::ostringstream backup;
         std::ostringstream logmessages;
         std::ostringstream logbackup;
-        //TaskNonRealtime printer;
+
         Mutex msg_lock;
         Mutex log_lock;
     public :
-        HMIConsoleOutput( const std::string& name = "cout")
-            : Base( name ), TaskNonRealTime(0.1), coloron("\033[1;34m"), coloroff("\033[0m"),
+        HMIConsoleOutput( const std::string& naxme = "cout")
+            : Base( name ), NonRealTimeActivity(0.1), coloron("\033[1;34m"), coloroff("\033[0m"),
               _prompt("HMIConsoleOutput :\n")
               {
                   this->start();

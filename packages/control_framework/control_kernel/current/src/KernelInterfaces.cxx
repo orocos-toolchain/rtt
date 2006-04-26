@@ -103,9 +103,9 @@ KernelBaseFunction::KernelBaseFunction( ControlKernelInterface* ckip )
 
 KernelBaseFunction::~KernelBaseFunction() {}
 
-TaskInterface* KernelBaseFunction::getTask() const
+ActivityInterface* KernelBaseFunction::getActivity() const
 {
-    return kernel()->getTask();
+    return kernel()->getActivity();
 }
 /*
 const std::string& KernelBaseFunction::getKernelName() const
@@ -232,7 +232,7 @@ void KernelBaseFunction::removeComponent(ComponentBaseInterface* comp)
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_PROPERTY
 bool KernelBaseFunction::loadProperties( const std::string& filename )
 {
-    if (kernel()->getTask() && kernel()->getTask()->isRunning() )
+    if (kernel()->getActivity() && kernel()->getActivity()->isRunning() )
         return false;
 
     KernelConfig config( (*this->kernel()), filename);
@@ -247,7 +247,7 @@ bool KernelBaseFunction::refreshProperties() {
          ||
          kernel()->getExtension<ExecutionExtension>()->getTaskContext()->attributeRepository.properties() == 0 
          ||
-         (kernel()->getTask() && kernel()->getTask()->isRunning() ) )
+         (kernel()->getActivity() && kernel()->getActivity()->isRunning() ) )
         return false;
     std::vector<detail::ExtensionInterface*>::const_iterator it = kernel()->getExtensions().begin();
     bool result = true;

@@ -82,7 +82,7 @@ namespace ORO_CoreLib
     }
 
     CompletionProcessor::CompletionProcessor()
-        : TaskNonPeriodic(  ORONUM_CORELIB_EVENTS_CP_PRIORITY, 
+        : NonPeriodicActivity(  ORONUM_CORELIB_EVENTS_CP_PRIORITY, 
                             ORODAT_CORELIB_EVENTS_CP_NAME )
     {
         Logger::log() << Logger::Info << ORODAT_CORELIB_EVENTS_CP_NAME <<" created with priority ";

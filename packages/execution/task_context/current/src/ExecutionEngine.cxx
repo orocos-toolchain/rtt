@@ -67,8 +67,8 @@ namespace ORO_Execution
 
         // it is possible that the mainee is assigned to a task
         // but that this child EE is already destroyed.
-        if (mainee && this->getTask())
-            this->RunnableInterface::setTask(0);
+        if (mainee && this->getActivity())
+            this->RunnableInterface::setActivity(0);
 
         delete cproc;
         delete pproc;
@@ -125,8 +125,8 @@ namespace ORO_Execution
             smproc = 0;
             delete eproc;
             eproc = 0;
-            // special order here, first do setTask without disturbing future mainee
-            this->setTask( new_parent->getParent()->getTask() );
+            // special order here, first do setActivity without disturbing future mainee
+            this->setActivity( new_parent->getParent()->getActivity() );
             mainee = new_parent->getParent();
             mainee->children.push_back(this);
             return;
@@ -137,17 +137,17 @@ namespace ORO_Execution
             pproc = new ProgramProcessor();
             smproc = new StateMachineProcessor();
             eproc = new EventProcessor();
-            this->setTask(0);
+            this->setActivity(0);
         }
     }
 
-    void ExecutionEngine::setTask(TaskInterface* t)
+    void ExecutionEngine::setActivity(ActivityInterface* t)
     {
-        Logger::In in("ExecutionEngine::setTask");
+        Logger::In in("ExecutionEngine::setActivity");
 
         if (mainee) {
             // Let parent update RunnableInterface...
-            mainee->setTask(t);
+            mainee->setActivity(t);
         } else {
             if (t)
                 Logger::log() <<Logger::Debug <<taskc->getName()<<": informing processors of new task."<<Logger::endl;
@@ -156,20 +156,20 @@ namespace ORO_Execution
                 
             // I am an orphan.
             if (cproc)
-                cproc->setTask(t);
+                cproc->setActivity(t);
             if (pproc)
-                pproc->setTask(t);
+                pproc->setActivity(t);
             if (smproc)
-                smproc->setTask(t);
+                smproc->setActivity(t);
             if (eproc)
-                eproc->setTask(t);
-            RunnableInterface::setTask(t);
+                eproc->setActivity(t);
+            RunnableInterface::setActivity(t);
         }
         
         // inform all children, even if we have a parent.
         // attention, avoid recursive endless loop !
         for (std::vector<ExecutionEngine*>::iterator it = children.begin(); it !=children.end();++it)
-            (*it)->RunnableInterface::setTask( t );
+            (*it)->RunnableInterface::setActivity( t );
 
         if (t)
             if ( ! t->isPeriodic() ) {
@@ -208,7 +208,7 @@ namespace ORO_Execution
                 if( cproc->initialize() ) {
                     if (eproc->initialize()) {
                         // non periodic loop() uses this flag to detect breakLoop()
-                        if ( !this->getTask()->isPeriodic() )
+                        if ( !this->getActivity()->isPeriodic() )
                             eerun = true;
                         return true;
                     }

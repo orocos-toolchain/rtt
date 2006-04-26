@@ -26,31 +26,40 @@
  ***************************************************************************/
 
 
-#ifndef TASKEXECUTION_HPP
-#define TASKEXECUTION_HPP
+#ifndef ORO_TIMERTHREAD_HPP
+#define ORO_TIMERTHREAD_HPP
 
 
 #include "os/PeriodicThread.hpp"
 #include "EventProcessor.hpp"
 
 #include "os/Mutex.hpp"
-#include "os/MutexLock.hpp"
 
 #include <list>
+#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
 namespace ORO_CoreLib
 {
-    using ORO_OS::MutexLock;
     namespace detail {
-        class TaskTimerInterface;
+        class TimerInterface;
     }
-    class PeriodicTask;
+    class PeriodicActivity;
+    class TimerThread;
 
     /**
-     * This Periodic Thread is meant for executing a PeriodicTask
-     * object periodically.
+     * TimerThread objects are reference counted such that
+     * when the last PeriodicTask which uses it is deleted,
+     * the thread is deleted as well.
+     */
+    typedef boost::shared_ptr<TimerThread> TimerThreadPtr;
+
+    /**
+     * This Periodic Thread is meant for executing a PeriodicActivity
+     * object periodically. It does this by invoking a Timer object which
+     * executes the activities.
      *
-     * @see PeriodicTask
+     * @see PeriodicActivity
      */
     class TimerThread
         : public ORO_OS::PeriodicThread,
@@ -77,33 +86,48 @@ namespace ORO_CoreLib
          * Add an Timer that will be ticked every execution period
          * Once added, a timer can not be removed.
          */
-        bool timerAdd( detail::TaskTimerInterface* );
+        bool timerAdd( detail::TimerInterface* );
 
         /**
          * Get a Timer ticking at a certain period.
          */
-        detail::TaskTimerInterface* timerGet( Seconds period ) const;
+        detail::TimerInterface* timerGet( Seconds period ) const;
 
+        /**
+         * Create a TimerThread with a given priority and periodicity.
+         */
+        static TimerThreadPtr Instance(int priority, double periodicity);
     protected:
         virtual bool initialize();
         virtual void step();
         virtual void finalize();
 
-        typedef std::vector<detail::TaskTimerInterface*> TimerList;
+        typedef std::vector<detail::TimerInterface*> TimerList;
 
         /**
-         * A list containing all the TaskTimer instances
+         * A list containing all the Timer instances
          *  we must tick
          *
-         * @see TaskTimer
+         * @see Timer
          */ 
         TimerList clocks;
 
         /**
-         * A Task can not create a task of same priority from step().
+         * A Activity can not create a activity of same priority from step().
          * If so a deadlock will occur.
          */
         mutable ORO_OS::Mutex lock;
+
+        /**
+         * A Boost weak pointer is used to store non-owning pointers
+         * to shared objects.
+         */
+        typedef std::vector< boost::weak_ptr<TimerThread> > TimerThreadList;
+
+        /**
+         * All timer threads.
+         */
+        static TimerThreadList TimerThreads;
     };
 } // namespace ORO_CoreLib
 

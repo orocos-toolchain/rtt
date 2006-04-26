@@ -27,7 +27,7 @@
 #include <execution/TaskContext.hpp>
 #include <execution/Factories.hpp>
 #include <string>
-#include <corelib/TaskSimulation.hpp>
+#include <corelib/SimulationActivity.hpp>
 
 using namespace ORO_CoreLib;
 using namespace ORO_Execution;
@@ -47,7 +47,7 @@ class FunctionTest : public CppUnit::TestFixture
 
     Parser parser;
     TaskContext gtc;
-    TaskSimulation gtask;
+    SimulationActivity gtask;
     MethodFactoryInterface* createMethodFactory();
     CommandFactoryInterface* createCommandFactory();
     DataSourceFactoryInterface* createDataSourceFactory();

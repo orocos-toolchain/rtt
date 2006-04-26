@@ -35,7 +35,7 @@
 namespace ORO_CoreLib
 {
 
-    class TaskNonPreemptible;
+    class NonPreemptibleActivity;
     /**
      * @brief This thread is the fastest, non preemptible thread in the
      * Orocos realtime system.
@@ -52,7 +52,7 @@ namespace ORO_CoreLib
         : public TimerThread
     {
     public:
-        static ZeroTimeThread* Instance();
+        static TimerThreadPtr Instance();
 
         /**
          * Releases the ZeroTimeThread
@@ -62,6 +62,11 @@ namespace ORO_CoreLib
          */
         static bool Release();
 
+        /**
+         * Destructor
+         */
+        virtual ~ZeroTimeThread();
+
     protected:
 
         /**
@@ -69,17 +74,12 @@ namespace ORO_CoreLib
          */
         ZeroTimeThread();
 
-        /**
-         * Destructor
-         */
-        virtual ~ZeroTimeThread();
-
     private:
 
         /**
          * Our only instance of the ZeroTimeThread
          */
-        static ZeroTimeThread* _instance;
+        static TimerThreadPtr _instance;
 
     };
 } // namespace ORO_CoreLib

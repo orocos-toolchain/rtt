@@ -35,7 +35,7 @@ namespace ORO_CoreLib
 {
 
     /**
-     * It is used to run periodically TaskNonRealTime instances, which
+     * It is used to run periodically NonRealTimeActivity instances, which
      * will try to meet deadlines 'as good as possible'.
      */
     class NonRealTimeThread 
@@ -46,7 +46,7 @@ namespace ORO_CoreLib
         /**
          * Returns the unique (singleton) NonRealTimeThread.
          */
-        static NonRealTimeThread* Instance();
+        static TimerThreadPtr Instance();
 
         /**
          * Releases the NonRealTimeThread
@@ -55,6 +55,8 @@ namespace ORO_CoreLib
          * @return true on success, false on failure
          */
         static bool Release();
+
+        virtual ~NonRealTimeThread();
 
         protected:
 
@@ -67,9 +69,7 @@ namespace ORO_CoreLib
         /**
          * Singleton
          */    
-        static NonRealTimeThread* cp;
-
-        virtual ~NonRealTimeThread();
+        static TimerThreadPtr cp;
 
     };
 }

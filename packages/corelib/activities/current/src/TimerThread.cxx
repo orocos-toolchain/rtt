@@ -26,37 +26,66 @@
  ***************************************************************************/
 
 #include "corelib/TimerThread.hpp"
-#include "corelib/PeriodicTask.hpp"
-#include "corelib/TaskTimerInterface.hpp"
-#include "pkgconf/corelib_tasks.h"
+#include "corelib/PeriodicActivity.hpp"
+#include "corelib/TimerInterface.hpp"
+#include "pkgconf/corelib_activities.h"
 
 // this timer is the only correct, synchronising one
 // with respect to step() and finalize()
 #define OROSEM_ONESHOT_TIMER
 #ifdef OROSEM_ONESHOT_TIMER
-#include "corelib/TaskTimerOneShot.hpp"
+#include "corelib/TimerOneShot.hpp"
 #else
-#include "corelib/TaskTimerLockFree.hpp"
+#include "corelib/TimerLockFree.hpp"
 #endif
 #include "corelib/Time.hpp"
 #include "corelib/Logger.hpp"
-#include <pkgconf/corelib_tasks.h>
+#include <algorithm>
+#include <os/MutexLock.hpp>
 
 namespace ORO_CoreLib
 {
+    using ORO_OS::MutexLock;
     using namespace detail;
+    using namespace std;
+
+    TimerThread::TimerThreadList TimerThread::TimerThreads;
+
+    TimerThreadPtr TimerThread::Instance(int pri, double per)
+    {
+        // Since the period is stored as nsecs, we convert per to NS in order
+        // to get a match.
+        TimerThreadList::iterator it = TimerThreads.begin();
+        while ( it != TimerThreads.end() ) {
+            TimerThreadPtr tptr = it->lock();
+            // detect old pointer.
+            if ( !tptr ) {
+                TimerThreads.erase(it);
+                it = TimerThreads.begin();
+                continue;
+            }
+            if ( tptr->getPriority() == pri && tptr->getPeriodNS() == Seconds_to_nsecs(per) ) {
+                return tptr;
+            }
+            ++it;
+        }
+        TimerThreadPtr ret( new TimerThread(pri, "TimerThreadInstance", per) );
+        TimerThreads.push_back( ret );
+        return ret;
+    }
 
     TimerThread::TimerThread(int priority, const std::string& name, double periodicity)
         : PeriodicThread( priority, name, periodicity)
     {
         // create one default timer for the tasks with this periodicity.
-        TaskTimerInterface* timer = 
+        TimerInterface* timer = 
 #ifdef OROSEM_ONESHOT_TIMER
-            new TaskTimerOneShot( Seconds_to_nsecs( periodicity ) );
+            new TimerOneShot( Seconds_to_nsecs( periodicity ) );
 #else
-            new TaskTimerLockFree( Seconds_to_nsecs( periodicity ) );
+            new TimerLockFree( Seconds_to_nsecs( periodicity ) );
 #endif
         this->timerAdd( timer );
+
     }
 
     TimerThread::~TimerThread()
@@ -67,6 +96,7 @@ namespace ORO_CoreLib
         TimerList::iterator itl;
         for (itl = clocks.begin(); itl != clocks.end(); ++itl)
             delete *itl; 
+
     }
 
     bool TimerThread::initialize()
@@ -103,7 +133,7 @@ namespace ORO_CoreLib
         EventProcessor::finalize();
     }
 
-    TaskTimerInterface* TimerThread::timerGet( Seconds period ) const {
+    TimerInterface* TimerThread::timerGet( Seconds period ) const {
         MutexLock locker(lock);
         for (TimerList::const_iterator it = clocks.begin(); it != clocks.end(); ++it)
             if ( (*it)->getPeriod() == Seconds_to_nsecs(period) )
@@ -113,7 +143,7 @@ namespace ORO_CoreLib
         return 0;
     }
 
-    bool TimerThread::timerAdd( TaskTimerInterface* t)
+    bool TimerThread::timerAdd( TimerInterface* t)
     {
         nsecs p = Seconds_to_nsecs( this->getPeriod() );
         // if period is too small or not a multiple :

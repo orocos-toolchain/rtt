@@ -27,7 +27,7 @@
 #include <execution/TaskContext.hpp>
 #include <execution/Factories.hpp>
 #include <string>
-#include <corelib/TaskSimulation.hpp>
+#include <corelib/SimulationActivity.hpp>
 
 using namespace ORO_CoreLib;
 using namespace ORO_Execution;
@@ -50,9 +50,9 @@ class DispatchTest : public CppUnit::TestFixture
     TaskContext gtc;
     TaskContext mtc;
     TaskContext ltc;
-    TaskSimulation gtask;
-    TaskSimulation mtask;
-    TaskSimulation ltask;
+    SimulationActivity gtask;
+    SimulationActivity mtask;
+    SimulationActivity ltask;
     MethodFactoryInterface* createMethodFactory();
     CommandFactoryInterface* createCommandFactory();
     DataSourceFactoryInterface* createDataSourceFactory();

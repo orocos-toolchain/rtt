@@ -46,7 +46,7 @@ class Template_FactoryTest : public CppUnit::TestFixture
 
     Parser parser;
     TaskContext* tc;
-    TaskInterface* tsim;
+    ActivityInterface* tsim;
     CommandProcessor processor;
     MethodFactoryInterface* createMethodFactory();
     MethodFactoryInterface* createUserMethodFactory();

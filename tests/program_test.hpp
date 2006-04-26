@@ -26,7 +26,7 @@
 #include <execution/TaskContext.hpp>
 #include <execution/Factories.hpp>
 #include <string>
-#include <corelib/TaskSimulation.hpp>
+#include <corelib/SimulationActivity.hpp>
 
 using namespace ORO_CoreLib;
 using namespace ORO_Execution;
@@ -42,12 +42,12 @@ class ProgramTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testProgramUntil );
     CPPUNIT_TEST( testProgramBreak );
     CPPUNIT_TEST( testProgramUntilFail );
-    CPPUNIT_TEST( testTaskProgram );
+    CPPUNIT_TEST( testProgramTask);
     CPPUNIT_TEST_SUITE_END();
 
     Parser parser;
     TaskContext gtc;
-    TaskSimulation gtask;
+    SimulationActivity gtask;
     MethodFactoryInterface* createMethodFactory();
     CommandFactoryInterface* createCommandFactory();
     DataSourceFactoryInterface* createDataSourceFactory();
@@ -73,7 +73,7 @@ public:
     void tearDown();
 
     void testParseProgram();
-    void testTaskProgram();
+    void testProgramTask();
     void testProgramCondition();
     void testProgramFailure();
     void testProgramAnd();

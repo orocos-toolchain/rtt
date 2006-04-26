@@ -24,7 +24,7 @@
 #include <iostream>
 
 #include <corelib/ZeroTimeThread.hpp>
-#include <corelib/PriorityThread.hpp>
+#include <corelib/TimerThread.hpp>
 #include <corelib/ZeroLatencyThread.hpp>
 #include <corelib/SimulationThread.hpp>
 #include <corelib/Logger.hpp>
@@ -32,7 +32,7 @@
 using namespace std;
 
 // Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( TasksThreadTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( ActivitiesThreadTest );
 
 using namespace ORO_CoreLib;
 
@@ -45,10 +45,46 @@ struct TestTask
     bool result, _dothrow;
     bool init, stepped, fini;
 
-    TaskInterface* owner;
+    ActivityInterface* owner;
 
-    TestTask(double p, bool fail, bool dothrow = false)
-        :T(p), _dothrow(dothrow)
+    TestTask(double per, bool fail, bool dothrow = false)
+        :T(per), _dothrow(dothrow)
+    {
+        this->reset(fail);
+    }
+
+    bool initialize() {
+        init    = true;
+        return result;
+    }
+    void step() {
+        stepped = true;
+        if ( _dothrow )
+            throw A();
+    }
+    void finalize() {
+        fini   = true;
+    }
+
+    void reset(bool fail) {
+        result = fail;
+        init = false;
+        stepped = false;
+        fini = false;
+    }
+};
+
+template<class T>
+struct TestActivity
+    : public T
+{
+    bool result, _dothrow;
+    bool init, stepped, fini;
+
+    ActivityInterface* owner;
+
+    TestActivity(int prio, double per, bool fail, bool dothrow = false)
+        :T(prio,per), _dothrow(dothrow)
     {
         this->reset(fail);
     }
@@ -101,17 +137,17 @@ struct TestAllocate
 };
 
 void 
-TasksThreadTest::setUp()
+ActivitiesThreadTest::setUp()
 {
-    t_task_np = new TestTask<TaskNonPreemptible>( ZeroTimeThread::Instance()->getPeriod(), true );
-    t_task_np_bad = new TestTask<TaskNonPreemptible>( ZeroTimeThread::Instance()->getPeriod(), true, true );
-    t_task_p = new TestTask<TaskPreemptible>( ZeroLatencyThread::Instance()->getPeriod(), true );
-    t_task_sim = new TestTask<TaskSimulation>( SimulationThread::Instance()->getPeriod(), true );
+    t_task_np = new TestTask<NonPreemptibleActivity>( ZeroTimeThread::Instance()->getPeriod(), true );
+    t_task_np_bad = new TestTask<NonPreemptibleActivity>( ZeroTimeThread::Instance()->getPeriod(), true, true );
+    t_task_p = new TestTask<PreemptibleActivity>( ZeroLatencyThread::Instance()->getPeriod(), true );
+    t_task_sim = new TestTask<SimulationActivity>( SimulationThread::Instance()->getPeriod(), true );
 }
 
 
 void 
-TasksThreadTest::tearDown()
+ActivitiesThreadTest::tearDown()
 {
     ZeroTimeThread::Instance()->start();
     delete t_task_np;
@@ -120,42 +156,95 @@ TasksThreadTest::tearDown()
     delete t_task_sim;
 }
 
-void TasksThreadTest::testThreadConfig()
+void ActivitiesThreadTest::testPeriodic()
 {
-    PriorityThread<15>::Instance();
-    // stop thread
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->stop() );
-    // switching hard/soft
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->makeHardRealtime() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->makeHardRealtime() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->makeSoftRealtime() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->makeHardRealtime() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->makeSoftRealtime() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->makeSoftRealtime() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->makeHardRealtime() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->start() );
+    // Test periodic task sequencing...
+
+    PeriodicActivity mtask( 15, 0.01 );
+    CPPUNIT_ASSERT( mtask.isRunning() == false );
+    CPPUNIT_ASSERT( mtask.thread()->isRunning() );
+    CPPUNIT_ASSERT_EQUAL( 0.01, mtask.thread()->getPeriod() );
+    CPPUNIT_ASSERT_EQUAL( 15, mtask.thread()->getPriority() );
+
+    PeriodicActivity m2task( 15, 0.01 );
+    CPPUNIT_ASSERT( mtask.thread() == m2task.thread() );
+
+    // starting...
+    CPPUNIT_ASSERT( mtask.start() == true );
+    CPPUNIT_ASSERT( mtask.isRunning() == true );
+    CPPUNIT_ASSERT( m2task.isRunning() == false );
+    CPPUNIT_ASSERT( m2task.start() == true );
+    CPPUNIT_ASSERT( m2task.isRunning() == true );
 
     sleep(1);
 
-    // all must fail, except first statement
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->makeHardRealtime() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->makeSoftRealtime() == false );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->setPeriod(0.3) == false );
+    // stopping...
+    CPPUNIT_ASSERT( mtask.stop() == true );
+    CPPUNIT_ASSERT( mtask.isRunning() == false );
+    CPPUNIT_ASSERT( m2task.isRunning() == true );
+    CPPUNIT_ASSERT( m2task.stop() == true );
+    CPPUNIT_ASSERT( m2task.isRunning() == false );
     
-    // reconfigure periodicity
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->stop() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->setPeriod(0.3) );
-    CPPUNIT_ASSERT_EQUAL( 0.3, PriorityThread<15>::Instance()->getPeriod() );
-
-    // some quick start/stops.
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->start() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->stop() );
-    CPPUNIT_ASSERT( PriorityThread<15>::Instance()->start() );
-
-    PriorityThread<15>::Release();
 }
 
-void TasksThreadTest::testExceptionRecovery()
+void ActivitiesThreadTest::testThreadConfig()
+{
+    TimerThreadPtr tt = TimerThread::Instance(15, 0.01);
+
+    CPPUNIT_ASSERT_EQUAL( 0.01, tt->getPeriod());
+    CPPUNIT_ASSERT_EQUAL( 15, tt->getPriority());
+
+    {
+        // different priority, different thread.
+        TimerThreadPtr tt2 = TimerThread::Instance(16, 0.01);
+        CPPUNIT_ASSERT( tt2 != 0 );
+        CPPUNIT_ASSERT( tt2 != tt );
+        
+        // different period, different thread.
+        TimerThreadPtr tt3 = TimerThread::Instance(15, 0.1);
+        CPPUNIT_ASSERT( tt3 != 0 );
+        CPPUNIT_ASSERT( tt3 != tt );
+        CPPUNIT_ASSERT( tt3 != tt2 );
+    }
+
+    // get it again.
+    tt = TimerThread::Instance(15, 0.01);
+    CPPUNIT_ASSERT( tt != 0 );
+    CPPUNIT_ASSERT( tt == TimerThread::Instance(15,0.01) );
+
+    // switching hard/soft
+    CPPUNIT_ASSERT( tt->makeHardRealtime() );
+    CPPUNIT_ASSERT( tt->makeHardRealtime() );
+    CPPUNIT_ASSERT( tt->makeSoftRealtime() );
+    CPPUNIT_ASSERT( tt->makeHardRealtime() );
+    CPPUNIT_ASSERT( tt->makeSoftRealtime() );
+    CPPUNIT_ASSERT( tt->makeSoftRealtime() );
+    CPPUNIT_ASSERT( tt->makeHardRealtime() );
+    CPPUNIT_ASSERT( tt->start() );
+
+    sleep(1);
+
+    // prints annoying warning messages...
+    Logger::LogLevel ll = Logger::log().getLogLevel();
+    Logger::log().setLogLevel(Logger::Critical);
+    CPPUNIT_ASSERT( tt->makeHardRealtime() );
+    CPPUNIT_ASSERT( tt->makeSoftRealtime() == false );
+    Logger::log().setLogLevel( ll );
+    CPPUNIT_ASSERT( tt->setPeriod(0.3) == false );
+    
+    // reconfigure periodicity
+    CPPUNIT_ASSERT( tt->stop() );
+    CPPUNIT_ASSERT( tt->setPeriod(0.3) );
+    CPPUNIT_ASSERT_EQUAL( Seconds_to_nsecs(0.3), tt->getPeriodNS() );
+
+    // some quick start/stops.
+    CPPUNIT_ASSERT( tt->start() );
+    CPPUNIT_ASSERT( tt->stop() );
+    CPPUNIT_ASSERT( tt->start() );
+
+}
+
+void ActivitiesThreadTest::testExceptionRecovery()
 {
     //Logger::LogLevel ll = Logger::log().getLogLevel();
     Logger::log().setLogLevel( Logger::Never );
@@ -201,12 +290,12 @@ void TasksThreadTest::testExceptionRecovery()
     CPPUNIT_ASSERT( t_task_np->fini );
 }
 
-void TasksThreadTest::testAddAllocate()
+void ActivitiesThreadTest::testAddAllocate()
 {
     CPPUNIT_ASSERT( t_task_np->run( t_run_allocate ) );
 }
 
-void TasksThreadTest::testRemoveAllocate()
+void ActivitiesThreadTest::testRemoveAllocate()
 {
     CPPUNIT_ASSERT( t_task_np->run( 0 ) );
 }

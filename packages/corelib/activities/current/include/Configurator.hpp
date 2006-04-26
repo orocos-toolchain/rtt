@@ -30,9 +30,9 @@
 #define CONFIGURATOR_HPP
 
 #include "ConfigurationInterface.hpp"
-#include "TaskNonRealTime.hpp"
-#include "TaskPreemptible.hpp"
-#include "TaskNonPreemptible.hpp"
+#include "NonRealTimeActivity.hpp"
+#include "PreemptibleActivity.hpp"
+#include "NonPreemptibleActivity.hpp"
 #include "TimeService.hpp"
 #include "Time.hpp"
 
@@ -47,14 +47,14 @@ namespace ORO_CoreLib
      * step and so on until an error occured or the configuration
      * is finished.
      *
-     * @param TaskBase Template : The Task formalism to use.
+     * @param BaseActivity Template : The Activity formalism to use.
      */
-    template< class TaskBase >
+    template< class BaseActivity >
     class Configurator 
-        : protected TaskBase
+        : protected BaseActivity
     {
     public:
-        typedef TaskBase Base;
+        typedef BaseActivity Base;
         
         /**
          * Creates a Configurator with configuration
@@ -132,15 +132,15 @@ namespace ORO_CoreLib
     /**
      * A NonPreemptible Configurator.
      */
-    typedef Configurator<TaskNonPreemptible> NonPreemptibleConfigurator;
+    typedef Configurator<NonPreemptibleActivity> NonPreemptibleConfigurator;
     /**
      * A Preemptible Configurator.
      */
-    typedef Configurator<TaskPreemptible> PreemptibleConfigurator;
+    typedef Configurator<PreemptibleActivity> PreemptibleConfigurator;
     /**
      * A NonRealTime Configurator.
      */
-    typedef Configurator<TaskNonRealTime> NonRealTimeConfigurator;
+    typedef Configurator<NonRealTimeActivity> NonRealTimeConfigurator;
 }
 
 

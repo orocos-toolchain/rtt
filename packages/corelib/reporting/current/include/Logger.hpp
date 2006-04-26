@@ -231,7 +231,10 @@ namespace ORO_CoreLib
 
         /**
          * Set the loglevel of the outgoing (streamed) messages.
-         * All messages with this level or lower will be displayed.
+         * All messages with this level or higher importance will be displayed.
+         * For example, setting to \a Logger::Debug will print everyting,
+         * setting to \a Logger::Critical will only print critical or fatal
+         * errors.
          */
         void setLogLevel( LogLevel ll );
 

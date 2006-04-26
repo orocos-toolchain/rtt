@@ -26,7 +26,7 @@
 #include <execution/DataSourceAdaptor.hpp>
 #include <execution/DataSourceGenerator.hpp>
 
-#include <corelib/TaskSimulation.hpp>
+#include <corelib/SimulationActivity.hpp>
 #include <corelib/SimulationThread.hpp>
 
 #include <pkgconf/system.h>
@@ -50,7 +50,7 @@ Template_FactoryTest::setUp()
     tc->commands()->registerObject("commands", this->createCommandFactory() );
     tc->datasources()->registerObject("data", this->createDataSourceFactory() );
     tc->events()->addEvent("FloatEvent", &t_event_float);
-    tsim = new TaskSimulation(0.001, tc->engine() );
+    tsim = new SimulationActivity(0.001, tc->engine() );
     event_proc = new EventProcessor();
 }
 

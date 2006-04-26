@@ -21,7 +21,7 @@
 #define COMPLETIONPROCESSOR_HPP
 
 #include "os/Mutex.hpp"
-#include "TaskNonPeriodic.hpp"
+#include "NonPeriodicActivity.hpp"
 
 namespace ORO_CoreLib
 {
@@ -39,7 +39,7 @@ namespace ORO_CoreLib
      *
      */
     class CompletionProcessor 
-        : public TaskNonPeriodic
+        : public NonPeriodicActivity
     {
     public:
         /**

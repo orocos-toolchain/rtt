@@ -30,7 +30,7 @@
 #define ORO_EXECUTION_ENGINE_HPP
 
 #include <corelib/RunnableInterface.hpp>
-#include <corelib/TaskInterface.hpp>
+#include <corelib/ActivityInterface.hpp>
 #include <execution/CommandProcessor.hpp>
 #include <execution/ProgramProcessor.hpp>
 #include <execution/StateMachineProcessor.hpp>
@@ -83,7 +83,7 @@ namespace ORO_Execution
 
         virtual void finalize();
 
-        virtual void setTask(ORO_CoreLib::TaskInterface* t);
+        virtual void setActivity(ORO_CoreLib::ActivityInterface* t);
 
         ExecutionEngine* getParent();
 

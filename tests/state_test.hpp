@@ -30,7 +30,7 @@
 #include <execution/TaskContext.hpp>
 #include <execution/Factories.hpp>
 #include <string>
-#include <corelib/TaskSimulation.hpp>
+#include <corelib/SimulationActivity.hpp>
 
 using namespace ORO_CoreLib;
 using namespace ORO_Execution;
@@ -52,7 +52,7 @@ class StateTest : public CppUnit::TestFixture
     Parser parser;
 #endif
     TaskContext gtc;
-    TaskSimulation gtask;
+    SimulationActivity gtask;
     Event<void(double)> d_event;
     Event<void(bool)> b_event;
     MethodFactoryInterface* createMethodFactory();

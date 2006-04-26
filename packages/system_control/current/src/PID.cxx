@@ -75,7 +75,7 @@
 namespace MotionControl
 {
 
-    PID::PID( RunnableTaskInterface* sli,
+    PID::PID( RunnableActivityInterface* sli,
 
               const struct PIDAttr* attr )
             : _attr( *attr )

@@ -35,7 +35,7 @@
 namespace ORO_CoreLib
 {
 
-    class TaskPreemptible;
+    class PreemptibleActivity;
     /**
      * This thread is the preemptible realtime thread in the
      * Orocos system. It is assumed to perform its work over a 
@@ -48,7 +48,7 @@ namespace ORO_CoreLib
         : public TimerThread
     {
     public:
-        static ZeroLatencyThread* Instance();
+        static TimerThreadPtr Instance();
 
         /**
          * Releases the ZeroLatencyThread
@@ -75,7 +75,7 @@ namespace ORO_CoreLib
         /**
          * Our only instance of the ZeroLatencyThread
          */
-        static ZeroLatencyThread* _instance;
+        static TimerThreadPtr _instance;
 
     };
 } // namespace ORO_CoreLib

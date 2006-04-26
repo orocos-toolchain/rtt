@@ -186,7 +186,7 @@ namespace ORO_Execution
 
     bool ProgramProcessor::runFunction( ProgramInterface* f )
     {
-        if (this->getTask() && this->getTask()->isRunning() && f) {
+        if (this->getActivity() && this->getActivity()->isRunning() && f) {
             f->setProgramProcessor(this);
             if ( f->start() == false)
                 return false;

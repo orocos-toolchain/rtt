@@ -40,7 +40,7 @@
 #include <corelib/marshalling/TableMarshaller.hpp>
 #include <corelib/marshalling/TableHeaderMarshaller.hpp>
 #include <corelib/marshalling/EmptyHeaderMarshaller.hpp>
-#include <corelib/TaskNonRealTime.hpp>
+#include <corelib/NonRealTimeActivity.hpp>
 
 #include <pkgconf/os.h>
 #ifdef OROINT_OS_STDIOSTREAM
@@ -251,7 +251,7 @@ namespace ORO_ControlKernel
         Property<std::string> reportServer;
         Property<bool> autostart;
 
-        TaskNonRealTime* reporterTask;
+        NonRealTimeActivity* reporterTask;
             
         /**
          * A mapping of names and components.

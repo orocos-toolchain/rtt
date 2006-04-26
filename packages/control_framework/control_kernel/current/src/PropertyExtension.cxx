@@ -107,14 +107,14 @@ namespace ORO_ControlKernel
         return result;
     }
 
-//     TaskInterface* PropertyExtension::getTask() const
+//     ActivityInterface* PropertyExtension::getActivity() const
 //     {
-//         return base->getTask();
+//         return base->getActivity();
 //     }
     
-//     void PropertyExtension::setTask( TaskInterface* task )
+//     void PropertyExtension::setActivity( ActivityInterface* task )
 //     {
-//         base->setTask( task );
+//         base->setActivity( task );
 //     }
 
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION

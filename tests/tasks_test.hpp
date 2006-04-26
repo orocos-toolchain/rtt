@@ -22,12 +22,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <corelib/TaskNonRealTime.hpp>
-#include <corelib/TaskPreemptible.hpp>
-#include <corelib/TaskNonPreemptible.hpp>
-#include <corelib/PriorityTask.hpp>
-#include <corelib/TaskSimulation.hpp>
-#include <corelib/TaskNonPeriodic.hpp>
+#include <corelib/NonRealTimeActivity.hpp>
+#include <corelib/PreemptibleActivity.hpp>
+#include <corelib/NonPreemptibleActivity.hpp>
+#include <corelib/PeriodicActivity.hpp>
+#include <corelib/SimulationActivity.hpp>
+#include <corelib/NonPeriodicActivity.hpp>
 
 using namespace ORO_CoreLib;
 using namespace ORO_CoreLib::detail;
@@ -35,9 +35,9 @@ using namespace ORO_CoreLib::detail;
 struct TestRunnableInterface;
 struct TestSelfRemove;
 
-class TasksTest : public CppUnit::TestFixture
+class ActivitiesTest : public CppUnit::TestFixture
 {
-    CPPUNIT_TEST_SUITE( TasksTest );
+    CPPUNIT_TEST_SUITE( ActivitiesTest );
     // Periodic Thread Test :
     CPPUNIT_TEST( testThreads );
 
@@ -66,10 +66,10 @@ class TasksTest : public CppUnit::TestFixture
 
     CPPUNIT_TEST_SUITE_END();
 
-    TaskNonRealTime*    t_task_nrt;
-    TaskNonPreemptible* t_task_np;
-    TaskPreemptible*    t_task_p;
-    PriorityTask<15>*   t_task_prio;
+    NonRealTimeActivity*    t_task_nrt;
+    NonPreemptibleActivity* t_task_np;
+    PreemptibleActivity*    t_task_p;
+    PeriodicActivity*   t_task_prio;
 
     TestRunnableInterface*  t_run_int_np;
     TestRunnableInterface*  t_run_int_p;
@@ -80,7 +80,7 @@ class TasksTest : public CppUnit::TestFixture
     RunnableInterface* t_run_allocate;
     TestSelfRemove* t_self_remove;
 
-    TaskTimerInterface* tti;
+    TimerInterface* tti;
 public:
 
     void setUp();

@@ -113,7 +113,7 @@ namespace ORO_CoreLib
 
     BlockingEventProcessor::~BlockingEventProcessor() {
         this->breakLoop();
-        // race condition here, this->getTask()->isRunning() better be false
+        // race condition here, this->getActivity()->isRunning() better be false
         // before EventProcessor is destructed, otherwise, solve with extra semaphore
     }
 

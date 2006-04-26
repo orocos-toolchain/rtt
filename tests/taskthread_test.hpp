@@ -23,9 +23,9 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <corelib/TaskNonPreemptible.hpp>
-#include <corelib/TaskPreemptible.hpp>
-#include <corelib/TaskSimulation.hpp>
+#include <corelib/NonPreemptibleActivity.hpp>
+#include <corelib/PreemptibleActivity.hpp>
+#include <corelib/SimulationActivity.hpp>
 
 using namespace ORO_CoreLib;
 
@@ -36,11 +36,12 @@ struct TestTask;
 /**
  * Tests task-thread relationships.
  */
-class TasksThreadTest : public CppUnit::TestFixture
+class ActivitiesThreadTest : public CppUnit::TestFixture
 {
-    CPPUNIT_TEST_SUITE( TasksThreadTest );
+    CPPUNIT_TEST_SUITE( ActivitiesThreadTest );
     // Configuration Test :
-    //CPPUNIT_TEST( testThreadConfig );
+    CPPUNIT_TEST( testThreadConfig );
+    CPPUNIT_TEST( testPeriodic );
 
     CPPUNIT_TEST( testExceptionRecovery );
     
@@ -49,10 +50,10 @@ class TasksThreadTest : public CppUnit::TestFixture
 
     CPPUNIT_TEST_SUITE_END();
 
-    TestTask<TaskNonPreemptible>* t_task_np;
-    TestTask<TaskNonPreemptible>* t_task_np_bad;
-    TestTask<TaskPreemptible>*    t_task_p;
-    TestTask<TaskSimulation>*     t_task_sim;
+    TestTask<NonPreemptibleActivity>* t_task_np;
+    TestTask<NonPreemptibleActivity>* t_task_np_bad;
+    TestTask<PreemptibleActivity>*    t_task_p;
+    TestTask<SimulationActivity>*     t_task_sim;
 
     RunnableInterface* t_run_allocate;
 public:
@@ -62,6 +63,7 @@ public:
 
     void testExceptionRecovery();
     void testThreadConfig();
+    void testPeriodic();
 
     void testAllocation();
     void testRemoveAllocate();

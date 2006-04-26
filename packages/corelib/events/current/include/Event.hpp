@@ -28,7 +28,7 @@
 
 #include "Logger.hpp"
 #include "CompletionProcessor.hpp"
-#include "TaskInterface.hpp"
+#include "ActivityInterface.hpp"
 #include "EventProcessor.hpp"
 #include <os/Mutex.hpp>
 #include <os/MutexLock.hpp>
@@ -117,7 +117,7 @@ namespace ORO_CoreLib
         /**
          * @brief Connect an Asynchronous event slot to this event.
          */
-        Handle connect( const SlotFunction& l, TaskInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
+        Handle connect( const SlotFunction& l, ActivityInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
         {
             return this->connect( l, task->getEventProcessor(), t );
         }
@@ -133,7 +133,7 @@ namespace ORO_CoreLib
         /**
          * @brief Connect a Synchronous and Asynchronous event slot to this event.
          */
-        Handle connect( const SlotFunction& l, const SlotFunction& c, TaskInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
+        Handle connect( const SlotFunction& l, const SlotFunction& c, ActivityInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
         {
             return this->connect( l,c, task->getEventProcessor(), t );
         }
@@ -157,7 +157,7 @@ namespace ORO_CoreLib
         /**
          * @brief Setup an Asynchronous event slot to this event.
          */
-        Handle setup( const SlotFunction& l, TaskInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
+        Handle setup( const SlotFunction& l, ActivityInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
         {
             return this->setup( l, task->getEventProcessor(), t );
         }
@@ -173,7 +173,7 @@ namespace ORO_CoreLib
         /**
          * @brief Setup a Synchronous and Asynchronous event slot to this event.
          */
-        Handle setup( const SlotFunction& l, const SlotFunction& c, TaskInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
+        Handle setup( const SlotFunction& l, const SlotFunction& c, ActivityInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
         {
             return this->setup( l,c, task->getEventProcessor(), t );
         }

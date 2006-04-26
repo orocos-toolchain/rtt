@@ -106,13 +106,19 @@
 	<revnumber>0.20.0</revnumber>
 	<date>31 Jan 2005</date>
 	<authorinitials>ps</authorinitials>
-	<revremark>Added DataObject section within Buffer section. Added TaskNonPeriodic.</revremark>
+	<revremark>Added DataObject section within Buffer section. Added NonPeriodicActivity.</revremark>
       </revision>
       <revision>
 	<revnumber>0.22.0</revnumber>
 	<date>15 Feb 2006</date>
 	<authorinitials>ps</authorinitials>
 	<revremark>Removed Fifo section. Split off developer specific info.</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.24.0</revnumber>
+	<date>13 April 2006</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>'Tasks' replaced by 'Activities'.</revremark>
       </revision>
     </revhistory>
 
@@ -139,7 +145,7 @@
     <para>
       The CoreLib provides:
       <itemizedlist>
-	<listitem><para>Thread-safe C++ implementations for (periodic) tasks</para></listitem>
+	<listitem><para>Thread-safe C++ implementations for periodic, non periodic and event driven activities</para></listitem>
 	<listitem><para>Synchronous/Asynchronous Events</para></listitem>
 	<listitem><para>Time measurement</para></listitem>
 	<listitem><para>Application logging and reporting</para></listitem>
@@ -147,17 +153,17 @@
 	<listitem><para>Lock-free data exchange primitives such as fifo buffers or shared data.</para></listitem>
       </itemizedlist> 
       and additionally provides interfaces which are common for all realtime services.
-      The CoreLib imposes a hard realtime <emphasis>architecture</emphasis>:
+      The CoreLib provides a hard realtime <emphasis>infrastructure</emphasis>:
     </para>
     <blockquote>
       <para>
-	<emphasis> The goal of this fixed architecture is to keep 
-	applications deterministic, by avoiding the classical pitfalls of
-	letting application programmers freely choose the priorities of their
-	tasks, and their communication primitives. Practice has indeed showed
-	that most programmers do not succeed in strictly decoupling the
-	functional and algorithmic parts of their code from the OS-specific
-	primitives used to execute them.</emphasis>
+	<emphasis> The goal of the infrastructure is to keep
+	applications deterministic, by avoiding the classical pitfalls
+	of letting application programmers freely use threads and
+	mutexes as bare tools. Practice has indeed showed that most
+	programmers do not succeed in strictly decoupling the
+	functional and algorithmic parts of their code from the
+	OS-specific primitives used to execute them.</emphasis>
       </para>
     </blockquote>
     <para>
@@ -168,198 +174,141 @@
     </para>
     <para>
       The following sections will first introduce the reader to creating
-      (periodic) Tasks in the system. Furtheron, they are extended
+      Activities, which execute functions in a thread, in the system. Furtheron, they are extended
       with Events. The following sections explain usefull classes which
       are used throughout the framework such as the TimeService,
       Properties and the object NameServer.
     </para>
   </sect1>
   <sect1>
-    <title>Periodic and non Periodic Tasks</title>
+    <title>Periodic and non Periodic Activities</title>
     <note>
-      <para>In future versions of Orocos the CoreLib 'Task' classes may
-      be renamed to 'Activity' in order to avoid confusion with the
-      higher level 'TaskContext' concept.</para>
+      <para>In older Orocos versions, 'Activities' were named 'Tasks'.</para>
     </note>
     <para>
-      Threads are the major cause of headaches in multithreaded
-      systems programmers heads. Synchronisation, data protection,
-      priority tweaking and resource locking must all be done very
-      carefully and mostly lead to suboptimal solutions. Even more,
-      the predictability of the system highly decreases with the
-      introduction of more threads or interactions between threads.
-      This section gives an introduction to defining periodic tasks
-      which run together with other periodic tasks of the
-      same priority in the same periodic thread. Non 
-      are implemented using a non periodic thread.
+      An Activity executes a function when a 'trigger' occurs. Although, 
+      ultimately, an activity is executed by a thread, it does not map
+      one-to-one on a thread. A thread may execute ('serialise') multiple
+      activities. This section gives an introduction to defining periodic activities,
+      which are triggered periodically, non periodic activities, which are triggered
+      by the user, and event driven activities, which are run when an Orocos event occurs.
     </para>
     <sect2>
-      <title>Periodic Tasks Run in Periodic Threads</title>
+      <title>Standard Periodic Activities</title>
       <para>
-	A basic control application needs for example, a high priority periodic thread
-	and a low priority periodic thread. The high priority thread is
-	used for all periodic tasks that need to be executed atomically. No
-	action in this thread will ever be preempted by another thread. The low
-	priority realtime thread is used for all periodic tasks which may be
-	preempted but still have hard deadlines. It can always be
-	preempted by the high priority thread. There is also a non
-	realtime (periodic) thread which gives no deadline guarantees. 
-	For convenience, Orocos provides implementations for these three types of threads 
-	( which only differ in periodicity and priority ) and allows
-	to extend to more for your specific needs.
+	For convenience, Orocos provides implementations
+	for three types of periodic activities ( which only differ in
+	periodicity and priority ) but allows to extend to more for
+	your specific needs.
+	A basic periodic control application needs for example, a high
+	priority periodic thread and a low priority periodic
+	thread. The high priority thread is used for all periodic
+	activities that need to be executed atomically. No action in
+	this thread will ever be preempted by another thread. The low
+	priority realtime thread is used for all periodic activities
+	which may be preempted but still have hard deadlines. It can
+	always be preempted by the high priority thread. There is also
+	a non realtime (periodic) thread which gives no deadline
+	guarantees.  
       </para>
-    </sect2>
-    <sect2>
-      <title>Creating a Periodic Thread</title>
       <para>
-	Orocos provides, by default, two hard realtime periodic threads and
-	a non realtime periodic thread. The <classname>ORO_CoreLib::ZeroTimeThread</classname>
-	has the highest priority, the <classname>ORO_CoreLib::ZeroLatencyThread</classname>
-	has a lower priority and the <classname>ORO_CoreLib::NonRealTimeThread</classname>
-	has an even lower priority is not realtime at all (but still periodic).
-	If they are needed, Orocos will create and start/stop them automatically,
-	thus the user does not need to know or take care of them. 
+	Orocos provides, by default, two hard realtime periodic
+	activties and a non realtime periodic activity to execute your
+	functions. The
+	<classname>ORO_CoreLib::NonPreemptibleActivity</classname> has the
+	highest priority, the
+	<classname>ORO_CoreLib::PreemptibleActivity</classname> has a
+	lower priority and the
+	<classname>ORO_CoreLib::NonRealTimeActivity</classname> has an
+	even lower priority is not realtime at all (but still
+	periodic). Each instance of the same type run in the same thread.
+	In complexer control applications, one can create additional
+	threads by using the <classname>ORO_CoreLib::PeriodicActivity</classname>.
+	If these activities are used, Orocos will create a thread and
+	start/stop them automatically, otherwise, these threads
+	are not created.
       </para>
       <important>
 	<para>
-	  You must configure the priority and periodicity of these three threads
-	  in the configtool program.
+	  You must configure the priority and periodicity of the
+	  three predefined threads in the configtool program.
 	</para>
       </important>
-      <para>
-	For users needing to solve multi-threaded control problems, the
-	PriorityThread is provided with which you
-	can create an arbitrary number of threads with no more than
-	one thread per priority level. It needs a bit more setup than
-	the standard Orocos threads, since you still have to set the
-	priority and start the thread. An example is given below. 
-	A PriorityThread is not automatically started like the ZeroTimeThread,
-	ZeroLatencyThread and NonRealTimeThread. It must be done by the
-	user. Furthermore, The <classname>ORO_CoreLib::PriorityThread</classname> is the general case of the
-	above three cases, since its priority can match their priorities
-	as given in the configuration tool.</para>
-      <para>
-	<example>
-	<title>Example Periodic Thread Creation</title>
-	<para>
-	    This example shows how to create the PriorityThread.
-	</para>
-	<programlisting>#include "corelib/PriorityTask.hpp"
-
-using namespace ORO_CoreLib;
-
-class KineLoop : public <classname>ORO_CoreLib::RunnableInterface</classname>
-{
-    bool initialize() { // ...
-    }
-    void step() {
-    }
-    void finalize() {
-    }
-    // ...
-};
-
-ORO_main( int argc, char** argv)
-{
-  // Define your tasks (see later)
-  KineLoop kine_loop;
-
-  // An extra thread for low priority tasks
-  // 9 : The priority.
-  // 0.01 : The period.
-  // You have to manually start the thread.
-  <classname>ORO_CoreLib::PriorityThread</classname>&lt;9>::Instance()->setPeriod( 0.01 );
-  <classname>ORO_CoreLib::PriorityThread</classname>&lt;9>::Instance()->start();
-  // Optional :
-  <classname>ORO_CoreLib::PriorityThread</classname>&lt;9>::Instance()->makeHardRealtime();
-
-  // This task is run in the extra thread above,
-  // kine_loop inherits from RunnableInterface :
-  <classname>ORO_CoreLib::PriorityTask</classname>&lt;9> own_task( 0.05, &amp;kine_loop ); // 0.05 is multiple of 0.01
-
-  own_task->start();
-
-  // ...
-
-  own_task->stop();
-
-  return 0;
-}</programlisting>
-      </example>
-      </para>
     </sect2>
     <sect2>
-      <title>Creating a Periodic Task</title>
+      <title>Creating a Periodic Activity</title>
       <para>
 	If you want to execute functionality in one of the Orocos threads, you need to 
-	create a Task of a certain type, depending on the thread type. The table
-	below summarises which Task type there is per thread.
+	create a Activity of a certain type, depending on the thread type. The table
+	below summarises which Activity type there is per thread.
 	<table>
-	  <title>Thread and Task summary</title>
+	  <title>Thread and Activity summary</title>
 	  <!-- one of (graphic mediaobject tgroup) -->
 	  <tgroup cols="2">
 	    <thead>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry>Thread</entry>
-		<entry>Task</entry>
+		<entry>Thread (created by Orocos)</entry>
+		<entry>Activity (created by User)</entry>
 	      </row>
 	    </thead>
 	    <tbody>
 	      <row>
 		<entry><classname>ORO_CoreLib::TimerThread</classname></entry>
-		<entry><classname>ORO_CoreLib::PeriodicTask</classname></entry>
+		<entry><classname>ORO_CoreLib::PeriodicActivity</classname></entry>
 		<!-- one of (entrytbl entry) -->
 	      </row>
 	      <row>
 		<entry><classname>ORO_CoreLib::ZeroTimeThread</classname></entry>
-		<entry><classname>ORO_CoreLib::TaskNonPreemptible</classname></entry>
+		<entry><classname>ORO_CoreLib::NonPreemptibleActivity</classname></entry>
 		<!-- one of (entrytbl entry) -->
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
 		<entry><classname>ORO_CoreLib::ZeroLatencyThread</classname></entry>
-		<entry><classname>ORO_CoreLib::TaskPreemptible</classname></entry>
+		<entry><classname>ORO_CoreLib::PreemptibleActivity</classname></entry>
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
 		<entry><classname>ORO_CoreLib::NonRealTimeThread</classname></entry>
-		<entry><classname>ORO_CoreLib::TaskNonRealTime</classname></entry>
-	      </row>
-	      <row>
-		<!-- one of (entrytbl entry) -->
-		<entry><classname>ORO_CoreLib::PriorityThread</classname></entry>
-		<entry><classname>ORO_CoreLib::PriorityTask</classname></entry>
+		<entry><classname>ORO_CoreLib::NonRealTimeActivity</classname></entry>
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
 		<entry><classname>ORO_CoreLib::SimulationThread</classname></entry>
-		<entry><classname>ORO_CoreLib::SimulationTask</classname></entry>
+		<entry><classname>ORO_CoreLib::SimulationActivity</classname></entry>
 	      </row>
 	    </tbody>
 	  </tgroup>
 	</table></para>
       <para>
-	There are two ways to run functionality in a periodic task. By :
+	There are two ways to run a function in a periodic activity. By :
 	<itemizedlist>
 	  <listitem>
 	    <para>
-	      Implementing the <classname>ORO_CoreLib::RunnableInterface</classname>  in another class
-	      ( functions initialize, step or loop/breakLoop and finalize ). The RunnableInterface object (i.e. run_impl) can
-	      be assigned to a task using <synopsis> task.run( &amp;run_impl )</synopsis> or
-	      at construction time of a Task : <synopsis> TaskNonPreemptible task( period, &amp;run_impl );</synopsis>.
+	      Implementing the
+	      <classname>ORO_CoreLib::RunnableInterface</classname> in
+	      another class ( functions initialize(), step() or
+	      loop()/breakLoop() and finalize() ). The
+	      RunnableInterface object (i.e. run_impl) can be assigned
+	      to a activity using <synopsis> activity.run(
+	      &amp;run_impl )</synopsis> or at construction time of an
+	      Activity : <synopsis> PeriodicActivity activity(priority,
+	      period, &amp;run_impl );</synopsis>.
+	    </para>
+	    <para>
 	      <programlisting>  #include &lt;corelib/RunnableInterface.hpp>
-  #include &lt;corelib/TaskNonPreemptible.hpp>
+  #include &lt;corelib/PeriodicActivity.hpp>
 
-  class MyPeriodicTask
+  class MyPeriodicActivity
 	: public <classname>ORO_CoreLib::RunnableInterface</classname>
   {
   public:
     // ...
     bool initialize() {
        // your init stuff
-       myperiod = this->getTask()->getPeriod();
-       isperiodic = this->getTask()->isPeriodic();
+       myperiod = this->getActivity()->getPeriod();
+       isperiodic = this->getActivity()->isPeriodic();
        
        // ...
        return true; // if all went well
@@ -381,31 +330,31 @@ ORO_main( int argc, char** argv)
   };
 
   // ...
-  MyPeriodicTask run_impl_1;
-  MyPeriodicTask run_impl_2;
+  MyPeriodicActivity run_impl_1;
+  MyPeriodicActivity run_impl_2;
 
-  <classname>ORO_CoreLib::TaskNonPreemptible</classname> task( 0.01 ); // 100Hz
-  task.run( &amp;run_impl_1 );
-  task.start(); // calls 'step()'
+  <classname>ORO_CoreLib::PeriodicActivity</classname> activity( 15, 0.01 ); // priority=15, period=100Hz
+  activity.run( &amp;run_impl_1 );
+  activity.start(); // calls 'step()'
 
-  <classname>ORO_CoreLib::TaskNonPeriodic</classname> nptask(12); // priority = 12
-  nptask.run( &amp;run_impl_2);
-  task.start(); // calls 'loop()'
+  <classname>ORO_CoreLib::NonPeriodicActivity</classname> npactivity(12); // priority=12, no period.
+  npactivity.run( &amp;run_impl_2);
+  activity.start(); // calls 'loop()'
 
   // etc...  </programlisting>
 	    </para>
 	  </listitem>
 	  <listitem>
 	    <para>
-	      Inheriting from a Task class and overriding the initialize, step
-	      and finalize methods.
+	      Inheriting from an Activity class and overriding the initialize(), step()
+	      and finalize() methods.
 	      <programlisting>
-  class MyOtherPeriodicTask
-      : public <classname>ORO_CoreLib::TaskNonPreemptible</classname>
+  class MyOtherPeriodicActivity
+      : public <classname>ORO_CoreLib::PeriodicActivity</classname>
   {
   public :
-    MyOtherPeriodicTask()
-      : <classname>ORO_CoreLib::TaskNonPreemptible</classname>( 0.01 ) // 100Hz
+    MyOtherPeriodicActivity()
+      : <classname>ORO_CoreLib::PeriodicActivity</classname>( 15, 0.01 ) // priority=15, period=100Hz
     {
     }
 
@@ -427,24 +376,27 @@ ORO_main( int argc, char** argv)
   };
 
   // When started, will call your step
-  MyOtherPeriodicTask task;
-  task.start();  </programlisting>
+  MyOtherPeriodicActivity activity;
+  activity.start();  </programlisting>
 	    </para>
 	  </listitem>
 	</itemizedlist>
-	The Task will detect if it must run an external RunnableInterface. If none
+	The Activity will detect if it must run an external RunnableInterface. If none
 	was given, it will call its own virtual methods.
       </para>
     </sect2>
     <sect2>
-      <title>Periodic Task Ordering</title>
+      <title>Periodic Activity Ordering</title>
       <para>
-	Periodic Tasks are executed <emphasis>in the order as they are started</emphasis>.
-	The periodic thread responsible
-	for the Task will execute all tasks one after the other, respecting
-	the periodicity of the periodic task. This means that a Task with a lower periodicity
-	of the thread (e.g. 10 times lower) will only be called a fraction of the
-	time (thus every 10th period), still respecting the ordering.
+	The standard periodic Activities (NonPreemptibleActivity,
+	PreemptibleActivity and NonRealTimeActivity) are executed
+	<emphasis>in the order as they are started</emphasis>.  The
+	periodic thread responsible for the Activity will execute all
+	activities one after the other, respecting the periodicity of
+	the periodic activity. This means that a Activity with a lower
+	periodicity of the thread (e.g. 10 times lower) will only be
+	called a fraction of the time (thus every 10th period), still
+	respecting the ordering.
       </para>
       <para>
 	<figure><title>Execution sequence diagram</title>
@@ -459,79 +411,85 @@ ORO_main( int argc, char** argv)
 	  </mediaobject>
 	</figure>
       </para>
+      <para>
+	A PeriodicActivity instance is only serialised with another instance
+	if the priorities and periodicities match. Otherwise, a new thread
+	is created.
+      </para>
     </sect2>
     <sect2>
-      <title>Example Periodic Task Creation</title>
+      <title>Example Periodic Activity Creation</title>
       <example>
-	<title>Example Periodic Task Creation</title>
+	<title>Example Periodic Activity Creation</title>
 	<para>
-	  This example shows how all kinds of tasks can be created. When a task
+	  This example shows how all kinds of activities can be created. When a activity
 	  is started it will add itself to the correct thread.
 	</para>
-	<programlisting>#include "corelib/TaskNonPreemptible.hpp"
-#include "corelib/TaskPreemptible.hpp"
-#include "corelib/TaskNonRealTime.hpp"
-#include "corelib/PriorityTask.hpp"
+	<programlisting>#include "corelib/NonPreemptibleActivity.hpp"
+#include "corelib/PreemptibleActivity.hpp"
+#include "corelib/NonRealTimeActivity.hpp"
+#include "corelib/PeriodicActivity.hpp"
 
 using namespace ORO_CoreLib;
 
 ORO_main( int argc, char** argv)
 {
-  // Define your tasks
+  // Define your activities
 
   // ...
 
-  // These tasks are run in the Orocos Thread Model
-  <classname>ORO_CoreLib::TaskNonPreemptible</classname> fast_task1(0.001, &amp;vel_loop);
-  <classname>ORO_CoreLib::TaskNonPreemptible</classname> fast_task2(0.001, &amp;vel_loop);
+  // The threads are created by Orocos.
+  // Both activities run in the same thread:
+  <classname>ORO_CoreLib::NonPreemptibleActivity</classname> fast_activity1(0.001, &amp;vel_loop);
+  <classname>ORO_CoreLib::NonPreemptibleActivity</classname> fast_activity2(0.001, &amp;vel_loop2);
 
-  <classname>ORO_CoreLib::TaskPreemptible</classname> slow_task(0.01, &amp;pos_loop);
-  <classname>ORO_CoreLib::TaskNonRealTime</classname> nrt_task( 0.1, &amp;display_server );
+  <classname>ORO_CoreLib::PreemptibleActivity</classname> slow_activity(0.01, &amp;pos_loop);
+  <classname>ORO_CoreLib::NonRealTimeActivity</classname> nrt_activity( 0.1, &amp;display_server );
 
-  // This task is run in the extra thread above
-  <classname>ORO_CoreLib::PriorityTask</classname>&lt;9> own_task( 0.05, &amp;kine_loop ); // 0.05 is multiple of 0.01
+  // This activity is run in its own thread.
+  <classname>ORO_CoreLib::PeriodicActivity</classname> own_activity( 9, 0.05, &amp;kine_loop );
 
   // All is transparant from here on.
-  fast_task1->start();
-  fast_task2->start(); // is always run directly after fast_task1 !
-  slow_task->start();
-  own_task->start();
-  nrt_task->start();
+  fast_activity1->start();
+  fast_activity2->start(); // is always run directly after fast_activity1 !
+  slow_activity->start();
+  own_activity->start();
+  nrt_activity->start();
 
   // ...
 
-  fast_task1->stop();
-  fast_task2->stop();
-  slow_task->stop();
-  own_task->stop();
-  nrt_task->stop();
+  fast_activity1->stop();
+  fast_activity2->stop();
+  slow_activity->stop();
+  own_activity->stop();
+  nrt_activity->stop();
 
   return 0;
 }</programlisting>
       </example>
     </sect2>
     <sect2>
-      <title>Periodic Threads Overview</title>
+      <title>Standard Periodic Threads Overview</title>
       <para>
 	The high priority thread is the
 	<classname>ORO_CoreLib::ZeroTimeThread</classname>. It will execute all
-	<classname>ORO_CoreLib::TaskNonPreemptible</classname> Tasks
-	synchronically. You can create your own not preemptable task by
+	<classname>ORO_CoreLib::NonPreemptibleActivity</classname> Activities
+	synchronically. You can create your own not preemptable activity by
 	inheriting from this class. Its name is derived from the fact
-	that some tasks need to be executed in an infinite small
+	that some activities need to be executed in an infinite small
 	amount of time to work correctly. Control loops are an example
 	of this. To come as close as possible to this (impossible)
-	constraint, we make sure that the task is never preempted by
-	another task and thus is executed 'atomically'.
+	constraint, we make sure that the activity is never preempted by
+	another activity and thus is executed 'atomically'.
       </para>
       <para>
-	The low priority tasks are executed by the
+	The low priority activities are executed by the
 	<classname>ORO_CoreLib::ZeroLatencyThread</classname> class. It will
-	execute all <classname>ORO_CoreLib::TaskPreemptible</classname> Tasks
-	sequentially, when no non-preemptible tasks are executed.
-	Every <classname>ORO_CoreLib::TaskPreemptible</classname> can be preempted
-	by a <classname>ORO_CoreLib::TaskNonPreemptible</classname> but not by
-	another <classname>ORO_CoreLib::TaskPreemptible</classname>. The
+	execute all <classname>ORO_CoreLib::PreemptibleActivity</classname> Activities
+	sequentially, when no non-preemptible activities are executed.
+	Every <classname>ORO_CoreLib::PreemptibleActivity</classname> can be preempted
+	by a <classname>ORO_CoreLib::NonPreemptibleActivity</classname> but not by
+	another <classname>ORO_CoreLib::PreemptibleActivity</classname>. The
 	ZeroLatencyThread has this name because the zero time
 	constraint is dropped, but replaced by the constraint that no
 	latency may occur and thus, execution is still realtime.
@@ -545,59 +503,192 @@ ORO_main( int argc, char** argv)
 	<emphasis>anything</emphasis> in this thread, as long as it
 	takes finite time. This is the lowest priority thread in the
 	system and it should never lock a resource of the realtime
-	thread. Tasks being executed in the NonRealTimeThread are
-	called <classname>ORO_CoreLib::TaskNonRealTime</classname>.
+	thread. Activities being executed in the NonRealTimeThread are
+	called <classname>ORO_CoreLib::NonRealTimeActivity</classname>.
       </para>
       <para>
 	The last standard thread type Orocos provides is the 
 	<classname>ORO_CoreLib::SimulationThread</classname> which runs
-	<classname>ORO_CoreLib::SimulationTask</classname>s. It is special in
-	that it executes all its tasks as fast as possible
+	<classname>ORO_CoreLib::SimulationActivity</classname>s. It is special in
+	that it executes all its activities as fast as possible
 	( thus without periodic sleeps ) and adjusting the
 	system's clock between each <emphasis>step()</emphasis>.
 	The latter allows correct timing measurement in the
-	tasks running in a SimulationThread. The SimulationThread
+	activities running in a SimulationThread. The SimulationThread
 	runs by default not-realtime, but this can be changed by
 	calling the <function>SimulationThread::Instance()->makeHardRealtime()</function>
 	function.
       </para>
+    </sect2>
+    <sect2 id="activity-non-periodic">
+      <title>Non Periodic Activities</title>
       <para>
-	The SimulationThread is started likewise the PriorityThread
-	above (but without the template parameter). Its priority and
-	periodicity can be changed with the configuration tool, or
-	before its started.
+	Non periodic activities are run in <emphasis>non
+	periodic</emphasis> threads, or possibly
+	<emphasis>after</emphasis> all periodic activities of a
+	certain periodic thread. The latter to avoid excessive jitter
+	in periodic activity execution.
       </para>
-	<programlisting>#include "corelib/SimulationTask.hpp"
+      <para>
+	If you want to create an activity which reads file-IO, or displays
+	information or does any other possibly blocking operation, the
+	<classname>ORO_CoreLib::NonPeriodicActivity</classname> implementation can be
+	used. When it is <function>start()</function>'ed, its loop()
+	method will be called exactly once and then it will wait,
+	after which it can be start()'ed again.  Analogous to periodic
+	activities, the user can implement
+	<function>initialize()</function>, <function>loop()</function>
+	and <function>finalize()</function> functions in a
+	<classname>ORO_CoreLib::RunnableInterface</classname> which will be used by
+	the activity for executing the user's functions. Alternatively,
+	you can reimplement said functions in a derived class of
+	NonPeriodicActivity. The activity's loop() will be executed in its own
+	thread, thus creating a NonPeriodicActivity means creating a new
+	thread :
+      </para>
+      <programlisting>  int priority = 5;
+  
+  <classname>ORO_CoreLib::RunnableInterface</classname>* blocking_activity = ...
+  <classname>ORO_CoreLib::NonPeriodicActivity</classname> activity( priority, blocking_activity );
+  activity.start(); // calls blocking_activity->initialize()
+
+  // now blocking_activity->loop() is called in a thread with priority 5.  
+  // assume loop() finished...
+
+  activity.start();  // executes again blocking_activity->loop()
+
+  // calls blocking_activity->breakLoop() if loop() is still executing,
+  // when loop() returned, calls blocking_activity->finalize() :
+  activity.stop(); </programlisting>
+      <para>
+	The NonPeriodicActivity differs from the
+	<classname>PeriodicActivity</classname> in the way start() and stop()
+	work. Only the first invocation of start() will invoke initialize().
+	Then loop() is executed once. Since the activity may be blocked in the user's loop()
+	function, the user must reimplement the
+	<function>RunnableInterface::breakLoop()</function>
+	function. This funcion must do whatever necessary to let the
+	user's loop() function return (mostly set a flag).  It must return true on
+	success, false if it was unable to let the loop() function
+	return (the latter is the default implementation's return
+	value).  <function>stop()</function> then waits until loop()
+	returns or aborts if <function>breakLoop()</function> returns
+	false. When successful, stop() executes the finalize() function.
+      </para>
+    </sect2>
+    <sect2>
+      <title>Event Driven Activities</title>
+      <para>
+	An alternative way to use non periodic activities is to use
+	the <classname>ORO_CoreLib::EventDrivenActivity</classname>,
+	which can be bound to an <classname>ORO_CoreLib::Event</classname> (see <xref linkend="corelib-events" /> )
+	and each time the Event is emitted, the step() method will be invoked
+	asynchronously in a given thread.
+	This will happen from the moment the activity's start method is called
+	until the stop method is called. The following example shows
+	how such a activity can be run asynchronously.
+	<programlisting>  #include &lt;corelib/EventDrivenActivity.hpp>
+
+  //...
+  <classname>ORO_CoreLib::Event</classname>&lt;void(void)> activity_event;
+  <classname>ORO_CoreLib::EventDrivenActivity</classname> activity( &amp;activity_event, <classname>ORO_CoreLib::ZeroTimeThread</classname>::Instance(), &amp;run_obj);
+
+  activity_event.emit(); // nothing happens
+
+  activity.start();      // initialize()s activity
+  activity_event.emit(); // activity's step() will be executed once in ZeroTimeThread
+
+  activity.stop();       // finalize()s activity</programlisting>
+      </para>
+    </sect2>
+    <sect2>
+      <title>Accessing the Threads from Activities</title>
+      <para>
+	Each Orocos Activity (periodic, non periodic and event driven)
+	type has a <function>thread()</function> method in its
+	interface which gives a non-zero pointer to a
+	<classname>ORO_OS::ThreadInterface</classname> object which provides
+	general thread information such as the priority and periodicity and allows to
+	control the realtimeness of the thread which runs this activity. A
+	non periodic activity's thread will return a period of zero.
+      </para>
+      <para>
+	A <classname>ORO_CoreLib::RunnableInterface</classname> can get the same information
+	through the <function>this->getActivity()->thread()</function> method calls.
+      </para>
+      <para>
+	<example>
+	<title>Example Periodic Thread Interaction</title>
+	<para>
+	    This example shows how to manipulate a thread.
+	</para>
+	<programlisting>#include "corelib/ActivityInterface.hpp"
 
 using namespace ORO_CoreLib;
 
 ORO_main( int argc, char** argv)
 {
-  // Define your tasks
+  // ... create any kind of Activity like above.
+
+  <classname>ORO_CoreLib::ActivityInterface</classname>* act = ...
+
+  // stop the thread and all its activities:
+  act->thread()->stop();
+  // change the period:
+  act->thread()->setPeriod( 0.01 );
+  act->thread()->start();
+  // Optional :
+  act->thread()->makeHardRealtime();
+
+  // Now the activity can be started as well:
+  act->start();
+
+  // act is running...
+
+  return 0;
+}</programlisting>
+      </example>
+      </para>
+    </sect2>
+    <sect2>
+      <title>Simulation</title>
+      <para>
+	The SimulationThread is available to do as fast as possible 
+	execution of SimulationActivity objects. Its priority and
+	simulated periodicity can be changed with the configuration tool, or
+	before its started.
+      </para>
+	<programlisting>#include "corelib/SimulationActivity.hpp"
+
+using namespace ORO_CoreLib;
+
+ORO_main( int argc, char** argv)
+{
+  // Define your activities
 
   // ...
 
   // Manually start the simulation thread
-  // 0.001 : The (virtual) period :  no task can run 'faster' than this.
+  // 0.001 : The (virtual) period :  no activity can run 'faster' than this.
   <classname>ORO_CoreLib::SimulationThread</classname>::Instance()->periodSet( 0.001 );
   <classname>ORO_CoreLib::SimulationThread</classname>::Instance()->start();
 
   // Optional, might hang your program :
   <classname>ORO_CoreLib::SimulationThread</classname>::Instance()->makeHardRealtime();
 
-  // fast_sim_task will measure 0.001s elapses between each step(),
-  // slow_sim_task will measure 0.01s elapses in time between each step()
-  <classname>ORO_CoreLib::SimulationTask</classname> fast_sim_task(0.001, &amp;vel_loop);
-  <classname>ORO_CoreLib::SimulationTask</classname> slow_sim_task(0.01, &amp;pos_loop);
+  // fast_sim_activity will measure 0.001s elapses between each step(),
+  // slow_sim_activity will measure 0.01s elapses in time between each step()
+  <classname>ORO_CoreLib::SimulationActivity</classname> fast_sim_activity(0.001, &amp;vel_loop);
+  <classname>ORO_CoreLib::SimulationActivity</classname> slow_sim_activity(0.01, &amp;pos_loop);
 
   // All is transparant from here on.
-  fast_sim_task->start();
-  slow_sim_task->start();
+  fast_sim_activity->start();
+  slow_sim_activity->start();
 
   // ...
 
-  fast_sim_task->stop();
-  slow_sim_task->stop();
+  fast_sim_activity->stop();
+  slow_sim_activity->stop();
 
   return 0;
 }</programlisting>
@@ -610,120 +701,6 @@ ORO_main( int argc, char** argv)
 	  SimulationThread will never run.
 	</para>
       </warning>
-    </sect2>
-    <sect2 id="task-non-periodic">
-      <title>Non Periodic Tasks Run in Their Own Thread</title>
-      <para>
-	Non periodic ( if blocking ) tasks can only run in <emphasis>non periodic</emphasis> threads, or 
-	( if non blocking ) <emphasis>after</emphasis> all periodic tasks of a certain periodic thread. The
-	latter to avoid excessive jitter in periodic task execution.
-      </para>
-      <para>
-	If you want to create a task which reads file-IO, or displays
-	information or does any other possibly blocking operation, the
-	<classname>ORO_CoreLib::TaskNonPeriodic</classname> implementation can be
-	used. When it is <function>start()</function>'ed, its loop()
-	method will be called exactly once and then it will stop,
-	after which it can be started again.  Analogous to periodic
-	tasks, the user can implement
-	<function>initialize()</function>, <function>loop()</function>
-	and <function>finalize()</function> functions in a
-	<classname>ORO_CoreLib::RunnableInterface</classname> which will be used by
-	the task for executing the user's functions. Alternatively,
-	you can reimplement said functions in a derived class of
-	TaskNonPeriodic. The task's loop() will be executed in its own
-	thread, thus creating a TaskNonPeriodic means creating a new
-	thread :
-      </para>
-      <programlisting>  int priority = 5;
-  
-  <classname>ORO_CoreLib::TaskNonPeriodic</classname> task( priority, blocking_task );
-  task.start(); // calls blocking_task->initialize()
-
-  // now blocking_task->loop() is called in a thread with priority 5.  </programlisting>
-      <para>
-	After loop() returns, finalize() is called. TaskNonPeriodic
-	differs from the periodic tasks in the way it is
-	stopped. Since the task may be blocked in the user's loop()
-	function, the user should reimplement the
-	<function>RunnableInterface::breakLoop()</function>
-	function. This funcion must do whatever necessary to let the
-	user's loop() function return.  It must return true on
-	success, false if it was unable to let the loop() function
-	return (the latter is the default implementation's return value).
-      </para>
-      <para>
-	There is another use for TaskNonPeriodic, it can be used to
-	wait for Events (see <xref linkend="corelib-events" /> ). If a
-	TaskNonPeriodic is not given a RunnableInterface, and it's
-	methods are not overridden in a derived class, it will call
-	it's EventProcessor's loop() method and wait for Asynchronous
-	Events to process. If stop() is called in this case, the task
-	will break from the EventProcessor's loop() and be stopped. If
-	you want to process Events in your own RunnableInterface
-	implementation, you need to manually call the step() method of
-	the processor() :
-      </para>
-      <programlisting>  // in your implementation :
-  void loop() {
-     while ( ... ) {
-        // &lt; do non periodic stuff &gt;
-   
-        // process any pending Events :
-        this->getTask()->processor()->step();
-     }
-  }
-  // ...  </programlisting>
-       <para>
-	 If you call <function>processor()->loop()</function> instead,
-	 the EventProcessor will loop for events until it is stopped,
-	 which might not be what you want. So use step() to process
-	 all pending Events.
-       </para>
-    </sect2>
-    <sect2>
-      <title>Event Driven Tasks</title>
-      <para>
-	An alternative way to use non periodic tasks is to use
-	the <classname>ORO_CoreLib::TaskEventDriven</classname>,
-	which can be bound to an <classname>ORO_CoreLib::Event</classname> (see <xref linkend="corelib-events" /> )
-	and each time the Event is emitted, the step() method will be invoked
-	asynchronously in a given thread.
-	This will happen from the moment the task's start method is called
-	until the stop method is called. The following example shows
-	how such a task can be run asynchronously.
-	<programlisting>  #include &lt;corelib/TaskEventDriven.hpp>
-
-  //...
-  <classname>ORO_CoreLib::Event</classname>&lt;void(void)> task_event;
-  <classname>ORO_CoreLib::TaskEventDriven</classname> task( &amp;task_event, <classname>ORO_CoreLib::ZeroTimeThread</classname>::Instance(), &amp;run_obj);
-
-  task_event.emit(); // nothing happens
-
-  task.start();      // initialize()s task
-  task_event.emit(); // task's step() will be executed once in ZeroTimeThread
-
-  task.stop();       // finalize()s task</programlisting>
-      </para>
-    </sect2>
-    <sect2>
-      <title>Collecting Thread Information from Tasks</title>
-      <para>
-	Each Orocos Task (periodic, non periodic and event driven)
-	type has a <function>thread()</function> method in its
-	interface which gives a non-zero pointer to a
-	<classname>ORO_OS::ThreadInterface</classname> object which provides
-	general thread information such as the priority and periodicity and allows to
-	control the realtimeness of the thread which runs this task. A
-	non periodic task's thread will return a period of zero.
-      </para>
-      <para>
-	A <classname>ORO_CoreLib::RunnableInterface</classname> can get the same information
-	through the <function>this->getTask()->thread()</function> method calls.
-      </para>
-      <para>
-	
-      </para>
     </sect2>
   </sect1>
   <sect1 id="corelib-events">
@@ -744,15 +721,15 @@ ORO_main( int argc, char** argv)
     <figure><title>Event Handling</title>
     <mediaobject>
       <imageobject>
-	<imagedata fileref="TaskEventSerialisation" />
+	<imagedata fileref="EventSerialisationActivity" />
       </imageobject>
-      <caption><para>Task T1 runs in PeriodicThread (a) while Task T2
-      runs in PeriodicThread (b). At some time, T1 registers a
+      <caption><para>Activity A1 runs in PeriodicThread (a) while Activity A2
+      runs in PeriodicThread (b). At some time, A1 registers a
       synchonous and asynchronous callback function ( reaction ) with
-      task T2's Event. When T2 emits the Event, the
+      activity A2's Event. When A2 emits the Event, the
       synchronous Event callback is executed first ( within Thread (b)
       ), while the asynchronous ( deferred ) callback is queued and
-      executed after T1 has run, in Thread (a).  </para></caption>
+      executed after A1 has run, in Thread (a).  </para></caption>
     </mediaobject>
     </figure>
     <para>
@@ -940,7 +917,7 @@ emergencyStop.emit(); // User not notified</programlisting>
       <title>Choosing the Asynchronous Thread</title>
       <para>
 	The Event implementation provides one thread for
-	asynchronous execution. The Orocos Tasks package provides
+	asynchronous execution. The Orocos Activities package provides
 	four additional threads for executing the asynchronous
 	callbacks.
       </para>
@@ -966,12 +943,12 @@ emergencyStop.emit(); // User not notified</programlisting>
   event.connect(&amp;syn_func, &amp;asyn_func, <classname>ORO_CoreLib::ZeroLatencyThread</classname>::Instance() );</programlisting>
 	The above lists how the ZeroLatencyThread will execute the
 	asyn_func if event is emit()'ed. It will do this after it has processed
-	all its tasks. The other Orocos threads can do this likewise :
+	all its activities. The other Orocos threads can do this likewise :
 	<programlisting>  event.connect(&amp;syn_func, &amp;asyn_func, <classname>ORO_CoreLib::ZeroTimeThread</classname>::Instance() );
   event.connect(&amp;syn_func, &amp;asyn_func, <classname>ORO_CoreLib::NonRealTimeThread</classname>::Instance() );
   event.connect(&amp;syn_func, &amp;asyn_func, <classname>ORO_CoreLib::CompletionProcessor</classname>::Instance() ); <emphasis>// Default</emphasis>
   event.connect(&amp;syn_func, &amp;asyn_func, <classname>ORO_CoreLib::PriorityThread</classname>&lt;N&gt;::Instance() );
-  event.connect(&amp;syn_func, &amp;asyn_func, &amp;nonperiodic_task );	</programlisting>
+  event.connect(&amp;syn_func, &amp;asyn_func, &amp;nonperiodic_activity );	</programlisting>
 	If you would write above listings in a real program, on <function>
 	  event.emit()</function>, the syn_func will be called directly
 	five times. The asyn_func will be called in each thread once, possibly
@@ -989,21 +966,21 @@ emergencyStop.emit(); // User not notified</programlisting>
 	</programlisting>
       </para>
       <para>
-	For convenience, the Orocos Task threads can also be choosen in another way
-	by specifying the Task :
-	<programlisting>  TaskNonPreemptible my_task;
-  event.connect(&amp;syn_func, &amp;asyn_func, &amp;my_task );	</programlisting>
+	For convenience, the Orocos Activity threads can also be choosen in another way
+	by specifying the Activity :
+	<programlisting>  NonPreemptibleActivity my_activity;
+  event.connect(&amp;syn_func, &amp;asyn_func, &amp;my_activity );	</programlisting>
 	or even :
 	<programlisting>  RunnableInterface* my_function = ... ;
-  // put my_function in a task;
-  event.connect(&amp;syn_func, &amp;asyn_func, my_function->getTask() );</programlisting>
+  // put my_function in a activity;
+  event.connect(&amp;syn_func, &amp;asyn_func, my_function->getActivity() );</programlisting>
 	The above says that the asyn_func function should be executed
-	after the my_function's task execution period.
+	after the my_function's activity execution period.
 	This is a very powerfull way of synchronising function calls
-	in different threads. One should be aware that a Task is
+	in different threads. One should be aware that a Activity is
 	not always executed with every period of the Thread, meaning
-	that the asyn_func could be called before the task is run,
-	or even multiple times in between a task run.
+	that the asyn_func could be called before the activity is run,
+	or even multiple times in between a activity run.
       </para>
       <note>
 	<para>Asynchronous event handlers can have no more than
@@ -1012,28 +989,28 @@ emergencyStop.emit(); // User not notified</programlisting>
       </note>
     </sect2>
     <sect2>
-      <title>Private EventProcessors for Periodic Tasks</title>
+      <title>Private EventProcessors for Periodic Activities</title>
       <para>
 	Asynchronous handlers are called in an <classname>ORO_CoreLib::EventProcessor</classname>.
 	Each Orocos thread has such an EventProcessor to handle
-	the deferred callbacks of all its tasks. A Periodic task
+	the deferred callbacks of all its activities. A Periodic activity
 	can also have its a private EventProcessor which handles
 	only its deferred callbacks after each step()
 	and only when it is started. In this way, it resembles better
-	how a non periodic task handles its defered event callbacks.
+	how a non periodic activity handles its defered event callbacks.
 	To enable this behavior,
-	a boolean flag must be given upon construction of a <classname>ORO_CoreLib::PeriodicTask</classname>
-	or any derived task-types :
+	a boolean flag must be given upon construction of a <classname>ORO_CoreLib::PeriodicActivity</classname>
+	or any derived activity-types :
       </para>
 	<programlisting>  <classname>ORO_CoreLib::RunnableInterface</classname>* my_function = ... ;
-  <classname>ORO_CoreLib::TaskNonPreemptible</classname> mytask( 0.01, my_function, true );     // enable private eventproc.
+  <classname>ORO_CoreLib::NonPreemptibleActivity</classname> myactivity( 0.01, my_function, true );     // enable private eventproc.
 
-  event.connect(&amp;syn_func, &amp;asyn_func, my_function->getTask() );
+  event.connect(&amp;syn_func, &amp;asyn_func, my_function->getActivity() );
   
   event.emit(); // calls only syn_func.
 
-  mytask.start();
-  event.emit(); // calls syn_func and after mytask's step(), asyn_func.</programlisting>
+  myactivity.start();
+  event.emit(); // calls syn_func and after myactivity's step(), asyn_func.</programlisting>
        <para>
 	 The private <classname>ORO_CoreLib::EventProcessor</classname> is disabled by default.
        </para>
@@ -1056,16 +1033,16 @@ emergencyStop.emit(); // User not notified</programlisting>
 	overhead in execution time. To choose which policy is used,
 	an optional parameter can be given during connect :
       </para>
-      <programlisting>  event.connect( &amp;asyn_func, mytask, Event::OnlyLast );
-  event.connect( &amp;asyn_func, mytask, Event::OnlyFirst ); // default
-  event.connect( &amp;asyn_func, mytask ); // same as previous line</programlisting>
+      <programlisting>  event.connect( &amp;asyn_func, myactivity, Event::OnlyLast );
+  event.connect( &amp;asyn_func, myactivity, Event::OnlyFirst ); // default
+  event.connect( &amp;asyn_func, myactivity ); // same as previous line</programlisting>
     </sect2>
     <sect2>
       <title>The Completion Processor</title>
       <para>
 	The <classname>ORO_CoreLib::CompletionProcessor</classname> is implemented using the
 	Singleton design pattern, analogous to the
-	periodic task threads. It is the lowest priority, not realtime
+	periodic activity threads. It is the lowest priority, not realtime
 	thread in the &orocos; framework. It will execute all
 	asynchronous event callbacks that have to be completed when no other work has to
 	be done. The only constraint it imposes is that all functions it
@@ -1076,11 +1053,40 @@ emergencyStop.emit(); // User not notified</programlisting>
   CompletionProcessor::Instance()-> ... </programlisting>
       </para>
       <para>
-	The CompletionProcessor is a TaskNonPeriodic, thus not consuming
+	The CompletionProcessor is a NonPeriodicActivity, thus not consuming
 	time resources when no Events need to be processed. If you need a 
-	hard realtime CompletionProcessor, use a default TaskNonPeriodic ( see
-	<xref linkend="task-non-periodic" /> ) and call its makeHardRealTime() method.
+	hard realtime CompletionProcessor, use a default NonPeriodicActivity ( see
+	<xref linkend="activity-non-periodic" /> ) and call its makeHardRealTime() method.
       </para>
+      <para>
+	To create your own (hard real-time) Event completion processor, use a
+	NonPeriodicActivity, it can be used to wait for Events (see
+	<xref linkend="corelib-events" /> ). If a NonPeriodicActivity
+	is not given a RunnableInterface, and it's methods are not
+	overridden in a derived class, it will call it's
+	EventProcessor's loop() method and wait for Asynchronous
+	Events to process. If stop() is called in this case, the
+	activity will break from the EventProcessor's loop() and be
+	stopped. If you want to process Events in your own
+	RunnableInterface implementation, you need to manually call
+	the step() method of the processor() :
+      </para>
+      <programlisting>  // in your implementation :
+  void loop() {
+     while ( ... ) {
+        // &lt; do non periodic stuff &gt;
+   
+        // process any pending Events :
+        this->getActivity()->processor()->step();
+     }
+  }
+  // ...  </programlisting>
+       <para>
+	 If you call <function>processor()->loop()</function> instead,
+	 the EventProcessor will loop for events until it is stopped,
+	 which might not be what you want. So use step() to process
+	 all pending Events.
+       </para>
     </sect2>
   </sect1>
   <sect1>
@@ -1397,7 +1403,7 @@ emergencyStop.emit(); // User not notified</programlisting>
     </para>
       <note><para>Logging can
       only be done in the non-realtime parts of your application, thus not in
-	the Realtime Periodic Tasks !</para></note>
+	the Realtime Periodic Activities !</para></note>
     <para>
       There are currently 8 loglevels :
       <table>

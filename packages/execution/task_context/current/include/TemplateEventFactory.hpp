@@ -31,7 +31,7 @@
  
 
 #include <corelib/Event.hpp>
-#include <corelib/TaskInterface.hpp>
+#include <corelib/ActivityInterface.hpp>
 #include "TemplateFactory.hpp"
 #include "TemplateMethodFactory.hpp"
 

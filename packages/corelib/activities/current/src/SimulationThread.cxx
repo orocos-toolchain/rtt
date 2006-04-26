@@ -29,13 +29,13 @@
 
 #include "corelib/SimulationThread.hpp"
 #include "corelib/TimeService.hpp"
-#include "corelib/TaskSimulation.hpp"
+#include "corelib/SimulationActivity.hpp"
 #include "corelib/Logger.hpp"
 
-#include "pkgconf/corelib_tasks.h"
+#include "pkgconf/corelib_activities.h"
 
 // NO AUTO START ! Only create/release
-#ifdef OROSEM_CORELIB_TASKS_AUTOSTART
+#ifdef OROSEM_CORELIB_ACTIVITIES_AUTOSTART
 #include <os/StartStopManager.hpp>
 namespace ORO_CoreLib
 {
@@ -63,13 +63,13 @@ namespace ORO_CoreLib
 {
     
     // The static class variables
-    SimulationThread* SimulationThread::_instance;
+    TimerThreadPtr SimulationThread::_instance;
 
-    SimulationThread* SimulationThread::Instance()
+    TimerThreadPtr SimulationThread::Instance()
     {
-        if ( _instance == 0 )
+        if ( !_instance )
         {
-            _instance = new SimulationThread();
+            _instance.reset( new SimulationThread() );
         }
 
         return _instance;
@@ -77,26 +77,20 @@ namespace ORO_CoreLib
 
     bool SimulationThread::Release()
     {
-        if ( _instance != 0 )
-        {
-            delete _instance;
-            _instance = 0;
-            return true;
-        }
-
-        return false;
+        _instance.reset();
+        return true;
     }
 
 
     SimulationThread::SimulationThread()
-        : TimerThread(ORONUM_CORELIB_TASKS_SIM_PRIORITY,
-                        ORODAT_CORELIB_TASKS_SIM_NAME, 
-                        ORONUM_CORELIB_TASKS_SIM_PERIOD),
+        : TimerThread(ORONUM_CORELIB_ACTIVITIES_SIM_PRIORITY,
+                      ORODAT_CORELIB_ACTIVITIES_SIM_NAME, 
+                      ORONUM_CORELIB_ACTIVITIES_SIM_PERIOD),
           beat( TimeService::Instance() ), maxsteps_(0)
     {
         this->continuousStepping( true );
-        Logger::log() << Logger::Info << ORODAT_CORELIB_TASKS_SIM_NAME <<" created with "<< ORONUM_CORELIB_TASKS_SIM_PERIOD <<"s periodicity";
-        Logger::log() << Logger::Info << " and priority " << ORONUM_CORELIB_TASKS_SIM_PRIORITY << Logger::endl;
+        Logger::log() << Logger::Info << ORODAT_CORELIB_ACTIVITIES_SIM_NAME <<" created with "<< ORONUM_CORELIB_ACTIVITIES_SIM_PERIOD <<"s periodicity";
+        Logger::log() << Logger::Info << " and priority " << ORONUM_CORELIB_ACTIVITIES_SIM_PRIORITY << Logger::endl;
     }
 
     SimulationThread::~SimulationThread()
@@ -123,7 +117,7 @@ namespace ORO_CoreLib
         beat->enableSystemClock( true );
 
         // DO NOT CALL TimerThread::finalize(), since we want to be able to start/stop the
-        // SimulationThread and inspect the tasks still running.
+        // SimulationThread and inspect the activities still running.
         EventProcessor::finalize();
     }
 
@@ -131,11 +125,13 @@ namespace ORO_CoreLib
     {
         ++cursteps;
         // call stop once :
-        if ( cursteps == maxsteps_ ) // if maxsteps == 0, will never call stop().
-            this->stop();
+        if ( cursteps == maxsteps_ ) { // if maxsteps == 0, will never call stop().
+            this->setToStop();
+            return;
+        }
         if ( maxsteps_ == 0 || cursteps < maxsteps_ ) {
             TimerThread::step();
-            beat->secondsChange(ORONUM_CORELIB_TASKS_SIM_PERIOD);
+            beat->secondsChange(ORONUM_CORELIB_ACTIVITIES_SIM_PERIOD);
         }
     }
 

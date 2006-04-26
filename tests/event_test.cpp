@@ -22,9 +22,9 @@
 #include <corelib/Logger.hpp>
 #include <corelib/PriorityThread.hpp>
 #include <corelib/RunnableInterface.hpp>
-#include <corelib/TaskSimulation.hpp>
+#include <corelib/SimulationActivity.hpp>
 #include <corelib/SimulationThread.hpp>
-#include <corelib/TaskNonPeriodic.hpp>
+#include <corelib/NonPeriodicActivity.hpp>
 
 #include "event_test.hpp"
 #include <boost/bind.hpp>
@@ -110,7 +110,7 @@ struct Runner : public RunnableInterface
         result = false;
         // connect sync and async handler with event
         // and run async handler in thread of this task.
-        h = e.connect( bind(&Runner::handle,this, _1), bind(&Runner::complete,this,_1), this->getTask() );
+        h = e.connect( bind(&Runner::handle,this, _1), bind(&Runner::complete,this,_1), this->getActivity() );
         return true;
     }
     void step() {
@@ -120,11 +120,11 @@ struct Runner : public RunnableInterface
     // blocking implementation
     void loop() {
         e.fire( 123456 );
-        this->getTask()->getEventProcessor()->loop(); // wait for our own event.
+        this->getActivity()->getEventProcessor()->loop(); // wait for our own event.
     }
 
     bool breakLoop() {
-        return this->getTask()->getEventProcessor()->breakLoop();
+        return this->getActivity()->getEventProcessor()->breakLoop();
     }
 
     void finalize() {
@@ -147,7 +147,7 @@ struct SelfRemover : public RunnableInterface
     bool initialize() {
         // connect sync and async handler with event
         // and run async handler in thread of this task.
-        h = e.setup( bind(&SelfRemover::handle,this), bind(&SelfRemover::complete,this), this->getTask() );
+        h = e.setup( bind(&SelfRemover::handle,this), bind(&SelfRemover::complete,this), this->getActivity() );
         return true;
     }
     void step() {
@@ -184,9 +184,9 @@ struct CrossRemover : public RunnableInterface
     bool initialize() {
         // connect sync and async handler with event
         // and run async handler in thread of this task.
-        e.connect( bind(&CrossRemover::handle,this), bind(&CrossRemover::complete,this), this->getTask() );
-        h = e.connect( bind(&CrossRemover::handle,this), bind(&CrossRemover::complete,this), this->getTask() );
-        e.connect( bind(&CrossRemover::handle,this), bind(&CrossRemover::complete,this), this->getTask() );
+        e.connect( bind(&CrossRemover::handle,this), bind(&CrossRemover::complete,this), this->getActivity() );
+        h = e.connect( bind(&CrossRemover::handle,this), bind(&CrossRemover::complete,this), this->getActivity() );
+        e.connect( bind(&CrossRemover::handle,this), bind(&CrossRemover::complete,this), this->getActivity() );
         return true;
     }
     void step() {
@@ -224,7 +224,7 @@ void EventTest::testTask()
 {
     Event<void(int)> event;
     Runner runobj(event);
-    TaskSimulation task(0.01, &runobj);
+    SimulationActivity task(0.01, &runobj);
     CPPUNIT_ASSERT(SimulationThread::Instance()->start());
     CPPUNIT_ASSERT(task.start());
     sleep(1);
@@ -237,7 +237,7 @@ void EventTest::testTask()
 void EventTest::testSelfRemoval()
 {
     SelfRemover runobj(*t_event);
-    TaskSimulation task(0.01, &runobj);
+    SimulationActivity task(0.01, &runobj);
     CPPUNIT_ASSERT( SimulationThread::Instance()->start() );
     CPPUNIT_ASSERT( task.start() );
     sleep(1);
@@ -248,7 +248,7 @@ void EventTest::testSelfRemoval()
 void EventTest::testCrossRemoval()
 {
     CrossRemover runobj(*t_event);
-    TaskSimulation task(0.01, &runobj);
+    SimulationActivity task(0.01, &runobj);
     CPPUNIT_ASSERT( SimulationThread::Instance()->start() );
     CPPUNIT_ASSERT( task.start() );
     sleep(1);
@@ -260,7 +260,7 @@ void EventTest::testBlockingTask()
 {
     Event<void(int)> event;
     Runner runobj(event);
-    TaskNonPeriodic task(15, &runobj);
+    NonPeriodicActivity task(15, &runobj);
     CPPUNIT_ASSERT(task.start());
     sleep(1);
     CPPUNIT_ASSERT(task.stop());

@@ -48,7 +48,7 @@ class TypesTest : public CppUnit::TestFixture
 
     Parser parser;
     TaskContext* tc;
-    TaskInterface* tsim;
+    ActivityInterface* tsim;
     MethodFactoryInterface* createMethodFactory();
     bool assertBool( bool );
 #ifdef OROPKG_GEOMETRY
