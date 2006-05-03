@@ -29,15 +29,14 @@
 /**
  * @file Activities.hpp
  * This file includes the common header files from the 
- * ORO_CoreLib task package.
+ * ORO_CoreLib activities package.
  */
 
+#include "SlaveActivity.hpp"
 #include "PeriodicActivity.hpp"
-#include "RunnableInterface.hpp"
-#include "PriorityThread.hpp"
-#include "PriorityActivity.hpp"
-#include "TimerThread.hpp"
 #include "NonPeriodicActivity.hpp"
+#include "RunnableInterface.hpp"
+#include "TimerThread.hpp"
 #include "NonRealTimeActivity.hpp"
 #include "PreemptibleActivity.hpp"
 #include "NonPreemptibleActivity.hpp"
