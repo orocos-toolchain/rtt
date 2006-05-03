@@ -40,7 +40,10 @@ namespace ORO_CoreLib
 
     EventDrivenActivity::EventDrivenActivity( Event<void(void)>* _event, EventProcessor* thread, RunnableInterface* _r  )
         : event(_event), runner(_r), running(false), mthread(thread)
-    {}
+    {
+        if (runner)
+            runner->setActivity(this);
+    }
 
     bool EventDrivenActivity::start()
     {

@@ -7,19 +7,22 @@ namespace ORO_CoreLib
     SlaveActivity::SlaveActivity( ActivityInterface* master, RunnableInterface* run /*= 0*/ )
         :mmaster(master), mperiod( master->getPeriod() ), runner(run), running(false), active(false)
     {
-        
+        if (runner)
+            runner->setActivity(this);
     }
 
     SlaveActivity::SlaveActivity( double period, RunnableInterface* run /*= 0*/ )
         :mmaster(0), mperiod(period), runner(run), running(false), active(false)
     {
-        
+        if (runner)
+            runner->setActivity(this);
     }
 
     SlaveActivity::SlaveActivity( RunnableInterface* run /*= 0*/ )
         :mmaster(0), mperiod(0.0), runner(run), running(false), active(false)
     {
-        
+        if (runner)
+            runner->setActivity(this);
     }
 
     Seconds SlaveActivity::getPeriod() const
