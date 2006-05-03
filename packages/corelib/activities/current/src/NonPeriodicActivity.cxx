@@ -115,6 +115,10 @@ namespace ORO_CoreLib
         return SingleThread::stop();
     }
 
+    bool NonPeriodicActivity::trigger() {
+        return false;
+    }
+
     bool NonPeriodicActivity::isRunning() const {
         return SingleThread::isRunning();
     }

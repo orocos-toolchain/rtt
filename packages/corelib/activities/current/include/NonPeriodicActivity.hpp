@@ -107,9 +107,8 @@ namespace ORO_CoreLib
 
         virtual bool start();
 
-        /**
-         * Stop the EventProcessor's loop.
-         */
+        virtual bool trigger();
+
         virtual bool stop();
 
         virtual bool isRunning() const;

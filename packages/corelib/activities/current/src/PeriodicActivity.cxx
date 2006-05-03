@@ -209,6 +209,11 @@ namespace ORO_CoreLib
         if ( eprocessor_ )
             eprocessor_->step();
     }
+
+    bool PeriodicActivity::trigger()
+    {
+        return false;
+    }
         
     void PeriodicActivity::step()
     {

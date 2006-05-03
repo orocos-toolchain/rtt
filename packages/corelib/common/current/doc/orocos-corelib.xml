@@ -577,6 +577,50 @@ ORO_main( int argc, char** argv)
       </para>
     </sect2>
     <sect2>
+      <title>Custom or Slave Activities</title>
+      <para>
+	If non of the above activity schemes fit you, you can always fall back on
+	the <classname>ORO_CoreLib::SlaveActivity</classname>, which lets the user
+	control when the activity is executed. A special function <function>bool trigger()</function>
+	is implemented which will execute <function>RunnableInterface::step()</function>
+	or <function>RunnableInterface::loop()</function> when called by the user.
+	Three versions of the <classname>SlaveActivity</classname> can be constructed:
+	<programlisting>  #include &lt;corelib/SlaveActivity.hpp>
+
+  // <emphasis>With master</emphasis>
+  // a 'master', any ActivityInterface (even SlaveActivity):
+  <classname>ORO_CoreLib::PeriodicActivity</classname> master_one(9, 0.001 );
+  // a 'slave', takes over properties (period,...) of 'master_one':
+  <classname>ORO_CoreLib::SlaveActivity</classname> slave_one( &amp;master_one );
+
+  slave_one.start();   // fail: master not running.
+  slave_one.trigger(); // fail: slave not running.
+
+  master_one.start();  // start the master.
+  slave_one.start();   // ok: master is running.
+  slave_one.trigger(); // ok: calls step(), repeat...
+  
+  // <emphasis>Without master</emphasis>
+  // a 'slave' without explicit master, with period of 1KHz.
+  <classname>ORO_CoreLib::SlaveActivity</classname> slave_two( 0.001 );
+  // a 'slave' without explicit master, not periodic.
+  <classname>ORO_CoreLib::SlaveActivity</classname> slave_three();
+
+  slave_two.start();   // ok: start periodic without master
+  slave_two.trigger(); // ok, calls 'step()', repeat...
+  slave_two.stop();
+
+  slave_three.start();   // start not periodic.
+  slave_three.trigger(); // ok, calls 'loop()', may block !
+  // <emphasis>if loop() blocks, trigger() blocks as well.</emphasis>
+	</programlisting>
+      </para>
+      <para>
+	Note that although there may be a master, it is still the
+	user's responsibility to call <function>trigger()</function>.
+      </para>
+    </sect2>
+    <sect2>
       <title>Event Driven Activities</title>
       <para>
 	An alternative way to use non periodic activities is to use

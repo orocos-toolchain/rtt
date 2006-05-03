@@ -17,7 +17,7 @@ type of periodic activity associated with it.
     compile NonRealTimeThread.cxx  TimerThread.cxx  NonRealtimeActivity.cxx     ZeroLatencyThread.cxx
     compile SimulationThread.cxx SimulationActivity.cxx EventDrivenActivity.cxx    NonPeriodicActivity.cxx
     compile TimerSequencer.cxx TimerOneShot.cxx TimerLockFree.cxx
-    compile CoreRunnableInterface.cxx
+    compile CoreRunnableInterface.cxx SlaveActivity.cxx
 
     cdl_option ORONUM_CORELIB_ACTIVITIES_PRIOLIMIT {
 	display "Maximum hard realtime thread priority"

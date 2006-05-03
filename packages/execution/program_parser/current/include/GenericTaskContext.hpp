@@ -56,7 +56,7 @@ namespace ORO_Execution
          * @return The value of \a must_be_true.
          */
         bool assertion( bool must_be_true );
-    
+
     public:
         /**
          * The constructor sets up a task with \a name to have some
@@ -139,6 +139,14 @@ namespace ORO_Execution
          * of State Machines in certain cases.
          */
         virtual bool unloadStateMachine(const std::string& instancename);
+
+        /**
+         * Invoke this method to instruct the TaskContext to execute
+         * its ExecutionEngine and the update() method.
+         * @retval false if this->engine()->getActivity()->trigger == false
+         * @retval true otherwise.
+         */
+        virtual bool trigger();
         /**
          *@}
          */

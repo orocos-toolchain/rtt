@@ -71,6 +71,8 @@ namespace ORO_Execution
                             "StateMachineName", "A name of a Root StateMachine instantiation.") );
         mfact->add( "isRunning",
                     method( &GenericTaskContext::isRunning, "Is this GenericTaskContext started ?" ) );
+        mfact->add( "update",
+                    method( &GenericTaskContext::trigger, "Invoke the update method. Only succeeds if the task isRunning()." ) );
         this->methods()->registerObject("this", mfact); 
     }
 
@@ -80,6 +82,11 @@ namespace ORO_Execution
     bool GenericTaskContext::assertion(bool mbt)
     {
         return mbt;
+    }
+
+    bool GenericTaskContext::trigger()
+    {
+        return this->engine()->getActivity()->trigger();
     }
 
     /**

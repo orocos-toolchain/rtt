@@ -26,6 +26,7 @@
 #include <corelib/NonPreemptibleActivity.hpp>
 #include <corelib/PreemptibleActivity.hpp>
 #include <corelib/SimulationActivity.hpp>
+#include <corelib/SlaveActivity.hpp>
 
 using namespace ORO_CoreLib;
 
@@ -42,6 +43,7 @@ class ActivitiesThreadTest : public CppUnit::TestFixture
     // Configuration Test :
     CPPUNIT_TEST( testThreadConfig );
     CPPUNIT_TEST( testPeriodic );
+    CPPUNIT_TEST( testSlave );
 
     CPPUNIT_TEST( testExceptionRecovery );
     
@@ -54,6 +56,7 @@ class ActivitiesThreadTest : public CppUnit::TestFixture
     TestTask<NonPreemptibleActivity>* t_task_np_bad;
     TestTask<PreemptibleActivity>*    t_task_p;
     TestTask<SimulationActivity>*     t_task_sim;
+    TestTask<SlaveActivity>*          t_task_slave;
 
     RunnableInterface* t_run_allocate;
 public:
@@ -64,6 +67,7 @@ public:
     void testExceptionRecovery();
     void testThreadConfig();
     void testPeriodic();
+    void testSlave();
 
     void testAllocation();
     void testRemoveAllocate();

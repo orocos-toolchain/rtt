@@ -160,6 +160,8 @@ namespace ORO_CoreLib
 
         virtual bool start();
 
+        virtual bool trigger();
+
         virtual bool stop();
 
         virtual bool isRunning() const;

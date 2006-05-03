@@ -110,6 +110,50 @@ struct TestActivity
     }
 };
 
+struct TestRunner
+    : public RunnableInterface
+{
+    bool result;
+    bool init, stepped, fini;
+    bool looped, broke;
+
+    TestRunner(bool fail)
+    {
+        this->reset(fail);
+    }
+
+    bool initialize() {
+        init    = true;
+        return result;
+    }
+    void step() {
+        stepped = true;
+    }
+
+    void loop() {
+        looped = true;
+    }
+
+    bool breakLoop() {
+        broke = true;
+        return true;
+    }
+
+    void finalize() {
+        fini   = true;
+    }
+
+    void reset(bool fail) {
+        result = fail;
+        init = false;
+        stepped = false;
+        fini = false;
+        looped = false;
+        broke = false;
+    }
+};
+
+
 struct TestAllocate
     : public RunnableInterface
 {
@@ -161,6 +205,7 @@ void ActivitiesThreadTest::testPeriodic()
     // Test periodic task sequencing...
 
     PeriodicActivity mtask( 15, 0.01 );
+    CPPUNIT_ASSERT( mtask.isActive() == false );
     CPPUNIT_ASSERT( mtask.isRunning() == false );
     CPPUNIT_ASSERT( mtask.thread()->isRunning() );
     CPPUNIT_ASSERT_EQUAL( 0.01, mtask.thread()->getPeriod() );
@@ -186,6 +231,102 @@ void ActivitiesThreadTest::testPeriodic()
     CPPUNIT_ASSERT( m2task.isRunning() == false );
     
 }
+
+void ActivitiesThreadTest::testSlave()
+{
+    // Test slave activities
+    TestRunner r(true);
+
+    // without master, NP.
+    SlaveActivity mtask(&r);
+    CPPUNIT_ASSERT( mtask.isActive() == false );
+    CPPUNIT_ASSERT( mtask.isRunning() == false );
+    CPPUNIT_ASSERT( mtask.isPeriodic() == false );
+    CPPUNIT_ASSERT( mtask.getPeriod() == 0.0 );
+    CPPUNIT_ASSERT( mtask.trigger() == false );
+    CPPUNIT_ASSERT( mtask.thread() != 0 );
+    CPPUNIT_ASSERT( mtask.getEventProcessor() != 0 );
+
+    // starting...
+    CPPUNIT_ASSERT( mtask.start() == true );
+    CPPUNIT_ASSERT( r.init == true );
+
+    CPPUNIT_ASSERT( mtask.isActive() == true );
+    CPPUNIT_ASSERT( mtask.isRunning() == false );
+    CPPUNIT_ASSERT( mtask.start() == false );
+
+    // calls loop()
+    CPPUNIT_ASSERT( mtask.trigger() );
+    CPPUNIT_ASSERT( r.looped == true );
+    CPPUNIT_ASSERT( mtask.trigger() );
+
+    // stopping...
+    CPPUNIT_ASSERT( mtask.stop() == true );
+    CPPUNIT_ASSERT( r.fini == true );
+    CPPUNIT_ASSERT( mtask.isRunning() == false );
+    CPPUNIT_ASSERT( mtask.isActive() == false );
+    CPPUNIT_ASSERT( mtask.stop() == false );
+
+    CPPUNIT_ASSERT( mtask.trigger() == false );
+
+    r.reset(true);
+
+    // with periodic master:
+    SlaveActivity mslave( t_task_np, &r );
+    CPPUNIT_ASSERT( mslave.isActive() == false );
+    CPPUNIT_ASSERT( mslave.isRunning() == false );
+    CPPUNIT_ASSERT( mslave.isPeriodic() == true );
+    CPPUNIT_ASSERT_EQUAL( mslave.getPeriod(), t_task_np->getPeriod() );
+    CPPUNIT_ASSERT( mslave.trigger() == false );
+    CPPUNIT_ASSERT( mslave.thread() == t_task_np->thread() );
+    CPPUNIT_ASSERT( mslave.getEventProcessor() == t_task_np->getEventProcessor() );
+
+    CPPUNIT_ASSERT( !mslave.start() );
+    CPPUNIT_ASSERT( t_task_np->start() );
+    CPPUNIT_ASSERT( mslave.start() );
+    CPPUNIT_ASSERT( r.init == true );
+    CPPUNIT_ASSERT( mslave.isActive() );
+    CPPUNIT_ASSERT( mslave.isRunning() );
+
+    // calls step()
+    CPPUNIT_ASSERT( mslave.trigger() );
+    CPPUNIT_ASSERT( r.stepped == true );
+    CPPUNIT_ASSERT( mslave.trigger() );
+    CPPUNIT_ASSERT( !mslave.start() );
+
+    // stopping...
+    CPPUNIT_ASSERT( mslave.stop() );
+    CPPUNIT_ASSERT( r.fini == true );
+    CPPUNIT_ASSERT( !mslave.isActive() );
+    CPPUNIT_ASSERT( !mslave.isRunning() );
+
+    r.reset(true);
+    
+    // periodic:
+    SlaveActivity mslave_p(0.001, &r);
+    CPPUNIT_ASSERT( mslave_p.isActive() == false );
+    CPPUNIT_ASSERT( mslave_p.isRunning() == false );
+    CPPUNIT_ASSERT( mslave_p.isPeriodic() == true );
+    CPPUNIT_ASSERT( mslave_p.getPeriod() == 0.001 );
+    CPPUNIT_ASSERT( mslave_p.trigger() == false );
+
+    CPPUNIT_ASSERT( mslave_p.start() );
+    CPPUNIT_ASSERT( r.init == true );
+    CPPUNIT_ASSERT( mslave_p.isActive() );
+    CPPUNIT_ASSERT( mslave_p.isRunning() );
+    CPPUNIT_ASSERT( mslave_p.trigger() );
+    CPPUNIT_ASSERT( r.stepped == true );
+    CPPUNIT_ASSERT( !mslave_p.start() );
+
+    // stopping...
+    CPPUNIT_ASSERT( mslave_p.stop() );
+    CPPUNIT_ASSERT( r.fini == true );
+    CPPUNIT_ASSERT( !mslave_p.isActive() );
+    CPPUNIT_ASSERT( !mslave_p.isRunning() );
+    CPPUNIT_ASSERT( !mslave_p.trigger() );
+    
+}
+
 
 void ActivitiesThreadTest::testThreadConfig()
 {

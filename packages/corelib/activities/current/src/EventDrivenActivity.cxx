@@ -69,11 +69,21 @@ namespace ORO_CoreLib
             return false;
     }
 
+    bool EventDrivenActivity::trigger()
+    {
+        return false;
+    }
+
      bool EventDrivenActivity::run(RunnableInterface* _r)
     {
         if ( running )
             return false;
+
+        if (runner)
+            runner->setActivity(0);
         runner = _r;
+        if (runner)
+            runner->setActivity(this);
         return true;
     }
 

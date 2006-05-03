@@ -72,6 +72,8 @@ namespace ORO_CoreLib
 
         bool start();
 
+        bool trigger();
+
         bool stop();
 
         bool isRunning() const {

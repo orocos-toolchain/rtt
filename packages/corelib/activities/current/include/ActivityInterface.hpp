@@ -121,6 +121,17 @@ namespace ORO_CoreLib
         virtual bool isPeriodic() const = 0;
 
         /**
+         * Trigger this activity such that it executes a step of the RunnableInterface.
+         * Some activity implementations allow a user controlled trigger.
+         * 
+         * @retval true When this->isRunning() and the implementation allows external
+         * triggers.
+         * @retval false When !this->isRunning() or the implementation does not
+         * allow external triggering.
+         */
+        virtual bool trigger() = 0;
+
+        /**
          * Returns a pointer to the EventProcessor which will
          * process the asynchronous Events of this activity. Will not be null.
          */
