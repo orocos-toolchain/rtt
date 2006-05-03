@@ -51,6 +51,11 @@ namespace ORO_CoreLib
          */
         SlaveActivity( RunnableInterface* run = 0 );
 
+        /**
+         * Cleanup and notify the RunnableInterface that we are gone.
+         */
+        ~SlaveActivity();
+
         Seconds getPeriod() const;
 
         EventProcessor* getEventProcessor() const;

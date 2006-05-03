@@ -45,6 +45,14 @@ namespace ORO_CoreLib
             runner->setActivity(this);
     }
 
+    EventDrivenActivity::~EventDrivenActivity()
+    {
+        stop();
+        if (runner)
+            runner->setActivity(0);
+    }
+
+
     bool EventDrivenActivity::start()
     {
         if ( !running && event )

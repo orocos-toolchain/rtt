@@ -62,6 +62,11 @@ namespace ORO_CoreLib
          */
         EventDrivenActivity( Event<void(void)>* _event, EventProcessor* thread, RunnableInterface* _r = 0 );
 
+        /**
+         * Cleanup and notify the RunnableInterface that we are gone.
+         */
+        ~EventDrivenActivity();
+
         virtual Seconds getPeriod() const { return 0; }
 
         EventProcessor* processor() const { return mthread; }

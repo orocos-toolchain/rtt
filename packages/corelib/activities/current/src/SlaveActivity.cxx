@@ -25,6 +25,13 @@ namespace ORO_CoreLib
             runner->setActivity(this);
     }
 
+    SlaveActivity::~SlaveActivity()
+    {
+        stop();
+        if (runner)
+            runner->setActivity(0);
+    }
+
     Seconds SlaveActivity::getPeriod() const
     {
         return mperiod;
@@ -43,37 +50,26 @@ namespace ORO_CoreLib
 
     bool SlaveActivity::initialize()
     {
-        if (runner)
-            return runner->initialize();
         return true;
     }
 
     void SlaveActivity::step()
     {
-        if (runner)
-            runner->step();
     }
 
     void SlaveActivity::loop()
     {
-        if (runner)
-            runner->loop();
-        else
-            this->step();
+        this->step();
     }
 
     bool SlaveActivity::breakLoop()
     {
-        if (runner)
-            return runner->breakLoop();
         return false;
     }
 
 
     void SlaveActivity::finalize()
     {
-        if (runner)
-            runner->finalize();
     }
 
     bool SlaveActivity::start()
@@ -83,7 +79,7 @@ namespace ORO_CoreLib
 
         active = true;
 
-        if ( this->initialize() ) {
+        if ( runner ? runner->initialize() : this->initialize() ) {
             running = this->isPeriodic();
         } else {
             active = false;
@@ -99,12 +95,15 @@ namespace ORO_CoreLib
 
         // use breakLoop if not periodic and within loop
         if ( this->isPeriodic() == false) {
-            if ( running && this->breakLoop() == false )
+            if ( running && (runner ? (runner->breakLoop() == false): (this->breakLoop() == false) ) )
                 return false;
         }
 
         running = false;
-        this->finalize();
+        if (runner)
+            runner->finalize();
+        else
+            this->finalize();
         active = false;
         return true;
     }
@@ -138,17 +137,20 @@ namespace ORO_CoreLib
     bool SlaveActivity::trigger()
     {
         // non periodic case.
-        if ( this->isPeriodic() == false) {
+        if ( mperiod == 0.0 ) {
             if ( !active || running )
                 return false;
             running = true;
-            this->loop();
+            if (runner)
+                runner->loop();
+            else
+                this->loop();
             running = false;
             return true;
         }
 
         if ( running )
-            this->step();
+            if (runner) runner->step(); else this->step();
         return running;
     }
 
