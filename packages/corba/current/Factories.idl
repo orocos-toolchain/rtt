@@ -1,0 +1,150 @@
+#ifndef ORO_FACTORIES_IDL
+#define ORO_FACTORIES_IDL
+
+#include "Execution.idl"
+
+module Orocos
+{
+  typedef sequence<string> ObjectList;
+  typedef sequence<string> MethodList;
+  typedef sequence<string> CommandList;
+  typedef sequence<Expression> Arguments;
+  typedef sequence<any> AnyArguments;
+
+  /**
+   * When querying a method or command for
+   * the kinds of arguments it takes, this
+   * structure is returned for each argument.
+   */
+  struct ArgumentDescription
+  {
+    string name;
+    string description;
+    string type;
+  };
+
+  typedef sequence<ArgumentDescription> Descriptions;
+
+  exception NoSuchObjectException
+  {
+    string name;
+  };
+
+  exception NoSuchNameException
+  {
+    string name;
+  };
+
+  exception WrongNumbArgException
+  {
+    long wanted;
+    long received;
+  };
+
+  exception WrongTypeArgException
+  {
+    long whicharg;
+    string expected;
+    string received;
+  };
+
+  /**
+   * A Method interface delivers objects which contain expressions.
+   */
+  interface MethodInterface
+  {
+    
+    /**
+     * Get a list of all objects within this interface.
+     */
+    ObjectList getObjects();
+
+    /**
+     * Get a list of all methods of a given object.
+     */
+    MethodList getMethods(in string obj) raises (NoSuchObjectException);
+
+    /**
+     * Get a list of all arguments of a given object's method.
+     */
+    Descriptions getArguments(in string obj, in string method) raises (NoSuchObjectException, NoSuchNameException);
+
+    /**
+     * Get a result type of a given object's method.
+     */
+    string getResultType(in string obj, in string method) raises (NoSuchObjectException, NoSuchNameException);
+
+    /**
+     * Get a description of a given object's method.
+     */
+    string getDescription(in string obj, in string method) raises (NoSuchObjectException, NoSuchNameException);
+
+    /**
+     * Create a method of an object with Expression arguments.
+     */
+    Method createMethod(in string obj, in string method, in Arguments args) raises (NoSuchObjectException,
+										    NoSuchNameException,
+										    WrongNumbArgException,
+										    WrongTypeArgException);
+
+    /**
+     * Create a method of an object with Any arguments.
+     */
+    Method createMethodAny(in string obj, in string method, in AnyArguments args) raises (NoSuchObjectException,
+										    NoSuchNameException,
+										    WrongNumbArgException,
+										    WrongTypeArgException);
+  };
+
+  /**
+   * A Command interface delivers objects which contain asynchronous commands.
+   */
+  interface CommandInterface
+  {
+    
+    /**
+     * Get a list of all objects within this interface.
+     */
+    ObjectList getObjects();
+
+    /**
+     * Get a list of all commands of a given object.
+     */
+    CommandList getCommands(in string obj) raises (NoSuchObjectException);
+
+    /**
+     * Get a list of all arguments of a given object's command.
+     */
+    Descriptions getArguments(in string obj, in string command) raises (NoSuchObjectException, NoSuchNameException);
+
+    /**
+     * Get a result type of a given object's command.
+     */
+    string getResultType(in string obj, in string command) raises (NoSuchObjectException, NoSuchNameException);
+
+    /**
+     * Get a description of a given object's command.
+     */
+    string getDescription(in string obj, in string command) raises (NoSuchObjectException, NoSuchNameException);
+
+    /**
+     * Create a command of an object.
+     */
+    Command createCommand(in string obj, in string command, in Arguments args) raises (NoSuchObjectException,
+										       NoSuchNameException,
+										       WrongNumbArgException,
+										       WrongTypeArgException);
+    
+    /**
+     * Create a command of an object with any arguments.
+     */
+    Command createCommandAny(in string obj, in string command, in AnyArguments args) raises (NoSuchObjectException,
+										       NoSuchNameException,
+										       WrongNumbArgException,
+										       WrongTypeArgException);
+    
+  };
+
+};
+
+#endif

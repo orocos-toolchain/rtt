@@ -1,0 +1,12 @@
+#ifndef ORO_OROCOS_TYPES_IDL
+#define ORO_OROCOS_TYPES_IDL
+
+module Orocos
+{
+  // Classical Orocos type
+  typedef sequence<double> DoubleSequence;
+
+};
+
+
+#endif

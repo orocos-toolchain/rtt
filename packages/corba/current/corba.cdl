@@ -8,6 +8,8 @@ knowledge is required to use this framework.
     requires OROPKG_EXECUTION_TASK_CONTEXT
     requires OROPKG_SUPPORT_CORBA
 
+    implements OROINT_OS_CORBA
+
     cdl_option OROPKG_CORBA_CFLAGS_ADD {
         display "ACE/TAO include path"
 	description "The path is derived from the
@@ -17,40 +19,166 @@ detection of the packages configure script"
     }
 
     include_dir corba
-    #include_files ControlTaskS.h ControlTaskC.h ControlTaskServer.hpp ControlTaskProxy.hpp
+    include_files ApplicationServer.hpp
+    include_files ControlTaskProxy.hpp ControlTaskServer.hpp ExpressionProxy.hpp  ScriptingAccessProxy.hpp
+    include_files ExpressionServer.hpp CORBAExpression.hpp ActionProxy.hpp CommandProxy.hpp
+    include_files Execution.idl ExecutionC.h ExecutionS.h ExecutionC.inl ExecutionS.inl ExecutionS_T.h ExecutionS_T.inl ExecutionS_T.cpp ExecutionI.h
+    include_files ControlTask.idl ControlTaskC.h ControlTaskS.h ControlTaskC.inl ControlTaskS.inl ControlTaskS_T.h ControlTaskS_T.inl ControlTaskS_T.cpp ControlTaskI.h
+    include_files CosPropertyService.idl CosPropertyServiceC.h CosPropertyServiceS.h CosPropertyServiceC.inl CosPropertyServiceS.inl CosPropertyServiceS_T.h CosPropertyServiceS_T.inl CosPropertyServiceS_T.cpp CosPropertyServiceI.h
+    include_files Factories.idl FactoriesC.h FactoriesS.h FactoriesC.inl FactoriesS.inl FactoriesS_T.h FactoriesS_T.inl FactoriesS_T.cpp FactoriesI.h
+    include_files CorbaMethodFactory.hpp CorbaCommandFactory.hpp CorbaConversion.hpp 
+    include_files OrocosTypesC.h OrocosTypesC.inl GeometryConversion.hpp
+    include_files GeometryC.h GeometryC.inl
+    include_files Attributes.idl AttributesC.h AttributesS.h AttributesC.inl AttributesS.inl AttributesS_T.h AttributesS_T.inl AttributesS_T.cpp AttributesI.h
+    include_files ScriptingAccess.idl ScriptingAccessC.h ScriptingAccessS.h ScriptingAccessC.inl ScriptingAccessS.inl ScriptingAccessS_T.h ScriptingAccessS_T.inl ScriptingAccessS_T.cpp ScriptingAccessI.h
 
 #     make_object {
-# 	src/kernelserver.o : $(REPOSITORY)/$(PACKAGE)/src/ControlTask.idl $(REPOSITORY)/$(PACKAGE)/src/kernelserver.cxx
+# 	src/kernelserver.o : $(REPOSITORY)/$(PACKAGE)/ControlTask.idl $(REPOSITORY)/$(PACKAGE)/src/kernelserver.cxx
 # 	tao_idl $(REPOSITORY)/$(PACKAGE)/src/KernelInterface.idl -o src
 # 	touch $@
 # 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/kernelserver.cxx -o src/$(OBJECT_PREFIX)_kernelserver.o
 #     }
 
+    cdl_option OROPKG_CORBA_GEOMETRY {
+	display "Geometry Corba Support"
+	description "When the geometry package is used,
+            Corba support will be enabled for the Frame, Vector, Twist,... types."
+	flavor bool
+	calculated OROPKG_GEOMETRY
+
+	make_object {
+	    GeometryC.o : $(REPOSITORY)/$(PACKAGE)/include/Geometry.idl
+	    $(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/include/GeometryC.cpp -o $(OBJECT_PREFIX)_GeometryC.o
+	    touch $@
+	}
+    }
+
     make_object {
-	src/ControlTaskI.o : $(REPOSITORY)/$(PACKAGE)/src/ControlTask.idl $(REPOSITORY)/$(PACKAGE)/src/ControlTaskI.cpp
-	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/ControlTaskI.cpp -o src/$(OBJECT_PREFIX)_ControlTaskI.o
+	OrocosTypesC.o : $(REPOSITORY)/$(PACKAGE)/OrocosTypes.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/OrocosTypesC.cpp -o $(OBJECT_PREFIX)_OrocosTypesC.o
 	touch $@
     }
 
     make_object {
-	src/ControlTaskS.o : $(REPOSITORY)/$(PACKAGE)/src/ControlTask.idl
-	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/ControlTaskS.cpp -o src/$(OBJECT_PREFIX)_ControlTaskS.o
+	src/ControlTaskI.o : $(REPOSITORY)/$(PACKAGE)/ControlTask.idl $(REPOSITORY)/$(PACKAGE)/src/ControlTaskI.cpp
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -O2 -c $(REPOSITORY)/$(PACKAGE)/src/ControlTaskI.cpp -o src/$(OBJECT_PREFIX)_ControlTaskI.o
 	touch $@
     }
-
-#    make_object {
-#	src/ControlTaskS_T.o : $(REPOSITORY)/$(PACKAGE)/src/ControlTask.idl
-#	touch $@
-#	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c src/ControlTaskS_T.cpp -o src/$(OBJECT_PREFIX)_ControlTaskS_T.o
-#    }
 
     make_object {
-	src/ControlTaskC.o : $(REPOSITORY)/$(PACKAGE)/src/ControlTask.idl
-	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/ControlTaskC.cpp -o src/$(OBJECT_PREFIX)_ControlTaskC.o
+	ControlTaskS.o : $(REPOSITORY)/$(PACKAGE)/ControlTask.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -O2 -c $(REPOSITORY)/$(PACKAGE)/ControlTaskS.cpp -o $(OBJECT_PREFIX)_ControlTaskS.o
 	touch $@
     }
 
+    make_object {
+	ControlTaskC.o : $(REPOSITORY)/$(PACKAGE)/ControlTask.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/ControlTaskC.cpp -o $(OBJECT_PREFIX)_ControlTaskC.o
+	touch $@
+    }
+
+	#Property Server
+    make_object {
+	src/CosPropertyServiceI.o : $(REPOSITORY)/$(PACKAGE)/CosPropertyService.idl $(REPOSITORY)/$(PACKAGE)/src/CosPropertyServiceI.cpp
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/CosPropertyServiceI.cpp -o src/$(OBJECT_PREFIX)_CosPropertyServiceI.o
+	touch $@
+    }
+
+    make_object {
+	CosPropertyServiceS.o : $(REPOSITORY)/$(PACKAGE)/CosPropertyService.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/CosPropertyServiceS.cpp -o $(OBJECT_PREFIX)_CosPropertyServiceS.o
+	touch $@
+    }
+
+    make_object {
+	CosPropertyServiceC.o : $(REPOSITORY)/$(PACKAGE)/CosPropertyService.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/CosPropertyServiceC.cpp -o $(OBJECT_PREFIX)_CosPropertyServiceC.o
+	touch $@
+    }
+
+    #AttributeInterface
+    make_object {
+	src/AttributesI.o : $(REPOSITORY)/$(PACKAGE)/Attributes.idl $(REPOSITORY)/$(PACKAGE)/src/AttributesI.cpp
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -O2 -c $(REPOSITORY)/$(PACKAGE)/src/AttributesI.cpp -o src/$(OBJECT_PREFIX)_AttributesI.o
+	touch $@
+    }
+
+    make_object {
+	AttributesS.o : $(REPOSITORY)/$(PACKAGE)/Attributes.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -O2 -c $(REPOSITORY)/$(PACKAGE)/AttributesS.cpp -o $(OBJECT_PREFIX)_AttributesS.o
+	touch $@
+    }
+
+    make_object {
+	AttributesC.o : $(REPOSITORY)/$(PACKAGE)/Attributes.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/AttributesC.cpp -o $(OBJECT_PREFIX)_AttributesC.o
+	touch $@
+    }
+
+	#Execution Servers
+    make_object {
+	src/ExecutionI.o : $(REPOSITORY)/$(PACKAGE)/Execution.idl $(REPOSITORY)/$(PACKAGE)/src/ExecutionI.cpp
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/ExecutionI.cpp -o src/$(OBJECT_PREFIX)_ExecutionI.o
+	touch $@
+    }
+
+    make_object {
+	ExecutionS.o : $(REPOSITORY)/$(PACKAGE)/Execution.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/ExecutionS.cpp -o $(OBJECT_PREFIX)_ExecutionS.o
+	touch $@
+    }
+
+    make_object {
+	ExecutionC.o : $(REPOSITORY)/$(PACKAGE)/Execution.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/ExecutionC.cpp -o $(OBJECT_PREFIX)_ExecutionC.o
+	touch $@
+    }
+
+    # Factory servers
+    make_object {
+	src/FactoriesI.o : $(REPOSITORY)/$(PACKAGE)/Factories.idl $(REPOSITORY)/$(PACKAGE)/src/FactoriesI.cpp
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/FactoriesI.cpp -o src/$(OBJECT_PREFIX)_FactoriesI.o
+	touch $@
+    }
+
+    make_object {
+	FactoriesS.o : $(REPOSITORY)/$(PACKAGE)/Factories.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/FactoriesS.cpp -o $(OBJECT_PREFIX)_FactoriesS.o
+	touch $@
+    }
+
+    make_object {
+	FactoriesC.o : $(REPOSITORY)/$(PACKAGE)/Factories.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/FactoriesC.cpp -o $(OBJECT_PREFIX)_FactoriesC.o
+	touch $@
+    }
+
+    #ScriptingAccess
+    make_object {
+	src/ScriptingAccessI.o : $(REPOSITORY)/$(PACKAGE)/ScriptingAccess.idl $(REPOSITORY)/$(PACKAGE)/src/ScriptingAccessI.cpp
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -O2 -c $(REPOSITORY)/$(PACKAGE)/src/ScriptingAccessI.cpp -o src/$(OBJECT_PREFIX)_ScriptingAccessI.o
+	touch $@
+    }
+
+    make_object {
+	ScriptingAccessS.o : $(REPOSITORY)/$(PACKAGE)/ScriptingAccess.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -O2 -c $(REPOSITORY)/$(PACKAGE)/ScriptingAccessS.cpp -o $(OBJECT_PREFIX)_ScriptingAccessS.o
+	touch $@
+    }
+
+    make_object {
+	ScriptingAccessC.o : $(REPOSITORY)/$(PACKAGE)/ScriptingAccess.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/ScriptingAccessC.cpp -o $(OBJECT_PREFIX)_ScriptingAccessC.o
+	touch $@    }
+
+
+    compile ApplicationServer.cxx
     compile ControlTaskProxy.cxx
     compile ControlTaskServer.cxx
-
+    compile ExpressionProxy.cxx
+    compile ExpressionServer.cxx
+    compile ActionProxy.cxx
+    compile CommandProxy.cxx
+    compile CorbaConversion.cxx
+    compile ScriptingAccessProxy.cxx
 }
