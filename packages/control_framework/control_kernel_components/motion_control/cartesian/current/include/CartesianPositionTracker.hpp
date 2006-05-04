@@ -161,8 +161,8 @@ namespace ORO_ControlKernel
               tool_mp_frame(Frame::Identity()),
               task_frame(Frame::Identity()),
               closeness("Closeness", "The minimal difference in tracking setpoints to trigger a new trajectory generation.", 0.001 ),
-              max_vel("MaximumVelocity", "The Maximum Cartesian Velocity", 0 ),
-              max_acc("MaximumAcceleration", "The Maximum Cartesian Acceleration", 0 ),
+              max_vel("MaximumVelocity", "The Maximum Cartesian Velocity", 0.0 ),
+              max_acc("MaximumAcceleration", "The Maximum Cartesian Acceleration", 0.0 ),
               interpol_prop("Interpolation", "One of Step, Linear, Trapezoidal.","Trapezoidal")
         {
             // Default Behaviour.

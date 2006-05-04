@@ -168,9 +168,8 @@ void FunctionTest::testRecFunction()
         + "   do foo\n"
         + "}";
 
-    stringstream progs(prog);
     try {
-        parser.parseProgram( progs, &gtc );
+        parser.parseProgram( prog, &gtc );
     }
     catch( ... )
         {
@@ -180,10 +179,9 @@ void FunctionTest::testRecFunction()
                 + "program x { \n"
                 + "   call foo\n"
                 + "}";
-            stringstream progs2(prog);
             //progs = prog;
             try {
-                parser.parseProgram( progs2, &gtc );
+                parser.parseProgram( prog, &gtc );
             }
             catch( ... )
                 {
@@ -325,10 +323,9 @@ void FunctionTest::testFunctionFail()
 
 void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool test )
 {
-    stringstream progs(prog);
     Parser::ParsedPrograms pg_list;
     try {
-        pg_list = parser.parseProgram( progs, tc );
+        pg_list = parser.parseProgram( prog, tc );
     }
     catch( const file_parse_exception& exc )
         {

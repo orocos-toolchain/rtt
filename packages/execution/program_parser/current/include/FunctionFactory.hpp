@@ -73,15 +73,15 @@ namespace ORO_Execution
         int getArity( const std::string& foo ) const;
         ComCon create( const std::string& command,
                        const ORO_CoreLib::PropertyBag& args,
-                       bool asyn = true ) const;
+                       bool nodispatch ) const;
 
         ComCon create(const std::string& command,
                       const std::vector<ORO_CoreLib::DataSourceBase*>& args,
-                      bool asyn = true ) const;
+                      bool nodispatch ) const;
 
         ComCon create(const std::string& command,
                       const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args,
-                      bool asyn = true ) const;
+                      bool nodispatch ) const;
     };
 }
 

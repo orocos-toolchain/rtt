@@ -90,6 +90,10 @@ namespace ORO_CoreLib
          */
         virtual const std::string& getName() const = 0;
 
+        typename ORO_CoreLib::DataSource<T>::result_t value() const {
+            return this->Get();
+        }
+
         virtual typename DataSource<DataType>::result_t get() const {
             return this->Get();
         }
@@ -180,8 +184,8 @@ namespace ORO_CoreLib
             return new DataObjectLocked<DataType>(name);
         }
 
-        DataObjectLocked<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) {
-            return this;
+        DataObjectLocked<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {
+            return const_cast<DataObjectLocked<DataType>*>(this);
         }
     };
 
@@ -286,8 +290,8 @@ namespace ORO_CoreLib
             return new DataObjectPrioritySet<DataType>(name);
         }
 
-        DataObjectPrioritySet<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) {
-            return this;
+        DataObjectPrioritySet<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {
+            return const_cast<DataObjectPrioritySet<DataType>*>(this);
         }
     };
 
@@ -404,8 +408,8 @@ namespace ORO_CoreLib
             return new DataObjectPriorityGet<DataType>(name);
         }
 
-        DataObjectPriorityGet<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) {
-            return this;
+        DataObjectPriorityGet<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {
+            return const_cast<DataObjectPriorityGet<DataType>*>(this);
         }
     };
 
@@ -613,8 +617,8 @@ namespace ORO_CoreLib
             return new DataObjectLockFree<DataType>(name);
         }
 
-        DataObjectLockFree<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) {
-            return this;
+        DataObjectLockFree<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {
+            return const_cast<DataObjectLockFree<DataType>*>(this);
         }
 
     };
@@ -687,8 +691,8 @@ namespace ORO_CoreLib
             return new DataObject<DataType>(name);
         }
 
-        DataObject<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) {
-            return this;
+        DataObject<DataType>* copy( std::map<const DataSourceBase*, DataSourceBase*>&  ) const {
+            return const_cast<DataObject<DataType>*>(this);
         }
 
     };

@@ -38,6 +38,9 @@ namespace ORO_Execution
      {
      }
 
+    void CommandCounter::readArguments()
+    {}
+
      bool CommandCounter::execute()
      {
      	counter++;

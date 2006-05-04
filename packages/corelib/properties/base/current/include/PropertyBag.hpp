@@ -30,16 +30,9 @@
 
 #include "PropertyBase.hpp"
 
-#ifdef HAVE_VECTOR
 #include <vector>
-#endif
-
-#ifdef HAVE_ALGORITHM
 #include <algorithm>
-#endif
-
 #include <iostream>
-#include <vector>
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
@@ -170,6 +163,11 @@ namespace ORO_CoreLib
         }
 
         /**
+         * Get the number of Properties in this bag.
+         */
+        size_t size() { return _properties.size(); }
+
+        /**
          * Find the PropertyBase with name \a name.
          *
          * @param  name The name of the property to search for.
@@ -251,12 +249,12 @@ namespace ORO_CoreLib
      *
      * You can use this function to update the properties of a fixed bag.
      */
-    bool refreshProperties(PropertyBag& target, const PropertyBag& source);
+    bool refreshProperties(const PropertyBag& target, const PropertyBag& source);
 
     /**
      * Refresh one Property in the target bag with the new value.
      */
-    bool refreshProperty( PropertyBag& target, const PropertyBase& source);
+    bool refreshProperty(const PropertyBag& target, const PropertyBase& source);
 
     /**
      * This function copies (recursively) the Properties of one Bag into
@@ -299,36 +297,6 @@ namespace ORO_CoreLib
     /**
      * @}
      */
-
-    /**
-     * Updating a bag is actually updating the bag.
-     * @see updateProperties()
-     */
-    inline
-    bool update(PropertyBag& a, const PropertyBag& b)
-    {
-        return updateProperties(a,b);
-    }
-
-    /**
-     * Copying a bag is actually making a deep copy of the bag.
-     * @see copyProperties()
-     */
-    inline
-    bool copy(PropertyBag& a, const PropertyBag& b)
-    {
-        return copyProperties(a,b);
-    }
-
-    /**
-     * Refresh a bag is actually refreshing a bag.
-     * @see refreshProperties()
-     */
-    inline
-    bool refresh(PropertyBag& a, const PropertyBag& b)
-    {
-        return refreshProperties(a,b);
-    }
 
     /**
      * A helper class, like std::auto_ptr, meant to protect you from

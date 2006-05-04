@@ -2,6 +2,8 @@ cdl_package OROPKG_SUPPORT_CORBA {
     display "Support Corba installation (currently only ace/tao detection is supported)"
     parent OROPKG_SUPPORT
 
+    implements OROINT_OS_TAO
+
     description " 
 The presence of this package indicates that the configure
 script detected a valid Corba installation, which can now
@@ -10,11 +12,20 @@ be used by other packages."
 	display "Ace installation directory"
 	flavor data
 	default_value {"@ACE_DIR@"}
+	no_define
 	}
 
     cdl_option OROBLD_SUPPORT_TAO_DIR {
 	display "Tao installation directory"
 	flavor data
 	default_value {"@TAO_DIR@"}
+	no_define
+    }
+
+    cdl_option CYGBLD_GLOBAL_CFLAGS_ADD {
+	display "Add paths to compilation flags."
+	flavor data
+	calculated {"-I".OROBLD_SUPPORT_ACE_DIR." -I".OROBLD_SUPPORT_TAO_DIR}
+	no_define
     }
 }

@@ -37,7 +37,7 @@ namespace ORO_CoreLib
          * @return true if the any was convertible to tp.
          */
         static bool update(const CORBA::Any& any, StdType tp) {
-            Logger::log() << Logger::Error << "Failing conversion of type "<<detail::DataSourceTypeInfo<StdType>::getType()<<"." <<Logger::endl;
+            Logger::log() << Logger::Debug << "Failing conversion of type "<<detail::DataSourceTypeInfo<StdType>::getType()<<"." <<Logger::endl;
             return false;
         }
 
@@ -59,7 +59,7 @@ namespace ORO_CoreLib
         typedef Type CorbaType;
         typedef Type StdType;
         static const Type& toAny(const Type& t ) {
-            Logger::log() << Logger::Debug << "Converting type "<<detail::DataSourceTypeInfo<Type>::getType()<<" to same CORBA type." <<Logger::endl;
+            //Logger::log() << Logger::Debug << "Converting type "<<detail::DataSourceTypeInfo<Type>::getType()<<" to same CORBA type." <<Logger::endl;
             return t;
         }
         static Type& fromAny( Type& t ) {
@@ -78,7 +78,7 @@ namespace ORO_CoreLib
 
         static CORBA::Any_ptr createAny( const Type& t ) {
             CORBA::Any_ptr ret = new CORBA::Any();
-            Logger::log() << Logger::Debug << "Creating Corba::Any from "<<detail::DataSourceTypeInfo<Type>::getType()<<"." <<Logger::endl;
+            //Logger::log() << Logger::Debug << "Creating Corba::Any from "<<detail::DataSourceTypeInfo<Type>::getType()<<"." <<Logger::endl;
             *ret <<= toAny( t );
             return ret;
         }
@@ -107,13 +107,13 @@ namespace ORO_CoreLib
         typedef CORBA::Any_ptr StdType;
 
         static bool update(const CORBA::Any& any, CORBA::Any_ptr _value) {
-            Logger::log() << Logger::Debug << "Updating type CORBA::Any_ptr with CORBA::Any." <<Logger::endl;
+            //Logger::log() << Logger::Debug << "Updating type CORBA::Any_ptr with CORBA::Any." <<Logger::endl;
             *_value = any;
             return true;
         }
 
         static CORBA::Any_ptr createAny( CORBA::Any_ptr t ) {
-            Logger::log() << Logger::Debug << "Duplicating CORBA::Any_ptr." <<Logger::endl;
+            //Logger::log() << Logger::Debug << "Duplicating CORBA::Any_ptr." <<Logger::endl;
             return new CORBA::Any(*t);
         }
     };
@@ -125,13 +125,13 @@ namespace ORO_CoreLib
         typedef CORBA::Any_var StdType;
 
         static bool update(const CORBA::Any& any, CORBA::Any_var _value) {
-            Logger::log() << Logger::Debug << "Updating type CORBA::Any_var with CORBA::Any." <<Logger::endl;
+            //Logger::log() << Logger::Debug << "Updating type CORBA::Any_var with CORBA::Any." <<Logger::endl;
             *_value.out() = any;
             return true;
         }
 
         static CORBA::Any_ptr createAny( CORBA::Any_var t ) {
-            Logger::log() << Logger::Debug << "Duplicating CORBA::Any_var." <<Logger::endl;
+            //Logger::log() << Logger::Debug << "Duplicating CORBA::Any_var." <<Logger::endl;
             return new CORBA::Any( t.in() );
         }
     };
@@ -152,7 +152,7 @@ namespace ORO_CoreLib
         typedef CORBA::Boolean CorbaType;
         typedef bool StdType;
         static CORBA::Any::from_boolean toAny( bool t ) {
-            Logger::log() << Logger::Debug << "Converting type 'bool' to from_boolean." <<Logger::endl;
+            //Logger::log() << Logger::Debug << "Converting type 'bool' to from_boolean." <<Logger::endl;
             return CORBA::Any::from_boolean(t);
         }
         static CORBA::Any::to_boolean fromAny( CORBA::Boolean& t ) {
@@ -215,7 +215,7 @@ namespace ORO_CoreLib
         typedef const char* CorbaType;
         typedef std::string StdType;
         static CorbaType toAny(const std::string& orig) {
-            Logger::log() << Logger::Debug << "Converting type 'string' to const char*." <<Logger::endl;
+            //Logger::log() << Logger::Debug << "Converting type 'string' to const char*." <<Logger::endl;
             return orig.c_str();
         }
 
@@ -225,7 +225,7 @@ namespace ORO_CoreLib
 
         static bool update(const CORBA::Any& any, StdType& _value) {
             CorbaType result;
-            Logger::log() << Logger::Debug << "Updating std::string with Any." <<Logger::endl;
+            //Logger::log() << Logger::Debug << "Updating std::string with Any." <<Logger::endl;
             if ( any >>= result ) {
                 _value = result;
                 return true;
@@ -247,7 +247,7 @@ namespace ORO_CoreLib
         typedef Orocos::DoubleSequence CorbaType;
         typedef std::vector<double> StdType;
         static CorbaType* toAny(const std::vector<double>& orig) {
-            Logger::log() << Logger::Debug << "Converting type 'std::vector<double>' to sequence<CORBA::Double>." <<Logger::endl;
+            //Logger::log() << Logger::Debug << "Converting type 'std::vector<double>' to sequence<CORBA::Double>." <<Logger::endl;
             CorbaType* ret = new CorbaType();
             ret->length( orig.size() );
             for( size_t i = 0; i != orig.size(); ++i)

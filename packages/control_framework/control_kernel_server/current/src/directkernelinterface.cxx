@@ -337,7 +337,8 @@ namespace ExecutionClient
                 // ignore it, try to parse it as a command :
                 //cerr << "Ignoring : "<< pe.what() << endl;
                 try {
-                    parseresult = _parser.parseCommand( code, task );
+                    // dispatch == false:
+                    parseresult = _parser.parseCommand( code, task, false );
                     // parseresult contains : command + implcond 
                     // We wrap the command ourselves because this is actually a dispatch,
                     // but the commandparser assumed it was not, since there is no 'Task-switch' involved.

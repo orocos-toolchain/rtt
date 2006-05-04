@@ -226,7 +226,7 @@ namespace ORO_Execution
                             break; // exit from for loop.
                         }
                 }
-        } while ( previous != current ); // keep going if we found a new node
+        } while ( previous != current && pStatus == Status::running && !pausing); // keep going if we found a new node
 
         // check finished state
         if (current == exitv)

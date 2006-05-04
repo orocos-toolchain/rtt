@@ -26,6 +26,7 @@ is very powerful."
     compile TaskBrowser.cxx
     compile ProgramLoader.cxx
     compile GenericTaskContext.cxx
+    compile StatementProcessor.cxx
 
     requires OROPKG_SUPPORT_BOOST
     requires OROPKG_SUPPORT_BOOST_GRAPH 

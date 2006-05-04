@@ -45,14 +45,9 @@
 
 namespace ORO_Execution
 {
-    /**
-     * @todo 
-     * 1. Refactor this file such that ProgramGraph becomes FunctionGraphBuilder, thus it becomes a pure factory.
-     * 2. add copy semantics to ProgramInterface, such that FunctionGraph::copy can be called from the interface.
-     */
-
     using namespace boost;
     using namespace std;
+    using namespace ORO_CoreLib;
     using ORO_CoreLib::CommandNOP;
     using ORO_CoreLib::ConditionTrue;
 

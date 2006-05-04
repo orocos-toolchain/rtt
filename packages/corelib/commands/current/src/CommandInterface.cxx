@@ -42,6 +42,9 @@ namespace ORO_CoreLib {
   void CommandInterface::reset() {
   }
 
+    //void CommandInterface::readArguments() {
+    //}
+
   CommandInterface* CommandInterface::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
     return clone();
   }

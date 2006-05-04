@@ -25,14 +25,18 @@
  *                                                                         *
  ***************************************************************************/
 #include "execution/EdgeCondition.hpp"
-
+#include <corelib/ConditionTrue.hpp>
 #include <corelib/ConditionInterface.hpp>
+#include <corelib/DataSource.hpp>
 
 namespace ORO_Execution
 {
 	using namespace ORO_CoreLib;
 
     int EdgeCondition::condition_counter = 0;
+
+    EdgeCondition::EdgeCondition()
+        : condition ( new ConditionTrue ), rank(condition_counter++) {}
 
 	EdgeCondition::EdgeCondition(ConditionInterface* cond )
         : condition( cond ), rank(condition_counter++)

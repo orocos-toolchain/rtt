@@ -31,6 +31,7 @@
 
 #include <corelib/CommandInterface.hpp>
 #include <corelib/ConditionInterface.hpp>
+#include <corelib/Logger.hpp>
 #include "DataSource.hpp"
 
 namespace ORO_Execution 
@@ -57,43 +58,24 @@ namespace ORO_Execution
          */
         TryCommand( CommandInterface* command,
                     AssignableDataSource<bool>::shared_ptr storage=0,
-                    AssignableDataSource<bool>::shared_ptr execstat=0 )
-            :_result( storage == 0 ? new detail::VariableDataSource<bool>(true) : storage ),
-             _executed( execstat == 0 ? new detail::VariableDataSource<bool>(false) : execstat ),
-             c(command) {}
+                    AssignableDataSource<bool>::shared_ptr execstat=0 );
 
-        ~TryCommand() {
-            delete c;
-        }
-        bool execute() {
-            _result->set( c->execute() );
-            _executed->set(true);
-            return true;
-        }
-        void reset() {
-            c->reset();
-            _result->set(true);
-            _executed->set(false);
-        }
+        ~TryCommand();
 
-        AssignableDataSource<bool>::shared_ptr result() {
-            return _result;
-        }
+        bool execute();
+        void reset();
 
-        AssignableDataSource<bool>::shared_ptr executed() {
-            return _executed;
-        }
+        void readArguments();
 
-        CommandInterface* clone() const {
-            return new TryCommand( c->clone(),
-                                   _result, _executed );
-        }
+        CommandInterface* theCommand() const;
 
-        CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-            return new TryCommand( c->copy( alreadyCloned ),
-                                   _result->copy(alreadyCloned),
-                                   _executed->copy(alreadyCloned) );
-        }
+        AssignableDataSource<bool>::shared_ptr result();
+
+        AssignableDataSource<bool>::shared_ptr executed();
+
+        TryCommand* clone() const;
+
+        TryCommand* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     };
 
     /**
@@ -114,25 +96,15 @@ namespace ORO_Execution
          * If \a invert is \a false, evaluate() will return the return value of the
          * original command.
          */
-        TryCommandResult( DataSource<bool>::shared_ptr ec, bool invert)
-            :c(ec), _invert(invert) {}
+        TryCommandResult( DataSource<bool>::shared_ptr ec, bool invert);
 
-        ~TryCommandResult() {
-            // do not delete !
-        }
+        ~TryCommandResult();
 
-        bool evaluate() {
-            // by default true means reject
-            return  _invert != c->get();
-        }
+        bool evaluate();
 
-        ConditionInterface* clone() const {
-            return new TryCommandResult( c, _invert ); // do not clone c !
-        }
+        ConditionInterface* clone() const;
 
-        ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-            return new TryCommandResult( c->copy(alreadyCloned), _invert );
-        }
+        ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     };
 
     /**
@@ -150,36 +122,21 @@ namespace ORO_Execution
         // the data to evaluate in the command.
         DataSource<bool>::shared_ptr _ds;
     public:
-        EvalCommand( DataSource<bool>::shared_ptr ds, AssignableDataSource<bool>::shared_ptr cache=0)
-            :_cache( cache == 0 ? new detail::VariableDataSource<bool>(false) : cache ),
-             _ds(ds) {}
+        EvalCommand( DataSource<bool>::shared_ptr ds, AssignableDataSource<bool>::shared_ptr cache=0);
 
-        ~EvalCommand() {
-        }
+        ~EvalCommand();
 
-        bool execute() {
-            _cache->set( _ds->get() );
-            return true;
-        }
+        void readArguments();
 
-        void reset() {
-            _cache->set(false);
-            _ds->reset();
-        }
+        bool execute();
 
-        AssignableDataSource<bool>::shared_ptr cache() {
-            return _cache;
-        }
+        void reset();
 
-        CommandInterface* clone() const {
-            return new EvalCommand( _ds,
-                                    _cache );
-        }
+        AssignableDataSource<bool>::shared_ptr cache();
 
-        CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-            return new EvalCommand( _ds->copy( alreadyCloned ),
-                                    _cache->copy(alreadyCloned) );
-        }
+        CommandInterface* clone() const;
+
+        CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     };
 
     /**
@@ -192,24 +149,15 @@ namespace ORO_Execution
     {
         DataSource<bool>::shared_ptr c;
     public:
-        EvalCommandResult( DataSource<bool>::shared_ptr ec)
-            :c(ec) {}
+        EvalCommandResult( DataSource<bool>::shared_ptr ec);
 
-        ~EvalCommandResult() {
-            // do not delete !
-        }
+        ~EvalCommandResult();
 
-        bool evaluate() {
-            return c->get();
-        }
+        bool evaluate();
 
-        ConditionInterface* clone() const {
-            return new EvalCommandResult( c ); // do not clone c !
-        }
+        ConditionInterface* clone() const;
 
-        ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-            return new EvalCommandResult( c->copy( alreadyCloned ) );
-        }
+        ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     };
 }
     

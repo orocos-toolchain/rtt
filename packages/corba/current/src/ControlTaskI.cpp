@@ -45,7 +45,18 @@ using namespace CosPropertyService;
 Orocos_ControlTask_i::Orocos_ControlTask_i (TaskContext* orig)
     : mtask( orig ), mCosProps( ), mMFact(), mCFact(), mEEFact()
 {
+    // Add the corba object to the interface:
+    TemplateMethodFactory<Orocos_ControlTask_i>* cfact = newMethodFactory(this);
+    cfact->add("shutdown", method( &Orocos_ControlTask_i::shutdownCORBA,
+                                   "Shutdown CORBA ORB. This function makes RunOrb() return."));
+    mtask->methods()->registerObject( "CORBA", cfact );
+
 }
+
+  void Orocos_ControlTask_i::shutdownCORBA() {
+	  ControlTaskServer::ShutdownOrb(false);
+  }
+
 
 // Implementation skeleton destructor
 Orocos_ControlTask_i::~Orocos_ControlTask_i (void)

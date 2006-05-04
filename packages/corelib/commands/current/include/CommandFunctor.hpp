@@ -71,6 +71,8 @@ namespace ORO_CoreLib
 
         virtual ~CommandFunctor() {}
 
+        virtual void readArguments() {}
+
         virtual bool execute() { f(); return true; }
 
         virtual CommandInterface* clone() const
@@ -109,6 +111,8 @@ namespace ORO_CoreLib
         CommandFunctor(const Function& func) : f(func) {}
 
         virtual ~CommandFunctor() {}
+
+        virtual void readArguments() {}
 
         virtual bool execute() { return f(); }
 

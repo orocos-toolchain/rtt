@@ -39,14 +39,19 @@ namespace ORO_CoreLib
         : public DataSource<TimeService::Seconds>
     {
         TimeService::ticks stamp;
+        mutable TimeService::Seconds last;
         TimeService* ts;
     public:
         DataSourceTime()
-            : stamp( 0 ), ts( TimeService::Instance() )
+            : stamp( 0 ), last(0), ts( TimeService::Instance() )
         {}
         
         TimeService::Seconds get() const {
-            return ts->secondsSince(stamp);
+            return last = ts->secondsSince(stamp);
+        }
+
+        TimeService::Seconds value() const {
+            return last;
         }
 
         void reset() {
@@ -58,7 +63,7 @@ namespace ORO_CoreLib
             return new DataSourceTime();
         }
 
-        DataSourceTime* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
+        DataSourceTime* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             return new DataSourceTime();
         }
         

@@ -52,6 +52,7 @@ namespace ORO_Execution
     TaskContext::TaskContext(const std::string& name)
         :  _task_name(name),
            ee(this),
+           mscriptAcc(new ScriptingAccess(this)),
            commandFactory( &ee ),
            eventService( &ee )
     {
@@ -64,6 +65,7 @@ namespace ORO_Execution
     TaskContext::TaskContext(const std::string& name, ExecutionEngine* parent )
         :  _task_name(name),
            ee(this, parent ),
+           mscriptAcc(new ScriptingAccess(this)),
            commandFactory( &ee ),
            eventService( &ee )
     {
@@ -77,6 +79,7 @@ namespace ORO_Execution
             // could be used though, but parsed programs would still contain
             // pointers to non existing peers.
             attributeRepository.clear();
+            delete mscriptAcc;
 
             // remove from all users.
             while( !musers.empty() ) {

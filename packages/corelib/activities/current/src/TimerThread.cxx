@@ -28,6 +28,8 @@
 #include "corelib/TimerThread.hpp"
 #include "corelib/PeriodicActivity.hpp"
 #include "corelib/TimerInterface.hpp"
+#include "corelib/EventProcessor.hpp"
+
 #include "pkgconf/corelib_activities.h"
 
 // this timer is the only correct, synchronising one
@@ -75,7 +77,7 @@ namespace ORO_CoreLib
     }
 
     TimerThread::TimerThread(int priority, const std::string& name, double periodicity)
-        : PeriodicThread( priority, name, periodicity)
+        : PeriodicThread( priority, name, periodicity), eproc( new EventProcessor() )
     {
         // create one default timer for the tasks with this periodicity.
         TimerInterface* timer = 
@@ -105,7 +107,7 @@ namespace ORO_CoreLib
         MutexLock locker(lock);
         for (itl = clocks.begin(); itl != clocks.end(); ++itl)
             (*itl)->start();
-        EventProcessor::initialize();
+        eproc->initialize();
         return true;
     }
 
@@ -121,7 +123,7 @@ namespace ORO_CoreLib
                 (*itl)->tick();
         }
         // Execute event completion handlers :
-        EventProcessor::step();
+        eproc->step();
     }        
 
     void TimerThread::finalize()
@@ -130,7 +132,7 @@ namespace ORO_CoreLib
         MutexLock locker(lock);
         for (itl = clocks.begin(); itl != clocks.end(); ++itl)
             (*itl)->stop();
-        EventProcessor::finalize();
+        eproc->finalize();
     }
 
     TimerInterface* TimerThread::timerGet( Seconds period ) const {

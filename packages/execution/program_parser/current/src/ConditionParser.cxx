@@ -121,7 +121,7 @@ namespace ORO_Execution
       {
           EvalCommand* ec = new EvalCommand( ds_bool );
           EvalCommandResult* ecr = new EvalCommandResult( ec->cache() );
-          return std::make_pair( ec ,ecr );
+          return std::make_pair( ec, ecr );
           //return std::pair<CommandInterface*,ConditionInterface*>(0,0);
       }
 }

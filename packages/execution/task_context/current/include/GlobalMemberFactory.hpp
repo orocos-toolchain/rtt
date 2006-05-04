@@ -61,8 +61,10 @@ namespace ORO_Execution
        * Create an invocable member function.
        * Use this function as in:
        @verbatim
-       MethodC cc = create("this", "methodName").arg( 3 ).arg(d).arg(5.0);
+       double d = 1.234, c = 0;
+       MethodC cc = create("this", "methodName").arg( 3 ).arg(d).arg(5.0).ret(c);
        cc.execute();
+       assert( c != 0 )
        @verbatim
        * Also variables or reference to variables may be given
        * within arg().

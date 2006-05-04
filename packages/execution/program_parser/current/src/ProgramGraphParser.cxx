@@ -313,7 +313,7 @@ namespace ORO_Execution
       std::vector<ConditionInterface*>::iterator it = implcond_v.begin();
       implcond = *it;
       while ( ++it != implcond_v.end() ) {
-          implcond = new ConditionBinaryComposite< std::logical_and<bool> >( implcond, *it ) ;
+          implcond = new ConditionBinaryCompositeAND( implcond, *it ) ;
       }
       implcond_v.clear();
 
@@ -469,9 +469,9 @@ namespace ORO_Execution
        mcondition = conditionparser.getParseResult();
        assert( mcondition );
        // do we need to wrap the condition in a dispatch condition ?
-       // if so, mcondition is only evaluated if the command is dispatched.
+       // if so, mcondition is only evaluated if the command is 'valid'.
        if ( dc )
-          mcondition = new ConditionBinaryComposite< std::logical_and<bool> >( dc->clone(), mcondition );
+          mcondition = new ConditionBinaryCompositeAND( dc->clone(), mcondition );
 
        // leaves the condition in the parser, if we want to use
        // getParseResultAsCommand();
@@ -924,23 +924,24 @@ namespace ORO_Execution
       command  = commandparser.getCommand();
       implcond = commandparser.getImplTermCondition();
 
+      // check if we must store the dispatchCondition
+      if ( commandparser.dispatchCondition() != 0 )
+          dc = commandparser.dispatchCondition()->clone();
+
       if ( !try_cmd ) {
           program_builder->setCommand( command );
       } else {
-          // try-wrap the command, store the result in try_cond.
+          // try-wrap the asyn or dispatch command, store the result in try_cond.
           TryCommand* trycommand =  new TryCommand( command );
           // returns true if failure :
-          try_cond = new TryCommandResult( trycommand->result(), true );
+          TryCommandResult* tryresult = new TryCommandResult( trycommand->result(), true );
           program_builder->setCommand( trycommand );
+          try_cond = tryresult;
           // go further if command failed or if command finished.
-          implcond = new ConditionBinaryComposite< std::logical_or<bool> >(try_cond->clone(), implcond );
+          implcond = new ConditionBinaryCompositeOR(try_cond->clone(), implcond );
       }
 
     implcond_v.push_back(implcond); // store
-
-    // check if we must store the dispatchCondition
-    if ( commandparser.dispatchCondition() != 0 )
-        dc = commandparser.dispatchCondition()->clone();
 
     commandparser.reset();
   }
@@ -952,6 +953,21 @@ namespace ORO_Execution
     assert(oldcmnd);
     // set composite command : (oldcmnd can not be zero)
     CommandInterface* compcmnd;
+    // The implcond is already 'corrected' wrt result of evaluate().
+    implcond = commandparser.getImplTermCondition();
+
+    // check if we must store the dispatchCondition
+    // They are composed into one big condition, guarding all
+    // the other condition branches. Only if all dc's say the
+    // command is accepted, the branch opens for evaluation.
+    // See : guarding of if .. then statements with 'dc'
+    if ( commandparser.dispatchCondition() != 0 ) {
+        if ( dc )
+            dc = new ConditionBinaryCompositeAND( dc, commandparser.dispatchCondition()->clone() );
+        else
+            dc = commandparser.dispatchCondition()->clone();
+    }
+
     if ( !try_cmd )
         compcmnd = new CommandBinary( oldcmnd,
                                       commandparser.getCommand() );
@@ -960,23 +976,18 @@ namespace ORO_Execution
         TryCommandResult* tryresult = new TryCommandResult( trycommand->result(), true );
         compcmnd = new CommandBinary( oldcmnd,
                                       trycommand );
-        try_cond = new ConditionBinaryComposite< std::logical_or<bool> >( try_cond, tryresult );
+        // chain the failure detections: if try_cond evaluates true, the catch phrase is executed
+        // See : condition to enter the 'catch' block.
+        try_cond = new ConditionBinaryCompositeOR( try_cond, tryresult );
+        // chain the implicit term. conditions: a command is implicitly done if it failed or
+        // its implcond is true.
+        // See : adding implicit term condition if no if .. then branches were defined.
+        implcond = new ConditionBinaryCompositeOR( tryresult->clone(), implcond );
     }
         
     program_builder->setCommand( compcmnd ); // this deletes the old command (hence the clone) !
 
-    implcond_v.push_back( commandparser.getImplTermCondition() );
-
-    // check if we must store the dispatchCondition
-    // They are composed into one big condition, guarding all
-    // the other condition branches. Only if all dc's say the
-    // command is accepted, the branch opens for evaluation.
-    if ( commandparser.dispatchCondition() != 0 ) {
-        if ( dc )
-            dc = new ConditionBinaryComposite< std::logical_and<bool> >( dc, commandparser.dispatchCondition()->clone() );
-        else
-            dc = commandparser.dispatchCondition()->clone();
-    }
+    implcond_v.push_back( implcond );
 
     commandparser.reset();
   }

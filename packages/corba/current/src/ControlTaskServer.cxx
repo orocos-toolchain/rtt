@@ -48,25 +48,29 @@ namespace ORO_Corba
     servers.erase(mtaskcontext);
 
     if (muse_naming) {
-      CORBA::Object_var rootObj = orb->resolve_initial_references("NameService");
-      CosNaming::NamingContext_var rootNC = CosNaming::NamingContext::_narrow(rootObj.in());
+        try {
+            CORBA::Object_var rootObj = orb->resolve_initial_references("NameService");
+            CosNaming::NamingContext_var rootNC = CosNaming::NamingContext::_narrow(rootObj.in());
             
-      if (CORBA::is_nil( rootNC.in() ) ) {
-	Logger::log() <<Logger::Warning << "ControlTask '"<< mtaskcontext->getName() << "' could not find CORBA NameServer."<<Logger::nl;
-      } else {
-	// Nameserver found...
-	CosNaming::Name name;
-	name.length(2);
-	name[0].id = CORBA::string_dup("ControlTasks");
-	name[1].id = CORBA::string_dup( mtaskcontext->getName().c_str() );
-	try {
-	  rootNC->unbind(name);
-	  Logger::log() <<Logger::Info << "Successfully removed ControlTask '"<<mtaskcontext->getName()<<"' from CORBA NameServer."<<Logger::endl;
-	}
-	catch( ... ) {
-	  Logger::log() <<Logger::Warning << "ControlTask '"<< mtaskcontext->getName() << "' unbinding failed."<<Logger::endl;
-	}
-      }
+            if (CORBA::is_nil( rootNC.in() ) ) {
+                Logger::log() <<Logger::Warning << "ControlTask '"<< mtaskcontext->getName() << "' could not find CORBA Naming Service."<<Logger::nl;
+            } else {
+                // Nameserver found...
+                CosNaming::Name name;
+                name.length(2);
+                name[0].id = CORBA::string_dup("ControlTasks");
+                name[1].id = CORBA::string_dup( mtaskcontext->getName().c_str() );
+                try {
+                    rootNC->unbind(name);
+                    Logger::log() <<Logger::Info << "Successfully removed ControlTask '"<<mtaskcontext->getName()<<"' from CORBA Naming Service."<<Logger::endl;
+                }
+                catch( ... ) {
+                    Logger::log() <<Logger::Warning << "ControlTask '"<< mtaskcontext->getName() << "' unbinding failed."<<Logger::endl;
+                }
+            }
+        } catch (...) {
+            Logger::log() <<Logger::Warning << "ControlTask '"<< mtaskcontext->getName() << "' unbinding failed from CORBA Naming Service."<<Logger::endl;
+        }
     }
   }
 
@@ -96,7 +100,7 @@ namespace ORO_Corba
                 CosNaming::NamingContext_var rootNC = CosNaming::NamingContext::_narrow(rootObj.in());
             
                 if (CORBA::is_nil( rootNC.in() ) ) {
-                    Logger::log() <<Logger::Warning << "ControlTask '"<< taskc->getName() << "' could not find CORBA NameServer."<<Logger::nl;
+                    Logger::log() <<Logger::Warning << "ControlTask '"<< taskc->getName() << "' could not find CORBA Naming Service."<<Logger::nl;
                     Logger::log() <<"Writing IOR to 'std::cerr' and file '" << taskc->getName() <<".ior'"<<Logger::endl;
 
                     // this part only publishes the IOR to a file.
@@ -111,7 +115,7 @@ namespace ORO_Corba
                     }
                     return;
                 }
-                Logger::log() <<Logger::Info << "ControlTask '"<< taskc->getName() << "' found CORBA NameServer."<<Logger::endl;
+                Logger::log() <<Logger::Info << "ControlTask '"<< taskc->getName() << "' found CORBA Naming Service."<<Logger::endl;
                 // Nameserver found...
                 CosNaming::Name name;
                 name.length(1);
@@ -121,7 +125,7 @@ namespace ORO_Corba
                     controlNC = rootNC->bind_new_context(name);
                 }
                 catch( CosNaming::NamingContext::AlreadyBound&) {
-                    Logger::log() <<Logger::Debug << "NamingContext 'ControlTasks' already bound to CORBA NameServer."<<Logger::endl;
+                    Logger::log() <<Logger::Debug << "NamingContext 'ControlTasks' already bound to CORBA Naming Service."<<Logger::endl;
                     // NOP.
                 }
 
@@ -129,10 +133,10 @@ namespace ORO_Corba
                 name[1].id = CORBA::string_dup( taskc->getName().c_str() );
                 try {
                     rootNC->bind(name, obj.in() );
-                    Logger::log() <<Logger::Info << "Successfully added ControlTask '"<<taskc->getName()<<"' to CORBA NameServer."<<Logger::endl;
+                    Logger::log() <<Logger::Info << "Successfully added ControlTask '"<<taskc->getName()<<"' to CORBA Naming Service."<<Logger::endl;
                 }
                 catch( CosNaming::NamingContext::AlreadyBound&) {
-                    Logger::log() <<Logger::Warning << "ControlTask '"<< taskc->getName() << "' already bound to CORBA NameServer."<<Logger::endl;
+                    Logger::log() <<Logger::Warning << "ControlTask '"<< taskc->getName() << "' already bound to CORBA Naming Service."<<Logger::endl;
                     Logger::log() <<"Trying to rebind...";
                     try {
                         rootNC->rebind(name, obj.in() );
@@ -140,11 +144,24 @@ namespace ORO_Corba
                         Logger::log() << " failed!"<<Logger::endl;
                         return;
                     }
-                    Logger::log() << " done. New ControlTask bound to NameServer."<<Logger::endl;
+                    Logger::log() << " done. New ControlTask bound to Naming Service."<<Logger::endl;
                 }
             } // use_naming
             else {
-                Logger::log() <<Logger::Info <<"ControlTask '"<< taskc->getName() << "' is not using the CORBA NameServer."<<Logger::endl;
+                Logger::log() <<Logger::Info <<"ControlTask '"<< taskc->getName() << "' is not using the CORBA Naming Service."<<Logger::endl;
+                Logger::log() <<"Writing IOR to 'std::cerr' and file '" << taskc->getName() <<".ior'"<<Logger::endl;
+                
+                // this part only publishes the IOR to a file.
+                CORBA::String_var ior = orb->object_to_string( mtask.in() );
+                std::cerr << ior.in() <<std::endl;
+                {
+                    // write to a file as well.
+                    std::string iorname( taskc->getName());
+                    iorname += ".ior";
+                    std::ofstream file_ior( iorname.c_str() );
+                    file_ior << ior.in() <<std::endl;
+                }
+                return;
             }
         }
         catch (CORBA::Exception &e) {
@@ -180,16 +197,17 @@ namespace ORO_Corba
 
     }
 
-  void ControlTaskServer::CleanupServers() {
-    if ( !CORBA::is_nil(orb) ) {
-      Logger::log() <<Logger::Info << "Cleaning up ControlTaskServers...";
-      ServerMap::iterator it = servers.begin();
-      for ( ; it != servers.end(); ++it){
-	delete it->second;
-      }
-      Logger::log() << "done."<<Logger::endl;
+    void ControlTaskServer::CleanupServers() {
+        if ( !CORBA::is_nil(orb) ) {
+            Logger::log() <<Logger::Info << "Cleaning up ControlTaskServers..."<<Logger::nl;
+            ServerMap::iterator it = servers.begin();
+            for ( ; it != servers.end(); ++it){
+                delete it->second;
+            }
+            servers.clear();
+            Logger::log() << "Cleanup done."<<Logger::endl;
+        }
     }
-  }
 
     void ControlTaskServer::ShutdownOrb(bool wait_for_completion) 
     {

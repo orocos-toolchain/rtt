@@ -57,13 +57,17 @@ namespace ORO_Execution
   class MemberFactoryInterface
   {
   public:
+      typedef std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> Arguments;
+      typedef std::vector<std::string> Members;
+      typedef std::vector< ArgumentDescription > Descriptions;
+
     virtual ~MemberFactoryInterface();
 
     /**
      * Returns a list of all available names.
      * throws nothing.
      */
-    virtual std::vector<std::string> getNames() const = 0;
+    virtual Members getNames() const = 0;
 
     /**
      * Returns true if data is available by the name s.  Equivalent to
@@ -147,7 +151,7 @@ namespace ORO_Execution
      */
     virtual ORO_CoreLib::DataSourceBase* create(
       const std::string& name,
-      const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args ) const = 0;
+      const Arguments& args ) const = 0;
 
     /**
      * We also support passing DataSources as the arguments.  In this

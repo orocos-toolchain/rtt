@@ -55,6 +55,8 @@ namespace ORO_ControlKernel
     using ORO_Execution::TaskContext;
     using ORO_Execution::StateMachine;
     using ORO_Execution::ProgramInterface;
+    using ORO_Execution::StateMachinePtr;
+    using ORO_Execution::ProgramInterfacePtr;
     class ExecutionExtension;
 
     /**
@@ -83,7 +85,7 @@ namespace ORO_ControlKernel
          * Get the Component's TaskContext.
          * @return The exclusive TaskContext of this Component.
          */
-        TaskContext* getComponentContext() const;
+        TaskContext* getComponentContext();
     protected:
         /**
          * Get the Kernel's TaskContext.  
@@ -91,7 +93,7 @@ namespace ORO_ControlKernel
          * not loaded or ExecutionExtension not present, the kernel's
          * TaskContext otherwise.
          */
-        TaskContext* getKernelContext() const;
+        TaskContext* getKernelContext();
 
     protected:
         ExecutionComponentInterface( const std::string& _name );
@@ -166,8 +168,8 @@ namespace ORO_ControlKernel
          */
         bool loadStateMachine( const std::string& filename, const std::string& file = "" );
 
-        const StateMachine* getStateMachine(const std::string& name);
-        const ProgramInterface* getProgram(const std::string& name);
+        StateMachinePtr getStateMachine(const std::string& name);
+        ProgramInterfacePtr getProgram(const std::string& name);
 
         /**
          * Unload the given StateMachine...

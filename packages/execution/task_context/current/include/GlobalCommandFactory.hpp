@@ -109,7 +109,7 @@ namespace ORO_Execution
          * Create a command.
          * Use this function as in:
          @verbatim
-         CommandC cc = create("this", "doSomething").arg( 3 ).arg(d).arg(5.0);
+         CommandC cc = create("this", "doSomething").argC( 3 ).arg(d).argC(5.0);
          cc.execute();
          // lateron ...
          if ( cc.evaluate() ) {
@@ -124,9 +124,7 @@ namespace ORO_Execution
          * @throw wrong_types_of_args_exception
          */
         CommandC create(const std::string& object,
-                        const std::string& command) const {
-            return CommandC(this, object, command, false);
-        }
+                        const std::string& command) const;
                         
     private:
       /**

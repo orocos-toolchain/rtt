@@ -49,22 +49,9 @@ namespace ORO_Execution
 {
   using namespace detail;
 
-  Parser::ParsedFunctions Parser::parseFunction( const std::string& file, TaskContext* c)
+  Parser::ParsedFunctions Parser::parseFunction( const std::string& text, TaskContext* c, const std::string& filename)
   {
-      std::ifstream inputfile(file.c_str());
-      return this->parseFunction( inputfile, c, file );
-  }
-
-  Parser::ParsedFunctions Parser::parseFunction( std::istream& s, TaskContext* c, const std::string& filename)
-  {
-    our_buffer_t function;
-
-    s.unsetf( std::ios_base::skipws );
-
-    std::istream_iterator<char> streambegin( s );
-    std::istream_iterator<char> streamend;
-    std::copy( streambegin, streamend, std::back_inserter( function ) );
-
+    our_buffer_t function(text);
     our_pos_iter_t parsebegin( function.begin(), function.end(), filename );
     our_pos_iter_t parseend; // not used.
 
@@ -74,22 +61,9 @@ namespace ORO_Execution
     return ret;
   }
 
-  Parser::ParsedPrograms Parser::parseProgram( const std::string& file, TaskContext* c)
+  Parser::ParsedPrograms Parser::parseProgram( const std::string& text, TaskContext* c, const std::string& filename)
   {
-      std::ifstream inputfile(file.c_str());
-      return this->parseProgram( inputfile, c, file );
-  }
-
-  Parser::ParsedPrograms Parser::parseProgram( std::istream& s, TaskContext* c, const std::string& filename)
-  {
-    our_buffer_t program;
-
-    s.unsetf( std::ios_base::skipws );
-
-    std::istream_iterator<char> streambegin( s );
-    std::istream_iterator<char> streamend;
-    std::copy( streambegin, streamend, std::back_inserter( program ) );
-
+    our_buffer_t program(text);
     our_pos_iter_t parsebegin( program.begin(), program.end(), filename );
     our_pos_iter_t parseend; // not used.
 
@@ -100,24 +74,11 @@ namespace ORO_Execution
     return ret;
   }
 
-  Parser::ParsedStateMachines Parser::parseStateMachine( const std::string& file, TaskContext* c)
-  {
-      std::ifstream inputfile(file.c_str());
-      return this->parseStateMachine( inputfile, c, file );
-  }
-
-  Parser::ParsedStateMachines Parser::parseStateMachine( std::istream& s, TaskContext* c, const std::string& filename)
+  Parser::ParsedStateMachines Parser::parseStateMachine( const std::string& text, TaskContext* c, const std::string& filename)
   {
       // This code is copied from parseProgram()
 
-    our_buffer_t program;
-
-    s.unsetf( std::ios_base::skipws );
-
-    std::istream_iterator<char> streambegin( s );
-    std::istream_iterator<char> streamend;
-    std::copy( streambegin, streamend, std::back_inserter( program ) );
-
+    our_buffer_t program(text);
     our_pos_iter_t parsebegin( program.begin(), program.end(), filename );
     our_pos_iter_t parseend;
 
@@ -136,10 +97,11 @@ namespace ORO_Execution
     return ret;
   }
 
-  ConditionInterface* Parser::parseCondition( std::string& s,
+  ConditionInterface* Parser::parseCondition( const std::string& s,
                                               TaskContext* tc )
   {
-    our_pos_iter_t parsebegin( s.begin(), s.end(), "teststring" );
+    our_buffer_t scopy(s);
+    our_pos_iter_t parsebegin( scopy.begin(), scopy.end(), "teststring" );
     our_pos_iter_t parseend;
 
     ConditionParser parser( tc );
@@ -223,7 +185,7 @@ namespace ORO_Execution
 
   std::pair<CommandInterface*, ConditionInterface*>
   Parser::parseCommand( const std::string& _s,
-                        TaskContext* tc )
+                        TaskContext* tc, bool dodispatch )
   {
     // we need a writable version of the string..
     std::string s( _s );
@@ -232,7 +194,7 @@ namespace ORO_Execution
     our_pos_iter_t parsebegin( s.begin(), s.end(), "input" );
     our_pos_iter_t parseend;
 
-    CommandParser parser( tc );
+    CommandParser parser( tc, dodispatch );
     try
     {
       boost::spirit::parse_info<iter_t> ret = parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );

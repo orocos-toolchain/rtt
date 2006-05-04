@@ -29,5 +29,6 @@ code. Most users will not need this."
 
     compile MultiVector.cxx
     compile DataSource.cxx
+    compile DataSources.cxx
     compile TypeStream.cxx
 }

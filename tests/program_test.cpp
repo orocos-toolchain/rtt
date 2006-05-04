@@ -25,6 +25,7 @@
 #include <execution/FunctionGraph.hpp>
 #include <corelib/SimulationThread.hpp>
 #include <execution/TemplateFactories.hpp>
+#include <execution/TaskBrowser.hpp>
 
 using namespace std;
 
@@ -222,8 +223,8 @@ void ProgramTest::testProgramCondition()
         + "for (var int i = 0; i != 100 && !trig ; set i = test.increase() )\n"
         + "   if test.i == 50 then \n"
         + "       set trig = true \n"
-        + "if test.i != 51 then \n" // require same result as with ISO C
-        + "    do test.instantFail() \n"
+//         + "if test.i != 51 then \n" // require same result as with ISO C
+//         + "    do test.instantFail() \n"
         + "return "
         + "}";
     this->doProgram( prog, &gtc );
@@ -376,10 +377,9 @@ void ProgramTest::testProgramUntilFail()
 
 void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test )
 {
-    stringstream progs(prog);
     Parser::ParsedPrograms pg_list;
     try {
-        pg_list = parser.parseProgram( progs, tc );
+        pg_list = parser.parseProgram( prog, tc );
     }
     catch( const file_parse_exception& exc )
         {
@@ -397,7 +397,6 @@ void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test
     CPPUNIT_ASSERT( pi->start() );
 //     while (1)
     sleep(1);
-    CPPUNIT_ASSERT( SimulationThread::Instance()->stop() );
 
     if (test ) {
         stringstream errormsg;
@@ -408,6 +407,7 @@ void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test
         // Xtra test, only do it if all previous went ok :
         loopProgram( pi );
     }
+    CPPUNIT_ASSERT( SimulationThread::Instance()->stop() );
 }
 
 void ProgramTest::loopProgram( ProgramInterfacePtr f)

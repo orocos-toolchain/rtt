@@ -43,13 +43,20 @@ namespace ORO_CoreLib
         DataSourceBase::shared_ptr _dsb;
         CommandDataSource( DataSourceBase::shared_ptr dsb )
             : _dsb(dsb) {}
-        bool execute() {
+
+        void readArguments()
+        {
             _dsb->evaluate();
+        }
+
+        bool execute() {
             return true;
         }
+
         void reset() {
             _dsb->reset();
         }
+
         CommandInterface* clone() const {
             return new CommandDataSource( _dsb );
         }
@@ -69,8 +76,14 @@ namespace ORO_CoreLib
         DataSource<bool>::shared_ptr _dsb;
         CommandDataSourceBool( DataSource<bool>::shared_ptr dsb )
             : _dsb(dsb) {}
+
+        void readArguments()
+        {
+            _dsb->evaluate();
+        }
+
         bool execute() {
-            return _dsb->get();
+            return _dsb->value();
         }
         void reset() {
             _dsb->reset();

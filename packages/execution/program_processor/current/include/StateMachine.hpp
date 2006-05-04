@@ -610,7 +610,7 @@ namespace ORO_Execution
          */
         EventMap eventMap;
 
-    private:
+
         void changeState( StateInterface* s, ProgramInterface* tprog, bool stepping = false );
 
         void leaveState( StateInterface* s );
@@ -627,6 +627,7 @@ namespace ORO_Execution
 
         void enableEvents( StateInterface* s );
         void disableEvents( StateInterface* s );
+    private:
 
         /**
          * Internal use only. Make a transition to state 'to' with transitionprogram 'p' under condition 'c'.

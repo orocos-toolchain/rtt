@@ -32,21 +32,14 @@
 #include <corelib/CommandInterface.hpp>
 
 #include "DataSource.hpp"
+#include "corelib/DataSources.hpp"
 #include "DataSourceAdaptor.hpp"
 #include "AssignVariableCommand.hpp"
 
 namespace ORO_Execution
 {
-  using ORO_CoreLib::CommandInterface;
-
-    /**
-     * This exception is thrown if the target and source type
-     * of an assignment of a TaskAttributeBase with a DataSourceBase
-     * differ.
-     */
-  struct bad_assignment
-  {
-  };
+    using ORO_CoreLib::CommandInterface;
+    using ORO_CoreLib::bad_assignment;
 
   /**
    * We keep defined variables and constants as TaskAttribute's,
@@ -131,16 +124,16 @@ namespace ORO_Execution
                 return new TaskAttributeDataSource<T>( this->get() );
             }
 
-            virtual TaskAttributeDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replace) {
+            virtual TaskAttributeDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replace) const {
                 // if somehow a copy exists, return the copy, otherwise return this (see TaskAttribute copy)
                 if ( replace[this] != 0 ) {
                     assert ( dynamic_cast<TaskAttributeDataSource<T>*>( replace[this] ) == static_cast<TaskAttributeDataSource<T>*>( replace[this] ) );
                     return static_cast<TaskAttributeDataSource<T>*>( replace[this] );
                 }
                 // Other pieces in the code rely on insertion in the map :
-                replace[this] = this;
+                replace[this] = const_cast<TaskAttributeDataSource<T>*>(this);
                 // return this instead of a copy.
-                return this;
+                return const_cast<TaskAttributeDataSource<T>*>(this);
             }
         };
     }
@@ -189,7 +182,7 @@ namespace ORO_Execution
       /**
        * Set the value of this Attribute.
        */
-      T& set() {
+      typename AssignableDataSource<T>::reference_t set() {
           return data->set();
       }
 
@@ -246,14 +239,14 @@ namespace ORO_Execution
     : public TaskAttributeBase
   {
   public:
-    typename ConstantDataSource<T>::shared_ptr data;
+    typename DataSource<T>::shared_ptr data;
 
     TaskConstant(T t)
-      : data( new ConstantDataSource<T>( t ) )
+      : data( new ORO_CoreLib::ConstantDataSource<T>( t ) )
       {
       }
 
-    TaskConstant( ConstantDataSource<T>* d )
+    TaskConstant( DataSource<T>* d )
       : data( d )
       {
       }

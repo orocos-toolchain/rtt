@@ -115,8 +115,6 @@ namespace ORO_CoreLib
         return *this;
     }
 
-
-
     PropertyBase* find(const PropertyBag& bag, const std::string& nameSequence, const std::string& separator)
     {
         PropertyBase* result;
@@ -149,7 +147,7 @@ namespace ORO_CoreLib
         return 0; // failure
     }
 
-    bool refreshProperties(PropertyBag& target, const PropertyBag& source)
+    bool refreshProperties(const PropertyBag& target, const PropertyBag& source)
     {
         //iterate over source, update PropertyBases
         PropertyBag::const_iterator it( source.getProperties().begin() );
@@ -173,7 +171,7 @@ namespace ORO_CoreLib
         return true;
     }
 
-    bool refreshProperty(PropertyBag& target, const PropertyBase& source)
+    bool refreshProperty(const PropertyBag& target, const PropertyBase& source)
     {
         PropertyBase* target_prop;
         // dynamic_cast ?

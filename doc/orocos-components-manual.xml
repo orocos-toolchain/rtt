@@ -145,6 +145,14 @@
   </chapter>
 
   <chapter>
+    <title>Distributing Orocos Components with CORBA</title>
+    <xi:include  href="orocos-corba.xml#xpointer(/article/articleinfo/abstract)"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="orocos-corba.xml#xpointer(/article/section[*])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </chapter>
+
+  <chapter>
     <title>Core Library Reference</title>
     <xi:include  href="orocos-corelib.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />

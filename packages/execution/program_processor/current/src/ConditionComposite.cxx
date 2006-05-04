@@ -28,6 +28,8 @@
 
 namespace ORO_Execution
 {
+    using namespace ORO_CoreLib;
+
   bool ConditionCompositeNOT::evaluate()
   {
     return ! cond->evaluate();

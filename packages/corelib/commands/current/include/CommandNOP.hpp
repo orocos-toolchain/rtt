@@ -49,6 +49,8 @@ namespace ORO_CoreLib
 
         virtual bool execute();
 
+        virtual void readArguments();
+
         virtual CommandInterface* clone() const;
     };
 

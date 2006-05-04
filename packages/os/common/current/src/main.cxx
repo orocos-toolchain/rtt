@@ -68,6 +68,9 @@ using ORO_CoreLib::Logger;
 #include <sys/mman.h>
 #endif
 
+#include <tao/Exception.h>
+#include <ace/String_Base.h>
+
 using namespace std;
 
 const char* catchflag = "--nocatch";
@@ -79,7 +82,9 @@ int main(int argc, char** argv)
     __os_init(argc, argv);
 
     {
-        Logger::In in("main()");
+        string location( argv[0] );
+        location += "::main()";
+        Logger::In in( location.c_str() );
 
     bool dotry = true;
     // look for --nocatch flag :
@@ -136,7 +141,13 @@ int main(int argc, char** argv)
     if ( dotry ) {
         try {
             res = ORO_main(argc, argv);
-        }
+        } catch( CORBA::Exception &e )
+            {
+#ifdef OROPKG_CORELIB_REPORTING
+                Logger::log() <<Logger::Error << "ORO_main : CORBA exception raised!" << Logger::nl;
+                Logger::log() << e._info().c_str() << Logger::endl;
+#endif
+            }
         catch( ... )
             {
                 cerr <<endl<< " Orocos has detected an uncaught C++ exception"<<endl;

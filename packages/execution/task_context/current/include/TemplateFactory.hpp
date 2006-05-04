@@ -189,8 +189,8 @@ namespace ORO_Execution
        *         arguments \a args. Examples are DataSourceBase, ConditionInterface and CommandInterface.
        */
       virtual ResultT produce( ComponentT* com,
-                               const std::vector<DataSourceBase::shared_ptr>& args,
-                               bool read_now = false ) const = 0;
+                               const std::vector<DataSourceBase::shared_ptr>& args
+                               ) const = 0;
   };
 
   template<typename ComponentT, typename ResultT, typename FunctorT>
@@ -224,7 +224,7 @@ namespace ORO_Execution
 
     ResultT produce(
       ComponentT* comp,
-      const std::vector<DataSourceBase::shared_ptr>& args, bool ) const
+      const std::vector<DataSourceBase::shared_ptr>& args) const
       {
         if ( ! args.empty() )
           throw wrong_number_of_args_exception( 0, args.size() );
@@ -273,7 +273,7 @@ namespace ORO_Execution
 
     ResultT produce(
       ComponentT* comp,
-      const std::vector<DataSourceBase::shared_ptr>& args, bool read_now  ) const
+      const std::vector<DataSourceBase::shared_ptr>& args) const
       {
         if ( args.size() != 1 )
             throw wrong_number_of_args_exception( 1, args.size() );
@@ -281,8 +281,6 @@ namespace ORO_Execution
             AdaptDataSource<first_argument_type>()( args[0] );
         if ( ! a )
             throw wrong_types_of_args_exception( 1, DataSource<first_argument_type>::GetType(), args[0]->getType() );
-        if ( read_now )
-            return fun( comp, a->get() );
         return fun( comp, a.get() );
       }
   };
@@ -333,7 +331,7 @@ namespace ORO_Execution
 
       int arity() const { return 2; }
 
-    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase::shared_ptr>& args, bool read_now ) const
+    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase::shared_ptr>& args) const
       {
         if ( args.size() != 2 )
           throw wrong_number_of_args_exception( 2, args.size() );
@@ -347,8 +345,6 @@ namespace ORO_Execution
         if ( !b ) 
             throw wrong_types_of_args_exception( 2, DataSource<second_argument_type>::GetType(), args[1]->getType() );
 
-        if ( read_now )
-            return fun( comp, a->get(), b->get() );
         return fun( comp, a.get(), b.get() );
       }
   };
@@ -408,7 +404,7 @@ namespace ORO_Execution
 
       int arity() const { return 3; }
 
-    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase::shared_ptr>& args, bool read_now ) const
+    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase::shared_ptr>& args) const
       {
         if ( args.size() != 3 )
           throw wrong_number_of_args_exception( 3, args.size() );
@@ -426,8 +422,6 @@ namespace ORO_Execution
         if ( !c ) 
             throw wrong_types_of_args_exception( 3, DataSource<third_argument_type>::GetType(), args[2]->getType() );
 
-        if ( read_now )
-            return fun( comp, a->get(), b->get(), c->get() );
         return fun( comp, a.get(), b.get(), c.get() );
       }
   };
@@ -494,7 +488,7 @@ namespace ORO_Execution
 
       int arity() const { return 4; }
 
-    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase::shared_ptr>& args, bool read_now ) const
+    ResultT produce( ComponentT* comp, const std::vector<DataSourceBase::shared_ptr>& args) const
       {
         if ( args.size() != 4 )
           throw wrong_number_of_args_exception( 4, args.size() );
@@ -516,8 +510,6 @@ namespace ORO_Execution
         if ( !d )
             throw wrong_types_of_args_exception( 4, DataSource<fourth_argument_type>::GetType(), args[3]->getType() );
 
-        if ( read_now )
-            return fun( comp, a->get(), b->get(), c->get(), d->get() );
         return fun( comp, a.get(), b.get(), c.get(), d.get() );
       }
   };
@@ -656,8 +648,8 @@ namespace ORO_Execution
         std::vector<DataSourceBase::shared_ptr> dsVect;
         std::transform( args.begin(), args.end(),
                         std::back_inserter( dsVect ),
-                        boost::bind( &ORO_CoreLib::PropertyBase::createDataSource, _1));
-        return i->second->produce( comp, dsVect, true );
+                        boost::bind( &ORO_CoreLib::PropertyBase::getDataSource, _1));
+        return i->second->produce( comp, dsVect);
       }
 
     ResultT produce( const std::string& name,

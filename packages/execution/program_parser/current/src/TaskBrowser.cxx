@@ -206,7 +206,7 @@ namespace ORO_Execution
 
         if ( line.find(std::string("list ")) == 0 ) { 
             // first make a list of all sensible completions.
-            std::vector<std::string> progs = taskcontext->getExecutionEngine()->getProgramProcessor()->getProgramList();
+            std::vector<std::string> progs = taskcontext->scripting()->getPrograms();
             // then see which one matches the already typed line :
             for( std::vector<std::string>::iterator it = progs.begin();
                  it != progs.end();
@@ -215,7 +215,7 @@ namespace ORO_Execution
                 if ( res.find(line) == 0 )
                     completes.push_back( *it ); // if partial match, add.
             }
-            progs = taskcontext->getExecutionEngine()->getStateMachineProcessor()->getStateMachineList();
+            progs = taskcontext->scripting()->getStateMachines();
             for( std::vector<std::string>::iterator it = progs.begin();
                  it != progs.end();
                  ++it) {
@@ -582,19 +582,23 @@ namespace ORO_Execution
         while (1)
             {
                 cout << " In Task "<<green<< taskcontext->getName() <<coloroff<< ". (Status of last Command : ";
-                if ( !taskcontext->engine()->commands()->isProcessed( lastc ) )
-                    cout << blue << "queued "<<coloroff<<")";
-                else {
-                    cout << (command == 0 ? "none )" : ( condition == 0 ? (green+"done"+coloroff+" )")  : (accepted->get() == false ? (red+"fail"+coloroff+" )") : ( condition->evaluate() == true ? (green+"done"+coloroff+" )") : (blue+"busy"+coloroff+" )")))));
-                    if ( condition != 0 && accepted->get() && condition->evaluate() ) {
-                        // at this point the command is out of the Processor queue...
-                        // dispose condition, condition might evaluate an invalidated object,
-                        // like a deleted program or state machine.
-                        delete condition;
-                        accepted = 0;
-                        condition = 0;
-                        // we leave command to non-zero such that the above cout displays "done"
-                    }
+                if ( command == 0 )
+                    cout << "none";
+                else if ( condition == 0 || condition->evaluate() ) // disposed or done
+                     cout <<green + "done";
+                else if ( command->valid() )
+                    cout << blue+"busy";
+                else if ( command->executed() ) // if not valid, but executed: fail
+                    cout << red+"fail";
+                else if ( command->accepted() )
+                    cout << blue+"queued";
+                cout << coloroff << " )"; 
+                if ( condition != 0 && condition->evaluate() ) {
+                    // at this point the command is out of the Processor queue...
+                    // dispose condition, condition might evaluate an invalidated object,
+                    // like a deleted program or state machine.
+                    delete condition;
+                    condition = 0;
                 }
                 // This 'endl' is important because it flushes the whole output to screen of all
                 // processing that previously happened, which was using 'nl'.
@@ -718,8 +722,15 @@ namespace ORO_Execution
 
     void TaskBrowser::switchTaskContext(std::string& c) {
         // if nothing new found, return.
-        if ( this->findPeer( c + "." ) == 0  || peer == taskcontext )
+        if ( this->findPeer( c + "." ) == 0 ) {
+            cerr << "No such peer: "<< c <<nl;
             return;
+        }
+
+        if ( peer == taskcontext ) {
+            cerr << "Already in "<< c <<nl;
+            return;
+        }
             
         // findPeer has set 'peer' :
         this->switchTaskContext( peer );
@@ -835,11 +846,6 @@ namespace ORO_Execution
 
         std::string arg;
         ss >> arg;
-
-        if ( taskcontext->getName() == "programs" || taskcontext->getName() == "states") {
-            Logger::log() << Logger::Error << "Refuse to take action in special TaskContext "<< taskcontext->getName() <<Logger::endl;
-            return;
-        }
         ProgramLoader loader;
         if ( instr == "loadProgram") {
             if ( loader.loadProgram( arg, taskcontext ) )
@@ -1010,16 +1016,16 @@ namespace ORO_Execution
         if (debug)
             cerr << "Trying Command..."<<nl;
         try {
-            comcon = _parser.parseCommand( comm, taskcontext );
-            if ( !taskcontext->engine()->commands()->isProcessed( lastc ) ) {
+            comcon = _parser.parseCommand( comm, taskcontext, true ); // create a dispatch command.
+            assert( dynamic_cast<DispatchInterface*>(comcon.first) );
+            if ( condition && !condition->evaluate() ) {
                 cerr << "Warning : previous command is not yet processed by Processor." <<nl;
-                // memleak the command, dispose condition...
                 delete condition;
             } else {
                 delete command;
                 delete condition;
             }
-            command = comcon.first;
+            command = dynamic_cast<DispatchInterface*>(comcon.first);
             condition = comcon.second;
         } catch ( parse_exception& pe ) {
             if (debug)
@@ -1035,16 +1041,9 @@ namespace ORO_Execution
             cerr << "Uncaught : Illegal command."<<nl;
             return;
         }
-        // It is for sure a real command, dispatch to target processor :
-        // to keep track of accepted/rejected status, we wrap it ourselves.
-        TryCommand *tcom = new TryCommand( command );
-        accepted = tcom->result();
-        command = tcom;
-        lastc = taskcontext->engine()->commands()->process( command );
-        // returns null if Processor not running or not accepting.
-        if ( lastc == 0 ) {
-            cerr << "Command not accepted by current task !" << nl;
-            cerr << "  Start current task or 'cd' to target task." << nl;
+
+        if ( command->execute() == false ) {
+            cerr << "Command not accepted by"<<taskcontext->getName()<<"'s Processor !" << nl;
             delete command;
             delete condition;
             command = 0;
@@ -1071,22 +1070,30 @@ namespace ORO_Execution
          * printOut( std::ostream& ) = 0 to DataSourceBase.
          */
         // this method can print some primitive DataSource<>'s.
-        DataSource<bool>* dsb = dynamic_cast<DataSource<bool>*>(ds);
+        DataSource<bool>* dsb = DataSource<bool>::narrow(ds);
         if (dsb) {
             cout<< boolalpha << dsb->get() << noboolalpha ;
             return;
         }
-        DataSource<int>* dsi = dynamic_cast<DataSource<int>*>(ds);
+        DataSource<int>* dsi = DataSource<int>::narrow(ds);
         if (dsi) {
             cout<< dsi->get() ;
             return;
         }
-        DataSource<unsigned int>* dsui = dynamic_cast<DataSource<unsigned int>*>(ds);
+#if 0
+        // does not work yet with CORBA layer.
+        DataSource<long>* dsl = DataSource<long>::narrow(ds);
+        if (dsl) {
+            cout<< dsl->get() ;
+            return;
+        }
+#endif
+        DataSource<unsigned int>* dsui = DataSource<unsigned int>::narrow(ds);
         if (dsui) {
             cout<< dsui->get() ;
             return;
         }
-        DataSource<std::string>* dss = dynamic_cast<DataSource<std::string>*>(ds);
+        DataSource<std::string>* dss = DataSource<std::string>::narrow(ds);
         if (dss) {
             int wdth = 19 - dss->get().length();
             if (wdth < 0)
@@ -1094,7 +1101,7 @@ namespace ORO_Execution
             cout<<setw(0)<<'"'<< dss->get() << setw(wdth)<<'"' ;
             return;
         }
-        DataSource<const std::string&>* dscs = dynamic_cast<DataSource<const std::string&>*>(ds);
+        DataSource<const std::string&>* dscs = DataSource<const std::string&>::narrow(ds);
         if (dscs) {
             int wdth = 19 - dscs->get().length();
             if (wdth < 0)
@@ -1102,40 +1109,33 @@ namespace ORO_Execution
             cout<<setw(0)<<'"'<< dscs->get() << setw(wdth)<<'"' ;
             return;
         }
-        DataSource<std::vector<double> >* dsvval = dynamic_cast<DataSource< std::vector<double> >* >(ds);
+        DataSource<std::vector<double> >* dsvval = DataSource< std::vector<double> >::narrow(ds);
         if (dsvval) {
             cout<< setw(0) << dsvval->get() ;
             return;
         }
-        DataSource<const std::vector<double>& >* dsv = dynamic_cast<DataSource<const std::vector<double>&>* >(ds);
+        DataSource<const std::vector<double>& >* dsv = DataSource<const std::vector<double>& >::narrow(ds);
         if (dsv) {
             cout<< setw(0) << dsv->get() ;
             return;
         }
-        DataSource< Double6D >* ds6d = dynamic_cast<DataSource< Double6D >* >(ds);
+        DataSource< Double6D >* ds6d = DataSource<Double6D>::narrow(ds);
         if (ds6d) {
             cout<< setw(0) << ds6d->get() ;
             return;
         }
-        DataSource<double>* dsd = dynamic_cast<DataSource<double>*>(ds);
+        DataSource<double>* dsd = DataSource<double>::narrow(ds);
         if (dsd) {
             cout<< dsd->get() ;
             return;
         }
-        DataSource<char>* dsc = dynamic_cast<DataSource<char>*>(ds);
+        DataSource<char>* dsc = DataSource<char>::narrow(ds);
         if (dsc) {
             cout<<'\''<< dsc->get()<<'\'' ;
             return;
         }
 
-        DataSource<void>* dsvd = dynamic_cast<DataSource<void>*>(ds);
-        if (dsvd) {
-            dsvd->get();
-            cout<< "(void)" ;
-            return;
-        }
-
-        DataSource<PropertyBag>* dspbag = dynamic_cast<DataSource<PropertyBag>*>(ds);
+        DataSource<PropertyBag>* dspbag = DataSource<PropertyBag>::narrow(ds);
         if (dspbag) {
             PropertyBag bag( dspbag->get() );
             if (!recurse) {
@@ -1147,7 +1147,7 @@ namespace ORO_Execution
                 cout <<setw(0)<<nl;
                 for( PropertyBag::iterator it= bag.getProperties().begin(); it!=bag.getProperties().end(); ++it) {
                     cout <<setw(14)<<right<<(*it)->getType()<<" "<<coloron<<setw(14)<< (*it)->getName()<<coloroff;
-                    DataSourceBase::shared_ptr propds = (*it)->createDataSource();
+                    DataSourceBase::shared_ptr propds = (*it)->getDataSource();
                     this->printResult( propds.get(), false );
                     cout <<" ("<<(*it)->getDescription()<<')' << nl;
                 }
@@ -1158,32 +1158,41 @@ namespace ORO_Execution
             return;
         }
 #ifdef OROPKG_GEOMETRY
-        DataSource<Vector>* dsgv = dynamic_cast<DataSource<Vector>*>(ds);
+        DataSource<Vector>* dsgv = DataSource<Vector>::narrow(ds);
         if (dsgv) {
             cout <<nl<<setw(0)<< dsgv->get() ;
             return;
         }
-        DataSource<Twist>* dsgt = dynamic_cast<DataSource<Twist>*>(ds);
+        DataSource<Twist>* dsgt = DataSource<Twist>::narrow(ds);
         if (dsgt) {
             cout <<nl<<setw(0)<< dsgt->get() ;
             return;
         }
-        DataSource<Wrench>* dsgw = dynamic_cast<DataSource<Wrench>*>(ds);
+        DataSource<Wrench>* dsgw = DataSource<Wrench>::narrow(ds);
         if (dsgw) {
             cout <<nl<<setw(0)<< dsgw->get() ;
             return;
         }
-        DataSource<Frame>* dsgf = dynamic_cast<DataSource<Frame>*>(ds);
+        DataSource<Frame>* dsgf = DataSource<Frame>::narrow(ds);
         if (dsgf) {
             cout <<nl<<setw(0)<< dsgf->get() ;
             return;
         }
-        DataSource<Rotation>* dsgr = dynamic_cast<DataSource<Rotation>*>(ds);
+        DataSource<Rotation>* dsgr = DataSource<Rotation>::narrow(ds);
         if (dsgr) {
             cout <<nl<<setw(0)<< dsgr->get() ;
             return;
         }
 #endif
+
+        // Leave void  as last since any DS is convertible to void !
+        DataSource<void>* dsvd = DataSource<void>::narrow(ds);
+        if (dsvd) {
+            dsvd->get();
+            cout<< "(void)" ;
+            return;
+        }
+
         if (ds) {
             ds->evaluate();
             cout << "( result type '"+ds->getType()+"' not known to TaskBrowser )" ;
@@ -1321,29 +1330,31 @@ namespace ORO_Execution
         int ln;
         int start;
         int end;
-        const ProgramInterfacePtr pr = taskcontext->getExecutionEngine()->getProgramProcessor()->getProgram( progname );
-        if ( pr ) {
-            ps = taskcontext->getExecutionEngine()->getProgramProcessor()->getProgramStatusStr(progname);
+        bool found(false);
+        if ( taskcontext->scripting()->hasProgram( progname ) ) {
+            ps = taskcontext->scripting()->getProgramStatus(progname);
             s = toupper(ps[0]);
-            txtss.str( pr->getText() );
-            ln = pr->getLineNumber();
+            txtss.str( taskcontext->scripting()->getProgramText(progname) );
+            ln = taskcontext->scripting()->getProgramLine(progname);
             if ( cl < 0 ) cl = ln;
             start = cl < 10 ? 1 : cl - 10;
             end   = cl + 10;
             this->listText( txtss, start, end, ln, s);
+            found = true;
         }
-        const StateMachinePtr sm = taskcontext->getExecutionEngine()->getStateMachineProcessor()->getStateMachine( progname );
-        if ( sm ) {
-            ps = taskcontext->getExecutionEngine()->getStateMachineProcessor()->getStateMachineStatusStr(progname);
+
+        if ( taskcontext->scripting()->hasStateMachine( progname ) ) {
+            ps = taskcontext->scripting()->getStateMachineStatus(progname);
             s = toupper(ps[0]);
-            txtss.str( sm->getText() );
-            ln = sm->getLineNumber();
+            txtss.str( taskcontext->scripting()->getStateMachineText(progname) );
+            ln = taskcontext->scripting()->getStateMachineLine(progname);
             if ( cl < 0 ) cl = ln;
             start = cl <= 10 ? 1 : cl - 10;
             end   = cl + 10;
             this->listText( txtss, start, end, ln, s);
+            found = true;
         }
-        if ( sm == 0 && pr == 0)
+        if ( !found )
             cerr << "Error : No such program or state machine found : "<<progname<<endl;
     }
 
@@ -1354,31 +1365,32 @@ namespace ORO_Execution
         int ln;
         int start;
         int end;
-        const ProgramInterfacePtr pr = taskcontext->getExecutionEngine()->getProgramProcessor()->getProgram( storedname );
-        if ( pr ) {
-            ps = taskcontext->getExecutionEngine()->getProgramProcessor()->getProgramStatusStr(storedname);
+        bool found(false);
+        if ( taskcontext->scripting()->hasProgram( storedname ) ) {
+            ps = taskcontext->scripting()->getProgramStatus(storedname);
             s = toupper(ps[0]);
-            txtss.str( pr->getText() );
-            ln = pr->getLineNumber();
+            txtss.str( taskcontext->scripting()->getProgramText(storedname) );
+            ln = taskcontext->scripting()->getProgramLine(storedname);
             if ( cl < 0 ) cl = storedline;
             if (storedline < 0 ) cl = ln -10;
             start = cl;
             end   = cl + 20;
             this->listText( txtss, start, end, ln, s);
+            found = true;
         }
-        const StateMachinePtr sm = taskcontext->getExecutionEngine()->getStateMachineProcessor()->getStateMachine( storedname );
-        if ( sm ) {
-            ps = taskcontext->getExecutionEngine()->getStateMachineProcessor()->getStateMachineStatusStr(storedname);
+        if ( taskcontext->scripting()->hasStateMachine(storedname) ) {
+            ps = taskcontext->scripting()->getStateMachineStatus(storedname);
             s = toupper(ps[0]);
-            txtss.str( sm->getText() );
-            ln = sm->getLineNumber();
+            txtss.str( taskcontext->scripting()->getStateMachineText(storedname) );
+            ln = taskcontext->scripting()->getStateMachineLine(storedname);
             if ( cl < 0 ) cl = storedline;
             if (storedline < 0 ) cl = ln -10;
             start = cl;
             end   = cl+20;
             this->listText( txtss, start, end, ln, s);
+            found = true;
         }
-        if ( sm == 0 && pr == 0)
+        if ( !found )
             cerr << "Error : No such program or state machine found : "<<storedname<<endl;
     }
 
@@ -1438,7 +1450,7 @@ namespace ORO_Execution
                 for( PropertyBag::iterator it = bag->begin(); it != bag->end(); ++it) {
                     if (peer->attributeRepository.getValue( (*it)->getName() ) )
                         continue; // atributes were already printed above
-                    DataSourceBase::shared_ptr pds = (*it)->createDataSource();
+                DataSourceBase::shared_ptr pds = (*it)->getDataSource();
                     cout << " (Property ) "
                          << setw(11)<< pds->getType()<< " "
                          << coloron <<setw(14)<<left<< (*it)->getName() << coloroff;
@@ -1473,12 +1485,12 @@ namespace ORO_Execution
         }
         cout << coloroff << nl;
 
-        objlist = peer->getExecutionEngine()->getProgramProcessor()->getProgramList();
+        objlist = peer->scripting()->getPrograms();
         if ( !objlist.empty() ) {
             cout <<coloroff<<nl<< " Programs     : "<<coloron;
             copy(objlist.begin(), objlist.end(), std::ostream_iterator<std::string>(cout, " "));
         }
-        objlist = peer->getExecutionEngine()->getStateMachineProcessor()->getStateMachineList();
+        objlist = peer->scripting()->getStateMachines();
         if ( !objlist.empty() ) {
             cout <<coloroff<<nl<< " StateMachines: "<<coloron;
             copy(objlist.begin(), objlist.end(), std::ostream_iterator<std::string>(cout, " "));

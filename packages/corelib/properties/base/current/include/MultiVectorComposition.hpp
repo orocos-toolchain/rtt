@@ -140,10 +140,10 @@ namespace ORO_CoreLib
                         }
                         comp = dynamic_cast< Property<T>* >( element );
                         if ( comp == 0 ) {
-                            DataSourceBase::shared_ptr ds = element->createDataSource();
+                            DataSourceBase::shared_ptr ds = element->getDataSource();
                             Logger::log() << Logger::Error << "Aborting composition of Property< MultiVector<S,T> > "<<result.getName()
                                           << ": Exptected data element "<< data_name.str() << " to be of type "<<DataSource<T>::GetType()
-                                          <<" got type " << ds->getType()
+                                          <<" got type " << element->getType()
                                           <<Logger::endl;
                             return false;
                         }

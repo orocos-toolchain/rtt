@@ -32,6 +32,8 @@ task programs."
     compile MethodC.cxx
     compile EventC.cxx
     compile ConnectionC.cxx
+    compile ScriptingAccess.cxx
+    compile TryCommand.cxx
     compile ConnectionInterface.cxx
     compile PortInterface.cxx
 }

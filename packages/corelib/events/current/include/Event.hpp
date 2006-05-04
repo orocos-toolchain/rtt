@@ -29,6 +29,7 @@
 #include "Logger.hpp"
 #include "CompletionProcessor.hpp"
 #include "ActivityInterface.hpp"
+#include "TimerThread.hpp"
 #include "EventProcessor.hpp"
 #include <os/Mutex.hpp>
 #include <os/MutexLock.hpp>
@@ -131,6 +132,14 @@ namespace ORO_CoreLib
         }
 
         /**
+         * @brief Connect an Asynchronous event slot to this event.
+         */
+        Handle connect( const SlotFunction& l, TimerThread* tt, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
+        {
+            return Handle( tt->getEventProcessor()->connect( l, *this, t ) );
+        }
+
+        /**
          * @brief Connect a Synchronous and Asynchronous event slot to this event.
          */
         Handle connect( const SlotFunction& l, const SlotFunction& c, ActivityInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
@@ -144,6 +153,14 @@ namespace ORO_CoreLib
         Handle connect( const SlotFunction& l, const SlotFunction& c, EventProcessor* ep = CompletionProcessor::Instance()->getEventProcessor(), EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst )
         {
             return Handle( signal_type::connect( l ), ep->connect( c, *this, t ) );
+        }
+
+        /**
+         * @brief Connect a Synchronous and Asynchronous event slot to this event.
+         */
+        Handle connect( const SlotFunction& l, const SlotFunction& c, TimerThread* tt, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst )
+        {
+            return Handle( signal_type::connect( l ), tt->getEventProcessor()->connect( c, *this, t ) );
         }
 
         /**
@@ -165,6 +182,14 @@ namespace ORO_CoreLib
         /**
          * @brief Setup an Asynchronous event slot to this event.
          */
+        Handle setup( const SlotFunction& l, TimerThread* tt, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
+        {
+            return this->setup( l, tt->getEventProcessor(), t );
+        }
+
+        /**
+         * @brief Setup an Asynchronous event slot to this event.
+         */
         Handle setup( const SlotFunction& l, EventProcessor* ep, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
         {
             return Handle( ep->setup( l, *this, t ) );
@@ -176,6 +201,14 @@ namespace ORO_CoreLib
         Handle setup( const SlotFunction& l, const SlotFunction& c, ActivityInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
         {
             return this->setup( l,c, task->getEventProcessor(), t );
+        }
+
+        /**
+         * @brief Setup a Synchronous and Asynchronous event slot to this event.
+         */
+        Handle setup( const SlotFunction& l, const SlotFunction& c, TimerThread* tt, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
+        {
+            return this->setup( l,c, tt->getEventProcessor(), t );
         }
 
         /**

@@ -31,6 +31,7 @@
 #include "corelib/TimeService.hpp"
 #include "corelib/SimulationActivity.hpp"
 #include "corelib/Logger.hpp"
+#include "corelib/EventProcessor.hpp"
 
 #include "pkgconf/corelib_activities.h"
 
@@ -106,7 +107,7 @@ namespace ORO_CoreLib
 
         cursteps = 0;
         // No TimerThread::initialize() to allow 'freeze'
-        EventProcessor::initialize();
+        eproc->initialize();
         return true;
     }
 
@@ -118,7 +119,7 @@ namespace ORO_CoreLib
 
         // DO NOT CALL TimerThread::finalize(), since we want to be able to start/stop the
         // SimulationThread and inspect the activities still running.
-        EventProcessor::finalize();
+        eproc->finalize();
     }
 
     void SimulationThread::step()

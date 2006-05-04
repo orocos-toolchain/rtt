@@ -74,7 +74,7 @@ namespace ORO_Execution
       {
         return new ParsedVariable<T>( data.get() );
       }
-    ParsedVariable<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate )
+    ParsedVariable<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate ) 
       {
           if (instantiate ) {
               detail::TaskAttributeDataSource<T>* instds = new detail::TaskAttributeDataSource<T>( data->get() );
@@ -176,7 +176,7 @@ namespace ORO_Execution
       {
         return new ParsedIndexContainerVariable( this->data );
       }
-    ParsedIndexContainerVariable<T, Index, SetType,Pred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements,bool instantiate)
+    ParsedIndexContainerVariable<T, Index, SetType,Pred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements,bool instantiate) 
       {
           if (instantiate ) {
               detail::TaskAttributeDataSource<T>* instds = new detail::TaskAttributeDataSource<T>( this->data->get() );
@@ -221,7 +221,7 @@ namespace ORO_Execution
       {
         return new ParsedStringVariable( this->data );
       }
-    ParsedStringVariable<T, Index, SetType,Pred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements,bool instantiate)
+    ParsedStringVariable<T, Index, SetType,Pred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements,bool instantiate) 
       {
           if (instantiate ) {
               detail::TaskAttributeDataSource<T>* instds = new detail::TaskAttributeDataSource<T>( this->data->get() );
@@ -242,16 +242,16 @@ namespace ORO_Execution
     : public TaskAttributeBase
   {
   public:
-    typename ConstantDataSource<T>::shared_ptr cdata;
+    typename ORO_CoreLib::ConstantDataSource<T>::shared_ptr cdata;
     ParsedConstant(T t)
-      : cdata( new ConstantDataSource<T>( t ) )
+      : cdata( new ORO_CoreLib::ConstantDataSource<T>( t ) )
       {
       }
-    ParsedConstant( ConstantDataSource<T>* d )
+    ParsedConstant( ORO_CoreLib::ConstantDataSource<T>* d )
       : cdata( d )
       {
       }
-    ConstantDataSource<T>* toDataSource() const
+    ORO_CoreLib::ConstantDataSource<T>* toDataSource() const
       {
         return cdata.get();
       }
@@ -260,7 +260,7 @@ namespace ORO_Execution
         return new ParsedConstant<T>( this->cdata.get() );
       }
 
-    ParsedConstant<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool )
+    ParsedConstant<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool ) 
       {
           // no copy needed, pass on original
           return new ParsedConstant<T>( this->cdata.get() );

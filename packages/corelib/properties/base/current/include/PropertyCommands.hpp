@@ -43,6 +43,7 @@ namespace ORO_CoreLib
 
         /**
          * Update a Property<T>.
+         * This command is not guaranteed real-time.
          */
         template<class T, class S = T>
         class UpdatePropertyCommand
@@ -53,6 +54,10 @@ namespace ORO_CoreLib
         public:
             UpdatePropertyCommand( Property<T>* tgt, const Property<S>* src)
                 : target(tgt), source(src) {}
+
+            void readArguments() {
+            }
+
             bool execute()
             {
                 return target->update( *source );
@@ -65,6 +70,7 @@ namespace ORO_CoreLib
 
         /**
          * Copy a Property<T>.
+         * This command is not real-time.
          */
         template<class T, class S = T>
         class CopyPropertyCommand
@@ -75,6 +81,10 @@ namespace ORO_CoreLib
         public:
             CopyPropertyCommand( Property<T>* tgt, const Property<S>* src)
                 : target(tgt), source(src) {}
+
+            void readArguments() {
+            }
+
             bool execute()
             {
                 return target->copy( *source );
@@ -87,6 +97,7 @@ namespace ORO_CoreLib
 
         /**
          * Refresh a Property<T>.
+         * This command is guaranteed real-time.
          */
         template<class T, class S = T>
         class RefreshPropertyCommand
@@ -97,6 +108,11 @@ namespace ORO_CoreLib
         public:
             RefreshPropertyCommand( Property<T>* tgt, const Property<S>* src)
                 : target(tgt), source(src) {}
+
+            void readArguments() {
+                source->get();
+            }
+
             bool execute()
             {
                 return target->refresh( *source );
@@ -109,6 +125,7 @@ namespace ORO_CoreLib
 
         /**
          * Refresh a Property<T> with a DataSource<S>.
+         * This command is guaranteed real-time
          */
         template<class T, class S = T>
         class RefreshPropertyFromDSCommand
@@ -119,6 +136,11 @@ namespace ORO_CoreLib
         public:
             RefreshPropertyFromDSCommand( Property<T>* tgt, DataSource<S>* src)
                 : target(tgt), source(src) {}
+
+            void readArguments() {
+                source->evaluate();
+            }
+
             bool execute()
             {
                 return target->refresh( *source );

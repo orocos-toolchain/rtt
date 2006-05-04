@@ -70,6 +70,8 @@ namespace ORO_Execution
 
         virtual ~AsynchCommandDecorator();
 
+        void readArguments();
+
         /**
          * Execute the functionality of the corresponding command.
          */

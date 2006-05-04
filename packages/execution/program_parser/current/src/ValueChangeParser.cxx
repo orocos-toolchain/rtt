@@ -315,7 +315,7 @@ namespace ORO_Execution
           expressionparser.dropResult();
           //assert( !expressionparser.hasResult() );
           try {
-              CommandInterface* ac = var->assignCommand( expr.get(), true );
+              CommandInterface* ac = var->toDataSource()->updateCommand( expr.get() );
               assigncommands.push_back( ac );
           }
           catch( const bad_assignment& e ) {
@@ -389,7 +389,7 @@ namespace ORO_Execution
       } 
       if ( !index_ds && var) {
         try {
-            CommandInterface* assigncommand = var->assignCommand( expr.get(), false );
+            CommandInterface* assigncommand = var->toDataSource()->updateCommand( expr.get() );
             assigncommands.push_back(assigncommand);
             // if null, not allowed.
             if ( ! assigncommand )
@@ -403,7 +403,7 @@ namespace ORO_Execution
             }
       }
       if ( !index_ds && prop) {
-          CommandInterface* assigncommand = prop->refreshCommand( expr.get() );
+          CommandInterface* assigncommand = prop->getDataSource()->updateCommand( expr.get() );
           assigncommands.push_back(assigncommand);
           if ( ! assigncommand ) {
               throw parse_exception_semantic_error( "Cannot set Property<"+ prop->getType() +"> " + valuename + " to value of type "+expr->getType()+"." );

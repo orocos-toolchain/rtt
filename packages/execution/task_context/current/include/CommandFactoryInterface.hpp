@@ -33,12 +33,14 @@
 #include <utility>
 #include "FactoryExceptions.hpp"
 #include "ArgumentDescription.hpp"
+#include "DispatchInterface.hpp"
 #include <corelib/PropertyBag.hpp>
 #include <corelib/CommandInterface.hpp>
 #include <corelib/ConditionInterface.hpp>
 
 namespace ORO_Execution
 {
+    class CommandProcessor;
     typedef std::pair<ORO_CoreLib::CommandInterface*, ORO_CoreLib::ConditionInterface*> ComCon;
 
     /**
@@ -57,9 +59,17 @@ namespace ORO_Execution
      */
     class CommandFactoryInterface
     {
+    protected:
+        CommandProcessor* mcp;
     public:
+        typedef std::vector< ArgumentDescription > Descriptions;
+        typedef std::vector<std::string> Commands;
+        typedef std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> Arguments;
+
         virtual ~CommandFactoryInterface();
 
+        void setProcessor( CommandProcessor* cp ) { mcp = cp; }
+  
         /**
          * @brief Return whether the command com is available..
          * throws nothing.

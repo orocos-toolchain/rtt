@@ -55,10 +55,14 @@ namespace ORO_Execution
         return command;
     }
 
+    void AsynchCommandDecorator::readArguments()
+    {}
+
 	bool AsynchCommandDecorator::execute()
     {
      	if (!executed) {
             //this clause should be executed once
+            command->readArguments();
      		status = command->execute();
             executed = true;
      	}

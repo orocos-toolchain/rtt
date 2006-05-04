@@ -701,7 +701,6 @@ void StateTest::testStateUntilFail()
 
 void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 {
-    stringstream progs(prog);
 #ifndef NOPARSER
     Parser::ParsedStateMachines pg_list;
 #else
@@ -710,7 +709,7 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 #endif
     try {
 #ifndef NOPARSER
-        pg_list = parser.parseStateMachine( progs, tc );
+        pg_list = parser.parseStateMachine( prog, tc );
 #endif
     }
 #ifndef NOPARSER

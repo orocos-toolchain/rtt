@@ -5,12 +5,12 @@ SUBDIRS = .
 #global includes
 INCLUDES = -I$(top_builddir)/packages/install/include $(TARGET_FLAGS)
 LDADD = $(CPPUNIT_LIBS) $(top_builddir)/packages/install/lib/libtarget.a -lpthread $(TARGET_LIBS) -lstdc++
-AM_CXXFLAGS= $(CPPUNIT_CFLAGS) -g 
-AM_CPPFLAGS=-D_REENTRANT
+AM_CXXFLAGS += $(CPPUNIT_CFLAGS) -g 
+AM_CPPFLAGS +=-D_REENTRANT
 
 # Rules for the test code (use `make check` to execute)
 if DOTESTS
-TESTS = core-test task-test event-test parser-test program-test state-test
+TESTS = core-test task-test event-test taskcontext-test parser-test program-test state-test
 else
 TESTS = 
 endif
@@ -24,7 +24,7 @@ endif
 
 check_PROGRAMS = $(TESTS) $(PROFTESTS)
 EXTRA_PROGRAMS = core-test event-test parser-test program-test state-test event-prof tasks-prof mtasks-prof buffers-prof \
-	state-prof dispatch-prof function-prof types-prof program-prof task-test
+	state-prof dispatch-prof function-prof types-prof program-prof task-test taskcontext-test
 
 #LD_ADDS= $(CPPUNIT_LIBS) $(top_builddir)/packages/install/lib/libtarget.a -lboost_signals -lpthread -L/usr/realtime/lib
 #CXX_FLAGS= $(CPPUNIT_CFLAGS) -g
@@ -86,14 +86,19 @@ program_prof_SOURCES = test-runner.cpp \
 program_prof_CXXFLAGS = -g -pg
 program_prof_LDFLAGS = -g -pg
 
+taskcontext_test_SOURCES = test-runner.cpp \
+	generictask_test.cpp generictask_test.hpp
+taskcontext_test_LDADD = $(LDADD) -lxerces-c
+
 parser_test_SOURCES = test-runner.cpp \
 	template_factory_test.cpp template_factory_test.hpp \
 	dispatch_test.cpp dispatch_test.hpp \
 	types_test.cpp types_test.hpp
 
 program_test_SOURCES = test-runner.cpp \
-	function_test.cpp function_test.hpp \
 	program_test.cpp program_test.hpp
+#	function_test.cpp function_test.hpp
+program_test_LDADD = $(LDADD) -lxerces-c -lncurses -lreadline
 
 state_test_SOURCES = test-runner.cpp \
 	state_test.cpp state_test.hpp

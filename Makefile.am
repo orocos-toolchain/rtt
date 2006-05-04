@@ -254,6 +254,15 @@ upgrade_packages:
 	echo "" ; $(ECOSCONFIG) check ;\
 	fi
 
+new_idl:
+	for i in $(find $(ECOS_REP) -name "*.idl"); do \
+	echo "Generating source files from idl..." ;\
+	cd $(dirname $i) ;\
+	$(TAO_IDL) -I. -I$TAO_ROOT -I$ACE_ROOT/include -I$TAO_ROOT/orbsvcs $(basename $i) ;\
+	cd - ;\
+	done
+
+
 ########################################################################
 # KUL specific :
 ########################################################################

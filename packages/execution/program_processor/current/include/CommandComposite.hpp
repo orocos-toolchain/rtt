@@ -74,6 +74,11 @@ namespace ORO_Execution
                 return true;
 			};
 
+        void readArguments() {
+            for (std::vector<CommandInterface*>::iterator it=vect.begin();it!=vect.end();it++)
+                (*it)->readArguments();
+        }
+
         /**
          * add a command to the vect
          * 

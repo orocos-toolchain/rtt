@@ -43,8 +43,6 @@ OROCOS_DEFAULT_FLAGS(
   [])
 
 
-OROCOS_EXPORT_FLAGS
-
 PATH=$PATH:$(cd $(dirname $0);pwd)/tools/bin
 AC_CHECK_PROG(ECOSCONFIG,ecosconfig,$(which ecosconfig),no)
 if test "x$ECOSCONFIG" = "xno"; then
@@ -102,7 +100,8 @@ cd $ECOS_REP
 # make sure configure is up-to-date
 ORO_AUTOCONF=$(which autoconf)
 if test x$ORO_AUTOCONF != x; then
-autoconf
+echo "Running autogen..."
+./autogen.sh
 fi
 echo "./configure $ACX_MY_ARGS"
 # make distcheck hack :
@@ -112,6 +111,7 @@ echo "Running Make db in packages..."
 make db
 cd -
 
+OROCOS_EXPORT_FLAGS
 
 AC_CONFIG_FILES([ 
   Makefile 

@@ -84,12 +84,14 @@ namespace ORO_CoreLib
         virtual void reset() { orig_->reset(); }
 
         virtual bool evaluate() const { return orig_->evaluate(); }
+        virtual typename DataSource<To>::result_t  value() const { return orig_->value(); }
+
 
         virtual DataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
         }
 
-        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
+        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
             if ( i == alreadyCloned.end() ) {
                 DataSourceAdaptor<From,To>* n = new DataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
@@ -128,12 +130,14 @@ namespace ORO_CoreLib
         virtual void reset() { orig_->reset(); }
 
         virtual bool evaluate() const { return orig_->evaluate(); }
+        virtual typename DataSource<To>::result_t  value() const { return orig_->value(); }
+
 
         virtual AssignableDataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
         }
 
-        virtual AssignableDataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
+        virtual AssignableDataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
             if ( i == alreadyCloned.end() ) {
                 DataSourceAdaptor<From,To>* n = new DataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
@@ -166,12 +170,14 @@ namespace ORO_CoreLib
         virtual void reset() { orig_->reset(); }
 
         virtual bool evaluate() const { return orig_->evaluate(); }
+        virtual typename DataSource<To>::result_t  value() const { return orig_->value(); }
+
 
         virtual DataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
         }
 
-        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
+        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
             if ( i == alreadyCloned.end() ) {
                 DataSourceAdaptor<From,To>* n = new DataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
@@ -209,12 +215,14 @@ namespace ORO_CoreLib
         virtual void reset() { orig_->reset(); }
 
         virtual bool evaluate() const { return orig_->evaluate(); }
+        virtual typename DataSource<To>::result_t  value() const { return orig_->value(); }
+
 
         virtual AssignableDataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
         }
 
-        virtual AssignableDataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
+        virtual AssignableDataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
             if ( i == alreadyCloned.end() ) {
                 DataSourceAdaptor<From,To>* n = new DataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
@@ -251,12 +259,14 @@ namespace ORO_CoreLib
         virtual void reset() { orig_->reset(); }
 
         virtual bool evaluate() const { return orig_->evaluate(); }
+        virtual typename DataSource<To>::result_t  value() const { return copy_; }
+
 
         virtual DataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
         }
 
-        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
+        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
             if ( i == alreadyCloned.end() ) {
                 DataSourceAdaptor<From,To>* n = new DataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
@@ -295,12 +305,13 @@ namespace ORO_CoreLib
         virtual void reset() { orig_->reset(); }
 
         virtual bool evaluate() const { return orig_->evaluate(); }
+        virtual typename DataSource<To>::result_t value() const { return copy_; }
 
         virtual DataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
         }
 
-        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
+        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
             if ( i == alreadyCloned.end() ) {
                 DataSourceAdaptor<From,To>* n = new DataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
@@ -324,11 +335,16 @@ namespace ORO_CoreLib
         : public DataSource<To>
     {
         typename AssignableDataSource<From>::shared_ptr orig_;
+        mutable typename DataSource<To>::value_t mcache;
 
         AssignableDataSourceAdaptor( typename AssignableDataSource<From>::shared_ptr orig)
             : orig_(orig) {}
 
-        virtual typename DataSource<To>::result_t get() const { return orig_->set(); }
+        virtual typename DataSource<To>::result_t get() const { mcache = orig_->get(); return mcache; }
+
+        virtual typename DataSource<To>::result_t value() const { return mcache; }
+
+        virtual void updated() { orig_->set( mcache ); }
 
         virtual void reset() { orig_->reset(); }
 
@@ -338,7 +354,7 @@ namespace ORO_CoreLib
             return new AssignableDataSourceAdaptor( orig_->clone() );
         }
 
-        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
+        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
             if ( i == alreadyCloned.end() ) {
                 AssignableDataSourceAdaptor<From,To>* n = new AssignableDataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );

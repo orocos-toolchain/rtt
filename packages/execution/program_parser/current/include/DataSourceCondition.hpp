@@ -46,20 +46,22 @@ namespace ORO_Execution
   class DataSourceCondition
     : public DataSource<bool>
   {
-    ConditionInterface* cond;
+      ConditionInterface* cond;
+      mutable bool result;
   public:
-    /**
-     * DataSourceCondition takes ownership of the condition you pass
-     * it.
-     */
+      /**
+       * DataSourceCondition takes ownership of the condition you pass
+       * it.
+       */
       DataSourceCondition( ConditionInterface* c );
       DataSourceCondition( const DataSourceCondition& orig );
       ~DataSourceCondition();
       bool get() const;
+      bool value() const;
       void reset();
       ConditionInterface* condition() const;
       virtual DataSourceCondition* clone() const;
-      virtual DataSourceCondition* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned );
+      virtual DataSourceCondition* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
   };
 }
 

@@ -59,7 +59,7 @@ ControlKernelInterface::ControlKernelInterface(const std::string& kname)
 {
 }
 
-const std::string& ControlKernelInterface::getKernelName() const
+std::string ControlKernelInterface::getKernelName() const
 {
     return name.get();
 }
@@ -86,7 +86,7 @@ bool ControlKernelInterface::updateKernelProperties(const PropertyBag& bag)
         
 KernelBaseFunction::KernelBaseFunction( ControlKernelInterface* ckip )
     : detail::ExtensionInterface( ckip, "Kernel"),
-      frequency("frequency","The periodic execution frequency of this kernel",0),
+      frequency("frequency","The periodic execution frequency of this kernel",0.0),
       default_process(0),
       process_owner(false),
       startupSensor("Sensor", "!Deprecated: Use DefaultProcess!", "DefaultSensor"),

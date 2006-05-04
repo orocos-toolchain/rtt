@@ -44,32 +44,34 @@ namespace ORO_Execution
         : public CommandInterface
     {
 
-        public:
+    public:
         
-            CommandCounter();
+        CommandCounter();
 
-            virtual ~CommandCounter();
+        virtual ~CommandCounter();
 
-            virtual bool execute();
+        virtual void readArguments();
 
-            /**
-             * set number of times executed to zero
-             */
-            virtual void reset();
+        virtual bool execute();
+
+        /**
+         * set number of times executed to zero
+         */
+        virtual void reset();
             
-            /**
-             * return the number of times this command has been 
-             * executed since the last reset
-             */
-            virtual int getCounter();
+        /**
+         * return the number of times this command has been 
+         * executed since the last reset
+         */
+        virtual int getCounter();
         
         virtual CommandInterface* clone() const
         {
             return new CommandCounter( *this );
         }
 
-        private:
-        	int counter;
+    private:
+        int counter;
     };
 
 }

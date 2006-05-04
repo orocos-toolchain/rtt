@@ -40,7 +40,7 @@
 
 namespace ORO_Execution 
 {
-    class TryCommand;
+    class DispatchInterface;
     namespace detail {
     using ORO_CoreLib::PropertyBagOwner;
 
@@ -48,8 +48,7 @@ namespace ORO_Execution
    * This class parses commands.  Actually, it only parses call
    * commands, and the keyword 'nothing'.  Value Set Commands are
    * parsed by the ValueChangeParser.  It also takes care of checking
-   * whether a command was specified as synchronous ( by putting the
-   * keyword sync before it ), and otherwise wraps the generated
+   * whether a command needs to be dispatched, and otherwise wraps the generated
    * command in an AsynchCommandDecorator.
    */
   class CommandParser
@@ -61,11 +60,10 @@ namespace ORO_Execution
     // the method the user wants to call in the current call command..
     std::string mcurmethod;
 
-    // whether or not the current command was specified as
-    // asynchronous..
-    bool masync;
+      // dispatch the command per definition or let it be context dependent.
+      bool mdispatch;
 
-    TryCommand* tcom;
+    DispatchInterface* dcom;
     CommandInterface* retcommand;
     ConditionInterface* implicittermcondition;
     ConditionInterface* dispatchCond;
@@ -79,10 +77,6 @@ namespace ORO_Execution
 
     void seenstartofcall();
     void seennopcommand();
-    void seensync()
-      {
-        masync = false;
-      }
 
     void seencallcommand();
 
@@ -94,7 +88,12 @@ namespace ORO_Execution
     ExpressionParser expressionparser;
       PeerParser peerparser;
   public:
-    CommandParser( TaskContext* context );
+      /**
+       * Create a CommandParser operating in a taskcontext.
+       * @param force_dispatch Set to true to force the generation of a
+       * dispatched command. Otherwise, it is context dependent.
+       */
+    CommandParser( TaskContext* context, bool force_dispatch = false );
     ~CommandParser();
 
       /**

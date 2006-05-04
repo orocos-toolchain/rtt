@@ -35,11 +35,9 @@ class Template_FactoryTest : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( Template_FactoryTest );
     CPPUNIT_TEST( testMethods );
-    CPPUNIT_TEST( testMethodsC );
     CPPUNIT_TEST( testUserMethods );
     CPPUNIT_TEST( testData );
     CPPUNIT_TEST( testCommands );
-    CPPUNIT_TEST( testCommandsC );
     CPPUNIT_TEST( testManual );
     CPPUNIT_TEST( testEventC );
     CPPUNIT_TEST_SUITE_END();
@@ -95,11 +93,9 @@ public:
     void tearDown();
 
     void testMethods();
-    void testMethodsC();
     void testUserMethods();
     void testData();
     void testCommands();
-    void testCommandsC();
     void testEventC();
 
     void testManual();

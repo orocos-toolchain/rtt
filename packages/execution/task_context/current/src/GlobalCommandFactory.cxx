@@ -39,17 +39,18 @@ namespace ORO_Execution {
     const CommandFactoryInterface* o = getObjectFactory( objectname );
     if ( o ) return o->hasCommand( com );
     else return false;
-  };
+  }
 
   void GlobalCommandFactory::registerObject(
     const std::string& objectname,
     CommandFactoryInterface* cif )
   {
     assert( cif );
+    cif->setProcessor( getCommandProcessor() );
     if ( mdata.count( objectname ) != 0 )
         cif = new CommandFactoryComposite( mdata[objectname], cif );
     mdata[objectname] = cif;
-  };
+  }
 
   GlobalCommandFactory::GlobalCommandFactory(ExecutionEngine* ee)
       :eproc(ee)
@@ -69,7 +70,7 @@ namespace ORO_Execution {
     const_iter_t r = mdata.find( objectname );
     if ( r == mdata.end() ) return 0;
     else return r->second;
-  };
+  }
 
   void GlobalCommandFactory::unregisterObject( const std::string& objectname )
   {
@@ -89,5 +90,14 @@ namespace ORO_Execution {
 
     CommandProcessor* GlobalCommandFactory::getCommandProcessor() const {
         return eproc->getCommandProcessor();
+    }
+
+    CommandC GlobalCommandFactory::create(const std::string& object,
+                                          const std::string& command) const {
+        const CommandFactoryInterface* fact = getObjectFactory(object);
+        if ( fact )
+            return CommandC(this, object, command);
+        else
+            throw name_not_found_exception( object );
     }
 }

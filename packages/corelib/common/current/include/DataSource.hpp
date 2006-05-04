@@ -30,14 +30,24 @@
 
 #include <map>
 #include <string>
+#include <pkgconf/os.h>
 #include <boost/call_traits.hpp>
 #include <boost/type_traits.hpp>
 
-#include "DataSourceTypeInfo.hpp"
 #include "DataSourceBase.hpp"
 
 namespace ORO_CoreLib
 {
+
+    /**
+     * This exception is thrown if the target and source type
+     * of an assignment of a DataSource with a DataSourceBase
+     * differ.
+     */
+    struct bad_assignment
+    {
+    };
+
 
   /**
    * DataSource is a base class representing a generic way to read
@@ -68,76 +78,69 @@ namespace ORO_CoreLib
       
       typedef typename boost::intrusive_ptr<DataSource<T> > shared_ptr;
 
+      typedef typename boost::intrusive_ptr<const DataSource<T> > const_ptr;
+
       /**
        * Return the data as type \a T.
        */
       virtual result_t get() const = 0;
 
-      virtual bool evaluate() const { this->get(); return true; }
+      /**
+       * Return the result of the last \a evaluate() function.
+       */
+      virtual result_t value() const = 0;
+
+      virtual bool evaluate() const;
 
       virtual DataSource<T>* clone() const = 0;
 
-      virtual DataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) = 0;
+      virtual DataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const = 0;
 
       virtual std::string getType() const;
+
+      virtual std::string getTypeName() const;
+
+      /**
+       * In case the DataSource returns a 'reference' type, 
+       * call this method to notify it that the data was updated
+       * in the course of an invocation of get().
+       */
+      virtual void updated();
 
       /**
        * Return usefull type info in a human readable format.
        */
       static  std::string GetType();
-  };
-
-  template<typename T>
-  DataSource<T>::~DataSource()
-  {
-  }
-
-  template< typename T>
-  std::string DataSource<T>::getType() const
-  {
-      return DataSource<T>::GetType();
-  }
-
-  template< typename T>
-  std::string DataSource<T>::GetType()
-  {
-      return detail::DataSourceTypeInfo< T >::getType() + detail::DataSourceTypeInfo< T >::getQualifier();
-          
-  }
-    
-    // Template specialisation in case T is a bool
-  template<>
-  class DataSource<bool>
-    : public DataSourceBase
-  {
-  protected:
-      virtual ~DataSource();
-  public:
-      /**
-       * value_t is bool
-       */
-      typedef bool value_t;
-      typedef bool result_t;
-      
-      typedef boost::intrusive_ptr<DataSource<bool> > shared_ptr;
 
       /**
-       * Return the data as type \a bool.
+       * Return the Orocos type name, without const, pointer or reference
+       * qualifiers.
        */
-      virtual result_t get() const = 0;
+      static  std::string GetTypeName();
 
-      virtual bool evaluate() const { return this->get(); }
+      virtual CORBA::Any* createAny() const;
 
-      virtual DataSource<bool>* clone() const = 0;
+      virtual CORBA::Any* getAny() const;
 
-      virtual DataSource<bool>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) = 0;
+#ifdef OROINT_OS_CORBA
+      virtual Orocos::Expression_ptr server();
 
-      virtual std::string getType() const;
+      virtual Orocos::Expression_ptr server() const;
+
+      virtual Orocos::Method_ptr method();
+#endif
 
       /**
-       * Return usefull type info in a human readable format.
+       * This method narrows a DataSourceBase to a typeded DataSource,
+       * possibly returning a new object.
        */
-      static  std::string GetType();
+      static DataSource<T>* narrow(DataSourceBase* db);
+
+      /**
+       * This method narrows a DataSourceBase to a typeded DataSource,
+       * possibly returning a new object.
+       */
+      static const DataSource<T>* narrow(const DataSourceBase* db);
   };
 
   /**
@@ -155,10 +158,16 @@ namespace ORO_CoreLib
       typedef typename boost::call_traits<value_t>::param_type param_t;
       typedef typename boost::call_traits<value_t>::reference reference_t;
       typedef typename boost::call_traits<value_t>::const_reference const_reference_t;
+
+#ifdef OROINT_OS_CORBA
+      using DataSource<T>::server;
+#endif
+
       /**
        * Use this type to store a pointer to an AssignableDataSource.
        */
       typedef boost::intrusive_ptr<AssignableDataSource<T> > shared_ptr;
+      typedef typename boost::intrusive_ptr<const AssignableDataSource<T> > const_ptr;
 
       /**
        * Set this DataSource with a value.
@@ -174,16 +183,39 @@ namespace ORO_CoreLib
        */
       virtual reference_t set() = 0;
 
+      using DataSourceBase::update;
+
+      virtual bool update(const DataSourceBase* other );
+
+      virtual CommandInterface* updateCommand(const DataSourceBase* other);
+
       virtual AssignableDataSource<T>* clone() const = 0;
 
-      virtual AssignableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) = 0;
+      virtual AssignableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const = 0;
+
+      virtual bool update(const CORBA::Any& any);
+
+#ifdef OROINT_OS_CORBA
+      virtual Orocos::Expression_ptr server();
+#endif
+
+      /**
+       * This method narrows a DataSourceBase to a typeded AssignableDataSource,
+       * possibly returning a new object.
+       */
+      static AssignableDataSource<T>* narrow(DataSourceBase* db);
+
+      /**
+       * This method narrows a DataSourceBase to a typeded AssignableDataSource,
+       * possibly returning a new object.
+       */
+      static const AssignableDataSource<T>* narrow(const DataSourceBase* db);
   };
-
-  template<typename T>
-  AssignableDataSource<T>::~AssignableDataSource()
-  {}
-
-
 }
 
+// workaround inclusion dependencies.
+#ifndef ORO_CORELIB_DATASOURCES_HPP
+#include "DataSource.inl"
 #endif
+#endif
+

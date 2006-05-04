@@ -140,7 +140,7 @@ violated. Only enable if you know what you are doing."
 	    display "User defined global compiler flags"
 	    flavor  data
 	    no_define
-	    default_value {  "-pipe -Wall -Woverloaded-virtual" }
+	    default_value {  "-pipe -Wall -Woverloaded-virtual ".OROPKG_SUPPORT_CFLAGS }
 	    description   "
           This option allows you to override some global compiler flags.
 The options you provide here will be appended to the CFLAGS variable below."
@@ -287,7 +287,7 @@ compilation times."
 	  the 'Optimization Strategy' to influence debugging or
 	  execution speed compiler flags. 
 	  You can not change these
-          flags but override them in the CYGBLD_GLOBAL_CFLAGS_ADD above.
+          flags but override them in the OROBLD_GLOBAL_CFLAGS_ADD above.
 	  Furthermore, depending on the compiler you selected, other flags may
 	  be added."
 	}
@@ -340,35 +340,12 @@ compilation times."
     cdl_interface OROINT_OS_STDCXXLIB {
 	display "Support for the Standard C++ Library"
 	flavor bool
-	implements OROINT_OS_STDVECTOR
-	implements OROINT_OS_STDLIST
-	implements OROINT_OS_STDMAP
-	implements OROINT_OS_STDSTRING
+	implements OROINT_OS_STL_LIB
 	implements OROINT_OS_STDIOSTREAM
     }
 
-    cdl_interface OROINT_OS_STDVECTOR {
-	display "Vector of the Standard C++ Library"
-	flavor bool
-    }
-
-    cdl_interface OROINT_OS_STDLIST {
-	display "List of the Standard C++ Library"
-	flavor bool
-    }
-
-    cdl_interface OROINT_OS_STDQUEUE {
-	display "Queue of the Standard C++ Library"
-	flavor bool
-    }
-
-    cdl_interface OROINT_OS_STDMAP {
-	display "Map of the Standard C++ Library"
-	flavor bool
-    }
-
-    cdl_interface OROINT_OS_STDSTRING {
-	display "String of the Standard C++ Library"
+    cdl_interface OROINT_OS_STL_LIB {
+	display "Standard Template C++ Library"
 	flavor bool
     }
 
@@ -389,6 +366,16 @@ compilation times."
 
     cdl_interface OROINT_OS_RECURSIVE_MUTEX {
 	display "Support for recursive mutex"
+	flavor bool
+    }
+
+    cdl_interface OROINT_OS_CORBA {
+	display "Support for Corba."
+	flavor bool
+    }
+
+    cdl_interface OROINT_OS_TAO {
+	display "Support for Tao."
 	flavor bool
     }
 }

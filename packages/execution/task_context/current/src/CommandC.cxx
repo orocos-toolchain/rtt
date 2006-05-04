@@ -28,7 +28,7 @@
  
 #include "execution/GlobalCommandFactory.hpp"
 #include "execution/CommandC.hpp"
-#include "execution/CommandDispatch.hpp"
+#include "execution/DispatchInterface.hpp"
 #include "execution/TryCommand.hpp"
 #include "execution/ConditionComposite.hpp"
 #include "execution/ConditionBoolDataSource.hpp"
@@ -38,6 +38,7 @@
 
 namespace ORO_Execution
 {
+    using namespace ORO_CoreLib;
     
     class CommandC::D
     {
@@ -46,7 +47,6 @@ namespace ORO_Execution
         std::string mobject, mname;
         ComCon comcon;
         std::vector<DataSourceBase::shared_ptr> args;
-        bool masyn;
 
         void checkAndCreate() {
             Logger::In in("CommandC");
@@ -62,15 +62,9 @@ namespace ORO_Execution
             if ( sz == args.size() ) {
                 // may throw.
                 comcon = mgcf->getObjectFactory(mobject)->create(mname, args, false );
-                // command: dispatch a try of the command, collect results to evaluate condition.
-                TryCommand* tc = new TryCommand( comcon.first );
-                CommandInterface* com = new CommandDispatch( mgcf->getCommandProcessor(), tc, tc->result().get() );
-                // condition: if executed() and result() then evaluate condition().
-                ConditionInterface* conb =  new ConditionCompositeAND( new ConditionBoolDataSource( tc->executed().get() ), 
-                                                                       new TryCommandResult( tc->result(), false ));
-                conb = new ConditionCompositeAND( conb, comcon.second );
-                comcon.first = com;
-                comcon.second = conb;
+                // below we assume that the result is a DispatchInterface object.
+                assert( static_cast<DispatchInterface*>(comcon.first) == dynamic_cast<DispatchInterface*>(comcon.first) );
+                assert( comcon.second );
                 args.clear();
             }
         }
@@ -82,8 +76,8 @@ namespace ORO_Execution
             this->checkAndCreate();
         }
 
-        D( const GlobalCommandFactory* gcf, const std::string& obj, const std::string& name, bool asyn)
-            : mgcf(gcf), mobject(obj), mname(name), masyn(asyn)
+        D( const GlobalCommandFactory* gcf, const std::string& obj, const std::string& name)
+            : mgcf(gcf), mobject(obj), mname(name)
         {
             comcon.first = 0;
             comcon.second = 0;
@@ -92,10 +86,16 @@ namespace ORO_Execution
 
         D(const D& other)
             : mgcf( other.mgcf), mobject(other.mobject), mname(other.mname),
-              args( other.args ), masyn(other.masyn)
+              args( other.args )
         {
-            comcon.first = other.comcon.first->clone();
-            comcon.second = other.comcon.second->clone();
+            if (other.comcon.first )
+                comcon.first = other.comcon.first->clone();
+            else
+                comcon.first = 0;
+            if (other.comcon.second )
+                comcon.second = other.comcon.second->clone();
+            else
+                comcon.second = 0;
         }
 
         ~D()
@@ -111,8 +111,15 @@ namespace ORO_Execution
     {
     }
 
-    CommandC::CommandC(const GlobalCommandFactory* gcf, const std::string& obj, const std::string& name, bool asyn)
-        : d( gcf ? new D( gcf, obj, name, asyn) : 0 ), cc()
+    CommandC::CommandC(DispatchInterface* di, ConditionInterface* ci)
+    : d(0), cc()
+    {
+        this->cc.first = di;
+        this->cc.second = ci;
+    }
+
+    CommandC::CommandC(const GlobalCommandFactory* gcf, const std::string& obj, const std::string& name)
+        : d( gcf ? new D( gcf, obj, name) : 0 ), cc()
     {
         if ( d->comcon.first ) {
             this->cc.first = d->comcon.first->clone();
@@ -171,6 +178,12 @@ namespace ORO_Execution
         return *this;
     }
 
+    bool CommandC::ready() const {
+        // if no d pointer present, we have built the command.
+        // analogous to cc.first != 0
+        return d == 0;
+    }
+
     bool CommandC::execute() {
         // execute dispatch command
         if (cc.first)
@@ -186,17 +199,31 @@ namespace ORO_Execution
         return false;
     }
 
-    bool CommandC::accepted() {
-        // check if dispatch command was accepted.
+    bool CommandC::sent() const{
         if (cc.first)
-            return static_cast<CommandDispatch*>(cc.first)->accepted();
+            return static_cast<DispatchInterface*>(cc.first)->sent();
         return false;
     }
 
-    bool CommandC::valid() {
+
+    bool CommandC::accepted() const {
+        // check if dispatch command was accepted.
+        if (cc.first)
+            return static_cast<DispatchInterface*>(cc.first)->accepted();
+        return false;
+    }
+
+    bool CommandC::executed() const {
+        // check if dispatch command was executed by the processor
+        if (cc.first)
+            return static_cast<DispatchInterface*>(cc.first)->executed();
+        return false;
+    }
+
+    bool CommandC::valid() const {
         // check if dispatch command had valid args.
         if (cc.first)
-            return static_cast<CommandDispatch*>(cc.first)->result();
+            return static_cast<DispatchInterface*>(cc.first)->valid();
         return false;
     }
 
@@ -213,5 +240,17 @@ namespace ORO_Execution
             cc.first->reset();
         if (cc.second)
             cc.second->reset();
+    }
+
+    CommandInterface* CommandC::createCommand() const {
+        if (cc.first)
+            return cc.first->clone();
+        return 0;
+    }
+
+    ConditionInterface* CommandC::createCondition() const {
+        if (cc.second)
+            return cc.second->clone();
+        return 0;
     }
 }

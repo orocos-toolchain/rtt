@@ -98,6 +98,12 @@ namespace ORO_CoreLib
     if ( v_base == 0 )
         return false;
 
+    // First detect trivial update.
+    if ( result.update( v_base ) ) {
+        Logger::log() << Logger::Debug << "Updated "<<result.getName() <<Logger::endl;
+        return true;
+    }
+
     Property<PropertyBag>* v_bag = dynamic_cast< Property<PropertyBag>* >( v_base );
 
     if (v_bag != 0 && v_bag->get().getType() == "std::vector<double>")
@@ -138,10 +144,9 @@ namespace ORO_CoreLib
             }
             comp = dynamic_cast< Property<double>* >( element );
             if ( comp == 0 ) {
-                DataSourceBase::shared_ptr ds = element->createDataSource();
                 Logger::log() << Logger::Error << "Aborting composition of Property< vector<double> > "<<result.getName()
                               << ": Exptected data element "<< data_name.str() << " to be of type double"
-                              <<" got type " << ds->getType()
+                              <<" got type " << element->getType()
                               <<Logger::endl;
                 return false;
             }
@@ -157,7 +162,7 @@ namespace ORO_CoreLib
                           << result.getName() << " : type mismatch, got type '"<< v_bag->get().getType()  <<"'"<<Logger::endl;
         } else {
             Logger::log() << Logger::Error << "Composing Property< std::vector<double> > :"
-                          << result.getName() << " : not a PropertyBag."<<Logger::endl;
+                          << result.getName() <<" type '"<< v_base->getType() << "' is not convertible."<<Logger::endl;
         }
       // cerr << "\033[1;33mWarning: Bag was empty! \033[0m" << endl;
         Logger::log() << Logger::Debug << "Could not update Property< std::vector<double> > : "<<result.getName()<<Logger::endl;

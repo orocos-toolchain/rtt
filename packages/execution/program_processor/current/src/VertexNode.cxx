@@ -26,9 +26,12 @@
  ***************************************************************************/
 #include "execution/VertexNode.hpp"
 #include <corelib/CommandNOP.hpp>
+#include <corelib/CommandInterface.hpp>
+#include <corelib/DataSource.hpp>
 
 namespace ORO_Execution
 {
+    using namespace ORO_CoreLib;
 
 	VertexNode::VertexNode()
         : command( new ORO_CoreLib::CommandNOP ),
@@ -60,6 +63,7 @@ namespace ORO_Execution
          * Execute the command in any case.
          * If the command is Asynch, this will do nothing.
          */
+        command->readArguments();
 		return command->execute();
 	}
 

@@ -71,6 +71,11 @@ namespace ORO_Execution
           return mdata;
       }
 
+      typename DataSource<T>::result_t value() const
+      {
+          return mdata;
+      }
+
       void set( typename AssignableDataSource<T>::param_t t )
       {
           mdata = t;
@@ -85,7 +90,7 @@ namespace ORO_Execution
           return new VariableDataSource<T>(mdata);
       }
 
-      virtual VariableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
+      virtual VariableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
           std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
           if ( i == alreadyCloned.end() ) {
               VariableDataSource<T>* n = new VariableDataSource<T>( mdata );
@@ -129,6 +134,11 @@ namespace ORO_Execution
           return mdata;
       }
 
+      DataSource<T>::result_t value() const
+      {
+          return mdata;
+      }
+
       void set(  AssignableDataSource<T>::param_t t )
       {
           mdata = t.c_str();
@@ -143,7 +153,7 @@ namespace ORO_Execution
           return new VariableDataSource<T>(mdata);
       }
 
-      virtual VariableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
+      virtual VariableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
           std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
           if ( i == alreadyCloned.end() ) {
               VariableDataSource<T>* n = new VariableDataSource<T>( mdata );
@@ -152,97 +162,6 @@ namespace ORO_Execution
           }
           assert( dynamic_cast<VariableDataSource<T>*>( i->second ) == static_cast<VariableDataSource<T>*>( i->second ) );
           return static_cast<VariableDataSource<T>*>( i->second );
-      }
-  };
-
-  /**
-   * A DataSource which holds a constant value and
-   * returns it in its get() method. It can not be changed after creation.
-   * @param T Any type of data, except being a non-const reference.
-   */
-  template<typename T>
-  class ConstantDataSource
-    : public DataSource<T>
-  {
-      /**
-       * Assure that mdata is const, such that T is forced
-       * to not be a non-const reference.
-       */
-      typename boost::add_const<typename DataSource<T>::value_t>::type mdata;
-  protected:
-      /**
-       * Use shared_ptr.
-       */
-      ~ConstantDataSource() {}
-  public:
-      typedef boost::intrusive_ptr< ConstantDataSource<T> > shared_ptr;
-
-      ConstantDataSource( typename AssignableDataSource<T>::param_t value )
-          : mdata( value )
-      {
-      }
-
-      typename DataSource<T>::result_t get() const
-      {
-          return mdata;
-      }
-
-      virtual ConstantDataSource<T>* clone() const
-      {
-          return new ConstantDataSource<T>(mdata);
-      }
-
-      virtual ConstantDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
-          // no copy needed, share this with all instances.
-          return this;
-      }
-  };
-
-  /**
-   * A DataSource which is used to manipulate a reference to an
-   * external value.
-   * @param T The result data type of get().
-   */
-  template<typename T>
-  class ReferenceDataSource
-    : public AssignableDataSource<T>
-  {
-      // a reference to a value_t
-      typename AssignableDataSource<T>::reference_t mref;
-  protected:
-      /**
-       * Use shared_ptr.
-       */
-      ~ReferenceDataSource() {}
-  public:
-      typedef boost::intrusive_ptr<ReferenceDataSource<T> > shared_ptr;
-
-      ReferenceDataSource( typename AssignableDataSource<T>::reference_t ref )
-          : mref( ref )
-      {
-      }
-
-      typename DataSource<T>::result_t get() const
-      {
-          return mref;
-      }
-
-      void set( typename AssignableDataSource<T>::param_t t )
-      {
-          mref = t;
-      }
-
-      typename AssignableDataSource<T>::reference_t set() {
-          return mref;
-      }
-
-      virtual ReferenceDataSource<T>* clone() const
-      {
-          return new ReferenceDataSource<T>(mref);
-      }
-
-      virtual ReferenceDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
-          return this; // no copy needed, data is outside.
       }
   };
 
@@ -290,6 +209,13 @@ namespace ORO_Execution
         return fun( a, b );
       }
 
+    virtual value_t value() const
+      {
+        first_arg_t a = ma->value();
+        second_arg_t b = mb->value();
+        return fun( a, b );
+      }
+
     virtual void reset()
       {
         ma->reset();
@@ -301,7 +227,7 @@ namespace ORO_Execution
           return new BinaryDataSource<function>(ma.get(), mb.get(), fun);
       }
 
-      virtual BinaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
+      virtual BinaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
           return new BinaryDataSource<function>( ma->copy( alreadyCloned ), mb->copy( alreadyCloned ), fun );
       }
   };
@@ -344,6 +270,14 @@ namespace ORO_Execution
         return fun( a, b, c );
       }
 
+    virtual value_t value() const
+      {
+        first_arg_t a = ma->value();
+        second_arg_t b = mb->value();
+        third_arg_t c = mc->value();
+        return fun( a, b, c );
+      }
+
     virtual void reset()
       {
         ma->reset();
@@ -356,7 +290,7 @@ namespace ORO_Execution
           return new TernaryDataSource<function>(ma.get(), mb.get(), mc.get(), fun);
       }
 
-      virtual TernaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
+      virtual TernaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
           return new TernaryDataSource<function>( ma->copy( alreadyCloned ), mb->copy( alreadyCloned ), mc->copy( alreadyCloned ), fun );
       }
 
@@ -414,6 +348,17 @@ namespace ORO_Execution
         return fun( a, b, c, d, e, f );
       }
 
+    virtual value_t value() const
+      {
+        first_arg_t a = ma->value();
+        second_arg_t b = mb->value();
+        third_arg_t c = mc->value();
+        fourth_arg_t d = md->value();
+        fifth_arg_t e = me->value();
+        sixth_arg_t f = mf->value();
+        return fun( a, b, c, d, e, f );
+      }
+
     virtual void reset()
       {
         ma->reset();
@@ -431,7 +376,7 @@ namespace ORO_Execution
                                                 fun);
       }
 
-      virtual SixaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
+      virtual SixaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
           return new SixaryDataSource<function>( ma->copy( alreadyCloned ), mb->copy( alreadyCloned ),
                                                  mc->copy( alreadyCloned ), md->copy( alreadyCloned ),
                                                  me->copy( alreadyCloned ), mf->copy( alreadyCloned ), fun );
@@ -466,6 +411,11 @@ namespace ORO_Execution
         return fun( ma->get() );
       }
 
+    virtual value_t value() const
+      {
+        return fun( ma->value() );
+      }
+
     void reset()
       {
         ma->reset();
@@ -476,7 +426,7 @@ namespace ORO_Execution
           return new UnaryDataSource<function>(ma.get(), fun);
       }
 
-    virtual UnaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) {
+    virtual UnaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
           return new UnaryDataSource<function>( ma->copy( alreadyCloned ), fun );
       }
   };

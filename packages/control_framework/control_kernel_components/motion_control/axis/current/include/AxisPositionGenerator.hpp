@@ -43,7 +43,7 @@
 #include <pkgconf/control_kernel.h>
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include <control_kernel/ExecutionExtension.hpp>
-#include "execution/TemplateDataSourceFactory.hpp"
+#include "execution/TemplateMethodFactory.hpp"
 #include "execution/TemplateCommandFactory.hpp"
 #endif
 
@@ -279,17 +279,17 @@ namespace ORO_ControlKernel
             return ret;
         }
 
-        DataSourceFactoryInterface* createDataSourceFactory()
+        MethodFactoryInterface* createMethodFactory()
         {
-            TemplateDataSourceFactory< AxisPositionGenerator >* ret =
-                newDataSourceFactory( this );
+            TemplateMethodFactory< AxisPositionGenerator >* ret =
+                newMethodFactory( this );
             ret->add( "position",
-                      data( &AxisPositionGenerator::position,
+                      method( &AxisPositionGenerator::position,
                             "Get the axis position",
                             "AxisNr","The Axis number (starting from 1)."
                                ) ); 
             ret->add( "isReady",
-                      data( &AxisPositionGenerator::isReady,
+                      method( &AxisPositionGenerator::isReady,
                             "Inspect if an Axis is ready for a next command.",
                             "AxisNr","The Axis number (starting from 1)."
                             ) ); 

@@ -1010,6 +1010,10 @@ public:
 }
 #endif
 
+#include "pkgconf/system.h"
+#ifdef OROPKG_CORBA
+#include "corba/GeometryConversion.hpp"
+#endif
 
 
 #endif // ifndef FRAMES

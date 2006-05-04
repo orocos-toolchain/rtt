@@ -29,46 +29,49 @@
 #define EXECUTION_COMMAND_DISPATCH 
  
 #include "DataSource.hpp"
-#include <corelib/CommandInterface.hpp>
+#include "DispatchInterface.hpp"
+#include "corelib/ConditionInterface.hpp"
 
 
 namespace ORO_Execution
 {
+    class TryCommand;
     class CommandProcessor;
 
     /**
      * Dispatch a CommandInterface to a CommandProcessor.
-     * Combine with TryCommand, which provides the DataSource for
-     * the constructor.
      * The execute() method will return false from the moment
      * on that the dispatched command failed. Hence, this execute()
      * must not wrapped in an AsyncCommandDecorator, but directly
-     * executed by the calling processor.
+     * executed by the caller.
      */
-    class CommandDispatch :
-        public ORO_CoreLib::CommandInterface
+    class CommandDispatch
+        : public DispatchInterface
     {
-        AssignableDataSource<bool>::shared_ptr _result;
         bool send;
         bool maccepted;
         CommandProcessor* proc;
-        ORO_CoreLib::CommandInterface* com;
+        TryCommand* com;
+
+        /**
+         * Create a command to dispatch another command \a c to a CommandProcessor \a p.
+         * Used exclusively by clone().
+         */
+        CommandDispatch(CommandProcessor* p, TryCommand* c );
+
     public:
         /**
          * Create a command to dispatch another command \a c to a CommandProcessor \a p.
-         * The result status of \a c must arrive in \a result ( through other means, such as TryCommand ),
-         * such that this CommandDispatch
-         * can return the result status of the dispatched command \a c.
-         * When dispatching fails ( the CommandProcessor does not accept the Command \a c ), 
-         * CommandDispatch will set \a result itself to false.
          */
-        CommandDispatch(CommandProcessor* p, CommandInterface* c,  AssignableDataSource<bool>* result );
+        CommandDispatch(CommandProcessor* p, CommandInterface* c );
 
         /**
          * Be sure only to delete this command if the target processor is
          * not processing the encapsulated command.
          */
         ~CommandDispatch();
+
+        void readArguments();
 
         /**
          * Dispatch a command. If it is not accepted, fail, if it is accepted,
@@ -82,15 +85,41 @@ namespace ORO_Execution
          */
         void reset();
 
-        bool sent();
+        /**
+         * Returns true if the command was sent to the CommandProcessor.
+         * You can use this flag to check whether execute() was invoked.
+         */
+        bool sent() const;
 
-        bool accepted();
+        /**
+         * Returns true if the command was accepted when sent to the CommandProcessor.
+         * A Command is accepted when the CommandProcessor was running and its queue
+         * was not full.
+         */
+        bool accepted() const;
 
-        bool result();
+        /**
+         * Returns true if the command was executed by the CommandProcessor.
+         * When executed() is true, you can check its result().
+         */
+        bool executed() const;
 
-        ORO_CoreLib::CommandInterface* clone() const;
+        /**
+         * Returns true if the command was valid, i.e. the command itself
+         * was executed and returned true. 
+         */
+        bool valid() const;
 
-        ORO_CoreLib::CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+        /**
+         * Creates a Condition which evaluates (executed() \a and result() ).
+         * Thus it will only return true when the CommandProcessor executed
+         * the dispatched command \a and it was valid.
+         */
+        ORO_CoreLib::ConditionInterface* createValidCondition() const;
+
+        ORO_Execution::DispatchInterface* clone() const;
+
+        ORO_Execution::DispatchInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     };
 }
 

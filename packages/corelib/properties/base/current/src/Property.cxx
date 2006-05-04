@@ -40,7 +40,34 @@ namespace ORO_CoreLib {
      template class Property<unsigned int>;
      template class Property<std::string>;
      template class Property<const std::string&>;
-     template class Property<PropertyBag>;
+#ifdef OROINT_OS_CORBA
+     template class Property<CORBA::Any>;
+#endif
+
+    Property<PropertyBag>::~Property<PropertyBag>()
+    {}
+
+    Property<PropertyBag>* Property<PropertyBag>::narrow( PropertyBase* prop ) {
+        Property<PropertyBag>* res = dynamic_cast<Property<PropertyBag>*>( prop );
+        if (res)
+            return res->clone();
+#ifdef OROINT_OS_CORBA
+        if ( prop->getDataSource()->hasServer() ) {
+            PropertyBag result;
+            CORBA::Any_var any = prop->getDataSource()->getAny();
+            if( AnyConversion<PropertyBag>::update( any.in() , result ) ) {
+                return new Property<PropertyBag>( prop->getName(), prop->getDescription(), result );
+            }
+        } 
+#endif
+        return 0;
+    }
+
+
+    void Property<PropertyBag>::identify( PropertyIntrospection* pi) const
+    {
+        pi->introspect( *this );
+    }
 
     void decomposeProperty(ORO_CoreLib::PropertyIntrospection* pi, 
                            ORO_CoreLib::Property<const std::string&> const& nt) {

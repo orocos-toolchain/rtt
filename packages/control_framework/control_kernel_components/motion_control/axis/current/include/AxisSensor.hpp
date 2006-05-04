@@ -248,7 +248,7 @@ namespace ORO_ControlKernel
         /** @} */
     protected:
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
-        ORO_Execution::DataSourceFactoryInterface* createDataSourceFactory();
+        ORO_Execution::MethodFactoryInterface* createMethodFactory();
         ORO_Execution::CommandFactoryInterface* createCommandFactory();
 #endif
 

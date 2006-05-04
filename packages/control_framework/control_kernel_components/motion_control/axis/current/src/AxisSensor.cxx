@@ -338,47 +338,47 @@ namespace ORO_ControlKernel {
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
     using namespace ORO_Execution;
 
-    DataSourceFactoryInterface* AxisSensor::createDataSourceFactory()
+    MethodFactoryInterface* AxisSensor::createMethodFactory()
     {
-        TemplateDataSourceFactory< AxisSensor >* ret =
-            newDataSourceFactory( this );
+        TemplateMethodFactory< AxisSensor >* ret =
+            newMethodFactory( this );
         ret->add( "isOn", 
-                  data( &AxisSensor::isOn,
+                  method( &AxisSensor::isOn,
                         "Inspect the status of a Digital Input or Output.",
                         "Name", "The Name of the Digital IO."
                         ) );
         ret->add( "position", 
-                  data( &AxisSensor::position,
+                  method( &AxisSensor::position,
                         "Inspect the status of the Position of an Axis.",
                         "Name", "The Name of the Axis."
                         ) );
         ret->add( "readSensor", 
-                  data( &AxisSensor::readSensor,
+                  method( &AxisSensor::readSensor,
                         "Inspect the status of a Sensor of an Axis.",
                         "FullName", "The Name of the Axis followed by a '::' and the Sensor name (e.g. 'Position')."
                         ) );
         ret->add( "isEnabled", 
-                  data( &AxisSensor::isEnabled,
+                  method( &AxisSensor::isEnabled,
                         "Inspect if an Axis is not locked.",
                         "Name", "The Name of the Axis."
                         ) );
         ret->add( "isLocked", 
-                  data( &AxisSensor::isLocked,
+                  method( &AxisSensor::isLocked,
                         "Inspect if an Axis is mechanically locked.",
                         "Name", "The Name of the Axis."
                         ) );
         ret->add( "isStopped", 
-                  data( &AxisSensor::isStopped,
+                  method( &AxisSensor::isStopped,
                         "Inspect if an Axis is electronically stopped.",
                         "Name", "The Name of the Axis."
                         ) );
         ret->add( "isDriven", 
-                  data( &AxisSensor::isDriven,
+                  method( &AxisSensor::isDriven,
                         "Inspect if an Axis is in movement.",
                         "Name", "The Name of the Axis."
                         ) );
         ret->add( "axes", 
-                  data( &AxisSensor::getAxes,
+                  method( &AxisSensor::getAxes,
                         "The number of axes."
                         ) );
         return ret;

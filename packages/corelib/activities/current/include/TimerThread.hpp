@@ -31,11 +31,12 @@
 
 
 #include "os/PeriodicThread.hpp"
-#include "EventProcessor.hpp"
 
 #include "os/Mutex.hpp"
 
 #include <list>
+#include <vector>
+#include <string>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
@@ -45,6 +46,7 @@ namespace ORO_CoreLib
         class TimerInterface;
     }
     class PeriodicActivity;
+    class EventProcessor;
     class TimerThread;
 
     /**
@@ -62,8 +64,7 @@ namespace ORO_CoreLib
      * @see PeriodicActivity
      */
     class TimerThread
-        : public ORO_OS::PeriodicThread,
-          public EventProcessor
+        : public ORO_OS::PeriodicThread
     {
 
     public:
@@ -93,6 +94,7 @@ namespace ORO_CoreLib
          */
         detail::TimerInterface* timerGet( Seconds period ) const;
 
+        EventProcessor* getEventProcessor() const { return eproc; }
         /**
          * Create a TimerThread with a given priority and periodicity.
          */
@@ -111,6 +113,11 @@ namespace ORO_CoreLib
          * @see Timer
          */ 
         TimerList clocks;
+
+        /**
+         * The EventProcessor of this Thread.
+         */
+        EventProcessor* eproc;
 
         /**
          * A Activity can not create a activity of same priority from step().

@@ -30,7 +30,7 @@
 
 #include <string>
 #include "CommandInterface.hpp"
-#include "DataSource.hpp"
+#include "DataSourceBase.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
@@ -53,8 +53,7 @@ namespace ORO_CoreLib
         /**
          * The default destructor.
          */
-        virtual ~PropertyBase()
-        {}
+        virtual ~PropertyBase();
 
         /**
          * The constructor.
@@ -63,45 +62,31 @@ namespace ORO_CoreLib
          * @param description A more elaborate description of the
          * property.
          */
-        PropertyBase( std::string name, std::string description)
-            : _name(name), _description(description)
-        {}
+        PropertyBase( std::string name, std::string description);
 
         /**
          * Get the name of the property.
          * @return name of the property.
          */
-        const std::string& getName() const
-        {
-            return _name;
-        }
+        const std::string& getName() const { return _name; }
 
         /**
          * Set the name of the property.
          * @param name The name of the property.
          */
-        void setName(const std::string& name)
-        {
-            _name = name;
-        }
+        void setName(const std::string& name);
 
         /**
          * Get a description of the property.
          * @return description of the property.
          */
-        const std::string& getDescription() const
-        {
-            return _description;
-        }
+        const std::string& getDescription() const { return _description; }
 
         /**
          * Set the description of the property.
          * @param desc The description of the property.
          */
-        void setDescription(const std::string& desc)
-        {
-            _description = desc;
-        }
+        void setDescription(const std::string& desc);
 
         /**
          * A call on this method will lead to a call to the PropertyIntrospection
@@ -122,22 +107,9 @@ namespace ORO_CoreLib
          * Generate a CommandInterface object which will update this Property
          * with the value of another Property when execute()'ed.
          * @return zero if the Property types do not match
+         * @todo: check if this method is necessary/used.
          */
         virtual CommandInterface* updateCommand( const PropertyBase* other) = 0;
-
-        /**
-         * Make a deep copy of this Property with the value of an \a other Property,
-         * possibly causing duplicate information.
-         * @return false if the Properties are of different type.
-         */
-        virtual bool copy( const PropertyBase* other ) = 0;
-
-        /**
-         * Generate a CommandInterface object which will copy this Property
-         * with the value of another Property when execute()'ed.
-         * @return zero if the Property types do not match
-         */
-        virtual CommandInterface* copyCommand( const PropertyBase* other) = 0;
 
         /**
          * Refresh the value of this Property with the value of an \a other Property.
@@ -150,26 +122,27 @@ namespace ORO_CoreLib
 
         /**
          * Generate a CommandInterface object which will refresh this Property
-         * with the value of another Property when execute()'ed.
+         * with the value of another Property when execute()'ed. The resulting
+         * Command is real-time.
          * @return zero if the Property types do not match
          */
         virtual CommandInterface* refreshCommand( const PropertyBase* other) = 0;
 
         /**
-         * Refresh the value of this Property with the value of a \a other DataSource.
-         * Refresh does only the minimal update of the value, not adding extra
-         * information, or in case of a Property<PropertyBag> not adding extra
+         * Copy an \a other Property onto this property.
+         * Update does a full update of the name, description and value, adding extra
+         * information if necessary, or in case of a Property<PropertyBag> adding all 
          * Properties.
          * @return false if the Properties are of different type.
          */
-        virtual bool refresh( const DataSourceBase* other ) = 0;
+        virtual bool copy( const PropertyBase* other ) = 0;
 
         /**
-         * Generate a CommandInterface object which will refresh this Property
-         * with the value or a DataSource when execute()'ed.
-         * @return zero if the value types do not match.
+         * Generate a CommandInterface object which will copy this Property
+         * with the value of another Property when execute()'ed.
+         * @return zero if the Property types do not match
          */
-        virtual CommandInterface* refreshCommand( DataSourceBase* other) = 0;
+        virtual CommandInterface* copyCommand( const PropertyBase* other) = 0;
 
         /**
          * Deliver an identical clone of this PropertyBase. The
@@ -186,10 +159,10 @@ namespace ORO_CoreLib
         virtual PropertyBase* create() const = 0;
 
         /**
-         * Create a DataSource through which this PropertyBase can be
+         * Get a DataSource through which this PropertyBase can be
          * manipulated.
          */
-        virtual DataSourceBase* createDataSource() = 0;
+        virtual DataSourceBase* getDataSource() const = 0;
 
         /**
          * Returns the type of this PropertyBase. Uses the

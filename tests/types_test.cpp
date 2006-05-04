@@ -93,10 +93,9 @@ bool TypesTest::equalVectors(const Vector& f1, Vector& f2)
 void TypesTest::testEmptyProgram()
 {
     string prog = "";
-    stringstream progs(prog);
     Parser::ParsedPrograms pg_list;
     try {
-        pg_list = parser.parseProgram( progs, tc );
+        pg_list = parser.parseProgram( prog, tc );
     }
     catch( const file_parse_exception& exc )
         {
@@ -111,10 +110,9 @@ void TypesTest::testEmptyProgram()
 void TypesTest::testReturnProgram()
 {
     string prog = "program x { return \n }";
-    stringstream progs(prog);
     Parser::ParsedPrograms pg_list;
     try {
-        pg_list = parser.parseProgram( progs, tc);
+        pg_list = parser.parseProgram( prog, tc);
     }
     catch( const file_parse_exception& exc )
         {
@@ -212,10 +210,9 @@ void TypesTest::testTypes()
         "do test.assert( str[9] == '\\0' )\n"+
         "do test.assert( str[10] == '\\0' )\n"+
         "}";
-    stringstream progs(prog);
     Parser::ParsedPrograms pg_list;
     try {
-        pg_list = parser.parseProgram( progs, tc );
+        pg_list = parser.parseProgram( prog, tc );
     }
     catch( const file_parse_exception& exc )
         {
@@ -252,10 +249,9 @@ void TypesTest::testOperators()
         "var frame f = frame(v,r) \n"+
 #endif
         "}";
-    stringstream progs(prog);
     Parser::ParsedPrograms pg_list;
     try {
-        pg_list = parser.parseProgram( progs, tc );
+        pg_list = parser.parseProgram( prog, tc );
     }
     catch( const file_parse_exception& exc )
         {
@@ -351,10 +347,9 @@ void TypesTest::testProperties()
     tc->attributeRepository.addProperty( &pd3 );
     tc->attributeRepository.addProperty( &pb );
 
-    stringstream progs(prog);
     Parser::ParsedPrograms pg_list;
     try {
-        pg_list = parser.parseProgram( progs, tc );
+        pg_list = parser.parseProgram( prog, tc );
     }
     catch( const file_parse_exception& exc )
         {

@@ -89,7 +89,7 @@ namespace ORO_ControlKernel
     public:
         ControlKernelProcess( const std::string& name )
             : Base(name),
-              frequency("frequency","The periodic execution frequency of the control kernel process (unused)",0),
+              frequency("frequency","The periodic execution frequency of the control kernel process (unused)",0.0),
               startupSensor("Sensor", "", "DefaultSensor"),
               startupEstimator("Estimator", "", "DefaultEstimator"),
               startupGenerator("Generator", "", "DefaultGenerator"),

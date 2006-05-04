@@ -28,56 +28,48 @@
 #ifndef CONDITIONCOMPOSITE_HPP
 #define CONDITIONCOMPOSITE_HPP
 
-#include <functional>
-#include <typeinfo>
-
 #include <corelib/ConditionInterface.hpp>
 
 namespace ORO_Execution {
 
-  using namespace ORO_CoreLib;
-
   /**
-   * Composite software pattern for conditions.  This is a general
-   * class, allowing you to pass a binary predicate functor taking two
-   * booleans as the compare operator.  Use things like
-   * std::logical_or<bool>, std::logical_and<bool>,
-   * std::not_equal_to<bool> to specify the "or", "and", and "xor"
-   * operators..
+   * Compose an 'AND' function of two Conditions.
    */
-  template<typename op>
-  class ConditionBinaryComposite
-    : public ConditionInterface
+  class ConditionBinaryCompositeAND
+    : public ORO_CoreLib::ConditionInterface
   {
-    ConditionInterface* lhs;
-    ConditionInterface* rhs;
-    op o;
+    ORO_CoreLib::ConditionInterface* lhs;
+    ORO_CoreLib::ConditionInterface* rhs;
   public:
     /**
-     * constructor: deze klasse wordt eigenaar van l en r, die
-     * gealloceerd moeten zijn geweest met new.
+     * If \a l evaluates to true, evaluate \r and return the result, otherwise,
+     * return false.
+     * Constructor takes ownership of \a l and \a r.
      */
-    ConditionBinaryComposite( ConditionInterface* l, ConditionInterface* r )
-      : lhs( l ), rhs( r ), o()
+    ConditionBinaryCompositeAND( ORO_CoreLib::ConditionInterface* l, ORO_CoreLib::ConditionInterface* r )
+      : lhs( l ), rhs( r )
       {
       }
 
-    virtual ConditionInterface* clone() const
+    virtual ORO_CoreLib::ConditionInterface* clone() const
       {
-        return new ConditionBinaryComposite<op>( lhs->clone(), rhs->clone() );
+        return new ConditionBinaryCompositeAND( lhs->clone(), rhs->clone() );
       }
 
-      ConditionBinaryComposite<op>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-          return new ConditionBinaryComposite<op>(lhs->copy(alreadyCloned),rhs->copy(alreadyCloned));
+      ConditionBinaryCompositeAND* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
+          return new ConditionBinaryCompositeAND(lhs->copy(alreadyCloned),rhs->copy(alreadyCloned));
       }
 
-    virtual ~ConditionBinaryComposite() {
+    virtual ~ConditionBinaryCompositeAND() {
       delete lhs;
       delete rhs;
     }
 
     virtual bool evaluate() {
-      return o( lhs->evaluate(), rhs->evaluate() );
+        if ( lhs->evaluate() )
+            if ( rhs->evaluate() )
+                return true;
+        return false;
     }
 
     virtual void reset()
@@ -87,22 +79,67 @@ namespace ORO_Execution {
       }
   };
 
-  typedef ConditionBinaryComposite<std::logical_or<bool> > ConditionCompositeOR;
-  typedef ConditionBinaryComposite<std::logical_and<bool> > ConditionCompositeAND;
+    /*
+     * Compose an 'OR' function of two Conditions.
+     */
+  class ConditionBinaryCompositeOR
+    : public ORO_CoreLib::ConditionInterface
+  {
+    ORO_CoreLib::ConditionInterface* lhs;
+    ORO_CoreLib::ConditionInterface* rhs;
+  public:
+    /**
+     * If \a l evaluates to true, evaluate \r and return the result, otherwise,
+     * return false.
+     * Constructor takes ownership of \a l and \a r.
+     */
+    ConditionBinaryCompositeOR( ORO_CoreLib::ConditionInterface* l, ORO_CoreLib::ConditionInterface* r )
+      : lhs( l ), rhs( r )
+      {
+      }
+
+    virtual ORO_CoreLib::ConditionInterface* clone() const
+      {
+        return new ConditionBinaryCompositeOR( lhs->clone(), rhs->clone() );
+      }
+
+      ConditionBinaryCompositeOR* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
+          return new ConditionBinaryCompositeOR(lhs->copy(alreadyCloned),rhs->copy(alreadyCloned));
+      }
+
+    virtual ~ConditionBinaryCompositeOR() {
+      delete lhs;
+      delete rhs;
+    }
+
+    virtual bool evaluate() {
+        if ( lhs->evaluate() )
+            return true;
+        if ( rhs->evaluate() )
+            return true;
+        return false;
+    }
+
+    virtual void reset()
+      {
+        lhs->reset();
+        rhs->reset();
+      }
+  };
 
   class ConditionCompositeNOT
-    : public ConditionInterface
+    : public ORO_CoreLib::ConditionInterface
   {
-    ConditionInterface* cond;
+    ORO_CoreLib::ConditionInterface* cond;
   public:
-    ConditionCompositeNOT( ConditionInterface* c )
+    ConditionCompositeNOT( ORO_CoreLib::ConditionInterface* c )
       : cond( c )
       {
       }
     ~ConditionCompositeNOT();
     bool evaluate();
     ConditionCompositeNOT* clone() const;
-    ConditionCompositeNOT* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+    ConditionCompositeNOT* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const;
     void reset();
   };
 }

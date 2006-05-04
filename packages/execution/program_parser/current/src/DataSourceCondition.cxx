@@ -31,23 +31,28 @@
 namespace ORO_Execution
 {
   DataSourceCondition::DataSourceCondition( ConditionInterface* c )
-    : cond( c )
+      : cond( c ), result(false)
   {
   }
 
   DataSourceCondition::DataSourceCondition( const DataSourceCondition& orig )
-    : cond( orig.condition()->clone() )
+      : cond( orig.condition()->clone() ), result(false)
   {
   }
 
   DataSourceCondition::~DataSourceCondition()
   {
-    delete cond;
+      delete cond;
   }
 
   bool DataSourceCondition::get() const
   {
-    return cond->evaluate();
+      return result = cond->evaluate();
+  }
+
+  bool DataSourceCondition::value() const
+  {
+      return result;
   }
 
   ConditionInterface* DataSourceCondition::condition() const
@@ -57,7 +62,8 @@ namespace ORO_Execution
 
   void DataSourceCondition::reset()
   {
-    cond->reset();
+      result = false;
+      cond->reset();
   }
 
   DataSourceCondition* DataSourceCondition::clone() const
@@ -65,7 +71,7 @@ namespace ORO_Execution
       return new DataSourceCondition( cond->clone() );
   }
 
-  DataSourceCondition* DataSourceCondition::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )
+  DataSourceCondition* DataSourceCondition::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
   {
       return new DataSourceCondition( cond->copy( alreadyCloned ) );
   }

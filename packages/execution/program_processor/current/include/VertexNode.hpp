@@ -28,10 +28,14 @@
 #ifndef VERTEXNODE_HPP
 #define VERTEXNODE_HPP
 
+#include <map>
 
-#include <corelib/CommandInterface.hpp>
-#include <corelib/DataSource.hpp>
-//#include "CommandStopExecution.hpp"
+namespace ORO_CoreLib
+{
+    class CommandInterface;
+    class DataSourceBase;
+}
+
 
 // adjacency_list has some very short template parameter names,
 // which may be defined as macros on some OS's. So undef here.
@@ -62,9 +66,6 @@ namespace ORO_Execution
 	class ProcessorInterface;
     class StateDescription;
 
-    using ORO_CoreLib::CommandInterface;
-    using ORO_CoreLib::DataSourceBase;
-
 	/**
 	 * This class represents elements in a program tree.
 	 */
@@ -89,14 +90,14 @@ namespace ORO_Execution
        * Construct a program node with given command,
        * no conditional branches and line number 0.
        */
-      explicit VertexNode(CommandInterface* cmd);
+      explicit VertexNode(ORO_CoreLib::CommandInterface* cmd);
 
       /**
        * The copy constructor creates a shallow copy.
        */
       VertexNode( const VertexNode& orig );
 
-      VertexNode copy( std::map<const DataSourceBase*, DataSourceBase*>& rdss ) const;
+      VertexNode copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& rdss ) const;
 
       VertexNode& operator=( const VertexNode& orig );
 
@@ -145,7 +146,7 @@ namespace ORO_Execution
          *
          * @return The previous command (can be null).
          */
-         CommandInterface* setCommand(CommandInterface* c);
+         ORO_CoreLib::CommandInterface* setCommand(ORO_CoreLib::CommandInterface* c);
 
         /**
          * Set line number of this program node to given line number.
@@ -162,7 +163,7 @@ namespace ORO_Execution
          * @return The command currently associated with
          * this node
          */
-         CommandInterface* getCommand() const;
+         ORO_CoreLib::CommandInterface* getCommand() const;
 
         /**
          * Returns the program line number currently associated
@@ -174,7 +175,7 @@ namespace ORO_Execution
         /**
          * The command to be executed in this node.
          */
-        CommandInterface* command;
+        ORO_CoreLib::CommandInterface* command;
 
         /**
          * The line number associated with this node

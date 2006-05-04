@@ -34,6 +34,7 @@
 #include "EventService.hpp"
 #include "DataFlowInterface.hpp"
 #include "ExecutionEngine.hpp"
+#include "ScriptingAccess.hpp"
 
 #include <string>
 #include <map>
@@ -41,6 +42,7 @@
 namespace ORO_Execution
 {
     class CommandProcessor;
+    class ScriptingAccess;
 
     /**
      * A TaskContext groups the operations, events, datasources,
@@ -79,6 +81,8 @@ namespace ORO_Execution
         Users         musers;
 
         ExecutionEngine ee;
+
+        ScriptingAccess* mscriptAcc;
 
         void connectDataFlow( TaskContext* peer );
         void exportPorts();
@@ -260,6 +264,26 @@ namespace ORO_Execution
         ExecutionEngine* getExecutionEngine()
         {
             return &ee;
+        }
+
+        /**
+         * Get access to high level controls for
+         * programs, state machines and scripting
+         * statements.
+         */
+        ScriptingAccess* scripting()
+        {
+            return mscriptAcc;
+        }
+
+        /**
+         * Get access to high level controls for
+         * programs, state machines and scripting
+         * statements.
+         */
+        const ScriptingAccess* scripting() const
+        {
+            return mscriptAcc;
         }
 
         /**

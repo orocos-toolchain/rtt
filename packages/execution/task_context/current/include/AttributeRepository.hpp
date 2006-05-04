@@ -143,7 +143,7 @@ namespace ORO_Execution
          */
         template<class T>
         bool addProperty( ORO_CoreLib::Property<T>* p ) {
-            TaskAttributeBase* attr =  new TaskAttribute<T>( p->createDataSource() );
+            TaskAttributeBase* attr =  new TaskAttribute<T>( p->getDataSource() );
             bool result = setValue( p->getName(), attr );
             if ( result ) {
                 if ( bag == 0 )

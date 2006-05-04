@@ -29,10 +29,12 @@
 #define PROGRAMGRAPH_HPP
 
 #include "FunctionGraph.hpp"
+#include "corelib/DataSourceBase.hpp"
 
 #include <utility>                   // for std::pair
 #include <stack>
 #include <map>
+#include <string>
 #include <boost/graph/graph_traits.hpp>
 
 namespace ORO_Execution
@@ -93,7 +95,7 @@ namespace ORO_Execution
          * @param cond The Condition under which to return.
          * @param line The line number of that line in the function.
          */
-        void returnFunction( ConditionInterface* cond, int line );
+        void returnFunction( ORO_CoreLib::ConditionInterface* cond, int line );
 
         /**
          * Finish building the function and return the result.
@@ -106,11 +108,11 @@ namespace ORO_Execution
          */
         FunctionGraphPtr getFunction();
 
-        void startIfStatement( ConditionInterface* cond, int linenumber );
+        void startIfStatement( ORO_CoreLib::ConditionInterface* cond, int linenumber );
         void endIfBlock(int linenumber);
         void endElseBlock(int linenumber);
 
-        void startWhileStatement( ConditionInterface* cond, int linenumber );
+        void startWhileStatement( ORO_CoreLib::ConditionInterface* cond, int linenumber );
         void endWhileBlock(int linenumber);
 
         bool inLoop();
@@ -121,20 +123,20 @@ namespace ORO_Execution
          *
          * @return the 'new' build CommandNode.
          */
-        CommandNode addCommand( ConditionInterface* cond,  CommandInterface* com );
+        CommandNode addCommand( ORO_CoreLib::ConditionInterface* cond,  ORO_CoreLib::CommandInterface* com );
 
         /**
          * Add an edge from the build CommandNode to the given CommandNode
          * without changing the build CommandNode.
          *
          */
-        void addConditionEdge( ConditionInterface* cond, CommandNode vert );
+        void addConditionEdge( ORO_CoreLib::ConditionInterface* cond, CommandNode vert );
 
         /**
          * Add an edge between the given CommandNode and the build CommandNode.
          *
          */
-        void closeConditionEdge( CommandNode vert, ConditionInterface* cond );
+        void closeConditionEdge( CommandNode vert, ORO_CoreLib::ConditionInterface* cond );
 
         /**
          * Select an already added CommandNode.
@@ -147,13 +149,13 @@ namespace ORO_Execution
          * Sets a new Command on the build CommandNode.
          *
          */
-        void setCommand( CommandInterface* comm );
+        void setCommand( ORO_CoreLib::CommandInterface* comm );
 
         /**
          * Get the Command on a given CommandNode.
          *
          */
-        CommandInterface* getCommand( CommandNode cn );
+        ORO_CoreLib::CommandInterface* getCommand( CommandNode cn );
 
         /**
          * Sets a (new) command on a given CommandNode.
@@ -162,7 +164,7 @@ namespace ORO_Execution
          * @param comm The new Command to be executed in that node.
          *
          */
-        void setCommand( CommandNode vert, CommandInterface* comm);
+        void setCommand( CommandNode vert, ORO_CoreLib::CommandInterface* comm);
 
         /**
          * Append a function to the build CommandNode.
@@ -172,7 +174,7 @@ namespace ORO_Execution
          *
          * @return the last CommandNode of the appended function.
          */
-        CommandNode appendFunction( ConditionInterface* cond, FunctionGraphPtr fn, std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> fnargs);
+        CommandNode appendFunction( ORO_CoreLib::ConditionInterface* cond, FunctionGraphPtr fn, std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> fnargs);
 
         /**
          * Put a function in the build CommandNode.
@@ -199,21 +201,12 @@ namespace ORO_Execution
          * @param line_nr The line number of the 'build' command.
          * @return The new build CommandNode.
          */
-        CommandNode proceedToNext( ConditionInterface* cond, int line_nr = 0 );
+        CommandNode proceedToNext( ORO_CoreLib::ConditionInterface* cond, int line_nr = 0 );
 
         /**
          * Connect the given CommandNode to the 'next' CommandNode.
          */
-        void connectToNext( CommandNode v, ConditionInterface* cond );
-
-#if 0
-        /**
-         * Insert the given command at the front of this program,
-         * replacing the build root command, and having it pass to
-         * the build root command with a ConditionTrue.
-         */
-        void prependCommand( CommandInterface* command, int line_nr = 0 );
-#endif
+        void connectToNext( CommandNode v, ORO_CoreLib::ConditionInterface* cond );
 
         /**
          * Return the build CommandNode.

@@ -316,12 +316,11 @@ namespace ORO_CoreLib
             }
         catch ( ... )
             {
-                Logger::log() << Logger::Error << "General System Exception !" << Logger::endl;
+                Logger::log() << Logger::Error << "XML Init: General System Exception !" << Logger::endl;
             }
 
-        name =  XMLString::transcode( filename.c_str() );
-
         try {
+            name =  XMLString::transcode( filename.c_str() );
             fis  = new LocalFileInputSource( name );
         }
         catch ( XMLException& xe )
@@ -330,6 +329,10 @@ namespace ORO_CoreLib
                 Logger::log() << Logger::Error << xe.getMessage() << Logger::endl;
                 
                 fis = 0;
+            }
+        catch ( ... )
+            {
+                Logger::log() << Logger::Error << "Opening file: General System Exception !" << Logger::endl;
             }
         delete[] name;
     }
@@ -345,8 +348,17 @@ namespace ORO_CoreLib
         if ( fis == 0 )
             return false;
 
-        XMLPlatformUtils::Initialize();
-        SAX2XMLReader* parser = XMLReaderFactory::createXMLReader();
+        SAX2XMLReader* parser = 0;
+        try {
+            XMLPlatformUtils::Initialize();
+            parser = XMLReaderFactory::createXMLReader();
+        }
+        catch ( ... )
+            {
+                Logger::log() << Logger::Error << "SAX2XMLReader System Exception !" << Logger::endl;
+                XMLPlatformUtils::Terminate();
+                return false;
+            }
 
         int errorCount = 0;
 

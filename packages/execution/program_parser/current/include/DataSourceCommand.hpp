@@ -47,7 +47,8 @@ namespace ORO_Execution
   class DataSourceCommand
     : public DataSource<bool>
   {
-    CommandInterface* comm;
+      CommandInterface* comm;
+      mutable bool mresult;
   public:
     /**
      * DataSourceCommand takes ownership of the command you pass
@@ -57,10 +58,11 @@ namespace ORO_Execution
       DataSourceCommand( const DataSourceCommand& orig );
       ~DataSourceCommand();
       bool get() const;
+      bool value() const;
       void reset();
       CommandInterface* command() const;
       virtual DataSourceCommand* clone() const;
-      virtual DataSourceCommand* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned );
+      virtual DataSourceCommand* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
   };
 }
 

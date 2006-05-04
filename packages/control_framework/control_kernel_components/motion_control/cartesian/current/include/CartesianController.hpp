@@ -98,7 +98,7 @@ namespace ORO_ControlKernel
     public:
             
         CartesianController(std::string name = "CartesianController") 
-            :  Base( name ),gain("Gain","The error gain.",0),
+            :  Base( name ),gain("Gain","The error gain.",0.0),
                end_twist("Result Twist",""), q_err("Velocity Setpoints","")
         {
         }

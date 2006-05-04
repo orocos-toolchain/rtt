@@ -48,6 +48,224 @@ namespace ORO_Execution
 #ifndef FUNCTORDATASOURCES
 #define FUNCTORDATASOURCES
     namespace detail {
+
+
+        /**
+         * Used to partially specialise the case when returning a void from a functor.
+         */
+        template<typename R, typename FunctorT>
+        struct FunctionForwarder
+        {
+            typedef typename boost::remove_const<R>::type result_type;
+
+            FunctorT gen;
+            result_type res;
+
+            result_type result() { return res; }
+
+            FunctionForwarder(FunctorT& f)
+                :gen(f)
+            {}
+
+            R invoke() {
+                res = gen();
+                return res;
+            }
+
+            template<typename Arg1T>
+            R invoke(DataSource<Arg1T>* arg1) {
+                // The "Forwarding problem" : gen is a boost::bind functor
+                // and can not be given non-const temporaries or literal constants.
+                // thus _to_be_sure_, we _must_ copy the result to a local variable
+                // and then pass that variable on. Fortunately, if Arg1T is a reference,
+                // this does not involve a value copy and if Arg1T is a value, 
+                // the gen( ) function takes a reference to it, thus, again,
+                // no additional copy is made.
+                Arg1T a1 = arg1->get();
+                res = gen(a1);
+                arg1->updated();
+                return res;
+            }
+            template<typename Arg1T, typename Arg2T>
+            R invoke( DataSource<Arg1T>* arg1, DataSource<Arg2T>* arg2) {
+                Arg1T a1 = arg1->get();
+                Arg2T a2 = arg2->get();
+                res = gen(a1,a2);
+                arg1->updated();
+                arg2->updated();
+                return res;
+            }
+
+            template< typename Arg1T, typename Arg2T, typename Arg3T>
+            R invoke( DataSource<Arg1T>* arg1, DataSource<Arg2T>* arg2, DataSource<Arg3T>* arg3) {
+                Arg1T a1 = arg1->get();
+                Arg2T a2 = arg2->get();
+                Arg3T a3 = arg3->get();
+                res = gen(a1,a2,a3);
+                arg1->updated();
+                arg2->updated();
+                arg3->updated();
+                return res;
+            }
+
+            template< typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T>
+            R invoke( DataSource<Arg1T>* arg1, DataSource<Arg2T>* arg2, DataSource<Arg3T>* arg3, DataSource<Arg4T>* arg4) {
+                Arg1T a1 = arg1->get();
+                Arg2T a2 = arg2->get();
+                Arg3T a3 = arg3->get();
+                Arg4T a4 = arg4->get();
+                res = gen(a1,a2,a3,a4);
+                arg1->updated();
+                arg2->updated();
+                arg3->updated();
+                arg4->updated();
+                return res;
+            }
+        };
+
+        template<typename FunctorT>
+        struct FunctionForwarder<void, FunctorT>
+        {
+            FunctorT gen;
+            typedef void result_type;
+
+            FunctionForwarder(FunctorT& f)
+                :gen(f)
+            {}
+
+            result_type result() {}
+
+            void invoke() {
+                gen();
+            }
+
+            template< typename Arg1T>
+            void invoke(DataSource<Arg1T>* arg1) {
+                // The "Forwarding problem" : gen is a boost::bind functor
+                // and can not be given non-const temporaries or literal constants.
+                // thus _to_be_sure_, we _must_ copy the result to a local variable
+                // and then pass that variable on. Fortunately, if Arg1T is a reference,
+                // this does not involve a value copy and if Arg1T is a value, 
+                // the gen( ) function takes a reference to it, thus, again,
+                // no additional copy is made.
+                Arg1T a1 = arg1->get();
+                gen(a1);
+                arg1->updated();
+            }
+            template< typename Arg1T, typename Arg2T>
+            void invoke(DataSource<Arg1T>* arg1, DataSource<Arg2T>* arg2) {
+                Arg1T a1 = arg1->get();
+                Arg2T a2 = arg2->get();
+                gen(a1,a2);
+                arg1->updated();
+                arg2->updated();
+            }
+
+            template< typename Arg1T, typename Arg2T, typename Arg3T>
+            void invoke(DataSource<Arg1T>* arg1, DataSource<Arg2T>* arg2, DataSource<Arg3T>* arg3) {
+                Arg1T a1 = arg1->get();
+                Arg2T a2 = arg2->get();
+                Arg3T a3 = arg3->get();
+                gen(a1,a2,a3);
+                arg1->updated();
+                arg2->updated();
+                arg3->updated();
+            }
+
+            template< typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T>
+            void invoke(DataSource<Arg1T>* arg1, DataSource<Arg2T>* arg2, DataSource<Arg3T>* arg3, DataSource<Arg4T>* arg4) {
+                Arg1T a1 = arg1->get();
+                Arg2T a2 = arg2->get();
+                Arg3T a3 = arg3->get();
+                Arg4T a4 = arg4->get();
+                gen(a1,a2,a3,a4);
+                arg1->updated();
+                arg2->updated();
+                arg3->updated();
+                arg4->updated();
+            }
+        };
+
+        /**
+         * Specialise reference types.
+         */
+        template<typename R, typename FunctorT>
+        struct FunctionForwarder<R&, FunctorT>
+        {
+            // The trick is to store the result (a reference) of the function
+            // in a pointer.
+            typedef R& result_type;
+            typedef R*  store_type;
+
+            FunctorT gen;
+            store_type res;
+
+            result_type result() { 
+                return *res; 
+            }
+
+            FunctionForwarder(FunctorT& f)
+                :gen(f), res(0)
+            {}
+
+            result_type invoke() {
+                res = &(gen());
+                return *res;
+            }
+
+            template<typename Arg1T>
+            result_type invoke(DataSource<Arg1T>* arg1) {
+                // The "Forwarding problem" : gen is a boost::bind functor
+                // and can not be given non-const temporaries or literal constants.
+                // thus _to_be_sure_, we _must_ copy the result to a local variable
+                // and then pass that variable on. Fortunately, if Arg1T is a reference,
+                // this does not involve a value copy and if Arg1T is a value, 
+                // the gen( ) function takes a reference to it, thus, again,
+                // no additional copy is made.
+                Arg1T a1 = arg1->get();
+                res = &gen(a1);
+                arg1->updated();
+                return *res;
+            }
+            template<typename Arg1T, typename Arg2T>
+            result_type invoke( DataSource<Arg1T>* arg1, DataSource<Arg2T>* arg2) {
+                Arg1T a1 = arg1->get();
+                Arg2T a2 = arg2->get();
+                res = &gen(a1,a2);
+                arg1->updated();
+                arg2->updated();
+                return *res;
+            }
+
+            template< typename Arg1T, typename Arg2T, typename Arg3T>
+            result_type invoke( DataSource<Arg1T>* arg1, DataSource<Arg2T>* arg2, DataSource<Arg3T>* arg3) {
+                Arg1T a1 = arg1->get();
+                Arg2T a2 = arg2->get();
+                Arg3T a3 = arg3->get();
+                res = &gen(a1,a2,a3);
+                arg1->updated();
+                arg2->updated();
+                arg3->updated();
+                return *res;
+            }
+
+            template< typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T>
+            result_type invoke( DataSource<Arg1T>* arg1, DataSource<Arg2T>* arg2, DataSource<Arg3T>* arg3, DataSource<Arg4T>* arg4) {
+                Arg1T a1 = arg1->get();
+                Arg2T a2 = arg2->get();
+                Arg3T a3 = arg3->get();
+                Arg4T a4 = arg4->get();
+                res = &gen(a1,a2,a3,a4);
+                arg1->updated();
+                arg2->updated();
+                arg3->updated();
+                arg4->updated();
+                return *res;
+            }
+        };
+
+
+
     /**
      * These classes are generic DataSources that take a
      * functor, and a number of DataSources corresponding with the
@@ -58,26 +276,32 @@ namespace ORO_Execution
     class FunctorDataSource0
       : public DataSource< typename ReturnType<typename FunctorT::result_type>::type >
     {
-      mutable FunctorT gen;
       typedef typename ReturnType<typename FunctorT::result_type>::type value_t;
+      mutable FunctionForwarder<value_t,FunctorT> ff;
+
     public:
       FunctorDataSource0( FunctorT g )
-        : gen( g )
+        : ff( g )
         {
         }
 
         typename DataSource<value_t>::result_t get() const
         {
-          return gen();
+          return ff.invoke();
+        }
+
+        typename DataSource<value_t>::result_t value() const
+        {
+          return ff.result();
         }
 
         virtual DataSource<value_t>* clone() const
         {
-            return new FunctorDataSource0( gen );
+            return new FunctorDataSource0( ff.gen );
         }
-        virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& /*alreadyCloned*/ )
+        virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& /*alreadyCloned*/ ) const
         {
-          return new FunctorDataSource0<FunctorT>( gen );
+          return new FunctorDataSource0<FunctorT>( ff.gen );
         }
     };
 
@@ -85,35 +309,32 @@ namespace ORO_Execution
   class FunctorDataSource1
       : public DataSource< typename FunctorT::result_type >
   {
-    mutable FunctorT gen;
     typedef typename FunctorT::result_type value_t;
+    mutable FunctionForwarder<value_t,FunctorT> ff;
     typename DataSource<Arg1T>::shared_ptr arg1;
   public:
     FunctorDataSource1( FunctorT g, DataSource<Arg1T>* a1 )
-      : gen( g ), arg1( a1 )
+      : ff( g ), arg1( a1 )
       {
       }
 
-    value_t get() const
+      value_t value() const
       {
-          // The "Forwarding problem" : gen is a boost::bind functor
-          // and can not be given non-const temporaries or literal constants.
-          // thus _to_be_sure_, we _must_ copy the result to a local variable
-          // and then pass that variable on. Fortunately, if Arg1T is a reference,
-          // this does not involve a value copy and if Arg1T is a value, 
-          // the gen( ) function takes a reference to it, thus, again,
-          // no additional copy is made.
-          Arg1T a = arg1->get();
-          return gen( a );
+          return ff.result();
+      }
+
+      value_t get() const
+      {
+          return ff.invoke( arg1.get() );
       }
 
     virtual DataSource<value_t>* clone() const
       {
-        return new FunctorDataSource1<FunctorT, Arg1T>( gen, arg1.get() );
+        return new FunctorDataSource1<FunctorT, Arg1T>( ff.gen, arg1.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )
+    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
       {
-        return new FunctorDataSource1<FunctorT, Arg1T>( gen, arg1->copy( alreadyCloned ) );
+        return new FunctorDataSource1<FunctorT, Arg1T>( ff.gen, arg1->copy( alreadyCloned ) );
       }
   };
 
@@ -131,6 +352,7 @@ namespace ORO_Execution
     private:
         typename DataSource<boost::weak_ptr<ComponentT> >::shared_ptr ds;
         mutable FunctorT gen;
+        mutable plain_t res;
         static plain_t empty_return;
     public:
       FunctorDataSourceDS0(DataSource<boost::weak_ptr<ComponentT> >*c, FunctorT g )
@@ -138,21 +360,27 @@ namespace ORO_Execution
         {
         }
 
-      value_t get() const
+        value_t get() const
         {
             boost::shared_ptr<ComponentT> c = ds->get().lock();
             if(c) {
                 ComponentT* ct = c.get();
-                return gen( ct );
+                res = gen( ct );
+                return res;
             }else
                 return empty_return;
+        }
+
+        value_t value() const 
+        {
+            return res;
         }
 
         virtual DataSource<value_t>* clone() const
         {
             return new FunctorDataSourceDS0<ComponentT,FunctorT>( ds.get(),  gen );
         }
-      virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )
+      virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
         {
           return new FunctorDataSourceDS0<ComponentT, FunctorT>( ds->copy(alreadyCloned),  gen );
         }
@@ -162,6 +390,9 @@ namespace ORO_Execution
         typename FunctorDataSourceDS0<ComponentT, FunctorT>::plain_t
         FunctorDataSourceDS0<ComponentT, FunctorT>::empty_return;
 
+        /**
+         * Can not encapsulate void functions !
+         */
   template<typename ComponentT, typename FunctorT, typename Arg1T>
   class FunctorDataSourceDS1
       : public DataSource< typename FunctorT::result_type >
@@ -173,6 +404,7 @@ namespace ORO_Execution
       typename DataSource<boost::weak_ptr<ComponentT> >::shared_ptr ds;
       mutable FunctorT gen;
       typename DataSource<Arg1T>::shared_ptr arg1;
+      mutable plain_t res;
       static plain_t empty_return;
   public:
     FunctorDataSourceDS1(DataSource<boost::weak_ptr<ComponentT> >* c, FunctorT g, DataSource<Arg1T>* a1 )
@@ -186,16 +418,23 @@ namespace ORO_Execution
         boost::shared_ptr<ComponentT> c = ds->get().lock(); 
         if (c) {
             ComponentT* ct = c.get();
-            return gen( ct, a );
+            res = gen( ct, a );
+            arg1->updated();
+            return res;
         } else
             return empty_return;
       }
+
+        value_t value() const 
+        {
+            return res;
+        }
 
     virtual DataSource<value_t>* clone() const
       {
         return new FunctorDataSourceDS1<ComponentT, FunctorT, Arg1T>( ds.get(), gen, arg1.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )
+    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorDataSourceDS1<ComponentT, FunctorT, Arg1T>( ds->copy(alreadyCloned),  gen, arg1->copy( alreadyCloned ) );
       }
@@ -209,30 +448,33 @@ namespace ORO_Execution
   class FunctorDataSource2
       : public DataSource< typename FunctorT::result_type >
   {
-    mutable FunctorT gen;
     typedef typename FunctorT::result_type value_t;
+    mutable FunctionForwarder<value_t,FunctorT> ff;
     typename DataSource<Arg1T>::shared_ptr arg1;
     typename DataSource<Arg2T>::shared_ptr arg2;
   public:
     FunctorDataSource2( FunctorT g, DataSource<Arg1T>* a1, DataSource<Arg2T>* a2 )
-        : gen( g ), arg1( a1 ), arg2(a2)
+        : ff( g ), arg1( a1 ), arg2(a2)
       {
-      };
+      }
 
-    value_t get() const
+      value_t value() const
       {
-        Arg1T a_1 = arg1->get();
-        Arg2T a_2 = arg2->get();
-        return gen( a_1, a_2 );
+          return ff.result();
+      }
+
+      value_t get() const
+      {
+          return ff.invoke( arg1.get(), arg2.get() );
       }
 
     virtual DataSource<value_t>* clone() const
       {
-        return new FunctorDataSource2<FunctorT, Arg1T, Arg2T>( gen, arg1.get(), arg2.get() );
+        return new FunctorDataSource2<FunctorT, Arg1T, Arg2T>( ff.gen, arg1.get(), arg2.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )
+    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
       {
-        return new FunctorDataSource2<FunctorT, Arg1T, Arg2T>( gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned) );
+        return new FunctorDataSource2<FunctorT, Arg1T, Arg2T>( ff.gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned) );
       }
   };
 
@@ -240,32 +482,34 @@ namespace ORO_Execution
   class FunctorDataSource3
       : public DataSource< typename FunctorT::result_type >
   {
-    mutable FunctorT gen;
     typedef typename FunctorT::result_type value_t;
+    mutable FunctionForwarder<value_t,FunctorT> ff;
     typename DataSource<Arg1T>::shared_ptr arg1;
     typename DataSource<Arg2T>::shared_ptr arg2;
     typename DataSource<Arg3T>::shared_ptr arg3;
   public:
     FunctorDataSource3( FunctorT g, DataSource<Arg1T>* a1, DataSource<Arg2T>* a2, DataSource<Arg3T>* a3 )
-        : gen( g ), arg1( a1 ), arg2(a2), arg3(a3)
+        : ff( g ), arg1( a1 ), arg2(a2), arg3(a3)
       {
-      };
+      }
 
-    value_t get() const
+      value_t value() const
       {
-        Arg1T a_1 = arg1->get();
-        Arg2T a_2 = arg2->get();
-        Arg3T a_3 = arg3->get();
-        return gen( a_1, a_2, a_3 );
+          return ff.result();
+      }
+
+      value_t get() const
+      {
+          return ff.invoke( arg1.get(), arg2.get(), arg3.get() );
       }
 
     virtual DataSource<value_t>* clone() const
       {
-        return new FunctorDataSource3<FunctorT, Arg1T, Arg2T, Arg3T>( gen, arg1.get(), arg2.get(), arg3.get() );
+        return new FunctorDataSource3<FunctorT, Arg1T, Arg2T, Arg3T>( ff.gen, arg1.get(), arg2.get(), arg3.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )
+    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
       {
-        return new FunctorDataSource3<FunctorT, Arg1T, Arg2T, Arg3T>( gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned), arg3->copy( alreadyCloned) );
+        return new FunctorDataSource3<FunctorT, Arg1T, Arg2T, Arg3T>( ff.gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned), arg3->copy( alreadyCloned) );
       }
   };
 
@@ -273,8 +517,8 @@ namespace ORO_Execution
   class FunctorDataSource4
       : public DataSource< typename FunctorT::result_type >
   {
-    mutable FunctorT gen;
     typedef typename FunctorT::result_type value_t;
+      mutable FunctionForwarder<value_t,FunctorT> ff;
     typename DataSource<Arg1T>::shared_ptr arg1;
     typename DataSource<Arg2T>::shared_ptr arg2;
     typename DataSource<Arg3T>::shared_ptr arg3;
@@ -282,27 +526,28 @@ namespace ORO_Execution
   public:
     FunctorDataSource4( FunctorT g, DataSource<Arg1T>* a1, DataSource<Arg2T>* a2,
                         DataSource<Arg3T>* a3, DataSource<Arg4T>* a4 )
-        : gen( g ), arg1( a1 ), arg2(a2), arg3(a3), arg4(a4)
+        : ff( g ), arg1( a1 ), arg2(a2), arg3(a3), arg4(a4)
       {
-      };
+      }
 
-    value_t get() const
+      value_t value() const
       {
-        Arg1T a_1 = arg1->get();
-        Arg2T a_2 = arg2->get();
-        Arg3T a_3 = arg3->get();
-        Arg4T a_4 = arg4->get();
-        return gen( a_1, a_2, a_3, a_4 );
+          return ff.result();
+      }
+
+      value_t get() const
+      {
+          return ff.invoke( arg1.get(), arg2.get(), arg3.get(), arg4.get() );
       }
 
     virtual DataSource<value_t>* clone() const
       {
-        return new FunctorDataSource4<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T>( gen, arg1.get(), arg2.get(),
+        return new FunctorDataSource4<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T>( ff.gen, arg1.get(), arg2.get(),
                                                                              arg3.get(), arg4.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )
+    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
       {
-        return new FunctorDataSource4<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T>( gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned), arg3->copy( alreadyCloned), arg4->copy( alreadyCloned) );
+        return new FunctorDataSource4<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T>( ff.gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned), arg3->copy( alreadyCloned), arg4->copy( alreadyCloned) );
       }
   };
 

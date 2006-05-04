@@ -173,7 +173,7 @@
      myact.start();
 
      // Setup Corba and Export:
-     <classname>ORO_Corba::ControlTaskServer</classname>::InitOrb();
+     <classname>ORO_Corba::ControlTaskServer</classname>::InitOrb(argc, argv);
      ControlTaskServer::Create( &amp;mycomponent );
 
      // Wait for requests:
@@ -198,7 +198,7 @@
   int ORO_main(int argc, char** argv)
   {
      // Setup Corba:
-     <classname>ORO_Corba::ControlTaskProxy</classname>::InitOrb();
+     <classname>ORO_Corba::ControlTaskProxy</classname>::InitOrb(argc, argv);
 
      // Get a pointer to the component above
      <classname>ORO_Execution::TaskContext</classname>* component = ControlTaskProxy::Create( "HelloWorld" );

@@ -40,22 +40,24 @@ namespace ORO_Execution
 	class CommandString : public CommandInterface
 	{
 		
-		public:
+    public:
 		
-			CommandString(std::string s);
+        CommandString(std::string s);
 
-   	    	virtual ~CommandString()
-   	    	{}	
+        virtual ~CommandString()
+        {}	
 
-    	    virtual bool execute();
+        virtual void readArguments() {}
+
+        virtual bool execute();
 
         virtual CommandInterface* clone() const
         {
             return new CommandString( *this );
         }
 
-        private:
-        	std::string command;
+    private:
+        std::string command;
                 
 	};
 

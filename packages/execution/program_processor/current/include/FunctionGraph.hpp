@@ -32,10 +32,10 @@
 #include "EdgeCondition.hpp"
 #include <corelib/CommandNOP.hpp>
 #include "ProgramInterface.hpp"
-#include "TaskAttribute.hpp"
 
 namespace ORO_Execution
 {
+    class TaskAttributeBase;
     class FunctionGraph;
     typedef boost::shared_ptr<FunctionGraph> FunctionGraphPtr;
     class ProgramTask;

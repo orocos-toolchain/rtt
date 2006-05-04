@@ -33,6 +33,10 @@ namespace ORO_CoreLib
         return true;
     }
 
+    void CommandNOP::readArguments()
+    {
+    }
+
     CommandNOP::~CommandNOP() {}
 
     CommandInterface* CommandNOP::clone() const

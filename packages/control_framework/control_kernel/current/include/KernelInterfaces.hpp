@@ -102,7 +102,7 @@ namespace ORO_ControlKernel
             return 0;
         }
 
-        const std::string& getKernelName() const;
+        std::string getKernelName() const;
 
         /**
          * Returns a pointer to the base interface of this kernel.

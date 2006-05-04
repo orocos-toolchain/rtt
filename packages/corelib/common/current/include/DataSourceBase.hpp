@@ -34,14 +34,16 @@
 #include <map>
 #include <string>
 #include <os/oro_atomic.h>
+#include "pkgconf/os.h"
+#ifdef OROINT_OS_CORBA
+#include <corba/ExecutionC.h>
+#endif
+#include "CommandInterface.hpp"
 
-namespace ORO_CoreLib
+namespace CORBA
 {
-    class DataSourceBase;
+    class Any;
 }
-
-void intrusive_ptr_add_ref( ORO_CoreLib::DataSourceBase* p );
-void intrusive_ptr_release( ORO_CoreLib::DataSourceBase* p );
 
 namespace ORO_CoreLib
 {
@@ -69,9 +71,6 @@ namespace ORO_CoreLib
   class DataSourceBase
   {
   protected:
-      friend void ::intrusive_ptr_add_ref( ORO_CoreLib::DataSourceBase* p );
-      friend void ::intrusive_ptr_release( ORO_CoreLib::DataSourceBase* p );
-
       /**
          We keep the refcount ourselves.  We aren't using
          boost::shared_ptr, because boost::intrusive_ptr is better,
@@ -81,7 +80,7 @@ namespace ORO_CoreLib
          much desired, and that refcounting happens in an efficient way,
          which is also nice :)
       */
-      atomic_t refcount;
+      mutable atomic_t refcount;
 
       /** the destructor is private.  You are not allowed to delete this
        * class yourself, use a shared pointer !
@@ -93,15 +92,20 @@ namespace ORO_CoreLib
        */
       typedef boost::intrusive_ptr<DataSourceBase> shared_ptr;
 
+      /**
+       * Use this type to store a const pointer to a DataSourceBase.
+       */
+      typedef boost::intrusive_ptr<const DataSourceBase> const_ptr;
+
       DataSourceBase();
       /**
        * Increase the reference count by one.
        */
-      void ref();
+      void ref() const;
       /**
        * Decrease the reference count by one and delete this on zero.
        */
-      void deref();
+      void deref() const;
 
       /**
        * Reset the data to initial values.
@@ -114,6 +118,41 @@ namespace ORO_CoreLib
        * If the DataSource itself contains a boolean, return that boolean.
        */
       virtual bool evaluate() const = 0;
+
+      /**
+       * Update the value of this DataSource with the value of an \a other DataSource.
+       * Update does a full update of the value, adding extra
+       * information if necessary.
+       * @return false if the DataSources are of different type OR if the
+       * contents of this DataSource can not be updated.
+       */
+      virtual bool update( const DataSourceBase* other );
+
+      /**
+       * Generate a CommandInterface object which will update this DataSource
+       * with the value of another DataSource when execute()'ed.
+       * @return zero if the DataSource types do not match OR if the
+       * contents of this DataSource can not be updated.
+       */
+      virtual CommandInterface* updateCommand( const DataSourceBase* other);
+
+      /**
+       * Update \a part of the value of this DataSource with the value of an \a other DataSource.
+       * Update does a partial update of the value, according to \a part, which is 
+       * most likely an index or hash value of some type.
+       * @return false if the DataSources are of different type OR if the
+       * contents of this DataSource can not be partially updated.
+       */
+      virtual bool updatePart( DataSourceBase* part, const DataSourceBase* other );
+
+      /**
+       * Generate a CommandInterface object which will partially update this DataSource
+       * with the value of another DataSource when execute()'ed. \a part is an index or 
+       * hash value of some type.
+       * @return zero if the DataSource types do not match OR if the
+       * contents of this DataSource can not be partially updated.
+       */
+      virtual CommandInterface* updatePartCommand( DataSourceBase* part, const DataSourceBase* other);
 
       /**
        * Return a shallow clone of this DataSource. This method
@@ -130,13 +169,81 @@ namespace ORO_CoreLib
        * example it represents the Property of a Task ), \a this may
        * be returned.
        */
-      virtual DataSourceBase* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) = 0;
+      virtual DataSourceBase* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const = 0;
 
       /**
        * Return usefull type info in a human readable format.
        */
       virtual std::string getType() const = 0;
+
+      /**
+       * Return the Orocos type name, without const, pointer or reference
+       * qualifiers.
+       */
+      virtual std::string getTypeName() const = 0;
+
+      /**
+       * Creates a CORBA Any object with the \b current value of this
+       * DataSource. This does \b not trigger the evaluation() of this
+       * data source.
+       * @return a valid Any object or nill if this type is
+       * not supported.
+       */
+      virtual CORBA::Any* createAny() const = 0;
+
+      /**
+       * Creates a CORBA Any object with the \b current value of this
+       * DataSource. This \b does trigger the evaluation() of this
+       * data source.
+       * @return a valid Any object or nill if this type is
+       * not supported.
+       */
+      virtual CORBA::Any* getAny() const = 0;
+
+      /**
+       * Updates the value of this DataSource with the
+       * value of a CORBA Any object.
+       * @param any The value to update to.
+       * @return true if \a any had the correct type.
+       */
+      virtual bool update(const CORBA::Any& any);
+
+#ifdef OROINT_OS_CORBA
+      /**
+       * Inspect if this DataSource has an Expression server
+       * reference.
+       */
+      virtual bool hasServer() const;
+
+      /**
+       * Create a CORBA object which 'mirrors' this DataSource.
+       * @return The Expression server if hasServer(), or a 
+       * \a new server object reference otherwise.
+       * @see Execution.idl
+       */
+      virtual Orocos::Expression_ptr server() = 0;
+
+      /**
+       * Create a CORBA object which 'mirrors' this DataSource.
+       * @return The Expression server if hasServer(), or a 
+       * \a new server object reference otherwise.
+       * @see Execution.idl
+       */
+      virtual Orocos::Expression_ptr server() const = 0;
+
+      /**
+       * Create a CORBA object which 'mirrors' this DataSource.
+       * @return The Method server if hasServer(), or a 
+       * \a new method object reference otherwise.
+       * @see Execution.idl
+       */
+      virtual Orocos::Method_ptr method() = 0;
+#endif
+
   };
 }
+
+void intrusive_ptr_add_ref(const ORO_CoreLib::DataSourceBase* p );
+void intrusive_ptr_release(const ORO_CoreLib::DataSourceBase* p );
 
 #endif

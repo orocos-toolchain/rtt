@@ -85,6 +85,8 @@ public:
   
   //Destructor 
   virtual ~Orocos_ControlTask_i (void);
+
+  void shutdownCORBA();
   
   virtual
   ::CosPropertyService::PropertySet_ptr propertySet (

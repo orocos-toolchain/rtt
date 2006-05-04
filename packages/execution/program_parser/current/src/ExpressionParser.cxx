@@ -190,10 +190,6 @@ namespace ORO_Execution
                 throw parse_exception_wrong_type_of_argument
                     (obj, meth, e.whicharg, e.expected_, e.received_ );
             }
-        catch( ... )
-            {
-                assert( false );
-            };
     } else if (mfi && mfi->hasMember(meth)) {
         try
             {
@@ -209,10 +205,6 @@ namespace ORO_Execution
                 throw parse_exception_wrong_type_of_argument
                     (obj, meth, e.whicharg, e.expected_, e.received_ );
             }
-        catch( ... )
-            {
-                assert( false );
-            };
     } else 
         assert( false );
 

@@ -33,12 +33,12 @@
 namespace ORO_Execution
 {
   DataSourceCommand::DataSourceCommand( CommandInterface* c )
-    : comm( c )
+      : comm( c ), mresult(false)
   {
   }
 
   DataSourceCommand::DataSourceCommand( const DataSourceCommand& orig )
-    : comm( orig.command()->clone() )
+    : comm( orig.command()->clone() ), mresult(false)
   {
   }
 
@@ -49,7 +49,14 @@ namespace ORO_Execution
 
   bool DataSourceCommand::get() const
   {
-    return comm->execute();
+      comm->readArguments();
+      mresult = comm->execute();
+      return mresult;
+  }
+
+  bool DataSourceCommand::value() const
+  {
+    return mresult;
   }
 
   CommandInterface* DataSourceCommand::command() const
@@ -59,7 +66,8 @@ namespace ORO_Execution
 
   void DataSourceCommand::reset()
   {
-    comm->reset();
+      mresult = false;
+      comm->reset();
   }
 
   DataSourceCommand* DataSourceCommand::clone() const
@@ -67,7 +75,7 @@ namespace ORO_Execution
       return new DataSourceCommand( comm->clone() );
   }
 
-  DataSourceCommand* DataSourceCommand::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )
+  DataSourceCommand* DataSourceCommand::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
   {
       return new DataSourceCommand( comm->copy( alreadyCloned ) );
   }

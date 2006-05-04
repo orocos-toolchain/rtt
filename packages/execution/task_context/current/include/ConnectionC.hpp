@@ -30,7 +30,7 @@
 #define ORO_EXECUTION_CONNECTIONC_HPP
 
 #include <string>
-#include "DataSource.hpp"
+#include <corelib/DataSources.hpp>
 #include <corelib/Handle.hpp>
 #include "EventCallBack.hpp"
 #include "corelib/EventProcessor.hpp"

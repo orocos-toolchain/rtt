@@ -21,6 +21,7 @@
 #include "dispatch_test.hpp"
 #include <unistd.h>
 #include <iostream>
+#include <sstream>
 #include <execution/FunctionGraph.hpp>
 #include <corelib/SimulationThread.hpp>
 #include <execution/TemplateFactories.hpp>
@@ -172,8 +173,11 @@ void DispatchTest::testDispatchCondition()
         + " }";
     this->doDispatch( prog, &gtc );
 
-    CPPUNIT_ASSERT( gtc.engine()->programs()->getProgramStatus("x") != ProgramInterface::Status::error );
-    CPPUNIT_ASSERT( gtc.engine()->programs()->getProgramStatus("x") == ProgramInterface::Status::stopped );
+    stringstream msg;
+    msg <<  "Status was not 'stopped', but "+gtc.engine()->programs()->getProgramStatusStr("x");
+    msg << " on line " << gtc.engine()->programs()->getProgram("x")->getLineNumber();
+    CPPUNIT_ASSERT_MESSAGE(msg.str(),
+                           gtc.engine()->programs()->getProgramStatus("x") == ProgramInterface::Status::stopped);
 
     this->finishDispatch( &gtc, "x");
 }
@@ -190,8 +194,11 @@ void DispatchTest::testDispatchAnd()
         + " }";
     this->doDispatch( prog, &gtc );
 
-    CPPUNIT_ASSERT( gtc.engine()->programs()->getProgramStatus("x") != ProgramInterface::Status::error );
-    CPPUNIT_ASSERT( gtc.engine()->programs()->getProgramStatus("x") == ProgramInterface::Status::stopped );
+    stringstream msg;
+    msg <<  "Status was not 'stopped', but "+gtc.engine()->programs()->getProgramStatusStr("x");
+    msg << " on line " << gtc.engine()->programs()->getProgram("x")->getLineNumber();
+    CPPUNIT_ASSERT_MESSAGE(msg.str(),
+                           gtc.engine()->programs()->getProgramStatus("x") == ProgramInterface::Status::stopped);
 
     this->finishDispatch( &gtc, "x");
 }
@@ -211,8 +218,11 @@ void DispatchTest::testDispatchTry()
     this->doDispatch( prog, &gtc );
 
     CPPUNIT_ASSERT( gtc.engine()->programs()->getProgramStatus("x") != ProgramInterface::Status::error );
-    CPPUNIT_ASSERT_MESSAGE( "Status was not 'stopped', but "+gtc.engine()->programs()->getProgramStatusStr("x"),
-                            gtc.engine()->programs()->getProgramStatus("x") == ProgramInterface::Status::stopped);
+    stringstream msg;
+    msg <<  "Status was not 'stopped', but "+gtc.engine()->programs()->getProgramStatusStr("x");
+    msg << " on line " << gtc.engine()->programs()->getProgram("x")->getLineNumber();
+    CPPUNIT_ASSERT_MESSAGE(msg.str(),
+                           gtc.engine()->programs()->getProgramStatus("x") == ProgramInterface::Status::stopped);
 
     this->finishDispatch( &gtc, "x");
 }
@@ -231,8 +241,11 @@ void DispatchTest::testDispatchUntil()
         + " }";
     this->doDispatch( prog, &gtc );
 
-    CPPUNIT_ASSERT( gtc.engine()->programs()->getProgramStatus("x") != ProgramInterface::Status::error );
-    CPPUNIT_ASSERT( gtc.engine()->programs()->getProgramStatus("x") == ProgramInterface::Status::stopped );
+    stringstream msg;
+    msg <<  "Status was not 'stopped', but "+gtc.engine()->programs()->getProgramStatusStr("x");
+    msg << " on line " << gtc.engine()->programs()->getProgram("x")->getLineNumber();
+    CPPUNIT_ASSERT_MESSAGE(msg.str(),
+                           gtc.engine()->programs()->getProgramStatus("x") == ProgramInterface::Status::stopped);
 
     this->finishDispatch( &gtc, "x");
 }
@@ -268,10 +281,9 @@ void DispatchTest::testSendDispatch()
 
 void DispatchTest::doDispatch( const std::string& prog, TaskContext* tc )
 {
-    stringstream progs(prog);
     Parser::ParsedPrograms pg_list;
     try {
-        pg_list = parser.parseProgram( progs, tc );
+        pg_list = parser.parseProgram( prog, tc );
     }
     catch( const file_parse_exception& exc )
         {

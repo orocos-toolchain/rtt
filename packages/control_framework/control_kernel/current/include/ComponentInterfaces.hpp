@@ -89,7 +89,7 @@ namespace ORO_ControlKernel
             /**
              * @brief Return the name of this Facet.
              */
-            virtual const std::string& getFacetName() { return FacetName.get(); }
+            virtual const std::string& getFacetName() { return FacetName.value(); }
 
         protected:
             /**
@@ -102,7 +102,7 @@ namespace ORO_ControlKernel
              */
             void component(ComponentBaseInterface* cbi) { comp = cbi; }
             
-            const Property<std::string> FacetName;
+            Property<std::string> FacetName;
             ComponentBaseInterface* comp;
         };
     }

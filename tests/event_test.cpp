@@ -20,7 +20,6 @@
 
 #include <corelib/Event.hpp>
 #include <corelib/Logger.hpp>
-#include <corelib/PriorityThread.hpp>
 #include <corelib/RunnableInterface.hpp>
 #include <corelib/SimulationActivity.hpp>
 #include <corelib/SimulationThread.hpp>

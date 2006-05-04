@@ -45,50 +45,52 @@ namespace ORO_Execution
         : public CommandInterface
     {
 
-        public:
-            /**
-             * Construct a new CommandIllegal with the illegal
-             * std::stringcommand as argument
-             *
-             * @param cmd
-             *     command that failed
-             */
-            CommandIllegal( const std::string& cmd );
+    public:
+        /**
+         * Construct a new CommandIllegal with the illegal
+         * std::stringcommand as argument
+         *
+         * @param cmd
+         *     command that failed
+         */
+        CommandIllegal( const std::string& cmd );
 
-            /**
-             * Construct a new CommandIllegal with the illegal
-             * std::stringcommand as argument and a description
-             *
-             * @param cmd
-             *     command that failed
-             * @param descr
-             *     description
-             */
-            CommandIllegal( const std::string& cmd, const std::string& descr );
+        /**
+         * Construct a new CommandIllegal with the illegal
+         * std::stringcommand as argument and a description
+         *
+         * @param cmd
+         *     command that failed
+         * @param descr
+         *     description
+         */
+        CommandIllegal( const std::string& cmd, const std::string& descr );
 
-            virtual bool execute();
+        void readArguments() {}
 
-            /**
-             * Preferably, this function is executed right after a
-             * CommandIllegal has been created.
-             * This function can give feedback about a failed command
-             * before the CommandIllegal is actually executed
-             */
-            virtual void warn();
+        virtual bool execute();
+
+        /**
+         * Preferably, this function is executed right after a
+         * CommandIllegal has been created.
+         * This function can give feedback about a failed command
+         * before the CommandIllegal is actually executed
+         */
+        virtual void warn();
 
         virtual CommandInterface* clone() const
         {
             return new CommandIllegal( *this );
         }
 
-        private:
-            /**
-             * Forbidden
-             */
-            CommandIllegal();
+    private:
+        /**
+         * Forbidden
+         */
+        CommandIllegal();
 
-            std::string illCmd;
-            std::string description;
+        std::string illCmd;
+        std::string description;
     };
 
 }

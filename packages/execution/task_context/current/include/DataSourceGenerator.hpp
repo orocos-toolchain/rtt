@@ -29,7 +29,7 @@
 #ifndef ORO_EXECUTION_DATASOURCE_GENERATOR_HPP
 #define ORO_EXECUTION_DATASOURCE_GENERATOR_HPP
 
-#include "DataSource.hpp"
+#include "corelib/DataSources.hpp"
 #include <boost/utility/enable_if.hpp>
 #include <boost/ref.hpp>
 
@@ -39,7 +39,7 @@ namespace ORO_Execution
     {
         template<class T, class Enable = void >
         struct DSWrap {
-            DataSourceBase::shared_ptr operator()(T t) { return new ConstantDataSource<T>( t );}
+            DataSourceBase::shared_ptr operator()(T t) { return new ORO_CoreLib::ConstantDataSource<T>( t );}
         }; // normal type
 
         template<class T>
@@ -49,13 +49,13 @@ namespace ORO_Execution
 
         template<class T>
         struct DSWrap<T, typename boost::enable_if< boost::is_reference<T> >::type > {
-            DataSourceBase::shared_ptr operator()(T t) { return new ReferenceDataSource<T>( t ); }
+            DataSourceBase::shared_ptr operator()(T t) { return new ORO_CoreLib::ReferenceDataSource<T>( t ); }
         }; // datasource type
 
         template<class T>
         struct DSWrap<T, typename boost::enable_if< boost::is_reference_wrapper<T> >::type > {
             typedef typename boost::unwrap_reference<T>::type RT;
-            DataSourceBase::shared_ptr operator()(T t) { return new ReferenceDataSource<RT>( t ); }
+            DataSourceBase::shared_ptr operator()(T t) { return new ORO_CoreLib::ReferenceDataSource<RT>( t ); }
         }; // datasource type
     }
 

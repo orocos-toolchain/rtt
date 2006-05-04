@@ -189,7 +189,7 @@ namespace ORO_ControlKernel
                             ns.getObject( *it1 )->Get(val);
                             Property<MemberType>* item =  new Property<MemberType>( std::string( (*it1), prefix.length() ),
                                                                                     std::string( "" ), val );
-                            comms.push_back( item->refreshCommand( ns.getObject( *it1 ).get() ));
+                            comms.push_back( item->getDataSource()->updateCommand( ns.getObject( *it1 ).get() ));
                             bag.add( item );
                         } //else std::cerr << " no."<<endl;
                 }
@@ -209,7 +209,7 @@ namespace ORO_ControlKernel
                             PropertyBase* item =  new Property<MemberType>( std::string( (*it1), prefix.length() ),
                                                                                     std::string( "" ), val );
                             // return the refresh command which updates orig with the DObj.
-                            CommandInterface* c =  item->refreshCommand( ns.getObject( *it1 ).get() );
+                            CommandInterface* c =  item->getDataSource()->updateCommand( ns.getObject( *it1 ).get() );
                             return std::make_pair( item, c );
                         }
                 }

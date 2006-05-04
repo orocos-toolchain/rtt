@@ -105,12 +105,12 @@ namespace ORO_ControlKernel
         CartesianGenerator(const std::string& name = string("CartesianGenerator") ) 
             : Base( name ),
               homepos("HomingPosition","The Homing Position.", Frame::Identity()),
-              hometime("HomingTime","The Time in seconds a homing movement must take.", 10),
+              hometime("HomingTime","The Time in seconds a homing movement must take.", 10.0),
               timestamp(0), _time(0), interpol(0), cur_tr(0),
               task_frame(Frame::Identity()),
               tool_mp_frame(Frame::Identity()),
-              max_vel("MaximumVelocity", "The Maximum Cartesian Velocity", 0 ),
-              max_acc("MaximumAcceleration", "The Maximum Cartesian Acceleration", 0 ),
+              max_vel("MaximumVelocity", "The Maximum Cartesian Velocity", 0.0 ),
+              max_acc("MaximumAcceleration", "The Maximum Cartesian Acceleration", 0.0 ),
               interpol_prop("Interpolation", "One of Step, Linear, Trapezoidal.","Trapezoidal")
         {
             // Default Behaviour.

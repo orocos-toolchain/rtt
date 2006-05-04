@@ -37,6 +37,7 @@
 
 #include <iostream>
 using namespace std;
+using namespace ORO_CoreLib;
 namespace ORO_Execution
 {
     using boost::bind;
@@ -136,7 +137,7 @@ namespace ORO_Execution
 //             std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
             throw_(begin, "Property " + name + " not present in PropertyBag "+propparser.property()->getName()+" in "+ peer->getName()+".");
         }
-        ret = propparser.bag()->find( name )->createDataSource();
+        ret = propparser.bag()->find( name )->getDataSource();
         propparser.reset();
         return;
     }
@@ -147,7 +148,7 @@ namespace ORO_Execution
       return;
     }
     if ( peer->attributeRepository.hasProperty( name ) ) {
-        ret = peer->attributeRepository.properties()->find(name)->createDataSource();
+        ret = peer->attributeRepository.properties()->find(name)->getDataSource();
         return;
     }
 

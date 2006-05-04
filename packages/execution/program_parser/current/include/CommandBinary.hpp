@@ -46,6 +46,13 @@ namespace ORO_Execution
             delete _f;
             delete _s;
         }
+
+        void readArguments()
+        {
+            _f->readArguments();
+            _s->readArguments();
+        }
+
         virtual bool execute() {
             return _f->execute() && _s->execute();
         }

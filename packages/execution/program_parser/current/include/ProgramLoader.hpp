@@ -38,11 +38,22 @@ namespace ORO_Execution
      * This class loads and unloads Orocos Program Script and Orocos State Description files
      * to a TaskContext's Processor.
      * It wraps around Parser and can process both files and C++ streams.
-     * Parse exceptions are directed to the ORO_CoreLib::Logger class.
+     * Parse exceptions are directed to the ORO_CoreLib::Logger class or
+     * rethrown if requested by the user.
      */
     class ProgramLoader
     {
+        bool mrethrow;
     public:
+        /**
+         * Create a ProgramLoader which by default does not
+         * throw any exceptions.
+         * @param rethrow If set to true, rethrow the parse and load exceptions
+         * in addition to logging the error.
+         * @see program_load_exception, program_unload_exception, parse_exception
+         */
+        ProgramLoader( bool rethrow = false );
+
         /**
          * List of executed functions.
          */
@@ -53,7 +64,7 @@ namespace ORO_Execution
          * Processor or loads exported functions in \a target's Command Interface
          * @return All functions being executed.
          */
-        Functions loadFunction( std::istream& s, TaskContext* target, const std::string& filename = "stream" );
+        Functions loadFunction( const std::string& s, TaskContext* target, const std::string& filename);
 
         /**
          * Executes all not exported functions in \a target's
@@ -67,7 +78,7 @@ namespace ORO_Execution
          * Reads out the stream \a s , parses it, and loads it in \a target's Processor.
          * @return true if all programs and functions could be loaded.
          */
-        bool loadProgram( std::istream& s, TaskContext* target, const std::string& filename = "stream" );
+        bool loadProgram( const std::string& s, TaskContext* target, const std::string& filename);
 
         /**
          * Load Programs and/or exported Functions from an Orocos Program Script into a TaskContext.
@@ -87,7 +98,7 @@ namespace ORO_Execution
          * Reads out the stream \a s , parses it, and loads it in \a target's Processor.
          * @return true if all state machines could be loaded.
          */
-        bool loadStateMachine(std::istream& s, TaskContext* target, const std::string& filename = "stream" );
+        bool loadStateMachine(const std::string& s, TaskContext* target, const std::string& filename );
 
         /**
          * Load StateMachines from an Orocos State Description into a TaskContext.

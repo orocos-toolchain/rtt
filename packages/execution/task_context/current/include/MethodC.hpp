@@ -30,7 +30,7 @@
 #define ORO_EXECUTION_METHODC_HPP
 
 #include <string>
-#include "DataSource.hpp"
+#include <corelib/DataSources.hpp>
 #include "TaskAttribute.hpp"
 
 namespace ORO_Execution
@@ -89,7 +89,7 @@ namespace ORO_Execution
         template< class ArgT >
         MethodC& argC( const ArgT a )
         {
-            return this->arg(DataSourceBase::shared_ptr( new ConstantDataSource<ArgT>( a ) ) );
+            return this->arg(DataSourceBase::shared_ptr( new ORO_CoreLib::ConstantDataSource<ArgT>( a ) ) );
         }
 
         /**
@@ -101,7 +101,7 @@ namespace ORO_Execution
         template< class ArgT >
         MethodC& arg( ArgT& a )
         {
-            return this->arg(DataSourceBase::shared_ptr( new ReferenceDataSource<ArgT>( a ) ) );
+            return this->arg(DataSourceBase::shared_ptr( new ORO_CoreLib::ReferenceDataSource<ArgT>( a ) ) );
         }
 
         /**
@@ -118,7 +118,7 @@ namespace ORO_Execution
         MethodC& ret( RetT& r )
         {
             // this is semantically valid wrt TaskAttribute::copy().
-            TaskAttributeBase* ta = new TaskAttribute<RetT>( new ReferenceDataSource<RetT>(r));
+            TaskAttributeBase* ta = new TaskAttribute<RetT>( new ORO_CoreLib::ReferenceDataSource<RetT>(r));
             this->ret( ta );
             delete ta;
             return *this;

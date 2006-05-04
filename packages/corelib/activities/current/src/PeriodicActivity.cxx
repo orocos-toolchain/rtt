@@ -33,6 +33,7 @@
 #include "os/MutexLock.hpp"
 #include "corelib/Logger.hpp"
 #include "corelib/TimerThread.hpp"
+#include "corelib/EventProcessor.hpp"
 
 // This define is used for creating and static_casting the Timer.
 #include <pkgconf/corelib_activities.h>
@@ -229,7 +230,7 @@ namespace ORO_CoreLib
 
     ORO_OS::ThreadInterface* PeriodicActivity::thread() { return thread_.get(); }
 
-    EventProcessor* PeriodicActivity::getEventProcessor() const { return eprocessor_ == 0 ? thread_.get() : eprocessor_; }
+    EventProcessor* PeriodicActivity::getEventProcessor() const { return eprocessor_ == 0 ? thread_->getEventProcessor() : eprocessor_; }
 
     bool PeriodicActivity::isPeriodic() const {
         return true;

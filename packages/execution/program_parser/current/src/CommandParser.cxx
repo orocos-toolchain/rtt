@@ -50,7 +50,6 @@
 #include "execution/TaskContext.hpp"
 #include "execution/ArgumentsParser.hpp"
 #include "execution/ConditionComposite.hpp"
-#include "execution/TryCommand.hpp"
 #include "execution/CommandDispatch.hpp"
 
 namespace ORO_Execution
@@ -64,10 +63,11 @@ namespace ORO_Execution
         assertion<std::string> expect_methodname("Expected a method call on object.");
         assertion<std::string> expect_args( "Expected method call arguments between ()." );
     }
-  CommandParser::CommandParser( TaskContext* c )
-    : masync( true ),  tcom(0), retcommand( 0 ),
-      implicittermcondition( 0 ), dispatchCond(0), peer(0), context( c ),
-      argsparser( 0 ), expressionparser( c ), peerparser( c )
+  CommandParser::CommandParser( TaskContext* c, bool dispatch )
+      : mdispatch( dispatch ),
+        dcom(0), retcommand( 0 ),
+        implicittermcondition( 0 ), dispatchCond(0), peer(0), context( c ),
+        argsparser( 0 ), expressionparser( c ), peerparser( c )
   {
     BOOST_SPIRIT_DEBUG_RULE( objectmethod );
     BOOST_SPIRIT_DEBUG_RULE( callcommand );
@@ -84,9 +84,7 @@ namespace ORO_Execution
     // a command can optionally be declared synchronous by
     // putting the word "sync" in front of it..
     callcommand =
-         !str_p( "sync" ) [
-           bind( &CommandParser::seensync, this ) ]
-      >> objectmethod [
+        objectmethod [
            bind( &CommandParser::seenstartofcall, this ) ]
       >> expect_args( arguments[
            bind( &CommandParser::seencallcommand, this ) ]);
@@ -172,11 +170,20 @@ namespace ORO_Execution
     assert( cfi || mfi );
 
     ComCon comcon;
-    bool ismethod = false;
     if ( cfi && cfi->hasCommand( mcurmethod ) )
         try
             {
-                comcon = cfi->create( mcurmethod, argsparser->result(), masync );
+                // check if dispatching is required:
+                if ( peer->engine()->commands() != context->engine()->commands() || mdispatch ) {
+                    // different, dispatch:
+                    comcon = cfi->create( mcurmethod, argsparser->result(), false );
+                    dcom = dynamic_cast<DispatchInterface*>( comcon.first );
+                    assert( dcom );
+                } else {
+                    // within same execution engine, no dispatch:
+                    comcon = cfi->create( mcurmethod, argsparser->result(), true );
+                }
+                
             }
         catch( const wrong_number_of_args_exception& e )
             {
@@ -198,13 +205,12 @@ namespace ORO_Execution
                 // if the method returns a boolean, construct it as a command
                 // which accepts/rejects the result.
                 DataSourceBase* dsb =  mfi->create( mcurmethod, argsparser->result() );
-                DataSource<bool>* dsb_res =  dynamic_cast< DataSource<bool>* >( dsb );
+                DataSource<bool>* dsb_res = DataSource<bool>::narrow( dsb );
                 if ( dsb_res == 0 )
                     comcon.first =  new CommandDataSource( dsb );
                 else
                     comcon.first =  new CommandDataSourceBool( dsb_res );
                 comcon.second = new ConditionTrue();
-                ismethod = true;
             }
         catch( const wrong_number_of_args_exception& e )
             {
@@ -223,9 +229,6 @@ namespace ORO_Execution
     else
         assert(false);
 
-    CommandInterface* com = comcon.first;
-    ConditionInterface* implcond = comcon.second;
-
     mcurobject.clear();
     mcurmethod.clear();
     delete argsparser;
@@ -234,43 +237,31 @@ namespace ORO_Execution
     // argumentsparser.result() should have been properly filled up,
     // and mcurobject.mcurmethod should exist, we checked that in
     // seenstartofcall() already, so com should really be valid..
-    if ( ! com )
+    if ( ! comcon.first )
       throw parse_exception_semantic_error(
         "Something weird went wrong in calling method \"" + mcurmethod +
         "\" on object \"" + mcurobject + "\"." );
-    if ( ! implcond )
-        implcond = new ConditionTrue;
+    if ( ! comcon.second )
+        comcon.second = new ConditionTrue;
 
-    // dispatch a TryCommand to other processor, overthere, the result is ignored,
-    // it is interpreted here, with the implcond. Other condition branches
-    // must be guarded likewise with wrapCondition().
-    // we compare processors, as dispatching is not done if the processor is shared.
-    // Also, methods are not dispatched.
-    if ( peer->engine()->commands() != context->engine()->commands() && !ismethod ) {
-        tcom = new TryCommand( com );
-        com = new CommandDispatch( peer->engine()->commands(), tcom, tcom->result().get() );
-         // compose impl term cond with accept filter and do not invert the result :
-        implcond = new ConditionBinaryComposite< std::logical_and<bool> >( new TryCommandResult( tcom->executed(), false ), implcond);
-    }
-
-    retcommand = com;
-    implicittermcondition = implcond;
+    retcommand = comcon.first;
+    implicittermcondition = comcon.second;
   }
 
     ConditionInterface* CommandParser::wrapCondition( ConditionInterface* c )
     {
         if ( peer != context )
-            return new ConditionBinaryComposite< std::logical_and<bool> >( new TryCommandResult( tcom->executed(), false ), c);
+            return new ConditionBinaryCompositeAND( dcom->createValidCondition(), c);
         else 
             return c;
     }
 
     ConditionInterface* CommandParser::dispatchCondition()
     {
-        if ( tcom == 0 )
+        if ( dcom == 0 )
             return 0;
         if ( dispatchCond == 0 )
-            dispatchCond = new TryCommandResult( tcom->executed(), false );
+            dispatchCond = dcom->createValidCondition();
         return dispatchCond;
     }
 
@@ -289,10 +280,9 @@ namespace ORO_Execution
         delete dispatchCond;
         dispatchCond = 0;
         peer = 0;
-        tcom = 0;
+        dcom = 0;
         retcommand = 0;
         implicittermcondition = 0;
-        masync = true;
         mcurobject.clear();
         mcurmethod.clear();
       }

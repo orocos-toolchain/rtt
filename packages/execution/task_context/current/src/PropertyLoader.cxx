@@ -54,16 +54,23 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
         return false;
     }
 
-    Logger::log() <<Logger::Info << "Configuring " <<target->getName()
-                  <<" with "<<filename<<"."<< Logger::endl;
+    Logger::log() <<Logger::Info << "Configuring TaskContext '" <<target->getName()
+                  <<"' with '"<<filename<<"'."<< Logger::endl;
     bool failure = false;
+    OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER* demarshaller = 0;
     try
     {
-        OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER demarshaller(filename);
+        demarshaller = new OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER (filename);
+    } catch (...) {
+        Logger::log() << Logger::Error
+                      << "Could not open file "<< filename << Logger::endl;
+        return false;
+    }
+    try {
         PropertyBag propbag;
         vector<CommandInterface*> assignComs;
 
-        if ( demarshaller.deserialize( propbag ) )
+        if ( demarshaller->deserialize( propbag ) )
         {
             // Lookup props vs attrs :
             for( PropertyBag::iterator it = propbag.getProperties().begin();
@@ -78,20 +85,18 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
 
                         continue;
                     }
-                    DataSourceBase::shared_ptr origds(  (*it)->createDataSource() );
-                    CommandInterface* ac = v->refreshCommand( origds.get() );
+                    CommandInterface* ac = v->refreshCommand( (*it) );
                     if ( ac )
                         assignComs.push_back( ac ); // store the assignment.
                     else {
-                        DataSourceBase::shared_ptr tgtds( v->createDataSource() );
                         if (strict ) {
                             Logger::log() << Logger::Error;
                             failure = true;
                         }
                         else
                             Logger::log() << Logger::Info;
-                        Logger::log()<< "Could not refresh Property '"<< tgtds->getType() << " " << (*it)->getName()
-                                     <<"' with '"<< origds->getType() << " " << (*it)->getName() << "' from file."<<Logger::endl;
+                        Logger::log()<< "Could not refresh Property '"<< (*it)->getType() << " " << (*it)->getName()
+                                     <<"' with '"<< v->getType() << " " << (*it)->getName() << "' from file."<<Logger::endl;
                     }
                 }
             // Do all assignments. In strict mode, don't do any upon failure.
@@ -110,14 +115,15 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
             {
                 Logger::log() << Logger::Error
                               << "Some error occured while parsing "<< filename.c_str() <<Logger::endl;
-                return false;
+                failure = true;
             }
     } catch (...)
     {
         Logger::log() << Logger::Error
-                      << "Could not find "<< filename << endl;
-        return false;
+                      << "Uncaught exception in deserialise !"<< Logger::endl;
+        failure = true;
     }
+    delete demarshaller;
     return !failure;
 #endif // OROPKG_CORELIB_PROPERTIES_MARSHALLING
 

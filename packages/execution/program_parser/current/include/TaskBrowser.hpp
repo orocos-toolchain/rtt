@@ -33,6 +33,7 @@
 #include "MethodFactoryInterface.hpp"
 #include "DataSourceFactoryInterface.hpp"
 #include "CommandFactoryInterface.hpp"
+#include "DispatchInterface.hpp"
 #include <deque>
 #include <string>
 #include <sstream>
@@ -69,7 +70,7 @@ namespace ORO_Execution
         // the TC we are using for completion.
         static TaskContext* peer;
         ORO_CoreLib::ConditionInterface* condition;
-        ORO_CoreLib::CommandInterface*   command;
+        DispatchInterface*   command;
         ORO_CoreLib::DataSource<bool>::shared_ptr   accepted;
         const CommandFactoryInterface* command_fact;
         const DataSourceFactoryInterface* datasource_fact;

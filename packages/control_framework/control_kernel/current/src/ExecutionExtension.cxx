@@ -106,16 +106,14 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
         return true;
     }
 
-#if 0
-    const StateMachinePtr ExecutionExtension::getStateMachine(const std::string& name)
+    StateMachinePtr ExecutionExtension::getStateMachine(const std::string& name)
     {
         return tc.engine()->states()->getStateMachine(name);
     }
-    const ProgramInterfacePtr ExecutionExtension::getProgram(const std::string& name)
+    ProgramInterfacePtr ExecutionExtension::getProgram(const std::string& name)
     {
-        return tc.engine()->states()->getProgram(name);
+        return tc.engine()->programs()->getProgram(name);
     }
-#endif
 
     bool ExecutionExtension::unloadProgram( const std::string& name)
     {
@@ -126,17 +124,15 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
     bool ExecutionExtension::loadProgram( const std::string& filename, const std::string& file )
     {
         initKernelCommands();
-        std::ifstream file_stream;
-        std::stringstream text_stream( file );
-        std::istream *prog_stream;
-        if ( file.empty() ) {
-            file_stream.open(filename.c_str());
-            prog_stream = &file_stream;
-        } else
-            prog_stream = &text_stream;
-
         ProgramLoader loader;
-        return loader.loadProgram( *prog_stream, &tc, filename );
+        if ( !file.empty() )
+            return loader.loadProgram( file, &tc, filename );
+
+        std::ifstream file_stream;
+        file_stream.open(filename.c_str());
+        std::stringstream text;
+        text << file_stream;
+        return loader.loadProgram( text.str(), &tc, filename );
     }
 
     bool ExecutionExtension::unloadStateMachine( const std::string& name)
@@ -148,17 +144,15 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
     bool ExecutionExtension::loadStateMachine( const std::string& filename, const std::string& file )
     {
         initKernelCommands();
-        std::ifstream file_stream;
-        std::stringstream text_stream( file );
-        std::istream *prog_stream;
-        if ( file.empty() ) {
-            file_stream.open(filename.c_str());
-            prog_stream = &file_stream;
-        } else
-            prog_stream = &text_stream;
-
         ProgramLoader loader;
-        return loader.loadStateMachine( *prog_stream, &tc, filename );
+        if ( !file.empty() )
+            return loader.loadStateMachine( file, &tc, filename );
+
+        std::ifstream file_stream;
+        file_stream.open(filename.c_str());
+        std::stringstream text;
+        text << file_stream;
+        return loader.loadStateMachine( text.str(), &tc, filename );
     }
 
     void ExecutionExtension::step() {
@@ -261,8 +255,12 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
     {
     }
 
-    TaskContext* ExecutionComponentInterface::getKernelContext() const {
+    TaskContext* ExecutionComponentInterface::getKernelContext() {
         return master ? master->getTaskContext() : 0;
+    }
+
+    TaskContext* ExecutionComponentInterface::getComponentContext() {
+      return &componentTask;
     }
 
     bool ExecutionComponentInterface::enableFacet( ExecutionExtension* ext )

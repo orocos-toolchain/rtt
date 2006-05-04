@@ -87,6 +87,12 @@ namespace ORO_CoreLib
         virtual void reset();
 
         /**
+         * This is invoked some time before execute() at a time
+         * when the command may read its function arguments.
+         */
+        virtual void readArguments() = 0;
+
+        /**
          * Execute the functionality of this command.
          * Overload of \a execute().
          * @return true if the command was accepted, false otherwise

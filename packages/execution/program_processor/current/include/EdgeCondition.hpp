@@ -28,10 +28,7 @@
 #ifndef EDGECONDITION_HPP
 #define EDGECONDITION_HPP
 
-#include <corelib/ConditionTrue.hpp>
-#include <corelib/ConditionInterface.hpp>
-#include <corelib/DataSource.hpp>
-
+#include <map>
 // adjacency_list has some very short template parameter names,
 // which may be defined as macros on some OS's. So undef here.
 #undef DS	
@@ -50,12 +47,14 @@ namespace boost {
     BOOST_INSTALL_PROPERTY(edge, condition);
 }
 
+namespace ORO_CoreLib
+{
+    class ConditionInterface;
+    class DataSourceBase;
+}
+
 namespace ORO_Execution
 {
-    using ORO_CoreLib::ConditionInterface;
-    using ORO_CoreLib::ConditionTrue;
-    using ORO_CoreLib::DataSourceBase;
-
     /**
      * @brief This class represents a conditional branch in a program
      * tree.  It contains a condition which must be satisfied
@@ -69,17 +68,16 @@ namespace ORO_Execution
                          property< boost::edge_index_t, int> > EdgeProperty;
 
         /**
-         * EdgeCondition specifies a condition to
-         * check.
+         * Create a default EdgeCondition which evaluates always as true.
          */
-        EdgeCondition() : condition ( new ConditionTrue ), rank(condition_counter++) {}
+        EdgeCondition();
 
         /**
          * EdgeCondition specifies a condition to
          * check.
          * This EdgeCondition takes ownership of cond.
          */
-        EdgeCondition(ConditionInterface* cond );
+        EdgeCondition(ORO_CoreLib::ConditionInterface* cond );
 
         ~EdgeCondition();
 
@@ -87,8 +85,7 @@ namespace ORO_Execution
 
         EdgeCondition& operator=( const EdgeCondition& orig );
 
-        EdgeCondition copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const;
-    public:
+        EdgeCondition copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& replacementdss ) const;
 
         /**
          * Reset the condition in this
@@ -106,15 +103,15 @@ namespace ORO_Execution
         /**
          * Return the condition coupled with this termination clause.
          */
-        ConditionInterface* getCondition() const;
+        ORO_CoreLib::ConditionInterface* getCondition() const;
 
         int getRank() const { return rank; }
     protected:
 
-        void setCondition(ConditionInterface* cond);
+        void setCondition(ORO_CoreLib::ConditionInterface* cond);
 
     private:
-        ConditionInterface* condition;
+        ORO_CoreLib::ConditionInterface* condition;
         int rank;
     };
 

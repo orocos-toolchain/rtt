@@ -49,6 +49,10 @@ namespace ORO_Geometry
     class Wrench;
 }
 
+namespace CORBA
+{
+    class Any;
+}
 
 namespace ORO_CoreLib
 {
@@ -213,6 +217,13 @@ namespace ORO_CoreLib
         struct DataSourceTypeInfo<std::string> {
             static const std::string type;
             static const std::string& getType()  { return type; }
+            static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }
+        };
+
+        template<>
+        struct DataSourceTypeInfo<CORBA::Any> {
+            static const std::string type;
+            static const std::string& getType() { return type; }
             static const std::string& getQualifier() { return DataSourceTypeInfo<ValueType>::getQualifier(); }
         };
 

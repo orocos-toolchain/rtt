@@ -164,10 +164,9 @@ void Template_FactoryTest::testMethods()
         +" set r = methods.m4(1, 1.0, true, \"hello\")\n"
         +" do methods.assert( r == -5.0 )\n"
         +"}";
-    stringstream progs(prog);
     Parser::ParsedPrograms pg_list;
     try {
-        pg_list = parser.parseProgram( progs, tc);
+        pg_list = parser.parseProgram( prog, tc);
     }
     catch( const file_parse_exception& exc )
         {
@@ -204,10 +203,9 @@ void Template_FactoryTest::testUserMethods()
         //+" set vout4 = umethods.umrv(vin)\n"
         //+" do methods.assert( vin == vout4 )\n"
         +"}";
-    stringstream progs(prog);
     Parser::ParsedPrograms pg_list;
     try {
-        pg_list = parser.parseProgram( progs, tc);
+        pg_list = parser.parseProgram( prog, tc);
     }
     catch( const file_parse_exception& exc )
         {
@@ -219,36 +217,6 @@ void Template_FactoryTest::testUserMethods()
         }
     // execute
     executePrograms( pg_list );
-}
-
-void Template_FactoryTest::testMethodsC()
-{
-    MethodC mc;
-    double r = 0.0;
-    mc = tc->methods()->create("methods", "m0").ret( r );
-    CPPUNIT_ASSERT( mc.execute() );
-    CPPUNIT_ASSERT( r == -1.0 );
-
-    mc = tc->methods()->create("methods", "m2").argC(1).argC(1.0).ret( r );
-    CPPUNIT_ASSERT( mc.execute() );
-    CPPUNIT_ASSERT( r == -3.0 );
-
-    mc = tc->methods()->create("methods", "m3").ret( r ).argC(1).argC(1.0).argC(true);
-    CPPUNIT_ASSERT( mc.execute() );
-    CPPUNIT_ASSERT( r == -4.0 );
-    
-#if 0
-        +" set r = methods.m0()\n"
-        +" do methods.assert( r == -1.0 )\n"
-        +" set r = methods.m1(1)\n"
-        +" do methods.assert( r == -2.0 )\n"
-        +" set r = methods.m2(1, 1.0)\n"
-        +" do methods.assert( r == -3.0 )\n"
-        +" set r = methods.m3(1, 1.0, true)\n"
-        +" do methods.assert( r == -4.0 )\n"
-        +" set r = methods.m4(1, 1.0, true, \"hello\")\n"
-        +" do methods.assert( r == -5.0 )\n"
-#endif
 }
 
 void Template_FactoryTest::testData()
@@ -267,10 +235,9 @@ void Template_FactoryTest::testData()
         +" set r = data.d4(1, 1.0, true, \"hello\")\n"
         +" do methods.assert( r == 5.0 )\n"
         +"}";
-    stringstream progs(prog);
     Parser::ParsedPrograms pg_list;
     try {
-        pg_list = parser.parseProgram( progs, tc);
+        pg_list = parser.parseProgram( prog, tc);
     }
     catch( const file_parse_exception& exc )
         {
@@ -297,10 +264,9 @@ void Template_FactoryTest::testCommands()
         +" do commands.c31(1, 1.0, 'a')\n"
         +" do commands.c33(1, 1.0, 'a')\n"
         +"}";
-    stringstream progs(prog);
     Parser::ParsedPrograms pg_list;
     try {
-        pg_list = parser.parseProgram( progs, tc);
+        pg_list = parser.parseProgram( prog, tc);
     }
     catch( const file_parse_exception& exc )
         {
@@ -312,48 +278,6 @@ void Template_FactoryTest::testCommands()
         }
     // execute
         executePrograms( pg_list );
-}
-
-void Template_FactoryTest::testCommandsC()
-{
-    CommandC cc = tc->commands()->create("commands","c00");
-    CommandC c20 = tc->commands()->create("commands","c20").argC(1).argC(1.0);
-    CommandC c32 = tc->commands()->create("commands","c31").argC(1).argC(1.0).argC('a');
-    CommandC c33 = tc->commands()->create("commands","c33").argC(1).argC(1.0).argC('a');
-    SimulationThread::Instance()->start();
-    tsim->start();
-    CPPUNIT_ASSERT( cc.execute() );
-    CPPUNIT_ASSERT( c20.execute() );
-    CPPUNIT_ASSERT( c32.execute() );
-    CPPUNIT_ASSERT( c33.execute() );
-    sleep(1);
-    CPPUNIT_ASSERT( cc.accepted() );
-    CPPUNIT_ASSERT( c20.accepted() );
-    CPPUNIT_ASSERT( c32.accepted() );
-    CPPUNIT_ASSERT( c33.accepted() );
-    CPPUNIT_ASSERT( cc.valid() );
-    CPPUNIT_ASSERT( c20.valid() );
-    CPPUNIT_ASSERT( c32.valid() );
-    CPPUNIT_ASSERT( c33.valid() );
-    CPPUNIT_ASSERT( cc.evaluate() );
-    CPPUNIT_ASSERT( c20.evaluate() );
-    CPPUNIT_ASSERT( c32.evaluate() );
-    CPPUNIT_ASSERT( c33.evaluate() );
-    tsim->stop();
-    SimulationThread::Instance()->stop();
-#if 0
-    string prog = string("program x { ")
-        +" do commands.c00()\n"
-        +" do commands.c10(1)\n"
-        +" do commands.c11(1)\n"
-        +" do commands.c20(1, 1.0)\n"
-        +" do commands.c21(1, 1.0)\n"
-        +" do commands.c22(1, 1.0)\n"
-        +" do commands.c30(1, 1.0, 'a')\n"
-        +" do commands.c31(1, 1.0, 'a')\n"
-        +" do commands.c33(1, 1.0, 'a')\n"
-        +"}";
-#endif
 }
 
 void Template_FactoryTest::testManual()

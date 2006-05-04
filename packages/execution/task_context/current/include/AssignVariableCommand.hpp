@@ -62,9 +62,13 @@ namespace ORO_Execution
       {
       }
 
+      void readArguments() {
+          rhs->evaluate();
+      }
+
       bool execute()
       {
-        lhs->set( rhs->get() );
+        lhs->set( rhs->value() );
         return true;
       }
 
@@ -98,9 +102,13 @@ namespace ORO_Execution
       {
       }
 
+      void readArguments() {
+          rhs->evaluate();
+      }
+
       bool execute()
       {
-          S result = rhs->get();
+          S result = rhs->value();
           if ( lhs->get().capacity() < result.size() )
               return false;
           lhs->set( result );
@@ -138,11 +146,15 @@ namespace ORO_Execution
       {
       }
 
+      void readArguments() {
+          rhs->evaluate();
+      }
+
       bool execute()
       {
-          if ( lhs->get().capacity() < rhs->get().size() || &(lhs->set()) == 0)
+          if ( lhs->get().capacity() < rhs->value().size() || &(lhs->set()) == 0)
               return false;
-          lhs->set() = rhs->get().c_str(); // std::string specific ! Does not allocate if S is a (const) std::string&
+          lhs->set() = rhs->value().c_str(); // std::string specific ! Does not allocate if S is a (const) std::string&
           return true;
       }
 
@@ -171,6 +183,10 @@ namespace ORO_Execution
       AssignIndexCommand( LHSSource l, IndexSource index, RHSSource r)
           : i(index),lhs( l ), rhs( r )
       {
+      }
+
+      void readArguments() {
+          rhs->evaluate();
       }
 
       bool execute()

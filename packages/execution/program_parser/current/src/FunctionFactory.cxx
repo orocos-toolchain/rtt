@@ -124,31 +124,31 @@ namespace ORO_Execution
 
         ComCon FunctionFactory::create( const std::string& command,
                        const ORO_CoreLib::PropertyBag& args,
-                       bool ) const {
+                       bool d) const {
             std::vector<DataSourceBase::shared_ptr> dsVect;
             std::transform( args.begin(), args.end(),
                             std::back_inserter( dsVect ),
-                            bind( &ORO_CoreLib::PropertyBase::createDataSource, _1));
-            return this->create( command, dsVect );
+                            bind( &ORO_CoreLib::PropertyBase::getDataSource, _1));
+            return this->create( command, dsVect, d );
         }
 
         ComCon FunctionFactory::create(
                       const std::string& command,
                       const std::vector<DataSourceBase*>& args,
-                      bool ) const {
+                      bool d) const {
             std::vector<DataSourceBase::shared_ptr> dsVect;
             for( std::vector<DataSourceBase*>::const_iterator i = args.begin(); i != args.end(); ++i )
                 dsVect.push_back( DataSourceBase::shared_ptr( *i ));
-            return this->create( command, dsVect );
+            return this->create( command, dsVect, d );
         }
 
         ComCon FunctionFactory::create(
                       const std::string& command,
                       const std::vector<DataSourceBase::shared_ptr>& args,
-                      bool ) const {
+                      bool nodispatch) const {
             // We ignore asyn, since we CommandExecFunction is always asyn itself.
             if ( !hasCommand(command) )
-                throw name_not_found_exception();
+                throw name_not_found_exception(command);
 
             // check if correct number of args :
             shared_ptr<ProgramInterface> orig = funcmap.find(command)->second;
@@ -175,7 +175,7 @@ namespace ORO_Execution
             }
             catch( const bad_assignment& e) {
                 delete icom;
-                int parnb = (dit - args.begin());
+                int parnb = (dit - args.begin()) + 1;
                 throw wrong_types_of_args_exception(parnb, (*tit)->toDataSource()->getType() ,(*dit)->getType() );
             }
 
@@ -183,12 +183,12 @@ namespace ORO_Execution
             //fcopy->clearArguments();
                 
             // the command gets ownership of the new function :
-            CommandExecFunction* ecom = new CommandExecFunction( fcopy, proc->getProgramProcessor() );
+            // this command is a DispatchInterface...
+            CommandExecFunction* ecom = new CommandExecFunction( icom, fcopy, proc->getProgramProcessor() );
             ConditionInterface*  con = ecom->createCondition();
             // first init, then dispatch the function.
             // init->execute() : once(asyn), ecom->execute() : until done (syn)
-            CommandInterface*    com =  new CommandBinary(icom, ecom);
-            return ComCon(com, con);
+            return ComCon(ecom, con);
         }
 }
 

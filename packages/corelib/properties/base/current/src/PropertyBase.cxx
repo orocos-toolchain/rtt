@@ -31,4 +31,21 @@
 #include "corelib/PropertyBase.hpp"
 
 namespace ORO_CoreLib {
+
+        PropertyBase::~PropertyBase()
+        {}
+
+        PropertyBase::PropertyBase( std::string name, std::string description)
+            : _name(name), _description(description)
+        {}
+
+        void PropertyBase::setName(const std::string& name)
+        {
+            _name = name;
+        }
+
+        void PropertyBase::setDescription(const std::string& desc)
+        {
+            _description = desc;
+        }
 }
