@@ -429,7 +429,7 @@ public:
     void GetEulerZYZ(double& alfa,double& beta,double& gamma) const;
 
 
-    //! Sets the value of this object to a rotation specified with RPY convention:
+    //! Gives back a rotation matrix specified with RPY convention :
     //! first rotate around X with roll, then around the
     //!               old Y with pitch, then around old Z with alfa 
     static Rotation RPY(double roll,double pitch,double yaw);
