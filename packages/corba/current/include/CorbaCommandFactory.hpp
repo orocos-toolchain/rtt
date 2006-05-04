@@ -42,6 +42,13 @@ namespace ORO_Corba
             return false;
         }
 
+        virtual int getArity( const std::string& com )  const {
+            if (this->hasCommand(com) == false)
+                return -1;
+            return this->getArgumentList(com).size();
+        }
+
+
         virtual Commands getCommandList() const 
         {
             Commands ret;

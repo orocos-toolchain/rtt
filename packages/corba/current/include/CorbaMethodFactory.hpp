@@ -51,6 +51,12 @@ namespace ORO_Corba
             return false;
         }
 
+        virtual int getArity( const std::string& method )  const {
+            if (this->hasMember(method) == false)
+                return -1;
+            return this->getArgumentList(method).size();
+        }
+
         virtual std::string getResultType( const std::string& method ) const {
             try {
                 CORBA::String_var result = mfact->getResultType( mobjname.c_str(), method.c_str() );

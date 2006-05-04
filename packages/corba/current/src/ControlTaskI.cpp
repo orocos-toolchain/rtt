@@ -62,7 +62,7 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
     // create and activate servant.
     if ( CORBA::is_nil( mCosProps) ) {
         Logger::log() << Logger::Info << "Creating PropertySet."<<Logger::endl;
-        CosPropertyService_PropertySet_i* props = new CosPropertyService_PropertySet_i( mtask->properties() );
+        CosPropertyService_PropertySet_i* props = new CosPropertyService_PropertySet_i( mtask->attributes()->properties() );
         mCosProps = props->_this();
     }
     return PropertySet::_duplicate( mCosProps.in() );

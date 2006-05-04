@@ -1,0 +1,275 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+[
+<!ENTITY % oro_ents SYSTEM "http://people.mech.kuleuven.be/~psoetens/orocos/doc/orocos.ent" >
+%oro_ents;
+]
+>
+
+<article>
+  <articleinfo>
+    <title>Distributing Orocos Components with CORBA</title>
+    <authorgroup>
+      <author>
+	<firstname>Peter</firstname>
+	<surname>Soetens</surname>
+	<affiliation>
+	  <orgname>K.U.Leuven</orgname>
+	  <address><country>Belgium</country></address>
+	</affiliation>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2006</year>
+      <holder>FMTC, Peter Soetens</holder>
+    </copyright>
+
+    <abstract>
+      <para>
+	This document explains the principles of the
+	<emphasis>Corba Library</emphasis> of &orocos;, the <emphasis>Open
+	RObot COntrol Software</emphasis> project. It enables transparant
+	deployment of plain Orocos C++ components.
+      </para>
+    </abstract>
+
+    <revhistory>
+      <revision>
+	<revnumber>0.01</revnumber>
+	<date>4 May 2006</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Initial version</revremark>
+      </revision>
+    </revhistory>
+
+    <legalnotice>
+      <para>
+	Permission is granted to copy, distribute and/or modify this document
+	under the terms of the GNU Free Documentation License, Version 1.1 or
+	any later version published by the Free Software Foundation, with no
+	Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+	Texts. A copy of this license can be found at
+	<ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
+
+  </articleinfo>
+
+  <section>
+    <title>Overview</title>
+    <para>
+      This package allows Orocos components to live in separate processes,
+      distributed over an ethernet network and still communicate with each other.
+      The underlying framework (middleware) is CORBA, but no CORBA knowledge is
+      required to distribute Orocos components.
+    </para>
+    <para>
+      The Corba package provides:
+      <itemizedlist>
+	<listitem><para>Connection and Communication of Orocos components over a network</para></listitem>
+	<listitem><para>Clients (like visualisation) making a connection to any running Orocos component using the IDL interface.</para></listitem>
+	<listitem><para>Transparant use: existing Orocos applications only need to be recompiled.</para></listitem>
+      </itemizedlist> 
+    </para>
+    <section>
+      <title>Status</title>
+      <para>
+	The Corba package is work in progress and aims to make the whole
+	Orocos Component interface available over the network. Consult the
+	<emphasis>Component Builder's Guide</emphasis> for an overview of a Component's
+	interface.
+      </para>
+      <para>These Component interfaces are currently available:
+      <itemizedlist>
+	<listitem><para>Properties/Attributes interface: fully</para></listitem>
+	<listitem><para>Command interface: fully</para></listitem>
+	<listitem><para>Method interface: fully</para></listitem>
+	<listitem><para>Scripting interface: fully</para></listitem>
+      </itemizedlist> 
+      </para>
+
+      <para>These interfaces are work in progress and not yet available:
+      <itemizedlist>
+	<listitem><para>Data Flow interface</para></listitem>
+	<listitem><para>Event interface</para></listitem>
+      </itemizedlist> 
+      Both will be provided before the 1.0 release.
+      </para>
+    </section>
+    <section>
+      <title>Requirements and Setup</title>
+      <para>
+	In order to distribute Orocos components over a network, your system
+	must be setup correctly for using Corba.
+      </para>
+      <para>The following must be done
+      <itemizedlist>
+	<listitem><para>Install the Ace and Tao libraries and header files on your system. Tao version 1.3 or 1.4.</para></listitem>
+	<listitem><para>Configure Orocos with Corba support. See the Getting Started Manual.</para></listitem>
+	<listitem><para>Load the 'Corba' package in your configuration tool, using <command>make configure_packages</command>.
+	See the Getting Started Manual.</para></listitem>
+	<listitem><para>Start a Corba Naming Service once with multicasting on. Using the TAO
+	Naming Service, this would be: <command>Naming_Service -m 1 &amp;</command></para></listitem>
+	<listitem><para>Compile your applications with the appropriate include and linker flags. See the
+	Getting Started Manual.</para></listitem>
+      </itemizedlist> 
+      </para>
+    </section>
+    <section>
+      <title>Limitations</title>
+      <para>
+	Orocos Corba components are work in progress. The following limitations apply:
+	<itemizedlist>
+	  <listitem><para>Components can only communicate standard C++
+	  types (double, int, string, etc.), std::vector&lt;double>
+	  and the Orocos 3D Frame, Rotation and Vector types. Adding
+	  user types (user defined structs) is work in
+	  progress. </para></listitem>
+	  <listitem><para>The Corba interfaces have not stabilised
+	  fully and may change (albeit not drastically) before the
+	  Orocos 1.0 release. This is hidden if you use the 'transparant'
+	  approach below.</para></listitem>
+	  <listitem><para>Some Corba objects (for example 'commands')
+	  have a longer lifetime in memory than necessary. This does
+	  not cause harm in 'simple' setups, but is problematic when
+	  thousands of such objects are created. This issue is being
+	  addressed.</para></listitem>
+	</itemizedlist>
+	We aim for removing all these limitations before the Orocos 1.0 release.
+      </para>
+    </section>
+  </section>
+  <section>
+    <title>Code Examples</title>
+    <para>
+      This example assumes that you have taken a look at the 'Component Builder's
+      Guide'. It creates a simple 'Hello World' component and makes it available
+      to the network. Another program connects to that component and starts the
+      component interface browser in order to control the 'Hello World' component.
+      Both programs may be run on the same or on different computers, given that
+      a network connection exists.
+    </para>
+    <para>
+      In order to setup your component to be available to other components
+      <emphasis>transparantly</emphasis>, proceed as:
+      <programlisting>  // server.cpp
+  #include &lt;corelib/PeriodicActivity.hpp>
+  #include &lt;corba/ControlTaskServer.hpp>
+  #include &lt;execution/GenericTaskContext.hpp>
+  #include &lt;os/main.h>
+
+  using namespace ORO_Corba;
+  using namespace ORO_Execution;
+  using namespace ORO_CoreLib;
+
+  int ORO_main(int argc, char** argv)
+  {
+     // Setup a component
+     <classname>ORO_Execution::GenericTaskContext</classname> mycomponent("HelloWorld");
+     // Execute a component
+     <classname>ORO_CoreLib::PeriodicActivity</classname>   myact(1, 0.01, mycomponent.engine() );
+     myact.start();
+
+     // Setup Corba and Export:
+     <classname>ORO_Corba::ControlTaskServer</classname>::InitOrb();
+     ControlTaskServer::Create( &amp;mycomponent );
+
+     // Wait for requests:
+     ControlTaskServer::RunOrb();
+      
+     // Cleanup Corba:
+     ControlTaskServer::DestroyOrb();
+     return 0;
+  } </programlisting>
+    </para>
+    <para>
+      Next, in order to connect to your component, you need to create
+      a 'proxy' in another file:
+      <programlisting>  // client.cpp
+  #include &lt;corba/ControlTaskProxy.hpp>
+  #include &lt;execution/TaskBrowser.hpp>
+  #include &lt;os/main.h>
+
+  using namespace ORO_Corba;
+  using namespace ORO_Execution;
+
+  int ORO_main(int argc, char** argv)
+  {
+     // Setup Corba:
+     <classname>ORO_Corba::ControlTaskProxy</classname>::InitOrb();
+
+     // Get a pointer to the component above
+     <classname>ORO_Execution::TaskContext</classname>* component = ControlTaskProxy::Create( "HelloWorld" );
+
+     // Interface it:
+     <classname>ORO_Execution::TaskBrowser</classname> browse( component );
+     browse.loop();
+
+     // Cleanup Corba:
+     ControlTaskProxy::DestroyOrb();
+     return 0;
+  } </programlisting>
+    </para>
+    <para>
+      Both examples can be found in the <filename>corba-example</filename>
+      package on Orocos.org. You may use 'connectPeers' and the related methods
+      to form component networks. Any Orocos component can be 'transformed' in
+      this way.
+    </para>
+  </section>
+  <section>
+    <title>Usage</title>
+    <para>
+      When your Corba enabled component is running, the following usage
+      rules should be known:
+      <itemizedlist>
+	<listitem><para>
+	  Components should not call remote components
+	  during real-time execution. However, real-time components may
+	  be called upon by any component, local or remote. A component
+	  may thus always receive a request from any component, but not
+	  every component may send a request to any component. If you
+	  violate this rule, it will not crash your program, but your
+	  execution timing will be worse.
+	</para></listitem>
+	<listitem><para>
+	  If you call 'CORBA.shutdown()' upon a component, the
+	  whole CORBA part of that executable is shut down. It will cause
+	  the 'RunOrb()' function to return.
+	</para></listitem>
+	<listitem><para> 
+	  You need to export at least one component. If
+	  you try to access a peer component of that component over the
+	  network, this will be detected and the peer will be
+	  automatically exported as well. This means that if you visit
+	  each peer of a component, all these peer components will be
+	  known on the network.  
+	</para></listitem>
+      </itemizedlist> 
+    </para>
+  </section>
+  <section>
+    <title>Orocos Corba Interfaces</title>
+    <para>
+      Orocos does not require IDL or CORBA knowledge of the user when two
+      Orocos components communicate. However, if you want to access an
+      Orocos component from a non-Orocos program (like a MSWindows GUI), 
+      you need to use the IDL files of Orocos.
+    </para>
+    <para>
+      The relevant files are:
+      <itemizedlist>
+	<listitem><para><filename>ControlTask.idl</filename>: The main Component Interface file, providing CORBA access to a TaskContext.</para></listitem>
+	<listitem><para><filename>Execution.idl</filename>: The interface of methods and commands.</para></listitem>
+	<listitem><para><filename>Factories.idl</filename>: The interface for creating methods and commands.</para></listitem>
+	<listitem><para><filename>ScriptingAccess.idl</filename>: The interface for loading and running scripts.</para></listitem>
+	<listitem><para><filename>Attributes.idl</filename>: The interface for attributes and properties.</para></listitem>
+      </itemizedlist> 
+      All data is communicated with CORBA::Any types. The way of using
+      these interfaces is very similar to using Orocos in C++, but using
+      CORBA syntax.
+    </para>
+  </section>
+</article>

@@ -40,6 +40,8 @@ namespace ORO_Corba
          */
         Orocos::Command_ptr server() const;
 
+        virtual void readArguments() {}
+
         virtual bool execute() {
             return mdata->execute();
         }

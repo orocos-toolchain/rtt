@@ -61,9 +61,9 @@ namespace ORO_Corba
 
     ControlTaskProxy::~ControlTaskProxy()
     {
-        if ( this->properties() ) {
-            flattenPropertyBag( *properties() );
-            deleteProperties( *properties() );
+        if ( this->attributes()->properties() ) {
+            flattenPropertyBag( *this->attributes()->properties() );
+            deleteProperties( *this->attributes()->properties() );
         }
         this->attributes()->clear();
     }
