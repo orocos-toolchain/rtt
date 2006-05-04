@@ -1,0 +1,53 @@
+#ifndef ORO_CORBA_SCRIPTINGACCESS_IDL
+#define ORO_CORBA_SCRIPTINGACCESS_IDL
+
+module Orocos
+{
+
+  /**
+   * This interface provides easy access to
+   * a task's programs and state machines.
+   */
+  interface ScriptingAccess
+  {
+    /**
+     * An exception indicating that a
+     * Program or StateMachine could not be
+     * loaded or unloaded.
+     */
+    exception LoadException
+    {
+      string what;
+    };
+
+
+    typedef sequence<string> ProgramNames;
+    typedef sequence<string> StateMachineNames;
+
+    /**
+     * Parse and execute a statement.
+     */
+    boolean execute( in string code );
+
+    void loadPrograms( in string code, in string filename ) raises (LoadException);
+    void unloadProgram( in string name ) raises (LoadException);
+
+    boolean  hasProgram(in string name);
+    ProgramNames getPrograms();
+    long getProgramLine(in string name);
+    string getProgramText(in string name );
+    string getProgramStatus(in string name );
+
+    void loadStateMachines( in string code, in string filename ) raises (LoadException);
+    void unloadStateMachine( in string name ) raises (LoadException);
+
+    boolean  hasStateMachine(in string name);
+    StateMachineNames getStateMachines();
+    string getStateMachineText(in string name );
+    string getStateMachineStatus(in string name );
+    long getStateMachineLine(in string name );
+    string getCurrentState(in string name );
+
+  };
+};
+#endif
