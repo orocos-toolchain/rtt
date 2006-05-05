@@ -68,8 +68,10 @@ using ORO_CoreLib::Logger;
 #include <sys/mman.h>
 #endif
 
+#ifdef OROPKG_CORBA
 #include <tao/Exception.h>
 #include <ace/String_Base.h>
+#endif
 
 using namespace std;
 
@@ -141,14 +143,15 @@ int main(int argc, char** argv)
     if ( dotry ) {
         try {
             res = ORO_main(argc, argv);
+#ifdef OROPKG_CORBA
         } catch( CORBA::Exception &e )
             {
 #ifdef OROPKG_CORELIB_REPORTING
                 Logger::log() <<Logger::Error << "ORO_main : CORBA exception raised!" << Logger::nl;
                 Logger::log() << e._info().c_str() << Logger::endl;
 #endif
-            }
-        catch( ... )
+#endif
+        } catch( ... )
             {
                 cerr <<endl<< " Orocos has detected an uncaught C++ exception"<<endl;
                 cerr << " in the ORO_main() function."<<endl;

@@ -39,10 +39,16 @@ PACKAGES=support/common/current/support.cdl
 
 DETECT_PACKAGES
 
+# Only do this if tao_idl was detected.
+if test x$TAO_IDL != x; then
 for i in $(find . -name "*.idl"); do
-    echo "$TAO_IDL $ACX_CXXFLAGS $i -o $(basename $i)"
-    $TAO_IDL $ACX_CXXFLAGS $i -I$(dirname $i) -o $(dirname $i)
+    echo "$TAO_IDL $ACX_CXXFLAGS -I$TAO_DIR -I$(dirname $i) $i -o $(dirname $i)"
+    export ACE_ROOT=$ACE_DIR
+    export TAO_ROOT=$TAO_DIR
+    #echo "Setting ACE_ROOT to $ACE_DIR and TAO_ROOT to $TAO_DIR"
+    $TAO_IDL  -I$TAO_DIR $ACX_CXXFLAGS -I$(dirname $i) $i -o $(dirname $i)
 done
+fi
 
 
 #DETECT_GCC

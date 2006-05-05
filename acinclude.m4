@@ -700,46 +700,72 @@ AC_SUBST(COMEDI_DIR)
 m4_define([DETECT_CORBAPKG],
 [
 
-# This macro also generates h/cpp files from the idl header.
+# if ACE_ROOT/TAO_ROOT defined, use that unless specifically overridden.
+if test x$ACE_ROOT != x; then
+  ACE_DIR = $ACE_ROOT
+fi
+if test x$TAO_ROOT != x; then
+  TAO_DIR = $TAO_ROOT
+fi
 
 AC_ARG_WITH(ace, [ AC_HELP_STRING([--with-ace=/usr/include],[Specify location of ace/config-all.h ]) ],
-	[ if test x"$withval" != xyes; then ACE_DIR="$withval";fi],[ 
-	if test x$ACE_ROOT = x; then ACE_DIR="/usr/include"; else ACE_DIR=$ACE_ROOT; fi ])
+	[ if test x"$withval" != xyes; then ACE_DIR="$withval"; fi],[])
 AC_ARG_WITH(tao, [ AC_HELP_STRING([--with-tao=/usr/include],[Specify location of tao/ORB.h ]) ],
-	[ if test x"$withval" != xyes; then TAO_DIR="$withval";fi],[ 
-	if test x$TAO_ROOT = x; then TAO_DIR="/usr/include"; else TAO_DIR=$TAO_ROOT; fi ])
+	[ if test x"$withval" != xyes; then TAO_DIR="$withval"; fi],[])
 
-AC_MSG_CHECKING(for ace/tao dir)
-if [ test -f $ACE_DIR/ace/config-all.h && test -f $TAO_DIR/tao/ORB.h ] ; then
-  # corbalib
+#if user did not specify, use defaults.
+if test x$ACE_DIR = x; then
+  ACE_DIR=/usr/include
+fi
+if test x$TAO_DIR = x; then
+  TAO_DIR=/usr/include
+fi
+
+AC_MSG_CHECKING(for ace/tao/orbsvcs dir)
+if [ test -f $ACE_DIR/ace/config-all.h && test -f $TAO_DIR/tao/ORB.h && test -f $TAO_DIR/orbsvcs/orbsvcs/CosNaming.idl] ; then
+  ORBSVCS_DIR=$TAO_DIR/orbsvcs
+
+  # ace/tao/orbsvcs paths:
   PACKAGES="support/corba/current/corba.cdl $PACKAGES"
-  if test x$ACE_DIR != x/usr/include ; then
-     ACX_CFLAGS="$ACX_CFLAGS -I$ACE_DIR"
-     ACX_CXXFLAGS="$ACX_CXXFLAGS -I$ACE_DIR"
+  if test x$ACE_DIR != x/usr/include; then
+    ACX_CFLAGS="$ACX_CFLAGS -I$ACE_DIR"
+    ACX_CXXFLAGS="$ACX_CXXFLAGS -I$ACE_DIR"
   fi
-  if test x$TAO_DIR != x/usr/include ; then
-     ACX_CFLAGS="$ACX_CFLAGS -I$TAO_DIR"
-     ACX_CXXFLAGS="$ACX_CXXFLAGS -I$TAO_DIR"
+  if test x$TAO_DIR != x/usr/include; then
+    ACX_CFLAGS="$ACX_CFLAGS -I$TAO_DIR"
+    ACX_CXXFLAGS="$ACX_CXXFLAGS -I$TAO_DIR"
   fi
-  CPPFLAGS="-I$ACE_DIR -I$TAO_DIR"
-  AC_MSG_RESULT(Ace/Tao headers found)
+
+  # Always:
+  ACX_CXXFLAGS="$ACX_CXXFLAGS -I$TAO_DIR/orbsvcs"
+
+  AC_MSG_RESULT([$ACE_DIR, $TAO_DIR, $ORBSVCS_DIR])
+
+  #find tao_idl:
+  AC_MSG_CHECKING(for tao_idl)
   if test -x $TAO_ROOT/TAO_IDL/tao_idl; then
 	TAO_IDL=$TAO_ROOT/TAO_IDL/tao_idl
+        AC_MSG_RESULT($TAO_IDL)
   else
 	PATH=$PATH:$ACE_ROOT/bin
 	TAO_IDL=$(which tao_idl)
-	if test x$TAO_IDL=x; then
-	    AC_MSG_WARN(headers found, but no tao_idl in path or $TAO_ROOT !)
+	if test x$TAO_IDL = x; then
+            AC_MSG_RESULT(no)
+	    AC_MSG_WARN([headers found, but no tao_idl in path or 'ACE_ROOT/bin' !])
+        else
+            AC_MSG_RESULT([$TAO_IDL])
 	fi
   fi
+
+  # add libraries.
   TARGET_LIBS="$TARGET_LIBS -L$ACE_ROOT/lib -lTAO -lTAO_IDL_BE -lACE -lTAO_PortableServer -lTAO_CosNaming"
-  AC_MSG_RESULT($ACE_DIR)
 else
   # no corba found
-  AC_MSG_RESULT(not found)
+  AC_MSG_RESULT([not found. Set ACE_ROOT and TAO_ROOT or specify with --with-ace and --with-tao.])
 fi
 AC_SUBST(ACE_DIR)
 AC_SUBST(TAO_DIR)
+AC_SUBST(ORBSVCS_DIR)
 AC_SUBST(TAO_IDL)
 ])
 

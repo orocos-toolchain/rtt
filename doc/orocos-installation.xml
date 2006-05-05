@@ -649,26 +649,69 @@
 	latest TAO version on 
 	<ulink url="http://www.theaceorb.com">OCI's TAO
 	website</ulink>. Orocos was tested with OCI's TAO 1.3 and 1.4.
-	The OCI version is far more stable than the versions
+	The OCI version is more stable than the versions
 	provided by the DOC group on the <ulink url="http://www.cs.wustl.edu/~schmidt/TAO.html">
 	Real-time CORBA with TAO (The ACE ORB) website</ulink>.
       </para>
-      <sect3>
-	<title>Finding the TAO installation</title>
+      <note>
 	<para>
-	  Orocos looks for TAO in your standard include
-	  paths, in case your distribution packages TAO.
-	  However, if you prefer to use the OCI version,
-	  you need to add a configure flag to tell Orocos
-	  where to find the <filename>ACE_wrappers</filename> directory:
-	  <screen>../configure --with-tao=/path/to/ACE_wrappers</screen>
-	  Orocos assumes that the ACE headers are then found in
-	  <filename>/path/to/ACE_wrappers/ace</filename>, the
-	  TAO headers are found in <filename>/path/to/ACE_wrappers/TAO/tao</filename>,
-	  the libraries are found in <filename>/path/to/ACE_wrappers/lib</filename>
-	  and the IDL compiler in <filename>/path/to/ACE_wrappers/bin</filename>.
+	  Orocos requires the ACE, TAO and TAO-orbsvcs libraries and
+	  header files to be installed on your workstation.
+	</para>
+      </note>
+      <sect3>
+	<title>TAO installation (Optional)</title>
+	<note>
+	  <para>
+	    If your distribution does not provide the TAO libraries,
+	    or you want to use the OCI version, you need to build
+	    manually. These instructions are for building on
+	    Linux. See the ACE and TAO installation manuals for
+	    building on your platform.
+	  </para>
+	</note>
+	<para>
+	  You need to make an ACE/TAO build on your workstation.
+	  Download the package here: <ulink
+	  url="http://www.theaceorb.com/downloads/1.4a/index.html">OCI
+	  Download</ulink>. Unpack the tar-ball, and enter 
+	  <filename>ACE_wrappers</filename>. Then do:
+	  <command>  export ACE_ROOT=$(pwd)
+  export TAO_ROOT=$(pwd)/TAO
+	  </command> When using GNU/Linux, continue with: 
+	  <command>  ln -s ace/config-linux.h ace/config.h
+  ln -s include/makeinclude/platform_linux.GNU include/makeinclude/platform_macros.GNU
+	  </command> Finally, type:
+	  <command>  make
+  cd TAO
+  make
+  cd orbsvcs
+  make
+	  </command> This finishes your TAO build.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Configuring Orocos for TAO</title>
+	<para>
+	  Orocos will first try to detect your location of ACE and TAO
+	  using the ACE_ROOT and TAO_ROOT variables.
+	  Alternatively, you may add a configure flag to tell
+	  Orocos where to find the <filename>ACE_wrappers</filename>
+	  directory: <screen>../configure --with-ace=/path/to/ACE_wrappers
+	  --with-tao=/path/to/ACE_wrappers/TAO</screen> Orocos then assumes
+	  that the ACE headers are then found in
+	  <filename>/path/to/ACE_wrappers/ace</filename>, the TAO
+	  headers are found in
+	  <filename>/path/to/ACE_wrappers/TAO/tao</filename>, the
+	  libraries are found in
+	  <filename>/path/to/ACE_wrappers/lib</filename> and the IDL
+	  compiler in <filename>/path/to/ACE_wrappers/bin</filename>.
 	  These are all the correct values when using the downloaded
 	  packages.
+	</para>
+	<para>
+	  If none  of the above is done, Orocos tries to find ACE
+	  and TAO in the standard include and bin paths.
 	</para>
       </sect3>
       <sect3>
@@ -688,12 +731,12 @@
 	<para>
 	  Once you compile and link your application with Orocos and with the
 	  Corba functionality enabled, you must provide the correct include
-	  and link flags in your own Makefile. More specifically, you must
-	  add:
+	  and link flags in your own Makefile if TAO and ACE are not
+	  installed in the default path. Then you must add:
 	  <itemizedlist>
 	    <listitem>
 	      <para>
-		Compiling : <option>-I/path/to/ACE_wrappers</option>
+		Compiling : <option>-I/path/to/ACE_wrappers -I/path/to/ACE_wrappers/TAO</option>
 	      </para>
 	      <para>
 		This is the ACE build directory in case you use OCI's
@@ -714,8 +757,8 @@
 	      </para>
 	      <important>
 		<para>
-		  You must also need to add
-		  <filename>/path/to/ACE_wrappers</filename> to the
+		  You also need to add
+		  <filename>/path/to/ACE_wrappers/lib</filename> to the
 		  <filename>/etc/ld.so.conf</filename> file and rerun
 		  <command>ldconfig</command>, such that these libraries
 		  can be found.  Or you can before you start your application

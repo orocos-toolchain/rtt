@@ -24,7 +24,6 @@ detection of the packages configure script"
     include_files ExpressionServer.hpp CORBAExpression.hpp ActionProxy.hpp CommandProxy.hpp
     include_files Execution.idl ExecutionC.h ExecutionS.h ExecutionC.inl ExecutionS.inl ExecutionS_T.h ExecutionS_T.inl ExecutionS_T.cpp ExecutionI.h
     include_files ControlTask.idl ControlTaskC.h ControlTaskS.h ControlTaskC.inl ControlTaskS.inl ControlTaskS_T.h ControlTaskS_T.inl ControlTaskS_T.cpp ControlTaskI.h
-    include_files CosPropertyService.idl CosPropertyServiceC.h CosPropertyServiceS.h CosPropertyServiceC.inl CosPropertyServiceS.inl CosPropertyServiceS_T.h CosPropertyServiceS_T.inl CosPropertyServiceS_T.cpp CosPropertyServiceI.h
     include_files Factories.idl FactoriesC.h FactoriesS.h FactoriesC.inl FactoriesS.inl FactoriesS_T.h FactoriesS_T.inl FactoriesS_T.cpp FactoriesI.h
     include_files CorbaMethodFactory.hpp CorbaCommandFactory.hpp CorbaConversion.hpp 
     include_files OrocosTypesC.h OrocosTypesC.inl GeometryConversion.hpp
@@ -74,25 +73,6 @@ detection of the packages configure script"
     make_object {
 	ControlTaskC.o : $(REPOSITORY)/$(PACKAGE)/ControlTask.idl
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/ControlTaskC.cpp -o $(OBJECT_PREFIX)_ControlTaskC.o
-	touch $@
-    }
-
-	#Property Server
-    make_object {
-	src/CosPropertyServiceI.o : $(REPOSITORY)/$(PACKAGE)/CosPropertyService.idl $(REPOSITORY)/$(PACKAGE)/src/CosPropertyServiceI.cpp
-	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/CosPropertyServiceI.cpp -o src/$(OBJECT_PREFIX)_CosPropertyServiceI.o
-	touch $@
-    }
-
-    make_object {
-	CosPropertyServiceS.o : $(REPOSITORY)/$(PACKAGE)/CosPropertyService.idl
-	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/CosPropertyServiceS.cpp -o $(OBJECT_PREFIX)_CosPropertyServiceS.o
-	touch $@
-    }
-
-    make_object {
-	CosPropertyServiceC.o : $(REPOSITORY)/$(PACKAGE)/CosPropertyService.idl
-	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/CosPropertyServiceC.cpp -o $(OBJECT_PREFIX)_CosPropertyServiceC.o
 	touch $@
     }
 

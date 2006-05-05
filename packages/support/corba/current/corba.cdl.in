@@ -22,10 +22,17 @@ be used by other packages."
 	no_define
     }
 
+    cdl_option OROBLD_SUPPORT_ORBSVCS_DIR {
+	display "Orbsvcs installation directory"
+	flavor data
+	default_value {"@ORBSVCS_DIR@"}
+	no_define
+    }
+
     cdl_option CYGBLD_GLOBAL_CFLAGS_ADD {
 	display "Add paths to compilation flags."
 	flavor data
-	calculated {"-I".OROBLD_SUPPORT_ACE_DIR." -I".OROBLD_SUPPORT_TAO_DIR}
+	calculated {"-I".OROBLD_SUPPORT_ACE_DIR." -I".OROBLD_SUPPORT_TAO_DIR." -I".OROBLD_SUPPORT_ORBSVCS_DIR}
 	no_define
     }
 }

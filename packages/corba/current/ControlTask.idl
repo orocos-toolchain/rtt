@@ -7,10 +7,18 @@
  * Orocos Control Task Component.
  */
 
-#include "CosPropertyService.idl"
+// avoid inclusion of this header since tao_idl is broken.
+//#include <orbsvcs/CosPropertyService.idl>
 #include "Factories.idl"
 #include "Attributes.idl"
 #include "ScriptingAccess.idl"
+
+// Forward declaration.
+module CosPropertyService
+{
+  interface PropertySet;
+};
+
 
 module Orocos
 {

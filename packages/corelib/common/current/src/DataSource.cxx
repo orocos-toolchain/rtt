@@ -29,9 +29,6 @@
 #include <pkgconf/os.h>
 #ifdef OROINT_OS_CORBA
 #include "corelib/AnyDataSource.hpp"
-// WARNING: my Debian version has 'TypeCode.h',
-// the OCI version uses 'Typecode.h'... is this a typo ???
-#include <tao/Typecode.h>
 #endif
 
 namespace ORO_CoreLib
