@@ -34,14 +34,24 @@
 
 namespace ORO_Execution
 {
+    /**
+     * This is the interface of a connection which
+     * transfers data unbuffered between two Ports of a TaskContext.
+     */
     template<class T>
     struct DataConnectionInterface
         : public ConnectionInterface
     {
         typedef boost::intrusive_ptr< DataConnectionInterface<T> > shared_ptr;
 
+        /**
+         * Return the DataObject of this Connection.
+         */
         virtual const ORO_CoreLib::DataObjectInterface<T>* data() const = 0;
 
+        /**
+         * Return the DataObject of this Connection.
+         */
         virtual ORO_CoreLib::DataObjectInterface<T>* data() = 0;
     };
 

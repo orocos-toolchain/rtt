@@ -54,13 +54,17 @@ namespace ORO_Execution
             return mbuf->front();
         }
 
+        typename ORO_CoreLib::DataSource<T>::result_t value() const {
+            return mbuf->front();
+        }
+
         BufferDataSource<T>* clone() const {
             return new BufferDataSource<T>( mbuf );
         }
 
-        BufferDataSource<T>* copy(std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& clones) {
-            clones[this] = this;
-            return this;
+        BufferDataSource<T>* copy(std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& clones) const {
+            clones[this] = const_cast< BufferDataSource<T>*>(this);
+            return const_cast< BufferDataSource<T>*>(this);
         }
 
     };

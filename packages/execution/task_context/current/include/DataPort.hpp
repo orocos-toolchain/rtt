@@ -38,7 +38,9 @@
 namespace ORO_Execution
 {
     /**
-     * A Port to a readable DataObject.
+     * A Port to a readable Data Connection.
+     * Use connection() to access the data object. If the port is not
+     * connected, connection() returns null.
      * @param T The type of the data of the data object.
      */
     template<class T>
@@ -63,12 +65,25 @@ namespace ORO_Execution
             if (mconn)
                 mconn->removeReader(this);
         }
+
         /**
          * Get the data object to read from. The Task may use this to read from a
          * Data object connection connected to this port.
          * @return 0 if !connected(), the Data Object otherwise.
          */
         const ORO_CoreLib::DataObjectInterface<T>* data() const { return mconn ? mconn->data() : 0; }
+
+        /**
+         * Get the current value of this Port.
+         * @retval this->data()->Get() if this->connected()
+         * @retval T() if !this->connected()
+         */
+        T Get() const
+        {
+            if ( mconn )
+                return mconn->data()->Get();
+            return T();
+        }
 
         /**
          * Connect a readable data object connection to this Port.
@@ -103,7 +118,9 @@ namespace ORO_Execution
     };
 
     /**
-     * A Port to a readable Data Object.
+     * A Port to a readable and writable Data Connection.
+     * Use connection() to access the data object. If the port is not
+     * connected, connection() returns null.
      * @param T The type of the data of the Data Object.
      */
     template<class T>
@@ -114,7 +131,7 @@ namespace ORO_Execution
         typedef T DataType;
     protected:
         /**
-         * The connection to read from.
+         * The connection to write to
          */
         typename DataConnectionInterface<T>::shared_ptr mconn;
 
@@ -122,7 +139,7 @@ namespace ORO_Execution
         ConnectionInterface::shared_ptr createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
 
         /**
-         * Get the data object to read from. The Task may use this to read from a
+         * Get the data object to write to. The Task may use this to write to a
          * Data Object connected to this port.
          * @return 0 if !connected(), the data object otherwise.
          */
@@ -134,6 +151,30 @@ namespace ORO_Execution
          * @return 0 if !connected(), the data object otherwise.
          */
         const ORO_CoreLib::DataObjectInterface<T>* data() const { return mconn ? mconn->data() : 0; }
+
+        /**
+         * Write data to the connection of this port.
+         * If the port is not connected, nothing happens.
+         * @param data The data to set.
+         */
+        void Set(const T& data )
+        {
+            if ( mconn )
+                mconn->data()->Set(data);
+        }
+
+        /**
+         * Get the current value of this Port.
+         * If the port is not connected, a default value is returned.
+         * @retval this->data()->Get() if this->connected()
+         * @retval T() if !this->connected()
+         */
+        T Get() const
+        {
+            if ( mconn )
+                return mconn->data()->Get();
+            return T();
+        }
 
         /**
          * Construct an unconnected Port to a writable DataObject.

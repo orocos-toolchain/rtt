@@ -39,6 +39,8 @@ namespace ORO_Execution
 {
     /**
      * A Port to a readable Buffer.
+     * Use connection() to access the buffer. If the port is not
+     * connected, connection() returns null.
      * @param T The type of the data of the buffer.
      */
     template<class T>
@@ -67,6 +69,19 @@ namespace ORO_Execution
         }
 
         virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
+
+        /**
+         * Pop a value from the buffer of this Port's connection.
+         * @param data The location where to store the popped value.
+         * @retval this->read()->Pop(data) if this->connected()
+         * @retval false if !this->connected() 
+         */
+        bool Pop(T& data)
+        {
+            if (mconn)
+                return mconn->read()->Pop(data);
+            return false;
+        }
 
         bool connected() const { return mconn; };
 
@@ -110,6 +125,8 @@ namespace ORO_Execution
 
     /**
      * A Port to a writable Buffer.
+     * Use connection() to access the buffer. If the port is not
+     * connected, connection() returns null.
      * @param T The type of the data of the buffer.
      */
     template<class T>
@@ -156,6 +173,19 @@ namespace ORO_Execution
         bool connected() const { return mconn; };
 
         /**
+         * Push a value into the buffer of this Port's connection.
+         * @param data The data to push.
+         * @retval this->read()->Push(data) if this->connected()
+         * @retval false if !this->connected() 
+         */
+        bool Push(const T& data)
+        {
+            if (mconn)
+                return mconn->write()->Push(data);
+            return false;
+        }
+
+        /**
          * Connect a writeable buffer to this Port.
          */
         virtual bool connect(typename WriteConnectionInterface<T>::shared_ptr conn) { 
@@ -193,6 +223,8 @@ namespace ORO_Execution
 
     /**
      * A Port to a read-write Buffer.
+     * Use connection() to access the buffer. If the port is not
+     * connected, connection() returns null.
      * @param T The type of the data of the buffer.
      */
     template<class T>

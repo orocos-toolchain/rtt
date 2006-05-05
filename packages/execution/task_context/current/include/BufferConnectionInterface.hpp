@@ -34,27 +34,50 @@
 
 namespace ORO_Execution
 {
+    /**
+     * This is the interface of a connection which
+     * transfers buffered data from a read Port a TaskContext.
+     */
     template<class T>
     struct ReadConnectionInterface
         : public virtual ConnectionInterface
     {
         typedef boost::intrusive_ptr< ReadConnectionInterface<T> > shared_ptr;
+
+        /**
+         * Get the buffer's read interface.
+         */
         virtual ORO_CoreLib::ReadInterface<T>* read() = 0;
     };
 
+    /**
+     * This is the interface of a connection which
+     * transfers buffered data to a write Port of a TaskContext.
+     */
     template<class T>
     struct WriteConnectionInterface
         : public virtual ConnectionInterface
     {
         typedef boost::intrusive_ptr< WriteConnectionInterface<T> > shared_ptr;
+        /**
+         * Get the buffer's write interface.
+         */
         virtual ORO_CoreLib::WriteInterface<T>* write() = 0;
     };
 
+    /**
+     * This is the interface of a connection which transfers buffered
+     * data bidirectionally from a port of a TaskContext.
+     */
     template<class T>
     struct BufferConnectionInterface
         : public ReadConnectionInterface<T>, public WriteConnectionInterface<T>
     {
         typedef boost::intrusive_ptr< BufferConnectionInterface<T> > shared_ptr;
+
+        /**
+         * Get the buffer interface.
+         */
         virtual ORO_CoreLib::BufferInterface<T>* buffer() = 0;
     };
 
