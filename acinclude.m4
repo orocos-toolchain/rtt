@@ -702,10 +702,10 @@ m4_define([DETECT_CORBAPKG],
 
 # if ACE_ROOT/TAO_ROOT defined, use that unless specifically overridden.
 if test x$ACE_ROOT != x; then
-  ACE_DIR = $ACE_ROOT
+  ACE_DIR=$ACE_ROOT
 fi
 if test x$TAO_ROOT != x; then
-  TAO_DIR = $TAO_ROOT
+  TAO_DIR=$TAO_ROOT
 fi
 
 AC_ARG_WITH(ace, [ AC_HELP_STRING([--with-ace=/usr/include],[Specify location of ace/config-all.h ]) ],
