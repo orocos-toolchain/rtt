@@ -63,7 +63,7 @@
 #include "corba/FactoriesC.h"
 #include "corba/AttributesC.h"
 #include "corba/ScriptingAccessC.h"
-#include "CosPropertyServiceC.h"
+#include <orbsvcs/CosPropertyServiceC.h>
 #include <execution/TaskContext.hpp>
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
