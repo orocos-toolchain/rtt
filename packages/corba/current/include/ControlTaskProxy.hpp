@@ -33,7 +33,7 @@
 #include <string>
 #include <map>
 #include "ControlTaskC.h"
-#include "CosPropertyServiceC.h"
+#include <orbsvcs/CosPropertyServiceC.h>
 #include "ApplicationServer.hpp"
 
 namespace ORO_Corba

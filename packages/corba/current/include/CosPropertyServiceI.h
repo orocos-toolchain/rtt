@@ -1,4 +1,4 @@
-/***************************************************************************
+7/***************************************************************************
   tag: Peter Soetens  Wed Jan 18 14:09:49 CET 2006  CosPropertyServiceI.h 
 
                         CosPropertyServiceI.h -  description
@@ -59,7 +59,7 @@
 #ifndef COSPROPERTYSERVICEI_H_
 #define COSPROPERTYSERVICEI_H_
 
-#include "CosPropertyServiceS.h"
+#include <orbsvcs/CosPropertyServiceS.h>
 #include <corelib/PropertyBag.hpp>
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
