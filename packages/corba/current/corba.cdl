@@ -25,6 +25,7 @@ detection of the packages configure script"
     include_files Execution.idl ExecutionC.h ExecutionS.h ExecutionC.inl ExecutionS.inl ExecutionS_T.h ExecutionS_T.inl ExecutionS_T.cpp ExecutionI.h
     include_files ControlTask.idl ControlTaskC.h ControlTaskS.h ControlTaskC.inl ControlTaskS.inl ControlTaskS_T.h ControlTaskS_T.inl ControlTaskS_T.cpp ControlTaskI.h
     include_files Factories.idl FactoriesC.h FactoriesS.h FactoriesC.inl FactoriesS.inl FactoriesS_T.h FactoriesS_T.inl FactoriesS_T.cpp FactoriesI.h
+    include_files CosPropertyServiceI.h
     include_files CorbaMethodFactory.hpp CorbaCommandFactory.hpp CorbaConversion.hpp 
     include_files OrocosTypesC.h OrocosTypesC.inl GeometryConversion.hpp
     include_files GeometryC.h GeometryC.inl

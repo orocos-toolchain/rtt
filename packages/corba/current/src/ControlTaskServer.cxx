@@ -34,6 +34,9 @@
 #include <orbsvcs/CosNamingC.h>
 #include <iostream>
 
+// ACE Specific, for printing exceptions.
+#include <ace/SString.h>
+
 namespace ORO_Corba
 {
     using namespace std;

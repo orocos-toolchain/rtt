@@ -146,15 +146,18 @@ namespace ORO_CoreLib
             return new ORO_Corba::CORBAExpression<CORBA::Any_ptr>( expr.in() );
         }
         // last resort, try to do it as 'Any':
+#if 0
+        // This piece of code requires 'tao/Typecode.h' or 'tao/TypeCode.h'
+        // See also function below.
         CORBA::Any_var any = dsb->createAny();
         if ( (any->type())->equal(CORBA::_tc_null) == false ) {
             // if other's any is meaningful (not null), create Any.
             Logger::log() << Logger::Debug << "'Emergency' narrowing DataSource "<<dsb->getType() <<" to local CORBA::Any." <<Logger::endl;
             return new detail::AnyDataSource( dsb );
         }
-
-        // all failed:
-        return 0;
+#endif
+        Logger::log() << Logger::Debug << "Narrowing DataSource "<<dsb->getType() <<" to AnyDataSource." <<Logger::endl;
+        return new detail::AnyDataSource( dsb );
     }
 
     template<>

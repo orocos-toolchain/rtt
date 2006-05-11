@@ -506,8 +506,8 @@
 	--with-gnulinux</command> to select the os/gnulinux target.
 	Alternative targets are:
 	<itemizedlist>
-	  <listitem><para><option>--with-lxrt[=/usr/realtime]</option></para></listitem>
-	  <listitem><para><option>--with-xenomai[=/usr/realtime]</option></para></listitem>
+	  <listitem><para><option>--with-lxrt[=/usr/realtime] --with-linux[=/patched/linux/tree]</option></para></listitem>
+	  <listitem><para><option>--with-xenomai[=/usr/realtime]  --with-linux[=/patched/linux/tree]</option></para></listitem>
 	</itemizedlist>
 	The latter targets require the presence of the
 	<option>--with-linux=/path/to/linux</option> option since
@@ -594,48 +594,244 @@
 	Otherwise the build will fail.
       </para>
     </sect2>
-    <sect2 id="install-config-devs">
-      <title>Configuring Device Drivers</title>
+    <sect2 id="general_setup_rtai">
+      <title >Configuring for RTAI / LXRT</title>
       <para>
-	Orocos provides device drivers for the Philips SJA1000
-	CAN Controller, APCI1710 Encoder card, APCI2200 Digital
-	IO card and Comedi Devices. These are not compiled 
-	with the default installation. In the graphical
-	configtool you can add device drivers with the menu
-	"Build->Packages". They will be grouped in the
-	device_drivers parent package.
+	Read first the 'Getting Started' section from <ulink
+	  url="http://people.mech.kuleuven.be/~psoetens/portingtolxrt.html">this 
+	  page</ulink> if you are not familiar with RTAI installation
+      </para>
+      <para>
+	RTAI 3.1 with Linux 2.6 and later versions are the most stable combination in our experience, 
+	however you can also use RTAI 3.0 for less resource consuming applications.
+	You can obtain it from 
+	<ulink url="http://www.aero.polimi.it/projects/rtai/">
+	  the RTAI home page</ulink>.
+	Read The README.* files in the
+	<filename class="directory">rtai</filename> directory for detailed
+	instructions.  First, you need to patch your Linux kernel with the RTAI patch. A patch per
+	kernel version can be found in the <filename>rtai-core/arch/i386/patches</filename> directory. You should
+	apply
+	the <filename>hal12-X.Y.Z.patch</filename> (or later) for RTAI  to a clean
+	<filename>Linux-X.Y.Z</filename> kernel.  We refer to the RTAI installation instructions for more
+	details.
+      </para>
+      <para>
+	Next do <command>make menuconfig</command>
       </para>
       <sect3>
-	<title>Comedi and ComediLib</title>
+	<title> RTAI settings </title>
 	<para>
-	  Orocos has a ported small part of the ComediLib
-	  interface in its C++ device interface. To use these
-	  classes, the Orocos configure script must first
-	  detect a valid installation. This can be done
-	  by providing this option to configure :
-	  <screen>  ../configure --with-comedi=/path/to/comedi/include </screen>
-	  If found, the Comedi support package will
-	  be generated, and you will be able to add the
-	  Orocos Comedi Device Driver to your configuration.
+	  RTAI comes with documentation for configuration and
+	  installation.  In the configuration process, make sure that
+	  you enable the following options (<emphasis>in addition to
+	  options you feel you need for your application</emphasis>) :
+	  <itemizedlist>
+	    <listitem>
+	      <para>General -&gt; 'Enable extended configuration mode'</para>
+	    </listitem>
+	    <listitem>
+	      <para>Core System -&gt; Native RTAI schedulers &gt;
+	      Scheduler options -&gt; 'Number of LXRT slots' ('500') </para>
+	    </listitem>
+	    <listitem>
+	      <para>Machine -&gt; 'Enable FPU support'</para>
+	    </listitem>
+	    <listitem>
+	      <para>Core System -&gt; Native RTAI schedulers &gt;
+	      IPC support -&gt; Semaphores, Fifos, Bits (or Events) and Mailboxes</para>
+	    </listitem>
+	    <listitem>
+	      <para>Add-ons -&gt; 'Comedi Support over LXRT' (if you intend to use the
+	      Orocos Comedi Drivers)</para>
+	    </listitem>
+	    <listitem>
+	      <para>Core System -&gt; Native RTAI schedulers &gt;
+	      'LXRT scheduler (kernel and user-space tasks)'</para>
+	    </listitem>
+	  </itemizedlist>
+	  After configuring you must run 'make' and 'make install' in your RTAI directory:
+	  <command>make ; make install</command>
 	</para>
-	<important>
-	  <para>
-	    Orocos can use ComediLib from the GNU/Linux or Xenomai target
-	    (non realtime interface), in which case you must
-	    point configure to the 'comedilib' path (for example <filename>/usr/src/comedilib/include</filename>)
-	    and the LXRT target ( realtime interface ), in which
-	    case you must configure to the 'comedi' path (for example <filename>/usr/src/comedi/include</filename>).
-	  </para>
-	</important>
+	<para>
+	  After installation, RTAI can be found in <filename>/usr/realtime</filename>. You'll have to 
+	  specify during the Orocos configure step the alternative if you chose so.
+	</para>
       </sect3>
       <sect3>
-	<title>Philips SJA1000 CAN Controller</title>
+	<title> Loading RTAI with LXRT</title>
 	<para>
-	  Orocos has a preliminary CAN Controller implementation
-	  using the CANPie interface. To use it, the <filename>CANPie</filename>
-	  and <filename>CANOpen</filename> packages must be 
-	  added to your configuration. The device driver
-	  works with RTAI/LXRT.
+	  LXRT is a all-in-one scheduler that works for kernel and userspace.
+	  So if you use this, you can still run kernel programs but have the ability
+	  to run realtime programs in userspace. Orocos provides you the libraries
+	  to build these programs.
+	  Make sure that the following RTAI kernel modules are loaded
+	  <itemizedlist>
+	    <listitem><para>rtai_sem</para></listitem>
+	    <listitem><para>rtai_lxrt</para></listitem>
+	    <listitem><para>rtai_hal</para></listitem>
+	    <listitem><para>adeos</para></listitem>
+	  </itemizedlist>
+	  For example, by executing as root:
+	  <command>modprobe rtai_lxrt; modprobe rtai_sem</command>.
+	</para>
+	<para>For a more detailed description of what LXRT really is,
+	  you can read the LXRT HOWTO 
+	  <ulink url="http://people.mech.kuleuven.be/~psoetens/lxrt/portingtolxrt.html">here</ulink>
+	</para>
+      </sect3>
+      <sect3>
+	<title>Configuring Orocos for LXRT</title>
+	<para>
+	  In your build directory, run:
+	  <command>../configure --with-lxrt[=/usr/realtime] --with-linux[=/patched/linux/tree]</command>
+	  The LXRT target requires the presence of the
+	  <option>--with-linux=/path/to/linux</option> option since
+	  these targets require Linux headers during the Orocos build.
+	  To use the LibC Kernel headers in
+	  <filename>/usr/include/linux</filename>, specify
+	  <option>--with-linux=/usr</option>.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Compiling Applications with LXRT</title>
+<!-- 	<important><title>Fedora Core (RedHat) and other distributions</title> -->
+<!-- 	  <para> -->
+<!-- 	    Because the RTAI/LXRT headers (which Orocos needs) include kernel-specific headers, you -->
+<!-- 	    need to enable the 'LXRT with Kernel Headers Workaround' option in the -->
+<!-- 	    configuration tool. You need to set the path to your Linux source tree (on which the -->
+<!-- 	    patch was applied ) in the <command>make configure_packages</command> step. -->
+<!-- 	  </para>	 -->
+<!-- 	</important> -->
+	<para>
+	  Application which use LXRT as a target need special flags when being
+	  compiled and linked. Especially :
+	  <itemizedlist>
+	    <listitem>
+	      <para>
+		Compiling : <option>-I/usr/realtime/include</option>
+	      </para>
+	      <para>
+		This is the RTAI headers installation directory. This option is not needed
+		if you configured Orocos with the 'Agnostic headers' option.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		Linking : <option>-L/usr/realtime/lib -llxrt</option> for dynamic (.so) linking OR add
+		<option> /usr/realtime/liblxrt.a </option> for static (.a) linking.
+	      </para>
+	      <important>
+		<para>
+		  You might also need to add
+		  <filename>/usr/realtime/lib</filename> to the
+		  <filename>/etc/ld.so.conf</filename> file and rerun
+		  <command>ldconfig</command>, such that liblxrt.so
+		  can be found.  This option is not needed if you
+		  configured RTAI with LXRT-static-inlining.
+		</para>
+	      </important>
+	    </listitem>
+	  </itemizedlist>
+	</para>
+      </sect3>
+    </sect2>
+    <sect2 id="general_setup_xeno">
+      <title >Configuring for Xenomai</title>
+      <para>
+	Xenomai provides a real-time scheduler for Linux applications.
+	It is similar to, and once developed with, RTAI/LXRT, but the
+	project is now independent of RTAI. See
+	<ulink url="http://www.xenomai.org">
+	  the Xenomai home page</ulink>. Xenomai works exclusively
+	  with Linux 2.6 kernels. The patch one needs to apply upon
+	  the Linux kernel can be found in the
+	  <filename>arch/[target]/patches</filename> directory. When
+	  applied, one needs to enable the <option>ADEOS</option> or
+	  <option>IPIPE</option> option during Linux kernel
+	  configuration.
+      </para>
+      <para>
+	When the Linux kernel is built, do in the Xenomai directory:
+	<command>make menuconfig; make; make install</command>. Consult the
+	README files in the top Xenomai directory for further help
+	with installation.
+      </para>
+      <sect3>
+	<title>Xenomai settings</title>
+	<para>
+	  The default settings for Xenomai are fine for Orocos.  The
+	  only option that requires to be set is the location of the
+	  patched Linux kernel.  After configuring you can run 'make'
+	  and 'make install' in your Xenomai directory.
+	</para>
+	<para>
+	  After installation, Xenomai can be found in
+	  <filename>/usr/realtime</filename>. You'll have to specify
+	  during the Orocos configure step the alternative if you
+	  chose so.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Loading Xenomai</title>
+	<para>
+	  Orocos uses the native Xenomai API to address the real-time scheduler.
+	  The Xenomai kernel modules can be found in <filename>/usr/realtime/modules</filename>.
+	  Thus only the following kernel modules need to be loaded:
+	  <itemizedlist>
+	    <listitem><para>xeno_hal.ko</para></listitem>
+	    <listitem><para>xeno_nucleus.ko</para></listitem>
+	    <listitem><para>xeno_native.ko</para></listitem>
+	  </itemizedlist> in that order.
+	  For example, by executing as root:
+	  <command>insmod xeno_hal.ko; insmod xeno_nucleus.ko; insmod xeno_native.ko</command>.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Configuring Orocos for Xenomai</title>
+	<para>
+	  In your build directory, run:
+	  <command>../configure --with-xenomai[=/usr/realtime] --with-linux[=/patched/linux/tree]</command>
+	  The Xenomai target requires the presence of the
+	  <option>--with-linux=/path/to/linux</option> option since
+	  these targets require Linux headers during the Orocos build.
+	  To use the LibC Kernel headers in
+	  <filename>/usr/include/linux</filename>, specify
+	  <option>--with-linux=/usr</option>.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Compiling Applications with Xenomai</title>
+	<para>
+	  Application which use Xenomai as a target need special flags when being
+	  compiled and linked. Especially :
+	  <itemizedlist>
+	    <listitem>
+	      <para>
+		Compiling : <option>-I/usr/realtime/include</option>
+	      </para>
+	      <para>
+		This is the Xenomai headers installation directory.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		Linking : <option>-L/usr/realtime/lib
+		-lnative</option> for dynamic (.so) linking OR add
+		<option> /usr/realtime/libnative.a </option> for
+		static (.a) linking.
+	      </para>
+	      <important>
+		<para>
+		  You might also need to add
+		  <filename>/usr/realtime/lib</filename> to the
+		  <filename>/etc/ld.so.conf</filename> file and rerun
+		  <command>ldconfig</command>, such that libnative.so
+		  can be found.
+		</para>
+	      </important>
+	    </listitem>
+	  </itemizedlist>
 	</para>
       </sect3>
     </sect2>
@@ -770,217 +966,48 @@
 	</para>
       </sect3>
     </sect2>
-    <sect2 id="general_setup_rtai">
-      <title >Configuring for RTAI</title>
+    <sect2 id="install-config-devs">
+      <title>Configuring Device Drivers</title>
       <para>
-	Read first the 'Getting Started' section from <ulink
-	  url="http://people.mech.kuleuven.be/~psoetens/portingtolxrt.html">this 
-	  page</ulink> if you are not familiar with RTAI installation
-      </para>
-      <para>
-	RTAI 3.1 with Linux 2.6 and later versions are the most stable combination in our experience, 
-	however you can also use RTAI 3.0 for less resource consuming applications.
-	You can obtain it from 
-	<ulink url="http://www.aero.polimi.it/projects/rtai/">
-	  the RTAI home page</ulink>.
-	Read The README.* files in the
-	<filename class="directory">rtai</filename> directory for detailed
-	instructions.  First, you need to patch your Linux kernel with the RTAI patch. A patch per
-	kernel version can be found in the <filename>rtai-core/arch/i386/patches</filename> directory. You should
-	apply
-	the <filename>hal12-X.Y.Z.patch</filename> (or later) for RTAI  to a clean
-	<filename>Linux-X.Y.Z</filename> kernel.  We refer to the RTAI installation instructions for more
-	details.
-      </para>
-      <para>
-	Next do <command>make menuconfig; make;</command>
+	Orocos provides device drivers for the Philips SJA1000
+	CAN Controller, APCI1710 Encoder card, APCI2200 Digital
+	IO card and Comedi Devices. These are not compiled 
+	with the default installation. In the graphical
+	configtool you can add device drivers with the menu
+	"Build->Packages". They will be grouped in the
+	device_drivers parent package.
       </para>
       <sect3>
-	<title> RTAI settings </title>
+	<title>Comedi and ComediLib</title>
 	<para>
-	  RTAI comes with documentation for configuration and
-	  installation.  In the configuration process, make sure that
-	  you enable the following options (<emphasis>in addition to
-	  options you feel you need for your application</emphasis>) :
-	  <itemizedlist>
-	    <listitem>
-	      <para>General -&gt; 'Enable extended configuration mode'</para>
-	    </listitem>
-	    <listitem>
-	      <para>Core System -&gt; Native RTAI schedulers &gt;
-	      Scheduler options -&gt; 'Number of LXRT slots' ('500') </para>
-	    </listitem>
-	    <listitem>
-	      <para>Machine -&gt; 'Enable FPU support'</para>
-	    </listitem>
-	    <listitem>
-	      <para>Core System -&gt; Native RTAI schedulers &gt;
-	      IPC support -&gt; Semaphores, Fifos, Bits (or Events) and Mailboxes</para>
-	    </listitem>
-	    <listitem>
-	      <para>Add-ons -&gt; 'Comedi Support over LXRT' (if you intend to use the
-	      Orocos Comedi Drivers)</para>
-	    </listitem>
-	    <listitem>
-	      <para>Core System -&gt; Native RTAI schedulers &gt;
-	      'LXRT scheduler (kernel and user-space tasks)'</para>
-	    </listitem>
-	  </itemizedlist>
-	  After configuring you can run 'make' and 'make install' in your RTAI directory
+	  Orocos has a ported small part of the ComediLib
+	  interface in its C++ device interface. To use these
+	  classes, the Orocos configure script must first
+	  detect a valid installation. This can be done
+	  by providing this option to configure :
+	  <screen>  ../configure --with-comedi=/path/to/comedi/include </screen>
+	  If found, the Comedi support package will
+	  be generated, and you will be able to add the
+	  Orocos Comedi Device Driver to your configuration.
 	</para>
-	<para>
-	  After installation, RTAI can be found in <filename>/usr/realtime</filename>. You'll have to 
-	  specify during the Orocos configure step the alternative if you chose so.
-	</para>
+	<important>
+	  <para>
+	    Orocos can use ComediLib from the GNU/Linux or Xenomai target
+	    (non realtime interface), in which case you must
+	    point configure to the 'comedilib' path (for example <filename>/usr/src/comedilib/include</filename>)
+	    and the LXRT target ( realtime interface ), in which
+	    case you must configure to the 'comedi' path (for example <filename>/usr/src/comedi/include</filename>).
+	  </para>
+	</important>
       </sect3>
       <sect3>
-	<title> Loading RTAI with LXRT</title>
+	<title>Philips SJA1000 CAN Controller</title>
 	<para>
-	  LXRT is a all-in-one scheduler that works for kernel and userspace.
-	  So if you use this, you can still run kernel programs but have the ability
-	  to run realtime programs in userspace. Orocos provides you the libraries
-	  to build these programs.
-	  Make sure that the following RTAI kernel modules are loaded
-	  <itemizedlist>
-	    <listitem><para>rtai_sem</para></listitem>
-	    <listitem><para>rtai_lxrt</para></listitem>
-	    <listitem><para>rtai_hal</para></listitem>
-	    <listitem><para>adeos</para></listitem>
-	  </itemizedlist>
-	  For example, by executing as root:
-	  <command>modprobe rtai_lxrt; modprobe rtai_sem</command>.
-	</para>
-	<para>For a more detailed description of what LXRT really is,
-	  you can read the LXRT HOWTO 
-	  <ulink url="http://people.mech.kuleuven.be/~psoetens/lxrt/portingtolxrt.html">here</ulink>
-	</para>
-      </sect3>
-      <sect3>
-	<title>Compiling Applications with LXRT</title>
-<!-- 	<important><title>Fedora Core (RedHat) and other distributions</title> -->
-<!-- 	  <para> -->
-<!-- 	    Because the RTAI/LXRT headers (which Orocos needs) include kernel-specific headers, you -->
-<!-- 	    need to enable the 'LXRT with Kernel Headers Workaround' option in the -->
-<!-- 	    configuration tool. You need to set the path to your Linux source tree (on which the -->
-<!-- 	    patch was applied ) in the <command>make configure_packages</command> step. -->
-<!-- 	  </para>	 -->
-<!-- 	</important> -->
-	<para>
-	  Application which use LXRT as a target need special flags when being
-	  compiled and linked. Especially :
-	  <itemizedlist>
-	    <listitem>
-	      <para>
-		Compiling : <option>-I/usr/realtime/include</option>
-	      </para>
-	      <para>
-		This is the RTAI headers installation directory. This option is not needed
-		if you configured Orocos with the 'Agnostic headers' option.
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>
-		Linking : <option>-L/usr/realtime/lib -llxrt</option> for dynamic (.so) linking OR add
-		<option> /usr/realtime/liblxrt.a </option> for static (.a) linking.
-	      </para>
-	      <important>
-		<para>
-		  You might also need to add
-		  <filename>/usr/realtime/lib</filename> to the
-		  <filename>/etc/ld.so.conf</filename> file and rerun
-		  <command>ldconfig</command>, such that liblxrt.so
-		  can be found.  This option is not needed if you
-		  configured RTAI with LXRT-static-inlining.
-		</para>
-	      </important>
-	    </listitem>
-	  </itemizedlist>
-	</para>
-      </sect3>
-    </sect2>
-    <sect2 id="general_setup_xeno">
-      <title >Configuring for Xenomai</title>
-      <para>
-	Xenomai provides a real-time scheduler for Linux applications.
-	It is similar to, and once developed with, RTAI/LXRT, but the
-	project is now independent of RTAI. See
-	<ulink url="http://www.xenomai.org">
-	  the Xenomai home page</ulink>. Xenomai works exclusively
-	  with Linux 2.6 kernels. The patch one needs to apply upon
-	  the Linux kernel can be found in the
-	  <filename>arch/[target]/patches</filename> directory. When
-	  applied, one needs to enable the <option>ADEOS</option> or
-	  <option>IPIPE</option> option during Linux kernel
-	  configuration.
-      </para>
-      <para>
-	When the Linux kernel is built, do in the Xenomai directory:
-	<command>make menuconfig; make;</command>. Consult the
-	README files in the top Xenomai directory for further help
-	with installation.
-      </para>
-      <sect3>
-	<title>Xenomai settings</title>
-	<para>
-	  The default settings for Xenomai are fine for Orocos.  The
-	  only option that requires to be set is the location of the
-	  patched Linux kernel.  After configuring you can run 'make'
-	  and 'make install' in your Xenomai directory.
-	</para>
-	<para>
-	  After installation, Xenomai can be found in
-	  <filename>/usr/realtime</filename>. You'll have to specify
-	  during the Orocos configure step the alternative if you
-	  chose so.
-	</para>
-      </sect3>
-      <sect3>
-	<title>Loading Xenomai</title>
-	<para>
-	  Orocos uses the native Xenomai API to address the real-time scheduler.
-	  The Xenomai kernel modules can be found in <filename>/usr/realtime/modules</filename>.
-	  Thus only the following kernel modules need to be loaded:
-	  <itemizedlist>
-	    <listitem><para>xeno_hal.ko</para></listitem>
-	    <listitem><para>xeno_nucleus.ko</para></listitem>
-	    <listitem><para>xeno_native.ko</para></listitem>
-	  </itemizedlist> in that order.
-	  For example, by executing as root:
-	  <command>insmod xeno_hal.ko; insmod xeno_nucleus.ko; insmod xeno_native.ko</command>.
-	</para>
-      </sect3>
-      <sect3>
-	<title>Compiling Applications with Xenomai</title>
-	<para>
-	  Application which use Xenomai as a target need special flags when being
-	  compiled and linked. Especially :
-	  <itemizedlist>
-	    <listitem>
-	      <para>
-		Compiling : <option>-I/usr/realtime/include</option>
-	      </para>
-	      <para>
-		This is the Xenomai headers installation directory.
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>
-		Linking : <option>-L/usr/realtime/lib
-		-lnative</option> for dynamic (.so) linking OR add
-		<option> /usr/realtime/libnative.a </option> for
-		static (.a) linking.
-	      </para>
-	      <important>
-		<para>
-		  You might also need to add
-		  <filename>/usr/realtime/lib</filename> to the
-		  <filename>/etc/ld.so.conf</filename> file and rerun
-		  <command>ldconfig</command>, such that libnative.so
-		  can be found.
-		</para>
-	      </important>
-	    </listitem>
-	  </itemizedlist>
+	  Orocos has a preliminary CAN Controller implementation
+	  using the CANPie interface. To use it, the <filename>CANPie</filename>
+	  and <filename>CANOpen</filename> packages must be 
+	  added to your configuration. The device driver
+	  works with RTAI/LXRT.
 	</para>
       </sect3>
     </sect2>

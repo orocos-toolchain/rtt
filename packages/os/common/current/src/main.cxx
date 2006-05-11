@@ -84,9 +84,11 @@ int main(int argc, char** argv)
     __os_init(argc, argv);
 
     {
+#ifdef OROPKG_CORELIB_REPORTING
         string location( argv[0] );
         location += "::main()";
         Logger::In in( location.c_str() );
+#endif
 
     bool dotry = true;
     // look for --nocatch flag :
