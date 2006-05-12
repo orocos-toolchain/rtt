@@ -55,7 +55,7 @@ namespace ORO_Execution
      * CommandProcessor (which is what scripts take care of). The methods and datasources
      * can be queried by any peer TaskContext at any time.
      *
-     * The ExecutionEngine::step() must be invoked seperately from a
+     * The ExecutionEngine::step() must be invoked separately from a
      * PeriodicTask or other ActivityInterface implementation, as long as
      * that Task is not started, this TaskContext will not accept any
      * commands.  In this way, the user of this class can determine

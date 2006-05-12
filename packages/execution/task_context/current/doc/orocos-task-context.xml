@@ -1696,7 +1696,7 @@ cd                  quit
       <note>
 	<para>
 	  Using the <function>boost::bind</function> function is not yet supported
-	  in this interface. You must provide the object and function seperately
+	  in this interface. You must provide the object and function separately
 	  in <function>callback()</function>.
 	</para>
       </note>

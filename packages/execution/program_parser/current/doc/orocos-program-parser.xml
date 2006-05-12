@@ -1006,7 +1006,7 @@
 	  Another program can request a transition to a particular 
           state as well. When the request arrives, the current state
 	  checks its transition conditions and evaluates if a transition to that state
-	  is allowed. These conditions are seperately listed from the event
+	  is allowed. These conditions are separately listed from the event
           transitions above. If a transition condition is valid,
           the exit program of the current state
 	  is called, the transition program and then the entry program of the requested state is
