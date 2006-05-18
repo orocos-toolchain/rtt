@@ -31,8 +31,9 @@
 #include <pkgconf/geometry.h>
 #include <corelib/Logger.hpp>
 
-namespace ORO_CoreLib
+namespace ORO_Geometry
 {
+    using namespace ORO_CoreLib;
 
     template class Property<ORO_Geometry::Frame>;
     template class Property<Double6D>;
@@ -53,7 +54,7 @@ namespace ORO_CoreLib
      */
     class Double6DDecomposer
     {
-        Property<PropertyBag> resultBag;
+        PropertyBag resultBag;
         Property<double> D1;
         Property<double> D2;
         Property<double> D3;
@@ -63,10 +64,9 @@ namespace ORO_CoreLib
         
     public: 
         
-        Double6DDecomposer( const Property<Double6D>& v );
-        Double6DDecomposer( const Double6D& v, const std::string& name );
+        Double6DDecomposer( const Double6D& v );
         
-        Property<PropertyBag>& result() { return resultBag; }
+        PropertyBag& result() { return resultBag; }
     };
         
     /**
@@ -81,37 +81,14 @@ namespace ORO_CoreLib
             : bag(_bag)
         {}
 
-        bool getResult( Property<Double6D>& res )
-        {
-            return getResult( res.value(), res.getName() );
-        }
-                
-        bool getResult( Double6D& res, const std::string& name );
+        bool getResult( Double6D& res );
     };
             
     /**
      * @todo TODO : Put the strings/names in a separate file/struct/...
      */
-    
-    Double6DDecomposer::Double6DDecomposer( const Property<Double6D>& d )
-        : resultBag(d.getName(), d.getDescription(), PropertyBag("MotCon::Double6D") ), // bag_type
-          D1("D1","D1 Value", d.get()[0]),
-          D2("D2","D2 Value", d.get()[1]),
-          D3("D3","D3 Value", d.get()[2]),
-          D4("D4","D4 Value", d.get()[3]),
-          D5("D5","D5 Value", d.get()[4]),
-          D6("D6","D6 Value", d.get()[5])
-    {
-        resultBag.value().add(&D1);
-        resultBag.value().add(&D2);
-        resultBag.value().add(&D3);
-        resultBag.value().add(&D4);
-        resultBag.value().add(&D5);
-        resultBag.value().add(&D6);
-    }
-
-    Double6DDecomposer::Double6DDecomposer( const Double6D& d, const std::string& name )
-        : resultBag( name, std::string(), PropertyBag("MotCon::Double6D") ), // bag_type
+    Double6DDecomposer::Double6DDecomposer( const Double6D& d)
+        : resultBag("MotCon::Double6D"), // bag_type
           D1("D1","D1 Value", d[0]),
           D2("D2","D2 Value", d[1]),
           D3("D3","D3 Value", d[2]),
@@ -119,58 +96,44 @@ namespace ORO_CoreLib
           D5("D5","D5 Value", d[4]),
           D6("D6","D6 Value", d[5])
     {
-        resultBag.value().add(&D1);
-        resultBag.value().add(&D2);
-        resultBag.value().add(&D3);
-        resultBag.value().add(&D4);
-        resultBag.value().add(&D5);
-        resultBag.value().add(&D6);
+        resultBag.add(D1.clone());
+        resultBag.add(D2.clone());
+        resultBag.add(D3.clone());
+        resultBag.add(D4.clone());
+        resultBag.add(D5.clone());
+        resultBag.add(D6.clone());
     }
 
-    bool Double6DComposer::getResult( Double6D& res, const std::string& name )
+    bool Double6DComposer::getResult( Double6D& res )
     {
-        // find the Double6D with the same name in the bag.
-        PropertyBase* v_base = bag.find( name );
-        if ( v_base != 0 )
+        if ( bag.getType() == "MotCon::Double6D" )
             {
-                Property<PropertyBag>* v_bag = dynamic_cast< Property<PropertyBag>* >( v_base );
-
-                if ( v_bag != 0  && v_bag->get().getType() == "MotCon::Double6D" )
+                Property<double>* d1 = dynamic_cast<Property<double>*>( bag.find("D1") );
+                Property<double>* d2 = dynamic_cast<Property<double>*>( bag.find("D2") );
+                Property<double>* d3 = dynamic_cast<Property<double>*>( bag.find("D3") );
+                Property<double>* d4 = dynamic_cast<Property<double>*>( bag.find("D4") );
+                Property<double>* d5 = dynamic_cast<Property<double>*>( bag.find("D5") );
+                Property<double>* d6 = dynamic_cast<Property<double>*>( bag.find("D6") );
+                // found it.
+                if ( d1 != 0 && d2 != 0  && d3 != 0 && d4 != 0 && d5 != 0  && d6 != 0)
                     {
-                        Property<double>* d1 = dynamic_cast<Property<double>*>( v_bag->get().find("D1") );
-                        Property<double>* d2 = dynamic_cast<Property<double>*>( v_bag->get().find("D2") );
-                        Property<double>* d3 = dynamic_cast<Property<double>*>( v_bag->get().find("D3") );
-                        Property<double>* d4 = dynamic_cast<Property<double>*>( v_bag->get().find("D4") );
-                        Property<double>* d5 = dynamic_cast<Property<double>*>( v_bag->get().find("D5") );
-                        Property<double>* d6 = dynamic_cast<Property<double>*>( v_bag->get().find("D6") );
-                        // found it.
-                        if ( d1 != 0 && d2 != 0  && d3 != 0 && d4 != 0 && d5 != 0  && d6 != 0)
-                            {
-                                res[0] = d1->get();
-                                res[1] = d2->get();
-                                res[2] = d3->get();
-                                res[3] = d4->get();
-                                res[4] = d5->get();
-                                res[5] = d6->get();
-                                return true;
-                            } else {
-                                std::string element = !d1 ? "D1" : !d2 ? "D2" : !d3 ? "D3" : !d4 ? "D4" : !d5 ? "D5" :  "D6";
-                                Logger::log() << Logger::Error << "Aborting composition of Property< Double6D > "<<v_bag->getName()
-                                              << ": Missing element '" <<element<<"'." <<Logger::endl;
-                                return false;
-                            }
+                        res[0] = d1->get();
+                        res[1] = d2->get();
+                        res[2] = d3->get();
+                        res[3] = d4->get();
+                        res[4] = d5->get();
+                        res[5] = d6->get();
+                        return true;
                     } else {
-                        if ( v_bag == 0 ) {
-                            Logger::log() << Logger::Error << "Aborting composition of Property< Double6D > "<< name
-                                          << ": not a PropertyBag." <<Logger::endl;
-                        } else {
-                            Logger::log() << Logger::Error << "Aborting composition of Property< Double6D > "<<v_bag->getName()
-                                          << ": Expected type 'MotCon::Double6D', got type '"<< v_bag->get().getType() <<"'."
-                                          <<Logger::endl;
-                        }
+                        std::string element = !d1 ? "D1" : !d2 ? "D2" : !d3 ? "D3" : !d4 ? "D4" : !d5 ? "D5" :  "D6";
+                        Logger::log() << Logger::Error << "Aborting composition of Property< Double6D > "
+                                      << ": Missing element '" <<element<<"'." <<Logger::endl;
                         return false;
                     }
-
+            } else {
+                Logger::log() << Logger::Error << "Aborting composition of Property< Double6D > "
+                              << ": Expected type 'MotCon::Double6D', got type '"<< bag.getType() <<"'."
+                              <<Logger::endl;
             }
         return false;
     }
@@ -187,17 +150,16 @@ namespace ORO_CoreLib
      */
     class VectorDecomposer
     {
-        Property<PropertyBag> resultBag;
+        PropertyBag resultBag;
         Property<double> X;
         Property<double> Y;
         Property<double> Z;
         
     public: 
         
-        VectorDecomposer( const Property<ORO_Geometry::Vector>& v );
-        VectorDecomposer( const ORO_Geometry::Vector& v, const std::string& name );
+        VectorDecomposer( const ORO_Geometry::Vector& v);
         
-        Property<PropertyBag>& result() { return resultBag; }
+        PropertyBag& result() { return resultBag; }
     };
         
     /**
@@ -212,71 +174,42 @@ namespace ORO_CoreLib
             : bag(_bag)
         {}
 
-        bool getResult( Property<ORO_Geometry::Vector>& res )
-        {
-            return getResult( res.value(), res.getName() );
-        }
-                
-        bool getResult( ORO_Geometry::Vector& res, const std::string& name );
+        bool getResult( ORO_Geometry::Vector& res);
     };
             
-    VectorDecomposer::VectorDecomposer( const Property<ORO_Geometry::Vector>& v )
-        : resultBag(v.getName(), v.getDescription(), PropertyBag("MotCon::Vector") ), // bag_type
-          X("X","X Value", v.get()[0]),
-          Y("Y","Y Value", v.get()[1]),
-          Z("Z","Z Value", v.get()[2])
-    {
-        resultBag.value().add(&X);
-        resultBag.value().add(&Y);
-        resultBag.value().add(&Z);
-    }
-
-    VectorDecomposer::VectorDecomposer( const ORO_Geometry::Vector& v, const std::string& name )
-        : resultBag( name, std::string(), PropertyBag("MotCon::Vector") ), // bag_type
+    VectorDecomposer::VectorDecomposer( const ORO_Geometry::Vector& v )
+        : resultBag("MotCon::Vector"), // bag_type
           X("X","X Value", v[0]),
           Y("Y","Y Value", v[1]),
           Z("Z","Z Value", v[2])
     {
-        resultBag.value().add(&X);
-        resultBag.value().add(&Y);
-        resultBag.value().add(&Z);
+        resultBag.add(X.clone());
+        resultBag.add(Y.clone());
+        resultBag.add(Z.clone());
     }
 
-    bool VectorComposer::getResult( ORO_Geometry::Vector& res, const std::string& name )
+    bool VectorComposer::getResult( ORO_Geometry::Vector& res)
     {
-        // find the Vector with the same name in the bag.
-        PropertyBase* v_base = bag.find( name );
-        if ( v_base != 0 )
+        if ( bag.getType() == "MotCon::Vector" )
             {
-                Property<PropertyBag>* v_bag = dynamic_cast< Property<PropertyBag>* >( v_base );
-
-                if ( v_bag != 0  && v_bag->get().getType() == "MotCon::Vector" )
+                Property<double>* px = dynamic_cast<Property<double>*>( bag.find("X") );
+                Property<double>* py = dynamic_cast<Property<double>*>( bag.find("Y") );
+                Property<double>* pz = dynamic_cast<Property<double>*>( bag.find("Z") );
+                // found it.
+                if ( px != 0 && py != 0  && pz != 0)
                     {
-                        Property<double>* px = dynamic_cast<Property<double>*>( v_bag->get().find("X") );
-                        Property<double>* py = dynamic_cast<Property<double>*>( v_bag->get().find("Y") );
-                        Property<double>* pz = dynamic_cast<Property<double>*>( v_bag->get().find("Z") );
-                        // found it.
-                        if ( px != 0 && py != 0  && pz != 0)
-                            {
-                                res = ORO_Geometry::Vector( px->get(),py->get(),pz->get() );
-                                return true;
-                            } else {
-                                std::string element = !px ? "X" : !py ? "Y" : "Z";
-                                Logger::log() << Logger::Error << "Aborting composition of Property< Vector > "<<v_bag->getName()
-                                              << ": Missing element '" <<element<<"'." <<Logger::endl;
-                                return false;
-                            }
+                        res = ORO_Geometry::Vector( px->get(),py->get(),pz->get() );
+                        return true;
                     } else {
-                        if ( v_bag == 0 ) {
-                            Logger::log() << Logger::Error << "Aborting composition of Property< Vector > "<< name
-                                          << ": not a PropertyBag." <<Logger::endl;
-                        } else {
-                            Logger::log() << Logger::Error << "Aborting composition of Property< Vector > "<<v_bag->getName()
-                                          << ": Expected type 'MotCon::Vector', got type '"<< v_bag->get().getType() <<"'."
-                                          <<Logger::endl;
-                        }
+                        std::string element = !px ? "X" : !py ? "Y" : "Z";
+                        Logger::log() << Logger::Error << "Aborting composition of Property< Vector > "
+                                      << ": Missing element '" <<element<<"'." <<Logger::endl;
                         return false;
                     }
+            } else {
+                Logger::log() << Logger::Error << "Aborting composition of Property< Vector > "
+                              << ": Expected type 'MotCon::Vector', got type '"<< bag.getType() <<"'."
+                              <<Logger::endl;
             }
         return false;
     }
@@ -294,7 +227,7 @@ namespace ORO_CoreLib
      */
     class RotationDecomposer
     {
-        Property<PropertyBag> resultBag;
+        PropertyBag resultBag;
         Property<double> X_x;
         Property<double> X_y;
         Property<double> X_z;
@@ -306,10 +239,9 @@ namespace ORO_CoreLib
         Property<double> Z_z;
     public: 
         
-        RotationDecomposer( const Property<ORO_Geometry::Rotation>& r );
-        RotationDecomposer( const ORO_Geometry::Rotation& r, const std::string& name );
+        RotationDecomposer( const ORO_Geometry::Rotation& r );
         
-        Property<PropertyBag>& result() { return resultBag; }
+        PropertyBag& result() { return resultBag; }
     };
     
     /**
@@ -324,39 +256,11 @@ namespace ORO_CoreLib
             :  bag(_bag)
         {}
 
-        bool getResult( Property<ORO_Geometry::Rotation>& res )
-        {
-            return getResult( res.value(), res.getName() );
-        }
-
-        bool getResult( ORO_Geometry::Rotation& res, const std::string& name );
+        bool getResult( ORO_Geometry::Rotation& res );
     };
             
-    RotationDecomposer::RotationDecomposer( const Property<ORO_Geometry::Rotation>& r )
-        : resultBag(r.getName(), r.getDescription(), PropertyBag("MotCon::Rotation") ),
-          X_x("X_x","", r.get()(0,0) ),
-          X_y("X_y","", r.get()(0,1) ),
-          X_z("X_z","", r.get()(0,2) ),
-          Y_x("Y_x","", r.get()(1,0) ),
-          Y_y("Y_y","", r.get()(1,1) ),
-          Y_z("Y_z","", r.get()(1,2) ),
-          Z_x("Z_x","", r.get()(2,0) ),
-          Z_y("Z_y","", r.get()(2,1) ),
-          Z_z("Z_z","", r.get()(2,2) )
-    {
-        resultBag.value().add(&X_x);
-        resultBag.value().add(&X_y);
-        resultBag.value().add(&X_z);
-        resultBag.value().add(&Y_x);
-        resultBag.value().add(&Y_y);
-        resultBag.value().add(&Y_z);
-        resultBag.value().add(&Z_x);
-        resultBag.value().add(&Z_y);
-        resultBag.value().add(&Z_z);
-    }
-
-    RotationDecomposer::RotationDecomposer( const ORO_Geometry::Rotation& r, const std::string& name )
-        : resultBag(name, std::string(), PropertyBag("MotCon::Rotation") ),
+    RotationDecomposer::RotationDecomposer( const ORO_Geometry::Rotation& r)
+        : resultBag("MotCon::Rotation"),
           X_x("X_x","", r(0,0) ),
           X_y("X_y","", r(0,1) ),
           X_z("X_z","", r(0,2) ),
@@ -367,48 +271,41 @@ namespace ORO_CoreLib
           Z_y("Z_y","", r(2,1) ),
           Z_z("Z_z","", r(2,2) )
     {
-        resultBag.value().add(&X_x);
-        resultBag.value().add(&X_y);
-        resultBag.value().add(&X_z);
-        resultBag.value().add(&Y_x);
-        resultBag.value().add(&Y_y);
-        resultBag.value().add(&Y_z);
-        resultBag.value().add(&Z_x);
-        resultBag.value().add(&Z_y);
-        resultBag.value().add(&Z_z);
+        resultBag.add(X_x.clone());
+        resultBag.add(X_y.clone());
+        resultBag.add(X_z.clone());
+        resultBag.add(Y_x.clone());
+        resultBag.add(Y_y.clone());
+        resultBag.add(Y_z.clone());
+        resultBag.add(Z_x.clone());
+        resultBag.add(Z_y.clone());
+        resultBag.add(Z_z.clone());
     }
 
-    bool RotationComposer::getResult( ORO_Geometry::Rotation& res, const std::string& name )
+    bool RotationComposer::getResult( ORO_Geometry::Rotation& res)
     {
-        // find the Rotation with the same name in the bag.
-        PropertyBase* v_base = bag.find( name );
-        if ( v_base != 0 )
+        if ( bag.getType() == "MotCon::Rotation" )
             {
-                Property<PropertyBag>* v_bag = dynamic_cast< Property<PropertyBag>* >( v_base );
-
-                if ( v_bag != 0  && v_bag->get().getType() == "MotCon::Rotation" )
+                Property<double>* X_x = dynamic_cast<Property<double>*>( bag.find("X_x") );
+                Property<double>* X_y = dynamic_cast<Property<double>*>( bag.find("X_y") );
+                Property<double>* X_z = dynamic_cast<Property<double>*>( bag.find("X_z") );
+                Property<double>* Y_x = dynamic_cast<Property<double>*>( bag.find("Y_x") );
+                Property<double>* Y_y = dynamic_cast<Property<double>*>( bag.find("Y_y") );
+                Property<double>* Y_z = dynamic_cast<Property<double>*>( bag.find("Y_z") );
+                Property<double>* Z_x = dynamic_cast<Property<double>*>( bag.find("Z_x") );
+                Property<double>* Z_y = dynamic_cast<Property<double>*>( bag.find("Z_y") );
+                Property<double>* Z_z = dynamic_cast<Property<double>*>( bag.find("Z_z") );
+                // found it.
+                if (  X_x != 0 && X_y != 0  && X_z != 0 &&
+                      Y_x != 0 && Y_y != 0  && Y_z != 0 &&
+                      Z_x != 0 && Z_y != 0  && Z_z != 0 )
                     {
-                        Property<double>* X_x = dynamic_cast<Property<double>*>( v_bag->get().find("X_x") );
-                        Property<double>* X_y = dynamic_cast<Property<double>*>( v_bag->get().find("X_y") );
-                        Property<double>* X_z = dynamic_cast<Property<double>*>( v_bag->get().find("X_z") );
-                        Property<double>* Y_x = dynamic_cast<Property<double>*>( v_bag->get().find("Y_x") );
-                        Property<double>* Y_y = dynamic_cast<Property<double>*>( v_bag->get().find("Y_y") );
-                        Property<double>* Y_z = dynamic_cast<Property<double>*>( v_bag->get().find("Y_z") );
-                        Property<double>* Z_x = dynamic_cast<Property<double>*>( v_bag->get().find("Z_x") );
-                        Property<double>* Z_y = dynamic_cast<Property<double>*>( v_bag->get().find("Z_y") );
-                        Property<double>* Z_z = dynamic_cast<Property<double>*>( v_bag->get().find("Z_z") );
-                        // found it.
-                        if (  X_x != 0 && X_y != 0  && X_z != 0 &&
-                              Y_x != 0 && Y_y != 0  && Y_z != 0 &&
-                              Z_x != 0 && Z_y != 0  && Z_z != 0 )
-                            {
-                                res = ORO_Geometry::Rotation( 
-                                               X_x->get(), Y_x->get(),Z_x->get(),
-                                               X_y->get(),Y_y->get(),Z_y->get(),
-                                               X_z->get(),Y_z->get(),Z_z->get() 
-                                               );
-                                return true;
-                            }
+                        res = ORO_Geometry::Rotation( 
+                                                     X_x->get(), Y_x->get(),Z_x->get(),
+                                                     X_y->get(),Y_y->get(),Z_y->get(),
+                                                     X_z->get(),Y_z->get(),Z_z->get() 
+                                                     );
+                        return true;
                     }
             }
         return false;
@@ -420,17 +317,16 @@ namespace ORO_CoreLib
      */
     class EulerZYXDecomposer
     {
-        Property<PropertyBag> resultBag;
+        PropertyBag resultBag;
         Property<double> _a;
         Property<double> _b;
         Property<double> _g;
 
     public: 
         
-        EulerZYXDecomposer( const Property<ORO_Geometry::Rotation>& r );
-        EulerZYXDecomposer( const ORO_Geometry::Rotation& r, const std::string& name );
+        EulerZYXDecomposer( const ORO_Geometry::Rotation& r);
         
-        Property<PropertyBag>& result() { return resultBag; }
+        PropertyBag& result() { return resultBag; }
     };
     
     /**
@@ -445,70 +341,46 @@ namespace ORO_CoreLib
             :  bag(_bag)
         {}
 
-        bool getResult( Property<ORO_Geometry::Rotation>& res )
-        {
-            return getResult( res.value(), res.getName() );
-        }
-
-        bool getResult( ORO_Geometry::Rotation& res, const std::string& name );
+        bool getResult( ORO_Geometry::Rotation& res );
     };
             
-    EulerZYXDecomposer::EulerZYXDecomposer( const Property<ORO_Geometry::Rotation>& r )
-        : resultBag(r.getName(), r.getDescription(), PropertyBag("MotCon::EulerZYX") ),
-          _a("alpha","First Rotate around the Z axis with alpha in radians" ),
-          _b("beta","Then Rotate around the new Y axis with beta in radians" ),
-          _g("gamma","Then Rotation around the new X axis with gamma in radians" )
-    {
-        r.get().GetEulerZYX(_a.set(), _b.set(), _g.set());
-        resultBag.value().add(&_a);
-        resultBag.value().add(&_b);
-        resultBag.value().add(&_g);
-    }
-
-    EulerZYXDecomposer::EulerZYXDecomposer( const ORO_Geometry::Rotation& r, const std::string& name )
-        : resultBag(name, std::string(), PropertyBag("MotCon::EulerZYX") ),
+    EulerZYXDecomposer::EulerZYXDecomposer( const ORO_Geometry::Rotation& r)
+        : resultBag("MotCon::EulerZYX"),
           _a("alpha","First Rotate around the Z axis with alpha in radians" ),
           _b("beta","Then Rotate around the new Y axis with beta in radians" ),
           _g("gamma","Then Rotation around the new X axis with gamma in radians" )
     {
         r.GetEulerZYX(_a.set(), _b.set(), _g.set());
-        resultBag.value().add(&_a);
-        resultBag.value().add(&_b);
-        resultBag.value().add(&_g);
+        resultBag.add(_a.clone());
+        resultBag.add(_b.clone());
+        resultBag.add(_g.clone());
     }
 
-    bool EulerZYXComposer::getResult( ORO_Geometry::Rotation& res, const std::string& name )
+    bool EulerZYXComposer::getResult( ORO_Geometry::Rotation& res )
     {
-        // find the Rotation with the same name in the bag.
-        PropertyBase* v_base = bag.find( name );
-        if ( v_base != 0 )
+        if ( bag.getType() == "MotCon::EulerZYX" )
             {
-                Property<PropertyBag>* v_bag = dynamic_cast< Property<PropertyBag>* >( v_base );
+                // ZYX is deprecated, use alpha, beta, gamma. also alpha maps to Z and gamma to X !
+                Property<double>* _a = dynamic_cast<Property<double>*>( bag.find("alpha") );
+                if ( !_a)
+                    _a = dynamic_cast<Property<double>*>( bag.find("Z") );
+                Property<double>* _b = dynamic_cast<Property<double>*>( bag.find("beta") );
+                if ( !_b)
+                    _b = dynamic_cast<Property<double>*>( bag.find("Y") );
+                Property<double>* _g = dynamic_cast<Property<double>*>( bag.find("gamma") );
+                if ( !_g)
+                    _g = dynamic_cast<Property<double>*>( bag.find("X") );
 
-                if ( v_bag != 0  && v_bag->get().getType() == "MotCon::EulerZYX" )
+                // found it.
+                if (  _a != 0 && _b != 0  && _g != 0 )
                     {
-                        // ZYX is deprecated, use alpha, beta, gamma. also alpha maps to Z and gamma to X !
-                        Property<double>* _a = dynamic_cast<Property<double>*>( v_bag->get().find("alpha") );
-                        if ( !_a)
-                            _a = dynamic_cast<Property<double>*>( v_bag->get().find("Z") );
-                        Property<double>* _b = dynamic_cast<Property<double>*>( v_bag->get().find("beta") );
-                        if ( !_b)
-                            _b = dynamic_cast<Property<double>*>( v_bag->get().find("Y") );
-                        Property<double>* _g = dynamic_cast<Property<double>*>( v_bag->get().find("gamma") );
-                        if ( !_g)
-                            _g = dynamic_cast<Property<double>*>( v_bag->get().find("X") );
-
-                        // found it.
-                        if (  _a != 0 && _b != 0  && _g != 0 )
-                            {
-                                res = ORO_Geometry::Rotation::EulerZYX(_a->get(), _b->get(), _g->get() );
-                                return true;
-                            } else {
-                                std::string element = !_a ? "alpha" : !_b ? "beta" : "gamma";
-                                Logger::log() << Logger::Error << "Aborting composition of (EulerZYX) Property< Rotation > "<<v_bag->getName()
-                                              << ": Missing element '" <<element<<"'." <<Logger::endl;
-                                return false;
-                            }
+                        res = ORO_Geometry::Rotation::EulerZYX(_a->get(), _b->get(), _g->get() );
+                        return true;
+                    } else {
+                        std::string element = !_a ? "alpha" : !_b ? "beta" : "gamma";
+                        Logger::log() << Logger::Error << "Aborting composition of (EulerZYX) Property< Rotation > "
+                                      << ": Missing element '" <<element<<"'." <<Logger::endl;
+                        return false;
                     }
             }
         return false;
@@ -520,17 +392,16 @@ namespace ORO_CoreLib
      */
     class RPYDecomposer
     {
-        Property<PropertyBag> resultBag;
+        PropertyBag resultBag;
         Property<double> _r;
         Property<double> _p;
         Property<double> _y;
 
     public: 
         
-        RPYDecomposer( const Property<ORO_Geometry::Rotation>& r );
-        RPYDecomposer( const ORO_Geometry::Rotation& r, const std::string& name );
+        RPYDecomposer( const ORO_Geometry::Rotation& r);
         
-        Property<PropertyBag>& result() { return resultBag; }
+        PropertyBag& result() { return resultBag; }
     };
     
     /**
@@ -545,95 +416,70 @@ namespace ORO_CoreLib
             :  bag(_bag)
         {}
 
-        bool getResult( Property<ORO_Geometry::Rotation>& res )
-        {
-            return getResult( res.value(), res.getName() );
-        }
-
-        bool getResult( ORO_Geometry::Rotation& res, const std::string& name );
+        bool getResult( ORO_Geometry::Rotation& res);
     };
-            
-    RPYDecomposer::RPYDecomposer( const Property<ORO_Geometry::Rotation>& r )
-        : resultBag(r.getName(), r.getDescription(), PropertyBag("MotCon::RPY") ),
-          _r("R","First rotate around X with R(oll) in radians" ),
-          _p("P","Next rotate around old Y with P(itch) in radians" ),
-          _y("Y","Next rotate around old Z with Y(aw) in radians" )
-    {
-        r.get().GetRPY(_r.set(), _p.set(), _y.set());
-        resultBag.value().add(&_r);
-        resultBag.value().add(&_p);
-        resultBag.value().add(&_y);
-    }
-
-    RPYDecomposer::RPYDecomposer( const ORO_Geometry::Rotation& r, const std::string& name )
-        : resultBag(name, std::string(), PropertyBag("MotCon::RPY") ),
+    RPYDecomposer::RPYDecomposer( const ORO_Geometry::Rotation& r)
+        : resultBag("MotCon::RPY" ),
           _r("R","First rotate around X with R(oll) in radians" ),
           _p("P","Next rotate around old Y with P(itch) in radians" ),
           _y("Y","Next rotate around old Z with Y(aw) in radians" )
     {
         r.GetRPY(_r.set(), _p.set(), _y.set());
-        resultBag.value().add(&_r);
-        resultBag.value().add(&_p);
-        resultBag.value().add(&_y);
+        resultBag.add(_r.clone());
+        resultBag.add(_p.clone());
+        resultBag.add(_y.clone());
     }
 
-    bool RPYComposer::getResult( ORO_Geometry::Rotation& res, const std::string& name )
+    bool RPYComposer::getResult( ORO_Geometry::Rotation& res)
     {
-        // find the Rotation with the same name in the bag.
-        PropertyBase* v_base = bag.find( name );
-        if ( v_base != 0 )
+        if ( bag.getType() == "MotCon::RPY" )
             {
-                Property<PropertyBag>* v_bag = dynamic_cast< Property<PropertyBag>* >( v_base );
+                Property<double>* _r = dynamic_cast<Property<double>*>( bag.find("R") );
+                Property<double>* _p = dynamic_cast<Property<double>*>( bag.find("P") );
+                Property<double>* _y = dynamic_cast<Property<double>*>( bag.find("Y") );
 
-                if ( v_bag != 0  && v_bag->get().getType() == "MotCon::RPY" )
+                // found it.
+                if (  _r != 0 && _p != 0  && _y != 0 )
                     {
-                        Property<double>* _r = dynamic_cast<Property<double>*>( v_bag->get().find("R") );
-                        Property<double>* _p = dynamic_cast<Property<double>*>( v_bag->get().find("P") );
-                        Property<double>* _y = dynamic_cast<Property<double>*>( v_bag->get().find("Y") );
-
-                        // found it.
-                        if (  _r != 0 && _p != 0  && _y != 0 )
-                            {
-                                res = ORO_Geometry::Rotation::RPY(_r->get(), _p->get(), _y->get() );
-                                return true;
-                            } else {
-                                std::string element = !_r ? "R" : !_p ? "P" : "Y";
-                                Logger::log() << Logger::Error << "Aborting composition of (RPY) Property< Rotation > "<<v_bag->getName()
-                                              << ": Missing element '" <<element<<"'." <<Logger::endl;
-                                return false;
-                            }
+                        res = ORO_Geometry::Rotation::RPY(_r->get(), _p->get(), _y->get() );
+                        return true;
+                    } else {
+                        std::string element = !_r ? "R" : !_p ? "P" : "Y";
+                        Logger::log() << Logger::Error << "Aborting composition of (RPY) Property< Rotation > "
+                                      << ": Missing element '" <<element<<"'." <<Logger::endl;
+                        return false;
                     }
             }
         return false;
     }
 
-    void decomposeProperty(PropertyIntrospection *p, const Property<Double6D> &v)
+    void decomposeProperty(const Double6D &v, PropertyBag& targetbag)
     {
         // construct a property with same name and description, but containing a typed PropertyBag.
         Double6DDecomposer vco(v);
-        p->introspect( vco.result() );
+        targetbag = vco.result();
     }
 
-    bool composeProperty(const PropertyBag& bag, Property<Double6D> &v)
+    bool composeProperty(const PropertyBag& bag, Double6D &v)
     {
         Double6DComposer vas( bag );
         return vas.getResult(v);
     }
 
-    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Vector> &v)
+    void decomposeProperty(const Vector &v, PropertyBag& targetbag)
     {
         // construct a property with same name and description, but containing a typed PropertyBag.
         VectorDecomposer vco(v);
-        p->introspect( vco.result() );
+        targetbag = vco.result();
     }
 
-    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Vector> &v)
+    bool composeProperty(const PropertyBag& bag, Vector &v)
     {
         VectorComposer vas( bag );
         return vas.getResult(v);
     }
 
-    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Rotation> &b)
+    void decomposeProperty(const Rotation &b, PropertyBag& targetbag)
     {
         // construct a property with same name and description, but containing a typed PropertyBag.
 #ifdef OROSEM_GEOMETRY_ROTATION_PROPERTIES_EULER
@@ -645,10 +491,10 @@ namespace ORO_CoreLib
         RotationDecomposer rot(b);
 # endif
 #endif
-        p->introspect( rot.result() );
+        targetbag = rot.result();
     }
 
-    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Rotation> &r)
+    bool composeProperty(const PropertyBag& bag, Rotation &r)
     {
         // try all three, see which one works, that one will fill in r.
         RPYComposer      rpyc(bag);
@@ -658,187 +504,170 @@ namespace ORO_CoreLib
         if ( rpyc.getResult( r ) || eulc.getResult( r ) || rotc.getResult( r ) )
             return true;
         else {
-            Property<PropertyBag>* b = bag.getProperty<PropertyBag>( r.getName() );
-            if ( b == 0 ) {
-                Logger::log() << Logger::Error << "Aborting composition of Property< Rotation > "<< r.getName()
-                              << ": element not found." <<Logger::endl;
+            Logger::log() << Logger::Error << "Aborting composition of Property< Rotation > "
+                          << ": Expected type 'MotCon::Rotation','MotCon::EulerZYX' or 'MotCon::RPY', got type '"<< bag.getType() <<"'."
+                          <<Logger::endl;
+        }
+        return false;
+    }
+
+    void decomposeProperty(const Twist &t, PropertyBag& targetbag)
+    {
+        targetbag.setType("MotCon::Twist"); // bag_type
+
+        VectorDecomposer vel( t.vel );
+        VectorDecomposer rot( t.rot );
+
+        targetbag.add( new Property<PropertyBag>("Trans_Vel","Translational Velocity", vel.result() ) );
+        targetbag.add( new Property<PropertyBag>("Rot_Vel","Rotational Velocity",rot.result() ));
+    }
+
+    bool composeProperty(const PropertyBag& bag, Twist &t)
+    {
+        if ( bag.getType() == std::string("MotCon::Twist") )
+            {
+                // pass the subbag to the vector Composers
+                Property<PropertyBag>* subbag = bag.getProperty<PropertyBag>("Trans_Vel");
+                if (! subbag ) {
+                    Logger::log() << Logger::Error << "Aborting composition of Property< Twist > "
+                                  << ": Trans_Vel not found."
+                                  <<Logger::endl;
+                    return false;
+                }
+                VectorComposer vas_vel( subbag->value() );
+
+                subbag = bag.getProperty<PropertyBag>("Rot_Vel");
+                if (! subbag ) {
+                    Logger::log() << Logger::Error << "Aborting composition of Property< Twist > "
+                                  << ": Rot_Vel not found."
+                                  <<Logger::endl;
+                    return false;
+                }
+                VectorComposer vas_rot( subbag->value() );
+
+                return vas_vel.getResult( t.vel ) && vas_rot.getResult( t.rot );
             } else {
-                Logger::log() << Logger::Error << "Aborting composition of Property< Rotation > "<< r.getName()
-                              << ": Expected type 'MotCon::Rotation','MotCon::EulerZYX' or 'MotCon::RPY', got type '"<< b->get().getType() <<"'."
+                Logger::log() << Logger::Error << "Aborting composition of Property< Twist > "
+                              << ": Expected type 'MotCon::Twist', got type '"<< bag.getType() <<"'."
                               <<Logger::endl;
             }
-            return false;
-        }
-
+        return false;
     }
 
-    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Twist> &t)
+    void decomposeProperty(const Wrench &b, PropertyBag& targetbag)
     {
         // construct a property with same name and description, but containing a typed PropertyBag.
-        Property<PropertyBag> result(t.getName(), t.getDescription(), PropertyBag("MotCon::Twist") ); // bag_type
+        targetbag.setType("MotCon::Wrench"); // bag_type
 
-        VectorDecomposer vel( t.get().vel, "Trans_Vel" );
-        VectorDecomposer rot( t.get().rot, "Rot_Vel" );
+        VectorDecomposer force( b.force );
+        VectorDecomposer torque( b.torque );
 
-        result.value().add( &vel.result() );
-        result.value().add( &rot.result() );
-        
-        p->introspect(result);
+        targetbag.add( new Property<PropertyBag>("Force", "Axial Force", force.result() ) );
+        targetbag.add( new Property<PropertyBag>("Torque", "Axial Torque", torque.result() ) );
     }
 
-    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Twist> &t)
+    bool composeProperty(const PropertyBag& bag,Wrench &w)
     {
-        // find the Twist with the same name in the bag.
-        PropertyBase* t_base = bag.find( t.getName() );
-        if ( t_base != 0 )
+        if ( bag.getType() == std::string("MotCon::Wrench") )
             {
-                Property<PropertyBag>* t_bag = dynamic_cast< Property<PropertyBag>* >( t_base );
+                // pass this bag to the vector Composers
+                Property<PropertyBag>* subbag = bag.getProperty<PropertyBag>("Force");
+                if (! subbag ) {
+                    Logger::log() << Logger::Error << "Aborting composition of Property< Wrench > "
+                                  << ": Force not found."
+                                  <<Logger::endl;
+                    return false;
+                }
+                VectorComposer vas_force( subbag->value() );
 
-                if ( t_bag != 0  && t_bag->get().getType() == std::string("MotCon::Twist") )
-                    {
-                        // pass this bag to the vector Composers
-                        VectorComposer vas_vel( t_bag->get() );
-                        VectorComposer vas_rot( t_bag->get() );
+                subbag = bag.getProperty<PropertyBag>("Torque");
+                if (! subbag ) {
+                    Logger::log() << Logger::Error << "Aborting composition of Property< Wrench > "
+                                  << ": Torque not found."
+                                  <<Logger::endl;
+                    return false;
+                }
+                VectorComposer vas_torque( subbag->value() );
 
-                        return vas_vel.getResult( t.value().vel,"Trans_Vel") && vas_rot.getResult( t.value().rot,"Rot_Vel" );
-                    } else {
-                        if ( t_bag == 0 ) {
-                            Logger::log() << Logger::Error << "Aborting composition of Property< Twist > "<< t.getName()
-                                          << ": not a PropertyBag." <<Logger::endl;
-                        } else {
-                            Logger::log() << Logger::Error << "Aborting composition of Property< Twist > "<<t_bag->getName()
-                                          << ": Expected type 'MotCon::Twist', got type '"<< t_bag->get().getType() <<"'."
-                                          <<Logger::endl;
-                        }
-                        return false;
-                    }
+                return vas_force.getResult( w.force ) && vas_torque.getResult( w.torque );
+            } else {
+                Logger::log() << Logger::Error << "Aborting composition of Property< Wrench > "
+                              << ": Expected type 'MotCon::Wrench', got type '"<< bag.getType() <<"'."
+                              <<Logger::endl;
+                return false;
             }
         return false;
     }
 
-    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Wrench> &b)
+    void decomposeProperty(const Frame &f, PropertyBag& targetbag )
     {
-        // construct a property with same name and description, but containing a typed PropertyBag.
-        Property<PropertyBag> result(b.getName(), b.getDescription(), PropertyBag("MotCon::Wrench") ); // bag_type
+        // construct a typed PropertyBag.
+        targetbag.setType("MotCon::Frame");
 
-        VectorDecomposer force( b.get().force, "Force" );
-        VectorDecomposer torque( b.get().torque, "Torque" );
-
-        result.value().add( &force.result() );
-        result.value().add( &torque.result() );
-        
-        p->introspect(result);
-    }
-
-    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Wrench> &w)
-    {
-        // find the Wrench with the same name in the bag.
-        PropertyBase* w_base = bag.find( w.getName() );
-        if ( w_base != 0 )
-            {
-                Property<PropertyBag>* w_bag = dynamic_cast< Property<PropertyBag>* >( w_base );
-
-                if ( w_bag != 0  && w_bag->get().getType() == std::string("MotCon::Wrench") )
-                    {
-                        // pass this bag to the vector Composers
-                        VectorComposer vas_force( w_bag->get() );
-                        VectorComposer vas_torque( w_bag->get() );
-
-                        return vas_force.getResult( w.value().force,"Force") && vas_torque.getResult( w.value().torque, "Torque" );
-                    } else {
-                        if ( w_bag == 0 ) {
-                            Logger::log() << Logger::Error << "Aborting composition of Property< Wrench > "<< w.getName()
-                                          << ": not a PropertyBag." <<Logger::endl;
-                        } else {
-                            Logger::log() << Logger::Error << "Aborting composition of Property< Wrench > "<<w_bag->getName()
-                                          << ": Expected type 'MotCon::Wrench', got type '"<< w_bag->get().getType() <<"'."
-                                          <<Logger::endl;
-                        }
-                        return false;
-                    }
-            }
-        return false;
-    }
-
-    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Frame> &f)
-    {
-        // construct a property with same name and description, but containing a typed PropertyBag.
-        Property<PropertyBag> result(f.getName(), f.getDescription(), PropertyBag("MotCon::Frame") ); // bag_type
-
-        VectorDecomposer vel( f.get().p, "Position" );
+        VectorDecomposer vel( f.p );
 #ifdef OROSEM_GEOMETRY_ROTATION_PROPERTIES_EULER
-        EulerZYXDecomposer rot( f.get().M, "Rotation" );
+        EulerZYXDecomposer rot( f.M );
 #else
 # ifdef OROSEM_GEOMETRY_ROTATION_PROPERTIES_RPY
-        RPYDecomposer rot( f.get().M, "Rotation");
+        RPYDecomposer rot( f.M );
 # else
-        RotationDecomposer rot( f.get().M, "Rotation" );
+        RotationDecomposer rot( f.M );
 # endif
 #endif
 
-        result.value().add( &vel.result() );
-        result.value().add( &rot.result() );
-        
-        p->introspect(result);
+        targetbag.add( new Property<PropertyBag>("Position","", vel.result() ) );
+        targetbag.add( new Property<PropertyBag>("Rotation","", rot.result() ) );
     }
 
-    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Frame> &f)
+    bool composeProperty(const PropertyBag& f_bag, Frame &f)
     {
-        // find the Frame with the same name in the bag.
-        PropertyBase* f_base = bag.find( f.getName() );
-        if ( f_base != 0 )
+        if ( f_bag.getType() == std::string("MotCon::Frame") )
             {
-                Property<PropertyBag>* f_bag = dynamic_cast< Property<PropertyBag>* >( f_base );
+                // pass this bag to the vector Composers
+                Property<PropertyBag>* subbag = f_bag.getProperty<PropertyBag>("Position");
+                if (! subbag ) {
+                    Logger::log() << Logger::Error << "Aborting composition of Property< Frame > "
+                                  << ": Position not found."
+                                  <<Logger::endl;
+                    return false;
+                }
+                VectorComposer vas_pos( subbag->value() );
 
-                if ( f_bag != 0  && f_bag->get().getType() == std::string("MotCon::Frame") )
+                subbag = f_bag.getProperty<PropertyBag>("Rotation");
+                if (! subbag ) {
+                    Logger::log() << Logger::Error << "Aborting composition of Property< Frame > "
+                                  << ": Rotation not found."
+                                  <<Logger::endl;
+                    return false;
+                }
+                RPYComposer vas_rpy( subbag->value() );
+                EulerZYXComposer vas_eul( subbag->value() );
+                RotationComposer vas_rot( subbag->value() );
+                bool result = vas_pos.getResult( f.p );
+                if (!result )
                     {
-                        // pass this bag to the vector Composers
-                        VectorComposer vas_pos( f_bag->get() );
-                        RPYComposer vas_rpy( f_bag->get() );
-                        EulerZYXComposer vas_eul( f_bag->get() );
-                        RotationComposer vas_rot( f_bag->get() );
-                        bool result = vas_pos.getResult( f.value().p,"Position" );
-                        if (!result )
-                            {
-                                Property<PropertyBag>* b = f_bag->get().getProperty<PropertyBag>( "Rotation" );
-                                if ( b == 0 ) {
-                                    Logger::log() << Logger::Error << "Aborting composition of Property< Frame > "<< f.getName()
-                                                  << ": element 'Position' not found." <<Logger::endl;
-                                } else {
-                                    Logger::log() << Logger::Error << "Aborting composition of Property< Frame > "<< f.getName()
-                                                  << ": element 'Position' has wrong format." <<Logger::endl;
-                                }
-                                return false;
-                            }
-                        result = vas_rpy.getResult( f.value().M, "Rotation" ) ||
-                            vas_eul.getResult( f.value().M, "Rotation" ) ||
-                            vas_rot.getResult( f.value().M, "Rotation" );
-                        if (!result )
-                            {
-                                Property<PropertyBag>* b = f_bag->get().getProperty<PropertyBag>( "Rotation" );
-                                if ( b == 0 ) {
-                                    Logger::log() << Logger::Error << "Aborting composition of Property< Frame > "<< f.getName()
-                                                  << ": element 'Rotation' not found." <<Logger::endl;
-                                } else {
-                                    Logger::log()
-                                        << Logger::Error << "Aborting composition of Property< Frame > "<< f.getName()
-                                        << ": Could not compose 'Rotation' type 'MotCon::Rotation','MotCon::EulerZYX' or 'MotCon::RPY', got type '"
-                                        << b->get().getType() <<"'."<<Logger::endl;
-                                }
-                                return false;
-                            }
-                        return true;
-                    } else {
-                        if ( f_bag == 0 ) {
-                            Logger::log() << Logger::Error << "Aborting composition of Property< Frame > "<< f.getName()
-                                          << ": not a PropertyBag." <<Logger::endl;
-                        } else {
-                            Logger::log() << Logger::Error << "Aborting composition of Property< Frame > "<<f_bag->getName()
-                                          << ": Expected type 'MotCon::Frame', got type '"<< f_bag->get().getType() <<"'."
-                                          <<Logger::endl;
-                        }
+                        Logger::log() << Logger::Error << "Aborting composition of Property< Frame > "
+                                      << ": element 'Position' has wrong format." <<Logger::endl;
                         return false;
                     }
+                result = vas_rpy.getResult( f.M) ||
+                    vas_eul.getResult( f.M ) ||
+                    vas_rot.getResult( f.M );
+                if (!result )
+                    {
+                        Logger::log()
+                            << Logger::Error << "Aborting composition of Property< Frame > "
+                            << ": Could not compose 'Rotation' type 'MotCon::Rotation','MotCon::EulerZYX' or 'MotCon::RPY', got type '"
+                            << subbag->get().getType() <<"'."<<Logger::endl;
+                        return false;
+                    }
+                // OK: exit.
+                return true;
+            } else {
+                Logger::log() << Logger::Error << "Aborting composition of Property< Frame > "
+                              << ": Expected type 'MotCon::Frame', got type '"<< f_bag.getType() <<"'."
+                              <<Logger::endl;
+                return false;
             }
         return false;
     }

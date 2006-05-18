@@ -108,6 +108,12 @@ namespace ORO_CoreLib
             return typename AssignableDataSource<DataType>::reference_t(*tmp);
         }
 
+        virtual typename AssignableDataSource<DataType>::const_reference_t rvalue() const {
+            // return null reference, allowed by API.
+            typename DataSource<DataType>::value_t* tmp = 0;
+            return typename AssignableDataSource<DataType>::const_reference_t(*tmp);
+        }
+
     };
 
 

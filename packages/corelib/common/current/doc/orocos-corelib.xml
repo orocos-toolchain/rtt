@@ -1167,14 +1167,47 @@ emergencyStop.emit(); // User not notified</programlisting>
     </sect2>
   </sect1>
   <sect1>
+    <title>Attributes</title>
+    <para>
+      Attributes are class members which contain a (constant) value. Orocos
+      can manipulate a classes attribute when it is wrapped in an
+      <classname>ORO_CoreLib::Attribute</classname> class. This storage allows
+      it to be read by the scripting engine, to be displayed on screen or manipulated
+      over a network connection.
+    </para>
+    <para>
+      The advantages of this class come clear when building Orocos Components,
+      since it allows a component to export internal data. 
+    </para>
+    <para>
+      <example><title>Creating attributes</title> 
+	      <programlisting>
+  // an attribute, respresening a double of value 1.0:
+  <classname>ORO_CoreLib::Attribute</classname>&lt;double> myAttr(1.0);
+  myAttr.set( 10.9 );
+  double a = myAttr.get(); 
+
+  // read-only attribute:
+  <classname>ORO_CoreLib::Constant</classname>&lt;double> pi(3.14);
+  double p = pi.get();
+</programlisting>
+      </example>
+    </para>
+  </sect1>
+  <sect1>
     <title>Properties</title>
+    <para>
+      Properties are more powerful than attributes (above) since they can be
+      stored to an XML format, be hierarchically structured and allow complex
+      configuration. 
+    </para>
     <sect2>
       <title>Introduction</title>
       <para>
-	Orocos provides properties through the <classname>ORO_CoreLib::Property</classname>
+	Orocos provides configuration by properties through the <classname>ORO_CoreLib::Property</classname>
 	class.
 	They are used to store primitive data (float, strings,...) in
-	a <classname>ORO_CoreLib::PropertyBag</classname>, which can be changed by the user and has immediate
+	a hierachies (using <classname>ORO_CoreLib::PropertyBag</classname>). A Property can be changed by the user and has immediate
 	effect on the behaviour of the program. Changing parameters of an
 	algorithm is a good example where properties can be used. Each parameter
 	has a value, a name and a description. The user can ask any PropertyBag

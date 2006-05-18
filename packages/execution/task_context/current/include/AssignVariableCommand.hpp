@@ -77,7 +77,7 @@ namespace ORO_Execution
           return new AssignVariableCommand( lhs.get(), rhs.get() );
       }
 
-      virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+      virtual CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
           return new AssignVariableCommand( lhs->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
       }
   };
@@ -120,7 +120,7 @@ namespace ORO_Execution
           return new AssignContainerCommand( lhs.get(), rhs.get() );
       }
 
-      virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+      virtual CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
           return new AssignContainerCommand( lhs->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
       }
   };
@@ -163,7 +163,7 @@ namespace ORO_Execution
           return new AssignStringCommand( lhs.get(), rhs.get() );
       }
 
-      virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+      virtual CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
           return new AssignStringCommand( lhs->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
       }
   };
@@ -204,7 +204,7 @@ namespace ORO_Execution
           return new AssignIndexCommand( lhs.get(), i.get(), rhs.get() );
       }
 
-      virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+      virtual CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
           return new AssignIndexCommand( lhs->copy( alreadyCloned ), i->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
       }
   };

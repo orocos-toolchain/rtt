@@ -50,7 +50,7 @@ namespace ORO_Execution {
         {
             virtual ~EventCallBack() {}
             virtual void callback() = 0;
-            virtual std::vector<DataSourceBase::shared_ptr> args() = 0;
+            virtual std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> args() = 0;
         };
 
         template<class Function, int arity>
@@ -71,8 +71,8 @@ namespace ORO_Execution {
                     mfoo();
                 }
 
-            virtual std::vector<DataSourceBase::shared_ptr> args() {
-                return std::vector<DataSourceBase::shared_ptr>();
+            virtual std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> args() {
+                return std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>();
             }
         };
 
@@ -82,7 +82,7 @@ namespace ORO_Execution {
         {
             typedef typename boost::function_types::function_type_parameter_c<Function,0>::type T;
             CallBackWrapperFunction( Function& foo )
-                : mfoo(foo), marg( new VariableDataSource<T>() ) {}
+                : mfoo(foo), marg( new ORO_CoreLib::ValueDataSource<T>() ) {}
             Function mfoo;
             typename AssignableDataSource<T>::shared_ptr marg;
 
@@ -91,8 +91,8 @@ namespace ORO_Execution {
                     mfoo( marg->set() );
                 }
 
-            virtual std::vector<DataSourceBase::shared_ptr> args() {
-                std::vector<DataSourceBase::shared_ptr> a;
+            virtual std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> args() {
+                std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> a;
                 a.push_back( marg );
                 return a;
             }
@@ -106,8 +106,8 @@ namespace ORO_Execution {
             typedef typename boost::function_types::function_type_parameter_c<Function,1>::type T2;
             CallBackWrapperFunction( Function& foo)
                 : mfoo(foo),
-                marg1( new VariableDataSource<T1>() ),
-                marg2( new VariableDataSource<T2>() ) {}
+                marg1( new ORO_CoreLib::ValueDataSource<T1>() ),
+                marg2( new ORO_CoreLib::ValueDataSource<T2>() ) {}
 
             Function mfoo;
             typename AssignableDataSource<T1>::shared_ptr marg1;
@@ -118,8 +118,8 @@ namespace ORO_Execution {
                     mfoo( marg1->set(), marg2->set() );
                 }
 
-            virtual std::vector<DataSourceBase::shared_ptr> args() {
-                std::vector<DataSourceBase::shared_ptr> a;
+            virtual std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> args() {
+                std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> a;
                 a.push_back( marg1 );
                 a.push_back( marg2 );
                 return a;
@@ -135,9 +135,9 @@ namespace ORO_Execution {
             typedef typename boost::function_types::function_type_parameter_c<Function,2>::type T3;
             CallBackWrapperFunction( Function foo)
                 : mfoo(foo),
-                marg1( new VariableDataSource<T1>() ),
-                marg2( new VariableDataSource<T2>() ),
-                marg3( new VariableDataSource<T3>() ) {}
+                marg1( new ORO_CoreLib::ValueDataSource<T1>() ),
+                marg2( new ORO_CoreLib::ValueDataSource<T2>() ),
+                marg3( new ORO_CoreLib::ValueDataSource<T3>() ) {}
             Function mfoo;
             typename AssignableDataSource<T1>::shared_ptr marg1;
             typename AssignableDataSource<T2>::shared_ptr marg2;
@@ -148,8 +148,8 @@ namespace ORO_Execution {
                     mfoo( marg1->set(), marg2->set(), marg3->set() );
                 }
 
-            virtual std::vector<DataSourceBase::shared_ptr> args() {
-                std::vector<DataSourceBase::shared_ptr> a;
+            virtual std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> args() {
+                std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> a;
                 a.push_back( marg1 );
                 a.push_back( marg2 );
                 a.push_back( marg3 );
@@ -175,8 +175,8 @@ namespace ORO_Execution {
                     mfoo();
                 }
 
-            virtual std::vector<DataSourceBase::shared_ptr> args() {
-                return std::vector<DataSourceBase::shared_ptr>();
+            virtual std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> args() {
+                return std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>();
             }
         };
 
@@ -188,7 +188,7 @@ namespace ORO_Execution {
 
             template<class Type>
             CallBackWrapper( Type t, Function& foo )
-                : mfoo( boost::bind(foo, t, _1) ), marg( new VariableDataSource<T>() )
+                : mfoo( boost::bind(foo, t, _1) ), marg( new ORO_CoreLib::ValueDataSource<T>() )
             {}
             boost::function<void(T)> mfoo;
 
@@ -199,8 +199,8 @@ namespace ORO_Execution {
                     mfoo( marg->set() );
                 }
 
-            virtual std::vector<DataSourceBase::shared_ptr> args() {
-                std::vector<DataSourceBase::shared_ptr> a;
+            virtual std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> args() {
+                std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> a;
                 a.push_back( marg );
                 return a;
             }
@@ -217,8 +217,8 @@ namespace ORO_Execution {
             template<class Type>
             CallBackWrapper( Type t, Function& foo )
                 : mfoo( boost::bind(foo, t, _1, _2) ),
-                marg1( new VariableDataSource<T1>() ),
-                marg2( new VariableDataSource<T2>() ) {}
+                marg1( new ORO_CoreLib::ValueDataSource<T1>() ),
+                marg2( new ORO_CoreLib::ValueDataSource<T2>() ) {}
 
             typename AssignableDataSource<T1>::shared_ptr marg1;
             typename AssignableDataSource<T2>::shared_ptr marg2;
@@ -228,8 +228,8 @@ namespace ORO_Execution {
                     mfoo( marg1->set(), marg2->set() );
                 }
 
-            virtual std::vector<DataSourceBase::shared_ptr> args() {
-                std::vector<DataSourceBase::shared_ptr> a;
+            virtual std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> args() {
+                std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> a;
                 a.push_back( marg1 );
                 a.push_back( marg2 );
                 return a;
@@ -248,9 +248,9 @@ namespace ORO_Execution {
             template<class Type>
             CallBackWrapper( Type t, Function& foo )
                 : mfoo( boost::bind(foo, t, _1, _2, _3) ),
-                marg1( new VariableDataSource<T1>() ),
-                marg2( new VariableDataSource<T2>() ),
-                marg3( new VariableDataSource<T3>() ) {}
+                marg1( new ORO_CoreLib::ValueDataSource<T1>() ),
+                marg2( new ORO_CoreLib::ValueDataSource<T2>() ),
+                marg3( new ORO_CoreLib::ValueDataSource<T3>() ) {}
 
             typename AssignableDataSource<T1>::shared_ptr marg1;
             typename AssignableDataSource<T2>::shared_ptr marg2;
@@ -261,8 +261,8 @@ namespace ORO_Execution {
                     mfoo( marg1->set(), marg2->set(), marg3->set() );
                 }
 
-            virtual std::vector<DataSourceBase::shared_ptr> args() {
-                std::vector<DataSourceBase::shared_ptr> a;
+            virtual std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> args() {
+                std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> a;
                 a.push_back( marg1 );
                 a.push_back( marg2 );
                 a.push_back( marg3 );

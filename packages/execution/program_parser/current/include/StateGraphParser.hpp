@@ -40,7 +40,6 @@ namespace ORO_Execution
 {
     class StateDescription;
     class TaskContext;
-    class TaskAttributeBase;
     class FunctionGraph;
     class ParsedStateMachine;
     class ProgramInterface;
@@ -81,8 +80,8 @@ namespace ORO_Execution { namespace detail
 
       typedef boost::shared_ptr<ParsedStateMachine> ParsedStateMachinePtr;
       typedef std::map<std::string, ParsedStateMachinePtr> contextnamemap_t;
-      typedef std::map<std::string, TaskAttributeBase*> contextparams_t;
-      typedef std::map<std::string, DataSourceBase::shared_ptr> contextparamvalues_t;
+      typedef std::map<std::string, ORO_CoreLib::AttributeBase*> contextparams_t;
+      typedef std::map<std::string, ORO_CoreLib::DataSourceBase::shared_ptr> contextparamvalues_t;
       typedef std::map<std::string, StateDescription*> contextstatesmap_t;
       typedef std::map<std::string, StateMachineBuilder*> contextbuilders_t;
 
@@ -118,7 +117,7 @@ namespace ORO_Execution { namespace detail
       bool isroot; //! are we instantiating a rootmachine ?
       unsigned int selectln; //! store line number of select's 'if' statement.
 
-      std::vector<DataSourceBase::shared_ptr> evargs;
+      std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> evargs;
       std::string evname;
 
       rule_t production;

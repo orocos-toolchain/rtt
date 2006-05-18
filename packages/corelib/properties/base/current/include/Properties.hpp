@@ -34,7 +34,5 @@
 
 #include "Property.hpp"
 #include "PropertyBag.hpp"
-#include "PropertyComposition.hpp"
-#include "PropertyDecomposition.hpp"
-#include "PropertyIntrospection.hpp"
 #include "PropertySequence.hpp"
+#include "PropertyIntrospection.hpp"

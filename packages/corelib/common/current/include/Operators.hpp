@@ -25,15 +25,15 @@
  *                                                                         *
  ***************************************************************************/ 
  
-#ifndef OPERATORS_HPP
-#define OPERATORS_HPP
+#ifndef ORO_OPERATORS_HPP
+#define ORO_OPERATORS_HPP
 
 #include <string>
 #include <vector>
 #include "DataSource.hpp"
 #include <boost/shared_ptr.hpp>
 
-namespace ORO_Execution { namespace detail
+namespace ORO_CoreLib { namespace detail
 {
 
   /**
@@ -63,8 +63,8 @@ namespace ORO_Execution { namespace detail
      * certain operation on the value it gets from its argument
      * DataSource, and will return that value ).  Otherwise, return 0.
      */
-    virtual DataSourceBase* build( const std::string& op,
-                                   DataSourceBase* a ) = 0;
+    virtual ORO_CoreLib::DataSourceBase* build( const std::string& op,
+                                   ORO_CoreLib::DataSourceBase* a ) = 0;
   };
 
   class BinaryOp
@@ -79,8 +79,8 @@ namespace ORO_Execution { namespace detail
      * DataSources, and will return that value ).
      * Otherwise, return 0.
      */
-    virtual DataSourceBase* build(
-      const std::string& op, DataSourceBase* a, DataSourceBase* b ) = 0;
+    virtual ORO_CoreLib::DataSourceBase* build(
+      const std::string& op, ORO_CoreLib::DataSourceBase* a, ORO_CoreLib::DataSourceBase* b ) = 0;
   };
 
   class TernaryOp
@@ -95,9 +95,9 @@ namespace ORO_Execution { namespace detail
      * DataSources, and will return that value ).
      * Otherwise, return 0.
      */
-    virtual DataSourceBase* build(
-      const std::string& op, DataSourceBase* a, DataSourceBase* b,
-      DataSourceBase* c ) = 0;
+    virtual ORO_CoreLib::DataSourceBase* build(
+      const std::string& op, ORO_CoreLib::DataSourceBase* a, ORO_CoreLib::DataSourceBase* b,
+      ORO_CoreLib::DataSourceBase* c ) = 0;
   };
 
   class SixaryOp
@@ -112,10 +112,10 @@ namespace ORO_Execution { namespace detail
      * DataSources, and will return that value ).
      * Otherwise, return 0.
      */
-    virtual DataSourceBase* build(
+    virtual ORO_CoreLib::DataSourceBase* build(
       const std::string& op,
-      DataSourceBase* a, DataSourceBase* b, DataSourceBase* c,
-      DataSourceBase* d, DataSourceBase* e, DataSourceBase* f) = 0;
+      ORO_CoreLib::DataSourceBase* a, ORO_CoreLib::DataSourceBase* b, ORO_CoreLib::DataSourceBase* c,
+      ORO_CoreLib::DataSourceBase* d, ORO_CoreLib::DataSourceBase* e, ORO_CoreLib::DataSourceBase* f) = 0;
   };
 
   /**
@@ -136,43 +136,46 @@ namespace ORO_Execution { namespace detail
      * certain operation on the value it gets from its argument
      * DataSource, and will return that value ).  Otherwise, return 0.
      */
-    virtual DataSourceBase* build( const std::string& member,
-                                   DataSourceBase* a ) = 0;
+    virtual ORO_CoreLib::DataSourceBase* build( const std::string& member,
+                                   ORO_CoreLib::DataSourceBase* a ) = 0;
   };
-
+}
     /**
      * This class builds on upon construction all expression
-     * operators known in the script parser.
+     * operators known to Orocos. Mainly used for scripting.
      */
-  class OperatorRegistry
+  class OperatorRepository
   {
-    std::vector<DotOp*> dotops;
-    std::vector<UnaryOp*> unaryops;
-    std::vector<BinaryOp*> binaryops;
-    std::vector<TernaryOp*> ternaryops;
-    std::vector<SixaryOp*> sixaryops;
-    OperatorRegistry();
-    OperatorRegistry( const OperatorRegistry& );
-    void add( UnaryOp* o );
-    void add( DotOp* o );
-    void add( BinaryOp* o );
-    void add( TernaryOp* o );
-    void add( SixaryOp* o );
+    std::vector<detail::DotOp*> dotops;
+    std::vector<detail::UnaryOp*> unaryops;
+    std::vector<detail::BinaryOp*> binaryops;
+    std::vector<detail::TernaryOp*> ternaryops;
+    std::vector<detail::SixaryOp*> sixaryops;
+    OperatorRepository();
+    OperatorRepository( const OperatorRepository& );
+
   public:
-    ~OperatorRegistry();
-    static boost::shared_ptr<OperatorRegistry> instance();
-    DataSourceBase* applyDot( const std::string& member, DataSourceBase* value );
-    DataSourceBase* applyUnary( const std::string& op, DataSourceBase* a );
-    DataSourceBase* applyBinary(
-      const std::string& op, DataSourceBase* a, DataSourceBase* b );
-    DataSourceBase* applyTernary(
-      const std::string& op, DataSourceBase* a, DataSourceBase* b,
-      DataSourceBase* c );
-    DataSourceBase* applySixary(
+    void add( detail::UnaryOp* o );
+    void add( detail::DotOp* o );
+    void add( detail::BinaryOp* o );
+    void add( detail::TernaryOp* o );
+    void add( detail::SixaryOp* o );
+
+      typedef boost::shared_ptr<OperatorRepository> shared_ptr;
+    ~OperatorRepository();
+    static shared_ptr Instance();
+    ORO_CoreLib::DataSourceBase* applyDot( const std::string& member, ORO_CoreLib::DataSourceBase* value );
+    ORO_CoreLib::DataSourceBase* applyUnary( const std::string& op, ORO_CoreLib::DataSourceBase* a );
+    ORO_CoreLib::DataSourceBase* applyBinary(
+      const std::string& op, ORO_CoreLib::DataSourceBase* a, ORO_CoreLib::DataSourceBase* b );
+    ORO_CoreLib::DataSourceBase* applyTernary(
+      const std::string& op, ORO_CoreLib::DataSourceBase* a, ORO_CoreLib::DataSourceBase* b,
+      ORO_CoreLib::DataSourceBase* c );
+    ORO_CoreLib::DataSourceBase* applySixary(
       const std::string& op,
-      DataSourceBase* a, DataSourceBase* b, DataSourceBase* c,
-      DataSourceBase* d, DataSourceBase* e, DataSourceBase* f);
+      ORO_CoreLib::DataSourceBase* a, ORO_CoreLib::DataSourceBase* b, ORO_CoreLib::DataSourceBase* c,
+      ORO_CoreLib::DataSourceBase* d, ORO_CoreLib::DataSourceBase* e, ORO_CoreLib::DataSourceBase* f);
   };
-}}
+}
 
 #endif

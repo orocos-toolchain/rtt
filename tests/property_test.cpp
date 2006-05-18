@@ -27,6 +27,7 @@
 #include <pkgconf/system.h>
 #ifdef OROPKG_GEOMETRY
 #include <geometry/frames.h>
+#include <geometry/GeometryToolkit.hpp>
 using namespace ORO_Geometry;
 #endif
 
@@ -130,11 +131,16 @@ void PropertyTest::testBagOperations()
 {
 }
 
+#ifdef OROPKG_GEOMETRY
 using namespace ORO_Geometry;
+#endif
 
 void PropertyTest::testMarshalling()
 {
 #ifdef OROPKG_GEOMETRY
+    if ( !Toolkit::hasTool("Geometry")) 
+        Toolkit::Import( GeometryToolkit );
+
     // decompose some types
     PropertyBag bag;
     PropertyBagIntrospector  inspector( bag );
@@ -145,9 +151,11 @@ void PropertyTest::testMarshalling()
 
     CPPUNIT_ASSERT( bag.find("Wrench") != 0 );
 
+    CPPUNIT_ASSERT( find( bag, "Wrench::Force" ) != 0 );
     CPPUNIT_ASSERT( find( bag, "Wrench::Force::X" ) != 0 );
     CPPUNIT_ASSERT( find( bag, "Wrench::Force::Y" ) != 0 );
     CPPUNIT_ASSERT( find( bag, "Wrench::Force::Z" ) != 0 );
+    CPPUNIT_ASSERT( find( bag, "Wrench::Torque" ) != 0 );
     CPPUNIT_ASSERT( find( bag, "Wrench::Torque::X" ) != 0 );
     CPPUNIT_ASSERT( find( bag, "Wrench::Torque::Y" ) != 0 );
     CPPUNIT_ASSERT( find( bag, "Wrench::Torque::Z" ) != 0 );

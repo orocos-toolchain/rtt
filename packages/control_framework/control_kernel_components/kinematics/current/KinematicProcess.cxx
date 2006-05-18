@@ -58,7 +58,7 @@ namespace ORO_ControlKernel
     }
 
     const std::string& KinematicProcess::getArchitecture() const {
-        return kinarch.get();
+        return kinarch.rvalue();
     }
 
     ORO_KinDyn::KinematicsComponent* KinematicProcess::getKinematics() {

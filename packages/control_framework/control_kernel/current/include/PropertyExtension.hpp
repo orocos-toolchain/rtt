@@ -30,6 +30,7 @@
 
 #include <corelib/Property.hpp>
 #include <corelib/PropertyBag.hpp>
+#include <corelib/PropertyComposition.hpp>
 #include "KernelInterfaces.hpp"
 #include "ComponentInterfaces.hpp"
 #include "ComponentConfigurator.hpp"

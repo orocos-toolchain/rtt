@@ -34,7 +34,6 @@
 #include "PropertyBag.hpp"
 #include "PropertyCommands.hpp"
 #include "DataSources.hpp"
-#include "DataSourceAdaptor.hpp"
 #include <boost/type_traits.hpp>
 
 #ifdef HAVE_STRING
@@ -53,57 +52,15 @@
 
 namespace ORO_CoreLib
 {
-
-    /**
-     * @brief Helper functions for Property operations.
-     *
-     * These helper functions define for each type which
-     * operators need to be applied to copy, refresh or update a type T.
-     *
-     * Remark that PropertyBag for example overloads these functions.
-     * Standard STL Containers (like vector) don't need an overload ( operator= ).
-     * All overloads must be in namespace ORO_CoreLib.
-     *
-     * @{
-     */
-    template< class T, class S>
-    inline bool copy(T& a, const S& b)
-    {
-        a = b;
-        return true;
-    }
-
-    template< class T, class S>
-    inline bool update(T& a, const S& b)
-    {
-        a = b;
-        return true;
-    }
-
-    template< class T, class S>
-    inline bool refresh(T& a, const S& b)
-    {
-        a = b;
-        return true;
-    }
-    /**
-     * @}
-     */
-
 	/**
-	 * @brief A property represents a value of any type.
+	 * @brief A property represents a named value of any type with a description.
      *
 	 * A property is a tuple of a name, a description and a variable of any
 	 * type. It's purpose is to provide an easy to manipulate parameter of an 
      * object by external entities. They can be grouped in PropertyBag objects
-     * and a Property can contain a PropertyBag itself. See the configuration tool
-     * to influence how the compiler should generate code for unkown
-     * (external to Orocos) classes \a T.
+     * and a Property can contain a PropertyBag itself.
      *
-	 *
      * @param T The type of the data contained within the Property.
-     * @see decomposeProperty and composeProperty if you want to use properties of
-     * external types \a T.
 	 */
     template<typename T>
     class Property
@@ -149,7 +106,8 @@ namespace ORO_CoreLib
          * @param datasource A new data source to be acquired by this property for
          * storing its data.
          */
-        Property(const std::string& name, const std::string& description, AssignableDataSource<DataSourceType>* datasource )
+        Property(const std::string& name, const std::string& description,
+                 AssignableDataSource<DataSourceType>* datasource )
             : PropertyBase(name, description), _value( datasource )
         {}
 
@@ -184,7 +142,7 @@ namespace ORO_CoreLib
         }
 
         /**
-         * Get the value of the property.
+         * Get a copy of the value of the property.
          * @return The value of the property.
          */
         DataSourceType get() const
@@ -224,6 +182,14 @@ namespace ORO_CoreLib
         }
 
         /**
+         * Read-only (const&) access to the value of the Property.
+         */
+        const_reference_t rvalue() const
+        {
+            return _value->rvalue();
+        }
+
+        /**
          * Use this method instead of dynamic_cast<> to cast from
          * PropertyBase to Property<T>. You need to delete the returned property
          * if it is no longer needed.
@@ -251,10 +217,6 @@ namespace ORO_CoreLib
             const Property<T>* origin = dynamic_cast<const Property<T>* >( other );
             if ( origin != 0 )
                 return new detail::UpdatePropertyCommand<T>(this, origin);
-            const Property< const_reference_t >* corigin
-                = dynamic_cast<const Property<const_reference_t >* >( other );
-            if ( corigin != 0 )
-                return new detail::UpdatePropertyCommand<T, const_reference_t>(this, corigin);
             return 0;
         }
 
@@ -288,18 +250,13 @@ namespace ORO_CoreLib
             const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
             if ( origin != 0 )
                 return new detail::CopyPropertyCommand<T>(this, origin);
-            const Property< const_reference_t >* corigin
-                = dynamic_cast<const Property<const_reference_t >* >( other );
-            if ( corigin != 0 )
-                return new detail::CopyPropertyCommand<T, const_reference_t>(this, corigin);
             return 0;
         }
 
         /**
          * Copy the value, complete overwrite of this Property with orig.
          */
-        template<class S>
-        bool copy( const Property<S>& orig)
+        bool copy( const Property<T>& orig)
         {
             _description = orig.getDescription();
             _name = orig.getName();
@@ -311,8 +268,7 @@ namespace ORO_CoreLib
          * Update the value, optionally also the description if current
          * description is empty.
          */
-        template<class S>
-        bool update( const Property<S>& orig)
+        bool update( const Property<T>& orig)
         {
             if ( _description.empty() )
                 _description = orig.getDescription();
@@ -324,10 +280,9 @@ namespace ORO_CoreLib
          * Refresh only the value from a Property.
          * This is a real-time operation.
          */
-        template<class S>
-        bool refresh( const Property<S>& orig)
+        bool refresh( const Property<T>& orig)
         {
-            *this = orig.getDataSource()->value();
+            *this = orig.getAssignableDataSource()->value();
             return true;
         }
 
@@ -341,243 +296,37 @@ namespace ORO_CoreLib
             return new Property<T>( _name, _description );
         }
 
-        virtual AssignableDataSource<DataSourceType>* getDataSource() const {
-            return _value.get();
+        virtual DataSourceBase::shared_ptr getDataSource() const {
+            return _value;
+        }
+
+        typename AssignableDataSource<DataSourceType>::shared_ptr getAssignableDataSource() const {
+            return _value;
         }
 
         virtual std::string getType() const {
             return DataSource<T>::GetType();
         }
+
+        virtual const TypeInfo* getTypeInfo() const {
+            return DataSource<T>::GetTypeInfo();
+        }
     protected:
         typename AssignableDataSource<DataSourceType>::shared_ptr _value;
     };
 
+
     /**
-     * Specialisation of Property<PropertyBag>.
-     * PropertyBags are local objects. The get() method of this specialisation returns
-     * a const reference to the internal PropertyBag, instead of a copy
-     * as in the default Property implementation. This allows some real-time algorithms
-     * to work with PropertyBag objects, as no copy is made, this is especially the case
-     * for algorithms which use the refresh methods below, since refresh is intended
-     * as a real-time value-update mechanism.
+     * Partial specialisations in case of PropertyBag.
      */
     template<>
-    class Property<PropertyBag>
-        : public PropertyBase
-    {
-    public:
-        /**
-         * The types of this property type.
-         * value_t is always the 'bare' value type of T. From this type,
-         * we derive the other (param, ref, ...) types.
-         */
-        typedef PropertyBag value_t;
-        typedef boost::call_traits<value_t>::param_type param_t;
-        typedef boost::call_traits<value_t>::reference reference_t;
-        typedef boost::call_traits<value_t>::const_reference const_reference_t;
+    bool Property<PropertyBag>::update( const Property<PropertyBag>& orig);
 
-        /**
-         * The constructor which initializes the property's value.
-         * @param name The name which will be used to refer to the
-         * property.
-         * @param description The description of the property.
-         * @param value The initial value of the property (optional).
-         */
-        Property(const std::string& name, const std::string& description, param_t value = value_t() )
-            : PropertyBase(name, description), _value( value )
-        {}
+    template<>
+    bool Property<PropertyBag>::refresh( const Property<PropertyBag>& orig);
 
-        /**
-         * Copy constructors copies the name, description and value
-         * as deep copies.
-         */
-        Property( const Property<PropertyBag>& orig)
-            : PropertyBase(orig.getName(), orig.getDescription()),
-              _value()
-        {}
-
-        /**
-         * Set the property's value.
-         * @param value The value to be set.
-         * @return A reference to newly set property value.
-         */
-        Property<PropertyBag>& operator=( param_t value )
-        {
-            _value = value;
-            return *this;
-        }
-
-        /**
-         * Update the value of this property with
-         * another property.
-         */
-        Property<PropertyBag>& operator<<=(Property<PropertyBag> &p)
-        {
-            this->update( p );
-            return *this;
-        }
-
-        virtual ~Property();
-
-        /**
-         * Get a copy of the value of the property.
-         * @return A copy of the value of the property.
-         */
-        operator value_t() const
-        {
-            return _value;
-        }
-
-        /**
-         * Get a reference to the PropertyBag.
-         * @return The value of the property.
-         */
-        const_reference_t get() const
-        {
-            return _value;
-        }
-
-        /**
-         * Access to PropertyBag of the Property. Identical to value().
-         */
-        reference_t set()
-        {
-            return _value;
-        }
-
-        /**
-         * Set the PropertyBag of the Property.
-         */
-        void set(param_t v)
-        {
-            _value = v;
-        }
-
-        /**
-         * Access to the PropertyBag of the Property. Identical to set().
-         */
-        reference_t value()
-        {
-            return _value;
-        }
-
-        /**
-         * Use this method instead of dynamic_cast<> to cast from
-         * PropertyBase to Property<PropertyBag>. You need to delete the returned property
-         * if it is no longer needed.
-         * @param prop The property to narrow to Property<PropertyBag>.
-         * @return Null if prop is not convertible to type Property<PropertyBag>,
-         * a \b new Property<PropertyBag> instance otherwise.
-         */
-        static Property<PropertyBag>* narrow( PropertyBase* prop );
-
-        virtual void identify( PropertyIntrospection* pi) const;
-        
-        virtual bool update( const PropertyBase* other) 
-        {
-            const Property<PropertyBag>* origin = dynamic_cast< const Property<PropertyBag>* >( other );
-            if ( origin != 0 ) {
-                return this->update( *origin );
-            }
-            return false;
-        }
-
-        virtual CommandInterface* updateCommand( const PropertyBase* other)
-        {
-            const Property<PropertyBag>* origin = dynamic_cast<const Property<PropertyBag>* >( other );
-            if ( origin != 0 )
-                return new detail::UpdatePropertyCommand<PropertyBag>(this, origin);
-            return 0;
-        }
-
-        virtual bool refresh( const PropertyBase* other) 
-        {
-            const Property<PropertyBag>* origin = dynamic_cast< const Property<PropertyBag>* >( other );
-            if ( origin != 0 ) {
-                return this->refresh( *origin );
-            }
-            return false;
-        }
-
-        virtual CommandInterface* refreshCommand( const PropertyBase* other)
-        {
-            const Property<PropertyBag>* origin = dynamic_cast<const  Property<PropertyBag>* >( other );
-            if ( origin != 0 )
-                return new detail::RefreshPropertyCommand<PropertyBag>(this, origin);
-            return 0;
-        }
-
-        virtual bool copy( const PropertyBase* other )
-        {
-            const Property<PropertyBag>* origin = dynamic_cast< const Property<PropertyBag>* >( other );
-            if ( origin != 0 ) {
-                return this->copy( *origin );
-            }
-            return false;
-        }
-
-        virtual CommandInterface* copyCommand( const PropertyBase* other)
-        {
-            const Property<PropertyBag>* origin = dynamic_cast<const  Property<PropertyBag>* >( other );
-            if ( origin != 0 )
-                return new detail::CopyPropertyCommand<PropertyBag>(this, origin);
-            return 0;
-        }
-
-
-        /**
-         * Update the value, optionally also the description if current
-         * description is empty.
-         */
-        template<class S>
-        bool update( const Property<S>& orig)
-        {
-            if ( _description.empty() )
-                _description = orig.getDescription();
-            return updateProperties( this->_value, orig.get() );
-        }
-
-        /**
-         * Refresh only the value from a Property.
-         */
-        template<class S>
-        bool refresh( const Property<S>& orig)
-        {
-            return refreshProperties( this->_value, orig.get() );
-        }
-
-        /**
-         * Make a full copy.
-         */
-        template<class S>
-        bool copy( const Property<S>& orig)
-        {
-            _name = orig.getName();
-            _description = orig.getDescription();
-            return ORO_CoreLib::copy( _value, orig.get() );
-        }
-
-        virtual Property<PropertyBag>* clone() const
-        {
-            return new Property<PropertyBag>(*this);
-        }
-
-        virtual Property<PropertyBag>* create() const
-        {
-            return new Property<PropertyBag>( _name, _description );
-        }
-
-        virtual AssignableDataSource<PropertyBag>* getDataSource() const {
-            return new ValueDataSource<PropertyBag>( _value );
-        }
-
-        virtual std::string getType() const {
-            return DataSource<PropertyBag>::GetType();
-        }
-    protected:
-        PropertyBag _value;
-    private:
-    };
+    template<>
+    bool Property<PropertyBag>::copy( const Property<PropertyBag>& orig);
 
     template<typename T>
     std::ostream& operator<<(std::ostream &os, Property<T> &p)
@@ -627,28 +376,4 @@ namespace ORO_CoreLib
 
 }
 
-// By PS : these are confusing, thus removed.
-
-/* example simple_hibernate.cpp
- * This example shows how to use simple properties in combination with a
- * marshaller. The SimpleMarshaller is used and the serialized data is
- * shown on standard output.
- */
-/* example simple_incarnate.cpp
- * This example shows how to demarshall a stream containing simple properties.
- * The SimpleDemarshaller is used and the serialized data is read from standard input.
- */
-
-/* example adding_property_types.cpp
- * This example shows that properties can be of any type, including user
- * defined types. When you want to be able to marshall these properties you
- * need to add support for decomposing objects of your newly defined type
- * into a treestructure of simple properties.
- * <br>
- * The example shows the class Rectangle being used as a property without
- * adding support for marshalling it.
- * The other added type, namely Vector, is being used as a property and
- * the decompose function was added so properties of type Vector can be
- * marshalled with any Marshaller.
- */
 #endif

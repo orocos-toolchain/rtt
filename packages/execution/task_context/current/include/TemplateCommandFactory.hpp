@@ -125,7 +125,7 @@ namespace ORO_Execution
           return new FunctorCommandDS( ds.get(), fun );
       }
 
-      virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      virtual CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorCommandDS( ds->copy( alreadyCloned ), fun );
       }
@@ -169,7 +169,7 @@ namespace ORO_Execution
           return new FunctorCommand1( fun, aa.get() );
       }
 
-    virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorCommand1( fun, aa->copy( alreadyCloned ) );
       }
@@ -222,7 +222,7 @@ namespace ORO_Execution
           return new FunctorCommandDS1( ds.get(), fun, aa.get() );
       }
 
-      virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      virtual CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
           return new FunctorCommandDS1( ds->copy(alreadyCloned), fun, aa->copy( alreadyCloned ) );
       }
@@ -269,7 +269,7 @@ namespace ORO_Execution
           return new FunctorCommand2( fun, aa.get(), bb.get() );
       }
 
-    virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorCommand2( fun, aa->copy( alreadyCloned ), bb->copy( alreadyCloned ) );
       }
@@ -321,7 +321,7 @@ namespace ORO_Execution
           return new FunctorCommand3( fun, aa.get(), bb.get(), cc.get() );
       }
 
-    virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorCommand3( fun, aa->copy( alreadyCloned ), bb->copy( alreadyCloned ), cc->copy( alreadyCloned ) );
       }
@@ -377,7 +377,7 @@ namespace ORO_Execution
           return new FunctorCommand4( fun, aa.get(), bb.get(), cc.get(), dd.get() );
       }
 
-    virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorCommand4( fun, aa->copy( alreadyCloned ), bb->copy( alreadyCloned ), cc->copy( alreadyCloned ), dd->copy(alreadyCloned) );
       }
@@ -775,7 +775,7 @@ namespace ORO_Execution
         return new FunctorConditionDS( ds.get(), fun, invert );
       }
 
-    ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    ConditionInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorConditionDS( ds->copy(alreadyCloned), fun, invert );
       }
@@ -815,7 +815,7 @@ namespace ORO_Execution
         return new FunctorConditionDS1( ds.get(), fun, aa.get(), invert );
       }
 
-    ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    ConditionInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorConditionDS1( ds->copy(alreadyCloned), fun, aa->copy(alreadyCloned), invert );
       }
@@ -849,7 +849,7 @@ namespace ORO_Execution
       {
         return new FunctorCondition1( fun, aa.get(), invert );
       };
-    ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    ConditionInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorCondition1( fun, aa->copy( alreadyCloned ), invert );
       }
@@ -886,7 +886,7 @@ namespace ORO_Execution
       {
         return new FunctorCondition2( fun, aa.get(), bb.get(), invert );
       };
-    ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    ConditionInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorCondition2( fun, aa->copy( alreadyCloned ), bb->copy( alreadyCloned ), invert );
       }
@@ -926,7 +926,7 @@ namespace ORO_Execution
       {
         return new FunctorCondition3( fun, aa.get(), bb.get(), cc.get(), invert );
       }
-    ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    ConditionInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorCondition3( fun, aa->copy( alreadyCloned ), bb->copy( alreadyCloned ), cc->copy( alreadyCloned ), invert );
       }
@@ -969,7 +969,7 @@ namespace ORO_Execution
       {
         return new FunctorCondition4( fun, aa.get(), bb.get(), cc.get(), dd.get(), invert );
       }
-    ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    ConditionInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorCondition4( fun, aa->copy( alreadyCloned ), bb->copy( alreadyCloned ), cc->copy( alreadyCloned ), dd->copy(alreadyCloned), invert );
       }
@@ -1477,7 +1477,7 @@ namespace ORO_Execution
         return res;
       }
     ComCon create( const std::string& name,
-                   const std::vector<DataSourceBase*>& args, bool nodispatch ) const
+                   const std::vector<ORO_CoreLib::DataSourceBase*>& args, bool nodispatch ) const
       {
         ComCon res =  _TF::produce( name, args );
         if (nodispatch)
@@ -1496,7 +1496,7 @@ namespace ORO_Execution
       }
 
       ComCon create( const std::string& name,
-                     const std::vector<DataSourceBase::shared_ptr>& args, bool nodispatch ) const
+                     const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args, bool nodispatch ) const
       {
           ComCon res =  _TF::produce( name, args );
           if (nodispatch)

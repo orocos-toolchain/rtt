@@ -317,8 +317,8 @@ namespace ORO_Execution
       }
       implcond_v.clear();
 
-      context->attributeRepository.setValue(
-      "done", new detail::ParsedAlias<bool>(
+      context->attributes()->setValue(
+      "done", new ORO_CoreLib::Alias<bool>(
         new DataSourceCondition( implcond->clone() ) ) );
   }
 
@@ -344,7 +344,7 @@ namespace ORO_Execution
       dc = 0;
 
       // the done condition is no longer valid..
-      context->attributeRepository.removeValue( "done" );
+      context->attributes()->removeValue( "done" );
   }
 
     void ProgramGraphParser::startofprogram()
@@ -409,7 +409,7 @@ namespace ORO_Execution
       if ( mfuncs.count( funcdef ) )
           throw parse_exception_semantic_error("function " + funcdef + " redefined.");
 
-      if ( exportf && rootc->commandFactory.hasCommand("this", funcdef ))
+      if ( exportf && rootc->commands()->hasCommand("this", funcdef ))
           throw parse_exception_semantic_error("exported function " + funcdef + " is already defined in "+ rootc->getName()+".");;
 
       mfuncs[funcdef] = program_builder->startFunction( funcdef );
@@ -447,7 +447,7 @@ namespace ORO_Execution
           FunctionFactory* cfi = new FunctionFactory( rootc->getExecutionEngine() ); // execute in the processor which has the command.
           std::map<const DataSourceBase*, DataSourceBase*> dummy;
           cfi->addFunction( mfunc->getName() , ProgramInterfacePtr(mfunc->copy(dummy)) );
-          rootc->commandFactory.registerObject("this", cfi );
+          rootc->commands()->registerObject("this", cfi );
           Logger::log() << Logger::Info << "Exported Function '" << mfunc->getName() << "' added to task '"<< rootc->getName() << "'" <<Logger::endl;
       }
 

@@ -30,6 +30,7 @@
 #ifdef OROINT_OS_CORBA
 #include "corelib/AnyDataSource.hpp"
 #endif
+#include "corelib/TemplateTypeInfo.hpp"
 
 namespace ORO_CoreLib
 {
@@ -44,6 +45,36 @@ namespace ORO_CoreLib
     
     void DataSourceBase::reset()
     {
+    }
+
+    std::ostream& DataSourceBase::write(std::ostream& os)
+    {
+        DataSourceBase::shared_ptr mobj(this);
+        return mobj->getTypeInfo()->write( os, mobj );
+    }
+
+
+    std::ostream& operator<<(std::ostream& os, DataSourceBase::shared_ptr mobj)
+    {
+        return mobj->getTypeInfo()->write( os, mobj );
+    }
+
+    std::string DataSourceBase::toString()
+    {
+        DataSourceBase::shared_ptr mobj(this);
+        return mobj->getTypeInfo()->toString( mobj );
+    }
+
+    bool DataSourceBase::decomposeType( PropertyBag& targetbag )
+    {
+        DataSourceBase::shared_ptr mobj(this);
+        return mobj->getTypeInfo()->decomposeType( mobj, targetbag );
+    }
+            
+    bool DataSourceBase::composeType( DataSourceBase::shared_ptr source)
+    {
+        DataSourceBase::shared_ptr mobj(this);
+        return mobj->getTypeInfo()->composeType( source, mobj );
     }
 
     bool DataSourceBase::update(const DataSourceBase* ) {
@@ -61,11 +92,11 @@ namespace ORO_CoreLib
         return 0;
     }
 
-    bool DataSourceBase::updatePart( DataSourceBase*, const DataSourceBase* ) {
+    bool DataSourceBase::updatePart( DataSourceBase*, DataSourceBase* ) {
         return false;
     }
 
-    CommandInterface* DataSourceBase::updatePartCommand( DataSourceBase*, const DataSourceBase* ) {
+    CommandInterface* DataSourceBase::updatePartCommand( DataSourceBase*, DataSourceBase* ) {
         return 0;
     }
 
@@ -76,7 +107,8 @@ namespace ORO_CoreLib
     template<>
     bool DataSource<bool>::evaluate() const
     {
-        return this->get();
+        this->get();
+        return true;
     }
 
     template<>
@@ -194,33 +226,30 @@ namespace ORO_CoreLib
         }
 
         Logger::log() << Logger::Error << "Could not create updateCommand for "<<other->getType() <<" as CORBA::Any." <<Logger::endl;
+        throw bad_assignment();
+
         return 0;
     }
 #endif
 
     namespace detail {
-        const std::string DataSourceTypeInfo<ValueType>::type("unknown type");
-        const std::string DataSourceTypeInfo<ValueType>::qual("");
-        const std::string DataSourceTypeInfo<void>::type("void");
-        const std::string DataSourceTypeInfo<bool>::type("bool");
-        const std::string DataSourceTypeInfo<int>::type("int");
-        const std::string DataSourceTypeInfo<unsigned int>::type("unsigned int");
-        const std::string DataSourceTypeInfo<double>::type("double");
-        const std::string DataSourceTypeInfo<float>::type("float");
-        const std::string DataSourceTypeInfo<char>::type("char");
-        const std::string DataSourceTypeInfo<PropertyBag>::type("PropertyBag");
-        const std::string DataSourceTypeInfo<ORO_CoreLib::MultiVector<6,double> >::type("Double6D");
-        const std::string DataSourceTypeInfo<std::string>::type("string");
-        const std::string DataSourceTypeInfo<std::vector<double> >::type("array");
 
-        const std::string DataSourceTypeInfo<CORBA::Any>::type("CORBA::Any");
+        TypeInfo* DataSourceTypeInfo<ORO_CoreLib::detail::UnknownType>::TypeInfoObject = 0;
 
-        // Forward decls allow us to define these, even if the geometry package is not used.
-        const std::string DataSourceTypeInfo<ORO_Geometry::Frame>::type("Frame");
-        const std::string DataSourceTypeInfo<ORO_Geometry::Vector>::type("Vector");
-        const std::string DataSourceTypeInfo<ORO_Geometry::Rotation>::type("Rotation");
-        const std::string DataSourceTypeInfo<ORO_Geometry::Twist>::type("Twist");
-        const std::string DataSourceTypeInfo<ORO_Geometry::Wrench>::type("Wrench");
+        const std::string& DataSourceTypeInfo<UnknownType>::getType() { return getTypeInfo()->getTypeName(); }
+        const std::string& DataSourceTypeInfo<UnknownType>::getQualifier() { return noqual; }
+        const TypeInfo* DataSourceTypeInfo<UnknownType>::getTypeInfo() { 
+            if (!TypeInfoObject)
+                TypeInfoObject = new TemplateTypeInfo<UnknownType,false>("unknown type");
+            return TypeInfoObject; 
+        }
+
+        const std::string DataSourceTypeInfo<UnknownType>::noqual("");
+        const std::string DataSourceTypeInfo<UnknownType>::cqual(" const");
+        const std::string DataSourceTypeInfo<UnknownType>::refqual(" &");
+        const std::string DataSourceTypeInfo<UnknownType>::crefqual(" const&");
+        const std::string DataSourceTypeInfo<UnknownType>::ptrqual(" *");
+        const std::string DataSourceTypeInfo<UnknownType>::cptrqual(" const*");
     }
 }
 
@@ -232,4 +261,5 @@ void intrusive_ptr_add_ref(const ORO_CoreLib::DataSourceBase* p )
 void intrusive_ptr_release(const ORO_CoreLib::DataSourceBase* p )
 {
   p->deref();
-}
+};
+

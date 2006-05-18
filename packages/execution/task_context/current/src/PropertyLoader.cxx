@@ -49,7 +49,7 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
         return false;
     
 #else
-    if ( target->attributeRepository.properties() == 0) {
+    if ( target->attributes()->properties() == 0) {
         Logger::log() <<Logger::Error << "TaskContext " <<target->getName()<<" has no Properties to configure." << Logger::endl;
         return false;
     }
@@ -73,43 +73,21 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
         if ( demarshaller->deserialize( propbag ) )
         {
             // Lookup props vs attrs :
-            for( PropertyBag::iterator it = propbag.getProperties().begin();
-                 it != propbag.getProperties().end();
-                 ++it)
-                {
-                    PropertyBase* v = target->attributeRepository.properties()->find( (*it)->getName() );
-                    if ( v == 0 ) {
-                        Logger::log() << Logger::Debug;
-                        Logger::log() << "Skipping Property " << (*it)->getName()
-                                      <<": not in task "<< target->getName() <<Logger::endl;
-
-                        continue;
-                    }
-                    CommandInterface* ac = v->refreshCommand( (*it) );
-                    if ( ac )
-                        assignComs.push_back( ac ); // store the assignment.
-                    else {
-                        if (strict ) {
-                            Logger::log() << Logger::Error;
-                            failure = true;
-                        }
-                        else
-                            Logger::log() << Logger::Info;
-                        Logger::log()<< "Could not refresh Property '"<< (*it)->getType() << " " << (*it)->getName()
-                                     <<"' with '"<< v->getType() << " " << (*it)->getName() << "' from file."<<Logger::endl;
-                    }
+            if ( !strict )
+                failure = !updateProperties( *target->attributes()->properties(), propbag );
+            else {
+                // take restore-copy;
+                PropertyBag backup;
+                copyProperties( backup, *target->attributes()->properties() );
+                if ( updateProperties( *target->attributes()->properties(), propbag ) == false ) {
+                    // restore backup:
+                    updateProperties( *target->attributes()->properties(), backup );
+                    failure = true;
                 }
-            // Do all assignments. In strict mode, don't do any upon failure.
-            for(vector<CommandInterface*>::iterator it = assignComs.begin();
-                it != assignComs.end(); ++it) {
-                if ( !failure )
-                    (*it)->execute();
-                delete *it;
+                // cleanup
+                flattenPropertyBag( backup );
+                deleteProperties( backup );
             }
-
-            // cleanup
-            flattenPropertyBag( propbag );
-            deleteProperties( propbag );
         }
         else
             {
@@ -137,7 +115,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target) cons
         return false;
     
 #else
-    if ( target->attributeRepository.properties() == 0 ) {
+    if ( target->attributes()->properties() == 0 ) {
         Logger::log() << Logger::Error << "TaskContext "<< target->getName()
                       << " does not have Properties to save." << Logger::endl;
         return false;
@@ -164,7 +142,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target) cons
     }
 
     // Write results
-    PropertyBag* compProps = target->attributeRepository.properties();
+    PropertyBag* compProps = target->attributes()->properties();
 
     // decompose repos into primitive property types.
     PropertyBag  decompProps;
@@ -175,7 +153,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target) cons
     // override allProps.
     bool updater = ORO_CoreLib::updateProperties( allProps, decompProps );
     if (updater == false) {
-        Logger::log() << Logger::Error << "Could update properties of file "<< filename <<"."<<Logger::endl;
+        Logger::log() << Logger::Error << "Could not update properties of file "<< filename <<"."<<Logger::endl;
     }        
     // serialize and cleanup
     std::ofstream file( filename.c_str() );

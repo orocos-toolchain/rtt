@@ -28,7 +28,7 @@
 #ifndef ORO_TASK_VARIABLE_HPP
 #define ORO_TASK_VARIABLE_HPP
 
-#include "TaskAttribute.hpp"
+#include <corelib/Attribute.hpp>
 #include "AssignVariableCommand.hpp"
 #include "DataSourceAdaptor.hpp"
 
@@ -36,58 +36,12 @@ namespace ORO_Execution
 {
     namespace detail
     {
-  /**
-   * This class represents a variable held in ValueParser.
-   */
-  template<typename T>
-  class ParsedVariable
-    : public TaskAttributeBase
-  {
-  public:
-    typename VariableDataSource<T>::shared_ptr data;
-    ParsedVariable()
-      : data( new VariableDataSource<T>() )
-      {
-      }
-    ParsedVariable(T t)
-      : data( new VariableDataSource<T>( t ) )
-      {
-      }
-    ParsedVariable( VariableDataSource<T>* d )
-      : data( d )
-      {
-      }
-    VariableDataSource<T>* toDataSource() const
-      {
-        return data.get();
-      }
-    CommandInterface* assignCommand( DataSourceBase::shared_ptr rhs, bool ) const
-      {
-        DataSourceBase::shared_ptr r( rhs );
-        DataSource<T>* t = AdaptDataSource<T>()( r );
-        if ( ! t ) {
-            throw bad_assignment();
-        }
-        return new AssignVariableCommand<T>( data.get(), t );
-      };
-    ParsedVariable<T>* clone() const
-      {
-        return new ParsedVariable<T>( data.get() );
-      }
-    ParsedVariable<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate ) 
-      {
-          if (instantiate ) {
-              detail::TaskAttributeDataSource<T>* instds = new detail::TaskAttributeDataSource<T>( data->get() );
-              replacements[ data.get() ] = instds;
-              return new ParsedVariable<T>( instds );
-          }
-          return new ParsedVariable<T>( data->copy( replacements ) );
-      }
-  };
-
+        /**
+         * Allows 'index' assignment of a type T.
+         */
   template<typename T, typename Index, typename SetType, typename Pred>
   class ParsedIndexVariable
-    : public TaskAttributeBase
+    : public AttributeBase
   {
   protected:
     typename VariableDataSource<T>::shared_ptr data;
@@ -138,7 +92,7 @@ namespace ORO_Execution
     ParsedIndexVariable<T, Index, SetType,Pred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate )
       {
           if (instantiate ) {
-              detail::TaskAttributeDataSource<T>* instds = new detail::TaskAttributeDataSource<T>( data->get() );
+              detail::AttributeDataSource<T>* instds = new detail::AttributeDataSource<T>( data->get() );
               replacements[ data.get() ] = instds;
               return new ParsedIndexVariable( instds );
           }
@@ -179,7 +133,7 @@ namespace ORO_Execution
     ParsedIndexContainerVariable<T, Index, SetType,Pred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements,bool instantiate) 
       {
           if (instantiate ) {
-              detail::TaskAttributeDataSource<T>* instds = new detail::TaskAttributeDataSource<T>( this->data->get() );
+              detail::AttributeDataSource<T>* instds = new detail::AttributeDataSource<T>( this->data->get() );
               replacements[ this->data.get() ] = instds;
               return new ParsedIndexContainerVariable( instds );
           }
@@ -187,59 +141,14 @@ namespace ORO_Execution
       }
   };
 
-#if 0
-    /**
-     * Overload assignCommand to check for string capacity and assign with 'c_str()'
-     */
-  template<typename T, typename Index, typename SetType, typename Pred>
-  struct ParsedStringVariable
-      : public ParsedIndexVariable<T,Index,SetType,Pred>
-  {
-    ParsedStringVariable( T t)
-        : ParsedIndexVariable<T,Index,SetType,Pred>( t )
-      {
-          this->data->set().reserve( t.capacity() );
-      }
-    ParsedStringVariable( typename VariableDataSource<T>::shared_ptr d )
-        : ParsedIndexVariable<T,Index,SetType,Pred>( d )
-      {
-          this->data->set().reserve( d->get().capacity() );
-      }
-    CommandInterface* assignCommand( DataSourceBase::shared_ptr rhs, bool ) const
-      {
-        DataSourceBase::shared_ptr r( rhs );
-        DataSource<T>* t = AdaptDataSource<T>()( r );
-        if ( ! t )
-          throw bad_assignment();
-         // this single line causes the existence of this class. I wonder if I could
-        // not refactor the assigncommand out of this class such that all these special
-        // cases can be implemented by 1 class which gets the assigncommand from somewhere else.
-        return new AssignStringCommand<T>( this->data.get(), t );
-      }
-
-    ParsedStringVariable<T, Index, SetType,Pred>* clone() const
-      {
-        return new ParsedStringVariable( this->data );
-      }
-    ParsedStringVariable<T, Index, SetType,Pred>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements,bool instantiate) 
-      {
-          if (instantiate ) {
-              detail::TaskAttributeDataSource<T>* instds = new detail::TaskAttributeDataSource<T>( this->data->get() );
-              replacements[ this->data.get() ] = instds;
-              return new ParsedStringVariable( instds );
-          }
-        return new ParsedStringVariable( this->data->copy( replacements ) );
-      }
-  };
-#endif
-
   /**
    * This represents a constant value, does not allow assignment,
    * only initialization.
+   * @deprecated by ORO_CoreLib::Constant, exactly the same implementation.
    */
   template<typename T>
   class ParsedConstant
-    : public TaskAttributeBase
+    : public AttributeBase
   {
   public:
     typename ORO_CoreLib::ConstantDataSource<T>::shared_ptr cdata;

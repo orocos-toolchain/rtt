@@ -32,12 +32,7 @@
 #include "Property.hpp"
 #include "VectorComposition.hpp"
 #include "MultiVectorComposition.hpp"
-
-#include <pkgconf/corelib_properties.h>
-#ifdef OROCLS_CORELIB_PROPERTIES_MOTIONPROPERTIES
-#include <geometry/MotionProperties.hpp>
-#endif
-
+#error "do not use"
 namespace ORO_CoreLib
 {
 	/** 
@@ -60,11 +55,16 @@ namespace ORO_CoreLib
      *
      * Example for type MyClass :
      * \code 
-     *  void decomposeProperty(PropertyIntrospection *pi, const Property< MyClass > &c)
+     *  struct MyClass {
+     *      bool var1;
+     *      double var2;
+     *  };
+     *
+     *  void decomposeProperty(Property<PropertyBag> result, const Property< MyClass > &c)
      *  {
      *      // Decode c into primitive properties Var1 and Var2 which are in a PropertyBag of the
      *      // bag-type "MyClass" with the same name as the Property 'c'.
-     *	    Property<PropertyBag> result( c.getName() ,"Description", PropertyBag("MyClass") );
+     *	    result->setType("MyClass");
      *	    Property<bool>   var1("Var1","", c.get().var1);
      *	    Property<double> var2("Var2","", c.get().var2);
      *
@@ -72,8 +72,6 @@ namespace ORO_CoreLib
      *      result.value().add(var1);
      *      result.value().add(var2);
      *	    
-     *      // introspect the bag.
-	 *	    pi->introspect(result);
      *      // done !
      *  } 
      * \endcode 
@@ -106,7 +104,7 @@ namespace ORO_CoreLib
 #else
     ;
 #endif
-	
+
 }
 
 #endif

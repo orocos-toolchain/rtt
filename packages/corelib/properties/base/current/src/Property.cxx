@@ -44,6 +44,31 @@ namespace ORO_CoreLib {
      template class Property<CORBA::Any>;
 #endif
 
+    template<>
+    bool Property<PropertyBag>::update( const Property<PropertyBag>& orig)
+    {
+        if ( _description.empty() )
+            _description = orig.getDescription();
+        return updateProperties( this->_value->set(), orig.rvalue() );
+    }
+
+    template<>
+    bool Property<PropertyBag>::refresh( const Property<PropertyBag>& orig)
+    {
+        return refreshProperties( this->_value->set(), orig.rvalue() );
+    }
+
+    template<>
+    bool Property<PropertyBag>::copy( const Property<PropertyBag>& orig)
+    {
+        _name = orig.getName();
+        _description = orig.getDescription();
+        return copyProperties( this->_value->set(), orig.rvalue() );
+    }
+
+
+
+#if 0
     Property<PropertyBag>::~Property<PropertyBag>()
     {}
 
@@ -80,4 +105,5 @@ namespace ORO_CoreLib {
         Property<double> msg(f.getName(), f.getDescription(), f.get() );
         pi->introspect( msg );
     }
+#endif
 }

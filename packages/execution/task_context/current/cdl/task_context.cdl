@@ -19,7 +19,7 @@ task programs."
     requires OROPKG_CORELIB_COMMANDS
 
     compile TaskContext.cxx
-    compile AttributeRepository.cxx TaskAttribute.cxx 
+    compile AttributeRepository.cxx
     compile DataSourceFactoryInterface.cxx  GlobalMemberFactory.cxx
     compile GlobalCommandFactory.cxx
     compile CommandFactoryInterface.cxx

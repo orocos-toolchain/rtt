@@ -18,6 +18,7 @@ namespace ORO_Corba
     {
     protected:
         static std::map<Orocos::Expression_ptr, ExpressionProxy*> proxies;
+        static std::map<Orocos::Expression_ptr, DataSourceBase*> dproxies;
 
         /**
          * Private constructor which creates a new connection to
@@ -37,13 +38,21 @@ namespace ORO_Corba
         static ExpressionProxy* Create(::Orocos::Expression_ptr expr);
 
         /**
+         * Factory method: create a DataSource to an existing Expression Object.
+         * @param expr The Object to connect to.
+         * @return A new or previously created DataSource for \a expr.
+         */
+        static DataSourceBase* CreateDataSource(::Orocos::Expression_ptr expr);
+
+
+        /**
          * Create a DataSource connection to an existing Expression Object.
          * @param T the type of data the Expression supposedly has.
          * @param expr The Object to connect to.
          * @return 0 if the Expression is not convertible to T.
          */
         template<class T>
-        static ORO_CoreLib::DataSource<T>* CreateDataSource(::Orocos::Expression_ptr expr) {
+        static ORO_CoreLib::DataSource<T>* NarrowDataSource(::Orocos::Expression_ptr expr) {
             using ORO_CoreLib::Logger;
             CORBA::Any_var any = expr->value();
             typename ORO_CoreLib::DataSource<T>::value_t target = typename ORO_CoreLib::DataSource<T>::value_t();
@@ -62,7 +71,7 @@ namespace ORO_Corba
          * @return 0 if the Any is not convertible to T.
          */
         template<class T>
-        static ORO_CoreLib::DataSource<T>* CreateConstant( const CORBA::Any& any) {
+        static ORO_CoreLib::DataSource<T>* NarrowConstant( const CORBA::Any& any) {
             // C++ language forces partial T specialisation using classes, not possible
             // with functions:
             return CreateConstantHelper<T>::Create( any );
@@ -75,7 +84,7 @@ namespace ORO_Corba
          * @return 0 if the Expression is not convertible to T.
          */
         template<class T>
-        static ORO_CoreLib::AssignableDataSource<T>* CreateAssignableDataSource( ::Orocos::Expression_ptr expr) {
+        static ORO_CoreLib::AssignableDataSource<T>* NarrowAssignableDataSource( ::Orocos::Expression_ptr expr) {
             using ORO_CoreLib::Logger;
             Orocos::AssignableExpression_var ret = Orocos::AssignableExpression::_narrow( expr );
             if ( ret ) {
@@ -96,15 +105,15 @@ namespace ORO_Corba
          * @return 0 if the Expression is not convertible to T.
          */
         template<class T>
-        ORO_CoreLib::DataSource<T>* createDataSource() const {
-            return CreateDataSource<T>( mdata );
+        ORO_CoreLib::DataSource<T>* narrowDataSource() const {
+            return NarrowDataSource<T>( mdata );
         }
             
         /**
          * Create an Orocos DataSource<void> proxy.
          * @return A new DataSource.
          */
-        ORO_CoreLib::DataSource<void>* createDataSource() const {
+        ORO_CoreLib::DataSource<void>* narrowDataSource() const {
             return new CORBAExpression<void>( mdata.in() );
         }
             
@@ -114,8 +123,8 @@ namespace ORO_Corba
          * @return 0 if the Expression is not convertible to T.
          */
         template<class T>
-        ORO_CoreLib::AssignableDataSource<T>* createAssignableDataSource() const {
-            return CreateAssignableDataSource<T>( mdata.in() );
+        ORO_CoreLib::AssignableDataSource<T>* narrowAssignableDataSource() const {
+            return NarrowAssignableDataSource<T>( mdata.in() );
         }
             
         /**
@@ -145,7 +154,9 @@ namespace ORO_Corba
 
         virtual std::string getType() const { return std::string( mdata->getType() ); }
 
-        virtual std::string getTypeName() const { return std::string( mdata->getType() ); }
+        virtual ORO_CoreLib::TypeInfo* getTypeInfo() const { return ORO_CoreLib::detail::DataSourceTypeInfo<ORO_CoreLib::detail::UnknownType>::TypeInfoObject; }
+
+        virtual std::string getTypeName() const { return std::string( mdata->getTypeName() ); }
 
         virtual CORBA::Any* createAny() const {
             return mdata->value();

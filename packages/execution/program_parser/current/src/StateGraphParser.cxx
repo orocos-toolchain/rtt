@@ -39,9 +39,10 @@
 #include "execution/DataSourceFactory.hpp"
 #include "execution/TaskContext.hpp"
 #include "execution/StateMachineTask.hpp"
-#include "execution/mystd.hpp"
+
 
 #include "execution/CommandComposite.hpp"
+#include "corelib/AttributeBase.hpp"
 #include "corelib/ConditionTrue.hpp"
 #include "corelib/ConditionInvert.hpp"
 #include "execution/StateDescription.hpp"
@@ -830,7 +831,7 @@ namespace ORO_Execution
         // we add this statecontext to the list of variables, so that the
         // user can refer to it by its name...
         //detail::ParsedAlias<std::string>* pv = new detail::ParsedAlias<std::string>( curinstantiatedcontext->getNameDS() );
-        //context->attributeRepository.setValue( curinstcontextname, pv );
+        //context->attributes()->setValue( curinstcontextname, pv );
 
         curinstantiatedcontext->setName(curinstcontextname, false ); // not recursive !
 
@@ -891,7 +892,7 @@ namespace ORO_Execution
         {
             contextparams_t::iterator j = params.find( i->first );
             if ( j == params.end() )
-                throw parse_exception_semantic_error( "No parameter \"" + i->first + "\" in this state context." );
+                throw parse_exception_semantic_error( "No parameter \"" + i->first + "\" in this StateMachine." );
         }
 
         for ( contextparams_t::iterator i = params.begin(); i != params.end(); ++i )
@@ -899,9 +900,9 @@ namespace ORO_Execution
             contextparamvalues_t::iterator j = curinstcontextparams.find( i->first );
             if ( j == curinstcontextparams.end() )
                 throw parse_exception_semantic_error(
-                    "No value given for argument \"" + i->first + "\" in instantiation of this state context." );
+                    "No value given for argument \"" + i->first + "\" in instantiation of this StateMachine." );
             try {
-                paraminitcommands.push_back( i->second->assignCommand( j->second.get(), true ) );
+                paraminitcommands.push_back( i->second->getDataSource()->updateCommand( j->second.get() ) );
             }
             catch( const bad_assignment& e )
                 {
@@ -944,7 +945,7 @@ namespace ORO_Execution
 
   void StateGraphParser::seencontextparam() {
       std::vector<std::string> pnames = valuechangeparser->parsedDefinitionNames();
-      std::vector<TaskAttributeBase*> tbases = valuechangeparser->definedValues();
+      std::vector<ORO_CoreLib::AttributeBase*> tbases = valuechangeparser->definedValues();
       assert( pnames.size() == tbases.size() );
       for (unsigned int i = 0; i < pnames.size(); ++i)
           curtemplate->addParameter( pnames[i] , tbases[i] );

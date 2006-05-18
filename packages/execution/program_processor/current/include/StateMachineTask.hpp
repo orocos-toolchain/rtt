@@ -48,15 +48,15 @@ namespace ORO_Execution
         //boost::weak_ptr<StateMachine> sm;
         // used when state machines are copied.
         // functions have a similar mechanism
-        VariableDataSource< StateMachineWPtr >::shared_ptr _this; 
+        ORO_CoreLib::ValueDataSource< StateMachineWPtr >::shared_ptr _this; 
         //VariableDataSource<StateMachineTask*> _this; 
         bool true_gen() const;
 
         CommandFactoryInterface* createCommandFactory();
-        DataSourceFactoryInterface* createDataSourceFactory();
+        MethodFactoryInterface* createMethodFactory();
 
     public:
-        StateMachineTask* copy(StateMachinePtr newsc, std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate );
+        StateMachineTask* copy(StateMachinePtr newsc, std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& replacements, bool instantiate );
 
         /**
          * By constructing this object, a stateMachine is added to a taskcontext

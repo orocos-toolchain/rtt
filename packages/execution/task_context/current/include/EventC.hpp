@@ -46,7 +46,7 @@ namespace ORO_Execution
          */
         class D;
         D* d;
-        DataSourceBase::shared_ptr m;
+        ORO_CoreLib::DataSourceBase::shared_ptr m;
     public:
         /**
          * Default constructor.
@@ -78,7 +78,7 @@ namespace ORO_Execution
          * @param a A DataSource which contents are consulted each time
          * when emit() is called.
          */
-        EventC& arg( DataSourceBase::shared_ptr a );
+        EventC& arg( ORO_CoreLib::DataSourceBase::shared_ptr a );
 
         /**
          * Add a constant argument to the Event.
@@ -88,7 +88,7 @@ namespace ORO_Execution
         template< class ArgT >
         EventC& argC( const ArgT a )
         {
-            return this->arg( DataSourceBase::shared_ptr(new ORO_CoreLib::ConstantDataSource<ArgT>( a )) );
+            return this->arg( ORO_CoreLib::DataSourceBase::shared_ptr(new ORO_CoreLib::ConstantDataSource<ArgT>( a )) );
         }
 
         /**
@@ -100,7 +100,7 @@ namespace ORO_Execution
         template< class ArgT >
         EventC& arg( ArgT& a )
         {
-            return this->arg( DataSourceBase::shared_ptr(new ORO_CoreLib::ReferenceDataSource<ArgT>( a )) );
+            return this->arg( ORO_CoreLib::DataSourceBase::shared_ptr(new ORO_CoreLib::ReferenceDataSource<ArgT>( a )) );
         }
 
         /**

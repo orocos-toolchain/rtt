@@ -29,6 +29,7 @@
 #ifndef ORO_CONTROL_KERNEL_PROCESS_HPP
 #define ORO_CONTROL_KERNEL_PROCESS_HPP
 
+#include <corelib/PropertyComposition.hpp>
 #include "control_kernel/BaseComponents.hpp"
 #include "control_kernel/DataServer.hpp"
 

@@ -36,6 +36,7 @@
 #ifdef OROPKG_CONTROL_KERNEL_EXTENSIONS_EXECUTION
 #include <execution/TemplateFactories.hpp>
 #endif
+#include <corelib/PropertyComposition.hpp>
 
 namespace ORO_ControlKernel
 {

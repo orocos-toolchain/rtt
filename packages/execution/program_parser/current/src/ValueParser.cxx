@@ -28,7 +28,7 @@
 #include "execution/parser-debug.hpp"
 #include "execution/parse_exception.hpp"
 #include "execution/ValueParser.hpp"
-#include "execution/TaskAttribute.hpp"
+#include "corelib/Attribute.hpp"
 
 #include "execution/TaskContext.hpp"
 
@@ -96,8 +96,8 @@ namespace ORO_Execution
     void ValueParser::seenpeer() {
         // inform propparser of new peer :
 //         std::cerr << "ValueParser: seenpeer : "<< peerparser.peer()->getName()
-//                   <<" has props :" << (peerparser.peer()->attributeRepository.properties() != 0) << std::endl;
-        propparser.setPropertyBag( peerparser.peer()->attributeRepository.properties() );
+//                   <<" has props :" << (peerparser.peer()->attributes()->properties() != 0) << std::endl;
+        propparser.setPropertyBag( peerparser.peer()->attributes()->properties() );
     }
 
     void ValueParser::setStack( TaskContext* tc ) {
@@ -143,12 +143,12 @@ namespace ORO_Execution
     }
 
     // non-nested property or attribute case :
-    if ( peer->attributeRepository.hasAttribute( name ) ) {
-      ret = peer->attributeRepository.getValue(name)->toDataSource();
+    if ( peer->attributes()->hasAttribute( name ) ) {
+      ret = peer->attributes()->getValue(name)->getDataSource();
       return;
     }
-    if ( peer->attributeRepository.hasProperty( name ) ) {
-        ret = peer->attributeRepository.properties()->find(name)->getDataSource();
+    if ( peer->attributes()->hasProperty( name ) ) {
+        ret = peer->attributes()->properties()->find(name)->getDataSource();
         return;
     }
 

@@ -146,21 +146,22 @@ void StateTest::testParseState()
     // a state which should never fail
     string prog = string("StateMachine X {\n")
         + " param int isten\n"
-        + " var bool istrue = true\n"
-        + " param bool isfalse\n"
+        + " param bool isflse\n"
         + " param bool isok\n"
         + " param double isnegative\n"
+        + " var bool istrrue = true\n"
         + " var double d_dummy = -1.0\n"
         + " var int    i_dummy = -1\n"
         + " var bool   varinit = false\n"
+        + " var bool   b_dummy = true\n"
         + " initial state INIT {\n"
         // XXX bug : preconditions are not checked in the initial state.
 //         + " preconditions {\n"
-//         + "     if (istrue == false) || (isfalse == true) || (isten != 10) ||( isnegative >= 0. )  then select PRE_PARAMFAIL\n"
+//         + "     if (istrrue == false) || (isflse == true) || (isten != 10) ||( isnegative >= 0. )  then select PRE_PARAMFAIL\n"
 //         + "     if false then select PRE_ERROR\n"
 //         + "     if (isnegative != -1.) then select PRE_PARAMFAIL\n"
-//         + "     if (istrue != true) then select PRE_PARAMFAIL\n"
-//         + "     if (isfalse != false) then select PRE_PARAMFAIL\n"
+//         + "     if (istrrue != true) then select PRE_PARAMFAIL\n"
+//         + "     if (isflse != false) then select PRE_PARAMFAIL\n"
 //         + "     if (isten != 10 ) then select PRE_PARAMFAIL\n"
 //         + "     if (d_dummy != -1.) || (i_dummy != -1) then select PRE_VARFAIL\n"
 //         + " }\n"
@@ -181,8 +182,9 @@ void StateTest::testParseState()
         + " }\n"
         + " transitions {\n"
         + "     if false then select ERROR\n"
+        + "     if varinit == true then select PRE_VARFAIL\n"
         + "     if (d_dummy != 1.234) || (i_dummy != -2)  then select ENTRYFAIL\n"
-        + "     if (istrue == false) || (isfalse == true) || (isten != 10) ||( isnegative >= 0. )  then select PARAMFAIL\n"
+        + "     if (istrrue == false) || (isflse == true) || (isten != 10) ||( isnegative >= 0. )  then select PARAMFAIL\n"
         + "     if isok == false then select PARAMFAIL\n"
         + "     select FINI\n"
         + "     select ERROR\n" // do not reach
@@ -199,8 +201,11 @@ void StateTest::testParseState()
         + " state PARAMFAIL {\n"
         + "      entry { \n"
         + "      do test.assertMsg( isten == 10, \"isten parameter not correctly initialised\")\n"
-        + "      do test.assertMsg( istrue == true, \"istrue parameter not correctly initialised\")\n"
-        + "      do test.assertMsg( isfalse == false, \"isfalse parameter not correctly initialised\")\n"
+        + "      do test.assertMsg( istrrue == true, \"istrrue parameter not correctly initialised\")\n"
+        + "      do test.assertMsg( isok == true, \"isok parameter not correctly initialised\")\n"
+        + "      do test.assertMsg( isflse == false, \"isflse parameter not correctly initialised\")\n"
+        + "      do test.assertMsg( true == true, \"true ident not correctly done\")\n"
+        + "      do test.assertMsg( false == false, \"false ident not correctly done\")\n"
         + "      do test.assertMsg( isnegative == -1.0, \"isnegative parameter not correctly initialised\")\n"
         + "      }\n"
         + " }\n"
@@ -233,8 +238,8 @@ void StateTest::testParseState()
         + " }\n"
         + " }\n"
         + " }\n"
-        //        + " RootMachine X x( isten = 10, isfalse = false, isnegative = -1.0) \n" // instantiate a non hierarchical SC
-        + " RootMachine X x( isten = 10, isok = true, isfalse = false, isnegative = -1.0) \n" // instantiate a non hierarchical SC
+        //        + " RootMachine X x( isten = 10, isflse = false, isnegative = -1.0) \n" // instantiate a non hierarchical SC
+        + " RootMachine X x( isten = 10, isok = true, isflse=false, isnegative = -1.0) \n" // instantiate a non hierarchical SC
         ;
 
     this->doState( prog, &gtc );

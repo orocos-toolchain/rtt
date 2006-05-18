@@ -29,12 +29,11 @@
 #define PI_PROPERTYINTROSPECTION_HPP
 
 #include <string>
+#include "Property.hpp"
+#include "Logger.hpp"
 
 namespace ORO_CoreLib
 {
-
-    class PropertyBag;
-	template<typename T> class Property;
 
 	/**
 	 * An interface which all classes which wish to introspect
@@ -95,21 +94,20 @@ namespace ORO_CoreLib
 
             /** 
              * Unknown types must decompose theirselves into the primitives.
-             * For each type you define, you need to provide the function
-             * 
-             *    decomposeProperty( PropertyIntrospection*, const Property<YourType>& )
-             *
-             * An link time error will be generated
-             * when this function is not found.
+             * @see TemplateTypeInfo
              */
             template< class T >
             void introspect( const Property<T> &v )
             {
-                decomposeProperty(this, v);
+                Property<PropertyBag> res(v.getName(), v.getDescription() );
+                if ( v.getTypeInfo()->decomposeType( v.getDataSource(), res.value() ) ) {
+                    this->introspect( res );
+                    deletePropertyBag( res.value() );
+                }else
+                    Logger::log() << Logger::Warning<< "Could not decompose "<< v.getName() << Logger::endl;
+                // drop.
             }
 	};
 }
-
-#include "PropertyDecomposition.hpp"
 
 #endif

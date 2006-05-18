@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  TaskAttribute.cxx 
+  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  Attribute.cxx 
 
-                        TaskAttribute.cxx -  description
+                        Attribute.cxx -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
@@ -26,25 +26,12 @@
  ***************************************************************************/
  
  
-#include "execution/TaskAttribute.hpp"
+#include "corelib/Attribute.hpp"
 
-namespace ORO_Execution
+namespace ORO_CoreLib
 {
-  TaskAttributeBase::~TaskAttributeBase()
+  AttributeBase::~AttributeBase()
   {
-  }
-
-  CommandInterface* TaskAttributeBase::assignCommand(
-    DataSourceBase::shared_ptr, bool ) const
-  {
-    return 0;
-  }
-
-  CommandInterface* TaskAttributeBase::assignIndexCommand(
-                                                   DataSourceBase::shared_ptr,
-                                                   DataSourceBase::shared_ptr ) const
-  {
-    return 0;
   }
 
 }

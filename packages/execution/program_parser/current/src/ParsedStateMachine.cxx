@@ -29,8 +29,7 @@
 #include "execution/DataSource.hpp"
 #include "execution/ExecutionEngine.hpp"
 #include "execution/StateDescription.hpp"
-#include "execution/TaskVariable.hpp"
-#include "execution/mystd.hpp"
+
 #include "execution/TaskContext.hpp"
 #include "execution/TemplateCommandFactory.hpp"
 #include "execution/TemplateDataSourceFactory.hpp"
@@ -75,8 +74,8 @@ namespace ORO_Execution {
         {
             // What is sure, is that each param
             // must also be in the attributerepository.
-            assert( ret->getTaskContext()->attributeRepository.getValue( i->first ) );
-            ret->parametervalues[i->first] = ret->getTaskContext()->attributeRepository.getValue( i->first );
+            assert( ret->getTaskContext()->attributes()->getValue( i->first ) );
+            ret->parametervalues[i->first] = ret->getTaskContext()->attributes()->getValue( i->first );
         }
 
         //**********************
@@ -215,7 +214,7 @@ namespace ORO_Execution {
         context = 0;
     }
 
-    void ParsedStateMachine::addParameter( const std::string& name, TaskAttributeBase* var )
+    void ParsedStateMachine::addParameter( const std::string& name, AttributeBase* var )
     {
         assert( parametervalues.find( name ) == parametervalues.end() );
         parametervalues[name] = var;
@@ -223,7 +222,7 @@ namespace ORO_Execution {
         // visiblereadonlyvalues[name] = var->toDataSource();
     }
 
-    TaskAttributeBase* ParsedStateMachine::getParameter( const std::string& name ) const
+    AttributeBase* ParsedStateMachine::getParameter( const std::string& name ) const
     {
         if( parametervalues.find( name ) == parametervalues.end() )
             return 0;

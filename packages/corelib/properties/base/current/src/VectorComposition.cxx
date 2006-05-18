@@ -28,7 +28,6 @@
 
 #include "corelib/Property.hpp"
 #include "corelib/PropertyBag.hpp"
-#include "corelib/PropertyIntrospection.hpp"
 #include "corelib/VectorComposition.hpp"
 #include "corelib/Logger.hpp"
 #include <iostream>
@@ -36,140 +35,89 @@
 namespace ORO_CoreLib
 {
 
-  // A decomposeProperty method for decomposing a Property< vector<double> >
-  // into a PropertyBag with Property<double>'s.
-  // The dimension of the vector must be less than 100 if you want the
-  // Property<double>'s to have a different name.
-  void decomposeProperty(PropertyIntrospection *pi, const Property< std::vector<double> >& c)
-  {
-    Property<PropertyBag> result(c.getName(),c.getDescription(), PropertyBag("std::vector<double>") );
-
-    std::vector<double> vec = c.get();
-    Property<int>* dimension = new Property<int>("Size","Dimension of the Vector", vec.size() );
-
-    result.value().add( dimension );
-
-    std::stringstream data_name;
-
-
-    for ( int i=0; i < dimension->get() ; i++)
+    // A decomposeProperty method for decomposing a Property< vector<double> >
+    // into a PropertyBag with Property<double>'s.
+    // The dimension of the vector must be less than 100 if you want the
+    // Property<double>'s to have a different name.
+    void decomposeProperty(const std::vector<double>& vec, PropertyBag& targetbag)
     {
-        data_name  << i;
-        result.value().add( new Property<double>(data_name.str(),"",vec[i]) ); // Put variables in the bag
+        Property<int>* dimension = new Property<int>("Size","Dimension of the Vector", vec.size() );
 
-        data_name.str("");
-    }
+        targetbag.add( dimension );
 
-    pi->introspect(result); // introspect the bag.
-    deleteProperties( result.value() );
-  }
-
-  void decomposeProperty(PropertyIntrospection *pi, const Property<const std::vector<double>& >& c)
-  {
-    Property<PropertyBag> result(c.getName(),c.getDescription(), PropertyBag("std::vector<double>") );
-
-    std::vector<double> vec = c.get();
-    Property<int>* dimension = new Property<int>("Size","Dimension of the Vector", vec.size() );
-
-    result.value().add( dimension );
-
-    std::stringstream data_name;
-
-    for ( int i=0; i < dimension->get() ; i++)
-    {
-        data_name  << i;
-        result.value().add( new Property<double>(data_name.str(),"",vec[i]) ); // Put variables in the bag
-
-        data_name.str("");
-    }
-
-    pi->introspect(result); // introspect the bag.
-    deleteProperties( result.value() );
-  }
-    
-
-
-  // A composeProperty method for composing a property of a vector<double>
-  // The dimension of the vector must be less than 100.
-
-  bool composeProperty(const PropertyBag& bag, Property<std::vector<double> >& result)
-  {
-    PropertyBase* v_base = bag.find( result.getName() );
-    if ( v_base == 0 )
-        return false;
-
-    // First detect trivial update.
-    if ( result.update( v_base ) ) {
-        Logger::log() << Logger::Debug << "Updated "<<result.getName() <<Logger::endl;
-        return true;
-    }
-
-    Property<PropertyBag>* v_bag = dynamic_cast< Property<PropertyBag>* >( v_base );
-
-    if (v_bag != 0 && v_bag->get().getType() == "std::vector<double>")
-    {
-        Property<int>* dim;
-        v_base = v_bag->get().find("Size");
-        if ( v_base == 0 ) {
-            Logger::log() << Logger::Error << "In PropertyBag for Property< std::vector<double> > :"
-                          << result.getName() << " : could not find property \"Size\"."<<Logger::endl;
-            return false;
-        }
-        dim = dynamic_cast< Property<int>* >(v_base);
-        if ( dim == 0) {
-            Logger::log() << Logger::Error << "In PropertyBag for Property< std::vector<double> > :"
-                          << result.getName() << " : Expected \"Size\" to be of type short."<<Logger::endl;
-            return false;
-        }
-
-        int dimension = dim->get();
-        // cerr << dimension << endl;
-        // Set dimension
-        result.value().resize(dimension);
-
-        Property<double>* comp;
         std::stringstream data_name;
 
-
-        // Get values
-        for (int i = 0; i < dimension ; i++)
-        {
-            data_name  << i;
-            PropertyBase* element = v_bag->get().find(data_name.str());
-            if ( element == 0 ) {
-                Logger::log() << Logger::Error << "Aborting composition of Property< vector<double> > "<<result.getName()
-                              << ": Data element "<< data_name.str() <<" not found !"
-                              <<Logger::endl;
-                return false;
+        for ( int i=0; i < dimension->get() ; i++)
+            {
+                data_name  << i;
+                targetbag.add( new Property<double>(data_name.str(),"",vec[i]) ); // Put variables in the bag
+                data_name.str("");
             }
-            comp = dynamic_cast< Property<double>* >( element );
-            if ( comp == 0 ) {
-                Logger::log() << Logger::Error << "Aborting composition of Property< vector<double> > "<<result.getName()
-                              << ": Exptected data element "<< data_name.str() << " to be of type double"
-                              <<" got type " << element->getType()
-                              <<Logger::endl;
-                return false;
-            }
-            result.value()[i] = comp->get();
-
-            data_name.str("");
-        }
     }
-    else
+
+    // A composeProperty method for composing a property of a vector<double>
+    // The dimension of the vector must be less than 100.
+
+    bool composeProperty(const PropertyBag& bag, std::vector<double>& result)
     {
-        if ( v_bag != 0 ) {
-            Logger::log() << Logger::Error << "Composing Property< std::vector<double> > :"
-                          << result.getName() << " : type mismatch, got type '"<< v_bag->get().getType()  <<"'"<<Logger::endl;
-        } else {
-            Logger::log() << Logger::Error << "Composing Property< std::vector<double> > :"
-                          << result.getName() <<" type '"<< v_base->getType() << "' is not convertible."<<Logger::endl;
-        }
-      // cerr << "\033[1;33mWarning: Bag was empty! \033[0m" << endl;
-        Logger::log() << Logger::Debug << "Could not update Property< std::vector<double> > : "<<result.getName()<<Logger::endl;
-        return false;
+        if ( bag.getType() == "std::vector<double>")
+            {
+                Property<int>* dim;
+                PropertyBase* v_base = bag.find("Size");
+                if ( v_base == 0 ) {
+                    Logger::log() << Logger::Error << "In PropertyBag for Property< std::vector<double> > :"
+                                  << " could not find property \"Size\"."<<Logger::endl;
+                    return false;
+                }
+                dim = dynamic_cast< Property<int>* >(v_base);
+                if ( dim == 0) {
+                    Logger::log() << Logger::Error << "In PropertyBag for Property< std::vector<double> > :"
+                                  << " Expected \"Size\" to be of type short."<<Logger::endl;
+                    return false;
+                }
+
+                int dimension = dim->get();
+                // cerr << dimension << endl;
+                // Set dimension
+                result.resize(dimension);
+
+                Property<double>* comp;
+                std::stringstream data_name;
+
+
+                // Get values
+                for (int i = 0; i < dimension ; i++)
+                    {
+                        data_name  << i;
+                        PropertyBase* element = bag.find(data_name.str());
+                        if ( element == 0 ) {
+                            Logger::log() << Logger::Error << "Aborting composition of Property< vector<double> > "
+                                          << ": Data element "<< data_name.str() <<" not found !"
+                                          <<Logger::endl;
+                            return false;
+                        }
+                        comp = dynamic_cast< Property<double>* >( element );
+                        if ( comp == 0 ) {
+                            Logger::log() << Logger::Error << "Aborting composition of Property< vector<double> > "
+                                          << ": Exptected data element "<< data_name.str() << " to be of type double"
+                                          <<" got type " << element->getType()
+                                          <<Logger::endl;
+                            return false;
+                        }
+                        result[i] = comp->get();
+
+                        data_name.str("");
+                    }
+            }
+        else
+            {
+                Logger::log() << Logger::Error << "Composing Property< std::vector<double> > :"
+                              << " type mismatch, got type '"<< bag.getType()
+                              << "', expected type 'std::vector<double>'."<<Logger::endl;
+                return false;
+            }
+        return true;
     }
-    return true;
-  }
 
 
 }; // namespace ORO_CoreLib

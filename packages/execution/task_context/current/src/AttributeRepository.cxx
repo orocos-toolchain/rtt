@@ -28,9 +28,7 @@
  
 
 #include "execution/AttributeRepository.hpp"
-#include "execution/TaskAttribute.hpp"
-#include "execution/DataSource.hpp"
-#include "execution/mystd.hpp"
+#include "corelib/mystd.hpp"
 
 namespace ORO_Execution
 {
@@ -51,8 +49,9 @@ namespace ORO_Execution
     AttributeRepository* AttributeRepository::copy( std::map<const DataSourceBase*, DataSourceBase*>& repl, bool inst ) const
     {
         AttributeRepository* ar = new AttributeRepository();
-        for ( map_t::const_iterator i = values.begin(); i != values.end(); ++i )
+        for ( map_t::const_iterator i = values.begin(); i != values.end(); ++i ) {
             ar->setValue(i->first, i->second->copy( repl, inst ) );
+        }
         return ar;
     }
 
@@ -67,7 +66,7 @@ namespace ORO_Execution
   }
 
   bool AttributeRepository::setValue( const std::string& name,
-                                      TaskAttributeBase* value )
+                                      AttributeBase* value )
   {
     map_t::iterator i = values.find( name );
     if ( i != values.end() )
@@ -94,7 +93,7 @@ namespace ORO_Execution
     }
   }
 
-  TaskAttributeBase* AttributeRepository::getValue( const std::string& name )
+  AttributeBase* AttributeRepository::getValue( const std::string& name )
   {
     map_t::iterator i = values.find( name );
     if ( i == values.end() ) return 0;
@@ -127,7 +126,7 @@ namespace ORO_Execution
     }
 
 
-    std::vector<std::string> AttributeRepository::attributes() const
+    std::vector<std::string> AttributeRepository::names() const
     {
         return ORO_std::keys( values );
     }

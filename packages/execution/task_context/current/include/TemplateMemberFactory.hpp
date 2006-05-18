@@ -299,7 +299,7 @@ namespace ORO_Execution
         {
             return new FunctorDataSource0( ff.gen );
         }
-        virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& /*alreadyCloned*/ ) const
+        virtual DataSource<value_t>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& /*alreadyCloned*/ ) const
         {
           return new FunctorDataSource0<FunctorT>( ff.gen );
         }
@@ -332,7 +332,7 @@ namespace ORO_Execution
       {
         return new FunctorDataSource1<FunctorT, Arg1T>( ff.gen, arg1.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual DataSource<value_t>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorDataSource1<FunctorT, Arg1T>( ff.gen, arg1->copy( alreadyCloned ) );
       }
@@ -380,7 +380,7 @@ namespace ORO_Execution
         {
             return new FunctorDataSourceDS0<ComponentT,FunctorT>( ds.get(),  gen );
         }
-      virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      virtual DataSource<value_t>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
         {
           return new FunctorDataSourceDS0<ComponentT, FunctorT>( ds->copy(alreadyCloned),  gen );
         }
@@ -434,7 +434,7 @@ namespace ORO_Execution
       {
         return new FunctorDataSourceDS1<ComponentT, FunctorT, Arg1T>( ds.get(), gen, arg1.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual DataSource<value_t>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorDataSourceDS1<ComponentT, FunctorT, Arg1T>( ds->copy(alreadyCloned),  gen, arg1->copy( alreadyCloned ) );
       }
@@ -472,7 +472,7 @@ namespace ORO_Execution
       {
         return new FunctorDataSource2<FunctorT, Arg1T, Arg2T>( ff.gen, arg1.get(), arg2.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual DataSource<value_t>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorDataSource2<FunctorT, Arg1T, Arg2T>( ff.gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned) );
       }
@@ -507,7 +507,7 @@ namespace ORO_Execution
       {
         return new FunctorDataSource3<FunctorT, Arg1T, Arg2T, Arg3T>( ff.gen, arg1.get(), arg2.get(), arg3.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual DataSource<value_t>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorDataSource3<FunctorT, Arg1T, Arg2T, Arg3T>( ff.gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned), arg3->copy( alreadyCloned) );
       }
@@ -545,7 +545,7 @@ namespace ORO_Execution
         return new FunctorDataSource4<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T>( ff.gen, arg1.get(), arg2.get(),
                                                                              arg3.get(), arg4.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+    virtual DataSource<value_t>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorDataSource4<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T>( ff.gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned), arg3->copy( alreadyCloned), arg4->copy( alreadyCloned) );
       }
@@ -864,9 +864,9 @@ namespace ORO_Execution
   template<typename ComponentT>
   class TEMPLATE_FACTORY_NAME
     : public MemberFactoryInterface,
-      private TemplateFactory<ComponentT, DataSourceBase*>
+      private TemplateFactory<ComponentT, ORO_CoreLib::DataSourceBase*>
   {
-    typedef TemplateFactory<ComponentT, DataSourceBase*> _TF;
+    typedef TemplateFactory<ComponentT, ORO_CoreLib::DataSourceBase*> _TF;
   public:
     TEMPLATE_FACTORY_NAME( ComponentT* c )
       : _TF( c )
@@ -908,30 +908,30 @@ namespace ORO_Execution
           return _TF::getArity(method);
       }
 
-    DataSourceBase* create(
+    ORO_CoreLib::DataSourceBase* create(
       const std::string& name,
       const ORO_CoreLib::PropertyBag& args ) const
       {
         return _TF::produce( name, args );
       };
 
-    DataSourceBase* create(
+    ORO_CoreLib::DataSourceBase* create(
       const std::string& name,
-      const std::vector<DataSourceBase*>& args ) const
+      const std::vector<ORO_CoreLib::DataSourceBase*>& args ) const
       {
         return _TF::produce( name, args );
       };
 
-      DataSourceBase* create(
+      ORO_CoreLib::DataSourceBase* create(
                              const std::string& name,
-                             const std::vector<DataSourceBase::shared_ptr>& args ) const
+                             const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args ) const
       {
           return _TF::produce( name, args );
       };
 
 
     void add( const std::string& name,
-              detail::TemplateFactoryPart<ComponentT, DataSourceBase*>* part )
+              detail::TemplateFactoryPart<ComponentT, ORO_CoreLib::DataSourceBase*>* part )
       {
         _TF::add( name, part );
       }
@@ -973,34 +973,34 @@ namespace ORO_Execution
   template<typename ComponentT, typename ResultT>
   detail::TemplateFactoryPart<
     typename detail::CompType<ComponentT>::type,
-    DataSourceBase*>*
+    ORO_CoreLib::DataSourceBase*>*
   MEMBER( ResultT (ComponentT::*var) , const char* desc )
   {
       // in this special case, we need to ensure that no const slips in in ComponentT
     return detail::fun_fact<typename detail::CompType<ComponentT>::type,
-      DataSourceBase*>( detail::fun_datasource_gen<typename detail::CompType<ComponentT>::type, typename detail::ReturnType<ResultT>::type >(
+      ORO_CoreLib::DataSourceBase*>( detail::fun_datasource_gen<typename detail::CompType<ComponentT>::type, typename detail::ReturnType<ResultT>::type >(
                           boost::bind<ResultT>(boost::mem_fn<ResultT, ComponentT>( var ), _1 ) ), desc );
   };
 
   // A component's method :
   template<typename ComponentT, typename ResultT>
   detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
-                      DataSourceBase*>*
+                      ORO_CoreLib::DataSourceBase*>*
   MEMBER( ResultT (ComponentT::*fun)() const, const char* desc )
   {
     return detail::fun_fact<typename detail::CompType<ComponentT>::type,
-      DataSourceBase*>( detail::fun_datasource_gen<ComponentT, typename detail::ReturnType<ResultT>::type >(
+      ORO_CoreLib::DataSourceBase*>( detail::fun_datasource_gen<ComponentT, typename detail::ReturnType<ResultT>::type >(
                           boost::mem_fn( fun ) ), desc );
   };
 
   template<typename ComponentT, typename ResultT, typename Arg1T>
   detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
-                      DataSourceBase*>*
+                      ORO_CoreLib::DataSourceBase*>*
   MEMBER( ResultT (ComponentT::*fun)( Arg1T ) const, const char* desc,
         const char* a1n, const char* a1d )
   {
     return detail::fun_fact<typename detail::CompType<ComponentT>::type,
-      DataSourceBase*, Arg1T>(
+      ORO_CoreLib::DataSourceBase*, Arg1T>(
         detail::fun_datasource_gen<ComponentT, 
         typename detail::ReturnType<ResultT>::type,
         typename detail::ArgType<Arg1T>::type>(
@@ -1009,10 +1009,10 @@ namespace ORO_Execution
 
   template<typename ComponentT, typename ResultT>
   detail::TemplateFactoryPart< DataSource<boost::weak_ptr<typename detail::CompType<ComponentT>::type> >,
-                      DataSourceBase*>*
+                      ORO_CoreLib::DataSourceBase*>*
   MEMBER_DS( ResultT (ComponentT::*fun)() const, const char* desc)
   {
-    return detail::fun_fact_ds<typename detail::CompType<ComponentT>::type, DataSourceBase*>
+    return detail::fun_fact_ds<typename detail::CompType<ComponentT>::type, ORO_CoreLib::DataSourceBase*>
         (
          detail::fun_datasource_gen_ds< typename detail::CompType<ComponentT>::type, typename detail::ReturnType<ResultT>::type >( boost::mem_fn( fun ) ),
          desc
@@ -1021,11 +1021,11 @@ namespace ORO_Execution
 
   template<typename ComponentT, typename ResultT, typename Arg1T>
   detail::TemplateFactoryPart< DataSource<boost::weak_ptr<typename detail::CompType<ComponentT>::type> >,
-                      DataSourceBase*>*
+                      ORO_CoreLib::DataSourceBase*>*
   MEMBER_DS( ResultT (ComponentT::*fun)( Arg1T ) const, const char* desc,
         const char* a1n, const char* a1d )
   {
-    return detail::fun_fact_ds<typename detail::CompType<ComponentT>::type, DataSourceBase*, typename detail::ArgType<Arg1T>::type>
+    return detail::fun_fact_ds<typename detail::CompType<ComponentT>::type, ORO_CoreLib::DataSourceBase*, typename detail::ArgType<Arg1T>::type>
         (
          detail::fun_datasource_gen_ds< typename detail::CompType<ComponentT>::type,
          typename detail::ReturnType<ResultT>::type,
@@ -1036,13 +1036,13 @@ namespace ORO_Execution
 
   template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T>
   detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
-                      DataSourceBase*>*
+                      ORO_CoreLib::DataSourceBase*>*
   MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T ) const, const char* desc,
         const char* a1n, const char* a1d,
         const char* a2n, const char* a2d)
   {
     return detail::fun_fact<typename detail::CompType<ComponentT>::type,
-      DataSourceBase*, Arg1T, Arg2T>(
+      ORO_CoreLib::DataSourceBase*, Arg1T, Arg2T>(
         detail::fun_datasource_gen<ComponentT,
         typename detail::ReturnType<ResultT>::type,
         typename detail::ArgType<Arg1T>::type,
@@ -1053,14 +1053,14 @@ namespace ORO_Execution
 
   template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T>
   detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
-                      DataSourceBase*>*
+                      ORO_CoreLib::DataSourceBase*>*
   MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T, Arg3T ) const, const char* desc,
         const char* a1n, const char* a1d,
         const char* a2n, const char* a2d,
         const char* a3n, const char* a3d)
   {
       return detail::fun_fact<typename detail::CompType<ComponentT>::type,
-      DataSourceBase*, Arg1T, Arg2T, Arg3T>(
+      ORO_CoreLib::DataSourceBase*, Arg1T, Arg2T, Arg3T>(
         detail::fun_datasource_gen<ComponentT,
         typename detail::ReturnType<ResultT>::type,
         typename detail::ArgType<Arg1T>::type,
@@ -1072,7 +1072,7 @@ namespace ORO_Execution
 
   template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T>
   detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
-                      DataSourceBase*>*
+                      ORO_CoreLib::DataSourceBase*>*
   MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T, Arg3T, Arg4T ) const, const char* desc,
         const char* a1n, const char* a1d,
         const char* a2n, const char* a2d,
@@ -1080,7 +1080,7 @@ namespace ORO_Execution
         const char* a4n, const char* a4d)
   {
       return detail::fun_fact<typename detail::CompType<ComponentT>::type,
-      DataSourceBase*, Arg1T, Arg2T, Arg3T, Arg4T>(
+      ORO_CoreLib::DataSourceBase*, Arg1T, Arg2T, Arg3T, Arg4T>(
         detail::fun_datasource_gen<ComponentT,
         typename detail::ReturnType<ResultT>::type,
         typename detail::ArgType<Arg1T>::type,
@@ -1096,22 +1096,22 @@ namespace ORO_Execution
      */
   template<typename ComponentT, typename ResultT>
   detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
-                      DataSourceBase*>*
+                      ORO_CoreLib::DataSourceBase*>*
   MEMBER( ResultT (ComponentT::*fun)() , const char* desc )
   {
     return detail::fun_fact<typename detail::CompType<ComponentT>::type,
-      DataSourceBase*>( detail::fun_datasource_gen<ComponentT, typename detail::ReturnType<ResultT>::type >(
+      ORO_CoreLib::DataSourceBase*>( detail::fun_datasource_gen<ComponentT, typename detail::ReturnType<ResultT>::type >(
                           boost::mem_fn( fun ) ), desc );
   };
 
   template<typename ComponentT, typename ResultT, typename Arg1T>
   detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
-                      DataSourceBase*>*
+                      ORO_CoreLib::DataSourceBase*>*
   MEMBER( ResultT (ComponentT::*fun)( Arg1T ) , const char* desc,
         const char* a1n, const char* a1d )
   {
     return detail::fun_fact<typename detail::CompType<ComponentT>::type,
-      DataSourceBase*, Arg1T>(
+      ORO_CoreLib::DataSourceBase*, Arg1T>(
         detail::fun_datasource_gen<ComponentT, 
         typename detail::ReturnType<ResultT>::type,
         typename detail::ArgType<Arg1T>::type>(
@@ -1120,10 +1120,10 @@ namespace ORO_Execution
 
   template<typename ComponentT, typename ResultT>
   detail::TemplateFactoryPart< DataSource<boost::weak_ptr<typename detail::CompType<ComponentT>::type> >,
-                      DataSourceBase*>*
+                      ORO_CoreLib::DataSourceBase*>*
   MEMBER_DS( ResultT (ComponentT::*fun)() , const char* desc)
   {
-    return detail::fun_fact_ds<typename detail::CompType<ComponentT>::type, DataSourceBase*>
+    return detail::fun_fact_ds<typename detail::CompType<ComponentT>::type, ORO_CoreLib::DataSourceBase*>
         (
          detail::fun_datasource_gen_ds< typename detail::CompType<ComponentT>::type, typename detail::ReturnType<ResultT>::type >( boost::mem_fn( fun ) ),
          desc
@@ -1132,11 +1132,11 @@ namespace ORO_Execution
 
   template<typename ComponentT, typename ResultT, typename Arg1T>
   detail::TemplateFactoryPart< DataSource<boost::weak_ptr<typename detail::CompType<ComponentT>::type> >,
-                      DataSourceBase*>*
+                      ORO_CoreLib::DataSourceBase*>*
   MEMBER_DS( ResultT (ComponentT::*fun)( Arg1T ) , const char* desc,
         const char* a1n, const char* a1d )
   {
-    return detail::fun_fact_ds<typename detail::CompType<ComponentT>::type, DataSourceBase*, typename detail::ArgType<Arg1T>::type>
+    return detail::fun_fact_ds<typename detail::CompType<ComponentT>::type, ORO_CoreLib::DataSourceBase*, typename detail::ArgType<Arg1T>::type>
         (
          detail::fun_datasource_gen_ds< typename detail::CompType<ComponentT>::type,
          typename detail::ReturnType<ResultT>::type,
@@ -1147,13 +1147,13 @@ namespace ORO_Execution
 
   template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T>
   detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
-                      DataSourceBase*>*
+                      ORO_CoreLib::DataSourceBase*>*
   MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T ) , const char* desc,
         const char* a1n, const char* a1d,
         const char* a2n, const char* a2d)
   {
     return detail::fun_fact<typename detail::CompType<ComponentT>::type,
-      DataSourceBase*, Arg1T, Arg2T>(
+      ORO_CoreLib::DataSourceBase*, Arg1T, Arg2T>(
         detail::fun_datasource_gen<ComponentT,
         typename detail::ReturnType<ResultT>::type,
         typename detail::ArgType<Arg1T>::type,
@@ -1164,14 +1164,14 @@ namespace ORO_Execution
 
   template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T>
   detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
-                      DataSourceBase*>*
+                      ORO_CoreLib::DataSourceBase*>*
   MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T, Arg3T ) , const char* desc,
         const char* a1n, const char* a1d,
         const char* a2n, const char* a2d,
         const char* a3n, const char* a3d)
   {
       return detail::fun_fact<typename detail::CompType<ComponentT>::type,
-      DataSourceBase*, Arg1T, Arg2T, Arg3T>(
+      ORO_CoreLib::DataSourceBase*, Arg1T, Arg2T, Arg3T>(
         detail::fun_datasource_gen<ComponentT,
         typename detail::ReturnType<ResultT>::type,
         typename detail::ArgType<Arg1T>::type,
@@ -1183,7 +1183,7 @@ namespace ORO_Execution
 
   template<typename ComponentT, typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T>
   detail::TemplateFactoryPart<typename detail::CompType<ComponentT>::type,
-                      DataSourceBase*>*
+                      ORO_CoreLib::DataSourceBase*>*
   MEMBER( ResultT (ComponentT::*fun)( Arg1T, Arg2T, Arg3T, Arg4T ) , const char* desc,
         const char* a1n, const char* a1d,
         const char* a2n, const char* a2d,
@@ -1191,7 +1191,7 @@ namespace ORO_Execution
         const char* a4n, const char* a4d)
   {
       return detail::fun_fact<typename detail::CompType<ComponentT>::type,
-      DataSourceBase*, Arg1T, Arg2T, Arg3T, Arg4T>(
+      ORO_CoreLib::DataSourceBase*, Arg1T, Arg2T, Arg3T, Arg4T>(
         detail::fun_datasource_gen<ComponentT,
         typename detail::ReturnType<ResultT>::type,
         typename detail::ArgType<Arg1T>::type,

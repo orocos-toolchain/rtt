@@ -141,9 +141,9 @@ CosPropertyService_PropertySet_i::CosPropertyService_PropertySet_i (  PropertyBa
 CosPropertyService_PropertySet_i::CosPropertyService_PropertySet_i (  AttributeRepository* ar )
     : bag( new PropertyBag() ), is_attr(true)
 {
-    vector<string> names = ar->attributes();
+    vector<string> names = ar->names();
     for ( vector<string>::iterator it = names.begin(); it != names.end() ; ++it) {
-        CORBA::Any_ptr any_value = ar->getValue(*it)->toDataSource()->getAny();
+        CORBA::Any_ptr any_value = ar->getValue(*it)->getDataSource()->getAny();
         bag->add( new ORO_CoreLib::Property<CORBA::Any>( *it, "Task Attribute", *any_value ) );
     }
 }

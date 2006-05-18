@@ -32,6 +32,7 @@
 #include <corelib/PropertyBagIntrospector.hpp>
 #include <corelib/PropertyComposition.hpp>
 #include <corelib/PropertyBag.hpp>
+#include <corelib/PropertyComposition.hpp>
 #include <corelib/Logger.hpp>
 #include <corelib/marshalling/CPFMarshaller.hpp>
 #include <corelib/marshalling/CPFDemarshaller.hpp>

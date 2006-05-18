@@ -279,14 +279,14 @@ namespace ORO_Execution
 
         find_attribute( startpos );
 
-        std::vector<std::string> comps = peer->attributeRepository.attributes();
+        std::vector<std::string> comps = peer->attributes()->names();
         for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
             if ( i->find( comp ) == 0 )
                 completes.push_back( peerpath+*i );
         }
 
-        if (peer->attributeRepository.properties() != 0 ) {
-            peer->attributeRepository.properties()->list(comps);
+        if (peer->attributes()->properties() != 0 ) {
+            peer->attributes()->properties()->list(comps);
             for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
                 if ( i->find( comp ) == 0 )
                     completes.push_back( peerpath+*i );
@@ -469,15 +469,15 @@ namespace ORO_Execution
 
         // all attributes :
         std::vector<std::string> attrs;
-        attrs = peer->attributeRepository.attributes();
+        attrs = peer->attributes()->names();
         for (std::vector<std::string>::iterator i = attrs.begin(); i!= attrs.end(); ++i ) {
             if ( i->find( _attribute ) == 0 && !_attribute.empty() )
                 completes.push_back( peerpath + *i );
         }
         // all properties :
-        if (peer->attributeRepository.properties() != 0 ) {
+        if (peer->attributes()->properties() != 0 ) {
             std::vector<std::string> props;
-            peer->attributeRepository.properties()->list(props);
+            peer->attributes()->properties()->list(props);
             for (std::vector<std::string>::iterator i = props.begin(); i!= props.end(); ++i ) {
                 if ( i->find( _attribute ) == 0 && !_attribute.empty() )
                     completes.push_back( peerpath + *i );
@@ -610,6 +610,7 @@ namespace ORO_Execution
                 if ( command == "quit" ) {
                     // Intercept no Ctrl-C
                     signal( SIGINT, SIG_DFL );
+                    cout << endl;
                     return;
                 } else if ( command == "help") {
                     printHelp();
@@ -797,7 +798,7 @@ namespace ORO_Execution
         our_pos_iter_t parseend;
             
         PropertyParser pp();
-        pp.setPropertyBag( taskcontext.attributeRepository.properties() );
+        pp.setPropertyBag( taskcontext.attributes()->properties() );
         try {
             parse( parsebegin, parseend, pp.locator(), SKIP_PARSER );
         }
@@ -926,8 +927,8 @@ namespace ORO_Execution
         // if both the object and attribute with that name exist. the if
         // statement after this one would return and not give the expr parser
         // time to evaluate 'comm'. 
-        if ( taskcontext->attributeRepository.getValue( comm ) ) {
-                this->printResult( taskcontext->attributeRepository.getValue( comm )->toDataSource(), true );
+        if ( taskcontext->attributes()->getValue( comm ) ) {
+                this->printResult( taskcontext->attributes()->getValue( comm )->getDataSource().get(), true );
                 return;
         }
             
@@ -1065,75 +1066,6 @@ namespace ORO_Execution
         // e.g. eval true once or time measurements.
         // becomes only really handy for 'watches' (todo).
         ds->reset();
-        /**
-         * If this list of types gets to long, we can still add a virtual
-         * printOut( std::ostream& ) = 0 to DataSourceBase.
-         */
-        // this method can print some primitive DataSource<>'s.
-        DataSource<bool>* dsb = DataSource<bool>::narrow(ds);
-        if (dsb) {
-            cout<< boolalpha << dsb->get() << noboolalpha ;
-            return;
-        }
-        DataSource<int>* dsi = DataSource<int>::narrow(ds);
-        if (dsi) {
-            cout<< dsi->get() ;
-            return;
-        }
-#if 0
-        // does not work yet with CORBA layer.
-        DataSource<long>* dsl = DataSource<long>::narrow(ds);
-        if (dsl) {
-            cout<< dsl->get() ;
-            return;
-        }
-#endif
-        DataSource<unsigned int>* dsui = DataSource<unsigned int>::narrow(ds);
-        if (dsui) {
-            cout<< dsui->get() ;
-            return;
-        }
-        DataSource<std::string>* dss = DataSource<std::string>::narrow(ds);
-        if (dss) {
-            int wdth = 19 - dss->get().length();
-            if (wdth < 0)
-                wdth = 0;
-            cout<<setw(0)<<'"'<< dss->get() << setw(wdth)<<'"' ;
-            return;
-        }
-        DataSource<const std::string&>* dscs = DataSource<const std::string&>::narrow(ds);
-        if (dscs) {
-            int wdth = 19 - dscs->get().length();
-            if (wdth < 0)
-                wdth = 0;
-            cout<<setw(0)<<'"'<< dscs->get() << setw(wdth)<<'"' ;
-            return;
-        }
-        DataSource<std::vector<double> >* dsvval = DataSource< std::vector<double> >::narrow(ds);
-        if (dsvval) {
-            cout<< setw(0) << dsvval->get() ;
-            return;
-        }
-        DataSource<const std::vector<double>& >* dsv = DataSource<const std::vector<double>& >::narrow(ds);
-        if (dsv) {
-            cout<< setw(0) << dsv->get() ;
-            return;
-        }
-        DataSource< Double6D >* ds6d = DataSource<Double6D>::narrow(ds);
-        if (ds6d) {
-            cout<< setw(0) << ds6d->get() ;
-            return;
-        }
-        DataSource<double>* dsd = DataSource<double>::narrow(ds);
-        if (dsd) {
-            cout<< dsd->get() ;
-            return;
-        }
-        DataSource<char>* dsc = DataSource<char>::narrow(ds);
-        if (dsc) {
-            cout<<'\''<< dsc->get()<<'\'' ;
-            return;
-        }
 
         DataSource<PropertyBag>* dspbag = DataSource<PropertyBag>::narrow(ds);
         if (dspbag) {
@@ -1157,47 +1089,9 @@ namespace ORO_Execution
             }
             return;
         }
-#ifdef OROPKG_GEOMETRY
-        DataSource<Vector>* dsgv = DataSource<Vector>::narrow(ds);
-        if (dsgv) {
-            cout <<nl<<setw(0)<< dsgv->get() ;
-            return;
-        }
-        DataSource<Twist>* dsgt = DataSource<Twist>::narrow(ds);
-        if (dsgt) {
-            cout <<nl<<setw(0)<< dsgt->get() ;
-            return;
-        }
-        DataSource<Wrench>* dsgw = DataSource<Wrench>::narrow(ds);
-        if (dsgw) {
-            cout <<nl<<setw(0)<< dsgw->get() ;
-            return;
-        }
-        DataSource<Frame>* dsgf = DataSource<Frame>::narrow(ds);
-        if (dsgf) {
-            cout <<nl<<setw(0)<< dsgf->get() ;
-            return;
-        }
-        DataSource<Rotation>* dsgr = DataSource<Rotation>::narrow(ds);
-        if (dsgr) {
-            cout <<nl<<setw(0)<< dsgr->get() ;
-            return;
-        }
-#endif
 
-        // Leave void  as last since any DS is convertible to void !
-        DataSource<void>* dsvd = DataSource<void>::narrow(ds);
-        if (dsvd) {
-            dsvd->get();
-            cout<< "(void)" ;
-            return;
-        }
-
-        if (ds) {
-            ds->evaluate();
-            cout << "( result type '"+ds->getType()+"' not known to TaskBrowser )" ;
-        }
-	
+        DataSourceBase::shared_ptr dsb(ds);
+        cout << dsb;
     }
 
     struct comcol
@@ -1428,14 +1322,14 @@ namespace ORO_Execution
 
         cout <<nl<<" Listing "<< green << peer->getName()<<coloroff<< " :"<<nl;
 
-        std::vector<std::string> objlist = peer->attributeRepository.attributes();
+        std::vector<std::string> objlist = peer->attributes()->names();
         cout <<nl<<" Attributes   : ";
         if ( !objlist.empty() ) {
             cout << nl;
-            PropertyBag* bag = peer->attributeRepository.properties();
+            PropertyBag* bag = peer->attributes()->properties();
             // Print Attributes:
             for( std::vector<std::string>::iterator it = objlist.begin(); it != objlist.end(); ++it) {
-                DataSourceBase::shared_ptr pds = peer->attributeRepository.getValue(*it)->toDataSource();
+                DataSourceBase::shared_ptr pds = peer->attributes()->getValue(*it)->getDataSource();
                 cout << ((bag && bag->find(*it)) ? " (Property ) " : " (Attribute) ")
                      << setw(11)<< pds->getType()<< " "
                      << coloron <<setw(14)<<left<< *it << coloroff;
@@ -1448,11 +1342,11 @@ namespace ORO_Execution
             // Print Properties:
             if (bag) {
                 for( PropertyBag::iterator it = bag->begin(); it != bag->end(); ++it) {
-                    if (peer->attributeRepository.getValue( (*it)->getName() ) )
+                    if (peer->attributes()->getValue( (*it)->getName() ) )
                         continue; // atributes were already printed above
                 DataSourceBase::shared_ptr pds = (*it)->getDataSource();
                     cout << " (Property ) "
-                         << setw(11)<< pds->getType()<< " "
+                         << setw(11)<< (*it)->getType()<< " "
                          << coloron <<setw(14)<<left<< (*it)->getName() << coloroff;
                     this->printResult( pds.get(), false ); // do not recurse
                     cout<<" ("<< (*it)->getDescription() <<')'<< nl;

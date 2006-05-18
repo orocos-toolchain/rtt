@@ -28,7 +28,7 @@
 #include <corelib/EventProcessor.hpp>
 #include "execution/StateMachineProcessor.hpp"
 #include "execution/EventService.hpp"
-#include "execution/mystd.hpp"
+
 #include <corelib/DataSource.hpp>
 #include <corelib/Logger.hpp>
 #include <functional>
@@ -904,6 +904,7 @@ namespace ORO_Execution
 
         if ( initc ) {
             initc->reset();
+            initc->readArguments();
             if ( initc->execute() == false ) {
                 assert(false);
                 return false; // fail to activate.

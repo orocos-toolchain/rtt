@@ -30,57 +30,46 @@
 
 #include "frames.h"
 #include <corelib/Property.hpp>
+#include <corelib/PropertyBag.hpp>
 #include <corelib/MultiVector.hpp>
 
-/**
- * @file MotionProperties.hpp
- * 
- * This implementation is introduced in the ORO_CoreLib namespace.
- * If not, it would not be found by the partial template 
- * specialisation algorithm of the compiler.
- */
-
-namespace ORO_CoreLib
+namespace ORO_Geometry
 {
-    template<class T>
-    class Property;
-    class PropertyBag;
-    class PropertyIntrospection;
-
+    using namespace ORO_CoreLib;
     /**
      * Additional functionality for handling a Property<Double6D>
      */
-    void decomposeProperty(PropertyIntrospection *p, const Property<Double6D> &v);
+    void decomposeProperty(const Double6D &v, PropertyBag& targetbag );
 
     /**
      * Aim of this kind of functions : given a Property<PropertyBag> with one of the
      * properties being a bag containing a Double6D, fill the given non primitive Property<T>.
      */
-    bool composeProperty(const PropertyBag& bag, Property<Double6D> &v);
+    bool composeProperty(const PropertyBag& bag, Double6D &v);
 
 
     /**
      * Additional functionality for handling a Property<Vector>
      */
-    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Vector> &v);
+    void decomposeProperty(const Vector &v, PropertyBag& targetbag );
 
     /**
      * Aim of this kind of functions : given a Property<PropertyBag> with one of the
      * properties being a bag containing a Vector, fill the given non primitive Property<T>.
      */
-    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Vector> &v);
+    bool composeProperty(const PropertyBag& bag, Vector &v);
 
         
     /**
      * Additional functionality for handling a Property<Rotation>
      */
-    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Rotation> &b);
+    void decomposeProperty(const Rotation &b, PropertyBag& targetbag);
 
     /**
      * Aim of this kind of functions : given a Property<PropertyBag> with one of the
      * properties being a bag containing a Rotation, fill the given non primitive Property<T>.
      */
-    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Rotation> &r);
+    bool composeProperty(const PropertyBag& bag, Rotation &r);
 
     /**
      *
@@ -91,13 +80,13 @@ namespace ORO_CoreLib
     /**
      * Additional functionality for handling a Property<Twist>
      */
-    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Twist> &t);
+    void decomposeProperty(const Twist &t, PropertyBag& targetbag);
 
     /**
      * Aim of this kind of functions : given a Property<PropertyBag> with one of the
      * properties being a bag containing a Twist, fill the given non primitive Property<T>.
      */
-    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Twist> &t);
+    bool composeProperty(const PropertyBag& bag, Twist &t);
 
     /**
      *
@@ -108,13 +97,13 @@ namespace ORO_CoreLib
     /**
      * Additional functionality for handling a Property<Wrench>
      */
-    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Wrench> &b);
+    void decomposeProperty( const Wrench &b, PropertyBag& targetbag);
 
     /**
      * Aim of this kind of functions : given a Property<PropertyBag> with one of the
      * properties being a bag containing a Wrench, fill the given non primitive Property<T>.
      */
-    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Wrench> &w);
+    bool composeProperty(const PropertyBag& bag, Wrench &w);
 
     /**
      *
@@ -125,13 +114,13 @@ namespace ORO_CoreLib
     /**
      * Additional functionality for handling a Property<Frame>
      */
-    void decomposeProperty(PropertyIntrospection *p, const Property<ORO_Geometry::Frame> &f);
+    void decomposeProperty(const Frame &f, PropertyBag& target);
 
     /**
      * Aim of this kind of functions : given a Property<PropertyBag> with one of the
      * properties being a bag containing a Frame, fill the given non primitive Property<T>.
      */
-    bool composeProperty(const PropertyBag& bag, Property<ORO_Geometry::Frame> &f);
+    bool composeProperty(const PropertyBag& bag, Frame &f);
 
     extern template class Property<ORO_Geometry::Frame>;
     extern template class Property<Double6D>;

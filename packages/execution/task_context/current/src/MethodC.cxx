@@ -43,7 +43,7 @@ namespace ORO_Execution
         const GlobalMethodFactory* mgcf;
         std::string mobject, mname;
         std::vector<DataSourceBase::shared_ptr> args;
-        TaskAttributeBase* rta;
+        AttributeBase* rta;
         DataSourceBase::shared_ptr m;
 
         void checkAndCreate() {
@@ -64,7 +64,7 @@ namespace ORO_Execution
                 m = mgcf->getObjectFactory(mobject)->create(mname, args );
                 args.clear();
                 if (rta)
-                    m = new DataSourceCommand( rta->assignCommand( m, false ) );
+                    m = new DataSourceCommand( rta->getDataSource()->updateCommand( m.get() ) );
             }
         }
 
@@ -74,7 +74,7 @@ namespace ORO_Execution
             this->checkAndCreate();
         }
 
-        void ret(TaskAttributeBase* r)
+        void ret(AttributeBase* r)
         {
             this->rta = r->clone();
         }
@@ -146,12 +146,12 @@ namespace ORO_Execution
         return *this;
     }
 
-    MethodC& MethodC::ret( TaskAttributeBase* r )
+    MethodC& MethodC::ret( AttributeBase* r )
     {
         if (d)
             d->ret( r );
         else {
-            m = new DataSourceCommand(r->assignCommand( m, false ) );
+            m = new DataSourceCommand(r->getDataSource()->updateCommand( m.get() ) );
         }
         if ( d && d->m ) {
             this->m = d->m;

@@ -128,6 +128,11 @@ namespace ORO_Corba
             return last_value;
         }
 
+        typename ORO_CoreLib::AssignableDataSource<T>::const_reference_t rvalue() const {
+            return last_value;
+        }
+
+
         virtual typename ORO_CoreLib::DataSource<T>::result_t get() const {
             CORBA::Any_var res = mexpr->get();
             if (ORO_CoreLib::AnyConversion<T>::update( res.in(), last_value ) == false)

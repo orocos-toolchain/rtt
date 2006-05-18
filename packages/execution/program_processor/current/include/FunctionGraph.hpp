@@ -31,11 +31,11 @@
 #include "VertexNode.hpp"
 #include "EdgeCondition.hpp"
 #include <corelib/CommandNOP.hpp>
+#include <corelib/AttributeBase.hpp>
 #include "ProgramInterface.hpp"
 
 namespace ORO_Execution
 {
-    class TaskAttributeBase;
     class FunctionGraph;
     typedef boost::shared_ptr<FunctionGraph> FunctionGraphPtr;
     class ProgramTask;
@@ -93,7 +93,7 @@ namespace ORO_Execution
         /**
          * Ordered arguments (are also in the repository).
          */
-        std::vector<TaskAttributeBase*> args;
+        std::vector<ORO_CoreLib::AttributeBase*> args;
 
         bool pausing;
         bool mstep;
@@ -145,7 +145,7 @@ namespace ORO_Execution
 
         virtual const std::string& getName() const;
 
-        virtual FunctionGraph* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const;
+        virtual FunctionGraph* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& replacementdss ) const;
 
         virtual FunctionGraph* clone() const;
 
@@ -187,16 +187,16 @@ namespace ORO_Execution
         /**
          * Return an ordered list of this funcion's arguments.
          */
-        std::vector<TaskAttributeBase*> getArguments() const {
+        std::vector<ORO_CoreLib::AttributeBase*> getArguments() const {
             return args;
         }
 
-        void addArgument( TaskAttributeBase* a) {
+        void addArgument( ORO_CoreLib::AttributeBase* a) {
             args.push_back(a);
         }
 
         /**
-         * Clear the arguments vector and release all TaskAttributeBase resources.
+         * Clear the arguments vector and release all AttributeBase resources.
          */
         void clearArguments();
     };

@@ -63,40 +63,7 @@ namespace ORO_Execution
         return this->buildConstant( dsb );
     }
 
-  template<typename T>
-  class TemplateTypeInfo
-    : public TypeInfo
-  {
-  public:
-      using TypeInfo::buildConstant;
-      using TypeInfo::buildVariable;
-
-    TaskAttributeBase* buildConstant(DataSourceBase::shared_ptr dsb) const
-      {
-          typename DataSource<T>::shared_ptr res = AdaptDataSource<T>()(dsb);
-          if ( res ) {
-              Logger::log() << Logger::Info << " constant with value " << res->get() <<Logger::endl;
-              return new detail::ParsedConstant<T>( res->get() );
-          }
-          else
-              return 0;
-      }
-    TaskAttributeBase* buildVariable() const
-      {
-        return new detail::ParsedVariable<T>();
-      }
-    TaskAttributeBase* buildAlias( DataSourceBase* b ) const
-      {
-        DataSource<T>* ds( dynamic_cast<DataSource<T>*>( b ) );
-        if ( ! ds )
-          return 0;
-        return new detail::ParsedAlias<T>( ds );
-      }
-
-      virtual string getType() const { return DataSource<T>::GetType(); }
-  };
-
-    // Identical to above, but the variable is of the TaskIndexVariable type.
+    // Identical to TemplateTypeInfo, but the variable is of the TaskIndexVariable type.
   template<typename T, typename IndexType, typename SetType, typename Pred>
   class TemplateIndexTypeInfo
     : public TypeInfo
@@ -131,7 +98,16 @@ namespace ORO_Execution
         return new detail::ParsedAlias<T>( ds );
       }
 
-      virtual string getType() const { return DataSource<T>::GetType(); }
+
+      virtual PropertyBase* buildProperty(const std::string& name, const std::string& desc, DataSourceBase* source) const {
+          return new Property<T>(name, desc, source );
+      }
+
+      virtual DataSourceBase* buildValue() const {
+          return new ValueDataSource<T>();
+      }
+
+      virtual string getTypeName() const { return DataSource<T>::GetTypeName(); }
   };
 
     // Identical to above, but the variable is of the TaskIndexVariable type
@@ -183,29 +159,6 @@ namespace ORO_Execution
         boost::shared_ptr<TypeInfoRepository> typerepos;
     }
 
-  boost::shared_ptr<TypeInfoRepository> TypeInfoRepository::instance()
-  {
-      if ( typerepos ) 
-          return typerepos;
-      typerepos.reset( new TypeInfoRepository() );
-      return typerepos;
-  }
-
-  TypeInfo* TypeInfoRepository::type( const std::string& name ) const
-  {
-    map_t::const_iterator i = data.find( name );
-    if ( i == data.end() )
-      return 0;
-    else return i->second;
-  }
-
-  TypeInfoRepository::~TypeInfoRepository()
-  {
-    map_t::const_iterator i = data.begin();
-    for( ; i != data.end(); ++i )
-        delete i->second;
-  }
-
   // check the validity of an index
     template< class T>
     struct ArrayIndexChecker
@@ -241,27 +194,62 @@ namespace ORO_Execution
         }
     };
 
-  TypeInfoRepository::TypeInfoRepository()
-  {
+    TypeInfoRepository::TypeInfoRepository()
+    {
 #ifdef OROPKG_GEOMETRY
-    data["frame"] = new TemplateTypeInfo<Frame>();
-    data["rotation"] = new TemplateTypeInfo<Rotation>();
-    data["wrench"] = new TemplateIndexTypeInfo<Wrench,int, double, RangeIndexChecker<Wrench,6> >;
-    data["twist"] = new TemplateIndexTypeInfo<Twist,int, double, RangeIndexChecker<Twist,6> >;
-    data["vector"] = new TemplateIndexTypeInfo<Vector,int, double, RangeIndexChecker<Vector,3> >;
+        this->addType( new TemplateTypeInfo<Frame>("frame") );
+        this->addType( new TemplateTypeInfo<Rotation>("rotation") );
+        this->addType( new TemplateIndexTypeInfo<Wrench,int, double, RangeIndexChecker<Wrench,6> >("wrench") );
+        this->addType( new TemplateIndexTypeInfo<Twist,int, double, RangeIndexChecker<Twist,6> >("twist") );
+        this->addType( new TemplateIndexTypeInfo<Vector,int, double, RangeIndexChecker<Vector,3> >("vector") );
 #endif
-    data["int"] = new TemplateTypeInfo<int>();
-    data["char"] = new TemplateTypeInfo<char>();
-    data["double"] = new TemplateTypeInfo<double>();
-    data["bool"] = new TemplateTypeInfo<bool>();
-    data["double6d"] = new TemplateIndexTypeInfo<Double6D,int, double, RangeIndexChecker<Double6D,6> >;
-    data["array"] = new TemplateIndexContainerTypeInfo<const std::vector<double>&, int, double, ArrayIndexChecker<std::vector<double> > >;
+        this->addType( new TemplateTypeInfo<int>(int) );
+        this->addType( new TemplateTypeInfo<char>(char) );
+        this->addType( new TemplateTypeInfo<double>(double) );
+        this->addType( new TemplateTypeInfo<bool>(bool) );
+        this->addType( new TemplateIndexTypeInfo<Double6D,int, double, RangeIndexChecker<Double6D,6> >("double6d") );
+        this->addType( new TemplateIndexContainerTypeInfo<const std::vector<double>&, int, double, ArrayIndexChecker<std::vector<double> > >("array") );
 
-    // string is a special case for assignment, we need to assign from the c_str() instead of from the string(),
-    // the latter causes capacity changes, probably due to the copy-on-write implementation of string(). Assignment
-    // from a c-style string obviously disables a copy-on-write connection.
-    // This is solved by the VariableDataSource<const std::string&>
-    data["string"] = new TemplateIndexContainerTypeInfo<const std::string&, int, char, ArrayIndexChecker<std::string> >;
+        // string is a special case for assignment, we need to assign from the c_str() instead of from the string(),
+        // the latter causes capacity changes, probably due to the copy-on-write implementation of string(). Assignment
+        // from a c-style string obviously disables a copy-on-write connection.
+        // This is solved by the VariableDataSource<const std::string&>
+        this->addType( new TemplateIndexContainerTypeInfo<const std::string&, int, char, ArrayIndexChecker<std::string> >("string") );
     
-  }
+    }
+
+    boost::shared_ptr<TypeInfoRepository> TypeInfoRepository::instance()
+    {
+        if ( typerepos ) 
+            return typerepos;
+        typerepos.reset( new TypeInfoRepository() );
+        return typerepos;
+    }
+
+    TypeInfo* TypeInfoRepository::type( const std::string& name ) const
+    {
+        map_t::const_iterator i = data.find( name );
+        if ( i == data.end() )
+            return 0;
+        else return i->second;
+    }
+
+    TypeInfoRepository::~TypeInfoRepository()
+    {
+        map_t::const_iterator i = data.begin();
+        for( ; i != data.end(); ++i )
+            delete i->second;
+    }
+
+
+    bool TypeInfoRepository::addType(TypeInfo* t)
+    {
+        if ( data.count( t->getTypeName() ) != 0 ) {
+            Logger::log() << Logger::Warning << "Attempt to register Type '"<<t->getTypeName() <<"' twice to the Orocos Type System."<<Logger::endl;
+            return false;
+        }
+        data[ t->getTypeName() ] = t;
+        Logger::log() << Logger::Debug << "Registered Type '"<<t->getTypeName() <<"' to the Orocos Type System."<<Logger::endl;
+        return true;
+    }
 }

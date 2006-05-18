@@ -63,14 +63,16 @@ namespace ORO_CoreLib
          * This class checks for capacity and fails execution if not sufficient.
          * @param T Target type
          * @param S Source type
+         * @param APred The 'valid assignment' predicate which checks at runtime if the
+         * assignment may be made.
          */
-        template<typename T, typename S = T>
+        template<typename T, typename APred, typename S = T>
         class AssignContainerCommand
             : public CommandInterface
         {
             typedef typename AssignableDataSource<T>::shared_ptr LHSSource;
             LHSSource lhs;
-            typedef typename DataSource<S>::shared_ptr RHSSource;
+            typedef typename DataSource<S>::const_ptr RHSSource;
             RHSSource rhs;
         public:
             AssignContainerCommand( LHSSource l, RHSSource r )
@@ -84,7 +86,7 @@ namespace ORO_CoreLib
 
             bool execute()
             {
-                if ( lhs->get().capacity() < rhs->value().size() )
+                if ( APred()( lhs->get(), rhs->value()) == false )
                     return false;
                 lhs->set( rhs->value() );
                 return true;
@@ -99,51 +101,6 @@ namespace ORO_CoreLib
                 return new AssignContainerCommand( lhs->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
             }
         };
-
-#if 0
-        /**
-         * Assign the contents of one string to another, while maintaining capacity of the original.
-         * This class checks for capacity and fails execution if not sufficient.
-         * @param T Target type
-         * @param S Source type
-         */
-        template<typename T, typename S = T>
-        class AssignStringCommand
-            : public CommandInterface
-        {
-            typedef typename AssignableDataSource<T>::shared_ptr LHSSource;
-            LHSSource lhs;
-            typedef typename DataSource<S>::shared_ptr RHSSource;
-            RHSSource rhs;
-        public:
-            AssignStringCommand( LHSSource l, RHSSource r )
-                : lhs( l ), rhs( r )
-            {
-            }
-
-            void readArguments() {
-                rhs->evaluate();
-            }
-
-            bool execute()
-            {
-                if ( lhs->get().capacity() < rhs->value().size() || &(lhs->set()) == 0)
-                    return false;
-                lhs->set() = rhs->value().c_str(); // std::string specific ! Does not allocate if S is a (const) std::string&
-                return true;
-            }
-
-            virtual CommandInterface* clone() const
-            {
-                return new AssignStringCommand( lhs.get(), rhs.get() );
-            }
-
-            virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-                return new AssignStringCommand( lhs->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
-            }
-        };
-#endif
-
 
         /**
          * This command assigns an element of a container to a given value.

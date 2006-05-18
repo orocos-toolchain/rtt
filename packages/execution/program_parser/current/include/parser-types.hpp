@@ -34,7 +34,6 @@ namespace ORO_Execution
   class ProgramGraph;
   class VertexNode;
   class EdgeCondition;
-  class Processor;
 }
 
 namespace ORO_CoreLib
@@ -54,8 +53,6 @@ namespace ORO_Execution
     namespace detail {
         class ExpressionParser;
         class ArgumentsParser;
-        class TypeInfo;
-        class TypeInfoRepository;
     }
 
   using ORO_CoreLib::PropertyBag;

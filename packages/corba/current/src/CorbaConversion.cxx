@@ -10,6 +10,7 @@ namespace ORO_CoreLib
     using namespace std;
 
     bool AnyConversion<PropertyBag>::update(const CORBA::Any& any, StdType& _value) {
+        Logger::In in("AnyConversion<PropertyBag>");
         //Logger::In in("AnyConversion");
         Orocos::AttributeInterface_ptr attrs;
         // non deep copy:
@@ -40,12 +41,24 @@ namespace ORO_CoreLib
                 Orocos::AssignableExpression_var as_expr = Orocos::AssignableExpression::_narrow( expr.in() );
                 if ( CORBA::is_nil( as_expr ) ) {
                     Logger::log() <<Logger::Error <<"Property "<< std::string(props[i].name.in()) << " was not writable !"<<Logger::endl;
-                } else
-                    _value.add( new Property<CORBA::Any_ptr>( std::string(props[i].name.in()), std::string(props[i].description.in()), new ORO_Corba::CORBAAssignableExpression<Property<CORBA::Any_ptr>::DataSourceType>( as_expr.in() ) ) );
+                } else {
+                    CORBA::String_var tn = as_expr->getTypeName();
+                    TypeInfo* ti = TypeInfoRepository::Instance()->type( tn.in() );
+                    Logger::log() <<Logger::Info << "Looking up Property " << tn.in();
+                    if ( ti ) {
+                        _value.add( ti->buildProperty( props[i].name.in(), props[i].description.in(), 
+                                                                            ti->buildCorbaProxy( as_expr.in() ) ) );
+                        Logger::log() <<" found!"<<Logger::endl;
+                    }
+                    else {
+                        _value.add( new Property<CORBA::Any_ptr>( string(props[i].name.in()), string(props[i].description.in()), new ORO_Corba::CORBAAssignableExpression<Property<CORBA::Any_ptr>::DataSourceType>( as_expr.in() ) ) );
+                        Logger::log() <<" not found :-("<<Logger::endl;
+                    }
+                }
             }
             return true;
         }
-        Logger::log() << Logger::Error << "Failed to populate PropertyBag with AttributeInterface Properties." <<Logger::endl;
+        Logger::log() << Logger::Debug << "Failed to populate PropertyBag with AttributeInterface Properties." <<Logger::endl;
         return false;
     }
 

@@ -83,7 +83,7 @@ namespace ORO_Execution
 
         virtual CommandInterface* clone() const;
 
-        virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+        virtual CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const;
     private:
 
         /**

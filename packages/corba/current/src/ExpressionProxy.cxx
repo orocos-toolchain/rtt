@@ -1,4 +1,5 @@
 
+#include <corelib/Types.hpp>
 #include "corba/ExecutionI.h"
 #include "corba/ExpressionProxy.hpp"
 #include <iostream>
@@ -13,6 +14,7 @@ namespace ORO_Corba
     using namespace ORO_Execution;
 
     std::map<Orocos::Expression_ptr, ExpressionProxy*> ExpressionProxy::proxies;
+    std::map<Orocos::Expression_ptr, DataSourceBase*> ExpressionProxy::dproxies;
 
     ExpressionProxy::ExpressionProxy( ::Orocos::Expression_ptr e) 
         : mdata( ::Orocos::Expression::_duplicate(e) )
@@ -41,6 +43,27 @@ namespace ORO_Corba
         ExpressionProxy* ctp = new ExpressionProxy( t );
         proxies[t] = ctp;
         return ctp;
+    }
+
+    DataSourceBase* ExpressionProxy::CreateDataSource(::Orocos::Expression_ptr t) {
+        if ( CORBA::is_nil( t ) )
+            return 0;
+
+        // proxy present for this object ?
+        if ( dproxies.count( t ) )
+            return dproxies[t];
+
+        // First, try to create according to 'typename':
+        CORBA::String_var tn = t->getTypeName();
+        TypeInfo* builder = TypeInfoRepository::Instance()->type( tn.in() );
+        DataSourceBase* dsb;
+        if ( builder )
+            dsb = builder->buildCorbaProxy( t );
+        else
+            return Create( t ); // failed, create default proxy.
+        
+        dproxies[t] = dsb;
+        return dsb;
     }
 
 

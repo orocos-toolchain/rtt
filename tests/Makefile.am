@@ -91,17 +91,19 @@ taskcontext_test_SOURCES = test-runner.cpp \
 taskcontext_test_LDADD = $(LDADD) -lxerces-c
 
 parser_test_SOURCES = test-runner.cpp \
+	types_test.cpp types_test.hpp \
 	template_factory_test.cpp template_factory_test.hpp \
-	dispatch_test.cpp dispatch_test.hpp \
-	types_test.cpp types_test.hpp
+	dispatch_test.cpp dispatch_test.hpp
 
 program_test_SOURCES = test-runner.cpp \
-	program_test.cpp program_test.hpp
-#	function_test.cpp function_test.hpp
+	program_test.cpp program_test.hpp \
+	function_test.cpp function_test.hpp
+
 program_test_LDADD = $(LDADD) -lxerces-c -lncurses -lreadline
 
 state_test_SOURCES = test-runner.cpp \
 	state_test.cpp state_test.hpp
+state_test_LDADD = $(LDADD) -lxerces-c -lncurses -lreadline
 
 #parser_test_LDADD = $(LD_ADDS)
 #parser_test_CXXFLAGS = $(CXX_FLAGS)

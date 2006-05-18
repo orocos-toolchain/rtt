@@ -107,6 +107,16 @@ public:
       )) {
       return CORBA::string_dup( morig->getType().c_str() );
   }
+
+  virtual
+  char * getTypeName (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      return CORBA::string_dup( morig->getTypeName().c_str() );
+  }
 };
 
 /**
@@ -178,6 +188,16 @@ public:
       )) {
       return CORBA::string_dup( morig->getType().c_str() );
   }
+
+  virtual
+  char * getTypeName (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      return CORBA::string_dup( morig->getTypeName().c_str() );
+  }
 };
 
 template<>
@@ -238,6 +258,16 @@ public:
       CORBA::SystemException
       )) {
       return CORBA::string_dup( morig->getType().c_str() );
+  }
+
+  virtual
+  char * getTypeName (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      return CORBA::string_dup( morig->getTypeName().c_str() );
   }
 };
 
@@ -315,6 +345,16 @@ public:
       CORBA::SystemException
       )) {
       return CORBA::string_dup( massign->getType().c_str() );
+  }
+
+  virtual
+  char * getTypeName (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      return CORBA::string_dup( massign->getTypeName().c_str() );
   }
 };
 
@@ -413,6 +453,16 @@ public:
       )) {
       return CORBA::string_dup( morig->getType().c_str() );
   }
+
+  virtual
+  char * getTypeName (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      return CORBA::string_dup( morig->getTypeName().c_str() );
+  }
 };
 
 template<>
@@ -484,6 +534,17 @@ public:
       )) {
       return CORBA::string_dup( massign->getType().c_str() );
   }
+
+  virtual
+  char * getTypeName (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      return CORBA::string_dup( massign->getTypeName().c_str() );
+  }
+
 };
 
 class  Orocos_Action_i : public virtual POA_Orocos::Action, public virtual PortableServer::RefCountServantBase

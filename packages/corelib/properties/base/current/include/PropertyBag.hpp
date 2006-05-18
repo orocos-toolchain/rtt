@@ -32,7 +32,6 @@
 
 #include <vector>
 #include <algorithm>
-#include <iostream>
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
@@ -283,6 +282,14 @@ namespace ORO_CoreLib
      *       anymore.
      */
     void deleteProperties(PropertyBag& target);
+
+    /**
+     * This function iterates over a PropertyBag and recursively deletes all Property objects.
+     *
+     * @post All objects in this bag (and possible subbags) are deleted and no elements reside in the bag
+     *       anymore.
+     */
+    void deletePropertyBag(PropertyBag& target);
 
     /**
      * This function flattens a PropertyBag recursively.

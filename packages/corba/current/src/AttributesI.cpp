@@ -69,7 +69,7 @@ Orocos_AttributeInterface_i::~Orocos_AttributeInterface_i (void)
     Orocos::AttributeInterface::AttributeNames_var ret = new Orocos::AttributeInterface::AttributeNames();
     if ( !mar )
         return ret._retn();
-    vector<string> names = mar->attributes();
+    vector<string> names = mar->names();
     ret->length( names.size() );
     for(size_t i=0; i != names.size(); ++i)
         ret[i] = CORBA::string_dup( names[i].c_str() );
@@ -110,7 +110,7 @@ Orocos_AttributeInterface_i::~Orocos_AttributeInterface_i (void)
 {
     if ( !mar || !mar->hasAttribute( string(name) ) )
         return Expression::_nil();
-    return mar->getValue( string(name) )->toDataSource()->server();
+    return mar->getValue( string(name) )->getDataSource()->server();
 }
 
 ::Orocos::Expression_ptr Orocos_AttributeInterface_i::getProperty (

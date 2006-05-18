@@ -31,6 +31,7 @@ detection of the packages configure script"
     include_files GeometryC.h GeometryC.inl
     include_files Attributes.idl AttributesC.h AttributesS.h AttributesC.inl AttributesS.inl AttributesS_T.h AttributesS_T.inl AttributesS_T.cpp AttributesI.h
     include_files ScriptingAccess.idl ScriptingAccessC.h ScriptingAccessS.h ScriptingAccessC.inl ScriptingAccessS.inl ScriptingAccessS_T.h ScriptingAccessS_T.inl ScriptingAccessS_T.cpp ScriptingAccessI.h
+    include_files CosPropertyServiceI.h
 
 #     make_object {
 # 	src/kernelserver.o : $(REPOSITORY)/$(PACKAGE)/ControlTask.idl $(REPOSITORY)/$(PACKAGE)/src/kernelserver.cxx
@@ -151,6 +152,13 @@ detection of the packages configure script"
 	ScriptingAccessC.o : $(REPOSITORY)/$(PACKAGE)/ScriptingAccess.idl
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/ScriptingAccessC.cpp -o $(OBJECT_PREFIX)_ScriptingAccessC.o
 	touch $@    }
+
+    #CosPropertyService
+    make_object {
+	src/CosPropertyServiceI.o : $(REPOSITORY)/$(PACKAGE)/src/CosPropertyServiceI.cpp
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -O2 -c $(REPOSITORY)/$(PACKAGE)/src/CosPropertyServiceI.cpp -o src/$(OBJECT_PREFIX)_CosPropertyServiceI.o
+	touch $@
+    }
 
 
     compile ApplicationServer.cxx

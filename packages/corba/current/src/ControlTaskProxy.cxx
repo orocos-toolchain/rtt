@@ -36,6 +36,7 @@
 #include "corba/CORBAExpression.hpp"
 #include "corba/ScriptingAccessProxy.hpp"
 #include "corelib/CommandInterface.hpp"
+#include "corelib/Types.hpp"
 #include "orbsvcs/CosNamingC.h"
 #include <iostream>
 
@@ -190,9 +191,22 @@ namespace ORO_Corba
             // addProperty also adds as attribute...
             if ( CORBA::is_nil( as_expr ) ) {
                 Logger::log() <<Logger::Error <<"Property "<< string(props[i].name.in()) << " was not writable ! Adding as constant attribute."<<Logger::endl;
-                this->attributes()->setValue( string( props[i].name.in() ), new TaskConstant<CORBA::Any_ptr>( new CORBAExpression<CORBA::Any_ptr>( expr.in() ) ) );
+                this->attributes()->setValue( string( props[i].name.in() ), new Constant<CORBA::Any_ptr>( new CORBAExpression<CORBA::Any_ptr>( expr.in() ) ) );
             } else {
-                this->attributes()->addProperty( new Property<CORBA::Any_ptr>( string(props[i].name.in()), string(props[i].description.in()), new CORBAAssignableExpression<Property<CORBA::Any_ptr>::DataSourceType>( as_expr.in() ) ) );
+                // If the type is known, immediately build the correct property and datasource,
+                // otherwise, build a property of CORBA::Any.
+                CORBA::String_var tn = as_expr->getTypeName();
+                TypeInfo* ti = TypeInfoRepository::Instance()->type( tn.in() );
+                Logger::log() <<Logger::Info << "Looking up Property " << tn.in();
+                if ( ti ) {
+                    this->attributes()->addProperty( ti->buildProperty( props[i].name.in(), props[i].description.in(), 
+                                                                        ti->buildCorbaProxy( as_expr.in() ) ) );
+                    Logger::log() <<" found!"<<Logger::endl;
+                }
+                else {
+                    this->attributes()->addProperty( new Property<CORBA::Any_ptr>( string(props[i].name.in()), string(props[i].description.in()), new CORBAAssignableExpression<Property<CORBA::Any_ptr>::DataSourceType>( as_expr.in() ) ) );
+                    Logger::log() <<" not found :-("<<Logger::endl;
+                }
             }
         }
 
@@ -209,10 +223,26 @@ namespace ORO_Corba
                 continue; 
             }
             AssignableExpression_var as_expr = AssignableExpression::_narrow( expr.in()  );
-            if ( CORBA::is_nil( as_expr ) )
-                this->attributes()->setValue( string( attrs[i] ), new TaskConstant<CORBA::Any_ptr>( new CORBAExpression<CORBA::Any_ptr>( expr.in() ) ) );
-            else
-                this->attributes()->setValue( string( attrs[i] ), new TaskAttribute<CORBA::Any_ptr>( new CORBAAssignableExpression<CORBA::Any_ptr>( as_expr.in() ) ) );
+            // If the type is known, immediately build the correct attribute and datasource,
+            // otherwise, build a attribute of CORBA::Any.
+            CORBA::String_var tn = expr->getTypeName();
+            TypeInfo* ti = TypeInfoRepository::Instance()->type( tn.in() );
+            Logger::log() <<Logger::Info << "Looking up Attribute " << tn.in();
+            if ( ti ) {
+                Logger::log() <<": found!"<<Logger::endl;
+                if ( CORBA::is_nil( as_expr ) ) {
+                    this->attributes()->setValue(attrs[i].in(), ti->buildConstant( ti->buildCorbaProxy( expr.in() ) ) );
+                }
+                else {
+                    this->attributes()->setValue(attrs[i].in(), ti->buildAttribute( ti->buildCorbaProxy( as_expr.in() ) ) );
+                }
+            } else {
+                Logger::log() <<": not found :-("<<Logger::endl;
+                if ( CORBA::is_nil( as_expr ) )
+                    this->attributes()->setValue( string( attrs[i] ), new Constant<CORBA::Any_ptr>( new CORBAExpression<CORBA::Any_ptr>( expr.in() ) ) );
+                else
+                this->attributes()->setValue( string( attrs[i] ), new Attribute<CORBA::Any_ptr>( new CORBAAssignableExpression<CORBA::Any_ptr>( as_expr.in() ) ) );
+            }
         }
 
       Logger::log() << Logger::Info << "Fetching ScriptingAccess."<<Logger::endl;

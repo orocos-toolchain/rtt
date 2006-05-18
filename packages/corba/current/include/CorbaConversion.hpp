@@ -2,6 +2,7 @@
 #define ORO_CORBA_CONVERSION_HPP
 
 #include <string>
+#include <vector>
 #include <tao/Any.h>
 #include <tao/CORBA_String.h>
 #include "corba/OrocosTypesC.h"

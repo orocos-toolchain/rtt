@@ -26,6 +26,22 @@ and others for 3D path planning, interpolation and kinematics"
 
 #utility_newmat.cxx
 
+    cdl_component OROCFG_CORELIB_GEOMETRY_TOOLKIT {
+        display "Compile Geometry Toolkit."
+	parent CYGPKG_NONE
+	description "
+The geometry toolkit adds support for using the
+Geometry C++ types (Frame, Vector, Force,...) as
+Orocos Properties, scripting, and printing. This
+adds about 1.1MB with a reasonable good compiler."
+	flavor bool
+	default_value 1
+
+        compile GeometryToolkit.cxx
+    }
+
+
+
     cdl_component OROPKG_GEOMETRY_3D {
 	display "2D/3D Primitives Options"
 	flavor none

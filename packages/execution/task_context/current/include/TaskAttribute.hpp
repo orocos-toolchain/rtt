@@ -140,7 +140,7 @@ namespace ORO_Execution
 
     /**
      * The Attribute of a TaskContext, which can be stored in an AttributeRepository.
-     * It is accessible from the scrip parsers (through its TaskAttributeBase parent).
+     * It is accessible from the scripting.
      * @param T The type of data this attribute holds.
      */
   template<typename T>

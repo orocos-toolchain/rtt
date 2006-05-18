@@ -27,8 +27,34 @@ code. Most users will not need this."
 	flavor bool
     }
 
+    cdl_component OROCFG_CORELIB_REALTIME_TOOLKIT {
+        display "Compile Real-Time Toolkit."
+	parent CYGPKG_NONE
+	description "
+The real-time toolkit adds support for using the
+standard C++ types (string, double, int,...) as
+Orocos Properties, scripting, and printing. This
+adds about 1.1MB with a reasonable good compiler."
+	flavor bool
+	default_value 1
+
+        cdl_option OROCFG_CORELIB_REALTIME_TOOLKIT_IMPORT {
+	  display "Auto-Import Real-Time Toolkit."
+	  description "
+When enabled, the Real-Time Toolkit is automatically imported
+in your application by Orocos."
+	  flavor bool
+	  default_value 1
+        }
+        compile RealTimeToolkit.cxx
+    }
+
     compile MultiVector.cxx
     compile DataSource.cxx
     compile DataSources.cxx
     compile TypeStream.cxx
+    compile Types.cxx
+    compile Operators.cxx
+    compile Attribute.cxx
+    compile Toolkit.cxx
 }

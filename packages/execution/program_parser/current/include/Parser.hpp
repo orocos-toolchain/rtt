@@ -119,18 +119,18 @@ namespace ORO_Execution
 
       /**
        * @brief Parses the expression in s.
-       * @return A DataSourceBase which contains the expression.
+       * @return A ORO_CoreLib::DataSourceBase which contains the expression.
        * @throw parse_exception Throws exceptions of type parse_exception.
        */
-      DataSourceBase::shared_ptr
+      ORO_CoreLib::DataSourceBase::shared_ptr
       parseExpression( const std::string&s, TaskContext* );
 
       /**
        * @brief Parses a change of a value in s.
-       * @return A DataSourceBase which contains the command to change the value.
+       * @return A ORO_CoreLib::DataSourceBase which contains the command to change the value.
        * @throw parse_exception Throws exceptions of type parse_exception.
        */
-      DataSourceBase::shared_ptr
+      ORO_CoreLib::DataSourceBase::shared_ptr
       parseValueChange( const std::string&s, TaskContext* );
   };
 };

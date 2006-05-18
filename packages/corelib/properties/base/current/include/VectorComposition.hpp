@@ -38,20 +38,17 @@ namespace ORO_CoreLib
     class Property;
 
     /**
-     * A decomposeProperty method for decomposing a Property< vector<double> >
+     * A decomposeProperty method for decomposing a vector<double>
      * into a PropertyBag with Property<double>'s.
      * The dimension of the vector must be less than 100 if you want the
      * Property<double>'s to have a different name.
      */
-    void decomposeProperty(PropertyIntrospection *pi, const Property< std::vector<double> >& c);
-
-    void decomposeProperty(PropertyIntrospection *pi, const Property< const std::vector<double>& >& c);
-
+    void decomposeProperty(const std::vector<double>& c, PropertyBag& targetbag);
     /**
      * A composeProperty method for composing a property of a vector<double>
      * The dimension of the vector must be less than 100.
      */
-    bool composeProperty(const PropertyBag& bag, Property<std::vector<double> >& result);
+    bool composeProperty(const PropertyBag& bag, std::vector<double>& result);
 
 }; // namespace ORO_CoreLib
 

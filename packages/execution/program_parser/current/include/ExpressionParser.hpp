@@ -33,7 +33,7 @@
 #include "PeerParser.hpp"
 #include "ValueParser.hpp"
 #include "DataSource.hpp"
-#include "Operators.hpp"
+#include "corelib/Operators.hpp"
 #include "corelib/Time.hpp"
 
 #include <stack>
@@ -54,7 +54,7 @@ namespace ORO_Execution { namespace detail
    */
   class DataCallParser
   {
-    DataSourceBase::shared_ptr ret;
+    ORO_CoreLib::DataSourceBase::shared_ptr ret;
     std::string mobject;
     std::string mmethod;
 
@@ -89,7 +89,7 @@ namespace ORO_Execution { namespace detail
         return datacall;
       };
 
-    DataSourceBase* getParseResult()
+    ORO_CoreLib::DataSourceBase* getParseResult()
       {
         return ret.get();
       };
@@ -117,7 +117,7 @@ namespace ORO_Execution { namespace detail
      * We keep a reference to the DataSources in here, while they're
      * in here..
      */
-    std::stack<DataSourceBase::shared_ptr> parsestack;
+    std::stack<ORO_CoreLib::DataSourceBase::shared_ptr> parsestack;
 
     // the name that was parsed as the object to use a certain
     // data of..
@@ -147,7 +147,7 @@ namespace ORO_Execution { namespace detail
       CommonParser commonparser;
       ValueParser valueparser;
       bool _invert_time;
-      boost::shared_ptr<OperatorRegistry> opreg;
+      ORO_CoreLib::OperatorRepository::shared_ptr opreg;
   public:
     ExpressionParser( TaskContext* pc );
     ~ExpressionParser();
@@ -162,8 +162,8 @@ namespace ORO_Execution { namespace detail
 
     rule_t& parser();
 
-    DataSourceBase::shared_ptr getResult();
-    // after an expression is parsed, the resultant DataSourceBase will
+    ORO_CoreLib::DataSourceBase::shared_ptr getResult();
+    // after an expression is parsed, the resultant ORO_CoreLib::DataSourceBase will
     // still be on top of the stack, and it should be removed before
     // going back down the parse stack.  This is what this function
     // does..

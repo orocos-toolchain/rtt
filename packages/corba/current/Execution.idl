@@ -34,6 +34,12 @@ module Orocos
      * format.
      */
     string getType();
+
+    /**
+     * Return the type name of the expression as it is known
+     * to the Orocos Type System.
+     */
+    string getTypeName();
   };
 
   /**

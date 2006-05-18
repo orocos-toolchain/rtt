@@ -34,10 +34,9 @@
 #include "execution/ExpressionParser.hpp"
 
 #include "execution/ArgumentsParser.hpp"
-#include "execution/Operators.hpp"
+#include <corelib/Operators.hpp>
 #include "execution/DataSourceCondition.hpp"
 #include "execution/DataSourceFactoryInterface.hpp"
-#include "execution/TaskAttribute.hpp"
 
 #include "corelib/DataSourceTime.hpp"
 #include "execution/TaskContext.hpp"
@@ -249,7 +248,7 @@ namespace ORO_Execution
       : context( pc ), datacallparser( *this, pc ),
         valueparser( pc ),
         _invert_time(false),
-        opreg( OperatorRegistry::instance() )
+        opreg( OperatorRepository::Instance() )
   {
     BOOST_SPIRIT_DEBUG_RULE( expression );
     BOOST_SPIRIT_DEBUG_RULE( unarynotexp );

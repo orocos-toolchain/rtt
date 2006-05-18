@@ -45,7 +45,7 @@ namespace ORO_CoreLib
      * @verbatim
      *           (1)       (2)        (3)              (4)
      * Parser:  value    constref   constref          value
-     *            |/        |/   (copy to stack)   (copy to heap)
+     *            \/        \/   (copy to stack)   (copy to heap)
      *-----------------------------------------------------------
      * User  :  value    constref    value           constref
      *
@@ -81,11 +81,11 @@ namespace ORO_CoreLib
     
         virtual typename DataSource<To>::result_t  get() const { return orig_->get(); }
 
+        virtual typename DataSource<To>::result_t  value() const { return orig_->value(); }
+
         virtual void reset() { orig_->reset(); }
 
         virtual bool evaluate() const { return orig_->evaluate(); }
-        virtual typename DataSource<To>::result_t  value() const { return orig_->value(); }
-
 
         virtual DataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
@@ -123,6 +123,10 @@ namespace ORO_CoreLib
     
         virtual typename DataSource<To>::result_t  get() const { return orig_->get(); }
 
+        virtual typename DataSource<To>::result_t  value() const { return orig_->value(); }
+
+        virtual typename AssignableDataSource<To>::const_reference_t rvalue() const { return orig_->value(); }
+
         virtual typename AssignableDataSource<To>::reference_t set() { return orig_->get(); }
 
         virtual void set(typename AssignableDataSource<To>::param_t v) { orig_->get() = v; }
@@ -130,8 +134,6 @@ namespace ORO_CoreLib
         virtual void reset() { orig_->reset(); }
 
         virtual bool evaluate() const { return orig_->evaluate(); }
-        virtual typename DataSource<To>::result_t  value() const { return orig_->value(); }
-
 
         virtual AssignableDataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
@@ -167,11 +169,11 @@ namespace ORO_CoreLib
     
         virtual typename DataSource<To>::result_t  get() const { return orig_->get(); }
 
+        virtual typename DataSource<To>::result_t  value() const { return orig_->value(); }
+
         virtual void reset() { orig_->reset(); }
 
         virtual bool evaluate() const { return orig_->evaluate(); }
-        virtual typename DataSource<To>::result_t  value() const { return orig_->value(); }
-
 
         virtual DataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
@@ -208,15 +210,17 @@ namespace ORO_CoreLib
     
         virtual typename DataSource<To>::result_t  get() const { return orig_->get(); }
 
+        virtual typename DataSource<To>::result_t  value() const { return orig_->value(); }
+
+        virtual typename AssignableDataSource<To>::const_reference_t rvalue() const { return orig_->value(); }
+
         virtual typename AssignableDataSource<To>::reference_t set() { return orig_->get(); }
 
-        virtual void set(typename AssignableDataSource<To>::param_t v) { return orig_->get() = v; }
+        virtual void set(typename AssignableDataSource<To>::param_t v) { orig_->get() = v; }
 
         virtual void reset() { orig_->reset(); }
 
         virtual bool evaluate() const { return orig_->evaluate(); }
-        virtual typename DataSource<To>::result_t  value() const { return orig_->value(); }
-
 
         virtual AssignableDataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
@@ -256,11 +260,11 @@ namespace ORO_CoreLib
 
         virtual typename DataSource<To>::result_t get() const { copy_ = orig_->get(); return copy_; }
 
+        virtual typename DataSource<To>::result_t value() const { return copy_; }
+
         virtual void reset() { orig_->reset(); }
 
         virtual bool evaluate() const { return orig_->evaluate(); }
-        virtual typename DataSource<To>::result_t  value() const { return copy_; }
-
 
         virtual DataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
@@ -302,10 +306,11 @@ namespace ORO_CoreLib
 
         virtual typename DataSource<To>::result_t get() const { copy_ = orig_->get(); return copy_; }
 
+        virtual typename DataSource<To>::result_t value() const { return copy_; }
+
         virtual void reset() { orig_->reset(); }
 
         virtual bool evaluate() const { return orig_->evaluate(); }
-        virtual typename DataSource<To>::result_t value() const { return copy_; }
 
         virtual DataSource<To>* clone() const {
             return new DataSourceAdaptor( orig_->clone() );
@@ -380,22 +385,22 @@ namespace ORO_CoreLib
         DataSource<Result>* operator()( DataSourceBase::shared_ptr dsb) const
         {
             // equal case
-            DataSource<Result>* t1 = dynamic_cast< DataSource<Result>*>( dsb.get() );
+            DataSource<Result>* t1 = DataSource<Result>::narrow( dsb.get() );
             if (t1)
                 return t1;
 
             // const ref to value case
-            DataSource<const Result&>* t2 = dynamic_cast<DataSource<const Result&>*>( dsb.get() );
+            DataSource<const Result&>* t2 = DataSource<const Result&>::narrow( dsb.get() );
             if ( t2 )
                 return new detail::DataSourceAdaptor<const Result&, Result>( t2 );
 
             // ref to value case
-            DataSource<Result&>* t3 = dynamic_cast<DataSource<Result&>*>( dsb.get() );
+            DataSource<Result&>* t3 = DataSource<Result&>::narrow( dsb.get() );
             if ( t3 )
                 return new detail::DataSourceAdaptor<Result&, Result>( t3 );
 
             // const value to value case
-            DataSource<const Result>* t4 = dynamic_cast<DataSource<const Result>*>( dsb.get() );
+            DataSource<const Result>* t4 = DataSource<const Result>::narrow( dsb.get() );
             if ( t4 )
                 return new detail::DataSourceAdaptor<const Result, Result>( t4 );
 
@@ -416,12 +421,12 @@ namespace ORO_CoreLib
         AssignableDataSource<Result>* operator()( DataSourceBase::shared_ptr dsb) const
         {
             // equal case
-            AssignableDataSource<Result>* t1 = dynamic_cast< AssignableDataSource<Result>*>( dsb.get() );
+            AssignableDataSource<Result>* t1 = AssignableDataSource<Result>::narrow( dsb.get() );
             if (t1)
                 return t1;
 
             // ref to assignable value case
-            DataSource<Result&>* t3 = dynamic_cast<DataSource<Result&>*>( dsb.get() );
+            DataSource<Result&>* t3 = DataSource<Result&>::narrow( dsb.get() );
             if ( t3 )
                 return new detail::DataSourceAdaptor<Result&, Result>( t3 ); // will return AssignableDS !
 
@@ -443,12 +448,12 @@ namespace ORO_CoreLib
         AssignableDataSource<Result>* operator()( DataSourceBase::shared_ptr dsb) const
         {
             // equal case
-            AssignableDataSource<Result>* t1 = dynamic_cast< AssignableDataSource<Result>*>( dsb.get() );
+            AssignableDataSource<Result>* t1 = AssignableDataSource<Result>::narrow( dsb.get() );
             if (t1)
                 return t1;
 
             // ref to assignable value case
-            DataSource<Result>* t3 = dynamic_cast<DataSource<Result>*>( dsb.get() );
+            DataSource<Result>* t3 = DataSource<Result>::narrow( dsb.get() );
             if ( t3 )
                 return new detail::DataSourceAdaptor<Result, Result>( t3 ); // will return AssignableDS !
 
@@ -469,22 +474,22 @@ namespace ORO_CoreLib
         DataSource<Result>* operator()( DataSourceBase::shared_ptr dsb) const
         {
             // equal case
-            DataSource<Result>* t1 = dynamic_cast< DataSource<Result>*>( dsb.get() );
+            DataSource<Result>* t1 = DataSource<Result>::narrow( dsb.get() );
             if (t1)
                 return t1;
 
             // const ref to const value case
-            DataSource<const TResult&>* t2 = dynamic_cast<DataSource<const TResult&>*>( dsb.get() );
+            DataSource<const TResult&>* t2 = DataSource<const TResult&>::narrow( dsb.get() );
             if ( t2 )
                 return new detail::DataSourceAdaptor<const TResult&, Result>( t2 );
 
             // ref to const value case
-            DataSource<TResult&>* t3 = dynamic_cast<DataSource<TResult&>*>( dsb.get() );
+            DataSource<TResult&>* t3 = DataSource<TResult&>::narrow( dsb.get() );
             if ( t3 )
                 return new detail::DataSourceAdaptor<TResult&, Result>( t3 );
 
             // value to const value case
-            DataSource<TResult>* t4 = dynamic_cast<DataSource<TResult>*>( dsb.get() );
+            DataSource<TResult>* t4 = DataSource<TResult>::narrow( dsb.get() );
             if ( t4 )
                 return new detail::DataSourceAdaptor<TResult, Result>( t4 );
 
@@ -507,19 +512,14 @@ namespace ORO_CoreLib
         DataSource<Result>* operator()( DataSourceBase::shared_ptr dsb) const
         {
             // equal case
-            DataSource<Result>* t1 = dynamic_cast< DataSource<Result>*>( dsb.get() );
+            DataSource<Result>* t1 = DataSource<Result>::narrow( dsb.get() );
             if (t1)
                 return t1;
 
             // assignable case
-            AssignableDataSource<TResult>* t2 = dynamic_cast< AssignableDataSource<TResult>* >( dsb.get() );
+            AssignableDataSource<TResult>* t2 = AssignableDataSource<TResult>::narrow( dsb.get() );
             if (t2 && &(t2->set()) != 0 )
                 return new detail::AssignableDataSourceAdaptor<TResult, TResult&>( t2 );
-            
-            // assignable case 2
-            AssignableDataSource<const TResult&>* t3 = dynamic_cast< AssignableDataSource<const TResult&>* >( dsb.get() );
-            if (t3 && &(t3->set()) != 0 )
-                return new detail::AssignableDataSourceAdaptor<const TResult&, TResult&>( t3 );
             
             // complete type failure.
             return 0;
@@ -537,27 +537,27 @@ namespace ORO_CoreLib
         DataSource<const TResult&>* operator()( DataSourceBase::shared_ptr dsb) const
         {
             // equal case
-            DataSource<const TResult&>* t1 = dynamic_cast< DataSource<const TResult&>*>( dsb.get() );
+            DataSource<const TResult&>* t1 = DataSource<const TResult&>::narrow( dsb.get() );
             if (t1)
                 return t1;
 
             // value to const ref case
-            DataSource<TResult>* t2 = dynamic_cast<DataSource<TResult>*>( dsb.get() );
+            DataSource<TResult>* t2 = DataSource<TResult>::narrow( dsb.get() );
             if ( t2 )
                 return new detail::DataSourceAdaptor<TResult, const TResult&>( t2 );
 
             // ref to const ref case
-            DataSource<TResult&>* t3 = dynamic_cast<DataSource<TResult&>*>( dsb.get() );
+            DataSource<TResult&>* t3 = DataSource<TResult&>::narrow( dsb.get() );
             if ( t3 )
                 return new detail::DataSourceAdaptor<TResult&, const TResult&>( t3 );
 
             // const value to const ref case
-            DataSource<const TResult>* t4 = dynamic_cast<DataSource<const TResult>*>( dsb.get() );
+            DataSource<const TResult>* t4 = DataSource<const TResult>::narrow( dsb.get() );
             if ( t4 )
                 return new detail::DataSourceAdaptor<const TResult, const TResult&>( t4 );
 
             // assignable case
-            AssignableDataSource<TResult>* ta1 = dynamic_cast< AssignableDataSource<TResult>* >( dsb.get() );
+            AssignableDataSource<TResult>* ta1 =  AssignableDataSource<TResult>::narrow( dsb.get() );
             if (ta1 && &(ta1->set()) != 0 ) // check for null set()
                 return new detail::AssignableDataSourceAdaptor<TResult, const TResult&>( ta1 );
             

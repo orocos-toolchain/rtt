@@ -112,7 +112,7 @@ namespace ORO_Corba
                 nargs[i] = args[i]->server();
             try {
                 Orocos::Expression_var result = mfact->createMethod( mobjname.c_str(), name.c_str(), nargs.in() );
-                return ExpressionProxy::Create( result._retn() );
+                return ExpressionProxy::CreateDataSource( result._retn() );
             } catch ( Orocos::NoSuchNameException& nsn ) {
                 throw ORO_Execution::name_not_found_exception( nsn.name.in() );
             } catch ( Orocos::WrongNumbArgException& wa ) {

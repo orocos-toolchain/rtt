@@ -28,7 +28,7 @@
  
 #include "execution/FunctionGraph.hpp"
 #include "GraphCopier.hpp"
-#include "execution/TaskAttribute.hpp"
+#include "corelib/AttributeBase.hpp"
 #include "execution/ProgramTask.hpp"
 
 #include "corelib/CommandNOP.hpp"
@@ -72,8 +72,8 @@ namespace ORO_Execution
         exitv = *v1;
 
         // Copy-clone over the TAB pointers.
-        std::vector<TaskAttributeBase*> argsvect = orig.getArguments();
-        std::vector<TaskAttributeBase*>::iterator ita = argsvect.begin();
+        std::vector<AttributeBase*> argsvect = orig.getArguments();
+        std::vector<AttributeBase*>::iterator ita = argsvect.begin();
         for ( ; ita != argsvect.end(); ++ita)
             this->args.push_back( (*ita)->clone() );
         this->finish();
@@ -101,7 +101,7 @@ namespace ORO_Execution
 
     FunctionGraph::~FunctionGraph()
     {
-        std::vector<TaskAttributeBase*>::iterator it = args.begin();
+        std::vector<AttributeBase*>::iterator it = args.begin();
         for ( ; it != args.end(); ++it)
             delete *it;
         this->handleUnload();
@@ -337,10 +337,11 @@ namespace ORO_Execution
 //         std::cerr << "Empty ret: " <<std::endl;
 //         ret->debugPrintout();
         // The replacementdss map contains mappings from this->datasource to copy->datasource, 
-        // thus we can rebuild a vector<TaskAttributeBase*>, which will be automagically be
+        // thus we can rebuild a vector<AttributeBase*>, which will be automagically be
         // found by copy_graph.
+        // func args are never instantiated, so that we can keep making copies.
         for (unsigned int i=0; i < args.size(); ++i)
-            ret->addArgument( args[i]->copy( replacementdss, false ) ); // func args are never instantiated, always local.
+            ret->addArgument( args[i]->copy( replacementdss, false ) ); 
 
         boost::copy_graph( program, ret->program,
                            boost::vertex_copy( GraphVertexCopier( program, ret->program, replacementdss ) ).
@@ -390,7 +391,7 @@ namespace ORO_Execution
     }
 
     void FunctionGraph::clearArguments() {
-        for (std::vector<TaskAttributeBase*>::iterator it = args.begin(); it != args.end(); ++it)
+        for (std::vector<AttributeBase*>::iterator it = args.begin(); it != args.end(); ++it)
             delete *it;
         args.clear();
     }

@@ -37,7 +37,6 @@ namespace ORO_Execution {
 
     class StateDescription;
     class Processor;
-    class TaskAttributeBase;
     class TaskContext;
     class StateMachineTask;
 
@@ -51,7 +50,7 @@ namespace ORO_Execution {
     class ParsedStateMachine
         : public StateMachine
     {
-        typedef std::map<std::string, TaskAttributeBase*> VisibleWritableValuesMap;
+        typedef std::map<std::string, ORO_CoreLib::AttributeBase*> VisibleWritableValuesMap;
     protected:
         virtual void handleUnload();
     public:
@@ -61,11 +60,11 @@ namespace ORO_Execution {
         /**
          * Create a copy, set instantiate to 'true' if instantiating a RootMachine.
          */
-        ParsedStateMachinePtr copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate = false ) const;
+        ParsedStateMachinePtr copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& replacements, bool instantiate = false ) const;
 
-        void addParameter( const std::string& name, TaskAttributeBase* var );
+        void addParameter( const std::string& name, ORO_CoreLib::AttributeBase* var );
 
-        TaskAttributeBase* getParameter( const std::string& name ) const;
+        ORO_CoreLib::AttributeBase* getParameter( const std::string& name ) const;
         VisibleWritableValuesMap getParameters() const;
         std::vector<std::string> getParameterNames() const;
 

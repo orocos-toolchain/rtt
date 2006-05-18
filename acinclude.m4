@@ -641,6 +641,7 @@ AC_LANG_CPLUSPLUS
 AC_CHECK_HEADERS([ xercesc/sax2/SAX2XMLReader.hpp ],
 [
 PACKAGES="support/xercesc/current/xercesc.cdl $PACKAGES"
+TARGET_LIBS="$TARGET_LIBS -lxerces-c"
 ],
 [
   AC_MSG_WARN([

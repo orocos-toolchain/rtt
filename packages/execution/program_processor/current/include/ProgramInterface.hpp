@@ -29,8 +29,9 @@
 #define	PROGRAMINTERFACE_HPP
 
 #include <string>
+#include <vector>
 #include <corelib/DataSourceBase.hpp>
-#include <execution/TaskAttribute.hpp>
+#include <corelib/AttributeBase.hpp>
 #include <boost/shared_ptr.hpp>
 
 namespace ORO_Execution
@@ -145,7 +146,7 @@ namespace ORO_Execution
         /**
          * Get the argument list of this program.
          */
-        virtual std::vector<TaskAttributeBase*> getArguments() const = 0;
+        virtual std::vector<ORO_CoreLib::AttributeBase*> getArguments() const = 0;
 
         /**
          * Clone this Program.  This will produce a completely

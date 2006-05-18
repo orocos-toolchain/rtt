@@ -62,7 +62,7 @@ namespace ORO_Execution
       void reset();
       CommandInterface* command() const;
       virtual DataSourceCommand* clone() const;
-      virtual DataSourceCommand* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+      virtual DataSourceCommand* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const;
   };
 }
 

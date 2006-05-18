@@ -162,13 +162,19 @@ namespace ORO_CoreLib
          * Get a DataSource through which this PropertyBase can be
          * manipulated.
          */
-        virtual DataSourceBase* getDataSource() const = 0;
+        virtual DataSourceBase::shared_ptr getDataSource() const = 0;
 
         /**
          * Returns the type of this PropertyBase. Uses the
          * naming scheme of DataSourceTypeInfo.
          */
         virtual std::string getType() const = 0;
+
+        /**
+         * Returns the TypeInfo object of this Property.
+         */
+        virtual const TypeInfo* getTypeInfo() const = 0;
+
     protected:
         /**
          * A short name for this PropertyBase.

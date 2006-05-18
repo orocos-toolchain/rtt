@@ -1282,6 +1282,7 @@ cd                  quit
 	<classname>ORO_Execution::AttributeRepository</classname> like this :</para>
       <para>
 	<programlisting>  #include &lt;corelib/Property.hpp>
+  #include &lt;corelib/Attribute.hpp>
 
   class MyTask
     : public <classname>ORO_Execution::GenericTaskContext</classname>
@@ -1332,19 +1333,18 @@ cd                  quit
       </important>
     </section>
     <section>
-      <title>Accessing Task Attributes in C++</title>
+      <title>Accessing Task Attributes or Properties in C++</title>
       <para>
-	To get a value from the repository,
-      you can use :</para>
+	To get a value from the task, you can use :</para>
       <para>
 	<programlisting>
-  TaskAttribute&lt;bool&gt;* attrb 
+  Attribute&lt;bool&gt;* attrb 
        = a_task.attributes()->getAttribute&lt;bool&gt;( "aflag" );
 
   bool result = attrb->get();
   assert( result == false );
 
-  TaskAttribute&lt;std::string&gt;* attrs 
+  Attribute&lt;std::string&gt;* attrs 
        = a_task.attributes()->getAttribute&lt;std::string&gt;( "Param" );
 
   assert( attrs->get() == "The String" );</programlisting></para>
@@ -1385,8 +1385,7 @@ cd                  quit
       <title>Storing and Loading Task Properties</title>
       <para>
 	See <xref linkend="task-property-config" /> for storing and loading
-	the Properties in a AttributeRepository to and from files, in order
-	to save a TaskContext's state.
+	the Properties to and from files, in order to store a TaskContext's state.
       </para>
     </section>
   </section>

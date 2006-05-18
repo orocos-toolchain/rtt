@@ -47,6 +47,7 @@
 
 #include <corelib/PropertyComposition.hpp>
 #include <corelib/Logger.hpp>
+#include <corelib/PropertyComposition.hpp>
 
 #include "execution/TemplateDataSourceFactory.hpp"
 #include <execution/TemplateCommandFactory.hpp>

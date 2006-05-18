@@ -23,7 +23,7 @@
 #include <iostream>
 #include <execution/FunctionGraph.hpp>
 #include <execution/TemplateFactories.hpp>
-#include <execution/DataSourceAdaptor.hpp>
+#include <corelib/DataSourceAdaptor.hpp>
 #include <execution/DataSourceGenerator.hpp>
 
 #include <corelib/SimulationActivity.hpp>
@@ -299,7 +299,7 @@ void Template_FactoryTest::testManual()
     DataSourceBase::shared_ptr empty1;
     DataSource<double>::shared_ptr empty2;
     AssignableDataSource<bool>::shared_ptr empty3;
-    VariableDataSource<string>::shared_ptr empty4;
+    ValueDataSource<string>::shared_ptr empty4;
 
     res = GenerateDataSource()( empty1.get() );
     CPPUNIT_ASSERT( res.size() == 1 );

@@ -29,7 +29,7 @@
 
 #include "execution/FunctionGraphBuilder.hpp"
 #include "execution/CommandComposite.hpp"
-#include "execution/TaskAttribute.hpp"
+#include "corelib/AttributeBase.hpp"
 #include "execution/TemplateFactories.hpp"
 //#include "execution/parse_exception.hpp"
 #include "execution/FactoryExceptions.hpp"
@@ -242,13 +242,13 @@ namespace ORO_Execution
             indexmap[*v] = index++;
 
         // check nb of arguments:
-        std::vector<TaskAttributeBase*> origlist = fn->getArguments();
+        std::vector<AttributeBase*> origlist = fn->getArguments();
         if ( fnargs.size() != origlist.size() )
             throw wrong_number_of_args_exception( origlist.size(), fnargs.size() );
             
         // make a deep copy of the function :
         std::map<const DataSourceBase*, DataSourceBase*> replacementdss;
-        std::vector<TaskAttributeBase*> newlist;
+        std::vector<AttributeBase*> newlist;
         for (unsigned int i=0; i < origlist.size(); ++i)
             newlist.push_back( origlist[i]->copy( replacementdss, false ) ); // args are not instantiated.
         // newlist contains the DS which need initialisations :
@@ -256,10 +256,10 @@ namespace ORO_Execution
         // create commands that init all the args :
         CommandComposite* icom=  new CommandComposite();
         std::vector<DataSourceBase::shared_ptr>::const_iterator dit = fnargs.begin();
-        std::vector<TaskAttributeBase*>::const_iterator tit =  newlist.begin();
+        std::vector<AttributeBase*>::const_iterator tit =  newlist.begin();
         try {
             for (; dit != fnargs.end(); ++dit, ++tit)
-                icom->add( (*tit)->assignCommand( *dit, true ) );
+                icom->add( (*tit)->getDataSource()->updateCommand( dit->get() ) );
         }
         catch( const bad_assignment& e) {
             // cleanup allocated memory
@@ -267,7 +267,7 @@ namespace ORO_Execution
                 delete newlist[i];
             delete icom;
             int parnb = (dit - fnargs.begin());
-            throw wrong_types_of_args_exception(parnb, (*tit)->toDataSource()->getType() ,(*dit)->getType() );
+            throw wrong_types_of_args_exception(parnb, (*tit)->getDataSource()->getType() ,(*dit)->getType() );
         }
 
         // set the init command on the build node 

@@ -92,8 +92,10 @@ namespace ORO_ControlKernel
         }
 
         void refresh() {
-            for( std::vector<ORO_CoreLib::CommandInterface*>::iterator it = comms.begin(); it != comms.end(); ++it )
+            for( std::vector<ORO_CoreLib::CommandInterface*>::iterator it = comms.begin(); it != comms.end(); ++it ) {
+                (*it)->readArguments();
                 (*it)->execute();
+            }
         }
 
         void reportAll()

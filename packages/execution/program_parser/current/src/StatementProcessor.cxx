@@ -9,6 +9,7 @@
 #include <boost/tuple/tuple.hpp>
 #include "corelib/Logger.hpp"
 #include <iostream>
+#include <pkgconf/system.h>
 #ifdef OROPKG_GEOMETRY
 #include <geometry/frames.h>
 #include <geometry/frames_io.h>
@@ -17,7 +18,9 @@
 #include <corelib/TypeStream.hpp>
 
 using namespace ORO_CoreLib;
+#ifdef OROPKG_GEOMETRY
 using namespace ORO_Geometry;
+#endif
 using namespace boost;
 
 namespace ORO_Execution
@@ -255,7 +258,7 @@ namespace ORO_Execution
         // statement after this one would return and not give the expr parser
         // time to evaluate 'comm'. 
         if ( taskcontext->attributes()->getValue( comm ) ) {
-                d->printResult( taskcontext->attributes()->getValue( comm )->toDataSource(), true );
+                d->printResult( taskcontext->attributes()->getValue( comm )->getDataSource().get(), true );
                 return 0;
         }
                     

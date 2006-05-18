@@ -109,7 +109,7 @@ namespace ORO_Execution { namespace detail
       // current command from the CommandParser..
       ConditionInterface* implcond;
       std::vector<ConditionInterface*> implcond_v;
-      std::vector<DataSourceBase::shared_ptr> callfnargs;
+      std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> callfnargs;
 
       // last seen condition
       ConditionInterface* mcondition;

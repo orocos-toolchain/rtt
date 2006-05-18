@@ -31,6 +31,7 @@
 
 #include <corelib/ConditionInterface.hpp>
 #include <corelib/CommandInterface.hpp>
+#include <corelib/DataSources.hpp>
 #include "ProgramInterface.hpp"
 #include "ProgramProcessor.hpp"
 #include "DispatchInterface.hpp"
@@ -61,7 +62,7 @@ namespace ORO_Execution
             return new ConditionExecFunction( _v.get() );
         }
 
-        ORO_CoreLib::ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+        ORO_CoreLib::ConditionInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
         {
             // after *all* the copying is done, _v will be set to the correct function
             // by the Command's copy.
@@ -97,8 +98,8 @@ namespace ORO_Execution
         CommandExecFunction( CommandInterface* init_com, boost::shared_ptr<ProgramInterface> foo, ProgramProcessor* p, AssignableDataSource<ProgramInterface*>* v = 0 , AssignableDataSource<bool>* a = 0 )
             : minit(init_com),
               _proc(p),
-              _v( v==0 ? new detail::VariableDataSource<ProgramInterface*>(foo.get()) : v ),
-              _foo( foo ), isqueued(false), maccept( a ? a : new VariableDataSource<bool>(false) )
+              _v( v==0 ? new ORO_CoreLib::detail::UnboundDataSource< ORO_CoreLib::ValueDataSource<ProgramInterface*> >(foo.get()) : v ),
+              _foo( foo ), isqueued(false), maccept( a ? a : new ORO_CoreLib::detail::UnboundDataSource<ORO_CoreLib::ValueDataSource<bool> >(false) )
         {
         }
 
@@ -167,7 +168,7 @@ namespace ORO_Execution
             return new CommandExecFunction( minit->clone(), _foo, _proc, _v.get(), maccept.get() );
         }
         
-        ORO_CoreLib::CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+        ORO_CoreLib::CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
         {
             // this may seem strange, but :
             // make a copy of foo (a function), make a copy of _v (a datasource), store pointer to new foo in _v !

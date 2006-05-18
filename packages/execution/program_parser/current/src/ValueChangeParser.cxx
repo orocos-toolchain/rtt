@@ -30,7 +30,8 @@
 #include "execution/ValueChangeParser.hpp"
 
 #include "execution/TaskContext.hpp"
-#include "execution/Types.hpp"
+#include "corelib/Types.hpp"
+#include "corelib/Attribute.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/lambda/bind.hpp>
@@ -69,7 +70,7 @@ namespace ORO_Execution
   ValueChangeParser::ValueChangeParser( TaskContext* pc )
       : peername(0),
         type( 0 ), context( pc ), expressionparser( pc ), peerparser( pc ), sizehint(-1),
-        typerepos( TypeInfoRepository::instance() )
+        typerepos( TypeInfoRepository::Instance() )
   {
     BOOST_SPIRIT_DEBUG_RULE( constantdefinition );
     BOOST_SPIRIT_DEBUG_RULE( aliasdefinition );
@@ -174,11 +175,11 @@ namespace ORO_Execution
         assert( expr.get() );
         //assert( !expressionparser.hasResult() );
         DataSource<int>::shared_ptr i = dynamic_cast<DataSource<int>* >( expr.get() );
-        std::string typen = type->getType();
+        std::string typen = type->getTypeName();
         if ( i.get() == 0 ) {
             this->cleanup();
             throw parse_exception_semantic_error
-                ("Attempt to initialize "+typen+" "+valuename+" with a "+expr->getType()+", expected an integer expression." );
+                ("Attempt to initialize "+typen+" "+valuename+" with a "+expr->getTypeName()+", expected an integer expression." );
         }
         if ( i->get() < 0 ) {
             std::stringstream value;
@@ -201,8 +202,8 @@ namespace ORO_Execution
     DataSourceBase::shared_ptr expr = expressionparser.getResult();
     expressionparser.dropResult();
     //assert( !expressionparser.hasResult() );
-    TaskAttributeBase* var;
-    Logger::log() << Logger::Info << "Building "<<type->getType() <<" "<<valuename; // rest is filled in by buildConstant().
+    AttributeBase* var;
+    Logger::log() << Logger::Info << "Building "<<type->getTypeName() <<" "<<valuename; // rest is filled in by buildConstant().
       if (sizehint == -1 )
           var = type->buildConstant(expr);
       else {
@@ -213,10 +214,10 @@ namespace ORO_Execution
               Logger::log() << " failed !"<<Logger::endl;
               this->cleanup();
               throw parse_exception_semantic_error
-                  ("Attempt to initialize a const "+type->getType()+" with a "+expr->getType()+"." );
+                  ("Attempt to initialize a const "+type->getTypeName()+" with a "+expr->getTypeName()+"." );
           }
 
-    context->attributeRepository.setValue( valuename, var );
+    context->attributes()->setValue( valuename, var );
     definedvalues.push_back( var );
     parseddefnames.push_back( valuename );
   }
@@ -224,7 +225,7 @@ namespace ORO_Execution
   void ValueChangeParser::storedefinitionname( iter_t begin, iter_t end )
   {
     std::string name( begin, end );
-    if ( context->attributeRepository.isDefined( name ) ) {
+    if ( context->attributes()->isDefined( name ) ) {
         this->cleanup();
         throw parse_exception_semantic_error( "Identifier \"" + name +
                                               "\" is already defined." );
@@ -245,14 +246,14 @@ namespace ORO_Execution
     DataSourceBase::shared_ptr expr = expressionparser.getResult();
     expressionparser.dropResult();
     //assert( !expressionparser.hasResult() );
-    TaskAttributeBase* alias;
+    AttributeBase* alias;
     alias = type->buildAlias( expr.get() );
     if ( ! alias ) {
         this->cleanup();
         throw parse_exception_semantic_error(
-        "Attempt to define an alias of type "+type->getType()+" to an expression of type "+expr->getType()+"." );
+        "Attempt to define an alias of type "+type->getTypeName()+" to an expression of type "+expr->getTypeName()+"." );
     }
-    context->attributeRepository.setValue( valuename, alias );
+    context->attributes()->setValue( valuename, alias );
     definedvalues.push_back( alias );
     parseddefnames.push_back( valuename );
     CommandInterface* nc(0);
@@ -268,13 +269,13 @@ namespace ORO_Execution
   {
     // type has been stored by calling 'seentype'
     // valuename has been stored by calling 'storename'
-      TaskAttributeBase* var;
+      AttributeBase* var;
       if (sizehint == -1 )
           var = type->buildVariable();
       else {
           var = type->buildVariable(sizehint);
       }
-      context->attributeRepository.setValue( valuename, var );
+      context->attributes()->setValue( valuename, var );
       definedvalues.push_back( var );
       parseddefnames.push_back( valuename );
   }
@@ -294,19 +295,19 @@ namespace ORO_Execution
       // the peerparser.object() should contain "this"
       //peerparser.reset();
       // reset the Property parser to traverse this peers bag :
-      propparser.setPropertyBag( peerparser.peer()->attributeRepository.properties() ); // may be null. ok.
+      propparser.setPropertyBag( peerparser.peer()->attributes()->properties() ); // may be null. ok.
   }
 
   void ValueChangeParser::seenvariabledefinition()
   {
       // build type.
-      TaskAttributeBase* var;
+      AttributeBase* var;
       if (sizehint == -1 )
           var = type->buildVariable();
       else {
           var = type->buildVariable(sizehint);
       }
-      context->attributeRepository.setValue( valuename, var );
+      context->attributes()->setValue( valuename, var );
       definedvalues.push_back( var );
       parseddefnames.push_back( valuename );
 
@@ -315,20 +316,21 @@ namespace ORO_Execution
           expressionparser.dropResult();
           //assert( !expressionparser.hasResult() );
           try {
-              CommandInterface* ac = var->toDataSource()->updateCommand( expr.get() );
+              CommandInterface* ac = var->getDataSource()->updateCommand( expr.get() );
+              assert(ac);
               assigncommands.push_back( ac );
           }
           catch( const bad_assignment& e ) {
               this->cleanup();
               throw parse_exception_semantic_error
-                  ( "Attempt to initialize a var "+var->toDataSource()->getType()+" with a "+ expr->getType() + "." );
+                  ( "Attempt to initialize a var "+var->getDataSource()->getTypeName()+" with a "+ expr->getTypeName() + "." );
           }
       }
   }
 
   void ValueChangeParser::seenvariableassignment()
   {
-      TaskAttributeBase* var = 0;
+      AttributeBase* var = 0;
       PropertyBase*     prop = 0;
 
       peername = peerparser.peer();
@@ -347,13 +349,13 @@ namespace ORO_Execution
           propparser.reset();
       } else {
           // first check if it is a property :
-          if ( peername->attributeRepository.hasProperty( valuename ) ) {
-              prop =  peername->attributeRepository.properties()->find( valuename );
+          if ( peername->attributes()->hasProperty( valuename ) ) {
+              prop =  peername->attributes()->properties()->find( valuename );
           } else {
               // not a property case :
-              var = peername->attributeRepository.getValue( valuename );
+              var = peername->attributes()->getValue( valuename );
               // SIDENOTE: now, we must be sure that if this program gets copied,
-              // the DS still points to the peer's attribute, and not to a new copy. TaskAttribute and Properties
+              // the DS still points to the peer's attribute, and not to a new copy. Attribute and Properties
               // takes care of this by definition, but the variable of a loaded StateMachine or program
               // must first get an instantiation-copy() before they become uncopyable. 
               if ( !var )
@@ -368,19 +370,19 @@ namespace ORO_Execution
 
       if ( index_ds && prop ) {
           throw parse_exception_semantic_error(
-              "Cannot use index with Property<"+prop->getType()+"> " + valuename + " inside PropertyBag. Not Implemented. Add Propery as TaskAttribute to allow index assignment." );
+              "Cannot use index with Property<"+prop->getType()+"> " + valuename + " inside PropertyBag. Not Implemented. Add Propery as Attribute to allow index assignment." );
       }
 
       if ( index_ds && var ) {
           CommandInterface* ac;
           try {
-              ac = var->assignIndexCommand( index_ds.get(), expr.get() );
+              ac = var->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
               assigncommands.push_back( ac );
           }
           catch( const bad_assignment& e) {
               // type-error :
               throw parse_exception_semantic_error(
-                    "Impossible to assign "+valuename+"[ "+index_ds->getType()+" ] to value of type "+expr->getType()+".");
+                    "Impossible to assign "+valuename+"[ "+index_ds->getTypeName()+" ] to value of type "+expr->getTypeName()+".");
           }
           // not allowed :
           if ( !ac )
@@ -389,7 +391,7 @@ namespace ORO_Execution
       } 
       if ( !index_ds && var) {
         try {
-            CommandInterface* assigncommand = var->toDataSource()->updateCommand( expr.get() );
+            CommandInterface* assigncommand = var->getDataSource()->updateCommand( expr.get() );
             assigncommands.push_back(assigncommand);
             // if null, not allowed.
             if ( ! assigncommand )
@@ -399,14 +401,14 @@ namespace ORO_Execution
             {
                 // type-error :
                 throw parse_exception_semantic_error
-                    ( "Attempt to assign variable of type "+var->toDataSource()->getType()+" with a "+ expr->getType() + "." );
+                    ( "Attempt to assign variable of type "+var->getDataSource()->getTypeName()+" with a "+ expr->getTypeName() + "." );
             }
       }
       if ( !index_ds && prop) {
           CommandInterface* assigncommand = prop->getDataSource()->updateCommand( expr.get() );
           assigncommands.push_back(assigncommand);
           if ( ! assigncommand ) {
-              throw parse_exception_semantic_error( "Cannot set Property<"+ prop->getType() +"> " + valuename + " to value of type "+expr->getType()+"." );
+              throw parse_exception_semantic_error( "Cannot set Property<"+ prop->getType() +"> " + valuename + " to value of type "+expr->getTypeName()+"." );
           }
       }
 

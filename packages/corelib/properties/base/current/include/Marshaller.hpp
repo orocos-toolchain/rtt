@@ -110,17 +110,16 @@ namespace ORO_CoreLib
 
             /** 
              * Unknown types must decompose theirselves into the primitives.
-             * For each type you define, you need to provide the function
-             * 
-             *    decomposeProperty( Marshaller*, const Property<YourType>& )
-             *
-             * An link time error will be generated
-             * when this function is not found.
+             * @see TypeInfo
              */
             template< class T >
             void serialize( const Property<T> &v )
             {
-                decomposeProperty(this, v);
+                // Decompose v into bag.
+                PropertyBag bag;
+                v.typeInfo()->decomposeType( bag, v.getDataSource() );
+                // Serialize the bag.
+                this->serialize( bag );
             }
 	};
 

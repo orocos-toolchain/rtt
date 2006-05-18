@@ -45,8 +45,8 @@ namespace ORO_Execution
         {
             virtual ~EventStubInterface() {}
             virtual int arity() const = 0;
-            virtual EventHookBase* createReceptor(const std::vector<DataSourceBase::shared_ptr>& args ) = 0;
-            virtual DataSourceBase* createEmittor(const std::vector<DataSourceBase::shared_ptr>& args ) = 0;
+            virtual EventHookBase* createReceptor(const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args ) = 0;
+            virtual ORO_CoreLib::DataSourceBase* createEmittor(const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args ) = 0;
         };
 
     
@@ -56,10 +56,10 @@ namespace ORO_Execution
         {
             EventT* me;
             detail::TemplateFactoryPart<EventT, EventHookBase*>*  mrfact;
-            detail::TemplateFactoryPart<EventT, DataSourceBase*>* mefact;
+            detail::TemplateFactoryPart<EventT, ORO_CoreLib::DataSourceBase*>* mefact;
             EventStub( EventT* e,
                        detail::TemplateFactoryPart<EventT, EventHookBase*>* rfact,
-                       detail::TemplateFactoryPart<EventT, DataSourceBase*>* efact)
+                       detail::TemplateFactoryPart<EventT, ORO_CoreLib::DataSourceBase*>* efact)
                 : me(e), mrfact(rfact), mefact(efact) {}
             virtual ~EventStub() {
                 delete mrfact;
@@ -68,11 +68,11 @@ namespace ORO_Execution
 
             virtual int arity() const { return me->arity(); }
 
-            virtual EventHookBase* createReceptor(const std::vector<DataSourceBase::shared_ptr>& args ) {
+            virtual EventHookBase* createReceptor(const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args ) {
                 return mrfact->produce( me, args );
             }
 
-            virtual DataSourceBase* createEmittor(const std::vector<DataSourceBase::shared_ptr>& args ) {
+            virtual ORO_CoreLib::DataSourceBase* createEmittor(const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args ) {
                 return mefact->produce( me, args );
             }
         };
@@ -195,7 +195,7 @@ namespace ORO_Execution
          */
         ORO_CoreLib::Handle setupSyn(const std::string& ename,
                                      boost::function<void(void)> func,          
-                                     std::vector<DataSourceBase::shared_ptr> args ) const;
+                                     std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> args ) const;
         
         /**
          * Setup a asynchronous Event handler which will set \a args and
@@ -213,13 +213,13 @@ namespace ORO_Execution
          */
         ORO_CoreLib::Handle setupAsyn(const std::string& ename,
                                       boost::function<void(void)> afunc,          
-                                      const std::vector<DataSourceBase::shared_ptr>& args,
+                                      const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args,
                                       ORO_CoreLib::ActivityInterface* t,
                                       ORO_CoreLib::EventProcessor::AsynStorageType s_type = ORO_CoreLib::EventProcessor::OnlyFirst) const;
         
         ORO_CoreLib::Handle setupAsyn(const std::string& ename,
                                       boost::function<void(void)> afunc,          
-                                      const std::vector<DataSourceBase::shared_ptr>& args,
+                                      const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args,
                                       ORO_CoreLib::EventProcessor* ep = ORO_CoreLib::CompletionProcessor::Instance()->getEventProcessor(),
                                       ORO_CoreLib::EventProcessor::AsynStorageType s_type = ORO_CoreLib::EventProcessor::OnlyFirst) const;
         //!@}
@@ -244,14 +244,14 @@ namespace ORO_Execution
         ORO_CoreLib::Handle setupSynAsyn(const std::string& ename,
                                          boost::function<void(void)> sfunc,
                                          boost::function<void(void)> afunc,
-                                         const std::vector<DataSourceBase::shared_ptr>& args,
+                                         const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args,
                                          ORO_CoreLib::ActivityInterface* t,
                                          ORO_CoreLib::EventProcessor::AsynStorageType s_type = ORO_CoreLib::EventProcessor::OnlyFirst) const;
 
         ORO_CoreLib::Handle setupSynAsyn(const std::string& ename,
                                          boost::function<void(void)> sfunc,
                                          boost::function<void(void)> afunc,
-                                         const std::vector<DataSourceBase::shared_ptr>& args,
+                                         const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args,
                                          ORO_CoreLib::EventProcessor* ep = ORO_CoreLib::CompletionProcessor::Instance()->getEventProcessor(),
                                          ORO_CoreLib::EventProcessor::AsynStorageType s_type = ORO_CoreLib::EventProcessor::OnlyFirst) const;
         //! @}
@@ -265,7 +265,7 @@ namespace ORO_Execution
          * They be read at the moment of emit().
          * @see DataSourceGenerator for creating the arguments from variables or plain literals.
          */
-        DataSourceBase::shared_ptr setupEmit(const std::string& ename,const std::vector<DataSourceBase::shared_ptr>& args) const;
+        ORO_CoreLib::DataSourceBase::shared_ptr setupEmit(const std::string& ename,const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args) const;
 
         /*
          * The Global EventService, in which global Events are stored.

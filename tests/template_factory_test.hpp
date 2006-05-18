@@ -22,6 +22,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <corelib/MultiVector.hpp>
 #include <execution/Parser.hpp>
 #include <execution/CommandProcessor.hpp>
 #include <execution/TaskContext.hpp>

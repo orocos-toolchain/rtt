@@ -97,6 +97,7 @@ namespace ORO_CoreLib
                 add( (*i) );
                 ++i;
             }
+        this->setType( orig.getType() );
         return *this;
     }
 
@@ -112,6 +113,7 @@ namespace ORO_CoreLib
                 add( (*it) );
                 ++it;
             }
+        this->setType( source.getType() );
         return *this;
     }
 
@@ -203,16 +205,21 @@ namespace ORO_CoreLib
     bool updateProperties(PropertyBag& target, const PropertyBag& source)
     {
         // check type consistency...
+        // this was probably intended to convert old xml formats to new ones.
+        // but deleting in target seems just very wrong...
+#if 0
         if ( target.getType() != source.getType() ) {
             // if different types, discard the old contents and
             // put in the new contents...
             // update type info...
-            target.setType( source.getType() );
             // delete old type contents...
             flattenPropertyBag(target);
             deleteProperties(target);
             // now continue 'updating'
         }
+#endif
+
+        target.setType( source.getType() );
 
         // Make an updated if present, create if not present
         //iterate over source, update or clone PropertyBases
@@ -229,13 +236,17 @@ namespace ORO_CoreLib
 #endif
                   // no need to make new one, just update existing one
                 if ( mine->update( (*it) ) == false ) {
-                    Logger::log() << Logger::Error;
-                    Logger::log() << "updateProperties: Could not update Property "
-                                  << mine->getType() << " "<< (*it)->getName()
-                                  << ": type mismatch, can not update with type "
-                                  << (*it)->getType() << Logger::endl;
-                    return false;
+                    // try composition:
+                    if ( mine->getTypeInfo()->composeType( (*it)->getDataSource(), mine->getDataSource() ) == false ) {
+                        Logger::log() << Logger::Error;
+                        Logger::log() << "updateProperties: Could not update, nor compose Property "
+                                      << mine->getType() << " "<< (*it)->getName()
+                                      << ": type mismatch, can not update with type "
+                                      << (*it)->getType() << Logger::endl;
+                        return false;
+                    }
                 }
+                // ok.
             }
             else
             {
@@ -259,10 +270,25 @@ namespace ORO_CoreLib
 
     void deleteProperties(PropertyBag& target)
     {
+        //recursive delete.
+        PropertyBag::const_iterator it( target.getProperties().begin() );
+        while ( it != target.getProperties().end() )
+        {
+            delete (*it);
+            ++it;
+        }
+        target.clear();
+    }
+
+    void deletePropertyBag(PropertyBag& target)
+    {
         //iterate over target, delete PropertyBases
         PropertyBag::const_iterator it( target.getProperties().begin() );
         while ( it != target.getProperties().end() )
         {
+            Property<PropertyBag>* result = dynamic_cast< Property<PropertyBag>* >( *it );
+            if ( result != 0 )
+                deletePropertyBag( result->value() );
             delete (*it);
             ++it;
         }

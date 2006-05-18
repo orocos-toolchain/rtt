@@ -56,7 +56,7 @@ namespace ORO_Execution  { namespace detail
   class ArgumentsParser
   {
     // the arguments we have already parsed.
-    std::vector<DataSourceBase::shared_ptr> margs;
+    std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> margs;
     bool mparsed;
 
     rule_t arguments, argument;
@@ -93,7 +93,7 @@ namespace ORO_Execution  { namespace detail
     /**
      * Get the parsed DataSource's.
      */
-    std::vector<DataSourceBase::shared_ptr> result()
+    std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> result()
       {
         return margs;
       }

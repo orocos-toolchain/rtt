@@ -69,6 +69,7 @@ namespace ORO_CoreLib
   {
   protected:
       virtual ~DataSource();
+
   public:
       /**
        * The bare type of T is extracted into value_t.
@@ -90,6 +91,13 @@ namespace ORO_CoreLib
        */
       virtual result_t value() const = 0;
 
+      /**
+       * In case the DataSource returns a 'reference' type, 
+       * call this method to notify it that the data was updated
+       * in the course of an invocation of get().
+       */
+      virtual void updated();
+
       virtual bool evaluate() const;
 
       virtual DataSource<T>* clone() const = 0;
@@ -98,25 +106,25 @@ namespace ORO_CoreLib
 
       virtual std::string getType() const;
 
-      virtual std::string getTypeName() const;
-
-      /**
-       * In case the DataSource returns a 'reference' type, 
-       * call this method to notify it that the data was updated
-       * in the course of an invocation of get().
-       */
-      virtual void updated();
-
       /**
        * Return usefull type info in a human readable format.
        */
       static  std::string GetType();
+
+      virtual const TypeInfo* getTypeInfo() const;
+
+      /**
+       * Return the Orocos type info.
+       */
+      static const TypeInfo* GetTypeInfo();
 
       /**
        * Return the Orocos type name, without const, pointer or reference
        * qualifiers.
        */
       static  std::string GetTypeName();
+
+      virtual std::string getTypeName() const;
 
       virtual CORBA::Any* createAny() const;
 
@@ -129,7 +137,6 @@ namespace ORO_CoreLib
 
       virtual Orocos::Method_ptr method();
 #endif
-
       /**
        * This method narrows a DataSourceBase to a typeded DataSource,
        * possibly returning a new object.
@@ -182,6 +189,15 @@ namespace ORO_CoreLib
        * check whether they do not return null.
        */
       virtual reference_t set() = 0;
+
+      /**
+       * Get a const reference (or null) to the value of this DataSource.
+       * Getting a reference to an  internal data structure is not thread-safe.
+       * DataSources which wish to protect their data from concurrent access may
+       * return the null reference with this method. All calls to rvalue() must first
+       * check whether they do not return null.
+       */
+      virtual const_reference_t rvalue() const = 0;
 
       using DataSourceBase::update;
 

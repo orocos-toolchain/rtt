@@ -65,8 +65,8 @@ namespace ORO_Execution
 
         ~BufferConnection() { }
 
-        virtual DataSourceBase::shared_ptr getDataSource() const {
-            return DataSourceBase::shared_ptr( new BufferDataSource<T>( buf ) );
+        virtual ORO_CoreLib::DataSourceBase::shared_ptr getDataSource() const {
+            return ORO_CoreLib::DataSourceBase::shared_ptr( new BufferDataSource<T>( buf ) );
         }
 
         bool connect()

@@ -47,6 +47,9 @@ namespace CORBA
 
 namespace ORO_CoreLib
 {
+    class TypeInfo;
+    class PropertyBag;
+
   /**
    * @brief The base class for all DataSource's
    *
@@ -86,6 +89,7 @@ namespace ORO_CoreLib
        * class yourself, use a shared pointer !
        */
       virtual ~DataSourceBase();
+
   public:
       /**
        * Use this type to store a pointer to a DataSourceBase.
@@ -143,7 +147,7 @@ namespace ORO_CoreLib
        * @return false if the DataSources are of different type OR if the
        * contents of this DataSource can not be partially updated.
        */
-      virtual bool updatePart( DataSourceBase* part, const DataSourceBase* other );
+      virtual bool updatePart( DataSourceBase* part, DataSourceBase* other );
 
       /**
        * Generate a CommandInterface object which will partially update this DataSource
@@ -152,7 +156,7 @@ namespace ORO_CoreLib
        * @return zero if the DataSource types do not match OR if the
        * contents of this DataSource can not be partially updated.
        */
-      virtual CommandInterface* updatePartCommand( DataSourceBase* part, const DataSourceBase* other);
+      virtual CommandInterface* updatePartCommand( DataSourceBase* part, DataSourceBase* other);
 
       /**
        * Return a shallow clone of this DataSource. This method
@@ -175,6 +179,11 @@ namespace ORO_CoreLib
        * Return usefull type info in a human readable format.
        */
       virtual std::string getType() const = 0;
+
+      /**
+       * Return the Orocos type info object.
+       */
+      virtual const TypeInfo* getTypeInfo() const = 0;
 
       /**
        * Return the Orocos type name, without const, pointer or reference
@@ -207,6 +216,30 @@ namespace ORO_CoreLib
        * @return true if \a any had the correct type.
        */
       virtual bool update(const CORBA::Any& any);
+
+      /**
+       * Stream the contents of this object.
+       * @see TypeInfo
+       */
+      std::ostream& write(std::ostream& os);
+
+      /**
+       * Get the contents of this object as a string.
+       * @see TypeInfo
+       */
+      std::string toString();
+
+      /**
+       * Decompose the contents of this object into properties.
+       * @see TypeInfo
+       */
+      bool decomposeType( PropertyBag& targetbag );
+            
+      /**
+       * Compose the contents of this object from another datasource.
+       * @see TypeInfo
+       */
+      bool composeType( DataSourceBase::shared_ptr source);
 
 #ifdef OROINT_OS_CORBA
       /**
@@ -241,6 +274,13 @@ namespace ORO_CoreLib
 #endif
 
   };
+
+    /**
+     * Stream the contents of this object.
+     * @see TypeInfo
+     */
+    std::ostream& operator<<(std::ostream& os, DataSourceBase::shared_ptr dsb );
+
 }
 
 void intrusive_ptr_add_ref(const ORO_CoreLib::DataSourceBase* p );

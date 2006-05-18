@@ -31,7 +31,7 @@
 
 #include <string>
 #include <corelib/DataSources.hpp>
-#include "TaskAttribute.hpp"
+#include <corelib/Attribute.hpp>
 
 namespace ORO_Execution
 {
@@ -47,7 +47,7 @@ namespace ORO_Execution
          */
         class D;
         D* d;
-        DataSourceBase::shared_ptr m;
+        ORO_CoreLib::DataSourceBase::shared_ptr m;
     public:
         /**
          * The default constructor.
@@ -79,7 +79,7 @@ namespace ORO_Execution
          * @param a A DataSource which contents are consulted each time
          * when execute() is called.
          */
-        MethodC& arg( DataSourceBase::shared_ptr a );
+        MethodC& arg( ORO_CoreLib::DataSourceBase::shared_ptr a );
 
         /**
          * Add a constant argument to the Method.
@@ -89,7 +89,7 @@ namespace ORO_Execution
         template< class ArgT >
         MethodC& argC( const ArgT a )
         {
-            return this->arg(DataSourceBase::shared_ptr( new ORO_CoreLib::ConstantDataSource<ArgT>( a ) ) );
+            return this->arg(ORO_CoreLib::DataSourceBase::shared_ptr( new ORO_CoreLib::ConstantDataSource<ArgT>( a ) ) );
         }
 
         /**
@@ -101,14 +101,14 @@ namespace ORO_Execution
         template< class ArgT >
         MethodC& arg( ArgT& a )
         {
-            return this->arg(DataSourceBase::shared_ptr( new ORO_CoreLib::ReferenceDataSource<ArgT>( a ) ) );
+            return this->arg(ORO_CoreLib::DataSourceBase::shared_ptr( new ORO_CoreLib::ReferenceDataSource<ArgT>( a ) ) );
         }
 
         /**
          * Store the result of the method in a task's attribute.
          * @param r A task attribute in which the result is stored.
          */
-        MethodC& ret( TaskAttributeBase* r );
+        MethodC& ret( ORO_CoreLib::AttributeBase* r );
 
         /**
          * Store the result of the method in variable.
@@ -117,8 +117,8 @@ namespace ORO_Execution
         template< class RetT >
         MethodC& ret( RetT& r )
         {
-            // this is semantically valid wrt TaskAttribute::copy().
-            TaskAttributeBase* ta = new TaskAttribute<RetT>( new ORO_CoreLib::ReferenceDataSource<RetT>(r));
+            // this is semantically valid wrt Attribute::copy().
+            ORO_CoreLib::AttributeBase* ta = new ORO_CoreLib::Attribute<RetT>( new ORO_CoreLib::ReferenceDataSource<RetT>(r));
             this->ret( ta );
             delete ta;
             return *this;

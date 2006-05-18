@@ -119,7 +119,7 @@ namespace ORO_Execution
 
         ORO_Execution::DispatchInterface* clone() const;
 
-        ORO_Execution::DispatchInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
+        ORO_Execution::DispatchInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const;
     };
 }
 

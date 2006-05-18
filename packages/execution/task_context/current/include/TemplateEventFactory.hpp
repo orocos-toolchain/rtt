@@ -348,7 +348,7 @@ namespace ORO_Execution{
             EventHookBase* operator()( EventT* e, DataSource<Arg1T>* arg1 ) const
             {
                 // check if we can make an AssignableDS from arg1...
-                typename AssignableDataSource<Arg1T>::shared_ptr ma1 = AdaptAssignableDataSource<Arg1T>()( arg1 );
+                typename AssignableDataSource<Arg1T>::shared_ptr ma1 = ORO_CoreLib::AdaptAssignableDataSource<Arg1T>()( arg1 );
                 if ( !ma1 )
                     throw non_lvalue_args_exception( 1, arg1->getType() );
 
@@ -362,10 +362,10 @@ namespace ORO_Execution{
                                             DataSource<Arg2T>* arg2) const
             {
                 // check if we can make an AssignableDS from arg1...
-                typename AssignableDataSource<Arg1T>::shared_ptr ma1 = AdaptAssignableDataSource<Arg1T>()( arg1 );
+                typename AssignableDataSource<Arg1T>::shared_ptr ma1 = ORO_CoreLib::AdaptAssignableDataSource<Arg1T>()( arg1 );
                 if ( !ma1 )
                     throw non_lvalue_args_exception( 1, arg1->getType() );
-                typename AssignableDataSource<Arg2T>::shared_ptr ma2 = AdaptAssignableDataSource<Arg2T>()( arg2 );
+                typename AssignableDataSource<Arg2T>::shared_ptr ma2 = ORO_CoreLib::AdaptAssignableDataSource<Arg2T>()( arg2 );
                 if ( !ma2 )
                     throw non_lvalue_args_exception( 2, arg2->getType() );
 
@@ -380,13 +380,13 @@ namespace ORO_Execution{
                                             DataSource<Arg3T>* arg3) const
             {
                 // check if we can make an AssignableDS from arg1...
-                typename AssignableDataSource<Arg1T>::shared_ptr ma1 = AdaptAssignableDataSource<Arg1T>()( arg1 );
+                typename AssignableDataSource<Arg1T>::shared_ptr ma1 = ORO_CoreLib::AdaptAssignableDataSource<Arg1T>()( arg1 );
                 if ( !ma1 )
                     throw non_lvalue_args_exception( 1, arg1->getType() );
-                typename AssignableDataSource<Arg2T>::shared_ptr ma2 = AdaptAssignableDataSource<Arg2T>()( arg2 );
+                typename AssignableDataSource<Arg2T>::shared_ptr ma2 = ORO_CoreLib::AdaptAssignableDataSource<Arg2T>()( arg2 );
                 if ( !ma2 )
                     throw non_lvalue_args_exception( 2, arg2->getType() );
-                typename AssignableDataSource<Arg3T>::shared_ptr ma3 = AdaptAssignableDataSource<Arg3T>()( arg3 );
+                typename AssignableDataSource<Arg3T>::shared_ptr ma3 = ORO_CoreLib::AdaptAssignableDataSource<Arg3T>()( arg3 );
                 if ( !ma3 )
                     throw non_lvalue_args_exception( 3, arg3->getType() );
 
@@ -401,7 +401,7 @@ namespace ORO_Execution{
             TemplateFactoryPart<EventT,EventHookBase*>* receptor() const {
                 return new TemplateFactoryFunctorPart0<EventT,EventHookBase*,EventHookGenerator>( EventHookGenerator(), "Event Hook" );
             }
-            TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
+            TemplateFactoryPart<EventT,ORO_CoreLib::DataSourceBase*>* emittor() const {
                 return method<EventT,typename EventT::emit_type>(&EventT::emit, "Event Emittor");
             }
         };
@@ -418,7 +418,7 @@ namespace ORO_Execution{
                         typename EventT::SlotFunction::arg1_type>( EventHookGenerator(), "Event Hook", "arg1", "description" );
                 }
 
-                TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
+                TemplateFactoryPart<EventT,ORO_CoreLib::DataSourceBase*>* emittor() const {
                     return method<EventT,typename EventT::emit_type, typename EventT::arg1_type>(&EventT::emit, "Event Emittor",
                                   "arg1", "description");
                 }
@@ -437,7 +437,7 @@ namespace ORO_Execution{
                                                           "arg1", "description", "arg2", "description" );
                 }
 
-                TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
+                TemplateFactoryPart<EventT,ORO_CoreLib::DataSourceBase*>* emittor() const {
                     return method<EventT,typename EventT::emit_type, typename EventT::arg1_type, typename EventT::arg2_type>(&EventT::emit, "Event Emittor",
                                   "arg1", "description",
                                   "arg2", "description");
@@ -459,7 +459,7 @@ namespace ORO_Execution{
                                                           "arg3", "description");
                 }
 
-                TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
+                TemplateFactoryPart<EventT,ORO_CoreLib::DataSourceBase*>* emittor() const {
                     return method<EventT,typename EventT::emit_type, typename EventT::arg1_type, typename EventT::arg2_type, 
                         typename EventT::arg3_type>(&EventT::emit, "Event Emittor",
                                   "arg1", "description",

@@ -38,16 +38,17 @@
 #include <sstream>
 #include <map>
 #include <string>
-#include "execution/mystd.hpp"
+#include "corelib/mystd.hpp"
 #include <corelib/PropertyBag.hpp>
 #include <corelib/Property.hpp>
-#include "execution/TaskAttribute.hpp"
+#include "corelib/Attribute.hpp"
 #include "execution/parse_exception.hpp"
 #include <boost/bind.hpp>
 
 namespace ORO_Execution
 {
     using namespace boost;
+    using namespace ORO_CoreLib;
 
         FunctionFactory::FunctionFactory(ExecutionEngine* procs) : proc(procs) {}
         FunctionFactory::~FunctionFactory() {
@@ -91,10 +92,10 @@ namespace ORO_Execution
             if ( !hasCommand(command) )
                 throw name_not_found_exception();
             shared_ptr<ProgramInterface> orig = funcmap.find(command)->second;
-            std::vector<TaskAttributeBase*> origlist = orig->getArguments();
+            std::vector<AttributeBase*> origlist = orig->getArguments();
 
             PropertyBag ret;
-            for ( std::vector<TaskAttributeBase*>::const_iterator it = origlist.begin();
+            for ( std::vector<AttributeBase*>::const_iterator it = origlist.begin();
                   it != origlist.end(); ++it)
                 ret.add( new Property<std::string>("na", "Type Not available") );
             return ret;
@@ -106,11 +107,11 @@ namespace ORO_Execution
                 throw name_not_found_exception();
 
             shared_ptr<ProgramInterface> orig = funcmap.find(command)->second;
-            std::vector<TaskAttributeBase*> origlist = orig->getArguments();
+            std::vector<AttributeBase*> origlist = orig->getArguments();
             std::vector< ArgumentDescription > mlist;
-            for ( std::vector<TaskAttributeBase*>::const_iterator it = origlist.begin();
+            for ( std::vector<AttributeBase*>::const_iterator it = origlist.begin();
                   it != origlist.end(); ++it)
-                mlist.push_back( ArgumentDescription( "arg", "Function Argument", (*it)->toDataSource()->getType() ) );
+                mlist.push_back( ArgumentDescription( "arg", "Function Argument", (*it)->getDataSource()->getType() ) );
             return mlist;
         }
 
@@ -152,7 +153,7 @@ namespace ORO_Execution
 
             // check if correct number of args :
             shared_ptr<ProgramInterface> orig = funcmap.find(command)->second;
-            std::vector<TaskAttributeBase*> origlist = orig->getArguments();
+            std::vector<AttributeBase*> origlist = orig->getArguments();
             if ( args.size() != origlist.size() )
                 throw wrong_number_of_args_exception( origlist.size(), args.size() );
 
@@ -168,15 +169,15 @@ namespace ORO_Execution
             // get the correct pointers.
             origlist = fcopy->getArguments(); 
             std::vector<DataSourceBase::shared_ptr>::const_iterator dit = args.begin();
-            std::vector<TaskAttributeBase*>::const_iterator tit =  origlist.begin();
+            std::vector<AttributeBase*>::const_iterator tit =  origlist.begin();
             try {
                 for (; dit != args.end(); ++dit, ++tit)
-                    icom->add( (*tit)->assignCommand( *dit, true ) );
+                    icom->add( (*tit)->getDataSource()->updateCommand( dit->get() ) );
             }
             catch( const bad_assignment& e) {
                 delete icom;
                 int parnb = (dit - args.begin()) + 1;
-                throw wrong_types_of_args_exception(parnb, (*tit)->toDataSource()->getType() ,(*dit)->getType() );
+                throw wrong_types_of_args_exception(parnb, (*tit)->getDataSource()->getType() ,(*dit)->getType() );
             }
 
             // the args of the copy can now safely be removed (saves memory):

@@ -33,19 +33,22 @@
 #include <corelib/DataSource.hpp>
 #include <boost/shared_ptr.hpp>
 
+namespace CORBA{
+    class Any;
+}
+
 namespace ORO_Execution
 {
     class TaskAttributeBase;
 
-    namespace detail {
-  /**
-   * \file We need some information on types if we want to make
-   * constants, variables or aliases of them, the classes in this file
-   * provide that information.
-   */
+    /**
+     * \file We need some information on types if we want to make
+     * constants, variables or aliases of them, the classes in this file
+     * provide that information.
+     */
 
     /**
-     * A class for representing a parser type, and which can build
+     * A class for representing a user type, and which can build
      * instances of that type.
      */
     class TypeInfo
@@ -73,13 +76,49 @@ namespace ORO_Execution
         virtual TaskAttributeBase* buildAlias( ORO_CoreLib::DataSourceBase* b ) const = 0;
 
         /**
-         * Return the type name in a human readable format.
+         * Build a Property of this type.
          */
-        virtual std::string getType() const = 0;
+        virtual PropertyBase* buildProperty(const std::string& name, const std::string& desc, DataSourceBase* source = 0) const = 0;
+
+        /**
+         * Build a ValueDataSource of this type.
+         */
+        virtual DataSourceBase* buildValue() const = 0;
+
+        /**
+         * Output this datasource as a human readable string.
+         */
+        virtual std::ostream& operator<<( DataSourceBase* in ) const = 0;
+
+        /**
+         * Decompose a Property to a Bag.
+         */
+        virtual bool decomposeType(PropertyBag& targetbag, DataSourceBase* source) const = 0;
+
+        /**
+         * Compose a Property from a Bag.
+         */
+        virtual bool composeType(const PropertyBag& sourcebag, DataSourceBase* target) const = 0;
+
+        /**
+         * Create an Any object which contains the value of \a source.
+         */
+        virtual CORBA::Any* createAny(DataSourceBase* source) const = 0;
+
+        /**
+         * Update \a target with the contents of \a any.
+         */
+        virtual bool update(const CORBA::Any& any, DataSourceBase* target) const = 0;
+
+        /**
+         * Return unique the type name.
+         */
+        virtual std::string getTypeName() const = 0;
     };
 
     /**
-     * This class contains all known types to the parser.
+     * This class contains all known types to Orocos.
+     * @see TemplateTypeInfo to add your own classes to Orocos.
      */
     class TypeInfoRepository
     {
@@ -93,7 +132,12 @@ namespace ORO_Execution
          * Retrieve a type with a given \a name.
          */
         TypeInfo* type( const std::string& name ) const;
+
+        /**
+         * Add a type to the Orocos type repository.
+         */
+        bool addType( TypeInfo* );
     };
-}}
+}
 
 #endif

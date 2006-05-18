@@ -337,7 +337,7 @@ void ProgramTest::testProgramTask()
         + "do foo()\n"
         + "}";
     this->doProgram( prog, &gtc );
-    CPPUNIT_ASSERT_EQUAL( 4, dynamic_cast<TaskAttribute<int>*>( gtc.attributeRepository.getValue("tvar_i") )->toDataSource()->get() );
+    CPPUNIT_ASSERT_EQUAL( 4, gtc.attributes()->getAttribute<int>("tvar_i")->get() );
     this->finishProgram( &gtc, "x");
 }
 

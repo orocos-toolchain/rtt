@@ -31,24 +31,22 @@
 
 #include <memory>
 #include <map>
-#include "TaskAttribute.hpp"
-#include "TaskVariable.hpp"
+#include <corelib/Attribute.hpp>
+#include <corelib/DataSources.hpp>
 #include <corelib/Property.hpp>
 #include <corelib/PropertyBag.hpp>
 
 namespace ORO_Execution
 {
-    class TaskAttributeBase;
-
     /**
-     * @brief A class for keeping track of TaskAttribute, TaskConstant, TaskProperty
+     * @brief A class for keeping track of Attribute, ORO_CoreLib::Constant
      * and ORO_CoreLib::Property objects of a TaskContext.
      * It allows to store objects of these types and retrieve this type.
      * It is used by the script parsers to browse the attributes and properties of a TaskContext.
      */
     class AttributeRepository
     {
-        typedef std::map<std::string, TaskAttributeBase*> map_t;
+        typedef std::map<std::string, ORO_CoreLib::AttributeBase*> map_t;
         map_t values;
         ORO_CoreLib::PropertyBag* bag;
 
@@ -62,6 +60,16 @@ namespace ORO_Execution
                 return i > -1 && i < (int)(v.size());
             }
         };
+
+        template< class T>
+        struct ArrayAssignChecker
+            : public std::binary_function< T, T, bool>
+        {
+            bool operator()(const T& , const T& ) const
+            {
+                return true;
+            }
+        };
     public:
 
         /**
@@ -69,6 +77,8 @@ namespace ORO_Execution
          */
         AttributeRepository();
         ~AttributeRepository();
+
+        typedef std::vector<std::string> AttributeNames;
 
         /**
          * Erases the whole repository.
@@ -92,58 +102,58 @@ namespace ORO_Execution
         bool hasProperty( const std::string& name ) const;
 
         /**
-         * Add a TaskConstant with a given value.
+         * Add a Constant with a given value.
          * @see getConstant
          */
         template<class T>
         bool addConstant( const std::string& name, T value )
         {
-            return setValue( name, new TaskConstant<T>( value ) );
+            return setValue( name, new ORO_CoreLib::Constant<T>( value ) );
         }
 
         /**
-         * Retrieve a TaskConstant by name. Returns zero if 
-         * no TaskConstant<T> by that name exists.
+         * Retrieve a Constant by name. Returns zero if 
+         * no Constant<T> by that name exists.
          * Example : getConstant<double>("Xconst")
          * @see addConstant
          */
         template<class T>
-        TaskConstant<T>* getConstant( const std::string& name )
+        ORO_CoreLib::Constant<T>* getConstant( const std::string& name )
         {
-            return dynamic_cast<TaskConstant<T>*>( this->getValue( name ) );
+            return dynamic_cast<ORO_CoreLib::Constant<T>*>( this->getValue( name ) );
         }
 
         /**
-         * Add a TaskAttribute with a given value.
+         * Add a Attribute with a given value.
          * @see getAttribute
          */
         template<class T>
         bool addAttribute( const std::string& name, T value )
         {
-            return setValue( name, new TaskAttribute<T>( value ));
+            return setValue( name, new ORO_CoreLib::Attribute<T>( value ));
         }
 
         /**
-         * Add a TaskAttribute with a given value.
+         * Add a Attribute with a given value.
          * @see getAttribute
          */
         template<class T>
         bool addAttribute( const std::string& name, std::vector<T> value )
         {
             // return by reference type.
-            return setValue( name, new detail::ParsedIndexVariable<const std::vector<T>&,int,T,ArrayIndexChecker<std::vector<T> > >( value ));
+            return setValue( name, new ORO_CoreLib::Attribute<const std::vector<T>&>( new ORO_CoreLib::IndexedValueDataSource<const std::vector<T>&,int,T,ArrayIndexChecker<std::vector<T> >, ArrayAssignChecker<std::vector<T> > >( value )));
         }
 
         /**
          * Add an ORO_CoreLib::Property<T> as an attribute, which then
-         * becomes also available as a TaskAttribute<T>. The value of the Property
-         * and the TaskAttribute will always be identical.
+         * becomes also available as a Attribute<T>. The value of the Property
+         * and the Attribute will always be identical.
          * @return false if an attribute with the same name already exists.
          * @see getAttribute, removeProperty
          */
         template<class T>
         bool addProperty( ORO_CoreLib::Property<T>* p ) {
-            TaskAttributeBase* attr =  new TaskAttribute<T>( p->getDataSource() );
+            ORO_CoreLib::AttributeBase* attr =  new ORO_CoreLib::Attribute<T>( p->getAssignableDataSource().get() );
             bool result = setValue( p->getName(), attr );
             if ( result ) {
                 if ( bag == 0 )
@@ -172,22 +182,22 @@ namespace ORO_Execution
         bool removeProperty( ORO_CoreLib::PropertyBase* p );
 
         /**
-         * Retrieve a TaskAttribute by name. Returns zero if 
-         * no TaskAttribute<T> by that name exists.
+         * Retrieve a Attribute by name. Returns zero if 
+         * no Attribute<T> by that name exists.
          * Example : getAttribute<double>("Xval")
          * @see addAttribute, addProperty
          */
         template<class T>
-        TaskAttribute<T>* getAttribute( const std::string& name )
+        ORO_CoreLib::Attribute<T>* getAttribute( const std::string& name )
         {
-            return dynamic_cast<TaskAttribute<T>*>( this->getValue( name ) );
+            return dynamic_cast<ORO_CoreLib::Attribute<T>*>( this->getValue( name ) );
         }
 
         /**
          * Add a variable to the repository.
          * @return false if \a name already present.
          */
-        bool setValue( const std::string& name, TaskAttributeBase* pc );
+        bool setValue( const std::string& name, ORO_CoreLib::AttributeBase* pc );
 
         /**
          * Remove a variable to the repository.
@@ -198,7 +208,7 @@ namespace ORO_Execution
          * Get the value with name \a name.  If no such value exists, this
          * returns 0.
          */
-        TaskAttributeBase* getValue( const std::string& name );
+        ORO_CoreLib::AttributeBase* getValue( const std::string& name );
 
         /**
          * Return a new copy of this repository with the copy operation semantics.
@@ -207,12 +217,12 @@ namespace ORO_Execution
          * @see CommandInterface
          * @note this does not copy the properties() within this repository.
          */
-        AttributeRepository* copy( std::map<const DataSourceBase*, DataSourceBase*>& repl, bool instantiate ) const;
+        AttributeRepository* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& repl, bool instantiate ) const;
 
         /**
-         * Return a list of all attributes.
+         * Return the names of all attributes.
          */
-        std::vector<std::string> attributes() const;
+        AttributeNames names() const;
           
         /**
          * Return a bag of all properties.

@@ -25,7 +25,10 @@
 #include <execution/TemplateFactories.hpp>
 #include <corelib/SimulationActivity.hpp>
 #include <corelib/SimulationThread.hpp>
-
+#ifdef OROPKG_GEOMETRY
+#include <geometry/GeometryToolkit.hpp>
+using namespace ORO_Geometry;
+#endif
 using namespace std;
 
 // Registers the fixture into the 'registry'
@@ -38,6 +41,10 @@ TypesTest::setUp()
     tc =  new TaskContext( "root" );
     tc->methodFactory.registerObject("test", this->createMethodFactory() );
     tsim = new SimulationActivity( 0.001, tc->engine() );
+
+#ifdef OROPKG_GEOMETRY
+    Toolkit::Import( GeometryToolkit );
+#endif
 }
 
 

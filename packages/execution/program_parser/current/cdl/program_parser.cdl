@@ -11,7 +11,6 @@ is very powerful."
 
     parent OROPKG_EXECUTION
 
-    compile Types.cxx Operators.cxx
     compile CommonParser.cxx
     compile parse_exception.cxx
     compile StateGraphParser.cxx

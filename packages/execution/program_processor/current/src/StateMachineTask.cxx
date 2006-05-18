@@ -28,13 +28,16 @@
  
 
 #include "execution/StateMachineTask.hpp"
-#include "execution/TaskAttribute.hpp"
+#include <corelib/Attribute.hpp>
 #include "execution/TemplateFactories.hpp"
 #include "execution/TaskContext.hpp"
 #include "execution/FactoryExceptions.hpp"
 
 namespace ORO_Execution
 {
+    using namespace ORO_CoreLib;
+    using namespace ORO_CoreLib::detail;
+
         CommandFactoryInterface* StateMachineTask::createCommandFactory() {
             // Add the state specific methods :
             // Special trick : we store the 'this' pointer in a DataSource, such that when
@@ -76,9 +79,9 @@ namespace ORO_Execution
             return fact;
         }
 
-        DataSourceFactoryInterface* StateMachineTask::createDataSourceFactory()
+        MethodFactoryInterface* StateMachineTask::createMethodFactory()
         {
-            TemplateDataSourceFactory< DataSource<StateMachineWPtr> >* f = newDataSourceFactory(static_cast< DataSource<StateMachineWPtr>* >( _this.get() ));
+            TemplateMethodFactory< DataSource<StateMachineWPtr> >* f = newMethodFactory(static_cast< DataSource<StateMachineWPtr>* >( _this.get() ));
             f->add("inState", data_ds(&StateMachine::inState, "Is the StateMachine in a given state ?", "State", "State Name") );
             f->add("inError", data_ds(&StateMachine::inError, "Is this StateMachine in error ?") );
             f->add("getState", data_ds(&StateMachine::getCurrentStateName, "The name of the current state. An empty string if not active.") );
@@ -109,10 +112,10 @@ namespace ORO_Execution
 
         StateMachineTask::StateMachineTask(StateMachinePtr statemachine, ExecutionEngine* ee)
             : TaskContext( statemachine->getName(), ee ),
-              _this( new VariableDataSource<StateMachineWPtr>( statemachine ) )
+              _this( new ValueDataSource<StateMachineWPtr>( statemachine ) ) // was: VariableDataSource.
         {
-            this->commandFactory.registerObject("this", this->createCommandFactory() );
-            this->dataFactory.registerObject("this", this->createDataSourceFactory() );
+            this->commands()->registerObject("this", this->createCommandFactory() );
+            this->methods()->registerObject("this", this->createMethodFactory() );
         }
 
     StateMachineTask::~StateMachineTask()

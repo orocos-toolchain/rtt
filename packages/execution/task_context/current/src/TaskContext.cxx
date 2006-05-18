@@ -38,9 +38,8 @@
 #include <functional>
 #include <boost/bind.hpp>
 #include <boost/mem_fn.hpp>
-#include "execution/mystd.hpp"
+
 #include "execution/DataSource.hpp"
-#include "execution/TaskAttribute.hpp"
 #include "execution/ConnectionInterface.hpp"
 
 namespace ORO_Execution
@@ -74,10 +73,6 @@ namespace ORO_Execution
 
         TaskContext::~TaskContext()
         {
-            // it is not possible to remove ourselves from our peers, since
-            // they we do not know who they are. A callback / event mechanism
-            // could be used though, but parsed programs would still contain
-            // pointers to non existing peers.
             attributeRepository.clear();
             delete mscriptAcc;
 

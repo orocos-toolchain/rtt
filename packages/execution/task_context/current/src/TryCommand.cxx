@@ -1,15 +1,17 @@
 #include <corelib/Logger.hpp>
 #include "execution/TryCommand.hpp"
+#include <corelib/DataSources.hpp>
 
 namespace ORO_Execution 
 {
     using namespace ORO_CoreLib;
+    using namespace ORO_CoreLib::detail;
 
         TryCommand::TryCommand( CommandInterface* command,
                                 AssignableDataSource<bool>::shared_ptr storage /*=0*/,
                                 AssignableDataSource<bool>::shared_ptr execstat/*=0*/ )
-            :_result( storage == 0 ? new detail::VariableDataSource<bool>(true) : storage ),
-             _executed( execstat == 0 ? new detail::VariableDataSource<bool>(false) : execstat ),
+            :_result( storage == 0 ? new UnboundDataSource< ValueDataSource<bool> >(true) : storage ),
+             _executed( execstat == 0 ? new UnboundDataSource< ValueDataSource<bool> >(false) : execstat ),
              c(command) {}
 
         TryCommand::~TryCommand() {
@@ -77,7 +79,7 @@ namespace ORO_Execution
         }
 
     EvalCommand::EvalCommand( DataSource<bool>::shared_ptr ds, AssignableDataSource<bool>::shared_ptr cache /*=0*/)
-        :_cache( cache == 0 ? new detail::VariableDataSource<bool>(false) : cache ),
+        :_cache( cache == 0 ? new UnboundDataSource<ValueDataSource<bool> >(false) : cache ),
          _ds(ds) {}
 
         EvalCommand::~EvalCommand() {
