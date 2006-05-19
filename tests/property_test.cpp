@@ -36,6 +36,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( PropertyTest );
 
 using namespace ORO_CoreLib;
 using namespace boost;
+using namespace std;
 
 void 
 PropertyTest::setUp()
@@ -130,6 +131,92 @@ void PropertyTest::testBags()
 void PropertyTest::testBagOperations()
 {
 }
+
+bool operator==(const std::vector<double>& a, const std::vector<double>& b)
+{
+    if ( a.size() != b.size() )
+        return false;
+    for(unsigned int i =0; i != a.size(); ++i)
+        {
+            if (a[i] != b[i])
+                return false;
+        }
+    return true;
+}
+
+void PropertyTest::testRepository()
+{
+    /**
+     * Test all types: create property of type T, decompose it and compose it again.
+     */
+    std::vector<string> names = TypeInfoRepository::Instance()->getTypes();
+    for (std::vector<string>::iterator it = names.begin(); it != names.end(); ++it) {
+        PropertyBase* target;
+        Property<PropertyBag> bag("Result","D");
+        CPPUNIT_ASSERT( TypeInfoRepository::Instance()->type( *it ) );
+        target = TypeInfoRepository::Instance()->type( *it )->buildProperty("Result", "D");
+        CPPUNIT_ASSERT( target );
+        if ( target->getTypeInfo()->decomposeType( target->getDataSource(), bag.value() ) )
+            CPPUNIT_ASSERT( target->getTypeInfo()->composeType( bag.getDataSource() , target->getDataSource() ) );
+        deletePropertyBag( bag.value() );
+        delete target;
+    }
+
+}
+
+void PropertyTest::testComposition()
+{
+    /**
+     * test vector
+     */
+    std::vector<double> init(33, 1.0);
+    Property<std::vector<double> > pvd("pvd","pvd desc", init);
+    Property<const std::vector<double>& > pvd_cr("pvd_cr","pvd_cr desc", init);
+
+    Property<std::vector<double> > pvd2("pvd 2","pvd desc 2");
+    Property<const std::vector<double>& > pvd_cr2("pvd_cr 2","pvd desc 2");
+
+    CPPUNIT_ASSERT( pvd.get() == init );
+    CPPUNIT_ASSERT( pvd_cr.get() == init );
+    CPPUNIT_ASSERT( pvd.set() == init );
+    CPPUNIT_ASSERT( pvd_cr.set() == init );
+
+    CPPUNIT_ASSERT( pvd.getTypeInfo() );
+    CPPUNIT_ASSERT( pvd.getTypeInfo() == pvd_cr.getTypeInfo() );
+    // Compatible-type -assignment:
+    CPPUNIT_ASSERT( pvd.getTypeInfo()->composeType( pvd.getDataSource(), pvd2.getDataSource() ) );
+    CPPUNIT_ASSERT( pvd.getTypeInfo()->composeType( pvd_cr.getDataSource(), pvd.getDataSource() ) );
+    CPPUNIT_ASSERT( pvd.getTypeInfo()->composeType( pvd.getDataSource(), pvd_cr.getDataSource() ) );
+    CPPUNIT_ASSERT( pvd.getTypeInfo()->composeType( pvd_cr.getDataSource(), pvd_cr2.getDataSource() ) );
+
+    Property<PropertyBag> bag("Result","Rd");
+    // Decompose to property bag and back:
+    CPPUNIT_ASSERT( pvd.getTypeInfo()->decomposeType( pvd.getDataSource(), bag.value() ) );
+    CPPUNIT_ASSERT( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd2.getDataSource() ) );
+    CPPUNIT_ASSERT( pvd == pvd2);
+    pvd2.value().clear();
+    deletePropertyBag( bag.value() );
+
+    CPPUNIT_ASSERT( pvd.getTypeInfo()->decomposeType( pvd_cr.getDataSource(), bag.value() ) );
+    CPPUNIT_ASSERT( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd_cr2.getDataSource() ) );
+    CPPUNIT_ASSERT( pvd_cr == pvd_cr2);
+    pvd_cr2.value().clear();
+    deletePropertyBag( bag.value() );
+
+    // Cross composition. (const ref to value and vice versa)
+    CPPUNIT_ASSERT( pvd.getTypeInfo()->decomposeType( pvd.getDataSource(), bag.value() ) );
+    CPPUNIT_ASSERT( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd_cr2.getDataSource() ) );
+    CPPUNIT_ASSERT( pvd == pvd_cr2);
+    pvd_cr2.value().clear();
+    deletePropertyBag( bag.value() );
+
+    CPPUNIT_ASSERT( pvd.getTypeInfo()->decomposeType( pvd_cr.getDataSource(), bag.value() ) );
+    CPPUNIT_ASSERT( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd2.getDataSource() ) );
+    CPPUNIT_ASSERT( pvd_cr == pvd2);
+    pvd2.value().clear();
+    deletePropertyBag( bag.value() );
+}
+
 
 #ifdef OROPKG_GEOMETRY
 using namespace ORO_Geometry;

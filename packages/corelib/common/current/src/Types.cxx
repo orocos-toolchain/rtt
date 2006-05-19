@@ -35,6 +35,7 @@
 #include "corelib/DataSourceAdaptor.hpp"
 #include "corelib/TemplateTypeInfo.hpp"
 #include <corelib/TypeStream.hpp>
+#include <corelib/mystd.hpp>
 
 #ifdef OROCFG_CORELIB_REALTIME_TOOLKIT_IMPORT
 #include <corelib/RealTimeToolkit.hpp>
@@ -129,4 +130,10 @@ namespace ORO_CoreLib
         Logger::log() << Logger::Debug << "Registered Type '"<<t->getTypeName() <<"' to the Orocos Type System."<<Logger::endl;
         return true;
     }
+
+    std::vector<std::string> TypeInfoRepository::getTypes() const
+    {
+        return ORO_std::keys( data );
+    }
+
 }

@@ -41,6 +41,7 @@ namespace ORO_CoreLib
     // Property<double>'s to have a different name.
     void decomposeProperty(const std::vector<double>& vec, PropertyBag& targetbag)
     {
+        targetbag.setType("std::vector<double>");
         Property<int>* dimension = new Property<int>("Size","Dimension of the Vector", vec.size() );
 
         targetbag.add( dimension );

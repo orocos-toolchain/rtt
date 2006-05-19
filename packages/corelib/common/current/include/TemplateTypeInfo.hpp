@@ -187,7 +187,7 @@ namespace ORO_CoreLib
 
         virtual bool decomposeType( DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {
             // Extract typed values
-            typename DataSource<T>::shared_ptr ds = AdaptDataSource<T>()( source.get() );
+            typename DataSource<PropertyType>::shared_ptr ds = AdaptDataSource<PropertyType>()( source.get() );
             if ( !ds )
                 return false; // happens in the case of 'unknown type'
             // Try user's function.
@@ -210,7 +210,7 @@ namespace ORO_CoreLib
             const DataSource<PropertyBag>* pb = dynamic_cast< const DataSource<PropertyBag>* > (source.get() );
             if ( !pb )
                 return false;
-            typename AssignableDataSource<T>::shared_ptr ads = AssignableDataSource<T>::narrow( result.get() );
+            typename AssignableDataSource<PropertyType>::shared_ptr ads = AdaptAssignableDataSource<PropertyType>()( result.get() );
             if ( !ads )
                 return false;
 

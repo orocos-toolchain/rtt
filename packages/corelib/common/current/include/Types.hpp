@@ -29,6 +29,7 @@
 #define ORO_CORELIB_TYPES_HPP
 
 #include <map>
+#include <vector>
 #include <string>
 #include "DataSourceBase.hpp"
 #include <boost/shared_ptr.hpp>
@@ -165,6 +166,11 @@ namespace ORO_CoreLib
          * Add a type to the Orocos type repository.
          */
         bool addType( TypeInfo* );
+
+        /**
+         * List all types.
+         */
+        std::vector<std::string> getTypes() const;
     };
 }
 
