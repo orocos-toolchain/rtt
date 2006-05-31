@@ -77,7 +77,8 @@ using namespace std;
 
 const char* catchflag = "--nocatch";
 
-int main(int argc, char** argv)
+extern "C"
+int main(int argc, char* argv[])
 {
     int res = -1;
 

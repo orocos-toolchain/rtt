@@ -27,6 +27,7 @@
 
 #include "corelib/CompletionProcessor.hpp"
 #include "corelib/Logger.hpp"
+#include <os/threads.hpp>
 
 #include <pkgconf/corelib_events.h>
 
@@ -82,11 +83,11 @@ namespace ORO_CoreLib
     }
 
     CompletionProcessor::CompletionProcessor()
-        : NonPeriodicActivity(  ORONUM_CORELIB_EVENTS_CP_PRIORITY, 
+        : NonPeriodicActivity( ORO_OS::LowestPriority + 2* ORO_OS::IncreasePriority, 
                             ORODAT_CORELIB_EVENTS_CP_NAME )
     {
         Logger::log() << Logger::Info << ORODAT_CORELIB_EVENTS_CP_NAME <<" created with priority ";
-        Logger::log() << ORONUM_CORELIB_EVENTS_CP_PRIORITY <<Logger::endl;
+        Logger::log() << this->thread()->getPriority() <<Logger::endl;
     }
 
     CompletionProcessor::~CompletionProcessor()

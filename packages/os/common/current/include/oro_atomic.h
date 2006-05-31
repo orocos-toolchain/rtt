@@ -27,6 +27,7 @@
  
  
 #include <pkgconf/os.h>
+#include <pkgconf/system.h>
 #ifdef OROBLD_OS_AGNOSTIC
 # if defined(OROBLD_OS_ARCH_i386)
 #  include "oro_i386/oro_atomic.h"

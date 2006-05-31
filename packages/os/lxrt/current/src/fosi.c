@@ -61,9 +61,7 @@ TIME_SPEC ticks2timespec(RTIME hrt)
     
 NANO_TIME rtos_get_time_ns(void) { return rt_get_time_ns(); }
 
-TICK_TIME systemTimeGet(void) { return rt_get_time(); }
-
-NANO_TIME systemNSecsTimeGet(void) { return rt_get_cpu_time_ns(); }
+TICK_TIME rtos_get_time_ticks(void) { return rt_get_time(); }
 
 TICK_TIME ticksPerSec(void) { return nano2count( 1000 * 1000 * 1000 ); }
 
@@ -123,7 +121,7 @@ int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
         return rt_sem_wait_timed(m->sem, nano2count(delay) );
     }
 
-    int rtos_mutex_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)
+    int rtos_mutex_init(rt_mutex_t* m)
     {
         CHK_LXRT_CALL();
         return pthread_mutex_init_rt(m, 0);
@@ -136,7 +134,7 @@ int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
         return pthread_mutex_destroy_rt(m);
     }
 
-    int rtos_mutex_rec_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)
+    int rtos_mutex_rec_init(rt_mutex_t* m)
     {
         CHK_LXRT_CALL();
         pthread_mutexattr_t ma_t;
@@ -150,6 +148,24 @@ int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
         CHK_LXRT_CALL();
 		CHK_LXRT_PTR(m);
         return pthread_mutex_destroy_rt(m);
+    }
+
+    int rtos_mutex_rec_lock( rt_rec_mutex_t* m)
+    {
+        CHK_LXRT_CALL();
+        return pthread_mutex_lock_rt(m);
+    }
+
+    int rtos_mutex_rec_trylock( rt_rec_mutex_t* m)
+    {
+        CHK_LXRT_CALL();
+        return pthread_mutex_trylock_rt(m);
+    }
+
+    int rtos_mutex_rec_unlock( rt_rec_mutex_t* m)
+    {
+        CHK_LXRT_CALL();
+        return pthread_mutex_unlock_rt(m);
     }
 
     int rtos_mutex_lock( rt_mutex_t* m)

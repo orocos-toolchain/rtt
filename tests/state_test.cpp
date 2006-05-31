@@ -744,7 +744,6 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     catch( ... ) {
             CPPUNIT_ASSERT_MESSAGE( "Uncaught Processor load exception", false );
     }
-    CPPUNIT_ASSERT( SimulationThread::Instance()->start() );
     CPPUNIT_ASSERT( gtask.start() );
     StateMachinePtr sm = *pg_list.begin();
     CommandInterface* ca = newCommandFunctor(boost::bind(&StateMachine::activate, sm ));
@@ -757,6 +756,7 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 //      tc->getPeer("states")->getPeer("x")->debug(true);
     CPPUNIT_ASSERT( gtc.engine()->commands()->process( cs ) != 0 );
 //     while (1)
+    CPPUNIT_ASSERT( SimulationThread::Instance()->start(1000) );
     sleep(1);
     delete ca;
     delete cs;
@@ -799,6 +799,7 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
         }
     }
     tc->engine()->states()->getStateMachine( sm->getName() )->stop();
+    CPPUNIT_ASSERT( SimulationThread::Instance()->start(100) );
     sleep(1);
     // special property of sim: this does not stop the gtask.
     SimulationThread::Instance()->stop();

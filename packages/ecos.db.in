@@ -27,6 +27,13 @@ target xenomai {
   }
 }
 
+target ecos {
+  alias { "eCos build" ECOS }
+  packages {
+    OROPKG_OS_ECOS
+  }
+}
+
 target rtlinux {
   alias { "RTLinux build" RTLINUX }
   packages {

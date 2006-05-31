@@ -41,9 +41,21 @@ extern "C"
 #include <pthread.h>
 #include <errno.h>
 #include <string.h>
-    struct GNUTask;
-    typedef struct GNUTask RTOS_TASK;
-	typedef pthread_t      RTOS_THREAD;
+  typedef long long NANO_TIME;
+  typedef long long TICK_TIME;
+
+  typedef struct {
+    //  GNUTask( pthread_t th, NANO_TIME periodi ) 
+    // : thread(th), periodMark(0), period( periodi ) {}
+    pthread_t thread;
+    pthread_attr_t attr;
+
+    NANO_TIME periodMark;
+    NANO_TIME period;
+  
+    char* name;
+  } RTOS_TASK;
+
 
 	// Orocos Implementation (i386 specific)
 #include "oro_atomic.h"
@@ -53,8 +65,6 @@ extern "C"
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
-    typedef long long NANO_TIME;
-    typedef long long TICK_TIME;
 
     typedef struct timespec TIME_SPEC;
 
@@ -80,16 +90,7 @@ extern "C"
      * This function should return ticks,
      * but we use ticks == nsecs in userspace
      */
-    inline NANO_TIME systemTimeGet()
-    {
-        return rtos_get_time_ns();
-    }
-
-    /**
-     * This function should return ticks,
-     * but we use ticks == nsecs in userspace
-     */
-    inline NANO_TIME systemNSecsTimeGet()
+  inline NANO_TIME rtos_get_time_ticks()
     {
         return rtos_get_time_ns();
     }
@@ -172,8 +173,9 @@ extern "C"
     // Mutex functions
 
     typedef pthread_mutex_t rt_mutex_t;
+  typedef pthread_mutex_t rt_rec_mutex_t;
 
-    static inline int rtos_mutex_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr  /*__attribute__((__unused__))*/)
+  static inline int rtos_mutex_init(rt_mutex_t* m)
     {
         return pthread_mutex_init(m, 0 );
     }
@@ -183,7 +185,7 @@ extern "C"
         return pthread_mutex_destroy(m);
     }
 
-    static inline int rtos_mutex_rec_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr /* __attribute__((__unused__))*/)
+  static inline int rtos_mutex_rec_init(rt_mutex_t* m)
     {
         pthread_mutexattr_t ma_t;
         pthread_mutexattr_init(&ma_t);
@@ -201,15 +203,31 @@ extern "C"
         return pthread_mutex_lock(m);
     }
 
+  static inline int rtos_mutex_rec_lock( rt_mutex_t* m)
+  {
+    return pthread_mutex_lock(m);
+  }
+
     static inline int rtos_mutex_trylock( rt_mutex_t* m)
     {
         return pthread_mutex_trylock(m);
     }
 
+  static inline int rtos_mutex_rec_trylock( rt_mutex_t* m)
+  {
+    return pthread_mutex_trylock(m);
+  }
+
     static inline int rtos_mutex_unlock( rt_mutex_t* m)
     {
         return pthread_mutex_unlock(m);
     }
+
+  static inline int rtos_mutex_rec_unlock( rt_mutex_t* m)
+  {
+    return pthread_mutex_unlock(m);
+  }
+
 
 #define rtos_printf printf
 
@@ -225,6 +243,6 @@ extern "C"
 
 #ifdef __cplusplus
 }
-#endif
 
-#endif // __FOSI_H
+#endif
+#endif

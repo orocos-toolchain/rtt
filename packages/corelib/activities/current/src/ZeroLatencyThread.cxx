@@ -28,6 +28,7 @@
 #include "corelib/ZeroLatencyThread.hpp"
 #include "corelib/PreemptibleActivity.hpp"
 #include "corelib/Logger.hpp"
+#include <os/threads.hpp>
 
 #include "pkgconf/corelib_activities.h"
 
@@ -79,13 +80,13 @@ namespace ORO_CoreLib
 
 
     ZeroLatencyThread::ZeroLatencyThread()
-        : TimerThread(ORONUM_CORELIB_ACTIVITIES_ZLT_PRIORITY,
+        : TimerThread(ORO_OS::HighestPriority - ORO_OS::IncreasePriority,
                         ORODAT_CORELIB_ACTIVITIES_ZLT_NAME, 
                         ORONUM_CORELIB_ACTIVITIES_ZLT_PERIOD)
     {
         makeHardRealtime();
         Logger::log() << Logger::Info << ORODAT_CORELIB_ACTIVITIES_ZLT_NAME <<" created with "<< ORONUM_CORELIB_ACTIVITIES_ZLT_PERIOD <<"s periodicity";
-        Logger::log() << Logger::Info << " and priority " << ORONUM_CORELIB_ACTIVITIES_ZLT_PRIORITY << Logger::endl;
+        Logger::log() << Logger::Info << " and priority " << this->getPriority() << Logger::endl;
     }
 
     ZeroLatencyThread::~ZeroLatencyThread()

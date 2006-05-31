@@ -40,8 +40,6 @@
  * original asm/bitops.h. This file got included by the RTAI
  * header files, which caused warnings on RedHat systems.
  */
-// added :
-#include <asm/types.h> // for __u64
 
 // From glibc 2.3.3 on, these files cause #errors.
 //#include <linux/config.h>

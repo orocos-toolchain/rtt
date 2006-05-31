@@ -294,12 +294,12 @@ void DispatchTest::doDispatch( const std::string& prog, TaskContext* tc )
             CPPUNIT_ASSERT( false );
         }
     CPPUNIT_ASSERT( tc->engine()->programs()->loadProgram( *pg_list.begin() ) );
-    SimulationThread::Instance()->start();
     CPPUNIT_ASSERT(ltask.start());
     CPPUNIT_ASSERT(mtask.start());
     CPPUNIT_ASSERT(gtask.start());
     CPPUNIT_ASSERT( tc->engine()->programs()->getProgram( (*pg_list.begin())->getName() )->start() );
     //     while (1)
+    SimulationThread::Instance()->start(1000);
     sleep(1);
     SimulationThread::Instance()->stop();
 }

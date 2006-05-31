@@ -27,6 +27,7 @@
 
 #include "corelib/NonRealTimeThread.hpp"
 #include "os/MutexLock.hpp"
+#include <os/threads.hpp>
 #include "corelib/Time.hpp"
 #ifdef OROPKG_CORELIB_REPORTING
 #include "corelib/Logger.hpp"
@@ -79,11 +80,13 @@ namespace ORO_CoreLib
     }
 
     NonRealTimeThread::NonRealTimeThread()
-        : TimerThread(ORONUM_CORELIB_ACTIVITIES_NRT_PRIORITY, ORODAT_CORELIB_ACTIVITIES_NRT_NAME, ORONUM_CORELIB_ACTIVITIES_NRT_PERIOD )
+        : TimerThread(ORO_OS::LowestPriority + ORO_OS::IncreasePriority,
+                      ORODAT_CORELIB_ACTIVITIES_NRT_NAME,
+                      ORONUM_CORELIB_ACTIVITIES_NRT_PERIOD )
     {
 #ifdef OROPKG_CORELIB_REPORTING
         Logger::log() << Logger::Info << ORODAT_CORELIB_ACTIVITIES_NRT_NAME <<" created with "<< ORONUM_CORELIB_ACTIVITIES_NRT_PERIOD <<"s periodicity";
-        Logger::log() << Logger::Info << " and priority " << ORONUM_CORELIB_ACTIVITIES_NRT_PRIORITY << Logger::endl;
+        Logger::log() << Logger::Info << " and priority " << this->getPriority() << Logger::endl;
 #endif
     }
 

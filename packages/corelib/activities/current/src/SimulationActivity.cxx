@@ -28,6 +28,8 @@
  
 #include "corelib/SimulationActivity.hpp"
 #include "corelib/SimulationThread.hpp"
+#include "corelib/TimerInterface.hpp"
+#include "corelib/EventProcessor.hpp"
 
 namespace ORO_CoreLib
 {
@@ -46,4 +48,41 @@ namespace ORO_CoreLib
     {
         stop();
     }
+
+    // COPY/PASTE from PeriodicActivity.cxx
+    bool SimulationActivity::start()
+    {
+        if ( !timer_ || isActive() ) { //|| !thread_->isRunning() ) {
+            //Logger::log() << Logger::Error << "PeriodicActivity : no timer, already active or thread not running." << Logger::endl;
+            return false;
+        }
+	
+        active = true;
+        bool inError = !this->initialize();
+        if ( inError ) {
+            //Logger::log() << Logger::Error << "PeriodicActivity : initialize() returned false " << Logger::endl;
+            active = false;
+            return false;
+        }
+
+        bool res;
+        res = timer_->addActivity( this );
+        if ( res == false ) {
+            //Logger::log() << Logger::Error << "PeriodicActivity : addActivity() returned false " << Logger::endl;
+            this->finalize();
+            active = false;
+            return false;
+        }
+
+        if ( eprocessor_ ) {
+            res = eprocessor_->initialize();
+            if ( !res ) {
+                this->stop();
+                return false;
+            }
+        }
+        running = true;
+        return true;
+    }
+
 }

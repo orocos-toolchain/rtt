@@ -32,6 +32,7 @@
 #include "corelib/SimulationActivity.hpp"
 #include "corelib/Logger.hpp"
 #include "corelib/EventProcessor.hpp"
+#include <os/threads.hpp>
 
 #include "pkgconf/corelib_activities.h"
 
@@ -64,9 +65,9 @@ namespace ORO_CoreLib
 {
     
     // The static class variables
-    TimerThreadPtr SimulationThread::_instance;
+    SimulationThreadPtr SimulationThread::_instance;
 
-    TimerThreadPtr SimulationThread::Instance()
+    SimulationThreadPtr SimulationThread::Instance()
     {
         if ( !_instance )
         {
@@ -84,14 +85,14 @@ namespace ORO_CoreLib
 
 
     SimulationThread::SimulationThread()
-        : TimerThread(ORONUM_CORELIB_ACTIVITIES_SIM_PRIORITY,
+        : TimerThread( ORO_OS::LowestPriority,
                       ORODAT_CORELIB_ACTIVITIES_SIM_NAME, 
                       ORONUM_CORELIB_ACTIVITIES_SIM_PERIOD),
           beat( TimeService::Instance() ), maxsteps_(0)
     {
         this->continuousStepping( true );
         Logger::log() << Logger::Info << ORODAT_CORELIB_ACTIVITIES_SIM_NAME <<" created with "<< ORONUM_CORELIB_ACTIVITIES_SIM_PERIOD <<"s periodicity";
-        Logger::log() << Logger::Info << " and priority " << ORONUM_CORELIB_ACTIVITIES_SIM_PRIORITY << Logger::endl;
+        Logger::log() << Logger::Info << " and priority " << this->getPriority() << Logger::endl;
     }
 
     SimulationThread::~SimulationThread()
@@ -125,14 +126,15 @@ namespace ORO_CoreLib
     void SimulationThread::step()
     {
         ++cursteps;
+
+        if ( maxsteps_ == 0 || cursteps < maxsteps_ + 1 ) {
+            TimerThread::step();
+            beat->secondsChange(ORONUM_CORELIB_ACTIVITIES_SIM_PERIOD);
+        }
+
         // call stop once :
         if ( cursteps == maxsteps_ ) { // if maxsteps == 0, will never call stop().
             this->setToStop();
-            return;
-        }
-        if ( maxsteps_ == 0 || cursteps < maxsteps_ ) {
-            TimerThread::step();
-            beat->secondsChange(ORONUM_CORELIB_ACTIVITIES_SIM_PERIOD);
         }
     }
 

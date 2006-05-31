@@ -59,6 +59,14 @@ namespace ORO_CoreLib
         SimulationActivity(secs s, nsecs ns, RunnableInterface* r=0 );
 
         /**
+         * A simulated activity can be started also if the
+         * SimulationThread is not running yet. This allows
+         * all tasks to be set ready in advance before the whole
+         * simulation is started.
+         */
+        virtual bool start();
+
+        /**
          * Destroys this instance. The Activity is stopped.
          */
         virtual  ~SimulationActivity();

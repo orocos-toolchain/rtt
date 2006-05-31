@@ -53,34 +53,36 @@ namespace ORO_CoreLib
 public:
         typedef std::istream input_stream;
 
-            SimpleDemarshaller(input_stream &is) :
-                    _is(is)
-            {}
+    SimpleDemarshaller(const std::string& filename)
+    {
+      // FIXME first check if the target file exists...
+      _is = new std::ifstream( filename.c_str() );
+    }
 	
             virtual bool deserialize(PropertyBag &v) 
 			{
 				using namespace std;
 #if 0
 				char begin_token, end_token;
-				_is >> begin_token;
+      *_is >> begin_token;
 				if(begin_token == '{')
 					cerr << "read begin";
 #endif
 			
 				char c;
-				while( _is.read(&c,1) )
+      while( _is->read(&c,1) )
 				{
 					unsigned char name_length, value_length;
 					char name[256];					
 					char value[256];				
 					int intvalue;
 					double doublevalue;
-					_is.read(reinterpret_cast<char*>(&name_length),1);
-					_is.read(name,name_length);
+	  _is->read(reinterpret_cast<char*>(&name_length),1);
+	  _is->read(name,name_length);
 					name[name_length] = 0;
-					_is.ignore();
-					_is.read(reinterpret_cast<char*>(&value_length),1);
-					_is.read(value,value_length);
+	  _is->ignore();
+	  _is->read(reinterpret_cast<char*>(&value_length),1);
+	  _is->read(value,value_length);
 					switch(c)
 					{
 						case TYPECODE_BOOL:
@@ -89,32 +91,32 @@ public:
 							else
 								v.add(new Property<bool>(name,"",true));
 							cerr << "bool: ";
-							_is.ignore();
+	      _is->ignore();
 							break;
 						case TYPECODE_CHAR:
 							v.add(new Property<char>(name,"",value[0]));
 							cerr << "char: ";
-							_is.ignore();
+	      _is->ignore();
 							break;
 						case TYPECODE_INT:
 							value[value_length]=0;
 							sscanf(value, "%d", &intvalue);
 							v.add(new Property<int>(name,"",intvalue));
 							cerr << "int: ";
-							_is.ignore();
+	      _is->ignore();
 							break;
 						case TYPECODE_DOUBLE:
 							value[value_length]=0;
 							sscanf(value, "%lf", &doublevalue);
 							v.add(new Property<double>(name,"",doublevalue));
 							cerr << "double: ";
-							_is.ignore();
+	      _is->ignore();
 							break;
 						case TYPECODE_STRING:
 							value[value_length]=0;
 							cerr << value<<"\n";
 							v.add(new Property<string>(name,"",value));
-							_is.ignore();
+	      _is->ignore();
 							cerr << "string: ";
 							break;
                         default:
@@ -134,15 +136,16 @@ public:
 //                _os <<"</Bag>\n";
 	
 #if 0		
-				_is >> end_token;
+      *_is >> end_token;
 				if(end_token == '}')
 					cerr << "read end";
 #endif
                 return true;
 			}
 
-			
-            input_stream &_is;
+  protected:
+    // Input stream
+    input_stream * _is;
 			
 
     };

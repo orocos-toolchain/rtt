@@ -99,9 +99,7 @@ TimeTest::testTimeProgress()
     t = 0;
     CPPUNIT_ASSERT_EQUAL( TimeService::ticks(0) , hbg->getTicks( t ) );
     t = 0;
-    // See <http://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=6>
-    // and <http://lists.mech.kuleuven.be/pipermail/orocos-dev/2006-April/001327.html>
-    // CPPUNIT_ASSERT_EQUAL( Seconds(0.0) , hbg->getSeconds( t ) );
+    CPPUNIT_ASSERT_EQUAL( Seconds(0.0) , hbg->getSeconds( t ) );
 
     // Stop Time Progress:
     hbg->enableSystemClock( false );
@@ -115,9 +113,7 @@ TimeTest::testTimeProgress()
 
     hbg->secondsChange( change_S );
     CPPUNIT_ASSERT( t !=  hbg->getTicks() ); // ticks must have changed
-    // See <http://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=6>
-    // CPPUNIT_ASSERT_EQUAL( change_ns,  TimeService::ticks2nsecs( hbg->ticksSince(t) ) );
-
+    CPPUNIT_ASSERT_EQUAL( change_ns,  TimeService::ticks2nsecs( hbg->ticksSince(t) ) );
     CPPUNIT_ASSERT_EQUAL( change_S,  hbg->secondsSince(t) );
 
     // Restart Time Progress

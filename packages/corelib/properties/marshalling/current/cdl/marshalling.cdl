@@ -41,6 +41,7 @@ and powerful. It is very well tested within Orocos."
 		puts $::cdl_header "/****** proc output end ******/"
 	    }
 
+            compile CPFDemarshaller.cxx
 	}
 
 	cdl_option OROPKG_CORELIB_PROPERTIES_MARSHALLING_XMLRPC {
@@ -61,6 +62,8 @@ It is not well tested within Orocos."
 		puts $::cdl_header "#define OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER XMLRPCDemarshaller"
 		puts $::cdl_header "/****** proc output end ******/"
 	    }
+
+            compile CPFDemarshaller.cxx
 	}
 
 	cdl_option OROPKG_CORELIB_PROPERTIES_MARSHALLING_SIMPLE {
@@ -89,5 +92,4 @@ It is not well tested within Orocos."
     include_files CPFMarshaller.hpp    MarshallerAdaptors.hpp  Orocos1Marshaller.hpp    SimpleMarshaller.hpp    TableMarshaller.hpp        XMLMarshaller.hpp    XMLRPCMarshaller.hpp
     include_files StreamProcessor.hpp EmptyHeaderMarshaller.hpp
 
-    compile CPFDemarshaller.cxx
 }

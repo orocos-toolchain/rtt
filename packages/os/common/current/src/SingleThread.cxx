@@ -71,11 +71,9 @@ namespace ORO_OS
          */
         SingleThread* task = static_cast<ORO_OS::SingleThread*> (t);
 
-        task->rtos_task = detail::rtos_task_init( task );
-    
         // Reporting available from this point :
 #ifdef OROPKG_CORELIB_REPORTING
-        Logger::log() << Logger::Debug << "Single Thread "<< task->taskName <<" created."<<Logger::endl;
+    Logger::log() << Logger::Debug << "Single Thread "<< task->getName() <<" created."<<Logger::endl;
 #endif
 
 #ifdef OROPKG_OS_THREAD_SCOPE
@@ -110,7 +108,7 @@ namespace ORO_OS
         if ( d ) {
 #ifdef OROPKG_CORELIB_REPORTING
             Logger::log() << Logger::Info
-                          << "ThreadScope : Single Thread "<< task->taskName <<" toggles bit "<< bit << Logger::endl;
+                          << "ThreadScope : Single Thread "<< task->getName() <<" toggles bit "<< bit << Logger::endl;
 #endif
             d->switchOff( bit );
         }
@@ -121,7 +119,7 @@ namespace ORO_OS
          */
 
         if ( task->goRealtime )
-            rtos_task_make_hard_real_time( task->rtos_task );
+      rtos_task_make_hard_real_time( task->getTask() );
 
         rtos_sem_signal( &(task->confDone) );
 
@@ -135,10 +133,10 @@ namespace ORO_OS
                                 break;
                             // The configuration might have changed
                             // While waiting on the sem...
-                            if ( task->goRealtime && !rtos_task_is_hard_real_time( task->rtos_task ) )
-                                rtos_task_make_hard_real_time( task->rtos_task );
-                            if ( ! task->goRealtime && rtos_task_is_hard_real_time( task->rtos_task ) )
-                                rtos_task_make_soft_real_time( task->rtos_task );
+	      if ( task->goRealtime && !rtos_task_is_hard_real_time( task->getTask() ) )
+		rtos_task_make_hard_real_time( task->getTask() );
+	      if ( ! task->goRealtime && rtos_task_is_hard_real_time( task->getTask() ) )
+		rtos_task_make_soft_real_time( task->getTask() );
                         } else {
 
 #ifdef OROPKG_OS_THREAD_SCOPE
@@ -165,16 +163,16 @@ namespace ORO_OS
                     d->switchOff( bit );
 #endif
                 if ( task->isHardRealtime() )
-                    rtos_task_make_soft_real_time( task->rtos_task );
+	  rtos_task_make_soft_real_time( task->getTask() );
                 // set state to not running
                 task->inloop = false;
                 task->active = false;
 #ifdef OROPKG_CORELIB_REPORTING
-                Logger::log() << Logger::Fatal << "Single Thread "<< task->taskName <<" caught a C++ exception, stopping thread !"<<Logger::endl;
+	Logger::log() << Logger::Fatal << "Single Thread "<< task->getName() <<" caught a C++ exception, stopping thread !"<<Logger::endl;
 #endif
                 task->finalize();
                 if ( task->goRealtime )
-                    rtos_task_make_hard_real_time( task->rtos_task );
+	  rtos_task_make_hard_real_time( task->getTask() );
             }
         }
             
@@ -183,30 +181,40 @@ namespace ORO_OS
          * Cleanup stuff
          */
         if ( task->isHardRealtime() )
-            rtos_task_make_soft_real_time( task->rtos_task );
+      rtos_task_make_soft_real_time( task->getTask() );
 
 #ifdef OROPKG_CORELIB_REPORTING
-        Logger::log() << Logger::Debug << "Single Thread "<< task->taskName <<" exiting."<<Logger::endl;
+    Logger::log() << Logger::Debug << "Single Thread "<< task->getName() <<" exiting."<<Logger::endl;
 #endif
 
         rtos_sem_signal( &(task->confDone) );
-        detail::rtos_task_delete( task->rtos_task );
+
         return 0;
     }
 
-    SingleThread::SingleThread(int _priority, const std::string& name, RunnableInterface* r) :
-        active(false), goRealtime(false), prepareForExit(false), inloop(false), priority(_priority),
-        runComp(r)
+  SingleThread::SingleThread(int _priority, 
+			     const std::string& name, 
+			     RunnableInterface* r) :
+    active(false), goRealtime(false), prepareForExit(false), 
+    inloop(false), runComp(r)
     {
-        rtos_thread_init( this, name);
-
 #ifdef OROPKG_CORELIB_REPORTING
-        Logger::log() << Logger::Debug << "SingleThread: Creating "<< taskName <<"."<<Logger::endl;
+    Logger::log() << Logger::Debug << "SingleThread: Creating." <<Logger::endl;
 #endif
 
         rtos_sem_init( &sem, 0 );
         rtos_sem_init( &confDone, 0 );
-        pthread_create( &thread, 0, singleThread_f, this);
+    int rv = rtos_task_create( &rtos_task, _priority, name.c_str(),OROSEM_OS_SCHEDTYPE,singleThread_f, this);
+    if ( rv != 0 ) {
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::In in("SingleThread");
+            Logger::log() << Logger::Critical << "Could not create thread "
+                          << rtos_task_get_name(&rtos_task) <<"."<<Logger::endl;
+#endif
+      rtos_sem_destroy( &sem );
+      rtos_sem_destroy( &confDone );
+      throw std::bad_alloc();
+    }
         rtos_sem_wait( &confDone );
     }
     
@@ -217,7 +225,7 @@ namespace ORO_OS
 #endif
         if ( this->isRunning() && this->stop() == false )
 #ifdef OROPKG_CORELIB_REPORTING
-            Logger::log() << Logger::Error << "Failed to stop thread "<< taskName <<"."<<Logger::endl;
+      Logger::log() << Logger::Error << "Failed to stop thread "<< getName() <<"."<<Logger::endl;
 #else
         ; // intentional !
 #endif
@@ -230,19 +238,12 @@ namespace ORO_OS
         
         // Wait for the 'ok' answer of the thread.
         rtos_sem_wait( &confDone );
+    // Delete the task
+    rtos_task_delete(&rtos_task);
+
         rtos_sem_destroy( &confDone );
         rtos_sem_destroy( &sem );
 
-        if ( pthread_join(thread,0) != 0 ) {
-#ifdef OROPKG_CORELIB_REPORTING
-            Logger::log() << Logger::Error << "Failed to join with thread "<< taskName <<"."<<Logger::endl;
-#endif
-        }
-        else {
-#ifdef OROPKG_CORELIB_REPORTING
-            Logger::log() << Logger::Debug << "SingleThread: Joined with thread "<< taskName <<"."<<Logger::endl;
-#endif
-        }
     }
 
     bool SingleThread::makeHardRealtime() 
@@ -278,7 +279,7 @@ namespace ORO_OS
 
     bool SingleThread::isHardRealtime() const
     {
-        return rtos_task_is_hard_real_time( rtos_task );
+    return rtos_task_is_hard_real_time( &rtos_task );
     }
 
     bool SingleThread::start() 
@@ -301,7 +302,7 @@ namespace ORO_OS
     }
 
     void SingleThread::yield() {
-        rtos_task_yield( rtos_task );
+    rtos_task_yield( &rtos_task );
     }
 
     bool SingleThread::stop() 
@@ -358,14 +359,14 @@ namespace ORO_OS
             runComp->finalize();
     }
 
-    void SingleThread::setName(const char* nm)
+  const char* SingleThread::getName() const
     {
-        taskName = nm;
+    return rtos_task_get_name(&rtos_task);
     }
 
-    const char* SingleThread::getName() const
+  int SingleThread::getPriority() const
     {
-        return taskName.c_str();
+    return rtos_task_get_priority(&rtos_task);
     }
    
 }

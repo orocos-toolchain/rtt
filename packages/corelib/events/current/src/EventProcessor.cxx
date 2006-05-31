@@ -28,6 +28,7 @@
  
 
 #include "corelib/EventProcessor.hpp"
+#include <os/threads.hpp>
 
 namespace ORO_CoreLib
 {

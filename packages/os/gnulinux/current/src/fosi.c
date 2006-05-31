@@ -27,6 +27,9 @@
  
  
 #include <os/fosi.h>
+#include <sys/poll.h>
+#include <sys/signal.h>
+#include <unistd.h>
 #include <stdarg.h>
 
 #undef rtos_printf

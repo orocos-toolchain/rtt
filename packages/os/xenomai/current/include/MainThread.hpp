@@ -47,7 +47,7 @@ namespace ORO_OS
             
         ~SchedPolicy();
     protected:
-        RTOS_TASK* rt_task;
+        RTOS_XENO_TASK rt_task;
     };
 
     /**

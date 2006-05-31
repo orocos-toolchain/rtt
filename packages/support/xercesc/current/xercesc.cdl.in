@@ -1,7 +1,12 @@
 cdl_package OROPKG_SUPPORT_XERCESC {
     display "Support Xerces Library"
-
     parent OROPKG_SUPPORT
+
+    cdl_option OROPKG_SUPPORT_XERCES_C {
+	display "Xerces-C Parser Library"
+	active_if @ORO_XERCESC_PARSER_DETECT@
+	calculated @ORO_XERCESC_PARSER_DETECT@
+    }
 
     description " 
 The presence of this package indicates that the configure

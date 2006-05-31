@@ -31,6 +31,7 @@
 #include "corelib/Logger.hpp"
 
 #include <pkgconf/corelib_activities.h>
+#include <os/threads.hpp>
 
 
 #ifdef OROSEM_CORELIB_ACTIVITIES_AUTOSTART
@@ -79,13 +80,13 @@ namespace ORO_CoreLib
 
 
     ZeroTimeThread::ZeroTimeThread()
-        : TimerThread(ORONUM_CORELIB_ACTIVITIES_ZTT_PRIORITY,
+        : TimerThread(ORO_OS::HighestPriority,
                         ORODAT_CORELIB_ACTIVITIES_ZTT_NAME, 
                         ORONUM_CORELIB_ACTIVITIES_ZTT_PERIOD )
     {
         makeHardRealtime();
         Logger::log() << Logger::Info << ORODAT_CORELIB_ACTIVITIES_ZTT_NAME <<" created with "<< ORONUM_CORELIB_ACTIVITIES_ZTT_PERIOD <<"s periodicity";
-        Logger::log() << Logger::Info << " and priority " << ORONUM_CORELIB_ACTIVITIES_ZTT_PRIORITY << Logger::endl;
+        Logger::log() << Logger::Info << " and priority " << this->getPriority() << Logger::endl;
     }
 
     ZeroTimeThread::~ZeroTimeThread()

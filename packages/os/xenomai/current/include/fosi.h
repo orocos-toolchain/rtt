@@ -71,6 +71,7 @@ extern "C" {
 #include <native/sem.h>
 
 	typedef RT_MUTEX rt_mutex_t;
+	typedef RT_MUTEX rt_rec_mutex_t;
 	typedef RT_SEM rt_sem_t;
 
 	// Time Related
@@ -78,10 +79,8 @@ extern "C" {
 	typedef SRTIME          NANO_TIME;
 	typedef SRTIME          TICK_TIME;
 	typedef struct timespec TIME_SPEC;
+	typedef RT_TASK         RTOS_XENO_TASK;
 
-	// Thread/Task related.
-	typedef pthread_t       RTOS_THREAD;
-	typedef RT_TASK         RTOS_TASK;
 #else
 
 #include <pthread.h>
@@ -92,18 +91,26 @@ extern "C" {
 		XENO_rt_handle_t handle;
 	} XENO_HANDLE;
 	typedef XENO_HANDLE     rt_mutex_t;
+	typedef XENO_HANDLE     rt_rec_mutex_t;
 	typedef XENO_HANDLE     rt_sem_t;
 	typedef long long       NANO_TIME;
 	typedef long long       TICK_TIME;
 	typedef struct timespec TIME_SPEC;
-	typedef pthread_t       RTOS_THREAD;
 
 	typedef struct {
 		XENO_rt_handle_t handle;
 		XENO_rt_handle_t handle2;
 	} XENO_TASK_HANDLE;
-	typedef XENO_TASK_HANDLE     RTOS_TASK;
+
+	typedef XENO_TASK_HANDLE RTOS_XENO_TASK;
 #endif
+
+	// Thread/Task related.
+	typedef struct {
+		char * name;
+		RTOS_XENO_TASK xenotask;
+		RTOS_XENO_TASK* xenoptr;
+	} RTOS_TASK;
 
 	// inline functions if not agnostic.
 #ifndef OROBLD_OS_AGNOSTIC
@@ -141,9 +148,7 @@ inline TICK_TIME timespec2ticks(const TIME_SPEC* ts)
     
 inline NANO_TIME rtos_get_time_ns(void) { return rt_timer_read(); }
 
-inline TICK_TIME systemTimeGet(void) { return rt_timer_tsc(); }
-
-inline TICK_TIME systemNSecsTimeGet(void) { return rt_timer_read(); }
+inline TICK_TIME rtos_get_time_ticks(void) { return rt_timer_tsc(); }
 
 inline TICK_TIME ticksPerSec(void) { return rt_timer_ns2ticks( 1000 * 1000 * 1000 ); }
 
@@ -161,7 +166,7 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_ticks2ns(t); }
     static inline int rtos_sem_init(rt_sem_t* m, int value )
     {
         CHK_XENO_CALL();
-		return rt_sem_create( m, 0, value, 0);
+		return rt_sem_create( m, 0, value, S_PRIO);
     }
 
     static inline int rtos_sem_destroy(rt_sem_t* m )
@@ -204,7 +209,7 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_ticks2ns(t); }
         return rt_sem_p(m, nano2ticks(delay) );
     }
 
-    static inline int rtos_mutex_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)
+    static inline int rtos_mutex_init(rt_mutex_t* m)
     {
         CHK_XENO_CALL();
 		// a Xenomai mutex is always recursive
@@ -217,7 +222,7 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_ticks2ns(t); }
         return rt_mutex_delete(m);
     }
 
-    static inline int rtos_mutex_rec_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)
+    static inline int rtos_mutex_rec_init(rt_mutex_t* m)
     {
         CHK_XENO_CALL();
 		// a Xenomai mutex is always recursive
@@ -236,15 +241,31 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_ticks2ns(t); }
         return rt_mutex_lock(m, TM_INFINITE );
     }
 
-#if 0
     static inline int rtos_mutex_trylock( rt_mutex_t* m)
+    {
+        CHK_XENO_CALL();
+        return rt_mutex_lock(m, TM_NONBLOCK);
+    }
+
+    static inline int rtos_mutex_unlock( rt_mutex_t* m)
+    {
+        CHK_XENO_CALL();
+        return rt_mutex_unlock(m);
+    }
+
+    static inline int rtos_mutex_rec_lock( rt_rec_mutex_t* m)
+    {
+        CHK_XENO_CALL();
+        return rt_mutex_lock(m, TM_INFINITE );
+    }
+
+    static inline int rtos_mutex_rec_trylock( rt_rec_mutex_t* m)
     {
         CHK_XENO_CALL();
         return rt_mutex_trylock(m);
     }
-#endif
 
-    static inline int rtos_mutex_unlock( rt_mutex_t* m)
+    static inline int rtos_mutex_rec_unlock( rt_rec_mutex_t* m)
     {
         CHK_XENO_CALL();
         return rt_mutex_unlock(m);
@@ -284,9 +305,7 @@ TIME_SPEC ticks2timespec(TICK_TIME hrt);
 
 NANO_TIME rtos_get_time_ns(void);
 
-TICK_TIME systemTimeGet(void);
-
-NANO_TIME systemNSecsTimeGet(void);
+TICK_TIME rtos_get_time_ticks(void);
 
 TICK_TIME ticksPerSec(void);
 
@@ -296,11 +315,11 @@ NANO_TIME ticks2nano(TICK_TIME t);
 
 int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp) ;
 
-int rtos_mutex_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr);
+int rtos_mutex_init(rt_mutex_t* m);
 
 int rtos_mutex_destroy(rt_mutex_t* m );
 
-int rtos_mutex_rec_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr);
+int rtos_mutex_rec_init(rt_mutex_t* m);
 
 int rtos_mutex_rec_destroy(rt_mutex_t* m );
 
@@ -309,6 +328,12 @@ int rtos_mutex_lock( rt_mutex_t* m);
 int rtos_mutex_trylock( rt_mutex_t* m);
 
 int rtos_mutex_unlock( rt_mutex_t* m);
+
+int rtos_mutex_rec_lock( rt_rec_mutex_t* m);
+
+int rtos_mutex_rec_trylock( rt_rec_mutex_t* m);
+
+int rtos_mutex_rec_unlock( rt_rec_mutex_t* m);
 
 int rtos_printf(const char *fmt, ...);
 

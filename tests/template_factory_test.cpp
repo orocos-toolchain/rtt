@@ -133,7 +133,7 @@ CommandFactoryInterface* Template_FactoryTest::createCommandFactory()
 void Template_FactoryTest::executePrograms(const Parser::ParsedPrograms& pg_list )
 {
     tc->getExecutionEngine()->getProgramProcessor()->loadProgram( *pg_list.begin() );
-    SimulationThread::Instance()->start();
+    SimulationThread::Instance()->start(1000);
     tsim->start();
     CPPUNIT_ASSERT( (*pg_list.begin())->start() );
     sleep(1);
@@ -183,10 +183,12 @@ void Template_FactoryTest::testMethods()
 void Template_FactoryTest::testUserMethods()
 {
     string prog = std::string("program x {\n")
+#ifdef OROPKG_GEOMETRY
         +" var double6d din = double6d(0.0,1.0,2.0,3.0,4.0,5.0)\n"
         +" var double6d dout\n"
         +" set dout = umethods.umd(din)\n"
         +" do methods.assert( din == dout )\n"
+#endif
         +" var array vin = array(4)\n"
         +" for (var int i=0; i !=4; set i = i+1 )\n"
         +"      set vin[i] = 1.0*i\n"

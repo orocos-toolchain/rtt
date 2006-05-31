@@ -147,6 +147,7 @@ void TypesTest::testTypes()
         "do test.assert( b == false )\n" +
         "var string s=\"string\"\n"+
         "do test.assert( s == \"string\" )\n" +
+#ifdef OROPKG_GEOMETRY
         "var double6d d6 = double6d(0.1,0.2,0.3,0.4,0.5,0.6)\n"+
         // 10
 //         "do test.assert( d6 == d6 )\n" +
@@ -155,6 +156,7 @@ void TypesTest::testTypes()
 //         "do test.assert( d6_2 == d6_2 )\n" +
 //         "do test.assert( double6d(0.01) == double6d(0.01) )\n" +
 //         "do test.assert( d6_2 == double6d(0.01) )\n" +
+#endif
         "const int ic = i\n" +
         "do test.assert( ic == 0 )\n" + // i was null at parse time !
         "const double dc = 10.0\n"+     // evaluate 10.0 at parse time
@@ -163,6 +165,7 @@ void TypesTest::testTypes()
         "do test.assert( bc == false )\n" +
         "const string sc= \"hello\"\n"+
         "do test.assert( sc == \"hello\" )\n" +
+#ifdef OROPKG_GEOMETRY
         "const double6d d6c = double6d(0.1,0.2,0.3,0.4,0.5,0.6)\n" +
         // 20
 //         "do test.assert( d6c == d6 )\n" +
@@ -179,7 +182,6 @@ void TypesTest::testTypes()
         // 30
         "set d6[5]=d6[0]\n"+
         "do test.assert( d6[5] == 1.0 )\n" +
-#ifdef OROPKG_GEOMETRY
         "var vector v = vector(0.,0.,0.)\n"+
         "var rotation r = rotation(0.,0.,0.) \n"+
         "var frame f = frame(v,r) \n"+
@@ -242,15 +244,17 @@ void TypesTest::testOperators()
         "do test.assert( d == 30.0 )\n" +
         "var bool b = false\n"+
         "var string s=\"string\"\n"+
+#ifdef OROPKG_GEOMETRY
         "var double6d d6 = double6d(0.,1.,2.,3.,4.,5.)\n"+
         "var double6d d6_2 = double6d(0.0)\n"+
         "set d = d+1.0-1.0-2.0*1.0/2.0*0.0/i \n"+
+#endif
 //         "do test.assert( d == 10.0 )\n" +
         "set b = b\n or\n b\n and\n true\n && false\n || true\n"+
         "do test.assert( b == false )\n" +
 //         "set s = s+\"abc\"\n"+
-        "set d6 = (d6 + double6d(2.) ) * d6 - d6\n"+
 #ifdef OROPKG_GEOMETRY
+        "set d6 = (d6 + double6d(2.) ) * d6 - d6\n"+
         "var vector v = vector(0.,0.,0.)\n"+
         "var rotation r = rotation(0.,0.,0.) \n"+
         "var frame f = frame(v,r) \n"+
@@ -275,9 +279,9 @@ void TypesTest::testOperators()
 void TypesTest::executePrograms(const Parser::ParsedPrograms& pg_list )
 {
     tc->getExecutionEngine()->getProgramProcessor()->loadProgram( *pg_list.begin() );
-    SimulationThread::Instance()->start();
     tsim->start();
     CPPUNIT_ASSERT( (*pg_list.begin())->start() );
+    SimulationThread::Instance()->start(1000);
     sleep(1);
     tsim->stop();
     SimulationThread::Instance()->stop();

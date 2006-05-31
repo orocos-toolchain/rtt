@@ -54,8 +54,10 @@ fi
 #DETECT_GCC
 #if I put this in a macro, the $1 sign disapears, and I could not find out
 # how to properly escape it.
+
+# KG bypassed for cross-compiling... 
 AC_MSG_CHECKING(for GCC version)
-ORO_GCC_VERSION=gcc$($CC -dumpversion | sed "s/\./ /g" |awk '{ print $1 }')
+ORO_GCC_VERSION=gcc`$CC -dumpversion | sed "s/\./ /g" |awk '{ print $1 }' `
 AC_SUBST(ORO_GCC_VERSION)
 
 dnl Export flags to gcc support package.

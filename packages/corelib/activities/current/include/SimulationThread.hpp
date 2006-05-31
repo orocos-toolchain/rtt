@@ -37,7 +37,10 @@ namespace ORO_CoreLib
 {
 
     class SimulationActivity;
+    class SimulationThread;
     class TimeService;
+    typedef boost::shared_ptr<SimulationThread> SimulationThreadPtr;
+
     /**
      * This thread is the simulated real-time periodic thread in the
      * Orocos system. It behaves (to the SimulationActivity) like a
@@ -54,7 +57,7 @@ namespace ORO_CoreLib
         : public TimerThread
     {
     public:
-        static TimerThreadPtr Instance();
+        static SimulationThreadPtr Instance();
 
         /**
          * Releases the SimulationThread
@@ -102,7 +105,7 @@ namespace ORO_CoreLib
         /**
          * Our only instance of the SimulationThread
          */
-        static TimerThreadPtr _instance;
+        static SimulationThreadPtr _instance;
 
         /**
          * The System clock.

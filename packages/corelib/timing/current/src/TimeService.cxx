@@ -84,12 +84,12 @@ namespace ORO_CoreLib
         if ( use_clock == true )
             {
                 // if offset is X, then start counting from X.
-                offset = offset - systemTimeGet();
+                offset = offset - rtos_get_time_ticks();
             }
         else
             {
                 // start counting from _now_ + old offset
-                offset = offset + systemTimeGet(); 
+                offset = offset + rtos_get_time_ticks(); 
             }
     }
 
@@ -97,7 +97,7 @@ namespace ORO_CoreLib
     TimeService::ticks
     TimeService::getTicks() const
     {
-        return use_clock ? systemTimeGet() + offset : 0 + offset;
+        return use_clock ? rtos_get_time_ticks() + offset : 0 + offset;
     }
 
     TimeService::ticks
@@ -140,7 +140,7 @@ namespace ORO_CoreLib
     TimeService::nsecs
     TimeService::getNSecs() const
     {
-        return systemNSecsTimeGet();
+        return rtos_get_time_ns();
     }
 
     TimeService::nsecs

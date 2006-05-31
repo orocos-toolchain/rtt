@@ -30,6 +30,7 @@
 #define OS_THREAD_INTERFACE_HPP
 
 #include "os/RunnableInterface.hpp"
+#include "os/fosi.h"
 
 namespace ORO_OS
 {
@@ -99,6 +100,12 @@ namespace ORO_OS
         virtual const char* getName() const = 0 ;
 
         /**
+       * Get the RTOS_TASK pointer
+       * FIXME should this be a const?
+       */
+      virtual RTOS_TASK * getTask() = 0;
+      
+        /**
          * Instructs the thread to enter hard realtime mode.
          *
          * @return true if the operation succeeded.
@@ -121,15 +128,8 @@ namespace ORO_OS
 
         /**
          * The priority of this Thread.
-         * Zero is the highest priority, 99 the lowest priority.
          */
         virtual int getPriority() const = 0;
-
-        /**
-         * The POSIX compliant priority of this Thread.
-         * 99 is the highest priority, 0 the lowest priority.
-         */
-        virtual int getPosixPriority() const = 0;
 
         /**
          * The unique thread number.

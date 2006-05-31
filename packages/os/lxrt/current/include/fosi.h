@@ -87,10 +87,9 @@ extern "C" {
 #endif
 
 	// Finally, define the types we use :
-	typedef RT_TASK RTOS_TASK;
+	typedef RT_TASK RTOS_RTAI_TASK;
 	typedef SEM     RTOS_RTAI_SEM;
-	typedef CND     RTOS_CND;
-	typedef pthread_t RTOS_THREAD;
+	typedef CND     RTOS_RTAO_CND;
 
 #else // AGNOSTIC
 
@@ -103,10 +102,9 @@ extern "C" {
 		int opaque;
 	} __LXRT_HANDLE_STRUCT;
 
-    typedef __LXRT_HANDLE_STRUCT RTOS_TASK;
+    typedef __LXRT_HANDLE_STRUCT RTOS_RTAI_TASK;
     typedef __LXRT_HANDLE_STRUCT RTOS_RTAI_SEM;
-    typedef __LXRT_HANDLE_STRUCT RTOS_CND; 
-	typedef pthread_t RTOS_THREAD;
+    typedef __LXRT_HANDLE_STRUCT RTOS_RTAI_CND; 
 #else
     // v24.1.x :
 	typedef struct oro_lxrt_t {
@@ -115,7 +113,6 @@ extern "C" {
     typedef void RTOS_RTAI_TASK;
     typedef __LXRT_HANDLE_STRUCT RTOS_RTAI_SEM;
     typedef void RTOS_RTAI_CND; 
-	typedef pthread_t RTOS_THREAD;
 #endif
 #endif // OROBLD_OS_AGNOSTIC // for RTAI header files.
 
@@ -123,7 +120,7 @@ extern "C" {
 	// which contains a pointer to the real RTAI sem.
 	typedef struct oro_rtai_sem_t {
 		RTOS_RTAI_SEM* sem;
-	} RTOS_SEM;
+	} rt_sem_t;
 
 	/**
 	 * Typdefs
@@ -134,13 +131,29 @@ extern "C" {
 
 
 	typedef pthread_mutex_t rt_mutex_t;
-	typedef RTOS_SEM rt_sem_t;
+    typedef pthread_mutex_t rt_rec_mutex_t;
 	
 	// Time Related
 	
 	typedef long long NANO_TIME;
 	typedef long long TICK_TIME;
 	typedef struct timespec TIME_SPEC;
+
+	typedef struct {
+		//  GNUTask( pthread_t th, NANO_TIME periodi ) 
+		// : thread(th), periodMark(0), period( periodi ) {}
+		pthread_t thread;
+		pthread_attr_t attr;
+
+		NANO_TIME periodMark;
+		NANO_TIME period;
+  
+		char * name;
+
+		RTOS_RTAI_TASK* rtaitask;
+	} RTOS_TASK;
+
+
 
 // rtai undef cfr boost::graph library adjacency_list.hpp:443
 #undef DS	
@@ -181,9 +194,7 @@ inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
     
 inline NANO_TIME rtos_get_time_ns(void) { return rt_get_time_ns(); }
 
-inline TICK_TIME systemTimeGet(void) { return rt_get_time(); }
-
-inline TICK_TIME systemNSecsTimeGet(void) { return rt_get_cpu_time_ns(); }
+inline TICK_TIME rtos_get_time_ticks(void) { return rt_get_time(); }
 
 inline TICK_TIME ticksPerSec(void) { return nano2count( 1000 * 1000 * 1000 ); }
 
@@ -241,7 +252,7 @@ inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
         return rt_sem_wait_timed(m->sem, nano2count(delay) );
     }
 
-    static inline int rtos_mutex_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)
+    static inline int rtos_mutex_init(rt_mutex_t* m)
     {
         CHK_LXRT_CALL();
         return pthread_mutex_init_rt(m, 0);
@@ -253,7 +264,7 @@ inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
         return pthread_mutex_destroy_rt(m);
     }
 
-    static inline int rtos_mutex_rec_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)
+    static inline int rtos_mutex_rec_init(rt_rec_mutex_t* m)
     {
         CHK_LXRT_CALL();
         pthread_mutexattr_t ma_t;
@@ -262,7 +273,7 @@ inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
         return pthread_mutex_init_rt(m, 0);
     }
 
-    static inline int rtos_mutex_rec_destroy(rt_mutex_t* m )
+    static inline int rtos_mutex_rec_destroy(rt_rec_mutex_t* m )
     {
         CHK_LXRT_CALL();
         return pthread_mutex_destroy_rt(m);
@@ -274,7 +285,19 @@ inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
         return pthread_mutex_lock_rt(m);
     }
 
+    static inline int rtos_mutex_rec_lock( rt_rec_mutex_t* m)
+    {
+        CHK_LXRT_CALL();
+        return pthread_mutex_lock_rt(m);
+    }
+
     static inline int rtos_mutex_trylock( rt_mutex_t* m)
+    {
+        CHK_LXRT_CALL();
+        return pthread_mutex_trylock_rt(m);
+    }
+
+    static inline int rtos_mutex_rec_trylock( rt_rec_mutex_t* m)
     {
         CHK_LXRT_CALL();
         return pthread_mutex_trylock_rt(m);
@@ -286,6 +309,11 @@ inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
         return pthread_mutex_unlock_rt(m);
     }
 
+    static inline int rtos_mutex_rec_unlock( rt_rec_mutex_t* m)
+    {
+        CHK_LXRT_CALL();
+        return pthread_mutex_unlock_rt(m);
+    }
 
 inline
 int rtos_printf(const char *fmt, ...)
@@ -311,9 +339,7 @@ TIME_SPEC ticks2timespec(TICK_TIME hrt);
 
 NANO_TIME rtos_get_time_ns(void);
 
-TICK_TIME systemTimeGet(void);
-
-NANO_TIME systemNSecsTimeGet(void);
+TICK_TIME rtos_get_time_ticks(void);
 
 TICK_TIME ticksPerSec(void);
 
@@ -323,11 +349,11 @@ NANO_TIME ticks2nano(TICK_TIME t);
 
 int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp) ;
 
-int rtos_mutex_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr);
+int rtos_mutex_init(rt_mutex_t* m);
 
 int rtos_mutex_destroy(rt_mutex_t* m );
 
-int rtos_mutex_rec_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr);
+int rtos_mutex_rec_init(rt_mutex_t* m);
 
 int rtos_mutex_rec_destroy(rt_mutex_t* m );
 
@@ -336,6 +362,12 @@ int rtos_mutex_lock( rt_mutex_t* m);
 int rtos_mutex_trylock( rt_mutex_t* m);
 
 int rtos_mutex_unlock( rt_mutex_t* m);
+
+int rtos_mutex_rec_lock( rt_rec_mutex_t* m);
+
+int rtos_mutex_rec_trylock( rt_rec_mutex_t* m);
+
+int rtos_mutex_rec_unlock( rt_rec_mutex_t* m);
 
 int rtos_printf(const char *fmt, ...);
 

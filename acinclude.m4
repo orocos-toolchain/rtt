@@ -642,8 +642,10 @@ AC_CHECK_HEADERS([ xercesc/sax2/SAX2XMLReader.hpp ],
 [
 PACKAGES="support/xercesc/current/xercesc.cdl $PACKAGES"
 TARGET_LIBS="$TARGET_LIBS -lxerces-c"
+ORO_XERCESC_PARSER_DETECT=1
 ],
 [
+  ORO_XERCESC_PARSER_DETECT=0
   AC_MSG_WARN([
 No Xerces-C 2.X installation found.
 XML parsing will be unavailable.
@@ -655,6 +657,7 @@ and rerun the bootstrap.sh script
 ])
   AC_LANG_C
 ])
+AC_SUBST(ORO_XERCESC_PARSER_DETECT)
 ])
 
 

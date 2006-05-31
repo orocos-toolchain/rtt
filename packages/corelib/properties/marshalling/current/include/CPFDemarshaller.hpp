@@ -28,6 +28,9 @@
 #ifndef PI_PROPERTIES_CPFDESERIALIZER
 #define PI_PROPERTIES_CPFDESERIALIZER
 
+#include <pkgconf/support_xercesc.h>
+
+#ifdef OROPKG_SUPPORT_XERCES_C
 #include <xercesc/util/XMLUniDefs.hpp>
 #include <xercesc/sax/InputSource.hpp>
 
@@ -49,7 +52,6 @@ namespace ORO_CoreLib
 #ifdef XERCES_CPP_NAMESPACE
         typedef XERCES_CPP_NAMESPACE::InputSource InputSource;
 #endif
-        //typedef unsigned short XMLCh;
         XMLCh* name;
         InputSource* fis;
     public:
@@ -58,4 +60,5 @@ namespace ORO_CoreLib
         virtual bool deserialize( PropertyBag &v );
     };
 }
+#endif
 #endif

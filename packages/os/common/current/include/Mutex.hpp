@@ -52,11 +52,6 @@ namespace ORO_OS
         friend class ORO_OS::MutexLock;
         friend class ORO_OS::MutexTryLock;
     protected:
-        /**
-         * The empty constructor, used for derived classes.
-         */
-        Mutex(int) {}
-
         rt_mutex_t m;
     public:
             /**
@@ -64,7 +59,7 @@ namespace ORO_OS
              */
             Mutex()
             {
-                rtos_mutex_init( &m, 0 );
+	      rtos_mutex_init( &m);
             }
 
             /**
@@ -73,7 +68,7 @@ namespace ORO_OS
              * mutex itself. The mutex may not be locked
              * when you call the destructor.
              */
-            ~Mutex()
+            virtual ~Mutex()
             {
                 lock();
                 unlock(); // remove this ? then we destroy a locked mutex.
@@ -81,12 +76,12 @@ namespace ORO_OS
                 rtos_mutex_destroy( &m );
             }
 
-            void lock ()
+            virtual void lock ()
             {
                 rtos_mutex_lock( &m );
             }
 
-            void unlock()
+            virtual void unlock()
             {
                 rtos_mutex_unlock( &m );
             }
@@ -96,7 +91,7 @@ namespace ORO_OS
              *
              * @return true when the locking succeeded, false otherwise
              */
-            bool trylock()
+            virtual bool trylock()
             {
                 if ( rtos_mutex_trylock( &m ) == 0 )
                     return true;
@@ -120,11 +115,45 @@ namespace ORO_OS
          * Initialize a recursive Mutex.
          */
         MutexRecursive()
-            : Mutex(0)
         {
-            rtos_mutex_rec_init( &m, 0 );
+	rtos_mutex_rec_init( &recm );
+      }
+
+      /**
+       * Destroy a recursive Mutex.
+       */
+      ~MutexRecursive()
+      {
+	lock();
+	unlock();
+	// Race condition here...
+	rtos_mutex_rec_destroy( &recm);
+      }
+
+      void lock ()
+      {
+	rtos_mutex_rec_lock( &recm );
         }
 
+      virtual void unlock()
+      {
+	rtos_mutex_rec_unlock( &recm );
+      }
+
+      /**
+       * Try to lock this mutex
+       *
+       * @return true when the locking succeeded, false otherwise
+       */
+      virtual bool trylock()
+      {
+	if ( rtos_mutex_rec_trylock( &recm ) == 0 )
+	  return true;
+	return false;
+      }
+
+    protected:
+      rt_rec_mutex_t recm;
     };
 
 }

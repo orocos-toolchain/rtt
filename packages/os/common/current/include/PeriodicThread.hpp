@@ -69,7 +69,7 @@ namespace ORO_OS
          * @param r        The optional RunnableInterface instance to run. If not present,
          *                 the thread's own virtual functions are executed.
          */
-        PeriodicThread(int priority, std::string name, double period, ORO_OS::RunnableInterface* r=0);
+    PeriodicThread(int priority,const std::string & name, double period, ORO_OS::RunnableInterface* r=0);
     
         virtual ~PeriodicThread();
 
@@ -115,25 +115,19 @@ namespace ORO_OS
         virtual bool isRunning() const;
 
         /**
-         * Set the name of this task
-         */
-        void setName(const char*);
-        /**
          * Read the name of this task
          */
         virtual const char* getName() const;
 
+    /**
+     * Get the RTOS_TASK pointer
+     * FIXME should this be a const?
+     */
+    virtual RTOS_TASK * getTask(){return &rtos_task;};
+
         virtual bool makeHardRealtime();
         virtual bool makeSoftRealtime();
         virtual bool isHardRealtime() const;
-
-        /**
-         * Set the scheduler of the thread to \a sched.
-         * @param sched One of SCHED_OTHER, SCHED_RR or SCHED_FIFO, or any other known scheduler type.
-         * @pre this->isRunning() == true && this->isHardRealtime() == false
-         * @return true if the preconditions were met, false otherwise.
-         */
-        bool setScheduler( int sched );
 
         /**
          * Set the periodicity of this thread
@@ -141,8 +135,6 @@ namespace ORO_OS
         bool setPeriod(  TIME_SPEC p );
 
         virtual int getPriority() const;
-
-        virtual int getPosixPriority() const;
 
         void setMaxOverrun( int m );
         int getMaxOverrun() const;
@@ -171,16 +163,6 @@ namespace ORO_OS
         void configure();
 
         /**
-         * Called from within the thread to reconfigure the linux scheduler.
-         */
-        void reconfigScheduler();
-
-        /**
-         * Periodicity of the thread in ns.
-         */
-        NANO_TIME period;
-
-        /**
          * When set to 1, the thread will run, when set to 0
          * the thread will stop
          */
@@ -192,18 +174,9 @@ namespace ORO_OS
         bool goRealtime;
 
         /**
-         * The realtime task
+     * The task struct
          */
-        RTOS_TASK* rtos_task;
-
-        /**
-         * The thread struct
-         */
-        RTOS_THREAD thread;
-
-        int priority;
-
-        std::string taskName;
+    RTOS_TASK rtos_task;
 
         bool prepareForExit;
 
@@ -221,12 +194,11 @@ namespace ORO_OS
 
         bool wait_for_step;
 
-        /**
-         * The linux scheduler of this thread. One of SCHED_OTHER, SCHED_RR or SCHED_FIFO.
-         */
-        int sched_type;
-
       int maxOverRun;
+
+    // Only used for passing on the period
+    NANO_TIME period;
+    
     };
 
 }

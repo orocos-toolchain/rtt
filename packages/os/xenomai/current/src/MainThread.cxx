@@ -60,8 +60,9 @@ namespace ORO_OS
         if (param.sched_priority != -1 )
             sched_setscheduler( SELECT_THIS_PID, OROSEM_OS_SCHEDTYPE, &param);
 
-        if ( rt_task_shadow( rt_task, 0, 10, 0) != 0 ) {
-                std::cerr << "Cannot rt_task_shadow() MainThread." << std::endl;
+        // name, priority, mode
+        if ( rt_task_shadow( &rt_task,"MainThread", 10, 0) != 0 ) {
+                std::cerr << "Cannot rt_task_create() MainThread." << std::endl;
                 exit(1);
         }
 
@@ -85,7 +86,7 @@ namespace ORO_OS
 
     SchedPolicy::~SchedPolicy()
     {
-        rt_task_delete(rt_task);
+        rt_task_delete( &rt_task);
     }
 
     MainThread* MainThread::mt;

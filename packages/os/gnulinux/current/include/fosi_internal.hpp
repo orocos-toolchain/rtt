@@ -32,26 +32,39 @@
 #include "os/ThreadInterface.hpp"
 #include "os/fosi.h"
 #include <iostream>
+#include <string.h>
 
 #define INTERNAL_QUAL static inline
-
-struct GNUTask {
-    GNUTask( NANO_TIME periodi ) : periodMark(0), period( periodi ) {}
-    NANO_TIME periodMark;
-    NANO_TIME period;
-};
 
 namespace ORO_OS
 {
     namespace detail {
 
-        INTERNAL_QUAL int rtos_thread_create(RTOS_THREAD* thread, void * (*start_routine)(void *), ThreadInterface* obj) {
-            return pthread_create(thread, 0, start_routine, obj);
-        }
+    INTERNAL_QUAL int rtos_task_create(RTOS_TASK* task,
+				       int priority,
+				       const char * name,
+				       int sched_type,
+				       void * (*start_routine)(void *), 
+				       ThreadInterface* obj) 
+    {
+      int rv; // return value
+      
+      // Set name
+      if ( strlen(name) == 0 )
+          name = "Thread";
+      task->name = strcpy( (char*)malloc( (strlen(name) + 1) * sizeof(char)), name);
+      
+      pthread_attr_init(&(task->attr));
+      struct sched_param sp;
+      sp.sched_priority=priority;
+      // Set priority
+      // fixme check return value and bail out if necessary
+      rv = pthread_attr_setschedparam(&(task->attr), &sp);
+      // Set scheduler also fixme
+      rv = pthread_attr_setschedpolicy(&(task->attr), sched_type);
 
-        INTERNAL_QUAL RTOS_TASK* rtos_task_init( ThreadInterface* thread )
-        {
-            return new GNUTask( thread->getPeriodNS() );
+      return pthread_create(&(task->thread), &(task->attr), 
+			    start_routine, obj);
         }
 
         INTERNAL_QUAL void rtos_task_yield(RTOS_TASK*) {
@@ -63,7 +76,7 @@ namespace ORO_OS
         INTERNAL_QUAL void rtos_task_make_soft_real_time(RTOS_TASK*) {
         }
 
-        INTERNAL_QUAL int rtos_task_is_hard_real_time(RTOS_TASK*) {
+    INTERNAL_QUAL int rtos_task_is_hard_real_time(const RTOS_TASK*) {
             return 0;
         }
 
@@ -81,6 +94,10 @@ namespace ORO_OS
             mytask->period = nanosecs;
             mytask->periodMark = rtos_get_time_ns() + nanosecs;
         }
+
+    INTERNAL_QUAL NANO_TIME rtos_task_get_period(const RTOS_TASK* t) {
+      return t->period;
+   } 
 
         INTERNAL_QUAL int rtos_task_wait_period( RTOS_TASK* task )
         {
@@ -106,17 +123,8 @@ namespace ORO_OS
         }
 
         INTERNAL_QUAL void rtos_task_delete(RTOS_TASK* mytask) {
-            delete mytask;
-        }
-
-        // for both SingleTread and PeriodicThread
-        template<class T>
-        INTERNAL_QUAL void rtos_thread_init( T* thread, const std::string& name ) {
-            if ( name.empty() )
-               thread->setName( "Thread" );
-            else
-                thread->setName( name.c_str() );
-        }
+        free(mytask->name);
+    };
 
         INTERNAL_QUAL int rtos_set_scheduler(int type, int priority)
         {
@@ -136,6 +144,19 @@ namespace ORO_OS
             return sched_setscheduler(0, type, &mysched);
         }
 
+    INTERNAL_QUAL const char * rtos_task_get_name(const RTOS_TASK* t)
+    {
+      return t->name;
+    }
+
+    INTERNAL_QUAL int rtos_task_get_priority(const RTOS_TASK *t)
+    {
+      struct sched_param sp;
+      int succeeded;
+      succeeded = pthread_attr_getschedparam(&(t->attr), 
+					     &sp);
+      return sp.sched_priority;
+    }
 
     }
 }

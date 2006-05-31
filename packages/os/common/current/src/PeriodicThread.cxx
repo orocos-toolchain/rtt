@@ -88,15 +88,11 @@ namespace ORO_OS
          */
         PeriodicThread* task = static_cast<ORO_OS::PeriodicThread*> (t);
 
-        task->reconfigScheduler();
-
-        task->rtos_task = detail::rtos_task_init( task );
-
         // Reporting available from this point :
 #ifdef OROPKG_CORELIB_REPORTING
         Logger::In in("PeriodicThread");
-        Logger::log() << Logger::Debug << task->taskName <<" created with priority "<<task->priority<<"."<<Logger::endl;
-        Logger::log() << Logger::Debug << "(Posix priority "<<task->getPosixPriority()<<".)"<<Logger::endl;
+        Logger::log() << Logger::Debug << rtos_task_get_name(task->getTask()) <<" created with priority "<<rtos_task_get_priority(task->getTask())<<"."<<Logger::endl;
+        Logger::log() << Logger::Debug << "(Priority "<<task->getPriority()<<".)"<<Logger::endl;
 #endif
 
 #ifdef OROPKG_OS_THREAD_SCOPE
@@ -131,7 +127,7 @@ namespace ORO_OS
         if ( d ) {
 #ifdef OROPKG_CORELIB_REPORTING
             Logger::log() << Logger::Info
-                          << "ThreadScope :"<< task->taskName <<" toggles bit "<< bit << Logger::endl;
+                          << "ThreadScope :"<< rtos_task_get_name(&rtos_task) <<" toggles bit "<< bit << Logger::endl;
 #endif
             d->switchOff( bit );
         }
@@ -148,14 +144,14 @@ namespace ORO_OS
                             // consider this the 'configuration state'
                             overruns = 0;
                             // drop out of periodic mode:
-                            rtos_task_set_period(task->rtos_task, 0);
-//                             Logger::log() << Logger::Info <<task->taskName<<"  signals done !" << Logger::endl;
+	      rtos_task_set_period(task->getTask(), 0);
+	      //                             Logger::log() << Logger::Info <<rtos_task_get_name(&rtos_task)<<"  signals done !" << Logger::endl;
                             rtos_sem_signal( &(task->confDone) ); // signal we are ready for command
-//                             Logger::log() << Logger::Info <<task->taskName<<"  sleeps !" << Logger::endl;
+	      //                             Logger::log() << Logger::Info <<rtos_task_get_name(&rtos_task)<<"  sleeps !" << Logger::endl;
                             rtos_sem_wait( &(task->sem) );      // wait for command.
-//                             Logger::log() << Logger::Info <<task->taskName<<"  awoken !" << Logger::endl;
+	      //                             Logger::log() << Logger::Info <<rtos_task_get_name(&rtos_task)<<"  awoken !" << Logger::endl;
                             task->configure();             // check for reconfigure
-//                             Logger::log() << Logger::Info <<task->taskName<<"  config done !" << Logger::endl;
+	      //                             Logger::log() << Logger::Info <<rtos_task_get_name(&rtos_task)<<"  config done !" << Logger::endl;
                             if ( task->prepareForExit )    // check for exit
                                 {
                                     break; // break while(1) {}
@@ -173,7 +169,7 @@ namespace ORO_OS
                                 d->switchOff( bit );
 #endif
                             // return non-zero to indicate overrun.
-                            if ( rtos_task_wait_period( task->rtos_task ) != 0) {
+	      if ( rtos_task_wait_period( task->getTask() ) != 0) {
                                 ++overruns;
                                 if ( overruns == task->maxOverRun )
                                     break;
@@ -188,7 +184,7 @@ namespace ORO_OS
 #endif
             task->emergencyStop();
 #ifdef OROPKG_CORELIB_REPORTING
-            Logger::log() << Logger::Fatal << task->taskName <<" got too many periodic overruns in step() ("<< overruns << " times), stopped Thread !"<<Logger::nl;
+	  Logger::log() << Logger::Fatal << rtos_task_get_name(task->getTask()) <<" got too many periodic overruns in step() ("<< overruns << " times), stopped Thread !"<<Logger::nl;
             Logger::log() <<" See PeriodicThread::setMaxOverrun() for info." << Logger::endl;
 #endif
 		}
@@ -199,7 +195,7 @@ namespace ORO_OS
 #endif
                 task->emergencyStop();
 #ifdef OROPKG_CORELIB_REPORTING
-                Logger::log() << Logger::Fatal << task->taskName <<" caught a C++ exception, stopped thread !"<<Logger::endl;
+	Logger::log() << Logger::Fatal << rtos_task_get_name(task->getTask()) <<" caught a C++ exception, stopped thread !"<<Logger::endl;
 #endif
             }
         } // while (!prepareForExit)
@@ -208,13 +204,13 @@ namespace ORO_OS
          * Cleanup stuff
          */
         if ( task->isHardRealtime() )
-            rtos_task_make_soft_real_time( task->rtos_task );
+      rtos_task_make_soft_real_time( task->getTask() );
 
 #ifdef OROPKG_CORELIB_REPORTING
-        Logger::log() << Logger::Debug << task->taskName <<" exiting."<<Logger::endl;
+    Logger::log() << Logger::Debug << rtos_task_get_name(task->getTask()) <<" exiting."<<Logger::endl;
 #endif
 
-        rtos_task_delete( task->rtos_task );
+    rtos_sem_signal( &(task->confDone));
 
         return 0;
     }
@@ -227,26 +223,26 @@ namespace ORO_OS
     this->finalize();
     // this is not strictly required...
     if ( this->isHardRealtime() )
-      rtos_task_make_soft_real_time( this->rtos_task );
+      rtos_task_make_soft_real_time( &rtos_task );
   }
 
-    PeriodicThread::PeriodicThread(int _priority, std::string name, Seconds periods, RunnableInterface* r) :
-        running(false), goRealtime(false), priority(_priority), prepareForExit(false),
-        runComp(r), wait_for_step(true), sched_type( OROSEM_OS_SCHEDTYPE ), maxOverRun(5)
+  PeriodicThread::PeriodicThread(int _priority, 
+				 const std::string & name, 
+				 Seconds periods, 
+				 RunnableInterface* r) :
+    running(false), goRealtime(false), prepareForExit(false),
+    runComp(r), wait_for_step(true), 
+    maxOverRun( OROSEM_OS_PERIODIC_THREADS_MAX_OVERRUN)
     {
-        if (priority < 0 )
-            priority = 0;
-        if (priority > 99 )
-            priority = 99;
         int ret;
-        rtos_thread_init( this, name );
         
         ret = rtos_sem_init(&sem, 0);
         if ( ret != 0 ) {
 #ifdef OROPKG_CORELIB_REPORTING
             Logger::In in("PeriodicThread");
-            Logger::log() << Logger::Critical << "Could not allocate configuration semaphore 'sem' for "<< taskName <<". Throwing std::bad_alloc."<<Logger::endl;
+            Logger::log() << Logger::Critical << "Could not allocate configuration semaphore 'sem' for "<< rtos_task_get_name(&rtos_task) <<". Throwing std::bad_alloc."<<Logger::endl;
 #endif
+      rtos_sem_destroy( &sem );
             throw std::bad_alloc();
         }
 
@@ -254,7 +250,7 @@ namespace ORO_OS
         if ( ret != 0 ) {
 #ifdef OROPKG_CORELIB_REPORTING
             Logger::In in("PeriodicThread");
-            Logger::log() << Logger::Critical << "Could not allocate configuration semaphore 'confDone' for "<< taskName <<". Throwing std::bad_alloc."<<Logger::endl;
+            Logger::log() << Logger::Critical << "Could not allocate configuration semaphore 'confDone' for "<< rtos_task_get_name(&rtos_task) <<". Throwing std::bad_alloc."<<Logger::endl;
 #endif
             rtos_sem_destroy( &sem );
             throw std::bad_alloc();
@@ -270,12 +266,26 @@ namespace ORO_OS
 
         if (runComp)
             runComp->setThread(this);
-        rtos_thread_create( &thread, periodicThread, this );
+    int rv = rtos_task_create(&rtos_task, _priority, name.c_str(),OROSEM_OS_SCHEDTYPE,periodicThread, this );
+    if ( rv != 0 ) {
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::In in("PeriodicThread");
+            Logger::log() << Logger::Critical << "Could not create thread "
+                          << rtos_task_get_name(&rtos_task) <<"."<<Logger::endl;
+#endif
+      rtos_sem_destroy( &sem );
+      rtos_sem_destroy( &confDone );
+      throw std::bad_alloc();
+    }
+        
         rtos_sem_wait(&confDone);
     }
     
     PeriodicThread::~PeriodicThread() 
     {
+#ifdef OROPKG_CORELIB_REPORTING
+    Logger::In in("~PeriodicThread");
+#endif
         if (isRunning()) stop();
 
         terminate();
@@ -310,7 +320,7 @@ namespace ORO_OS
         if ( running ) return false;
 
 #ifdef OROPKG_CORELIB_REPORTING
-        Logger::log() << Logger::Debug << "Periodic Thread "<< taskName <<" started."<<Logger::endl;
+    Logger::log() << Logger::Debug << "Periodic Thread "<< rtos_task_get_name(&rtos_task) <<" started."<<Logger::endl;
 #endif
 
         bool result;
@@ -318,7 +328,7 @@ namespace ORO_OS
 
         if (result == false) {
 #ifdef OROPKG_CORELIB_REPORTING
-            Logger::log() << Logger::Critical << "Periodic Thread "<< taskName <<" failed to initialize()."<<Logger::endl;
+      Logger::log() << Logger::Critical << "Periodic Thread "<< rtos_task_get_name(&rtos_task) <<" failed to initialize()."<<Logger::endl;
 #endif
             return false;
         }
@@ -332,7 +342,7 @@ namespace ORO_OS
         // could be in case stop() times out.
         rtos_sem_trywait( &confDone );
         // signal start :
-        rtos_task_make_periodic(rtos_task, period );
+    rtos_task_make_periodic(&rtos_task, period );
         int ret = rtos_sem_signal(&sem);
 #ifdef OROPKG_CORELIB_REPORTING
         if ( ret != 0 )
@@ -348,7 +358,7 @@ namespace ORO_OS
         if ( !running ) return false;
 
 #ifdef OROPKG_CORELIB_REPORTING
-        Logger::log() << Logger::Debug << "Periodic Thread "<< taskName <<" stopping...";
+    Logger::log() << Logger::Debug << "Periodic Thread "<< rtos_task_get_name(&rtos_task) <<" stopping...";
 #endif
 
         running=false;
@@ -368,13 +378,13 @@ namespace ORO_OS
 #ifdef OROPKG_CORELIB_REPORTING
         if ( ret != 0 ) {
             Logger::log() << Logger::Debug << " failed."<<Logger::endl;
-            Logger::log() << Logger::Critical << "The "<< taskName <<" thread seems to be blocked ( ret was "<< ret<<" .)"<<Logger::nl;
+      Logger::log() << Logger::Critical << "The "<< rtos_task_get_name(&rtos_task) <<" thread seems to be blocked ( ret was "<< ret<<" .)"<<Logger::nl;
         }
         else
             Logger::log() << Logger::Debug << " done."<<Logger::endl;
 #endif
         // drop out of periodic mode.
-        rtos_task_make_periodic(rtos_task, 0);
+    rtos_task_make_periodic(&rtos_task, 0);
 
         //std::cout <<"Finalizing thread after "<<cnt<<" tries !"<<std::endl;
         // from now on, the thread waits on sem.
@@ -398,13 +408,13 @@ namespace ORO_OS
             {
                 if ( isHardRealtime() ) {
 #ifdef OROPKG_CORELIB_REPORTING
-                    Logger::log() << Logger::Debug << "Thread "<< taskName <<" already Hard Realtime...";
+	  Logger::log() << Logger::Debug << "Thread "<< rtos_task_get_name(&rtos_task) <<" already Hard Realtime...";
 #endif
                     return true;
                 }
 
 #ifdef OROPKG_CORELIB_REPORTING
-                Logger::log() << Logger::Debug << "Making "<< taskName <<" Hard Realtime...";
+	Logger::log() << Logger::Debug << "Making "<< rtos_task_get_name(&rtos_task) <<" Hard Realtime...";
 #endif
                 goRealtime = true; 
                 rtos_sem_signal(&sem);
@@ -415,7 +425,7 @@ namespace ORO_OS
             }
 #ifdef OROPKG_CORELIB_REPORTING
         else
-            Logger::log() << Logger::Warning << "Failed to make "<< taskName <<" Hard Realtime since thread is still running."<<Logger::endl;
+      Logger::log() << Logger::Warning << "Failed to make "<< rtos_task_get_name(&rtos_task) <<" Hard Realtime since thread is still running."<<Logger::endl;
 #endif
         return goRealtime; 
     }
@@ -426,12 +436,12 @@ namespace ORO_OS
             {
                 if ( !isHardRealtime() ) {
 #ifdef OROPKG_CORELIB_REPORTING
-                    Logger::log() << Logger::Debug << "Thread "<< taskName <<" already Soft Realtime...";
+	  Logger::log() << Logger::Debug << "Thread "<< rtos_task_get_name(&rtos_task) <<" already Soft Realtime...";
 #endif
                     return true;
                 }
 #ifdef OROPKG_CORELIB_REPORTING
-                Logger::log() << Logger::Debug << "Making "<< taskName <<" Soft Realtime...";
+	Logger::log() << Logger::Debug << "Making "<< rtos_task_get_name(&rtos_task) <<" Soft Realtime...";
 #endif
                 goRealtime = false; 
                 rtos_sem_signal(&sem);
@@ -442,36 +452,38 @@ namespace ORO_OS
             }
 #ifdef OROPKG_CORELIB_REPORTING
         else
-            Logger::log() << Logger::Warning << "Failed to make "<< taskName <<" Soft Realtime since thread is still running."<<Logger::endl;
+      Logger::log() << Logger::Warning << "Failed to make "<< rtos_task_get_name(&rtos_task) <<" Soft Realtime since thread is still running."<<Logger::endl;
 #endif
         return !goRealtime; 
     }
 
-    bool PeriodicThread::isHardRealtime() const { return rtos_task_is_hard_real_time(rtos_task); }
-
+  bool PeriodicThread::isHardRealtime() const { return rtos_task_is_hard_real_time(&rtos_task); }
 
     void PeriodicThread::configure()
     {
         // reconfigure period
         if ( wait_for_step )
-            rtos_task_set_period(rtos_task, period );
+      rtos_task_set_period(&rtos_task, period );
         else
-            rtos_task_set_period(rtos_task, 0);
+      rtos_task_set_period(&rtos_task, 0);
         if ( goRealtime && !isHardRealtime() )
             {
                 //std::cout <<"Going HRT!"<<std::endl;
-                rtos_task_make_hard_real_time( rtos_task);
+	rtos_task_make_hard_real_time(&rtos_task);
             }
         else if ( !goRealtime && isHardRealtime() )
             {
-                rtos_task_make_soft_real_time( rtos_task );
+	rtos_task_make_soft_real_time(&rtos_task);
                 //std::cout <<"Returning to SRT!"<<std::endl;
             }
+    // Only works for posix OS-es !!
+    /*
         if ( !isHardRealtime() ) { // reconfigure scheduler type.
             int type = sched_getscheduler(0);
             if ( type != sched_type )
                 this->reconfigScheduler();
         }
+    */
     }
         
 
@@ -534,12 +546,7 @@ namespace ORO_OS
 
     int PeriodicThread::getPriority() const 
     {
-        return priority;
-    }
-
-    int PeriodicThread::getPosixPriority() const 
-    {
-        return 99 - priority;
+    return rtos_task_get_priority(&rtos_task);
     }
 
     double PeriodicThread::getPeriod() const
@@ -564,15 +571,17 @@ namespace ORO_OS
         if (prepareForExit) return;
 
         prepareForExit = true;
-
         rtos_sem_signal(&sem);
     
-        if ( pthread_join(thread,0) != 0 ) 
-#ifdef OROPKG_CORELIB_REPORTING
-            Logger::log() << Logger::Critical << "Failed to join "<< taskName <<"."<< Logger::endl;
-#else
-        ;
-#endif
+    rtos_sem_wait(&confDone);
+    rtos_task_delete(&rtos_task);
+
+    // if ( pthread_join(thread,0) != 0 ) 
+    // #ifdef OROPKG_CORELIB_REPORTING
+    // Logger::log() << Logger::Critical << "Failed to join "<< rtos_task_get_name(&rtos_task) <<"."<< Logger::endl;
+    // #else
+    //     ;
+    // #endif
     }
 
     bool PeriodicThread::setToStop()
@@ -585,14 +594,9 @@ namespace ORO_OS
 #endif
     }
 
-    void PeriodicThread::setName(const char* nm)
-    {
-        taskName = nm;
-    }
-
     const char* PeriodicThread::getName() const
     {
-        return taskName.c_str();
+    return rtos_task_get_name(&rtos_task);
     }
 
   void PeriodicThread::setMaxOverrun( int m )
@@ -605,20 +609,5 @@ namespace ORO_OS
     return maxOverRun;
   }
 
-    bool PeriodicThread::setScheduler( int sched ) {
-        if ( this->isHardRealtime() || this->isRunning() || ( sched != SCHED_OTHER && sched != SCHED_FIFO && sched != SCHED_RR ))
-            return false;
-        sched_type = sched;
-        // signal change to thread.
-        rtos_sem_signal( &sem);
-        rtos_sem_wait( &confDone);
-        
-        return true;
-    }
-
-    void PeriodicThread::reconfigScheduler() {
-        // ONLY CALL FROM SRT !
-        rtos_set_scheduler(this->sched_type, this->priority);
-    }
 }
     

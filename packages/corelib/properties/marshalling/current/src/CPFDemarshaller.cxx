@@ -29,6 +29,7 @@
 
 #include "corelib/marshalling/CPFDemarshaller.hpp"
 
+#ifdef OROPKG_SUPPORT_XERCES_C
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/util/TransService.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
@@ -428,4 +429,6 @@ namespace ORO_CoreLib
         return true;
     }
 }
+
+#endif
 

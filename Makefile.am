@@ -83,6 +83,11 @@ install-exec-local:
 	if test -d packages/install/modules; then install -m 755 -d $(prefix)/modules ; fi
 	@for i in $$( find packages/install/modules/ -type f ); do \
 	install -p -m 644 $$i $(prefix)/modules/; echo "install $$i $(prefix)/modules"; done
+	@echo "Installing tests..."
+	mkdir -p $(prefix)/tests
+	@for i in $$( find tests/ -maxdepth 1 -type f); do \
+	if test -x $$i; then install -p -m 755 $$i $(prefix)/tests/; echo "install $$i $(prefix)/tests"; fi; \
+	done
 
 all-local: test_new_packages test_all_packages
 

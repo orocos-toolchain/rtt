@@ -116,14 +116,14 @@ namespace ORO_OS
         virtual bool isActive() const;
 
         /**
-         * Set the name of this task
-         */
-        void setName(const char*);
-
-        /**
          * Read the name of this task
          */
         virtual const char* getName() const;
+    /**
+     * Get the RTOS_TASK pointer
+     * FIXME should this be a const?
+     */
+    virtual RTOS_TASK * getTask(){return &(this->rtos_task);};
 
         virtual bool makeHardRealtime();
 
@@ -134,8 +134,7 @@ namespace ORO_OS
         virtual Seconds getPeriod() const { return 0.0; }
         virtual nsecs getPeriodNS() const { return 0; }
 
-        virtual int getPriority() const { return priority; }
-        virtual int getPosixPriority() const { return 99 - priority; }
+    virtual int getPriority() const;
 
         void yield();
 
@@ -174,22 +173,7 @@ namespace ORO_OS
         /**
          * The realtime task structure created by this object.
          */
-        RTOS_TASK* rtos_task;
-
-        /**
-         * The userspace thread carying the rtos_task.
-         */
-        pthread_t thread;
-
-        /**
-         * The priority of the created thread.
-         */
-        int priority;
-
-        /**
-         * The unique name of this task.
-         */
-        std::string taskName;
+    RTOS_TASK rtos_task;
 
         /**
          * The semaphore used for starting the thread.

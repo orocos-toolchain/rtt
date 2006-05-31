@@ -12,6 +12,7 @@ real-time userspace applications"
 
     compile fosi.c
     compile MainThread.cxx
+    compile xenothreads.cxx
 
     implements OROINT_OS_TARGET
     implements OROINT_OS_STDCXXLIB
@@ -22,6 +23,10 @@ real-time userspace applications"
     requires OROPKG_SUPPORT_XENOMAI
 
     hardware
+
+    define_proc {
+        puts $::cdl_system_header "\#define CYGBLD_OS_TARGET_H   <pkgconf/os_xenomai.h>"
+    }
 
     cdl_component OROBLD_OS_ENABLE_LINUX_KERNEL {
 	display "Build Linux kernel Modules"
@@ -80,11 +85,196 @@ package.
 "
 	}
 
+   cdl_component CYGBLD_GLOBAL_OPTIONS {
+       display "Global build options"
+       flavor none
+       description "
+      Global build options including control over
+      compiler flags, linker flags and choice of toolchain."
+
+       cdl_option CYGBLD_GLOBAL_COMMAND_PREFIX {
+	   display "Global command prefix"
+	   flavor  data
+	   no_define
+	   default_value { "" }
+	   description "
+        This option specifies the command prefix used when
+        invoking the build tools."
+       }
+
+       cdl_option OROBLD_GLOBAL_CFLAGS_ADD {
+	   display "User defined global compiler flags"
+	   flavor  data
+	   no_define
+	   default_value {  "-pipe -Wall -Woverloaded-virtual" }
+	   description   "
+          This option allows you to override some global compiler flags.
+The options you provide here will be appended to the CFLAGS variable below."
+       }
+
+       cdl_option CYGBLD_GLOBAL_LDFLAGS_ADD {
+	   display "User defined linker flags"
+	   flavor  data
+	   no_define
+	   default_value { "" }
+	   description   "
+          This option allows you to override the global linker flags.
+          The options you provide here will be appended to the LDFLAGS variable.
+          You can add additional library paths and flags here."
+       }
+
+       cdl_option OROBLD_OS_ARCHITECTURE {
+	   display "Processor Target Architecture"
+	   description "
+This option will be added to the compiler flags.
+Select here the processor architecture for which at least the
+compiled code will run on."
+	   flavor data
+	   no_define
+	   default_value { "pentium" }
+	   legal_values { "pentium" "pentium2" "pentium3" "pentium4" "k6" "athlon" "athlon-xp" "athlon64" "none" }
+       }
+
+       cdl_option OROBLD_OS_PROCESSOR {
+	   display "Tune to Processor Type"
+	   description "
+This option will be added to the compiler flags.
+Select here the processor architecture at which the code will run
+most tuned. We are forced to omit pentium/k6 processors, since this
+would trigger non-thread-safe code generation when compiling. However,
+your program will run on a pentium if selecting pentium4 or even athlon-xp for example."
+	   flavor data
+	   no_define
+	   default_value { "pentium2" }
+	   legal_values { "pentium2" "pentium3" "pentium4" "athlon" "athlon-xp" "athlon64" "none" }
+       }
+
+       cdl_option OROBLD_OS_ARCH {
+	   display "Architecture Selection Macro"
+	   description "
+Depending on the above options (which modify compiler flags),
+a different processor architecture is identified to enable processor
+specific assembler instructions in Orocos."
+	flavor data
+	default_value { OROBLD_OS_ARCHITECTURE == "athlon64" ? "x86_64" : "i386" }
+	legal_values { "x86_64" "i386" }
+    }
+
+    cdl_option CYGBLD_OS_CONFIG_SMP {
+	    display "Build for SMP Systems"
+	    parent CYGBLD_GLOBAL_OPTIONS
+	    flavor  bool
+	    no_define
+	    define CONFIG_SMP
+	    default_value 0
+	    description   "
+Enable this flag if you want to use Orocos on SMP systems."
+    }
+
+    cdl_option CYGBLD_OS_COMPILER {
+	    display "Compiler Features"
+	    parent CYGBLD_GLOBAL_OPTIONS
+	    flavor  data
+	    legal_values { "gcc2" "gcc3" "gcc4" }
+	    default_value { OROPKG_SUPPORT_GCC_VERSION }
+	    no_define
+	    description   "
+Here you can configure which compiler you use.
+This may be detected automatically
+in combination with the 'configure' script, providing
+the option : CC=gcc-version"
+    }
+
+    cdl_component OROBLD_OS_OPTIMIZE {
+	display "Optimization Strategy"
+        description "
+This option lets you control optimization of the overall Orocos
+code. You can optimize for debugging or optimize for execution or compilation time. The difference
+in application size and speed can be quite large when toggling this flag."
+	flavor data
+	    no_define
+	default_value { "Compiling" }
+        legal_values { "Execution" "Debugging" "Compiling" }
+	cdl_option OROBLD_OS_OPTIMIZE_DEBUGGING {
+		display "Flags for debugging optimization"
+        	description "
+Compile with debugging info, no optimization flags and debug
+code-checking on. Produces very large code size ( >100MB )."
+		flavor data
+		no_define
+		active_if  { OROBLD_OS_OPTIMIZE == "Debugging" }
+		default_value  { "-g -O0" }
+	}
+	cdl_option OROBLD_OS_OPTIMIZE_COMPILE {
+		display "Flags for compile time optimization"
+        	description "
+Compile for fast compilation and allow debug macros.
+Produces larger code size, but compiles very fast."
+		flavor data
+		no_define
+		active_if { OROBLD_OS_OPTIMIZE == "Compiling" }
+		default_value  { "-O" }
+	}
+	cdl_option OROBLD_OS_OPTIMIZE_EXECUTION {
+		display "Flags for execution time optimization"
+        	description "
+Compile for fast execution and disable debugging macros.
+This option delivers the smallest code size, but the longest
+compilation times."
+		flavor data
+		no_define
+		active_if { OROBLD_OS_OPTIMIZE == "Execution" }
+		default_value  { "-Os -DNDEBUG" }
+	}
+    }
+
+	cdl_option CYGBLD_GLOBAL_CFLAGS {
+	    display "Global compiler flags"
+	    flavor  data
+	    no_define
+	    calculated { (OROBLD_OS_OPTIMIZE_EXECUTION ? OROBLD_OS_OPTIMIZE_EXECUTION : "").
+		(OROBLD_OS_OPTIMIZE_DEBUGGING ? OROBLD_OS_OPTIMIZE_DEBUGGING : "").
+		(OROBLD_OS_OPTIMIZE_COMPILE ? OROBLD_OS_OPTIMIZE_COMPILE : "").
+		(OROBLD_OS_ARCHITECTURE == "none" ? "" :
+		" -march=".OROBLD_OS_ARCHITECTURE).
+		(OROBLD_OS_PROCESSOR == "none" ? "" : 
+		(CYGBLD_OS_COMPILER == "gcc4" ? " -mtune=" : " -mcpu=" ).OROBLD_OS_PROCESSOR)." ".
+		(OROBLD_OS_EXTRA_CFLAGS ? OROBLD_OS_EXTRA_CFLAGS : "")." ".
+		"-D_REENTRANT ".
+		(CYGBLD_OS_COMPILER == "gcc3" ? "" : "").
+		(CYGBLD_OS_COMPILER == "gcc4" ? "-fvisibility-inlines-hidden " : "").
+		OROBLD_GLOBAL_CFLAGS_ADD }
+	    
+	    description   "
+This option controls the global compiler flags which
+are used to compile all packages by
+default. Individual packages may define
+options which override these global flags. See also
+the 'Optimization Strategy' to influence debugging or
+execution speed compiler flags. 
+You can not change these
+flags but override them in the CYGBLD_GLOBAL_CFLAGS_ADD above.
+Furthermore, depending on the compiler you selected, other flags may
+be added."
+	}
+
+	cdl_option CYGBLD_GLOBAL_LDFLAGS {
+	    display "Global linker flags"
+	    parent CYGBLD_GLOBAL_OPTIONS
+	    flavor  data
+	    no_define
+	    default_value { "" }
+	    description   "
+This option controls the global linker flags. Individual
+packages may define options which override these global flags."
+	}
+
     cdl_option CYGBLD_LINKER_SCRIPT {
 	display "Linker script"
 	flavor data
 	no_define
 	calculated  { "" }
+    }
     }
 
     cdl_option CYGHWR_MEMORY_LAYOUT {

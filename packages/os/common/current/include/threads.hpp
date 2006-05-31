@@ -41,5 +41,22 @@ namespace ORO_OS
      */
     extern AtomicInt threads;
 
+    /**
+     * An integer denoting the lowest priority of the
+     * selected OS.
+     */
+    extern const int LowestPriority;
+
+    /**
+     * An integer denoting the highest priority of the
+     * selected OS.
+     */
+    extern const int HighestPriority;
+
+    /**
+     * An interval to be added 'n' times to LowestPriority
+     * to get an 'n' times higher priority.
+     */
+    extern const int IncreasePriority;
 }
 #endif

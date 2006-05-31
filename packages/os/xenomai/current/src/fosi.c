@@ -65,9 +65,7 @@ TICK_TIME timespec2ticks(const TIME_SPEC* ts)
     
 NANO_TIME rtos_get_time_ns(void) { return rt_timer_read(); }
 
-TICK_TIME systemTimeGet(void) { return rt_timer_tsc(); }
-
-TICK_TIME systemNSecsTimeGet(void) { return rt_timer_read(); }
+TICK_TIME rtos_get_time_ticks(void) { return rt_timer_tsc(); }
 
 TICK_TIME ticksPerSec(void) { return rt_timer_ns2ticks( 1000 * 1000 * 1000 ); }
 
@@ -85,7 +83,8 @@ TICK_TIME ticksPerSec(void) { return rt_timer_ns2ticks( 1000 * 1000 * 1000 ); }
      int rtos_sem_init(rt_sem_t* m, int value )
     {
         CHK_XENO_CALL();
-		return rt_sem_create( m, 0, value, 0);
+		// priority based blocking:
+		return rt_sem_create( m, 0, value, S_PRIO);
     }
 
      int rtos_sem_destroy(rt_sem_t* m )
@@ -109,6 +108,7 @@ TICK_TIME ticksPerSec(void) { return rt_timer_ns2ticks( 1000 * 1000 * 1000 ); }
      int rtos_sem_trywait(rt_sem_t* m )
     {
         CHK_XENO_CALL();
+		// returns 0 if sem was grabbed, -EWOULDBLOCK otherwise.
         return rt_sem_p( m, TM_NONBLOCK);
     }
 
@@ -128,7 +128,7 @@ TICK_TIME ticksPerSec(void) { return rt_timer_ns2ticks( 1000 * 1000 * 1000 ); }
         return rt_sem_p(m, nano2ticks(delay) );
     }
 
-     int rtos_mutex_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)
+     int rtos_mutex_init(rt_mutex_t* m)
     {
         CHK_XENO_CALL();
 		// a Xenomai mutex is always recursive
@@ -141,7 +141,7 @@ TICK_TIME ticksPerSec(void) { return rt_timer_ns2ticks( 1000 * 1000 * 1000 ); }
         return rt_mutex_delete(m);
     }
 
-     int rtos_mutex_rec_init(rt_mutex_t* m, const pthread_mutexattr_t *mutexattr)
+     int rtos_mutex_rec_init(rt_mutex_t* m)
     {
         CHK_XENO_CALL();
 		// a Xenomai mutex is always recursive
@@ -160,13 +160,11 @@ TICK_TIME ticksPerSec(void) { return rt_timer_ns2ticks( 1000 * 1000 * 1000 ); }
         return rt_mutex_lock(m, TM_INFINITE);
     }
 
-#if 0
      int rtos_mutex_trylock( rt_mutex_t* m)
     {
         CHK_XENO_CALL();
-        return rt_mutex_trylock(m);
+		return rt_mutex_lock(m, TM_NONBLOCK);
     }
-#endif
 
      int rtos_mutex_unlock( rt_mutex_t* m)
     {
@@ -174,32 +172,23 @@ TICK_TIME ticksPerSec(void) { return rt_timer_ns2ticks( 1000 * 1000 * 1000 ); }
         return rt_mutex_unlock(m);
     }
 
-
-#if 0
-     int rtos_cond_init(rt_cond_t *cond, pthread_condattr_t *cond_attr)
+    int rtos_mutex_rec_lock( rt_rec_mutex_t* m)
     {
         CHK_XENO_CALL();
-        return rt_cond_create(cond, 0);
+        return rt_mutex_lock(m, TM_INFINITE );
     }
 
-     int rtos_cond_destroy(rt_cond_t *cond)
+    int rtos_mutex_rec_trylock( rt_rec_mutex_t* m)
     {
         CHK_XENO_CALL();
-        return rt_cond_delete(cond);
+        return rt_mutex_lock(m, TM_NONBLOCK);
     }
 
-     int rtos_cond_timedwait(rt_cond_t *cond, rt_mutex_t *mutex, const struct timespec *abstime)
+    int rtos_mutex_rec_unlock( rt_rec_mutex_t* m)
     {
         CHK_XENO_CALL();
-        return rt_cond_wait(cond, mutex, timespec2ticks(abstime) );
+        return rt_mutex_unlock(m);
     }
-
-     int rtos_cond_broadcast(rt_cond_t *cond)
-    {
-        CHK_XENO_CALL();
-        return rt_cond_broadcast(cond);
-    }
-#endif
 
 int rtos_printf(const char *fmt, ...)
 {

@@ -19,17 +19,6 @@ type of periodic activity associated with it.
     compile TimerSequencer.cxx TimerOneShot.cxx TimerLockFree.cxx
     compile CoreRunnableInterface.cxx SlaveActivity.cxx
 
-    cdl_option ORONUM_CORELIB_ACTIVITIES_PRIOLIMIT {
-	display "Maximum hard realtime thread priority"
-	description "
-Any thread with a priority higher than this number will not
-be running realtime by default. This is used by the 
-PriorityThread to determine if it should be a hard or soft
-realtime thread. (High priority means lower number)
-"
-	default_value 10
-    }
-
     cdl_option OROSEM_CORELIB_ACTIVITIES_AUTOSTART {
 	display "Automatically start Orocos threads"
 	description "
@@ -63,11 +52,11 @@ The name must be unique with respect to other threads."
 	cdl_option ORONUM_CORELIB_ACTIVITIES_ZTT_PRIORITY {
 	    display "The priority of the ZeroTimeThread"
             description "
-This should be the highest priority thread in your system,
-thus having the lowest value (e.g. 0)."
+This should be the highest priority thread in your system"
 	    flavor data
 	    default_value 0
-            legal_values 0 to 255
+            # legal_values 0 to 255
+            # KG should be something like RTOS_SCHED_PRIO_MIN to RTOS_SCHED_PRIO_MAX
 	}
 
 	cdl_option ORONUM_CORELIB_ACTIVITIES_ZTT_PERIOD {

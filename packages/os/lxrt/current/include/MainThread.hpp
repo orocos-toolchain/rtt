@@ -52,7 +52,7 @@ namespace ORO_OS
             
         virtual ~SchedPolicy();
     protected:
-        RTOS_TASK* rt_task;
+        RTOS_RTAI_TASK* rt_task;
     };
 
     /**

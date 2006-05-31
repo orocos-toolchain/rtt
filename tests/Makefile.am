@@ -8,9 +8,11 @@ LDADD = $(CPPUNIT_LIBS) $(top_builddir)/packages/install/lib/libtarget.a -lpthre
 AM_CXXFLAGS += $(CPPUNIT_CFLAGS) -g 
 AM_CPPFLAGS +=-D_REENTRANT
 
+check_PROGRAMS = core-test task-test event-test taskcontext-test parser-test program-test state-test
+
 # Rules for the test code (use `make check` to execute)
 if DOTESTS
-TESTS = core-test task-test event-test taskcontext-test parser-test program-test state-test
+TESTS = $(check_PROGRAMS)
 else
 TESTS = 
 endif
@@ -18,11 +20,11 @@ endif
 if DOPROFTESTS
 PROFTESTS=event-prof tasks-prof mtasks-prof buffers-prof \
 	state-prof dispatch-prof function-prof types-prof program-prof
+check_PROGRAMS += $(PROFTESTS)
 else
 PROFTESTS =
 endif
 
-check_PROGRAMS = $(TESTS) $(PROFTESTS)
 EXTRA_PROGRAMS = core-test event-test parser-test program-test state-test event-prof tasks-prof mtasks-prof buffers-prof \
 	state-prof dispatch-prof function-prof types-prof program-prof task-test taskcontext-test
 
@@ -41,8 +43,9 @@ task_test_SOURCES = test-runner.cpp \
 	tasks_multiple_test.cpp tasks_multiple_test.hpp
 
 event_test_SOURCES = test-runner.cpp \
-	eventservice_test.cpp eventservice_test.hpp \
 	event_test.cpp event_test.hpp
+
+#	eventservice_test.cpp eventservice_test.hpp
 
 
 #core_test_LDADD = $(LD_ADDS)
