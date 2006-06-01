@@ -43,11 +43,12 @@
 
 #include <functional>
 
+using namespace std;
+using namespace detail;
+
 #ifdef OROCFG_CORELIB_REALTIME_TOOLKIT_IMPORT
 #include <os/StartStopManager.hpp>
 namespace ORO_CoreLib {
-    using namespace std;
-    using namespace detail;
     namespace {
 
         /**
