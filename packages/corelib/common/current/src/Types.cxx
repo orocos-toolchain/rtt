@@ -44,7 +44,7 @@
 #include <functional>
 
 using namespace std;
-using namespace detail;
+using namespace ORO_CoreLib::detail;
 
 #ifdef OROCFG_CORELIB_REALTIME_TOOLKIT_IMPORT
 #include <os/StartStopManager.hpp>
