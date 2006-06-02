@@ -234,7 +234,7 @@ void PropertyTest::testMarshalling()
 
     Property<Wrench> w("Wrench","A Wrench", Wrench(Vector(0.1,0.2,0.3),Vector(0.5,0.6,0.7)));
 
-    inspector.introspect( w );
+    inspector.introspect( &w );
 
     CPPUNIT_ASSERT( bag.find("Wrench") != 0 );
 
