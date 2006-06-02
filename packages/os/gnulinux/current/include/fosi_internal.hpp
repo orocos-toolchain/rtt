@@ -38,7 +38,7 @@
 
 namespace ORO_OS
 {
-    namespace detail {
+  namespace detail {
 
     INTERNAL_QUAL int rtos_task_create(RTOS_TASK* task,
 				       int priority,
@@ -51,7 +51,7 @@ namespace ORO_OS
       
       // Set name
       if ( strlen(name) == 0 )
-          name = "Thread";
+	name = "Thread";
       task->name = strcpy( (char*)malloc( (strlen(name) + 1) * sizeof(char)), name);
       
       pthread_attr_init(&(task->attr));
@@ -65,62 +65,61 @@ namespace ORO_OS
 
       return pthread_create(&(task->thread), &(task->attr), 
 			    start_routine, obj);
-        }
+    }
 
-        INTERNAL_QUAL void rtos_task_yield(RTOS_TASK*) {
-        }
+    INTERNAL_QUAL void rtos_task_yield(RTOS_TASK*) {
+    }
 
-        INTERNAL_QUAL void rtos_task_make_hard_real_time(RTOS_TASK*) {
-        }
-
-        INTERNAL_QUAL void rtos_task_make_soft_real_time(RTOS_TASK*) {
-        }
+    INTERNAL_QUAL void rtos_task_make_hard_real_time(RTOS_TASK*) {
+    }
+    
+    INTERNAL_QUAL void rtos_task_make_soft_real_time(RTOS_TASK*) {
+    }
 
     INTERNAL_QUAL int rtos_task_is_hard_real_time(const RTOS_TASK*) {
-            return 0;
-        }
+      return 0;
+    }
 
-        INTERNAL_QUAL void rtos_task_make_periodic(RTOS_TASK* mytask, NANO_TIME nanosecs )
-        {
-            // set period
-            mytask->period = nanosecs;
-            // set next wake-up time.
-            mytask->periodMark = rtos_get_time_ns() + nanosecs;
-        }
+    INTERNAL_QUAL void rtos_task_make_periodic(RTOS_TASK* mytask, NANO_TIME nanosecs )
+    {
+      // set period
+      mytask->period = nanosecs;
+      // set next wake-up time.
+      mytask->periodMark = rtos_get_time_ns() + nanosecs;
+    }
         
-
-        INTERNAL_QUAL void rtos_task_set_period( RTOS_TASK* mytask, NANO_TIME nanosecs )
-        {
-            mytask->period = nanosecs;
-            mytask->periodMark = rtos_get_time_ns() + nanosecs;
-        }
+    INTERNAL_QUAL void rtos_task_set_period( RTOS_TASK* mytask, NANO_TIME nanosecs )
+    {
+      mytask->period = nanosecs;
+      mytask->periodMark = rtos_get_time_ns() + nanosecs;
+    }
 
     INTERNAL_QUAL NANO_TIME rtos_task_get_period(const RTOS_TASK* t) {
       return t->period;
-   } 
+    } 
 
-        INTERNAL_QUAL int rtos_task_wait_period( RTOS_TASK* task )
-        {
-	  if ( task->period == 0 )
-	    return 0;
+    INTERNAL_QUAL int rtos_task_wait_period( RTOS_TASK* task )
+    {
+      if ( task->period == 0 )
+	return 0;
+      
+      //rtos_printf("Time is %lld nsec, Mark is %lld nsec.\n",rtos_get_time_ns(), task->periodMark );
+      // CALCULATE in nsecs
+      NANO_TIME timeRemaining = task->periodMark - rtos_get_time_ns();
 
-            //rtos_printf("Time is %lld nsec, Mark is %lld nsec.\n",rtos_get_time_ns(), task->periodMark );
-            // CALCULATE in nsecs
-            NANO_TIME timeRemaining = task->periodMark - rtos_get_time_ns();
+      if ( timeRemaining > 0 ) {
+	//rtos_printf("Waiting for %lld nsec\n",timeRemaining);
+	TIME_SPEC ts( ticks2timespec( timeRemaining ) );
+	rtos_nanosleep( &ts , NULL );
+      }
+      //             else
+      //                 rtos_printf( "GNULinux task did not get deadline !\n" );
 
-            if ( timeRemaining > 0 ) {
-                //rtos_printf("Waiting for %lld nsec\n",timeRemaining);
-                TIME_SPEC ts( ticks2timespec( timeRemaining ) );
-                rtos_nanosleep( &ts , NULL );
-            }
-//             else
-//                 rtos_printf( "GNULinux task did not get deadline !\n" );
+      // next wake-up time :
+      task->periodMark += task->period;
 
-            // next wake-up time :
-            task->periodMark += task->period;
-
-	    return 0;
-        }
+      return 0;
+    }
 
         INTERNAL_QUAL void rtos_task_delete(RTOS_TASK* mytask) {
         free(mytask->name);
