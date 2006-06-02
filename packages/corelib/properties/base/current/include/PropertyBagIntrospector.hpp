@@ -45,12 +45,10 @@ namespace ORO_CoreLib
      * the results of an introspection.
      */
     class PropertyBagIntrospector
-        : public PropertyIntrospection
+        : public PropertyBagVisitor
     {
         std::stack<PropertyBag*> mystack;
     public:
-        using PropertyIntrospection::introspect;
-
         /**
          * @brief Create a new Introspector, saving the results in a bag.
          *
@@ -78,37 +76,28 @@ namespace ORO_CoreLib
             mystack.push( &new_bag );
         }
 
-        virtual void introspect(const Property<bool> &v)
+
+        /**
+         * Use this entry function to inspect a bag.
+         * @param v the properties of this bag will be inspected.
+         */
+        void introspect(const PropertyBag& v )
         {
-            mystack.top()->add( v.clone() );
+            v.identify(this);
         }
 
-        virtual void introspect(const Property<char> &v)
+        virtual void introspect(PropertyBase* v)
         {
-            mystack.top()->add( v.clone() );
+            // if it is decomposable, identify a new bag, otherwise add a clone.
+            Property<PropertyBag> res(v->getName(), v->getDescription() );
+            if ( v->getTypeInfo()->decomposeType( v->getDataSource(), res.value() ))
+                res.identify( this );
+            else
+                mystack.top()->add( v->clone() );
+            deleteProperties(res.value());
         }
 
-        virtual void introspect(const Property<int> &v)
-        {
-            mystack.top()->add( v.clone() );
-        }
-
-        virtual void introspect(const Property<unsigned int> &v)
-        {
-            mystack.top()->add( v.clone() );
-        }
-
-        virtual void introspect(const Property<double> &v)
-        {
-            mystack.top()->add( v.clone() );
-        }
-
-        virtual void introspect(const Property<std::string> &v)
-        {
-            mystack.top()->add( v.clone() );
-        }
-
-        virtual void introspect(const Property<PropertyBag> &v)
+        virtual void introspect(Property<PropertyBag> &v)
         {
             PropertyBag* cur_bag = mystack.top();
             Property<PropertyBag>* bag_cl
@@ -118,19 +107,10 @@ namespace ORO_CoreLib
             cur_bag->add( bag_cl );
 
             mystack.push( &bag_cl->value() );
-            this->introspect( v.get() );
-            mystack.pop();
-        }
 
-        virtual void introspect( const PropertyBag& v )
-        {
-            for (
-                 PropertyBag::const_iterator i = v.getProperties().begin();
-                 i != v.getProperties().end();
-                 i++ )
-                {
-                    (*i)->identify(this);
-                }
+            v.value().identify(this);
+
+            mystack.pop();
         }
     };
 }

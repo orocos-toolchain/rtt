@@ -200,7 +200,9 @@ namespace ORO_CoreLib
          */
         static Property<T>* narrow( PropertyBase* prop );
 
-        virtual void identify( PropertyIntrospection* pi) const;
+        virtual void identify( PropertyIntrospection* pi);
+        
+        virtual void identify( PropertyBagVisitor* pi);
         
         virtual bool update( const PropertyBase* other) 
         {
@@ -232,7 +234,7 @@ namespace ORO_CoreLib
         virtual CommandInterface* refreshCommand( const PropertyBase* other)
         {
             // refresh is just an update of the datasource.
-            DataSourceBase::const_ptr sourcebase = other->getDataSource();
+            DataSourceBase::shared_ptr sourcebase = other->getDataSource();
             return _value->updateCommand( sourcebase.get() );
         }
 
@@ -369,11 +371,19 @@ namespace ORO_CoreLib
 namespace ORO_CoreLib
 {
     template< class T>
-    void Property<T>::identify( PropertyIntrospection* pi) const
+    void Property<T>::identify( PropertyIntrospection* pi)
     {
         pi->introspect( *this );
     }
 
+    template< class T>
+    void Property<T>::identify( PropertyBagVisitor* pi)
+    {
+        return PropertyBase::identify(pi);
+    }
+
+    template<>
+    void Property<PropertyBag>::identify( PropertyBagVisitor* pbi);
 }
 
 #endif

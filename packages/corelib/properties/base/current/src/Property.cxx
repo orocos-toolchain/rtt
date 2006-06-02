@@ -67,6 +67,16 @@ namespace ORO_CoreLib {
     }
 
 
+    void PropertyBase::identify( PropertyBagVisitor* pbi)
+    {
+        pbi->introspect( this );
+    }
+
+    template<>
+    void Property<PropertyBag>::identify( PropertyBagVisitor* pbi)
+    {
+        pbi->introspect( *this );
+    }
 
 #if 0
     Property<PropertyBag>::~Property<PropertyBag>()
@@ -89,7 +99,8 @@ namespace ORO_CoreLib {
     }
 
 
-    void Property<PropertyBag>::identify( PropertyIntrospection* pi) const
+    template<>
+    void Property<PropertyBag>::identify( PropertyIntrospection* pi)
     {
         pi->introspect( *this );
     }

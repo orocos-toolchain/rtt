@@ -41,6 +41,7 @@ namespace ORO_CoreLib
     namespace detail {
         class PropertyOperation;
     }
+    class PropertyBagVisitor;
     class PropertyIntrospection;
 
 	/**
@@ -92,7 +93,13 @@ namespace ORO_CoreLib
          * A call on this method will lead to a call to the PropertyIntrospection
          * interface identifying this Property's proper type.
          */
-        virtual void identify( PropertyIntrospection* pi) const = 0;
+        virtual void identify( PropertyIntrospection* pi) = 0;
+
+        /**
+         * A call on this method will lead to a call to the PropertyBagIntrospection
+         * interface identifying this Property's proper type.
+         */
+        virtual void identify( PropertyBagVisitor* pi);
 
         /**
          * Update the value of this Property with the value of an \a other Property.
@@ -185,8 +192,15 @@ namespace ORO_CoreLib
          * A lengthy description for this PropertyBase.
          */
         std::string _description;
-    private:
-
     };
+
+    /**
+     * Prints the value of a Property.
+     * @param os The stream to print to
+     * @param p The property whose value to print.
+     */
+    std::ostream& operator<<(std::ostream &os, PropertyBase* p);
+
+
 } // namespace ORO_CoreLib
 #endif

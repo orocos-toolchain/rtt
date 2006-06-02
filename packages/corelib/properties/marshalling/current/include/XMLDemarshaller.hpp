@@ -34,32 +34,24 @@
 namespace ORO_CoreLib
 {
 
+    /**
+     * Unimplemented counterpart of XMLMarshaller.
+     */
 	template<typename input_stream>
-    class XMLDemarshaller : public Demarshaller
+    class XMLDemarshaller
+        : public Demarshaller
     {
-        public:
-            XMLDemarshaller(input_stream &is) :
-                    _is(is)
-            {}
+    public:
+        XMLDemarshaller(input_stream &is) :
+            _is(is)
+        {}
 			
-            virtual bool deserialize(PropertyBag &v) 
-			{
-				std::string token;
-		    	_is >> token;
-#if 0
-                for (
-                    vector<PropertyBase*>::iterator i = v._properties.begin();
-                    i != v._properties.end();
-                    i++ )
-                {
-                    (*i)->serialize(*this);
-                }
-#endif
-//                _os <<"</Bag>\n";
-                return true;
-			}
+        virtual bool deserialize(PropertyBag &v) 
+        {
+            return false;
+        }
 			
-            input_stream &_is;
+        input_stream &_is;
     };
 }
 #endif

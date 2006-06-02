@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Jul 15 11:21:05 CEST 2004  PropertyBase.cxx 
+  tag: Peter Soetens  Thu Apr 22 20:40:58 CEST 2004  EmptyHeaderMarshaller.hpp 
 
-                        PropertyBase.cxx -  description
+                        EmptyHeaderMarshaller.hpp -  description
                            -------------------
-    begin                : Thu July 15 2004
+    begin                : Thu April 22 2004
     copyright            : (C) 2004 Peter Soetens
-    email                : peter.soetens at mech.kuleuven.ac.be
+    email                : peter.soetens@mech.kuleuven.ac.be
  
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -23,35 +23,37 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/
+ ***************************************************************************/ 
+ 
+ 
+#ifndef ORO_PROPERTIES_EMPTY_SERIALIZER
+#define ORO_PROPERTIES_EMPTY_SERIALIZER
 
-#ifdef ORO_PRAGMA_INTERFACE
-#pragma implementation
-#endif
-#include "corelib/PropertyBase.hpp"
+#include <corelib/Marshaller.hpp>
 
-namespace ORO_CoreLib {
-
-    PropertyBase::~PropertyBase()
-    {}
-
-    PropertyBase::PropertyBase( std::string name, std::string description)
-        : _name(name), _description(description)
-    {}
-
-    void PropertyBase::setName(const std::string& name)
+namespace ORO_CoreLib
+{
+    /**
+     * @brief A Dummy Empty Marshaller.
+     */
+    class EmptyMarshaller 
+        : public Marshaller
     {
-        _name = name;
-    }
+    public:
+        EmptyMarshaller()
+        {
+        }
 
-    void PropertyBase::setDescription(const std::string& desc)
-    {
-        _description = desc;
-    }
-
-    std::ostream& operator<<(std::ostream &os, PropertyBase* p)
-    {
-        os << p->getDataSource();
-        return os;
-    }
+        virtual ~EmptyMarshaller() {}
+            
+        virtual void flush() {}
+            
+        virtual void serialize(PropertyBase* v) 
+        { 
+        }
+        virtual void serialize(const PropertyBag &v) 
+        {
+        }
+	};
 }
+#endif

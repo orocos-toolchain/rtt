@@ -44,7 +44,8 @@ namespace ORO_CoreLib
 
     /**
      * @brief A demarshaller for extracting properties and property bags
-     * from a Component Property File following the CORBA 3 standard.
+     * from a Component Property File (CPF) following the CORBA 3 standard.
+     * @see CPFMarshaller to create CPF files.
      */
     class CPFDemarshaller
         : public Demarshaller

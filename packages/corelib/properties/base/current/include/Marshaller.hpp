@@ -34,12 +34,10 @@ namespace ORO_CoreLib
 {
 
     class PropertyBag;
-	template<typename T> class Property;
+	class PropertyBase;
 
 	/**
-     * @brief Used for converting properties to a format.
-	 * An interface which all classes which serialize property bags
-	 * should implement.
+     * @brief A Marshaller converts Property objects to a (file/text) format.
 	 *
 	 * @see Demarshaller
 	 * @see Property
@@ -50,83 +48,32 @@ namespace ORO_CoreLib
         public:
         virtual ~Marshaller() {}
 
-			/**
-			 * Serialize a property of type bool.
-			 * @param v The property to be serialized.
-			 */
-			virtual void serialize(const Property<bool> &v) = 0;
+        /**
+         * Serialize a property.
+         * @param v The property to be serialized.
+         */
+        virtual void serialize(PropertyBase* v) = 0;
 			
-			/**
-			 * Serialize a property of type char.
-			 * @param v The property to be serialized.
-			 */
-			virtual void serialize(const Property<char> &v) = 0;
-			
-			/**
-			 * Serialize a property of type int.
-			 * @param v The property to be serialized.
-			 */
-			virtual void serialize(const Property<int> &v) = 0;
-			
-			/**
-			 * Serialize a property of type unsigned int.
-			 * @param v The property to be serialized.
-			 */
-			virtual void serialize(const Property<unsigned int> &v) = 0;
-			
-			/**
-			 * Serialize a property of type double.
-			 * @param v The property to be serialized.
-			 */
-			virtual void serialize(const Property<double> &v) = 0;
-			
-			/**
-			 * Serialize a property of type string.
-			 * @param v The property to be serialized.
-			 */
-			virtual void serialize(const Property<std::string> &v) = 0;
-			
-			/**
-			 * Serialize a property of type property bag. This enables
-			 * nested property bags.
-			 * @param v The property to be serialized.
-			 */
-            virtual void serialize(const Property<PropertyBag> &v) = 0;
-			
-			/**
-			 * Serialize the contents of a property bag with headers and footers. Use this method
-             * on your 'root' PropertyBag, such that headers and footers
-             * are written.
-			 * @param v The property bag to be serialized.
-			 */
-            virtual void serialize(const PropertyBag &v) = 0;
+        /**
+         * Serialize the contents of a property bag with headers and footers. Use this method
+         * on your 'root' PropertyBag, such that headers and footers
+         * are written.
+         * @param v The property bag to be serialized.
+         */
+        virtual void serialize(const PropertyBag &v) = 0;
 
-            /**
-             * Flush all buffers.
-             * Instructs the Marshaller to flush any remaining buffered
-             * data.
-             */
-            virtual void flush() = 0;
-
-            /** 
-             * Unknown types must decompose theirselves into the primitives.
-             * @see TypeInfo
-             */
-            template< class T >
-            void serialize( const Property<T> &v )
-            {
-                // Decompose v into bag.
-                PropertyBag bag;
-                v.typeInfo()->decomposeType( bag, v.getDataSource() );
-                // Serialize the bag.
-                this->serialize( bag );
-            }
+        /**
+         * Flush all buffers, write footers.
+         * Instructs the Marshaller to flush any remaining buffered
+         * data and write a footer to indicate that serialization is
+         * done. A marshaller may choose to write nothing until this
+         * function is called, or print a summary, or anything else.
+         */
+        virtual void flush() = 0;
 	};
 
 	/**
-     * @brief Used for extracting properties from a format.
-	 * An interface which all classes which deserialize data
-	 * should implement.
+     * @brief An interface for extracting properties from a format.
 	 *
 	 * @see Marshaller
 	 * @see Property
@@ -136,13 +83,13 @@ namespace ORO_CoreLib
 	{
 		public:
         virtual ~Demarshaller() {}
-			/**
-			 * Deserialize data to a property bag.
-			 * @param v The property bag which will contain the results
-             *          of the deserialization.
-			 * @see PropertyBag
-			 */
-            virtual bool deserialize(PropertyBag &v) = 0;
+        /**
+         * Deserialize data to a property bag.
+         * @param v The property bag which will contain the results
+         *          of the deserialization.
+         * @see PropertyBag
+         */
+        virtual bool deserialize(PropertyBag &v) = 0;
     };
 } // Namespace ORO_CoreLib
 #endif

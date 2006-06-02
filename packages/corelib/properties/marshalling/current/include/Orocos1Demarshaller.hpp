@@ -48,9 +48,6 @@ namespace ORO_CoreLib
                     _is(is)
             {}
 	
-            virtual void flush()
-            {}
-            
             virtual bool deserialize(PropertyBag &v) 
 			{
 				std::string token;

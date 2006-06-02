@@ -39,6 +39,7 @@
 #include "RunnableInterface.hpp"
 #include "NameServerRegistrator.hpp"
 #include "TimeService.hpp"
+#include "PropertyBagIntrospector.hpp"
 
 namespace ORO_CoreLib
 {
@@ -117,13 +118,21 @@ namespace ORO_CoreLib
         
         void streamHeader()
         {
-            adaptor.header().serialize(root_bag);
+            PropertyBag result;
+            PropertyBagIntrospector pbi(result);
+            root_bag.identify( &pbi );
+            adaptor.header().serialize(result);
+            deleteProperties(result);
             adaptor.header().flush();
         }
         
         void streamData()
         {
-            adaptor.body().serialize(root_bag);
+            PropertyBag result;
+            PropertyBagIntrospector pbi(result);
+            root_bag.identify( &pbi );
+            adaptor.body().serialize(result);
+            deleteProperties(result);
             adaptor.body().flush();
         }
 

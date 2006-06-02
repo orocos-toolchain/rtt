@@ -79,6 +79,26 @@ namespace ORO_CoreLib
             }
     }
 
+    void PropertyBag::identify( PropertyIntrospection* pi ) const
+    {
+        for ( const_iterator i = _properties.begin();
+              i != _properties.end();
+              i++ )
+            {
+                (*i)->identify(pi);
+            }
+    }
+
+    void PropertyBag::identify( PropertyBagVisitor* pi ) const
+    {
+        for ( const_iterator i = _properties.begin();
+              i != _properties.end();
+              i++ )
+            {
+                (*i)->identify(pi);
+            }
+    }
+
     PropertyBase* PropertyBag::find(const std::string& name) const
     {
         const_iterator i( std::find_if(_properties.begin(), _properties.end(), std::bind2nd(PropertyBag::FindProp(), name ) ) );

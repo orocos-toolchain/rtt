@@ -43,7 +43,7 @@ namespace ORO_CoreLib
      */
     template<typename o_stream>
     class TableMarshaller 
-    : public Marshaller, public PropertyIntrospection, public StreamProcessor<o_stream>
+        : public Marshaller, public StreamProcessor<o_stream>
     {
         std::string sep;
         public:
@@ -56,44 +56,16 @@ namespace ORO_CoreLib
 
             virtual ~TableMarshaller() {}
 
-			virtual void serialize(const Property<bool> &v) 
+			virtual void serialize(PropertyBase* v) 
 			{ 
-                *this->s <<sep; 
-                this->s->width( v.getName().length() );
-                *this->s<< v.get();
-			}
-
-			virtual void serialize(const Property<char> &v) 
-			{ 
-                *this->s <<sep; 
-                this->s->width( v.getName().length() );
-                *this->s<< v.get();
-			}
-			virtual void serialize(const Property<int> &v) 
-			{ 
-                *this->s <<sep; 
-                this->s->width( v.getName().length() );
-                *this->s<< v.get();
-			}
-			
-			virtual void serialize(const Property<unsigned int> &v) 
-			{ 
-                *this->s <<sep; 
-                this->s->width( v.getName().length() );
-                *this->s<< v.get();
-			}
-			
-			virtual void serialize(const Property<double> &v) 
-			{
-                *this->s <<sep; 
-                this->s->width( v.getName().length() );
-                *this->s<< v.get();
-            }
-			virtual void serialize(const Property<std::string> &v) 
-			{
-                *this->s <<sep; 
-                this->s->width( v.getName().length() );
-                *this->s<< v.get();
+                *this->s << sep;
+                Property<PropertyBag>* bag = dynamic_cast< Property<PropertyBag>* >( v );
+                if ( bag )
+                    this->serialize( bag->value() );
+                else {
+                    this->s->width( v->getName().length() );
+                    *this->s << v->getDataSource();
+                }
 			}
 			
             virtual void serialize(const PropertyBag &v) 
@@ -103,55 +75,14 @@ namespace ORO_CoreLib
                     i != v.getProperties().end();
                     i++ )
                 {
-                    (*i)->identify(this);
+                    this->serialize( *i );
                 }
 			}
 
-            virtual void serialize(const Property<PropertyBag> &v) 
-			{
-				serialize(v.get());
-            }
-            
             virtual void flush() 
             {
                 // TODO : buffer for formatting and flush here.
-                *this->s <<sep<<std::endl;
-                
-            }
-            
-			virtual void introspect(const Property<bool> &v) 
-			{ 
-                serialize(v);
-			}
-
-			virtual void introspect(const Property<char> &v) 
-			{ 
-                serialize(v);
-			}
-
- 			virtual void introspect(const Property<int> &v) 
-			{ 
-                serialize(v);
-			}
-			
- 			virtual void introspect(const Property<unsigned int> &v) 
-			{ 
-                serialize(v);
-			}
-			
-			virtual void introspect(const Property<double> &v) 
-			{
-                serialize(v);
-			}
-
-			virtual void introspect(const Property<std::string> &v) 
-			{
-                serialize(v);
-			}
-			
-            virtual void introspect(const Property<PropertyBag> &v) 
-			{
-				serialize(v.get());
+                *this->s << sep <<std::endl;
             }
 	};
 }

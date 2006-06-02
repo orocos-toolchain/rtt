@@ -70,7 +70,9 @@ namespace ORO_CoreLib
 	 *
 	 */
     template<typename o_stream>
-    class SimpleMarshaller : public Marshaller, public PropertyIntrospection
+    class SimpleMarshaller
+        : public Marshaller,
+          protected PropertyIntrospection
     {
 		static const char TYPECODE_BOOL = 'B';
 		static const char TYPECODE_CHAR = 'C';
@@ -79,136 +81,75 @@ namespace ORO_CoreLib
 		static const char TYPECODE_DOUBLE = 'D';
 		static const char TYPECODE_STRING = 'S';
 
-        public:
-            typedef o_stream output_stream;
-            typedef o_stream OutputStream;
+        template< class T >
+        virtual void writeOut(const char tc, const Property<T> &v) 
+        { 
+            std::stringstream buffer;
+            buffer << v.get();
+            _os << tc;
+            _os.put(v.getName().size());
+            _os	<< v.getName() << ":";
+            _os.put( buffer.str().size() );
+            _os << buffer.str() << ";";
+        }
 
-            SimpleMarshaller(output_stream &os) :
-                    _os(os)
-            {}
 
-            virtual void flush()
-            {}
-            
-			virtual void serialize(const Property<bool> &v) 
-			{ 
-				
-                _os << TYPECODE_BOOL;
-				_os.put(v.getName().size());
-				_os	<< v.getName() << ":";
-				_os.put( 0x01);
-				_os << v.get() << ";";
-			}
+        virtual void introspect(const Property<bool> &v) 
+        { 
+            writeOut(TYPECODE_BOOL, v);
+        }
 
-			virtual void serialize(const Property<char> &v) 
-			{ 
-                _os << TYPECODE_CHAR;
-				_os.put(v.getName().size() );
-				_os	<< v.getName() <<":";
-				_os.put(0x01);
-				_os << v.get() << ";";
-			}
+        virtual void introspect(const Property<char> &v) 
+        { 
+            writeOut(TYPECODE_CHAR, v);
+        }
 
-			virtual void serialize(const Property<int> &v) 
-			{ 
-				std::stringstream buffer;
-                std::string s;
-				buffer << v.get();
-				buffer >> s;	
-                _os << TYPECODE_INT;
-				_os.put(v.getName().size());
-				_os	<< v.getName() << ":";
-				_os.put(s.size());
-				_os << s << ";";
-			}
+        virtual void introspect(const Property<int> &v) 
+        { 
+            writeOut(TYPECODE_INT, v);
+        }
 			
-			virtual void serialize(const Property<unsigned int> &v) 
-			{ 
-				std::stringstream buffer;
-                std::string s;
-				buffer << v.get();
-				buffer >> s;	
-                _os << TYPECODE_UINT;
-				_os.put(v.getName().size());
-				_os	<< v.getName() << ":";
-				_os.put(s.size());
-				_os << s << ";";
-			}
+        virtual void introspect(const Property<unsigned int> &v) 
+        { 
+            writeOut(TYPECODE_UINT, v);
+        }
 			
-			virtual void serialize(const Property<double> &v) 
-			{
-                std::string s;
-				std::stringstream buffer;
-				buffer << v.get();
-				buffer >> s;
-                _os << TYPECODE_DOUBLE;
-				_os.put(v.getName().size());
-				_os << v.getName() <<":";
-				_os.put(s.size());
-				_os	<< s << ";";
-			}
+        virtual void introspect(const Property<double> &v) 
+        {
+            writeOut(TYPECODE_DOUBLE, v);
+        }
 
-			virtual void serialize(const Property<std::string> &v) 
-			{
-                _os << TYPECODE_STRING;
-				_os.put(v.getName().size());
-				_os	<< v.getName() <<":";
-				_os.put(v.get().size());
-				_os << v.get() << ";";
-			}
+        virtual void introspect(const Property<std::string> &v) 
+        {
+            writeOut(TYPECODE_STRING, v);
+        }
 			
-            virtual void serialize(const PropertyBag &v) 
-			{
-                for (
-                    PropertyBag::const_iterator i = v.getProperties().begin();
-                    i != v.getProperties().end();
-                    ++i )
-                {
-                    (*i)->identify(this);
-                }
-			}
+        virtual void introspect(const Property<PropertyBag> &v) 
+        {
+            serialize(v.get());
+        }
 
-            virtual void serialize(const Property<PropertyBag> &v) 
-			{
-				serialize(v.get());
-            }
-            
-			virtual void introspect(const Property<bool> &v) 
-			{ 
-                serialize(v);
-			}
+        output_stream &_os;
+    public:
+        typedef o_stream output_stream;
+        typedef o_stream OutputStream;
 
-			virtual void introspect(const Property<char> &v) 
-			{ 
-                serialize(v);
-			}
+        SimpleMarshaller(output_stream &os) :
+            _os(os)
+        {}
 
-			virtual void introspect(const Property<int> &v) 
-			{ 
-                serialize(v);
-			}
-			
-			virtual void introspect(const Property<unsigned int> &v) 
-			{ 
-                serialize(v);
-			}
-			
-			virtual void introspect(const Property<double> &v) 
-			{
-                serialize(v);
-			}
+        virtual void flush()
+        {}
+          
+        virtual void serialize(const PropertyBase* p)
+        {
+            p->identify(this);
+        }
 
-			virtual void introspect(const Property<std::string> &v) 
-			{
-                serialize(v);
-			}
-			
-            virtual void introspect(const Property<PropertyBag> &v) 
-			{
-				serialize(v.get());
-            }
-
-            output_stream &_os;
+        virtual void serialize(const PropertyBag &v) 
+        {
+            v.identify(this);
+        }
 	};
 }
 #endif

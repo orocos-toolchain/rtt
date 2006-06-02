@@ -35,127 +35,100 @@
 namespace ORO_CoreLib
 {
 
+    /**
+     * Marshalls a PropertyBag to a non standard XML format.
+     * @warning: No Orocos class exists yet which can read the XML data back in.
+     */
 	template<typename o_stream>
-		class XMLMarshaller 
-		: public Marshaller, public PropertyIntrospection, public StreamProcessor<o_stream>
-		{
-			public:
-				typedef o_stream output_stream;
-				typedef o_stream OutputStream;
+    class XMLMarshaller 
+		: public Marshaller, 
+          protected PropertyIntrospection, 
+          public StreamProcessor<o_stream>
+    {
+    protected:
+        virtual void introspect(const Property<bool> &v) 
+        { 
+            *(this->s) << "<bool id=\""<< v.getName() 
+                       <<"\" description=\"" << v.getDescription() <<"\">"
+                       << v.get() << "</bool>\n";
+        }
 
-				XMLMarshaller(output_stream &os) :
-					StreamProcessor<o_stream>(os)
-					{}
+        virtual void introspect(const Property<char> &v) 
+        { 
+            *(this->s) << "<char id=\""<< v.getName() 
+                       <<"\" description=\"" << v.getDescription() <<"\">"
+                       << v.get() << "</char>\n";
+        }
+        virtual void introspect(const Property<int> &v) 
+        { 
+            *(this->s) << "<int id=\""<< v.getName() 
+                       <<"\" description=\"" << v.getDescription() <<"\">"
+                       << v.get() << "</int>\n";
+        }
 
-				virtual void flush() 
-				{
-				}
+        virtual void introspect(const Property<unsigned int> &v) 
+        { 
+            *(this->s) << "<uint id=\""<< v.getName() 
+                       <<"\" description=\"" << v.getDescription() <<"\">"
+                       << v.get() << "</uint>\n";
+        }
 
-				virtual void serialize(const Property<bool> &v) 
-				{ 
-					*(this->s) << "<bool id=\""<< v.getName() 
-						<<"\" description=\"" << v.getDescription() <<"\">"
-						<< v.get() << "</bool>\n";
-				}
+        virtual void introspect(const Property<double> &v) 
+        {
+            *(this->s) << "<double id=\""<< v.getName() 
+                       <<"\" description=\"" << v.getDescription() <<"\">"
+                       << v.get() << "</double>\n";
+        }
+        virtual void introspect(const Property<std::string> &v) 
+        {
+            *(this->s) << "<string id=\""<< v.getName() 
+                       <<"\" description=\"" << v.getDescription() <<"\">"
+                       << v.get() << "</string>\n";
+        }
 
-				virtual void serialize(const Property<char> &v) 
-				{ 
-					*(this->s) << "<char id=\""<< v.getName() 
-						<<"\" description=\"" << v.getDescription() <<"\">"
-						<< v.get() << "</char>\n";
-				}
-				virtual void serialize(const Property<int> &v) 
-				{ 
-					*(this->s) << "<int id=\""<< v.getName() 
-						<<"\" description=\"" << v.getDescription() <<"\">"
-						<< v.get() << "</int>\n";
-				}
+        virtual void introspect(const Property<PropertyBag> &v) 
+        {
+            introspect(v.get(), v.getName());
+        }
 
-				virtual void serialize(const Property<unsigned int> &v) 
-				{ 
-					*(this->s) << "<uint id=\""<< v.getName() 
-						<<"\" description=\"" << v.getDescription() <<"\">"
-						<< v.get() << "</uint>\n";
-				}
+        virtual void introspect(const PropertyBag &v, std::string name)
+        {
+            *(this->s) <<"<bag type=\""<<v.getType()<<"\" name=\"" << name << "\">"<< std::endl;
+            for (
+                 PropertyBag::const_iterator i = v.getProperties().begin();
+                 i != v.getProperties().end();
+                 i++ )
+                {
+                    (*i)->identify(this);
+                }
+            *(this->s) <<"</bag>\n";
+        }
+    public:
+        typedef o_stream output_stream;
+        typedef o_stream OutputStream;
 
-				virtual void serialize(const Property<double> &v) 
-				{
-					*(this->s) << "<double id=\""<< v.getName() 
-						<<"\" description=\"" << v.getDescription() <<"\">"
-						<< v.get() << "</double>\n";
-				}
-				virtual void serialize(const Property<std::string> &v) 
-				{
-					*(this->s) << "<string id=\""<< v.getName() 
-						<<"\" description=\"" << v.getDescription() <<"\">"
-						<< v.get() << "</string>\n";
-				}
+        XMLMarshaller(output_stream &os) :
+            StreamProcessor<o_stream>(os)
+        {}
 
-				virtual void serialize(const PropertyBag &v, std::string name)
-				{
-					*(this->s) <<"<bag type=\""<<v.getType()<<"\" name=\"" << name << "\">"<< std::endl;
-					for (
-							PropertyBag::const_iterator i = v.getProperties().begin();
-							i != v.getProperties().end();
-							i++ )
-					{
-						(*i)->identify(this);
-					}
-					*(this->s) <<"</bag>\n";
-				}
+        virtual void flush() {}
+
+        virtual void serialize(const PropertyBase* p) {
+            p->identify(this);
+        }
 				
-				virtual void serialize(const PropertyBag &v) 
-				{
-					*(this->s) <<"<bag type=\""<<v.getType()<<"\">"<< std::endl;
-					for (
-							PropertyBag::const_iterator i = v.getProperties().begin();
-							i != v.getProperties().end();
-							i++ )
-					{
-						(*i)->identify(this);
-					}
-					*(this->s) <<"</bag>\n";
-				}
-				virtual void serialize(const Property<PropertyBag> &v) 
-				{
-					serialize(v.get(), v.getName());
-				}
-
-				virtual void introspect(const Property<bool> &v) 
-				{ 
-					serialize(v);
-				}
-
-				virtual void introspect(const Property<char> &v) 
-				{ 
-					serialize(v);
-				}
-
-				virtual void introspect(const Property<int> &v) 
-				{ 
-					serialize(v);
-				}
-
-				virtual void introspect(const Property<unsigned int> &v) 
-				{ 
-					serialize(v);
-				}
-
-				virtual void introspect(const Property<double> &v) 
-				{
-					serialize(v);
-				}
-
-				virtual void introspect(const Property<std::string> &v) 
-				{
-					serialize(v);
-				}
-
-				virtual void introspect(const Property<PropertyBag> &v) 
-				{
-					serialize(v.get(),v.getName());
-				}
-
-		};
+        virtual void serialize(const PropertyBag &v) 
+        {
+            *(this->s) <<"<bag type=\""<<v.getType()<<"\">"<< std::endl;
+            for (
+                 PropertyBag::const_iterator i = v.getProperties().begin();
+                 i != v.getProperties().end();
+                 i++ )
+                {
+                    (*i)->identify(this);
+                }
+            *(this->s) <<"</bag>\n";
+        }
+    };
 }
 #endif

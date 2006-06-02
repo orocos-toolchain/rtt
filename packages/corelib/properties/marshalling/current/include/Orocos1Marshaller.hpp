@@ -41,137 +41,93 @@ namespace ORO_CoreLib
 	 * @bug Not working yet :-)
 	 */
     template<typename output_stream>
-    class Orocos1Marshaller : public Marshaller, public PropertyIntrospection
+    class Orocos1Marshaller
+        : public Marshaller,
+          protected PropertyIntrospection
     {
-        public:
-            Orocos1Marshaller(output_stream &os) :
-                    _os(os)
-            {}
-
-            virtual void flush() {}
-
-			virtual void serialize(const Property<bool> &v) 
-			{ 
+    protected:
+        output_stream &_os;
+        virtual void introspect(const Property<bool> &v) 
+        { 
 				
-                _os << v.getName() 
-					<<":1>"
-					<< v.get() << ";";
-			}
+            _os << v.getName() 
+                <<":1>"
+                << v.get() << ";";
+        }
 
-			virtual void serialize(const Property<char> &v) 
-			{ 
-                _os << v.getName() 
-					<<":1>"
-					<< v.get() << ";";
-			}
+        virtual void introspect(const Property<char> &v) 
+        { 
+            _os << v.getName() 
+                <<":1>"
+                << v.get() << ";";
+        }
 
-			virtual void serialize(const Property<int> &v) 
-			{ 
-				std::stringstream buffer;
-				std::string s;
-				buffer << v.get();
-				buffer >> s;	
-                _os << v.getName() 
-					<<":"<<s.size() << ">"
-					<< s << ";";
-			}
+        virtual void introspect(const Property<int> &v) 
+        { 
+            std::stringstream buffer;
+            std::string s;
+            buffer << v.get();
+            buffer >> s;	
+            _os << v.getName() 
+                <<":"<<s.size() << ">"
+                << s << ";";
+        }
 			
-			virtual void serialize(const Property<unsigned int> &v) 
-			{ 
-				std::stringstream buffer;
-				std::string s;
-				buffer << v.get();
-				buffer >> s;	
-                _os << v.getName() 
-					<<":"<<s.size() << ">"
-					<< s << ";";
-			}
+        virtual void introspect(const Property<unsigned int> &v) 
+        { 
+            std::stringstream buffer;
+            std::string s;
+            buffer << v.get();
+            buffer >> s;	
+            _os << v.getName() 
+                <<":"<<s.size() << ">"
+                << s << ";";
+        }
 			
-			virtual void serialize(const Property<double> &v) 
-			{
-   				std::stringstream buffer;
-				std::string s;
-				buffer << v.get();
-				buffer >> s;
-                _os << v.getName() 
-					<<":" << s.size() << ">"
-					<< s << ";";
-			}
-			virtual void serialize(const Property<std::string> &v) 
-			{
-                _os << v.getName() 
-					<<":"<<v.get().size() << ">"
-					<< v.get() << ";";
-			}
+        virtual void introspect(const Property<double> &v) 
+        {
+            std::stringstream buffer;
+            std::string s;
+            buffer << v.get();
+            buffer >> s;
+            _os << v.getName() 
+                <<":" << s.size() << ">"
+                << s << ";";
+        }
+        virtual void introspect(const Property<std::string> &v) 
+        {
+            _os << v.getName() 
+                <<":"<<v.get().size() << ">"
+                << v.get() << ";";
+        }
 			
-            virtual void serialize(const PropertyBag &v) 
-			{
-                _os <<"{";
-#if 1
-                for (
-                    PropertyBag::const_iterator i = v.getProperties().begin();
-                    i != v.getProperties().end();
-                    i++ )
-                {
-                    (*i)->identify(this);
-                }
-#endif
-                _os <<"}";
-			}
-            virtual void serialize(const Property<PropertyBag> &v) 
-			{
-                //   cout << "double: " << v;
-				_os << v.getName();
-				serialize(v.get());
-#if 0
-                _os <<"<bag>";
-                for (
-                    vector<PropertyBase*>::iterator i = v._properties.begin();
-                    i != v._properties.end();
-                    i++ )
-                {
-                    (*i)->serialize(*this);
-                }
-                _os <<"</bag>";
-#endif
-            }
+        virtual void introspect(const Property<PropertyBag> &v) 
+        {
+            //   cout << "double: " << v;
+            _os << v.getName();
+            serialize(v.get());
+        }
 
-			virtual void introspect(const Property<bool> &v) 
-			{ 
-                serialize(v);
-			}
+    public:
+        Orocos1Marshaller(output_stream &os) :
+            _os(os)
+        {}
 
-			virtual void introspect(const Property<char> &v) 
-			{ 
-                serialize(v);
-			}
+        virtual void flush() { _os.flush(); }
 
-			virtual void introspect(const Property<int> &v) 
-			{ 
-                serialize(v);
-			}
-			
-			virtual void introspect(const Property<unsigned int> &v) 
-			{ 
-                serialize(v);
-			}
-			
-			virtual void introspect(const Property<double> &v) 
-			{
-                serialize(v);
-			}
+        virtual void serialize(const PropertyBag &v) 
+        {
+            _os <<"{";
 
-			virtual void introspect(const Property<std::string> &v) 
-			{
-                serialize(v);
-			}
-			
-            virtual void introspect(const Property<PropertyBag> &v) 
-			{
-				serialize(v.get());
-            }
+            v.identify(this);
 
-            output_stream &_os;
+            _os <<"}";
+        }
+
+        virtual void serialize(const PropertyBase* b)
+        {
+            b->identify(this);
+        }
 	};
 }
 #endif

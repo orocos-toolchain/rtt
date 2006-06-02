@@ -43,7 +43,7 @@ namespace ORO_CoreLib
      */
     template<typename o_stream>
     class TableHeaderMarshaller 
-    : public Marshaller, public PropertyIntrospection, public StreamProcessor<o_stream>
+    : public Marshaller, public StreamProcessor<o_stream>
     {
         int level;
         int line;
@@ -61,36 +61,16 @@ namespace ORO_CoreLib
 
             virtual ~TableHeaderMarshaller() {}
             
-			virtual void serialize(const Property<bool> &v) 
+			virtual void serialize(PropertyBase* v) 
 			{ 
-                    store( v.getName() );
+                Property<PropertyBag>* bag = dynamic_cast< Property<PropertyBag>* >( v );
+                if ( bag )
+                    this->serialize( *bag );
+                else
+                    store( v->getName() );
 			}
 
-			virtual void serialize(const Property<char> &v) 
-			{ 
-                    store( v.getName() );
-			}
 
-			virtual void serialize(const Property<int> &v) 
-			{ 
-                    store( v.getName() );
-			}
-			
-			virtual void serialize(const Property<unsigned int> &v) 
-			{ 
-                    store( v.getName() );
-			}
-			
-			virtual void serialize(const Property<double> &v) 
-			{
-                    store( v.getName() );
-			}
-            
-			virtual void serialize(const Property<std::string> &v) 
-			{
-                    store( v.getName() );
-			}
-			
             virtual void serialize(const PropertyBag &v) 
 			{
                 // A Bag has no name
@@ -116,7 +96,8 @@ namespace ORO_CoreLib
                     i != v.getProperties().end();
                     i++ )
                 {
-                    (*i)->identify(this);
+                    
+                    this->serialize(*i);
                 }
                 --level;
                 //*s << " |"<<std::endl;
@@ -189,41 +170,6 @@ namespace ORO_CoreLib
                 line  = 1;
                 header.clear();
                 header.push_back(std::string(""));
-            }
-            
-			virtual void introspect(const Property<bool> &v) 
-			{ 
-                serialize(v);
-			}
-
-			virtual void introspect(const Property<char> &v) 
-			{ 
-                serialize(v);
-			}
-
-			virtual void introspect(const Property<int> &v) 
-			{ 
-                serialize(v);
-			}
-			
-			virtual void introspect(const Property<unsigned int> &v) 
-			{ 
-                serialize(v);
-			}
-			
-			virtual void introspect(const Property<double> &v) 
-			{
-                serialize(v);
-			}
-
-			virtual void introspect(const Property<std::string> &v) 
-			{
-                serialize(v);
-			}
-			
-            virtual void introspect(const Property<PropertyBag> &v) 
-			{
-				serialize(v);
             }
 	};
 }

@@ -164,7 +164,17 @@ namespace ORO_CoreLib
         /**
          * Get the number of Properties in this bag.
          */
-        size_t size() { return _properties.size(); }
+        size_t size() const { return _properties.size(); }
+
+        /**
+         * Identify the contents of this bag through introspection.
+         */
+        void identify( PropertyIntrospection* pi ) const;
+
+        /**
+         * Identify the contents of this bag through introspection.
+         */
+        void identify( PropertyBagVisitor* pi ) const;
 
         /**
          * Find the PropertyBase with name \a name.

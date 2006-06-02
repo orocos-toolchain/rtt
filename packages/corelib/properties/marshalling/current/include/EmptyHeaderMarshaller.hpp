@@ -56,32 +56,8 @@ namespace ORO_CoreLib
             
         virtual void flush() {}
             
-        virtual void serialize(const Property<bool> &v) 
+        virtual void serialize(PropertyBase* v) 
         { 
-        }
-
-        virtual void serialize(const Property<char> &v) 
-        { 
-        }
-
-        virtual void serialize(const Property<int> &v) 
-        { 
-        }
-			
-        virtual void serialize(const Property<unsigned int> &v) 
-        { 
-        }
-			
-        virtual void serialize(const Property<double> &v) 
-        {
-        }
-
-        virtual void serialize(const Property<std::string> &v) 
-        {
-        }
-			
-        virtual void serialize(const Property<PropertyBag> &v) 
-        {
         }
 
         virtual void serialize(const PropertyBag &v) 
