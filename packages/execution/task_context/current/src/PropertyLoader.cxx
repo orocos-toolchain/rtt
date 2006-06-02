@@ -36,6 +36,7 @@
 #endif
 #include <corelib/Logger.hpp>
 #include <corelib/PropertyBagIntrospector.hpp>
+#include <fstream>
 
 using namespace std;
 using namespace ORO_CoreLib;

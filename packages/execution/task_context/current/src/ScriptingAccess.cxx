@@ -5,6 +5,7 @@
 #include "corelib/Logger.hpp"
 #include "execution/TaskContext.hpp"
 #include <sstream>
+#include <fstream>
 
 namespace ORO_Execution
 {
