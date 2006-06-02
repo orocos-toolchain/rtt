@@ -29,6 +29,9 @@
 #define OROBLD_OS_LXRT_INTERNAL 
 #include "os/StartStopManager.hpp"
 #include "os/MutexLock.hpp"
+#include "os/Mutex.hpp"
+#include "corelib/TimeService.hpp"
+
 #include "corelib/Logger.hpp"
 #include <iostream>
 #include <iomanip>
@@ -44,27 +47,11 @@ namespace ORO_CoreLib
 
     Logger* Logger::_instance = 0;
 
-    Logger::Logger()
-        : stdoutput(&std::cerr),
-          logfile("orocos.log"),
-          inloglevel(Info),
-          outloglevel(Warning),
-          timestamp(0),
-          started(false), showtime(true), allowRT(false), 
-          loggermodule("Logger"), moduleptr(loggermodule)
-    {
-      this->startup();
-    }
-
     Logger* Logger::Instance() {
         if (_instance == 0) {
             _instance =  new Logger();
         }
         return _instance;
-    }
-
-    Logger& Logger::log() {
-        return *Instance();
     }
 
     void Logger::Release() {
@@ -75,14 +62,189 @@ namespace ORO_CoreLib
       }
     }
 
+#ifndef OROBLD_DISABLE_LOGGING
+
+    Logger& Logger::log() {
+        return *Instance();
+    }
+
+    struct Logger::D
+    {
+        D()
+            : stdoutput(&std::cerr),
+              logfile("orocos.log"),
+              inloglevel(Info),
+              outloglevel(Warning),
+              timestamp(0),
+              started(false), showtime(true), allowRT(false), 
+              loggermodule("Logger"), moduleptr(loggermodule)
+        {
+        }
+
+        bool maylog() const {
+            if (!started || outloglevel == RealTime && allowRT == false)
+                return false;
+            return true;
+        }
+
+        bool maylogStdOut() const {
+            if ( inloglevel <= outloglevel && outloglevel != Never && inloglevel != Never ) 
+                return true;
+            return false;
+        }
+
+        bool maylogFile() const {
+            if ( inloglevel <= Info || inloglevel <= outloglevel )
+                return true;
+            return false;
+        }
+
+        void logit(std::ostream& (*pf)(std::ostream&))
+        {
+            // only on Logger::nl or Logger::endl, a time+log-line is written.
+            ORO_OS::MutexLock lock( inpguard );
+            std:: string res = showTime() +" " + showLevel(inloglevel) + showModule() + " ";
+
+            // do not log if not wanted.
+            if ( maylogStdOut() ) {
+                *stdoutput << res << input.str() << pf;
+                input.str("");   // clear stingstream.
+            }
+
+            if ( maylogFile() ) {
+                logfile << res << filedata.str() << pf;
+                outputstream << res << filedata.str() << pf;
+                filedata.str("");
+            }
+        }
+
+        std::stringstream input;
+        std::stringstream filedata;
+        std::stringstream outputstream;
+        std::ostream* stdoutput;
+        std::ofstream logfile;
+        LogLevel inloglevel, outloglevel;
+
+        TimeService::ticks timestamp;
+
+        Logger::LogLevel intToLogLevel(int ll) {
+            switch (ll)
+                {
+                case -1:
+                case 0:
+                    return Never;
+                case 1:
+                    return Fatal;
+                case 2:
+                    return Critical;
+                case 3:
+                    return Error;
+                case 4:
+                    return Warning;
+                case 5:
+                    return Info;
+                case 6:
+                    return Debug;
+                }
+            return Debug; // > 6
+        }
+
+
+        std::string showTime() const
+        {
+            std::stringstream time;
+            if ( showtime )
+                time <<fixed<< showpoint << setprecision(3) << TimeService::Instance()->secondsSince(timestamp);
+            return time.str();
+        }
+
+        /**
+         * Convert a loglevel to a string representation.
+         */
+        std::string showLevel( LogLevel ll) const {
+            std::string prefix;
+            switch (ll)
+                {
+                case Fatal:
+                    prefix="[ FATAL  ]";
+                    break;
+                case Critical:
+                    prefix="[CRITICAL]";
+                    break;
+                case Error:
+                    prefix="[ ERROR  ]";
+                    break;
+                case Warning:
+                    prefix="[ Warning]";
+                    break;
+                case Info:
+                    prefix="[ Info   ]";
+                    break;
+                case Debug:
+                    prefix="[ Debug  ]";
+                    break;
+                case RealTime:
+                    prefix="[RealTime]";
+                    break;
+                case Never:
+                    break;
+                }
+            return prefix;
+        }
+
+
+
+        std::string showModule() const
+        {
+            return "["+std::string(moduleptr)+"]";
+        }
+
+        bool started;
+
+        bool showtime;
+
+        bool allowRT;
+
+        const char* loggermodule;
+        const char* moduleptr;
+
+        ORO_OS::Mutex inpguard;
+        ORO_OS::Mutex startguard;
+    };
+
+    Logger::Logger()
+        :d ( new Logger::D() )
+    {
+      this->startup();
+    }
+
     void Logger::allowRealTime() {
         *this << Logger::Warning << "Enabling Real-Time Logging !" <<Logger::endl;
-        allowRT = true;
+        d->allowRT = true;
     }
     void Logger::disallowRealTime() {
         *this << Logger::Warning << "Disabling Real-Time Logging !" <<Logger::endl;
-        allowRT = false;
+        d->allowRT = false;
     }
+
+     std::ostream&
+     Logger::nl(std::ostream& __os)
+     {
+         return __os.put(__os.widen('\n'));
+     }
+
+    std::ostream&
+    Logger::endl(std::ostream& __os)
+    {
+        return flush(__os.put(__os.widen('\n')));
+    }
+
+    std::ostream&
+    Logger::flush(std::ostream& __os)
+    {
+        return __os.flush();
+    }
+
 
     Logger::In::In(const char* modname)
         : oldmod( Logger::log().getLogModule() )
@@ -97,18 +259,18 @@ namespace ORO_CoreLib
 
     Logger& Logger::in(const char* modname) 
     {
-        moduleptr = modname;
+        d->moduleptr = modname;
         return *this;
     }
 
     Logger& Logger::out()
     {
-        moduleptr = loggermodule;
+        d->moduleptr = d->loggermodule;
         return *this;
     }
 
     const char* Logger::getLogModule() const {
-        return moduleptr;
+        return d->moduleptr;
     }
 
 
@@ -116,7 +278,7 @@ namespace ORO_CoreLib
 #define ORO_str(s) #s        
 
     void Logger::startup() {
-        if (started)
+        if (d->started)
             return;
 #ifndef OROBLD_DISABLE_LOGGING
         std::string xtramsg = "No ORO_LOGLEVEL environment variable set.";
@@ -134,7 +296,7 @@ namespace ORO_CoreLib
                 *this<<Logger::Error;
             }
             else {
-                outloglevel = intToLogLevel(wantedlevel);
+                d->outloglevel = d->intToLogLevel(wantedlevel);
                 xtramsg = "Successfully extracted environment variable ORO_LOGLEVEL";
             }
         }
@@ -142,9 +304,9 @@ namespace ORO_CoreLib
         // Completely disable logging on negative values.
         if ( wantedlevel < 0 )
             return;
-        started = true;
+        d->started = true;
             
-        timestamp = TimeService::Instance()->getTicks();
+        d->timestamp = TimeService::Instance()->getTicks();
         *this<<xtramsg<<Logger::nl;
         *this<< " OROCOS version '" ORO_xstr(OROPKG_CORELIB) "'";
 #ifdef __GNUC__
@@ -156,29 +318,29 @@ namespace ORO_CoreLib
 #ifdef OROPKG_OS_GNULINUX
         *this<<" Running in GNU/Linux."<< Logger::nl;
 #endif
-        *this<<"Orocos Logging Activated at level : " << showLevel( outloglevel ) << " ( "<<int(outloglevel)<<" ) "<< Logger::nl;
-        *this<<"Reference System Time is : " << timestamp << " ticks ( "<<std::fixed<<Seconds(TimeService::ticks2nsecs(timestamp))/NSECS_IN_SECS<<" seconds )." << Logger::nl;
+        *this<<"Orocos Logging Activated at level : " << d->showLevel( d->outloglevel ) << " ( "<<int(d->outloglevel)<<" ) "<< Logger::nl;
+        *this<<"Reference System Time is : " << d->timestamp << " ticks ( "<<std::fixed<<Seconds(TimeService::ticks2nsecs(d->timestamp))/NSECS_IN_SECS<<" seconds )." << Logger::nl;
         *this<<"Logging is relative to this time." <<Logger::endl;
 #endif
     }
 
     void Logger::shutdown() {
-        if (!started)
+        if (!d->started)
             return;
         *this<<Logger::Info<<"Orocos Logging Deactivated." << Logger::endl;
         this->logflush();
-        started = false;
+        d->started = false;
     }
 
     std::string Logger::getLogLine() {
-        if (!started)
+        if (!d->started)
             return "";
         std::string line;
         {
-            ORO_OS::MutexLock lock( inpguard );
-            getline( outputstream, line );
-            if ( !outputstream )
-                outputstream.clear();
+            ORO_OS::MutexLock lock( d->inpguard );
+            getline( d->outputstream, line );
+            if ( !d->outputstream )
+                d->outputstream.clear();
         }
             //            *this<<Logger::Debug<<"Bad getLogLine." << Logger::nl;
             
@@ -186,88 +348,20 @@ namespace ORO_CoreLib
     }
 
     void Logger::setStdStream( std::ostream& stdos ) {
-        stdoutput = &stdos;
-    }
-
-    Logger::LogLevel Logger::intToLogLevel(int ll) {
-        switch (ll)
-            {
-            case -1:
-            case 0:
-                return Never;
-            case 1:
-                return Fatal;
-            case 2:
-                return Critical;
-            case 3:
-                return Error;
-            case 4:
-                return Warning;
-            case 5:
-                return Info;
-            case 6:
-                return Debug;
-            }
-        return Debug; // > 6
-    }
-
-        
-    std::string Logger::showTime() const
-    {
-        std::stringstream time;
-        if ( showtime )
-            time <<fixed<< showpoint << setprecision(3) << TimeService::Instance()->secondsSince(timestamp);
-        return time.str();
-    }
-
-    std::string Logger::showLevel( LogLevel ll) const {
-        std::string prefix;
-        switch (ll)
-            {
-            case Fatal:
-                prefix="[ FATAL  ]";
-                break;
-            case Critical:
-                prefix="[CRITICAL]";
-                break;
-            case Error:
-                prefix="[ ERROR  ]";
-                break;
-            case Warning:
-                prefix="[ Warning]";
-                break;
-            case Info:
-                prefix="[ Info   ]";
-                break;
-            case Debug:
-                prefix="[ Debug  ]";
-                break;
-            case RealTime:
-                prefix="[RealTime]";
-                break;
-            case Never:
-                break;
-            }
-        return prefix;
-    }
-
-    std::string Logger::showModule() const {
-        return "["+std::string(moduleptr)+"]";
+        d->stdoutput = &stdos;
     }
 
     Logger& Logger::operator<<( const char* t ) {
-#ifndef OROBLD_DISABLE_LOGGING
-        if ( !maylog() )
+        if ( !d->maylog() )
             return *this;
         
-        ORO_OS::MutexLock lock( inpguard );
-        if ( maylogStdOut() )
-            input << t;
+        ORO_OS::MutexLock lock( d->inpguard );
+        if ( d->maylogStdOut() )
+            d->input << t;
 
         // log Info or better to log file, even if not started.
-        if ( maylogFile() )
-            filedata << t;
-#endif
+        if ( d->maylogFile() )
+            d->filedata << t;
         return *this;
     }
 
@@ -276,33 +370,15 @@ namespace ORO_CoreLib
     }
 
     Logger& Logger::operator<<(LogLevel ll) {
-        if ( !maylog() )
+        if ( !d->maylog() )
             return *this;
-        inloglevel = ll;
+        d->inloglevel = ll;
         return *this;
-    }
-
-    bool Logger::maylog() const {
-        if (!started || outloglevel == RealTime && allowRT == false)
-            return false;
-        return true;
-    }
-
-    bool Logger::maylogStdOut() const {
-        if ( inloglevel <= outloglevel && outloglevel != Never && inloglevel != Never ) 
-            return true;
-        return false;
-    }
-
-    bool Logger::maylogFile() const {
-        if ( inloglevel <= Info || inloglevel <= outloglevel )
-            return true;
-        return false;
     }
 
     Logger& Logger::operator<<(std::ostream& (*pf)(std::ostream&))
     {
-        if ( !maylog() )
+        if ( !d->maylog() )
             return *this;
         if ( pf == Logger::endl )
             this->logendl();
@@ -311,67 +387,57 @@ namespace ORO_CoreLib
         else if ( pf == Logger::flush )
             this->logflush();
         else {
-            ORO_OS::MutexLock lock( inpguard );
-            if ( maylogStdOut() )
-                input << pf; // normal std operator in stream.
-            if ( maylogFile() )
-                filedata << pf;
+            ORO_OS::MutexLock lock( d->inpguard );
+            if ( d->maylogStdOut() )
+                d->input << pf; // normal std operator in stream.
+            if ( d->maylogFile() )
+                d->filedata << pf;
         }
         return *this;
     }
 
     void Logger::logflush() {
-        if (!maylog())
+        if (!d->maylog())
             return;
         {
             // just flush all buffers, do not produce a new logline
-            ORO_OS::MutexLock lock( inpguard );
-            if ( maylogStdOut() ) {
-                stdoutput->flush();
-                outputstream.flush();
+            ORO_OS::MutexLock lock( d->inpguard );
+            if ( d->maylogStdOut() ) {
+                d->stdoutput->flush();
+                d->outputstream.flush();
             }
-            if ( maylogFile() )
-                logfile.flush();
+            if ( d->maylogFile() )
+                d->logfile.flush();
         }
      }
 
-  // private :
-    void Logger::logit(std::ostream& (*pf)(std::ostream&)) {
-        // only on Logger::nl or Logger::endl, a time+log-line is written.
-        ORO_OS::MutexLock lock( inpguard );
-        std:: string res = showTime() +" " + showLevel(inloglevel) + showModule() + " ";
-
-        // do not log if not wanted.
-        if ( maylogStdOut() ) {
-            *stdoutput << res << input.str() << pf;
-            input.str("");   // clear stingstream.
-        }
-
-        if ( maylogFile() ) {
-            logfile << res << filedata.str() << pf;
-            outputstream << res << filedata.str() << pf;
-            filedata.str("");
-        }
-    }
-
     void Logger::lognl() {
-        if (!maylog())
+        if (!d->maylog())
             return;
-        this->logit( Logger::nl );
+        d->logit( Logger::nl );
      }
 
     void Logger::logendl() {
-        if (!maylog())
+        if (!d->maylog())
             return;
-        this->logit( Logger::endl );
+        d->logit( Logger::endl );
      }
 
     void Logger::setLogLevel( LogLevel ll ) {
-        outloglevel = ll;
+        d->outloglevel = ll;
     }
 
     Logger::LogLevel Logger::getLogLevel() const {
-        return outloglevel ;
+        return d->outloglevel ;
     }
 
+
+#else // OROBLD_DISABLE_LOGGING
+
+    Logger::Logger()
+        : d(0)
+    {
+    }
+
+#endif
 }

@@ -29,14 +29,15 @@
 #ifndef ORO_CORELIB_lOGGER_HPP
 #define ORO_CORELIB_lOGGER_HPP
 
+#include "pkgconf/corelib_reporting.h"
+#ifndef OROBLD_DISABLE_LOGGING
 #include <ostream>
 #include <fstream>
 #include <sstream>
-#include "TimeService.hpp"
-#include "os/Mutex.hpp"
-#include "os/MutexLock.hpp"
-
-#include "pkgconf/corelib_reporting.h"
+#else
+#include <iosfwd>
+#endif
+#include <string>
 
 namespace ORO_CoreLib 
 {
@@ -72,6 +73,8 @@ namespace ORO_CoreLib
      */
     class Logger 
     {
+        class D;
+        D* d;
     public:
         /**
          * Enumerate all log-levels from absolute silence to
@@ -132,20 +135,17 @@ namespace ORO_CoreLib
         /**
          * Insert a newline '\n' in the ostream. (Why is this not in the standard ?)
          */
-        static std::ostream&
-        nl(std::ostream& __os)
-        { return __os.put(__os.widen('\n')); }
+        static std::ostream& nl(std::ostream& __os);
 
         /*
          * Insert a newline '\n' in the ostream and flush. (Copy of the standard)
          */
-        static std::ostream&
-        endl(std::ostream& __os)
-        { return flush(__os.put(__os.widen('\n'))); }
+        static std::ostream& endl(std::ostream& __os);
 
-        static std::ostream&
-        flush(std::ostream& __os)
-        { return __os.flush(); }
+        /**
+         * Flush the output stream.
+         */
+        static std::ostream& flush(std::ostream& __os);
 
         /**
          * Get the singleton logger.
@@ -191,19 +191,7 @@ namespace ORO_CoreLib
          * end with std::endl to get the log's output in your file or display.
          */
         template< class T>
-        Logger& operator<<( T t ) {
-#ifndef OROBLD_DISABLE_LOGGING
-            if ( !maylog() )
-                return *this;
-            ORO_OS::MutexLock lock( inpguard );
-            if ( maylogStdOut() ) {
-                input << t;
-            }
-            if ( maylogFile() )
-                filedata << t;
-#endif
-            return *this;
-        }
+        Logger& operator<<( T t );
 
         /**
          * Set the loglevel of the incomming messages.
@@ -262,46 +250,12 @@ namespace ORO_CoreLib
         void lognl();
 
     private:
-        bool maylog() const;
-        bool maylogStdOut() const;
-        bool maylogFile() const;
-        void logit(std::ostream& (*pf)(std::ostream&));
-
-        std::stringstream input;
-        std::stringstream filedata;
-        std::stringstream outputstream;
-        std::ostream* stdoutput;
-        std::ofstream logfile;
-        LogLevel inloglevel, outloglevel;
-
-        TimeService::ticks timestamp;
-
         Logger();
 
         static Logger* _instance;
-
-        LogLevel intToLogLevel(int ll);
-
-        std::string showTime() const;
-
-        /**
-         * Convert a loglevel to a string representation.
-         */
-        std::string showLevel( LogLevel ll) const;
-
-        std::string showModule() const;
-
-        bool started;
-
-        bool showtime;
-
-        bool allowRT;
-
-        const char* loggermodule;
-        const char* moduleptr;
-
-        ORO_OS::Mutex inpguard;
-        ORO_OS::Mutex startguard;
     };
 }
+
+#include "Logger.inl"
+
 #endif
