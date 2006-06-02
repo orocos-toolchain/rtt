@@ -130,7 +130,7 @@ namespace ORO_CoreLib
        * @return false if the DataSources are of different type OR if the
        * contents of this DataSource can not be updated.
        */
-      virtual bool update( const DataSourceBase* other );
+      virtual bool update( DataSourceBase* other );
 
       /**
        * Generate a CommandInterface object which will update this DataSource
@@ -138,7 +138,7 @@ namespace ORO_CoreLib
        * @return zero if the DataSource types do not match OR if the
        * contents of this DataSource can not be updated.
        */
-      virtual CommandInterface* updateCommand( const DataSourceBase* other);
+      virtual CommandInterface* updateCommand( DataSourceBase* other);
 
       /**
        * Update \a part of the value of this DataSource with the value of an \a other DataSource.

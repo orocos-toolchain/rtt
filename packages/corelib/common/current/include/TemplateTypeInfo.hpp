@@ -80,6 +80,55 @@ namespace ORO_CoreLib
      * @see composeType
      * @see decomposeType
      * @see operator<<
+     *
+     * @section compose composeTypeImpl() and decomposeTypeImpl()
+     * The decomposeTypeImpl function is a function which converts user data
+	 * into property bags of native C++ primitive types. The primitive types are then 
+     * typically used to write the data to screen or to disk. The inverse operation
+     * is done by composeTypeImpl, which reassembles a Property from its composite parts.
+	 *
+	 * Every new user type used as a property will require these two
+	 * functions if it must be 'written to a file'. The subclass must implement these
+     * functions by using composeTypeImpl() and decomposeTypeImpl().
+     * such that class \a T is decomposed in primitive property types.
+	 *
+     * Example for type MyClass :
+     * \code 
+     *  struct MyClass {
+     *      bool var1;
+     *      double var2;
+     *  };
+     *
+     *  bool decomposeTypeImpl(const MyClass &c, PropertyBag& result)
+     *  {
+     *      // Decode c into primitive properties Var1 and Var2 which are in a PropertyBag of the
+     *      // bag-type "MyClass" with the same name as the Property 'c'.
+     *	    result.setType("MyClass");
+     *
+     *      // Put var1 and var2 in the bag
+     *      result.add( new Property<bool>("Var1","Description", c.var1 );
+     *      result.add( new Property<double("Var2","Description", c.var2 );
+     *	    
+     *      return true; // done !
+     *  } 
+     *  bool composeTypeImpl(const PropertyBag& bag, MyClass &result)
+     *  {
+     *      // Read the variables from the bag and write them to result.
+     *	    if ( bag.getType() != "MyClass") {
+     *         std::cerr << "Wrong type encountered when composing "<< this->getTypeName()<<std::endl;
+     *         return false;
+     *      }
+     *      if ( bag.find("Var1") == 0 || bag.find("Var2") == 0 ) { 
+     *         std::cerr << "Missing properties when composing "<< this->getTypeName()<<std::endl;
+     *         return false;
+     *      }
+     *      // Read var1 and var2 from the bag
+     *      result.var1 = bag.getProperty<bool>("Var1")->get();
+     *      result.var2 = bag.getProperty<bool>("Var2")->get();
+     *	    
+     *      return true; // done !
+     *  } 
+     * \endcode 
      */
     template<typename T, bool use_ostream = false> //, typename ParamT = T>
     class TemplateTypeInfo
@@ -170,7 +219,7 @@ namespace ORO_CoreLib
         }
 
         virtual DataSourceBase::shared_ptr buildValue() const {
-            return new ValueDataSource<T>();
+            return new ValueDataSource<PropertyType>();
         }
 
         virtual std::ostream& write( std::ostream& os, DataSourceBase::shared_ptr in ) const {

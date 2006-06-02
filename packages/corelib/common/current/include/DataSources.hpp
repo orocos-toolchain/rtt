@@ -146,7 +146,7 @@ namespace ORO_CoreLib
         IndexedValueDataSource()
         {}
 
-        CommandInterface* updateCommand( const DataSourceBase* other) 
+        CommandInterface* updateCommand( DataSourceBase* other) 
         {
             DataSourceBase::const_ptr r( other );
             const DataSource<T>* t = DataSource<T>::narrow( r.get() );

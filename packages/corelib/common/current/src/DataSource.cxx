@@ -77,7 +77,7 @@ namespace ORO_CoreLib
         return mobj->getTypeInfo()->composeType( source, mobj );
     }
 
-    bool DataSourceBase::update(const DataSourceBase* ) {
+    bool DataSourceBase::update( DataSourceBase* ) {
         return false;
     }
 
@@ -88,7 +88,7 @@ namespace ORO_CoreLib
     }
 #endif
 
-    CommandInterface* DataSourceBase::updateCommand(const DataSourceBase* ) {
+    CommandInterface* DataSourceBase::updateCommand( DataSourceBase* ) {
         return 0;
     }
 

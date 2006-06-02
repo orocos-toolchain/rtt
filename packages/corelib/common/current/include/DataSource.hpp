@@ -53,9 +53,6 @@ namespace ORO_CoreLib
    * DataSource is a base class representing a generic way to read
    * data of type \a T.
    *
-   * A VariableDataSource, which just keeps a value and returns it
-   * every time in its get() method is implemented in ORO_Execution.
-   *
    * @see DataSourceBase for shared_ptr use.
    * @param T The type of data returned by \a get(). It does not
    * necessarily say that the data is stored as a \a T, it only
@@ -201,9 +198,9 @@ namespace ORO_CoreLib
 
       using DataSourceBase::update;
 
-      virtual bool update(const DataSourceBase* other );
+      virtual bool update( DataSourceBase* other );
 
-      virtual CommandInterface* updateCommand(const DataSourceBase* other);
+      virtual CommandInterface* updateCommand( DataSourceBase* other);
 
       virtual AssignableDataSource<T>* clone() const = 0;
 

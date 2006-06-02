@@ -3,6 +3,7 @@
 
 #include "AssignCommand.hpp"
 #include "DataSourceTypeInfo.hpp"
+#include "DataSourceAdaptor.hpp"
 
 #ifdef OROINT_OS_CORBA
 #include "corba/ExpressionProxy.hpp"
@@ -232,32 +233,24 @@ namespace ORO_CoreLib
     }
 
     template<class T>
-    bool AssignableDataSource<T>::update(const DataSourceBase* other ) {
-        typename DataSource<T>::const_ptr o = DataSource<T>::narrow(other);
+    bool AssignableDataSource<T>::update( DataSourceBase* other ) {
+        DataSourceBase::shared_ptr r( other );
+        typename DataSource<T>::shared_ptr o( AdaptDataSource<T>()(r) );
         if (o) {
             this->set( o->get() );
-            return true;
-        }
-        // const_reference_t is only defined in AssignableDataSource
-        const DataSource< typename AssignableDataSource<T>::const_reference_t >* ct
-            = DataSource< typename AssignableDataSource<T>::const_reference_t >::narrow( other );
-        if ( ct ) {
-            this->set( ct->get() );
             return true;
         }
         return false;
     }
 
     template<class T>
-    CommandInterface* AssignableDataSource<T>::updateCommand( const DataSourceBase* other) {
-        DataSourceBase::const_ptr r( other );
-        const DataSource<T>* t = DataSource<T>::narrow( r.get() );
+    CommandInterface* AssignableDataSource<T>::updateCommand( DataSourceBase* other) {
+        // WARNING: This does not work when T is a const reference and other is not !
+        // use AdaptDataSource<T>()( r )
+        DataSourceBase::shared_ptr r( other );
+        typename DataSource<T>::shared_ptr t( AdaptDataSource<T>()( r ) );
         if ( t )
             return new detail::AssignCommand<T>( this, t );
-        const DataSource< typename AssignableDataSource<T>::const_reference_t >* ct
-            = DataSource< typename AssignableDataSource<T>::const_reference_t >::narrow( r.get() );
-        if ( ct )
-            return new detail::AssignCommand<T, typename AssignableDataSource<T>::const_reference_t >( this, ct );
 
         throw bad_assignment();
 

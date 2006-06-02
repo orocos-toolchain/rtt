@@ -67,7 +67,6 @@ namespace ORO_CoreLib
         // string is a special case for assignment, we need to assign from the c_str() instead of from the string(),
         // the latter causes capacity changes, probably due to the copy-on-write implementation of string(). Assignment
         // from a c-style string obviously disables a copy-on-write connection.
-        // Ti is solved by the VariableDataSource<const std::string&>
         ti->addType( new TemplateContainerTypeInfo<const std::string&, int, char, ArrayIndexChecker<std::string>,AlwaysAssignChecker<std::string>, true >("string") );
         
         return true;

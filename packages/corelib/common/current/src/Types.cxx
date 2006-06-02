@@ -42,6 +42,7 @@
 #endif
 
 #include <functional>
+#include <sstream>
 
 using namespace std;
 using namespace ORO_CoreLib::detail;
