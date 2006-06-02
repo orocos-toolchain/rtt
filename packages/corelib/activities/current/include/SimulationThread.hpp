@@ -75,7 +75,7 @@ namespace ORO_CoreLib
         virtual bool start()
         {
             maxsteps_ = 0;
-            return TimerThread::start();
+            return ORO_OS::PeriodicThread::start();
         }
 
         /**
@@ -87,8 +87,19 @@ namespace ORO_CoreLib
             if (maxsteps == 0)
                 return false;
             maxsteps_ = maxsteps;
-            return TimerThread::start();
+            return ORO_OS::PeriodicThread::start();
         }
+
+        using ORO_OS::PeriodicThread::run;
+        /**
+         * Execute \a maxsteps steps immediately. This function will
+         * call the step() functions \a maxsteps times, without requiring
+         * start() or stop() to be called before or after. The thread is
+         * thus not used.
+         * @return false if \a maxsteps == 0
+         * @post When run() returns, step() has been called \a maxsteps times.
+         */
+        virtual bool run(unsigned int maxsteps);
 
     protected:
         bool initialize();

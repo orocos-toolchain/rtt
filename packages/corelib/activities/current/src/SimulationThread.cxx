@@ -98,6 +98,21 @@ namespace ORO_CoreLib
     SimulationThread::~SimulationThread()
     {
     }
+
+    bool SimulationThread::run(unsigned int ms)
+    {
+        if ( this->initialize() == false || ms == 0)
+            return false;
+        unsigned int cur = 0;
+        while( cur != ms ) {
+            ++cur;
+            TimerThread::step();
+            beat->secondsChange(ORONUM_CORELIB_ACTIVITIES_SIM_PERIOD);
+        }
+        this->finalize();
+        return true;
+    }
+
     bool SimulationThread::initialize()
     {
         Logger::log() << Logger::Info << "SimulationThread takes over system time."<<Logger::nl;
