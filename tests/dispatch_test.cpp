@@ -298,10 +298,8 @@ void DispatchTest::doDispatch( const std::string& prog, TaskContext* tc )
     CPPUNIT_ASSERT(mtask.start());
     CPPUNIT_ASSERT(gtask.start());
     CPPUNIT_ASSERT( tc->engine()->programs()->getProgram( (*pg_list.begin())->getName() )->start() );
-    //     while (1)
-    SimulationThread::Instance()->start(1000);
-    sleep(1);
-    SimulationThread::Instance()->stop();
+
+    SimulationThread::Instance()->run(1000);
 }
 
 void DispatchTest::finishDispatch(TaskContext* tc, std::string prog_name)

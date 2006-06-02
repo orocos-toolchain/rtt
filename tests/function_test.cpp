@@ -338,12 +338,8 @@ void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool te
     ProgramProcessor* pp = tc->getExecutionEngine()->getProgramProcessor();
     pp->loadProgram( *pg_list.begin() );
     pp->getProgram( (*pg_list.begin())->getName() )->start();
-    SimulationThread::Instance()->start(1000);
-    gtask.start();
-//     while (1)
-    sleep(1);
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(1000) );
     gtask.stop();
-    SimulationThread::Instance()->stop();
 
     if (test ) {
         stringstream errormsg;

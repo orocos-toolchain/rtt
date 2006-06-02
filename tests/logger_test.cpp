@@ -61,6 +61,5 @@ void LoggerTest::testLogEnv()
 
     Logger::log() << "Test Log Environment variable : nl" << Logger::nl;
     Logger::log() << "Test Log Environment variable : flush" << flush;
-    sleep(1);
     Logger::log() << " and std::endl." << std::endl;
 }

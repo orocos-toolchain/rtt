@@ -273,7 +273,6 @@ void ActivitiesTest::testThreads()
   r = t->stop();
   CPPUNIT_ASSERT_MESSAGE( "Failed to stop Thread", r);
   CPPUNIT_ASSERT_EQUAL_MESSAGE( "Periodic Failure !", run->fail, 0);
-  sleep(1);
   r = t->start();
   CPPUNIT_ASSERT_MESSAGE( "Failed to start Thread after long stop", r);
   sleep(1);

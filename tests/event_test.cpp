@@ -224,13 +224,8 @@ void EventTest::testTask()
     Event<void(int)> event;
     Runner runobj(event);
     SimulationActivity task(0.01, &runobj);
-    CPPUNIT_ASSERT(SimulationThread::Instance()->start(100));
     CPPUNIT_ASSERT(task.start());
-    sleep(1);
-    CPPUNIT_ASSERT(task.stop());
-    //CPPUNIT_ASSERT(SimulationThread::Instance()->stop());
-    SimulationThread::Instance()->stop();
-
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(100) );
     CPPUNIT_ASSERT( runobj.result );
 }
 
@@ -238,22 +233,18 @@ void EventTest::testSelfRemoval()
 {
     SelfRemover runobj(*t_event);
     SimulationActivity task(0.01, &runobj);
-    CPPUNIT_ASSERT(SimulationThread::Instance()->start(100));
     CPPUNIT_ASSERT( task.start() );
-    sleep(1);
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(100) );
     CPPUNIT_ASSERT( task.stop() );
-    SimulationThread::Instance()->stop();
 }
 
 void EventTest::testCrossRemoval()
 {
     CrossRemover runobj(*t_event);
     SimulationActivity task(0.01, &runobj);
-    CPPUNIT_ASSERT(SimulationThread::Instance()->start(100));
     CPPUNIT_ASSERT( task.start() );
-    sleep(1);
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(100) );
     CPPUNIT_ASSERT( task.stop() );
-    SimulationThread::Instance()->stop();
 }
 
 void EventTest::testBlockingTask()

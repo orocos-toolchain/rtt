@@ -655,11 +655,11 @@ void BuffersTest::testListLockFree()
         bthread->start();
         cthread->start();
 
-        sleep(5);
+        sleep(1);
         gthread->start();
         sleep(1);
         gthread->stop();
-        sleep(5);
+        sleep(1);
     
         athread->stop();
         bthread->stop();

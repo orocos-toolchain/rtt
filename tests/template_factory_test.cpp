@@ -133,13 +133,11 @@ CommandFactoryInterface* Template_FactoryTest::createCommandFactory()
 void Template_FactoryTest::executePrograms(const Parser::ParsedPrograms& pg_list )
 {
     tc->getExecutionEngine()->getProgramProcessor()->loadProgram( *pg_list.begin() );
-    SimulationThread::Instance()->start(1000);
-    tsim->start();
+    CPPUNIT_ASSERT( tsim->start() );
     CPPUNIT_ASSERT( (*pg_list.begin())->start() );
-    sleep(1);
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(1000) );
     CPPUNIT_ASSERT( (*pg_list.begin())->stop() );
     tsim->stop();
-    SimulationThread::Instance()->stop();
     if ( (*pg_list.begin())->inError() ) {
         stringstream errormsg;
         errormsg << " Program error on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;

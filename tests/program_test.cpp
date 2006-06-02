@@ -394,9 +394,7 @@ void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test
     tc->engine()->programs()->loadProgram( pi );
     CPPUNIT_ASSERT( gtask.start() );
     CPPUNIT_ASSERT( pi->start() );
-    CPPUNIT_ASSERT( SimulationThread::Instance()->start(1000) );
-//     while (1)
-    sleep(1);
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(1000) );
 
     if (test ) {
         stringstream errormsg;
@@ -407,7 +405,6 @@ void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test
         // Xtra test, only do it if all previous went ok :
         loopProgram( pi );
     }
-    SimulationThread::Instance()->stop();
 }
 
 void ProgramTest::loopProgram( ProgramInterfacePtr f)

@@ -756,8 +756,7 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 //      tc->getPeer("states")->getPeer("x")->debug(true);
     CPPUNIT_ASSERT( gtc.engine()->commands()->process( cs ) != 0 );
 //     while (1)
-    CPPUNIT_ASSERT( SimulationThread::Instance()->start(1000) );
-    sleep(1);
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(1000) );
     delete ca;
     delete cs;
 //     cerr << "After run :"<<endl;
@@ -799,10 +798,7 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
         }
     }
     tc->engine()->states()->getStateMachine( sm->getName() )->stop();
-    CPPUNIT_ASSERT( SimulationThread::Instance()->start(100) );
-    sleep(1);
-    // special property of sim: this does not stop the gtask.
-    SimulationThread::Instance()->stop();
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(100) );
     stringstream errormsg;
     errormsg << " on line " << sm->getLineNumber() <<", status is "<< gtc.engine()->states()->getStateMachineStatusStr("x") <<endl <<"here  > " << sline << endl;;
     CPPUNIT_ASSERT_MESSAGE( "StateMachine stalled " + errormsg.str(), sm->isStopped() );
