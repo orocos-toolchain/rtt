@@ -163,22 +163,23 @@ namespace ORO_OS
             rt_task_delete(mytask->rtaitask);
         }
 
-        INTERNAL_QUAL int rtos_set_scheduler(int type, int priority)
+        INTERNAL_QUAL int rtos_task_set_priority(RTOS_TASK * mytask, int priority)
         {
+	    // FIXME mytask is not taken into account
             // init the scheduler. The rt_task_initschmod code is broken, so we do it ourselves.
             struct sched_param mysched;
-            mysched.sched_priority = sched_get_priority_max(type) - priority;
+            mysched.sched_priority = sched_get_priority_max(OROSEM_OS_SCHEDTYPE) - priority;
             // check lower bounds :
-            if (type == SCHED_OTHER && mysched.sched_priority != 0 ) {
+            if (OROSEM_OS_SCHEDTYPE == SCHED_OTHER && mysched.sched_priority != 0 ) {
                 mysched.sched_priority = 0; // SCHED_OTHER must be zero
-            } else if (type == !SCHED_OTHER &&  mysched.sched_priority < 1 ) {
+            } else if (OROSEM_OS_SCHEDTYPE == !SCHED_OTHER &&  mysched.sched_priority < 1 ) {
                 mysched.sched_priority = 1; // !SCHED_OTHER must be 1 or higher
             }
             // check upper bound
             if ( mysched.sched_priority > 99)
                 mysched.sched_priority = 99;
             // set scheduler
-            return sched_setscheduler(0, type, &mysched);
+            return sched_setscheduler(0, OROSEM_OS_SCHEDTYPE, &mysched);
         }
 
         INTERNAL_QUAL const char * rtos_task_get_name(const RTOS_TASK* t)

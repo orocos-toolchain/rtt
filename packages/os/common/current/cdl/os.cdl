@@ -77,19 +77,6 @@ Leave this disabled if unsure."
 	active_if OROCFG_CORELIB_EXPERIMENTAL
     }
 
-    cdl_component OROSEM_OS_SCHEDTYPE {
-	display "Scheduling Algorithm for Threads"
-	description "
-This option sets the default scheduling algorithm for the threads. 
-See man sched_setscheduler for
-more information on the available types. Set to SCHED_FIFO for
-reliable applications ( functions not going in an endless loop), 
-for non-realtime testing, set to SCHED_OTHER."
-	flavor data
-	default_value { "SCHED_OTHER" }
-	legal_values { "SCHED_FIFO" "SCHED_RR" "SCHED_OTHER" }
-    }
-
    cdl_component OROSEM_OS_PERIODIC_THREADS_MAX_OVERRUN {
        display "Maximum number of overruns"
        description "
@@ -97,8 +84,6 @@ This option sets the maximum number of times an overrun is allowed to happen for
        flavor data
        default_value 5
     }
-
-
 
     cdl_component OROPKG_OS_THREAD_SCOPE {
 	display "Monitoring of Thread Execution"

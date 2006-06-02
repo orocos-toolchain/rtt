@@ -156,20 +156,12 @@ namespace ORO_OS
             rt_task_delete(&(mytask->xenotask));
         }
 
-        // for both SingleTread and PeriodicThread
-        template<class T>
-        INTERNAL_QUAL void rtos_thread_init( T* thread, std::string name ) {
-            if ( name.empty() )
-                name = "Thread";
-            thread->setName(name.c_str());
-        }
-
-        INTERNAL_QUAL int rtos_set_scheduler(int type, int priority)
+        INTERNAL_QUAL int rtos_task_set_priority(RTOS_TASK * mytask, int priority)
         {
-            // ignorint 'type'
-            RT_TASK* tt = rt_task_self();
-            if ( tt )
-                return rt_task_set_priority( tt, priority);
+	  // ignorint 'type'
+	  RT_TASK* tt = mytask->xenoptr;
+	  if ( tt )
+	    return rt_task_set_priority( tt, priority);
         }
     }
 }

@@ -90,6 +90,19 @@ package.
 # 	implements OROINT_OS_KERNEL_MODULE
 #     }
 
+    cdl_component OROSEM_OS_SCHEDTYPE {
+	display "Scheduling Algorithm for Threads"
+	description "
+This option sets the default scheduling algorithm for the threads. 
+See man sched_setscheduler for
+more information on the available types. Set to SCHED_FIFO for
+reliable applications ( functions not going in an endless loop), 
+for non-realtime testing, set to SCHED_OTHER."
+	flavor data
+	default_value { "SCHED_OTHER" }
+	legal_values { "SCHED_FIFO" "SCHED_RR" "SCHED_OTHER" }
+    }
+
     cdl_component OROBLD_OS_ENABLE_LINUX_KERNEL {
 	display "Build LXRT kernel Modules"
 	description "
@@ -114,6 +127,7 @@ to be build."
    cdl_component CYGBLD_GLOBAL_OPTIONS {
        display "Global build options"
        flavor none
+       parent none
        description "
       Global build options including control over
       compiler flags, linker flags and choice of toolchain."
