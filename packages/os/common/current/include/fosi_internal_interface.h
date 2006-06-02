@@ -43,7 +43,8 @@ namespace ORO_OS
 
     int rtos_task_set_priority(RTOS_TASK * task,int priority);
     int rtos_task_get_priority(RTOS_TASK * task);
-	
+
+    const char * rtos_task_get_name(const RTOS_TASK* t);
   }
 }
 #endif
