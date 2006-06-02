@@ -27,33 +27,44 @@
  
  
 #include <corelib/TypeStream.hpp>
-#include <ostream>
+#include <iostream>
+#include <sstream>
 
 namespace ORO_CoreLib
 {
+    using namespace std;
     std::ostream& operator<<(std::ostream& os, const std::vector<double>& v)
     {
-        os << "{";
+        std::stringstream ss;
+        ss << "{";
         for(unsigned int  i = 0; i < v.size(); ++i) {
-            os << v[i];
-            if (i + 1 != v.size() )
-                os << ", ";
+            ss << v[i];
+            if (i + 1 != v.size() ) {
+                ss << ", ";
+            }
         }
-        os << "}";
+        ss << "}";
+        os << ss.str();
         return os;
     }
 
+#if 0
+    // Declared in MultiVector.hpp
     std::ostream& operator<<(std::ostream& os, const ORO_CoreLib::Double6D& v)
     {
-        os << "[";
+        std::stringstream ss;
+        ss << "[";
         for(unsigned int  i = 0; i < v.size; ++i) {
-            os << v[i];
-            if (i + 1 != v.size )
-                os << ", ";
+            ss << v[i];
+            if (i + 1 != v.size ) {
+                ss << ", ";
+            }
         }
-        os << "]";
+        ss << "]";
+        os << ss.str();
         return os;
     }
+#endif
 
 
 }

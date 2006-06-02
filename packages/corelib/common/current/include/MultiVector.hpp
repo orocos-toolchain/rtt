@@ -33,6 +33,7 @@
 
 #if OROINT_OS_STDIOSTREAM
 #include <ostream>
+#include <sstream>
 #endif
 
 #if OROINT_OS_STDCXXLIB
@@ -427,10 +428,13 @@ namespace ORO_CoreLib
     template <unsigned int S, class T>
     std::ostream &operator<<(std::ostream &os, MultiVector<S,T> &q) 
     { 
-        os << "(";
-        for (unsigned int i = 0; i < (S - 1) ; i++)
-            os << q[i] << ", ";
-        os << q[ S - 1 ] << ")";
+        std::stringstream ss;
+        ss << "(";
+        for (unsigned int i = 0; i < (S - 1) ; i++) {
+            ss << q[i] << ", ";
+        }
+        ss << q[ S - 1 ] << ")";
+        os << ss.str();
         return os; 
     } 
 #endif

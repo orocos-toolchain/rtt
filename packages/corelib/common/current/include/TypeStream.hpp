@@ -37,7 +37,8 @@ namespace ORO_CoreLib
 {
     std::ostream& operator<<(std::ostream& os, const std::vector<double>& v);
 
-    std::ostream& operator<<(std::ostream& os, const ORO_CoreLib::Double6D& v);
+    // declared in MultiVector.hpp
+    //std::ostream& operator<<(std::ostream& os, const ORO_CoreLib::Double6D& v);
 
 }
 #endif
