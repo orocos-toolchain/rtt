@@ -386,7 +386,7 @@ namespace ORO_Execution
         GlobalCommandFactory    commandFactory;
         /**
          * The DataSource Factory of this TaskContext.
-         * @deprecated by data()
+         * @deprecated by datasources()
          */
         GlobalDataSourceFactory dataFactory;
         /**

@@ -31,6 +31,7 @@
 
 #include <boost/intrusive_ptr.hpp>
 #include <os/fosi.h>
+#include <corelib/DataSourceBase.hpp>
 
 namespace ORO_Execution
 {
@@ -61,6 +62,12 @@ namespace ORO_Execution
 
         ConnectionInterface();
         virtual ~ConnectionInterface();
+
+        /**
+         * Get a Data source representing the current value of this
+         * connection.
+         */
+        virtual ORO_CoreLib::DataSourceBase::shared_ptr getDataSource() const = 0;
 
         /**
          * Connect all readers and writers.

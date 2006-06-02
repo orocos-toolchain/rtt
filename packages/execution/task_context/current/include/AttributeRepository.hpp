@@ -145,6 +145,16 @@ namespace ORO_Execution
         }
 
         /**
+         * Add an ORO_CoreLib::AttributeBase which remains owned by the
+         * user.
+         */
+        bool addAttribute( const std::string& name, ORO_CoreLib::AttributeBase* a )
+        {
+            return setValue( name, a->clone() );
+        }
+
+
+        /**
          * Add an ORO_CoreLib::Property<T> as an attribute, which then
          * becomes also available as a Attribute<T>. The value of the Property
          * and the Attribute will always be identical.
