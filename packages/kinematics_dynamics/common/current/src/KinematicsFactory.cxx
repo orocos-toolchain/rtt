@@ -35,7 +35,7 @@
 
 #include "kindyn/SerialZYYDWH.hpp"
 #include "kindyn/SerialmZXXmZXmZ.hpp"
-
+#include <fstream>
 
 using namespace ORO_CoreLib;
 using namespace std;
