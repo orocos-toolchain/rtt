@@ -88,8 +88,8 @@ namespace ORO_ControlKernel
         Mutex msg_lock;
         Mutex log_lock;
     public :
-        HMIConsoleOutput( const std::string& naxme = "cout")
-            : Base( name ), NonRealTimeActivity(0.1), coloron("\033[1;34m"), coloroff("\033[0m"),
+        HMIConsoleOutput( std::string aname = "cout")
+            : Base( aname ), NonRealTimeActivity(0.1), coloron("\033[1;34m"), coloroff("\033[0m"),
               _prompt("HMIConsoleOutput :\n")
               {
                   this->start();

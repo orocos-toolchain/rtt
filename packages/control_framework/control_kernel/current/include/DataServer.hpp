@@ -240,8 +240,9 @@ namespace ORO_ControlKernel
                             MemberType val;
                             ns.getObject( *it1 )->Get(val);
 //                             cout << "Decomposing "<< *it1<<endl;
-                            introspector->introspect( Property<MemberType>( std::string( (*it1), prefix.length() ),
-                                                                           std::string( "" ), val ) );
+                            Property<MemberType> pdata( std::string( (*it1), prefix.length() ),
+                                                        std::string( "" ), val );
+                            introspector->introspect( pdata );
                         }
                 }
         }

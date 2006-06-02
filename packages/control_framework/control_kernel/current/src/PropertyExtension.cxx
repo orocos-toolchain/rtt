@@ -40,6 +40,7 @@
 #include "control_kernel/ExecutionExtension.hpp"
 #include <execution/TemplateFactories.hpp>
 #endif
+#include <fstream>
 
 namespace ORO_ControlKernel
 {
