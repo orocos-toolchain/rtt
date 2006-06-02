@@ -367,7 +367,7 @@ PeriodicTask Peers      :  FactoringTask ReactiveTask states
     </screen>
     <para>
       First you get a list of the Properties and Attributes (alphabetical) of
-      the current TaskContext. Propeties can be written to disk, attributes
+      the current TaskContext. Properties can be written to disk, attributes
       are solely for script interaction. Each of them can be changed (except
       constants.) In the example, the current task has only one object: 'this'. The 'this'
       object serves like a public interface of the TaskContext. Objects contain
@@ -414,7 +414,7 @@ PeriodicTask Peers      :  FactoringTask ReactiveTask states
     </screen>
     <para>
       The 'this' object is special in that the command or method must
-      not be prefixed by an object name and that it apears as if the
+      not be prefixed by an object name and that it appears as if the
       method is called directly on the task :
     </para>
     <screen>
@@ -533,7 +533,7 @@ cd                  quit
     <para>
       Tasks are 
       implemented by the <classname>ORO_Execution::TaskContext</classname> class,
-      which should not be confused with the CoreLib periodic Task
+      which should not be confused with the CoreLib PeriodicActivity
       implementations.
       It is useful speaking of a context because it defines
       the context in which the task operates. 

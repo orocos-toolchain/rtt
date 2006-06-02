@@ -32,11 +32,11 @@
  */
  
 /**
- * @brief Buffers, DataObjects, Commands, NameServing, Tasks, Events, Timing, Properties
+ * @brief Buffers, DataObjects, Commands, NameServing, Activities, Events, Timing, Properties
  *
  * It is meant to group all packages which provide OS independent
  * core functionality in a realtime system. Frequently used classes are Event,
- * PeriodicTask, BufferLockFree, DataObjectLockFree, TimeService, NameServer, Property,
+ * PeriodicActivity, BufferLockFree, DataObjectLockFree, TimeService, NameServer, Property,
  * PropertyBag.
  *
  * The corelib is documented in <a href="../../orocos-corelib.html">
@@ -47,7 +47,7 @@ namespace ORO_CoreLib {}
 #include "Common.hpp"
 #include "Properties.hpp"
 #include "Events.hpp"
-#include "Tasks.hpp"
+#include "Activities.hpp"
 #include "Buffers.hpp"
 #include "TimeService.hpp"
 
