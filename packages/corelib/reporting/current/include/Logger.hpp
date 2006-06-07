@@ -32,7 +32,6 @@
 #include "pkgconf/corelib_reporting.h"
 #ifndef OROBLD_DISABLE_LOGGING
 #include <ostream>
-#include <fstream>
 #include <sstream>
 #else
 #include <iosfwd>
@@ -48,6 +47,10 @@ namespace ORO_CoreLib
      *
      * You can disable all logging at compile time by
      * defining \a OROBLD_DISABLE_LOGGING (not advised for normal usage).
+     * This class can log to a console, and/or to a file and/or to an 
+     * internal buffer which may be emptied by another class. This
+     * is decided upon compile time and can not be changed during runtime.
+     * Both printf/iostream are supported.
      *
      * Example Usage : 
      * @verbatim

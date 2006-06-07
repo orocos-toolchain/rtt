@@ -33,8 +33,21 @@
 #include "corelib/TimeService.hpp"
 
 #include "corelib/Logger.hpp"
-#include <iostream>
 #include <iomanip>
+
+#ifdef OROSEM_PRINTF_LOGGING
+#  include <stdio.h>
+#else
+#  include <iostream>
+#  include <ostream>
+#  ifdef OROSEM_FILE_LOGGING
+#   include <fstream>
+#  endif
+#  ifdef OROSEM_REMOTE_LOGGING
+#   include <sstream>
+#  endif
+#endif
+
 #include <stdlib.h>
 #include <pkgconf/system.h>
 #ifdef OROPKG_OS_LXRT
@@ -68,17 +81,30 @@ namespace ORO_CoreLib
         return *Instance();
     }
 
+    /**
+     * This hidden struct stores all data structures required for logging.
+     */
     struct Logger::D
     {
-        D()
-            : stdoutput(&std::cerr),
+        D() :
+#ifndef OROSEM_PRINTF_LOGGING
+              stdoutput(&std::cerr),
+#endif
+#ifndef OROSEM_REMOTE_LOGGING
+              messagecnt(0),
+#endif
+#if defined(OROSEM_FILE_LOGGING) && !defined(OROSEM_PRINTF_LOGGING)
               logfile("orocos.log"),
+#endif
               inloglevel(Info),
               outloglevel(Warning),
               timestamp(0),
               started(false), showtime(true), allowRT(false), 
               loggermodule("Logger"), moduleptr(loggermodule)
         {
+#if defined(OROSEM_FILE_LOGGING) && defined(OROSEM_PRINTF_LOGGING)
+            logfile = fopen("orocos.log","w");
+#endif
         }
 
         bool maylog() const {
@@ -99,6 +125,11 @@ namespace ORO_CoreLib
             return false;
         }
 
+        /**
+         * This function is called when a new message is ready to be
+         * written to screen, disk, or stream. 'logline' or 'remotestream'
+         * contain a single log message. Time and location is prepended.
+         */
         void logit(std::ostream& (*pf)(std::ostream&))
         {
             // only on Logger::nl or Logger::endl, a time+log-line is written.
@@ -107,22 +138,56 @@ namespace ORO_CoreLib
 
             // do not log if not wanted.
             if ( maylogStdOut() ) {
-                *stdoutput << res << input.str() << pf;
-                input.str("");   // clear stingstream.
+#ifndef OROSEM_PRINTF_LOGGING
+                *stdoutput << res << logline.str() << pf;
+#else
+                printf("%s%s\n", res.c_str(), logline.str().c_str() );
+#endif
+                logline.str("");   // clear stringstream.
             }
 
             if ( maylogFile() ) {
-                logfile << res << filedata.str() << pf;
-                outputstream << res << filedata.str() << pf;
-                filedata.str("");
+#ifdef OROSEM_FILE_LOGGING
+#ifndef OROSEM_PRINTF_LOGGING
+                logfile << res << fileline.str() << pf;
+#else
+                fprintf( logfile, "%s%s\n", res.c_str(), fileline.str().c_str() );
+#endif
+#ifdef OROSEM_REMOTE_LOGGING
+                // detect buffer 'overflow'
+                if ( messagecnt >= ORONUM_LOGGING_BUFSIZE ) {
+                    std::string dummy;
+                    remotestream >> dummy; // FIFO principle: read 1 line
+                    --messagecnt;
+                }
+                remotestream << res << fileline.str() << pf;
+                ++messagecnt;
+#endif
+#if defined(OROSEM_FILE_LOGGING) || defined(OROSEM_REMOTE_LOGGING)
+                fileline.str("");
+#endif
+#endif
             }
         }
 
-        std::stringstream input;
-        std::stringstream filedata;
-        std::stringstream outputstream;
+#ifndef OROSEM_PRINTF_LOGGING
         std::ostream* stdoutput;
+#endif
+        std::stringstream logline;
+#if defined(OROSEM_FILE_LOGGING) || defined(OROSEM_REMOTE_LOGGING)
+        std::stringstream fileline;
+#endif
+#if defined(OROSEM_REMOTE_LOGGING)
+        std::stringstream remotestream;
+        unsigned int messagecnt;
+#endif
+#if defined(OROSEM_FILE_LOGGING)
+# ifndef OROSEM_PRINTF_LOGGING
         std::ofstream logfile;
+# else
+        FILE* logfile;
+# endif
+#endif
         LogLevel inloglevel, outloglevel;
 
         TimeService::ticks timestamp;
@@ -227,22 +292,34 @@ namespace ORO_CoreLib
         d->allowRT = false;
     }
 
-     std::ostream&
-     Logger::nl(std::ostream& __os)
-     {
-         return __os.put(__os.widen('\n'));
-     }
+    std::ostream&
+    Logger::nl(std::ostream& __os)
+    {
+#ifndef OROSEM_PRINTF_LOGGING
+        return __os.put(__os.widen('\n'));
+#else
+        return __os;
+#endif
+    }
 
     std::ostream&
     Logger::endl(std::ostream& __os)
     {
+#ifndef OROSEM_PRINTF_LOGGING
         return flush(__os.put(__os.widen('\n')));
+#else
+        return __os;
+#endif
     }
 
     std::ostream&
     Logger::flush(std::ostream& __os)
     {
+#ifndef OROSEM_PRINTF_LOGGING
         return __os.flush();
+#else
+        return __os;
+#endif
     }
 
 
@@ -333,22 +410,28 @@ namespace ORO_CoreLib
     }
 
     std::string Logger::getLogLine() {
+#ifdef OROSEM_REMOTE_LOGGING
         if (!d->started)
             return "";
         std::string line;
         {
             ORO_OS::MutexLock lock( d->inpguard );
-            getline( d->outputstream, line );
-            if ( !d->outputstream )
-                d->outputstream.clear();
+            getline( d->remotestream, line );
+            if ( !d->remotestream )
+                d->remotestream.clear();
         }
-            //            *this<<Logger::Debug<<"Bad getLogLine." << Logger::nl;
-            
+        if ( !line.empty() )
+            --d->messagecnt;
         return line;
+#else
+        return "";
+#endif
     }
 
     void Logger::setStdStream( std::ostream& stdos ) {
+#ifndef OROSEM_PRINTF_LOGGING
         d->stdoutput = &stdos;
+#endif
     }
 
     Logger& Logger::operator<<( const char* t ) {
@@ -357,11 +440,13 @@ namespace ORO_CoreLib
         
         ORO_OS::MutexLock lock( d->inpguard );
         if ( d->maylogStdOut() )
-            d->input << t;
+            d->logline << t;
 
+#if defined(OROSEM_FILE_LOGGING) || defined(OROSEM_REMOTE_LOGGING)
         // log Info or better to log file, even if not started.
         if ( d->maylogFile() )
-            d->filedata << t;
+            d->fileline << t;
+#endif
         return *this;
     }
 
@@ -389,9 +474,11 @@ namespace ORO_CoreLib
         else {
             ORO_OS::MutexLock lock( d->inpguard );
             if ( d->maylogStdOut() )
-                d->input << pf; // normal std operator in stream.
+                d->logline << pf; // normal std operator in stream.
+#if defined(OROSEM_FILE_LOGGING) || defined(OROSEM_REMOTE_LOGGING)
             if ( d->maylogFile() )
-                d->filedata << pf;
+                d->fileline << pf;
+#endif
         }
         return *this;
     }
@@ -403,11 +490,20 @@ namespace ORO_CoreLib
             // just flush all buffers, do not produce a new logline
             ORO_OS::MutexLock lock( d->inpguard );
             if ( d->maylogStdOut() ) {
+#ifndef OROSEM_PRINTF_LOGGING
                 d->stdoutput->flush();
-                d->outputstream.flush();
+#endif
+#if defined(OROSEM_REMOTE_LOGGING)
+                d->remotestream.flush();
+#endif
             }
-            if ( d->maylogFile() )
+#if defined(OROSEM_FILE_LOGGING)
+            if ( d->maylogFile() ) {
+#ifndef OROSEM_PRINTF_LOGGING
                 d->logfile.flush();
+#endif
+            }
+#endif
         }
      }
 
