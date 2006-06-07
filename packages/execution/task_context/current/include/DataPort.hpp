@@ -164,7 +164,7 @@ namespace ORO_Execution
             if ( mconn )
                 mconn->data()->Set(data);
             else
-                minital_value = data;
+                minitial_value = data;
         }
 
         /**
