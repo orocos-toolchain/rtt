@@ -26,7 +26,7 @@
  ***************************************************************************/ 
  
 /**
- * @mainpage <a href="http://www.orocos.org">Orocos</a> Online API Documentation
+ * @mainpage Orocos Online API Documentation
  * 
  * @section intro Introduction
  * This is the Online API documentation of all available
@@ -44,7 +44,7 @@
  * defined within this namespace. At the bottom of that page,
  * you'll find a more elaborate description of the namespace.
  *
- * You will most likely also need to read the <a href="http://www.orocos.org/documentation.php">online manuals</a>.
+ * You will most likely also need to read the <a href="http://www.orocos.org/documentation.html">online manuals</a>.
  *
  * @section corelib Orocos Realtime Services
  * The classes in the following namespaces form the application
@@ -89,6 +89,6 @@
  * The <a href="../../orocos-control-manual.html">Orocos Control Manual</a> introduces these classes.
  * @note The Control Kernel Client GUI is not documented in this document.
  * It comes with its own documentation and you can fetch it from the 
- * <a href="http://www.orocos.org/download.php">Download</a> page.
+ * <a href="http://www.orocos.org/download.html">Download</a> page.
  *
  */
