@@ -60,33 +60,33 @@ check-headers: clean_headers init_packages inst-headers
 clean-local: clean_packages
 
 uninstall-local:
-	@for i in ${PATHHEADERS}; do rm -fv $(prefix)/include/$$i; done
-	@rm -fv $(prefix)/lib/liborocos-$(ECOS_TARGET).a
-	@rm -fv $(prefix)/lib/libtarget.a
-	@rm -rf $(prefix)/modules/
+	@for i in ${PATHHEADERS}; do rm -fv $(DESTDIR)$(prefix)/include/$$i; done
+	@rm -fv $(DESTDIR)$(prefix)/lib/liborocos-$(ECOS_TARGET).a
+	@rm -fv $(DESTDIR)$(prefix)/lib/libtarget.a
+	@rm -rf $(DESTDIR)$(prefix)/modules/
 
 install-exec-local:
 	@echo "Installing new headers..."
-	@install -m 755 -d $(prefix)/include
+	@install -m 755 -d $(DESTDIR)$(prefix)/include
 	@for i in ${PATHHEADERS};\
-	do if test packages/install/include/$$i -nt $(prefix)/include/$$i ;\
-	then  install -p -m 644 -D packages/install/include/$$i $(prefix)/include/$$i; echo "install $$i $(prefix)/include/$$i";fi; done
+	do if test packages/install/include/$$i -nt $(DESTDIR)$(prefix)/include/$$i ;\
+	then  install -p -m 644 -D packages/install/include/$$i $(DESTDIR)$(prefix)/include/$$i; echo "install $$i $(DESTDIR)$(prefix)/include/$$i";fi; done
 	@echo "Installing new library..."
-	@install -m 755 -d $(prefix)/lib
+	@install -m 755 -d $(DESTDIR)$(prefix)/lib
 	@for i in $$( ls packages/install/lib/libtarget.a ); do \
-	if test packages/install/lib/libtarget.a -nt $(prefix)/lib/liborocos-$(ECOS_TARGET).a ; then \
-	install -m 644 packages/install/lib/libtarget.a $(prefix)/lib/liborocos-$(ECOS_TARGET).a ;\
-	ranlib  $(prefix)/lib/liborocos-$(ECOS_TARGET).a ;\
-	ln -sf  $(prefix)/lib/liborocos-$(ECOS_TARGET).a $(prefix)/lib/libtarget.a ; fi; done
-	@libtool --mode=finish $(prefix)/lib
+	if test packages/install/lib/libtarget.a -nt $(DESTDIR)$(prefix)/lib/liborocos-$(ECOS_TARGET).a ; then \
+	install -m 644 packages/install/lib/libtarget.a $(DESTDIR)$(prefix)/lib/liborocos-$(ECOS_TARGET).a ;\
+	ranlib  $(DESTDIR)$(prefix)/lib/liborocos-$(ECOS_TARGET).a ;\
+	ln -sf  $(DESTDIR)$(prefix)/lib/liborocos-$(ECOS_TARGET).a $(DESTDIR)$(prefix)/lib/libtarget.a ; fi; done
+	@libtool --mode=finish $(DESTDIR)$(prefix)/lib
 	@echo "Installing new modules"
-	if test -d packages/install/modules; then install -m 755 -d $(prefix)/modules ; fi
+	if test -d packages/install/modules; then install -m 755 -d $(DESTDIR)$(prefix)/modules ; fi
 	@for i in $$( find packages/install/modules/ -type f ); do \
-	install -p -m 644 $$i $(prefix)/modules/; echo "install $$i $(prefix)/modules"; done
+	install -p -m 644 $$i $(DESTDIR)$(prefix)/modules/; echo "install $$i $(DESTDIR)$(prefix)/modules"; done
 	@echo "Installing tests..."
-	mkdir -p $(prefix)/tests
+	mkdir -p $(DESTDIR)$(prefix)/tests
 	@for i in $$( find tests/ -maxdepth 1 -type f); do \
-	if test -x $$i; then install -p -m 755 $$i $(prefix)/tests/; echo "install $$i $(prefix)/tests"; fi; \
+	if test -x $$i; then install -p -m 755 $$i $(DESTDIR)$(prefix)/tests/; echo "install $$i $(DESTDIR)$(prefix)/tests"; fi; \
 	done
 
 all-local: test_new_packages test_all_packages
