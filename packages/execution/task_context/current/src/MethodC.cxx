@@ -29,8 +29,9 @@
 #include "execution/GlobalMethodFactory.hpp"
 #include "execution/MethodC.hpp"
 #include "execution/FactoryExceptions.hpp"
-#include "execution/DataSourceCommand.hpp"
+#include "corelib/DataSourceCommand.hpp"
 #include "corelib/Logger.hpp"
+#include <corelib/Exceptions.hpp>
 #include <vector>
 
 namespace ORO_Execution
@@ -51,18 +52,20 @@ namespace ORO_Execution
             // check validity:
             if ( mgcf->getObjectFactory(mobject) == 0 ) {
                 Logger::log() <<Logger::Error << "No '"<<mobject<<"' object in this Method Factory."<<Logger::endl;
-                throw name_not_found_exception(mobject);
+                ORO_THROW(name_not_found_exception(mobject));
             }
             if ( ! mgcf->getObjectFactory(mobject)->hasMember(mname) ) {
                 Logger::log() <<Logger::Error << "No such method '"+mname+"' in '"+mobject+"' Method Factory."<<Logger::endl;
-                throw name_not_found_exception(mname);
+                ORO_THROW(name_not_found_exception(mname));
             }
             size_t sz = mgcf->getObjectFactory(mobject)->getArgumentList(mname).size();
             // not created, check if it is time to create:
             if ( sz == args.size() ) {
-                // may throw.
+                // may throw or return nill
                 m = mgcf->getObjectFactory(mobject)->create(mname, args );
                 args.clear();
+                if ( !m )
+                    return;
                 if (rta)
                     m = new DataSourceCommand( rta->getDataSource()->updateCommand( m.get() ) );
             }

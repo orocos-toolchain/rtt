@@ -213,7 +213,11 @@ namespace ORO_OS
 #endif
       rtos_sem_destroy( &sem );
       rtos_sem_destroy( &confDone );
+#ifndef ORO_EMBEDDED
       throw std::bad_alloc();
+#else
+      return;
+#endif
     }
         rtos_sem_wait( &confDone );
     }

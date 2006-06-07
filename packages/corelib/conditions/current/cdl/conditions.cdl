@@ -12,5 +12,6 @@ dynamic conditional execution of logic programs."
     compile ConditionDuration.cxx
     compile ConditionDSDuration.cxx
     compile ConditionOnce.cxx
+    compile DataSourceCondition.cxx
 }
 

@@ -47,9 +47,9 @@ namespace ORO_Execution
     class ConnectionFactory
     {
     public:
-        BufferConnectionInterface<T>* createBuffer(PortInterface* writer, PortInterface* reader, int size, ConnectionTypes::ConnectionType type = ConnectionTypes::lockfree);
+        BufferConnectionInterface<T>* createBuffer(PortInterface* writer, PortInterface* reader, int size, const T& initial_value, ConnectionTypes::ConnectionType type = ConnectionTypes::lockfree);
 
-        DataConnectionInterface<T>* createDataObject(PortInterface* writer, PortInterface* reader, ConnectionTypes::ConnectionType type = ConnectionTypes::lockfree);
+        DataConnectionInterface<T>* createDataObject(PortInterface* writer, PortInterface* reader, const T& initial_value, ConnectionTypes::ConnectionType type = ConnectionTypes::lockfree);
 
     };
 }
@@ -64,7 +64,7 @@ namespace ORO_Execution
 {
 
         template<class T>
-        BufferConnectionInterface<T>* ConnectionFactory<T>::createBuffer(PortInterface* writer, PortInterface* reader, int size, ConnectionTypes::ConnectionType type )
+        BufferConnectionInterface<T>* ConnectionFactory<T>::createBuffer(PortInterface* writer, PortInterface* reader, int size, const T& initial_value, ConnectionTypes::ConnectionType type )
         {
             using ORO_CoreLib::Logger;
             WriteBufferPort<T>* wt = dynamic_cast<WriteBufferPort<T>*>( writer );
@@ -79,7 +79,7 @@ namespace ORO_Execution
             }
             
             if (type == ConnectionTypes::lockfree)
-                return new BufferConnection<T,ORO_CoreLib::BufferLockFree<T> >(wt, rt, size);
+                return new BufferConnection<T,ORO_CoreLib::BufferLockFree<T> >(wt, rt, size, initial_value);
             if (type == ConnectionTypes::locked)
                 return new BufferConnection<T,ORO_CoreLib::BufferLocked<T> >(wt, rt, size);
                 
@@ -87,7 +87,7 @@ namespace ORO_Execution
         }
 
         template<class T>
-        DataConnectionInterface<T>* ConnectionFactory<T>::createDataObject(PortInterface* writer, PortInterface* reader, ConnectionTypes::ConnectionType type)
+        DataConnectionInterface<T>* ConnectionFactory<T>::createDataObject(PortInterface* writer, PortInterface* reader, const T& initial_value, ConnectionTypes::ConnectionType type)
         {
             using ORO_CoreLib::Logger;
             WriteDataPort<T>* wt = dynamic_cast<WriteDataPort<T>*>( writer );
@@ -102,7 +102,7 @@ namespace ORO_Execution
             }
 
             if (type == ConnectionTypes::lockfree)
-                return new DataConnection<T,ORO_CoreLib::DataObjectLockFree<T> >(wt, rt);
+                return new DataConnection<T,ORO_CoreLib::DataObjectLockFree<T> >(wt, rt, initial_value);
             if (type == ConnectionTypes::locked)
                 return new DataConnection<T,ORO_CoreLib::DataObjectLocked<T> >(wt, rt);
             return 0;

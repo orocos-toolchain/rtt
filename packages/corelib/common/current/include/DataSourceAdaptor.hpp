@@ -34,6 +34,10 @@
 namespace ORO_CoreLib
 {
     namespace detail {
+
+        template<class From, class To>
+        struct DataSourceAdaptor;
+
     /**
      * Adapt parser DataSource storage type to user type.
      * Rationale : the Parser chooses internally how to pass
@@ -103,6 +107,8 @@ namespace ORO_CoreLib
             return static_cast< CastType* >( i->second );
         }
     };
+
+#ifndef ORO_EMBEDDED
 
         /**
          * Adapt from non-const reference-type to value-type, yielding an AssignableDataSource,
@@ -239,6 +245,8 @@ namespace ORO_CoreLib
         }
     };
 
+#endif
+
     /**
      * DataSourceAdaptor specialisation to not return a const reference to a stack
      * based variable ( case (4) ).
@@ -283,6 +291,8 @@ namespace ORO_CoreLib
         }
 
     };
+
+#ifndef ORO_EMBEDDED
 
     /**
      * DataSourceAdaptor specialisation to not return a reference to a stack
@@ -372,6 +382,7 @@ namespace ORO_CoreLib
         }
 
     };
+#endif
     }
 
     /**
@@ -394,6 +405,7 @@ namespace ORO_CoreLib
             if ( t2 )
                 return new detail::DataSourceAdaptor<const Result&, Result>( t2 );
 
+#ifndef ORO_EMBEDDED
             // ref to value case
             DataSource<Result&>* t3 = DataSource<Result&>::narrow( dsb.get() );
             if ( t3 )
@@ -403,6 +415,7 @@ namespace ORO_CoreLib
             DataSource<const Result>* t4 = DataSource<const Result>::narrow( dsb.get() );
             if ( t4 )
                 return new detail::DataSourceAdaptor<const Result, Result>( t4 );
+#endif
 
             // complete type failure.
             return 0;
@@ -425,17 +438,19 @@ namespace ORO_CoreLib
             if (t1)
                 return t1;
 
+#ifndef ORO_EMBEDDED
             // ref to assignable value case
             DataSource<Result&>* t3 = DataSource<Result&>::narrow( dsb.get() );
             if ( t3 )
                 return new detail::DataSourceAdaptor<Result&, Result>( t3 ); // will return AssignableDS !
-
+#endif
             // complete type failure.
             return 0;
         }
         
     };
 
+#ifndef ORO_EMBEDDED
     /**
      * Try to adapt a DataSourceBase to an  AssignableDataSource< by reference >.
      * Needed to avoid reference-to-reference dynamic_cast.
@@ -527,6 +542,8 @@ namespace ORO_CoreLib
         
     };
 
+#endif
+
     /**
      * Try to adapt a DataSourceBase to a DataSource< by const reference > 
      * Allows all conversions.
@@ -546,6 +563,7 @@ namespace ORO_CoreLib
             if ( t2 )
                 return new detail::DataSourceAdaptor<TResult, const TResult&>( t2 );
 
+#ifndef ORO_EMBEDDED
             // ref to const ref case
             DataSource<TResult&>* t3 = DataSource<TResult&>::narrow( dsb.get() );
             if ( t3 )
@@ -560,14 +578,13 @@ namespace ORO_CoreLib
             AssignableDataSource<TResult>* ta1 =  AssignableDataSource<TResult>::narrow( dsb.get() );
             if (ta1 && &(ta1->set()) != 0 ) // check for null set()
                 return new detail::AssignableDataSourceAdaptor<TResult, const TResult&>( ta1 );
-            
+#endif
 
             // complete type failure.
             return 0;
         }
         
     };
-
 }
 
 #endif

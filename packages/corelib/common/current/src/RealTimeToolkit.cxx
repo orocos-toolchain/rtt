@@ -25,6 +25,7 @@ namespace ORO_CoreLib
         return "RealTime";
     }
 
+#ifndef ORO_EMBEDDED
     /**
      * This class tells Orocos how to handle std::vector<double>.
      */
@@ -46,6 +47,7 @@ namespace ORO_CoreLib
             return composeProperty( bag, result );
         }
     };
+#endif
 
     bool RealTimeToolkitPlugin::loadTypes() 
     {
@@ -53,16 +55,18 @@ namespace ORO_CoreLib
 
         ti->addType( new TemplateTypeInfo<int, true>("int") );
         ti->addType( new TemplateTypeInfo<unsigned int, true>("uint") );
-        ti->addType( new TemplateTypeInfo<char, true>("char") );
         ti->addType( new TemplateTypeInfo<double, true>("double") );
-        ti->addType( new TemplateTypeInfo<float, true>("float") );
         ti->addType( new TemplateTypeInfo<bool, true>("bool") );
 
-        ti->addType( new TemplateTypeInfo<PropertyBag, false>("PropertyBag") );
 #ifdef OROPKG_CORBA
         ti->addType( new TemplateTypeInfo<CORBA::Any, false>("CORBA::Any") );
 #endif
+#ifndef ORO_EMBEDDED
+        ti->addType( new TemplateTypeInfo<PropertyBag, false>("PropertyBag") );
+        ti->addType( new TemplateTypeInfo<float, true>("float") );
+        ti->addType( new TemplateTypeInfo<char, true>("char") );
         ti->addType( new StdVectorTypeInfo("array") );
+#endif
 
         // string is a special case for assignment, we need to assign from the c_str() instead of from the string(),
         // the latter causes capacity changes, probably due to the copy-on-write implementation of string(). Assignment
@@ -73,6 +77,7 @@ namespace ORO_CoreLib
     }
 
     namespace {
+#ifndef ORO_EMBEDDED
         // CONSTRUCTORS
         struct array_ctor
             : public std::unary_function<int, const std::vector<double>&>
@@ -86,6 +91,7 @@ namespace ORO_CoreLib
                 return *(ptr);
             }
         };
+#endif
 
         struct string_ctor
             : public std::unary_function<int, const std::string&>
@@ -132,7 +138,7 @@ namespace ORO_CoreLib
         };
 
                     
-
+#ifndef ORO_EMBEDDED
         struct array_index
             : public std::binary_function<const std::vector<double>&, int, double>
         {
@@ -143,6 +149,7 @@ namespace ORO_CoreLib
                 return v[index];
             }
         };
+#endif
     }
 
     using namespace detail;
@@ -197,7 +204,6 @@ namespace ORO_CoreLib
         oreg->add( newBinaryOperator( "-", subs3<double,int, double>() ) );
         oreg->add( newBinaryOperator( "-", subs3<double,double, int>() ) );
 
-
         // strings
         //  oreg->add( newBinaryOperator( "+", std::plus<std::string>() ) );
         oreg->add( newUnaryOperator( "string", string_ctor() ) );
@@ -212,6 +218,7 @@ namespace ORO_CoreLib
         oreg->add( newDotOperator( "length", get_size<const std::string&>() ) );
         oreg->add( newDotOperator( "capacity", get_capacity<const std::string&>() ) );
 
+#ifndef ORO_EMBEDDED
         // chars
         oreg->add( newBinaryOperator( "==", std::equal_to<char>() ) );
         oreg->add( newBinaryOperator( "!=", std::not_equal_to<char>() ) );
@@ -238,7 +245,7 @@ namespace ORO_CoreLib
 #endif
         oreg->add( newDotOperator( "size", get_size<const std::vector<double>&>() ) );
         oreg->add( newDotOperator( "capacity", get_capacity<const std::vector<double>&>() ) );
-
+#endif
         return true;
     }
 }

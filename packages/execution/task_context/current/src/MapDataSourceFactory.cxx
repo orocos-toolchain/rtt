@@ -28,6 +28,7 @@
  
 #include "execution/MapDataSourceFactory.hpp"
 #include "corelib/mystd.hpp"
+#include "corelib/Exceptions.hpp"
 
 using namespace ORO_std;
 using namespace ORO_CoreLib;
@@ -73,10 +74,10 @@ namespace ORO_Execution
         DataSourceBase* MapDataSourceFactory::create( const std::string& name, const PropertyBag& args ) const
         {
             if ( !args.empty() )
-                throw wrong_number_of_args_exception( 0, args.getProperties().size() );
+                ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 0, args.getProperties().size() ), 0);
             map_t::const_iterator reti = mmap.find( name );
             if ( reti == mmap.end() )
-                throw name_not_found_exception();
+                ORO_THROW_OR_RETURN(name_not_found_exception(), 0);
             else
                 return reti->second.get();
         }
@@ -84,10 +85,10 @@ namespace ORO_Execution
         DataSourceBase* MapDataSourceFactory::create( const std::string& name, const std::vector<DataSourceBase*>& args ) const
         {
             if ( !args.empty() )
-                throw wrong_number_of_args_exception( 0, args.size() );
+                ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 0, args.size() ), 0);
             map_t::const_iterator reti = mmap.find( name );
             if ( reti == mmap.end() )
-                throw name_not_found_exception();
+                ORO_THROW_OR_RETURN(name_not_found_exception(), 0);
             else
                 return reti->second.get();
         }
@@ -95,10 +96,10 @@ namespace ORO_Execution
         DataSourceBase* MapDataSourceFactory::create( const std::string& name, const std::vector<DataSourceBase::shared_ptr>& args ) const
         {
             if ( !args.empty() )
-                throw wrong_number_of_args_exception( 0, args.size() );
+                ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 0, args.size() ), 0);
             map_t::const_iterator reti = mmap.find( name );
             if ( reti == mmap.end() )
-                throw name_not_found_exception();
+                ORO_THROW_OR_RETURN(name_not_found_exception(), 0);
             else
                 return reti->second.get();
         }
@@ -111,7 +112,7 @@ namespace ORO_Execution
     std::string MapDataSourceFactory::getResultType( const std::string& source ) const {
         map_t::const_iterator reti = mmap.find( source );
         if ( reti == mmap.end() )
-            throw name_not_found_exception();
+            ORO_THROW_OR_RETURN(name_not_found_exception(), std::string());
         else
             return reti->second->getType();
     }        

@@ -39,6 +39,7 @@
 namespace ORO_CoreLib
 {
 
+#ifndef ORO_EMBEDDED
     /**
      * This exception is thrown if the target and source type
      * of an assignment of a DataSource with a DataSourceBase
@@ -47,6 +48,7 @@ namespace ORO_CoreLib
     struct bad_assignment
     {
     };
+#endif
 
 
   /**

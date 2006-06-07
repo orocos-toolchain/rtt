@@ -34,6 +34,7 @@
 #include "execution/ConditionBoolDataSource.hpp"
 #include "execution/FactoryExceptions.hpp"
 #include "corelib/Logger.hpp"
+#include <corelib/Exceptions.hpp>
 #include <vector>
 
 namespace ORO_Execution
@@ -52,20 +53,22 @@ namespace ORO_Execution
             Logger::In in("CommandC");
             if ( mgcf->getObjectFactory(mobject) == 0 ) {
                 Logger::log() <<Logger::Error << "No '"<<mobject<<"' object in this Command Factory."<<Logger::endl;
-                throw name_not_found_exception(mobject);
+                ORO_THROW(name_not_found_exception(mobject));
             }
             if (  mgcf->hasCommand(mobject, mname) == false ) {
                 Logger::log() <<Logger::Error << "No such command '"+mname+"' in '"+mobject+"' Command Factory."<<Logger::endl;
-                throw name_not_found_exception(mname);
+                ORO_THROW(name_not_found_exception(mname));
             }
             size_t sz = mgcf->getObjectFactory(mobject)->getArgumentList(mname).size();
             if ( sz == args.size() ) {
-                // may throw.
+                // may throw or return '0,0' if no exceptions.
                 comcon = mgcf->getObjectFactory(mobject)->create(mname, args, false );
+                args.clear();
+                if (comcon.first == 0)
+                    return;
                 // below we assume that the result is a DispatchInterface object.
                 assert( static_cast<DispatchInterface*>(comcon.first) == dynamic_cast<DispatchInterface*>(comcon.first) );
                 assert( comcon.second );
-                args.clear();
             }
         }
 
@@ -181,7 +184,7 @@ namespace ORO_Execution
     bool CommandC::ready() const {
         // if no d pointer present, we have built the command.
         // analogous to cc.first != 0
-        return d == 0;
+        return d == 0 && cc.first != 0;
     }
 
     bool CommandC::execute() {

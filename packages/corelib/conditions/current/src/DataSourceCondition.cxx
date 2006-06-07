@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Sat May 7 12:56:52 CEST 2005  DataSourceCommand.hpp 
+  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  DataSourceCondition.cxx
 
-                        DataSourceCommand.hpp -  description
+                        DataSourceCondition.cxx -  description
                            -------------------
-    begin                : Sat May 07 2005
-    copyright            : (C) 2005 Peter Soetens
+    begin                : Mon May 10 2004
+    copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -24,46 +24,55 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
-#ifndef DATASOURCECOMMAND_HPP
-#define DATASOURCECOMMAND_HPP
+#include "corelib/DataSourceCondition.hpp"
 
-#include "DataSource.hpp"
+#include "corelib/ConditionInterface.hpp"
 
 namespace ORO_CoreLib
 {
-  class CommandInterface;
-}
-
-namespace ORO_Execution
-{
-  using ORO_CoreLib::CommandInterface;
-
-  /**
-   * A class that wraps a Command in a DataSource<bool>
-   * interface.
-   */
-  class DataSourceCommand
-    : public DataSource<bool>
+  DataSourceCondition::DataSourceCondition( ConditionInterface* c )
+      : cond( c ), result(false)
   {
-      CommandInterface* comm;
-      mutable bool mresult;
-  public:
-    /**
-     * DataSourceCommand takes ownership of the command you pass
-     * it.
-     */
-      DataSourceCommand( CommandInterface* c );
-      DataSourceCommand( const DataSourceCommand& orig );
-      ~DataSourceCommand();
-      bool get() const;
-      bool value() const;
-      void reset();
-      CommandInterface* command() const;
-      virtual DataSourceCommand* clone() const;
-      virtual DataSourceCommand* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const;
-  };
-}
+  }
 
-#endif
+  DataSourceCondition::DataSourceCondition( const DataSourceCondition& orig )
+      : cond( orig.condition()->clone() ), result(false)
+  {
+  }
+
+  DataSourceCondition::~DataSourceCondition()
+  {
+      delete cond;
+  }
+
+  bool DataSourceCondition::get() const
+  {
+      return result = cond->evaluate();
+  }
+
+  bool DataSourceCondition::value() const
+  {
+      return result;
+  }
+
+  ConditionInterface* DataSourceCondition::condition() const
+  {
+      return cond;
+  }
+
+  void DataSourceCondition::reset()
+  {
+      result = false;
+      cond->reset();
+  }
+
+  DataSourceCondition* DataSourceCondition::clone() const
+  {
+      return new DataSourceCondition( cond->clone() );
+  }
+
+  DataSourceCondition* DataSourceCondition::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+  {
+      return new DataSourceCondition( cond->copy( alreadyCloned ) );
+  }
+}

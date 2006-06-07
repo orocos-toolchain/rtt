@@ -33,11 +33,6 @@
 namespace ORO_CoreLib
 {
   class ConditionInterface;
-}
-
-namespace ORO_Execution
-{
-  using ORO_CoreLib::ConditionInterface;
 
   /**
    * A class that wraps a Condition in a DataSource<bool>

@@ -42,6 +42,7 @@
 
 
 #include "execution/CommandComposite.hpp"
+#include "corelib/Exceptions.hpp"
 #include "corelib/AttributeBase.hpp"
 #include "corelib/ConditionTrue.hpp"
 #include "corelib/ConditionInvert.hpp"
@@ -304,7 +305,7 @@ namespace ORO_Execution
             assert( dynamic_cast<StateDescription*>( curtemplate->getState( def ) ) );
             StateDescription* existingstate = static_cast<StateDescription*>( curtemplate->getState( def ) );
             if ( existingstate->isDefined() )
-                throw parse_exception_semantic_error("state " + def + " redefined.");
+                ORO_THROW(parse_exception_semantic_error("state " + def + " redefined.") );
             else
                 curstate = existingstate;
             curstate->setEntryPoint( mpositer.get_position().line - ln_offset );
@@ -322,13 +323,13 @@ namespace ORO_Execution
         if ( curinitialstateflag )
         {
             if ( curtemplate->getInitialState() )
-                throw parse_exception_semantic_error( "Attempt to define more than one initial state." );
+                ORO_THROW(parse_exception_semantic_error( "Attempt to define more than one initial state." ));
             else curtemplate->setInitialState( curstate );
         }
         if ( curfinalstateflag )
         {
             if ( curtemplate->getFinalState() )
-                throw parse_exception_semantic_error( "Attempt to define more than one final state." );
+                ORO_THROW(parse_exception_semantic_error( "Attempt to define more than one final state." ));
             else curtemplate->setFinalState( curstate );
         }
 
@@ -360,28 +361,28 @@ namespace ORO_Execution
     void StateGraphParser::seenentry()
     {
         if ( curstate->getEntryProgram() )
-            throw parse_exception_semantic_error( "Attempt to define entry twice in state "+ curstate->getName() );
+            ORO_THROW( parse_exception_semantic_error( "Attempt to define entry twice in state "+ curstate->getName() ));
         curstate->setEntryProgram( finishProgram() );
     }
 
     void StateGraphParser::seenexit()
     {
         if ( curstate->getExitProgram() )
-            throw parse_exception_semantic_error( "Attempt to define exit twice in state "+ curstate->getName() );
+            ORO_THROW( parse_exception_semantic_error( "Attempt to define exit twice in state "+ curstate->getName() ));
         curstate->setExitProgram( finishProgram() );
     }
 
     void StateGraphParser::seenhandle()
     {
         if ( curstate->getHandleProgram() )
-            throw parse_exception_semantic_error( "Attempt to define handle twice in state "+ curstate->getName() );
+            ORO_THROW( parse_exception_semantic_error( "Attempt to define handle twice in state "+ curstate->getName() ));
         curstate->setHandleProgram( finishProgram() );
     }
 
     void StateGraphParser::seenrun()
     {
         if ( curstate->getRunProgram() )
-            throw parse_exception_semantic_error( "Attempt to define run twice in state "+ curstate->getName() );
+            ORO_THROW( parse_exception_semantic_error( "Attempt to define run twice in state "+ curstate->getName() ));
         curstate->setRunProgram( finishProgram() );
     }
 
@@ -469,7 +470,7 @@ namespace ORO_Execution
             elsestate = 0;
             elseProgram.reset();
             if (res == false)
-                throw parse_exception_fatal_semantic_error("In state "+curstate->getName()+": Event "+evname+" not found in Task "+peer->getName() );
+                ORO_THROW( parse_exception_fatal_semantic_error("In state "+curstate->getName()+": Event "+evname+" not found in Task "+peer->getName() ));
         }
     }
 
@@ -507,12 +508,12 @@ namespace ORO_Execution
 
         // Check if the Initial and Final States are ok.
         if ( curtemplate->getInitialState() == 0 )
-            throw parse_exception_semantic_error("No initial state defined.");
+            ORO_THROW( parse_exception_semantic_error("No initial state defined."));
         if ( curtemplate->getFinalState() == 0 )
-            throw parse_exception_semantic_error("No final state defined.");
+            ORO_THROW( parse_exception_semantic_error("No final state defined."));
 
         if ( curtemplate->getStateList().empty() )
-            throw parse_exception_semantic_error("No states defined in this state context !");
+            ORO_THROW( parse_exception_semantic_error("No states defined in this state context !"));
 
         // Check if all States are defined.
         vector<string> states = curtemplate->getStateList();
@@ -521,7 +522,7 @@ namespace ORO_Execution
             assert( dynamic_cast<StateDescription*>( curtemplate->getState( *it ) ) );
             StateDescription* sd = static_cast<StateDescription*>( curtemplate->getState( *it ) );
             if ( !sd->isDefined() )
-                throw parse_exception_semantic_error("State " + *it + " not defined, but referenced to.");
+                ORO_THROW( parse_exception_semantic_error("State " + *it + " not defined, but referenced to."));
         }
 
         // prepend the commands for initialising the subMachine
@@ -717,7 +718,7 @@ namespace ORO_Execution
 
         // check if the type exists already :
         if ( __s->hasPeer( curcontextname ) )
-            throw parse_exception_semantic_error("State Context " + curcontextname + " redefined.");
+            ORO_THROW( parse_exception_semantic_error("State Context " + curcontextname + " redefined."));
 
         curtemplate.reset(new ParsedStateMachine());
         // Connect the new SC to the relevant contexts.
@@ -784,7 +785,7 @@ namespace ORO_Execution
         // first reset the flag.
         isroot = false;
         if( rootcontexts.find( curinstcontextname ) != rootcontexts.end() )
-            throw parse_exception_semantic_error( "Root context \"" + curinstcontextname + "\" already defined." );
+            ORO_THROW( parse_exception_semantic_error( "Root context \"" + curinstcontextname + "\" already defined." ));
         rootcontexts[curinstcontextname] = curinstantiatedcontext;
 
         // recursively set the name of this SC and all subs :
@@ -802,7 +803,7 @@ namespace ORO_Execution
 
         // check if the type exists already :
         if ( __s->hasPeer( curinstcontextname ) )
-            throw parse_exception_semantic_error("Task '"+context->getName()+"' has already a State Context '" + curinstcontextname + "' .");
+            ORO_THROW( parse_exception_semantic_error("Task '"+context->getName()+"' has already a State Context '" + curinstcontextname + "' ."));
         __s->connectPeers( curinstantiatedcontext->getTaskContext() );
         curinstantiatedcontext->getTaskContext()->addPeer(context, "task");
 
@@ -814,16 +815,16 @@ namespace ORO_Execution
         if ( find_if( curtemplate->getChildren().begin(),
                       curtemplate->getChildren().end(),
                       bind( equal_to<string>(), bind(&StateMachine::getName,_1), curinstcontextname )) != curtemplate->getChildren().end() )
-            throw parse_exception_semantic_error( "SubMachine \"" + curinstcontextname + "\" already defined." );
+            ORO_THROW( parse_exception_semantic_error( "SubMachine \"" + curinstcontextname + "\" already defined." ));
 
         // Since we parse in the task context, we must _temporarily_
         // make each subMachine a peer of the task so that we can access
         // its methods.
 
         if ( !context->addPeer( curinstantiatedcontext->getTaskContext() ) )
-            throw parse_exception_semantic_error(
+            ORO_THROW( parse_exception_semantic_error(
                 "Name clash: name of instantiated context \"" + curinstcontextname +
-                "\"  already used as peer name in task '"+context->getName()+"'." );
+                "\"  already used as peer name in task '"+context->getName()+"'." ));
             
 
         curtemplate->addChild( curinstantiatedcontext );
@@ -844,7 +845,7 @@ namespace ORO_Execution
         std::string name( begin, end );
         contextbuilders_t::iterator i = contextbuilders.find( name );
         if ( i == contextbuilders.end() )
-            throw parse_exception_semantic_error( "StateMachine \"" + name + "\" not defined." );
+            ORO_THROW( parse_exception_semantic_error( "StateMachine \"" + name + "\" not defined." ));
         curcontextbuilder = i->second;
     }
 
@@ -865,9 +866,9 @@ namespace ORO_Execution
         // let's not forget this...
         expressionparser->dropResult();
         if ( curinstcontextparams.find( curcontextinstargumentname ) != curinstcontextparams.end() )
-            throw parse_exception_semantic_error(
+            ORO_THROW( parse_exception_semantic_error(
                 "In initialisation of StateMachine \"" + curinstcontextname +
-                "\": Parameter \"" + curcontextinstargumentname +"\" initialised twice..." );
+                "\": Parameter \"" + curcontextinstargumentname +"\" initialised twice..." ));
         curinstcontextparams[curcontextinstargumentname] = value;
         curcontextinstargumentname.clear();
     }
@@ -892,15 +893,16 @@ namespace ORO_Execution
         {
             contextparams_t::iterator j = params.find( i->first );
             if ( j == params.end() )
-                throw parse_exception_semantic_error( "No parameter \"" + i->first + "\" in this StateMachine." );
+                ORO_THROW( parse_exception_semantic_error( "No parameter \"" + i->first + "\" in this StateMachine." ) );
         }
 
         for ( contextparams_t::iterator i = params.begin(); i != params.end(); ++i )
         {
             contextparamvalues_t::iterator j = curinstcontextparams.find( i->first );
             if ( j == curinstcontextparams.end() )
-                throw parse_exception_semantic_error(
-                    "No value given for argument \"" + i->first + "\" in instantiation of this StateMachine." );
+                ORO_THROW( parse_exception_semantic_error(
+                    "No value given for argument \"" + i->first + "\" in instantiation of this StateMachine." ));
+#ifndef ORO_EMBEDDED
             try {
                 paraminitcommands.push_back( i->second->getDataSource()->updateCommand( j->second.get() ) );
             }
@@ -908,7 +910,13 @@ namespace ORO_Execution
                 {
                     throw parse_exception_semantic_error("Attempt to initialize parameter '"+i->first+"' with a value which is of a different type." );
                 }
-
+#else
+            CommandInterface* ret =  i->second->getDataSource()->updateCommand( j->second.get());
+            if (ret)
+                paraminitcommands.push_back( ret );
+            else
+                return;
+#endif
         }
 
         curinstantiatedcontext = nsc;

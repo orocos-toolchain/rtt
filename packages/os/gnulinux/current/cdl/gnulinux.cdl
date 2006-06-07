@@ -61,6 +61,7 @@ to be build and set the correct path, for example
        display "Global build options"
        parent none
        flavor none
+       parent CYGPKG_NONE
        description "
       Global build options including control over
       compiler flags, linker flags and choice of toolchain."
@@ -79,7 +80,7 @@ to be build and set the correct path, for example
 	   display "User defined global compiler flags"
 	   flavor  data
 	   no_define
-	   default_value {  "-pipe -Wall -Woverloaded-virtual" }
+	   default_value {  "-pipe -Wall -Woverloaded-virtual " }
 	   description   "
           This option allows you to override some global compiler flags.
 The options you provide here will be appended to the CFLAGS variable below."
@@ -216,6 +217,7 @@ compilation times."
 		"-D_REENTRANT ".
 		(CYGBLD_OS_COMPILER == "gcc3" ? "" : "").
 		(CYGBLD_OS_COMPILER == "gcc4" ? "-fvisibility-inlines-hidden " : "").
+                (OROBLD_OS_NOEXCEPTIONS?"-fno-exceptions ":"").
 		OROBLD_GLOBAL_CFLAGS_ADD }
 	    
 	    description   "

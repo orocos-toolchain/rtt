@@ -48,7 +48,11 @@ namespace ORO_DeviceDriver
             //              3 ... the next 3 bytes
             //              1 ... we want the permission
             perror("ParallelPort : ioperm open");
+#ifndef ORO_EMBEDDED
             throw detail::IOPerm_not_allowed();
+#else 
+            return;
+#endif
         }
 
         outb(0, address_ + 2); // set to output mode
@@ -66,7 +70,11 @@ namespace ORO_DeviceDriver
             //              3 ... the next 3 bytes
             //              1 ... we want the permission
             perror("ParallelPort : ioperm open");
+#ifndef ORO_EMBEDDED
             throw detail::IOPerm_not_allowed();
+#else 
+            return;
+#endif
         }
 
         outb(0, address_ + 2); // set to output mode

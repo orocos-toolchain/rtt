@@ -170,6 +170,7 @@ namespace ORO_Execution
             origlist = fcopy->getArguments(); 
             std::vector<DataSourceBase::shared_ptr>::const_iterator dit = args.begin();
             std::vector<AttributeBase*>::const_iterator tit =  origlist.begin();
+#ifndef ORO_EMBEDDED
             try {
                 for (; dit != args.end(); ++dit, ++tit)
                     icom->add( (*tit)->getDataSource()->updateCommand( dit->get() ) );
@@ -179,6 +180,17 @@ namespace ORO_Execution
                 int parnb = (dit - args.begin()) + 1;
                 throw wrong_types_of_args_exception(parnb, (*tit)->getDataSource()->getType() ,(*dit)->getType() );
             }
+#else
+            for (; dit != args.end(); ++dit, ++tit) {
+                CommandInterface* ret = (*tit)->getDataSource()->updateCommand( dit->get() );
+                if (ret)
+                    icom->add( ret );
+                else {
+                    delete icom;
+                    return ComCon();
+                }
+            }
+#endif
 
             // the args of the copy can now safely be removed (saves memory):
             //fcopy->clearArguments();

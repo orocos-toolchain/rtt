@@ -56,6 +56,13 @@ namespace ORO_Execution
         WList writers;
         bool mconnected;
     public:
+        BufferConnection( WriteBufferPort<DataType>* w, ReadBufferPort<DataType>* r, int size, const T& initial_value)
+            : buf( new BufferType(size, initial_value) ), mconnected(false)
+        {
+            readers.push_back(r);
+            writers.push_back(w);
+        }
+
         BufferConnection( WriteBufferPort<DataType>* w, ReadBufferPort<DataType>* r, int size)
             : buf( new BufferType(size) ), mconnected(false)
         {

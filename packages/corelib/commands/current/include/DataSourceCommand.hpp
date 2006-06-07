@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Sat May 7 12:56:52 CEST 2005  DataSourceCommand.cxx 
+  tag: Peter Soetens  Sat May 7 12:56:52 CEST 2005  DataSourceCommand.hpp 
 
-                        DataSourceCommand.cxx -  description
+                        DataSourceCommand.hpp -  description
                            -------------------
     begin                : Sat May 07 2005
     copyright            : (C) 2005 Peter Soetens
@@ -26,57 +26,39 @@
  ***************************************************************************/
  
  
-#include "execution/DataSourceCommand.hpp"
+#ifndef DATASOURCECOMMAND_HPP
+#define DATASOURCECOMMAND_HPP
 
-#include "corelib/CommandInterface.hpp"
+#include "DataSource.hpp"
 
-namespace ORO_Execution
+namespace ORO_CoreLib
 {
-  DataSourceCommand::DataSourceCommand( CommandInterface* c )
-      : comm( c ), mresult(false)
-  {
-  }
+  class CommandInterface;
 
-  DataSourceCommand::DataSourceCommand( const DataSourceCommand& orig )
-    : comm( orig.command()->clone() ), mresult(false)
+  /**
+   * A class that wraps a Command in a DataSource<bool>
+   * interface.
+   */
+  class DataSourceCommand
+    : public DataSource<bool>
   {
-  }
-
-  DataSourceCommand::~DataSourceCommand()
-  {
-    delete comm;
-  }
-
-  bool DataSourceCommand::get() const
-  {
-      comm->readArguments();
-      mresult = comm->execute();
-      return mresult;
-  }
-
-  bool DataSourceCommand::value() const
-  {
-    return mresult;
-  }
-
-  CommandInterface* DataSourceCommand::command() const
-  {
-      return comm;
-  }
-
-  void DataSourceCommand::reset()
-  {
-      mresult = false;
-      comm->reset();
-  }
-
-  DataSourceCommand* DataSourceCommand::clone() const
-  {
-      return new DataSourceCommand( comm->clone() );
-  }
-
-  DataSourceCommand* DataSourceCommand::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
-  {
-      return new DataSourceCommand( comm->copy( alreadyCloned ) );
-  }
+      CommandInterface* comm;
+      mutable bool mresult;
+  public:
+    /**
+     * DataSourceCommand takes ownership of the command you pass
+     * it.
+     */
+      DataSourceCommand( CommandInterface* c );
+      DataSourceCommand( const DataSourceCommand& orig );
+      ~DataSourceCommand();
+      bool get() const;
+      bool value() const;
+      void reset();
+      CommandInterface* command() const;
+      virtual DataSourceCommand* clone() const;
+      virtual DataSourceCommand* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const;
+  };
 }
+
+#endif

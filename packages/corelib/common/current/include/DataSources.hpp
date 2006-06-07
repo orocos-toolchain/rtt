@@ -165,11 +165,21 @@ namespace ORO_CoreLib
             DataSourceBase::shared_ptr r( rhs );
             DataSourceBase::shared_ptr i( index );
             DataSource<SetType>* t = AdaptDataSource<SetType>()( r );
-            if ( ! t )
+            if ( ! t ) {
+#ifndef ORO_EMBEDDED
                 throw bad_assignment();
+#else
+                return 0;
+#endif
+            }
             DataSource<Index>* ind = AdaptDataSource<Index>()( i );
-            if ( ! ind )
+            if ( ! ind ) {
+#ifndef ORO_EMBEDDED
                 throw bad_assignment();
+#else
+                return 0;
+#endif
+            }
             typename AssignableDataSource<T>::shared_ptr mthis(this);
             return new detail::AssignIndexCommand<T, Index, SetType, IPred>( mthis, ind ,t );
         }
@@ -249,8 +259,8 @@ namespace ORO_CoreLib
     typedef typename function::result_type value_t;
     typedef typename function::first_argument_type  first_arg_t;
     typedef typename function::second_argument_type second_arg_t;
-    typename DataSource<first_arg_t>::shared_ptr ma;
-    typename DataSource<second_arg_t>::shared_ptr mb;
+    typename DataSource<first_arg_t>::shared_ptr mdsa;
+    typename DataSource<second_arg_t>::shared_ptr mdsb;
     function fun;
   public:
     typedef boost::intrusive_ptr<BinaryDataSource<function> > shared_ptr;
@@ -262,37 +272,37 @@ namespace ORO_CoreLib
     BinaryDataSource( typename DataSource<first_arg_t>::shared_ptr a,
                       typename DataSource<second_arg_t>::shared_ptr b,
                       function f )
-      : ma( a ), mb( b ), fun( f )
+      : mdsa( a ), mdsb( b ), fun( f )
       {
       }
 
     virtual value_t get() const
       {
-        first_arg_t a = ma->get();
-        second_arg_t b = mb->get();
+        first_arg_t a = mdsa->get();
+        second_arg_t b = mdsb->get();
         return fun( a, b );
       }
 
     virtual value_t value() const
       {
-        first_arg_t a = ma->value();
-        second_arg_t b = mb->value();
+        first_arg_t a = mdsa->value();
+        second_arg_t b = mdsb->value();
         return fun( a, b );
       }
 
     virtual void reset()
       {
-        ma->reset();
-        mb->reset();
+        mdsa->reset();
+        mdsb->reset();
       }
 
       virtual BinaryDataSource<function>* clone() const
       {
-          return new BinaryDataSource<function>(ma.get(), mb.get(), fun);
+          return new BinaryDataSource<function>(mdsa.get(), mdsb.get(), fun);
       }
 
       virtual BinaryDataSource<function>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
-          return new BinaryDataSource<function>( ma->copy( alreadyCloned ), mb->copy( alreadyCloned ), fun );
+          return new BinaryDataSource<function>( mdsa->copy( alreadyCloned ), mdsb->copy( alreadyCloned ), fun );
       }
   };
 
@@ -307,9 +317,9 @@ namespace ORO_CoreLib
     typedef typename function::first_argument_type first_arg_t;
     typedef typename function::second_argument_type second_arg_t;
     typedef typename function::third_argument_type third_arg_t;
-    typename DataSource<first_arg_t>::shared_ptr ma;
-    typename DataSource<second_arg_t>::shared_ptr mb;
-    typename DataSource<third_arg_t>::shared_ptr mc;
+    typename DataSource<first_arg_t>::shared_ptr mdsa;
+    typename DataSource<second_arg_t>::shared_ptr mdsb;
+    typename DataSource<third_arg_t>::shared_ptr mdsc;
     function fun;
   public:
     typedef boost::intrusive_ptr<TernaryDataSource<function> > shared_ptr;
@@ -322,40 +332,40 @@ namespace ORO_CoreLib
                        typename DataSource<second_arg_t>::shared_ptr b,
                        typename DataSource<third_arg_t>::shared_ptr c,
                        function f )
-      : ma( a ), mb( b ), mc( c ), fun( f )
+      : mdsa( a ), mdsb( b ), mdsc( c ), fun( f )
       {
       }
 
     virtual value_t get() const
       {
-        first_arg_t a = ma->get();
-        second_arg_t b = mb->get();
-        third_arg_t c = mc->get();
+        first_arg_t a = mdsa->get();
+        second_arg_t b = mdsb->get();
+        third_arg_t c = mdsc->get();
         return fun( a, b, c );
       }
 
     virtual value_t value() const
       {
-        first_arg_t a = ma->value();
-        second_arg_t b = mb->value();
-        third_arg_t c = mc->value();
+        first_arg_t a = mdsa->value();
+        second_arg_t b = mdsb->value();
+        third_arg_t c = mdsc->value();
         return fun( a, b, c );
       }
 
     virtual void reset()
       {
-        ma->reset();
-        mb->reset();
-        mc->reset();
+        mdsa->reset();
+        mdsb->reset();
+        mdsc->reset();
       }
 
       virtual TernaryDataSource<function>* clone() const
       {
-          return new TernaryDataSource<function>(ma.get(), mb.get(), mc.get(), fun);
+          return new TernaryDataSource<function>(mdsa.get(), mdsb.get(), mdsc.get(), fun);
       }
 
       virtual TernaryDataSource<function>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
-          return new TernaryDataSource<function>( ma->copy( alreadyCloned ), mb->copy( alreadyCloned ), mc->copy( alreadyCloned ), fun );
+          return new TernaryDataSource<function>( mdsa->copy( alreadyCloned ), mdsb->copy( alreadyCloned ), mdsc->copy( alreadyCloned ), fun );
       }
 
   };
@@ -374,12 +384,12 @@ namespace ORO_CoreLib
     typedef typename function::fourth_argument_type fourth_arg_t;
     typedef typename function::fifth_argument_type fifth_arg_t;
     typedef typename function::sixth_argument_type sixth_arg_t;
-    typename DataSource<first_arg_t>::shared_ptr ma;
-    typename DataSource<second_arg_t>::shared_ptr mb;
-    typename DataSource<third_arg_t>::shared_ptr mc;
-    typename DataSource<fourth_arg_t>::shared_ptr md;
-    typename DataSource<fifth_arg_t>::shared_ptr me;
-    typename DataSource<sixth_arg_t>::shared_ptr mf;
+    typename DataSource<first_arg_t>::shared_ptr mdsa;
+    typename DataSource<second_arg_t>::shared_ptr mdsb;
+    typename DataSource<third_arg_t>::shared_ptr mdsc;
+    typename DataSource<fourth_arg_t>::shared_ptr mdsd;
+    typename DataSource<fifth_arg_t>::shared_ptr mdse;
+    typename DataSource<sixth_arg_t>::shared_ptr mdsf;
     function fun;
   public:
     typedef boost::intrusive_ptr<SixaryDataSource<function> > shared_ptr;
@@ -396,54 +406,54 @@ namespace ORO_CoreLib
                      typename DataSource<fifth_arg_t>::shared_ptr e,
                      typename DataSource<sixth_arg_t>::shared_ptr f,
                        function _fun )
-      : ma( a ), mb( b ), mc( c ),md( d ), me( e ), mf( f ),
+      : mdsa( a ), mdsb( b ), mdsc( c ),mdsd( d ), mdse( e ), mdsf( f ),
         fun( _fun )
       {
       }
 
     virtual value_t get() const
       {
-        first_arg_t a = ma->get();
-        second_arg_t b = mb->get();
-        third_arg_t c = mc->get();
-        fourth_arg_t d = md->get();
-        fifth_arg_t e = me->get();
-        sixth_arg_t f = mf->get();
+        first_arg_t a = mdsa->get();
+        second_arg_t b = mdsb->get();
+        third_arg_t c = mdsc->get();
+        fourth_arg_t d = mdsd->get();
+        fifth_arg_t e = mdse->get();
+        sixth_arg_t f = mdsf->get();
         return fun( a, b, c, d, e, f );
       }
 
     virtual value_t value() const
       {
-        first_arg_t a = ma->value();
-        second_arg_t b = mb->value();
-        third_arg_t c = mc->value();
-        fourth_arg_t d = md->value();
-        fifth_arg_t e = me->value();
-        sixth_arg_t f = mf->value();
+        first_arg_t a = mdsa->value();
+        second_arg_t b = mdsb->value();
+        third_arg_t c = mdsc->value();
+        fourth_arg_t d = mdsd->value();
+        fifth_arg_t e = mdse->value();
+        sixth_arg_t f = mdsf->value();
         return fun( a, b, c, d, e, f );
       }
 
     virtual void reset()
       {
-        ma->reset();
-        mb->reset();
-        mc->reset();
-        md->reset();
-        me->reset();
-        mf->reset();
+        mdsa->reset();
+        mdsb->reset();
+        mdsc->reset();
+        mdsd->reset();
+        mdse->reset();
+        mdsf->reset();
       }
 
       virtual SixaryDataSource<function>* clone() const
       {
-          return new SixaryDataSource<function>(ma.get(), mb.get(), mc.get(),
-                                                md.get(), me.get(), mf.get(),
+          return new SixaryDataSource<function>(mdsa.get(), mdsb.get(), mdsc.get(),
+                                                mdsd.get(), mdse.get(), mdsf.get(),
                                                 fun);
       }
 
       virtual SixaryDataSource<function>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
-          return new SixaryDataSource<function>( ma->copy( alreadyCloned ), mb->copy( alreadyCloned ),
-                                                 mc->copy( alreadyCloned ), md->copy( alreadyCloned ),
-                                                 me->copy( alreadyCloned ), mf->copy( alreadyCloned ), fun );
+          return new SixaryDataSource<function>( mdsa->copy( alreadyCloned ), mdsb->copy( alreadyCloned ),
+                                                 mdsc->copy( alreadyCloned ), mdsd->copy( alreadyCloned ),
+                                                 mdse->copy( alreadyCloned ), mdsf->copy( alreadyCloned ), fun );
       }
   };
 
@@ -456,7 +466,7 @@ namespace ORO_CoreLib
   {
     typedef typename function::result_type value_t;
     typedef typename function::argument_type arg_t;
-    typename DataSource<arg_t>::shared_ptr ma;
+    typename DataSource<arg_t>::shared_ptr mdsa;
     function fun;
   public:
     typedef boost::intrusive_ptr<UnaryDataSource<function> > shared_ptr;
@@ -466,32 +476,32 @@ namespace ORO_CoreLib
        * \a f which is given argument \a a.
        */ 
     UnaryDataSource( typename DataSource<arg_t>::shared_ptr a, function f )
-      : ma( a ), fun( f )
+      : mdsa( a ), fun( f )
       {
       }
 
     virtual value_t get() const
       {
-        return fun( ma->get() );
+        return fun( mdsa->get() );
       }
 
     virtual value_t value() const
       {
-        return fun( ma->value() );
+        return fun( mdsa->value() );
       }
 
     void reset()
       {
-        ma->reset();
+        mdsa->reset();
       }
 
     virtual UnaryDataSource<function>* clone() const
       {
-          return new UnaryDataSource<function>(ma.get(), fun);
+          return new UnaryDataSource<function>(mdsa.get(), fun);
       }
 
     virtual UnaryDataSource<function>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
-          return new UnaryDataSource<function>( ma->copy( alreadyCloned ), fun );
+          return new UnaryDataSource<function>( mdsa->copy( alreadyCloned ), fun );
       }
   };
 

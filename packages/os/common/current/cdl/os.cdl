@@ -16,12 +16,35 @@ can only select one OS Package which is called the
     compile PeriodicThread.cxx
     compile SingleThread.cxx
     compile main.cxx
+    compile exceptions.cxx
 
     define_proc {
 	puts $::cdl_header ""
         puts $::cdl_header "\#include <pkgconf/system.h>"
         puts $::cdl_header "\#include CYGBLD_OS_TARGET_H"
 	puts $::cdl_header ""
+    }
+
+    cdl_component OROBLD_OS_EMBEDDED {
+	display "Embedded Operating System"
+	description "
+Enable this option to run Orocos on a limited embedded
+platform. This option reduces footprint and removes
+C++ exceptions from the code, crippling error diagnostics. 
+Leave this disabled if unsure."
+	flavor bool
+	default_value 0
+	define ORO_EMBEDDED
+	cdl_option OROBLD_OS_NOEXCEPTIONS {
+	    display "Compile without exceptions (-fno-exceptions)"
+	    description "
+Exceptions are disabled by default during compilation. In this case,
+the scripting and property marshalling packages can not
+be used. Turn this option off in order to enable exceptions
+and thus to allow scripting and XML marshalling."
+	    default_value 1
+	    define ORO_NOEXCEPTIONS
+	}
     }
 
     cdl_option OROBLD_OS_AGNOSTIC {

@@ -252,7 +252,9 @@ namespace ORO_CoreLib
         if ( t )
             return new detail::AssignCommand<T>( this, t );
 
+#ifndef ORO_EMBEDDED
         throw bad_assignment();
+#endif
 
         return 0;
     }

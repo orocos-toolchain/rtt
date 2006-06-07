@@ -48,13 +48,15 @@ namespace ORO_Execution
             Logger::In in("EventC");
             if ( mgcf == 0 || mgcf->hasEvent(mname) == false ) {
                 Logger::log() <<Logger::Error << "No '"<<mname<<"' event found in the EventService."<<Logger::endl;
-                throw name_not_found_exception(mname);
+                ORO_THROW(name_not_found_exception(mname));
             }
             size_t sz = mgcf->arity(mname);
             if ( sz == args.size() ) {
                 // may throw.
                 m = mgcf->setupEmit(mname, args );
                 args.clear();
+                if (!m)
+                    return;
             }
         }
 

@@ -50,6 +50,13 @@ namespace ORO_Execution
         WList writers;
         bool mconnected;
     public:
+        DataConnection(WriteDataPort<DataType>* writer,ReadDataPort<DataType>* reader, const T& initial_value)
+            : buf( new DataObjectType("DataObject", initial_value) ), mconnected(false)
+        {
+            readers.push_back(reader);
+            writers.push_back(writer);
+        }
+
         DataConnection(WriteDataPort<DataType>* writer,ReadDataPort<DataType>* reader)
             : buf( new DataObjectType("DataObject") ), mconnected(false)
         {

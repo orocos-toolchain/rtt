@@ -44,7 +44,6 @@
 
 #include "pkgconf/os.h"
 
-#include <iostream>
 #include <boost/bind.hpp>
 #include <boost/scoped_ptr.hpp>
 
@@ -106,7 +105,9 @@ namespace ORO_OS
 
         boost::scoped_ptr<DigitalOutInterface> pp;
         DigitalOutInterface* d = 0;
+#ifndef ORO_EMBEDDED
         try {
+#endif // !ORO_EMBEDDED
             if ( DigitalOutInterface::nameserver.getObject("ThreadScope") )
                 d = DigitalOutInterface::nameserver.getObject("ThreadScope");
             else
@@ -118,12 +119,14 @@ namespace ORO_OS
 # else
                 Logger::log() << Logger::Warning<< "Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << Logger::endl;
 # endif
+#ifndef ORO_EMBEDDED
         } catch( ... )
             {
 #ifdef OROPKG_CORELIB_REPORTING
                 Logger::log() << Logger::Error<< "Failed to create ThreadScope." << Logger::endl;
-#endif
+#endif // !ORO_EMBEDDED
             }
+#endif
         if ( d ) {
 #ifdef OROPKG_CORELIB_REPORTING
             Logger::log() << Logger::Info
@@ -134,7 +137,9 @@ namespace ORO_OS
 #endif
 	int overruns = 0;
         while ( !task->prepareForExit ) {
+#ifndef ORO_EMBEDDED
             try {
+#endif // !ORO_EMBEDDED
                 /**
                  * The real task starts here.
                  */
@@ -188,6 +193,7 @@ namespace ORO_OS
             Logger::log() <<" See PeriodicThread::setMaxOverrun() for info." << Logger::endl;
 #endif
 		}
+#ifndef ORO_EMBEDDED
             } catch( ... ) {
 #ifdef OROPKG_OS_THREAD_SCOPE
                 if ( d )
@@ -195,9 +201,10 @@ namespace ORO_OS
 #endif
                 task->emergencyStop();
 #ifdef OROPKG_CORELIB_REPORTING
-	Logger::log() << Logger::Fatal << rtos_task_get_name(task->getTask()) <<" caught a C++ exception, stopped thread !"<<Logger::endl;
+                Logger::log() << Logger::Fatal << rtos_task_get_name(task->getTask()) <<" caught a C++ exception, stopped thread !"<<Logger::endl;
 #endif
             }
+#endif // !ORO_EMBEDDED
         } // while (!prepareForExit)
     
         /**
@@ -242,8 +249,12 @@ namespace ORO_OS
             Logger::In in("PeriodicThread");
             Logger::log() << Logger::Critical << "Could not allocate configuration semaphore 'sem' for "<< rtos_task_get_name(&rtos_task) <<". Throwing std::bad_alloc."<<Logger::endl;
 #endif
-      rtos_sem_destroy( &sem );
+            rtos_sem_destroy( &sem );
+#ifndef ORO_EMBEDDED
             throw std::bad_alloc();
+#else
+            return;
+#endif
         }
 
         ret = rtos_sem_init(&confDone, 0);
@@ -253,7 +264,11 @@ namespace ORO_OS
             Logger::log() << Logger::Critical << "Could not allocate configuration semaphore 'confDone' for "<< rtos_task_get_name(&rtos_task) <<". Throwing std::bad_alloc."<<Logger::endl;
 #endif
             rtos_sem_destroy( &sem );
+#ifndef ORO_EMBEDDED
             throw std::bad_alloc();
+#else
+            return;
+#endif
         }
 
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
@@ -275,7 +290,11 @@ namespace ORO_OS
 #endif
       rtos_sem_destroy( &sem );
       rtos_sem_destroy( &confDone );
+#ifndef ORO_EMBEDDED
       throw std::bad_alloc();
+#else
+            return;
+#endif
     }
         
         rtos_sem_wait(&confDone);

@@ -34,8 +34,8 @@
 #include "corelib/CommandDataSource.hpp"
 #include "corelib/ConditionTrue.hpp"
 #include "corelib/Logger.hpp"
+#include "corelib/DataSourceCondition.hpp"
 
-#include "execution/DataSourceCondition.hpp"
 #include "execution/ConditionComposite.hpp"
 #include "execution/CommandComposite.hpp"
 #include "execution/TryCommand.hpp"

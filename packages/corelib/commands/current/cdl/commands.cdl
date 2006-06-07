@@ -12,5 +12,6 @@ cdl_package OROPKG_CORELIB_COMMANDS {
 
     compile CommandNOP.cxx
     compile CommandInterface.cxx
+    compile DataSourceCommand.cxx
 
 }

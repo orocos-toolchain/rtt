@@ -27,6 +27,7 @@
 #include "execution/GlobalCommandFactory.hpp"
 #include "execution/CommandFactoryComposite.hpp"
 #include "execution/ExecutionEngine.hpp"
+#include <corelib/Exceptions.hpp>
 
 #include <cassert>
 
@@ -98,6 +99,6 @@ namespace ORO_Execution {
         if ( fact )
             return CommandC(this, object, command);
         else
-            throw name_not_found_exception( object );
+            ORO_THROW_OR_RETURN( name_not_found_exception( object ), CommandC());
     }
 }

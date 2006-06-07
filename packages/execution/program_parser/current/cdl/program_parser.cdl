@@ -16,7 +16,6 @@ is very powerful."
     compile StateGraphParser.cxx
     compile ArgumentsParser.cxx ConditionParser.cxx ExpressionParser.cxx Parser.cxx
     compile ValueParser.cxx CommandParser.cxx ProgramGraphParser.cxx ValueChangeParser.cxx
-    compile DataSourceCondition.cxx DataSourceCommand.cxx 
     compile ParsedStateMachine.cxx
     compile StateMachineBuilder.cxx
     compile PeerParser.cxx 
@@ -26,6 +25,7 @@ is very powerful."
     compile ProgramLoader.cxx
     compile GenericTaskContext.cxx
     compile StatementProcessor.cxx
+    compile ParserScriptingAccess.cxx
 
     requires OROPKG_SUPPORT_BOOST
     requires OROPKG_SUPPORT_BOOST_GRAPH 

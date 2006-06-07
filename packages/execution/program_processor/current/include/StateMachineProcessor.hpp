@@ -118,9 +118,9 @@ namespace ORO_Execution
 
     private:
         void recursiveLoadStateMachine( StateMachinePtr sc );
-        void recursiveCheckLoadStateMachine( StateMachinePtr sc );
+        bool recursiveCheckLoadStateMachine( StateMachinePtr sc );
         void recursiveUnloadStateMachine( StateMachinePtr sc );
-        void recursiveCheckUnloadStateMachine( StateMachinePtr si );
+        bool recursiveCheckUnloadStateMachine( StateMachinePtr si );
 
         typedef ORO_CoreLib::ListLockFree<StateMachinePtr> StateMap;
         StateMap*   states;

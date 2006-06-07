@@ -135,6 +135,7 @@ namespace ORO_Execution
          */
         typename DataConnectionInterface<T>::shared_ptr mconn;
 
+        DataType minitial_value;
     public:
         ConnectionInterface::shared_ptr createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
 
@@ -154,34 +155,41 @@ namespace ORO_Execution
 
         /**
          * Write data to the connection of this port.
-         * If the port is not connected, nothing happens.
-         * @param data The data to set.
+         * If the port is not connected, this methods sets the
+         * initial value of the connection to \a data.
+         * @param data The data to write to this port.
          */
         void Set(const T& data )
         {
             if ( mconn )
                 mconn->data()->Set(data);
+            else
+                minital_value = data;
         }
 
         /**
          * Get the current value of this Port.
          * If the port is not connected, a default value is returned.
          * @retval this->data()->Get() if this->connected()
-         * @retval T() if !this->connected()
+         * @retval initial_value if !this->connected()
          */
         T Get() const
         {
             if ( mconn )
                 return mconn->data()->Get();
-            return T();
+            else
+                return minitial_value;
         }
 
         /**
          * Construct an unconnected Port to a writable DataObject.
          * @param name The name of this port.
+         * @param initial_value The initial value of this port's connection
+         * when the connection is created. If this port is connected to an
+         * existing connection, this value is ignored.
          */
-        WriteDataPort(const std::string& name)
-            : PortInterface(name), mconn() {}
+        WriteDataPort(const std::string& name, const DataType& initial_value = DataType() )
+            : PortInterface(name), mconn(), minitial_value(initial_value) {}
 
         ~WriteDataPort() {
             if (mconn)
@@ -232,7 +240,7 @@ namespace ORO_Execution
     ConnectionInterface::shared_ptr WriteDataPort<T>::createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type)
     {
         ConnectionFactory<T> cf;
-        return ConnectionInterface::shared_ptr ( cf.createDataObject(this, other, con_type) );
+        return ConnectionInterface::shared_ptr ( cf.createDataObject(this, other, minitial_value, con_type) );
     }
 }
 

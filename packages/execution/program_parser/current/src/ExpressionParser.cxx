@@ -35,7 +35,7 @@
 
 #include "execution/ArgumentsParser.hpp"
 #include <corelib/Operators.hpp>
-#include "execution/DataSourceCondition.hpp"
+#include <corelib/DataSourceCondition.hpp>
 #include "execution/DataSourceFactoryInterface.hpp"
 
 #include "corelib/DataSourceTime.hpp"

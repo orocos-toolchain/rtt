@@ -243,8 +243,13 @@ namespace ORO_Execution
 
         // check nb of arguments:
         std::vector<AttributeBase*> origlist = fn->getArguments();
-        if ( fnargs.size() != origlist.size() )
+        if ( fnargs.size() != origlist.size() ) {
+#ifndef ORO_EMBEDDED
             throw wrong_number_of_args_exception( origlist.size(), fnargs.size() );
+#else
+            return buildNode();
+#endif
+        }
             
         // make a deep copy of the function :
         std::map<const DataSourceBase*, DataSourceBase*> replacementdss;
@@ -257,6 +262,7 @@ namespace ORO_Execution
         CommandComposite* icom=  new CommandComposite();
         std::vector<DataSourceBase::shared_ptr>::const_iterator dit = fnargs.begin();
         std::vector<AttributeBase*>::const_iterator tit =  newlist.begin();
+#ifndef ORO_EMBEDDED
         try {
             for (; dit != fnargs.end(); ++dit, ++tit)
                 icom->add( (*tit)->getDataSource()->updateCommand( dit->get() ) );
@@ -269,7 +275,20 @@ namespace ORO_Execution
             int parnb = (dit - fnargs.begin());
             throw wrong_types_of_args_exception(parnb, (*tit)->getDataSource()->getType() ,(*dit)->getType() );
         }
-
+#else
+        for (; dit != fnargs.end(); ++dit, ++tit) {
+            CommandInterface* ret = (*tit)->getDataSource()->updateCommand( dit->get() );
+            if (ret)
+                icom->add( ret );
+            else {
+                // cleanup allocated memory
+                for (unsigned int i=0; i < newlist.size(); ++i)
+                    delete newlist[i];
+                delete icom;
+                return buildNode();
+            }
+        }
+#endif
         // set the init command on the build node 
         //assert( build not used by other than NOP )
         assert( dynamic_cast<CommandNOP*>( this->getCommand(build) ));

@@ -140,13 +140,18 @@ namespace ORO_Execution
         typename WriteConnectionInterface<T>::shared_ptr mconn;
 
         size_t buf_size;
+
+        T minitial_value;
     public:
         /**
          * Construct an unconnected Port to a writeable buffer.
          * @param name The name of this port.
+         * @param initial_value The initial value of this port's connection
+         * when the connection is created. If this port is connected to an
+         * existing connection, this value is ignored.
          */
-        WriteBufferPort(const std::string& name, size_t preferred_size )
-            : PortInterface(name), mconn(), buf_size(preferred_size) {}
+        WriteBufferPort(const std::string& name, size_t preferred_size, const T& initial_value = T() )
+            : PortInterface(name), mconn(), buf_size(preferred_size), minitial_value(initial_value) {}
 
         ~WriteBufferPort() {
             if (mconn) 
@@ -176,13 +181,24 @@ namespace ORO_Execution
          * Push a value into the buffer of this Port's connection.
          * @param data The data to push.
          * @retval this->read()->Push(data) if this->connected()
-         * @retval false if !this->connected() 
+         * @retval false if !this->connected()
          */
         bool Push(const T& data)
         {
             if (mconn)
                 return mconn->write()->Push(data);
             return false;
+        }
+
+        /**
+         * Set the initial value of the port's connection.
+         * This value is only used when the connection is created.
+         * If this port is connected to an existing connection,
+         * the value is ignored.
+         */
+        void Set(const T& data)
+        {
+            minitial_value = data;
         }
 
         /**
@@ -242,8 +258,8 @@ namespace ORO_Execution
          * Construct an unconnected Port to a writeable buffer.
          * @param name The name of this port.
          */
-        BufferPort(const std::string& name, size_t prefered_size)
-            : PortInterface(name), WriteBufferPort<T>(name,prefered_size), ReadBufferPort<T>(name), mconn() {}
+        BufferPort(const std::string& name, size_t prefered_size, const T& initial_value = T())
+            : PortInterface(name), WriteBufferPort<T>(name,prefered_size, initial_value), ReadBufferPort<T>(name), mconn() {}
 
         ~BufferPort() {
             if (mconn) {
@@ -332,7 +348,7 @@ namespace ORO_Execution
     ConnectionInterface::shared_ptr WriteBufferPort<T>::createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type )
         {
             ConnectionFactory<T> cf;
-            return ConnectionInterface::shared_ptr (cf.createBuffer(this, other, buf_size, con_type));
+            return ConnectionInterface::shared_ptr (cf.createBuffer(this, other, buf_size, minitial_value, con_type));
         }
 }
 #endif

@@ -152,6 +152,8 @@ namespace ORO_CoreLib
          * Setup Type Information for type \a name.
          * This causes a switch from 'unknown' type to basic
          * type information for type T.
+         * @param name the 'Orocos' type name.
+         * 
          */
         TemplateTypeInfo(std::string name) 
             : tname(name)

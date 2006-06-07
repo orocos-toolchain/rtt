@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  DataSourceCondition.cxx
+  tag: Peter Soetens  Sat May 7 12:56:52 CEST 2005  DataSourceCommand.cxx 
 
-                        DataSourceCondition.cxx -  description
+                        DataSourceCommand.cxx -  description
                            -------------------
-    begin                : Mon May 10 2004
-    copyright            : (C) 2004 Peter Soetens
+    begin                : Sat May 07 2005
+    copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
-
+ 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -24,55 +24,59 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "execution/DataSourceCondition.hpp"
+ 
+ 
+#include "corelib/DataSourceCommand.hpp"
 
-#include "corelib/ConditionInterface.hpp"
+#include "corelib/CommandInterface.hpp"
 
-namespace ORO_Execution
+namespace ORO_CoreLib
 {
-  DataSourceCondition::DataSourceCondition( ConditionInterface* c )
-      : cond( c ), result(false)
+  DataSourceCommand::DataSourceCommand( CommandInterface* c )
+      : comm( c ), mresult(false)
   {
   }
 
-  DataSourceCondition::DataSourceCondition( const DataSourceCondition& orig )
-      : cond( orig.condition()->clone() ), result(false)
+  DataSourceCommand::DataSourceCommand( const DataSourceCommand& orig )
+    : comm( orig.command()->clone() ), mresult(false)
   {
   }
 
-  DataSourceCondition::~DataSourceCondition()
+  DataSourceCommand::~DataSourceCommand()
   {
-      delete cond;
+    delete comm;
   }
 
-  bool DataSourceCondition::get() const
+  bool DataSourceCommand::get() const
   {
-      return result = cond->evaluate();
+      comm->readArguments();
+      mresult = comm->execute();
+      return mresult;
   }
 
-  bool DataSourceCondition::value() const
+  bool DataSourceCommand::value() const
   {
-      return result;
+    return mresult;
   }
 
-  ConditionInterface* DataSourceCondition::condition() const
+  CommandInterface* DataSourceCommand::command() const
   {
-      return cond;
+      return comm;
   }
 
-  void DataSourceCondition::reset()
+  void DataSourceCommand::reset()
   {
-      result = false;
-      cond->reset();
+      mresult = false;
+      comm->reset();
   }
 
-  DataSourceCondition* DataSourceCondition::clone() const
+  DataSourceCommand* DataSourceCommand::clone() const
   {
-      return new DataSourceCondition( cond->clone() );
+      return new DataSourceCommand( comm->clone() );
   }
 
-  DataSourceCondition* DataSourceCondition::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+  DataSourceCommand* DataSourceCommand::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
   {
-      return new DataSourceCondition( cond->copy( alreadyCloned ) );
+      return new DataSourceCommand( comm->copy( alreadyCloned ) );
   }
 }

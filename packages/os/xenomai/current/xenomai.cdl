@@ -100,6 +100,7 @@ package.
 
    cdl_component CYGBLD_GLOBAL_OPTIONS {
        display "Global build options"
+       parent CYGPKG_NONE
        flavor none
        parent none
        description "

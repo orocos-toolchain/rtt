@@ -37,7 +37,7 @@
 #include "execution/CommandParser.hpp"
 #include "execution/ProgramTask.hpp"
 #include "execution/StateMachineTask.hpp"
-#include "execution/DataSourceCommand.hpp"
+#include "corelib/DataSourceCommand.hpp"
 #include "corelib/ConditionInterface.hpp"
 
 #include <iostream>
@@ -48,6 +48,7 @@ using namespace boost;
 namespace ORO_Execution
 {
   using namespace detail;
+  using namespace ORO_CoreLib;
 
   Parser::ParsedFunctions Parser::parseFunction( const std::string& text, TaskContext* c, const std::string& filename)
   {

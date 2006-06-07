@@ -29,10 +29,10 @@
 
 #include "execution/StateMachineProcessor.hpp"
 #include <corelib/Logger.hpp>
+#include <corelib/Exceptions.hpp>
 
 #include <boost/bind.hpp>
 #include <os/Semaphore.hpp>
-#include <iostream>
 
 namespace ORO_Execution
 {
@@ -56,13 +56,21 @@ namespace ORO_Execution
     
         while ( !states->empty() ) {
             // try to unload all
+            Logger::log() << Logger::Info << "StateMachineProcessor unloads StateMachine "<< states->front()->getName() << "..."<<Logger::endl;
+#ifndef ORO_EMBEDDED
             try {
-                Logger::log() << Logger::Info << "StateMachineProcessor unloads StateMachine "<< states->front()->getName() << "..."<<Logger::endl;
                 this->unloadStateMachine( states->front()->getName() );
-            } catch ( program_load_exception& ple) {
+            }
+            catch ( program_load_exception& ple) {
                 Logger::log() << Logger::Error << ple.what() <<Logger::endl;
                 states->erase( states->front() ); // plainly remove it to avoid endless loop.
             }
+#else
+            if (this->unloadStateMachine( states->front()->getName() ) == false) {
+                Logger::log() << Logger::Error << "Error during unload !" <<Logger::endl;
+                states->erase( states->front() ); // plainly remove it to avoid endless loop.
+            }
+#endif
         }
             
         delete states;
@@ -127,15 +135,16 @@ namespace ORO_Execution
             std::string error(
                 "Could not register StateMachine \"" + sc->getName() +
                 "\" with the processor. It is not a root StateMachine." );
-            throw program_load_exception( error );
+            ORO_THROW_OR_RETURN( program_load_exception( error ) , false);
         }
 
-        this->recursiveCheckLoadStateMachine( sc ); // throws load_exception
+        if (this->recursiveCheckLoadStateMachine( sc ) == false)
+            return false; // throws load_exception
         this->recursiveLoadStateMachine( sc );
         return true;
     }
     
-    void StateMachineProcessor::recursiveCheckLoadStateMachine( StateMachinePtr sc )
+    bool StateMachineProcessor::recursiveCheckLoadStateMachine( StateMachinePtr sc )
     {
         // test if already present..., this cannot detect corrupt
         // trees with double names...
@@ -145,14 +154,16 @@ namespace ORO_Execution
             std::string error(
                 "Could not register StateMachine \"" + sc->getName() +
                 "\" with the processor. A StateMachine with that name is already present." );
-            throw program_load_exception( error );
+            ORO_THROW_OR_RETURN( program_load_exception( error ), false );
 
             std::vector<StateMachinePtr>::const_iterator it2;
             for (it2 = sc->getChildren().begin(); it2 != sc->getChildren().end(); ++it2)
                 {
-                    this->recursiveCheckLoadStateMachine( *it2 );
+                    if ( this->recursiveCheckLoadStateMachine( *it2 ) == false)
+                        return false;
                 }
         }
+        return true;
     }
 
     void StateMachineProcessor::recursiveLoadStateMachine( StateMachinePtr sc )
@@ -182,16 +193,17 @@ namespace ORO_Execution
                 std::string error(
                                   "Could not unload StateMachine \"" + pip->getName() +
                                   "\" with the processor. It is not a root StateMachine." );
-                throw program_unload_exception( error );
+                ORO_THROW_OR_RETURN( program_unload_exception( error ), false);
             }
-            recursiveCheckUnloadStateMachine( pip );
+            if (recursiveCheckUnloadStateMachine( pip ) == false)
+                return false;
             recursiveUnloadStateMachine( pip );
             return true;
         }
         return false;
     }
 
-    void StateMachineProcessor::recursiveCheckUnloadStateMachine(StateMachinePtr si)
+    bool StateMachineProcessor::recursiveCheckUnloadStateMachine(StateMachinePtr si)
     {
         // check this state
         if ( si->isActive() ) {
@@ -199,7 +211,7 @@ namespace ORO_Execution
                               "Could not unload StateMachine \"" + si->getName() +
                               "\" with the processor. It is still active, status is "+
                     this->getStateMachineStatusStr( si->getName() ) );
-            throw program_unload_exception( error );
+            ORO_THROW_OR_RETURN( program_unload_exception( error ), false);
         }
 
         // check children
@@ -213,11 +225,13 @@ namespace ORO_Execution
                     std::string error(
                               "Could not unload StateMachine \"" + si->getName() +
                               "\" with the processor. It contains not loaded child "+ (*it2)->getName() );
-                    throw program_unload_exception( error );
+                    ORO_THROW_OR_RETURN( program_unload_exception( error ), false);
                 }
                 // all is ok, check child :
-                this->recursiveCheckUnloadStateMachine( pip );
+                if ( this->recursiveCheckUnloadStateMachine( pip ) == false)
+                    return false;
             }
+        return true;
     }
 
     void StateMachineProcessor::recursiveUnloadStateMachine(StateMachinePtr sc) {

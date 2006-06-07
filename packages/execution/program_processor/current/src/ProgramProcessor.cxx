@@ -31,6 +31,7 @@
 #include "execution/ProgramInterface.hpp"
 #include <corelib/AtomicQueue.hpp>
 #include <corelib/Logger.hpp>
+#include <corelib/Exceptions.hpp>
 
 #include <boost/bind.hpp>
 #include <functional>
@@ -127,13 +128,13 @@ namespace ORO_Execution
                 std::string error(
                                   "Could not unload Program \"" + name +
                                   "\" with the processor. It does not exist." );
-                throw program_unload_exception( error );
+                ORO_THROW_OR_RETURN( program_unload_exception( error ), false);
             }
         if ( !pip->isStopped() ) {
                 std::string error(
                                   "Could not unload Program \"" + name +
                                   "\" with the processor. It is still running." );
-                throw program_unload_exception( error );
+                ORO_THROW_OR_RETURN( program_unload_exception( error ), false);
             }
         return false;
     }

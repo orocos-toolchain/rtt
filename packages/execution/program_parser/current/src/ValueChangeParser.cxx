@@ -315,6 +315,7 @@ namespace ORO_Execution
           DataSourceBase::shared_ptr expr = expressionparser.getResult();
           expressionparser.dropResult();
           //assert( !expressionparser.hasResult() );
+#ifndef ORO_EMBEDDED
           try {
               CommandInterface* ac = var->getDataSource()->updateCommand( expr.get() );
               assert(ac);
@@ -325,6 +326,15 @@ namespace ORO_Execution
               throw parse_exception_semantic_error
                   ( "Attempt to initialize a var "+var->getDataSource()->getTypeName()+" with a "+ expr->getTypeName() + "." );
           }
+#else
+          CommandInterface* ac = var->getDataSource()->updateCommand( expr.get() );
+          if (ac)
+              assigncommands.push_back( ac );
+          else {
+              this->cleanup();
+              return;
+          }
+#endif
       }
   }
 
@@ -375,6 +385,7 @@ namespace ORO_Execution
 
       if ( index_ds && var ) {
           CommandInterface* ac;
+#ifndef ORO_EMBEDDED
           try {
               ac = var->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
               assigncommands.push_back( ac );
@@ -388,8 +399,16 @@ namespace ORO_Execution
           if ( !ac )
               throw parse_exception_semantic_error(
                      "Cannot use index with constant, alias or non-indexed value \"" + valuename + "\"." );
+#else
+          ac = var->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
+          if (ac)
+              assigncommands.push_back( ac );
+          else
+              return;
+#endif
       } 
       if ( !index_ds && var) {
+#ifndef ORO_EMBEDDED
         try {
             CommandInterface* assigncommand = var->getDataSource()->updateCommand( expr.get() );
             assigncommands.push_back(assigncommand);
@@ -403,13 +422,34 @@ namespace ORO_Execution
                 throw parse_exception_semantic_error
                     ( "Attempt to assign variable of type "+var->getDataSource()->getTypeName()+" with a "+ expr->getTypeName() + "." );
             }
+#else
+        CommandInterface* assigncommand = var->getDataSource()->updateCommand( expr.get() );
+        if (assigncommand)
+            assigncommands.push_back(assigncommand);
+        else
+            return;
+#endif
       }
       if ( !index_ds && prop) {
-          CommandInterface* assigncommand = prop->getDataSource()->updateCommand( expr.get() );
-          assigncommands.push_back(assigncommand);
-          if ( ! assigncommand ) {
-              throw parse_exception_semantic_error( "Cannot set Property<"+ prop->getType() +"> " + valuename + " to value of type "+expr->getTypeName()+"." );
+#ifndef ORO_EMBEDDED
+          try {
+              CommandInterface* assigncommand = prop->getDataSource()->updateCommand( expr.get() );
+              assigncommands.push_back(assigncommand);
+              if ( ! assigncommand ) {
+                  throw parse_exception_semantic_error( "Cannot set Property<"+ prop->getType() +"> " + valuename + " to value of type "+expr->getTypeName()+"." );
+              }
           }
+          catch( bad_assignment& ) {
+              throw parse_exception_semantic_error
+                  ( "Attempt to assign property of type "+var->getDataSource()->getTypeName()+" with a "+ expr->getTypeName() + "." );
+          }
+#else
+          CommandInterface* assigncommand = prop->getDataSource()->updateCommand( expr.get() );
+          if ( assigncommand )
+              assigncommands.push_back(assigncommand);
+          else
+              return;
+#endif
       }
 
       // allow to restart over...
