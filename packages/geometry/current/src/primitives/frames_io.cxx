@@ -66,12 +66,14 @@ int FRAMEWIDTH = 12;
     using namespace std;
 
 ostream& operator << (ostream& os,const Vector& v) {
+    os.width(0);
     os << "[" << setw(FRAMEWIDTH) << v(0) << "," << setw(FRAMEWIDTH)<<v(1) 
        << "," << setw(FRAMEWIDTH) << v(2) << "]";
     return os;
 }
 
 ostream& operator << (ostream& os,const Twist& v) {
+    os.width(0);
     os << "[" << setw(FRAMEWIDTH) << v.vel(0) 
        << "," << setw(FRAMEWIDTH) << v.vel(1) 
        << "," << setw(FRAMEWIDTH) << v.vel(2) 
@@ -83,6 +85,7 @@ ostream& operator << (ostream& os,const Twist& v) {
 }
 
 ostream& operator << (ostream& os,const Wrench& v) {
+    os.width(0);
     os << "[" << setw(FRAMEWIDTH) << v.force(0) 
        << "," << setw(FRAMEWIDTH) << v.force(1) 
        << "," << setw(FRAMEWIDTH) << v.force(2) 
@@ -95,6 +98,7 @@ ostream& operator << (ostream& os,const Wrench& v) {
 
 
 ostream& operator << (ostream& os,const Rotation& R) {
+    os.width(0);
 #ifdef OROSEM_GEOMETRY_ROTATION_PROPERTIES_RPY
     double r,p,y;
     R.GetRPY(r,p,y);
@@ -130,11 +134,13 @@ ostream& operator << (ostream& os,const Rotation& R) {
 
 ostream& operator << (ostream& os, const Frame& T) 
 {
+    os.width(0);
     os << "[" << T.M << endl<< T.p << "]";
     return os;
 }
 
 ostream& operator << (ostream& os,const Vector2& v) {
+    os.width(0);
     os << "[" << setw(FRAMEWIDTH) << v(0) << "," << setw(FRAMEWIDTH)<<v(1) 
        << "]";
     return os;
@@ -142,12 +148,14 @@ ostream& operator << (ostream& os,const Vector2& v) {
 
 // Rotation2 gives back an angle in degrees with the << and >> operators.
 ostream& operator << (ostream& os,const Rotation2& R) {
+    os.width(0);
     os << "[" << R.GetRot()*rad2deg << "]";
     return os;
 }
 
 ostream& operator << (ostream& os, const Frame2& T) 
 {
+    os.width(0);
     os << T.M << T.p;
     return os;
 }
