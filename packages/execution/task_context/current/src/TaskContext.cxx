@@ -44,7 +44,7 @@
 
 #include <pkgconf/os.h>
 #include <pkgconf/system.h>
-#if !defined( ORO_EMBEDDED ) && defined( OROPKG_EXECUTION_PROGRAM_PARSER )
+#if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
 #include "execution/ParserScriptingAccess.hpp"
 #endif
 
@@ -57,7 +57,11 @@ namespace ORO_Execution
     TaskContext::TaskContext(const std::string& name)
         :  _task_name(name),
            ee(this),
+#if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
+           mscriptAcc(new ParserScriptingAccess(this)),
+#else
            mscriptAcc(new ScriptingAccess(this)),
+#endif
            commandFactory( &ee ),
            eventService( &ee )
     {
@@ -70,7 +74,7 @@ namespace ORO_Execution
     TaskContext::TaskContext(const std::string& name, ExecutionEngine* parent )
         :  _task_name(name),
            ee(this, parent ),
-#if !defined( ORO_EMBEDDED ) && defined( OROPKG_EXECUTION_PROGRAM_PARSER )
+#if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
            mscriptAcc(new ParserScriptingAccess(this)),
 #else
            mscriptAcc(new ScriptingAccess(this)),
