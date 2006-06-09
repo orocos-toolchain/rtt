@@ -45,20 +45,26 @@ namespace ORO_CoreLib
     class TableMarshaller 
         : public Marshaller, public StreamProcessor<o_stream>
     {
-        std::string sep;
+        std::string msep;
         public:
-            typedef o_stream output_stream;
-            typedef o_stream OutputStream;
+        typedef o_stream output_stream;
+        typedef o_stream OutputStream;
             
-            TableMarshaller(output_stream &os, std::string _sep=" ") :
-                    StreamProcessor<o_stream>(os), sep(_sep)
-            {}
+        /**
+         * Create a new marshaller, streaming the data to a stream.
+         * @param os The stream to write the data to (i.e. cerr)
+         * @param sep The separater to place between each column and at
+         * the end of the line.
+         */
+        TableMarshaller(output_stream &os, std::string sep=" ") :
+            StreamProcessor<o_stream>(os), msep(sep)
+        {}
 
             virtual ~TableMarshaller() {}
 
 			virtual void serialize(PropertyBase* v) 
 			{ 
-                *this->s << sep;
+                *this->s << msep;
                 Property<PropertyBag>* bag = dynamic_cast< Property<PropertyBag>* >( v );
                 if ( bag )
                     this->serialize( bag->value() );
@@ -82,7 +88,7 @@ namespace ORO_CoreLib
             virtual void flush() 
             {
                 // TODO : buffer for formatting and flush here.
-                *this->s << sep <<std::endl;
+                *this->s << msep <<std::endl;
             }
 	};
 }
