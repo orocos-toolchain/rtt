@@ -74,10 +74,23 @@ namespace ORO_Execution
         Ports getPorts() const { return ports; }
 
         /**
+         * Get all port names of this task.
+         */
+        std::vector<std::string> getPortNames() const { 
+            std::vector<std::string> res;
+            for ( Ports::const_iterator it(ports.begin());
+                 it != ports.end();
+                 ++it)
+                res.push_back( (*it)->getName() );
+            return res;
+        }
+
+
+        /**
          * Get a port.
          */
-        PortInterface* getPort(const std::string& name) {
-            for ( Ports::iterator it(ports.begin());
+        PortInterface* getPort(const std::string& name) const {
+            for ( Ports::const_iterator it(ports.begin());
                  it != ports.end();
                  ++it)
                 if ( (*it)->getName() == name )

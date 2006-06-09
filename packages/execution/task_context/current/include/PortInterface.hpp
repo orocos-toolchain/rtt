@@ -95,6 +95,18 @@ namespace ORO_Execution
         virtual void disconnect() = 0;
 
         /**
+         * Create a clone of this port with the same name
+         */
+        virtual PortInterface* clone() const = 0;
+
+        /**
+         * Create the anti-clone (inverse port) of this port with the same name
+         * A port for reading will return a new port for writing and
+         * vice versa.
+         */
+        virtual PortInterface* antiClone() const = 0;
+
+        /**
          * Create a connection to another port.
          */
         virtual ConnectionInterface::shared_ptr createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);

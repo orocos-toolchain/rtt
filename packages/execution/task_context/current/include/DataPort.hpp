@@ -107,6 +107,12 @@ namespace ORO_Execution
             mconn = 0;
         }
 
+        virtual PortInterface* clone() const {
+            return new ReadDataPort<T>( this->getName() );
+        }
+
+        virtual PortInterface* antiClone() const;
+
         virtual DataSourceFactoryInterface* createDataSources() {
             if ( !mconn )
                 return 0;
@@ -218,6 +224,14 @@ namespace ORO_Execution
             mconn = 0;
         }
 
+        virtual PortInterface* clone() const {
+            return new WriteDataPort<T>( this->getName(), minitial_value );
+        }
+
+        virtual PortInterface* antiClone() const {
+            return new ReadDataPort<T>( this->getName() );
+        }
+
         virtual DataSourceFactoryInterface* createDataSources() {
             if ( !mconn )
                 return 0;
@@ -236,6 +250,12 @@ namespace ORO_Execution
 
 namespace ORO_Execution
 {
+
+    template<class T>
+    PortInterface* ReadDataPort<T>::antiClone() const {
+        return new WriteDataPort<T>( this->getName() );
+    }
+
     template<class T>
     ConnectionInterface::shared_ptr WriteDataPort<T>::createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type)
     {
