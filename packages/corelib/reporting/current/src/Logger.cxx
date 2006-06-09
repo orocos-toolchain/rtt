@@ -90,7 +90,7 @@ namespace ORO_CoreLib
 #ifndef OROSEM_PRINTF_LOGGING
               stdoutput(&std::cerr),
 #endif
-#ifndef OROSEM_REMOTE_LOGGING
+#ifdef OROSEM_REMOTE_LOGGING
               messagecnt(0),
 #endif
 #if defined(OROSEM_FILE_LOGGING) && !defined(OROSEM_PRINTF_LOGGING)
