@@ -98,7 +98,7 @@ namespace ORO_CoreLib
         TimerList::iterator itl;
         for (itl = clocks.begin(); itl != clocks.end(); ++itl)
             delete *itl; 
-
+        delete eproc;
     }
 
     bool TimerThread::initialize()
