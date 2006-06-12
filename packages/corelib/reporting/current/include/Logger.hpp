@@ -254,6 +254,7 @@ namespace ORO_CoreLib
 
     private:
         Logger();
+        ~Logger();
 
         static Logger* _instance;
     };

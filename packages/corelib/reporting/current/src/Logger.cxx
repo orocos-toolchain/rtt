@@ -283,6 +283,12 @@ namespace ORO_CoreLib
       this->startup();
     }
 
+    Logger::~Logger()
+    {
+        delete d;
+    }
+
+
     void Logger::allowRealTime() {
         *this << Logger::Warning << "Enabling Real-Time Logging !" <<Logger::endl;
         d->allowRT = true;
