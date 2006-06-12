@@ -84,10 +84,10 @@ int main(int argc, char* argv[])
 
     __os_init(argc, argv);
 
+    string location( argv[0] );
+    location += "::main()";
     {
 #ifdef OROPKG_CORELIB_REPORTING
-        string location( argv[0] );
-        location += "::main()";
         Logger::In in( location.c_str() );
 #endif
 
