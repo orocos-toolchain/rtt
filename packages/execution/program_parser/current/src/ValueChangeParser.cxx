@@ -434,14 +434,14 @@ namespace ORO_Execution
 #ifndef ORO_EMBEDDED
           try {
               CommandInterface* assigncommand = prop->getDataSource()->updateCommand( expr.get() );
-              assigncommands.push_back(assigncommand);
               if ( ! assigncommand ) {
                   throw parse_exception_semantic_error( "Cannot set Property<"+ prop->getType() +"> " + valuename + " to value of type "+expr->getTypeName()+"." );
               }
+              assigncommands.push_back(assigncommand);
           }
           catch( bad_assignment& ) {
               throw parse_exception_semantic_error
-                  ( "Attempt to assign property of type "+var->getDataSource()->getTypeName()+" with a "+ expr->getTypeName() + "." );
+                  ( "Attempt to assign property of type "+prop->getDataSource()->getTypeName()+" with a "+ expr->getTypeName() + "." );
           }
 #else
           CommandInterface* assigncommand = prop->getDataSource()->updateCommand( expr.get() );
