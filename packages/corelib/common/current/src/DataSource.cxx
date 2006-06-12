@@ -250,6 +250,17 @@ namespace ORO_CoreLib
         const std::string DataSourceTypeInfo<UnknownType>::crefqual(" const&");
         const std::string DataSourceTypeInfo<UnknownType>::ptrqual(" *");
         const std::string DataSourceTypeInfo<UnknownType>::cptrqual(" const*");
+
+        // (void) type info
+        TypeInfo* DataSourceTypeInfo<void>::TypeInfoObject = 0;
+        const std::string DataSourceTypeInfo<void>::tname("void");
+
+        const std::string& DataSourceTypeInfo<void>::getType() { return tname; }
+        const std::string& DataSourceTypeInfo<void>::getQualifier() { return DataSourceTypeInfo<UnknownType>::noqual; }
+        const TypeInfo* DataSourceTypeInfo<void>::getTypeInfo() { 
+            return DataSourceTypeInfo<UnknownType>::getTypeInfo();
+        }
+
     }
 }
 

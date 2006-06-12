@@ -229,7 +229,7 @@ namespace ORO_CoreLib
             if ( d && use_ostream )
                 detail::TypeStreamSelector<T, use_ostream>::write( os, d->get() );
             else {
-                std::string output = std::string("(")+tname+")";
+                std::string output = std::string("(")+ in->getTypeName() +")";
                 os << output;
             }
             return os;

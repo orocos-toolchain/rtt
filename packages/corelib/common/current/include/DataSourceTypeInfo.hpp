@@ -146,6 +146,38 @@ namespace ORO_CoreLib
              */
             static const TypeInfo* getTypeInfo();
         };
+
+        /**
+         * (void) is a special case.
+         */
+        template<>
+        class DataSourceTypeInfo<void> {
+            static const std::string tname;
+        public:
+            typedef void value_type;
+            typedef DataSourceTypeInfo<void> value_type_info;
+
+            /**
+             * Defaults to 0. If a TemplateTypeInfo object is created for T,
+             * this pointer will be set to that type.
+             */
+            static TypeInfo* TypeInfoObject;
+
+            /**
+             * Return the unqualified typename.
+             */
+            static const std::string& getType();
+
+            /**
+             * Return the 'const', 'ref', 'pointer' qualifier for this type.
+             */
+            static const std::string& getQualifier();
+
+            /**
+             * Return the typeinfo object.
+             */
+            static const TypeInfo* getTypeInfo();
+        };
     }
 
 }
