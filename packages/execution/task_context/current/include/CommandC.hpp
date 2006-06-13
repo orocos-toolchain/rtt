@@ -55,7 +55,7 @@ namespace ORO_Execution
          */
         class D;
         D* d;
-        std::pair<ORO_CoreLib::CommandInterface*,ORO_CoreLib::ConditionInterface*> cc;
+        std::pair<DispatchInterface*,ORO_CoreLib::ConditionInterface*> cc;
     public:
         /**
          * The default constructor

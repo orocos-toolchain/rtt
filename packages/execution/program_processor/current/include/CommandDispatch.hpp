@@ -73,11 +73,13 @@ namespace ORO_Execution
 
         void readArguments();
 
+        bool execute();
+
         /**
          * Dispatch a command. If it is not accepted, fail, if it is accepted,
          * return the dispatched command's result status.
          */
-        bool execute();
+        bool dispatch();
 
         /**
          * After reset(), another attempt to dispatch

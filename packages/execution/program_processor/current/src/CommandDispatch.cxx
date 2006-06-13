@@ -50,7 +50,12 @@ namespace ORO_Execution
     void CommandDispatch::readArguments()
     {}
 
-    bool CommandDispatch::execute() {
+    bool CommandDispatch::execute()
+    {
+        return dispatch();
+    }
+
+    bool CommandDispatch::dispatch() {
         //Logger::In in("CommandDispatch");
         //Logger::log() <<Logger::RealTime << "execute()"<<Logger::endl;
         if ( send ) {

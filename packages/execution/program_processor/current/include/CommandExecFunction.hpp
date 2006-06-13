@@ -113,6 +113,11 @@ namespace ORO_Execution
             minit->readArguments();
         }
 
+        bool dispatch() 
+        {
+            return execute();
+        }
+
         bool execute()
         {
             // this is asyn behaviour :
@@ -125,6 +130,7 @@ namespace ORO_Execution
             // in error or not.
             return maccept->get() && ! _foo->inError();
         }
+
         void reset()
         {
             // reset the program, so that it is valid to be re-queued again
@@ -162,7 +168,7 @@ namespace ORO_Execution
          */
         ORO_CoreLib::ConditionInterface* createValidCondition() const;
         
-        ORO_CoreLib::CommandInterface* clone() const
+        DispatchInterface* clone() const
         {
             // _v is shared_ptr, so don't clone.
             return new CommandExecFunction( minit->clone(), _foo, _proc, _v.get(), maccept.get() );

@@ -46,7 +46,7 @@ namespace ORO_Execution
     public:
         const GlobalCommandFactory* mgcf;
         std::string mobject, mname;
-        ComCon comcon;
+        std::pair<DispatchInterface*,ORO_CoreLib::ConditionInterface*> comcon;
         std::vector<DataSourceBase::shared_ptr> args;
 
         void checkAndCreate() {
@@ -62,13 +62,15 @@ namespace ORO_Execution
             size_t sz = mgcf->getObjectFactory(mobject)->getArgumentList(mname).size();
             if ( sz == args.size() ) {
                 // may throw or return '0,0' if no exceptions.
-                comcon = mgcf->getObjectFactory(mobject)->create(mname, args, false );
+                ComCon cc = mgcf->getObjectFactory(mobject)->create(mname, args, false );
                 args.clear();
-                if (comcon.first == 0)
+                if (cc.first == 0)
                     return;
                 // below we assume that the result is a DispatchInterface object.
-                assert( static_cast<DispatchInterface*>(comcon.first) == dynamic_cast<DispatchInterface*>(comcon.first) );
-                assert( comcon.second );
+                assert( static_cast<DispatchInterface*>(cc.first) == dynamic_cast<DispatchInterface*>(cc.first) );
+                assert( cc.second );
+                comcon.first = static_cast<DispatchInterface*>(cc.first);
+                comcon.second = cc.second;
             }
         }
 
@@ -190,7 +192,7 @@ namespace ORO_Execution
     bool CommandC::execute() {
         // execute dispatch command
         if (cc.first)
-            return cc.first->execute();
+            return cc.first->dispatch();
         else {
             Logger::log() <<Logger::Error << "execute() called on incomplete CommandC."<<Logger::endl;
             if (d) {
@@ -204,7 +206,7 @@ namespace ORO_Execution
 
     bool CommandC::sent() const{
         if (cc.first)
-            return static_cast<DispatchInterface*>(cc.first)->sent();
+            return cc.first->sent();
         return false;
     }
 
@@ -212,21 +214,21 @@ namespace ORO_Execution
     bool CommandC::accepted() const {
         // check if dispatch command was accepted.
         if (cc.first)
-            return static_cast<DispatchInterface*>(cc.first)->accepted();
+            return cc.first->accepted();
         return false;
     }
 
     bool CommandC::executed() const {
         // check if dispatch command was executed by the processor
         if (cc.first)
-            return static_cast<DispatchInterface*>(cc.first)->executed();
+            return cc.first->executed();
         return false;
     }
 
     bool CommandC::valid() const {
         // check if dispatch command had valid args.
         if (cc.first)
-            return static_cast<DispatchInterface*>(cc.first)->valid();
+            return cc.first->valid();
         return false;
     }
 
