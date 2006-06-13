@@ -42,6 +42,10 @@ namespace ORO_Corba
 
         virtual void readArguments() {}
 
+        virtual bool dispatch() {
+            return mdata->execute();
+        }
+
         virtual bool execute() {
             return mdata->execute();
         }
@@ -68,7 +72,7 @@ namespace ORO_Corba
 
         virtual ORO_CoreLib::ConditionInterface* createValidCondition() const;
 
-        virtual ORO_CoreLib::CommandInterface* clone() const {
+        virtual DispatchInterface* clone() const {
             return new CommandProxy( mdata.in() );
         }
 

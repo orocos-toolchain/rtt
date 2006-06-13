@@ -264,7 +264,7 @@ namespace ORO_CoreLib
      * Specialisation in case of Any.
      */
     template<>
-    CommandInterface* AssignableDataSource<CORBA::Any_ptr>::updateCommand( const DataSourceBase* other);
+    CommandInterface* AssignableDataSource<CORBA::Any_ptr>::updateCommand( DataSourceBase* other);
 #endif
 }
 

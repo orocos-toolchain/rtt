@@ -30,7 +30,7 @@
 
 #include "corba/ExecutionI.h"
 #include "execution/CommandC.hpp"
-#include "execution/DataSourceCondition.hpp"
+#include "corelib/DataSourceCondition.hpp"
 #include "corelib/Logger.hpp"
 
 

@@ -216,7 +216,7 @@ namespace ORO_CoreLib
     }
 
     template<>
-    CommandInterface* AssignableDataSource<CORBA::Any_ptr>::updateCommand( const DataSourceBase* other) 
+    CommandInterface* AssignableDataSource<CORBA::Any_ptr>::updateCommand( DataSourceBase* other) 
     {
         //CORBA::Any_ptr any = other->getAny();
         if ( true ) {

@@ -138,10 +138,9 @@ namespace ExecutionClient
   {
         Parser    parser;
         Parser::ParsedStateMachines contexts;
-        std::stringstream text_stream( code );
       try {
         try {
-          contexts = parser.parseStateMachine( text_stream, executionext->getTaskContext(), filename );
+          contexts = parser.parseStateMachine( code, executionext->getTaskContext(), filename );
         }
         catch( const file_parse_exception& exc )
         {
@@ -181,10 +180,9 @@ namespace ExecutionClient
   {
         Parser    parser;
         Parser::ParsedPrograms pg_list;
-        std::stringstream text_stream( code );
       try {
         try {
-            pg_list = parser.parseProgram( text_stream, executionext->getTaskContext(), filename );
+            pg_list = parser.parseProgram( code, executionext->getTaskContext(), filename );
         }
         catch( const file_parse_exception& exc )
         {
@@ -346,7 +344,7 @@ namespace ExecutionClient
                     // is executed by the Processor ( see checkCommandFinished() ). 
                     TryCommand* tcom = new TryCommand( parseresult.first );
                     // compose impl term cond with executed() filter and do not invert the result :
-                    ConditionInterface* implcond = new ConditionBinaryComposite< std::logical_and<bool> >( new TryCommandResult( tcom->executed(), false ), parseresult.second );
+                    ConditionInterface* implcond = new ConditionBinaryCompositeAND( new TryCommandResult( tcom->executed(), false ), parseresult.second );
                     parseresult = make_pair( tcom, implcond );
                 } catch ( parse_exception& pe ) {
                     Logger::log() << Logger::Error  << "Parse Error : Illegal command."<<Logger::nl

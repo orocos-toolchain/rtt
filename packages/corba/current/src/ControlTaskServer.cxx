@@ -33,6 +33,7 @@
 #include "corba/ControlTaskI.h"
 #include <orbsvcs/CosNamingC.h>
 #include <iostream>
+#include <fstream>
 
 // ACE Specific, for printing exceptions.
 #include <ace/SString.h>
