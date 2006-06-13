@@ -235,7 +235,7 @@ namespace ORO_CoreLib
     template<class T>
     bool AssignableDataSource<T>::update( DataSourceBase* other ) {
         DataSourceBase::shared_ptr r( other );
-        typename DataSource<T>::shared_ptr o( AdaptDataSource<T>()(r) );
+        typename DataSource<T>::shared_ptr o = AdaptDataSource<T>()(r);
         if (o) {
             this->set( o->get() );
             return true;
@@ -248,7 +248,7 @@ namespace ORO_CoreLib
         // WARNING: This does not work when T is a const reference and other is not !
         // use AdaptDataSource<T>()( r )
         DataSourceBase::shared_ptr r( other );
-        typename DataSource<T>::shared_ptr t( AdaptDataSource<T>()( r ) );
+        typename DataSource<T>::shared_ptr t = AdaptDataSource<T>()( r );
         if ( t )
             return new detail::AssignCommand<T>( this, t );
 
