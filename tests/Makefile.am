@@ -4,7 +4,7 @@ SUBDIRS = .
 
 #global includes
 INCLUDES = -I$(top_builddir)/packages/install/include $(TARGET_FLAGS)
-LDADD = $(CPPUNIT_LIBS) $(top_builddir)/packages/install/lib/libtarget.a -lpthread $(TARGET_LIBS) -lstdc++
+LDADD = $(CPPUNIT_LIBS) $(top_builddir)/packages/install/lib/libtarget.a $(TARGET_LIBS) -lpthread -lstdc++
 AM_CXXFLAGS += $(CPPUNIT_CFLAGS) -g 
 AM_CPPFLAGS +=-D_REENTRANT
 
@@ -91,7 +91,7 @@ program_prof_LDFLAGS = -g -pg
 
 taskcontext_test_SOURCES = test-runner.cpp \
 	generictask_test.cpp generictask_test.hpp
-taskcontext_test_LDADD = $(LDADD) -lxerces-c
+taskcontext_test_LDADD = $(LDADD)
 
 parser_test_SOURCES = test-runner.cpp \
 	types_test.cpp types_test.hpp \
@@ -102,11 +102,11 @@ program_test_SOURCES = test-runner.cpp \
 	program_test.cpp program_test.hpp \
 	function_test.cpp function_test.hpp
 
-program_test_LDADD = $(LDADD) -lxerces-c -lncurses -lreadline
+program_test_LDADD = $(LDADD)
 
 state_test_SOURCES = test-runner.cpp \
 	state_test.cpp state_test.hpp
-state_test_LDADD = $(LDADD) -lxerces-c -lncurses -lreadline
+state_test_LDADD = $(LDADD)
 
 #parser_test_LDADD = $(LD_ADDS)
 #parser_test_CXXFLAGS = $(CXX_FLAGS)

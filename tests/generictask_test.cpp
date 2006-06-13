@@ -23,7 +23,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( Generic_TaskTest );
 void 
 Generic_TaskTest::setUp()
 {
-    tc =  new GenericTaskContext( "root" );
+    tc =  new TaskContext( "root" );
     tc->methodFactory.registerObject("methods", this->createMethodFactory() );
     tc->commandFactory.registerObject("commands", this->createCommandFactory() );
     tc->dataFactory.registerObject("data", this->createDataSourceFactory() );
@@ -235,9 +235,8 @@ void Generic_TaskTest::testCommandsC()
     CPPUNIT_ASSERT( !c44.evaluate() );
 
     // CASE 2 send command to running task
-    CPPUNIT_ASSERT( SimulationThread::Instance()->start() );
     CPPUNIT_ASSERT( tsim->start() );
-    CPPUNIT_ASSERT( SimulationThread::Instance()->stop() );
+
     // freezed sim thread
     CPPUNIT_ASSERT( cc.execute() );
     CPPUNIT_ASSERT( c20.execute() );
@@ -290,7 +289,6 @@ void Generic_TaskTest::testCommandsC()
     CPPUNIT_ASSERT( c33.evaluate() );
     CPPUNIT_ASSERT( c44.evaluate() );
     tsim->stop();
-    SimulationThread::Instance()->stop();
 #if 0
     string prog = string("program x { ")
         +" do commands.c00()\n"

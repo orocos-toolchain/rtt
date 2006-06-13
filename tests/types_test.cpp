@@ -191,6 +191,7 @@ void TypesTest::testTypes()
         "do test.equalFrames(fc, f)\n"+
         "do test.equalVectors(vc, v)\n"+
 #endif
+#ifndef ORO_EMBEDDED
         "var array ar(10)\n"+
         "set ar[0] = 0.0\n"+
         // 40
@@ -204,6 +205,7 @@ void TypesTest::testTypes()
         "do test.assert( ar[8] == 0.8 )\n"+
         "do test.assert( ar[9] == 9.0 )\n"+
         "do test.assert( ar[10] == 0.0 )\n"+
+#endif
         // 50
         "var string str(10) = \"hello\"\n"+
         "set str[0] = 'a'\n"+

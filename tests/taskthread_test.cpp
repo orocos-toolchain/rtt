@@ -59,8 +59,10 @@ struct TestTask
     }
     void step() {
         stepped = true;
+#ifndef ORO_EMBEDDED
         if ( _dothrow )
             throw A();
+#endif
     }
     void finalize() {
         fini   = true;
@@ -95,8 +97,10 @@ struct TestActivity
     }
     void step() {
         stepped = true;
+#ifndef ORO_EMBEDDED
         if ( _dothrow )
             throw A();
+#endif
     }
     void finalize() {
         fini   = true;
@@ -385,6 +389,7 @@ void ActivitiesThreadTest::testThreadConfig()
 
 }
 
+#ifndef ORO_EMBEDDED
 void ActivitiesThreadTest::testExceptionRecovery()
 {
     //Logger::LogLevel ll = Logger::log().getLogLevel();
@@ -430,6 +435,7 @@ void ActivitiesThreadTest::testExceptionRecovery()
     CPPUNIT_ASSERT(t_task_np->stop());
     CPPUNIT_ASSERT( t_task_np->fini );
 }
+#endif
 
 void ActivitiesThreadTest::testAddAllocate()
 {

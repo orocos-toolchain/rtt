@@ -45,7 +45,9 @@ class ActivitiesThreadTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testPeriodic );
     CPPUNIT_TEST( testSlave );
 
+#ifndef ORO_EMBEDDED
     CPPUNIT_TEST( testExceptionRecovery );
+#endif
     
     // Allocation Test : [disabled, kills RTAI/LXRT]
     //CPPUNIT_TEST( testAddAllocate );
@@ -64,7 +66,9 @@ public:
     void setUp();
     void tearDown();
 
+#ifndef ORO_EMBEDDED
     void testExceptionRecovery();
+#endif
     void testThreadConfig();
     void testPeriodic();
     void testSlave();
