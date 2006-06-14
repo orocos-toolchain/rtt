@@ -150,9 +150,9 @@ namespace ORO_Execution
             mainee->setActivity(t);
         } else {
             if (t)
-                Logger::log() <<Logger::Debug <<taskc->getName()<<": informing processors of new task."<<Logger::endl;
+                Logger::log() <<Logger::Debug <<taskc->getName()<<": informing processors of new activity."<<Logger::endl;
             else
-                Logger::log() <<Logger::Debug <<taskc->getName()<<": disconnecting processors of task."<<Logger::endl;
+                Logger::log() <<Logger::Debug <<taskc->getName()<<": disconnecting processors of activity."<<Logger::endl;
                 
             // I am an orphan.
             if (cproc)
@@ -178,7 +178,7 @@ namespace ORO_Execution
                 Logger::log() << Logger::Info << taskc->getName()+" is periodic."<< Logger::endl;
             }
         else
-            Logger::log() << Logger::Info << taskc->getName()+" is disconnected from its task."<< Logger::endl;
+            Logger::log() << Logger::Info << taskc->getName()+" is disconnected from its activity."<< Logger::endl;
     }
 
     bool ExecutionEngine::initialize() {
