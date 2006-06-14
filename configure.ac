@@ -119,6 +119,7 @@ AC_CONFIG_FILES([
   doc/catalog.xml
   tests/Makefile
   Doxyfile
+  packages/orocos.pc
   ])
 
 OROCOS_OUTPUT

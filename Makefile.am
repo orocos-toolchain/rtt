@@ -63,6 +63,7 @@ uninstall-local:
 	@for i in ${PATHHEADERS}; do rm -fv $(DESTDIR)$(prefix)/include/$$i; done
 	@rm -fv $(DESTDIR)$(prefix)/lib/liborocos-$(ECOS_TARGET).a
 	@rm -fv $(DESTDIR)$(prefix)/lib/libtarget.a
+	@rm -fv $(DESTDIR)$(prefix)/lib/pkgconfig/orocos.pc
 	@rm -rf $(DESTDIR)$(prefix)/modules/
 
 install-exec-local:
@@ -79,6 +80,8 @@ install-exec-local:
 	ranlib  $(DESTDIR)$(prefix)/lib/liborocos-$(ECOS_TARGET).a ;\
 	ln -sf  $(DESTDIR)$(prefix)/lib/liborocos-$(ECOS_TARGET).a $(DESTDIR)$(prefix)/lib/libtarget.a ; fi; done
 	@libtool --mode=finish $(DESTDIR)$(prefix)/lib
+	@install -m 755 -d $(DESTDIR)$(prefix)/lib/pkgconfig 
+	install -m 644 packages/orocos.pc $(DESTDIR)$(prefix)/lib/pkgconfig/orocos-$(ECOS_TARGET).pc
 	@echo "Installing new modules"
 	if test -d packages/install/modules; then install -m 755 -d $(DESTDIR)$(prefix)/modules ; fi
 	@for i in $$( find packages/install/modules/ -type f ); do \
@@ -161,7 +164,8 @@ packages: init_packages
 	{ test -f ecos.ecc || exit 0; } &&\
 	{ $(MAKE) -C . CC=$(CC) || exit -1; } &&\
 	ECOS_REPOSITORY=$(ECOS_REP) $(ECOSCONFIG) export .upgrade.ecc &&\
-	cd install/lib && ln -sf libtarget.a liborocos-$(ECOS_TARGET).a
+	cd install/lib && ln -sf libtarget.a liborocos-$(ECOS_TARGET).a &&\
+	mkdir -p pkgconfig; cp ../../orocos.pc pkgconfig/orocos-$(ECOS_TARGET).pc 
 
 # make all packages from current template with ecosconfig compiler.
 # in packages dir, then export the config info.

@@ -488,6 +488,7 @@ OROCOS_OUTPUT_INFO
                 [
                 AC_MSG_RESULT(GNU/Linux)
 		ECOS_TARGET=gnulinux
+	        TARGET_LIBS="$TARGET_LIBS -lpthread"
                 ],
     [
     AC_ARG_WITH(rtai,
@@ -509,7 +510,7 @@ For example : --with-linux=/usr/src/linux-rtai])
 
             AC_MSG_RESULT(LXRT)
 	    ECOS_TARGET=lxrt
-	    TARGET_LIBS="$TARGET_LIBS -L$LXRT_DIR/lib -llxrt"
+	    TARGET_LIBS="$TARGET_LIBS -L$LXRT_DIR/lib -llxrt -lpthread"
 	    TARGET_FLAGS="$TARGET_FLAGS -I$LXRT_DIR/include"
             if test $with_linux_given == false; then
 		AC_MSG_ERROR([
@@ -525,7 +526,7 @@ For example : --with-linux=/usr/src/linux-rtai])
 
             AC_MSG_RESULT(XENOMAI)
 	    ECOS_TARGET=xenomai
-	    TARGET_LIBS="$TARGET_LIBS -L$XENOMAI_DIR/lib -lnative"
+	    TARGET_LIBS="$TARGET_LIBS -L$XENOMAI_DIR/lib -lnative -lpthread"
 	    TARGET_FLAGS="$TARGET_FLAGS -I$XENOMAI_DIR/include"
 #             if test $with_linux_given == false; then
 # 		AC_MSG_ERROR([
@@ -734,14 +735,23 @@ if [ test -f $ACE_DIR/ace/config-all.h && test -f $TAO_DIR/tao/ORB.h && test -f 
   if test x$ACE_DIR != x/usr/include; then
     ACX_CFLAGS="$ACX_CFLAGS -I$ACE_DIR"
     ACX_CXXFLAGS="$ACX_CXXFLAGS -I$ACE_DIR"
+
+    #set paths if not in std inc path
+    TARGET_LIBS="$TARGET_LIBS -L$ACE_DIR/lib"
+    TARGET_FLAGS="$TARGET_FLAGS -I$ACE_DIR"
   fi
   if test x$TAO_DIR != x/usr/include; then
     ACX_CFLAGS="$ACX_CFLAGS -I$TAO_DIR"
     ACX_CXXFLAGS="$ACX_CXXFLAGS -I$TAO_DIR"
+
+    #set paths if not in std inc path
+    TARGET_FLAGS="$TARGET_FLAGS -I$TAO_DIR"
   fi
 
   # Always:
   ACX_CXXFLAGS="$ACX_CXXFLAGS -I$TAO_DIR/orbsvcs"
+  TARGET_FLAGS="$TARGET_FLAGS -I$TAO_DIR/orbsvcs"
+  TARGET_LIBS="$TARGET_LIBS -lTAO -lTAO_IDL_BE -lACE -lTAO_PortableServer -lTAO_CosNaming"
 
   AC_MSG_RESULT([$ACE_DIR, $TAO_DIR, $ORBSVCS_DIR])
 
@@ -761,8 +771,7 @@ if [ test -f $ACE_DIR/ace/config-all.h && test -f $TAO_DIR/tao/ORB.h && test -f 
 	fi
   fi
 
-  # add libraries.
-  TARGET_LIBS="$TARGET_LIBS -L$ACE_ROOT/lib -lTAO -lTAO_IDL_BE -lACE -lTAO_PortableServer -lTAO_CosNaming"
+	
 else
   # no corba found
   AC_MSG_RESULT([not found. Set ACE_ROOT and TAO_ROOT or specify with --with-ace and --with-tao.])
@@ -778,6 +787,7 @@ m4_define([DETECT_READLINE],
 AC_CHECK_HEADERS([ readline/readline.h ],
 [
 PACKAGES="support/readline/current/readline.cdl $PACKAGES"
+TARGET_LIBS="$TARGET_LIBS -lreadline -lncurses"
 ],
 [
   AC_MSG_WARN([
