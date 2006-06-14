@@ -130,7 +130,7 @@ namespace ORO_OS
         if ( d ) {
 #ifdef OROPKG_CORELIB_REPORTING
             Logger::log() << Logger::Info
-                          << "ThreadScope :"<< rtos_task_get_name(&rtos_task) <<" toggles bit "<< bit << Logger::endl;
+                          << "ThreadScope :"<< rtos_task_get_name(task->getTask()) <<" toggles bit "<< bit << Logger::endl;
 #endif
             d->switchOff( bit );
         }
