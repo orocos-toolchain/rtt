@@ -47,7 +47,7 @@ and powerful. It is very well tested within Orocos."
 	}
 
 	cdl_option OROPKG_CORELIB_PROPERTIES_MARSHALLING_XMLRPC {
-	    display "XMLRPC Fromat (XML)"
+	    display "XMLRPC Format (XML)"
 	    description "
 This Property format is used by the XML-RPC protocol to marshall data.
 It only supports Properties of type 'int', 'char', 'string', 'double'
@@ -69,7 +69,7 @@ It is not well tested within Orocos."
 	}
 
 	cdl_option OROPKG_CORELIB_PROPERTIES_MARSHALLING_SIMPLE {
-	    display "Simple & Compact Fromat"
+	    display "Simple & Compact Format"
 	    description "
 This minimal format can serialise some common types in binary form.
 It only supports Properties of type 'int', 'char', 'string', 'double'
