@@ -74,9 +74,10 @@ namespace ORO_ControlKernel
 
     bool KinematicProcess::componentStartup() {
 
-        if ( mykin == 0 )
+        if ( mykin == 0 ) {
+            Logger::log() << Logger::Error << "KinematicProcess: No kinematic architecture set."<<Logger::endl;
             return false;
-
+        }
         // they are optional.
         if ( strncmp(qloc.get().c_str(), "Inputs", 5 ) == 0 )
             Input->dObj()->Get(qname, qDObj);

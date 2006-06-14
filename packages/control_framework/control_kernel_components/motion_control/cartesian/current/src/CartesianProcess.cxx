@@ -112,23 +112,11 @@ namespace ORO_ControlKernel
                 if ( kernel()->startup( *it ) )
                     ++it;
                 else {
-                    CList::reverse_iterator rit(it);
-                    ++rit; // move one back
-                    while ( rit != components.rend() ) {
-                        kernel()->shutdown( *rit );
-                        ++rit;
-                    }
-#if 0
-                    if ( it == components.begin() )
-                        return false;
-                    // undo startups:
-                    --it;
-                    while ( it != components.begin() ) {
+                    Logger::log() << Logger::Error << "Cartesian Process failed to start '"<< (*it)->getName()<<"'."<<Logger::endl;
+                    while ( it != components.end() ) {
                         kernel()->shutdown( *it );
-                        --it;
+                        ++it;
                     }
-                    kernel()->shutdown( *it );
-#endif
                     return false;
                 }
             return true;

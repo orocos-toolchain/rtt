@@ -31,6 +31,7 @@
 
 #include <geometry/frames.h>
 #include <geometry/frames_io.h>
+#include <geometry/GeometryToolkit.hpp>
 #include <kindyn/KinematicsComponent.hpp>
 #include <control_kernel/KernelInterfaces.hpp>
 #include <control_kernel/ReportingExtension.hpp>
@@ -101,6 +102,7 @@ namespace ORO_ControlKernel
             :  Base( name ),gain("Gain","The error gain.",0.0),
                end_twist("Result Twist",""), q_err("Velocity Setpoints","")
         {
+            Toolkit::Import( GeometryToolkit );
         }
 
         virtual bool componentLoaded() {

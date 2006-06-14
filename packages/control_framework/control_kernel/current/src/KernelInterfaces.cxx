@@ -129,10 +129,13 @@ bool KernelBaseFunction::initialize()
             if ( selectComponent(startupGenerator) )
                 if ( selectComponent(startupController) )
                     if (selectComponent(startupEffector) ) {
+                        bool ok = true;
                         if ( default_process )
-                            default_process->startup();
-                        Logger::log() << Logger::Info << "Kernel "<< kernel()->getKernelName() << " started."<< Logger::endl;
-                        return true;
+                            ok = default_process->startup();
+                        if (ok) {
+                            Logger::log() << Logger::Info << "Kernel "<< kernel()->getKernelName() << " started."<< Logger::endl;
+                            return true;
+                        }
                     }
     Logger::log() << Logger::Error << "KernelBaseFunction failed to select startup components."<< Logger::endl;
     KernelBaseFunction::finalize();
