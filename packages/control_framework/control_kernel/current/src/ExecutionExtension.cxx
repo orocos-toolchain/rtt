@@ -129,11 +129,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
         if ( !file.empty() )
             return loader.loadProgram( file, &tc, filename );
 
-        std::ifstream file_stream;
-        file_stream.open(filename.c_str());
-        std::stringstream text;
-        text << file_stream;
-        return loader.loadProgram( text.str(), &tc, filename );
+        return loader.loadProgram( filename, &tc );
     }
 
     bool ExecutionExtension::unloadStateMachine( const std::string& name)
@@ -149,11 +145,7 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
         if ( !file.empty() )
             return loader.loadStateMachine( file, &tc, filename );
 
-        std::ifstream file_stream;
-        file_stream.open(filename.c_str());
-        std::stringstream text;
-        text << file_stream;
-        return loader.loadStateMachine( text.str(), &tc, filename );
+        return loader.loadStateMachine( filename, &tc );
     }
 
     void ExecutionExtension::step() {
