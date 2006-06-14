@@ -227,7 +227,7 @@ namespace ORO_CoreLib
         virtual std::ostream& write( std::ostream& os, DataSourceBase::shared_ptr in ) const {
             DataSource<T>* d = AdaptDataSource<T>()( in );
             if ( d && use_ostream )
-                detail::TypeStreamSelector<T, use_ostream>::write( os, d->get() );
+                detail::TypeStreamSelector<T, use_ostream>::write( os, d->value() );
             else {
                 std::string output = std::string("(")+ in->getTypeName() +")";
                 os << output;

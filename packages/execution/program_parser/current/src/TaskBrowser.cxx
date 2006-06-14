@@ -1091,6 +1091,7 @@ namespace ORO_Execution
         }
 
         DataSourceBase::shared_ptr dsb(ds);
+        dsb->evaluate();
         cout << dsb;
     }
 
