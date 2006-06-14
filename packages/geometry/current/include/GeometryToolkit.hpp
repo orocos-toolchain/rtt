@@ -2,6 +2,7 @@
 #define ORO_GEOMETRY_TOOLKIT_HPP
 
 #include <corelib/Toolkit.hpp>
+#include "frames.h"
 
 namespace ORO_Geometry
 {
