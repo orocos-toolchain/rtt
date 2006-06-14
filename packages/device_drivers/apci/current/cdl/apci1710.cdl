@@ -97,7 +97,7 @@ Only LXRT currently supports userspace code to call the kernel module."
 	}
 
 	cdl_option ORONUM_DEVICE_DRIVERS_APCI1710_SSI_TURN_BITS {
-	    display "SSI Trun bitlength"
+	    display "SSI Turn bitlength"
 	    flavor data
 	    default_value 9
 	}
@@ -111,7 +111,7 @@ Only LXRT currently supports userspace code to call the kernel module."
 
 	cdl_option ORONUM_DEVICE_DRIVERS_APCI1710_SSI_UPDATE {
 	    display "SSI encoder reading frequency in Hz"
-	    requires OROPKG_CORELIB_TASKS
+	    requires OROPKG_CORELIB_ACTIVITIES
 	    flavor booldata
 	    #valid_range ...
 	    default_value 500

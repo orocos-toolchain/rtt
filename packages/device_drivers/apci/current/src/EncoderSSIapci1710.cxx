@@ -77,7 +77,7 @@ using ORO_CoreLib::TimeService;
 // Constructor for 1 module
 // --------------------------
 EncoderSSI_apci1710_board::EncoderSSI_apci1710_board( unsigned int mNr1 )
-  : TaskNonPreemptible( 1./ORONUM_DEVICE_DRIVERS_APCI1710_SSI_UPDATE )
+  : NonPreemptibleActivity( 1./ORONUM_DEVICE_DRIVERS_APCI1710_SSI_UPDATE )
   , nr_of_modules(1), moduleNr1( mNr1 )
 {
 
@@ -117,7 +117,7 @@ EncoderSSI_apci1710_board::EncoderSSI_apci1710_board( unsigned int mNr1 )
 // Constructor for 2 modules
 // --------------------------
 EncoderSSI_apci1710_board::EncoderSSI_apci1710_board( unsigned int mNr1, unsigned int mNr2 )
-  : TaskNonPreemptible( 1./ORONUM_DEVICE_DRIVERS_APCI1710_SSI_UPDATE )
+  : NonPreemptibleActivity( 1./ORONUM_DEVICE_DRIVERS_APCI1710_SSI_UPDATE )
   , nr_of_modules(2), moduleNr1( mNr1 ), moduleNr2( mNr2 )
 {
 
@@ -166,7 +166,7 @@ EncoderSSI_apci1710_board::EncoderSSI_apci1710_board( unsigned int mNr1, unsigne
 // Constructor for 3 modules
 // --------------------------
 EncoderSSI_apci1710_board::EncoderSSI_apci1710_board( unsigned int mNr1, unsigned int mNr2, unsigned int mNr3 )
-  : TaskNonPreemptible( 1./ORONUM_DEVICE_DRIVERS_APCI1710_SSI_UPDATE )
+  : NonPreemptibleActivity( 1./ORONUM_DEVICE_DRIVERS_APCI1710_SSI_UPDATE )
   , nr_of_modules(3), moduleNr1( mNr1 ), moduleNr2( mNr2 ), moduleNr3( mNr3 )
 {
 
@@ -223,7 +223,7 @@ EncoderSSI_apci1710_board::EncoderSSI_apci1710_board( unsigned int mNr1, unsigne
 // Constructor for 4 modules
 // --------------------------
 EncoderSSI_apci1710_board::EncoderSSI_apci1710_board( unsigned int mNr1, unsigned int mNr2, unsigned int mNr3, unsigned int mNr4 )
-  : TaskNonPreemptible( 1./ORONUM_DEVICE_DRIVERS_APCI1710_SSI_UPDATE )
+  : NonPreemptibleActivity( 1./ORONUM_DEVICE_DRIVERS_APCI1710_SSI_UPDATE )
   , nr_of_modules(3), moduleNr1( mNr1 ), moduleNr2( mNr2 ), moduleNr3( mNr3 ), moduleNr4( mNr4 )
 {
 
