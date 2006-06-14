@@ -64,8 +64,10 @@ namespace ORO_Execution
             for ( Ports::iterator it(ports.begin());
                  it != ports.end();
                  ++it)
-                if ( (*it)->getName() == name )
+                if ( (*it)->getName() == name ) {
                     ports.erase(it);
+                    return;
+                }
         }
 
         /**

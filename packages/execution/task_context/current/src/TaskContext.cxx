@@ -259,11 +259,14 @@ namespace ORO_Execution
         }
 
         // remove from all users.
-        for( Users::iterator it = musers.begin(); it != musers.end(); ++it)
-            (*it)->removePeer(this);
+        while( !musers.empty() ) {
+            musers.front()->removePeer(this);
+        }
 
-        // clear own map.
-        _task_map.clear();
+        while ( !_task_map.empty() ) {
+            _task_map.begin()->second->removeUser(this);
+            _task_map.erase( _task_map.begin() );
+        }
     }
 
         void TaskContext::disconnectPeers( const std::string& name )
