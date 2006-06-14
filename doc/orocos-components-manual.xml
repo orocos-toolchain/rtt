@@ -102,19 +102,19 @@
 	through Operating System abstractions with the underlying OS
 	or through Device Interfaces with the IO hardware. On the left
 	side on top of the OS Abstraction is the Core Library, which
-	presents infrastructure for writing realtime (periodic) tasks,
+	presents infrastructure for writing realtime (periodic) activities,
 	including many communication primitives. On top of that is the
 	Real-Time Toolkit, which allows to define browsable components
 	which are capable of receiving (remote) commands, process 
 	programs and hierarchical state machines and share realtime data
-	with other tasks. Your application may use that infrastructure
+	with other components. Your application may use that infrastructure
 	to define its own components and set up communication between them.
       </para>
       <para>
 	On the right side, lives the Device Abstraction stack.
 	The Operating System already provides a device driver model,
 	Orocos device drivers map that model to machine or robot control specific
-	Device Interfaces. An Orocos Device combines a number of these interface
+	Device Interfaces. An Orocos Device combines a number of these interfaces
 	into an object representing a physical entity. It may represent
 	a complete machine, or just a mere Sensor or Axis, such that your
 	application can communicate with physical meaningful devices (
