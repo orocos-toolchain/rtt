@@ -81,10 +81,6 @@ namespace ORO_CoreLib
         return *Instance();
     }
 
-    Logger::~Logger()
-    {
-    }
-
     /**
      * This hidden struct stores all data structures required for logging.
      */
@@ -542,6 +538,10 @@ namespace ORO_CoreLib
 
     Logger::Logger()
         : d(0)
+    {
+    }
+
+    Logger::~Logger()
     {
     }
 
