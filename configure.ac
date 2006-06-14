@@ -61,6 +61,10 @@ configtool ( and ecosconfig ).
 ")
 fi
 
+AC_MSG_CHECKING(for install/build dir)
+INST_DIR=$(pwd)/packages/install
+AC_SUBST(INST_DIR)
+AC_MSG_RESULT($INST_DIR)
 
 AC_MSG_CHECKING(for repository)
 ECOS_REP=$(cd $(dirname $0); pwd)/packages
@@ -120,6 +124,7 @@ AC_CONFIG_FILES([
   tests/Makefile
   Doxyfile
   packages/orocos.pc
+  packages/orocos-local.pc
   ])
 
 OROCOS_OUTPUT
