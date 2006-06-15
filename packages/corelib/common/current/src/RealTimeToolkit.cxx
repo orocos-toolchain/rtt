@@ -47,7 +47,25 @@ namespace ORO_CoreLib
             return composeProperty( bag, result );
         }
     };
+
 #endif
+    /**
+     * Write boolean as 'true' or 'false'.
+     */
+    struct BoolTypeInfo
+        : public TemplateTypeInfo<bool>
+    {
+        BoolTypeInfo()
+            : TemplateTypeInfo<bool>("bool")
+        {}
+        
+        virtual std::ostream& write( std::ostream& os, DataSourceBase::shared_ptr in ) const {
+            DataSource<bool>* d = AdaptDataSource<bool>()( in );
+            if (d)
+                return os << boolalpha << d->value();
+            return os;
+        }
+    };
 
     bool RealTimeToolkitPlugin::loadTypes() 
     {
@@ -56,7 +74,7 @@ namespace ORO_CoreLib
         ti->addType( new TemplateTypeInfo<int, true>("int") );
         ti->addType( new TemplateTypeInfo<unsigned int, true>("uint") );
         ti->addType( new TemplateTypeInfo<double, true>("double") );
-        ti->addType( new TemplateTypeInfo<bool, true>("bool") );
+        ti->addType( new BoolTypeInfo() );
 
 #ifdef OROPKG_CORBA
         ti->addType( new TemplateTypeInfo<CORBA::Any, false>("CORBA::Any") );
