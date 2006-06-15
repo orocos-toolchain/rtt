@@ -58,15 +58,15 @@
 
   </articleinfo>
 
-  <sect1>
+  <section>
     <title>Introduction</title>
     <para>
       This document contains some bits about the design of the CoreLib.
     </para>
-  </sect1>
-  <sect1>
+  </section>
+  <section>
     <title>Multi-Threading</title>
-    <sect2 id="core-priority-inversions">
+    <section id="core-priority-inversions">
       <title>Priority Inversions</title>
       <para>
 	A Priority inversion is the term used to indicate a scheduling situation
@@ -209,9 +209,9 @@
 	  </tbody>
 	</tgroup>
       </table>
-    </sect2>
-  </sect1>
-  <sect1>
+    </section>
+  </section>
+  <section>
     <title>DataSources</title>
     <para>
       A <classname>ORO_CoreLib::DataSource</classname> is the fundamental
@@ -306,8 +306,8 @@
 	  </listitem>
 	</itemizedlist>
       </para>
-  </sect1>
-  <sect1 id="core-reporting">
+  </section>
+  <section id="core-reporting">
     <title>Reporting</title>
       <para>
 	Having a realtime process running is one thing, knowing what its internal status
@@ -326,5 +326,5 @@
 	An example of an application which uses the CoreLib reporting infrastructure
 	is the Orocos Control Kernel framework.
       </para>
-  </sect1>
+  </section>
 </article>

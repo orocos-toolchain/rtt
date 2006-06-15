@@ -55,8 +55,7 @@ namespace ORO_Execution
     using namespace std;
 
     TaskContext::TaskContext(const std::string& name)
-        :  _task_name(name),
-           ee(this),
+        :  TaskCore(name),
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
            mscriptAcc(new ParserScriptingAccess(this)),
 #else
@@ -72,8 +71,7 @@ namespace ORO_Execution
     }
 
     TaskContext::TaskContext(const std::string& name, ExecutionEngine* parent )
-        :  _task_name(name),
-           ee(this, parent ),
+        :  TaskCore(name, parent),
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
            mscriptAcc(new ParserScriptingAccess(this)),
 #else
@@ -172,15 +170,6 @@ namespace ORO_Execution
             }
         }
     }
-
-    bool TaskContext::startup()
-    {
-        return true;
-    }
-    void TaskContext::update()
-    {}
-    void TaskContext::shutdown()
-    {}
 
         bool TaskContext::executeCommand( CommandInterface* c)
         {

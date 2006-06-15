@@ -40,6 +40,8 @@ namespace ORO_OS {
 }
 namespace ORO_Execution
 {
+    class TaskCore;
+
     /**
      * An execution engine serialises the execution of all commands, programs,
      * state machines and incomming events for a task.
@@ -52,7 +54,7 @@ namespace ORO_Execution
     protected:
         ORO_OS::Semaphore* work_sem;
         ORO_OS::Semaphore* loop_sem;
-        TaskContext*     taskc;
+        TaskCore*     taskc;
         ExecutionEngine* mainee;
 
         CommandProcessor* cproc;
@@ -71,7 +73,7 @@ namespace ORO_Execution
          * this execution engine delegates all requests to that execution engine
          * and does itself nothing.
          */
-        ExecutionEngine( TaskContext* owner, ExecutionEngine* other_ee = 0 );
+        ExecutionEngine( TaskCore* owner, ExecutionEngine* other_ee = 0 );
         
         ~ExecutionEngine();
 
@@ -87,7 +89,7 @@ namespace ORO_Execution
 
         ExecutionEngine* getParent();
 
-        TaskContext* getTaskContext() { return taskc; }
+        TaskCore* getTaskCore() { return taskc; }
 
         void reparent(ExecutionEngine* new_parent);
 

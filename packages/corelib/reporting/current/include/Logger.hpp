@@ -253,6 +253,14 @@ namespace ORO_CoreLib
         void lognl();
 
     private:
+        /**
+         * Returns true if the next message will be logged.
+         * Returns false if the LogLevel is RealTime and 
+         * allowRealTime() was not called or if the logger
+         * was not started.
+         */
+        bool mayLog() const;
+
         Logger();
         ~Logger();
 

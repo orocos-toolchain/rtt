@@ -15,6 +15,8 @@ namespace ORO_CoreLib
     template< class T>
     Logger& Logger::operator<<( T t ) {
 #ifndef OROBLD_DISABLE_LOGGING
+        if ( !mayLog() )
+            return *this;
         std::stringstream tmp;
         tmp << t;
         return this->operator<<( tmp.str() );
@@ -27,6 +29,10 @@ namespace ORO_CoreLib
     // instance will be actually null
     inline Logger& Logger::log() {
         return *_instance;
+    }
+
+    inline void Logger::mayLog() const {
+        return false;
     }
 
     inline void Logger::allowRealTime() {
