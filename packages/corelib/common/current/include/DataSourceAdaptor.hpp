@@ -268,7 +268,7 @@ namespace ORO_CoreLib
 
         virtual typename DataSource<To>::result_t get() const { copy_ = orig_->get(); return copy_; }
 
-        virtual typename DataSource<To>::result_t value() const { return copy_; }
+        virtual typename DataSource<To>::result_t value() const { copy_ = orig_->value(); return copy_; }
 
         virtual void reset() { orig_->reset(); }
 
@@ -316,7 +316,7 @@ namespace ORO_CoreLib
 
         virtual typename DataSource<To>::result_t get() const { copy_ = orig_->get(); return copy_; }
 
-        virtual typename DataSource<To>::result_t value() const { return copy_; }
+        virtual typename DataSource<To>::result_t value() const { copy_ = orig_->value(); return copy_; }
 
         virtual void reset() { orig_->reset(); }
 
@@ -357,7 +357,7 @@ namespace ORO_CoreLib
 
         virtual typename DataSource<To>::result_t get() const { mcache = orig_->get(); return mcache; }
 
-        virtual typename DataSource<To>::result_t value() const { return mcache; }
+        virtual typename DataSource<To>::result_t value() const { mcache = orig_->value(); return mcache; }
 
         virtual void updated() { orig_->set( mcache ); }
 
