@@ -124,15 +124,18 @@ namespace ORO_Execution
       peer = peerparser.peer();
       peerparser.reset();
 
-    const GlobalCommandFactory& gcf =
-      peer->commandFactory;
-    const GlobalMethodFactory& gmf =
-      peer->methodFactory;
-    const CommandFactoryInterface* cfi = gcf.getObjectFactory( mcurobject );
-    const MethodFactoryInterface*  mfi = gmf.getObjectFactory( mcurobject );
+    const GlobalCommandFactory* gcf =
+      peer->commands();
+    const GlobalMethodFactory* gmf =
+      peer->methods();
+    const GlobalDataSourceFactory* gdf =
+      peer->datasources();
+    const CommandFactoryInterface* cfi = gcf->getObjectFactory( mcurobject );
+    const MethodFactoryInterface*  mfi = gmf->getObjectFactory( mcurobject );
+    const DataSourceFactoryInterface*  dfi = gdf->getObjectFactory( mcurobject );
 
     // In case the object is not found :
-    if ( ! cfi && ! mfi ) {
+    if ( ! cfi && ! mfi && ! dfi) {
         if ( mcurobject == "this" )
             mcurobject = mcurmethod;
         else
@@ -141,7 +144,7 @@ namespace ORO_Execution
     }
 
     // In case the method/command is not found :
-    if ( !( ( cfi && cfi->hasCommand(mcurmethod)) || ( mfi && mfi->hasMember(mcurmethod)) ) )
+    if ( !( ( cfi && cfi->hasCommand(mcurmethod)) || ( mfi && mfi->hasMember(mcurmethod)) || ( dfi && dfi->hasMember(mcurmethod)) ) )
         throw parse_exception_no_such_method_on_component( mcurobject, mcurmethod );
 
     // we found it !
@@ -158,16 +161,19 @@ namespace ORO_Execution
     mcurobject = argsparser->objectname();
     mcurmethod = argsparser->methodname();
 
-    const GlobalCommandFactory& gcf =
-      peer->commandFactory;
-    const GlobalMethodFactory& gmf =
-      peer->methodFactory;
-    const CommandFactoryInterface* cfi = gcf.getObjectFactory( mcurobject );
-    const MethodFactoryInterface*  mfi = gmf.getObjectFactory( mcurobject );
+    const GlobalCommandFactory* gcf =
+      peer->commands();
+    const GlobalMethodFactory* gmf =
+      peer->methods();
+    const GlobalDataSourceFactory* gdf =
+      peer->datasources();
+    const CommandFactoryInterface* cfi = gcf->getObjectFactory( mcurobject );
+    const MethodFactoryInterface*  mfi = gmf->getObjectFactory( mcurobject );
+    const DataSourceFactoryInterface*  dfi = gdf->getObjectFactory( mcurobject );
 
     // cfi should exist, because otherwise we would have noticed in
     // seenstartofcall()...
-    assert( cfi || mfi );
+    assert( cfi || mfi || dfi);
 
     ComCon comcon;
     if ( cfi && cfi->hasCommand( mcurmethod ) )
@@ -205,6 +211,33 @@ namespace ORO_Execution
                 // if the method returns a boolean, construct it as a command
                 // which accepts/rejects the result.
                 DataSourceBase* dsb =  mfi->create( mcurmethod, argsparser->result() );
+                DataSource<bool>* dsb_res = DataSource<bool>::narrow( dsb );
+                if ( dsb_res == 0 )
+                    comcon.first =  new CommandDataSource( dsb );
+                else
+                    comcon.first =  new CommandDataSourceBool( dsb_res );
+                comcon.second = new ConditionTrue();
+            }
+        catch( const wrong_number_of_args_exception& e )
+            {
+                throw parse_exception_wrong_number_of_arguments
+                    (mcurobject, mcurmethod, e.wanted, e.received );
+            }
+        catch( const wrong_types_of_args_exception& e )
+            {
+                throw parse_exception_wrong_type_of_argument
+                    ( mcurobject, mcurmethod, e.whicharg, e.expected_, e.received_ );
+            }
+        catch( ... )
+            {
+                assert( false );
+            }
+    else if ( dfi && dfi->hasMember( mcurmethod ) )
+        try
+            {
+                // if the method returns a boolean, construct it as a command
+                // which accepts/rejects the result.
+                DataSourceBase* dsb =  dfi->create( mcurmethod, argsparser->result() );
                 DataSource<bool>* dsb_res = DataSource<bool>::narrow( dsb );
                 if ( dsb_res == 0 )
                     comcon.first =  new CommandDataSource( dsb );
