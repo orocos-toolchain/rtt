@@ -86,6 +86,8 @@ namespace ORO_Execution
 
     bool GenericTaskContext::trigger()
     {
+        if ( this->engine()->getActivity() == 0 )
+            return false;
         return this->engine()->getActivity()->trigger();
     }
 
