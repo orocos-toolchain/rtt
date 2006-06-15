@@ -82,7 +82,7 @@ namespace ORO_CoreLib
 		static const char TYPECODE_STRING = 'S';
 
         template< class T >
-        virtual void writeOut(const char tc, const Property<T> &v) 
+        void writeOut(const char tc, const Property<T> &v) 
         { 
             std::stringstream buffer;
             buffer << v.get();
@@ -93,46 +93,49 @@ namespace ORO_CoreLib
             _os << buffer.str() << ";";
         }
 
+        virtual void introspect(PropertyBase* pb)
+        {
+            PropertyIntrospection::introspect( pb );
+        }
 
-        virtual void introspect(const Property<bool> &v) 
+        virtual void introspect(Property<bool> &v) 
         { 
             writeOut(TYPECODE_BOOL, v);
         }
 
-        virtual void introspect(const Property<char> &v) 
+        virtual void introspect(Property<char> &v) 
         { 
             writeOut(TYPECODE_CHAR, v);
         }
 
-        virtual void introspect(const Property<int> &v) 
+        virtual void introspect(Property<int> &v) 
         { 
             writeOut(TYPECODE_INT, v);
         }
 			
-        virtual void introspect(const Property<unsigned int> &v) 
+        virtual void introspect(Property<unsigned int> &v) 
         { 
             writeOut(TYPECODE_UINT, v);
         }
 			
-        virtual void introspect(const Property<double> &v) 
+        virtual void introspect(Property<double> &v) 
         {
             writeOut(TYPECODE_DOUBLE, v);
         }
 
-        virtual void introspect(const Property<std::string> &v) 
+        virtual void introspect(Property<std::string> &v) 
         {
             writeOut(TYPECODE_STRING, v);
         }
 			
-        virtual void introspect(const Property<PropertyBag> &v) 
+        virtual void introspect(Property<PropertyBag> &v) 
         {
             serialize(v.get());
         }
-
-        output_stream &_os;
-    public:
         typedef o_stream output_stream;
         typedef o_stream OutputStream;
+        output_stream &_os;
+    public:
 
         SimpleMarshaller(output_stream &os) :
             _os(os)
@@ -141,7 +144,7 @@ namespace ORO_CoreLib
         virtual void flush()
         {}
           
-        virtual void serialize(const PropertyBase* p)
+        virtual void serialize(PropertyBase* p)
         {
             p->identify(this);
         }

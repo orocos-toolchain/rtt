@@ -33,6 +33,7 @@
 #include <vector>
 #include <map>
 #include <istream>
+#include <fstream>
 
 namespace ORO_CoreLib
 {
@@ -44,14 +45,14 @@ namespace ORO_CoreLib
 	 */
     class SimpleDemarshaller : public Demarshaller
     {
-        static const char TYPECODE_BOOL = 'B';
-		static const char TYPECODE_CHAR = 'C';
-		static const char TYPECODE_INT = 'I';
-		static const char TYPECODE_DOUBLE = 'D';
-		static const char TYPECODE_STRING = 'S';
+      static const char TYPECODE_BOOL = 'B';
+      static const char TYPECODE_CHAR = 'C';
+      static const char TYPECODE_INT = 'I';
+      static const char TYPECODE_DOUBLE = 'D';
+      static const char TYPECODE_STRING = 'S';
 
 public:
-        typedef std::istream input_stream;
+      typedef std::istream input_stream;
 
     SimpleDemarshaller(const std::string& filename)
     {
