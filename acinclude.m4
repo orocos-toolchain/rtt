@@ -665,6 +665,15 @@ AC_SUBST(ORO_XERCESC_PARSER_DETECT)
 
 m4_define([DETECT_COMEDIPKG],
 [
+AC_CHECK_HEADERS([ comedilib.h ],
+[
+PACKAGES="support/comedi/current/comedi.cdl $PACKAGES"
+COMEDI_DIR="."
+],
+[
+
+#
+# THIS part only done if comedilib.h is not in default include path !
 
 AC_MSG_CHECKING(for Comedi dir)
 AC_ARG_WITH(comedi, [ AC_HELP_STRING([--with-comedi=/usr/src/comedi/include],[Specify location of comedilib.h ]) ],
@@ -674,16 +683,12 @@ if test -f $COMEDI_DIR/comedilib.h; then
   # gnu linux comedilib
   PACKAGES="support/comedi/current/comedi.cdl $PACKAGES"
   CPPFLAGS="-I$COMEDI_DIR"
-  TARGET_FLAGS="$TARGET_FLAGS -I$COMEDI_DIR"
-  TARGET_LIBS="$TARGET_LIBS -lcomedi"
   AC_MSG_RESULT(gnulinux header found in $COMEDI_DIR)
 else
   if test -f $COMEDI_DIR/linux/comedilib.h; then
     # lxrt comedi package
     PACKAGES="support/comedi/current/comedi.cdl $PACKAGES"
     CPPFLAGS="-I$COMEDI_DIR"
-    TARGET_FLAGS="$TARGET_FLAGS -I$COMEDI_DIR"
-    TARGET_LIBS="$TARGET_LIBS -lkcomedilxrt"
     AC_MSG_RESULT(lxrt header found in $COMEDI_DIR/linux)
   else
     # no comedi found
@@ -693,7 +698,7 @@ else
    #Comedi will be unavailable.])
   fi
 fi
-
+])
 AC_SUBST(COMEDI_DIR)
 ])
 

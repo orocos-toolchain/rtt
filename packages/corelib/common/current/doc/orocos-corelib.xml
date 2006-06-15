@@ -136,7 +136,7 @@
 
   </articleinfo>
 
-  <section>
+  <sect1>
     <title>Introduction</title>
     <para>
       This Chapter describes the semantics of the services
@@ -179,8 +179,8 @@
       are used throughout the framework such as the TimeService,
       Properties and the object NameServer.
     </para>
-  </section>
-  <section>
+  </sect1>
+  <sect1>
     <title>Periodic and non Periodic Activities</title>
     <note>
       <para>In older Orocos versions, 'Activities' were named 'Tasks'.</para>
@@ -193,7 +193,7 @@
       which are triggered periodically, non periodic activities, which are triggered
       by the user, and event driven activities, which are run when an Orocos event occurs.
     </para>
-    <section>
+    <sect2>
       <title>Standard Periodic Activities</title>
       <para>
 	For convenience, Orocos provides implementations
@@ -234,8 +234,8 @@
 	  three predefined threads in the configtool program.
 	</para>
       </important>
-    </section>
-    <section>
+    </sect2>
+    <sect2>
       <title>Creating a Periodic Activity</title>
       <para>
 	If you want to execute functionality in one of the Orocos threads, you need to 
@@ -384,8 +384,8 @@
 	The Activity will detect if it must run an external RunnableInterface. If none
 	was given, it will call its own virtual methods.
       </para>
-    </section>
-    <section>
+    </sect2>
+    <sect2>
       <title>Periodic Activity Ordering</title>
       <para>
 	The standard periodic Activities (NonPreemptibleActivity,
@@ -416,8 +416,8 @@
 	if the priorities and periodicities match. Otherwise, a new thread
 	is created.
       </para>
-    </section>
-    <section>
+    </sect2>
+    <sect2>
       <title>Example Periodic Activity Creation</title>
       <example>
 	<title>Example Periodic Activity Creation</title>
@@ -467,8 +467,8 @@ ORO_main( int argc, char** argv)
   return 0;
 }</programlisting>
       </example>
-    </section>
-    <section>
+    </sect2>
+    <sect2>
       <title>Standard Periodic Threads Overview</title>
       <para>
 	The high priority thread is the
@@ -519,8 +519,8 @@ ORO_main( int argc, char** argv)
 	calling the <function>SimulationThread::Instance()->makeHardRealtime()</function>
 	function.
       </para>
-    </section>
-    <section id="activity-non-periodic">
+    </sect2>
+    <sect2 id="activity-non-periodic">
       <title>Non Periodic Activities</title>
       <para>
 	Non periodic activities are run in <emphasis>non
@@ -575,8 +575,8 @@ ORO_main( int argc, char** argv)
 	returns or aborts if <function>breakLoop()</function> returns
 	false. When successful, stop() executes the finalize() function.
       </para>
-    </section>
-    <section>
+    </sect2>
+    <sect2>
       <title>Custom or Slave Activities</title>
       <para>
 	If non of the above activity schemes fit you, you can always fall back on
@@ -619,8 +619,8 @@ ORO_main( int argc, char** argv)
 	Note that although there may be a master, it is still the
 	user's responsibility to call <function>trigger()</function>.
       </para>
-    </section>
-    <section>
+    </sect2>
+    <sect2>
       <title>Event Driven Activities</title>
       <para>
 	An alternative way to use non periodic activities is to use
@@ -644,8 +644,8 @@ ORO_main( int argc, char** argv)
 
   activity.stop();       // finalize()s activity</programlisting>
       </para>
-    </section>
-    <section>
+    </sect2>
+    <sect2>
       <title>Accessing the Threads from Activities</title>
       <para>
 	Each Orocos Activity (periodic, non periodic and event driven)
@@ -693,8 +693,8 @@ ORO_main( int argc, char** argv)
 }</programlisting>
       </example>
       </para>
-    </section>
-    <section>
+    </sect2>
+    <sect2>
       <title>Simulation</title>
       <para>
 	The SimulationThread is available to do as fast as possible 
@@ -745,9 +745,9 @@ ORO_main( int argc, char** argv)
 	  SimulationThread will never run.
 	</para>
       </warning>
-    </section>
-  </section>
-  <section id="corelib-events">
+    </sect2>
+  </sect1>
+  <sect1 id="corelib-events">
     <title>Events</title>
     <para>
       An <classname>ORO_CoreLib::Event</classname> is an object to
@@ -788,7 +788,7 @@ ORO_main( int argc, char** argv)
       same signature as the Event. The 'raise' or 'fire' method of an Orocos Event is
       called <methodname>emit()</methodname> (fire() and operator() are present as well).
     </para>
-    <section>
+    <sect2>
       <title>Event Basics</title>
       <example id="core-event-example">
       <title>Using Events</title>
@@ -916,8 +916,8 @@ emergencyStop.emit(); // User not notified</programlisting>
       and can not be recovered from emit(), which always returns void.
     </para>
     </important>
-    </section>
-    <section>
+    </sect2>
+    <sect2>
       <title><function>setup()</function> and the <classname>ORO_CoreLib::Handle</classname> object</title>
       <para>
 	Event connections can be managed by using a Handle which both <function>connect()</function>
@@ -956,8 +956,8 @@ emergencyStop.emit(); // User not notified</programlisting>
 	'eh' to connect and then destroy 'eh', you can never terminate the connection,
 	except by destroying the Event itself.
       </para>
-    </section>
-    <section>
+    </sect2>
+    <sect2>
       <title>Choosing the Asynchronous Thread</title>
       <para>
 	The Event implementation provides one thread for
@@ -1031,8 +1031,8 @@ emergencyStop.emit(); // User not notified</programlisting>
 	6 arguments in the current implementation, but more
 	can be easily added.</para>
       </note>
-    </section>
-    <section>
+    </sect2>
+    <sect2>
       <title>Private EventProcessors for Periodic Activities</title>
       <para>
 	Asynchronous handlers are called in an <classname>ORO_CoreLib::EventProcessor</classname>.
@@ -1058,8 +1058,8 @@ emergencyStop.emit(); // User not notified</programlisting>
        <para>
 	 The private <classname>ORO_CoreLib::EventProcessor</classname> is disabled by default.
        </para>
-    </section>
-    <section>
+    </sect2>
+    <sect2>
       <title>Event Overrun Policy</title>
       <para>
 	An Event can only be emit()'ed by one thread at the same time.
@@ -1080,8 +1080,8 @@ emergencyStop.emit(); // User not notified</programlisting>
       <programlisting>  event.connect( &amp;asyn_func, myactivity, Event::OnlyLast );
   event.connect( &amp;asyn_func, myactivity, Event::OnlyFirst ); // default
   event.connect( &amp;asyn_func, myactivity ); // same as previous line</programlisting>
-    </section>
-    <section>
+    </sect2>
+    <sect2>
       <title>The Completion Processor</title>
       <para>
 	The <classname>ORO_CoreLib::CompletionProcessor</classname> is implemented using the
@@ -1131,11 +1131,11 @@ emergencyStop.emit(); // User not notified</programlisting>
 	 which might not be what you want. So use step() to process
 	 all pending Events.
        </para>
-    </section>
-  </section>
-  <section>
+    </sect2>
+  </sect1>
+  <sect1>
     <title>Time Measurement and Conversion</title>
-    <section>
+    <sect2>
       <title>The TimeService</title>
       <para>
 	The <classname>ORO_CoreLib::TimeService</classname> is implemented using the
@@ -1151,8 +1151,8 @@ emergencyStop.emit(); // User not notified</programlisting>
 	Also other threads (!) In the system will notice this change, but
 	time is guaranteed to increase monotonously.
       </para>
-    </section>
-    <section>
+    </sect2>
+    <sect2>
       <title>Usage Example</title>
       <para>
 	Also take a look at the interface documentation.
@@ -1164,9 +1164,9 @@ emergencyStop.emit(); // User not notified</programlisting>
 
   Seconds elapsed = TimeService::Instance()->secondsSince( timestamp );	</programlisting>
       </para>
-    </section>
-  </section>
-  <section>
+    </sect2>
+  </sect1>
+  <sect1>
     <title>Attributes</title>
     <para>
       Attributes are class members which contain a (constant) value. Orocos
@@ -1193,15 +1193,15 @@ emergencyStop.emit(); // User not notified</programlisting>
 </programlisting>
       </example>
     </para>
-  </section>
-  <section>
+  </sect1>
+  <sect1>
     <title>Properties</title>
     <para>
       Properties are more powerful than attributes (above) since they can be
       stored to an XML format, be hierarchically structured and allow complex
       configuration. 
     </para>
-    <section>
+    <sect2>
       <title>Introduction</title>
       <para>
 	Orocos provides configuration by properties through the <classname>ORO_CoreLib::Property</classname>
@@ -1242,8 +1242,8 @@ emergencyStop.emit(); // User not notified</programlisting>
 	after a system restart. The next sections give a short introduction to these
 	two usages.
       </para>
-    </section>
-    <section>
+    </sect2>
+    <sect2>
       <title>Grouping Properties in a PropertyBag</title>
       <para>
 	First of all, a PropertyBag is not the owner of the properties it owns,
@@ -1287,41 +1287,47 @@ emergencyStop.emit(); // User not notified</programlisting>
   <classname>ORO_CoreLib::Property</classname>&lt;BirthDate&gt;* bd_bis = bag.getProperty&lt;BirthDate&gt;("BirthDate"); // assert( bd_bis != 0 )
 	</programlisting>
       </para>
-    </section>
-    <section>
+    </sect2>
+    <sect2>
       <title>Marshalling and Demarshalling Properties (Serialization)</title>
       <para>
-	Marshalling is converting a property C++ object to a format
-	suitable for transportation or storage, like XML Demarshalling
-	reconstructs the property again from the stored format. In
-	Orocos, the <classname>ORO_CoreLib::Marshaller</classname>
-	interface defines how properties can be marshalled.  The
-	available marshallers (property to file) in Orocos are the
+	Marshalling is converting an object from machine code to a
+	code suitable for transportation or storage. When an object is
+	marshalled, a copy is made so that it can be restored in its
+	original state. Demarshalling instantiates the object again
+	from the marshalled copy. Common formats of marshalling are
+	writing out properties or efficient binary memory copies. So
+	properties are just an example of objects that can be
+	marshalled. We wrote however specific marshallers for
+	properties and property bags. These are the
 	<classname>ORO_CoreLib::SimpleMarshaller</classname>,
 	<classname>ORO_CoreLib::XMLMarshaller</classname>,
 	<classname>ORO_CoreLib::XMLRPCMarshaller</classname>,
 	<classname>ORO_CoreLib::INIMarshaller</classname> and the
-	<classname>ORO_CoreLib::CPFMarshaller</classname>.  
-      </para>
-      <para>
-	The inverse operation (file to property) is currently
-	supported by only two demarshallers:
-	<classname>ORO_CoreLib::SimpleDemarshaller</classname> and the
-	<classname>ORO_CoreLib::CPFDemarshaller</classname>.  They
-	implement the <classname>ORO_CoreLib::Demarshaller</classname>
-	interface.
+	<classname>ORO_CoreLib::CPFMarshaller</classname>. You will
+	need the <ulink
+	url="http://xml.apache.org/xerces-c/index.html">Xerces</ulink>
+	library for the XML related marshalling.
       </para>
       <para>
 	The (de-)marshallers know how to convert native C++ types, but if you want
 	to store your own classes in a Property ( like <classname>BirthDate</classname>
-	in the example above ), the class must be added to the Orocos
-	type system.
+	in the example above ), then you need to provide two additional methods
+	to the Orocos Property System : <methodname>composeProperty</methodname> and
+	<methodname>decomposeProperty</methodname>. You'll need to consult the 
+	API documentation on how to fill in these two functions and an example.
       </para>
-    </section>
-  </section>
-  <section>
+      <para>
+	If you are not interested in marshalling your own types, you can enable
+	the 'Default Marshalling' option in the configuration tool, which will
+	generate a default for these two functions for type T in any file where you use
+	a <classname>ORO_CoreLib::Property</classname>&lt;T&gt;.
+      </para>
+    </sect2>
+  </sect1>
+  <sect1>
     <title>The NameServer</title>
-    <section>
+    <sect2>
       <title>Introduction</title>
       <para>
 	A useful element in the &orocos; framework is what we call the strong typed
@@ -1334,8 +1340,8 @@ emergencyStop.emit(); // User not notified</programlisting>
 	console input,...), another object is retrieved from the nameserver and
 	used in the program.
       </para>
-    </section>
-    <section>
+    </sect2>
+    <sect2>
       <title>Using the NameServer</title>
       <para>
 	The local object server is called
@@ -1373,9 +1379,9 @@ emergencyStop.emit(); // User not notified</programlisting>
 	Control Kernels and Components, ... anything you wish to configure at runtime
 	can be nameserved.
       </para>
-    </section>
-  </section>
-  <section>
+    </sect2>
+  </sect1>
+  <sect1>
     <title>Buffers and DataObjects</title>
     <para>
       Orocos provides some basic inter-thread buffering mechanisms in the
@@ -1401,7 +1407,7 @@ emergencyStop.emit(); // User not notified</programlisting>
       </para></caption>
     </mediaobject>
     </figure>
-    <section id="corelib-buffers">
+    <sect2 id="corelib-buffers">
       <title>Buffers</title>
       <para>
 	The <classname>ORO_CoreLib::BufferInterface</classname>&lt;T&gt; provides
@@ -1431,8 +1437,8 @@ emergencyStop.emit(); // User not notified</programlisting>
 	 Both <function>Push()</function> and <function>Pop()</function>
 	 return a boolean to indicate failure or success.
        </para>
-    </section>
-    <section id="corelib-data-objects">
+    </sect2>
+    <sect2 id="corelib-data-objects">
       <title>DataObjects</title>
       <para>
 	The data inside the <classname>ORO_CoreLib::DataObject</classname>s can be any valid C++ type,
@@ -1462,9 +1468,9 @@ emergencyStop.emit(); // User not notified</programlisting>
 	<function>Get()</function> copy all contents of the
 	DataObject.
       </para>
-    </section>
-  </section>
-  <section id="core-logging">
+    </sect2>
+  </sect1>
+  <sect1 id="core-logging">
     <title>Logging</title>
     <para>
       Orocos applications can have pretty complex startup and
@@ -1528,12 +1534,6 @@ emergencyStop.emit(); // User not notified</programlisting>
 	      <entry>Logger::Debug</entry>
 	      <entry>Only log Debug or worse errors. Debug messages.</entry>
 	    </row>
-	    <row>
-	      <entry>7</entry>
-	      <entry>Logger::RealTime</entry>
-	      <entry>Log also messages from possibly Real-Time contexts. Needs to be confirmed
-	      by a function call to Logger::allowRealTime().</entry>
-	    </row>
 	  </tbody>
 	</tgroup>
       </table>
@@ -1562,7 +1562,6 @@ emergencyStop.emit(); // User not notified</programlisting>
       <title>Using the Logger class</title>
       <programlisting>  #include &lt;corelib/Logger.hpp>
 
-  Logger::In in("MyModule");
   <classname>ORO_CoreLib::Logger</classname>::log() &lt;&lt; Logger::Error &lt;&lt; "An error Occured : " &lt;&lt; 333 &lt;&lt; "." &lt;&lt; Logger::endl;
   <classname>ORO_CoreLib::Logger</classname>::log() &lt;&lt; Logger::Debug &lt;&lt; debugstring &lt;&lt; data &lt;&lt; Logger::endl;
   <classname>ORO_CoreLib::Logger</classname>::log() &lt;&lt; " more debug info." &lt;&lt; data &lt;&lt; Logger::endl;</programlisting>
@@ -1571,259 +1570,9 @@ emergencyStop.emit(); // User not notified</programlisting>
 	enums. The above message could result in :
       </para>
       <screen>
-  0.123 [ ERROR  ][MyModule] An error Occured : 333
-  0.124 [ Debug  ][MyModule] &lt;contents of debugstring and data >
-  0.125 [ Debug  ][MyModule]  more debug info. &lt;...data...> </screen>
+  0.123 [ERROR] An error Occured : 333
+  0.124 [Debug] &lt;contents of debugstring and data >
+  0.125 [Debug]  more debug info. &lt;...data...> </screen>
     </example>
-  </section>
-  <section>
-    <title>The Orocos Type System : Toolkits</title>
-    <para>
-      Most applications define their own classes or structs to exchange
-      data between objects. It is possible to tell Orocos about these
-      user defined types such that they can be displayed, stored to XML,
-      used in the scripting engine or even transfered over a network
-      connection.
-    </para>
-
-    <section>
-      <title>The Real-Time Toolkit</title>
-      <para>
-	Orocos uses the 'Toolkit' principle to make it aware of user
-	types. Orocos' Real-Time Toolkit already provides support for
-	the C++ types <classname>int</classname>,<classname>unsigned
-	int</classname>,<classname>double</classname>,
-	<classname>char</classname>,<classname>bool</classname>,<classname>float</classname>,
-	<classname>std::vector&lt;double&gt;</classname> and
-	<classname>std::string</classname>.
-      </para>
-      <para>
-	A toolkit can be imported into the application by writing:
-	<programlisting>  #include &lt;corelib/RealTimeToolkit.hpp>
-  // ...
-  RTT::Toolkit::Import( RTT::RealTimeToolkit );	</programlisting>
-	This is however done automatically, unless you disabled that
-	option in the configuration system. After this line is executed,
-	Orocos is able to display, transfer over a network or recognise
-	these types in scripts.
-      </para>
-    </section>
-    <section>
-      <title>Telling Orocos about your data</title>
-      <para>
-	Say that you have an application which transfers data
-	in a struct <classname>ControlData</classname> :
-	<programlisting>  struct ControlData {
-    double x, y, z;
-    int sample_nbr;
-  }</programlisting>
-        How can you tell Orocos how to handle this type ? A helper
-	class is provided which you can extend to fit your needs,
-	<classname>ORO_CoreLib::TemplateTypeInfo</classname>.
-	<programlisting>  #include &lt;corelib/TemplateTypeInfo.hpp>
-  // ...
-  struct ControlDataTypeInfo
-    : public ORO_CoreLib::TemplateTypeInfo&lt;ControlData>
-  {
-     ControlDataTypeInfo
-        : ORO_CoreLib::TemplateTypeInfo&lt;ControlData>("ControlData")
-     {}
-  };
-
-  // Tell Orocos the name and type of this struct:
-  ORO_CoreLib::Types::Instance()->addType( new ControlDataTypeInfo() );
-	</programlisting>
-	From now on, Orocos knows the 'ControlData' type name and allows
-	you to create a scripting variable of that type. It does however
-	not know yet how to display it or write it to an XML file.
-      </para>
-      <section>
-	<title>Displaying</title>
-	<para>
-	  In order to tell Orocos how to display your type, you
-	  may overload the <function>TemplateTypeInfo::write</function> fuction
-	  or define <function>operator&lt;&lt;()</function> for your type:
-	</para>
-	<programlisting>  #include &lt;corelib/TemplateTypeInfo.hpp>
-  #include &lt;ostream>
-
-  std::ostream&amp; operator&lt;&lt;(std::ostream&amp; os, const ControlData&amp; cd) {
-     return os &lt;&lt; '('&lt;&lt; cd.x &lt;&lt; cd.y &lt;&lt; cd.z &lt;&lt; '): ' &lt;&lt; cd.sample_nbr;
-  }
-  // ...
-  // 'true' argument: <emphasis> it has operator&lt;&lt;</emphasis>
-  struct ControlDataTypeInfo
-    : public ORO_CoreLib::TemplateTypeInfo&lt;ControlData,<emphasis>true</emphasis>>
-  {
-     ControlDataTypeInfo
-        : ORO_CoreLib::TemplateTypeInfo&lt;ControlData,<emphasis>true</emphasis>>("ControlData")
-     {}
-  };
-
-  // Tell Orocos the name and type of this struct
-  ORO_CoreLib::Types::Instance()->addType( new ControlDataTypeInfo() );
-	</programlisting>
-	<para>
-	  If you use the above line of code to add the type, Orocos will be
-	  able to display it as well, for example in the TaskBrowser or
-	  in the ReportingComponent.
-	</para>
-      </section>
-      <section>
-	<title>Writing to XML</title>
-	<para>
-	  In order to inform Orocos of the structure of your data type,
-	  it must be given a 'decompose' function: Of which primitive types
-	  does the struct consists ? Representing structured data is what
-	  Orocos <classname>ORO_CoreLib::Property</classname> objects do.
-	  Here is how to tell Orocos how the "ControlData" is structured:
-	</para>
-	<programlisting>  // ...
-  struct ControlDataTypeInfo
-    : public TemplateTypeInfo&lt;ControlData,true>
-  {
-     // ... other functions omitted
-
-     virtual bool decomposeTypeImpl(const ControlData&amp; in, PropertyBag&amp; targetbag ) const {
-         targetbag.setType("ControlData");
-         targetbag.add( new Property&lt;double>("X", "X value of my Data", in.x ) );
-         targetbag.add( new Property&lt;double>("Y", "Y value of my Data", in.y ) );
-         targetbag.add( new Property&lt;double>("Z", "Z value of my Data", in.z ) );
-         targetbag.add( new Property&lt;int>("Sample", "The sample number of the Data", in.sample_nbr ) );
-         return true;
-     }
-  }</programlisting>
-        <para>
-	  That was easy ! For each member of your struct, add a
-	  <classname>ORO_CoreLib::Property</classname> of the correct
-	  type to the targetbag and you're done !
-	  <function>setType()</function> can be used lateron to
-	  determine the version or type of your XML representation.  Next,
-	  if Orocos tries to write an XML file with ControlData in it,
-	  it will look like:
-	</para>
-	<programlisting>
-<![CDATA[  <struct name="MyData" type="ControlData">
-    <simple name="X" type="double">
-       <description>X value of my Data</description>
-       <value>0.12</value>
-    </simple>
-    <simple name="Y" type="double">
-       <description>Y value of my Data</description>
-       <value>1.23</value>
-    </simple>
-    <simple name="Z" type="double">
-       <description>Z value of my Data</description>
-       <value>3.21</value>
-    </simple>
-    <simple name="Sample" type="short">
-       <description>The sample number of the Data</description>
-       <value>3123</value>
-    </simple>
-  </struct>]]>
-	</programlisting>
-      </section>
-      <section>
-	<title>Reading from XML</title>
-	<para>
-	  Orocos does not know yet how to convert an XML format back
-	  to the ControlData object. This operation is called 'composition'
-	  and is fairly simple as well:
-	  Here is how to tell Orocos how the "ControlData" is read:
-	</para>
-	<programlisting>  // ...
-  struct ControlDataTypeInfo
-    : public TemplateTypeInfo&lt;ControlData,true>
-  {
-
-     // ... other functions omitted
-
-     virtual bool composeTypeImpl(const PropertyBag&amp; bag, ControlData&amp; out ) const 
-     {
-        if ( bag.getType() == std::string("ControlData") ) // check the type
-        {  
-          Property&lt;double>* x = targetbag.getProperty&lt;double>("X");
-          Property&lt;double>* y = targetbag.getProperty&lt;double>("Y");
-          Property&lt;double>* z = targetbag.getProperty&lt;double>("Z");
-          Property&lt;int>* t = targetbag.getProperty&lt;int>("Sample");
-
-	  if ( !x || !y || !z || !t )
-	     return false;
-
-          out.x = x->get();
-          out.y = y->get();
-          out.z = z->get();
-          out.sample_nbr = t->get();
-          return true;
-        }
-        return false; // unknown type !
-     }
-  }</programlisting>
-        <para>
-	  First the properties are located in the bag, it should look just
-	  like we stored them. If not, return false, otherwise, read the
-	  values and store them in the out variable.
-	</para>
-      </section>
-      <section>
-	<title>Network transfer (CORBA)</title>
-	<para>
-	  In order to transfer your data between components over a
-	  network, Orocos requires that you provide the conversion
-	  from your type to a CORBA::Any type and back, quite similar
-	  to the 'composition' and 'decomposition' of your data.
-	  Look at the <classname>ORO_CoreLib::TemplateTypeInfo</classname>
-	  interface for the functions you need to implement.
-	</para>
-	<para>
-	  The first step is describing your struct in IDL and generate
-	  the 'client' headers with 'Any' support. Next you
-	  create such a struct, fill it with your data type's data
-	  and next 'stream' it to an Any. The other way around is
-	  required as well.
-	</para>
-	<para>
-	  In addition, you will need the CORBA support of Orocos
-	  enabled in your build configuration.
-	</para>
-      </section>
-      <section>
-	<title>Advanced types</title>
-	<para>
-	  In order to add more complex types, take a look at the
-	  code of the RealTimeToolkit and the GeometryToolkit of Orocos.
-	</para>
-      </section>
-    </section>
-    <section>
-      <title>Building your own Toolkit</title>
-      <para>
-	The number of types may grow in your application to such
-	a number or diversity that it may be convenient to 
-	build your own toolkit and import them when appropriate.
-	Non-Orocos libraries benefit from this system as well because
-	they can introduce their data types into Orocos.
-      </para>
-      <para>
-	Each toolkit must inherit from the <classname>ORO_CoreLib::ToolkitPlugin</classname>
-	class and implement three functions: <function>loadTypes()</function>,
-	<function>loadOperators()</function> and <function>getName()</function>.
-      </para>
-      <para>
-	The name of a toolkit must be unique. Each toolkit will be loaded
-	no more than once. The loadTypes function contains all 
-	'TemplateTypeInfo' constructs to tell Orocos about the types
-	of your toolkit. The loadOperators function contains all
-	operations that can be performed on your data such as addition ('+'),
-	indexing ('[i]'), construction ('vector(1.0,2.0,3.0)'),
-	comparison ('==') etc.
-      </para>
-      <para>
-	Mimick the code of the
-	<classname>ORO_CoreLib::RealTimeToolkit</classname> and
-	<classname>ORO_CoreLib::GeometryToolkit</classname> to build
-	your own.
-      </para>
-    </section>
-  </section>
+  </sect1>
 </article>

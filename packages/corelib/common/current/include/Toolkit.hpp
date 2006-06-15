@@ -10,7 +10,7 @@ namespace ORO_CoreLib
     /**
      * This interface defines how additional toolkits
      * are loaded into Orocos.
-     * A ToolkitPlugin defines additional user data types for a Toolkit.
+     * A ToolkitPlugin defines additional user data types.
      */
     class ToolkitPlugin
     {
@@ -37,7 +37,7 @@ namespace ORO_CoreLib
 
     /**
      * This class allows the Orocos Real-Time Toolkit to be extended
-     * with additional toolkits (ToolkitPlugin), such as for kinematics or any
+     * with additional toolkits, such as for kinematics or any
      * library foreign to Orocos.
      */
     class Toolkit

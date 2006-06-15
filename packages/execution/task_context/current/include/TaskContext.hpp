@@ -35,7 +35,6 @@
 #include "DataFlowInterface.hpp"
 #include "ExecutionEngine.hpp"
 #include "ScriptingAccess.hpp"
-#include "TaskCore.hpp"
 
 #include <string>
 #include <map>
@@ -68,11 +67,11 @@ namespace ORO_Execution
      * Peers.
      */
     class TaskContext
-        : public TaskCore
     {
         // non copyable
         TaskContext( TaskContext& );
     protected:
+        std::string    _task_name;
     
         typedef std::map< std::string, TaskContext* > PeerMap;
         typedef std::vector< TaskContext* > Users;
@@ -80,6 +79,8 @@ namespace ORO_Execution
         PeerMap         _task_map;
         // map of the tasks that are using us.
         Users         musers;
+
+        ExecutionEngine ee;
 
         ScriptingAccess* mscriptAcc;
 
@@ -119,6 +120,36 @@ namespace ORO_Execution
         virtual ~TaskContext();
 
         /**
+         * Function where the user must insert his 'startup' code.
+         * This function is called by the ExecutionEngine before it
+         * starts its processors. If it returns \a false, the startup
+         * of the TaskContext is aborted.  The default implementation is an
+         * empty function which returns \a true.
+         */
+        virtual bool startup();
+
+        /**
+         * Function where the user must insert his 'application' code.
+         * When the ExecutionEngine's Task is a PeriodicTask, this
+         * function is called by the ExecutionEngine in each periodic
+         * step after all command, event,... processors. When it's Task is a
+         * TaskNonPeriodic, this function is called after an Event or
+         * Command is received and executed.  It should not loop
+         * forever, since no commands or events are processed when
+         * this function executes.  The default implementation is an
+         * empty function.
+         */
+        virtual void update();
+
+        /**
+         * Function where the user must insert his 'shutdown' code.
+         * This function is called by the ExecutionEngine after it
+         * stops its processors.  The default implementation is an
+         * empty function.
+         */
+        virtual void shutdown();
+
+        /**
          * Queue a command.
          * @return True if the Processor accepted the command.
          */
@@ -131,6 +162,21 @@ namespace ORO_Execution
          */
         int queueCommand( CommandInterface* c);
 
+        /**
+         * Get the name of this TaskContext.
+         */
+        const std::string& getName()
+        {
+            return _task_name;
+        }
+
+        /**
+         * Change the name of this TaskContext.
+         */
+        void setName(const std::string& n)
+        {
+            _task_name = n;
+        }
         /**
          * Add a one-way connection from this task to a peer task.
          * @param peer The peer to add.
@@ -186,9 +232,27 @@ namespace ORO_Execution
 
         /**
          * Get a const pointer to the ExecutionEngine of this Task.
+         * @see getExecutionEngine()
+         */
+        const ExecutionEngine* engine() const
+        {
+            return &ee;
+        }
+
+        /**
+         * Get a const pointer to the ExecutionEngine of this Task.
          * @see engine()
          */
         const ExecutionEngine* getExecutionEngine() const
+        {
+            return &ee;
+        }
+
+        /**
+         * Get a pointer to the ExecutionEngine of this Task.
+         * @see getExecutionEngine()
+         */
+        ExecutionEngine* engine()
         {
             return &ee;
         }

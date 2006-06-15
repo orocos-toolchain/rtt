@@ -108,7 +108,7 @@ namespace ORO_CoreLib
         }
 
         bool maylog() const {
-            if (!started || (outloglevel == RealTime && allowRT == false))
+            if (!started || outloglevel == RealTime && allowRT == false)
                 return false;
             return true;
         }
@@ -288,9 +288,6 @@ namespace ORO_CoreLib
         delete d;
     }
 
-    bool Logger::mayLog() const {
-        return d->maylog();
-    }
 
     void Logger::allowRealTime() {
         *this << Logger::Warning << "Enabling Real-Time Logging !" <<Logger::endl;
