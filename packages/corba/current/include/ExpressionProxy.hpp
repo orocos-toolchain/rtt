@@ -154,7 +154,7 @@ namespace ORO_Corba
 
         virtual std::string getType() const { return std::string( mdata->getType() ); }
 
-        virtual ORO_CoreLib::TypeInfo* getTypeInfo() const { return ORO_CoreLib::detail::DataSourceTypeInfo<ORO_CoreLib::detail::UnknownType>::TypeInfoObject; }
+        virtual const ORO_CoreLib::TypeInfo* getTypeInfo() const { return ORO_CoreLib::detail::DataSourceTypeInfo<ORO_CoreLib::detail::UnknownType>::getTypeInfo(); }
 
         virtual std::string getTypeName() const { return std::string( mdata->getTypeName() ); }
 

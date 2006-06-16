@@ -50,7 +50,11 @@ namespace ORO_Corba
             return const_cast<CORBAExpression<T>*>(this);
         }
 
-        virtual std::string getType() const { return  ORO_CoreLib::DataSource<T>::GetType() +"::"+std::string( mexpr->getType() ); }
+        virtual std::string getType() const {
+            // both should be equivalent, but we display the local type.
+            return ORO_CoreLib::DataSource<T>::GetType();
+            //return std::string( mexpr->getType() );
+        }
 
         virtual bool hasServer() const
         {
@@ -97,8 +101,6 @@ namespace ORO_Corba
             alreadyCloned[this] = const_cast<CORBAExpression<void>*>(this);
             return const_cast<CORBAExpression<void>*>(this);
         }
-
-        virtual std::string getType() const { return std::string( mexpr->getType() ) + '/' + ORO_CoreLib::DataSource<void>::GetType(); }
 
         virtual bool hasServer() const
         {
@@ -169,8 +171,6 @@ namespace ORO_Corba
             alreadyCloned[this] = const_cast<CORBAAssignableExpression<T>*>(this);
             return const_cast<CORBAAssignableExpression<T>*>(this);
         }
-
-        virtual std::string getType() const { return  ORO_CoreLib::DataSource<T>::GetType() +"::"+std::string( mexpr->getType() ); }
 
         virtual bool hasServer() const
         {
