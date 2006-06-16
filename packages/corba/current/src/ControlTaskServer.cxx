@@ -205,10 +205,9 @@ namespace ORO_Corba
         if ( !CORBA::is_nil(orb) ) {
             Logger::log() <<Logger::Info << "Cleaning up ControlTaskServers..."<<Logger::nl;
             ServerMap::iterator it = servers.begin();
-            for ( ; it != servers.end(); ++it){
-                delete it->second;
+            while ( !servers.empty() ){
+                delete servers.begin()->second;
             }
-            servers.clear();
             Logger::log() << "Cleanup done."<<Logger::endl;
         }
     }
