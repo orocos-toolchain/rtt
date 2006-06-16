@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "RTT.hpp"
 
 namespace ORO_CoreLib
 {

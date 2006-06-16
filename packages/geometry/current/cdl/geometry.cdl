@@ -37,10 +37,16 @@ adds about 1.1MB with a reasonable good compiler."
 	flavor bool
 	default_value 1
 
+        cdl_option OROCFG_GEOMETRY_TOOLKIT_IMPORT {
+	  display "Auto-Import Geometry Toolkit."
+	  description "
+When enabled, the Geometry Toolkit is automatically imported
+in your application by Orocos."
+	  flavor bool
+	  default_value 1
+        }
         compile GeometryToolkit.cxx
     }
-
-
 
     cdl_component OROPKG_GEOMETRY_3D {
 	display "2D/3D Primitives Options"

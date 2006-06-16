@@ -35,6 +35,28 @@
  
 #include "geometry/utility.h"
 
+#ifdef OROCFG_GEOMETRY_TOOLKIT_IMPORT
+#include "geometry/GeometryToolkit.hpp"
+#include <os/StartStopManager.hpp>
+namespace ORO_Geometry {
+    namespace {
+
+        /**
+         * This struct has the sole purpose of invoking
+         * the Import function.
+         */
+        int loadG()
+        {
+            RTT::Toolkit::Import( GeometryToolkit );
+            return true;
+        }
+
+        ORO_OS::InitFunction GLoader( &loadG );
+    }
+}
+#endif
+
+
 #ifdef USE_NAMESPACE
 namespace ORO_Geometry {
 #endif

@@ -10,7 +10,7 @@ namespace ORO_CoreLib
      * This interface defines the types of the realTime package.
      */
     class RealTimeToolkitPlugin
-       : public ORO_CoreLib::ToolkitPlugin
+       : public ToolkitPlugin
     {
     public:
         virtual std::string getName();
