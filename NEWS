@@ -1,3 +1,72 @@
+OROCOS v0.22.1 Release Notes
+   http://www.orocos.org
+----------------------------
+
+We announce the release of Orocos 0.22.1,
+a framework for (realtime) robot, process and machine control.
+
+This is a source-compatible bugfix release. The following
+issues were fixed or improved:
+
+bug_id   severity  short description
+============================================================
+bug #6,  minor ,   Rounding errors in timing lead to core-test failure 
+bug #33, major ,   build for rtai3-3 failed 
+bug #45, normal ,  make check fails two tests 
+bug #49, blocker , Method is executed twice 
+bug #50, normal ,  Scripting: one can not define variables in a statemachine's state 
+bug #51, normal ,  Scripting does not handle 'unsigned int' 
+
+Additional improvements:
+* BufferLockFree: Much more memory efficient implementation.
+* gcc-3.3: Compile fix.
+* BufferInterface, BufferPort: Add 'full()' method.
+* TaskBrowser: List events, use more colors, support for light/dark consoles.
+
+OROCOS v0.22.0 Release Notes
+   http://www.orocos.org
+----------------------------
+
+We announce the release of Orocos 0.22.0,
+a framework for (realtime) robot, process and machine control.
+
+This major feature release added the following projects to
+the Orocos software:
+
+ * Xenomai 2.0 Port
+   http://www.xenomai.org
+
+ * Control Kernel Process Component
+   One can now redefine the order in which Components are run.
+
+ * Control Kernel Kinematics Component
+   A 'Process' Component which centralises kinematic calculations 
+   and tracks the robot's kinematic state.
+
+ * N-axis Kinematics
+   Upgrade from the Kinematics interface from 6-degrees of 
+   freedom kinematics to N-degrees of freedom.
+
+ * Lock-free, real-time Events
+   The event mechanism does no longer require the boost-signals library 
+   and is now lock-free and hard real-time.
+
+ * Event based (reactive) state machines
+   The Orocos StateMachines can also change state on the 
+   basis of Orocos events.
+
+ * Data Flow ports for 'Task Contexts'.
+   Defines a new Component model for Orocos.
+
+Feature improvements, API changes, bugfixes and caveats can be found in :
+  <http://www.orocos.org/releases/orocos-changes-0.22.0.html>
+
+Orocos can be downloaded using this script :
+  <http://www.orocos.org/releases/orocos-install.tcl>
+which is invoked as in :
+  $ sh orocos-install.tcl
+
+
 OROCOS v0.20.0 Release Notes
    http://www.orocos.org
 ----------------------------
@@ -5,7 +74,7 @@ OROCOS v0.20.0 Release Notes
 We announce the release of Orocos 0.20.0,
 a framework for (realtime) robot, process and machine control.
 
-This majore feature release focussed on refactoring of the API,
+This major feature release focussed on refactoring of the API,
 validation and improvement of the realtime scripting language and
 improvement of the overall realtime performance. The documentation has
 been reordered to separate the 'Realtime Control Services' from the
