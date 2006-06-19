@@ -114,11 +114,15 @@ namespace ORO_Execution
         virtual PortInterface* antiClone() const;
 
         virtual DataSourceFactoryInterface* createDataSources() {
+#ifndef ORO_EMBEDDED
             if ( !mconn )
                 return 0;
             TemplateDataSourceFactory<ORO_CoreLib::DataObjectInterface<T> >* datas = newDataSourceFactory( mconn->data() );
             datas->add("Get", ORO_Execution::data( &ORO_CoreLib::DataObjectInterface<T>::Get, "Get the current value of this Data Object"));
             return datas;
+#else
+            return 0;
+#endif
         }
 
     };
@@ -233,6 +237,7 @@ namespace ORO_Execution
         }
 
         virtual DataSourceFactoryInterface* createDataSources() {
+#ifndef ORO_EMBEDDED
             if ( !mconn )
                 return 0;
             TemplateDataSourceFactory<ORO_CoreLib::DataObjectInterface<T> >* datas = newDataSourceFactory( mconn->data() );
@@ -240,6 +245,9 @@ namespace ORO_Execution
             datas->add("Set", ORO_Execution::data( &ORO_CoreLib::DataObjectInterface<T>::Set, "Set the current value of this Data Object",
                                     "Value", "The new value.") );
             return datas;
+#else
+            return 0;
+#endif
         }
     };
 

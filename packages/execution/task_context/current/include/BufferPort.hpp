@@ -110,6 +110,7 @@ namespace ORO_Execution
         virtual PortInterface* antiClone() const;
 
         virtual DataSourceFactoryInterface* createDataSources() {
+#ifndef ORO_EMBEDDED
             if ( !mconn )
                 return 0;
             TemplateDataSourceFactory<ORO_CoreLib::ReadInterface<T> >* datas = newDataSourceFactory( mconn->read() );
@@ -125,7 +126,9 @@ namespace ORO_Execution
             datab->add("full", data( &ORO_CoreLib::BufferBase::full, "Inspect if the buffer is full."));
 
             return new MemberFactoryComposite( datas, datab );
-
+#else
+            return 0;
+#endif
         }
     };
 
@@ -234,6 +237,7 @@ namespace ORO_Execution
         }
 
         virtual DataSourceFactoryInterface* createDataSources() {
+#ifndef ORO_EMBEDDED
             if ( !mconn )
                 return 0;
             TemplateDataSourceFactory<ORO_CoreLib::WriteInterface<T> >* datas = newDataSourceFactory( mconn->write() );
@@ -247,6 +251,9 @@ namespace ORO_Execution
             datab->add("empty", data( &ORO_CoreLib::BufferBase::empty, "Inspect if the buffer is empty."));
             datab->add("full", data( &ORO_CoreLib::BufferBase::full, "Inspect if the buffer is full."));
             return new MemberFactoryComposite( datas, datab );
+#else
+            return 0;
+#endif
         }
     };
 
@@ -340,6 +347,7 @@ namespace ORO_Execution
         }
 
         virtual DataSourceFactoryInterface* createDataSources() {
+#ifndef ORO_EMBEDDED
             if ( !mconn )
                 return 0;
             TemplateDataSourceFactory<ORO_CoreLib::BufferInterface<T> >* datas = newDataSourceFactory( mconn->buffer() );
@@ -358,6 +366,9 @@ namespace ORO_Execution
             datab->add("empty", data( &ORO_CoreLib::BufferBase::empty, "Inspect if the buffer is empty."));
             datab->add("full", data( &ORO_CoreLib::BufferBase::full, "Inspect if the buffer is full."));
             return new MemberFactoryComposite( datas, datab );
+#else
+            return 0;
+#endif
         }
     };
 }
