@@ -26,8 +26,8 @@
  ***************************************************************************/ 
  
 
-#ifndef MUTEX_HPP
-#define MUTEX_HPP
+#ifndef ORO_OS_MUTEX_HPP
+#define ORO_OS_MUTEX_HPP
 
 #include <os/fosi.h>
 #include <pkgconf/os.h>
@@ -36,6 +36,19 @@ namespace ORO_OS
 {
     class MutexLock;
     class MutexTryLock;
+
+    /**
+     * @brief An interface to a Mutex.
+     *
+     * @see MutexLock, MutexTryLock, MutexRecursive
+     */
+	class MutexInterface 
+	{
+	public:
+		virtual void lock() =0;
+		virtual void unlock() =0;
+		virtual bool trylock() = 0;
+	};
 
     /**
      * @brief An object oriented wrapper around a non recursive mutex.
@@ -47,7 +60,7 @@ namespace ORO_OS
      *
      * @see MutexLock, MutexTryLock, MutexRecursive
      */
-    class Mutex 
+	class Mutex : public MutexInterface
     {
         friend class ORO_OS::MutexLock;
         friend class ORO_OS::MutexTryLock;
@@ -108,7 +121,7 @@ namespace ORO_OS
      *
      * @see MutexLock, MutexTryLock, Mutex
      */
-    class MutexRecursive : public ORO_OS::Mutex
+    class MutexRecursive : public MutexInterface
     {
         public:
         /**

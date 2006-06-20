@@ -25,8 +25,8 @@
  *                                                                         *
  ***************************************************************************/ 
  
-#ifndef MUTEXLOCK_HPP
-#define MUTEXLOCK_HPP
+#ifndef ORO_OS_MUTEXLOCK_HPP
+#define ORO_OS_MUTEXLOCK_HPP
 
 #include <os/fosi.h>
 
@@ -47,7 +47,7 @@ namespace ORO_OS
              * 
              * @param mutex The Mutex to be locked.
              */
-            MutexLock( ORO_OS::Mutex &mutex )
+            MutexLock( ORO_OS::MutexInterface &mutex )
             {
                 _mutex = &mutex;
                 _mutex->lock ();
@@ -62,7 +62,7 @@ namespace ORO_OS
             }
 
         protected:
-            ORO_OS::Mutex *_mutex;
+            ORO_OS::MutexInterface *_mutex;
 
             MutexLock()
             {}
@@ -83,7 +83,7 @@ namespace ORO_OS
              *
              * @param mutex The Mutex which should be attempted to be locked
              */
-            MutexTryLock( ORO_OS::Mutex &mutex )
+            MutexTryLock( ORO_OS::MutexInterface &mutex )
                     : _mutex( &mutex), successful( mutex.trylock() )
             {
             }
@@ -111,7 +111,7 @@ namespace ORO_OS
             /**
              * The Mutex to lock and unlock
              */
-            ORO_OS::Mutex *_mutex;
+            ORO_OS::MutexInterface *_mutex;
 
         MutexTryLock()
         {}
