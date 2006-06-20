@@ -490,9 +490,9 @@ namespace ORO_CoreLib
                 return t1;
 
             // Assignable const ref case
-            AssignableDataSource<const Result&>* t3 = AssignableDataSource<const Result&>::narrow( dsb.get() );
-            if ( t3 )
-                return new detail::AssignableDataSourceAdaptor<const Result&, Result>( t3 ); // will return AssignableDS !
+            AssignableDataSource<const Result&>* t2 = AssignableDataSource<const Result&>::narrow( dsb.get() );
+            if ( t2 )
+                return new detail::AssignableDataSourceAdaptor<const Result&, Result>( t2 ); // will return AssignableDS !
 
 #ifndef ORO_EMBEDDED
             // ref to assignable value case

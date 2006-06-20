@@ -416,7 +416,7 @@ namespace ORO_CoreLib
             return new Attribute<T>( new detail::UnboundDataSource<IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<_T> > >() );
         }
 
-        DataSourceBase* buildValue() const
+        DataSourceBase::shared_ptr buildValue() const
         {
             return new IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<_T> >();
         }
@@ -468,7 +468,7 @@ namespace ORO_CoreLib
             return new Attribute<T>( new detail::UnboundDataSource<IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<T> > >() );
         }
 
-        DataSourceBase* buildValue() const
+        DataSourceBase::shared_ptr buildValue() const
         {
             return new IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<T> >();
         }
