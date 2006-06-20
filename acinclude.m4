@@ -691,8 +691,31 @@ else
    #AC_MSG_WARN([No comedi installation found !
    #(tried : $COMEDI_DIR/comedilib.h and $COMEDI_DIR/linux/comedilib.h).
    #Comedi will be unavailable.])
+    NO_COMEDI_DIR=1
   fi
 fi
+
+# Now check the headers.
+CPPFLAGS="-I$COMEDI_DIR"
+AC_CHECK_HEADERS([ linux/comedilib.h ],
+[
+  if test x$NO_COMEDI_DIR = x1; then
+    PACKAGES="support/comedi/current/comedi.cdl $PACKAGES"
+    TARGET_LIBS="$TARGET_LIBS -lkcomedilxrt"
+    AC_MSG_RESULT(lxrt header found in $COMEDI_DIR/linux)
+    unset NO_COMEDI_DIR
+  fi 
+],[])
+AC_CHECK_HEADERS([ comedilib.h ],
+[
+  if test x$NO_COMEDI_DIR = x1; then
+    PACKAGES="support/comedi/current/comedi.cdl $PACKAGES"
+    TARGET_LIBS="$TARGET_LIBS -lcomedi"
+    AC_MSG_RESULT(gnulinux header found in $COMEDI_DIR)
+    unset NO_COMEDI_DIR
+  fi 
+],[])
+])
 
 AC_SUBST(COMEDI_DIR)
 ])
