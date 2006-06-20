@@ -36,11 +36,8 @@
 #include "DataSources.hpp"
 #include <boost/type_traits.hpp>
 
-#ifdef HAVE_STRING
 #include <string>
-#endif
-
-#include <iostream>
+#include <ostream>
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
@@ -86,8 +83,21 @@ namespace ORO_CoreLib
          * @param value The initial value of the property (optional).
          */
         Property(const std::string& name, const std::string& description, param_t value = value_t() )
-            : PropertyBase(name, description), _value( new ValueDataSource<DataSourceType>(value) )
-        {}
+            : PropertyBase(name, description), _value( 0 )
+        {
+#ifndef ORO_EMBEDDED
+            // First see if it is a predefined type (not unknown) and if so, build that one.
+            if ( detail::DataSourceTypeInfo<T>::getTypeInfo() != detail::DataSourceTypeInfo<detail::UnknownType>::getTypeInfo() ) {
+                _value = AdaptAssignableDataSource<DataSourceType>()(detail::DataSourceTypeInfo<T>::getTypeInfo()->buildValue() );
+                assert( _value );
+            } else {
+                // this type is unknown, build a default one.
+                _value = new ValueDataSource<DataSourceType>(value);
+            }
+#else
+            _value = new ValueDataSource<DataSourceType>(value);
+#endif
+        }
 
         /**
          * Copy constructors copies the name, description and value
@@ -95,7 +105,7 @@ namespace ORO_CoreLib
          */
         Property( const Property<T>& orig)
             : PropertyBase(orig.getName(), orig.getDescription()),
-              _value( new ValueDataSource<DataSourceType>( orig.get() ) )
+              _value( orig._value->clone() )
         {}
 
         /**
@@ -333,7 +343,9 @@ namespace ORO_CoreLib
     template<typename T>
     std::ostream& operator<<(std::ostream &os, Property<T> &p)
     {
+#if HAVE_STREAMS
         os << p.get();
+#endif
         return os;
     }
 

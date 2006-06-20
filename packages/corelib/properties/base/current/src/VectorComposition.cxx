@@ -30,7 +30,7 @@
 #include "corelib/PropertyBag.hpp"
 #include "corelib/VectorComposition.hpp"
 #include "corelib/Logger.hpp"
-#include <iostream>
+#include <ostream>
 #include <sstream>
 
 namespace ORO_CoreLib

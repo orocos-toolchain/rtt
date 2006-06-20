@@ -11,7 +11,7 @@
 #include <corelib/TypeStream.hpp>
 #include <corelib/PropertyBag.hpp>
 #include <corelib/VectorComposition.hpp>
-#include <iostream>
+#include <ostream>
 
 namespace ORO_CoreLib
 {

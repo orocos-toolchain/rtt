@@ -33,7 +33,6 @@
 #include "Signal.hpp"
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
-#include <os/MutexLock.hpp>
 #include <os/Semaphore.hpp>
 #include <vector>
 #include "DataObjectInterfaces.hpp"

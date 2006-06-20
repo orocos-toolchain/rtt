@@ -27,7 +27,6 @@
  
  
 #include <corelib/TypeStream.hpp>
-#include <iostream>
 #include <sstream>
 
 namespace ORO_CoreLib

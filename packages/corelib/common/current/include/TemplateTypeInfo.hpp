@@ -32,7 +32,7 @@
 #include "Property.hpp"
 #include "Attribute.hpp"
 #include "Logger.hpp"
-#include <iostream>
+#include <ostream>
 
 #include <pkgconf/system.h>
 #ifdef OROPKG_CORBA
@@ -49,7 +49,10 @@ namespace ORO_CoreLib
         {
             static std::ostream& write(std::ostream& os, T t)
             {
-                return os << t;
+#if HAVE_STREAMS
+                os << t;
+#endif
+                return os;
             }
         };            
         template<typename T>
@@ -229,8 +232,10 @@ namespace ORO_CoreLib
             if ( d && use_ostream )
                 detail::TypeStreamSelector<T, use_ostream>::write( os, d->value() );
             else {
+#if HAVE_STREAMS
                 std::string output = std::string("(")+ in->getTypeName() +")";
                 os << output;
+#endif
             }
             return os;
             //return os << "("<< tname <<")"
@@ -411,6 +416,11 @@ namespace ORO_CoreLib
             return new Attribute<T>( new detail::UnboundDataSource<IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<_T> > >() );
         }
 
+        DataSourceBase* buildValue() const
+        {
+            return new IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<_T> >();
+        }
+
         AttributeBase* buildVariable(int size) const
         {
             // if a sizehint is given, create a TaskIndexContainerVariable instead,
@@ -456,6 +466,11 @@ namespace ORO_CoreLib
         {
             // no sizehint, but _do_ check IPred.
             return new Attribute<T>( new detail::UnboundDataSource<IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<T> > >() );
+        }
+
+        DataSourceBase* buildValue() const
+        {
+            return new IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<T> >();
         }
 
     };
