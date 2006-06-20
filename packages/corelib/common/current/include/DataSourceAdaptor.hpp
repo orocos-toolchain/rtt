@@ -38,6 +38,9 @@ namespace ORO_CoreLib
         template<class From, class To>
         struct DataSourceAdaptor;
 
+        template<class From, class To>
+        struct AssignableDataSourceAdaptor;
+
     /**
      * Adapt parser DataSource storage type to user type.
      * Rationale : the Parser chooses internally how to pass
@@ -383,6 +386,54 @@ namespace ORO_CoreLib
 
     };
 #endif
+    /**
+     * AssignableDataSourceAdaptor allows a conversion from an AssignableDataSource<const& T>
+     * to AssignableDataSource<T>. Properties work with the latter.
+     */
+    template<class To>
+    struct AssignableDataSourceAdaptor<To const&, To>
+        : public AssignableDataSource<To>
+    {
+        typedef To const& From;
+        typename AssignableDataSource<From>::shared_ptr orig_;
+
+        AssignableDataSourceAdaptor( typename AssignableDataSource<From>::shared_ptr orig)
+            : orig_(orig) {}
+
+        virtual typename DataSource<To>::result_t get() const { return orig_->get(); }
+
+        virtual typename DataSource<To>::result_t value() const { return orig_->value(); }
+
+        virtual typename AssignableDataSource<To>::const_reference_t rvalue() const { return orig_->rvalue(); }
+
+        virtual typename AssignableDataSource<To>::reference_t set() { return orig_->set(); }
+
+        virtual void set( typename AssignableDataSource<To>::param_t v) { orig_->set(v); }
+
+        virtual void updated() { orig_->updated(); }
+
+        virtual void reset() { orig_->reset(); }
+
+        virtual bool evaluate() const { return orig_->evaluate(); }
+
+        virtual AssignableDataSource<To>* clone() const {
+            return new AssignableDataSourceAdaptor( orig_->clone() );
+        }
+
+        virtual AssignableDataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+            std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
+            if ( i == alreadyCloned.end() ) {
+                AssignableDataSourceAdaptor<From,To>* n = new AssignableDataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
+                alreadyCloned[this] = n;
+                return n;
+            }
+            typedef AssignableDataSourceAdaptor<From,To> CastType;
+            assert( dynamic_cast< CastType* >( i->second ) == static_cast< CastType* >( i->second ) );
+            return static_cast< CastType* >( i->second );
+        }
+
+    };
+
     }
 
     /**
@@ -437,6 +488,11 @@ namespace ORO_CoreLib
             AssignableDataSource<Result>* t1 = AssignableDataSource<Result>::narrow( dsb.get() );
             if (t1)
                 return t1;
+
+            // Assignable const ref case
+            AssignableDataSource<const Result&>* t3 = AssignableDataSource<const Result&>::narrow( dsb.get() );
+            if ( t3 )
+                return new detail::AssignableDataSourceAdaptor<const Result&, Result>( t3 ); // will return AssignableDS !
 
 #ifndef ORO_EMBEDDED
             // ref to assignable value case
