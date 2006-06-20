@@ -31,7 +31,7 @@ namespace ORO_CoreLib
         return *_instance;
     }
 
-    inline void Logger::mayLog() const {
+    inline bool Logger::mayLog() const {
         return false;
     }
 
