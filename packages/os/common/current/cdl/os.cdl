@@ -181,6 +181,7 @@ violated. Only enable if you know what you are doing."
 	flavor bool
 	implements OROINT_OS_STL_LIB
 	implements OROINT_OS_STDIOSTREAM
+	implements OROINT_OS_STREAMS
     }
 
     cdl_interface OROINT_OS_STL_LIB {
@@ -189,7 +190,14 @@ violated. Only enable if you know what you are doing."
     }
 
     cdl_interface OROINT_OS_STDIOSTREAM {
-	display "IOStreams of the Standard C++ Library"
+	display "IO Streams (cerr,cout,...) of the Standard C++ Library"
+	define HAVE_IOSTREAM
+	flavor bool
+    }
+
+    cdl_interface OROINT_OS_STREAMS {
+	display "Stream operations of the Standard C++ Library"
+	define HAVE_STREAMS
 	flavor bool
     }
 

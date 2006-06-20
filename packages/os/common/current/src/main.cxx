@@ -39,7 +39,11 @@
 
 #include <os/startstop.h>
 #include <os/main.h>
+#ifdef HAVE_IOSTREAM
 #include <iostream>
+#else
+#include <cstdio>
+#endif
 // extern package config headers.
 #include "pkgconf/system.h"
 #ifdef OROPKG_CORELIB
@@ -156,6 +160,7 @@ int main(int argc, char* argv[])
 #endif
         } catch( ... )
             {
+#ifdef HAVE_IOSTREAM
                 cerr <<endl<< " Orocos has detected an uncaught C++ exception"<<endl;
                 cerr << " in the ORO_main() function."<<endl;
                 cerr << " You might have called a function which throws"<<endl;
@@ -166,6 +171,9 @@ int main(int argc, char* argv[])
                 cerr << " ( Change num-callers for more/less detail."<<endl;
                 cerr << "   Also, compiling orocos and your program with"<<endl;
                 cerr << "   -g adds more usefull information. )"<<endl<<endl;
+#else
+                printf("Orocos intercepted uncaught C++ exception\n");
+#endif
             }
     } else {
         res = ORO_main(argc, argv);
