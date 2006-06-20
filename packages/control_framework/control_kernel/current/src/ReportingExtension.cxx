@@ -37,6 +37,10 @@
 #include <execution/TemplateFactories.hpp>
 #endif
 #include <corelib/PropertyComposition.hpp>
+#ifdef OROINT_OS_STDIOSTREAM
+#include <fstream>
+#endif
+#include <iostream>
 
 namespace ORO_ControlKernel
 {

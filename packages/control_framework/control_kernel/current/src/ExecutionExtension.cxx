@@ -54,7 +54,6 @@
 
 #include <functional>
 #include <boost/function.hpp>
-#include <fstream>
 
 namespace ORO_ControlKernel
 {
@@ -78,9 +77,6 @@ with respect to the Kernels period. Should be strictly positive ( > 0).", 1),
     {
         tc.engine()->setActivity( 0 );
     }
-
-    using std::cerr;
-    using std::endl;
 
     bool ExecutionExtension::initialize()
     {
