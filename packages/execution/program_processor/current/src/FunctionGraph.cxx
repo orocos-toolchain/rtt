@@ -37,8 +37,6 @@
 #include <boost/graph/copy.hpp>
 #include <utility>
 
-#include <iostream>
-
 namespace ORO_Execution
 {
     using namespace boost;
@@ -371,6 +369,7 @@ namespace ORO_Execution
     }
 
     void FunctionGraph::debugPrintout() const {
+#if 0
         graph_traits<Graph>::vertex_iterator v,vend;
         tie(v,vend) = vertices(program);
         boost::property_map<Graph, vertex_command_t>::const_type
@@ -388,6 +387,7 @@ namespace ORO_Execution
             else
                 std::cerr << " " << index << " (null)" << std::endl;
         }
+#endif
     }
 
     void FunctionGraph::clearArguments() {
