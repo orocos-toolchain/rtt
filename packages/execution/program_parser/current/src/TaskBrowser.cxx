@@ -1057,7 +1057,11 @@ namespace ORO_Execution
         std::string prompt(" = ");
         // setup prompt :
         cout <<prompt<< setw(20)<<left;
-        doPrint( ds, recurse );
+        if ( ds )
+            doPrint( ds, recurse );
+        else
+            cout << "(null)";
+
         cout << right;
     }
 
@@ -1092,6 +1096,7 @@ namespace ORO_Execution
 
         DataSourceBase::shared_ptr dsb(ds);
         dsb->evaluate();
+        assert(dsb);
         cout << dsb;
     }
 
