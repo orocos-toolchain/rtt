@@ -32,6 +32,7 @@
 	the <ulink url="http://www.orocos.org">&orocos;</ulink>
 	<emphasis> ( Open RObot COntrol Software ) </emphasis> infrastructure.
 	It targets developers which wish to extend or understand Orocos.
+	It is complementary to the user's manuals.
       </para>
     </abstract>
 
@@ -110,7 +111,7 @@
     </section>
   </chapter>
   <chapter>
-    <title>Build System</title>
+    <title>Inside the Build System</title>
     <xi:include  href="orocos-installation-devel.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
     <xi:include  href="orocos-installation-devel.xml#xpointer(/article/sect1[*])"  
@@ -118,35 +119,10 @@
   </chapter>
 
   <chapter>
-    <title>Operating System Abstraction</title>
-    <xi:include  href="orocos-os.xml#xpointer(/article/articleinfo/abstract)"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-os.xml#xpointer(/article/sect1[*])"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-  </chapter>
-
-  <chapter>
-    <title>Core Library</title>
-    <xi:include  href="orocos-corelib.xml#xpointer(/article/articleinfo/abstract)"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-corelib.xml#xpointer(/article/sect1[*])"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-  </chapter>
-
-  <chapter>
     <title>Inside The Core Library</title>
     <xi:include  href="orocos-corelib-devel.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-corelib-devel.xml#xpointer(/article/sect1[*])"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-  </chapter>
-
-
-  <chapter>
-    <title>The Task Infrastructure</title>
-    <xi:include  href="orocos-task-context.xml#xpointer(/article/articleinfo/abstract)"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-task-context.xml#xpointer(/article/section[*])"  
+    <xi:include  href="orocos-corelib-devel.xml#xpointer(/article/section[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 

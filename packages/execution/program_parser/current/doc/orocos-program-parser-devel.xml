@@ -93,24 +93,6 @@
 	<itemizedlist>
 	  <listitem>
 	    <para>
-	      It does not know of <type>unsigned int</type>. It can not call
-	      component methods with <type>unsigned int</type> arguments.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Only a hardcoded set of types can be used as variables,
-	      constants and aliases.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Operators like +, *, >= etc. are only supported for a
-	      hardcoded set of types.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
 	      For some types like vectors, rotations and frames,
 	      special syntax was added.  Currently, this is limited to
 	      the so-called constructors, that allow you to construct
@@ -123,69 +105,8 @@
     <sect2 id="alleviating-parser-limitations">
       <title>Alleviating the Limitations</title>
       <para>
-	We will address the ways to address the various limitations in
-	the same order as they were given above..
+	We will address the ways to address the various limitations.
       </para>
-      <sect3 id="adding-types">
-	<title>Adding value types</title>
-	<para>
-	  Adding types that can be used as variables, constants or
-	  aliases should be very trivial.  It should suffise to simply
-	  add a single line to a single file.
-	</para>
-	<para>
-	  The value types supported are kept in the TypesRepository
-	  class in orocos-tree/parser/src/Types.hpp.  The list of
-	  value types is constructed in the TypesRepository
-	  constructor in the Types.cpp file.  It looks something like
-	  the following:
-	  <programlisting>
-data[&quot;int&quot;] = new TemplateTypeInfo&lt;int&gt;();
-data[&quot;string&quot;] = new TemplateTypeInfo&lt;std::string&gt;();
-data[&quot;double&quot;] = new TemplateTypeInfo&lt;double&gt;();
-data[&quot;bool&quot;] = new TemplateTypeInfo&lt;bool&gt;();
-	  </programlisting>
-	  Adding your own type comes down to just adding a similar
-	  line there.  There are however some restrictions on what
-	  types can be used (like having a proper, publically
-	  accessible copy constructor, e.g. ), but if you have
-	  properly designed your class as a normal C++ value-based
-	  class, then there should be no problem.
-	</para>
-      </sect3>
-      <sect3 id="overloading-operators">
-	<title>Overloading operators</title>
-	<para>
-	  Operator overloads are stored in the class <classname>ORO_Execution::OperatorRegistry</classname>
-	  in <filename>Operators.hpp</filename>.  The list of
-	  supported operators is built up in the OperatorRegistry
-	  constructor in the <filename>Operators.cxx</filename> file.  It looks something
-	  like this:
-	  <programlisting>
-// boolean stuff:
-add( newUnaryOperator( &quot;!&quot;, std::logical_not&lt;bool&gt;() ) );
-add( newBinaryOperator( &quot;&amp;&amp;&quot;, std::logical_and&lt;bool&gt;() ) );
-add( newBinaryOperator( &quot;||&quot;, std::logical_or&lt;bool&gt;() ) );
-add( newBinaryOperator( &quot;==&quot;, std::equal_to&lt;bool&gt;() ) );
-add( newBinaryOperator( &quot;!=&quot;, std::not_equal_to&lt;bool&gt;() ) );
-	  </programlisting>
-	  Adding your own should not be terribly hard.  The hardest
-	  part is that as the second argument to newUnaryOperator,
-	  newBinaryOperator or newTernaryOperator, you need to specify
-	  a STL Adaptable Functor, and even though the STL provides
-	  many predefined one's, it does not provide all possible
-	  combinations, and you might end up having to write your
-	  own..  The STL does not at all provide any "ternary
-	  operators", so if you need one of those, you'll definitely
-	  have to write it yourself.
-	</para>
-	<para>
-	  Note that this section is only about adding overloads for
-	  existing operators, if you want to add new operators, you
-	  should look at the <link linkend="adding-syntax">next
-	  section</link>.
-	</para>
-      </sect3>
       <sect3 id="adding-syntax">
 	<title>Adding special syntax</title>
 	<para>
