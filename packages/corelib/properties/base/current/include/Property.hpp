@@ -83,21 +83,9 @@ namespace ORO_CoreLib
          * @param value The initial value of the property (optional).
          */
         Property(const std::string& name, const std::string& description, param_t value = value_t() )
-            : PropertyBase(name, description), _value( 0 )
+            : PropertyBase(name, description), _value( new ValueDataSource<DataSourceType>(value) )
+
         {
-#ifndef ORO_EMBEDDED
-            // First see if it is a predefined type (not unknown) and if so, build that one.
-            if ( detail::DataSourceTypeInfo<T>::getTypeInfo() != detail::DataSourceTypeInfo<detail::UnknownType>::getTypeInfo() ) {
-                _value = AdaptAssignableDataSource<DataSourceType>()(detail::DataSourceTypeInfo<T>::getTypeInfo()->buildValue() );
-                assert( _value );
-                _value->set( value );
-            } else {
-                // this type is unknown, build a default one.
-                _value = new ValueDataSource<DataSourceType>(value);
-            }
-#else
-            _value = new ValueDataSource<DataSourceType>(value);
-#endif
         }
 
         /**
