@@ -47,6 +47,7 @@
 #include <control_kernel/DataServer.hpp>
 #include <control_kernel/BaseComponents.hpp>
 #include <control_kernel/ExtensionComposition.hpp>
+#include <corelib/Logger.hpp>
 
 #ifdef OROSEM_CONTROL_KERNEL_OLDKERNEL
 #error "This Component only works with the new kernel infrastructure."
@@ -161,9 +162,9 @@ namespace ORO_ControlKernel
             // Get the inserted Analog Inputs
             for (AInMap::iterator itl = a_in.begin(); itl != a_in.end(); ++itl) {
                 if ( !Input->dObj()->Get(itl->first+"_raw", get<1>(itl->second) ) )
-                    std::cout << "Raw Analog Input not found in load !"<<std::endl;
+                    Logger::log() << "Raw Analog Input not found in load !"<<Logger::endl;
                 if ( !Input->dObj()->Get(itl->first,get<2>( itl->second) ) )
-                    std::cout << "Analog Input not found in load !"<<std::endl;
+                    Logger::log() << "Analog Input not found in load !"<<Logger::endl;
             }
 
             return true;
