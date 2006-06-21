@@ -90,6 +90,7 @@ namespace ORO_CoreLib
             if ( detail::DataSourceTypeInfo<T>::getTypeInfo() != detail::DataSourceTypeInfo<detail::UnknownType>::getTypeInfo() ) {
                 _value = AdaptAssignableDataSource<DataSourceType>()(detail::DataSourceTypeInfo<T>::getTypeInfo()->buildValue() );
                 assert( _value );
+                _value->set( value );
             } else {
                 // this type is unknown, build a default one.
                 _value = new ValueDataSource<DataSourceType>(value);
