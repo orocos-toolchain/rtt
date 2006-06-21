@@ -107,6 +107,10 @@ namespace ORO_Execution
             return new ReadBufferPort<T>( this->getName() );
         }
 
+        /**
+         * The anti-Clone of a ReadBufferPort is a WriteBufferPort with
+         * prefered buffer size '1'.
+         */
         virtual PortInterface* antiClone() const;
 
         virtual DataSourceFactoryInterface* createDataSources() {
@@ -229,7 +233,7 @@ namespace ORO_Execution
         }
 
         virtual PortInterface* clone() const {
-            return new WriteBufferPort<T>( this->getName(), minitial_value );
+            return new WriteBufferPort<T>( this->getName(), buf_size, minitial_value );
         }
 
         virtual PortInterface* antiClone() const {
@@ -339,11 +343,11 @@ namespace ORO_Execution
         }
 
         virtual PortInterface* clone() const {
-            return new BufferPort<T>( this->getName(), this->minitial_value );
+            return new BufferPort<T>( this->getName(), buf_size, this->minitial_value );
         }
 
         virtual PortInterface* antiClone() const {
-            return new BufferPort<T>( this->getName(), this->minitial_value );
+            return new BufferPort<T>( this->getName(), buf_size, this->minitial_value );
         }
 
         virtual DataSourceFactoryInterface* createDataSources() {
@@ -380,7 +384,7 @@ namespace ORO_Execution
 
     template<class T>
     PortInterface* ReadBufferPort<T>::antiClone() const {
-        return new WriteBufferPort<T>( this->getName() );
+        return new WriteBufferPort<T>( this->getName(), 1 );
     }
 
     template<class T>
