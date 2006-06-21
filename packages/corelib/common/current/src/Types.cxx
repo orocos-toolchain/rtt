@@ -34,6 +34,7 @@
 #include "corelib/Attribute.hpp"
 #include "corelib/DataSourceAdaptor.hpp"
 #include "corelib/TemplateTypeInfo.hpp"
+#include "corelib/TypeInfoName.hpp"
 #include <corelib/TypeStream.hpp>
 #include <corelib/mystd.hpp>
 
