@@ -2,6 +2,7 @@
 #define ORO_CORELIB_ANY_DATASOURCE_HPP
 
 #include "DataSource.hpp"
+#include "Logger.hpp"
 #include <tao/Any.h>
 
 namespace ORO_CoreLib

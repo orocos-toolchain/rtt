@@ -47,7 +47,13 @@ namespace ORO_CoreLib
     {
     protected:
         output_stream &_os;
-        virtual void introspect(const Property<bool> &v) 
+
+        virtual void introspect(PropertyBase* pb)
+        {
+            PropertyIntrospection::introspect( pb );
+        }
+
+        virtual void introspect(Property<bool> &v) 
         { 
 				
             _os << v.getName() 
@@ -55,14 +61,14 @@ namespace ORO_CoreLib
                 << v.get() << ";";
         }
 
-        virtual void introspect(const Property<char> &v) 
+        virtual void introspect(Property<char> &v) 
         { 
             _os << v.getName() 
                 <<":1>"
                 << v.get() << ";";
         }
 
-        virtual void introspect(const Property<int> &v) 
+        virtual void introspect(Property<int> &v) 
         { 
             std::stringstream buffer;
             std::string s;
@@ -73,7 +79,7 @@ namespace ORO_CoreLib
                 << s << ";";
         }
 			
-        virtual void introspect(const Property<unsigned int> &v) 
+        virtual void introspect(Property<unsigned int> &v) 
         { 
             std::stringstream buffer;
             std::string s;
@@ -84,7 +90,7 @@ namespace ORO_CoreLib
                 << s << ";";
         }
 			
-        virtual void introspect(const Property<double> &v) 
+        virtual void introspect(Property<double> &v) 
         {
             std::stringstream buffer;
             std::string s;
@@ -94,14 +100,14 @@ namespace ORO_CoreLib
                 <<":" << s.size() << ">"
                 << s << ";";
         }
-        virtual void introspect(const Property<std::string> &v) 
+        virtual void introspect(Property<std::string> &v) 
         {
             _os << v.getName() 
                 <<":"<<v.get().size() << ">"
                 << v.get() << ";";
         }
 			
-        virtual void introspect(const Property<PropertyBag> &v) 
+        virtual void introspect(Property<PropertyBag> &v) 
         {
             //   cout << "double: " << v;
             _os << v.getName();
@@ -124,7 +130,7 @@ namespace ORO_CoreLib
             _os <<"}";
         }
 
-        virtual void serialize(const PropertyBase* b)
+        virtual void serialize(PropertyBase* b)
         {
             b->identify(this);
         }

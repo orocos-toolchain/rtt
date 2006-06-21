@@ -46,47 +46,52 @@ namespace ORO_CoreLib
           public StreamProcessor<o_stream>
     {
     protected:
-        virtual void introspect(const Property<bool> &v) 
+        virtual void introspect(PropertyBase* pb)
+        {
+            PropertyIntrospection::introspect( pb );
+        }
+
+        virtual void introspect(Property<bool> &v) 
         { 
             *(this->s) << "<bool id=\""<< v.getName() 
                        <<"\" description=\"" << v.getDescription() <<"\">"
                        << v.get() << "</bool>\n";
         }
 
-        virtual void introspect(const Property<char> &v) 
+        virtual void introspect(Property<char> &v) 
         { 
             *(this->s) << "<char id=\""<< v.getName() 
                        <<"\" description=\"" << v.getDescription() <<"\">"
                        << v.get() << "</char>\n";
         }
-        virtual void introspect(const Property<int> &v) 
+        virtual void introspect(Property<int> &v) 
         { 
             *(this->s) << "<int id=\""<< v.getName() 
                        <<"\" description=\"" << v.getDescription() <<"\">"
                        << v.get() << "</int>\n";
         }
 
-        virtual void introspect(const Property<unsigned int> &v) 
+        virtual void introspect(Property<unsigned int> &v) 
         { 
             *(this->s) << "<uint id=\""<< v.getName() 
                        <<"\" description=\"" << v.getDescription() <<"\">"
                        << v.get() << "</uint>\n";
         }
 
-        virtual void introspect(const Property<double> &v) 
+        virtual void introspect(Property<double> &v) 
         {
             *(this->s) << "<double id=\""<< v.getName() 
                        <<"\" description=\"" << v.getDescription() <<"\">"
                        << v.get() << "</double>\n";
         }
-        virtual void introspect(const Property<std::string> &v) 
+        virtual void introspect(Property<std::string> &v) 
         {
             *(this->s) << "<string id=\""<< v.getName() 
                        <<"\" description=\"" << v.getDescription() <<"\">"
                        << v.get() << "</string>\n";
         }
 
-        virtual void introspect(const Property<PropertyBag> &v) 
+        virtual void introspect(Property<PropertyBag> &v) 
         {
             introspect(v.get(), v.getName());
         }
@@ -113,7 +118,7 @@ namespace ORO_CoreLib
 
         virtual void flush() {}
 
-        virtual void serialize(const PropertyBase* p) {
+        virtual void serialize(PropertyBase* p) {
             p->identify(this);
         }
 				

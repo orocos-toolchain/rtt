@@ -2,6 +2,7 @@
 #define ORO_TYPEINFO_NAME_HPP
 
 #include "Types.hpp"
+#include "DataSourceTypeInfo.hpp"
 #include "Logger.hpp"
 
 namespace ORO_CoreLib

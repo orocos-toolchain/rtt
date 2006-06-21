@@ -50,6 +50,9 @@ namespace ORO_CoreLib
             event->fire();
             return true;
         }
+
+        void readArguments() {}
+
         CommandInterface* clone() const {
             return new CommandEmitEvent( event );
         }
