@@ -324,4 +324,13 @@ packages may define options which override these global flags."
 	calculated { "" }
     }
 
+    cdl_option OROPKG_OS_LXRT_CFLAGS_REMOVE {
+        display "Flags to remove for compiling"
+        description "
+RTAI/LXRT does not work well with -O3
+"
+        flavor data
+        default_value { "-O3" }
+    }
+
 }
