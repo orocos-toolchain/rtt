@@ -18,6 +18,7 @@
  
  
 
+#include <pkgconf/system.h>
 #include "state_test.hpp"
 #include <unistd.h>
 #include <iostream>
@@ -30,6 +31,9 @@
 #include <execution/TemplateFactories.hpp>
 #include <execution/StateMachine.hpp>
 
+#ifdef OROPKG_GEOMETRY
+#include <geometry/GeometryToolkit.hpp>
+#endif
 using namespace std;
 
 // Registers the fixture into the 'registry'
@@ -53,6 +57,8 @@ StateTest::setUp()
     gtc.eventService.addEvent( "d_event", &d_event );
     gtc.eventService.addEvent( "b_event", &b_event );
     i = 0;
+
+    RTT::Toolkit::Import(ORO_Geometry::GeometryToolkit);
 }
 
 
@@ -154,6 +160,11 @@ void StateTest::testParseState()
         + " var int    i_dummy = -1\n"
         + " var bool   varinit = false\n"
         + " var bool   b_dummy = true\n"
+#ifdef OROPKG_GEOMETRY
+        + " var vector v = vector(0.,0.,0.)\n"
+        + " var rotation r = rotation(0.,0.,0.)\n"
+        + " var frame f = frame(v,r)\n"
+#endif
         + " initial state INIT {\n"
         // XXX bug : preconditions are not checked in the initial state.
 //         + " preconditions {\n"
@@ -166,6 +177,11 @@ void StateTest::testParseState()
 //         + "     if (d_dummy != -1.) || (i_dummy != -1) then select PRE_VARFAIL\n"
 //         + " }\n"
         + " entry {\n"
+#ifdef OROPKG_GEOMETRY
+        + "     set v = vector(0.,0.,0.)\n"
+        + "     set r = rotation(0.,0.,0.)\n"
+        + "     var frame fe = frame(v,r)\n"
+#endif
         + "     set varinit = (d_dummy != -1.) || (i_dummy != -1) \n"
         + "     do test.instantDone()\n"
         + "     set d_dummy = 1.234\n"
