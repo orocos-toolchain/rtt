@@ -4,6 +4,7 @@
 #include <iostream>
 #include <execution/FunctionGraph.hpp>
 #include <execution/TemplateFactories.hpp>
+#include <execution/Ports.hpp>
 
 #include <corelib/SimulationActivity.hpp>
 #include <corelib/SimulationThread.hpp>
@@ -321,3 +322,54 @@ void Generic_TaskTest::testProperties()
 #endif
 }
 
+void Generic_TaskTest::testPorts()
+{
+    WriteDataPort<double> wdp("WDName");
+    ReadDataPort<double> rdp("RDName");
+
+    // Test initial value
+    wdp.Set( 1.0 );
+    CPPUNIT_ASSERT( wdp.Get() == 1.0 );
+
+    WriteBufferPort<double> wbp("WBName", 10);
+    ReadBufferPort<double> rbp("RBName");
+    BufferPort<double> bp("BName", 10);
+
+    tc->ports()->addPort( &wdp );
+    tc->ports()->addPort( &rdp );
+    tc->ports()->addPort( &wbp );
+    tc->ports()->addPort( &rbp );
+    tc->ports()->addPort( &bp );
+
+    // Test connection creation.
+    wdp.createConnection( &rdp )->connect();
+    wbp.createConnection( &rbp )->connect();
+    bp.connectTo( rbp.connection() );
+
+    CPPUNIT_ASSERT( wdp.connected() );
+    CPPUNIT_ASSERT( rdp.connected() );
+    CPPUNIT_ASSERT( wbp.connected() );
+    CPPUNIT_ASSERT( rbp.connected() );
+    CPPUNIT_ASSERT( bp.connected() );
+
+    // Test data transfer
+    CPPUNIT_ASSERT( rdp.Get() == 1.0 );
+    wdp.Set( 2.0 );
+    CPPUNIT_ASSERT( rdp.Get() == 2.0 );
+
+    double val;
+    CPPUNIT_ASSERT( wbp.Push( 5.0 ) );
+    CPPUNIT_ASSERT( rbp.Pop( val ) );
+    CPPUNIT_ASSERT( val == 5.0 );
+
+    CPPUNIT_ASSERT( wbp.Push( 6.0 ) );
+    CPPUNIT_ASSERT( bp.Pop( val ) );
+    CPPUNIT_ASSERT( val == 6.0 );
+
+    CPPUNIT_ASSERT( bp.Push( 5.0 ) );
+    CPPUNIT_ASSERT( bp.Pop( val ) );
+    CPPUNIT_ASSERT( val == 5.0 );
+    CPPUNIT_ASSERT( bp.Pop( val ) == false );
+
+
+}

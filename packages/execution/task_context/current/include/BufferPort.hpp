@@ -343,11 +343,11 @@ namespace ORO_Execution
         }
 
         virtual PortInterface* clone() const {
-            return new BufferPort<T>( this->getName(), buf_size, this->minitial_value );
+            return new BufferPort<T>( this->getName(), this->buf_size, this->minitial_value );
         }
 
         virtual PortInterface* antiClone() const {
-            return new BufferPort<T>( this->getName(), buf_size, this->minitial_value );
+            return new BufferPort<T>( this->getName(), this->buf_size, this->minitial_value );
         }
 
         virtual DataSourceFactoryInterface* createDataSources() {

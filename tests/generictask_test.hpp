@@ -16,6 +16,7 @@ class Generic_TaskTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testMethodsC );
     CPPUNIT_TEST( testCommandsC );
     //CPPUNIT_TEST( testProperties );
+    CPPUNIT_TEST( testPorts );
     CPPUNIT_TEST_SUITE_END();
 
     TaskContext* tc;
@@ -58,6 +59,7 @@ public:
     void testCommandsC();
     void testProperties();
 
+    void testPorts();
 };
 
 #endif
