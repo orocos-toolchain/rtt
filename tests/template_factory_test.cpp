@@ -194,14 +194,14 @@ void Template_FactoryTest::testUserMethods()
         +" var array vout2\n"
         +" var array vout3\n"
         +" var array vout4\n"
-        //+" set vout1 = umethods.umv(vin)\n"
-        //+" do methods.assert( vin == vout1 )\n"
-        //+" set vout2 = umethods.umcv(vin)\n"
-        //+" do methods.assert( vin == vout2 )\n"
+        +" set vout1 = umethods.umv(vin)\n"
+        +" do methods.assert( vin == vout1 )\n"
+        +" set vout2 = umethods.umcv(vin)\n"
+        +" do methods.assert( vin == vout2 )\n"
         +" set vout3 = umethods.umcrv(vin)\n"
         +" do methods.assert( vin == vout3 )\n"
-        //+" set vout4 = umethods.umrv(vin)\n"
-        //+" do methods.assert( vin == vout4 )\n"
+        +" set vout4 = umethods.umrv(vin)\n"
+        +" do methods.assert( vin == vout4 )\n"
         +"}";
     Parser::ParsedPrograms pg_list;
     try {
