@@ -51,6 +51,8 @@ class ProgramTest : public CppUnit::TestFixture
     MethodFactoryInterface* createMethodFactory();
     CommandFactoryInterface* createCommandFactory();
     DataSourceFactoryInterface* createDataSourceFactory();
+    Attribute<int> var_i;
+    Constant<int>* const_i;
     bool assertBool( bool );
     bool assertMsg( bool, const std::string& msg);
     int increase();

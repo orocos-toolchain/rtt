@@ -264,7 +264,7 @@ bool KernelBaseFunction::refreshProperties() {
 
 bool KernelBaseFunction::exportProperties(AttributeRepository& bag)
 {
-    return bag.addConstant( frequency.getName(), frequency.get() ) &&
+    return bag.addConstant( frequency.getName(), new Constant<double>(frequency.getAssignableDataSource().get()) ) &&
         bag.addProperty( &startupSensor) &&
         bag.addProperty( &startupEstimator) &&
         bag.addProperty( &startupGenerator) &&

@@ -26,12 +26,13 @@
  ***************************************************************************/
  
  
-#ifndef ORO_TASKATTRIBUTE_HPP
-#define ORO_TASKATTRIBUTE_HPP
+#ifndef ORO_CORELIB_ATTRIBUTE_HPP
+#define ORO_CORELIB_ATTRIBUTE_HPP
 
 #include "DataSource.hpp"
 #include "DataSources.hpp"
 #include "AttributeBase.hpp"
+#include "BuildType.hpp"
 
 namespace ORO_CoreLib
 {
@@ -50,7 +51,7 @@ namespace ORO_CoreLib
          * Create an Attribute with a default value.
          */
         Attribute()
-            : data( new ValueDataSource<T>() )
+            : data( detail::BuildType<T>::Value( T() ) )
         {
         }
 
@@ -58,7 +59,7 @@ namespace ORO_CoreLib
          * Create an Attribute with a value \a t.
          */
         explicit Attribute(T t)
-            : data( new ValueDataSource<T>( t ) )
+            : data( detail::BuildType<T>::Value( t ) )
         {
         }
 

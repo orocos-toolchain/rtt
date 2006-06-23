@@ -30,10 +30,10 @@ namespace ORO_CoreLib
      * This class tells Orocos how to handle std::vector<double>.
      */
     struct StdVectorTypeInfo
-        : public TemplateContainerTypeInfo<const std::vector<double>&, int, double, ArrayIndexChecker<std::vector<double> >, SizeAssignChecker<std::vector<double> >, true >
+        : public TemplateContainerTypeInfo<std::vector<double>, int, double, ArrayIndexChecker<std::vector<double> >, SizeAssignChecker<std::vector<double> >, true >
     {
         StdVectorTypeInfo( std::string name )
-            : TemplateContainerTypeInfo<const std::vector<double>&, int, double, ArrayIndexChecker<std::vector<double> >, SizeAssignChecker<std::vector<double> >, true >(name)
+            : TemplateContainerTypeInfo<std::vector<double>, int, double, ArrayIndexChecker<std::vector<double> >, SizeAssignChecker<std::vector<double> >, true >(name)
         {}
 
         bool decomposeTypeImpl(const std::vector<double>& vec, PropertyBag& targetbag) const
@@ -89,7 +89,7 @@ namespace ORO_CoreLib
         // string is a special case for assignment, we need to assign from the c_str() instead of from the string(),
         // the latter causes capacity changes, probably due to the copy-on-write implementation of string(). Assignment
         // from a c-style string obviously disables a copy-on-write connection.
-        ti->addType( new TemplateContainerTypeInfo<const std::string&, int, char, ArrayIndexChecker<std::string>,AlwaysAssignChecker<std::string>, true >("string") );
+        ti->addType( new TemplateContainerTypeInfo<std::string, int, char, ArrayIndexChecker<std::string>,AlwaysAssignChecker<std::string>, true >("string") );
         
         return true;
     }

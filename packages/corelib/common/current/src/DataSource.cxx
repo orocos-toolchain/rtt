@@ -25,6 +25,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "corelib/DataSource.hpp"
+#include "corelib/TypeInfoName.hpp"
 
 #include <pkgconf/os.h>
 #ifdef OROINT_OS_CORBA
@@ -87,6 +88,10 @@ namespace ORO_CoreLib
         return false;
     }
 #endif
+
+    void DataSourceBase::updated()
+    {}
+
 
     CommandInterface* DataSourceBase::updateCommand( DataSourceBase* ) {
         return 0;
@@ -240,7 +245,7 @@ namespace ORO_CoreLib
         const std::string& DataSourceTypeInfo<UnknownType>::getQualifier() { return noqual; }
         const TypeInfo* DataSourceTypeInfo<UnknownType>::getTypeInfo() { 
             if (!TypeInfoObject)
-                TypeInfoObject = new TemplateTypeInfo<UnknownType,false>("unknown type");
+                TypeInfoObject = new TypeInfoName<UnknownType>("unknown type");
             return TypeInfoObject; 
         }
 

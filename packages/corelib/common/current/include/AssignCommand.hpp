@@ -135,6 +135,7 @@ namespace ORO_CoreLib
                 Index ind = i->get();
                 if ( Pred()( lhs->get(), ind) && &(lhs->set()) != 0 ) {
                     lhs->set()[ ind ] = rhs->value();
+                    lhs->updated();
                     return true;
                 }
                 return false;

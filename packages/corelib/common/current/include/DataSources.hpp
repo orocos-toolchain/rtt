@@ -52,7 +52,7 @@ namespace ORO_CoreLib
      * Specialisation for const std::string& to keep capacity when set( ... ) is called.
      */
     template<>
-    void ValueDataSource<const std::string&>::set(  AssignableDataSource<const std::string&>::param_t t );
+    void ValueDataSource<std::string>::set(  AssignableDataSource<std::string>::param_t t );
 
 
     /**
@@ -149,15 +149,16 @@ namespace ORO_CoreLib
         CommandInterface* updateCommand( DataSourceBase* other) 
         {
             DataSourceBase::const_ptr r( other );
-            const DataSource<T>* t = DataSource<T>::narrow( r.get() );
-            if ( t )
-                return new detail::AssignContainerCommand<T,APred>( this, t );
-            const DataSource< typename AssignableDataSource<T>::const_reference_t >* ct
-                = DataSource< typename AssignableDataSource<T>::const_reference_t >::narrow( r.get() );
+            typedef typename AssignableDataSource<T>::copy_t copy_t;
+            DataSource< copy_t >* ct = AdaptDataSource<copy_t>()( other );
             if ( ct )
-                return new detail::AssignContainerCommand<T,APred, typename AssignableDataSource<T>::const_reference_t >( this, ct );
+                return new detail::AssignContainerCommand<T,APred,copy_t >( this, ct );
 
+#ifndef ORO_EMBEDDED
+            throw bad_assignment();
+#else
             return 0;
+#endif
         }
 
         CommandInterface* updatePartCommand( DataSourceBase* index, DataSourceBase* rhs )

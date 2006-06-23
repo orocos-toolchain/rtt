@@ -387,6 +387,47 @@ namespace ORO_CoreLib
     };
 #endif
     /**
+     * AssignableDataSourceAdaptor allows a conversion from an AssignableDataSource<T>
+     * to DataSource<T> which will return the result of the AssignableDataSource<T>::rvalue()
+     * method in its get() (thus a reference to a heaped value).
+     */
+    template<class From>
+    struct AssignableDataSourceAdaptor<From, const From& >
+        : public DataSource<const From&>
+    {
+        typedef const From& To;
+        typename AssignableDataSource<From>::shared_ptr orig_;
+
+        AssignableDataSourceAdaptor( typename AssignableDataSource<From>::shared_ptr orig)
+            : orig_(orig) {}
+
+        virtual typename DataSource<To>::result_t get() const { return orig_->rvalue(); }
+
+        virtual typename DataSource<To>::result_t value() const { return orig_->rvalue(); }
+
+        virtual void reset() { orig_->reset(); }
+
+        virtual bool evaluate() const { return orig_->evaluate(); }
+
+        virtual DataSource<To>* clone() const {
+            return new AssignableDataSourceAdaptor( orig_->clone() );
+        }
+
+        virtual DataSource<To>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+            std::map<const DataSourceBase*,  DataSourceBase*>::iterator i = alreadyCloned.find( this );
+            if ( i == alreadyCloned.end() ) {
+                AssignableDataSourceAdaptor<From,To>* n = new AssignableDataSourceAdaptor<From,To>( orig_->copy( alreadyCloned) );
+                alreadyCloned[this] = n;
+                return n;
+            }
+            typedef AssignableDataSourceAdaptor<From,To> CastType;
+            assert( dynamic_cast< CastType* >( i->second ) == static_cast< CastType* >( i->second ) );
+            return static_cast< CastType* >( i->second );
+        }
+
+    };
+
+    /**
      * AssignableDataSourceAdaptor allows a conversion from an AssignableDataSource<const& T>
      * to AssignableDataSource<T>. Properties work with the latter.
      */
@@ -415,6 +456,10 @@ namespace ORO_CoreLib
         virtual void reset() { orig_->reset(); }
 
         virtual bool evaluate() const { return orig_->evaluate(); }
+
+        virtual bool updatePart( DataSourceBase* part, DataSourceBase* other ) { return orig_->updatePart( part, other); }
+
+        virtual CommandInterface* updatePartCommand( DataSourceBase* part, DataSourceBase* other) { return orig_->updatePartCommand(part, other ); }
 
         virtual AssignableDataSource<To>* clone() const {
             return new AssignableDataSourceAdaptor( orig_->clone() );
@@ -489,10 +534,13 @@ namespace ORO_CoreLib
             if (t1)
                 return t1;
 
+#if 0
+            // Does this case exist ?
             // Assignable const ref case
             AssignableDataSource<const Result&>* t2 = AssignableDataSource<const Result&>::narrow( dsb.get() );
             if ( t2 )
                 return new detail::AssignableDataSourceAdaptor<const Result&, Result>( t2 ); // will return AssignableDS !
+#endif
 
 #ifndef ORO_EMBEDDED
             // ref to assignable value case
@@ -602,7 +650,7 @@ namespace ORO_CoreLib
 
     /**
      * Try to adapt a DataSourceBase to a DataSource< by const reference > 
-     * Allows all conversions.
+     * Allows all conversions. This one is used for assignments of class types.
      */
     template<class TResult>
     struct AdaptDataSource<const TResult&>
@@ -615,9 +663,16 @@ namespace ORO_CoreLib
                 return t1;
 
             // value to const ref case
+            // makes a copy !
             DataSource<TResult>* t2 = DataSource<TResult>::narrow( dsb.get() );
             if ( t2 )
                 return new detail::DataSourceAdaptor<TResult, const TResult&>( t2 );
+
+            // assignable case: this is a more efficient implementation than the one above (t2)
+            // does not involve a copy.
+            AssignableDataSource<TResult>* ta1 =  AssignableDataSource<TResult>::narrow( dsb.get() );
+            if (ta1 && &(ta1->set()) != 0 ) // check for null set()
+                return new detail::AssignableDataSourceAdaptor<TResult, const TResult&>( ta1 );
 
 #ifndef ORO_EMBEDDED
             // ref to const ref case
@@ -630,10 +685,6 @@ namespace ORO_CoreLib
             if ( t4 )
                 return new detail::DataSourceAdaptor<const TResult, const TResult&>( t4 );
 
-            // assignable case
-            AssignableDataSource<TResult>* ta1 =  AssignableDataSource<TResult>::narrow( dsb.get() );
-            if (ta1 && &(ta1->set()) != 0 ) // check for null set()
-                return new detail::AssignableDataSourceAdaptor<TResult, const TResult&>( ta1 );
 #endif
 
             // complete type failure.

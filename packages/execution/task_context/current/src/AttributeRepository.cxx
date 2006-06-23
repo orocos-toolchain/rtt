@@ -76,7 +76,7 @@ namespace ORO_Execution
   }
 
     bool AttributeRepository::addProperty( ORO_CoreLib::PropertyBase* pb ) {
-        if ( isDefined( pb->getName() ) || (bag && bag->find( pb->getName() ) != 0) )
+        if ( bag && bag->find( pb->getName() ) )
             return false;
         if ( bag == 0 )
             bag = new ORO_CoreLib::PropertyBag();

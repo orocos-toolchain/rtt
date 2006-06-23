@@ -51,10 +51,6 @@ namespace ORO_CoreLib
   template< typename T>
   const TypeInfo* DataSource<T>::GetTypeInfo() { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
 
-    template< typename T>
-    void DataSource<T>::updated()
-    {}
-
   template< typename T>
   bool DataSource<T>::evaluate() const
   {
@@ -245,12 +241,11 @@ namespace ORO_CoreLib
 
     template<class T>
     CommandInterface* AssignableDataSource<T>::updateCommand( DataSourceBase* other) {
-        // WARNING: This does not work when T is a const reference and other is not !
-        // use AdaptDataSource<T>()( r )
+        // Use the same rules of parameter passing as C++, but no const for 'int',...
         DataSourceBase::shared_ptr r( other );
-        typename DataSource<T>::shared_ptr t = AdaptDataSource<T>()( r );
+        typename DataSource<copy_t>::shared_ptr t = AdaptDataSource<copy_t>()( r );
         if ( t )
-            return new detail::AssignCommand<T>( this, t );
+            return new detail::AssignCommand<T,copy_t>( this, t );
 
 #ifndef ORO_EMBEDDED
         throw bad_assignment();

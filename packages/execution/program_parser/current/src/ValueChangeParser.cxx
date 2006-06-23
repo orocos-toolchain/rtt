@@ -379,8 +379,30 @@ namespace ORO_Execution
       //assert( !expressionparser.hasResult() );
 
       if ( index_ds && prop ) {
-          throw parse_exception_semantic_error(
-              "Cannot use index with Property<"+prop->getType()+"> " + valuename + " inside PropertyBag. Not Implemented. Add Propery as Attribute to allow index assignment." );
+//           throw parse_exception_semantic_error(
+//               "Cannot use index with Property<"+prop->getType()+"> " + valuename + " inside PropertyBag. Not Implemented. Add Propery as Attribute to allow index assignment." );
+          CommandInterface* ac;
+#ifndef ORO_EMBEDDED
+          try {
+              ac = prop->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
+          }
+          catch( const bad_assignment& e) {
+              // type-error :
+              throw parse_exception_semantic_error(
+                    "Impossible to assign "+valuename+"[ "+index_ds->getTypeName()+" ] to value of type "+expr->getTypeName()+".");
+          }
+          // not allowed :
+          if ( !ac )
+              throw parse_exception_semantic_error(
+                     "Cannot use index with constant, alias or non-indexed value \"" + valuename + "\"." );
+          assigncommands.push_back( ac );
+#else
+          ac = prop->getDataSource()->updatePartCommand( index_ds.get(), expr.get() );
+          if (ac)
+              assigncommands.push_back( ac );
+          else
+              return;
+#endif
       }
 
       if ( index_ds && var ) {

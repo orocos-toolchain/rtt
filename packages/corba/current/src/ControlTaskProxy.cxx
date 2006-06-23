@@ -190,8 +190,7 @@ namespace ORO_Corba
             AssignableExpression_var as_expr = AssignableExpression::_narrow( expr.in() );
             // addProperty also adds as attribute...
             if ( CORBA::is_nil( as_expr ) ) {
-                Logger::log() <<Logger::Error <<"Property "<< string(props[i].name.in()) << " was not writable ! Adding as constant attribute."<<Logger::endl;
-                this->attributes()->setValue( string( props[i].name.in() ), new Constant<CORBA::Any_ptr>( new CORBAExpression<CORBA::Any_ptr>( expr.in() ) ) );
+                Logger::log() <<Logger::Error <<"Property "<< string(props[i].name.in()) << " was not writable !"<<Logger::endl;
             } else {
                 // If the type is known, immediately build the correct property and datasource,
                 // otherwise, build a property of CORBA::Any.
@@ -201,11 +200,11 @@ namespace ORO_Corba
                 if ( ti ) {
                     this->attributes()->addProperty( ti->buildProperty( props[i].name.in(), props[i].description.in(), 
                                                                         ti->buildCorbaProxy( as_expr.in() ) ) );
-                    Logger::log() <<" found!"<<Logger::endl;
+                    Logger::log() <<Logger::Info <<" found!"<<Logger::endl;
                 }
                 else {
                     this->attributes()->addProperty( new Property<CORBA::Any_ptr>( string(props[i].name.in()), string(props[i].description.in()), new CORBAAssignableExpression<Property<CORBA::Any_ptr>::DataSourceType>( as_expr.in() ) ) );
-                    Logger::log() <<" not found :-("<<Logger::endl;
+                    Logger::log()  <<Logger::Info<<" not found :-("<<Logger::endl;
                 }
             }
         }

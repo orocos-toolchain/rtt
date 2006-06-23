@@ -8,42 +8,20 @@
 namespace ORO_CoreLib
 {
     /**
-     * This helper class allows only type names to be added to Orocos.
-     * @warning OR use this class OR use TemplateTypeInfo to describe
-     * your type, not both.
-     * @see TemplateTypeInfo for adding full type info to Orocos.
+     * Empty implementation of TypeInfo interface.
      */
-    template<typename T>
-    class TypeInfoName
+    class EmptyTypeInfo
         : public TypeInfo
     {
         const std::string tname;
     public:
-        /**
-         * The given \a T parameter is the type for reading DataSources.
-         */
-        typedef T UserType;
-
-        /**
-         * Setup Type Name Information for type \a name.
-         * This causes a switch from 'unknown' type to basic
-         * type information for type T.
-         * @param name the 'Orocos' type name.
-         * 
-         */
-        TypeInfoName(std::string name) 
+        EmptyTypeInfo(std::string name) 
             : tname(name)
         {
-            Logger::In in("TypeInfoName");
-            // Install the type info object for T.
-            if ( ORO_CoreLib::detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject != 0) {
-                Logger::log() << Logger::Warning << "Overriding TypeInfo for '" 
-                              << ORO_CoreLib::detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject->getTypeName()
-                              << "'." << Logger::endl;
-                delete ORO_CoreLib::detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject;
-            }
-            ORO_CoreLib::detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
         }
+
+        using TypeInfo::buildConstant;
+        using TypeInfo::buildVariable;
 
         AttributeBase* buildConstant(DataSourceBase::shared_ptr dsb) const
         {
@@ -89,25 +67,25 @@ namespace ORO_CoreLib
 
         virtual std::ostream& write( std::ostream& os, DataSourceBase::shared_ptr in ) const {
             Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not write type "<<tname<<"."<<Logger::endl;
+            Logger::log() << Logger::Error << "Can not write "<<tname<<"."<<Logger::endl;
             return os;
         }
 
         virtual bool decomposeType( DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {
             Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not decompose type "<<tname<<"."<<Logger::endl;
+            Logger::log() << Logger::Error << "Can not decompose "<<tname<<"."<<Logger::endl;
             return false;
         }
 
         virtual bool composeType( DataSourceBase::shared_ptr source, DataSourceBase::shared_ptr result) const {
             Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not compose type "<<tname<<"."<<Logger::endl;
+            Logger::log() << Logger::Error << "Can not compose "<<tname<<"."<<Logger::endl;
             return false;
         }
 
         virtual CORBA::Any* createAny(DataSourceBase::shared_ptr source) const {
             Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not create Any of type "<<tname<<"."<<Logger::endl;
+            Logger::log() << Logger::Error << "Can not create Any of "<<tname<<"."<<Logger::endl;
             return 0;
         }
 
@@ -119,8 +97,40 @@ namespace ORO_CoreLib
 
         virtual DataSourceBase* buildCorbaProxy( Orocos::Expression* e ) const {
             Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not create Corba Proxy of type "<<tname<<"."<<Logger::endl;
+            Logger::log() << Logger::Error << "Can not create Corba Proxy of "<<tname<<"."<<Logger::endl;
             return 0;
+        }
+    };
+
+    /**
+     * This helper class allows only type names to be added to Orocos.
+     * @warning OR use this class OR use TemplateTypeInfo to describe
+     * your type, not both.
+     * @see TemplateTypeInfo for adding full type info to Orocos.
+     */
+    template<typename T>
+    struct TypeInfoName 
+        : public EmptyTypeInfo
+    {
+        /**
+         * Setup Type Name Information for type \a name.
+         * This causes a switch from 'unknown' type to basic
+         * type information for type T.
+         * @param name the 'Orocos' type name.
+         * 
+         */
+        TypeInfoName(std::string name) 
+            : EmptyTypeInfo(name) 
+        {
+            Logger::In in("TypeInfoName");
+            // Install the type info object for T.
+            if ( ORO_CoreLib::detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject != 0) {
+                Logger::log() << Logger::Warning << "Overriding TypeInfo for '" 
+                              << ORO_CoreLib::detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject->getTypeName()
+                              << "'." << Logger::endl;
+                delete ORO_CoreLib::detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject;
+            }
+            ORO_CoreLib::detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
         }
     };
 

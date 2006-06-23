@@ -50,26 +50,6 @@ namespace ORO_Execution
         map_t values;
         ORO_CoreLib::PropertyBag* bag;
 
-        // check the validity of an index
-        template< class T>
-        struct ArrayIndexChecker
-            : public std::binary_function< T, int, bool>
-        {
-            bool operator()(const T& v, int i ) const
-            {
-                return i > -1 && i < (int)(v.size());
-            }
-        };
-
-        template< class T>
-        struct ArrayAssignChecker
-            : public std::binary_function< T, T, bool>
-        {
-            bool operator()(const T& , const T& ) const
-            {
-                return true;
-            }
-        };
     public:
 
         /**
@@ -105,10 +85,9 @@ namespace ORO_Execution
          * Add a Constant with a given value.
          * @see getConstant
          */
-        template<class T>
-        bool addConstant( const std::string& name, T value )
+        bool addConstant( const std::string& name, ORO_CoreLib::AttributeBase* c)
         {
-            return setValue( name, new ORO_CoreLib::Constant<T>( value ) );
+            return setValue( name, c->clone() );
         }
 
         /**
@@ -124,27 +103,6 @@ namespace ORO_Execution
         }
 
         /**
-         * Add a Attribute with a given value.
-         * @see getAttribute
-         */
-        template<class T>
-        bool addAttribute( const std::string& name, T value )
-        {
-            return setValue( name, new ORO_CoreLib::Attribute<T>( value ));
-        }
-
-        /**
-         * Add a Attribute with a given value.
-         * @see getAttribute
-         */
-        template<class T>
-        bool addAttribute( const std::string& name, std::vector<T> value )
-        {
-            // return by reference type.
-            return setValue( name, new ORO_CoreLib::Attribute<const std::vector<T>&>( new ORO_CoreLib::IndexedValueDataSource<const std::vector<T>&,int,T,ArrayIndexChecker<std::vector<T> >, ArrayAssignChecker<std::vector<T> > >( value )));
-        }
-
-        /**
          * Add an ORO_CoreLib::AttributeBase which remains owned by the
          * user.
          */
@@ -153,34 +111,9 @@ namespace ORO_Execution
             return setValue( name, a->clone() );
         }
 
-
-        /**
-         * Add an ORO_CoreLib::Property<T> as an attribute, which then
-         * becomes also available as a Attribute<T>. The value of the Property
-         * and the Attribute will always be identical.
-         * @return false if an attribute with the same name already exists.
-         * @see getAttribute, removeProperty
-         */
-        template<class T>
-        bool addProperty( ORO_CoreLib::Property<T>* p ) {
-            ORO_CoreLib::AttributeBase* attr =  new ORO_CoreLib::Attribute<T>( p->getAssignableDataSource().get() );
-            bool result = setValue( p->getName(), attr );
-            if ( result ) {
-                if ( bag == 0 )
-                    bag = new ORO_CoreLib::PropertyBag();
-                bag->add( p );
-            } else
-                delete attr;
-            return result;
-        }
-
         /**
          * Add an ORO_CoreLib::PropertyBase as a property.
-         * This is an 'inferior' method compared to the above addProperty, since
-         * the property does not become available as an attribute. The Parsers can work
-         * a bit better with attributes than with properties, but this may improve in the
-         * future.
-         * @return false if an attribute or property with the same name already exists.
+         * @return false if a property with the same name already exists.
          * @see removeProperty
          */
         bool addProperty( ORO_CoreLib::PropertyBase* pb );

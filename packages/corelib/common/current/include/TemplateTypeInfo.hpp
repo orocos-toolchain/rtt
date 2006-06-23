@@ -418,6 +418,7 @@ namespace ORO_CoreLib
 
         DataSourceBase::shared_ptr buildValue() const
         {
+            Logger::log() <<Logger::Debug << "Building Container of "<< this->getTypeName()<<Logger::endl;
             return new IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<_T> >();
         }
 
@@ -470,6 +471,7 @@ namespace ORO_CoreLib
 
         DataSourceBase::shared_ptr buildValue() const
         {
+            Logger::log() <<Logger::Debug << "Building Indexable value of "<< this->getTypeName()<<Logger::endl;
             return new IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<T> >();
         }
 

@@ -124,6 +124,13 @@ namespace ORO_CoreLib
       virtual bool evaluate() const = 0;
 
       /**
+       * In case the DataSource returns a 'reference' type, 
+       * call this method to notify it that the data was updated
+       * in the course of an invocation of get().
+       */
+      virtual void updated();
+
+      /**
        * Update the value of this DataSource with the value of an \a other DataSource.
        * Update does a full update of the value, adding extra
        * information if necessary.

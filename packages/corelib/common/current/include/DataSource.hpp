@@ -90,13 +90,6 @@ namespace ORO_CoreLib
        */
       virtual result_t value() const = 0;
 
-      /**
-       * In case the DataSource returns a 'reference' type, 
-       * call this method to notify it that the data was updated
-       * in the course of an invocation of get().
-       */
-      virtual void updated();
-
       virtual bool evaluate() const;
 
       virtual DataSource<T>* clone() const = 0;
@@ -164,6 +157,11 @@ namespace ORO_CoreLib
       typedef typename boost::call_traits<value_t>::param_type param_t;
       typedef typename boost::call_traits<value_t>::reference reference_t;
       typedef typename boost::call_traits<value_t>::const_reference const_reference_t;
+
+      // For assignment from another datasource, we use the call_traits convention but
+      // remove the 'const' for the 'small' types. This to avoid requiring a DataSourceAdaptor.
+      // Big types (classes) are still passed by const&.
+      typedef typename boost::remove_const<typename boost::call_traits<value_t>::param_type>::type copy_t;
 
 #ifdef OROINT_OS_CORBA
       using DataSource<T>::server;

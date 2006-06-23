@@ -42,6 +42,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( ProgramTest );
 void 
 ProgramTest::setUp()
 {
+    const_i = new Constant<int>(-1);
     // ltc has a test object
     gtc.methodFactory.registerObject("test", this->createMethodFactory() );
     gtc.commandFactory.registerObject("test", this->createCommandFactory() );
@@ -52,8 +53,9 @@ ProgramTest::setUp()
     gtc.commandFactory.registerObject("this", this->createCommandFactory() );
     gtc.dataFactory.registerObject("this", this->createDataSourceFactory() );
 
-    gtc.attributeRepository.addAttribute("tvar_i", -1);
-    gtc.attributeRepository.addConstant("tconst_i", -1);
+    gtc.attributeRepository.addAttribute("tvar_i", &var_i);
+    gtc.attributeRepository.addConstant("tconst_i", const_i);
+    var_i.set(-1);
     i = 0;
 }
 
@@ -61,6 +63,7 @@ ProgramTest::setUp()
 void 
 ProgramTest::tearDown()
 {
+    delete const_i;
     SimulationThread::Instance()->stop();
     gtask.stop();
     gtc.methodFactory.unregisterObject( "test" );

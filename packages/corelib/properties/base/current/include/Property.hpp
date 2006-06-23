@@ -34,6 +34,7 @@
 #include "PropertyBag.hpp"
 #include "PropertyCommands.hpp"
 #include "DataSources.hpp"
+#include "BuildType.hpp"
 #include <boost/type_traits.hpp>
 
 #include <string>
@@ -83,8 +84,7 @@ namespace ORO_CoreLib
          * @param value The initial value of the property (optional).
          */
         Property(const std::string& name, const std::string& description, param_t value = value_t() )
-            : PropertyBase(name, description), _value( new ValueDataSource<DataSourceType>(value) )
-
+            : PropertyBase(name, description), _value( detail::BuildType<value_t>::Value( value ) )
         {
         }
 

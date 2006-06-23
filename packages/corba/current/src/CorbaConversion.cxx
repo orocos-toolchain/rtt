@@ -48,11 +48,11 @@ namespace ORO_CoreLib
                     if ( ti ) {
                         _value.add( ti->buildProperty( props[i].name.in(), props[i].description.in(), 
                                                                             ti->buildCorbaProxy( as_expr.in() ) ) );
-                        Logger::log() <<" found!"<<Logger::endl;
+                        Logger::log() <<Logger::Info<<" found!"<<Logger::endl;
                     }
                     else {
                         _value.add( new Property<CORBA::Any_ptr>( string(props[i].name.in()), string(props[i].description.in()), new ORO_Corba::CORBAAssignableExpression<Property<CORBA::Any_ptr>::DataSourceType>( as_expr.in() ) ) );
-                        Logger::log() <<" not found :-("<<Logger::endl;
+                        Logger::log() <<Logger::Info<<" not found :-("<<Logger::endl;
                     }
                 }
             }
