@@ -73,11 +73,16 @@ namespace ORO_Execution
             if ( wt == 0 || rt == 0 || wt->connection() || rt->connection() ){
                 Logger::log() <<Logger::Warning<< "ConnectionFactory could not create a BufferConnection between "<<writer->getName() <<" and "
                               << reader->getName() <<Logger::endl;
-                std::string msg = (wt == 0 ? "Writer has wrong type." : (rt == 0 ? "Reader has wrong type." : ( wt->connection() ? "Writer already connected." : "Reader already connected." )));
+                std::string msg = (wt == 0 ? "Writer is not a WriteBufferPort or has wrong data type."
+                                   : (rt == 0 ? "Reader is not a ReadBufferPort or has wrong data type."
+                                      : ( wt->connection() ? "Writer already connected. Use connectTo()."
+                                          : "Reader already connected. Use connectTo()." )));
                 Logger::log() << msg  << Logger::endl;
                 return 0;
             }
             
+            Logger::log() << Logger::Info<< "Creating a BufferConnection from "<<writer->getName() <<" to "
+                          << reader->getName() << " with size "<<size<<Logger::endl;
             if (type == ConnectionTypes::lockfree)
                 return new BufferConnection<T,ORO_CoreLib::BufferLockFree<T> >(wt, rt, size, initial_value);
             if (type == ConnectionTypes::locked)
@@ -96,11 +101,16 @@ namespace ORO_Execution
             if ( wt == 0 || rt == 0 || wt->connection() || rt->connection() ) {
                 Logger::log() <<Logger::Warning<< "ConnectionFactory could not create a DataConnection between "<<writer->getName() <<" and "
                               << reader->getName() << Logger::nl;
-                std::string msg = (wt == 0 ? "Writer has wrong type." : (rt == 0 ? "Reader has wrong type." : ( wt->connection() ? "Writer already connected." : "Reader already connected." )));
+                std::string msg = (wt == 0 ? "Writer is not a WriteDataPort or has wrong data type."
+                                   : (rt == 0 ? "Reader is not a ReadDataPort or has wrong data type."
+                                      : ( wt->connection() ? "Writer already connected. Use connectTo()."
+                                          : "Reader already connected. Use connectTo()" )));
                 Logger::log() << msg  << Logger::endl;
                 return 0;
             }
 
+            Logger::log() << Logger::Info<< "Creating a DataConnection from "<<writer->getName() <<" to "
+                          << reader->getName() <<Logger::endl;
             if (type == ConnectionTypes::lockfree)
                 return new DataConnection<T,ORO_CoreLib::DataObjectLockFree<T> >(wt, rt, initial_value);
             if (type == ConnectionTypes::locked)

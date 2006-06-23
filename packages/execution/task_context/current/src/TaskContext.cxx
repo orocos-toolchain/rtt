@@ -131,7 +131,7 @@ namespace ORO_Execution
             // Then try to get the peer port's connection
             PortInterface* peerport = peer->ports()->getPort( (*it)->getName() );
             if ( !peerport ) {
-                Logger::log() <<Logger::Info<< "Peer Task "<<peer->getName() <<" has no Port " << (*it)->getName() << Logger::endl;
+                Logger::log() <<Logger::Debug<< "Peer Task "<<peer->getName() <<" has no Port " << (*it)->getName() << Logger::endl;
                 continue;
             }
 
@@ -143,7 +143,7 @@ namespace ORO_Execution
                                   << "of peer Task "<<peer->getName() << " to existing connection." << Logger::endl;
                 }
                 else
-                    Logger::log() <<Logger::Error<< "Failed to connect Port" << (*it)->getName()
+                    Logger::log() <<Logger::Error<< "Failed to connect Port " << (*it)->getName()
                                   << " of peer Task "<<peer->getName() << " to existing connection." << Logger::endl;
                 continue;
             }
@@ -156,7 +156,7 @@ namespace ORO_Execution
                                   << " to existing connection of peer Task "<<peer->getName() << "." << Logger::endl;
                 }
                 else
-                    Logger::log() <<Logger::Error<< "Failed to connect Port" << (*it)->getName()
+                    Logger::log() <<Logger::Error<< "Failed to connect Port " << (*it)->getName()
                                   << " to existing connection of peer Task "<<peer->getName() << "." << Logger::endl;
                 continue;
             }
