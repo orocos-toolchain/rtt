@@ -210,7 +210,7 @@
 	Orocos has an application independent implementation of
 	a part of the CANOpen protocol, especially for IO and reading
 	SSI encoders. CANPie is used as the controller abstraction
-	(see <classname>ORO_DeviceDriver::CANPieController</classname>)and
+	(see <classname>CAN::CANPieController</classname>)and
 	a linux kernel module for the Philips SJA 1000 is provided. The
 	device driver works in realtime with RTAI/LXRT. Node Guarding
 	and proper setup/cleanup are implemented using the Orocos
