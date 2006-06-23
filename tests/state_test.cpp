@@ -58,7 +58,9 @@ StateTest::setUp()
     gtc.eventService.addEvent( "b_event", &b_event );
     i = 0;
 
+#ifdef OROPKG_GEOMETRY
     RTT::Toolkit::Import(ORO_Geometry::GeometryToolkit);
+#endif
 }
 
 
