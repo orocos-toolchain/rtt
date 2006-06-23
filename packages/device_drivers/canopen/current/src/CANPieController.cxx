@@ -30,8 +30,8 @@
 #include "can/CANPieController.hpp"
 
 #include <pkgconf/system.h>
-#ifdef OROPKG_CORELIB_TASKS
-#include <corelib/TaskNonPreemptible.hpp>
+#ifdef OROPKG_CORELIB_ACTIVITIES
+#include <corelib/NonPreemptibleActivity.hpp>
 #include <corelib/Logger.hpp>
 #endif
 
@@ -40,13 +40,13 @@
 
 namespace CAN
 {
-#ifdef OROPKG_CORELIB_TASKS
+#ifdef OROPKG_CORELIB_ACTIVITIES
     using namespace ORO_CoreLib;
 #endif
 
   CANPieController::CANPieController( double period,  bool interrupt ) :
-#ifdef OROPKG_CORELIB_TASKS
-    TaskNonPreemptible( period ), 
+#ifdef OROPKG_CORELIB_ACTIVITIES
+    NonPreemptibleActivity( period ), 
 #endif
     CANPieChannel(0),  process_in_int(interrupt), 
     total_recv(0), total_trns(0), failed_recv(0), failed_trns(0)

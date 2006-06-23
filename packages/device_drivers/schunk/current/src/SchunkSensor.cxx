@@ -51,7 +51,7 @@ namespace ORO_DeviceDriver
 {
 
     SchunkSensor::SchunkSensor( unsigned int devmin, unsigned int subd, double pollperiod ) 
-        : TaskPreemptible(pollperiod),
+        : PreemptibleActivity(pollperiod),
             SchunkSensorOutOfRange( Event::SYNSYN, "SchunkSensorOutOfRange" ),
             devminor( devmin ), subdevice( subd ), maxx( 0 ), maxy( 0 ), maxz( 0 ), maxTorqx( 0 ), maxTorqy( 0 ), maxTorqz( 0 )
     {

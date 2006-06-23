@@ -33,7 +33,7 @@
 #include <device_interface/DigitalInInterface.hpp>
 
 #ifdef OROCLS_DEVICE_DRIVERS_APCI1032_EVENTS
-#include <corelib/TaskPreemptible.hpp>
+#include <corelib/PreemptibleActivity.hpp>
 #include <corelib/Event.hpp>
 #include <corelib/ListenerRegistration.hpp>
 #endif
@@ -52,7 +52,7 @@ namespace ORO_DeviceDriver
           public DigitalInInterface
 #ifdef OROCLS_DEVICE_DRIVERS_APCI1032_EVENTS
           ,public ListenerRegistration, 
-          public TaskPreemptible // fast !
+          public PreemptibleActivity // fast !
 #endif
     {
 

@@ -36,7 +36,7 @@
 #include <corelib/EventInterfaces.hpp>
 #include <corelib/Event.hpp>
 #include <corelib/ListenerRegistration.hpp>
-#include <corelib/TaskPreemptible.hpp>
+#include <corelib/PreemptibleActivity.hpp>
 
 #include <fdi/ForceSensor6DInterface.hpp>
 
@@ -64,7 +64,7 @@ namespace ORO_DeviceDriver
 
     class SchunkSensor 
         : public ForceSensor6DInterface, 
-          public TaskPreemptible
+          public PreemptibleActivity
     {
         public:
             SchunkSensor( unsigned int devmin, unsigned int subd, double polltime );

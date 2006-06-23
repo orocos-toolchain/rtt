@@ -50,7 +50,7 @@ namespace ORO_DeviceDriver
           DigitalInInterface( name )
 #ifdef OROCLS_DEVICE_DRIVERS_APCI1032_EVENTS
           ,ListenerRegistration( &inputEvent ) // fires when state changed
-          ,TaskPreemptible(0.1)
+          ,PreemptibleActivity(0.1)
           ,inputEvent( Event::SYNSYN )
 #endif
     {

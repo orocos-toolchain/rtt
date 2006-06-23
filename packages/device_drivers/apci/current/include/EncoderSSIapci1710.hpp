@@ -22,7 +22,7 @@
 #include <pkgconf/system.h>
 
 #include <os/MutexLock.hpp>
-#include <corelib/TaskNonPreemptible.hpp>
+#include <corelib/NonPreemptibleActivity.hpp>
 #include <device_interface/EncoderInterface.hpp>
 #include <pkgconf/device_drivers_apci.h>
 
@@ -68,7 +68,7 @@ namespace ORO_DeviceDriver
  *        
  */
 
-class EncoderSSI_apci1710_board : public ORO_CoreLib::TaskNonPreemptible
+class EncoderSSI_apci1710_board : public ORO_CoreLib::NonPreemptibleActivity
 {
 public:
     EncoderSSI_apci1710_board( unsigned int mNr1 );

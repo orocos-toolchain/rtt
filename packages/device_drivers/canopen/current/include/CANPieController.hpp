@@ -33,8 +33,8 @@
 #include "CANMessage.hpp"
 
 #include <pkgconf/system.h>
-#ifdef OROPKG_CORELIB_TASKS
-#include <corelib/TaskNonPreemptible.hpp>
+#ifdef OROPKG_CORELIB_ACTIVITIES
+#include <corelib/NonPreemptibleActivity.hpp>
 #endif
 
 #include "cpuser.h"
@@ -42,7 +42,7 @@
 namespace CAN
 {
 
-#ifdef OROPKG_CORELIB_TASKS
+#ifdef OROPKG_CORELIB_ACTIVITIES
   using namespace ORO_CoreLib;
 #endif
   /**
@@ -51,8 +51,8 @@ namespace CAN
    */
   class CANPieController
     : public CANControllerInterface
-#ifdef OROPKG_CORELIB_TASKS
-    ,public TaskNonPreemptible
+#ifdef OROPKG_CORELIB_ACTIVITIES
+    ,public NonPreemptibleActivity
 #endif
   {
   public:
