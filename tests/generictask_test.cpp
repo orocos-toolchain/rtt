@@ -361,7 +361,7 @@ void Generic_TaskTest::testAttributes()
 #ifdef OROPKG_GEOMETRY
     using namespace ORO_Geometry;
     Attribute<Frame> f1(Frame::Identity());
-    tc->attributes()->addAttribute( &f1 );
+    tc->attributes()->addAttribute("f1", &f1 );
 #endif
 }
 
