@@ -50,23 +50,36 @@ namespace ORO_CoreLib
 
     void PropertyBag::add(PropertyBase *p)
     {
-        _properties.push_back(p);
+        this->addProperty(p);
     }
 
     void PropertyBag::remove(PropertyBase *p)
     {
+        this->removeProperty(p);
+    }
+
+    bool PropertyBag::addProperty(PropertyBase *p)
+    {
+        _properties.push_back(p);
+        return true;
+    }
+
+    bool PropertyBag::removeProperty(PropertyBase *p)
+    {
         iterator i = _properties.begin();
         i = _properties.end();
         i = std::find(_properties.begin(), _properties.end(), p);
-        if ( i != _properties.end() )
+        if ( i != _properties.end() ) {
             _properties.erase(i);
+            return true;
+        }
+        return false;
     }
 
     void PropertyBag::clear()
     {
         _properties.clear();
     }
-
 
     void PropertyBag::list(std::vector<std::string> &names) const
     {

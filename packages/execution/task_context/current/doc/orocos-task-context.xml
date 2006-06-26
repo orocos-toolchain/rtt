@@ -744,6 +744,7 @@ cd                  quit
       <programlisting>  a_task.ports();
   a_task.methods();
   a_task.attributes();
+  a_task.properties();
   a_task.commands();
   a_task.events();
       </programlisting>
@@ -815,7 +816,7 @@ cd                  quit
     MyTask(std::string name)
       : <classname>ORO_Execution::GenericTaskContext</classname>(name),
         indatPort("Data_R"),
-	outdatPort("Data_W"),
+	outdatPort("Data_W", 1.0),  // note: initial value
 	inbufPort("SetPoint_X"),
 	outbufPort("Packet_1", 15), // note: buffer size
 	rwbufPort("Packet_2", 30)
@@ -849,6 +850,16 @@ cd                  quit
 	value with the <function>setBufferSize()</function>
 	function of the Port.
       </para>
+      <para>
+	Finally, a 'write' port can take an initial value in the
+	constructor as well. This value will be used when the connection
+	between two ports is created in order to initialise the connection.
+	If a 'write' port is connected to an existing connection, the
+	initial value (and buffer size) are ignored and the settings of
+	the existing connection are not touched. You can modify the
+	initial value with the 'Set( value )' function in both Buffer
+	and Data write ports.
+      </para>
       <note>
 	<para>
 	  Alternatively, you can connect buffers in your
@@ -856,11 +867,11 @@ cd                  quit
 	  <programlisting>  #include &lt;execution/ConnectionFactory.hpp&gt;
   // ...
   int buf_size = 100;
-  ConnectionFactory&lt;double&gt; cf;
-  ConnectionInterface::shared_ptr con =
+  <classname>ORO_Execution::ConnectionFactory</classname>&lt;double&gt; cf;
+  <classname>ORO_Execution::ConnectionInterface</classname>::shared_ptr con =
     cf.createBuffer(a_task->ports()->getPort("SetPoint_X"), 
-                            b_task->ports()->getPort("SetPoint_X"), 
-                            buf_size);
+                    b_task->ports()->getPort("SetPoint_X"), 
+                    buf_size);
   if (con)
      con->connect();</programlisting>
 	<emphasis>before</emphasis> the tasks are connected. 
@@ -898,18 +909,18 @@ cd                  quit
      bool update() {
        // Read and write the Data Flow:
        // Unbuffered:
-       double val = indatPort.data()->Get();
+       double val = indatPort.Get();
        // <emphasis>calculate...</emphasis>
-       outdatPort.data()->Set( val );
+       outdatPort.Set( val );
 
        // Buffered:
-       if ( inbufPort.read()->Pop( val ) ) {
+       if ( inbufPort.Pop( val ) ) {
           // <emphasis>calculate...</emphasis>
        } else {
           // buffer empty.
        }
 
-       if ( outbufPort.write()->Push( val ) ) {
+       if ( outbufPort.Push( val ) ) {
           // ok.
        } else {
           // buffer full.
@@ -921,14 +932,21 @@ cd                  quit
 	  It is wise to check in the <function>startup()</function>
 	  function if all necessary ports are <function>connected()</function>.
 	  At this point, the task startup can still be aborted by
-	  returning false.
+	  returning false. Otherwise, a write to a port
+	  will be discarded, while a read returns the initial value
+	  or the default value. A Pop of a disconnected port will
+	  always return false.
+	</para>
+	<section><title>Connection Container Interface</title>
+	<para>
+	  A port's connection can be accessed through the
+	  connection() method. To access the data within the connection
+	  (the container), a special method is provided by each port.
 	</para>
 	<para>
-	  The data is read, processed and written in the
-	  <function>update()</function> function of the task.  A Data
-	  Port's data can be accessed by the
-	  <function>data()</function> function, while a Buffer Port's
-	  buffer can be accessed by the
+	  A DataPort's data container can be accessed by the
+	  <function>data()</function> function, while a BufferPort's
+	  buffer container can be accessed by the
 	  <function>read()</function>,<function>write()</function> and
 	  <function>buffer()</function> functions for read-only,
 	  write-only and read-write buffers respectively.  More
@@ -1205,9 +1223,10 @@ cd                  quit
     <section id="method-args-types">
       <title>Method Argument and Return Types</title>
       <para>
-	The arguments can be of any type. However, to be compatible with
-	the Orocos Program Parser variables, it is best to follow the following 
-	guidelines :
+	The arguments can be of any class type and type qualifier
+	(const, &amp;, *,...). However, to be compatible with the
+	Orocos Program Parser variables, it is best to follow the
+	following guidelines :
 	<table id="method-args-table">
 	  <title>Method Return &amp; Argument Types</title>
 	  <tgroup cols="3">
@@ -1231,26 +1250,17 @@ cd                  quit
 	      </row>
 	      <row>
 		<entry>Orocos Fixed Container types : ORO_CoreLib::Double6D, ORO_Geometry::[Frame | Rotation | Twist | ... ]</entry>
-		<entry><emphasis>value</emphasis> (no const, no reference )</entry>
+		<entry><emphasis>const &amp;</emphasis></entry>
 		<entry>double6d, frame, rotation, twist, ...</entry>
 	      </row>
 	    </tbody>
 	  </tgroup>
 	</table>
-	Other types than these listed in <xref
-	linkend="method-args-table" /> (such as : unsigned int, float,
-	std::map, MyClass*, ... ) are allowed, but will be incompatible with
-	parsed programs and state machines, meaning, the result or
-	arguments can not be stored in a parser variable, but can be
-	passed on from method to method, by using the return value of
-	one method as argument of another method. Also, using dynamic allocating
-	types, will cause memory allocation allong the path, unless proper
-	action is taken since the parser copies all types <emphasis>by value</emphasis>.
       </para>
       <para>
-	A method can also take pointers as arguments or return pointers to objects,
-	but the parser will (unless properly extended) not be able to store them
-	in a parser variable.
+	Summarised, every non-class argument is best passed by value,
+	and every class type is best passed by const reference. The parser
+	does handle references (&amp;) in the arguments or return type as well.
       </para>
   </section>
   <section id="task-attr-rep">
@@ -1278,8 +1288,8 @@ cd                  quit
     <section>
       <title>Adding Task Attributes or Properties</title>
       <para>
-	An attribute can be added in the task's
-	<classname>ORO_Execution::AttributeRepository</classname> like this :</para>
+	An attribute can be added in the task's interface
+	(<classname>ORO_Execution::AttributeRepository</classname>) like this :</para>
       <para>
 	<programlisting>  #include &lt;corelib/Property.hpp>
   #include &lt;corelib/Attribute.hpp>
@@ -1287,6 +1297,11 @@ cd                  quit
   class MyTask
     : public <classname>ORO_Execution::GenericTaskContext</classname>
   {
+     <classname>ORO_CoreLib::Attribute</classname>&lt;bool&gt; aflag;
+     <classname>ORO_CoreLib::Attribute</classname>&lt;int&gt; max;
+
+     <classname>ORO_CoreLib::Constant</classname>&lt;double&gt; pi;
+
      <classname>ORO_CoreLib::Property</classname>&lt;std::string&gt; param;
      <classname>ORO_CoreLib::Property</classname>&lt;double&gt; value;
   public:
@@ -1294,60 +1309,42 @@ cd                  quit
     MyTask(std::string name)
       : <classname>ORO_Execution::GenericTaskContext</classname>(name),
         param("Param","Param Description","The String"),
-	value("Value","Value Description", 1.23 )
+	value("Value","Value Description", 1.23 ),
+	aflag(false), max( 5 ),
+	pi( 3.14 )
     {
        // other code here...
 
-       this->attributes()->addAttribute( "aflag", bool(false) );
-       this->attributes()->addAttribute( "max",   int(5) );
+       this->attributes()->addAttribute( "aflag", &amp;aflag );
+       this->attributes()->addAttribute( "max",   &amp;max );
       
-       this->attributes()->addProperty( &amp;param );
-       this->attributes()->addProperty( &amp;value );
+       this->attributes()->addConstant( "pi",   &amp;pi );
+
+       this->properties()->addProperty( &amp;param );
+       this->properties()->addProperty( &amp;value );
      }
      // ...
   };
 </programlisting></para>
       <para>
 	Which inserts an attribute of type bool and int, name 'aflag' and 'max' and initial
-	value of false and 5 to the task's repository. Adding a Property
-	is also straightforward. The same property is also added in a bag which
-	can also be added to the repository.
+	value of false and 5 to the task's interface. A constant 'pi' is added as well.
 	The methods return false if an attribute with that name already exists.
+	Adding a Property is also straightforward. The property is added in a 
+	<classname>ORO_Corelib::PropertyBag</classname>.
       </para>
-      <para>
-	You can also add constants, which can then no longer be
-	changed :</para>
-      <para>
-	<programlisting>
-  this->attributes()->addConstant( "pi", double(3.14) );</programlisting></para>
-      <para>
-	You should again be careful for duplicate entries.
-      </para>
-      <important>
-	<para>The attribute repository and all other factories of a
-	TaskContext take ownership of the registered or added
-	objects. You are not allowed to delete them. Properties are an
-	exception to this rule, they remain owned by you and you may
-	only delete them after a
-	<function>removeProperty()</function>.</para>
-      </important>
     </section>
     <section>
       <title>Accessing Task Attributes or Properties in C++</title>
       <para>
-	To get a value from the task, you can use :</para>
+	To get a value from the task, you can use the set() and get() methods :</para>
       <para>
 	<programlisting>
-  Attribute&lt;bool&gt;* attrb 
-       = a_task.attributes()->getAttribute&lt;bool&gt;( "aflag" );
-
-  bool result = attrb->get();
+  bool result = aflag.get();
   assert( result == false );
 
-  Attribute&lt;std::string&gt;* attrs 
-       = a_task.attributes()->getAttribute&lt;std::string&gt;( "Param" );
-
-  assert( attrs->get() == "The String" );</programlisting></para>
+  param.set("New String");
+  assert( param.get() == "New String" );</programlisting></para>
     </section>
     <section>
       <title>Accessing Task Attributes in Scripts</title>
@@ -1359,9 +1356,7 @@ cd                  quit
   var int    myMax = 3
   set task.max = myMax
 
-  // Both assignments below change the same Property !
-  set task.Param = "B Value"
-  set task.Collection.Param = "C Value"</programlisting>
+  set task.Param = "B Value"</programlisting>
 	<programlisting>  // an external (peer task) program does :
   var double pi2 = ATask.pi * 2.
   var int    myMax = 3

@@ -35,6 +35,7 @@
 #include "DataFlowInterface.hpp"
 #include "ExecutionEngine.hpp"
 #include "ScriptingAccess.hpp"
+#include <corelib/PropertyBag.hpp>
 
 #include <string>
 #include <map>
@@ -347,8 +348,22 @@ namespace ORO_Execution
         /**
          * The task-local values ( attributes and properties ) of this TaskContext.
          */
-        const AttributeRepository* attributes() const{
+        const AttributeRepository* attributes() const {
             return &attributeRepository;
+        }
+
+        /**
+         * The properties of this TaskContext.
+         */
+        ORO_CoreLib::PropertyBag* properties() {
+            return attributeRepository.properties();
+        }
+
+        /**
+         * The properties of this TaskContext.
+         */
+        const ORO_CoreLib::PropertyBag* properties() const {
+            return attributeRepository.properties();
         }
 
         /**
@@ -361,7 +376,7 @@ namespace ORO_Execution
         /**
          * The task-local events ( 'signals' ) of this TaskContext.
          */
-        const EventService* events() const{
+        const EventService* events() const {
             return &eventService;
         }
 

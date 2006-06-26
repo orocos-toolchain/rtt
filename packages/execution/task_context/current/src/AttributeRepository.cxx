@@ -133,6 +133,8 @@ namespace ORO_Execution
 
     PropertyBag* AttributeRepository::properties() const
     {
+        if ( bag == 0 )
+            bag = new ORO_CoreLib::PropertyBag();
         return bag;
     }
 }

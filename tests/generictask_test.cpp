@@ -309,16 +309,40 @@ void Generic_TaskTest::testCommandsC()
 void Generic_TaskTest::testProperties()
 {
     Property<double> d1("d1", "desc1", 1.234);
-    tc->attributes()->addProperty( &d1);
+    tc->properties()->addProperty( &d1);
 #ifdef OROPKG_GEOMETRY
     using namespace ORO_Geometry;
     Property<Frame> f1("f1", "descf1", Frame::Identity());
-    tc->attributes()->addProperty( &f1 );
+    tc->properties()->addProperty( &f1 );
 #endif
+
+    CPPUNIT_ASSERT_EQUAL( double(1.234), d1.get() );
+    CPPUNIT_ASSERT_EQUAL( double(1.234), tc->properties()->getProperty<double>("d1")->get() );
 
 #if 0    
     CPPUNIT_ASSERT(tc->writeProperties("Generic_TaskTest_Properties.cpf"));
     CPPUNIT_ASSERT( tc->readProperties("Generic_TaskTest_Properties.cpf"));
+#endif
+}
+
+void Generic_TaskTest::testAttributes()
+{
+    Attribute<int> i1;
+    Attribute<double> d1( 1.234);
+    tc->attributes()->addAttribute("d1", &d1 );
+    tc->attributes()->addAttribute("i1", &i1 );
+
+    i1.set( 3 );
+    CPPUNIT_ASSERT_EQUAL( double(1.234), d1.get() );
+    CPPUNIT_ASSERT_EQUAL( int(3), i1.get() );
+    
+    CPPUNIT_ASSERT_EQUAL( double(1.234), tc->attributes()->getAttribute<double>("d1")->get() );
+    CPPUNIT_ASSERT_EQUAL( int(3),        tc->attributes()->getAttribute<int>("i1")->get() );
+
+#ifdef OROPKG_GEOMETRY
+    using namespace ORO_Geometry;
+    Attribute<Frame> f1(Frame::Identity());
+    tc->attributes()->addAttribute( &f1 );
 #endif
 }
 

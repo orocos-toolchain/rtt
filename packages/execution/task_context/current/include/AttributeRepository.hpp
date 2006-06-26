@@ -48,7 +48,10 @@ namespace ORO_Execution
     {
         typedef std::map<std::string, ORO_CoreLib::AttributeBase*> map_t;
         map_t values;
-        ORO_CoreLib::PropertyBag* bag;
+        /**
+         * The bag is only constructed if queried for.
+         */
+        mutable ORO_CoreLib::PropertyBag* bag;
 
     public:
 

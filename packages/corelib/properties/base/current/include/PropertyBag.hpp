@@ -111,23 +111,34 @@ namespace ORO_CoreLib
         PropertyBag( const PropertyBag& orig);
 
         /**
-         * Add a property to the container.
+         * Add a property to the container. Analogous to addProperty.
          * @param p Pointer to the property to be added.
          */
         void add(PropertyBase *p);
 
         /**
-         * Remove a property from the container.
+         * Remove a property from the container. Analogous to removeProperty.
          * @param p Pointer to the property to be removed.
          */
         void remove(PropertyBase *p);
+
+        /**
+         * Add a property to the container.
+         * @param p Pointer to the property to be added.
+         */
+        bool addProperty(PropertyBase *p);
+
+        /**
+         * Remove a property from the container.
+         * @param p Pointer to the property to be removed.
+         */
+        bool removeProperty(PropertyBase *p);
 
         /**
          * Removes all PropertyBases from this bag, without deleting
          * them. This is a not recursive function.
          */
         void clear();
-
 
         /**
          * List all properties.
