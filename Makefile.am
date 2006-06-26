@@ -28,7 +28,8 @@ EXTRA_DIST = \
         packages/pkgconf/ssletter.dsl \
         packages/pkgconf/stylesheet.dsl \
 	packages/ecos.db.in \
-	packages/catalog.xml
+	packages/catalog.xml \
+	NO-WARRANTY
 
 # EXTRA_DIST = \
 # 	packages
