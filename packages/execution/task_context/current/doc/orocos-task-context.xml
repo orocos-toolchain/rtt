@@ -937,28 +937,31 @@ cd                  quit
 	  or the default value. A Pop of a disconnected port will
 	  always return false.
 	</para>
-	<section><title>Connection Container Interface</title>
-	<para>
-	  A port's connection can be accessed through the
-	  connection() method. To access the data within the connection
-	  (the container), a special method is provided by each port.
-	</para>
-	<para>
-	  A DataPort's data container can be accessed by the
-	  <function>data()</function> function, while a BufferPort's
-	  buffer container can be accessed by the
-	  <function>read()</function>,<function>write()</function> and
-	  <function>buffer()</function> functions for read-only,
-	  write-only and read-write buffers respectively.  More
-	  specifically, <function>data()</function> returns a (const)
-	  <classname>ORO_CoreLib::DataObjectInterface</classname>,
-	  <function>read</function> returns a
-	  <classname>ORO_CoreLib::ReadInterface</classname>,
-	  <function>write</function> returns a
-	  <classname>ORO_CoreLib::WriteInterface</classname> and
-	  <function>buffer</function> returns a
-	  <classname>ORO_CoreLib::BufferInterface</classname>.
-	</para>
+	<section>
+	  <title>Connection Container Interface</title>
+	  <para>
+	    A port's connection can be accessed through the
+	    connection() method. To access the data within the connection
+	    (the container), a special method is provided by each port.
+	  </para>
+	  <para>
+	    A DataPort's data container can be accessed by the
+	    <function>data()</function> function, while a BufferPort's
+	    buffer container can be accessed by the
+	    <function>read()</function>,<function>write()</function>
+	    and <function>buffer()</function> functions for read-only,
+	    write-only and read-write buffers respectively.  More
+	    specifically, <function>data()</function> returns a
+	    (const)
+	    <classname>ORO_CoreLib::DataObjectInterface</classname>,
+	    <function>read</function> returns a
+	    <classname>ORO_CoreLib::ReadInterface</classname>,
+	    <function>write</function> returns a
+	    <classname>ORO_CoreLib::WriteInterface</classname> and
+	    <function>buffer</function> returns a
+	    <classname>ORO_CoreLib::BufferInterface</classname>.
+	  </para>
+	</section>
       </section>
       <section>
 	<title>Using Data Flow in Scripts</title>
