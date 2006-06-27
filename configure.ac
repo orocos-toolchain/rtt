@@ -8,9 +8,6 @@ AC_PREREQ(2.53)
 
 # Initialize Autoconf with package name and version
 AC_INIT(orocos,0.23.0)
-ACX_MY_ARGS="$*"
-# Store the parameters to pass them to the packages/configure script.
-#ACX_MY_ARGS="$@"
 
 # Tell Autoconf to dump files into the config subdir
 AC_CONFIG_AUX_DIR(config)
@@ -107,10 +104,9 @@ if test x$ORO_AUTOCONF != x; then
 echo "Running autogen..."
 ./autogen.sh
 fi
-echo "./configure $ACX_MY_ARGS"
 # make distcheck hack :
 chmod u+w . -R
-./configure $ACX_MY_ARGS
+AC_CONFIG_SUBDIRS(packages)
 echo "Running Make db in packages..."
 make db
 cd -
