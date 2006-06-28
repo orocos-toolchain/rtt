@@ -569,7 +569,7 @@ AC_LANG_CPLUSPLUS
 AC_CHECK_HEADERS([boost/call_traits.hpp],
 [
 ORO_BOOST_DETECT=1
-PACKAGES="support/boost/current/boost.cdl $PACKAGES"
+PACKAGES="$srcdir/support/boost/current/boost.cdl $PACKAGES"
 ],
 [
 ORO_BOOST_DETECT=0
@@ -641,7 +641,7 @@ AC_LANG_CPLUSPLUS
 
 AC_CHECK_HEADERS([ xercesc/sax2/SAX2XMLReader.hpp ],
 [
-PACKAGES="support/xercesc/current/xercesc.cdl $PACKAGES"
+PACKAGES="$srcdir/support/xercesc/current/xercesc.cdl $PACKAGES"
 TARGET_LIBS="$TARGET_LIBS -lxerces-c"
 ORO_XERCESC_PARSER_DETECT=1
 ],
@@ -672,7 +672,7 @@ AC_ARG_WITH(comedi, [ AC_HELP_STRING([--with-comedi=/usr/src/comedi/include],[Sp
 
 if test -f $COMEDI_DIR/comedilib.h; then
   # gnu linux comedilib
-  PACKAGES="support/comedi/current/comedi.cdl $PACKAGES"
+  PACKAGES="$srcdir/support/comedi/current/comedi.cdl $PACKAGES"
   CPPFLAGS="-I$COMEDI_DIR"
   TARGET_FLAGS="$TARGET_FLAGS -I$COMEDI_DIR"
   TARGET_LIBS="$TARGET_LIBS -lcomedi"
@@ -680,7 +680,7 @@ if test -f $COMEDI_DIR/comedilib.h; then
 else
   if test -f $COMEDI_DIR/linux/comedilib.h; then
     # lxrt comedi package
-    PACKAGES="support/comedi/current/comedi.cdl $PACKAGES"
+    PACKAGES="$srcdir/support/comedi/current/comedi.cdl $PACKAGES"
     CPPFLAGS="-I$COMEDI_DIR"
     TARGET_FLAGS="$TARGET_FLAGS -I$COMEDI_DIR"
     TARGET_LIBS="$TARGET_LIBS -lkcomedilxrt"
@@ -700,7 +700,7 @@ CPPFLAGS="-I$COMEDI_DIR"
 AC_CHECK_HEADERS([ linux/comedilib.h ],
 [
   if test x$NO_COMEDI_DIR = x1; then
-    PACKAGES="support/comedi/current/comedi.cdl $PACKAGES"
+    PACKAGES="$srcdir/support/comedi/current/comedi.cdl $PACKAGES"
     TARGET_LIBS="$TARGET_LIBS -lkcomedilxrt"
     AC_MSG_RESULT(lxrt header found in $COMEDI_DIR/linux)
     unset NO_COMEDI_DIR
@@ -709,7 +709,7 @@ AC_CHECK_HEADERS([ linux/comedilib.h ],
 AC_CHECK_HEADERS([ comedilib.h ],
 [
   if test x$NO_COMEDI_DIR = x1; then
-    PACKAGES="support/comedi/current/comedi.cdl $PACKAGES"
+    PACKAGES="$srcdir/support/comedi/current/comedi.cdl $PACKAGES"
     TARGET_LIBS="$TARGET_LIBS -lcomedi"
     AC_MSG_RESULT(gnulinux header found in $COMEDI_DIR)
     unset NO_COMEDI_DIR
@@ -749,7 +749,7 @@ if [ test -f $ACE_DIR/ace/config-all.h && test -f $TAO_DIR/tao/ORB.h && test -f 
   ORBSVCS_DIR=$TAO_DIR/orbsvcs
 
   # ace/tao/orbsvcs paths:
-  PACKAGES="support/corba/current/corba.cdl $PACKAGES"
+  PACKAGES="$srcdir/support/corba/current/corba.cdl $PACKAGES"
   if test x$ACE_DIR != x/usr/include; then
     ACX_CFLAGS="$ACX_CFLAGS -I$ACE_DIR"
     ACX_CXXFLAGS="$ACX_CXXFLAGS -I$ACE_DIR"
@@ -804,7 +804,7 @@ m4_define([DETECT_READLINE],
 [
 AC_CHECK_HEADERS([ readline/readline.h ],
 [
-PACKAGES="support/readline/current/readline.cdl $PACKAGES"
+PACKAGES="$srcdir/support/readline/current/readline.cdl $PACKAGES"
 TARGET_LIBS="$TARGET_LIBS -lreadline -lncurses"
 ],
 [
@@ -819,18 +819,6 @@ and rerun the bootstrap.sh script
 ])
 ])
 ])
-
-m4_define([DETECT_GCC],
-[
-AC_MSG_CHECKING(for GCC version)
-ORO_GCC_VERSION=gcc`$CC -dumpversion | sed "s/\./ /g" |awk '{ print $1 }' `
-AC_SUBST(ORO_GCC_VERSION)
-
-PACKAGES="support/gcc/current/gcc.cdl $PACKAGES"
-AC_MSG_RESULT($ORO_GCC_VERSION)
-])
-
-
 
 m4_define([DETECT_RTAI],
 [
@@ -860,7 +848,7 @@ CPPFLAGS="-I$RTAI_DIR/include -I$LINUX_KERNEL_HEADERS"
 AC_CHECK_HEADERS([rtai_config.h], [
   AC_CHECK_HEADERS([rtai_lxrt.h],
   [
-    PACKAGES="support/rtai/current/rtai.cdl $PACKAGES"
+    PACKAGES="$srcdir/support/rtai/current/rtai.cdl $PACKAGES"
     RTAI_VERSION=3
   ],
   [
@@ -870,7 +858,7 @@ AC_CHECK_HEADERS([rtai_config.h], [
 dnl try old rtai style
   AC_CHECK_HEADERS([rtai_lxrt_user.h], 
   [
-    PACKAGES="support/rtai/current/rtai.cdl $PACKAGES"
+    PACKAGES="$srcdir/support/rtai/current/rtai.cdl $PACKAGES"
     RTAI_VERSION=2
   ],
   [
@@ -899,7 +887,7 @@ AC_SUBST(XENOMAI_DIR)
 
 CPPFLAGS="-I$XENOMAI_DIR/include -I$LINUX_KERNEL_HEADERS"
 AC_CHECK_HEADERS([xeno_config.h], [
-    PACKAGES="support/xenomai/current/xenomai.cdl $PACKAGES"
+    PACKAGES="$srcdir/support/xenomai/current/xenomai.cdl $PACKAGES"
     XENOMAI_VERSION=2
 ],[])
 if test x"$XENOMAI_VERSION" = x; then

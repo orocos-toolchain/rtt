@@ -35,7 +35,7 @@ fi;
 # AC_MSG_RESULT( $profs )
 
 # the support top directory
-PACKAGES=support/common/current/support.cdl
+PACKAGES=$srcdir/support/common/current/support.cdl
 
 DETECT_PACKAGES
 
@@ -59,7 +59,6 @@ fi
 AC_MSG_CHECKING(for GCC version)
 ORO_GCC_VERSION=gcc`$CC -dumpversion | sed "s/\./ /g" |awk '{ print $1 }' `
 AC_SUBST(ORO_GCC_VERSION)
-
 dnl Export flags to gcc support package.
 ORO_CFLAGS=$ACX_CFLAGS
 ORO_CXXFLAGS=$ACX_CXXFLAGS
@@ -67,7 +66,7 @@ ORO_CXXFLAGS=$ACX_CXXFLAGS
 AC_SUBST(ORO_CFLAGS)
 AC_SUBST(ORO_CXXFLAGS)
 
-PACKAGES="support/gcc/current/gcc.cdl $PACKAGES"
+PACKAGES="$srcdir/support/gcc/current/gcc.cdl $PACKAGES"
 AC_MSG_RESULT($ORO_GCC_VERSION)
 
 AC_CONFIG_FILES([ 
