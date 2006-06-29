@@ -167,7 +167,7 @@ code. You can optimize for debugging or optimize for execution or compilation ti
 in application size and speed can be quite large when toggling this flag."
 	flavor data
 	    no_define
-	default_value { "Compiling" }
+	default_value { "Execution" }
         legal_values { "Execution" "Debugging" "Compiling" }
 	cdl_option OROBLD_OS_OPTIMIZE_DEBUGGING {
 		display "Flags for debugging optimization"
@@ -198,7 +198,7 @@ compilation times."
 		flavor data
 		no_define
 		active_if { OROBLD_OS_OPTIMIZE == "Execution" }
-		default_value  { "-O3 -DNDEBUG" }
+		default_value  { "-O2 -DNDEBUG" }
 	}
     }
 
