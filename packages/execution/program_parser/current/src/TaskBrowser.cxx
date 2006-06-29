@@ -1329,10 +1329,10 @@ namespace ORO_Execution
         cout <<nl<<" Listing "<< green << peer->getName()<<coloroff<< " :"<<nl;
 
         std::vector<std::string> objlist = peer->attributes()->names();
+        PropertyBag* bag = peer->attributes()->properties();
         cout <<nl<<" Attributes   : ";
-        if ( !objlist.empty() ) {
+        if ( !objlist.empty() || !bag->empty() ) {
             cout << nl;
-            PropertyBag* bag = peer->attributes()->properties();
             // Print Attributes:
             for( std::vector<std::string>::iterator it = objlist.begin(); it != objlist.end(); ++it) {
                 DataSourceBase::shared_ptr pds = peer->attributes()->getValue(*it)->getDataSource();
@@ -1346,17 +1346,15 @@ namespace ORO_Execution
                     cout <<nl;
             }
             // Print Properties:
-            if (bag) {
-                for( PropertyBag::iterator it = bag->begin(); it != bag->end(); ++it) {
-                    if (peer->attributes()->getValue( (*it)->getName() ) )
-                        continue; // atributes were already printed above
+            for( PropertyBag::iterator it = bag->begin(); it != bag->end(); ++it) {
+                if (peer->attributes()->getValue( (*it)->getName() ) )
+                    continue; // atributes were already printed above
                 DataSourceBase::shared_ptr pds = (*it)->getDataSource();
-                    cout << " (Property ) "
-                         << setw(11)<< (*it)->getType()<< " "
+                cout << " (Property ) "
+                     << setw(11)<< (*it)->getType()<< " "
                          << coloron <<setw(14)<<left<< (*it)->getName() << coloroff;
-                    this->printResult( pds.get(), false ); // do not recurse
-                    cout<<" ("<< (*it)->getDescription() <<')'<< nl;
-                }
+                this->printResult( pds.get(), false ); // do not recurse
+                cout<<" ("<< (*it)->getDescription() <<')'<< nl;
             }
         } else {
             cout <<coloron<< "(none)" << coloroff<<nl;
