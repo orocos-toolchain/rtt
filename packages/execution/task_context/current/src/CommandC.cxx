@@ -191,9 +191,11 @@ namespace ORO_Execution
 
     bool CommandC::execute() {
         // execute dispatch command
-        if (cc.first)
+        if (cc.first) {
+            if ( cc.second->evaluate() )
+                this->reset();
             return cc.first->dispatch();
-        else {
+        } else {
             Logger::log() <<Logger::Error << "execute() called on incomplete CommandC."<<Logger::endl;
             if (d) {
                 size_t sz = d->mgcf->getObjectFactory(d->mobject)->getArity( d->mname );
