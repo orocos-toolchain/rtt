@@ -113,7 +113,6 @@ TimeTest::testTimeProgress()
 
     hbg->secondsChange( change_S );
     CPPUNIT_ASSERT( t !=  hbg->getTicks() ); // ticks must have changed
-    CPPUNIT_ASSERT_EQUAL( change_ns,  TimeService::ticks2nsecs( hbg->ticksSince(t) ) );
     CPPUNIT_ASSERT_EQUAL( change_S,  hbg->secondsSince(t) );
 
     // Restart Time Progress
