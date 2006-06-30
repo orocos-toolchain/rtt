@@ -140,15 +140,9 @@ extern "C" {
 	typedef struct timespec TIME_SPEC;
 
 	typedef struct {
-		//  GNUTask( pthread_t th, NANO_TIME periodi ) 
-		// : thread(th), periodMark(0), period( periodi ) {}
 		pthread_t thread;
-		pthread_attr_t attr;
-
-		NANO_TIME periodMark;
-		NANO_TIME period;
-  
 		char * name;
+		int priority;
 
 		RTOS_RTAI_TASK* rtaitask;
 	} RTOS_TASK;
