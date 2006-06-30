@@ -231,6 +231,9 @@ void ActivitiesTest::testOverrun()
   // create
   boost::scoped_ptr<TestOverrun> run( new TestOverrun() );
   boost::scoped_ptr<ORO_OS::ThreadInterface> t( new ORO_OS::PeriodicThread(25,"ORThread", 0.1) );
+  CPPUNIT_ASSERT_EQUAL(25,t->getPriority() );
+  CPPUNIT_ASSERT_EQUAL(0.1,t->getPeriod() );
+
   t->run( run.get() );
 
   t->start();
