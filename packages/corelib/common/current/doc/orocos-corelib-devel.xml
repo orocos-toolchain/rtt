@@ -362,7 +362,7 @@
   };
 
   // Tell Orocos the name and type of this struct:
-  ORO_CoreLib::Types::Instance()->addType( new ControlDataTypeInfo() );
+  ORO_CoreLib::TypeInfoRepository::Instance()->addType( new ControlDataTypeInfo() );
 	</programlisting>
 	From now on, Orocos knows the 'ControlData' type name and allows
 	you to create a scripting variable of that type. It does however
