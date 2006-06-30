@@ -118,6 +118,9 @@ namespace ORO_OS
             task->name = strcpy( (char*)malloc( (strlen(name)+1)*sizeof(char) ), name);
             // name, priority, stack_size, msg_size, policy, cpus_allowed ( 1111 = 4 first cpus)
       
+	    // Set priority
+	    task->priority = priority;
+	    
             RTAI_Thread* rt = (RTAI_Thread*)malloc( sizeof(RTAI_Thread) );
             rt->priority = priority;
             rt->data = obj;
