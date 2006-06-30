@@ -714,7 +714,7 @@ ORO_main( int argc, char** argv)
 
   // Manually start the simulation thread
   // 0.001 : The (virtual) period :  no activity can run 'faster' than this.
-  <classname>ORO_CoreLib::SimulationThread</classname>::Instance()->periodSet( 0.001 );
+  <classname>ORO_CoreLib::SimulationThread</classname>::Instance()->setPeriod( 0.001 );
   <classname>ORO_CoreLib::SimulationThread</classname>::Instance()->start();
 
   // Optional, might hang your program :
