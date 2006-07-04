@@ -32,6 +32,7 @@
 #include "Types.hpp"
 #include "DataSourceTypeInfo.hpp"
 #include "Logger.hpp"
+#include <pkgconf/system.h>
 
 namespace ORO_CoreLib
 {
@@ -95,7 +96,10 @@ namespace ORO_CoreLib
 
         virtual std::ostream& write( std::ostream& os, DataSourceBase::shared_ptr in ) const {
             Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not write "<<tname<<"."<<Logger::endl;
+#if HAVE_STREAMS
+                std::string output = std::string("(")+ in->getTypeName() +")";
+                os << output;
+#endif
             return os;
         }
 
