@@ -432,6 +432,8 @@ m4_define([OROCOS_GENERAL],
 # Autoconf code equal for all OROCOS packages
 OROCOS_INIT($1,$2,$3,$4,$5)
 
+DETECT_PACKAGES
+
 OROCOS_ARG_TARGETOS
 
 dnl add debugging flags at the end
@@ -445,8 +447,6 @@ dnl AC_CHECK_LIB(pthread,pthread_create)
 # Checks for header files.
 dnl AC_HEADER_STDC
 dnl AC_CHECK_HEADERS([stddef.h string.h sys/time.h unistd.h])
-
-DETECT_PACKAGES
 
 ]) 
 
@@ -511,7 +511,7 @@ For example : --with-linux=/usr/src/linux-rtai])
             AC_MSG_RESULT(LXRT)
 	    ECOS_TARGET=lxrt
 	    TARGET_LIBS="$TARGET_LIBS -L$LXRT_DIR/lib -llxrt -lpthread"
-	    TARGET_FLAGS="$TARGET_FLAGS -I$LXRT_DIR/include"
+	    TARGET_FLAGS="-I$LXRT_DIR/include -I$LINUX_KERNEL_HEADERS $TARGET_FLAGS" # put rtai includes first.
             if test $with_linux_given == false; then
 		AC_MSG_ERROR([
 You must specify the location of your patched linux kernel headers when using Lxrt.
@@ -527,7 +527,7 @@ For example : --with-linux=/usr/src/linux-rtai])
             AC_MSG_RESULT(XENOMAI)
 	    ECOS_TARGET=xenomai
 	    TARGET_LIBS="$TARGET_LIBS -L$XENOMAI_DIR/lib -lnative -lpthread"
-	    TARGET_FLAGS="$TARGET_FLAGS -I$XENOMAI_DIR/include"
+	    TARGET_FLAGS="-I$XENOMAI_DIR/include -I$LINUX_KERNEL_HEADERS $TARGET_FLAGS"
 #             if test $with_linux_given == false; then
 # 		AC_MSG_ERROR([
 # You must specify the location of your patched linux kernel headers when using Xenomai.
