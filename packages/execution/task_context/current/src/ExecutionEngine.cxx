@@ -31,7 +31,7 @@
 #include <corelib/CompletionProcessor.hpp>
 #include <corelib/Logger.hpp>
 #include <execution/ExecutionEngine.hpp>
-#include <execution/TaskContext.hpp>
+#include <execution/TaskCore.hpp>
 #include <algorithm>
 
 namespace ORO_Execution
@@ -39,7 +39,7 @@ namespace ORO_Execution
     using namespace ORO_CoreLib;
     using namespace std;
 
-    ExecutionEngine::ExecutionEngine( TaskContext* owner, ExecutionEngine* parent /* = 0 */ )
+    ExecutionEngine::ExecutionEngine( TaskCore* owner, ExecutionEngine* parent /* = 0 */ )
         : work_sem( parent ? 0 : new ORO_OS::Semaphore(0)),
           loop_sem( parent ? 0 : new ORO_OS::Semaphore(0)),
           taskc(owner),
@@ -52,7 +52,7 @@ namespace ORO_Execution
     {
         Logger::In in("ExecutionEngine");
         if (mainee)
-            Logger::log() << Logger::Debug << "Creating child "+owner->getName()+" of task "+mainee->getTaskContext()->getName()<<Logger::endl;
+            Logger::log() << Logger::Debug << "Creating child "+owner->getName()+" of task "+mainee->getTaskCore()->getName()<<Logger::endl;
         else
             Logger::log() << Logger::Debug << "Creating root task "+owner->getName()<<Logger::endl;
         // add self to parent

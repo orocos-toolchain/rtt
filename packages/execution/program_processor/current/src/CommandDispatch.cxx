@@ -37,14 +37,12 @@ namespace ORO_Execution
 {
     using namespace ORO_CoreLib;
 
-    CommandDispatch::CommandDispatch(CommandProcessor* p, CommandInterface* c )
-        : send(true), maccepted(false), proc(p), com( new TryCommand(c) ) {}
-
-    CommandDispatch::CommandDispatch(CommandProcessor* p, TryCommand* c )
-        : send(true), maccepted(false), proc(p), com( c ) {}
+    CommandDispatch::CommandDispatch(CommandProcessor* p, CommandInterface* c, ConditionInterface* cn )
+        : send(true), maccepted(false), proc(p), com( c ), mcn(cn), dispatcher(this) {}
 
     CommandDispatch::~CommandDispatch() {
         delete com;
+        delete mcn;
     }
 
     void CommandDispatch::readArguments()
@@ -62,7 +60,7 @@ namespace ORO_Execution
             //Logger::log() <<Logger::RealTime << "collecting arguments...";
             com->readArguments();
             //Logger::log() <<Logger::RealTime << "sending...";
-            if ( proc->process( com ) != 0 ) {
+            if ( proc->process( &dispatcher ) != 0 ) {
                 //Logger::log() <<Logger::RealTime << "accepted"<<Logger::endl;
                 // send success !
                 maccepted = true;
@@ -72,14 +70,14 @@ namespace ORO_Execution
                 //Logger::log() <<Logger::RealTime << "rejected"<<Logger::endl;
                 // send failed ! Target CommandProcessor probably not running, give up.
                 // set _result to false, because com will not do this itself.
-                com->result()->set(false);
+                dispatcher.mvalid = false;
             }
             send = false;
         }
         // return the (remote)  accept/reject status.
         // initially, it will be true (not yet executed), but may revert to false
         // if the command function returns false.
-        return com->result()->get();
+        return dispatcher.mvalid;
     }
 
     bool CommandDispatch::sent() const {
@@ -87,7 +85,7 @@ namespace ORO_Execution
     }
 
     bool CommandDispatch::executed() const {
-        return com->executed()->get();
+        return dispatcher.mexecuted;
     }
 
     bool CommandDispatch::accepted() const {
@@ -95,29 +93,32 @@ namespace ORO_Execution
     }
 
     bool CommandDispatch::valid() const {
-        return com->executed()->get() && com->result()->get();
+        return dispatcher.mexecuted && dispatcher.mvalid;
+    }
+
+    bool CommandDispatch::evaluate() const {
+        return valid() && mcn->evaluate();
     }
 
     void CommandDispatch::reset() {
         send = true;
         maccepted = false;
         com->reset();
-        // do not reset _result, we do not own it.
+        dispatcher.reset();
     }
 
-    ConditionInterface* CommandDispatch::createValidCondition() const {
-        //#error executed is always false, compare with valid() above...
-        return  new ConditionBinaryCompositeAND( new TryCommandResult( com->executed(), false ), 
-                                                 new TryCommandResult( com->result(), false ));
-//        return new TryCommandResult( com->result(), false );
+    ORO_CoreLib::ConditionInterface* CommandDispatch::createCondition() const
+    {
+        return mcn->clone();
     }
+    
 
     DispatchInterface* CommandDispatch::clone() const {
-        return new CommandDispatch( proc, com->clone() );
+        return new CommandDispatch( proc, com->clone(), mcn->clone() );
     }
 
     DispatchInterface* CommandDispatch::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-        return new CommandDispatch( proc, com->copy( alreadyCloned ) );
+        return new CommandDispatch( proc, com->copy( alreadyCloned ), mcn->copy(alreadyCloned) );
     }
 
 }

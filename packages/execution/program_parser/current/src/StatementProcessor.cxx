@@ -96,7 +96,7 @@ namespace ORO_Execution
             std::vector<boost::tuple<int, DispatchInterface*, ConditionInterface*, std::string> >::iterator it = comms.begin();
             while( it != comms.end() )
                 if ( it->get<0>() == cnr )
-                    return CommandC(it->get<1>(), it->get<2>() );
+                    return CommandC( it->get<1>() );
             return CommandC();
         }
 

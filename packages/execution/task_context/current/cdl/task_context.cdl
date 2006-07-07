@@ -36,4 +36,5 @@ task programs."
     compile TryCommand.cxx
     compile ConnectionInterface.cxx
     compile PortInterface.cxx
+    compile TaskCore.cxx
 }

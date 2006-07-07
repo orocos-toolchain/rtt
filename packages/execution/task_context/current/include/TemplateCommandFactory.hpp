@@ -328,8 +328,8 @@ namespace ORO_Execution
   };
 
   /**
-   * A functor command that stores a function needing three arguments,
-   * and three DataSources to get the data from.
+   * A functor command that stores a function needing four arguments,
+   * and four DataSources to get the data from.
    */
   template<typename FunctorT, typename Arg1T, typename Arg2T,typename Arg3T, typename Arg4T>
   class FunctorCommand4
@@ -1469,10 +1469,8 @@ namespace ORO_Execution
             // it is interpreted here, with the implcond. Other condition branches
             // must be guarded likewise with wrapCondition().
             // we compare processors, as dispatching is not done if the processor is shared.
-            CommandDispatch* dcom = new CommandDispatch( this->mcp, res.first );
-            // compose impl term cond with accept filter and do not invert the result :
-            res.first  = dcom;
-            res.second = new ConditionBinaryCompositeAND( dcom->createValidCondition(), res.second);
+            CommandDispatch* dcom = new CommandDispatch( this->mcp, res.first, res.second->clone() );
+            res.first = dcom;
         }
         return res;
       }
@@ -1487,10 +1485,8 @@ namespace ORO_Execution
             // it is interpreted here, with the implcond. Other condition branches
             // must be guarded likewise with wrapCondition().
             // we compare processors, as dispatching is not done if the processor is shared.
-            CommandDispatch* dcom = new CommandDispatch( this->mcp, res.first );
-            // compose impl term cond with accept filter and do not invert the result :
-            res.first  = dcom;
-            res.second = new ConditionBinaryCompositeAND( dcom->createValidCondition(), res.second);
+            CommandDispatch* dcom = new CommandDispatch( this->mcp, res.first, res.second->clone() );
+            res.first = dcom;
         }
         return res;
       }
@@ -1504,10 +1500,8 @@ namespace ORO_Execution
           else {
               // dispatch a Command to other processor, overthere, the result is ignored,
               // it is interpreted here, with the implcond.
-              CommandDispatch* dcom = new CommandDispatch( mcp, res.first );
-              // compose impl term cond with accept filter and do not invert the result :
-              res.first  = dcom;
-              res.second = new ConditionBinaryCompositeAND( dcom->createValidCondition(), res.second);
+              CommandDispatch* dcom = new CommandDispatch( mcp, res.first, res.second->clone() );
+              res.first = dcom;
           }
           return res;
       }

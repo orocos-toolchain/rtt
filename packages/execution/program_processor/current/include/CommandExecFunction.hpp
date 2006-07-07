@@ -155,18 +155,17 @@ namespace ORO_Execution
             return maccept->get();
         }
 
+        virtual bool evaluate() const {
+            return maccept->get() && _v->get()->isStopped();
+        }
+
         /**
          * Create a condition which checks if this command is finished or not.
          */
-        ORO_CoreLib::ConditionInterface* createCondition()
+        ORO_CoreLib::ConditionInterface* createCondition() const
         {
             return new ConditionExecFunction( _v.get() );
         }
-        
-        /**
-         * Create a condition which checks if this command was valid or not.
-         */
-        ORO_CoreLib::ConditionInterface* createValidCondition() const;
         
         DispatchInterface* clone() const
         {

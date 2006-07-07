@@ -584,7 +584,7 @@ namespace ORO_Execution
                 cout << " In Task "<<green<< taskcontext->getName() <<coloroff<< ". (Status of last Command : ";
                 if ( command == 0 )
                     cout << "none";
-                else if ( condition == 0 || condition->evaluate() ) // disposed or done
+                else if ( command->evaluate() ) //  done
                      cout <<green + "done";
                 else if ( command->valid() )
                     cout << blue+"busy";

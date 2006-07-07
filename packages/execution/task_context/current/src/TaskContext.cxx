@@ -55,8 +55,7 @@ namespace ORO_Execution
     using namespace std;
 
     TaskContext::TaskContext(const std::string& name)
-        :  _task_name(name),
-           ee(this),
+        :  TaskCore(name),
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
            mscriptAcc(new ParserScriptingAccess(this)),
 #else
@@ -72,8 +71,7 @@ namespace ORO_Execution
     }
 
     TaskContext::TaskContext(const std::string& name, ExecutionEngine* parent )
-        :  _task_name(name),
-           ee(this, parent ),
+        :  TaskCore(name, parent),
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
            mscriptAcc(new ParserScriptingAccess(this)),
 #else
@@ -173,15 +171,6 @@ namespace ORO_Execution
         }
     }
 
-    bool TaskContext::startup()
-    {
-        return true;
-    }
-    void TaskContext::update()
-    {}
-    void TaskContext::shutdown()
-    {}
-
         bool TaskContext::executeCommand( CommandInterface* c)
         {
             return ee.getCommandProcessor()->process( c ) != 0;
@@ -246,6 +235,31 @@ namespace ORO_Execution
             peer->addPeer ( this );
             return true;
         }
+
+    void TaskContext::reconnect()
+    {
+        Logger::In in( this->getName().c_str()  );
+        Logger::log() << Logger::Info << "Starting reconnection..."<<Logger::endl;
+        // first disconnect all our ports
+        DataFlowInterface::Ports myports = this->ports()->getPorts();
+        for (DataFlowInterface::Ports::iterator it = myports.begin();
+             it != myports.end();
+             ++it) {
+            (*it)->disconnect();
+            this->datasources()->unregisterObject( (*it)->getName() );
+        }
+        // reconnect again to our peers and ask our 'users' to reconnect as well.
+        for( PeerMap::iterator it = _task_map.begin(); it != _task_map.end(); ++it)
+            this->connectDataFlow(it->second);
+        this->exportPorts();
+
+        for( Users::iterator it = musers.begin(); it != musers.end(); ++it) {
+            (*it)->connectDataFlow(this);
+            (*it)->exportPorts();
+        }
+
+        Logger::log() << Logger::Info << "Reconnection done."<<Logger::endl;
+    }
 
     void TaskContext::disconnect() {
         Logger::In in( this->getName().c_str()  );

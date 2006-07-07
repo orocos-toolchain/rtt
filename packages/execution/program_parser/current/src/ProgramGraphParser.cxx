@@ -78,7 +78,7 @@ namespace ORO_Execution
   ProgramGraphParser::ProgramGraphParser( iter_t& positer, TaskContext* t)
       : rootc( t ),context(t), fcontext(0), mpositer( positer ),
         mcallfunc(), 
-        implcond(0), mcondition(0), try_cond(0), dc(0),
+        implcond(0), mcondition(0), try_cond(0),
         conditionparser( context ),
         commandparser( context ),
         valuechangeparser( context ),
@@ -340,9 +340,6 @@ namespace ORO_Execution
       delete implcond;
       implcond = 0;
 
-      delete dc;
-      dc = 0;
-
       // the done condition is no longer valid..
       context->attributes()->removeValue( "done" );
   }
@@ -468,10 +465,6 @@ namespace ORO_Execution
   {
        mcondition = conditionparser.getParseResult();
        assert( mcondition );
-       // do we need to wrap the condition in a dispatch condition ?
-       // if so, mcondition is only evaluated if the command is 'valid'.
-       if ( dc )
-          mcondition = new ConditionBinaryCompositeAND( dc->clone(), mcondition );
 
        // leaves the condition in the parser, if we want to use
        // getParseResultAsCommand();
@@ -895,8 +888,6 @@ namespace ORO_Execution
       mcondition = 0;
       delete try_cond;
       try_cond = 0;
-      delete dc;
-      dc = 0;
       delete for_init_command;
       for_init_command = 0;
       delete for_incr_command;
@@ -923,10 +914,6 @@ namespace ORO_Execution
       CommandInterface*   command;
       command  = commandparser.getCommand();
       implcond = commandparser.getImplTermCondition();
-
-      // check if we must store the dispatchCondition
-      if ( commandparser.dispatchCondition() != 0 )
-          dc = commandparser.dispatchCondition()->clone();
 
       if ( !try_cmd ) {
           program_builder->setCommand( command );
@@ -955,18 +942,6 @@ namespace ORO_Execution
     CommandInterface* compcmnd;
     // The implcond is already 'corrected' wrt result of evaluate().
     implcond = commandparser.getImplTermCondition();
-
-    // check if we must store the dispatchCondition
-    // They are composed into one big condition, guarding all
-    // the other condition branches. Only if all dc's say the
-    // command is accepted, the branch opens for evaluation.
-    // See : guarding of if .. then statements with 'dc'
-    if ( commandparser.dispatchCondition() != 0 ) {
-        if ( dc )
-            dc = new ConditionBinaryCompositeAND( dc, commandparser.dispatchCondition()->clone() );
-        else
-            dc = commandparser.dispatchCondition()->clone();
-    }
 
     if ( !try_cmd )
         compcmnd = new CommandBinary( oldcmnd,

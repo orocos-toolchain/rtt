@@ -39,8 +39,12 @@ namespace ORO_CoreLib {
         return this->execute();
     }
 
-  void CommandInterface::reset() {
-  }
+    void CommandInterface::reset() {
+    }
+
+    bool CommandInterface::valid() const {
+        return true;
+    }
 
     //void CommandInterface::readArguments() {
     //}

@@ -139,6 +139,10 @@ namespace ORO_Execution
          */
          bool execute();
 
+         /**
+          * Returns true if the node is in a valid state to be left.
+          */
+         bool isValid() const;
         /**
          * Set the command associated with this program to the given command.
          *

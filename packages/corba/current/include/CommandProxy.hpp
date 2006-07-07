@@ -98,6 +98,10 @@ namespace ORO_Corba
             return mdata->valid();
         }
 
+        virtual bool evaluate() const {
+            return mdata->evaluate();
+        }
+
         virtual ORO_CoreLib::ConditionInterface* createValidCondition() const;
 
         virtual DispatchInterface* clone() const {

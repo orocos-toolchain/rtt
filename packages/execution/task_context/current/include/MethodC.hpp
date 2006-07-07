@@ -36,6 +36,7 @@
 namespace ORO_Execution
 {
     class GlobalMemberFactory;
+    class MethodRepository;
 
     /**
      * A user friendly method to a TaskContext.
@@ -61,6 +62,12 @@ namespace ORO_Execution
          * @see GlobalMethodFactory
          */
         MethodC( const GlobalMemberFactory* gcf, const std::string& obj, const std::string& name);
+
+        /**
+         * The constructor.
+         * @see MethodRepository
+         */
+        MethodC( const MethodRepository* mr, const std::string& name);
 
         /**
          * A MethodC is copyable by value.

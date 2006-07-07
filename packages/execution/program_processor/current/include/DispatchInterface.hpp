@@ -81,21 +81,13 @@ namespace ORO_Execution
         virtual bool valid() const = 0;
 
         /**
-         * Creates a Condition which evaluates (executed() \a and result() ).
-         * Thus it will only return true when the CommandProcessor executed
-         * the dispatched command \a and it was valid.
+         * Returns true if the command is done.
          */
-        virtual ORO_CoreLib::ConditionInterface* createValidCondition() const = 0;
+        virtual bool evaluate() const = 0;
+
+        virtual ORO_CoreLib::ConditionInterface* createCondition() const = 0;
 
         virtual DispatchInterface* clone() const = 0;
-#if 0
-        /*
-         * Creates a Command which calls this->execute().
-         * Thus it will only return true when the CommandProcessor executed
-         * the dispatched command \a and it was valid.
-         */
-        virtual ORO_CoreLib::CommandInterface* createCommand() const = 0;
-#endif
     };
 }
 

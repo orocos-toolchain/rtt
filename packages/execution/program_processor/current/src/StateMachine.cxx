@@ -54,7 +54,7 @@ namespace ORO_Execution
     {}
  
     StateMachine::StateMachine(StateMachinePtr parent, EventProcessor* tc, const string& name )
-        : _parent (parent) , _name(name), eproc(tc), smStatus(Status::unloaded), smp(0),
+        : smpStatus(nill), _parent (parent) , _name(name), eproc(tc), smStatus(Status::unloaded), smp(0),
           initstate(0), finistate(0), current( 0 ), next(0), initc(0),
           currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), currentRun(0), currentTrans(0),
           checking_precond(false), mstep(false), evaluating(0)

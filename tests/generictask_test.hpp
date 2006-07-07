@@ -32,7 +32,13 @@ using namespace ORO_Execution;
 class Generic_TaskTest : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( Generic_TaskTest );
+    CPPUNIT_TEST( testCommand );
+    CPPUNIT_TEST( testMethod );
+    CPPUNIT_TEST( testCommandFromDS );
+    CPPUNIT_TEST( testDSCommand );
+    CPPUNIT_TEST( testMethodFromDS );
     CPPUNIT_TEST( testMethodsC );
+    CPPUNIT_TEST( testDSMethod );
     CPPUNIT_TEST( testCommandsC );
     CPPUNIT_TEST( testProperties );
     CPPUNIT_TEST( testPorts );
@@ -63,12 +69,15 @@ class Generic_TaskTest : public CppUnit::TestFixture
     bool cd3(int i, double d, char c)  { return true; }
     bool cd4(int i, double d, char c, bool b)  { return true; }
     bool cn0() const  { return true; }
-    bool cn1(int i) const  { return true; }
-    bool cn2(int i, double d) const  { return true; }
-    bool cn3(int i, double d, char c) const  { return true; }
-    bool cn4(int i, double d, char c, bool b) const  { return true; }
+    bool cn1(int i) const  { CPPUNIT_ASSERT_EQUAL(1, i); return true; }
+    bool cn2(int i, double d) const  { CPPUNIT_ASSERT_EQUAL(1, i); CPPUNIT_ASSERT_EQUAL(1.0,d); return true; }
+    bool cn3(int i, double d, char c) const  { CPPUNIT_ASSERT_EQUAL(1, i); CPPUNIT_ASSERT_EQUAL(1.0,d); CPPUNIT_ASSERT_EQUAL('a',c); return true; }
+    bool cn4(int i, double d, char c, bool b) const  {  CPPUNIT_ASSERT_EQUAL(1, i); CPPUNIT_ASSERT_EQUAL(1.0,d); CPPUNIT_ASSERT_EQUAL('a',c); CPPUNIT_ASSERT_EQUAL(true,b);return true; }
 
     bool assertBool( bool );
+
+    void verifydispatch(DispatchInterface& com);
+    void verifycommand(CommandC& com);
 
 public:
 
@@ -79,6 +88,12 @@ public:
     void testCommandsC();
     void testProperties();
     void testAttributes();
+    void testCommand();
+    void testCommandFromDS();
+    void testDSCommand();
+    void testMethod();
+    void testMethodFromDS();
+    void testDSMethod();
 
     void testPorts();
 };

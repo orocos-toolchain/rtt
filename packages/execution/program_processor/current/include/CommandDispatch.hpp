@@ -51,19 +51,28 @@ namespace ORO_Execution
         bool send;
         bool maccepted;
         CommandProcessor* proc;
-        TryCommand* com;
+        ORO_CoreLib::CommandInterface* com;
+        ORO_CoreLib::ConditionInterface* mcn;
 
         /**
-         * Create a command to dispatch another command \a c to a CommandProcessor \a p.
-         * Used exclusively by clone().
+         * Helper class which is sent to the CommandProcessor
+         * in order to execute the command.
          */
-        CommandDispatch(CommandProcessor* p, TryCommand* c );
-
+        struct Dispatcher : public CommandInterface {
+            bool mexecuted, mvalid;
+            CommandDispatch* cd;
+            Dispatcher(CommandDispatch* c) : mexecuted(false), mvalid(true), cd(c) {}
+            void readArguments() {}
+            bool execute() { mexecuted=true; return mvalid=cd->com->execute();}
+            void reset() { mexecuted=false; mvalid=true; }
+            virtual Dispatcher* clone() const { return new Dispatcher(cd); }
+        } dispatcher;
+            
     public:
         /**
          * Create a command to dispatch another command \a c to a CommandProcessor \a p.
          */
-        CommandDispatch(CommandProcessor* p, CommandInterface* c );
+        CommandDispatch(CommandProcessor* p, CommandInterface* c, ORO_CoreLib::ConditionInterface* cn );
 
         /**
          * Be sure only to delete this command if the target processor is
@@ -113,11 +122,14 @@ namespace ORO_Execution
         bool valid() const;
 
         /**
-         * Creates a Condition which evaluates (executed() \a and result() ).
-         * Thus it will only return true when the CommandProcessor executed
-         * the dispatched command \a and it was valid.
+         * Evaluate if the command is done.
+         * @retval true if accepted(), valid() was true and the
+         * completion condition was true as well.
+         * @retval false otherwise.
          */
-        ORO_CoreLib::ConditionInterface* createValidCondition() const;
+        bool evaluate() const;
+
+        virtual ORO_CoreLib::ConditionInterface* createCondition() const;
 
         ORO_Execution::DispatchInterface* clone() const;
 

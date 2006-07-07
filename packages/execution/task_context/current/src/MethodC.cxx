@@ -27,6 +27,7 @@
  
  
 #include "execution/GlobalMethodFactory.hpp"
+#include "execution/OperationInterface.hpp"
 #include "execution/MethodC.hpp"
 #include "execution/FactoryExceptions.hpp"
 #include "corelib/DataSourceCommand.hpp"
@@ -42,6 +43,7 @@ namespace ORO_Execution
     {
     public:
         const GlobalMethodFactory* mgcf;
+        const MethodRepository* mmr;
         std::string mobject, mname;
         std::vector<DataSourceBase::shared_ptr> args;
         AttributeBase* rta;
@@ -49,25 +51,44 @@ namespace ORO_Execution
 
         void checkAndCreate() {
             Logger::In in("MethodC");
-            // check validity:
-            if ( mgcf->getObjectFactory(mobject) == 0 ) {
-                Logger::log() <<Logger::Error << "No '"<<mobject<<"' object in this Method Factory."<<Logger::endl;
-                ORO_THROW(name_not_found_exception(mobject));
+            if ( mmr ) {
+                if ( mmr->hasMember(mname) == false ) {
+                    Logger::log() <<Logger::Error << "No '"<<mname<<"' method in this Method Repository."<<Logger::endl;
+                    ORO_THROW(name_not_found_exception(mname));
+                }
+                size_t sz = mmr->getArity(mname);
+                if ( sz == args.size() ) {
+                    // may throw or return nill
+                    m = mmr->getMethod(mname, args );
+                    args.clear();
+                    if ( !m )
+                        return;
+                    if (rta)
+                        m = new DataSourceCommand( rta->getDataSource()->updateCommand( m.get() ) );
+                }
             }
-            if ( ! mgcf->getObjectFactory(mobject)->hasMember(mname) ) {
-                Logger::log() <<Logger::Error << "No such method '"+mname+"' in '"+mobject+"' Method Factory."<<Logger::endl;
-                ORO_THROW(name_not_found_exception(mname));
-            }
-            size_t sz = mgcf->getObjectFactory(mobject)->getArgumentList(mname).size();
-            // not created, check if it is time to create:
-            if ( sz == args.size() ) {
-                // may throw or return nill
-                m = mgcf->getObjectFactory(mobject)->create(mname, args );
-                args.clear();
-                if ( !m )
-                    return;
-                if (rta)
-                    m = new DataSourceCommand( rta->getDataSource()->updateCommand( m.get() ) );
+            else {
+                assert(mgcf);
+                // check validity:
+                if ( mgcf->getObjectFactory(mobject) == 0 ) {
+                    Logger::log() <<Logger::Error << "No '"<<mobject<<"' object in this Method Factory."<<Logger::endl;
+                    ORO_THROW(name_not_found_exception(mobject));
+                }
+                if ( ! mgcf->getObjectFactory(mobject)->hasMember(mname) ) {
+                    Logger::log() <<Logger::Error << "No such method '"+mname+"' in '"+mobject+"' Method Factory."<<Logger::endl;
+                    ORO_THROW(name_not_found_exception(mname));
+                }
+                size_t sz = mgcf->getObjectFactory(mobject)->getArgumentList(mname).size();
+                // not created, check if it is time to create:
+                if ( sz == args.size() ) {
+                    // may throw or return nill
+                    m = mgcf->getObjectFactory(mobject)->create(mname, args );
+                    args.clear();
+                    if ( !m )
+                        return;
+                    if (rta)
+                        m = new DataSourceCommand( rta->getDataSource()->updateCommand( m.get() ) );
+                }
             }
         }
 
@@ -83,14 +104,20 @@ namespace ORO_Execution
         }
 
         D( const GlobalMethodFactory* gcf, const std::string& obj, const std::string& name)
-            : mgcf(gcf), mobject(obj), mname(name), rta(0), m()
+            : mgcf(gcf), mmr(0), mobject(obj), mname(name), rta(0), m()
+        {
+            this->checkAndCreate();
+        }
+
+        D( const MethodRepository* mr, const std::string& name)
+            : mgcf(0), mmr(mr), mname(name), rta(0), m()
         {
             this->checkAndCreate();
         }
 
         D(const D& other)
-            : mgcf( other.mgcf), mobject(other.mobject), mname(other.mname),
-        args( other.args ), rta( other.rta ? other.rta->clone() : 0 ), m( other.m )
+            : mgcf( other.mgcf), mmr(other.mmr), mobject(other.mobject), mname(other.mname),
+              args( other.args ), rta( other.rta ? other.rta->clone() : 0 ), m( other.m )
         {
         }
 
@@ -108,6 +135,16 @@ namespace ORO_Execution
 
     MethodC::MethodC(const GlobalMethodFactory* gcf, const std::string& obj, const std::string& name)
         : d( gcf ? new D( gcf, obj, name) : 0 ), m()
+    {
+        if ( d->m ) {
+            this->m = d->m;
+            delete d;
+            d = 0;
+        }
+    }
+
+    MethodC::MethodC(const MethodRepository* mr, const std::string& name)
+        : d( mr ? new D( mr, name) : 0 ), m()
     {
         if ( d->m ) {
             this->m = d->m;
@@ -171,7 +208,11 @@ namespace ORO_Execution
         else {
             Logger::log() <<Logger::Error << "execute() called on incomplete MethodC."<<Logger::endl;
             if (d) {
-                size_t sz = d->mgcf->getObjectFactory(d->mobject)->getArity(d->mname);
+                size_t sz;
+                if (d->mgcf)
+                    sz = d->mgcf->getObjectFactory(d->mobject)->getArity( d->mname );
+                else
+                    sz = d->mmr->getArity( d->mname );
                 Logger::log() <<Logger::Error << "Wrong number of arguments provided for method '"+d->mname+"'"<<Logger::nl;
                 Logger::log() <<Logger::Error << "Expected "<< sz << ", got: " << d->args.size() <<Logger::endl;
             }

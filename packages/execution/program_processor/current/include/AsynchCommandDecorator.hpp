@@ -97,7 +97,6 @@ namespace ORO_Execution
          */
         bool executed;
         bool status;
-
     };
 
 }

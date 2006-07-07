@@ -63,10 +63,10 @@ namespace ORO_Execution
         assertion<std::string> expect_methodname("Expected a method call on object.");
         assertion<std::string> expect_args( "Expected method call arguments between ()." );
     }
-  CommandParser::CommandParser( TaskContext* c, bool dispatch )
+  CommandParser::CommandParser( TaskContext* c, bool dispatch)
       : mdispatch( dispatch ),
         dcom(0), retcommand( 0 ),
-        implicittermcondition( 0 ), dispatchCond(0), peer(0), context( c ),
+        implicittermcondition( 0 ), peer(0), context( c ),
         argsparser( 0 ), expressionparser( c ), peerparser( c )
   {
     BOOST_SPIRIT_DEBUG_RULE( objectmethod );
@@ -281,23 +281,6 @@ namespace ORO_Execution
     implicittermcondition = comcon.second;
   }
 
-    ConditionInterface* CommandParser::wrapCondition( ConditionInterface* c )
-    {
-        if ( peer != context )
-            return new ConditionBinaryCompositeAND( dcom->createValidCondition(), c);
-        else 
-            return c;
-    }
-
-    ConditionInterface* CommandParser::dispatchCondition()
-    {
-        if ( dcom == 0 )
-            return 0;
-        if ( dispatchCond == 0 )
-            dispatchCond = dcom->createValidCondition();
-        return dispatchCond;
-    }
-
     CommandParser::~CommandParser()
     {
         // if argsparser is non-zero, then something went wrong ( someone
@@ -310,8 +293,6 @@ namespace ORO_Execution
 
     void CommandParser::reset()
       {
-        delete dispatchCond;
-        dispatchCond = 0;
         peer = 0;
         dcom = 0;
         retcommand = 0;

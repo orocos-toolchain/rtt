@@ -24,9 +24,15 @@
 #include <execution/FunctionGraph.hpp>
 #include <execution/TemplateFactories.hpp>
 #include <execution/Ports.hpp>
+#include <execution/Command.hpp>
+#include <execution/CommandDS.hpp>
+#include <execution/Method.hpp>
+#include <execution/OperationInterface.hpp>
 
 #include <corelib/SimulationActivity.hpp>
 #include <corelib/SimulationThread.hpp>
+
+#include <boost/function_types/function_type_signature.hpp>
 
 #include <pkgconf/system.h>
 #ifdef OROPKG_GEOMETRY
@@ -348,8 +354,8 @@ void Generic_TaskTest::testAttributes()
 {
     Attribute<int> i1;
     Attribute<double> d1( 1.234);
-    tc->attributes()->addAttribute("d1", &d1 );
-    tc->attributes()->addAttribute("i1", &i1 );
+    CPPUNIT_ASSERT(tc->attributes()->addAttribute("d1", &d1 ));
+    CPPUNIT_ASSERT(tc->attributes()->addAttribute("i1", &i1 ));
 
     i1.set( 3 );
     CPPUNIT_ASSERT_EQUAL( double(1.234), d1.get() );
@@ -363,6 +369,99 @@ void Generic_TaskTest::testAttributes()
     Attribute<Frame> f1(Frame::Identity());
     tc->attributes()->addAttribute("f1", &f1 );
 #endif
+}
+
+void Generic_TaskTest::verifydispatch(DispatchInterface& com)
+{
+    CPPUNIT_ASSERT( com.sent() );
+    CPPUNIT_ASSERT( com.accepted() );
+    CPPUNIT_ASSERT( !com.executed() );
+    CPPUNIT_ASSERT( !com.valid() );
+    CPPUNIT_ASSERT( !com.evaluate() );
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(1) );
+    CPPUNIT_ASSERT( com.executed() );
+    CPPUNIT_ASSERT( com.valid() );
+    CPPUNIT_ASSERT( com.evaluate() );
+    com.reset();
+    CPPUNIT_ASSERT( !com.sent() );
+    CPPUNIT_ASSERT( !com.accepted() );
+    CPPUNIT_ASSERT( !com.executed() );
+    CPPUNIT_ASSERT( !com.valid() );
+    CPPUNIT_ASSERT( !com.evaluate() );
+}
+
+void Generic_TaskTest::verifycommand(CommandC& com)
+{
+    CPPUNIT_ASSERT( com.execute() );
+    CPPUNIT_ASSERT( com.sent() );
+    CPPUNIT_ASSERT( com.accepted() );
+    CPPUNIT_ASSERT( !com.executed() );
+    CPPUNIT_ASSERT( !com.valid() );
+    CPPUNIT_ASSERT( !com.evaluate() );
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(1) );
+    CPPUNIT_ASSERT( com.executed() );
+    CPPUNIT_ASSERT( com.valid() );
+    CPPUNIT_ASSERT( com.evaluate() );
+    com.reset();
+    CPPUNIT_ASSERT( !com.sent() );
+    CPPUNIT_ASSERT( !com.accepted() );
+    CPPUNIT_ASSERT( !com.executed() );
+    CPPUNIT_ASSERT( !com.valid() );
+    CPPUNIT_ASSERT( !com.evaluate() );
+}
+
+void Generic_TaskTest::testCommand()
+{
+    Command<bool(void)> com0("command", &Generic_TaskTest::cd0, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
+    Command<bool(int)> com11("command", &Generic_TaskTest::cd1, &Generic_TaskTest::cn1, this, tc->engine()->commands() );
+    Command<bool(int)> com10("command", &Generic_TaskTest::cd1, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
+
+    Command<bool(int,double)> com22("command", &Generic_TaskTest::cd2, &Generic_TaskTest::cn2, this, tc->engine()->commands() );
+    Command<bool(int,double)> com20("command", &Generic_TaskTest::cd2, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
+    Command<bool(int,double)> com21("command", &Generic_TaskTest::cd2, &Generic_TaskTest::cn1, this, tc->engine()->commands() );
+
+    Command<bool(int,double,char)> com33("command", &Generic_TaskTest::cd3, &Generic_TaskTest::cn3, this, tc->engine()->commands() );
+    Command<bool(int,double,char)> com30("command", &Generic_TaskTest::cd3, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
+    Command<bool(int,double,char)> com31("command", &Generic_TaskTest::cd3, &Generic_TaskTest::cn1, this, tc->engine()->commands() );
+
+    Command<bool(int,double,char,bool)> com44("command", &Generic_TaskTest::cd4, &Generic_TaskTest::cn4, this, tc->engine()->commands() );
+    Command<bool(int,double,char,bool)> com40("command", &Generic_TaskTest::cd4, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
+    Command<bool(int,double,char,bool)> com41("command", &Generic_TaskTest::cd4, &Generic_TaskTest::cn1, this, tc->engine()->commands() );
+
+    // start the activity, such that commands are accepted.
+    CPPUNIT_ASSERT( tsim->start()) ;
+    // execute commands and check status:
+    CPPUNIT_ASSERT( com0() );
+    
+    CPPUNIT_ASSERT( com11(1) );
+    CPPUNIT_ASSERT( com10(1) );
+
+    CPPUNIT_ASSERT( com22(1, 1.0) );
+    CPPUNIT_ASSERT( com20(1, 1.0) );
+    CPPUNIT_ASSERT( com21(1, 1.0) );
+
+    CPPUNIT_ASSERT( com33(1, 1.0, char('a') ) );
+    CPPUNIT_ASSERT( com30(1, 1.0, char('a') ) );
+    CPPUNIT_ASSERT( com31(1, 1.0, char('a') ) );
+
+    CPPUNIT_ASSERT( com44(1, 1.0, char('a'),true) );
+    CPPUNIT_ASSERT( com40(1, 1.0, char('a'),true) );
+    CPPUNIT_ASSERT( com41(1, 1.0, char('a'),true) );
+
+    verifydispatch(com0);
+    verifydispatch(com11);
+    verifydispatch(com10);
+    verifydispatch(com22);
+    verifydispatch(com20);
+    verifydispatch(com21);
+    verifydispatch(com33);
+    verifydispatch(com30);
+    verifydispatch(com31);
+    verifydispatch(com44);
+    verifydispatch(com40);
+    verifydispatch(com41);
+
+    CPPUNIT_ASSERT( tsim->stop() );
 }
 
 void Generic_TaskTest::testPorts()
@@ -413,6 +512,204 @@ void Generic_TaskTest::testPorts()
     CPPUNIT_ASSERT( bp.Pop( val ) );
     CPPUNIT_ASSERT( val == 5.0 );
     CPPUNIT_ASSERT( bp.Pop( val ) == false );
+}
 
+void Generic_TaskTest::testCommandFromDS()
+{
+    Command<bool(void)> com0("c0", &Generic_TaskTest::cd0, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
+    Command<bool(int)> com11("c11", &Generic_TaskTest::cd1, &Generic_TaskTest::cn1, this, tc->engine()->commands() );
+    Command<bool(int)> com10("c10", &Generic_TaskTest::cd1, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
+    Command<bool(int,double)> com22("c22", &Generic_TaskTest::cd2, &Generic_TaskTest::cn2, this, tc->engine()->commands() );
+    Command<bool(int,double)> com20("c20", &Generic_TaskTest::cd2, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
+    Command<bool(int,double)> com21("c21", &Generic_TaskTest::cd2, &Generic_TaskTest::cn1, this, tc->engine()->commands() );
+
+    Command<bool(int,double,char)> com33("c33", &Generic_TaskTest::cd3, &Generic_TaskTest::cn3, this, tc->engine()->commands() );
+    Command<bool(int,double,char)> com30("c30", &Generic_TaskTest::cd3, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
+    Command<bool(int,double,char)> com31("c31", &Generic_TaskTest::cd3, &Generic_TaskTest::cn1, this, tc->engine()->commands() );
+
+    Command<bool(int,double,char,bool)> com44("c44", &Generic_TaskTest::cd4, &Generic_TaskTest::cn4, this, tc->engine()->commands() );
+    Command<bool(int,double,char,bool)> com40("c40", &Generic_TaskTest::cd4, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
+    Command<bool(int,double,char,bool)> com41("c41", &Generic_TaskTest::cd4, &Generic_TaskTest::cn1, this, tc->engine()->commands() );
+
+    TaskObject to("task");
+
+    CPPUNIT_ASSERT( to.commands()->addCommand( &com0, "desc" ) );
+    CPPUNIT_ASSERT( to.commands()->addCommand( &com11, "desc","a1", "d1" ) );
+    CPPUNIT_ASSERT( to.commands()->addCommand( &com10, "desc","a1", "d1" ) );
+    CPPUNIT_ASSERT( to.commands()->addCommand( &com22, "desc","a1", "d1","a2","d2" ) );
+    CPPUNIT_ASSERT( to.commands()->addCommand( &com20, "desc","a1", "d1","a2","d2" ) );
+    CPPUNIT_ASSERT( to.commands()->addCommand( &com21, "desc","a1", "d1","a2","d2" ) );
+    CPPUNIT_ASSERT( to.commands()->addCommand( &com33, "desc","a1", "d1","a2","d2","a3","d3" ) );
+    CPPUNIT_ASSERT( to.commands()->addCommand( &com30, "desc","a1", "d1","a2","d2","a3","d3" ) );
+    CPPUNIT_ASSERT( to.commands()->addCommand( &com31, "desc","a1", "d1","a2","d2","a3","d3" ) );
+    CPPUNIT_ASSERT( to.commands()->addCommand( &com44, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
+    CPPUNIT_ASSERT( to.commands()->addCommand( &com40, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
+    CPPUNIT_ASSERT( to.commands()->addCommand( &com41, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
+
+
+    std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> args;
+    CommandC c0  = to.commands()->create("c0");
+    CommandC c10 = to.commands()->create("c10").argC(1);
+    CommandC c11 = to.commands()->create("c11").argC(1);
+    CommandC c20 = to.commands()->create("c20").argC(1).argC(1.0);
+    CommandC c21 = to.commands()->create("c21").argC(1).argC(1.0);
+    CommandC c22 = to.commands()->create("c22").argC(1).argC(1.0);
+    CommandC c30 = to.commands()->create("c30").argC(1).argC(1.0).argC('a');
+    CommandC c31 = to.commands()->create("c31").argC(1).argC(1.0).argC('a');
+    CommandC c33 = to.commands()->create("c33").argC(1).argC(1.0).argC('a');
+    CommandC c40 = to.commands()->create("c40").argC(1).argC(1.0).argC('a').argC(true);
+    CommandC c41 = to.commands()->create("c41").argC(1).argC(1.0).argC('a').argC(true);
+    CommandC c44 = to.commands()->create("c44").argC(1).argC(1.0).argC('a').argC(true);
+
+    CPPUNIT_ASSERT( tsim->start()) ;
+    verifycommand(c0);
+    verifycommand(c11);
+    verifycommand(c10);
+    verifycommand(c22);
+    verifycommand(c20);
+    verifycommand(c21);
+    verifycommand(c33);
+    verifycommand(c30);
+    verifycommand(c31);
+    verifycommand(c44);
+    verifycommand(c40);
+    verifycommand(c41);
+    CPPUNIT_ASSERT( tsim->stop()) ;
+}
+
+template<class T, class F1, class F2, class O, class CP>
+Command<T> command(const char* name, F1 comf, F2 conf, O object, CP cp)
+{
+    return Command<typename boost::function_type_signature<F1>::representee>(std::string(name), comf, conf, object, cp);
+    //return Command<T>(std::string(name), comf, conf, object, cp);
+}
+
+
+void Generic_TaskTest::testDSCommand()
+{
+    TaskObject to("task");
+
+    // A command of which the first argument type is a pointer to the object
+    // on which it must be invoked. The pointer is internally stored as a weak_ptr,
+    // thus the object must be stored in a shared_ptr, in a DataSource. Scripting
+    // requires this for copying state machines.
+
+    CommandDS<bool(Generic_TaskTest*)> com0("c0",
+                                            &Generic_TaskTest::cd0, &Generic_TaskTest::cn0,
+                                            tc->engine()->commands() );
+
+    CommandDS<bool(Generic_TaskTest*,int)> com1("c1",
+                                                &Generic_TaskTest::cd1, &Generic_TaskTest::cn1,
+                                                tc->engine()->commands() );
+
+    boost::shared_ptr<Generic_TaskTest> ptr( new Generic_TaskTest() );
+    ValueDataSource<boost::weak_ptr<Generic_TaskTest> >::shared_ptr wp = new ValueDataSource<boost::weak_ptr<Generic_TaskTest> >( ptr );
+    CPPUNIT_ASSERT( to.commands()->addCommandDS( wp.get(), &com0, "desc" ) );
+    CPPUNIT_ASSERT( to.commands()->addCommandDS( wp.get(), &com1, "desc", "a1", "d1" ) );
+
+    // this actually works ! the command will detect the deleted pointer.
+    //ptr.reset();
+    
+    CPPUNIT_ASSERT( tsim->start()) ;
+
+    CommandC c0  = to.commands()->create("c0");
+    verifycommand(c0);
+    CommandC c1  = to.commands()->create("c1").argC(1);
+    verifycommand(c1);
+
+    CPPUNIT_ASSERT( tsim->stop()) ;
 
 }
+
+void Generic_TaskTest::testMethod()
+{
+    Method<double(void)> m0("m0", &Generic_TaskTest::m0, this);
+    Method<double(int)> m1("m1", &Generic_TaskTest::m1, this);
+    Method<double(int,double)> m2("m2", &Generic_TaskTest::m2, this);
+    Method<double(int,double,bool)> m3("m3", &Generic_TaskTest::m3, this);
+    Method<double(int,double,bool,std::string)> m4("m4", &Generic_TaskTest::m4, this);
+
+    CPPUNIT_ASSERT_EQUAL( -1.0, m0() );
+    CPPUNIT_ASSERT_EQUAL( -2.0, m1(1) );
+    CPPUNIT_ASSERT_EQUAL( -3.0, m2(1, 2.0) );
+    CPPUNIT_ASSERT_EQUAL( -4.0, m3(1, 2.0, false) );
+    CPPUNIT_ASSERT_EQUAL( -5.0, m4(1, 2.0, false,"hello") );
+}
+
+void Generic_TaskTest::testMethodFromDS()
+{
+    TaskObject to("task");
+
+    Method<double(void)> m0("m0", &Generic_TaskTest::m0, this);
+    Method<double(int)> m1("m1", &Generic_TaskTest::m1, this);
+    Method<double(int,double)> m2("m2", &Generic_TaskTest::m2, this);
+    Method<double(int,double,bool)> m3("m3", &Generic_TaskTest::m3, this);
+    Method<double(int,double,bool,std::string)> m4("m4", &Generic_TaskTest::m4, this);
+
+    to.methods()->addMethod( &m0, "desc");
+    to.methods()->addMethod( &m1, "desc", "a1", "d1");
+    to.methods()->addMethod( &m2, "desc", "a1", "d1", "a2","d2");
+    to.methods()->addMethod( &m3, "desc", "a1", "d1", "a2","d2","a3","d3");
+    to.methods()->addMethod( &m4, "desc", "a1", "d1", "a2","d2","a3","d3", "a4","d4");
+
+    double ret;
+    MethodC mc0( to.methods(), "m0");
+    mc0.ret(ret);
+    MethodC mc1( to.methods(), "m1");
+    mc1.argC(1).ret(ret);
+    MethodC mc2( to.methods(), "m2");
+    mc2.argC(1).argC(2.0).ret(ret);
+    MethodC mc3( to.methods(), "m3");
+    mc3.argC(1).argC(2.0).argC(false).ret(ret);
+    MethodC mc4( to.methods(), "m4");
+    mc4.argC(1).argC(2.0).argC(false).argC(std::string("hello")).ret(ret);
+
+    CPPUNIT_ASSERT( mc0.execute() );
+    CPPUNIT_ASSERT_EQUAL(-1.0, ret);
+    CPPUNIT_ASSERT( mc1.execute() );
+    CPPUNIT_ASSERT_EQUAL(-2.0, ret);
+    CPPUNIT_ASSERT( mc2.execute() );
+    CPPUNIT_ASSERT_EQUAL(-3.0, ret);
+    CPPUNIT_ASSERT( mc3.execute() );
+    CPPUNIT_ASSERT_EQUAL(-4.0, ret);
+    CPPUNIT_ASSERT( mc4.execute() );
+    CPPUNIT_ASSERT_EQUAL(-5.0, ret);
+}
+
+void Generic_TaskTest::testDSMethod()
+{
+    TaskObject to("task");
+
+    // A method of which the first argument type is a pointer to the object
+    // on which it must be invoked. The pointer is internally stored as a weak_ptr,
+    // thus the object must be stored in a shared_ptr, in a DataSource. Scripting
+    // requires this for copying state machines.
+
+    Method<double(Generic_TaskTest*)> meth0("m0",
+                                          &Generic_TaskTest::m0);
+
+    Method<double(Generic_TaskTest*,int)> meth1("m1",
+                                          &Generic_TaskTest::m1);
+
+    boost::shared_ptr<Generic_TaskTest> ptr( new Generic_TaskTest() );
+    ValueDataSource<boost::weak_ptr<Generic_TaskTest> >::shared_ptr wp = new ValueDataSource<boost::weak_ptr<Generic_TaskTest> >( ptr );
+    CPPUNIT_ASSERT( to.methods()->addMethodDS( wp.get(), &meth0, "desc" ) );
+    CPPUNIT_ASSERT( to.methods()->addMethodDS( wp.get(), &meth1, "desc", "a1", "d1" ) );
+
+    // this actually works ! the method will detect the deleted pointer.
+    //ptr.reset();
+    
+    CPPUNIT_ASSERT( tsim->start()) ;
+
+    double ret;
+    MethodC c0  = to.methods()->create("m0").ret(ret);
+    CPPUNIT_ASSERT( c0.execute() );
+    CPPUNIT_ASSERT_EQUAL( -1.0, ret );
+    MethodC c1  = to.methods()->create("m1").argC(1).ret(ret);
+    CPPUNIT_ASSERT( c1.execute() );
+    CPPUNIT_ASSERT_EQUAL( -2.0, ret );
+
+    CPPUNIT_ASSERT( tsim->stop()) ;
+
+}
+

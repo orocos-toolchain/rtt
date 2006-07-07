@@ -273,15 +273,16 @@ namespace ORO_Execution
      * @{
      */
     template<typename FunctorT>
-    class FunctorDataSource0
+    struct FunctorDataSource0
       : public DataSource< typename ReturnType<typename FunctorT::result_type>::type >
     {
       typedef typename ReturnType<typename FunctorT::result_type>::type value_t;
       mutable FunctionForwarder<value_t,FunctorT> ff;
-
     public:
-      FunctorDataSource0( FunctorT g )
-        : ff( g )
+        typedef boost::intrusive_ptr< FunctorDataSource0<FunctorT> > shared_ptr;
+
+        FunctorDataSource0( FunctorT g )
+            : ff( g )
         {
         }
 
@@ -295,27 +296,34 @@ namespace ORO_Execution
           return ff.result();
         }
 
-        virtual DataSource<value_t>* clone() const
+        virtual FunctorDataSource0* clone() const
         {
             return new FunctorDataSource0( ff.gen );
         }
-        virtual DataSource<value_t>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& /*alreadyCloned*/ ) const
+        virtual FunctorDataSource0* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& /*alreadyCloned*/ ) const
         {
           return new FunctorDataSource0<FunctorT>( ff.gen );
         }
     };
 
   template<typename FunctorT, typename Arg1T>
-  class FunctorDataSource1
+  struct FunctorDataSource1
       : public DataSource< typename FunctorT::result_type >
   {
     typedef typename FunctorT::result_type value_t;
     mutable FunctionForwarder<value_t,FunctorT> ff;
     typename DataSource<Arg1T>::shared_ptr arg1;
   public:
-    FunctorDataSource1( FunctorT g, DataSource<Arg1T>* a1 )
-      : ff( g ), arg1( a1 )
+      typedef boost::intrusive_ptr< FunctorDataSource1<FunctorT,Arg1T> > shared_ptr;
+
+      FunctorDataSource1( FunctorT g, DataSource<Arg1T>* a1 = 0 )
+          : ff( g ), arg1( a1 )
       {
+      }
+
+      void setArguments(DataSource<Arg1T>* a1) 
+      {
+          arg1 = a1;
       }
 
       value_t value() const
@@ -328,11 +336,11 @@ namespace ORO_Execution
           return ff.invoke( arg1.get() );
       }
 
-    virtual DataSource<value_t>* clone() const
+    virtual FunctorDataSource1<FunctorT, Arg1T>* clone() const
       {
         return new FunctorDataSource1<FunctorT, Arg1T>( ff.gen, arg1.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
+    virtual FunctorDataSource1<FunctorT, Arg1T>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorDataSource1<FunctorT, Arg1T>( ff.gen, arg1->copy( alreadyCloned ) );
       }
@@ -355,6 +363,8 @@ namespace ORO_Execution
         mutable plain_t res;
         static plain_t empty_return;
     public:
+        typedef boost::intrusive_ptr< FunctorDataSourceDS0<ComponentT,FunctorT> > shared_ptr;
+
       FunctorDataSourceDS0(DataSource<boost::weak_ptr<ComponentT> >*c, FunctorT g )
         : ds(c), gen( g )
         {
@@ -376,11 +386,11 @@ namespace ORO_Execution
             return res;
         }
 
-        virtual DataSource<value_t>* clone() const
+        virtual FunctorDataSourceDS0<ComponentT,FunctorT>* clone() const
         {
             return new FunctorDataSourceDS0<ComponentT,FunctorT>( ds.get(),  gen );
         }
-      virtual DataSource<value_t>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
+      virtual FunctorDataSourceDS0<ComponentT,FunctorT>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
         {
           return new FunctorDataSourceDS0<ComponentT, FunctorT>( ds->copy(alreadyCloned),  gen );
         }
@@ -407,7 +417,9 @@ namespace ORO_Execution
       mutable plain_t res;
       static plain_t empty_return;
   public:
-    FunctorDataSourceDS1(DataSource<boost::weak_ptr<ComponentT> >* c, FunctorT g, DataSource<Arg1T>* a1 )
+        typedef boost::intrusive_ptr< FunctorDataSourceDS1<ComponentT,FunctorT,Arg1T> > shared_ptr;
+
+    FunctorDataSourceDS1(DataSource<boost::weak_ptr<ComponentT> >* c, FunctorT g, DataSource<Arg1T>* a1 = 0 )
       : ds(c), gen( g ), arg1( a1 )
       {
       }
@@ -425,16 +437,21 @@ namespace ORO_Execution
             return empty_return;
       }
 
+      void setArguments(DataSource<Arg1T>* a1) 
+      {
+          arg1 = a1;
+      }
+
         value_t value() const 
         {
             return res;
         }
 
-    virtual DataSource<value_t>* clone() const
+    virtual FunctorDataSourceDS1<ComponentT, FunctorT, Arg1T>* clone() const
       {
         return new FunctorDataSourceDS1<ComponentT, FunctorT, Arg1T>( ds.get(), gen, arg1.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
+    virtual FunctorDataSourceDS1<ComponentT, FunctorT, Arg1T>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorDataSourceDS1<ComponentT, FunctorT, Arg1T>( ds->copy(alreadyCloned),  gen, arg1->copy( alreadyCloned ) );
       }
@@ -445,7 +462,7 @@ namespace ORO_Execution
         FunctorDataSourceDS1<ComponentT, FunctorT, A>::empty_return;
 
   template<typename FunctorT, typename Arg1T, typename Arg2T>
-  class FunctorDataSource2
+  struct FunctorDataSource2
       : public DataSource< typename FunctorT::result_type >
   {
     typedef typename FunctorT::result_type value_t;
@@ -453,9 +470,17 @@ namespace ORO_Execution
     typename DataSource<Arg1T>::shared_ptr arg1;
     typename DataSource<Arg2T>::shared_ptr arg2;
   public:
-    FunctorDataSource2( FunctorT g, DataSource<Arg1T>* a1, DataSource<Arg2T>* a2 )
-        : ff( g ), arg1( a1 ), arg2(a2)
+      typedef boost::intrusive_ptr< FunctorDataSource2<FunctorT,Arg1T,Arg2T> > shared_ptr;
+
+      FunctorDataSource2( FunctorT g, DataSource<Arg1T>* a1 = 0, DataSource<Arg2T>* a2 = 0 )
+          : ff( g ), arg1( a1 ), arg2(a2)
       {
+      }
+
+      void setArguments(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2) 
+      {
+          arg1 = a1;
+          arg2 = a2;
       }
 
       value_t value() const
@@ -468,11 +493,11 @@ namespace ORO_Execution
           return ff.invoke( arg1.get(), arg2.get() );
       }
 
-    virtual DataSource<value_t>* clone() const
+    virtual FunctorDataSource2<FunctorT, Arg1T, Arg2T>* clone() const
       {
         return new FunctorDataSource2<FunctorT, Arg1T, Arg2T>( ff.gen, arg1.get(), arg2.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
+    virtual FunctorDataSource2<FunctorT, Arg1T, Arg2T>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorDataSource2<FunctorT, Arg1T, Arg2T>( ff.gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned) );
       }
@@ -488,10 +513,20 @@ namespace ORO_Execution
     typename DataSource<Arg2T>::shared_ptr arg2;
     typename DataSource<Arg3T>::shared_ptr arg3;
   public:
-    FunctorDataSource3( FunctorT g, DataSource<Arg1T>* a1, DataSource<Arg2T>* a2, DataSource<Arg3T>* a3 )
-        : ff( g ), arg1( a1 ), arg2(a2), arg3(a3)
+      typedef boost::intrusive_ptr< FunctorDataSource3<FunctorT,Arg1T,Arg2T,Arg3T> > shared_ptr;
+      
+      FunctorDataSource3( FunctorT g, DataSource<Arg1T>* a1 = 0, DataSource<Arg2T>* a2 = 0, DataSource<Arg3T>* a3 = 0)
+          : ff( g ), arg1( a1 ), arg2(a2), arg3(a3)
       {
       }
+
+      void setArguments(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2, DataSource<Arg3T>* a3) 
+      {
+          arg1 = a1;
+          arg2 = a2;
+          arg3 = a3;
+      }
+
 
       value_t value() const
       {
@@ -503,11 +538,11 @@ namespace ORO_Execution
           return ff.invoke( arg1.get(), arg2.get(), arg3.get() );
       }
 
-    virtual DataSource<value_t>* clone() const
+    virtual FunctorDataSource3<FunctorT, Arg1T, Arg2T, Arg3T>* clone() const
       {
         return new FunctorDataSource3<FunctorT, Arg1T, Arg2T, Arg3T>( ff.gen, arg1.get(), arg2.get(), arg3.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
+    virtual FunctorDataSource3<FunctorT, Arg1T, Arg2T, Arg3T>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorDataSource3<FunctorT, Arg1T, Arg2T, Arg3T>( ff.gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned), arg3->copy( alreadyCloned) );
       }
@@ -524,9 +559,11 @@ namespace ORO_Execution
     typename DataSource<Arg3T>::shared_ptr arg3;
     typename DataSource<Arg4T>::shared_ptr arg4;
   public:
-    FunctorDataSource4( FunctorT g, DataSource<Arg1T>* a1, DataSource<Arg2T>* a2,
-                        DataSource<Arg3T>* a3, DataSource<Arg4T>* a4 )
-        : ff( g ), arg1( a1 ), arg2(a2), arg3(a3), arg4(a4)
+      typedef boost::intrusive_ptr< FunctorDataSource4<FunctorT,Arg1T,Arg2T,Arg3T,Arg4T> > shared_ptr;
+
+      FunctorDataSource4( FunctorT g, DataSource<Arg1T>* a1 = 0, DataSource<Arg2T>* a2 = 0,
+                          DataSource<Arg3T>* a3 = 0, DataSource<Arg4T>* a4 = 0)
+          : ff( g ), arg1( a1 ), arg2(a2), arg3(a3), arg4(a4)
       {
       }
 
@@ -535,21 +572,81 @@ namespace ORO_Execution
           return ff.result();
       }
 
+      void setArguments(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2, DataSource<Arg3T>* a3, DataSource<Arg4T>* a4) 
+      {
+          arg1 = a1;
+          arg2 = a2;
+          arg3 = a3;
+          arg4 = a4;
+      }
+
       value_t get() const
       {
           return ff.invoke( arg1.get(), arg2.get(), arg3.get(), arg4.get() );
       }
 
-    virtual DataSource<value_t>* clone() const
+    virtual FunctorDataSource4<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T>* clone() const
       {
         return new FunctorDataSource4<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T>( ff.gen, arg1.get(), arg2.get(),
                                                                              arg3.get(), arg4.get() );
       }
-    virtual DataSource<value_t>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
+    virtual FunctorDataSource4<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
       {
         return new FunctorDataSource4<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T>( ff.gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned), arg3->copy( alreadyCloned), arg4->copy( alreadyCloned) );
       }
   };
+
+        template<int, class F>
+        struct FunctorDataSourceI;
+
+        template<class F>
+        struct FunctorDataSourceI<0,F>
+            : public FunctorDataSource0<F>
+        {
+            FunctorDataSourceI( F f )
+                : FunctorDataSource0<F>(f) {}
+        };
+
+        template<class F>
+        struct FunctorDataSourceI<1,F>
+            : public FunctorDataSource1<F, typename F::arg1_type>
+        {
+            FunctorDataSourceI( F f )
+                : FunctorDataSource1<F, typename F::arg1_type>(f) {}
+        };
+
+        template<class F>
+        struct FunctorDataSourceI<2,F>
+            : public FunctorDataSource2<F, typename F::arg1_type, typename F::arg2_type>
+        {
+            FunctorDataSourceI( F f )
+                : FunctorDataSource2<F, typename F::arg1_type, typename F::arg2_type>(f) {}
+        };
+
+        template<class F>
+        struct FunctorDataSourceI<3,F>
+            : public FunctorDataSource3<F, typename F::arg1_type, typename F::arg2_type, typename F::arg3_type>
+        {
+            FunctorDataSourceI( F f )
+                : FunctorDataSource3<F, typename F::arg1_type, typename F::arg2_type, typename F::arg3_type>(f) {}
+        };
+
+        template<class F>
+        struct FunctorDataSourceI<4,F>
+            : public FunctorDataSource4<F, typename F::arg1_type, typename F::arg2_type,typename F::arg3_type, typename F::arg4_type>
+        {
+            FunctorDataSourceI( F f )
+                : FunctorDataSource4<F, typename F::arg1_type, typename F::arg2_type,typename F::arg3_type, typename F::arg4_type>(f) {}
+        };
+
+
+        template<class F>
+        struct FunctorDataSource
+            : public FunctorDataSourceI<F::arity, F>
+        {
+            FunctorDataSource( F f )
+                : FunctorDataSourceI<F::arity, F>(f) {}
+        };
 
   /**
    * @}

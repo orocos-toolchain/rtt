@@ -116,9 +116,6 @@ namespace ORO_Execution { namespace detail
       // try-block condition
       ConditionInterface* try_cond;
 
-      // Dispatch Condition
-      ConditionInterface* dc;
-
       void seencondition();
 
       void seencallfunclabel( iter_t begin, iter_t end );

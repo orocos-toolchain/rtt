@@ -63,9 +63,12 @@ namespace ORO_Execution
          * Execute the command in any case.
          * If the command is Asynch, this will do nothing.
          */
-        command->readArguments();
 		return command->execute();
 	}
+
+    bool VertexNode::isValid() const {
+        return command->valid();
+    }
 
 	CommandInterface* VertexNode::getCommand() const
 	{
@@ -93,6 +96,7 @@ namespace ORO_Execution
     {
         // reset the command
         command->reset();
+        command->readArguments();
     }
 
     VertexNode VertexNode::copy( std::map<const DataSourceBase*, DataSourceBase*>& rdss ) const

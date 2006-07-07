@@ -214,16 +214,16 @@ namespace ORO_Execution
             }
         
             // Branch selecting Logic :
-            for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei)
-                {
-                    if ( emap[*ei].evaluate() )
-                        {
-                            current = boost::target(*ei, program);
-                            // a new node has been found ...
-                            // so continue
-                            break; // exit from for loop.
-                        }
+            if ( cmap[current].isValid() ) {
+                for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei) {
+                    if ( emap[*ei].evaluate() ) {
+                        current = boost::target(*ei, program);
+                        // a new node has been found ...
+                        // so continue
+                        break; // exit from for loop.
+                    }
                 }
+            }
         } while ( previous != current && pStatus == Status::running && !pausing); // keep going if we found a new node
 
         // check finished state
@@ -257,18 +257,18 @@ namespace ORO_Execution
         }
 
         // Branch selecting Logic :
-        for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei)
-        {
-            if ( emap[*ei].evaluate() )
-            {
-                current = boost::target(*ei, program);
-                if (current == exitv)
-                    this->stop();
-                // a new node has been found ...
-                // it will be executed in the next step.
-                return true;
+        if ( cmap[current].isValid() ) {
+            for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei) {
+                if ( emap[*ei].evaluate() ) {
+                    current = boost::target(*ei, program);
+                    if (current == exitv)
+                        this->stop();
+                    // a new node has been found ...
+                    // it will be executed in the next step.
+                    return true;
+                }
             }
-        } 
+        }
         // check finished state
         if (current == exitv)
             this->stop();

@@ -72,19 +72,18 @@ namespace ORO_CoreLib
         virtual bool execute() = 0;
 
         /**
-         * Reset this command.  This method is called when the
-         * ProgramNode containing this command is entered.  Then,
-         * the command continues to become executed until one of
-         * the termination clauses becomes true, and this method
-         * is not called.  Only when the ProgramNode is left and
-         * after some time reentered, this method is called
-         * again.  AsynchCommandDecorator needs this, and also
-         * Commands that have DataSource arguments need to reset
-         * them..
-         * @see ConditionInterface::reset
-         * @see DataSource::reset
+         * Reset this command. Must be used after execute() failed.
          */
         virtual void reset();
+
+        /**
+         * Inspect if this command was \a executed and \a valid.
+         * This method may not be called before execute(). The
+         * default implementation returns always \a true, i.e.
+         * after execute(), it was executed. Override this method
+         * if it has more complex state semantics.
+         */
+        virtual bool valid() const;
 
         /**
          * This is invoked some time before execute() at a time

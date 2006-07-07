@@ -44,6 +44,7 @@ namespace ORO_CoreLib
 namespace ORO_Execution
 {
     class GlobalCommandFactory;
+    class CommandRepository;
 
     /**
      * A user friendly Command to a TaskContext.
@@ -55,7 +56,7 @@ namespace ORO_Execution
          */
         class D;
         D* d;
-        std::pair<DispatchInterface*,ORO_CoreLib::ConditionInterface*> cc;
+        DispatchInterface* cc;
     public:
         /**
          * The default constructor
@@ -71,16 +72,21 @@ namespace ORO_Execution
         CommandC( const GlobalCommandFactory* gcf, const std::string& obj, const std::string& name);
 
         /**
+         * The constructor.
+         * @see CommandRepository
+         */
+        CommandC( const CommandRepository* gcf, const std::string& name);
+
+        /**
          * A CommandC is copyable by value.
          */
         CommandC(const CommandC& other);
 
         /**
-         * Create a CommandC object from a command and a termination condition.
+         * Create a CommandC object from a dispatch command.
          * @param di The command, the CommandC takes ownership.
-         * @param ci The condition, the CommandC takes ownership.
          */
-        CommandC::CommandC(DispatchInterface* di, ORO_CoreLib::ConditionInterface* ci);
+        CommandC::CommandC(DispatchInterface* di);
 
         /**
          * A CommandC is assignable.
@@ -136,18 +142,18 @@ namespace ORO_Execution
         bool sent() const;
 
         /**
-         * Check if the Command was executed by the receiving task.
-         * @retval true if accepted and executed by the Command Processor.
-         * @retval false otherwise.
-         */
-        bool executed() const;
-
-        /**
          * Check if the Command was accepted by the receiving task.
          * @retval true if accepted by the command processor.
          * @retval false otherwise.
          */
         bool accepted() const;
+
+        /**
+         * Check if the Command was executed by the receiving task.
+         * @retval true if accepted and executed by the Command Processor.
+         * @retval false otherwise.
+         */
+        bool executed() const;
 
         /**
          * Check the return value of the Command when it is
@@ -172,17 +178,6 @@ namespace ORO_Execution
          */
         void reset();
 
-        /**
-         * Creates a command which will invoke this->execute()
-         * when executed.
-         */
-        ORO_CoreLib::CommandInterface* createCommand() const;
-
-        /**
-         * Creates a condition which will invoke this->evaluate()
-         * when executed.
-         */
-        ORO_CoreLib::ConditionInterface* createCondition() const;
     };
 }
 
