@@ -70,7 +70,7 @@ PACKAGES="$srcdir/support/gcc/current/gcc.cdl $PACKAGES"
 AC_MSG_RESULT($ORO_GCC_VERSION)
 
 AC_CONFIG_FILES([ 
-  Makefile
+  $srcdir/Makefile
   $PACKAGES ])
 
 
