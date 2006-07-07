@@ -95,22 +95,7 @@ AC_ARG_ENABLE(profiling,
 AM_CONDITIONAL(DOPROFTESTS, test x$profs = xyes)
 AC_MSG_RESULT( $profs )
 
-# Setup the packages
-echo "Running configure in packages..."
-cd $ECOS_REP
-# make sure configure is up-to-date
-ORO_AUTOCONF=$(which autoconf)
-if test x$ORO_AUTOCONF != x; then
-echo "Running autogen..."
-./autogen.sh
-fi
-# make distcheck hack :
-chmod u+w . -R
 AC_CONFIG_SUBDIRS(packages)
-echo "Running Make db in packages..."
-make db
-cd -
-
 OROCOS_EXPORT_FLAGS
 
 AC_CONFIG_FILES([ 
@@ -124,4 +109,11 @@ AC_CONFIG_FILES([
   ])
 
 OROCOS_OUTPUT
+
+# Setup the packages
+echo "Setting up packages..."
+cd $ECOS_REP
+echo "Running Make db in packages..."
+make db
+cd -
 

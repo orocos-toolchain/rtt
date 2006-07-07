@@ -69,6 +69,10 @@ AC_SUBST(ORO_CXXFLAGS)
 PACKAGES="$srcdir/support/gcc/current/gcc.cdl $PACKAGES"
 AC_MSG_RESULT($ORO_GCC_VERSION)
 
+PKG_BLD_DIR=$(pwd)
+AC_SUBST(PKG_BLD_DIR)
+
+
 AC_CONFIG_FILES([ 
   $srcdir/Makefile
   $PACKAGES ])

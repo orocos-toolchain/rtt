@@ -7,7 +7,7 @@ etags:
 
 db: configure
 	@find support -name "*.cdl" | xargs rm -f
-	@./config.status
+	@cd @PKG_BLD_DIR@; ./config.status; cd -
 	@echo "Generating ecos.db file ..."
 	@rm -f ecos.db
 	@touch ecos.db
@@ -19,7 +19,7 @@ db: configure
 
 configure: acinclude.m4 configure.ac
 	./autogen.sh
-	./config.status --recheck
+	cd @PKG_BLD_DIR@; ./config.status --recheck; cd -
 
 clean: doc-dist-clean
 	@echo "Cleaning up..."
