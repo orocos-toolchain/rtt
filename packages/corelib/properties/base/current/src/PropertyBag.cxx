@@ -36,15 +36,15 @@ namespace ORO_CoreLib
 {
 
     PropertyBag::PropertyBag( )
-        : _properties(), type("type_less")
+        : mproperties(), type("type_less")
     {}
 
     PropertyBag::PropertyBag( const std::string& _type)
-        : _properties(), type(_type)
+        : mproperties(), type(_type)
     {}
 
     PropertyBag::PropertyBag( const PropertyBag& orig)
-        : _properties( orig.getProperties() ), type( orig.getType() )
+        : mproperties( orig.getProperties() ), type( orig.getType() )
     {
     }
 
@@ -60,17 +60,17 @@ namespace ORO_CoreLib
 
     bool PropertyBag::addProperty(PropertyBase *p)
     {
-        _properties.push_back(p);
+        mproperties.push_back(p);
         return true;
     }
 
     bool PropertyBag::removeProperty(PropertyBase *p)
     {
-        iterator i = _properties.begin();
-        i = _properties.end();
-        i = std::find(_properties.begin(), _properties.end(), p);
-        if ( i != _properties.end() ) {
-            _properties.erase(i);
+        iterator i = mproperties.begin();
+        i = mproperties.end();
+        i = std::find(mproperties.begin(), mproperties.end(), p);
+        if ( i != mproperties.end() ) {
+            mproperties.erase(i);
             return true;
         }
         return false;
@@ -78,24 +78,37 @@ namespace ORO_CoreLib
 
     void PropertyBag::clear()
     {
-        _properties.clear();
+        mproperties.clear();
     }
 
     void PropertyBag::list(std::vector<std::string> &names) const
     {
         for (
-             const_iterator i = _properties.begin();
-             i != _properties.end();
+             const_iterator i = mproperties.begin();
+             i != mproperties.end();
              i++ )
             {
                 names.push_back( (*i)->getName() );
             }
     }
 
+    std::vector<std::string> PropertyBag::list() const
+    {
+        std::vector<std::string> names;
+        for (
+             const_iterator i = mproperties.begin();
+             i != mproperties.end();
+             i++ )
+            {
+                names.push_back( (*i)->getName() );
+            }
+        return names;
+    }
+
     void PropertyBag::identify( PropertyIntrospection* pi ) const
     {
-        for ( const_iterator i = _properties.begin();
-              i != _properties.end();
+        for ( const_iterator i = mproperties.begin();
+              i != mproperties.end();
               i++ )
             {
                 (*i)->identify(pi);
@@ -104,8 +117,8 @@ namespace ORO_CoreLib
 
     void PropertyBag::identify( PropertyBagVisitor* pi ) const
     {
-        for ( const_iterator i = _properties.begin();
-              i != _properties.end();
+        for ( const_iterator i = mproperties.begin();
+              i != mproperties.end();
               i++ )
             {
                 (*i)->identify(pi);
@@ -114,15 +127,15 @@ namespace ORO_CoreLib
 
     PropertyBase* PropertyBag::find(const std::string& name) const
     {
-        const_iterator i( std::find_if(_properties.begin(), _properties.end(), std::bind2nd(PropertyBag::FindProp(), name ) ) );
-        if ( i != _properties.end() )
+        const_iterator i( std::find_if(mproperties.begin(), mproperties.end(), std::bind2nd(PropertyBag::FindProp(), name ) ) );
+        if ( i != mproperties.end() )
             return ( *i );
         return 0;
     }
 
     PropertyBag& PropertyBag::operator=(const PropertyBag& orig)
     {
-        _properties.clear();
+        mproperties.clear();
 
         const_iterator i = orig.getProperties().begin();
         while (i != orig.getProperties().end() )

@@ -87,10 +87,27 @@ namespace ORO_CoreLib
     class PropertyBag
     {
     public:
-        typedef std::vector<PropertyBase*> PropertyContainerType;
-        typedef PropertyContainerType::iterator iterator;
-        typedef PropertyContainerType::const_iterator const_iterator;
+        /**
+         * The container in which the properties are stored.
+         */
+        typedef std::vector<PropertyBase*> Properties;
+        /**
+         * Deprecated, use Properties.
+         */
+        typedef Properties PropertyContainerType;
+        /**
+         * An iterator over the Properties.
+         */
+        typedef Properties::iterator iterator;
+        /**
+         * A const iterator over the Properties.
+         */
+        typedef Properties::const_iterator const_iterator;
 
+        /**
+         * The container to hold names of Properties.
+         */
+        typedef std::vector<std::string> Names;
         /**
          * The default constructor.
          */
@@ -141,18 +158,24 @@ namespace ORO_CoreLib
         void clear();
 
         /**
-         * List all properties.
+         * List the names of all properties.
          * @param names The container which will be used to store all
          * available property names in.
          */
-        void list(std::vector<std::string> &names) const;
+        void list(Names &names) const;
+
+        /**
+         * List the names of all properties.
+         * @return A container of names.
+         */
+        Names list() const;
 
         /**
          * Return true if no properties are present in this bag.
          */
         bool empty() const
         {
-            return _properties.empty();
+            return mproperties.empty();
         }
 
         /**
@@ -166,8 +189,8 @@ namespace ORO_CoreLib
         template<class T>
         Property<T>* getProperty(const std::string& name) const
         {
-            const_iterator i( std::find_if(_properties.begin(), _properties.end(), std::bind2nd(FindProp(), name ) ) );
-            if ( i != _properties.end() )
+            const_iterator i( std::find_if(mproperties.begin(), mproperties.end(), std::bind2nd(FindProp(), name ) ) );
+            if ( i != mproperties.end() )
                 return dynamic_cast< Property<T>* >( *i );
             return 0;
         }
@@ -175,7 +198,7 @@ namespace ORO_CoreLib
         /**
          * Get the number of Properties in this bag.
          */
-        size_t size() const { return _properties.size(); }
+        size_t size() const { return mproperties.size(); }
 
         /**
          * Identify the contents of this bag through introspection.
@@ -222,15 +245,15 @@ namespace ORO_CoreLib
 
         void setType(const std::string& newtype) { type = newtype; }
 
-        PropertyContainerType& getProperties() { return _properties; }
-        const PropertyContainerType& getProperties() const { return _properties; }
+        Properties& getProperties() { return mproperties; }
+        const Properties& getProperties() const { return mproperties; }
 
-        iterator begin() { return _properties.begin(); }
-        const_iterator begin() const { return _properties.begin(); }
-        iterator end() { return _properties.end(); }
-        const_iterator end() const { return _properties.end(); }
+        iterator begin() { return mproperties.begin(); }
+        const_iterator begin() const { return mproperties.begin(); }
+        iterator end() { return mproperties.end(); }
+        const_iterator end() const { return mproperties.end(); }
     protected:
-        PropertyContainerType _properties;
+        Properties mproperties;
 
         /**
          * A function object for finding a Property by name.
