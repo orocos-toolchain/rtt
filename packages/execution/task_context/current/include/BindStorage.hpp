@@ -5,6 +5,7 @@
 #include <boost/function_types/function_type.hpp>
 #include <boost/function_types/function_type_arity.hpp>
 #include <boost/bind.hpp>
+#include <boost/mem_fn.hpp>
 
 namespace ORO_Execution
 {
@@ -303,8 +304,8 @@ namespace ORO_Execution
             template<class F, class C, class ObjectType>
             BindStorageImpl(F f, C c, ObjectType t)
                 :
-                invoke(boost::bind<bool>( f, t ) ), // allocates
-                check(boost::bind<bool>( c, t) )    // allocates
+                invoke(boost::bind<bool>( boost::mem_fn(f), t ) ), // allocates
+                check(boost::bind<bool>( boost::mem_fn(c), t) )    // allocates
             {}
 
             template<class F, class C>
@@ -355,7 +356,7 @@ namespace ORO_Execution
             template<class F, class C, class ObjectType>
             BindStorageImpl(F f, C c, ObjectType t)
                 :
-                comm(boost::bind<bool>( f, t, _1 ) ), // allocates
+                comm(boost::bind<bool>( boost::mem_fn(f), t, _1 ) ), // allocates
                 invoke(boost::bind<result_type>( comm, arg1_type() )),
                 cond( quickbind<C,ObjectType>( c, t) ), // allocates
                 check(boost::bind<result_type>( cond, arg1_type() ))
@@ -398,8 +399,8 @@ namespace ORO_Execution
             template<class F, class C, class ObjectType>
             BindStorageImpl(F f, C c, ObjectType t)
                 :
-                comm(boost::bind<bool>( f, t, _1, _2 ) ), // allocates
-                cond( quickbind<C,ObjectType>(c,t) ),
+                comm(boost::bind<bool>( boost::mem_fn(f), t, _1, _2 ) ), // allocates
+                cond( quickbind<C,ObjectType>( c, t) ),
                 invoke(boost::bind<result_type>( comm, arg1_type(), arg2_type() )),
                 check(boost::bind<result_type>( cond, arg1_type(), arg2_type() ))
             {}
@@ -442,8 +443,8 @@ namespace ORO_Execution
             template<class F, class C, class ObjectType>
             BindStorageImpl(F f, C c, ObjectType t)
                 :
-                comm(boost::bind<bool>( f, t, _1, _2, _3 ) ), // allocates
-                cond( quickbind<C,ObjectType>(c,t) ),
+                comm(boost::bind<bool>( boost::mem_fn(f), t, _1, _2, _3 ) ), // allocates
+                cond( quickbind<C,ObjectType>( c,t) ),
                 invoke(boost::bind<result_type>( comm, arg1_type(), arg2_type(), arg3_type() )),
                 check(boost::bind<result_type>( cond, arg1_type(), arg2_type(), arg3_type() ))
             {}
@@ -470,8 +471,8 @@ namespace ORO_Execution
             template<class F, class C, class ObjectType>
             BindStorageImpl(F f, C c, ObjectType t)
                 :
-                comm(boost::bind<bool>( f, t, _1, _2, _3, _4 ) ), // allocates
-                cond( quickbind<C,ObjectType>(c,t) ),
+                comm(boost::bind<bool>( boost::mem_fn(f), t, _1, _2, _3, _4 ) ), // allocates
+                cond( quickbind<C,ObjectType>( c,t) ),
                 invoke(boost::bind<result_type>( comm, arg1_type(), arg2_type(), arg3_type(), arg4_type() )),
                 check(boost::bind<result_type>( cond, arg1_type(), arg2_type(), arg3_type(), arg4_type() ))
             {}
@@ -514,7 +515,7 @@ namespace ORO_Execution
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
-                return boost::bind( m, o );
+                return boost::bind( boost::mem_fn(m), o );
             }
         };
 
@@ -523,7 +524,7 @@ namespace ORO_Execution
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
-                return boost::bind( m, o, _1 );
+                return boost::bind( boost::mem_fn(m), o, _1 );
             }
         };
 
@@ -532,7 +533,7 @@ namespace ORO_Execution
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
-                return boost::bind( m, o, _1, _2 );
+                return boost::bind( boost::mem_fn(m), o, _1, _2 );
             }
         };
 
@@ -541,7 +542,7 @@ namespace ORO_Execution
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
-                return boost::bind( m, o, _1, _2, _3 );
+                return boost::bind( boost::mem_fn(m), o, _1, _2, _3 );
             }
         };
 
@@ -550,7 +551,7 @@ namespace ORO_Execution
         {
             template<class M, class O>
             boost::function<F> operator()(M m, O o) {
-                return boost::bind( m, o, _1, _2, _3, _4 );
+                return boost::bind( boost::mem_fn(m), o, _1, _2, _3, _4 );
             }
         };
 
