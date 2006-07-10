@@ -505,6 +505,59 @@ namespace ORO_Execution
                 : BindStorageImpl<boost::function_traits<ToBind>::arity, ToBind>( f, c)
             {}
         };
+
+        template<int, class F>
+        struct MethodBinderImpl;
+
+        template<class F>
+        struct MethodBinderImpl<0,F>
+        {
+            template<class M, class O>
+            boost::function<F> operator()(M m, O o) {
+                return boost::bind( m, o );
+            }
+        };
+
+        template<class F>
+        struct MethodBinderImpl<1,F>
+        {
+            template<class M, class O>
+            boost::function<F> operator()(M m, O o) {
+                return boost::bind( m, o, _1 );
+            }
+        };
+
+        template<class F>
+        struct MethodBinderImpl<2,F>
+        {
+            template<class M, class O>
+            boost::function<F> operator()(M m, O o) {
+                return boost::bind( m, o, _1, _2 );
+            }
+        };
+
+        template<class F>
+        struct MethodBinderImpl<3,F>
+        {
+            template<class M, class O>
+            boost::function<F> operator()(M m, O o) {
+                return boost::bind( m, o, _1, _2, _3 );
+            }
+        };
+
+        template<class F>
+        struct MethodBinderImpl<4,F>
+        {
+            template<class M, class O>
+            boost::function<F> operator()(M m, O o) {
+                return boost::bind( m, o, _1, _2, _3, _4 );
+            }
+        };
+
+        template<class F>
+        struct MethodBinder
+            : public MethodBinderImpl<boost::function_traits<F>::arity, F>
+        {};
     }
 }
 #endif

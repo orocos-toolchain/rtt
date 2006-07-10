@@ -8,8 +8,8 @@
 namespace ORO_Execution
 {
     /**
-     * The minimal Orocos task. It has a name and and ExecutionEngine
-     * to process events or commands and run the task's function. It
+     * The minimal Orocos task. It has a name and an ExecutionEngine
+     * to process events,commands, programs, statemachines and run a user function. It
      * is useful for in embedded systems, where communication between
      * tasks may be hard coded and hence, no interface browsing or
      * task browsing is required (for every task).

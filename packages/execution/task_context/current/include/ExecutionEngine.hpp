@@ -43,10 +43,15 @@ namespace ORO_Execution
     class TaskCore;
 
     /**
-     * An execution engine serialises the execution of all commands, programs,
-     * state machines and incomming events for a task.
-     * Any 'concurrent' activity executing in the same execution engine
-     * is guaranteed to be non preempting, thus thread-safe.
+     * An execution engine serialises (executes one after the other)
+     * the execution of all commands, programs, state machines and
+     * incomming events for a task.  Any function executing in the
+     * same execution engine is guaranteed to be thread-safe with
+     * respect to other functions executing in the same execution
+     * engine.
+     *
+     * The ExecutionEngine bundles a CommandProcessor, ProgramProcessor,
+     * StateMachineProcessor and EventProcessor.
      */
     class ExecutionEngine
         : public ORO_CoreLib::RunnableInterface
@@ -72,8 +77,13 @@ namespace ORO_Execution
          * of this task. If you provide another ExecutionEngine as argument,
          * this execution engine delegates all requests to that execution engine
          * and does itself nothing.
+         * @param owner The TaskCore in which this execution engine executes.
+         * @param parent The parent which will execute this ExecutionEngine. This execution engine
+         * will act as a slave. When the parent executes, this execution engine
+         * is executed as well. If none given, one must attach an ActivityInterface
+         * implementation in order to run this engine.
          */
-        ExecutionEngine( TaskCore* owner, ExecutionEngine* other_ee = 0 );
+        ExecutionEngine( TaskCore* owner, ExecutionEngine* parent = 0 );
         
         ~ExecutionEngine();
 
@@ -87,24 +97,46 @@ namespace ORO_Execution
 
         virtual void setActivity(ORO_CoreLib::ActivityInterface* t);
 
+        /**
+         * In case a parent execution engine was given, return it, otherwise,
+         * return \a this.
+         */
         ExecutionEngine* getParent();
 
+        /**
+         * Returns the owner of this execution engine.
+         */
         TaskCore* getTaskCore() { return taskc; }
 
+        /**
+         * Inform this execution engine that it gets a new parent.
+         */
         void reparent(ExecutionEngine* new_parent);
 
+        /** 
+         * Return the CommandProcessor of this engine.
+         */
         CommandProcessor* commands() const {
             return mainee ? mainee->getCommandProcessor() : cproc;
         }
 
+        /** 
+         * Return the ProgramProcessor of this engine.
+         */
         ProgramProcessor* programs() const {
             return mainee ? mainee->getProgramProcessor() : pproc;
         }
 
+        /** 
+         * Return the StateMachineProcessor of this engine.
+         */
         StateMachineProcessor* states() const {
             return mainee ? mainee->getStateMachineProcessor() : smproc;
         }
 
+        /** 
+         * Return the EventProcessor of this engine.
+         */
         ORO_CoreLib::EventProcessor* events() const;
 
         CommandProcessor* getCommandProcessor() const {

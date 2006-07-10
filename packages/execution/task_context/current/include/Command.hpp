@@ -7,6 +7,7 @@
 #include "CommandProcessor.hpp"
 #include "CommandFunctors.hpp"
 #include "BindStorage.hpp"
+#include "UnMember.hpp"
 
 namespace ORO_Execution
 {
@@ -14,6 +15,7 @@ namespace ORO_Execution
      * A Command which is dispatched locally to a CommandProcessor.
      * @param CommandT The function signature of the command. For example,
      * bool( int, Frame, double)
+     *
      @code
      class X : public TaskContext
      {
@@ -47,6 +49,17 @@ namespace ORO_Execution
         bool minvoked, maccept, mvalid, mexec, minvert;
     public:
         typedef CommandT Signature;
+
+        /**
+         * Create an empty command object. Use assignment to
+         * initialise it.
+         * @see command
+         */
+        Command()
+            : mcp(0),
+              minvoked(false), maccept(false),
+              mvalid(false), mexec(false), minvert(false)
+        {}
 
         /** 
          * Create a Command object which executes a member function of a class that
@@ -117,7 +130,7 @@ namespace ORO_Execution
          * @return true if ready and succesfully queued.
          */
         bool operator()() {
-            if (minvoked && !evaluate() ) // if invoked and not ready.
+            if (!mcp ||(minvoked && !evaluate()) ) // if invoked and not ready.
                 return false;
             this->reset();
             minvoked = true;
@@ -126,7 +139,7 @@ namespace ORO_Execution
 
         template<class T>
         bool operator()( T a1 ) {
-            if (minvoked && !evaluate() ) // if invoked and not ready.
+            if (!mcp ||(minvoked && !evaluate()) ) // if invoked and not ready.
                 return false;
             this->reset();
             // bind types from Storage<Function>
@@ -138,7 +151,7 @@ namespace ORO_Execution
 
         template<class T1, class T2>
         bool operator()( T1 a1, T2 a2 ) {
-            if (minvoked && !evaluate() ) // if invoked and not ready.
+            if (!mcp ||(minvoked && !evaluate()) ) // if invoked and not ready.
                 return false;
             this->reset();
             // bind types from Storage<Function>
@@ -150,7 +163,7 @@ namespace ORO_Execution
 
         template<class T1, class T2, class T3>
         bool operator()( T1 a1, T2 a2, T3 a3 ) {
-            if (minvoked && !evaluate() ) // if invoked and not ready.
+            if (!mcp ||(minvoked && !evaluate()) ) // if invoked and not ready.
                 return false;
             this->reset();
             // bind types from Storage<Function>
@@ -162,7 +175,7 @@ namespace ORO_Execution
 
         template<class T1, class T2, class T3, class T4>
         bool operator()( T1 a1, T2 a2, T3 a3, T4 a4 ) {
-            if (minvoked && !evaluate() ) // if invoked and not ready.
+            if (!mcp ||(minvoked && !evaluate()) ) // if invoked and not ready.
                 return false;
             this->reset();
             // bind types from Storage<Function>
@@ -270,6 +283,65 @@ namespace ORO_Execution
         }
         
     };
+
+    /** 
+     * Factory function to create a Command object which executes a member function
+     * of an object. The object inherits from the TaskCore class and the command
+     * is executed in the ExecutionEngine's CommandProcessor of that object.
+     * 
+     * @param name The name of the command.
+     * @param command A pointer to a member function of \a object, which is executed as
+     * the command function
+     * @param condition A pointer to a member function of \a object, which is evaluated
+     * as completion condition
+     * @param object A pointer to an object which has \a command and \a condition as functions
+     * and inherits from TaskCore.
+     * @param invert Set to true to invert the result of \a condition.
+     * 
+     * @return A new Command object.
+     */
+    template<class ComF, class ConF, class Object>
+    Command< typename detail::UnMember<ComF>::type > command(std::string name, ComF command, ConF condition, Object object, bool invert = false) {
+        return Command<  typename detail::UnMember<ComF>::type >(name, command, condition, object, invert);
+    }
+
+    /** 
+     * Factory function to create a Command object which executes a member function
+     * of an object. A CommandProcessor is given in which the command is executed.
+     * 
+     * @param name The name of the command
+     * @param command A pointer to a member function of \a object, which is executed as
+     * the command function
+     * @param condition A pointer to a member function of \a object, which is evaluated
+     * as completion condition
+     * @param object A pointer to an object which has \a command and \a condition as functions
+     * @param cp The command processor which will execute the command.
+     * @param invert Set to true to invert the result of \a condition.
+     * 
+     * @return A new Command object.
+     */
+    template<class ComF, class ConF, class Object>
+    Command< typename detail::UnMember<ComF>::type > command(std::string name, ComF command, ConF condition, Object object, CommandProcessor* cp, bool invert = false) {
+        return Command<  typename detail::UnMember<ComF>::type >(name, command, condition, object, cp, invert);
+    }
+
+    /** 
+     * Factory function to create a Command object which executes a 'C' function.
+     * 
+     * @param name The name of the command object
+     * @param command A pointer to a function, which is executed as
+     * the command function
+     * @param condition A pointer to a function, which is evaluated
+     * as completion condition
+     * @param cp The command processor which will execute the command.
+     * @param invert Set to true to invert the result of \a condition.
+     * 
+     * @return A new Command object.
+     */
+    template<class ComF, class ConF>
+    Command< typename detail::UnMember<ComF>::type > command(std::string name, ComF command, ConF condition, CommandProcessor* cp, bool invert = false) {
+        return Command<  typename detail::UnMember<ComF>::type >(name, command, condition, cp, invert);
+    }
 
 }
 #endif

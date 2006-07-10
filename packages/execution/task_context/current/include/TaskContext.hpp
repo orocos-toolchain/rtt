@@ -47,22 +47,21 @@ namespace ORO_Execution
     class ScriptingAccess;
 
     /**
-     * A TaskContext groups the operations, events, datasources,
-     * peer-tasks and processor a task has. It links related tasks
-     * and allows to iterate over its peers.
+     * A TaskContext exports the commands, methods, events, properties and ports
+     * a task has. Furthermore, it allows to visit its peer tasks.
      *
-     * When a peer is added, the (script) programs of this task can access
-     * the peer using peername.methodname() or peername.objname.methodname().
-     * The commands of this TaskContext must be executed by this TaskContext's
-     * CommandProcessor (which is what scripts take care of). The methods and datasources
-     * can be queried by any peer TaskContext at any time.
+     * When a command is exported, one can access it using commands(). A similar
+     * mechanism is available for properties(), methods(), events() and ports().
+     * The commands of this TaskContext are executed by its
+     * ExecutionEngine.
      *
-     * The ExecutionEngine::step() must be invoked separately from a
-     * PeriodicTask or other ActivityInterface implementation, as long as
-     * that Task is not started, this TaskContext will not accept any
-     * commands.  In this way, the user of this class can determine
-     * himself at which point and at which moment remote commands and
-     * local programs can be executed.
+     * In order to run the ExecutionEngine, the ExecutionEngine must
+     * be invoked from an ActivityInterface implementation. As long as
+     * there is no activity or the activity is not started, this
+     * TaskContext will not accept any commands, nor process events,
+     * nor execute programs or state machines.  In this way, the user
+     * of this class can determine himself at which point and at which
+     * moment commands and programs can be executed.
      *
      * In order to disconnect this task from its peers, use disconnect(), which
      * will disconnect all the Data Flow Ports and remove this object from its
