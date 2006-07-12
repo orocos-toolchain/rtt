@@ -155,9 +155,9 @@ namespace ORO_KinDyn
             delete kine;
         }
 
-        void KinematicsJointConverter::setKinematics( KinematicsInterface *k,
-                                                      const JointVelocities& _signs, 
-                                                      const JointPositions& _offsets )
+        void setKinematics( KinematicsInterface *k,
+                            const JointVelocities& _signs, 
+                            const JointPositions& _offsets )
         {
             delete kine;
             kine = k;

@@ -121,7 +121,10 @@ namespace ORO_Geometry
      * properties being a bag containing a Frame, fill the given non primitive Property<T>.
      */
     bool composeProperty(const PropertyBag& bag, Frame &f);
+}
 
+namespace ORO_CoreLib
+{
     extern template class Property<ORO_Geometry::Frame>;
     extern template class Property<Double6D>;
     extern template class Property<ORO_Geometry::Wrench>;

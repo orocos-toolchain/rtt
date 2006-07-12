@@ -86,7 +86,7 @@ namespace ORO_Execution
          * Create a CommandC object from a dispatch command.
          * @param di The command, the CommandC takes ownership.
          */
-        CommandC::CommandC(DispatchInterface* di);
+        CommandC(DispatchInterface* di);
 
         /**
          * A CommandC is assignable.
