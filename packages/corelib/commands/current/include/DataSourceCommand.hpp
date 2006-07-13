@@ -30,10 +30,10 @@
 #define DATASOURCECOMMAND_HPP
 
 #include "DataSource.hpp"
+#include "CommandInterface.hpp"
 
 namespace ORO_CoreLib
 {
-  class CommandInterface;
 
   /**
    * A class that wraps a Command in a DataSource<bool>

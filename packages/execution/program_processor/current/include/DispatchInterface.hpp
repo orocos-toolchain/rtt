@@ -36,13 +36,18 @@ namespace ORO_Execution
 {
     /**
      * Dispatch a CommandInterface to a CommandProcessor and track its status.
-     * The execute() method will return false from the moment
-     * on that the dispatched command failed. 
      */
     class DispatchInterface
         : public ORO_CoreLib::CommandInterface
     {
     public:
+        /**
+         * Returns true if the command is ready for dispatch.
+         * If ready() returns true, dispatch() can be safely called,
+         * otherwise, dispatch() will fail.
+         */
+        virtual bool ready() const = 0;
+
         /**
          * Dispatch a command. If it is not accepted, fail, if it is accepted,
          * return true

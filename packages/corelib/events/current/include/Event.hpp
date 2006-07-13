@@ -52,6 +52,8 @@ namespace ORO_CoreLib
           private NameServerRegistrator<Event<_Signature,
                                               _SlotFunction>*>
     {
+    protected:
+        std::string mname;
     public:
         /**
          * @see EventProcessor::AsynStorageType
@@ -84,24 +86,26 @@ namespace ORO_CoreLib
 
         /**
          * Create a named Synchronous/Asynchronous Event.
-         * @see boost::signals library
          */
         explicit Event(const std::string name )
             : signal_base_type(),
-              NameServerRegistrator<EventType*>(nameserver, name, this)
+              NameServerRegistrator<EventType*>(nameserver, name, this),
+              mname(name)
         {
             Logger::log() << Logger::Debug << "Event Created with name  : "<< name << Logger::endl;
         }
 
         /**
          * Create a Synchronous/Asynchronous Event.
-         * @see boost::signals library
+         * @deprecated You must specify
          */
         Event()
             : signal_base_type()
         {
             Logger::log() << Logger::Debug << "Nameless Event Created." << Logger::endl;
         }
+
+        const std::string& getName() const { return mname; }
 
         using signal_base_type::emit;
         using signal_base_type::fire;

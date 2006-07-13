@@ -1,20 +1,21 @@
 #ifndef ORO_TASK_COMMAND_HPP
 #define ORO_TASK_COMMAND_HPP
 
-#include <boost/function.hpp>
 #include <string>
-#include "DispatchInterface.hpp"
-#include "CommandProcessor.hpp"
-#include "CommandFunctors.hpp"
-#include "BindStorage.hpp"
+#include "Invoker.hpp"
+#include "LocalCommand.hpp"
 #include "UnMember.hpp"
 
 namespace ORO_Execution
 {
     /**
-     * A Command which is dispatched locally to a CommandProcessor.
-     * @param CommandT The function signature of the command. For example,
-     * bool( int, Frame, double)
+     * A Command is a function which can be executed (sent) to another
+     * task and queried for its execution status. Normally, it is the
+     * receiving task which defines the commands it can execute, but
+     * this class allows otherwise as well.
+     *
+     * @param CommandT The function signature of the command. For
+     * example, bool( int, Frame, double)
      *
      @code
      class X : public TaskContext
@@ -38,28 +39,52 @@ namespace ORO_Execution
      */
     template<class CommandT>
     class Command 
-        : public DispatchInterface,
-          private detail::BindStorage<CommandT>
+        : public detail::InvokerSignature<boost::function_traits<CommandT>::arity, CommandT, detail::CommandBase<CommandT> >
     {
     protected:
         std::string mname;
-
-        CommandProcessor* mcp;
-
-        bool minvoked, maccept, mvalid, mexec, minvert;
+        typedef detail::InvokerSignature<boost::function_traits<CommandT>::arity, CommandT, detail::CommandBase<CommandT> > Base;
     public:
         typedef CommandT Signature;
 
         /**
-         * Create an empty command object. Use assignment to
+         * Create an empty, nameless command object. Use assignment to
          * initialise it.
-         * @see command
+         *
          */
         Command()
-            : mcp(0),
-              minvoked(false), maccept(false),
-              mvalid(false), mexec(false), minvert(false)
+            : mname()
         {}
+
+        /**
+         * Create an empty command object. Use assignment to
+         * initialise it.
+         *
+         * @param name The name of the command.
+         */
+        Command(std::string name)
+            : mname(name)
+        {}
+
+        /**
+         * Command objects are copy constructible.
+         */
+        Command(const Command& c)
+            : Base(c), mname(c.mname)
+        {
+        }
+
+        /**
+         * Command objects may be assigned to each other.
+         */
+        Command& operator=(const Command& c)
+        {
+            if ( &c == this )
+                return *this;
+            this->mname = c.mname;
+            Base::operator=(c);
+            return *this;
+        }
 
         /** 
          * Create a Command object which executes a member function of a class that
@@ -74,11 +99,8 @@ namespace ORO_Execution
          */
         template<class CommandF, class ConditionF, class ObjectT>
         Command(std::string name, CommandF com, ConditionF con, ObjectT t, bool invert = false)
-            : detail::BindStorage<CommandT>( com, con, t),
-              mname(name),
-              mcp( t->engine()->commands() ),
-              minvoked(false), maccept(false),
-              mvalid(false), mexec(false), minvert(invert)
+            : Base( new detail::LocalCommand<CommandT>(com,con,t, invert)),
+              mname(name)
         {
         }
 
@@ -97,11 +119,8 @@ namespace ORO_Execution
          */
         template<class CommandF, class ConditionF, class ObjectT>
         Command(std::string name, CommandF com, ConditionF con, ObjectT t, CommandProcessor* commandp, bool invert = false)
-            : detail::BindStorage<CommandT>( com, con, t),
-              mname(name),
-              mcp( commandp ),
-              minvoked(false), maccept(false),
-              mvalid(false), mexec(false), minvert(invert)
+            : Base( new detail::LocalCommand<CommandT>(com,con,t,commandp, invert)),
+              mname(name)
         {
         }
 
@@ -116,161 +135,94 @@ namespace ORO_Execution
          */
         template<class CommandF, class ConditionF>
         Command(std::string name, CommandF com, ConditionF con, CommandProcessor* commandp, bool invert = false)
-            : detail::BindStorage<CommandT>( com, con),
-              mname(name),
-              mcp( commandp ),
-              minvoked(false), maccept(false),
-              mvalid(false), mexec(false), minvert(invert)
+            : Base( new detail::LocalCommand<CommandT>(com,con,commandp, invert)),
+              mname(name)
         {
         }
 
         /** 
-         * Call this operator if the Command takes no arguments.
+         * Construct a Command which uses a ready-made implementation.
+         * If the implementation is of the wrong type, it is freed.
          * 
-         * @return true if ready and succesfully queued.
+         * @param implementation An implementation which will be owned
+         * by the command. If it is unusable, it is freed.
          */
-        bool operator()() {
-            if (!mcp ||(minvoked && !evaluate()) ) // if invoked and not ready.
-                return false;
-            this->reset();
-            minvoked = true;
-            return maccept = mcp->process( this );
+        Command(DispatchInterface* implementation)
+            : Base( dynamic_cast< detail::CommandBase<CommandT>* >(implementation) ),
+              mname()
+        {
+            // If not convertible, delete the implementation.
+            if (this->impl == 0)
+                delete implementation; 
         }
 
-        template<class T>
-        bool operator()( T a1 ) {
-            if (!mcp ||(minvoked && !evaluate()) ) // if invoked and not ready.
-                return false;
-            this->reset();
-            // bind types from Storage<Function>
-            this->invoke = boost::bind<bool>( this->comm, a1 );
-            this->check  = boost::bind<bool>( this->cond,  a1 );
-            minvoked = true;
-            return maccept = mcp->process( this );
+        /**
+         * Cleanup the command.
+         */
+        ~Command()
+        {
         }
 
-        template<class T1, class T2>
-        bool operator()( T1 a1, T2 a2 ) {
-            if (!mcp ||(minvoked && !evaluate()) ) // if invoked and not ready.
-                return false;
-            this->reset();
-            // bind types from Storage<Function>
-            this->invoke = boost::bind<bool>( this->comm, a1, a2 );
-            this->check = boost::bind<bool>( this->cond, a1, a2 );
-            minvoked = true;
-            return maccept = mcp->process( this );
+        /** 
+         * A Command objects may be assigned to an implementation.
+         * If the implementation is of the wrong type, it is freed.
+         * 
+         * @param implementation An implementation which will be owned
+         * by the command. If it is unusable, it is freed.
+         */
+        Command& operator=(DispatchInterface* implementation)
+        {
+            if ( this->impl == implementation)
+                return *this;
+            delete this->impl;
+            this->impl = dynamic_cast< detail::CommandBase<CommandT>* >(implementation);
+            if (this->impl == 0)
+                delete implementation;
+            return *this;
         }
 
-        template<class T1, class T2, class T3>
-        bool operator()( T1 a1, T2 a2, T3 a3 ) {
-            if (!mcp ||(minvoked && !evaluate()) ) // if invoked and not ready.
-                return false;
-            this->reset();
-            // bind types from Storage<Function>
-            this->invoke = boost::bind<bool>( this->comm, a1, a2, a3 );
-            this->check = boost::bind<bool>( this->cond, a1, a2, a3 );
-            minvoked = true;
-            return maccept = mcp->process( this );
+        bool ready() const {
+            return this->impl && this->impl->ready();
         }
 
-        template<class T1, class T2, class T3, class T4>
-        bool operator()( T1 a1, T2 a2, T3 a3, T4 a4 ) {
-            if (!mcp ||(minvoked && !evaluate()) ) // if invoked and not ready.
-                return false;
-            this->reset();
-            // bind types from Storage<Function>
-            this->invoke = boost::bind<bool>( this->comm, a1, a2, a3, a4 );
-            this->check = boost::bind<bool>( this->cond, a1, a2, a3, a4 );
-            minvoked = true;
-            return maccept = mcp->process( this );
+        bool dispatch() {
+            if (!this->impl) return false;
+            return this->impl->dispatch();
         }
 
-
-        virtual void readArguments() {}
-
-        virtual bool dispatch() {
-            if (minvoked && !evaluate() ) // if invoked and not ready.
-                return false;
-            this->reset();
-            minvoked = true;
-            return maccept = mcp->process( this );
-        }
-
-        virtual bool execute() {
-            mexec = true;
-            return mvalid = this->invoke();
+        bool execute() {
+            if (!this->impl) return false;
+            return this->impl->execute();
         }
         
-        virtual bool evaluate() const {
-            if (mexec && mvalid )
-                return this->check() != minvert;
-            return false;
+        bool evaluate() const {
+            if (!this->impl) return false;
+            return this->impl->evaluate();
         }
      
-        virtual void reset() {
-            minvoked = (false);
-            maccept = (false);
-            mvalid = (false); 
-            mexec = (false);
+        void reset() {
+            if (!this->impl) return;
+            return this->impl->reset();
         }
 
-        virtual bool sent() const {
-            return minvoked;
+        bool sent() const {
+            if (!this->impl) return false;
+            return this->impl->sent();
         }
 
-        virtual bool accepted() const {
-            return maccept;
+        bool accepted() const {
+            if (!this->impl) return false;
+            return this->impl->accepted();
         }
 
-        virtual bool executed() const {
-            return mexec;
+        bool executed() const {
+            if (!this->impl) return false;
+            return this->impl->executed();
         }
 
-        virtual bool valid() const {
-            return mvalid;
-        }
-
-        virtual ORO_CoreLib::ConditionInterface* createCondition() const
-        {
-            return new detail::ConditionFunctor<bool(void)>( this->check, minvert );
-        }
-
-        /** 
-         * Creates a clone of this Command object.
-         * Use this method to get a new command object
-         * which has its own state information.
-         * 
-         * @return 
-         */
-        virtual Command* clone() const {
-            return new Command(*this);
-        }
-
-        boost::function<CommandT> getCommandFunction() const {
-            return this->command();
-        }
-
-        boost::function<CommandT> getConditionFunction() const {
-            return this->condition();
-        }
-
-        /** 
-         * Returns true if the condition is inverted.
-         * 
-         * @return true if inverted
-         */
-        bool isInverted() const {
-            return minvert;
-        }
-
-        /** 
-         * Returns a pointer to the CommandProcessor which will
-         * process this command.
-         * 
-         * @return the pointer.
-         */
-        CommandProcessor* getCommandProcessor() const {
-            return mcp;
+        bool valid() const {
+            if (!this->impl) return false;
+            return this->impl->valid();
         }
 
         /** 
@@ -281,7 +233,15 @@ namespace ORO_Execution
         const std::string& getName() const {
             return mname;
         }
-        
+
+        detail::CommandBase<CommandT>* getCommandImpl() const {
+            return this->impl;
+        }
+
+        void setCommandImpl(detail::CommandBase<CommandT>* new_impl) const {
+            delete this->impl;
+            return this->impl = new_impl;
+        }
     };
 
     /** 

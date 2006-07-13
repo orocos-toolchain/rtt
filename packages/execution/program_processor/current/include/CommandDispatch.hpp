@@ -58,7 +58,7 @@ namespace ORO_Execution
          * Helper class which is sent to the CommandProcessor
          * in order to execute the command.
          */
-        struct Dispatcher : public CommandInterface {
+        struct Dispatcher : public ORO_CoreLib::CommandInterface {
             bool mexecuted, mvalid;
             CommandDispatch* cd;
             Dispatcher(CommandDispatch* c) : mexecuted(false), mvalid(true), cd(c) {}
@@ -72,7 +72,7 @@ namespace ORO_Execution
         /**
          * Create a command to dispatch another command \a c to a CommandProcessor \a p.
          */
-        CommandDispatch(CommandProcessor* p, CommandInterface* c, ORO_CoreLib::ConditionInterface* cn );
+        CommandDispatch(CommandProcessor* p, ORO_CoreLib::CommandInterface* c, ORO_CoreLib::ConditionInterface* cn );
 
         /**
          * Be sure only to delete this command if the target processor is
@@ -81,6 +81,8 @@ namespace ORO_Execution
         ~CommandDispatch();
 
         void readArguments();
+
+        bool ready() const;
 
         bool execute();
 

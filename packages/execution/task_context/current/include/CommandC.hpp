@@ -37,7 +37,6 @@
 
 namespace ORO_CoreLib
 {
-    class CommandInterface;
     class ConditionInterface;
 }
 

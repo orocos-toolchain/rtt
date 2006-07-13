@@ -35,14 +35,20 @@ class Generic_TaskTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testCommand );
     CPPUNIT_TEST( testMethod );
     CPPUNIT_TEST( testCommandFromDS );
+    CPPUNIT_TEST( testCommandFactory );
     CPPUNIT_TEST( testDSCommand );
     CPPUNIT_TEST( testMethodFromDS );
+    CPPUNIT_TEST( testMethodFactory );
     CPPUNIT_TEST( testMethodsC );
     CPPUNIT_TEST( testDSMethod );
     CPPUNIT_TEST( testCommandsC );
     CPPUNIT_TEST( testProperties );
     CPPUNIT_TEST( testPorts );
     CPPUNIT_TEST( testAttributes );
+    CPPUNIT_TEST( testAddCommand );
+    CPPUNIT_TEST( testAddMethod );
+    CPPUNIT_TEST( testCRMethod );
+    CPPUNIT_TEST( testCRCommand );
     CPPUNIT_TEST_SUITE_END();
 
     TaskContext* tc;
@@ -51,6 +57,20 @@ class Generic_TaskTest : public CppUnit::TestFixture
     DataSourceFactoryInterface* createDataSourceFactory();
     CommandFactoryInterface* createCommandFactory();
 
+    // ref/const-ref tests:
+    double ret;
+    double& m0r() { return ret; }
+    const double& m0cr() { return ret; }
+
+    bool cn1r(double& a) { a = ret; return true; }
+    bool cd1r(double& a) { a = ret * 2; return true; }
+    bool cn1cr(const double& a) { ret = a; return true; }
+    bool cd1cr(const double& a) { ret = a; return true; }
+
+    double m1r(double& a) { return a; }
+    double m1cr(const double& a) { return a; }
+
+    // plain argument tests:
     double m0() { return -d0(); }
     double m1(int i) { return -d1(i); }
     double m2(int i, double d) { return -d2(i,d); }
@@ -89,11 +109,17 @@ public:
     void testProperties();
     void testAttributes();
     void testCommand();
+    void testCommandFactory();
     void testCommandFromDS();
     void testDSCommand();
     void testMethod();
     void testMethodFromDS();
+    void testMethodFactory();
     void testDSMethod();
+    void testAddCommand();
+    void testAddMethod();
+    void testCRMethod();
+    void testCRCommand();
 
     void testPorts();
 };

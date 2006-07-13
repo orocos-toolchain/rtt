@@ -35,11 +35,11 @@ namespace ORO_Execution
          */
         template<class CommandF, class ConditionF>
         CommandDS(std::string name, CommandF com, ConditionF con, CommandProcessor* commandp, bool invert = false)
-            : detail::BindStorage<CommandT>( boost::function<CommandT>(com), boost::function<CommandT>(con) ),
-              mname(name),
+            : mname(name),
               mcp( commandp ),
               minvert(invert)
         {
+            this->setup(boost::function<CommandT>(com), boost::function<CommandT>(con) );
         }
 
         boost::function<CommandT> getCommandFunction() const {

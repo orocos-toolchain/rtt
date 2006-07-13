@@ -313,5 +313,18 @@ namespace ORO_Execution
             return 0;
         }
 
+    bool TaskContext::addObject( TaskObject *obj ) {
+        return false;
+    }
+
+    TaskObject* TaskContext::getObject(const std::string& obj_name ) const
+    {
+        return 0;
+    }
+
+    bool TaskContext::removeObject(const std::string& obj_name ) {
+    return false;
+    }
+
 }
 

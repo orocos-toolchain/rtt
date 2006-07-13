@@ -48,6 +48,11 @@ namespace ORO_Execution
     void CommandDispatch::readArguments()
     {}
 
+    bool CommandDispatch::ready() const
+    {
+        return proc && send;
+    }
+
     bool CommandDispatch::execute()
     {
         return dispatch();

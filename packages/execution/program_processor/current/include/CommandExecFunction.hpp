@@ -80,7 +80,7 @@ namespace ORO_Execution
     class CommandExecFunction
         : public DispatchInterface
     {
-        CommandInterface* minit;
+        ORO_CoreLib::CommandInterface* minit;
         ProgramProcessor* _proc;
         AssignableDataSource<ProgramInterface*>::shared_ptr _v;
         boost::shared_ptr<ProgramInterface> _foo;
@@ -95,7 +95,7 @@ namespace ORO_Execution
          * @param p The target processor which will run the function.
          * @param v Implementation specific parameter to support copy/clone semantics.
          */
-        CommandExecFunction( CommandInterface* init_com, boost::shared_ptr<ProgramInterface> foo, ProgramProcessor* p, AssignableDataSource<ProgramInterface*>* v = 0 , AssignableDataSource<bool>* a = 0 )
+        CommandExecFunction( ORO_CoreLib::CommandInterface* init_com, boost::shared_ptr<ProgramInterface> foo, ProgramProcessor* p, AssignableDataSource<ProgramInterface*>* v = 0 , AssignableDataSource<bool>* a = 0 )
             : minit(init_com),
               _proc(p),
               _v( v==0 ? new ORO_CoreLib::detail::UnboundDataSource< ORO_CoreLib::ValueDataSource<ProgramInterface*> >(foo.get()) : v ),
@@ -111,6 +111,10 @@ namespace ORO_Execution
         void readArguments()
         {
             minit->readArguments();
+        }
+
+        bool ready() const {
+            return !isqueued;
         }
 
         bool dispatch() 

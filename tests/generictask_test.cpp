@@ -448,18 +448,18 @@ void Generic_TaskTest::testCommand()
     CPPUNIT_ASSERT( com40(1, 1.0, char('a'),true) );
     CPPUNIT_ASSERT( com41(1, 1.0, char('a'),true) );
 
-    verifydispatch(com0);
-    verifydispatch(com11);
-    verifydispatch(com10);
-    verifydispatch(com22);
-    verifydispatch(com20);
-    verifydispatch(com21);
-    verifydispatch(com33);
-    verifydispatch(com30);
-    verifydispatch(com31);
-    verifydispatch(com44);
-    verifydispatch(com40);
-    verifydispatch(com41);
+    verifydispatch(*com0.getCommandImpl());
+    verifydispatch(*com11.getCommandImpl());
+    verifydispatch(*com10.getCommandImpl());
+    verifydispatch(*com22.getCommandImpl());
+    verifydispatch(*com20.getCommandImpl());
+    verifydispatch(*com21.getCommandImpl());
+    verifydispatch(*com33.getCommandImpl());
+    verifydispatch(*com30.getCommandImpl());
+    verifydispatch(*com31.getCommandImpl());
+    verifydispatch(*com44.getCommandImpl());
+    verifydispatch(*com40.getCommandImpl());
+    verifydispatch(*com41.getCommandImpl());
 
     CPPUNIT_ASSERT( tsim->stop() );
 }
@@ -514,6 +514,50 @@ void Generic_TaskTest::testPorts()
     CPPUNIT_ASSERT( bp.Pop( val ) == false );
 }
 
+void Generic_TaskTest::testCommandFactory()
+{
+    // Test the addition of 'simple' commands to the operation interface,
+    // and retrieving it back in a new Command object.
+
+    Command<bool(void)> com0("c0", &Generic_TaskTest::cd0, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
+    Command<bool(int)> com11("c11", &Generic_TaskTest::cd1, &Generic_TaskTest::cn1, this, tc->engine()->commands() );
+    Command<bool(int)> com10("c10", &Generic_TaskTest::cd1, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
+
+    TaskObject to("task");
+
+    CPPUNIT_ASSERT( to.commands()->addCommand(&com0) );
+    CPPUNIT_ASSERT( ! to.commands()->addCommand(&com0) );
+    CPPUNIT_ASSERT( to.commands()->addCommand(&com11) );
+    CPPUNIT_ASSERT( to.commands()->addCommand(&com10) );
+
+    // test constructor
+    Command<bool(void)> rc0 = to.commands()->getCommand("c0");
+    CPPUNIT_ASSERT( rc0.getCommandImpl() );
+    CPPUNIT_ASSERT( rc0.ready() );
+
+    // test operator=()
+    Command<bool(int)> rc11;
+    rc11 = to.commands()->getCommand("c11");
+    CPPUNIT_ASSERT( rc11.getCommandImpl() );
+    CPPUNIT_ASSERT( rc11.ready() );
+
+    Command<bool(int)> rc10 = to.commands()->getCommand("c10");
+    CPPUNIT_ASSERT( rc10.getCommandImpl() );
+    CPPUNIT_ASSERT( rc10.ready() );
+
+    // start the activity, such that commands are accepted.
+    CPPUNIT_ASSERT( tsim->start()) ;
+    // execute commands and check status:
+    CPPUNIT_ASSERT( com0() );
+    
+    CPPUNIT_ASSERT( com11(1) );
+    CPPUNIT_ASSERT( com10(1) );
+
+    verifydispatch(*com0.getCommandImpl());
+    verifydispatch(*com11.getCommandImpl());
+    verifydispatch(*com10.getCommandImpl());
+}
+
 void Generic_TaskTest::testCommandFromDS()
 {
     Command<bool(void)> com0("c0", &Generic_TaskTest::cd0, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
@@ -534,15 +578,24 @@ void Generic_TaskTest::testCommandFromDS()
     TaskObject to("task");
 
     CPPUNIT_ASSERT( to.commands()->addCommand( &com0, "desc" ) );
+    CPPUNIT_ASSERT( ! to.commands()->addCommand( &com0, "desc" ) );
+
     CPPUNIT_ASSERT( to.commands()->addCommand( &com11, "desc","a1", "d1" ) );
+    CPPUNIT_ASSERT( ! to.commands()->addCommand( &com11, "desc","a1", "d1" ) );
     CPPUNIT_ASSERT( to.commands()->addCommand( &com10, "desc","a1", "d1" ) );
+
     CPPUNIT_ASSERT( to.commands()->addCommand( &com22, "desc","a1", "d1","a2","d2" ) );
+    CPPUNIT_ASSERT( ! to.commands()->addCommand( &com22, "desc","a1", "d1","a2","d2" ) );
     CPPUNIT_ASSERT( to.commands()->addCommand( &com20, "desc","a1", "d1","a2","d2" ) );
     CPPUNIT_ASSERT( to.commands()->addCommand( &com21, "desc","a1", "d1","a2","d2" ) );
+
     CPPUNIT_ASSERT( to.commands()->addCommand( &com33, "desc","a1", "d1","a2","d2","a3","d3" ) );
+    CPPUNIT_ASSERT( ! to.commands()->addCommand( &com33, "desc","a1", "d1","a2","d2","a3","d3" ) );
     CPPUNIT_ASSERT( to.commands()->addCommand( &com30, "desc","a1", "d1","a2","d2","a3","d3" ) );
     CPPUNIT_ASSERT( to.commands()->addCommand( &com31, "desc","a1", "d1","a2","d2","a3","d3" ) );
+
     CPPUNIT_ASSERT( to.commands()->addCommand( &com44, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
+    CPPUNIT_ASSERT( ! to.commands()->addCommand( &com44, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
     CPPUNIT_ASSERT( to.commands()->addCommand( &com40, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
     CPPUNIT_ASSERT( to.commands()->addCommand( &com41, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
 
@@ -636,6 +689,86 @@ void Generic_TaskTest::testMethod()
     CPPUNIT_ASSERT_EQUAL( -5.0, m4(1, 2.0, false,"hello") );
 }
 
+void Generic_TaskTest::testMethodFactory()
+{
+    // Test the addition of 'simple' methods to the operation interface,
+    // and retrieving it back in a new Method object.
+
+    Method<double(void)> m0("m0", &Generic_TaskTest::m0, this);
+    Method<double(int)> m1("m1", &Generic_TaskTest::m1, this);
+    Method<double(int,double)> m2("m2", &Generic_TaskTest::m2, this);
+
+    TaskObject to("task");
+
+    CPPUNIT_ASSERT( to.methods()->addMethod(&m0) );
+    CPPUNIT_ASSERT( ! to.methods()->addMethod(&m0) );
+    CPPUNIT_ASSERT( to.methods()->addMethod(&m1) );
+    CPPUNIT_ASSERT( to.methods()->addMethod(&m2) );
+
+    // test constructor
+    Method<double(void)> mm0 = to.methods()->getMethod("m0");
+    CPPUNIT_ASSERT( mm0.getMethodImpl() );
+    CPPUNIT_ASSERT( mm0.ready() );
+
+    // test operator=()
+    Method<double(int)> mm1;
+    mm1 = to.methods()->getMethod("m1");
+    CPPUNIT_ASSERT( mm1.getMethodImpl() );
+    CPPUNIT_ASSERT( mm1.ready() );
+
+    Method<double(int,double)> mm2 = to.methods()->getMethod("m2");
+    CPPUNIT_ASSERT( mm2.getMethodImpl() );
+    CPPUNIT_ASSERT( mm2.ready() );
+
+    // start the activity, such that methods are accepted.
+    CPPUNIT_ASSERT( tsim->start()) ;
+    // execute methods and check status:
+    CPPUNIT_ASSERT_EQUAL( -1.0, mm0() );
+    
+    CPPUNIT_ASSERT_EQUAL( -2.0, mm1(1) );
+    CPPUNIT_ASSERT_EQUAL( -3.0, mm2(1, 2.0) );
+
+}
+
+void Generic_TaskTest::testCRMethod()
+{
+    this->ret = -3.3;
+
+    Method<double&(void)> m0c("m0r", &Generic_TaskTest::m0r, this);
+    Method<const double&(void)> m0cr("m0cr", &Generic_TaskTest::m0cr, this);
+
+    Method<double(double&)> m1c("m1r", &Generic_TaskTest::m1r, this);
+    Method<double(const double&)> m1cr("m1cr", &Generic_TaskTest::m1cr, this);
+
+    CPPUNIT_ASSERT_EQUAL( -3.3, m0c() );
+    CPPUNIT_ASSERT_EQUAL( -3.3, m0cr() );
+
+    double value = 5.3;
+    CPPUNIT_ASSERT_EQUAL( 5.3, m1c(value) );
+    CPPUNIT_ASSERT_EQUAL( 5.3, m1cr(5.3) );
+}
+
+void Generic_TaskTest::testCRCommand()
+{
+    this->ret = -3.3;
+
+    Command<double(double&)> c1c("c1r", &Generic_TaskTest::cn1r, &Generic_TaskTest::cd1r, this, tc->engine()->commands() );
+    Command<double(const double&)> c1cr("c1cr", &Generic_TaskTest::cn1cr, &Generic_TaskTest::cd1cr, this, tc->engine()->commands() );
+
+    CPPUNIT_ASSERT( tsim->start()) ;
+    // execute commands and check status:
+    double result = 0.0;
+    CPPUNIT_ASSERT( c1c(result) );
+    
+    CPPUNIT_ASSERT( c1cr(1.0) );
+
+    verifydispatch(*c1c.getCommandImpl());
+    CPPUNIT_ASSERT_EQUAL( 2*ret, result );
+    verifydispatch(*c1cr.getCommandImpl());
+    CPPUNIT_ASSERT_EQUAL( 1.0, ret );
+}
+
+
 void Generic_TaskTest::testMethodFromDS()
 {
     TaskObject to("task");
@@ -713,3 +846,74 @@ void Generic_TaskTest::testDSMethod()
 
 }
 
+void Generic_TaskTest::testAddMethod()
+{
+    Method<double(void)> m0 = method("m0", &Generic_TaskTest::m0, this);
+
+    Method<double(int)> m1 = method("m1", &Generic_TaskTest::m1, this);
+    Method<double(int,double)> m2 = method("m2", &Generic_TaskTest::m2, this);
+    Method<double(int,double,bool)> m3 = method("m3", &Generic_TaskTest::m3, this);
+    Method<double(int,double,bool,std::string)> m4 = method("m4", &Generic_TaskTest::m4, this);
+
+    CPPUNIT_ASSERT_EQUAL( -1.0, m0() );
+    CPPUNIT_ASSERT_EQUAL( -2.0, m1(1) );
+    CPPUNIT_ASSERT_EQUAL( -3.0, m2(1, 2.0) );
+    CPPUNIT_ASSERT_EQUAL( -4.0, m3(1, 2.0, false) );
+    CPPUNIT_ASSERT_EQUAL( -5.0, m4(1, 2.0, false,"hello") );
+}
+
+
+void Generic_TaskTest::testAddCommand()
+{
+
+    Command<bool(void)> com0= command("command", &Generic_TaskTest::cd0, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
+    Command<bool(int)> com11= command("command", &Generic_TaskTest::cd1, &Generic_TaskTest::cn1, this, tc->engine()->commands() );
+    Command<bool(int)> com10= command("command", &Generic_TaskTest::cd1, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
+
+    Command<bool(int,double)> com22= command("command", &Generic_TaskTest::cd2, &Generic_TaskTest::cn2, this, tc->engine()->commands() );
+    Command<bool(int,double)> com20= command("command", &Generic_TaskTest::cd2, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
+    Command<bool(int,double)> com21= command("command", &Generic_TaskTest::cd2, &Generic_TaskTest::cn1, this, tc->engine()->commands() );
+
+    Command<bool(int,double,char)> com33= command("command", &Generic_TaskTest::cd3, &Generic_TaskTest::cn3, this, tc->engine()->commands() );
+    Command<bool(int,double,char)> com30= command("command", &Generic_TaskTest::cd3, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
+    Command<bool(int,double,char)> com31= command("command", &Generic_TaskTest::cd3, &Generic_TaskTest::cn1, this, tc->engine()->commands() );
+
+    Command<bool(int,double,char,bool)> com44= command("command", &Generic_TaskTest::cd4, &Generic_TaskTest::cn4, this, tc->engine()->commands() );
+    Command<bool(int,double,char,bool)> com40= command("command", &Generic_TaskTest::cd4, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
+    Command<bool(int,double,char,bool)> com41= command("command", &Generic_TaskTest::cd4, &Generic_TaskTest::cn1, this, tc->engine()->commands() );
+
+    // start the activity, such that commands are accepted.
+    CPPUNIT_ASSERT( tsim->start()) ;
+    // execute commands and check status:
+    CPPUNIT_ASSERT( com0() );
+    
+    CPPUNIT_ASSERT( com11(1) );
+    CPPUNIT_ASSERT( com10(1) );
+
+    CPPUNIT_ASSERT( com22(1, 1.0) );
+    CPPUNIT_ASSERT( com20(1, 1.0) );
+    CPPUNIT_ASSERT( com21(1, 1.0) );
+
+    CPPUNIT_ASSERT( com33(1, 1.0, char('a') ) );
+    CPPUNIT_ASSERT( com30(1, 1.0, char('a') ) );
+    CPPUNIT_ASSERT( com31(1, 1.0, char('a') ) );
+
+    CPPUNIT_ASSERT( com44(1, 1.0, char('a'),true) );
+    CPPUNIT_ASSERT( com40(1, 1.0, char('a'),true) );
+    CPPUNIT_ASSERT( com41(1, 1.0, char('a'),true) );
+
+    verifydispatch(*com0.getCommandImpl());
+    verifydispatch(*com11.getCommandImpl());
+    verifydispatch(*com10.getCommandImpl());
+    verifydispatch(*com22.getCommandImpl());
+    verifydispatch(*com20.getCommandImpl());
+    verifydispatch(*com21.getCommandImpl());
+    verifydispatch(*com33.getCommandImpl());
+    verifydispatch(*com30.getCommandImpl());
+    verifydispatch(*com31.getCommandImpl());
+    verifydispatch(*com44.getCommandImpl());
+    verifydispatch(*com40.getCommandImpl());
+    verifydispatch(*com41.getCommandImpl());
+
+    CPPUNIT_ASSERT( tsim->stop() );
+}

@@ -29,10 +29,10 @@
 #define VERTEXNODE_HPP
 
 #include <map>
+#include "corelib/CommandInterface.hpp"
 
 namespace ORO_CoreLib
 {
-    class CommandInterface;
     class DataSourceBase;
 }
 

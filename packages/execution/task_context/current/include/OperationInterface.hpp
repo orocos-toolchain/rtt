@@ -8,6 +8,8 @@
 #include "OperationFactory.hpp"
 #include "TemplateMemberFactory.hpp"
 #include "CommandC.hpp"
+#include "LocalCommand.hpp"
+#include "LocalMethod.hpp"
 #include "MethodC.hpp"
 
 namespace ORO_Execution
@@ -89,6 +91,10 @@ namespace ORO_Execution
             return r;
         }
 
+        bool ready() const {
+            return !minvoked;
+        }
+
         bool operator()() {
             if (minvoked)
                 return false;
@@ -165,7 +171,17 @@ namespace ORO_Execution
         inline T* getpointer(T* t) {
             return t;
         }
+        
+        std::map<std::string,DispatchInterface*> simplecommands;
     public:
+        ~CommandRepository()
+        {
+            while ( !simplecommands.empty() ) {
+                delete simplecommands.begin()->second;
+                simplecommands.erase( simplecommands.begin() );
+            }
+        }
+
         /** 
          * Retrieve a previously added Command.
          * 
@@ -180,6 +196,19 @@ namespace ORO_Execution
             return this->produce(name, args);
         }
 
+        /** 
+         * Return the pointer to an added simple Command.
+         * 
+         * @param name The name of the command to retrieve.
+         * 
+         * @return A new pointer to a simple Command, or null if it does not exist.
+         */
+        DispatchInterface* getCommand( std::string name )
+        {
+            if ( simplecommands.count(name) )
+                return simplecommands[name]->clone();
+            return 0;
+        }
         /** 
          * Retrieve the completion condition of a previously added Command.
          * 
@@ -210,6 +239,23 @@ namespace ORO_Execution
         }
 
         /** 
+         * Add a Command to the interface. You can retrieve it with getCommand.
+         * 
+         * @param com A pointer to a Command object.
+         * 
+         * @return true if the command could be added.
+         */
+        template<class CommandT>
+        bool addCommand( CommandT* com )
+        {
+            if ( simplecommands.count( com->getName() ) )
+                return false;
+            simplecommands[com->getName()] = com->getCommandImpl()->clone();
+            return true;
+        }
+
+
+        /** 
          * Add an existing Command, which takes no arguments, to the Operations interface.
          * 
          * @param c A pointer to the existing command.
@@ -224,12 +270,18 @@ namespace ORO_Execution
             typedef typename boost::add_pointer<CommandVT>::type CommandPT;
             typedef typename CommandVT::Signature ComSig;
             CommandPT c = this->getpointer(com);
-            if ( this->hasMember(c->getName() ) )
+            detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
+            // We can only add local commands.
+            if ( !lc )
                 return false;
+            // First add the command to the normal interface.
+            if ( this->addCommand( c ) == false )
+                return false;
+            // Next, add it to the Command from 'DataSource' interface.
             this->add( c->getName(), new detail::OperationFactoryPart0<DispatchInterface*, CommandFromDS<ComSig> >( 
-                  CommandFromDS<ComSig>(c->getCommandFunction(),
-                                        c->getConditionFunction(), 
-                                        c->getCommandProcessor(), c->isInverted() ), description) );
+                  CommandFromDS<ComSig>(lc->getCommandFunction(),
+                                        lc->getConditionFunction(), 
+                                        lc->getCommandProcessor(), lc->isInverted() ), description) );
             return true;
         }
 
@@ -252,12 +304,15 @@ namespace ORO_Execution
             typedef typename boost::add_pointer<CommandVT>::type CommandPT;
             typedef typename CommandVT::Signature ComSig;
             CommandPT c = this->getpointer(com);
-            if ( this->hasMember(c->getName() ) )
+            detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
+            if ( !lc )
+                return false;
+            if ( this->addCommand( c ) == false )
                 return false;
             this->add( c->getName(), new detail::OperationFactoryPart1<DispatchInterface*, CommandFromDS<ComSig> >( 
-                  CommandFromDS<ComSig>(c->getCommandFunction(),
-                                        c->getConditionFunction(), 
-                                        c->getCommandProcessor(), c->isInverted() ), 
+                  CommandFromDS<ComSig>(lc->getCommandFunction(),
+                                        lc->getConditionFunction(), 
+                                        lc->getCommandProcessor(), lc->isInverted() ), 
                   description, arg1, arg1_description) );
             return true;
         }
@@ -284,12 +339,15 @@ namespace ORO_Execution
             typedef typename boost::add_pointer<CommandVT>::type CommandPT;
             typedef typename CommandVT::Signature ComSig;
             CommandPT c = this->getpointer(com);
-            if ( this->hasMember(c->getName() ) )
+            detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
+            if ( !lc )
+                return false;
+            if ( this->addCommand( c ) == false )
                 return false;
             this->add( c->getName(), new detail::OperationFactoryPart2<DispatchInterface*, CommandFromDS<ComSig> >( 
-                  CommandFromDS<ComSig>(c->getCommandFunction(),
-                                        c->getConditionFunction(), 
-                                        c->getCommandProcessor(), c->isInverted() ), 
+                  CommandFromDS<ComSig>(lc->getCommandFunction(),
+                                        lc->getConditionFunction(), 
+                                        lc->getCommandProcessor(), lc->isInverted() ), 
                   description, arg1, arg1_description,
                   arg2, arg2_description) );
             return true;
@@ -306,12 +364,15 @@ namespace ORO_Execution
             typedef typename boost::add_pointer<CommandVT>::type CommandPT;
             typedef typename CommandVT::Signature ComSig;
             CommandPT c = this->getpointer(com);
-            if ( this->hasMember(c->getName() ) )
+            detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
+            if ( !lc )
+                return false;
+            if ( this->addCommand( c ) == false )
                 return false;
             this->add( c->getName(), new detail::OperationFactoryPart3<DispatchInterface*, CommandFromDS<ComSig> >( 
-                  CommandFromDS<ComSig>(c->getCommandFunction(),
-                                               c->getConditionFunction(), 
-                                               c->getCommandProcessor(), c->isInverted() ), 
+                  CommandFromDS<ComSig>(lc->getCommandFunction(),
+                                               lc->getConditionFunction(), 
+                                               lc->getCommandProcessor(), lc->isInverted() ), 
                   description, arg1, arg1_description,
                   arg2, arg2_description,
                   arg3, arg3_description) );
@@ -329,12 +390,15 @@ namespace ORO_Execution
             typedef typename boost::add_pointer<CommandVT>::type CommandPT;
             typedef typename CommandVT::Signature ComSig;
             CommandPT c = this->getpointer(com);
-            if ( this->hasMember(c->getName() ) )
+            detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
+            if ( !lc )
+                return false;
+            if ( this->addCommand( c ) == false )
                 return false;
             this->add( c->getName(), new detail::OperationFactoryPart4<DispatchInterface*, CommandFromDS<ComSig> >( 
-                  CommandFromDS<ComSig>(c->getCommandFunction(),
-                                               c->getConditionFunction(), 
-                                               c->getCommandProcessor(), c->isInverted() ), 
+                  CommandFromDS<ComSig>(lc->getCommandFunction(),
+                                               lc->getConditionFunction(), 
+                                               lc->getCommandProcessor(), lc->isInverted() ), 
                   description, arg1, arg1_description,
                   arg2, arg2_description,
                   arg3, arg3_description,
@@ -481,7 +545,16 @@ namespace ORO_Execution
     class MethodRepository
         : public OperationFactory<DataSourceBase*>
     {
+    protected:
+        std::map<std::string,ORO_CoreLib::ActionInterface*> simplemethods;
     public:
+        ~MethodRepository()
+        {
+            while ( !simplemethods.empty() ) {
+                delete simplemethods.begin()->second;
+                simplemethods.erase( simplemethods.begin() );
+            }
+        }
         DataSourceBase* getMethod( std::string name,
                                    const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args) const
         {
@@ -492,14 +565,48 @@ namespace ORO_Execution
             return MethodC( this, name );
         }
 
+        /** 
+         * Add a Method object to the method interface.
+         * 
+         * @param meth The Method object to add
+         * 
+         * @return true if it could be added, false otherwise.
+         */
+        template<class MethodT>
+        bool addMethod( MethodT* meth )
+        {
+            if ( simplemethods.count( meth->getName() ) )
+                return false;
+            simplemethods[meth->getName()] = meth->getMethodImpl()->clone();
+            return true;
+        }
+
+        /** 
+         * Get a new Method object from the method interface.
+         * 
+         * @param name The name of the method to retrieve.
+         * 
+         * @return true if it could be found, false otherwise.
+         */
+        ORO_CoreLib::ActionInterface* getMethod( std::string name )
+        {
+            if ( simplemethods.count(name) )
+                return simplemethods[name]->clone();
+            return 0;
+        }
+        
+
         template<class MethodT>
         bool addMethod( MethodT* c, const char* description) 
         {
             typedef typename MethodT::Signature Sig;
             if ( this->hasMember(c->getName() ) )
                 return false;
+            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl() );
+            if ( !lm )
+                return false;
             this->add( c->getName(), new detail::OperationFactoryPart0<DataSourceBase*, MethodFromDS<Sig> >( 
-                  MethodFromDS<Sig>(c->getMethodFunction()), description) );
+                  MethodFromDS<Sig>( lm->getMethodFunction()), description) );
             return true;
         }
 
@@ -510,8 +617,11 @@ namespace ORO_Execution
             typedef typename MethodT::Signature Sig;
             if ( this->hasMember(c->getName() ) )
                 return false;
+            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl() );
+            if ( !lm )
+                return false;
             this->add( c->getName(), new detail::OperationFactoryPart1<DataSourceBase*, MethodFromDS<Sig> >( 
-                  MethodFromDS<Sig>(c->getMethodFunction()), 
+                  MethodFromDS<Sig>(lm->getMethodFunction()), 
                   description, arg1, arg1_description) );
             return true;
         }
@@ -524,8 +634,11 @@ namespace ORO_Execution
             typedef typename MethodT::Signature Sig;
             if ( this->hasMember(c->getName() ) )
                 return false;
+            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl() );
+            if ( !lm )
+                return false;
             this->add( c->getName(), new detail::OperationFactoryPart2<DataSourceBase*, MethodFromDS<Sig> >( 
-                  MethodFromDS<Sig>(c->getMethodFunction()), 
+                  MethodFromDS<Sig>(lm->getMethodFunction()), 
                   description, 
                   arg1, arg1_description,
                   arg2, arg2_description) );
@@ -540,8 +653,11 @@ namespace ORO_Execution
             typedef typename MethodT::Signature Sig;
             if ( this->hasMember(c->getName() ) )
                 return false;
+            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl() );
+            if ( !lm )
+                return false;
             this->add( c->getName(), new detail::OperationFactoryPart3<DataSourceBase*, MethodFromDS<Sig> >( 
-                  MethodFromDS<Sig>(c->getMethodFunction()), 
+                  MethodFromDS<Sig>(lm->getMethodFunction()), 
                   description, 
                   arg1, arg1_description,
                   arg2, arg2_description,
@@ -559,8 +675,11 @@ namespace ORO_Execution
             typedef typename MethodT::Signature Sig;
             if ( this->hasMember(c->getName() ) )
                 return false;
+            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl() );
+            if ( !lm )
+                return false;
             this->add( c->getName(), new detail::OperationFactoryPart4<DataSourceBase*, MethodFromDS<Sig> >( 
-                  MethodFromDS<Sig>(c->getMethodFunction()), 
+                  MethodFromDS<Sig>(lm->getMethodFunction()), 
                   description, 
                   arg1, arg1_description,
                   arg2, arg2_description,
@@ -576,11 +695,14 @@ namespace ORO_Execution
             typedef typename MethodT::Signature Sig;
             if ( this->hasMember(c->getName() ) )
                 return false;
+            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl() );
+            if ( !lm )
+                return false;
             typedef FunctorDataSourceDS0<CompT, boost::function<Sig> > FunctorT;
             typedef MethodFromDS<Sig, FunctorT> DSMeth;
             
             this->add( c->getName(), new detail::OperationFactoryPart0<DataSourceBase*, DSMeth>( 
-                        DSMeth( typename FunctorT::shared_ptr(new FunctorT(wp, c->getMethodFunction()))),
+                        DSMeth( typename FunctorT::shared_ptr(new FunctorT(wp, lm->getMethodFunction()))),
                         description));
             return true;
         }
@@ -593,11 +715,14 @@ namespace ORO_Execution
             typedef typename MethodT::Signature Sig;
             if ( this->hasMember(c->getName() ) )
                 return false;
+            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl() );
+            if ( !lm )
+                return false;
             typedef typename MethodT::traits::arg2_type arg1_type; // second arg is 1st data arg.
             typedef FunctorDataSourceDS1<CompT, boost::function<Sig>, arg1_type > FunctorT;
             typedef MethodFromDS<Sig, FunctorT> DSMeth;
             this->add( c->getName(), new detail::OperationFactoryPart1<DataSourceBase*, DSMeth, arg1_type >( 
-                        DSMeth( typename FunctorT::shared_ptr(new FunctorT(wp, c->getMethodFunction()))),
+                        DSMeth( typename FunctorT::shared_ptr(new FunctorT(wp, lm->getMethodFunction()))),
                         description, a1, d1));
             return true;
         }

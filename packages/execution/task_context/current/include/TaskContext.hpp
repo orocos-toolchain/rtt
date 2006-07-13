@@ -45,6 +45,7 @@ namespace ORO_Execution
 {
     class CommandProcessor;
     class ScriptingAccess;
+    class TaskObject;
 
     /**
      * A TaskContext exports the commands, methods, events, properties and ports
@@ -190,6 +191,34 @@ namespace ORO_Execution
          * @return null if no such peer.
          */
         TaskContext* getPeer(const std::string& peer_name ) const;
+
+        /** 
+         * Add a new TaskObject to this TaskContext.
+         * 
+         * @param obj This object becomes owned by this TaskContext.
+         * 
+         * @return true if it cuold be added, false if such
+         * object already exists.
+         */
+        bool addObject( TaskObject *obj );
+
+        /** 
+         * Get a pointer to a previously added TaskObject
+         * 
+         * @param obj_name The name of the TaskObject
+         * 
+         * @return the pointer
+         */
+        TaskObject* getObject(const std::string& obj_name ) const;
+
+        /** 
+         * Remove and delete a previously added TaskObject.
+         * 
+         * @param obj_name The name of the TaskObject
+         * 
+         * @return true if found and removed, false otherwise.
+         */
+        bool removeObject(const std::string& obj_name );
 
         /**
          * Get a const pointer to the ExecutionEngine of this Task.

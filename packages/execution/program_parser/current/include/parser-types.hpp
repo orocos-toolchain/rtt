@@ -28,6 +28,7 @@
 #define PARSER_TYPES_HPP
 
 #include <boost/spirit.hpp>
+#include "corelib/CommandInterface.hpp"
 
 namespace ORO_Execution
 {
@@ -42,7 +43,6 @@ namespace ORO_CoreLib
   class Property;
   class PropertyBag;
   class PropertyBase;
-  class CommandInterface;
   class ConditionInterface;
 }
 
@@ -57,8 +57,8 @@ namespace ORO_Execution
 
   using ORO_CoreLib::PropertyBag;
   using ORO_CoreLib::PropertyBase;
-  using ORO_CoreLib::CommandInterface;
   using ORO_CoreLib::ConditionInterface;
+  using ORO_CoreLib::CommandInterface;
 
   using namespace boost::spirit;
 

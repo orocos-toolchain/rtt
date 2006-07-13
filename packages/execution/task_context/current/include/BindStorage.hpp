@@ -58,22 +58,22 @@ namespace ORO_Execution
                 : mf(f), mo(o) {}
 
             template<class T1>
-            bool operator()(T1 t1) {
+            bool operator()(T1& t1) {
                 return (mo->*mf)(t1);
             }
 
             template<class T1, class T2>
-            bool operator()(T1 t1, T2) {
+            bool operator()(T1& t1, T2) {
                 return (mo->*mf)(t1);
             }
 
             template<class T1, class T2, class T3>
-            bool operator()(T1 t1, T2, T3) {
+            bool operator()(T1& t1, T2, T3) {
                 return (mo->*mf)(t1);
             }
 
             template<class T1, class T2, class T3, class T4>
-            bool operator()(T1 t1, T2, T3, T4) {
+            bool operator()(T1& t1, T2, T3, T4) {
                 return (mo->*mf)(t1);
             }
         };
@@ -88,17 +88,17 @@ namespace ORO_Execution
                 : mf(f), mo(o) {}
 
             template<class T1, class T2>
-            bool operator()(T1 t1, T2 t2) {
+            bool operator()(T1& t1, T2& t2) {
                 return (mo->*mf)(t1,t2);
             }
 
             template<class T1, class T2, class T3>
-            bool operator()(T1 t1, T2 t2, T3) {
+            bool operator()(T1& t1, T2 t2, T3) {
                 return (mo->*mf)(t1,t2);
             }
 
             template<class T1, class T2, class T3, class T4>
-            bool operator()(T1 t1, T2 t2, T3, T4) {
+            bool operator()(T1& t1, T2 t2, T3, T4) {
                 return (mo->*mf)(t1,t2);
             }
         };
@@ -113,12 +113,12 @@ namespace ORO_Execution
                 : mf(f), mo(o) {}
 
             template<class T1, class T2, class T3>
-            bool operator()(T1 t1, T2 t2, T3 t3) {
+            bool operator()(T1& t1, T2 t2, T3 t3) {
                 return (mo->*mf)(t1,t2,t3);
             }
 
             template<class T1, class T2, class T3, class T4>
-            bool operator()(T1 t1, T2 t2, T3 t3, T4) {
+            bool operator()(T1& t1, T2 t2, T3 t3, T4) {
                 return (mo->*mf)(t1,t2,t3);
             }
         };
@@ -133,7 +133,7 @@ namespace ORO_Execution
                 : mf(f), mo(o) {}
 
             template<class T1, class T2, class T3, class T4>
-            bool operator()(T1 t1, T2 t2, T3 t3, T4 t4) {
+            bool operator()(T1& t1, T2 t2, T3 t3, T4 t4) {
                 return (mo->*mf)(t1,t2,t3,t4);
             }
         };
@@ -184,22 +184,22 @@ namespace ORO_Execution
                 : mf(f) {}
 
             template<class T1>
-            bool operator()(T1 t1) {
+            bool operator()(T1& t1) {
                 return mf(t1);
             }
 
             template<class T1, class T2>
-            bool operator()(T1 t1, T2) {
+            bool operator()(T1& t1, T2) {
                 return mf(t1);
             }
 
             template<class T1, class T2, class T3>
-            bool operator()(T1 t1, T2, T3) {
+            bool operator()(T1& t1, T2, T3) {
                 return mf(t1);
             }
 
             template<class T1, class T2, class T3, class T4>
-            bool operator()(T1 t1, T2, T3, T4) {
+            bool operator()(T1& t1, T2, T3, T4) {
                 return mf(t1);
             }
         };
@@ -213,17 +213,17 @@ namespace ORO_Execution
                 : mf(f) {}
 
             template<class T1,class T2>
-            bool operator()(T1 t1, T2 t2) {
+            bool operator()(T1& t1, T2& t2) {
                 return mf(t1,t2);
             }
 
             template<class T1,class T2, class T3>
-            bool operator()(T1 t1, T2 t2, T3) {
+            bool operator()(T1& t1, T2& t2, T3) {
                 return mf(t1,t2);
             }
 
             template<class T1, class T2, class T3, class T4>
-            bool operator()(T1 t1, T2 t2, T3, T4) {
+            bool operator()(T1& t1, T2& t2, T3, T4) {
                 return mf(t1,t2);
             }
         };
@@ -237,12 +237,12 @@ namespace ORO_Execution
                 : mf(f) {}
 
             template<class T1, class T2, class T3>
-            bool operator()(T1 t1, T2 t2, T3 t3) {
+            bool operator()(T1& t1, T2& t2, T3& t3) {
                 return mf(t1,t2,t3);
             }
 
             template<class T1, class T2, class T3, class T4>
-            bool operator()(T1 t1, T2 t2, T3 t3, T4) {
+            bool operator()(T1& t1, T2& t2, T3& t3, T4) {
                 return mf(t1,t2,t3);
             }
         };
@@ -255,7 +255,7 @@ namespace ORO_Execution
             quickbindC_impl(F f)
                 : mf(f) {}
             template<class T1, class T2, class T3, class T4>
-            bool operator()(T1 t1, T2 t2, T3 t3, T4 t4) {
+            bool operator()(T1& t1, T2& t2, T3& t3, T4& t4) {
                 return mf(t1,t2,t3,t4);
             }
         };
@@ -285,6 +285,42 @@ namespace ORO_Execution
                 : quickbindC_impl<F, boost::function_type_arity<F>::value>(f) {}
         };
 
+        /**
+         * Store a bound argument which may be a reference, const reference or
+         * any other type.
+         */
+        template<class T>
+        struct AStore {
+            T arg;
+            AStore() : arg() {}
+            AStore(T t) : arg(t) {}
+
+            T operator()() { return arg; }
+            void operator()(T a) { arg = a; }
+        };
+
+        template<class T>
+        struct AStore<T&>
+        {
+            T* arg;
+            AStore() : arg(0) {}
+            AStore(T& t) : arg(&t) {}
+
+            T& operator()() { return *arg; }
+            void operator()(T& a) { arg = &a; }
+        };
+
+        template<class T>
+        struct AStore<const T &>
+        {
+            const T* arg;
+            AStore() : arg(0) {}
+            AStore(const T& t) : arg(&t) {}
+
+            const T& operator()() { return *arg; }
+            void operator()(const T& a) { arg = &a; }
+        };
+
         template<int, class T>
         struct BindStorageImpl;
 
@@ -302,24 +338,24 @@ namespace ORO_Execution
             boost::function<ToBind> check;
 
             template<class F, class C, class ObjectType>
-            BindStorageImpl(F f, C c, ObjectType t)
-                :
-                invoke(boost::bind<bool>( boost::mem_fn(f), t ) ), // allocates
-                check(boost::bind<bool>( boost::mem_fn(c), t) )    // allocates
-            {}
+            void setup(F f, C c, ObjectType t)
+            {
+                invoke = quickbind<F,ObjectType>( f, t); // allocates
+                check  = quickbind<C,ObjectType>( c, t); // allocates
+            }
 
             template<class F, class C>
-            BindStorageImpl(F f, C c)
-                :
-                invoke(f), // allocates
-                check(c)    // allocates
-            {}
+            void setup(F f, C c)
+            {
+                invoke = f;
+                check = c;
+            }
 
-            BindStorageImpl(boost::function<ToBind> f, boost::function<ToBind> c)
-                :
-                invoke(f), // allocates
-                check(c)    // allocates
-            {}
+            void setup(boost::function<ToBind> f, boost::function<ToBind> c)
+            {
+                invoke = f;
+                check = c;
+            }
 
             boost::function<ToBind> command() const {return invoke;}
             boost::function<ToBind> condition() const {return check;}
@@ -336,48 +372,38 @@ namespace ORO_Execution
 
             // stores the original function pointer, supplied by the user.
             boost::function<ToBind>  comm;
-            // stores the bound function pointer (ie comm+its arguments),
-            // in order to invoke comm(arguments) when the command is processed.
-            boost::_bi::bind_t<result_type, boost::function<ToBind>, boost::_bi::list1<boost::_bi::value<arg1_type> > > invoke;
-
             // Wrap the condition.
             boost::function<ToBind> cond;
-            // stores the condition pointer + arguments in order to check
-            // the completion condition.
-            boost::_bi::bind_t<result_type, boost::function<ToBind>, boost::_bi::list1<boost::_bi::value<arg1_type> > > check;
+            // Store the argument.
+            mutable AStore<arg1_type> a1;
+
+            void store(arg1_type t1) { a1(t1); }
+            bool invoke() { return comm( a1() ); }
+            bool check() const { return cond( a1() ); }
 
             /**
              * The object already stores the user class function pointer and
              * the pointer to the class object.
-             * 'invoke' is initialised with a dummy load. It may be 
-             * overwritten with comm(arguments) in real-time. Next, use
-             * invoke() to effectively call comm(arguments) on a later time.
              */
             template<class F, class C, class ObjectType>
-            BindStorageImpl(F f, C c, ObjectType t)
-                :
-                comm(boost::bind<bool>( boost::mem_fn(f), t, _1 ) ), // allocates
-                invoke(boost::bind<result_type>( comm, arg1_type() )),
-                cond( quickbind<C,ObjectType>( c, t) ), // allocates
-                check(boost::bind<result_type>( cond, arg1_type() ))
-            {}
+            void setup(F f, C c, ObjectType t)
+            {
+                comm = quickbind<F,ObjectType>( f, t); // allocates
+                cond = quickbind<C,ObjectType>( c, t); // allocates
+            }
 
             template<class F, class C>
-            BindStorageImpl(F f, C c)
-                :
-                comm(boost::bind<bool>( f, _1 ) ), // allocates
-                invoke(boost::bind<result_type>( comm, arg1_type() )),
-                cond( quickbindC<C>(c) ),
-                check(boost::bind<result_type>( cond, arg1_type() ))
-            {}
+            void setup(F f, C c)
+            {
+                comm = quickbindC<F>(f); // allocates
+                cond = quickbindC<C>(c);
+            }
 
-            BindStorageImpl(boost::function<ToBind> f, boost::function<ToBind> c)
-                :
-                comm(f),
-                invoke(boost::bind<result_type>( comm, arg1_type() )),
-                cond(c),
-                check(boost::bind<result_type>( cond, arg1_type() ))
-            {}
+            void setup(boost::function<ToBind> f, boost::function<ToBind> c)
+            {
+                comm = f;
+                cond = c;
+            }
 
             boost::function<ToBind> command() const {return comm;}
             boost::function<ToBind> condition() const {return cond;}
@@ -392,35 +418,34 @@ namespace ORO_Execution
 
             // stores the original function pointer
             boost::function<ToBind> comm;
-            boost::_bi::bind_t<result_type, boost::function<ToBind>, boost::_bi::list2<boost::_bi::value<arg1_type>,boost::_bi::value<arg2_type> > > invoke;
             boost::function<ToBind> cond;
-            boost::_bi::bind_t<result_type, boost::function<ToBind>, boost::_bi::list2<boost::_bi::value<arg1_type>,boost::_bi::value<arg2_type> > > check;
+            // Store the arguments.
+            mutable AStore<arg1_type> a1;
+            mutable AStore<arg2_type> a2;
+
+            void store(arg1_type t1, arg2_type t2) { a1(t1); a2(t2); }
+            bool invoke() { return comm( a1(), a2() ); }
+            bool check() const { return cond( a1(), a2() ); }
 
             template<class F, class C, class ObjectType>
-            BindStorageImpl(F f, C c, ObjectType t)
-                :
-                comm(boost::bind<bool>( boost::mem_fn(f), t, _1, _2 ) ), // allocates
-                cond( quickbind<C,ObjectType>( c, t) ),
-                invoke(boost::bind<result_type>( comm, arg1_type(), arg2_type() )),
-                check(boost::bind<result_type>( cond, arg1_type(), arg2_type() ))
-            {}
+            void setup(F f, C c, ObjectType t)
+            {
+                comm = boost::bind<bool>( boost::mem_fn(f), t, _1, _2 ); // allocates
+                cond = quickbind<C,ObjectType>( c, t); // allocates
+            }
 
             template<class F, class C>
-            BindStorageImpl(F f, C c)
-                :
-                comm(boost::bind<bool>( f, _1, _2 ) ), // allocates
-                cond( quickbindC<C>(c) ),
-                invoke(boost::bind<result_type>( comm, arg1_type(), arg2_type() )),
-                check(boost::bind<result_type>( cond, arg1_type(), arg2_type() ))
-            {}
+            void setup(F f, C c)
+            {
+                comm = boost::bind<bool>( f, _1, _2 ); // allocates
+                cond = quickbindC<C>(c);
+            }
 
-            BindStorageImpl(boost::function<ToBind> f, boost::function<ToBind> c)
-                :
-                comm( f ),
-                cond( c ),
-                invoke(boost::bind<result_type>( comm, arg1_type(), arg2_type() )),
-                check(boost::bind<result_type>( cond, arg1_type(), arg2_type() ))
-            {}
+            void setup(boost::function<ToBind> f, boost::function<ToBind> c)
+            {
+                comm = f;
+                cond = c;
+            }
 
             boost::function<ToBind> command() const {return comm;}
             boost::function<ToBind> condition() const {return cond;}
@@ -436,18 +461,22 @@ namespace ORO_Execution
 
             // stores the original function pointer
             boost::function<ToBind> comm;
-            boost::_bi::bind_t<result_type, boost::function<ToBind>, boost::_bi::list3<boost::_bi::value<arg1_type>,boost::_bi::value<arg2_type>,boost::_bi::value<arg3_type> > > invoke;
             boost::function<ToBind> cond;
-            boost::_bi::bind_t<result_type, boost::function<ToBind>, boost::_bi::list3<boost::_bi::value<arg1_type>,boost::_bi::value<arg2_type>,boost::_bi::value<arg3_type> > > check;
+            // Store the arguments.
+            mutable AStore<arg1_type> a1;
+            mutable AStore<arg2_type> a2;
+            mutable AStore<arg3_type> a3;
+
+            void store(arg1_type t1, arg2_type t2, arg3_type t3) { a1(t1); a2(t2); a3(t3); }
+            bool invoke() { return comm( a1(), a2(), a3() ); }
+            bool check() const { return cond( a1(), a2(), a3() ); }
 
             template<class F, class C, class ObjectType>
-            BindStorageImpl(F f, C c, ObjectType t)
-                :
-                comm(boost::bind<bool>( boost::mem_fn(f), t, _1, _2, _3 ) ), // allocates
-                cond( quickbind<C,ObjectType>( c,t) ),
-                invoke(boost::bind<result_type>( comm, arg1_type(), arg2_type(), arg3_type() )),
-                check(boost::bind<result_type>( cond, arg1_type(), arg2_type(), arg3_type() ))
-            {}
+            void setup(F f, C c, ObjectType t)
+            {
+                comm = boost::bind<bool>( boost::mem_fn(f), t, _1, _2, _3 ); // allocates
+                cond = quickbind<C,ObjectType>( c, t); // allocates
+            }
 
             boost::function<ToBind> command() const {return comm;}
             boost::function<ToBind> condition() const {return cond;}
@@ -464,18 +493,23 @@ namespace ORO_Execution
 
             // stores the original function pointer
             boost::function<ToBind> comm;
-            boost::_bi::bind_t<result_type, boost::function<ToBind>, boost::_bi::list4<boost::_bi::value<arg1_type>,boost::_bi::value<arg2_type>,boost::_bi::value<arg3_type>,boost::_bi::value<arg4_type> > > invoke;
             boost::function<ToBind> cond;
-            boost::_bi::bind_t<result_type, boost::function<ToBind>, boost::_bi::list4<boost::_bi::value<arg1_type>,boost::_bi::value<arg2_type>,boost::_bi::value<arg3_type>,boost::_bi::value<arg4_type> > > check;
+            // Store the arguments.
+            mutable AStore<arg1_type> a1;
+            mutable AStore<arg2_type> a2;
+            mutable AStore<arg3_type> a3;
+            mutable AStore<arg4_type> a4;
+
+            void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4) { a1(t1); a2(t2); a3(t3); a4(t4); }
+            bool invoke() { return comm( a1(), a2(), a3(), a4() ); }
+            bool check() const { return cond( a1(), a2(), a3(), a4() ); }
 
             template<class F, class C, class ObjectType>
-            BindStorageImpl(F f, C c, ObjectType t)
-                :
-                comm(boost::bind<bool>( boost::mem_fn(f), t, _1, _2, _3, _4 ) ), // allocates
-                cond( quickbind<C,ObjectType>( c,t) ),
-                invoke(boost::bind<result_type>( comm, arg1_type(), arg2_type(), arg3_type(), arg4_type() )),
-                check(boost::bind<result_type>( cond, arg1_type(), arg2_type(), arg3_type(), arg4_type() ))
-            {}
+            void setup(F f, C c, ObjectType t)
+            {
+                comm = boost::bind<bool>( boost::mem_fn(f), t, _1, _2, _3, _4 ); // allocates
+                cond = quickbind<C,ObjectType>( c, t); // allocates
+            }
 
             boost::function<ToBind> command() const {return comm;}
             boost::function<ToBind> condition() const {return cond;}
@@ -492,19 +526,6 @@ namespace ORO_Execution
         struct BindStorage
             : public BindStorageImpl<boost::function_traits<ToBind>::arity, ToBind>
         {
-            template<class F, class C, class ObjectType>
-            BindStorage(F f, C c, ObjectType t)
-                : BindStorageImpl<boost::function_traits<ToBind>::arity, ToBind>( f, c, t)
-            {}
-
-            template<class F, class C>
-            BindStorage(F f, C c)
-                : BindStorageImpl<boost::function_traits<ToBind>::arity, ToBind>( f, c)
-            {}
-
-            BindStorage(boost::function<ToBind> f, boost::function<ToBind> c)
-                : BindStorageImpl<boost::function_traits<ToBind>::arity, ToBind>( f, c)
-            {}
         };
 
         template<int, class F>

@@ -11,7 +11,7 @@ cdl_package OROPKG_CORELIB_COMMANDS {
     requires OROPKG_CORELIB
 
     compile CommandNOP.cxx
-    compile CommandInterface.cxx
+    compile ActionInterface.cxx
     compile DataSourceCommand.cxx
 
 }

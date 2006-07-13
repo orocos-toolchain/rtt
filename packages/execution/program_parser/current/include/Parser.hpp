@@ -42,7 +42,6 @@
 namespace ORO_CoreLib
 {
   class PropertyBase;
-  class CommandInterface;
   class ConditionInterface;
 }
 
