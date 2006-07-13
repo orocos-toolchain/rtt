@@ -210,6 +210,7 @@ namespace ORO_KinDyn
             s4_eq = sin( q[ 3 ] );
             c4_eq = cos( q[ 3 ] );
             q_eq[ 4 ] = 0.0;
+            q_eq[ 3 ] = q[ 3 ];
             s5_eq = 0;
         }
 
