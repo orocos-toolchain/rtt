@@ -31,16 +31,19 @@
 #include <pkgconf/geometry.h>
 #include <corelib/Logger.hpp>
 
-namespace ORO_Geometry
+namespace ORO_CoreLib
 {
-    using namespace ORO_CoreLib;
-
     template class Property<ORO_Geometry::Frame>;
     template class Property<Double6D>;
     template class Property<ORO_Geometry::Wrench>;
     template class Property<ORO_Geometry::Twist>;
     template class Property<ORO_Geometry::Rotation>;
     template class Property<ORO_Geometry::Vector>;
+}
+
+namespace ORO_Geometry
+{
+    using namespace ORO_CoreLib;
 
     /**
      *
