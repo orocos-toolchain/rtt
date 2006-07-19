@@ -25,7 +25,7 @@
  *                                                                         *
  ***************************************************************************/
  
- 
+#include <pkgconf/system.h> 
 
 /**
  * @file RTT.hpp
@@ -42,16 +42,35 @@
  */
 namespace RTT {}
 
+#ifdef OROPKG_CORELIB
 #include <corelib/CoreLib.hpp>
+#endif
+#ifdef OROPKG_EXECUTION
 #include <execution/Execution.hpp>
+#endif
+#ifdef OROPKG_OS
 #include <os/OS.hpp>
+#endif
+#ifdef OROPKG_DEVICE_INTERFACE
 #include <device_interface/DeviceInterface.hpp>
+#endif
+#ifdef OROPKG_DEVICE_DRIVERS
 #include <device_drivers/DeviceDrivers.hpp>
-
+#endif
 namespace RTT {
+#ifdef OROPKG_CORELIB
     using namespace ORO_CoreLib;
+#endif
+#ifdef OROPKG_EXECUTION
     using namespace ORO_Execution;
+#endif
+#ifdef OROPKG_OS
     using namespace ORO_OS;
+#endif
+#ifdef OROPKG_DEVICE_INTERFACE
     using namespace ORO_DeviceInterface;
+#endif
+#ifdef OROPKG_DEVICE_DRIVERS
     using namespace ORO_DeviceDriver;
+#endif
 }
