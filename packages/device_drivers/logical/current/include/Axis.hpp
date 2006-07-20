@@ -28,19 +28,19 @@
 #ifndef DEVICEDRIVERS_AXIS_HPP
 #define DEVICEDRIVERS_AXIS_HPP
 
-#include <device_interface/AxisInterface.hpp>
-#include <corelib/Event.hpp>
+#include "AxisInterface.hpp"
+#include <rtt/Event.hpp>
 #include <string>
 #include <map>
 #include <vector>
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
     class AnalogDrive;
     class DigitalInput;
     class DigitalOutput;
 
-    using namespace ORO_DeviceInterface;
+    
 
     /**
      * @brief Axis is an example of how you can easily implement
@@ -80,7 +80,7 @@ namespace ORO_DeviceDriver
         virtual bool isDriven() const;
 
         virtual void limitDrive( double max );
-        virtual void setLimitDriveEvent(ORO_CoreLib::Event<void(void)>& maximumDrive);
+        virtual void setLimitDriveEvent(Event<void(void)>& maximumDrive);
 
         /**
          * @brief Add a brake to the Axis. It is aggregated.
@@ -134,7 +134,7 @@ namespace ORO_DeviceDriver
          */
         void setSwitch(const std::string& name, DigitalInput* _digin);
 
-      virtual ORO_DeviceInterface::SensorInterface<int>* getCounter(const std::string& name) const;
+      virtual SensorInterface<int>* getCounter(const std::string& name) const;
 
       virtual std::vector<std::string> counterList() const;
   
@@ -175,7 +175,7 @@ namespace ORO_DeviceDriver
          * Maximum drive value and event
          */
         double _max_drive;
-        ORO_CoreLib::Event<void(void)>* _max_drive_event;
+        Event<void(void)>* _max_drive_event;
     };
 
 }

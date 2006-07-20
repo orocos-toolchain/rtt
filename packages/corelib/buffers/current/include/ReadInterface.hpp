@@ -33,7 +33,7 @@
 #include <vector>
 #include "BufferBase.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**

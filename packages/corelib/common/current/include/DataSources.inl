@@ -4,7 +4,7 @@
 #include "DataSources.hpp"
 #include "DataSource.inl"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     template<typename T>
     ValueDataSource<T>::~ValueDataSource() {}

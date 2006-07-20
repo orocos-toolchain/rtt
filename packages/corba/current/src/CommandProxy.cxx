@@ -27,18 +27,18 @@
  
  
 
-#include "corba/ExecutionI.h"
-#include "corba/CommandProxy.hpp"
-#include "corelib/ConditionInterface.hpp"
+#include "rtt/corba/ExecutionI.h"
+#include "rtt/corba/CommandProxy.hpp"
+#include "rtt/ConditionInterface.hpp"
 
 #include <ace/String_Base.h>
 
 using namespace std;
 
-namespace ORO_Corba
+namespace Corba
 {
-    using namespace ORO_CoreLib;
-    using namespace ORO_Execution;
+    
+    
 
     std::map<Orocos::Command_ptr, CommandProxy*> CommandProxy::proxies;
 
@@ -76,7 +76,7 @@ namespace ORO_Corba
                 return new ValidCondition( mserver.in() );
             }
 
-            ValidCondition* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
+            ValidCondition* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
                 return this->clone();
             }
         };

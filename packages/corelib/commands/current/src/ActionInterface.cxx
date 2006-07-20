@@ -29,9 +29,9 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "corelib/ActionInterface.hpp"
+#include "rtt/ActionInterface.hpp"
 
-namespace ORO_CoreLib {
+namespace RTT {
   ActionInterface::~ActionInterface() {
   }
 

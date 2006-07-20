@@ -27,22 +27,22 @@
  
  
 
-#include "execution/StateMachineProcessor.hpp"
-#include <corelib/Logger.hpp>
-#include <corelib/Exceptions.hpp>
+#include "rtt/StateMachineProcessor.hpp"
+#include <rtt/Logger.hpp>
+#include <rtt/Exceptions.hpp>
 
 #include <boost/bind.hpp>
-#include <os/Semaphore.hpp>
+#include <rtt/os/Semaphore.hpp>
 
-namespace ORO_Execution
+namespace RTT
 {
 
     using namespace boost;
     using namespace std;
-    using namespace ORO_CoreLib;
+    
 
 
-    StateMachineProcessor::StateMachineProcessor(ORO_OS::Semaphore* work_sem)
+    StateMachineProcessor::StateMachineProcessor(OS::Semaphore* work_sem)
         : states( new StateMap(4) ),
           queuesem( work_sem )
     {

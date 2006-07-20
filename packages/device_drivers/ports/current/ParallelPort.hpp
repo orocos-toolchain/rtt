@@ -31,10 +31,10 @@
 #define ORO_PARALLELPORT_HPP
 
 #include "pkgconf/device_drivers_ports.h"
-#include <device_drivers/TemplateDigitalOut.hpp>
-#include <device_interface/DigitalOutInterface.hpp>
+#include "TemplateDigitalOut.hpp"
+#include "DigitalOutInterface.hpp"
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
     /**
@@ -46,7 +46,7 @@ namespace ORO_DeviceDriver
      * are guaranteed not to clear out each others data.
      */
     class ParallelPort
-        : public ORO_DeviceInterface::DigitalOutInterface
+        : public DigitalOutInterface
     {
         static TemplateDigitalOut Base;
 

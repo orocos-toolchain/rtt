@@ -5,15 +5,15 @@
 #include <boost/function.hpp>
 #include <boost/type_traits/function_traits.hpp>
 
-#include <corelib/CommandInterface.hpp>
-#include <corelib/ConditionInterface.hpp>
-#include <corelib/DataSource.hpp>
-#include <execution/DataSource.hpp>
+#include "CommandInterface.hpp"
+#include "ConditionInterface.hpp"
+#include "DataSource.hpp"
+#include "DataSource.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
-    using ORO_CoreLib::ConditionInterface;
-    using ORO_CoreLib::CommandInterface;
+    
+    
 
     namespace detail {
 
@@ -53,7 +53,7 @@ namespace ORO_Execution
                 return fun();
             }
 
-            FunctorImpl<0,FunctionT> copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
+            FunctorImpl<0,FunctionT> copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
             {
                 return FunctorImpl( fun );
             }
@@ -100,7 +100,7 @@ namespace ORO_Execution
                 return r;
             }
 
-            FunctorImpl<1,FunctionT> copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
+            FunctorImpl<1,FunctionT> copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
             {
                 return FunctorImpl( fun, aa->copy( alreadyCloned ) );
             }
@@ -150,7 +150,7 @@ namespace ORO_Execution
                 return r;
             }
 
-            FunctorImpl<2,FunctionT> copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
+            FunctorImpl<2,FunctionT> copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
             {
                 return FunctorImpl( fun, aa->copy( alreadyCloned ), bb->copy(alreadyCloned));
             }
@@ -208,7 +208,7 @@ namespace ORO_Execution
                 return r;
             }
 
-            FunctorImpl<3,FunctionT> copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
+            FunctorImpl<3,FunctionT> copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
             {
                 return FunctorImpl( fun, aa->copy( alreadyCloned ), bb->copy(alreadyCloned), cc->copy(alreadyCloned) );
             }
@@ -273,7 +273,7 @@ namespace ORO_Execution
                 return r;
             }
 
-            FunctorImpl<4,FunctionT> copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
+            FunctorImpl<4,FunctionT> copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
             {
                 return FunctorImpl( fun, aa->copy( alreadyCloned ), bb->copy(alreadyCloned), cc->copy(alreadyCloned), dd->copy(alreadyCloned) );
             }
@@ -343,7 +343,7 @@ namespace ORO_Execution
                 return new CommandFunctor( com );
             }
 
-            virtual CommandFunctor<Signature,FunctorT>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
+            virtual CommandFunctor<Signature,FunctorT>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
             {
                 return new CommandFunctor( FunctorT(com.copy(alreadyCloned)) );
             }
@@ -417,7 +417,7 @@ namespace ORO_Execution
                 return new ConditionFunctor( con, minvert );
             }
 
-            virtual ConditionFunctor<Signature,FunctorT>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
+            virtual ConditionFunctor<Signature,FunctorT>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
             {
                 return new ConditionFunctor( FunctorT(con.copy(alreadyCloned)), minvert );
             }

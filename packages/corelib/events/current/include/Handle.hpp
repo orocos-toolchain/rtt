@@ -135,7 +135,7 @@ namespace sigslot
 
 }
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * @brief The Handle holds the information, and allows manipulation, of a connection

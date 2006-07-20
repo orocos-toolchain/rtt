@@ -26,11 +26,11 @@
  ***************************************************************************/
  
  
-#include <corelib/Toolkit.hpp>
-#include <corelib/Logger.hpp>
+#include <rtt/Toolkit.hpp>
+#include <rtt/Logger.hpp>
 #include <algorithm>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     using namespace std;
 

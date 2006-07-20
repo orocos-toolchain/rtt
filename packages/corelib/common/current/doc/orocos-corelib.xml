@@ -215,15 +215,15 @@
 	Orocos provides, by default, two hard realtime periodic
 	activties and a non realtime periodic activity to execute your
 	functions. The
-	<classname>ORO_CoreLib::NonPreemptibleActivity</classname> has the
+	<classname>RTT::NonPreemptibleActivity</classname> has the
 	highest priority, the
-	<classname>ORO_CoreLib::PreemptibleActivity</classname> has a
+	<classname>RTT::PreemptibleActivity</classname> has a
 	lower priority and the
-	<classname>ORO_CoreLib::NonRealTimeActivity</classname> has an
+	<classname>RTT::NonRealTimeActivity</classname> has an
 	even lower priority is not realtime at all (but still
 	periodic). Each instance of the same type run in the same thread.
 	In complexer control applications, one can create additional
-	threads by using the <classname>ORO_CoreLib::PeriodicActivity</classname>.
+	threads by using the <classname>RTT::PeriodicActivity</classname>.
 	If these activities are used, Orocos will create a thread and
 	start/stop them automatically, otherwise, these threads
 	are not created.
@@ -254,29 +254,29 @@
 	    </thead>
 	    <tbody>
 	      <row>
-		<entry><classname>ORO_CoreLib::TimerThread</classname></entry>
-		<entry><classname>ORO_CoreLib::PeriodicActivity</classname></entry>
+		<entry><classname>RTT::TimerThread</classname></entry>
+		<entry><classname>RTT::PeriodicActivity</classname></entry>
 		<!-- one of (entrytbl entry) -->
 	      </row>
 	      <row>
-		<entry><classname>ORO_CoreLib::ZeroTimeThread</classname></entry>
-		<entry><classname>ORO_CoreLib::NonPreemptibleActivity</classname></entry>
+		<entry><classname>RTT::ZeroTimeThread</classname></entry>
+		<entry><classname>RTT::NonPreemptibleActivity</classname></entry>
 		<!-- one of (entrytbl entry) -->
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry><classname>ORO_CoreLib::ZeroLatencyThread</classname></entry>
-		<entry><classname>ORO_CoreLib::PreemptibleActivity</classname></entry>
+		<entry><classname>RTT::ZeroLatencyThread</classname></entry>
+		<entry><classname>RTT::PreemptibleActivity</classname></entry>
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry><classname>ORO_CoreLib::NonRealTimeThread</classname></entry>
-		<entry><classname>ORO_CoreLib::NonRealTimeActivity</classname></entry>
+		<entry><classname>RTT::NonRealTimeThread</classname></entry>
+		<entry><classname>RTT::NonRealTimeActivity</classname></entry>
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry><classname>ORO_CoreLib::SimulationThread</classname></entry>
-		<entry><classname>ORO_CoreLib::SimulationActivity</classname></entry>
+		<entry><classname>RTT::SimulationThread</classname></entry>
+		<entry><classname>RTT::SimulationActivity</classname></entry>
 	      </row>
 	    </tbody>
 	  </tgroup>
@@ -287,7 +287,7 @@
 	  <listitem>
 	    <para>
 	      Implementing the
-	      <classname>ORO_CoreLib::RunnableInterface</classname> in
+	      <classname>RTT::RunnableInterface</classname> in
 	      another class ( functions initialize(), step() or
 	      loop()/breakLoop() and finalize() ). The
 	      RunnableInterface object (i.e. run_impl) can be assigned
@@ -297,11 +297,11 @@
 	      period, &amp;run_impl );</synopsis>.
 	    </para>
 	    <para>
-	      <programlisting>  #include &lt;corelib/RunnableInterface.hpp>
-  #include &lt;corelib/PeriodicActivity.hpp>
+	      <programlisting>  #include &lt;rtt/RunnableInterface.hpp>
+  #include &lt;rtt/PeriodicActivity.hpp>
 
   class MyPeriodicActivity
-	: public <classname>ORO_CoreLib::RunnableInterface</classname>
+	: public <classname>RTT::RunnableInterface</classname>
   {
   public:
     // ...
@@ -333,11 +333,11 @@
   MyPeriodicActivity run_impl_1;
   MyPeriodicActivity run_impl_2;
 
-  <classname>ORO_CoreLib::PeriodicActivity</classname> activity( 15, 0.01 ); // priority=15, period=100Hz
+  <classname>RTT::PeriodicActivity</classname> activity( 15, 0.01 ); // priority=15, period=100Hz
   activity.run( &amp;run_impl_1 );
   activity.start(); // calls 'step()'
 
-  <classname>ORO_CoreLib::NonPeriodicActivity</classname> npactivity(12); // priority=12, no period.
+  <classname>RTT::NonPeriodicActivity</classname> npactivity(12); // priority=12, no period.
   npactivity.run( &amp;run_impl_2);
   activity.start(); // calls 'loop()'
 
@@ -350,11 +350,11 @@
 	      and finalize() methods.
 	      <programlisting>
   class MyOtherPeriodicActivity
-      : public <classname>ORO_CoreLib::PeriodicActivity</classname>
+      : public <classname>RTT::PeriodicActivity</classname>
   {
   public :
     MyOtherPeriodicActivity()
-      : <classname>ORO_CoreLib::PeriodicActivity</classname>( 15, 0.01 ) // priority=15, period=100Hz
+      : <classname>RTT::PeriodicActivity</classname>( 15, 0.01 ) // priority=15, period=100Hz
     {
     }
 
@@ -425,12 +425,12 @@
 	  This example shows how all kinds of activities can be created. When a activity
 	  is started it will add itself to the correct thread.
 	</para>
-	<programlisting>#include "corelib/NonPreemptibleActivity.hpp"
-#include "corelib/PreemptibleActivity.hpp"
-#include "corelib/NonRealTimeActivity.hpp"
-#include "corelib/PeriodicActivity.hpp"
+	<programlisting>#include "rtt/NonPreemptibleActivity.hpp"
+#include "rtt/PreemptibleActivity.hpp"
+#include "rtt/NonRealTimeActivity.hpp"
+#include "rtt/PeriodicActivity.hpp"
 
-using namespace ORO_CoreLib;
+using namespace RTT;
 
 ORO_main( int argc, char** argv)
 {
@@ -440,14 +440,14 @@ ORO_main( int argc, char** argv)
 
   // The threads are created by Orocos.
   // Both activities run in the same thread:
-  <classname>ORO_CoreLib::NonPreemptibleActivity</classname> fast_activity1(0.001, &amp;vel_loop);
-  <classname>ORO_CoreLib::NonPreemptibleActivity</classname> fast_activity2(0.001, &amp;vel_loop2);
+  <classname>RTT::NonPreemptibleActivity</classname> fast_activity1(0.001, &amp;vel_loop);
+  <classname>RTT::NonPreemptibleActivity</classname> fast_activity2(0.001, &amp;vel_loop2);
 
-  <classname>ORO_CoreLib::PreemptibleActivity</classname> slow_activity(0.01, &amp;pos_loop);
-  <classname>ORO_CoreLib::NonRealTimeActivity</classname> nrt_activity( 0.1, &amp;display_server );
+  <classname>RTT::PreemptibleActivity</classname> slow_activity(0.01, &amp;pos_loop);
+  <classname>RTT::NonRealTimeActivity</classname> nrt_activity( 0.1, &amp;display_server );
 
   // This activity is run in its own thread.
-  <classname>ORO_CoreLib::PeriodicActivity</classname> own_activity( 9, 0.05, &amp;kine_loop );
+  <classname>RTT::PeriodicActivity</classname> own_activity( 9, 0.05, &amp;kine_loop );
 
   // All is transparant from here on.
   fast_activity1->start();
@@ -472,8 +472,8 @@ ORO_main( int argc, char** argv)
       <title>Standard Periodic Threads Overview</title>
       <para>
 	The high priority thread is the
-	<classname>ORO_CoreLib::ZeroTimeThread</classname>. It will execute all
-	<classname>ORO_CoreLib::NonPreemptibleActivity</classname> Activities
+	<classname>RTT::ZeroTimeThread</classname>. It will execute all
+	<classname>RTT::NonPreemptibleActivity</classname> Activities
 	synchronically. You can create your own not preemptable activity by
 	inheriting from this class. Its name is derived from the fact
 	that some activities need to be executed in an infinite small
@@ -484,12 +484,12 @@ ORO_main( int argc, char** argv)
       </para>
       <para>
 	The low priority activities are executed by the
-	<classname>ORO_CoreLib::ZeroLatencyThread</classname> class. It will
-	execute all <classname>ORO_CoreLib::PreemptibleActivity</classname> Activities
+	<classname>RTT::ZeroLatencyThread</classname> class. It will
+	execute all <classname>RTT::PreemptibleActivity</classname> Activities
 	sequentially, when no non-preemptible activities are executed.
-	Every <classname>ORO_CoreLib::PreemptibleActivity</classname> can be preempted
-	by a <classname>ORO_CoreLib::NonPreemptibleActivity</classname> but not by
-	another <classname>ORO_CoreLib::PreemptibleActivity</classname>. The
+	Every <classname>RTT::PreemptibleActivity</classname> can be preempted
+	by a <classname>RTT::NonPreemptibleActivity</classname> but not by
+	another <classname>RTT::PreemptibleActivity</classname>. The
 	ZeroLatencyThread has this name because the zero time
 	constraint is dropped, but replaced by the constraint that no
 	latency may occur and thus, execution is still realtime.
@@ -504,12 +504,12 @@ ORO_main( int argc, char** argv)
 	takes finite time. This is the lowest priority thread in the
 	system and it should never lock a resource of the realtime
 	thread. Activities being executed in the NonRealTimeThread are
-	called <classname>ORO_CoreLib::NonRealTimeActivity</classname>.
+	called <classname>RTT::NonRealTimeActivity</classname>.
       </para>
       <para>
 	The last standard thread type Orocos provides is the 
-	<classname>ORO_CoreLib::SimulationThread</classname> which runs
-	<classname>ORO_CoreLib::SimulationActivity</classname>s. It is special in
+	<classname>RTT::SimulationThread</classname> which runs
+	<classname>RTT::SimulationActivity</classname>s. It is special in
 	that it executes all its activities as fast as possible
 	( thus without periodic sleeps ) and adjusting the
 	system's clock between each <emphasis>step()</emphasis>.
@@ -532,14 +532,14 @@ ORO_main( int argc, char** argv)
       <para>
 	If you want to create an activity which reads file-IO, or displays
 	information or does any other possibly blocking operation, the
-	<classname>ORO_CoreLib::NonPeriodicActivity</classname> implementation can be
+	<classname>RTT::NonPeriodicActivity</classname> implementation can be
 	used. When it is <function>start()</function>'ed, its loop()
 	method will be called exactly once and then it will wait,
 	after which it can be start()'ed again.  Analogous to periodic
 	activities, the user can implement
 	<function>initialize()</function>, <function>loop()</function>
 	and <function>finalize()</function> functions in a
-	<classname>ORO_CoreLib::RunnableInterface</classname> which will be used by
+	<classname>RTT::RunnableInterface</classname> which will be used by
 	the activity for executing the user's functions. Alternatively,
 	you can reimplement said functions in a derived class of
 	NonPeriodicActivity. The activity's loop() will be executed in its own
@@ -548,8 +548,8 @@ ORO_main( int argc, char** argv)
       </para>
       <programlisting>  int priority = 5;
   
-  <classname>ORO_CoreLib::RunnableInterface</classname>* blocking_activity = ...
-  <classname>ORO_CoreLib::NonPeriodicActivity</classname> activity( priority, blocking_activity );
+  <classname>RTT::RunnableInterface</classname>* blocking_activity = ...
+  <classname>RTT::NonPeriodicActivity</classname> activity( priority, blocking_activity );
   activity.start(); // calls blocking_activity->initialize()
 
   // now blocking_activity->loop() is called in a thread with priority 5.  
@@ -580,18 +580,18 @@ ORO_main( int argc, char** argv)
       <title>Custom or Slave Activities</title>
       <para>
 	If non of the above activity schemes fit you, you can always fall back on
-	the <classname>ORO_CoreLib::SlaveActivity</classname>, which lets the user
+	the <classname>RTT::SlaveActivity</classname>, which lets the user
 	control when the activity is executed. A special function <function>bool trigger()</function>
 	is implemented which will execute <function>RunnableInterface::step()</function>
 	or <function>RunnableInterface::loop()</function> when called by the user.
 	Three versions of the <classname>SlaveActivity</classname> can be constructed:
-	<programlisting>  #include &lt;corelib/SlaveActivity.hpp>
+	<programlisting>  #include &lt;rtt/SlaveActivity.hpp>
 
   // <emphasis>With master</emphasis>
   // a 'master', any ActivityInterface (even SlaveActivity):
-  <classname>ORO_CoreLib::PeriodicActivity</classname> master_one(9, 0.001 );
+  <classname>RTT::PeriodicActivity</classname> master_one(9, 0.001 );
   // a 'slave', takes over properties (period,...) of 'master_one':
-  <classname>ORO_CoreLib::SlaveActivity</classname> slave_one( &amp;master_one );
+  <classname>RTT::SlaveActivity</classname> slave_one( &amp;master_one );
 
   slave_one.start();   // fail: master not running.
   slave_one.trigger(); // fail: slave not running.
@@ -602,9 +602,9 @@ ORO_main( int argc, char** argv)
   
   // <emphasis>Without master</emphasis>
   // a 'slave' without explicit master, with period of 1KHz.
-  <classname>ORO_CoreLib::SlaveActivity</classname> slave_two( 0.001 );
+  <classname>RTT::SlaveActivity</classname> slave_two( 0.001 );
   // a 'slave' without explicit master, not periodic.
-  <classname>ORO_CoreLib::SlaveActivity</classname> slave_three();
+  <classname>RTT::SlaveActivity</classname> slave_three();
 
   slave_two.start();   // ok: start periodic without master
   slave_two.trigger(); // ok, calls 'step()', repeat...
@@ -624,18 +624,18 @@ ORO_main( int argc, char** argv)
       <title>Event Driven Activities</title>
       <para>
 	An alternative way to use non periodic activities is to use
-	the <classname>ORO_CoreLib::EventDrivenActivity</classname>,
-	which can be bound to an <classname>ORO_CoreLib::Event</classname> (see <xref linkend="corelib-events" /> )
+	the <classname>RTT::EventDrivenActivity</classname>,
+	which can be bound to an <classname>RTT::Event</classname> (see <xref linkend="corelib-events" /> )
 	and each time the Event is emitted, the step() method will be invoked
 	asynchronously in a given thread.
 	This will happen from the moment the activity's start method is called
 	until the stop method is called. The following example shows
 	how such a activity can be run asynchronously.
-	<programlisting>  #include &lt;corelib/EventDrivenActivity.hpp>
+	<programlisting>  #include &lt;rtt/EventDrivenActivity.hpp>
 
   //...
-  <classname>ORO_CoreLib::Event</classname>&lt;void(void)> activity_event;
-  <classname>ORO_CoreLib::EventDrivenActivity</classname> activity( &amp;activity_event, <classname>ORO_CoreLib::ZeroTimeThread</classname>::Instance(), &amp;run_obj);
+  <classname>RTT::Event</classname>&lt;void(void)> activity_event;
+  <classname>RTT::EventDrivenActivity</classname> activity( &amp;activity_event, <classname>RTT::ZeroTimeThread</classname>::Instance(), &amp;run_obj);
 
   activity_event.emit(); // nothing happens
 
@@ -651,13 +651,13 @@ ORO_main( int argc, char** argv)
 	Each Orocos Activity (periodic, non periodic and event driven)
 	type has a <function>thread()</function> method in its
 	interface which gives a non-zero pointer to a
-	<classname>ORO_OS::ThreadInterface</classname> object which provides
+	<classname>RTT::OS::ThreadInterface</classname> object which provides
 	general thread information such as the priority and periodicity and allows to
 	control the realtimeness of the thread which runs this activity. A
 	non periodic activity's thread will return a period of zero.
       </para>
       <para>
-	A <classname>ORO_CoreLib::RunnableInterface</classname> can get the same information
+	A <classname>RTT::RunnableInterface</classname> can get the same information
 	through the <function>this->getActivity()->thread()</function> method calls.
       </para>
       <para>
@@ -666,15 +666,15 @@ ORO_main( int argc, char** argv)
 	<para>
 	    This example shows how to manipulate a thread.
 	</para>
-	<programlisting>#include "corelib/ActivityInterface.hpp"
+	<programlisting>#include "rtt/ActivityInterface.hpp"
 
-using namespace ORO_CoreLib;
+using namespace RTT;
 
 ORO_main( int argc, char** argv)
 {
   // ... create any kind of Activity like above.
 
-  <classname>ORO_CoreLib::ActivityInterface</classname>* act = ...
+  <classname>RTT::ActivityInterface</classname>* act = ...
 
   // stop the thread and all its activities:
   act->thread()->stop();
@@ -702,9 +702,9 @@ ORO_main( int argc, char** argv)
 	simulated periodicity can be changed with the configuration tool, or
 	before its started.
       </para>
-	<programlisting>#include "corelib/SimulationActivity.hpp"
+	<programlisting>#include "rtt/SimulationActivity.hpp"
 
-using namespace ORO_CoreLib;
+using namespace RTT;
 
 ORO_main( int argc, char** argv)
 {
@@ -714,16 +714,16 @@ ORO_main( int argc, char** argv)
 
   // Manually start the simulation thread
   // 0.001 : The (virtual) period :  no activity can run 'faster' than this.
-  <classname>ORO_CoreLib::SimulationThread</classname>::Instance()->setPeriod( 0.001 );
-  <classname>ORO_CoreLib::SimulationThread</classname>::Instance()->start();
+  <classname>RTT::SimulationThread</classname>::Instance()->setPeriod( 0.001 );
+  <classname>RTT::SimulationThread</classname>::Instance()->start();
 
   // Optional, might hang your program :
-  <classname>ORO_CoreLib::SimulationThread</classname>::Instance()->makeHardRealtime();
+  <classname>RTT::SimulationThread</classname>::Instance()->makeHardRealtime();
 
   // fast_sim_activity will measure 0.001s elapses between each step(),
   // slow_sim_activity will measure 0.01s elapses in time between each step()
-  <classname>ORO_CoreLib::SimulationActivity</classname> fast_sim_activity(0.001, &amp;vel_loop);
-  <classname>ORO_CoreLib::SimulationActivity</classname> slow_sim_activity(0.01, &amp;pos_loop);
+  <classname>RTT::SimulationActivity</classname> fast_sim_activity(0.001, &amp;vel_loop);
+  <classname>RTT::SimulationActivity</classname> slow_sim_activity(0.01, &amp;pos_loop);
 
   // All is transparant from here on.
   fast_sim_activity->start();
@@ -750,7 +750,7 @@ ORO_main( int argc, char** argv)
   <section id="corelib-events">
     <title>Events</title>
     <para>
-      An <classname>ORO_CoreLib::Event</classname> is an object to
+      An <classname>RTT::Event</classname> is an object to
       which one can connect callback functions. When the Event is
       raised, the connected functions are called one after the
       other. An Event can carry data and deliver it to the function's
@@ -796,7 +796,7 @@ ORO_main( int argc, char** argv)
 	This example shows how a synchronous and asynchronous handler
 	are connected to an Event.
       </para>
-      <programlisting>#include &lt;corelib/Event.hpp>
+      <programlisting>#include &lt;rtt/Event.hpp>
 
 using boost::bind;
 
@@ -823,8 +823,8 @@ SafetyStopRobot safety;
 NotifyUser      notify;
 
 // The &lt;..> means the callback functions must be of type "void foo(void)"
-<classname>ORO_CoreLib::Event</classname>&lt;void(void)> emergencyStop;
-<classname>ORO_CoreLib::Handle</classname> emergencyHandle;
+<classname>RTT::Event</classname>&lt;void(void)> emergencyStop;
+<classname>RTT::Handle</classname> emergencyHandle;
 
 // boost::bind is a way to connect the method of an object instance to
 // an event.
@@ -881,20 +881,20 @@ emergencyStop.emit(); // User not notified</programlisting>
       another thread.
     </para>
     <para>
-      You must choose the type of <classname>ORO_CoreLib::Event</classname> upon
+      You must choose the type of <classname>RTT::Event</classname> upon
       construction. This can no longer be changed once the
-      <classname>ORO_CoreLib::Event</classname> is created. The type is the
+      <classname>RTT::Event</classname> is created. The type is the
       same for the synchronous and asynchronous methods. If the type changes,
       the emit() method must given other arguments. For example :
       <example>
 	<title>Event Types</title>
-	<programlisting>  <classname>ORO_CoreLib::Event</classname>&lt;void(void)> e_1;
+	<programlisting>  <classname>RTT::Event</classname>&lt;void(void)> e_1;
   e_1.emit();
 
-  <classname>ORO_CoreLib::Event</classname>&lt;void(int)>  e_2;
+  <classname>RTT::Event</classname>&lt;void(int)>  e_2;
   e_2.emit( 3 );
 
-  <classname>ORO_CoreLib::Event</classname>&lt;void(double,double,double)>  positionEvent;
+  <classname>RTT::Event</classname>&lt;void(double,double,double)>  positionEvent;
   positionEvent.emit( x, y, z);</programlisting>
       </example>
     </para>
@@ -918,12 +918,12 @@ emergencyStop.emit(); // User not notified</programlisting>
     </important>
     </section>
     <section>
-      <title><function>setup()</function> and the <classname>ORO_CoreLib::Handle</classname> object</title>
+      <title><function>setup()</function> and the <classname>RTT::Handle</classname> object</title>
       <para>
 	Event connections can be managed by using a Handle which both <function>connect()</function>
 	and <function>setup()</function> return :
-	<programlisting>  <classname>ORO_CoreLib::Event</classname>&lt;void(int, float)&gt; event;
-  <classname>ORO_CoreLib::Handle</classname> eh;
+	<programlisting>  <classname>RTT::Event</classname>&lt;void(int, float)&gt; event;
+  <classname>RTT::Handle</classname> eh;
 
   // store the connection in 'eh'
   eh = event.connect( ... );
@@ -939,8 +939,8 @@ emergencyStop.emit(); // User not notified</programlisting>
 	</programlisting>
 	Handle objects can be copied and will all show the same status.
 	To have a connection setup, but not connected, one can write :
-	<programlisting>  <classname>ORO_CoreLib::Event</classname>&lt;void(int, float)&gt; event;
-  <classname>ORO_CoreLib::Handle</classname> eh;
+	<programlisting>  <classname>RTT::Event</classname>&lt;void(int, float)&gt; event;
+  <classname>RTT::Handle</classname> eh;
 
   // setup : store the connection in 'eh'
   eh = event.setup( ... );
@@ -978,20 +978,20 @@ emergencyStop.emit(); // User not notified</programlisting>
       <para>
 	In the example above, there was aparantly no thread choosen.
 	The default thread which executes asynchronous callbacks
-	is called the <classname>ORO_CoreLib::CompletionProcessor</classname>. This is a non realtime
+	is called the <classname>RTT::CompletionProcessor</classname>. This is a non realtime
 	thread, which means that the reaction time is not bounded.
 	If you want to execute the callback in another thread,
 	an additional argument can be given in the
 	<methodname>connect</methodname> or <methodname>setup</methodname> method :
 	<programlisting>
-  event.connect(&amp;syn_func, &amp;asyn_func, <classname>ORO_CoreLib::ZeroLatencyThread</classname>::Instance() );</programlisting>
+  event.connect(&amp;syn_func, &amp;asyn_func, <classname>RTT::ZeroLatencyThread</classname>::Instance() );</programlisting>
 	The above lists how the ZeroLatencyThread will execute the
 	asyn_func if event is emit()'ed. It will do this after it has processed
 	all its activities. The other Orocos threads can do this likewise :
-	<programlisting>  event.connect(&amp;syn_func, &amp;asyn_func, <classname>ORO_CoreLib::ZeroTimeThread</classname>::Instance() );
-  event.connect(&amp;syn_func, &amp;asyn_func, <classname>ORO_CoreLib::NonRealTimeThread</classname>::Instance() );
-  event.connect(&amp;syn_func, &amp;asyn_func, <classname>ORO_CoreLib::CompletionProcessor</classname>::Instance() ); <emphasis>// Default</emphasis>
-  event.connect(&amp;syn_func, &amp;asyn_func, <classname>ORO_CoreLib::PriorityThread</classname>&lt;N&gt;::Instance() );
+	<programlisting>  event.connect(&amp;syn_func, &amp;asyn_func, <classname>RTT::ZeroTimeThread</classname>::Instance() );
+  event.connect(&amp;syn_func, &amp;asyn_func, <classname>RTT::NonRealTimeThread</classname>::Instance() );
+  event.connect(&amp;syn_func, &amp;asyn_func, <classname>RTT::CompletionProcessor</classname>::Instance() ); <emphasis>// Default</emphasis>
+  event.connect(&amp;syn_func, &amp;asyn_func, <classname>RTT::PriorityThread</classname>&lt;N&gt;::Instance() );
   event.connect(&amp;syn_func, &amp;asyn_func, &amp;nonperiodic_activity );	</programlisting>
 	If you would write above listings in a real program, on <function>
 	  event.emit()</function>, the syn_func will be called directly
@@ -1035,7 +1035,7 @@ emergencyStop.emit(); // User not notified</programlisting>
     <section>
       <title>Private EventProcessors for Periodic Activities</title>
       <para>
-	Asynchronous handlers are called in an <classname>ORO_CoreLib::EventProcessor</classname>.
+	Asynchronous handlers are called in an <classname>RTT::EventProcessor</classname>.
 	Each Orocos thread has such an EventProcessor to handle
 	the deferred callbacks of all its activities. A Periodic activity
 	can also have its a private EventProcessor which handles
@@ -1043,11 +1043,11 @@ emergencyStop.emit(); // User not notified</programlisting>
 	and only when it is started. In this way, it resembles better
 	how a non periodic activity handles its defered event callbacks.
 	To enable this behavior,
-	a boolean flag must be given upon construction of a <classname>ORO_CoreLib::PeriodicActivity</classname>
+	a boolean flag must be given upon construction of a <classname>RTT::PeriodicActivity</classname>
 	or any derived activity-types :
       </para>
-	<programlisting>  <classname>ORO_CoreLib::RunnableInterface</classname>* my_function = ... ;
-  <classname>ORO_CoreLib::NonPreemptibleActivity</classname> myactivity( 0.01, my_function, true );     // enable private eventproc.
+	<programlisting>  <classname>RTT::RunnableInterface</classname>* my_function = ... ;
+  <classname>RTT::NonPreemptibleActivity</classname> myactivity( 0.01, my_function, true );     // enable private eventproc.
 
   event.connect(&amp;syn_func, &amp;asyn_func, my_function->getActivity() );
   
@@ -1056,7 +1056,7 @@ emergencyStop.emit(); // User not notified</programlisting>
   myactivity.start();
   event.emit(); // calls syn_func and after myactivity's step(), asyn_func.</programlisting>
        <para>
-	 The private <classname>ORO_CoreLib::EventProcessor</classname> is disabled by default.
+	 The private <classname>RTT::EventProcessor</classname> is disabled by default.
        </para>
     </section>
     <section>
@@ -1084,7 +1084,7 @@ emergencyStop.emit(); // User not notified</programlisting>
     <section>
       <title>The Completion Processor</title>
       <para>
-	The <classname>ORO_CoreLib::CompletionProcessor</classname> is implemented using the
+	The <classname>RTT::CompletionProcessor</classname> is implemented using the
 	Singleton design pattern, analogous to the
 	periodic activity threads. It is the lowest priority, not realtime
 	thread in the &orocos; framework. It will execute all
@@ -1092,7 +1092,7 @@ emergencyStop.emit(); // User not notified</programlisting>
 	be done. The only constraint it imposes is that all functions it
 	executes must require finite time to complete (it cannot
 	detect timeouts). You can get its thread pointer like this :
-	<programlisting>  #include &lt;corelib/CompletionProcessor.hpp>
+	<programlisting>  #include &lt;rtt/CompletionProcessor.hpp>
 
   CompletionProcessor::Instance()-> ... </programlisting>
       </para>
@@ -1138,7 +1138,7 @@ emergencyStop.emit(); // User not notified</programlisting>
     <section>
       <title>The TimeService</title>
       <para>
-	The <classname>ORO_CoreLib::TimeService</classname> is implemented using the
+	The <classname>RTT::TimeService</classname> is implemented using the
 	Singleton design pattern.
 	You can query it for the current (virtual) time in clock ticks or in seconds.
 	The idea here is that it is responsible for synchronising with other (distributed)
@@ -1146,7 +1146,7 @@ emergencyStop.emit(); // User not notified</programlisting>
 	is not yet implemented though.
       </para>
       <para>
-	When the <classname>ORO_CoreLib::SimulationThread</classname> is used and started, it will change the TimeService's
+	When the <classname>RTT::SimulationThread</classname> is used and started, it will change the TimeService's
 	clock with each period ( to simulate time progress).
 	Also other threads (!) In the system will notice this change, but
 	time is guaranteed to increase monotonously.
@@ -1156,10 +1156,10 @@ emergencyStop.emit(); // User not notified</programlisting>
       <title>Usage Example</title>
       <para>
 	Also take a look at the interface documentation.
-	<programlisting>  #include &lt;corelib/TimeService.hpp>
-  #include &lt;corelib/Time.hpp>
+	<programlisting>  #include &lt;rtt/TimeService.hpp>
+  #include &lt;rtt/Time.hpp>
 
-  TimeService::ticks timestamp = <classname>ORO_CoreLib::TimeService</classname>::Instance()->getTicks();
+  TimeService::ticks timestamp = <classname>RTT::TimeService</classname>::Instance()->getTicks();
   //...
 
   Seconds elapsed = TimeService::Instance()->secondsSince( timestamp );	</programlisting>
@@ -1171,7 +1171,7 @@ emergencyStop.emit(); // User not notified</programlisting>
     <para>
       Attributes are class members which contain a (constant) value. Orocos
       can manipulate a classes attribute when it is wrapped in an
-      <classname>ORO_CoreLib::Attribute</classname> class. This storage allows
+      <classname>RTT::Attribute</classname> class. This storage allows
       it to be read by the scripting engine, to be displayed on screen or manipulated
       over a network connection.
     </para>
@@ -1183,12 +1183,12 @@ emergencyStop.emit(); // User not notified</programlisting>
       <example><title>Creating attributes</title> 
 	      <programlisting>
   // an attribute, respresening a double of value 1.0:
-  <classname>ORO_CoreLib::Attribute</classname>&lt;double> myAttr(1.0);
+  <classname>RTT::Attribute</classname>&lt;double> myAttr(1.0);
   myAttr.set( 10.9 );
   double a = myAttr.get(); 
 
   // read-only attribute:
-  <classname>ORO_CoreLib::Constant</classname>&lt;double> pi(3.14);
+  <classname>RTT::Constant</classname>&lt;double> pi(3.14);
   double p = pi.get();
 </programlisting>
       </example>
@@ -1204,10 +1204,10 @@ emergencyStop.emit(); // User not notified</programlisting>
     <section>
       <title>Introduction</title>
       <para>
-	Orocos provides configuration by properties through the <classname>ORO_CoreLib::Property</classname>
+	Orocos provides configuration by properties through the <classname>RTT::Property</classname>
 	class.
 	They are used to store primitive data (float, strings,...) in
-	a hierachies (using <classname>ORO_CoreLib::PropertyBag</classname>). A Property can be changed by the user and has immediate
+	a hierachies (using <classname>RTT::PropertyBag</classname>). A Property can be changed by the user and has immediate
 	effect on the behaviour of the program. Changing parameters of an
 	algorithm is a good example where properties can be used. Each parameter
 	has a value, a name and a description. The user can ask any PropertyBag
@@ -1227,7 +1227,7 @@ emergencyStop.emit(); // User not notified</programlisting>
 	      <programlisting>
   // a property, respresening a double of value 1.0:
 
-  <classname>ORO_CoreLib::Property</classname>&lt;double> myProp("Parameter A","A demo parameter", 1.0); // not realtime !
+  <classname>RTT::Property</classname>&lt;double> myProp("Parameter A","A demo parameter", 1.0); // not realtime !
   myProp = 10.9; // realtime
   double a = myProp.get(); // realtime  </programlisting>
 	    </example>
@@ -1264,10 +1264,10 @@ emergencyStop.emit(); // User not notified</programlisting>
       </note>
       <para> Use <methodname>add</methodname> to add Properties to a bag and 
       <methodname>find</methodname> or <methodname>getProperty&lt;T&gt;</methodname> to
-      get a pointer to a <classname>ORO_CoreLib::PropertyBase</classname> or <classname>ORO_CoreLib::Property</classname>&lt;T&gt; :
-	<programlisting>  <classname>ORO_CoreLib::PropertyBag</classname> bag;
-  <classname>ORO_CoreLib::Property</classname>&lt;double&gt; w("Weight", "in kilograms", 70.5 );
-  <classname>ORO_CoreLib::Property</classname>&lt;int&gt; pc("PostalCode", "", 3462 );
+      get a pointer to a <classname>RTT::PropertyBase</classname> or <classname>RTT::Property</classname>&lt;T&gt; :
+	<programlisting>  <classname>RTT::PropertyBag</classname> bag;
+  <classname>RTT::Property</classname>&lt;double&gt; w("Weight", "in kilograms", 70.5 );
+  <classname>RTT::Property</classname>&lt;int&gt; pc("PostalCode", "", 3462 );
 
   struct BirthDate {
      BirthDate(int d, month m, int y) : day(d), month(m), year(y) {}
@@ -1276,15 +1276,15 @@ emergencyStop.emit(); // User not notified</programlisting>
      int year;
   };
 
-  <classname>ORO_CoreLib::Property</classname>&lt;BirthDate&gt; bd("BirthDate", " in 'BirthDate' format", BirthDate(1, apr, 1977));
+  <classname>RTT::Property</classname>&lt;BirthDate&gt; bd("BirthDate", " in 'BirthDate' format", BirthDate(1, apr, 1977));
 
   bag.add( &amp;w );
   bag.add( &amp;pc );
   bag.add( &amp;bd );
 	
-  <classname>ORO_CoreLib::PropertyBase</classname>* weight = bag.find("PostalCode");    // assert( weight != 0 )
+  <classname>RTT::PropertyBase</classname>* weight = bag.find("PostalCode");    // assert( weight != 0 )
 
-  <classname>ORO_CoreLib::Property</classname>&lt;BirthDate&gt;* bd_bis = bag.getProperty&lt;BirthDate&gt;("BirthDate"); // assert( bd_bis != 0 )
+  <classname>RTT::Property</classname>&lt;BirthDate&gt;* bd_bis = bag.getProperty&lt;BirthDate&gt;("BirthDate"); // assert( bd_bis != 0 )
 	</programlisting>
       </para>
     </section>
@@ -1294,21 +1294,21 @@ emergencyStop.emit(); // User not notified</programlisting>
 	Marshalling is converting a property C++ object to a format
 	suitable for transportation or storage, like XML Demarshalling
 	reconstructs the property again from the stored format. In
-	Orocos, the <classname>ORO_CoreLib::Marshaller</classname>
+	Orocos, the <classname>RTT::Marshaller</classname>
 	interface defines how properties can be marshalled.  The
 	available marshallers (property to file) in Orocos are the
-	<classname>ORO_CoreLib::SimpleMarshaller</classname>,
-	<classname>ORO_CoreLib::XMLMarshaller</classname>,
-	<classname>ORO_CoreLib::XMLRPCMarshaller</classname>,
-	<classname>ORO_CoreLib::INIMarshaller</classname> and the
-	<classname>ORO_CoreLib::CPFMarshaller</classname>.  
+	<classname>RTT::SimpleMarshaller</classname>,
+	<classname>RTT::XMLMarshaller</classname>,
+	<classname>RTT::XMLRPCMarshaller</classname>,
+	<classname>RTT::INIMarshaller</classname> and the
+	<classname>RTT::CPFMarshaller</classname>.  
       </para>
       <para>
 	The inverse operation (file to property) is currently
 	supported by only two demarshallers:
-	<classname>ORO_CoreLib::SimpleDemarshaller</classname> and the
-	<classname>ORO_CoreLib::CPFDemarshaller</classname>.  They
-	implement the <classname>ORO_CoreLib::Demarshaller</classname>
+	<classname>RTT::SimpleDemarshaller</classname> and the
+	<classname>RTT::CPFDemarshaller</classname>.  They
+	implement the <classname>RTT::Demarshaller</classname>
 	interface.
       </para>
       <para>
@@ -1339,7 +1339,7 @@ emergencyStop.emit(); // User not notified</programlisting>
       <title>Using the NameServer</title>
       <para>
 	The local object server is called
-	<classname>ORO_CoreLib::NameServer</classname>.  The most
+	<classname>RTT::NameServer</classname>.  The most
 	common usage syntax is given below.
       </para>
       <note><para>
@@ -1348,7 +1348,7 @@ emergencyStop.emit(); // User not notified</programlisting>
 	returns a pointer when the object is looked up again.</para>
       </note>
       <programlisting>  // A NameServer collecting pointers to ClassA objects
-  <classname>ORO_CoreLib::NameServer</classname>&lt; ClassA* &gt; nameserver;
+  <classname>RTT::NameServer</classname>&lt; ClassA* &gt; nameserver;
   ClassA my_a;
   nameserver.registerObject( &amp;my_a, "ATeam" );
   // ...
@@ -1379,13 +1379,13 @@ emergencyStop.emit(); // User not notified</programlisting>
     <title>Buffers and DataObjects</title>
     <para>
       Orocos provides some basic inter-thread buffering mechanisms in the
-      <filename>corelib/buffers</filename> package.
+      <filename>rtt/buffers</filename> package.
     </para>
     <para>
       The difference between Buffers and DataObjects is that DataObjects
       always contain a single value, while buffers may be empty, full or contain
       a number of values.
-      Thus a <classname>ORO_CoreLib::DataObject</classname> always returns the last value written (and a
+      Thus a <classname>RTT::DataObject</classname> always returns the last value written (and a
       write always succeeds), while a buffer
       may implement a FIFO queue to store all written values (and thus can get full).
     </para>
@@ -1404,8 +1404,8 @@ emergencyStop.emit(); // User not notified</programlisting>
     <section id="corelib-buffers">
       <title>Buffers</title>
       <para>
-	The <classname>ORO_CoreLib::BufferInterface</classname>&lt;T&gt; provides
-	the interface for Orocos buffers. Currently the <classname>ORO_CoreLib::BufferLockFree</classname>&lt;T&gt;
+	The <classname>RTT::BufferInterface</classname>&lt;T&gt; provides
+	the interface for Orocos buffers. Currently the <classname>RTT::BufferLockFree</classname>&lt;T&gt;
 	is a typed buffer of type <emphasis>T</emphasis> and works as
 	a FIFO queue for storing elements of type T.
 	It is lock-free, non blocking and read and writes
@@ -1413,12 +1413,12 @@ emergencyStop.emit(); // User not notified</programlisting>
       </para>
 	<example>
 	  <title>Accessing a Buffer</title>
-	  <programlisting>  #include &lt;corelib/BufferLockFree.hpp>
+	  <programlisting>  #include &lt;rtt/BufferLockFree.hpp>
 
   // A Buffer may also contain a class, instead of the simple
   // double in this example
   // A buffer with size 10:
-  <classname>ORO_CoreLib::BufferLockFree</classname>&lt;double> my_Buf( 10 ); 
+  <classname>RTT::BufferLockFree</classname>&lt;double> my_Buf( 10 ); 
   if ( my_Buf.Push( 3.14 ) ) {
      // ok. not full.
   }
@@ -1435,7 +1435,7 @@ emergencyStop.emit(); // User not notified</programlisting>
     <section id="corelib-data-objects">
       <title>DataObjects</title>
       <para>
-	The data inside the <classname>ORO_CoreLib::DataObject</classname>s can be any valid C++ type,
+	The data inside the <classname>RTT::DataObject</classname>s can be any valid C++ type,
 	so mostly people use classes or structs, because these carry
 	more semantics than just (vectors of) doubles. The default
 	constructor of the data is called when the DataObject is
@@ -1443,11 +1443,11 @@ emergencyStop.emit(); // User not notified</programlisting>
 	DataObject :
 	<example>
 	  <title>Accessing a DataObject</title>
-	  <programlisting>  #include &lt;corelib/DataObjectInterfaces.hpp>
+	  <programlisting>  #include &lt;rtt/DataObjectInterfaces.hpp>
 
   // A DataObject may also contain a class, instead of the simple
   // double in this example
-  <classname>ORO_CoreLib::DataObjectLockFree</classname>&lt;double> my_Do("MyData"); 
+  <classname>RTT::DataObjectLockFree</classname>&lt;double> my_Do("MyData"); 
   my_Do.Set( 3.14 ); 
   double  contents; 
   my_Do.Get( contents );   // contents == 3.14
@@ -1455,7 +1455,7 @@ emergencyStop.emit(); // User not notified</programlisting>
 	</example>
       </para>
       <para>
-	The virtual <classname>ORO_CoreLib::DataObjectInterface</classname> interface
+	The virtual <classname>RTT::DataObjectInterface</classname> interface
 	provides the <function>Get()</function> and
 	<function>Set()</function> methods that each DataObject must
 	have. Semantically, <function>Set()</function> and
@@ -1469,7 +1469,7 @@ emergencyStop.emit(); // User not notified</programlisting>
     <para>
       Orocos applications can have pretty complex startup and
       initialisation code.  A logging framework, using
-      <classname>ORO_CoreLib::Logger</classname> helps to track what
+      <classname>RTT::Logger</classname> helps to track what
       your program is doing.
     </para>
       <note><para>Logging can
@@ -1555,12 +1555,12 @@ emergencyStop.emit(); // User not notified</programlisting>
     <para>If you want to disable logging completely, use <screen>export ORO_LOGLEVEL=-1</screen>
       before you start your program.</para>
     <para>
-      For using the <classname>ORO_CoreLib::Logger</classname> class in your own application, consult
+      For using the <classname>RTT::Logger</classname> class in your own application, consult
       the API documentation.
     </para>
     <example>
       <title>Using the Logger class</title>
-      <programlisting>  #include &lt;corelib/Logger.hpp>
+      <programlisting>  #include &lt;rtt/Logger.hpp>
 
   Logger::In in("MyModule");
   log( Error ) &lt;&lt; "An error Occured : " &lt;&lt; 333 &lt;&lt; "." &lt;&lt; endlog();
@@ -1568,7 +1568,7 @@ emergencyStop.emit(); // User not notified</programlisting>
   log() &lt;&lt; " more debug info." &lt;&lt; data &lt;&lt; endlog();
   log() &lt;&lt; "A warning." &lt;&lt; endlog( Warning );</programlisting>
       <para>As you can see, the Logger can be used like the standard C++ input streams.
-	You may change the Log message's level using the <classname>ORO_CoreLib::LogLevel</classname>
+	You may change the Log message's level using the <classname>RTT::LogLevel</classname>
 	enums in front (using log() ) or at the end (using endlog()) of the log message.
 	When no log level is specified, the previously set level is used.
 	The above message could result in :

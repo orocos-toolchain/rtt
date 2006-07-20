@@ -29,17 +29,17 @@
 #ifndef COMEDISUBDEVICEDIN_HPP
 #define COMEDISUBDEVICEDIN_HPP
 
-#include <device_interface/DigitalInInterface.hpp>
+#include "DigitalInInterface.hpp"
 #include "ComediDevice.hpp"
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
   /**
    * This logical device represents one 'Digital Input' subdevice of a Comedi device.
    */
   class ComediSubDeviceDIn
-    : public ORO_DeviceInterface::DigitalInInterface
+    : public DigitalInInterface
   {
 
   public:

@@ -28,7 +28,7 @@
 #ifndef SYNCWRITER_HPP
 #define SYNCWRITER_HPP
 
-#include <corelib/RunnableInterface.hpp>
+#include <rtt/RunnableInterface.hpp>
 #include "CANOpenBus.hpp"
 
 namespace CAN
@@ -38,7 +38,7 @@ namespace CAN
      * it is run.
      */
     class SyncWriter 
-        : public ORO_CoreLib::RunnableInterface 
+        : public RunnableInterface 
     {
         CANOpenBus* bus;
     public:

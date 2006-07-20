@@ -37,7 +37,7 @@
 #include "kindyn/SerialmZXXmZXmZ.hpp"
 #include <fstream>
 
-using namespace ORO_CoreLib;
+using namespace RTT;
 using namespace std;
 
 namespace ORO_KinDyn

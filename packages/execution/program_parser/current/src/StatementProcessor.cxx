@@ -27,31 +27,31 @@
  
  
 
-#include "execution/StatementProcessor.hpp"
-#include "execution/Parser.hpp"
-#include "execution/TaskContext.hpp"
+#include "rtt/StatementProcessor.hpp"
+#include "rtt/Parser.hpp"
+#include "rtt/TaskContext.hpp"
 #include <vector>
-#include "execution/DispatchInterface.hpp"
-#include "execution/parse_exception.hpp"
-#include "corelib/ConditionInterface.hpp"
+#include "rtt/DispatchInterface.hpp"
+#include "rtt/parse_exception.hpp"
+#include "rtt/ConditionInterface.hpp"
 #include <boost/tuple/tuple.hpp>
-#include "corelib/Logger.hpp"
+#include "rtt/Logger.hpp"
 #include <iostream>
 #include <pkgconf/system.h>
 #ifdef OROPKG_GEOMETRY
 #include <geometry/frames.h>
 #include <geometry/frames_io.h>
 #endif
-#include <corelib/MultiVector.hpp>
-#include <corelib/TypeStream.hpp>
+#include <rtt/MultiVector.hpp>
+#include <rtt/TypeStream.hpp>
 
-using namespace ORO_CoreLib;
+
 #ifdef OROPKG_GEOMETRY
 using namespace ORO_Geometry;
 #endif
 using namespace boost;
 
-namespace ORO_Execution
+namespace RTT
 {
     using namespace detail;
     struct StatementProcessor::D

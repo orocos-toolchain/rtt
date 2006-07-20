@@ -44,12 +44,12 @@
 #include <stack>
 #include <map>
 #include <string>
-#include <corelib/Property.hpp>
+#include <rtt/Property.hpp>
 #include "StreamProcessor.hpp"
-#include <corelib/Marshaller.hpp>
+#include <rtt/Marshaller.hpp>
 #include <istream>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     //using namespace rt_std; // Should be removed soon
     using std::cerr;

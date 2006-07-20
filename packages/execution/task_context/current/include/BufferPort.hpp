@@ -35,7 +35,7 @@
 #include "OperationInterface.hpp"
 #include "Method.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * A Port to a readable Buffer.
@@ -55,7 +55,7 @@ namespace ORO_Execution
          * Buffer connected to this port.
          * @return 0 if !connected(), the buffer otherwise.
          */
-        virtual ORO_CoreLib::ReadInterface<T>* read() const { return mconn ? mconn->read() : 0; }
+        virtual ReadInterface<T>* read() const { return mconn ? mconn->read() : 0; }
 
         /**
          * Construct an unconnected Port to a readable buffer.
@@ -246,7 +246,7 @@ namespace ORO_Execution
          * Get the buffer to write from.
          * @return 0 if !connected(), the buffer otherwise.
          */
-        virtual ORO_CoreLib::WriteInterface<T>* write() const { return mconn ? mconn->write() : 0; }
+        virtual WriteInterface<T>* write() const { return mconn ? mconn->write() : 0; }
 
         virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
 
@@ -412,7 +412,7 @@ namespace ORO_Execution
          * Get the buffer to write from.
          * @return 0 if !connected(), the buffer otherwise.
          */
-        virtual ORO_CoreLib::BufferInterface<T>* buffer() const { return mconn ? mconn->buffer() : 0; }
+        virtual BufferInterface<T>* buffer() const { return mconn ? mconn->buffer() : 0; }
 
         virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
 
@@ -546,7 +546,7 @@ namespace ORO_Execution
 
 #include "ConnectionFactory.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
 
     template<class T>

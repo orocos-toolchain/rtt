@@ -25,9 +25,9 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "os/fosi_internal.hpp"
-#include <os/PeriodicThread.hpp>
-#include <os/Time.hpp>
+#include "rtt/os/fosi_internal.hpp"
+#include <rtt/os/PeriodicThread.hpp>
+#include <rtt/os/Time.hpp>
 
 // extern package config headers.
 #include "pkgconf/system.h"
@@ -36,10 +36,10 @@
 #endif
 
 #ifdef OROPKG_CORELIB_EVENTS
-#include "corelib/Event.hpp"
+#include "rtt/Event.hpp"
 #endif
 #ifdef OROPKG_CORELIB_REPORTING
-#include "corelib/Logger.hpp"
+#include "rtt/Logger.hpp"
 #endif
 
 #include "pkgconf/os.h"
@@ -47,18 +47,18 @@
 #include <boost/bind.hpp>
 #include <boost/scoped_ptr.hpp>
 
-#include "corelib/Time.hpp"
-#include "os/threads.hpp"
+#include "rtt/Time.hpp"
+#include "rtt/os/threads.hpp"
 #include "pkgconf/os.h"
 #ifdef OROPKG_DEVICE_INTERFACE
 # include "pkgconf/device_interface.h"
 # include <boost/scoped_ptr.hpp>
 # ifdef OROPKG_OS_THREAD_SCOPE
-#  include "device_interface/DigitalOutInterface.hpp"
-   using namespace ORO_DeviceInterface;
+#  include "rtt/dev/DigitalOutInterface.hpp"
+   using namespace RTT;
 #  ifdef ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE
 #   include ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE
-    using namespace ORO_DeviceDriver;
+    using namespace RTT;
 #  endif
 # endif
 #endif
@@ -68,14 +68,14 @@
  * We use the Completion processor to stop the task
  */
 using boost::bind;
-using namespace ORO_CoreLib;
+using namespace RTT;
 
 #endif
 
-namespace ORO_OS
+namespace OS
 {
 #ifdef OROPKG_CORELIB_REPORTING
-    using ORO_CoreLib::Logger;
+    using RTT::Logger;
 #endif
 
     using namespace detail;
@@ -85,7 +85,7 @@ namespace ORO_OS
         /**
          * This is one time initialisation
          */
-        PeriodicThread* task = static_cast<ORO_OS::PeriodicThread*> (t);
+        PeriodicThread* task = static_cast<OS::PeriodicThread*> (t);
 
         // Reporting available from this point :
 #ifdef OROPKG_CORELIB_REPORTING
@@ -272,7 +272,7 @@ namespace ORO_OS
         }
 
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
-        h = new ORO_CoreLib::Handle();
+        h = new RTT::Handle();
         stopEvent = static_cast<void*>( new Event<bool(void)>() );
 #endif
 
@@ -353,7 +353,7 @@ namespace ORO_OS
         }
 
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
-        *h = static_cast<Event<bool(void)>*>(stopEvent)->connect( bind( &PeriodicThread::stop, this ), ORO_CoreLib::CompletionProcessor::Instance() );
+        *h = static_cast<Event<bool(void)>*>(stopEvent)->connect( bind( &PeriodicThread::stop, this ), RTT::CompletionProcessor::Instance() );
 #endif
         running=true;
 

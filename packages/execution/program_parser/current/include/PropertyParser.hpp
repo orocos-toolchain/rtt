@@ -34,7 +34,7 @@
 #include "CommonParser.hpp"
 #include <string>
 
-namespace ORO_Execution 
+namespace RTT 
 {
     namespace detail {
     /**

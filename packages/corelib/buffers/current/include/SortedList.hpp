@@ -29,11 +29,11 @@
 #ifndef ORO_SORTED_LIST_HPP
 #define ORO_SORTED_LIST_HPP
 
-#include <os/CAS.hpp>
+#include "os/CAS.hpp"
 #include <boost/shared_ptr.hpp>
 #include "MemoryPool.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * A single-linked sorted list algorithm invented by Timothy
@@ -109,7 +109,7 @@ namespace ORO_CoreLib
                     else
                         return right_node;
 
-                if (ORO_OS::CAS(&(left_node->next), left_node_next, right_node)) {
+                if (OS::CAS(&(left_node->next), left_node_next, right_node)) {
                     mpool.deallocate( get_unmarked_reference(left_node_next) );
                     if ((right_node != this->tail) && is_marked_reference(right_node->next))
                         goto search_again;
@@ -195,7 +195,7 @@ namespace ORO_CoreLib
                     return false;
                 }
                 new_node->next = right_node;
-                if (ORO_OS::CAS(&(left_node->next), right_node, new_node))
+                if (OS::CAS(&(left_node->next), right_node, new_node))
                     return true;
             } while (true);
         }
@@ -215,10 +215,10 @@ namespace ORO_CoreLib
                     return false;
                 right_node_next = right_node->next;
                 if (!is_marked_reference(right_node_next))
-                    if (ORO_OS::CAS( &(right_node->next), right_node_next, get_marked_reference(right_node_next)))
+                    if (OS::CAS( &(right_node->next), right_node_next, get_marked_reference(right_node_next)))
                         break;
             } while(true);
-            if (!ORO_OS::CAS(&(left_node->next), right_node, right_node_next))
+            if (!OS::CAS(&(left_node->next), right_node, right_node_next))
                 right_node = search(right_node->key, left_node);
             else
                 mpool.deallocate( get_unmarked_reference(right_node) );

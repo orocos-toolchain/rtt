@@ -28,12 +28,12 @@
 #ifndef DIGITALINPUT_HPP
 #define DIGITALINPUT_HPP
 
-#include <device_interface/DigitalInInterface.hpp>
+#include "DigitalInInterface.hpp"
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
-    using namespace ORO_DeviceInterface;
+    
 
     /**
      * A class representing an on/off switch, derived

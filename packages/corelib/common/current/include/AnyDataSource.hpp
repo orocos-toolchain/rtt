@@ -33,7 +33,7 @@
 #include "Logger.hpp"
 #include <tao/Any.h>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     namespace detail {
         /**

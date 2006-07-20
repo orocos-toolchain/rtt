@@ -30,12 +30,12 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "corelib/EventDrivenActivity.hpp"
-#include "corelib/TimerThread.hpp"
+#include "rtt/EventDrivenActivity.hpp"
+#include "rtt/TimerThread.hpp"
 #include <boost/bind.hpp>
 
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     EventDrivenActivity::EventDrivenActivity( Event<void(void)>* _event, EventProcessor* thread, RunnableInterface* _r  )

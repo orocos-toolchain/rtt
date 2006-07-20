@@ -28,14 +28,14 @@
 #ifndef ORO_EXECTUTION_DATASOURCE_HPP
 #define ORO_EXECTUTION_DATASOURCE_HPP
 
-#include "corelib/DataSource.hpp"
-#include "corelib/DataSources.hpp"
+#include "DataSource.hpp"
+#include "DataSources.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
-    using ORO_CoreLib::DataSourceBase;
-    using ORO_CoreLib::DataSource;
-    using ORO_CoreLib::AssignableDataSource;
+    
+    
+    
 
 }
 

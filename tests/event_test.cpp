@@ -18,12 +18,12 @@
  
  
 
-#include <corelib/Event.hpp>
-#include <corelib/Logger.hpp>
-#include <corelib/RunnableInterface.hpp>
-#include <corelib/SimulationActivity.hpp>
-#include <corelib/SimulationThread.hpp>
-#include <corelib/NonPeriodicActivity.hpp>
+#include <rtt/Event.hpp>
+#include <rtt/Logger.hpp>
+#include <rtt/RunnableInterface.hpp>
+#include <rtt/SimulationActivity.hpp>
+#include <rtt/SimulationThread.hpp>
+#include <rtt/NonPeriodicActivity.hpp>
 
 #include "event_test.hpp"
 #include <boost/bind.hpp>
@@ -32,7 +32,7 @@
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( EventTest );
 
-using namespace ORO_CoreLib;
+using namespace RTT;
 using namespace boost;
 
 void 

@@ -29,12 +29,12 @@
 #define ANALOGSENSOR_HPP
 
 #include "AnalogInput.hpp"
-#include <device_interface/SensorInterface.hpp>
+#include "SensorInterface.hpp"
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
-    using ORO_DeviceInterface::SensorInterface;
+    
 
     /**
      * A SensorInterface which reads its data from an analog channel.

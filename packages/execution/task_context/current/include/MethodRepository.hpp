@@ -6,7 +6,7 @@
 #include "DataSourceArgsMethod.hpp"
 #include "MethodC.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * This class allows storage and retrieval of Method objects.
@@ -25,7 +25,7 @@ namespace ORO_Execution
         }
         
     protected:
-        std::map<std::string,ORO_CoreLib::ActionInterface*> simplemethods;
+        std::map<std::string,ActionInterface*> simplemethods;
     public:
         typedef MethodFactory Factory;
 
@@ -71,7 +71,7 @@ namespace ORO_Execution
          * @return true if it could be found, false otherwise.
          */
         template<class Signature>
-        ORO_CoreLib::ActionInterface* getMethod( std::string name )
+        ActionInterface* getMethod( std::string name )
         {
             if ( simplemethods.count(name) )
                 return simplemethods[name]->clone();
@@ -235,7 +235,7 @@ namespace ORO_Execution
          * @return A DataSource which, when evaluated, invokes the method.
          */
         DataSourceBase* getMethod( std::string name,
-                                   const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args) const
+                                   const std::vector<DataSourceBase::shared_ptr>& args) const
         {
             return this->produce(name, args);
         }

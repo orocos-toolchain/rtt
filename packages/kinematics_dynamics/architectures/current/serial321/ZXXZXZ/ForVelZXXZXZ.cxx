@@ -65,7 +65,7 @@
 
 namespace ORO_KinDyn
 {
-    using namespace ORO_CoreLib;
+    using namespace RTT;
 
     bool SerialZXXZXZ::velocityForward ( const Double6D& q, const Double6D& qdot, ORO_Geometry::Frame& mp_base, ORO_Geometry::Twist& vel_base, Singularity& s ) const
     {

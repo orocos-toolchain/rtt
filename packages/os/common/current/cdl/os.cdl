@@ -7,7 +7,7 @@ of the system for which Orocos is compiled. You
 can only select one OS Package which is called the
 'target'."
 
-    include_dir os
+    include_dir rtt/os
     
     compile startstop.cxx
     compile StartStopManager.cxx
@@ -154,21 +154,21 @@ violated. Only enable if you know what you are doing."
 	display "Target calls global constructors"
 	flavor bool
 	requires OROINT_OS_GLOBAL_CRT <= 1
-	define ORO_OS_HAVE_MANUAL_CRT
+	define OS_HAVE_MANUAL_CRT
     }
 
     cdl_interface OROINT_OS_MAIN {
 	display "Target which calls the main() function"
 	flavor bool
 	requires OROINT_OS_MAIN <= 1
-	define ORO_OS_HAVE_MAIN
+	define OS_HAVE_MAIN
     }
 
     cdl_interface OROINT_OS_MAIN_THREAD {
 	display "Target with MainThread class"
 	flavor bool
 	requires OROINT_OS_MAIN <= 1
-	define ORO_OS_HAVE_MAIN_THREAD
+	define OS_HAVE_MAIN_THREAD
     }
 
     cdl_interface OROINT_OS_LINUX_IOPERM {

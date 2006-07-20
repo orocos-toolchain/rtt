@@ -28,7 +28,7 @@
 #pragma implementation
 #endif "std/straits.h"
 
-#include "corelib/rtstl.hpp"
+#include "rtt/rtstl.hpp"
 #include <string>
 
 typedef char c;

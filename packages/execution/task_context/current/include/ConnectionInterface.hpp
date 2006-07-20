@@ -30,18 +30,18 @@
 #define ORO_EXECUTION_CONNECTION_INTERFACE_HPP
 
 #include <boost/intrusive_ptr.hpp>
-#include <os/fosi.h>
-#include <corelib/DataSourceBase.hpp>
+#include "os/fosi.h"
+#include "DataSourceBase.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     class ConnectionInterface;
 }
 
-void intrusive_ptr_add_ref( ORO_Execution::ConnectionInterface* p );
-void intrusive_ptr_release( ORO_Execution::ConnectionInterface* p );
+void intrusive_ptr_add_ref( RTT::ConnectionInterface* p );
+void intrusive_ptr_release( RTT::ConnectionInterface* p );
 
-namespace ORO_Execution
+namespace RTT
 {
     class PortInterface;
 
@@ -67,7 +67,7 @@ namespace ORO_Execution
          * Get a Data source representing the current value of this
          * connection.
          */
-        virtual ORO_CoreLib::DataSourceBase::shared_ptr getDataSource() const = 0;
+        virtual DataSourceBase::shared_ptr getDataSource() const = 0;
 
         /**
          * Connect all readers and writers.

@@ -9,7 +9,7 @@
 #include "DataSourceStorage.hpp"
 #include "Invoker.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     namespace detail
     {
@@ -134,7 +134,7 @@ namespace ORO_Execution
                 return this->mcom.valid();
             }
 
-            virtual ORO_CoreLib::ConditionInterface* createCondition() const
+            virtual ConditionInterface* createCondition() const
             {
                 return new detail::ConditionFunctor<bool(void)>( boost::bind<bool>( boost::mem_fn(&RemoteCommand::evaluate), this) );
             }

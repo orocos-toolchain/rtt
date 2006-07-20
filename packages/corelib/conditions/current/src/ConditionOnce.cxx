@@ -27,9 +27,9 @@
  
  
 
-#include "corelib/ConditionOnce.hpp"
+#include "rtt/ConditionOnce.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     ConditionOnce::ConditionOnce(bool what) : ran( false ), _what(what)

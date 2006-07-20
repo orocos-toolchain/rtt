@@ -89,7 +89,7 @@ extern "C"
 
 namespace ORO_KinDyn
 {
-    using namespace ORO_CoreLib;
+    using namespace RTT;
 
     bool SerialZXXDWH::positionInverse ( const ORO_Geometry::Frame& mp_base, Configuration c,  Double6D& q, Singularity& s ) const
     {

@@ -24,10 +24,10 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "corelib/NonPreemptibleActivity.hpp"
-#include "corelib/ZeroTimeThread.hpp"
+#include "rtt/NonPreemptibleActivity.hpp"
+#include "rtt/ZeroTimeThread.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     
     NonPreemptibleActivity::NonPreemptibleActivity(Seconds period, RunnableInterface* r, bool pep )

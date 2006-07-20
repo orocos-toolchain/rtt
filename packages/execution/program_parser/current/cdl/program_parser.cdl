@@ -7,7 +7,7 @@ for the Program Processor using the Boost::Spirit
 library. It takes a lot of time to compile, but
 is very powerful."
 
-    include_dir execution
+    include_dir rtt
 
     parent OROPKG_EXECUTION
 

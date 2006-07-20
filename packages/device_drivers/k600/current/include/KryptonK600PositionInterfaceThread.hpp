@@ -19,9 +19,9 @@
 #ifndef __K600_POSITION_INTERFACE_HPP__
 #define __K600_POSITION_INTERFACE_HPP__
 
-#include <device_interface/PositionInterface.hpp>
-#include <os/SingleThread.hpp>
-#include <os/MutexLock.hpp>
+#include "PositionInterface.hpp"
+#include <rtt/os/SingleThread.hpp>
+#include <rtt/os/MutexLock.hpp>
 
 // Priority of the SingleThread.
 #define SINGLE_THREAD_PRIORITY 0
@@ -31,7 +31,7 @@
 #define MAX_NUM_COORD (MAX_NUM_LEDS*NUM_COORD_PER_LED)
 
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
   /**
    * A class for processing messages sent by the Krypton K600
@@ -40,8 +40,8 @@ namespace ORO_DeviceDriver
    */
   template <class Data>
   class K600PositionInterface
-    : public ORO_OS::SingleThread, 
-      public ORO_DeviceInterface::PositionInterface<Data>
+    : public OS::SingleThread, 
+      public PositionInterface<Data>
   {
   public:
     K600PositionInterface(int num_leds);
@@ -63,7 +63,7 @@ namespace ORO_DeviceDriver
     std::vector<Data> _buf1;
     std::vector<Data> _buf2;
 
-    ORO_OS::Mutex _readLock;
+    OS::Mutex _readLock;
 
   private:
     int interprete_K600_Msg(char * msg, 

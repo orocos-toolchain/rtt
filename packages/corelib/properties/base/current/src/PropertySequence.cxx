@@ -28,10 +28,10 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "corelib/PropertySequence.hpp"
-#include "corelib/Property.hpp"
+#include "rtt/PropertySequence.hpp"
+#include "rtt/Property.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     template< class T>

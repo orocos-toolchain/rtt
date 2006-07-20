@@ -25,9 +25,9 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "os/StartStopManager.hpp"
+#include "rtt/os/StartStopManager.hpp"
 
-namespace ORO_OS
+namespace OS
 {
 
     StartStopManager* StartStopManager::mt;

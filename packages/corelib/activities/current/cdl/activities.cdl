@@ -8,7 +8,7 @@ Therefore, Orocos specifies in advance three types of threads
 with different priorities and semantics. Each thread has a different
 type of periodic activity associated with it. 
 "
-    include_dir corelib
+    include_dir rtt
 
     parent OROPKG_CORELIB
     requires OROPKG_CORELIB

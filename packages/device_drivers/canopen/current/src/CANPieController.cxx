@@ -31,17 +31,17 @@
 
 #include <pkgconf/system.h>
 #ifdef OROPKG_CORELIB_ACTIVITIES
-#include <corelib/NonPreemptibleActivity.hpp>
-#include <corelib/Logger.hpp>
+#include <rtt/NonPreemptibleActivity.hpp>
+#include <rtt/Logger.hpp>
 #endif
 
 #include "can/cpuser.h"
-#include <os/fosi.h>
+#include <rtt/rtt/os/fosi.h>
 
 namespace CAN
 {
 #ifdef OROPKG_CORELIB_ACTIVITIES
-    using namespace ORO_CoreLib;
+    
 #endif
 
   CANPieController::CANPieController( double period,  bool interrupt ) :

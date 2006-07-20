@@ -19,15 +19,15 @@
  
 
 #include "tasks_multiple_test.hpp"
-#include <corelib/TimerInterface.hpp>
-#include <corelib/ZeroTimeThread.hpp>
-#include <corelib/ZeroLatencyThread.hpp>
-#include <corelib/NonRealTimeThread.hpp>
+#include <rtt/TimerInterface.hpp>
+#include <rtt/ZeroTimeThread.hpp>
+#include <rtt/ZeroLatencyThread.hpp>
+#include <rtt/NonRealTimeThread.hpp>
 
 #include <iostream>
 using namespace std;
-using namespace ORO_CoreLib;
-using namespace ORO_CoreLib::detail;
+using namespace RTT;
+using namespace RTT::detail;
 
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( ActivitiesMultipleTest );

@@ -28,9 +28,9 @@
  
 #ifndef ORO_CORELIB_BUFFER_POLICY_HPP
 #define ORO_CORELIB_BUFFER_POLICY_HPP
-#include <os/Semaphore.hpp>
+#include "os/Semaphore.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**
@@ -72,7 +72,7 @@ namespace ORO_CoreLib
                 count.wait();
         }
     private:
-        ORO_OS::Semaphore count;
+        OS::Semaphore count;
     };
 }
 #endif

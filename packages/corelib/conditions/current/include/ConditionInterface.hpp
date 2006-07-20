@@ -31,11 +31,11 @@
 
 #include <map>
 
-namespace ORO_CoreLib {
+namespace RTT {
     class DataSourceBase;
 }
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**

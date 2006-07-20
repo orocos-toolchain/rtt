@@ -26,12 +26,12 @@
  ***************************************************************************/
  
  
-#ifndef ORO_OS_COMMON_ATOMIC_HPP
-#define ORO_OS_COMMON_ATOMIC_HPP
+#ifndef OS_COMMON_ATOMIC_HPP
+#define OS_COMMON_ATOMIC_HPP
 
 #include "oro_atomic.h"
 
-namespace ORO_OS
+namespace OS
 {
     /**
      * C++ abstraction of atomic integer operations.

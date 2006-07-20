@@ -33,7 +33,7 @@
 #include "DataSources.hpp"
 #include "DataSourceAdaptor.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     namespace detail {
 

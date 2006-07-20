@@ -32,9 +32,9 @@
 #include <map>
 #include "DataSourceFactoryInterface.hpp"
 #include "DataSource.hpp"
-#include "corelib/PropertyBag.hpp"
+#include "PropertyBag.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * A utility DataSourceFactory that implements the
@@ -45,7 +45,7 @@ namespace ORO_Execution
         : public DataSourceFactoryInterface
     {
     public:
-        typedef std::map<std::string, ORO_CoreLib::DataSourceBase::shared_ptr> map_t;
+        typedef std::map<std::string, DataSourceBase::shared_ptr> map_t;
         typedef map_t Map;
         /**
          * Create a DataSourceFactory which creates DataSources 
@@ -58,10 +58,10 @@ namespace ORO_Execution
         bool hasMember( const std::string& s ) const;
         std::vector<ArgumentDescription> getArgumentList( const std::string& method ) const;
         int getArity(const std::string& name) const;
-        ORO_CoreLib::PropertyBag getArgumentSpec( const std::string& method ) const;
-        ORO_CoreLib::DataSourceBase* create( const std::string& name, const ORO_CoreLib::PropertyBag& args ) const;
-        ORO_CoreLib::DataSourceBase* create( const std::string& name, const std::vector<ORO_CoreLib::DataSourceBase*>& args ) const;
-        ORO_CoreLib::DataSourceBase* create( const std::string& name, const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args ) const;
+        PropertyBag getArgumentSpec( const std::string& method ) const;
+        DataSourceBase* create( const std::string& name, const PropertyBag& args ) const;
+        DataSourceBase* create( const std::string& name, const std::vector<DataSourceBase*>& args ) const;
+        DataSourceBase* create( const std::string& name, const std::vector<DataSourceBase::shared_ptr>& args ) const;
         std::string getDescription( const std::string& source ) const;
         std::string getResultType( const std::string& source ) const;
     private:

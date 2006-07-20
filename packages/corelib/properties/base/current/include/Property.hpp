@@ -48,7 +48,7 @@
 #include "corba/CorbaConversion.hpp"
 #endif
 
-namespace ORO_CoreLib
+namespace RTT
 {
 	/**
 	 * @brief A property represents a named value of any type with a description.
@@ -369,7 +369,7 @@ namespace ORO_CoreLib
 
 #include "PropertyIntrospection.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     template< class T>
     void Property<T>::identify( PropertyIntrospection* pi)

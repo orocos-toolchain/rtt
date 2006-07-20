@@ -5,7 +5,7 @@ cdl_package OROPKG_CORELIB_COMMANDS {
       This Package is required for logical program execution.
       It provides utilities and the interface for the CommandInterface."
 
-    include_dir corelib
+    include_dir rtt
 
     parent OROPKG_CORELIB
     requires OROPKG_CORELIB

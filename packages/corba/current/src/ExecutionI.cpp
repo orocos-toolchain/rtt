@@ -28,17 +28,17 @@
 // TAO_IDL - Generated from 
 // be/be_codegen.cpp:910
 
-#include "corba/ExecutionI.h"
-#include "execution/CommandC.hpp"
-#include "corelib/DataSourceCondition.hpp"
-#include "corelib/Logger.hpp"
+#include "rtt/corba/ExecutionI.h"
+#include "rtt/CommandC.hpp"
+#include "rtt/DataSourceCondition.hpp"
+#include "rtt/Logger.hpp"
 
 
-using namespace ORO_CoreLib;
-using namespace ORO_Execution;
+
+
 
 // Implementation skeleton constructor
-Orocos_Action_i::Orocos_Action_i (ORO_CoreLib::CommandInterface* com )
+Orocos_Action_i::Orocos_Action_i (CommandInterface* com )
     : mcom(com)
 {
 }

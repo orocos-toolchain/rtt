@@ -26,13 +26,13 @@
  ***************************************************************************/
  
  
-#include "corelib/TimerSequencer.hpp"
-#include <os/MutexLock.hpp>
+#include "rtt/TimerSequencer.hpp"
+#include <rtt/os/MutexLock.hpp>
 #include <cmath>
 #include <algorithm>
-#include "corelib/PeriodicActivity.hpp"
+#include "rtt/PeriodicActivity.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     using namespace detail;
     using std::find_if;
@@ -64,7 +64,7 @@ namespace ORO_CoreLib
         
     void TimerSequencer::tick()
     {
-        ORO_OS::MutexLock locker(mut);
+        OS::MutexLock locker(mut);
         //cout <<"tick"<<endl;
         in_tick = true;
         if (reset_f_iter)
@@ -97,7 +97,7 @@ namespace ORO_CoreLib
 
     bool TimerSequencer::addActivity( PeriodicActivity* task )
     {
-        ORO_OS::MutexLock locker(mut);
+        OS::MutexLock locker(mut);
         std::list<ListItem>::iterator itl;
         itl = find_if(sortedList.begin(), sortedList.end(), bind2nd( CMP(), 0) ); // find first zero
         if (itl == sortedList.end())
@@ -118,7 +118,7 @@ namespace ORO_CoreLib
 
     bool TimerSequencer::removeActivity( PeriodicActivity* task )
     {
-        ORO_OS::MutexLock locker(mut);
+        OS::MutexLock locker(mut);
         std::list<ListItem>::iterator itl;
         itl = find_if(sortedList.begin(), sortedList.end(), bind2nd( CMP(), task) );
         if (itl == sortedList.end())

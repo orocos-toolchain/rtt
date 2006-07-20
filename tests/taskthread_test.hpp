@@ -23,12 +23,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <corelib/NonPreemptibleActivity.hpp>
-#include <corelib/PreemptibleActivity.hpp>
-#include <corelib/SimulationActivity.hpp>
-#include <corelib/SlaveActivity.hpp>
+#include <rtt/NonPreemptibleActivity.hpp>
+#include <rtt/PreemptibleActivity.hpp>
+#include <rtt/SimulationActivity.hpp>
+#include <rtt/SlaveActivity.hpp>
 
-using namespace ORO_CoreLib;
+using namespace RTT;
 
 template<class T>
 struct TestTask;

@@ -27,17 +27,17 @@
 #ifndef COMEDISUBDEVICEDOUT_HPP
 #define COMEDISUBDEVICEDOUT_HPP
 
-#include <device_interface/DigitalOutInterface.hpp>
+#include "DigitalOutInterface.hpp"
 #include "ComediDevice.hpp"
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
   /**
    * This logical device represents one subdevice of a Comedi device.
    */
   class ComediSubDeviceDOut
-    : public ORO_DeviceInterface::DigitalOutInterface
+    : public DigitalOutInterface
   {
 
   public:

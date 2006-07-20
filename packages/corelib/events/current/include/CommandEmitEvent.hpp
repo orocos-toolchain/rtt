@@ -28,7 +28,7 @@
 #include "CommandInterface.hpp"
 #include "Event.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**

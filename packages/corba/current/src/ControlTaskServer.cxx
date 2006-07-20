@@ -27,10 +27,10 @@
  
  
 
-#include "corba/ControlTaskServer.hpp"
-#include "corba/ControlTaskS.h"
-#include "corba/ControlTaskC.h"
-#include "corba/ControlTaskI.h"
+#include "rtt/corba/ControlTaskServer.hpp"
+#include "rtt/corba/ControlTaskS.h"
+#include "rtt/corba/ControlTaskC.h"
+#include "rtt/corba/ControlTaskI.h"
 #include <orbsvcs/CosNamingC.h>
 #include <iostream>
 #include <fstream>
@@ -38,13 +38,13 @@
 // ACE Specific, for printing exceptions.
 #include <ace/SString.h>
 
-namespace ORO_Corba
+namespace Corba
 {
     using namespace std;
-    using namespace ORO_Execution;
-    using namespace ORO_CoreLib;
+    
+    
 
-    std::map<ORO_Execution::TaskContext*, ControlTaskServer*> ControlTaskServer::servers;
+    std::map<TaskContext*, ControlTaskServer*> ControlTaskServer::servers;
 
   ControlTaskServer::~ControlTaskServer()
   {
@@ -81,7 +81,7 @@ namespace ORO_Corba
 
   
 
-    ControlTaskServer::ControlTaskServer(ORO_Execution::TaskContext* taskc, bool use_naming)
+    ControlTaskServer::ControlTaskServer(TaskContext* taskc, bool use_naming)
       :mtaskcontext(taskc), muse_naming(use_naming)
     {
         servers[taskc] = this;

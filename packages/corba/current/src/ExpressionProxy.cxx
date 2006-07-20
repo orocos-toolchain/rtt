@@ -27,19 +27,19 @@
  
  
 
-#include <corelib/Types.hpp>
-#include "corba/ExecutionI.h"
-#include "corba/ExpressionProxy.hpp"
+#include <rtt/Types.hpp>
+#include "rtt/corba/ExecutionI.h"
+#include "rtt/corba/ExpressionProxy.hpp"
 #include <iostream>
 
 #include <ace/String_Base.h>
 
 using namespace std;
 
-namespace ORO_Corba
+namespace Corba
 {
-    using namespace ORO_CoreLib;
-    using namespace ORO_Execution;
+    
+    
 
     std::map<Orocos::Expression_ptr, ExpressionProxy*> ExpressionProxy::proxies;
     std::map<Orocos::Expression_ptr, DataSourceBase*> ExpressionProxy::dproxies;

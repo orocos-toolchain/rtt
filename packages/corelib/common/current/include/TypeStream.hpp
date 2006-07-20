@@ -30,15 +30,15 @@
 #define TYPESTREAM_HPP
 
 #include <vector>
-#include <corelib/MultiVector.hpp>
+#include "MultiVector.hpp"
 #include <ostream>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     std::ostream& operator<<(std::ostream& os, const std::vector<double>& v);
 
     // declared in MultiVector.hpp
-    //std::ostream& operator<<(std::ostream& os, const ORO_CoreLib::Double6D& v);
+    //std::ostream& operator<<(std::ostream& os, const Double6D& v);
 
 }
 #endif

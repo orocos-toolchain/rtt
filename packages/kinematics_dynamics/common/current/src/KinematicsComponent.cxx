@@ -29,12 +29,12 @@
 #endif
 #include "kindyn/KinematicsComponent.hpp"
 #include "kindyn/KinematicsJointConverter.hpp"
-#include <corelib/Logger.hpp>
+#include <rtt/Logger.hpp>
 
 namespace ORO_KinDyn
 {
     using namespace ORO_Geometry;
-    using namespace ORO_CoreLib;
+    using namespace RTT;
 
     KinematicsComponent::KinematicsComponent( KinematicsInterface* stateless, 
                                               JointVelocities _signs /* = JointVelocities() */, 

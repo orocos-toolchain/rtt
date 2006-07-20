@@ -19,13 +19,13 @@
 #ifndef __ENCODER_POSITION_INTERFACE_HPP__
 #define __ENCODER_POSITION_INTERFACE_HPP__
 
-#include <device_interface/PositionInterface.hpp>
-#include <device_interface/EncoderInterface.hpp>
+#include "PositionInterface.hpp"
+#include "EncoderInterface.hpp"
 #include <vector>
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
-  using namespace ORO_DeviceInterface;
+  
   /**
 
   */

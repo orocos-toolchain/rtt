@@ -27,18 +27,18 @@
  
  
 
-#include "execution/StateMachineTask.hpp"
-#include <corelib/Attribute.hpp>
-#include "execution/TemplateFactories.hpp"
-#include "execution/TaskContext.hpp"
-#include "execution/FactoryExceptions.hpp"
-#include "execution/CommandDS.hpp"
-#include "execution/Method.hpp"
+#include "rtt/StateMachineTask.hpp"
+#include <rtt/Attribute.hpp>
+#include "rtt/TemplateFactories.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/FactoryExceptions.hpp"
+#include "rtt/CommandDS.hpp"
+#include "rtt/Method.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
-    using namespace ORO_CoreLib;
-    using namespace ORO_CoreLib::detail;
+    
+    using namespace detail;
 
         void StateMachineTask::createCommandFactory() {
             // Add the state specific methods :

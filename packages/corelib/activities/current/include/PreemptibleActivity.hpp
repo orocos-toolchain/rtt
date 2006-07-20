@@ -30,7 +30,7 @@
 
 #include "PeriodicActivity.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * @brief A PreemptibleActivity is a PeriodicActivity which may be preempted by

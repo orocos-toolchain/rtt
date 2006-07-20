@@ -29,10 +29,10 @@
 #ifndef DIGITALOUTINTERFACE_HPP
 #define DIGITALOUTINTERFACE_HPP
 
-#include <corelib/NameServer.hpp>
-#include <corelib/NameServerRegistrator.hpp>
+#include <rtt/NameServer.hpp>
+#include <rtt/NameServerRegistrator.hpp>
 
-namespace ORO_DeviceInterface
+namespace RTT
 {
     /**
      * A class representing a Digital Output device which can read or write a maximum of 32
@@ -43,7 +43,7 @@ namespace ORO_DeviceInterface
      * @see TemplateDigitalOut
      */
     class DigitalOutInterface
-        : private ORO_CoreLib::NameServerRegistrator<DigitalOutInterface*>
+        : private NameServerRegistrator<DigitalOutInterface*>
     {
 
         public:
@@ -53,7 +53,7 @@ namespace ORO_DeviceInterface
              * through DigitalOutInterface::nameserver .
              */
             DigitalOutInterface( const std::string& name )
-                    : ORO_CoreLib::NameServerRegistrator<DigitalOutInterface*>( nameserver, name, this )
+                    : NameServerRegistrator<DigitalOutInterface*>( nameserver, name, this )
             { }
 
             /**
@@ -67,9 +67,9 @@ namespace ORO_DeviceInterface
 
             /**
              * The NameServer of this interface.
-             * @see ORO_CoreLib::NameServer
+             * @see NameServer
              */
-            static ORO_CoreLib::NameServer<DigitalOutInterface*> nameserver;
+            static NameServer<DigitalOutInterface*> nameserver;
 
             /**
              * Sets the n'th output on

@@ -25,16 +25,16 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "corelib/ZeroLatencyThread.hpp"
-#include "corelib/PreemptibleActivity.hpp"
-#include "corelib/Logger.hpp"
-#include <os/threads.hpp>
+#include "rtt/ZeroLatencyThread.hpp"
+#include "rtt/PreemptibleActivity.hpp"
+#include "rtt/Logger.hpp"
+#include <rtt/os/threads.hpp>
 
 #include "pkgconf/corelib_activities.h"
 
 #ifdef OROSEM_CORELIB_ACTIVITIES_AUTOSTART
-#include <os/StartStopManager.hpp>
-namespace ORO_CoreLib
+#include <rtt/os/StartStopManager.hpp>
+namespace RTT
 {
     namespace
     {
@@ -49,14 +49,14 @@ namespace ORO_CoreLib
             ZeroLatencyThread::Release();
         }
 
-        ORO_OS::InitFunction ZLTInit( &startZLTThread );
-        ORO_OS::CleanupFunction ZLTCleanup( &stopZLTThread );
+        OS::InitFunction ZLTInit( &startZLTThread );
+        OS::CleanupFunction ZLTCleanup( &stopZLTThread );
     }
 }
 #endif
 
 
-namespace ORO_CoreLib
+namespace RTT
 {
     
     // The static class variables
@@ -80,7 +80,7 @@ namespace ORO_CoreLib
 
 
     ZeroLatencyThread::ZeroLatencyThread()
-        : TimerThread(ORO_OS::HighestPriority - ORO_OS::IncreasePriority,
+        : TimerThread(OS::HighestPriority - OS::IncreasePriority,
                         ORODAT_CORELIB_ACTIVITIES_ZLT_NAME, 
                         ORONUM_CORELIB_ACTIVITIES_ZLT_PERIOD)
     {

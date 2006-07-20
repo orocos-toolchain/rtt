@@ -110,20 +110,20 @@
 	  </thead>
 	  <tbody>
 	    <row>
-	      <entry><classname>ORO_CoreLib::DataObjectLocked</classname></entry>
+	      <entry><classname>RTT::DataObjectLocked</classname></entry>
 	      <entry>
 		<para>Uses Mutex for serialising concurrent access. Alternative
 		Lock-free implementations are possible.</para>
 	      </entry>
 	    </row>
 	    <row>
-	      <entry><classname>ORO_CoreLib::PeriodicTask</classname>::start(), 
-	      <classname>ORO_CoreLib::PeriodicTask</classname>::stop()</entry>
+	      <entry><classname>RTT::PeriodicTask</classname>::start(), 
+	      <classname>RTT::PeriodicTask</classname>::stop()</entry>
 	      <entry>
-		<para>( Applies to <classname>ORO_CoreLib::PriorityTask</classname>, 
-		<classname>ORO_CoreLib::NonRealtimeActivity</classname>, 
-		<classname>ORO_CoreLib::PreemptibleActivity</classname> and
-		<classname>ORO_CoreLib::NonPreemptibleActivity</classname>).
+		<para>( Applies to <classname>RTT::PriorityTask</classname>, 
+		<classname>RTT::NonRealtimeActivity</classname>, 
+		<classname>RTT::PreemptibleActivity</classname> and
+		<classname>RTT::NonPreemptibleActivity</classname>).
 		Uses Mutex for serialising concurrent access.
 		Alternative implementation are incorrect,
 		since stop() guarantees that finalize() will
@@ -134,7 +134,7 @@
 	      </entry>
 	    </row>
 	    <row>
-	      <entry><classname>ORO_CoreLib::Logger</classname></entry>
+	      <entry><classname>RTT::Logger</classname></entry>
 	      <entry>
 		<para>Uses Mutex for serialising concurrent access.
 		  No Alternative implementation is possible, Std C++ IO
@@ -159,7 +159,7 @@
 	  </thead>
 	  <tbody>
 	    <row>
-	      <entry><classname>ORO_CoreLib::DataObjectLockFree</classname></entry>
+	      <entry><classname>RTT::DataObjectLockFree</classname></entry>
 	      <entry>
 		<para>Uses a single writer, multiple reader Lock-free implementation.
 		  A read only returns the last written value.
@@ -168,14 +168,14 @@
 	      </entry>
 	    </row>
 	    <row>
-	      <entry><classname>ORO_CoreLib::AtomicQueue</classname></entry>
+	      <entry><classname>RTT::AtomicQueue</classname></entry>
 	      <entry>
 		<para>Uses Compare And Swap (CAS) to store object pointers
 		in an atomic queue. Used by the Processor class to queue incomming Commands.</para>
 	      </entry>
 	    </row>
 	    <row>
-	      <entry><classname>ORO_CoreLib::BufferLockFree</classname></entry>
+	      <entry><classname>RTT::BufferLockFree</classname></entry>
 	      <entry>
 		<para>Uses a many writers, multiple readers Lock-free CAS implementation.
 		  A read returns the oldest written value in a FIFO way.
@@ -183,7 +183,7 @@
 	      </entry>
 	    </row>
 	    <row>
-	      <entry><classname>ORO_CoreLib::ListLockFree</classname></entry>
+	      <entry><classname>RTT::ListLockFree</classname></entry>
 	      <entry>
 		<para>Uses a many writers, multiple readers Lock-free CAS implementation
 		of a single linked list. A special member function 'apply' must be used
@@ -192,7 +192,7 @@
 	      </entry>
 	    </row>
 	    <row>
-	      <entry><classname>ORO_CoreLib::Event</classname>::emit()</entry>
+	      <entry><classname>RTT::Event</classname>::emit()</entry>
 	      <entry>
 		<para>Uses the ListLockFree above for keeping track of subscribers.
 		Concurrent invocations of emit() will lead to concurrent execution
@@ -200,7 +200,7 @@
 	      </entry>
 	    </row>
 	    <row>
-	      <entry><classname>ORO_CoreLib::Handle</classname>::connect() and <classname>ORO_CoreLib::Handle</classname>::disconnect()</entry>
+	      <entry><classname>RTT::Handle</classname>::connect() and <classname>RTT::Handle</classname>::disconnect()</entry>
 	      <entry>
 		<para>(Dis)Connection of an event handle is hard real-time and lock-free
 		because of the lock-free event implementation.</para>
@@ -214,16 +214,16 @@
   <section>
     <title>DataSources</title>
     <para>
-      A <classname>ORO_CoreLib::DataSource</classname> is the fundamental
+      A <classname>RTT::DataSource</classname> is the fundamental
       data exchange entity within Orocos. It's interface is that of an
       'expression': it can be evaluate()'d, its result can be get() and
-      an <classname>ORO_CoreLib::AssignableDataSource</classname> can
-      even be set(). The <classname>ORO_CoreLib::DataObject</classname> types
+      an <classname>RTT::AssignableDataSource</classname> can
+      even be set(). The <classname>RTT::DataObject</classname> types
       are implementations of DataSources, but many more kinds exists which
       are used by the Scripting engine and the task infrastructure.
     </para>
     <para>
-      The <classname>ORO_CoreLib::DataSourceBase</classname> interface is the most
+      The <classname>RTT::DataSourceBase</classname> interface is the most
       basic interface for exchanging data ( value types ) between
       objects. They are reference counted ('smart pointers'), such
       that ownership across many objects must not be managed.
@@ -231,13 +231,13 @@
       and thus all Orocos DataObject types are DataSources.
     </para>
     <para>
-      The <classname>ORO_CoreLib::DataObjectInterface</classname> has multiple
+      The <classname>RTT::DataObjectInterface</classname> has multiple
       implementations, depending on the specific data access locking
       needs:
 	<itemizedlist>
 	  <listitem>
 	    <para>
-	      <emphasis role="strong"><classname>ORO_CoreLib::DataObject</classname></emphasis>. This is
+	      <emphasis role="strong"><classname>RTT::DataObject</classname></emphasis>. This is
 	      the most simple DataObject implementation. The
 	      <function>Get()</function> and
 	      <function>Set()</function> methods directly map onto the
@@ -248,7 +248,7 @@
 	  </listitem>
 	  <listitem>
 	    <para>
-	      <emphasis role="strong"><classname>ORO_CoreLib::DataObjectLocked</classname></emphasis>.
+	      <emphasis role="strong"><classname>RTT::DataObjectLocked</classname></emphasis>.
 	      This is a thread safe DataObject whose
 	      <function>Set()</function> and
 	      <function>Get()</function> methods are guarded by a
@@ -260,7 +260,7 @@
 	  <listitem>
 	    <para>
 	      <emphasis
-		role="strong"><classname>ORO_CoreLib::DataObjectPrioritySet</classname></emphasis>. This
+		role="strong"><classname>RTT::DataObjectPrioritySet</classname></emphasis>. This
 	      is a more complex DataObject which gives always priority
 	      to the thread calling <function>Set()</function>, which
 	      will never block. The thread accessing
@@ -284,7 +284,7 @@
 	  <listitem>
 	    <para>
 	      <emphasis
-		role="strong"><classname>ORO_CoreLib::DataObjectPriorityGet</classname></emphasis>. The
+		role="strong"><classname>RTT::DataObjectPriorityGet</classname></emphasis>. The
 	      inverse of <function>DataObjectPrioritySet</function>.
 	      The thread accessing <function>Get()</function> will
 	      never block.
@@ -292,7 +292,7 @@
 	  </listitem>
 	  <listitem>
 	    <para>
-	      <emphasis role="strong"><classname>ORO_CoreLib::DataObjectLockFree</classname></emphasis>.
+	      <emphasis role="strong"><classname>RTT::DataObjectLockFree</classname></emphasis>.
 	      This DataObject implements a non blocking reader/writer
 	      buffer which always returns the last written value to
 	      the reader. If the reader is preempted with a write and
@@ -330,7 +330,7 @@
       </para>
       <para>
 	A toolkit can be imported into the application by writing:
-	<programlisting>  #include &lt;corelib/RealTimeToolkit.hpp>
+	<programlisting>  #include &lt;rtt/RealTimeToolkit.hpp>
   // ...
   RTT::Toolkit::Import( RTT::RealTimeToolkit );	</programlisting>
 	This is however done automatically, unless you disabled that
@@ -350,19 +350,19 @@
   }</programlisting>
         How can you tell Orocos how to handle this type ? A helper
 	class is provided which you can extend to fit your needs,
-	<classname>ORO_CoreLib::TemplateTypeInfo</classname>.
-	<programlisting>  #include &lt;corelib/TemplateTypeInfo.hpp>
+	<classname>RTT::TemplateTypeInfo</classname>.
+	<programlisting>  #include &lt;rtt/TemplateTypeInfo.hpp>
   // ...
   struct ControlDataTypeInfo
-    : public ORO_CoreLib::TemplateTypeInfo&lt;ControlData>
+    : public RTT::TemplateTypeInfo&lt;ControlData>
   {
      ControlDataTypeInfo
-        : ORO_CoreLib::TemplateTypeInfo&lt;ControlData>("ControlData")
+        : RTT::TemplateTypeInfo&lt;ControlData>("ControlData")
      {}
   };
 
   // Tell Orocos the name and type of this struct:
-  ORO_CoreLib::TypeInfoRepository::Instance()->addType( new ControlDataTypeInfo() );
+  RTT::TypeInfoRepository::Instance()->addType( new ControlDataTypeInfo() );
 	</programlisting>
 	From now on, Orocos knows the 'ControlData' type name and allows
 	you to create a scripting variable of that type. It does however
@@ -375,7 +375,7 @@
 	  may overload the <function>TemplateTypeInfo::write</function> fuction
 	  or define <function>operator&lt;&lt;()</function> for your type:
 	</para>
-	<programlisting>  #include &lt;corelib/TemplateTypeInfo.hpp>
+	<programlisting>  #include &lt;rtt/TemplateTypeInfo.hpp>
   #include &lt;ostream>
 
   std::ostream&amp; operator&lt;&lt;(std::ostream&amp; os, const ControlData&amp; cd) {
@@ -384,15 +384,15 @@
   // ...
   // 'true' argument: <emphasis> it has operator&lt;&lt;</emphasis>
   struct ControlDataTypeInfo
-    : public ORO_CoreLib::TemplateTypeInfo&lt;ControlData,<emphasis>true</emphasis>>
+    : public RTT::TemplateTypeInfo&lt;ControlData,<emphasis>true</emphasis>>
   {
      ControlDataTypeInfo
-        : ORO_CoreLib::TemplateTypeInfo&lt;ControlData,<emphasis>true</emphasis>>("ControlData")
+        : RTT::TemplateTypeInfo&lt;ControlData,<emphasis>true</emphasis>>("ControlData")
      {}
   };
 
   // Tell Orocos the name and type of this struct
-  ORO_CoreLib::Types::Instance()->addType( new ControlDataTypeInfo() );
+  RTT::Types::Instance()->addType( new ControlDataTypeInfo() );
 	</programlisting>
 	<para>
 	  If you use the above line of code to add the type, Orocos will be
@@ -406,7 +406,7 @@
 	  In order to inform Orocos of the structure of your data type,
 	  it must be given a 'decompose' function: Of which primitive types
 	  does the struct consists ? Representing structured data is what
-	  Orocos <classname>ORO_CoreLib::Property</classname> objects do.
+	  Orocos <classname>RTT::Property</classname> objects do.
 	  Here is how to tell Orocos how the "ControlData" is structured:
 	</para>
 	<programlisting>  // ...
@@ -426,7 +426,7 @@
   }</programlisting>
         <para>
 	  That was easy ! For each member of your struct, add a
-	  <classname>ORO_CoreLib::Property</classname> of the correct
+	  <classname>RTT::Property</classname> of the correct
 	  type to the targetbag and you're done !
 	  <function>setType()</function> can be used lateron to
 	  determine the version or type of your XML representation.  Next,
@@ -503,7 +503,7 @@
 	  network, Orocos requires that you provide the conversion
 	  from your type to a CORBA::Any type and back, quite similar
 	  to the 'composition' and 'decomposition' of your data.
-	  Look at the <classname>ORO_CoreLib::TemplateTypeInfo</classname>
+	  Look at the <classname>RTT::TemplateTypeInfo</classname>
 	  interface for the functions you need to implement.
 	</para>
 	<para>
@@ -536,7 +536,7 @@
 	they can introduce their data types into Orocos.
       </para>
       <para>
-	Each toolkit must inherit from the <classname>ORO_CoreLib::ToolkitPlugin</classname>
+	Each toolkit must inherit from the <classname>RTT::ToolkitPlugin</classname>
 	class and implement three functions: <function>loadTypes()</function>,
 	<function>loadOperators()</function> and <function>getName()</function>.
       </para>
@@ -551,14 +551,14 @@
       </para>
       <para>
 	Mimick the code of the
-	<classname>ORO_CoreLib::RealTimeToolkit</classname> and
-	<classname>ORO_CoreLib::GeometryToolkit</classname> to build
+	<classname>RTT::RealTimeToolkit</classname> and
+	<classname>RTT::GeometryToolkit</classname> to build
 	your own.
       </para>
       <section id="overloading-operators">
 	<title>Loading Operators</title>
 	<para>
-	  Operator are stored in the class <classname>ORO_CoreLib::OperatorRepository</classname>
+	  Operator are stored in the class <classname>RTT::OperatorRepository</classname>
 	  in <filename>Operators.hpp</filename>.  The list of
 	  supported operators is set by the toolkit and added to the OperatorRepository
 	  It looks something like this:

@@ -25,10 +25,10 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "corelib/TimerThread.hpp"
-#include "corelib/PeriodicActivity.hpp"
-#include "corelib/TimerInterface.hpp"
-#include "corelib/EventProcessor.hpp"
+#include "rtt/TimerThread.hpp"
+#include "rtt/PeriodicActivity.hpp"
+#include "rtt/TimerInterface.hpp"
+#include "rtt/EventProcessor.hpp"
 
 #include "pkgconf/corelib_activities.h"
 
@@ -36,18 +36,18 @@
 // with respect to step() and finalize()
 #define OROSEM_ONESHOT_TIMER
 #ifdef OROSEM_ONESHOT_TIMER
-#include "corelib/TimerOneShot.hpp"
+#include "rtt/TimerOneShot.hpp"
 #else
-#include "corelib/TimerLockFree.hpp"
+#include "rtt/TimerLockFree.hpp"
 #endif
-#include "corelib/Time.hpp"
-#include "corelib/Logger.hpp"
+#include "rtt/Time.hpp"
+#include "rtt/Logger.hpp"
 #include <algorithm>
-#include <os/MutexLock.hpp>
+#include <rtt/os/MutexLock.hpp>
 
-namespace ORO_CoreLib
+namespace RTT
 {
-    using ORO_OS::MutexLock;
+    using OS::MutexLock;
     using namespace detail;
     using namespace std;
 

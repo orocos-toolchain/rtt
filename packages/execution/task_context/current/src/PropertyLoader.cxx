@@ -27,20 +27,20 @@
  
  
 
-#include "execution/PropertyLoader.hpp"
+#include "rtt/PropertyLoader.hpp"
 #include <pkgconf/system.h>
 #ifdef OROPKG_CORELIB_PROPERTIES_MARSHALLING
 #include <pkgconf/corelib_properties_marshalling.h>
 #include ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE
 #include ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE
 #endif
-#include <corelib/Logger.hpp>
-#include <corelib/PropertyBagIntrospector.hpp>
+#include <rtt/Logger.hpp>
+#include <rtt/PropertyBagIntrospector.hpp>
 #include <fstream>
 
 using namespace std;
-using namespace ORO_CoreLib;
-using namespace ORO_Execution;
+using namespace RTT;
+
 
 bool PropertyLoader::configure(const std::string& filename, TaskContext* target, bool strict ) const
 {
@@ -152,7 +152,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target) cons
 
     // merge with target file contents,
     // override allProps.
-    bool updater = ORO_CoreLib::updateProperties( allProps, decompProps );
+    bool updater = updateProperties( allProps, decompProps );
     if (updater == false) {
         Logger::log() << Logger::Error << "Could not update properties of file "<< filename <<"."<<Logger::endl;
     }        

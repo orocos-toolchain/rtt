@@ -26,10 +26,10 @@
  ***************************************************************************/
  
  
-#include <corelib/TypeStream.hpp>
+#include <rtt/TypeStream.hpp>
 #include <sstream>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     using namespace std;
     std::ostream& operator<<(std::ostream& os, const std::vector<double>& v)
@@ -49,7 +49,7 @@ namespace ORO_CoreLib
 
 #if 0
     // Declared in MultiVector.hpp
-    std::ostream& operator<<(std::ostream& os, const ORO_CoreLib::Double6D& v)
+    std::ostream& operator<<(std::ostream& os, const Double6D& v)
     {
         std::stringstream ss;
         ss << "[";

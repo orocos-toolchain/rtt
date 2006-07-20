@@ -28,13 +28,13 @@
 #ifndef CONDITIONBOOLPROPERTY_HPP
 #define CONDITIONBOOLPROPERTY_HPP
 
-#include <corelib/ConditionInterface.hpp>
-#include <corelib/Property.hpp>
+#include "ConditionInterface.hpp"
+#include "Property.hpp"
 
-using ORO_CoreLib::ConditionInterface;
-using ORO_CoreLib::Property;
 
-namespace ORO_Execution
+
+
+namespace RTT
 {
   /**
    * ConditionBoolProperty is a Condition which reads out a

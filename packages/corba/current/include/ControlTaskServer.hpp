@@ -29,11 +29,11 @@
 
 #include <map>
 #include <tao/corba.h>
-#include <execution/TaskContext.hpp>
+#include "TaskContext.hpp"
 #include "ApplicationServer.hpp"
 #include "ControlTaskS.h"
 
-namespace ORO_Corba
+namespace Corba
 {
     /**
      * This class manages the creation of TaskContext Corba Servers
@@ -43,16 +43,16 @@ namespace ORO_Corba
         : public ApplicationServer
     {
     protected:
-        typedef std::map<ORO_Execution::TaskContext*, ControlTaskServer*> ServerMap;
+        typedef std::map<TaskContext*, ControlTaskServer*> ServerMap;
         static ServerMap servers;
 
         /**
          * Private constructor which creates a new servant.
          */
-        ControlTaskServer(ORO_Execution::TaskContext* taskcontext, bool use_naming);
+        ControlTaskServer(TaskContext* taskcontext, bool use_naming);
 
         Orocos::ControlTask_var mtask;
-        ORO_Execution::TaskContext* mtaskcontext;
+        TaskContext* mtaskcontext;
         bool muse_naming;
 
       /**
@@ -99,7 +99,7 @@ namespace ORO_Corba
          * @retval 0 if the ORB is not initialised
          * @return A new or previously created CORBA server for \a tc.
          */
-        static ControlTaskServer* Create(ORO_Execution::TaskContext* tc, bool use_naming = true);
+        static ControlTaskServer* Create(TaskContext* tc, bool use_naming = true);
 
         /**
          * Get the Corba Object of this ControlTask.

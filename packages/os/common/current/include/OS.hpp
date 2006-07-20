@@ -47,4 +47,4 @@
  * The os package is documented in <a href="../../orocos-os.html">
  * The Orocos OS Online Manual</a>
  */
-namespace ORO_OS {}
+namespace OS {}

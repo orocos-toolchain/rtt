@@ -24,9 +24,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "execution/CommandFactoryInterface.hpp"
+#include "rtt/CommandFactoryInterface.hpp"
 
-namespace ORO_Execution {
+namespace RTT {
 
   CommandFactoryInterface::~CommandFactoryInterface()
   {

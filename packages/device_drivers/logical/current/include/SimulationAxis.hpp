@@ -19,14 +19,14 @@
 #ifndef _SIM_AXIS_HPP
 #define _SIM_AXIS_HPP
 
-#include <device_interface/AxisInterface.hpp>
-#include <corelib/TimeService.hpp>
+#include "AxisInterface.hpp"
+#include <rtt/TimeService.hpp>
 #include <iostream>
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
-class SimulationEncoder: public ORO_DeviceInterface::SensorInterface<double>
+class SimulationEncoder: public SensorInterface<double>
 {
 public:
   SimulationEncoder(double initial=0, double min=-10, double max=10);
@@ -42,8 +42,8 @@ public:
   
 private:
   double _position, _velocity, _min, _max;
-  ORO_CoreLib::TimeService::ticks _previous_time;
-  ORO_CoreLib::TimeService::Seconds _delta_time;
+  TimeService::ticks _previous_time;
+  TimeService::Seconds _delta_time;
   bool _first_drive;
 
 }; // class
@@ -55,7 +55,7 @@ class SimulationVelocitySensor;
 
 
 
-class SimulationAxis: public ORO_DeviceInterface::AxisInterface
+class SimulationAxis: public AxisInterface
 {
 public:
   SimulationAxis(double initial=0, double min=-10, double max=10);
@@ -68,9 +68,9 @@ public:
   virtual bool isLocked() const;
   virtual bool isStopped() const;
   virtual bool isDriven() const;
-  virtual ORO_DeviceInterface::SensorInterface<double>* getSensor(const std::string& name) const;
+  virtual SensorInterface<double>* getSensor(const std::string& name) const;
   virtual std::vector<std::string> sensorList() const;
-  virtual ORO_DeviceInterface::SensorInterface<int>* getCounter(const std::string& name) const { return  0;}
+  virtual SensorInterface<int>* getCounter(const std::string& name) const { return  0;}
   virtual std::vector<std::string> counterList() const { return std::vector<std::string>();}
   virtual DigitalInput* getSwitch(const std::string& name) const { return 0; }
   virtual std::vector<std::string> switchList() const { return std::vector<std::string>();}
@@ -89,7 +89,7 @@ private:
   
 }; // class
 
-class SimulationVelocitySensor : public ORO_DeviceInterface::SensorInterface<double>
+class SimulationVelocitySensor : public SensorInterface<double>
 {
 public:
     SimulationVelocitySensor(SimulationAxis* axis, double maxvel) : _axis(axis), _maxvel(maxvel)

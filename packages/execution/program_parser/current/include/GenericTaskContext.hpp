@@ -29,9 +29,9 @@
 #ifndef GENERIC_TASK_CONTEXT_HPP
 #define GENERIC_TASK_CONTEXT_HPP
 
-#include <execution/TaskContext.hpp>
+#include "TaskContext.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * This class specialises the TaskContext to offer some

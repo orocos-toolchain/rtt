@@ -18,7 +18,7 @@
  
  
 
-#include <os/main.h>
+#include <rtt/os/main.h>
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>

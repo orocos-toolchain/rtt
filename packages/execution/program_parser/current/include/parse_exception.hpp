@@ -33,7 +33,7 @@
 #pragma interface
 #endif
 
-namespace ORO_Execution
+namespace RTT
 {
   class parse_exception;
 

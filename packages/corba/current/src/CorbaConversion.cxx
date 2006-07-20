@@ -26,14 +26,14 @@
  ***************************************************************************/
  
  
-#include "corba/CorbaConversion.hpp"
-#include "corelib/PropertyBag.hpp"
-#include "corba/AttributesC.h"
-#include "corba/AttributesI.h"
-#include "corba/CORBAExpression.hpp"
+#include "rtt/corba/CorbaConversion.hpp"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/corba/AttributesC.h"
+#include "rtt/corba/AttributesI.h"
+#include "rtt/corba/CORBAExpression.hpp"
 
 
-namespace ORO_CoreLib
+namespace RTT
 {
     using namespace std;
 
@@ -79,7 +79,7 @@ namespace ORO_CoreLib
                         Logger::log() <<Logger::Info<<" found!"<<Logger::endl;
                     }
                     else {
-                        _value.add( new Property<CORBA::Any_ptr>( string(props[i].name.in()), string(props[i].description.in()), new ORO_Corba::CORBAAssignableExpression<Property<CORBA::Any_ptr>::DataSourceType>( as_expr.in() ) ) );
+                        _value.add( new Property<CORBA::Any_ptr>( string(props[i].name.in()), string(props[i].description.in()), new Corba::CORBAAssignableExpression<Property<CORBA::Any_ptr>::DataSourceType>( as_expr.in() ) ) );
                         Logger::log() <<Logger::Info<<" not found :-("<<Logger::endl;
                     }
                 }

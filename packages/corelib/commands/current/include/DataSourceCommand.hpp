@@ -32,7 +32,7 @@
 #include "DataSource.hpp"
 #include "CommandInterface.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
   /**
@@ -57,7 +57,7 @@ namespace ORO_CoreLib
       void reset();
       CommandInterface* command() const;
       virtual DataSourceCommand* clone() const;
-      virtual DataSourceCommand* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const;
+      virtual DataSourceCommand* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
   };
 }
 

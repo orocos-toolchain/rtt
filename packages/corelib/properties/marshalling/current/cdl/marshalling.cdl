@@ -36,9 +36,9 @@ and powerful. It is very well tested within Orocos."
 
 	    define_proc { 
 		puts $::cdl_header "/***** proc output start *****/"
-		puts $::cdl_header "#define ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE <corelib/marshalling/CPFMarshaller.hpp>"
+		puts $::cdl_header "#define ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE <rtt/marsh/CPFMarshaller.hpp>"
 		puts $::cdl_header "#define OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER CPFMarshaller"
-		puts $::cdl_header "#define ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE <corelib/marshalling/CPFDemarshaller.hpp>"
+		puts $::cdl_header "#define ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE <rtt/marsh/CPFDemarshaller.hpp>"
 		puts $::cdl_header "#define OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER CPFDemarshaller"
 		puts $::cdl_header "/****** proc output end ******/"
 	    }
@@ -58,9 +58,9 @@ It is not well tested within Orocos."
 	    default_value 0
 	    define_proc { 
 		puts $::cdl_header "/***** proc output start *****/"
-		puts $::cdl_header "#define ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE <corelib/marshalling/XMLRPCMarshaller.hpp>"
+		puts $::cdl_header "#define ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE <rtt/marsh/XMLRPCMarshaller.hpp>"
 		puts $::cdl_header "#define OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER XMLRPCMarshaller"
-		puts $::cdl_header "#define ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE <corelib/marshalling/XMLRPCDemarshaller.hpp>"
+		puts $::cdl_header "#define ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE <rtt/marsh/XMLRPCDemarshaller.hpp>"
 		puts $::cdl_header "#define OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER XMLRPCDemarshaller"
 		puts $::cdl_header "/****** proc output end ******/"
 	    }
@@ -79,16 +79,16 @@ It is not well tested within Orocos."
 	    default_value 0
 	    define_proc { 
 		puts $::cdl_header "/***** proc output start *****/"
-		puts $::cdl_header "#define ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE <corelib/marshalling/SimpleMarshaller.hpp>"
+		puts $::cdl_header "#define ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE <rtt/marsh/SimpleMarshaller.hpp>"
 		puts $::cdl_header "#define OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER SimpleMarshaller"
-		puts $::cdl_header "#define ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE <corelib/marshalling/SimpleDemarshaller.hpp>"
+		puts $::cdl_header "#define ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE <rtt/marsh/SimpleDemarshaller.hpp>"
 		puts $::cdl_header "#define OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER SimpleDemarshaller"
 		puts $::cdl_header "/****** proc output end ******/"
 	    }
 	}
 
     }
-    include_dir corelib/marshalling
+    include_dir rtt/marsh
 
     include_files CPFDemarshaller.hpp  INIMarshaller.hpp       Orocos1Demarshaller.hpp  SimpleDemarshaller.hpp  TableHeaderMarshaller.hpp  XMLDemarshaller.hpp  XMLRPCDemarshaller.hpp
     include_files CPFMarshaller.hpp    MarshallerAdaptors.hpp  Orocos1Marshaller.hpp    SimpleMarshaller.hpp    TableMarshaller.hpp        XMLMarshaller.hpp    XMLRPCMarshaller.hpp

@@ -39,10 +39,10 @@
 #ifndef ANALOGOUTINTERFACE_HPP
 #define ANALOGOUTINTERFACE_HPP
 
-#include <corelib/NameServer.hpp>
-#include <corelib/NameServerRegistrator.hpp>
+#include <rtt/NameServer.hpp>
+#include <rtt/NameServerRegistrator.hpp>
 
-namespace ORO_DeviceInterface
+namespace RTT
 {
 
     /**
@@ -54,7 +54,7 @@ namespace ORO_DeviceInterface
      */
     template < class T>
     class AnalogOutInterface
-        : private ORO_CoreLib::NameServerRegistrator<AnalogOutInterface<T>*>
+        : private NameServerRegistrator<AnalogOutInterface<T>*>
     {
     public:
 
@@ -79,7 +79,7 @@ namespace ORO_DeviceInterface
              * unique, it can be retrieved using the AnalogOutInterface::nameserver.
              */
             AnalogOutInterface( const std::string& name )
-                : ORO_CoreLib::NameServerRegistrator<AnalogOutInterface<T>*>( nameserver, name, this )
+                : NameServerRegistrator<AnalogOutInterface<T>*>( nameserver, name, this )
             {}
 
             virtual ~AnalogOutInterface()
@@ -151,12 +151,12 @@ namespace ORO_DeviceInterface
              * The NameServer for this interface.
              * @see NameServer
              */
-            static ORO_CoreLib::NameServer<AnalogOutInterface<T> *> nameserver;
+            static NameServer<AnalogOutInterface<T> *> nameserver;
 
     };
 
     template <class T>
-    ORO_CoreLib::NameServer<AnalogOutInterface<T> *> AnalogOutInterface<T>::nameserver;
+    NameServer<AnalogOutInterface<T> *> AnalogOutInterface<T>::nameserver;
 }
 
 #endif

@@ -26,7 +26,7 @@
  ***************************************************************************/
  
  
-#include "corelib/Handle.hpp"
+#include "rtt/Handle.hpp"
 
 
 namespace sigslot
@@ -96,7 +96,7 @@ namespace sigslot
     }
 }
 
-namespace ORO_CoreLib
+namespace RTT
 {
     Handle::Handle( const sigslot::handle & c,
                     const sigslot::handle & c2 )

@@ -29,13 +29,13 @@
 #define CORELIB_DATAOBJECTINTERFACES_HPP
 
 
-#include <os/MutexLock.hpp>
-#include <os/oro_atomic.h>
+#include "os/MutexLock.hpp"
+#include "os/oro_atomic.h"
 #include <string>
 
 #include "DataSource.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**
@@ -90,7 +90,7 @@ namespace ORO_CoreLib
          */
         virtual const std::string& getName() const = 0;
 
-        typename ORO_CoreLib::DataSource<T>::result_t value() const {
+        typename DataSource<T>::result_t value() const {
             return this->Get();
         }
 
@@ -129,7 +129,7 @@ namespace ORO_CoreLib
     class DataObjectLocked
         : public DataObjectInterface<T>
     {
-        mutable ORO_OS::Mutex lock;
+        mutable OS::Mutex lock;
             
         /**
          * One element of Data.
@@ -169,7 +169,7 @@ namespace ORO_CoreLib
          *
          * @param pull A copy of the data.
          */
-        void Get( DataType& pull ) const { ORO_OS::MutexLock locker(lock); pull = data; }
+        void Get( DataType& pull ) const { OS::MutexLock locker(lock); pull = data; }
 
         /**
          * Get a copy of the data of the module.
@@ -184,7 +184,7 @@ namespace ORO_CoreLib
          *
          * @param push The data which must be set.
          */
-        void Set( const DataType& push ) { ORO_OS::MutexLock locker(lock); data = push; }
+        void Set( const DataType& push ) { OS::MutexLock locker(lock); data = push; }
 
         DataObjectLocked<DataType>* clone() const {
             return new DataObjectLocked<DataType>(name);
@@ -226,7 +226,7 @@ namespace ORO_CoreLib
     class DataObjectPrioritySet
         : public DataObjectInterface<T>
     {
-        mutable ORO_OS::Mutex lock;
+        mutable OS::Mutex lock;
         mutable bool dirty_flag;
             
         /**
@@ -269,7 +269,7 @@ namespace ORO_CoreLib
          * @param pull A copy of the data.
          */
         void Get( DataType& pull ) const
-        { if (dirty_flag) pull = mcopy; else {ORO_OS::MutexLock locker(lock); pull = data;} }
+        { if (dirty_flag) pull = mcopy; else {OS::MutexLock locker(lock); pull = data;} }
 
         /**
          * @brief Get a copy of the data of the module.
@@ -285,7 +285,7 @@ namespace ORO_CoreLib
          */
         void Set( const DataType& push ) 
         { 
-            ORO_OS::MutexTryLock locker(lock); 
+            OS::MutexTryLock locker(lock); 
             if (locker.isSuccessful()) 
                 {data = push; dirty_flag = false;} 
             else 
@@ -335,7 +335,7 @@ namespace ORO_CoreLib
     class DataObjectPriorityGet
         : public DataObjectInterface<T>
     {
-        mutable ORO_OS::Mutex lock;
+        mutable OS::Mutex lock;
             
         /**
          * One element of Data.
@@ -382,7 +382,7 @@ namespace ORO_CoreLib
             // while Set() is in copy, 
             // the second one will pull in the copy which
             // is modified by the Set().
-            ORO_OS::MutexTryLock locker(lock); 
+            OS::MutexTryLock locker(lock); 
             if ( locker.isSuccessful() ) 
                 {pull = data;} 
             else 
@@ -404,7 +404,7 @@ namespace ORO_CoreLib
         void Set( const DataType& push ) 
         { 
             {
-                ORO_OS::MutexLock locker(lock); 
+                OS::MutexLock locker(lock); 
                 data = push; 
             }
             mcopy = data;

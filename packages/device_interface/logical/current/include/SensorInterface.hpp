@@ -35,7 +35,7 @@
 #pragma interface
 #endif
 
-namespace ORO_DeviceInterface
+namespace RTT
 {
 
     /**

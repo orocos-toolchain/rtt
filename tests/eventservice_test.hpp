@@ -21,8 +21,8 @@
 #define EVENT_SERVICE_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
-#include <corelib/Event.hpp>
-#include <execution/EventService.hpp>
+#include <rtt/Event.hpp>
+#include <rtt/EventService.hpp>
 #include <string>
 
 class EventServiceTest : public CppUnit::TestFixture
@@ -40,10 +40,10 @@ class EventServiceTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testEventC );
     CPPUNIT_TEST_SUITE_END();
 
-    ORO_CoreLib::Event<void( void )>* t_event0;
-    ORO_CoreLib::Event<void( std::string )>* t_event1;
-    ORO_CoreLib::Event<void( std::string, double )>* t_event2;
-    ORO_CoreLib::Event<void( std::string, double, bool )>* t_event3;
+    RTT::Event<void( void )>* t_event0;
+    RTT::Event<void( std::string )>* t_event1;
+    RTT::Event<void( std::string, double )>* t_event2;
+    RTT::Event<void( std::string, double, bool )>* t_event3;
     bool t_listener_done;
     bool t_completer_done;
     std::string t_listener_string;
@@ -52,8 +52,8 @@ class EventServiceTest : public CppUnit::TestFixture
     std::string t_completer_string;
     double t_completer_double;
     bool t_completer_bool;
-    ORO_CoreLib::EventProcessor* event_proc;
-    ORO_Execution::EventService* es;
+    RTT::EventProcessor* event_proc;
+    RTT::EventService* es;
 public:
     void setUp();
     void tearDown();

@@ -32,9 +32,9 @@
 
 #include "TaskContext.hpp"
 #include "ProgramInterface.hpp"
-#include <corelib/DataSources.hpp>
+#include "DataSources.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
 
     /**
@@ -44,7 +44,7 @@ namespace ORO_Execution
     class ProgramTask
         : public TaskContext
     {
-        ORO_CoreLib::ValueDataSource<ProgramInterfaceWPtr>::shared_ptr program;
+        ValueDataSource<ProgramInterfaceWPtr>::shared_ptr program;
     public:
         /**
          * By constructing this object, a program is added to a taskcontext

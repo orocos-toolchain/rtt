@@ -22,10 +22,10 @@
  *
  */
 
-#include "os/fosi.h"
-#include "corelib/TimeService.hpp"
+#include "rtt/os/fosi.h"
+#include "rtt/TimeService.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     TimeService* TimeService::_instance = 0;
 

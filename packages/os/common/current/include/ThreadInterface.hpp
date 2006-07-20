@@ -29,10 +29,10 @@
 #ifndef OS_THREAD_INTERFACE_HPP
 #define OS_THREAD_INTERFACE_HPP
 
-#include "os/RunnableInterface.hpp"
-#include "os/fosi.h"
+#include "RunnableInterface.hpp"
+#include "fosi.h"
 
-namespace ORO_OS
+namespace OS
 {
     /**
      * A thread which is being run (or runs a RunnableInterface).
@@ -57,7 +57,7 @@ namespace ORO_OS
          * @param r The object to run or zero to clear.
          * @return true if accepted, false if the thread is running.
          */
-        virtual bool run( ORO_OS::RunnableInterface* r) = 0;
+        virtual bool run( OS::RunnableInterface* r) = 0;
 
         /**
          * Start the Thread.
@@ -139,7 +139,7 @@ namespace ORO_OS
         /**
          * Threads are given an unique number,
          * which follows thread creation order.
-         * @see ORO_OS::threads
+         * @see OS::threads
          */
         int threadnb;
     };

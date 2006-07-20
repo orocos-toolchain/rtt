@@ -35,13 +35,13 @@
 #include "PropertyBag.hpp"
 #include "ReportExporterInterface.hpp"
 #include "ReportCollectorInterface.hpp"
-#include <os/MutexLock.hpp>
+#include "os/MutexLock.hpp"
 #include "RunnableInterface.hpp"
 #include "NameServerRegistrator.hpp"
 #include "TimeService.hpp"
 #include "PropertyBagIntrospector.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**
@@ -87,7 +87,7 @@ namespace ORO_CoreLib
         virtual void step()
         {
             // step is blocking on trigger.
-            ORO_OS::MutexLock locker(copy_lock);
+            OS::MutexLock locker(copy_lock);
             streamData();
         }
 
@@ -155,7 +155,7 @@ namespace ORO_CoreLib
         virtual bool trigger()
         {
             // trigger is non blocking.
-            ORO_OS::MutexTryLock locker(copy_lock);
+            OS::MutexTryLock locker(copy_lock);
             if ( locker.isSuccessful() )
             {
                 refreshAll( TimeService::Instance()->secondsSince(time) );
@@ -198,7 +198,7 @@ namespace ORO_CoreLib
         /**
          * Locking for multi threaded reporting.
          */
-        ORO_OS::Mutex copy_lock;
+        OS::Mutex copy_lock;
     };
 
          template <typename T>

@@ -25,7 +25,7 @@
  *                                                                         *
  ***************************************************************************/ 
  
-#include <os/fosi.h>
+#include "fosi.h"
 
 #include "rtconversions.hpp"
 #include "rtstreambufs.hpp"

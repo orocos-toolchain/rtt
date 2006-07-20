@@ -39,14 +39,14 @@
 #define ORO_SIGNAL_USE_LIST_LOCK_FREE
 
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
-#include <corelib/ListLockFree.hpp>
+#include "../ListLockFree.hpp"
 #include <boost/shared_ptr.hpp>
 #else
 #ifdef ORO_SIGNAL_USE_RT_LIST
-#include <os/Mutex.hpp>
-#include <os/rt_list.hpp>
+#include "../os/Mutex.hpp"
+#include "../os/rt_list.hpp"
 #else
-#include <os/Mutex.hpp>
+#include "os/Mutex.hpp"
 #include <list>
 #endif
 #endif
@@ -113,10 +113,10 @@ namespace sigslot
         public:
             typedef connection_base::shared_ptr        connection_t;
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
-            typedef ORO_CoreLib::ListLockFree<connection_t> connections_list;
+            typedef RTT::ListLockFree<connection_t> connections_list;
 #else
 #ifdef ORO_SIGNAL_USE_RT_LIST
-            typedef ORO_OS::rt_list< connection_t >    connections_list;
+            typedef RTT::OS::rt_list< connection_t >    connections_list;
 #else
             typedef std::list< connection_t > connections_list;
 #endif
@@ -143,7 +143,7 @@ namespace sigslot
              */
             void cleanup();
 
-            ORO_OS::MutexRecursive m;
+            RTT::OS::MutexRecursive m;
             iterator itend;
 #ifdef ORO_SIGNAL_USE_RT_LIST
             int disconcount;

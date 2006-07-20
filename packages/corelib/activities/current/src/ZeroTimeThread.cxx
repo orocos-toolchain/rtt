@@ -25,18 +25,18 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "corelib/ZeroTimeThread.hpp"
-#include "corelib/NonPreemptibleActivity.hpp"
-#include "corelib/Time.hpp"
-#include "corelib/Logger.hpp"
+#include "rtt/ZeroTimeThread.hpp"
+#include "rtt/NonPreemptibleActivity.hpp"
+#include "rtt/Time.hpp"
+#include "rtt/Logger.hpp"
 
 #include <pkgconf/corelib_activities.h>
-#include <os/threads.hpp>
+#include <rtt/os/threads.hpp>
 
 
 #ifdef OROSEM_CORELIB_ACTIVITIES_AUTOSTART
-#include <os/StartStopManager.hpp>
-namespace ORO_CoreLib
+#include <rtt/os/StartStopManager.hpp>
+namespace RTT
 {
     namespace
     {
@@ -51,13 +51,13 @@ namespace ORO_CoreLib
             ZeroTimeThread::Release();
         }
 
-        ORO_OS::InitFunction ZTTInit( &startZTTThread );
-        ORO_OS::CleanupFunction ZTTCleanup( &stopZTTThread );
+        OS::InitFunction ZTTInit( &startZTTThread );
+        OS::CleanupFunction ZTTCleanup( &stopZTTThread );
     }
 }
 #endif
 
-namespace ORO_CoreLib
+namespace RTT
 {
     // The static class variables
     TimerThreadPtr ZeroTimeThread::_instance;
@@ -80,7 +80,7 @@ namespace ORO_CoreLib
 
 
     ZeroTimeThread::ZeroTimeThread()
-        : TimerThread(ORO_OS::HighestPriority,
+        : TimerThread(OS::HighestPriority,
                         ORODAT_CORELIB_ACTIVITIES_ZTT_NAME, 
                         ORONUM_CORELIB_ACTIVITIES_ZTT_PERIOD )
     {

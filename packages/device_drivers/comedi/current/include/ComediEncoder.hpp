@@ -22,12 +22,12 @@
 
 #include <pkgconf/device_drivers_comedi.h>
 
-#include <device_interface/SensorInterface.hpp>
-#include <device_interface/EncoderInterface.hpp>
+#include "SensorInterface.hpp"
+#include "EncoderInterface.hpp"
 #include "ComediDevice.hpp"
 #include <string>
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
   typedef double UnitType;  
   /**
@@ -48,7 +48,7 @@ namespace ORO_DeviceDriver
    * to occur in our case.
    */
   class ComediEncoder :
-    public ORO_DeviceInterface::EncoderInterface
+    public EncoderInterface
   {
   public:
     /**

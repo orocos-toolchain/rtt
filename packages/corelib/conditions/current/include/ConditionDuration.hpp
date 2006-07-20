@@ -32,7 +32,7 @@
 #include "ConditionInterface.hpp"
 #include "TimeService.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**

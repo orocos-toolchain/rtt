@@ -504,20 +504,20 @@
 	Assume that you have a program "progname"
 	in a file <filename>program.ops</filename>.
 	You've read the Orocos Task Infrastructure manual and constructed
-	a <classname>ORO_Execution::TaskContext</classname> which has some methods and is connected to its
+	a <classname>RTT::TaskContext</classname> which has some methods and is connected to its
 	Peer TaskContexts. Parsing the program is then straightforward :
       </para>
       <programlisting>
-  #include &lt;corelib/TaskPreemptible.hpp&gt;
-  #include &lt;execution/TaskContext.hpp&gt;
-  #include &lt;execution/ProgramLoader.hpp&gt;
+  #include &lt;rtt/TaskPreemptible.hpp&gt;
+  #include &lt;rtt/TaskContext.hpp&gt;
+  #include &lt;rtt/ProgramLoader.hpp&gt;
 
-  using namespace ORO_CoreLib;
-  using namespace ORO_Execution;
+  using namespace RTT;
+  using namespace RTT;
 
-  <classname>ORO_Execution::TaskContext</classname>   tc;
-  <classname>ORO_CoreLib::TaskPreemptible</classname> ptask(0.01, tc.engine() );
-  <classname>ORO_Execution::ProgramLoader</classname> loader;
+  <classname>RTT::TaskContext</classname>   tc;
+  <classname>RTT::TaskPreemptible</classname> ptask(0.01, tc.engine() );
+  <classname>RTT::ProgramLoader</classname> loader;
 
   // Watch Logger output for errors :
   loader.loadProgram( "program.ops", &amp;tc );
@@ -924,7 +924,7 @@
     <sect2>
       <title>Introduction</title>
       <para>
-	A <classname>ORO_Execution::StateMachine</classname> is the state machine used in the &orocos;
+	A <classname>RTT::StateMachine</classname> is the state machine used in the &orocos;
 	  system.  It contains a collection of states, and each state
 	  defines a Program on entry of the state, when it is run
 	  and on exit.  It also defines all transitions to a next
@@ -1067,21 +1067,21 @@
 	Assume that you have a StateMachine "statename"
 	in a file <filename>state-machine.osd</filename>.
 	You've read the Orocos Task Infrastructure manual and constructed
-	a <classname>ORO_Execution::TaskContext</classname> which has some methods and is connected to its
+	a <classname>RTT::TaskContext</classname> which has some methods and is connected to its
 	Peer TaskContexts. Parsing the StateMachine is very analogous
 	to parsing Programs:
       </para>
       <programlisting>
-  #include &lt;corelib/TaskPreemptible.hpp&gt;
-  #include &lt;execution/TaskContext.hpp&gt;
-  #include &lt;execution/ProgramLoader.hpp&gt;
+  #include &lt;rtt/TaskPreemptible.hpp&gt;
+  #include &lt;rtt/TaskContext.hpp&gt;
+  #include &lt;rtt/ProgramLoader.hpp&gt;
 
-  using namespace ORO_CoreLib;
-  using namespace ORO_Execution;
+  using namespace RTT;
+  using namespace RTT;
 
-  <classname>ORO_Execution::TaskContext</classname>   tc;
-  <classname>ORO_CoreLib::TaskPreemptible</classname> ptask(0.01, tc.engine() );
-  <classname>ORO_Execution::ProgramLoader</classname> loader;
+  <classname>RTT::TaskContext</classname>   tc;
+  <classname>RTT::TaskPreemptible</classname> ptask(0.01, tc.engine() );
+  <classname>RTT::ProgramLoader</classname> loader;
 
   loader.loadStateMachine( "state-machine.osd", &amp;tc );
 

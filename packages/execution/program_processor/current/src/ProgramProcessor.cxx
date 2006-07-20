@@ -27,27 +27,27 @@
  
  
 
-#include "execution/ProgramProcessor.hpp"
-#include "execution/ProgramInterface.hpp"
-#include <corelib/AtomicQueue.hpp>
-#include <corelib/Logger.hpp>
-#include <corelib/Exceptions.hpp>
+#include "rtt/ProgramProcessor.hpp"
+#include "rtt/ProgramInterface.hpp"
+#include <rtt/AtomicQueue.hpp>
+#include <rtt/Logger.hpp>
+#include <rtt/Exceptions.hpp>
 
 #include <boost/bind.hpp>
 #include <functional>
-#include <os/Semaphore.hpp>
+#include <rtt/os/Semaphore.hpp>
 #include <iostream>
 
-namespace ORO_Execution
+namespace RTT
 {
     using namespace boost;
     using namespace std;
-    using namespace ORO_CoreLib;
+    
 
-    ProgramProcessor::ProgramProcessor(int f_queue_size, ORO_OS::Semaphore* work_sem)
+    ProgramProcessor::ProgramProcessor(int f_queue_size, OS::Semaphore* work_sem)
         : programs( new ProgMap(4) ),
           funcs( f_queue_size ),
-          f_queue( new ORO_CoreLib::AtomicQueue<ProgramInterface*>(f_queue_size) ),
+          f_queue( new AtomicQueue<ProgramInterface*>(f_queue_size) ),
           f_queue_sem( work_sem )
     {
     }

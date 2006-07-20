@@ -29,7 +29,7 @@
 #define COMMANDPARSER_HPP
 
 #include "parser-types.hpp"
-#include <corelib/PropertyBag.hpp>
+#include "PropertyBag.hpp"
 #include "CommonParser.hpp"
 #include "ExpressionParser.hpp"
 #include "PeerParser.hpp"
@@ -38,11 +38,11 @@
 #pragma interface
 #endif
 
-namespace ORO_Execution 
+namespace RTT 
 {
     class DispatchInterface;
     namespace detail {
-    using ORO_CoreLib::PropertyBagOwner;
+    
 
   /**
    * This class parses commands.  Actually, it only parses call

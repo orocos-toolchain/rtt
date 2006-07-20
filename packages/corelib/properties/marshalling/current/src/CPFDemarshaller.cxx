@@ -27,7 +27,7 @@
  
  
 
-#include "corelib/marshalling/CPFDemarshaller.hpp"
+#include "rtt/marsh/CPFDemarshaller.hpp"
 
 #ifdef OROPKG_SUPPORT_XERCES_C
 #include <xercesc/util/PlatformUtils.hpp>
@@ -46,11 +46,11 @@
 #include <string>
 #include <iostream>
 
-#include <corelib/Property.hpp>
-#include "corelib/PropertyIntrospection.hpp"
-#include <corelib/Logger.hpp>
+#include <rtt/Property.hpp>
+#include "rtt/PropertyIntrospection.hpp"
+#include <rtt/Logger.hpp>
 
-namespace ORO_CoreLib
+namespace RTT
 {
 #ifdef XERCES_CPP_NAMESPACE
     using namespace XERCES_CPP_NAMESPACE;

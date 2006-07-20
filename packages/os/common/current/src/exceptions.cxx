@@ -34,7 +34,7 @@
 #include <boost/throw_exception.hpp>
 
 #ifdef OROPKG_CORELIB_LOGGER
-#include <corelib/Logger.hpp>
+#include <rtt/Logger.hpp>
 #endif
 
 #ifdef ORO_EMBEDDED

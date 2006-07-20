@@ -24,4 +24,4 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "device_drivers/DigitalOutput.hpp"
+#include "rtt/dev/DigitalOutput.hpp"

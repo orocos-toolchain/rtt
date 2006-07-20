@@ -30,18 +30,18 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include <corelib/Logger.hpp>
-#include <corelib/MultiVector.hpp>
-#include <corelib/TypeStream.hpp>
-#include "execution/TaskBrowser.hpp"
+#include <rtt/Logger.hpp>
+#include <rtt/MultiVector.hpp>
+#include <rtt/TypeStream.hpp>
+#include "rtt/TaskBrowser.hpp"
 
-#include "execution/TryCommand.hpp"
-#include <execution/TemplateFactories.hpp>
-#include <execution/TaskContext.hpp>
-#include <execution/Parser.hpp>
-#include <execution/ProgramLoader.hpp>
-#include <execution/parse_exception.hpp>
-#include <execution/PeerParser.hpp>
+#include "rtt/TryCommand.hpp"
+#include <rtt/TemplateFactories.hpp>
+#include <rtt/TaskContext.hpp>
+#include <rtt/Parser.hpp>
+#include <rtt/ProgramLoader.hpp>
+#include <rtt/parse_exception.hpp>
+#include <rtt/PeerParser.hpp>
 
 #include <iostream>
 #include <sstream>
@@ -62,7 +62,7 @@ using namespace ORO_Geometry;
 
 #include <signal.h>
 
-namespace ORO_Execution
+namespace RTT
 {
     using namespace detail;
     std::vector<std::string> TaskBrowser::candidates;
@@ -78,7 +78,7 @@ namespace ORO_Execution
     TaskContext* TaskBrowser::peer = 0;
 
     using boost::bind;
-    using namespace ORO_CoreLib;
+    
     using namespace std;
 
     string TaskBrowser::red("\e[m\e[1;31m");
@@ -1234,7 +1234,7 @@ namespace ORO_Execution
             }
             else
                 cout << "  ";
-            cout<< setw(int(log(double(end)))) <<right << curln<< left;
+            cout<< setw(int(::log(double(end)))) <<right << curln<< left;
             cout << ' ' << line <<endl;
             ++curln;
         }

@@ -26,9 +26,9 @@
  ***************************************************************************/
  
  
-#include "corelib/DataSources.hpp"
+#include "rtt/DataSources.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     template<>

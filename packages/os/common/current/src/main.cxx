@@ -35,10 +35,10 @@
  * (See os.cdl)
  */
 #include "pkgconf/os.h"
-#ifdef ORO_OS_HAVE_MAIN
+#ifdef OS_HAVE_MAIN
 
-#include <os/startstop.h>
-#include <os/main.h>
+#include <rtt/os/startstop.h>
+#include <rtt/os/main.h>
 #ifdef HAVE_IOSTREAM
 #include <iostream>
 #else
@@ -51,19 +51,19 @@
 #endif
 
 #ifdef OROPKG_CORELIB_REPORTING
-#include "corelib/Logger.hpp"
-using ORO_CoreLib::Logger;
+#include "rtt/Logger.hpp"
+using RTT::Logger;
 #endif
 
 #ifdef OROPKG_DEVICE_INTERFACE
 # include "pkgconf/device_interface.h"
 # include <boost/scoped_ptr.hpp>
 # ifdef OROPKG_OS_THREAD_SCOPE
-#  include "device_interface/DigitalOutInterface.hpp"
-   using namespace ORO_DeviceInterface;
+#  include "rtt/dev/DigitalOutInterface.hpp"
+   using namespace RTT;
 #  ifdef ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE
 #   include ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE
-    using namespace ORO_DeviceDriver;
+    using namespace RTT;
 #  endif
 # endif
 #endif
@@ -191,4 +191,4 @@ int main(int argc, char* argv[])
     return res;
 }
 
-#endif // ORO_OS_HAVE_MAIN
+#endif // OS_HAVE_MAIN

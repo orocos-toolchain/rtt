@@ -35,7 +35,7 @@
 #include <queue>
 #include <string>
 
-namespace ORO_Execution 
+namespace RTT 
 {
     class TaskContext;
 

@@ -45,7 +45,7 @@
 
 #include "MutexLock.hpp"
 
-namespace ORO_OS
+namespace OS
 {
     /**
      * A simple local allocator which
@@ -85,7 +85,7 @@ namespace ORO_OS
             pointer ret = 0;
             if (n == 0)
                 return ret;
-            ORO_OS::MutexLock lock( pool_lock );
+            OS::MutexLock lock( pool_lock );
             // if present in pool, return pool item
             std::pair<pool_it,pool_it> r = pool.equal_range( n );
             while ( r.first != r.second && r.first->second == 0  )
@@ -108,7 +108,7 @@ namespace ORO_OS
         }
 
         void deallocate(pointer p, size_type n) {
-            ORO_OS::MutexLock lock( pool_lock );
+            OS::MutexLock lock( pool_lock );
             std::pair<pool_it,pool_it> r = pool.equal_range( n );
 //             if ( find( r.first, r.second, typename pool_type::value_type(n,p) ) != r.second )
 //                 assert(false && "Do not deallocate twice !");
@@ -139,7 +139,7 @@ namespace ORO_OS
          * Grow local pool with room for at least \a n additional items.
          */
         void grow(size_type n, const_pointer hint = 0) {
-            ORO_OS::MutexLock lock( pool_lock );
+            OS::MutexLock lock( pool_lock );
             pointer ret = this->_grow(n, hint);
             pool.insert( typename pool_type::value_type( n,ret ) );     // store mem location.
             //std::cerr << "Added   : "<< ret<<" of size "<<n<<" in "<<typeid(ret).name()<<std::endl;
@@ -151,7 +151,7 @@ namespace ORO_OS
         void shrink(size_type n) {
             if (n == 0)
                 return;
-            ORO_OS::MutexLock lock( pool_lock );
+            OS::MutexLock lock( pool_lock );
             std::pair<pool_it,pool_it> r = pool.equal_range( n );
             while ( r.first != r.second && r.first->second == 0  )
                 ++r.first;
@@ -174,7 +174,7 @@ namespace ORO_OS
         template <class U>
         struct rebind { typedef local_allocator<U, typename Alloc::template rebind<U>::other > other; };
     private:
-        ORO_OS::Mutex pool_lock;
+        OS::Mutex pool_lock;
         /**
          * Allocate for at least \a n additional items.
          */
@@ -215,7 +215,7 @@ namespace ORO_OS
     typename local_allocator<T,A>::pool_wrapper_type local_allocator<T,A>::pool;
 
 //     template< class T, class A>
-//     ORO_OS::Mutex local_allocator<T,A>::pool_lock;
+//     OS::Mutex local_allocator<T,A>::pool_lock;
 
     template <class T, class A, class A2>
     inline bool operator==(const local_allocator<T,A>& , 

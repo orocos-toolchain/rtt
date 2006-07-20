@@ -29,17 +29,17 @@
 #ifndef ORO_CORBA_COMMANDPROXY_HPP
 #define ORO_CORBA_COMMANDPROXY_HPP
 
-#include <execution/DispatchInterface.hpp>
+#include "DispatchInterface.hpp"
 #include "ExecutionC.h"
 
-namespace ORO_Corba
+namespace Corba
 {
 
     /**
      * This class manages the access of remote Command Corba Servers.
      */
     class CommandProxy
-        : public ORO_Execution::DispatchInterface
+        : public DispatchInterface
     {
     protected:
         static std::map<Orocos::Command_ptr, CommandProxy*> proxies;
@@ -102,13 +102,13 @@ namespace ORO_Corba
             return mdata->evaluate();
         }
 
-        virtual ORO_CoreLib::ConditionInterface* createValidCondition() const;
+        virtual ConditionInterface* createValidCondition() const;
 
         virtual DispatchInterface* clone() const {
             return new CommandProxy( mdata.in() );
         }
 
-        virtual ORO_CoreLib::CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
+        virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             return this->clone();
         }
 

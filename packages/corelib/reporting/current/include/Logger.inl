@@ -9,7 +9,7 @@
 
 
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     template< class T>

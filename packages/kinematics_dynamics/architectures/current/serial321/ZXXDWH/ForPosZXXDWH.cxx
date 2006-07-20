@@ -66,7 +66,7 @@
 
 namespace ORO_KinDyn
 {
-    using namespace ORO_CoreLib;
+    using namespace RTT;
 
     /**
      * 

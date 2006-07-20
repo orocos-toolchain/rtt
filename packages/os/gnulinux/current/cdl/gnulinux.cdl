@@ -9,7 +9,7 @@ periodic threading support is very limited
 and the package is mainly used for testing and
 debugging other packages."
 
-    include_dir os
+    include_dir rtt/os
     parent OROPKG_OS
 
     compile fosi.c

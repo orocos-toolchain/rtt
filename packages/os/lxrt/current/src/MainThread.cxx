@@ -26,12 +26,12 @@
  ***************************************************************************/
 
 #define OROBLD_OS_LXRT_INTERNAL
-#include "os/MainThread.hpp"
+#include "rtt/os/MainThread.hpp"
 //#include <linux/module.h>
 #include <sched.h>
 #include <sys/mman.h>
 #include <iostream>
-#include "os/fosi.h"
+#include "rtt/os/fosi.h"
 #include <unistd.h>
 #include <sys/types.h>
 
@@ -42,11 +42,11 @@
 #endif
 
 #ifdef OROPKG_CORELIB_REPORTING
-#include "corelib/Logger.hpp"
-using ORO_CoreLib::Logger;
+#include "rtt/Logger.hpp"
+using RTT::Logger;
 #endif
 
-namespace ORO_OS
+namespace OS
 {
   SchedPolicy::SchedPolicy()
   {

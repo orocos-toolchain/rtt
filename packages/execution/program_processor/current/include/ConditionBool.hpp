@@ -29,12 +29,12 @@
 #ifndef CONDITIONBOOL_HPP
 #define CONDITIONBOOL_HPP
 
-#include <corelib/ConditionInterface.hpp>
+#include "ConditionInterface.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
 
-    using namespace ORO_CoreLib;
+    
 
 
     class ConditionBool :

@@ -25,27 +25,27 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "execution/parser-debug.hpp"
-#include "execution/parse_exception.hpp"
-#include "execution/ValueChangeParser.hpp"
+#include "rtt/parser-debug.hpp"
+#include "rtt/parse_exception.hpp"
+#include "rtt/ValueChangeParser.hpp"
 
-#include "execution/TaskContext.hpp"
-#include "corelib/Types.hpp"
-#include "corelib/Attribute.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/Types.hpp"
+#include "rtt/Attribute.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/construct.hpp>
 
-#include <corelib/Logger.hpp>
+#include <rtt/Logger.hpp>
 
 #include <sstream>
 #include <iostream>
 
-namespace ORO_Execution
+namespace RTT
 {
     using namespace detail;
-    using namespace ORO_CoreLib;
+    
     using namespace std;
 
     using namespace boost;;
@@ -190,7 +190,7 @@ namespace ORO_Execution
                  +". Initialization expressions are evaluated once at parse time !" );
         }
         if ( i->get() == 0 ) {
-            ORO_CoreLib::Logger::log() << Logger::Warning <<
+            Logger::log() << Logger::Warning <<
                 "Attempt to initialize "<<typen<<" "<<valuename<<" with an expression leading to zero (0)"
                                        <<". Initialization expressions are evaluated once at parse time !" << Logger::endl;
         }

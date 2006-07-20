@@ -3,7 +3,7 @@
 
 #include "Types.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     namespace detail {
         template< class T>

@@ -35,7 +35,7 @@
  * \file FactoryExceptions.hpp This file contains some structs that can be thrown by both
  * DataSourceFactory's and CommandFactory's.
  */
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * Exception thrown when a factory is requested to 

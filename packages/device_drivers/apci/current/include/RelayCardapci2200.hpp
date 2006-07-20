@@ -30,19 +30,19 @@
 #ifndef RELAYCARDAPCI12200_HPP
 #define RELAYCARDAPCI12200_HPP
 
-#include <device_interface/DigitalOutInterface.hpp>
+#include "DigitalOutInterface.hpp"
 
 #include <pkgconf/device_drivers_apci.h>
 
 /* Forward declarations */
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
     /**
      * A C++ wrapper for the APCI 2200 digital relay card.
      */
     class RelayCardapci2200
-                : public ORO_DeviceInterface::DigitalOutInterface
+                : public DigitalOutInterface
     {
 
         public:

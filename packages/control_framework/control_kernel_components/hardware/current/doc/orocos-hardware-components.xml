@@ -104,12 +104,12 @@
 	  with the name "AIn_1" to the Inputs, which
 	  is updated from an analog_input_card on channel A_CHANNEL_1.
 	  The analog_input_card must implement the <classname>
-	  ORO_DeviceInterface::AnalogInInterface</classname>.
+	  RTT::AnalogInInterface</classname>.
 	  If there is already an "AIn_1" DataObject, addAnalogInput
 	  returns false.
 	</para>
 	<para>
-	  The <classname>ORO_DeviceDriver::AnalogInput</classname> can also be read from an Orocos
+	  The <classname>RTT::AnalogInput</classname> can also be read from an Orocos
 	  Program Script or State Description :
 	  <programlisting>
   var double result = GenericSensor.value("AIn_1")
@@ -140,7 +140,7 @@
   int A_CHANNEL   = 5;
   hardw_sens.addChannel(A_VIRT_CHAN, analog_input_card, A_CHANNEL );
 	  </programlisting>
-	  Which demonstrates that channel 5 of the <classname>ORO_DeviceInterface::AnalogInInterface</classname>
+	  Which demonstrates that channel 5 of the <classname>RTT::AnalogInInterface</classname>
 	  is inserted in position 1 of the Channel DataObject. If this
 	  channel was already taken, addChannel returns false;
 	</para>
@@ -164,7 +164,7 @@
 	  <classname>ORO_ControlKernel::ExecutionExtension</classname> of the Control Kernel.
 	</para>
 	<para>
-	  A <classname>ORO_DeviceDriver::DigitalInput</classname> is added as such :
+	  A <classname>RTT::DigitalInput</classname> is added as such :
 	  <programlisting>
   int D_CHANNEL = 2;
   hardw_sens.addDigitalInput("DIn_1", digital_input_card, D_CHANNEL );
@@ -228,12 +228,12 @@ myKernel.loadSensor( &amp;hardw_sens );	</programlisting>
 	  will check the existence of this DataObject in its
 	  componentStartup method (thus when it is started).
 	  The analog_output_card must implement the <classname>
-	  ORO_DeviceInterface::AnalogOutInterface</classname>.
+	  RTT::AnalogOutInterface</classname>.
 	  If there is already an "AOut_1" DataObject, addAnalogOutput
 	  returns false.
 	</para>
 	<para>
-	  The <classname>ORO_DeviceDriver::AnalogOutput</classname> can also be read from an Orocos
+	  The <classname>RTT::AnalogOutput</classname> can also be read from an Orocos
 	  Program Script or State Machine :
 	  <programlisting>
   var double result = GenericEffector.value("AOut_1")
@@ -264,7 +264,7 @@ myKernel.loadSensor( &amp;hardw_sens );	</programlisting>
   int A_CHANNEL   = 5;
   hardw_eff.addChannel(A_VIRT_CHAN, analog_output_card, A_CHANNEL );
 	  </programlisting>
-	  Which demonstrates that channel 5 of the <classname>ORO_DeviceInterface::AnalogOutInterface</classname>
+	  Which demonstrates that channel 5 of the <classname>RTT::AnalogOutInterface</classname>
 	  is set to the value of virtual channel 1.
 	  If this virtual 
 	  channel was already taken, addChannel returns false;
@@ -351,7 +351,7 @@ myKernel.loadSensor( &amp;hardw_sens );	</programlisting>
   #include &lt;kernel_components/GenericEffector.hpp>
   #include &lt;control_kernel/StandardControlKernel.hpp>
   #include &lt;control_kernel/KernelConfig.hpp>
-  #include &lt;corelib/TaskPreemptible.hpp>
+  #include &lt;rtt/TaskPreemptible.hpp>
 
   using namespace ORO_ControlKernel;
 
@@ -375,11 +375,11 @@ myKernel.loadSensor( &amp;hardw_sens );	</programlisting>
     <classname>ORO_ControlKernel::KernelConfig</classname> kconfig( &amp;kernel );
     kconfig.configure();
 
-    <classname>ORO_CoreLib::TaskPreemptible</classname> ktask(0.01, &amp;kernel );
+    <classname>RTT::TaskPreemptible</classname> ktask(0.01, &amp;kernel );
     ktask.start();
    
     // wait for user interruption ...
-    // ( See also <classname>ORO_Execution::TaskBrowser</classname> / <classname>ORO_Execution::TaskContext</classname> ).
+    // ( See also <classname>RTT::TaskBrowser</classname> / <classname>RTT::TaskContext</classname> ).
 
     ktask.stop();
     return 0;

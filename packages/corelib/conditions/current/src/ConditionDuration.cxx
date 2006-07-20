@@ -27,9 +27,9 @@
  
  
 
-#include "corelib/ConditionDuration.hpp"
+#include "rtt/ConditionDuration.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     ConditionDuration::ConditionDuration( nsecs t, bool invert )

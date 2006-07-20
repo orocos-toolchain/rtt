@@ -29,8 +29,8 @@
 #define BECKHOFFCANCOUPLER_HPP
 
 #include "CANDeviceInterface.hpp"
-#include <corelib/ConfigurationInterface.hpp>
-#include <corelib/TimeService.hpp>
+#include <rtt/ConfigurationInterface.hpp>
+#include <rtt/TimeService.hpp>
 
 #include "BeckhoffDOut.hpp"
 #include "BeckhoffDIn.hpp"
@@ -41,7 +41,7 @@
 
 namespace Beckhoff
 {
-    using ORO_CoreLib::ConfigurationInterface;
+    
     using std::vector;
     using CAN::CANDeviceInterface;
     

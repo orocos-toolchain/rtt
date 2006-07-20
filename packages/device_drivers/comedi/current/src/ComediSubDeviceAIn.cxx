@@ -29,12 +29,12 @@
 
 #include "comedi/ComediSubDeviceAIn.hpp"
 #include "comedi_internal.h"
-#include <os/fosi.h>
+#include <rtt/rtt/os/fosi.h>
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
-  using namespace ORO_DeviceInterface;
-  using namespace ORO_CoreLib;
+  
+  
 
   ComediSubDeviceAIn::ComediSubDeviceAIn( ComediDevice* cd, const std::string& name, unsigned int subdevice /*=0*/)
       : AnalogInInterface<unsigned int>( name ),

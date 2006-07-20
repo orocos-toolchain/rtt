@@ -25,20 +25,20 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "execution/parser-debug.hpp"
+#include "rtt/parser-debug.hpp"
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "execution/ArgumentsParser.hpp"
+#include "rtt/ArgumentsParser.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "execution/ExpressionParser.hpp"
-#include "execution/TaskContext.hpp"
+#include "rtt/ExpressionParser.hpp"
+#include "rtt/TaskContext.hpp"
 
 
-namespace ORO_Execution
+namespace RTT
 {
   using namespace detail;
   using boost::bind;

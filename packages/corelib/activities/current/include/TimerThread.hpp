@@ -40,7 +40,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     namespace detail {
         class TimerInterface;
@@ -64,7 +64,7 @@ namespace ORO_CoreLib
      * @see PeriodicActivity
      */
     class TimerThread
-        : public ORO_OS::PeriodicThread
+        : public OS::PeriodicThread
     {
 
     public:
@@ -123,7 +123,7 @@ namespace ORO_CoreLib
          * A Activity can not create a activity of same priority from step().
          * If so a deadlock will occur.
          */
-        mutable ORO_OS::Mutex lock;
+        mutable OS::Mutex lock;
 
         /**
          * A Boost weak pointer is used to store non-owning pointers
@@ -136,6 +136,6 @@ namespace ORO_CoreLib
          */
         static TimerThreadList TimerThreads;
     };
-} // namespace ORO_CoreLib
+} // namespace RTT
 
 #endif

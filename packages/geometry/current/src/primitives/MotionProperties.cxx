@@ -25,13 +25,13 @@
  *                                                                         *
  ***************************************************************************/
 
-#include <corelib/Property.hpp>
-#include <corelib/PropertyIntrospection.hpp>
+#include <rtt/Property.hpp>
+#include <rtt/PropertyIntrospection.hpp>
 #include "geometry/MotionProperties.hpp"
 #include <pkgconf/geometry.h>
-#include <corelib/Logger.hpp>
+#include <rtt/Logger.hpp>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     template class Property<ORO_Geometry::Frame>;
     template class Property<Double6D>;
@@ -43,7 +43,7 @@ namespace ORO_CoreLib
 
 namespace ORO_Geometry
 {
-    using namespace ORO_CoreLib;
+    using namespace RTT;
 
     /**
      *

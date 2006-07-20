@@ -30,7 +30,7 @@
 
 #include "ActionInterface.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**
@@ -41,7 +41,7 @@ namespace ORO_CoreLib
      * if it was accepted (true) or rejected (false).
      *
      * @deprecated by ActionInterface. For 'command' semantics,
-     * look at the ORO_Execution::DispatchInterface, which exposes
+     * look at the DispatchInterface, which exposes
      * an interface for asynchronous execution of functions.
      */
     typedef ActionInterface CommandInterface;

@@ -25,27 +25,27 @@
  *                                                                         *
  ***************************************************************************/
 
-#include <corelib/Operators.hpp>
-#include <corelib/OperatorTypes.hpp>
-#include <corelib/DataSourceAdaptor.hpp>
+#include <rtt/Operators.hpp>
+#include <rtt/OperatorTypes.hpp>
+#include <rtt/DataSourceAdaptor.hpp>
 
 #include <functional>
 
 // Cappellini Consonni Extension
-#include <corelib/MultiVector.hpp>
+#include <rtt/MultiVector.hpp>
 
-#include <corelib/Logger.hpp>
+#include <rtt/Logger.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <corelib/mystd.hpp>
+#include <rtt/mystd.hpp>
 
 #include <pkgconf/corelib.h>
 #ifdef OROCFG_CORELIB_GEOMETRY_TOOLKIT_IMPORT
-#include <corelib/RealTimeToolkit.hpp>
+#include <rtt/RealTimeToolkit.hpp>
 #endif
 
-namespace ORO_CoreLib
+namespace RTT
 {
     using namespace detail;
     
@@ -99,11 +99,11 @@ namespace ORO_CoreLib
 
   OperatorRepository::~OperatorRepository()
   {
-    ORO_std::delete_all( unaryops.begin(), unaryops.end() );
-    ORO_std::delete_all( dotops.begin(), dotops.end() );
-    ORO_std::delete_all( binaryops.begin(), binaryops.end() );
-    ORO_std::delete_all( ternaryops.begin(), ternaryops.end() );
-    ORO_std::delete_all( sixaryops.begin(), sixaryops.end() ); 
+    delete_all( unaryops.begin(), unaryops.end() );
+    delete_all( dotops.begin(), dotops.end() );
+    delete_all( binaryops.begin(), binaryops.end() );
+    delete_all( ternaryops.begin(), ternaryops.end() );
+    delete_all( sixaryops.begin(), sixaryops.end() ); 
  }
 
   DataSourceBase* OperatorRepository::applyDot(

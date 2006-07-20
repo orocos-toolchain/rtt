@@ -8,6 +8,6 @@ stabilised. This package contains some experimental
 interfaces, but is strictly not needed by applications."
 
     parent OROPKG_DEVICE_INTERFACE
-    include_dir device_interface
+    include_dir rtt/dev
     compile SensorInterface.cxx AxisInterface.cxx HomingInterface.cxx
 }

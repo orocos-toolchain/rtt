@@ -33,13 +33,13 @@
 #include "Time.hpp"
 #include "ActivityInterface.hpp"
 #include "TimerThread.hpp"
-#include <os/Mutex.hpp>
+#include "os/Mutex.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
 #endif
 
-namespace ORO_CoreLib
+namespace RTT
 {
     namespace detail {
         class TimerInterface;
@@ -172,7 +172,7 @@ namespace ORO_CoreLib
 
         virtual Seconds getPeriod() const;
 
-        virtual ORO_OS::ThreadInterface* thread();
+        virtual OS::ThreadInterface* thread();
 
         virtual EventProcessor* getEventProcessor() const;
 

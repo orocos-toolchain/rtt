@@ -36,7 +36,7 @@
 
 #include "pkgconf/os.h"
 #ifdef OROBLD_OS_AGNOSTIC
-#include "os/oro_bitops.h"
+#include "oro_bitops.h"
 // do not rely on system headers :
 // x86_64 :
 

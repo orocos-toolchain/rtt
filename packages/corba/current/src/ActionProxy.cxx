@@ -27,17 +27,17 @@
  
  
 
-#include "corba/ExecutionI.h"
-#include "corba/ActionProxy.hpp"
+#include "rtt/corba/ExecutionI.h"
+#include "rtt/corba/ActionProxy.hpp"
 
 #include <ace/String_Base.h>
 
 using namespace std;
 
-namespace ORO_Corba
+namespace Corba
 {
-    using namespace ORO_CoreLib;
-    using namespace ORO_Execution;
+    
+    
 
     std::map<Orocos::Action_ptr, ActionProxy*> ActionProxy::proxies;
 

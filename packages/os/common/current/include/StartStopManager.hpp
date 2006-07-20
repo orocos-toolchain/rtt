@@ -29,13 +29,13 @@
 #ifndef STARTSTOPMANAGER_HPP
 #define STARTSTOPMANAGER_HPP
 
-#include <corelib/Time.hpp>
+#include <rtt/Time.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <vector>
 #include <algorithm>
 
-namespace ORO_OS
+namespace OS
 {
     /**
      * @brief This manager starts and stops all globally registered start/stop

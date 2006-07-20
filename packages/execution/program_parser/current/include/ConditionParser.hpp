@@ -41,7 +41,7 @@
 #pragma interface
 #endif
 
-namespace ORO_Execution { namespace detail
+namespace RTT { namespace detail
 {
   /**
    * This is a class containing a parse function for conditions.  It

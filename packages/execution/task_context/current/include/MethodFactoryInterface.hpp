@@ -30,7 +30,7 @@
 #define METHODFACTORYINTERFACE_HPP
 
 #include "MemberFactoryInterface.hpp"
-namespace ORO_Execution {
+namespace RTT {
     typedef MemberFactoryInterface MethodFactoryInterface;
 }
 

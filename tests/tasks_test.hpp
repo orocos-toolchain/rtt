@@ -22,15 +22,16 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <corelib/NonRealTimeActivity.hpp>
-#include <corelib/PreemptibleActivity.hpp>
-#include <corelib/NonPreemptibleActivity.hpp>
-#include <corelib/PeriodicActivity.hpp>
-#include <corelib/SimulationActivity.hpp>
-#include <corelib/NonPeriodicActivity.hpp>
+#include <rtt/RTT.hpp>
+#include <rtt/NonRealTimeActivity.hpp>
+#include <rtt/PreemptibleActivity.hpp>
+#include <rtt/NonPreemptibleActivity.hpp>
+#include <rtt/PeriodicActivity.hpp>
+#include <rtt/SimulationActivity.hpp>
+#include <rtt/NonPeriodicActivity.hpp>
 
-using namespace ORO_CoreLib;
-using namespace ORO_CoreLib::detail;
+using namespace RTT;
+using namespace RTT::detail;
 
 struct TestRunnableInterface;
 struct TestSelfRemove;

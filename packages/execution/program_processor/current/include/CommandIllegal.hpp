@@ -28,13 +28,13 @@
 #ifndef COMMANDILLEGAL_HPP
 #define COMMANDILLEGAL_HPP
 
-#include <corelib/CommandInterface.hpp>
+#include "CommandInterface.hpp"
 #include <string>
 
-namespace ORO_Execution
+namespace RTT
 {
 
-	using ORO_CoreLib::CommandInterface;
+	
 	
     /**
      * @brief A Command indicating that an error was encountered

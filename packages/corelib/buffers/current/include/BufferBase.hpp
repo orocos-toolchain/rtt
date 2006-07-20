@@ -30,7 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * Any Buffer has a capacity, size and can be empty or full.

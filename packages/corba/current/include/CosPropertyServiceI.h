@@ -60,13 +60,13 @@
 #define COSPROPERTYSERVICEI_H_
 
 #include <orbsvcs/CosPropertyServiceS.h>
-#include <corelib/PropertyBag.hpp>
+#include "PropertyBag.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-namespace ORO_Execution
+namespace RTT
 {
 	class AttributeRepository;
 }
@@ -153,7 +153,7 @@ class CosPropertyService_PropertiesIterator_i;
 class  CosPropertyService_PropertySet_i
   : public virtual POA_CosPropertyService::PropertySet
 {
-    ORO_CoreLib::PropertyBag* bag;
+    PropertyBag* bag;
 	bool is_attr;
 	// store all servant iterators.
 	typedef std::vector<CosPropertyService_PropertyNamesIterator_i*> NV;
@@ -174,10 +174,10 @@ class  CosPropertyService_PropertySet_i
 	void erasePIter(CosPropertyService_PropertiesIterator_i*);
 public:
   // Constructor 
-  CosPropertyService_PropertySet_i ( ORO_CoreLib::PropertyBag* source );
+  CosPropertyService_PropertySet_i ( PropertyBag* source );
 
   // Constructor 
-  CosPropertyService_PropertySet_i ( ORO_Execution::AttributeRepository* attrs );
+  CosPropertyService_PropertySet_i ( AttributeRepository* attrs );
   
   // Destructor 
   virtual ~CosPropertyService_PropertySet_i (void);
@@ -493,11 +493,11 @@ class  CosPropertyService_PropertyNamesIterator_i
   : public virtual POA_CosPropertyService::PropertyNamesIterator
 {
 	CosPropertyService_PropertySet_i* mowner;
-	ORO_CoreLib::PropertyBag::iterator bag_it, origin;
-	ORO_CoreLib::PropertyBag::iterator bag_end;
+	PropertyBag::iterator bag_it, origin;
+	PropertyBag::iterator bag_end;
 public:
   // Constructor 
-  CosPropertyService_PropertyNamesIterator_i (CosPropertyService_PropertySet_i* owner, ORO_CoreLib::PropertyBag::iterator begin, ORO_CoreLib::PropertyBag::iterator end);
+  CosPropertyService_PropertyNamesIterator_i (CosPropertyService_PropertySet_i* owner, PropertyBag::iterator begin, PropertyBag::iterator end);
   
   // Destructor 
   virtual ~CosPropertyService_PropertyNamesIterator_i (void);
@@ -540,11 +540,11 @@ class  CosPropertyService_PropertiesIterator_i
   : public virtual POA_CosPropertyService::PropertiesIterator
 {
 	CosPropertyService_PropertySet_i* mowner;
-	ORO_CoreLib::PropertyBag::iterator bag_it, origin;
-	ORO_CoreLib::PropertyBag::iterator bag_end;
+	PropertyBag::iterator bag_it, origin;
+	PropertyBag::iterator bag_end;
 public:
   // Constructor 
-  CosPropertyService_PropertiesIterator_i (	CosPropertyService_PropertySet_i* owner, ORO_CoreLib::PropertyBag::iterator begin, ORO_CoreLib::PropertyBag::iterator end);
+  CosPropertyService_PropertiesIterator_i (	CosPropertyService_PropertySet_i* owner, PropertyBag::iterator begin, PropertyBag::iterator end);
   
   // Destructor 
   virtual ~CosPropertyService_PropertiesIterator_i (void);

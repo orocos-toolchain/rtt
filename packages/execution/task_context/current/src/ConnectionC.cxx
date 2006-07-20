@@ -26,17 +26,17 @@
  ***************************************************************************/
  
  
-#include "execution/EventService.hpp"
-#include "execution/ConnectionC.hpp"
-#include "execution/FactoryExceptions.hpp"
-#include <corelib/EventProcessor.hpp>
-#include <corelib/Logger.hpp>
+#include "rtt/EventService.hpp"
+#include "rtt/ConnectionC.hpp"
+#include "rtt/FactoryExceptions.hpp"
+#include <rtt/EventProcessor.hpp>
+#include <rtt/Logger.hpp>
 #include <vector>
 #include <boost/bind.hpp>
 
-namespace ORO_Execution
+namespace RTT
 {
-    using namespace ORO_CoreLib;
+    
     using namespace detail;
     using namespace boost;
     
@@ -47,7 +47,7 @@ namespace ORO_Execution
         std::string mname;
         EventCallBack* syn_ecb;
         EventCallBack* asyn_ecb;
-        ORO_CoreLib::EventProcessor::AsynStorageType ms_type;
+        EventProcessor::AsynStorageType ms_type;
         EventProcessor* mep;
         Handle h;
         sigslot::handle sh;
@@ -87,7 +87,7 @@ namespace ORO_Execution
             }
             syn_ecb = ecb; 
         }
-        void callback(EventCallBack* ecb, EventProcessor* ep, ORO_CoreLib::EventProcessor::AsynStorageType s_type) {
+        void callback(EventCallBack* ecb, EventProcessor* ep, EventProcessor::AsynStorageType s_type) {
             if (asyn_ecb) {
                 Logger::log() << Logger::Error << "Ignoring added Asynchronous 'callback': already present."<<Logger::endl;
                 return;
@@ -159,7 +159,7 @@ namespace ORO_Execution
         return *this;
     }
 
-    ConnectionC& ConnectionC::mcallback( EventCallBack* ecb, EventProcessor* ep, ORO_CoreLib::EventProcessor::AsynStorageType s_type)
+    ConnectionC& ConnectionC::mcallback( EventCallBack* ecb, EventProcessor* ep, EventProcessor::AsynStorageType s_type)
     {
         Logger::In in("ConnectionC");
         if (d) {

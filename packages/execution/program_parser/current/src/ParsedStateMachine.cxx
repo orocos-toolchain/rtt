@@ -25,20 +25,20 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "execution/ParsedStateMachine.hpp"
-#include "execution/DataSource.hpp"
-#include "execution/ExecutionEngine.hpp"
-#include "execution/StateDescription.hpp"
+#include "rtt/ParsedStateMachine.hpp"
+#include "rtt/DataSource.hpp"
+#include "rtt/ExecutionEngine.hpp"
+#include "rtt/StateDescription.hpp"
 
-#include "execution/TaskContext.hpp"
-#include "execution/TemplateCommandFactory.hpp"
-#include "execution/TemplateDataSourceFactory.hpp"
-#include "execution/StateMachineTask.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/TemplateCommandFactory.hpp"
+#include "rtt/TemplateDataSourceFactory.hpp"
+#include "rtt/StateMachineTask.hpp"
 #include <iostream>
 
 #include <boost/lambda/lambda.hpp>
 
-namespace ORO_Execution {
+namespace RTT {
     using namespace detail;
     using namespace std;
     using namespace boost::lambda;
@@ -236,7 +236,7 @@ namespace ORO_Execution {
 
     std::vector<std::string> ParsedStateMachine::getParameterNames() const
     {
-        return ORO_std::keys( parametervalues );
+        return keys( parametervalues );
     }
 
     void ParsedStateMachine::setName( const std::string& name, bool recursive )

@@ -26,11 +26,11 @@
  ***************************************************************************/
 #include "control_kernel/ComponentConfigurator.hpp"
 #include <xercesc/framework/LocalFileInputSource.hpp>
-#include <corelib/marshalling/CPFDemarshaller.hpp>
+#include <rtt/marshalling/CPFDemarshaller.hpp>
 #include <control_kernel/PropertyExtension.hpp>
 
 using namespace std;
-using namespace ORO_CoreLib;
+
 using namespace ORO_ControlKernel;
 
 bool ComponentConfigurator::configure(std::string& filename, PropertyComponentInterface* target)

@@ -24,33 +24,33 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "corelib/Types.hpp"
+#include "rtt/Types.hpp"
 
 #include <pkgconf/system.h>
 #include <pkgconf/corelib.h>
 
-#include <corelib/MultiVector.hpp>
-#include <corelib/Logger.hpp>
-#include "corelib/Attribute.hpp"
-#include "corelib/DataSourceAdaptor.hpp"
-#include "corelib/TemplateTypeInfo.hpp"
-#include "corelib/TypeInfoName.hpp"
-#include <corelib/TypeStream.hpp>
-#include <corelib/mystd.hpp>
+#include <rtt/MultiVector.hpp>
+#include <rtt/Logger.hpp>
+#include "rtt/Attribute.hpp"
+#include "rtt/DataSourceAdaptor.hpp"
+#include "rtt/TemplateTypeInfo.hpp"
+#include "rtt/TypeInfoName.hpp"
+#include <rtt/TypeStream.hpp>
+#include <rtt/mystd.hpp>
 
 #ifdef OROCFG_CORELIB_REALTIME_TOOLKIT_IMPORT
-#include <corelib/RealTimeToolkit.hpp>
+#include <rtt/RealTimeToolkit.hpp>
 #endif
 
 #include <functional>
 #include <sstream>
 
 using namespace std;
-using namespace ORO_CoreLib::detail;
+using namespace RTT::detail;
 
 #ifdef OROCFG_CORELIB_REALTIME_TOOLKIT_IMPORT
-#include <os/StartStopManager.hpp>
-namespace ORO_CoreLib {
+#include <rtt/os/StartStopManager.hpp>
+namespace RTT {
     namespace {
 
         /**
@@ -63,13 +63,13 @@ namespace ORO_CoreLib {
             return true;
         }
 
-        ORO_OS::InitFunction RTTLoader( &loadRTT );
+        OS::InitFunction RTTLoader( &loadRTT );
     }
 }
 #endif
 
 
-namespace ORO_CoreLib
+namespace RTT
 {
     AttributeBase* TypeInfo::buildVariable( int ) const {
         return this->buildVariable();
@@ -136,7 +136,7 @@ namespace ORO_CoreLib
 
     std::vector<std::string> TypeInfoRepository::getTypes() const
     {
-        return ORO_std::keys( data );
+        return keys( data );
     }
 
 }

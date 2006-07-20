@@ -29,11 +29,11 @@
 #ifndef ORO_CORELIB_ATOMIC_QUEUE_HPP
 #define ORO_CORELIB_ATOMIC_QUEUE_HPP
 
-#include <os/CAS.hpp>
+#include "os/CAS.hpp"
 #include "BufferPolicy.hpp"
 #include <utility>
 
-namespace ORO_CoreLib 
+namespace RTT 
 {
     /**
      * Create an atomic, non-blocking single ended queue (FIFO) for storing
@@ -100,7 +100,7 @@ namespace ORO_CoreLib
                 if ( newval->first != 0 || newval == _rptr || newval == _rptr + _size )
                     return 0;
                 // if ptr is unchanged, replace it with newval.
-            } while ( !ORO_OS::CAS( &_wptr, oldval, newval) );
+            } while ( !OS::CAS( &_wptr, oldval, newval) );
             // frome here on :
             // oldval is 'unique', other preempting threads
             // will have a different value for oldval, as
@@ -125,7 +125,7 @@ namespace ORO_CoreLib
                 if ( oldval->first == 0 )
                     return 0;
                 // if ptr is unchanged, replace it with newval.
-            } while ( !ORO_OS::CAS( &_rptr, oldval, newval) );
+            } while ( !OS::CAS( &_rptr, oldval, newval) );
             // frome here on :
             // oldval is 'unique', other preempting threads
             // will have a different value for oldval, as

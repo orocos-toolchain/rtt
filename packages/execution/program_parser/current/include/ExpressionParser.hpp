@@ -33,8 +33,8 @@
 #include "PeerParser.hpp"
 #include "ValueParser.hpp"
 #include "DataSource.hpp"
-#include "corelib/Operators.hpp"
-#include "corelib/Time.hpp"
+#include "Operators.hpp"
+#include "Time.hpp"
 
 #include <stack>
 
@@ -42,7 +42,7 @@
 #pragma interface
 #endif
 
-namespace ORO_Execution { namespace detail
+namespace RTT { namespace detail
 {
   /**
    * This parser parses a call of the form
@@ -54,7 +54,7 @@ namespace ORO_Execution { namespace detail
    */
   class DataCallParser
   {
-    ORO_CoreLib::DataSourceBase::shared_ptr ret;
+    DataSourceBase::shared_ptr ret;
     std::string mobject;
     std::string mmethod;
 
@@ -89,7 +89,7 @@ namespace ORO_Execution { namespace detail
         return datacall;
       };
 
-    ORO_CoreLib::DataSourceBase* getParseResult()
+    DataSourceBase* getParseResult()
       {
         return ret.get();
       };
@@ -117,7 +117,7 @@ namespace ORO_Execution { namespace detail
      * We keep a reference to the DataSources in here, while they're
      * in here..
      */
-    std::stack<ORO_CoreLib::DataSourceBase::shared_ptr> parsestack;
+    std::stack<DataSourceBase::shared_ptr> parsestack;
 
     // the name that was parsed as the object to use a certain
     // data of..
@@ -128,7 +128,7 @@ namespace ORO_Execution { namespace detail
     std::string mpropname;
 
     // time specification
-    ORO_CoreLib::nsecs tsecs;
+    nsecs tsecs;
 
     void seen_unary( const std::string& op );
     void seen_binary( const std::string& op );
@@ -147,7 +147,7 @@ namespace ORO_Execution { namespace detail
       CommonParser commonparser;
       ValueParser valueparser;
       bool _invert_time;
-      ORO_CoreLib::OperatorRepository::shared_ptr opreg;
+      OperatorRepository::shared_ptr opreg;
   public:
     ExpressionParser( TaskContext* pc );
     ~ExpressionParser();
@@ -162,8 +162,8 @@ namespace ORO_Execution { namespace detail
 
     rule_t& parser();
 
-    ORO_CoreLib::DataSourceBase::shared_ptr getResult();
-    // after an expression is parsed, the resultant ORO_CoreLib::DataSourceBase will
+    DataSourceBase::shared_ptr getResult();
+    // after an expression is parsed, the resultant DataSourceBase will
     // still be on top of the stack, and it should be removed before
     // going back down the parse stack.  This is what this function
     // does..

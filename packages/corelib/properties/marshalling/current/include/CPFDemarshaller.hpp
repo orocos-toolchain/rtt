@@ -34,9 +34,9 @@
 #include <xercesc/util/XMLUniDefs.hpp>
 #include <xercesc/sax/InputSource.hpp>
 
-#include "corelib/Marshaller.hpp"
+#include <rtt/Marshaller.hpp>
 
-namespace ORO_CoreLib
+namespace RTT
 {
 #ifdef XERCES_CPP_NAMESPACE
     using XERCES_CPP_NAMESPACE::InputSource;

@@ -26,14 +26,14 @@
  ***************************************************************************/
  
  
-#include "corelib/TimerLockFree.hpp"
-#include "corelib/PeriodicActivity.hpp"
+#include "rtt/TimerLockFree.hpp"
+#include "rtt/PeriodicActivity.hpp"
 
-#include "corelib/Logger.hpp"
+#include "rtt/Logger.hpp"
 #include <boost/bind.hpp>
 #include <assert.h>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     using namespace detail;
 

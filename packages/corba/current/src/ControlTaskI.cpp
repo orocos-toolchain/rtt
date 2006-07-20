@@ -28,17 +28,17 @@
 // TAO_IDL - Generated from 
 // be/be_codegen.cpp:910
 
-#include "corba/ControlTaskI.h"
-#include "corba/ControlTaskServer.hpp"
-#include "corba/ControlTaskProxy.hpp"
-#include "corba/CosPropertyServiceI.h"
-#include "corba/AttributesI.h"
-#include "corba/FactoriesI.h"
-#include "corba/ScriptingAccessI.h"
+#include "rtt/corba/ControlTaskI.h"
+#include "rtt/corba/ControlTaskServer.hpp"
+#include "rtt/corba/ControlTaskProxy.hpp"
+#include "rtt/corba/CosPropertyServiceI.h"
+#include "rtt/corba/AttributesI.h"
+#include "rtt/corba/FactoriesI.h"
+#include "rtt/corba/ScriptingAccessI.h"
 
-using namespace ORO_Execution;
-using namespace ORO_CoreLib;
-using namespace ORO_Corba;
+
+
+using namespace Corba;
 using namespace CosPropertyService;
 
 // Implementation skeleton constructor

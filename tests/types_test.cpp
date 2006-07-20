@@ -21,10 +21,10 @@
 #include "types_test.hpp"
 #include <unistd.h>
 #include <iostream>
-#include <execution/FunctionGraph.hpp>
-#include <execution/Method.hpp>
-#include <corelib/SimulationActivity.hpp>
-#include <corelib/SimulationThread.hpp>
+#include <rtt/FunctionGraph.hpp>
+#include <rtt/Method.hpp>
+#include <rtt/SimulationActivity.hpp>
+#include <rtt/SimulationThread.hpp>
 #ifdef OROPKG_GEOMETRY
 #include <geometry/GeometryToolkit.hpp>
 using namespace ORO_Geometry;

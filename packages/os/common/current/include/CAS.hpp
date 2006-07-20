@@ -26,12 +26,12 @@
  ***************************************************************************/
  
  
-#ifndef ORO_OS_COMMON_CAS_HPP
-#define ORO_OS_COMMON_CAS_HPP
+#ifndef OS_COMMON_CAS_HPP
+#define OS_COMMON_CAS_HPP
 
 #include "oro_system.h"
 
-namespace ORO_OS
+namespace OS
 {
     /**
      * Compare And Swap.

@@ -21,14 +21,14 @@
 #include "template_factory_test.hpp"
 #include <unistd.h>
 #include <iostream>
-#include <execution/FunctionGraph.hpp>
-#include <execution/Command.hpp>
-#include <execution/Method.hpp>
-#include <corelib/DataSourceAdaptor.hpp>
-#include <execution/DataSourceGenerator.hpp>
+#include <rtt/FunctionGraph.hpp>
+#include <rtt/Command.hpp>
+#include <rtt/Method.hpp>
+#include <rtt/DataSourceAdaptor.hpp>
+#include <rtt/DataSourceGenerator.hpp>
 
-#include <corelib/SimulationActivity.hpp>
-#include <corelib/SimulationThread.hpp>
+#include <rtt/SimulationActivity.hpp>
+#include <rtt/SimulationThread.hpp>
 
 #include <pkgconf/system.h>
 #ifdef OROPKG_GEOMETRY
@@ -311,7 +311,7 @@ void Template_FactoryTest::testEventC()
     event_proc->initialize();
 
     cc = tc->events()->setupConnection("FloatEvent").callback( this, &Template_FactoryTest::float_listener);
-    cc.callback( this, &Template_FactoryTest::float_completer, event_proc, ORO_CoreLib::EventProcessor::OnlyLast );
+    cc.callback( this, &Template_FactoryTest::float_completer, event_proc, RTT::EventProcessor::OnlyLast );
     h = cc.handle();
 
     h.connect();

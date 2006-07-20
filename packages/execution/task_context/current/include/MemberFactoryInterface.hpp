@@ -33,10 +33,10 @@
 #include <map>
 #include "FactoryExceptions.hpp"
 #include "ArgumentDescription.hpp"
-#include <corelib/Property.hpp>
-#include <corelib/PropertyBag.hpp>
+#include "Property.hpp"
+#include "PropertyBag.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
 
   /**
@@ -57,7 +57,7 @@ namespace ORO_Execution
   class MemberFactoryInterface
   {
   public:
-      typedef std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> Arguments;
+      typedef std::vector<DataSourceBase::shared_ptr> Arguments;
       typedef std::vector<std::string> Members;
       typedef std::vector< ArgumentDescription > Descriptions;
 
@@ -116,7 +116,7 @@ namespace ORO_Execution
      *
      * @exception name_not_found_exception
      */
-    virtual ORO_CoreLib::PropertyBag
+    virtual PropertyBag
     getArgumentSpec( const std::string& method ) const = 0;
 
     /**
@@ -131,9 +131,9 @@ namespace ORO_Execution
      * @exception wrong_number_of_args_exception
      * @exception wrong_types_of_args_exception
      */
-    virtual ORO_CoreLib::DataSourceBase* create(
+    virtual DataSourceBase* create(
       const std::string& name,
-      const ORO_CoreLib::PropertyBag& args ) const = 0;
+      const PropertyBag& args ) const = 0;
 
     /**
      * We also support passing DataSources as the arguments.  In this
@@ -149,7 +149,7 @@ namespace ORO_Execution
      * @exception wrong_number_of_args_exception
      * @exception wrong_types_of_args_exception
      */
-    virtual ORO_CoreLib::DataSourceBase* create(
+    virtual DataSourceBase* create(
       const std::string& name,
       const Arguments& args ) const = 0;
 
@@ -166,11 +166,11 @@ namespace ORO_Execution
      * @exception name_not_found_exception
      * @exception wrong_number_of_args_exception
      * @exception wrong_types_of_args_exception
-     * @deprecated by create(const std::string&, const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& )
+     * @deprecated by create(const std::string&, const std::vector<DataSourceBase::shared_ptr>& )
      */
-    virtual ORO_CoreLib::DataSourceBase* create(
+    virtual DataSourceBase* create(
       const std::string& name,
-      const std::vector<ORO_CoreLib::DataSourceBase*>& args ) const = 0;
+      const std::vector<DataSourceBase*>& args ) const = 0;
   };
 
 }

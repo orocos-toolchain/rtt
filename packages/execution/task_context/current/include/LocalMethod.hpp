@@ -6,7 +6,7 @@
 #include "Invoker.hpp"
 #include "BindStorage.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     namespace detail
     {

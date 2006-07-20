@@ -28,10 +28,10 @@
 #ifndef STATE_DESCRIPTION_HPP
 #define STATE_DESCRIPTION_HPP
 
-#include "execution/StateInterface.hpp"
-#include "execution/ProgramInterface.hpp"
+#include "StateInterface.hpp"
+#include "ProgramInterface.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * @brief This class represents a state with all actions stored
@@ -129,7 +129,7 @@ namespace ORO_Execution
             inited = d;
         }
 
-        StateDescription* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& replacementdss ) const;
+        StateDescription* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const;
 
     };
 };

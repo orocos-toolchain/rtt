@@ -30,7 +30,7 @@
 
 #include <string>
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * @brief Description of one Argument of a Command.

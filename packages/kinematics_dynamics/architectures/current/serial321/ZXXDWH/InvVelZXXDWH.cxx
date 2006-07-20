@@ -89,7 +89,7 @@
 
 namespace ORO_KinDyn
 {
-    using namespace ORO_CoreLib;
+    using namespace RTT;
 
   //  using namespace std;
     bool SerialZXXDWH::velocityInverse ( const ORO_Geometry::Frame& pos_base, Configuration c, const ORO_Geometry::Twist& vel, Double6D& q, Double6D& qdot, Singularity& s ) const

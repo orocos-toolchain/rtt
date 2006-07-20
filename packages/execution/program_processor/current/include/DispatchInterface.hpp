@@ -29,16 +29,16 @@
 #ifndef ORO_EXECUTION_DISPATCHINTERFACE_HPP
 #define ORO_EXECUTION_DISPATCHINTERFACE_HPP
  
-#include <corelib/CommandInterface.hpp>
-namespace ORO_CoreLib { class ConditionInterface; }
+#include "CommandInterface.hpp"
+namespace RTT { class ConditionInterface; }
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * Dispatch a CommandInterface to a CommandProcessor and track its status.
      */
     class DispatchInterface
-        : public ORO_CoreLib::CommandInterface
+        : public CommandInterface
     {
     public:
         /**
@@ -90,7 +90,7 @@ namespace ORO_Execution
          */
         virtual bool evaluate() const = 0;
 
-        virtual ORO_CoreLib::ConditionInterface* createCondition() const = 0;
+        virtual ConditionInterface* createCondition() const = 0;
 
         virtual DispatchInterface* clone() const = 0;
     };

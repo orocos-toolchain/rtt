@@ -43,7 +43,7 @@
 #undef new
 #endif // __cplusplus
 
-namespace ORO_OS
+namespace OS
 {
 
     /**
@@ -80,7 +80,7 @@ namespace ORO_OS
 
 #include "Mutex.hpp"
 
-namespace ORO_OS {
+namespace OS {
     typedef Mutex SpinLock;
 }
 #endif // HAVE_SPINLOCK

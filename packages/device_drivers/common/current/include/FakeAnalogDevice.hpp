@@ -28,18 +28,18 @@
 #ifndef FAKEANALOGDEVICE_HPP
 #define FAKEANALOGDEVICE_HPP
 
-#include <device_interface/AnalogInInterface.hpp>
-#include <device_interface/AnalogOutInterface.hpp>
+#include "AnalogInInterface.hpp"
+#include "AnalogOutInterface.hpp"
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
     /**
      * A test class which replaces a real device driver.
      * It reproduces on the output what it gets on the input.
      */
     struct FakeAnalogDevice :
-        public ORO_DeviceInterface::AnalogInInterface<unsigned int>,
-        public ORO_DeviceInterface::AnalogOutInterface<unsigned int>
+        public AnalogInInterface<unsigned int>,
+        public AnalogOutInterface<unsigned int>
     {
         unsigned int nbofchans;
         unsigned int* mchannels;
@@ -47,8 +47,8 @@ namespace ORO_DeviceDriver
         double mlowest, mhighest;
 
         FakeAnalogDevice(unsigned int channels=32, unsigned int bin_range=4096, double lowest = -5.0, double highest = +5.0)
-            : ORO_DeviceInterface::AnalogInInterface<unsigned int>("FakeAnalogDevice"),
-              ORO_DeviceInterface::AnalogOutInterface<unsigned int>("FakeAnalogDevice"),
+            : AnalogInInterface<unsigned int>("FakeAnalogDevice"),
+              AnalogOutInterface<unsigned int>("FakeAnalogDevice"),
               nbofchans(channels),
               mchannels( new unsigned int[channels] ),
               mbin_range( bin_range),

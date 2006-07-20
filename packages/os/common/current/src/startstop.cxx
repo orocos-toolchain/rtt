@@ -35,7 +35,7 @@
 #include <pkgconf/system.h>
 #include <pkgconf/os.h>
 
-#include <os/startstop.h>
+#include <rtt/os/startstop.h>
 
     
 // extern package config headers.
@@ -45,34 +45,34 @@
 #endif
 
 #ifdef OROPKG_CORELIB_REPORTING
-#include "corelib/Logger.hpp"
-using ORO_CoreLib::Logger;
+#include "rtt/Logger.hpp"
+using RTT::Logger;
 #endif
 #ifdef OROPKG_CORELIB_TIMING
-#include "corelib/TimeService.hpp"
-using ORO_CoreLib::TimeService;
+#include "rtt/TimeService.hpp"
+using RTT::TimeService;
 #endif
  
-#ifdef ORO_OS_HAVE_MAIN_THREAD
-#include "os/MainThread.hpp"
+#ifdef OS_HAVE_MAIN_THREAD
+#include "rtt/os/MainThread.hpp"
 
-static ORO_OS::MainThread* mainT;
+static OS::MainThread* mainT;
 #endif
 
-#include "os/StartStopManager.hpp"
-static ORO_OS::StartStopManager* initM;
+#include "rtt/os/StartStopManager.hpp"
+static OS::StartStopManager* initM;
 
 extern "C"
 int __os_init(int argc, char** argv )
 {
-#ifdef ORO_OS_HAVE_MANUAL_CRT
+#ifdef OS_HAVE_MANUAL_CRT
     DO_GLOBAL_CTORS();
 #endif
 
-#ifdef ORO_OS_HAVE_MAIN_THREAD
+#ifdef OS_HAVE_MAIN_THREAD
     // this must be called to init the os scheduler, which is used in
     // any ComponentActive. Call this only once EVER.
-    mainT = ORO_OS::MainThread::Instance();
+    mainT = OS::MainThread::Instance();
 
     mainT->start();
 
@@ -85,7 +85,7 @@ int __os_init(int argc, char** argv )
 #ifdef OROPKG_CORELIB_REPORTING
     Logger::log() << Logger::Debug << "Starting StartStopManager." << Logger::endl;
 #endif
-    initM = ORO_OS::StartStopManager::Instance();
+    initM = OS::StartStopManager::Instance();
     return initM->start();
 }
 
@@ -96,9 +96,9 @@ void __os_exit(void)
     Logger::log() << Logger::Debug << "Stopping StartStopManager." << Logger::endl;
 #endif
     initM->stop();
-    ORO_OS::StartStopManager::Release();
+    OS::StartStopManager::Release();
 
-#if defined(ORO_OS_HAVE_MAIN_THREAD) && defined(OROPKG_CORELIB_REPORTING)
+#if defined(OS_HAVE_MAIN_THREAD) && defined(OROPKG_CORELIB_REPORTING)
     // This should be the (one but) last message to be logged :
     Logger::log() << Logger::Debug << "Stopping MainThread." << Logger::endl;
 #endif
@@ -112,11 +112,11 @@ void __os_exit(void)
     TimeService::Release();
 #endif
     // Stop Main Thread
-#ifdef ORO_OS_HAVE_MAIN_THREAD
-    ORO_OS::MainThread::Release();
+#ifdef OS_HAVE_MAIN_THREAD
+    OS::MainThread::Release();
 #endif
 
-#ifdef ORO_OS_HAVE_MANUAL_CRT
+#ifdef OS_HAVE_MANUAL_CRT
     DO_GLOBAL_DTORS();
 #endif
 }

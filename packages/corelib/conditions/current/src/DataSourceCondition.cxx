@@ -24,11 +24,11 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "corelib/DataSourceCondition.hpp"
+#include "rtt/DataSourceCondition.hpp"
 
-#include "corelib/ConditionInterface.hpp"
+#include "rtt/ConditionInterface.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
   DataSourceCondition::DataSourceCondition( ConditionInterface* c )
       : cond( c ), result(false)

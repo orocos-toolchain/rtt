@@ -7,7 +7,7 @@ logging and data gathering. See the README for a short
 description of the nomenclature. Also, contains the Orocos
 Logger implementation for tracking system configuration."
 
-    include_dir corelib
+    include_dir rtt
 
     parent OROPKG_CORELIB
     requires OROPKG_CORELIB

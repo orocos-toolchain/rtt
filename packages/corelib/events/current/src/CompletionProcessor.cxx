@@ -25,15 +25,15 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "corelib/CompletionProcessor.hpp"
-#include "corelib/Logger.hpp"
-#include <os/threads.hpp>
+#include "rtt/CompletionProcessor.hpp"
+#include "rtt/Logger.hpp"
+#include <rtt/os/threads.hpp>
 
 #include <pkgconf/corelib_events.h>
 
 #ifdef OROSEM_CORELIB_EVENTS_AUTOSTART
-#include <os/StartStopManager.hpp>
-namespace ORO_CoreLib
+#include <rtt/os/StartStopManager.hpp>
+namespace RTT
 {
     namespace
     {
@@ -48,15 +48,15 @@ namespace ORO_CoreLib
             CompletionProcessor::Release();
         }
 
-        ORO_OS::InitFunction CPPInit( &startCPPThread );
-        ORO_OS::CleanupFunction CPPCleanup( &stopCPPThread );
+        OS::InitFunction CPPInit( &startCPPThread );
+        OS::CleanupFunction CPPCleanup( &stopCPPThread );
     }
 }
 #endif
 
 
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     CompletionProcessor* CompletionProcessor::cp;
@@ -83,7 +83,7 @@ namespace ORO_CoreLib
     }
 
     CompletionProcessor::CompletionProcessor()
-        : NonPeriodicActivity( ORO_OS::LowestPriority + 2* ORO_OS::IncreasePriority, 
+        : NonPeriodicActivity( OS::LowestPriority + 2* OS::IncreasePriority, 
                             ORODAT_CORELIB_EVENTS_CP_NAME )
     {
         Logger::log() << Logger::Info << ORODAT_CORELIB_EVENTS_CP_NAME <<" created with priority ";

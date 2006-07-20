@@ -36,7 +36,7 @@
 #include "TimeService.hpp"
 #include "Time.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * @brief A task which configures components.

@@ -33,10 +33,10 @@
 #include <boost/intrusive_ptr.hpp>
 #include <map>
 #include <string>
-#include <os/oro_atomic.h>
+#include "os/oro_atomic.h"
 #include "pkgconf/os.h"
 #ifdef OROINT_OS_CORBA
-#include <corba/ExecutionC.h>
+#include "corba/ExecutionC.h"
 #endif
 #include "CommandInterface.hpp"
 
@@ -45,7 +45,7 @@ namespace CORBA
     class Any;
 }
 
-namespace ORO_CoreLib
+namespace RTT
 {
     class TypeInfo;
     class PropertyBag;
@@ -290,7 +290,7 @@ namespace ORO_CoreLib
 
 }
 
-void intrusive_ptr_add_ref(const ORO_CoreLib::DataSourceBase* p );
-void intrusive_ptr_release(const ORO_CoreLib::DataSourceBase* p );
+void intrusive_ptr_add_ref(const RTT::DataSourceBase* p );
+void intrusive_ptr_release(const RTT::DataSourceBase* p );
 
 #endif

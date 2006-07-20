@@ -30,11 +30,11 @@
 #define HIERARCHICAL_STATE_MACHINE_HPP
 
 #include "StateInterface.hpp"
-#include "corelib/ConditionInterface.hpp"
-#include "corelib/CommandInterface.hpp"
-#include "corelib/DataSourceBase.hpp"
-#include "corelib/Handle.hpp"
-#include "corelib/EventProcessor.hpp"
+#include "ConditionInterface.hpp"
+#include "CommandInterface.hpp"
+#include "DataSourceBase.hpp"
+#include "Handle.hpp"
+#include "EventProcessor.hpp"
 
 #include <map>
 #include <vector>
@@ -44,10 +44,10 @@
 #include <boost/weak_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 
-namespace ORO_Execution
+namespace RTT
 {
-    using ORO_CoreLib::ConditionInterface;
-    using ORO_CoreLib::CommandInterface;
+    
+    
 
     class TaskContext;
     class EventService;
@@ -86,10 +86,10 @@ namespace ORO_Execution
         typedef std::map< StateInterface*, TransList > TransitionMap;
         typedef std::multimap< StateInterface*, std::pair<ConditionInterface*, int> > PreConditionMap;
         typedef std::vector< boost::tuple<EventService*,
-                                          std::string, std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>,
+                                          std::string, std::vector<DataSourceBase::shared_ptr>,
                                           StateInterface*,
                                           ConditionInterface*, boost::shared_ptr<ProgramInterface>, 
-                                          ORO_CoreLib::Handle,
+                                          Handle,
                                           StateInterface*, boost::shared_ptr<ProgramInterface> > > EventList;
         typedef std::map< StateInterface*, EventList > EventMap;
         std::vector<StateMachinePtr> _children;
@@ -97,7 +97,7 @@ namespace ORO_Execution
         StateMachineParentPtr _parent;
 
         std::string _name;
-        ORO_CoreLib::EventProcessor* eproc;
+        EventProcessor* eproc;
         Status::StateMachineStatus smStatus;
         StateMachineProcessor* smp;
 
@@ -126,7 +126,7 @@ namespace ORO_Execution
          * a StateMachine is always inactive.
          * @param ep The EventProcessor of this StateMachine when transition events are used.
          */
-        StateMachine(StateMachinePtr parent, ORO_CoreLib::EventProcessor* ep, const std::string& name="Default");
+        StateMachine(StateMachinePtr parent, EventProcessor* ep, const std::string& name="Default");
 
         void setStateMachineProcessor(StateMachineProcessor* smproc) {
             smp = smproc;
@@ -468,7 +468,7 @@ namespace ORO_Execution
          * when an Event is fired under a certain condition (guard).
          *
          * @param ename
-         *        The name of the ORO_CoreLib::Event under which a transition should be made
+         *        The name of the Event under which a transition should be made
          * @param args
          *        The arguments which the event handler must set upon occurence.
          * @param from
@@ -483,7 +483,7 @@ namespace ORO_Execution
          *        The EventService in which \a ename can be found.
          */
         bool createEventTransition( EventService* es,
-                                    const std::string& ename, std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> args,
+                                    const std::string& ename, std::vector<DataSourceBase::shared_ptr> args,
                                     StateInterface* from, StateInterface* to,
                                     ConditionInterface* guard, boost::shared_ptr<ProgramInterface> transprog,
                                     StateInterface* elseto = 0, boost::shared_ptr<ProgramInterface> elseprog =

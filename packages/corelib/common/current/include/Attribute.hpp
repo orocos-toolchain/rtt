@@ -34,7 +34,7 @@
 #include "AttributeBase.hpp"
 #include "BuildType.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * The Attribute contains data which can be set and get.

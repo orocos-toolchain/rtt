@@ -24,14 +24,14 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "execution/GlobalCommandFactory.hpp"
-#include "execution/CommandFactoryComposite.hpp"
-#include "execution/ExecutionEngine.hpp"
-#include <corelib/Exceptions.hpp>
+#include "rtt/GlobalCommandFactory.hpp"
+#include "rtt/CommandFactoryComposite.hpp"
+#include "rtt/ExecutionEngine.hpp"
+#include <rtt/Exceptions.hpp>
 
 #include <cassert>
 
-namespace ORO_Execution {
+namespace RTT {
 
   bool GlobalCommandFactory::hasCommand(
     const std::string& objectname,

@@ -26,9 +26,9 @@
  ***************************************************************************/
 
 // include OS-internal fosi as first file.
-#include "os/fosi_internal.hpp"
-#include <os/SingleThread.hpp>
-#include <os/MutexLock.hpp>
+#include "rtt/os/fosi_internal.hpp"
+#include <rtt/os/SingleThread.hpp>
+#include <rtt/os/MutexLock.hpp>
 
 // extern package config headers.
 #include "pkgconf/system.h"
@@ -36,31 +36,31 @@
 #include "pkgconf/corelib.h"
 #endif
 #ifdef OROPKG_CORELIB_REPORTING
-#include "corelib/Logger.hpp"
-using ORO_CoreLib::Logger;
+#include "rtt/Logger.hpp"
+using RTT::Logger;
 #endif
 
 #include "pkgconf/os.h"
 
 #include <iostream>
 
-#include "corelib/Time.hpp"
-#include "os/threads.hpp"
+#include "rtt/Time.hpp"
+#include "rtt/os/threads.hpp"
 #ifdef OROPKG_DEVICE_INTERFACE
 # include "pkgconf/device_interface.h"
 # include <boost/scoped_ptr.hpp>
 # ifdef OROPKG_OS_THREAD_SCOPE
-#  include "device_interface/DigitalOutInterface.hpp"
-   using namespace ORO_DeviceInterface;
+#  include "rtt/dev/DigitalOutInterface.hpp"
+   using namespace RTT;
 #  ifdef ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE
 #   include ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE
-    using namespace ORO_DeviceDriver;
+    using namespace RTT;
 #  endif
 # endif
 #endif
 
 
-namespace ORO_OS 
+namespace OS 
 {
     using namespace detail;
 
@@ -69,7 +69,7 @@ namespace ORO_OS
         /**
          * This is one time initialisation
          */
-        SingleThread* task = static_cast<ORO_OS::SingleThread*> (t);
+        SingleThread* task = static_cast<OS::SingleThread*> (t);
 
         // Reporting available from this point :
 #ifdef OROPKG_CORELIB_REPORTING

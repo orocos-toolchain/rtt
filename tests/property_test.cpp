@@ -23,7 +23,7 @@
 
 #include "property_test.hpp"
 #include <boost/bind.hpp>
-#include <corelib/PropertyBagIntrospector.hpp>
+#include <rtt/PropertyBagIntrospector.hpp>
 #include <pkgconf/system.h>
 #ifdef OROPKG_GEOMETRY
 #include <geometry/frames.h>
@@ -34,7 +34,7 @@ using namespace ORO_Geometry;
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( PropertyTest );
 
-using namespace ORO_CoreLib;
+using namespace RTT;
 using namespace boost;
 using namespace std;
 

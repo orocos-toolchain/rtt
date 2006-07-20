@@ -68,7 +68,7 @@
 
 namespace ORO_KinDyn
 {
-    using namespace ORO_CoreLib;
+    using namespace RTT;
 
     bool SerialZXXZXZ::jacobianInverse ( const Double6D& q, double JInv[ 6 ][ 6 ], Singularity& s ) const
     {

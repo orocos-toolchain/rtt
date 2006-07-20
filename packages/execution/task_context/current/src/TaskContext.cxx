@@ -27,11 +27,11 @@
  
  
 
-#include "execution/TaskContext.hpp"
-#include <corelib/CommandInterface.hpp>
-#include <corelib/CompletionProcessor.hpp>
+#include "rtt/TaskContext.hpp"
+#include <rtt/CommandInterface.hpp>
+#include <rtt/CompletionProcessor.hpp>
 
-#include "execution/Factories.hpp"
+#include "rtt/Factories.hpp"
 
 #include <string>
 #include <algorithm>
@@ -39,18 +39,18 @@
 #include <boost/bind.hpp>
 #include <boost/mem_fn.hpp>
 
-#include "execution/DataSource.hpp"
-#include "execution/ConnectionInterface.hpp"
+#include "rtt/DataSource.hpp"
+#include "rtt/ConnectionInterface.hpp"
 
 #include <pkgconf/os.h>
 #include <pkgconf/system.h>
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
-#include "execution/ParserScriptingAccess.hpp"
+#include "rtt/ParserScriptingAccess.hpp"
 #endif
 
-namespace ORO_Execution
+namespace RTT
 {
-    using namespace ORO_CoreLib;
+    
     using namespace boost;
     using namespace std;
 
@@ -303,7 +303,7 @@ namespace ORO_Execution
             std::vector<std::string> res;
             std::transform(_task_map.begin(), _task_map.end(),
                            std::back_inserter( res ),
-                           ORO_std::select1st<PeerMap::value_type>() );
+                           select1st<PeerMap::value_type>() );
             return res;
         }
 

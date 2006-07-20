@@ -28,7 +28,7 @@
 #ifndef NODEGUARD_HPP
 #define NODEGUARD_HPP
 
-#include <corelib/RunnableInterface.hpp>
+#include <rtt/RunnableInterface.hpp>
 #include <can/CANConfigurator.hpp>
 #include <can/CANMessage.hpp>
 #include <can/CANOpenBus.hpp>
@@ -40,7 +40,7 @@ namespace CAN
      * A class which encapsulates CANOpen node guarding when it runs.
      */
     class NodeGuard
-        : public ORO_CoreLib::RunnableInterface ,
+        : public RunnableInterface ,
           public CANListenerInterface
     {
         CANOpenBus* bus;

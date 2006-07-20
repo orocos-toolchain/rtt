@@ -28,23 +28,23 @@
  
 
 #include <pkgconf/system.h>
-#include <corelib/RealTimeToolkit.hpp>
-#include <corelib/Types.hpp>
-#include <corelib/Operators.hpp>
-#include <corelib/OperatorTypes.hpp>
-#include <corelib/TemplateTypeInfo.hpp>
-#include <corelib/MultiVector.hpp>
-#include <corelib/mystd.hpp>
+#include <rtt/RealTimeToolkit.hpp>
+#include <rtt/Types.hpp>
+#include <rtt/Operators.hpp>
+#include <rtt/OperatorTypes.hpp>
+#include <rtt/TemplateTypeInfo.hpp>
+#include <rtt/MultiVector.hpp>
+#include <rtt/mystd.hpp>
 
-#include <corelib/TypeStream.hpp>
-#include <corelib/PropertyBag.hpp>
-#include <corelib/VectorComposition.hpp>
+#include <rtt/TypeStream.hpp>
+#include <rtt/PropertyBag.hpp>
+#include <rtt/VectorComposition.hpp>
 #include <ostream>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     using namespace std;
-    using namespace ORO_std;
+    
 
     RealTimeToolkitPlugin RealTimeToolkit;
 

@@ -32,7 +32,7 @@
 #include <string>
 #include "CommandC.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     class TaskContext;
 
@@ -79,7 +79,7 @@ namespace ORO_Execution
 #include <string>
 #include "CommandC.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     class TaskContext;
 
@@ -126,7 +126,7 @@ namespace ORO_Execution
 #include <string>
 #include "CommandC.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     class TaskContext;
 
@@ -173,7 +173,7 @@ namespace ORO_Execution
 #include <string>
 #include "CommandC.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     class TaskContext;
 

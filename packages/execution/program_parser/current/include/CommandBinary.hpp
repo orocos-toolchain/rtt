@@ -29,12 +29,12 @@
 #ifndef ORO_COMMANDBINARY_HPP
 #define ORO_COMMANDBINARY_HPP
 
-#include <corelib/CommandInterface.hpp>
-#include <corelib/DataSource.hpp>
+#include "CommandInterface.hpp"
+#include "DataSource.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
-    using ORO_CoreLib::CommandInterface;
+    
 
     struct CommandBinary : public CommandInterface
     {
@@ -63,7 +63,7 @@ namespace ORO_Execution
         virtual CommandInterface* clone() const {
             return new CommandBinary( _f->clone(), _s->clone() );
         }
-        virtual CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
+        virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             return new CommandBinary( _f->copy( alreadyCloned ), _s->copy( alreadyCloned ) );
         }
     };

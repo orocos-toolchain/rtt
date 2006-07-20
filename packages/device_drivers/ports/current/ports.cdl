@@ -4,7 +4,7 @@ cdl_package OROPKG_DEVICE_DRIVERS_PORTS {
 driver to access the parallel port.
 "
 
-    include_dir device_drivers
+    include_dir rtt/dev
     include_files ParallelPort.hpp
     compile ParallelPort.cxx
 
@@ -25,7 +25,7 @@ mapping is logged in the CoreLib Logger."
 
 	define_proc { 
 	puts $::cdl_system_header "/***** proc output start *****/"
-	puts $::cdl_system_header "#define ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE <device_drivers/ParallelPort.hpp>"
+	puts $::cdl_system_header "#define ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE <rtt/dev/ParallelPort.hpp>"
 	puts $::cdl_system_header "#define OROCLS_DEVICE_DRIVERS_THREAD_SCOPE_DRIVER ParallelPort"
 	puts $::cdl_system_header "/****** proc output end ******/"
 	}

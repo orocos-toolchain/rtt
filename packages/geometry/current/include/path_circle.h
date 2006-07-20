@@ -71,7 +71,7 @@ class Path_Circle : public Path
 		// equivalent radius
 		double eqradius;  
 
-		// verdeling baanlengte over pos/rot
+		// verdeling baanlengte over prtt/os/rot
 		double pathlength;
 		double scalelin;
 		double scalerot;

@@ -24,10 +24,10 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "execution/CommandIllegal.hpp"
+#include "rtt/CommandIllegal.hpp"
 
 #include <iostream>
-namespace ORO_Execution
+namespace RTT
 {
     using namespace std;
 

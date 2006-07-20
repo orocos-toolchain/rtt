@@ -33,7 +33,7 @@
 #include <pkgconf/os_xenomai.h>
 #include "fosi.h"
 
-namespace ORO_OS
+namespace OS
 {
 
     /**

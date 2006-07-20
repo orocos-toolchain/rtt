@@ -24,14 +24,14 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "execution/EdgeCondition.hpp"
-#include <corelib/ConditionTrue.hpp>
-#include <corelib/ConditionInterface.hpp>
-#include <corelib/DataSource.hpp>
+#include "rtt/EdgeCondition.hpp"
+#include <rtt/ConditionTrue.hpp>
+#include <rtt/ConditionInterface.hpp>
+#include <rtt/DataSource.hpp>
 
-namespace ORO_Execution
+namespace RTT
 {
-	using namespace ORO_CoreLib;
+	
 
     int EdgeCondition::condition_counter = 0;
 

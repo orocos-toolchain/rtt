@@ -22,12 +22,12 @@
 #include <unistd.h>
 #include <iostream>
 
-#include <corelib/ZeroTimeThread.hpp>
-#include <corelib/ZeroLatencyThread.hpp>
-#include <corelib/NonRealTimeThread.hpp>
-#include <corelib/PeriodicActivity.hpp>
-#include <corelib/TimerOneShot.hpp>
-#include <corelib/TimeService.hpp>
+#include <rtt/ZeroTimeThread.hpp>
+#include <rtt/ZeroLatencyThread.hpp>
+#include <rtt/NonRealTimeThread.hpp>
+#include <rtt/PeriodicActivity.hpp>
+#include <rtt/TimerOneShot.hpp>
+#include <rtt/TimeService.hpp>
 
 #include <boost/scoped_ptr.hpp>
 
@@ -37,11 +37,11 @@ using namespace boost;
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( ActivitiesTest );
 
-using namespace ORO_CoreLib;
-using namespace ORO_CoreLib::detail;
+using namespace RTT;
+using namespace RTT::detail;
 
 struct TestOverrun
-  : public ORO_OS::RunnableInterface
+  : public RTT::OS::RunnableInterface
 {
   bool fini;
   bool initialize() { fini = false; return true; }
@@ -56,7 +56,7 @@ struct TestOverrun
 };
 
 struct TestPeriodic
-    : public ORO_OS::RunnableInterface
+    : public RTT::OS::RunnableInterface
 {
     int fail;
     bool stepped;
@@ -230,7 +230,7 @@ void ActivitiesTest::testOverrun()
   bool r = false;
   // create
   boost::scoped_ptr<TestOverrun> run( new TestOverrun() );
-  boost::scoped_ptr<ORO_OS::ThreadInterface> t( new ORO_OS::PeriodicThread(25,"ORThread", 0.1) );
+  boost::scoped_ptr<RTT::OS::ThreadInterface> t( new RTT::OS::PeriodicThread(25,"ORThread", 0.1) );
   CPPUNIT_ASSERT_EQUAL(25,t->getPriority() );
   CPPUNIT_ASSERT_EQUAL(0.1,t->getPeriod() );
 
@@ -256,7 +256,7 @@ void ActivitiesTest::testThreads()
   // create
   boost::scoped_ptr<TestPeriodic> run( new TestPeriodic() );
 
-  boost::scoped_ptr<ORO_OS::ThreadInterface> t( new ORO_OS::PeriodicThread(25,"PThread", 0.1) );
+  boost::scoped_ptr<RTT::OS::ThreadInterface> t( new RTT::OS::PeriodicThread(25,"PThread", 0.1) );
   t->run( run.get() );
 
   r = t->start();

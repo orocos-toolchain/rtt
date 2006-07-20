@@ -32,7 +32,7 @@
 #include "MethodFactoryInterface.hpp"
 #include "GlobalMemberFactory.hpp"
 
-namespace ORO_Execution {
+namespace RTT {
     /**
      * A global method factory is a GlobalMemberFactory.
      * @ingroup globalFactory

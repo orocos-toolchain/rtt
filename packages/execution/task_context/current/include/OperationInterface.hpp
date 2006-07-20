@@ -5,7 +5,7 @@
 #include "CommandRepository.hpp"
 #include "MethodRepository.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * The interface for accessing and executing 'operations', being commands

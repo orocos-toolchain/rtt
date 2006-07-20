@@ -33,7 +33,7 @@
 #include "VectorComposition.hpp"
 #include "MultiVectorComposition.hpp"
 #error "do not use"
-namespace ORO_CoreLib
+namespace RTT
 {
 	/** 
      * The decomposeProperty function is a helper function which converts classes
@@ -82,11 +82,11 @@ namespace ORO_CoreLib
      *  at places where this function would have been used. Reasons why the compiler uses this function
      *  instead of yours are : 
      *  <il><li>Your decomposeProperty function does not live in 
-     *  the ORO_CoreLib namespace. Solution : put it in the ORO_CoreLib namespace.</li>
+     *  the RTT namespace. Solution : put it in the RTT namespace.</li>
      *  <li>There is no decomposeProperty function for your class. Solution : write your own
      *  decomposeProperty function.</li>
      *  <li> At compile time, your decomposeProperty function could not be 'seen' by the compiler.
-     *  Solution : write using ORO_CoreLib::decomposeProperty; at top of the file causing this
+     *  Solution : write 
      *  error and make sure that your decomposeProperty function is included <em> in every file <em> which
      *  uses your Property<T>. </li><il>
 	 */

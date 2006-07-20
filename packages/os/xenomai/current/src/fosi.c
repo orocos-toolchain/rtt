@@ -26,7 +26,7 @@
  ***************************************************************************/
  
 #define OROBLD_OS_INTERNAL
-#include "os/fosi.h"
+#include "rtt/os/fosi.h"
 #include <assert.h>
 
 #ifdef OROBLD_OS_AGNOSTIC

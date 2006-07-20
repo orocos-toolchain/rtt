@@ -42,7 +42,7 @@
  * Online %Program %Processor Manual</a>.
  * 
  */
-namespace ORO_Execution {
+namespace RTT {
 
     /**
      * @brief Implementation classes.

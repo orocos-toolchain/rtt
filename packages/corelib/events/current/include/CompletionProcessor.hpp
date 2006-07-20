@@ -23,7 +23,7 @@
 #include "os/Mutex.hpp"
 #include "NonPeriodicActivity.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * @brief Complete queued events, meaning to execute the completer methods 

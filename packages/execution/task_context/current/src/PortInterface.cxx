@@ -27,10 +27,10 @@
  
  
 
-#include "execution/PortInterface.hpp"
+#include "rtt/PortInterface.hpp"
 
 
-namespace ORO_Execution
+namespace RTT
 {
 
     PortInterface::PortInterface(const std::string& name) : portname(name) {}

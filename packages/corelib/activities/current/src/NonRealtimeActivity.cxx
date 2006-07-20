@@ -24,10 +24,10 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "corelib/NonRealTimeActivity.hpp"
-#include "corelib/NonRealTimeThread.hpp"
+#include "rtt/NonRealTimeActivity.hpp"
+#include "rtt/NonRealTimeThread.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     
     NonRealTimeActivity::NonRealTimeActivity(Seconds period, RunnableInterface* r, bool pep )

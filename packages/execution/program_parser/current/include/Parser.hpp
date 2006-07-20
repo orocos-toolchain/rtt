@@ -39,21 +39,21 @@
 #include "ProgramInterface.hpp"
 #include "ParsedStateMachine.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
   class PropertyBase;
   class ConditionInterface;
 }
 
-namespace ORO_Execution
+namespace RTT
 {
     class ProgramInterface;
     class ProgramTask;
     class StateMachineTask;
 
-    using ORO_CoreLib::PropertyBase;
-    using ORO_CoreLib::CommandInterface;
-    using ORO_CoreLib::ConditionInterface;
+    
+    
+    
     /**
      * @brief This class is the public interface to the
      * Orocos Program Parser Framework. It parsers Orocos program scripts,
@@ -107,7 +107,7 @@ namespace ORO_Execution
          * failure. Use ext to get the data from the components.
          * @throw parse_exception
          */
-        ORO_CoreLib::ConditionInterface* parseCondition(const std::string& s, TaskContext* );
+        ConditionInterface* parseCondition(const std::string& s, TaskContext* );
 
         /**
          * @brief Parses the command in s.
@@ -118,18 +118,18 @@ namespace ORO_Execution
 
       /**
        * @brief Parses the expression in s.
-       * @return A ORO_CoreLib::DataSourceBase which contains the expression.
+       * @return A DataSourceBase which contains the expression.
        * @throw parse_exception Throws exceptions of type parse_exception.
        */
-      ORO_CoreLib::DataSourceBase::shared_ptr
+      DataSourceBase::shared_ptr
       parseExpression( const std::string&s, TaskContext* );
 
       /**
        * @brief Parses a change of a value in s.
-       * @return A ORO_CoreLib::DataSourceBase which contains the command to change the value.
+       * @return A DataSourceBase which contains the command to change the value.
        * @throw parse_exception Throws exceptions of type parse_exception.
        */
-      ORO_CoreLib::DataSourceBase::shared_ptr
+      DataSourceBase::shared_ptr
       parseValueChange( const std::string&s, TaskContext* );
   };
 };

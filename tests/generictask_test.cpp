@@ -21,16 +21,16 @@
 #include "generictask_test.hpp"
 #include <unistd.h>
 #include <iostream>
-#include <execution/FunctionGraph.hpp>
-#include <execution/TemplateFactories.hpp>
-#include <execution/Ports.hpp>
-#include <execution/Command.hpp>
-#include <execution/CommandDS.hpp>
-#include <execution/Method.hpp>
-#include <execution/OperationInterface.hpp>
+#include <rtt/FunctionGraph.hpp>
+#include <rtt/TemplateFactories.hpp>
+#include <rtt/Ports.hpp>
+#include <rtt/Command.hpp>
+#include <rtt/CommandDS.hpp>
+#include <rtt/Method.hpp>
+#include <rtt/OperationInterface.hpp>
 
-#include <corelib/SimulationActivity.hpp>
-#include <corelib/SimulationThread.hpp>
+#include <rtt/SimulationActivity.hpp>
+#include <rtt/SimulationThread.hpp>
 
 #include <boost/function_types/function_type_signature.hpp>
 
@@ -583,7 +583,7 @@ void Generic_TaskTest::testCommandFromDS()
     CPPUNIT_ASSERT( to.commands()->addCommand( &com41, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
 
 
-    std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> args;
+    std::vector<RTT::DataSourceBase::shared_ptr> args;
     CommandC c0  = to.commands()->create("c0");
     CommandC c10 = to.commands()->create("c10").argC(1);
     CommandC c11 = to.commands()->create("c11").argC(1);

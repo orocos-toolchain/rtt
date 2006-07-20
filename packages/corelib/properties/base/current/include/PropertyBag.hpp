@@ -37,7 +37,7 @@
 #pragma interface
 #endif
 
-namespace ORO_CoreLib
+namespace RTT
 {
     template< class T>
     class Property;
@@ -379,5 +379,5 @@ namespace ORO_CoreLib
         // don't copy PropertyBagOwner's !
         PropertyBagOwner( const PropertyBagOwner& );
     };
-} // Namespace ORO_CoreLib
+} // Namespace RTT
 #endif

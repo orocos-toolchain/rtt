@@ -5,7 +5,7 @@ cdl_package OROPKG_CORELIB_EVENTS {
 This package provides an Event implementation for
 synchronous and asynchronous event handling."
 
-    include_dir corelib
+    include_dir rtt
     parent OROPKG_CORELIB
     requires OROPKG_CORELIB
 

@@ -28,14 +28,14 @@
 #ifndef PI_PROPERTIES_SIMPLE_DEMARSHALLER
 #define PI_PROPERTIES_SIMPLE_DEMARSHALLER
 
-#include <corelib/Property.hpp>
+#include <rtt/Property.hpp>
 
 #include <vector>
 #include <map>
 #include <istream>
 #include <fstream>
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
 	/**

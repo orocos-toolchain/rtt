@@ -61,17 +61,17 @@ extern "C"
 }
 #endif
 
-#include <device_drivers/EncoderSSIapci1710.hpp>
+#include <rtt/dev/EncoderSSIapci1710.hpp>
 #include <iostream>
 
 #ifdef OROPKG_CORELIB_TIMING
-#include <corelib/TimeService.hpp>
+#include <rtt/TimeService.hpp>
 #endif
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
-using ORO_CoreLib::TimeService;
+
 
 // --------------------------
 // Constructor for 1 module
@@ -300,7 +300,7 @@ unsigned int EncoderSSI_apci1710_board::read( unsigned int encNr )
     if ( encNr < 1 || encNr > nr_of_modules * 3 ) std::cout << "(EncoderSSI_apci1710) ERROR: encNr < 1 or encNr > " << nr_of_modules * 3 << "!" << std::endl;
 #endif    
     
-    ORO_OS::MutexLock Locker( readLock );
+    OS::MutexLock Locker( readLock );
     return readbuffer[ encNr - 1 ];
 }
 
@@ -374,7 +374,7 @@ void EncoderSSI_apci1710_board::switchBuffers()
     // this is called *after* each refresh, so we know that it is safe
     // use spinlocks or implement an 'atomic' swing(b1,b2,p1,p2) function !!!
     
-    ORO_OS::MutexTryLock locker( readLock );
+    OS::MutexTryLock locker( readLock );
     if ( locker.isSuccessful() )
         if ( readbuffer == buffer1 )
         {
@@ -390,4 +390,4 @@ void EncoderSSI_apci1710_board::switchBuffers()
 
 
 
-}; // Namespace ORO_DeviceDriver
+}; // Namespace RTT

@@ -29,13 +29,13 @@
 #define MOTIONPROPERTIES_HPP
 
 #include "frames.h"
-#include <corelib/Property.hpp>
-#include <corelib/PropertyBag.hpp>
-#include <corelib/MultiVector.hpp>
+#include <rtt/Property.hpp>
+#include <rtt/PropertyBag.hpp>
+#include <rtt/MultiVector.hpp>
 
 namespace ORO_Geometry
 {
-    using namespace ORO_CoreLib;
+    using namespace RTT;
     /**
      * Additional functionality for handling a Property<Double6D>
      */
@@ -123,7 +123,7 @@ namespace ORO_Geometry
     bool composeProperty(const PropertyBag& bag, Frame &f);
 }
 
-namespace ORO_CoreLib
+namespace RTT
 {
     extern template class Property<ORO_Geometry::Frame>;
     extern template class Property<Double6D>;

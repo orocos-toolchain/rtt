@@ -29,7 +29,7 @@
 /**
  * @file Activities.hpp
  * This file includes the common header files from the 
- * ORO_CoreLib activities package.
+ * RTT activities package.
  */
 
 #include "SlaveActivity.hpp"

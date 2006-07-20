@@ -30,7 +30,7 @@
 
 #include <vector>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     class PropertyIntrospection;
     class PropertyBag;
@@ -50,7 +50,7 @@ namespace ORO_CoreLib
      */
     bool composeProperty(const PropertyBag& bag, std::vector<double>& result);
 
-}; // namespace ORO_CoreLib
+}; // namespace RTT
 
 
 #endif

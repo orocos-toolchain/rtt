@@ -29,7 +29,7 @@
 #define CANOPENENCODER_HPP
 
 #include "BeckhoffSSI.hpp"
-#include <device_interface/EncoderInterface.hpp>
+#include "EncoderInterface.hpp"
 
 
 namespace CAN
@@ -37,7 +37,7 @@ namespace CAN
     using Beckhoff::BeckhoffSSI;
 
     class Encoder 
-        : public ORO_DeviceInterface::EncoderInterface
+        : public EncoderInterface
     {
         BeckhoffSSI* bhssi;
         unsigned int chan;

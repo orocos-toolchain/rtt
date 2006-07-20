@@ -29,22 +29,22 @@
 #ifndef COMMAND_EXEC_FUNCTION_HPP
 #define COMMAND_EXEC_FUNCTION_HPP
 
-#include <corelib/ConditionInterface.hpp>
-#include <corelib/CommandInterface.hpp>
-#include <corelib/DataSources.hpp>
+#include "ConditionInterface.hpp"
+#include "CommandInterface.hpp"
+#include "DataSources.hpp"
 #include "ProgramInterface.hpp"
 #include "ProgramProcessor.hpp"
 #include "DispatchInterface.hpp"
 #include "DataSource.hpp"
 #include <boost/shared_ptr.hpp>
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * A condition which checks if a CommandExecFunction is done or not.
      */
     class ConditionExecFunction
-        : public ORO_CoreLib::ConditionInterface
+        : public ConditionInterface
     {
         DataSource<ProgramInterface*>::shared_ptr _v;
     public:
@@ -57,12 +57,12 @@ namespace ORO_Execution
             return _v->get()->isStopped();
         }
 
-        ORO_CoreLib::ConditionInterface* clone() const
+        ConditionInterface* clone() const
         {
             return new ConditionExecFunction( _v.get() );
         }
 
-        ORO_CoreLib::ConditionInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
+        ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
         {
             // after *all* the copying is done, _v will be set to the correct function
             // by the Command's copy.
@@ -80,7 +80,7 @@ namespace ORO_Execution
     class CommandExecFunction
         : public DispatchInterface
     {
-        ORO_CoreLib::CommandInterface* minit;
+        CommandInterface* minit;
         ProgramProcessor* _proc;
         AssignableDataSource<ProgramInterface*>::shared_ptr _v;
         boost::shared_ptr<ProgramInterface> _foo;
@@ -95,11 +95,11 @@ namespace ORO_Execution
          * @param p The target processor which will run the function.
          * @param v Implementation specific parameter to support copy/clone semantics.
          */
-        CommandExecFunction( ORO_CoreLib::CommandInterface* init_com, boost::shared_ptr<ProgramInterface> foo, ProgramProcessor* p, AssignableDataSource<ProgramInterface*>* v = 0 , AssignableDataSource<bool>* a = 0 )
+        CommandExecFunction( CommandInterface* init_com, boost::shared_ptr<ProgramInterface> foo, ProgramProcessor* p, AssignableDataSource<ProgramInterface*>* v = 0 , AssignableDataSource<bool>* a = 0 )
             : minit(init_com),
               _proc(p),
-              _v( v==0 ? new ORO_CoreLib::detail::UnboundDataSource< ORO_CoreLib::ValueDataSource<ProgramInterface*> >(foo.get()) : v ),
-              _foo( foo ), isqueued(false), maccept( a ? a : new ORO_CoreLib::detail::UnboundDataSource<ORO_CoreLib::ValueDataSource<bool> >(false) )
+              _v( v==0 ? new detail::UnboundDataSource< ValueDataSource<ProgramInterface*> >(foo.get()) : v ),
+              _foo( foo ), isqueued(false), maccept( a ? a : new detail::UnboundDataSource<ValueDataSource<bool> >(false) )
         {
         }
 
@@ -166,7 +166,7 @@ namespace ORO_Execution
         /**
          * Create a condition which checks if this command is finished or not.
          */
-        ORO_CoreLib::ConditionInterface* createCondition() const
+        ConditionInterface* createCondition() const
         {
             return new ConditionExecFunction( _v.get() );
         }
@@ -177,7 +177,7 @@ namespace ORO_Execution
             return new CommandExecFunction( minit->clone(), _foo, _proc, _v.get(), maccept.get() );
         }
         
-        ORO_CoreLib::CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
+        CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
         {
             // this may seem strange, but :
             // make a copy of foo (a function), make a copy of _v (a datasource), store pointer to new foo in _v !

@@ -28,15 +28,15 @@
  
 
 
-#include "corba/ControlTaskProxy.hpp"
-#include "corba/ControlTaskServer.hpp"
-#include "corba/ControlTaskC.h"
-#include "corba/CorbaMethodFactory.hpp"
-#include "corba/CorbaCommandFactory.hpp"
-#include "corba/CORBAExpression.hpp"
-#include "corba/ScriptingAccessProxy.hpp"
-#include "corelib/CommandInterface.hpp"
-#include "corelib/Types.hpp"
+#include "rtt/corba/ControlTaskProxy.hpp"
+#include "rtt/corba/ControlTaskServer.hpp"
+#include "rtt/corba/ControlTaskC.h"
+#include "rtt/corba/CorbaMethodFactory.hpp"
+#include "rtt/corba/CorbaCommandFactory.hpp"
+#include "rtt/corba/CORBAExpression.hpp"
+#include "rtt/corba/ScriptingAccessProxy.hpp"
+#include "rtt/CommandInterface.hpp"
+#include "rtt/Types.hpp"
 #include "orbsvcs/CosNamingC.h"
 #include <iostream>
 
@@ -44,11 +44,11 @@
 
 using namespace std;
 
-namespace ORO_Corba
+namespace Corba
 {
     using namespace Orocos;
-    using namespace ORO_CoreLib;
-    using namespace ORO_Execution;
+    
+    
 
     IllegalServer::IllegalServer() : reason("This server does not exist or has the wrong type.") {}
 
@@ -329,12 +329,12 @@ namespace ORO_Corba
         return 0;
     }
 
-    bool ControlTaskProxy::executeCommand( ORO_CoreLib::CommandInterface* c)
+    bool ControlTaskProxy::executeCommand( CommandInterface* c)
     {
         return false;
     }
 
-    int ControlTaskProxy::queueCommand( ORO_CoreLib::CommandInterface* c)
+    int ControlTaskProxy::queueCommand( CommandInterface* c)
     {
         return 0;
     }

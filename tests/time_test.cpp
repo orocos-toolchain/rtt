@@ -23,7 +23,7 @@
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( TimeTest );
 
-using namespace ORO_CoreLib;
+using namespace RTT;
 using namespace boost;
 
 void 

@@ -29,9 +29,9 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "corelib/CommandInterface.hpp"
+#include "rtt/CommandInterface.hpp"
 
-namespace ORO_CoreLib {
+namespace RTT {
   CommandInterface::~CommandInterface() {
   }
 

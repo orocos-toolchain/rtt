@@ -31,17 +31,17 @@
 #ifndef COMEDISUBDEVICEAOUT_HPP
 #define COMEDISUBDEVICEAOUT_HPP
 
-#include <device_interface/AnalogOutInterface.hpp>
+#include "AnalogOutInterface.hpp"
 #include "ComediDevice.hpp"
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
   /**
    * This logical device represents one subdevice of a Comedi device.
    */
   class ComediSubDeviceAOut
-    : public ORO_DeviceInterface::AnalogOutInterface<unsigned int>
+    : public AnalogOutInterface<unsigned int>
   {
 
   public:
@@ -63,7 +63,7 @@ namespace ORO_DeviceDriver
 
     virtual void rangeSet(unsigned int chan, unsigned int range=0);
 
-    virtual void arefSet(unsigned int chan, unsigned int aref=ORO_DeviceInterface::AnalogOutInterface<unsigned int>::Ground);
+    virtual void arefSet(unsigned int chan, unsigned int aref=AnalogOutInterface<unsigned int>::Ground);
 
     virtual void write( unsigned int chan, unsigned int value );
 

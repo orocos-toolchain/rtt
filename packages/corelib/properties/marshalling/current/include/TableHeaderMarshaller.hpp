@@ -28,11 +28,11 @@
 #ifndef PI_PROPERTIES_TABLEHEADER_SERIALIZER
 #define PI_PROPERTIES_TABLEHEADER_SERIALIZER
 
-#include <corelib/Property.hpp>
-#include "corelib/PropertyIntrospection.hpp"
+#include <rtt/Property.hpp>
+#include <rtt/PropertyIntrospection.hpp>
 #include "StreamProcessor.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * A Marshaller for generating headers of tables. It is used

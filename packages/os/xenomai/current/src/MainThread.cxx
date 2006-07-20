@@ -28,8 +28,8 @@
  
 
 #define OROBLD_OS_INTERNAL
-#include "os/MainThread.hpp"
-#include "os/fosi.h"
+#include "rtt/os/MainThread.hpp"
+#include "rtt/os/fosi.h"
 #include <iostream>
 
 // extern package config headers.
@@ -39,11 +39,11 @@
 #endif
 
 #ifdef OROPKG_CORELIB_REPORTING
-#include "corelib/Logger.hpp"
-using ORO_CoreLib::Logger;
+#include "rtt/Logger.hpp"
+using RTT::Logger;
 #endif
 
-namespace ORO_OS
+namespace OS
 {
   SchedPolicy::SchedPolicy()
   {

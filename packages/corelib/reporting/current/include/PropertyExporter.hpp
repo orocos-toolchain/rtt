@@ -38,7 +38,7 @@
 #pragma interface
 #endif
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * @brief This PropertyBag is extended to report its contents

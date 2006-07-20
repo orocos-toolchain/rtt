@@ -34,7 +34,7 @@
 
 #include <pkgconf/system.h>
 #ifdef OROPKG_CORELIB_ACTIVITIES
-#include <corelib/NonPreemptibleActivity.hpp>
+#include <rtt/NonPreemptibleActivity.hpp>
 #endif
 
 #include "cpuser.h"
@@ -43,7 +43,7 @@ namespace CAN
 {
 
 #ifdef OROPKG_CORELIB_ACTIVITIES
-  using namespace ORO_CoreLib;
+  
 #endif
   /**
    * A Controller which interacts with the CANPie platform to

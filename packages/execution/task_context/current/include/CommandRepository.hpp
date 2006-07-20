@@ -10,7 +10,7 @@
 #include "RemoteCommand.hpp"
 #endif
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * A command repository stores a number of commands from a Task which
@@ -46,7 +46,7 @@ namespace ORO_Execution
          * @return A dispatchable object which is a new Command object.
          */
         DispatchInterface* getCommand( std::string name,
-                                          const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args) const
+                                          const std::vector<DataSourceBase::shared_ptr>& args) const
         {
             return this->produce(name, args);
         }
@@ -81,7 +81,7 @@ namespace ORO_Execution
          * @return A condition which evaluates the command's completion.
          */
         ConditionInterface* getCondition( std::string name,
-                                         const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args) const
+                                         const std::vector<DataSourceBase::shared_ptr>& args) const
         {
             DispatchInterface* di = this->produce(name, args);
             ConditionInterface* ret = di->createCondition();

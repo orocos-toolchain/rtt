@@ -1,9 +1,9 @@
 
-#include "execution/TaskCore.hpp"
+#include "rtt/TaskCore.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
-    using namespace ORO_CoreLib;
+    
     using namespace std;
 
     TaskCore::TaskCore(const std::string& name)

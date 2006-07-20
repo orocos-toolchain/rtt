@@ -23,18 +23,18 @@
 #include <unistd.h>
 #include <iostream>
 
-#include <corelib/ZeroTimeThread.hpp>
-#include <corelib/TimerThread.hpp>
-#include <corelib/ZeroLatencyThread.hpp>
-#include <corelib/SimulationThread.hpp>
-#include <corelib/Logger.hpp>
+#include <rtt/ZeroTimeThread.hpp>
+#include <rtt/TimerThread.hpp>
+#include <rtt/ZeroLatencyThread.hpp>
+#include <rtt/SimulationThread.hpp>
+#include <rtt/Logger.hpp>
 
 using namespace std;
 
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( ActivitiesThreadTest );
 
-using namespace ORO_CoreLib;
+using namespace RTT;
 
 struct A {};
 

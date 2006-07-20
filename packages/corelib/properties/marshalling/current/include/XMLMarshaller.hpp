@@ -28,11 +28,11 @@
 #ifndef PI_PROPERTIES_XMLSERIALIZER
 #define PI_PROPERTIES_XMLSERIALIZER
 
-#include <corelib/Property.hpp>
-#include "corelib/PropertyIntrospection.hpp"
+#include <rtt/Property.hpp>
+#include <rtt/PropertyIntrospection.hpp>
 #include "StreamProcessor.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**

@@ -28,7 +28,7 @@
 /**
  * @file CoreLib.hpp
  * This file includes the commonly used header files from the 
- * whole ORO_CoreLib package.
+ * whole RTT package.
  */
  
 /**
@@ -42,7 +42,7 @@
  * The corelib is documented in <a href="../../orocos-corelib.html">
  * The Orocos CoreLib Online Manual</a>
  */
-namespace ORO_CoreLib {}
+namespace RTT {}
 
 #include "Common.hpp"
 #include "Properties.hpp"

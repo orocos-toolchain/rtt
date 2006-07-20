@@ -30,7 +30,7 @@
 
 #include "NameServer.hpp"
 #include <boost/call_traits.hpp> 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**

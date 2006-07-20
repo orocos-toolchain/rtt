@@ -33,7 +33,7 @@
 #include <vector>
 #include "ListLockFree.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     namespace detail {
 

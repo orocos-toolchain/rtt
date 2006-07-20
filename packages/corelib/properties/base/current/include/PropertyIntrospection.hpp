@@ -32,7 +32,7 @@
 #include "Property.hpp"
 #include "Logger.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**

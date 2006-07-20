@@ -31,7 +31,7 @@
 
 #include "PeriodicActivity.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * @brief A SimulationActivity is a PeriodicActivity which is used

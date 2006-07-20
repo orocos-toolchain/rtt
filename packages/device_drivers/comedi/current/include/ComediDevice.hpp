@@ -29,7 +29,7 @@ typedef void comedi_t;
 typedef struct comedi_t_struct comedi_t;
 #endif
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
   /**

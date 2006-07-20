@@ -22,8 +22,8 @@
 #define TIMETEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
-#include <corelib/Time.hpp>
-#include <corelib/TimeService.hpp>
+#include <rtt/Time.hpp>
+#include <rtt/TimeService.hpp>
 #include <string>
 #include <pkgconf/system.h>
 
@@ -39,10 +39,10 @@ class TimeTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testTimeProgress );
     CPPUNIT_TEST_SUITE_END();
 
-    ORO_CoreLib::TimeService* hbg;
+    RTT::TimeService* hbg;
     double small_S, normal_S, long_S;
-    ORO_CoreLib::TimeService::ticks small_t, normal_t, long_t;
-    ORO_CoreLib::nsecs small_ns, normal_ns, long_ns;
+    RTT::TimeService::ticks small_t, normal_t, long_t;
+    RTT::nsecs small_ns, normal_ns, long_ns;
 public:
     void setUp();
     void tearDown();

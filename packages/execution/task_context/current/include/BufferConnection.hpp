@@ -33,23 +33,23 @@
 #include "BufferPort.hpp"
 #include "DataPort.hpp"
 #include "BufferConnectionInterface.hpp"
-#include <corelib/BufferLockFree.hpp>
+#include "BufferLockFree.hpp"
 #include "BufferDataSource.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * A local connection with a Buffer, which is used to connect multiple
      * Ports to that Buffer.
      */
-    template<class T, class BufferType = ORO_CoreLib::BufferLockFree<T> >
+    template<class T, class BufferType = BufferLockFree<T> >
     class BufferConnection
         : public BufferConnectionInterface<T>
     {
         typedef T DataType;
         typedef ReadBufferPort<DataType> Reader;
         typedef WriteBufferPort<DataType> Writer;
-        typename ORO_CoreLib::BufferInterface<T>::shared_ptr buf;
+        typename BufferInterface<T>::shared_ptr buf;
         typedef std::vector<Reader*> RList;
         RList readers;
         typedef std::vector<Writer*> WList;
@@ -72,8 +72,8 @@ namespace ORO_Execution
 
         ~BufferConnection() { }
 
-        virtual ORO_CoreLib::DataSourceBase::shared_ptr getDataSource() const {
-            return ORO_CoreLib::DataSourceBase::shared_ptr( new BufferDataSource<T>( buf ) );
+        virtual DataSourceBase::shared_ptr getDataSource() const {
+            return DataSourceBase::shared_ptr( new BufferDataSource<T>( buf ) );
         }
 
         bool connect()
@@ -104,9 +104,9 @@ namespace ORO_Execution
             return false;
         }
         
-        virtual ORO_CoreLib::BufferInterface<T>* buffer() { return buf.get(); }
-        virtual ORO_CoreLib::ReadInterface<T>* read() { return buf.get(); }
-        virtual ORO_CoreLib::WriteInterface<T>* write() { return buf.get(); }
+        virtual BufferInterface<T>* buffer() { return buf.get(); }
+        virtual ReadInterface<T>* read() { return buf.get(); }
+        virtual WriteInterface<T>* write() { return buf.get(); }
 
         virtual bool addReader(PortInterface* r)
         {

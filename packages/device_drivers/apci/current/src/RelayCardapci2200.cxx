@@ -40,9 +40,9 @@ extern "C"
 }
 #endif
 
-#include <device_drivers/RelayCardapci2200.hpp>
+#include <rtt/dev/RelayCardapci2200.hpp>
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
     RelayCardapci2200::RelayCardapci2200( const std::string& name )

@@ -27,23 +27,23 @@
 #ifndef INCREMENTAL_ENCODER_SENSOR_HPP
 #define INCREMENTAL_ENCODER_SENSOR_HPP
 
-#include <device_interface/EncoderInterface.hpp>
-#include <device_interface/SensorInterface.hpp>
-#include <device_interface/CalibrationInterface.hpp>
+#include "EncoderInterface.hpp"
+#include "SensorInterface.hpp"
+#include "CalibrationInterface.hpp"
 
 #include <limits>
 #include <iostream>
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
     /**
      * @brief A sensor reading a single Incremental Encoder and converting
      * the counter to a physical unit, with support for calibration.
      */
     class IncrementalEncoderSensor
-        : public ORO_DeviceInterface::SensorInterface<double>
+        : public SensorInterface<double>
     {
-        ORO_DeviceInterface::EncoderInterface* enc;
+        EncoderInterface* enc;
         double unit_to_inc;
         double min;
         double max;
@@ -64,7 +64,7 @@ namespace ORO_DeviceDriver
          * @param _maxpos The maximal, physical position, after calibration
          * 
          */
-        IncrementalEncoderSensor(ORO_DeviceInterface::EncoderInterface* _enc, double _unit_to_inc, double _calPos, double _minpos, double _maxpos, int _resolution)
+        IncrementalEncoderSensor(EncoderInterface* _enc, double _unit_to_inc, double _calPos, double _minpos, double _maxpos, int _resolution)
 	  : enc(_enc), unit_to_inc(_unit_to_inc), min(_minpos), max(_maxpos), posOffset(0), calibrated(false), calPos(_calPos), resolution(_resolution)
         {}
 

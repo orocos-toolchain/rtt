@@ -27,16 +27,16 @@
  
  
 
-#ifndef ORO_OS_FOSI_INTERNAL_HPP
-#define ORO_OS_FOSI_INTERNAL_HPP
+#ifndef OS_FOSI_INTERNAL_HPP
+#define OS_FOSI_INTERNAL_HPP
 
 #define OROBLD_OS_INTERNAL
-#include "os/ThreadInterface.hpp"
-#include "os/fosi.h"
+#include "ThreadInterface.hpp"
+#include "fosi.h"
 #include <iostream>
 #define INTERNAL_QUAL static inline
 
-namespace ORO_OS
+namespace OS
 {
     namespace detail {
 

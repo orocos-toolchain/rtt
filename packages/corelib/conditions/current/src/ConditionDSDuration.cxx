@@ -27,9 +27,9 @@
  
  
 
-#include "corelib/ConditionDSDuration.hpp"
+#include "rtt/ConditionDSDuration.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     ConditionDSDuration::ConditionDSDuration( DataSource<double>::shared_ptr ds, bool invert )

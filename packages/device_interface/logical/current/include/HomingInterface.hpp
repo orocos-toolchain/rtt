@@ -28,7 +28,7 @@
 #ifndef _HOMING_INTERFACE_HPP
 #define _HOMING_INTERFACE_HPP
 
-namespace ORO_DeviceInterface
+namespace RTT
 {
 
 class HomingInterface
@@ -66,7 +66,7 @@ public:
 
 };
 
-}; //namespace ORO_DeviceInterface
+}; //namespace RTT
 
 #endif //_HOMING_INTERFACE_HPP
 

@@ -28,10 +28,10 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "corelib/Property.hpp"
-#include "corelib/PropertyIntrospection.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/PropertyIntrospection.hpp"
 
-namespace ORO_CoreLib {
+namespace RTT {
 
      template class Property<double>;
      template class Property<bool>;
@@ -105,14 +105,14 @@ namespace ORO_CoreLib {
         pi->introspect( *this );
     }
 
-    void decomposeProperty(ORO_CoreLib::PropertyIntrospection* pi, 
-                           ORO_CoreLib::Property<const std::string&> const& nt) {
+    void decomposeProperty(PropertyIntrospection* pi, 
+                           Property<const std::string&> const& nt) {
         Property<std::string> msg(nt.getName(), nt.getDescription(), nt.get() );
         pi->introspect( msg );
     }
 
-    void decomposeProperty(ORO_CoreLib::PropertyIntrospection* pi, 
-                           ORO_CoreLib::Property<float> const& f) {
+    void decomposeProperty(PropertyIntrospection* pi, 
+                           Property<float> const& f) {
         Property<double> msg(f.getName(), f.getDescription(), f.get() );
         pi->introspect( msg );
     }

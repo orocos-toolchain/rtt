@@ -26,10 +26,10 @@
  ***************************************************************************/
  
  
-#include "execution/FactoryExceptions.hpp"
+#include "rtt/FactoryExceptions.hpp"
 #include <sstream>
 
-namespace ORO_Execution
+namespace RTT
 {
 
     name_not_found_exception::name_not_found_exception( const std::string& n )

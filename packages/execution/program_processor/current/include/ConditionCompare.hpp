@@ -28,14 +28,14 @@
 #ifndef CONDITIONCOMPARE_HPP
 #define CONDITIONCOMPARE_HPP
 
-#include <corelib/ConditionInterface.hpp>
+#include "ConditionInterface.hpp"
 #include <typeinfo>
 
 #include "DataSource.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
-  using ORO_CoreLib::ConditionInterface;
+  
   /**
    * A general compare condition.  This compares two variables of type
    * T, which it gets from two DataSource<T>, using the

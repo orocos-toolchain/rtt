@@ -28,13 +28,13 @@
  
  
 
-#ifndef ORO_OS_SEMAPHORE_HPP
-#define ORO_OS_SEMAPHORE_HPP
+#ifndef OS_SEMAPHORE_HPP
+#define OS_SEMAPHORE_HPP
 
-#include <os/fosi.h>
+#include "fosi.h"
 #include <pkgconf/os.h>
 
-namespace ORO_OS
+namespace OS
 {
     /**
      * An object oriented wrapper around a counting semaphore.

@@ -31,27 +31,27 @@
 
 #include <memory>
 #include <map>
-#include <corelib/Attribute.hpp>
-#include <corelib/DataSources.hpp>
-#include <corelib/Property.hpp>
-#include <corelib/PropertyBag.hpp>
+#include "Attribute.hpp"
+#include "DataSources.hpp"
+#include "Property.hpp"
+#include "PropertyBag.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
-     * @brief A class for keeping track of Attribute, ORO_CoreLib::Constant
-     * and ORO_CoreLib::Property objects of a TaskContext.
+     * @brief A class for keeping track of Attribute, Constant
+     * and Property objects of a TaskContext.
      * It allows to store objects of these types and retrieve this type.
      * It is used by the script parsers to browse the attributes and properties of a TaskContext.
      */
     class AttributeRepository
     {
-        typedef std::map<std::string, ORO_CoreLib::AttributeBase*> map_t;
+        typedef std::map<std::string, AttributeBase*> map_t;
         map_t values;
         /**
          * The bag is only constructed if queried for.
          */
-        mutable ORO_CoreLib::PropertyBag* bag;
+        mutable PropertyBag* bag;
 
     public:
 
@@ -88,7 +88,7 @@ namespace ORO_Execution
          * Add a Constant with a given value.
          * @see getConstant
          */
-        bool addConstant( const std::string& name, ORO_CoreLib::AttributeBase* c)
+        bool addConstant( const std::string& name, AttributeBase* c)
         {
             return setValue( name, c->clone() );
         }
@@ -100,32 +100,32 @@ namespace ORO_Execution
          * @see addConstant
          */
         template<class T>
-        ORO_CoreLib::Constant<T>* getConstant( const std::string& name )
+        Constant<T>* getConstant( const std::string& name )
         {
-            return dynamic_cast<ORO_CoreLib::Constant<T>*>( this->getValue( name ) );
+            return dynamic_cast<Constant<T>*>( this->getValue( name ) );
         }
 
         /**
-         * Add an ORO_CoreLib::AttributeBase which remains owned by the
+         * Add an AttributeBase which remains owned by the
          * user.
          */
-        bool addAttribute( const std::string& name, ORO_CoreLib::AttributeBase* a )
+        bool addAttribute( const std::string& name, AttributeBase* a )
         {
             return setValue( name, a->clone() );
         }
 
         /**
-         * Add an ORO_CoreLib::PropertyBase as a property.
+         * Add an PropertyBase as a property.
          * @return false if a property with the same name already exists.
          * @see removeProperty
          */
-        bool addProperty( ORO_CoreLib::PropertyBase* pb );
+        bool addProperty( PropertyBase* pb );
 
         /**
          * Remove a previously added Property and associated attribute.
          * @return false if no such property by that name exists.
          */
-        bool removeProperty( ORO_CoreLib::PropertyBase* p );
+        bool removeProperty( PropertyBase* p );
 
         /**
          * Retrieve a Attribute by name. Returns zero if 
@@ -134,16 +134,16 @@ namespace ORO_Execution
          * @see addAttribute, addProperty
          */
         template<class T>
-        ORO_CoreLib::Attribute<T>* getAttribute( const std::string& name )
+        Attribute<T>* getAttribute( const std::string& name )
         {
-            return dynamic_cast<ORO_CoreLib::Attribute<T>*>( this->getValue( name ) );
+            return dynamic_cast<Attribute<T>*>( this->getValue( name ) );
         }
 
         /**
          * Add a variable to the repository.
          * @return false if \a name already present.
          */
-        bool setValue( const std::string& name, ORO_CoreLib::AttributeBase* pc );
+        bool setValue( const std::string& name, AttributeBase* pc );
 
         /**
          * Remove a variable to the repository.
@@ -154,7 +154,7 @@ namespace ORO_Execution
          * Get the value with name \a name.  If no such value exists, this
          * returns 0.
          */
-        ORO_CoreLib::AttributeBase* getValue( const std::string& name );
+        AttributeBase* getValue( const std::string& name );
 
         /**
          * Return a new copy of this repository with the copy operation semantics.
@@ -163,7 +163,7 @@ namespace ORO_Execution
          * @see CommandInterface
          * @note this does not copy the properties() within this repository.
          */
-        AttributeRepository* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& repl, bool instantiate ) const;
+        AttributeRepository* copy( std::map<const DataSourceBase*, DataSourceBase*>& repl, bool instantiate ) const;
 
         /**
          * Return the names of all attributes.
@@ -174,7 +174,7 @@ namespace ORO_Execution
          * Return a bag of all properties.
          * @return null if none present.
          */
-        ORO_CoreLib::PropertyBag* properties() const;
+        PropertyBag* properties() const;
           
     };
 }

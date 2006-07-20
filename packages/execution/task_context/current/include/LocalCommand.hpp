@@ -9,7 +9,7 @@
 #include "BindStorage.hpp"
 #include "Invoker.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     namespace detail
     {
@@ -221,7 +221,7 @@ namespace ORO_Execution
                 return this->mvalid;
             }
 
-            virtual ORO_CoreLib::ConditionInterface* createCondition() const
+            virtual ConditionInterface* createCondition() const
             {
                 // LocalCommands are not used by the Parser, so this method is actually
                 // not used within Orocos.

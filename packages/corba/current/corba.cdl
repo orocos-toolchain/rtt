@@ -18,7 +18,7 @@ detection of the packages configure script"
         default_value { "-I".OROBLD_SUPPORT_ACE_DIR." -I".OROBLD_SUPPORT_TAO_DIR." -I".OROBLD_SUPPORT_TAO_DIR."/orbsvcs" }
     }
 
-    include_dir corba
+    include_dir rtt/corba
     include_files ApplicationServer.hpp
     include_files ControlTaskProxy.hpp ControlTaskServer.hpp ExpressionProxy.hpp  ScriptingAccessProxy.hpp
     include_files ExpressionServer.hpp CORBAExpression.hpp ActionProxy.hpp CommandProxy.hpp

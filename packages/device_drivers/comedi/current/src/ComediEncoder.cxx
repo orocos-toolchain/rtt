@@ -42,11 +42,11 @@
 //  
 
 #include "comedi/ComediEncoder.hpp"
-#include <os/fosi.h>
+#include <rtt/rtt/os/fosi.h>
 
 #include "comedi_internal.h"
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
   ComediEncoder::ComediEncoder(ComediDevice * cd, unsigned int subd, 
 			       unsigned int encNr, const std::string& name)

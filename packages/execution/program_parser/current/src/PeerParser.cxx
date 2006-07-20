@@ -27,16 +27,16 @@
  
  
 
-#include "execution/PeerParser.hpp"
-#include "execution/parser-debug.hpp"
-#include "execution/parse_exception.hpp"
-#include "execution/TaskContext.hpp"
-#include "execution/parser-types.hpp"
+#include "rtt/PeerParser.hpp"
+#include "rtt/parser-debug.hpp"
+#include "rtt/parse_exception.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/parser-types.hpp"
 
 #include <boost/bind.hpp>
 #include <iostream>
 
-namespace ORO_Execution
+namespace RTT
 {
     using boost::bind;
     using namespace detail;

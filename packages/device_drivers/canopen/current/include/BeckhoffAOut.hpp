@@ -28,11 +28,11 @@
 #ifndef BECKHOFFAOUT_HPP
 #define BECKHOFFAOUT_HPP
 
-#include <device_interface/AnalogOutInterface.hpp>
+#include "AnalogOutInterface.hpp"
 
 namespace Beckhoff
 {
-    using ORO_DeviceInterface::AnalogOutInterface;
+    
     /**
      * A BeckHoff terminal for 4 analog outputs.
      */

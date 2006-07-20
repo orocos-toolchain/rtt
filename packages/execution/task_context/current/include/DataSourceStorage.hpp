@@ -8,7 +8,7 @@
 #include <boost/mem_fn.hpp>
 #include "CommandC.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     namespace detail
     {
@@ -16,9 +16,9 @@ namespace ORO_Execution
         template<class R>
         struct DataSourceResultStorage
         {
-            typename ORO_CoreLib::ValueDataSource<R>::shared_ptr value;
+            typename ValueDataSource<R>::shared_ptr value;
             DataSourceResultStorage()
-                : value(new ORO_CoreLib::ValueDataSource<R>() )
+                : value(new ValueDataSource<R>() )
             {}
         };
 
@@ -31,9 +31,9 @@ namespace ORO_Execution
         template<class A>
         struct DataSourceArgStorage
         {
-            typename ORO_CoreLib::ValueDataSource<A>::shared_ptr value;
+            typename ValueDataSource<A>::shared_ptr value;
             DataSourceArgStorage()
-                : value(new ORO_CoreLib::ValueDataSource<A>() )
+                : value(new ValueDataSource<A>() )
             {}
         };
 
@@ -43,9 +43,9 @@ namespace ORO_Execution
         template<class A>
         struct DataSourceArgStorage<A&>
         {
-            ORO_CoreLib::ReferenceDataSource<A&>::shared_ptr value;
+            ReferenceDataSource<A&>::shared_ptr value;
             DataSourceArgStorage(A& a)
-                : value(new ORO_CoreLib::ReferenceDataSource<A&>(a) )
+                : value(new ReferenceDataSource<A&>(a) )
             {}
         };
 #endif

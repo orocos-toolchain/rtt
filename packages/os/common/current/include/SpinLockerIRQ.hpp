@@ -34,7 +34,7 @@
 
 #ifdef HAVE_SPINLOCK
 
-namespace ORO_OS
+namespace OS
 {
 
     /**
@@ -92,7 +92,7 @@ namespace ORO_OS
 }
 #else
 
-namespace ORO_OS {
+namespace OS {
     typedef MutexLock SpinLockerIRQ;
 }
 

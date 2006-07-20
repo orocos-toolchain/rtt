@@ -25,32 +25,32 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "execution/parser-debug.hpp"
-#include "execution/parse_exception.hpp"
+#include "rtt/parser-debug.hpp"
+#include "rtt/parse_exception.hpp"
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "execution/ConditionParser.hpp"
+#include "rtt/ConditionParser.hpp"
 
-#include "corelib/ConditionDuration.hpp"
-#include "corelib/ConditionTrue.hpp"
-#include "corelib/ConditionFalse.hpp"
-#include "execution/ConditionBoolDataSource.hpp"
-#include "execution/ConditionComposite.hpp"
-#include "execution/ConditionCompare.hpp"
+#include "rtt/ConditionDuration.hpp"
+#include "rtt/ConditionTrue.hpp"
+#include "rtt/ConditionFalse.hpp"
+#include "rtt/ConditionBoolDataSource.hpp"
+#include "rtt/ConditionComposite.hpp"
+#include "rtt/ConditionCompare.hpp"
 
 #include <boost/bind.hpp>
 
-#include "execution/DataSourceFactoryInterface.hpp"
-#include "execution/TemplateFactory.hpp"
-#include "execution/TryCommand.hpp"
+#include "rtt/DataSourceFactoryInterface.hpp"
+#include "rtt/TemplateFactory.hpp"
+#include "rtt/TryCommand.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     using namespace detail;
     using boost::bind;
-    using ORO_CoreLib::ConditionDuration;
-    using ORO_CoreLib::PropertyBag;
+    
+    
 
   ConditionParser::ConditionParser( TaskContext* c )
     : ds_bool( 0 ), context( c ), expressionparser( c )

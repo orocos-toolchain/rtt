@@ -31,7 +31,7 @@
 #include "Time.hpp"
 #include "NameServerRegistrator.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**

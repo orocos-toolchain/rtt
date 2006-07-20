@@ -33,18 +33,18 @@
 #include "Signal.hpp"
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
-#include <os/Semaphore.hpp>
+#include "os/Semaphore.hpp"
 #include <vector>
 #include "DataObjectInterfaces.hpp"
 #include "ListLockFree.hpp"
 #include "boost/tuple/tuple.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     class EventProcessor;
 
     namespace detail {
-        using ORO_OS::Semaphore;
+        using OS::Semaphore;
         using boost::make_tuple;
 
         struct EventCatcher {
@@ -453,12 +453,12 @@ namespace ORO_CoreLib
          */
         typedef ListLockFree<detail::EventCatcher*> List;
         List catchers;
-        boost::shared_ptr<ORO_OS::Semaphore> sem;
+        boost::shared_ptr<OS::Semaphore> sem;
         bool active;
         /**
          *  Used by derived classes.
          */
-        EventProcessor(boost::shared_ptr<ORO_OS::Semaphore> s);
+        EventProcessor(boost::shared_ptr<OS::Semaphore> s);
 
         friend class detail::EventCatcher;
         void destroyed( detail::EventCatcher* ec );
@@ -544,13 +544,13 @@ namespace ORO_CoreLib
     {
     public:
         /**
-         * Create a blocking (non periodic) EventProcessor, which will wait on ORO_OS::Semaphore  \a s.
+         * Create a blocking (non periodic) EventProcessor, which will wait on OS::Semaphore  \a s.
          * All connected Events will signal this semaphore if an Event needs 
          * processing. Also, signal this semaphore to break loop(), or call breakLoop().
          * The semaphore is shared through a shared_ptr, meaning that it will only delete
          * \a s if it holds the last reference to it.
          */
-        BlockingEventProcessor( boost::shared_ptr<ORO_OS::Semaphore> s = boost::shared_ptr<ORO_OS::Semaphore>( new ORO_OS::Semaphore(0) ) );
+        BlockingEventProcessor( boost::shared_ptr<OS::Semaphore> s = boost::shared_ptr<OS::Semaphore>( new OS::Semaphore(0) ) );
 
         ~BlockingEventProcessor();
 
@@ -568,9 +568,9 @@ namespace ORO_CoreLib
 
         /**
          * Let all registered (and future) connections use
-         * ORO_OS::Semaphore \a s to signal work to be done.
+         * OS::Semaphore \a s to signal work to be done.
          */
-        void setSemaphore( boost::shared_ptr<ORO_OS::Semaphore> s);
+        void setSemaphore( boost::shared_ptr<OS::Semaphore> s);
     };
 
 }

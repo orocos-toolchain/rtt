@@ -36,7 +36,7 @@
 #pragma interface
 #endif
 
-namespace ORO_CoreLib
+namespace RTT
 {
     namespace detail {
         class PropertyOperation;
@@ -202,5 +202,5 @@ namespace ORO_CoreLib
     std::ostream& operator<<(std::ostream &os, PropertyBase* p);
 
 
-} // namespace ORO_CoreLib
+} // namespace RTT
 #endif

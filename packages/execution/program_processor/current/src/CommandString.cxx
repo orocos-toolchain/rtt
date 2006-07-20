@@ -24,11 +24,11 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "execution/CommandString.hpp"
+#include "rtt/CommandString.hpp"
 
 #include <iostream>
 
-namespace ORO_Execution
+namespace RTT
 {
 	CommandString::CommandString(std::string s)
 	{

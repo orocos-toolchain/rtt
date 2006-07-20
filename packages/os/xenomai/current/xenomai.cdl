@@ -7,7 +7,7 @@ This package is used if you want to compile
 Orocos for Xenomai 2.0, allowing
 real-time userspace applications"
 
-    include_dir os
+    include_dir rtt/os
     parent OROPKG_OS
 
     compile fosi.c

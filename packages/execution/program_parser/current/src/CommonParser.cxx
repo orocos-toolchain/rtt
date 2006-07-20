@@ -26,11 +26,11 @@
  ***************************************************************************/
 #include <boost/bind.hpp>
 
-#include "execution/parse_exception.hpp"
-#include "execution/parser-debug.hpp"
-#include "execution/CommonParser.hpp"
+#include "rtt/parse_exception.hpp"
+#include "rtt/parser-debug.hpp"
+#include "rtt/CommonParser.hpp"
 
-namespace ORO_Execution {
+namespace RTT {
     using boost::bind;
     using namespace detail;
 

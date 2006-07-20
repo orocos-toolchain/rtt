@@ -24,9 +24,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "execution/AsynchCommandDecorator.hpp"
+#include "rtt/AsynchCommandDecorator.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
 
 	AsynchCommandDecorator::AsynchCommandDecorator(CommandInterface* cmd)

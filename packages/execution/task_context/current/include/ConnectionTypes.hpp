@@ -29,7 +29,7 @@
 #ifndef ORO_EXECUTION_CONNECTION_TYPE_HPP
 #define ORO_EXECUTION_CONNECTION_TYPE_HPP
 
-namespace ORO_Execution
+namespace RTT
 {
 
     /**

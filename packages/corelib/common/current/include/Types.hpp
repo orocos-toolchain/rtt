@@ -43,7 +43,7 @@ namespace Orocos {
     class Expression;
 }
 
-namespace ORO_CoreLib
+namespace RTT
 {
     class PropertyBase;
     class PropertyBag;
@@ -68,8 +68,8 @@ namespace ORO_CoreLib
          * @param sizehint For variable size instances, use it to hint
          * the size of the instance.
          */
-        virtual AttributeBase* buildConstant(ORO_CoreLib::DataSourceBase::shared_ptr, int sizehint) const;
-        virtual AttributeBase* buildConstant(ORO_CoreLib::DataSourceBase::shared_ptr) const = 0;
+        virtual AttributeBase* buildConstant(DataSourceBase::shared_ptr, int sizehint) const;
+        virtual AttributeBase* buildConstant(DataSourceBase::shared_ptr) const = 0;
         /**
          * Build a modifyable instance of this type.
          * @param sizehint For variable size instances, use it to hint
@@ -86,7 +86,7 @@ namespace ORO_CoreLib
          * build an alias with b as the value.  If b is of the wrong type,
          * 0 will be returned..
          */
-        virtual AttributeBase* buildAlias( ORO_CoreLib::DataSourceBase::shared_ptr b ) const = 0;
+        virtual AttributeBase* buildAlias( DataSourceBase::shared_ptr b ) const = 0;
 
         /**
          * Build a Property of this type.
@@ -119,7 +119,7 @@ namespace ORO_CoreLib
          * @retval true decomposition resulted in new types added to targetbag.
          * @retval false nothing was added to targetbag.
          */
-        virtual bool decomposeType( DataSourceBase::shared_ptr source, ORO_CoreLib::PropertyBag& targetbag ) const = 0;
+        virtual bool decomposeType( DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const = 0;
 
         /**
          * Compose a structure from a PropertyBase containing its basic components.

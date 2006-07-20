@@ -28,7 +28,7 @@ using namespace std;
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( BuffersTest );
 
-using namespace ORO_CoreLib;
+using namespace RTT;
 
 struct Dummy {
     Dummy(double a = 0.0, double b =1.0, double c=2.0) 
@@ -578,7 +578,7 @@ void BuffersTest::testSortedList()
 }
 #endif
 
-struct LLFWorker : public ORO_OS::RunnableInterface
+struct LLFWorker : public RTT::OS::RunnableInterface
 {
     bool stop;
     typedef ListLockFree<Dummy> T;
@@ -610,7 +610,7 @@ struct LLFWorker : public ORO_OS::RunnableInterface
     }
 };
 
-struct LLFGrower : public ORO_OS::RunnableInterface
+struct LLFGrower : public RTT::OS::RunnableInterface
 {
     bool stop;
     typedef ListLockFree<Dummy> T;

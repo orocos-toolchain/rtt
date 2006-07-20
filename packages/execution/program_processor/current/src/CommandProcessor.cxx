@@ -26,22 +26,22 @@
  ***************************************************************************/
  
  
-#include "execution/CommandProcessor.hpp"
-#include <corelib/CommandInterface.hpp>
-#include <corelib/AtomicQueue.hpp>
-#include <corelib/Logger.hpp>
+#include "rtt/CommandProcessor.hpp"
+#include <rtt/CommandInterface.hpp>
+#include <rtt/AtomicQueue.hpp>
+#include <rtt/Logger.hpp>
 
-#include <os/Semaphore.hpp>
+#include <rtt/os/Semaphore.hpp>
 
-namespace ORO_Execution
+namespace RTT
 {
 
     using namespace std;
-    using namespace ORO_CoreLib;
-    using namespace ORO_OS;
+    
+    using namespace OS;
 
     CommandProcessor::CommandProcessor(int queue_size, Semaphore* s )
-        :a_queue( new ORO_CoreLib::AtomicQueue<CommandInterface*>(queue_size) ),
+        :a_queue( new AtomicQueue<CommandInterface*>(queue_size) ),
          coms_processed(0),
          queuesem( s ),
          accept(false)

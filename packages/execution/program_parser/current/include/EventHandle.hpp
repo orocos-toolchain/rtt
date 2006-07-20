@@ -28,14 +28,14 @@
 #ifndef EXEC_EVENTHANDLE_HPP
 #define EXEC_EVENTHANDLE_HPP
 
-#include <corelib/CommandInterface.hpp>
-#include <corelib/Event.hpp>
+#include "CommandInterface.hpp"
+#include "Event.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     namespace detail 
     {
-        using namespace ORO_CoreLib;
+        
 
     class CommandConnect : public CommandInterface
     {

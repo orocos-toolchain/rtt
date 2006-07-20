@@ -30,7 +30,7 @@
 
 #include "parser-types.hpp"
 
-#include <corelib/PropertyBag.hpp>
+#include "PropertyBag.hpp"
 #include "CommonParser.hpp"
 #include "TaskContext.hpp"
 
@@ -38,10 +38,10 @@
 #pragma interface
 #endif
 
-namespace ORO_Execution  { namespace detail
+namespace RTT  { namespace detail
 {
-  using ORO_CoreLib::PropertyBagOwner;
-  using ORO_CoreLib::PropertyBag;
+  
+  
 
   /**
    * This is a parser that you construct to parse a set of arguments.
@@ -56,7 +56,7 @@ namespace ORO_Execution  { namespace detail
   class ArgumentsParser
   {
     // the arguments we have already parsed.
-    std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> margs;
+    std::vector<DataSourceBase::shared_ptr> margs;
     bool mparsed;
 
     rule_t arguments, argument;
@@ -93,7 +93,7 @@ namespace ORO_Execution  { namespace detail
     /**
      * Get the parsed DataSource's.
      */
-    std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> result()
+    std::vector<DataSourceBase::shared_ptr> result()
       {
         return margs;
       }

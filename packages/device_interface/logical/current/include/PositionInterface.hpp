@@ -31,7 +31,7 @@ $Id: $
 
 #include <vector>
 
-namespace ORO_DeviceInterface
+namespace RTT
 {
 
     /**

@@ -29,20 +29,20 @@
 #ifndef CANCONFIGURATOR_HPP
 #define CANCONFIGURATOR_HPP
 
-#include <corelib/ConfigurationInterface.hpp>
+#include <rtt/ConfigurationInterface.hpp>
 #include "CANRequest.hpp"
 
 // rt_std :
-#include <os/rtstreams.hpp>
+#include <rtt/os/rtstreams.hpp>
 
 #include <vector>
 #include <utility>
 #include <iostream>
-#include <os/rtstreams.hpp>
+#include <rtt/os/rtstreams.hpp>
 
 namespace CAN
 {
-    using namespace ORO_CoreLib;
+    
     using namespace std;
 
 	/**

@@ -26,11 +26,11 @@
  ***************************************************************************/
  
  
-#include <device_drivers/ParallelPort.hpp>
+#include <rtt/dev/ParallelPort.hpp>
 #include <stdlib.h>
 #include <sys/io.h>
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
     namespace detail {
         struct IOPerm_not_allowed {};
@@ -39,7 +39,7 @@ namespace ORO_DeviceDriver
     TemplateDigitalOut ParallelPort::Base;
 
     ParallelPort::ParallelPort( const std::string& name, unsigned short int address)
-        : ORO_DeviceInterface::DigitalOutInterface( name ), address_( address )
+        : DigitalOutInterface( name ), address_( address )
     {
         if ( ioperm(address_, 3, 1)) {   
             // ask for permissions to access the parallel port

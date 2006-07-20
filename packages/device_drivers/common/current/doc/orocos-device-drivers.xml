@@ -138,7 +138,7 @@
     <title>Developers Documentation</title>
     <para>
       All the drivers code resides in the
-      <classname>ORO_DeviceDriver</classname> namespace. An Orocos
+      <classname>RTT</classname> namespace. An Orocos
       Device Driver is a class which implements one or more interfaces
       of the <ulink
 	url="http://people.mech.kuleuven.be/~psoetens/orocos/doc/orocos-device-interface.html"> 
@@ -148,19 +148,19 @@
       <title>Comedi C++</title>
       <para>
 	We have wrapped Comedi to C++ implementations. It provides
-	<classname>ORO_DeviceDriver::ComediDevice</classname>,
-	<classname>ORO_DeviceDriver::ComediSubDeviceAIn </classname> and <classname>ORO_DeviceDriver::
+	<classname>RTT::ComediDevice</classname>,
+	<classname>RTT::ComediSubDeviceAIn </classname> and <classname>RTT::
 	  ComediSubDeviceAOut</classname> classes which provide basic
 	device access and nameserving. The wrapper classes
-	<classname>ORO_DeviceDriver::ComediSubDeviceAOut</classname> and
-	<classname>ORO_DeviceDriver::ComediSubDeviceAIn</classname> show how the
-	<classname>ORO_DeviceInterface::AnalogOutInterface</classname> and the
-	<classname>ORO_DeviceInterface::AnalogInInterface</classname> interfaces of the Device Interface
+	<classname>RTT::ComediSubDeviceAOut</classname> and
+	<classname>RTT::ComediSubDeviceAIn</classname> show how the
+	<classname>RTT::AnalogOutInterface</classname> and the
+	<classname>RTT::AnalogInInterface</classname> interfaces of the Device Interface
 	can be implemented. Likewise, the wrapper classes
-	<classname>ORO_DeviceDriver::ComediSubDeviceDOut</classname> and
-	<classname>ORO_DeviceDriver::ComediSubDeviceDIn</classname> show how the
-	<classname>ORO_DeviceInterface::DigitalOutInterface</classname> and the
-	<classname>ORO_DeviceInterface::DigitalInInterface</classname> interfaces of the Device Interface
+	<classname>RTT::ComediSubDeviceDOut</classname> and
+	<classname>RTT::ComediSubDeviceDIn</classname> show how the
+	<classname>RTT::DigitalOutInterface</classname> and the
+	<classname>RTT::DigitalInInterface</classname> interfaces of the Device Interface
 	can be implemented.
       </para>
     </sect2>
@@ -168,12 +168,12 @@
       <title>Logical Device Drivers</title>
       <para>
 	This contains implementation of logical devices such as
-	<classname>ORO_DeviceDriver::DigitalInput</classname>,
-	<classname>ORO_DeviceDriver::DigitalOutput</classname>,
-	<classname>ORO_DeviceDriver::AnalogInput</classname>,
-	<classname>ORO_DeviceDriver::AnalogOutput</classname>,
-	<classname>ORO_DeviceDriver::Axis</classname>,
-	<classname>ORO_DeviceDriver::AnalogDrive</classname>,... they
+	<classname>RTT::DigitalInput</classname>,
+	<classname>RTT::DigitalOutput</classname>,
+	<classname>RTT::AnalogInput</classname>,
+	<classname>RTT::AnalogOutput</classname>,
+	<classname>RTT::Axis</classname>,
+	<classname>RTT::AnalogDrive</classname>,... they
 	are access-wrappers around the more general IO
 	Interfaces. They require the corresponding Device Interface to
 	communicate with.
@@ -182,10 +182,10 @@
 	<title>Analog and Digital IO</title>
 	<para>
 	  Helpfull utility classes
-	  <classname>ORO_DeviceDriver::AnalogInput</classname>,
-	  <classname>ORO_DeviceDriver::AnalogOutput</classname>,
-	  <classname>ORO_DeviceDriver::DigitalInput</classname> and
-	  <classname>ORO_DeviceDriver::DigitalOutput</classname>
+	  <classname>RTT::AnalogInput</classname>,
+	  <classname>RTT::AnalogOutput</classname>,
+	  <classname>RTT::DigitalInput</classname> and
+	  <classname>RTT::DigitalOutput</classname>
 	  provide a 1 channel access to a device interface.  They take
 	  on construction two parameters : the device interface they
 	  should operate on and the channel of that device they
@@ -195,7 +195,7 @@
       <sect3>
 	<title>The Axis class</title>
 	<para>
-	  The <classname>ORO_DeviceDriver::Axis</classname> is parameterised by an Encoder, a Drive and Breaks.
+	  The <classname>RTT::Axis</classname> is parameterised by an Encoder, a Drive and Breaks.
 	  It manages these resources in a consistent way, allowing 
 	  callibration and unit ( velocity to volts ) conversions.
 	  The Axis is needed to interpret encoder 'counts' to 

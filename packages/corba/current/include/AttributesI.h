@@ -60,7 +60,7 @@
 #define ATTRIBUTESI_H_
 
 #include "AttributesS.h"
-#include "execution/AttributeRepository.hpp"
+#include "AttributeRepository.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -68,12 +68,12 @@
 
 class  Orocos_AttributeInterface_i : public virtual POA_Orocos::AttributeInterface, public virtual PortableServer::RefCountServantBase
 {
-    ORO_Execution::AttributeRepository* mar;
-    ORO_CoreLib::PropertyBag* mbag;
+    AttributeRepository* mar;
+    PropertyBag* mbag;
 public:
   //Constructor 
-  Orocos_AttributeInterface_i ( ORO_Execution::AttributeRepository* ar);
-  Orocos_AttributeInterface_i ( ORO_CoreLib::PropertyBag* bag);
+  Orocos_AttributeInterface_i ( AttributeRepository* ar);
+  Orocos_AttributeInterface_i ( PropertyBag* bag);
   
   //Destructor 
   virtual ~Orocos_AttributeInterface_i (void);

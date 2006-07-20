@@ -29,11 +29,11 @@
 #ifndef PI_PROPERTIES_EMPTYHEADER_SERIALIZER
 #define PI_PROPERTIES_EMPTYHEADER_SERIALIZER
 
-#include <corelib/Property.hpp>
-#include "corelib/PropertyIntrospection.hpp"
+#include <rtt/Property.hpp>
+#include <rtt/PropertyIntrospection.hpp>
 #include "StreamProcessor.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * @brief A Dummy Empty Header Marshaller.

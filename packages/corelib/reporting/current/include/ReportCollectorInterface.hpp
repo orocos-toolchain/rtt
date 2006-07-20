@@ -34,7 +34,7 @@
 #pragma interface
 #endif
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * @brief This interface defines an object that collects one or

@@ -28,35 +28,35 @@
 #ifndef CONDITIONCOMPOSITE_HPP
 #define CONDITIONCOMPOSITE_HPP
 
-#include <corelib/ConditionInterface.hpp>
+#include "ConditionInterface.hpp"
 
-namespace ORO_Execution {
+namespace RTT {
 
   /**
    * Compose an 'AND' function of two Conditions.
    */
   class ConditionBinaryCompositeAND
-    : public ORO_CoreLib::ConditionInterface
+    : public ConditionInterface
   {
-    ORO_CoreLib::ConditionInterface* lhs;
-    ORO_CoreLib::ConditionInterface* rhs;
+    ConditionInterface* lhs;
+    ConditionInterface* rhs;
   public:
     /**
      * If \a l evaluates to true, evaluate \r and return the result, otherwise,
      * return false.
      * Constructor takes ownership of \a l and \a r.
      */
-    ConditionBinaryCompositeAND( ORO_CoreLib::ConditionInterface* l, ORO_CoreLib::ConditionInterface* r )
+    ConditionBinaryCompositeAND( ConditionInterface* l, ConditionInterface* r )
       : lhs( l ), rhs( r )
       {
       }
 
-    virtual ORO_CoreLib::ConditionInterface* clone() const
+    virtual ConditionInterface* clone() const
       {
         return new ConditionBinaryCompositeAND( lhs->clone(), rhs->clone() );
       }
 
-      ConditionBinaryCompositeAND* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
+      ConditionBinaryCompositeAND* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
           return new ConditionBinaryCompositeAND(lhs->copy(alreadyCloned),rhs->copy(alreadyCloned));
       }
 
@@ -83,27 +83,27 @@ namespace ORO_Execution {
      * Compose an 'OR' function of two Conditions.
      */
   class ConditionBinaryCompositeOR
-    : public ORO_CoreLib::ConditionInterface
+    : public ConditionInterface
   {
-    ORO_CoreLib::ConditionInterface* lhs;
-    ORO_CoreLib::ConditionInterface* rhs;
+    ConditionInterface* lhs;
+    ConditionInterface* rhs;
   public:
     /**
      * If \a l evaluates to true, evaluate \r and return the result, otherwise,
      * return false.
      * Constructor takes ownership of \a l and \a r.
      */
-    ConditionBinaryCompositeOR( ORO_CoreLib::ConditionInterface* l, ORO_CoreLib::ConditionInterface* r )
+    ConditionBinaryCompositeOR( ConditionInterface* l, ConditionInterface* r )
       : lhs( l ), rhs( r )
       {
       }
 
-    virtual ORO_CoreLib::ConditionInterface* clone() const
+    virtual ConditionInterface* clone() const
       {
         return new ConditionBinaryCompositeOR( lhs->clone(), rhs->clone() );
       }
 
-      ConditionBinaryCompositeOR* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
+      ConditionBinaryCompositeOR* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
           return new ConditionBinaryCompositeOR(lhs->copy(alreadyCloned),rhs->copy(alreadyCloned));
       }
 
@@ -128,18 +128,18 @@ namespace ORO_Execution {
   };
 
   class ConditionCompositeNOT
-    : public ORO_CoreLib::ConditionInterface
+    : public ConditionInterface
   {
-    ORO_CoreLib::ConditionInterface* cond;
+    ConditionInterface* cond;
   public:
-    ConditionCompositeNOT( ORO_CoreLib::ConditionInterface* c )
+    ConditionCompositeNOT( ConditionInterface* c )
       : cond( c )
       {
       }
     ~ConditionCompositeNOT();
     bool evaluate();
     ConditionCompositeNOT* clone() const;
-    ConditionCompositeNOT* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const;
+    ConditionCompositeNOT* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     void reset();
   };
 }

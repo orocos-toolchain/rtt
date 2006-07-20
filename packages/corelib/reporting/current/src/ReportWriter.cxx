@@ -25,12 +25,12 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "corelib/ReportWriter.hpp"
-#include "corelib/TimeService.hpp"
-//#include "corelib/rtconversions.hpp"
+#include "rtt/ReportWriter.hpp"
+#include "rtt/TimeService.hpp"
+//#include "rtt/rtconversions.hpp"
 
 
-namespace ORO_CoreLib
+namespace RTT
 {
      ReportWriter::ReportWriter(WriteInterface<std::string>* f)
          : rtf(f), localTime( TimeService::Instance()->getTicks() )

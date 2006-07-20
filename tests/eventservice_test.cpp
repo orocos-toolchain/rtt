@@ -17,15 +17,15 @@
  ***************************************************************************/
  
  
-#include <corelib/Event.hpp>
-#include <corelib/Logger.hpp>
-#include <corelib/RunnableInterface.hpp>
-#include <corelib/SimulationActivity.hpp>
-#include <corelib/SimulationThread.hpp>
-#include <corelib/NonPeriodicActivity.hpp>
+#include <rtt/Event.hpp>
+#include <rtt/Logger.hpp>
+#include <rtt/RunnableInterface.hpp>
+#include <rtt/SimulationActivity.hpp>
+#include <rtt/SimulationThread.hpp>
+#include <rtt/NonPeriodicActivity.hpp>
 
-#include <execution/EventService.hpp>
-#include <execution/DataSourceGenerator.hpp>
+#include <rtt/EventService.hpp>
+#include <rtt/DataSourceGenerator.hpp>
 
 #include "eventservice_test.hpp"
 #include <boost/bind.hpp>
@@ -34,8 +34,8 @@
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( EventServiceTest );
 
-using namespace ORO_Execution;
-using namespace ORO_CoreLib;
+using namespace RTT;
+using namespace RTT;
 using namespace boost;
 using namespace std;
 
@@ -43,9 +43,9 @@ void
 EventServiceTest::setUp()
 {
     t_event0 = new Event<void(void)>();
-    t_event1 = new ORO_CoreLib::Event<void( std::string )>();
-    t_event2 = new ORO_CoreLib::Event<void( std::string, double )>();
-    t_event3 = new ORO_CoreLib::Event<void( std::string, double, bool )>();
+    t_event1 = new RTT::Event<void( std::string )>();
+    t_event2 = new RTT::Event<void( std::string, double )>();
+    t_event3 = new RTT::Event<void( std::string, double, bool )>();
 
     event_proc = new EventProcessor();
     event_proc->initialize();

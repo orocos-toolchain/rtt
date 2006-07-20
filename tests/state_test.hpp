@@ -24,16 +24,16 @@
 
 //#define NOPARSER
 #ifndef NOPARSER
-#include <execution/Parser.hpp>
+#include <rtt/Parser.hpp>
 #endif
 
-#include <execution/TaskContext.hpp>
-#include <execution/Factories.hpp>
+#include <rtt/TaskContext.hpp>
+#include <rtt/Factories.hpp>
 #include <string>
-#include <corelib/SimulationActivity.hpp>
+#include <rtt/SimulationActivity.hpp>
 
-using namespace ORO_CoreLib;
-using namespace ORO_Execution;
+using namespace RTT;
+using namespace RTT;
 
 class StateTest : public CppUnit::TestFixture
 {

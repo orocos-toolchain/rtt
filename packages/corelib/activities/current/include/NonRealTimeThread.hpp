@@ -31,7 +31,7 @@
 
 #include "TimerThread.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**

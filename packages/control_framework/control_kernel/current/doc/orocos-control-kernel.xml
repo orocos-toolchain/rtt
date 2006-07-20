@@ -294,7 +294,7 @@
     <para>
       A first step in the above-mentioned road to automated building
       support is already made: &orocos; uses the <ulink
-	url="http://sources.redhat.com/ecos/">eCos</ulink> tools for
+	url="http://sources.redhat.com/ecrtt/os/">eCos</ulink> tools for
       code configuration and building. These tools are one of the
       &ldquo;hidden gems&rdquo; of free software, and offer a
       consistent, powerful and user-friendly configuration and
@@ -1136,7 +1136,7 @@
 	connected.
       </para>
       <para>
-	Data Flow Components access <classname>ORO_CoreLib::DataObject</classname>s always in the same generic way
+	Data Flow Components access <classname>RTT::DataObject</classname>s always in the same generic way
 	with <function>Get()</function> and <function>Set()</function>
 	methods, acting on a <emphasis>Port</emphasis> of the
 	DataObject. (A Port acts more or less like a
@@ -1464,7 +1464,7 @@
   Frame input_f;
 
   // Shared Pointers to the DataObjects
-  <classname>ORO_CoreLib::DataObjectInterface</classname>&lt;double>::shared_ptr tool_temp_dobj;
+  <classname>RTT::DataObjectInterface</classname>&lt;double>::shared_ptr tool_temp_dobj;
   DataObjectInterface&lt;Frame>::shared_ptr input_f_dobj;
 
   DataObjectInterface&lt;double>::shared_ptr velocity_dobj;
@@ -2283,7 +2283,7 @@ public:
 	      <tbody>
 		<row>
 		  <entry>
-		    void exportReports( <classname>ORO_CoreLib::PropertyBag</classname>&amp; bag )
+		    void exportReports( <classname>RTT::PropertyBag</classname>&amp; bag )
 		  </entry>
 		  <entry>The component needs to fill the bag with its
 		    own Properties which will be read after each
@@ -2293,7 +2293,7 @@ public:
 		  <entry><classname>ORO_ControlKernel::ReportingExtension</classname>, CORBAExtension</entry>
 		</row>
 		<row>
-		  <entry>bool updateProperties( const <classname>ORO_CoreLib::PropertyBag</classname>&amp; bag )</entry>
+		  <entry>bool updateProperties( const <classname>RTT::PropertyBag</classname>&amp; bag )</entry>
 		  <entry>The Component can use the Properties found in the bag to
 		    update its own properties. The Extension got the Properties from
 		    a CPF file.</entry>
@@ -2498,7 +2498,7 @@ public:
       <section>
 	<title>Hooks</title>
 	<para>The Property Extension provides two hooks to the Components : the
-	  <function>updateProperties(const <classname>ORO_CoreLib::PropertyBag</classname>&amp;
+	  <function>updateProperties(const <classname>RTT::PropertyBag</classname>&amp;
 	    bag)</function> method and the <function>exportProperties(PropertyBag&amp;
 	    bag)</function> method. In the former, the component must read properties
 	  from the bag and assign his own proper property with the
@@ -2945,7 +2945,7 @@ private:
       </para>
       <para>
 	The &orocos; execution package contains three manuals which
-	explain the behavior of the <classname>ORO_Execution::ExecutionEngine</classname> and the Program
+	explain the behavior of the <classname>RTT::ExecutionEngine</classname> and the Program
 	and State 
 	Parsers. The Execution Engine can load a state machine which
 	keeps track of the user defined system states and transitions,
@@ -3041,14 +3041,14 @@ private:
 	  for all details.
 	</para>
 	<para>
-	  With this Extension, the Control Kernel exports itself in a <classname>ORO_Execution::TaskContext</classname>,
+	  With this Extension, the Control Kernel exports itself in a <classname>RTT::TaskContext</classname>,
 	  which can be used to integrate it with other Orocos tasks.
 	  The name of the task is the kernel name ("Default" by default).
 	  The listing below shows how you can connect the kernel's task to the
-	  <classname>ORO_Execution::TaskBrowser</classname>.
-	  <programlisting>  <classname>ORO_Execution::TaskContext</classname>* kern_task = my_kernel.getTaskContext();
+	  <classname>RTT::TaskBrowser</classname>.
+	  <programlisting>  <classname>RTT::TaskContext</classname>* kern_task = my_kernel.getTaskContext();
 
-  <classname>ORO_Execution::TaskBrowser</classname> browser( kern_task );
+  <classname>RTT::TaskBrowser</classname> browser( kern_task );
   browser.loop();	  </programlisting>
 	  The above code snippet will cause a text console to be opened
 	  which allows a user to interface the Control Kernel,
@@ -3168,10 +3168,10 @@ public:
 };	</programlisting>
 	    Then the code needed to export this API to the &orocos;
 	    scripting framework would look like this:
-	<programlisting>#include &lt;execution/Factories.hpp&gt;
+	<programlisting>#include &lt;rtt/Factories.hpp&gt;
 
-using namespace ORO_CoreLib;
-using namespace ORO_Execution;
+using namespace RTT;
+using namespace RTT;
 
 class MyGenerator
     : public Generator&lt; ..data objects... ,
@@ -3728,9 +3728,9 @@ program DemoRun {
 	property to a text file and vice versa. For each unknown
 	type, the user has to write a composeProperty and
 	decomposeProperty method. How this must happen can be read
-	in the <filename>corelib/properties/base
+	in the <filename>rtt/properties/base
 	  PropertyComposition.hpp</filename> and
-	<filename>corelib/properties/base
+	<filename>rtt/properties/base
 	  PropertyDecomposition.hpp</filename> files.
       </para>
       <example>

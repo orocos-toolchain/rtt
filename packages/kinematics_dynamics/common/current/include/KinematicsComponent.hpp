@@ -31,7 +31,7 @@
 #include "KinematicsInterface.hpp"
 #include "Configuration.hpp"
 #include "Singularity.hpp"
-#include <corelib/MultiVector.hpp>
+#include <rtt/MultiVector.hpp>
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface

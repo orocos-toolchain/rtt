@@ -32,11 +32,11 @@
 #ifndef ORO_CORELIB_BUFFER_LOCKED_HPP
 #define ORO_CORELIB_BUFFER_LOCKED_HPP
 
-#include <os/Mutex.hpp>
-#include <os/MutexLock.hpp>
+#include "os/Mutex.hpp"
+#include "os/MutexLock.hpp"
 #include "BufferInterface.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**
@@ -71,7 +71,7 @@ namespace ORO_CoreLib
         
         bool Push( param_t item )
         {
-            ORO_OS::MutexLock locker(lock);
+            OS::MutexLock locker(lock);
             if ( buf.capacity() == buf.size() )
                 return false;
             buf.push_back( item );
@@ -80,7 +80,7 @@ namespace ORO_CoreLib
 
         size_type Push(const std::vector<T>& items)
         {
-            ORO_OS::MutexLock locker(lock);
+            OS::MutexLock locker(lock);
             typename std::vector<T>::const_iterator itl( items.begin() );
             while ( buf.size() != buf.capacity() && itl != items.end() ) {
                 buf.push_back( *itl );
@@ -91,7 +91,7 @@ namespace ORO_CoreLib
         }
         bool Pop( reference_t item )
         {
-            ORO_OS::MutexLock locker(lock);
+            OS::MutexLock locker(lock);
             if ( buf.empty() )
                 return false;
             item = buf.front();
@@ -101,7 +101,7 @@ namespace ORO_CoreLib
 
         size_type Pop(std::vector<T>& items )
         {
-            ORO_OS::MutexLock locker(lock);
+            OS::MutexLock locker(lock);
             int quant = 0;
             while ( !buf.empty() ) {
                 items.push_back( buf.front() );
@@ -113,7 +113,7 @@ namespace ORO_CoreLib
 
         value_t front() const
         {
-            ORO_OS::MutexLock locker(lock);
+            OS::MutexLock locker(lock);
             value_t item = value_t();
             if ( !buf.empty() )
                 item = buf.front();
@@ -121,17 +121,17 @@ namespace ORO_CoreLib
         }
 
         size_type capacity() const {
-            ORO_OS::MutexLock locker(lock);
+            OS::MutexLock locker(lock);
             return buf.capacity();
         }
 
         size_type size() const {
-            ORO_OS::MutexLock locker(lock);
+            OS::MutexLock locker(lock);
             return buf.size();
         }
 
         void clear() {
-            ORO_OS::MutexLock locker(lock);
+            OS::MutexLock locker(lock);
             buf.clear();
         }
 
@@ -140,12 +140,12 @@ namespace ORO_CoreLib
         }
 
         bool full() const {
-            ORO_OS::MutexLock locker(lock);
+            OS::MutexLock locker(lock);
             return buf.size() ==  buf.capacity();
         }
     private:
         std::vector<T> buf;
-        mutable ORO_OS::Mutex lock;
+        mutable OS::Mutex lock;
 
     };
 }

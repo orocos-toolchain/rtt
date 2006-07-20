@@ -31,15 +31,15 @@
 
 // Our own package config headers.
 #include "pkgconf/os.h"
-#include <os/fosi.h>
+#include "fosi.h"
 
-#include <os/RunnableInterface.hpp>
-#include <os/ThreadInterface.hpp>
-#include <os/Mutex.hpp>
+#include "RunnableInterface.hpp"
+#include "ThreadInterface.hpp"
+#include "Mutex.hpp"
 
 #include <string>
 
-namespace ORO_OS
+namespace OS
 {
     /**
      * This Thread abstraction class represents a single-shot thread
@@ -65,7 +65,7 @@ namespace ORO_OS
      * @see RunnableInterface
      */
     class SingleThread 
-        : public ORO_OS::ThreadInterface
+        : public OS::ThreadInterface
     {
         friend void* singleThread_f( void* t );
 
@@ -74,11 +74,11 @@ namespace ORO_OS
          * Create a single-shot Thread with priority \a priority, a \a name and optionally,
          * an object to execute.
          */
-        SingleThread(int priority, const std::string& name, ORO_OS::RunnableInterface* r=0);
+        SingleThread(int priority, const std::string& name, OS::RunnableInterface* r=0);
     
         virtual ~SingleThread();
 
-        virtual bool run( ORO_OS::RunnableInterface* r);
+        virtual bool run( OS::RunnableInterface* r);
 
         /**
          * Start the thread
@@ -189,7 +189,7 @@ namespace ORO_OS
         /**
          * The possible Runnable to run in this Component
          */
-        ORO_OS::RunnableInterface* runComp;
+        OS::RunnableInterface* runComp;
 
         /**
          * Used to implement synchronising breakLoop().

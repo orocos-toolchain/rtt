@@ -30,14 +30,14 @@
 #define ORO_KINDYN_KINEMATICS_6D_HPP
 
 #include "KinematicsInterface.hpp"
-#include <corelib/MultiVector.hpp>
+#include <rtt/MultiVector.hpp>
 
 namespace ORO_KinDyn
 {
     /**
      * This class wraps some old-school 6DOF kinematics functions
      * to the KinematicsInterface.
-     * The old school functions use ORO_CoreLib::Double6D and a
+     * The old school functions use RTT::Double6D and a
      * plain array for jacobian calculations, the new version uses
      * the JointPositions,... and Jacobian types.
      */
@@ -48,7 +48,7 @@ namespace ORO_KinDyn
         /**
          * This is a Double6D
          */
-        typedef ORO_CoreLib::MultiVector<6,double> WrapperType;
+        typedef RTT::MultiVector<6,double> WrapperType;
         /**
          * This is the number of elements in the wrapper type.
          */

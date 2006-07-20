@@ -24,10 +24,10 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "corelib/PreemptibleActivity.hpp"
-#include "corelib/ZeroLatencyThread.hpp"
+#include "rtt/PreemptibleActivity.hpp"
+#include "rtt/ZeroLatencyThread.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     
     PreemptibleActivity::PreemptibleActivity(Seconds period, RunnableInterface* r, bool pep )

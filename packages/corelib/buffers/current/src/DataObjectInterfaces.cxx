@@ -26,11 +26,11 @@
  ***************************************************************************/
  
  
-#include "corelib/DataObjectInterfaces.hpp"
+#include "rtt/DataObjectInterfaces.hpp"
 
 // This file is purely for testing the instantiations.
 
-using namespace ORO_CoreLib;
+using namespace RTT;
 
 namespace {
     struct Bar {

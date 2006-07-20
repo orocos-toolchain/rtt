@@ -35,15 +35,15 @@
  * Rename to 'fosi_internal.h'
  */
  
-#ifndef ORO_OS_FOSI_INTERNAL_INTERFACE_HPP
-#define ORO_OS_FOSI_INTERNAL_INTERFACE_HPP
+#ifndef OS_FOSI_INTERNAL_INTERFACE_HPP
+#define OS_FOSI_INTERNAL_INTERFACE_HPP
 
 #error "This file is a template for developers, do not include directly."
 
-#include "os/ThreadInterface.hpp"
-#include "os/fosi.h"
+#include "ThreadInterface.hpp"
+#include "fosi.h"
 
-namespace ORO_OS
+namespace OS
 {
   namespace detail {
     // Return zero on succes

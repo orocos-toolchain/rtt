@@ -8,7 +8,7 @@ contains the command-, method- and data-factories of that
 task, a Processor which accepts commands and executes
 task programs."
 
-    include_dir execution
+    include_dir rtt
     
     parent OROPKG_EXECUTION
 

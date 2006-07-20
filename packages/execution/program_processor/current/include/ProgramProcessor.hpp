@@ -28,9 +28,9 @@
 #ifndef PROGRAM_PROCESSOR_HPP
 #define PROGRAM_PROCESSOR_HPP
 
-#include "corelib/RunnableInterface.hpp"
-#include "corelib/BufferPolicy.hpp"
-#include "corelib/ListLockFree.hpp"
+#include "RunnableInterface.hpp"
+#include "BufferPolicy.hpp"
+#include "ListLockFree.hpp"
 #include "ProgramExceptions.hpp"
 #include "ProgramInterface.hpp"
 
@@ -40,25 +40,25 @@
 
 #include <pkgconf/execution_program_processor.h>
 
-namespace ORO_OS
+namespace OS
 {
     class Semaphore;
 }
 
-namespace ORO_CoreLib
+namespace RTT
 {
     template< class T, class RP, class WP>
     class AtomicQueue;
 }
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * This class implements a controllable program processor.
      * It executes Realtime Programs when running.
      */
     class ProgramProcessor
-        : public ORO_CoreLib::RunnableInterface
+        : public RunnableInterface
     {
     public:
         /**
@@ -68,7 +68,7 @@ namespace ORO_Execution
          * work and consume if it processes work. Only to be used in non periodic mode.
          *
          */
-        ProgramProcessor(int f_queue_size = ORONUM_EXECUTION_PROC_QUEUE_SIZE, ORO_OS::Semaphore* work_sem = 0);
+        ProgramProcessor(int f_queue_size = ORONUM_EXECUTION_PROC_QUEUE_SIZE, OS::Semaphore* work_sem = 0);
 
         virtual ~ProgramProcessor();
 
@@ -142,17 +142,17 @@ namespace ORO_Execution
         ProgramInterfacePtr getProgram(const std::string& name);
 
     private:
-        typedef ORO_CoreLib::ListLockFree<ProgramInterfacePtr> ProgMap;
+        typedef ListLockFree<ProgramInterfacePtr> ProgMap;
         ProgMap* programs;
 
         std::vector<ProgramInterface*> funcs;
 
-        ORO_CoreLib::AtomicQueue<ProgramInterface*,ORO_CoreLib::NonBlockingPolicy,ORO_CoreLib::NonBlockingPolicy>* f_queue;
+        AtomicQueue<ProgramInterface*,NonBlockingPolicy,NonBlockingPolicy>* f_queue;
 
         /**
          * Queue semaphore
          */
-        ORO_OS::Semaphore* f_queue_sem;
+        OS::Semaphore* f_queue_sem;
 
     };
 

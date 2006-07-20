@@ -5,7 +5,7 @@
 #include "LocalMethod.hpp"
 #include "TemplateMemberFactory.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     namespace detail
     {
@@ -88,7 +88,7 @@ namespace ORO_Execution
                 return new DataSourceArgsMethod( typename FunctorT::shared_ptr(mmeth->clone()) );
             }
 
-            virtual DataSource<result_type>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
+            virtual DataSource<result_type>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
             {
                 return new DataSourceArgsMethod<Signature,FunctorT>( typename FunctorT::shared_ptr(mmeth->copy(alreadyCloned)) );
             }

@@ -28,11 +28,11 @@
 #ifndef PI_PROPERTIES_TABLESERIALIZER
 #define PI_PROPERTIES_TABLESERIALIZER
 
-#include <corelib/Property.hpp>
-#include <corelib/PropertyIntrospection.hpp>
+#include <rtt/Property.hpp>
+#include <rtt/PropertyIntrospection.hpp>
 #include "StreamProcessor.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**

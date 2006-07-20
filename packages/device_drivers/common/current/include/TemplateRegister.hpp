@@ -29,7 +29,7 @@
 #ifndef ORO_TEMPLATEREGISTER_HPP
 #define ORO_TEMPLATEREGISTER_HPP
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
     /**
      * Use this macro to create bit-set enumeration values.

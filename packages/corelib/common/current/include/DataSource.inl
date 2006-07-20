@@ -11,7 +11,7 @@
 #include "corba/CorbaConversion.hpp"
 #endif
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
   template<typename T>
@@ -71,26 +71,26 @@ namespace ORO_CoreLib
     template< typename T>
     Orocos::Expression_ptr DataSource<T>::server()
     {
-        return ORO_Corba::ExpressionServer::CreateExpression( const_ptr(this) );
+        return Corba::ExpressionServer::CreateExpression( const_ptr(this) );
     }
 
     template< typename T>
     Orocos::Expression_ptr DataSource<T>::server() const
     {
-        return ORO_Corba::ExpressionServer::CreateExpression( const_ptr(this) );
+        return Corba::ExpressionServer::CreateExpression( const_ptr(this) );
     }
 
     template< typename T>
     Orocos::Method_ptr DataSource<T>::method()
     {
-        return ORO_Corba::ExpressionServer::CreateMethod( shared_ptr(this) );
+        return Corba::ExpressionServer::CreateMethod( shared_ptr(this) );
     }
 
     
     template< typename T>
     Orocos::Expression_ptr AssignableDataSource<T>::server()
     {
-        return ORO_Corba::ExpressionServer::CreateAssignableExpression( shared_ptr(this) );
+        return Corba::ExpressionServer::CreateAssignableExpression( shared_ptr(this) );
     }
 #endif
 
@@ -125,16 +125,16 @@ namespace ORO_CoreLib
         if (ret) return ret;
 #ifdef OROINT_OS_CORBA
         // then try to see if it is a CORBA object.
-        //ORO_Corba::ExpressionProxyInterface* prox = dynamic_cast< ORO_Corba::ExpressionProxyInterface* >(dsb);
+        //Corba::ExpressionProxyInterface* prox = dynamic_cast< Corba::ExpressionProxyInterface* >(dsb);
         if ( dsb->hasServer() ) {
             Logger::log() << Logger::Debug << "Trying to narrow server "<<dsb->getType()<<" to local "<<DataSource<T>::GetType() <<Logger::endl;
             ::Orocos::Expression_var expr = dsb->server() ;
-            return ORO_Corba::ExpressionProxy::NarrowDataSource<T>( expr.in() );
+            return Corba::ExpressionProxy::NarrowDataSource<T>( expr.in() );
         }
         // See if the DS contains an Any.
         DataSource<CORBA::Any_var>* aret = dynamic_cast< DataSource<CORBA::Any_var>* >( dsb );
         if (aret){
-            return ORO_Corba::ExpressionProxy::NarrowConstant<T>( aret->get().in() );
+            return Corba::ExpressionProxy::NarrowConstant<T>( aret->get().in() );
         }
 #endif
         // all failed:
@@ -148,11 +148,11 @@ namespace ORO_CoreLib
         if (ret) return ret;
 #ifdef OROINT_OS_CORBA
         // then try to see if it is a CORBA object.
-        //ORO_Corba::ExpressionProxyInterface* prox = dynamic_cast< ORO_Corba::ExpressionProxyInterface* >(dsb);
+        //Corba::ExpressionProxyInterface* prox = dynamic_cast< Corba::ExpressionProxyInterface* >(dsb);
         if ( dsb->hasServer() ) {
             Logger::log() << Logger::Debug << "Trying to narrow server "<<dsb->getType()<<" to local "<<DataSource<T>::GetType() <<Logger::endl;
             ::Orocos::Expression_var expr = dsb->server() ;
-            return ORO_Corba::ExpressionProxy::NarrowDataSource<T>( expr.in() );
+            return Corba::ExpressionProxy::NarrowDataSource<T>( expr.in() );
         }
         const DataSource<CORBA::Any_var>* aret = dynamic_cast< const DataSource<CORBA::Any_var>* >( dsb );
         if (aret){
@@ -190,10 +190,10 @@ namespace ORO_CoreLib
         if (ret) return ret;
 #ifdef OROINT_OS_CORBA
         // then try to see if it is a CORBA object.
-        //ORO_Corba::ExpressionProxyInterface* prox = dynamic_cast< ORO_Corba::ExpressionProxyInterface* >(dsb);
+        //Corba::ExpressionProxyInterface* prox = dynamic_cast< Corba::ExpressionProxyInterface* >(dsb);
         if ( dsb->hasServer() ) {
             ::Orocos::Expression_var expr = dsb->server() ;
-            return ORO_Corba::ExpressionProxy::NarrowAssignableDataSource<T>( expr.in() );
+            return Corba::ExpressionProxy::NarrowAssignableDataSource<T>( expr.in() );
         }
 #endif
         // all failed:
@@ -207,10 +207,10 @@ namespace ORO_CoreLib
         if (ret) return ret;
 #ifdef OROINT_OS_CORBA
         // then try to see if it is a CORBA object.
-        //ORO_Corba::ExpressionProxyInterface* prox = dynamic_cast< ORO_Corba::ExpressionProxyInterface* >(dsb);
+        //Corba::ExpressionProxyInterface* prox = dynamic_cast< Corba::ExpressionProxyInterface* >(dsb);
         if ( dsb->hasServer() ) {
             ::Orocos::Expression_var expr = dsb->server() ;
-            return ORO_Corba::ExpressionProxy::NarrowAssignableDataSource<T>( expr.in() );
+            return Corba::ExpressionProxy::NarrowAssignableDataSource<T>( expr.in() );
         }
 #endif
         // all failed:

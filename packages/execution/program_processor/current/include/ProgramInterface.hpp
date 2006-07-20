@@ -30,11 +30,11 @@
 
 #include <string>
 #include <vector>
-#include <corelib/DataSourceBase.hpp>
-#include <corelib/AttributeBase.hpp>
+#include "DataSourceBase.hpp"
+#include "AttributeBase.hpp"
 #include <boost/shared_ptr.hpp>
 
-namespace ORO_Execution
+namespace RTT
 {
 	class ProgramProcessor;
     class ProgramInterface;
@@ -146,7 +146,7 @@ namespace ORO_Execution
         /**
          * Get the argument list of this program.
          */
-        virtual std::vector<ORO_CoreLib::AttributeBase*> getArguments() const = 0;
+        virtual std::vector<AttributeBase*> getArguments() const = 0;
 
         /**
          * Clone this Program.  This will produce a completely
@@ -165,7 +165,7 @@ namespace ORO_Execution
          *   by allowing it to map some datasources itself, and simply
          *   provide us a list of its mappings.
          */
-        virtual ProgramInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& replacementdss ) const = 0;
+        virtual ProgramInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const = 0;
 
         virtual ProgramInterface* clone() const = 0;
 	};

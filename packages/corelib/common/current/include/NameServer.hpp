@@ -36,7 +36,7 @@
 // #include "Logger.hpp"
 // #endif
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * @brief A nameserver for Orocos classes.

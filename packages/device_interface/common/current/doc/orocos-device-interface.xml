@@ -158,7 +158,7 @@ of the physical interfaces they use underneath. You just want to know the
 	The most common used interfaces for machine control
 	are already implemented and tested on multiple setups.
 	All the Device Interface classes reside in the
-	<classname>ORO_DeviceInterface</classname> namespace.
+	<classname>RTT</classname> namespace.
       </para>
       <sect2>
 	<title>Physical IO</title>
@@ -179,22 +179,22 @@ of the physical interfaces they use underneath. You just want to know the
 	    <tbody>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry><classname>ORO_DeviceInterface::AnalogInInterface</classname></entry>
+		<entry><classname>RTT::AnalogInInterface</classname></entry>
 		<entry>Reading analog input channels</entry>
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry><classname>ORO_DeviceInterface::AnalogOutInterface</classname></entry>
+		<entry><classname>RTT::AnalogOutInterface</classname></entry>
 		<entry>Writing analog output channels</entry>
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry><classname>ORO_DeviceInterface::DigitalInInterface</classname></entry>
+		<entry><classname>RTT::DigitalInInterface</classname></entry>
 		<entry>Reading digital bits</entry>
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry><classname>ORO_DeviceInterface::DigitalOutInterface</classname></entry>
+		<entry><classname>RTT::DigitalOutInterface</classname></entry>
 		<entry>Writing digital bits</entry>
 	      </row>
 	      <row>
@@ -204,7 +204,7 @@ of the physical interfaces they use underneath. You just want to know the
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry><classname>ORO_DeviceInterface::EncoderInterface</classname></entry>
+		<entry><classname>RTT::EncoderInterface</classname></entry>
 		<entry>A position/turn encoder</entry>
 	      </row>
 	    </tbody>
@@ -216,7 +216,7 @@ of the physical interfaces they use underneath. You just want to know the
 	<title>Logical Device Interfaces</title>
 	<para>
 	  From a logical point of view, the generic
-	  <classname>ORO_DeviceInterface::SensorInterface</classname>&lt;T> is an
+	  <classname>RTT::SensorInterface</classname>&lt;T> is an
 	  easy to use abstraction for reading any kind 
 	  of data of type T.
 	</para>
@@ -224,7 +224,7 @@ of the physical interfaces they use underneath. You just want to know the
 	  The Device Interface packages
 	  does however not provide implementations and thus
 	  the logical devices are implemented in the Device
-	  Driver package and ORO_DeviceDriver namespace.
+	  Driver package and RTT namespace.
 	  Examples are
 	  <classname>Axis</classname>,
 	  <classname>DigitalInput</classname>,
@@ -262,14 +262,14 @@ of the physical interfaces they use underneath. You just want to know the
       </para>
       <para>
 	<xref linkend="example_name_service"/> shows how one could query the 
-	<classname>ORO_DeviceInterface::AnalogOutInterface</classname>.
+	<classname>RTT::AnalogOutInterface</classname>.
 	  
 	<example id="example_name_service"><title>Using the name service</title>
 	    
 	  <programlisting>
 unsigned int pos;
 new FancyCard("CardName"); // FancyCard implements AnalogOutInterface
-<classname>ORO_DeviceInterface::AnalogOutInterface</classname>* card = AnalogOutInterface::nameserver.getObject("CardName");
+<classname>RTT::AnalogOutInterface</classname>* card = AnalogOutInterface::nameserver.getObject("CardName");
 card->read(pos, 0);    // Read some data
 delete card;
 	  </programlisting>

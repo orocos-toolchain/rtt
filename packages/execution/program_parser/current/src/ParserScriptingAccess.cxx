@@ -27,18 +27,18 @@
  
  
 
-#include "execution/ParserScriptingAccess.hpp"
-#include "execution/StatementProcessor.hpp"
-#include "execution/Parser.hpp"
-#include "corelib/Logger.hpp"
-#include "execution/TaskContext.hpp"
+#include "rtt/ParserScriptingAccess.hpp"
+#include "rtt/StatementProcessor.hpp"
+#include "rtt/Parser.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/TaskContext.hpp"
 #include <sstream>
 #include <fstream>
 
-namespace ORO_Execution
+namespace RTT
 {
     using namespace std;
-    using namespace ORO_CoreLib;
+    
 
     ParserScriptingAccess::~ParserScriptingAccess()
     {

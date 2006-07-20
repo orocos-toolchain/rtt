@@ -29,10 +29,10 @@
 #ifndef ORO_EXECUTION_BUFFERDATASOURCE_HPP
 #define ORO_EXECUTION_BUFFERDATASOURCE_HPP
 
-#include <corelib/DataSource.hpp>
-#include <corelib/BufferInterface.hpp>
+#include "DataSource.hpp"
+#include "BufferInterface.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * A DataSource which provides read-only access to
@@ -41,20 +41,20 @@ namespace ORO_Execution
      */
     template<class T>
     class BufferDataSource
-        : public ORO_CoreLib::DataSource<T>
+        : public DataSource<T>
     {
-        typename ORO_CoreLib::BufferInterface<T>::shared_ptr  mbuf;
+        typename BufferInterface<T>::shared_ptr  mbuf;
     public:
-        BufferDataSource(typename ORO_CoreLib::BufferInterface<T>::shared_ptr buf )
+        BufferDataSource(typename BufferInterface<T>::shared_ptr buf )
             : mbuf( buf )
         {
         }
 
-        typename ORO_CoreLib::DataSource<T>::result_t get() const {
+        typename DataSource<T>::result_t get() const {
             return mbuf->front();
         }
 
-        typename ORO_CoreLib::DataSource<T>::result_t value() const {
+        typename DataSource<T>::result_t value() const {
             return mbuf->front();
         }
 
@@ -62,7 +62,7 @@ namespace ORO_Execution
             return new BufferDataSource<T>( mbuf );
         }
 
-        BufferDataSource<T>* copy(std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& clones) const {
+        BufferDataSource<T>* copy(std::map<const DataSourceBase*, DataSourceBase*>& clones) const {
             clones[this] = const_cast< BufferDataSource<T>*>(this);
             return const_cast< BufferDataSource<T>*>(this);
         }

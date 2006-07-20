@@ -28,13 +28,13 @@
 // TAO_IDL - Generated from 
 // be/be_codegen.cpp:910
 
-#include "corba/FactoriesI.h"
-#include "corba/ExecutionI.h"
+#include "rtt/corba/FactoriesI.h"
+#include "rtt/corba/ExecutionI.h"
 
 using namespace Orocos;
-using namespace ORO_Execution;
-using namespace ORO_CoreLib;
-using namespace ORO_Corba;
+
+
+using namespace Corba;
 using namespace std;
 
 // Implementation skeleton constructor

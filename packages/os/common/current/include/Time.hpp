@@ -26,17 +26,17 @@
  ***************************************************************************/
  
  
-#ifndef ORO_OS_TIME_HPP
-#define ORO_OS_TIME_HPP
+#ifndef OS_TIME_HPP
+#define OS_TIME_HPP
 
 #include <cmath>
 
-namespace ORO_OS
+namespace OS
 {
 
-    // Remark : These definitions were first introduced in corelib/timing,
+    // Remark : These definitions were first introduced in rtt/timing,
     // but they are needed in OS too, so this file duplicates that file, but
-    // in the ORO_OS namespace. The OS version should alias to the defs in this
+    // in the OS namespace. The OS version should alias to the defs in this
     // namespace.
 	
     typedef double Seconds;

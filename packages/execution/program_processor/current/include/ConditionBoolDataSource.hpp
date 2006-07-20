@@ -28,14 +28,14 @@
 #ifndef CONDITIONBOOLDATASOURCE_HPP
 #define CONDITIONBOOLDATASOURCE_HPP
 
-#include <corelib/ConditionInterface.hpp>
+#include "ConditionInterface.hpp"
 #include "DataSource.hpp"
 
 
-namespace ORO_Execution
+namespace RTT
 {
 
-    using ORO_CoreLib::ConditionInterface;
+    
 
     /**
      * A Condition which holds a boolean DataSource.
@@ -56,7 +56,7 @@ namespace ORO_Execution
     bool evaluate();
     ConditionBoolDataSource* clone() const;
     void reset();
-    ConditionBoolDataSource* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const;
+    ConditionBoolDataSource* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
   };
 };
 

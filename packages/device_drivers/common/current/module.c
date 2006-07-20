@@ -17,7 +17,7 @@
 ***************************************************************************/
 
 
-#include "os/fosi.h" 
+#include "rtt/rtt/os/fosi.h" 
 /*#include <linux/kernel.h>
 #include <linux/version.h>
 #include <linux/modversions.h>

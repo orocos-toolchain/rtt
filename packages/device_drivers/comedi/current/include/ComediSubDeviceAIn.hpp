@@ -34,17 +34,17 @@
 #ifndef COMEDISUBDEVICEAIN_HPP
 #define COMEDISUBDEVICEAIN_HPP
 
-#include <device_interface/AnalogInInterface.hpp>
+#include "AnalogInInterface.hpp"
 #include "ComediDevice.hpp"
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
   /**
    * This logical device represents one subdevice of a Comedi device.
    */
   class ComediSubDeviceAIn
-    : public ORO_DeviceInterface::AnalogInInterface<unsigned int>
+    : public AnalogInInterface<unsigned int>
   {
 
   public:
@@ -66,7 +66,7 @@ namespace ORO_DeviceDriver
 
     virtual void rangeSet(unsigned int chan, unsigned int range=0);
 
-    virtual void arefSet(unsigned int chan, unsigned int aref=ORO_DeviceInterface::AnalogInInterface<unsigned int>::Ground);
+    virtual void arefSet(unsigned int chan, unsigned int aref=AnalogInInterface<unsigned int>::Ground);
 
     virtual void read( unsigned int chan, unsigned int& value ) const;
 

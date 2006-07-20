@@ -28,20 +28,20 @@
 // TAO_IDL - Generated from 
 // be/be_codegen.cpp:910
 
-#include "corba/AttributesI.h"
-#include "corba/AttributesC.h"
+#include "rtt/corba/AttributesI.h"
+#include "rtt/corba/AttributesC.h"
 #include <vector>
-#include <corelib/PropertyBag.hpp>
-#include <corelib/Property.hpp>
+#include <rtt/PropertyBag.hpp>
+#include <rtt/Property.hpp>
 
 
-using namespace ORO_CoreLib;
-using namespace ORO_Execution;
+
+
 using namespace Orocos;
 using namespace std;
 
 // Implementation skeleton constructor
-Orocos_AttributeInterface_i::Orocos_AttributeInterface_i (ORO_Execution::AttributeRepository* ar)
+Orocos_AttributeInterface_i::Orocos_AttributeInterface_i (AttributeRepository* ar)
     :mar (ar), mbag(0)
 {
 }

@@ -27,9 +27,9 @@
  
  
 
-#include "execution/GlobalMemberFactory.hpp"
+#include "rtt/GlobalMemberFactory.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
 
 

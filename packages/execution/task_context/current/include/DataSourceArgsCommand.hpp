@@ -6,7 +6,7 @@
 #include "CommandDSFunctors.hpp"
 #include "DispatchInterface.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     namespace detail
     {
@@ -140,7 +140,7 @@ namespace ORO_Execution
                 return mvalid;
             }
 
-            virtual ORO_CoreLib::ConditionInterface* createCondition() const
+            virtual ConditionInterface* createCondition() const
             {
                 return new detail::ConditionFunctor<CommandT,CommandF>(mcon, minvert);
             }
@@ -149,7 +149,7 @@ namespace ORO_Execution
                 return new DataSourceArgsCommand<CommandT,CommandF>(*this);
             }
 
-            virtual DataSourceArgsCommand<CommandT,CommandF>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
+            virtual DataSourceArgsCommand<CommandT,CommandF>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
                 return new DataSourceArgsCommand<CommandT,CommandF>(CommandF(mcom.copy(alreadyCloned)),
                                                                     CommandF(mcon.copy(alreadyCloned)),mcp, minvert);
             }

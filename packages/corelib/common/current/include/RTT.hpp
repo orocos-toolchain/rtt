@@ -43,34 +43,24 @@
 namespace RTT {}
 
 #ifdef OROPKG_CORELIB
-#include <corelib/CoreLib.hpp>
+#include "CoreLib.hpp"
 #endif
 #ifdef OROPKG_EXECUTION
-#include <execution/Execution.hpp>
+#include "Execution.hpp"
 #endif
 #ifdef OROPKG_OS
-#include <os/OS.hpp>
+#include "os/OS.hpp"
 #endif
 #ifdef OROPKG_DEVICE_INTERFACE
-#include <device_interface/DeviceInterface.hpp>
+#include "dev/DeviceInterface.hpp"
 #endif
 #ifdef OROPKG_DEVICE_DRIVERS
-#include <device_drivers/DeviceDrivers.hpp>
+#include "dev/DeviceDrivers.hpp"
 #endif
 namespace RTT {
-#ifdef OROPKG_CORELIB
-    using namespace ORO_CoreLib;
-#endif
-#ifdef OROPKG_EXECUTION
-    using namespace ORO_Execution;
-#endif
 #ifdef OROPKG_OS
-    using namespace ORO_OS;
-#endif
-#ifdef OROPKG_DEVICE_INTERFACE
-    using namespace ORO_DeviceInterface;
-#endif
-#ifdef OROPKG_DEVICE_DRIVERS
-    using namespace ORO_DeviceDriver;
+    namespace OS {
+        using namespace ::OS;
+    }
 #endif
 }

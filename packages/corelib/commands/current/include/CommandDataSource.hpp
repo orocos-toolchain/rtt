@@ -32,7 +32,7 @@
 #include "DataSource.hpp"
 #include "CommandInterface.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * A Command which evaluates a DataSourceBase and always returns true.

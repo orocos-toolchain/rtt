@@ -28,7 +28,7 @@
 #ifndef CALIBRATION_INTERFACE_HPP
 #define CALIBRATION_INTERFACE_HPP
 
-namespace ORO_DeviceInterface
+namespace RTT
 {
     /**
      * @brief A class which will calibrate a sensor. It is

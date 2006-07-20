@@ -30,7 +30,7 @@
 
 #include "CommandInterface.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * The empty command.

@@ -29,7 +29,7 @@
 #define FROCESENSOR6DINTERFACE_HPP
 
 
-namespace ORO_DeviceInterface
+namespace RTT
 {
     /**
      * An interface to the SchunkSensor.

@@ -29,10 +29,10 @@
 #ifndef ORO_EXECUTION_DATA_CONNECTION_INTERFACE_HPP
 #define ORO_EXECUTION_DATA_CONNECTION_INTERFACE_HPP
 
-#include <corelib/DataObjectInterfaces.hpp>
+#include "DataObjectInterfaces.hpp"
 #include "ConnectionInterface.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * This is the interface of a connection which
@@ -47,12 +47,12 @@ namespace ORO_Execution
         /**
          * Return the DataObject of this Connection.
          */
-        virtual const ORO_CoreLib::DataObjectInterface<T>* data() const = 0;
+        virtual const DataObjectInterface<T>* data() const = 0;
 
         /**
          * Return the DataObject of this Connection.
          */
-        virtual ORO_CoreLib::DataObjectInterface<T>* data() = 0;
+        virtual DataObjectInterface<T>* data() = 0;
     };
 
 }

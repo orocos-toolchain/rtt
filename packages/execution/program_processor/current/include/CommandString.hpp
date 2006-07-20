@@ -25,13 +25,13 @@
  *                                                                         *
  ***************************************************************************/ 
  
-#include <corelib/CommandInterface.hpp>
+#include "CommandInterface.hpp"
 
 #include <string>
 
-namespace ORO_Execution
+namespace RTT
 {
-	using ORO_CoreLib::CommandInterface;
+	
 
 	/**
 	 * @brief This command displays a string when executed. 

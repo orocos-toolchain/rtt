@@ -27,19 +27,19 @@
  
  
 
-#include "execution/ProgramLoader.hpp"
-#include "execution/Parser.hpp"
-#include "execution/ParsedStateMachine.hpp"
-#include "corelib/Logger.hpp"
+#include "rtt/ProgramLoader.hpp"
+#include "rtt/Parser.hpp"
+#include "rtt/ParsedStateMachine.hpp"
+#include "rtt/Logger.hpp"
 
 #include <iostream>
 #include <fstream>
 
 using namespace boost;
 using namespace std;
-using namespace ORO_CoreLib;
 
-namespace ORO_Execution
+
+namespace RTT
 {
     ProgramLoader::ProgramLoader(bool rethrow /*=false*/)
         : mrethrow(rethrow)

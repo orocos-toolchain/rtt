@@ -28,18 +28,18 @@
 // TAO_IDL - Generated from 
 // be/be_codegen.cpp:925
 
-#include "corba/CosPropertyServiceI.h"
-#include <corelib/Property.hpp>
-#include <corelib/PropertyBag.hpp>
-#include <corelib/Logger.hpp>
-#include <execution/AttributeRepository.hpp>
+#include "rtt/corba/CosPropertyServiceI.h"
+#include <rtt/Property.hpp>
+#include <rtt/PropertyBag.hpp>
+#include <rtt/Logger.hpp>
+#include <rtt/AttributeRepository.hpp>
 #include <vector>
 #include <algorithm>
 
 
 using namespace CosPropertyService;
-using namespace ORO_CoreLib;
-using namespace ORO_Execution;
+
+
 using namespace std;
 
 #if 0 // NOT IMPLEMENTED
@@ -144,7 +144,7 @@ CosPropertyService_PropertySet_i::CosPropertyService_PropertySet_i (  AttributeR
     vector<string> names = ar->names();
     for ( vector<string>::iterator it = names.begin(); it != names.end() ; ++it) {
         CORBA::Any_ptr any_value = ar->getValue(*it)->getDataSource()->getAny();
-        bag->add( new ORO_CoreLib::Property<CORBA::Any>( *it, "Task Attribute", *any_value ) );
+        bag->add( new Property<CORBA::Any>( *it, "Task Attribute", *any_value ) );
     }
 }
 
@@ -172,7 +172,7 @@ void CosPropertyService_PropertySet_i::define_property (
 {
     // By default, store as Any, but if already present, try conversion.
     string pname( property_name );
-    ORO_CoreLib::Property<CORBA::Any>* p = bag->getProperty<CORBA::Any>( pname );
+    Property<CORBA::Any>* p = bag->getProperty<CORBA::Any>( pname );
     if ( p ) {
         Logger::log() << Logger::Debug << "Updating Property<CORBA::Any> "<< pname <<Logger::nl;
         p->value() = property_value;
@@ -189,7 +189,7 @@ void CosPropertyService_PropertySet_i::define_property (
         // new property...
         this->modified();
         Logger::log() << Logger::Debug << "Creating Property "<< pname <<Logger::nl;
-        bag->add( new ORO_CoreLib::Property<CORBA::Any>( pname, "Defined Property", property_value ) );
+        bag->add( new Property<CORBA::Any>( pname, "Defined Property", property_value ) );
     }
 }
 
@@ -273,7 +273,7 @@ CORBA::Any * CosPropertyService_PropertySet_i::get_property_value (
   ))
 {
     string pname( property_name );
-    ORO_CoreLib::Property<CORBA::Any>* p = bag->getProperty<CORBA::Any>( pname );
+    Property<CORBA::Any>* p = bag->getProperty<CORBA::Any>( pname );
     if ( p ) {
         Logger::log() << Logger::Debug<< "Returning value of Property<CORBA::Any>."<<Logger::endl;
         return new CORBA::Any( (p->get()) );

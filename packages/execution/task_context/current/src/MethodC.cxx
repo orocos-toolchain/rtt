@@ -26,18 +26,18 @@
  ***************************************************************************/
  
  
-#include "execution/GlobalMethodFactory.hpp"
-#include "execution/OperationInterface.hpp"
-#include "execution/MethodC.hpp"
-#include "execution/FactoryExceptions.hpp"
-#include "corelib/DataSourceCommand.hpp"
-#include "corelib/Logger.hpp"
-#include <corelib/Exceptions.hpp>
+#include "rtt/GlobalMethodFactory.hpp"
+#include "rtt/OperationInterface.hpp"
+#include "rtt/MethodC.hpp"
+#include "rtt/FactoryExceptions.hpp"
+#include "rtt/DataSourceCommand.hpp"
+#include "rtt/Logger.hpp"
+#include <rtt/Exceptions.hpp>
 #include <vector>
 
-namespace ORO_Execution
+namespace RTT
 {
-    using namespace ORO_CoreLib;
+    
     
     class MethodC::D
     {

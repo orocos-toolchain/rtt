@@ -25,36 +25,36 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "execution/parser-debug.hpp"
-#include "execution/parse_exception.hpp"
+#include "rtt/parser-debug.hpp"
+#include "rtt/parse_exception.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "execution/CommandParser.hpp"
+#include "rtt/CommandParser.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <functional>
 #include <algorithm>
 
-#include "corelib/CommandNOP.hpp"
-#include "corelib/CommandDataSource.hpp"
-#include "corelib/ConditionTrue.hpp"
-#include "corelib/ConditionOnce.hpp"
+#include "rtt/CommandNOP.hpp"
+#include "rtt/CommandDataSource.hpp"
+#include "rtt/ConditionTrue.hpp"
+#include "rtt/ConditionOnce.hpp"
 
-#include "execution/AsynchCommandDecorator.hpp"
+#include "rtt/AsynchCommandDecorator.hpp"
 
-#include "execution/TaskContext.hpp"
-#include "execution/ArgumentsParser.hpp"
-#include "execution/ConditionComposite.hpp"
-#include "execution/CommandDispatch.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/ArgumentsParser.hpp"
+#include "rtt/ConditionComposite.hpp"
+#include "rtt/CommandDispatch.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     using boost::bind;
-    using ORO_CoreLib::CommandNOP;
-    using ORO_CoreLib::ConditionTrue;
+    
+    
     using namespace detail;
 
     namespace {

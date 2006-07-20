@@ -30,9 +30,9 @@
 #ifndef TEMPLATEDIGITALOUT_HPP
 #define TEMPLATEDIGITALOUT_HPP
 
-#include <os/CAS.hpp>
+#include <rtt/os/CAS.hpp>
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
 	/**
@@ -76,7 +76,7 @@ namespace ORO_DeviceDriver
             do {
                 orig  = bit_status;
                 bcopy = orig | (0x1 << bit);
-            } while (!ORO_OS::CAS(&bit_status, orig, bcopy));
+            } while (!OS::CAS(&bit_status, orig, bcopy));
         }
 
         void switchOff( unsigned int bit )
@@ -86,7 +86,7 @@ namespace ORO_DeviceDriver
             do {
                 orig = bit_status;
                 bcopy = orig & ~(1 << bit);
-            } while (!ORO_OS::CAS(&bit_status, orig, bcopy));
+            } while (!OS::CAS(&bit_status, orig, bcopy));
         }
 
         void setBit( unsigned int bit, bool value ) 
@@ -97,7 +97,7 @@ namespace ORO_DeviceDriver
                 orig = bit_status;
                 bcopy = orig & ~(!value << bit); // note the 'logical' not of value !
                 bcopy = bcopy & (value << bit);
-            } while (!ORO_OS::CAS(&bit_status, orig, bcopy));
+            } while (!OS::CAS(&bit_status, orig, bcopy));
         }
 
         void setSequence(unsigned int start_bit, unsigned int stop_bit, unsigned int value)
@@ -112,7 +112,7 @@ namespace ORO_DeviceDriver
                 orig = bit_status;
                 bcopy = orig | orcopy; // OR sets ones to 1
                 bcopy = bcopy & andcopy; // AND sets zeros to 0
-            } while (!ORO_OS::CAS(&bit_status, orig, bcopy));
+            } while (!OS::CAS(&bit_status, orig, bcopy));
 
 //             for (unsigned int i=start_bit; i <= stop_bit; ++i)
 //                 setBit(i, (value >> (i-start_bit) ) & 0x1 );

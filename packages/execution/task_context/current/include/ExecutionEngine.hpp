@@ -29,16 +29,16 @@
 #ifndef ORO_EXECUTION_ENGINE_HPP
 #define ORO_EXECUTION_ENGINE_HPP
 
-#include <corelib/RunnableInterface.hpp>
-#include <corelib/ActivityInterface.hpp>
-#include <execution/CommandProcessor.hpp>
-#include <execution/ProgramProcessor.hpp>
-#include <execution/StateMachineProcessor.hpp>
+#include "RunnableInterface.hpp"
+#include "ActivityInterface.hpp"
+#include "CommandProcessor.hpp"
+#include "ProgramProcessor.hpp"
+#include "StateMachineProcessor.hpp"
 
-namespace ORO_OS {
+namespace OS {
     class Semaphore;
 }
-namespace ORO_Execution
+namespace RTT
 {
     class TaskCore;
 
@@ -54,18 +54,18 @@ namespace ORO_Execution
      * StateMachineProcessor and EventProcessor.
      */
     class ExecutionEngine
-        : public ORO_CoreLib::RunnableInterface
+        : public RunnableInterface
     {
     protected:
-        ORO_OS::Semaphore* work_sem;
-        ORO_OS::Semaphore* loop_sem;
+        OS::Semaphore* work_sem;
+        OS::Semaphore* loop_sem;
         TaskCore*     taskc;
         ExecutionEngine* mainee;
 
         CommandProcessor* cproc;
         ProgramProcessor* pproc;
         StateMachineProcessor* smproc;
-        ORO_CoreLib::EventProcessor* eproc;
+        EventProcessor* eproc;
 
         std::vector<ExecutionEngine*> children;
 
@@ -95,7 +95,7 @@ namespace ORO_Execution
 
         virtual void finalize();
 
-        virtual void setActivity(ORO_CoreLib::ActivityInterface* t);
+        virtual void setActivity(ActivityInterface* t);
 
         /**
          * In case a parent execution engine was given, return it, otherwise,
@@ -137,7 +137,7 @@ namespace ORO_Execution
         /** 
          * Return the EventProcessor of this engine.
          */
-        ORO_CoreLib::EventProcessor* events() const;
+        EventProcessor* events() const;
 
         CommandProcessor* getCommandProcessor() const {
             return mainee ? mainee->getCommandProcessor() : cproc;
@@ -151,7 +151,7 @@ namespace ORO_Execution
             return mainee ? mainee->getStateMachineProcessor() : smproc;
         }
 
-        ORO_CoreLib::EventProcessor* getEventProcessor() const;
+        EventProcessor* getEventProcessor() const;
 
     };
 

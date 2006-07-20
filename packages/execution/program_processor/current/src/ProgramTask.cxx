@@ -27,17 +27,17 @@
  
  
 
-#include "execution/ProgramTask.hpp"
-#include "execution/CommandDS.hpp"
-#include "execution/Method.hpp"
-#include "execution/TaskContext.hpp"
-#include "execution/FactoryExceptions.hpp"
-#include <corelib/DataSources.hpp>
+#include "rtt/ProgramTask.hpp"
+#include "rtt/CommandDS.hpp"
+#include "rtt/Method.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/FactoryExceptions.hpp"
+#include <rtt/DataSources.hpp>
 
-namespace ORO_Execution
+namespace RTT
 {
-    using namespace ORO_CoreLib;
-    using namespace ORO_CoreLib::detail;
+    
+    using namespace detail;
 
     ProgramTask::ProgramTask(ProgramInterfacePtr prog, ExecutionEngine* ee)
         : TaskContext( prog->getName(), ee ),

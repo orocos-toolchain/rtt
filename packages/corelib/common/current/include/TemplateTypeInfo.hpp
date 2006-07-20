@@ -36,10 +36,10 @@
 
 #include <pkgconf/system.h>
 #ifdef OROPKG_CORBA
-#include <corba/ExpressionProxy.hpp>
+#include "corba/ExpressionProxy.hpp"
 #endif
 
-namespace ORO_CoreLib
+namespace RTT
 {
     namespace detail {
         template<typename T, bool b_value>
@@ -162,13 +162,13 @@ namespace ORO_CoreLib
             : tname(name)
         {
             // Install the type info object for T.
-            if ( ORO_CoreLib::detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject != 0) {
+            if ( detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject != 0) {
                 Logger::log() << Logger::Warning << "Overriding TypeInfo for '" 
-                              << ORO_CoreLib::detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject->getTypeName()
+                              << detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject->getTypeName()
                               << "'." << Logger::endl;
-                delete ORO_CoreLib::detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject;
+                delete detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject;
             }
-            ORO_CoreLib::detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
+            detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
         }
 
         AttributeBase* buildConstant(DataSourceBase::shared_ptr dsb) const
@@ -323,9 +323,9 @@ namespace ORO_CoreLib
             DataSourceBase* result = 0;
 #ifdef OROPKG_CORBA
             // first try as assignable DS, if not possible, try as normal DS.
-            result = ORO_Corba::ExpressionProxy::NarrowAssignableDataSource<PropertyType>( e );
+            result = Corba::ExpressionProxy::NarrowAssignableDataSource<PropertyType>( e );
             if (!result )
-                result = ORO_Corba::ExpressionProxy::NarrowDataSource<PropertyType>( e );
+                result = Corba::ExpressionProxy::NarrowDataSource<PropertyType>( e );
 #endif
             return result;;
         }
@@ -404,14 +404,14 @@ namespace ORO_CoreLib
 
 #if 0
         // TODO: constants do not work yet with container types.
-        AttributeBase* buildConstant(ORO_CoreLib::DataSourceBase::shared_ptr ds) const
+        AttributeBase* buildConstant(DataSourceBase::shared_ptr ds) const
         {
             // no constant without sizehint.
             return new Constant( ds );
             return 0;
         }
 
-        AttributeBase* buildConstant(ORO_CoreLib::DataSourceBase::shared_ptr ds, int size) const
+        AttributeBase* buildConstant(DataSourceBase::shared_ptr ds, int size) const
         {
             // sizehint
             return new Constant( IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<_T> > >( t_init ) );
@@ -457,14 +457,14 @@ namespace ORO_CoreLib
 
 #if 0
         // TODO: constants do not work yet with container types.
-        AttributeBase* buildConstant(ORO_CoreLib::DataSourceBase::shared_ptr ds) const
+        AttributeBase* buildConstant(DataSourceBase::shared_ptr ds) const
         {
             // no constant without sizehint.
             return new Constant( ds );
             return 0;
         }
 
-        AttributeBase* buildConstant(ORO_CoreLib::DataSourceBase::shared_ptr ds, int size) const
+        AttributeBase* buildConstant(DataSourceBase::shared_ptr ds, int size) const
         {
             // sizehint
             return new Constant( IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<T> > >( t_init ) );

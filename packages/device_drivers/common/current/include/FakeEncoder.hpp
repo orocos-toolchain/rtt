@@ -28,15 +28,15 @@
 #ifndef FAKEENCODER_HPP
 #define FAKEENCODER_HPP
 
-#include <device_interface/EncoderInterface.hpp>
+#include "EncoderInterface.hpp"
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
     /**
      * @brief A Dummy Encoder implementation
      */
     class FakeEncoder
-        : public ORO_DeviceInterface::EncoderInterface
+        : public EncoderInterface
     {
         int turn, pos;
         unsigned int mresolution;

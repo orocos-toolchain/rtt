@@ -25,20 +25,20 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "execution/parser-debug.hpp"
-#include "execution/parse_exception.hpp"
-#include "execution/ValueParser.hpp"
-#include "corelib/Attribute.hpp"
+#include "rtt/parser-debug.hpp"
+#include "rtt/parse_exception.hpp"
+#include "rtt/ValueParser.hpp"
+#include "rtt/Attribute.hpp"
 
-#include "execution/TaskContext.hpp"
+#include "rtt/TaskContext.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <iostream>
 using namespace std;
-using namespace ORO_CoreLib;
-namespace ORO_Execution
+
+namespace RTT
 {
     using boost::bind;
     using namespace detail;

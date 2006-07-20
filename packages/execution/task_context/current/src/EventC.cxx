@@ -26,15 +26,15 @@
  ***************************************************************************/
  
  
-#include "execution/EventService.hpp"
-#include "execution/EventC.hpp"
-#include "execution/FactoryExceptions.hpp"
-#include "corelib/Logger.hpp"
+#include "rtt/EventService.hpp"
+#include "rtt/EventC.hpp"
+#include "rtt/FactoryExceptions.hpp"
+#include "rtt/Logger.hpp"
 #include <vector>
 
-namespace ORO_Execution
+namespace RTT
 {
-    using namespace ORO_CoreLib;
+    
     
     class EventC::D
     {

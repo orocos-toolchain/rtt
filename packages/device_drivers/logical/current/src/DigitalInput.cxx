@@ -24,5 +24,5 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "device_drivers/DigitalInput.hpp"
+#include "rtt/dev/DigitalInput.hpp"
 

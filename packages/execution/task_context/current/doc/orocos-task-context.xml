@@ -193,7 +193,7 @@
       A task's interface consists of : Commands,
       Methods, DataSources, Properties and Events, and Data Flow ports which are all public.
       We will refer to them as <emphasis>members</emphasis>.
-      The class <classname>ORO_Execution::TaskContext</classname> 
+      The class <classname>RTT::TaskContext</classname> 
       groups all these interfaces and serves as the basic building
       block of applications. A component developer 'builds'
       these interfaces using the instructions found in this manual.
@@ -231,31 +231,31 @@
     <para>
       The way we interact with TaskContexts during development of an
       Orocos application is through the TaskBrowser.  The
-      <classname>ORO_Execution::TaskBrowser</classname> is a powerful console tool
+      <classname>RTT::TaskBrowser</classname> is a powerful console tool
       which helps you to explore, execute and debug
-      <classname>ORO_Execution::TaskContext</classname>s in running programs. All you
+      <classname>RTT::TaskContext</classname>s in running programs. All you
       have to do is to instantiate a TaskBrowser and enter its loop()
       method. When the program is started from a console, the
       TaskBrowser takes over user input and output.
     </para>
     <note>
       <para>
-	The <classname>ORO_Execution::TaskBrowser</classname> requires the
+	The <classname>RTT::TaskBrowser</classname> requires the
 	Orocos Program Parser package to interpret the console input.
       </para>
     </note>
     <programlisting>
-  #include &lt;execution/TaskBrowser.hpp&gt;
-  #include &lt;os/main.h&gt;
+  #include &lt;rtt/TaskBrowser.hpp&gt;
+  #include &lt;rtt/os/main.h&gt;
   // ...
 
   int ORO_main( int, char** )
   {
       // Create your tasks
-      <classname>ORO_Execution::TaskContext</classname>* task = ...
+      <classname>RTT::TaskContext</classname>* task = ...
 
       // when all is setup :
-      <classname>ORO_Execution::TaskBrowser</classname> tbrowser( task );
+      <classname>RTT::TaskBrowser</classname> tbrowser( task );
 
       tbrowser.loop();
       return 0;
@@ -282,7 +282,7 @@ $ ./taskintro
  (type 'ls' for context info) :
     </screen>
     <para>
-      The first lines are printed by the Orocos ORO_CoreLib::Logger, which has been
+      The first lines are printed by the Orocos RTT::Logger, which has been
       configured to display informative messages to console. You can always
       watch the log file 'orocos.log' in the same directory to see all messages.
     </para>
@@ -529,12 +529,12 @@ cd                  quit
     <title>Setting Up a Basic Task</title>
     <para>
       Tasks are 
-      implemented by the <classname>ORO_Execution::TaskContext</classname> class.
+      implemented by the <classname>RTT::TaskContext</classname> class.
       It is useful speaking of a context because it defines
       the context in which an activity (a program) operates. 
       It defines the interface of the task, its properties,
       its peer tasks and uses its
-      <classname>ORO_Execution::ExecutionEngine</classname> to handle its
+      <classname>RTT::ExecutionEngine</classname> to handle its
       programs and to accept commands from other tasks.
     </para>
     <para>
@@ -550,16 +550,16 @@ cd                  quit
       </para>
     </important>
     <para>
-      A <classname>ORO_Execution::TaskContext</classname> is constructed as :
+      A <classname>RTT::TaskContext</classname> is constructed as :
     </para>
     <para>
       <programlisting>
-  #include &lt;execution/TaskContext.hpp&gt;
+  #include &lt;rtt/TaskContext.hpp&gt;
 
   // we assume this is done in all the following code listings :
-  using namespace ORO_Execution;
+  using namespace RTT;
 
-  <classname>ORO_Execution::TaskContext</classname> a_task("ATask");
+  <classname>RTT::TaskContext</classname> a_task("ATask");
       </programlisting>
     </para>
     <para>
@@ -602,17 +602,17 @@ cd                  quit
       <function>update()</function> and
       <function>shutdown()</function> functions of a TaskContext
       by inheriting from that class. Orocos provides an 'enhanced'
-      TaskContext, the <classname>ORO_Execution::GenericTaskContext</classname>
+      TaskContext, the <classname>RTT::GenericTaskContext</classname>
       which we will use in the examples to encourage users to
       use this class:
     </para>
-    <programlisting>  #include &lt;execution/GenericTaskContext.hpp>
+    <programlisting>  #include &lt;rtt/GenericTaskContext.hpp>
   class MyTask 
-    : public <classname>ORO_Execution::GenericTaskContext</classname>
+    : public <classname>RTT::GenericTaskContext</classname>
   {
   public:
        MyTask(std::string name) 
-         : <classname>ORO_Execution::GenericTaskContext</classname>(name)
+         : <classname>RTT::GenericTaskContext</classname>(name)
        {
           // see lateron what to put here.
        }
@@ -655,12 +655,12 @@ cd                  quit
       <para>
 	The functionality of a task, i.e. its algorithm, is executed
 	by the Execution Engine.  To run an
-	<classname>ORO_Execution::ExecutionEngine</classname>, you
+	<classname>RTT::ExecutionEngine</classname>, you
 	need to use one of the
-	<classname>ORO_CoreLib::ActivityInterface</classname> classes
+	<classname>RTT::ActivityInterface</classname> classes
 	from the CoreLib, for example
-	<classname>ORO_CoreLib::PeriodicActivity</classname> or
-	<classname>ORO_CoreLib::NonPeriodicActivity</classname>.
+	<classname>RTT::PeriodicActivity</classname> or
+	<classname>RTT::NonPeriodicActivity</classname>.
 	These classes will allocate a thread which executes the
 	Execution Engine. ( See the &coreman; for more documentation
 	about activities. ) The choosen
@@ -668,13 +668,13 @@ cd                  quit
 	the Execution Engine, which will in turn invoke the
 	application's methods above.
 	<programlisting>
-  #include &lt;corelib/PeriodicActivity.hpp&gt;
+  #include &lt;rtt/PeriodicActivity.hpp&gt;
 
-  using namespace ORO_CoreLib;
+  using namespace RTT;
 
-  <classname>ORO_Execution::TaskContext</classname>* a_task = new MyTask("the_task")
+  <classname>RTT::TaskContext</classname>* a_task = new MyTask("the_task")
   // create a periodic activity with priority=5, period=1000Hz
-  <classname>ORO_CoreLib::PeriodicActivity</classname> act(5, 0.001, a_task->engine() );
+  <classname>RTT::PeriodicActivity</classname> act(5, 0.001, a_task->engine() );
   // ... start the execution engine of a_task :
   act.start(); 
   // ...
@@ -691,13 +691,13 @@ cd                  quit
       <para>
 	A TaskContext can also be run in a non periodic activity:
 	<programlisting>
-  #include &lt;corelib/NonPeriodicActivity.hpp&gt;
+  #include &lt;rtt/NonPeriodicActivity.hpp&gt;
 
-  using namespace ORO_CoreLib;
+  using namespace RTT;
 
-  <classname>ORO_Execution::TaskContext</classname>* a_task = new MyTask("the_task")
+  <classname>RTT::TaskContext</classname>* a_task = new MyTask("the_task")
   // create a non periodic activity with priority=5
-  <classname>ORO_CoreLib::NonPeriodicActivity</classname> nonpAct(5, a_task->engine() );
+  <classname>RTT::NonPeriodicActivity</classname> nonpAct(5, a_task->engine() );
   // ... start the execution engine of a_task :
   nonpAct.start();
   // ...
@@ -712,12 +712,12 @@ cd                  quit
       <title>Interfacing the TaskContext</title>
       <para>
 	During development of your TaskContext, it is handy to connect
-	the <classname>ORO_Execution::TaskBrowser</classname> to your
+	the <classname>RTT::TaskBrowser</classname> to your
 	task such that you can interactively manipulate it and it's 
 	properties:
-	<programlisting>  #include &lt;execution/TaskBrowser.hpp>
+	<programlisting>  #include &lt;rtt/TaskBrowser.hpp>
   // ... see above
-  <classname>ORO_Execution::TaskBrowser</classname> browser(a_task);
+  <classname>RTT::TaskBrowser</classname> browser(a_task);
 
   // Start the interactive console:
   browser.loop();</programlisting>
@@ -785,27 +785,27 @@ cd                  quit
 	<para>
 	  Any kind of data can be exchanged (also user defined types)
 	  but for readability, only the 'double' C type is used here.
-	  <programlisting>  #include &lt;execution/Ports.hpp&gt;
-  using namespace ORO_Execution;
+	  <programlisting>  #include &lt;rtt/Ports.hpp&gt;
+  using namespace RTT;
 
   class MyTask
-    : public <classname>ORO_Execution::GenericTaskContext</classname>
+    : public <classname>RTT::GenericTaskContext</classname>
   {
     // Read-only data port:
-    <classname>ORO_Execution::ReadDataPort</classname>&lt;double&gt; indatPort;
+    <classname>RTT::ReadDataPort</classname>&lt;double&gt; indatPort;
     // Read-Write data port:
-    <classname>ORO_Execution::WriteDataPort</classname>&lt;double&gt; outdatPort;
+    <classname>RTT::WriteDataPort</classname>&lt;double&gt; outdatPort;
 
     // Read-only buffer port:
-    <classname>ORO_Execution::ReadBufferPort</classname>&lt;double&gt; inbufPort;
+    <classname>RTT::ReadBufferPort</classname>&lt;double&gt; inbufPort;
     // Write-only buffer port:
-    <classname>ORO_Execution::WriteBufferPort</classname>&lt;double&gt; outbufPort;
+    <classname>RTT::WriteBufferPort</classname>&lt;double&gt; outbufPort;
     // Read-Write buffer port:
-    <classname>ORO_Execution::BufferPort</classname>&lt;double&gt; rwbufPort;
+    <classname>RTT::BufferPort</classname>&lt;double&gt; rwbufPort;
   public:
     // ...
     MyTask(std::string name)
-      : <classname>ORO_Execution::GenericTaskContext</classname>(name),
+      : <classname>RTT::GenericTaskContext</classname>(name),
         indatPort("Data_R"),
 	outdatPort("Data_W", 1.0),  // note: initial value
 	inbufPort("SetPoint_X"),
@@ -855,11 +855,11 @@ cd                  quit
 	<para>
 	  Alternatively, you can connect buffers in your
 	  main() program by writing:
-	  <programlisting>  #include &lt;execution/ConnectionFactory.hpp&gt;
+	  <programlisting>  #include &lt;rtt/ConnectionFactory.hpp&gt;
   // ...
   int buf_size = 100;
-  <classname>ORO_Execution::ConnectionFactory</classname>&lt;double&gt; cf;
-  <classname>ORO_Execution::ConnectionInterface</classname>::shared_ptr con =
+  <classname>RTT::ConnectionFactory</classname>&lt;double&gt; cf;
+  <classname>RTT::ConnectionInterface</classname>::shared_ptr con =
     cf.createBuffer(a_task->ports()->getPort("SetPoint_X"), 
                     b_task->ports()->getPort("SetPoint_X"), 
                     buf_size);
@@ -878,11 +878,11 @@ cd                  quit
 	  method. Logically the script or method read the inbound
 	  data, calculate something and write the outbound data.
 	</para>
-	<programlisting>  #include &lt;execution/Ports.hpp&gt;
-  using namespace ORO_Execution;
+	<programlisting>  #include &lt;rtt/Ports.hpp&gt;
+  using namespace RTT;
 
   class MyTask
-    : public <classname>ORO_Execution::GenericTaskContext</classname>
+    : public <classname>RTT::GenericTaskContext</classname>
   {
      // ...Constructor sets up Ports, see above.
 
@@ -944,13 +944,13 @@ cd                  quit
 	    write-only and read-write buffers respectively.  More
 	    specifically, <function>data()</function> returns a
 	    (const)
-	    <classname>ORO_CoreLib::DataObjectInterface</classname>,
+	    <classname>RTT::DataObjectInterface</classname>,
 	    <function>read</function> returns a
-	    <classname>ORO_CoreLib::ReadInterface</classname>,
+	    <classname>RTT::ReadInterface</classname>,
 	    <function>write</function> returns a
-	    <classname>ORO_CoreLib::WriteInterface</classname> and
+	    <classname>RTT::WriteInterface</classname> and
 	    <function>buffer</function> returns a
-	    <classname>ORO_CoreLib::BufferInterface</classname>.
+	    <classname>RTT::BufferInterface</classname>.
 	  </para>
 	</section>
       </section>
@@ -1034,11 +1034,11 @@ cd                  quit
       </para>
       <para>
 	<programlisting>
-  #include &lt;execution/Method.hpp&gt;
-  using namespace ORO_Execution;
+  #include &lt;rtt/Method.hpp&gt;
+  using namespace RTT;
 
   class MyTask
-    : public <classname>ORO_Execution::GenericTaskContext</classname>
+    : public <classname>RTT::GenericTaskContext</classname>
   {
     public:
     void reset() { ... }
@@ -1051,7 +1051,7 @@ cd                  quit
     Method&lt;double(double)&gt; paramMethod;
 
     MyTask(std::string name)
-      : <classname>ORO_Execution::GenericTaskContext</classname>(name),
+      : <classname>RTT::GenericTaskContext</classname>(name),
       resetMethod(&quot;reset&quot;, &amp;MyTask::reset, this),
       nameMethod(&quot;name&quot;, &amp;MyTask::getName, this),
       resetMethod(&quot;changeP&quot;, &amp;MyTask::changeParameter, this)
@@ -1072,7 +1072,7 @@ cd                  quit
 	In the above example, we wish to add 3 class functions to the
 	method interface: reset, getName and changeParameter. This can
 	be done by constructing a
-	<classname>ORO_Execution::Method</classname> object with the
+	<classname>RTT::Method</classname> object with the
 	correct function signature for each such class function.  Each
 	Method object is initialised in the constructor with a name
 	(&quot;reset&quot;), a pointer to the class function
@@ -1218,7 +1218,7 @@ cd                  quit
 		<entry>string, array</entry>
 	      </row>
 	      <row>
-		<entry>Orocos Fixed Container types : ORO_CoreLib::Double6D, ORO_Geometry::[Frame | Rotation | Twist | ... ]</entry>
+		<entry>Orocos Fixed Container types : RTT::Double6D, ORO_Geometry::[Frame | Rotation | Twist | ... ]</entry>
 		<entry><emphasis>const &amp;</emphasis></entry>
 		<entry>double6d, frame, rotation, twist, ...</entry>
 	      </row>
@@ -1258,25 +1258,25 @@ cd                  quit
       <title>Adding Task Attributes or Properties</title>
       <para>
 	An attribute can be added in the task's interface
-	(<classname>ORO_Execution::AttributeRepository</classname>) like this :</para>
+	(<classname>RTT::AttributeRepository</classname>) like this :</para>
       <para>
-	<programlisting>  #include &lt;corelib/Property.hpp>
-  #include &lt;corelib/Attribute.hpp>
+	<programlisting>  #include &lt;rtt/Property.hpp>
+  #include &lt;rtt/Attribute.hpp>
 
   class MyTask
-    : public <classname>ORO_Execution::GenericTaskContext</classname>
+    : public <classname>RTT::GenericTaskContext</classname>
   {
-     <classname>ORO_CoreLib::Attribute</classname>&lt;bool&gt; aflag;
-     <classname>ORO_CoreLib::Attribute</classname>&lt;int&gt; max;
+     <classname>RTT::Attribute</classname>&lt;bool&gt; aflag;
+     <classname>RTT::Attribute</classname>&lt;int&gt; max;
 
-     <classname>ORO_CoreLib::Constant</classname>&lt;double&gt; pi;
+     <classname>RTT::Constant</classname>&lt;double&gt; pi;
 
-     <classname>ORO_CoreLib::Property</classname>&lt;std::string&gt; param;
-     <classname>ORO_CoreLib::Property</classname>&lt;double&gt; value;
+     <classname>RTT::Property</classname>&lt;std::string&gt; param;
+     <classname>RTT::Property</classname>&lt;double&gt; value;
   public:
     // ...
     MyTask(std::string name)
-      : <classname>ORO_Execution::GenericTaskContext</classname>(name),
+      : <classname>RTT::GenericTaskContext</classname>(name),
         param("Param","Param Description","The String"),
 	value("Value","Value Description", 1.23 ),
 	aflag(false), max( 5 ),
@@ -1372,14 +1372,14 @@ cd                  quit
       <title>Adding Commands to a TaskContext</title>
       <para>
 	To add a command to the Command Interface, one 
-	must create <classname>ORO_Execution::Command</classname>,
+	must create <classname>RTT::Command</classname>,
 	objects :</para>
       <para>
 	<programlisting>
-  #include &lt;execution/Command.hpp&gt;
+  #include &lt;rtt/Command.hpp&gt;
 
   class MyTask
-    : public <classname>ORO_Execution::GenericTaskContext</classname>
+    : public <classname>RTT::GenericTaskContext</classname>
   {
   public:
     /**
@@ -1400,7 +1400,7 @@ cd                  quit
 
   public:
     MyTask(std::string name)
-      : <classname>ORO_Execution::GenericTaskContext</classname>(name),
+      : <classname>RTT::GenericTaskContext</classname>(name),
         cycleCommand(&quot;startCycle&quot;,
 	             &amp;MyTask::startCycle,
                      &amp;MyTask::cycleDone, this),
@@ -1458,7 +1458,7 @@ cd                  quit
 	can make use of that command. 
       </para>
       <para>
-	The <classname>ORO_Execution::Command</classname>
+	The <classname>RTT::Command</classname>
 	class can be used to invoke commands as well.
 	You can get such object from a task's interface:
       </para>
@@ -1495,7 +1495,7 @@ cd                  quit
        </para>
 <!---
       <para>
-	The <classname>ORO_Execution::CommandC</classname>
+	The <classname>RTT::CommandC</classname>
 	class is especially designed to manage task commands in C++.
 	You can ask a task's factory to create such object:
       </para>
@@ -1581,18 +1581,18 @@ cd                  quit
 	Events can be easily added to a task's interface,
 	much like methods are:
       </para>
-	<programlisting>  #include &lt;corelib/Event.hpp>
+	<programlisting>  #include &lt;rtt/Event.hpp>
 
   class MyTask
-    : public <classname>ORO_Execution::GenericTaskContext</classname>
+    : public <classname>RTT::GenericTaskContext</classname>
   {
     // An event with a bool argument:
-    <classname>ORO_CoreLib::Event</classname>&lt; void(bool) &gt; turnSwitch;
+    <classname>RTT::Event</classname>&lt; void(bool) &gt; turnSwitch;
     // An event with three arguments:
-    <classname>ORO_CoreLib::Event</classname>&lt; bool(double, double, double) &gt; moveAxis;
+    <classname>RTT::Event</classname>&lt; bool(double, double, double) &gt; moveAxis;
   public:
     MyTask(std::string name)
-      : <classname>ORO_Execution::GenericTaskContext</classname>(name),
+      : <classname>RTT::GenericTaskContext</classname>(name),
         turnSwitch( "turnSwitch" ),
 	moveAxis( "move" )
     {
@@ -1604,7 +1604,7 @@ cd                  quit
     }
   };</programlisting>
       <para>
-	An <classname>ORO_CoreLib::Event</classname> object has the signature
+	An <classname>RTT::Event</classname> object has the signature
 	('void(bool)') of the 'callback function' it will call when
 	the event is 'emitted' (or 'fired'). The object is initialised
 	with a name ("turnSwitch") and added to the interface ('addEvent').
@@ -1614,10 +1614,10 @@ cd                  quit
       <title>Emitting Events in C++</title>
       <para>
 	Once events are added, they can be emitted using the
-	<classname>ORO_Execution::EventC</classname> object.
+	<classname>RTT::EventC</classname> object.
 	'argC' is used to add 'Constant' arguments, 'arg' is used to add
 	variable arguments.
-	<programlisting>  <classname>ORO_Execution::EventC</classname> move_event 
+	<programlisting>  <classname>RTT::EventC</classname> move_event 
     = a_task.events()->setupEmit( "move" ).argC(1.0).argC(2.0).argC(3.0);
   // emit the event 'move' with given args:
   move_event.emit();
@@ -1636,10 +1636,10 @@ cd                  quit
       <title>Reacting to Events in C++</title>
       <para>
 	Analogous to emitting an event, one can also react to
-	an event in C++, using the <classname>ORO_Execution::ConnectionC</classname>
+	an event in C++, using the <classname>RTT::ConnectionC</classname>
 	object. However, this object is only of intermediate use
 	as event connections can be accessed through the
-	<classname>ORO_Execution::Handle</classname> object. The first example
+	<classname>RTT::Handle</classname> object. The first example
 	shows how to setup a synchronous connection to the event
 	of the previous examples:
 	<programlisting>  #include &lt;boost/bind.hpp>
@@ -1662,13 +1662,13 @@ cd                  quit
 
   // Class callback:
   Reactor r;
-  <classname>ORO_Execution::ConnectionC</classname> reaction
+  <classname>RTT::ConnectionC</classname> reaction
     = a_task.events()->setupConnection("move");
   reaction.callback(&amp;r, &amp;Reactor::callback ));
   <classname>ORO_Corelib::Handle</classname> h = reaction.handle();
 
   // or in short (note: '.handle()' ):
-  <classname>ORO_CoreLib::Handle</classname> h2 
+  <classname>RTT::Handle</classname> h2 
     = a_task.events()->setupConnection("move")
                  .callback( &amp;r, &amp;Reactor::react_callback )
                  .handle();
@@ -1712,14 +1712,14 @@ cd                  quit
       <para>
 	A second example continues, but uses an asynchronous connection.
 	First a new task (b_task) is created which will handle the event
-	asynchronously. During setup, the <classname>ORO_CoreLib::EventProcessor</classname> of
+	asynchronously. During setup, the <classname>RTT::EventProcessor</classname> of
 	b_task's Execution Engine is used to process the event.
-	<programlisting>  <classname>ORO_Execution::TaskContext</classname> b_task("BTask");
-  <classname>ORO_CoreLib::TaskPreemptible</classname> ptask_b(0.1);
+	<programlisting>  <classname>RTT::TaskContext</classname> b_task("BTask");
+  <classname>RTT::TaskPreemptible</classname> ptask_b(0.1);
   ptask_b.run( &amp;b_task );
   ptask_b.start();
 
-  <classname>ORO_CoreLib::Handle</classname> h3 
+  <classname>RTT::Handle</classname> h3 
     = a_task.events()->setupConnection("move")
                             .callback(&amp;r, &amp;react_callback,
                                       b_task.engine()->events() ).handle();
@@ -1910,15 +1910,15 @@ cd                  quit
       <title>Task Property Configuration</title>
       <para>
 	As was seen in <xref linkend="task-attr-rep" />,
-	<classname>ORO_CoreLib::Property</classname> objects can be
+	<classname>RTT::Property</classname> objects can be
 	added to a task's interface. To read and write properties from
 	or to files, you can use the
-	<classname>ORO_Execution::GenericTaskContext</classname>
+	<classname>RTT::GenericTaskContext</classname>
 	class' methods. It creates or reads files in the XML Component
 	Property Format such that it is human readable and modifiable.
       </para>
       <programlisting>  // ...
-  <classname>ORO_Execution::GenericTaskContext</classname>* a_task = ...
+  <classname>RTT::GenericTaskContext</classname>* a_task = ...
   a_task->readProperties( "PropertyFile.cpf" );
   // ...
   a_task->writeProperties( "PropertyFile.cpf" ); </programlisting>
@@ -1945,14 +1945,14 @@ cd                  quit
 	</itemizedlist>
 	Both are loaded at runtime into a task. The scripts are parsed
 	to an object tree, which can then be executed by the
-	<classname>ORO_Execution::ExecutionEngine</classname> of a
+	<classname>RTT::ExecutionEngine</classname> of a
 	task.
       </para>
       <section id="task-context-programs">
 	<title>Program Scripts</title>
 	<para>
 	  Program can be finely controlled once loaded in
-	  the <classname>ORO_Execution::ProgramProcessor</classname>,
+	  the <classname>RTT::ProgramProcessor</classname>,
 	  which is part of the Execution Engine.
 	  A program can be paused, it's variables inspected
 	  and reset while it is loaded in the Processor.
@@ -1970,7 +1970,7 @@ cd                  quit
 	  Orocos Programs are loaded as such into a GenericTaskContext
 	  :</para>
 	<para>
-	  <programlisting>  <classname>ORO_Execution::GenericTaskContext</classname>* a_task = ...
+	  <programlisting>  <classname>RTT::GenericTaskContext</classname>* a_task = ...
 
   a_task->loadProgram( "ProgramBar.ops" ); </programlisting></para>
 	<para>
@@ -2001,7 +2001,7 @@ cd                  quit
 	<para>
 	  Program scripts can also be controlled in C++.
 	  Take a look at the
-	  <classname>ORO_Execution::ProgramInterface</classname> class
+	  <classname>RTT::ProgramInterface</classname> class
 	  reference for more program related functions. One can
 	  get a pointer to a program by calling:
 	</para>
@@ -2018,7 +2018,7 @@ cd                  quit
 	<title>State Machines</title>
 	<para>
 	  Hierarchical state machines are modelled in Orocos
-	  with the <classname>ORO_Execution::StateMachine</classname> class.
+	  with the <classname>RTT::StateMachine</classname> class.
 	  They are like programs in that they can call a
 	  peer task's members, but the calls are grouped
 	  in a state and only executed when the state machine
@@ -2028,7 +2028,7 @@ cd                  quit
 	  Generic Task Context.
 	</para>
 	<para>
-	  <programlisting>  <classname>ORO_Execution::GenericTaskContext</classname>* a_task = ...
+	  <programlisting>  <classname>RTT::GenericTaskContext</classname>* a_task = ...
 
   a_task->loadStateMachine( "StateMachineBar.osd" ); </programlisting></para>
 	<para>
@@ -2077,7 +2077,7 @@ cd                  quit
       framework in Orocos Tasks.
     </para>
     <section>
-      <title>Using the <classname>ORO_Execution::GenericTaskContext</classname></title>
+      <title>Using the <classname>RTT::GenericTaskContext</classname></title>
       <para>
 	To help users in setting up quickly a TaskContext, the GenericTaskContext
 	class has been made available which adds some standard methods and
@@ -2103,7 +2103,7 @@ cd                  quit
      do mymethod( arg )
   } </programlisting>
       <para>
-	Load this function with the <classname>ORO_Execution::ProgramLoader</classname>
+	Load this function with the <classname>RTT::ProgramLoader</classname>
 	in the TaskContext having 'mymethod', and hard realtime tasks
 	can instruct it to execute that method, without jeopardizing 
 	their own realtime behaviour.
@@ -2326,17 +2326,17 @@ cd                  quit
 	C++ interface to a task's interface.
 	</para>
 	<programlisting>
-  #include &lt;execution/GenericTaskContext.hpp&gt;
-  #include &lt;execution/TemplateFactories.hpp&gt;
+  #include &lt;rtt/GenericTaskContext.hpp&gt;
+  #include &lt;rtt/TemplateFactories.hpp&gt;
   #include "DeviceInterface.hpp"
 
   class TaskDeviceInterface
     : public DeviceInterface,
-      public <classname>ORO_Execution::GenericTaskContext</classname>
+      public <classname>RTT::GenericTaskContext</classname>
   {
   public:
       TaskDeviceInterface()
-        : <classname>ORO_Execution::GenericTaskContext</classname>( "DeviceInterface" )
+        : <classname>RTT::GenericTaskContext</classname>( "DeviceInterface" )
       {
          this->setup();
       }

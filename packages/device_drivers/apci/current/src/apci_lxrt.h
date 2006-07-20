@@ -207,7 +207,7 @@ typedef void apci1710_module;
 #include <stdarg.h>
 
 #define OROBLD_OS_LXRT_INTERNAL
-#include <os/fosi.h>
+#include <rtt/os/fosi.h>
 #undef OROBLD_OS_LXRT_INTERNAL
 
 #include <asm/rtai_lxrt.h>

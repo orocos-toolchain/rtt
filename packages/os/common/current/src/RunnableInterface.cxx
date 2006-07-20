@@ -27,10 +27,10 @@
  
  
 
-#include "os/RunnableInterface.hpp"
-#include "os/ThreadInterface.hpp"
+#include "rtt/os/RunnableInterface.hpp"
+#include "rtt/os/ThreadInterface.hpp"
 
-namespace ORO_OS
+namespace OS
 {
   RunnableInterface::RunnableInterface(ThreadInterface* t)
     : rthread(0)

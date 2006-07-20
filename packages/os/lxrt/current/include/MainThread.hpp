@@ -30,7 +30,7 @@
 
 #include "PeriodicThread.hpp"
 
-//#include <os/Time.hpp>
+//#include "Time.hpp"
 
 #include <pkgconf/os_lxrt.h>
 #include "fosi.h"
@@ -38,7 +38,7 @@
 extern "C"
 int lock_all(int stk, int heap);
 
-namespace ORO_OS
+namespace OS
 {
 
     /**

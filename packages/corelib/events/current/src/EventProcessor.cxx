@@ -27,15 +27,15 @@
  
  
 
-#include "corelib/EventProcessor.hpp"
-#include <os/threads.hpp>
+#include "rtt/EventProcessor.hpp"
+#include <rtt/os/threads.hpp>
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     namespace detail
     {
-        using ORO_OS::Semaphore;
+        using OS::Semaphore;
 
         EventCatcher::EventCatcher(Semaphore* s)
             : mep(0), sem(s), enabled(false), refCount(0) // special trick !
@@ -54,14 +54,14 @@ namespace ORO_CoreLib
 
     using namespace detail;
 
-    EventProcessor::EventProcessor(boost::shared_ptr<ORO_OS::Semaphore> s)
+    EventProcessor::EventProcessor(boost::shared_ptr<OS::Semaphore> s)
         : catchers(4), sem(s), active(false)
     {
     }
 
     EventProcessor::EventProcessor()
         : catchers(4),
-          sem( boost::shared_ptr<ORO_OS::Semaphore>() )
+          sem( boost::shared_ptr<OS::Semaphore>() )
     {
     }
 
@@ -107,7 +107,7 @@ namespace ORO_CoreLib
         catchers.apply( boost::bind(&disableAll, _1 ) );
     }
 
-    BlockingEventProcessor::BlockingEventProcessor(boost::shared_ptr<ORO_OS::Semaphore> s )
+    BlockingEventProcessor::BlockingEventProcessor(boost::shared_ptr<OS::Semaphore> s )
         : EventProcessor( s )
     {
     }
@@ -140,11 +140,11 @@ namespace ORO_CoreLib
         return true;
     }
 
-    static void setSem(boost::shared_ptr<ORO_OS::Semaphore> s, EventCatcher* eci) {
+    static void setSem(boost::shared_ptr<OS::Semaphore> s, EventCatcher* eci) {
         eci->sem = s.get();
     }
 
-    void BlockingEventProcessor::setSemaphore( boost::shared_ptr<ORO_OS::Semaphore> s) {
+    void BlockingEventProcessor::setSemaphore( boost::shared_ptr<OS::Semaphore> s) {
         catchers.apply( boost::bind(&setSem, s, _1 ) );
     }
 }

@@ -53,21 +53,21 @@ namespace ORO_KinDyn
         virtual std::string getKind() const { return "ZXXZXZ"; }
 
 
-            virtual bool jacobianForward( const ORO_CoreLib::Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;
+            virtual bool jacobianForward( const RTT::Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;
 
-            virtual bool jacobianInverse( const ORO_CoreLib::Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;
+            virtual bool jacobianInverse( const RTT::Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const;
 
-            virtual bool positionForward( const ORO_CoreLib::Double6D& q, ORO_Geometry::Frame& mp_base, Singularity& s ) const;
+            virtual bool positionForward( const RTT::Double6D& q, ORO_Geometry::Frame& mp_base, Singularity& s ) const;
 
-            virtual bool positionInverse( const ORO_Geometry::Frame& mp_base, Configuration c,  ORO_CoreLib::Double6D& q, Singularity& s) const;
+            virtual bool positionInverse( const ORO_Geometry::Frame& mp_base, Configuration c,  RTT::Double6D& q, Singularity& s) const;
 
-            virtual bool velocityInverse( const ORO_Geometry::Frame& pos_base, Configuration c, const ORO_Geometry::Twist& vel_base, ORO_CoreLib::Double6D& q, ORO_CoreLib::Double6D& qdot, Singularity& s ) const;
+            virtual bool velocityInverse( const ORO_Geometry::Frame& pos_base, Configuration c, const ORO_Geometry::Twist& vel_base, RTT::Double6D& q, RTT::Double6D& qdot, Singularity& s ) const;
 
-            virtual bool velocityInverse( const ORO_CoreLib::Double6D& q, const ORO_Geometry::Twist& vel_base, ORO_CoreLib::Double6D& qdot, Singularity& s ) const;
+            virtual bool velocityInverse( const RTT::Double6D& q, const ORO_Geometry::Twist& vel_base, RTT::Double6D& qdot, Singularity& s ) const;
 
-            virtual bool velocityForward( const ORO_CoreLib::Double6D& q, const ORO_CoreLib::Double6D& qdot, ORO_Geometry::Frame& pos_base, ORO_Geometry::Twist& vel_base, Singularity& s ) const;
+            virtual bool velocityForward( const RTT::Double6D& q, const RTT::Double6D& qdot, ORO_Geometry::Frame& pos_base, ORO_Geometry::Twist& vel_base, Singularity& s ) const;
 
-            virtual void configurationGet(const ORO_CoreLib::Double6D& q, Configuration& c) const;
+            virtual void configurationGet(const RTT::Double6D& q, Configuration& c) const;
     };
 
    

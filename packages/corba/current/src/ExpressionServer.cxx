@@ -26,13 +26,13 @@
  ***************************************************************************/
  
  
-#include "corba/ExpressionServer.hpp"
-#include "corelib/Logger.hpp"
-#include "corba/ExecutionI.h"
+#include "rtt/corba/ExpressionServer.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/corba/ExecutionI.h"
 
-namespace ORO_Corba
+namespace Corba
 {
-    using namespace ORO_CoreLib;
+    
 
 
     ExpressionServer::EServantMap ExpressionServer::EServants;
@@ -40,7 +40,7 @@ namespace ORO_Corba
     ExpressionServer::AServerMap ExpressionServer::AServers;
     ExpressionServer::MServerMap ExpressionServer::MServers;
 
-    Orocos::Expression_ptr ExpressionServer::CreateExpression( ORO_CoreLib::DataSourceBase::const_ptr expr ) {
+    Orocos::Expression_ptr ExpressionServer::CreateExpression( DataSourceBase::const_ptr expr ) {
         // try to retrieve:
         Orocos::Expression_ptr result = EServers[ expr ];
         if (result )
@@ -54,7 +54,7 @@ namespace ORO_Corba
     }
 
 
-    Orocos::AssignableExpression_ptr ExpressionServer::CreateAssignableExpression( ORO_CoreLib::DataSourceBase::shared_ptr expr ){
+    Orocos::AssignableExpression_ptr ExpressionServer::CreateAssignableExpression( DataSourceBase::shared_ptr expr ){
         // try to retrieve:
         Orocos::AssignableExpression_ptr result = AServers[ expr ];
         if (result )
@@ -68,7 +68,7 @@ namespace ORO_Corba
         return Orocos::AssignableExpression::_duplicate( AServers[expr] );
     }
 
-    Orocos::Method_ptr ExpressionServer::CreateMethod( ORO_CoreLib::DataSourceBase::shared_ptr expr ) {
+    Orocos::Method_ptr ExpressionServer::CreateMethod( DataSourceBase::shared_ptr expr ) {
         // try to retrieve:
         Orocos::Method_ptr result = MServers[ expr ];
         if (result )
@@ -82,7 +82,7 @@ namespace ORO_Corba
         return Orocos::Method::_duplicate( MServers[expr] );
     }
 
-    void ExpressionServer::copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned )
+    void ExpressionServer::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )
     {
         /**
          * Inform servants. All servants are present in the EServantMap.
@@ -91,8 +91,8 @@ namespace ORO_Corba
         EServantMap sclone_map;
         for ( EServantMap::iterator it = EServants.begin(); it != EServants.end(); ) {
             if ( alreadyCloned.count( it->first.get() ) ) {
-                const ORO_CoreLib::DataSourceBase* old_ds = it->first.get();
-                ORO_CoreLib::DataSourceBase* new_ds = alreadyCloned[ old_ds ];
+                const DataSourceBase* old_ds = it->first.get();
+                DataSourceBase* new_ds = alreadyCloned[ old_ds ];
                 ++it;
                 if ( old_ds == new_ds )
                     continue; // intercept non-clone cases.
@@ -115,8 +115,8 @@ namespace ORO_Corba
         EServerMap eclone_map;
         for ( EServerMap::iterator it = EServers.begin(); it != EServers.end(); ) {
             if ( alreadyCloned.count( it->first.get() ) ) {
-                const ORO_CoreLib::DataSourceBase* old_ds = it->first.get();
-                ORO_CoreLib::DataSourceBase* new_ds = alreadyCloned[ old_ds ];
+                const DataSourceBase* old_ds = it->first.get();
+                DataSourceBase* new_ds = alreadyCloned[ old_ds ];
                 ++it;
                 if ( old_ds == new_ds )
                     continue; // intercept non-clone cases.
@@ -134,8 +134,8 @@ namespace ORO_Corba
         AServerMap aclone_map;
         for ( AServerMap::iterator it = AServers.begin(); it != AServers.end(); ) {
             if ( alreadyCloned.count( it->first.get() ) ) {
-                ORO_CoreLib::DataSourceBase* old_ds = it->first.get();
-                ORO_CoreLib::DataSourceBase* new_ds = alreadyCloned[ old_ds ];
+                DataSourceBase* old_ds = it->first.get();
+                DataSourceBase* new_ds = alreadyCloned[ old_ds ];
                 ++it;
                 if ( old_ds == new_ds )
                     continue; // intercept non-clone cases.
@@ -153,8 +153,8 @@ namespace ORO_Corba
         MServerMap mclone_map;
         for ( MServerMap::iterator it = MServers.begin(); it != MServers.end(); ) {
             if ( alreadyCloned.count( it->first.get() ) ) {
-                ORO_CoreLib::DataSourceBase* old_ds = it->first.get();
-                ORO_CoreLib::DataSourceBase* new_ds = alreadyCloned[ old_ds ];
+                DataSourceBase* old_ds = it->first.get();
+                DataSourceBase* new_ds = alreadyCloned[ old_ds ];
                 ++it;
                 if ( old_ds == new_ds )
                     continue; // intercept non-clone cases.

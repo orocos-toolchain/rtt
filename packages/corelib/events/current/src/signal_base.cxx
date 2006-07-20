@@ -26,11 +26,11 @@
  ***************************************************************************/
  
  
-#include "corelib/impl/signal_base.hpp"
+#include "rtt/impl/signal_base.hpp"
 
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
 #else
-#include <os/MutexLock.hpp>
+#include <rtt/os/MutexLock.hpp>
 #endif
 
 namespace sigslot {
@@ -100,7 +100,7 @@ namespace sigslot {
 
             // connection (push_back) in emit() does not invalidate iterators, so this 
             // function is straightforwardly implemented.
-            ORO_OS::MutexLock lock(m);
+            OS::MutexLock lock(m);
 #ifdef ORO_SIGNAL_USE_RT_LIST
             mconnections.push_back( conn );
 #else
@@ -140,7 +140,7 @@ namespace sigslot {
 #else
             iterator tgt;
             // avoid invalidating iterator of emit() upon self or cross removal of conn.
-            ORO_OS::MutexLock lock(m);
+            OS::MutexLock lock(m);
             if ( (tgt = std::find( mconnections.begin(),
                                    mconnections.end(),
                                    conn)) != mconnections.end() ) {

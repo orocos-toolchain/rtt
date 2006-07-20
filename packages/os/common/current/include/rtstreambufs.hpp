@@ -29,7 +29,7 @@
 #define RTSTREAMBUFS_HPP
 
 #include <string>
-#include <os/fosi.h>
+#include "fosi.h"
 
 namespace rt_std
 {
@@ -170,7 +170,7 @@ namespace rt_std
         private:
    };
 
-} // namespace ORO_OS
+} // namespace OS
 
 
 #endif

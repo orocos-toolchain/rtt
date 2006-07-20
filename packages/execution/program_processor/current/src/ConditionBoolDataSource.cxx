@@ -24,9 +24,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "execution/ConditionBoolDataSource.hpp"
+#include "rtt/ConditionBoolDataSource.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
   ConditionBoolDataSource::~ConditionBoolDataSource()
   {

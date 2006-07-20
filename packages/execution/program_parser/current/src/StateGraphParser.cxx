@@ -25,29 +25,29 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "execution/parser-debug.hpp"
-#include "execution/parse_exception.hpp"
-#include "execution/StateGraphParser.hpp"
-#include "execution/CommonParser.hpp"
-#include "execution/ConditionParser.hpp"
-#include "execution/CommandParser.hpp"
-#include "execution/ValueChangeParser.hpp"
-#include "execution/ProgramGraphParser.hpp"
-#include "execution/PeerParser.hpp"
-#include "execution/ArgumentsParser.hpp"
-#include "execution/StateMachineBuilder.hpp"
-#include "execution/DataSourceFactory.hpp"
-#include "execution/TaskContext.hpp"
-#include "execution/StateMachineTask.hpp"
+#include "rtt/parser-debug.hpp"
+#include "rtt/parse_exception.hpp"
+#include "rtt/StateGraphParser.hpp"
+#include "rtt/CommonParser.hpp"
+#include "rtt/ConditionParser.hpp"
+#include "rtt/CommandParser.hpp"
+#include "rtt/ValueChangeParser.hpp"
+#include "rtt/ProgramGraphParser.hpp"
+#include "rtt/PeerParser.hpp"
+#include "rtt/ArgumentsParser.hpp"
+#include "rtt/StateMachineBuilder.hpp"
+#include "rtt/DataSourceFactory.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/StateMachineTask.hpp"
 
 
-#include "execution/CommandComposite.hpp"
-#include "corelib/Exceptions.hpp"
-#include "corelib/AttributeBase.hpp"
-#include "corelib/ConditionTrue.hpp"
-#include "corelib/ConditionInvert.hpp"
-#include "execution/StateDescription.hpp"
-#include "execution/ParsedStateMachine.hpp"
+#include "rtt/CommandComposite.hpp"
+#include "rtt/Exceptions.hpp"
+#include "rtt/AttributeBase.hpp"
+#include "rtt/ConditionTrue.hpp"
+#include "rtt/ConditionInvert.hpp"
+#include "rtt/StateDescription.hpp"
+#include "rtt/ParsedStateMachine.hpp"
 
 #include <iostream>
 #include <functional>
@@ -58,12 +58,12 @@
 #include <iostream>
 #include <memory>
 
-namespace ORO_Execution
+namespace RTT
 {
     using namespace boost;
     using namespace detail;
     using boost::bind;
-    using namespace ORO_CoreLib;
+    
     using namespace std;
 
     namespace {
@@ -592,7 +592,7 @@ namespace ORO_Execution
                     mpositer.get_position().file, mpositer.get_position().line,
                     mpositer.get_position().column );
             }
-            std::vector<ParsedStateMachinePtr> ret = ORO_std::values( rootcontexts );
+            std::vector<ParsedStateMachinePtr> ret = values( rootcontexts );
             rootcontexts.clear();
             return ret;
         }
@@ -952,7 +952,7 @@ namespace ORO_Execution
 
   void StateGraphParser::seencontextparam() {
       std::vector<std::string> pnames = valuechangeparser->parsedDefinitionNames();
-      std::vector<ORO_CoreLib::AttributeBase*> tbases = valuechangeparser->definedValues();
+      std::vector<AttributeBase*> tbases = valuechangeparser->definedValues();
       assert( pnames.size() == tbases.size() );
       for (unsigned int i = 0; i < pnames.size(); ++i)
           curtemplate->addParameter( pnames[i] , tbases[i] );

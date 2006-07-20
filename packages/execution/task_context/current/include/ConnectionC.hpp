@@ -30,17 +30,17 @@
 #define ORO_EXECUTION_CONNECTIONC_HPP
 
 #include <string>
-#include <corelib/DataSources.hpp>
-#include <corelib/Handle.hpp>
+#include "DataSources.hpp"
+#include "Handle.hpp"
 #include "EventCallBack.hpp"
-#include "corelib/EventProcessor.hpp"
+#include "EventProcessor.hpp"
 #include "boost/function_types/function_type_arity.hpp"
 
-namespace ORO_CoreLib {
+namespace RTT {
     class EventProcessor;
 }
 
-namespace ORO_Execution
+namespace RTT
 {
     class EventService;
 
@@ -62,7 +62,7 @@ namespace ORO_Execution
 
         ConnectionC& mcallback(detail::EventCallBack* ecb);
 
-        ConnectionC& mcallback(detail::EventCallBack* ecb, ORO_CoreLib::EventProcessor* ep, ORO_CoreLib::EventProcessor::AsynStorageType s_type);
+        ConnectionC& mcallback(detail::EventCallBack* ecb, EventProcessor* ep, EventProcessor::AsynStorageType s_type);
     public:
         /**
          * The default constructor.
@@ -111,8 +111,8 @@ namespace ORO_Execution
         template<class Type, class Function>
         ConnectionC& callback(Type t,
                               Function foo,
-                              ORO_CoreLib::EventProcessor* ep,
-                              ORO_CoreLib::EventProcessor::AsynStorageType s_type = ORO_CoreLib::EventProcessor::OnlyFirst )
+                              EventProcessor* ep,
+                              EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst )
         {
             return this->mcallback( new detail::CallBackWrapper<Function, boost::function_types::function_type_signature<Function>::arity::value>(t, foo ), ep, s_type );
         }
@@ -134,8 +134,8 @@ namespace ORO_Execution
          * is propagated to the callbacks.
          */
         template<class Function>
-        ConnectionC& callback( Function foo, ORO_CoreLib::EventProcessor* ep,
-                               ORO_CoreLib::EventProcessor::AsynStorageType s_type = ORO_CoreLib::EventProcessor::OnlyFirst )
+        ConnectionC& callback( Function foo, EventProcessor* ep,
+                               EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst )
         {
             return this->mcallback( new detail::CallBackWrapperFunction<Function, boost::function_types::function_type_signature<Function>::arity::value>( foo, ep ), s_type );
         }
@@ -146,7 +146,7 @@ namespace ORO_Execution
          * a new handle will be returned.
          * @return An empty handle if no callback was added.
          */
-        ORO_CoreLib::Handle handle();
+        Handle handle();
     };
 }
 

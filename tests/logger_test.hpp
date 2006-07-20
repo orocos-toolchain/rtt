@@ -22,9 +22,9 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <corelib/Logger.hpp>
+#include <rtt/Logger.hpp>
 
-using namespace ORO_CoreLib;
+using namespace RTT;
 
 class LoggerTest : public CppUnit::TestFixture
 {

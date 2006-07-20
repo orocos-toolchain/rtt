@@ -28,17 +28,17 @@
 // TAO_IDL - Generated from 
 // be/be_codegen.cpp:910
 
-#include "corba/ScriptingAccessI.h"
-#include "execution/ScriptingAccess.hpp"
-#include "execution/ProgramLoader.hpp"
-#include "execution/parse_exception.hpp"
+#include "rtt/corba/ScriptingAccessI.h"
+#include "rtt/ScriptingAccess.hpp"
+#include "rtt/ProgramLoader.hpp"
+#include "rtt/parse_exception.hpp"
 #include <sstream>
 
 using namespace std;
-using namespace ORO_Execution;
+
 
 // Implementation skeleton constructor
-Orocos_ScriptingAccess_i::Orocos_ScriptingAccess_i (ORO_Execution::ScriptingAccess* ee)
+Orocos_ScriptingAccess_i::Orocos_ScriptingAccess_i (ScriptingAccess* ee)
     :mee(ee)
 {
 }

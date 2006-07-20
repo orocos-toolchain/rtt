@@ -27,14 +27,14 @@
  
  
 
-#include "execution/ScriptingAccess.hpp"
-#include "corelib/Logger.hpp"
-#include "execution/TaskContext.hpp"
+#include "rtt/ScriptingAccess.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/TaskContext.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     using namespace std;
-    using namespace ORO_CoreLib;
+    
 
     ScriptingAccess::~ScriptingAccess()
     {

@@ -29,13 +29,13 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "corelib/NonPeriodicActivity.hpp"
-#include "corelib/Logger.hpp"
+#include "rtt/NonPeriodicActivity.hpp"
+#include "rtt/Logger.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     NonPeriodicActivity::NonPeriodicActivity(int priority, RunnableInterface* _r )
-        : ORO_OS::SingleThread(priority, "NonPeriodicActivity" ),proc( new BlockingEventProcessor() ),
+        : OS::SingleThread(priority, "NonPeriodicActivity" ),proc( new BlockingEventProcessor() ),
           runner(_r)
     {
         if ( runner )
@@ -43,7 +43,7 @@ namespace ORO_CoreLib
     }
 
     NonPeriodicActivity::NonPeriodicActivity(int priority, const std::string& name, RunnableInterface* _r )
-        : ORO_OS::SingleThread(priority, name ),proc( new BlockingEventProcessor() ),
+        : OS::SingleThread(priority, name ),proc( new BlockingEventProcessor() ),
           runner(_r)
     {
         if ( runner )
@@ -74,7 +74,7 @@ namespace ORO_CoreLib
 
     EventProcessor* NonPeriodicActivity::getEventProcessor() const { return proc; }
 
-    ORO_OS::ThreadInterface* NonPeriodicActivity::thread() { return this; }
+    OS::ThreadInterface* NonPeriodicActivity::thread() { return this; }
 
     bool NonPeriodicActivity::isPeriodic() const { return false; }
 

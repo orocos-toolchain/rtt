@@ -35,7 +35,7 @@
 #include "PropertyBag.hpp"
 #include "Logger.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     class PropertyIntrospection;
     class PropertyBag;
@@ -169,7 +169,7 @@ namespace ORO_CoreLib
 
     }
 
-}; // namespace ORO_CoreLib
+}; // namespace RTT
 
 
 #endif

@@ -2,9 +2,9 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "corelib/BufferLockFree.hpp"
+#include "rtt/BufferLockFree.hpp"
 
-namespace ORO_CoreLib {
+namespace RTT {
     // Force an instantiation, so that the compiler checks the syntax.
     template class BufferLockFree<double>;
 }

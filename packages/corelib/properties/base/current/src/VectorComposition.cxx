@@ -26,14 +26,14 @@
  ***************************************************************************/
 
 
-#include "corelib/Property.hpp"
-#include "corelib/PropertyBag.hpp"
-#include "corelib/VectorComposition.hpp"
-#include "corelib/Logger.hpp"
+#include "rtt/Property.hpp"
+#include "rtt/PropertyBag.hpp"
+#include "rtt/VectorComposition.hpp"
+#include "rtt/Logger.hpp"
 #include <ostream>
 #include <sstream>
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     // A decomposeProperty method for decomposing a Property< vector<double> >
@@ -122,5 +122,5 @@ namespace ORO_CoreLib
     }
 
 
-}; // namespace ORO_CoreLib
+}; // namespace RTT
 

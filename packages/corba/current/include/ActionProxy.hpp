@@ -29,17 +29,17 @@
 #ifndef ORO_CORBA_ACTIONPROXY_HPP
 #define ORO_CORBA_ACTIONPROXY_HPP
 
-#include <corelib/CommandInterface.hpp>
+#include "CommandInterface.hpp"
 #include "ExecutionC.h"
 
-namespace ORO_Corba
+namespace Corba
 {
 
     /**
      * This class manages the access of remote Action Corba Servers.
      */
     class ActionProxy
-        : public ORO_CoreLib::CommandInterface
+        : public CommandInterface
     {
     protected:
         static std::map<Orocos::Action_ptr, ActionProxy*> proxies;
@@ -78,11 +78,11 @@ namespace ORO_Corba
             mdata->reset();
         }
 
-        virtual ORO_CoreLib::CommandInterface* clone() const {
+        virtual CommandInterface* clone() const {
             return new ActionProxy( mdata.in() );
         }
 
-        virtual ORO_CoreLib::CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
+        virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             return this->clone();
         }
 

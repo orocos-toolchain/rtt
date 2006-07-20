@@ -5,7 +5,7 @@ cdl_package OROPKG_CORELIB {
 This is the basic library application-independent
 realtime library of Orocos. It requires that 
 you have Boost installed. See www.boost.org"
-    include_dir corelib
+    include_dir rtt
 
     cdl_interface OROINT_CORELIB_COMPLETION_INTERFACE {
 	display "The Completion Processor Functionality"

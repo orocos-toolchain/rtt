@@ -12,12 +12,12 @@
 #include <functional>
 #include <string>
 
-#include <corelib/mystd.hpp>
+#include "mystd.hpp"
 
-#include <corelib/PropertyBag.hpp>
-#include <corelib/Property.hpp>
-#include <corelib/DataSourceAdaptor.hpp>
-#include <corelib/Exceptions.hpp>
+#include "PropertyBag.hpp"
+#include "Property.hpp"
+#include "DataSourceAdaptor.hpp"
+#include "Exceptions.hpp"
 #include "DataSource.hpp"
 #include "FactoryExceptions.hpp"
 #include "ArgumentDescription.hpp"
@@ -28,12 +28,12 @@
  * for the CommandRepository and Method Repository.
  */
 
-namespace ORO_Execution
+namespace RTT
 {
     namespace detail {
-        using ORO_CoreLib::Property;
-        using ORO_CoreLib::PropertyBase;
-        using ORO_CoreLib::PropertyBag;
+        
+        
+        
 
         /**
          * @internal
@@ -87,7 +87,7 @@ namespace ORO_Execution
              * Create one part (function object) for a given component.
              * @param args The arguments for the target object's function.
              */
-            virtual ResultT produce( const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args ) const = 0;
+            virtual ResultT produce( const std::vector<DataSourceBase::shared_ptr>& args ) const = 0;
         };
 
         template<typename ResultT, typename FunctorT>
@@ -120,7 +120,7 @@ namespace ORO_Execution
             int arity() const { return 0; }
 
             ResultT produce(
-                            const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args) const
+                            const std::vector<DataSourceBase::shared_ptr>& args) const
             {
                 if ( ! args.empty() )
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 0, args.size() ), ResultT());
@@ -166,12 +166,12 @@ namespace ORO_Execution
             int arity() const { return 1; }
 
             ResultT produce(
-                            const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args) const
+                            const std::vector<DataSourceBase::shared_ptr>& args) const
             {
                 if ( args.size() != 1 )
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 1, args.size() ), ResultT());
                 typename DataSource<arg1_type>::shared_ptr a =
-                    ORO_CoreLib::AdaptDataSource<arg1_type>()( args[0] );
+                    AdaptDataSource<arg1_type>()( args[0] );
                 if ( ! a )
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 1, DataSource<arg1_type>::GetType(), args[0]->getType() ), ResultT());
                 return fun.create( a.get() );
@@ -223,17 +223,17 @@ namespace ORO_Execution
 
             int arity() const { return 2; }
 
-            ResultT produce(const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args) const
+            ResultT produce(const std::vector<DataSourceBase::shared_ptr>& args) const
             {
                 if ( args.size() != 2 )
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 2, args.size() ), ResultT());
 
                 typename DataSource<arg1_type>::shared_ptr a =
-                    ORO_CoreLib::AdaptDataSource<arg1_type>()( args[0] );
+                    AdaptDataSource<arg1_type>()( args[0] );
                 if ( !a ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 1, DataSource<arg1_type>::GetType(), args[0]->getType() ), ResultT());
                 typename DataSource<arg2_type>::shared_ptr b =
-                    ORO_CoreLib::AdaptDataSource<arg2_type>()( args[1] );
+                    AdaptDataSource<arg2_type>()( args[1] );
                 if ( !b ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 2, DataSource<arg2_type>::GetType(), args[1]->getType() ), ResultT());
 
@@ -294,21 +294,21 @@ namespace ORO_Execution
 
             int arity() const { return 3; }
 
-            ResultT produce(const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args) const
+            ResultT produce(const std::vector<DataSourceBase::shared_ptr>& args) const
             {
                 if ( args.size() != 3 )
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 3, args.size() ), ResultT());
 
                 typename DataSource<arg1_type>::shared_ptr a =
-                    ORO_CoreLib::AdaptDataSource<arg1_type>()( args[0] );
+                    AdaptDataSource<arg1_type>()( args[0] );
                 if ( !a ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 1, DataSource<arg1_type>::GetType(), args[0]->getType() ), ResultT());
                 typename DataSource<arg2_type>::shared_ptr b =
-                    ORO_CoreLib::AdaptDataSource<arg2_type>()( args[1] );
+                    AdaptDataSource<arg2_type>()( args[1] );
                 if ( !b ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 2, DataSource<arg2_type>::GetType(), args[1]->getType() ), ResultT());
                 typename DataSource<arg3_type>::shared_ptr c =
-                    ORO_CoreLib::AdaptDataSource<arg3_type>()( args[2] );
+                    AdaptDataSource<arg3_type>()( args[2] );
                 if ( !c ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 3, DataSource<arg3_type>::GetType(), args[2]->getType() ), ResultT());
 
@@ -376,25 +376,25 @@ namespace ORO_Execution
 
             int arity() const { return 4; }
 
-            ResultT produce(const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args) const
+            ResultT produce(const std::vector<DataSourceBase::shared_ptr>& args) const
             {
                 if ( args.size() != 4 )
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 4, args.size() ), ResultT());
 
                 typename DataSource<arg1_type>::shared_ptr a =
-                    ORO_CoreLib::AdaptDataSource<arg1_type>()( args[0] );
+                    AdaptDataSource<arg1_type>()( args[0] );
                 if ( !a ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 1, DataSource<arg1_type>::GetType(), args[0]->getType() ), ResultT());
                 typename DataSource<arg2_type>::shared_ptr b =
-                    ORO_CoreLib::AdaptDataSource<arg2_type>()( args[1] );
+                    AdaptDataSource<arg2_type>()( args[1] );
                 if ( !b ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 2, DataSource<arg2_type>::GetType(), args[1]->getType() ), ResultT());
                 typename DataSource<arg3_type>::shared_ptr c =
-                    ORO_CoreLib::AdaptDataSource<arg3_type>()( args[2] );
+                    AdaptDataSource<arg3_type>()( args[2] );
                 if ( !c ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 3, DataSource<arg3_type>::GetType(), args[2]->getType() ), ResultT());
                 typename DataSource<arg4_type>::shared_ptr d =
-                    ORO_CoreLib::AdaptDataSource<arg4_type>()( args[3] );
+                    AdaptDataSource<arg4_type>()( args[3] );
                 if ( !d )
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 4, DataSource<arg4_type>::GetType(), args[3]->getType() ), ResultT());
 
@@ -435,7 +435,7 @@ namespace ORO_Execution
             std::vector<std::string> ret;
             std::transform( data.begin(), data.end(),
                             std::back_inserter( ret ),
-                            ORO_std::select1st<typename map_t::value_type>() );
+                            select1st<typename map_t::value_type>() );
             return ret;
         }
 
@@ -451,29 +451,29 @@ namespace ORO_Execution
             return i->second->arity();
         }
 
-        ResultT produce( const std::string& name, const ORO_CoreLib::PropertyBag& args ) const
+        ResultT produce( const std::string& name, const PropertyBag& args ) const
         {
             typename map_t::const_iterator i = data.find( name );
             if ( i == data.end() ) ORO_THROW_OR_RETURN(name_not_found_exception(), ResultT());
-            std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> dsVect;
+            std::vector<DataSourceBase::shared_ptr> dsVect;
             std::transform( args.begin(), args.end(),
                             std::back_inserter( dsVect ),
-                            boost::bind( &ORO_CoreLib::PropertyBase::getDataSource, _1));
+                            boost::bind( &PropertyBase::getDataSource, _1));
             return i->second->produce(dsVect);
         }
 
         ResultT produce( const std::string& name,
-                         const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args ) const
+                         const std::vector<DataSourceBase::shared_ptr>& args ) const
         {
             typename map_t::const_iterator i = data.find( name );
             if ( i == data.end() ) ORO_THROW_OR_RETURN(name_not_found_exception(), ResultT());
             return i->second->produce( args );
         }
 
-        ORO_CoreLib::PropertyBag getArgumentSpec( const std::string& name ) const
+        PropertyBag getArgumentSpec( const std::string& name ) const
         {
             typename map_t::const_iterator i = data.find( name );
-            if ( i == data.end() ) ORO_THROW_OR_RETURN(name_not_found_exception(), ORO_CoreLib::PropertyBag());
+            if ( i == data.end() ) ORO_THROW_OR_RETURN(name_not_found_exception(), PropertyBag());
             return i->second->getArgumentSpec();
         }
 

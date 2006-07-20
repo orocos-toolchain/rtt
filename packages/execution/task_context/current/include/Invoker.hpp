@@ -4,10 +4,10 @@
 #include <boost/function_types/function_type.hpp>
 #include <boost/function_types/function_type_arity.hpp>
 #include "DispatchInterface.hpp"
-#include "corelib/ActionInterface.hpp"
+#include "ActionInterface.hpp"
 #include "NA.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     namespace detail
     {
@@ -90,7 +90,7 @@ namespace ORO_Execution
         template<class F>
         struct MethodBase
             : public InvokerBaseImpl<boost::function_traits<F>::arity, F, typename boost::function_traits<F>::result_type>,
-              public ORO_CoreLib::ActionInterface
+              public ActionInterface
         {
             virtual ~MethodBase() {}
             virtual MethodBase<F>* clone() const = 0;

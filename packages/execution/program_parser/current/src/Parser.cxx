@@ -25,30 +25,30 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "execution/parser-debug.hpp"
-#include "execution/parser-types.hpp"
-#include "execution/parse_exception.hpp"
-#include "execution/Parser.hpp"
-#include "execution/ProgramGraphParser.hpp"
-#include "execution/StateGraphParser.hpp"
-#include "execution/ConditionParser.hpp"
-#include "execution/ExpressionParser.hpp"
-#include "execution/ValueChangeParser.hpp"
-#include "execution/CommandParser.hpp"
-#include "execution/ProgramTask.hpp"
-#include "execution/StateMachineTask.hpp"
-#include "corelib/DataSourceCommand.hpp"
-#include "corelib/ConditionInterface.hpp"
+#include "rtt/parser-debug.hpp"
+#include "rtt/parser-types.hpp"
+#include "rtt/parse_exception.hpp"
+#include "rtt/Parser.hpp"
+#include "rtt/ProgramGraphParser.hpp"
+#include "rtt/StateGraphParser.hpp"
+#include "rtt/ConditionParser.hpp"
+#include "rtt/ExpressionParser.hpp"
+#include "rtt/ValueChangeParser.hpp"
+#include "rtt/CommandParser.hpp"
+#include "rtt/ProgramTask.hpp"
+#include "rtt/StateMachineTask.hpp"
+#include "rtt/DataSourceCommand.hpp"
+#include "rtt/ConditionInterface.hpp"
 
 #include <iostream>
 #include <fstream>
 
 using namespace boost;
 
-namespace ORO_Execution
+namespace RTT
 {
   using namespace detail;
-  using namespace ORO_CoreLib;
+  
 
   Parser::ParsedFunctions Parser::parseFunction( const std::string& text, TaskContext* c, const std::string& filename)
   {

@@ -32,10 +32,10 @@
 #include <vector>
 #include <map>
 #include <string>
-#include "corelib/Property.hpp"
-#include "corelib/PropertyIntrospection.hpp"
+#include <rtt/Property.hpp>
+#include <rtt/PropertyIntrospection.hpp>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * A Marshaller which writes out the properties in MS .INI format.

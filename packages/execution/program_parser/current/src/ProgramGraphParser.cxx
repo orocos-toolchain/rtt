@@ -25,34 +25,34 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "execution/parser-debug.hpp"
-#include "execution/parse_exception.hpp"
-#include "execution/ProgramGraphParser.hpp"
-#include "execution/ArgumentsParser.hpp"
+#include "rtt/parser-debug.hpp"
+#include "rtt/parse_exception.hpp"
+#include "rtt/ProgramGraphParser.hpp"
+#include "rtt/ArgumentsParser.hpp"
 
-#include "corelib/CommandNOP.hpp"
-#include "corelib/CommandDataSource.hpp"
-#include "corelib/ConditionTrue.hpp"
-#include "corelib/Logger.hpp"
-#include "corelib/DataSourceCondition.hpp"
+#include "rtt/CommandNOP.hpp"
+#include "rtt/CommandDataSource.hpp"
+#include "rtt/ConditionTrue.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/DataSourceCondition.hpp"
 
-#include "execution/ConditionComposite.hpp"
-#include "execution/CommandComposite.hpp"
-#include "execution/TryCommand.hpp"
-#include "execution/FunctionFactory.hpp"
-#include "execution/CommandBinary.hpp"
-#include "execution/ProgramTask.hpp"
+#include "rtt/ConditionComposite.hpp"
+#include "rtt/CommandComposite.hpp"
+#include "rtt/TryCommand.hpp"
+#include "rtt/FunctionFactory.hpp"
+#include "rtt/CommandBinary.hpp"
+#include "rtt/ProgramTask.hpp"
 
 #include <iostream>
 #include <boost/bind.hpp>
 #include <boost/lambda/lambda.hpp>
 
-namespace ORO_Execution
+namespace RTT
 {
   using namespace boost;
   using namespace detail;
-  using namespace ORO_CoreLib;
-  using ORO_CoreLib::ConditionTrue;
+  
+  
 
     namespace {
         assertion<std::string> expect_opencurly("Open curly brace '{' expected.");
@@ -318,7 +318,7 @@ namespace ORO_Execution
       implcond_v.clear();
 
       context->attributes()->setValue(
-      "done", new ORO_CoreLib::Alias<bool>(
+      "done", new Alias<bool>(
         new DataSourceCondition( implcond->clone() ) ) );
   }
 

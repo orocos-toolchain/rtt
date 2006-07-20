@@ -28,7 +28,7 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "device_interface/SensorInterface.hpp"
+#include "rtt/dev/SensorInterface.hpp"
 
-namespace ORO_DeviceInterface {
+namespace RTT {
 }

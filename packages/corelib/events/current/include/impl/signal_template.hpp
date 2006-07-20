@@ -35,7 +35,7 @@
 #include <boost/bind.hpp>
 #include <boost/lambda/casts.hpp>
 #else
-#include <os/MutexLock.hpp>
+#include "os/MutexLock.hpp"
 #endif
 #endif // !OROCOS_SIGNAL_TEMPLATE_HEADER_INCLUDED
 
@@ -149,7 +149,7 @@ namespace sigslot {
                                                     ) );
             this->emitting = false;
 #else
-            ORO_OS::MutexLock lock(m);
+            OS::MutexLock lock(m);
             if (this->emitting)
                 return; // avoid uglyness : handlers calling emit.
             this->emitting = true;

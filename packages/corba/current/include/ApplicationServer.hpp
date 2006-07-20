@@ -31,7 +31,7 @@
 
 #include <tao/corba.h>
 
-namespace ORO_Corba
+namespace Corba
 {
     /**
      * A class which an provides ORB to

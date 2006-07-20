@@ -42,11 +42,11 @@
 #pragma interface
 #endif
 
-namespace ORO_CoreLib {
+namespace RTT {
     class ConditionInterface;
 }
 
-namespace ORO_Execution
+namespace RTT
 {
     class TaskContext;
 
@@ -66,9 +66,9 @@ namespace ORO_Execution
         static TaskContext* taskcontext;
         // the TC we are using for completion.
         static TaskContext* peer;
-        ORO_CoreLib::ConditionInterface* condition;
+        ConditionInterface* condition;
         DispatchInterface*   command;
-        ORO_CoreLib::DataSource<bool>::shared_ptr   accepted;
+        DataSource<bool>::shared_ptr   accepted;
 
         int debug;
         /* A static variable for holding the line. */
@@ -119,7 +119,7 @@ namespace ORO_Execution
 
         void listText(std::stringstream& txtss,int start, int end, int ln, char s);
 
-        void doPrint( ORO_CoreLib::DataSourceBase* ds, bool recurse);
+        void doPrint( DataSourceBase* ds, bool recurse);
 
     public:
 
@@ -160,7 +160,7 @@ namespace ORO_Execution
         /**
          * Evaluate a DataSource and print the result.
          */
-        void printResult( ORO_CoreLib::DataSourceBase* ds, bool recurse);
+        void printResult( DataSourceBase* ds, bool recurse);
 
         /**
          * Print the help page.

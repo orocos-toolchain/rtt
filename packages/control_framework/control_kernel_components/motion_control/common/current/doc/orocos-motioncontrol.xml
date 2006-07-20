@@ -72,29 +72,29 @@
     <sect2>
       <title>Axis Hardware Abstraction</title>
       <para>
-	The <classname>ORO_DeviceDriver::Axis</classname> is abstracted as a logical device in the
+	The <classname>RTT::Axis</classname> is abstracted as a logical device in the
 	device_interface Orocos package. When an axis object
-	is created, it must be given an <classname>ORO_DeviceDriver::AnalogDrive</classname>
+	is created, it must be given an <classname>RTT::AnalogDrive</classname>
 	which accepts the drive setpoints. The AnalogDrive is
 	connected to the physical hardware through an
-	<classname>ORO_DeviceDriver::AnalogOutput</classname> (for the signal)
-	and a <classname>ORO_DeviceDriver::DigitalOutput</classname> to enable
+	<classname>RTT::AnalogOutput</classname> (for the signal)
+	and a <classname>RTT::DigitalOutput</classname> to enable
 	the drive. The Axis abstraction leaves the physical
 	unit which is controlled open, so it can be velocities,
 	torques etc.
       </para>
       <para>
 	Once created, the Axis object accepts optionally a
-	<classname>ORO_DeviceDriver::DigitalOutput</classname> representing the break
-	and a <classname>ORO_DeviceDriver::DigitalInput</classname> representing
+	<classname>RTT::DigitalOutput</classname> representing the break
+	and a <classname>RTT::DigitalInput</classname> representing
 	a home switch.
       </para>
       <para>
 	An Axis can be given an unlimited amount of sensors
-	( <classname>ORO_DeviceInterface::SensorInterface</classname> ) together with an
+	( <classname>RTT::SensorInterface</classname> ) together with an
 	endlimit device (possibly in software) which can disable drive signals 
 	in one or the other direction if the sensor detects
-	to large values. For example an <classname>ORO_DeviceDriver::EncoderPositionSensor</classname>
+	to large values. For example an <classname>RTT::EncoderPositionSensor</classname>
 	will be given an endlimit which disables (in software) the drive
 	in the positive direction if the position is to large.
       </para>

@@ -26,8 +26,8 @@
  ***************************************************************************/
  
  
-#include "execution/CommandExecFunction.hpp"
+#include "rtt/CommandExecFunction.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
 }

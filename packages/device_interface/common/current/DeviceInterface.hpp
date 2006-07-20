@@ -37,4 +37,4 @@
  * The device interfaces are documented in <a href="../../orocos-device-interface.html">
  * The Orocos Device Interface Online Manual</a>
  */
-namespace ORO_DeviceInterface {}
+namespace RTT {}

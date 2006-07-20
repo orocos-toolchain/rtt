@@ -28,13 +28,10 @@
 #ifndef COMMANDCOUNTER_HPP
 #define COMMANDCOUNTER_HPP
 
-#include <corelib/CommandInterface.hpp>
+#include "CommandInterface.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
-
-	using  ORO_CoreLib::CommandInterface;
-	
     /**
      * @brief This command increments a counter when executed. 
      *

@@ -35,7 +35,7 @@
 #pragma interface
 #endif
 
-namespace ORO_CoreLib
+namespace RTT
 {
 	/**
 	 * @brief A container for a sequence of properties of the same type Property<T> [EXPERIMENTAL]
@@ -281,5 +281,5 @@ namespace ORO_CoreLib
         copyProperties(a,b);
     }
 
-} // Namespace ORO_CoreLib
+} // Namespace RTT
 #endif

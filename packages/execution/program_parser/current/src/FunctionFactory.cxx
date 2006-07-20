@@ -26,29 +26,29 @@
  ***************************************************************************/
  
  
-#include <execution/FunctionFactory.hpp>
+#include <rtt/FunctionFactory.hpp>
 
-#include <execution/ExecutionEngine.hpp>
-#include "execution/CommandComposite.hpp"
-#include "execution/CommandBinary.hpp"
-#include "execution/CommandExecFunction.hpp"
-#include "execution/CommandDispatch.hpp"
-#include "execution/ConditionComposite.hpp"
-#include "execution/TryCommand.hpp"
+#include <rtt/ExecutionEngine.hpp>
+#include "rtt/CommandComposite.hpp"
+#include "rtt/CommandBinary.hpp"
+#include "rtt/CommandExecFunction.hpp"
+#include "rtt/CommandDispatch.hpp"
+#include "rtt/ConditionComposite.hpp"
+#include "rtt/TryCommand.hpp"
 #include <sstream>
 #include <map>
 #include <string>
-#include "corelib/mystd.hpp"
-#include <corelib/PropertyBag.hpp>
-#include <corelib/Property.hpp>
-#include "corelib/Attribute.hpp"
-#include "execution/parse_exception.hpp"
+#include "rtt/mystd.hpp"
+#include <rtt/PropertyBag.hpp>
+#include <rtt/Property.hpp>
+#include "rtt/Attribute.hpp"
+#include "rtt/parse_exception.hpp"
 #include <boost/bind.hpp>
 
-namespace ORO_Execution
+namespace RTT
 {
     using namespace boost;
-    using namespace ORO_CoreLib;
+    
 
         FunctionFactory::FunctionFactory(ProgramInterfacePtr pi, ExecutionEngine* procs)
             : detail::OperationFactoryPart<DispatchInterface*>("A function."), func(pi), proc(procs) {}
@@ -57,7 +57,7 @@ namespace ORO_Execution
             return std::string("bool");
         }
 
-        ORO_CoreLib::PropertyBag
+        PropertyBag
         FunctionFactory::getArgumentSpec() const
         {
             std::vector<AttributeBase*> origlist = func->getArguments();

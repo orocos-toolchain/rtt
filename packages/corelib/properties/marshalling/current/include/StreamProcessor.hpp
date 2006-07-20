@@ -28,7 +28,7 @@
 #ifndef STREAMPROCESSOR_HPP
 #define STREAMPROCESSOR_HPP
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**

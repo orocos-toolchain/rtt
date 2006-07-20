@@ -28,16 +28,16 @@
  
 
 #include "comedi/ComediSubDeviceDOut.hpp"
-#include "os/fosi.h"
+#include "rtt/rtt/os/fosi.h"
 
 #include <pkgconf/system.h>
 
 #include "comedi_internal.h"
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
-  using namespace ORO_CoreLib;
-  using namespace ORO_DeviceInterface;
+  
+  
 
     ComediSubDeviceDOut::ComediSubDeviceDOut( ComediDevice* cd, const std::string& name, unsigned int subdevice)
       : DigitalOutInterface( name ),

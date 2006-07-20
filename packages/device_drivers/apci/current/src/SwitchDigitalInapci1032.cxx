@@ -41,9 +41,9 @@ extern "C"
 }
 #endif
 
-#include <device_drivers/SwitchDigitalInapci1032.hpp>
+#include <rtt/dev/SwitchDigitalInapci1032.hpp>
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
     SwitchDigitalInapci1032::SwitchDigitalInapci1032( const std::string& name ) :

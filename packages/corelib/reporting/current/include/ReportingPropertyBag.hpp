@@ -28,17 +28,17 @@
 #ifndef REPORTINGPROPERTYBAG_HPP
 #define REPORTINGPROPERTYBAG_HPP  
 
-#include <corelib/PropertyBag.hpp>
-#include <corelib/Property.hpp>
-#include <corelib/TimeService.hpp>
+#include "PropertyBag.hpp"
+#include "Property.hpp"
+#include "TimeService.hpp"
 #include "ReportExporterInterface.hpp"
 #include "ReportCollectorInterface.hpp"
-#include <corelib/marshalling/XMLMarshaller.hpp>
-#include <corelib/marshalling/SimpleMarshaller.hpp>
-#include <corelib/marshalling/Orocos1Marshaller.hpp>
+#include "marshalling/XMLMarshaller.hpp"
+#include "marshalling/SimpleMarshaller.hpp"
+#include "marshalling/Orocos1Marshaller.hpp"
 #include <sstream>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * This PropertyBag is extended to report its contents

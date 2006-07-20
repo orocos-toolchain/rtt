@@ -27,15 +27,15 @@
  
  
 
-#include "execution/CommandDispatch.hpp"
-#include "execution/TryCommand.hpp"
-#include "execution/ConditionComposite.hpp"
-#include "execution/ConditionBoolDataSource.hpp"
-#include "execution/CommandProcessor.hpp"
+#include "rtt/CommandDispatch.hpp"
+#include "rtt/TryCommand.hpp"
+#include "rtt/ConditionComposite.hpp"
+#include "rtt/ConditionBoolDataSource.hpp"
+#include "rtt/CommandProcessor.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
-    using namespace ORO_CoreLib;
+    
 
     CommandDispatch::CommandDispatch(CommandProcessor* p, CommandInterface* c, ConditionInterface* cn )
         : send(true), maccepted(false), proc(p), com( c ), mcn(cn), dispatcher(this) {}
@@ -112,7 +112,7 @@ namespace ORO_Execution
         dispatcher.reset();
     }
 
-    ORO_CoreLib::ConditionInterface* CommandDispatch::createCondition() const
+    ConditionInterface* CommandDispatch::createCondition() const
     {
         return mcn->clone();
     }

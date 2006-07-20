@@ -3,7 +3,7 @@
 
 #include <boost/type_traits.hpp>
 
-namespace ORO_Execution
+namespace RTT
 {
     namespace detail
     {

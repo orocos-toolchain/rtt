@@ -6,5 +6,5 @@ for a variety of hardware. Examples are : CANOpen
 bus drivers, parallel port, Comedi and AddiData cards. They all
 implement interfaces from the Device Interface package."
 
-    include_dir device_drivers
+    include_dir rtt/dev
 }

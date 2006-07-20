@@ -40,10 +40,10 @@
 #pragma interface
 #endif
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
-    using ORO_OS::CAS;
+    using OS::CAS;
 
     /**
      * A Lock-free buffer implementation to read and write

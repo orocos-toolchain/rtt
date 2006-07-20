@@ -29,33 +29,33 @@
 #ifndef ORO_EXECUTION_DATASOURCE_GENERATOR_HPP
 #define ORO_EXECUTION_DATASOURCE_GENERATOR_HPP
 
-#include "corelib/DataSources.hpp"
+#include "DataSources.hpp"
 #include <boost/utility/enable_if.hpp>
 #include <boost/ref.hpp>
 
-namespace ORO_Execution
+namespace RTT
 {
     namespace detail
     {
         template<class T, class Enable = void >
         struct DSWrap {
-            ORO_CoreLib::DataSourceBase::shared_ptr operator()(T t) { return new ORO_CoreLib::ConstantDataSource<T>( t );}
+            DataSourceBase::shared_ptr operator()(T t) { return new ConstantDataSource<T>( t );}
         }; // normal type
 
         template<class T>
-        struct DSWrap<T, typename boost::enable_if< boost::is_base_and_derived<ORO_CoreLib::DataSourceBase,T> >::type > {
-            ORO_CoreLib::DataSourceBase::shared_ptr operator()(T t) { return t; }
+        struct DSWrap<T, typename boost::enable_if< boost::is_base_and_derived<DataSourceBase,T> >::type > {
+            DataSourceBase::shared_ptr operator()(T t) { return t; }
         }; // datasource type
 
         template<class T>
         struct DSWrap<T, typename boost::enable_if< boost::is_reference<T> >::type > {
-            ORO_CoreLib::DataSourceBase::shared_ptr operator()(T t) { return new ORO_CoreLib::ReferenceDataSource<T>( t ); }
+            DataSourceBase::shared_ptr operator()(T t) { return new ReferenceDataSource<T>( t ); }
         }; // datasource type
 
         template<class T>
         struct DSWrap<T, typename boost::enable_if< boost::is_reference_wrapper<T> >::type > {
             typedef typename boost::unwrap_reference<T>::type RT;
-            ORO_CoreLib::DataSourceBase::shared_ptr operator()(T t) { return new ORO_CoreLib::ReferenceDataSource<RT>( t ); }
+            DataSourceBase::shared_ptr operator()(T t) { return new ReferenceDataSource<RT>( t ); }
         }; // datasource type
     }
 
@@ -63,15 +63,15 @@ namespace ORO_Execution
 
     /**
      * A function object which returns a vector of DataSources.
-     * You can provide plain value types (int, double,...) or ORO_CoreLib::DataSourceBase derived
+     * You can provide plain value types (int, double,...) or DataSourceBase derived
      * types. If you want the DataSource to be a reference to
      * an existing variable, use the \a ref() function. For example : 
      * @verbatim
      
-     ORO_CoreLib::DataSourceBase::shared_ptr arg2 = ...
+     DataSourceBase::shared_ptr arg2 = ...
      ValueDataSource<ClassX>::shared_ptr arg3 = ...
      double arg4 = 1.234;
-     vector<ORO_CoreLib::DataSourceBase::shared_ptr> arguments = GenerateDataSource()( 12.34, arg2.get(), arg3.get(), ref(arg4) );
+     vector<DataSourceBase::shared_ptr> arguments = GenerateDataSource()( 12.34, arg2.get(), arg3.get(), ref(arg4) );
      assert ( arguments.size() == 4 );
 
        @endverbatim
@@ -79,33 +79,33 @@ namespace ORO_Execution
     struct GenerateDataSource
     {
         template<class A1>
-        std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> operator()(A1 a1)
+        std::vector<DataSourceBase::shared_ptr> operator()(A1 a1)
         {
-            std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> res;
+            std::vector<DataSourceBase::shared_ptr> res;
             res.push_back( detail::DSWrap<A1>()(a1));
             return res;
         }
 
         template<class A1, class A2>
-        std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> operator()(A1 a1, A2 a2 )
+        std::vector<DataSourceBase::shared_ptr> operator()(A1 a1, A2 a2 )
         {
-            std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> res = operator()(a1);
+            std::vector<DataSourceBase::shared_ptr> res = operator()(a1);
             res.push_back( detail::DSWrap<A2>()(a2));
             return res;
         }
 
         template<class A1, class A2, class A3>
-        std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> operator()(A1 a1, A2 a2, A3 a3 )
+        std::vector<DataSourceBase::shared_ptr> operator()(A1 a1, A2 a2, A3 a3 )
         {
-            std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> res = operator()(a1,a2);
+            std::vector<DataSourceBase::shared_ptr> res = operator()(a1,a2);
             res.push_back( detail::DSWrap<A3>()(a3));
             return res;
         }
 
         template<class A1, class A2, class A3, class A4>
-        std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> operator()(A1 a1, A2 a2, A3 a3, A4 a4 )
+        std::vector<DataSourceBase::shared_ptr> operator()(A1 a1, A2 a2, A3 a3, A4 a4 )
         {
-            std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> res = operator()(a1,a2,a3);
+            std::vector<DataSourceBase::shared_ptr> res = operator()(a1,a2,a3);
             res.push_back( detail::DSWrap<A4>()(a4));
             return res;
         }

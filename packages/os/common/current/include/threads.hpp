@@ -26,12 +26,12 @@
  ***************************************************************************/
  
  
-#ifndef ORO_OS_THREADS_HPP
-#define ORO_OS_THREADS_HPP
+#ifndef OS_THREADS_HPP
+#define OS_THREADS_HPP
 
 #include "Atomic.hpp"
 
-namespace ORO_OS
+namespace OS
 {
     /**
      * The number of threads in addition to the main() thread.

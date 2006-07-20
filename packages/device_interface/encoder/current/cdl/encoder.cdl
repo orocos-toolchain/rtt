@@ -8,6 +8,6 @@ and incremental encoders and is turn/position
 based."
 
     parent OROPKG_DEVICE_INTERFACE
-    include_dir device_interface
+    include_dir rtt/dev
     compile EncoderInterface.cxx
 }

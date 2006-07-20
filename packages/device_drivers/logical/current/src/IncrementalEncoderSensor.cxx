@@ -19,7 +19,7 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "device_drivers/IncrementalEncoderSensor.hpp"
+#include "rtt/dev/IncrementalEncoderSensor.hpp"
 
-namespace ORO_DeviceDrivers {
+namespace RTTs {
 }

@@ -29,7 +29,7 @@
 #define DATASOURCEFACTORY_HPP
 
 // this header has been split up into the following two headers:
-#include "execution/DataSourceFactoryInterface.hpp"
-#include "execution/GlobalDataSourceFactory.hpp"
+#include "DataSourceFactoryInterface.hpp"
+#include "GlobalDataSourceFactory.hpp"
 
 #endif

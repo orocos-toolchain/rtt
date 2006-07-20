@@ -28,9 +28,9 @@
  
 
 #include "can/BeckhoffCANCoupler.hpp"
-#include "corelib/Logger.hpp"
+#include "rtt/Logger.hpp"
 
-using namespace ORO_CoreLib;
+
 
 namespace Beckhoff
 {

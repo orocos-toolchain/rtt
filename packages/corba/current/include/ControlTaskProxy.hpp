@@ -29,14 +29,14 @@
 
 #include <tao/corba.h>
 #include <exception>
-#include <execution/TaskContext.hpp>
+#include "TaskContext.hpp"
 #include <string>
 #include <map>
 #include "ControlTaskC.h"
 #include <orbsvcs/CosPropertyServiceC.h>
 #include "ApplicationServer.hpp"
 
-namespace ORO_Corba
+namespace Corba
 {
     /**
      * Thrown if a server does not exist or has the wrong type.
@@ -56,7 +56,7 @@ namespace ORO_Corba
      * servers.
      */
     class ControlTaskProxy
-        : public ORO_Execution::TaskContext,
+        : public TaskContext,
           public ApplicationServer
     {
     protected:
@@ -116,9 +116,9 @@ namespace ORO_Corba
          */
         Orocos::ControlTask_ptr server() const;
 
-        virtual bool executeCommand( ORO_CoreLib::CommandInterface* c);
+        virtual bool executeCommand( CommandInterface* c);
 
-        virtual int queueCommand( ORO_CoreLib::CommandInterface* c);
+        virtual int queueCommand( CommandInterface* c);
 
         virtual const std::string& getName();
 

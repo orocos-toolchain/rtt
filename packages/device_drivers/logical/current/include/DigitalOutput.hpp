@@ -28,12 +28,12 @@
 #define DIGITAL_OUTPUT_HPP
  
  
-#include <device_interface/DigitalOutInterface.hpp>
+#include "DigitalOutInterface.hpp"
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
-    using namespace ORO_DeviceInterface;
+    
 
     /**
      * A DigitalOut represents any on/off output. Examples are

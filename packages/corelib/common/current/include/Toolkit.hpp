@@ -33,7 +33,7 @@
 #include <vector>
 #include "RTT.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**

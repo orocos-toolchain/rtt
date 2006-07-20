@@ -28,7 +28,7 @@
 #ifndef CONFIGURATIONINTERFACE_HPP
 #define CONFIGURATIONINTERFACE_HPP
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * @brief Generic run-time class configuration interface.

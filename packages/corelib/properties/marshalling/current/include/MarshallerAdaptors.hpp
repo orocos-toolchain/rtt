@@ -29,7 +29,7 @@
 #define MARSHALLERADAPTOR_HPP
 
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**

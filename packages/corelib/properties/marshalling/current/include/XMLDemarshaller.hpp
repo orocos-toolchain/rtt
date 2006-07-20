@@ -28,10 +28,10 @@
 #ifndef PI_PROPERTIES_XMLDESERIALIZER
 #define PI_PROPERTIES_XMLDESERIALIZER
 
-#include <corelib/Property.hpp>
-#include <corelib/Marshaller.hpp>
+#include <rtt/Property.hpp>
+#include <rtt/Marshaller.hpp>
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**

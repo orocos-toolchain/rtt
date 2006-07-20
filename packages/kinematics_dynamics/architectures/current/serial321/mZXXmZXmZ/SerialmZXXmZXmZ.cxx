@@ -29,7 +29,7 @@
 
 namespace ORO_KinDyn
 {
-    using namespace ORO_CoreLib;
+    using namespace RTT;
 
     bool SerialmZXXmZXmZ::positionForward( const Double6D& original_q, ORO_Geometry::Frame& mp_base, Singularity& s ) const
     {

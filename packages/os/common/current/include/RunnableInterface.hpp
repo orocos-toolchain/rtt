@@ -28,10 +28,10 @@
 
 
 
-#ifndef ORO_OS_RUNNABLEINTERFACE_HPP
-#define ORO_OS_RUNNABLEINTERFACE_HPP
+#ifndef OS_RUNNABLEINTERFACE_HPP
+#define OS_RUNNABLEINTERFACE_HPP
 
-namespace ORO_OS
+namespace OS
 {
   class ThreadInterface;
 

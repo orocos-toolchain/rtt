@@ -29,9 +29,9 @@
 #ifndef TEMPLATEDIGITALIN_HPP
 #define TEMPLATEDIGITALIN_HPP
 
-#include <device_interface/DigitalInInterface.hpp>
+#include "DigitalInInterface.hpp"
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 	/**
      * @brief A utility class to create a DigitalInInterface

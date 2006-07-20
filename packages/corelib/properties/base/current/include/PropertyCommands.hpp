@@ -36,7 +36,7 @@
 #include "DataSource.hpp"
 
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     namespace detail {

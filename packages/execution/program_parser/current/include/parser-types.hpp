@@ -28,16 +28,16 @@
 #define PARSER_TYPES_HPP
 
 #include <boost/spirit.hpp>
-#include "corelib/CommandInterface.hpp"
+#include "CommandInterface.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
   class ProgramGraph;
   class VertexNode;
   class EdgeCondition;
 }
 
-namespace ORO_CoreLib
+namespace RTT
 {
   template< class T>
   class Property;
@@ -46,7 +46,7 @@ namespace ORO_CoreLib
   class ConditionInterface;
 }
 
-namespace ORO_Execution
+namespace RTT
 {
     class TaskContext;
 
@@ -55,10 +55,10 @@ namespace ORO_Execution
         class ArgumentsParser;
     }
 
-  using ORO_CoreLib::PropertyBag;
-  using ORO_CoreLib::PropertyBase;
-  using ORO_CoreLib::ConditionInterface;
-  using ORO_CoreLib::CommandInterface;
+  
+  
+  
+  
 
   using namespace boost::spirit;
 

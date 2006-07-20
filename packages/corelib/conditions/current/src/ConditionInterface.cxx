@@ -26,9 +26,9 @@
  ***************************************************************************/
  
  
-#include "corelib/ConditionInterface.hpp"
+#include "rtt/ConditionInterface.hpp"
 
-namespace ORO_CoreLib {
+namespace RTT {
     ConditionInterface::~ConditionInterface() {
     }
 

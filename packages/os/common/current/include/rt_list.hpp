@@ -26,13 +26,13 @@
  ***************************************************************************/
  
  
-#ifndef ORO_OS_RT_LIST_HPP
-#define ORO_OS_RT_LIST_HPP
+#ifndef OS_RT_LIST_HPP
+#define OS_RT_LIST_HPP
 
 #include <list>
 #include "oro_allocator.hpp"
 
-namespace ORO_OS
+namespace OS
 {
 	
     /**

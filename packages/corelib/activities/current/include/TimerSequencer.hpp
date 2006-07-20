@@ -36,7 +36,7 @@
 #include <list>
 #include <functional>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     namespace detail {
     /**
@@ -140,7 +140,7 @@ namespace ORO_CoreLib
 
         bool reset_f_iter;
 
-        ORO_OS::MutexRecursive mut;
+        OS::MutexRecursive mut;
 
         bool in_tick;
     };

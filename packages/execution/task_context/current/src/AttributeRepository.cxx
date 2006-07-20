@@ -27,12 +27,12 @@
  
  
 
-#include "execution/AttributeRepository.hpp"
-#include "corelib/mystd.hpp"
+#include "rtt/AttributeRepository.hpp"
+#include "rtt/mystd.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
-    using namespace ORO_CoreLib;
+    
 
   AttributeRepository::AttributeRepository()
       :bag(0)
@@ -75,11 +75,11 @@ namespace ORO_Execution
     return true;
   }
 
-    bool AttributeRepository::addProperty( ORO_CoreLib::PropertyBase* pb ) {
+    bool AttributeRepository::addProperty( PropertyBase* pb ) {
         if ( bag && bag->find( pb->getName() ) )
             return false;
         if ( bag == 0 )
-            bag = new ORO_CoreLib::PropertyBag();
+            bag = new PropertyBag();
         bag->add( pb );
         return true;
     }
@@ -128,13 +128,13 @@ namespace ORO_Execution
 
     std::vector<std::string> AttributeRepository::names() const
     {
-        return ORO_std::keys( values );
+        return keys( values );
     }
 
     PropertyBag* AttributeRepository::properties() const
     {
         if ( bag == 0 )
-            bag = new ORO_CoreLib::PropertyBag();
+            bag = new PropertyBag();
         return bag;
     }
 }

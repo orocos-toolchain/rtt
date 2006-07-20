@@ -6,7 +6,7 @@ This package contains the lock-free communication buffers
 for local (in-process) data exchange. A lock-free single
 linked list and pointer queue is provided as well."
 
-    include_dir corelib
+    include_dir rtt
     parent OROPKG_CORELIB
     requires OROPKG_CORELIB
 

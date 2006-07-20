@@ -28,26 +28,26 @@
 #ifndef FAKEDIGITALDEVICE_HPP
 #define FAKEDIGITALDEVICE_HPP
 
-#include <device_interface/DigitalInInterface.hpp>
-#include <device_interface/DigitalOutInterface.hpp>
+#include "DigitalInInterface.hpp"
+#include "DigitalOutInterface.hpp"
 #include <vector>
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
     /**
      * A Fake (Simulated) Digital Input/Output Device which replicates the inputs
      * on its outputs.
      */
     class FakeDigitalDevice
-        : public ORO_DeviceInterface::DigitalInInterface,
-          public ORO_DeviceInterface::DigitalOutInterface
+        : public DigitalInInterface,
+          public DigitalOutInterface
     {
     public:
         std::vector<bool> mchannels;
 
         FakeDigitalDevice(unsigned int channels=32)
-            : ORO_DeviceInterface::DigitalInInterface("FakeDigitalDevice"),
-              ORO_DeviceInterface::DigitalOutInterface("FakeDigitalDevice"),
+            : DigitalInInterface("FakeDigitalDevice"),
+              DigitalOutInterface("FakeDigitalDevice"),
               mchannels(channels, false)
         {}
         

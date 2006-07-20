@@ -29,20 +29,20 @@
 #ifndef ORO_CORBA_EXPRESSIONPROXY_HPP
 #define ORO_CORBA_EXPRESSIONPROXY_HPP
 
-#include <corelib/DataSource.hpp>
+#include "DataSource.hpp"
 #include "ExecutionC.h"
 #include "CORBAExpression.hpp"
-#include "corelib/Logger.hpp"
-#include <corelib/DataSources.hpp>
+#include "Logger.hpp"
+#include "DataSources.hpp"
 
-namespace ORO_Corba
+namespace Corba
 {
 
     /**
      * This class manages the access of remote Expression Corba Servers.
      */
     class ExpressionProxy
-        : public ORO_CoreLib::DataSourceBase
+        : public DataSourceBase
     {
     protected:
         static std::map<Orocos::Expression_ptr, ExpressionProxy*> proxies;
@@ -80,13 +80,13 @@ namespace ORO_Corba
          * @return 0 if the Expression is not convertible to T.
          */
         template<class T>
-        static ORO_CoreLib::DataSource<T>* NarrowDataSource(::Orocos::Expression_ptr expr) {
-            using ORO_CoreLib::Logger;
+        static DataSource<T>* NarrowDataSource(::Orocos::Expression_ptr expr) {
+            
             CORBA::Any_var any = expr->value();
-            typename ORO_CoreLib::DataSource<T>::value_t target = typename ORO_CoreLib::DataSource<T>::value_t();
-            if ( ORO_CoreLib::AnyConversion<T>::update( any.in(), target ) ) {
+            typename DataSource<T>::value_t target = typename DataSource<T>::value_t();
+            if ( AnyConversion<T>::update( any.in(), target ) ) {
                 Logger::log() <<Logger::Debug<< "Found valid conversion from server "<< expr->getType()
-                              <<" to local "<< ORO_CoreLib::DataSource<T>::GetType()<<Logger::endl;
+                              <<" to local "<< DataSource<T>::GetType()<<Logger::endl;
                 return new CORBAExpression<T>( expr );
             } 
             return 0; // not convertible.
@@ -99,7 +99,7 @@ namespace ORO_Corba
          * @return 0 if the Any is not convertible to T.
          */
         template<class T>
-        static ORO_CoreLib::DataSource<T>* NarrowConstant( const CORBA::Any& any) {
+        static DataSource<T>* NarrowConstant( const CORBA::Any& any) {
             // C++ language forces partial T specialisation using classes, not possible
             // with functions:
             return CreateConstantHelper<T>::Create( any );
@@ -112,15 +112,15 @@ namespace ORO_Corba
          * @return 0 if the Expression is not convertible to T.
          */
         template<class T>
-        static ORO_CoreLib::AssignableDataSource<T>* NarrowAssignableDataSource( ::Orocos::Expression_ptr expr) {
-            using ORO_CoreLib::Logger;
+        static AssignableDataSource<T>* NarrowAssignableDataSource( ::Orocos::Expression_ptr expr) {
+            
             Orocos::AssignableExpression_var ret = Orocos::AssignableExpression::_narrow( expr );
             if ( ret ) {
                 CORBA::Any_var any = ret->value();
-                typename ORO_CoreLib::DataSource<T>::value_t target;
-                if ( ORO_CoreLib::AnyConversion<T>::update( any.in(), target ) ) {
+                typename DataSource<T>::value_t target;
+                if ( AnyConversion<T>::update( any.in(), target ) ) {
                     Logger::log() <<Logger::Debug<< "Found valid assignment conversion from server "<< ret->getType()
-                                  <<" to local "<< ORO_CoreLib::DataSource<T>::GetType()<<Logger::endl;
+                                  <<" to local "<< DataSource<T>::GetType()<<Logger::endl;
                     return new CORBAAssignableExpression<T>( ret._retn() );
                 }
             }
@@ -133,7 +133,7 @@ namespace ORO_Corba
          * @return 0 if the Expression is not convertible to T.
          */
         template<class T>
-        ORO_CoreLib::DataSource<T>* narrowDataSource() const {
+        DataSource<T>* narrowDataSource() const {
             return NarrowDataSource<T>( mdata );
         }
             
@@ -141,7 +141,7 @@ namespace ORO_Corba
          * Create an Orocos DataSource<void> proxy.
          * @return A new DataSource.
          */
-        ORO_CoreLib::DataSource<void>* narrowDataSource() const {
+        DataSource<void>* narrowDataSource() const {
             return new CORBAExpression<void>( mdata.in() );
         }
             
@@ -151,7 +151,7 @@ namespace ORO_Corba
          * @return 0 if the Expression is not convertible to T.
          */
         template<class T>
-        ORO_CoreLib::AssignableDataSource<T>* narrowAssignableDataSource() const {
+        AssignableDataSource<T>* narrowAssignableDataSource() const {
             return NarrowAssignableDataSource<T>( mdata.in() );
         }
             
@@ -171,18 +171,18 @@ namespace ORO_Corba
             return mdata->evaluate();
         }
 
-        virtual ORO_CoreLib::DataSourceBase* clone() const {
+        virtual DataSourceBase* clone() const {
             return new ExpressionProxy( mdata.in() );
         }
 
-        virtual ORO_CoreLib::DataSourceBase* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
+        virtual DataSourceBase* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             alreadyCloned[this] = const_cast<ExpressionProxy*>(this);
             return alreadyCloned[this];
         }
 
         virtual std::string getType() const { return std::string( mdata->getType() ); }
 
-        virtual const ORO_CoreLib::TypeInfo* getTypeInfo() const { return ORO_CoreLib::detail::DataSourceTypeInfo<ORO_CoreLib::detail::UnknownType>::getTypeInfo(); }
+        virtual const TypeInfo* getTypeInfo() const { return detail::DataSourceTypeInfo<detail::UnknownType>::getTypeInfo(); }
 
         virtual std::string getTypeName() const { return std::string( mdata->getTypeName() ); }
 
@@ -206,13 +206,13 @@ namespace ORO_Corba
         template<class T>
         struct CreateConstantHelper
         {
-            static ORO_CoreLib::DataSource<T>* Create(const CORBA::Any& any) {
-                using ORO_CoreLib::Logger;
-                typename ORO_CoreLib::DataSource<T>::value_t target = typename ORO_CoreLib::DataSource<T>::value_t();
-                if ( ORO_CoreLib::AnyConversion<T>::update( any, target ) ) {
+            static DataSource<T>* Create(const CORBA::Any& any) {
+                
+                typename DataSource<T>::value_t target = typename DataSource<T>::value_t();
+                if ( AnyConversion<T>::update( any, target ) ) {
                     Logger::log() <<Logger::Debug<< "Found valid conversion from CORBA::Any "
-                                  <<" to local constant "<< ORO_CoreLib::DataSource<T>::GetType()<<Logger::endl;
-                    return new ORO_CoreLib::ConstantDataSource<T>( target );
+                                  <<" to local constant "<< DataSource<T>::GetType()<<Logger::endl;
+                    return new ConstantDataSource<T>( target );
                 } 
                 return 0; // not convertible.
             }
@@ -221,7 +221,7 @@ namespace ORO_Corba
         template<class T>
         struct CreateConstantHelper<T&>
         {
-            static ORO_CoreLib::DataSource<T&>* Create(const CORBA::Any& any) {
+            static DataSource<T&>* Create(const CORBA::Any& any) {
                 return 0; // not convertible.
             }
         };
@@ -229,13 +229,13 @@ namespace ORO_Corba
         template<class T>
         struct CreateConstantHelper<const T&>
         {
-            static ORO_CoreLib::DataSource<const T&>* Create(const CORBA::Any& any) {
-                using ORO_CoreLib::Logger;
-                typename ORO_CoreLib::DataSource<T>::value_t target = typename ORO_CoreLib::DataSource<T>::value_t();
-                if ( ORO_CoreLib::AnyConversion<const T&>::update( any, target ) ) {
+            static DataSource<const T&>* Create(const CORBA::Any& any) {
+                
+                typename DataSource<T>::value_t target = typename DataSource<T>::value_t();
+                if ( AnyConversion<const T&>::update( any, target ) ) {
                     Logger::log() <<Logger::Debug<< "Found valid conversion from CORBA::Any "
-                                  <<" to local constant "<< ORO_CoreLib::DataSource<const T&>::GetType()<<Logger::endl;
-                    return new ORO_CoreLib::ConstantDataSource<const T&>( target );
+                                  <<" to local constant "<< DataSource<const T&>::GetType()<<Logger::endl;
+                    return new ConstantDataSource<const T&>( target );
                 } 
                 return 0; // not convertible.
             }

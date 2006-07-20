@@ -9,7 +9,7 @@ an AnalogDrive. They interface with Device Interface
 classes."
     parent OROPKG_DEVICE_DRIVERS
 
-    include_dir device_drivers
+    include_dir rtt/dev
 
     compile Axis.cxx SimulationAxis.cxx DigitalInput.cxx DigitalOutput.cxx AnalogDrive.cxx AbsoluteEncoderSensor.cxx IncrementalEncoderSensor.cxx
 }

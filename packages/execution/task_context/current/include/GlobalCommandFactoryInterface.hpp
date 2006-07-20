@@ -31,7 +31,7 @@
 
 #include "CommandFactoryInterface.hpp"
 
-namespace ORO_Execution
+namespace RTT
 	{
 
     /**

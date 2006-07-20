@@ -19,7 +19,7 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "device_drivers/AbsoluteEncoderSensor.hpp"
+#include "rtt/dev/AbsoluteEncoderSensor.hpp"
 
-namespace ORO_DeviceDrivers {
+namespace RTTs {
 }

@@ -28,11 +28,11 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "execution/parse_exception.hpp"
+#include "rtt/parse_exception.hpp"
 
 #include <sstream>
 
-namespace ORO_Execution
+namespace RTT
 {
     using namespace detail;
   // implemented here to avoid having to include sstream in the header

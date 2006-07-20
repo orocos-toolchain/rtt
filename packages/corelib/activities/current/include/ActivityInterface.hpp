@@ -31,7 +31,7 @@
 #include "Time.hpp"
 #include "os/ThreadInterface.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     class EventProcessor;
     class RunnableInterface;
@@ -141,7 +141,7 @@ namespace ORO_CoreLib
          * Returns a pointer to the thread which will
          * run this activity. Will not be null.
          */
-        virtual ORO_OS::ThreadInterface* thread() = 0;
+        virtual OS::ThreadInterface* thread() = 0;
     };
 
 }

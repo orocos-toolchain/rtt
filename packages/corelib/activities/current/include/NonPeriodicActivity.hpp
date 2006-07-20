@@ -38,7 +38,7 @@
 #pragma interface
 #endif
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**
@@ -52,10 +52,10 @@ namespace ORO_CoreLib
      */
     class NonPeriodicActivity
         :public ActivityInterface,
-         private ORO_OS::SingleThread
+         private OS::SingleThread
     {
     public:
-        using ORO_OS::SingleThread::run;
+        using OS::SingleThread::run;
 
         /**
          * Create an NonPeriodicActivity with a given priority and

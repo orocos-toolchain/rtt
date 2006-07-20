@@ -36,7 +36,7 @@
 
 #include "DataSourceBase.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
 #ifndef ORO_EMBEDDED

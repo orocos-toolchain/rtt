@@ -24,13 +24,13 @@
 #include <iostream>
 #include <sstream>
 #ifndef NOPARSER
-#include <execution/ParsedStateMachine.hpp>
+#include <rtt/ParsedStateMachine.hpp>
 #endif
-#include <corelib/SimulationThread.hpp>
-#include <corelib/CommandFunctor.hpp>
-#include <execution/Method.hpp>
-#include <execution/Command.hpp>
-#include <execution/StateMachine.hpp>
+#include <rtt/SimulationThread.hpp>
+#include <rtt/CommandFunctor.hpp>
+#include <rtt/Method.hpp>
+#include <rtt/Command.hpp>
+#include <rtt/StateMachine.hpp>
 
 #ifdef OROPKG_GEOMETRY
 #include <geometry/GeometryToolkit.hpp>

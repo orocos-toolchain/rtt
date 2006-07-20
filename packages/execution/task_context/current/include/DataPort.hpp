@@ -36,7 +36,7 @@
 #include "Method.hpp"
 #include "ConnectionTypes.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * A Port to a readable Data Connection.
@@ -72,7 +72,7 @@ namespace ORO_Execution
          * Data object connection connected to this port.
          * @return 0 if !connected(), the Data Object otherwise.
          */
-        const ORO_CoreLib::DataObjectInterface<T>* data() const { return mconn ? mconn->data() : 0; }
+        const DataObjectInterface<T>* data() const { return mconn ? mconn->data() : 0; }
 
         /**
          * Get the current value of this Port.
@@ -154,14 +154,14 @@ namespace ORO_Execution
          * Data Object connected to this port.
          * @return 0 if !connected(), the data object otherwise.
          */
-        ORO_CoreLib::DataObjectInterface<T>* data() { return mconn ? mconn->data() : 0; }
+        DataObjectInterface<T>* data() { return mconn ? mconn->data() : 0; }
 
         /**
          * Get the data object to read from. The Task may use this to read from a
          * Data Object connected to this port.
          * @return 0 if !connected(), the data object otherwise.
          */
-        const ORO_CoreLib::DataObjectInterface<T>* data() const { return mconn ? mconn->data() : 0; }
+        const DataObjectInterface<T>* data() const { return mconn ? mconn->data() : 0; }
 
         /**
          * Write data to the connection of this port.
@@ -256,7 +256,7 @@ namespace ORO_Execution
 
 #include "ConnectionFactory.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
 
     template<class T>

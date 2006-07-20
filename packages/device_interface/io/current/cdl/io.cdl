@@ -8,7 +8,7 @@ Analog Output cards."
 
     parent OROPKG_DEVICE_INTERFACE
 
-    include_dir device_interface
+    include_dir rtt/dev
 
     compile io.cxx
 }

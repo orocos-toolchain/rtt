@@ -27,9 +27,9 @@
  
  
 
-#include <os/threads.hpp>
+#include <rtt/os/threads.hpp>
 
-namespace ORO_OS
+namespace OS
 {
 
     const int LowestPriority = 1;

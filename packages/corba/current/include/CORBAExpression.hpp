@@ -29,20 +29,20 @@
 #ifndef ORO_CORBAEXPRESSION_HPP
 #define ORO_CORBAEXPRESSION_HPP
 
-#include <corelib/DataSource.hpp>
-#include <corelib/Logger.hpp>
-#include <corelib/BuildType.hpp>
-#include <corelib/CommandInterface.hpp>
-#include <execution/CommandBinary.hpp>
+#include "DataSource.hpp"
+#include "Logger.hpp"
+#include "BuildType.hpp"
+#include "CommandInterface.hpp"
+#include "CommandBinary.hpp"
 #include "CorbaConversion.hpp"
 
 
-namespace ORO_Corba
+namespace Corba
 {
-    struct  UpdatedCommand : public ORO_CoreLib::CommandInterface
+    struct  UpdatedCommand : public CommandInterface
     {
-        ORO_CoreLib::DataSourceBase::shared_ptr mds;
-        UpdatedCommand( ORO_CoreLib::DataSourceBase* ds )
+        DataSourceBase::shared_ptr mds;
+        UpdatedCommand( DataSourceBase* ds )
             :mds(ds)
         {}
 
@@ -53,23 +53,23 @@ namespace ORO_Corba
 
         void readArguments() {}
 
-        ORO_CoreLib::CommandInterface* clone() const {
+        CommandInterface* clone() const {
             return new UpdatedCommand(mds.get());
         }
 
-        ORO_CoreLib::CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
+        CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             return new UpdatedCommand(mds->copy(alreadyCloned));
         }
     };
 
 
-    using ORO_CoreLib::Logger;
+    
     template<class T>
     class CORBAExpression
-        : public ORO_CoreLib::DataSource<T>
+        : public DataSource<T>
     {
         Orocos::Expression_var mexpr;
-        mutable typename ORO_CoreLib::DataSource<T>::value_t last_value;
+        mutable typename DataSource<T>::value_t last_value;
     public:
         CORBAExpression( Orocos::Expression_ptr expr )
             : mexpr( Orocos::Expression::_duplicate( expr ) ), last_value()
@@ -85,29 +85,29 @@ namespace ORO_Corba
             return Orocos::Expression::_duplicate( mexpr );
         }
 
-        typename ORO_CoreLib::DataSource<T>::result_t value() const {
+        typename DataSource<T>::result_t value() const {
             return last_value;
         }
 
-        virtual typename ORO_CoreLib::DataSource<T>::result_t get() const {
+        virtual typename DataSource<T>::result_t get() const {
             CORBA::Any_var res = mexpr->get();
-            if (ORO_CoreLib::AnyConversion<T>::update( res.in(), last_value ) == false)
+            if (AnyConversion<T>::update( res.in(), last_value ) == false)
                 Logger::log() <<Logger::Error << "Could not update CORBAExpression to remote value!"<<Logger::endl;
             return last_value;
         }
 
-        virtual ORO_CoreLib::DataSource<T>* clone() const {
+        virtual DataSource<T>* clone() const {
             return new CORBAExpression<T>( Orocos::Expression::_duplicate( mexpr.in() ) );
         } 
 
-        virtual ORO_CoreLib::DataSource<T>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
+        virtual DataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             alreadyCloned[this] = const_cast<CORBAExpression<T>*>(this);
             return const_cast<CORBAExpression<T>*>(this);
         }
 
         virtual std::string getType() const {
             // both should be equivalent, but we display the local type.
-            return ORO_CoreLib::DataSource<T>::GetType();
+            return DataSource<T>::GetType();
             //return std::string( mexpr->getType() );
         }
 
@@ -122,7 +122,7 @@ namespace ORO_Corba
      */
     template<>
     class CORBAExpression<void>
-        : public ORO_CoreLib::DataSource<void>
+        : public DataSource<void>
     {
         Orocos::Expression_var mexpr;
     public:
@@ -148,11 +148,11 @@ namespace ORO_Corba
             CORBA::Any_var res = mexpr->get();
         }
 
-        virtual ORO_CoreLib::DataSource<void>* clone() const {
+        virtual DataSource<void>* clone() const {
             return new CORBAExpression<void>( Orocos::Expression::_duplicate( mexpr.in() ) );
         } 
 
-        virtual ORO_CoreLib::DataSource<void>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
+        virtual DataSource<void>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             alreadyCloned[this] = const_cast<CORBAExpression<void>*>(this);
             return const_cast<CORBAExpression<void>*>(this);
         }
@@ -165,59 +165,59 @@ namespace ORO_Corba
 
     template<class T>
     class CORBAAssignableExpression
-        : public ORO_CoreLib::AssignableDataSource<T>
+        : public AssignableDataSource<T>
     {
-        typedef typename ORO_CoreLib::AssignableDataSource<T>::value_t value_t;
+        typedef typename AssignableDataSource<T>::value_t value_t;
         Orocos::AssignableExpression_var mexpr;
-        typename ORO_CoreLib::AssignableDataSource<value_t>::shared_ptr storage;
-        //mutable typename ORO_CoreLib::DataSource<T>::value_t last_value;
+        typename AssignableDataSource<value_t>::shared_ptr storage;
+        //mutable typename DataSource<T>::value_t last_value;
     public:
         CORBAAssignableExpression( Orocos::AssignableExpression_ptr expr )
             : mexpr( Orocos::AssignableExpression::_duplicate(expr) )//, last_value()
         {
-            storage = ORO_CoreLib::detail::BuildType<value_t>::Value();
+            storage = detail::BuildType<value_t>::Value();
         }
 
-        using ORO_CoreLib::AssignableDataSource<T>::server;
+        
         
         Orocos::Expression_ptr server()
         {
             return Orocos::AssignableExpression::_duplicate( mexpr );
         }
 
-        typename ORO_CoreLib::DataSource<T>::result_t value() const {
+        typename DataSource<T>::result_t value() const {
             return storage->rvalue();
         }
 
-        typename ORO_CoreLib::AssignableDataSource<T>::const_reference_t rvalue() const {
+        typename AssignableDataSource<T>::const_reference_t rvalue() const {
             return storage->rvalue();
         }
 
 
-        virtual typename ORO_CoreLib::DataSource<T>::result_t get() const {
+        virtual typename DataSource<T>::result_t get() const {
             CORBA::Any_var res = mexpr->get();
-            if (ORO_CoreLib::AnyConversion<T>::update( res.in(), storage->set() ) == false)
+            if (AnyConversion<T>::update( res.in(), storage->set() ) == false)
                 Logger::log() <<Logger::Error << "Could not update CORBAAssignableExpression to remote value!"<<Logger::endl;
             return storage->rvalue();
         }
 
-        virtual void set( typename ORO_CoreLib::AssignableDataSource<T>::param_t t ) {
-            CORBA::Any_var toset = ORO_CoreLib::AnyConversion<T>::createAny(t);
+        virtual void set( typename AssignableDataSource<T>::param_t t ) {
+            CORBA::Any_var toset = AnyConversion<T>::createAny(t);
             mexpr->set( toset.in() );
             storage->set( t );
         }
 
-        virtual typename ORO_CoreLib::AssignableDataSource<T>::reference_t set() {
+        virtual typename AssignableDataSource<T>::reference_t set() {
             return storage->set();
         }
 
         virtual void updated()
         {
-            CORBA::Any_var toset = ORO_CoreLib::AnyConversion<T>::createAny( storage->value() );
+            CORBA::Any_var toset = AnyConversion<T>::createAny( storage->value() );
             mexpr->set( toset.in() );
         }
 
-        using ORO_CoreLib::AssignableDataSource<T>::update;
+        
         virtual bool update(const CORBA::Any& any) {
             // send update and get result back.
             if ( mexpr->set( any ) ) {
@@ -227,27 +227,27 @@ namespace ORO_Corba
             return false;
         }
 
-        ORO_CoreLib::CommandInterface* updateCommand( ORO_CoreLib::DataSourceBase* other) 
+        CommandInterface* updateCommand( DataSourceBase* other) 
         {
-            ORO_CoreLib::CommandInterface* ci = storage->updateCommand(other);
+            CommandInterface* ci = storage->updateCommand(other);
             if (ci)
-                return new ORO_Execution::CommandBinary( ci, new UpdatedCommand( this ) );
+                return new CommandBinary( ci, new UpdatedCommand( this ) );
             return 0;
         }
 
-        virtual ORO_CoreLib::CommandInterface* updatePartCommand(ORO_CoreLib::DataSourceBase* index, ORO_CoreLib::DataSourceBase* rhs )
+        virtual CommandInterface* updatePartCommand(DataSourceBase* index, DataSourceBase* rhs )
         {
-            ORO_CoreLib::CommandInterface* ci = storage->updatePartCommand(index, rhs);
+            CommandInterface* ci = storage->updatePartCommand(index, rhs);
             if (ci)
-                return new ORO_Execution::CommandBinary( ci, new UpdatedCommand( this ) );
+                return new CommandBinary( ci, new UpdatedCommand( this ) );
             return 0;
         }
 
-        virtual ORO_CoreLib::AssignableDataSource<T>* clone() const {
+        virtual AssignableDataSource<T>* clone() const {
             return new CORBAAssignableExpression<T>( Orocos::AssignableExpression::_duplicate( mexpr.in() ) );
         } 
 
-        virtual ORO_CoreLib::AssignableDataSource<T>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
+        virtual AssignableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             alreadyCloned[this] = const_cast<CORBAAssignableExpression<T>*>(this);
             return const_cast<CORBAAssignableExpression<T>*>(this);
         }

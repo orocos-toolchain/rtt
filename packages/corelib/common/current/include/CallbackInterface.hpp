@@ -28,7 +28,7 @@
 #ifndef CALLBACKINTERFACE_HPP
 #define CALLBACKINTERFACE_HPP
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * @brief Generic callback interface.

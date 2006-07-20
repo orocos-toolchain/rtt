@@ -22,18 +22,19 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <corelib/AtomicQueue.hpp>
-#include <corelib/BufferLockFree.hpp>
-#include <corelib/ListLockFree.hpp>
-#include <corelib/DataObjectInterfaces.hpp>
-#include <corelib/MemoryPool.hpp>
-//#include <corelib/SortedList.hpp>
+#include <rtt/RTT.hpp>
+#include <rtt/AtomicQueue.hpp>
+#include <rtt/BufferLockFree.hpp>
+#include <rtt/ListLockFree.hpp>
+#include <rtt/DataObjectInterfaces.hpp>
+#include <rtt/MemoryPool.hpp>
+//#include <rtt/SortedList.hpp>
 
-#include <os/SingleThread.hpp>
+#include <rtt/os/SingleThread.hpp>
 #include <pkgconf/system.h>
 
-using namespace ORO_CoreLib;
-using namespace ORO_OS;
+using namespace RTT;
+using namespace RTT::OS;
 
 class Dummy;
 

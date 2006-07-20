@@ -32,7 +32,7 @@
 #include <vector>
 #include "BufferBase.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * This interface describes a write interface for value types.

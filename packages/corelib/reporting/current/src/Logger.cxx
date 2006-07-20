@@ -27,12 +27,12 @@
  
 // to retrieve RTAI version, if any.
 #define OROBLD_OS_LXRT_INTERNAL 
-#include "os/StartStopManager.hpp"
-#include "os/MutexLock.hpp"
-#include "os/Mutex.hpp"
-#include "corelib/TimeService.hpp"
+#include "rtt/os/StartStopManager.hpp"
+#include "rtt/os/MutexLock.hpp"
+#include "rtt/os/Mutex.hpp"
+#include "rtt/TimeService.hpp"
 
-#include "corelib/Logger.hpp"
+#include "rtt/Logger.hpp"
 #include <iomanip>
 
 #ifdef OROSEM_PRINTF_LOGGING
@@ -54,7 +54,7 @@
 #include <pkgconf/os_lxrt.h>
 #endif
 
-namespace ORO_CoreLib 
+namespace RTT 
 {
     using namespace std;
 
@@ -137,7 +137,7 @@ namespace ORO_CoreLib
         void logit(std::ostream& (*pf)(std::ostream&))
         {
             // only on Logger::nl or Logger::endl, a time+log-line is written.
-            ORO_OS::MutexLock lock( inpguard );
+            OS::MutexLock lock( inpguard );
             std:: string res = showTime() +" " + showLevel(inloglevel) + showModule() + " ";
 
             // do not log if not wanted.
@@ -277,8 +277,8 @@ namespace ORO_CoreLib
         const char* loggermodule;
         const char* moduleptr;
 
-        ORO_OS::Mutex inpguard;
-        ORO_OS::Mutex startguard;
+        OS::Mutex inpguard;
+        OS::Mutex startguard;
     };
 
     Logger::Logger()
@@ -428,7 +428,7 @@ namespace ORO_CoreLib
             return "";
         std::string line;
         {
-            ORO_OS::MutexLock lock( d->inpguard );
+            OS::MutexLock lock( d->inpguard );
             getline( d->remotestream, line );
             if ( !d->remotestream )
                 d->remotestream.clear();
@@ -451,7 +451,7 @@ namespace ORO_CoreLib
         if ( !d->maylog() )
             return *this;
         
-        ORO_OS::MutexLock lock( d->inpguard );
+        OS::MutexLock lock( d->inpguard );
         if ( d->maylogStdOut() )
             d->logline << t;
 
@@ -485,7 +485,7 @@ namespace ORO_CoreLib
         else if ( pf == Logger::flush )
             this->logflush();
         else {
-            ORO_OS::MutexLock lock( d->inpguard );
+            OS::MutexLock lock( d->inpguard );
             if ( d->maylogStdOut() )
                 d->logline << pf; // normal std operator in stream.
 #if defined(OROSEM_FILE_LOGGING) || defined(OROSEM_REMOTE_LOGGING)
@@ -501,7 +501,7 @@ namespace ORO_CoreLib
             return;
         {
             // just flush all buffers, do not produce a new logline
-            ORO_OS::MutexLock lock( d->inpguard );
+            OS::MutexLock lock( d->inpguard );
             if ( d->maylogStdOut() ) {
 #ifndef OROSEM_PRINTF_LOGGING
                 d->stdoutput->flush();

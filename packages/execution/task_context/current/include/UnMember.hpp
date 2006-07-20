@@ -12,7 +12,7 @@
 #include <boost/function_types/function_type_signature.hpp>
 
 
-namespace ORO_Execution
+namespace RTT
 {
     namespace detail
     {

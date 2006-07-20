@@ -24,9 +24,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "corelib/CommandNOP.hpp"
+#include "rtt/CommandNOP.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     bool CommandNOP::execute()
     {

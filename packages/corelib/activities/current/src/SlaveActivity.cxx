@@ -26,10 +26,10 @@
  ***************************************************************************/
  
  
-#include "corelib/SlaveActivity.hpp"
-#include "corelib/CompletionProcessor.hpp"
+#include "rtt/SlaveActivity.hpp"
+#include "rtt/CompletionProcessor.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     
     SlaveActivity::SlaveActivity( ActivityInterface* master, RunnableInterface* run /*= 0*/ )
@@ -70,7 +70,7 @@ namespace ORO_CoreLib
         return mmaster ? mmaster->getEventProcessor() : CompletionProcessor::Instance()->getEventProcessor();
     }
 
-    ORO_OS::ThreadInterface* SlaveActivity::thread()
+    OS::ThreadInterface* SlaveActivity::thread()
     {
         // todo: a MainThread::Instance() seems more appropriate...
         return mmaster ? mmaster->thread() : CompletionProcessor::Instance()->thread();

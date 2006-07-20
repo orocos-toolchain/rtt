@@ -6,7 +6,7 @@ A Package that provides realtime-safe program execution,
 with each program statement represented by an object
 which encapsulates the command to be executed."
 
-    include_dir execution
+    include_dir rtt
     
     parent   OROPKG_EXECUTION
     requires OROPKG_EXECUTION

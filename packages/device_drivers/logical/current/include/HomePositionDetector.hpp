@@ -28,11 +28,11 @@
 #ifndef HOME_POSITION_DETECTOR_HPP
 #define HOME_POSITION_DETECTOR_HPP
 
-#include <device_interface/DigitalInInterface.hpp>
-#include <device_interface/SensorInterface.hpp>
-#include <device_interface/EncoderInterface.hpp>
+#include "DigitalInInterface.hpp"
+#include "SensorInterface.hpp"
+#include "EncoderInterface.hpp"
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
     /**
@@ -45,10 +45,10 @@ namespace ORO_DeviceDriver
      * is on when the encoder turn is zero. The encoder is optional.
      */
     class HomePositionDetector
-        : public ORO_DeviceInterface::DigitalInInterface
+        : public DigitalInInterface
     {
-        ORO_DeviceInterface::SensorInterface<double>* sens;
-        ORO_DeviceInterface::EncoderInterface* enc;
+        SensorInterface<double>* sens;
+        EncoderInterface* enc;
     public :
         /**
          * Create a Home Position Detector with a sensor and an optional
@@ -56,8 +56,8 @@ namespace ORO_DeviceDriver
          * @param _sensor The sensor returning zero when the physical home position is reached.
          * @param _encoder The encoder measuring the position.
          */
-        HomePositionDetector( ORO_DeviceInterface::SensorInterface<double>* _sensor,
-                              ORO_DeviceInterface::EncoderInterface* _encoder = 0)
+        HomePositionDetector( SensorInterface<double>* _sensor,
+                              EncoderInterface* _encoder = 0)
             : sens(_sensor), enc(_encoder) {}
 
         virtual bool isOn( unsigned int bit = 0) const

@@ -26,21 +26,21 @@
  ***************************************************************************/
  
  
-#include "execution/GlobalCommandFactory.hpp"
-#include "execution/CommandC.hpp"
-#include "execution/OperationInterface.hpp"
-#include "execution/DispatchInterface.hpp"
-#include "execution/TryCommand.hpp"
-#include "execution/ConditionComposite.hpp"
-#include "execution/ConditionBoolDataSource.hpp"
-#include "execution/FactoryExceptions.hpp"
-#include "corelib/Logger.hpp"
-#include <corelib/Exceptions.hpp>
+#include "rtt/GlobalCommandFactory.hpp"
+#include "rtt/CommandC.hpp"
+#include "rtt/OperationInterface.hpp"
+#include "rtt/DispatchInterface.hpp"
+#include "rtt/TryCommand.hpp"
+#include "rtt/ConditionComposite.hpp"
+#include "rtt/ConditionBoolDataSource.hpp"
+#include "rtt/FactoryExceptions.hpp"
+#include "rtt/Logger.hpp"
+#include <rtt/Exceptions.hpp>
 #include <vector>
 
-namespace ORO_Execution
+namespace RTT
 {
-    using namespace ORO_CoreLib;
+    
     
     class CommandC::D
     {
@@ -48,7 +48,7 @@ namespace ORO_Execution
         const GlobalCommandFactory* mgcf;
         const CommandRepository::Factory* mcr;
         std::string mobject, mname;
-        std::pair<DispatchInterface*,ORO_CoreLib::ConditionInterface*> comcon;
+        std::pair<DispatchInterface*,ConditionInterface*> comcon;
         std::vector<DataSourceBase::shared_ptr> args;
 
         void checkAndCreate() {

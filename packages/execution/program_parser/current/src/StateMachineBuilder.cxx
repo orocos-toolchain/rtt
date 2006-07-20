@@ -26,11 +26,11 @@
  ***************************************************************************/
 
 
-#include "execution/StateMachineBuilder.hpp"
-#include "execution/ParsedStateMachine.hpp"
+#include "rtt/StateMachineBuilder.hpp"
+#include "rtt/ParsedStateMachine.hpp"
 #include <assert.h>
 
-namespace ORO_Execution {
+namespace RTT {
   using namespace detail;
   StateMachineBuilder::StateMachineBuilder(
     ParsedStateMachinePtr tc )

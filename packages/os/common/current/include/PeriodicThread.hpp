@@ -30,18 +30,18 @@
 
 // Our own package config headers.
 #include "pkgconf/os.h"
-#include <os/fosi.h>
+#include "fosi.h"
 
-#include <os/RunnableInterface.hpp>
-#include <os/ThreadInterface.hpp>
+#include "RunnableInterface.hpp"
+#include "ThreadInterface.hpp"
 
 #include <string>
 
-namespace ORO_CoreLib {
+namespace RTT {
     class Handle;
 }
 
-namespace ORO_OS
+namespace OS
 {
     /**
      * A PeriodicThread executes its step() method (or a RunnableInterface ) periodically.
@@ -54,7 +54,7 @@ namespace ORO_OS
      * one not overrunning step() compensates for one overrunning step().
      */
     class PeriodicThread 
-        : public ORO_OS::ThreadInterface 
+        : public OS::ThreadInterface 
     {
         friend void* periodicThread( void* t );
 
@@ -69,11 +69,11 @@ namespace ORO_OS
          * @param r        The optional RunnableInterface instance to run. If not present,
          *                 the thread's own virtual functions are executed.
          */
-    PeriodicThread(int priority,const std::string & name, double period, ORO_OS::RunnableInterface* r=0);
+    PeriodicThread(int priority,const std::string & name, double period, OS::RunnableInterface* r=0);
     
         virtual ~PeriodicThread();
 
-        virtual bool run( ORO_OS::RunnableInterface* r);
+        virtual bool run( OS::RunnableInterface* r);
 
         /**
          * Start the thread
@@ -185,9 +185,9 @@ namespace ORO_OS
         /**
          * The possible Runnable to run in this Component
          */
-        ORO_OS::RunnableInterface* runComp;
+        OS::RunnableInterface* runComp;
 
-        ORO_CoreLib::Handle* h;
+        RTT::Handle* h;
         // We cannot include Event.hpp inhere,
         // thus we use a void* + static_cast in cxx file.
         void* stopEvent;

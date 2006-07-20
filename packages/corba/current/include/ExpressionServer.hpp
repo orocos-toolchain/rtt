@@ -29,14 +29,14 @@
 #ifndef ORO_CORBA_EXPRESSIONSERVER_HPP
 #define ORO_CORBA_EXPRESSIONSERVER_HPP
 
-#include <corelib/DataSourceBase.hpp>
+#include "DataSourceBase.hpp"
 #include "ExecutionC.h"
 
 
 // forward decl.
 class Orocos_AnyExpression_i;
 
-namespace ORO_Corba
+namespace Corba
 {
 
     /**
@@ -47,10 +47,10 @@ namespace ORO_Corba
     class ExpressionServer
     {
     protected:
-        typedef std::map<ORO_CoreLib::DataSourceBase::const_ptr, Orocos_AnyExpression_i* > EServantMap;
-        typedef std::map<ORO_CoreLib::DataSourceBase::const_ptr, Orocos::Expression_ptr > EServerMap;
-        typedef std::map<ORO_CoreLib::DataSourceBase::shared_ptr, Orocos::AssignableExpression_ptr> AServerMap;
-        typedef std::map<ORO_CoreLib::DataSourceBase::shared_ptr, Orocos::Method_ptr> MServerMap;
+        typedef std::map<DataSourceBase::const_ptr, Orocos_AnyExpression_i* > EServantMap;
+        typedef std::map<DataSourceBase::const_ptr, Orocos::Expression_ptr > EServerMap;
+        typedef std::map<DataSourceBase::shared_ptr, Orocos::AssignableExpression_ptr> AServerMap;
+        typedef std::map<DataSourceBase::shared_ptr, Orocos::Method_ptr> MServerMap;
 
         /**
          * All created servants end up in this map.
@@ -82,7 +82,7 @@ namespace ORO_Corba
          * @param expr The expression to serve
          * @return A new or previously created CORBA server for \a expr.
          */
-        static Orocos::Expression_ptr CreateExpression( ORO_CoreLib::DataSourceBase::const_ptr expr );
+        static Orocos::Expression_ptr CreateExpression( DataSourceBase::const_ptr expr );
 
 
         /**
@@ -90,14 +90,14 @@ namespace ORO_Corba
          * @param expr The expression to serve
          * @return A new or previously created CORBA server for \a expr.
          */
-        static Orocos::AssignableExpression_ptr CreateAssignableExpression( ORO_CoreLib::DataSourceBase::shared_ptr expr );
+        static Orocos::AssignableExpression_ptr CreateAssignableExpression( DataSourceBase::shared_ptr expr );
 
         /**
          * Factory method: create a CORBA server to a method
          * @param expr The expression to serve
          * @return A new or previously created CORBA server for \a expr.
          */
-        static Orocos::Method_ptr CreateMethod( ORO_CoreLib::DataSourceBase::shared_ptr expr );
+        static Orocos::Method_ptr CreateMethod( DataSourceBase::shared_ptr expr );
 
         /**
          * This method informs the servants that a new DataSource needs to be used
@@ -105,7 +105,7 @@ namespace ORO_Corba
          * each new lookup will resolve to the new DataSource instead of the old.
          * The old DataSource becomes 'unserved' and may thus become available for clean-up.
          */
-        static void copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned );
+        static void copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned );
     };
 
 }

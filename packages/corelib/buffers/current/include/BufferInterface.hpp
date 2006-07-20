@@ -32,7 +32,7 @@
 #include "WriteInterface.hpp"
 #include <boost/shared_ptr.hpp>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * A Buffer is an object which is used to store (Push) and retrieve (Pop) values from.

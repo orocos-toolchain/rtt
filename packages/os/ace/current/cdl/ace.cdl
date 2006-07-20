@@ -7,7 +7,7 @@ This package is used if you want to compile
 Orocos for 'ACE'. All OS'es supported by
 ACE are supported by Orocos."
 
-    include_dir os
+    include_dir rtt/os
     parent OROPKG_OS
 
 #    compile fosi.c

@@ -23,7 +23,7 @@
 
 #include "Time.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**
@@ -210,6 +210,6 @@ namespace ORO_CoreLib
 
         bool use_clock;
     };
-} // namespace ORO_CoreLib
+} // namespace RTT
 
 #endif

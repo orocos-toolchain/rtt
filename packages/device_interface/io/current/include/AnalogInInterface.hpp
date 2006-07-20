@@ -40,10 +40,10 @@
 #ifndef ANALOGININTERFACE_HPP
 #define ANALOGININTERFACE_HPP
 
-#include <corelib/NameServer.hpp>
-#include <corelib/NameServerRegistrator.hpp>
+#include <rtt/NameServer.hpp>
+#include <rtt/NameServerRegistrator.hpp>
 
-namespace ORO_DeviceInterface
+namespace RTT
 {
     /**
      * An interface for reading analog input, like
@@ -54,7 +54,7 @@ namespace ORO_DeviceInterface
      */
     template < class T>
     class AnalogInInterface
-        : private ORO_CoreLib::NameServerRegistrator<AnalogInInterface<T>*>
+        : private NameServerRegistrator<AnalogInInterface<T>*>
     {
         public:
       /**
@@ -78,7 +78,7 @@ namespace ORO_DeviceInterface
              * unique, it can be retrieved using the AnalogOutInterface::nameserver.
              */
             AnalogInInterface( const std::string& name )
-                : ORO_CoreLib::NameServerRegistrator<AnalogInInterface<T>*>( nameserver, name, this )
+                : NameServerRegistrator<AnalogInInterface<T>*>( nameserver, name, this )
             {}
 
             virtual ~AnalogInInterface()
@@ -149,14 +149,14 @@ namespace ORO_DeviceInterface
              * The NameServer for this interface.
              * @see NameServer
              */
-            static ORO_CoreLib::NameServer<AnalogInInterface<T> *> nameserver;
+            static NameServer<AnalogInInterface<T> *> nameserver;
 
         private:
 
     };
 
     template <class T>
-    ORO_CoreLib::NameServer<AnalogInInterface<T> *> AnalogInInterface<T>::nameserver;
+    NameServer<AnalogInInterface<T> *> AnalogInInterface<T>::nameserver;
 };
 
 #endif

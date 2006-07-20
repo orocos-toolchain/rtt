@@ -27,10 +27,10 @@
  
  
 
-#include "corelib/RunnableInterface.hpp"
-#include "corelib/Logger.hpp"
+#include "rtt/RunnableInterface.hpp"
+#include "rtt/Logger.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     RunnableInterface::~RunnableInterface() {

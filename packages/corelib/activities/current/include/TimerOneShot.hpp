@@ -31,9 +31,9 @@
 
 #include "TimerInterface.hpp"
 #include <vector>
-#include <os/Mutex.hpp>
+#include "os/Mutex.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     namespace detail {
 
@@ -55,7 +55,7 @@ namespace ORO_CoreLib
         /**
          * A recursive mutex allows non-deadlocking self-removal.
          */
-        ORO_OS::MutexRecursive mutex;
+        OS::MutexRecursive mutex;
         void reorderList();
     public:
         TimerOneShot( nsecs task_period );

@@ -29,7 +29,7 @@
 /**
  * @file Events.hpp
  * This file includes the common header files from the 
- * ORO_CoreLib event package.
+ * RTT event package.
  */
 
 #include "Event.hpp"

@@ -33,7 +33,7 @@
 #include "DataSource.hpp"
 #include <boost/shared_ptr.hpp>
 
-namespace ORO_CoreLib { namespace detail
+namespace RTT { namespace detail
 {
 
   /**
@@ -63,8 +63,8 @@ namespace ORO_CoreLib { namespace detail
      * certain operation on the value it gets from its argument
      * DataSource, and will return that value ).  Otherwise, return 0.
      */
-    virtual ORO_CoreLib::DataSourceBase* build( const std::string& op,
-                                   ORO_CoreLib::DataSourceBase* a ) = 0;
+    virtual DataSourceBase* build( const std::string& op,
+                                   DataSourceBase* a ) = 0;
   };
 
   class BinaryOp
@@ -79,8 +79,8 @@ namespace ORO_CoreLib { namespace detail
      * DataSources, and will return that value ).
      * Otherwise, return 0.
      */
-    virtual ORO_CoreLib::DataSourceBase* build(
-      const std::string& op, ORO_CoreLib::DataSourceBase* a, ORO_CoreLib::DataSourceBase* b ) = 0;
+    virtual DataSourceBase* build(
+      const std::string& op, DataSourceBase* a, DataSourceBase* b ) = 0;
   };
 
   class TernaryOp
@@ -95,9 +95,9 @@ namespace ORO_CoreLib { namespace detail
      * DataSources, and will return that value ).
      * Otherwise, return 0.
      */
-    virtual ORO_CoreLib::DataSourceBase* build(
-      const std::string& op, ORO_CoreLib::DataSourceBase* a, ORO_CoreLib::DataSourceBase* b,
-      ORO_CoreLib::DataSourceBase* c ) = 0;
+    virtual DataSourceBase* build(
+      const std::string& op, DataSourceBase* a, DataSourceBase* b,
+      DataSourceBase* c ) = 0;
   };
 
   class SixaryOp
@@ -112,10 +112,10 @@ namespace ORO_CoreLib { namespace detail
      * DataSources, and will return that value ).
      * Otherwise, return 0.
      */
-    virtual ORO_CoreLib::DataSourceBase* build(
+    virtual DataSourceBase* build(
       const std::string& op,
-      ORO_CoreLib::DataSourceBase* a, ORO_CoreLib::DataSourceBase* b, ORO_CoreLib::DataSourceBase* c,
-      ORO_CoreLib::DataSourceBase* d, ORO_CoreLib::DataSourceBase* e, ORO_CoreLib::DataSourceBase* f) = 0;
+      DataSourceBase* a, DataSourceBase* b, DataSourceBase* c,
+      DataSourceBase* d, DataSourceBase* e, DataSourceBase* f) = 0;
   };
 
   /**
@@ -136,8 +136,8 @@ namespace ORO_CoreLib { namespace detail
      * certain operation on the value it gets from its argument
      * DataSource, and will return that value ).  Otherwise, return 0.
      */
-    virtual ORO_CoreLib::DataSourceBase* build( const std::string& member,
-                                   ORO_CoreLib::DataSourceBase* a ) = 0;
+    virtual DataSourceBase* build( const std::string& member,
+                                   DataSourceBase* a ) = 0;
   };
 }
     /**
@@ -164,17 +164,17 @@ namespace ORO_CoreLib { namespace detail
       typedef boost::shared_ptr<OperatorRepository> shared_ptr;
     ~OperatorRepository();
     static shared_ptr Instance();
-    ORO_CoreLib::DataSourceBase* applyDot( const std::string& member, ORO_CoreLib::DataSourceBase* value );
-    ORO_CoreLib::DataSourceBase* applyUnary( const std::string& op, ORO_CoreLib::DataSourceBase* a );
-    ORO_CoreLib::DataSourceBase* applyBinary(
-      const std::string& op, ORO_CoreLib::DataSourceBase* a, ORO_CoreLib::DataSourceBase* b );
-    ORO_CoreLib::DataSourceBase* applyTernary(
-      const std::string& op, ORO_CoreLib::DataSourceBase* a, ORO_CoreLib::DataSourceBase* b,
-      ORO_CoreLib::DataSourceBase* c );
-    ORO_CoreLib::DataSourceBase* applySixary(
+    DataSourceBase* applyDot( const std::string& member, DataSourceBase* value );
+    DataSourceBase* applyUnary( const std::string& op, DataSourceBase* a );
+    DataSourceBase* applyBinary(
+      const std::string& op, DataSourceBase* a, DataSourceBase* b );
+    DataSourceBase* applyTernary(
+      const std::string& op, DataSourceBase* a, DataSourceBase* b,
+      DataSourceBase* c );
+    DataSourceBase* applySixary(
       const std::string& op,
-      ORO_CoreLib::DataSourceBase* a, ORO_CoreLib::DataSourceBase* b, ORO_CoreLib::DataSourceBase* c,
-      ORO_CoreLib::DataSourceBase* d, ORO_CoreLib::DataSourceBase* e, ORO_CoreLib::DataSourceBase* f);
+      DataSourceBase* a, DataSourceBase* b, DataSourceBase* c,
+      DataSourceBase* d, DataSourceBase* e, DataSourceBase* f);
   };
 }
 

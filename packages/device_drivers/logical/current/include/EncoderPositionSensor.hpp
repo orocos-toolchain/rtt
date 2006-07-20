@@ -28,16 +28,16 @@
 #ifndef ENCODER_POSITION_SENSOR_HPP
 #define ENCODER_POSITION_SENSOR_HPP
 
-#include <device_interface/EncoderInterface.hpp>
-#include <device_interface/SensorInterface.hpp>
-#include <device_interface/CalibrationInterface.hpp>
+#include "EncoderInterface.hpp"
+#include "SensorInterface.hpp"
+#include "CalibrationInterface.hpp"
 
 #include <limits>
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
-    using ORO_DeviceInterface::SensorInterface;
-    using ORO_DeviceInterface::EncoderInterface;
+    
+    
     /**
      * @brief A sensor reading a single Encoder and converting
      * the counter to a physical unit, with support for calibration.

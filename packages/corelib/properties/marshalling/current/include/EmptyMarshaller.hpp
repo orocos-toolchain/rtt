@@ -29,9 +29,9 @@
 #ifndef ORO_PROPERTIES_EMPTY_SERIALIZER
 #define ORO_PROPERTIES_EMPTY_SERIALIZER
 
-#include <corelib/Marshaller.hpp>
+#include <rtt/Marshaller.hpp>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * @brief A Dummy Empty Marshaller.

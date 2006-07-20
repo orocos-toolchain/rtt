@@ -22,10 +22,10 @@
 #include <unistd.h>
 #include <iostream>
 #include <sstream>
-#include <execution/FunctionGraph.hpp>
-#include <corelib/SimulationThread.hpp>
-#include <execution/Method.hpp>
-#include <execution/Command.hpp>
+#include <rtt/FunctionGraph.hpp>
+#include <rtt/SimulationThread.hpp>
+#include <rtt/Method.hpp>
+#include <rtt/Command.hpp>
 
 using namespace std;
 

@@ -29,13 +29,13 @@
 #define ASYNCHCOMMANDDECORATOR_HPP
 
 
-#include <corelib/CommandInterface.hpp>
+#include "CommandInterface.hpp"
 
 
-namespace ORO_Execution
+namespace RTT
 {
 
-	using namespace ORO_CoreLib;
+	
 
     /**
      * Based on the software patterns 'command' and
@@ -83,7 +83,7 @@ namespace ORO_Execution
 
         virtual CommandInterface* clone() const;
 
-        virtual CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const;
+        virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     private:
 
         /**

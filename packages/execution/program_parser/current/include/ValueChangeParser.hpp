@@ -30,14 +30,14 @@
 
 #include "parser-types.hpp"
 
-#include <corelib/Attribute.hpp>
+#include "Attribute.hpp"
 #include "CommonParser.hpp"
 #include "ExpressionParser.hpp"
 #include "PeerParser.hpp"
 #include "PropertyParser.hpp"
-#include <corelib/Types.hpp>
+#include "Types.hpp"
 
-namespace ORO_Execution { namespace detail
+namespace RTT { namespace detail
 {
   /**
    * This class is responsible for parsing constant definitions,
@@ -52,7 +52,7 @@ namespace ORO_Execution { namespace detail
     std::vector<CommandInterface*> assigncommands;
 
     // the defined values...
-    std::vector<ORO_CoreLib::AttributeBase*> definedvalues;
+    std::vector<AttributeBase*> definedvalues;
 
     // the parsed variable or constant or alias or param
     // definition name
@@ -66,8 +66,8 @@ namespace ORO_Execution { namespace detail
     TaskContext* peername;
 
     // A TypeInfo of the type that was specified.  We use it to get
-    // hold of a ORO_CoreLib::Constant or a TaskVariable or ...
-    ORO_CoreLib::TypeInfo* type;
+    // hold of a Constant or a TaskVariable or ...
+    TypeInfo* type;
 
     void seenconstantdefinition();
     void seenaliasdefinition();
@@ -93,10 +93,10 @@ namespace ORO_Execution { namespace detail
     PropertyParser propparser;
     CommonParser commonparser;
 
-    ORO_CoreLib::DataSourceBase::shared_ptr index_ds;
+    DataSourceBase::shared_ptr index_ds;
 
       int sizehint;
-      boost::shared_ptr<ORO_CoreLib::TypeInfoRepository> typerepos;
+      boost::shared_ptr<TypeInfoRepository> typerepos;
 
       // call this before throwing.
       void cleanup();
@@ -131,14 +131,14 @@ namespace ORO_Execution { namespace detail
           return assigncommands;
       }
 
-    ORO_CoreLib::AttributeBase* lastDefinedValue()
+    AttributeBase* lastDefinedValue()
       {
           if ( definedvalues.empty() )
               return 0;
           return definedvalues.back();
       }
 
-    std::vector<ORO_CoreLib::AttributeBase*> definedValues()
+    std::vector<AttributeBase*> definedValues()
       {
           return definedvalues;
       }

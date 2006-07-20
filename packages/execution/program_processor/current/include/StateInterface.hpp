@@ -36,9 +36,9 @@
 
 #include <string>
 #include "ProgramInterface.hpp"
-#include <corelib/DataSourceBase.hpp>
+#include "DataSourceBase.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * A State contains an entry, run, handle and exit program.
@@ -103,7 +103,7 @@ namespace ORO_Execution
          */
         virtual int getEntryPoint() const = 0;
 
-        virtual StateInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& replacementdss ) const = 0;
+        virtual StateInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const = 0;
 
     };
 }

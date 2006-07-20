@@ -24,9 +24,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "execution/CommandCounter.hpp"
+#include "rtt/CommandCounter.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
 	 
 	 CommandCounter::CommandCounter()

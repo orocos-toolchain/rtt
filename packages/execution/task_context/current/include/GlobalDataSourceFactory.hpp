@@ -32,7 +32,7 @@
 #include "DataSourceFactoryInterface.hpp"
 #include "GlobalMemberFactory.hpp"
 
-namespace ORO_Execution {
+namespace RTT {
     /**
      * A global datasource factory is a GlobalMemberFactory.
      * @ingroup globalFactory

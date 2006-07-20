@@ -43,11 +43,11 @@
 #include <vector>
 #include <string>
 
-namespace ORO_Execution {
+namespace RTT {
     class ProgramTask;
 }
 
-namespace ORO_Execution { namespace detail
+namespace RTT { namespace detail
 {
   /**
    * @brief A Parser for Orocos Program Scripts.
@@ -109,7 +109,7 @@ namespace ORO_Execution { namespace detail
       // current command from the CommandParser..
       ConditionInterface* implcond;
       std::vector<ConditionInterface*> implcond_v;
-      std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> callfnargs;
+      std::vector<DataSourceBase::shared_ptr> callfnargs;
 
       // last seen condition
       ConditionInterface* mcondition;

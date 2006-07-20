@@ -29,10 +29,10 @@
 #ifndef DIGITALININTERFACE_HPP
 #define DIGITALININTERFACE_HPP
 
-#include <corelib/NameServer.hpp>
-#include <corelib/NameServerRegistrator.hpp>
+#include <rtt/NameServer.hpp>
+#include <rtt/NameServerRegistrator.hpp>
 
-namespace ORO_DeviceInterface
+namespace RTT
 {
     /**
      * A class representing a Digital Input device from which a
@@ -41,7 +41,7 @@ namespace ORO_DeviceInterface
      * @see TemplateDigitalIn
      */
     class DigitalInInterface
-        : private ORO_CoreLib::NameServerRegistrator<DigitalInInterface*>
+        : private NameServerRegistrator<DigitalInInterface*>
     {
         public:
         /**
@@ -52,7 +52,7 @@ namespace ORO_DeviceInterface
          *        The name which will refer to this instance.
          */
         DigitalInInterface( const std::string& name )
-            : ORO_CoreLib::NameServerRegistrator<DigitalInInterface*>
+            : NameServerRegistrator<DigitalInInterface*>
         ( nameserver, name, this )
         { }
 
@@ -67,9 +67,9 @@ namespace ORO_DeviceInterface
 
             /**
              * The NameServer of this interface.
-             * @see ORO_CoreLib::NameServer
+             * @see NameServer
              */
-            static ORO_CoreLib::NameServer<DigitalInInterface*> nameserver;
+            static NameServer<DigitalInInterface*> nameserver;
 
             /**
              * Inspect if a certain bit is on.

@@ -27,9 +27,9 @@
  
  
 
-#include "execution/ConnectionInterface.hpp"
+#include "rtt/ConnectionInterface.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
 
     ConnectionInterface::ConnectionInterface() { atomic_set(&refcount,0); }
@@ -39,12 +39,12 @@ namespace ORO_Execution
     }
 
 }
-void intrusive_ptr_add_ref( ORO_Execution::ConnectionInterface* p )
+void intrusive_ptr_add_ref( RTT::ConnectionInterface* p )
 { 
     atomic_inc(&(p->refcount) ); 
 }
 
-void intrusive_ptr_release( ORO_Execution::ConnectionInterface* p )
+void intrusive_ptr_release( RTT::ConnectionInterface* p )
 {
     if ( atomic_dec_and_test(&(p->refcount) ) ) delete p;
 }

@@ -29,11 +29,11 @@
 #ifndef END_LIMIT_DETECTOR_HPP
 #define END_LIMIT_DETECTOR_HPP
 
-#include <device_interface/DigitalInInterface.hpp>
-#include <device_interface/SensorInterface.hpp>
+#include "DigitalInInterface.hpp"
+#include "SensorInterface.hpp"
 #include <limits>
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
     /**
@@ -49,9 +49,9 @@ namespace ORO_DeviceDriver
      * always taken into account.
      */
     class EndLimitDetector
-        : public ORO_DeviceInterface::DigitalInInterface
+        : public DigitalInInterface
     {
-        ORO_DeviceInterface::SensorInterface<double>* sens;
+        SensorInterface<double>* sens;
         double minpos;
         double maxpos;
     public :
@@ -62,7 +62,7 @@ namespace ORO_DeviceDriver
          * @param _minpos The minimal limit, if omitted, the _sensor->minMeasurement() is taken.
          * @param _maxpos The maximal limit, if omitted, the _sensor->maxMeasurement() is taken.
          */
-        EndLimitDetector( ORO_DeviceInterface::SensorInterface<double>* _sensor,
+        EndLimitDetector( SensorInterface<double>* _sensor,
                           double _minpos = -std::numeric_limits<double>::max(),
                           double _maxpos = std::numeric_limits<double>::max() )
             : sens(_sensor), minpos(_minpos), maxpos(_maxpos)

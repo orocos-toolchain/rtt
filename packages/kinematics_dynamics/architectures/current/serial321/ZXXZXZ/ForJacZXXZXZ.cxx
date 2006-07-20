@@ -73,7 +73,7 @@
 
 namespace ORO_KinDyn
 {
-    using namespace ORO_CoreLib;
+    using namespace RTT;
 
     bool SerialZXXZXZ::jacobianForward( const Double6D& q, double J[ 6 ][ 6 ], Singularity& s ) const
     {

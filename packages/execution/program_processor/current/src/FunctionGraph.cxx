@@ -26,23 +26,23 @@
  ***************************************************************************/
  
  
-#include "execution/FunctionGraph.hpp"
+#include "rtt/FunctionGraph.hpp"
 #include "GraphCopier.hpp"
-#include "corelib/AttributeBase.hpp"
-#include "execution/ProgramTask.hpp"
+#include "rtt/AttributeBase.hpp"
+#include "rtt/ProgramTask.hpp"
 
-#include "corelib/CommandNOP.hpp"
-#include "corelib/ConditionFalse.hpp"
-#include "corelib/ConditionTrue.hpp"
+#include "rtt/CommandNOP.hpp"
+#include "rtt/ConditionFalse.hpp"
+#include "rtt/ConditionTrue.hpp"
 #include <boost/graph/copy.hpp>
 #include <utility>
 
-namespace ORO_Execution
+namespace RTT
 {
     using namespace boost;
     using namespace std;
-    using ORO_CoreLib::CommandNOP;
-    using ORO_CoreLib::ConditionTrue;
+    
+    
 
     FunctionGraph::FunctionGraph(const std::string& _name)
         : myName(_name), pausing(false), mstep(false), context(0)

@@ -6,11 +6,11 @@
 #include "UnMember.hpp"
 #include "LocalMethod.hpp"
 #include "NA.hpp"
-#include "corelib/ActionInterface.hpp"
+#include "ActionInterface.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
-    using namespace ORO_CoreLib;
+    
     /**
      * A method which executes a function.
      *

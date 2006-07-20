@@ -32,18 +32,18 @@
 #include "DataPort.hpp"
 #include "DataConnectionInterface.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * A local connection with a DataObject, which is used to connect multiple
      * Ports to that DataObject.
      */
-    template<class T, class DataObjectType = ORO_CoreLib::DataObjectLockFree<T> >
+    template<class T, class DataObjectType = DataObjectLockFree<T> >
     class DataConnection
         :public DataConnectionInterface<T>
     {
         typedef T DataType;
-        typename ORO_CoreLib::DataObjectInterface<T>::shared_ptr buf;
+        typename DataObjectInterface<T>::shared_ptr buf;
         typedef std::vector<ReadDataPort<DataType>*> RList;
         RList readers;
         typedef std::vector<WriteDataPort<DataType>*> WList;
@@ -66,7 +66,7 @@ namespace ORO_Execution
 
         ~DataConnection() { }
 
-        virtual ORO_CoreLib::DataSourceBase::shared_ptr getDataSource() const {
+        virtual DataSourceBase::shared_ptr getDataSource() const {
             return buf;
         }
 
@@ -98,9 +98,9 @@ namespace ORO_Execution
             return false;
         }
         
-        virtual ORO_CoreLib::DataObjectInterface<T>* data() { return buf.get(); }
+        virtual DataObjectInterface<T>* data() { return buf.get(); }
 
-        virtual const ORO_CoreLib::DataObjectInterface<T>* data() const { return buf.get(); }
+        virtual const DataObjectInterface<T>* data() const { return buf.get(); }
 
         virtual bool addReader(PortInterface* r)
         {

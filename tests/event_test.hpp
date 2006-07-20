@@ -21,7 +21,7 @@
 #define EVENTTEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
-#include <corelib/Event.hpp>
+#include <rtt/Event.hpp>
 #include <string>
 
 class EventTest : public CppUnit::TestFixture
@@ -40,13 +40,13 @@ class EventTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testCrossRemoval );
     CPPUNIT_TEST_SUITE_END();
 
-    ORO_CoreLib::Event<void( void )>* t_event;
-    ORO_CoreLib::Event<void( std::string )>* t_event_string;
-    ORO_CoreLib::Event<int( float, float )>* t_event_float;
+    RTT::Event<void( void )>* t_event;
+    RTT::Event<void( std::string )>* t_event_string;
+    RTT::Event<int( float, float )>* t_event_float;
     bool t_listener_value;
     bool t_completer_value;
     std::string t_listener_what;
-    ORO_CoreLib::EventProcessor* event_proc;
+    RTT::EventProcessor* event_proc;
     float float_sum, float_sub;
 public:
     void setUp();

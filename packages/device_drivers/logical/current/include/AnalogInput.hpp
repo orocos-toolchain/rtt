@@ -28,12 +28,12 @@
 #ifndef ANALOGINPUT_HPP
 #define ANALOGINPUT_HPP
 
-#include <device_interface/AnalogInInterface.hpp>
+#include "AnalogInInterface.hpp"
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
-    using namespace ORO_DeviceInterface;
+    
 
     /**
      * A class representing an analog input channel.

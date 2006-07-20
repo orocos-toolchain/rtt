@@ -32,16 +32,16 @@
 #include <string>
 #include <utility>
 
-#include "corelib/DataSourceBase.hpp"
+#include "DataSourceBase.hpp"
 #include "CommandFactoryInterface.hpp"
 #include "OperationFactory.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     class ConditionInterface;
 }
 
-namespace ORO_Execution
+namespace RTT
 {
     class GlobalCommandFactory;
     class CommandRepository;
@@ -100,7 +100,7 @@ namespace ORO_Execution
          * @param a A DataSource which contents are consulted each time
          * when execute() is called.
          */
-        CommandC& arg( ORO_CoreLib::DataSourceBase::shared_ptr a );
+        CommandC& arg( DataSourceBase::shared_ptr a );
 
         /**
          * Add a constant argument to the Command.
@@ -181,21 +181,21 @@ namespace ORO_Execution
     };
 }
 
-#include "corelib/DataSources.hpp"
+#include "DataSources.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
  
         template< class ArgT >
         CommandC& CommandC::argC( const ArgT a )
         {
-            return this->arg(ORO_CoreLib::DataSourceBase::shared_ptr( new ORO_CoreLib::ConstantDataSource<ArgT>( a ) ) );
+            return this->arg(DataSourceBase::shared_ptr( new ConstantDataSource<ArgT>( a ) ) );
         }
 
         template< class ArgT >
         CommandC& CommandC::arg( ArgT& a )
         {
-            return this->arg(ORO_CoreLib::DataSourceBase::shared_ptr( new ORO_CoreLib::ReferenceDataSource<ArgT&>( a ) ) );
+            return this->arg(DataSourceBase::shared_ptr( new ReferenceDataSource<ArgT&>( a ) ) );
         }
 
 }

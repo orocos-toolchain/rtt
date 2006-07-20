@@ -22,12 +22,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <execution/TaskContext.hpp>
-#include <execution/Factories.hpp>
+#include <rtt/TaskContext.hpp>
+#include <rtt/Factories.hpp>
 #include <string>
 
-using namespace ORO_CoreLib;
-using namespace ORO_Execution;
+using namespace RTT;
+using namespace RTT;
 
 class Generic_TaskTest : public CppUnit::TestFixture
 {

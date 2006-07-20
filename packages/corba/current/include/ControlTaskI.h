@@ -64,7 +64,7 @@
 #include "corba/AttributesC.h"
 #include "corba/ScriptingAccessC.h"
 #include <orbsvcs/CosPropertyServiceC.h>
-#include <execution/TaskContext.hpp>
+#include "TaskContext.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -73,7 +73,7 @@
 class  Orocos_ControlTask_i : public virtual POA_Orocos::ControlTask, public virtual PortableServer::RefCountServantBase
 {
 protected:
-    ORO_Execution::TaskContext* mtask;
+    TaskContext* mtask;
 	::CosPropertyService::PropertySet_var mCosProps;
 	::Orocos::AttributeInterface_var mAttrs;
 	::Orocos::MethodInterface_var mMFact;
@@ -81,7 +81,7 @@ protected:
 	::Orocos::ScriptingAccess_var mEEFact;
 public:
   //Constructor 
-  Orocos_ControlTask_i (ORO_Execution::TaskContext* orig);
+  Orocos_ControlTask_i (TaskContext* orig);
   
   //Destructor 
   virtual ~Orocos_ControlTask_i (void);

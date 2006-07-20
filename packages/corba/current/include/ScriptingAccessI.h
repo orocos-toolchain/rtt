@@ -60,7 +60,7 @@
 #define SCRIPTINGACCESSI_H_
 
 #include "ScriptingAccessS.h"
-#include "execution/ScriptingAccess.hpp"
+#include "ScriptingAccess.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -68,10 +68,10 @@
 
 class  Orocos_ScriptingAccess_i : public virtual POA_Orocos::ScriptingAccess, public virtual PortableServer::RefCountServantBase
 {
-    ORO_Execution::ScriptingAccess* mee;
+    ScriptingAccess* mee;
 public:
   //Constructor 
-  Orocos_ScriptingAccess_i (ORO_Execution::ScriptingAccess* ee);
+  Orocos_ScriptingAccess_i (ScriptingAccess* ee);
   
   //Destructor 
   virtual ~Orocos_ScriptingAccess_i (void);

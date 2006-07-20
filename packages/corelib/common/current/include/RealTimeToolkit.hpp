@@ -29,9 +29,9 @@
 #ifndef ORO_REALTIME_TOOLKIT_HPP
 #define ORO_REALTIME_TOOLKIT_HPP
 
-#include <corelib/Toolkit.hpp>
+#include "Toolkit.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**

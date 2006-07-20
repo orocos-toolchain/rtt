@@ -128,7 +128,7 @@
 	</para>
 	<para>
 	  You should make the parser aware of the new syntax in the
-	  file execution/program-parser/src/ExpressionParser.cxx.  There, in
+	  file rtt/program-parser/src/ExpressionParser.cxx.  There, in
 	  the ExpressionParser constructor, the syntax of an
 	  expression is defined.  There, you should add the new
 	  syntax.  I'm afraid I can't explain you other than either

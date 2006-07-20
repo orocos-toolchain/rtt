@@ -24,17 +24,17 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "execution/VertexNode.hpp"
-#include <corelib/CommandNOP.hpp>
-#include <corelib/CommandInterface.hpp>
-#include <corelib/DataSource.hpp>
+#include "rtt/VertexNode.hpp"
+#include <rtt/CommandNOP.hpp>
+#include <rtt/CommandInterface.hpp>
+#include <rtt/DataSource.hpp>
 
-namespace ORO_Execution
+namespace RTT
 {
-    using namespace ORO_CoreLib;
+    
 
 	VertexNode::VertexNode()
-        : command( new ORO_CoreLib::CommandNOP ),
+        : command( new CommandNOP ),
           lineNumber( 0 )
 	{
 	}

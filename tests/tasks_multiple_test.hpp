@@ -23,11 +23,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <corelib/NonRealTimeActivity.hpp>
-#include <corelib/PreemptibleActivity.hpp>
-#include <corelib/NonPreemptibleActivity.hpp>
+#include <rtt/NonRealTimeActivity.hpp>
+#include <rtt/PreemptibleActivity.hpp>
+#include <rtt/NonPreemptibleActivity.hpp>
 
-using namespace ORO_CoreLib;
+using namespace RTT;
 
 
 template<class T>

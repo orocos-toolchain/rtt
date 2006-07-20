@@ -26,9 +26,9 @@
  ***************************************************************************/
  
  
-#include "corelib/Attribute.hpp"
+#include "rtt/Attribute.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
   AttributeBase::~AttributeBase()
   {

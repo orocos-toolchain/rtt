@@ -27,21 +27,21 @@
  
  
 
-#include "execution/PropertyParser.hpp"
-#include "execution/parser-debug.hpp"
-#include "execution/parse_exception.hpp"
-#include "execution/TaskContext.hpp"
-#include "execution/parser-types.hpp"
+#include "rtt/PropertyParser.hpp"
+#include "rtt/parser-debug.hpp"
+#include "rtt/parse_exception.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/parser-types.hpp"
 
-#include <corelib/Property.hpp>
-#include <corelib/PropertyBag.hpp>
+#include <rtt/Property.hpp>
+#include <rtt/PropertyBag.hpp>
 #include <boost/bind.hpp>
 
-namespace ORO_Execution
+namespace RTT
 {
     using boost::bind;
     using namespace detail;
-    using namespace ORO_CoreLib;
+    
 
     namespace {
         enum PropertyErrors { bag_not_found };

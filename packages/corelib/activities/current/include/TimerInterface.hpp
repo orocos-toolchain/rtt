@@ -31,7 +31,7 @@
 
 #include "Time.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     class PeriodicActivity;
     namespace detail {

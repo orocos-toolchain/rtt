@@ -34,11 +34,11 @@
 #include <tao/Any.h>
 #include <tao/CORBA_String.h>
 #include "corba/OrocosTypesC.h"
-#include "corelib/Logger.hpp"
-#include "corelib/DataSourceTypeInfo.hpp"
+#include "Logger.hpp"
+#include "DataSourceTypeInfo.hpp"
 #include "corba/AttributesC.h"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * This class converts a given application-specific type
@@ -46,9 +46,9 @@ namespace ORO_CoreLib
      * This class works with 'template specialisation'.
      * To create your own any conversion, specialise
      * this class for your application's C++ or IDL type.
-     * Also, your specialisation must be in the ORO_CoreLib
+     * Also, your specialisation must be in the RTT
      * namespace in order to be found by the CORBA-enabled classes
-     * such as Property or the ORO_Execution::TaskContext.
+     * such as Property or the TaskContext.
      * @param Type is the Standard C++ or IDL type which
      * is used throughout your application.
      */

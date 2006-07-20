@@ -30,9 +30,9 @@
 #define ORO_EXECUTION_BUFFER_CONNECTION_INTERFACE_HPP
 
 #include "ConnectionInterface.hpp"
-#include <corelib/BufferInterface.hpp>
+#include "BufferInterface.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * This is the interface of a connection which
@@ -47,7 +47,7 @@ namespace ORO_Execution
         /**
          * Get the buffer's read interface.
          */
-        virtual ORO_CoreLib::ReadInterface<T>* read() = 0;
+        virtual ReadInterface<T>* read() = 0;
     };
 
     /**
@@ -62,7 +62,7 @@ namespace ORO_Execution
         /**
          * Get the buffer's write interface.
          */
-        virtual ORO_CoreLib::WriteInterface<T>* write() = 0;
+        virtual WriteInterface<T>* write() = 0;
     };
 
     /**
@@ -78,7 +78,7 @@ namespace ORO_Execution
         /**
          * Get the buffer interface.
          */
-        virtual ORO_CoreLib::BufferInterface<T>* buffer() = 0;
+        virtual BufferInterface<T>* buffer() = 0;
     };
 
 }

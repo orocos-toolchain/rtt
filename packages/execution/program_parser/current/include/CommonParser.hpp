@@ -29,7 +29,7 @@
 
 #include "parser-types.hpp"
 
-namespace ORO_Execution { namespace detail
+namespace RTT { namespace detail
 {
 
   /**

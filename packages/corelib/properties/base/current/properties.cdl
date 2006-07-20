@@ -6,7 +6,7 @@ cdl_package OROPKG_CORELIB_PROPERTIES {
        an abstraction of the internal, configurable data of
        Components and can be read out and updated."
 
-    include_dir corelib
+    include_dir rtt
 
     parent OROPKG_CORELIB
     requires OROPKG_CORELIB

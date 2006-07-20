@@ -30,7 +30,7 @@
 
 #include <string>
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     class PropertyBag;
@@ -91,5 +91,5 @@ namespace ORO_CoreLib
          */
         virtual bool deserialize(PropertyBag &v) = 0;
     };
-} // Namespace ORO_CoreLib
+} // Namespace RTT
 #endif

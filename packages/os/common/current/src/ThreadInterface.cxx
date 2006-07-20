@@ -26,10 +26,10 @@
  ***************************************************************************/
  
  
-#include "os/ThreadInterface.hpp"
-#include "os/threads.hpp"
+#include "rtt/os/ThreadInterface.hpp"
+#include "rtt/os/threads.hpp"
 
-using namespace ORO_OS;
+using namespace OS;
 
 ThreadInterface::ThreadInterface()
 {

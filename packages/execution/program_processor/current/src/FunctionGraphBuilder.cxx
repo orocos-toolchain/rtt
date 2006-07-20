@@ -27,29 +27,29 @@
  
  
 
-#include "execution/FunctionGraphBuilder.hpp"
-#include "execution/CommandComposite.hpp"
-#include "corelib/AttributeBase.hpp"
-#include "execution/TemplateFactories.hpp"
-//#include "execution/parse_exception.hpp"
-#include "execution/FactoryExceptions.hpp"
+#include "rtt/FunctionGraphBuilder.hpp"
+#include "rtt/CommandComposite.hpp"
+#include "rtt/AttributeBase.hpp"
+#include "rtt/TemplateFactories.hpp"
+//#include "rtt/parse_exception.hpp"
+#include "rtt/FactoryExceptions.hpp"
 #include "GraphCopier.hpp"
 
-#include "corelib/CommandNOP.hpp"
-#include "corelib/ConditionFalse.hpp"
-#include "corelib/ConditionTrue.hpp"
+#include "rtt/CommandNOP.hpp"
+#include "rtt/ConditionFalse.hpp"
+#include "rtt/ConditionTrue.hpp"
 #include <boost/graph/copy.hpp>
 #include <utility>
 
 #include <iostream>
 
-namespace ORO_Execution
+namespace RTT
 {
     using namespace boost;
     using namespace std;
-    using namespace ORO_CoreLib;
-    using ORO_CoreLib::CommandNOP;
-    using ORO_CoreLib::ConditionTrue;
+    
+    
+    
 
     FunctionGraphBuilder::FunctionGraphBuilder()
         : graph( 0 )

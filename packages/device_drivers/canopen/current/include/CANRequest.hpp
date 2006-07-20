@@ -31,14 +31,14 @@
 #include "CANMessage.hpp"
 #include "CANBusInterface.hpp"
 
-#include <corelib/TimeService.hpp>
-#include <corelib/Time.hpp>
-#include <os/rtstreams.hpp>
+#include <rtt/TimeService.hpp>
+#include <rtt/Time.hpp>
+#include <rtt/os/rtstreams.hpp>
 
 namespace CAN
 {
 
-    using namespace ORO_CoreLib;
+    
 
     /**
      * @brief A CAN Request contains a send CAN message and an

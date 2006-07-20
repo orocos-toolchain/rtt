@@ -32,13 +32,13 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <corelib/Property.hpp>
-#include "corelib/PropertyIntrospection.hpp"
-#include <corelib/Marshaller.hpp>
+#include <rtt/Property.hpp>
+#include <rtt/PropertyIntrospection.hpp>
+#include <rtt/Marshaller.hpp>
 #include "StreamProcessor.hpp"
 
 
-namespace ORO_CoreLib
+namespace RTT
 {
     using namespace std;
 

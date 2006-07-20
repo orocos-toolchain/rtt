@@ -155,25 +155,25 @@
       In order to setup your component to be available to other components
       <emphasis>transparantly</emphasis>, proceed as:
       <programlisting>  // server.cpp
-  #include &lt;corelib/PeriodicActivity.hpp>
-  #include &lt;corba/ControlTaskServer.hpp>
-  #include &lt;execution/GenericTaskContext.hpp>
-  #include &lt;os/main.h>
+  #include &lt;rtt/PeriodicActivity.hpp>
+  #include &lt;rtt/corba/ControlTaskServer.hpp>
+  #include &lt;rtt/GenericTaskContext.hpp>
+  #include &lt;rtt/os/main.h>
 
-  using namespace ORO_Corba;
-  using namespace ORO_Execution;
-  using namespace ORO_CoreLib;
+  using namespace RTT::Corba;
+  using namespace RTT;
+  using namespace RTT;
 
   int ORO_main(int argc, char** argv)
   {
      // Setup a component
-     <classname>ORO_Execution::GenericTaskContext</classname> mycomponent("HelloWorld");
+     <classname>RTT::GenericTaskContext</classname> mycomponent("HelloWorld");
      // Execute a component
-     <classname>ORO_CoreLib::PeriodicActivity</classname>   myact(1, 0.01, mycomponent.engine() );
+     <classname>RTT::PeriodicActivity</classname>   myact(1, 0.01, mycomponent.engine() );
      myact.start();
 
      // Setup Corba and Export:
-     <classname>ORO_Corba::ControlTaskServer</classname>::InitOrb(argc, argv);
+     <classname>RTT::Corba::ControlTaskServer</classname>::InitOrb(argc, argv);
      ControlTaskServer::Create( &amp;mycomponent );
 
      // Wait for requests:
@@ -188,23 +188,23 @@
       Next, in order to connect to your component, you need to create
       a 'proxy' in another file:
       <programlisting>  // client.cpp
-  #include &lt;corba/ControlTaskProxy.hpp>
-  #include &lt;execution/TaskBrowser.hpp>
-  #include &lt;os/main.h>
+  #include &lt;rtt/corba/ControlTaskProxy.hpp>
+  #include &lt;rtt/TaskBrowser.hpp>
+  #include &lt;rtt/os/main.h>
 
-  using namespace ORO_Corba;
-  using namespace ORO_Execution;
+  using namespace RTT::Corba;
+  using namespace RTT;
 
   int ORO_main(int argc, char** argv)
   {
      // Setup Corba:
-     <classname>ORO_Corba::ControlTaskProxy</classname>::InitOrb(argc, argv);
+     <classname>RTT::Corba::ControlTaskProxy</classname>::InitOrb(argc, argv);
 
      // Get a pointer to the component above
-     <classname>ORO_Execution::TaskContext</classname>* component = ControlTaskProxy::Create( "HelloWorld" );
+     <classname>RTT::TaskContext</classname>* component = ControlTaskProxy::Create( "HelloWorld" );
 
      // Interface it:
-     <classname>ORO_Execution::TaskBrowser</classname> browse( component );
+     <classname>RTT::TaskBrowser</classname> browse( component );
      browse.loop();
 
      // Cleanup Corba:

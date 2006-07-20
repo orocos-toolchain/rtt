@@ -5,7 +5,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
-namespace ORO_Execution
+namespace RTT
 {
     namespace detail {
 
@@ -51,7 +51,7 @@ namespace ORO_Execution
                     return false;
             }
 
-            FunctorDS0<FunctionT> copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
+            FunctorDS0<FunctionT> copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
             {
                 return FunctorDS0( ds->copy(alreadyCloned), fun );
             }
@@ -115,7 +115,7 @@ namespace ORO_Execution
                     return false;
             }
 
-            FunctorDS1<FunctionT> copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
+            FunctorDS1<FunctionT> copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
             {
                 return FunctorDS1( ds->copy(alreadyCloned), fun, aa->copy( alreadyCloned ) );
             }

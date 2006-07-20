@@ -33,7 +33,7 @@
 #include "DataSourceAdaptor.hpp"
 #include "AssignCommand.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**
@@ -330,7 +330,7 @@ namespace ORO_CoreLib
           return new BinaryDataSource<function>(mdsa.get(), mdsb.get(), fun);
       }
 
-      virtual BinaryDataSource<function>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
+      virtual BinaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
           return new BinaryDataSource<function>( mdsa->copy( alreadyCloned ), mdsb->copy( alreadyCloned ), fun );
       }
   };
@@ -393,7 +393,7 @@ namespace ORO_CoreLib
           return new TernaryDataSource<function>(mdsa.get(), mdsb.get(), mdsc.get(), fun);
       }
 
-      virtual TernaryDataSource<function>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
+      virtual TernaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
           return new TernaryDataSource<function>( mdsa->copy( alreadyCloned ), mdsb->copy( alreadyCloned ), mdsc->copy( alreadyCloned ), fun );
       }
 
@@ -479,7 +479,7 @@ namespace ORO_CoreLib
                                                 fun);
       }
 
-      virtual SixaryDataSource<function>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
+      virtual SixaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
           return new SixaryDataSource<function>( mdsa->copy( alreadyCloned ), mdsb->copy( alreadyCloned ),
                                                  mdsc->copy( alreadyCloned ), mdsd->copy( alreadyCloned ),
                                                  mdse->copy( alreadyCloned ), mdsf->copy( alreadyCloned ), fun );
@@ -529,7 +529,7 @@ namespace ORO_CoreLib
           return new UnaryDataSource<function>(mdsa.get(), fun);
       }
 
-    virtual UnaryDataSource<function>* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const {
+    virtual UnaryDataSource<function>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
           return new UnaryDataSource<function>( mdsa->copy( alreadyCloned ), fun );
       }
   };

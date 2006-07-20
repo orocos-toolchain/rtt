@@ -24,11 +24,10 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "device_interface/DigitalInInterface.hpp"
-#include "device_interface/DigitalOutInterface.hpp"
+#include "rtt/dev/DigitalInInterface.hpp"
+#include "rtt/dev/DigitalOutInterface.hpp"
 
-using namespace ORO_DeviceInterface;
-using namespace ORO_CoreLib;
+using namespace RTT;
 
 // REMARK Analog In and Out are declared in the headerfiles
 

@@ -29,10 +29,10 @@
 #ifndef CONDITIONEXPIRE_HPP
 #define CONDITIONEXPIRE_HPP
 
-#include <corelib/ConditionInterface.hpp>
-#include <corelib/TimeService.hpp>
+#include "ConditionInterface.hpp"
+#include "TimeService.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * A conditional that evaluates \a true until
@@ -41,9 +41,9 @@ namespace ORO_Execution
      */
 
     class ConditionExpire
-        : public ORO_CoreLib::ConditionInterface
+        : public ConditionInterface
     {
-        typedef ORO_CoreLib::TimeService::ticks ticks;
+        typedef TimeService::ticks ticks;
 
     public:
         /**
@@ -52,7 +52,7 @@ namespace ORO_Execution
          *          will evaluate to false
          */
         ConditionExpire( ticks t )
-            : time( t ), hb( ORO_CoreLib::TimeService::Instance() )
+            : time( t ), hb( TimeService::Instance() )
         {
             timestamp = hb->getTicks();
         }
@@ -70,7 +70,7 @@ namespace ORO_Execution
             timestamp = hb->getTicks();
         }
 
-        virtual ORO_CoreLib::ConditionInterface* clone() const
+        virtual ConditionInterface* clone() const
         {
             return new ConditionExpire( time );
         }
@@ -84,7 +84,7 @@ namespace ORO_Execution
         /**
          * A local reference to the HeartBeat Generator
          */
-        ORO_CoreLib::TimeService *hb;
+        TimeService *hb;
     };
 
 }

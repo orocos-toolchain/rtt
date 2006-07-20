@@ -26,10 +26,10 @@
  ***************************************************************************/
 
 
-#include "execution/StateDescription.hpp"
+#include "rtt/StateDescription.hpp"
 
-namespace ORO_Execution {
-    using namespace ORO_CoreLib;
+namespace RTT {
+    
 
   StateDescription* StateDescription::postponeState()
   {

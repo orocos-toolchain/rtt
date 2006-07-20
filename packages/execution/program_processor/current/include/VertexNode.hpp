@@ -29,9 +29,9 @@
 #define VERTEXNODE_HPP
 
 #include <map>
-#include "corelib/CommandInterface.hpp"
+#include "CommandInterface.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     class DataSourceBase;
 }
@@ -48,19 +48,19 @@ namespace ORO_CoreLib
 #undef EL
 #include <boost/graph/adjacency_list.hpp>
 
-namespace ORO_Execution {
+namespace RTT {
     enum vertex_command_t { vertex_command };
     enum vertex_exec_t { vertex_exec };
 }
 
 namespace boost {
-    using ORO_Execution::vertex_command_t;
-    using ORO_Execution::vertex_exec_t;
+    using RTT::vertex_exec_t;
+    using RTT::vertex_command_t;
     BOOST_INSTALL_PROPERTY(vertex, command);
     BOOST_INSTALL_PROPERTY(vertex, exec);
 }
 
-namespace ORO_Execution
+namespace RTT
 {
 	class ProcessorControlInterface;
 	class ProcessorInterface;
@@ -90,14 +90,14 @@ namespace ORO_Execution
        * Construct a program node with given command,
        * no conditional branches and line number 0.
        */
-      explicit VertexNode(ORO_CoreLib::CommandInterface* cmd);
+      explicit VertexNode(CommandInterface* cmd);
 
       /**
        * The copy constructor creates a shallow copy.
        */
       VertexNode( const VertexNode& orig );
 
-      VertexNode copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& rdss ) const;
+      VertexNode copy( std::map<const DataSourceBase*, DataSourceBase*>& rdss ) const;
 
       VertexNode& operator=( const VertexNode& orig );
 
@@ -150,7 +150,7 @@ namespace ORO_Execution
          *
          * @return The previous command (can be null).
          */
-         ORO_CoreLib::CommandInterface* setCommand(ORO_CoreLib::CommandInterface* c);
+         CommandInterface* setCommand(CommandInterface* c);
 
         /**
          * Set line number of this program node to given line number.
@@ -167,7 +167,7 @@ namespace ORO_Execution
          * @return The command currently associated with
          * this node
          */
-         ORO_CoreLib::CommandInterface* getCommand() const;
+         CommandInterface* getCommand() const;
 
         /**
          * Returns the program line number currently associated
@@ -179,7 +179,7 @@ namespace ORO_Execution
         /**
          * The command to be executed in this node.
          */
-        ORO_CoreLib::CommandInterface* command;
+        CommandInterface* command;
 
         /**
          * The line number associated with this node

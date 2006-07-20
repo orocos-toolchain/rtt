@@ -38,7 +38,7 @@
 #pragma interface
 #endif
 
-namespace ORO_CoreLib
+namespace RTT
 {
     namespace detail {
         struct IntrusiveStorage 
@@ -54,10 +54,10 @@ namespace ORO_CoreLib
 }
 
 
-void intrusive_ptr_add_ref(ORO_CoreLib::detail::IntrusiveStorage* p );
-void intrusive_ptr_release(ORO_CoreLib::detail::IntrusiveStorage* p );
+void intrusive_ptr_add_ref(RTT::detail::IntrusiveStorage* p );
+void intrusive_ptr_release(RTT::detail::IntrusiveStorage* p );
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * A \a simple lock-free list implementation to \a append or \a erase
@@ -270,7 +270,7 @@ namespace ORO_CoreLib
                 // and still point in old buffer. we could check this
                 // with pointer arithmetics, but this is not a performant
                 // method.
-            } while ( ORO_OS::CAS(&active, orig, nextbuf ) == false);
+            } while ( OS::CAS(&active, orig, nextbuf ) == false);
             // now,
             // active is guaranteed to point into bufs.
             assert( pointsTo( active, bufs ) );
@@ -294,7 +294,7 @@ namespace ORO_CoreLib
                 items = orig->data.size();
                 nextbuf = findEmptyBuf(bufptr); // find unused Item in bufs
                 nextbuf->data.clear();
-            } while ( ORO_OS::CAS(&active, orig, nextbuf ) == false );
+            } while ( OS::CAS(&active, orig, nextbuf ) == false );
             atomic_dec( &orig->count ); // lockAndGetActive
             atomic_dec( &orig->count ); // ref count
         }
@@ -322,7 +322,7 @@ namespace ORO_CoreLib
                 usingbuf = findEmptyBuf( bufptr ); // find unused Item in bufs
                 usingbuf->data = orig->data;
                 usingbuf->data.push_back( item );
-            } while ( ORO_OS::CAS(&active, orig, usingbuf ) ==false);
+            } while ( OS::CAS(&active, orig, usingbuf ) ==false);
             atomic_dec( &orig->count ); // lockAndGetActive()
             atomic_dec( &orig->count ); // set list free
             return true;
@@ -380,7 +380,7 @@ namespace ORO_CoreLib
                 usingbuf = findEmptyBuf( bufptr ); // find unused Item in bufs
                 usingbuf->data = orig->data;
                 usingbuf->data.insert( usingbuf->data.end(), items.begin(), items.begin() + towrite );
-            } while ( ORO_OS::CAS(&active, orig, usingbuf ) ==false );
+            } while ( OS::CAS(&active, orig, usingbuf ) ==false );
             atomic_dec( &orig->count ); // lockAndGetActive()
             atomic_dec( &orig->count ); // set list free
             return towrite;
@@ -420,7 +420,7 @@ namespace ORO_CoreLib
                     nextbuf->data.push_back( *it );
                     ++it;
                 }
-            } while ( ORO_OS::CAS(&active, orig, nextbuf ) ==false );
+            } while ( OS::CAS(&active, orig, nextbuf ) ==false );
             atomic_dec( &orig->count ); // lockAndGetActive
             atomic_dec( &orig->count ); // ref count
             return true;

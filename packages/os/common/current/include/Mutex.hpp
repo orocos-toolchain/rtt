@@ -26,13 +26,13 @@
  ***************************************************************************/ 
  
 
-#ifndef ORO_OS_MUTEX_HPP
-#define ORO_OS_MUTEX_HPP
+#ifndef OS_MUTEX_HPP
+#define OS_MUTEX_HPP
 
-#include <os/fosi.h>
+#include "fosi.h"
 #include <pkgconf/os.h>
 
-namespace ORO_OS
+namespace OS
 {
     class MutexLock;
     class MutexTryLock;
@@ -63,8 +63,8 @@ namespace ORO_OS
      */
 	class Mutex : public MutexInterface
     {
-        friend class ORO_OS::MutexLock;
-        friend class ORO_OS::MutexTryLock;
+        friend class OS::MutexLock;
+        friend class OS::MutexTryLock;
     protected:
         rt_mutex_t m;
     public:

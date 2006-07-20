@@ -30,14 +30,14 @@
 
 #include "comedi/ComediSubDeviceAOut.hpp"
 #include "comedi/ComediDevice.hpp"
-#include <os/fosi.h>
+#include <rtt/rtt/os/fosi.h>
 #include "comedi_internal.h"
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
-  using namespace ORO_CoreLib;
-  using namespace ORO_DeviceInterface;
+  
+  
 
     ComediSubDeviceAOut::ComediSubDeviceAOut( ComediDevice* cao, const std::string& name, 
 					      unsigned int subdevice /*=1*/ )

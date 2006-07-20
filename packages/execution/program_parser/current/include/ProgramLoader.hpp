@@ -32,13 +32,13 @@
 #include <string>
 #include "TaskContext.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * This class loads and unloads Orocos Program Script and Orocos State Description files
      * to a TaskContext's Processor.
      * It wraps around Parser and can process both files and C++ streams.
-     * Parse exceptions are directed to the ORO_CoreLib::Logger class or
+     * Parse exceptions are directed to the Logger class or
      * rethrown if requested by the user.
      */
     class ProgramLoader

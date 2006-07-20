@@ -31,13 +31,13 @@
 #include "os/RunnableInterface.hpp"
 #include "ActivityInterface.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * This class adds
-     * Activity specific semantics to ORO_OS::RunnableInterface and sits in the ORO_CoreLib
+     * Activity specific semantics to OS::RunnableInterface and sits in the RTT
      * namespace. Applications should always use this class
-     * instead of the ORO_OS version.
+     * instead of the OS version.
      *
      * The getActivity() method is guaranteed to return a valid task
      * pointer during initialize(), step() or loop() and finalize(). This allows
@@ -47,7 +47,7 @@ namespace ORO_CoreLib
      * @see ActivityInterface
      */
     class RunnableInterface
-        : public ORO_OS::RunnableInterface
+        : public OS::RunnableInterface
     {
         ActivityInterface* owner_task;
     public:

@@ -34,7 +34,7 @@
 #include "Logger.hpp"
 #include <pkgconf/system.h>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * Empty implementation of TypeInfo interface.
@@ -163,13 +163,13 @@ namespace ORO_CoreLib
         {
             Logger::In in("TypeInfoName");
             // Install the type info object for T.
-            if ( ORO_CoreLib::detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject != 0) {
+            if ( detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject != 0) {
                 Logger::log() << Logger::Warning << "Overriding TypeInfo for '" 
-                              << ORO_CoreLib::detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject->getTypeName()
+                              << detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject->getTypeName()
                               << "'." << Logger::endl;
-                delete ORO_CoreLib::detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject;
+                delete detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject;
             }
-            ORO_CoreLib::detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
+            detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
         }
     };
 

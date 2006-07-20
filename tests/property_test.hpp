@@ -21,14 +21,14 @@
 #define PROPERTYTEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
-#include <corelib/Property.hpp>
-#include <corelib/PropertyBag.hpp>
+#include <rtt/Property.hpp>
+#include <rtt/PropertyBag.hpp>
 #include <pkgconf/system.h>
 #ifdef OROPKG_GEOMETRY
 #include <geometry/MotionProperties.hpp>
 #endif
 
-using namespace ORO_CoreLib;
+using namespace RTT;
 
 struct Composite {
     Composite() : a(0), b(-1), c(+1) {}

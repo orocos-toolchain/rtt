@@ -43,10 +43,10 @@
 ***************************************************************************/
 
 
-#include "corelib/AsynOpProcessor.hpp"
+#include "rtt/AsynOpProcessor.hpp"
 #include "rtstl/rtstreams.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     void AsynOpProcessor::execute( EventListenerInterface* eli )

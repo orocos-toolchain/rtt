@@ -32,7 +32,7 @@
 #include "Property.hpp"
 #include "PropertyBag.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 	/** 
      * Deprecated. Only here for backwards compatibility of older applications.

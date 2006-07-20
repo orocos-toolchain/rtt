@@ -30,7 +30,7 @@
 
 #include <cmath>
 
-namespace ORO_CoreLib
+namespace RTT
 {
 	
     typedef double Seconds;

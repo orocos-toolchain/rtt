@@ -28,12 +28,12 @@
 #ifndef PI_PROPERTIES_OROCOS1_MARSHALLER
 #define PI_PROPERTIES_OROCOS1_MARSHALLER
 
-#include <corelib/Property.hpp>
-#include "corelib/PropertyIntrospection.hpp"
+#include <rtt/Property.hpp>
+#include <rtt/PropertyIntrospection.hpp>
 
 #include <sstream>
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
 	/**

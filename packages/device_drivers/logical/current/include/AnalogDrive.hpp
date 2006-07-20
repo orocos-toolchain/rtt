@@ -31,15 +31,15 @@
 #ifndef DEVICE_DRIVERS_ANALOGDRIVE_HPP
 #define DEVICE_DRIVERS_ANALOGDRIVE_HPP
 
-#include <device_interface/AnalogOutInterface.hpp>
-#include <device_interface/DigitalOutInterface.hpp>
+#include "AnalogOutInterface.hpp"
+#include "DigitalOutInterface.hpp"
 #include "AnalogOutput.hpp"
 #include "DigitalOutput.hpp"
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
-    using namespace ORO_CoreLib;
-    using namespace ORO_DeviceInterface;
+    
+    
 
     /**
      * @brief A AnalogDrive Object converts a physical unit (position, torque,...)

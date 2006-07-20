@@ -27,9 +27,9 @@
  
  
 #include "TimeService.hpp"
-#include "corelib/DataSource.hpp"
+#include "DataSource.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * A DataSource which returns the time elapsed since the last reset

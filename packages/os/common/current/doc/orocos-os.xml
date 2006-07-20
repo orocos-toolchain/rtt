@@ -129,18 +129,18 @@
 	example, a thread can be created, started, paused, scheduled,
 	etc., but each OS uses other function calls to do this.
 	&orocos; prefers C++ interfaces, which led to the
-	<classname>ORO_OS::ThreadInterface</classname> interface and
-	<classname>ORO_OS::PeriodicThread</classname> class as the
+	<classname>RTT::OS::ThreadInterface</classname> interface and
+	<classname>RTT::OS::PeriodicThread</classname> class as the
 	abstractions of a periodic thread. The
-	<classname>ORO_OS::SingleThread</classname> is a non periodic thread
+	<classname>RTT::OS::SingleThread</classname> is a non periodic thread
 	which executes the functionality once each time it is started.
 	Each OS implements in its <filename
-	  class="directory">os/&lt;OS-name-here&gt;</filename>
+	  class="directory">rtt/os/&lt;OS-name-here&gt;</filename>
 	directory the specific system calls to get the desired effect.
-	The <classname>ORO_OS::Mutex</classname> and
-	<classname>ORO_OS::MutexRecursive</classname> classes in combination
-	with the <classname>ORO_OS::MutexLock</classname> and
-	<classname>ORO_OS::MutexTryLock</classname> classes are also commonly
+	The <classname>RTT::OS::Mutex</classname> and
+	<classname>RTT::OS::MutexRecursive</classname> classes in combination
+	with the <classname>RTT::OS::MutexLock</classname> and
+	<classname>RTT::OS::MutexTryLock</classname> classes are also commonly
 	used abstractions in multithreaded frameworks.
       </para>
       <para>
@@ -203,7 +203,7 @@
 <!-- 	      <entry align="center" valign="middle">OS -->
 <!-- 		functionality</entry> -->
 <!-- 	      <entry align="center" -->
-<!-- 		  valign="middle">os/fosi.h</entry> -->
+<!-- 		  valign="middle">rtt/os/fosi.h</entry> -->
 <!-- 	      <entry align="left" valign="middle">Include this file if -->
 <!-- 		you want to make system calls to the underlying -->
 <!-- 		operating system ( RTLinux, RTAI ) .</entry></row> -->
@@ -219,7 +219,7 @@
 <!-- 	    <row> -->
 <!-- 	      <entry align="center" valign="middle">Streams</entry> -->
 <!-- 	      <entry align="center" -->
-<!-- 		  valign="middle">os/rtstreams.hpp</entry> -->
+<!-- 		  valign="middle">rtt/os/rtstreams.hpp</entry> -->
 <!-- 	      <entry align="left" valign="middle">Defines rt_std::cout -->
 <!-- 		which allows realtime printing, with limited -->
 <!-- 		functionality</entry></row> -->
@@ -286,7 +286,7 @@
       <para>
 	The OS package is the only part of Orocos that needs to
 	be ported to other Operating Sytems or processor architectures
-	in case the target supports Standard C++. The os/common directory
+	in case the target supports Standard C++. The rtt/os/common directory
 	contains code common to all OS'es and the architecture dependent
 	headers (for example atomic counters and compare-and-swap ).
 	The latter must be extended to support other processor architectures.
@@ -297,7 +297,7 @@
       <para>
 	In order to start your port, look at the <filename>fosi_interace.h</filename>
 	and <filename>fosi_internal_interface.h</filename> files in
-	the os/common package. These two files list the C function
+	the rtt/os/common package. These two files list the C function
 	signatures of all to be ported functions in order to support
 	a new OS. The main categories are: time reading, mutexes,
 	semaphores and threads.
@@ -328,7 +328,7 @@
 	      <entry align="center" valign="middle">OS
 		functionality</entry>
 	      <entry align="center"
-		  valign="middle">os/fosi.h</entry>
+		  valign="middle">rtt/os/fosi.h</entry>
 	      <entry align="left" valign="middle">Include this file if
 		you want to make system calls to the underlying
 		operating system ( LXRT, GNU/Linux ) .</entry></row>
@@ -344,7 +344,7 @@
 	    <row>
 	      <entry align="center" valign="middle">Streams</entry>
 	      <entry align="center"
-		  valign="middle">os/rtstreams.hpp</entry>
+		  valign="middle">rtt/os/rtstreams.hpp</entry>
 	      <entry align="left" valign="middle">Defines rt_std::cout
 		which allows realtime printing, with limited
 		functionality</entry></row>
@@ -388,7 +388,7 @@
       <important>
 	<para>
 	  Do not forget to include
-	  <filename>&lt;os/main.h&gt;</filename> in the main program
+	  <filename>&lt;rtt/os/main.h&gt;</filename> in the main program
 	  file, or the linker will not find the ORO_main function.
 	</para>
       </important>
@@ -445,11 +445,11 @@
 	<para>
 	  An &orocos; thread, which must execute a task periodically,
 	  is defined by the
-	  <classname>ORO_OS::ThreadInterface</classname>. The most
+	  <classname>RTT::OS::ThreadInterface</classname>. The most
 	  common operations are <methodname>start()</methodname>,
 	  <methodname>stop()</methodname> and setting the periodicity.
 	  What is executed is defined in the 
-	  <classname>ORO_OS::RunnableInterface</classname>. It contains three methods :
+	  <classname>RTT::OS::RunnableInterface</classname>. It contains three methods :
 	  <methodname>initialize()</methodname>,
 	  <methodname>step()</methodname> and
 	  <methodname>finalize()</methodname>. You can inherit from
@@ -462,14 +462,14 @@
 	</para>
 	<para>
 	  &orocos; delivers one implementation of the
-	  <classname>ORO_OS::ThreadInterface</classname> : <classname>
-	    ORO_OS::PeriodicThread</classname>, which creates a thread
+	  <classname>RTT::OS::ThreadInterface</classname> : <classname>
+	    RTT::OS::PeriodicThread</classname>, which creates a thread
 	  according to the operating system you are compiling for.
 	  However, you are encouraged <emphasis>NOT</emphasis> to use
 	  it! The CoreLib uses this class as a basis to provide a more
 	  fundamental task-based (as opposite to thread based)
 	  execution mechanism which will insert your periodic tasks in
-	  a periodic thread. It is provided in the corelib/task
+	  a periodic thread. It is provided in the rtt/task
 	  package.
 	</para>
 	<para>
@@ -491,9 +491,9 @@
 	<title>Non Periodic Threads</title>
 	<para>
 	  For non-periodic threads, which block or do lenghty
-	  calculations, the <classname>ORO_OS::SingleThread</classname> class
-	  can be used.  The corelib/task package uses the SingleThread
-	  for the <classname>ORO_CoreLib::TaskNonPeriodic</classname>.  Porting applications to Orocos
+	  calculations, the <classname>RTT::OS::SingleThread</classname> class
+	  can be used.  The rtt/task package uses the SingleThread
+	  for the <classname>RTT::TaskNonPeriodic</classname>.  Porting applications to Orocos
 	  might benifit this class in a first adaptation step. It
 	  has a start() method, which will invoke one single call to
 	  loop() ( in contrast to step() above). It can be
@@ -514,7 +514,7 @@
 	</para>
 	<note>
 	  <para>The
-	  <classname>ORO_CoreLib::TaskNonPeriodic</classname> in
+	  <classname>RTT::TaskNonPeriodic</classname> in
 	  CoreLib provides a better integrated implementation for
 	  SingleThread and should be favourably used.</para>
 	</note>
@@ -540,7 +540,7 @@
 	</para>
 	<para>
 	  The user of this class must be aware that he must provide himself
-	  the locking primitives (like ORO_OS::Mutex) to provide thread safety.
+	  the locking primitives (like RTT::OS::Mutex) to provide thread safety.
 	</para>
       </sect3>
       <sect3>
@@ -561,7 +561,7 @@
 	  From within any (CoreLib) task, you may then additionally use the
 	  ThreadScope driver as such :
 	</para>
-	<programlisting>  <classname>ORO_DeviceInterface::DigitalOutInterface</classname>* pp = DigitalOutInterface::nameserver.getObject("ThreadScope");
+	<programlisting>  <classname>RTT::DigitalOutInterface</classname>* pp = DigitalOutInterface::nameserver.getObject("ThreadScope");
 if ( pp )
     pp->setBit( this->getTask()->thread()->threadNumber(), value );
   	</programlisting>
@@ -581,15 +581,15 @@ if ( pp )
       <sect3>
 	<title>Mutexes</title>
 	<para>
-	  There are two kinds of Mutexes : <classname>ORO_OS::Mutex</classname>
-	  and <classname>ORO_OS::MutexRecursive</classname>. To lock a mutex, it
+	  There are two kinds of Mutexes : <classname>RTT::OS::Mutex</classname>
+	  and <classname>RTT::OS::MutexRecursive</classname>. To lock a mutex, it
 	  has a method <methodname>lock()</methodname>, to unlock, the method is <methodname>unlock()</methodname> and to
 	  try to lock, it is <methodname>trylock()</methodname>.
 	  A lock() and trylock() on a recursive mutex from the same
 	  thread will always succeed, otherwise, it blocks.
 	</para>
 	<para>
-	  For ease of use, there is a <classname>ORO_OS::MutexLock</classname> which
+	  For ease of use, there is a <classname>RTT::OS::MutexLock</classname> which
 	  gets a Mutex as argument in the contstructor. As long as the
 	  MutexLock object exists, the given Mutex is locked. This is
 	  called a scoped lock.
@@ -597,10 +597,10 @@ if ( pp )
 	<example>
 	  <title>Locking a Mutex</title>
 	  <para>The first listing shows a complete lock over a function :</para>
-	  <programlisting>  <classname>ORO_OS::Mutex</classname> m;
+	  <programlisting>  <classname>RTT::OS::Mutex</classname> m;
   void foo() {
      int i;
-     <classname>ORO_OS::MutexLock</classname> lock(m);
+     <classname>RTT::OS::MutexLock</classname> lock(m);
      // m is locked.
      // ...
   } // when leaving foo(), m is unlocked.  </programlisting>
@@ -608,12 +608,12 @@ if ( pp )
 	    Any scope is valid, so if the critical section is smaller than
 	    the size of the function, you can :
 	  </para>
-	  <programlisting>  <classname>ORO_OS::Mutex</classname> m;
+	  <programlisting>  <classname>RTT::OS::Mutex</classname> m;
   void bar() {
      int i;
      // non critical section
      {
-        <classname>ORO_OS::MutexLock</classname> lock(m);
+        <classname>RTT::OS::MutexLock</classname> lock(m);
         // m is locked.
         // critical section
      } //  m is unlocked.
@@ -626,12 +626,12 @@ if ( pp )
 	<title>Signals and Semaphores</title>
 	<para>
 	  Orocos provides a C++ semaphore abstraction class
-	  <classname>ORO_OS::Semaphore</classname>. It is used mainly for 
+	  <classname>RTT::OS::Semaphore</classname>. It is used mainly for 
 	  non periodic, blocking tasks or threads. The higher level
 	  Event implementation in CoreLib can be used for thread safe
 	  signalling and data exchange in periodic tasks.
 	</para>
-	  <programlisting>  <classname>ORO_OS::Semaphore</classname> sem(0); // initial value is zero.
+	  <programlisting>  <classname>RTT::OS::Semaphore</classname> sem(0); // initial value is zero.
   void foo() {
      // Wait on sem, decrement value (blocking ):
      sem.wait()

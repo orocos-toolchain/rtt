@@ -30,18 +30,18 @@
 #define FUNCTIONFACTORY_HPP
 
 #include "OperationFactory.hpp"
-#include "corelib/Property.hpp"
+#include "Property.hpp"
 #include <map>
 #include <string>
 #include "ProgramInterface.hpp"
 #include "DispatchInterface.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     class ExecutionEngine;
 
-    using ORO_CoreLib::Property;
-    using ORO_CoreLib::PropertyBag;
+    
+    
 
     /**
      * A CommandFactory which delivers commands which execute
@@ -58,14 +58,14 @@ namespace ORO_Execution
         std::string resultType() const;
         std::string description() const;
 
-        ORO_CoreLib::PropertyBag
+        PropertyBag
         getArgumentSpec() const;
 
         std::vector< ArgumentDescription > getArgumentList() const;
 
         int arity() const;
 
-        DispatchInterface* produce(const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args
+        DispatchInterface* produce(const std::vector<DataSourceBase::shared_ptr>& args
                                    ) const;
     };
 }

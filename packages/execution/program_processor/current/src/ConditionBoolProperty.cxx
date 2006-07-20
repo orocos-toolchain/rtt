@@ -24,9 +24,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "execution/ConditionBoolProperty.hpp"
+#include "rtt/ConditionBoolProperty.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
   bool ConditionBoolProperty::evaluate()
   {

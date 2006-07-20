@@ -27,15 +27,15 @@
  
  
 
-#include <execution/GenericTaskContext.hpp>
+#include <rtt/GenericTaskContext.hpp>
 
-#include <execution/ProgramLoader.hpp>
-#include <execution/PropertyLoader.hpp>
+#include <rtt/ProgramLoader.hpp>
+#include <rtt/PropertyLoader.hpp>
 
 // To create commands, methods, etc :
-#include <execution/Method.hpp>
+#include <rtt/Method.hpp>
 
-namespace ORO_Execution
+namespace RTT
 {
     GenericTaskContext::GenericTaskContext(const std::string& name)
         : TaskContext( name )

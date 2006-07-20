@@ -26,22 +26,22 @@
  ***************************************************************************/ 
  
 
-#include <corelib/CommandInterface.hpp>
+#include "CommandInterface.hpp"
 #include <vector>
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * @brief Based on the software pattern 'composite', this
      * class allows composing command objects into one command object
      */
     class CommandComposite
-        : public ORO_CoreLib::CommandInterface
+        : public CommandInterface
     {
         public:
         CommandComposite() {}
 
-        CommandComposite(std::vector<ORO_CoreLib::CommandInterface*> cv )
+        CommandComposite(std::vector<CommandInterface*> cv )
             : vect( cv )
         {}
 
@@ -49,15 +49,15 @@ namespace ORO_Execution
          * Copy-Construct a clone() of all commands
          */
         CommandComposite( const CommandComposite& orig )
-            : ORO_CoreLib::CommandInterface()
+            : CommandInterface()
         {
-            for (std::vector<ORO_CoreLib::CommandInterface*>::const_iterator it=orig.vect.begin();it!=orig.vect.end();it++)
+            for (std::vector<CommandInterface*>::const_iterator it=orig.vect.begin();it!=orig.vect.end();it++)
                 this->add( (*it)->clone() );
         }
 
         virtual ~CommandComposite() {
-            for (std::vector<ORO_CoreLib::CommandInterface*>::iterator it=vect.begin();it!=vect.end();it++) {
-                ORO_CoreLib::CommandInterface * cif=*it;
+            for (std::vector<CommandInterface*>::iterator it=vect.begin();it!=vect.end();it++) {
+                CommandInterface * cif=*it;
                 delete cif;
             }
         }
@@ -67,7 +67,7 @@ namespace ORO_Execution
              * Commands will be executed in the order they have been added
              */
             virtual bool execute() {
-            	for (std::vector<ORO_CoreLib::CommandInterface*>::iterator it=vect.begin();it!=vect.end();it++) {
+            	for (std::vector<CommandInterface*>::iterator it=vect.begin();it!=vect.end();it++) {
             		if ( !(*it)->execute() )
                         return false;
             	}
@@ -75,7 +75,7 @@ namespace ORO_Execution
 			};
 
         void readArguments() {
-            for (std::vector<ORO_CoreLib::CommandInterface*>::iterator it=vect.begin();it!=vect.end();it++)
+            for (std::vector<CommandInterface*>::iterator it=vect.begin();it!=vect.end();it++)
                 (*it)->readArguments();
         }
 
@@ -83,25 +83,25 @@ namespace ORO_Execution
          * add a command to the vect
          * 
          */
-        virtual void add(ORO_CoreLib::CommandInterface * com) {		
+        virtual void add(CommandInterface * com) {		
             vect.push_back(com);
         };
 
-        virtual ORO_CoreLib::CommandInterface* clone() const
+        virtual CommandInterface* clone() const
         {
             return new CommandComposite( *this );
         }
 			
-        virtual ORO_CoreLib::CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const
+        virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
         {
             CommandComposite* res = new CommandComposite();
-            for (std::vector<ORO_CoreLib::CommandInterface*>::const_iterator it=vect.begin();it!=vect.end();it++)
+            for (std::vector<CommandInterface*>::const_iterator it=vect.begin();it!=vect.end();it++)
                 res->add( (*it)->copy(alreadyCloned) );
             return res;
         }
 			
     private:
-        std::vector<ORO_CoreLib::CommandInterface*> vect;
+        std::vector<CommandInterface*> vect;
     };
 
 }

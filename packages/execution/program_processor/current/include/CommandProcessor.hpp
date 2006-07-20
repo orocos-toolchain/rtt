@@ -30,9 +30,9 @@
 #ifndef ORO_COMMAND_PROCESSOR_HPP
 #define ORO_COMMAND_PROCESSOR_HPP
 
-#include "corelib/RunnableInterface.hpp"
-#include "corelib/CommandInterface.hpp"
-#include "corelib/BufferPolicy.hpp"
+#include "RunnableInterface.hpp"
+#include "CommandInterface.hpp"
+#include "BufferPolicy.hpp"
 
 #include <string>
 #include <vector>
@@ -40,20 +40,20 @@
 
 #include <pkgconf/execution_program_processor.h>
 
-namespace ORO_OS
+namespace OS
 {
     class Semaphore;
     class Mutex;
     class MutexRecursive;
 }
 
-namespace ORO_CoreLib
+namespace RTT
 {
     template< class T, class RP, class WP>
     class AtomicQueue;
 }
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * @brief This class implements an Orocos command processor.
@@ -61,14 +61,14 @@ namespace ORO_Execution
      *
      */
     class CommandProcessor
-        : public ORO_CoreLib::RunnableInterface
+        : public RunnableInterface
     {
     public:
         /**
          * Constructs a new CommandProcessor
          * @param queue_size The size of the command queue.
          */
-        CommandProcessor(int queue_size = ORONUM_EXECUTION_PROC_QUEUE_SIZE, ORO_OS::Semaphore* work_sem = 0);
+        CommandProcessor(int queue_size = ORONUM_EXECUTION_PROC_QUEUE_SIZE, OS::Semaphore* work_sem = 0);
 
         virtual ~CommandProcessor();
 
@@ -86,7 +86,7 @@ namespace ORO_Execution
          * @return 0 when the CommandProcessor is not running or does not accept commands.
          * @see isProcessed, acceptCommands
          */
-        int process(ORO_CoreLib::CommandInterface* c);
+        int process(CommandInterface* c);
 
         /**
          * Check if a given command id has been processed.
@@ -101,14 +101,14 @@ namespace ORO_Execution
 
     private:
 
-        ORO_CoreLib::AtomicQueue<ORO_CoreLib::CommandInterface*,ORO_CoreLib::NonBlockingPolicy,ORO_CoreLib::NonBlockingPolicy>* a_queue;
+        AtomicQueue<CommandInterface*,NonBlockingPolicy,NonBlockingPolicy>* a_queue;
 
         /**
          * Counting how much commands we processed.
          */
         int coms_processed;
 
-        ORO_OS::Semaphore* queuesem;
+        OS::Semaphore* queuesem;
         bool accept;
     };
 

@@ -28,5 +28,5 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "corelib/ReportCollectorInterface.hpp"
+#include "rtt/ReportCollectorInterface.hpp"
 

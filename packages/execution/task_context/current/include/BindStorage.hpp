@@ -7,7 +7,7 @@
 #include <boost/bind.hpp>
 #include <boost/mem_fn.hpp>
 
-namespace ORO_Execution
+namespace RTT
 {
     namespace detail
     {

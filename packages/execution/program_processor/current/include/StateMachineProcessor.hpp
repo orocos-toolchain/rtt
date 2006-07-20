@@ -28,30 +28,30 @@
 #ifndef PROCESSOR_HPP
 #define PROCESSOR_HPP
 
-#include "corelib/RunnableInterface.hpp"
+#include "RunnableInterface.hpp"
 #include "StateMachine.hpp"
 #include "ProgramExceptions.hpp"
 
 #include <map>
 #include <string>
 #include <vector>
-#include "corelib/ListLockFree.hpp"
+#include "ListLockFree.hpp"
 
 #include <pkgconf/execution_program_processor.h>
 
-namespace ORO_OS
+namespace OS
 {
     class Semaphore;
 }
 
-namespace ORO_Execution
+namespace RTT
 {
 
     /**
      * This class implements a state machine executor.
      */
     class StateMachineProcessor
-        : public ORO_CoreLib::RunnableInterface
+        : public RunnableInterface
     {
     public:
         /**
@@ -62,7 +62,7 @@ namespace ORO_Execution
         /**
          * Constructs a new StateMachineProcessor
          */
-        StateMachineProcessor(ORO_OS::Semaphore* work_sem = 0);
+        StateMachineProcessor(OS::Semaphore* work_sem = 0);
 
         virtual ~StateMachineProcessor();
 
@@ -122,13 +122,13 @@ namespace ORO_Execution
         void recursiveUnloadStateMachine( StateMachinePtr sc );
         bool recursiveCheckUnloadStateMachine( StateMachinePtr si );
 
-        typedef ORO_CoreLib::ListLockFree<StateMachinePtr> StateMap;
+        typedef ListLockFree<StateMachinePtr> StateMap;
         StateMap*   states;
 
         /**
          * Work semaphore.
          */
-        ORO_OS::Semaphore* queuesem;
+        OS::Semaphore* queuesem;
     };
 
 }

@@ -29,11 +29,11 @@
 #ifndef CURRENT_INCLUDE_PARSEDSTATECONTEXT_HPP
 #define CURRENT_INCLUDE_PARSEDSTATECONTEXT_HPP
 
-#include "execution/StateMachine.hpp"
-#include "execution/DataSource.hpp"
+#include "StateMachine.hpp"
+#include "DataSource.hpp"
 #include <boost/shared_ptr.hpp>
 
-namespace ORO_Execution {
+namespace RTT {
 
     class StateDescription;
     class Processor;
@@ -50,7 +50,7 @@ namespace ORO_Execution {
     class ParsedStateMachine
         : public StateMachine
     {
-        typedef std::map<std::string, ORO_CoreLib::AttributeBase*> VisibleWritableValuesMap;
+        typedef std::map<std::string, AttributeBase*> VisibleWritableValuesMap;
     protected:
         virtual void handleUnload();
     public:
@@ -60,11 +60,11 @@ namespace ORO_Execution {
         /**
          * Create a copy, set instantiate to 'true' if instantiating a RootMachine.
          */
-        ParsedStateMachinePtr copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& replacements, bool instantiate = false ) const;
+        ParsedStateMachinePtr copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate = false ) const;
 
-        void addParameter( const std::string& name, ORO_CoreLib::AttributeBase* var );
+        void addParameter( const std::string& name, AttributeBase* var );
 
-        ORO_CoreLib::AttributeBase* getParameter( const std::string& name ) const;
+        AttributeBase* getParameter( const std::string& name ) const;
         VisibleWritableValuesMap getParameters() const;
         std::vector<std::string> getParameterNames() const;
 

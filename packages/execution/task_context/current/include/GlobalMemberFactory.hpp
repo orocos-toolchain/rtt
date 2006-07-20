@@ -36,7 +36,7 @@
 #include "MemberFactoryComposite.hpp"
 #include "MethodC.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
 
   /**

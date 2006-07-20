@@ -32,7 +32,7 @@
 #include "CommandInterface.hpp"
 #include <boost/function.hpp>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * @brief A Command which can be bound to a function using boost::bind.

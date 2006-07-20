@@ -32,11 +32,11 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <corelib/Property.hpp>
-#include <corelib/PropertyIntrospection.hpp>
+#include <rtt/Property.hpp>
+#include <rtt/PropertyIntrospection.hpp>
 #include "StreamProcessor.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * A class for marshalling a property or propertybag into a

@@ -25,16 +25,16 @@
  *                                                                         *
  ***************************************************************************/
 
-#include <os/fosi.h>
-#include <os/cpp.hpp>
+#include <rtt/os/fosi.h>
+#include <rtt/os/cpp.hpp>
 
-#include "corelib/Framework.hpp"
-#include "corelib/TimeService.hpp"
-#include "corelib/ZeroTimeThread.hpp"
-#include "corelib/ZeroLatencyThread.hpp"
-#include "corelib/CompletionProcessor.hpp"
+#include "rtt/Framework.hpp"
+#include "rtt/TimeService.hpp"
+#include "rtt/ZeroTimeThread.hpp"
+#include "rtt/ZeroLatencyThread.hpp"
+#include "rtt/CompletionProcessor.hpp"
 #include <rtstl/rtstreams.hpp>
-#include <os/MainThread.hpp>
+#include <rtt/os/MainThread.hpp>
 
 /**
  *
@@ -45,7 +45,7 @@
 
 // This is to be kept local --> static
 
-using namespace ORO_CoreLib;
+
 
 static CompletionProcessor* comp_proc;
 static ZeroTimeThread* ztt;

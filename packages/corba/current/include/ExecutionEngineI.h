@@ -60,8 +60,8 @@
 #define EXECUTIONENGINEI_H_
 
 #include "ExecutionEngineS.h"
-#include "execution/ExecutionEngine.hpp"
-#include "execution/StatementProcessor.hpp"
+#include "ExecutionEngine.hpp"
+#include "StatementProcessor.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -69,11 +69,11 @@
 
 class  Orocos_ExecutionEngine_i : public virtual POA_Orocos::ExecutionEngine, public virtual PortableServer::RefCountServantBase
 {
-    ORO_Execution::ExecutionEngine& mee;
-    ORO_Execution::StatementProcessor sproc;
+    ExecutionEngine& mee;
+    StatementProcessor sproc;
 public:
   //Constructor 
-  Orocos_ExecutionEngine_i (ORO_Execution::ExecutionEngine& ee);
+  Orocos_ExecutionEngine_i (ExecutionEngine& ee);
   
   //Destructor 
   virtual ~Orocos_ExecutionEngine_i (void);

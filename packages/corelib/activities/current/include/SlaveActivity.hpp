@@ -36,7 +36,7 @@
 #pragma interface
 #endif
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**
@@ -88,7 +88,7 @@ namespace ORO_CoreLib
 
         EventProcessor* getEventProcessor() const;
 
-        ORO_OS::ThreadInterface* thread();
+        OS::ThreadInterface* thread();
 
         bool initialize();
         void step();

@@ -7,7 +7,7 @@
 #include "BindStorage.hpp"
 #include "UnMember.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * A Command storage container.

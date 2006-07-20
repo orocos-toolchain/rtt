@@ -26,14 +26,14 @@
  ***************************************************************************/
  
  
-#include <corelib/Logger.hpp>
-#include "execution/TryCommand.hpp"
-#include <corelib/DataSources.hpp>
+#include <rtt/Logger.hpp>
+#include "rtt/TryCommand.hpp"
+#include <rtt/DataSources.hpp>
 
-namespace ORO_Execution 
+namespace RTT 
 {
-    using namespace ORO_CoreLib;
-    using namespace ORO_CoreLib::detail;
+    
+    using namespace detail;
 
         TryCommand::TryCommand( CommandInterface* command,
                                 AssignableDataSource<bool>::shared_ptr storage /*=0*/,
@@ -46,8 +46,8 @@ namespace ORO_Execution
             delete c;
         }
         bool TryCommand::execute() {
-            //ORO_CoreLib::Logger::In in("TryCommand");
-            //ORO_CoreLib::Logger::log() <<ORO_CoreLib::Logger::RealTime << "execute()"<<ORO_CoreLib::Logger::endl;
+            //Logger::In in("TryCommand");
+            //Logger::log() <<Logger::RealTime << "execute()"<<Logger::endl;
             _result->set( c->execute() );
             _executed->set(true);
             return true;

@@ -28,19 +28,18 @@
  
 
 #include <geometry/GeometryToolkit.hpp>
-#include <corelib/Types.hpp>
-#include <corelib/TemplateTypeInfo.hpp>
-#include <corelib/Operators.hpp>
-#include <corelib/OperatorTypes.hpp>
-#include <corelib/mystd.hpp>
+#include <rtt/Types.hpp>
+#include <rtt/TemplateTypeInfo.hpp>
+#include <rtt/Operators.hpp>
+#include <rtt/OperatorTypes.hpp>
+#include <rtt/mystd.hpp>
 #include <geometry/frames_io.h>
 #include <geometry/MotionProperties.hpp>
 
 namespace ORO_Geometry
 {
-    using namespace ORO_CoreLib;
-    using namespace ORO_std;
-    using namespace ORO_CoreLib::detail;
+    using namespace RTT;
+    using namespace RTT::detail;
 
     GeometryToolkitPlugin GeometryToolkit;
 

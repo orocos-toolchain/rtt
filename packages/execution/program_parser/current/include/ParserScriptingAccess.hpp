@@ -31,7 +31,7 @@
 
 #include "ScriptingAccess.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     class StatementProcessor;
 

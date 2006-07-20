@@ -21,9 +21,9 @@
 
 #include <pkgconf/system.h>
 
-#include <os/MutexLock.hpp>
-#include <corelib/NonPreemptibleActivity.hpp>
-#include <device_interface/EncoderInterface.hpp>
+#include <rtt/os/MutexLock.hpp>
+#include <rtt/NonPreemptibleActivity.hpp>
+#include "EncoderInterface.hpp"
 #include <pkgconf/device_drivers_apci.h>
 
 #include <string>
@@ -32,7 +32,7 @@
  */
 
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
 
@@ -68,7 +68,7 @@ namespace ORO_DeviceDriver
  *        
  */
 
-class EncoderSSI_apci1710_board : public ORO_CoreLib::NonPreemptibleActivity
+class EncoderSSI_apci1710_board : public NonPreemptibleActivity
 {
 public:
     EncoderSSI_apci1710_board( unsigned int mNr1 );
@@ -99,7 +99,7 @@ protected:
     unsigned int* buffer1;
     unsigned int* buffer2;
 
-    ORO_OS::Mutex readLock;
+    OS::Mutex readLock;
 };
 
 
@@ -120,7 +120,7 @@ protected:
  *
  */
 
-class EncoderSSI_apci1710 : public ORO_DeviceInterface::EncoderInterface
+class EncoderSSI_apci1710 : public EncoderInterface
 {
 public:
     EncoderSSI_apci1710( unsigned int encNr, EncoderSSI_apci1710_board* board )
@@ -151,6 +151,6 @@ private:
     unsigned int _encNr;
 };
 
-}; // Namespace ORO_DeviceDriver
+}; // Namespace RTT
 
 #endif // _EncoderSSI_apci1710_HPP

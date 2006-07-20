@@ -34,7 +34,7 @@
 #include "ConnectionInterface.hpp"
 #include "OperationInterface.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
 
     /** 

@@ -25,14 +25,14 @@
  *                                                                         *
  ***************************************************************************/ 
  
-#ifndef ORO_OS_MUTEXLOCK_HPP
-#define ORO_OS_MUTEXLOCK_HPP
+#ifndef OS_MUTEXLOCK_HPP
+#define OS_MUTEXLOCK_HPP
 
-#include <os/fosi.h>
+#include "fosi.h"
 
 #include "Mutex.hpp"
 
-namespace ORO_OS
+namespace OS
 {
     /**
      * @brief MutexLock is a scope based Monitor, protecting critical
@@ -47,7 +47,7 @@ namespace ORO_OS
              * 
              * @param mutex The Mutex to be locked.
              */
-            MutexLock( ORO_OS::MutexInterface &mutex )
+            MutexLock( OS::MutexInterface &mutex )
             {
                 _mutex = &mutex;
                 _mutex->lock ();
@@ -62,7 +62,7 @@ namespace ORO_OS
             }
 
         protected:
-            ORO_OS::MutexInterface *_mutex;
+            OS::MutexInterface *_mutex;
 
             MutexLock()
             {}
@@ -83,7 +83,7 @@ namespace ORO_OS
              *
              * @param mutex The Mutex which should be attempted to be locked
              */
-            MutexTryLock( ORO_OS::MutexInterface &mutex )
+            MutexTryLock( OS::MutexInterface &mutex )
                     : _mutex( &mutex), successful( mutex.trylock() )
             {
             }
@@ -111,7 +111,7 @@ namespace ORO_OS
             /**
              * The Mutex to lock and unlock
              */
-            ORO_OS::MutexInterface *_mutex;
+            OS::MutexInterface *_mutex;
 
         MutexTryLock()
         {}

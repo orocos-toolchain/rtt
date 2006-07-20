@@ -32,7 +32,7 @@
 #include <exception>
 #include <string>
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * This exception is thrown when a program or state machine

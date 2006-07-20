@@ -36,12 +36,12 @@
 #include "ExecutionEngine.hpp"
 #include "ScriptingAccess.hpp"
 #include "TaskCore.hpp"
-#include <corelib/PropertyBag.hpp>
+#include "PropertyBag.hpp"
 
 #include <string>
 #include <map>
 
-namespace ORO_Execution
+namespace RTT
 {
     class CommandProcessor;
     class ScriptingAccess;
@@ -345,14 +345,14 @@ namespace ORO_Execution
         /**
          * The properties of this TaskContext.
          */
-        ORO_CoreLib::PropertyBag* properties() {
+        PropertyBag* properties() {
             return attributeRepository.properties();
         }
 
         /**
          * The properties of this TaskContext.
          */
-        const ORO_CoreLib::PropertyBag* properties() const {
+        const PropertyBag* properties() const {
             return attributeRepository.properties();
         }
 

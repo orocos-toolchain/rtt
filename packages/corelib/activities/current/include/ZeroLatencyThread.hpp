@@ -32,7 +32,7 @@
 #include "TimerThread.hpp"
 
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     class PreemptibleActivity;
@@ -78,6 +78,6 @@ namespace ORO_CoreLib
         static TimerThreadPtr _instance;
 
     };
-} // namespace ORO_CoreLib
+} // namespace RTT
 
 #endif

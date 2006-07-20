@@ -30,11 +30,11 @@
 
 #include "VertexNode.hpp"
 #include "EdgeCondition.hpp"
-#include <corelib/CommandNOP.hpp>
-#include <corelib/AttributeBase.hpp>
+#include "CommandNOP.hpp"
+#include "AttributeBase.hpp"
 #include "ProgramInterface.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     class FunctionGraph;
     typedef boost::shared_ptr<FunctionGraph> FunctionGraphPtr;
@@ -93,7 +93,7 @@ namespace ORO_Execution
         /**
          * Ordered arguments (are also in the repository).
          */
-        std::vector<ORO_CoreLib::AttributeBase*> args;
+        std::vector<AttributeBase*> args;
 
         bool pausing;
         bool mstep;
@@ -145,7 +145,7 @@ namespace ORO_Execution
 
         virtual const std::string& getName() const;
 
-        virtual FunctionGraph* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& replacementdss ) const;
+        virtual FunctionGraph* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const;
 
         virtual FunctionGraph* clone() const;
 
@@ -187,11 +187,11 @@ namespace ORO_Execution
         /**
          * Return an ordered list of this funcion's arguments.
          */
-        std::vector<ORO_CoreLib::AttributeBase*> getArguments() const {
+        std::vector<AttributeBase*> getArguments() const {
             return args;
         }
 
-        void addArgument( ORO_CoreLib::AttributeBase* a) {
+        void addArgument( AttributeBase* a) {
             args.push_back(a);
         }
 

@@ -28,14 +28,14 @@
 #ifndef ENCODERINTERFACE_HPP
 #define ENCODERINTERFACE_HPP
 
-#include <corelib/NameServer.hpp>
-#include <corelib/NameServerRegistrator.hpp>
+#include <rtt/NameServer.hpp>
+#include <rtt/NameServerRegistrator.hpp>
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
 #endif
 
-namespace ORO_DeviceInterface
+namespace RTT
 {
     /**
      * @brief The most generic interface to a position/turn counter,
@@ -50,7 +50,7 @@ namespace ORO_DeviceInterface
      * increments.
      */
     class EncoderInterface
-        : private ORO_CoreLib::NameServerRegistrator<EncoderInterface*>
+        : private NameServerRegistrator<EncoderInterface*>
     {
     public:
         /**
@@ -60,7 +60,7 @@ namespace ORO_DeviceInterface
          * through EncoderInterface::nameserver .
          */
         EncoderInterface( const std::string& name )
-            : ORO_CoreLib::NameServerRegistrator<EncoderInterface*>( nameserver, name, this )
+            : NameServerRegistrator<EncoderInterface*>( nameserver, name, this )
         { }
 
         /**
@@ -73,7 +73,7 @@ namespace ORO_DeviceInterface
          * The NameServer of this interface.
          * @see NameServer
          */
-        static ORO_CoreLib::NameServer<EncoderInterface*> nameserver;
+        static NameServer<EncoderInterface*> nameserver;
 
         virtual ~EncoderInterface() {}
 

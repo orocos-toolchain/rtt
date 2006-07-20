@@ -30,19 +30,19 @@
 #ifndef SWITCHDIGITALINAPCI1032_HPP
 #define SWITCHDIGITALINAPCI1032_HPP
 
-#include <device_interface/DigitalInInterface.hpp>
+#include "DigitalInInterface.hpp"
 
 #ifdef OROCLS_DEVICE_DRIVERS_APCI1032_EVENTS
-#include <corelib/PreemptibleActivity.hpp>
-#include <corelib/Event.hpp>
-#include <corelib/ListenerRegistration.hpp>
+#include <rtt/PreemptibleActivity.hpp>
+#include <rtt/Event.hpp>
+#include <rtt/ListenerRegistration.hpp>
 #endif
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
-    using namespace ORO_DeviceInterface;
-    using namespace ORO_CoreLib;
+    
+    
 
     /**
      * A physical device class for reading our digital input card.

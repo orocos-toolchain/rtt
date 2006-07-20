@@ -38,7 +38,7 @@
 #endif
 #include <string>
 
-namespace ORO_CoreLib 
+namespace RTT 
 {
     /**
      * A simple logging class to debug/ analyse what is 

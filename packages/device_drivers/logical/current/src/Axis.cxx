@@ -25,15 +25,15 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "device_drivers/Axis.hpp"
-#include "device_drivers/DigitalInput.hpp"
-#include "device_drivers/DigitalOutput.hpp"
-#include "device_drivers/AnalogDrive.hpp"
+#include "rtt/dev/Axis.hpp"
+#include "rtt/dev/DigitalInput.hpp"
+#include "rtt/dev/DigitalOutput.hpp"
+#include "rtt/dev/AnalogDrive.hpp"
 
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
-    using namespace ORO_CoreLib;
+    
 
     Axis::Axis( AnalogDrive* a ) 
       : _drive_value(0), act( a ), brakeswitch(0),
@@ -162,7 +162,7 @@ namespace ORO_DeviceDriver
     }
 
 
-    void Axis::setLimitDriveEvent(ORO_CoreLib::Event<void(void)>& maximumDrive)
+    void Axis::setLimitDriveEvent(Event<void(void)>& maximumDrive)
     {
       _max_drive_event = &maximumDrive;
     }

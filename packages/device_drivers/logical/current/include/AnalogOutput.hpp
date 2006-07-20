@@ -28,12 +28,12 @@
 #ifndef ANALOGOUTPUT_HPP
 #define ANALOGOUTPUT_HPP
 
-#include <device_interface/AnalogOutInterface.hpp>
+#include "AnalogOutInterface.hpp"
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
-    using namespace ORO_DeviceInterface;
+    
 
     /**
      * A class representing an analog output channel.

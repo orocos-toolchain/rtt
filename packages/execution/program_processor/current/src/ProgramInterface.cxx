@@ -27,12 +27,12 @@
  
  
 
-#include "execution/ProgramInterface.hpp"
-#include <corelib/Logger.hpp>
+#include "rtt/ProgramInterface.hpp"
+#include <rtt/Logger.hpp>
 
-namespace ORO_Execution
+namespace RTT
 {
-    using namespace ORO_CoreLib;
+    
 
     void ProgramInterface::handleUnload() {}
 

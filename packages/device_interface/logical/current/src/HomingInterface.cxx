@@ -19,7 +19,7 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "device_interface/HomingInterface.hpp"
+#include "rtt/dev/HomingInterface.hpp"
 
-namespace ORO_DeviceInterface {
+namespace RTT {
 }

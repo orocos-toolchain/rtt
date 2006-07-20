@@ -31,7 +31,7 @@
 
 #include <iostream>
 
-using namespace ORO_Execution;
+
 
 class FakeComponent
 {

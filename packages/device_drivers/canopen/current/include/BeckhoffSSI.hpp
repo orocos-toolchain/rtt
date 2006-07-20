@@ -28,25 +28,25 @@
 #ifndef BECKHOFFSSI_HPP
 #define BECKHOFFSSI_HPP
 
-#include <device_interface/DigitalInInterface.hpp>
-#include <device_interface/EncoderInterface.hpp>
-#include <corelib/ConfigurationInterface.hpp>
+#include "DigitalInInterface.hpp"
+#include "EncoderInterface.hpp"
+#include <rtt/ConfigurationInterface.hpp>
 #include "CANRequest.hpp"
 
 // rt_std :
-#include <os/rtstreams.hpp>
+#include <rtt/os/rtstreams.hpp>
 
 #include <vector>
 #include <iostream>
-#include <os/rtstreams.hpp>
+#include <rtt/os/rtstreams.hpp>
 
 namespace Beckhoff
 {
-    using namespace ORO_CoreLib;
+    
     using namespace CAN;
     using std::vector;
     using namespace std;
-    using namespace ORO_DeviceInterface;
+    
 
 	/**
      * TODO : extend so that # of terminals can be larger than 2.

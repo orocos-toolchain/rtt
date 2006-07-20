@@ -24,11 +24,11 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "execution/ConditionComposite.hpp"
+#include "rtt/ConditionComposite.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
-    using namespace ORO_CoreLib;
+    
 
   bool ConditionCompositeNOT::evaluate()
   {

@@ -27,19 +27,19 @@
  
  
 
-#include "corelib/SimulationThread.hpp"
-#include "corelib/TimeService.hpp"
-#include "corelib/SimulationActivity.hpp"
-#include "corelib/Logger.hpp"
-#include "corelib/EventProcessor.hpp"
-#include <os/threads.hpp>
+#include "rtt/SimulationThread.hpp"
+#include "rtt/TimeService.hpp"
+#include "rtt/SimulationActivity.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/EventProcessor.hpp"
+#include <rtt/os/threads.hpp>
 
 #include "pkgconf/corelib_activities.h"
 
 // NO AUTO START ! Only create/release
 #ifdef OROSEM_CORELIB_ACTIVITIES_AUTOSTART
-#include <os/StartStopManager.hpp>
-namespace ORO_CoreLib
+#include <rtt/os/StartStopManager.hpp>
+namespace RTT
 {
     namespace
     {
@@ -54,14 +54,14 @@ namespace ORO_CoreLib
             SimulationThread::Release();
         }
 
-        ORO_OS::InitFunction SIMInit( &startSIMThread );
-        ORO_OS::CleanupFunction SIMCleanup( &stopSIMThread );
+        OS::InitFunction SIMInit( &startSIMThread );
+        OS::CleanupFunction SIMCleanup( &stopSIMThread );
     }
 }
 #endif
 
 
-namespace ORO_CoreLib
+namespace RTT
 {
     
     // The static class variables
@@ -85,7 +85,7 @@ namespace ORO_CoreLib
 
 
     SimulationThread::SimulationThread()
-        : TimerThread( ORO_OS::LowestPriority,
+        : TimerThread( OS::LowestPriority,
                       ORODAT_CORELIB_ACTIVITIES_SIM_NAME, 
                       ORONUM_CORELIB_ACTIVITIES_SIM_PERIOD),
           beat( TimeService::Instance() ), maxsteps_(0)

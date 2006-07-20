@@ -28,15 +28,15 @@
 #ifndef BECKHOFFDIN_HPP
 #define BECKHOFFDIN_HPP
 
-#include <device_interface/DigitalInInterface.hpp>
+#include "DigitalInInterface.hpp"
 #include "CANDeviceInterface.hpp"
 #include "CANMessage.hpp"
 
 namespace Beckhoff
 {
-    using namespace ORO_CoreLib;
+    
     using namespace CAN;
-    using ORO_DeviceInterface::DigitalInInterface;
+    
 
 	/**
      * A class representing an Beckhoff Digital Input Terminal.

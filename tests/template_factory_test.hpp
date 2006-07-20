@@ -22,15 +22,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <corelib/MultiVector.hpp>
-#include <execution/Parser.hpp>
-#include <execution/CommandProcessor.hpp>
-#include <execution/TaskContext.hpp>
-#include <execution/Factories.hpp>
+#include <rtt/MultiVector.hpp>
+#include <rtt/Parser.hpp>
+#include <rtt/CommandProcessor.hpp>
+#include <rtt/TaskContext.hpp>
+#include <rtt/Factories.hpp>
 #include <string>
 
-using namespace ORO_CoreLib;
-using namespace ORO_Execution;
+using namespace RTT;
+using namespace RTT;
 
 class Template_FactoryTest : public CppUnit::TestFixture
 {
@@ -50,10 +50,10 @@ class Template_FactoryTest : public CppUnit::TestFixture
     TaskObject* createUserMethodFactory();
     TaskObject* createCommandFactory();
 
-    ORO_CoreLib::Event<int( float, float )> t_event_float;
+    RTT::Event<int( float, float )> t_event_float;
     int float_listener(float a, float b);
     int float_completer(float a, float b);
-    ORO_CoreLib::EventProcessor* event_proc;
+    RTT::EventProcessor* event_proc;
     float float_sum, float_sub;
 
     void executePrograms(const Parser::ParsedPrograms& pg_list );

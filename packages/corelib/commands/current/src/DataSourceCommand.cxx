@@ -26,11 +26,11 @@
  ***************************************************************************/
  
  
-#include "corelib/DataSourceCommand.hpp"
+#include "rtt/DataSourceCommand.hpp"
 
-#include "corelib/CommandInterface.hpp"
+#include "rtt/CommandInterface.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
   DataSourceCommand::DataSourceCommand( CommandInterface* c )
       : comm( c ), mresult(false)

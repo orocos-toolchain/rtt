@@ -37,7 +37,8 @@
 
 #ifdef OROCFG_GEOMETRY_TOOLKIT_IMPORT
 #include "geometry/GeometryToolkit.hpp"
-#include <os/StartStopManager.hpp>
+#include <rtt/RTT.hpp>
+#include <rtt/os/StartStopManager.hpp>
 namespace ORO_Geometry {
     namespace {
 
@@ -51,7 +52,7 @@ namespace ORO_Geometry {
             return true;
         }
 
-        ORO_OS::InitFunction GLoader( &loadG );
+        RTT::OS::InitFunction GLoader( &loadG );
     }
 }
 #endif

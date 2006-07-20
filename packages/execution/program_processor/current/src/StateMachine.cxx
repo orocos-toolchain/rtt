@@ -24,25 +24,25 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "execution/StateMachine.hpp"
-#include <corelib/EventProcessor.hpp>
-#include "execution/StateMachineProcessor.hpp"
-#include "execution/EventService.hpp"
+#include "rtt/StateMachine.hpp"
+#include <rtt/EventProcessor.hpp>
+#include "rtt/StateMachineProcessor.hpp"
+#include "rtt/EventService.hpp"
 
-#include <corelib/DataSource.hpp>
-#include <corelib/Logger.hpp>
+#include <rtt/DataSource.hpp>
+#include <rtt/Logger.hpp>
 #include <functional>
 
 #include <assert.h>
 #include <boost/bind.hpp>
 #include <boost/tuple/tuple.hpp>
 
-namespace ORO_Execution
+namespace RTT
 {
     using boost::tuples::get;
     using namespace std;
     using namespace boost;
-    using namespace ORO_CoreLib;
+    
 
     std::string StateMachine::emptyString;
 
@@ -442,7 +442,7 @@ namespace ORO_Execution
     std::vector<std::string> StateMachine::getStateList() const {
         vector<string> result;
         vector<StateInterface*> sl;
-        transform( stateMap.begin(), stateMap.end(), back_inserter(sl), ORO_std::select1st<TransitionMap::value_type>() );
+        transform( stateMap.begin(), stateMap.end(), back_inserter(sl), select1st<TransitionMap::value_type>() );
         transform( sl.begin(), sl.end(), back_inserter(result), bind( &StateInterface::getName, _1 ) );
         return result;
     }

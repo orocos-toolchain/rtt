@@ -118,16 +118,16 @@
       they would only act as a noninteractive whole. The Execution
       package allows a user to configure a system, execute
       user-defined programs on that system and interactively accept
-      commands.  An <classname>ORO_Execution::ExecutionEngine</classname> contains a
+      commands.  An <classname>RTT::ExecutionEngine</classname> contains a
       series of <classname>Processor</classname>s which loads state
       machine and program definitions and executes them. Execution of
       the programs and state machines will happen in real-time. In
       addition, it processes incomming commands and events in
       real-time as well. The execution engine thus exists of four
-      processors : <classname>ORO_Execution::ProgramProcessor</classname>,
-      <classname>ORO_Execution::StateMachineProcessor</classname>,
-      <classname>ORO_Execution::CommandProcessor</classname> and the
-      <classname>ORO_Execution::EventProcessor</classname>. The Execution Engine
+      processors : <classname>RTT::ProgramProcessor</classname>,
+      <classname>RTT::StateMachineProcessor</classname>,
+      <classname>RTT::CommandProcessor</classname> and the
+      <classname>RTT::EventProcessor</classname>. The Execution Engine
       needs to run in a periodic (preferably) or non periodic corelib
       task in order to execute these processors. 
     </para>
@@ -154,7 +154,7 @@
     <sect2>
       <title>Purpose</title>
       <para>
-	The <classname>ORO_Execution::ExecutionEngine</classname> is the core class
+	The <classname>RTT::ExecutionEngine</classname> is the core class
 	of this package.  It executes the decision logic of the
 	TaskContext by executing programs and state machines. Any
 	number of these may be loaded and can be controlled
@@ -178,11 +178,11 @@
 	run in a periodic corelib task.
       </para>
       <programlisting>
-  #include &lt;execution/TaskContext.hpp&gt;
-  #include &lt;corelib/TaskNonPreemptible.hpp&gt;
+  #include &lt;rtt/TaskContext.hpp&gt;
+  #include &lt;rtt/TaskNonPreemptible.hpp&gt;
 
-  ORO_Execution::TaskContext mytaskC;
-  ORO_CoreLib::TaskNonPreemptible ptask( 0.01 ); // Periodic task 100Hz.
+  RTT::TaskContext mytaskC;
+  RTT::TaskNonPreemptible ptask( 0.01 ); // Periodic task 100Hz.
 
   ptask.run( mytaskC.engine() ); // run the execution engine.
 
@@ -197,20 +197,20 @@
     <sect2>
       <title>Executing Programs</title>
       <para>
-	The <classname>ORO_Execution::FunctionGraph</classname> is a tree composed
-	of command nodes ( See : <classname>ORO_CoreLib::CommandInterface</classname> class ),
+	The <classname>RTT::FunctionGraph</classname> is a tree composed
+	of command nodes ( See : <classname>RTT::CommandInterface</classname> class ),
 	where each node contains one or more
 	statements. A FunctionGraph keeps track of the start node
 	and the node to be executed next. As such a program is executed
 	one node at a time and the transition to the next node
 	is done on a given boolean condition ( See :
-	<classname>ORO_CoreLib::ConditionInterface</classname> class). The
+	<classname>RTT::ConditionInterface</classname> class). The
 	FunctionGraph is built by the program parser and almost never by
 	the programmer by hand.
       </para>
       <para>
 	In order to access (start, stop, pause,...) a loaded program, use :
-	<programlisting>  <classname>ORO_Execution::ProgramInterface</classname>* prog = mytaskC.engine()->programs()->getProgram("ProgName");
+	<programlisting>  <classname>RTT::ProgramInterface</classname>* prog = mytaskC.engine()->programs()->getProgram("ProgName");
   if (prog == 0 ) {
       // program not found.
   }
@@ -253,7 +253,7 @@
       <tip>
 	<para>
 	  Alternatively, you can use the
-	  <classname>ORO_Execution::ProgramLoader</classname> class as a user-friendly 
+	  <classname>RTT::ProgramLoader</classname> class as a user-friendly 
 	  frontend for loading Programs and Functions in tasks.
 	</para>
       </tip>
@@ -261,7 +261,7 @@
     <sect2>
       <title>State Machine and States</title>
       <para>
-	The <classname>ORO_Execution::StateMachine</classname> is a
+	The <classname>RTT::StateMachine</classname> is a
 	collection of states, linked to each other through transition
 	definitions. It represents a state machine of the realtime
 	system's logic and may access internal and external data for
@@ -270,18 +270,18 @@
 	taken (on entry, during or on exit) and transitions between
 	states are defined by boundary conditions (guards) or
 	triggered by events. Every such state is defined by the
-	<classname>ORO_Execution::StateInterface</classname>.  A state
+	<classname>RTT::StateInterface</classname>.  A state
 	itself is defined by four programs : entry, run, handle and
 	exit. They are called by the State Machine Processor when this
 	state is entered, run or left. When no state transition took
 	place, handle is called in a periodic execution step of the
-	<classname>ORO_Execution::StateMachineProcessor</classname>. Otherwise,
+	<classname>RTT::StateMachineProcessor</classname>. Otherwise,
 	first the exit program of the current state is called, then
 	the entry program and then the run program of the new state is
 	called. The next periodic step will continue the run program,
 	or when finished, evaluate transition conditions, and if none
 	succeeds, handle will be called, and so on. Orocos
-	<classname>ORO_CoreLib::Event</classname>s may be processed
+	<classname>RTT::Event</classname>s may be processed
 	during the run program. The exit program can check for
 	interuption and clean up if necessary. After the exit program
 	(if any), the transition program is executed (again, if any).
@@ -307,7 +307,7 @@
       </para>
       <para>
 	In order to access (activate, start, stop, pause,...) a loaded state machine, use :
-	<programlisting>  <classname>ORO_Execution::StateMachine</classname>* smach = mytaskC.engine()->states()->getStateMachine("MachineName");
+	<programlisting>  <classname>RTT::StateMachine</classname>* smach = mytaskC.engine()->states()->getStateMachine("MachineName");
   if (smach == 0 ) {
       // state machine not found.
   }
@@ -337,7 +337,7 @@
       <tip>
 	<para>
 	  Alternatively, you can use the
-	  <classname>ORO_Execution::ProgramLoader</classname> class as a
+	  <classname>RTT::ProgramLoader</classname> class as a
 	  user-friendly frontend for loading State Machines.
 	</para>
       </tip>
@@ -345,14 +345,14 @@
     <sect2>
       <title>The Command Processor</title>
       <para>
-	The <classname>ORO_Execution::CommandProcessor</classname> is responsible for accepting command
+	The <classname>RTT::CommandProcessor</classname> is responsible for accepting command
 	requests from other (realtime) tasks. It uses a non-blocking
 	atomic queue to store incomming requests and fetch-and-execute
 	them in its periodic step.  It offers thus a thread-safe
 	realtime means of message passing between threads, without
 	intervention of the Operating System.
       </para>
-      <programlisting>  #include &lt;execution/TaskContext.hpp&gt;
+      <programlisting>  #include &lt;rtt/TaskContext.hpp&gt;
 
   CommandInterface* com = ... // Create a command, see the next Section.
 
@@ -433,7 +433,7 @@
 	pointer in. It implements the CommandInterface such that
 	it can be execute()'ed by the Processor :
 	<programlisting>
-  #include &lt;corelib/CommandFunctor.hpp&gt;
+  #include &lt;rtt/CommandFunctor.hpp&gt;
   void foo();
 
   CommandInterface* command = newCommandFunctor( &amp;foo );
@@ -449,7 +449,7 @@
 	It is possible to wrap more complex functions in a CommandFunctor,
 	if the boost::bind library is used :
 	<programlisting>
-  #include &lt;corelib/CommandFunctor.hpp&gt;
+  #include &lt;rtt/CommandFunctor.hpp&gt;
   #include &lt;boost/bind.hpp&gt;
   
   void foo( int x, int y );
@@ -471,7 +471,7 @@
 	object, followed by the arguments of the function ( which must all be
 	variables ) :
 	<programlisting>
-  #include &lt;corelib/CommandFunctor.hpp&gt;
+  #include &lt;rtt/CommandFunctor.hpp&gt;
   #include &lt;boost/bind.hpp&gt;
   
   class X {
@@ -546,10 +546,10 @@
     <sect2 id="progproc-condition">
       <title>( State ) Transitions : Condition Edge</title>
       <para>
-	The <classname>ORO_Execution::ConditionEdge</classname> defines an edge
+	The <classname>RTT::ConditionEdge</classname> defines an edge
 	of the state diagram. It contains
 	a condition on which a next state is entered. The 
-	<classname>ORO_Execution::ConditionInterface</classname> encapsulates
+	<classname>RTT::ConditionInterface</classname> encapsulates
 	that logic. Conditions
 	can be ordered by priority, so that it is defined in which
 	order they are checked. A multiple of
@@ -559,9 +559,9 @@
       <sect2 id="progproc-command">
 	<title>Statements : Command Node</title>
 	<para>
-	  The <classname>ORO_Execution::CommandNode</classname> contains a
+	  The <classname>RTT::CommandNode</classname> contains a
 	  <classname>Command</classname> and is connected by edges of
-	  the type <classname>ORO_Execution::ConditionEdge</classname>, these edges
+	  the type <classname>RTT::ConditionEdge</classname>, these edges
 	  connect one node with another and allow the transition
 	  if the contained condition evaluates to true. When a program
 	  is executed, it executes the command and runs through the

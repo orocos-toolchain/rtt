@@ -30,10 +30,10 @@
  
 #include "DataSource.hpp"
 #include "DispatchInterface.hpp"
-#include "corelib/ConditionInterface.hpp"
+#include "ConditionInterface.hpp"
 
 
-namespace ORO_Execution
+namespace RTT
 {
     class TryCommand;
     class CommandProcessor;
@@ -51,14 +51,14 @@ namespace ORO_Execution
         bool send;
         bool maccepted;
         CommandProcessor* proc;
-        ORO_CoreLib::CommandInterface* com;
-        ORO_CoreLib::ConditionInterface* mcn;
+        CommandInterface* com;
+        ConditionInterface* mcn;
 
         /**
          * Helper class which is sent to the CommandProcessor
          * in order to execute the command.
          */
-        struct Dispatcher : public ORO_CoreLib::CommandInterface {
+        struct Dispatcher : public CommandInterface {
             bool mexecuted, mvalid;
             CommandDispatch* cd;
             // trick: set mvalid to true internally but return in valid(): mexecuted && mvalid.
@@ -73,7 +73,7 @@ namespace ORO_Execution
         /**
          * Create a command to dispatch another command \a c to a CommandProcessor \a p.
          */
-        CommandDispatch(CommandProcessor* p, ORO_CoreLib::CommandInterface* c, ORO_CoreLib::ConditionInterface* cn );
+        CommandDispatch(CommandProcessor* p, CommandInterface* c, ConditionInterface* cn );
 
         /**
          * Be sure only to delete this command if the target processor is
@@ -132,11 +132,11 @@ namespace ORO_Execution
          */
         bool evaluate() const;
 
-        virtual ORO_CoreLib::ConditionInterface* createCondition() const;
+        virtual ConditionInterface* createCondition() const;
 
-        ORO_Execution::DispatchInterface* clone() const;
+        DispatchInterface* clone() const;
 
-        ORO_Execution::DispatchInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const;
+        DispatchInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     };
 }
 

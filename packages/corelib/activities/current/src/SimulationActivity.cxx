@@ -26,12 +26,12 @@
  ***************************************************************************/
  
  
-#include "corelib/SimulationActivity.hpp"
-#include "corelib/SimulationThread.hpp"
-#include "corelib/TimerInterface.hpp"
-#include "corelib/EventProcessor.hpp"
+#include "rtt/SimulationActivity.hpp"
+#include "rtt/SimulationThread.hpp"
+#include "rtt/TimerInterface.hpp"
+#include "rtt/EventProcessor.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     
     SimulationActivity::SimulationActivity(Seconds period, RunnableInterface* r )

@@ -34,14 +34,14 @@
 #include "FactoryExceptions.hpp"
 #include "ArgumentDescription.hpp"
 #include "DispatchInterface.hpp"
-#include <corelib/PropertyBag.hpp>
-#include <corelib/CommandInterface.hpp>
-#include <corelib/ConditionInterface.hpp>
+#include "PropertyBag.hpp"
+#include "CommandInterface.hpp"
+#include "ConditionInterface.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     class CommandProcessor;
-    typedef std::pair<ORO_CoreLib::CommandInterface*, ORO_CoreLib::ConditionInterface*> ComCon;
+    typedef std::pair<CommandInterface*, ConditionInterface*> ComCon;
 
     /**
      * @brief An interface for creating CommandInterface instances.
@@ -64,7 +64,7 @@ namespace ORO_Execution
     public:
         typedef std::vector< ArgumentDescription > Descriptions;
         typedef std::vector<std::string> Commands;
-        typedef std::vector<ORO_CoreLib::DataSourceBase::shared_ptr> Arguments;
+        typedef std::vector<DataSourceBase::shared_ptr> Arguments;
 
         virtual ~CommandFactoryInterface();
 
@@ -119,7 +119,7 @@ namespace ORO_Execution
          *
          * @throw name_not_found_exception
          */
-        virtual ORO_CoreLib::PropertyBag
+        virtual PropertyBag
         getArgumentSpec( const std::string& command ) const = 0;
 
         /**
@@ -142,7 +142,7 @@ namespace ORO_Execution
          * @throw wrong_types_of_args_exception
          */
         virtual ComCon create( const std::string& command,
-                               const ORO_CoreLib::PropertyBag& args,
+                               const PropertyBag& args,
                                bool asyn) const = 0;
 
         /**
@@ -163,7 +163,7 @@ namespace ORO_Execution
          */
         virtual ComCon create(
                               const std::string& command,
-                              const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args,
+                              const std::vector<DataSourceBase::shared_ptr>& args,
                               bool asyn ) const = 0;
 
         /**
@@ -181,11 +181,11 @@ namespace ORO_Execution
          * @throw name_not_found_exception
          * @throw wrong_number_of_args_exception
          * @throw wrong_types_of_args_exception
-         * @deprecated by create( const std::string&,const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& )
+         * @deprecated by create( const std::string&,const std::vector<DataSourceBase::shared_ptr>& )
          */
         virtual ComCon create(
                               const std::string& command,
-                              const std::vector<ORO_CoreLib::DataSourceBase*>& args,
+                              const std::vector<DataSourceBase*>& args,
                               bool asyn ) const = 0;
 
     };

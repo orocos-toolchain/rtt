@@ -26,9 +26,9 @@
  ***************************************************************************/
  
  
-#include "corba/ApplicationServer.hpp"
+#include "rtt/corba/ApplicationServer.hpp"
 
-namespace ORO_Corba
+namespace Corba
 {
 
     CORBA::ORB_var ApplicationServer::orb;

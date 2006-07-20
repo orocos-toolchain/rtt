@@ -5,7 +5,7 @@ cdl_package OROPKG_CORELIB_TIMING {
 TimeService which will be used to keep track of system
 time and defines time conversions."
 
-    include_dir corelib
+    include_dir rtt
 
     parent OROPKG_CORELIB
     requires OROPKG_CORELIB

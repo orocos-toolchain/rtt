@@ -37,7 +37,7 @@
 #include <memory>
 #include <map>
 
-namespace ORO_Execution
+namespace RTT
 {
     class TaskContext;
     namespace detail {
@@ -66,7 +66,7 @@ namespace ORO_Execution
     // assume that the ProgramParser will do something useful with
     // it.  We don't ever own it, and don't delete it, or set it to
     // 0..
-    ORO_CoreLib::DataSourceBase::shared_ptr ret;
+    DataSourceBase::shared_ptr ret;
     // contains the string constant we're parsing ( it has to be
     // parsed char-by-char, because of the way c_escape_ch_p works
     // )..
@@ -97,7 +97,7 @@ namespace ORO_Execution
 
     rule_t& parser();
 
-    const ORO_CoreLib::DataSourceBase::shared_ptr lastParsed() const
+    const DataSourceBase::shared_ptr lastParsed() const
       {
         return ret;
       }

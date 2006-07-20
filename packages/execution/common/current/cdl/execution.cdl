@@ -6,5 +6,5 @@ This Package groups infrastructure for parsing and
 executing realtime program and task logic in the Orocos Framework."
 
     include_files Execution.hpp
-    include_dir execution
+    include_dir rtt
 }

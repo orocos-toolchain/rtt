@@ -36,10 +36,10 @@
  * Most Device Drivers have defined their own namespace again.
  * @see CAN
  * @see Beckhoff
- * @see ORO_DeviceInterface
+ * @see RTT
  *
  * The device drivers are documented in <a href="../../orocos-device-drivers.html">
  * The Orocos Device Drivers Online Manual</a>
  */
-namespace ORO_DeviceDriver {}
+namespace RTT {}
 

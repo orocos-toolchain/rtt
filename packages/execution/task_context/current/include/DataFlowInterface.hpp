@@ -32,7 +32,7 @@
 #include <vector>
 #include "PortInterface.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
 
     /**

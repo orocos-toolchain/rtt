@@ -27,16 +27,16 @@
  
  
 
-#include "corelib/TimerOneShot.hpp"
-#include "corelib/PeriodicActivity.hpp"
-#include <os/MutexLock.hpp>
+#include "rtt/TimerOneShot.hpp"
+#include "rtt/PeriodicActivity.hpp"
+#include <rtt/os/MutexLock.hpp>
 #include <algorithm>
-#include "corelib/Logger.hpp"
+#include "rtt/Logger.hpp"
 #include <assert.h>
-namespace ORO_CoreLib
+namespace RTT
 {
     using namespace detail;
-    using ORO_OS::MutexLock;
+    using OS::MutexLock;
     using std::find;
 
     TimerOneShot::TimerOneShot( nsecs task_period ) 

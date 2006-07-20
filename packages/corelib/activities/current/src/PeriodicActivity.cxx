@@ -28,26 +28,26 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "corelib/Time.hpp"
-#include "corelib/PeriodicActivity.hpp"
-#include "os/MutexLock.hpp"
-#include "corelib/Logger.hpp"
-#include "corelib/TimerThread.hpp"
-#include "corelib/EventProcessor.hpp"
+#include "rtt/Time.hpp"
+#include "rtt/PeriodicActivity.hpp"
+#include "rtt/os/MutexLock.hpp"
+#include "rtt/Logger.hpp"
+#include "rtt/TimerThread.hpp"
+#include "rtt/EventProcessor.hpp"
 
 // This define is used for creating and static_casting the Timer.
 #include <pkgconf/corelib_activities.h>
 #ifdef OROSEM_CORELIB_ACTIVITIES_TASKTIMER_TimerOneShot
-#include "corelib/TimerOneShot.hpp"
+#include "rtt/TimerOneShot.hpp"
 #elif defined(OROSEM_CORELIB_ACTIVITIES_TASKTIMER_TimerSequencer)
-#include "corelib/TimerSequencer.hpp"
+#include "rtt/TimerSequencer.hpp"
 #else
-#include "corelib/TimerOneShot.hpp" // default
+#include "rtt/TimerOneShot.hpp" // default
 #endif
 
 #include <cmath>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     using namespace detail;
     
@@ -228,7 +228,7 @@ namespace ORO_CoreLib
             runner->finalize();
     }
 
-    ORO_OS::ThreadInterface* PeriodicActivity::thread() { return thread_.get(); }
+    OS::ThreadInterface* PeriodicActivity::thread() { return thread_.get(); }
 
     EventProcessor* PeriodicActivity::getEventProcessor() const { return eprocessor_ == 0 ? thread_->getEventProcessor() : eprocessor_; }
 

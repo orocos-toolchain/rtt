@@ -10,7 +10,7 @@ cdl_package OROPKG_DEVICE_DRIVERS_APCI {
     requires OROPKG_DEVICE_INTERFACE_IO
     requires OROPKG_DEVICE_INTERFACE_ENCODER
 
-    include_dir device_drivers
+    include_dir rtt/dev
     # result to nop-classes if source compile option not enabled.
 #     include_files EncoderSSIapci1710.hpp EncoderIncrementalapci1710.hpp
 #     include_files EncoderIncremental.hpp

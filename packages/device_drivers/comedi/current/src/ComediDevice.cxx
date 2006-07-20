@@ -46,7 +46,7 @@
 */
 
 #include "comedi/ComediDevice.hpp"
-#include <os/fosi.h>
+#include <rtt/rtt/os/fosi.h>
 
 #include "comedi_internal.h"
 
@@ -55,7 +55,7 @@ extern "C"
 #include <cerrno>
 }
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
   typedef unsigned int Data;
 

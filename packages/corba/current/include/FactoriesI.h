@@ -60,8 +60,8 @@
 #define FACTORIESI_H_
 
 #include "FactoriesS.h"
-#include "execution/GlobalMemberFactory.hpp"
-#include "execution/GlobalCommandFactory.hpp"
+#include "GlobalMemberFactory.hpp"
+#include "GlobalCommandFactory.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -69,10 +69,10 @@
 
 class  Orocos_MethodInterface_i : public virtual POA_Orocos::MethodInterface, public virtual PortableServer::RefCountServantBase
 {
-    ORO_Execution::GlobalMemberFactory* mfact;
+    GlobalMemberFactory* mfact;
 public:
   //Constructor 
-  Orocos_MethodInterface_i (ORO_Execution::GlobalMemberFactory* mfact);
+  Orocos_MethodInterface_i (GlobalMemberFactory* mfact);
   
   //Destructor 
   virtual ~Orocos_MethodInterface_i (void);
@@ -158,10 +158,10 @@ public:
 
 class  Orocos_CommandInterface_i : public virtual POA_Orocos::CommandInterface, public virtual PortableServer::RefCountServantBase
 {
-    ORO_Execution::GlobalCommandFactory* mfact;
+    GlobalCommandFactory* mfact;
 public:
   //Constructor 
-  Orocos_CommandInterface_i (ORO_Execution::GlobalCommandFactory* fact);
+  Orocos_CommandInterface_i (GlobalCommandFactory* fact);
   
   //Destructor 
   virtual ~Orocos_CommandInterface_i (void);

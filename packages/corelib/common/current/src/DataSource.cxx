@@ -24,16 +24,16 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "corelib/DataSource.hpp"
-#include "corelib/TypeInfoName.hpp"
+#include "rtt/DataSource.hpp"
+#include "rtt/TypeInfoName.hpp"
 
 #include <pkgconf/os.h>
 #ifdef OROINT_OS_CORBA
-#include "corelib/AnyDataSource.hpp"
+#include "rtt/AnyDataSource.hpp"
 #endif
-#include "corelib/TemplateTypeInfo.hpp"
+#include "rtt/TemplateTypeInfo.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     DataSourceBase::DataSourceBase() { atomic_set(&refcount,0); }
@@ -142,10 +142,10 @@ namespace ORO_CoreLib
         if (ret) return ret;
 #ifdef OROINT_OS_CORBA
         // then try to see if it is a CORBA object.
-        //ORO_Corba::ExpressionProxyInterface* prox = dynamic_cast< ORO_Corba::ExpressionProxyInterface* >(dsb);
+        //Corba::ExpressionProxyInterface* prox = dynamic_cast< Corba::ExpressionProxyInterface* >(dsb);
         if ( dsb->hasServer() ) {
             ::Orocos::Expression_var expr = dsb->server() ;
-            return new ORO_Corba::CORBAExpression<void>( expr.in() );
+            return new Corba::CORBAExpression<void>( expr.in() );
         }
 #endif
         // all failed:
@@ -159,10 +159,10 @@ namespace ORO_CoreLib
         if (ret) return ret;
 #ifdef OROINT_OS_CORBA
         // then try to see if it is a CORBA object.
-        //ORO_Corba::ExpressionProxyInterface* prox = dynamic_cast< ORO_Corba::ExpressionProxyInterface* >(dsb);
+        //Corba::ExpressionProxyInterface* prox = dynamic_cast< Corba::ExpressionProxyInterface* >(dsb);
         if ( dsb->hasServer() ) {
             ::Orocos::Expression_var expr = dsb->server() ;
-            return new ORO_Corba::CORBAExpression<void>( expr.in() );
+            return new Corba::CORBAExpression<void>( expr.in() );
         }
 #endif
         // all failed:
@@ -180,7 +180,7 @@ namespace ORO_CoreLib
         if ( dsb->hasServer() ) {
             Logger::log() << Logger::Debug << "Narrowing server "<<dsb->getType() <<" to local CORBA::Any." <<Logger::endl;
             ::Orocos::Expression_var expr = dsb->server() ;
-            return new ORO_Corba::CORBAExpression<CORBA::Any_ptr>( expr.in() );
+            return new Corba::CORBAExpression<CORBA::Any_ptr>( expr.in() );
         }
         // last resort, try to do it as 'Any':
 #if 0
@@ -206,7 +206,7 @@ namespace ORO_CoreLib
         if ( dsb->hasServer() ) {
             Logger::log() << Logger::Debug << "Narrowing server "<<dsb->getType() <<" to local CORBA::Any." <<Logger::endl;
             ::Orocos::Expression_var expr = dsb->server() ;
-            return new ORO_Corba::CORBAExpression<CORBA::Any_ptr>( expr.in() );
+            return new Corba::CORBAExpression<CORBA::Any_ptr>( expr.in() );
         }
         // last resort, try to do it as 'Any':
         //CORBA::Any_var any = dsb->getAny();
@@ -239,7 +239,7 @@ namespace ORO_CoreLib
 
     namespace detail {
 
-        TypeInfo* DataSourceTypeInfo<ORO_CoreLib::detail::UnknownType>::TypeInfoObject = 0;
+        TypeInfo* DataSourceTypeInfo<detail::UnknownType>::TypeInfoObject = 0;
 
         const std::string& DataSourceTypeInfo<UnknownType>::getType() { return getTypeInfo()->getTypeName(); }
         const std::string& DataSourceTypeInfo<UnknownType>::getQualifier() { return noqual; }
@@ -269,12 +269,12 @@ namespace ORO_CoreLib
     }
 }
 
-void intrusive_ptr_add_ref(const ORO_CoreLib::DataSourceBase* p )
+void intrusive_ptr_add_ref(const RTT::DataSourceBase* p )
 {
   p->ref();
 }
 
-void intrusive_ptr_release(const ORO_CoreLib::DataSourceBase* p )
+void intrusive_ptr_release(const RTT::DataSourceBase* p )
 {
   p->deref();
 };

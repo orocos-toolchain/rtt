@@ -30,7 +30,7 @@
 
 #include "PeriodicActivity.hpp"
 
-namespace ORO_CoreLib
+namespace RTT
 {
     /**
      * @brief A NonPreemptibleActivity is a PeriodicActivity which will never be preempted by

@@ -16,13 +16,11 @@
  *                                                                         *
  ***************************************************************************/
 
-#include <device_drivers/SimulationAxis.hpp>
+#include <rtt/dev/SimulationAxis.hpp>
 #include <iostream>
 
-using namespace ORO_DeviceDriver;
-using namespace ORO_DeviceInterface;
-using namespace ORO_CoreLib;
 
+using namespace RTT;
 
 SimulationEncoder::SimulationEncoder(double initial, double min, double max):
     _position(initial),
@@ -65,7 +63,7 @@ SimulationEncoder::setDrive(double velocity)
   }
   
   // set new velocity and start time
-  _previous_time = ORO_CoreLib::TimeService::Instance()->getTicks();
+  _previous_time = TimeService::Instance()->getTicks();
   _velocity = velocity;
 }
 

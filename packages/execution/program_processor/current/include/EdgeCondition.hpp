@@ -47,13 +47,13 @@ namespace boost {
     BOOST_INSTALL_PROPERTY(edge, condition);
 }
 
-namespace ORO_CoreLib
+namespace RTT
 {
     class ConditionInterface;
     class DataSourceBase;
 }
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * @brief This class represents a conditional branch in a program
@@ -77,7 +77,7 @@ namespace ORO_Execution
          * check.
          * This EdgeCondition takes ownership of cond.
          */
-        EdgeCondition(ORO_CoreLib::ConditionInterface* cond );
+        EdgeCondition(ConditionInterface* cond );
 
         ~EdgeCondition();
 
@@ -85,7 +85,7 @@ namespace ORO_Execution
 
         EdgeCondition& operator=( const EdgeCondition& orig );
 
-        EdgeCondition copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& replacementdss ) const;
+        EdgeCondition copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const;
 
         /**
          * Reset the condition in this
@@ -103,15 +103,15 @@ namespace ORO_Execution
         /**
          * Return the condition coupled with this termination clause.
          */
-        ORO_CoreLib::ConditionInterface* getCondition() const;
+        ConditionInterface* getCondition() const;
 
         int getRank() const { return rank; }
     protected:
 
-        void setCondition(ORO_CoreLib::ConditionInterface* cond);
+        void setCondition(ConditionInterface* cond);
 
     private:
-        ORO_CoreLib::ConditionInterface* condition;
+        ConditionInterface* condition;
         int rank;
     };
 

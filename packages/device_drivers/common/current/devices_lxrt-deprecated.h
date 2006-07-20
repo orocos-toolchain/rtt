@@ -228,7 +228,7 @@ extern void JR3DSP_transformCoordinateSystem(double angle, double distance, unsi
 #include <stdarg.h>
 
 #define OROBLD_OS_LXRT_INTERNAL
-#include <os/fosi.h>
+#include <rtt/os/fosi.h>
 #undef OROBLD_OS_LXRT_INTERNAL
 
 

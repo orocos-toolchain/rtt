@@ -31,11 +31,11 @@
 #include "ActivityInterface.hpp"
 #include "TimerThread.hpp"
 #include "EventProcessor.hpp"
-#include <os/Mutex.hpp>
-#include <os/MutexLock.hpp>
+#include "os/Mutex.hpp"
+#include "os/MutexLock.hpp"
 #include <cassert>
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     /**
@@ -224,7 +224,7 @@ namespace ORO_CoreLib
 
         /**
          * @brief Public nameserver for Events.
-         * @see also ORO_Execution::EventService for a 'type-less'/universal
+         * @see also EventService for a 'type-less'/universal
          * Event nameserver.
          */
         static NameServer<EventType*> nameserver;

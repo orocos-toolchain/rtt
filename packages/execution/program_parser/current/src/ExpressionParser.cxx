@@ -25,22 +25,22 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "execution/parser-debug.hpp"
-#include "execution/parse_exception.hpp"
+#include "rtt/parser-debug.hpp"
+#include "rtt/parse_exception.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "execution/ExpressionParser.hpp"
+#include "rtt/ExpressionParser.hpp"
 
-#include "execution/ArgumentsParser.hpp"
-#include <corelib/Operators.hpp>
-#include <corelib/DataSourceCondition.hpp>
-#include "execution/DataSourceFactoryInterface.hpp"
+#include "rtt/ArgumentsParser.hpp"
+#include <rtt/Operators.hpp>
+#include <rtt/DataSourceCondition.hpp>
+#include "rtt/DataSourceFactoryInterface.hpp"
 
-#include "corelib/DataSourceTime.hpp"
-#include "execution/TaskContext.hpp"
-#include "execution/PeerParser.hpp"
+#include "rtt/DataSourceTime.hpp"
+#include "rtt/TaskContext.hpp"
+#include "rtt/PeerParser.hpp"
 
 #include <boost/lambda/lambda.hpp>
 
@@ -48,10 +48,10 @@
 #include <pkgconf/system.h>
 #include <iostream>
 
-namespace ORO_Execution
+namespace RTT
 {
     using boost::bind;
-    using namespace ORO_CoreLib;
+    
     using namespace detail;
     using namespace std;
 

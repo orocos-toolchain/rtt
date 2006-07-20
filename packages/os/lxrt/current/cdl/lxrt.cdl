@@ -9,7 +9,7 @@ support for all packages used in Orocos."
 
     requires OROPKG_SUPPORT_RTAI
 
-    include_dir os
+    include_dir rtt/os
     parent OROPKG_OS
 
     hardware

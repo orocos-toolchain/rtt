@@ -35,7 +35,7 @@
 
 // here we define some generally useful template stuff that is missing
 // from the STL..
-namespace ORO_std {
+namespace RTT {
 
     // combines remove_reference and remove_const
     template<typename T>
@@ -173,7 +173,7 @@ namespace std
 }
 
 // STL extensions, some are SGI extensions, others are my own..
-namespace ORO_std
+namespace RTT
 {
 
   template<typename T>
@@ -342,7 +342,7 @@ namespace ORO_std
       }
   };
 #endif
-} // namespace ORO_std
+} // namespace RTT
 
 
 

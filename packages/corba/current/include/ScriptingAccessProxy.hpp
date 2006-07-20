@@ -29,17 +29,17 @@
 #ifndef ORO_EXECUTION_SCRIPTING_ACCESS_PROXY_HPP
 #define ORO_EXECUTION_SCRIPTING_ACCESS_PROXY_HPP
 
-#include "execution/ScriptingAccess.hpp"
+#include "ScriptingAccess.hpp"
 #include "ScriptingAccessC.h"
 
-namespace ORO_Corba
+namespace Corba
 {
 
     /**
      * A Corba Proxy for the ScriptingAccess class.
      */
     class ScriptingAccessProxy
-        : public ORO_Execution::ScriptingAccess
+        : public ScriptingAccess
     {
     protected:
         Orocos::ScriptingAccess_var msa;

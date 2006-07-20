@@ -28,12 +28,12 @@
 #ifndef PI_PROPERTIES_OROCOS1_DEMARSHALLER
 #define PI_PROPERTIES_OROCOS1_DEMARSHALLER
 
-#include <corelib/Property.hpp>
-#include <corelib/Marshaller.hpp>
+#include <rtt/Property.hpp>
+#include <rtt/Marshaller.hpp>
 #include <istream>
 
 
-namespace ORO_CoreLib
+namespace RTT
 {
 	/**
 	 * A demarshaller which parses data compatible with the previous Orocos property system.

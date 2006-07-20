@@ -27,16 +27,16 @@
 #ifndef _AXISINTERFACE_HPP
 #define _AXISINTERFACE_HPP
 
-#include <device_interface/SensorInterface.hpp>
+#include "SensorInterface.hpp"
 #include <string>
 #include <vector>
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
   class DigitalInput;
 }
 
-namespace ORO_DeviceInterface
+namespace RTT
 {
 
 class AxisInterface
@@ -92,7 +92,7 @@ public:
   /**
    * @brief Retrieve a sensor from the Axis.
    */
-  virtual ORO_DeviceInterface::SensorInterface<double>* getSensor(const std::string& name) const = 0;
+  virtual SensorInterface<double>* getSensor(const std::string& name) const = 0;
 
   /**
    * @brief Retrieve a list of the sensor from the Axis.
@@ -102,7 +102,7 @@ public:
   /**
    * @brief Retrieve a switch (digital input) from the Axis.
    */
-  virtual ORO_DeviceDriver::DigitalInput* getSwitch(const std::string& name) const = 0;
+  virtual DigitalInput* getSwitch(const std::string& name) const = 0;
 
   /**
    * @brief Retrieve a list of the digital input switches from the Axis.
@@ -112,7 +112,7 @@ public:
   /**
    * @brief Retrieve a counter from the Axis.
    */
-  virtual ORO_DeviceInterface::SensorInterface<int>* getCounter(const std::string& name) const = 0;
+  virtual SensorInterface<int>* getCounter(const std::string& name) const = 0;
 
   /**
    * @brief Retrieve a list of the counter from the Axis.
@@ -122,7 +122,7 @@ public:
 };
 
 
-}; // namespace ORO_DeviceInterface
+}; // namespace RTT
 
 #endif //_AXISINTERFACE_HPP
 

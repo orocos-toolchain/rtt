@@ -33,7 +33,7 @@
 #include "TaskContext.hpp"
 #include "StateMachine.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     class StateMachineTask;
     typedef boost::shared_ptr<StateMachineTask> StateMachineTaskPtr;
@@ -48,7 +48,7 @@ namespace ORO_Execution
         //boost::weak_ptr<StateMachine> sm;
         // used when state machines are copied.
         // functions have a similar mechanism
-        ORO_CoreLib::ValueDataSource< StateMachineWPtr >::shared_ptr _this; 
+        ValueDataSource< StateMachineWPtr >::shared_ptr _this; 
         //VariableDataSource<StateMachineTask*> _this; 
         bool true_gen() const;
 
@@ -56,7 +56,7 @@ namespace ORO_Execution
         void createMethodFactory();
 
     public:
-        StateMachineTask* copy(StateMachinePtr newsc, std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& replacements, bool instantiate );
+        StateMachineTask* copy(StateMachinePtr newsc, std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate );
 
         /**
          * By constructing this object, a stateMachine is added to a taskcontext

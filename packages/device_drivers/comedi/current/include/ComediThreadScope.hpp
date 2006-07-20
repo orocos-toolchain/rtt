@@ -33,7 +33,7 @@
 #include "comedi/ComediDevice.hpp"
 #include "comedi/ComediSubDeviceDOut.hpp"
 
-namespace ORO_DeviceDriver
+namespace RTT
 {
 
     /**

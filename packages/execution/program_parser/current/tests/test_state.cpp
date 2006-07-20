@@ -1,10 +1,10 @@
 #define BOOST_SPIRIT_DEBUG 1
 
 #include "FakeComponent.hpp"
-#include "execution/StateGraphParser.hpp"
-#include "execution/ParsedStateContext.hpp"
-#include "execution/GlobalFactory.hpp"
-#include "execution/Processor.hpp"
+#include "rtt/StateGraphParser.hpp"
+#include "rtt/ParsedStateContext.hpp"
+#include "rtt/GlobalFactory.hpp"
+#include "rtt/Processor.hpp"
 #include "control_kernel/ExecutionExtension.hpp"
 #include "control_kernel/KernelInterfaces.hpp"
 
@@ -13,7 +13,7 @@
 #include <fstream>
 #include <iomanip>
 
-using namespace ORO_Execution;
+
 using ORO_ControlKernel::ExecutionExtension;
 using ORO_ControlKernel::ControlKernelInterface;
 

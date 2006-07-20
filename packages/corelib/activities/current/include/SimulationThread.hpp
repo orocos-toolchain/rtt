@@ -33,7 +33,7 @@
 #include "TimerThread.hpp"
 
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     class SimulationActivity;
@@ -75,7 +75,7 @@ namespace ORO_CoreLib
         virtual bool start()
         {
             maxsteps_ = 0;
-            return ORO_OS::PeriodicThread::start();
+            return OS::PeriodicThread::start();
         }
 
         /**
@@ -87,10 +87,10 @@ namespace ORO_CoreLib
             if (maxsteps == 0)
                 return false;
             maxsteps_ = maxsteps;
-            return ORO_OS::PeriodicThread::start();
+            return OS::PeriodicThread::start();
         }
 
-        using ORO_OS::PeriodicThread::run;
+        using OS::PeriodicThread::run;
         /**
          * Execute \a maxsteps steps immediately. This function will
          * call the step() functions \a maxsteps times, without requiring
@@ -125,6 +125,6 @@ namespace ORO_CoreLib
 
         unsigned int maxsteps_, cursteps;
     };
-} // namespace ORO_CoreLib
+} // namespace RTT
 
 #endif

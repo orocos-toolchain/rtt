@@ -27,21 +27,21 @@
  
  
 
-#include <os/Semaphore.hpp>
-#include <corelib/CompletionProcessor.hpp>
-#include <corelib/Logger.hpp>
-#include <execution/ExecutionEngine.hpp>
-#include <execution/TaskCore.hpp>
+#include <rtt/os/Semaphore.hpp>
+#include <rtt/CompletionProcessor.hpp>
+#include <rtt/Logger.hpp>
+#include <rtt/ExecutionEngine.hpp>
+#include <rtt/TaskCore.hpp>
 #include <algorithm>
 
-namespace ORO_Execution
+namespace RTT
 {
-    using namespace ORO_CoreLib;
+    
     using namespace std;
 
     ExecutionEngine::ExecutionEngine( TaskCore* owner, ExecutionEngine* parent /* = 0 */ )
-        : work_sem( parent ? 0 : new ORO_OS::Semaphore(0)),
-          loop_sem( parent ? 0 : new ORO_OS::Semaphore(0)),
+        : work_sem( parent ? 0 : new OS::Semaphore(0)),
+          loop_sem( parent ? 0 : new OS::Semaphore(0)),
           taskc(owner),
           mainee(parent ? parent->getParent() : 0),
           cproc( mainee ? 0 : new CommandProcessor(ORONUM_EXECUTION_PROC_QUEUE_SIZE, work_sem) ),
@@ -273,12 +273,12 @@ namespace ORO_Execution
         }
     }
 
-    ORO_CoreLib::EventProcessor* ExecutionEngine::events() const {
+    EventProcessor* ExecutionEngine::events() const {
         return mainee ? mainee->events() : eproc;
     }
 
 
-    ORO_CoreLib::EventProcessor* ExecutionEngine::getEventProcessor() const {
+    EventProcessor* ExecutionEngine::getEventProcessor() const {
         return mainee ? mainee->events() : eproc;
     }
 

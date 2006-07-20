@@ -25,20 +25,20 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "corelib/NonRealTimeThread.hpp"
-#include "os/MutexLock.hpp"
-#include <os/threads.hpp>
-#include "corelib/Time.hpp"
+#include "rtt/NonRealTimeThread.hpp"
+#include "rtt/os/MutexLock.hpp"
+#include <rtt/os/threads.hpp>
+#include "rtt/Time.hpp"
 #ifdef OROPKG_CORELIB_REPORTING
-#include "corelib/Logger.hpp"
+#include "rtt/Logger.hpp"
 #endif
 
-#include "corelib/NonRealTimeActivity.hpp"
+#include "rtt/NonRealTimeActivity.hpp"
 #include "pkgconf/corelib_activities.h"
 
 #ifdef OROSEM_CORELIB_ACTIVITIES_AUTOSTART
-#include <os/StartStopManager.hpp>
-namespace ORO_CoreLib
+#include <rtt/os/StartStopManager.hpp>
+namespace RTT
 {
     namespace
     {
@@ -53,13 +53,13 @@ namespace ORO_CoreLib
             NonRealTimeThread::Release();
         }
 
-        ORO_OS::InitFunction NRTInit( &startNRTThread );
-        ORO_OS::CleanupFunction NRTCleanup( &stopNRTThread );
+        OS::InitFunction NRTInit( &startNRTThread );
+        OS::CleanupFunction NRTCleanup( &stopNRTThread );
     }
 }
 #endif
 
-namespace ORO_CoreLib
+namespace RTT
 {
 
     TimerThreadPtr NonRealTimeThread::cp;
@@ -80,7 +80,7 @@ namespace ORO_CoreLib
     }
 
     NonRealTimeThread::NonRealTimeThread()
-        : TimerThread(ORO_OS::LowestPriority + ORO_OS::IncreasePriority,
+        : TimerThread(OS::LowestPriority + OS::IncreasePriority,
                       ORODAT_CORELIB_ACTIVITIES_NRT_NAME,
                       ORONUM_CORELIB_ACTIVITIES_NRT_PERIOD )
     {

@@ -28,17 +28,17 @@
 // TAO_IDL - Generated from 
 // be/be_codegen.cpp:910
 
-#include "corba/ExecutionEngineI.h"
-#include "execution/ExecutionEngine.hpp"
-#include "execution/ProgramLoader.hpp"
-#include "execution/parse_exception.hpp"
+#include "rtt/corba/ExecutionEngineI.h"
+#include "rtt/ExecutionEngine.hpp"
+#include "rtt/ProgramLoader.hpp"
+#include "rtt/parse_exception.hpp"
 #include <sstream>
 
 using namespace std;
-using namespace ORO_Execution;
+
 
 // Implementation skeleton constructor
-Orocos_ExecutionEngine_i::Orocos_ExecutionEngine_i (ORO_Execution::ExecutionEngine& ee)
+Orocos_ExecutionEngine_i::Orocos_ExecutionEngine_i (ExecutionEngine& ee)
     :mee(ee), sproc( ee.getTaskContext() )
 {
 }

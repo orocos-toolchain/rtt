@@ -29,7 +29,7 @@
 #ifndef KINEMATICSFACTORY_HPP
 #define KINEMATICSFACTORY_HPP
 
-#include <corelib/Logger.hpp>
+#include <rtt/Logger.hpp>
 #include <math.h>
 #include <iostream>
 #include "KinematicsInterface.hpp"
@@ -155,7 +155,7 @@ namespace ORO_KinDyn
         static bool AddSerial321Device( std::string name, std::string kind, 
                                         double l1, double l2, double l3, double l4, double l5, double l6,
                                         double offset = 0.0, double eccentricity = 0.0) {
-            using ORO_CoreLib::Logger;
+            using RTT::Logger;
             Logger::In in("KinematicsFactory::AddSerial321Device");
             bool result= getInstance()->addSerial321Device( name, kind, l1,l2,l3,l4,l5,l6, offset, eccentricity);
             if ( !result)
@@ -172,8 +172,8 @@ namespace ORO_KinDyn
          * @retval false if \a name was already used or \a kind is unknown.
          */
         static bool AddSerial321Device( std::string name, Serial321* device) {
-            using ORO_CoreLib::Logger;
-            ORO_CoreLib::Logger::In in("KinematicsFactory::AddSerial321Device");
+            using RTT::Logger;
+            RTT::Logger::In in("KinematicsFactory::AddSerial321Device");
             bool result= getInstance()->addSerial321Device( name, device);
             if ( !result)
                 Logger::log() << Logger::Error << "Could not add robot kinematics for type " << name << Logger::endl;
@@ -181,8 +181,8 @@ namespace ORO_KinDyn
         }
 
         static bool RemoveSerial321Device( std::string name ) {
-            using ORO_CoreLib::Logger;
-            ORO_CoreLib::Logger::In in("KinematicsFactory::RemoveSerial321Device");
+            using RTT::Logger;
+            RTT::Logger::In in("KinematicsFactory::RemoveSerial321Device");
             bool result= getInstance()->removeSerial321Device(name);
             if ( !result)
                 Logger::log() << Logger::Error << "Could not remove robot kinematics for type " << name << Logger::endl;
@@ -206,7 +206,7 @@ namespace ORO_KinDyn
          * @return A KinematicInterface instance or zero if the device is not found.
          */
         static KinematicsInterface* Create(const std::string& name) {
-            using ORO_CoreLib::Logger;
+            using RTT::Logger;
             Logger::In in("KinematicsFactory::Create");
             if (!HasDevice(name) )
                 Logger::log() << Logger::Error << "Unknown device: " << name << Logger::endl;
@@ -227,7 +227,7 @@ namespace ORO_KinDyn
          * Save an added device's parameters to an XML file.
          */
         static bool SaveDevice(std::string name, std::string filename) {
-            using ORO_CoreLib::Logger;
+            using RTT::Logger;
             Logger::In in("KinematicsFactory::SaveDevice");
             if (!HasDevice(name) )
                 Logger::log() << Logger::Error << "Unknown device: " << name << Logger::endl;
@@ -243,7 +243,7 @@ namespace ORO_KinDyn
          * created KinematicInterface objects are not altered !
          */
         static bool LoadDevice(std::string filename) {
-            using ORO_CoreLib::Logger;
+            using RTT::Logger;
             Logger::In in("KinematicsFactory::LoadDevice");
             bool result= getInstance()->loadDevice(filename);
             if ( !result)

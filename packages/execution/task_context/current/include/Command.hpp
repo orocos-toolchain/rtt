@@ -6,7 +6,7 @@
 #include "LocalCommand.hpp"
 #include "UnMember.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * A Command is a function which can be sent to a

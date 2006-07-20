@@ -26,14 +26,14 @@
  ***************************************************************************/
  
  
-#include "execution/MapDataSourceFactory.hpp"
-#include "corelib/mystd.hpp"
-#include "corelib/Exceptions.hpp"
+#include "rtt/MapDataSourceFactory.hpp"
+#include "rtt/mystd.hpp"
+#include "rtt/Exceptions.hpp"
 
-using namespace ORO_std;
-using namespace ORO_CoreLib;
 
-namespace ORO_Execution
+
+
+namespace RTT
 {
 
        MapDataSourceFactory::MapDataSourceFactory( const map_t& map, const std::string& d )
@@ -47,7 +47,7 @@ namespace ORO_Execution
 
         std::vector<std::string> MapDataSourceFactory::getNames() const
         {
-            return ORO_std::keys( mmap );
+            return keys( mmap );
         }
 
         bool MapDataSourceFactory::hasMember( const std::string& s ) const

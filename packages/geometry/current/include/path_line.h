@@ -69,7 +69,7 @@ class Path_Line : public Path
 
 		double eqradius;  // equivalent radius
 
-		// verdeling baanlengte over pos/rot
+		// verdeling baanlengte over prtt/os/rot
 		double pathlength;
 		double scalelin;
 		double scalerot;

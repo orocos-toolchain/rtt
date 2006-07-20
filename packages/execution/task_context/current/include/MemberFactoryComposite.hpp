@@ -31,7 +31,7 @@
 
 #include "MemberFactoryInterface.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * Used by the GlobalFactory to merge two
@@ -86,7 +86,7 @@ namespace ORO_Execution
         }
 
 
-        ORO_CoreLib::PropertyBag
+        PropertyBag
         getArgumentSpec( const std::string& member ) const
         {
             if ( one->hasMember( member ) )
@@ -101,26 +101,26 @@ namespace ORO_Execution
             return other->getArgumentList(member);
         }
 
-        ORO_CoreLib::DataSourceBase* create( const std::string& member,
-                       const ORO_CoreLib::PropertyBag& args ) const
+        DataSourceBase* create( const std::string& member,
+                       const PropertyBag& args ) const
         {
             if ( one->hasMember( member ) )
                 return one->create(member, args);
             return other->create(member, args);
         }
 
-        ORO_CoreLib::DataSourceBase* create(
+        DataSourceBase* create(
                       const std::string& member,
-                      const std::vector<ORO_CoreLib::DataSourceBase*>& args ) const
+                      const std::vector<DataSourceBase*>& args ) const
         {
             if ( one->hasMember( member ) )
                 return one->create(member, args);
             return other->create(member, args);
         }
 
-        ORO_CoreLib::DataSourceBase* create(
+        DataSourceBase* create(
                       const std::string& member,
-                      const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args ) const
+                      const std::vector<DataSourceBase::shared_ptr>& args ) const
         {
             if ( one->hasMember( member ) )
                 return one->create(member, args);

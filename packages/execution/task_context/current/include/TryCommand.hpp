@@ -29,15 +29,15 @@
 #ifndef ORO_TRY_COMMAND_HPP
 #define ORO_TRY_COMMAND_HPP
 
-#include <corelib/CommandInterface.hpp>
-#include <corelib/ConditionInterface.hpp>
-#include <corelib/Logger.hpp>
+#include "CommandInterface.hpp"
+#include "ConditionInterface.hpp"
+#include "Logger.hpp"
 #include "DataSource.hpp"
 
-namespace ORO_Execution 
+namespace RTT 
 {
-    using ORO_CoreLib::CommandInterface;
-    using ORO_CoreLib::ConditionInterface;
+    
+    
 
     /**
      * A command which tries another command
@@ -75,7 +75,7 @@ namespace ORO_Execution
 
         TryCommand* clone() const;
 
-        TryCommand* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const;
+        TryCommand* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     };
 
     /**
@@ -104,7 +104,7 @@ namespace ORO_Execution
 
         ConditionInterface* clone() const;
 
-        ConditionInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const;
+        ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     };
 
     /**
@@ -136,7 +136,7 @@ namespace ORO_Execution
 
         CommandInterface* clone() const;
 
-        CommandInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const;
+        CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     };
 
     /**
@@ -157,7 +157,7 @@ namespace ORO_Execution
 
         ConditionInterface* clone() const;
 
-        ConditionInterface* copy( std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& alreadyCloned ) const;
+        ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     };
 }
     

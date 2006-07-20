@@ -28,12 +28,12 @@
 #ifndef BECKHOFFDOUT_HPP
 #define BECKHOFFDOUT_HPP
 
-#include <device_interface/DigitalOutInterface.hpp>
+#include "DigitalOutInterface.hpp"
 
 namespace Beckhoff
 {
-    using namespace ORO_CoreLib;
-    using ORO_DeviceInterface::DigitalOutInterface;
+    
+    
 
 	/**
      * @brief A class representing an Beckhoff Digital Out Terminal.

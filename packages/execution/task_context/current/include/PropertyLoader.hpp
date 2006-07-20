@@ -32,13 +32,13 @@
 #include <string>
 #include "TaskContext.hpp"
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * Load and save property files
      * to a TaskContext's AttributeRepository.
      * The default file format is 'cpf' from the
-     * ORO_CoreLib::CPFMarshaller class. You can select
+     * CPFMarshaller class. You can select
      * another file format using the configuration tool
      * in CoreLib->Properties->Marshalling->Default.
      */
@@ -52,7 +52,7 @@ namespace ORO_Execution
          * @param filename The file to read from.
          * @param target   The TaskContext to configure.
          * @param strict   Do not change any target Property if something goes wrong
-         * @return true on success, false on error, consult ORO_CoreLib::Logger output for messages.
+         * @return true on success, false on error, consult Logger output for messages.
          */
         bool configure(const std::string& filename, TaskContext* target, bool strict = true) const;
 
@@ -63,7 +63,7 @@ namespace ORO_Execution
          * between tasks.
          * @param filename The file to read from and write to (updating).
          * @param target   The TaskContext to configure.
-         * @return true on success, false on error, consult ORO_CoreLib::Logger output for messages.
+         * @return true on success, false on error, consult Logger output for messages.
          */
         bool save(const std::string& filename, TaskContext* target) const;
 

@@ -31,7 +31,7 @@
 
 #include "SensorInterface.hpp"
 
-namespace ORO_DeviceInterface
+namespace RTT
 {
 
     /**

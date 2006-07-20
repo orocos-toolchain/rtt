@@ -27,15 +27,15 @@
  
  
 
-#include "corba/ScriptingAccessProxy.hpp"
-#include "corba/ScriptingAccessC.h"
-#include "execution/ProgramExceptions.hpp"
+#include "rtt/corba/ScriptingAccessProxy.hpp"
+#include "rtt/corba/ScriptingAccessC.h"
+#include "rtt/ProgramExceptions.hpp"
 
 
-namespace ORO_Corba
+namespace Corba
 {
     using namespace std;
-    using namespace ORO_Execution;
+    
 
     ScriptingAccessProxy::~ScriptingAccessProxy()
     {

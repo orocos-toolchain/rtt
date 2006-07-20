@@ -6,7 +6,7 @@
 
 #include <string>
 
-namespace ORO_Execution
+namespace RTT
 {
     /**
      * The minimal Orocos task. It has a name and an ExecutionEngine

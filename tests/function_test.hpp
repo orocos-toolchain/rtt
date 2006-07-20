@@ -22,15 +22,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <execution/Parser.hpp>
-#include <execution/ExecutionEngine.hpp>
-#include <execution/TaskContext.hpp>
-#include <execution/Factories.hpp>
+#include <rtt/Parser.hpp>
+#include <rtt/ExecutionEngine.hpp>
+#include <rtt/TaskContext.hpp>
+#include <rtt/Factories.hpp>
 #include <string>
-#include <corelib/SimulationActivity.hpp>
+#include <rtt/SimulationActivity.hpp>
 
-using namespace ORO_CoreLib;
-using namespace ORO_Execution;
+using namespace RTT;
+using namespace RTT;
 
 class FunctionTest : public CppUnit::TestFixture
 {

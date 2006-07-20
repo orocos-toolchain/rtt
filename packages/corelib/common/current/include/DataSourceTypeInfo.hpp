@@ -31,7 +31,7 @@
 
 #include <string>
 
-namespace ORO_CoreLib
+namespace RTT
 {
     class TypeInfo;
 

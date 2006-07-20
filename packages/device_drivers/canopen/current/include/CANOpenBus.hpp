@@ -34,7 +34,7 @@
 
 #include <list>
 #include <algorithm>
-#include <os/rtstreams.hpp>
+#include <rtt/os/rtstreams.hpp>
 
 namespace CAN
 {

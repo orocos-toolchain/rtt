@@ -29,7 +29,7 @@
 /**
  * @file Properties.hpp
  * This file includes the common header files from the 
- * ORO_CoreLib properties package.
+ * RTT properties package.
  */
 
 #include "Property.hpp"
