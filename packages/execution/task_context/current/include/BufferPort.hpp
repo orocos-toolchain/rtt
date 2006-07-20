@@ -32,8 +32,8 @@
 #include <string>
 #include "PortInterface.hpp"
 #include "BufferConnectionInterface.hpp"
-#include "TemplateDataSourceFactory.hpp"
-#include "MemberFactoryComposite.hpp"
+#include "OperationInterface.hpp"
+#include "Method.hpp"
 
 namespace ORO_Execution
 {
@@ -83,6 +83,16 @@ namespace ORO_Execution
             return false;
         }
 
+        /**
+         * Get the next value to be Pop()'ed, or
+         * the default value if empty.
+         */
+        T front() const {
+            if (mconn)
+                return mconn->read()->front();
+            return T();
+        }
+
         bool connected() const { return mconn; };
 
         /**
@@ -103,6 +113,56 @@ namespace ORO_Execution
             return other->addReader( this );
         }
 
+        /**
+         * Clears all contents of this buffer.
+         */
+        void clear() {
+            if (mconn)
+                return mconn->read()->clear();
+        }
+
+        /**
+         * Returns the actual number of items that are stored in the
+         * buffer.
+         * @return number of items.
+         */
+        BufferBase::size_type size() const {
+            if (mconn)
+                return mconn->read()->size();
+            return 0;
+        }
+
+        /**
+         * Returns the maximum number of items that can be stored in the
+         * buffer.
+         * @return maximum number of items.
+         */
+        BufferBase::size_type capacity() const {
+            if (mconn)
+                return mconn->read()->capacity();
+            return 0;
+        }
+            
+        /**
+         * Check if this buffer is empty.
+         * @return true if size() == 0
+         */
+        bool empty() const {
+            if (mconn)
+                return mconn->read()->empty();
+            return 0;
+        }
+            
+        /**
+         * Check if this buffer is full.
+         * @return true if size() == capacity()
+         */
+        bool full() const {
+            if (mconn)
+                return mconn->read()->full();
+            return 0;
+        }
+
         virtual PortInterface* clone() const {
             return new ReadBufferPort<T>( this->getName() );
         }
@@ -113,23 +173,25 @@ namespace ORO_Execution
          */
         virtual PortInterface* antiClone() const;
 
-        virtual DataSourceFactoryInterface* createDataSources() {
+        virtual OperationInterface* createPortObject() {
 #ifndef ORO_EMBEDDED
-            if ( !mconn )
-                return 0;
-            TemplateDataSourceFactory<ORO_CoreLib::ReadInterface<T> >* datas = newDataSourceFactory( mconn->read() );
-            bool (ORO_CoreLib::ReadInterface<T>::*PopPtr)(typename ORO_CoreLib::ReadInterface<T>::reference_t) = &ORO_CoreLib::ReadInterface<T>::Pop;
-            datas->add( "Pop", data( PopPtr, "Pop a single value from the Buffer. Returns false if empty.",
-                                     "Val", "The value returned by argument.") );
-            datas->add( "front", data( &ORO_CoreLib::ReadInterface<T>::front, "Get the next to be popped value from the buffer. Returns default value if buffer is empty."));
-
-            TemplateDataSourceFactory<ORO_CoreLib::BufferBase>* datab = newDataSourceFactory<ORO_CoreLib::BufferBase>( mconn->read() );
-            datab->add("size", data( &ORO_CoreLib::BufferBase::size, "Get the used size of the buffer."));
-            datab->add("capacity", data( &ORO_CoreLib::BufferBase::capacity, "Get the capacity of the buffer."));
-            datab->add("empty", data( &ORO_CoreLib::BufferBase::empty, "Inspect if the buffer is empty."));
-            datab->add("full", data( &ORO_CoreLib::BufferBase::full, "Inspect if the buffer is full."));
-
-            return new MemberFactoryComposite( datas, datab );
+            TaskObject* to = new TaskObject( this->getName() );
+            to->methods()->addMethod(method("Pop", &ReadBufferPort<T>::Pop, this),
+                                     "Pop a single value from the Buffer. Returns false if empty.",
+                                     "Val", "The value returned by argument.");
+            to->methods()->addMethod(method("front", &ReadBufferPort<T>::front, this),
+                                     "Get the next to be popped value from the buffer. Returns default value if buffer is empty.");
+            to->methods()->addMethod(method("size", &ReadBufferPort<T>::size, this),
+                                     "Get the used size of the buffer.");
+            to->methods()->addMethod(method("capacity", &ReadBufferPort<T>::capacity, this),
+                                     "Get the capacity of the buffer.");
+            to->methods()->addMethod(method("empty", &ReadBufferPort<T>::empty, this),
+                                     "Inspect if the buffer is empty.");
+            to->methods()->addMethod(method("full", &ReadBufferPort<T>::full, this),
+                                     "Inspect if the buffer is full.");
+            to->methods()->addMethod(method("clear", &ReadBufferPort<T>::clear, this),
+                                     "Clear the contents of the buffer.");
+            return to;
 #else
             return 0;
 #endif
@@ -232,6 +294,57 @@ namespace ORO_Execution
             mconn = 0;
         }
 
+
+        /**
+         * Clears all contents of this buffer.
+         */
+        void clear() {
+            if (mconn)
+                return mconn->write()->clear();
+        }
+
+        /**
+         * Returns the actual number of items that are stored in the
+         * buffer.
+         * @return number of items.
+         */
+        BufferBase::size_type size() const {
+            if (mconn)
+                return mconn->write()->size();
+            return 0;
+        }
+
+        /**
+         * Returns the maximum number of items that can be stored in the
+         * buffer.
+         * @return maximum number of items.
+         */
+        BufferBase::size_type capacity() const {
+            if (mconn)
+                return mconn->write()->capacity();
+            return 0;
+        }
+            
+        /**
+         * Check if this buffer is empty.
+         * @return true if size() == 0
+         */
+        bool empty() const {
+            if (mconn)
+                return mconn->write()->empty();
+            return 0;
+        }
+            
+        /**
+         * Check if this buffer is full.
+         * @return true if size() == capacity()
+         */
+        bool full() const {
+            if (mconn)
+                return mconn->write()->full();
+            return 0;
+        }
+
         virtual PortInterface* clone() const {
             return new WriteBufferPort<T>( this->getName(), buf_size, minitial_value );
         }
@@ -240,21 +353,23 @@ namespace ORO_Execution
             return new ReadBufferPort<T>( this->getName() );
         }
 
-        virtual DataSourceFactoryInterface* createDataSources() {
+        virtual OperationInterface* createPortObject() {
 #ifndef ORO_EMBEDDED
-            if ( !mconn )
-                return 0;
-            TemplateDataSourceFactory<ORO_CoreLib::WriteInterface<T> >* datas = newDataSourceFactory( mconn->write() );
-            bool (ORO_CoreLib::WriteInterface<T>::*PushPtr)(typename ORO_CoreLib::WriteInterface<T>::param_t) = &ORO_CoreLib::WriteInterface<T>::Push;
-            datas->add("Push", data( PushPtr, "Push a single value in the Buffer. Returns false if full.",
-                                        "Val", "The value.") );
-
-            TemplateDataSourceFactory<ORO_CoreLib::BufferBase>* datab = newDataSourceFactory<ORO_CoreLib::BufferBase>( mconn->write() );
-            datab->add("size", data( &ORO_CoreLib::BufferBase::size, "Get the used size of the buffer."));
-            datab->add("capacity", data( &ORO_CoreLib::BufferBase::capacity, "Get the capacity of the buffer."));
-            datab->add("empty", data( &ORO_CoreLib::BufferBase::empty, "Inspect if the buffer is empty."));
-            datab->add("full", data( &ORO_CoreLib::BufferBase::full, "Inspect if the buffer is full."));
-            return new MemberFactoryComposite( datas, datab );
+            TaskObject* to = new TaskObject( this->getName() );
+            to->methods()->addMethod(method("Push", &WriteBufferPort<T>::Push, this),
+                                     "Push a single value in the Buffer. Returns false if full().",
+                                     "Val", "The value.");
+            to->methods()->addMethod(method("size", &WriteBufferPort<T>::size, this),
+                                     "Get the used size of the buffer.");
+            to->methods()->addMethod(method("capacity", &WriteBufferPort<T>::capacity, this),
+                                     "Get the capacity of the buffer.");
+            to->methods()->addMethod(method("empty", &WriteBufferPort<T>::empty, this),
+                                     "Inspect if the buffer is empty.");
+            to->methods()->addMethod(method("full", &WriteBufferPort<T>::full, this),
+                                     "Inspect if the buffer is full.");
+            to->methods()->addMethod(method("clear", &WriteBufferPort<T>::clear, this),
+                                     "Clear the contents of the buffer.");
+            return to;
 #else
             return 0;
 #endif
@@ -342,6 +457,56 @@ namespace ORO_Execution
             ReadBufferPort<T>::disconnect();
         }
 
+        /**
+         * Clears all contents of this buffer.
+         */
+        void clear() {
+            if (mconn)
+                return mconn->buffer()->clear();
+        }
+
+        /**
+         * Returns the actual number of items that are stored in the
+         * buffer.
+         * @return number of items.
+         */
+        BufferBase::size_type size() const {
+            if (mconn)
+                return mconn->buffer()->size();
+            return 0;
+        }
+
+        /**
+         * Returns the maximum number of items that can be stored in the
+         * buffer.
+         * @return maximum number of items.
+         */
+        BufferBase::size_type capacity() const {
+            if (mconn)
+                return mconn->buffer()->capacity();
+            return 0;
+        }
+            
+        /**
+         * Check if this buffer is empty.
+         * @return true if size() == 0
+         */
+        bool empty() const {
+            if (mconn)
+                return mconn->buffer()->empty();
+            return 0;
+        }
+            
+        /**
+         * Check if this buffer is full.
+         * @return true if size() == capacity()
+         */
+        bool full() const {
+            if (mconn)
+                return mconn->buffer()->full();
+            return 0;
+        }
+
         virtual PortInterface* clone() const {
             return new BufferPort<T>( this->getName(), this->buf_size, this->minitial_value );
         }
@@ -350,26 +515,28 @@ namespace ORO_Execution
             return new BufferPort<T>( this->getName(), this->buf_size, this->minitial_value );
         }
 
-        virtual DataSourceFactoryInterface* createDataSources() {
+        virtual OperationInterface* createPortObject() {
 #ifndef ORO_EMBEDDED
-            if ( !mconn )
-                return 0;
-            TemplateDataSourceFactory<ORO_CoreLib::BufferInterface<T> >* datas = newDataSourceFactory( mconn->buffer() );
-            bool (ORO_CoreLib::BufferInterface<T>::*PushPtr)(typename ORO_CoreLib::BufferInterface<T>::param_t) = &ORO_CoreLib::BufferInterface<T>::Push;
-            bool (ORO_CoreLib::BufferInterface<T>::*PopPtr)(typename ORO_CoreLib::BufferInterface<T>::reference_t) = &ORO_CoreLib::BufferInterface<T>::Pop;
-            typename ORO_CoreLib::BufferInterface<T>::value_t (ORO_CoreLib::BufferInterface<T>::*FrontPtr)() const = &ORO_CoreLib::BufferInterface<T>::front;
-            datas->add("Push", data( PushPtr, "Push a single value in the Buffer. Returns false if full.",
-                                        "Val", "The value.") );
-            datas->add("Pop", data( PopPtr, "Pop a single value from the Buffer. Returns false if empty.",
-                                       "Val", "The value returned by argument.") );
-            datas->add("front", data( FrontPtr, "Get the next to be popped value from the buffer. Returns default value if buffer is empty."));
-
-            TemplateDataSourceFactory<ORO_CoreLib::BufferBase>* datab = newDataSourceFactory<ORO_CoreLib::BufferBase>( mconn->buffer() );
-            datab->add("size", data( &ORO_CoreLib::BufferBase::size, "Get the used size of the buffer."));
-            datab->add("capacity", data( &ORO_CoreLib::BufferBase::capacity, "Get the capacity of the buffer."));
-            datab->add("empty", data( &ORO_CoreLib::BufferBase::empty, "Inspect if the buffer is empty."));
-            datab->add("full", data( &ORO_CoreLib::BufferBase::full, "Inspect if the buffer is full."));
-            return new MemberFactoryComposite( datas, datab );
+            TaskObject* to = new TaskObject( this->getName() );
+            to->methods()->addMethod(method("Push", &WriteBufferPort<T>::Push, this),
+                                     "Push a single value in the Buffer. Returns false if full().",
+                                     "Val", "The value.");
+            to->methods()->addMethod(method("Pop", &ReadBufferPort<T>::Pop, this),
+                                     "Pop a single value from the Buffer. Returns false if empty.",
+                                     "Val", "The value returned by argument.");
+            to->methods()->addMethod(method("front", &ReadBufferPort<T>::front, this),
+                                     "Get the next to be popped value from the buffer. Returns default value if buffer is empty.");
+            to->methods()->addMethod(method("size", &BufferPort<T>::size, this),
+                                     "Get the used size of the buffer.");
+            to->methods()->addMethod(method("capacity", &BufferPort<T>::capacity, this),
+                                     "Get the capacity of the buffer.");
+            to->methods()->addMethod(method("empty", &BufferPort<T>::empty, this),
+                                     "Inspect if the buffer is empty.");
+            to->methods()->addMethod(method("full", &BufferPort<T>::full, this),
+                                     "Inspect if the buffer is full.");
+            to->methods()->addMethod(method("clear", &BufferPort<T>::clear, this),
+                                     "Clear the contents of the buffer.");
+            return to;
 #else
             return 0;
 #endif

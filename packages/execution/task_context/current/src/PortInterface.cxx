@@ -57,7 +57,7 @@ namespace ORO_Execution
         return ConnectionInterface::shared_ptr();
     }
 
-    DataSourceFactoryInterface* PortInterface::createDataSources() {
+    OperationInterface* PortInterface::createPortObject() {
         return 0;
     }
 

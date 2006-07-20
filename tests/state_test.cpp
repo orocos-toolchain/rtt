@@ -28,7 +28,8 @@
 #endif
 #include <corelib/SimulationThread.hpp>
 #include <corelib/CommandFunctor.hpp>
-#include <execution/TemplateFactories.hpp>
+#include <execution/Method.hpp>
+#include <execution/Command.hpp>
 #include <execution/StateMachine.hpp>
 
 #ifdef OROPKG_GEOMETRY
@@ -50,12 +51,10 @@ void
 StateTest::setUp()
 {
     // ltc has a test object
-    gtc.methodFactory.registerObject("test", this->createMethodFactory() );
-    gtc.commandFactory.registerObject("test", this->createCommandFactory() );
-    gtc.dataFactory.registerObject("test", this->createDataSourceFactory() );
+    gtc.addObject(this->createObject("test") );
 
-    gtc.eventService.addEvent( "d_event", &d_event );
-    gtc.eventService.addEvent( "b_event", &b_event );
+    gtc.events()->addEvent( "d_event", &d_event );
+    gtc.events()->addEvent( "b_event", &b_event );
     i = 0;
 
 #ifdef OROPKG_GEOMETRY
@@ -70,9 +69,6 @@ StateTest::tearDown()
     // if a test failed, we must still stop :
     SimulationThread::Instance()->stop();
     gtask.stop();
-    gtc.methodFactory.unregisterObject( "test" );
-    gtc.commandFactory.unregisterObject( "test" );
-    gtc.dataFactory.unregisterObject( "test" );
 }
 
 
@@ -94,57 +90,37 @@ void StateTest::reset() {
 }
 
 
-MethodFactoryInterface* StateTest::createMethodFactory()
+TaskObject* StateTest::createObject(string a)
 {
-    // Add the data of the EE:
-    TemplateMethodFactory< StateTest >* dat =
-        newMethodFactory( this );
+    TaskObject* dat = new TaskObject(a);
 
-    dat->add( "assert", method( &StateTest::assertBool,
-                              "Assert", "bool", "") );
-    dat->add( "increase", method( &StateTest::increase,
-                                "Return increasing i" ) );
-    dat->add( "reset", method( &StateTest::reset,
-                              "Reset i") );
-    dat->add( "assertMsg", method( &StateTest::assertMsg,
-                                 "Assert message", "bool", "", "text", "text" ) );
-    return dat;
-}
-
-DataSourceFactoryInterface* StateTest::createDataSourceFactory()
-{
-    // Add the data of the EE:
-    TemplateDataSourceFactory< StateTest >* dat =
-        newDataSourceFactory( this );
-
-    dat->add( "isTrue", data( &StateTest::assertBool,
-                              "Identity function", "bool", "") );
-    dat->add( "i", data( &StateTest::i,
-                         "Return the current number" ) );
-    return dat;
-}
-
-CommandFactoryInterface* StateTest::createCommandFactory()
-{
-    // Add the data of the EE:
-    TemplateCommandFactory< StateTest >* dat =
-        newCommandFactory( this );
-
-    dat->add( "instantDone", command( &StateTest::true_genCom,
-                                      &StateTest::true_gen,
-                                      "returns immediately") );
-    dat->add( "neverDone", command( &StateTest::true_genCom,
-                                    &StateTest::false_gen,
-                                    "returns never") );
-    dat->add( "instantNotDone", command( &StateTest::true_genCom,
-                                         &StateTest::true_gen,
-                                         "returns never", false ) );
-    dat->add( "instantFail", command( &StateTest::false_genCom,
-                                      &StateTest::true_gen,
-                                      "fails immediately") );
-    dat->add( "totalFail", command( &StateTest::false_genCom,
-                                    &StateTest::false_gen,
-                                    "fails in command and condition") );
+    dat->methods()->addMethod( method( "assert", &StateTest::assertBool, this),
+                              "Assert", "bool", "" );
+    dat->methods()->addMethod( method( "increase", &StateTest::increase, this),
+                                "Return increasing i"  );
+    dat->methods()->addMethod( method( "reset", &StateTest::reset, this),
+                              "Reset i" );
+    dat->methods()->addMethod( method( "assertMsg", &StateTest::assertMsg, this),
+                                 "Assert message", "bool", "", "text", "text"  );
+    dat->methods()->addMethod( method( "isTrue", &StateTest::assertBool, this),
+                              "Identity function", "bool", "" );
+    dat->methods()->addMethod( method( "i", &StateTest::getI, this),
+                         "Return the current number"  );
+    dat->commands()->addCommand( command( "instantDone", &StateTest::true_genCom,
+                                      &StateTest::true_gen, this, gtc.engine()->commands()),
+                                      "returns immediately" );
+    dat->commands()->addCommand( command( "neverDone", &StateTest::true_genCom,
+                                    &StateTest::false_gen, this, gtc.engine()->commands()),
+                                    "returns never" );
+    dat->commands()->addCommand( command( "instantNotDone", &StateTest::true_genCom,
+                                         &StateTest::true_gen, this, gtc.engine()->commands(), false),
+                                         "returns never");
+    dat->commands()->addCommand( command( "instantFail", &StateTest::false_genCom,
+                                      &StateTest::true_gen, this, gtc.engine()->commands()),
+                                      "fails immediately" );
+    dat->commands()->addCommand( command( "totalFail", &StateTest::false_genCom,
+                                    &StateTest::false_gen, this, gtc.engine()->commands()),
+                                    "fails in command and condition" );
     return dat;
 }
 
@@ -790,9 +766,9 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
         CPPUNIT_ASSERT_MESSAGE( "Error : State Context '"+sm->getName()+"' did not get activated.", sm->isActive() );
         stringstream errormsg;
         int line = sm->getLineNumber();
-        errormsg <<" in StateContext "+sm->getName()
+        errormsg <<" in StateMachine "+sm->getName()
                  <<" in state "<< sm->currentState()->getName()
-                 <<" on line " << line <<" of that StateContext:"<<endl;
+                 <<" on line " << line <<" of that StateMachine:"<<endl;
         stringstream sctext( sm->getText() );
         int cnt = 1;
         while ( cnt++ <line && sctext ) {
@@ -801,17 +777,17 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
         }
         getline( sctext, sline, '\n' );
         errormsg <<"here  > " << sline << endl;
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered" + errormsg.str(), sm->inError() == false );
+        CPPUNIT_ASSERT_MESSAGE( "Runtime error (inError() == true) encountered" + errormsg.str(), sm->inError() == false );
         // check error status of all children:
         StateMachine::ChildList cl = sm->getChildren();
         StateMachine::ChildList::iterator clit = cl.begin();
         while( clit != cl.end() ) {
             stringstream cerrormsg;
             if ( (*clit)->currentState() )
-                cerrormsg <<" in state "<<(*clit)->currentState()->getName()<< " on line " <<  (*clit)->getLineNumber() <<" of that StateContext."<<endl <<"here  > " << sline << endl;
+                cerrormsg <<" in state "<<(*clit)->currentState()->getName()<< " on line " <<  (*clit)->getLineNumber() <<" of that StateMachine."<<endl <<"here  > " << sline << endl;
             else
-                cerrormsg <<" (deactivated) on line " <<  (*clit)->getLineNumber() <<" of that StateContext."<<endl<<"here  > " << sline << endl;
-            CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered in child "+(*clit)->getName() + cerrormsg.str(), (*clit)->inError() == false );
+                cerrormsg <<" (deactivated) on line " <<  (*clit)->getLineNumber() <<" of that StateMachine."<<endl<<"here  > " << sline << endl;
+            CPPUNIT_ASSERT_MESSAGE( "Runtime error (inError() == true) encountered in child "+(*clit)->getName() + cerrormsg.str(), (*clit)->inError() == false );
             ++clit;
         }
     }

@@ -78,6 +78,11 @@ namespace ORO_CoreLib
         virtual AttributeBase* buildVariable(int sizehint) const;
         virtual AttributeBase* buildVariable() const = 0;
         /**
+         * Constructor syntax: construct a DataSource which returns an instance of data
+         * depending on the given arguments.
+         */
+        virtual DataSourceBase::shared_ptr construct(const std::vector<DataSourceBase::shared_ptr>& args) const = 0;
+        /**
          * build an alias with b as the value.  If b is of the wrong type,
          * 0 will be returned..
          */

@@ -22,7 +22,8 @@
 #include <unistd.h>
 #include <iostream>
 #include <execution/FunctionGraph.hpp>
-#include <execution/TemplateFactories.hpp>
+#include <execution/Command.hpp>
+#include <execution/Method.hpp>
 #include <corelib/DataSourceAdaptor.hpp>
 #include <execution/DataSourceGenerator.hpp>
 
@@ -45,10 +46,9 @@ void
 Template_FactoryTest::setUp()
 {
     tc =  new TaskContext( "root" );
-    tc->methods()->registerObject("methods", this->createMethodFactory() );
-    tc->methods()->registerObject("umethods", this->createUserMethodFactory() );
-    tc->commands()->registerObject("commands", this->createCommandFactory() );
-    tc->datasources()->registerObject("data", this->createDataSourceFactory() );
+    tc->addObject( this->createMethodFactory() );
+    tc->addObject( this->createUserMethodFactory() );
+    tc->addObject( this->createCommandFactory() );
     tc->events()->addEvent("FloatEvent", &t_event_float);
     tsim = new SimulationActivity(0.001, tc->engine() );
     event_proc = new EventProcessor();
@@ -71,62 +71,44 @@ bool Template_FactoryTest::assertBool( bool b) {
     return b;
 }
 
-MethodFactoryInterface* Template_FactoryTest::createMethodFactory()
+TaskObject* Template_FactoryTest::createMethodFactory()
 {
-    TemplateMethodFactory< Template_FactoryTest >* dat =
-        newMethodFactory( this );
+    TaskObject* dat = new TaskObject("methods");
 
-    dat->add( "assert", method( &Template_FactoryTest::assertBool, "assert","b","bd") );
-
-    dat->add( "m0", method( &Template_FactoryTest::m0, "M0") );
-    dat->add( "m1", method( &Template_FactoryTest::m1, "M1","a","ad") );
-    dat->add( "m2", method( &Template_FactoryTest::m2, "M2","a","ad","a","ad") );
-    dat->add( "m3", method( &Template_FactoryTest::m3, "M3","a","ad","a","ad","a","ad") );
-    dat->add( "m4", method( &Template_FactoryTest::m4, "M4","a","ad","a","ad","a","ad","a","ad") );
+    dat->methods()->addMethod( method("assert", &Template_FactoryTest::assertBool, this), "assert","b","bd");
+    dat->methods()->addMethod( method("m0", &Template_FactoryTest::m0, this), "M0");
+    dat->methods()->addMethod( method("m1", &Template_FactoryTest::m1, this), "M1","a","ad");
+    dat->methods()->addMethod( method("m2", &Template_FactoryTest::m2, this), "M2","a","ad","a","ad");
+    dat->methods()->addMethod( method("m3", &Template_FactoryTest::m3, this), "M3","a","ad","a","ad","a","ad");
+    dat->methods()->addMethod( method("m4", &Template_FactoryTest::m4, this), "M4","a","ad","a","ad","a","ad","a","ad");
     return dat;
 }
 
-MethodFactoryInterface* Template_FactoryTest::createUserMethodFactory()
+TaskObject* Template_FactoryTest::createUserMethodFactory()
 {
-    TemplateMethodFactory< Template_FactoryTest >* dat =
-        newMethodFactory( this );
+    TaskObject* dat = new TaskObject("umethods");
 
-    dat->add( "umd", method( &Template_FactoryTest::umd, "umd", "D0", "D0") );
-    dat->add( "umv", method( &Template_FactoryTest::umv, "umv", "V0", "V0") );
-    dat->add( "umcv", method( &Template_FactoryTest::umcv, "umv", "V0", "V0") );
-    dat->add( "umcrv", method( &Template_FactoryTest::umcrv, "umv", "V0", "V0") );
-    dat->add( "umrv", method( &Template_FactoryTest::umrv, "umv", "V0", "V0") );
+    dat->methods()->addMethod( method("umd", &Template_FactoryTest::umd, this), "umd", "D0", "D0");
+    dat->methods()->addMethod( method("umv", &Template_FactoryTest::umv, this), "umv", "V0", "V0");
+    dat->methods()->addMethod( method("umcv", &Template_FactoryTest::umcv, this), "umv", "V0", "V0");
+    dat->methods()->addMethod( method("umcrv", &Template_FactoryTest::umcrv, this), "umv", "V0", "V0");
+    dat->methods()->addMethod( method("umrv", &Template_FactoryTest::umrv, this), "umv", "V0", "V0");
     return dat;
 }
 
-DataSourceFactoryInterface* Template_FactoryTest::createDataSourceFactory()
+TaskObject* Template_FactoryTest::createCommandFactory()
 {
-    TemplateDataSourceFactory< Template_FactoryTest >* dat =
-        newDataSourceFactory( this );
+    TaskObject* dat = new TaskObject("commands");
 
-    dat->add( "d0", data( &Template_FactoryTest::d0, "d0") );
-    dat->add( "d1", data( &Template_FactoryTest::d1, "d1","a","ad") );
-    dat->add( "d2", data( &Template_FactoryTest::d2, "d2","a","ad","a","ad") );
-    dat->add( "d3", data( &Template_FactoryTest::d3, "d3","a","ad","a","ad","a","ad") );
-    dat->add( "d4", data( &Template_FactoryTest::d4, "d4","a","ad","a","ad","a","ad","a","ad") );
-
-    return dat;
-}
-
-CommandFactoryInterface* Template_FactoryTest::createCommandFactory()
-{
-    TemplateCommandFactory< Template_FactoryTest >* dat =
-        newCommandFactory( this );
-
-    dat->add( "c00", command( &Template_FactoryTest::cd0, &Template_FactoryTest::cn0, "c0d") );
-    dat->add( "c10", command( &Template_FactoryTest::cd1, &Template_FactoryTest::cn0, "c1d","a","ad") );
-    dat->add( "c11", command( &Template_FactoryTest::cd1, &Template_FactoryTest::cn1, "c1d","a","ad") );
-    dat->add( "c20", command( &Template_FactoryTest::cd2, &Template_FactoryTest::cn0, "c2d","a","ad","a","ad") );
-    dat->add( "c21", command( &Template_FactoryTest::cd2, &Template_FactoryTest::cn1, "c2d","a","ad","a","ad") );
-    dat->add( "c22", command( &Template_FactoryTest::cd2, &Template_FactoryTest::cn2, "c2d","a","ad","a","ad") );
-    dat->add( "c30", command( &Template_FactoryTest::cd3, &Template_FactoryTest::cn0, "c3d","a","ad","a","ad","a","ad") );
-    dat->add( "c31", command( &Template_FactoryTest::cd3, &Template_FactoryTest::cn1, "c3d","a","ad","a","ad","a","ad") );
-    dat->add( "c33", command( &Template_FactoryTest::cd3, &Template_FactoryTest::cn3, "c3d","a","ad","a","ad","a","ad") );
+    dat->commands()->addCommand( command("c00", &Template_FactoryTest::cd0, &Template_FactoryTest::cn0, this, tc->engine()->commands() ), "c0d");
+    dat->commands()->addCommand( command("c10", &Template_FactoryTest::cd1, &Template_FactoryTest::cn0, this, tc->engine()->commands() ), "c1d","a","ad");
+    dat->commands()->addCommand( command("c11", &Template_FactoryTest::cd1, &Template_FactoryTest::cn1, this, tc->engine()->commands() ), "c1d","a","ad");
+    dat->commands()->addCommand( command("c20", &Template_FactoryTest::cd2, &Template_FactoryTest::cn0, this, tc->engine()->commands() ), "c2d","a","ad","a","ad");
+    dat->commands()->addCommand( command("c21", &Template_FactoryTest::cd2, &Template_FactoryTest::cn1, this, tc->engine()->commands() ), "c2d","a","ad","a","ad");
+    dat->commands()->addCommand( command("c22", &Template_FactoryTest::cd2, &Template_FactoryTest::cn2, this, tc->engine()->commands() ), "c2d","a","ad","a","ad");
+    dat->commands()->addCommand( command("c30", &Template_FactoryTest::cd3, &Template_FactoryTest::cn0, this, tc->engine()->commands() ), "c3d","a","ad","a","ad","a","ad");
+    dat->commands()->addCommand( command("c31", &Template_FactoryTest::cd3, &Template_FactoryTest::cn1, this, tc->engine()->commands() ), "c3d","a","ad","a","ad","a","ad");
+    dat->commands()->addCommand( command("c33", &Template_FactoryTest::cd3, &Template_FactoryTest::cn3, this, tc->engine()->commands() ), "c3d","a","ad","a","ad","a","ad");
     return dat;
 }
 
@@ -217,38 +199,6 @@ void Template_FactoryTest::testUserMethods()
         }
     // execute
     executePrograms( pg_list );
-}
-
-void Template_FactoryTest::testData()
-{
-    string prog = string("program x { ")
-        +" var double r = 0.0\n"
-        +" set r = data.d0\n"
-        +" set r = data.d0()\n"
-        +" do methods.assert( r == 1.0 )\n"
-        +" set r = data.d1(1)\n"
-        +" do methods.assert( r == 2.0 )\n"
-        +" set r = data.d2(1, 1.0)\n"
-        +" do methods.assert( r == 3.0 )\n"
-        +" set r = data.d3(1, 1.0, true)\n"
-        +" do methods.assert( r == 4.0 )\n"
-        +" set r = data.d4(1, 1.0, true, \"hello\")\n"
-        +" do methods.assert( r == 5.0 )\n"
-        +"}";
-    Parser::ParsedPrograms pg_list;
-    try {
-        pg_list = parser.parseProgram( prog, tc);
-    }
-    catch( const file_parse_exception& exc )
-        {
-            CPPUNIT_ASSERT_MESSAGE(exc.what(), false );
-        }
-    if ( pg_list.empty() )
-        {
-            CPPUNIT_ASSERT( false );
-        }
-    // execute
-        executePrograms( pg_list );
 }
 
 void Template_FactoryTest::testCommands()

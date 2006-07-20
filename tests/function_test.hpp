@@ -48,9 +48,7 @@ class FunctionTest : public CppUnit::TestFixture
     Parser parser;
     TaskContext gtc;
     SimulationActivity gtask;
-    MethodFactoryInterface* createMethodFactory();
-    CommandFactoryInterface* createCommandFactory();
-    DataSourceFactoryInterface* createDataSourceFactory();
+    OperationInterface* createObject(std::string name, CommandProcessor* cp);
     bool assertBool( bool );
     bool assertMsg( bool, const std::string& msg);
     int increase();
@@ -64,6 +62,7 @@ class FunctionTest : public CppUnit::TestFixture
     bool false_gen() const { return false; }
 
     bool bool_gen( bool b ) const { return b; }
+    int getI() const { return i; }
     int i;
 public:
     FunctionTest();

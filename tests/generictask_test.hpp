@@ -53,9 +53,8 @@ class Generic_TaskTest : public CppUnit::TestFixture
 
     TaskContext* tc;
     ActivityInterface* tsim;
-    MethodFactoryInterface* createMethodFactory();
-    DataSourceFactoryInterface* createDataSourceFactory();
-    CommandFactoryInterface* createCommandFactory();
+    TaskObject* createMethodFactory();
+    TaskObject* createCommandFactory();
 
     // ref/const-ref tests:
     double ret;
@@ -82,6 +81,9 @@ class Generic_TaskTest : public CppUnit::TestFixture
     double d2(int i, double d) const { return 3.0; }
     double d3(int i, double d, bool c) const { return 4.0; }
     double d4(int i, double d, bool c, std::string s) const { return 5.0; }
+
+    // test const std::string& argument for command_ds
+    bool comstr(const std::string&) { return true; }
 
     bool cd0()  { return true; }
     bool cd1(int i)  { return true; }

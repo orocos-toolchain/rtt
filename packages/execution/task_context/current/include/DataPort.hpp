@@ -32,7 +32,8 @@
 #include <string>
 #include "PortInterface.hpp"
 #include "DataConnectionInterface.hpp"
-#include "TemplateDataSourceFactory.hpp"
+#include "OperationInterface.hpp"
+#include "Method.hpp"
 #include "ConnectionTypes.hpp"
 
 namespace ORO_Execution
@@ -113,13 +114,12 @@ namespace ORO_Execution
 
         virtual PortInterface* antiClone() const;
 
-        virtual DataSourceFactoryInterface* createDataSources() {
+        virtual OperationInterface* createPortObject() {
 #ifndef ORO_EMBEDDED
-            if ( !mconn )
-                return 0;
-            TemplateDataSourceFactory<ORO_CoreLib::DataObjectInterface<T> >* datas = newDataSourceFactory( mconn->data() );
-            datas->add("Get", ORO_Execution::data( &ORO_CoreLib::DataObjectInterface<T>::Get, "Get the current value of this Data Object"));
-            return datas;
+            TaskObject* to = new TaskObject( this->getName() );
+            to->methods()->addMethod( method("Get",&ReadDataPort<T>::Get, this),
+                                      "Get the current value of this Data Port");
+            return to;
 #else
             return 0;
 #endif
@@ -236,15 +236,15 @@ namespace ORO_Execution
             return new ReadDataPort<T>( this->getName() );
         }
 
-        virtual DataSourceFactoryInterface* createDataSources() {
+        virtual OperationInterface* createPortObject() {
 #ifndef ORO_EMBEDDED
-            if ( !mconn )
-                return 0;
-            TemplateDataSourceFactory<ORO_CoreLib::DataObjectInterface<T> >* datas = newDataSourceFactory( mconn->data() );
-            datas->add("Get", ORO_Execution::data( &ORO_CoreLib::DataObjectInterface<T>::Get, "Get the current value of this Data Object"));
-            datas->add("Set", ORO_Execution::data( &ORO_CoreLib::DataObjectInterface<T>::Set, "Set the current value of this Data Object",
-                                    "Value", "The new value.") );
-            return datas;
+            TaskObject* to = new TaskObject( this->getName() );
+            to->methods()->addMethod( method("Get",&WriteDataPort<T>::Get, this),
+                                      "Get the current value of this Data Port");
+            to->methods()->addMethod( method("Set",&WriteDataPort<T>::Set, this),
+                                      "Set the current value of this Data Port",
+                                      "Value", "The new value.");
+            return to;
 #else
             return 0;
 #endif

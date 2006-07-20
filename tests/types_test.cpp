@@ -22,7 +22,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <execution/FunctionGraph.hpp>
-#include <execution/TemplateFactories.hpp>
+#include <execution/Method.hpp>
 #include <corelib/SimulationActivity.hpp>
 #include <corelib/SimulationThread.hpp>
 #ifdef OROPKG_GEOMETRY
@@ -39,7 +39,7 @@ void
 TypesTest::setUp()
 {
     tc =  new TaskContext( "root" );
-    tc->methodFactory.registerObject("test", this->createMethodFactory() );
+    tc->addObject( this->createMethodFactory() );
     tsim = new SimulationActivity( 0.001, tc->engine() );
 
 #ifdef OROPKG_GEOMETRY
@@ -66,23 +66,20 @@ bool TypesTest::assertMsg( bool b, const std::string& msg) {
 }
 
 
-    MethodFactoryInterface* TypesTest::createMethodFactory()
+    TaskObject* TypesTest::createMethodFactory()
     {
-        // Add the data of the EE:
-        TemplateMethodFactory< TypesTest >* dat =
-            newMethodFactory( this );
-
-        dat->add( "assert", method( &TypesTest::assertBool,
-                                  "Assert", "bool", "") );
-        dat->add( "assertMsg", method( &TypesTest::assertMsg,
-                                     "Assert message", "bool", "", "text", "text" ) );
+        TaskObject* to = new TaskObject("test");
+        to->methods()->addMethod( method("assert", &TypesTest::assertBool, this),
+                                  "Assert", "bool", "");
+        to->methods()->addMethod( method("assertMsg", &TypesTest::assertMsg, this),
+                                     "Assert message", "bool", "", "text", "text" );
 #ifdef OROPKG_GEOMETRY
-        dat->add( "equalFrames", method( &TypesTest::equalFrames,
-                                     "Assert equal frames", "f1", "", "f2", "" ) );
-        dat->add( "equalVectors", method( &TypesTest::equalVectors,
-                                     "Assert equal vectors", "v1", "", "v2", "" ) );
+        to->methods()->addMethod( method("equalFrames", &TypesTest::equalFrames, this),
+                                     "Assert equal frames", "f1", "", "f2", "" );
+        to->methods()->addMethod( method("equalVectors", &TypesTest::equalVectors, this),
+                                     "Assert equal vectors", "v1", "", "v2", "" );
 #endif
-        return dat;
+        return to;
     }
 
 #ifdef OROPKG_GEOMETRY
@@ -343,8 +340,8 @@ void TypesTest::testProperties()
 #ifdef OROPKG_GEOMETRY
     Property<Frame> pf("Frame","", Frame::Identity() );
     Property<Rotation> pr("Rotation","", Rotation::RPY(0.0, 45.0, 60.0) );
-    tc->attributeRepository.addProperty( &pf );
-    tc->attributeRepository.addProperty( &pr );
+    tc->properties()->addProperty( &pf );
+    tc->properties()->addProperty( &pr );
     pb.value().add( &pf );
     pb.value().add( &pr );
 #endif
@@ -353,10 +350,10 @@ void TypesTest::testProperties()
     pb.value().add( &pd3 );
     pb.value().add( &pb ); // yep, recursive !
         
-    tc->attributeRepository.addProperty( &pd1 );
-    tc->attributeRepository.addProperty( &pd2 );
-    tc->attributeRepository.addProperty( &pd3 );
-    tc->attributeRepository.addProperty( &pb );
+    tc->properties()->addProperty( &pd1 );
+    tc->properties()->addProperty( &pd2 );
+    tc->properties()->addProperty( &pd3 );
+    tc->properties()->addProperty( &pb );
 
     Parser::ParsedPrograms pg_list;
     try {

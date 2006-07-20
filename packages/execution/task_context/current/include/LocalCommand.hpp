@@ -181,13 +181,15 @@ namespace ORO_Execution
                 if (this->minvoked && !this->evaluate() ) // if invoked and not ready.
                     return false;
                 this->reset();
+                this->maccept = this->mcp->process( this );
                 this->minvoked = true;
-                return this->maccept = this->mcp->process( this );
+                return this->maccept;
             }
 
             virtual bool execute() {
+                this->mvalid = this->invoke();
                 this->mexec = true;
-                return this->mvalid = this->invoke();
+                return this->mvalid;
             }
         
             virtual bool evaluate() const {
@@ -221,7 +223,9 @@ namespace ORO_Execution
 
             virtual ORO_CoreLib::ConditionInterface* createCondition() const
             {
-                return new detail::ConditionFunctor<bool(void)>( boost::bind<bool>( boost::mem_fn(&LocalCommand::evaluate), this), this->minvert );
+                // LocalCommands are not used by the Parser, so this method is actually
+                // not used within Orocos.
+                return new detail::ConditionFunctor<bool(void)>( boost::bind<bool>( boost::mem_fn(&LocalCommand::evaluate), this) );
             }
 
             /** 

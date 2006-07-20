@@ -116,43 +116,33 @@ namespace ORO_Execution
 
       //cout << "DCP saw method "<< mmethod <<" of object "<<mobject<<" of peer "<<peer->getName()<<endl;
       // this is slightly different from CommandParser
-    const GlobalDataSourceFactory& gdsf =
-      peer->dataFactory;
-    const GlobalMethodFactory& gmf =
-      peer->methodFactory;
-    const DataSourceFactoryInterface* dfi = gdsf.getObjectFactory( mobject );
-    const MethodFactoryInterface*  mfi = gmf.getObjectFactory( mobject );
-    if ( ! dfi && ! mfi )
-        if ( mobject != "this")
-            throw_( iter_t(), std::string("Task '")+peer->getName()+"' has no object '"+mobject+"'." );
-        else
-            throw_( iter_t(), std::string("Task '")+peer->getName()+"' has no object or method '"+mmethod+"'." );
-        //      throw parse_exception_no_such_component( mobject );
+      OperationInterface* ops = peer->getObject(mobject);
+      if ( mobject != "this" && ops == 0)
+          throw_( iter_t(), std::string("Task '")+peer->getName()+"' has no object '"+mobject+"'." );
 
-    // One of both must have the method
-    if ( !( ( dfi && dfi->hasMember(mmethod)) || ( mfi && mfi->hasMember(mmethod)) ) )
-        if ( mobject != "this")
+      if ( ops && ops->methods()->hasMember(mmethod) == false )
             throw parse_exception_no_such_method_on_component( mobject, mmethod );
-        else
-            throw parse_exception_no_such_method_on_component( peer->getName(), mmethod );
 
-    // create an argument parser for the call..
-    // Store the peer in the ArgumentsParser !
-    ArgumentsParser* argspar =
-        new ArgumentsParser( expressionparser, peer,
-                             mobject, mmethod );
-    // we no longer need these two..
-    mobject.clear();
-    mmethod.clear();
+      if ( !ops && peer->methods()->hasMember(mmethod) == false )
+          throw parse_exception_no_such_method_on_component( peer->getName(), mmethod );
+           
+      // create an argument parser for the call..
+      // Store the peer in the ArgumentsParser !
+      ArgumentsParser* argspar =
+          new ArgumentsParser( expressionparser, peer,
+                               mobject, mmethod );
+      // we no longer need these two..
+      mobject.clear();
+      mmethod.clear();
 
-    // keep hold of the argspar, we're still going to need it after
-    // it's done its work..  ( in seendatacall(), that is.. )
-    argparsers.push( argspar );
+      // keep hold of the argspar, we're still going to need it after
+      // it's done its work..  ( in seendatacall(), that is.. )
+      argparsers.push( argspar );
 
-    // set the arguments parser to the parser provided by the
-    // ArgumentsParser we just created..
-    arguments = argspar->parser();
-  };
+      // set the arguments parser to the parser provided by the
+      // ArgumentsParser we just created..
+      arguments = argspar->parser();
+  }
 
   void DataCallParser::seendatacall()
   {
@@ -164,51 +154,32 @@ namespace ORO_Execution
     TaskContext* peer = argspar->peer();
     delete argspar;
 
-    const GlobalDataSourceFactory& gdsf =
-      peer->dataFactory;
-    const GlobalMethodFactory& gmf =
-      peer->methodFactory;
-    const DataSourceFactoryInterface* dfi = gdsf.getObjectFactory( obj );
-    const MethodFactoryInterface*  mfi = gmf.getObjectFactory( obj );
-
+    OperationInterface* ops = peer->getObject(obj);
     // we already checked for the existence of this object and method
     // in seendataname()..
 
-    if ( dfi && dfi->hasMember(meth) ) {
-        try
-            {
-                ret = dfi->create( meth, args );
-            }
-        catch( const wrong_number_of_args_exception& e )
-            {
-                throw parse_exception_wrong_number_of_arguments
-                    (obj, meth, e.wanted, e.received );
-            }
-        catch( const wrong_types_of_args_exception& e )
-            {
-                throw parse_exception_wrong_type_of_argument
-                    (obj, meth, e.whicharg, e.expected_, e.received_ );
-            }
-    } else if (mfi && mfi->hasMember(meth)) {
-        try
-            {
-                ret = mfi->create( meth, args );
-            }
-        catch( const wrong_number_of_args_exception& e )
-            {
-                throw parse_exception_wrong_number_of_arguments
-                    (obj, meth, e.wanted, e.received );
-            }
-        catch( const wrong_types_of_args_exception& e )
-            {
-                throw parse_exception_wrong_type_of_argument
-                    (obj, meth, e.whicharg, e.expected_, e.received_ );
-            }
-    } else 
-        assert( false );
+    try {
+        if ( ops )
+            ret = ops->methods()->produce( meth, args );
+        else
+            ret = peer->methods()->produce( meth, args );
+    }
+    catch( const wrong_number_of_args_exception& e )
+        {
+            throw parse_exception_wrong_number_of_arguments
+                (obj, meth, e.wanted, e.received );
+        }
+    catch( const wrong_types_of_args_exception& e )
+        {
+            throw parse_exception_wrong_type_of_argument
+                (obj, meth, e.whicharg, e.expected_, e.received_ );
+        }
+    catch(...) {
+        assert(false);
+    }
 
     assert( ret.get() );
-  };
+  }
 
   DataCallParser::~DataCallParser()
   {

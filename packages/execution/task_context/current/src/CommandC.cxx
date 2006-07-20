@@ -46,7 +46,7 @@ namespace ORO_Execution
     {
     public:
         const GlobalCommandFactory* mgcf;
-        const CommandRepository* mcr;
+        const CommandRepository::Factory* mcr;
         std::string mobject, mname;
         std::pair<DispatchInterface*,ORO_CoreLib::ConditionInterface*> comcon;
         std::vector<DataSourceBase::shared_ptr> args;
@@ -61,7 +61,7 @@ namespace ORO_Execution
                 size_t sz = mcr->getArity(mname);
                 if ( sz == args.size() ) {
                     // may throw or return '0,0' if no exceptions.
-                    comcon.first = mcr->getCommand(mname, args); // the dispatch flag is no longer relevant here.
+                    comcon.first = mcr->produce(mname, args); // the dispatch flag is no longer relevant here.
                     args.clear();
                     if (comcon.first == 0)
                         return;
@@ -108,7 +108,7 @@ namespace ORO_Execution
             this->checkAndCreate();
         }
 
-        D( const CommandRepository* cr, const std::string& name)
+        D( const CommandRepository::Factory* cr, const std::string& name)
             : mgcf(0), mcr(cr), mname(name)
         {
             comcon.first = 0;
@@ -153,7 +153,7 @@ namespace ORO_Execution
         }
     }
 
-    CommandC::CommandC(const CommandRepository* cr, const std::string& name)
+    CommandC::CommandC(const CommandRepository::Factory* cr, const std::string& name)
         : d( cr ? new D( cr, name) : 0 ), cc()
     {
         if ( d->comcon.first ) {
@@ -260,7 +260,7 @@ namespace ORO_Execution
         return false;
     }
 
-    bool CommandC::evaluate() {
+    bool CommandC::evaluate() const {
         // check if done
         if (cc )
             return cc->evaluate();

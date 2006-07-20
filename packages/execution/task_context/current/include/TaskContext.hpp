@@ -51,11 +51,13 @@ namespace ORO_Execution
      * A TaskContext exports the commands, methods, events, properties and ports
      * a task has. Furthermore, it allows to visit its peer tasks.
      *
+     * @section exec TaskContext interface
      * When a command is exported, one can access it using commands(). A similar
      * mechanism is available for properties(), methods(), events() and ports().
      * The commands of this TaskContext are executed by its
      * ExecutionEngine.
      *
+     * @section exec Executing a TaskContext
      * In order to run the ExecutionEngine, the ExecutionEngine must
      * be invoked from an ActivityInterface implementation. As long as
      * there is no activity or the activity is not started, this
@@ -64,6 +66,10 @@ namespace ORO_Execution
      * of this class can determine himself at which point and at which
      * moment commands and programs can be executed.
      *
+     * @section exec Connecting TaskContexts
+     * TaskContexts are connected using the unidirectional addPeer() or bidirectional
+     * connectPeers() methods. These methods setup data connections and allow
+     * 'peer' TaskContexts to use each other's interface.
      * In order to disconnect this task from its peers, use disconnect(), which
      * will disconnect all the Data Flow Ports and remove this object from its
      * Peers.
@@ -77,12 +83,17 @@ namespace ORO_Execution
     
         typedef std::map< std::string, TaskContext* > PeerMap;
         typedef std::vector< TaskContext* > Users;
-        // map of the tasks we are using
+        typedef std::vector< OperationInterface* > Objects;
+        /// map of the tasks we are using
         PeerMap         _task_map;
-        // map of the tasks that are using us.
+        /// map of the tasks that are using us.
         Users         musers;
+        /// the TaskObjects.
+        Objects mobjects;
 
         ScriptingAccess* mscriptAcc;
+
+        
 
         void connectDataFlow( TaskContext* peer );
         void exportPorts();
@@ -100,6 +111,7 @@ namespace ORO_Execution
         void removeUser(TaskContext* user);
     public:
         typedef std::vector< std::string > PeerList;
+        typedef std::vector< std::string > ObjectList;
 
         /**
          * Create a TaskContext visible with \a name.
@@ -200,7 +212,7 @@ namespace ORO_Execution
          * @return true if it cuold be added, false if such
          * object already exists.
          */
-        bool addObject( TaskObject *obj );
+        bool addObject( OperationInterface *obj );
 
         /** 
          * Get a pointer to a previously added TaskObject
@@ -209,7 +221,14 @@ namespace ORO_Execution
          * 
          * @return the pointer
          */
-        TaskObject* getObject(const std::string& obj_name ) const;
+        OperationInterface* getObject(const std::string& obj_name );
+
+        /** 
+         * Get a list of all the object names of this TaskContext.
+         * 
+         * @return a list of string names.
+         */
+        ObjectList getObjectList() const;
 
         /** 
          * Remove and delete a previously added TaskObject.
@@ -266,7 +285,7 @@ namespace ORO_Execution
         {
             return &ee;
         }
-
+#if 0
         /**
          * The Commands of this TaskContext.
          */
@@ -294,7 +313,7 @@ namespace ORO_Execution
         const GlobalMethodFactory* methods() const{
             return &methodFactory;
         }
-
+#endif
         /**
          * The DataSources of this TaskContext.
          */
@@ -365,6 +384,7 @@ namespace ORO_Execution
             return &dataPorts;
         }
 
+    private:
         /**
          * The Command Factory of this TaskContext.
          * @deprecated by commands()

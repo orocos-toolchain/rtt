@@ -102,7 +102,6 @@ namespace ORO_CoreLib
         Event()
             : signal_base_type()
         {
-            Logger::log() << Logger::Debug << "Nameless Event Created." << Logger::endl;
         }
 
         const std::string& getName() const { return mname; }

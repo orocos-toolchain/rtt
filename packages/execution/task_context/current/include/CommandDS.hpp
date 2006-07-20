@@ -5,6 +5,7 @@
 #include <string>
 #include "CommandProcessor.hpp"
 #include "BindStorage.hpp"
+#include "UnMember.hpp"
 
 namespace ORO_Execution
 {
@@ -79,6 +80,12 @@ namespace ORO_Execution
         }
         
     };
+
+    template<class ComF, class ConF>
+    CommandDS<typename detail::ArgMember<ComF>::type > command_ds(std::string name, ComF command, ConF condition, CommandProcessor* cp, bool invert = false) {
+        return CommandDS<typename detail::ArgMember<ComF>::type >(name, command, condition, cp, invert);
+    }
+
 
 }
 #endif

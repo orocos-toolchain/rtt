@@ -375,6 +375,7 @@ namespace ORO_Execution
 
       // collect RHS :
       DataSourceBase::shared_ptr expr = expressionparser.getResult();
+      assert( expr );
       expressionparser.dropResult();
       //assert( !expressionparser.hasResult() );
 

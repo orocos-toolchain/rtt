@@ -42,8 +42,6 @@
 #include "corelib/CommandDataSource.hpp"
 #include "corelib/ConditionTrue.hpp"
 #include "corelib/ConditionOnce.hpp"
-#include "execution/GlobalCommandFactory.hpp"
-#include "execution/CommandFactoryInterface.hpp"
 
 #include "execution/AsynchCommandDecorator.hpp"
 
@@ -124,33 +122,23 @@ namespace ORO_Execution
       peer = peerparser.peer();
       peerparser.reset();
 
-    const GlobalCommandFactory* gcf =
-      peer->commands();
-    const GlobalMethodFactory* gmf =
-      peer->methods();
-    const GlobalDataSourceFactory* gdf =
-      peer->datasources();
-    const CommandFactoryInterface* cfi = gcf->getObjectFactory( mcurobject );
-    const MethodFactoryInterface*  mfi = gmf->getObjectFactory( mcurobject );
-    const DataSourceFactoryInterface*  dfi = gdf->getObjectFactory( mcurobject );
+      OperationInterface* obj = 0;
+      if (mcurobject != "this") 
+          if ( (obj = peer->getObject(mcurobject)) == 0 )
+              throw parse_exception_no_such_component( peer->getName(), mcurobject+"."+mcurmethod );
+          else {
+              if ( obj->methods()->hasMember(mcurmethod) == false && obj->commands()->hasMember(mcurmethod) == false)
+                  throw parse_exception_no_such_method_on_component( mcurobject, mcurmethod );
+          }
+      else {
+          if ( peer->methods()->hasMember(mcurmethod) == false && peer->commands()->hasMember(mcurmethod) == false)
+              throw parse_exception_no_such_method_on_component( peer->getName(), mcurmethod );
+      }
 
-    // In case the object is not found :
-    if ( ! cfi && ! mfi && ! dfi) {
-        if ( mcurobject == "this" )
-            mcurobject = mcurmethod;
-        else
-            mcurobject = mcurobject + "." + mcurmethod;
-        throw parse_exception_no_such_component( peer->getName(), mcurobject );
-    }
-
-    // In case the method/command is not found :
-    if ( !( ( cfi && cfi->hasCommand(mcurmethod)) || ( mfi && mfi->hasMember(mcurmethod)) || ( dfi && dfi->hasMember(mcurmethod)) ) )
-        throw parse_exception_no_such_method_on_component( mcurobject, mcurmethod );
-
-    // we found it !
-    argsparser = new ArgumentsParser( expressionparser, peer,
+      // ok object and method are found.
+      argsparser = new ArgumentsParser( expressionparser, peer,
                                       mcurobject, mcurmethod );
-    arguments = argsparser->parser();
+      arguments = argsparser->parser();
   }
 
   void CommandParser::seencallcommand()
@@ -161,35 +149,37 @@ namespace ORO_Execution
     mcurobject = argsparser->objectname();
     mcurmethod = argsparser->methodname();
 
-    const GlobalCommandFactory* gcf =
-      peer->commands();
-    const GlobalMethodFactory* gmf =
-      peer->methods();
-    const GlobalDataSourceFactory* gdf =
-      peer->datasources();
-    const CommandFactoryInterface* cfi = gcf->getObjectFactory( mcurobject );
-    const MethodFactoryInterface*  mfi = gmf->getObjectFactory( mcurobject );
-    const DataSourceFactoryInterface*  dfi = gdf->getObjectFactory( mcurobject );
-
-    // cfi should exist, because otherwise we would have noticed in
-    // seenstartofcall()...
-    assert( cfi || mfi || dfi);
+    OperationInterface* obj = 0;
+    CommandRepository::Factory* cfi = 0;
+    MethodRepository::Factory* mfi = 0;
+    if ( mcurobject != "this" ) {
+        obj = peer->getObject(mcurobject);
+        assert(obj);
+        mfi = obj->methods();
+        cfi = obj->commands();
+    } else {
+        mfi = peer->methods();
+        cfi = peer->commands();
+    }
+    assert(mfi);
+    assert(cfi);
 
     ComCon comcon;
-    if ( cfi && cfi->hasCommand( mcurmethod ) )
+    if ( cfi->hasMember( mcurmethod ) )
         try
             {
                 // check if dispatching is required:
+                // This check is done, here but we always dispatch anyway,
+                // to allow CommandProcessor policies to be in effect.
                 if ( peer->engine()->commands() != context->engine()->commands() || mdispatch ) {
                     // different, dispatch:
-                    comcon = cfi->create( mcurmethod, argsparser->result(), false );
-                    dcom = dynamic_cast<DispatchInterface*>( comcon.first );
-                    assert( dcom );
+                    dcom = cfi->produce( mcurmethod, argsparser->result() );// ,false );
                 } else {
                     // within same execution engine, no dispatch:
-                    comcon = cfi->create( mcurmethod, argsparser->result(), true );
+                    dcom = cfi->produce( mcurmethod, argsparser->result() );//, true );
                 }
-                
+                comcon.first = dcom;
+                comcon.second = dcom->createCondition();
             }
         catch( const wrong_number_of_args_exception& e )
             {
@@ -205,12 +195,12 @@ namespace ORO_Execution
             {
                 assert( false );
             }
-    else if ( mfi && mfi->hasMember( mcurmethod ) )
+    else if ( mfi->hasMember( mcurmethod ) )
         try
             {
                 // if the method returns a boolean, construct it as a command
                 // which accepts/rejects the result.
-                DataSourceBase* dsb =  mfi->create( mcurmethod, argsparser->result() );
+                DataSourceBase* dsb =  mfi->produce( mcurmethod, argsparser->result() );
                 DataSource<bool>* dsb_res = DataSource<bool>::narrow( dsb );
                 if ( dsb_res == 0 )
                     comcon.first =  new CommandDataSource( dsb );
@@ -232,35 +222,6 @@ namespace ORO_Execution
             {
                 assert( false );
             }
-    else if ( dfi && dfi->hasMember( mcurmethod ) )
-        try
-            {
-                // if the method returns a boolean, construct it as a command
-                // which accepts/rejects the result.
-                DataSourceBase* dsb =  dfi->create( mcurmethod, argsparser->result() );
-                DataSource<bool>* dsb_res = DataSource<bool>::narrow( dsb );
-                if ( dsb_res == 0 )
-                    comcon.first =  new CommandDataSource( dsb );
-                else
-                    comcon.first =  new CommandDataSourceBool( dsb_res );
-                comcon.second = new ConditionTrue();
-            }
-        catch( const wrong_number_of_args_exception& e )
-            {
-                throw parse_exception_wrong_number_of_arguments
-                    (mcurobject, mcurmethod, e.wanted, e.received );
-            }
-        catch( const wrong_types_of_args_exception& e )
-            {
-                throw parse_exception_wrong_type_of_argument
-                    ( mcurobject, mcurmethod, e.whicharg, e.expected_, e.received_ );
-            }
-        catch( ... )
-            {
-                assert( false );
-            }
-    else
-        assert(false);
 
     mcurobject.clear();
     mcurmethod.clear();

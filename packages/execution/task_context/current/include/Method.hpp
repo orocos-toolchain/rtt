@@ -10,6 +10,7 @@
 
 namespace ORO_Execution
 {
+    using namespace ORO_CoreLib;
     /**
      * A method which executes a function.
      *
@@ -182,6 +183,27 @@ namespace ORO_Execution
     template<class F, class O>
     Method< typename detail::UnMember<F>::type > method(std::string name, F method, O object) {
         return Method<  typename detail::UnMember<F>::type >(name, method, object);
+    }
+
+    /** 
+     * Create a Method which executes a function locally.
+     * 
+     * @param name The name of the resulting Method object
+     * @param method A pointer to a function to be executed.
+     */
+    template<class F>
+    Method<F> method(std::string name, F method) {
+        return Method<F>(name, method);
+    }
+    /** 
+     * Create a Method which executes a function locally.
+     * 
+     * @param name The name of the resulting Method object
+     * @param method A pointer to a function to be executed.
+     */
+    template<class F>
+    Method< typename detail::ArgMember<F>::type > method_ds(std::string name, F method) {
+        return Method<  typename detail::ArgMember<F>::type >(name, method);
     }
 }
 

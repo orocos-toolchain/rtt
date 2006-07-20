@@ -50,9 +50,8 @@ void
 Generic_TaskTest::setUp()
 {
     tc =  new TaskContext( "root" );
-    tc->methodFactory.registerObject("methods", this->createMethodFactory() );
-    tc->commandFactory.registerObject("commands", this->createCommandFactory() );
-    tc->dataFactory.registerObject("data", this->createDataSourceFactory() );
+    tc->addObject( this->createMethodFactory() );
+    tc->addObject( this->createCommandFactory() );
     tsim = new SimulationActivity(0.001, tc->engine() );
 }
 
@@ -72,68 +71,52 @@ bool Generic_TaskTest::assertBool( bool b) {
     return b;
 }
 
-MethodFactoryInterface* Generic_TaskTest::createMethodFactory()
+TaskObject* Generic_TaskTest::createMethodFactory()
 {
-    TemplateMethodFactory< Generic_TaskTest >* dat =
-        newMethodFactory( this );
+    TaskObject* to = new TaskObject("methods");
 
-    dat->add( "assert", method( &Generic_TaskTest::assertBool, "assert","b","bd") );
+    to->methods()->addMethod( method("assert",  &Generic_TaskTest::assertBool, this), "assert","b","bd");
 
-    dat->add( "m0", method( &Generic_TaskTest::m0, "M0") );
-    dat->add( "m1", method( &Generic_TaskTest::m1, "M1","a","ad") );
-    dat->add( "m2", method( &Generic_TaskTest::m2, "M2","a","ad","a","ad") );
-    dat->add( "m3", method( &Generic_TaskTest::m3, "M3","a","ad","a","ad","a","ad") );
-    dat->add( "m4", method( &Generic_TaskTest::m4, "M4","a","ad","a","ad","a","ad","a","ad") );
-    return dat;
+    to->methods()->addMethod( method("m0",  &Generic_TaskTest::m0, this), "M0");
+    to->methods()->addMethod( method("m1",  &Generic_TaskTest::m1, this), "M1","a","ad");
+    to->methods()->addMethod( method("m2",  &Generic_TaskTest::m2, this), "M2","a","ad","a","ad");
+    to->methods()->addMethod( method("m3",  &Generic_TaskTest::m3, this), "M3","a","ad","a","ad","a","ad");
+    to->methods()->addMethod( method("m4",  &Generic_TaskTest::m4, this), "M4","a","ad","a","ad","a","ad","a","ad");
+    return to;
 }
 
-DataSourceFactoryInterface* Generic_TaskTest::createDataSourceFactory()
+TaskObject* Generic_TaskTest::createCommandFactory()
 {
-    TemplateDataSourceFactory< Generic_TaskTest >* dat =
-        newDataSourceFactory( this );
+    TaskObject* to = new TaskObject("commands");
 
-    dat->add( "d0", data( &Generic_TaskTest::d0, "d0") );
-    dat->add( "d1", data( &Generic_TaskTest::d1, "d1","a","ad") );
-    dat->add( "d2", data( &Generic_TaskTest::d2, "d2","a","ad","a","ad") );
-    dat->add( "d3", data( &Generic_TaskTest::d3, "d3","a","ad","a","ad","a","ad") );
-    dat->add( "d4", data( &Generic_TaskTest::d4, "d4","a","ad","a","ad","a","ad","a","ad") );
-
-    return dat;
-}
-
-CommandFactoryInterface* Generic_TaskTest::createCommandFactory()
-{
-    TemplateCommandFactory< Generic_TaskTest >* dat =
-        newCommandFactory( this );
-
-    dat->add( "c00", command( &Generic_TaskTest::cd0, &Generic_TaskTest::cn0, "c0d") );
-    dat->add( "c10", command( &Generic_TaskTest::cd1, &Generic_TaskTest::cn0, "c1d","a","ad") );
-    dat->add( "c11", command( &Generic_TaskTest::cd1, &Generic_TaskTest::cn1, "c1d","a","ad") );
-    dat->add( "c20", command( &Generic_TaskTest::cd2, &Generic_TaskTest::cn0, "c2d","a","ad","a","ad") );
-    dat->add( "c21", command( &Generic_TaskTest::cd2, &Generic_TaskTest::cn1, "c2d","a","ad","a","ad") );
-    dat->add( "c22", command( &Generic_TaskTest::cd2, &Generic_TaskTest::cn2, "c2d","a","ad","a","ad") );
-    dat->add( "c30", command( &Generic_TaskTest::cd3, &Generic_TaskTest::cn0, "c3d","a","ad","a","ad","a","ad") );
-    dat->add( "c31", command( &Generic_TaskTest::cd3, &Generic_TaskTest::cn1, "c3d","a","ad","a","ad","a","ad") );
-    dat->add( "c33", command( &Generic_TaskTest::cd3, &Generic_TaskTest::cn3, "c3d","a","ad","a","ad","a","ad") );
-    dat->add( "c40", command( &Generic_TaskTest::cd4, &Generic_TaskTest::cn0, "c4d","a","ad","a","ad","a","ad","a","ad") );
-    dat->add( "c41", command( &Generic_TaskTest::cd4, &Generic_TaskTest::cn1, "c4d","a","ad","a","ad","a","ad","a","ad") );
-    dat->add( "c44", command( &Generic_TaskTest::cd4, &Generic_TaskTest::cn4, "c4d","a","ad","a","ad","a","ad","a","ad") );
-    return dat;
+    to->commands()->addCommand( command("c00", &Generic_TaskTest::cd0, &Generic_TaskTest::cn0, this, tc->engine()->commands()), "c0d");
+    to->commands()->addCommand( command("c10", &Generic_TaskTest::cd1, &Generic_TaskTest::cn0, this, tc->engine()->commands()), "c1d","a","ad");
+    to->commands()->addCommand( command("c11", &Generic_TaskTest::cd1, &Generic_TaskTest::cn1, this, tc->engine()->commands()), "c1d","a","ad");
+    to->commands()->addCommand( command("c20", &Generic_TaskTest::cd2, &Generic_TaskTest::cn0, this, tc->engine()->commands()), "c2d","a","ad","a","ad");
+    to->commands()->addCommand( command("c21", &Generic_TaskTest::cd2, &Generic_TaskTest::cn1, this, tc->engine()->commands()), "c2d","a","ad","a","ad");
+    to->commands()->addCommand( command("c22", &Generic_TaskTest::cd2, &Generic_TaskTest::cn2, this, tc->engine()->commands()), "c2d","a","ad","a","ad");
+    to->commands()->addCommand( command("c30", &Generic_TaskTest::cd3, &Generic_TaskTest::cn0, this, tc->engine()->commands()), "c3d","a","ad","a","ad","a","ad");
+    to->commands()->addCommand( command("c31", &Generic_TaskTest::cd3, &Generic_TaskTest::cn1, this, tc->engine()->commands()), "c3d","a","ad","a","ad","a","ad");
+    to->commands()->addCommand( command("c33", &Generic_TaskTest::cd3, &Generic_TaskTest::cn3, this, tc->engine()->commands()), "c3d","a","ad","a","ad","a","ad");
+    to->commands()->addCommand( command("c40", &Generic_TaskTest::cd4, &Generic_TaskTest::cn0, this, tc->engine()->commands()), "c4d","a","ad","a","ad","a","ad","a","ad");
+    to->commands()->addCommand( command("c41", &Generic_TaskTest::cd4, &Generic_TaskTest::cn1, this, tc->engine()->commands()), "c4d","a","ad","a","ad","a","ad","a","ad");
+    to->commands()->addCommand( command("c44", &Generic_TaskTest::cd4, &Generic_TaskTest::cn4, this, tc->engine()->commands()), "c4d","a","ad","a","ad","a","ad","a","ad");
+    return to;
 }
 
 void Generic_TaskTest::testMethodsC()
 {
     MethodC mc;
     double r = 0.0;
-    mc = tc->methods()->create("methods", "m0").ret( r );
+    mc = tc->getObject("methods")->methods()->create("m0").ret( r );
     CPPUNIT_ASSERT( mc.execute() );
     CPPUNIT_ASSERT( r == -1.0 );
 
-    mc = tc->methods()->create("methods", "m2").argC(1).argC(1.0).ret( r );
+    mc = tc->getObject("methods")->methods()->create("m2").argC(1).argC(1.0).ret( r );
     CPPUNIT_ASSERT( mc.execute() );
     CPPUNIT_ASSERT( r == -3.0 );
 
-    mc = tc->methods()->create("methods", "m3").ret( r ).argC(1).argC(1.0).argC(true);
+    mc = tc->getObject("methods")->methods()->create("m3").ret( r ).argC(1).argC(1.0).argC(true);
     CPPUNIT_ASSERT( mc.execute() );
     CPPUNIT_ASSERT( r == -4.0 );
     
@@ -153,11 +136,11 @@ void Generic_TaskTest::testMethodsC()
 
 void Generic_TaskTest::testCommandsC()
 {
-    CommandC cc = tc->commands()->create("commands","c00");
-    CommandC c20 = tc->commands()->create("commands","c20").argC(1).argC(1.0);
-    CommandC c32 = tc->commands()->create("commands","c31").argC(1).argC(1.0).argC('a');
-    CommandC c33 = tc->commands()->create("commands","c33").argC(1).argC(1.0).argC('a');
-    CommandC c44 = tc->commands()->create("commands","c44").argC(1).argC(1.0).argC('a').argC(true);
+    CommandC cc = tc->getObject("commands")->commands()->create("c00");
+    CommandC c20 = tc->getObject("commands")->commands()->create("c20").argC(1).argC(1.0);
+    CommandC c32 = tc->getObject("commands")->commands()->create("c31").argC(1).argC(1.0).argC('a');
+    CommandC c33 = tc->getObject("commands")->commands()->create("c33").argC(1).argC(1.0).argC('a');
+    CommandC c44 = tc->getObject("commands")->commands()->create("c44").argC(1).argC(1.0).argC('a').argC(true);
     SimulationThread::Instance()->stop();
     tsim->stop();
 
@@ -531,17 +514,17 @@ void Generic_TaskTest::testCommandFactory()
     CPPUNIT_ASSERT( to.commands()->addCommand(&com10) );
 
     // test constructor
-    Command<bool(void)> rc0 = to.commands()->getCommand("c0");
+    Command<bool(void)> rc0 = to.commands()->getCommand<bool(void)>("c0");
     CPPUNIT_ASSERT( rc0.getCommandImpl() );
     CPPUNIT_ASSERT( rc0.ready() );
 
     // test operator=()
     Command<bool(int)> rc11;
-    rc11 = to.commands()->getCommand("c11");
+    rc11 = to.commands()->getCommand<bool(int)>("c11");
     CPPUNIT_ASSERT( rc11.getCommandImpl() );
     CPPUNIT_ASSERT( rc11.ready() );
 
-    Command<bool(int)> rc10 = to.commands()->getCommand("c10");
+    Command<bool(int)> rc10 = to.commands()->getCommand<bool(int)>("c10");
     CPPUNIT_ASSERT( rc10.getCommandImpl() );
     CPPUNIT_ASSERT( rc10.ready() );
 
@@ -651,14 +634,20 @@ void Generic_TaskTest::testDSCommand()
                                             &Generic_TaskTest::cd0, &Generic_TaskTest::cn0,
                                             tc->engine()->commands() );
 
+    command_ds("c0", &Generic_TaskTest::cd0, &Generic_TaskTest::cn0, tc->engine()->commands() );
+
     CommandDS<bool(Generic_TaskTest*,int)> com1("c1",
                                                 &Generic_TaskTest::cd1, &Generic_TaskTest::cn1,
                                                 tc->engine()->commands() );
 
+    command_ds("c1",&Generic_TaskTest::cd1, &Generic_TaskTest::cn1, tc->engine()->commands() );
+
+    command_ds("cs",&Generic_TaskTest::comstr, &Generic_TaskTest::comstr, tc->engine()->commands() );
+
     boost::shared_ptr<Generic_TaskTest> ptr( new Generic_TaskTest() );
     ValueDataSource<boost::weak_ptr<Generic_TaskTest> >::shared_ptr wp = new ValueDataSource<boost::weak_ptr<Generic_TaskTest> >( ptr );
-    CPPUNIT_ASSERT( to.commands()->addCommandDS( wp.get(), &com0, "desc" ) );
-    CPPUNIT_ASSERT( to.commands()->addCommandDS( wp.get(), &com1, "desc", "a1", "d1" ) );
+    CPPUNIT_ASSERT( to.commands()->addCommandDS( wp.get(), com0, "desc" ) );
+    CPPUNIT_ASSERT( to.commands()->addCommandDS( wp.get(), com1, "desc", "a1", "d1" ) );
 
     // this actually works ! the command will detect the deleted pointer.
     //ptr.reset();
@@ -706,17 +695,17 @@ void Generic_TaskTest::testMethodFactory()
     CPPUNIT_ASSERT( to.methods()->addMethod(&m2) );
 
     // test constructor
-    Method<double(void)> mm0 = to.methods()->getMethod("m0");
+    Method<double(void)> mm0 = to.methods()->getMethod<double(void)>("m0");
     CPPUNIT_ASSERT( mm0.getMethodImpl() );
     CPPUNIT_ASSERT( mm0.ready() );
 
     // test operator=()
     Method<double(int)> mm1;
-    mm1 = to.methods()->getMethod("m1");
+    mm1 = to.methods()->getMethod<double(int)>("m1");
     CPPUNIT_ASSERT( mm1.getMethodImpl() );
     CPPUNIT_ASSERT( mm1.ready() );
 
-    Method<double(int,double)> mm2 = to.methods()->getMethod("m2");
+    Method<double(int,double)> mm2 = to.methods()->getMethod<double(int,double)>("m2");
     CPPUNIT_ASSERT( mm2.getMethodImpl() );
     CPPUNIT_ASSERT( mm2.ready() );
 
@@ -821,13 +810,18 @@ void Generic_TaskTest::testDSMethod()
     Method<double(Generic_TaskTest*)> meth0("m0",
                                           &Generic_TaskTest::m0);
 
+    method_ds("m0", &Generic_TaskTest::m0);
+
     Method<double(Generic_TaskTest*,int)> meth1("m1",
                                           &Generic_TaskTest::m1);
 
+    method_ds("m1", &Generic_TaskTest::m1);
+    method_ds("ms",&Generic_TaskTest::comstr );
+
     boost::shared_ptr<Generic_TaskTest> ptr( new Generic_TaskTest() );
     ValueDataSource<boost::weak_ptr<Generic_TaskTest> >::shared_ptr wp = new ValueDataSource<boost::weak_ptr<Generic_TaskTest> >( ptr );
-    CPPUNIT_ASSERT( to.methods()->addMethodDS( wp.get(), &meth0, "desc" ) );
-    CPPUNIT_ASSERT( to.methods()->addMethodDS( wp.get(), &meth1, "desc", "a1", "d1" ) );
+    CPPUNIT_ASSERT( to.methods()->addMethodDS( wp.get(), meth0, "desc" ) );
+    CPPUNIT_ASSERT( to.methods()->addMethodDS( wp.get(), meth1, "desc", "a1", "d1" ) );
 
     // this actually works ! the method will detect the deleted pointer.
     //ptr.reset();

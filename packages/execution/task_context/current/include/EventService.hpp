@@ -29,6 +29,7 @@
 #ifndef EVENT_SERVICE_HPP
 #define EVENT_SERVICE_HPP
 
+#include <corelib/Logger.hpp>
 #include "TemplateEventFactory.hpp"
 #include "EventC.hpp"
 #include "ConnectionC.hpp"
@@ -115,9 +116,36 @@ namespace ORO_Execution
             
         /**
          * Add an arbitrary Event to this Service.
+         * @deprecated by the addEvent function below.
          */
         template< class EventT>
         bool addEvent( const std::string& ename, EventT* e ) {
+            if ( fact.count(ename) != 0 )
+                return false;
+            fact[ename] = new detail::EventStub<EventT>( e,
+                                                         detail::EventHookFactoryGenerator<EventT>().receptor(),
+                                                         detail::EventHookFactoryGenerator<EventT>().emittor() );
+            return true;
+        }
+
+        /** 
+         * Add an Event with a unique name within the Event Service.
+         * 
+         * @param e The event to add
+         * 
+         * @return True if the event's name was unique
+         * and could be added.
+         */
+        template< class EventT>
+        bool addEvent( EventT* e ) {
+            using namespace ORO_CoreLib;
+            std::string ename = e->getName();
+            if ( ename.empty() ) {
+                Logger::In in("EventService");
+                log(Error) << "Can not use addEvent with nameless Even: give your event a name upon construction." << endlog();
+                return false;
+            }
+
             if ( fact.count(ename) != 0 )
                 return false;
             fact[ename] = new detail::EventStub<EventT>( e,
@@ -267,10 +295,6 @@ namespace ORO_Execution
          */
         ORO_CoreLib::DataSourceBase::shared_ptr setupEmit(const std::string& ename,const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args) const;
 
-        /*
-         * The Global EventService, in which global Events are stored.
-         */
-        //static EventService Global;
     };
 
 

@@ -63,3 +63,17 @@ void LoggerTest::testLogEnv()
     Logger::log() << "Test Log Environment variable : flush" << flush;
     Logger::log() << " and std::endl." << std::endl;
 }
+
+void LoggerTest::testNewLog()
+{
+    log( Debug )  << "Debug Level set + text"<< endlog();
+    log() << "Test Log Environment variable : Single line" << endlog(Debug);
+    log() << "Test Log Environment variable : Two ";
+    log() << "lines on one line." << endlog();
+    log() << "Test Log Environment variable : Two" << nlog();
+    log() << "lines on two lines." << endlog();
+
+    log() << "Test Log Environment variable : nl" << nlog();
+    log() << "Test Log Environment variable : flush" << flushlog();
+    log() << " and std::endl." << std::endl;
+}

@@ -49,7 +49,7 @@ class TypesTest : public CppUnit::TestFixture
     Parser parser;
     TaskContext* tc;
     ActivityInterface* tsim;
-    MethodFactoryInterface* createMethodFactory();
+    TaskObject* createMethodFactory();
     bool assertBool( bool );
 #ifdef OROPKG_GEOMETRY
     bool equalFrames(const Frame& f1, Frame& f2);

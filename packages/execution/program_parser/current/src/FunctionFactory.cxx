@@ -50,64 +50,28 @@ namespace ORO_Execution
     using namespace boost;
     using namespace ORO_CoreLib;
 
-        FunctionFactory::FunctionFactory(ExecutionEngine* procs) : proc(procs) {}
-        FunctionFactory::~FunctionFactory() {
-            while( !funcmap.empty() ) {
-                funcmap.erase(funcmap.begin());
-            }
-        }
+        FunctionFactory::FunctionFactory(ProgramInterfacePtr pi, ExecutionEngine* procs)
+            : detail::OperationFactoryPart<DispatchInterface*>("A function."), func(pi), proc(procs) {}
 
-        void FunctionFactory::addFunction(const std::string& name, shared_ptr<ProgramInterface> f ) 
-        {
-            funcmap[name] = f;
-        }
-
-        bool FunctionFactory::hasCommand(const std::string& com) const {
-            return funcmap.count(com);
-        }
-
-        std::vector<std::string> FunctionFactory::getCommandList() const {
-            std::vector<std::string> ret;
-            std::transform( funcmap.begin(), funcmap.end(),
-                            std::back_inserter( ret ),
-                            ORO_std::select1st<map_t::value_type>() );
-            return ret;
-        }
-
-        std::string FunctionFactory::getResultType( const std::string& com ) const {
-            if ( hasCommand(com) )
-                return std::string("bool");
-            throw name_not_found_exception();
-        }
-
-        std::string FunctionFactory::getDescription( const std::string& com ) const {
-            if ( hasCommand(com) )
-                return std::string("A function with name ") + com;
-            throw name_not_found_exception();
+        std::string FunctionFactory::resultType() const {
+            return std::string("bool");
         }
 
         ORO_CoreLib::PropertyBag
-        FunctionFactory::getArgumentSpec( const std::string& command ) const
+        FunctionFactory::getArgumentSpec() const
         {
-            if ( !hasCommand(command) )
-                throw name_not_found_exception();
-            shared_ptr<ProgramInterface> orig = funcmap.find(command)->second;
-            std::vector<AttributeBase*> origlist = orig->getArguments();
+            std::vector<AttributeBase*> origlist = func->getArguments();
 
             PropertyBag ret;
             for ( std::vector<AttributeBase*>::const_iterator it = origlist.begin();
                   it != origlist.end(); ++it)
-                ret.add( new Property<std::string>("na", "Type Not available") );
+                ret.add( (*it)->getDataSource()->getTypeInfo()->buildProperty("arg","Function Argument."));
             return ret;
         }
 
-        std::vector< ArgumentDescription > FunctionFactory::getArgumentList( const std::string& command ) const
+        std::vector< ArgumentDescription > FunctionFactory::getArgumentList() const
         {
-            if ( !hasCommand(command) )
-                throw name_not_found_exception();
-
-            shared_ptr<ProgramInterface> orig = funcmap.find(command)->second;
-            std::vector<AttributeBase*> origlist = orig->getArguments();
+            std::vector<AttributeBase*> origlist = func->getArguments();
             std::vector< ArgumentDescription > mlist;
             for ( std::vector<AttributeBase*>::const_iterator it = origlist.begin();
                   it != origlist.end(); ++it)
@@ -115,44 +79,17 @@ namespace ORO_Execution
             return mlist;
         }
 
-        int FunctionFactory::getArity( const std::string& foo ) const
+        int FunctionFactory::arity( ) const
         {
-            map_t::const_iterator orig = funcmap.find(foo);
-            if ( orig == funcmap.end() )
-                return -1;
-            return orig->second->getArguments().size();
+            return func->getArguments().size();
         }
 
-        ComCon FunctionFactory::create( const std::string& command,
-                       const ORO_CoreLib::PropertyBag& args,
-                       bool d) const {
-            std::vector<DataSourceBase::shared_ptr> dsVect;
-            std::transform( args.begin(), args.end(),
-                            std::back_inserter( dsVect ),
-                            bind( &ORO_CoreLib::PropertyBase::getDataSource, _1));
-            return this->create( command, dsVect, d );
-        }
-
-        ComCon FunctionFactory::create(
-                      const std::string& command,
-                      const std::vector<DataSourceBase*>& args,
-                      bool d) const {
-            std::vector<DataSourceBase::shared_ptr> dsVect;
-            for( std::vector<DataSourceBase*>::const_iterator i = args.begin(); i != args.end(); ++i )
-                dsVect.push_back( DataSourceBase::shared_ptr( *i ));
-            return this->create( command, dsVect, d );
-        }
-
-        ComCon FunctionFactory::create(
-                      const std::string& command,
-                      const std::vector<DataSourceBase::shared_ptr>& args,
-                      bool nodispatch) const {
-            // We ignore asyn, since we CommandExecFunction is always asyn itself.
-            if ( !hasCommand(command) )
-                throw name_not_found_exception(command);
+        DispatchInterface* FunctionFactory::produce(
+                      const std::vector<DataSourceBase::shared_ptr>& args
+                      ) const {
 
             // check if correct number of args :
-            shared_ptr<ProgramInterface> orig = funcmap.find(command)->second;
+            shared_ptr<ProgramInterface> orig = func;
             std::vector<AttributeBase*> origlist = orig->getArguments();
             if ( args.size() != origlist.size() )
                 throw wrong_number_of_args_exception( origlist.size(), args.size() );
@@ -187,7 +124,7 @@ namespace ORO_Execution
                     icom->add( ret );
                 else {
                     delete icom;
-                    return ComCon();
+                    return 0;
                 }
             }
 #endif
@@ -197,11 +134,7 @@ namespace ORO_Execution
                 
             // the command gets ownership of the new function :
             // this command is a DispatchInterface...
-            CommandExecFunction* ecom = new CommandExecFunction( icom, fcopy, proc->getProgramProcessor() );
-            ConditionInterface*  con = ecom->createCondition();
-            // first init, then dispatch the function.
-            // init->execute() : once(asyn), ecom->execute() : until done (syn)
-            return ComCon(ecom, con);
+            return new CommandExecFunction( icom, fcopy, proc->getProgramProcessor() );
         }
 }
 

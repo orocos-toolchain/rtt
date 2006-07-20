@@ -21,6 +21,7 @@ namespace ORO_Execution
         template<class F, class R>
         struct InvokerBaseImpl<0,F,R>
         {
+            virtual ~InvokerBaseImpl() {}
             virtual R operator()() = 0;
         };
 
@@ -28,6 +29,7 @@ namespace ORO_Execution
         struct InvokerBaseImpl<1,F,R>
         {
             typedef typename boost::function<F>::arg1_type arg1_type;
+            virtual ~InvokerBaseImpl() {}
             virtual R operator()(arg1_type a1) = 0;
         };
 
@@ -36,6 +38,7 @@ namespace ORO_Execution
         {
             typedef typename boost::function<F>::arg1_type arg1_type;
             typedef typename boost::function<F>::arg2_type arg2_type;
+            virtual ~InvokerBaseImpl() {}
             virtual R operator()(arg1_type a1, arg2_type a2) = 0;
         };
 
@@ -45,6 +48,7 @@ namespace ORO_Execution
             typedef typename boost::function<F>::arg1_type arg1_type;
             typedef typename boost::function<F>::arg2_type arg2_type;
             typedef typename boost::function<F>::arg3_type arg3_type;
+            virtual ~InvokerBaseImpl() {}
             virtual R operator()(arg1_type a1, arg2_type a2, arg3_type a3) = 0;
         };
 
@@ -55,6 +59,7 @@ namespace ORO_Execution
             typedef typename boost::function<F>::arg2_type arg2_type;
             typedef typename boost::function<F>::arg3_type arg3_type;
             typedef typename boost::function<F>::arg4_type arg4_type;
+            virtual ~InvokerBaseImpl() {}
             virtual R operator()(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4) = 0;
         };
 
@@ -223,7 +228,7 @@ namespace ORO_Execution
             {
                 if (impl)
                     return (*impl)();
-                return NA<result_type>::na;
+                return NA<result_type>::na();
             }
         protected:
             ToInvoke* impl;
@@ -254,7 +259,7 @@ namespace ORO_Execution
             {
                 if (impl)
                     return (*impl)( a1 );
-                return NA<result_type>::na;
+                return NA<result_type>::na();
             }
         protected:
             ToInvoke* impl;
@@ -285,7 +290,7 @@ namespace ORO_Execution
             {
                 if (impl)
                     return (*impl)(t1, t2);
-                return NA<result_type>::na;
+                return NA<result_type>::na();
             }
 
         protected:
@@ -318,7 +323,7 @@ namespace ORO_Execution
             {
                 if (impl)
                     return (*impl)(t1, t2, t3);
-                return NA<result_type>::na;
+                return NA<result_type>::na();
             }
 
         protected:
@@ -352,7 +357,7 @@ namespace ORO_Execution
             {
                 if (impl)
                     return (*impl)(t1, t2, t3, t4);
-                return NA<result_type>::na;
+                return NA<result_type>::na();
             }
             
         protected:

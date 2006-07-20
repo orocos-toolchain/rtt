@@ -55,7 +55,7 @@ class StateTest : public CppUnit::TestFixture
     SimulationActivity gtask;
     Event<void(double)> d_event;
     Event<void(bool)> b_event;
-    MethodFactoryInterface* createMethodFactory();
+    TaskObject* createObject(std::string);
     CommandFactoryInterface* createCommandFactory();
     DataSourceFactoryInterface* createDataSourceFactory();
     bool assertBool( bool );
@@ -71,6 +71,7 @@ class StateTest : public CppUnit::TestFixture
     bool false_gen() const { return false; }
 
     bool bool_gen( bool b ) const { return b; }
+    int getI() const {return i;}
     int i;
 public:
     StateTest();

@@ -61,9 +61,10 @@ namespace ORO_Execution
         struct Dispatcher : public ORO_CoreLib::CommandInterface {
             bool mexecuted, mvalid;
             CommandDispatch* cd;
+            // trick: set mvalid to true internally but return in valid(): mexecuted && mvalid.
             Dispatcher(CommandDispatch* c) : mexecuted(false), mvalid(true), cd(c) {}
             void readArguments() {}
-            bool execute() { mexecuted=true; return mvalid=cd->com->execute();}
+            bool execute() { mvalid=cd->com->execute(); mexecuted=true; return mvalid;}
             void reset() { mexecuted=false; mvalid=true; }
             virtual Dispatcher* clone() const { return new Dispatcher(cd); }
         } dispatcher;

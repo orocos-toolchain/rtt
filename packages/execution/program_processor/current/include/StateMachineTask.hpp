@@ -52,8 +52,8 @@ namespace ORO_Execution
         //VariableDataSource<StateMachineTask*> _this; 
         bool true_gen() const;
 
-        CommandFactoryInterface* createCommandFactory();
-        MethodFactoryInterface* createMethodFactory();
+        void createCommandFactory();
+        void createMethodFactory();
 
     public:
         StateMachineTask* copy(StateMachinePtr newsc, std::map<const ORO_CoreLib::DataSourceBase*, ORO_CoreLib::DataSourceBase*>& replacements, bool instantiate );

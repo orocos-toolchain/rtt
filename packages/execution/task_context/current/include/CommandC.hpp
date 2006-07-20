@@ -34,6 +34,7 @@
 
 #include "corelib/DataSourceBase.hpp"
 #include "CommandFactoryInterface.hpp"
+#include "OperationFactory.hpp"
 
 namespace ORO_CoreLib
 {
@@ -74,7 +75,7 @@ namespace ORO_Execution
          * The constructor.
          * @see CommandRepository
          */
-        CommandC( const CommandRepository* gcf, const std::string& name);
+        CommandC( const CommandFactory* gcf, const std::string& name);
 
         /**
          * A CommandC is copyable by value.
@@ -169,7 +170,7 @@ namespace ORO_Execution
          * completion condition was true as well.
          * @retval false otherwise.
          */
-        bool evaluate();
+        bool evaluate() const;
 
         /**
          * Reset the command.

@@ -58,6 +58,12 @@
 	<revremark>Went through biggest part of manual to 'prettyfy' examples.
 	Cut out all the developer specific comments.</revremark>
       </revision>
+      <revision>
+	<revnumber>0.25.0</revnumber>
+	<date>18 July 2006</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>New command and method semantics.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -82,7 +88,7 @@
       Each control component is defined as a "TaskContext", which defines 
       the "context" in which the component task is executed. The context
       is built by the five Orocos primitives: Event, Property, Command, Method
-      and Data Flow. This document defines how a user can write his own 
+      and Data Port. This document defines how a user can write his own 
       task context and how it can be used in an application.
     </para>
     <figure id="fig-task-peers">
@@ -157,15 +163,6 @@
 	  <glossdef>
 	    <para> provides a scripting language which is convertible to
 	    a form which can be accepted by the Execution Engine.
-	    </para>
-	  </glossdef>
-	</glossentry>
-	<glossentry>
-	  <glossterm>Control Kernel</glossterm>
-	  <glossdef>
-	    <para> is an application which uses all of the above
-	      and provides an (although complex) example of how
-	      the &taskpkg; can be used in practice.
 	    </para>
 	  </glossdef>
 	</glossentry>
@@ -532,11 +529,9 @@ cd                  quit
     <title>Setting Up a Basic Task</title>
     <para>
       Tasks are 
-      implemented by the <classname>ORO_Execution::TaskContext</classname> class,
-      which should not be confused with the CoreLib PeriodicActivity
-      implementations.
+      implemented by the <classname>ORO_Execution::TaskContext</classname> class.
       It is useful speaking of a context because it defines
-      the context in which the task operates. 
+      the context in which an activity (a program) operates. 
       It defines the interface of the task, its properties,
       its peer tasks and uses its
       <classname>ORO_Execution::ExecutionEngine</classname> to handle its
@@ -571,13 +566,9 @@ cd                  quit
       The argument is the (unique) name of the task.
     </para>
     <para>
-      A task's interface consists of : Commands, Methods, DataSources,
+      A task's interface consists of : Commands, Methods, Ports,
       Attributes and Properties and Events, which are all public.  We
-      will refer to them as <emphasis>members</emphasis>.  The
-      TaskContext exports its interface members (to other tasks) by
-      means of object factories.  Which members are exported is up to
-      the application. The factories are required to map the interface
-      of a task to internal, application specific, C++ methods.
+      will refer to them as <emphasis>members</emphasis>.
     </para>
     <figure id="fig-a-task-context-intro">
       <title>
@@ -602,7 +593,7 @@ cd                  quit
       for new commands in it's queue and execute programs which are
       running in the task. Thus to start using the task, one needs to start
       the Execution Engine.  As long as it is not started, it will accept no
-      commands and run no programs.
+      commands, run no programs and react to no events.
     </para>
     <section><title>Task Application Code</title>
     <para>
@@ -748,7 +739,7 @@ cd                  quit
   a_task.commands();
   a_task.events();
       </programlisting>
-      The meaning of these factories are explained in the following
+      The meaning of these methods are explained in the following
       sections.
     </para>
     </section>
@@ -942,7 +933,7 @@ cd                  quit
 	  <para>
 	    A port's connection can be accessed through the
 	    connection() method. To access the data within the connection
-	    (the container), a special method is provided by each port.
+	    (i.e. the container), a special method is provided by each port.
 	  </para>
 	  <para>
 	    A DataPort's data container can be accessed by the
@@ -1025,19 +1016,25 @@ cd                  quit
       <para>
 	The easiest way to access a TaskContext's interface
 	is through Methods. They resemble very much normal C
-	or C++ functions. They take arguments and return a value.
+	or C++ functions, but they have the advantage to be
+	usable in scripting or can be called over a network
+	connection. They take arguments and return a value.
 	The return value can in return be used as an argument
 	for other Methods or stored in a variable. For
 	all details, we refer to the &orocos; Scripting
 	Manual.
       </para>
       <para>
-	To add a TaskContext's method to the Method Factory, one can use
-	the <classname>TemplateMethodFactory</classname>,
-	to easily create method factories :</para>
+	To add a TaskContext's method to the method interface, one 
+	proceeds similarly as when creating Data Ports. The
+	data type is now replaced by a <emphasis>function signature</emphasis>,
+	for example '<programlisting>void(int, double)</programlisting>'
+	which is the signature of a function returning 'void' and
+	having two arguments: an 'int' and a 'double'.
+      </para>
       <para>
 	<programlisting>
-  #include &lt;execution/TemplateFactories.hpp&gt;
+  #include &lt;execution/Method.hpp&gt;
   using namespace ORO_Execution;
 
   class MyTask
@@ -1049,22 +1046,22 @@ cd                  quit
     double changeParameter(double f) { ... }
     // ...
 
-    MyTask(std::string name)
-      : <classname>ORO_Execution::GenericTaskContext</classname>(name)
-    {
-       TemplateMethodFactory&lt;MyTask&gt;* mfact =
-	   newMethodFactory( <emphasis>this</emphasis> );
-       mfact-&gt;add( &quot;reset&quot;,
-                     method( &amp;MyTask::reset, &quot;Reset the system.&quot; ) );
-       mfact-&gt;add( &quot;name&quot;,
-                     method( &amp;MyTask::getName,
-                             &quot;Read out the name of the system.&quot; ) );
-       mfact-&gt;add( &quot;changeP&quot;,
-                     method( &amp;MyTask::changeParameter,
-                             &quot;Change a parameter, return the old value.&quot;,
-	                     &quot;New Value&quot;, &quot;The new value for the parameter.&quot; ) ); 
+    Method&lt;void(void)&gt; resetMethod;
+    Method&lt;string(void)&gt; nameMethod;
+    Method&lt;double(double)&gt; paramMethod;
 
-       this->methods()->registerObject("this", mfact);
+    MyTask(std::string name)
+      : <classname>ORO_Execution::GenericTaskContext</classname>(name),
+      resetMethod(&quot;reset&quot;, &amp;MyTask::reset, this),
+      nameMethod(&quot;name&quot;, &amp;MyTask::getName, this),
+      resetMethod(&quot;changeP&quot;, &amp;MyTask::changeParameter, this)
+    {
+       // Add the method objects to the method interface:
+       this->methods()->addMethod( &amp;resetMethod, &quot;Reset the system.&quot;);
+       this->methods()->addMethod( &amp;nameMethod, &quot;Read out the name of the system.&quot;);
+       this->methods()->addMethod( &amp;changeP,
+                                   &quot;Change a parameter, return the old value.&quot;,
+	                           &quot;New Value&quot;, &quot;The new value for the parameter.&quot;); 
 
        // more additions to follow, see below
      }
@@ -1072,91 +1069,77 @@ cd                  quit
   };</programlisting>
       </para>
       <para>
-	The first statement 
-	<programlisting>
-  TemplateMethodFactory&lt;MyTask&gt;* mfact =
-    newMethodFactory( this );
-	</programlisting>
-	constructs a new TemplateMethodFactory, which will create
-	methods for the <emphasis>object</emphasis> 'this'. You need
-	to supply the C++ type of the object as a template
-	parameter, here the class <classname>MyTask</classname>. 
-	Each Method object created by this TemplateMethodFactory will be 
-	invoked on that object. Any number of methods with
-	any kind of arguments can be added.
-
-	After this factory is constructed, we add methods
-	to it using the add() function.  The add() function requires a
-	name for the added method, and information on the method to be
-	associated with that name.  The latter is generated using the
-	function method().
+	In the above example, we wish to add 3 class functions to the
+	method interface: reset, getName and changeParameter. This can
+	be done by constructing a
+	<classname>ORO_Execution::Method</classname> object with the
+	correct function signature for each such class function.  Each
+	Method object is initialised in the constructor with a name
+	(&quot;reset&quot;), a pointer to the class function
+	(&amp;MyTask::reset) and a pointer to the class object (this).
+	This setup allows the method objects resetMethod, nameMethod
+	and paramMethod to be invoked just like one would call the
+	functions directly.
       </para>
-      <programlisting>
-  mfact-&gt;add( &quot;reset&quot;,
-             method( &amp;MyTask::reset, &quot;Reset the system.&quot; ) );</programlisting>
       <para>
-	The <function>method()</function> function requires a pointer
-	to a class function of the earlier provided type
-	(<classname>MyTask</classname>), having a number of arguments,
-	and returning the appropriate result.  The function's
-	signature will automatically define the signature in the
-	exported API.  After the class function pointer follows a C
-	string containing a description of the function, followed by a
-	name and description for each of the arguments.
+	After the method objects are constructed, we add methods to
+	the method interface using the addMethod() function.  The
+	addMethod() function requires a a method object (&amp;resetMethod),
+	a description (&quot;Reset the system.&quot;) and a name,
+	description pair for each argument (such as in
+	changeParameter).
       </para>
-<programlisting>
-  this->methods()->registerObject("this", fact);	</programlisting>
-      <para>
-	Finally, the factory is stored in the Method interface of
-	a_task, where it is added to the "this" methods, thus to the
-	public interface of the task.  One may also store the methods
-	in an object with a different name, which is then intended for
-	internal use.
-      </para>
-      <important>
-	<para>The method factory, and all other factories of a TaskContext
-	take ownership of the registered or added objects. You are not
-	allowed to delete them.</para>
-      </important>
       <para>
 	Using this mechanism, any method of <emphasis>any</emphasis>
-	class can be added to a task's method interface. All methods
-	are grouped in an object namespace ( here &quot;this&quot; ),
-	which can be served by different classes ( and thus factories
-	). For example, you can add methods for an internal object
-	using a separate TemplateFactory.
+	class can be added to a task's method interface.
       </para>
-    <figure id="fig-task-factories">
-      <title>
-	  Template Factories and Classes UML Diagram
-      </title>
-      <mediaobject>
-	<imageobject>
-	  <imagedata fileref="TaskFactories" />
-	</imageobject>
-	<caption>
-	  <para> This diagram demonstrates how TemplateFactories
-	  can be applied to your class.
-	  </para>
-	</caption>
-      </mediaobject>
-    </figure>
       <section>
 	<title>Invoking Methods in C++</title>
 	<para>
 	  In order to easily invoke a task's methods from a C++ program,
-	  the <classname>ORO_Execution::MethodC</classname> class was designed to store
-	  and invoke methods and collect the return values. <classname>ORO_Execution::MethodC</classname>
-	  objects are created by a task's method factory. For example:
+	  only only needs a pointer to a TaskContext object, for example
+	  using the 'getPeer()' class function.
 	</para>
 	<programlisting>  // create a method:
-  MethodC reset_meth = a_task.methods()->create("this", "reset");
+  TaskContext* a_task_ptr;
+  Method&lt;void(void)&gt; my_reset_meth 
+       = a_task_ptr->methods()->getMethod&lt;void(void)&gt;("reset");
 
   // Call 'reset' of a_task:
-  bool valid = reset_meth.execute();  </programlisting>
+  reset_meth();  </programlisting>
       <para>
 	Methods can also be given arguments and collect return values. Both constant
-	arguments and variable arguments are supported. However, the return value
+	arguments and variable arguments are supported. 
+      </para>
+      <programlisting>  // used to hold the return value:
+  string name;
+  Method&lt;string(void)> name_meth = 
+    a_task_ptr->methods()->getMethod&lt;string(void)>("name");
+
+  // Call 'name' of a_task:
+  name = name_meth(); 
+
+  cout &lt;&lt; "Name was: " &lt;&lt; name &lt;&lt; endl; 
+
+  // hold return value.
+  double oldvalue;
+  Method&lt;double(double)> mychange_1 =
+      a_task.methods()->create("changeP");
+
+  // Call 'changeParameter' of a_task with argument '1.0'
+  oldvalue = mychange_1( 1.0 );
+  // oldvalue now contains previous value.</programlisting>
+       <para>
+	 Up to 4 arguments can be given. If the signature was
+	 not correct, the method invocation will be ignored.
+	 One can check validity of a method object with the
+	 'ready()' function:
+       </para>
+       <programlisting>  Method&lt;double(double)> mychange_1 = ...;
+  assert( mychange_1.ready() );</programlisting>
+<!--- MethodC must go to -devel manual.
+      <para>
+	However, the return value
 	con only be stored in a variable:
       </para>
       <programlisting>  // used to store the return value:
@@ -1192,6 +1175,7 @@ cd                  quit
 	 .arg(X).arg(Y).arg(Z) etc ), but an error will be logged when
 	 a wrong number or wrong type of argument is given.
        </para>
+       -->
       </section>
       <section>
 	<title>Invoking Methods in Scripts</title>
@@ -1203,24 +1187,6 @@ cd                  quit
   do ATask.changeP( 0.1 )
   // or :
   set result = ATask.changeP( 0.1 ) // store return value </programlisting></para>
-      <para>
-	If the method should
-	belong to the task's interface, the
-	&quot;this&quot; object is assumed.
-	If another &quot;objname&quot; is given instead
-	of &quot;this&quot;, this would result in :</para>
-      <para>
-	<programlisting>
-  do ATask.objname.changeP( 0.1 )  </programlisting></para>
-      <para>
-	Any number of methods and objects can be added to a
-	TaskContext. Also the methods of the TaskContext
-	itself (or its derived classes) may be added. The
-	added methods keep their polymorphism, meaning that
-	<emphasis>
-	  you may add pure virtual methods to the factory.
-	</emphasis>
-      </para>
       </section>
     </section>
     <section id="method-args-types">
@@ -1392,7 +1358,7 @@ cd                  quit
       <note><title>Purpose</title><para>A task's commands are intended
       to be called 'asynchronously', thus <emphasis>sent</emphasis> by the caller
       to the receiver. Use it to 'reach a goal' in the receiver, typically
-      this takes time to accomplish. Commands are, in contrast with methods,
+      this takes time to accomplish. Command functions are, in contrast with methods,
       executed by the receiver.</para></note>
       <mediaobject>
 	<imageobject>
@@ -1400,20 +1366,17 @@ cd                  quit
 	</imageobject>
       </mediaobject>
     <para>
-      The next factory we discuss is the Command Factory,
-      which produces C++ <classname>ORO_Execution::CommandC</classname>
-      objects which encapsulate a command call to a TaskContext's
-      interface.
+      The command interface is very similar to the Method interface above.
     </para>
     <section>
       <title>Adding Commands to a TaskContext</title>
       <para>
-	To add a command to the Command Interface, one can use
-	the <classname>TemplateCommandFactory</classname>,
-	to easily create command factories :</para>
+	To add a command to the Command Interface, one 
+	must create <classname>ORO_Execution::Command</classname>,
+	objects :</para>
       <para>
 	<programlisting>
-  #include &lt;execution/TemplateFactories.hpp&gt;
+  #include &lt;execution/Command.hpp&gt;
 
   class MyTask
     : public <classname>ORO_Execution::GenericTaskContext</classname>
@@ -1425,57 +1388,53 @@ cd                  quit
     bool startCycle() { ... }
     bool cycleDone() const { ... }
 
+    Command&lt;bool(void)> cycleCommand;
+
     /**
      * Another command cleans stuff up.
      */
     bool cleanupMess(double f) { ... }
     bool isMessCleaned() const { ... }
 
+    Command&lt;bool(double)> messCommand;
+
   public:
     MyTask(std::string name)
-      : <classname>ORO_Execution::GenericTaskContext</classname>(name)
+      : <classname>ORO_Execution::GenericTaskContext</classname>(name),
+        cycleCommand(&quot;startCycle&quot;,
+	             &amp;MyTask::startCycle,
+                     &amp;MyTask::cycleDone, this),
+        messCommand( &quot;cleanup&quot;,
+                     &amp;MyTask::cleanupMess,
+                     &amp;MyTask::isMessCleaned, this)
     {
       // ... other startup code here
 
-      TemplateCommandFactory&lt;MyTask&gt;* cfact =
-          newCommandFactory( <emphasis>this</emphasis> );
-      cfact-&gt;add( &quot;startCycle&quot;, 
-                    command( &amp;MyTask::startCycle,
-                             &amp;MyTask::cycleDone,
-                             &quot;Start a new cycle.&quot; ) );
-      cfact-&gt;add( &quot;cleanup&quot;,
-                    command( &amp;MyTask::cleanupMess,
-                             &amp;MyTask::isMessCleaned,
-                             &quot;Start cleanup operation.&quot;,
-	                     &quot;cfactor&quot;, &quot;A cfactor denoting the thoroughness.&quot; ) );
-
-      this->commands()->registerObject("this", cfact);
+      this->commands()->addCommand( &amp;cycleCommand,
+                                    &quot;Start a new cycle.&quot;);
+      this->commands()->addCommand( &amp;messCommand,
+                                    &quot;Start cleanup operation.&quot;,
+	                            &quot;cfactor&quot;, &quot;A cfactor denoting the thoroughness.&quot;);
     }
   };</programlisting></para>
       <para>
 	Commands differ from Methods in that they take
-	an extra function which is called the Completion
-	Condition. It is a function which returns true
+	an extra function which is called the <emphasis>Completion
+	Condition</emphasis>. It is a function which returns true
 	when the command is done. The command itself
 	also returns a boolean which indicates if it 
 	was accepted or not. Reasons to be rejected
 	can be faulty arguments or that the system
 	is not ready to accept a new command.
       </para>
-      <programlisting>
-  cfact-&gt;add( &quot;startCycle&quot;, 
-            command( &amp;MyTask::startCycle,
-                     &amp;MyTask::cycleDone,
-                     &quot;Start a new cycle.&quot; ) );</programlisting>
       <para>
-	Thus the <function>command()</function> function
-	requires two member pointers instead of
-	one.  The first one is a function that does the actual work
-	that the command will invoke, and the second is a bool
-	<emphasis>const</emphasis> function having :</para>
+	The <classname>Command</classname> object requires two member
+	pointers instead of one, which must both return a 'bool'.  The
+	first one is the command function that does the actual work,
+	and the completion condition is a function having :</para>
       <itemizedlist>
 	<listitem>
-	  <para>the same arguments as the command,</para>
+	  <para>exactly the same arguments as the command,</para>
 	</listitem>
 	<listitem>
 	  <para>OR only the first argument of the command,</para>
@@ -1485,24 +1444,58 @@ cd                  quit
 	</listitem>
       </itemizedlist>
       <para>
-	The second function (the completion condition)
-	will be called to see whether the
-	associated command is finished.  The rest of the arguments to
-	the command function remain the same.  It also requires a
-	constant C string describing the function, and two constant C
-	strings giving a description and name for every argument.
+	Analogous to <function>addMethod()</function>,
+	<function>addCommand</function> adds the Command objects to
+	the TaskContext interface and also requires a string
+	describing the command, and two strings giving a name and
+	description for every argument.
       </para>
-      <important>
-	<para>The command factory, and all other factories of a TaskContext
-	take ownership of the registered or added objects. You are not
-	allowed to delete them.</para>
-      </important>
     </section>
     <section>
       <title>Invoking Commands in C++</title>
       <para>
-	Once a command is added to a task's factory, other tasks
-	can make use of that command. The <classname>ORO_Execution::CommandC</classname>
+	Once a command is added to a TaskContext's interface, other tasks
+	can make use of that command. 
+      </para>
+      <para>
+	The <classname>ORO_Execution::Command</classname>
+	class can be used to invoke commands as well.
+	You can get such object from a task's interface:
+      </para>
+      <programlisting>  Command&lt;bool(void)> mycom 
+     = a_task.commands()->getCommand&lt;bool(void)>("startCycle");
+  // check if the command is ok:
+  assert( mycom.ready() );
+
+  // Send 'startCycle' to a_task (asynchronous).
+  bool result = mycom();
+  // next, check its status:
+  bool accepted = mycom.accepted(); // accepted by execution engine?
+  bool valid = mycom.valid();       // command was valid (well-formed)?
+  bool done = mycom.evaluate();     // command was done?
+      </programlisting>
+      <para>
+	Such commands can also be given arguments. Both constant
+	arguments and variable arguments are supported:
+      </para>
+      <programlisting>  // get a command:
+  Command&lt;bool(double)> mycleanup_1 =
+      a_task.commands()->getCommand&lt;bool(double)>("cleanup");
+
+  // Send 'cleanup' to a_task with argument '1.0'
+  bool result_1 = mycleanup_1( 1.0 );
+
+  bool d_arg = 5.0;
+  // Send 'cleanup' to a_task, reads contents of d_arg.
+  bool result_2 = mycleanup_1(d_arg);</programlisting>
+       <para>
+	 The current implementation supports up to 4 arguments.
+	 Since the use of 'structs' is allowed, this is enough
+	 for most applications.
+       </para>
+<!---
+      <para>
+	The <classname>ORO_Execution::CommandC</classname>
 	class is especially designed to manage task commands in C++.
 	You can ask a task's factory to create such object:
       </para>
@@ -1537,6 +1530,7 @@ cd                  quit
 	 Any number of arguments can be given, but an error will be
 	 logged when a wrong number or wrong type of argument is given.
        </para>
+-->
     </section>
     <section>
       <title>Invoking Commands from Scripts</title>
@@ -1544,8 +1538,8 @@ cd                  quit
 	The above lets you write in a program script :</para>
       <para>
 	<programlisting>
-  do this.startCycle()
-  do this.cleanup( 0.1 )	</programlisting></para>
+  do startCycle()
+  do cleanup( 0.1 )	</programlisting></para>
       <para>
 	when the program is loaded in a_task.
       </para>
@@ -1577,16 +1571,16 @@ cd                  quit
       </mediaobject>
     <para>
       A task may register its events in its interface in order to be
-      used by its state machines and other tasks as well.  The events
-      used by the task context are defined and explained by the Orocos
-      CoreLib. The <classname>ORO_Execution::EventService</classname> is the
-      main access point to register and locate a task's events.
+      used by its state machines and other tasks as well.  Events
+      are defined and explained in the Orocos
+      CoreLib Manual.
     </para>
     <section>
       <title>Adding Events</title>
       <para>
 	Events can be easily added to a task's interface,
-	much like properties are:
+	much like methods are:
+      </para>
 	<programlisting>  #include &lt;corelib/Event.hpp>
 
   class MyTask
@@ -1598,24 +1592,31 @@ cd                  quit
     <classname>ORO_CoreLib::Event</classname>&lt; bool(double, double, double) &gt; moveAxis;
   public:
     MyTask(std::string name)
-      : <classname>ORO_Execution::GenericTaskContext</classname>(name)
+      : <classname>ORO_Execution::GenericTaskContext</classname>(name),
+        turnSwitch( "turnSwitch" ),
+	moveAxis( "move" )
     {
       // ... other startup code here
   
       // add it to the task's interface:
-      this->events()->addEvent( "turnSwitch", &amp;turnSwitch ); 
-      this->events()->addEvent( "move", &amp;moveAxis );
+      this->events()->addEvent( &amp;turnSwitch ); 
+      this->events()->addEvent( &amp;moveAxis );
     }
   };</programlisting>
-	and so on.
+      <para>
+	An <classname>ORO_CoreLib::Event</classname> object has the signature
+	('void(bool)') of the 'callback function' it will call when
+	the event is 'emitted' (or 'fired'). The object is initialised
+	with a name ("turnSwitch") and added to the interface ('addEvent').
       </para>
     </section>
     <section>
       <title>Emitting Events in C++</title>
       <para>
 	Once events are added, they can be emitted using the
-	<classname>ORO_Execution::EventC</classname> object. Analogous to
-	commands and methods, arguments can be provided:
+	<classname>ORO_Execution::EventC</classname> object.
+	'argC' is used to add 'Constant' arguments, 'arg' is used to add
+	variable arguments.
 	<programlisting>  <classname>ORO_Execution::EventC</classname> move_event 
     = a_task.events()->setupEmit( "move" ).argC(1.0).argC(2.0).argC(3.0);
   // emit the event 'move' with given args:

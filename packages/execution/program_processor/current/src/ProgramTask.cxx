@@ -28,7 +28,8 @@
  
 
 #include "execution/ProgramTask.hpp"
-#include "execution/TemplateFactories.hpp"
+#include "execution/CommandDS.hpp"
+#include "execution/Method.hpp"
 #include "execution/TaskContext.hpp"
 #include "execution/FactoryExceptions.hpp"
 #include <corelib/DataSources.hpp>
@@ -42,26 +43,32 @@ namespace ORO_Execution
         : TaskContext( prog->getName(), ee ),
           program( new ValueDataSource<ProgramInterfaceWPtr>(prog) ) // was: VariableDataSource.
     {
+        DataSource<ProgramInterfaceWPtr>* ptr = program.get();
         // Commands :
-        TemplateCommandFactory< DataSource<ProgramInterfaceWPtr> >* fact =
-            newCommandFactory( static_cast< DataSource<ProgramInterfaceWPtr>* >( program.get() ) );
-
-        fact->add("start", command_ds(&ProgramInterface::start, &ProgramInterface::isRunning,"Start or continue this program.") );
-        fact->add("pause", command_ds(&ProgramInterface::pause, &ProgramInterface::isPaused,"Pause this program.") );
-        fact->add("step", command_ds(&ProgramInterface::step, &ProgramInterface::stepDone,"Step a paused program.") );
-        fact->add("stop", command_ds(&ProgramInterface::stop, &ProgramInterface::isStopped,"Stop and reset this program.") );
-
-        this->commands()->registerObject("this", fact);
+        commands()->addCommandDS( ptr,
+                                  command_ds("start",&ProgramInterface::start, &ProgramInterface::isRunning,engine()->commands()),
+                                  "Start or continue this program.");
+        commands()->addCommandDS( ptr,
+                                  command_ds("pause",&ProgramInterface::pause, &ProgramInterface::isPaused,engine()->commands()),
+                                  "Pause this program.");
+        commands()->addCommandDS( ptr,
+                                  command_ds("step", &ProgramInterface::step, &ProgramInterface::stepDone,engine()->commands()),
+                                  "Step a paused program.");
+        commands()->addCommandDS( ptr,
+                                  command_ds("stop", &ProgramInterface::stop, &ProgramInterface::isStopped,engine()->commands()),
+                                  "Stop and reset this program.");
 
         // DataSources:
-        TemplateMethodFactory< DataSource<ProgramInterfaceWPtr> >* dfact =
-            newMethodFactory( static_cast< DataSource<ProgramInterfaceWPtr>* >( program.get() ) );
 
-        dfact->add("isRunning", data_ds( &ProgramInterface::isRunning, "Is this program being executed and not paused ?") );
-        dfact->add("inError", data_ds(&ProgramInterface::inError,"Has this program executed an erroneous command ?") );
-        dfact->add("isPaused", data_ds(&ProgramInterface::isPaused,"Is this program running but paused ?") );
-
-        this->methods()->registerObject("this", dfact);
+        methods()->addMethodDS( ptr,
+                                method_ds("isRunning",&ProgramInterface::isRunning),
+                                "Is this program being executed and not paused ?");
+        methods()->addMethodDS( ptr,
+                                method_ds("inError", &ProgramInterface::inError),
+                                "Has this program executed an erroneous command ?");
+        methods()->addMethodDS( ptr,
+                                method_ds("isPaused", &ProgramInterface::isPaused),
+                                "Is this program running but paused ?");
     }
 
     ProgramTask::~ProgramTask() {

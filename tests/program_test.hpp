@@ -48,9 +48,7 @@ class ProgramTest : public CppUnit::TestFixture
     Parser parser;
     TaskContext gtc;
     SimulationActivity gtask;
-    MethodFactoryInterface* createMethodFactory();
-    CommandFactoryInterface* createCommandFactory();
-    DataSourceFactoryInterface* createDataSourceFactory();
+    OperationInterface* createObject( OperationInterface*, CommandProcessor* cp );
     Attribute<int> var_i;
     Constant<int>* const_i;
     bool assertBool( bool );
@@ -67,6 +65,8 @@ class ProgramTest : public CppUnit::TestFixture
     bool false_gen() const { return false; }
 
     bool bool_gen( bool b ) const { return b; }
+    int getI() const { return i; }
+    
     int i;
 public:
     ProgramTest();

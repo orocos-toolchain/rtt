@@ -21,11 +21,11 @@ is very powerful."
     compile PeerParser.cxx 
     compile PropertyParser.cxx 
     compile FunctionFactory.cxx
-    compile TaskBrowser.cxx
     compile ProgramLoader.cxx
     compile GenericTaskContext.cxx
     compile StatementProcessor.cxx
     compile ParserScriptingAccess.cxx
+    compile TaskBrowser.cxx
 
     requires OROPKG_SUPPORT_BOOST
     requires OROPKG_SUPPORT_BOOST_GRAPH 

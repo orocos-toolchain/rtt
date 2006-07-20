@@ -25,6 +25,8 @@
 #include <execution/FunctionGraph.hpp>
 #include <corelib/SimulationThread.hpp>
 #include <execution/TemplateFactories.hpp>
+#include <execution/Method.hpp>
+#include <execution/Command.hpp>
 
 using namespace std;
 
@@ -45,11 +47,10 @@ void
 DispatchTest::setUp()
 {
     // ltc has a test object
-    ltc.methodFactory.registerObject("test", this->createMethodFactory() );
-    ltc.commandFactory.registerObject("test", this->createCommandFactory() );
+    ltc.addObject( this->createObject("test", ltc.engine()->commands()) );
     // mtc has two methods.
-    mtc.methodFactory.registerObject("this", this->createMethodFactory() );
-    mtc.dataFactory.registerObject("test", this->createDataSourceFactory() );
+    mtc.addObject( this->createObject("this", mtc.engine()->commands()) );
+    mtc.addObject( this->createObject("test", mtc.engine()->commands()) );
 
     gtc.addPeer( &mtc );
     mtc.connectPeers( &ltc );
@@ -75,51 +76,27 @@ bool DispatchTest::assertMsg( bool b, const std::string& msg) {
 }
 
 
-MethodFactoryInterface* DispatchTest::createMethodFactory()
+TaskObject* DispatchTest::createObject(string a, CommandProcessor* cp)
 {
-    // Add the data of the EE:
-    TemplateMethodFactory< DispatchTest >* dat =
-        newMethodFactory( this );
-
-    dat->add( "assert", method( &DispatchTest::assertBool,
-                              "Assert", "bool", "") );
-    dat->add( "assertMsg", method( &DispatchTest::assertMsg,
-                                 "Assert message", "bool", "", "text", "text" ) );
-    return dat;
-}
-
-DataSourceFactoryInterface* DispatchTest::createDataSourceFactory()
-{
-    // Add the data of the EE:
-    TemplateDataSourceFactory< DispatchTest >* dat =
-        newDataSourceFactory( this );
-
-    dat->add( "isTrue", data( &DispatchTest::assertBool,
-                              "Identity function", "bool", "") );
-    return dat;
-}
-
-CommandFactoryInterface* DispatchTest::createCommandFactory()
-{
-    // Add the data of the EE:
-    TemplateCommandFactory< DispatchTest >* dat =
-        newCommandFactory( this );
-
-    dat->add( "instantDone", command( &DispatchTest::true_genCom,
-                                      &DispatchTest::true_gen,
-                                      "returns immediately") );
-    dat->add( "neverDone", command( &DispatchTest::true_genCom,
-                                    &DispatchTest::false_gen,
-                                    "returns never") );
-    dat->add( "instantNotDone", command( &DispatchTest::true_genCom,
-                                         &DispatchTest::true_gen,
-                                         "returns never", false ) );
-    dat->add( "instantFail", command( &DispatchTest::false_genCom,
-                                      &DispatchTest::true_gen,
-                                      "fails immediately") );
-    dat->add( "totalFail", command( &DispatchTest::false_genCom,
-                                    &DispatchTest::false_gen,
-                                    "fails in command and condition") );
+    TaskObject* dat = new TaskObject(a);
+    dat->methods()->addMethod( method( "assert", &DispatchTest::assertBool, this), "Assert", "bool", "" );
+    dat->methods()->addMethod( method( "assertMsg", &DispatchTest::assertMsg, this), "Assert message", "bool", "", "text", "text"  );
+    dat->methods()->addMethod( method( "isTrue", &DispatchTest::assertBool, this), "Identity function", "bool", "" );
+    dat->commands()->addCommand( command( "instantDone", &DispatchTest::true_genCom,
+                                      &DispatchTest::true_gen, this, cp),
+                                      "returns immediately" );
+    dat->commands()->addCommand( command( "neverDone", &DispatchTest::true_genCom,
+                                    &DispatchTest::false_gen, this, cp),
+                                    "returns never" );
+    dat->commands()->addCommand( command( "instantNotDone", &DispatchTest::true_genCom,
+                                         &DispatchTest::true_gen, this, cp, false),
+                                         "returns never");
+    dat->commands()->addCommand( command( "instantFail", &DispatchTest::false_genCom,
+                                      &DispatchTest::true_gen, this, cp),
+                                      "fails immediately" );
+    dat->commands()->addCommand( command( "totalFail", &DispatchTest::false_genCom,
+                                    &DispatchTest::false_gen, this, cp),
+                                    "fails in command and condition" );
     return dat;
 }
 

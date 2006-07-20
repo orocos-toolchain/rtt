@@ -53,9 +53,7 @@ class DispatchTest : public CppUnit::TestFixture
     SimulationActivity gtask;
     SimulationActivity mtask;
     SimulationActivity ltask;
-    MethodFactoryInterface* createMethodFactory();
-    CommandFactoryInterface* createCommandFactory();
-    DataSourceFactoryInterface* createDataSourceFactory();
+    TaskObject* createObject(std::string a, CommandProcessor* cp);
 
     bool true_genCom() { return true; }
     bool false_genCom() { return false; }

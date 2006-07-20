@@ -33,7 +33,7 @@
 #include <execution/PropertyLoader.hpp>
 
 // To create commands, methods, etc :
-#include <execution/TemplateFactories.hpp>
+#include <execution/Method.hpp>
 
 namespace ORO_Execution
 {
@@ -43,37 +43,35 @@ namespace ORO_Execution
         // See Task Infrastructure Chapter.
 
         // Register our methods :
-        TemplateMethodFactory<GenericTaskContext>* mfact = newMethodFactory( this );
-        mfact->add( "assert",
-                    method( &GenericTaskContext::assertion, "Assert will get your program in the error state if the argument is false.",
-                            "MustBeTrue", "The result of a boolean expression which must be true.") );
-        mfact->add( "start",
-                    method( &GenericTaskContext::start, "Start this GenericTaskContext." ) );
-        mfact->add( "stop",
-                    method( &GenericTaskContext::stop, "Stop this GenericTaskContext." ) );
-        mfact->add( "readProperties",
-                    method( &GenericTaskContext::readProperties, "Read Properties from a file.",
-                            "Filename", "A CPF formatted XML file.") );
-        mfact->add( "writeProperties",
-                    method( &GenericTaskContext::writeProperties, "Write or update Properties to a file.",
-                            "Filename", "A CPF formatted XML file.") );
-        mfact->add( "loadProgram",
-                    method( &GenericTaskContext::loadProgram, "Load an Orocos Program Script from a file.",
-                            "Filename", "An ops file.") );
-        mfact->add( "loadStateMachine",
-                    method( &GenericTaskContext::loadStateMachine, "Load an Orocos State Description from a file.",
-                            "Filename", "An osd file.") );
-        mfact->add( "unloadProgram",
-                    method( &GenericTaskContext::unloadProgram, "Unload an Orocos Program Script from a file.",
-                            "ProgramName", "The Program's name.") );
-        mfact->add( "unloadStateMachine",
-                    method( &GenericTaskContext::unloadStateMachine, "Unload an Orocos State Description from a file.",
-                            "StateMachineName", "A name of a Root StateMachine instantiation.") );
-        mfact->add( "isRunning",
-                    method( &GenericTaskContext::isRunning, "Is this GenericTaskContext started ?" ) );
-        mfact->add( "update",
-                    method( &GenericTaskContext::trigger, "Invoke the update method. Only succeeds if the task isRunning()." ) );
-        this->methods()->registerObject("this", mfact); 
+        methods()->addMethod( method("assert",
+                    &GenericTaskContext::assertion, this), "Assert will get your program in the error state if the argument is false.",
+                            "MustBeTrue", "The result of a boolean expression which must be true.");
+        methods()->addMethod( method("start",
+                    &GenericTaskContext::start, this), "Start this GenericTaskContext." );
+        methods()->addMethod( method("stop",
+                    &GenericTaskContext::stop, this), "Stop this GenericTaskContext." );
+        methods()->addMethod( method("readProperties",
+                    &GenericTaskContext::readProperties, this), "Read Properties from a file.",
+                            "Filename", "A CPF formatted XML file.");
+        methods()->addMethod( method("writeProperties",
+                    &GenericTaskContext::writeProperties, this), "Write or update Properties to a file.",
+                            "Filename", "A CPF formatted XML file.");
+        methods()->addMethod( method("loadProgram",
+                    &GenericTaskContext::loadProgram, this), "Load an Orocos Program Script from a file.",
+                            "Filename", "An ops file.");
+        methods()->addMethod( method("loadStateMachine",
+                    &GenericTaskContext::loadStateMachine, this), "Load an Orocos State Description from a file.",
+                            "Filename", "An osd file.");
+        methods()->addMethod( method("unloadProgram",
+                    &GenericTaskContext::unloadProgram, this), "Unload an Orocos Program Script from a file.",
+                            "ProgramName", "The Program's name.");
+        methods()->addMethod( method("unloadStateMachine",
+                    &GenericTaskContext::unloadStateMachine, this), "Unload an Orocos State Description from a file.",
+                            "StateMachineName", "A name of a Root StateMachine instantiation.");
+        methods()->addMethod( method("isRunning",
+                    &GenericTaskContext::isRunning, this), "Is this GenericTaskContext started ?" );
+        methods()->addMethod( method("update",
+                    &GenericTaskContext::trigger, this), "Invoke the update method. Only succeeds if the task isRunning()." );
     }
 
     GenericTaskContext::~GenericTaskContext()

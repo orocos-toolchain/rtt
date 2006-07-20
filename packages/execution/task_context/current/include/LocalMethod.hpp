@@ -26,6 +26,8 @@ namespace ORO_Execution
             bool execute() {
                 return false;
             }
+
+            using MethodBase<FunctionT>::operator();
                 
             /**
              * Invoke this operator if the method has no arguments.

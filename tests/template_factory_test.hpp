@@ -37,7 +37,6 @@ class Template_FactoryTest : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE( Template_FactoryTest );
     CPPUNIT_TEST( testMethods );
     CPPUNIT_TEST( testUserMethods );
-    CPPUNIT_TEST( testData );
     CPPUNIT_TEST( testCommands );
     CPPUNIT_TEST( testManual );
     CPPUNIT_TEST( testEventC );
@@ -47,10 +46,9 @@ class Template_FactoryTest : public CppUnit::TestFixture
     TaskContext* tc;
     ActivityInterface* tsim;
     CommandProcessor processor;
-    MethodFactoryInterface* createMethodFactory();
-    MethodFactoryInterface* createUserMethodFactory();
-    DataSourceFactoryInterface* createDataSourceFactory();
-    CommandFactoryInterface* createCommandFactory();
+    TaskObject* createMethodFactory();
+    TaskObject* createUserMethodFactory();
+    TaskObject* createCommandFactory();
 
     ORO_CoreLib::Event<int( float, float )> t_event_float;
     int float_listener(float a, float b);

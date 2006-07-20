@@ -24,7 +24,8 @@
 #include <sstream>
 #include <execution/FunctionGraph.hpp>
 #include <corelib/SimulationThread.hpp>
-#include <execution/TemplateFactories.hpp>
+#include <execution/Method.hpp>
+#include <execution/Command.hpp>
 
 using namespace std;
 
@@ -42,9 +43,7 @@ void
 FunctionTest::setUp()
 {
     // ltc has a test object
-    gtc.methodFactory.registerObject("test", this->createMethodFactory() );
-    gtc.commandFactory.registerObject("test", this->createCommandFactory() );
-    gtc.dataFactory.registerObject("test", this->createDataSourceFactory() );
+    gtc.addObject(this->createObject("test", gtc.engine()->commands() ) );
 
     i = 0;
 }
@@ -53,9 +52,6 @@ FunctionTest::setUp()
 void 
 FunctionTest::tearDown()
 {
-    gtc.methodFactory.unregisterObject( "test" );
-    gtc.commandFactory.unregisterObject( "test" );
-    gtc.dataFactory.unregisterObject( "test" );
 }
 
 
@@ -77,57 +73,38 @@ void FunctionTest::reset() {
 }
 
 
-MethodFactoryInterface* FunctionTest::createMethodFactory()
+OperationInterface* FunctionTest::createObject(string a, CommandProcessor* cp)
 {
-    // Add the data of the EE:
-    TemplateMethodFactory< FunctionTest >* dat =
-        newMethodFactory( this );
+    TaskObject* dat = new TaskObject(a);
+    dat->methods()->addMethod( method( "assert", &FunctionTest::assertBool, this),
+                              "Assert", "bool", "" );
+    dat->methods()->addMethod( method( "increase", &FunctionTest::increase, this),
+                                "Return increasing i"  );
+    dat->methods()->addMethod( method( "reset", &FunctionTest::reset, this),
+                              "Reset i" );
+    dat->methods()->addMethod( method( "assertMsg", &FunctionTest::assertMsg, this),
+                                 "Assert message", "bool", "", "text", "text"  );
 
-    dat->add( "assert", method( &FunctionTest::assertBool,
-                              "Assert", "bool", "") );
-    dat->add( "increase", method( &FunctionTest::increase,
-                                "Return increasing i" ) );
-    dat->add( "reset", method( &FunctionTest::reset,
-                              "Reset i") );
-    dat->add( "assertMsg", method( &FunctionTest::assertMsg,
-                                 "Assert message", "bool", "", "text", "text" ) );
-    return dat;
-}
+    dat->methods()->addMethod( method( "isTrue", &FunctionTest::assertBool, this),
+                              "Identity function", "bool", "" );
+    dat->methods()->addMethod( method( "i", &FunctionTest::getI, this),
+                         "Return the current number"  );
 
-DataSourceFactoryInterface* FunctionTest::createDataSourceFactory()
-{
-    // Add the data of the EE:
-    TemplateDataSourceFactory< FunctionTest >* dat =
-        newDataSourceFactory( this );
-
-    dat->add( "isTrue", data( &FunctionTest::assertBool,
-                              "Identity function", "bool", "") );
-    dat->add( "i", data( &FunctionTest::i,
-                         "Return the current number" ) );
-    return dat;
-}
-
-CommandFactoryInterface* FunctionTest::createCommandFactory()
-{
-    // Add the data of the EE:
-    TemplateCommandFactory< FunctionTest >* dat =
-        newCommandFactory( this );
-
-    dat->add( "instantDone", command( &FunctionTest::true_genCom,
-                                      &FunctionTest::true_gen,
-                                      "returns immediately") );
-    dat->add( "neverDone", command( &FunctionTest::true_genCom,
-                                    &FunctionTest::false_gen,
-                                    "returns never") );
-    dat->add( "instantNotDone", command( &FunctionTest::true_genCom,
-                                         &FunctionTest::true_gen,
-                                         "returns never", false ) );
-    dat->add( "instantFail", command( &FunctionTest::false_genCom,
-                                      &FunctionTest::true_gen,
-                                      "fails immediately") );
-    dat->add( "totalFail", command( &FunctionTest::false_genCom,
-                                    &FunctionTest::false_gen,
-                                    "fails in command and condition") );
+    dat->commands()->addCommand( command( "instantDone", &FunctionTest::true_genCom,
+                                      &FunctionTest::true_gen, this, cp),
+                                      "returns immediately" );
+    dat->commands()->addCommand( command( "neverDone", &FunctionTest::true_genCom,
+                                    &FunctionTest::false_gen, this, cp),
+                                    "returns never" );
+    dat->commands()->addCommand( command( "instantNotDone", &FunctionTest::true_genCom,
+                                         &FunctionTest::true_gen, this, cp, false),
+                                         "returns never");
+    dat->commands()->addCommand( command( "instantFail", &FunctionTest::false_genCom,
+                                      &FunctionTest::true_gen, this, cp),
+                                      "fails immediately" );
+    dat->commands()->addCommand( command( "totalFail", &FunctionTest::false_genCom,
+                                    &FunctionTest::false_gen, this, cp),
+                                    "fails in command and condition" );
     return dat;
 }
 

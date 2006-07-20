@@ -13,14 +13,15 @@ namespace ORO_Execution
         class FunctorDS0
         {
         public:
+            typedef boost::function<FunctionT> FunctionImpl;
             typedef FunctionT Function;
-            typedef typename boost::remove_pointer<typename FunctionT::arg1_type>::type CompT;
-            FunctionT fun;
+            typedef typename boost::remove_pointer<typename FunctionImpl::arg1_type>::type CompT;
+            FunctionImpl fun;
             typename DataSource<boost::weak_ptr<CompT> >::shared_ptr ds;
             typedef boost::weak_ptr<CompT> CompW;
             typedef boost::shared_ptr<CompT> CompS;
 
-            FunctorDS0( DataSource<CompW>* c, FunctionT f )
+            FunctorDS0( DataSource<CompW>* c, FunctionImpl f )
                 : fun( f ), ds(c)
             {}
 
@@ -65,14 +66,15 @@ namespace ORO_Execution
         {
         public:
             typedef FunctionT Function;
+            typedef boost::function<FunctionT> FunctionImpl;
             // arg1_type is the component type.
-            typedef typename boost::remove_pointer<typename FunctionT::arg1_type>::type CompT;
-            typedef typename FunctionT::arg2_type Arg2T;
-            FunctionT fun;
+            typedef typename boost::remove_pointer<typename FunctionImpl::arg1_type>::type CompT;
+            typedef typename FunctionImpl::arg2_type Arg2T;
+            FunctionImpl fun;
             typename DataSource<Arg2T>::shared_ptr aa;
             typename DataSource<boost::weak_ptr<CompT> >::shared_ptr ds;
 
-            FunctorDS1( DataSource<boost::weak_ptr<CompT> >* c, FunctionT f, DataSource<Arg2T>* a = 0)
+            FunctorDS1( DataSource<boost::weak_ptr<CompT> >* c, FunctionImpl f, DataSource<Arg2T>* a = 0)
                 : fun( f ), aa( a ), ds(c)
             {
             }

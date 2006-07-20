@@ -187,7 +187,15 @@ namespace ORO_CoreLib
             // A variable starts its life as unbounded.
             Logger::log() << Logger::Debug << "Building Variable of type " << tname <<Logger::endl;
             return new Attribute<T>( new detail::UnboundDataSource<ValueDataSource<T> >() );
-            //return new ScriptAttribute<T>();
+        }
+
+        DataSourceBase::shared_ptr construct(const std::vector<DataSourceBase::shared_ptr>& args) const
+        {
+            // It must start its life as unbounded.
+            Logger::log() << Logger::Debug << "Constructor of " << tname <<Logger::endl;
+            if ( args.empty() )
+                return new detail::UnboundDataSource<ValueDataSource<T> >();
+            return DataSourceBase::shared_ptr();
         }
 
         AttributeBase* buildAttribute( DataSourceBase::shared_ptr in) const

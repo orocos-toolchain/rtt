@@ -26,6 +26,8 @@
 #include <corelib/SimulationThread.hpp>
 #include <execution/TemplateFactories.hpp>
 #include <execution/TaskBrowser.hpp>
+#include <execution/Method.hpp>
+#include <execution/Command.hpp>
 
 using namespace std;
 
@@ -44,17 +46,13 @@ ProgramTest::setUp()
 {
     const_i = new Constant<int>(-1);
     // ltc has a test object
-    gtc.methodFactory.registerObject("test", this->createMethodFactory() );
-    gtc.commandFactory.registerObject("test", this->createCommandFactory() );
-    gtc.dataFactory.registerObject("test", this->createDataSourceFactory() );
+    gtc.addObject( this->createObject(new TaskObject("test"), gtc.engine()->commands()) );
 
     // also this functions
-    gtc.methodFactory.registerObject("this", this->createMethodFactory() );
-    gtc.commandFactory.registerObject("this", this->createCommandFactory() );
-    gtc.dataFactory.registerObject("this", this->createDataSourceFactory() );
+    this->createObject( &gtc, gtc.engine()->commands());
 
-    gtc.attributeRepository.addAttribute("tvar_i", &var_i);
-    gtc.attributeRepository.addConstant("tconst_i", const_i);
+    gtc.attributes()->addAttribute("tvar_i", &var_i);
+    gtc.attributes()->addConstant("tconst_i", const_i);
     var_i.set(-1);
     i = 0;
 }
@@ -66,9 +64,6 @@ ProgramTest::tearDown()
     delete const_i;
     SimulationThread::Instance()->stop();
     gtask.stop();
-    gtc.methodFactory.unregisterObject( "test" );
-    gtc.commandFactory.unregisterObject( "test" );
-    gtc.dataFactory.unregisterObject( "test" );
 }
 
 
@@ -90,57 +85,36 @@ void ProgramTest::reset() {
 }
 
 
-MethodFactoryInterface* ProgramTest::createMethodFactory()
+OperationInterface* ProgramTest::createObject(OperationInterface* dat, CommandProcessor* cp)
 {
     // Add the data of the EE:
-    TemplateMethodFactory< ProgramTest >* dat =
-        newMethodFactory( this );
-
-    dat->add( "assert", method( &ProgramTest::assertBool,
-                              "Assert", "bool", "") );
-    dat->add( "increase", method( &ProgramTest::increase,
-                                "Return increasing i" ) );
-    dat->add( "reset", method( &ProgramTest::reset,
-                              "Reset i") );
-    dat->add( "assertMsg", method( &ProgramTest::assertMsg,
-                                 "Assert message", "bool", "", "text", "text" ) );
-    return dat;
-}
-
-DataSourceFactoryInterface* ProgramTest::createDataSourceFactory()
-{
-    // Add the data of the EE:
-    TemplateDataSourceFactory< ProgramTest >* dat =
-        newDataSourceFactory( this );
-
-    dat->add( "isTrue", data( &ProgramTest::assertBool,
-                              "Identity function", "bool", "") );
-    dat->add( "i", data( &ProgramTest::i,
-                         "Return the current number" ) );
-    return dat;
-}
-
-CommandFactoryInterface* ProgramTest::createCommandFactory()
-{
-    // Add the data of the EE:
-    TemplateCommandFactory< ProgramTest >* dat =
-        newCommandFactory( this );
-
-    dat->add( "instantDone", command( &ProgramTest::true_genCom,
-                                      &ProgramTest::true_gen,
-                                      "returns immediately") );
-    dat->add( "neverDone", command( &ProgramTest::true_genCom,
-                                    &ProgramTest::false_gen,
-                                    "returns never") );
-    dat->add( "instantNotDone", command( &ProgramTest::true_genCom,
-                                         &ProgramTest::true_gen,
-                                         "returns never", false ) );
-    dat->add( "instantFail", command( &ProgramTest::false_genCom,
-                                      &ProgramTest::true_gen,
-                                      "fails immediately") );
-    dat->add( "totalFail", command( &ProgramTest::false_genCom,
-                                    &ProgramTest::false_gen,
-                                    "fails in command and condition") );
+    dat->methods()->addMethod( method( "assert", &ProgramTest::assertBool, this),
+                              "Assert", "bool", "" );
+    dat->methods()->addMethod( method( "increase", &ProgramTest::increase, this),
+                                "Return increasing i"  );
+    dat->methods()->addMethod( method( "reset", &ProgramTest::reset, this),
+                              "Reset i" );
+    dat->methods()->addMethod( method( "assertMsg", &ProgramTest::assertMsg, this),
+                                 "Assert message", "bool", "", "text", "text"  );
+    dat->methods()->addMethod( method( "isTrue", &ProgramTest::assertBool, this),
+                              "Identity function", "bool", "" );
+    dat->methods()->addMethod( method( "i", &ProgramTest::getI, this),
+                         "Return the current number"  );
+    dat->commands()->addCommand( command( "instantDone", &ProgramTest::true_genCom,
+                                      &ProgramTest::true_gen, this, cp),
+                                      "returns immediately" );
+    dat->commands()->addCommand( command( "neverDone", &ProgramTest::true_genCom,
+                                    &ProgramTest::false_gen, this, cp),
+                                    "returns never" );
+    dat->commands()->addCommand( command( "instantNotDone", &ProgramTest::true_genCom,
+                                         &ProgramTest::true_gen, this, cp, false),
+                                         "returns never" );
+    dat->commands()->addCommand( command( "instantFail", &ProgramTest::false_genCom,
+                                      &ProgramTest::true_gen, this, cp),
+                                      "fails immediately" );
+    dat->commands()->addCommand( command( "totalFail", &ProgramTest::false_genCom,
+                                    &ProgramTest::false_gen, this, cp),
+                                    "fails in command and condition" );
     return dat;
 }
 

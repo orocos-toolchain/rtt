@@ -30,9 +30,7 @@
 #define ORO_TASKBROWSER_HPP
  
 
-#include "MethodFactoryInterface.hpp"
-#include "DataSourceFactoryInterface.hpp"
-#include "CommandFactoryInterface.hpp"
+#include "OperationInterface.hpp"
 #include "DispatchInterface.hpp"
 #include <deque>
 #include <string>
@@ -71,9 +69,6 @@ namespace ORO_Execution
         ORO_CoreLib::ConditionInterface* condition;
         DispatchInterface*   command;
         ORO_CoreLib::DataSource<bool>::shared_ptr   accepted;
-        const CommandFactoryInterface* command_fact;
-        const DataSourceFactoryInterface* datasource_fact;
-        const MethodFactoryInterface* method_fact;
 
         int debug;
         /* A static variable for holding the line. */
@@ -109,10 +104,8 @@ namespace ORO_Execution
 
         static void find_completes();
         
-        static void find_command(std::string::size_type startpos);
+        static void find_ops(std::string::size_type startpos);
         static void find_peers(std::string::size_type startpos);
-
-        static void find_datasource(std::string::size_type startpos);
 
         static void find_method(std::string::size_type startpos);
 
@@ -182,7 +175,7 @@ namespace ORO_Execution
         /**
          * Print the synopsis of a command.
          */
-        void printCommand( const std::string c );
+        void printCommand( const std::string c, OperationInterface* ops );
                 
         /**
          * Print the synopsis of a DataSource.
@@ -192,7 +185,7 @@ namespace ORO_Execution
         /**
          * Print the synopsis of a Method.
          */
-        void printMethod( const std::string m );
+        void printMethod( const std::string m, OperationInterface* ops );
 
         /**
          * Print a program listing of a loaded program centered at line \a line.

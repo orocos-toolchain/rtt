@@ -160,6 +160,17 @@ namespace ORO_Execution
         }
 
         /**
+         * Check if the state machine is in a given state
+         * and not in the entry or exit program.
+         */
+        bool inStrictState(const std::string& state) const {
+            StateInterface* copy = this->currentState();
+            if (copy == 0)
+                return false;
+            return copy->getName() == state && !this->inTransition();
+        }
+
+        /**
          * Return name of current state, empty string if not active.
          */
         const std::string& getCurrentStateName() const {

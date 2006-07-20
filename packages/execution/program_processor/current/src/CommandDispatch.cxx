@@ -74,7 +74,7 @@ namespace ORO_Execution
             else {
                 //Logger::log() <<Logger::RealTime << "rejected"<<Logger::endl;
                 // send failed ! Target CommandProcessor probably not running, give up.
-                // set _result to false, because com will not do this itself.
+                // set _result to false, because com will not do this, since not executed.
                 dispatcher.mvalid = false;
             }
             send = false;

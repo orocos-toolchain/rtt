@@ -43,7 +43,7 @@ namespace ORO_Execution
     {
     public:
         const GlobalMethodFactory* mgcf;
-        const MethodRepository* mmr;
+        const MethodRepository::Factory* mmr;
         std::string mobject, mname;
         std::vector<DataSourceBase::shared_ptr> args;
         AttributeBase* rta;
@@ -59,7 +59,7 @@ namespace ORO_Execution
                 size_t sz = mmr->getArity(mname);
                 if ( sz == args.size() ) {
                     // may throw or return nill
-                    m = mmr->getMethod(mname, args );
+                    m = mmr->produce(mname, args );
                     args.clear();
                     if ( !m )
                         return;
@@ -109,7 +109,7 @@ namespace ORO_Execution
             this->checkAndCreate();
         }
 
-        D( const MethodRepository* mr, const std::string& name)
+        D( const MethodRepository::Factory* mr, const std::string& name)
             : mgcf(0), mmr(mr), mname(name), rta(0), m()
         {
             this->checkAndCreate();
@@ -143,7 +143,7 @@ namespace ORO_Execution
         }
     }
 
-    MethodC::MethodC(const MethodRepository* mr, const std::string& name)
+    MethodC::MethodC(const MethodRepository::Factory* mr, const std::string& name)
         : d( mr ? new D( mr, name) : 0 ), m()
     {
         if ( d->m ) {

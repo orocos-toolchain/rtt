@@ -100,6 +100,12 @@ namespace ORO_Execution
             }
             // Do not call this->disconnect() !!!
             // Ports are probably already destructed by user code.
+
+            Objects::const_iterator it = mobjects.begin();
+            while ( it != mobjects.end() ) {
+                delete *it;
+                ++it;
+            }
         }
 
     void TaskContext::exportPorts()
@@ -108,11 +114,11 @@ namespace ORO_Execution
         for (DataFlowInterface::Ports::iterator it = myports.begin();
              it != myports.end();
              ++it) {
-            if ( this->datasources()->getObjectFactory( (*it)->getName() ) == 0 ) {
+            if ( this->getObject( (*it)->getName() ) == 0 ) {
                 // Add the port to the method interface.
-                DataSourceFactoryInterface* ms =  (*it)->createDataSources();
+                OperationInterface* ms =  (*it)->createPortObject();
                 if ( ms )
-                    this->datasources()->registerObject( (*it)->getName(), ms );
+                    this->addObject( ms );
             }
         }
     }
@@ -313,17 +319,43 @@ namespace ORO_Execution
             return 0;
         }
 
-    bool TaskContext::addObject( TaskObject *obj ) {
-        return false;
+    bool TaskContext::addObject( OperationInterface *obj ) {
+        if ( getObject( obj->getName() ) )
+            return false;
+        mobjects.push_back(obj);
+        return true;
     }
 
-    TaskObject* TaskContext::getObject(const std::string& obj_name ) const
+    OperationInterface* TaskContext::getObject(const std::string& obj_name )
     {
+        if (obj_name == "this")
+            return this;
+        Objects::const_iterator it = mobjects.begin();
+        while ( it != mobjects.end() )
+            if ( (*it)->getName() == obj_name )
+                return *it;
+            else
+                ++it;
         return 0;
     }
 
+    std::vector<std::string> TaskContext::getObjectList() const
+    {
+        std::vector<std::string> res;
+        std::transform(mobjects.begin(), mobjects.end(),
+                       std::back_inserter( res ), boost::bind(&OperationInterface::getName,_1));
+        return res;
+    }
+
+
     bool TaskContext::removeObject(const std::string& obj_name ) {
-    return false;
+        OperationInterface* tgt = getObject(obj_name);
+        if (tgt) {
+            mobjects.erase( find(mobjects.begin(), mobjects.end(), tgt) );
+            delete tgt;
+            return true;
+        }
+        return false;
     }
 
 }

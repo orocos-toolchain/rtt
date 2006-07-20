@@ -3,6 +3,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include <boost/type_traits/function_traits.hpp>
 
 #include <corelib/CommandInterface.hpp>
 #include <corelib/ConditionInterface.hpp>
@@ -288,17 +289,18 @@ namespace ORO_Execution
          */
         template< class FunctionT>
         struct Functor
-            : public FunctorImpl<FunctionT::arity,FunctionT>
+            : public FunctorImpl<boost::function_traits<FunctionT>::arity,boost::function<FunctionT> >
         {
             typedef FunctionT Function;
+            typedef boost::function<FunctionT> FunctionImpl;
 
-            Functor<FunctionT>(FunctionT impl) 
-                : FunctorImpl<FunctionT::arity,FunctionT>(impl)
+            Functor<FunctionT>(FunctionImpl impl) 
+                : FunctorImpl<boost::function_traits<FunctionT>::arity,FunctionImpl>(impl)
             {}
 
             // Allow construction from base class.
-            Functor<FunctionT>(FunctorImpl<FunctionT::arity,FunctionT> impl) 
-                : FunctorImpl<FunctionT::arity,FunctionT>(impl)
+            Functor<FunctionT>(FunctorImpl<boost::function_traits<FunctionT>::arity,FunctionImpl> impl) 
+                : FunctorImpl<boost::function_traits<FunctionT>::arity,FunctionImpl>(impl)
             {}
         };
 
@@ -308,12 +310,12 @@ namespace ORO_Execution
          * @param Signature The function signature of this command.
          * @param FunctorT The function that stores the command.
          */
-        template<typename SignatureT, typename FunctorT = Functor<boost::function<SignatureT> > >
+        template<typename SignatureT, typename FunctorT = Functor<SignatureT> >
         class CommandFunctor
             :public CommandInterface
         {
         public:
-            typedef typename FunctorT::Function Function;
+            typedef typename FunctorT::FunctionImpl Function;
             typedef SignatureT Signature;
             typedef FunctorT Functor;
 
@@ -383,12 +385,12 @@ namespace ORO_Execution
          * @param Signature The function signature of this condition
          * @param FunctorT The function that stores the command.
          */
-        template<typename SignatureT, typename FunctorT = Functor<boost::function<SignatureT> > >
+        template<typename SignatureT, typename FunctorT = Functor<SignatureT> >
         class ConditionFunctor
             :public ConditionInterface
         {
         public:
-            typedef typename FunctorT::Function Function;
+            typedef typename FunctorT::FunctionImpl Function;
             typedef SignatureT Signature;
             typedef FunctorT Functor;
 

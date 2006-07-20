@@ -29,11 +29,12 @@
 #ifndef FUNCTIONFACTORY_HPP
 #define FUNCTIONFACTORY_HPP
 
-#include "CommandFactoryInterface.hpp"
+#include "OperationFactory.hpp"
 #include "corelib/Property.hpp"
 #include <map>
 #include <string>
 #include "ProgramInterface.hpp"
+#include "DispatchInterface.hpp"
 
 namespace ORO_Execution
 {
@@ -47,41 +48,25 @@ namespace ORO_Execution
      * a FunctionGraph in a Processor.
      */
     class FunctionFactory
-        : public CommandFactoryInterface
+        : public detail::OperationFactoryPart<DispatchInterface*>
     {
-        typedef std::map<std::string, ProgramInterfacePtr > map_t;
-        map_t funcmap;
+        ProgramInterfacePtr func;
         ExecutionEngine* proc;
     public:
-        FunctionFactory(ExecutionEngine* procs);
-        ~FunctionFactory();
+        FunctionFactory(ProgramInterfacePtr func, ExecutionEngine* procs);
 
-        void addFunction(const std::string& name, ProgramInterfacePtr f ) ;
-
-        bool hasCommand(const std::string& com) const ;
-
-        std::vector<std::string> getCommandList() const;
-
-        std::string getResultType( const std::string& com ) const;
-        std::string getDescription( const std::string& com ) const;
+        std::string resultType() const;
+        std::string description() const;
 
         ORO_CoreLib::PropertyBag
-        getArgumentSpec( const std::string& command ) const;
+        getArgumentSpec() const;
 
-        std::vector< ArgumentDescription > getArgumentList( const std::string& command ) const;
+        std::vector< ArgumentDescription > getArgumentList() const;
 
-        int getArity( const std::string& foo ) const;
-        ComCon create( const std::string& command,
-                       const ORO_CoreLib::PropertyBag& args,
-                       bool nodispatch ) const;
+        int arity() const;
 
-        ComCon create(const std::string& command,
-                      const std::vector<ORO_CoreLib::DataSourceBase*>& args,
-                      bool nodispatch ) const;
-
-        ComCon create(const std::string& command,
-                      const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args,
-                      bool nodispatch ) const;
+        DispatchInterface* produce(const std::vector<ORO_CoreLib::DataSourceBase::shared_ptr>& args
+                                   ) const;
     };
 }
 

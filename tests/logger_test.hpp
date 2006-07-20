@@ -32,6 +32,7 @@ class LoggerTest : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE( LoggerTest );
     CPPUNIT_TEST( testStartStop );
     CPPUNIT_TEST( testLogEnv );
+    CPPUNIT_TEST( testNewLog );
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -41,6 +42,7 @@ public:
 
     void testStartStop();
     void testLogEnv();
+    void testNewLog();
 };
 
 #endif

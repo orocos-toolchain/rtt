@@ -260,7 +260,6 @@ namespace ORO_Execution
             }
         };
 
-
         /**
          * A class which binds a Type F to object O. If it is invoked
          * with more arguments than F, the extra arguments are discarded.

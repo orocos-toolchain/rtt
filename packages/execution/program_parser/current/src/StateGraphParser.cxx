@@ -662,8 +662,7 @@ namespace ORO_Execution
         if ( curtemplate )
         {
           // remove all 'this' data factories
-          curtemplate->getTaskContext()->dataFactory.unregisterObject( "this" );
-          curtemplate->getTaskContext()->methodFactory.unregisterObject( "this" );
+          curtemplate->getTaskContext()->methods()->clear();
 
           // remove temporary subMachine peers from current task.
           for( StateMachine::ChildList::const_iterator it= curtemplate->getChildren().begin();

@@ -2,6 +2,7 @@
 #define ORO_TASK_CORE_HPP
 
 #include "ExecutionEngine.hpp"
+#include "OperationInterface.hpp"
 
 #include <string>
 
@@ -15,6 +16,7 @@ namespace ORO_Execution
      * task browsing is required (for every task).
      */
     class TaskCore
+        : public OperationInterface
     {
         // non copyable
         TaskCore( TaskCore& );
@@ -22,6 +24,8 @@ namespace ORO_Execution
         std::string    _task_name;
     
         ExecutionEngine ee;
+        CommandRepository comms;
+        MethodRepository meths;
     public:
         /**
          * Create a TaskCore visible with \a name.
@@ -74,7 +78,7 @@ namespace ORO_Execution
         /**
          * Get the name of this TaskCore.
          */
-        const std::string& getName()
+        const std::string& getName() const
         {
             return _task_name;
         }
@@ -104,6 +108,27 @@ namespace ORO_Execution
         {
             return &ee;
         }
+#if 1
+        CommandRepository* commands()
+        {
+            return &comms;
+        }
+
+        const CommandRepository* commands() const
+        {
+            return &comms;
+        }
+
+        MethodRepository* methods()
+        {
+            return &meths;
+        }
+
+        const MethodRepository* methods() const
+        {
+            return &meths;
+        }
+#endif
     };
 }
 

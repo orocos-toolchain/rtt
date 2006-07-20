@@ -94,6 +94,13 @@ namespace ORO_CoreLib
             return 0;
         }
 
+        DataSourceBase::shared_ptr construct(const std::vector<DataSourceBase::shared_ptr>& ) const {
+            Logger::In loc("TypeInfoName");
+            Logger::log() << Logger::Error << "Can not construct value of "<<tname<<"."<<Logger::endl;
+            return DataSourceBase::shared_ptr();
+        }
+
+
         virtual std::ostream& write( std::ostream& os, DataSourceBase::shared_ptr in ) const {
             Logger::In loc("TypeInfoName");
 #if HAVE_STREAMS

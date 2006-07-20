@@ -406,7 +406,7 @@ namespace ORO_Execution
       if ( mfuncs.count( funcdef ) )
           throw parse_exception_semantic_error("function " + funcdef + " redefined.");
 
-      if ( exportf && rootc->commands()->hasCommand("this", funcdef ))
+      if ( exportf && rootc->commands()->hasMember( funcdef ))
           throw parse_exception_semantic_error("exported function " + funcdef + " is already defined in "+ rootc->getName()+".");;
 
       mfuncs[funcdef] = program_builder->startFunction( funcdef );
@@ -441,10 +441,9 @@ namespace ORO_Execution
 
       // export the function in the context's interface.
       if (exportf) {
-          FunctionFactory* cfi = new FunctionFactory( rootc->getExecutionEngine() ); // execute in the processor which has the command.
           std::map<const DataSourceBase*, DataSourceBase*> dummy;
-          cfi->addFunction( mfunc->getName() , ProgramInterfacePtr(mfunc->copy(dummy)) );
-          rootc->commands()->registerObject("this", cfi );
+          FunctionFactory* cfi = new FunctionFactory(ProgramInterfacePtr(mfunc->copy(dummy)), rootc->getExecutionEngine() ); // execute in the processor which has the command.
+          rootc->commands()->add(mfunc->getName(), cfi );
           Logger::log() << Logger::Info << "Exported Function '" << mfunc->getName() << "' added to task '"<< rootc->getName() << "'" <<Logger::endl;
       }
 
@@ -565,7 +564,7 @@ namespace ORO_Execution
       peer = peerparser.peer();
       peerparser.reset();
 
-      if ( peer->eventService.hasEvent(ename) == false )
+      if ( peer->events()->hasEvent(ename) == false )
           throw parse_exception_semantic_error("emitting Event " + ename + " but it is not defined in Task "+peer->getName()+".");
 
       // Parse the event's args in the programs context.
@@ -589,7 +588,7 @@ namespace ORO_Execution
       assert( argsparser );
       try
           {
-              DataSourceBase::shared_ptr emitds = peer->eventService.setupEmit( argsparser->methodname(), callfnargs);
+              DataSourceBase::shared_ptr emitds = peer->events()->setupEmit( argsparser->methodname(), callfnargs);
               assert( emitds );
               program_builder->setCommand( new CommandDataSource( emitds ) );
               program_builder->proceedToNext( new ConditionTrue(), mpositer.get_position().line - ln_offset );

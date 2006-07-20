@@ -32,7 +32,7 @@
 #include <string>
 #include "ConnectionTypes.hpp"
 #include "ConnectionInterface.hpp"
-#include "DataSourceFactoryInterface.hpp"
+#include "OperationInterface.hpp"
 
 namespace ORO_Execution
 {
@@ -112,10 +112,10 @@ namespace ORO_Execution
         virtual ConnectionInterface::shared_ptr createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
 
         /**
-         * Create accessor DataSources for this Port, for addition to a
-         * DataSource interface.
+         * Create accessor Object for this Port, for addition to a
+         * TaskContext Object interface.
          */
-        virtual DataSourceFactoryInterface* createDataSources();
+        virtual OperationInterface* createPortObject();
     };
 
 }

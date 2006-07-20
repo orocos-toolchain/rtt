@@ -32,11 +32,11 @@
 #include <string>
 #include <corelib/DataSources.hpp>
 #include <corelib/Attribute.hpp>
+#include "OperationFactory.hpp"
 
 namespace ORO_Execution
 {
     class GlobalMemberFactory;
-    class MethodRepository;
 
     /**
      * A user friendly method to a TaskContext.
@@ -67,7 +67,7 @@ namespace ORO_Execution
          * The constructor.
          * @see MethodRepository
          */
-        MethodC( const MethodRepository* mr, const std::string& name);
+        MethodC( const MethodFactory* mr, const std::string& name);
 
         /**
          * A MethodC is copyable by value.

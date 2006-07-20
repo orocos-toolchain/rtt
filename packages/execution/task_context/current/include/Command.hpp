@@ -9,8 +9,11 @@
 namespace ORO_Execution
 {
     /**
-     * A Command is a function which can be executed (sent) to another
-     * task and queried for its execution status. Normally, it is the
+     * A Command is a function which can be sent to a
+     * task for execution and be queried for its execution status.
+     * The sending is also called the 'invocation' of the Command object.
+     *
+     * It is good practice that the
      * receiving task which defines the commands it can execute, but
      * this class allows otherwise as well.
      *
@@ -32,8 +35,9 @@ namespace ORO_Execution
      X x;
      Command<bool(int, Frame, double)> mycom("Command1",&X::command_1,&X::condition_1, &x);
 
+     // Invoke the command:
      Frame f = //...
-     mycom(3, f, 9.0);   // executes the command.
+     mycom(3, f, 9.0);
      @endcode
      *
      */
@@ -181,45 +185,65 @@ namespace ORO_Execution
             return *this;
         }
 
+        /**
+         * Returns true if the command is ready for invocation.
+         * If ready() returns true, this command may be invoked,
+         * otherwise, invocation will fail.
+         */
         bool ready() const {
             return this->impl && this->impl->ready();
         }
 
-        bool dispatch() {
-            if (!this->impl) return false;
-            return this->impl->dispatch();
-        }
-
-        bool execute() {
-            if (!this->impl) return false;
-            return this->impl->execute();
-        }
-        
+        /**
+         * Returns true if the command is executed and the completion
+         * condition returns true as well.
+         */
         bool evaluate() const {
             if (!this->impl) return false;
             return this->impl->evaluate();
         }
      
+        /**
+         * After reset(), another attempt to dispatch
+         * the command will be done when invoked.
+         */
         void reset() {
             if (!this->impl) return;
             return this->impl->reset();
         }
 
+        /**
+         * Returns true if the command was sent to the CommandProcessor.
+         * You can use this flag to check whether this command was invoked.
+         */
         bool sent() const {
             if (!this->impl) return false;
             return this->impl->sent();
         }
 
+        /**
+         * Returns true if the command was accepted when sent to the CommandProcessor.
+         * A Command is accepted when the CommandProcessor was running and its queue
+         * was not full.
+         */
         bool accepted() const {
             if (!this->impl) return false;
             return this->impl->accepted();
         }
 
+        /**
+         * Returns true if the command function was executed by the CommandProcessor.
+         * When executed() is true, you can check if it was found valid().
+         */
         bool executed() const {
             if (!this->impl) return false;
             return this->impl->executed();
         }
 
+        /**
+         * Returns true if the command was valid, i.e. the command function itself
+         * was executed and returned true. 
+         */
         bool valid() const {
             if (!this->impl) return false;
             return this->impl->valid();
@@ -234,10 +258,22 @@ namespace ORO_Execution
             return mname;
         }
 
+        /** 
+         * The Command class is just a wrapper around an implementation,
+         * this function returns the implementation. Make a clone() if you
+         * want to keep the pointer.
+         * 
+         * @return The implementation
+         */
         detail::CommandBase<CommandT>* getCommandImpl() const {
             return this->impl;
         }
 
+        /** 
+         * Change the implementation of this Command, delete the old one.
+         * 
+         * @param new_impl The new implementation.
+         */
         void setCommandImpl(detail::CommandBase<CommandT>* new_impl) const {
             delete this->impl;
             return this->impl = new_impl;
