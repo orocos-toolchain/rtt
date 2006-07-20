@@ -28,9 +28,9 @@
    stuff.
 */
 
-#include "comedi/ComediSubDeviceAOut.hpp"
-#include "comedi/ComediDevice.hpp"
-#include <rtt/rtt/os/fosi.h>
+#include "rtt/dev/ComediSubDeviceAOut.hpp"
+#include "rtt/dev/ComediDevice.hpp"
+#include <rtt/os/fosi.h>
 #include "comedi_internal.h"
 
 namespace RTT

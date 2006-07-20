@@ -31,14 +31,14 @@
 *                                                                             *
 \*****************************************************************************/
 
-#include "can/cpcore.h"
-#include "can/cpfifo.h"
-#include "can/cpfilter.h"
-#include "can/cpuser.h"
+#include "rtt/can/cpcore.h"
+#include "rtt/can/cpfifo.h"
+#include "rtt/can/cpfilter.h"
+#include "rtt/can/cpuser.h"
 
 #include <pkgconf/system.h>
 #if (defined OROPKG_OS_RTAI) || (defined OROPKG_OS_LXRT)
-#include "can/cplxrt.h"
+#include "rtt/can/cplxrt.h"
 #endif
 
 /*------------------------------------------------------------------------

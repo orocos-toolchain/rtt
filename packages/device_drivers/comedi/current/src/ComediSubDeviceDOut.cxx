@@ -27,8 +27,8 @@
  
  
 
-#include "comedi/ComediSubDeviceDOut.hpp"
-#include "rtt/rtt/os/fosi.h"
+#include "rtt/dev/ComediSubDeviceDOut.hpp"
+#include "rtt/os/fosi.h"
 
 #include <pkgconf/system.h>
 

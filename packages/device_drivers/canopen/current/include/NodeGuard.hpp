@@ -25,13 +25,14 @@
  *                                                                         *
  ***************************************************************************/ 
  
-#ifndef NODEGUARD_HPP
-#define NODEGUARD_HPP
+#ifndef ORO_NODEGUARD_HPP
+#define ORO_NODEGUARD_HPP
 
+#include "CAN.hpp"
 #include <rtt/RunnableInterface.hpp>
-#include <can/CANConfigurator.hpp>
-#include <can/CANMessage.hpp>
-#include <can/CANOpenBus.hpp>
+#include "CANConfigurator.hpp"
+#include "CANMessage.hpp"
+#include "CANOpenBus.hpp"
 
 namespace CAN
 {

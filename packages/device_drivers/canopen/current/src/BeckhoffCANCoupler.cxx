@@ -27,12 +27,12 @@
  
  
 
-#include "can/BeckhoffCANCoupler.hpp"
+#include "rtt/can/BeckhoffCANCoupler.hpp"
 #include "rtt/Logger.hpp"
 
 
 
-namespace Beckhoff
+namespace CAN
 {
     BeckhoffCANCoupler::BeckhoffCANCoupler(CANBusInterface* _bus, unsigned int _node_id)
         : analogOutputs(),

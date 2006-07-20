@@ -24,14 +24,26 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/ 
- 
-/**
- * @brief CAN Message Abstraction Layer
- *
- * This package provides a C++ CANOpen message and controller layer.
- * The controller is based on the canpie package.
- *
- * The Beckhoff namespace contains Beckhoff specific implementations
- * for accessing a Beckhoff module over a CANOpen network.
- */
-namespace CAN {}
+
+#include <rtt/RTT.hpp>
+
+namespace CAN {
+    using namespace RTT;
+}
+
+namespace RTT
+{ 
+    /**
+     * @brief CAN Message Abstraction Layer
+     *
+     * This package provides a C++ CANOpen message and controller layer.
+     * The controller is based on the canpie package.
+     *
+     * The Beckhoff namespace contains Beckhoff specific implementations
+     * for accessing a Beckhoff module over a CANOpen network.
+     */
+    namespace CAN {
+        using namespace ::CAN;
+    }
+}
+

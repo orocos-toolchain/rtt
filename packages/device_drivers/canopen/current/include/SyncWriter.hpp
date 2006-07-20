@@ -25,9 +25,10 @@
  *                                                                         *
  ***************************************************************************/ 
  
-#ifndef SYNCWRITER_HPP
-#define SYNCWRITER_HPP
+#ifndef ORO_SYNCWRITER_HPP
+#define ORO_SYNCWRITER_HPP
 
+#include "CAN.hpp"
 #include <rtt/RunnableInterface.hpp>
 #include "CANOpenBus.hpp"
 

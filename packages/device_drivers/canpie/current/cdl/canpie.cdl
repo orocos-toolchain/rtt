@@ -15,7 +15,7 @@ cdl_package OROPKG_DEVICE_DRIVERS_CANPIE {
     }
 
 
-    include_dir can
+    include_dir rtt/can
 
     parent   OROPKG_DEVICE_DRIVERS
 

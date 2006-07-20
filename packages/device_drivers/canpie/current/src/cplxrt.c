@@ -38,8 +38,8 @@
 #include <linux/interrupt.h>
 #include <asm/io.h>
 
-#include "can/cplxrt.h"
-#include "can/cpcore.h"
+#include "rtt/can/cplxrt.h"
+#include "rtt/can/cpcore.h"
 #include <rtai_lxrt.h>
 #include <pkgconf/device_drivers_canpie.h>
 

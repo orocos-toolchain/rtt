@@ -28,9 +28,10 @@
 #ifndef BECKHOFFAOUT_HPP
 #define BECKHOFFAOUT_HPP
 
-#include "AnalogOutInterface.hpp"
+#include "CAN.hpp"
+#include <rtt/dev/AnalogOutInterface.hpp>
 
-namespace Beckhoff
+namespace CAN
 {
     
     /**

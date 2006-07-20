@@ -9,7 +9,7 @@ detection of the packages configure script"
         default_value { "-I".OROBLD_SUPPORT_COMEDI_DIR }
     }
 
-    include_dir comedi
+    include_dir rtt/dev
 
     parent   OROPKG_DEVICE_DRIVERS
 
@@ -52,7 +52,7 @@ must be a digital output subdevice."
 
 	define_proc { 
 	puts $::cdl_system_header "/***** proc output start *****/"
-	puts $::cdl_system_header "#define ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE <comedi/ComediThreadScope.hpp>"
+	puts $::cdl_system_header "#define ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE <rtt/dev/ComediThreadScope.hpp>"
 	puts $::cdl_system_header "#define OROCLS_DEVICE_DRIVERS_THREAD_SCOPE_DRIVER ComediThreadScope"
 	puts $::cdl_system_header "/****** proc output end ******/"
 	}

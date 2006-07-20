@@ -41,8 +41,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 //  
 
-#include "comedi/ComediEncoder.hpp"
-#include <rtt/rtt/os/fosi.h>
+#include "rtt/dev/ComediEncoder.hpp"
+#include <rtt/os/fosi.h>
 
 #include "comedi_internal.h"
 

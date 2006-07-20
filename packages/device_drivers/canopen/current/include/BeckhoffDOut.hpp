@@ -28,13 +28,11 @@
 #ifndef BECKHOFFDOUT_HPP
 #define BECKHOFFDOUT_HPP
 
-#include "DigitalOutInterface.hpp"
+#include "CAN.hpp"
+#include <rtt/dev/DigitalOutInterface.hpp>
 
-namespace Beckhoff
+namespace CAN
 {
-    
-    
-
 	/**
      * @brief A class representing an Beckhoff Digital Out Terminal.
 	 */

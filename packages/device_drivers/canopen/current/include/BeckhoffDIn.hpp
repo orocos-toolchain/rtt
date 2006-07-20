@@ -28,15 +28,13 @@
 #ifndef BECKHOFFDIN_HPP
 #define BECKHOFFDIN_HPP
 
-#include "DigitalInInterface.hpp"
+#include "CAN.hpp"
+#include <rtt/dev/DigitalInInterface.hpp>
 #include "CANDeviceInterface.hpp"
 #include "CANMessage.hpp"
 
-namespace Beckhoff
+namespace CAN
 {
-    
-    using namespace CAN;
-    
 
 	/**
      * A class representing an Beckhoff Digital Input Terminal.

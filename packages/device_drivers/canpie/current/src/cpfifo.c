@@ -30,7 +30,7 @@
 *                                                                             *
 \*****************************************************************************/
 
-#include "can/cpfifo.h"
+#include "rtt/can/cpfifo.h"
 #include "pkgconf/system.h"
 
 
@@ -65,7 +65,7 @@ _U08           CpVar_FifoStatus[CP_CHANNEL_MAX];
 #ifndef __KERNEL__
 // userspace library
 #include <stdlib.h>     // for malloc() and free()
-#include <rtt/rtt/os/fosi.h>    // for rtos_sem
+#include <rtt/os/fosi.h>    // for rtos_sem
 #else
 // lxrt kernel module
 #if defined(OROPKG_OS_LXRT) || defined(OROPKG_OS_RTAI)

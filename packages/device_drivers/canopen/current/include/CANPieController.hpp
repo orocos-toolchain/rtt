@@ -28,6 +28,7 @@
 #ifndef CANPIECONTROLLER_HPP
 #define CANPIECONTROLLER_HPP
 
+#include "CAN.hpp"
 #include "CANControllerInterface.hpp"
 #include "CANBusInterface.hpp"
 #include "CANMessage.hpp"
@@ -42,9 +43,6 @@
 namespace CAN
 {
 
-#ifdef OROPKG_CORELIB_ACTIVITIES
-  
-#endif
   /**
    * A Controller which interacts with the CANPie platform to
    * address the physical controller.

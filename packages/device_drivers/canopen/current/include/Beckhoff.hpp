@@ -34,4 +34,4 @@
  * Orocos
  *
  */
-namespace Beckhoff {}
+namespace CAN {}

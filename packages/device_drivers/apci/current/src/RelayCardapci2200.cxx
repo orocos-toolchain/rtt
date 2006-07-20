@@ -40,6 +40,8 @@ extern "C"
 }
 #endif
 
+
+#include <rtt/os/fosi.h>
 #include <rtt/dev/RelayCardapci2200.hpp>
 
 namespace RTT

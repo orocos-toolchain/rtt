@@ -45,8 +45,8 @@
    Major rewrite of original file by Peter Soetens
 */
 
-#include "comedi/ComediDevice.hpp"
-#include <rtt/rtt/os/fosi.h>
+#include "rtt/dev/ComediDevice.hpp"
+#include <rtt/os/fosi.h>
 
 #include "comedi_internal.h"
 

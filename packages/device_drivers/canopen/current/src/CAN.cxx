@@ -25,7 +25,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "can/CANMessage.hpp"
+#include "rtt/can/CANMessage.hpp"
 
 namespace CAN
 {

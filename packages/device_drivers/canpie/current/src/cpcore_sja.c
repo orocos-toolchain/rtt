@@ -32,19 +32,19 @@
 #include <pkgconf/system.h>
 #include <pkgconf/device_drivers_canpie.h>
 
-#include "can/cpconfig.h"
-#include "can/cpcore.h"
-#include "can/cpfifo.h"
-#include "can/cpfilter.h"
-#include "can/cpmacro.h"
+#include "rtt/can/cpconfig.h"
+#include "rtt/can/cpcore.h"
+#include "rtt/can/cpfifo.h"
+#include "rtt/can/cpfilter.h"
+#include "rtt/can/cpmacro.h"
 
 /* SJA: Include header for SJA CAN controller */
-#include "can/pelican.h" 
+#include "rtt/can/pelican.h" 
 
 #if defined(OROPKG_OS_RTAI) || defined(OROPKG_OS_LXRT)
 #include <rtai.h>
 #include <rtai_sched.h>
-#include "can/cplxrt.h"
+#include "rtt/can/cplxrt.h"
 #endif
 
 

@@ -27,8 +27,8 @@
  
  
 
-#include "comedi/ComediSubDeviceDIn.hpp"
-#include <rtt/rtt/os/fosi.h>
+#include "rtt/dev/ComediSubDeviceDIn.hpp"
+#include <rtt/os/fosi.h>
 #include "comedi_internal.h"
 
 namespace RTT

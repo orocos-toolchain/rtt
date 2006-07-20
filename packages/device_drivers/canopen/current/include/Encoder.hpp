@@ -29,12 +29,12 @@
 #define CANOPENENCODER_HPP
 
 #include "BeckhoffSSI.hpp"
-#include "EncoderInterface.hpp"
+#include <rtt/dev/EncoderInterface.hpp>
 
 
 namespace CAN
 {
-    using Beckhoff::BeckhoffSSI;
+    using CAN::BeckhoffSSI;
 
     class Encoder 
         : public EncoderInterface

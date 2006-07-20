@@ -39,12 +39,11 @@
 
 #include <vector>
 
-namespace Beckhoff
+namespace CAN
 {
     
     using std::vector;
-    using CAN::CANDeviceInterface;
-    
+
 	/**
      * An implementation of a CANDeviceInterface, which
      * represents a Beckhoff CAN Coupler.

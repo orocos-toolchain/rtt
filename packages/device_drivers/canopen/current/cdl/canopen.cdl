@@ -4,7 +4,7 @@ cdl_package OROPKG_DEVICE_DRIVERS_CANOPEN {
 This package was made for controlling a Beckhoff
 based CANOpen bus for an industrial partner."
 
-    include_dir can
+    include_dir rtt/can
 
     parent   OROPKG_DEVICE_DRIVERS
 

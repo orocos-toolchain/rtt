@@ -41,6 +41,7 @@ extern "C"
 }
 #endif
 
+#include <rtt/os/fosi.h>
 #include <rtt/dev/SwitchDigitalInapci1032.hpp>
 
 namespace RTT

@@ -28,8 +28,8 @@
 #ifndef BECKHOFFSSI_HPP
 #define BECKHOFFSSI_HPP
 
-#include "DigitalInInterface.hpp"
-#include "EncoderInterface.hpp"
+#include <rtt/dev/DigitalInInterface.hpp>
+#include <rtt/dev/EncoderInterface.hpp>
 #include <rtt/ConfigurationInterface.hpp>
 #include "CANRequest.hpp"
 
@@ -40,13 +40,8 @@
 #include <iostream>
 #include <rtt/os/rtstreams.hpp>
 
-namespace Beckhoff
+namespace CAN
 {
-    
-    using namespace CAN;
-    using std::vector;
-    using namespace std;
-    
 
 	/**
      * TODO : extend so that # of terminals can be larger than 2.
@@ -63,7 +58,7 @@ namespace Beckhoff
         unsigned int ref[SSI_TERMINALS];
         unsigned int terminals[SSI_TERMINALS];
 
-        vector<CANRequest*> requests;
+        std::vector<CANRequest*> requests;
         
         public:
         /**

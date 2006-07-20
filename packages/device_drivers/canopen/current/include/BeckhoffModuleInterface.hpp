@@ -29,7 +29,7 @@
 #define BECKHOFFTERMINALINTERFACE_HPP
 
 
-namespace Beckhoff
+namespace CAN
 {
     
 	/**

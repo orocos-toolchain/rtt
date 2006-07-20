@@ -27,7 +27,7 @@
  
  
 
-#include "can/CANPieController.hpp"
+#include "rtt/can/CANPieController.hpp"
 
 #include <pkgconf/system.h>
 #ifdef OROPKG_CORELIB_ACTIVITIES
@@ -35,8 +35,8 @@
 #include <rtt/Logger.hpp>
 #endif
 
-#include "can/cpuser.h"
-#include <rtt/rtt/os/fosi.h>
+#include "rtt/can/cpuser.h"
+#include <rtt/os/fosi.h>
 
 namespace CAN
 {
