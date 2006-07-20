@@ -136,6 +136,12 @@ namespace ORO_CoreLib
         const char* getLogModule() const;
 
         /**
+         * Function signature of the functions that influence the
+         * log stream.
+         */
+        typedef std::ostream& (*LogFunction)(std::ostream&);
+
+        /**
          * Insert a newline '\n' in the ostream. (Why is this not in the standard ?)
          */
         static std::ostream& nl(std::ostream& __os);
@@ -164,6 +170,11 @@ namespace ORO_CoreLib
          * As Instance(), but more userfriendly.
          */
         static Logger& log();
+
+        /**
+         * As log(), but also specify the LogLevel of the next message.
+         */
+        static Logger& log(LogLevel ll);
 
         /**
          * Print a 'welcome' string in Info  and reset log timestamp.
@@ -266,6 +277,51 @@ namespace ORO_CoreLib
 
         static Logger* _instance;
     };
+
+    /**
+     * Enumerate all log-levels from absolute silence to
+     * everything.
+     * @warning If you enable 'RealTime' logging, this may break realtime performance. Use With Care and NOT
+     * on production systems.
+     * @see Logger::allowRealTime()
+     */
+    enum LoggerLevel { Never = 0, Fatal, Critical, Error, Warning, Info, Debug, RealTime };
+
+    /**
+     * Free function in order to access the Logger instance.
+     */
+    static inline Logger& log() { return Logger::log(); }
+
+    /**
+     * Free function in order to access the Logger instance and set the
+     * LoggerLevel of next message.
+     */
+    static inline Logger& log(LoggerLevel ll) { return Logger::log(Logger::LogLevel(ll)); }
+
+    /** 
+     * Function to tell the logger that the log message ended.
+     * Usage: log() << "Message" << endlog();
+     */
+    static inline Logger::LogFunction endlog() {return Logger::endl; }
+
+    /** 
+     * Function to tell the logger that the log message ended and 
+     * specify the LoggerLevel of that message
+     * Usage: log() << "Error Message" << endlog(Error);
+     */
+    static inline Logger::LogFunction endlog(LoggerLevel ll) { log(ll); return Logger::endl; }
+
+    /** 
+     * Function to tell the logger that a newline may be inserted in the log message.
+     * Usage: log() << "Message on line 1" << nlog() << "Message on line 2" << endlog();
+     */
+    static inline Logger::LogFunction nlog() {return Logger::nl; }
+
+    /** 
+     * Function to tell the logger that the logs may be flushed.
+     * Usage: log() << "Message on line 1" << flushlog();
+     */
+    static inline Logger::LogFunction flushlog() {return Logger::flush; }
 }
 
 #include "Logger.inl"

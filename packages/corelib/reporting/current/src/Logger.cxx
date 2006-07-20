@@ -81,6 +81,10 @@ namespace ORO_CoreLib
         return *Instance();
     }
 
+    Logger& Logger::log(LogLevel ll) {
+        return Instance()->operator<<( ll );
+    }
+
     /**
      * This hidden struct stores all data structures required for logging.
      */

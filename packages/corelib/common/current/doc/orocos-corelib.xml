@@ -1563,17 +1563,21 @@ emergencyStop.emit(); // User not notified</programlisting>
       <programlisting>  #include &lt;corelib/Logger.hpp>
 
   Logger::In in("MyModule");
-  <classname>ORO_CoreLib::Logger</classname>::log() &lt;&lt; Logger::Error &lt;&lt; "An error Occured : " &lt;&lt; 333 &lt;&lt; "." &lt;&lt; Logger::endl;
-  <classname>ORO_CoreLib::Logger</classname>::log() &lt;&lt; Logger::Debug &lt;&lt; debugstring &lt;&lt; data &lt;&lt; Logger::endl;
-  <classname>ORO_CoreLib::Logger</classname>::log() &lt;&lt; " more debug info." &lt;&lt; data &lt;&lt; Logger::endl;</programlisting>
+  log( Error ) &lt;&lt; "An error Occured : " &lt;&lt; 333 &lt;&lt; "." &lt;&lt; endlog();
+  log( Debug ) &lt;&lt; debugstring &lt;&lt; data &lt;&lt; endlog();
+  log() &lt;&lt; " more debug info." &lt;&lt; data &lt;&lt; endlog();
+  log() &lt;&lt; "A warning." &lt;&lt; endlog( Warning );</programlisting>
       <para>As you can see, the Logger can be used like the standard C++ input streams.
-	You may change the Log message's level using the <classname>ORO_CoreLib::Logger::...</classname>
-	enums. The above message could result in :
+	You may change the Log message's level using the <classname>ORO_CoreLib::LogLevel</classname>
+	enums in front (using log() ) or at the end (using endlog()) of the log message.
+	When no log level is specified, the previously set level is used.
+	The above message could result in :
       </para>
       <screen>
   0.123 [ ERROR  ][MyModule] An error Occured : 333
   0.124 [ Debug  ][MyModule] &lt;contents of debugstring and data >
-  0.125 [ Debug  ][MyModule]  more debug info. &lt;...data...> </screen>
+  0.125 [ Debug  ][MyModule]  more debug info. &lt;...data...>
+  0.125 [ WARNING][MyModule] A warning.</screen>
     </example>
   </section>
 </article>

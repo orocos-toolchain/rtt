@@ -31,6 +31,10 @@ namespace ORO_CoreLib
         return *_instance;
     }
 
+    inline Logger& Logger::log(LogLevel) {
+        return *_instance;
+    }
+
     inline bool Logger::mayLog() const {
         return false;
     }
