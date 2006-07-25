@@ -35,6 +35,9 @@ namespace RTT {
     PropertyBase::~PropertyBase()
     {}
 
+    PropertyBase::PropertyBase()
+    {}
+
     PropertyBase::PropertyBase( std::string name, std::string description)
         : _name(name), _description(description)
     {}

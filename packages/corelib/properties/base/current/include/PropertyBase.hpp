@@ -66,6 +66,11 @@ namespace RTT
         PropertyBase( std::string name, std::string description);
 
         /**
+         * Create an uninitialised PropertyBase.
+         */
+        PropertyBase();
+
+        /**
          * Get the name of the property.
          * @return name of the property.
          */
@@ -88,6 +93,14 @@ namespace RTT
          * @param desc The description of the property.
          */
         void setDescription(const std::string& desc);
+
+        /**
+         * Inspect if this Property is correctly initialised
+         * and ready for usage. A Property may only be used
+         * when ready() returns true, otherwise, an exception
+         * is thrown.
+         */
+        bool ready() const { return this->getDataSource(); }
 
         /**
          * A call on this method will lead to a call to the PropertyIntrospection

@@ -60,6 +60,8 @@ namespace RTT
 
     bool PropertyBag::addProperty(PropertyBase *p)
     {
+        if ( ! p->ready() )
+            return false;
         mproperties.push_back(p);
         return true;
     }

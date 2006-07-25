@@ -79,7 +79,7 @@ namespace RTT
      * a Property by name :
      * @verbatim
      PropertyBase* pb = bag.find( "name" ).
-     Property<ClassT>* pb = bag.getProperty<ClassT>( "name" ).
+     Property<ClassT> pb = bag.getProperty<ClassT>( "name" ).
      @endverbatim
      * Both will return null if no such property exists.
 	 * @see PropertyBase, Property
@@ -128,7 +128,7 @@ namespace RTT
         PropertyBag( const PropertyBag& orig);
 
         /**
-         * Add a property to the container. Analogous to addProperty.
+         * Add a valid property to the container. Analogous to addProperty.
          * @param p Pointer to the property to be added.
          */
         void add(PropertyBase *p);
@@ -140,8 +140,9 @@ namespace RTT
         void remove(PropertyBase *p);
 
         /**
-         * Add a property to the container.
+         * Add a valid property to the container.
          * @param p Pointer to the property to be added.
+         * @return false if ! p->ready(), true otherwise.
          */
         bool addProperty(PropertyBase *p);
 

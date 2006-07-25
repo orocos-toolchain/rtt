@@ -47,6 +47,8 @@ namespace RTT {
     template<>
     bool Property<PropertyBag>::update( const Property<PropertyBag>& orig)
     {
+        if ( !ready() )
+            return false;
         if ( _description.empty() )
             _description = orig.getDescription();
         return updateProperties( this->_value->set(), orig.rvalue() );
@@ -55,12 +57,16 @@ namespace RTT {
     template<>
     bool Property<PropertyBag>::refresh( const Property<PropertyBag>& orig)
     {
+        if ( !ready() )
+            return false;
         return refreshProperties( this->_value->set(), orig.rvalue() );
     }
 
     template<>
     bool Property<PropertyBag>::copy( const Property<PropertyBag>& orig)
     {
+        if ( !ready() )
+            return false;
         _name = orig.getName();
         _description = orig.getDescription();
         return copyProperties( this->_value->set(), orig.rvalue() );
@@ -78,43 +84,4 @@ namespace RTT {
         pbi->introspect( *this );
     }
 
-#if 0
-    Property<PropertyBag>::~Property<PropertyBag>()
-    {}
-
-    Property<PropertyBag>* Property<PropertyBag>::narrow( PropertyBase* prop ) {
-        Property<PropertyBag>* res = dynamic_cast<Property<PropertyBag>*>( prop );
-        if (res)
-            return res->clone();
-#ifdef OROINT_OS_CORBA
-        if ( prop->getDataSource()->hasServer() ) {
-            PropertyBag result;
-            CORBA::Any_var any = prop->getDataSource()->getAny();
-            if( AnyConversion<PropertyBag>::update( any.in() , result ) ) {
-                return new Property<PropertyBag>( prop->getName(), prop->getDescription(), result );
-            }
-        } 
-#endif
-        return 0;
-    }
-
-
-    template<>
-    void Property<PropertyBag>::identify( PropertyIntrospection* pi)
-    {
-        pi->introspect( *this );
-    }
-
-    void decomposeProperty(PropertyIntrospection* pi, 
-                           Property<const std::string&> const& nt) {
-        Property<std::string> msg(nt.getName(), nt.getDescription(), nt.get() );
-        pi->introspect( msg );
-    }
-
-    void decomposeProperty(PropertyIntrospection* pi, 
-                           Property<float> const& f) {
-        Property<double> msg(f.getName(), f.getDescription(), f.get() );
-        pi->introspect( msg );
-    }
-#endif
 }

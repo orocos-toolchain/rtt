@@ -58,6 +58,12 @@ namespace RTT
      * object by external entities. They can be grouped in PropertyBag objects
      * and a Property can contain a PropertyBag itself.
      *
+     * If you do not provide a name nor description when constructing the 
+     * Property object, it will be uninitialised and ready() will return false.
+     * Such an object may not be used (set(), get(),...) until it has been
+     * initialised from another Property. Otherwise, an exception (or assert) will be 
+     * thrown.
+     *
      * @param T The type of the data contained within the Property.
 	 */
     template<typename T>
@@ -77,11 +83,19 @@ namespace RTT
         typedef value_t DataSourceType;
 
         /**
+         * Create an empty Property with no name, no description and no value.
+         * @post ready() will return false. Initialise this Property with another Property object.
+         */
+        Property()
+        {}
+
+        /**
          * The constructor which initializes the property's value.
          * @param name The name which will be used to refer to the
          * property.
          * @param description The description of the property.
          * @param value The initial value of the property (optional).
+         * @post ready() will always be true.
          */
         Property(const std::string& name, const std::string& description, param_t value = value_t() )
             : PropertyBase(name, description), _value( detail::BuildType<value_t>::Value( value ) )
@@ -90,12 +104,25 @@ namespace RTT
 
         /**
          * Copy constructors copies the name, description and value
-         * as deep copies.
+         * as \b deep copies.
+         * @post ready() will be true if orig.ready() is true.
          */
         Property( const Property<T>& orig)
             : PropertyBase(orig.getName(), orig.getDescription()),
               _value( orig._value->clone() )
         {}
+
+        /**
+         * Create a Property \b mirroring another PropertyBase.
+         * It copies the name and description, and \b shallow copies
+         * the value.
+         * @see ready() to inspect if the creation succeeded.
+         */
+        Property( PropertyBase* source)
+            : PropertyBase(source->getName(), source->getDescription()),
+              _value( source ? AssignableDataSource<DataSourceType>::narrow(source->getDataSource().get() ) : 0 )
+        {
+        }
 
         /**
          * The constructor which initializes the property with a DataSource.
@@ -104,6 +131,7 @@ namespace RTT
          * @param description The description of the property.
          * @param datasource A new data source to be acquired by this property for
          * storing its data.
+         * @post ready() will be true if datasource is a valid pointer.
          */
         Property(const std::string& name, const std::string& description,
                  AssignableDataSource<DataSourceType>* datasource )
@@ -118,6 +146,23 @@ namespace RTT
         Property<T>& operator=( param_t value )
         {
             _value->set( value );
+            return *this;
+        }
+
+        /**
+         * Construct a Property which mirrors a PropertyBase.
+         * @param source A pointer to the property to mirror.
+         */
+        Property<T>& operator=( PropertyBase* source )
+        {
+            this->setName( source->getName() );
+            this->setDescription( source->getDescription() );
+            typename AssignableDataSource<DataSourceType>::shared_ptr vptr
+                = AssignableDataSource<DataSourceType>::narrow(source->getDataSource().get() );
+            if (vptr)
+                _value = vptr;
+            else
+                _value = detail::BuildType<value_t>::Value() ;
             return *this;
         }
 
@@ -177,7 +222,7 @@ namespace RTT
          */
         reference_t value()
         {
-            return _value->set();
+            return set();
         }
 
         /**
@@ -216,7 +261,7 @@ namespace RTT
         {
             // try to update from identical type or from const_reference_t.
             const Property<T>* origin = dynamic_cast<const Property<T>* >( other );
-            if ( origin != 0 )
+            if ( origin != 0 && _value )
                 return new detail::UpdatePropertyCommand<T>(this, origin);
             return 0;
         }
@@ -224,7 +269,7 @@ namespace RTT
         virtual bool refresh( const PropertyBase* other) 
         {
             const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
-            if ( origin != 0 ) {
+            if ( origin != 0 && _value ) {
                 return this->refresh( *origin );
             }
             return false;
@@ -232,6 +277,8 @@ namespace RTT
 
         virtual CommandInterface* refreshCommand( const PropertyBase* other)
         {
+            if ( !_value )
+                return 0;
             // refresh is just an update of the datasource.
             DataSourceBase::shared_ptr sourcebase = other->getDataSource();
             return _value->updateCommand( sourcebase.get() );
@@ -240,7 +287,7 @@ namespace RTT
         virtual bool copy( const PropertyBase* other )
         {
             const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
-            if ( origin != 0 ) {
+            if ( origin != 0 && _value ) {
                 return this->copy( *origin );
             }
             return false;
@@ -249,7 +296,7 @@ namespace RTT
         virtual CommandInterface* copyCommand( const PropertyBase* other)
         {
             const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
-            if ( origin != 0 )
+            if ( origin != 0 && _value )
                 return new detail::CopyPropertyCommand<T>(this, origin);
             return 0;
         }
@@ -259,6 +306,8 @@ namespace RTT
          */
         bool copy( const Property<T>& orig)
         {
+            if ( !ready() )
+                return false;
             _description = orig.getDescription();
             _name = orig.getName();
             *this = orig.get();
@@ -271,6 +320,8 @@ namespace RTT
          */
         bool update( const Property<T>& orig)
         {
+            if ( !ready() )
+                return false;
             if ( _description.empty() )
                 _description = orig.getDescription();
             *this = orig.get();
@@ -283,6 +334,8 @@ namespace RTT
          */
         bool refresh( const Property<T>& orig)
         {
+            if ( !ready() )
+                return false;
             *this = orig.getAssignableDataSource()->value();
             return true;
         }
