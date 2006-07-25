@@ -64,3 +64,8 @@ namespace RTT {
     }
 #endif
 }
+
+namespace Orocos
+{
+    using namespace RTT;
+}
