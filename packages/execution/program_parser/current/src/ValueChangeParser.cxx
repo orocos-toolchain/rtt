@@ -205,9 +205,9 @@ namespace RTT
     AttributeBase* var;
     Logger::log() << Logger::Info << "Building "<<type->getTypeName() <<" "<<valuename; // rest is filled in by buildConstant().
       if (sizehint == -1 )
-          var = type->buildConstant(expr);
+          var = type->buildConstant(valuename, expr);
       else {
-          var = type->buildConstant(expr, sizehint);
+          var = type->buildConstant(valuename, expr, sizehint);
       }
       if ( var == 0 ) // bad assignment.
           {
@@ -217,7 +217,7 @@ namespace RTT
                   ("Attempt to initialize a const "+type->getTypeName()+" with a "+expr->getTypeName()+"." );
           }
 
-    context->attributes()->setValue( valuename, var );
+    context->attributes()->setValue( var );
     definedvalues.push_back( var );
     parseddefnames.push_back( valuename );
   }
@@ -225,7 +225,7 @@ namespace RTT
   void ValueChangeParser::storedefinitionname( iter_t begin, iter_t end )
   {
     std::string name( begin, end );
-    if ( context->attributes()->isDefined( name ) ) {
+    if ( context->attributes()->getValue( name ) ) {
         this->cleanup();
         throw parse_exception_semantic_error( "Identifier \"" + name +
                                               "\" is already defined." );
@@ -247,13 +247,13 @@ namespace RTT
     expressionparser.dropResult();
     //assert( !expressionparser.hasResult() );
     AttributeBase* alias;
-    alias = type->buildAlias( expr.get() );
+    alias = type->buildAlias( valuename, expr.get() );
     if ( ! alias ) {
         this->cleanup();
         throw parse_exception_semantic_error(
         "Attempt to define an alias of type "+type->getTypeName()+" to an expression of type "+expr->getTypeName()+"." );
     }
-    context->attributes()->setValue( valuename, alias );
+    context->attributes()->setValue( alias );
     definedvalues.push_back( alias );
     parseddefnames.push_back( valuename );
     CommandInterface* nc(0);
@@ -271,11 +271,11 @@ namespace RTT
     // valuename has been stored by calling 'storename'
       AttributeBase* var;
       if (sizehint == -1 )
-          var = type->buildVariable();
+          var = type->buildVariable(valuename);
       else {
-          var = type->buildVariable(sizehint);
+          var = type->buildVariable(valuename,sizehint);
       }
-      context->attributes()->setValue( valuename, var );
+      context->attributes()->setValue( var );
       definedvalues.push_back( var );
       parseddefnames.push_back( valuename );
   }
@@ -303,11 +303,11 @@ namespace RTT
       // build type.
       AttributeBase* var;
       if (sizehint == -1 )
-          var = type->buildVariable();
+          var = type->buildVariable(valuename);
       else {
-          var = type->buildVariable(sizehint);
+          var = type->buildVariable(valuename,sizehint);
       }
-      context->attributes()->setValue( valuename, var );
+      context->attributes()->setValue( var );
       definedvalues.push_back( var );
       parseddefnames.push_back( valuename );
 

@@ -1246,7 +1246,7 @@ emergencyStop.emit(); // User not notified</programlisting>
     <section>
       <title>Grouping Properties in a PropertyBag</title>
       <para>
-	First of all, a PropertyBag is not the owner of the properties it owns,
+	First of all, a <classname>RTT::PropertyBag</classname> is not the owner of the properties it owns,
 	it merely keeps track of them, it defines a logical group of properties
 	belonging together. Thus when you delete a bag, the properties in it are
 	not deleted, when you clone() a bag, the properties are not cloned
@@ -1263,8 +1263,11 @@ emergencyStop.emit(); // User not notified</programlisting>
       first bag.</para>
       </note>
       <para> Use <methodname>add</methodname> to add Properties to a bag and 
-      <methodname>find</methodname> or <methodname>getProperty&lt;T&gt;</methodname> to
-      get a pointer to a <classname>RTT::PropertyBase</classname> or <classname>RTT::Property</classname>&lt;T&gt; :
+       <methodname>getProperty&lt;T&gt;</methodname> to
+       mirror a <classname>RTT::Property</classname>&lt;T&gt;. Mirroring allows
+       you to change and read a property which is stored in a PropertyBag: the
+       property object's value acts like the original. The name and description
+       are not mirrored, only copied upon initialisation:
 	<programlisting>  <classname>RTT::PropertyBag</classname> bag;
   <classname>RTT::Property</classname>&lt;double&gt; w("Weight", "in kilograms", 70.5 );
   <classname>RTT::Property</classname>&lt;int&gt; pc("PostalCode", "", 3462 );
@@ -1281,11 +1284,26 @@ emergencyStop.emit(); // User not notified</programlisting>
   bag.add( &amp;w );
   bag.add( &amp;pc );
   bag.add( &amp;bd );
-	
-  <classname>RTT::PropertyBase</classname>* weight = bag.find("PostalCode");    // assert( weight != 0 )
 
-  <classname>RTT::Property</classname>&lt;BirthDate&gt;* bd_bis = bag.getProperty&lt;BirthDate&gt;("BirthDate"); // assert( bd_bis != 0 )
-	</programlisting>
+  // setup mirrors:	
+  <classname>RTT::Property&lt;double&gt;</classname> weight = bag.getProperty&lt;double&gt;("Weight");
+  assert( weight.ready() );
+
+  // values are mirrored:
+  assert( weight.get() == w.get() );
+  weight.set( 90.3 );
+  assert( weight.get() == w.get() );
+
+  <classname>RTT::Property</classname>&lt;BirthDate&gt; bd_bis;
+  assert( ! bd_bis.ready() );
+  
+  bd_bis = bag.getProperty&lt;BirthDate&gt;("BirthDate");
+  assert( bd_bis.ready() );
+
+  // descriptions and names are not mirrored:
+  assert( bd_bis.getName() == bd.getName() );
+  bd_bis.setName("Date2");
+  assert( bd_bis.getName() != bd.getName() );</programlisting>
       </para>
     </section>
     <section>

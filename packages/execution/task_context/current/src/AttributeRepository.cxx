@@ -29,10 +29,13 @@
 
 #include "rtt/AttributeRepository.hpp"
 #include "rtt/mystd.hpp"
+#include <functional>
+#include <boost/bind.hpp>
 
 namespace RTT
 {
-    
+    using namespace std;
+    using namespace boost;
 
   AttributeRepository::AttributeRepository()
       :bag(0)
@@ -50,7 +53,7 @@ namespace RTT
     {
         AttributeRepository* ar = new AttributeRepository();
         for ( map_t::const_iterator i = values.begin(); i != values.end(); ++i ) {
-            ar->setValue(i->first, i->second->copy( repl, inst ) );
+            ar->setValue((*i)->copy( repl, inst ) );
         }
         return ar;
     }
@@ -59,19 +62,18 @@ namespace RTT
   void AttributeRepository::clear()
   {
     for ( map_t::iterator i = values.begin(); i != values.end(); ++i )
-      delete i->second;
+      delete *i;
     values.clear();
     delete bag;
     bag = 0;
   }
 
-  bool AttributeRepository::setValue( const std::string& name,
-                                      AttributeBase* value )
+  bool AttributeRepository::setValue( AttributeBase* value )
   {
-    map_t::iterator i = values.find( name );
+    map_t::iterator i = find( values.begin(), values.end(), value );
     if ( i != values.end() )
         return false;
-    values[name] = value;
+    values.push_back( value );
     return true;
   }
 
@@ -84,30 +86,28 @@ namespace RTT
         return true;
     }
 
-  void AttributeRepository::removeValue( const std::string& name )
+  bool AttributeRepository::removeValue( const std::string& name )
   {
-    map_t::iterator i = values.find( name );
+    map_t::iterator i = find_if( values.begin(), values.end(), bind(equal_to<std::string>(),name, bind(&AttributeBase::getName, _1)) );
     if ( i != values.end() ) {
-        delete i->second;
-        values.erase( name );
+        delete (*i);
+        values.erase( i );
+        return true;
     }
+    return false;
   }
 
-  AttributeBase* AttributeRepository::getValue( const std::string& name )
+  AttributeBase* AttributeRepository::getValue( const std::string& name ) const
   {
-    map_t::iterator i = values.find( name );
+    map_t::const_iterator i = find_if( values.begin(), values.end(), bind(equal_to<std::string>(),name, bind(&AttributeBase::getName, _1)) );
     if ( i == values.end() ) return 0;
-    else return i->second;
-  }
-
-  bool AttributeRepository::isDefined( const std::string& name ) const
-  {
-    return values.find( name ) != values.end();
+    else return *i;
   }
 
   bool AttributeRepository::hasAttribute( const std::string& name ) const
   {
-    return values.find( name ) != values.end();
+    map_t::const_iterator i = find_if( values.begin(), values.end(), bind(equal_to<std::string>(),name, bind(&AttributeBase::getName, _1)) );
+    return i != values.end();
   }
 
   bool AttributeRepository::hasProperty( const std::string& name ) const
@@ -128,7 +128,9 @@ namespace RTT
 
     std::vector<std::string> AttributeRepository::names() const
     {
-        return keys( values );
+        std::vector<std::string> ret;
+        std::transform( values.begin(), values.end(), ret.begin(),back_inserter(ret), bind(&AttributeBase::getName, _1) );
+        return ret;
     }
 
     PropertyBag* AttributeRepository::properties() const

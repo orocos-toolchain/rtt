@@ -921,7 +921,8 @@ cd                  quit
   };</programlisting>
 	<para>
 	  It is wise to check in the <function>startup()</function>
-	  function if all necessary ports are <function>connected()</function>.
+	  function if all necessary ports are <function>connected()</function>
+	  ( or <function>ready()</function> ).
 	  At this point, the task startup can still be aborted by
 	  returning false. Otherwise, a write to a port
 	  will be discarded, while a read returns the initial value
@@ -1279,15 +1280,16 @@ cd                  quit
       : <classname>RTT::GenericTaskContext</classname>(name),
         param("Param","Param Description","The String"),
 	value("Value","Value Description", 1.23 ),
-	aflag(false), max( 5 ),
-	pi( 3.14 )
+	aflag("aflag", false),
+	max( "max", 5 ),
+	pi( "pi", 3.14 )
     {
        // other code here...
 
-       this->attributes()->addAttribute( "aflag", &amp;aflag );
-       this->attributes()->addAttribute( "max",   &amp;max );
+       this->attributes()->addAttribute( &amp;aflag );
+       this->attributes()->addAttribute( &amp;max );
       
-       this->attributes()->addConstant( "pi",   &amp;pi );
+       this->attributes()->addConstant( &amp;pi );
 
        this->properties()->addProperty( &amp;param );
        this->properties()->addProperty( &amp;value );
@@ -1306,7 +1308,8 @@ cd                  quit
     <section>
       <title>Accessing Task Attributes or Properties in C++</title>
       <para>
-	To get a value from the task, you can use the set() and get() methods :</para>
+	To get a value from the task, you can use the set() and get() methods :
+      </para>
       <para>
 	<programlisting>
   bool result = aflag.get();
@@ -1314,6 +1317,21 @@ cd                  quit
 
   param.set("New String");
   assert( param.get() == "New String" );</programlisting></para>
+      <para>
+	While another task can access it through the attributes() interface:
+    <programlisting>  Attribute&lt;bool> the_flag = a_task->attributes()->getAttribute&ltl;bool>("aflag");
+  assert( the_flag.ready() );
+
+  bool result = the_flag.get();
+  assert( result == false );
+
+  Attribute&lt;int> the_max = a_task->attributes()->getAttribute&ltl;int>("max");
+  assert( the_max.ready() );
+  the_max.set( 10 );
+  assert( the_max.get() == 10 );</programlisting>
+  The attributes 'the_flag' and 'the_max' are called 'mirrors' of the
+  original attributes of the task.
+      </para>
     </section>
     <section>
       <title>Accessing Task Attributes in Scripts</title>
@@ -1625,6 +1643,8 @@ cd                  quit
   // or with variable arguments:
   double a = 0.3, b = 0.2, c = 0.1;
   move_event = a_task.events()->setupEmit("move").arg(a).arg(b).arg(c);
+  assert( move_event.ready() );
+
   // upon emit, read a,b,c:
   move_event.emit(); </programlisting>
       </para>
@@ -1666,12 +1686,14 @@ cd                  quit
     = a_task.events()->setupConnection("move");
   reaction.callback(&amp;r, &amp;Reactor::callback ));
   <classname>ORO_Corelib::Handle</classname> h = reaction.handle();
+  assert( reaction.ready() );
 
   // or in short (note: '.handle()' ):
   <classname>RTT::Handle</classname> h2 
     = a_task.events()->setupConnection("move")
                  .callback( &amp;r, &amp;Reactor::react_callback )
                  .handle();
+  assert( h2.ready() );
     
   h2.connect(); // connect to event "move"
 
@@ -1724,6 +1746,8 @@ cd                  quit
                             .callback(&amp;r, &amp;react_callback,
                                       b_task.engine()->events() ).handle();
     
+  assert( h3.ready() );
+
   h3.connect(); // connect asynchronously to event "move"
 
   move_event.emit(); // see previous example.

@@ -35,13 +35,43 @@ namespace RTT
 {
 
     /**
-     * An attribute is a minimalistic placeholder for data.
+     * An attribute is a minimalistic, named placeholder for data.
      * It is a light-weight equivalent of a Property.
      */
     class AttributeBase
     {
+    protected:
+        std::string mname;
     public:
+        /**
+         * Create a nameless AttributeBase.
+         */
+        AttributeBase();
+
+        /** 
+         * Create an AttributeBase known by a name.
+         * 
+         * @param name The name.
+         */
+        AttributeBase(const std::string& name);
+
         virtual ~AttributeBase();
+
+        /** 
+         * Get the name of this instance.
+         * 
+         * @return the name
+         */
+        const std::string& getName() const;
+
+        /**
+         * Returns true if the Attribute was correctly
+         * initialised.
+         */
+        bool ready() const
+        {
+            return this->getDataSource();
+        }
 
         /**
          * Return a DataSource which contains the same contents.

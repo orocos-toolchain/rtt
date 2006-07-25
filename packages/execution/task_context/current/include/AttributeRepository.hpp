@@ -46,7 +46,7 @@ namespace RTT
      */
     class AttributeRepository
     {
-        typedef std::map<std::string, AttributeBase*> map_t;
+        typedef std::vector<AttributeBase*> map_t;
         map_t values;
         /**
          * The bag is only constructed if queried for.
@@ -70,27 +70,44 @@ namespace RTT
 
         /**
          * Check if an attribute is present.
-         * @deprecated by hasAttribute
-         */
-        bool isDefined( const std::string& name ) const;
-
-        /**
-         * Check if an attribute is present.
          */
         bool hasAttribute( const std::string& name ) const;
 
         /**
-         * Check if a property is present.
+         * Add an AttributeBase which remains owned by the
+         * user.
+         * @param a remains owned by the user, and becomes
+         * served by the repository.
          */
-        bool hasProperty( const std::string& name ) const;
+        bool addAttribute( AttributeBase* a )
+        {
+            return a->getDataSource() && setValue( a->clone() );
+        }
+
+        /**
+         * Retrieve a Attribute by name. Returns zero if 
+         * no Attribute<T> by that name exists.
+         * Example : getAttribute<double>("Xval")
+         * @see addAttribute, addProperty
+         */
+        template<class T>
+        Attribute<T>* getAttribute( const std::string& name ) const
+        {
+            return dynamic_cast<Attribute<T>*>( this->getValue( name ) );
+        }
+
+        /**
+         * Remove an attribute from the repository.
+         */
+        void removeAttribute( const std::string& name );
 
         /**
          * Add a Constant with a given value.
          * @see getConstant
          */
-        bool addConstant( const std::string& name, AttributeBase* c)
+        bool addConstant( AttributeBase* c)
         {
-            return setValue( name, c->clone() );
+            return c->getDataSource() && setValue( c->clone() );
         }
 
         /**
@@ -100,19 +117,15 @@ namespace RTT
          * @see addConstant
          */
         template<class T>
-        Constant<T>* getConstant( const std::string& name )
+        Constant<T>* getConstant( const std::string& name ) const
         {
             return dynamic_cast<Constant<T>*>( this->getValue( name ) );
         }
 
         /**
-         * Add an AttributeBase which remains owned by the
-         * user.
+         * Check if a property is present.
          */
-        bool addAttribute( const std::string& name, AttributeBase* a )
-        {
-            return setValue( name, a->clone() );
-        }
+        bool hasProperty( const std::string& name ) const;
 
         /**
          * Add an PropertyBase as a property.
@@ -128,33 +141,22 @@ namespace RTT
         bool removeProperty( PropertyBase* p );
 
         /**
-         * Retrieve a Attribute by name. Returns zero if 
-         * no Attribute<T> by that name exists.
-         * Example : getAttribute<double>("Xval")
-         * @see addAttribute, addProperty
+         * Transfer the ownership of an attribute to the repository.
+         * @param ab The attribute which becomes owned by this repository.
+         * @return false if an Attribute with the same \a name already present.
          */
-        template<class T>
-        Attribute<T>* getAttribute( const std::string& name )
-        {
-            return dynamic_cast<Attribute<T>*>( this->getValue( name ) );
-        }
+        bool setValue( AttributeBase* ab );
 
         /**
-         * Add a variable to the repository.
-         * @return false if \a name already present.
-         */
-        bool setValue( const std::string& name, AttributeBase* pc );
-
-        /**
-         * Remove a variable to the repository.
-         */
-        void removeValue( const std::string& name );
-
-        /**
-         * Get the value with name \a name.  If no such value exists, this
+         * Get a pointer to the attribute with name \a name.  If no such value exists, this method
          * returns 0.
          */
-        AttributeBase* getValue( const std::string& name );
+        AttributeBase* getValue( const std::string& name ) const;
+
+        /**
+         * Delete a value added with setValue from the repository.
+         */
+        bool removeValue(const std::string& name );
 
         /**
          * Return a new copy of this repository with the copy operation semantics.

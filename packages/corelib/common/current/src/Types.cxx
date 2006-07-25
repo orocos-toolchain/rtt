@@ -71,12 +71,12 @@ namespace RTT {
 
 namespace RTT
 {
-    AttributeBase* TypeInfo::buildVariable( int ) const {
-        return this->buildVariable();
+    AttributeBase* TypeInfo::buildVariable(std::string name, int ) const {
+        return this->buildVariable(name);
     }
 
-    AttributeBase* TypeInfo::buildConstant(DataSourceBase::shared_ptr dsb, int ) const {
-        return this->buildConstant( dsb );
+    AttributeBase* TypeInfo::buildConstant(std::string name,DataSourceBase::shared_ptr dsb, int ) const {
+        return this->buildConstant(name, dsb );
     }
 
 

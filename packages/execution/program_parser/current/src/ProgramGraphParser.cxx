@@ -317,9 +317,9 @@ namespace RTT
       }
       implcond_v.clear();
 
-      context->attributes()->setValue(
-      "done", new Alias<bool>(
-        new DataSourceCondition( implcond->clone() ) ) );
+      context->attributes()
+          ->setValue( new Alias<bool>("done",
+                                      new DataSourceCondition( implcond->clone() ) ) );
   }
 
   void ProgramGraphParser::seendostatement()

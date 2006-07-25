@@ -30,8 +30,23 @@
 
 namespace RTT
 {
+  AttributeBase::AttributeBase()
+  {
+  }
+
+  AttributeBase::AttributeBase(const std::string& name)
+      : mname(name)
+  {
+  }
+
   AttributeBase::~AttributeBase()
   {
   }
+
+  const std::string& AttributeBase::getName() const
+  {
+      return mname;
+  }
+
 
 }

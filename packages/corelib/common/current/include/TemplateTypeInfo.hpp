@@ -171,22 +171,22 @@ namespace RTT
             detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
         }
 
-        AttributeBase* buildConstant(DataSourceBase::shared_ptr dsb) const
+        AttributeBase* buildConstant(std::string name, DataSourceBase::shared_ptr dsb) const
         {
             typename DataSource<PropertyType>::shared_ptr res = AdaptDataSource<PropertyType>()(dsb);
             if ( res ) {
-                Logger::log() << Logger::Info << "Building "<<tname<<" constant with value "<< dsb->getTypeInfo()->toString(dsb) <<Logger::endl;
-                return new Constant<PropertyType>( res->get() );
+                Logger::log() << Logger::Info << "Building "<<tname<<" Constant '"<<name<<"' with value "<< dsb->getTypeInfo()->toString(dsb) <<Logger::endl;
+                return new Constant<PropertyType>( name, res->get() );
             }
             else
                 return 0;
         }
 
-        AttributeBase* buildVariable() const
+        AttributeBase* buildVariable(std::string name) const
         {
             // A variable starts its life as unbounded.
-            Logger::log() << Logger::Debug << "Building Variable of type " << tname <<Logger::endl;
-            return new Attribute<T>( new detail::UnboundDataSource<ValueDataSource<T> >() );
+            Logger::log() << Logger::Debug << "Building variable '"<<name <<"' of type " << tname <<Logger::endl;
+            return new Attribute<T>( name, new detail::UnboundDataSource<ValueDataSource<T> >() );
         }
 
         DataSourceBase::shared_ptr construct(const std::vector<DataSourceBase::shared_ptr>& args) const
@@ -198,7 +198,7 @@ namespace RTT
             return DataSourceBase::shared_ptr();
         }
 
-        AttributeBase* buildAttribute( DataSourceBase::shared_ptr in) const
+        AttributeBase* buildAttribute( std::string name, DataSourceBase::shared_ptr in) const
         {
             typename AssignableDataSource<PropertyType>::shared_ptr ds;
             if ( !in )
@@ -208,16 +208,16 @@ namespace RTT
             if (!ds)
                 return 0;
             // A variable starts its life as unbounded.
-            Logger::log() << Logger::Debug << "Building Attribute of type " << tname <<Logger::endl;
-            return new Attribute<PropertyType>( ds.get() );
+            Logger::log() << Logger::Debug << "Building Attribute '"<< name <<"' of type " << tname <<Logger::endl;
+            return new Attribute<PropertyType>( name, ds.get() );
         }
 
-        AttributeBase* buildAlias( DataSourceBase::shared_ptr in ) const
+        AttributeBase* buildAlias(std::string name, DataSourceBase::shared_ptr in ) const
         {
             DataSource<T>* ds = AdaptDataSource<T>()( in );
             if ( ! ds )
                 return 0;
-            return new Alias<T>( ds );
+            return new Alias<T>( name, ds );
         }
 
         virtual const std::string& getTypeName() const { return tname; }
@@ -402,26 +402,10 @@ namespace RTT
         TemplateContainerTypeInfo(std::string name)
             : TemplateTypeInfo<T, has_ostream>(name) {}
 
-#if 0
-        // TODO: constants do not work yet with container types.
-        AttributeBase* buildConstant(DataSourceBase::shared_ptr ds) const
-        {
-            // no constant without sizehint.
-            return new Constant( ds );
-            return 0;
-        }
-
-        AttributeBase* buildConstant(DataSourceBase::shared_ptr ds, int size) const
-        {
-            // sizehint
-            return new Constant( IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<_T> > >( t_init ) );
-        }
-#endif
-
-        AttributeBase* buildVariable() const
+        AttributeBase* buildVariable(std::string name) const
         {
             // no sizehint, but _do_ check IPred.
-            return new Attribute<T>( new detail::UnboundDataSource<IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<_T> > >() );
+            return new Attribute<T>( name, new detail::UnboundDataSource<IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<_T> > >() );
         }
 
         DataSourceBase::shared_ptr buildValue() const
@@ -430,13 +414,13 @@ namespace RTT
             return new IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<_T> >();
         }
 
-        AttributeBase* buildVariable(int size) const
+        AttributeBase* buildVariable(std::string name,int size) const
         {
             // if a sizehint is given, create a TaskIndexContainerVariable instead,
             // which checks capacities.
             _T t_init(size, SetType());
 
-            return new Attribute<T>( new detail::UnboundDataSource<IndexedValueDataSource<T, IndexType, SetType, IPred, APred> >( t_init ) );
+            return new Attribute<T>( name, new detail::UnboundDataSource<IndexedValueDataSource<T, IndexType, SetType, IPred, APred> >( t_init ) );
         }
     };
 
@@ -455,26 +439,10 @@ namespace RTT
         TemplateIndexTypeInfo(std::string name)
             : TemplateTypeInfo<T, has_ostream>(name) {}
 
-#if 0
-        // TODO: constants do not work yet with container types.
-        AttributeBase* buildConstant(DataSourceBase::shared_ptr ds) const
-        {
-            // no constant without sizehint.
-            return new Constant( ds );
-            return 0;
-        }
-
-        AttributeBase* buildConstant(DataSourceBase::shared_ptr ds, int size) const
-        {
-            // sizehint
-            return new Constant( IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<T> > >( t_init ) );
-        }
-#endif
-
-        AttributeBase* buildVariable() const
+        AttributeBase* buildVariable(std::string name) const
         {
             // no sizehint, but _do_ check IPred.
-            return new Attribute<T>( new detail::UnboundDataSource<IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<T> > >() );
+            return new Attribute<T>( name, new detail::UnboundDataSource<IndexedValueDataSource<T, IndexType, SetType, IPred, AlwaysAssignChecker<T> > >() );
         }
 
         DataSourceBase::shared_ptr buildValue() const

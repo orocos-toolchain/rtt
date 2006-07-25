@@ -68,15 +68,15 @@ namespace RTT
          * @param sizehint For variable size instances, use it to hint
          * the size of the instance.
          */
-        virtual AttributeBase* buildConstant(DataSourceBase::shared_ptr, int sizehint) const;
-        virtual AttributeBase* buildConstant(DataSourceBase::shared_ptr) const = 0;
+        virtual AttributeBase* buildConstant(std::string name,DataSourceBase::shared_ptr, int sizehint) const;
+        virtual AttributeBase* buildConstant(std::string name,DataSourceBase::shared_ptr) const = 0;
         /**
          * Build a modifyable instance of this type.
          * @param sizehint For variable size instances, use it to hint
          * the size of the instance.
          */
-        virtual AttributeBase* buildVariable(int sizehint) const;
-        virtual AttributeBase* buildVariable() const = 0;
+        virtual AttributeBase* buildVariable(std::string name,int sizehint) const;
+        virtual AttributeBase* buildVariable(std::string name) const = 0;
         /**
          * Constructor syntax: construct a DataSource which returns an instance of data
          * depending on the given arguments.
@@ -86,7 +86,7 @@ namespace RTT
          * build an alias with b as the value.  If b is of the wrong type,
          * 0 will be returned..
          */
-        virtual AttributeBase* buildAlias( DataSourceBase::shared_ptr b ) const = 0;
+        virtual AttributeBase* buildAlias(std::string name, DataSourceBase::shared_ptr b ) const = 0;
 
         /**
          * Build a Property of this type.
@@ -96,7 +96,7 @@ namespace RTT
         /**
          * Build an Attribute of this type.
          */
-        virtual AttributeBase* buildAttribute( DataSourceBase::shared_ptr source = 0 ) const = 0;
+        virtual AttributeBase* buildAttribute(std::string name, DataSourceBase::shared_ptr source = 0 ) const = 0;
 
         /**
          * Build a ValueDataSource of this type.

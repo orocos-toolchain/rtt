@@ -52,28 +52,28 @@ namespace RTT
         using TypeInfo::buildConstant;
         using TypeInfo::buildVariable;
 
-        AttributeBase* buildConstant(DataSourceBase::shared_ptr dsb) const
+        AttributeBase* buildConstant(std::string name,DataSourceBase::shared_ptr dsb) const
         {
             Logger::In loc("TypeInfoName");
             Logger::log() << Logger::Error << "Can not build Constant of "<<tname<<"."<<Logger::endl;
             return 0;
         }
 
-        AttributeBase* buildVariable() const
+        AttributeBase* buildVariable(std::string name) const
         {
             Logger::In loc("TypeInfoName");
             Logger::log() << Logger::Error << "Can not build Variable of "<<tname<<"."<<Logger::endl;
             return 0;
         }
 
-        AttributeBase* buildAttribute( DataSourceBase::shared_ptr in) const
+        AttributeBase* buildAttribute(std::string name, DataSourceBase::shared_ptr in) const
         {
             Logger::In loc("TypeInfoName");
             Logger::log() << Logger::Error << "Can not build Attribute of "<<tname<<"."<<Logger::endl;
             return 0;
         }
 
-        AttributeBase* buildAlias( DataSourceBase::shared_ptr in ) const
+        AttributeBase* buildAlias(std::string name, DataSourceBase::shared_ptr in ) const
         {
             Logger::In loc("TypeInfoName");
             Logger::log() << Logger::Error << "Can not build Alias of "<<tname<<"."<<Logger::endl;
