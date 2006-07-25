@@ -139,6 +139,10 @@ namespace RTT
         return *this;
     }
 
+    bool EventC::ready() const {
+        return m;
+    }
+
     void EventC::emit() {
         if (m)
             m->evaluate();

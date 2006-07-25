@@ -148,6 +148,11 @@ namespace RTT
         delete d;
     }
 
+    bool ConnectionC::ready() const
+    {
+        return d && d->h;
+    }
+
     ConnectionC& ConnectionC::mcallback( EventCallBack* ecb)
     {
         Logger::In in("ConnectionC");

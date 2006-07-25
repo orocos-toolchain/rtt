@@ -107,6 +107,11 @@ namespace RTT
          * emit the contained event.
          */
         void emit();
+
+        /**
+         * Inspect if this event was correctly initialised.
+         */
+        bool ready() const;
     };
 }
 

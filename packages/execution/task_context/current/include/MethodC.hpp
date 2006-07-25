@@ -125,7 +125,7 @@ namespace RTT
         MethodC& ret( RetT& r )
         {
             // this is semantically valid wrt Attribute::copy().
-            AttributeBase* ta = new Attribute<RetT>( new ReferenceDataSource<RetT>(r));
+            AttributeBase* ta = new Attribute<RetT>("ret", new ReferenceDataSource<RetT>(r));
             this->ret( ta );
             delete ta;
             return *this;

@@ -46,6 +46,10 @@ namespace RTT
         return false;
     }
 
+    bool PortInterface::ready() const {
+        return this->connected();
+    }
+
     bool PortInterface::connectTo( PortInterface* other ) {
         if ( other->connection() == 0 )
             return false;

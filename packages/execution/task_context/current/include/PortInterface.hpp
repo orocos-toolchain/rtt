@@ -64,6 +64,12 @@ namespace RTT
         bool setName(const std::string& name);
 
         /**
+         * Returns true if this Port is ready to be used.
+         * Identical to connected().
+         */
+        bool ready() const;
+
+        /**
          * Inspect if this Port is connected with another Port.
          */
         virtual bool connected() const = 0;

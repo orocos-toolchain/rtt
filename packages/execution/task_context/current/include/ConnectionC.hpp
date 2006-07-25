@@ -90,6 +90,11 @@ namespace RTT
         ~ConnectionC();
 
         /**
+         * Check if this connection is initialised and ready.
+         */
+        bool ready() const;
+
+        /**
          * Add a Synchronous callback to an object's member function.
          * @param t A pointer to the object upon which the function must be invoked.
          * @param foo The object's member function which is called back, for example '&X::my_function'
