@@ -217,6 +217,11 @@ namespace RTT
          */
         operator bool() const;
 
+        /**
+         * Inspect if this handle is pointing to valid (existing) connection(s).
+         * @return false if no connection(s) is associated with this handle.
+         */
+        bool ready() const;
     };
 }
 #endif

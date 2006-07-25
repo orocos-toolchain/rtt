@@ -140,5 +140,9 @@ namespace RTT
         return _c && _c2;
     }
 
+    bool Handle::ready() const {
+        return _c && _c2;
+    }
+
 
 }
