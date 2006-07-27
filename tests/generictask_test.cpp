@@ -327,6 +327,25 @@ void Generic_TaskTest::testProperties()
     CPPUNIT_ASSERT_EQUAL( double(1.234), d1.get() );
     CPPUNIT_ASSERT_EQUAL( double(1.234), tc->properties()->getProperty<double>("d1")->get() );
 
+    // test setup of mirror:
+    Property<string> s1;
+    CPPUNIT_ASSERT( !s1.ready() );
+    Property<string> s2("hello","description", "world");
+    CPPUNIT_ASSERT( s2.ready() );
+
+    CPPUNIT_ASSERT(tc->properties()->addProperty( &s1 ) == false);
+    CPPUNIT_ASSERT(tc->properties()->addProperty( &s2 ) );
+    s1 = tc->properties()->getProperty<string>("hello");
+    CPPUNIT_ASSERT( s1.ready() );
+    
+    CPPUNIT_ASSERT_EQUAL(std::string("hello"), s1.getName() );
+    CPPUNIT_ASSERT_EQUAL(std::string("description"), s1.getDescription() );
+    CPPUNIT_ASSERT_EQUAL(std::string("world"), s1.get() );
+
+    // Test mirroring of 'set' and 'get':
+    s1.set("universe");
+    CPPUNIT_ASSERT_EQUAL(std::string("universe"), s2.get() );
+
 #if 0    
     CPPUNIT_ASSERT(tc->writeProperties("Generic_TaskTest_Properties.cpf"));
     CPPUNIT_ASSERT( tc->readProperties("Generic_TaskTest_Properties.cpf"));
@@ -335,10 +354,13 @@ void Generic_TaskTest::testProperties()
 
 void Generic_TaskTest::testAttributes()
 {
-    Attribute<int> i1;
-    Attribute<double> d1( 1.234);
-    CPPUNIT_ASSERT(tc->attributes()->addAttribute("d1", &d1 ));
-    CPPUNIT_ASSERT(tc->attributes()->addAttribute("i1", &i1 ));
+    // test attribute repository:
+    Attribute<int> i1("i1");
+    Attribute<double> d1("d1", 1.234);
+    CPPUNIT_ASSERT( i1.ready() );
+    CPPUNIT_ASSERT( d1.ready() );
+    CPPUNIT_ASSERT(tc->attributes()->addAttribute( &d1 ));
+    CPPUNIT_ASSERT(tc->attributes()->addAttribute( &i1 ));
 
     i1.set( 3 );
     CPPUNIT_ASSERT_EQUAL( double(1.234), d1.get() );
@@ -347,10 +369,28 @@ void Generic_TaskTest::testAttributes()
     CPPUNIT_ASSERT_EQUAL( double(1.234), tc->attributes()->getAttribute<double>("d1")->get() );
     CPPUNIT_ASSERT_EQUAL( int(3),        tc->attributes()->getAttribute<int>("i1")->get() );
 
+    // test setup of mirror:
+    Attribute<string> s1;
+    CPPUNIT_ASSERT( !s1.ready() );
+    Attribute<string> s2("hello","world");
+    CPPUNIT_ASSERT( s2.ready() );
+
+    CPPUNIT_ASSERT(tc->attributes()->addAttribute( &s1 ) == false);
+    CPPUNIT_ASSERT(tc->attributes()->addAttribute( &s2 ) );
+    s1 = tc->attributes()->getAttribute<string>("hello");
+    CPPUNIT_ASSERT( s1.ready() );
+    
+    CPPUNIT_ASSERT_EQUAL(std::string("hello"), s1.getName() );
+    CPPUNIT_ASSERT_EQUAL(std::string("world"), s1.get() );
+
+    // Test mirroring of 'set' and 'get':
+    s1.set("universe");
+    CPPUNIT_ASSERT_EQUAL(std::string("universe"), s2.get() );
+
 #ifdef OROPKG_GEOMETRY
     using namespace ORO_Geometry;
-    Attribute<Frame> f1(Frame::Identity());
-    tc->attributes()->addAttribute("f1", &f1 );
+    Attribute<Frame> f1("f1", Frame::Identity());
+    tc->attributes()->addAttribute( &f1 );
 #endif
 }
 
