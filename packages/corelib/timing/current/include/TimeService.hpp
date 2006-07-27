@@ -28,12 +28,11 @@ namespace RTT
 
     /**
      * The TimeService is used for system-wide time keeping and conversions.
+     * @ingroup CoreLibTime
      */
     class TimeService
     {
     public:
-
-        // XXX: long long is not ANSI C++
         /**
          * The type used to store SI unit time keeping
          */

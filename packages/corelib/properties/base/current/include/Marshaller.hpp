@@ -42,6 +42,7 @@ namespace RTT
 	 * @see Demarshaller
 	 * @see Property
 	 * @see PropertyBag
+     * @ingroup CoreLibProperties
 	 */
     class Marshaller
     {
@@ -78,6 +79,7 @@ namespace RTT
 	 * @see Marshaller
 	 * @see Property
 	 * @see PropertyBag
+     * @ingroup CoreLibProperties
 	 */
 	class Demarshaller
 	{

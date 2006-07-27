@@ -32,6 +32,11 @@
  * RTT activities package.
  */
 
+/**
+ * @defgroup CoreLibActivities Core Library Activity (thread) classes.
+ * @ingroup CoreLib
+ * Activities execute functions in a thread.
+ */
 #include "SlaveActivity.hpp"
 #include "PeriodicActivity.hpp"
 #include "NonPeriodicActivity.hpp"

@@ -43,7 +43,7 @@ namespace RTT
     /**
      * A simple logging class to debug/ analyse what is 
      * going on in the Orocos system. You MUST NOT use this
-     * logger in a realtime task or thread.
+     * logger in a HARD realtime task or thread.
      *
      * You can disable all logging at compile time by
      * defining \a OROBLD_DISABLE_LOGGING (not advised for normal usage).
@@ -73,6 +73,7 @@ namespace RTT
      * is 6 or lower, these messages will not appear and do no harm to real-time performance.
      * You need to call @verbatim Logger::log().allowRealTime(); @endverbatim once in your program
      * to confirm this choice. AGAIN: THIS WILL BREAK REAL-TIME PERFORMANCE.
+     * @ingroup CoreLib
      */
     class Logger 
     {

@@ -37,6 +37,7 @@ namespace RTT
      * The completion processor is used for all blocking / not-realtime
      * operations, you can do whatever you want inhere.
      *
+     * @ingroup CoreLibEvents
      */
     class CompletionProcessor 
         : public NonPeriodicActivity

@@ -32,7 +32,16 @@
  * RTT properties package.
  */
 
+/**
+ * @defgroup CoreLibProperties Core Library Property (name-value) classes.
+ * @ingroup CoreLib
+ * Properties can be hierarchically stored in bags and be
+ * introspected for their type and contents. Properties can
+ * be (de-)serialised using Marshallers and Demarshallers.
+ */
+
 #include "Property.hpp"
 #include "PropertyBag.hpp"
 #include "PropertySequence.hpp"
 #include "PropertyIntrospection.hpp"
+#include "Marshaller.hpp"

@@ -63,6 +63,12 @@ namespace RTT {
         using namespace ::OS;
     }
 #endif
+
+    /**
+     * Implementation specific classes, not intended for
+     * users.
+     */
+    namespace detail {}
 }
 
 namespace Orocos

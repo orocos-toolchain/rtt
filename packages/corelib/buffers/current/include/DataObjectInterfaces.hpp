@@ -44,6 +44,7 @@ namespace RTT
      *
      * @see DataObject
      * @param T The \a DataType which can be Get() or Set() with this DataObject.
+     * @ingroup CoreLibBuffers
      */
     template <class T>
     struct DataObjectInterface
@@ -124,6 +125,7 @@ namespace RTT
      * threadsafe implementation, and can be blocking in situations where you do not want
      * that. Use the DataObjectPrioritySet and DataObjectPriorityGet classes for non
      * blocking Set or Get operations.
+     * @ingroup CoreLibBuffers
      */
     template<class T>
     class DataObjectLocked
@@ -442,6 +444,7 @@ namespace RTT
      * Further, multiple reads may occur before, during and after
      * a write operation simultaneously. The buffer needs readers+2*writers
      * elements to be guaranteed non blocking.
+     * @ingroup CoreLibBuffers
      */
     template<class T>
     class DataObjectLockFree
@@ -630,6 +633,7 @@ namespace RTT
      *
      * It is the most simple form of the DataObjectInterface implementation and
      * hence also the fastest. It is however not thread safe.
+     * @ingroup CoreLibBuffers
      */
     template<class T>
     class DataObject

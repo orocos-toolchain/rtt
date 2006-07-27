@@ -31,7 +31,13 @@
  * This file includes the common header files from the 
  * RTT buffers package.
  */
+/**
+ * @defgroup CoreLibBufferss Core Library thread-safe Buffer, DataObject, List classes.
+ * @ingroup CoreLib
+ * Thread-safe implementations of data container objects.
+ */
 
 #include "BufferLockFree.hpp"
+#include "ListLockFree.hpp"
 #include "AtomicQueue.hpp"
 #include "DataObjectInterfaces.hpp"

@@ -60,6 +60,7 @@ namespace RTT
      * @param WritePolicy The Policy to block (wait) on \a full (during write), 
      * using \a BlockingPolicy, or to return \a false, using \a NonBlockingPolicy (Default).
      * This does not influence partial filled buffer behaviour.
+     * @ingroup CoreLibBuffers
      */
     template< class T, class ReadPolicy = NonBlockingPolicy, class WritePolicy = NonBlockingPolicy >
     class BufferLockFree

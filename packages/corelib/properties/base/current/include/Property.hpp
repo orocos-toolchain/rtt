@@ -65,6 +65,7 @@ namespace RTT
      * thrown.
      *
      * @param T The type of the data contained within the Property.
+     * @ingroup CoreLibProperties
 	 */
     template<typename T>
     class Property

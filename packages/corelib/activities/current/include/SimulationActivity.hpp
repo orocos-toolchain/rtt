@@ -42,6 +42,7 @@ namespace RTT
      * in realtime, while it runs 'as fast as possible'.
      * 
      * They will run in the SimulationThread.
+     * @ingroup CoreLibActivities
      */
     class SimulationActivity
         : public PeriodicActivity

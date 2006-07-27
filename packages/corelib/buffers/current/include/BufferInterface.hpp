@@ -37,6 +37,7 @@ namespace RTT
     /**
      * A Buffer is an object which is used to store (Push) and retrieve (Pop) values from.
      * @param T The value type stored in this buffer.
+     * @ingroup CoreLibBuffers
      */
     template<class T>
     class BufferInterface :

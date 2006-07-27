@@ -27,22 +27,21 @@
 
 /**
  * @file CoreLib.hpp
- * This file includes the commonly used header files from the 
- * whole RTT package.
+ * This file includes the public header files from the 
+ * Core Library.
  */
  
 /**
+ * @defgroup CoreLib The Core Library
  * @brief Buffers, DataObjects, Commands, NameServing, Activities, Events, Timing, Properties
  *
- * It is meant to group all packages which provide OS independent
- * core functionality in a realtime system. Frequently used classes are Event,
- * PeriodicActivity, BufferLockFree, DataObjectLockFree, TimeService, NameServer, Property,
- * PropertyBag.
+ * The most frequently used Core primitives in Orocos are Logger, Event,
+ * PeriodicActivity, NonPeriodicActivity, BufferLockFree, DataObjectLockFree, TimeService, NameServer, Property,
+ * PropertyBag, Attribute, Toolkit.
  *
- * The corelib is documented in <a href="../../orocos-corelib.html">
+ * The Core Library is documented in <a href="../../orocos-corelib.html">
  * The Orocos CoreLib Online Manual</a>
  */
-namespace RTT {}
 
 #include "Common.hpp"
 #include "Properties.hpp"
@@ -50,4 +49,5 @@ namespace RTT {}
 #include "Activities.hpp"
 #include "Buffers.hpp"
 #include "TimeService.hpp"
+#include "Logger.hpp"
 

@@ -156,6 +156,7 @@ namespace RTT
         // not valid !
      }
      @endverbatim
+     * @ingroup CoreLibEvents
      */
     class Handle
     {

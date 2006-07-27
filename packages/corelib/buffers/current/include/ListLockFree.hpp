@@ -67,6 +67,7 @@ namespace RTT
      * MAX_THREADS.
      * @param T The value type to be stored in the list.
      * Example : ListLockFree<A> is a list which holds values of type A.
+     * @ingroup CoreLibBuffers
      */
     template< class T>
     class ListLockFree

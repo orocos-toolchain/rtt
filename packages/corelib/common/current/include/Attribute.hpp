@@ -39,6 +39,7 @@ namespace RTT
     /**
      * An Attribute has a name and contains data which can be set and get.
      * @param T The type of data this attribute holds.
+     * @ingroup CoreLib
      */
     template<typename T>
     class Attribute
@@ -181,6 +182,7 @@ namespace RTT
     /**
      * As opposed to a Attribute, a Constant can not be assigned to a new value
      * after creation.
+     * @ingroup CoreLib
      */
     template<typename T>
     class Constant

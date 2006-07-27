@@ -28,10 +28,11 @@
  
 /**
  * @file Common.hpp
- * This file includes the commonly used header files from the 
- * whole RTT common package.
+ * This file includes the 'common' header files of
+ * the Core Library.
  */
  
 #include "NameServer.hpp"
 #include "Attribute.hpp"
+#include "Toolkit.hpp"
 

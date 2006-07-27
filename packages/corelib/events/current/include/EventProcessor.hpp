@@ -442,6 +442,7 @@ namespace RTT
      * is an argument in the Event's asynchronous connect method.
      *
      * @see TimerThread, CompletionProcessor
+     * @ingroup CoreLibEvents
      */
     class EventProcessor
         : public RunnableInterface

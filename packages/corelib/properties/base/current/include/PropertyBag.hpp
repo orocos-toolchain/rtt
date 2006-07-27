@@ -83,6 +83,7 @@ namespace RTT
      @endverbatim
      * Both will return null if no such property exists.
 	 * @see PropertyBase, Property
+     * @ingroup CoreLibProperties
 	 */
     class PropertyBag
     {
@@ -281,8 +282,9 @@ namespace RTT
 
 
     /**
-     * @group BagOperations These functions operate on the contents of bags,
+     * @defgroup BagOperations These functions operate on the contents of bags,
      *        possibly modifying, deleting or creating new Property objects.
+     * @ingroup CoreLibProperties
      * @{
      */
 

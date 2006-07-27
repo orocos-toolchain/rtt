@@ -30,13 +30,33 @@
 
 #include <cmath>
 
+/**
+ * @defgroup CoreLibTime Core Library Time classes.
+ * @ingroup CoreLib
+ * Time measurement and time keeping.
+ */
+
 namespace RTT
 {
-	
+	/**
+     * Seconds are stored as a double precision float.
+     */
     typedef double Seconds;
+    /**
+     * seconds as a signed long.
+     */
     typedef long secs;
+    /**
+     * milliseconds as a signed long.
+     */
     typedef long msecs;
+    /**
+     * microseconds as a signed long.
+     */
     typedef long usecs;
+    /**
+     * nanoseconds as a signed long long.
+     */
     typedef long long nsecs;
 
     const long MSECS_IN_SECS = 1000;

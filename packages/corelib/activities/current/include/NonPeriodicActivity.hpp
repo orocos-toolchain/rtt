@@ -49,6 +49,7 @@ namespace RTT
      * can be stopped by calling stop(). To check for events from your overloads or the RunnableInterface,
      * call this->processor()->step(), for non blocking checks and this->processor()->loop() for blocking
      * on Events.
+     * @ingroup CoreLibActivities
      */
     class NonPeriodicActivity
         :public ActivityInterface,

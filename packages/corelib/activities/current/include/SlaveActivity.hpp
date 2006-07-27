@@ -54,6 +54,7 @@ namespace RTT
      * RunnableInterface did not implement loop(), step() is invoked by default.
      * If no RunnableInterface is given, said functions are called upon
      * SlaveActivity itself.
+     * @ingroup CoreLibActivities
      */
     class SlaveActivity
         :public ActivityInterface

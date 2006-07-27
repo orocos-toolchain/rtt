@@ -43,6 +43,7 @@ namespace RTT
      * Implements a very simple blocking threadsafe buffer, using mutexes (locks).
      *
      * @see BufferLockFree
+     * @ingroup CoreLibBuffers
      */
     template<class T>
     class BufferLocked

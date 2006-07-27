@@ -32,6 +32,12 @@
  * RTT event package.
  */
 
+/**
+ * @defgroup CoreLibEvents Core Library thread-safe Event system classes.
+ * @ingroup CoreLib
+ * Events (publish/subscribe) allow callbacks to be executed synchronously or asynchronously.
+ */
+
 #include "Event.hpp"
 #include "Handle.hpp"
 #include "CompletionProcessor.hpp"

@@ -47,6 +47,7 @@ namespace RTT
      * It is complementary to the RunnableInterface, which
      * defines the methods for the functionality that is executed.
      * @see RunnableInterface
+     * @ingroup CoreLibActivities
      */
     class ActivityInterface
     {

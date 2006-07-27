@@ -61,6 +61,7 @@ namespace RTT
      * When initialize() returns false, it will abort start().
      * If the PeriodicActivity is stop()'ed, finalize()
      * is called in the calling thread of stop().
+     * @ingroup CoreLibActivities
      */
     class PeriodicActivity
         : public ActivityInterface

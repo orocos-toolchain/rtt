@@ -42,6 +42,7 @@ namespace RTT
      * The Orocos Event is a thread-safe wrapper around the signal class
      * and extends its connection syntax with asynchronous event handling.
      * @see The Orocos CoreLib manual for usage.
+     * @ingroup CoreLibEvents
      */
     template<
         typename _Signature, // function type R (T1, T2, ..., TN)
