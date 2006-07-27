@@ -195,7 +195,7 @@ namespace RTT
     our_pos_iter_t parsebegin( s.begin(), s.end(), "input" );
     our_pos_iter_t parseend;
 
-    CommandParser parser( tc, dodispatch );
+    CommandParser parser( tc, !dodispatch );
     try
     {
       boost::spirit::parse_info<iter_t> ret = parse( parsebegin, parseend, parser.parser(), SKIP_PARSER );
