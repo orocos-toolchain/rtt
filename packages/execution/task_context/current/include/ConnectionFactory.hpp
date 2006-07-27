@@ -47,9 +47,42 @@ namespace RTT
     class ConnectionFactory
     {
     public:
-        BufferConnectionInterface<T>* createBuffer(PortInterface* writer, PortInterface* reader, int size, const T& initial_value, ConnectionTypes::ConnectionType type = ConnectionTypes::lockfree);
+        /** 
+         * Create a new Buffered data connection.
+         * 
+         * @param writer A port which will write to the connection
+         * @param reader A port which will read from the connection
+         * @param size The maximum capacity of the connnection's buffer
+         * @param initial_value The initial value of all elements within
+         * the buffer. Use this parameter if the data uses dynamic memory
+         * or requires an initial state.
+         * @param type The connection type: lock based or lock-free. The
+         * latter is highly advised.
+         * 
+         * @return a new connection object
+         * @see BufferInterface for a look at the internal buffer structure
+         * @see ReadBufferPort, WriteBufferPort, BufferPort for ports to which this
+         * connection can be attached.
+         */
+        BufferConnectionInterface<T>* createBuffer(PortInterface* writer, PortInterface* reader, int size, const T& initial_value = T(), ConnectionTypes::ConnectionType type = ConnectionTypes::lockfree);
 
-        DataConnectionInterface<T>* createDataObject(PortInterface* writer, PortInterface* reader, const T& initial_value, ConnectionTypes::ConnectionType type = ConnectionTypes::lockfree);
+        /** 
+         * Create a new unbuffered data connection.
+         * 
+         * @param writer A port which will write to the connection
+         * @param reader A port which will read from the connection
+         * @param initial_value The initial value of all elements within
+         * the buffer. Use this parameter if the data uses dynamic memory
+         * or requires an initial state.
+         * @param type The connection type: lock based or lock-free. The
+         * latter is highly advised.
+         * 
+         * @return a new connection object
+         * @see DataObjectInterface for a look at the internal data sharing structure
+         * @see ReadDataPort, WriteDataPort for ports to which this
+         * connection can be attached.
+         */
+        DataConnectionInterface<T>* createDataObject(PortInterface* writer, PortInterface* reader, const T& initial_value = T(), ConnectionTypes::ConnectionType type = ConnectionTypes::lockfree);
 
     };
 }

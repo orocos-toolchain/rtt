@@ -93,6 +93,8 @@ namespace RTT
             return T();
         }
 
+        virtual PortType getPortType() const { return ReadPort; }
+
         bool connected() const { return mconn; };
 
         /**
@@ -250,6 +252,8 @@ namespace RTT
 
         virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
 
+        virtual PortType getPortType() const { return WritePort; }
+
         bool connected() const { return mconn; };
 
         /**
@@ -394,6 +398,8 @@ namespace RTT
         typename BufferConnectionInterface<T>::shared_ptr mconn;
 
     public:
+        typedef PortInterface::PortType PortType;
+
         /**
          * Construct an unconnected Port to a writeable buffer.
          * @param name The name of this port.
@@ -415,6 +421,8 @@ namespace RTT
         virtual BufferInterface<T>* buffer() const { return mconn ? mconn->buffer() : 0; }
 
         virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
+
+        virtual PortType getPortType() const { return PortInterface::ReadWritePort; }
 
         bool connected() const { return mconn; };
 

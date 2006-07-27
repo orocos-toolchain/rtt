@@ -492,6 +492,9 @@ void Generic_TaskTest::testPorts()
     WriteDataPort<double> wdp("WDName");
     ReadDataPort<double> rdp("RDName");
 
+    CPPUNIT_ASSERT( wdp.getPortType() == PortInterface::WritePort );
+    CPPUNIT_ASSERT( rdp.getPortType() == PortInterface::ReadPort );
+
     // Test initial value
     wdp.Set( 1.0 );
     CPPUNIT_ASSERT( wdp.Get() == 1.0 );
@@ -499,6 +502,10 @@ void Generic_TaskTest::testPorts()
     WriteBufferPort<double> wbp("WBName", 10);
     ReadBufferPort<double> rbp("RBName");
     BufferPort<double> bp("BName", 10);
+
+    CPPUNIT_ASSERT( wbp.getPortType() == PortInterface::WritePort );
+    CPPUNIT_ASSERT( rbp.getPortType() == PortInterface::ReadPort );
+    CPPUNIT_ASSERT( bp.getPortType() == PortInterface::ReadWritePort );
 
     tc->ports()->addPort( &wdp );
     tc->ports()->addPort( &rdp );

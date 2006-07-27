@@ -51,7 +51,7 @@ namespace RTT
         bool mconnected;
     public:
         DataConnection(WriteDataPort<DataType>* writer,ReadDataPort<DataType>* reader, const T& initial_value)
-            : buf( new DataObjectType("DataObject", initial_value, true) ), mconnected(false)
+            : buf( new DataObjectType("DataObject", initial_value) ), mconnected(false)
         {
             readers.push_back(reader);
             writers.push_back(writer);

@@ -142,9 +142,8 @@ namespace RTT
          * Construct a DataObjectLocked by name.
          * 
          * @param _name The name of this DataObject.
-         * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObjectLocked(const std::string& _name, const std::string&  = "")
+        DataObjectLocked(const std::string& _name)
             : data(), name(_name) {}
 
         /** 
@@ -241,9 +240,8 @@ namespace RTT
          * Construct a DataObjectPriorityGet by name.
          * 
          * @param _name The name of this DataObject.
-         * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObjectPrioritySet(const std::string& _name, const std::string&  = "")
+        DataObjectPrioritySet(const std::string& _name)
             : data(), mcopy(), name(_name) {}
 
         /** 
@@ -349,9 +347,8 @@ namespace RTT
          * Construct a DataObjectPriorityGet by name.
          * 
          * @param _name The name of this DataObject.
-         * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObjectPriorityGet(const std::string& _name, const std::string&   = std::string())
+        DataObjectPriorityGet(const std::string& _name )
             : data(), mcopy(), name(_name) {}
 
         /** 
@@ -507,9 +504,8 @@ namespace RTT
          * Construct a DataObjectLockFree by name.
          * 
          * @param _name The name of this DataObject.
-         * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObjectLockFree(const std::string& _name, const std::string&   = std::string()) 
+        DataObjectLockFree(const std::string& _name) 
             : read_ptr(&data[ 0 ]), 
               write_ptr(&data[ 1 ]), 
               name(_name)
@@ -526,7 +522,7 @@ namespace RTT
          * @param _name The name of this DataObject.
          * @param initial_value The initial value of this DataObject.
          */
-        DataObjectLockFree(const std::string& _name, const T& initial_value, bool ) 
+        DataObjectLockFree(const std::string& _name, const T& initial_value ) 
             : read_ptr(&data[ 0 ]), 
               write_ptr(&data[ 1 ]), 
               name(_name)
@@ -650,9 +646,8 @@ namespace RTT
          * Construct a DataObject by name.
          * 
          * @param _name The name of this DataObject.
-         * @param _prefix The prefix of this DataObject (not used).
          */
-        DataObject(const std::string& _name, const std::string&   = std::string())
+        DataObject(const std::string& _name )
             : data(), name(_name) {}
 
         /** 

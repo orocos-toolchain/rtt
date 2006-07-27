@@ -86,6 +86,8 @@ namespace RTT
             return T();
         }
 
+        virtual PortType getPortType() const { return ReadPort; }
+
         /**
          * Connect a readable data object connection to this Port.
          */
@@ -206,6 +208,8 @@ namespace RTT
                 mconn->removeWriter(this);
         }
 
+        virtual PortType getPortType() const { return WritePort; }
+
         /**
          * Connect an existing data object connection to this Port.
          */
@@ -270,6 +274,7 @@ namespace RTT
         ConnectionFactory<T> cf;
         return ConnectionInterface::shared_ptr ( cf.createDataObject(this, other, minitial_value, con_type) );
     }
+
 }
 
 #endif

@@ -48,6 +48,12 @@ namespace RTT
         std::string portname;
         PortInterface(const std::string& name);
     public:
+        /**
+         * This enum classifies if a port is inbound
+         * outbound or both.
+         */
+        enum PortType { ReadPort, WritePort, ReadWritePort };
+ 
         virtual ~PortInterface();
 
         /**
@@ -68,6 +74,11 @@ namespace RTT
          * Identical to connected().
          */
         bool ready() const;
+
+        /**
+         * Get the PortType of this port.
+         */
+        virtual PortType getPortType() const = 0;
 
         /**
          * Inspect if this Port is connected with another Port.
