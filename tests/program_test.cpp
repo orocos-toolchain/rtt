@@ -44,15 +44,17 @@ CPPUNIT_TEST_SUITE_REGISTRATION( ProgramTest );
 void 
 ProgramTest::setUp()
 {
-    const_i = new Constant<int>(-1);
+    Attribute<int> init_var("tvar_i");
+    var_i = &init_var;
+    const_i = new Constant<int>("tconst_i",-1);
     // ltc has a test object
     gtc.addObject( this->createObject(new TaskObject("test"), gtc.engine()->commands()) );
 
     // also this functions
     this->createObject( &gtc, gtc.engine()->commands());
 
-    gtc.attributes()->addAttribute("tvar_i", &var_i);
-    gtc.attributes()->addConstant("tconst_i", const_i);
+    gtc.attributes()->addAttribute( &var_i );
+    gtc.attributes()->addConstant( const_i );
     var_i.set(-1);
     i = 0;
 }
