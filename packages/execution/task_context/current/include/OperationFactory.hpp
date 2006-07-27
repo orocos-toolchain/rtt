@@ -31,9 +31,6 @@
 namespace RTT
 {
     namespace detail {
-        
-        
-        
 
         /**
          * @internal
