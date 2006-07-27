@@ -53,6 +53,10 @@ namespace RTT
             _s->readArguments();
         }
 
+        virtual bool valid() const {
+            return _f->valid() && _s->valid();
+        }
+
         virtual bool execute() {
             return _f->execute() && _s->execute();
         }

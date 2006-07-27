@@ -50,28 +50,26 @@ namespace RTT
         // we must use a DataSource for correct
         // copy sementics ...
         AssignableDataSource<bool>::shared_ptr _result;
-        AssignableDataSource<bool>::shared_ptr _executed;
         CommandInterface* c;
     public:
         /**
          * Try a command.
          */
         TryCommand( CommandInterface* command,
-                    AssignableDataSource<bool>::shared_ptr storage=0,
-                    AssignableDataSource<bool>::shared_ptr execstat=0 );
+                    AssignableDataSource<bool>::shared_ptr storage=0);
 
         ~TryCommand();
 
         bool execute();
         void reset();
 
+        bool valid() const;
+
         void readArguments();
 
         CommandInterface* theCommand() const;
 
         AssignableDataSource<bool>::shared_ptr result();
-
-        AssignableDataSource<bool>::shared_ptr executed();
 
         TryCommand* clone() const;
 

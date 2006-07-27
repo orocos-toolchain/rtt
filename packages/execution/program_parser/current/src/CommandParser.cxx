@@ -49,6 +49,7 @@
 #include "rtt/ArgumentsParser.hpp"
 #include "rtt/ConditionComposite.hpp"
 #include "rtt/CommandDispatch.hpp"
+#include "rtt/DispatchAction.hpp"
 
 namespace RTT
 {
@@ -61,8 +62,8 @@ namespace RTT
         assertion<std::string> expect_methodname("Expected a method call on object.");
         assertion<std::string> expect_args( "Expected method call arguments between ()." );
     }
-  CommandParser::CommandParser( TaskContext* c, bool dispatch)
-      : mdispatch( dispatch ),
+  CommandParser::CommandParser( TaskContext* c, bool as_action)
+      : mas_action( as_action ),
         dcom(0), retcommand( 0 ),
         implicittermcondition( 0 ), peer(0), context( c ),
         argsparser( 0 ), expressionparser( c ), peerparser( c )
@@ -168,17 +169,15 @@ namespace RTT
     if ( cfi->hasMember( mcurmethod ) )
         try
             {
-                // check if dispatching is required:
-                // This check is done, here but we always dispatch anyway,
-                // to allow CommandProcessor policies to be in effect.
-                if ( peer->engine()->commands() != context->engine()->commands() || mdispatch ) {
-                    // different, dispatch:
-                    dcom = cfi->produce( mcurmethod, argsparser->result() );// ,false );
+                dcom = cfi->produce( mcurmethod, argsparser->result() );
+                // check if wrapping is required:
+                if ( mas_action ) {
+                    // wrap it.
+                    comcon.first = new DispatchAction(dcom);
                 } else {
-                    // within same execution engine, no dispatch:
-                    dcom = cfi->produce( mcurmethod, argsparser->result() );//, true );
+                    // plain dispatch
+                    comcon.first = dcom;
                 }
-                comcon.first = dcom;
                 comcon.second = dcom->createCondition();
             }
         catch( const wrong_number_of_args_exception& e )

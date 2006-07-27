@@ -30,7 +30,7 @@
 #define ORO_EXECUTION_DISPATCHINTERFACE_HPP
  
 #include "CommandInterface.hpp"
-namespace RTT { class ConditionInterface; }
+#include "ConditionInterface.hpp"
 
 namespace RTT
 {
@@ -93,6 +93,10 @@ namespace RTT
         virtual ConditionInterface* createCondition() const = 0;
 
         virtual DispatchInterface* clone() const = 0;
+
+        virtual DispatchInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+            return this->clone();
+        }
     };
 }
 

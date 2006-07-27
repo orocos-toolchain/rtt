@@ -61,7 +61,7 @@ namespace RTT
     std::string mcurmethod;
 
       // dispatch the command per definition or let it be context dependent.
-      bool mdispatch;
+      bool mas_action;
 
     DispatchInterface* dcom;
     CommandInterface* retcommand;
@@ -90,10 +90,11 @@ namespace RTT
   public:
       /**
        * Create a CommandParser operating in a taskcontext.
-       * @param force_dispatch Set to true to force the generation of a
-       * dispatched command. Otherwise, it is context dependent.
+       * @param as_action return an action, meaning wrap the
+       * created DispatchInterface in an DispatchAction such that
+       * execute() of the returned command does a DispatchInterface::dispatch().
        */
-    CommandParser( TaskContext* context, bool force_dispatch = false );
+    CommandParser( TaskContext* context, bool as_action );
     ~CommandParser();
 
       /**

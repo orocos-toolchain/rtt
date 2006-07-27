@@ -177,7 +177,7 @@ namespace RTT
             return new CommandExecFunction( minit->clone(), _foo, _proc, _v.get(), maccept.get() );
         }
         
-        CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+        DispatchInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
         {
             // this may seem strange, but :
             // make a copy of foo (a function), make a copy of _v (a datasource), store pointer to new foo in _v !

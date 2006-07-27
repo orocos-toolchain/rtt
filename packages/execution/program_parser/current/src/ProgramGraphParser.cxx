@@ -80,7 +80,7 @@ namespace RTT
         mcallfunc(), 
         implcond(0), mcondition(0), try_cond(0),
         conditionparser( context ),
-        commandparser( context ),
+        commandparser( context, true ), // as_action == true
         valuechangeparser( context ),
         expressionparser( context ),
         argsparser(0),

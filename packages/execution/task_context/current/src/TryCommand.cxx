@@ -36,10 +36,8 @@ namespace RTT
     using namespace detail;
 
         TryCommand::TryCommand( CommandInterface* command,
-                                AssignableDataSource<bool>::shared_ptr storage /*=0*/,
-                                AssignableDataSource<bool>::shared_ptr execstat/*=0*/ )
+                                AssignableDataSource<bool>::shared_ptr storage /*=0*/)
             :_result( storage == 0 ? new UnboundDataSource< ValueDataSource<bool> >(true) : storage ),
-             _executed( execstat == 0 ? new UnboundDataSource< ValueDataSource<bool> >(false) : execstat ),
              c(command) {}
 
         TryCommand::~TryCommand() {
@@ -49,14 +47,19 @@ namespace RTT
             //Logger::In in("TryCommand");
             //Logger::log() <<Logger::RealTime << "execute()"<<Logger::endl;
             _result->set( c->execute() );
-            _executed->set(true);
             return true;
         }
         void TryCommand::reset() {
             c->reset();
             _result->set(true);
-            _executed->set(false);
         }
+
+    bool TryCommand::valid() const {
+        // ok to check conditions if command is valid or it failed.
+        // we assume here that c behaves as a DispatchAction:
+        
+        return _result->get() == false || c->valid();
+    }
 
         void TryCommand::readArguments() {
             c->readArguments();
@@ -70,19 +73,14 @@ namespace RTT
             return _result;
         }
 
-        AssignableDataSource<bool>::shared_ptr TryCommand::executed() {
-            return _executed;
-        }
-
         TryCommand* TryCommand::clone() const {
             return new TryCommand( c->clone(),
-                                   _result, _executed );
+                                   _result );
         }
 
         TryCommand* TryCommand::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             return new TryCommand( c->copy( alreadyCloned ),
-                                   _result->copy(alreadyCloned),
-                                   _executed->copy(alreadyCloned) );
+                                   _result->copy(alreadyCloned));
         }
 
 

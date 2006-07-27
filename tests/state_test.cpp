@@ -792,7 +792,7 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
         }
     }
     tc->engine()->states()->getStateMachine( sm->getName() )->stop();
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(100) );
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(500) );
     stringstream errormsg;
     errormsg << " on line " << sm->getLineNumber() <<", status is "<< gtc.engine()->states()->getStateMachineStatusStr("x") <<endl <<"here  > " << sline << endl;;
     CPPUNIT_ASSERT_MESSAGE( "StateMachine stalled " + errormsg.str(), sm->isStopped() );
@@ -803,6 +803,7 @@ void StateTest::finishState(TaskContext* tc, std::string prog_name)
     // you can call deactivate even when the proc is not running.
     // but deactivation may be 'in progress if exit state has commands in it.
     CPPUNIT_ASSERT( tc->engine()->states()->getStateMachine( prog_name )->deactivate() );
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(200) );
     CPPUNIT_ASSERT( tc->engine()->states()->getStateMachine( prog_name )->isActive() == false );
 
     // only stop now, since deactivate won't work if simtask not running.

@@ -89,13 +89,6 @@ namespace RTT
                 return !minvoked;
             }
 
-            bool operator()() {
-                if (minvoked)
-                    return false;
-                minvoked = true;
-                return maccept = mcp->process( this );
-            }
-
             virtual bool dispatch() {
                 if (minvoked)
                     return false;

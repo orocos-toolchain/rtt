@@ -79,6 +79,14 @@ namespace RTT
                 (*it)->readArguments();
         }
 
+        bool valid() const {
+            // valid if all are valid.
+            bool v = true;
+            for (std::vector<CommandInterface*>::const_iterator it=vect.begin();it!=vect.end();it++)
+                v = v && (*it)->valid();
+            return v;
+        }
+
         /**
          * add a command to the vect
          * 
