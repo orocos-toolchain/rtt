@@ -242,11 +242,16 @@ void DispatchTest::testDispatchUntilFail()
     this->finishDispatch( &gtc, "x");
 }
 
-void DispatchTest::testSendDispatch()
+void DispatchTest::testDispatchMany()
 {
     // XXX not a valid test. send not present in Orocos, this looks like 'try'
     // a program which must not fail, even if the command failes.
-    string prog = "program x { send space.subspace.test.assert(false) \n }";
+    string prog = string("program x { ")
+        +"  do space.subspace.test.instantDone()\n"
+        +"  do space.subspace.test.instantDone()\n"
+        +"  do space.subspace.test.instantDone()\n"
+        +"  do space.subspace.test.instantDone()\n"
+        +" }";
     this->doDispatch( prog, &gtc );
 
     CPPUNIT_ASSERT( gtc.engine()->programs()->getProgramStatus("x") != ProgramInterface::Status::error );

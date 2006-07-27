@@ -42,6 +42,7 @@ class DispatchTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testDispatchTry );
     CPPUNIT_TEST( testDispatchUntil );
     CPPUNIT_TEST( testDispatchUntilFail );
+    CPPUNIT_TEST( testDispatchMany );
     CPPUNIT_TEST_SUITE_END();
 
     //CPPUNIT_TEST( testSendDispatch );
@@ -74,7 +75,7 @@ public:
 
     void testParseDispatch();
     void testDispatchCondition();
-    void testSendDispatch();
+    void testDispatchMany();
     void testDispatchFailure();
     void testDispatchAnd();
     void testDispatchTry();
