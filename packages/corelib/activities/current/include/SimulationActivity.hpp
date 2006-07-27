@@ -67,6 +67,12 @@ namespace RTT
         virtual bool start();
 
         /**
+         * When a SimulationActivity is started, it may be
+         * triggered by the user as well.
+         */
+        virtual bool trigger();
+
+        /**
          * Destroys this instance. The Activity is stopped.
          */
         virtual  ~SimulationActivity();

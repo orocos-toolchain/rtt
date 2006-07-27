@@ -49,6 +49,16 @@ namespace RTT
         stop();
     }
 
+    bool SimulationActivity::trigger()
+    {
+        if ( this->isRunning() ) {
+            this->step();
+            return true;
+        }
+        return false;
+    }
+        
+
     // COPY/PASTE from PeriodicActivity.cxx
     bool SimulationActivity::start()
     {
