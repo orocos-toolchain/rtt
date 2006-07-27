@@ -40,6 +40,7 @@ namespace RTT
      * This interface defines how additional toolkits
      * are loaded into Orocos.
      * A ToolkitPlugin defines additional user data types for a Toolkit.
+     * @ingroup CoreLib
      */
     class ToolkitPlugin
     {
@@ -49,14 +50,40 @@ namespace RTT
         /**
          * Implement this method to add types to the 
          * Orocos type system.
+         * @see The TypeRepository for adding the types.
+         * @see The TypeInfo class for the interface of a 'type'
+         * @see The TemplateTypeInfo class for easy addition of new user types
+         * in scripting, XML,...
+         * @see The TypeInfoName class for only 'name' addition of a user type
+         * @see The TemplateIndexTypeInfo for adding container types.
+         * @see The RealTimeToolkit for an implementation example.
          */
         virtual bool loadTypes() = 0;
 
         /**
          * Implement this method to load Scripting
          * operators on types, such as '+', '*', ...
+         * @see The OperatorRepository for adding the Operators
+         * @see The detail::UnaryOp, detail::BinaryOp and detail::DotOp
+         * classes for the interface of an operation.
+         * @see The newUnaryOperator, newBinaryOperator and newDotOperator
+         * functions for creating new operator objects.
+         * @see The RealTimeToolkit for an implementation example.
          */
         virtual bool loadOperators() = 0;
+
+        /**
+         * Implement this method to load Scripting
+         * constructors of types, such as in C++.
+         * Default constructors (which take no arguments)
+         * need not to be added.
+         * @see The TypeInfo class for adding a constructor to a type
+         * @see The TypeBuilder class for the interface of a constructor.
+         * @see The newConstructor utility function for creating a new
+         * constructor object.
+         * @see The RealTimeToolkit for an implementation example.
+         */
+        virtual bool loadConstructors() = 0;
 
         /**
          * Each plugin must have a unique name.
@@ -68,6 +95,7 @@ namespace RTT
      * This class allows the Orocos Real-Time Toolkit to be extended
      * with additional toolkits (ToolkitPlugin), such as for kinematics or any
      * library foreign to Orocos.
+     * @ingroup CoreLib
      */
     class Toolkit
     {

@@ -45,6 +45,7 @@ namespace ORO_Geometry
         virtual std::string getName();
 
         virtual bool loadTypes();
+        virtual bool loadConstructors();
         virtual bool loadOperators();
     };
 

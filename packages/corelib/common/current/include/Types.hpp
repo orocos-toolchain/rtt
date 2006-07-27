@@ -34,6 +34,7 @@
 #include "DataSourceBase.hpp"
 #include <boost/shared_ptr.hpp>
 #include "AttributeBase.hpp"
+#include "Logger.hpp"
 
 namespace CORBA{
     class Any;
@@ -56,11 +57,27 @@ namespace RTT
      */
 
     /**
+     * This interface describes how constructors work.
+     */
+    struct TypeBuilder
+    {
+        virtual ~TypeBuilder();
+        /**
+         * Inspect args and return a type constructed with these args
+         * if such a constructor exists.
+         */
+        virtual DataSourceBase::shared_ptr build(const std::vector<DataSourceBase::shared_ptr>& args) const = 0;
+    };
+
+    /**
      * A class for representing a user type, and which can build
      * instances of that type.
      */
     class TypeInfo
     {
+    protected:
+        typedef std::vector<TypeBuilder*> Constructors;
+        Constructors constructors;
     public:
         virtual ~TypeInfo();
         /**
@@ -77,11 +94,19 @@ namespace RTT
          */
         virtual AttributeBase* buildVariable(std::string name,int sizehint) const;
         virtual AttributeBase* buildVariable(std::string name) const = 0;
+
         /**
          * Constructor syntax: construct a DataSource which returns an instance of data
-         * depending on the given arguments.
+         * depending on the given arguments.  When \a args is empty, the default 'variable'
+         * is returned.
          */
-        virtual DataSourceBase::shared_ptr construct(const std::vector<DataSourceBase::shared_ptr>& args) const = 0;
+        virtual DataSourceBase::shared_ptr construct(const std::vector<DataSourceBase::shared_ptr>& args) const;
+
+        /**
+         * Add a constructor.
+         */
+        virtual void addConstructor(TypeBuilder* tb);
+
         /**
          * build an alias with b as the value.  If b is of the wrong type,
          * 0 will be returned..

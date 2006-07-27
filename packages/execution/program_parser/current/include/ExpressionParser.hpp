@@ -132,8 +132,6 @@ namespace RTT { namespace detail
 
     void seen_unary( const std::string& op );
     void seen_binary( const std::string& op );
-    void seen_ternary( const std::string& op );
-    void seen_sixary( const std::string& op );
     void seen_dotmember( iter_t begin, iter_t end );
     void seenvalue();
     void seendatacall();

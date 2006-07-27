@@ -121,6 +121,40 @@ namespace RTT
                 arg4->updated();
                 return res;
             }
+
+            template< typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T, typename Arg5T>
+            R invoke( DataSource<Arg1T>* arg1, DataSource<Arg2T>* arg2, DataSource<Arg3T>* arg3, DataSource<Arg4T>* arg4, DataSource<Arg5T>* arg5) {
+                Arg1T a1 = arg1->get();
+                Arg2T a2 = arg2->get();
+                Arg3T a3 = arg3->get();
+                Arg4T a4 = arg4->get();
+                Arg5T a5 = arg5->get();
+                res = gen(a1,a2,a3,a4,a5);
+                arg1->updated();
+                arg2->updated();
+                arg3->updated();
+                arg4->updated();
+                arg5->updated();
+                return res;
+            }
+
+            template< typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T, typename Arg5T, typename Arg6T>
+            R invoke( DataSource<Arg1T>* arg1, DataSource<Arg2T>* arg2, DataSource<Arg3T>* arg3, DataSource<Arg4T>* arg4, DataSource<Arg5T>* arg5, DataSource<Arg6T>* arg6) {
+                Arg1T a1 = arg1->get();
+                Arg2T a2 = arg2->get();
+                Arg3T a3 = arg3->get();
+                Arg4T a4 = arg4->get();
+                Arg5T a5 = arg5->get();
+                Arg6T a6 = arg6->get();
+                res = gen(a1,a2,a3,a4,a5,a6);
+                arg1->updated();
+                arg2->updated();
+                arg3->updated();
+                arg4->updated();
+                arg5->updated();
+                arg6->updated();
+                return res;
+            }
         };
 
         template<typename FunctorT>
@@ -183,6 +217,38 @@ namespace RTT
                 arg2->updated();
                 arg3->updated();
                 arg4->updated();
+            }
+
+            template< typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T, typename Arg5T>
+            void invoke( DataSource<Arg1T>* arg1, DataSource<Arg2T>* arg2, DataSource<Arg3T>* arg3, DataSource<Arg4T>* arg4, DataSource<Arg5T>* arg5) {
+                Arg1T a1 = arg1->get();
+                Arg2T a2 = arg2->get();
+                Arg3T a3 = arg3->get();
+                Arg4T a4 = arg4->get();
+                Arg5T a5 = arg5->get();
+                gen(a1,a2,a3,a4,a5);
+                arg1->updated();
+                arg2->updated();
+                arg3->updated();
+                arg4->updated();
+                arg5->updated();
+            }
+
+            template< typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T, typename Arg5T, typename Arg6T>
+            void invoke( DataSource<Arg1T>* arg1, DataSource<Arg2T>* arg2, DataSource<Arg3T>* arg3, DataSource<Arg4T>* arg4, DataSource<Arg5T>* arg5, DataSource<Arg6T>* arg6) {
+                Arg1T a1 = arg1->get();
+                Arg2T a2 = arg2->get();
+                Arg3T a3 = arg3->get();
+                Arg4T a4 = arg4->get();
+                Arg5T a5 = arg5->get();
+                Arg6T a6 = arg6->get();
+                gen(a1,a2,a3,a4,a5,a6);
+                arg1->updated();
+                arg2->updated();
+                arg3->updated();
+                arg4->updated();
+                arg5->updated();
+                arg6->updated();
             }
         };
 
@@ -260,6 +326,40 @@ namespace RTT
                 arg2->updated();
                 arg3->updated();
                 arg4->updated();
+                return *res;
+            }
+
+            template< typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T, typename Arg5T>
+            result_type invoke( DataSource<Arg1T>* arg1, DataSource<Arg2T>* arg2, DataSource<Arg3T>* arg3, DataSource<Arg4T>* arg4, DataSource<Arg5T>* arg5) {
+                Arg1T a1 = arg1->get();
+                Arg2T a2 = arg2->get();
+                Arg3T a3 = arg3->get();
+                Arg4T a4 = arg4->get();
+                Arg5T a5 = arg5->get();
+                res = &gen(a1,a2,a3,a4,a5);
+                arg1->updated();
+                arg2->updated();
+                arg3->updated();
+                arg4->updated();
+                arg5->updated();
+                return *res;
+            }
+
+            template< typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T, typename Arg5T, typename Arg6T>
+            result_type invoke( DataSource<Arg1T>* arg1, DataSource<Arg2T>* arg2, DataSource<Arg3T>* arg3, DataSource<Arg4T>* arg4, DataSource<Arg5T>* arg5, DataSource<Arg6T>* arg6) {
+                Arg1T a1 = arg1->get();
+                Arg2T a2 = arg2->get();
+                Arg3T a3 = arg3->get();
+                Arg4T a4 = arg4->get();
+                Arg5T a5 = arg5->get();
+                Arg6T a6 = arg6->get();
+                res = &gen(a1,a2,a3,a4,a5,a6);
+                arg1->updated();
+                arg2->updated();
+                arg3->updated();
+                arg4->updated();
+                arg5->updated();
+                arg6->updated();
                 return *res;
             }
         };
@@ -596,6 +696,116 @@ namespace RTT
       }
   };
 
+  template<typename FunctorT, typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T, typename Arg5T>
+  class FunctorDataSource5
+      : public DataSource< typename FunctorT::result_type >
+  {
+    typedef typename FunctorT::result_type value_t;
+      mutable FunctionForwarder<value_t,FunctorT> ff;
+    typename DataSource<Arg1T>::shared_ptr arg1;
+    typename DataSource<Arg2T>::shared_ptr arg2;
+    typename DataSource<Arg3T>::shared_ptr arg3;
+    typename DataSource<Arg4T>::shared_ptr arg4;
+    typename DataSource<Arg5T>::shared_ptr arg5;
+  public:
+      typedef boost::intrusive_ptr< FunctorDataSource5<FunctorT,Arg1T,Arg2T,Arg3T,Arg4T,Arg5T> > shared_ptr;
+
+      FunctorDataSource5( FunctorT g, DataSource<Arg1T>* a1 = 0, DataSource<Arg2T>* a2 = 0,
+                          DataSource<Arg3T>* a3 = 0, DataSource<Arg4T>* a4 = 0,
+                          DataSource<Arg5T>* a5 = 0)
+          : ff( g ), arg1( a1 ), arg2(a2), arg3(a3), arg4(a4), arg5(a5)
+      {
+      }
+
+      value_t value() const
+      {
+          return ff.result();
+      }
+
+      void setArguments(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2,
+                        DataSource<Arg3T>* a3, DataSource<Arg4T>* a4,
+                        DataSource<Arg5T>* a5) 
+      {
+          arg1 = a1;
+          arg2 = a2;
+          arg3 = a3;
+          arg4 = a4;
+          arg5 = a5;
+      }
+
+      value_t get() const
+      {
+          return ff.invoke( arg1.get(), arg2.get(), arg3.get(), arg4.get(), arg5.get() );
+      }
+
+    virtual FunctorDataSource5<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T, Arg5T>* clone() const
+      {
+        return new FunctorDataSource5<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T, Arg5T>( ff.gen, arg1.get(), arg2.get(),
+                                                                             arg3.get(), arg4.get(), arg5.get() );
+      }
+    virtual FunctorDataSource5<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T, Arg5T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      {
+        return new FunctorDataSource5<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T, Arg5T>( ff.gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned), arg3->copy( alreadyCloned), arg4->copy( alreadyCloned), arg5->copy(alreadyCloned) );
+      }
+  };
+
+  template<typename FunctorT, typename Arg1T, typename Arg2T, typename Arg3T, typename Arg4T, typename Arg5T, typename Arg6T>
+  class FunctorDataSource6
+      : public DataSource< typename FunctorT::result_type >
+  {
+    typedef typename FunctorT::result_type value_t;
+      mutable FunctionForwarder<value_t,FunctorT> ff;
+    typename DataSource<Arg1T>::shared_ptr arg1;
+    typename DataSource<Arg2T>::shared_ptr arg2;
+    typename DataSource<Arg3T>::shared_ptr arg3;
+    typename DataSource<Arg4T>::shared_ptr arg4;
+    typename DataSource<Arg5T>::shared_ptr arg5;
+    typename DataSource<Arg6T>::shared_ptr arg6;
+  public:
+      typedef boost::intrusive_ptr< FunctorDataSource6<FunctorT,Arg1T,Arg2T,Arg3T,Arg4T,Arg5T,Arg6T> > shared_ptr;
+
+      FunctorDataSource6( FunctorT g, DataSource<Arg1T>* a1 = 0, DataSource<Arg2T>* a2 = 0,
+                          DataSource<Arg3T>* a3 = 0, DataSource<Arg4T>* a4 = 0,
+                          DataSource<Arg5T>* a5 = 0, DataSource<Arg6T>* a6 = 0)
+          : ff( g ), arg1( a1 ), arg2(a2), arg3(a3), arg4(a4), arg5(a5),arg6(a6)
+      {
+      }
+
+      value_t value() const
+      {
+          return ff.result();
+      }
+
+      void setArguments(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2,
+                        DataSource<Arg3T>* a3, DataSource<Arg4T>* a4,
+                        DataSource<Arg5T>* a5, DataSource<Arg6T>* a6) 
+      {
+          arg1 = a1;
+          arg2 = a2;
+          arg3 = a3;
+          arg4 = a4;
+          arg5 = a5;
+          arg6 = a6;
+      }
+
+      value_t get() const
+      {
+          return ff.invoke( arg1.get(), arg2.get(), arg3.get(), arg4.get(), arg5.get(), arg6.get() );
+      }
+
+    virtual FunctorDataSource6<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T, Arg5T, Arg6T>* clone() const
+      {
+        return new FunctorDataSource6<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T, Arg5T, Arg6T>( ff.gen, arg1.get(), arg2.get(),
+                                                                             arg3.get(), arg4.get(), arg5.get(), arg6.get() );
+      }
+    virtual FunctorDataSource6<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T, Arg5T, Arg6T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+      {
+        return new FunctorDataSource6<FunctorT, Arg1T, Arg2T, Arg3T, Arg4T, Arg5T, Arg6T>( ff.gen, arg1->copy( alreadyCloned ), arg2->copy( alreadyCloned), arg3->copy( alreadyCloned), arg4->copy( alreadyCloned), arg5->copy(alreadyCloned), arg6->copy(alreadyCloned) );
+      }
+  };
+
+
+
         template<int, class F>
         struct FunctorDataSourceI;
 
@@ -639,6 +849,30 @@ namespace RTT
                 : FunctorDataSource4<F, typename F::arg1_type, typename F::arg2_type,typename F::arg3_type, typename F::arg4_type>(f) {}
         };
 
+        template<class F>
+        struct FunctorDataSourceI<5,F>
+            : public FunctorDataSource5<F, typename F::arg1_type, typename F::arg2_type,
+                                        typename F::arg3_type, typename F::arg4_type,
+                                        typename F::arg5_type>
+        {
+            FunctorDataSourceI( F f )
+                : FunctorDataSource5<F, typename F::arg1_type, typename F::arg2_type,
+                                     typename F::arg3_type, typename F::arg4_type,
+                                     typename F::arg5_type>(f) {}
+        };
+
+
+        template<class F>
+        struct FunctorDataSourceI<6,F>
+            : public FunctorDataSource6<F, typename F::arg1_type, typename F::arg2_type,
+                                        typename F::arg3_type, typename F::arg4_type,
+                                        typename F::arg5_type, typename F::arg6_type>
+        {
+            FunctorDataSourceI( F f )
+                : FunctorDataSource6<F, typename F::arg1_type, typename F::arg2_type,
+                                     typename F::arg3_type, typename F::arg4_type,
+                                     typename F::arg5_type, typename F::arg6_type>(f) {}
+        };
 
         template<class F>
         struct FunctorDataSource

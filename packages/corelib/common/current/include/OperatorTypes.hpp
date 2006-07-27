@@ -64,16 +64,6 @@ namespace RTT
             }
         };
 
-        /**
-         * helper function for the use of UnaryOperator
-         */
-        template<typename function>
-        UnaryOperator<function>*
-        newUnaryOperator( const char* op, function f )
-        {
-            return new UnaryOperator<function>( op, f );
-        }
-
 
         /**
          * An operator which reads a two DataSources
@@ -110,107 +100,6 @@ namespace RTT
             }
         };
 
-        template<typename function>
-        BinaryOperator<function>*
-        newBinaryOperator( const char* op, function f )
-        {
-            return new BinaryOperator<function>( op, f );
-        }
-
-
-        /**
-         * An operator which reads a three DataSources
-         * and returns a modified result.
-         */
-        template<typename function>
-        class TernaryOperator
-            : public TernaryOp
-        {
-            typedef typename function::first_argument_type arg1_t;
-            typedef typename function::second_argument_type arg2_t;
-            typedef typename function::third_argument_type arg3_t;
-            typedef typename function::result_type result_t;
-            const char* mop;
-            function fun;
-        public:
-            TernaryOperator( const char* op, function f )
-                : mop( op ), fun( f )
-            {
-            }
-            DataSource<result_t>* build( const std::string& op, DataSourceBase* a,
-                                         DataSourceBase* b, DataSourceBase* c )
-            {
-                if ( op != mop ) return 0;
-                typename DataSource<arg1_t>::shared_ptr arg1 =
-                    AdaptDataSource<arg1_t>()( a );
-                typename DataSource<arg2_t>::shared_ptr arg2 =
-                    AdaptDataSource<arg2_t>()( b );
-                typename DataSource<arg3_t>::shared_ptr arg3 =
-                    AdaptDataSource<arg3_t>()( c );
-                if ( !arg1 || ! arg2 || !arg3 ) return 0;
-                return new TernaryDataSource<function>( arg1, arg2, arg3, fun );
-            }
-        };
-
-        template<typename function>
-        TernaryOperator<function>*
-        newTernaryOperator( const char* op, function f )
-        {
-            return new TernaryOperator<function>( op, f );
-        }
-
-
-        /**
-         * An operator which reads a six DataSources
-         * and returns a modified result.
-         */
-        template<typename function>
-        class SixaryOperator
-            : public SixaryOp
-        {
-            typedef typename function::first_argument_type arg1_t;
-            typedef typename function::second_argument_type arg2_t;
-            typedef typename function::third_argument_type arg3_t;
-            typedef typename function::fourth_argument_type arg4_t;
-            typedef typename function::fifth_argument_type arg5_t;
-            typedef typename function::sixth_argument_type arg6_t;
-            typedef typename function::result_type result_t;
-            const char* mop;
-            function fun;
-        public:
-            SixaryOperator( const char* op, function f )
-                : mop( op ), fun( f )
-            {
-            }
-            DataSource<result_t>* build( const std::string& op,
-                                         DataSourceBase* a, DataSourceBase* b, DataSourceBase* c,
-                                         DataSourceBase* d, DataSourceBase* e, DataSourceBase* f )
-            {
-                if ( op != mop ) return 0;
-                typename DataSource<arg1_t>::shared_ptr arg1 =
-                    AdaptDataSource<arg1_t>()( a );
-                typename DataSource<arg2_t>::shared_ptr arg2 =
-                    AdaptDataSource<arg2_t>()( b );
-                typename DataSource<arg3_t>::shared_ptr arg3 =
-                    AdaptDataSource<arg3_t>()( c );
-                typename DataSource<arg4_t>::shared_ptr arg4 =
-                    AdaptDataSource<arg4_t>()( d );
-                typename DataSource<arg5_t>::shared_ptr arg5 =
-                    AdaptDataSource<arg5_t>()( e );
-                typename DataSource<arg6_t>::shared_ptr arg6 =
-                    AdaptDataSource<arg6_t>()( f );
-                if ( !arg1 || ! arg2 || !arg3 || !arg4 || !arg5 || !arg6 ) return 0;
-                return new SixaryDataSource<function>( arg1, arg2, arg3, arg4, arg5, arg6, fun );
-            }
-        };
-
-        template<typename function>
-        SixaryOperator<function>*
-        newSixaryOperator( const char* op, function f )
-        {
-            return new SixaryOperator<function>( op, f );
-        }
-
         /**
          *  Dot : '.' for member access of composite values
          */
@@ -242,13 +131,36 @@ namespace RTT
             }
         };
 
-        template<typename function>
-        DotOperator<function>*
-        newDotOperator( const char* member, function f )
-        {
-            return new DotOperator<function>( member, f );
-        }
+    }
 
+    /**
+     * helper function to create a new UnaryOperator
+     */
+    template<typename function>
+    detail::UnaryOperator<function>*
+    newUnaryOperator( const char* op, function f )
+    {
+        return new detail::UnaryOperator<function>( op, f );
+    }
+
+    /**
+     * helper function to create a new BinaryOperator
+     */
+    template<typename function>
+    detail::BinaryOperator<function>*
+    newBinaryOperator( const char* op, function f )
+    {
+        return new detail::BinaryOperator<function>( op, f );
+    }
+
+    /**
+     * helper function to create a new DotOperator
+     */
+    template<typename function>
+    detail::DotOperator<function>*
+    newDotOperator( const char* member, function f )
+    {
+        return new detail::DotOperator<function>( member, f );
     }
 }
 #endif

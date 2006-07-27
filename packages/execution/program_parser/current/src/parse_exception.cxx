@@ -75,4 +75,19 @@ namespace RTT
            << mline << ": " << mpe->what();
     return stream.str();
   }
+
+    parse_exception_no_such_constructor::parse_exception_no_such_constructor(const std::string& tname, 
+                                                                             std::vector<DataSourceBase::shared_ptr> args)
+        : margsig( "No such constructor found: " + tname + "(")
+    {
+        
+        for(std::vector<DataSourceBase::shared_ptr>::iterator it = args.begin();
+            it != args.end();
+            ) {
+            margsig += (*it)->getType();
+            if ( ++it != args.end() )
+                margsig += ", ";
+        }
+        margsig += ")";
+    }
 }

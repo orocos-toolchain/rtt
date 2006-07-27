@@ -84,6 +84,31 @@ namespace RTT
     {
     }
 
+    DataSourceBase::shared_ptr TypeInfo::construct(const std::vector<DataSourceBase::shared_ptr>& args) const 
+    {
+        Logger::log() << Logger::Debug << "Constructor of " << getTypeName() <<Logger::endl;
+        DataSourceBase::shared_ptr ds;
+        if ( args.empty() ) {
+            AttributeBase* ab = this->buildVariable("constructor");
+            ds = ab->getDataSource();
+            delete ab;
+            return ds;
+        }
+
+        Constructors::const_iterator i= constructors.begin();
+        while (i != constructors.end() ) {
+            ds = (*i)->build( args );
+            if ( ds )
+                return ds;
+            ++i;
+        }
+        return ds;
+    }
+
+    void TypeInfo::addConstructor(TypeBuilder* tb) {
+        constructors.push_back(tb);
+    }
+
     string TypeInfo::toString( DataSourceBase::shared_ptr in ) const
     {
         stringstream result;
@@ -94,6 +119,8 @@ namespace RTT
     namespace {
         boost::shared_ptr<TypeInfoRepository> typerepos;
     }
+
+    TypeBuilder::~TypeBuilder() {}
 
     TypeInfoRepository::TypeInfoRepository()
     {

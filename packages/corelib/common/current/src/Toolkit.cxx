@@ -52,6 +52,9 @@ namespace RTT
             Logger::log() <<Logger::Error << "Tool "<<tkp->getName() <<" failed to load types."<<Logger::endl;
         }
 
+        if ( tkp->loadConstructors() == false ) {
+            Logger::log() <<Logger::Error << "Tool "<<tkp->getName() <<" failed to load type constructors."<<Logger::endl;
+        }
         if ( tkp->loadOperators() == false ) {
             Logger::log() <<Logger::Error << "Tool "<<tkp->getName() <<" failed to load type operators."<<Logger::endl;
         }

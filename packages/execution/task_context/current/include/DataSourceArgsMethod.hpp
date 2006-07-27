@@ -72,6 +72,23 @@ namespace RTT
                 return r;
             }
 
+            template<class Arg1T, class Arg2T, class Arg3T, class Arg4T, class Arg5T>
+            DataSourceArgsMethod<Signature,FunctorT>* create(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2, DataSource<Arg3T>* a3, DataSource<Arg4T>* a4, DataSource<Arg5T>* a5) const
+            {
+                DataSourceArgsMethod<Signature,FunctorT>* r =  this->clone();
+                r->mmeth->setArguments(a1, a2, a3, a4, a5);
+                return r;
+            }
+
+            template<class Arg1T, class Arg2T, class Arg3T, class Arg4T, class Arg5T, class Arg6T>
+            DataSourceArgsMethod<Signature,FunctorT>* create(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2, DataSource<Arg3T>* a3, DataSource<Arg4T>* a4, DataSource<Arg5T>* a5, DataSource<Arg6T>* a6) const
+            {
+                DataSourceArgsMethod<Signature,FunctorT>* r =  this->clone();
+                r->mmeth->setArguments(a1, a2, a3, a4, a5, a6);
+                return r;
+            }
+
+
             result_type operator()() {
                 return mmeth->get();
             }

@@ -45,6 +45,7 @@ namespace RTT
 
         virtual bool loadTypes();
         virtual bool loadOperators();
+        virtual bool loadConstructors();
     };
 
     /**

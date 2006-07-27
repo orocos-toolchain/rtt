@@ -41,6 +41,7 @@
 #include "rtt/DataSourceTime.hpp"
 #include "rtt/TaskContext.hpp"
 #include "rtt/PeerParser.hpp"
+#include "rtt/Types.hpp"
 
 #include <boost/lambda/lambda.hpp>
 
@@ -114,17 +115,23 @@ namespace RTT
       TaskContext* peer = peerparser.peer();
       peerparser.reset();
 
-      //cout << "DCP saw method "<< mmethod <<" of object "<<mobject<<" of peer "<<peer->getName()<<endl;
-      // this is slightly different from CommandParser
-      OperationInterface* ops = peer->getObject(mobject);
-      if ( mobject != "this" && ops == 0)
-          throw_( iter_t(), std::string("Task '")+peer->getName()+"' has no object '"+mobject+"'." );
+      // Check if it is a constructor
+      if ( mobject == "this" && TypeInfoRepository::Instance()->type( mmethod ) ) {
+          // it is...
+      } else {
+          // it ain't...
+          //cout << "DCP saw method "<< mmethod <<" of object "<<mobject<<" of peer "<<peer->getName()<<endl;
+          // this is slightly different from CommandParser
+          OperationInterface* ops = peer->getObject(mobject);
+          if ( ops == 0 )
+              throw_( iter_t(), std::string("Task '")+peer->getName()+"' has no object '"+mobject+"'." );
 
-      if ( ops && ops->methods()->hasMember(mmethod) == false )
-            throw parse_exception_no_such_method_on_component( mobject, mmethod );
-
-      if ( !ops && peer->methods()->hasMember(mmethod) == false )
-          throw parse_exception_no_such_method_on_component( peer->getName(), mmethod );
+          if ( ops->methods()->hasMember(mmethod) == false )
+              if ( mobject != "this" )
+                  throw parse_exception_no_such_method_on_component( mobject, mmethod );
+              else
+                  throw parse_exception_no_such_method_on_component( peer->getName(), mmethod );
+      }
            
       // create an argument parser for the call..
       // Store the peer in the ArgumentsParser !
@@ -154,30 +161,37 @@ namespace RTT
     TaskContext* peer = argspar->peer();
     delete argspar;
 
-    OperationInterface* ops = peer->getObject(obj);
-    // we already checked for the existence of this object and method
-    // in seendataname()..
+    // separate track if we are handling a constructor:
+    if ( obj == "this" && TypeInfoRepository::Instance()->type( meth ) ) {
+        ret = TypeInfoRepository::Instance()->type( meth )->construct( args );
+        if (!ret) {
+            log(Error) << " no such constructor ! "<< endlog();
+            throw parse_exception_no_such_constructor( meth, args );
+        }
+    } else {
+        // plain method:
 
-    try {
-        if ( ops )
+        OperationInterface* ops = peer->getObject(obj);
+        // we already checked for the existence of this object and method
+        // in seendataname()..
+
+        try {
             ret = ops->methods()->produce( meth, args );
-        else
-            ret = peer->methods()->produce( meth, args );
-    }
-    catch( const wrong_number_of_args_exception& e )
-        {
-            throw parse_exception_wrong_number_of_arguments
-                (obj, meth, e.wanted, e.received );
         }
-    catch( const wrong_types_of_args_exception& e )
-        {
-            throw parse_exception_wrong_type_of_argument
-                (obj, meth, e.whicharg, e.expected_, e.received_ );
+        catch( const wrong_number_of_args_exception& e )
+            {
+                throw parse_exception_wrong_number_of_arguments
+                    (obj, meth, e.wanted, e.received );
+            }
+        catch( const wrong_types_of_args_exception& e )
+            {
+                throw parse_exception_wrong_type_of_argument
+                    (obj, meth, e.whicharg, e.expected_, e.received_ );
+            }
+        catch(...) {
+            assert(false);
         }
-    catch(...) {
-        assert(false);
     }
-
     assert( ret.get() );
   }
 
@@ -249,15 +263,6 @@ namespace RTT
     BOOST_SPIRIT_DEBUG_RULE( groupexp );
     BOOST_SPIRIT_DEBUG_RULE( dotexp );
     BOOST_SPIRIT_DEBUG_RULE( atomicexpression );
-    BOOST_SPIRIT_DEBUG_RULE( constructorexp );
-    BOOST_SPIRIT_DEBUG_RULE( framector );
-    BOOST_SPIRIT_DEBUG_RULE( wrenchctor );
-    BOOST_SPIRIT_DEBUG_RULE( twistctor );
-    BOOST_SPIRIT_DEBUG_RULE( vectorctor );
-    BOOST_SPIRIT_DEBUG_RULE( double6Dctor );
-    BOOST_SPIRIT_DEBUG_RULE( double6Dctor6 );
-    BOOST_SPIRIT_DEBUG_RULE( arrayctor );
-    BOOST_SPIRIT_DEBUG_RULE( rotationctor );
     BOOST_SPIRIT_DEBUG_RULE( time_expression );
     BOOST_SPIRIT_DEBUG_RULE( time_spec );
     BOOST_SPIRIT_DEBUG_RULE( indexexp );
@@ -339,10 +344,8 @@ namespace RTT
     // useful "cannot use x as identifier" error if it fails, so we
     // must first show all non-identifier rules.
     atomicexpression = (
-        // either a 'constructor' call
-        constructorexp
-        // or a parenthesis group.
-      | groupexp
+        // A parenthesis group.
+      groupexp
         // or a time expression
       | time_expression
         // or a constant or user-defined value..
@@ -358,92 +361,6 @@ namespace RTT
 
     dotexp = 
         +( ch_p('.') >> commonparser.identifier[ bind(&ExpressionParser::seen_dotmember, this, _1, _2)]);
-
-    constructorexp =
-#ifdef OROPKG_GEOMETRY
-        framector | rotationctor | wrenchctor | twistctor | vectorctor |
-#endif
-        double6Dctor | double6Dctor6 | arrayctor | stringctor;
-
-    /**
-     * About constructors : 
-     * Since they start with a keyword, the opening brace _must_ trigger
-     * a rule failure if not present, such that user vars like "frame_mypos" are valid.
-     * (otherwise, 'brace' is expected).
-     */
-    framector = (
-         str_p( "frame" )
-      >> ch_p('(')
-      >> expression
-      >> comma
-      >> expression
-      >> close_brace )[ bind( &ExpressionParser::seen_binary, this, "framevr" ) ];
-
-    wrenchctor = (
-         str_p( "wrench" )
-      >> ch_p('(')
-      >> expression
-      >> comma
-      >> expression
-      >> close_brace )[ bind( &ExpressionParser::seen_binary, this, "wrenchft" ) ];
-
-    twistctor = (
-         str_p( "twist" )
-      >> ch_p('(')
-      >> expression
-      >> comma
-      >> expression
-      >> close_brace )[ bind( &ExpressionParser::seen_binary, this, "twistvw" ) ];
-
-    vectorctor = (
-         str_p( "vector" )
-      >> ch_p('(')
-      >> expression
-      >> comma
-      >> expression
-      >> comma
-      >> expression
-      >> close_brace )[ bind( &ExpressionParser::seen_ternary, this, "vectorxyz" ) ];
-
-    double6Dctor =
-        str_p( "double6d" )
-      >> ch_p('(')
-      >> expression
-      >>(  ch_p(')')[ bind( &ExpressionParser::seen_unary, this, "double6Dd" ) ]
-           | ( comma
-               >> expression
-               >> comma
-               >> expression
-               >> comma
-               >> expression
-               >> comma
-               >> expression
-               >> comma
-               >> expression
-               >> close_brace )[ bind( &ExpressionParser::seen_sixary, this, "double6D6d" ) ]);
-
-    arrayctor = (
-        str_p( "array" )
-      >> ch_p('(')
-      >> expression
-      >> close_brace )[ bind( &ExpressionParser::seen_unary, this, "array" ) ];
-
-    stringctor = (
-        str_p( "string" )
-      >> ch_p('(')
-      >> expression
-      >> close_brace )[ bind( &ExpressionParser::seen_unary, this, "string" ) ];
-
-    rotationctor = (
-         str_p( "rotation" )
-      >> ch_p('(')
-      >> expression
-      >> comma
-      >> expression
-      >> comma
-      >> expression
-      >> close_brace )[ bind( &ExpressionParser::seen_ternary, this,
-                      "rotationRPY" ) ];
 
     // needs no semantic action, its result is already on top of
     // the stack, where it should be..
@@ -613,54 +530,6 @@ namespace RTT
     if ( ! ret )
       throw parse_exception_fatal_semantic_error( "Cannot apply binary operation "+ arg2->getType() +" " + op +
                                             " "+arg1->getType() +"." );
-    parsestack.push( ret );
-  };
-
-  void ExpressionParser::seen_ternary( const std::string& op )
-  {
-    DataSourceBase::shared_ptr arg1( parsestack.top() );
-    parsestack.pop();
-    DataSourceBase::shared_ptr arg2( parsestack.top() );
-    parsestack.pop();
-    DataSourceBase::shared_ptr arg3( parsestack.top() );
-    parsestack.pop();
-
-    // Arg3 is the first (!) argument, as it was pushed on the stack
-    // first.
-    DataSourceBase::shared_ptr ret =
-      opreg->applyTernary( op, arg3.get(),
-                           arg2.get(), arg1.get() );
-    if ( ! ret )
-      throw parse_exception_fatal_semantic_error( "Cannot apply ternary operator \"" + op +
-                                            "\" to "+ arg3->getType()+", " + arg2->getType()+", " + arg1->getType() +"." );
-    parsestack.push( ret );
-  };
-
-  void ExpressionParser::seen_sixary( const std::string& op )
-  {
-    DataSourceBase::shared_ptr arg1( parsestack.top() );
-    parsestack.pop();
-    DataSourceBase::shared_ptr arg2( parsestack.top() );
-    parsestack.pop();
-    DataSourceBase::shared_ptr arg3( parsestack.top() );
-    parsestack.pop();
-    DataSourceBase::shared_ptr arg4( parsestack.top() );
-    parsestack.pop();
-    DataSourceBase::shared_ptr arg5( parsestack.top() );
-    parsestack.pop();
-    DataSourceBase::shared_ptr arg6( parsestack.top() );
-    parsestack.pop();
-
-    // Arg6 is the first (!) argument, as it was pushed on the stack
-    // first.
-    DataSourceBase::shared_ptr ret =
-        opreg->applySixary( op,
-                            arg6.get(), arg5.get(), arg4.get(),
-                            arg3.get(), arg2.get(), arg1.get() );
-    if ( ! ret )
-      throw parse_exception_fatal_semantic_error( "Cannot apply sixary operator \"" + op +
-                                            "\" to "+ arg6->getType()+", " + arg5->getType()+", " + arg4->getType() +", " +
-                                            arg3->getType()+", " + arg2->getType()+", " + arg1->getType() +"." );
     parsestack.push( ret );
   };
 

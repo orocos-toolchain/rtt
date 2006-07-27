@@ -108,6 +108,8 @@ namespace ORO_Geometry
 
 
     namespace {
+
+
         // CONSTRUCTORS
         Double6D double6Dd( double d )
         {
@@ -129,41 +131,25 @@ namespace ORO_Geometry
             return d6d;
         }
 
-        struct framevr
-            : public std::binary_function<Vector,Rotation, Frame>
+        Frame framevr( const Vector& v, const Rotation& r )
         {
-            Frame operator()( const Vector& v, const Rotation& r ) const
-            {
-                return Frame( r, v );
-            }
-        };
+            return Frame( r, v );
+        }
 
-        struct wrenchft
-            : public std::binary_function<Vector,Vector,Wrench>
+        Wrench wrenchft( Vector& force, const Vector& torque )
         {
-            Wrench operator()( const Vector& force, const Vector& torque ) const
-            {
-                return Wrench( force, torque );
-            }
-        };
+            return Wrench( force, torque );
+        }
 
-        struct twistvw
-            : public std::binary_function<Vector,Vector,Twist>
+        Twist twistvw( const Vector& trans, const Vector& rot )
         {
-            Twist operator()( const Vector& trans, const Vector& rot ) const
-            {
-                return Twist( trans, rot );
-            }
-        };
+            return Twist( trans, rot );
+        }
 
-        struct vectorxyz
-            : public std::ternary_function<double,double,double,Vector>
+        Vector vectorxyz( double a, double b, double c )
         {
-            Vector operator()( double a, double b, double c ) const
-            {
-                return Vector( a, b, c );
-            }
-        };
+            return Vector( a, b, c );
+        }
 
 
         // INDEXING
@@ -326,13 +312,25 @@ namespace ORO_Geometry
         };
     }
 
+    bool GeometryToolkitPlugin::loadConstructors()
+    {
+        TypeInfoRepository::shared_ptr ti = TypeInfoRepository::Instance();
+        ti->type("double6d")->addConstructor( newConstructor(&double6Dd ) );
+        ti->type("double6d")->addConstructor( newConstructor(&double6D6d ) );
+        
+        ti->type("vector")->addConstructor( newConstructor(&vectorxyz) );
+        ti->type("rotation")->addConstructor( newConstructor( ptr_fun( Rotation::RPY )) );
+        ti->type("frame")->addConstructor( newConstructor(&framevr) );
+        ti->type("wrench")->addConstructor( newConstructor(&wrenchft) );
+        ti->type("twist")->addConstructor( newConstructor(&twistvw) );
+
+        return true;
+    }
+
     bool GeometryToolkitPlugin::loadOperators()
     {
 
         OperatorRepository::shared_ptr oreg = OperatorRepository::Instance();
-
-        oreg->add( newUnaryOperator( "double6Dd", std::ptr_fun( &double6Dd ) ) );
-        oreg->add( newSixaryOperator( "double6D6d", ptr_fun( &double6D6d ) ) );
 
         oreg->add( newBinaryOperator( "==", std::equal_to<Double6D>() ) );
         oreg->add( newBinaryOperator( "!=", std::not_equal_to<Double6D>() ) );
@@ -398,13 +396,6 @@ namespace ORO_Geometry
 
         oreg->add( newBinaryOperator( "[]", wrenchtwist_index<Wrench>() ) );
         oreg->add( newBinaryOperator( "[]", wrenchtwist_index<Twist>() ) );
-
-        // constructors:
-        oreg->add( newTernaryOperator( "vectorxyz", vectorxyz() ));
-        oreg->add( newTernaryOperator( "rotationRPY", ptr_fun( Rotation::RPY ) ) );
-        oreg->add( newBinaryOperator( "framevr", framevr() ) );
-        oreg->add( newBinaryOperator( "wrenchft", wrenchft( ) ) );
-        oreg->add( newBinaryOperator( "twistvw", twistvw () ) );
 
         return true;
     }

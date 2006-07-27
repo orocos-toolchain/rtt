@@ -33,6 +33,12 @@
 #include "Attribute.hpp"
 #include "Logger.hpp"
 #include <ostream>
+#include "FunctorFactory.hpp"
+#include "DataSourceArgsMethod.hpp"
+
+#include <boost/type_traits/function_traits.hpp>
+#include <boost/function_types/function_type.hpp>
+#include <boost/function_types/function_type_signature.hpp>
 
 #include <pkgconf/system.h>
 #ifdef OROPKG_CORBA
@@ -169,6 +175,7 @@ namespace RTT
                 delete detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject;
             }
             detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
+
         }
 
         AttributeBase* buildConstant(std::string name, DataSourceBase::shared_ptr dsb) const
@@ -187,15 +194,6 @@ namespace RTT
             // A variable starts its life as unbounded.
             Logger::log() << Logger::Debug << "Building variable '"<<name <<"' of type " << tname <<Logger::endl;
             return new Attribute<T>( name, new detail::UnboundDataSource<ValueDataSource<T> >() );
-        }
-
-        DataSourceBase::shared_ptr construct(const std::vector<DataSourceBase::shared_ptr>& args) const
-        {
-            // It must start its life as unbounded.
-            Logger::log() << Logger::Debug << "Constructor of " << tname <<Logger::endl;
-            if ( args.empty() )
-                return new detail::UnboundDataSource<ValueDataSource<T> >();
-            return DataSourceBase::shared_ptr();
         }
 
         AttributeBase* buildAttribute( std::string name, DataSourceBase::shared_ptr in) const
@@ -453,7 +451,136 @@ namespace RTT
 
     };
 
+    namespace detail
+    {
 
+        template<class Signature, int>
+        struct TemplateConstructor;
+
+        template<class S>
+        struct TemplateConstructor<S,1>
+            : public TypeBuilder,
+              public FunctorFactoryPart1<DataSourceBase*, DataSourceArgsMethod<S> >
+        {
+            template<class FInit>
+            TemplateConstructor( FInit f)
+                : FunctorFactoryPart1<DataSourceBase*, DataSourceArgsMethod<S> >(f )
+            {}
+
+            virtual DataSourceBase::shared_ptr build(const std::vector<DataSourceBase::shared_ptr>& args) const {
+                try {
+                    return this->produce( args );
+                } catch ( ... ) {
+                }
+                return DataSourceBase::shared_ptr();
+            }
+            
+        };
+
+        template<class S>
+        struct TemplateConstructor<S,2>
+            : public TypeBuilder,
+              public FunctorFactoryPart2<DataSourceBase*, DataSourceArgsMethod<S> >
+        {
+            template<class FInit>
+            TemplateConstructor( FInit f)
+                : FunctorFactoryPart2<DataSourceBase*, DataSourceArgsMethod<S> >(f )
+            {}
+
+            virtual DataSourceBase::shared_ptr build(const std::vector<DataSourceBase::shared_ptr>& args) const {
+                try {
+                    return this->produce( args );
+                } catch ( ... ) {
+                }
+                return DataSourceBase::shared_ptr();
+            }
+            
+        };
+
+        template<class S>
+        struct TemplateConstructor<S,3>
+            : public TypeBuilder,
+              public FunctorFactoryPart3<DataSourceBase*, DataSourceArgsMethod<S> >
+        {
+            template<class FInit>
+            TemplateConstructor( FInit f)
+                : FunctorFactoryPart3<DataSourceBase*, DataSourceArgsMethod<S> >(f )
+            {}
+
+            virtual DataSourceBase::shared_ptr build(const std::vector<DataSourceBase::shared_ptr>& args) const {
+                try {
+                    return this->produce( args );
+                } catch ( ... ) {
+                }
+                return DataSourceBase::shared_ptr();
+            }
+            
+        };
+
+        template<class S>
+        struct TemplateConstructor<S,4>
+            : public TypeBuilder,
+              public FunctorFactoryPart4<DataSourceBase*, DataSourceArgsMethod<S> >
+        {
+            template<class FInit>
+            TemplateConstructor( FInit f)
+                : FunctorFactoryPart4<DataSourceBase*, DataSourceArgsMethod<S> >(f )
+            {}
+
+            virtual DataSourceBase::shared_ptr build(const std::vector<DataSourceBase::shared_ptr>& args) const {
+                try {
+                    return this->produce( args );
+                } catch ( ... ) {
+                }
+                return DataSourceBase::shared_ptr();
+            }
+            
+        };
+
+        template<class S>
+        struct TemplateConstructor<S,6>
+            : public TypeBuilder,
+              public FunctorFactoryPart6<DataSourceBase*, DataSourceArgsMethod<S> >
+        {
+            template<class FInit>
+            TemplateConstructor( FInit f)
+                : FunctorFactoryPart6<DataSourceBase*, DataSourceArgsMethod<S> >(f )
+            {}
+
+            virtual DataSourceBase::shared_ptr build(const std::vector<DataSourceBase::shared_ptr>& args) const {
+                try {
+                    return this->produce( args );
+                } catch ( ... ) {
+                }
+                return DataSourceBase::shared_ptr();
+            }
+            
+        };
+    }
+
+    /**
+     * Create a new Constructor.
+     * 
+     * @param foo A pointer to the 'C' function which creates an object.
+     * 
+     * @return a Constructor object suitable for the type system.
+     */
+    template<class Function>
+    TypeBuilder* newConstructor( Function* foo ) {
+        return new detail::TemplateConstructor<Function, boost::function_traits<Function>::arity>(foo);
+    }
+
+    /**
+     * Create a new Constructor.
+     * 
+     * @param obj A function object which has operator().
+     * 
+     * @return a Constructor object suitable for the type system.
+     */
+    template<class Object>
+    TypeBuilder* newConstructor( Object obj ) {
+        return new detail::TemplateConstructor<typename Object::Signature, boost::function_traits<typename Object::Signature>::arity>(obj);
+    }
 }
 
 #endif

@@ -190,7 +190,10 @@ namespace RTT
   template<typename ResultT, typename Arg1T, typename Arg2T, typename Arg3T>
   struct pointer_to_ternary_function
   {
-    ResultT (*fun)( Arg1T, Arg2T, Arg3T );
+      typedef ResultT (Signature)( Arg1T, Arg2T, Arg3T );
+
+      ResultT (*fun)( Arg1T, Arg2T, Arg3T );
+
     typedef ResultT result_type;
     typedef Arg1T first_argument_type;
     typedef Arg2T second_argument_type;
@@ -218,6 +221,7 @@ namespace RTT
            typename Arg4T, typename Arg5T, typename Arg6T >
   struct pointer_to_sixary_function
   {
+    typedef ResultT (Signature)( Arg1T, Arg2T, Arg3T, Arg4T, Arg5T, Arg6T );
     ResultT (*fun)( Arg1T, Arg2T, Arg3T, Arg4T, Arg5T, Arg6T );
     typedef ResultT result_type;
     typedef Arg1T first_argument_type;

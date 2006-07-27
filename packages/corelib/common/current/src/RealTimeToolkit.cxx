@@ -128,6 +128,7 @@ namespace RTT
         struct array_ctor
             : public std::unary_function<int, const std::vector<double>&>
         {
+            typedef const std::vector<double>& (Signature)( int );
             mutable boost::shared_ptr< std::vector<double> > ptr;
             array_ctor()
                 : ptr( new std::vector<double>() ) {}
@@ -143,6 +144,7 @@ namespace RTT
             : public std::unary_function<int, const std::string&>
         {
             mutable boost::shared_ptr< std::string > ptr;
+            typedef const std::string& (Signature)( int );
             string_ctor()
                 : ptr( new std::string() ) {}
             const std::string& operator()( int size ) const
@@ -200,6 +202,17 @@ namespace RTT
 
     using namespace detail;
 
+    bool RealTimeToolkitPlugin::loadConstructors()
+    {
+        TypeInfoRepository::shared_ptr ti = TypeInfoRepository::Instance();
+
+#ifndef ORO_EMBEDDED
+        ti->type("array")->addConstructor( newConstructor( array_ctor() ) );
+#endif
+        ti->type("string")->addConstructor( newConstructor( string_ctor() ) );
+        return true;
+    }
+
     bool RealTimeToolkitPlugin::loadOperators()
     {
         OperatorRepository::shared_ptr oreg = OperatorRepository::Instance();
@@ -252,7 +265,6 @@ namespace RTT
 
         // strings
         //  oreg->add( newBinaryOperator( "+", std::plus<std::string>() ) );
-        oreg->add( newUnaryOperator( "string", string_ctor() ) );
         oreg->add( newBinaryOperator( "==", std::equal_to<const std::string&>() ) );
         oreg->add( newBinaryOperator( "!=", std::not_equal_to< const std::string&>() ) );
         oreg->add( newBinaryOperator( "<", std::less<const std::string&>() ) );
@@ -274,7 +286,6 @@ namespace RTT
         oreg->add( newBinaryOperator( ">=", std::greater_equal<char>() ) );
 
         // array :
-        oreg->add( newUnaryOperator( "array", array_ctor() ) );
         oreg->add( newBinaryOperator( "[]", array_index() ) );
         oreg->add( newBinaryOperator( "==", std::equal_to<const std::vector<double>&>() ) );
         oreg->add( newBinaryOperator( "!=", std::not_equal_to<const std::vector<double>&>() ) );
