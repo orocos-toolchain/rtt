@@ -76,11 +76,11 @@ namespace RTT
          */
         template<class F>
         struct CommandBase
-            : public InvokerBaseImpl<boost::function_traits<F>::arity, F, typename boost::function_traits<F>::result_type>,
+            : public InvokerBase<F>,
               public DispatchInterface
         {
             virtual ~CommandBase() {}
-            virtual CommandBase<F>* clone() const = 0;
+            virtual CommandBase<F>* cloneI() const = 0;
         };
 
         /**
@@ -89,11 +89,11 @@ namespace RTT
          */
         template<class F>
         struct MethodBase
-            : public InvokerBaseImpl<boost::function_traits<F>::arity, F, typename boost::function_traits<F>::result_type>,
+            : public InvokerBase<F>,
               public ActionInterface
         {
             virtual ~MethodBase() {}
-            virtual MethodBase<F>* clone() const = 0;
+            virtual MethodBase<F>* cloneI() const = 0;
         };
 
         template<int, class F, class BaseImpl>
@@ -101,7 +101,7 @@ namespace RTT
         
         template<class F, class BaseImpl>
         struct InvokerImpl<0,F,BaseImpl>
-            : public InvokerBase<F>, public BaseImpl
+            : public BaseImpl
         {
             typedef typename boost::function_traits<F>::result_type result_type;
             /**
@@ -109,13 +109,13 @@ namespace RTT
              */
             result_type operator()()
             {
-                return BaseImpl::operator()();
+                return BaseImpl::invoke();
             }
         };
 
         template<class F, class BaseImpl>
         struct InvokerImpl<1,F,BaseImpl>
-            : public InvokerBase<F>, public BaseImpl
+            : public BaseImpl
         {
             typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
@@ -124,13 +124,13 @@ namespace RTT
              */
             result_type operator()(arg1_type a1)
             {
-                return BaseImpl::template operator()<arg1_type>( a1 );
+                return BaseImpl::template invoke<arg1_type>( a1 );
             }
         };
 
         template<class F, class BaseImpl>
         struct InvokerImpl<2,F,BaseImpl>
-            : public InvokerBase<F>, public BaseImpl
+            : public BaseImpl
         {
             typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
@@ -141,14 +141,14 @@ namespace RTT
              */
             result_type operator()(arg1_type t1, arg2_type t2)
             {
-                return BaseImpl::template operator()<arg1_type, arg2_type>(t1, t2);
+                return BaseImpl::template invoke<arg1_type, arg2_type>(t1, t2);
             }
 
         };
 
         template<class F, class BaseImpl>
         struct InvokerImpl<3,F,BaseImpl>
-            : public InvokerBase<F>, public BaseImpl
+            : public BaseImpl
         {
             typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
@@ -160,14 +160,14 @@ namespace RTT
              */
             result_type operator()(arg1_type t1, arg2_type t2, arg3_type t3)
             {
-                return BaseImpl::template operator()<arg1_type, arg2_type, arg3_type>(t1, t2, t3);
+                return BaseImpl::template invoke<arg1_type, arg2_type, arg3_type>(t1, t2, t3);
             }
 
         };
 
         template<class F, class BaseImpl>
         struct InvokerImpl<4,F,BaseImpl>
-            : public InvokerBase<F>, public BaseImpl
+            : public BaseImpl
         {
             typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
@@ -180,7 +180,7 @@ namespace RTT
              */
             result_type operator()(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4)
             {
-                return BaseImpl::template operator()<arg1_type, arg2_type, arg3_type, arg4_type>(t1, t2, t3, t4);
+                return BaseImpl::template invoke<arg1_type, arg2_type, arg3_type, arg4_type>(t1, t2, t3, t4);
             }
             
         };
@@ -213,11 +213,11 @@ namespace RTT
             InvokerSignature() : impl(0) {}
             InvokerSignature(ToInvoke* implementation) : impl(implementation) {}
             ~InvokerSignature() { delete impl; }
-            InvokerSignature(const InvokerSignature& c) : impl( c.impl ? c.impl->clone() : 0) {}
-            InvokerSignature& operator-(const InvokerSignature& c) {
+            InvokerSignature(const InvokerSignature& c) : impl( c.impl ? c.impl->cloneI() : 0) {}
+            InvokerSignature& operator=(const InvokerSignature& c) {
                 if ( impl == c.impl )
                     return *this; // self assignment or null.
-                impl = c.impl ? c.impl->clone() : 0;
+                impl = c.impl ? c.impl->cloneI() : 0;
                 return *this;
             }
 
@@ -243,11 +243,11 @@ namespace RTT
             InvokerSignature() : impl(0) {}
             InvokerSignature(ToInvoke* implementation) : impl(implementation) {}
             ~InvokerSignature() { delete impl; }
-            InvokerSignature(const InvokerSignature& c) : impl( c.impl ? c.impl->clone() : 0) {}
-            InvokerSignature& operator-(const InvokerSignature& c) {
+            InvokerSignature(const InvokerSignature& c) : impl( c.impl ? c.impl->cloneI() : 0) {}
+            InvokerSignature& operator=(const InvokerSignature& c) {
                 if ( impl == c.impl )
                     return *this; // self assignment or null.
-                impl = c.impl ? c.impl->clone() : 0;
+                impl = c.impl ? c.impl->cloneI() : 0;
                 return *this;
             }
 
@@ -275,11 +275,11 @@ namespace RTT
             InvokerSignature() : impl(0) {}
             InvokerSignature(ToInvoke* implementation) : impl(implementation) {}
             ~InvokerSignature() { delete impl; }
-            InvokerSignature(const InvokerSignature& c) : impl( c.impl ? c.impl->clone() : 0) {}
-            InvokerSignature& operator-(const InvokerSignature& c) {
+            InvokerSignature(const InvokerSignature& c) : impl( c.impl ? c.impl->cloneI() : 0) {}
+            InvokerSignature& operator=(const InvokerSignature& c) {
                 if ( impl == c.impl )
                     return *this; // self assignment or null.
-                impl = c.impl ? c.impl->clone() : 0;
+                impl = c.impl ? c.impl->cloneI() : 0;
                 return *this;
             }
 
@@ -308,11 +308,11 @@ namespace RTT
             InvokerSignature() : impl(0) {}
             InvokerSignature(ToInvoke* implementation) : impl(implementation) {}
             ~InvokerSignature() { delete impl; }
-            InvokerSignature(const InvokerSignature& c) : impl( c.impl ? c.impl->clone() : 0) {}
-            InvokerSignature& operator-(const InvokerSignature& c) {
+            InvokerSignature(const InvokerSignature& c) : impl( c.impl ? c.impl->cloneI() : 0) {}
+            InvokerSignature& operator=(const InvokerSignature& c) {
                 if ( impl == c.impl )
                     return *this; // self assignment or null.
-                impl = c.impl ? c.impl->clone() : 0;
+                impl = c.impl ? c.impl->cloneI() : 0;
                 return *this;
             }
 
@@ -342,11 +342,11 @@ namespace RTT
             InvokerSignature() : impl(0) {}
             InvokerSignature(ToInvoke* implementation) : impl(implementation) {}
             ~InvokerSignature() { delete impl; }
-            InvokerSignature(const InvokerSignature& c) : impl( c.impl ? c.impl->clone() : 0) {}
-            InvokerSignature& operator-(const InvokerSignature& c) {
+            InvokerSignature(const InvokerSignature& c) : impl( c.impl ? c.impl->cloneI() : 0) {}
+            InvokerSignature& operator=(const InvokerSignature& c) {
                 if ( impl == c.impl )
                     return *this; // self assignment or null.
-                impl = c.impl ? c.impl->clone() : 0;
+                impl = c.impl ? c.impl->cloneI() : 0;
                 return *this;
             }
 

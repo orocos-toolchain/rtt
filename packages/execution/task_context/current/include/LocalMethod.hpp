@@ -27,12 +27,10 @@ namespace RTT
                 return false;
             }
 
-            using MethodBase<FunctionT>::operator();
-                
             /**
              * Invoke this operator if the method has no arguments.
              */
-            result_type operator()()
+            result_type invoke()
             {
                 return mmeth();
             }
@@ -41,7 +39,7 @@ namespace RTT
              * Invoke this operator if the method has one argument.
              */
             template<class T1>
-            result_type operator()(T1 t)
+            result_type invoke(T1 t)
             {
                 return mmeth(t);
             }
@@ -50,7 +48,7 @@ namespace RTT
              * Invoke this operator if the method has two arguments.
              */
             template<class T1, class T2>
-            result_type operator()(T1 t1, T2 t2)
+            result_type invoke(T1 t1, T2 t2)
             {
                 return mmeth(t1, t2);
             }
@@ -59,7 +57,7 @@ namespace RTT
              * Invoke this operator if the method has three arguments.
              */
             template<class T1, class T2, class T3>
-            result_type operator()(T1 t1, T2 t2, T3 t3)
+            result_type invoke(T1 t1, T2 t2, T3 t3)
             {
                 return mmeth(t1, t2, t3);
             }
@@ -68,7 +66,7 @@ namespace RTT
              * Invoke this operator if the method has four arguments.
              */
             template<class T1, class T2, class T3, class T4>
-            result_type operator()(T1 t1, T2 t2, T3 t3, T4 t4)
+            result_type invoke(T1 t1, T2 t2, T3 t3, T4 t4)
             {
                 return mmeth(t1, t2, t3, t4);
             }
@@ -131,7 +129,12 @@ namespace RTT
                 return this->mmeth;
             }
 
-            LocalMethod<Signature>* clone() const
+            ActionInterface* clone() const
+            {
+                return new LocalMethod<Signature>(*this);
+            }
+
+            MethodBase<Signature>* cloneI() const
             {
                 return new LocalMethod<Signature>(*this);
             }

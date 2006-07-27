@@ -47,7 +47,7 @@ namespace RTT
              * 
              * @return true if ready and succesfully queued.
              */
-            bool operator()() {
+            bool invoke() {
                 if (!mcp ||(minvoked && !this->evaluate()) ) // if invoked and not ready.
                     return false;
                 this->reset();
@@ -56,7 +56,7 @@ namespace RTT
             }
 
             template<class T1>
-            bool operator()( T1 a1 ) {
+            bool invoke( T1 a1 ) {
                 if (!mcp ||(minvoked && !this->evaluate()) ) // if invoked and not ready.
                     return false;
                 this->reset();
@@ -67,7 +67,7 @@ namespace RTT
             }
 
             template<class T1, class T2>
-            bool operator()( T1 a1, T2 a2 ) {
+            bool invoke( T1 a1, T2 a2 ) {
                 if (!mcp ||(minvoked && !this->evaluate()) ) // if invoked and not ready.
                     return false;
                 this->reset();
@@ -78,7 +78,7 @@ namespace RTT
             }
 
             template<class T1, class T2, class T3>
-            bool operator()( T1 a1, T2 a2, T3 a3 ) {
+            bool invoke( T1 a1, T2 a2, T3 a3 ) {
                 if (!mcp ||(minvoked && !this->evaluate()) ) // if invoked and not ready.
                     return false;
                 this->reset();
@@ -89,7 +89,7 @@ namespace RTT
             }
 
             template<class T1, class T2, class T3, class T4>
-            bool operator()( T1 a1, T2 a2, T3 a3, T4 a4 ) {
+            bool invoke( T1 a1, T2 a2, T3 a3, T4 a4 ) {
                 if (!mcp ||(minvoked && !this->evaluate()) ) // if invoked and not ready.
                     return false;
                 this->reset();
@@ -187,7 +187,7 @@ namespace RTT
             }
 
             virtual bool execute() {
-                this->mvalid = this->invoke();
+                this->mvalid = this->exec();
                 this->mexec = true;
                 return this->mvalid;
             }
@@ -235,7 +235,11 @@ namespace RTT
              * 
              * @return 
              */
-            virtual LocalCommand* clone() const {
+            virtual DispatchInterface* clone() const {
+                return new LocalCommand(*this);
+            }
+
+            virtual CommandBase<CommandT>* cloneI() const {
                 return new LocalCommand(*this);
             }
 

@@ -333,30 +333,30 @@ namespace RTT
             typedef bool result_type;
 
             // stores the original function pointer
-            boost::function<ToBind> invoke;
+            boost::function<ToBind> exec;
             boost::function<ToBind> check;
 
             template<class F, class C, class ObjectType>
             void setup(F f, C c, ObjectType t)
             {
-                invoke = quickbind<F,ObjectType>( f, t); // allocates
+                exec = quickbind<F,ObjectType>( f, t); // allocates
                 check  = quickbind<C,ObjectType>( c, t); // allocates
             }
 
             template<class F, class C>
             void setup(F f, C c)
             {
-                invoke = f;
+                exec = f;
                 check = c;
             }
 
             void setup(boost::function<ToBind> f, boost::function<ToBind> c)
             {
-                invoke = f;
+                exec = f;
                 check = c;
             }
 
-            boost::function<ToBind> command() const {return invoke;}
+            boost::function<ToBind> command() const {return exec;}
             boost::function<ToBind> condition() const {return check;}
         };
 
@@ -377,7 +377,7 @@ namespace RTT
             mutable AStore<arg1_type> a1;
 
             void store(arg1_type t1) { a1(t1); }
-            bool invoke() { return comm( a1() ); }
+            bool exec() { return comm( a1() ); }
             bool check() const { return cond( a1() ); }
 
             /**
@@ -423,7 +423,7 @@ namespace RTT
             mutable AStore<arg2_type> a2;
 
             void store(arg1_type t1, arg2_type t2) { a1(t1); a2(t2); }
-            bool invoke() { return comm( a1(), a2() ); }
+            bool exec() { return comm( a1(), a2() ); }
             bool check() const { return cond( a1(), a2() ); }
 
             template<class F, class C, class ObjectType>
@@ -467,7 +467,7 @@ namespace RTT
             mutable AStore<arg3_type> a3;
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3) { a1(t1); a2(t2); a3(t3); }
-            bool invoke() { return comm( a1(), a2(), a3() ); }
+            bool exec() { return comm( a1(), a2(), a3() ); }
             bool check() const { return cond( a1(), a2(), a3() ); }
 
             template<class F, class C, class ObjectType>
@@ -500,7 +500,7 @@ namespace RTT
             mutable AStore<arg4_type> a4;
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4) { a1(t1); a2(t2); a3(t3); a4(t4); }
-            bool invoke() { return comm( a1(), a2(), a3(), a4() ); }
+            bool exec() { return comm( a1(), a2(), a3(), a4() ); }
             bool check() const { return cond( a1(), a2(), a3(), a4() ); }
 
             template<class F, class C, class ObjectType>

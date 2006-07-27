@@ -39,30 +39,30 @@ namespace RTT
              * 
              * @return true if ready and succesfully sent.
              */
-            bool operator()() {
+            bool invoke() {
                 return mcom.execute();
             }
 
             template<class T1>
-            bool operator()( T1 a1 ) {
+            bool invoke( T1 a1 ) {
                 this->store( a1 );
                 return mcom.execute();
             }
 
             template<class T1, class T2>
-            bool operator()( T1 a1, T2 a2 ) {
+            bool invoke( T1 a1, T2 a2 ) {
                 this->store( a1, a2 );
                 return mcom.execute();
             }
 
             template<class T1, class T2, class T3>
-            bool operator()( T1 a1, T2 a2, T3 a3 ) {
+            bool invoke( T1 a1, T2 a2, T3 a3 ) {
                 this->store( a1, a2, a3 );
                 return mcom.execute();
             }
 
             template<class T1, class T2, class T3, class T4>
-            bool operator()( T1 a1, T2 a2, T3 a3, T4 a4 ) {
+            bool invoke( T1 a1, T2 a2, T3 a3, T4 a4 ) {
                 this->store( a1, a2, a3, a4 );
                 return mcom.execute();
             }
@@ -146,7 +146,11 @@ namespace RTT
              * 
              * @return 
              */
-            virtual RemoteCommand* clone() const {
+            virtual DispatchInterface* clone() const {
+                return new RemoteCommand(*this);
+            }
+
+            virtual CommandBase<CommandT>* cloneI() const {
                 return new RemoteCommand(*this);
             }
         };
