@@ -198,7 +198,7 @@ compilation times."
 		flavor data
 		no_define
 		active_if { OROBLD_OS_OPTIMIZE == "Execution" }
-		default_value  { "-O2 -DNDEBUG" }
+		default_value  { "-O2" }
 	}
     }
 
