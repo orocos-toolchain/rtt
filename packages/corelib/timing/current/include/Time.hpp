@@ -31,7 +31,7 @@
 #include <cmath>
 
 /**
- * @defgroup CoreLibTime Core Library Time classes.
+ * @defgroup CoreLibTime Time measurement classes.
  * @ingroup CoreLib
  * Time measurement and time keeping.
  */

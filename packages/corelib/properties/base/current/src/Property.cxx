@@ -33,6 +33,7 @@
 
 namespace RTT {
 
+#ifndef ORO_EMBEDDED
      template class Property<double>;
      template class Property<bool>;
      template class Property<float>;
@@ -42,6 +43,7 @@ namespace RTT {
      template class Property<const std::string&>;
 #ifdef OROINT_OS_CORBA
      template class Property<CORBA::Any>;
+#endif
 #endif
 
     template<>

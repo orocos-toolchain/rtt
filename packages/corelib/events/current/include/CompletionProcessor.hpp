@@ -20,22 +20,21 @@
 #ifndef COMPLETIONPROCESSOR_HPP
 #define COMPLETIONPROCESSOR_HPP
 
-#include "os/Mutex.hpp"
 #include "NonPeriodicActivity.hpp"
 
 namespace RTT
 {
     /**
-     * @brief Complete queued events, meaning to execute the completer methods 
-     * in a separate thread.
-     *
-     * Each asynchronous operation of the system will be executed in the
-     * thread of the CompletionProcessor. Because of the nature of asynchronosity,
-     * the CompletionProcessor is considered non realtime, and so is all
-     * code executed in its queue.
-     *
-     * The completion processor is used for all blocking / not-realtime
-     * operations, you can do whatever you want inhere.
+     * @brief An activity which executes asynchronous (defered) handlers
+     * of Events.
+     * 
+     * This is an utility class which can be used to execute Event 
+     * callback functions in a thread. It's purpose is to allow a way
+     * to process not real-time event callback functions, without
+     * disturbing the emitor of the event.
+     * If the user requires a 
+     * not real-time, complex or lengthy callback execution, it can
+     * be done in this activity.
      *
      * @ingroup CoreLibEvents
      */
@@ -50,7 +49,6 @@ namespace RTT
 
         /**
          * Releases the CompletionProcessor
-         * Reference counting might aid in making this call safe
          *
          * @return true on success, false on failure
          */

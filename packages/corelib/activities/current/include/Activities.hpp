@@ -33,7 +33,7 @@
  */
 
 /**
- * @defgroup CoreLibActivities Core Library Activity (thread) classes.
+ * @defgroup CoreLibActivities Activity (thread) classes.
  * @ingroup CoreLib
  * Activities execute functions in a thread.
  */

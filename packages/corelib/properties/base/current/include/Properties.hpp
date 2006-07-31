@@ -33,9 +33,9 @@
  */
 
 /**
- * @defgroup CoreLibProperties Core Library Property (name-value) classes.
+ * @defgroup CoreLibProperties Property (name-value) classes.
  * @ingroup CoreLib
- * Properties can be hierarchically stored in bags and be
+ * Properties can be hierarchically stored and be
  * introspected for their type and contents. Properties can
  * be (de-)serialised using Marshallers and Demarshallers.
  */

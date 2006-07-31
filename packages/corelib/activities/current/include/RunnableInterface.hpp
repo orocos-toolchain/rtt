@@ -45,6 +45,7 @@ namespace RTT
      * and EventProcessor. Consequently, initialize() knows whether
      * step() or loop() will be called ( depending on ActivityInterface::isPeriodic() ).
      * @see ActivityInterface
+     * @ingroup CoreLibActivities
      */
     class RunnableInterface
         : public OS::RunnableInterface

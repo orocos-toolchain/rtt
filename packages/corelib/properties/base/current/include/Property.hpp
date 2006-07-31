@@ -409,6 +409,7 @@ namespace RTT
         return 0;
     }
 
+#ifndef ORO_EMBEDDED
     extern template class Property<double>;
     extern template class Property<bool>;
     extern template class Property<float>;
@@ -418,6 +419,7 @@ namespace RTT
     extern template class Property<const std::string &>;
 #ifdef OROINT_OS_CORBA
     extern template class Property<CORBA::Any>;
+#endif
 #endif
 }
 

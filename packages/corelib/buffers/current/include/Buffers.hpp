@@ -32,9 +32,10 @@
  * RTT buffers package.
  */
 /**
- * @defgroup CoreLibBufferss Core Library thread-safe Buffer, DataObject, List classes.
+ * @defgroup CoreLibBufferss Data Transfer classes.
  * @ingroup CoreLib
- * Thread-safe implementations of data container objects.
+ * Thread-safe implementations of data container objects
+ * such as Buffers, DataObjects and Lists.
  */
 
 #include "BufferLockFree.hpp"
