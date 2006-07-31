@@ -40,7 +40,11 @@ namespace RTT
 
     /**
      * @brief A DataObjectInterface extends the AssignableDataSource with
-     * implementations of multi-threaded read/write solutions.
+     * implementations of multi-threaded read/write solutions. It is initially not
+     * reference counted, such that DataObjects may be created on the stack.
+     * Store a DataObject in a shared_ptr and use this->deref() to get a reference counted version.
+     * This dual policy was introduced to be consistent with the other buffer
+     * implementations.
      *
      * @see DataObject
      * @param T The \a DataType which can be Get() or Set() with this DataObject.
@@ -50,11 +54,21 @@ namespace RTT
     struct DataObjectInterface
         : public AssignableDataSource<T>
     {
+        /**
+         * If you plan to use a reference counted DataObject, use this
+         * type to store it and apply this->deref() to enable reference counting.
+         */
         typedef typename boost::intrusive_ptr<DataObjectInterface<T> > shared_ptr;
 
         /**
-         * Destructor. Since the DataObjectInterface has become a DataSource (Orocos 0.20.0)
-         * This will become protected in upcomming releases.
+         * Create a DataObject which is initially not reference counted.
+         */
+        DataObjectInterface() {
+            this->ref();
+        }
+
+        /**
+         * Destructor.
          */
         virtual ~DataObjectInterface() {}
 

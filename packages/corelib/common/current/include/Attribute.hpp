@@ -105,11 +105,9 @@ namespace RTT
          * @see ready() to check if \a ab was accepted.
          */
         Attribute( AttributeBase* ab)
-            : AttributeBase( ab->getName() )
+            : AttributeBase( ab->getName() ),
+              data( AssignableDataSource<T>::narrow( ab->getDataSource().get() ) )
         {
-            Attribute<T>* a = dynamic_cast<Attribute<T>*>(ab);
-            if (a)
-                data = a->getAssignableDataSource();
         }
 
         /**
