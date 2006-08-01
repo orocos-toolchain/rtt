@@ -31,8 +31,8 @@
 
 #include "MethodFactoryInterface.hpp"
 
-#define MEMBER method
-#define MEMBER_DS method_ds
+#define MEMBER member
+#define MEMBER_DS member_ds
 #define MEMBER_CONST
 #define FACTORY_INTERFACE MethodFactoryInterface
 #define TEMPLATE_FACTORY_NAME TemplateMethodFactory

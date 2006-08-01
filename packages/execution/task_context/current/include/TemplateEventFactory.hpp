@@ -48,9 +48,6 @@ namespace RTT{
 
     namespace detail {
 
-        
-        
-
         /**
          * Create end-user event handles.
          * An EventHook is dedicated to \b 1 Event with \b 1 SYN and/or ASYN
@@ -402,7 +399,7 @@ namespace RTT{
                 return new TemplateFactoryFunctorPart0<EventT,EventHookBase*,EventHookGenerator>( EventHookGenerator(), "Event Hook" );
             }
             TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
-                return method<EventT,typename EventT::emit_type>(&EventT::emit, "Event Emittor");
+                return member<EventT,typename EventT::emit_type>(&EventT::emit, "Event Emittor");
             }
         };
         
@@ -419,7 +416,7 @@ namespace RTT{
                 }
 
                 TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
-                    return method<EventT,typename EventT::emit_type, typename EventT::arg1_type>(&EventT::emit, "Event Emittor",
+                    return member<EventT,typename EventT::emit_type, typename EventT::arg1_type>(&EventT::emit, "Event Emittor",
                                   "arg1", "description");
                 }
         };
@@ -438,7 +435,7 @@ namespace RTT{
                 }
 
                 TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
-                    return method<EventT,typename EventT::emit_type, typename EventT::arg1_type, typename EventT::arg2_type>(&EventT::emit, "Event Emittor",
+                    return member<EventT,typename EventT::emit_type, typename EventT::arg1_type, typename EventT::arg2_type>(&EventT::emit, "Event Emittor",
                                   "arg1", "description",
                                   "arg2", "description");
                 }
@@ -460,7 +457,7 @@ namespace RTT{
                 }
 
                 TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
-                    return method<EventT,typename EventT::emit_type, typename EventT::arg1_type, typename EventT::arg2_type, 
+                    return member<EventT,typename EventT::emit_type, typename EventT::arg1_type, typename EventT::arg2_type, 
                         typename EventT::arg3_type>(&EventT::emit, "Event Emittor",
                                   "arg1", "description",
                                   "arg2", "description",

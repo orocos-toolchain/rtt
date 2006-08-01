@@ -1190,7 +1190,6 @@ namespace RTT
    * This is the DataSource factory class that is generated
    * by the newDataSourceFactory function..  Use the helper function
    * newDataSourceFactory.
-   * @ingroup objectFactory
    */
   template<typename ComponentT>
   class TEMPLATE_FACTORY_NAME
@@ -1281,8 +1280,6 @@ namespace RTT
 
 
   /**
-   * @defgroup data_factories DataSource Part Factory Functions
-   * @ingroup partFunctions
    * The data function is the function you should use to specify a
    * certain property to be added to your TemplateDataSourceFactory..
    * Several overloads are provided, for supporting various numbers of
