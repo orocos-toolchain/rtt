@@ -46,7 +46,6 @@ namespace RTT
         class TimerInterface;
     }
     class PeriodicActivity;
-    class EventProcessor;
     class TimerThread;
 
     /**
@@ -94,7 +93,6 @@ namespace RTT
          */
         detail::TimerInterface* timerGet( Seconds period ) const;
 
-        EventProcessor* getEventProcessor() const { return eproc; }
         /**
          * Create a TimerThread with a given priority and periodicity.
          */
@@ -113,11 +111,6 @@ namespace RTT
          * @see Timer
          */ 
         TimerList clocks;
-
-        /**
-         * The EventProcessor of this Thread.
-         */
-        EventProcessor* eproc;
 
         /**
          * A Activity can not create a activity of same priority from step().

@@ -27,6 +27,7 @@
 #include <rtt/TimerThread.hpp>
 #include <rtt/ZeroLatencyThread.hpp>
 #include <rtt/SimulationThread.hpp>
+#include <rtt/os/MainThread.hpp>
 #include <rtt/Logger.hpp>
 
 using namespace std;
@@ -248,8 +249,7 @@ void ActivitiesThreadTest::testSlave()
     CPPUNIT_ASSERT( mtask.isPeriodic() == false );
     CPPUNIT_ASSERT( mtask.getPeriod() == 0.0 );
     CPPUNIT_ASSERT( mtask.trigger() == false );
-    CPPUNIT_ASSERT( mtask.thread() != 0 );
-    CPPUNIT_ASSERT( mtask.getEventProcessor() != 0 );
+    CPPUNIT_ASSERT( mtask.thread() == OS::MainThread::Instance() );
 
     // starting...
     CPPUNIT_ASSERT( mtask.start() == true );
@@ -283,7 +283,6 @@ void ActivitiesThreadTest::testSlave()
     CPPUNIT_ASSERT_EQUAL( mslave.getPeriod(), t_task_np->getPeriod() );
     CPPUNIT_ASSERT( mslave.trigger() == false );
     CPPUNIT_ASSERT( mslave.thread() == t_task_np->thread() );
-    CPPUNIT_ASSERT( mslave.getEventProcessor() == t_task_np->getEventProcessor() );
 
     CPPUNIT_ASSERT( !mslave.start() );
     CPPUNIT_ASSERT( t_task_np->start() );
@@ -313,6 +312,7 @@ void ActivitiesThreadTest::testSlave()
     CPPUNIT_ASSERT( mslave_p.isPeriodic() == true );
     CPPUNIT_ASSERT( mslave_p.getPeriod() == 0.001 );
     CPPUNIT_ASSERT( mslave_p.trigger() == false );
+    CPPUNIT_ASSERT( mslave_p.thread() == OS::MainThread::Instance() );
 
     CPPUNIT_ASSERT( mslave_p.start() );
     CPPUNIT_ASSERT( r.init == true );

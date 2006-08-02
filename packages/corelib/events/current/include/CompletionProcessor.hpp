@@ -21,6 +21,7 @@
 #define COMPLETIONPROCESSOR_HPP
 
 #include "NonPeriodicActivity.hpp"
+#include "EventProcessor.hpp"
 
 namespace RTT
 {
@@ -39,7 +40,8 @@ namespace RTT
      * @ingroup CoreLibEvents
      */
     class CompletionProcessor 
-        : public NonPeriodicActivity
+        : public EventProcessor, 
+          public NonPeriodicActivity
     {
     public:
         /**
@@ -54,7 +56,7 @@ namespace RTT
          */
         static bool Release();
 
-        protected:
+    protected:
 
         /**
          * Constructor

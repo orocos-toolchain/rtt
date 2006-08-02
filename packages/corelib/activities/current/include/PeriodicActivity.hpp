@@ -79,14 +79,8 @@ namespace RTT
          *        The periodicity of the PeriodicActivity
          * @param r
          *        The optional RunnableInterface to run exclusively within this Activity
-         * @param private_event_processor
-         *        If true, PeriodicActivity creates its own EventProcessor
-         *        which will be started and stopped together with
-         *        the activity, thus it will only handle asynchronous events if this activity is running.
-         *        If false, \a thread's EventProcessor will be used instead and will handle asynchronous events
-         *        as long as \a thread is running.
          */
-        PeriodicActivity(int priority, Seconds period, RunnableInterface* r=0, bool private_event_processor = false );
+        PeriodicActivity(int priority, Seconds period, RunnableInterface* r=0 );
 
         /**
          * @brief Create a Periodic Activity executing in a given thread.
@@ -96,14 +90,8 @@ namespace RTT
          *        will be the same as \a thread. 
          * @param r
          *        The optional RunnableInterface to run exclusively within this Activity
-         * @param private_event_processor
-         *        If true, PeriodicActivity creates its own EventProcessor
-         *        which will be started and stopped together with
-         *        the activity, thus it will only handle asynchronous events if this activity is running.
-         *        If false, \a thread's EventProcessor will be used instead and will handle asynchronous events
-         *        as long as \a thread is running.
          */
-        PeriodicActivity(TimerThreadPtr thread, RunnableInterface* r=0, bool private_event_processor = false );
+        PeriodicActivity(TimerThreadPtr thread, RunnableInterface* r=0);
 
         /**
          * @brief Create a Periodic Activity with a given period and thread.
@@ -115,14 +103,8 @@ namespace RTT
          *        multiple of the thread's period.
          * @param r
          *        The optional RunnableInterface to run exclusively within this Activity
-         * @param private_event_processor
-         *        If true, PeriodicActivity creates its own EventProcessor
-         *        which will be started and stopped together with
-         *        the activity, thus it will only handle asynchronous events if this activity is running.
-         *        If false, \a thread's EventProcessor will be used instead and will handle asynchronous events
-         *        as long as \a thread is running.
          */
-        PeriodicActivity(Seconds period, TimerThreadPtr thread, RunnableInterface* r=0, bool private_event_processor = false );
+        PeriodicActivity(Seconds period, TimerThreadPtr thread, RunnableInterface* r=0 );
 
         /**
          * @brief Create a Periodic Activity with a given period and thread.
@@ -136,14 +118,8 @@ namespace RTT
          *        multiple of the thread's period.
          * @param r
          *        The optional RunnableInterface to run exclusively within this Activity
-         * @param private_event_processor
-         *        If true, PeriodicActivity creates its own EventProcessor
-         *        which will be started and stopped together with
-         *        the activity, thus it will only handle asynchronous events if this activity is running.
-         *        If false, \a thread's EventProcessor will be used instead and will handle asynchronous events
-         *        as long as \a thread is running.
          */
-        PeriodicActivity(secs sec, nsecs nsec, TimerThreadPtr thread, RunnableInterface* r=0, bool private_event_processor = false );
+        PeriodicActivity(secs sec, nsecs nsec, TimerThreadPtr thread, RunnableInterface* r=0 );
 
         /**
          * Stops and terminates a PeriodicActivity
@@ -174,8 +150,6 @@ namespace RTT
         virtual Seconds getPeriod() const;
 
         virtual OS::ThreadInterface* thread();
-
-        virtual EventProcessor* getEventProcessor() const;
 
         /**
          * @see RunnableInterface::initialize()
@@ -224,11 +198,6 @@ namespace RTT
          * The thread which runs this activity.
          */
         TimerThreadPtr thread_;
-
-        /**
-         * The thread which runs this activity.
-         */
-        EventProcessor* eprocessor_;
 
         /**
          * The timer which steps this activity.

@@ -31,7 +31,6 @@
 
 #include "ActivityInterface.hpp"
 #include "RunnableInterface.hpp"
-#include "EventProcessor.hpp"
 #include "os/SingleThread.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
@@ -45,10 +44,7 @@ namespace RTT
      * @brief A ActivityInterface implementation which is run in a SingleThread.
      *
      * By default, (if no RunnableInterface is given and no overloads
-     * are present ) \a loop() will block for Events to be processed and
-     * can be stopped by calling stop(). To check for events from your overloads or the RunnableInterface,
-     * call this->processor()->step(), for non blocking checks and this->processor()->loop() for blocking
-     * on Events.
+     * are present ) loop() returns immediately.
      * @ingroup CoreLibActivities
      */
     class NonPeriodicActivity
@@ -92,8 +88,6 @@ namespace RTT
 
         virtual Seconds getPeriod() const ;
 
-        virtual EventProcessor* getEventProcessor() const ;
-
         virtual ThreadInterface* thread();
 
         virtual bool initialize();
@@ -117,7 +111,6 @@ namespace RTT
         virtual bool isActive() const;
 
     private:
-        BlockingEventProcessor* proc;
         RunnableInterface*      runner;
 };
 

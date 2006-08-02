@@ -30,13 +30,13 @@
 namespace RTT
 {
     
-    NonPreemptibleActivity::NonPreemptibleActivity(Seconds period, RunnableInterface* r, bool pep )
-        :PeriodicActivity(period, ZeroTimeThread::Instance(), r, pep)
+    NonPreemptibleActivity::NonPreemptibleActivity(Seconds period, RunnableInterface* r)
+        :PeriodicActivity(period, ZeroTimeThread::Instance(), r)
     {
     }
 
-    NonPreemptibleActivity::NonPreemptibleActivity(secs sec, nsecs nsec, RunnableInterface* r, bool pep )
-        :PeriodicActivity(sec, nsec, ZeroTimeThread::Instance(), r, pep)
+    NonPreemptibleActivity::NonPreemptibleActivity(secs sec, nsecs nsec, RunnableInterface* r)
+        :PeriodicActivity(sec, nsec, ZeroTimeThread::Instance(), r)
     {
     }
 

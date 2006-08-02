@@ -87,8 +87,6 @@ namespace RTT
 
         Seconds getPeriod() const;
 
-        EventProcessor* getEventProcessor() const;
-
         OS::ThreadInterface* thread();
 
         bool initialize();

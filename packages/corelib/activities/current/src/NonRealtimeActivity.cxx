@@ -30,13 +30,13 @@
 namespace RTT
 {
     
-    NonRealTimeActivity::NonRealTimeActivity(Seconds period, RunnableInterface* r, bool pep )
-        :PeriodicActivity(period, NonRealTimeThread::Instance(), r, pep)
+    NonRealTimeActivity::NonRealTimeActivity(Seconds period, RunnableInterface* r)
+        :PeriodicActivity(period, NonRealTimeThread::Instance(), r)
     {
     }
 
-    NonRealTimeActivity::NonRealTimeActivity(secs sec, nsecs nsec, RunnableInterface* r, bool pep )
-        :PeriodicActivity(sec, nsec, NonRealTimeThread::Instance(), r, pep)
+    NonRealTimeActivity::NonRealTimeActivity(secs sec, nsecs nsec, RunnableInterface* r)
+        :PeriodicActivity(sec, nsec, NonRealTimeThread::Instance(), r)
     {
     }
 

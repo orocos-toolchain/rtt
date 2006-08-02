@@ -31,7 +31,6 @@
 #include "rtt/TimeService.hpp"
 #include "rtt/SimulationActivity.hpp"
 #include "rtt/Logger.hpp"
-#include "rtt/EventProcessor.hpp"
 #include <rtt/os/threads.hpp>
 
 #include "pkgconf/corelib_activities.h"
@@ -123,7 +122,6 @@ namespace RTT
 
         cursteps = 0;
         // No TimerThread::initialize() to allow 'freeze'
-        eproc->initialize();
         return true;
     }
 
@@ -135,7 +133,6 @@ namespace RTT
 
         // DO NOT CALL TimerThread::finalize(), since we want to be able to start/stop the
         // SimulationThread and inspect the activities still running.
-        eproc->finalize();
     }
 
     void SimulationThread::step()

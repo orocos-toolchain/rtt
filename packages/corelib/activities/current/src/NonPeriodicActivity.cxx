@@ -35,7 +35,7 @@
 namespace RTT
 {
     NonPeriodicActivity::NonPeriodicActivity(int priority, RunnableInterface* _r )
-        : OS::SingleThread(priority, "NonPeriodicActivity" ),proc( new BlockingEventProcessor() ),
+        : OS::SingleThread(priority, "NonPeriodicActivity" ),
           runner(_r)
     {
         if ( runner )
@@ -43,7 +43,7 @@ namespace RTT
     }
 
     NonPeriodicActivity::NonPeriodicActivity(int priority, const std::string& name, RunnableInterface* _r )
-        : OS::SingleThread(priority, name ),proc( new BlockingEventProcessor() ),
+        : OS::SingleThread(priority, name ),
           runner(_r)
     {
         if ( runner )
@@ -55,7 +55,6 @@ namespace RTT
         this->stop();
         if ( runner )
             runner->setActivity( 0 );
-        delete proc;
     }
 
     bool NonPeriodicActivity::run( RunnableInterface* r )
@@ -72,38 +71,30 @@ namespace RTT
 
     Seconds NonPeriodicActivity::getPeriod() const { return 0; }
 
-    EventProcessor* NonPeriodicActivity::getEventProcessor() const { return proc; }
-
     OS::ThreadInterface* NonPeriodicActivity::thread() { return this; }
 
     bool NonPeriodicActivity::isPeriodic() const { return false; }
 
     bool NonPeriodicActivity::initialize() {
-        bool result = proc->initialize();
-        if ( runner && result )
-            result = result && runner->initialize();
-        return  result;
+        if ( runner )
+            return runner->initialize();
+        return true;
     }
 
     void NonPeriodicActivity::loop() { 
         if ( runner )
             runner->loop();
-        else
-            proc->loop(); // block in EventProcessor.
     }
 
     bool NonPeriodicActivity::breakLoop() {
         if ( runner )
             return runner->breakLoop();
-        if ( proc )
-            return proc->breakLoop(); // return from EventProcessor.
         return true;
     }
 
     void NonPeriodicActivity::finalize() {
         if ( runner )
             runner->finalize();
-        proc->finalize();
     }
 
 

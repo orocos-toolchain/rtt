@@ -84,7 +84,7 @@ namespace RTT
 
     CompletionProcessor::CompletionProcessor()
         : NonPeriodicActivity( OS::LowestPriority + 2* OS::IncreasePriority, 
-                            ORODAT_CORELIB_EVENTS_CP_NAME )
+                               ORODAT_CORELIB_EVENTS_CP_NAME, this )
     {
         Logger::log() << Logger::Info << ORODAT_CORELIB_EVENTS_CP_NAME <<" created with priority ";
         Logger::log() << this->thread()->getPriority() <<Logger::endl;

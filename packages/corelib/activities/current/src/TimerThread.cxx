@@ -28,7 +28,6 @@
 #include "rtt/TimerThread.hpp"
 #include "rtt/PeriodicActivity.hpp"
 #include "rtt/TimerInterface.hpp"
-#include "rtt/EventProcessor.hpp"
 
 #include "pkgconf/corelib_activities.h"
 
@@ -77,7 +76,7 @@ namespace RTT
     }
 
     TimerThread::TimerThread(int priority, const std::string& name, double periodicity)
-        : PeriodicThread( priority, name, periodicity), eproc( new EventProcessor() )
+        : PeriodicThread( priority, name, periodicity)
     {
         // create one default timer for the tasks with this periodicity.
         TimerInterface* timer = 
@@ -98,7 +97,6 @@ namespace RTT
         TimerList::iterator itl;
         for (itl = clocks.begin(); itl != clocks.end(); ++itl)
             delete *itl; 
-        delete eproc;
     }
 
     bool TimerThread::initialize()
@@ -107,7 +105,6 @@ namespace RTT
         MutexLock locker(lock);
         for (itl = clocks.begin(); itl != clocks.end(); ++itl)
             (*itl)->start();
-        eproc->initialize();
         return true;
     }
 
@@ -122,8 +119,6 @@ namespace RTT
             for (itl = clocks.begin(); itl != clocks.end(); ++itl)
                 (*itl)->tick();
         }
-        // Execute event completion handlers :
-        eproc->step();
     }        
 
     void TimerThread::finalize()
@@ -132,7 +127,6 @@ namespace RTT
         MutexLock locker(lock);
         for (itl = clocks.begin(); itl != clocks.end(); ++itl)
             (*itl)->stop();
-        eproc->finalize();
     }
 
     TimerInterface* TimerThread::timerGet( Seconds period ) const {

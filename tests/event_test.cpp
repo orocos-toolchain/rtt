@@ -105,28 +105,34 @@ struct Runner : public RunnableInterface
     Event<void(int)>& e;
     Handle h;
     Runner( Event<void(int)>& e_ ) : e(e_) {}
+
+    BlockingEventProcessor ep;
+
     bool initialize() {
+        ep.initialize();
         result = false;
         // connect sync and async handler with event
         // and run async handler in thread of this task.
-        h = e.connect( bind(&Runner::handle,this, _1), bind(&Runner::complete,this,_1), this->getActivity() );
+        h = e.connect( bind(&Runner::handle,this, _1), bind(&Runner::complete,this,_1), &ep );
         return true;
     }
     void step() {
         e.fire( 123456 );
+        ep.step();
     }
 
     // blocking implementation
     void loop() {
         e.fire( 123456 );
-        this->getActivity()->getEventProcessor()->loop(); // wait for our own event.
+        ep.loop(); // wait for our own event.
     }
 
     bool breakLoop() {
-        return this->getActivity()->getEventProcessor()->breakLoop();
+        return ep.breakLoop();
     }
 
     void finalize() {
+        ep.finalize();
         h.disconnect();
     }
 
@@ -143,10 +149,13 @@ struct SelfRemover : public RunnableInterface
     Event<void(void)>& e;
     Handle h;
     SelfRemover( Event<void(void)>& e_ ) : e(e_) {}
+    
+    EventProcessor ep;
+
     bool initialize() {
         // connect sync and async handler with event
         // and run async handler in thread of this task.
-        h = e.setup( bind(&SelfRemover::handle,this), bind(&SelfRemover::complete,this), this->getActivity() );
+        h = e.setup( bind(&SelfRemover::handle,this), bind(&SelfRemover::complete,this), &ep );
         return true;
     }
     void step() {
@@ -154,6 +163,8 @@ struct SelfRemover : public RunnableInterface
         e.emit();
         // repeat for complete :
         h.connect();
+
+        ep.step();
     }
 
     void finalize() {
@@ -180,12 +191,15 @@ struct CrossRemover : public RunnableInterface
     Handle h;
     CrossRemover( Event<void(void)>& e_ ) : e(e_), count(0) {}
     int count;
+
+    EventProcessor ep;
+
     bool initialize() {
         // connect sync and async handler with event
         // and run async handler in thread of this task.
-        e.connect( bind(&CrossRemover::handle,this), bind(&CrossRemover::complete,this), this->getActivity() );
-        h = e.connect( bind(&CrossRemover::handle,this), bind(&CrossRemover::complete,this), this->getActivity() );
-        e.connect( bind(&CrossRemover::handle,this), bind(&CrossRemover::complete,this), this->getActivity() );
+        e.connect( bind(&CrossRemover::handle,this), bind(&CrossRemover::complete,this), &ep );
+        h = e.connect( bind(&CrossRemover::handle,this), bind(&CrossRemover::complete,this), &ep );
+        e.connect( bind(&CrossRemover::handle,this), bind(&CrossRemover::complete,this), &ep );
         return true;
     }
     void step() {
@@ -195,6 +209,7 @@ struct CrossRemover : public RunnableInterface
         h.disconnect(); // disconnect !
         // for asyn :
         count = 0;
+        ep.step();
     }
 
     void finalize() {

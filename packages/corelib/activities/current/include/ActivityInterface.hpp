@@ -33,7 +33,6 @@
 
 namespace RTT
 {
-    class EventProcessor;
     class RunnableInterface;
 
     /**
@@ -131,12 +130,6 @@ namespace RTT
          * allow external triggering.
          */
         virtual bool trigger() = 0;
-
-        /**
-         * Returns a pointer to the EventProcessor which will
-         * process the asynchronous Events of this activity. Will not be null.
-         */
-        virtual EventProcessor* getEventProcessor() const = 0;
 
         /**
          * Returns a pointer to the thread which will

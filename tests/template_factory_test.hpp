@@ -26,7 +26,6 @@
 #include <rtt/Parser.hpp>
 #include <rtt/CommandProcessor.hpp>
 #include <rtt/TaskContext.hpp>
-#include <rtt/Factories.hpp>
 #include <string>
 
 using namespace RTT;

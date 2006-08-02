@@ -24,7 +24,6 @@
 #include <sstream>
 #include <rtt/FunctionGraph.hpp>
 #include <rtt/SimulationThread.hpp>
-#include <rtt/TemplateFactories.hpp>
 #include <rtt/TaskBrowser.hpp>
 #include <rtt/Method.hpp>
 #include <rtt/Command.hpp>

@@ -42,7 +42,7 @@ namespace RTT
 
     EventProcessor* EventService::getEventProcessor() {
         return eeproc ? eeproc->getEventProcessor()
-            : (eproc ? eproc : CompletionProcessor::Instance()->getEventProcessor());
+            : (eproc ? eproc : CompletionProcessor::Instance());
     }
 
     bool EventService::hasEvent(const std::string& ename) const
@@ -106,14 +106,6 @@ namespace RTT
     Handle EventService::setupAsyn(const std::string& ename,
                                                 boost::function<void(void)> afunc,          
                                                 const std::vector<DataSourceBase::shared_ptr>& args,
-                                                ActivityInterface* t,
-                                                EventProcessor::AsynStorageType s_type) const {
-        return this->setupAsyn(ename, afunc, args, t->getEventProcessor(), s_type );
-    }
-        
-    Handle EventService::setupAsyn(const std::string& ename,
-                                                boost::function<void(void)> afunc,          
-                                                const std::vector<DataSourceBase::shared_ptr>& args,
                                                 EventProcessor* ep /* = CompletionProcessor::Instance()->getEventProcessor()*/,
                                                 EventProcessor::AsynStorageType s_type) const {
         if ( fact.count(ename) != 1 )
@@ -122,15 +114,6 @@ namespace RTT
 
         // ehi is stored _inside_ the connection object !
         return ehi->setupAsyn( afunc, ep, s_type ); 
-    }
-
-    Handle EventService::setupSynAsyn(const std::string& ename,
-                                                   boost::function<void(void)> sfunc,
-                                                   boost::function<void(void)> afunc,
-                                                   const std::vector<DataSourceBase::shared_ptr>& args,
-                                                   ActivityInterface* t,
-                                                   EventProcessor::AsynStorageType s_type) const {
-        return this->setupSynAsyn(ename, sfunc, afunc, args, t->getEventProcessor(), s_type );
     }
 
     Handle EventService::setupSynAsyn(const std::string& ename,

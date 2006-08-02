@@ -39,19 +39,28 @@ namespace RTT
 {
 
     /**
-     * The Orocos Event is a thread-safe wrapper around the signal class
-     * and extends its connection syntax with asynchronous event handling.
+     * The Orocos Event is a thread-safe publish-subscribe implementation
+     * and provides synchronous and asynchronous callback handling.
+     *
+     * Use connect() to immediately connect a callback function to this Event.
+     * The returned Handle object can be used to disconnect/reconnect it lateron.
+     *
+     * Use setup() to setup a connection of a callback function with this Event,
+     * but leave it in a dormant state. Use the returned Handle object and connect()
+     * to establish the connection.
+     *
+     * @param _Signature The function type signature of the callback functions
+     * this event will call. For example void(int, double) if you want the
+     * event to call a function 'void foo(int x, double y)';
      * @see The Orocos CoreLib manual for usage.
      * @ingroup CoreLibEvents
      */
     template<
-        typename _Signature, // function type R (T1, T2, ..., TN)
-        typename _SlotFunction = boost::function<_Signature>
+        typename _Signature // function type R (T1, T2, ..., TN)
     >
     class Event
-        : public sigslot::signal<_Signature, _SlotFunction>,
-          private NameServerRegistrator<Event<_Signature,
-                                              _SlotFunction>*>
+        : public sigslot::signal<_Signature, boost::function<_Signature> >,
+          private NameServerRegistrator<Event<_Signature>*>
     {
     protected:
         std::string mname;
@@ -61,20 +70,19 @@ namespace RTT
          */
         typedef EventProcessor::AsynStorageType AsynStorageType;
 
-        typedef typename sigslot::signal<
-            _Signature,
-            _SlotFunction>::base_type signal_type;
+        typedef boost::function<_Signature> SlotFunction;
 
         typedef typename sigslot::signal<
             _Signature,
-            _SlotFunction> signal_base_type;
+            SlotFunction>::base_type signal_type;
 
-        typedef Event<
+        typedef typename sigslot::signal<
             _Signature,
-            _SlotFunction> EventType;
+            SlotFunction> signal_base_type;
+
+        typedef Event<_Signature> EventType;
 
         typedef _Signature Signature;
-        typedef _SlotFunction SlotFunction;
 
         /**
          * The result type of the function signature.
@@ -98,7 +106,6 @@ namespace RTT
 
         /**
          * Create a Synchronous/Asynchronous Event.
-         * @deprecated You must specify
          */
         Event()
             : signal_base_type()
@@ -122,49 +129,17 @@ namespace RTT
         /**
          * @brief Connect an Asynchronous event slot to this event.
          */
-        Handle connect( const SlotFunction& l, ActivityInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
-        {
-            return this->connect( l, task->getEventProcessor(), t );
-        }
-
-        /**
-         * @brief Connect an Asynchronous event slot to this event.
-         */
         Handle connect( const SlotFunction& l, EventProcessor* ep, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
         {
             return Handle( ep->connect( l, *this, t ) );
         }
 
         /**
-         * @brief Connect an Asynchronous event slot to this event.
-         */
-        Handle connect( const SlotFunction& l, TimerThread* tt, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
-        {
-            return Handle( tt->getEventProcessor()->connect( l, *this, t ) );
-        }
-
-        /**
          * @brief Connect a Synchronous and Asynchronous event slot to this event.
          */
-        Handle connect( const SlotFunction& l, const SlotFunction& c, ActivityInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
-        {
-            return this->connect( l,c, task->getEventProcessor(), t );
-        }
-
-        /**
-         * @brief Connect a Synchronous and Asynchronous event slot to this event.
-         */
-        Handle connect( const SlotFunction& l, const SlotFunction& c, EventProcessor* ep = CompletionProcessor::Instance()->getEventProcessor(), EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst )
+        Handle connect( const SlotFunction& l, const SlotFunction& c, EventProcessor* ep = CompletionProcessor::Instance(), EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst )
         {
             return Handle( signal_type::connect( l ), ep->connect( c, *this, t ) );
-        }
-
-        /**
-         * @brief Connect a Synchronous and Asynchronous event slot to this event.
-         */
-        Handle connect( const SlotFunction& l, const SlotFunction& c, TimerThread* tt, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst )
-        {
-            return Handle( signal_type::connect( l ), tt->getEventProcessor()->connect( c, *this, t ) );
         }
 
         /**
@@ -178,22 +153,6 @@ namespace RTT
         /**
          * @brief Setup an Asynchronous event slot to this event.
          */
-        Handle setup( const SlotFunction& l, ActivityInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
-        {
-            return this->setup( l, task->getEventProcessor(), t );
-        }
-
-        /**
-         * @brief Setup an Asynchronous event slot to this event.
-         */
-        Handle setup( const SlotFunction& l, TimerThread* tt, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
-        {
-            return this->setup( l, tt->getEventProcessor(), t );
-        }
-
-        /**
-         * @brief Setup an Asynchronous event slot to this event.
-         */
         Handle setup( const SlotFunction& l, EventProcessor* ep, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
         {
             return Handle( ep->setup( l, *this, t ) );
@@ -202,23 +161,7 @@ namespace RTT
         /**
          * @brief Setup a Synchronous and Asynchronous event slot to this event.
          */
-        Handle setup( const SlotFunction& l, const SlotFunction& c, ActivityInterface* task, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
-        {
-            return this->setup( l,c, task->getEventProcessor(), t );
-        }
-
-        /**
-         * @brief Setup a Synchronous and Asynchronous event slot to this event.
-         */
-        Handle setup( const SlotFunction& l, const SlotFunction& c, TimerThread* tt, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
-        {
-            return this->setup( l,c, tt->getEventProcessor(), t );
-        }
-
-        /**
-         * @brief Setup a Synchronous and Asynchronous event slot to this event.
-         */
-        Handle setup( const SlotFunction& l, const SlotFunction& c, EventProcessor* ep = CompletionProcessor::Instance()->getEventProcessor(), EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst )
+        Handle setup( const SlotFunction& l, const SlotFunction& c, EventProcessor* ep = CompletionProcessor::Instance(), EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst )
         {
             return Handle( signal_type::setup( l ), ep->setup( c, *this, t ) );
         }
@@ -233,11 +176,10 @@ namespace RTT
 
 
     template<
-        typename _Signature,
-        typename _SlotFunction
+        typename _Signature
     >
-    NameServer<Event< _Signature, _SlotFunction>*>
-    Event<_Signature, _SlotFunction>::nameserver;
+    NameServer<Event<_Signature>*>
+    Event<_Signature>::nameserver;
 
 }
 

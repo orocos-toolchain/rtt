@@ -25,7 +25,6 @@
 #include <rtt/Parser.hpp>
 #include <rtt/ExecutionEngine.hpp>
 #include <rtt/TaskContext.hpp>
-#include <rtt/Factories.hpp>
 #include <string>
 #include <pkgconf/system.h>
 #ifdef OROPKG_GEOMETRY

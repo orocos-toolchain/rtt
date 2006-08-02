@@ -344,10 +344,6 @@ void ActivitiesTest::testNonPeriodic()
         CPPUNIT_ASSERT( !t_task_nonper->isRunning() );
         CPPUNIT_ASSERT( t_task_nonper->run( 0 ) );
         CPPUNIT_ASSERT( t_task_nonper->start() );
-        // now blocks on events :
-        CPPUNIT_ASSERT( t_task_nonper->isActive() );
-        sleep(1);
-        CPPUNIT_ASSERT( t_task_nonper->isRunning() );
         CPPUNIT_ASSERT( t_task_nonper->stop() );
         // stop() should be fully synchronising...
         CPPUNIT_ASSERT( !t_task_nonper->isRunning() );

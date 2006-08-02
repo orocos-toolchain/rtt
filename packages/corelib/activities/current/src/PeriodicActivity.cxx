@@ -33,7 +33,6 @@
 #include "rtt/os/MutexLock.hpp"
 #include "rtt/Logger.hpp"
 #include "rtt/TimerThread.hpp"
-#include "rtt/EventProcessor.hpp"
 
 // This define is used for creating and static_casting the Timer.
 #include <pkgconf/corelib_activities.h>
@@ -51,37 +50,36 @@ namespace RTT
 {
     using namespace detail;
     
-    PeriodicActivity::PeriodicActivity(int priority, Seconds period, RunnableInterface* r, bool private_event_processor )
+    PeriodicActivity::PeriodicActivity(int priority, Seconds period, RunnableInterface* r )
         : runner(r), running(false), active(false),
-          thread_( TimerThread::Instance(priority,period) ), eprocessor_( private_event_processor ? new EventProcessor() : 0)
+          thread_( TimerThread::Instance(priority,period) )
     {
         thread_->start();
         per_ns = Seconds_to_nsecs( period );
         this->init();
     }
 
-    PeriodicActivity::PeriodicActivity(TimerThreadPtr thread, RunnableInterface* r, bool private_event_processor )
+    PeriodicActivity::PeriodicActivity(TimerThreadPtr thread, RunnableInterface* r )
         : runner(r), running(false), active(false),
-          thread_( thread ), eprocessor_( private_event_processor ? new EventProcessor() : 0)
+          thread_( thread )
     {
         per_ns = Seconds_to_nsecs( thread->getPeriod() );
         this->init();
     }
 
-    PeriodicActivity::PeriodicActivity(Seconds period, TimerThreadPtr thread, RunnableInterface* r, bool private_event_processor )
+    PeriodicActivity::PeriodicActivity(Seconds period, TimerThreadPtr thread, RunnableInterface* r )
         : runner(r), running(false), active(false),
-          thread_(thread), eprocessor_( private_event_processor ? new EventProcessor() : 0)
+          thread_(thread)
     {
         per_ns = Seconds_to_nsecs( period );
         this->init();
     }
 
-    PeriodicActivity::PeriodicActivity(secs s, nsecs ns, TimerThreadPtr thread, RunnableInterface* r, bool private_event_processor )
+    PeriodicActivity::PeriodicActivity(secs s, nsecs ns, TimerThreadPtr thread, RunnableInterface* r )
         : runner(r),
           running(false), active(false),
           per_ns( secs_to_nsecs(s) + ns),
-          thread_(thread),
-          eprocessor_( private_event_processor ? new EventProcessor() : 0)
+          thread_(thread)
     {
         this->init();
     }
@@ -91,7 +89,6 @@ namespace RTT
         stop();
         if (runner)
             runner->setActivity(0);
-        delete eprocessor_;
     }
 
     void PeriodicActivity::init() {
@@ -154,13 +151,6 @@ namespace RTT
             return false;
         }
 
-        if ( eprocessor_ ) {
-            res = eprocessor_->initialize();
-            if ( !res ) {
-                this->stop();
-                return false;
-            }
-        }
         running = true;
         return true;
     }
@@ -173,8 +163,6 @@ namespace RTT
         // stop()
         if ( timer_->removeActivity( this ) ) {
             running = false;
-            if ( eprocessor_ )
-                eprocessor_->finalize();
             this->finalize();
             active = false;
             return true;
@@ -207,8 +195,6 @@ namespace RTT
     void PeriodicActivity::doStep()
     {
         this->step();
-        if ( eprocessor_ )
-            eprocessor_->step();
     }
 
     bool PeriodicActivity::trigger()
@@ -229,8 +215,6 @@ namespace RTT
     }
 
     OS::ThreadInterface* PeriodicActivity::thread() { return thread_.get(); }
-
-    EventProcessor* PeriodicActivity::getEventProcessor() const { return eprocessor_ == 0 ? thread_->getEventProcessor() : eprocessor_; }
 
     bool PeriodicActivity::isPeriodic() const {
         return true;

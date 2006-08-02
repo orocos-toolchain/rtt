@@ -24,7 +24,6 @@
 
 #include <rtt/Parser.hpp>
 #include <rtt/TaskContext.hpp>
-#include <rtt/Factories.hpp>
 #include <string>
 #include <rtt/SimulationActivity.hpp>
 

@@ -22,7 +22,6 @@
 #include <unistd.h>
 #include <iostream>
 #include <rtt/FunctionGraph.hpp>
-#include <rtt/TemplateFactories.hpp>
 #include <rtt/Ports.hpp>
 #include <rtt/Command.hpp>
 #include <rtt/CommandDS.hpp>

@@ -142,7 +142,7 @@ namespace RTT
             std::string ename = e->getName();
             if ( ename.empty() ) {
                 Logger::In in("EventService");
-                log(Error) << "Can not use addEvent with nameless Even: give your event a name upon construction." << endlog();
+                log(Error) << "Can not use addEvent with nameless Event: give your event a name upon construction." << endlog();
                 return false;
             }
 
@@ -153,6 +153,62 @@ namespace RTT
                                                          detail::EventHookFactoryGenerator<EventT>().emittor() );
             return true;
         }
+
+        template< class EventT>
+        bool addEvent( EventT* e, const char* description )
+        {
+            std::string ename = e->getName();
+            if ( ename.empty() || fact.count(ename) != 0)
+                return false;
+            return true;
+        }
+
+        template< class EventT>
+        bool addEvent( EventT* e, const char* description,
+                       const char* arg1, const char* arg1_description )
+        {
+            std::string ename = e->getName();
+            if ( ename.empty() || fact.count(ename) != 0)
+                return false;
+            return true;
+        }
+
+        template< class EventT>
+        bool addEvent( EventT* e, const char* description,
+                       const char* arg1, const char* arg1_description,
+                       const char* arg2, const char* arg2_description )
+        {
+            std::string ename = e->getName();
+            if ( ename.empty() || fact.count(ename) != 0)
+                return false;
+            return true;
+        }
+
+        template< class EventT>
+        bool addEvent( EventT* e, const char* description,
+                       const char* arg1, const char* arg1_description,
+                       const char* arg2, const char* arg2_description,
+                       const char* arg3, const char* arg3_description)
+        {
+            std::string ename = e->getName();
+            if ( ename.empty() || fact.count(ename) != 0)
+                return false;
+            return true;
+        }
+
+        template< class EventT>
+        bool addEvent( EventT* e, const char* description,
+                       const char* arg1, const char* arg1_description,
+                       const char* arg2, const char* arg2_description,
+                       const char* arg3, const char* arg3_description,
+                       const char* arg4, const char* arg4_description )
+        {
+            std::string ename = e->getName();
+            if ( ename.empty() || fact.count(ename) != 0)
+                return false;
+            return true;
+        }
+
 
         /**
          * Query for the existence of an Event in this Service.
@@ -248,7 +304,7 @@ namespace RTT
         Handle setupAsyn(const std::string& ename,
                                       boost::function<void(void)> afunc,          
                                       const std::vector<DataSourceBase::shared_ptr>& args,
-                                      EventProcessor* ep = CompletionProcessor::Instance()->getEventProcessor(),
+                                      EventProcessor* ep = CompletionProcessor::Instance(),
                                       EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst) const;
         //!@}
         
@@ -280,7 +336,7 @@ namespace RTT
                                          boost::function<void(void)> sfunc,
                                          boost::function<void(void)> afunc,
                                          const std::vector<DataSourceBase::shared_ptr>& args,
-                                         EventProcessor* ep = CompletionProcessor::Instance()->getEventProcessor(),
+                                         EventProcessor* ep = CompletionProcessor::Instance(),
                                          EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst) const;
         //! @}
 

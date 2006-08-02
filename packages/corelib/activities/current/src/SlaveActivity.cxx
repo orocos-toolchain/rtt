@@ -27,11 +27,10 @@
  
  
 #include "rtt/SlaveActivity.hpp"
-#include "rtt/CompletionProcessor.hpp"
+#include "rtt/os/MainThread.hpp"
 
 namespace RTT
 {
-    
     SlaveActivity::SlaveActivity( ActivityInterface* master, RunnableInterface* run /*= 0*/ )
         :mmaster(master), mperiod( master->getPeriod() ), runner(run), running(false), active(false)
     {
@@ -65,15 +64,9 @@ namespace RTT
         return mperiod;
     }
 
-    EventProcessor* SlaveActivity::getEventProcessor() const
-    {
-        return mmaster ? mmaster->getEventProcessor() : CompletionProcessor::Instance()->getEventProcessor();
-    }
-
     OS::ThreadInterface* SlaveActivity::thread()
     {
-        // todo: a MainThread::Instance() seems more appropriate...
-        return mmaster ? mmaster->thread() : CompletionProcessor::Instance()->thread();
+        return mmaster ? mmaster->thread() : OS::MainThread::Instance();
     }
 
     bool SlaveActivity::initialize()

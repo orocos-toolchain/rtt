@@ -49,13 +49,13 @@ namespace RTT
          * Construct a NonPreemptibleActivity with a periodicity \a period
          * Seconds
          */
-        NonPreemptibleActivity(Seconds period, RunnableInterface* r=0, bool private_event_processor = false );
+        NonPreemptibleActivity(Seconds period, RunnableInterface* r=0 );
 
         /**
          * Construct a NonPreemptibleActivity with a periodicity of
          * \a s seconds and \a ns nanoseconds
          */
-        NonPreemptibleActivity(secs s, nsecs ns, RunnableInterface* r=0, bool private_event_processor = false );
+        NonPreemptibleActivity(secs s, nsecs ns, RunnableInterface* r=0 );
 
         /**
          * Destroys this instance. The Activity is stopped.

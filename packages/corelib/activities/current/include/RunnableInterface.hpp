@@ -41,8 +41,8 @@ namespace RTT
      *
      * The getActivity() method is guaranteed to return a valid task
      * pointer during initialize(), step() or loop() and finalize(). This allows
-     * the RunnableInterface to query the task's period(icity), ThreadInterface
-     * and EventProcessor. Consequently, initialize() knows whether
+     * the RunnableInterface to query the task's period(icity) and ThreadInterface.
+     * Consequently, initialize() knows whether
      * step() or loop() will be called ( depending on ActivityInterface::isPeriodic() ).
      * @see ActivityInterface
      * @ingroup CoreLibActivities

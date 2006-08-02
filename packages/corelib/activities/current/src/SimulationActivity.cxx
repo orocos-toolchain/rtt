@@ -29,7 +29,6 @@
 #include "rtt/SimulationActivity.hpp"
 #include "rtt/SimulationThread.hpp"
 #include "rtt/TimerInterface.hpp"
-#include "rtt/EventProcessor.hpp"
 
 namespace RTT
 {
@@ -84,13 +83,6 @@ namespace RTT
             return false;
         }
 
-        if ( eprocessor_ ) {
-            res = eprocessor_->initialize();
-            if ( !res ) {
-                this->stop();
-                return false;
-            }
-        }
         running = true;
         return true;
     }

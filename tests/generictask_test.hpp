@@ -23,7 +23,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <rtt/TaskContext.hpp>
-#include <rtt/Factories.hpp>
 #include <string>
 
 using namespace RTT;

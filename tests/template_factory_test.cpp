@@ -285,7 +285,7 @@ void Template_FactoryTest::testEventC()
     CompletionProcessor::Instance()->stop();
     ConnectionC cc = tc->events()->setupConnection("FloatEvent");
     cc.callback( this, &Template_FactoryTest::float_listener );
-    cc.callback( this, &Template_FactoryTest::float_completer, CompletionProcessor::Instance()->getEventProcessor() );
+    cc.callback( this, &Template_FactoryTest::float_completer, CompletionProcessor::Instance() );
     Handle h = cc.handle();
 
     h.connect();

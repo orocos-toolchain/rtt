@@ -48,13 +48,13 @@ namespace RTT
          * Construct a NonRealTimeActivity with a periodicity \a period
          * Seconds
          */
-        NonRealTimeActivity(Seconds period, RunnableInterface* r=0, bool private_event_processor = false  );
+        NonRealTimeActivity(Seconds period, RunnableInterface* r=0 );
 
         /**
          * Construct a NonRealTimeActivity with a periodicity of
          * \a s seconds and \a ns nanoseconds
          */
-        NonRealTimeActivity(secs s, nsecs ns, RunnableInterface* r=0, bool private_event_processor = false  );
+        NonRealTimeActivity(secs s, nsecs ns, RunnableInterface* r=0 );
 
         /**
          * Destroys this instance. The Activity is stopped.
