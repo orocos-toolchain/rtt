@@ -104,8 +104,6 @@ namespace RTT
         }
 
         ~CommandExecFunction() {
-            //remove it before destruction.
-            _proc->removeFunction( _foo.get() );
         }
 
         void readArguments()
@@ -141,6 +139,8 @@ namespace RTT
             _foo->reset();
             minit->reset();
             isqueued = false;
+            //remove any old left-overs.
+            _proc->removeFunction( _foo.get() );
         }
 
         virtual bool sent() const {
