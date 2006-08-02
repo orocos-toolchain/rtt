@@ -31,8 +31,8 @@
 #ifndef OS_RUNNABLEINTERFACE_HPP
 #define OS_RUNNABLEINTERFACE_HPP
 
-namespace OS
-{
+namespace RTT
+{ namespace OS {
   class ThreadInterface;
 
     /**
@@ -121,6 +121,6 @@ namespace OS
       virtual void setThread(ThreadInterface* t);
     };
 
-}
+}}
 
 #endif

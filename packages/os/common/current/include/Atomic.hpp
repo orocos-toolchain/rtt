@@ -31,8 +31,8 @@
 
 #include "oro_atomic.h"
 
-namespace OS
-{
+namespace RTT
+{ namespace OS {
     /**
      * C++ abstraction of atomic integer operations.
      */
@@ -124,6 +124,6 @@ namespace OS
         bool add_negative(int i) { return atomic_add_negative(i, &_val ) != 0; }
     };
 
-}
+}}
 
 #endif

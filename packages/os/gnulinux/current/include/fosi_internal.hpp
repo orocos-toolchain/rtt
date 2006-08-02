@@ -36,9 +36,26 @@
 
 #define INTERNAL_QUAL static inline
 
-namespace OS
-{
+namespace RTT
+{ namespace OS {
   namespace detail {
+
+      INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main_task)
+      {
+          main_task->name = "main";
+          pthread_attr_init( &(main_task->attr) );
+          struct sched_param sp;
+          sp.sched_priority=0;
+          // Set priority
+          // fixme check return value and bail out if necessary
+          pthread_attr_setschedparam(&(main_task->attr), &sp);
+          return 0;
+      }
+
+      INTERNAL_QUAL int rtos_task_delete_main(RTOS_TASK* main_task)
+      {
+          return 0;
+      }
 
     INTERNAL_QUAL int rtos_task_create(RTOS_TASK* task,
 				       int priority,
@@ -51,7 +68,7 @@ namespace OS
       
       // Set name
       if ( strlen(name) == 0 )
-	name = "Thread";
+          name = "Thread";
       task->name = strcpy( (char*)malloc( (strlen(name) + 1) * sizeof(char)), name);
       
       pthread_attr_init(&(task->attr));
@@ -127,21 +144,21 @@ namespace OS
 
     INTERNAL_QUAL int rtos_task_set_priority(RTOS_TASK * task, int priority)
     {
-      // FIXME, only works on the current task
-      // init the scheduler. The rt_task_initschmod code is broken, so we do it ourselves.
-      struct sched_param mysched;
-      mysched.sched_priority = sched_get_priority_max(OROSEM_OS_SCHEDTYPE) - priority;
-      // check lower bounds :
-      if (OROSEM_OS_SCHEDTYPE == SCHED_OTHER && mysched.sched_priority != 0 ) {
-	mysched.sched_priority = 0; // SCHED_OTHER must be zero
-      } else if (OROSEM_OS_SCHEDTYPE == !SCHED_OTHER &&  mysched.sched_priority < 1 ) {
-	mysched.sched_priority = 1; // !SCHED_OTHER must be 1 or higher
-      }
-      // check upper bound
-      if ( mysched.sched_priority > 99)
-	mysched.sched_priority = 99;
-      // set scheduler
-      return sched_setscheduler(0, OROSEM_OS_SCHEDTYPE, &mysched);
+        // FIXME, only works on the current task
+        // init the scheduler. The rt_task_initschmod code is broken, so we do it ourselves.
+        struct sched_param mysched;
+        mysched.sched_priority = sched_get_priority_max(OROSEM_OS_SCHEDTYPE) - priority;
+        // check lower bounds :
+        if (OROSEM_OS_SCHEDTYPE == SCHED_OTHER && mysched.sched_priority != 0 ) {
+            mysched.sched_priority = 0; // SCHED_OTHER must be zero
+        } else if (OROSEM_OS_SCHEDTYPE == !SCHED_OTHER &&  mysched.sched_priority < 1 ) {
+            mysched.sched_priority = 1; // !SCHED_OTHER must be 1 or higher
+        }
+        // check upper bound
+        if ( mysched.sched_priority > 99)
+            mysched.sched_priority = 99;
+        // set scheduler
+        return sched_setscheduler(0, OROSEM_OS_SCHEDTYPE, &mysched);
     }
 
     INTERNAL_QUAL int rtos_task_get_priority(const RTOS_TASK *t)
@@ -149,7 +166,7 @@ namespace OS
       struct sched_param sp;
       int succeeded;
       succeeded = pthread_attr_getschedparam(&(t->attr), 
-					     &sp);
+                                             &sp);
       return sp.sched_priority;
     }
 
@@ -159,6 +176,6 @@ namespace OS
     }
 
   }
-}
+}}
 #undef INTERNAL_QUAL
 #endif

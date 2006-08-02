@@ -27,8 +27,8 @@
 
 #include "rtt/os/StartStopManager.hpp"
 
-namespace OS
-{
+namespace RTT
+{ namespace OS {
 
     StartStopManager* StartStopManager::mt;
 
@@ -78,4 +78,4 @@ namespace OS
     }
 
 
-}
+}}

@@ -31,8 +31,9 @@
 
 #include "Atomic.hpp"
 
-namespace OS
-{
+namespace RTT
+{ namespace OS {
+
     /**
      * The number of threads in addition to the main() thread.
      * The main thread is thread zero (0). \a threads is
@@ -58,5 +59,5 @@ namespace OS
      * to get an 'n' times higher priority.
      */
     extern const int IncreasePriority;
-}
+}}
 #endif

@@ -30,16 +30,104 @@
 #define OS_FOSI_INTERNAL_HPP
 #define OROBLD_OS_LXRT_INTERNAL
 
+#include <iostream>
+#include <sched.h>
 #include "ThreadInterface.hpp"
 #include "fosi.h"
-#include <iostream>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include "pkgconf/system.h"
 #define INTERNAL_QUAL static inline
 
 #include <string.h>
 
-namespace OS
-{
+#ifdef OROPKG_CORELIB
+#include "pkgconf/corelib.h"
+#endif
+
+#ifdef OROPKG_CORELIB_REPORTING
+#include "rtt/Logger.hpp"
+using RTT::Logger;
+#endif
+
+namespace RTT
+{ namespace OS {
     namespace detail {
+
+        INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main_task)
+        {
+            if ( getuid() != 0 ) {
+                std::cerr << "You are not root. This program requires that you are root." << std::endl;
+                exit(1);
+            }
+
+            /* check to see if rtai_lxrt module is loaded */
+            //         struct module_info modInfo;
+            //         size_t retSize;
+            //         if ( query_module("rtai_lxrt", QM_INFO, &modInfo, 
+            //                           sizeof(modInfo), &retSize) != 0 ) {
+            //             std::cerr <<"It appears the rtai_lxrt module is not loaded !"<<std::endl;
+            //             exit();
+            //         }
+            struct sched_param param;
+            // we set the MT to the highest sched priority to allow the console
+            // to interrupt a loose running thread.
+            param.sched_priority = sched_get_priority_max(OROSEM_OS_SCHEDTYPE);
+            if (param.sched_priority != -1 )
+                sched_setscheduler( 0, OROSEM_OS_SCHEDTYPE, &param);
+            //init_linux_scheduler( OROSEM_OS_LXRT_SCHEDTYPE, 99);
+
+            unsigned long name = nam2num("main");
+            while ( rt_get_adr( name ) != 0 ) // check for existing 'MAINTHREAD'
+                ++name;
+
+            main_task->name = "main";
+
+            if( !(main_task->rtaitask = rt_task_init(name, 10,0,0)) ) // priority, stack, msg_size
+                {
+                    std::cerr << "Cannot rt_task_init() MainThread." << std::endl;
+                    exit(1);
+                }
+                
+#ifdef OROSEM_OS_LXRT_PERIODIC
+            rt_set_periodic_mode();
+            start_rt_timer( nano2count( NANO_TIME(ORODAT_OS_LXRT_PERIODIC_TICK*1000*1000*1000) ) );
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::log() << Logger::Info << "RTAI Periodic Timer ticks at "<<ORODAT_OS_LXRT_PERIODIC_TICK<<" seconds." << Logger::endl;
+#endif
+#else
+            // BE SURE TO SET rt_preempt_always(1) when using one shot mode
+            rt_set_oneshot_mode();
+            // only call this function for RTAI 3.0 or older
+#if defined(CONFIG_RTAI_VERSION_MINOR) && defined(CONFIG_RTAI_VERSION_MAJOR)
+#  if CONFIG_RTAI_VERSION_MAJOR == 3 && CONFIG_RTAI_VERSION_MINOR == 0
+            rt_preempt_always(1);
+#  endif
+#else
+            rt_preempt_always(1);
+#endif
+            start_rt_timer(0);
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::log() << Logger::Info << "RTAI Periodic Timer runs in preemptive 'one-shot' mode." << Logger::endl;
+#endif
+#endif
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::log() << Logger::Debug << "RTAI Task Created" << Logger::endl;
+#endif
+            // stack, heap : see touchall.c in lxrt/lib
+            // lock_all(stk,hp);
+            mlockall(MCL_CURRENT | MCL_FUTURE );
+            return 0;
+        }
+
+        INTERNAL_QUAL int rtos_task_delete_main(RTOS_TASK* main_task)
+        {
+            // we don't stop the timer
+            //stop_rt_timer();
+            rt_task_delete(main_task->rtaitask);
+            return 0;
+        }
 
         /**
          * Helper function to convert RTAI to POSIX priority.
@@ -203,6 +291,6 @@ namespace OS
         }
 
     }
-}
+}}
 #undef INTERNAL_QUAL
 #endif

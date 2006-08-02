@@ -14,14 +14,12 @@ support for all packages used in Orocos."
 
     hardware
 
-    compile MainThread.cxx
     compile fosi.c
     compile lxrtthreads.cxx
 
     implements OROINT_OS_TARGET
     implements OROINT_OS_STDCXXLIB
     implements OROINT_OS_MAIN
-    implements OROINT_OS_MAIN_THREAD
     implements OROINT_OS_LINUX_IOPERM
 
     define_proc {

@@ -31,8 +31,8 @@
 
 #include "oro_system.h"
 
-namespace OS
-{
+namespace RTT
+{ namespace OS {
     /**
      * Compare And Swap.
      * Also known as Compare Exchange (cmpxch).
@@ -45,6 +45,6 @@ namespace OS
         return expected == cmpxchg(addr, expected, value);
     }
 
-}
+}}
 
 #endif

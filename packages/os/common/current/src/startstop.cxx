@@ -53,13 +53,10 @@ using RTT::Logger;
 using RTT::TimeService;
 #endif
  
-#ifdef OS_HAVE_MAIN_THREAD
 #include "rtt/os/MainThread.hpp"
-
-static OS::MainThread* mainT;
-#endif
-
 #include "rtt/os/StartStopManager.hpp"
+
+using namespace RTT;
 static OS::StartStopManager* initM;
 
 extern "C"
@@ -69,17 +66,9 @@ int __os_init(int argc, char** argv )
     DO_GLOBAL_CTORS();
 #endif
 
-#ifdef OS_HAVE_MAIN_THREAD
-    // this must be called to init the os scheduler, which is used in
-    // any ComponentActive. Call this only once EVER.
-    mainT = OS::MainThread::Instance();
-
-    mainT->start();
-
+    OS::MainThread::Instance();
 #ifdef OROPKG_CORELIB_REPORTING
     Logger::log() << Logger::Debug << "MainThread started." << Logger::endl;
-#endif
-
 #endif
 
 #ifdef OROPKG_CORELIB_REPORTING
@@ -111,10 +100,9 @@ void __os_exit(void)
 #ifdef OROPKG_CORELIB_TIMING
     TimeService::Release();
 #endif
+
     // Stop Main Thread
-#ifdef OS_HAVE_MAIN_THREAD
     OS::MainThread::Release();
-#endif
 
 #ifdef OS_HAVE_MANUAL_CRT
     DO_GLOBAL_DTORS();

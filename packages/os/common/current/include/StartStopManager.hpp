@@ -35,8 +35,8 @@
 #include <vector>
 #include <algorithm>
 
-namespace OS
-{
+namespace RTT
+{ namespace OS {
     /**
      * @brief This manager starts and stops all globally registered start/stop
      * functions, without a particular order.
@@ -132,6 +132,6 @@ namespace OS
 
 
 
-}
+}}
 
 #endif

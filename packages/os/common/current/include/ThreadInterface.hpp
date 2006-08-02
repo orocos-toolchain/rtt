@@ -32,8 +32,8 @@
 #include "RunnableInterface.hpp"
 #include "fosi.h"
 
-namespace OS
-{
+namespace RTT
+{ namespace OS {
     /**
      * A thread which is being run (or runs a RunnableInterface).
      * The periodicity is the time between the starting
@@ -57,7 +57,7 @@ namespace OS
          * @param r The object to run or zero to clear.
          * @return true if accepted, false if the thread is running.
          */
-        virtual bool run( OS::RunnableInterface* r) = 0;
+        virtual bool run( RunnableInterface* r) = 0;
 
         /**
          * Start the Thread.
@@ -143,6 +143,6 @@ namespace OS
          */
         int threadnb;
     };
-}
+}}
 
 #endif

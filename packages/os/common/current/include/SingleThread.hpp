@@ -39,8 +39,8 @@
 
 #include <string>
 
-namespace OS
-{
+namespace RTT
+{ namespace OS {
     /**
      * This Thread abstraction class represents a single-shot thread
      * which can be started many times.  The first invocation of
@@ -197,6 +197,6 @@ namespace OS
         Mutex breaker;
     };
 
-}
+}}
 
 #endif

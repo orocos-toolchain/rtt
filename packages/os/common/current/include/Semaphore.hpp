@@ -34,8 +34,8 @@
 #include "fosi.h"
 #include <pkgconf/os.h>
 
-namespace OS
-{
+namespace RTT
+{ namespace OS {
     /**
      * An object oriented wrapper around a counting semaphore.
      * It works like a traffic light on which a thread can \a wait() until
@@ -95,6 +95,6 @@ namespace OS
             return rtos_sem_value( &sem );
         }
     };
-}
+}}
 
 #endif

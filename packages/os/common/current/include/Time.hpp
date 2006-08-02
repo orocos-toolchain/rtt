@@ -31,14 +31,9 @@
 
 #include <cmath>
 
-namespace OS
-{
+namespace RTT
+{ namespace OS {
 
-    // Remark : These definitions were first introduced in rtt/timing,
-    // but they are needed in OS too, so this file duplicates that file, but
-    // in the OS namespace. The OS version should alias to the defs in this
-    // namespace.
-	
     typedef double Seconds;
     typedef long secs;
     typedef long msecs;
@@ -66,6 +61,6 @@ namespace OS
     inline nsecs Seconds_to_nsecs(const Seconds s) { return nsecs( rint( s * secs_to_nsecs(1) ) ); }
     inline Seconds nsecs_to_Seconds(const nsecs ns) { return Seconds( ns ) / Seconds(NSECS_IN_SECS); }
 
-}
+}}
 
 #endif

@@ -72,8 +72,8 @@ using namespace RTT;
 
 #endif
 
-namespace OS
-{
+namespace RTT
+{ namespace OS {
 #ifdef OROPKG_CORELIB_REPORTING
     using RTT::Logger;
 #endif
@@ -628,5 +628,5 @@ namespace OS
     return maxOverRun;
   }
 
-}
+}}
     

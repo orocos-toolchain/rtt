@@ -29,8 +29,8 @@
 
 #include <rtt/os/threads.hpp>
 
-namespace OS
-{
+namespace RTT
+{ namespace OS {
 
     const int LowestPriority = 1;
     
@@ -38,4 +38,4 @@ namespace OS
 
     const int IncreasePriority = 1;
     
-}
+}}

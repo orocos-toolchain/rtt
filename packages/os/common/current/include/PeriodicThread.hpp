@@ -41,8 +41,8 @@ namespace RTT {
     class Handle;
 }
 
-namespace OS
-{
+namespace RTT
+{ namespace OS {
     /**
      * A PeriodicThread executes its step() method (or a RunnableInterface ) periodically.
      *
@@ -201,6 +201,6 @@ namespace OS
     
     };
 
-}
+}}
 
 #endif

@@ -32,8 +32,8 @@
 #include "fosi.h"
 #include <pkgconf/os.h>
 
-namespace OS
-{
+namespace RTT
+{ namespace OS {
     class MutexLock;
     class MutexTryLock;
 
@@ -170,6 +170,6 @@ namespace OS
       rt_rec_mutex_t recm;
     };
 
-}
+}}
 
 #endif

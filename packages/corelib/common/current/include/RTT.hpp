@@ -60,7 +60,6 @@ namespace RTT {}
 namespace RTT {
 #ifdef OROPKG_OS
     namespace OS {
-        using namespace ::OS;
     }
 #endif
 

@@ -43,36 +43,41 @@
 #include "ThreadInterface.hpp"
 #include "fosi.h"
 
-namespace OS
-{
-  namespace detail {
-    // Return zero on succes
-    int rtos_task_create(RTOS_TASK* task, 
-			 int priority,
-			 const char * name,
-			 void * (*start_routine)(void *), 
-			 ThreadInterface* obj);
+namespace RTT
+{ namespace OS {
+	namespace detail {
 
-    void rtos_task_yield(RTOS_TASK*);
+		int rtos_task_create_main(RTOS_TASK* main_task);
 
-    // these should disappear in the future...
-    void rtos_task_make_hard_real_time(RTOS_TASK*);
-    void rtos_task_make_soft_real_time(RTOS_TASK*);
-    int rtos_task_is_hard_real_time(RTOS_TASK*);
+		int rtos_task_delete_main(RTOS_TASK* main_task);
 
-    void rtos_task_make_periodic(RTOS_TASK* mytask, NANO_TIME nanosecs );
-    void rtos_task_set_period( RTOS_TASK* mytask, NANO_TIME nanosecs );
-    NANOTIME rtos_task_get_period( RTOS_TASK* mytask );
+		// Return zero on succes
+		int rtos_task_create(RTOS_TASK* task, 
+							 int priority,
+							 const char * name,
+							 void * (*start_routine)(void *), 
+							 ThreadInterface* obj);
+
+		void rtos_task_yield(RTOS_TASK*);
+
+		// these should disappear in the future...
+		void rtos_task_make_hard_real_time(RTOS_TASK*);
+		void rtos_task_make_soft_real_time(RTOS_TASK*);
+		int rtos_task_is_hard_real_time(RTOS_TASK*);
+
+		void rtos_task_make_periodic(RTOS_TASK* mytask, NANO_TIME nanosecs );
+		void rtos_task_set_period( RTOS_TASK* mytask, NANO_TIME nanosecs );
+		NANOTIME rtos_task_get_period( RTOS_TASK* mytask );
     
-    // return zero if no "overruns" did occur
-    int rtos_task_wait_period( RTOS_TASK* task );
+		// return zero if no "overruns" did occur
+		int rtos_task_wait_period( RTOS_TASK* task );
     
-    void rtos_task_delete(RTOS_TASK* mytask);
+		void rtos_task_delete(RTOS_TASK* mytask);
 
-    int rtos_task_set_priority(RTOS_TASK * task,int priority);
-    int rtos_task_get_priority(RTOS_TASK * task);
+		int rtos_task_set_priority(RTOS_TASK * task,int priority);
+		int rtos_task_get_priority(RTOS_TASK * task);
 
-    const char * rtos_task_get_name(const RTOS_TASK* t);
-  }
-}
+		const char * rtos_task_get_name(const RTOS_TASK* t);
+	}
+}}
 #endif

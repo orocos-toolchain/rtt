@@ -60,8 +60,8 @@ using RTT::Logger;
 #endif
 
 
-namespace OS 
-{
+namespace RTT
+{ namespace OS {
     using namespace detail;
 
     void *singleThread_f(void* t) 
@@ -373,4 +373,4 @@ namespace OS
     return rtos_task_get_priority(&rtos_task);
     }
    
-}
+}}

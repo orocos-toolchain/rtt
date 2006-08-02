@@ -28,6 +28,7 @@
  
 #include "rtt/os/threads.hpp"
 
-namespace OS {
-AtomicInt threads(0);
-}
+namespace RTT
+{ namespace OS {
+    AtomicInt threads(0);
+}}

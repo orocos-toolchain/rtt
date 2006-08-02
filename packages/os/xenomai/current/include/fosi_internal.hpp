@@ -36,9 +36,66 @@
 #include <iostream>
 #define INTERNAL_QUAL static inline
 
-namespace OS
-{
+// extern package config headers.
+#include "pkgconf/system.h"
+#ifdef OROPKG_CORELIB
+#include "pkgconf/corelib.h"
+#endif
+
+#ifdef OROPKG_CORELIB_REPORTING
+#include "rtt/Logger.hpp"
+using RTT::Logger;
+#endif
+
+namespace RTT
+{ namespace OS {
     namespace detail {
+
+        INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main)
+        {
+            if ( getuid() != 0 ) {
+                std::cerr << "You are not root. This program requires that you are root." << std::endl;
+                exit(1);
+            }
+
+            struct sched_param param;
+            // we set the MT to the highest sched priority to allow the console
+            // to interrupt a loose running thread.
+            param.sched_priority = sched_get_priority_max(OROSEM_OS_SCHEDTYPE);
+            if (param.sched_priority != -1 )
+                sched_setscheduler( 0, OROSEM_OS_SCHEDTYPE, &param);
+
+            // name, priority, mode
+            if ( rt_task_shadow( &(main->xenotask),"MainThread", 10, 0) != 0 ) {
+                std::cerr << "Cannot rt_task_create() MainThread." << std::endl;
+                exit(1);
+            }
+
+#ifdef OROSEM_OS_XENO_PERIODIC
+            // time in nanoseconds
+            rt_timer_start( ORODAT_OS_XENO_PERIODIC_TICK*1000*1000*1000 );
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::In in("Scheduler");
+            Logger::log() << Logger::Info << "Xenomai Periodic Timer ticks at "<<ORODAT_OS_XENO_PERIODIC_TICK<<" seconds." << Logger::endl;
+#endif
+#else
+            rt_timer_start( TM_ONESHOT );
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::log() << Logger::Info << "Xenomai Periodic Timer runs in preemptive 'one-shot' mode." << Logger::endl;
+#endif
+#endif
+#ifdef OROPKG_CORELIB_REPORTING
+            Logger::log() << Logger::Debug << "Xenomai Timer and Main Task Created" << Logger::endl;
+#endif
+            return 0;
+        }
+
+        INTERNAL_QUAL int rtos_task_delete_main(RTOS_TASK* main_task)
+        {
+            rt_task_delete( &(main_task->xenotask) );
+            return 0;
+        }
+
 
         struct XenoCookie {
             void* data;
@@ -164,6 +221,6 @@ namespace OS
 	    return rt_task_set_priority( tt, priority);
         }
     }
-}
+}}
 #undef INTERNAL_QUAL
 #endif

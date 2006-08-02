@@ -32,8 +32,8 @@
 
 #include "Mutex.hpp"
 
-namespace OS
-{
+namespace RTT
+{ namespace OS {
     /**
      * @brief MutexLock is a scope based Monitor, protecting critical
      * sections with a Mutex object through locking and unlocking it.
@@ -125,6 +125,6 @@ namespace OS
 
     };
 
-}
+}}
 
 #endif

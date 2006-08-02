@@ -15,6 +15,7 @@ can only select one OS Package which is called the
     compile ThreadInterface.cxx RunnableInterface.cxx threads.cxx
     compile PeriodicThread.cxx
     compile SingleThread.cxx
+    compile MainThread.cxx
     compile main.cxx
     compile exceptions.cxx
 
@@ -162,13 +163,6 @@ violated. Only enable if you know what you are doing."
 	flavor bool
 	requires OROINT_OS_MAIN <= 1
 	define OS_HAVE_MAIN
-    }
-
-    cdl_interface OROINT_OS_MAIN_THREAD {
-	display "Target with MainThread class"
-	flavor bool
-	requires OROINT_OS_MAIN <= 1
-	define OS_HAVE_MAIN_THREAD
     }
 
     cdl_interface OROINT_OS_LINUX_IOPERM {

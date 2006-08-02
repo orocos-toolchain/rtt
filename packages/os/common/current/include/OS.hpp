@@ -37,14 +37,17 @@
 #include "Semaphore.hpp"
 #include "CAS.hpp"
 
-/**
- * @brief OS Abstractions such as Mutexes, Semaphores and Threads.
- *
- * It is meant to group all packages which provide OS abstraction
- * classes and functions in a realtime system. Examples are Threads,
- * Mutexes and standard libraries. 
- *
- * The os package is documented in <a href="../../orocos-os.html">
- * The Orocos OS Online Manual</a>
- */
-namespace OS {}
+namespace RTT
+{ 
+    /**
+     * @brief OS Abstractions such as Mutexes, Semaphores and Threads.
+     *
+     * It is meant to group all packages which provide OS abstraction
+     * classes and functions in a realtime system. Examples are Threads,
+     * Mutexes and standard libraries. 
+     *
+     * The os package is documented in <a href="../../orocos-os.html">
+     * The Orocos OS Online Manual</a>
+     */
+    namespace OS {}
+}

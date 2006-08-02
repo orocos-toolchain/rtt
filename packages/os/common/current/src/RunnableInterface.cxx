@@ -30,8 +30,9 @@
 #include "rtt/os/RunnableInterface.hpp"
 #include "rtt/os/ThreadInterface.hpp"
 
-namespace OS
-{
+namespace RTT
+{ namespace OS {
+
   RunnableInterface::RunnableInterface(ThreadInterface* t)
     : rthread(0)
   {
@@ -56,4 +57,4 @@ namespace OS
   {
     return rthread;
   }
-}
+}}
