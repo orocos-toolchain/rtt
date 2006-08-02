@@ -62,28 +62,28 @@ check-headers: clean_headers init_packages inst-headers
 clean-local: clean_packages
 
 uninstall-local:
-	@for i in ${PATHHEADERS}; do rm -fv $(DESTDIR)$(prefix)/include/$$i; done
-	@rm -fv $(DESTDIR)$(prefix)/lib/liborocos-$(ECOS_TARGET).a
-	@rm -fv $(DESTDIR)$(prefix)/lib/libtarget.a
-	@rm -fv $(DESTDIR)$(prefix)/lib/pkgconfig/orocos.pc
+	@for i in ${PATHHEADERS}; do rm -fv $(DESTDIR)$(includedir)/$$i; done
+	@rm -fv $(DESTDIR)$(libdir)/liborocos-$(ECOS_TARGET).a
+	@rm -fv $(DESTDIR)$(libdir)/libtarget.a
+	@rm -fv $(DESTDIR)$(libdir)/pkgconfig/orocos.pc
 	@rm -rf $(DESTDIR)$(prefix)/modules/
 
 install-exec-local:
 	@echo "Installing new headers..."
-	@install -m 755 -d $(DESTDIR)$(prefix)/include
+	@install -m 755 -d $(DESTDIR)$(includedir)
 	@for i in ${PATHHEADERS};\
-	do if test packages/install/include/$$i -nt $(DESTDIR)$(prefix)/include/$$i ;\
-	then  install -p -m 644 -D packages/install/include/$$i $(DESTDIR)$(prefix)/include/$$i; echo "install $$i $(DESTDIR)$(prefix)/include/$$i";fi; done
+	do if test packages/install/include/$$i -nt $(DESTDIR)$(includedir)/$$i ;\
+	then  install -p -m 644 -D packages/install/include/$$i $(DESTDIR)$(includedir)/$$i; echo "install $$i $(DESTDIR)$(includedir)/$$i";fi; done
 	@echo "Installing new library..."
-	@install -m 755 -d $(DESTDIR)$(prefix)/lib
+	@install -m 755 -d $(DESTDIR)$(libdir)
 	@for i in $$( ls packages/install/lib/libtarget.a ); do \
-	if test packages/install/lib/libtarget.a -nt $(DESTDIR)$(prefix)/lib/liborocos-$(ECOS_TARGET).a ; then \
-	install -m 644 packages/install/lib/libtarget.a $(DESTDIR)$(prefix)/lib/liborocos-$(ECOS_TARGET).a ;\
-	ranlib  $(DESTDIR)$(prefix)/lib/liborocos-$(ECOS_TARGET).a ;\
-	ln -sf  $(DESTDIR)$(prefix)/lib/liborocos-$(ECOS_TARGET).a $(DESTDIR)$(prefix)/lib/libtarget.a ; fi; done
-	@libtool --mode=finish $(DESTDIR)$(prefix)/lib
-	@install -m 755 -d $(DESTDIR)$(prefix)/lib/pkgconfig 
-	install -m 644 packages/orocos.pc $(DESTDIR)$(prefix)/lib/pkgconfig/orocos-$(ECOS_TARGET).pc
+	if test packages/install/lib/libtarget.a -nt $(DESTDIR)$(libdir)/liborocos-$(ECOS_TARGET).a ; then \
+	install -m 644 packages/install/lib/libtarget.a $(DESTDIR)$(libdir)/liborocos-$(ECOS_TARGET).a ;\
+	ranlib  $(DESTDIR)$(libdir)/liborocos-$(ECOS_TARGET).a ;\
+	ln -sf  $(DESTDIR)$(libdir)/liborocos-$(ECOS_TARGET).a $(DESTDIR)$(libdir)/libtarget.a ; fi; done
+	@libtool --mode=finish $(DESTDIR)$(libdir)
+	@install -m 755 -d $(DESTDIR)$(libdir)/pkgconfig 
+	install -m 644 packages/orocos.pc $(DESTDIR)$(libdir)/pkgconfig/orocos-$(ECOS_TARGET).pc
 	@echo "Installing new modules"
 	if test -d packages/install/modules; then install -m 755 -d $(DESTDIR)$(prefix)/modules ; fi
 	@for i in $$( find packages/install/modules/ -type f ); do \
