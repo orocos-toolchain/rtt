@@ -40,7 +40,7 @@ namespace RTT
      * @ingroup CoreLibEvents
      */
     class CompletionProcessor 
-        : public EventProcessor, 
+        : public BlockingEventProcessor, 
           public NonPeriodicActivity
     {
     public:
