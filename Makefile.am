@@ -212,7 +212,7 @@ doxygen_headers: test_new_packages
 	export ECOS_REPOSITORY=$(ECOS_REP) ;\
 	$(ECOSCONFIG) template doxygen;\
 	$(ECOSCONFIG) resolve;\
-	$(ECOSCONFIG) tree ;fi
+	$(ECOSCONFIG) tree --ignore-errors;fi
 	$(MAKE) -C . inst-headers
 
 doxy-dist: test_new_packages 

@@ -1319,13 +1319,13 @@ cd                  quit
   assert( param.get() == "New String" );</programlisting></para>
       <para>
 	While another task can access it through the attributes() interface:
-    <programlisting>  Attribute&lt;bool> the_flag = a_task->attributes()->getAttribute&ltl;bool>("aflag");
+    <programlisting>  Attribute&lt;bool> the_flag = a_task->attributes()->getAttribute&lt;bool>("aflag");
   assert( the_flag.ready() );
 
   bool result = the_flag.get();
   assert( result == false );
 
-  Attribute&lt;int> the_max = a_task->attributes()->getAttribute&ltl;int>("max");
+  Attribute&lt;int> the_max = a_task->attributes()->getAttribute&lt;int>("max");
   assert( the_max.ready() );
   the_max.set( 10 );
   assert( the_max.get() == 10 );</programlisting>
