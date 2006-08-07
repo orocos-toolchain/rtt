@@ -50,30 +50,6 @@ m4_define([ACX_VERSION],[
 
 
 
-dnl ACX_VERSION_POST()
-dnl Post init of Autoconf version number stuff
-m4_define([ACX_VERSION_POST],[
- MAJOR_VERSION=acx_major_version
- MINOR_VERSION=acx_minor_version
- MICRO_VERSION=acx_micro_version
- DATE=`date +"%Y%m%d_%k%M"`
-dnl BUILD=$(svn info packages |grep Revision | sed -e's/Revision: //')
-dnl VERSION=acx_version-$BUILD
- VERSION=acx_version
- PACKAGE_VERSION=$VERSION
- AC_SUBST(MAJOR_VERSION)
- AC_SUBST(MINOR_VERSION)
- AC_SUBST(MICRO_VERSION)
- AC_SUBST(VERSION)
- AC_SUBST(PACKAGE_VERSION)
- AC_SUBST(DATE)
- AC_SUBST(BUILD)
-]) # ACX_VERSION_POST
-
-
-
-
-
 dnl ACX_ARG_DEBUG
 dnl Flag to choose to enable debugging information
 m4_define([ACX_ARG_DEBUG],[
@@ -298,7 +274,8 @@ m4_define([OROCOS_INIT],[
 #TMPBUILD = $(svn info packages |grep Revision | sed -e's/Revision: //')
 # define([svn_version],[$TMPBUILD])
 
-#ACX_VERSION($2,$3,$4,svn_version)
+define([acx_version],[AC_PACKAGE_VERSION])
+ACX_VERSION_POST
 
 # # Check if Autoconf version is recent enough
 # AC_PREREQ(2.53)
@@ -936,7 +913,7 @@ m4_define([ACX_VERSION_POST],[
  if test x$subvsn = xyes -a x$SVN != x; then
 
  echo "{ print $""2  }" > print-svn.awk
- SVN_VERSION=$(svn info . 2>/dev/null \
+ SVN_VERSION=$(svn info $srcdir 2>/dev/null \
 	| grep "Revision" | awk -f print-svn.awk )
  fi;
  rm -f print-svn.awk
@@ -946,10 +923,12 @@ m4_define([ACX_VERSION_POST],[
 	 BUILD=-$SVN_VERSION
 	 AC_MSG_RESULT( yes -$SVN_VERSION )
     else
+	 BUILD=
 	 AC_MSG_RESULT( yes )
     fi;         
  else
 	 AC_MSG_RESULT( no )
+	 BUILD=
  fi;
 
  DATE=`date +"%Y%m%d_%k%M"`
