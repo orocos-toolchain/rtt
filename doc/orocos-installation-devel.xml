@@ -15,12 +15,6 @@
       Inside the Orocos Build System
     </title>
     <subtitle><emphasis>Open Robot Control Software Version &oversion;</emphasis></subtitle>
-    <authorgroup>
-      <author>
-	<firstname>Peter</firstname>
-	<surname>Soetens</surname>
-      </author>
-    </authorgroup>
     <copyright>
       <year>2002,2003,2004,2005,2006</year>
       <holder>Peter Soetens</holder>
