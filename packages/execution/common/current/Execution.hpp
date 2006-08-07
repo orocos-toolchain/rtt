@@ -26,6 +26,7 @@
  ***************************************************************************/ 
  
 /**
+ * @defgroup Tasks Component Building
  * @brief Task Infrastructure, Program Script Loaders and Parsers, Hierarchical State Machines,
  * Asynchronous Command Processing, Online Task Browsing.
  *
@@ -42,14 +43,3 @@
  * Online %Program %Processor Manual</a>.
  * 
  */
-namespace RTT {
-
-    /**
-     * @brief Implementation classes.
-     *
-     * Contains mainly the template generator code, script parsers and
-     * helper classes.
-     */
-    namespace detail {
-    }
-}

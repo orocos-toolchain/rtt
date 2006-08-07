@@ -26,6 +26,7 @@
  ***************************************************************************/ 
  
 /**
+ * @defgroup DeviceDrivers Device Drivers
  * @brief Logical and Physical device drivers.
  *
  * It is meant to group all packages which provide implementations to the 
@@ -41,5 +42,5 @@
  * The device drivers are documented in <a href="../../orocos-device-drivers.html">
  * The Orocos Device Drivers Online Manual</a>
  */
-namespace RTT {}
+
 

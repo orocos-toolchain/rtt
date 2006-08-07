@@ -26,6 +26,7 @@
  ***************************************************************************/ 
  
 /**
+ * @defgroup DeviceInterface Abstract Device Interfaces
  * @brief Abstraction APIs for hardware devices ('cards') such as IO, counters,
  * but also logical devices like Encoders and generic Sensors.
  *
@@ -37,4 +38,3 @@
  * The device interfaces are documented in <a href="../../orocos-device-interface.html">
  * The Orocos Device Interface Online Manual</a>
  */
-namespace RTT {}
