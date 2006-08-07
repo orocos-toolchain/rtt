@@ -7,7 +7,7 @@ AC_PREREQ(2.53)
 #AC_REVISION($revision)
 
 # Initialize Autoconf with package name and version
-AC_INIT(orocos,0.25.0-devel0)
+AC_INIT(orocos,0.25.0-devel1)
 
 # Tell Autoconf to dump files into the config subdir
 AC_CONFIG_AUX_DIR(config)
