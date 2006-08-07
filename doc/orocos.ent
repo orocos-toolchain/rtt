@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
-<!ENTITY oversion    "0.25.0-devel0">
+<!ENTITY oversion    "0.25.0-devel1">
 <!ENTITY cvs         "<acronym>CVS</acronym>">
 <!ENTITY svn         "<acronym>SVN</acronym>">
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
