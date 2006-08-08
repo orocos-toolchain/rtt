@@ -16,7 +16,7 @@
    inkscape:version="0.42"
    sodipodi:docbase="/home/sspr/src/orocos-trunk/doc/svg"
    sodipodi:docname="ComponentImplementation.svg"
-   inkscape:export-filename="/home/sspr/Projecten/OpenRTC/Eindhoven06/ComponentImplementation.png"
+   inkscape:export-filename="ComponentImplementation.png"
    inkscape:export-xdpi="90.000000"
    inkscape:export-ydpi="90.000000">
   <defs
@@ -423,8 +423,8 @@
        id="image9622"
        height="102.00000"
        width="143.00000"
-       sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.png"
-       xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.png"
+       sodipodi:absref="gear-image.png"
+       xlink:href="gear-image.png"
        x="728.30182"
        y="357.12845" />
     <rect
@@ -481,16 +481,16 @@
     <image
        y="180.22694"
        x="741.96277"
-       xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/ACMotor.jpg"
-       sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/ACMotor.jpg"
+       xlink:href="ACMotor.jpg"
+       sodipodi:absref="ACMotor.jpg"
        width="126.86277"
        height="76.625122"
        id="image2298" />
     <image
        y="268.08511"
        x="809.87036"
-       xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/Meter_1.png"
-       sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/Meter_1.png"
+       xlink:href="Meter_1.png"
+       sodipodi:absref="Meter_1.png"
        width="154.51962"
        height="122.73452"
        id="image2812" />

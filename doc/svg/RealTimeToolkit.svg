@@ -16,7 +16,7 @@
    inkscape:version="0.42"
    sodipodi:docbase="/home/sspr/src/orocos-trunk/doc/svg"
    sodipodi:docname="RealTimeToolkit.svg"
-   inkscape:export-filename="/home/sspr/Projecten/OpenRTC/Eindhoven06/RealTimeToolkit.png"
+   inkscape:export-filename="RealTimeToolkit.png"
    inkscape:export-xdpi="90.000000"
    inkscape:export-ydpi="90.000000">
   <defs
@@ -167,8 +167,8 @@
        id="image2257"
        height="221.00000"
        width="259.00000"
-       sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/toolkit.png"
-       xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/toolkit.png"
+       sodipodi:absref="toolkit.png"
+       xlink:href="toolkit.png"
        x="190.92038"
        y="855.03064" />
     <text
@@ -207,8 +207,8 @@
       <image
          y="116.14283"
          x="304.28577"
-         xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/ACMotor.jpg"
-         sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/ACMotor.jpg"
+         xlink:href="ACMotor.jpg"
+         sodipodi:absref="ACMotor.jpg"
          width="177.14285"
          height="106.99429"
          id="image2298" />
@@ -225,8 +225,8 @@
       <image
          y="419.84070"
          x="259.22891"
-         xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
-         sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
+         xlink:href="gear-image.png"
+         sodipodi:absref="gear-image.png"
          width="194.42857"
          height="138.68330"
          id="image2683" />
@@ -244,8 +244,8 @@
       <image
          y="74.808189"
          x="615.34082"
-         xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/robot.png"
-         sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/robot.png"
+         xlink:href="robot.png"
+         sodipodi:absref="robot.png"
          width="140.96295"
          height="194.52887"
          id="image2732" />
@@ -262,8 +262,8 @@
       <image
          y="340.41525"
          x="101.98973"
-         xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/Meter_1.png"
-         sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/Meter_1.png"
+         xlink:href="Meter_1.png"
+         sodipodi:absref="Meter_1.png"
          width="188.39293"
          height="149.64000"
          id="image2812" />
@@ -321,8 +321,8 @@
            id="image2870"
            height="85.889069"
            width="120.41312"
-           sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
-           xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
+           sodipodi:absref="gear-image.png"
+           xlink:href="gear-image.png"
            x="704.19330"
            y="617.10840" />
       </g>
@@ -340,8 +340,8 @@
            id="image2876"
            height="85.889069"
            width="120.41312"
-           sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
-           xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
+           sodipodi:absref="gear-image.png"
+           xlink:href="gear-image.png"
            x="986.39478"
            y="619.43628" />
       </g>
@@ -359,8 +359,8 @@
            id="image2882"
            height="85.889069"
            width="120.41312"
-           sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
-           xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/gear-image.jpg"
+           sodipodi:absref="gear-image.png"
+           xlink:href="gear-image.png"
            x="837.41888"
            y="812.63922" />
       </g>
@@ -378,8 +378,8 @@
            id="image2929"
            height="119.78026"
            width="113.90868"
-           sodipodi:absref="/home/sspr/Projecten/OpenRTC/Eindhoven06/computer_screen.jpg"
-           xlink:href="/home/sspr/Projecten/OpenRTC/Eindhoven06/computer_screen.jpg"
+           sodipodi:absref="computer_screen.jpg"
+           xlink:href="computer_screen.jpg"
            x="771.63214"
            y="165.90131" />
       </g>
