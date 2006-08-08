@@ -29,7 +29,7 @@
 #ifndef ORO_CORELIB_SIGNAL_HPP
 #define ORO_CORELIB_SIGNAL_HPP
 
-#define OROCOS_SIGNAL_MAX_ARGS 10
+#define OROCOS_SIGNAL_MAX_ARGS 4
 
 #include <boost/type_traits/function_traits.hpp>
 #include <boost/function.hpp>
@@ -39,15 +39,8 @@
 #include "impl/signal2.hpp"
 #include "impl/signal3.hpp"
 #include "impl/signal4.hpp"
-#include "impl/signal5.hpp"
-#include "impl/signal6.hpp"
-#include "impl/signal7.hpp"
-#include "impl/signal8.hpp"
-#include "impl/signal9.hpp"
-#include "impl/signal10.hpp"
 
-
-namespace sigslot {
+namespace RTT {
     namespace detail {
       template<int Arity,
                typename Signature,
@@ -126,131 +119,12 @@ namespace sigslot {
 
       template<typename Signature,
                typename SlotFunction>
-      class real_get_signal_impl<5, Signature,
-                                 SlotFunction>
-      {
-        typedef boost::function_traits<Signature> traits;
-
-      public:
-        typedef signal5<typename traits::result_type,
-                        typename traits::arg1_type,
-                        typename traits::arg2_type,
-                        typename traits::arg3_type,
-                        typename traits::arg4_type,
-                        typename traits::arg5_type,
-                        SlotFunction> type;
-      };
-
-      template<typename Signature,
-               typename SlotFunction>
-      class real_get_signal_impl<6, Signature,
-                                 SlotFunction>
-      {
-        typedef boost::function_traits<Signature> traits;
-
-      public:
-        typedef signal6<typename traits::result_type,
-                        typename traits::arg1_type,
-                        typename traits::arg2_type,
-                        typename traits::arg3_type,
-                        typename traits::arg4_type,
-                        typename traits::arg5_type,
-                        typename traits::arg6_type,
-                        SlotFunction> type;
-      };
-
-      template<typename Signature,
-               typename SlotFunction>
-      class real_get_signal_impl<7, Signature,
-                                 SlotFunction>
-      {
-        typedef boost::function_traits<Signature> traits;
-
-      public:
-        typedef signal7<typename traits::result_type,
-                        typename traits::arg1_type,
-                        typename traits::arg2_type,
-                        typename traits::arg3_type,
-                        typename traits::arg4_type,
-                        typename traits::arg5_type,
-                        typename traits::arg6_type,
-                        typename traits::arg7_type,
-                        SlotFunction> type;
-      };
-
-      template<typename Signature,
-               typename SlotFunction>
-      class real_get_signal_impl<8, Signature,
-                                 SlotFunction>
-      {
-        typedef boost::function_traits<Signature> traits;
-
-      public:
-        typedef signal8<typename traits::result_type,
-                        typename traits::arg1_type,
-                        typename traits::arg2_type,
-                        typename traits::arg3_type,
-                        typename traits::arg4_type,
-                        typename traits::arg5_type,
-                        typename traits::arg6_type,
-                        typename traits::arg7_type,
-                        typename traits::arg8_type,
-                        SlotFunction> type;
-      };
-
-      template<typename Signature,
-               typename SlotFunction>
-      class real_get_signal_impl<9, Signature,
-                                 SlotFunction>
-      {
-        typedef boost::function_traits<Signature> traits;
-
-      public:
-        typedef signal9<typename traits::result_type,
-                        typename traits::arg1_type,
-                        typename traits::arg2_type,
-                        typename traits::arg3_type,
-                        typename traits::arg4_type,
-                        typename traits::arg5_type,
-                        typename traits::arg6_type,
-                        typename traits::arg7_type,
-                        typename traits::arg8_type,
-                        typename traits::arg9_type,
-                        SlotFunction> type;
-      };
-
-      template<typename Signature,
-               typename SlotFunction>
-      class real_get_signal_impl<10, Signature,
-                                 SlotFunction>
-      {
-        typedef boost::function_traits<Signature> traits;
-
-      public:
-        typedef signal10<typename traits::result_type,
-                         typename traits::arg1_type,
-                         typename traits::arg2_type,
-                         typename traits::arg3_type,
-                         typename traits::arg4_type,
-                         typename traits::arg5_type,
-                         typename traits::arg6_type,
-                         typename traits::arg7_type,
-                         typename traits::arg8_type,
-                         typename traits::arg9_type,
-                         typename traits::arg10_type,
-                         SlotFunction> type;
-      };
-
-      template<typename Signature,
-               typename SlotFunction>
       struct get_signal_impl :
         public real_get_signal_impl<(boost::function_traits<Signature>::arity),
                                     Signature,
                                     SlotFunction>
       {
       };
-
-    } // end namespace detail
 
     /**
      * Very lightweight wrapper around the signalN classes that allows signals to
@@ -273,7 +147,9 @@ namespace sigslot {
         signal() {}
     };
     
-} // namespace sigslot
+    } // end namespace detail
+
+} // namespace RTT
 
 
 #endif

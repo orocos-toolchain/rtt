@@ -37,6 +37,7 @@
 
 #ifdef OROPKG_CORELIB_EVENTS
 #include "rtt/Event.hpp"
+#include "rtt/CompletionProcessor.hpp"
 #endif
 #ifdef OROPKG_CORELIB_REPORTING
 #include "rtt/Logger.hpp"
@@ -273,7 +274,7 @@ namespace RTT
 
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
         h = new RTT::Handle();
-        stopEvent = static_cast<void*>( new Event<bool(void)>() );
+        stopEvent = static_cast<void*>( new Event<bool(void)>("StopEvent") );
 #endif
 
         // Do not call setPeriod(), since the semaphores are not yet used !
@@ -606,7 +607,7 @@ namespace RTT
     bool PeriodicThread::setToStop()
     {
 #ifdef OROINT_CORELIB_COMPLETION_INTERFACE
-        static_cast< Event<bool(void)>* >(stopEvent)->fire();
+        (*static_cast< Event<bool(void)>* >(stopEvent))();
         return true;
 #else
         return false;

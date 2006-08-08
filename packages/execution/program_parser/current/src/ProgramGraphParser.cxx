@@ -588,9 +588,9 @@ namespace RTT
       assert( argsparser );
       try
           {
-              DataSourceBase::shared_ptr emitds = peer->events()->setupEmit( argsparser->methodname(), callfnargs);
+              ActionInterface* emitds = peer->events()->getEvent( argsparser->methodname(), callfnargs);
               assert( emitds );
-              program_builder->setCommand( new CommandDataSource( emitds ) );
+              program_builder->setCommand( emitds );
               program_builder->proceedToNext( new ConditionTrue(), mpositer.get_position().line - ln_offset );
               // only delete parser, when the args are used.
               delete argsparser;

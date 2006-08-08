@@ -25,8 +25,11 @@
 #include <rtt/Method.hpp>
 #include <rtt/SimulationActivity.hpp>
 #include <rtt/SimulationThread.hpp>
+#include <rtt/TaskBrowser.hpp>
+#include <rtt/GenericTaskContext.hpp>
 #ifdef OROPKG_GEOMETRY
 #include <geometry/GeometryToolkit.hpp>
+#include <geometry/frames_io.h>
 using namespace ORO_Geometry;
 #endif
 using namespace std;
@@ -38,7 +41,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( TypesTest );
 void 
 TypesTest::setUp()
 {
-    tc =  new TaskContext( "root" );
+    tc =  new GenericTaskContext( "root" );
     tc->addObject( this->createMethodFactory() );
     tsim = new SimulationActivity( 0.001, tc->engine() );
 
@@ -78,65 +81,58 @@ bool TypesTest::assertMsg( bool b, const std::string& msg) {
                                      "Assert equal frames", "f1", "", "f2", "" );
         to->methods()->addMethod( method("equalVectors", &TypesTest::equalVectors, this),
                                      "Assert equal vectors", "v1", "", "v2", "" );
+        to->methods()->addMethod( method("equalVFrames", &TypesTest::equalVFrames, this),
+                                     "Assert equal frames", "f1", "", "f2", "" );
+        to->methods()->addMethod( method("equalVVectors", &TypesTest::equalVVectors, this),
+                                     "Assert equal vectors", "v1", "", "v2", "" );
+        to->methods()->addMethod( method("equalWrench", &TypesTest::equalWrench, this),
+                                     "Assert equal wrench", "v1", "", "v2", "", "v3","","v4","" );
 #endif
         return to;
     }
 
 #ifdef OROPKG_GEOMETRY
-bool TypesTest::equalFrames(const Frame& f1, Frame& f2)
+
+bool TypesTest::equalWrench(const Wrench f1, Wrench& f2, const Wrench& f3, Wrench f4)
 {
-    return f1 == f2;
+    //cout <<"equalWrench("<< f1 <<", "<< f2 <<", "<< f3 <<", "<< f4 <<")"<<endl;
+    return f1 == f2 && f2 == f3 && f3 == f4 && f1.force != Vector::Zero() && f1.torque != Vector::Zero();
 }
 
-bool TypesTest::equalVectors(const Vector& f1, Vector& f2)
+// Test passing const and by reference
+bool TypesTest::equalFrames(const Frame f1, Frame& f2)
 {
-    return f1 == f2;
+    //cout <<"equalFrames("<< f1 <<", "<< f2 <<")"<<endl;
+    return f1 == f2 && f1.p != Vector::Zero() && f1.M != Rotation::Identity();
+}
+
+bool TypesTest::equalVectors(const Vector f1, Vector& f2)
+{
+    //cout <<"equalVectors("<< f1 <<", "<< f2 <<")"<<endl;
+    return f1 == f2 && f1 != Vector::Zero();
+}
+
+// Test passing const& and by value
+bool TypesTest::equalVFrames(const Frame& f1, Frame f2)
+{
+    //cout <<"equalVFrames("<< f1 <<", "<< f2 <<")"<<endl;
+    return f1 == f2 && f1.p != Vector::Zero() && f1.M != Rotation::Identity();
+}
+
+bool TypesTest::equalVVectors(const Vector& f1, Vector f2)
+{
+    //cout <<"equalVVectors("<< f1 <<", "<< f2 <<")"<<endl;
+    return f1 == f2 && f1 != Vector::Zero();
 }
 #endif
-
-void TypesTest::testEmptyProgram()
-{
-    string prog = "";
-    Parser::ParsedPrograms pg_list;
-    try {
-        pg_list = parser.parseProgram( prog, tc );
-    }
-    catch( const file_parse_exception& exc )
-        {
-            CPPUNIT_ASSERT( false );
-        }
-    if ( !pg_list.empty() )
-        {
-            CPPUNIT_ASSERT( false );
-        }
-}
-
-void TypesTest::testReturnProgram()
-{
-    string prog = "program x { return \n }";
-    Parser::ParsedPrograms pg_list;
-    try {
-        pg_list = parser.parseProgram( prog, tc);
-    }
-    catch( const file_parse_exception& exc )
-        {
-            CPPUNIT_ASSERT_MESSAGE(exc.what(), false );
-        }
-    if ( pg_list.empty() )
-        {
-            CPPUNIT_ASSERT( false );
-        }
-    // execute
-    executePrograms(pg_list);
-}
 
 void TypesTest::testTypes()
 {
     // XXX
     // for some reason, we can not compare the double6D's one fails
     // to parse, the others assert false, thus inequality.
-    string prog = string("program x {\n") +
-        "var int i = -1, j = 10, k; set k = 20\n" +
+    string test = 
+        string("var int i = -1, j = 10, k; set k = 20\n") +
         "do test.assert( i == -1 ) ; do test.assert( j == 10 ); do test.assert(k == 20)\n" +
         "var double d = 10.0\n"+
         "do test.assert( d == 10.0 )\n" +
@@ -179,14 +175,23 @@ void TypesTest::testTypes()
         // 30
         "set d6[5]=d6[0]\n"+
         "do test.assert( d6[5] == 1.0 )\n" +
-        "var vector v = vector(0.,0.,0.)\n"+
-        "var rotation r = rotation(0.,0.,0.) \n"+
+        "var vector v = vector(0.1,0.2,0.3)\n"+
+        "var rotation r = rotation(0.3,0.2,0.1) \n"+
         "var frame f = frame(v,r) \n"+
-        "const vector vc = v\n"+
-        "const rotation rc = r\n"+
-        "const frame fc = f\n"+
+        "const vector vc = vector(0.1,0.2,0.3)\n"+
+        "const rotation rc = rotation(0.3,0.2,0.1)\n"+
+        "const frame fc = frame(vc,rc)\n"+
+        "do test.equalFrames(f, f)\n"+
+        "do test.equalVectors(v, v)\n"+
+        // 40
+        "do test.equalVFrames(f, f)\n"+
+        "do test.equalVVectors(v, v)\n"+
+        "var wrench w = wrench(vector(1.0,2.0,3.0),vector(0.1,0.2,0.3))\n"+
+        "do test.equalWrench(wrench(vector(1.0,2.0,3.0),vector(0.1,0.2,0.3)),w,wrench(vector(1.0,2.0,3.0),vector(0.1,0.2,0.3)),wrench(vector(1.0,2.0,3.0),vector(0.1,0.2,0.3)))\n"+
         "do test.equalFrames(fc, f)\n"+
         "do test.equalVectors(vc, v)\n"+
+        "do test.equalVFrames(fc, f)\n"+
+        "do test.equalVVectors(vc, v)\n"+
 #endif
 #ifndef ORO_EMBEDDED
         "var array ar(10)\n"+
@@ -216,22 +221,20 @@ void TypesTest::testTypes()
         "do test.assert( str[8] == '\\0' )\n"+
         // 60
         "do test.assert( str[9] == '\\0' )\n"+
-        "do test.assert( str[10] == '\\0' )\n"+
-        "}";
-    Parser::ParsedPrograms pg_list;
-    try {
-        pg_list = parser.parseProgram( prog, tc );
-    }
-    catch( const file_parse_exception& exc )
-        {
-            CPPUNIT_ASSERT_MESSAGE(exc.what(), false );
-        }
-    if ( pg_list.empty() )
-        {
-            CPPUNIT_ASSERT( false );
-        }
+        "do test.assert( str[10] == '\\0' )\n";
+
+    string state = string("StateMachine X { initial state Init { run {\n")
+        +test
+        +"} }\n"
+        +"final state Fini {} }\n"
+        +"RootMachine X x\n";
+    
+    executeStates(state);
+                          
+    string prog = string("program x {\n") + test + "}\n";
     // execute
-    executePrograms(pg_list);
+    executePrograms(prog);
+
 }
 
 void TypesTest::testOperators()
@@ -259,42 +262,8 @@ void TypesTest::testOperators()
         "var frame f = frame(v,r) \n"+
 #endif
         "}";
-    Parser::ParsedPrograms pg_list;
-    try {
-        pg_list = parser.parseProgram( prog, tc );
-    }
-    catch( const file_parse_exception& exc )
-        {
-            CPPUNIT_ASSERT_MESSAGE(exc.what(), false );
-        }
-    if ( pg_list.empty() )
-        {
-            CPPUNIT_ASSERT( false );
-        }
     // execute
-    executePrograms(pg_list);
-}
-
-void TypesTest::executePrograms(const Parser::ParsedPrograms& pg_list )
-{
-    tc->getExecutionEngine()->getProgramProcessor()->loadProgram( *pg_list.begin() );
-    tsim->start();
-    CPPUNIT_ASSERT( (*pg_list.begin())->start() );
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(1000) );
-    tsim->stop();
-    if ( (*pg_list.begin())->inError() ) {
-        stringstream errormsg;
-        errormsg << " Program error on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
-        CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
-    }
-
-    if ( (*pg_list.begin())->isRunning() ) {
-        stringstream errormsg;
-        errormsg << " Program still running on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
-        CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
-    }
-    CPPUNIT_ASSERT( (*pg_list.begin())->stop() );
-    tc->engine()->programs()->unloadProgram( (*pg_list.begin())->getName() );
+    executePrograms(prog);
 }
 
 void TypesTest::testProperties()
@@ -307,10 +276,19 @@ void TypesTest::testProperties()
         "do test.assert( task.Collection.Double3 == 3.234 )\n" +
         "do test.assert( task.Collection.Collection.Double1 == 1.234 )\n" +
         "do test.assert( task.Collection.Collection.Collection.Double3 == 3.234 )\n" +
+        "do test.assert( task.V[0] == 4.0 )\n" +
+        "do test.assert( task.V[1] == 4.0 )\n" +
+        "do test.assert( task.V[2] == 4.0 )\n" +
+        "do test.assert( task.V[3] == 4.0 )\n" +
+        //"do test.assert( task.V.size() == 4 )\n" +
         "set task.Double1 = 4.321\n" +
         "set task.Double2 = task.Double1\n" +
         // -> = 10
         "set task.Collection.Double3 = 0.3\n" +
+        "set task.V[0] = 0.321\n" +
+        "set task.V[1] = 1.321\n" +
+        "set task.V[2] = 2.321\n" +
+        "set task.V[3] = 3.321\n" +
         "do test.assert( task.Double1 == 4.321 )\n" +
         "do test.assert( task.Double2 == 4.321 )\n" +
         "do test.assert( task.Double3 == 0.3 )\n" +
@@ -337,6 +315,8 @@ void TypesTest::testProperties()
     Property<double> pd1("Double1","",1.234);
     Property<double> pd2("Double2","",2.234);
     Property<double> pd3("Double3","",3.234);
+
+    Property< std::vector<double> > pv("V","",std::vector<double>(4, 4.0) );
 #ifdef OROPKG_GEOMETRY
     Property<Frame> pf("Frame","", Frame::Identity() );
     Property<Rotation> pr("Rotation","", Rotation::RPY(0.0, 45.0, 60.0) );
@@ -349,12 +329,26 @@ void TypesTest::testProperties()
     pb.value().add( &pd1 );
     pb.value().add( &pd3 );
     pb.value().add( &pb ); // yep, recursive !
-        
+
     tc->properties()->addProperty( &pd1 );
     tc->properties()->addProperty( &pd2 );
     tc->properties()->addProperty( &pd3 );
     tc->properties()->addProperty( &pb );
+    tc->properties()->addProperty( &pv );
 
+    // execute
+    executePrograms(prog);
+
+    CPPUNIT_ASSERT_EQUAL( 4.321, pd1.get() );
+    CPPUNIT_ASSERT_EQUAL( 3.0, pd3.get() );
+    CPPUNIT_ASSERT_EQUAL( 0.321, pv.value()[0] );
+    CPPUNIT_ASSERT_EQUAL( 1.321, pv.value()[1] );
+    CPPUNIT_ASSERT_EQUAL( 2.321, pv.value()[2] );
+    CPPUNIT_ASSERT_EQUAL( 3.321, pv.value()[3] );
+}
+
+void TypesTest::executePrograms(const std::string& prog )
+{
     Parser::ParsedPrograms pg_list;
     try {
         pg_list = parser.parseProgram( prog, tc );
@@ -367,10 +361,67 @@ void TypesTest::testProperties()
         {
             CPPUNIT_ASSERT( false );
         }
-    // execute
-    executePrograms(pg_list);
-    CPPUNIT_ASSERT_EQUAL( 4.321, pd1.get() );
-    CPPUNIT_ASSERT_EQUAL( 3.0, pd3.get() );
+
+    CPPUNIT_ASSERT( tc->engine()->programs()->loadProgram( *pg_list.begin() ) );
+    CPPUNIT_ASSERT( tsim->start() );
+    CPPUNIT_ASSERT( (*pg_list.begin())->start() );
+
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(1000) );
+    if ( (*pg_list.begin())->inError() ) {
+        stringstream errormsg;
+        errormsg << " Program error on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
+        CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
+    }
+
+    if ( (*pg_list.begin())->isRunning() ) {
+        stringstream errormsg;
+        errormsg << " Program still running on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
+        CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
+    }
+
+    if ( (*pg_list.begin())->isStopped() == false ) {
+        stringstream errormsg;
+        errormsg << " Program not stopped on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
+        CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
+    }
+    CPPUNIT_ASSERT( (*pg_list.begin())->stop() );
+    tsim->stop();
+    tc->engine()->programs()->unloadProgram( (*pg_list.begin())->getName() );
+}
+
+void TypesTest::executeStates(const std::string& state )
+{
+    Parser::ParsedStateMachines pg_list;
+    try {
+        pg_list = parser.parseStateMachine( state, tc );
+    }
+    catch( const file_parse_exception& exc )
+        {
+            CPPUNIT_ASSERT_MESSAGE(exc.what(), false );
+        }
+    if ( pg_list.empty() )
+        {
+            CPPUNIT_ASSERT( false );
+        }
+
+    CPPUNIT_ASSERT( tc->engine()->states()->loadStateMachine( *pg_list.begin() ) );
+    CPPUNIT_ASSERT( tsim->start() );
+    CPPUNIT_ASSERT( (*pg_list.begin())->activate() );
+    CPPUNIT_ASSERT( (*pg_list.begin())->start() );
+
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(1000) );
+    if ( (*pg_list.begin())->inError() ) {
+        stringstream errormsg;
+        errormsg << " State error on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
+        CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
+    }
+
+    CPPUNIT_ASSERT( (*pg_list.begin())->stop() );
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(100) );
+    CPPUNIT_ASSERT( (*pg_list.begin())->deactivate() );
+
+    tsim->stop();
+    tc->engine()->states()->unloadStateMachine( (*pg_list.begin())->getName() );
 }
 
     

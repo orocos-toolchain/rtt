@@ -36,7 +36,6 @@
 #include "rtt/TaskBrowser.hpp"
 
 #include "rtt/TryCommand.hpp"
-#include <rtt/TemplateFactories.hpp>
 #include <rtt/TaskContext.hpp>
 #include <rtt/Parser.hpp>
 #include <rtt/ProgramLoader.hpp>
@@ -95,9 +94,9 @@ namespace RTT
     // catch ctrl+c signal
     void ctrl_c_catcher(int sig)
     {
-        signal(sig, SIG_IGN);
+        ::signal(sig, SIG_IGN);
         cerr <<nl<<"TaskBrowser intercepted Ctrl-C. Type 'quit' to exit."<<endl;
-        signal(SIGINT, ctrl_c_catcher);
+        ::signal(SIGINT, ctrl_c_catcher);
     }
 
     char *TaskBrowser::rl_gets ()
@@ -504,7 +503,7 @@ namespace RTT
         using boost::lambda::_1;
 
         // Intercept Ctrl-C
-        signal( SIGINT, ctrl_c_catcher );
+        ::signal( SIGINT, ctrl_c_catcher );
 
         cout << nl<<
             coloron <<
@@ -542,7 +541,7 @@ namespace RTT
                 cout << coloroff;
                 if ( command == "quit" ) {
                     // Intercept no Ctrl-C
-                    signal( SIGINT, SIG_DFL );
+                    ::signal( SIGINT, SIG_DFL );
                     cout << endl;
                     return;
                 } else if ( command == "help") {

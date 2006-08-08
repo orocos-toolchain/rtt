@@ -94,7 +94,8 @@ namespace RTT
             typedef FunctorT fun_t;
             fun_t fun;
         public:
-            OperationFactoryPart0( fun_t f, const char* desc )
+            template<class InitF>
+            OperationFactoryPart0( InitF f, const char* desc )
                 : OperationFactoryPart<ResultT>( desc ), fun( f )
             {
             }
@@ -134,7 +135,8 @@ namespace RTT
             const char* arg1name;
             const char* arg1desc;
         public:
-            OperationFactoryPart1( fun_t f, const char* desc,
+            template<class InitF>
+            OperationFactoryPart1( InitF f, const char* desc,
                                    const char* a1n, const char* a1d )
                 : OperationFactoryPart<ResultT>( desc ),
                   fun( f ), arg1name( a1n ), arg1desc( a1d )
@@ -188,7 +190,8 @@ namespace RTT
             const char* arg2name;
             const char* arg2desc;
         public:
-            OperationFactoryPart2( fun_t f, const char* desc, const char* a1n,
+            template<class InitF>
+            OperationFactoryPart2( InitF f, const char* desc, const char* a1n,
                                    const char* a1d, const char* a2n,
                                    const char* a2d)
                 : OperationFactoryPart<ResultT>( desc ), fun( f ),
@@ -255,7 +258,8 @@ namespace RTT
             const char* arg3name;
             const char* arg3desc;
         public:
-            OperationFactoryPart3( fun_t f, const char* desc, const char* a1n,
+            template<class InitF>
+            OperationFactoryPart3( InitF f, const char* desc, const char* a1n,
                                    const char* a1d, const char* a2n,
                                    const char* a2d, const char* a3n,
                                    const char* a3d )
@@ -333,7 +337,8 @@ namespace RTT
             const char* arg4name;
             const char* arg4desc;
         public:
-            OperationFactoryPart4( fun_t f, const char* desc, const char* a1n,
+            template<class InitF>
+            OperationFactoryPart4( InitF f, const char* desc, const char* a1n,
                                    const char* a1d, const char* a2n,
                                    const char* a2d, const char* a3n,
                                    const char* a3d, const char* a4n,

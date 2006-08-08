@@ -40,9 +40,9 @@ class EventTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testCrossRemoval );
     CPPUNIT_TEST_SUITE_END();
 
-    RTT::Event<void( void )>* t_event;
-    RTT::Event<void( std::string )>* t_event_string;
-    RTT::Event<int( float, float )>* t_event_float;
+    RTT::Event<void( void )> t_event;
+    RTT::Event<void( std::string )> t_event_string;
+    RTT::Event<int( float, float )> t_event_float;
     bool t_listener_value;
     bool t_completer_value;
     std::string t_listener_what;

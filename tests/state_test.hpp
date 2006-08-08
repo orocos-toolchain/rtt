@@ -55,8 +55,6 @@ class StateTest : public CppUnit::TestFixture
     Event<void(double)> d_event;
     Event<void(bool)> b_event;
     TaskObject* createObject(std::string);
-    CommandFactoryInterface* createCommandFactory();
-    DataSourceFactoryInterface* createDataSourceFactory();
     bool assertBool( bool );
     bool assertMsg( bool, const std::string& msg);
     int increase();

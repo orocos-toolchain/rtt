@@ -29,6 +29,7 @@
 #define ACTIONINTERFACE_HPP
 
 #include <map>
+#include <boost/shared_ptr.hpp>
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
@@ -59,6 +60,12 @@ namespace RTT {
     class ActionInterface
     {
     public:
+        /**
+         * Use this type for shared pointer storage of an
+         * ActionInterface object.
+         */
+        typedef boost::shared_ptr<ActionInterface> shared_ptr;
+
         virtual ~ActionInterface();
 
         /**

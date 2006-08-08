@@ -136,7 +136,7 @@ namespace ORO_Geometry
             return Frame( r, v );
         }
 
-        Wrench wrenchft( Vector& force, const Vector& torque )
+        Wrench wrenchft( const Vector& force, const Vector& torque )
         {
             return Wrench( force, torque );
         }

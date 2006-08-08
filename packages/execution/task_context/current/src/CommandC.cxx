@@ -26,7 +26,6 @@
  ***************************************************************************/
  
  
-#include "rtt/GlobalCommandFactory.hpp"
 #include "rtt/CommandC.hpp"
 #include "rtt/OperationInterface.hpp"
 #include "rtt/DispatchInterface.hpp"
@@ -45,9 +44,8 @@ namespace RTT
     class CommandC::D
     {
     public:
-        const GlobalCommandFactory* mgcf;
         const CommandRepository::Factory* mcr;
-        std::string mobject, mname;
+        std::string mname;
         std::pair<DispatchInterface*,ConditionInterface*> comcon;
         std::vector<DataSourceBase::shared_ptr> args;
 
@@ -69,29 +67,6 @@ namespace RTT
                     delete comcon.second;
                 }
             }
-            else {
-                if ( mgcf->getObjectFactory(mobject) == 0 ) {
-                    Logger::log() <<Logger::Error << "No '"<<mobject<<"' object in this Command Factory."<<Logger::endl;
-                    ORO_THROW(name_not_found_exception(mobject));
-                }
-                if (  mgcf->hasCommand(mobject, mname) == false ) {
-                    Logger::log() <<Logger::Error << "No such command '"+mname+"' in '"+mobject+"' Command Factory."<<Logger::endl;
-                    ORO_THROW(name_not_found_exception(mname));
-                }
-                size_t sz = mgcf->getObjectFactory(mobject)->getArgumentList(mname).size();
-                if ( sz == args.size() ) {
-                    // may throw or return '0,0' if no exceptions.
-                    ComCon cc = mgcf->getObjectFactory(mobject)->create(mname, args, false );
-                    args.clear();
-                    if (cc.first == 0)
-                        return;
-                    // below we assume that the result is a DispatchInterface object.
-                    assert( static_cast<DispatchInterface*>(cc.first) == dynamic_cast<DispatchInterface*>(cc.first) );
-                    comcon.first = static_cast<DispatchInterface*>(cc.first);
-                    // discard the condition, we do not need it.
-                    delete comcon.second;
-                }
-            }
         }
 
     public:
@@ -101,22 +76,15 @@ namespace RTT
             this->checkAndCreate();
         }
 
-        D( const GlobalCommandFactory* gcf, const std::string& obj, const std::string& name)
-            : mgcf(gcf), mcr(0), mobject(obj), mname(name)
-        {
-            comcon.first = 0;
-            this->checkAndCreate();
-        }
-
         D( const CommandRepository::Factory* cr, const std::string& name)
-            : mgcf(0), mcr(cr), mname(name)
+            : mcr(cr), mname(name)
         {
             comcon.first = 0;
             this->checkAndCreate();
         }
 
         D(const D& other)
-            : mgcf( other.mgcf), mcr(other.mcr), mobject(other.mobject), mname(other.mname),
+            : mcr(other.mcr), mname(other.mname),
               args( other.args )
         {
             if (other.comcon.first )
@@ -141,16 +109,6 @@ namespace RTT
         : d(0), cc()
     {
         this->cc = di;
-    }
-
-    CommandC::CommandC(const GlobalCommandFactory* gcf, const std::string& obj, const std::string& name)
-        : d( gcf ? new D( gcf, obj, name) : 0 ), cc()
-    {
-        if ( d->comcon.first ) {
-            this->cc = d->comcon.first->clone();
-            delete d;
-            d = 0;
-        }
     }
 
     CommandC::CommandC(const CommandRepository::Factory* cr, const std::string& name)
@@ -221,10 +179,7 @@ namespace RTT
             Logger::log() <<Logger::Error << "execute() called on incomplete CommandC."<<Logger::endl;
             if (d) {
                 size_t sz;
-                if (d->mgcf)
-                    sz = d->mgcf->getObjectFactory(d->mobject)->getArity( d->mname );
-                else
-                    sz = d->mcr->getArity( d->mname );
+		sz = d->mcr->getArity( d->mname );
                 Logger::log() <<Logger::Error << "Wrong number of arguments provided for command '"+d->mname+"'"<<Logger::nl;
                 Logger::log() <<Logger::Error << "Expected "<< sz << ", got: " << d->args.size() <<Logger::endl;
             }

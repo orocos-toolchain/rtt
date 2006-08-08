@@ -33,13 +33,10 @@ using namespace ORO_Geometry;
 #endif
 
 using namespace RTT;
-using namespace RTT;
 
 class TypesTest : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( TypesTest );
-    CPPUNIT_TEST( testEmptyProgram );
-    CPPUNIT_TEST( testReturnProgram );
     CPPUNIT_TEST( testTypes );
     CPPUNIT_TEST( testOperators );
     CPPUNIT_TEST( testProperties );
@@ -51,18 +48,20 @@ class TypesTest : public CppUnit::TestFixture
     TaskObject* createMethodFactory();
     bool assertBool( bool );
 #ifdef OROPKG_GEOMETRY
-    bool equalFrames(const Frame& f1, Frame& f2);
-    bool equalVectors(const Vector& f1, Vector& f2);
+    bool equalFrames(const Frame f1, Frame& f2);
+    bool equalVectors(const Vector f1, Vector& f2);
+    bool equalVFrames(const Frame& f1, Frame f2);
+    bool equalVVectors(const Vector& f1, Vector f2);
+    bool equalWrench(const Wrench f1, Wrench& f2, const Wrench& f3, Wrench f4);
 #endif
     bool assertMsg( bool, const std::string& msg);
-    void executePrograms(const Parser::ParsedPrograms& pg_list);
+    void executePrograms(const std::string& prog);
+    void executeStates(const std::string& state);
 public:
 
     void setUp();
     void tearDown();
 
-    void testEmptyProgram();
-    void testReturnProgram();
     void testTypes();
     void testOperators();
     void testProperties();

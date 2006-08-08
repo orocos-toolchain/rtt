@@ -51,7 +51,7 @@
 #endif
 #endif
 
-namespace sigslot
+namespace RTT
 {
     namespace detail {
         class signal_base;

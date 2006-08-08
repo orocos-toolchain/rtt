@@ -70,12 +70,12 @@ namespace RTT
           }
           else
           {
-	    if (_max_drive_event == NULL){
+	    if ( !_max_drive_event.ready() ){
               stop();
               lock();
 	    }
 	    else{
-	      _max_drive_event->fire();
+	      _max_drive_event();
 	    }
 	    return false;
           }
@@ -162,9 +162,9 @@ namespace RTT
     }
 
 
-    void Axis::setLimitDriveEvent(Event<void(void)>& maximumDrive)
+    void Axis::setLimitDriveEvent(const Event<void(void)>& maximumDrive)
     {
-      _max_drive_event = &maximumDrive;
+      _max_drive_event = maximumDrive;
     }
   
     

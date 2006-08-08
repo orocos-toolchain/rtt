@@ -92,8 +92,8 @@ namespace RTT
             {
             }
             
-            sigslot::handle setup( SignalType& sig ) {
-                return sig.SignalType::signal_type::setup( boost::bind( &EventCatcherImpl<0, SignalType, ContainerType>::handler,
+            Handle setup( SignalType& sig ) {
+                return sig.setup( boost::bind( &EventCatcherImpl<0, SignalType, ContainerType>::handler,
                                                                         shared_ptr(this)) );
             }
 
@@ -127,8 +127,8 @@ namespace RTT
                 : EventCatcher(s), f(f_)
             {
             }
-            sigslot::handle setup( SignalType& sig ) {
-                return sig.SignalType::signal_type::setup( boost::bind( &EventCatcherImpl<1, SignalType, ContainerType>::handler,
+            Handle setup( SignalType& sig ) {
+                return sig.setup( boost::bind( &EventCatcherImpl<1, SignalType, ContainerType>::handler,
                                                shared_ptr(this), _1) );
             }
 
@@ -218,8 +218,8 @@ namespace RTT
             EventCatcherImpl( const Function& f_, SignalType& sig, Semaphore* s )
                 : EventCatcher(s), f(f_)
             {}
-            sigslot::handle setup( SignalType& sig ) {
-                return sig.SignalType::signal_type::setup( boost::bind( &EventCatcherImpl<2, SignalType, ContainerType>::handler,
+            Handle setup( SignalType& sig ) {
+                return sig.setup( boost::bind( &EventCatcherImpl<2, SignalType, ContainerType>::handler,
                                                shared_ptr(this), _1, _2) );
             }
 
@@ -259,8 +259,8 @@ namespace RTT
                 : EventCatcher(s), f(f_)
             {}
 
-            sigslot::handle setup( SignalType& sig ) {
-                return sig.SignalType::signal_type::setup( boost::bind( &EventCatcherImpl<3, SignalType, ContainerType>::handler,
+            Handle setup( SignalType& sig ) {
+                return sig.setup( boost::bind( &EventCatcherImpl<3, SignalType, ContainerType>::handler,
                                                shared_ptr(this), _1, _2, _3) );
             }
 
@@ -306,8 +306,8 @@ namespace RTT
                 : EventCatcher(s), f(f_)
             {
             }
-            sigslot::handle setup( SignalType& sig ) {
-                return sig.SignalType::signal_type::setup( boost::bind( &EventCatcherImpl<4, SignalType, ContainerType>::handler,
+            Handle setup( SignalType& sig ) {
+                return sig.setup( boost::bind( &EventCatcherImpl<4, SignalType, ContainerType>::handler,
                                                shared_ptr(this), _1, _2, _3, _4) );
             }
 
@@ -357,8 +357,8 @@ namespace RTT
             {
             }
 
-            sigslot::handle setup( SignalType& sig ) {
-                return sig.SignalType::signal_type::setup( boost::bind( &EventCatcherImpl<5, SignalType, ContainerType>::handler,
+            Handle setup( SignalType& sig ) {
+                return sig.setup( boost::bind( &EventCatcherImpl<5, SignalType, ContainerType>::handler,
                                                shared_ptr(this), _1, _2, _3, _4, _5) );
             }
 
@@ -405,9 +405,9 @@ namespace RTT
             {
             }
 
-            sigslot::handle setup( SignalType& sig )
+            Handle setup( SignalType& sig )
             {
-                return sig.SignalType::signal_type::setup( boost::bind( &EventCatcherImpl<6, SignalType, ContainerType>::handler,
+                return sig.setup( boost::bind( &EventCatcherImpl<6, SignalType, ContainerType>::handler,
                                                shared_ptr(this), _1, _2, _3, _4, _5, _6) );
             }
 
@@ -465,18 +465,6 @@ namespace RTT
         void destroyed( detail::EventCatcher* ec );
 
     public:
-        /**
-         * Create a periodic EventProcessor
-         */
-        EventProcessor();
-
-        ~EventProcessor();
-
-        bool initialize();
-
-        void step();
-
-        void finalize();
 
         /**
          * For Asynchronous callbacks, this enum defines
@@ -491,22 +479,35 @@ namespace RTT
         };
 
         /**
+         * Create a periodic EventProcessor
+         */
+        EventProcessor();
+
+        ~EventProcessor();
+
+        bool initialize();
+
+        void step();
+
+        void finalize();
+
+        /**
          * Connect a function to a signal and process upon each event the function in this
          * event processor.
          */
         template<class SignalType>
-        sigslot::handle connect(const typename SignalType::SlotFunction& f, SignalType& sig, AsynStorageType t )
+        Handle connect(const typename SignalType::SlotFunction& f, SignalType& sig, AsynStorageType t )
         {
-            sigslot::handle h = this->setup( f, sig, t);
+            Handle h = this->setup( f, sig, t);
             h.connect();
             return h;
         }
 
         template<class SignalType>
-        sigslot::handle setup(const typename SignalType::SlotFunction& f, SignalType& sig, AsynStorageType t )
+        Handle setup(const typename SignalType::SlotFunction& f, SignalType& sig, AsynStorageType t )
         {
             detail::EventCatcher::shared_ptr eci;
-            sigslot::handle h;
+            Handle h;
             switch ( t ) {
             case OnlyFirst:
                 {

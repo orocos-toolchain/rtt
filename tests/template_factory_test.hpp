@@ -84,7 +84,6 @@ class Template_FactoryTest : public CppUnit::TestFixture
     bool cn3(int i, double d, char c) const  { return true; }
 
     bool assertBool( bool );
-
 public:
 
     void setUp();

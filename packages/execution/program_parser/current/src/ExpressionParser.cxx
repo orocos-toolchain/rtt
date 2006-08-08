@@ -163,11 +163,14 @@ namespace RTT
 
     // separate track if we are handling a constructor:
     if ( obj == "this" && TypeInfoRepository::Instance()->type( meth ) ) {
+        log(Info) << "Looking for constructor "<<meth<<" with "<< args.size() << " Args."<<endlog(); 
         ret = TypeInfoRepository::Instance()->type( meth )->construct( args );
         if (!ret) {
             log(Error) << " no such constructor ! "<< endlog();
             throw parse_exception_no_such_constructor( meth, args );
         }
+        //ret->evaluate();
+        //log(Info) << " Value : "<< DataSourceBase::shared_ptr(ret) <<endlog(); 
     } else {
         // plain method:
 

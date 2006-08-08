@@ -42,7 +42,7 @@ namespace RTT
         const EventService* mgcf;
         std::string mname;
         std::vector<DataSourceBase::shared_ptr> args;
-        DataSourceBase::shared_ptr m;
+        ActionInterface::shared_ptr m;
 
         void checkAndCreate() {
             Logger::In in("EventC");
@@ -53,7 +53,7 @@ namespace RTT
             size_t sz = mgcf->arity(mname);
             if ( sz == args.size() ) {
                 // may throw.
-                m = mgcf->setupEmit(mname, args );
+                m.reset( mgcf->getEvent(mname, args ) );
                 args.clear();
                 if (!m)
                     return;
@@ -80,11 +80,6 @@ namespace RTT
 
         ~D()
         {
-        }
-
-        void emit() {
-            if (m)
-                m->evaluate();
         }
 
     };
@@ -145,7 +140,7 @@ namespace RTT
 
     void EventC::emit() {
         if (m)
-            m->evaluate();
+            m->execute();
         else {
             Logger::log() <<Logger::Error << "emit() called on incomplete EventC."<<Logger::endl;
             if (d) {

@@ -29,7 +29,6 @@
 #ifndef ORO_TASK_CONTEXT_HPP
 #define ORO_TASK_CONTEXT_HPP
 
-#include "Factories.hpp"
 #include "AttributeRepository.hpp"
 #include "EventService.hpp"
 #include "DataFlowInterface.hpp"
@@ -313,7 +312,7 @@ namespace RTT
         const GlobalMethodFactory* methods() const{
             return &methodFactory;
         }
-#endif
+
         /**
          * The DataSources of this TaskContext.
          */
@@ -327,7 +326,7 @@ namespace RTT
         const GlobalDataSourceFactory* datasources() const{
             return &dataFactory;
         }
-
+#endif
         /**
          * The task-local values ( attributes and properties ) of this TaskContext.
          */
@@ -385,6 +384,7 @@ namespace RTT
         }
 
     private:
+#if 0
         /**
          * The Command Factory of this TaskContext.
          * @deprecated by commands()
@@ -400,7 +400,7 @@ namespace RTT
          * @deprecated by methods()
          */
         GlobalMethodFactory     methodFactory;
-
+#endif
         /**
          * The task-local values ( attributes ) of this TaskContext.
          * @deprecated by attributes()

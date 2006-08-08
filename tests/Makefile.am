@@ -8,7 +8,8 @@ LDADD = $(CPPUNIT_LIBS) $(top_builddir)/packages/install/lib/libtarget.a $(TARGE
 AM_CXXFLAGS += $(CPPUNIT_CFLAGS) -g 
 AM_CPPFLAGS +=-D_REENTRANT
 
-check_PROGRAMS = core-test task-test event-test taskcontext-test parser-test program-test state-test
+check_PROGRAMS = taskcontext-test
+#core-test task-test event-test taskcontext-test parser-test program-test state-test
 
 # Rules for the test code (use `make check` to execute)
 if DOTESTS

@@ -36,8 +36,6 @@
 
 namespace RTT
 {
-    class GlobalMemberFactory;
-
     /**
      * A user friendly method to a TaskContext.
      */
@@ -56,12 +54,6 @@ namespace RTT
          * in order to make it usable.
          */
         MethodC();
-
-        /**
-         * The constructor.
-         * @see GlobalMethodFactory
-         */
-        MethodC( const GlobalMemberFactory* gcf, const std::string& obj, const std::string& name);
 
         /**
          * The constructor.

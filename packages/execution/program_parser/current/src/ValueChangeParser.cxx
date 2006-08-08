@@ -199,11 +199,10 @@ namespace RTT
 
   void ValueChangeParser::seenconstantdefinition()
   {
-    DataSourceBase::shared_ptr expr = expressionparser.getResult();
-    expressionparser.dropResult();
-    //assert( !expressionparser.hasResult() );
-    AttributeBase* var;
-    Logger::log() << Logger::Info << "Building "<<type->getTypeName() <<" "<<valuename; // rest is filled in by buildConstant().
+      DataSourceBase::shared_ptr expr = expressionparser.getResult();
+      expressionparser.dropResult();
+      //assert( !expressionparser.hasResult() );
+      AttributeBase* var;
       if (sizehint == -1 )
           var = type->buildConstant(valuename, expr);
       else {

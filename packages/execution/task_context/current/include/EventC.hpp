@@ -46,7 +46,7 @@ namespace RTT
          */
         class D;
         D* d;
-        DataSourceBase::shared_ptr m;
+        ActionInterface::shared_ptr m;
     public:
         /**
          * Default constructor.

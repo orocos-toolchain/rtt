@@ -25,7 +25,7 @@ namespace RTT
         }
         
     protected:
-        std::map<std::string,ActionInterface*> simplemethods;
+        std::map<std::string,boost::shared_ptr<ActionInterface> > simplemethods;
     public:
         typedef MethodFactory Factory;
 
@@ -39,14 +39,15 @@ namespace RTT
          */
         void clear() {
             while ( !simplemethods.empty() ) {
-                delete simplemethods.begin()->second;
                 simplemethods.erase( simplemethods.begin() );
             }
             OperationFactory<DataSourceBase*>::clear();
         }
 
         /** 
-         * Add a Method object to the method interface.
+         * Add a Method object to the method interface. This version
+         * of addMethod does not add the Method object to the scripting
+         * interface and only to the C++ interface.
          * 
          * @param meth The Method object to add
          * 
@@ -57,12 +58,14 @@ namespace RTT
         {
             if ( simplemethods.count( meth->getName() ) )
                 return false;
-            simplemethods[meth->getName()] = meth->getMethodImpl()->clone();
+            simplemethods[meth->getName()] = meth->getMethodImpl();
             return true;
         }
 
         /** 
-         * Get a new Method object from the method interface.
+         * Get a previously added method for 
+         * use in a C++ Method object. Store the result of this
+         * function in a Method<\a Signature> object.
          * 
          * @param name The name of the method to retrieve.
          * @param Signature The function signature of the command, for
@@ -71,14 +74,25 @@ namespace RTT
          * @return true if it could be found, false otherwise.
          */
         template<class Signature>
-        ActionInterface* getMethod( std::string name )
+        boost::shared_ptr<ActionInterface> getMethod( std::string name )
         {
             if ( simplemethods.count(name) )
-                return simplemethods[name]->clone();
-            return 0;
+                return simplemethods[name];
+            return boost::shared_ptr<ActionInterface>();
         }
         
 
+        /** 
+         * Add a local method object to the interface. This version
+         * of addMethod adds a Method object to the C++ interface and
+         * to the scripting interface of this component. 
+         * The Method object must refer to a local method function.
+         * 
+         * @param meth The method object to add.
+         * @param description A useful description.
+         * 
+         * @return true if it could be added.
+         */
         template<class MethodT>
         bool addMethod( MethodT meth, const char* description) 
         {
@@ -86,9 +100,9 @@ namespace RTT
             typedef typename boost::add_pointer<MethodVT>::type MethodPT;
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
-            if ( this->hasMember(c->getName() ) )
+            if ( this->addMethod( c ) == false )
                 return false;
-            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl() );
+            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );
             if ( !lm )
                 return false;
             this->add( c->getName(), new detail::OperationFactoryPart0<DataSourceBase*, detail::DataSourceArgsMethod<Sig> >( 
@@ -96,6 +110,19 @@ namespace RTT
             return true;
         }
 
+        /** 
+         * Add a local method object to the interface. This version
+         * of addMethod adds a Method object to the C++ interface and
+         * to the scripting interface of this component. 
+         * The Method object must refer to a local method function.
+         * 
+         * @param meth The method object to add.
+         * @param description A useful description.
+         * @param arg1 The name of the first argument.
+         * @param arg1_description The description of the first argument.
+         * 
+         * @return true if it could be added.
+         */
         template<class MethodT>
         bool addMethod( MethodT meth, const char* description,
                          const char* arg1, const char* arg1_description)
@@ -104,9 +131,9 @@ namespace RTT
             typedef typename boost::add_pointer<MethodVT>::type MethodPT;
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
-            if ( this->hasMember(c->getName() ) )
+            if ( this->addMethod( c ) == false )
                 return false;
-            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl() );
+            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );
             if ( !lm )
                 return false;
             this->add( c->getName(), new detail::OperationFactoryPart1<DataSourceBase*, detail::DataSourceArgsMethod<Sig> >( 
@@ -115,6 +142,21 @@ namespace RTT
             return true;
         }
 
+        /** 
+         * Add a local method object to the interface. This version
+         * of addMethod adds a Method object to the C++ interface and
+         * to the scripting interface of this component. 
+         * The Method object must refer to a local method function.
+         * 
+         * @param meth The method object to add.
+         * @param description A useful description.
+         * @param arg1 The name of the first argument.
+         * @param arg1_description The description of the first argument.
+         * @param arg2 The name of the second argument.
+         * @param arg2_description The description of the second argument.
+         * 
+         * @return true if it could be added.
+         */
         template<class MethodT>
         bool addMethod( MethodT meth, const char* description,
                         const char* arg1, const char* arg1_description,
@@ -124,9 +166,9 @@ namespace RTT
             typedef typename boost::add_pointer<MethodVT>::type MethodPT;
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
-            if ( this->hasMember(c->getName() ) )
+            if ( this->addMethod( c ) == false )
                 return false;
-            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl() );
+            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );
             if ( !lm )
                 return false;
             this->add( c->getName(), new detail::OperationFactoryPart2<DataSourceBase*, detail::DataSourceArgsMethod<Sig> >( 
@@ -136,6 +178,24 @@ namespace RTT
                   arg2, arg2_description) );
             return true;
         }
+
+        /** 
+         * Add a local method object to the interface. This version
+         * of addMethod adds a Method object to the C++ interface and
+         * to the scripting interface of this component. 
+         * The Method object must refer to a local method function.
+         * 
+         * @param meth The method object to add.
+         * @param description A useful description.
+         * @param arg1 The name of the first argument.
+         * @param arg1_description The description of the first argument.
+         * @param arg2 The name of the second argument.
+         * @param arg2_description The description of the second argument.
+         * @param arg3 The name of the third argument.
+         * @param arg3_description The description of the third argument.
+         * 
+         * @return true if it could be added.
+         */
         template<class MethodT>
         bool addMethod( MethodT meth, const char* description,
                         const char* arg1, const char* arg1_description,
@@ -146,9 +206,9 @@ namespace RTT
             typedef typename boost::add_pointer<MethodVT>::type MethodPT;
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
-            if ( this->hasMember(c->getName() ) )
+            if ( this->addMethod( c ) == false )
                 return false;
-            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl() );
+            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );
             if ( !lm )
                 return false;
             this->add( c->getName(), new detail::OperationFactoryPart3<DataSourceBase*, detail::DataSourceArgsMethod<Sig> >( 
@@ -160,6 +220,25 @@ namespace RTT
             return true;
         }
 
+        /** 
+         * Add a local method object to the interface. This version
+         * of addMethod adds a Method object to the C++ interface and
+         * to the scripting interface of this component. 
+         * The Method object must refer to a local method function.
+         * 
+         * @param meth The method object to add.
+         * @param description A useful description.
+         * @param arg1 The name of the first argument.
+         * @param arg1_description The description of the first argument.
+         * @param arg2 The name of the second argument.
+         * @param arg2_description The description of the second argument.
+         * @param arg3 The name of the third argument.
+         * @param arg3_description The description of the third argument.
+         * @param arg4 The name of the fourth argument.
+         * @param arg4_description The description of the fourth argument.
+         * 
+         * @return true if it could be added.
+         */
         template<class MethodT>
         bool addMethod( MethodT meth, const char* description,
                         const char* arg1, const char* arg1_description,
@@ -171,9 +250,9 @@ namespace RTT
             typedef typename boost::add_pointer<MethodVT>::type MethodPT;
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
-            if ( this->hasMember(c->getName() ) )
+            if ( this->addMethod( c ) == false )
                 return false;
-            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl() );
+            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );
             if ( !lm )
                 return false;
             this->add( c->getName(), new detail::OperationFactoryPart4<DataSourceBase*, detail::DataSourceArgsMethod<Sig> >( 
@@ -186,6 +265,11 @@ namespace RTT
             return true;
         }
 
+        /**
+         * For internal use only. The pointer of the object of which a member function
+         * must be invoked is stored in a DataSource such that the pointer can change
+         * during program execution. Required in scripting for state machines.
+         */
         template<class MethodT,class CompT>
         bool addMethodDS( DataSource< boost::weak_ptr<CompT> >* wp, MethodT c, const char* description) 
         {
@@ -193,7 +277,7 @@ namespace RTT
             typedef typename MethodT::Signature Sig;
             if ( this->hasMember(c.getName() ) )
                 return false;
-            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c.getMethodImpl() );
+            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c.getMethodImpl().get() );
             if ( !lm )
                 return false;
             typedef FunctorDataSourceDS0<CompT, boost::function<Sig> > FunctorT;
@@ -205,6 +289,11 @@ namespace RTT
             return true;
         }
 
+        /**
+         * For internal use only. The pointer of the object of which a member function
+         * must be invoked is stored in a DataSource such that the pointer can change
+         * during program execution. Required in scripting for state machines.
+         */
         template<class MethodT,class CompT>
         bool addMethodDS( DataSource< boost::weak_ptr<CompT> >* wp, MethodT c, const char* description, 
                           const char* a1, const char* d1) 
@@ -213,7 +302,7 @@ namespace RTT
             typedef typename MethodT::Signature Sig;
             if ( this->hasMember(c.getName() ) )
                 return false;
-            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c.getMethodImpl() );
+            const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c.getMethodImpl().get() );
             if ( !lm )
                 return false;
             typedef typename MethodT::traits::arg2_type arg1_type; // second arg is 1st data arg.
@@ -226,7 +315,7 @@ namespace RTT
         }
 
         /** 
-         * Get a previously added method as a DataSource.
+         * For internal use only. Get a previously added method as a DataSource.
          * This function is inferior to getMethod(std::string name)
          * 
          * @param name The name of the method

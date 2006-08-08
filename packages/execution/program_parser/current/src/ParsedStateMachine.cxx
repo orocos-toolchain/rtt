@@ -31,8 +31,6 @@
 #include "rtt/StateDescription.hpp"
 
 #include "rtt/TaskContext.hpp"
-#include "rtt/TemplateCommandFactory.hpp"
-#include "rtt/TemplateDataSourceFactory.hpp"
 #include "rtt/StateMachineTask.hpp"
 #include <iostream>
 

@@ -49,7 +49,8 @@ Template_FactoryTest::setUp()
     tc->addObject( this->createMethodFactory() );
     tc->addObject( this->createUserMethodFactory() );
     tc->addObject( this->createCommandFactory() );
-    tc->events()->addEvent("FloatEvent", &t_event_float);
+    t_event_float = RTT::Event<int( float, float )>("FloatEvent");
+    CPPUNIT_ASSERT( tc->events()->addEvent( &t_event_float, "Description","a1","d1", "a2", "d2" ) );
     tsim = new SimulationActivity(0.001, tc->engine() );
     event_proc = new EventProcessor();
 }
@@ -285,25 +286,37 @@ void Template_FactoryTest::testEventC()
     CompletionProcessor::Instance()->stop();
     ConnectionC cc = tc->events()->setupConnection("FloatEvent");
     cc.callback( this, &Template_FactoryTest::float_listener );
+    Handle h1 = cc.handle();
     cc.callback( this, &Template_FactoryTest::float_completer, CompletionProcessor::Instance() );
-    Handle h = cc.handle();
+    Handle h2 = cc.handle();
 
-    h.connect();
+    CPPUNIT_ASSERT( h1.connect() );
+    CPPUNIT_ASSERT( h2.connect() );
 
-    EventC mevent = tc->events()->setupEmit("FloatEvent").argC(float(1.0)).argC(float(4.0));
+    // first test ConnectionC callbacks.
+    t_event_float(1.0, 4.0);
+    CPPUNIT_ASSERT_EQUAL( float(5.0), float_sum );
+    CPPUNIT_ASSERT_EQUAL( float(0.0),  float_sub );
+    float_sum = float_sub = 0.0;
+
+    // OK, now test if the EventC emission works.
+    EventC mevent;
+    CPPUNIT_ASSERT_NO_THROW( mevent = tc->events()->setupEmit("FloatEvent").argC(float(1.0)).argC(float(4.0)) );
+    CPPUNIT_ASSERT( mevent.ready() );
     mevent.emit();
     CPPUNIT_ASSERT_EQUAL( float(5.0), float_sum );
     CPPUNIT_ASSERT_EQUAL( float(0.0),  float_sub );
 
     float a = 10.0, b = 5.0;
-    mevent = tc->events()->setupEmit("FloatEvent").arg(a).arg(b);
+    CPPUNIT_ASSERT_NO_THROW( mevent = tc->events()->setupEmit("FloatEvent").arg(a).arg(b) );
     mevent.emit();
     CPPUNIT_ASSERT_EQUAL( float(20.0), float_sum );
     CPPUNIT_ASSERT_EQUAL( float(0.0),  float_sub );
 
     CompletionProcessor::Instance()->start();
     
-    h.disconnect();
+    h1.disconnect();
+    h2.disconnect();
     float_sum = 0;
     float_sub = 0;
 
@@ -311,10 +324,12 @@ void Template_FactoryTest::testEventC()
     event_proc->initialize();
 
     cc = tc->events()->setupConnection("FloatEvent").callback( this, &Template_FactoryTest::float_listener);
+    h1 = cc.handle();
     cc.callback( this, &Template_FactoryTest::float_completer, event_proc, RTT::EventProcessor::OnlyLast );
-    h = cc.handle();
+    h2 = cc.handle();
 
-    h.connect();
+    h1.connect();
+    h2.connect();
 
     // simulate overrun :
     mevent = tc->events()->setupEmit("FloatEvent").argC(float(1.0)).argC(float(4.0));
@@ -329,6 +344,7 @@ void Template_FactoryTest::testEventC()
     event_proc->finalize();
     // asyn handlers should reach only last total.
     CPPUNIT_ASSERT_EQUAL( float(-15.0), float_sub );
-    h.disconnect();
+    h1.disconnect();
+    h2.disconnect();
 }
 

@@ -35,7 +35,7 @@
 
 namespace RTT
 {
-    //EventService EventService::Global(CompletionProcessor::Instance()->getEventProcessor());
+    using namespace boost;
 
     EventService::EventService( ExecutionEngine* ee ) : eeproc(ee), eproc( 0 ) {}
     EventService::EventService( EventProcessor* ep ) : eeproc(0), eproc( ep ) {} // ep may be null.
@@ -47,57 +47,52 @@ namespace RTT
 
     bool EventService::hasEvent(const std::string& ename) const
     {
-        if ( fact.count(ename) == 0 )
-            return false;
-        return true;
+        return this->hasMember(ename);
     }
 
     std::vector<std::string> EventService::getEvents() const
     {
-        std::vector<std::string> elist;
-        Factories::const_iterator fit = fact.begin();
-        while ( fit != fact.end() )
-            {
-                elist.push_back( fit->first );
-                ++fit;
-            }
-        return elist;
+        return this->getNames();
     }
 
-    int EventService::arity(const std::string& name) const {
-        if ( this->hasEvent(name) == false )
-            return -1;
-        return fact.find(name)->second->arity();
+    int EventService::arity(const std::string& name) const
+    {
+        return this->getArity(name);
     }
             
     bool EventService::removeEvent( const std::string& ename ) {
-        Factories::iterator it = fact.find(ename);
-        if ( it == fact.end()  )
-            return false;
-        delete it->second;
-        fact.erase(it);
-        return true;
+        return false;
     }
         
     EventService::~EventService() {
-        for (Factories::iterator it = fact.begin(); it !=fact.end(); ++it )
+        for (Hooks::iterator it = mhooks.begin(); it !=mhooks.end(); ++it )
             delete it->second;
     }
 
     EventC EventService::setupEmit(const std::string& ename) const {
+        if ( !this->hasMember(ename) ) {
+            log(Error) << "Can not initialize EventC for '"<<ename<<"': no such Event."<<endlog();
+            return EventC(); // empty handle.
+        }
         return EventC(this, ename);
     }
 
     ConnectionC EventService::setupConnection(const std::string& ename) const {
+        if ( mhooks.count(ename) != 1 ) {
+            log(Error) << "Can not initialize ConnectionC for '"<<ename<<"': no such Event."<<endlog();
+            return ConnectionC(); // empty handle.
+        }
         return ConnectionC(this, ename );
     }
 
     Handle EventService::setupSyn(const std::string& ename,
                                                boost::function<void(void)> func,          
                                                std::vector<DataSourceBase::shared_ptr> args ) const {
-        if ( fact.count(ename) != 1 )
+        if ( mhooks.count(ename) != 1 ) {
+            log(Error) << "Can not create connection to '"<<ename<<"': no such Event."<<endlog();
             return Handle(); // empty handle.
-        detail::EventHookBase* ehi = fact.find(ename)->second->createReceptor( args );
+        }
+        detail::EventHookBase* ehi = mhooks.find(ename)->second->produce( args );
 
         // ehi is stored _inside_ the connection object !
         return ehi->setupSyn( func ); 
@@ -108,36 +103,19 @@ namespace RTT
                                                 const std::vector<DataSourceBase::shared_ptr>& args,
                                                 EventProcessor* ep /* = CompletionProcessor::Instance()->getEventProcessor()*/,
                                                 EventProcessor::AsynStorageType s_type) const {
-        if ( fact.count(ename) != 1 )
+        if ( mhooks.count(ename) != 1 ) {
+            log(Error) << "Can not create connection to '"<<ename<<"': no such Event."<<endlog();
             return Handle(); // empty handle.
-        detail::EventHookBase* ehi = fact.find(ename)->second->createReceptor( args );
+        }
+        detail::EventHookBase* ehi = mhooks.find(ename)->second->produce( args );
 
         // ehi is stored _inside_ the connection object !
         return ehi->setupAsyn( afunc, ep, s_type ); 
     }
 
-    Handle EventService::setupSynAsyn(const std::string& ename,
-                                                   boost::function<void(void)> sfunc,
-                                                   boost::function<void(void)> afunc,
-                                                   const std::vector<DataSourceBase::shared_ptr>& args,
-                                                   EventProcessor* ep /*= CompletionProcessor::Instance()->getEventProcessor()*/,
-                                                   EventProcessor::AsynStorageType s_type) const {
-        if ( fact.count(ename) != 1 )
-            return Handle(); // empty handle.
-        detail::EventHookBase* ehi = fact.find(ename)->second->createReceptor( args );
-
-        // ehi is stored _inside_ the connection object !
-        return ehi->setupSynAsyn( sfunc, afunc, ep, s_type ); 
-    }
-
-    DataSourceBase::shared_ptr EventService::setupEmit(const std::string& ename,const std::vector<DataSourceBase::shared_ptr>& args) const
+    ActionInterface* EventService::getEvent(const std::string& ename,const std::vector<DataSourceBase::shared_ptr>& args) const
     {
-        if ( fact.count(ename) != 1 )
-            return DataSourceBase::shared_ptr();
-
-        DataSourceBase::shared_ptr result( fact.find(ename)->second->createEmittor( args ) );
-
-        return result;
+        return this->produce(ename, args);
     }
 
 

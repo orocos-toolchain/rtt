@@ -50,8 +50,6 @@ namespace RTT
         EventProcessor::AsynStorageType ms_type;
         EventProcessor* mep;
         Handle h;
-        sigslot::handle sh;
-        sigslot::handle ash;
 
         /**
          * This method creates connections and stores the Handle objects 
@@ -59,36 +57,31 @@ namespace RTT
          */
         void checkAndCreate() {
             Logger::In in("ConnectionC");
-            Handle asynh;
-            Handle synh;
             if (syn_ecb ) {
                 Logger::log() << Logger::Info << "Creating Syn connection to "+ mname +"."<<Logger::endl;
-                synh = mgcf->setupSyn(mname, bind(&EventCallBack::callback, syn_ecb), syn_ecb->args());
+                h = mgcf->setupSyn(mname, bind(&EventCallBack::callback, syn_ecb), syn_ecb->args());
+                if (!h)
+                    Logger::log() << Logger::Error << "Creating Syn connection to "+ mname +" failed."<<Logger::endl;
                 syn_ecb = 0;
             }
             if (asyn_ecb) {
                 Logger::log() << Logger::Info << "Creating Asyn connection to "+ mname +"."<<Logger::endl;
-                asynh = mgcf->setupAsyn(mname, bind(&EventCallBack::callback, asyn_ecb), asyn_ecb->args(), mep, ms_type);
+                h = mgcf->setupAsyn(mname, bind(&EventCallBack::callback, asyn_ecb), asyn_ecb->args(), mep, ms_type);
+                if (!h)
+                    Logger::log() << Logger::Error << "Creating ASyn connection to "+ mname +" failed."<<Logger::endl;
                 asyn_ecb = 0;
             }
-            // compose 'end' handle with syn and asyn connection:
-            if (synh && asynh )
-                h = Handle( synh.sighandle1(), asynh.sighandle1() );
-            else if (synh)
-                h = synh;
-            else if (asynh)
-                h = asynh;
         }
 
         void callback(EventCallBack* ecb) { 
-            if (syn_ecb) {
+            if (syn_ecb || asyn_ecb) {
                 Logger::log() << Logger::Error << "Ignoring added Synchronous 'callback': already present."<<Logger::endl;
                 return;
             }
             syn_ecb = ecb; 
         }
         void callback(EventCallBack* ecb, EventProcessor* ep, EventProcessor::AsynStorageType s_type) {
-            if (asyn_ecb) {
+            if (syn_ecb || asyn_ecb) {
                 Logger::log() << Logger::Error << "Ignoring added Asynchronous 'callback': already present."<<Logger::endl;
                 return;
             }
@@ -184,8 +177,8 @@ namespace RTT
 
         // now check if we actually got a valid handle
         // if nothing new was added, 'h' still has the previous added connections.
-        if ( !h ) {
-            Logger::log() << Logger::Warning << "Empty Connection. Returned invalid handle to Event "+ (d ? d->mname : "") +"."<<Logger::endl;
+        if ( !d ) {
+            Logger::log() << Logger::Warning << "Used handle() on empty Connection. Returned invalid handle to Event "+ (d ? d->mname : "") +"."<<Logger::endl;
         }
         return h;
     }

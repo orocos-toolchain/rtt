@@ -119,6 +119,29 @@ OperationInterface* ProgramTest::createObject(OperationInterface* dat, CommandPr
     return dat;
 }
 
+void ProgramTest::testEmptyProgram()
+{
+    string prog = "";
+    Parser::ParsedPrograms pg_list;
+    try {
+        pg_list = parser.parseProgram( prog, &gtc );
+    }
+    catch( const file_parse_exception& exc )
+        {
+            CPPUNIT_ASSERT( false );
+        }
+    if ( !pg_list.empty() )
+        {
+            CPPUNIT_ASSERT( false );
+        }
+}
+
+void ProgramTest::testReturnProgram()
+{
+    string prog = "program x { return \n }";
+    this->doProgram( prog, &gtc );
+    this->finishProgram( &gtc, "x");
+}
 
 void ProgramTest::testParseProgram()
 {

@@ -20,11 +20,7 @@ task programs."
 
     compile TaskContext.cxx
     compile AttributeRepository.cxx
-    compile DataSourceFactoryInterface.cxx  GlobalMemberFactory.cxx
-    compile GlobalCommandFactory.cxx
-    compile CommandFactoryInterface.cxx
     compile PropertyLoader.cxx
-    compile MapDataSourceFactory.cxx
     compile EventService.cxx
     compile FactoryExceptions.cxx
     compile ExecutionEngine.cxx

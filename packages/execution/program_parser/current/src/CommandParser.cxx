@@ -54,8 +54,7 @@
 namespace RTT
 {
     using boost::bind;
-    
-    
+
     using namespace detail;
 
     namespace {
@@ -165,7 +164,9 @@ namespace RTT
     assert(mfi);
     assert(cfi);
 
+    typedef std::pair<CommandInterface*,ConditionInterface*> ComCon;
     ComCon comcon;
+
     if ( cfi->hasMember( mcurmethod ) )
         try
             {

@@ -36,7 +36,6 @@
 #include "rtt/PeerParser.hpp"
 #include "rtt/ArgumentsParser.hpp"
 #include "rtt/StateMachineBuilder.hpp"
-#include "rtt/DataSourceFactory.hpp"
 #include "rtt/TaskContext.hpp"
 #include "rtt/StateMachineTask.hpp"
 

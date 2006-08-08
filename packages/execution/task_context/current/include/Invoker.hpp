@@ -210,16 +210,9 @@ namespace RTT
         {
             typedef typename boost::function_traits<F>::result_type result_type;
 
-            InvokerSignature() : impl(0) {}
-            InvokerSignature(ToInvoke* implementation) : impl(implementation) {}
-            ~InvokerSignature() { delete impl; }
-            InvokerSignature(const InvokerSignature& c) : impl( c.impl ? c.impl->cloneI() : 0) {}
-            InvokerSignature& operator=(const InvokerSignature& c) {
-                if ( impl == c.impl )
-                    return *this; // self assignment or null.
-                impl = c.impl ? c.impl->cloneI() : 0;
-                return *this;
-            }
+            InvokerSignature() : impl() {}
+            InvokerSignature(ToInvoke implementation) : impl(implementation) {}
+            ~InvokerSignature() {}
 
             /**
              * Invoke this operator if the method has no arguments.
@@ -231,7 +224,7 @@ namespace RTT
                 return NA<result_type>::na();
             }
         protected:
-            ToInvoke* impl;
+            ToInvoke impl;
         };
 
         template<class F, class ToInvoke>
@@ -240,17 +233,9 @@ namespace RTT
             typedef typename boost::function_traits<F>::result_type result_type;
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
 
-            InvokerSignature() : impl(0) {}
-            InvokerSignature(ToInvoke* implementation) : impl(implementation) {}
-            ~InvokerSignature() { delete impl; }
-            InvokerSignature(const InvokerSignature& c) : impl( c.impl ? c.impl->cloneI() : 0) {}
-            InvokerSignature& operator=(const InvokerSignature& c) {
-                if ( impl == c.impl )
-                    return *this; // self assignment or null.
-                impl = c.impl ? c.impl->cloneI() : 0;
-                return *this;
-            }
-
+            InvokerSignature() : impl() {}
+            InvokerSignature(ToInvoke implementation) : impl(implementation) {}
+            ~InvokerSignature() {}
 
             /**
              * Invoke this operator if the method has one argument.
@@ -262,7 +247,7 @@ namespace RTT
                 return NA<result_type>::na();
             }
         protected:
-            ToInvoke* impl;
+            ToInvoke impl;
         };
 
         template<class F, class ToInvoke>
@@ -272,16 +257,9 @@ namespace RTT
             typedef typename boost::function_traits<F>::arg1_type arg1_type;
             typedef typename boost::function_traits<F>::arg2_type arg2_type;
 
-            InvokerSignature() : impl(0) {}
-            InvokerSignature(ToInvoke* implementation) : impl(implementation) {}
-            ~InvokerSignature() { delete impl; }
-            InvokerSignature(const InvokerSignature& c) : impl( c.impl ? c.impl->cloneI() : 0) {}
-            InvokerSignature& operator=(const InvokerSignature& c) {
-                if ( impl == c.impl )
-                    return *this; // self assignment or null.
-                impl = c.impl ? c.impl->cloneI() : 0;
-                return *this;
-            }
+            InvokerSignature() : impl() {}
+            InvokerSignature(ToInvoke implementation) : impl(implementation) {}
+            ~InvokerSignature() {}
 
             /**
              * Invoke this operator if the method has two arguments.
@@ -294,7 +272,7 @@ namespace RTT
             }
 
         protected:
-            ToInvoke* impl;
+            ToInvoke impl;
         };
 
         template<class F, class ToInvoke>
@@ -305,16 +283,9 @@ namespace RTT
             typedef typename boost::function_traits<F>::arg2_type arg2_type;
             typedef typename boost::function_traits<F>::arg3_type arg3_type;
 
-            InvokerSignature() : impl(0) {}
-            InvokerSignature(ToInvoke* implementation) : impl(implementation) {}
-            ~InvokerSignature() { delete impl; }
-            InvokerSignature(const InvokerSignature& c) : impl( c.impl ? c.impl->cloneI() : 0) {}
-            InvokerSignature& operator=(const InvokerSignature& c) {
-                if ( impl == c.impl )
-                    return *this; // self assignment or null.
-                impl = c.impl ? c.impl->cloneI() : 0;
-                return *this;
-            }
+            InvokerSignature() : impl() {}
+            InvokerSignature(ToInvoke implementation) : impl(implementation) {}
+            ~InvokerSignature() { }
 
             /**
              * Invoke this operator if the method has three arguments.
@@ -327,7 +298,7 @@ namespace RTT
             }
 
         protected:
-            ToInvoke* impl;
+            ToInvoke impl;
         };
 
         template<class F, class ToInvoke>
@@ -339,16 +310,9 @@ namespace RTT
             typedef typename boost::function_traits<F>::arg3_type arg3_type;
             typedef typename boost::function_traits<F>::arg4_type arg4_type;
 
-            InvokerSignature() : impl(0) {}
-            InvokerSignature(ToInvoke* implementation) : impl(implementation) {}
-            ~InvokerSignature() { delete impl; }
-            InvokerSignature(const InvokerSignature& c) : impl( c.impl ? c.impl->cloneI() : 0) {}
-            InvokerSignature& operator=(const InvokerSignature& c) {
-                if ( impl == c.impl )
-                    return *this; // self assignment or null.
-                impl = c.impl ? c.impl->cloneI() : 0;
-                return *this;
-            }
+            InvokerSignature() : impl() {}
+            InvokerSignature(ToInvoke implementation) : impl(implementation) {}
+            ~InvokerSignature() { }
 
             /**
              * Invoke this operator if the method has four arguments.
@@ -361,7 +325,7 @@ namespace RTT
             }
             
         protected:
-            ToInvoke* impl;
+            ToInvoke impl;
         };
 
     }

@@ -22,14 +22,19 @@ namespace RTT
      */
     template<class FunctionT>
     class Method
-        : public detail::InvokerSignature<boost::function_traits<FunctionT>::arity, FunctionT, detail::MethodBase<FunctionT> >
+        : public detail::InvokerSignature<boost::function_traits<FunctionT>::arity,
+                                          FunctionT,
+                                          boost::shared_ptr< detail::MethodBase<FunctionT> > >
     {
         std::string mname;
-        typedef detail::InvokerSignature<boost::function_traits<FunctionT>::arity, FunctionT, detail::MethodBase<FunctionT> > Base;
+        typedef detail::InvokerSignature<boost::function_traits<FunctionT>::arity,
+                                         FunctionT,
+                                         boost::shared_ptr< detail::MethodBase<FunctionT> > > Base;
     public:
         typedef FunctionT Signature;
         typedef typename boost::function_traits<Signature>::result_type result_type;
         typedef boost::function_traits<Signature> traits;
+        typedef boost::shared_ptr< detail::MethodBase<FunctionT> > MethodBasePtr;
     
         /**
          * Create an empty Method object.
@@ -55,7 +60,7 @@ namespace RTT
          * @param m the original
          */
         Method(const Method& m)
-            : Base(m),
+            : Base(m.impl),
               mname(m.mname)
         {}
 
@@ -64,14 +69,14 @@ namespace RTT
          * 
          * @param m the original
          * 
-         * @return 
+         * @return *this
          */
         Method& operator=(const Method& m)
         {
             if ( this == &m )
                 return *this;
             mname = m.mname;
-            Base::operator=(m);
+            this->impl = m.impl;
             return *this;
         }
 
@@ -81,13 +86,10 @@ namespace RTT
          * @param implementation The implementation which is acquired
          * by the Method object. If it has the wrong type, it is freed.
          */
-        Method(ActionInterface* implementation)
-            : Base( dynamic_cast< detail::MethodBase<Signature>* >(implementation) ),
+        Method(boost::shared_ptr<ActionInterface> implementation)
+            : Base( MethodBasePtr(boost::dynamic_pointer_cast< detail::MethodBase<Signature> >(implementation) ) ),
               mname()
         {
-            // If not convertible, delete the implementation.
-            if (this->impl == 0)
-                delete implementation; 
         }
 
         /** 
@@ -96,18 +98,41 @@ namespace RTT
          * @param implementation the implementation, if it is not suitable,
          * it is freed.
          * 
-         * @return *this;
+         * @return *this
          */
         Method& operator=(ActionInterface* implementation)
         {
             if (this->impl == implementation)
                 return *this;
-            delete this->impl;
-            this->impl = dynamic_cast< detail::MethodBase<Signature>* >(implementation);
-            if (this->impl == 0)
-                delete implementation;
+            this->impl.reset( boost::dynamic_pointer_cast< detail::MethodBase<Signature> >(implementation) );
             return *this;
         }
+
+        /** 
+         * Construct a Method from a class member pointer and an
+         * object of that class.
+         * 
+         * @param name The name of this method
+         * @param meth A pointer to a class member function
+         * @param object An object of the class which has \a meth as member function.
+         */
+        template<class M, class ObjectType>
+        Method(std::string name, M meth, ObjectType object)
+            : Base( MethodBasePtr(new detail::LocalMethod<Signature>(meth, object) ) ),
+              mname(name)
+        {}
+
+        /** 
+         * Construct a Method from a function pointer or function object.
+         * 
+         * @param name the name of this method
+         * @param meth an pointer to a function or function object.
+         */
+        template<class M>
+        Method(std::string name, M meth)
+            : Base( MethodBasePtr(new detail::LocalMethod<Signature>(meth) ) ),
+              mname(name)
+        {}
 
         /**
          * Clean up the Method object.
@@ -122,34 +147,9 @@ namespace RTT
          * @return true if so.
          */
         bool ready() const {
-            return this->impl != 0;
+            return this->impl;
         }
 
-        /** 
-         * Construct a Method from a class member pointer and an
-         * object of that class.
-         * 
-         * @param name The name of this method
-         * @param meth A pointer to a class member function
-         * @param object An object of the class which has \a meth as member function.
-         */
-        template<class M, class ObjectType>
-        Method(std::string name, M meth, ObjectType object)
-            : Base( new detail::LocalMethod<Signature>(meth, object) ),
-              mname(name)
-        {}
-
-        /** 
-         * Construct a Method from a function pointer or function object.
-         * 
-         * @param name the name of this method
-         * @param meth an pointer to a function or function object.
-         */
-        template<class M>
-        Method(std::string name, M meth)
-            : Base( new detail::LocalMethod<Signature>(meth) ),
-              mname(name)
-        {}
 
         /**
          * Get the name of this method.
@@ -158,17 +158,15 @@ namespace RTT
 
         /**
          * Returns the internal implementation of the Method object.
-         * Make a clone() of this object if you intend to use it.
          */
-        const detail::MethodBase<Signature>* getMethodImpl() const {
+        const MethodBasePtr getMethodImpl() const {
             return this->impl;
         }
 
         /**
          * Sets the internal implementation of the Method object.
          */
-        void setMethodImpl(detail::MethodBase<Signature>* new_impl) const {
-            delete this->impl;
+        void setMethodImpl( MethodBasePtr new_impl) const {
             this->impl = new_impl;
         }
     };

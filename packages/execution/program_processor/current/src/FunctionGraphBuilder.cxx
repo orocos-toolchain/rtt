@@ -30,13 +30,14 @@
 #include "rtt/FunctionGraphBuilder.hpp"
 #include "rtt/CommandComposite.hpp"
 #include "rtt/AttributeBase.hpp"
-#include "rtt/TemplateFactories.hpp"
+#include "rtt/DataSource.hpp"
 //#include "rtt/parse_exception.hpp"
 #include "rtt/FactoryExceptions.hpp"
 #include "GraphCopier.hpp"
 
 #include "rtt/CommandNOP.hpp"
 #include "rtt/ConditionFalse.hpp"
+#include "rtt/ConditionTrue.hpp"
 #include "rtt/ConditionTrue.hpp"
 #include <boost/graph/copy.hpp>
 #include <utility>

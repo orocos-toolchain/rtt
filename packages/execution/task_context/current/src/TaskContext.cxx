@@ -31,8 +31,6 @@
 #include <rtt/CommandInterface.hpp>
 #include <rtt/CompletionProcessor.hpp>
 
-#include "rtt/Factories.hpp"
-
 #include <string>
 #include <algorithm>
 #include <functional>
@@ -61,7 +59,6 @@ namespace RTT
 #else
            mscriptAcc(new ScriptingAccess(this)),
 #endif
-           commandFactory( &ee ),
            eventService( &ee )
     {
         // I'll only add  this line if there is  a good reason for
@@ -77,7 +74,6 @@ namespace RTT
 #else
            mscriptAcc(new ScriptingAccess(this)),
 #endif
-           commandFactory( &ee ),
            eventService( &ee )
     {
     }
@@ -252,7 +248,7 @@ namespace RTT
              it != myports.end();
              ++it) {
             (*it)->disconnect();
-            this->datasources()->unregisterObject( (*it)->getName() );
+            this->removeObject( (*it)->getName() );
         }
         // reconnect again to our peers and ask our 'users' to reconnect as well.
         for( PeerMap::iterator it = _task_map.begin(); it != _task_map.end(); ++it)
@@ -275,7 +271,7 @@ namespace RTT
              it != myports.end();
              ++it) {
             (*it)->disconnect();
-            this->datasources()->unregisterObject( (*it)->getName() );
+            this->removeObject( (*it)->getName() );
         }
 
         // remove from all users.

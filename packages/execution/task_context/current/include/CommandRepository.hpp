@@ -52,13 +52,14 @@ namespace RTT
         }
 
         /** 
-         * Return the pointer to an added simple Command.
+         * Return the pointer to an added command for use in a Command object.
+         * Store the result in a Command<\a Signature> object.
          * 
          * @param name The name of the command to retrieve.
          * @param Signature The function signature of the command, for
          * example: getCommand<bool(int,double)>("name");
          * 
-         * @return A new pointer to a simple Command, or null if it does not exist.
+         * @return A new pointer to a Command, or null if it does not exist.
          */
         template<class Signature>
         DispatchInterface* getCommand( std::string name )
@@ -72,6 +73,7 @@ namespace RTT
 #endif
             return 0;
         }
+
         /** 
          * Retrieve the completion condition of a previously added Command.
          * 
@@ -89,6 +91,9 @@ namespace RTT
             return ret;
         }
 
+        /**
+         * Clears the complete interface and frees all memory.
+         */
         void clear() {
             while ( !simplecommands.empty() ) {
                 delete simplecommands.begin()->second;
@@ -111,7 +116,9 @@ namespace RTT
         }
 
         /** 
-         * Add a Command to the interface. You can retrieve it with getCommand.
+         * Add a Command object to the command interface. The command is 
+         * added to the C++ interface and not added to the scripting interface.
+         * @see getCommand to retrieve it.
          * 
          * @param com A pointer to a Command object.
          * 
@@ -128,8 +135,8 @@ namespace RTT
 
 
         /** 
-         * Add an existing Command, which takes no arguments, to the Operations interface.
-         * 
+         * Add a Command object, which takes no arguments, to the command interface.
+         * The command is added to the C++ and to the scripting interface.
          * @param c A pointer to the existing command.
          * @param description A user readable description of what this command does.
          * 
@@ -158,8 +165,9 @@ namespace RTT
         }
 
         /** 
-         * Add an existing Command, which takes one argument, to the
-         * Operations Interface.
+         * Add a Command object, which takes one argument, to the
+         * command interface. The command is added to the C++ and to the
+         * scripting interface.
          * 
          * @param c A pointer to the existing command.
          * @param description A user readable description of what this command does.
@@ -190,10 +198,11 @@ namespace RTT
         }
 
         /** 
-         * Add an existing Command, which takes two arguments, to the
-         * Operations Interface.
+         * Add a Command object, which takes two arguments, to the
+         * command interface.
+         * The command is added to the C++ and to the scripting interface.
          * 
-         * @param c A pointer to the existing command.
+         * @param c A pointer to the Command object.
          * @param description A user readable description of what this command does.
          * @param arg1 A single word name of the first argument.
          * @param arg1_description A user readable description of the first argument.
@@ -226,6 +235,22 @@ namespace RTT
         }
 
 
+        /** 
+         * Add a Command object, which takes three arguments, to the
+         * command interface.
+         * The command is added to the C++ and to the scripting interface.
+         * 
+         * @param c A pointer to the Command object.
+         * @param description A user readable description of what this command does.
+         * @param arg1 A single word name of the first argument.
+         * @param arg1_description A user readable description of the first argument.
+         * @param arg2 A single word name of the second argument.
+         * @param arg2_description A user readable description of the second argument.
+         * @param arg3 A single word name of the third argument.
+         * @param arg3_description A user readable description of the third argument.
+         * 
+         * @return true if the command could be added.
+         */
         template<class CommandT>
         bool addCommand( CommandT com, const char* description,
                          const char* arg1, const char* arg1_description,
@@ -251,6 +276,24 @@ namespace RTT
             return true;
         }
 
+        /** 
+         * Add a Command object, which takes four arguments, to the
+         * command interface.
+         * The command is added to the C++ and to the scripting interface.
+         * 
+         * @param c A pointer to the Command object.
+         * @param description A user readable description of what this command does.
+         * @param arg1 A single word name of the first argument.
+         * @param arg1_description A user readable description of the first argument.
+         * @param arg2 A single word name of the second argument.
+         * @param arg2_description A user readable description of the second argument.
+         * @param arg3 A single word name of the third argument.
+         * @param arg3_description A user readable description of the third argument.
+         * @param arg4 A single word name of the fourth argument.
+         * @param arg4_description A user readable description of the fourth argument.
+         * 
+         * @return true if the command could be added.
+         */
         template<class CommandT>
         bool addCommand( CommandT com, const char* description,
                          const char* arg1, const char* arg1_description,
@@ -278,6 +321,11 @@ namespace RTT
             return true;
         }
 
+        /**
+         * For internal use only. The pointer of the object of which a member function
+         * must be invoked is stored in a DataSource such that the pointer can change
+         * during program execution. Required in scripting for state machines.
+         */
         template<class CommandT,class CompT>
         bool addCommandDS( DataSource< boost::weak_ptr<CompT> >* wp, CommandT c, const char* description) 
         {
@@ -296,6 +344,11 @@ namespace RTT
             return true;
         }
 
+        /**
+         * For internal use only. The pointer of the object of which a member function
+         * must be invoked is stored in a DataSource such that the pointer can change
+         * during program execution. Required in scripting for state machines.
+         */
         template<class CommandT, class CompT>
         bool addCommandDS( DataSource<boost::weak_ptr<CompT> >* wp, CommandT c, const char* description,
                          const char* arg1, const char* arg1_description)

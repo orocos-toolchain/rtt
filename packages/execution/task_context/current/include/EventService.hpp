@@ -30,69 +30,35 @@
 #define EVENT_SERVICE_HPP
 
 #include "Logger.hpp"
+#include "FunctorFactory.hpp"
 #include "TemplateEventFactory.hpp"
+#include "OperationFactory.hpp"
+#include "Event.hpp"
+#include "CompletionProcessor.hpp"
 #include "EventC.hpp"
 #include "ConnectionC.hpp"
+#include "DataSourceArgsEvent.hpp"
 
 namespace RTT
 {
 
-    namespace detail {
-
-        /**
-         * Factory interface creating intermediate EventHookBase objects.
-         */
-        struct EventStubInterface
-        {
-            virtual ~EventStubInterface() {}
-            virtual int arity() const = 0;
-            virtual EventHookBase* createReceptor(const std::vector<DataSourceBase::shared_ptr>& args ) = 0;
-            virtual DataSourceBase* createEmittor(const std::vector<DataSourceBase::shared_ptr>& args ) = 0;
-        };
-
-    
-        template< class EventT>
-        struct EventStub :
-            public EventStubInterface
-        {
-            EventT* me;
-            detail::TemplateFactoryPart<EventT, EventHookBase*>*  mrfact;
-            detail::TemplateFactoryPart<EventT, DataSourceBase*>* mefact;
-            EventStub( EventT* e,
-                       detail::TemplateFactoryPart<EventT, EventHookBase*>* rfact,
-                       detail::TemplateFactoryPart<EventT, DataSourceBase*>* efact)
-                : me(e), mrfact(rfact), mefact(efact) {}
-            virtual ~EventStub() {
-                delete mrfact;
-                delete mefact;
-            }
-
-            virtual int arity() const { return me->arity(); }
-
-            virtual EventHookBase* createReceptor(const std::vector<DataSourceBase::shared_ptr>& args ) {
-                return mrfact->produce( me, args );
-            }
-
-            virtual DataSourceBase* createEmittor(const std::vector<DataSourceBase::shared_ptr>& args ) {
-                return mefact->produce( me, args );
-            }
-        };
-
-    }
-
     class ExecutionEngine;
 
     /**
-     * The function of this service is twofold.  As a factory and
-     * event producer, it stores Events of any type and connects
-     * SYN/ASYN Event handlers to them.  As an event consumer, it also
-     * offers access to an EventProcessor which may process (external
-     * or own) events for this service.
+     * The EventService represents the event interface. It stores pointers
+     * to event objects and allows clients to retrieve event objects which
+     * can then be emitted or subscribed to. 
+     *
      */
     class EventService
+        : public OperationFactory< ActionInterface* >
     {
-        typedef std::map<std::string, detail::EventStubInterface* > Factories;
-        Factories fact;
+        // creates event hooks
+        typedef std::map<std::string, detail::FunctorFactoryPart<detail::EventHookBase*>* > Hooks;
+        Hooks mhooks;
+        // creates emittor objects
+        typedef std::map<std::string, boost::shared_ptr<ActionInterface> > Events;
+        Events mevents;
 
         ExecutionEngine* eeproc;
         EventProcessor* eproc;
@@ -106,7 +72,7 @@ namespace RTT
 
         /**
          * Create an EventService with an associated EventService.
-         * This EventProcessor optional and defaults to the CompletionProcessor.
+         * The EventProcessor is optional and defaults to the CompletionProcessor.
          * If you want the owner task of this object to process an event use
          * EventService::getEventProcessor() in the \a setup functions below.
          */
@@ -114,22 +80,10 @@ namespace RTT
 
         EventProcessor* getEventProcessor();
             
-        /**
-         * Add an arbitrary Event to this Service.
-         * @deprecated by the addEvent function below.
-         */
-        template< class EventT>
-        bool addEvent( const std::string& ename, EventT* e ) {
-            if ( fact.count(ename) != 0 )
-                return false;
-            fact[ename] = new detail::EventStub<EventT>( e,
-                                                         detail::EventHookFactoryGenerator<EventT>().receptor(),
-                                                         detail::EventHookFactoryGenerator<EventT>().emittor() );
-            return true;
-        }
-
         /** 
-         * Add an Event with a unique name within the Event Service.
+         * Add an Event to the event interface. This version
+         * of addEvent only adds \a e to the C++ interface and
+         * not to the scripting interface.
          * 
          * @param e The event to add
          * 
@@ -138,64 +92,180 @@ namespace RTT
          */
         template< class EventT>
         bool addEvent( EventT* e ) {
-            
+            Logger::In in("EventService");
+            // All addEvent functions below first call this function.
+            // Hence all these checks are always performed.
             std::string ename = e->getName();
-            if ( ename.empty() ) {
-                Logger::In in("EventService");
-                log(Error) << "Can not use addEvent with nameless Event: give your event a name upon construction." << endlog();
+            if ( ename.empty() || e->ready() == false ) {
+                log(Error) << "Can not use addEvent with uninitialised Event: give your event a name upon construction." << endlog();
                 return false;
             }
 
-            if ( fact.count(ename) != 0 )
+            if ( mevents.count(ename) != 0 ) {
+                log(Error) << "Can not add Event '"<<ename<<"': name already used." << endlog();
                 return false;
-            fact[ename] = new detail::EventStub<EventT>( e,
-                                                         detail::EventHookFactoryGenerator<EventT>().receptor(),
-                                                         detail::EventHookFactoryGenerator<EventT>().emittor() );
+            }
+
+            mevents[ename] = e->getImplementation();
+            log(Debug) << "Added Event '"<<ename<<"' to EventService." << endlog();
             return true;
         }
 
+        /**
+         * Get a previously added event for use in a C++ Event object. Store the result of this
+         * method in an Event<\a Signature> object.
+         * @param Signature Signature of the Event, for example void(int, int)
+         * @param ename The name of the event to lookup.
+         * @return A shared pointer which is to be assigned to an Event object.
+         */
+        template<class Signature>
+        boost::shared_ptr<ActionInterface> getEvent(const std::string& ename)
+        {
+            if ( mevents.count(ename) )
+                return mevents[ename];
+            return boost::shared_ptr<ActionInterface>();
+        }
+
+        /**
+         * Add an Event to the event interface. This version of
+         * addEvent adds the event \a e to the C++ interface and to the
+         * scripting interface.
+         * @param e An event which takes no arguments. It must be ready().
+         * @param description The description of this event.
+         * @return true if e->ready() and the name e->getName() was not yet
+         * used in this EventService.
+         */
         template< class EventT>
         bool addEvent( EventT* e, const char* description )
         {
-            std::string ename = e->getName();
-            if ( ename.empty() || fact.count(ename) != 0)
+            if ( this->addEvent( e ) == false)
                 return false;
+
+            this->add(e->getName(),
+                      new detail::OperationFactoryPart0<ActionInterface*,
+                      detail::DataSourceArgsEvent<typename EventT::Signature> >( boost::bind(&EventT::operator(),e), description) ); 
+
+            this->mhooks[e->getName()]
+                = new detail::FunctorFactoryPart0<detail::EventHookBase*, detail::EventHookGenerator<EventT> >( detail::EventHookGenerator<EventT>(e) );
+
             return true;
         }
 
+        /**
+         * Add an Event to the event interface. This version of
+         * addEvent adds the event \a e to the C++ interface and to the
+         * scripting interface.
+         * @param e An event which takes one argument. It must be ready().
+         * @param description The description of this event.
+         * @param arg1 The name of the first argument of \a e.
+         * @param arg1_description A description of the first argument of \a e.
+         * @return true if e->ready() and the name e->getName() was not yet
+         * used in this EventService.
+         */
         template< class EventT>
         bool addEvent( EventT* e, const char* description,
                        const char* arg1, const char* arg1_description )
         {
-            std::string ename = e->getName();
-            if ( ename.empty() || fact.count(ename) != 0)
+            if ( this->addEvent( e ) == false)
                 return false;
+            this->add(e->getName(),
+                      new detail::OperationFactoryPart1<ActionInterface*,
+                      detail::DataSourceArgsEvent<typename EventT::Signature> >( boost::bind(&EventT::operator(),e, _1),
+                      description,
+                      arg1, arg1_description) ); 
+
+            this->mhooks[e->getName()]
+                = new detail::FunctorFactoryPart1<detail::EventHookBase*, detail::EventHookGenerator<EventT> >( detail::EventHookGenerator<EventT>(e) );
+
             return true;
         }
 
+        /**
+         * Add an Event to the event interface. This version of
+         * addEvent adds the event \a e to the C++ interface and to the
+         * scripting interface.
+         * @param e An event which takes two arguments. It must be ready().
+         * @param description The description of this event.
+         * @param arg1 The name of the first argument of \a e.
+         * @param arg1_description A description of the first argument of \a e.
+         * @param arg2 The name of the second argument of \a e.
+         * @param arg2_description A description of the second argument of \a e.
+         * @return true if e->ready() and the name e->getName() was not yet
+         * used in this EventService.
+         */
         template< class EventT>
         bool addEvent( EventT* e, const char* description,
                        const char* arg1, const char* arg1_description,
                        const char* arg2, const char* arg2_description )
         {
-            std::string ename = e->getName();
-            if ( ename.empty() || fact.count(ename) != 0)
+            if ( this->addEvent( e ) == false)
                 return false;
+            this->add(e->getName(),
+                      new detail::OperationFactoryPart2<ActionInterface*,
+                      detail::DataSourceArgsEvent<typename EventT::Signature> >( boost::bind(&EventT::operator(),e,_1,_2),
+                      description,
+                      arg1, arg1_description,
+                      arg2, arg2_description) ); 
+
+            this->mhooks[e->getName()]
+                = new detail::FunctorFactoryPart2<detail::EventHookBase*, detail::EventHookGenerator<EventT> >( detail::EventHookGenerator<EventT>(e) );
+
             return true;
         }
 
+        /**
+         * Add an Event to the event interface. This version of
+         * addEvent adds the event \a e to the C++ interface and to the
+         * scripting interface.
+         * @param e An event which takes four arguments. It must be ready().
+         * @param description The description of this event.
+         * @param arg1 The name of the first argument of \a e.
+         * @param arg1_description A description of the first argument of \a e.
+         * @param arg2 The name of the second argument of \a e.
+         * @param arg2_description A description of the second argument of \a e.
+         * @param arg3 The name of the third argument of \a e.
+         * @param arg3_description A description of the third argument of \a e.
+         * @return true if e->ready() and the name e->getName() was not yet
+         * used in this EventService.
+         */
         template< class EventT>
         bool addEvent( EventT* e, const char* description,
                        const char* arg1, const char* arg1_description,
                        const char* arg2, const char* arg2_description,
                        const char* arg3, const char* arg3_description)
         {
-            std::string ename = e->getName();
-            if ( ename.empty() || fact.count(ename) != 0)
+            if ( this->addEvent( e ) == false)
                 return false;
+            this->add(e->getName(),
+                      new detail::OperationFactoryPart3<ActionInterface*,
+                      detail::DataSourceArgsEvent<typename EventT::Signature> >( boost::bind(&EventT::operator(),e,_1,_2,_3),
+                      description,
+                      arg1, arg1_description,
+                      arg2, arg2_description,
+                      arg3, arg3_description)); 
+
+            this->mhooks[e->getName()]
+                = new detail::FunctorFactoryPart3<detail::EventHookBase*, detail::EventHookGenerator<EventT> >( detail::EventHookGenerator<EventT>(e) );
             return true;
         }
 
+        /**
+         * Add an Event to the event interface. This version of
+         * addEvent adds the event \a e to the C++ interface and to the
+         * scripting interface.
+         * @param e An event which takes four arguments. It must be ready().
+         * @param description The description of this event.
+         * @param arg1 The name of the first argument of \a e.
+         * @param arg1_description A description of the first argument of \a e.
+         * @param arg2 The name of the second argument of \a e.
+         * @param arg2_description A description of the second argument of \a e.
+         * @param arg3 The name of the third argument of \a e.
+         * @param arg3_description A description of the third argument of \a e.
+         * @param arg4 The name of the fourth argument of \a e.
+         * @param arg4_description A description of the fourth argument of \a e.
+         * @return true if e->ready() and the name e->getName() was not yet
+         * used in this EventService.
+         */
         template< class EventT>
         bool addEvent( EventT* e, const char* description,
                        const char* arg1, const char* arg1_description,
@@ -203,9 +273,19 @@ namespace RTT
                        const char* arg3, const char* arg3_description,
                        const char* arg4, const char* arg4_description )
         {
-            std::string ename = e->getName();
-            if ( ename.empty() || fact.count(ename) != 0)
+            if ( this->addEvent( e ) == false)
                 return false;
+            this->add(e->getName(),
+                      new detail::OperationFactoryPart4<ActionInterface*,
+                      detail::DataSourceArgsEvent<typename EventT::Signature> >( boost::bind(&EventT::operator(),e,_1,_2,_3,_4),
+                      description,
+                      arg1, arg1_description,
+                      arg2, arg2_description,
+                      arg3, arg3_description,
+                      arg4, arg4_description));
+
+            this->mhooks[e->getName()]
+                = new detail::FunctorFactoryPart4<detail::EventHookBase*, detail::EventHookGenerator<EventT> >( detail::EventHookGenerator<EventT>(e) );
             return true;
         }
 
@@ -216,7 +296,7 @@ namespace RTT
         bool hasEvent(const std::string& ename) const;
 
         /**
-         * Get a list of all the events.
+         * Get a list of the names of all the present events.
          */
         std::vector<std::string> getEvents() const;
 
@@ -235,7 +315,7 @@ namespace RTT
         ~EventService();
 
         /**
-         * Setup a 'handle' to emit events with arguments.
+         * Setup an object to emit events with arguments.
          * Use this method as in
          @verbatim
          createEmit("EventName").arg(2.0).arg(1.0).emit();
@@ -269,7 +349,7 @@ namespace RTT
         ConnectionC setupConnection(const std::string& ename) const;
 
         /**
-         * Setup a synchronous Event handler which will set \a args and
+         * For internal use only. Setup a synchronous Event handler which will set \a args and
          * then call \a func synchronously when event \a ename occurs.
          * @param ename The name of the previously added Event.
          * @param func  A function object which will be called.
@@ -278,11 +358,11 @@ namespace RTT
          * where \a Tn is the type of the n'th argument of the Event.
          */
         Handle setupSyn(const std::string& ename,
-                                     boost::function<void(void)> func,          
-                                     std::vector<DataSourceBase::shared_ptr> args ) const;
+                        boost::function<void(void)> func,          
+                        std::vector<DataSourceBase::shared_ptr> args ) const;
         
         /**
-         * Setup a asynchronous Event handler which will set \a args and
+         * For internal use only. Setup a asynchronous Event handler which will set \a args and
          * call \a afunc asynchronously (in task \a t) when event \a ename occurs.
          * @param ename The name of the previously added Event.
          * @param afunc  A function object which will be called.
@@ -296,60 +376,27 @@ namespace RTT
          * @{
          */
         Handle setupAsyn(const std::string& ename,
-                                      boost::function<void(void)> afunc,          
-                                      const std::vector<DataSourceBase::shared_ptr>& args,
-                                      ActivityInterface* t,
-                                      EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst) const;
+                         boost::function<void(void)> afunc,          
+                         const std::vector<DataSourceBase::shared_ptr>& args,
+                         ActivityInterface* t,
+                         EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst) const;
         
         Handle setupAsyn(const std::string& ename,
-                                      boost::function<void(void)> afunc,          
-                                      const std::vector<DataSourceBase::shared_ptr>& args,
-                                      EventProcessor* ep = CompletionProcessor::Instance(),
-                                      EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst) const;
+                         boost::function<void(void)> afunc,          
+                         const std::vector<DataSourceBase::shared_ptr>& args,
+                         EventProcessor* ep = CompletionProcessor::Instance(),
+                         EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst) const;
         //!@}
         
         /**
-         * Setup a synchronous and asynchronous Event handler which will set \a args and
-         * call \a sfunc synchronously, and call \a afunc asynchronously (in task \a t)
-         * when event \a ename occurs.
-         * @param ename The name of the previously added Event.
-         * @param sfunc  A function object which will be called synchronously
-         * @param afunc  A function object which will be called asynchronously
-         * @param args  The arguments which will be set before \a sfunc
-         * \em and before \a afunc is called.
-         * They must be of type \a AssignableDataSource<Tn> or \a DataSource<Tn&>,
-         * where \a Tn is the type of the n'th argument of the Event.
-         * @param t The task in which the \a args will be set and \a afunc will be called.
-         * @param ep The EventProcessor in which the \a args will be set and \a afunc will be called.
-         * @param s_type The method used when event overruns happen. By default, only the first event
-         * is propagated to the callbacks.
-         * @{
-         */
-        Handle setupSynAsyn(const std::string& ename,
-                                         boost::function<void(void)> sfunc,
-                                         boost::function<void(void)> afunc,
-                                         const std::vector<DataSourceBase::shared_ptr>& args,
-                                         ActivityInterface* t,
-                                         EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst) const;
-
-        Handle setupSynAsyn(const std::string& ename,
-                                         boost::function<void(void)> sfunc,
-                                         boost::function<void(void)> afunc,
-                                         const std::vector<DataSourceBase::shared_ptr>& args,
-                                         EventProcessor* ep = CompletionProcessor::Instance(),
-                                         EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst) const;
-        //! @}
-
-        /**
-         * Setup an Event::emit() invocation wrapped in a DataSource.
-         * Call \a result.evaluate() to emit the event with the given \a args.
+         * For internal use only. Get an event which takes its arguments by Datasource.
+         * Call \a result->execute() to emit the event with the given \a args.
          *
          * @param ename The name of the previously added Event.
-         * @param args  DataSources holding the values for each parameter of the event's emit().
-         * They be read at the moment of emit().
-         * @see DataSourceGenerator for creating the arguments from variables or plain literals.
+         * @param args  DataSources holding the values for each parameter of the event.
+         * They are read at the moment of execute().
          */
-        DataSourceBase::shared_ptr setupEmit(const std::string& ename,const std::vector<DataSourceBase::shared_ptr>& args) const;
+        ActionInterface* getEvent(const std::string& ename,const std::vector<DataSourceBase::shared_ptr>& args) const;
 
     };
 

@@ -756,7 +756,7 @@ ORO_main( int argc, char** argv)
       other. An Event can carry data and deliver it to the function's
       arguments. Orocos allows two possibilities of calling the
       function : synchronous and asynchronous. The former means that
-      when the emit() method is called, all synchronous handlers are
+      when the event is called, all synchronous handlers are
       called in the same thread. The latter means that the data is
       stored and the callback function is called in another
       thread. The thread which will execute the deferred callback is
@@ -765,7 +765,7 @@ ORO_main( int argc, char** argv)
     <figure><title>Event Handling</title>
     <mediaobject>
       <imageobject>
-	<imagedata fileref="EventSerialisationActivity" />
+	<imagedata fileref="TaskEventSerialisation" />
       </imageobject>
       <caption><para>Activity A1 runs in PeriodicThread (a) while Activity A2
       runs in PeriodicThread (b). At some time, A1 registers a
@@ -777,22 +777,19 @@ ORO_main( int argc, char** argv)
     </mediaobject>
     </figure>
     <para>
-      The Orocos Event system in versions 0.18.x and 0.20.x
-      use the <ulink url="http://www.boost.org/">boost::signals</ulink> library.
-      Later versions (from 0.22.0 on) use a specially crafted signals implementation
-      which allows hard real-time connection of handlers.
-    </para>
-    <para>
-      The Orocos Event extends the signal with asynchronous event handling. 
+      The Orocos Event extends the signal semantics with asynchronous event handling. 
       Any kind of function can be connected to the event as long as it has the
-      same signature as the Event. The 'raise' or 'fire' method of an Orocos Event is
-      called <methodname>emit()</methodname> (fire() and operator() are present as well).
+      same signature as the Event. 'Raising', 'fireing' or 'emiting' an Orocos Event is
+      done by using the <methodname>()</methodname> operator.
     </para>
     <section>
       <title>Event Basics</title>
       <example id="core-event-example">
       <title>Using Events</title>
       <para>
+	An Event must always be given a name upon construction. Providing it a
+	name tells Orocos that it should be initialised as a full functioning
+	object.
 	This example shows how a synchronous and asynchronous handler
 	are connected to an Event.
       </para>
@@ -823,28 +820,33 @@ SafetyStopRobot safety;
 NotifyUser      notify;
 
 // The &lt;..> means the callback functions must be of type "void foo(void)"
-<classname>RTT::Event</classname>&lt;void(void)> emergencyStop;
+<classname>RTT::Event</classname>&lt;void(void)> emergencyStop("EmergencyStop");
+// Use ready() to see if the event is initialised.
+assert( emergencyStop.ready() );
 <classname>RTT::Handle</classname> emergencyHandle;
+<classname>RTT::Handle</classname> notifyHandle;
 
 // boost::bind is a way to connect the method of an object instance to
 // an event.
 std::cout &lt;&lt; "Register apropriate handlers to the Emergency Stop Event\n";
 emergencyHandle = 
-   emergencyStop.connect( bind( &amp;SafetyStopRobot::handle_now, &amp;safety),
-	                  bind( &amp;NotifyUser::handle_later, &amp;notify) );
+   emergencyStop.connect( bind( &amp;SafetyStopRobot::handle_now, &amp;safety));
+assert( emergencyHandle.connected() );
 
-std::cout &lt;&lt; "Emit the event\n";
-emergencyStop.emit();
+notifyHandle = 
+   emergencyStop.connect( bind( &amp;NotifyUser::handle_later, &amp;notify),
+                          CompletionProcessor::Instance() );
+assert( notifyHandle.connected() );
 
-// Disconnecting the callbacks...
-emergencyHandle.disconnect();
+std::cout &lt;&lt; "Emit/Call the event\n";
+emergencyStop();
 
-// Add only synchronous callback :
-emergencyHandle = 
-   emergencyStop.connect( bind( &amp;SafetyStopRobot::handle_now, &amp;safety) );
+// Disconnecting the notify callback...
+notifyHandle.disconnect();
 
+// Only synchronous callback :
 std::cout &lt;&lt; "Doing a quiet safety stop..."&lt;&lt;std::endl;
-emergencyStop.emit(); // User not notified</programlisting>
+emergencyStop(); // User not notified</programlisting>
       <screen>
 	  Register apropriate handlers to the Emergency Stop Event
 	  Emit the event
@@ -861,7 +863,7 @@ emergencyStop.emit(); // User not notified</programlisting>
 	<programlisting>  ClassName object;
   boost::bind( &amp;ClassName::FunctionName, &amp;object)	</programlisting>
 	Where ClassName::FunctionName must have the same signature as the Event.
-	When the Event is <function>emit( args )</function>'ed,
+	When the Event is called,
 	<programlisting>
   object->FunctionName( args )</programlisting>
 	is executed by the Event.
@@ -885,17 +887,17 @@ emergencyStop.emit(); // User not notified</programlisting>
       construction. This can no longer be changed once the
       <classname>RTT::Event</classname> is created. The type is the
       same for the synchronous and asynchronous methods. If the type changes,
-      the emit() method must given other arguments. For example :
+      the event() method must given other arguments. For example :
       <example>
 	<title>Event Types</title>
-	<programlisting>  <classname>RTT::Event</classname>&lt;void(void)> e_1;
-  e_1.emit();
+	<programlisting>  <classname>RTT::Event</classname>&lt;void(void)> e_1("e_1");
+  e_1();
 
-  <classname>RTT::Event</classname>&lt;void(int)>  e_2;
-  e_2.emit( 3 );
+  <classname>RTT::Event</classname>&lt;void(int)>  e_2("e_2");
+  e_2( 3 );
 
-  <classname>RTT::Event</classname>&lt;void(double,double,double)>  positionEvent;
-  positionEvent.emit( x, y, z);</programlisting>
+  <classname>RTT::Event</classname>&lt;void(double,double,double)>  positionEvent("p");
+  positionEvent( x, y, z);</programlisting>
       </example>
     </para>
     <para>
@@ -903,17 +905,17 @@ emergencyStop.emit(); // User not notified</programlisting>
       carries one or more arguments :
       <programlisting>  SomeClass someclass;
 
-  Event&lt;void(int, float)&gt; event;
+  Event&lt;void(int, float)&gt; event("event");
 
   // notice that for each Event argument, you need to supply _1, _2, _3, etc...
   event.connect( boost::bind( &amp;SomeClass::foo, someclass, _1, _2 ) );
 
-  event.emit( 1, 2.0 );</programlisting>
+  event( 1, 2.0 );</programlisting>
     </para>
     <important>
     <para>
       The return type for synchronous and asynchronous callbacks is ignored
-      and can not be recovered from emit(), which always returns void.
+      and can not be recovered.
     </para>
     </important>
     </section>
@@ -922,7 +924,7 @@ emergencyStop.emit(); // User not notified</programlisting>
       <para>
 	Event connections can be managed by using a Handle which both <function>connect()</function>
 	and <function>setup()</function> return :
-	<programlisting>  <classname>RTT::Event</classname>&lt;void(int, float)&gt; event;
+	<programlisting>  <classname>RTT::Event</classname>&lt;void(int, float)&gt; event("event");
   <classname>RTT::Handle</classname> eh;
 
   // store the connection in 'eh'
@@ -939,7 +941,7 @@ emergencyStop.emit(); // User not notified</programlisting>
 	</programlisting>
 	Handle objects can be copied and will all show the same status.
 	To have a connection setup, but not connected, one can write :
-	<programlisting>  <classname>RTT::Event</classname>&lt;void(int, float)&gt; event;
+	<programlisting>  <classname>RTT::Event</classname>&lt;void(int, float)&gt; event)("event");
   <classname>RTT::Handle</classname> eh;
 
   // setup : store the connection in 'eh'
@@ -960,10 +962,12 @@ emergencyStop.emit(); // User not notified</programlisting>
     <section>
       <title>Choosing the Asynchronous Thread</title>
       <para>
-	The Event implementation provides one thread for
-	asynchronous execution. The Orocos Activities package provides
-	four additional threads for executing the asynchronous
-	callbacks.
+	As mentioned before, the asynchronous callback is executed in
+	another thread than the event caller.  The Event
+	implementation provides one thread for asynchronous execution,
+	the <classname>RTT::CompletionProcessor</classname>. You can
+	intercept asynchronous events in your thread using the
+	<classname>RTT::EventProcessor</classname> class.
       </para>
       <note>
 	<para>
@@ -976,7 +980,6 @@ emergencyStop.emit(); // User not notified</programlisting>
 	</para>
       </note>
       <para>
-	In the example above, there was aparantly no thread choosen.
 	The default thread which executes asynchronous callbacks
 	is called the <classname>RTT::CompletionProcessor</classname>. This is a non realtime
 	thread, which means that the reaction time is not bounded.
@@ -984,88 +987,33 @@ emergencyStop.emit(); // User not notified</programlisting>
 	an additional argument can be given in the
 	<methodname>connect</methodname> or <methodname>setup</methodname> method :
 	<programlisting>
-  event.connect(&amp;syn_func, &amp;asyn_func, <classname>RTT::ZeroLatencyThread</classname>::Instance() );</programlisting>
-	The above lists how the ZeroLatencyThread will execute the
-	asyn_func if event is emit()'ed. It will do this after it has processed
-	all its activities. The other Orocos threads can do this likewise :
-	<programlisting>  event.connect(&amp;syn_func, &amp;asyn_func, <classname>RTT::ZeroTimeThread</classname>::Instance() );
-  event.connect(&amp;syn_func, &amp;asyn_func, <classname>RTT::NonRealTimeThread</classname>::Instance() );
-  event.connect(&amp;syn_func, &amp;asyn_func, <classname>RTT::CompletionProcessor</classname>::Instance() ); <emphasis>// Default</emphasis>
-  event.connect(&amp;syn_func, &amp;asyn_func, <classname>RTT::PriorityThread</classname>&lt;N&gt;::Instance() );
-  event.connect(&amp;syn_func, &amp;asyn_func, &amp;nonperiodic_activity );	</programlisting>
-	If you would write above listings in a real program, on <function>
-	  event.emit()</function>, the syn_func will be called directly
-	five times. The asyn_func will be called in each thread once, possibly
-	preempting itself.
-      </para>
-      <para>
-	It is also possible to only have the asyn_func called. In this
-	case the synopsis is :
-	<programlisting>  event.connect( &amp;asyn_func, ZeroLatencyThread::Instance() );
-	</programlisting>
-	to distinguish from a synchronous callback connection. In this case
-	there is no default, so if you wish to use the CompletionProcessor,
-	you must specify it explicitly.
-	<programlisting>  event.connect( &amp;asyn_func, CompletionProcessor::Instance() );
-	</programlisting>
-      </para>
-      <para>
-	For convenience, the Orocos Activity threads can also be choosen in another way
-	by specifying the Activity :
-	<programlisting>  NonPreemptibleActivity my_activity;
-  event.connect(&amp;syn_func, &amp;asyn_func, &amp;my_activity );	</programlisting>
-	or even :
-	<programlisting>  RunnableInterface* my_function = ... ;
-  // put my_function in a activity;
-  event.connect(&amp;syn_func, &amp;asyn_func, my_function->getActivity() );</programlisting>
-	The above says that the asyn_func function should be executed
-	after the my_function's activity execution period.
-	This is a very powerfull way of synchronising function calls
-	in different threads. One should be aware that a Activity is
-	not always executed with every period of the Thread, meaning
-	that the asyn_func could be called before the activity is run,
-	or even multiple times in between a activity run.
+  EventProcessor eproc;
+  PeriodicActivity my_act(1, 0.01, &amp;eproc );
+  my_act.start();
+
+  event.connect( &amp;asyn_func, &amp;eproc );</programlisting>
+	The above lists how the an EventProcessor will execute the
+	asyn_func if event is emited. The EventProcessor is not a thread
+	itself, but an object which can be executed by an activity. If you
+	want to both process events and insert application code in the same
+	activity object, you'll need to call the EventProcessor's initialize(), step() 
+	and finalize() functions manually. See the <classname>RTT::RunnableInterface</classname>
+	documentation.
       </para>
       <note>
-	<para>Asynchronous event handlers can have no more than
-	6 arguments in the current implementation, but more
-	can be easily added.</para>
+	<para>Event handlers can have no more than
+	4 arguments in the current implementation, but more
+	can be added upon request. Since a struct or class can be used as
+	arguments, the need is fairly low though.</para>
       </note>
-    </section>
-    <section>
-      <title>Private EventProcessors for Periodic Activities</title>
-      <para>
-	Asynchronous handlers are called in an <classname>RTT::EventProcessor</classname>.
-	Each Orocos thread has such an EventProcessor to handle
-	the deferred callbacks of all its activities. A Periodic activity
-	can also have its a private EventProcessor which handles
-	only its deferred callbacks after each step()
-	and only when it is started. In this way, it resembles better
-	how a non periodic activity handles its defered event callbacks.
-	To enable this behavior,
-	a boolean flag must be given upon construction of a <classname>RTT::PeriodicActivity</classname>
-	or any derived activity-types :
-      </para>
-	<programlisting>  <classname>RTT::RunnableInterface</classname>* my_function = ... ;
-  <classname>RTT::NonPreemptibleActivity</classname> myactivity( 0.01, my_function, true );     // enable private eventproc.
-
-  event.connect(&amp;syn_func, &amp;asyn_func, my_function->getActivity() );
-  
-  event.emit(); // calls only syn_func.
-
-  myactivity.start();
-  event.emit(); // calls syn_func and after myactivity's step(), asyn_func.</programlisting>
-       <para>
-	 The private <classname>RTT::EventProcessor</classname> is disabled by default.
-       </para>
     </section>
     <section>
       <title>Event Overrun Policy</title>
       <para>
-	An Event can only be emit()'ed by one thread at the same time.
+	An Event can only be emited by one thread at the same time.
 	The synchronous handlers will always be executed
-	as much times as the event is emit()'ed. This is not the case
-	for asynchronous handlers. If an Event is emit()'ed multiple
+	as much times as the event is emited. This is not the case
+	for asynchronous handlers. If an Event is emited multiple
 	times before the completion thread executes, the asynchronous
 	handler will be called only once in the completion thread's execution
 	step.
@@ -1077,9 +1025,9 @@ emergencyStop.emit(); // User not notified</programlisting>
 	overhead in execution time. To choose which policy is used,
 	an optional parameter can be given during connect :
       </para>
-      <programlisting>  event.connect( &amp;asyn_func, myactivity, Event::OnlyLast );
-  event.connect( &amp;asyn_func, myactivity, Event::OnlyFirst ); // default
-  event.connect( &amp;asyn_func, myactivity ); // same as previous line</programlisting>
+      <programlisting>  event.connect( &amp;asyn_func, eproc, Event::OnlyLast );
+  event.connect( &amp;asyn_func, eproc, Event::OnlyFirst ); // default
+  event.connect( &amp;asyn_func, eproc ); // same as previous line</programlisting>
     </section>
     <section>
       <title>The Completion Processor</title>
@@ -1094,26 +1042,19 @@ emergencyStop.emit(); // User not notified</programlisting>
 	detect timeouts). You can get its thread pointer like this :
 	<programlisting>  #include &lt;rtt/CompletionProcessor.hpp>
 
-  CompletionProcessor::Instance()-> ... </programlisting>
+  ActivityInterface* cp = CompletionProcessor::Instance()</programlisting>
       </para>
       <para>
 	The CompletionProcessor is a NonPeriodicActivity, thus not consuming
 	time resources when no Events need to be processed. If you need a 
 	hard realtime CompletionProcessor, use a default NonPeriodicActivity ( see
-	<xref linkend="activity-non-periodic" /> ) and call its makeHardRealTime() method.
+	<xref linkend="activity-non-periodic" /> ), call its makeHardRealTime() method
+	and add an EventProcessor object in <methodname>run()</methodname>.
       </para>
       <para>
-	To create your own (hard real-time) Event completion processor, use a
-	NonPeriodicActivity, it can be used to wait for Events (see
-	<xref linkend="corelib-events" /> ). If a NonPeriodicActivity
-	is not given a RunnableInterface, and it's methods are not
-	overridden in a derived class, it will call it's
-	EventProcessor's loop() method and wait for Asynchronous
-	Events to process. If stop() is called in this case, the
-	activity will break from the EventProcessor's loop() and be
-	stopped. If you want to process Events in your own
+	If you want to process Events in your own
 	RunnableInterface implementation, you need to manually call
-	the step() method of the processor() :
+	the step() method of the EventProcessor :
       </para>
       <programlisting>  // in your implementation :
   void loop() {
@@ -1121,16 +1062,10 @@ emergencyStop.emit(); // User not notified</programlisting>
         // &lt; do non periodic stuff &gt;
    
         // process any pending Events :
-        this->getActivity()->processor()->step();
+        eproc.step();
      }
   }
   // ...  </programlisting>
-       <para>
-	 If you call <function>processor()->loop()</function> instead,
-	 the EventProcessor will loop for events until it is stopped,
-	 which might not be what you want. So use step() to process
-	 all pending Events.
-       </para>
     </section>
   </section>
   <section>

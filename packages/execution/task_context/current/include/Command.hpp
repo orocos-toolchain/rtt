@@ -43,11 +43,11 @@ namespace RTT
      */
     template<class CommandT>
     class Command 
-        : public detail::InvokerSignature<boost::function_traits<CommandT>::arity, CommandT, detail::CommandBase<CommandT> >
+        : public detail::InvokerSignature<boost::function_traits<CommandT>::arity, CommandT, detail::CommandBase<CommandT>* >
     {
     protected:
         std::string mname;
-        typedef detail::InvokerSignature<boost::function_traits<CommandT>::arity, CommandT, detail::CommandBase<CommandT> > Base;
+        typedef detail::InvokerSignature<boost::function_traits<CommandT>::arity, CommandT, detail::CommandBase<CommandT>* > Base;
     public:
         typedef CommandT Signature;
 
@@ -57,7 +57,7 @@ namespace RTT
          *
          */
         Command()
-            : mname()
+            : Base(0), mname()
         {}
 
         /**
@@ -67,14 +67,14 @@ namespace RTT
          * @param name The name of the command.
          */
         Command(std::string name)
-            : mname(name)
+            : Base(0), mname(name)
         {}
 
         /**
          * Command objects are copy constructible.
          */
         Command(const Command& c)
-            : Base(c), mname(c.mname)
+            : Base( c.impl ? c.impl->cloneI() : 0), mname(c.mname)
         {
         }
 
@@ -86,7 +86,8 @@ namespace RTT
             if ( &c == this )
                 return *this;
             this->mname = c.mname;
-            Base::operator=(c);
+            if ( c.impl )
+                this->impl.reset( c->impl->cloneI() );
             return *this;
         }
 
@@ -156,7 +157,7 @@ namespace RTT
               mname()
         {
             // If not convertible, delete the implementation.
-            if (this->impl == 0)
+            if ( !this->impl )
                 delete implementation; 
         }
 
@@ -165,6 +166,7 @@ namespace RTT
          */
         ~Command()
         {
+            delete this->impl;
         }
 
         /** 

@@ -23,16 +23,13 @@
 #include "os/fosi.h"
 #include "Signal.hpp"
 #include "Handle.hpp"
+#include "LocalEvent.hpp"
 #include <boost/call_traits.hpp>
+#include <boost/function.hpp>
 #include "NameServerRegistrator.hpp"
 
 #include "Logger.hpp"
-#include "CompletionProcessor.hpp"
-#include "ActivityInterface.hpp"
-#include "TimerThread.hpp"
 #include "EventProcessor.hpp"
-#include "os/Mutex.hpp"
-#include "os/MutexLock.hpp"
 #include <cassert>
 
 namespace RTT
@@ -49,55 +46,53 @@ namespace RTT
      * but leave it in a dormant state. Use the returned Handle object and connect()
      * to establish the connection.
      *
-     * @param _Signature The function type signature of the callback functions
+     * Emit (call,raise, fire) the event by writing:
+     * @code my_event(a, b, c);
+     @endcode
+     *
+     * @param SignatureT The function type signature of the callback functions
      * this event will call. For example void(int, double) if you want the
      * event to call a function 'void foo(int x, double y)';
      * @see The Orocos CoreLib manual for usage.
      * @ingroup CoreLibEvents
      */
     template<
-        typename _Signature // function type R (T1, T2, ..., TN)
+        typename SignatureT // function type R (T1, T2, ..., TN)
     >
     class Event
-        : public sigslot::signal<_Signature, boost::function<_Signature> >,
-          private NameServerRegistrator<Event<_Signature>*>
+        : public detail::InvokerSignature<boost::function_traits<SignatureT>::arity,
+                                          SignatureT,
+                                          boost::shared_ptr< detail::EventBase<SignatureT> > >,
+          private NameServerRegistrator<Event<SignatureT>*>
     {
-    protected:
+        typedef SignatureT FunctionT;
         std::string mname;
+        typedef boost::shared_ptr< detail::EventBase<FunctionT> > EventBasePtr;
+        typedef detail::InvokerSignature<boost::function_traits<FunctionT>::arity,
+                                         FunctionT,
+                                         EventBasePtr > Base;
     public:
-        /**
-         * @see EventProcessor::AsynStorageType
-         */
+       /**
+        * @see EventProcessor::AsynStorageType
+        */
         typedef EventProcessor::AsynStorageType AsynStorageType;
 
-        typedef boost::function<_Signature> SlotFunction;
+        typedef boost::function<SignatureT> SlotFunction;
 
-        typedef typename sigslot::signal<
-            _Signature,
-            SlotFunction>::base_type signal_type;
+        typedef Event<SignatureT> EventType;
 
-        typedef typename sigslot::signal<
-            _Signature,
-            SlotFunction> signal_base_type;
-
-        typedef Event<_Signature> EventType;
-
-        typedef _Signature Signature;
+        typedef SignatureT Signature;
 
         /**
          * The result type of the function signature.
          */
-        typedef typename boost::function_traits<_Signature>::result_type result_type;
-        /**
-         * The result type of emit().
-         */
-        typedef void emit_type;
+        typedef typename boost::function_traits<SignatureT>::result_type result_type;
 
         /**
          * Create a named Synchronous/Asynchronous Event.
          */
         explicit Event(const std::string name )
-            : signal_base_type(),
+            : Base( EventBasePtr(new detail::LocalEvent<Signature>()) ),
               NameServerRegistrator<EventType*>(nameserver, name, this),
               mname(name)
         {
@@ -108,38 +103,93 @@ namespace RTT
          * Create a Synchronous/Asynchronous Event.
          */
         Event()
-            : signal_base_type()
         {
+        }
+
+        /** 
+         * Event objects may be copied.
+         * 
+         * @param m the original
+         */
+        Event(const Event& m)
+            : Base(m),
+              mname(m.mname)
+        {}
+
+        /** 
+         * Event objects may be assigned
+         * 
+         * @param m the original
+         * 
+         * @return 
+         */
+        Event& operator=(const Event& m)
+        {
+            if ( this == &m )
+                return *this;
+            mname = m.mname;
+            this->impl = m.impl;
+            return *this;
+        }
+
+        /** 
+         * Initialise a nameless Event object from an implementation.
+         * 
+         * @param implementation The implementation which is acquired
+         * by the Event object. If it has the wrong type, it is freed.
+         */
+        Event(boost::shared_ptr<ActionInterface> implementation)
+            : Base( EventBasePtr( boost::dynamic_pointer_cast< detail::EventBase<Signature> >(implementation)) ),
+              mname()
+        {
+        }
+
+        /** 
+         * Event objects may be assigned to an implementation.
+         * 
+         * @param implementation the implementation, if it is not suitable,
+         * it is freed.
+         * 
+         * @return *this;
+         */
+        Event& operator=(boost::shared_ptr<ActionInterface> implementation)
+        {
+            if (this->impl == implementation)
+                return *this;
+            this->impl.reset( dynamic_cast< detail::EventBase<Signature>* >(implementation) );
+            return *this;
+        }
+
+        /** 
+         * Check if this Event is ready for execution.
+         * 
+         * @return true if so.
+         */
+        bool ready() const {
+            return this->impl;
         }
 
         const std::string& getName() const { return mname; }
 
-        using signal_base_type::emit;
-        using signal_base_type::fire;
-        using signal_base_type::operator();
+        /**
+         * Return the arity of this event.
+         */
+        int arity() const { return this->impl ? this->impl->arity() : 0; }
 
         /**
          * @brief Connect a synchronous event slot to this event.
          */
         Handle connect(const SlotFunction& f)
         {
-            return Handle( signal_type::connect( f ) );
+            return this->impl ? this->impl->connect( f ) : Handle();
         }
 
         /**
          * @brief Connect an Asynchronous event slot to this event.
          */
-        Handle connect( const SlotFunction& l, EventProcessor* ep, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
+        Handle connect( const SlotFunction& l, EventProcessor* ep, AsynStorageType t = EventProcessor::OnlyFirst)
         {
-            return Handle( ep->connect( l, *this, t ) );
-        }
-
-        /**
-         * @brief Connect a Synchronous and Asynchronous event slot to this event.
-         */
-        Handle connect( const SlotFunction& l, const SlotFunction& c, EventProcessor* ep = CompletionProcessor::Instance(), EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst )
-        {
-            return Handle( signal_type::connect( l ), ep->connect( c, *this, t ) );
+            return this->impl ? ep->connect( l, *this, t ) : Handle();
         }
 
         /**
@@ -147,24 +197,18 @@ namespace RTT
          */
         Handle setup(const SlotFunction& f)
         {
-            return Handle( signal_type::setup( f ) );
+            return this->impl ? this->impl->setup( f ) : Handle();
         }
 
         /**
          * @brief Setup an Asynchronous event slot to this event.
          */
-        Handle setup( const SlotFunction& l, EventProcessor* ep, EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst)
+        Handle setup( const SlotFunction& l, EventProcessor* ep, AsynStorageType t = EventProcessor::OnlyFirst)
         {
-            return Handle( ep->setup( l, *this, t ) );
+            return this->impl ? ep->setup( l, *this, t ) : Handle();
         }
 
-        /**
-         * @brief Setup a Synchronous and Asynchronous event slot to this event.
-         */
-        Handle setup( const SlotFunction& l, const SlotFunction& c, EventProcessor* ep = CompletionProcessor::Instance(), EventProcessor::AsynStorageType t = EventProcessor::OnlyFirst )
-        {
-            return Handle( signal_type::setup( l ), ep->setup( c, *this, t ) );
-        }
+        EventBasePtr getImplementation() const { return this->impl; }
 
         /**
          * @brief Public nameserver for Events.
@@ -176,10 +220,10 @@ namespace RTT
 
 
     template<
-        typename _Signature
+        typename SignatureT
     >
-    NameServer<Event<_Signature>*>
-    Event<_Signature>::nameserver;
+    NameServer<Event<SignatureT>*>
+    Event<SignatureT>::nameserver;
 
 }
 

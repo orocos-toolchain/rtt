@@ -33,18 +33,11 @@
 #include <utility>
 
 #include "DataSourceBase.hpp"
-#include "CommandFactoryInterface.hpp"
 #include "OperationFactory.hpp"
 
 namespace RTT
 {
     class ConditionInterface;
-}
-
-namespace RTT
-{
-    class GlobalCommandFactory;
-    class CommandRepository;
 
     /**
      * A user friendly Command to a TaskContext.
@@ -64,12 +57,6 @@ namespace RTT
          * in order to make it usable.
          */
         CommandC();
-
-        /**
-         * The constructor.
-         * @see GlobalCommandFactory
-         */
-        CommandC( const GlobalCommandFactory* gcf, const std::string& obj, const std::string& name);
 
         /**
          * The constructor.

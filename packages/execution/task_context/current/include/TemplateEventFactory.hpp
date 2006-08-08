@@ -60,29 +60,22 @@ namespace RTT{
             virtual ~EventHookBase() {}
 
             Handle setupSyn(boost::function<void(void)> sfunc ) {
-                msfunc = sfunc;
+                mfunc = sfunc;
                 return msetupSyn();
             }
 
             Handle setupAsyn(boost::function<void(void)> afunc, EventProcessor* t,EventProcessor::AsynStorageType s_type ) {
-                mafunc = afunc;
+                mfunc = afunc;
                 return msetupAsyn(t, s_type);
             }
 
-            Handle setupSynAsyn(boost::function<void(void)> sfunc, boost::function<void(void)> afunc, EventProcessor* t,EventProcessor::AsynStorageType s_type ) {
-                msfunc = sfunc;
-                mafunc = afunc;
-                return msetupSynAsyn(t, s_type);
-            }
         protected:
-            boost::function<void(void)> msfunc;
-            boost::function<void(void)> mafunc;
+            boost::function<void(void)> mfunc;
 
             virtual Handle msetupSyn( ) = 0;
 
             virtual Handle msetupAsyn( EventProcessor* t,EventProcessor::AsynStorageType s_type ) = 0;
 
-            virtual Handle msetupSynAsyn( EventProcessor* t,EventProcessor::AsynStorageType s_type ) = 0;
         };
 
         template<typename EventT>
@@ -95,8 +88,6 @@ namespace RTT{
             typedef EventHook0<EventT> This;
             EventT* msource;
 
-            //boost::shared_ptr<EventHookBase> seh;
-            
         public:
             EventHook0( EventT* source )
                 : msource(source) //, seh(this)
@@ -114,21 +105,15 @@ namespace RTT{
                 return h;
             }
 
-            Handle msetupSynAsyn( EventProcessor* t,EventProcessor::AsynStorageType s_type ) {
-                boost::shared_ptr<This> seh(this);
-                Handle h = msource->setup( boost::bind(&This::synop,seh), boost::bind(&This::asynop,seh), t, s_type );
-                return h;
-            }
-
             Ret synop() 
             {
-                msfunc();
+                mfunc();
                 return Ret();
             }
 
             Ret asynop() 
             {
-                mafunc();
+                mfunc();
                 return Ret();
             }
         };
@@ -165,17 +150,11 @@ namespace RTT{
                 return h;
             }
 
-            Handle msetupSynAsyn( EventProcessor* t, EventProcessor::AsynStorageType s_type ) {
-                boost::shared_ptr<This> seh(this);
-                Handle h = msource->setup( boost::bind(&This::synop,seh,_1), boost::bind(&This::asynop,seh,_1), t, s_type );
-                return h;
-            }
-
             Ret synop(A1 arg1) 
             {
                 // set the received args.
                 ma1->set(arg1);
-                msfunc();
+                mfunc();
                 return Ret();
             }
 
@@ -183,7 +162,7 @@ namespace RTT{
             {
                 // set the received args.
                 ma1->set(arg1);
-                mafunc();
+                mfunc();
                 return Ret();
             }
         };
@@ -222,18 +201,12 @@ namespace RTT{
                 return h;
             }
 
-            Handle msetupSynAsyn( EventProcessor* t,EventProcessor::AsynStorageType s_type ) {
-                boost::shared_ptr<This> seh(this);
-                Handle h = msource->setup( boost::bind(&This::synop,seh,_1,_2), boost::bind(&This::asynop,seh,_1,_2), t, s_type );
-                return h;
-            }
-
             Ret synop(A1 arg1, A2 arg2) 
             {
                 // set the received args.
                 ma1->set(arg1);
                 ma2->set(arg2);
-                msfunc();
+                mfunc();
                 return Ret();
             }
             Ret asynop(A1 arg1, A2 arg2) 
@@ -241,7 +214,7 @@ namespace RTT{
                 // set the received args.
                 ma1->set(arg1);
                 ma2->set(arg2);
-                mafunc();
+                mfunc();
                 return Ret();
             }
         };
@@ -284,19 +257,13 @@ namespace RTT{
                 return h;
             }
 
-            Handle msetupSynAsyn( EventProcessor* t, EventProcessor::AsynStorageType s_type ) {
-                boost::shared_ptr<This> seh(this);
-                Handle h = msource->setup( boost::bind(&This::synop,seh,_1,_2,_3), boost::bind(&This::asynop,seh,_1,_2,_3), t, s_type );
-                return h;
-            }
-
             Ret synop(A1 arg1, A2 arg2, A3 arg3) 
             {
                 // set the received args.
                 ma1->set(arg1);
                 ma2->set(arg2);
                 ma3->set(arg3);
-                msfunc();
+                mfunc();
                 return Ret();
             }
             Ret asynop(A1 arg1, A2 arg2, A3 arg3) 
@@ -305,7 +272,7 @@ namespace RTT{
                 ma1->set(arg1);
                 ma2->set(arg2);
                 ma3->set(arg3);
-                mafunc();
+                mfunc();
                 return Ret();
             }
         };
@@ -313,36 +280,25 @@ namespace RTT{
         /**
          * Generate EventHook depending on number of arguments.
          */
+        template<class EventT>
         class EventHookGenerator
         {
+            EventT* e;
+
         public:
+            typedef boost::function_traits<typename EventT::Signature> traits;
+
+            EventHookGenerator(EventT* event)
+                : e(event) {}
+
             typedef EventHookBase* result_type;
 
-            template<class EventT>
-            EventHookBase* operator()( EventT* e ) const {
+            EventHookBase* create() const {
                 return new EventHook0<EventT>(e); // called by TemplateFactoryPart0
             }
 
-            template<class EventT, class Arg1T>
-            EventHookBase* operator()( EventT* , Arg1T ) const
-            {
-                throw non_lvalue_args_exception( 1, DataSource<Arg1T>::GetType() );
-            }
-
-            template<class EventT, class Arg1T, class Arg2T>
-            EventHookBase* operator()( EventT* , Arg1T, Arg2T ) const
-            {
-                throw non_lvalue_args_exception( 1, DataSource<Arg1T>::GetType() );
-            }
-
-            template<class EventT, class Arg1T, class Arg2T, class Arg3T>
-            EventHookBase* operator()( EventT* , Arg1T, Arg2T, Arg3T ) const
-            {
-                throw non_lvalue_args_exception( 1, DataSource<Arg1T>::GetType() );
-            }
-
-            template<class EventT, class Arg1T>
-            EventHookBase* operator()( EventT* e, DataSource<Arg1T>* arg1 ) const
+            template<class Arg1T>
+            EventHookBase* create( DataSource<Arg1T>* arg1 ) const
             {
                 // check if we can make an AssignableDS from arg1...
                 typename AssignableDataSource<Arg1T>::shared_ptr ma1 = AdaptAssignableDataSource<Arg1T>()( arg1 );
@@ -353,10 +309,9 @@ namespace RTT{
                 return new EventHook1<EventT>(e, ma1); // called by TemplateFactoryPart1
             }
 
-            template<class EventT, class Arg1T, class Arg2T>
-            EventHookBase* operator()( EventT* e,
-                                            DataSource<Arg1T>* arg1,
-                                            DataSource<Arg2T>* arg2) const
+            template<class Arg1T, class Arg2T>
+            EventHookBase* create( DataSource<Arg1T>* arg1,
+                                   DataSource<Arg2T>* arg2) const
             {
                 // check if we can make an AssignableDS from arg1...
                 typename AssignableDataSource<Arg1T>::shared_ptr ma1 = AdaptAssignableDataSource<Arg1T>()( arg1 );
@@ -370,11 +325,10 @@ namespace RTT{
                 return new EventHook2<EventT>(e, ma1, ma2); // called by TemplateFactoryPart2
             }
 
-            template<class EventT, class Arg1T, class Arg2T, class Arg3T>
-            EventHookBase* operator()( EventT* e,
-                                            DataSource<Arg1T>* arg1,
-                                            DataSource<Arg2T>* arg2,
-                                            DataSource<Arg3T>* arg3) const
+            template<class Arg1T, class Arg2T, class Arg3T>
+            EventHookBase* create( DataSource<Arg1T>* arg1,
+                                   DataSource<Arg2T>* arg2,
+                                   DataSource<Arg3T>* arg3) const
             {
                 // check if we can make an AssignableDS from arg1...
                 typename AssignableDataSource<Arg1T>::shared_ptr ma1 = AdaptAssignableDataSource<Arg1T>()( arg1 );
@@ -392,79 +346,6 @@ namespace RTT{
             }
         };
 
-        template<class EventT, class Enable = void>
-        struct EventHookFactoryGenerator
-        {
-            TemplateFactoryPart<EventT,EventHookBase*>* receptor() const {
-                return new TemplateFactoryFunctorPart0<EventT,EventHookBase*,EventHookGenerator>( EventHookGenerator(), "Event Hook" );
-            }
-            TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
-                return member<EventT,typename EventT::emit_type>(&EventT::emit, "Event Emittor");
-            }
-        };
-        
-        
-        template<class EventT>
-        struct EventHookFactoryGenerator<EventT, typename boost::enable_if_c< EventT::SlotFunction::arity == 1 >::type >
-        {
-                TemplateFactoryPart<EventT,EventHookBase*>* receptor() const {
-                    return new TemplateFactoryFunctorPart1<
-                        EventT,
-                        EventHookBase*,
-                        EventHookGenerator,
-                        typename EventT::SlotFunction::arg1_type>( EventHookGenerator(), "Event Hook", "arg1", "description" );
-                }
-
-                TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
-                    return member<EventT,typename EventT::emit_type, typename EventT::arg1_type>(&EventT::emit, "Event Emittor",
-                                  "arg1", "description");
-                }
-        };
-
-        template<class EventT>
-        struct EventHookFactoryGenerator<EventT, typename boost::enable_if_c< EventT::SlotFunction::arity == 2 >::type >
-        {
-                TemplateFactoryPart<EventT,EventHookBase*>* receptor() const {
-                    return new TemplateFactoryFunctorPart2<
-                        EventT,
-                        EventHookBase*,
-                        EventHookGenerator,
-                        typename EventT::SlotFunction::arg1_type,
-                        typename EventT::SlotFunction::arg2_type>( EventHookGenerator(), "Event Hook",
-                                                          "arg1", "description", "arg2", "description" );
-                }
-
-                TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
-                    return member<EventT,typename EventT::emit_type, typename EventT::arg1_type, typename EventT::arg2_type>(&EventT::emit, "Event Emittor",
-                                  "arg1", "description",
-                                  "arg2", "description");
-                }
-        };
-
-        template<class EventT>
-        struct EventHookFactoryGenerator<EventT, typename boost::enable_if_c< EventT::SlotFunction::arity == 3 >::type >
-        {
-                TemplateFactoryPart<EventT,EventHookBase*>* receptor() const {
-                    return new TemplateFactoryFunctorPart3<
-                        EventT,
-                        EventHookBase*,
-                        EventHookGenerator,
-                        typename EventT::SlotFunction::arg1_type,
-                        typename EventT::SlotFunction::arg2_type,
-                        typename EventT::SlotFunction::arg3_type>( EventHookGenerator(), "Event Hook",
-                                                          "arg1", "description", "arg2", "description",
-                                                          "arg3", "description");
-                }
-
-                TemplateFactoryPart<EventT,DataSourceBase*>* emittor() const {
-                    return member<EventT,typename EventT::emit_type, typename EventT::arg1_type, typename EventT::arg2_type, 
-                        typename EventT::arg3_type>(&EventT::emit, "Event Emittor",
-                                  "arg1", "description",
-                                  "arg2", "description",
-                                  "arg3", "description");
-                }
-        };
-        // repeat for each additional argument... N=10 ?
     }
 }
 #endif

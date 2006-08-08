@@ -28,11 +28,12 @@
 #include <rtt/SimulationActivity.hpp>
 
 using namespace RTT;
-using namespace RTT;
 
 class ProgramTest : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( ProgramTest );
+    CPPUNIT_TEST( testEmptyProgram );
+    CPPUNIT_TEST( testReturnProgram );
     CPPUNIT_TEST( testParseProgram );
     CPPUNIT_TEST( testProgramFailure );
     CPPUNIT_TEST( testProgramCondition );
@@ -73,6 +74,8 @@ public:
     void setUp();
     void tearDown();
 
+    void testEmptyProgram();
+    void testReturnProgram();
     void testParseProgram();
     void testProgramTask();
     void testProgramCondition();

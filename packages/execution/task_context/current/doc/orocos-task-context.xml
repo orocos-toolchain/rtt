@@ -1617,8 +1617,13 @@ cd                  quit
       // ... other startup code here
   
       // add it to the task's interface:
-      this->events()->addEvent( &amp;turnSwitch ); 
-      this->events()->addEvent( &amp;moveAxis );
+      this->events()->addEvent( &amp;turnSwitch, 
+                                "Turn switch description", 
+                                "d","Direction" ); 
+      this->events()->addEvent( &amp;moveAxis,
+                                "x","X axis position",
+				"y","Y axis position",
+				"z","Z axis direction");
     }
   };</programlisting>
       <para>
@@ -1632,87 +1637,75 @@ cd                  quit
       <title>Emitting Events in C++</title>
       <para>
 	Once events are added, they can be emitted using the
-	<classname>RTT::EventC</classname> object.
-	'argC' is used to add 'Constant' arguments, 'arg' is used to add
-	variable arguments.
-	<programlisting>  <classname>RTT::EventC</classname> move_event 
-    = a_task.events()->setupEmit( "move" ).argC(1.0).argC(2.0).argC(3.0);
+	<classname>RTT::Event</classname> object.
+	<programlisting>  <classname>RTT::Event&lt; bool(double, double, double) &gt;</classname> move_event 
+    = a_task.events()->getEvent( "move" );
+  assert( move_event.ready() );
+
   // emit the event 'move' with given args:
-  move_event.emit();
+  move_event(1.0, 2.0, 3.0);
 
   // or with variable arguments:
   double a = 0.3, b = 0.2, c = 0.1;
-  move_event = a_task.events()->setupEmit("move").arg(a).arg(b).arg(c);
-  assert( move_event.ready() );
-
-  // upon emit, read a,b,c:
-  move_event.emit(); </programlisting>
-      </para>
-      <para>Note that the <function>emit()</function> method does not return
-      a value.
+  move_event(a, b, c); </programlisting>
       </para>
     </section>
     <section>
       <title>Reacting to Events in C++</title>
       <para>
-	Analogous to emitting an event, one can also react to
-	an event in C++, using the <classname>RTT::ConnectionC</classname>
-	object. However, this object is only of intermediate use
-	as event connections can be accessed through the
-	<classname>RTT::Handle</classname> object. The first example
-	shows how to setup a synchronous connection to the event
-	of the previous examples:
-	<programlisting>  #include &lt;boost/bind.hpp>
-  /**
-   * Example: Connect a class method to an Event.
-   */
-  class Reactor {
-  public:
-    void react_callback(double a1, double a2, double a3) {
-         // use a1, a2, a3
-    }
+	Analogous to emitting an event, one can also react to an event
+	in C++, using the Event interface. Event connections can be accessed
+	through the <classname>RTT::Handle</classname> object. The
+	first example shows how to setup a synchronous connection to
+	the event of the previous examples: 
+      </para>
+      <programlisting>   #include &lt;boost/bind.hpp> 
+  /** 
+   * Example: Connect a class method to an Event.  
+   */ 
+  class Reactor 
+  { 
+  public: 
+     bool react_callback(double a1, double a2, double a3) { 
+        // use a1,a2, a3 
+	return false; // return value is ignored.
+     } 
   };
 
   /**
    * Example: Connect a 'C' function to an Event.
    */
-  void foo_callback( double a1, double a2, double a3 ) {
+  bool foo_callback( double a1, double a2, double a3 ) {
       // use a1, a2, a3
+      return false; // ignored.
   }
 
   // Class callback:
   Reactor r;
-  <classname>RTT::ConnectionC</classname> reaction
-    = a_task.events()->setupConnection("move");
-  reaction.callback(&amp;r, &amp;Reactor::callback ));
-  <classname>ORO_Corelib::Handle</classname> h = reaction.handle();
-  assert( reaction.ready() );
 
-  // or in short (note: '.handle()' ):
-  <classname>RTT::Handle</classname> h2 
+  <classname>RTT::Handle</classname> h
     = a_task.events()->setupConnection("move")
                  .callback( &amp;r, &amp;Reactor::react_callback )
                  .handle();
-  assert( h2.ready() );
+  assert( h.ready() );
     
-  h2.connect(); // connect to event "move"
+  h.connect(); // connect to event "move"
 
-  move_event.emit(); // see previous example.
+  move_event(1.0, 2.0, 3.0); // see previous example.
 
   // now Reactor::callback() was called.
 
-  h2.disconnect(); // disconnect again.
+  h.disconnect(); // disconnect again.
 
   // 'C' Function callback:
-  h2 = a_task.events()->setupConnection("move")
+  h = a_task.events()->setupConnection("move")
                  .callback( &amp;foo_callback )
                  .handle();
 
-  h2.connect();
-  move_event.emit()
+  h.connect();
+  move_event(4.0, 5.0, 6.0)
 
   // now foo_callback is called with arguments.	</programlisting>
-      </para>
       <note>
 	<para>
 	  Using the <function>boost::bind</function> function is not yet supported
@@ -1727,7 +1720,7 @@ cd                  quit
 	function of "r". The connection can be controlled using
 	the handle to connect or disconnect the reaction to events.
 	When <function>connect()</function> is called, every
-	<function>emit()</function> will call <function>react_callback()</function>
+	event invocation will call <function>react_callback()</function>
 	with the given arguments. Using a 'C' function works analogous as shown
 	above.
       </para>

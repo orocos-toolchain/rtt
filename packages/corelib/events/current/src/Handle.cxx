@@ -29,79 +29,84 @@
 #include "rtt/Handle.hpp"
 
 
-namespace sigslot
+namespace RTT
 {
 
-    handle::handle()
+    Handle::Handle()
         : m_conn(0)
     {
     }
 
-    handle::handle(connection_t conn)
+    Handle::Handle(connection_t conn)
         : m_conn(conn)
     {
     }
 
-    handle::handle(const handle& hs)
+    Handle::Handle(const Handle& hs)
         : m_conn( hs.m_conn )
     {
     } 
 
-    handle::~handle()
+    Handle::~Handle()
     {
     }
 
-    bool handle::connect()
+    bool Handle::connect()
     {
         if ( connected() )
             return true;
         return m_conn && m_conn->connect();
     }
 
-    bool handle::disconnect()
+    bool Handle::disconnect()
     {
         if ( !connected() )
             return true;
         return m_conn->disconnect();
     }
 
-    bool handle::connected() const {
+    bool Handle::connected() const {
         return m_conn && m_conn->connected();
     }
 
-    handle::operator bool() const {
+    Handle::operator bool() const {
+        return m_conn;
+    }
+
+    bool Handle::ready() const {
         return m_conn;
     }
 
 
-    scoped_handle::scoped_handle(const handle& hs)
-        : handle( hs )
+    ScopedHandle::ScopedHandle(const Handle& hs)
+        : Handle( hs )
     {
     } 
 
 
-    scoped_handle::~scoped_handle()
+    ScopedHandle::~ScopedHandle()
     {
         this->disconnect();
     }
-    cleanup_handle::cleanup_handle(const handle& hs)
-        : handle( hs )
+    CleanupHandle::CleanupHandle(const Handle& hs)
+        : Handle( hs )
     {
     } 
 
-    cleanup_handle::~cleanup_handle()
+    CleanupHandle::~CleanupHandle()
     {
         if (m_conn)
             m_conn->destroy();
     }
 }
 
+#if 0
 namespace RTT
 {
-    Handle::Handle( const sigslot::handle & c,
-                    const sigslot::handle & c2 )
+    Handle::Handle( const sigslot::Handle & c,
+                    const sigslot::Handle & c2 )
         : _c(c), _c2(c2) {}
-    Handle::Handle( const sigslot::handle & c ) : _c(c), _c2(c) {}
+    Handle::Handle( const sigslot::Handle & c ) : _c(c), _c2(c) {}
     Handle::Handle( const Handle& h ) : _c(h._c), _c2(h._c2) {}
     Handle::Handle() {}
     Handle::~Handle() {}
@@ -146,3 +151,4 @@ namespace RTT
 
 
 }
+#endif

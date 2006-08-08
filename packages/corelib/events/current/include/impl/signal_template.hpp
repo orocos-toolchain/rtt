@@ -30,6 +30,9 @@
 #ifndef OROCOS_SIGNAL_TEMPLATE_HEADER_INCLUDED
 #define OROCOS_SIGNAL_TEMPLATE_HEADER_INCLUDED
 #include "signal_base.hpp"
+#include "../EventBase.hpp"
+#include "../NA.hpp"
+
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
 #include <boost/lambda/bind.hpp>
 #include <boost/bind.hpp>
@@ -39,24 +42,12 @@
 #endif
 #endif // !OROCOS_SIGNAL_TEMPLATE_HEADER_INCLUDED
 
-// Include the appropriate functionN header
-#define OROCOS_SIGNAL_FUNCTION_N_HEADER BOOST_JOIN(<boost/function/function,OROCOS_SIGNAL_NUM_ARGS.hpp>)
-#include OROCOS_SIGNAL_FUNCTION_N_HEADER
-
-// Determine if a comma should follow a listing of the arguments/parameters
-#if OROCOS_SIGNAL_NUM_ARGS == 0
-#  define OROCOS_SIGNAL_COMMA_IF_NONZERO_ARGS
-#else
-#  define OROCOS_SIGNAL_COMMA_IF_NONZERO_ARGS ,
-#endif // OROCOS_NUM_ARGS > 0
-
 // Define class names used
-#define OROCOS_SIGNAL_N BOOST_JOIN(signal,OROCOS_SIGNAL_NUM_ARGS)
-#define OROCOS_SIGNAL_FUNCTION_N BOOST_JOIN(boost::function,OROCOS_SIGNAL_NUM_ARGS)
-#define OROCOS_SIGNAL_CONNECTION_N BOOST_JOIN(connection,OROCOS_SIGNAL_NUM_ARGS)
+#define OROCOS_SIGNAL_N BOOST_JOIN(signal,OROCOS_SIGNATURE_NUM_ARGS)
+#define OROCOS_SIGNAL_CONNECTION_N BOOST_JOIN(connection,OROCOS_SIGNATURE_NUM_ARGS)
 
 
-namespace sigslot {
+namespace RTT {
 
     namespace detail {
 
@@ -65,16 +56,17 @@ namespace sigslot {
         {
         public:
             typedef SlotFunction slot_function;
-            OROCOS_SIGNAL_CONNECTION_TYPEDEFS
+            typedef SlotFunction function_type;
+            OROCOS_SIGNATURE_TYPEDEFS
 
             OROCOS_SIGNAL_CONNECTION_N(signal_base* s, const slot_function& f)
                 : connection_base(s), func(f)
             {
             }
 
-            void emit(OROCOS_SIGNAL_PARMS)
+            void emit(OROCOS_SIGNATURE_PARMS)
             {
-                func(OROCOS_SIGNAL_ARGS);
+                func(OROCOS_SIGNATURE_ARGS);
             }
         private:
             slot_function func;
@@ -82,23 +74,25 @@ namespace sigslot {
 
     }
 
-	template<typename R, OROCOS_SIGNAL_TEMPLATE_PARMS OROCOS_SIGNAL_COMMA_IF_NONZERO_ARGS
-             class SlotFunction = OROCOS_SIGNAL_FUNCTION_N< R OROCOS_SIGNAL_COMMA_IF_NONZERO_ARGS OROCOS_SIGNAL_TEMPLATE_ARGS> >
-	class OROCOS_SIGNAL_N : public detail::signal_base
+	template<typename R, OROCOS_SIGNATURE_TEMPLATE_PARMS OROCOS_SIGNATURE_COMMA_IF_NONZERO_ARGS
+             class SlotFunction = OROCOS_SIGNATURE_FUNCTION_N< R OROCOS_SIGNATURE_COMMA_IF_NONZERO_ARGS OROCOS_SIGNATURE_TEMPLATE_ARGS> >
+	class OROCOS_SIGNAL_N
+        : public detail::signal_base,
+          public detail::EventBase< R (OROCOS_SIGNATURE_TEMPLATE_ARGS) >
 	{
-		OROCOS_SIGNAL_N(const OROCOS_SIGNAL_N< R, OROCOS_SIGNAL_TEMPLATE_ARGS OROCOS_SIGNAL_COMMA_IF_NONZERO_ARGS SlotFunction>& s);
+		OROCOS_SIGNAL_N(const OROCOS_SIGNAL_N< R, OROCOS_SIGNATURE_TEMPLATE_ARGS OROCOS_SIGNATURE_COMMA_IF_NONZERO_ARGS SlotFunction>& s);
 
 	public:
         typedef SlotFunction slot_function_type;
         typedef detail::OROCOS_SIGNAL_CONNECTION_N<SlotFunction> connection_impl;
 
         typedef R result_type;
-        OROCOS_SIGNAL_ARG_TYPES
+        OROCOS_SIGNATURE_ARG_TYPES
 
-#if OROCOS_SIGNAL_NUM_ARGS == 1
+#if OROCOS_SIGNATURE_NUM_ARGS == 1
         typedef arg1_type first_argument_type;
 #endif
-#if OROCOS_SIGNAL_NUM_ARGS == 2
+#if OROCOS_SIGNATURE_NUM_ARGS == 2
         typedef arg1_type first_argument_type;
         typedef arg2_type second_argument_type;
 #endif
@@ -110,31 +104,33 @@ namespace sigslot {
         }
 #endif
     public:
+        using detail::EventBase<R (OROCOS_SIGNATURE_TEMPLATE_ARGS) >::connect;
+        using detail::EventBase<R (OROCOS_SIGNATURE_TEMPLATE_ARGS) >::setup;
 
 		OROCOS_SIGNAL_N()
 		{
 		}
 
-        handle connect(const slot_function_type& f )
+        Handle connect(const slot_function_type& f )
         {
-            handle h = this->setup(f);
+            Handle h = this->setup(f);
             h.connect();
             return h;
         }
 
-        handle setup(const SlotFunction& f )
+        Handle setup(const SlotFunction& f )
 		{
 			connection_t conn(
 				new connection_impl(this, f) );
             this->conn_setup( conn );
-            return handle(conn);
+            return Handle(conn);
 		}
 
-		void emit(OROCOS_SIGNAL_PARMS)
+		R emit(OROCOS_SIGNATURE_PARMS)
 		{
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
             if (this->emitting)
-                return; // avoid uglyness : handlers calling emit.
+                return detail::NA<R>::na(); // avoid uglyness : Handlers calling emit.
             this->emitting = true;
             
             // this code did initially not work under gcc 4.0/ubuntu breezy.
@@ -143,47 +139,45 @@ namespace sigslot {
             mconnections.apply( boost::lambda::bind(&connection_impl::emit,
                                                     boost::lambda::bind( &applyEmit, boost::lambda::_1) // works for any compiler
                                                     //not in gcc 4.0.2: boost::lambda::ll_static_cast<connection_impl*>(boost::lambda::bind(&connection_t::get, boost::lambda::_1))
-#if OROCOS_SIGNAL_NUM_ARGS != 0
-                                                    ,OROCOS_SIGNAL_ARGS
+#if OROCOS_SIGNATURE_NUM_ARGS != 0
+                                                    ,OROCOS_SIGNATURE_ARGS
 #endif
                                                     ) );
             this->emitting = false;
 #else
             OS::MutexLock lock(m);
             if (this->emitting)
-                return; // avoid uglyness : handlers calling emit.
+                return detail::NA<R>::na(); // avoid uglyness : Handlers calling emit.
             this->emitting = true;
             iterator it = mconnections.begin();
             const_iterator end = mconnections.end();
             for (; it != end; ++it ) {
                 connection_impl* ci = static_cast<connection_impl*>( it->get() );
                 if (ci)
-                    ci->emit(OROCOS_SIGNAL_ARGS); // this if... race is guarded by the mutex.
+                    ci->emit(OROCOS_SIGNATURE_ARGS); // this if... race is guarded by the mutex.
             }
             this->emitting = false;
             this->cleanup();
 #endif
+            return detail::NA<R>::na();
 		}
 
-		void operator()(OROCOS_SIGNAL_PARMS)
+		R operator()(OROCOS_SIGNATURE_PARMS)
 		{
-            this->emit(OROCOS_SIGNAL_ARGS);
+            return this->emit(OROCOS_SIGNATURE_ARGS);
 		}
 
-		void fire(OROCOS_SIGNAL_PARMS)
+		R fire(OROCOS_SIGNATURE_PARMS)
 		{
-            this->emit(OROCOS_SIGNAL_ARGS);
+            return this->emit(OROCOS_SIGNATURE_ARGS);
 		}
 
-        virtual int arity() const { return OROCOS_SIGNAL_NUM_ARGS; }
+        virtual int arity() const { return OROCOS_SIGNATURE_NUM_ARGS; }
 	};
 
 } // namespace sigslot
 
 
-#undef OROCOS_SIGNAL_FUNCTION_N_HEADER
-#undef OROCOS_SIGNAL_COMMA_IF_NONZERO_ARGS
 #undef OROCOS_SIGNAL_N 
-#undef OROCOS_SIGNAL_FUNCTION_N 
 #undef OROCOS_SIGNAL_CONNECTION_N
 

@@ -80,7 +80,7 @@ namespace RTT
         virtual bool isDriven() const;
 
         virtual void limitDrive( double max );
-        virtual void setLimitDriveEvent(Event<void(void)>& maximumDrive);
+        virtual void setLimitDriveEvent(const Event<void(void)>& maximumDrive);
 
         /**
          * @brief Add a brake to the Axis. It is aggregated.
@@ -175,7 +175,7 @@ namespace RTT
          * Maximum drive value and event
          */
         double _max_drive;
-        Event<void(void)>* _max_drive_event;
+        Event<void(void)> _max_drive_event;
     };
 
 }

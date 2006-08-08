@@ -50,11 +50,15 @@ CPPUNIT_TEST_SUITE_REGISTRATION( StateTest );
 void 
 StateTest::setUp()
 {
+    d_event = Event<void(double)>("d_event");
+    b_event = Event<void(bool)>("b_event");
+
+
     // ltc has a test object
     gtc.addObject(this->createObject("test") );
 
-    gtc.events()->addEvent( "d_event", &d_event );
-    gtc.events()->addEvent( "b_event", &b_event );
+    gtc.events()->addEvent( &d_event, "D", "a1", "arg1 D" );
+    gtc.events()->addEvent( &b_event, "B", "a1", "arg1 B" );
     i = 0;
 
 #ifdef OROPKG_GEOMETRY

@@ -29,7 +29,6 @@
 
 #include "rtt/StateMachineTask.hpp"
 #include <rtt/Attribute.hpp>
-#include "rtt/TemplateFactories.hpp"
 #include "rtt/TaskContext.hpp"
 #include "rtt/FactoryExceptions.hpp"
 #include "rtt/CommandDS.hpp"

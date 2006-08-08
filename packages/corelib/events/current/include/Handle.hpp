@@ -31,110 +31,6 @@
 
 #include "impl/signal_base.hpp"
 
-namespace sigslot
-{
-
-    /**
-     * A copy-able connection handle of a (connected) slot and a signal.
-     */
-	class handle
-	{
-	private:
-		typedef detail::signal_base           sender_t; //! the signal type
-        typedef sender_t::connection_t    connection_t; //! the connection type for the slot of this handle
-	public:
-        /**
-         * Create an empty handle.
-         */
-		handle();
-
-        handle(connection_t conn);
-
-        /**
-         * Create a copy-equivalent handle.
-         */
-        handle(const handle& hs);
-
-        /**
-         * No-op destructor, does not change signal/slot state.
-         */
-		~handle();
-
-        /**
-         * (Re-)Connect the slot with the signal.
-         * @retval true the slot is connected.
-         * @retval false no valid signal or slot in this handle
-         */
-		bool connect();
-
-        /**
-         * Disconnect the slot from the signal.
-         * @retval true the slot is disconnected.
-         * @retval false no valid signal or slot in this handle
-         */
-		bool disconnect();
-
-        /** 
-         * Inspect if this handle represents a connected signal and slot.
-         * 
-         * @return true if a connection is present.
-         */
-        bool connected() const;
-
-        /**
-         * Inspect if this handle is pointing to a valid (existing) connection.
-         * @return false if no connection is associated with this handle.
-         */
-        operator bool() const;
-	protected:
-        /**
-         * This is actually a smart pointer which always
-         * points to an existing connection object.
-         */
-        connection_t  m_conn;
-	};
-
-    /**
-     * A scoped connection handle of a (connected) slot which
-     * disconnects a slot from a signal in its destructor.
-     */
-	class scoped_handle
-        :public handle
-	{
-		scoped_handle();
-    public:
-
-        scoped_handle(const handle& hs);
-
-        /**
-         * If connected, disconnect the slot from the signal.
-         */
-		~scoped_handle();
-    };
-
-    /**
-     * A connection handle of a (connected) slot which
-     * disconnects and cleans up (free all resources)
-     * a slot from a signal in its destructor.
-     */
-	class cleanup_handle
-        :public handle
-	{
-		cleanup_handle();
-    public:
-
-        cleanup_handle(const handle& hs);
-
-        /**
-         * Cleanup all signal and slot connection resources.
-         * If connected, disconnect the slot from the signal.
-         */
-		~cleanup_handle();
-    };
-
-
-}
-
 namespace RTT
 {
     /**
@@ -158,6 +54,111 @@ namespace RTT
      @endverbatim
      * @ingroup CoreLibEvents
      */
+	class Handle
+	{
+	private:
+		typedef detail::signal_base           sender_t; //! the signal type
+        typedef sender_t::connection_t    connection_t; //! the connection type for the slot of this Handle
+	public:
+        /**
+         * Create an empty Handle.
+         */
+		Handle();
+
+        Handle(connection_t conn);
+
+        /**
+         * Create a copy-equivalent Handle.
+         */
+        Handle(const Handle& hs);
+
+        /**
+         * No-op destructor, does not change signal/slot state.
+         */
+		~Handle();
+
+        /**
+         * (Re-)Connect the slot with the signal.
+         * @retval true the slot is connected.
+         * @retval false no valid signal or slot in this Handle
+         */
+		bool connect();
+
+        /**
+         * Disconnect the slot from the signal.
+         * @retval true the slot is disconnected.
+         * @retval false no valid signal or slot in this Handle
+         */
+		bool disconnect();
+
+        /** 
+         * Inspect if this Handle represents a connected signal and slot.
+         * 
+         * @return true if a connection is present.
+         */
+        bool connected() const;
+
+        /**
+         * Inspect if this Handle is pointing to a valid (existing) connection.
+         * @return false if no connection is associated with this Handle.
+         */
+        operator bool() const;
+
+        /**
+         * Inspect if this handle is pointing to valid (existing) connection(s).
+         * @return false if no connection(s) is associated with this handle.
+         */
+        bool ready() const;
+	protected:
+        /**
+         * This is actually a smart pointer which always
+         * points to an existing connection object.
+         */
+        connection_t  m_conn;
+	};
+
+    /**
+     * A scoped connection Handle of a (connected) slot which
+     * disconnects a slot from a signal in its destructor.
+     */
+	class ScopedHandle
+        :public Handle
+	{
+		ScopedHandle();
+    public:
+
+        ScopedHandle(const Handle& hs);
+
+        /**
+         * If connected, disconnect the slot from the signal.
+         */
+		~ScopedHandle();
+    };
+
+    /**
+     * A connection Handle of a (connected) slot which
+     * disconnects and cleans up (free all resources)
+     * a slot from a signal in its destructor.
+     */
+	class CleanupHandle
+        :public Handle
+	{
+		CleanupHandle();
+    public:
+
+        CleanupHandle(const Handle& hs);
+
+        /**
+         * Cleanup all signal and slot connection resources.
+         * If connected, disconnect the slot from the signal.
+         */
+		~CleanupHandle();
+    };
+}
+
+#if 0
+namespace RTT
+{
     class Handle
     {
         sigslot::handle _c;
@@ -225,4 +226,6 @@ namespace RTT
         bool ready() const;
     };
 }
+#endif
+
 #endif

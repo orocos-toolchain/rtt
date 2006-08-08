@@ -33,7 +33,7 @@
 #include <rtt/os/MutexLock.hpp>
 #endif
 
-namespace sigslot {
+namespace RTT {
     namespace detail {
 
         // connection_base
