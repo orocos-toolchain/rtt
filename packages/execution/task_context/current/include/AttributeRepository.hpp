@@ -33,6 +33,7 @@
 #include <map>
 #include "Attribute.hpp"
 #include "DataSources.hpp"
+#include "DataObjectInterfaces.hpp"
 #include "Property.hpp"
 #include "PropertyBag.hpp"
 
@@ -87,8 +88,12 @@ namespace RTT
         /**
          * Retrieve a Attribute by name. Returns zero if 
          * no Attribute<T> by that name exists.
-         * Example : getAttribute<double>("Xval")
-         * @see addAttribute, addProperty
+         * @example
+           Attribute<double> d_attr = getAttribute<double>("Xval");
+           @endexample
+         * @see addAttribute to add an Attribute.
+         * @see getValue for a template-less variant of this function,
+         * which also works.
          */
         template<class T>
         Attribute<T>* getAttribute( const std::string& name ) const
@@ -113,7 +118,9 @@ namespace RTT
         /**
          * Retrieve a Constant by name. Returns zero if 
          * no Constant<T> by that name exists.
-         * Example : getConstant<double>("Xconst")
+         * @example
+           Constant<double> d_const = getConstant<double>("Xconst");
+           @endexample
          * @see addConstant
          */
         template<class T>
@@ -149,7 +156,12 @@ namespace RTT
 
         /**
          * Get a pointer to the attribute with name \a name.  If no such value exists, this method
-         * returns 0.
+         * returns 0. It can be used to retrieve added constants, 
+         * attributes or data objects. Both Attribute and Constant
+         * can work with this function.
+         * @example
+           Attribute<double> d_attr = getValue("Xval");
+           @endexample
          */
         AttributeBase* getValue( const std::string& name ) const;
 
@@ -157,6 +169,18 @@ namespace RTT
          * Delete a value added with setValue from the repository.
          */
         bool removeValue(const std::string& name );
+
+        /**
+         * Add a DataObject as an Attribute. This is especially useful
+         * to add the thread-safe DataObjects as thread-safe attributes.
+         * You can retrieve it through getValue().
+         * @param doi The DataObject, which remains owned by the user.
+         * @return true if doi->getName() is unique within this repository.
+         */
+        template<class T>
+        bool addDataObject( DataObjectInterface<T>* doi) {
+            return this->setValue( new Alias<T>(doi, doi->getName() ));
+        }
 
         /**
          * Return a new copy of this repository with the copy operation semantics.
