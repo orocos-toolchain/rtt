@@ -93,6 +93,7 @@ namespace RTT
                 if (minvoked)
                     return false;
                 minvoked = true;
+                this->readArguments();
                 return maccept = mcp->process( this );
             }
 
