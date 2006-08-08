@@ -48,6 +48,7 @@ class Generic_TaskTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testAddMethod );
     CPPUNIT_TEST( testCRMethod );
     CPPUNIT_TEST( testCRCommand );
+    CPPUNIT_TEST( testCSCRCommand );
     CPPUNIT_TEST_SUITE_END();
 
     TaskContext* tc;
@@ -65,8 +66,22 @@ class Generic_TaskTest : public CppUnit::TestFixture
     bool cn1cr(const double& a) { ret = a; return true; }
     bool cd1cr(const double& a) { ret = a; return true; }
 
-    double m1r(double& a) { return a; }
+    double m1r(double& a) { a = 2*a; return a; }
     double m1cr(const double& a) { return a; }
+
+    // ref/const-ref of structs:
+    struct CS
+    {
+        double x,y,z;
+    };
+    bool CScn1r(CS& a) {
+        CPPUNIT_ASSERT(a.x == a.y + a.z );
+        a.x = 2* a.y + 2* a.z;
+        return true;
+    }
+    bool CScd1r(CS& a) { CPPUNIT_ASSERT(a.x == 2*a.y + 2*a.z ); return true; }
+    bool CScn1cr(const CS& a) { CPPUNIT_ASSERT(a.x == a.y + a.z ); return true; }
+    bool CScd1cr(const CS& a) { CPPUNIT_ASSERT(a.x == a.y + a.z ); return true; }
 
     // plain argument tests:
     double m0() { return -d0(); }
@@ -121,6 +136,7 @@ public:
     void testAddMethod();
     void testCRMethod();
     void testCRCommand();
+    void testCSCRCommand();
 
     void testPorts();
 };

@@ -769,17 +769,18 @@ void Generic_TaskTest::testCRMethod()
 {
     this->ret = -3.3;
 
-    Method<double&(void)> m0c("m0r", &Generic_TaskTest::m0r, this);
+    Method<double&(void)> m0r("m0r", &Generic_TaskTest::m0r, this);
     Method<const double&(void)> m0cr("m0cr", &Generic_TaskTest::m0cr, this);
 
-    Method<double(double&)> m1c("m1r", &Generic_TaskTest::m1r, this);
+    Method<double(double&)> m1r("m1r", &Generic_TaskTest::m1r, this);
     Method<double(const double&)> m1cr("m1cr", &Generic_TaskTest::m1cr, this);
 
-    CPPUNIT_ASSERT_EQUAL( -3.3, m0c() );
+    CPPUNIT_ASSERT_EQUAL( -3.3, m0r() );
     CPPUNIT_ASSERT_EQUAL( -3.3, m0cr() );
 
     double value = 5.3;
-    CPPUNIT_ASSERT_EQUAL( 5.3, m1c(value) );
+    CPPUNIT_ASSERT_EQUAL( 5.3*2, m1r(value) );
+    CPPUNIT_ASSERT_EQUAL( 5.3*2, value );
     CPPUNIT_ASSERT_EQUAL( 5.3, m1cr(5.3) );
 }
 
@@ -787,8 +788,14 @@ void Generic_TaskTest::testCRCommand()
 {
     this->ret = -3.3;
 
-    Command<double(double&)> c1r("c1r", &Generic_TaskTest::cn1r, &Generic_TaskTest::cd1r, this, tc->engine()->commands() );
-    Command<double(const double&)> c1cr("c1cr", &Generic_TaskTest::cn1cr, &Generic_TaskTest::cd1cr, this, tc->engine()->commands() );
+    Command<bool(double&)> ic1r("c1r", &Generic_TaskTest::cn1r, &Generic_TaskTest::cd1r, this, tc->engine()->commands() );
+    Command<bool(const double&)> ic1cr("c1cr", &Generic_TaskTest::cn1cr, &Generic_TaskTest::cd1cr, this, tc->engine()->commands() );
+
+    Command<bool(double&)> c1r = ic1r.getCommandImpl()->clone();
+    Command<bool(const double&)> c1cr = ic1cr.getCommandImpl()->clone();
+
+    CPPUNIT_ASSERT( c1r.ready() );
+    CPPUNIT_ASSERT( c1cr.ready() );
 
     CPPUNIT_ASSERT( tsim->start()) ;
     // execute commands and check status:
@@ -804,6 +811,37 @@ void Generic_TaskTest::testCRCommand()
     CPPUNIT_ASSERT_EQUAL( -3.3, ret );
     CPPUNIT_ASSERT_EQUAL( ret * 2, result );
 
+    CPPUNIT_ASSERT( tsim->stop() ) ;
+}
+
+void Generic_TaskTest::testCSCRCommand()
+{
+    // using a struct:
+    CS cs;
+    cs.y = 1.234;
+    cs.z = 0.123;
+    cs.x = cs.y + cs.z;
+
+    CS cs2 = cs;
+
+    Command<bool(CS&)> ic1r("c1r", &Generic_TaskTest::CScn1r, &Generic_TaskTest::CScd1r, this, tc->engine()->commands() );
+    Command<bool(const CS&)> ic1cr("c1cr", &Generic_TaskTest::CScn1cr, &Generic_TaskTest::CScd1cr, this, tc->engine()->commands() );
+
+    Command<bool(CS&)> c1r = ic1r.getCommandImpl()->clone();
+    Command<bool(const CS&)> c1cr = ic1cr.getCommandImpl()->clone();
+    CPPUNIT_ASSERT( c1r.ready() );
+    CPPUNIT_ASSERT( c1cr.ready() );
+
+    CPPUNIT_ASSERT( tsim->start()) ;
+    // execute commands and check status:
+    CPPUNIT_ASSERT( c1cr(cs) );
+    verifydispatch(*c1cr.getCommandImpl());
+
+    CPPUNIT_ASSERT( c1r(cs2) );
+    verifydispatch(*c1r.getCommandImpl());
+    CPPUNIT_ASSERT_EQUAL( 2*cs2.y+2*cs2.z, cs2.x );
+
+    CPPUNIT_ASSERT( tsim->stop() ) ;
 }
 
 
