@@ -182,8 +182,9 @@ namespace RTT
         {
             typename DataSource<PropertyType>::shared_ptr res = AdaptDataSource<PropertyType>()(dsb);
             if ( res ) {
+                res->get();
                 Logger::log() << Logger::Info << "Building "<<tname<<" Constant '"<<name<<"' with value "<< dsb->getTypeInfo()->toString(dsb) <<Logger::endl;
-                return new Constant<PropertyType>( name, res->get() );
+                return new Constant<PropertyType>( name, res->value() );
             }
             else
                 return 0;
