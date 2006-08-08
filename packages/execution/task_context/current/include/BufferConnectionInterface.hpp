@@ -39,9 +39,10 @@ namespace RTT
      * transfers buffered data from a read Port a TaskContext.
      */
     template<class T>
-    struct ReadConnectionInterface
+    class ReadConnectionInterface
         : public virtual ConnectionInterface
     {
+    public:
         typedef boost::intrusive_ptr< ReadConnectionInterface<T> > shared_ptr;
 
         /**
@@ -55,9 +56,10 @@ namespace RTT
      * transfers buffered data to a write Port of a TaskContext.
      */
     template<class T>
-    struct WriteConnectionInterface
+    class WriteConnectionInterface
         : public virtual ConnectionInterface
     {
+    public:
         typedef boost::intrusive_ptr< WriteConnectionInterface<T> > shared_ptr;
         /**
          * Get the buffer's write interface.
@@ -70,9 +72,10 @@ namespace RTT
      * data bidirectionally from a port of a TaskContext.
      */
     template<class T>
-    struct BufferConnectionInterface
+    class BufferConnectionInterface
         : public ReadConnectionInterface<T>, public WriteConnectionInterface<T>
     {
+    public:
         typedef boost::intrusive_ptr< BufferConnectionInterface<T> > shared_ptr;
 
         /**

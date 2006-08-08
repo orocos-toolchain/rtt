@@ -50,7 +50,7 @@ namespace RTT
      * between two or more Ports.
      * @see PortInterface
      */
-    struct ConnectionInterface
+    class ConnectionInterface
     {
     protected:
         friend void ::intrusive_ptr_add_ref( ConnectionInterface* p );

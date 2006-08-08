@@ -39,9 +39,10 @@ namespace RTT
      * transfers data unbuffered between two Ports of a TaskContext.
      */
     template<class T>
-    struct DataConnectionInterface
+    class DataConnectionInterface
         : public ConnectionInterface
     {
+    public:
         typedef boost::intrusive_ptr< DataConnectionInterface<T> > shared_ptr;
 
         /**
