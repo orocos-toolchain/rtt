@@ -787,20 +787,23 @@ void Generic_TaskTest::testCRCommand()
 {
     this->ret = -3.3;
 
-    Command<double(double&)> c1c("c1r", &Generic_TaskTest::cn1r, &Generic_TaskTest::cd1r, this, tc->engine()->commands() );
+    Command<double(double&)> c1r("c1r", &Generic_TaskTest::cn1r, &Generic_TaskTest::cd1r, this, tc->engine()->commands() );
     Command<double(const double&)> c1cr("c1cr", &Generic_TaskTest::cn1cr, &Generic_TaskTest::cd1cr, this, tc->engine()->commands() );
 
     CPPUNIT_ASSERT( tsim->start()) ;
     // execute commands and check status:
-    double result = 0.0;
-    CPPUNIT_ASSERT( c1c(result) );
-    
     CPPUNIT_ASSERT( c1cr(1.0) );
-
-    verifydispatch(*c1c.getCommandImpl());
-    CPPUNIT_ASSERT_EQUAL( 2*ret, result );
     verifydispatch(*c1cr.getCommandImpl());
     CPPUNIT_ASSERT_EQUAL( 1.0, ret );
+
+    this->ret = -3.3;
+    double result = 0.0;
+    CPPUNIT_ASSERT( c1r(result) );
+    verifydispatch(*c1r.getCommandImpl());
+    // ret == -3.3, result == -6.6
+    CPPUNIT_ASSERT_EQUAL( -3.3, ret );
+    CPPUNIT_ASSERT_EQUAL( ret * 2, result );
+
 }
 
 

@@ -82,7 +82,7 @@ class Generic_TaskTest : public CppUnit::TestFixture
     double d4(int i, double d, bool c, std::string s) const { return 5.0; }
 
     // test const std::string& argument for command_ds
-    bool comstr(const std::string&) { return true; }
+    bool comstr(const std::string& cs) { return !cs.empty(); }
 
     bool cd0()  { return true; }
     bool cd1(int i)  { return true; }
