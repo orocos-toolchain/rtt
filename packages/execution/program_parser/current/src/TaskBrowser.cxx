@@ -345,6 +345,12 @@ namespace RTT
                 else
                     completes.push_back( peerpath +object+"."+ *i );
         }
+        // events:
+        comps = peer->events()->getNames();
+        for (std::vector<std::string>::iterator i = comps.begin(); i!= comps.end(); ++i ) {
+            if ( i->find( _method ) == 0  )
+                completes.push_back( peerpath + *i );
+        }
     }
 
     void TaskBrowser::find_method(std::string::size_type startpos)
@@ -508,7 +514,7 @@ namespace RTT
         cout << nl<<
             coloron <<
             "  This console reader allows you to browse and manipulate TaskContexts."<<nl<<
-            "  You can type in a command, datasource, method, expression or change variables."<<nl;
+            "  You can type in a command, event, method, expression or change variables."<<nl;
         cout <<"  (type '"<<underline<<"help"<<coloroff<<coloron<<"' for instructions)"<<nl;
         cout << "    TAB completion and HISTORY is available ('bash' like)" <<coloroff<<nl<<nl;
         while (1)
@@ -843,6 +849,10 @@ namespace RTT
                 std::for_each( methods.begin(), methods.end(), boost::bind(&TaskBrowser::printCommand, this, _1, ops) );
                 methods = ops->methods()->getNames();
                 std::for_each( methods.begin(), methods.end(), boost::bind(&TaskBrowser::printMethod, this, _1, ops) );
+                if (comm == "this") {
+                    methods = taskcontext->events()->getNames();
+                    std::for_each( methods.begin(), methods.end(), boost::bind(&TaskBrowser::printEvent, this, _1, taskcontext->events()) );
+                }
             }
         // Minor hack : also check if it was an attribute of current TC, for example, 
         // if both the object and attribute with that name exist. the if
@@ -939,7 +949,15 @@ namespace RTT
             cerr << "Trying Command..."<<nl;
         try {
             comcon = _parser.parseCommand( comm, taskcontext, true ); // create a dispatch command.
-            assert( dynamic_cast<DispatchInterface*>(comcon.first) );
+            // check if it is a plain Action:
+            if ( comcon.first && dynamic_cast<DispatchInterface*>(comcon.first) == 0 ) {
+                string prompt =" = ";
+                cout <<prompt<< setw(20)<<left;
+                cout << comcon.first->execute() << right;
+                delete comcon.first;
+                delete comcon.second;
+                return;
+            }
             if ( condition && !condition->evaluate() ) {
                 cerr << "Warning : previous command is not yet processed by Processor." <<nl;
                 delete condition;
@@ -1353,6 +1371,25 @@ namespace RTT
         }
         cout << ")"<<nl;
         cout << "   " << ops->methods()->getDescription( m )<<nl;
+        for (std::vector<ArgumentDescription>::iterator it = args.begin(); it != args.end(); ++it)
+            cout <<"   "<< it->name <<" : " << it->description << nl;
+    }
+
+    void TaskBrowser::printEvent( const std::string m, EventService* ops )
+    {
+        std::vector<ArgumentDescription> args;
+        args = ops->getArgumentList( m );
+        cout << "  Event     : "<< ops->getResultType(m)<<" " << coloron << m << coloroff<< "( ";
+        for (std::vector<ArgumentDescription>::iterator it = args.begin(); it != args.end(); ++it) {
+            cout << it->type <<" ";
+            cout << coloron << it->name << coloroff;
+            if ( it+1 != args.end() )
+                cout << ", ";
+            else
+                cout << " ";
+        }
+        cout << ")"<<nl;
+        cout << "   " << ops->getDescription( m )<<nl;
         for (std::vector<ArgumentDescription>::iterator it = args.begin(); it != args.end(); ++it)
             cout <<"   "<< it->name <<" : " << it->description << nl;
     }

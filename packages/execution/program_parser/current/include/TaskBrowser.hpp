@@ -49,6 +49,7 @@ namespace RTT {
 namespace RTT
 {
     class TaskContext;
+    class EventService;
 
     /**
      * @brief This class allows a text client to browse the
@@ -186,6 +187,11 @@ namespace RTT
          * Print the synopsis of a Method.
          */
         void printMethod( const std::string m, OperationInterface* ops );
+
+        /**
+         * Print the synopsis of an Event.
+         */
+        void printEvent( const std::string m, EventService* ops );
 
         /**
          * Print a program listing of a loaded program centered at line \a line.

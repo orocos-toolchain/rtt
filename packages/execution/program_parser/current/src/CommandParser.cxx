@@ -131,7 +131,7 @@ namespace RTT
                   throw parse_exception_no_such_method_on_component( mcurobject, mcurmethod );
           }
       else {
-          if ( peer->methods()->hasMember(mcurmethod) == false && peer->commands()->hasMember(mcurmethod) == false)
+          if ( peer->methods()->hasMember(mcurmethod) == false && peer->commands()->hasMember(mcurmethod) == false && peer->events()->hasMember(mcurmethod) == false )
               throw parse_exception_no_such_method_on_component( peer->getName(), mcurmethod );
       }
 
@@ -152,6 +152,7 @@ namespace RTT
     OperationInterface* obj = 0;
     CommandRepository::Factory* cfi = 0;
     MethodRepository::Factory* mfi = 0;
+    EventService::Factory* efi = 0;
     if ( mcurobject != "this" ) {
         obj = peer->getObject(mcurobject);
         assert(obj);
@@ -161,8 +162,10 @@ namespace RTT
         mfi = peer->methods();
         cfi = peer->commands();
     }
+    efi = peer->events();
     assert(mfi);
     assert(cfi);
+    assert(efi);
 
     typedef std::pair<CommandInterface*,ConditionInterface*> ComCon;
     ComCon comcon;
@@ -222,6 +225,29 @@ namespace RTT
             {
                 assert( false );
             }
+    else if ( efi->hasMember( mcurmethod ) )
+        try
+            {
+                // if the method returns a boolean, construct it as a command
+                // which accepts/rejects the result.
+                comcon.first  = efi->produce( mcurmethod, argsparser->result() );
+                comcon.second = new ConditionTrue();
+            }
+        catch( const wrong_number_of_args_exception& e )
+            {
+                throw parse_exception_wrong_number_of_arguments
+                    (mcurobject, mcurmethod, e.wanted, e.received );
+            }
+        catch( const wrong_types_of_args_exception& e )
+            {
+                throw parse_exception_wrong_type_of_argument
+                    ( mcurobject, mcurmethod, e.whicharg, e.expected_, e.received_ );
+            }
+        catch( ... )
+            {
+                assert( false );
+            }
+
 
     mcurobject.clear();
     mcurmethod.clear();
