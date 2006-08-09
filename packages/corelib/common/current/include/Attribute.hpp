@@ -46,13 +46,6 @@ namespace RTT
         : public AttributeBase
     {
         typename AssignableDataSource<T>::shared_ptr data;
-
-        /**
-         * Both copying and assignment of attributes is
-         * forbidden. Use get() and set().
-         */
-        Attribute( const Attribute<T>& );
-        Attribute<T>& operator=( const Attribute<T>& );
     public:
 
         /**
@@ -97,6 +90,27 @@ namespace RTT
         }
 
         /**
+         * Copy constructor copies both name and \b deep copy of the data.
+         */
+        Attribute( const Attribute<T>& a)
+            : AttributeBase( a.mname ),
+              data( a.data->clone() )
+        {
+        }
+
+        /**
+         * Assignment copies both name and \b deep copy of the data.
+         */
+        Attribute<T>& operator=( const Attribute<T>& a)
+        {
+            if ( this == &a )
+                return *this;
+            mname = a.mname;
+            data = a.data->clone();
+            return *this;
+        }
+
+        /**
          * Create an Attribute which \b mirrors a AttributeBase \a ab.
          * If successful, this attribute will always have the same
          * value as \a ab and vice versa.
@@ -122,6 +136,7 @@ namespace RTT
             Attribute<T>* a = dynamic_cast<Attribute<T>*>(ab);
             if (a)
                 data = a->getAssignableDataSource();
+            return *this;
         }
 
         /**
