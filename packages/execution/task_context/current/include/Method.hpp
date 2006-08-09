@@ -4,8 +4,8 @@
 #include <boost/function.hpp>
 #include <string>
 #include "UnMember.hpp"
+#include "MethodBase.hpp"
 #include "LocalMethod.hpp"
-#include "NA.hpp"
 #include "ActionInterface.hpp"
 
 namespace RTT

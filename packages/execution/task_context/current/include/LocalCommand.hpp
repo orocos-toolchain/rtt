@@ -8,6 +8,7 @@
 #include "CommandFunctors.hpp"
 #include "BindStorage.hpp"
 #include "Invoker.hpp"
+#include "CommandBase.hpp"
 
 namespace RTT
 {

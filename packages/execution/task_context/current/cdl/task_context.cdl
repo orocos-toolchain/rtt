@@ -22,7 +22,6 @@ task programs."
     compile AttributeRepository.cxx
     compile PropertyLoader.cxx
     compile EventService.cxx
-    compile FactoryExceptions.cxx
     compile ExecutionEngine.cxx
     compile CommandC.cxx
     compile MethodC.cxx

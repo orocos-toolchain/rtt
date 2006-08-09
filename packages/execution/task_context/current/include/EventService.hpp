@@ -63,6 +63,8 @@ namespace RTT
         ExecutionEngine* eeproc;
         EventProcessor* eproc;
     public:
+        typedef OperationFactory< ActionInterface* > Factory;
+
         /**
          * Create an EventService with an associated ExecutionEngine.
          * If you want the owner task of this object to process an event use

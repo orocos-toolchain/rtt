@@ -1,10 +1,8 @@
-#ifndef ORO_TASK_COMMAND_BASE_HPP
-#define ORO_TASK_COMMAND_BASE_HPP
+#ifndef ORO_INVOKER_BASE_HPP
+#define ORO_INVOKER_BASE_HPP
 
 #include <boost/function_types/function_type.hpp>
 #include <boost/function_types/function_type_arity.hpp>
-#include "DispatchInterface.hpp"
-#include "ActionInterface.hpp"
 #include "NA.hpp"
 
 namespace RTT
@@ -67,34 +65,6 @@ namespace RTT
         struct InvokerBase
             : public InvokerBaseImpl<boost::function_traits<F>::arity, F, typename boost::function_traits<F>::result_type>
         {};
-
-        
-
-        /**
-         * The base class for all command implementations. Both local and remove
-         * command implementations must inherit from this class.
-         */
-        template<class F>
-        struct CommandBase
-            : public InvokerBase<F>,
-              public DispatchInterface
-        {
-            virtual ~CommandBase() {}
-            virtual CommandBase<F>* cloneI() const = 0;
-        };
-
-        /**
-         * The base class for all method implementations. Both local and remove
-         * method implementations must inherit from this class.
-         */
-        template<class F>
-        struct MethodBase
-            : public InvokerBase<F>,
-              public ActionInterface
-        {
-            virtual ~MethodBase() {}
-            virtual MethodBase<F>* cloneI() const = 0;
-        };
 
         template<int, class F, class BaseImpl>
         struct InvokerImpl;

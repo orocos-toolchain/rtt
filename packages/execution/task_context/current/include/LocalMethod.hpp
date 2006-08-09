@@ -4,6 +4,7 @@
 #include <boost/function.hpp>
 #include <string>
 #include "Invoker.hpp"
+#include "MethodBase.hpp"
 #include "BindStorage.hpp"
 
 namespace RTT

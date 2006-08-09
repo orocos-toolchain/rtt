@@ -15,7 +15,7 @@ type of periodic activity associated with it.
 
     compile PeriodicActivity.cxx   NonPreemptibleActivity.cxx  PreemptibleActivity.cxx    ZeroTimeThread.cxx
     compile NonRealTimeThread.cxx  TimerThread.cxx  NonRealtimeActivity.cxx     ZeroLatencyThread.cxx
-    compile SimulationThread.cxx SimulationActivity.cxx EventDrivenActivity.cxx    NonPeriodicActivity.cxx
+    compile SimulationThread.cxx SimulationActivity.cxx NonPeriodicActivity.cxx
     compile TimerSequencer.cxx TimerOneShot.cxx TimerLockFree.cxx
     compile CoreRunnableInterface.cxx SlaveActivity.cxx
 
@@ -113,8 +113,6 @@ PreemptibleActivity can have a smaller periodicity
     cdl_component OROPKG_CORELIB_ACTIVITIES_NRT {
 	display "Properties of the NonRealTimeThread"
 	description "
-When the properties are disabled, It takes over the properties of the Events
-CompletionProcessor.
 This third type of thread allows periodic execution
 of non realtime activities. It can be preempted by the
 ZeroTime and ZeroLatency Threads. It is hard to predict

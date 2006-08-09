@@ -2,7 +2,7 @@
 #define ORO_TASK_COMMAND_HPP
 
 #include <string>
-#include "Invoker.hpp"
+#include "CommandBase.hpp"
 #include "LocalCommand.hpp"
 #include "UnMember.hpp"
 

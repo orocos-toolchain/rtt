@@ -27,6 +27,7 @@
 #include <boost/call_traits.hpp>
 #include <boost/function.hpp>
 #include "NameServerRegistrator.hpp"
+#include "Invoker.hpp"
 
 #include "Logger.hpp"
 #include "EventProcessor.hpp"
