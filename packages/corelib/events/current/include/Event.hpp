@@ -122,7 +122,7 @@ namespace RTT
          * 
          * @param m the original
          * 
-         * @return 
+         * @return *this
          */
         Event& operator=(const Event& m)
         {
@@ -143,6 +143,9 @@ namespace RTT
             : Base( EventBasePtr( boost::dynamic_pointer_cast< detail::EventBase<Signature> >(implementation)) ),
               mname()
         {
+            if ( !this->impl && implementation ) {
+                log(Error) << "Tried to construct Event from incompatible type."<< endlog();
+            }
         }
 
         /** 
@@ -158,6 +161,9 @@ namespace RTT
             if (this->impl == implementation)
                 return *this;
             this->impl.reset( dynamic_cast< detail::EventBase<Signature>* >(implementation) );
+            if ( !this->impl && implementation ) {
+                log(Error) << "Tried to assign Event '"<< mname <<"' from incompatible type."<< endlog();
+            }
             return *this;
         }
 
@@ -175,7 +181,7 @@ namespace RTT
         /**
          * Return the arity of this event.
          */
-        int arity() const { return this->impl ? this->impl->arity() : 0; }
+        int arity() const { return this->impl ? this->impl->arity() : -1; }
 
         /**
          * @brief Connect a synchronous event slot to this event.

@@ -86,8 +86,10 @@ namespace RTT
             if ( &c == this )
                 return *this;
             this->mname = c.mname;
+            delete this->impl;
+            this->impl = 0;
             if ( c.impl )
-                this->impl.reset( c->impl->cloneI() );
+                this->impl = c.impl->cloneI();
             return *this;
         }
 
@@ -157,8 +159,10 @@ namespace RTT
               mname()
         {
             // If not convertible, delete the implementation.
-            if ( !this->impl )
+            if ( !this->impl && implementation) {
+                log(Error) << "Tried to assign Command from incompatible type."<< endlog();
                 delete implementation; 
+            }
         }
 
         /**
@@ -178,12 +182,14 @@ namespace RTT
          */
         Command& operator=(DispatchInterface* implementation)
         {
-            if ( this->impl == implementation)
+            if ( this->impl && this->impl == implementation)
                 return *this;
             delete this->impl;
             this->impl = dynamic_cast< detail::CommandBase<CommandT>* >(implementation);
-            if (this->impl == 0)
+            if (this->impl == 0 && implementation) {
+                log(Error) << "Tried to assign Command from incompatible type."<< endlog();
                 delete implementation;
+            }
             return *this;
         }
 
@@ -199,8 +205,18 @@ namespace RTT
         /**
          * Returns true if the command is executed and the completion
          * condition returns true as well.
+         * @deprecated by done()
          */
         bool evaluate() const {
+            if (!this->impl) return false;
+            return this->impl->evaluate();
+        }
+     
+        /**
+         * Returns true if the command is executed and the completion
+         * condition returns true as well.
+         */
+        bool done() const {
             if (!this->impl) return false;
             return this->impl->evaluate();
         }

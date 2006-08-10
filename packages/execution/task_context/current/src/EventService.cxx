@@ -61,7 +61,20 @@ namespace RTT
     }
             
     bool EventService::removeEvent( const std::string& ename ) {
-        return false;
+        if ( mevents.count(ename) == 0 )
+            return false;
+        // first erase the hook.
+        for (Hooks::iterator it = mhooks.begin(); it !=mhooks.end(); ++it ) {
+            if ( it->first == ename ) {
+                mhooks.erase( it );
+                break;
+            }
+        }
+        // next erase the emittor.
+        mevents.erase( mevents.find( ename ) );
+        // next erase the factory, if any:
+        this->remove( ename );
+        return true;
     }
         
     EventService::~EventService() {

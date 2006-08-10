@@ -585,6 +585,35 @@ void Generic_TaskTest::testCommandFactory()
     verifydispatch(*com0.getCommandImpl());
     verifydispatch(*com11.getCommandImpl());
     verifydispatch(*com10.getCommandImpl());
+
+    // test error cases:
+    // Add uninitialised command:
+    Command<bool(void)> cvoid;
+    CPPUNIT_ASSERT(to.commands()->addCommand( &cvoid ) == false);
+    cvoid = Command<bool(void)>("voidc");
+    CPPUNIT_ASSERT(to.commands()->addCommand( &cvoid ) == false);
+
+    // wrong type:
+    cvoid = to.commands()->getCommand<bool(bool)>("c0");
+    CPPUNIT_ASSERT( cvoid.ready() == false );
+    // wrong type 2:
+    cvoid = to.commands()->getCommand<bool(int)>("c11");
+    CPPUNIT_ASSERT( cvoid.ready() == false );
+    // wrong type 3:
+    cvoid = to.commands()->getCommand<bool(void)>("c11");
+    CPPUNIT_ASSERT( cvoid.ready() == false );
+    // not existing:
+    cvoid = to.commands()->getCommand<bool(void)>("voidm");
+    CPPUNIT_ASSERT( cvoid.ready() == false );
+    
+    cvoid.reset();
+    CPPUNIT_ASSERT( cvoid() == false);
+    CPPUNIT_ASSERT( cvoid.accepted() == false);
+    CPPUNIT_ASSERT( cvoid.executed() == false);
+    CPPUNIT_ASSERT( cvoid.sent() == false);
+    CPPUNIT_ASSERT( cvoid.valid() == false);
+    CPPUNIT_ASSERT( cvoid.done() == false);
+    
 }
 
 void Generic_TaskTest::testCommandFromDS()
@@ -763,6 +792,28 @@ void Generic_TaskTest::testMethodFactory()
     CPPUNIT_ASSERT_EQUAL( -2.0, mm1(1) );
     CPPUNIT_ASSERT_EQUAL( -3.0, mm2(1, 2.0) );
 
+    // test error cases:
+    // Add uninitialised method:
+    Method<void(void)> mvoid;
+    CPPUNIT_ASSERT(to.methods()->addMethod( &mvoid ) == false);
+    mvoid = Method<void(void)>("voidm");
+    CPPUNIT_ASSERT(to.methods()->addMethod( &mvoid ) == false);
+
+    // wrong type 1:
+    mvoid = to.methods()->getMethod<void(void)>("m1");
+    CPPUNIT_ASSERT( mvoid.ready() == false );
+    // wrong type 2:
+    mvoid = to.methods()->getMethod<void(bool)>("m1");
+    // wrong type 3:
+    mvoid = to.methods()->getMethod<double(void)>("m0");
+    CPPUNIT_ASSERT( mvoid.ready() == false );
+    // non existing
+    mvoid = to.methods()->getMethod<void(void)>("voidm");
+    CPPUNIT_ASSERT( mvoid.ready() == false );
+
+    // this line may not crash:
+    mvoid();
+    
 }
 
 void Generic_TaskTest::testCRMethod()

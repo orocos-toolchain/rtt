@@ -90,6 +90,9 @@ namespace RTT
             : Base( MethodBasePtr(boost::dynamic_pointer_cast< detail::MethodBase<Signature> >(implementation) ) ),
               mname()
         {
+            if ( !this->impl && implementation ) {
+                log(Error) << "Tried to construct Method from incompatible type."<< endlog();
+            }
         }
 
         /** 
@@ -102,9 +105,12 @@ namespace RTT
          */
         Method& operator=(ActionInterface* implementation)
         {
-            if (this->impl == implementation)
+            if (this->impl && this->impl == implementation)
                 return *this;
             this->impl.reset( boost::dynamic_pointer_cast< detail::MethodBase<Signature> >(implementation) );
+            if ( !this->impl && implementation ) {
+                log(Error) << "Tried to assign Method '"<<mname<<"' from incompatible type."<< endlog();
+            }
             return *this;
         }
 

@@ -5,6 +5,7 @@
 #include "LocalMethod.hpp"
 #include "DataSourceArgsMethod.hpp"
 #include "MethodC.hpp"
+#include <boost/shared_ptr.hpp>
 
 namespace RTT
 {
@@ -56,9 +57,17 @@ namespace RTT
         template<class MethodT>
         bool addMethod( MethodT* meth )
         {
-            if ( simplemethods.count( meth->getName() ) )
+            Logger::In in("MethodRepository");
+            if ( simplemethods.count( meth->getName() ) ) {
+                log(Error) << "Failed to addMethod: '"<< meth->getName() <<"' already added." <<endlog();
                 return false;
+            }
+            if ( meth->getName().empty() || !meth->ready() ) {
+                log(Error) << "Failed to addMethod: '"<< meth->getName() <<"' was not ready() or has no name." <<endlog();
+                return false;
+            }
             simplemethods[meth->getName()] = meth->getMethodImpl();
+            log(Debug) << "Added Method: '"<< meth->getName() <<"'." <<endlog();
             return true;
         }
 
@@ -68,7 +77,7 @@ namespace RTT
          * function in a Method<\a Signature> object.
          * 
          * @param name The name of the method to retrieve.
-         * @param Signature The function signature of the command, for
+         * @param Signature The function signature of the method, for
          * example: getMethod<int(double)>("name");
          * 
          * @return true if it could be found, false otherwise.
@@ -76,8 +85,15 @@ namespace RTT
         template<class Signature>
         boost::shared_ptr<ActionInterface> getMethod( std::string name )
         {
-            if ( simplemethods.count(name) )
-                return simplemethods[name];
+            Logger::In in("MethodRepository::getMethod");
+            if ( simplemethods.count(name) ) {
+                if ( boost::dynamic_pointer_cast< detail::MethodBase<Signature> >(simplemethods[name]) )
+                    return simplemethods[name];
+                else
+                    log(Error) << "Method '"<< name <<"' found, but has wrong Signature."<<endlog();
+                return boost::shared_ptr<ActionInterface>();
+            }
+            log(Warning) << "No such method: "<< name <<endlog();
             return boost::shared_ptr<ActionInterface>();
         }
         
@@ -100,10 +116,12 @@ namespace RTT
             typedef typename boost::add_pointer<MethodVT>::type MethodPT;
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
-            if ( this->addMethod( c ) == false )
-                return false;
             const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );
-            if ( !lm )
+            if ( !lm ) {
+                log(Error) << "Failed to addMethod: '"<< c->getName() <<"' is not a local method." <<endlog();
+                return false;
+            }
+            if ( this->addMethod( c ) == false )
                 return false;
             this->add( c->getName(), new detail::OperationFactoryPart0<DataSourceBase*, detail::DataSourceArgsMethod<Sig> >( 
                   detail::DataSourceArgsMethod<Sig>( lm->getMethodFunction()), description) );
@@ -131,10 +149,12 @@ namespace RTT
             typedef typename boost::add_pointer<MethodVT>::type MethodPT;
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
-            if ( this->addMethod( c ) == false )
-                return false;
             const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );
-            if ( !lm )
+            if ( !lm ) {
+                log(Error) << "Failed to addMethod: '"<< c->getName() <<"' is not a local method." <<endlog();
+                return false;
+            }
+            if ( this->addMethod( c ) == false )
                 return false;
             this->add( c->getName(), new detail::OperationFactoryPart1<DataSourceBase*, detail::DataSourceArgsMethod<Sig> >( 
                   detail::DataSourceArgsMethod<Sig>(lm->getMethodFunction()), 
@@ -166,10 +186,12 @@ namespace RTT
             typedef typename boost::add_pointer<MethodVT>::type MethodPT;
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
-            if ( this->addMethod( c ) == false )
-                return false;
             const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );
-            if ( !lm )
+            if ( !lm ) {
+                log(Error) << "Failed to addMethod: '"<< c->getName() <<"' is not a local method." <<endlog();
+                return false;
+            }
+            if ( this->addMethod( c ) == false )
                 return false;
             this->add( c->getName(), new detail::OperationFactoryPart2<DataSourceBase*, detail::DataSourceArgsMethod<Sig> >( 
                   detail::DataSourceArgsMethod<Sig>(lm->getMethodFunction()), 
@@ -206,10 +228,12 @@ namespace RTT
             typedef typename boost::add_pointer<MethodVT>::type MethodPT;
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
-            if ( this->addMethod( c ) == false )
-                return false;
             const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );
-            if ( !lm )
+            if ( !lm ) {
+                log(Error) << "Failed to addMethod: '"<< c->getName() <<"' is not a local method." <<endlog();
+                return false;
+            }
+            if ( this->addMethod( c ) == false )
                 return false;
             this->add( c->getName(), new detail::OperationFactoryPart3<DataSourceBase*, detail::DataSourceArgsMethod<Sig> >( 
                   detail::DataSourceArgsMethod<Sig>(lm->getMethodFunction()), 
@@ -250,10 +274,12 @@ namespace RTT
             typedef typename boost::add_pointer<MethodVT>::type MethodPT;
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
-            if ( this->addMethod( c ) == false )
-                return false;
             const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );
-            if ( !lm )
+            if ( !lm ) {
+                log(Error) << "Failed to addMethod: '"<< c->getName() <<"' is not a local method." <<endlog();
+                return false;
+            }
+            if ( this->addMethod( c ) == false )
                 return false;
             this->add( c->getName(), new detail::OperationFactoryPart4<DataSourceBase*, detail::DataSourceArgsMethod<Sig> >( 
                   detail::DataSourceArgsMethod<Sig>(lm->getMethodFunction()), 

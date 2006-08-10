@@ -509,6 +509,13 @@ namespace RTT
                 delete i->second;
             data[name] = part;
         }
+
+        void remove( const std::string& name )
+        {
+            typename map_t::iterator i = data.find( name );
+            if ( i != data.end() )
+                data.erase(i);
+        }
     };
 
     typedef OperationFactory<DispatchInterface*> CommandFactory;

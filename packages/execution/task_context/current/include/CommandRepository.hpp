@@ -9,6 +9,7 @@
 #ifdef ORO_REMOTING
 #include "RemoteCommand.hpp"
 #endif
+#include "Logger.hpp"
 
 namespace RTT
 {
@@ -38,20 +39,6 @@ namespace RTT
         }
 
         /** 
-         * Retrieve a previously added Command.
-         * 
-         * @param name The name of the Command
-         * @param args A vector of command arguments.
-         * 
-         * @return A dispatchable object which is a new Command object.
-         */
-        DispatchInterface* getCommand( std::string name,
-                                          const std::vector<DataSourceBase::shared_ptr>& args) const
-        {
-            return this->produce(name, args);
-        }
-
-        /** 
          * Return the pointer to an added command for use in a Command object.
          * Store the result in a Command<\a Signature> object.
          * 
@@ -64,31 +51,22 @@ namespace RTT
         template<class Signature>
         DispatchInterface* getCommand( std::string name )
         {
-            if ( simplecommands.count(name) )
-                return simplecommands[name]->clone();
+            Logger::In in("CommandRepository::getCommand");
+            if ( simplecommands.count(name) ) {
+                if ( dynamic_cast< detail::CommandBase<Signature>* >(simplecommands[name]) )
+                    return simplecommands[name]->clone();
+                else
+                    log(Error) << "Command '"<< name <<"' found, but has wrong Signature."<<endlog();
+                return 0;
+            }
+
 #ifdef ORO_REMOTING
             if ( this->hasMember(name ) ) {
                 return new detail::RemoteCommand<Signature>(this, name);
             }
 #endif
+            log(Warning) << "No such command: "<< name <<endlog();
             return 0;
-        }
-
-        /** 
-         * Retrieve the completion condition of a previously added Command.
-         * 
-         * @param name The name of the Command
-         * @param args A vector of command arguments
-         * 
-         * @return A condition which evaluates the command's completion.
-         */
-        ConditionInterface* getCondition( std::string name,
-                                         const std::vector<DataSourceBase::shared_ptr>& args) const
-        {
-            DispatchInterface* di = this->produce(name, args);
-            ConditionInterface* ret = di->createCondition();
-            delete di;
-            return ret;
         }
 
         /**
@@ -104,18 +82,6 @@ namespace RTT
 
 
         /** 
-         * Create a CommandC container object, which can be used
-         * to access an added Command.
-         * 
-         * @param name The name of the Command
-         * 
-         * @return A new CommandC object.
-         */
-        CommandC create(std::string name) {
-            return CommandC( this, name );
-        }
-
-        /** 
          * Add a Command object to the command interface. The command is 
          * added to the C++ interface and not added to the scripting interface.
          * @see getCommand to retrieve it.
@@ -127,9 +93,17 @@ namespace RTT
         template<class CommandT>
         bool addCommand( CommandT* com )
         {
-            if ( simplecommands.count( com->getName() ) )
+            Logger::In in("CommandRepository");
+            if ( simplecommands.count( com->getName() ) ) {
+                log(Error) << "Failed to addCommand: '"<< com->getName() <<"' already added." <<endlog();
                 return false;
+            }
+            if (  com->getName().empty() || !com->ready() ) {
+                log(Error) << "Failed to addCommand: '"<< com->getName() <<"' was not ready() or has no name." <<endlog();
+                return false;
+            }
             simplecommands[com->getName()] = com->getCommandImpl()->clone();
+            log(Debug) << "Added Command: '"<< com->getName() <<"'." <<endlog();
             return true;
         }
 
@@ -145,14 +119,17 @@ namespace RTT
         template<class CommandT>
         bool addCommand( CommandT com, const char* description) 
         {
+            Logger::In in("CommandRepository");
             typedef typename boost::remove_pointer<CommandT>::type CommandVT;
             typedef typename boost::add_pointer<CommandVT>::type CommandPT;
             typedef typename CommandVT::Signature ComSig;
             CommandPT c = this->getpointer(com);
             detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
             // We can only add local commands.
-            if ( !lc )
+            if ( !lc ) {
+                log(Error) << "Failed to addCommand: '"<< c->getName() <<"' is not a local command." <<endlog();
                 return false;
+            }
             // First add the command to the normal interface.
             if ( this->addCommand( c ) == false )
                 return false;
@@ -180,13 +157,16 @@ namespace RTT
         bool addCommand( CommandT com, const char* description,
                          const char* arg1, const char* arg1_description)
         {
+            Logger::In in("CommandRepository");
             typedef typename boost::remove_pointer<CommandT>::type CommandVT;
             typedef typename boost::add_pointer<CommandVT>::type CommandPT;
             typedef typename CommandVT::Signature ComSig;
             CommandPT c = this->getpointer(com);
             detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
-            if ( !lc )
+            if ( !lc ) {
+                log(Error) << "Failed to addCommand: '"<< c->getName() <<"' is not a local command." <<endlog();
                 return false;
+            }
             if ( this->addCommand( c ) == false )
                 return false;
             this->add( c->getName(), new detail::OperationFactoryPart1<DispatchInterface*, detail::DataSourceArgsCommand<ComSig> >( 
@@ -216,13 +196,16 @@ namespace RTT
                          const char* arg1, const char* arg1_description,
                          const char* arg2, const char* arg2_description)
         {
+            Logger::In in("CommandRepository");
             typedef typename boost::remove_pointer<CommandT>::type CommandVT;
             typedef typename boost::add_pointer<CommandVT>::type CommandPT;
             typedef typename CommandVT::Signature ComSig;
             CommandPT c = this->getpointer(com);
             detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
-            if ( !lc )
+            if ( !lc ) {
+                log(Error) << "Failed to addCommand: '"<< c->getName() <<"' is not a local command." <<endlog();
                 return false;
+            }
             if ( this->addCommand( c ) == false )
                 return false;
             this->add( c->getName(), new detail::OperationFactoryPart2<DispatchInterface*, detail::DataSourceArgsCommand<ComSig> >( 
@@ -257,13 +240,16 @@ namespace RTT
                          const char* arg2, const char* arg2_description,
                          const char* arg3, const char* arg3_description)
         {
+            Logger::In in("CommandRepository");
             typedef typename boost::remove_pointer<CommandT>::type CommandVT;
             typedef typename boost::add_pointer<CommandVT>::type CommandPT;
             typedef typename CommandVT::Signature ComSig;
             CommandPT c = this->getpointer(com);
             detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
-            if ( !lc )
+            if ( !lc ) {
+                log(Error) << "Failed to addCommand: '"<< c->getName() <<"' is not a local command." <<endlog();
                 return false;
+            }
             if ( this->addCommand( c ) == false )
                 return false;
             this->add( c->getName(), new detail::OperationFactoryPart3<DispatchInterface*, detail::DataSourceArgsCommand<ComSig> >( 
@@ -301,13 +287,16 @@ namespace RTT
                          const char* arg3, const char* arg3_description,
                          const char* arg4, const char* arg4_description)
         {
+            Logger::In in("CommandRepository");
             typedef typename boost::remove_pointer<CommandT>::type CommandVT;
             typedef typename boost::add_pointer<CommandVT>::type CommandPT;
             typedef typename CommandVT::Signature ComSig;
             CommandPT c = this->getpointer(com);
             detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
-            if ( !lc )
+            if ( !lc ) {
+                log(Error) << "Failed to addCommand: '"<< c->getName() <<"' is not a local command." <<endlog();
                 return false;
+            }
             if ( this->addCommand( c ) == false )
                 return false;
             this->add( c->getName(), new detail::OperationFactoryPart4<DispatchInterface*, detail::DataSourceArgsCommand<ComSig> >( 
@@ -319,6 +308,20 @@ namespace RTT
                   arg3, arg3_description,
                   arg4, arg4_description) );
             return true;
+        }
+
+        /** 
+         * For internal use only. Retrieve a previously added Command.
+         * 
+         * @param name The name of the Command
+         * @param args A vector of command arguments.
+         * 
+         * @return A dispatchable object which is a new Command object.
+         */
+        DispatchInterface* getCommand( std::string name,
+                                          const std::vector<DataSourceBase::shared_ptr>& args) const
+        {
+            return this->produce(name, args);
         }
 
         /**
@@ -366,6 +369,35 @@ namespace RTT
                                 c.getCommandProcessor(), c.isInverted() ),
                         description, arg1, arg1_description) );
             return true;
+        }
+
+        /** 
+         * For internal use Only. Retrieve the completion condition of a previously added Command.
+         * 
+         * @param name The name of the Command
+         * @param args A vector of command arguments
+         * 
+         * @return A condition which evaluates the command's completion.
+         */
+        ConditionInterface* getCondition( std::string name,
+                                         const std::vector<DataSourceBase::shared_ptr>& args) const
+        {
+            DispatchInterface* di = this->produce(name, args);
+            ConditionInterface* ret = di->createCondition();
+            delete di;
+            return ret;
+        }
+
+        /** 
+         * Create a CommandC container object, which can be used
+         * to access an added Command.
+         * 
+         * @param name The name of the Command
+         * 
+         * @return A new CommandC object.
+         */
+        CommandC create(std::string name) {
+            return CommandC( this, name );
         }
 
 

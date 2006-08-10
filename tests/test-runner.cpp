@@ -22,6 +22,9 @@
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
+#include <rtt/Logger.hpp>
+
+using namespace RTT;
 
 int ORO_main(int argc, char** argv)
 {
@@ -35,6 +38,11 @@ int ORO_main(int argc, char** argv)
     // Change the default outputter to a compiler error format outputter
     runner.setOutputter( new CppUnit::CompilerOutputter( &runner.result(),
                                                          std::cerr ) );
+
+    // disable logging of errors or warnings if no ORO_LOGLEVEL was set.
+    if ( log().getLogLevel() == Logger::Warning )
+        log().setLogLevel(Logger::Critical);
+
     // Run the tests.
     bool wasSucessful = runner.run();
 
