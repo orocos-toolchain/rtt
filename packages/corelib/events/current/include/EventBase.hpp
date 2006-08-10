@@ -28,6 +28,11 @@ namespace RTT
             bool execute() {return false;}
 
             virtual int arity() const = 0;
+
+            /**
+             * Clone this implementation.
+             */
+            virtual EventBase<Signature>* cloneI() const = 0;
         };
     }
 }

@@ -23,7 +23,9 @@ namespace RTT
             : public signal<Signature>
         {
         public:
-            LocalEvent<Signature>* clone() const { return new LocalEvent(); }
+            ActionInterface* clone() const { return new LocalEvent(); }
+
+            EventBase<Signature>* cloneI() const { return new LocalEvent(); }
         };
     }
 }

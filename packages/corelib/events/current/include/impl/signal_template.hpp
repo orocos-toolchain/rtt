@@ -75,16 +75,16 @@ namespace RTT {
     }
 
 	template<typename R, OROCOS_SIGNATURE_TEMPLATE_PARMS OROCOS_SIGNATURE_COMMA_IF_NONZERO_ARGS
-             class SlotFunction = OROCOS_SIGNATURE_FUNCTION_N< R OROCOS_SIGNATURE_COMMA_IF_NONZERO_ARGS OROCOS_SIGNATURE_TEMPLATE_ARGS> >
+             class SlotFunctionT = OROCOS_SIGNATURE_FUNCTION_N< R OROCOS_SIGNATURE_COMMA_IF_NONZERO_ARGS OROCOS_SIGNATURE_TEMPLATE_ARGS> >
 	class OROCOS_SIGNAL_N
         : public detail::signal_base,
           public detail::EventBase< R (OROCOS_SIGNATURE_TEMPLATE_ARGS) >
 	{
-		OROCOS_SIGNAL_N(const OROCOS_SIGNAL_N< R, OROCOS_SIGNATURE_TEMPLATE_ARGS OROCOS_SIGNATURE_COMMA_IF_NONZERO_ARGS SlotFunction>& s);
+		OROCOS_SIGNAL_N(const OROCOS_SIGNAL_N< R, OROCOS_SIGNATURE_TEMPLATE_ARGS OROCOS_SIGNATURE_COMMA_IF_NONZERO_ARGS SlotFunctionT>& s);
 
 	public:
-        typedef SlotFunction slot_function_type;
-        typedef detail::OROCOS_SIGNAL_CONNECTION_N<SlotFunction> connection_impl;
+        typedef SlotFunctionT slot_function_type;
+        typedef detail::OROCOS_SIGNAL_CONNECTION_N<SlotFunctionT> connection_impl;
 
         typedef R result_type;
         OROCOS_SIGNATURE_ARG_TYPES
@@ -118,7 +118,7 @@ namespace RTT {
             return h;
         }
 
-        Handle setup(const SlotFunction& f )
+        Handle setup(const slot_function_type& f )
 		{
 			connection_t conn(
 				new connection_impl(this, f) );
