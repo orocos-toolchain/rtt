@@ -31,7 +31,6 @@ class EventServiceTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testAddRemove );
     CPPUNIT_TEST( testSetupSyn );
     CPPUNIT_TEST( testSetupAsyn );
-    CPPUNIT_TEST( testSetupSynAsyn );
     CPPUNIT_TEST( testSetupEmit );
     CPPUNIT_TEST( testEmit0 );
     CPPUNIT_TEST( testEmit1 );
@@ -40,10 +39,10 @@ class EventServiceTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testEventC );
     CPPUNIT_TEST_SUITE_END();
 
-    RTT::Event<void( void )>* t_event0;
-    RTT::Event<void( std::string )>* t_event1;
-    RTT::Event<void( std::string, double )>* t_event2;
-    RTT::Event<void( std::string, double, bool )>* t_event3;
+    RTT::Event<void( void )> t_event0;
+    RTT::Event<void( std::string )> t_event1;
+    RTT::Event<void( std::string, double )> t_event2;
+    RTT::Event<void( std::string, double, bool )> t_event3;
     bool t_listener_done;
     bool t_completer_done;
     std::string t_listener_string;
@@ -74,7 +73,6 @@ public:
     void testAddRemove();
     void testSetupSyn();
     void testSetupAsyn();
-    void testSetupSynAsyn();
     void testSetupEmit();
     void testEmit0();
     void testEmit1();

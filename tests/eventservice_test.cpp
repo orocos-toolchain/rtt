@@ -42,10 +42,10 @@ using namespace std;
 void 
 EventServiceTest::setUp()
 {
-    t_event0 = new Event<void(void)>();
-    t_event1 = new RTT::Event<void( std::string )>();
-    t_event2 = new RTT::Event<void( std::string, double )>();
-    t_event3 = new RTT::Event<void( std::string, double, bool )>();
+    t_event0 = Event<void(void)>("t_event0");
+    t_event1 = RTT::Event<void( std::string )>("t_event1");
+    t_event2 = RTT::Event<void( std::string, double )>("t_event2");
+    t_event3 = RTT::Event<void( std::string, double, bool )>("t_event3");
 
     event_proc = new EventProcessor();
     event_proc->initialize();
@@ -57,10 +57,6 @@ EventServiceTest::setUp()
 void 
 EventServiceTest::tearDown()
 {
-    delete t_event0;
-    delete t_event1;
-    delete t_event2;
-    delete t_event3;
     delete es;
     event_proc->finalize();
     delete event_proc;
@@ -128,10 +124,10 @@ void EventServiceTest::reset()
 
 void EventServiceTest::setup()
 {
-    es->addEvent( "t_event0", t_event0 );
-    es->addEvent( "t_event1", t_event1 );
-    es->addEvent( "t_event2", t_event2 );
-    es->addEvent( "t_event3", t_event3 );
+    es->addEvent( &t_event0, "");
+    es->addEvent( &t_event1, "", "", "" );
+    es->addEvent( &t_event2, "", "", "", "", "" );
+    es->addEvent( &t_event3, "", "", "", "", "", "", "" );
 }
 
 void EventServiceTest::cleanup()
@@ -145,16 +141,16 @@ void EventServiceTest::cleanup()
 void EventServiceTest::testAddRemove()
 {
     bool result;
-    result = es->addEvent( "t_event0", t_event0 );
+    result = es->addEvent( &t_event0 );
     CPPUNIT_ASSERT( result );
-    result = es->addEvent( "t_event1", t_event1 );
+    result = es->addEvent( &t_event1 );
     CPPUNIT_ASSERT( result );
-    result = es->addEvent( "t_event2", t_event2 );
+    result = es->addEvent( &t_event2 );
     CPPUNIT_ASSERT( result );
-    result = es->addEvent( "t_event3", t_event3 );
+    result = es->addEvent( &t_event3 );
     CPPUNIT_ASSERT( result );
 
-    result = es->addEvent( "t_event0", t_event0 );
+    result = es->addEvent( &t_event0 );
     CPPUNIT_ASSERT( result == false );
 
     result = es->removeEvent( "t_event0" );
@@ -201,35 +197,19 @@ void EventServiceTest::testSetupAsyn()
 
     this->cleanup();
 }
-void EventServiceTest::testSetupSynAsyn()
-{
-    this->setup();
-
-    Handle h;
-    h = es->setupSynAsyn("t_event0", bind(&EventServiceTest::listener0,this), bind(&EventServiceTest::completer0,this), vector<DataSourceBase::shared_ptr>(),event_proc );
-    CPPUNIT_ASSERT( h );
-    h = es->setupSynAsyn("t_event1", bind(&EventServiceTest::listener0,this), bind(&EventServiceTest::completer0,this), GenerateDataSource()(ref(t_listener_string)),event_proc);
-    CPPUNIT_ASSERT( h );
-    h = es->setupSynAsyn("t_event2", bind(&EventServiceTest::listener0,this), bind(&EventServiceTest::completer0,this), GenerateDataSource()(ref(t_listener_string), ref(t_listener_double)),event_proc);
-    CPPUNIT_ASSERT( h );
-    h = es->setupSynAsyn("t_event3", bind(&EventServiceTest::listener0,this), bind(&EventServiceTest::completer0,this), GenerateDataSource()(ref(t_listener_string), ref(t_listener_double), ref(t_listener_bool)),event_proc);
-    CPPUNIT_ASSERT( h );
-
-    this->cleanup();
-}
 
 void EventServiceTest::testSetupEmit()
 {
     this->setup();
 
-    DataSourceBase::shared_ptr r;
-    r = ( es->setupEmit("t_event0", std::vector<DataSourceBase::shared_ptr>() ) );
+    ActionInterface::shared_ptr r;
+    r.reset( es->getEvent("t_event0", std::vector<DataSourceBase::shared_ptr>() ) );
     CPPUNIT_ASSERT( r );
-    r = ( es->setupEmit("t_event1", GenerateDataSource()(std::string("hello")) ) );
+    r.reset( es->getEvent("t_event1", GenerateDataSource()(std::string("hello")) ) );
     CPPUNIT_ASSERT( r );
-    r = ( es->setupEmit("t_event2", GenerateDataSource()(std::string("hello"),0.1234) ) );
+    r.reset( es->getEvent("t_event2", GenerateDataSource()(std::string("hello"),0.1234) ) );
     CPPUNIT_ASSERT( r );
-    r = ( es->setupEmit("t_event3", GenerateDataSource()(std::string("hello"),0.1234, true) ) );
+    r.reset( es->getEvent("t_event3", GenerateDataSource()(std::string("hello"),0.1234, true) ) );
     CPPUNIT_ASSERT( r );
 
     this->cleanup();
@@ -239,35 +219,25 @@ void EventServiceTest::testEmit0()
 {
     this->setup();
 
-    Handle h1, h2, h3;
+    Handle h1, h2;
     h1 = es->setupSyn("t_event0", bind(&EventServiceTest::listener0,this), vector<DataSourceBase::shared_ptr>() );
     h2 = es->setupAsyn("t_event0", bind(&EventServiceTest::completer0,this), vector<DataSourceBase::shared_ptr>(),event_proc );
-    h3 = es->setupSynAsyn("t_event0", bind(&EventServiceTest::listener0,this), bind(&EventServiceTest::completer0,this), vector<DataSourceBase::shared_ptr>(),event_proc );
-    DataSourceBase::shared_ptr r;
-    r = ( es->setupEmit("t_event0", std::vector<DataSourceBase::shared_ptr>() ) );
+    ActionInterface::shared_ptr r;
+    r.reset( es->getEvent("t_event0", std::vector<DataSourceBase::shared_ptr>() ) );
 
     CPPUNIT_ASSERT( h1.connect() );
-    r->evaluate();
+    r->execute();
     CPPUNIT_ASSERT( t_listener_done );
     this->reset();
     CPPUNIT_ASSERT( h1.disconnect() );
 
     CPPUNIT_ASSERT( h2.connect() );
-    r->evaluate();
+    r->execute();
     CPPUNIT_ASSERT( !t_completer_done );
     event_proc->step();
     CPPUNIT_ASSERT( t_completer_done );
     this->reset();
     CPPUNIT_ASSERT( h2.disconnect() );
-
-    CPPUNIT_ASSERT( h3.connect() );
-    r->evaluate();
-    CPPUNIT_ASSERT( !t_completer_done );
-    CPPUNIT_ASSERT( t_listener_done );
-    event_proc->step();
-    CPPUNIT_ASSERT( t_completer_done );
-    this->reset();
-    CPPUNIT_ASSERT( h3.disconnect() );
 
     this->cleanup();
 }
@@ -276,23 +246,22 @@ void EventServiceTest::testEmit1()
 {
     this->setup();
 
-    Handle h1, h2, h3;
-    DataSourceBase::shared_ptr r;
+    Handle h1, h2;
+    ActionInterface::shared_ptr r;
 
     h1 = es->setupSyn("t_event1", bind(&EventServiceTest::listener0,this), GenerateDataSource()(ref(t_listener_string)));
     h2 = es->setupAsyn("t_event1", bind(&EventServiceTest::completer0,this), GenerateDataSource()(ref(t_completer_string)),event_proc);
-    h3 = es->setupSynAsyn("t_event1", bind(&EventServiceTest::listener0,this), bind(&EventServiceTest::completer0,this), GenerateDataSource()(ref(t_listener_string)),event_proc);
-    r = ( es->setupEmit("t_event1", GenerateDataSource()(std::string("hello")) ) );
+    r.reset( es->getEvent("t_event1", GenerateDataSource()(std::string("hello")) ) );
 
     CPPUNIT_ASSERT( h1.connect() );
-    r->evaluate();
+    r->execute();
     CPPUNIT_ASSERT( t_listener_done );
     CPPUNIT_ASSERT( t_listener_string == std::string("hello") );
     this->reset();
     CPPUNIT_ASSERT( h1.disconnect() );
 
     CPPUNIT_ASSERT( h2.connect() );
-    r->evaluate();
+    r->execute();
     CPPUNIT_ASSERT( !t_completer_done );
     event_proc->step();
     CPPUNIT_ASSERT( t_completer_done );
@@ -300,35 +269,22 @@ void EventServiceTest::testEmit1()
     this->reset();
     CPPUNIT_ASSERT( h2.disconnect() );
 
-    CPPUNIT_ASSERT( h3.connect() );
-    r->evaluate();
-    CPPUNIT_ASSERT( t_listener_done );
-    CPPUNIT_ASSERT( t_listener_string == std::string("hello") );
-    CPPUNIT_ASSERT( !t_completer_done );
-    this->reset();
-    event_proc->step();
-    CPPUNIT_ASSERT( t_completer_done );
-    CPPUNIT_ASSERT( t_listener_string == std::string("hello") );
-    this->reset();
-    CPPUNIT_ASSERT( h3.disconnect() );
-
     this->cleanup();
 }
 void EventServiceTest::testEmit2()
 {
     this->setup();
-    Handle h1, h2, h3;
-    DataSourceBase::shared_ptr r;
+    Handle h1, h2;
+    ActionInterface::shared_ptr r;
 
     h1 = es->setupSyn("t_event2", bind(&EventServiceTest::listener0,this), GenerateDataSource()(ref(t_listener_string), ref(t_listener_double)));
     h2 = es->setupAsyn("t_event2", bind(&EventServiceTest::completer0,this), GenerateDataSource()(ref(t_completer_string), ref(t_completer_double)),event_proc);
-    h3 = es->setupSynAsyn("t_event2", bind(&EventServiceTest::listener0,this), bind(&EventServiceTest::completer0,this), GenerateDataSource()(ref(t_listener_string), ref(t_listener_double)),event_proc);
 
-    r = es->setupEmit("t_event2", GenerateDataSource()(std::string("hello"),0.1234) );
+    r.reset( es->getEvent("t_event2", GenerateDataSource()(std::string("hello"),0.1234) ) );
 
 
     CPPUNIT_ASSERT( h1.connect() );
-    r->evaluate();
+    r->execute();
     CPPUNIT_ASSERT( t_listener_done );
     CPPUNIT_ASSERT( t_listener_string == std::string("hello") );
     CPPUNIT_ASSERT( t_listener_double == 0.1234 );
@@ -336,7 +292,7 @@ void EventServiceTest::testEmit2()
     CPPUNIT_ASSERT( h1.disconnect() );
 
     CPPUNIT_ASSERT( h2.connect() );
-    r->evaluate();
+    r->execute();
     CPPUNIT_ASSERT( !t_completer_done );
     event_proc->step();
     CPPUNIT_ASSERT( t_completer_done );
@@ -345,37 +301,22 @@ void EventServiceTest::testEmit2()
     this->reset();
     CPPUNIT_ASSERT( h2.disconnect() );
 
-    CPPUNIT_ASSERT( h3.connect() );
-    r->evaluate();
-    CPPUNIT_ASSERT( t_listener_done );
-    CPPUNIT_ASSERT( t_listener_string == std::string("hello") );
-    CPPUNIT_ASSERT( t_listener_double == 0.1234 );
-    CPPUNIT_ASSERT( !t_completer_done );
-    this->reset();
-    event_proc->step();
-    CPPUNIT_ASSERT( t_completer_done );
-    CPPUNIT_ASSERT( t_listener_string == std::string("hello") );
-    CPPUNIT_ASSERT( t_listener_double == 0.1234 );
-    this->reset();
-    CPPUNIT_ASSERT( h3.disconnect() );
-
     this->cleanup();
 }
 
 void EventServiceTest::testEmit3()
 {
     this->setup();
-    Handle h1, h2, h3;
-    DataSourceBase::shared_ptr r;
+    Handle h1, h2;
+    ActionInterface::shared_ptr r;
 
     h1 = es->setupSyn("t_event3", bind(&EventServiceTest::listener0,this), GenerateDataSource()(ref(t_listener_string), ref(t_listener_double),ref(t_listener_bool)));
     h2 = es->setupAsyn("t_event3", bind(&EventServiceTest::completer0,this), GenerateDataSource()(ref(t_completer_string), ref(t_completer_double), ref(t_completer_bool) ),event_proc);
-    h3 = es->setupSynAsyn("t_event3", bind(&EventServiceTest::listener0,this), bind(&EventServiceTest::completer0,this), GenerateDataSource()(ref(t_listener_string), ref(t_listener_double), ref(t_listener_bool)),event_proc);
-    r = ( es->setupEmit("t_event3", GenerateDataSource()(std::string("hello"),0.1234, true) ) );
+    r.reset( es->getEvent("t_event3", GenerateDataSource()(std::string("hello"),0.1234, true) ) );
 
 
     CPPUNIT_ASSERT( h1.connect() );
-    r->evaluate();
+    r->execute();
     CPPUNIT_ASSERT( t_listener_done );
     CPPUNIT_ASSERT( t_listener_string == std::string("hello") );
     CPPUNIT_ASSERT( t_listener_double == 0.1234 );
@@ -384,7 +325,7 @@ void EventServiceTest::testEmit3()
     CPPUNIT_ASSERT( h1.disconnect() );
 
     CPPUNIT_ASSERT( h2.connect() );
-    r->evaluate();
+    r->execute();
     CPPUNIT_ASSERT( !t_completer_done );
     event_proc->step();
     CPPUNIT_ASSERT( t_completer_done );
@@ -393,22 +334,6 @@ void EventServiceTest::testEmit3()
     CPPUNIT_ASSERT( t_completer_bool == true );
     this->reset();
     CPPUNIT_ASSERT( h2.disconnect() );
-
-    CPPUNIT_ASSERT( h3.connect() );
-    r->evaluate();
-    CPPUNIT_ASSERT( t_listener_done );
-    CPPUNIT_ASSERT( t_listener_string == std::string("hello") );
-    CPPUNIT_ASSERT( t_listener_double == 0.1234 );
-    CPPUNIT_ASSERT( t_listener_bool == true );
-    CPPUNIT_ASSERT( !t_completer_done );
-    this->reset();
-    event_proc->step();
-    CPPUNIT_ASSERT( t_completer_done );
-    CPPUNIT_ASSERT( t_listener_string == std::string("hello") );
-    CPPUNIT_ASSERT( t_listener_double == 0.1234 );
-    CPPUNIT_ASSERT( t_listener_bool == true );
-    this->reset();
-    CPPUNIT_ASSERT( h3.disconnect() );
 
     this->cleanup();
 }
