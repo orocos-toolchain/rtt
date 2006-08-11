@@ -108,13 +108,13 @@
     </figure>
     <para>
       A task is a basic unit of functionality which executes one or
-      more (realtime) programs in a single thread.  The program can
-      vary from a mere C function over a realtime program script to a
-      realtime hierarchical state machine. The focus is completely on
+      more (real-time) programs in a single thread.  The program can
+      vary from a mere C function over a real-time program script to a
+      real-time hierarchical state machine. The focus is completely on
       thread-safe time determinism. Meaning, that the system is free
       of priority-inversions, and all operations are lock-free (also
       data sharing and other forms of communication such as events and
-      commands).  Real-Time tasks can communicate with non Real-Time
+      commands).  Real-time tasks can communicate with non real-time
       tasks (and vice versa) transparantly.
     </para>
     <para>
@@ -134,6 +134,9 @@
 	  <para>Synchronous and asynchronous communication between threads.</para>
 	</listitem>
 	<listitem>
+	  <para>Interfaces for component distribution.</para>
+	</listitem>
+	<listitem>
 	  <para>C++ class implementations for all the above.</para>
 	</listitem>
       </itemizedlist>
@@ -142,7 +145,7 @@
       This document relates to other manuals as such :
       <glosslist>
 	<glossentry>
-	  <glossterm>CoreLib</glossterm>
+	  <glossterm>Core Library</glossterm>
 	  <glossdef>
 	    <para> provides the Event infrastructure,
 	      activity to thread mapping, Properties and lock-free data exchange
@@ -520,7 +523,7 @@ cd                  quit
     <para>
       The TaskBrowser is application independent, so that your enduser-application
       might need a more suitable interface. However, for testing and
-      inspecting what is happening inside your realtime programs,
+      inspecting what is happening inside your real-time programs,
       it is a very useful tool. The next sections show how you can add
       properties, commands, methods etc to a TaskContext.
     </para>
@@ -2109,9 +2112,9 @@ cd                  quit
       <title>Wrapping Methods in Functions</title>
       <para>
 	Methods are always executed in the thread of the caller. If a 
-	method does non-realtime operations, like writing data to disk, 
-	it should not be called by a realtime thread. However, if the
-	thread which owns the method is itself not realtime, it can execute
+	method does non-real-time operations, like writing data to disk, 
+	it should not be called by a real-time thread. However, if the
+	thread which owns the method is itself not real-time, it can execute
 	the method as a command in its own thread. This can easily be
 	accomplished by writing a wrapper function ( or alternatively, 
 	register the method as a command too ).
@@ -2121,9 +2124,9 @@ cd                  quit
   } </programlisting>
       <para>
 	Load this function with the <classname>RTT::ProgramLoader</classname>
-	in the TaskContext having 'mymethod', and hard realtime tasks
+	in the TaskContext having 'mymethod', and hard real-time tasks
 	can instruct it to execute that method, without jeopardizing 
-	their own realtime behaviour.
+	their own real-time behaviour.
       </para>
     </section>
     <section>
