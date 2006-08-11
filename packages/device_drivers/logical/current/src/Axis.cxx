@@ -37,8 +37,7 @@ namespace RTT
 
     Axis::Axis( AnalogDrive* a ) 
       : _drive_value(0), act( a ), brakeswitch(0),
-         _is_locked(false), _is_stopped(false), _is_driven(true), 
-         _max_drive( std::numeric_limits<double>::max()), _max_drive_event(NULL) 
+         _is_locked(false), _is_stopped(false), _is_driven(true)
     {
       stop();
       lock();
@@ -60,25 +59,11 @@ namespace RTT
     {
       if (_is_stopped || _is_driven)
       {
-          if ( (vel < _max_drive) && (vel > -_max_drive) )
-          {
-              act->driveSet( vel );
+          act->driveSet( vel );
 	      _drive_value = vel;
-              _is_stopped = false;
-              _is_driven  = true;
-              return true;
-          }
-          else
-          {
-	    if ( !_max_drive_event.ready() ){
-              stop();
-              lock();
-	    }
-	    else{
-	      _max_drive_event();
-	    }
-	    return false;
-          }
+          _is_stopped = false;
+          _is_driven  = true;
+          return true;
       }
       else
         return false;
@@ -89,7 +74,7 @@ namespace RTT
     {
       if (_is_driven){
         act->driveSet( 0 );
-	_drive_value = 0;
+        _drive_value = 0;
         _is_driven  = false;
         _is_stopped = true;
         return true;
@@ -156,15 +141,9 @@ namespace RTT
     }
 
     
-    void Axis::limitDrive( double max )
+    void Axis::limitDrive( double lower, double higher, const Event<void(std::string)>& ev)
     {
-        _max_drive = max;
-    }
-
-
-    void Axis::setLimitDriveEvent(const Event<void(void)>& maximumDrive)
-    {
-      _max_drive_event = maximumDrive;
+        act->limit(lower, higher, ev);
     }
   
     
