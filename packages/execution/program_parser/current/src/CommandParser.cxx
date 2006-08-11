@@ -95,21 +95,6 @@ namespace RTT
         ];
   }
 
-    TaskContext* CommandParser::setStack( TaskContext* tc )
-    {
-        //std::cerr<< "Commands: stack: "<< tc->getName()<<std::endl;
-        return expressionparser.setStack( tc );
-    }
-
-    TaskContext* CommandParser::setContext( TaskContext* tc )
-    {
-        //std::cerr<< "Commands: context: "<< tc->getName()<<std::endl;
-        context = tc;
-        peerparser.setContext(tc);
-        peerparser.reset();
-        return expressionparser.setContext( tc );
-    }
-
   void CommandParser::seennopcommand()
   {
     retcommand = new CommandNOP;

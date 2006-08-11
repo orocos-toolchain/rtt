@@ -105,15 +105,6 @@ namespace RTT
                 [ &handle_no_peer ]);
         }
 
-    TaskContext* PeerParser::setContext( TaskContext* tc )
-    {
-        //std::cerr<< "Peers: context: "<< tc->getName()<<std::endl;
-        TaskContext* ret = context;
-        context = tc;
-        this->reset();
-        return ret;
-    }
-
     void PeerParser::reset()
     {
         _peer = context;

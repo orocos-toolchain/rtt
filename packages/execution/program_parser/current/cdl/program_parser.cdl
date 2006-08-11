@@ -35,6 +35,7 @@ is very powerful."
     requires OROPKG_EXECUTION
     requires OROPKG_EXECUTION_PROGRAM_PROCESSOR
     requires OROPKG_EXECUTION_TASK_CONTEXT
+    requires !OROBLD_OS_NOEXCEPTIONS
 
     cdl_option OROPKG_EXECUTION_PROGRAM_PARSER_CFLAGS_REMOVE {
         display "Flags to remove for compiling"

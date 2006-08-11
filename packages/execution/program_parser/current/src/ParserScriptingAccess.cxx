@@ -32,6 +32,8 @@
 #include "rtt/Parser.hpp"
 #include "rtt/Logger.hpp"
 #include "rtt/TaskContext.hpp"
+#include "rtt/ProgramProcessor.hpp"
+#include "rtt/StateMachineProcessor.hpp"
 #include <sstream>
 #include <fstream>
 

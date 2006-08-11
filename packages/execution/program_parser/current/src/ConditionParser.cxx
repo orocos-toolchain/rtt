@@ -52,76 +52,67 @@ namespace RTT
     
     
 
-  ConditionParser::ConditionParser( TaskContext* c )
-    : ds_bool( 0 ), context( c ), expressionparser( c )
-  {
-    BOOST_SPIRIT_DEBUG_RULE( condition );
-
-    /**
-     * conditions used to be more complex, but nowadays, they're just
-     * boolean expressions..
-     */
-    condition =
-      expressionparser.parser() [
-        bind( &ConditionParser::seenexpression, this ) ];
-  }
-
-    TaskContext* ConditionParser::setStack(TaskContext* tc){
-        return expressionparser.setStack( tc );
-    }
-
-    TaskContext* ConditionParser::setContext(TaskContext* tc){
-        context = tc;
-        return expressionparser.setContext( tc );
-    }
-
-  void ConditionParser::reset()
-  {
-      // not strictly needed because its a smart_ptr
-      ds_bool = 0;
-  };
-
-  ConditionParser::~ConditionParser()
-  {
-  };
-
-  void ConditionParser::seenexpression()
-  {
-    // get the datasource parsed by the ExpressionParser..
-    DataSourceBase::shared_ptr mcurdata =
-      expressionparser.getResult();
-    expressionparser.dropResult();
-
-    // The reference count is stored in the DataSource itself !
-    // so the ref cnt information is not lost in this cast
-    ds_bool =
-      dynamic_cast<DataSource<bool>*>( mcurdata.get() );
-    if ( ds_bool )
+    ConditionParser::ConditionParser( TaskContext* c )
+        : ds_bool( 0 ), context( c ), expressionparser( c )
     {
-      mcurdata = 0;
+        BOOST_SPIRIT_DEBUG_RULE( condition );
+
+        /**
+         * conditions used to be more complex, but nowadays, they're just
+         * boolean expressions..
+         */
+        condition =
+            expressionparser.parser() [
+                                       bind( &ConditionParser::seenexpression, this ) ];
     }
-    else
+
+    void ConditionParser::reset()
     {
-      // we only want boolean expressions..
-      throw parse_exception_semantic_error(
-        "Attempt to use a non-boolean value as a condition." );
-    };
-  };
+        // not strictly needed because its a smart_ptr
+        ds_bool = 0;
+    }
+
+    ConditionParser::~ConditionParser()
+    {
+    }
+
+    void ConditionParser::seenexpression()
+    {
+        // get the datasource parsed by the ExpressionParser..
+        DataSourceBase::shared_ptr mcurdata =
+            expressionparser.getResult();
+        expressionparser.dropResult();
+
+        // The reference count is stored in the DataSource itself !
+        // so the ref cnt information is not lost in this cast
+        ds_bool =
+            dynamic_cast<DataSource<bool>*>( mcurdata.get() );
+        if ( ds_bool )
+            {
+                mcurdata = 0;
+            }
+        else
+            {
+                // we only want boolean expressions..
+                throw parse_exception_semantic_error(
+                                                     "Attempt to use a non-boolean value as a condition." );
+            }
+    }
 
     ConditionInterface* ConditionParser::getParseResult()
-      {
-          // wrap the datasource in a ConditionBoolDataSource..
-          return new ConditionBoolDataSource( ds_bool.get() );
-      };
+    {
+        // wrap the datasource in a ConditionBoolDataSource..
+        return new ConditionBoolDataSource( ds_bool.get() );
+    }
 
-      /**
-       * Retrieve the result as a command, condition pair.
-       */
+    /**
+     * Retrieve the result as a command, condition pair.
+     */
     std::pair<CommandInterface*,ConditionInterface*> ConditionParser::getParseResultAsCommand()
-      {
-          EvalCommand* ec = new EvalCommand( ds_bool );
-          EvalCommandResult* ecr = new EvalCommandResult( ec->cache() );
-          return std::make_pair( ec, ecr );
-          //return std::pair<CommandInterface*,ConditionInterface*>(0,0);
-      }
+    {
+        EvalCommand* ec = new EvalCommand( ds_bool );
+        EvalCommandResult* ecr = new EvalCommandResult( ec->cache() );
+        return std::make_pair( ec, ecr );
+        //return std::pair<CommandInterface*,ConditionInterface*>(0,0);
+    }
 }

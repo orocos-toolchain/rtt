@@ -134,7 +134,7 @@ namespace RTT
                 
             // the command gets ownership of the new function :
             // this command is a DispatchInterface...
-            return new CommandExecFunction( icom, fcopy, proc->getProgramProcessor() );
+            return new CommandExecFunction( icom, fcopy, proc->programs() );
         }
 }
 

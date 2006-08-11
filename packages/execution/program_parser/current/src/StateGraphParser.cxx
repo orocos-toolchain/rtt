@@ -505,6 +505,9 @@ namespace RTT
         assert( curtemplate );
         assert( ! curstate );
 
+        // reclaim the defined variables:
+        
+
         // Check if the Initial and Final States are ok.
         if ( curtemplate->getInitialState() == 0 )
             ORO_THROW( parse_exception_semantic_error("No initial state defined."));
@@ -523,6 +526,12 @@ namespace RTT
             if ( !sd->isDefined() )
                 ORO_THROW( parse_exception_semantic_error("State " + *it + " not defined, but referenced to."));
         }
+
+        // retrieve all defined variables and parameters, store them and cleanup the
+        // valuechangeparser.
+        valuechangeparser->store( curtemplate->getTaskContext() );
+        valuechangeparser->reset();
+
 
         // prepend the commands for initialising the subMachine
         // variables..
@@ -553,12 +562,6 @@ namespace RTT
 
         delete progParser;
         progParser = 0;
-
-        // reset stack to task.
-        valuechangeparser->setStack(context);
-//         commandparser->setStack(context);
-        expressionparser->setStack(context);
-        conditionparser->setStack(context);
 
         StateMachineBuilder* scb = new StateMachineBuilder( curtemplate );
         contextbuilders[curcontextname] = scb;
@@ -722,6 +725,7 @@ namespace RTT
         // Connect the new SC to the relevant contexts.
         // 'sc' acts as a stack for storing variables.
         curcontext = new StateMachineTask(curtemplate, context->getExecutionEngine() );
+        curcontext->setName( curcontextname );
         __s->addPeer( curcontext );   // store in __states.
         curtemplate->setTaskContext( curcontext ); // store.
         
@@ -731,12 +735,6 @@ namespace RTT
         // we pass the plain file positer such that parse errors are
         // refering to correct file line numbers.
         progParser = new ProgramGraphParser(mpositer, context);
-
-        // Only the stack is stored in curcontext
-        valuechangeparser->setStack(curcontext);
-//         commandparser->setStack(curcontext);
-        expressionparser->setStack(curcontext);
-        conditionparser->setStack(curcontext);
 
         // set the 'type' name :
         curtemplate->setName( curcontextname, false );
@@ -939,40 +937,23 @@ namespace RTT
 
         // set the TaskContext name to the instance name :
         curinstantiatedcontext->getTaskContext()->setName(curinstcontextname );
-
     }
 
     void StateGraphParser::seencontextvariable() {
         std::vector<CommandInterface*> acv = valuechangeparser->assignCommands();
         for(std::vector<CommandInterface*>::iterator it = acv.begin(); it!=acv.end(); ++it)
             varinitcommands.push_back( *it );
-        valuechangeparser->reset();
+        valuechangeparser->clear();
     }
 
-  void StateGraphParser::seencontextparam() {
-      std::vector<std::string> pnames = valuechangeparser->parsedDefinitionNames();
-      std::vector<AttributeBase*> tbases = valuechangeparser->definedValues();
-      assert( pnames.size() == tbases.size() );
-      for (unsigned int i = 0; i < pnames.size(); ++i)
-          curtemplate->addParameter( pnames[i] , tbases[i] );
-      valuechangeparser->reset();
-  }
+    void StateGraphParser::seencontextparam() {
+        std::vector<std::string> pnames = valuechangeparser->definedNames();
+        std::vector<AttributeBase*> tbases = valuechangeparser->definedValues();
+        assert( pnames.size() == tbases.size() );
+        for (unsigned int i = 0; i < pnames.size(); ++i)
+            curtemplate->addParameter( pnames[i] , tbases[i] );
+        valuechangeparser->clear();
+    }
 
-#if 0
-  void StateGraphParser::seenscvcsubMachinename( iter_t begin, iter_t end )
-  {
-    // will fail if we have had our parse rule failing before (
-    // happens when we encounter a normal set command... )
-    //assert( curscvccontextname.empty() );
-    curscvccontextname = std::string( begin, end );
-  }
-
-    void StateGraphParser::seenscvcparamname( iter_t begin, iter_t end )
-  {
-    assert( !curscvccontextname.empty() );
-    assert( curscvcparamname.empty() );
-    curscvcparamname = std::string( begin, end );
-  }
-#endif
 
 }

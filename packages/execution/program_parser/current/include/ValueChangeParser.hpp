@@ -48,22 +48,27 @@ namespace RTT { namespace detail
    */
   class ValueChangeParser
   {
-    // all the AssignVariableCommand we've built..
-    std::vector<CommandInterface*> assigncommands;
+      // all the AssignVariableCommand we've built..
+      // This list is cleared in cleanup().
+      std::vector<CommandInterface*> assigncommands;
 
-    // the defined values...
-    std::vector<AttributeBase*> definedvalues;
+      // the defined values...
+      // This list is cleared in cleanup().
+      std::vector<AttributeBase*> definedvalues;
 
-    // the parsed variable or constant or alias or param
-    // definition name
-    std::vector<std::string> parseddefnames;
+      // the parsed variable or constant or alias or param
+      // definition name.
+      // This list is cleared in cleanup().
+      std::vector<std::string> definednames;
+
+      // A list of all the names stored in \a context.
+      // this list is used to remove them when reset() is
+      // called.
+      std::vector<std::string> alldefinednames;
 
     // the name of the value of which we're currently parsing the
     // definition or assignment..
     std::string valuename;
-
-    // We can set the value of a peer :
-    TaskContext* peername;
 
     // A TypeInfo of the type that was specified.  We use it to get
     // hold of a Constant or a TaskVariable or ...
@@ -98,26 +103,37 @@ namespace RTT { namespace detail
       int sizehint;
       boost::shared_ptr<TypeInfoRepository> typerepos;
 
-      // call this before throwing.
+      /**
+       * Delete temporary variables before throwing an exception.
+       */
       void cleanup();
   public:
-    ValueChangeParser( TaskContext* tc );
+      /**
+       * Create a ValueChangeParser which operates and stores values in a task.
+       * Use definedvalues() to get the values added to \a tc, use store()
+       * to store the added values in another task context as well. 
+       * After reset(), \a tc will be cleared of all the stored values.
+       * \a tc is thus used as a temporary storage container.
+       */
+      ValueChangeParser( TaskContext* tc);
 
       /**
-       * Change the context in which variables are stored
-       * and looked up.
-       * @return the previous TaskContext.
+       * Clear assignCommands(), definedValues() and 
+       * definedNames(). Does not delete any variables or commands.
        */
-     TaskContext* setContext( TaskContext* tc );
-     TaskContext* setStack( TaskContext* tc );
+      void clear();
+
+      /**
+       * Store allDefinedNames() in an additional TaskContext.
+       */
+      void store( TaskContext* other );
 
     /**
      * This CommandInterface holds the command assigning a value to
      * a variable that should be included in the program.  After a
      * constant definition, variable definition or variable
      * assignment is parsed, you should check it, and include it in
-     * your program if it is non-zero.  After you called this
-     * function, call reset() !!!
+     * your program if it is non-zero.
      */
     CommandInterface* assignCommand()
       {
@@ -143,17 +159,23 @@ namespace RTT { namespace detail
           return definedvalues;
       }
 
-    std::string lastParsedDefinitionName()
+    std::string lastDefinedName()
       {
-          if ( parseddefnames.empty() )
+          if ( definednames.empty() )
               return "";
-          return parseddefnames.back();
+          return definednames.back();
       }
 
-    std::vector<std::string> parsedDefinitionNames()
+    std::vector<std::string> definedNames()
       {
-          return parseddefnames;
+          return definednames;
       }
+
+    std::vector<std::string> allDefinedNames()
+      {
+          return alldefinednames;
+      }
+
 
     /**
      * the parser that parses definitions of constants.  Do not
@@ -205,9 +227,8 @@ namespace RTT { namespace detail
     rule_t& bareDefinitionParser();
 
     /**
-     * Reset should be called every time after this class parsed
-     * something.  You should first check assignCommand, perhaps use
-     * it, and then call reset()..
+     * Completely clear all data and erase all parsed
+     * definitions from the taskcontext given in the constructor.
      */
     void reset();
   };

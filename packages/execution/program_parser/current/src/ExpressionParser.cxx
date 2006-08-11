@@ -97,18 +97,6 @@ namespace RTT
   };
 
 
-    TaskContext* DataCallParser::setContext( TaskContext* tc )
-    {
-        //std::cerr<< "DataCallParser: context: "<< tc->getName()<<std::endl;
-        TaskContext* ret = context;
-        context = tc;
-        peerparser.setContext(tc);
-        peerparser.reset();
-        // do not change the expressionparser ! (we do not own it)
-        return ret;
-    }
-
-
   void DataCallParser::seendataname()
   {
       mobject =  peerparser.object();
@@ -440,22 +428,6 @@ namespace RTT
 //     _invert_time = false;
 //     parsestack.push( dsb );
   }
-
-    TaskContext* ExpressionParser::setStack( TaskContext* tc )
-    {
-        valueparser.setStack( tc );
-        return context;
-    }
-
-    TaskContext* ExpressionParser::setContext( TaskContext* tc )
-    {
-        TaskContext* ret = context;
-        context = tc;
-        valueparser.setContext( tc );
-        datacallparser.setContext(tc);
-        return ret;
-    }
-
 
   void ExpressionParser::seentimespec( int n )
   {

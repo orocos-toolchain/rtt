@@ -277,7 +277,7 @@ namespace RTT {
     }
     void ParsedStateMachine::setTaskContext(StateMachineTask* tc) {
         context = tc;
-        this->eproc = tc->getExecutionEngine()->getEventProcessor();
+        this->eproc = tc->engine()->events();
     }
 
     bool ParsedStateMachine::inState( const std::string& name ) {

@@ -76,13 +76,13 @@ namespace RTT
 
 
   ProgramGraphParser::ProgramGraphParser( iter_t& positer, TaskContext* t)
-      : rootc( t ),context(t), fcontext(0), mpositer( positer ),
+      : rootc( t ),context( 0 ), fcontext(0), mpositer( positer ),
         mcallfunc(), 
         implcond(0), mcondition(0), try_cond(0),
-        conditionparser( context ),
-        commandparser( context, true ), // as_action == true
-        valuechangeparser( context ),
-        expressionparser( context ),
+        conditionparser( rootc ),
+        commandparser( rootc, true ), // as_action == true
+        valuechangeparser( rootc ),
+        expressionparser( rootc ),
         argsparser(0),
         peerparser(rootc),
         program_builder( new FunctionGraphBuilder() ),
@@ -177,7 +177,7 @@ namespace RTT
     //line = !( statement ) >> eol_p;
     line = statement[bind(&ProgramGraphParser::noskip_eol, this )] >> commonparser.eos[bind(&ProgramGraphParser::skip_eol, this )];
 
-    statement = valuechange | dostatement | trystatement | funcstatement | returnstatement | ifstatement | whilestatement | forstatement | breakstatement | emitstatement;
+    statement = valuechange | dostatement | trystatement | funcstatement | returnstatement | ifstatement | whilestatement | forstatement | breakstatement;
 
     valuechange_parsers =  valuechangeparser.constantDefinitionParser()
         | valuechangeparser.variableDefinitionParser()
@@ -213,13 +213,6 @@ namespace RTT
       >> expect_ident( commonparser.identifier[bind( &ProgramGraphParser::seenfuncidentifier, this, _1, _2) ] )
       >> !arguments[ bind( &ProgramGraphParser::seencallfuncargs, this )]
       )[ bind( &ProgramGraphParser::seencallfuncstatement, this ) ];
-
-    // emit an existing event.
-    emitstatement = (
-      str_p( "emit" )
-      >> peerparser.locator() >> expect_ident( commonparser.identifier[bind( &ProgramGraphParser::seeneventidentifier, this, _1, _2) ] )
-      >> !arguments[ bind( &ProgramGraphParser::seeneventargs, this )]
-      )[ bind( &ProgramGraphParser::seeneventstatement, this ) ];
 
     // a return statement : "return"
     returnstatement =
@@ -293,6 +286,11 @@ namespace RTT
     }
 
     ProgramInterfacePtr ProgramGraphParser::bodyParserResult() {
+
+        // store the variables in the program's taskcontext object.
+        valuechangeparser.store( context );
+        valuechangeparser.reset();
+        
         // Fake a 'return' statement at the last line.
         program_builder->returnFunction( new ConditionTrue, mpositer.get_position().line - ln_offset );
         program_builder->proceedToNext( mpositer.get_position().line - ln_offset);
@@ -301,10 +299,6 @@ namespace RTT
 
     void ProgramGraphParser::setStack(TaskContext* st) {
         context = st;
-        valuechangeparser.setStack(context);
-        commandparser.setStack(context);
-        expressionparser.setStack(context);
-        conditionparser.setStack(context);
     }
 
   void ProgramGraphParser::seencommands()
@@ -317,7 +311,7 @@ namespace RTT
       }
       implcond_v.clear();
 
-      context->attributes()
+      rootc->attributes()
           ->setValue( new Alias<bool>("done",
                                       new DataSourceCondition( implcond->clone() ) ) );
   }
@@ -341,7 +335,7 @@ namespace RTT
       implcond = 0;
 
       // the done condition is no longer valid..
-      context->attributes()->removeValue( "done" );
+      rootc->attributes()->removeValue( "done" );
   }
 
     void ProgramGraphParser::startofprogram()
@@ -370,14 +364,7 @@ namespace RTT
       pi->setProgramTask(ptsk);
       context = ptsk;
       __p->connectPeers( context );
-      context->addPeer(rootc);
       context->addPeer(rootc,"task"); // alias
-
-      // like contextctions : variables are always on foo's 'stack'
-      valuechangeparser.setStack(context);
-      commandparser.setStack(context);
-      expressionparser.setStack(context);
-      conditionparser.setStack(context);
   }
 
   void ProgramGraphParser::programtext( iter_t begin, iter_t end )
@@ -414,13 +401,7 @@ namespace RTT
       // Connect the new function to the relevant contexts.
       // 'fun' acts as a stack for storing variables.
       fcontext = context = new TaskContext(funcdef, rootc->getExecutionEngine() );
-      context->addPeer(rootc);
       context->addPeer(rootc,"task");
-      // variables are always on foo's 'stack'
-      valuechangeparser.setStack(context);
-      commandparser.setStack(context);
-      expressionparser.setStack(context);
-      conditionparser.setStack(context);
   }
 
   void ProgramGraphParser::seenfunctionarg()
@@ -429,7 +410,7 @@ namespace RTT
       // current stack's repository, but we need to inform the
       // FunctionGraph itself about its arguments.
       program_builder->getFunction()->addArgument( valuechangeparser.lastDefinedValue()->clone() );
-      valuechangeparser.reset();
+      valuechangeparser.clear();
   }
 
   void ProgramGraphParser::seenfunctionend()
@@ -453,11 +434,7 @@ namespace RTT
       // reset
       exportf = false;
 
-      // restore 'stack' to task's stack.
-      valuechangeparser.setStack(rootc); 
-      commandparser.setStack(rootc);
-      expressionparser.setStack(rootc);
-      conditionparser.setStack(rootc);
+      valuechangeparser.reset();
   }
 
   void ProgramGraphParser::seencondition()
@@ -511,7 +488,7 @@ namespace RTT
       mcallfunc = mfuncs[ fname ];
 
       // Parse the function's args in the programs context.
-      argsparser = new ArgumentsParser( expressionparser, context,
+      argsparser = new ArgumentsParser( expressionparser, rootc,
                                         "this", fname );
       arguments = argsparser->parser();
 
@@ -555,62 +532,6 @@ namespace RTT
       // The exit node of the function is already connected
       // to program->nextNode().
       program_builder->proceedToNext(mpositer.get_position().line - ln_offset);
-  }
-
-  void ProgramGraphParser::seeneventidentifier( iter_t begin, iter_t end )
-  {
-      // store the part after 'call'
-      std::string ename(begin, end);
-      peer = peerparser.peer();
-      peerparser.reset();
-
-      if ( peer->events()->hasEvent(ename) == false )
-          throw parse_exception_semantic_error("emitting Event " + ename + " but it is not defined in Task "+peer->getName()+".");
-
-      // Parse the event's args in the programs context.
-      argsparser = new ArgumentsParser( expressionparser, context,
-                                        "this", ename ); // store ename as methodname()
-      arguments = argsparser->parser();
-
-  }
-
-  void ProgramGraphParser::seeneventargs()
-  {
-      callfnargs = argsparser->result();
-  }
-
-  void ProgramGraphParser::seeneventstatement()
-  {
-      // This function is called if the 'call func' is outside
-      // a termination clause.
-
-      // add it to the main program line of execution.
-      assert( argsparser );
-      try
-          {
-              ActionInterface* emitds = peer->events()->getEvent( argsparser->methodname(), callfnargs);
-              assert( emitds );
-              program_builder->setCommand( emitds );
-              program_builder->proceedToNext( new ConditionTrue(), mpositer.get_position().line - ln_offset );
-              // only delete parser, when the args are used.
-              delete argsparser;
-              argsparser = 0;
-              callfnargs.clear();
-          }
-        catch( const wrong_number_of_args_exception& e )
-            {
-                throw parse_exception_wrong_number_of_arguments
-                    ( peer->getName(), argsparser->methodname(), e.wanted, e.received );
-            }
-        catch( const wrong_types_of_args_exception& e )
-            {
-                throw parse_exception_wrong_type_of_argument
-                    ( peer->getName(), argsparser->methodname(), e.whicharg, e.expected_, e.received_ );
-            }
-        catch( ... )
-            {
-                assert( false );
-            }
   }
 
     void ProgramGraphParser::skip_eol() {
@@ -699,7 +620,7 @@ namespace RTT
       CommandInterface* ac = 0;
       std::vector<CommandInterface*> acv = valuechangeparser.assignCommands();
       // and not forget to reset()..
-      valuechangeparser.reset();
+      valuechangeparser.clear();
       if ( acv.size() == 1) {
           ac = acv.front();
       }
@@ -713,8 +634,6 @@ namespace RTT
     {
       CommandInterface* ac = 0;
       std::vector<CommandInterface*> acv = valuechangeparser.assignCommands();
-      // and not forget to reset()..
-      valuechangeparser.reset();
       if ( acv.size() == 1) {
           ac = acv.front();
       }
@@ -722,7 +641,7 @@ namespace RTT
           ac = new CommandComposite( acv );
       }
       for_incr_command = ac;
-      valuechangeparser.reset();
+      valuechangeparser.clear();
     }
 
     void ProgramGraphParser::seenforstatement() {
@@ -766,11 +685,9 @@ namespace RTT
       program_builder->proceedToNext( mpositer.get_position().line - ln_offset );
       program_list.push_back(program_builder->endFunction( mpositer.get_position().line - ln_offset ) );
 
-      // restore 'stack' to task's stack.
-      valuechangeparser.setStack(rootc); 
-      commandparser.setStack(rootc);
-      expressionparser.setStack(rootc);
-      conditionparser.setStack(rootc);
+      // store the variables in the program's taskcontext object.
+      valuechangeparser.store( context );
+      valuechangeparser.reset();
   }
 
   std::vector< ProgramInterfacePtr > ProgramGraphParser::parse( iter_t& begin, iter_t end )
@@ -905,6 +822,12 @@ namespace RTT
       while ( ! mfuncs.empty() ) {
           mfuncs.erase( mfuncs.begin() );
       }
+      context = 0;
+
+      valuechangeparser.reset();
+      commandparser.reset();
+      conditionparser.reset();
+      peerparser.reset();
   }
 
   void ProgramGraphParser::seencommandcall()
@@ -973,7 +896,7 @@ namespace RTT
       CommandInterface* ac = 0;
       std::vector<CommandInterface*> acv = valuechangeparser.assignCommands();
       // and not forget to reset()..
-      valuechangeparser.reset();
+      valuechangeparser.clear();
       if ( acv.size() == 1) {
           ac = acv.front();
       }

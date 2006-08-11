@@ -70,12 +70,6 @@ namespace RTT
         PeerParser(TaskContext* c, bool fullpath=false);
 
         /**
-         * Change the context in which peers are 
-         * looked up.
-         * @return the previous TaskContext.
-         */
-        TaskContext* setContext( TaskContext* tc);
-        /**
          * After reset, peer() == current context and
          * object() == "this".
          */

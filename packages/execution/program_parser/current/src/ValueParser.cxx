@@ -100,18 +100,6 @@ namespace RTT
         propparser.setPropertyBag( peerparser.peer()->attributes()->properties() );
     }
 
-    void ValueParser::setStack( TaskContext* tc ) {
-        //std::cerr<< " Switched Repos from "<< context->getName() << " to "<< tc->getName() <<std::endl;
-        context = tc;
-        peerparser.setContext( tc );
-    }
-
-    void ValueParser::setContext( TaskContext* tc ) {
-        //std::cerr<< " Switched Repos from "<< context->getName() << " to "<< tc->getName() <<std::endl;
-        context = tc;
-        peerparser.setContext( tc );
-    }
-
   void ValueParser::seenboolconstant( iter_t begin, iter_t end )
   {
     std::string value( begin, end );

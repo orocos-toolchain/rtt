@@ -144,10 +144,6 @@ namespace RTT { namespace detail
       void seencallfuncstatement();
       void seencallfuncargs();
 
-      void seeneventidentifier( iter_t begin, iter_t end);
-      void seeneventstatement();
-      void seeneventargs();
-
       void seenreturnstatement();
       void seenreturnlabel();
 

@@ -86,9 +86,6 @@ namespace RTT
   public:
     ValueParser( TaskContext* tc );
 
-      void setContext( TaskContext* tc);
-      void setStack( TaskContext* tc );
-
     ~ValueParser();
       /**
        * Clears this parser, not the repository where it stores its results.

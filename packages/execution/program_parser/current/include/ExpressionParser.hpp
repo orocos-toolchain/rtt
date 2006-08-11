@@ -77,13 +77,6 @@ namespace RTT { namespace detail
     DataCallParser( ExpressionParser& p, TaskContext* pc );
     ~DataCallParser();
 
-      /**
-       * Change the context in which datacalls are 
-       * looked up.
-       * @return the previous TaskContext.
-       */
-      TaskContext* setContext( TaskContext* tc);
-
     rule_t& parser()
       {
         return datacall;
@@ -149,14 +142,6 @@ namespace RTT { namespace detail
   public:
     ExpressionParser( TaskContext* pc );
     ~ExpressionParser();
-
-      /**
-       * Change the context in which values are 
-       * looked up.
-       * @return the previous TaskContext.
-       */
-      TaskContext* setStack( TaskContext* tc);
-      TaskContext* setContext( TaskContext* tc);
 
     rule_t& parser();
 

@@ -97,14 +97,6 @@ namespace RTT
     CommandParser( TaskContext* context, bool as_action );
     ~CommandParser();
 
-      /**
-       * Change the context in which values are 
-       * looked up.
-       * @return the previous TaskContext.
-       */
-      TaskContext* setContext( TaskContext* tc);
-      TaskContext* setStack( TaskContext* tc);
-
       bool foundObject() {
           return !mcurobject.empty();
       }
