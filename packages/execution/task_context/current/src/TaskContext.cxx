@@ -338,6 +338,7 @@ namespace RTT
     std::vector<std::string> TaskContext::getObjectList() const
     {
         std::vector<std::string> res;
+        res.push_back("this");
         std::transform(mobjects.begin(), mobjects.end(),
                        std::back_inserter( res ), boost::bind(&OperationInterface::getName,_1));
         return res;
