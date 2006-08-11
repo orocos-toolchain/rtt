@@ -87,7 +87,7 @@ namespace RTT
          * by the Method object. If it has the wrong type, it is freed.
          */
         Method(boost::shared_ptr<ActionInterface> implementation)
-            : Base( MethodBasePtr(boost::dynamic_pointer_cast< detail::MethodBase<Signature> >(implementation) ) ),
+            : Base( boost::dynamic_pointer_cast< detail::MethodBase<Signature> >(implementation) ),
               mname()
         {
             if ( !this->impl && implementation ) {
@@ -107,7 +107,7 @@ namespace RTT
         {
             if (this->impl && this->impl == implementation)
                 return *this;
-            this->impl.reset( boost::dynamic_pointer_cast< detail::MethodBase<Signature> >(implementation) );
+            this->impl = boost::dynamic_pointer_cast< detail::MethodBase<Signature> >(implementation);
             if ( !this->impl && implementation ) {
                 log(Error) << "Tried to assign Method '"<<mname<<"' from incompatible type."<< endlog();
             }
