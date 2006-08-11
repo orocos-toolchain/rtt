@@ -35,6 +35,7 @@
 #include "DigitalOutInterface.hpp"
 #include "AnalogOutput.hpp"
 #include "DigitalOutput.hpp"
+#include <rtt/Event.hpp>
 
 namespace RTT
 {
@@ -78,8 +79,8 @@ namespace RTT
             : analogDevice( an_out ),
               enableDevice(dig_out), mySpeed(0.0),
               scale(_scale), offset( _offset ),
-              lowvel( an_out->lowest()*scale - offset ),
-              highvel( an_out->highest()*scale - offset )
+              lowvel( an_out->lowest()*scale),
+              highvel( an_out->highest()*scale)
         {
             driveSet(0);
             disableDrive();
@@ -139,10 +140,11 @@ namespace RTT
         /**
          * Limit the velocity of the drive.
          */
-        void limit(double lower, double higher)
+        void limit(double lower, double higher, const Event<void(std::string)>& ev)
         {
             lowvel = lower;
             highvel = higher;
+            event = ev;
         }
 
         /**
@@ -151,14 +153,14 @@ namespace RTT
         int driveSet( double v )
         {
             mySpeed = v;
-#if 0
+
             // limit v;
-            if ( mySpeed < lowvel )
-                mySpeed = lowvel;
-            else if ( mySpeed > highvel)
-                mySpeed = highvel;
-#endif
-            analogDevice->value( (mySpeed+offset)/scale );
+            if ( mySpeed+offset < lowvel || mySpeed+offset > highvel ){
+                log(Error)<<"Drive value: "<<v<<endlog();
+                event("Axis drive value exceeds boundaries");
+            }
+            else
+                analogDevice->value( (mySpeed+offset)/scale );
 
             return 0;
         }
@@ -195,6 +197,7 @@ namespace RTT
         double mySpeed;
         double scale, offset;
         double lowvel, highvel;
+        Event<void(std::string)> event;
     };
 
 }
