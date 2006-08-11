@@ -140,7 +140,7 @@ namespace RTT
          * by the Event object. If it has the wrong type, it is freed.
          */
         Event(boost::shared_ptr<ActionInterface> implementation)
-            : Base( EventBasePtr( boost::dynamic_pointer_cast< detail::EventBase<Signature> >(implementation)) ),
+            : Base( boost::dynamic_pointer_cast< detail::EventBase<Signature> >(implementation) ),
               mname()
         {
             if ( !this->impl && implementation ) {
@@ -160,7 +160,7 @@ namespace RTT
         {
             if (this->impl == implementation)
                 return *this;
-            this->impl.reset( dynamic_cast< detail::EventBase<Signature>* >(implementation) );
+            this->impl = boost::dynamic_pointer_cast< detail::EventBase<Signature> >(implementation);
             if ( !this->impl && implementation ) {
                 log(Error) << "Tried to assign Event '"<< mname <<"' from incompatible type."<< endlog();
             }
