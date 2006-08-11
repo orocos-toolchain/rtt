@@ -175,12 +175,12 @@ namespace RTT
 
         bool TaskContext::executeCommand( CommandInterface* c)
         {
-            return ee.getCommandProcessor()->process( c ) != 0;
+            return ee.commands()->process( c ) != 0;
         }
 
         int TaskContext::queueCommand( CommandInterface* c)
         {
-            return ee.getCommandProcessor()->process( c );
+            return ee.commands()->process( c );
         }
 
     void TaskContext::addUser( TaskContext* peer )

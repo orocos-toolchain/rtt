@@ -41,7 +41,7 @@ namespace RTT
     EventService::EventService( EventProcessor* ep ) : eeproc(0), eproc( ep ) {} // ep may be null.
 
     EventProcessor* EventService::getEventProcessor() {
-        return eeproc ? eeproc->getEventProcessor()
+        return eeproc ? eeproc->events()
             : (eproc ? eproc : CompletionProcessor::Instance());
     }
 
@@ -114,7 +114,7 @@ namespace RTT
     Handle EventService::setupAsyn(const std::string& ename,
                                                 boost::function<void(void)> afunc,          
                                                 const std::vector<DataSourceBase::shared_ptr>& args,
-                                                EventProcessor* ep /* = CompletionProcessor::Instance()->getEventProcessor()*/,
+                                                EventProcessor* ep /* = CompletionProcessor::Instance()*/,
                                                 EventProcessor::AsynStorageType s_type) const {
         if ( mhooks.count(ename) != 1 ) {
             log(Error) << "Can not create connection to '"<<ename<<"': no such Event."<<endlog();

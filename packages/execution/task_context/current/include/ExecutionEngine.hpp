@@ -31,16 +31,28 @@
 
 #include "RunnableInterface.hpp"
 #include "ActivityInterface.hpp"
-#include "CommandProcessor.hpp"
-#include "ProgramProcessor.hpp"
-#include "StateMachineProcessor.hpp"
+#include <vector>
 
-namespace OS {
-    class Semaphore;
-}
+#include <pkgconf/execution_task_context.h>
+#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
+#include "rtt/EventProcessor.hpp"
+#endif
+#ifdef OROPKG_EXECUTION_ENGINE_COMMANDS
+#include "rtt/CommandProcessor.hpp"
+#endif
+#ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
+#include "rtt/ProgramProcessor.hpp"
+#endif
+#ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
+#include "rtt/StateMachineProcessor.hpp"
+#endif
+
 namespace RTT
 {
     class TaskCore;
+    namespace OS {
+        class Semaphore;
+    }
 
     /**
      * An execution engine serialises (executes one after the other)
@@ -62,19 +74,29 @@ namespace RTT
         TaskCore*     taskc;
         ExecutionEngine* mainee;
 
-        CommandProcessor* cproc;
-        ProgramProcessor* pproc;
-        StateMachineProcessor* smproc;
-        EventProcessor* eproc;
+        /**
+         * We store them as RunnableInterface pointers,
+         * and static_cast them back to the correct type.
+         */
+        RunnableInterface* cproc;
+        RunnableInterface* pproc;
+        RunnableInterface* smproc;
+        RunnableInterface* eproc;
 
         std::vector<ExecutionEngine*> children;
 
         bool eerun;
+
+        /**
+         * This function checks if a mainee is present, if not,
+         * new Processors are created, if there is, the Processors
+         * are destroyed.
+         */
+        void setup();
     public:
         /**
          * Create an execution engine with a CommandProcessor, ProgramProcessor 
-         * and StateMachineProcessor. The EventProcessor is the event processor
-         * of this task. If you provide another ExecutionEngine as argument,
+         * and StateMachineProcessor. If you provide another ExecutionEngine as argument,
          * this execution engine delegates all requests to that execution engine
          * and does itself nothing.
          * @param owner The TaskCore in which this execution engine executes.
@@ -89,7 +111,14 @@ namespace RTT
 
         virtual bool initialize();
 
+        /**
+         * Executes (in that order) programs, state machines, commands,
+         * events and the TaskCore's update() function.
+         */
         virtual void step();
+        /**
+         * Identical to step(), but blocks for commands and events.
+         */
         virtual void loop();
         virtual bool breakLoop();
 
@@ -104,9 +133,19 @@ namespace RTT
         ExecutionEngine* getParent();
 
         /**
+         * Returns the semaphore which is signaled when events or
+         * commands arrive. The user may signal this semaphore to
+         * force the execution of a step when the ExecutionEngine
+         * is in a non periodic activity.
+         * @return null if the ExecutionEngine is periodic, a Semaphore
+         * otherwise.
+         */
+        OS::Semaphore* getSemaphore() const;
+
+        /**
          * Returns the owner of this execution engine.
          */
-        TaskCore* getTaskCore() { return taskc; }
+        TaskCore* getTaskCore() const { return taskc; }
 
         /**
          * Inform this execution engine that it gets a new parent.
@@ -116,42 +155,30 @@ namespace RTT
         /** 
          * Return the CommandProcessor of this engine.
          */
-        CommandProcessor* commands() const {
-            return mainee ? mainee->getCommandProcessor() : cproc;
-        }
+        CommandProcessor* commands() const;
 
         /** 
          * Return the ProgramProcessor of this engine.
          */
-        ProgramProcessor* programs() const {
-            return mainee ? mainee->getProgramProcessor() : pproc;
-        }
+        ProgramProcessor* programs() const;
 
         /** 
          * Return the StateMachineProcessor of this engine.
          */
-        StateMachineProcessor* states() const {
-            return mainee ? mainee->getStateMachineProcessor() : smproc;
-        }
+        StateMachineProcessor* states() const;
 
         /** 
          * Return the EventProcessor of this engine.
          */
         EventProcessor* events() const;
 
-        CommandProcessor* getCommandProcessor() const {
-            return mainee ? mainee->getCommandProcessor() : cproc;
-        }
+        void setCommandProcessor(CommandProcessor* c);
 
-        ProgramProcessor* getProgramProcessor() const {
-            return mainee ? mainee->getProgramProcessor() : pproc;
-        }
+        void setProgramProcessor(ProgramProcessor* p);
 
-        StateMachineProcessor* getStateMachineProcessor() const {
-            return mainee ? mainee->getStateMachineProcessor() : smproc;
-        }
+        void setStateMachineProcessor(StateMachineProcessor* s);
 
-        EventProcessor* getEventProcessor() const;
+        void setEventProcessor(EventProcessor* e);
 
     };
 

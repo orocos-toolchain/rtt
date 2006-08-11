@@ -30,6 +30,7 @@
 #include "GraphCopier.hpp"
 #include "rtt/AttributeBase.hpp"
 #include "rtt/ProgramTask.hpp"
+#include "rtt/ProgramProcessor.hpp"
 
 #include "rtt/CommandNOP.hpp"
 #include "rtt/ConditionFalse.hpp"

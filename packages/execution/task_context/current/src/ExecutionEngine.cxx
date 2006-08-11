@@ -28,7 +28,6 @@
  
 
 #include <rtt/os/Semaphore.hpp>
-#include <rtt/CompletionProcessor.hpp>
 #include <rtt/Logger.hpp>
 #include <rtt/ExecutionEngine.hpp>
 #include <rtt/TaskCore.hpp>
@@ -44,17 +43,11 @@ namespace RTT
           loop_sem( parent ? 0 : new OS::Semaphore(0)),
           taskc(owner),
           mainee(parent ? parent->getParent() : 0),
-          cproc( mainee ? 0 : new CommandProcessor(ORONUM_EXECUTION_PROC_QUEUE_SIZE, work_sem) ),
-          pproc( mainee ? 0 : new ProgramProcessor(ORONUM_EXECUTION_PROC_QUEUE_SIZE, work_sem) ),
-          smproc( mainee ? 0 : new StateMachineProcessor(work_sem) ),
-          eproc( mainee ? 0 : new EventProcessor() ),
+          cproc( 0 ), pproc( 0 ), smproc( 0 ), eproc( 0 ),
           eerun( false )
     {
-        Logger::In in("ExecutionEngine");
-        if (mainee)
-            Logger::log() << Logger::Debug << "Creating child "+owner->getName()+" of task "+mainee->getTaskCore()->getName()<<Logger::endl;
-        else
-            Logger::log() << Logger::Debug << "Creating root task "+owner->getName()<<Logger::endl;
+        this->setup();
+
         // add self to parent
         if (mainee)
             mainee->children.push_back(this);
@@ -63,7 +56,7 @@ namespace RTT
     ExecutionEngine::~ExecutionEngine()
     {
         Logger::In in("~ExecutionEngine");
-        Logger::log() << Logger::Debug << "Destroying "+taskc->getName()<<Logger::endl;
+        Logger::log() << Logger::Debug << "Destroying ExecutionEngine of "+taskc->getName()<<Logger::endl;
 
         // it is possible that the mainee is assigned to a task
         // but that this child EE is already destroyed.
@@ -91,16 +84,55 @@ namespace RTT
                 mainee->children.push_back(*it); // not orphan
             else {
                 // orphan, provide it new processors.
-                (*it)->cproc = new CommandProcessor();
-                (*it)->pproc = new ProgramProcessor();
-                (*it)->smproc = new StateMachineProcessor();
-                (*it)->eproc = new EventProcessor();
+                (*it)->setup();
             }
+        }
+    }
+
+    void ExecutionEngine::setup()
+    {
+        Logger::In in("ExecutionEngine");
+
+        if (mainee)
+            Logger::log() << Logger::Debug << "Using ExecutionEngine of task "+mainee->getTaskCore()->getName()<<" in " <<taskc->getName() << Logger::endl;
+        else
+            Logger::log() << Logger::Debug << "Creating ExecutionEngine for "+taskc->getName()<<Logger::endl;
+
+        if ( mainee == 0 ) {
+#ifdef OROPKG_EXECUTION_ENGINE_COMMANDS
+            cproc = new CommandProcessor(ORONUM_EXECUTION_PROC_QUEUE_SIZE, work_sem);
+#else
+            cproc = 0;
+#endif
+#ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
+            pproc = new ProgramProcessor(ORONUM_EXECUTION_PROC_QUEUE_SIZE, work_sem);
+#else
+            pproc = 0;
+#endif
+#ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
+            smproc = new StateMachineProcessor(work_sem);
+#else
+            smproc = 0;
+#endif
+#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
+            eproc = new EventProcessor();
+#else
+            eproc = 0;
+#endif
+        } else {
+            delete cproc;
+            delete pproc;
+            delete smproc;
+            delete eproc;
         }
     }
 
     ExecutionEngine* ExecutionEngine::getParent() {
         return mainee ? mainee : this;
+    }
+
+    OS::Semaphore* ExecutionEngine::getSemaphore() const {
+        return work_sem;
     }
 
     void ExecutionEngine::reparent(ExecutionEngine* new_parent) {
@@ -117,14 +149,6 @@ namespace RTT
             mainee = 0;
         }
         if (new_parent != 0 ) {
-            delete cproc;
-            cproc = 0;
-            delete pproc;
-            pproc = 0;
-            delete smproc;
-            smproc = 0;
-            delete eproc;
-            eproc = 0;
             // special order here, first do setActivity without disturbing future mainee
             this->setActivity( new_parent->getParent()->getActivity() );
             mainee = new_parent->getParent();
@@ -132,13 +156,11 @@ namespace RTT
             return;
         }
         if (new_parent == 0) {
-            // orphan, provide new processors.
-            cproc = new CommandProcessor();
-            pproc = new ProgramProcessor();
-            smproc = new StateMachineProcessor();
-            eproc = new EventProcessor();
+            // orphan, reset activity to zero.
             this->setActivity(0);
         }
+
+        this->setup();
     }
 
     void ExecutionEngine::setActivity(ActivityInterface* t)
@@ -203,20 +225,24 @@ namespace RTT
             }
         }
 
-        if ( pproc->initialize() ) {
-            if ( smproc->initialize() ) {
-                if( cproc->initialize() ) {
-                    if (eproc->initialize()) {
+        if ( pproc ? pproc->initialize() : true ) {
+            if ( smproc ? smproc->initialize() : true ) {
+                if( cproc ? cproc->initialize() : true ) {
+                    if ( eproc ? eproc->initialize() : true ) {
                         // non periodic loop() uses this flag to detect breakLoop()
                         if ( !this->getActivity()->isPeriodic() )
                             eerun = true;
                         return true;
                     }
-                    cproc->finalize();
+                    // failure: shut down again.
+                    if (cproc)
+                        cproc->finalize();
                 } 
-                smproc->finalize();
+                if (smproc)
+                    smproc->finalize();
             }
-            pproc->finalize();
+            if ( pproc )
+                pproc->finalize();
         }
         //Logger::log() << Logger::Error << "ExecutionEngine's processors failed!" << Logger::endl;
         return false;
@@ -224,10 +250,23 @@ namespace RTT
 
     void ExecutionEngine::step() {
         if ( !mainee ) {
-            pproc->step();
-            smproc->step();
-            cproc->step();
-            eproc->step();
+            // this #ifdef ... #endif is only for speed optimisations.
+#ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
+            if (pproc)
+                pproc->step();
+#endif
+#ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
+            if (smproc)
+                smproc->step();
+#endif
+#ifdef OROPKG_EXECUTION_ENGINE_COMMANDS
+            if (cproc)
+                cproc->step();
+#endif
+#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
+            if (eproc)
+                eproc->step();
+#endif
             taskc->update();
             // call all children as well.
             for (std::vector<ExecutionEngine*>::iterator it = children.begin(); it != children.end();++it)
@@ -262,10 +301,14 @@ namespace RTT
     void ExecutionEngine::finalize() {
         if ( !mainee ) {
             eerun = false;
-            pproc->finalize();
-            smproc->finalize();
-            cproc->finalize();
-            eproc->finalize();
+            if (pproc)
+                pproc->finalize();
+            if (smproc)
+                smproc->finalize();
+            if (cproc)
+                cproc->finalize();
+            if (eproc)
+                eproc->finalize();
             taskc->shutdown();
             // call all children as well.
             for (std::vector<ExecutionEngine*>::iterator it = children.begin(); it != children.end();++it)
@@ -273,14 +316,75 @@ namespace RTT
         }
     }
 
+    CommandProcessor* ExecutionEngine::commands() const {
+#ifdef OROPKG_EXECUTION_ENGINE_COMMANDS
+        return mainee ? mainee->commands() : dynamic_cast<CommandProcessor*>(cproc);
+#else
+        return 0;
+#endif
+        
+    }
+
+    ProgramProcessor* ExecutionEngine::programs() const {
+#ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
+        return mainee ? mainee->programs() : dynamic_cast<ProgramProcessor*>(pproc);
+#else
+        return 0;
+#endif
+    }
+
+    StateMachineProcessor* ExecutionEngine::states() const {
+#ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
+        return mainee ? mainee->states() : dynamic_cast<StateMachineProcessor*>(smproc);
+#else
+        return 0;
+#endif
+    }
+
     EventProcessor* ExecutionEngine::events() const {
-        return mainee ? mainee->events() : eproc;
+#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
+        return mainee ? mainee->events() : dynamic_cast<EventProcessor*>(eproc);
+#else
+        return 0;
+#endif
     }
 
-
-    EventProcessor* ExecutionEngine::getEventProcessor() const {
-        return mainee ? mainee->events() : eproc;
+    void ExecutionEngine::setCommandProcessor(CommandProcessor* c) {
+#ifdef OROPKG_EXECUTION_ENGINE_COMMANDS
+        if (mainee)
+            mainee->setCommandProcessor(c);
+        else
+            cproc = c;
+#endif
     }
+    
+    void ExecutionEngine::setProgramProcessor(ProgramProcessor* p) {
+#ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
+        if (mainee)
+            mainee->setProgramProcessor(p);
+        else
+            pproc = p;
+#endif
+    }
+
+    void ExecutionEngine::setStateMachineProcessor(StateMachineProcessor* s) {
+#ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
+        if (mainee)
+            mainee->setStateMachineProcessor(s);
+        else
+            smproc = s;
+#endif
+    }
+
+    void ExecutionEngine::setEventProcessor(EventProcessor* e) {
+#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
+        if (mainee)
+            mainee->setEventProcessor(e);
+        else
+            eproc = e;
+#endif
+    }
+
 
 }
 

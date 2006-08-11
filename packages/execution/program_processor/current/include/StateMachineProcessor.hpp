@@ -25,8 +25,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef PROCESSOR_HPP
-#define PROCESSOR_HPP
+#ifndef ORO_STATE_MACHINE_PROCESSOR_HPP
+#define ORO_STATE_MACHINE_PROCESSOR_HPP
 
 #include "RunnableInterface.hpp"
 #include "StateMachine.hpp"
@@ -39,13 +39,13 @@
 
 #include <pkgconf/execution_program_processor.h>
 
-namespace OS
-{
-    class Semaphore;
-}
-
 namespace RTT
 {
+    namespace OS
+    {
+        class Semaphore;
+    }
+
 
     /**
      * This class implements a state machine executor.

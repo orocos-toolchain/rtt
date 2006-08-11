@@ -31,6 +31,14 @@
 #include "rtt/Logger.hpp"
 #include "rtt/TaskContext.hpp"
 
+#include <pkgconf/execution_task_context.h>
+#ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
+#include "rtt/ProgramProcessor.hpp"
+#endif
+#ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
+#include "rtt/StateMachineProcessor.hpp"
+#endif
+
 namespace RTT
 {
     using namespace std;
@@ -81,25 +89,45 @@ namespace RTT
     }
 
     bool ScriptingAccess::hasProgram(string name) const {
+#ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
         return mparent->engine()->programs()->getProgram(name);
+#else
+        return false;
+#endif
     }
 
     std::vector<std::string> ScriptingAccess::getPrograms() const{
+#ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
         return mparent->engine()->programs()->getProgramList();
+#else
+        return std::vector<std::string>();
+#endif
     }
 
     int ScriptingAccess::getProgramLine(string name) const {
+#ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
         const ProgramInterfacePtr pi = mparent->engine()->programs()->getProgram(name);
         return pi ? pi->getLineNumber() : -1;
+#else
+        return -1;
+#endif
     }
     
     string ScriptingAccess::getProgramText(string name ) const {
+#ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
         const ProgramInterfacePtr pi = mparent->engine()->programs()->getProgram(name);
         return pi ? pi->getText() : "";
+#else
+        return "";
+#endif
     }
         
     string ScriptingAccess::getProgramStatus(string name ) const {
+#ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
         return mparent->engine()->programs()->getProgramStatusStr(name);
+#else
+        return "";
+#endif
     }
 
     bool ScriptingAccess::loadStateMachines( std::string file, bool do_throw /*= false*/  )
@@ -123,30 +151,54 @@ namespace RTT
     }
 
     bool ScriptingAccess::hasStateMachine(string name) const {
+#ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
         return mparent->engine()->states()->getStateMachine(name);
+#else
+        return false;
+#endif
     }
 
 
     std::vector<std::string> ScriptingAccess::getStateMachines() const {
+#ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
         return mparent->engine()->states()->getStateMachineList();
+#else
+        return std::vector<std::string>();
+#endif
     }
 
     string ScriptingAccess::getStateMachineText(string name ) const {
+#ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
         const StateMachinePtr sm = mparent->engine()->states()->getStateMachine(name);
         return sm ? sm->getText() : "";
+#else
+        return "";
+#endif
     }
     
     string ScriptingAccess::getStateMachineStatus(string name ) const {
+#ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
         return mparent->engine()->states()->getStateMachineStatusStr(name);
+#else
+        return "";
+#endif
     }
 
     int ScriptingAccess::getStateMachineLine(string name ) const {
+#ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
         const StateMachinePtr sm = mparent->engine()->states()->getStateMachine(name);
         return sm ? sm->getLineNumber() : -1;
+#else
+        return -1;
+#endif
     }
     
     string ScriptingAccess::getCurrentState( string name ) const {
+#ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
         const StateMachinePtr sm = mparent->engine()->states()->getStateMachine(name);
         return sm ? sm->getCurrentStateName() : "";
+#else
+        return "";
+#endif
     }
 }

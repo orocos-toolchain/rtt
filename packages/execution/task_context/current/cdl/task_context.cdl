@@ -18,6 +18,38 @@ task programs."
     requires OROPKG_CORELIB_PROPERTIES
     requires OROPKG_CORELIB_COMMANDS
 
+    cdl_component OROPKG_EXECUTION_ENGINE {
+	display "Execution Engine Configuration"
+	description "Enable or disable various parts
+of the standard ExecutionEngine"
+	flavor none
+	cdl_option OROPKG_EXECUTION_ENGINE_EVENTS {
+	    display "Enable Event Processor"
+	    description "If disabled, the EventProcessor is removed from the ExecutionEngine."
+	    default_value 1
+	    flavor bool
+	}
+	cdl_option OROPKG_EXECUTION_ENGINE_COMMANDS {
+	    display "Enable Command Processor"
+	    description "If disabled, the CommandProcessor is removed from the ExecutionEngine."
+	    default_value 1
+	    flavor bool
+	}
+	cdl_option OROPKG_EXECUTION_ENGINE_PROGRAMS {
+	    display "Enable Program Processor"
+	    description "If disabled, the ProgramProcessor is removed from the ExecutionEngine."
+	    default_value 1
+	    flavor bool
+	}
+	cdl_option OROPKG_EXECUTION_ENGINE_STATEMACHINES {
+	    display "Enable StateMachine Processor"
+	    description "If disabled, the StateMachineProcessor is removed from the ExecutionEngine."
+	    default_value 1
+	    flavor bool
+	}
+
+    }
+
     compile TaskContext.cxx
     compile AttributeRepository.cxx
     compile PropertyLoader.cxx

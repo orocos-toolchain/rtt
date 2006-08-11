@@ -40,15 +40,15 @@
 
 #include <pkgconf/execution_program_processor.h>
 
-namespace OS
-{
-    class Semaphore;
-}
-
 namespace RTT
 {
     template< class T, class RP, class WP>
     class AtomicQueue;
+
+    namespace OS
+    {
+        class Semaphore;
+    }
 }
 
 namespace RTT
