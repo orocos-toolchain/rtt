@@ -140,7 +140,7 @@ namespace RTT
                 // ask peer to connect to us:
                 if ( peerport->connectTo( *it ) ) {
                     Logger::log() <<Logger::Info<< "Connected Port " << (*it)->getName()
-                                  << "of peer Task "<<peer->getName() << " to existing connection." << Logger::endl;
+                                  << " of peer Task "<<peer->getName() << " to existing connection." << Logger::endl;
                 }
                 else
                     Logger::log() <<Logger::Error<< "Failed to connect Port " << (*it)->getName()
