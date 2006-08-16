@@ -49,15 +49,15 @@ The name must be unique with respect to other threads."
 	    default_value {"\"ZeroTimeThread\""}
 	}
 
-	cdl_option ORONUM_CORELIB_ACTIVITIES_ZTT_PRIORITY {
-	    display "The priority of the ZeroTimeThread"
-            description "
-This should be the highest priority thread in your system"
-	    flavor data
-	    default_value 0
-            # legal_values 0 to 255
-            # KG should be something like RTOS_SCHED_PRIO_MIN to RTOS_SCHED_PRIO_MAX
-	}
+# 	cdl_option ORONUM_CORELIB_ACTIVITIES_ZTT_PRIORITY {
+# 	    display "The priority of the ZeroTimeThread"
+#             description "
+# This should be the highest priority thread in your system"
+# 	    flavor data
+# 	    default_value 0
+#             # legal_values 0 to 255
+#             # KG should be something like RTOS_SCHED_PRIO_MIN to RTOS_SCHED_PRIO_MAX
+# 	}
 
 	cdl_option ORONUM_CORELIB_ACTIVITIES_ZTT_PERIOD {
 	    display "The period of the ZeroTimeThread in sec"
@@ -90,15 +90,16 @@ The name must be unique with respect to other threads."
 	    default_value {"\"ZeroLatencyThread\""}
 	}
 
-	cdl_option ORONUM_CORELIB_ACTIVITIES_ZLT_PRIORITY {
-	    display "The priority of the ZeroLatencyThread"
-            description "
-This should be the second highest priority thread in your system.
-Having the one but highest priority (e.g. 1)."
-	    flavor data
-	    default_value 1
-            legal_values (ORONUM_CORELIB_ACTIVITIES_ZTT_PRIORITY+1) to 255
-	}
+# 	cdl_option ORONUM_CORELIB_ACTIVITIES_ZLT_PRIORITY {
+# 	    display "The priority of the ZeroLatencyThread"
+#             description "
+# This should be the second highest priority thread in your system.
+# Having the one but highest priority (e.g. 1)."
+# 	    flavor data
+# 	    default_value 1
+#             legal_values (ORONUM_CORELIB_ACTIVITIES_ZTT_PRIORITY+1) to 255
+# 	}
+
 	cdl_option ORONUM_CORELIB_ACTIVITIES_ZLT_PERIOD {
 	    display "The period of the ZeroLatencyThread in sec"
 	    description "
@@ -130,16 +131,17 @@ The name must be unique with respect to other threads."
 	    default_value {"\"NonRealTimeThread\""}
 	}
 
-	cdl_option ORONUM_CORELIB_ACTIVITIES_NRT_PRIORITY {
-	    display "The priority of the NonRealTimeThread"
-            description "
-This should be a lower priority thread compared to the
-ZeroTime and ZeroLatency threads,
-thus having the lowest value (e.g. 2)."
-	    flavor data
-	    default_value 2
-            legal_values (ORONUM_CORELIB_ACTIVITIES_ZLT_PRIORITY+1) to 255
-	}
+# 	cdl_option ORONUM_CORELIB_ACTIVITIES_NRT_PRIORITY {
+# 	    display "The priority of the NonRealTimeThread"
+#             description "
+# This should be a lower priority thread compared to the
+# ZeroTime and ZeroLatency threads,
+# thus having the lowest value (e.g. 2)."
+# 	    flavor data
+# 	    default_value 2
+#             legal_values (ORONUM_CORELIB_ACTIVITIES_ZLT_PRIORITY+1) to 255
+# 	}
+
 	cdl_option ORONUM_CORELIB_ACTIVITIES_NRT_PERIOD {
 	    display "The period of the NonRealTimeThread in sec"
 	    description "
