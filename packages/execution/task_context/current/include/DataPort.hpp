@@ -103,7 +103,7 @@ namespace RTT
         bool connected() const { return mconn; };
 
         bool connectTo( ConnectionInterface::shared_ptr other) {
-            return other->addReader( this );
+            return !mconn && other->addReader( this );
         }
 
         void disconnect() {
@@ -225,7 +225,7 @@ namespace RTT
         bool connected() const { return mconn; };
 
         bool connectTo( ConnectionInterface::shared_ptr other) {
-            return other->addWriter( this );
+            return !mconn && other->addWriter( this );
         }
 
         void disconnect() {
