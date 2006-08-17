@@ -508,15 +508,14 @@
 	Peer TaskContexts. Parsing the program is then straightforward :
       </para>
       <programlisting>
-  #include &lt;rtt/TaskPreemptible.hpp&gt;
+  #include &lt;rtt/PeriodicActivity.hpp&gt;
   #include &lt;rtt/TaskContext.hpp&gt;
   #include &lt;rtt/ProgramLoader.hpp&gt;
 
   using namespace RTT;
-  using namespace RTT;
 
   <classname>RTT::TaskContext</classname>   tc;
-  <classname>RTT::TaskPreemptible</classname> ptask(0.01, tc.engine() );
+  <classname>RTT::PeriodicActivity</classname> ptask(5, 0.01, tc.engine() );
   <classname>RTT::ProgramLoader</classname> loader;
 
   // Watch Logger output for errors :
@@ -821,12 +820,10 @@
       <sect3>
 	<title>Emitting Task Events</title>
 	  <para>
-	    Events are quite similar to methods and commands.
-	    An event is <emphasis>emitted</emphasis> and is given
-	    arguments, providing data.
+	    Events are called as methods and commands.
 	  </para>
 	    <programlisting>  // emitting an event:
-  emit sometask.eventname( argument1, argument2, ..., argumentN ) </programlisting>
+  do sometask.eventname( argument1, argument2, ..., argumentN ) </programlisting>
 	  <para>
 	    In this case, the task 'sometask' has an event 'eventname'
 	    which takes 'N' arguments. Other tasks subscribed to this
@@ -1072,15 +1069,14 @@
 	to parsing Programs:
       </para>
       <programlisting>
-  #include &lt;rtt/TaskPreemptible.hpp&gt;
+  #include &lt;rtt/PeriodicActivity.hpp&gt;
   #include &lt;rtt/TaskContext.hpp&gt;
   #include &lt;rtt/ProgramLoader.hpp&gt;
 
   using namespace RTT;
-  using namespace RTT;
 
   <classname>RTT::TaskContext</classname>   tc;
-  <classname>RTT::TaskPreemptible</classname> ptask(0.01, tc.engine() );
+  <classname>RTT::PeriodicActivity</classname> ptask(5, 0.01, tc.engine() );
   <classname>RTT::ProgramLoader</classname> loader;
 
   loader.loadStateMachine( "state-machine.osd", &amp;tc );
@@ -1272,10 +1268,11 @@
 	  </para>
 	  <para>
 	    Event transitions are specified as:
-	    <programlisting>  state X {
+	  </para>
+	  <programlisting>  state X {
     var int a, b
     var double d
-    transition peertask.the_event(a, b, d) if (a+b &amp; 10 &amp;&amp; d >1.3) then {
+    transition othertask.the_event(a, b, d) if (a+b &amp; 10 &amp;&amp; d >1.3) then {
        // transition succeeds, transition program:
        // ...
     } select ONE_STATE else {
@@ -1285,18 +1282,25 @@
 
     // other events likewise...
   }</programlisting>
-            Both the transition programs and the the select statements are optional,
-	    but at least a program or select statement must be given.
-	    In this example, if the <function>peertask</function> emits <function>the_event</function>,
-	    the event arguments are stored in a, b and d. The <function>if ... then</function>
-	    statement may check these variables and any other state variables and methods
-	    to evaluate the transition. If it succeeds, an optional transition program
-	    may be given and a target state <function>select</function>ed (ONE_STATE).
-	    if the transition fails, an optional failure program may be given and an
-	    optional <function>select</function> (OTHER_STATE) statement may be given.
-	    The number of arguments must match the number of arguments of the used event.
-	    The event is processed as an asynchronous callback, thus in the thread or task
-	    of the StateMachine's processor.
+	  <para>
+            Both the transition programs and the the select statements
+            are optional, but at least a program or select statement
+            must be given.  In this example,
+            <function>othertask</function> contains an event
+            <function>the_event</function>.  When the event
+            <function>the_event</function> is emitted, our state
+            machine reacts to it and the event arguments are stored in
+            a, b and d. The <function>if ... then</function> statement
+            may check these variables and any other state variables
+            and methods to evaluate the transition. If it succeeds, an
+            optional transition program may be given and a target
+            state <function>select</function>ed (ONE_STATE).  if the
+            transition fails, an optional failure program may be given
+            and an optional <function>select</function> (OTHER_STATE)
+            statement may be given.  The number of arguments must
+            match the number of arguments of the used event.  The
+            event is processed as an asynchronous callback, thus in
+            the thread or task of the StateMachine's processor.
 	  </para>
 	  <para>
 	    Event transitions are enabled after the entry program and

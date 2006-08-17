@@ -62,7 +62,8 @@
 	<revnumber>0.25.0</revnumber>
 	<date>18 July 2006</date>
 	<authorinitials>PS</authorinitials>
-	<revremark>New command and method semantics.</revremark>
+	<revremark>New command and method semantics. Added Hello World example
+	instead of complexer task-intro example.</revremark>
       </revision>
     </revhistory>
 
@@ -187,15 +188,14 @@
 	  <para>The Execution Flow is formed by Programs and
 	    State Machines sending commands, events,... to Peer Tasks. The Data Flow
 	    is the propagation of data from one task to another, where
-	    one producer can have multiple consumers.
+	    one producer can have multiple consumers and vice versa.
 	  </para>
 	</caption>
       </mediaobject>
     </figure>
     <para>
-      A task's interface consists of : Commands,
-      Methods, DataSources, Properties and Events, and Data Flow ports which are all public.
-      We will refer to them as <emphasis>members</emphasis>.
+      A task's interface consists of : Attributes and Properties, Commands,
+      Methods, Events and Data Flow ports which are all public.
       The class <classname>RTT::TaskContext</classname> 
       groups all these interfaces and serves as the basic building
       block of applications. A component developer 'builds'
@@ -203,62 +203,56 @@
     </para>
   </section>
   <section>
-    <title>An Introductory Example to TaskContexts</title>
+    <title>Hello World !</title>
     <para>
-      This section introduces tasks through the "taskintro"
+      This section introduces tasks through the "hello world"
       application, which can be downloaded from Orocos.org.  It
-      contains three TaskContexts, each showing some features and
-      possibilities, <xref linkend="fig-task-intro"/>. The 'FactoringTask' waits for a command to factor
-      a number in its primes. When done, it fires an event with the
-      result.  The 'ReactiveTask' is a periodic task which waits for
-      the events to happen when it is running. The 'PeriodicTask' can
-      count to a certain number in each periodic step, when given the
-      command to do so. We show some example commands, but the
-      application has more methods and commands than presented here.
+      contains one TaskContext component which has one instance of each
+      communication primitive.
     </para>
-    <figure id="fig-task-intro">
+    <figure id="fig-hello-world">
       <title>
-	Schematic Overview of the Example.
+	Schematic Overview of the Hello World.
       </title>
       <mediaobject>
 	<imageobject>
-	  <imagedata fileref="TaskIntro" />
+	  <imagedata fileref="HelloWorld" />
 	</imageobject>
 	<caption>
-	  <para>Three tasks form a network and interact. The
-	  TaskBrowser can visit any task.
+	  <para>Our hello world task.
 	  </para>
 	</caption>
       </mediaobject>
     </figure>
     <para>
       The way we interact with TaskContexts during development of an
-      Orocos application is through the TaskBrowser.  The
-      <classname>RTT::TaskBrowser</classname> is a powerful console tool
+      Orocos application is through the <emphasis>Task Browser</emphasis>.  The
+      <classname>Orocos::TaskBrowser</classname> is a powerful console tool
       which helps you to explore, execute and debug
-      <classname>RTT::TaskContext</classname>s in running programs. All you
-      have to do is to instantiate a TaskBrowser and enter its loop()
+      <classname>Orocos::TaskContext</classname>s in running programs. All you
+      have to do is to create a TaskBrowser and call its loop()
       method. When the program is started from a console, the
       TaskBrowser takes over user input and output.
     </para>
     <note>
       <para>
-	The <classname>RTT::TaskBrowser</classname> requires the
-	Orocos Program Parser package to interpret the console input.
+	The <classname>Orocos::TaskBrowser</classname> is a component
+	of its own which is found in the same directory as the hello
+	world component.
       </para>
     </note>
     <programlisting>
-  #include &lt;rtt/TaskBrowser.hpp&gt;
+  #include &lt;orocos/TaskBrowser.hpp&gt;
   #include &lt;rtt/os/main.h&gt;
   // ...
 
   int ORO_main( int, char** )
   {
       // Create your tasks
-      <classname>RTT::TaskContext</classname>* task = ...
+      <classname>Orocos::TaskContext</classname>* task = ...
 
       // when all is setup :
-      <classname>RTT::TaskBrowser</classname> tbrowser( task );
+      <classname>Orocos::TaskBrowser</classname> tbrowser( task );
 
       tbrowser.loop();
       return 0;
@@ -271,27 +265,50 @@
       to scroll through previous commands.
     </para>
     <screen>
-$ ./taskintro
-0.003 [Info] Parsing file CountingSM.osd
-0.069 [Info] Loading StateMachine counterMachine
-0.074 [Info] ReactiveTaskContext reacting to PrimeEvent !
+0.016 [ Info   ][main()] ./helloworld manually raises LogLevel to 'Info' (5). See also file 'orocos.log'.
+0.017 [ Info   ][main()] **** Creating the 'Hello' component ****
+0.018 [ Info   ][ConnectionC] Creating Asyn connection to Event.
+0.018 [ Info   ][ExecutionEngine::setActivity] Hello is periodic.
+0.019 [ Info   ][main()] **** Starting the 'Hello' component ****
+0.019 [ Info   ][main()] **** Using the 'Hello' component    ****
+0.019 [ Info   ][main()] **** Reading a Property:            ****
+0.019 [ Info   ][main()]      Property = Hello World
+0.019 [ Info   ][main()] **** Sending a Command:             ****
+0.020 [ Info   ][main()]      Sending Command : 1
+0.020 [ Info   ][main()] **** Calling a Method:              ****
+0.020 [ Info   ][main()]      Calling Method : Hello World
+0.020 [ Info   ][main()] **** Emitting an Event:             ****
+0.021 [ Info   ][main()] **** Starting the TaskBrowser       ****
+0.021 [ Info   ][TaskBrowser] Creating a BufferConnection from BufferPort to BufferPort with size 13
+0.021 [ Info   ][TaskBrowser] Connected Port BufferPort to peer Task Hello.
+0.022 [ Info   ][Hello] Creating a DataConnection from DataPort to DataPort
+0.022 [ Info   ][Hello] Connected Port DataPort to peer Task TaskBrowser.
+   Switched to : Hello
+0.023 [ Info   ][main()] Entering Task Hello
+0.023 [ Info   ][Hello] Hello Command: World
+0.023 [ Info   ][Hello] Receiving Event: Hello World
 
   This console reader allows you to browse and manipulate TaskContexts.
-  You can type in a command, datasource, method, expression or change variables.
+  You can type in a command, event, method, expression or change variables.
   (type 'help' for instructions)
     TAB completion and HISTORY is available ('bash' like)
 
- In Task PeriodicTask. (Status of last Command : none )
- (type 'ls' for context info) :
+ In Task Hello. (Status of last Command : none )
+ (type 'ls' for context info) :                                                     
     </screen>
     <para>
-      The first lines are printed by the Orocos RTT::Logger, which has been
-      configured to display informative messages to console. You can always
+      The first <screen>[ Info   ]</screen> lines are printed by the Orocos 
+      <classname>RTT::Logger</classname>, which has been
+      configured to display informative messages to console. Normally, only
+      warnings or worse are displayed by Orocos. You can always
       watch the log file 'orocos.log' in the same directory to see all messages.
+      After the <screen>[Log Level]</screen>, the <screen>[Origin]</screen> of the message is
+      printed, and finally the message itself. These messages leave a trace
+      of what was going on in the main() function before the prompt apeared.
     </para>
     <para>
       Depending on what you type, the TaskBrowser will act differently.
-      The builtin commands <command>cd</command>, <command>help</command>,
+      The built-in commands <command>cd</command>, <command>help</command>,
       <command>quit</command> and <command>ls</command> are seen as commands
       to the TaskBrowser itself, if you typed something else,
       it tries to evaluate your command to an expression and will
@@ -301,47 +318,40 @@ $ ./taskintro
       to console.
     </para>
     <screen>
- In Task PeriodicTask. (Status of last Command : none )
+ In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :<command>1+1</command>
       Got :1+1
-   = 2
+   = <command>2</command>
     </screen>
     <para>To display the contents of the current task, type <command>ls</command>,
       and switch to one of the listed peers with <command>cd</command>, while
-      <command>cd ..</command> takes you one peer back in history :
+      <command>cd ..</command> takes you one peer back in history. Since there
+      are no peers other than the TaskBrowser itself, one can not <command>cd</command>
+      anywhere in this example.
     </para>
     <screen>
- In Task PeriodicTask. (Status of last Command : none )
+ In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :<command>ls</command>
 
-PeriodicTask Attributes :
-    (Attribute  ) int Counter
-    (Property   ) PropertyBag ItemCollection
-    (Property   ) std::string Parameter
-    (Attribute  ) double SpeedOfLight
-    (Attribute  ) int Target
+ Listing Hello :
 
-PeriodicTask Objects    :  this
-PeriodicTask Peers      :  FactoringTask ReactiveTask states
+ Attributes   :
+ (Attribute)      string <emphasis>Attribute</emphasis>      = Hello World
+ (Attribute)      string <emphasis>Constant</emphasis>       = Hello World
+ (Property )      string <emphasis>Property</emphasis>       = Hello World          (Hello World Description)
 
- In Task PeriodicTask. (Status of last Command : none )
- (type 'ls' for context info) :<command>cd FactoringTask</command>
-   Switched to : FactoringTask
+ Interface    :
+  Methods      : <emphasis>Method</emphasis>
+  Commands     : <emphasis>Command</emphasis>
+  Events       : <emphasis>Event</emphasis>
 
- In Task FactoringTask. (Status of last Command : none )
- (type 'ls' for context info) :ls
+ Objects      :
+            <emphasis>this</emphasis> (  )
+        <emphasis>DataPort</emphasis> ( A Task Object. )
+      <emphasis>BufferPort</emphasis> ( A Task Object. )
 
-FactoringTask Attributes :
-    (Attribute  ) int Priority
-
-FactoringTask Objects    :  this
-FactoringTask Peers      :  PeriodicTask ReactiveTask
-
- In Task FactoringTask. (Status of last Command : none )
- (type 'ls' for context info) :<command>cd ..</command>
-
- In Task PeriodicTask. (Status of last Command : none )
- (type 'ls' for context info) :
+ Ports        : <emphasis>DataPort</emphasis> <emphasis>BufferPort</emphasis>
+ Peers        : <emphasis>TaskBrowser</emphasis>
     </screen>
     <note>
     <para>To get a quick overview of the commands, type
@@ -349,153 +359,241 @@ FactoringTask Peers      :  PeriodicTask ReactiveTask
     </para>
     </note>
     <para>
-      Let's revisit the output of <command>ls</command> :
+      First you get a list of the Properties and Attributes
+      (alphabetical) of the current component. Properties are meant
+      for configuration and can be written to disk. Attributes are
+      solely for run-time values. Each of them can be changed (except
+      constants.)
     </para>
-    <screen>
- In Task PeriodicTask. (Status of last Command : none )
- (type 'ls' for context info) :<command>ls</command>
-
-PeriodicTask Attributes :
-    (Attribute  ) int Counter
-    (Property   ) PropertyBag ItemCollection
-    (Property   ) std::string Parameter
-    (Attribute  ) double SpeedOfLight
-    (Attribute  ) int Target
-
-PeriodicTask Objects    :  this
-PeriodicTask Peers      :  FactoringTask ReactiveTask states
-    </screen>
     <para>
-      First you get a list of the Properties and Attributes (alphabetical) of
-      the current TaskContext. Properties can be written to disk, attributes
-      are solely for script interaction. Each of them can be changed (except
-      constants.) In the example, the current task has only one object: 'this'. The 'this'
-      object serves like a public interface of the TaskContext. Objects contain
-      methods, commands or datasources. Last, the peers are shown, two other tasks
-      and 'states', which denotes that this TaskContext has a StateMachine. Likewise,
-      a peer task 'programs' contains all loaded programs.
-      To get a list of the Task's interface, you can always type an object name,
-      for example 'this'.
+      Next, the interface of this component is listed: One method is
+      present <emphasis>Method</emphasis>, one command
+      <emphasis>Command</emphasis> and one event
+      <emphasis>Event</emphasis>. They all print a 'Hello World'
+      string when invoked.
+    </para>
+    <para>
+      
+      In the example, the current task has only three objects:
+      <emphasis>this</emphasis>, <emphasis>DataPort</emphasis> and
+      <emphasis>BufferPort</emphasis>. The <emphasis>this</emphasis>
+      object serves as the public interface of the
+      Hello component. These objects contain methods, commands or
+      events.  The next two objects are created to represent the
+      data ports of the Hello component and contain the operations
+      to send or receive data or query connection status.
+    </para>
+    <para>
+      Last, the peers are shown, that is, the components which
+      are connected to this component. The HelloWorld component is
+      a stand-alone component and has only the TaskBrowser as
+      a peer. 
+    </para>
+    <para>
+      To get a list of the Task's interface, you can
+      always type an object name, for example <emphasis>this</emphasis>.
     </para>
     <screen>
- In Task PeriodicTask. (Status of last Command : none )
+ In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) : <command>this</command>
       Got :this
-  Command    : bool countTo( int Target )
-   Count to a given number using a StateMachine program.
-   Target : Number to count to.
-  DataSource : bool isRunning( )
-   Is this GenericTaskContext started ?
-  Method     : bool assert( bool MustBeTrue )
-   Assert will get your program in the error state if the argument is false.
-   MustBeTrue : The result of a boolean expression which must be true.
-  Method     : bool loadProgram( const&amp; std::string Filename )
-   Load an Orocos Program Script from a file.
-   Filename : An ops file.
-  Method     : bool loadStateMachine( const&amp; std::string Filename )
-   Load an Orocos State Description from a file.
-   Filename : An osd file.
-  Method     : bool readProperties( const&amp; std::string Filename )
-   Read Properties from a file.
-   Filename : A CPF formatted XML file.
-  Method     : bool start( )
-   Start this GenericTaskContext.
-  Method     : bool stop( )
-   Stop this GenericTaskContext.
-  Method     : bool unloadProgram( const&amp; std::string ProgramName )
-   Unload an Orocos Program Script from a file.
-   ProgramName : The Program's name.
-  Method     : bool unloadStateMachine( const&amp; std::string StateMachineName )
-   Unload an Orocos State Description from a file.
-   StateMachineName : A name of a Root StateMachine instantiation.
-  Method     : bool writeProperties( const&amp; std::string Filename )
-   Write or update Properties to a file.
-   Filename : A CPF formatted XML file.
+  Command    : bool Command( string Hello )
+   Hello Command Description
+   Hello : Use 'World' as argument to make the command succeed.
+  Method     : string Method( )
+   Hello Method Description
+  Event     : void Event( string Hello )
+   Hello Event Description
+   Hello : The data of this event.
     </screen>
     <para>
-      The 'this' object is special in that the command or method must
-      not be prefixed by an object name and that it appears as if the
-      method is called directly on the task :
+      Now we get more details about the commands, methods and
+      events registered in the public interface. We see now that
+      the <emphasis>Command</emphasis> command takes one argument
+      as a string, or that the <emphasis>Method</emphasis>
+      returns a string. One can invoke each one of them:
     </para>
     <screen>
- In Task PeriodicTask. (Status of last Command : none )
- (type 'ls' for context info) :ReactiveTask.stop()
-      Got :ReactiveTask.stop()
-   = true
+ In Task Hello. (Status of last Command : none )
+ (type 'ls' for context info) :<command>Method()</command>
+      Got :Method()
+ = Hello World
     </screen>
     <para>
-      'Methods' and 'DataSources' are executed directly by the TaskBrowser itself,
-      and then it prints the result. The return value of stop() was a boolean,
-      which is 'true'.
+      Methods are called directly and the TaskBrowser prints the
+      result. The return value of Method() was a string, which is
+      "Hello World".
     </para>
     <para>
-      When a 'Command' is entered, it is sent to the TaskContext itself, which 
-      will execute it in its own thread. The different stages of its lifetime are
-      displayed by the prompt. Hitting enter will refresh the status line.
+      When a command is entered, it is sent to the Hello component, which
+      will execute it on behalf of the sender. The different stages of
+      its lifetime are displayed by the prompt. Hitting enter will
+      refresh the status line:
     </para>
     <screen>
- In Task PeriodicTask. (Status of last Command : <emphasis>none</emphasis> )
- (type 'ls' for context info) :<command>countTo(1000)</command>
-      Got :countTo(1000)
+ In Task Hello. (Status of last Command : <emphasis>none</emphasis> )
+ (type 'ls' for context info) :<command>Command("World")</command>
+      Got :Command("World")
 
- In Task PeriodicTask. (Status of last Command : <emphasis>queued</emphasis>)
- (type 'ls' for context info) :2589.528 [Info] PeriodicTaskContext counts to 1000.
+ In Task Hello. (Status of last Command : <emphasis>queued</emphasis>)
+<command>1021.835 [ Info   ][Hello] Hello Command: World</command>
+ (type 'ls' for context info) :                   
 
-
- In Task PeriodicTask. (Status of last Command : <emphasis>busy</emphasis> )
- (type 'ls' for context info) :
-
- In Task PeriodicTask. (Status of last Command : <emphasis>done</emphasis> )
- (type 'ls' for context info) :
+<command>1259.900 [ Info   ][main()] Checking Command: World</command>
+ In Task Hello. (Status of last Command : <emphasis>done</emphasis> )
+ (type 'ls' for context info) :                   
     </screen>
     <para>
-      A Command might be rejected (return false) by the receiving TaskContext :
+      A Command might be rejected (return false) in case it received
+      invalid arguments:
     </para>
     <screen>
- In Task PeriodicTask. (Status of last Command : <emphasis>done</emphasis> )
- (type 'ls' for context info) :<command>countTo(-20)</command>
-      Got :countTo(-20)
+ In Task Hello. (Status of last Command : <emphasis>done</emphasis> )
+ (type 'ls' for context info) :<command>Command("Belgium")</command>
+      Got :Command("Belgium")
 
- In Task PeriodicTask. (Status of last Command : <emphasis>queued</emphasis> )
+ In Task Hello. (Status of last Command : <emphasis>queued</emphasis> )
  (type 'ls' for context info) :
+<command>1364.505 [ Info   ][Hello] Hello Command: Belgium</command>
 
- In Task PeriodicTask. (Status of last Command : <emphasis>fail</emphasis> )
+
+ In Task Hello. (Status of last Command : <emphasis>fail</emphasis> )
  (type 'ls' for context info) :         
     </screen>
     <para>
-      Besides giving commands to tasks, you can alter the attributes of 
+      Besides sending commands to tasks, you can alter the attributes of 
       any task, program or state machine. The TaskBrowser will confirm
       validity of the assignment with 'true' or 'false' :
     </para>
     <screen>
- In Task PeriodicTask. (Status of last Command : none )
- (type 'ls' for context info) :<command>ls states.counterMachine</command>
+ In Task Hello. (Status of last Command : none )
+ (type 'ls' for context info) :<command>Attribute</command>
+      Got :Attribute
+ = <command>Hello World</command>
+ In Task Hello. (Status of last Command : none )
+ (type 'ls' for context info) :<command>Attribute = "Veni Vidi Vici !"</command>
+      Got :Attribute = "Veni Vidi Vici !"
+ = <command>true</command>
 
-counterMachine Attributes :
-   int multiplier
+ In Task Hello. (Status of last Command : none )
+ (type 'ls' for context info) :<command>Attribute</command>
+      Got :Attribute
+ = <command>Veni Vidi Vici !</command>
+    </screen>
+    <para>
+      Finally, let's emit an Event. The Hello World Event requires
+      a payload. A callback handler was registered by the component,
+      thus when we emit it, it can react to it:
+    </para>
+    <screen>
+ In Task Hello. (Status of last Command : none )
+ (type 'ls' for context info) :<command>Event(Attribute)</command>
+      Got :Event(Attribute)
+ = true
+ In Task Hello. (Status of last Command : none )
+ (type 'ls' for context info) :
+<command>354.592 [ Info   ][Hello] Receiving Event: Veni Vidi Vici !</command>
+    </screen>
+    <para>
+      The example above passed the Attribute object as an
+      argument to the event, and it was received by our task correctly.
+      Events are related to commands, but allow broadcasting of
+      data, while a command has a designated receiver.
+    </para>
+    <para>
+      The Data Ports can be accessed through the <emphasis>DataPort</emphasis>
+      and <emphasis>BufferPort</emphasis> object interfaces. Once
+      again, we can inspect the interface of an object by typing
+      its name:
+    </para>
+    <screen>
+ In Task Hello. (Status of last Command : none )
+ (type 'ls' for context info) :<command>DataPort</command>
+      Got :DataPort
+  Method     : string <emphasis>Get</emphasis>( )
+   Get the current value of this Data Port
+  Method     : void <emphasis>Set</emphasis>( string const&amp; <emphasis>Value</emphasis> )
+   Set the current value of this Data Port
+   Value : The new value.
+    </screen>
+    <para>
+      The DataPort object has two methods: Get() and Set().
+      Since data ports are used for sending unbuffered data packets
+      between components, this makes sense. One can interact with
+      the ports as such:
+    </para>
+    <screen>
+ In Task Hello. (Status of last Command : none )
+ (type 'ls' for context info) :<command>DataPort.Set("World")</command>
+      Got :DataPort.Set("World")
+ = <command>(void)</command>
 
-counterMachine Objects    :  this
-counterMachine Peers      :  states
+ In Task Hello. (Status of last Command : none )
+ (type 'ls' for context info) :<command>DataPort.Get()</command>
+      Got :DataPort.Get()
+ = <command>World</command>
+    </screen>
+    <para>
+      When a value is Set(), it is sent to whatever is connected to
+      that port, when we read the port using Get(), we see that
+      the previously set value is present. The advantage of using
+      ports is that they are completely thread-safe for reading
+      and writing, without requiring user code. The Hello component
+      also contains a BufferPort for buffered data transfer. You
+      are encouraged to play with that port as well.
+    </para>
+    <para>
+      Remember that the TaskBrowser was a component as well ? When
+      a user enters <command>ls</command>, the interface of the
+      visited component is listed. It is also possible to get an
+      'outside' view of the visited component, through the eyes of
+      an external component. The <command>leave</command> allows
+      a view from within the TaskBrowser itself:
+    </para>
+    <screen>
+ <emphasis>In</emphasis> Task Hello. (Status of last Command : none )
+ (type 'ls' for context info) :<command>leave</command>
+1001.607 [ Info   ][main()] Watching Task Hello
 
- In Task PeriodicTask. (Status of last Command : none )
- (type 'ls' for context info) :<command>states.counterMachine.multiplier = 20</command>
-      Got :states.counterMachine.multiplier = 20
-   = true
+ <emphasis>Watching</emphasis> Task Hello. (Status of last Command : none )
+ (type 'ls' for context info) :<command>ls</command>
 
- In Task PeriodicTask. (Status of last Command : none )
- (type 'ls' for context info) :<command>states.counterMachine.multiplier</command>
-      Got :states.counterMachine.multiplier
-   = 20
+ Listing <emphasis>TaskBrowser</emphasis> :
 
- In Task PeriodicTask. (Status of last Command : none )
- (type 'ls' for context info) :<command>countTo(200)</command>
-      Got :countTo(200)
+ Attributes   : <emphasis>(none)</emphasis>
 
- In Task PeriodicTask. (Status of last Command : queued )
- (type 'ls' for context info) :60.272 [Info] PeriodicTaskContext counts to 200.
+ Interface    :
+  Methods      : <emphasis>assert isRunning loadProgram loadStateMachine readProperties start stop unloadProgram unloadStateMachine update writeProperties</emphasis>
+  Commands     : <emphasis>(none)</emphasis>
+  Events       : <emphasis>(none)</emphasis>
 
+ Objects      :
+            this (  )
+        DataPort ( A Task Object. )
+      BufferPort ( A Task Object. )
 
- In Task PeriodicTask. (Status of last Command : done )
+ Ports        : DataPort BufferPort
+ Hello Peers : TaskBrowser
+    </screen>
+    <para>
+      The following things are noteworthy: 'ls' shows now the contents
+      of the TaskBrowser itself and no longer of the Hello Component.
+      The TaskBrowser has different methods, mainly because it inherits
+      from the <classname>RTT::GenericTaskContext</classname> instead
+      of the <classname>RTT::TaskContext</classname>. The TaskBrowser
+      has the same ports as the component it visist: <emphasis>DataPort</emphasis>
+      and <emphasis>BufferPort</emphasis>. These were created at run-time
+      and allow to write or read ports from the visited component.
+    </para>
+    <para>
+      One can enter the 'inside' view again by entering <command>enter</command>:
+    </para>
+    <screen>
+ <emphasis>Watching</emphasis> Task Hello. (Status of last Command : none )
+ (type 'ls' for context info) :<command>enter</command>
+<command>1322.653 [ Info   ][main()] Entering Task Hello</command>
+
+ <emphasis>In</emphasis> Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :      
     </screen>
     <para>
@@ -503,17 +601,13 @@ counterMachine Peers      :  states
       possible completions, such as peers or commands :
     </para>
     <screen>
- In Task PeriodicTask. (Status of last Command : fail )
+ In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :
-Counter             cd ..               readProperties
-FactoringTask.      countTo             start
-ItemCollection      help                states.
-Parameter           isRunning           stop
-ReactiveTask.       loadProgram         unloadProgram
-SpeedOfLight        loadStateMachine    unloadStateMachine
-Target              ls                  writeProperties
-assert              peers
-cd                  quit
+Attribute     Event         cd ..         quit
+BufferPort.   Method        help          this.
+Command       Property      leave
+Constant      TaskBrowser.  list
+DataPort.     cd            ls
  (type 'ls' for context info) : 
     </screen>
     <para>
@@ -521,12 +615,28 @@ cd                  quit
       a TAB completed command to another peer than the current peer.
     </para>
     <para>
-      The TaskBrowser is application independent, so that your enduser-application
+      In order to quit the TaskBrowser, enter <command>quit</command>:
+    </para>
+    <screen>
+ In Task Hello. (Status of last Command : none )
+ (type 'ls' for context info) :<command>quit</command>
+
+1575.720 [ Info   ][ExecutionEngine::setActivity] Hello is disconnected from its activity.
+1575.741 [ Info   ][Logger] Orocos Logging Deactivated.      
+    </screen>
+    <para>
+      The TaskBrowser Component is application independent, so that your enduser-application
       might need a more suitable interface. However, for testing and
       inspecting what is happening inside your real-time programs,
       it is a very useful tool. The next sections show how you can add
       properties, commands, methods etc to a TaskContext.
     </para>
+    <note>
+      <para>
+	If you want a more in-depth tutorial, see the 'task-intro' example
+	for a TaskBrowser which visits a network of three TaskContexts.
+      </para>
+    </note>
   </section>
   <section id="basic-task">
     <title>Setting Up a Basic Task</title>
@@ -1493,7 +1603,7 @@ cd                  quit
   // next, check its status:
   bool accepted = mycom.accepted(); // accepted by execution engine?
   bool valid = mycom.valid();       // command was valid (well-formed)?
-  bool done = mycom.evaluate();     // command was done?
+  bool done = mycom.done();         // command was done?
       </programlisting>
       <para>
 	Such commands can also be given arguments. Both constant
@@ -1527,7 +1637,7 @@ cd                  quit
   // next, check its status:
   bool accepted = mycom.accepted(); // accepted by execution engine?
   bool valid = mycom.valid();       // command was valid (well-formed)?
-  bool done = mycom.evaluate();     // command was done?
+  bool done = mycom.done();         // command was done?
       </programlisting>
       <para>
 	Such commands can also be given arguments. Both constant
@@ -1733,7 +1843,7 @@ cd                  quit
 	asynchronously. During setup, the <classname>RTT::EventProcessor</classname> of
 	b_task's Execution Engine is used to process the event.
 	<programlisting>  <classname>RTT::TaskContext</classname> b_task("BTask");
-  <classname>RTT::TaskPreemptible</classname> ptask_b(0.1);
+  <classname>RTT::PeriodicActivity</classname> ptask_b(5, 0.1); // priority, period
   ptask_b.run( &amp;b_task );
   ptask_b.start();
 
@@ -1761,8 +1871,8 @@ cd                  quit
       <title>Using Events from Scripts</title>
       <para>
 	Events are as easy to use as methods (above) from within
-	scripts, using the keyword <symbol>emit</symbol>:
-	<programlisting>  emit ATask.move( 1.0, 2.0, 3.0 )</programlisting>
+	scripts, using the keyword <symbol>do</symbol>:
+	<programlisting>  do ATask.move( 1.0, 2.0, 3.0 )</programlisting>
       </para>
       <para>
 	It is also possible to react to events from within a state
@@ -2347,7 +2457,8 @@ cd                  quit
 	</para>
 	<programlisting>
   #include &lt;rtt/GenericTaskContext.hpp&gt;
-  #include &lt;rtt/TemplateFactories.hpp&gt;
+  #include &lt;rtt/Command.hpp&gt;
+  #include &lt;rtt/Method.hpp&gt;
   #include "DeviceInterface.hpp"
 
   class TaskDeviceInterface
@@ -2364,39 +2475,29 @@ cd                  quit
       void setup() 
       {
          // Add Methods :
-         TemplateMethodFactory&lt;DeviceInterface&gt;* mfact =
-            newMethodFactory( this );
-         mfact-&gt;add(&quot;setParameter&quot;,
-                    method(&amp;DeviceInterface::setParameter,
+         this->methods()-&gt;addMethod(method(&quot;setParameter&quot;,
+                    &amp;DeviceInterface::setParameter),
 	                   &quot;Set a device parameter.&quot;,
 	                   &quot;Parameter&quot;, &quot;The number of the parameter.&quot;,
-	                   &quot;New Value&quot;, &quot;The new value for the parameter.&quot;)); 
-         this->methods()->registerObject("this", mfact);
+	                   &quot;New Value&quot;, &quot;The new value for the parameter.&quot;); 
 
-         // Add Data Sources :
-         TemplateDataSourceFactory&lt;DeviceInterface&gt;* dfact =
-            newDataSourceFactory( this );
-         dfact-&gt;add( &quot;getParameter&quot;,
-                     data(&amp;DeviceInterface::getParameter,
+         this->methods()-&gt;addMethod(method(&quot;getParameter&quot;,
+                     &amp;DeviceInterface::getParameter),
 	                  &quot;Get a device parameter.&quot;,
-                          &quot;Parameter&quot;, &quot;The number of the parameter.&quot;));
-         dfact-&gt;add(&quot;getError&quot;,
-                    data(&amp;DeviceInterface::getError,
-	                 &quot;Get device error status.&quot;));
-         this->datasources()->registerObject("this", dfact);
+                          &quot;Parameter&quot;, &quot;The number of the parameter.&quot;);
+         this->methods()-&gt;addMethod(method(&quot;getError&quot;,
+                     &amp;DeviceInterface::getError),
+	                 &quot;Get device error status.&quot;);
 
          // Add Commands :
-         TemplateCommandFactory&lt;DeviceInterface&gt;* cfact =
-            newCommandFactory( this );
-         cfact-&gt;add( &quot;updateData&quot;,
-                        command( &amp;DeviceInterface::updateData,
+         this->commands()-&gt;addCommand(method(&quot;updateData&quot;,
+                          &amp;DeviceInterface::updateData),
                                  &amp;DeviceInterface::updated,
-                                 &quot;Command data acquisition.&quot; ) );
-         this->commands()->registerObject("this", cfact);
+                                 &quot;Command data acquisition.&quot; );
       }
   };</programlisting>
 	<para>
-	  The above listing just combines all factories which were introduced
+	  The above listing just combines all operations which were introduced
 	  in the previous sections. Also note that the TaskContext's name
 	  is fixed to "DeviceInterface". This is not obligatory though.
 	</para>

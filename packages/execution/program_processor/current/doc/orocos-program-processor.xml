@@ -179,10 +179,10 @@
       </para>
       <programlisting>
   #include &lt;rtt/TaskContext.hpp&gt;
-  #include &lt;rtt/TaskNonPreemptible.hpp&gt;
+  #include &lt;rtt/PeriodicActivity.hpp&gt;
 
   RTT::TaskContext mytaskC;
-  RTT::TaskNonPreemptible ptask( 0.01 ); // Periodic task 100Hz.
+  RTT::PeriodicActivity ptask(5, 0.01 ); // Periodic task 100Hz.
 
   ptask.run( mytaskC.engine() ); // run the execution engine.
 

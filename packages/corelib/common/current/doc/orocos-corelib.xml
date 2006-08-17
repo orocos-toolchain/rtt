@@ -120,6 +120,13 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>'Tasks' replaced by 'Activities'.</revremark>
       </revision>
+      <revision>
+	<revnumber>0.25.0</revnumber>
+	<date>9 August 2006</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Activity simplifications. 
+	Added commands section.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -140,20 +147,22 @@
     <title>Introduction</title>
     <para>
       This Chapter describes the semantics of the services
-      available in the &orocos; CoreLib Package.
+      available in the &orocos; Core Library.
     </para>
     <para>
-      The CoreLib provides:
+      The Core Library provides:
       <itemizedlist>
 	<listitem><para>Thread-safe C++ implementations for periodic, non periodic and event driven activities</para></listitem>
 	<listitem><para>Synchronous/Asynchronous Events</para></listitem>
-	<listitem><para>Time measurement</para></listitem>
-	<listitem><para>Application logging and reporting</para></listitem>
+	<listitem><para>Asynchronous Commands</para></listitem>
+	<listitem><para>Synchronous Methods</para></listitem>
 	<listitem><para>Properties and XML configuration</para></listitem>
+	<listitem><para>Time measurement</para></listitem>
+	<listitem><para>Application logging framework</para></listitem>
 	<listitem><para>Lock-free data exchange primitives such as fifo buffers or shared data.</para></listitem>
       </itemizedlist> 
       and additionally provides interfaces which are common for all realtime services.
-      The CoreLib provides a hard realtime <emphasis>infrastructure</emphasis>:
+      The Core Library provides a hard realtime <emphasis>infrastructure</emphasis>:
     </para>
     <blockquote>
       <para>
@@ -170,14 +179,16 @@
       Of course, the realtime performance depends not only on
       the underlying operating system 
       <emphasis>but also on the hardware.</emphasis> Hardware devices are abstracted
-      in the Orocos Device Interface package.
+      in the Orocos Device Interface.
     </para>
     <para>
       The following sections will first introduce the reader to creating
-      Activities, which execute functions in a thread, in the system. Furtheron, they are extended
-      with Events. The following sections explain usefull classes which
-      are used throughout the framework such as the TimeService,
-      Properties and the object NameServer.
+      Activities, which execute functions in a thread, in the system. 
+      Events allow callback functions to be executed when state changes
+      occur. Commands are used to send instructions between threads.
+      The following sections explain usefull classes which
+      are used throughout the framework such as the TimeService and
+      Properties.
     </para>
   </section>
   <section>
@@ -745,6 +756,44 @@ ORO_main( int argc, char** argv)
 	  SimulationThread will never run.
 	</para>
       </warning>
+    </section>
+  </section>
+  <section id="corelib-commands">
+    <title>Commands</title>
+    <para>
+      Commands offer a thread-safe realtime means of message passing
+      between threads. 
+    </para>
+    <section>
+      <title>The Command Processor</title>
+      <para>
+	The <classname>RTT::CommandProcessor</classname> is
+	responsible for accepting command requests from other
+	(realtime) tasks. It uses a non-blocking queue to store
+	incomming requests and fetch-and-execute them in its periodic
+	step.
+      </para>
+      <figure><title>Tasks Sending Commands</title>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="TaskCommandSerialisation" />
+	  </imageobject>
+	  <caption>
+	    <para>
+	      Tasks of different threads communicate by sending
+	      commands to each other's Command Processors. When Task T1,
+	      running in Thread (a), requests that T2, running
+	      in Thread (b) processes a command, the command
+	      is stored in a command queue of that task's Command Processor.
+	      When T2 runs its Command Processor, the queue is checked and
+	      the command is executed. T1 can optionally check if
+	      the command was accepted and executed, using a
+	      Completion Condition ( see TaskContext and Program
+	      Parser manuals. )
+	    </para>
+	  </caption>
+	</mediaobject>
+      </figure>
     </section>
   </section>
   <section id="corelib-events">
