@@ -501,6 +501,7 @@ void Generic_TaskTest::testPorts()
     WriteBufferPort<double> wbp("WBName", 10);
     ReadBufferPort<double> rbp("RBName");
     BufferPort<double> bp("BName", 10);
+    BufferPort<double> bp2("B2Name", 10);
 
     CPPUNIT_ASSERT( wbp.getPortType() == PortInterface::WritePort );
     CPPUNIT_ASSERT( rbp.getPortType() == PortInterface::ReadPort );
@@ -511,6 +512,7 @@ void Generic_TaskTest::testPorts()
     tc->ports()->addPort( &wbp );
     tc->ports()->addPort( &rbp );
     tc->ports()->addPort( &bp );
+    tc->ports()->addPort( &bp2 );
 
     // Test connection creation.
     wdp.createConnection( &rdp )->connect();
@@ -541,6 +543,23 @@ void Generic_TaskTest::testPorts()
     CPPUNIT_ASSERT( bp.Pop( val ) );
     CPPUNIT_ASSERT( val == 5.0 );
     CPPUNIT_ASSERT( bp.Pop( val ) == false );
+
+    // Test Buffer-to-Buffer:
+    bp.disconnect();
+    bp.createConnection( &bp2 )->connect();
+    CPPUNIT_ASSERT( bp.connected() );
+    CPPUNIT_ASSERT( bp2.connected() );
+
+    CPPUNIT_ASSERT( bp.Push( 5.0 ) );
+    CPPUNIT_ASSERT( bp2.Pop( val ) );
+    CPPUNIT_ASSERT( val == 5.0 );
+    CPPUNIT_ASSERT( bp2.Pop( val ) == false );
+    
+    CPPUNIT_ASSERT( bp2.Push( 5.0 ) );
+    CPPUNIT_ASSERT( bp.Pop( val ) );
+    CPPUNIT_ASSERT( val == 5.0 );
+    CPPUNIT_ASSERT( bp2.Pop( val ) == false );
+
 }
 
 void Generic_TaskTest::testCommandFactory()
