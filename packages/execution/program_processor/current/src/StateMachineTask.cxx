@@ -100,7 +100,7 @@ namespace RTT
             // if this gets copied, all created commands will use the new instance of StateMachineTask to
             // call the member functions. Further more, all future commands for the copy will also call the new instance
             // while future commands for the original will still call the original. 
-            StateMachineTask* tmp = new StateMachineTask( newsc, this->getExecutionEngine() );
+            StateMachineTask* tmp = new StateMachineTask( newsc, this->engine() );
             replacements[ _this.get() ] = tmp->_this.get(); // put 'newsc' in map
 
             AttributeRepository* dummy = this->attributes()->copy( replacements, instantiate );

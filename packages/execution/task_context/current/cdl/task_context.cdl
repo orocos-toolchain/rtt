@@ -13,7 +13,6 @@ task programs."
     parent OROPKG_EXECUTION
 
     requires OROPKG_EXECUTION
-    requires OROPKG_EXECUTION_PROGRAM_PROCESSOR
     requires OROPKG_CORELIB
     requires OROPKG_CORELIB_PROPERTIES
     requires OROPKG_CORELIB_COMMANDS
@@ -23,28 +22,34 @@ task programs."
 	description "Enable or disable various parts
 of the standard ExecutionEngine"
 	flavor none
-	cdl_option OROPKG_EXECUTION_ENGINE_EVENTS {
+	cdl_component OROPKG_EXECUTION_ENGINE_EVENTS {
 	    display "Enable Event Processor"
 	    description "If disabled, the EventProcessor is removed from the ExecutionEngine."
-	    default_value 1
+	    default_value OROPKG_CORELIB_EVENTS
+	    active_if OROPKG_CORELIB_EVENTS
 	    flavor bool
+	    compile EventService.cxx
+	    compile EventC.cxx
+            compile ConnectionC.cxx
 	}
-	cdl_option OROPKG_EXECUTION_ENGINE_COMMANDS {
+	cdl_component OROPKG_EXECUTION_ENGINE_COMMANDS {
 	    display "Enable Command Processor"
 	    description "If disabled, the CommandProcessor is removed from the ExecutionEngine."
 	    default_value 1
+	    active_if OROPKG_EXECUTION_PROGRAM_PROCESSOR
 	    flavor bool
 	}
-	cdl_option OROPKG_EXECUTION_ENGINE_PROGRAMS {
+	cdl_component OROPKG_EXECUTION_ENGINE_PROGRAMS {
 	    display "Enable Program Processor"
 	    description "If disabled, the ProgramProcessor is removed from the ExecutionEngine."
 	    default_value 1
 	    flavor bool
 	}
-	cdl_option OROPKG_EXECUTION_ENGINE_STATEMACHINES {
+	cdl_component OROPKG_EXECUTION_ENGINE_STATEMACHINES {
 	    display "Enable StateMachine Processor"
 	    description "If disabled, the StateMachineProcessor is removed from the ExecutionEngine."
 	    default_value 1
+	    active_if OROPKG_EXECUTION_PROGRAM_PROCESSOR
 	    flavor bool
 	}
 
@@ -53,12 +58,9 @@ of the standard ExecutionEngine"
     compile TaskContext.cxx
     compile AttributeRepository.cxx
     compile PropertyLoader.cxx
-    compile EventService.cxx
     compile ExecutionEngine.cxx
     compile CommandC.cxx
     compile MethodC.cxx
-    compile EventC.cxx
-    compile ConnectionC.cxx
     compile ScriptingAccess.cxx
     compile TryCommand.cxx
     compile ConnectionInterface.cxx

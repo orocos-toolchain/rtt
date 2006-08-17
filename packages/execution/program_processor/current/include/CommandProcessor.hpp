@@ -59,6 +59,12 @@ namespace RTT
      * @brief This class implements an Orocos command processor.
      * It executes external commands when running.
      *
+     * @section cp_policy Changing the Command Processing Policy.
+     *
+     * The default policy of the CommandProcessor is to dequeue one
+     * command in each step() and execute it. If you want to change
+     * this policy, subclass the CommandProcessor and override the
+     * virtual functions, such as step() or process().
      */
     class CommandProcessor
         : public RunnableInterface
@@ -86,12 +92,12 @@ namespace RTT
          * @return 0 when the CommandProcessor is not running or does not accept commands.
          * @see isProcessed, acceptCommands
          */
-        int process(CommandInterface* c);
+        virtual int process(CommandInterface* c);
 
         /**
          * Check if a given command id has been processed.
          */
-        bool isProcessed( int id ) const;
+        virtual bool isProcessed( int id ) const;
 
         /**
          * Should the CommandProcessor accept or reject commands in \a process().
@@ -99,7 +105,7 @@ namespace RTT
          */
         void acceptCommands( bool true_false) { accept=true_false; }
 
-    private:
+    protected:
 
         AtomicQueue<CommandInterface*,NonBlockingPolicy,NonBlockingPolicy>* a_queue;
 

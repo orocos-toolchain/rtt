@@ -50,6 +50,10 @@
 namespace RTT
 {
     class TaskCore;
+    class CommandProcessor;
+    class EventProcessor;
+    class ProgramProcessor;
+    class StateMachineProcessor;
     namespace OS {
         class Semaphore;
     }
@@ -64,6 +68,13 @@ namespace RTT
      *
      * The ExecutionEngine bundles a CommandProcessor, ProgramProcessor,
      * StateMachineProcessor and EventProcessor.
+     *
+     * @section ee_policy Changing the Execution Policy.
+     *
+     * One can subclass this class in order to change the run-time
+     * behaviour. Use TaskCore::setExecutionEngine in order to 
+     * install a new ExecutionEngine in a component. All Members of
+     * this class are protected and thus accessible in a subclass.
      */
     class ExecutionEngine
         : public RunnableInterface
@@ -72,7 +83,6 @@ namespace RTT
         OS::Semaphore* work_sem;
         OS::Semaphore* loop_sem;
         TaskCore*     taskc;
-        ExecutionEngine* mainee;
 
         /**
          * We store them as RunnableInterface pointers,
@@ -83,29 +93,21 @@ namespace RTT
         RunnableInterface* smproc;
         RunnableInterface* eproc;
 
-        std::vector<ExecutionEngine*> children;
+        std::vector<TaskCore*> children;
 
         bool eerun;
 
         /**
-         * This function checks if a mainee is present, if not,
-         * new Processors are created, if there is, the Processors
-         * are destroyed.
+         * Install new Processors.
          */
         void setup();
     public:
         /**
          * Create an execution engine with a CommandProcessor, ProgramProcessor 
-         * and StateMachineProcessor. If you provide another ExecutionEngine as argument,
-         * this execution engine delegates all requests to that execution engine
-         * and does itself nothing.
+         * and StateMachineProcessor.
          * @param owner The TaskCore in which this execution engine executes.
-         * @param parent The parent which will execute this ExecutionEngine. This execution engine
-         * will act as a slave. When the parent executes, this execution engine
-         * is executed as well. If none given, one must attach an ActivityInterface
-         * implementation in order to run this engine.
          */
-        ExecutionEngine( TaskCore* owner, ExecutionEngine* parent = 0 );
+        ExecutionEngine( TaskCore* owner );
         
         ~ExecutionEngine();
 
@@ -127,10 +129,19 @@ namespace RTT
         virtual void setActivity(ActivityInterface* t);
 
         /**
-         * In case a parent execution engine was given, return it, otherwise,
-         * return \a this.
+         * The TaskCore which created this ExecutionEngine.
          */
-        ExecutionEngine* getParent();
+        TaskCore* getParent();
+
+        /**
+         * Add a TaskCore to execute.
+         */
+        virtual void addChild(TaskCore* tc);
+
+        /**
+         * Remove a TaskCore from execution.
+         */
+        virtual void removeChild(TaskCore* tc);
 
         /**
          * Returns the semaphore which is signaled when events or
@@ -146,11 +157,6 @@ namespace RTT
          * Returns the owner of this execution engine.
          */
         TaskCore* getTaskCore() const { return taskc; }
-
-        /**
-         * Inform this execution engine that it gets a new parent.
-         */
-        void reparent(ExecutionEngine* new_parent);
 
         /** 
          * Return the CommandProcessor of this engine.
@@ -172,13 +178,29 @@ namespace RTT
          */
         EventProcessor* events() const;
 
-        void setCommandProcessor(CommandProcessor* c);
+        /**
+         * Install a new CommandProcessor.
+         * @param c becomes owned by this object and is returned in commands().
+         */
+        virtual void setCommandProcessor(CommandProcessor* c);
 
-        void setProgramProcessor(ProgramProcessor* p);
+        /**
+         * Install a new ProgramProcessor.
+         * @param p becomes owned by this object and is returned in programs().
+         */
+        virtual void setProgramProcessor(ProgramProcessor* p);
 
-        void setStateMachineProcessor(StateMachineProcessor* s);
+        /**
+         * Install a new StateMachineProcessor.
+         * @param s becomes owned by this object and is returned in states().
+         */
+        virtual void setStateMachineProcessor(StateMachineProcessor* s);
 
-        void setEventProcessor(EventProcessor* e);
+        /**
+         * Install a new EventProcessor.
+         * @param e becomes owned by this object and is returned in events().
+         */
+        virtual void setEventProcessor(EventProcessor* e);
 
     };
 

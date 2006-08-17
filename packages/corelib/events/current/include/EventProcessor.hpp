@@ -441,7 +441,16 @@ namespace RTT
      * asynchronous callbacks in their own implementation. The EventProcessor
      * is an argument in the Event's asynchronous connect method.
      *
-     * @see TimerThread, CompletionProcessor
+     * @section ep_policy Changing the Event Processing Policy.
+     *
+     * The default policy of the EventProcessor is to process all asynchronous
+     * callbacks in step().
+     * In order to change the processing of the asynchronous events,
+     * subclass this class and override step() or other virtual functions.
+     * The BlockingEventProcessor is an example of an EventProcessor with
+     * a different policy, and can be subclassed in turn.
+     * 
+     * @see CompletionProcessor
      * @ingroup CoreLibEvents
      */
     class EventProcessor
@@ -492,8 +501,14 @@ namespace RTT
         void finalize();
 
         /**
-         * Connect a function to a signal and process upon each event the function in this
-         * event processor.
+         * Connect a function to an Event and process upon each event the function in this
+         * event processor. The returned handle holds the connection between \a f and \a sig.
+         * @param f will be called within this EventProcessor when \a sig is emitted.
+         * @param sig The Event to which f will react.
+         * @param t specifies the policy in case of over-runs. That is, when \a sig
+         * is emitted multiple times before \a f could be called.
+         * @return An connected handle. Call Handle::disconnect() upon this object in order
+         * to remove the link between \a f and \a sig.
          */
         template<class SignalType>
         Handle connect(const typename SignalType::SlotFunction& f, SignalType& sig, AsynStorageType t )
@@ -503,6 +518,16 @@ namespace RTT
             return h;
         }
 
+        /**
+         * Setup the processing of an asynchronous event. The returned handle does not
+         * yet connect \a f and \a sig. Use Handle::connect().
+         * @param f will be called within this EventProcessor when \a sig is emitted.
+         * @param sig The Event to which f will react.
+         * @param t specifies the policy in case of over-runs. That is, when \a sig
+         * is emitted multiple times before \a f could be called.
+         * @return An unconnected handle. Call Handle::connect() upon this object in order
+         * to activate the link between \a f and \a sig.
+         */
         template<class SignalType>
         Handle setup(const typename SignalType::SlotFunction& f, SignalType& sig, AsynStorageType t )
         {

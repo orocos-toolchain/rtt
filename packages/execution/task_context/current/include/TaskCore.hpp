@@ -1,9 +1,8 @@
 #ifndef ORO_TASK_CORE_HPP
 #define ORO_TASK_CORE_HPP
 
-#include "ExecutionEngine.hpp"
 #include "OperationInterface.hpp"
-
+#include "ExecutionEngine.hpp"
 #include <string>
 
 namespace RTT
@@ -16,16 +15,13 @@ namespace RTT
      * task browsing is required (for every task).
      */
     class TaskCore
-        : public OperationInterface
     {
         // non copyable
         TaskCore( TaskCore& );
     protected:
         std::string    _task_name;
     
-        ExecutionEngine ee;
-        CommandRepository comms;
-        MethodRepository meths;
+        ExecutionEngine* ee;
     public:
         /**
          * Create a TaskCore visible with \a name.
@@ -78,7 +74,7 @@ namespace RTT
         /**
          * Get the name of this TaskCore.
          */
-        const std::string& getName() const
+        std::string getName() const
         {
             return _task_name;
         }
@@ -92,12 +88,23 @@ namespace RTT
         }
 
         /**
+         * Use this method to re-set the execution engine
+         * of this task core. 
+         * @param engine The new execution engine which will execute
+         * this TaskCore or null if a new execution engine must be
+         * created (the old is deleted in that case).
+         * @post The TaskCore is being run by \a engine or a new
+         * execution engine.
+         */
+        void setExecutionEngine(ExecutionEngine* engine);
+
+        /**
          * Get a const pointer to the ExecutionEngine of this Task.
          * @see getExecutionEngine()
          */
         const ExecutionEngine* engine() const
         {
-            return &ee;
+            return ee;
         }
 
         /**
@@ -106,29 +113,8 @@ namespace RTT
          */
         ExecutionEngine* engine()
         {
-            return &ee;
+            return ee;
         }
-#if 1
-        CommandRepository* commands()
-        {
-            return &comms;
-        }
-
-        const CommandRepository* commands() const
-        {
-            return &comms;
-        }
-
-        MethodRepository* methods()
-        {
-            return &meths;
-        }
-
-        const MethodRepository* methods() const
-        {
-            return &meths;
-        }
-#endif
     };
 }
 

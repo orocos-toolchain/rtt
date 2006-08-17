@@ -38,30 +38,20 @@ namespace RTT
     
     using namespace std;
 
-    ExecutionEngine::ExecutionEngine( TaskCore* owner, ExecutionEngine* parent /* = 0 */ )
-        : work_sem( parent ? 0 : new OS::Semaphore(0)),
-          loop_sem( parent ? 0 : new OS::Semaphore(0)),
+    ExecutionEngine::ExecutionEngine( TaskCore* owner )
+        : work_sem( new OS::Semaphore(0) ),
+          loop_sem( new OS::Semaphore(0) ),
           taskc(owner),
-          mainee(parent ? parent->getParent() : 0),
           cproc( 0 ), pproc( 0 ), smproc( 0 ), eproc( 0 ),
           eerun( false )
     {
         this->setup();
-
-        // add self to parent
-        if (mainee)
-            mainee->children.push_back(this);
     }
         
     ExecutionEngine::~ExecutionEngine()
     {
         Logger::In in("~ExecutionEngine");
         Logger::log() << Logger::Debug << "Destroying ExecutionEngine of "+taskc->getName()<<Logger::endl;
-
-        // it is possible that the mainee is assigned to a task
-        // but that this child EE is already destroyed.
-        if (mainee && this->getActivity())
-            this->RunnableInterface::setActivity(0);
 
         delete cproc;
         delete pproc;
@@ -71,128 +61,75 @@ namespace RTT
         delete work_sem;
         delete loop_sem;
 
-        // add children to parent (reparent) and remove self from parent
-        if (mainee) {
-            std::vector<ExecutionEngine*>::iterator it=find(mainee->children.begin(),mainee->children.end(), this);
-            if ( it != mainee->children.end() )
-                mainee->children.erase(it);
+        // make a copy to avoid call-back troubles:
+        std::vector<TaskCore*> copy = children;
+        for (std::vector<TaskCore*>::iterator it = copy.begin(); it != copy.end();++it){
+            (*it)->setExecutionEngine( 0 );
         }
-        for (std::vector<ExecutionEngine*>::iterator it = children.begin(); it != children.end();++it){
-            // this operation may make a child orphan.
-            (*it)->mainee = mainee;
-            if (mainee)
-                mainee->children.push_back(*it); // not orphan
-            else {
-                // orphan, provide it new processors.
-                (*it)->setup();
-            }
-        }
+        assert( children.empty() );
     }
 
     void ExecutionEngine::setup()
     {
         Logger::In in("ExecutionEngine");
 
-        if (mainee)
-            Logger::log() << Logger::Debug << "Using ExecutionEngine of task "+mainee->getTaskCore()->getName()<<" in " <<taskc->getName() << Logger::endl;
-        else
-            Logger::log() << Logger::Debug << "Creating ExecutionEngine for "+taskc->getName()<<Logger::endl;
+        Logger::log() << Logger::Debug << "Creating ExecutionEngine for "+taskc->getName()<<Logger::endl;
 
-        if ( mainee == 0 ) {
 #ifdef OROPKG_EXECUTION_ENGINE_COMMANDS
-            cproc = new CommandProcessor(ORONUM_EXECUTION_PROC_QUEUE_SIZE, work_sem);
+        cproc = new CommandProcessor(ORONUM_EXECUTION_PROC_QUEUE_SIZE, work_sem);
 #else
-            cproc = 0;
+        cproc = 0;
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
-            pproc = new ProgramProcessor(ORONUM_EXECUTION_PROC_QUEUE_SIZE, work_sem);
+        pproc = new ProgramProcessor(ORONUM_EXECUTION_PROC_QUEUE_SIZE, work_sem);
 #else
-            pproc = 0;
+        pproc = 0;
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
-            smproc = new StateMachineProcessor(work_sem);
+        smproc = new StateMachineProcessor(work_sem);
 #else
-            smproc = 0;
+        smproc = 0;
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-            eproc = new EventProcessor();
+        eproc = new EventProcessor();
 #else
-            eproc = 0;
+        eproc = 0;
 #endif
-        } else {
-            delete cproc;
-            delete pproc;
-            delete smproc;
-            delete eproc;
-        }
     }
 
-    ExecutionEngine* ExecutionEngine::getParent() {
-        return mainee ? mainee : this;
+    TaskCore* ExecutionEngine::getParent() {
+        return taskc;
     }
 
     OS::Semaphore* ExecutionEngine::getSemaphore() const {
         return work_sem;
     }
 
-    void ExecutionEngine::reparent(ExecutionEngine* new_parent) {
-        Logger::In in("ExecutionEngine");
-        Logger::log() << Logger::Debug << "Reparenting "+taskc->getName()<<Logger::endl;
+    void ExecutionEngine::addChild(TaskCore* tc) {
+        children.push_back( tc );
+    }
 
-        if (new_parent == this || new_parent == mainee)
-            return;
-        // first remove from old parent.
-        if (mainee) {
-            std::vector<ExecutionEngine*>::iterator it=find(mainee->children.begin(),mainee->children.end(), this);
-            if ( it != mainee->children.end() )
-                mainee->children.erase(it);
-            mainee = 0;
-        }
-        if (new_parent != 0 ) {
-            // special order here, first do setActivity without disturbing future mainee
-            this->setActivity( new_parent->getParent()->getActivity() );
-            mainee = new_parent->getParent();
-            mainee->children.push_back(this);
-            return;
-        }
-        if (new_parent == 0) {
-            // orphan, reset activity to zero.
-            this->setActivity(0);
-        }
-
-        this->setup();
+    void ExecutionEngine::removeChild(TaskCore* tc) {
+        vector<TaskCore*>::iterator it = find (children.begin(), children.end(), tc );
+        if ( it != children.end() )
+            children.erase(it);
     }
 
     void ExecutionEngine::setActivity(ActivityInterface* t)
     {
         Logger::In in("ExecutionEngine::setActivity");
 
-        if (mainee) {
-            // Let parent update RunnableInterface...
-            mainee->setActivity(t);
-        } else {
-            if (t)
-                Logger::log() <<Logger::Debug <<taskc->getName()<<": informing processors of new activity."<<Logger::endl;
-            else
-                Logger::log() <<Logger::Debug <<taskc->getName()<<": disconnecting processors of activity."<<Logger::endl;
-                
-            // I am an orphan.
-            if (cproc)
-                cproc->setActivity(t);
-            if (pproc)
-                pproc->setActivity(t);
-            if (smproc)
-                smproc->setActivity(t);
-            if (eproc)
-                eproc->setActivity(t);
-            RunnableInterface::setActivity(t);
-        }
-        
-        // inform all children, even if we have a parent.
-        // attention, avoid recursive endless loop !
-        for (std::vector<ExecutionEngine*>::iterator it = children.begin(); it !=children.end();++it)
-            (*it)->RunnableInterface::setActivity( t );
+        if (cproc)
+            cproc->setActivity(t);
+        if (pproc)
+            pproc->setActivity(t);
+        if (smproc)
+            smproc->setActivity(t);
+        if (eproc)
+            eproc->setActivity(t);
 
+        RunnableInterface::setActivity(t);
+        
         if (t)
             if ( ! t->isPeriodic() ) {
                 Logger::log() << Logger::Info << taskc->getName()+" is not periodic."<< Logger::endl;
@@ -204,23 +141,21 @@ namespace RTT
     }
 
     bool ExecutionEngine::initialize() {
-        if ( mainee )
-            return true;
-
         // call user startup code.
         if ( taskc->startup() == false ) {
             //Logger::log() << Logger::Error << "ExecutionEngine's task startup() failed!" << Logger::endl;
             return false;
         }
 
-        // call all children if we are a mainee
-        for (std::vector<ExecutionEngine*>::iterator it = children.begin(); it != children.end();++it){
-            if ( (*it)->taskc->startup() == false ) {
-                std::vector<ExecutionEngine*>::reverse_iterator rit( it );
+        // call all children
+        for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it){
+            if ( (*it)->startup() == false ) {
+                std::vector<TaskCore*>::reverse_iterator rit( it );
                 --rit;
                 for ( ; rit != children.rend(); ++rit )
-                    (*rit)->taskc->shutdown();
+                    (*rit)->shutdown();
                 //Logger::log() << Logger::Error << "ExecutionEngine's children's startup() failed!" << Logger::endl;
+                this->taskc->shutdown();
                 return false;
             }
         }
@@ -245,40 +180,40 @@ namespace RTT
                 pproc->finalize();
         }
         //Logger::log() << Logger::Error << "ExecutionEngine's processors failed!" << Logger::endl;
+
+        // call all children
+        for (std::vector<TaskCore*>::reverse_iterator rit = children.rbegin(); rit != children.rend();++rit){
+            (*rit)->shutdown();
+        }
         return false;
     }
 
     void ExecutionEngine::step() {
-        if ( !mainee ) {
-            // this #ifdef ... #endif is only for speed optimisations.
+        // this #ifdef ... #endif is only for speed optimisations.
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
-            if (pproc)
-                pproc->step();
+        if (pproc)
+            pproc->step();
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
-            if (smproc)
-                smproc->step();
+        if (smproc)
+            smproc->step();
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_COMMANDS
-            if (cproc)
-                cproc->step();
+        if (cproc)
+            cproc->step();
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-            if (eproc)
-                eproc->step();
+        if (eproc)
+            eproc->step();
 #endif
-            taskc->update();
-            // call all children as well.
-            for (std::vector<ExecutionEngine*>::iterator it = children.begin(); it != children.end();++it)
-                (*it)->taskc->update();
-            return;
-        }
+        taskc->update();
+        // call all children as well.
+        for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it)
+            (*it)->update();
+        return;
     }
 
     void ExecutionEngine::loop() {
-        if (mainee) {
-            return;
-        }
         while( eerun ) {
             work_sem->wait();
             this->step();
@@ -287,8 +222,6 @@ namespace RTT
     }
 
     bool ExecutionEngine::breakLoop() {
-        if (mainee)
-            return false;
         if (eerun) {
             eerun = false;
             work_sem->signal();
@@ -299,26 +232,25 @@ namespace RTT
     }
 
     void ExecutionEngine::finalize() {
-        if ( !mainee ) {
-            eerun = false;
-            if (pproc)
-                pproc->finalize();
-            if (smproc)
-                smproc->finalize();
-            if (cproc)
-                cproc->finalize();
-            if (eproc)
-                eproc->finalize();
-            taskc->shutdown();
-            // call all children as well.
-            for (std::vector<ExecutionEngine*>::iterator it = children.begin(); it != children.end();++it)
-                (*it)->taskc->shutdown();
+        eerun = false;
+        if (pproc)
+            pproc->finalize();
+        if (smproc)
+            smproc->finalize();
+        if (cproc)
+            cproc->finalize();
+        if (eproc)
+            eproc->finalize();
+        // call all children
+        for (std::vector<TaskCore*>::reverse_iterator rit = children.rbegin(); rit != children.rend();++rit) {
+            (*rit)->shutdown();
         }
+        taskc->shutdown();
     }
 
     CommandProcessor* ExecutionEngine::commands() const {
 #ifdef OROPKG_EXECUTION_ENGINE_COMMANDS
-        return mainee ? mainee->commands() : dynamic_cast<CommandProcessor*>(cproc);
+        return dynamic_cast<CommandProcessor*>(cproc);
 #else
         return 0;
 #endif
@@ -327,7 +259,7 @@ namespace RTT
 
     ProgramProcessor* ExecutionEngine::programs() const {
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
-        return mainee ? mainee->programs() : dynamic_cast<ProgramProcessor*>(pproc);
+        return dynamic_cast<ProgramProcessor*>(pproc);
 #else
         return 0;
 #endif
@@ -335,7 +267,7 @@ namespace RTT
 
     StateMachineProcessor* ExecutionEngine::states() const {
 #ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
-        return mainee ? mainee->states() : dynamic_cast<StateMachineProcessor*>(smproc);
+        return dynamic_cast<StateMachineProcessor*>(smproc);
 #else
         return 0;
 #endif
@@ -343,7 +275,7 @@ namespace RTT
 
     EventProcessor* ExecutionEngine::events() const {
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-        return mainee ? mainee->events() : dynamic_cast<EventProcessor*>(eproc);
+        return dynamic_cast<EventProcessor*>(eproc);
 #else
         return 0;
 #endif
@@ -351,37 +283,29 @@ namespace RTT
 
     void ExecutionEngine::setCommandProcessor(CommandProcessor* c) {
 #ifdef OROPKG_EXECUTION_ENGINE_COMMANDS
-        if (mainee)
-            mainee->setCommandProcessor(c);
-        else
-            cproc = c;
+        delete cproc;
+        cproc = c;
 #endif
     }
     
     void ExecutionEngine::setProgramProcessor(ProgramProcessor* p) {
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
-        if (mainee)
-            mainee->setProgramProcessor(p);
-        else
-            pproc = p;
+        delete pproc;
+        pproc = p;
 #endif
     }
 
     void ExecutionEngine::setStateMachineProcessor(StateMachineProcessor* s) {
 #ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
-        if (mainee)
-            mainee->setStateMachineProcessor(s);
-        else
-            smproc = s;
+        delete smproc;
+        smproc = s;
 #endif
     }
 
     void ExecutionEngine::setEventProcessor(EventProcessor* e) {
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-        if (mainee)
-            mainee->setEventProcessor(e);
-        else
-            eproc = e;
+        delete eproc;
+        eproc = e;
 #endif
     }
 

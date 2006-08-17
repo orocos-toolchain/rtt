@@ -30,7 +30,12 @@
 #define ORO_TASK_CONTEXT_HPP
 
 #include "AttributeRepository.hpp"
+
+#include "pkgconf/system.h"
+#ifdef OROPKG_CORELIB_EVENTS
 #include "EventService.hpp"
+#endif
+
 #include "DataFlowInterface.hpp"
 #include "ExecutionEngine.hpp"
 #include "ScriptingAccess.hpp"
@@ -45,18 +50,19 @@ namespace RTT
     class CommandProcessor;
     class ScriptingAccess;
     class TaskObject;
+    class EventService;
 
     /**
      * A TaskContext exports the commands, methods, events, properties and ports
      * a task has. Furthermore, it allows to visit its peer tasks.
      *
-     * @section exec TaskContext interface
+     * @section taskcontextint TaskContext interface
      * When a command is exported, one can access it using commands(). A similar
      * mechanism is available for properties(), methods(), events() and ports().
      * The commands of this TaskContext are executed by its
      * ExecutionEngine.
      *
-     * @section exec Executing a TaskContext
+     * @section taskcontextexec Executing a TaskContext
      * In order to run the ExecutionEngine, the ExecutionEngine must
      * be invoked from an ActivityInterface implementation. As long as
      * there is no activity or the activity is not started, this
@@ -65,7 +71,7 @@ namespace RTT
      * of this class can determine himself at which point and at which
      * moment commands and programs can be executed.
      *
-     * @section exec Connecting TaskContexts
+     * @section taskcontextcon Connecting TaskContexts
      * TaskContexts are connected using the unidirectional addPeer() or bidirectional
      * connectPeers() methods. These methods setup data connections and allow
      * 'peer' TaskContexts to use each other's interface.
@@ -74,7 +80,8 @@ namespace RTT
      * Peers.
      */
     class TaskContext
-        : public TaskCore
+        : public OperationInterface,
+          public TaskCore
     {
         // non copyable
         TaskContext( TaskContext& );
@@ -91,8 +98,6 @@ namespace RTT
         Objects mobjects;
 
         ScriptingAccess* mscriptAcc;
-
-        
 
         void connectDataFlow( TaskContext* peer );
         void exportPorts();
@@ -129,6 +134,10 @@ namespace RTT
         TaskContext(const std::string& name, ExecutionEngine* parent );
 
         virtual ~TaskContext();
+
+        std::string getName() const;
+
+        std::string getDescription() const;
 
         /**
          * Queue a command.
@@ -239,24 +248,6 @@ namespace RTT
         bool removeObject(const std::string& obj_name );
 
         /**
-         * Get a const pointer to the ExecutionEngine of this Task.
-         * @see engine()
-         */
-        const ExecutionEngine* getExecutionEngine() const
-        {
-            return &ee;
-        }
-
-        /**
-         * Get a pointer to the ExecutionEngine of this Task.
-         * @see engine()
-         */
-        ExecutionEngine* getExecutionEngine()
-        {
-            return &ee;
-        }
-
-        /**
          * Get access to high level controls for
          * programs, state machines and scripting
          * statements.
@@ -277,56 +268,37 @@ namespace RTT
         }
 
         /**
-         * Returns the Processor of this task.
-         * @deprecated by getExecutionEngine()
+         * The commands of this task context.
          */
-        ExecutionEngine* getProcessor()
+        CommandRepository* commands()
         {
-            return &ee;
-        }
-#if 0
-        /**
-         * The Commands of this TaskContext.
-         */
-        GlobalCommandFactory* commands() {
-            return &commandFactory;
+            return &comms;
         }
 
         /**
-         * The Commands of this TaskContext.
+         * The commands of this task context.
          */
-        const GlobalCommandFactory* commands() const{
-            return &commandFactory;
+        const CommandRepository* commands() const
+        {
+            return &comms;
         }
 
         /**
-         * The Methods of this TaskContext.
+         * The methods of this task context.
          */
-        GlobalMethodFactory* methods() {
-            return &methodFactory;
+        MethodRepository* methods()
+        {
+            return &meths;
         }
 
         /**
-         * The Methods of this TaskContext.
+         * The methods of this task context.
          */
-        const GlobalMethodFactory* methods() const{
-            return &methodFactory;
+        const MethodRepository* methods() const
+        {
+            return &meths;
         }
 
-        /**
-         * The DataSources of this TaskContext.
-         */
-        GlobalDataSourceFactory* datasources() {
-            return &dataFactory;
-        }
-
-        /**
-         * The DataSources of this TaskContext.
-         */
-        const GlobalDataSourceFactory* datasources() const{
-            return &dataFactory;
-        }
-#endif
         /**
          * The task-local values ( attributes and properties ) of this TaskContext.
          */
@@ -359,14 +331,22 @@ namespace RTT
          * The task-local events ( 'signals' ) of this TaskContext.
          */
         EventService* events() {
+#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
             return &eventService;
+#else
+            return 0;
+#endif
         }
 
         /**
          * The task-local events ( 'signals' ) of this TaskContext.
          */
         const EventService* events() const {
+#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
             return &eventService;
+#else
+            return 0;
+#endif
         }
 
         /**
@@ -375,7 +355,7 @@ namespace RTT
         DataFlowInterface* ports() {
             return &dataPorts;
         }
-
+        
         /**
          * Get the Data flow ports of this task.
          */
@@ -384,39 +364,26 @@ namespace RTT
         }
 
     private:
-#if 0
-        /**
-         * The Command Factory of this TaskContext.
-         * @deprecated by commands()
-         */
-        GlobalCommandFactory    commandFactory;
-        /**
-         * The DataSource Factory of this TaskContext.
-         * @deprecated by datasources()
-         */
-        GlobalDataSourceFactory dataFactory;
-        /**
-         * The Method Factory of this TaskContext.
-         * @deprecated by methods()
-         */
-        GlobalMethodFactory     methodFactory;
-#endif
         /**
          * The task-local values ( attributes ) of this TaskContext.
-         * @deprecated by attributes()
          */
         AttributeRepository     attributeRepository;
 
+#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
         /**
          * The task-local events ( 'signals' ) of this TaskContext.
-         * @deprecated by events()
          */
         EventService            eventService;
+#endif
 
         /**
          * The task-local ports.
          */
         DataFlowInterface dataPorts;
+
+        CommandRepository comms;
+
+        MethodRepository meths;
     };
 }
 

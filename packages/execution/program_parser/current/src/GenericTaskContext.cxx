@@ -74,6 +74,25 @@ namespace RTT
                     &GenericTaskContext::trigger, this), "Invoke the update method. Only succeeds if the task isRunning()." );
     }
 
+#if 0
+    GenericTaskContext::createScriptingObject()
+    {
+        TaskObject* to =  new TaskObject("scripting");
+        to->methods()->addMethod( method("loadProgram",
+                    &GenericTaskContext::loadProgram, this), "Load an Orocos Program Script from a file.",
+                            "Filename", "An ops file.");
+        to->methods()->addMethod( method("loadStateMachine",
+                    &GenericTaskContext::loadStateMachine, this), "Load an Orocos State Description from a file.",
+                            "Filename", "An osd file.");
+        to->methods()->addMethod( method("unloadProgram",
+                    &GenericTaskContext::unloadProgram, this), "Unload an Orocos Program Script from a file.",
+                            "ProgramName", "The Program's name.");
+        to->methods()->addMethod( method("unloadStateMachine",
+                    &GenericTaskContext::unloadStateMachine, this), "Unload an Orocos State Description from a file.",
+                            "StateMachineName", "A name of a Root StateMachine instantiation.");
+    }
+#endif
+
     GenericTaskContext::~GenericTaskContext()
     {}
 

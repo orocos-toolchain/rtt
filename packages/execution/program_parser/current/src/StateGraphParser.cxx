@@ -713,7 +713,7 @@ namespace RTT
         TaskContext* __s = context->getPeer("__states");
         if ( __s == 0 ) {
             // install the __states if not yet present.
-            __s = new TaskContext("__states", context->getExecutionEngine() );
+            __s = new TaskContext("__states", context->engine() );
             context->addPeer( __s );
         }
 
@@ -724,7 +724,7 @@ namespace RTT
         curtemplate.reset(new ParsedStateMachine());
         // Connect the new SC to the relevant contexts.
         // 'sc' acts as a stack for storing variables.
-        curcontext = new StateMachineTask(curtemplate, context->getExecutionEngine() );
+        curcontext = new StateMachineTask(curtemplate, context->engine() );
         curcontext->setName( curcontextname );
         __s->addPeer( curcontext );   // store in __states.
         curtemplate->setTaskContext( curcontext ); // store.
@@ -792,7 +792,7 @@ namespace RTT
         TaskContext* __s = context->getPeer("states");
         if ( __s == 0 ) {
             // install the __states if not yet present.
-            __s = new TaskContext("states", context->getExecutionEngine() );
+            __s = new TaskContext("states", context->engine() );
             context->addPeer( __s );
             __s->addPeer(context, "task");
         }

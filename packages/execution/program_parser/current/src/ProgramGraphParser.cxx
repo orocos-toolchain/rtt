@@ -385,7 +385,7 @@ namespace RTT
 //       TaskContext* __f = rootc->getPeer("__functions");
 //       if ( __f == 0 ) {
 //           // install the __functions if not yet present.
-//           __f = new TaskContext("__functions", rootc->getExecutionEngine() );
+//           __f = new TaskContext("__functions", rootc->engine() );
 //           rootc->connectPeers( __f );
 //       }
 
@@ -400,7 +400,7 @@ namespace RTT
 
       // Connect the new function to the relevant contexts.
       // 'fun' acts as a stack for storing variables.
-      fcontext = context = new TaskContext(funcdef, rootc->getExecutionEngine() );
+      fcontext = context = new TaskContext(funcdef, rootc->engine() );
       context->addPeer(rootc,"task");
   }
 
@@ -423,7 +423,7 @@ namespace RTT
       // export the function in the context's interface.
       if (exportf) {
           std::map<const DataSourceBase*, DataSourceBase*> dummy;
-          FunctionFactory* cfi = new FunctionFactory(ProgramInterfacePtr(mfunc->copy(dummy)), rootc->getExecutionEngine() ); // execute in the processor which has the command.
+          FunctionFactory* cfi = new FunctionFactory(ProgramInterfacePtr(mfunc->copy(dummy)), rootc->engine() ); // execute in the processor which has the command.
           rootc->commands()->add(mfunc->getName(), cfi );
           Logger::log() << Logger::Info << "Exported Function '" << mfunc->getName() << "' added to task '"<< rootc->getName() << "'" <<Logger::endl;
       }

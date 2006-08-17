@@ -29,7 +29,6 @@
 
 #include "rtt/TaskContext.hpp"
 #include <rtt/CommandInterface.hpp>
-#include <rtt/CompletionProcessor.hpp>
 
 #include <string>
 #include <algorithm>
@@ -55,11 +54,13 @@ namespace RTT
     TaskContext::TaskContext(const std::string& name)
         :  TaskCore(name),
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
-           mscriptAcc(new ParserScriptingAccess(this)),
+           mscriptAcc(new ParserScriptingAccess(this))
 #else
-           mscriptAcc(new ScriptingAccess(this)),
+           mscriptAcc(new ScriptingAccess(this))
 #endif
-           eventService( &ee )
+#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
+           ,eventService( ee )
+#endif
     {
         // I'll only add  this line if there is  a good reason for
         // (there  isn't) for  now, it's  confusing to  see 'this'
@@ -70,11 +71,13 @@ namespace RTT
     TaskContext::TaskContext(const std::string& name, ExecutionEngine* parent )
         :  TaskCore(name, parent),
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
-           mscriptAcc(new ParserScriptingAccess(this)),
+           mscriptAcc(new ParserScriptingAccess(this))
 #else
-           mscriptAcc(new ScriptingAccess(this)),
+           mscriptAcc(new ScriptingAccess(this))
 #endif
-           eventService( &ee )
+#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
+           ,eventService( ee )
+#endif
     {
     }
 
@@ -135,8 +138,12 @@ namespace RTT
                 continue;
             }
 
-            // Detect already connected port.
-            if ( (*it)->connection() ) {
+            // Detect already connected ports.
+            if ( peerport->connected() && (*it)->connected() )
+                continue;
+
+            // Our our port is connected thus peerport is not connected.
+            if ( (*it)->connected() ) {
                 // ask peer to connect to us:
                 if ( peerport->connectTo( *it ) ) {
                     Logger::log() <<Logger::Info<< "Connected Port " << (*it)->getName()
@@ -147,21 +154,20 @@ namespace RTT
                                   << " of peer Task "<<peer->getName() << " to existing connection." << Logger::endl;
                 continue;
             }
-            // OK, not yet connected, try to connect.
 
-            // detect existing peer port connection.
-            if ( peerport->connection() ) {
+            // Peer port is connected thus our port is not connected.
+            if ( peerport->connected() ) {
                 if ( (*it)->connectTo( peerport ) ) {
                     Logger::log() <<Logger::Info<< "Added Port " << (*it)->getName()
                                   << " to existing connection of peer Task "<<peer->getName() << "." << Logger::endl;
                 }
                 else
-                    Logger::log() <<Logger::Error<< "Failed to connect Port " << (*it)->getName()
+                    Logger::log() <<Logger::Error<< "Not connecting Port " << (*it)->getName()
                                   << " to existing connection of peer Task "<<peer->getName() << "." << Logger::endl;
                 continue;
             }
                 
-            // Last resort: create new connection.
+            // Last resort: both not connected: create new connection.
             ConnectionInterface::shared_ptr con = (*it)->createConnection( peerport );
             if ( !con ) {
                 // real error msg will be produced by factory itself.
@@ -173,15 +179,26 @@ namespace RTT
         }
     }
 
-        bool TaskContext::executeCommand( CommandInterface* c)
-        {
-            return ee.commands()->process( c ) != 0;
-        }
+    std::string TaskContext::getName() const
+    {
+        return TaskCore::getName();
+    }
 
-        int TaskContext::queueCommand( CommandInterface* c)
-        {
-            return ee.commands()->process( c );
-        }
+    std::string TaskContext::getDescription() const
+    {
+        return "The public Interface of this TaskContext.";
+    }
+
+
+    bool TaskContext::executeCommand( CommandInterface* c)
+    {
+        return ee->commands()->process( c ) != 0;
+    }
+
+    int TaskContext::queueCommand( CommandInterface* c)
+    {
+        return ee->commands()->process( c );
+    }
 
     void TaskContext::addUser( TaskContext* peer )
     {

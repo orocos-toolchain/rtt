@@ -48,7 +48,17 @@ namespace RTT
 
 
     /**
-     * This class implements a state machine executor.
+     * This class implements a real-time state machine executor.
+     *
+     * @section pp_policy Changing the State Machine Processing Policy.  
+     *
+     * The default policy of the StateMachineProcessor is to call
+     * StateMachine::execute() of all loaded state machines in each
+     * step(). The parent state machines are executed before the children.
+     *
+     * If you want to change this policy, subclass the
+     * StateMachineProcessor and override the virtual functions, such
+     * as step().
      */
     class StateMachineProcessor
         : public RunnableInterface
@@ -116,7 +126,7 @@ namespace RTT
          */
         StateMachinePtr getStateMachine(const std::string& name);
 
-    private:
+    protected:
         void recursiveLoadStateMachine( StateMachinePtr sc );
         bool recursiveCheckLoadStateMachine( StateMachinePtr sc );
         void recursiveUnloadStateMachine( StateMachinePtr sc );

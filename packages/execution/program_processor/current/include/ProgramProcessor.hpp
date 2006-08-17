@@ -54,8 +54,20 @@ namespace RTT
 namespace RTT
 {
     /**
-     * This class implements a controllable program processor.
+     * This class implements a real-time program processor.
      * It executes Realtime Programs when running.
+     *
+     * @section pp_policy Changing the Program Processing Policy.
+     *
+     * The default policy of the ProgramProcessor is to call
+     * ProgramInterface::execute() of all loaded programs in each step(). Within
+     * the same step(), after all programs are executed, any loaded
+     * function is executed. The functions are automatically unloaded
+     * when they are in error or finished. 
+     *
+     * If you want to change this
+     * policy, subclass the ProgramProcessor and override the virtual
+     * functions, such as step().
      */
     class ProgramProcessor
         : public RunnableInterface
@@ -120,14 +132,14 @@ namespace RTT
          * @return false if the Processor is not running or the 'pending' queue is full.
          * @see isFunctionFinished, acceptCommands, removeFunction
          */
-        bool runFunction(ProgramInterface* f);
+        virtual bool runFunction(ProgramInterface* f);
 
         /**
          * Remove a running function added with runFunction.
          * This method is only required if the function is to be destroyed
          * and is still present in the ProgramProcessor.
          */
-        bool removeFunction(ProgramInterface* f);
+        virtual bool removeFunction(ProgramInterface* f);
 
         /**
          * Get a list of all loaded Programs.
@@ -141,7 +153,7 @@ namespace RTT
 
         ProgramInterfacePtr getProgram(const std::string& name);
 
-    private:
+    protected:
         typedef ListLockFree<ProgramInterfacePtr> ProgMap;
         ProgMap* programs;
 

@@ -16,6 +16,12 @@ namespace RTT
 {
     namespace detail
     {
+        /**
+         * This class converts a member function type R (X::)(Args) to
+         * a plain function type R (Args) which can be used by a boost::function
+         * or similar. If you have a type R(X::*)(Args) ( a function \b pointer type),
+         * use: @code UnMember< boost::remove_pointer<R(X::*)(Args)>::type>::type @endcode
+         */
         template<class F>
         class UnMember
         {
@@ -24,9 +30,13 @@ namespace RTT
                                                typename boost::mpl::next<typename boost::mpl::begin<member_signature>::type>::type>::type non_member_signature;
         public:
             typedef typename boost::function_type<boost::plain_function,non_member_signature>::type type;
-            //typedef typename non_member_signature::representee type;
         };
 
+        /**
+         * A complexer variant of UnMember: Convert a member function type to
+         * a function type which contains the member as first argument.
+         * Thus R (X::*)(Args) becomes R (X::*, Args)
+         */
         template<class F>
         class ArgMember
         {
@@ -39,21 +49,19 @@ namespace RTT
                                                 typename boost::mpl::next<typename boost::mpl::begin<non_member_signature>::type>::type,
                                                 typename boost::add_pointer<typename boost::mpl::at<typename member_signature::types,boost::mpl::int_<1> >::type>::type
                                                >::type arg_signature;
-            //typedef typename arg_signature::blah ok;
-            //typedef typename member_signature::types::blah ok2;
         public:
             typedef typename boost::function_type<boost::plain_function,arg_signature>::type type;
-            //typedef typename boost::function_type<boost::plain_function,arg_signature>::type::fail type2;
-            //typedef typename non_member_signature::representee type;
         };
 
+        /**
+         * Convert a function R (X::)(Args) to a plain function signature R(X::,Args)
+         */
         template<class F>
         class UnPointer
         {
             typedef boost::function_type_signature<F> signature; 
         public:
             typedef typename boost::function_type<boost::plain_function,signature>::type type;
-            //typedef typename non_member_signature::representee type;
         };
     }
 }
