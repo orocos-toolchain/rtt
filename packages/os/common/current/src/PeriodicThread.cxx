@@ -86,9 +86,12 @@ namespace RTT
 
         // Reporting available from this point :
 #ifdef OROPKG_CORELIB_REPORTING
-        Logger::In in("PeriodicThread");
-        Logger::log() << Logger::Debug << rtos_task_get_name(task->getTask()) <<" created with priority "<<rtos_task_get_priority(task->getTask())<<"."<<Logger::endl;
-        Logger::log() << Logger::Debug << "(Priority "<<task->getPriority()<<".)"<<Logger::endl;
+        const char* modname = task->getName();
+        {
+            Logger::In in(modname);
+            Logger::log() << Logger::Debug << rtos_task_get_name(task->getTask()) <<" created with priority "<<rtos_task_get_priority(task->getTask())<<"."<<Logger::endl;
+            Logger::log() << Logger::Debug << "(Priority "<<task->getPriority()<<".)"<<Logger::endl;
+        }
 #endif
 
 #ifdef OROPKG_OS_THREAD_SCOPE
@@ -114,25 +117,30 @@ namespace RTT
                     d = pp.get();
                 }
 # else
+            {
+                Logger::In in(modname);
                 Logger::log() << Logger::Warning<< "Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << Logger::endl;
+            }
 # endif
 #ifndef ORO_EMBEDDED
         } catch( ... )
             {
 #ifdef OROPKG_CORELIB_REPORTING
+                Logger::In in(modname);
                 Logger::log() << Logger::Error<< "Failed to create ThreadScope." << Logger::endl;
 #endif // !ORO_EMBEDDED
             }
 #endif
         if ( d ) {
 #ifdef OROPKG_CORELIB_REPORTING
+            Logger::In in(modname);
             Logger::log() << Logger::Info
                           << "ThreadScope :"<< rtos_task_get_name(task->getTask()) <<" toggles bit "<< bit << Logger::endl;
 #endif
             d->switchOff( bit );
         }
 #endif
-	int overruns = 0;
+        int overruns = 0;
         while ( !task->prepareForExit ) {
 #ifndef ORO_EMBEDDED
             try {
@@ -146,7 +154,7 @@ namespace RTT
                             // consider this the 'configuration state'
                             overruns = 0;
                             // drop out of periodic mode:
-	      rtos_task_set_period(task->getTask(), 0);
+                            rtos_task_set_period(task->getTask(), 0);
 	      //                             Logger::log() << Logger::Info <<rtos_task_get_name(&rtos_task)<<"  signals done !" << Logger::endl;
                             rtos_sem_signal( &(task->confDone) ); // signal we are ready for command
 	      //                             Logger::log() << Logger::Info <<rtos_task_get_name(&rtos_task)<<"  sleeps !" << Logger::endl;
@@ -165,13 +173,18 @@ namespace RTT
                             if ( d )
                                 d->switchOn( bit );
 #endif
-                            task->step(); // one cycle
+                            {
+#ifdef OROPKG_CORELIB_REPORTING
+                                Logger::In in(modname);
+#endif
+                                task->step(); // one cycle
+                            }
 #ifdef OROPKG_OS_THREAD_SCOPE
                             if ( d )
                                 d->switchOff( bit );
 #endif
                             // return non-zero to indicate overrun.
-	      if ( rtos_task_wait_period( task->getTask() ) != 0) {
+                            if ( rtos_task_wait_period( task->getTask() ) != 0) {
                                 ++overruns;
                                 if ( overruns == task->maxOverRun )
                                     break;
@@ -186,7 +199,8 @@ namespace RTT
 #endif
             task->emergencyStop();
 #ifdef OROPKG_CORELIB_REPORTING
-	  Logger::log() << Logger::Fatal << rtos_task_get_name(task->getTask()) <<" got too many periodic overruns in step() ("<< overruns << " times), stopped Thread !"<<Logger::nl;
+            Logger::In in(modname);
+            Logger::log() << Logger::Fatal << rtos_task_get_name(task->getTask()) <<" got too many periodic overruns in step() ("<< overruns << " times), stopped Thread !"<<Logger::nl;
             Logger::log() <<" See PeriodicThread::setMaxOverrun() for info." << Logger::endl;
 #endif
 		}
@@ -198,6 +212,7 @@ namespace RTT
 #endif
                 task->emergencyStop();
 #ifdef OROPKG_CORELIB_REPORTING
+                Logger::In in(modname);
                 Logger::log() << Logger::Fatal << rtos_task_get_name(task->getTask()) <<" caught a C++ exception, stopped thread !"<<Logger::endl;
 #endif
             }
@@ -208,13 +223,14 @@ namespace RTT
          * Cleanup stuff
          */
         if ( task->isHardRealtime() )
-      rtos_task_make_soft_real_time( task->getTask() );
+            rtos_task_make_soft_real_time( task->getTask() );
 
 #ifdef OROPKG_CORELIB_REPORTING
-    Logger::log() << Logger::Debug << rtos_task_get_name(task->getTask()) <<" exiting."<<Logger::endl;
+        Logger::In in(modname);
+        Logger::log() << Logger::Debug << rtos_task_get_name(task->getTask()) <<" exiting."<<Logger::endl;
 #endif
 
-    rtos_sem_signal( &(task->confDone));
+        rtos_sem_signal( &(task->confDone));
 
         return 0;
     }
@@ -234,9 +250,9 @@ namespace RTT
 				 const std::string & name, 
 				 Seconds periods, 
 				 RunnableInterface* r) :
-    running(false), goRealtime(false), prepareForExit(false),
-    runComp(r), wait_for_step(true), 
-    maxOverRun( OROSEM_OS_PERIODIC_THREADS_MAX_OVERRUN)
+      running(false), goRealtime(false), prepareForExit(false),
+      wait_for_step(true), runComp(r), 
+      maxOverRun( OROSEM_OS_PERIODIC_THREADS_MAX_OVERRUN)
     {
         int ret;
         
