@@ -125,11 +125,28 @@ namespace RTT
                                 bag_stack.top().first->add
                                     ( new Property<char>( name, description, value_string[0] ) );
                         }
+                        else if ( type == "uchar" ) {
+                            if ( value_string.length() != 1 )
+                                throw SAXException(std::string("Wrong value for property '"+type+"'." \
+                                                               " Value should contain a single unsigned character, got '"+ value_string +"'.").c_str());
+                            else 
+                                bag_stack.top().first->add
+                                    ( new Property<unsigned char>( name, description, value_string[0] ) );
+                        }
                         else if ( type == "long" || type == "short") 
                         {
                             int v;
                             if ( sscanf(value_string.c_str(), "%d", &v) == 1)
                                 bag_stack.top().first->add( new Property<int>( name, description, v ) );
+                            else
+                                throw SAXException(std::string("Wrong value for property '"+type+"'." \
+                                                               " Value should contain an integer value, got '"+ value_string +"'.").c_str());
+                        }
+                        else if ( type == "ulong" || type == "ushort") 
+                        {
+                            unsigned int v;
+                            if ( sscanf(value_string.c_str(), "%u", &v) == 1)
+                                bag_stack.top().first->add( new Property<unsigned int>( name, description, v ) );
                             else
                                 throw SAXException(std::string("Wrong value for property '"+type+"'." \
                                                                " Value should contain an integer value, got '"+ value_string +"'.").c_str());
@@ -143,6 +160,16 @@ namespace RTT
                             else
                                 throw SAXException(std::string("Wrong value for property '"+type+"'." \
                                                                " Value should contain a double value, got '"+ value_string +"'.").c_str());
+                        }
+                        else if ( type == "float") 
+                        {
+                            float v;
+                            if ( sscanf(value_string.c_str(), "%f", &v) == 1 )
+                                bag_stack.top().first->add
+                                    ( new Property<float>( name, description, v ) );
+                            else
+                                throw SAXException(std::string("Wrong value for property '"+type+"'." \
+                                                               " Value should contain a float value, got '"+ value_string +"'.").c_str());
                         }
                         else if ( type == "string") 
                             bag_stack.top().first->add
