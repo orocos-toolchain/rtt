@@ -138,15 +138,23 @@ namespace RTT
 
         void setMaxOverrun( int m );
         int getMaxOverrun() const;
-     protected:
         /**
-         * Exit the thread 
-         * @pre  this is only called from within the thread
-         * @post the thread does no longer exist
+         * Exit and destroy the thread 
+         * @pre  this is only called from within the destructor.
+         * @post the thread does no longer exist.
          */
         void terminate();
 
+        void emergencyStop();
+     protected:
+
         virtual void continuousStepping(bool yes_no);
+        /**
+         * Use this from within step() to stop this thread.
+         * This function will call finalize() as well, thus it
+         * is advised to call this function as the last statement
+         * in your step().
+         */
         virtual bool setToStop();
 
         virtual void step();
@@ -154,13 +162,19 @@ namespace RTT
         virtual bool initialize();
 
         virtual void finalize();
-
-      void emergencyStop();
      private:
         /**
          * Do configuration actions when the thread is stopped.
          */
         void configure();
+
+        /**
+         * The task struct.
+         * @todo If we make this and other structs a pointer, the FOSI
+         * can become a library and there is a larger binary compatibility.
+         * A 'd' pointer approach would also be an improvement.
+         */
+        RTOS_TASK rtos_task;
 
         /**
          * When set to 1, the thread will run, when set to 0
@@ -173,12 +187,9 @@ namespace RTT
          */
         bool goRealtime;
 
-        /**
-     * The task struct
-         */
-    RTOS_TASK rtos_task;
-
         bool prepareForExit;
+
+        bool wait_for_step;
 
         rt_sem_t sem;
         rt_sem_t confDone;
@@ -187,17 +198,10 @@ namespace RTT
          */
         OS::RunnableInterface* runComp;
 
-        RTT::Handle* h;
-        // We cannot include Event.hpp inhere,
-        // thus we use a void* + static_cast in cxx file.
-        void* stopEvent;
+        int maxOverRun;
 
-        bool wait_for_step;
-
-      int maxOverRun;
-
-    // Only used for passing on the period
-    NANO_TIME period;
+        // Only used for passing on the period
+        NANO_TIME period;
     
     };
 

@@ -35,10 +35,6 @@
 #include "pkgconf/corelib.h"
 #endif
 
-#ifdef OROPKG_CORELIB_EVENTS
-#include "rtt/Event.hpp"
-#include "rtt/CompletionProcessor.hpp"
-#endif
 #ifdef OROPKG_CORELIB_REPORTING
 #include "rtt/Logger.hpp"
 #endif
@@ -272,11 +268,6 @@ namespace RTT
 #endif
         }
 
-#ifdef OROINT_CORELIB_COMPLETION_INTERFACE
-        h = new RTT::Handle();
-        stopEvent = static_cast<void*>( new Event<bool(void)>("StopEvent") );
-#endif
-
         // Do not call setPeriod(), since the semaphores are not yet used !
         period = Seconds_to_nsecs(periods);
 
@@ -315,11 +306,6 @@ namespace RTT
 	if (runComp)
 	  runComp->setThread(0);
 
-#ifdef OROINT_CORELIB_COMPLETION_INTERFACE
-        h->disconnect();
-        delete h;
-        delete static_cast<Event<bool(void)>*>(stopEvent);
-#endif
     }
 
     bool PeriodicThread::run( RunnableInterface* r)
@@ -353,9 +339,6 @@ namespace RTT
             return false;
         }
 
-#ifdef OROINT_CORELIB_COMPLETION_INTERFACE
-        *h = static_cast<Event<bool(void)>*>(stopEvent)->connect( bind( &PeriodicThread::stop, this ), RTT::CompletionProcessor::Instance() );
-#endif
         running=true;
 
         // be sure that confDone is set to zero
@@ -411,9 +394,6 @@ namespace RTT
 
         this->finalize();
 
-#ifdef OROINT_CORELIB_COMPLETION_INTERFACE
-        h->disconnect();
-#endif
         return true;
     }
 
@@ -606,12 +586,9 @@ namespace RTT
 
     bool PeriodicThread::setToStop()
     {
-#ifdef OROINT_CORELIB_COMPLETION_INTERFACE
-        (*static_cast< Event<bool(void)>* >(stopEvent))();
+        running = false;
+        this->finalize();
         return true;
-#else
-        return false;
-#endif
     }
 
     const char* PeriodicThread::getName() const
