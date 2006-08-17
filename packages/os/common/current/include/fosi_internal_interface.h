@@ -28,11 +28,10 @@
  
 
 /**
- * @file fosi_task_interface.h
+ * @file fosi_internal_interface.h
  * This file has all the (periodic) thread specific interfaces.
  * If a function does not apply to your OS, it may be left empty.
  *
- * Rename to 'fosi_internal.h'
  */
  
 #ifndef OS_FOSI_INTERNAL_INTERFACE_HPP
