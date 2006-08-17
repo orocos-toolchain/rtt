@@ -189,6 +189,7 @@ namespace RTT
     }
 
     void ExecutionEngine::step() {
+        Logger::In in( taskc->getName().c_str() );
         // this #ifdef ... #endif is only for speed optimisations.
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
         if (pproc)
@@ -208,8 +209,10 @@ namespace RTT
 #endif
         taskc->update();
         // call all children as well.
-        for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it)
+        for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
+            Logger::In in( (*it)->getName().c_str() );
             (*it)->update();
+        }
         return;
     }
 
