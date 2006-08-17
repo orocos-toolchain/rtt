@@ -74,7 +74,7 @@ namespace RTT
         /**
          * Get the name of this TaskCore.
          */
-        std::string getName() const
+        const std::string& getName() const
         {
             return _task_name;
         }

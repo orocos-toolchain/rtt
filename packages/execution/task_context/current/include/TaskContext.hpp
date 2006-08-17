@@ -86,6 +86,7 @@ namespace RTT
         // non copyable
         TaskContext( TaskContext& );
     protected:
+        std::string mdescription;
     
         typedef std::map< std::string, TaskContext* > PeerMap;
         typedef std::vector< TaskContext* > Users;
@@ -135,9 +136,11 @@ namespace RTT
 
         virtual ~TaskContext();
 
-        std::string getName() const;
+        const std::string& getName() const;
 
-        std::string getDescription() const;
+        const std::string& getDescription() const;
+
+        void setDescription(const std::string& descr);
 
         /**
          * Queue a command.

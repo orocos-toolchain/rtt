@@ -179,16 +179,20 @@ namespace RTT
         }
     }
 
-    std::string TaskContext::getName() const
+    const std::string& TaskContext::getName() const
     {
         return TaskCore::getName();
     }
 
-    std::string TaskContext::getDescription() const
+    const std::string& TaskContext::getDescription() const
     {
-        return "The public Interface of this TaskContext.";
+        return mdescription;
     }
 
+    void TaskContext::setDescription(const std::string&  d)
+    {
+        mdescription = d;
+    }
 
     bool TaskContext::executeCommand( CommandInterface* c)
     {

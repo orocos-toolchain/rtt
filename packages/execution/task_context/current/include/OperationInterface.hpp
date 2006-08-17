@@ -15,8 +15,8 @@ namespace RTT
     {
     public:
         virtual ~OperationInterface() {}
-        virtual std::string getName() const = 0;
-        virtual std::string getDescription() const = 0;
+        virtual const std::string& getName() const = 0;
+        virtual const std::string& getDescription() const = 0;
         virtual CommandRepository* commands() = 0;
 
         virtual MethodRepository* methods() = 0;
@@ -41,9 +41,9 @@ namespace RTT
             : mname(name), mdescription(description)
         {}
 
-        std::string getName() const { return mname; }
+        const std::string& getName() const { return mname; }
 
-        std::string getDescription() const { return mdescription; }
+        const std::string& getDescription() const { return mdescription; }
 
         virtual CommandRepository* commands() { return &mcommands; }
 
