@@ -177,7 +177,7 @@ namespace RTT
             throw parse_exception_syntactic_error( e.descriptor );
         }
     if ( parser.assignCommand() ) {
-        DataSourceBase::shared_ptr ret = new DataSourceCommand( parser.assignCommand() );
+        DataSourceBase::shared_ptr ret = new DataSourceCommand( parser.assignCommand()->clone() );
         parser.reset();
         return ret;
     }
