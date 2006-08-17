@@ -26,6 +26,7 @@
 #include <rtt/Method.hpp>
 #include <rtt/DataSourceAdaptor.hpp>
 #include <rtt/DataSourceGenerator.hpp>
+#include <rtt/ProgramProcessor.hpp>
 
 #include <rtt/SimulationActivity.hpp>
 #include <rtt/SimulationThread.hpp>
@@ -115,7 +116,7 @@ TaskObject* Template_FactoryTest::createCommandFactory()
 
 void Template_FactoryTest::executePrograms(const Parser::ParsedPrograms& pg_list )
 {
-    tc->getExecutionEngine()->getProgramProcessor()->loadProgram( *pg_list.begin() );
+    tc->engine()->programs()->loadProgram( *pg_list.begin() );
     CPPUNIT_ASSERT( tsim->start() );
     CPPUNIT_ASSERT( (*pg_list.begin())->start() );
     CPPUNIT_ASSERT( SimulationThread::Instance()->run(1000) );

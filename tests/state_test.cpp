@@ -290,7 +290,7 @@ void StateTest::testStateFailure()
         this->doState( prog, &gtc, false );
 
         // assert that an error happened :
-        CPPUNIT_ASSERT( gtc.getExecutionEngine()->getStateMachineProcessor()->getStateMachineStatus("x") == StateMachine::Status::error );
+        CPPUNIT_ASSERT( gtc.engine()->states()->getStateMachineStatus("x") == StateMachine::Status::error );
         
         this->finishState( &gtc, "x");
     }
@@ -636,28 +636,28 @@ void StateTest::testStateEvents()
         + " run {\n"
         //        + "     do test.assert(false)\n"
         + "     do y1.activate()\n"
-        + "     emit d_event(-1.0)\n"
+        + "     do d_event(-1.0)\n"
         + "     do nothing\n"
         + "     do test.assert( !y1.inState(\"INIT\") )\n"
         + "     do test.assert( !y1.inState(\"ISPOSITIVE\") )\n"
         + "     do test.assert( y1.inState(\"ISNEGATIVE\") )\n"
         + "     do y1.requestState(\"INIT\")\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
-        + "     emit d_event(+1.0)\n"
+        + "     do d_event(+1.0)\n"
 //         + "     do nothing\n"
         + "     if ( !y1.inState(\"ISPOSITIVE\") ) then\n"
         + "          do test.assertMsg( false, y1.getState() )\n"
         + "     do test.assert( y1.inState(\"ISPOSITIVE\") )\n"
         + "     do y1.requestState(\"INIT\")\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
-        + "     emit b_event(true)\n"
+        + "     do b_event(true)\n"
 //         + "     do nothing\n"
         + "     if ( !y1.inState(\"ISTRUE\") ) then\n"
         + "          do test.assertMsg(false, y1.getState() )\n"
         + "     do test.assertMsg( y1.inState(\"ISTRUE\"), y1.getState() )\n"
         + "     do y1.requestState(\"INIT\")\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
-        + "     emit b_event(false)\n"
+        + "     do b_event(false)\n"
 //         + "     do nothing\n"
         + "     if ( !y1.inState(\"ISFALSE\") ) then\n"
         + "          do test.assertMsg(false, y1.getState() )\n"
@@ -704,6 +704,9 @@ void StateTest::testStateUntilFail()
 
 void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 {
+    CPPUNIT_ASSERT( tc->engine() );
+    CPPUNIT_ASSERT( tc->engine()->states());
+
 #ifndef NOPARSER
     Parser::ParsedStateMachines pg_list;
 #else

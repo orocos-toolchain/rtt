@@ -35,7 +35,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( FunctionTest );
 
     FunctionTest::FunctionTest()
         : gtc("root" ),
-          gtask( 0.01, gtc.getExecutionEngine() )
+          gtask( 0.01, gtc.engine() )
     {}
 
 
@@ -300,6 +300,8 @@ void FunctionTest::testFunctionFail()
 
 void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool test )
 {
+    CPPUNIT_ASSERT( tc->engine() );
+    CPPUNIT_ASSERT( tc->engine()->programs());
     Parser::ParsedPrograms pg_list;
     try {
         pg_list = parser.parseProgram( prog, tc );
@@ -312,7 +314,7 @@ void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool te
         {
             CPPUNIT_ASSERT_MESSAGE("No program parsed in test.", false );
         }
-    ProgramProcessor* pp = tc->getExecutionEngine()->getProgramProcessor();
+    ProgramProcessor* pp = tc->engine()->programs();
     pp->loadProgram( *pg_list.begin() );
     pp->getProgram( (*pg_list.begin())->getName() )->start();
     CPPUNIT_ASSERT( SimulationThread::Instance()->run(1000) );
@@ -328,8 +330,8 @@ void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool te
 
 void FunctionTest::finishFunction(TaskContext* tc, std::string prog_name)
 {
-    tc->getExecutionEngine()->getProgramProcessor()->getProgram( prog_name )->stop();
-    tc->getExecutionEngine()->getProgramProcessor()->unloadProgram( prog_name );
+    tc->engine()->programs()->getProgram( prog_name )->stop();
+    tc->engine()->programs()->unloadProgram( prog_name );
 
     TaskContext* ptc= tc->getPeer("programs")->getPeer(prog_name);
     tc->getPeer("programs")->removePeer(prog_name);

@@ -27,6 +27,8 @@
 #include <rtt/SimulationThread.hpp>
 #include <rtt/TaskBrowser.hpp>
 #include <rtt/GenericTaskContext.hpp>
+#include <rtt/ProgramProcessor.hpp>
+#include <rtt/StateMachineProcessor.hpp>
 #ifdef OROPKG_GEOMETRY
 #include <geometry/GeometryToolkit.hpp>
 #include <geometry/frames_io.h>
@@ -132,8 +134,8 @@ void TypesTest::testTypes()
     // for some reason, we can not compare the double6D's one fails
     // to parse, the others assert false, thus inequality.
     string test = 
-        string("var int i = -1, j = 10, k; set k = 20\n") +
-        "do test.assert( i == -1 ) ; do test.assert( j == 10 ); do test.assert(k == 20)\n" +
+        string("var int i2 = -1, j = 10, k; set k = 20\n") +
+        "do test.assert( i2 == -1 ) ; do test.assert( j == 10 ); do test.assert(k == 20)\n" +
         "var double d = 10.0\n"+
         "do test.assert( d == 10.0 )\n" +
         "var bool b = false\n"+
@@ -150,7 +152,7 @@ void TypesTest::testTypes()
 //         "do test.assert( double6d(0.01) == double6d(0.01) )\n" +
 //         "do test.assert( d6_2 == double6d(0.01) )\n" +
 #endif
-        "const int ic = i\n" +
+        "const int ic = i2\n" +
         "do test.assert( ic == 0 )\n" + // i was null at parse time !
         "const double dc = 10.0\n"+     // evaluate 10.0 at parse time
         "do test.assert( dc == 10.0 )\n" +
@@ -229,9 +231,9 @@ void TypesTest::testTypes()
         +"final state Fini {} }\n"
         +"RootMachine X x\n";
     
+    string prog = string("program x {\n") + test + "}\n";
     executeStates(state);
                           
-    string prog = string("program x {\n") + test + "}\n";
     // execute
     executePrograms(prog);
 
@@ -269,45 +271,45 @@ void TypesTest::testOperators()
 void TypesTest::testProperties()
 {
     string prog = string("program x {\n") +
-        "do test.assert( task.Double1 == 1.234 )\n" +
-        "do test.assert( task.Double2 == 2.234 )\n" +
-        "do test.assert( task.Double3 == 3.234 )\n" +
-        "do test.assert( task.Collection.Double1 == 1.234 )\n" +
-        "do test.assert( task.Collection.Double3 == 3.234 )\n" +
-        "do test.assert( task.Collection.Collection.Double1 == 1.234 )\n" +
-        "do test.assert( task.Collection.Collection.Collection.Double3 == 3.234 )\n" +
-        "do test.assert( task.V[0] == 4.0 )\n" +
-        "do test.assert( task.V[1] == 4.0 )\n" +
-        "do test.assert( task.V[2] == 4.0 )\n" +
-        "do test.assert( task.V[3] == 4.0 )\n" +
-        //"do test.assert( task.V.size() == 4 )\n" +
-        "set task.Double1 = 4.321\n" +
-        "set task.Double2 = task.Double1\n" +
+        "do test.assert( Double1 == 1.234 )\n" +
+        "do test.assert( Double2 == 2.234 )\n" +
+        "do test.assert( Double3 == 3.234 )\n" +
+        "do test.assert( Collection.Double1 == 1.234 )\n" +
+        "do test.assert( Collection.Double3 == 3.234 )\n" +
+        "do test.assert( Collection.Collection.Double1 == 1.234 )\n" +
+        "do test.assert( Collection.Collection.Collection.Double3 == 3.234 )\n" +
+        "do test.assert( V[0] == 4.0 )\n" +
+        "do test.assert( V[1] == 4.0 )\n" +
+        "do test.assert( V[2] == 4.0 )\n" +
+        "do test.assert( V[3] == 4.0 )\n" +
+        //"do test.assert( V.size() == 4 )\n" +
+        "set Double1 = 4.321\n" +
+        "set Double2 = Double1\n" +
         // -> = 10
-        "set task.Collection.Double3 = 0.3\n" +
-        "set task.V[0] = 0.321\n" +
-        "set task.V[1] = 1.321\n" +
-        "set task.V[2] = 2.321\n" +
-        "set task.V[3] = 3.321\n" +
-        "do test.assert( task.Double1 == 4.321 )\n" +
-        "do test.assert( task.Double2 == 4.321 )\n" +
-        "do test.assert( task.Double3 == 0.3 )\n" +
-        "set task.Collection.Collection.Collection.Double3 = 3.0\n" +
-        "do test.assert( task.Double3 == 3.0 )\n" +
+        "set Collection.Double3 = 0.3\n" +
+        "set V[0] = 0.321\n" +
+        "set V[1] = 1.321\n" +
+        "set V[2] = 2.321\n" +
+        "set V[3] = 3.321\n" +
+        "do test.assert( Double1 == 4.321 )\n" +
+        "do test.assert( Double2 == 4.321 )\n" +
+        "do test.assert( Double3 == 0.3 )\n" +
+        "set Collection.Collection.Collection.Double3 = 3.0\n" +
+        "do test.assert( Double3 == 3.0 )\n" +
 #ifdef OROPKG_GEOMETRY
         "var vector v = vector(0.,0.,0.)\n"+
         "var rotation r = rotation(0.,0.,0.)\n"+
-        "do test.assert( task.Frame == task.Frame ) \n"+
-        "do test.assert( task.Rotation == rotation(0., 45., 60. ) ) \n"+
+        "do test.assert( Frame == Frame ) \n"+
+        "do test.assert( Rotation == rotation(0., 45., 60. ) ) \n"+
         // -> = 20
         "set v = vector(0.,2.,4.)\n"+
         "set r = rotation(0.,45.,60.) \n"+
-        "set task.Frame = frame( v, r )\n"+
-        "set task.Rotation = r\n"+
-        "do test.assert( task.Frame.p.x == frame(v,r).p.x ) \n"+
-        "do test.assert( task.Rotation.roll == rotation(0., 45., 60. ).roll ) \n"+
-        "do test.assert( task.Frame.p.x == task.Collection.Frame.p.x ) \n"+
-        "do test.assert( task.Collection.Rotation.pitch == rotation(0., 45., 60. ).pitch ) \n"+
+        "set Frame = frame( v, r )\n"+
+        "set Rotation = r\n"+
+        "do test.assert( Frame.p.x == frame(v,r).p.x ) \n"+
+        "do test.assert( Rotation.roll == rotation(0., 45., 60. ).roll ) \n"+
+        "do test.assert( Frame.p.x == Collection.Frame.p.x ) \n"+
+        "do test.assert( Collection.Rotation.pitch == rotation(0., 45., 60. ).pitch ) \n"+
 #endif
         "}";
 
@@ -349,6 +351,9 @@ void TypesTest::testProperties()
 
 void TypesTest::executePrograms(const std::string& prog )
 {
+    CPPUNIT_ASSERT( tc->engine() );
+    CPPUNIT_ASSERT( tc->engine()->programs());
+
     Parser::ParsedPrograms pg_list;
     try {
         pg_list = parser.parseProgram( prog, tc );
@@ -367,6 +372,7 @@ void TypesTest::executePrograms(const std::string& prog )
     CPPUNIT_ASSERT( (*pg_list.begin())->start() );
 
     CPPUNIT_ASSERT( SimulationThread::Instance()->run(1000) );
+
     if ( (*pg_list.begin())->inError() ) {
         stringstream errormsg;
         errormsg << " Program error on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
@@ -391,6 +397,8 @@ void TypesTest::executePrograms(const std::string& prog )
 
 void TypesTest::executeStates(const std::string& state )
 {
+    CPPUNIT_ASSERT( tc->engine() );
+    CPPUNIT_ASSERT( tc->engine()->states());
     Parser::ParsedStateMachines pg_list;
     try {
         pg_list = parser.parseStateMachine( state, tc );

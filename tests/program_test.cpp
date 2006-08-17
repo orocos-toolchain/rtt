@@ -325,16 +325,16 @@ void ProgramTest::testProgramTask()
 {
     // see if checking a remote condition works
     string prog = string("export function foo {\n")
-        + "  do assert( task.tvar_i == +2 ) \n"
-        + "  do assert( task.tvar_i != task.tconst_i ) \n"
-        + "  set task.tvar_i = +4\n"
-        + "  do assert( task.tvar_i == +4 ) \n"
+        + "  do assert( tvar_i == +2 ) \n"
+        + "  do assert( tvar_i != tconst_i ) \n"
+        + "  set tvar_i = +4\n"
+        + "  do assert( tvar_i == +4 ) \n"
         + "}\n"
         + "program x { \n"
-        + "do assert( task.tvar_i == -1 ) \n"
-        + "do assert( task.tvar_i == task.tconst_i ) \n"
-        + "set task.tvar_i = +2\n"
-        + "do assert( task.tvar_i == +2 )\n"
+        + "do assert( tvar_i == -1 ) \n"
+        + "do assert( tvar_i == tconst_i ) \n"
+        + "set tvar_i = +2\n"
+        + "do assert( tvar_i == +2 )\n"
         + "do foo()\n"
         + "}";
     this->doProgram( prog, &gtc );
@@ -378,6 +378,9 @@ void ProgramTest::testProgramUntilFail()
 
 void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test )
 {
+    CPPUNIT_ASSERT( tc->engine() );
+    CPPUNIT_ASSERT( tc->engine()->programs());
+
     Parser::ParsedPrograms pg_list;
     try {
         pg_list = parser.parseProgram( prog, tc );
