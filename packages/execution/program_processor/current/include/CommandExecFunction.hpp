@@ -159,7 +159,7 @@ namespace RTT
             return maccept->get();
         }
 
-        virtual bool evaluate() const {
+        virtual bool done() const {
             return maccept->get() && _v->get()->isStopped();
         }
 

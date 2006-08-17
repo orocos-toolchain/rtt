@@ -49,7 +49,7 @@ namespace RTT
              * @return true if ready and succesfully queued.
              */
             bool invoke() {
-                if (!mcp ||(minvoked && !this->evaluate()) ) // if invoked and not ready.
+                if (!mcp ||(minvoked && !this->done()) ) // if invoked and not ready.
                     return false;
                 this->reset();
                 minvoked = true;
@@ -58,7 +58,7 @@ namespace RTT
 
             template<class T1>
             bool invoke( T1 a1 ) {
-                if (!mcp ||(minvoked && !this->evaluate()) ) // if invoked and not ready.
+                if (!mcp ||(minvoked && !this->done()) ) // if invoked and not ready.
                     return false;
                 this->reset();
                 // bind types from Storage<Function>
@@ -69,7 +69,7 @@ namespace RTT
 
             template<class T1, class T2>
             bool invoke( T1 a1, T2 a2 ) {
-                if (!mcp ||(minvoked && !this->evaluate()) ) // if invoked and not ready.
+                if (!mcp ||(minvoked && !this->done()) ) // if invoked and not ready.
                     return false;
                 this->reset();
                 // bind types from Storage<Function>
@@ -80,7 +80,7 @@ namespace RTT
 
             template<class T1, class T2, class T3>
             bool invoke( T1 a1, T2 a2, T3 a3 ) {
-                if (!mcp ||(minvoked && !this->evaluate()) ) // if invoked and not ready.
+                if (!mcp ||(minvoked && !this->done()) ) // if invoked and not ready.
                     return false;
                 this->reset();
                 // bind types from Storage<Function>
@@ -91,7 +91,7 @@ namespace RTT
 
             template<class T1, class T2, class T3, class T4>
             bool invoke( T1 a1, T2 a2, T3 a3, T4 a4 ) {
-                if (!mcp ||(minvoked && !this->evaluate()) ) // if invoked and not ready.
+                if (!mcp ||(minvoked && !this->done()) ) // if invoked and not ready.
                     return false;
                 this->reset();
                 // bind types from Storage<Function>
@@ -175,11 +175,11 @@ namespace RTT
             virtual void readArguments() {}
 
             virtual bool ready() const {
-                return ( !this->minvoked || this->evaluate() );
+                return ( !this->minvoked || this->done() );
             }
 
             virtual bool dispatch() {
-                if (this->minvoked && !this->evaluate() ) // if invoked and not ready.
+                if (this->minvoked && !this->done() ) // if invoked and not ready.
                     return false;
                 this->reset();
                 this->maccept = this->mcp->process( this );
@@ -193,7 +193,7 @@ namespace RTT
                 return this->mvalid;
             }
         
-            virtual bool evaluate() const {
+            virtual bool done() const {
                 if (this->mexec && this->mvalid )
                     return this->check() != this->minvert;
                 return false;
@@ -226,7 +226,7 @@ namespace RTT
             {
                 // LocalCommands are not used by the Parser, so this method is actually
                 // not used within Orocos.
-                return new detail::ConditionFunctor<bool(void)>( boost::bind<bool>( boost::mem_fn(&LocalCommand::evaluate), this) );
+                return new detail::ConditionFunctor<bool(void)>( boost::bind<bool>( boost::mem_fn(&LocalCommand::done), this) );
             }
 
             /** 

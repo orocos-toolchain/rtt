@@ -101,7 +101,7 @@ namespace RTT
         return dispatcher.mexecuted && dispatcher.mvalid;
     }
 
-    bool CommandDispatch::evaluate() const {
+    bool CommandDispatch::done() const {
         return valid() && mcn->evaluate();
     }
 

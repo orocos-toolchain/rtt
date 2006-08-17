@@ -205,16 +205,6 @@ namespace RTT
         /**
          * Returns true if the command is executed and the completion
          * condition returns true as well.
-         * @deprecated by done()
-         */
-        bool evaluate() const {
-            if (!this->impl) return false;
-            return this->impl->evaluate();
-        }
-     
-        /**
-         * Returns true if the command is executed and the completion
-         * condition returns true as well.
          */
         bool done() const {
             if (!this->impl) return false;

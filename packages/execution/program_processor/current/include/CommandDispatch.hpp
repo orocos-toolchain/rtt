@@ -130,7 +130,7 @@ namespace RTT
          * completion condition was true as well.
          * @retval false otherwise.
          */
-        bool evaluate() const;
+        bool done() const;
 
         virtual ConditionInterface* createCondition() const;
 

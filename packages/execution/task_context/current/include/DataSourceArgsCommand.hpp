@@ -105,7 +105,7 @@ namespace RTT
                 return mvalid;
             }
         
-            virtual bool evaluate() const {
+            virtual bool done() const {
                 if (mexec && mvalid )
                     return mcon.evaluate() != minvert;
                 return false;
