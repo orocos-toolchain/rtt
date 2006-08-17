@@ -37,7 +37,7 @@
 #include <rtt/Logger.hpp>
 #endif
 
-#ifdef ORO_EMBEDDED
+#ifdef OROBLD_OS_NOEXCEPTIONS
 
 namespace boost
 {
