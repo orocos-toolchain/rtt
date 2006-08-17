@@ -433,12 +433,15 @@ namespace RTT
             if ( (mconn && conn != mconn) || !conn ) // allow to connect twice to same connection.
                 return false;
             mconn = conn;
+            WriteBufferPort<T>::connect(conn);
+            ReadBufferPort<T>::connect(conn);
             return true;
         }
 
         virtual bool connect(typename WriteConnectionInterface<T>::shared_ptr conn) { 
             if ( this->connect( boost::dynamic_pointer_cast<BufferConnectionInterface<T> >(conn) ) ) {
-                 WriteBufferPort<T>::connect(conn);
+                 WriteBufferPort<T>::connect(mconn);
+                 ReadBufferPort<T>::connect(mconn);
                  return true;
             }
             return false;
@@ -446,7 +449,8 @@ namespace RTT
 
         virtual bool connect(typename ReadConnectionInterface<T>::shared_ptr conn) {
             if ( this->connect( boost::dynamic_pointer_cast<BufferConnectionInterface<T> >(conn) ) ) {
-                 ReadBufferPort<T>::connect(conn);
+                 WriteBufferPort<T>::connect(mconn);
+                 ReadBufferPort<T>::connect(mconn);
                  return true;
             }
             return false;
