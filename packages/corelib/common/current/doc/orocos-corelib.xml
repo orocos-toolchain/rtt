@@ -776,7 +776,7 @@ ORO_main( int argc, char** argv)
       <figure><title>Tasks Sending Commands</title>
 	<mediaobject>
 	  <imageobject>
-	    <imagedata fileref="TaskCommandSerialisation" />
+	    <imagedata fileref="CommandExecution" />
 	  </imageobject>
 	  <caption>
 	    <para>
