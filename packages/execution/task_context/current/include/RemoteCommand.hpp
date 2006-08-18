@@ -110,8 +110,8 @@ namespace RTT
                 return this->mcom.execute();
             }
         
-            virtual bool evaluate() const {
-                return this->mcom.evaluate();
+            virtual bool done() const {
+                return this->mcom.done();
             }
      
             virtual void reset() {
