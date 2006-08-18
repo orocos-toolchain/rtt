@@ -6,6 +6,8 @@
 #include "DataSourceArgsMethod.hpp"
 #include "MethodC.hpp"
 #include <boost/shared_ptr.hpp>
+#include <boost/static_assert.hpp>
+#include <boost/type_traits/function_traits.hpp>
 
 namespace RTT
 {
@@ -114,6 +116,8 @@ namespace RTT
         {
             typedef typename boost::remove_pointer<MethodT>::type MethodVT;
             typedef typename boost::add_pointer<MethodVT>::type MethodPT;
+            BOOST_STATIC_ASSERT( boost::function_traits<typename MethodVT::Signature>::arity == 0 );
+
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
             const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );
@@ -147,6 +151,8 @@ namespace RTT
         {
             typedef typename boost::remove_pointer<MethodT>::type MethodVT;
             typedef typename boost::add_pointer<MethodVT>::type MethodPT;
+            BOOST_STATIC_ASSERT( boost::function_traits<typename MethodVT::Signature>::arity == 1 );
+
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
             const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );
@@ -184,6 +190,8 @@ namespace RTT
         {
             typedef typename boost::remove_pointer<MethodT>::type MethodVT;
             typedef typename boost::add_pointer<MethodVT>::type MethodPT;
+            BOOST_STATIC_ASSERT( boost::function_traits<typename MethodVT::Signature>::arity == 2 );
+
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
             const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );
@@ -226,6 +234,8 @@ namespace RTT
         {
             typedef typename boost::remove_pointer<MethodT>::type MethodVT;
             typedef typename boost::add_pointer<MethodVT>::type MethodPT;
+            BOOST_STATIC_ASSERT( boost::function_traits<typename MethodVT::Signature>::arity == 3 );
+
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
             const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );
@@ -272,6 +282,8 @@ namespace RTT
         {
             typedef typename boost::remove_pointer<MethodT>::type MethodVT;
             typedef typename boost::add_pointer<MethodVT>::type MethodPT;
+            BOOST_STATIC_ASSERT( boost::function_traits<typename MethodVT::Signature>::arity == 4 );
+
             MethodPT c = this->getpointer(meth);
             typedef typename MethodVT::Signature Sig;
             const detail::LocalMethod<Sig>* lm = dynamic_cast< const detail::LocalMethod<Sig>* >( c->getMethodImpl().get() );

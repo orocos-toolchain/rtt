@@ -10,6 +10,8 @@
 #include "RemoteCommand.hpp"
 #endif
 #include "Logger.hpp"
+#include <boost/static_assert.hpp>
+#include <boost/type_traits/function_traits.hpp>
 
 namespace RTT
 {
@@ -123,6 +125,8 @@ namespace RTT
             typedef typename boost::remove_pointer<CommandT>::type CommandVT;
             typedef typename boost::add_pointer<CommandVT>::type CommandPT;
             typedef typename CommandVT::Signature ComSig;
+            BOOST_STATIC_ASSERT( boost::function_traits<typename CommandVT::Signature>::arity == 0 );
+
             CommandPT c = this->getpointer(com);
             detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
             // We can only add local commands.
@@ -161,6 +165,8 @@ namespace RTT
             typedef typename boost::remove_pointer<CommandT>::type CommandVT;
             typedef typename boost::add_pointer<CommandVT>::type CommandPT;
             typedef typename CommandVT::Signature ComSig;
+            BOOST_STATIC_ASSERT( boost::function_traits<typename CommandVT::Signature>::arity == 1 );
+
             CommandPT c = this->getpointer(com);
             detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
             if ( !lc ) {
@@ -200,6 +206,8 @@ namespace RTT
             typedef typename boost::remove_pointer<CommandT>::type CommandVT;
             typedef typename boost::add_pointer<CommandVT>::type CommandPT;
             typedef typename CommandVT::Signature ComSig;
+            BOOST_STATIC_ASSERT( boost::function_traits<typename CommandVT::Signature>::arity == 2 );
+
             CommandPT c = this->getpointer(com);
             detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
             if ( !lc ) {
@@ -244,6 +252,8 @@ namespace RTT
             typedef typename boost::remove_pointer<CommandT>::type CommandVT;
             typedef typename boost::add_pointer<CommandVT>::type CommandPT;
             typedef typename CommandVT::Signature ComSig;
+            BOOST_STATIC_ASSERT( boost::function_traits<typename CommandVT::Signature>::arity == 3 );
+
             CommandPT c = this->getpointer(com);
             detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
             if ( !lc ) {
@@ -291,6 +301,8 @@ namespace RTT
             typedef typename boost::remove_pointer<CommandT>::type CommandVT;
             typedef typename boost::add_pointer<CommandVT>::type CommandPT;
             typedef typename CommandVT::Signature ComSig;
+            BOOST_STATIC_ASSERT( boost::function_traits<typename CommandVT::Signature>::arity == 4 );
+
             CommandPT c = this->getpointer(com);
             detail::LocalCommand<ComSig>* lc = dynamic_cast<detail::LocalCommand<ComSig>*>( c->getCommandImpl() );
             if ( !lc ) {

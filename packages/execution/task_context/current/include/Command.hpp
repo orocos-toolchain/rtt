@@ -2,6 +2,8 @@
 #define ORO_TASK_COMMAND_HPP
 
 #include <string>
+#include <boost/static_assert.hpp>
+#include <boost/type_traits/is_same.hpp>
 #include "CommandBase.hpp"
 #include "LocalCommand.hpp"
 #include "UnMember.hpp"
@@ -14,7 +16,7 @@ namespace RTT
      * The sending is also called the 'invocation' of the Command object.
      *
      * It is good practice that the
-     * receiving task which defines the commands it can execute, but
+     * receiving task defines the commands it can execute, but
      * this class allows otherwise as well.
      *
      * @param CommandT The function signature of the command. For
@@ -48,6 +50,8 @@ namespace RTT
     protected:
         std::string mname;
         typedef detail::InvokerSignature<boost::function_traits<CommandT>::arity, CommandT, detail::CommandBase<CommandT>* > Base;
+
+        BOOST_STATIC_ASSERT(( boost::is_same<typename boost::function_traits<CommandT>::result_type,bool>::value ));
     public:
         typedef CommandT Signature;
 

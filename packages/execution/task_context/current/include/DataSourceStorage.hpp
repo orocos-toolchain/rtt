@@ -61,7 +61,8 @@ namespace RTT
         struct DataSourceStorageImpl<0, DataType>
             : public DataSourceResultStorage<typename boost::function_traits<DataType>::result_type>
         {
-            void initArgs(CommandC& ) {}
+            template<class ContainerT>
+            void initArgs(ContainerT& ) {}
         };
 
         /**
@@ -73,7 +74,8 @@ namespace RTT
             typedef typename boost::function_traits<DataType>::arg1_type   arg1_type;
             DataSourceArgStorage<arg1_type> ma1;
 
-            void initArgs(CommandC& cc) {
+            template<class ContainerT>
+            void initArgs(ContainerT& cc) {
                 cc.arg( ma1.value );
             }
 
@@ -90,7 +92,8 @@ namespace RTT
             DataSourceArgStorage<arg1_type> ma1;
             DataSourceArgStorage<arg2_type> ma2;
 
-            void initArgs(CommandC& cc) {
+            template<class ContainerT>
+            void initArgs(ContainerT& cc) {
                 cc.arg( ma1.value );
                 cc.arg( ma2.value );
             }
@@ -110,7 +113,8 @@ namespace RTT
             DataSourceArgStorage<arg2_type> ma2;
             DataSourceArgStorage<arg3_type> ma3;
 
-            void initArgs(CommandC& cc) {
+            template<class ContainerT>
+            void initArgs(ContainerT& cc) {
                 cc.arg( ma1.value );
                 cc.arg( ma2.value );
                 cc.arg( ma3.value );
@@ -134,7 +138,8 @@ namespace RTT
             DataSourceArgStorage<arg3_type> ma3;
             DataSourceArgStorage<arg4_type> ma4;
 
-            void initArgs(CommandC& cc) {
+            template<class ContainerT>
+            void initArgs(ContainerT& cc) {
                 cc.arg( ma1.value );
                 cc.arg( ma2.value );
                 cc.arg( ma3.value );
@@ -144,7 +149,7 @@ namespace RTT
                 ma1.value->set(a1);
                 ma2.value->set(a2);
                 ma3.value->set(a3);
-                ma3.value->set(a4);
+                ma4.value->set(a4);
             }
         };
 

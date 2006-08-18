@@ -38,6 +38,8 @@
 #include "EventC.hpp"
 #include "ConnectionC.hpp"
 #include "DataSourceArgsEvent.hpp"
+#include <boost/static_assert.hpp>
+#include <boost/type_traits/function_traits.hpp>
 
 namespace RTT
 {
@@ -140,6 +142,8 @@ namespace RTT
         template< class EventT>
         bool addEvent( EventT* e, const char* description )
         {
+            BOOST_STATIC_ASSERT( boost::function_traits<typename EventT::Signature>::arity == 0 );
+
             if ( this->addEvent( e ) == false)
                 return false;
 
@@ -168,6 +172,8 @@ namespace RTT
         bool addEvent( EventT* e, const char* description,
                        const char* arg1, const char* arg1_description )
         {
+            BOOST_STATIC_ASSERT( boost::function_traits<typename EventT::Signature>::arity == 1 );
+
             if ( this->addEvent( e ) == false)
                 return false;
             this->add(e->getName(),
@@ -200,6 +206,8 @@ namespace RTT
                        const char* arg1, const char* arg1_description,
                        const char* arg2, const char* arg2_description )
         {
+            BOOST_STATIC_ASSERT( boost::function_traits<typename EventT::Signature>::arity == 2 );
+
             if ( this->addEvent( e ) == false)
                 return false;
             this->add(e->getName(),
@@ -236,6 +244,8 @@ namespace RTT
                        const char* arg2, const char* arg2_description,
                        const char* arg3, const char* arg3_description)
         {
+            BOOST_STATIC_ASSERT( boost::function_traits<typename EventT::Signature>::arity == 3 );
+
             if ( this->addEvent( e ) == false)
                 return false;
             this->add(e->getName(),
@@ -275,6 +285,8 @@ namespace RTT
                        const char* arg3, const char* arg3_description,
                        const char* arg4, const char* arg4_description )
         {
+            BOOST_STATIC_ASSERT( boost::function_traits<typename EventT::Signature>::arity == 4 );
+
             if ( this->addEvent( e ) == false)
                 return false;
             this->add(e->getName(),
