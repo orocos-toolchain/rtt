@@ -60,6 +60,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Simplified configuration section, removed RTLinux, added Xenoami</revremark>
       </revision>
+      <revision>
+	<revnumber>0.25.0</revnumber>
+	<date>17 Aug 2006</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Updated directory structure.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -737,10 +743,8 @@
 	It is similar to, and once developed with, RTAI/LXRT, but the
 	project is now independent of RTAI. See
 	<ulink url="http://www.xenomai.org">
-	  the Xenomai home page</ulink>. Xenomai works exclusively
-	  with Linux 2.6 kernels. The patch one needs to apply upon
-	  the Linux kernel can be found in the
-	  <filename>arch/[target]/patches</filename> directory. When
+	  the Xenomai home page</ulink>. Xenomai requires a patch one needs to apply upon
+	  the Linux kernel. See the Xenomai installation manual. When
 	  applied, one needs to enable the <option>ADEOS</option> or
 	  <option>IPIPE</option> option during Linux kernel
 	  configuration.
@@ -761,7 +765,9 @@
 	</para>
 	<para>
 	  After installation, Xenomai can be found in
-	  <filename>/usr/realtime</filename>. You'll have to specify
+	  <filename>/usr/realtime</filename> or
+	  <filename>/usr/xenomai</filename>. Orocos looks in the first
+	  directory for Xenomai. You'll have to specify
 	  during the Orocos configure step the alternative if you
 	  chose so.
 	</para>
@@ -1062,8 +1068,8 @@
 	  but some care must be taken in initialising the realtime
 	  environment. First of all, you need to provide a function
 	  <function>int ORO_main(int argc, char** argv)
-	    {...}</function>, defined in &lt;os/main.h&gt; which contains your program :
-	    <programlisting>  #include &lt;os/main.h&gt;
+	    {...}</function>, defined in &lt;rtt/os/main.h&gt; which contains your program :
+	    <programlisting>  #include &lt;rtt/os/main.h&gt;
 	      
   int ORO_main(int argc, char** argv)
   {
@@ -1082,24 +1088,20 @@
 	  <para>
 	    You can then simply compile your program with a Makefile
 	    resembling this one : 
-	    <programlisting>  CXXFLAGS=-O2 -I/usr/local/orocos/include -D_REENTRANT
-  LDFLAGS=-L/usr/local/orocos/lib -lorocos-<emphasis>&lt;target></emphasis> -lstdc++ -lpthread -lreadline -lncurses
+	    <programlisting>  OROPATH=/usr/local/orocos
+  CXXFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-<emphasis>&lt;target></emphasis> --cflags`
+  LDFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-<emphasis>&lt;target></emphasis> --libs`
 
   all: myprogram.cpp
         g++ myprogram.cpp ${CXXFLAGS} ${LDFLAGS} -o myprogram  </programlisting>
 	    The flags must be extended with compile and link options
 	    for your particular configuration.
-	    As you can see, your application does not have to be
-	    inside the packages directory at all. Applications can
-	    be developped fully out of the Orocos (build) directory.
 	  </para>
 	<para>
 	  <important>
 	    <para>The <option>LDFLAGS</option> option must be placed after
 	    the <filename>.cpp</filename> or <filename>.o</filename>
-	    files in the gcc command. Furthermore, the <option>-D_REENTRANT</option>
-	    option is necessary if Orocos is also compiled with this flag
-	    ( which is the default ).</para>
+	    files in the gcc command.</para>
 	  </important>
 	  <note>
 	    <para>Make sure you have read <xref linkend="install-configure" />
@@ -1113,10 +1115,6 @@
     <sect2>
       <title>Header Files Overview</title>
       <para>
-	People new to the eCos build system might be unfamiliar with locating
-	the headers they need. Especially if you want to develop your own package
-	or have more control on what is happening inside Orocos, these files will
-	be needed.
 	<table>
 	  <title>Header Files</title>
 	  <tgroup cols="2">
@@ -1129,50 +1127,14 @@
 	    </thead>
 	    <tbody>
 	      <row>
-		<!-- one of (entrytbl entry) -->
-		<entry>pkgconf/*.h</entry>
-		<entry>All these headers contain every configured item
-		  of the configuration tool, collected per package.
-		  If you need inside information
-		  on how an Orocos package is configured, these files contain all the
-		  defines, which were used when the libtarget.a was compiled.
-		  The macros are documented in the .cdl files and displayed by the
-		  configuration tool.
+		<entry>rtt/*.hpp</entry>
+		<entry>The `Real-Time Toolkit' directory contains all the
+		headers an Orocos user requires for building components.
 		</entry>
 	      </row>
 	      <row>
-		<!-- one of (entrytbl entry) -->
-		<entry>pkgconf/system.h</entry>
-		<entry>
-		  This header contains the definition of each installed
-		  package. The syntax is always of the type OROPKG_* and
-		  quite straightforward. This file also contains the version
-		  numbers of each installed package.
-		</entry>
-	      </row>
-	      <row>
-		<!-- one of (entrytbl entry) -->
-		<entry>pkgconf/os.h</entry>
-		<entry>This file, which is created by the os package,
-		  contains all the interfaces the current OS implements.
-		  They are defined as OROINT_OS_* to denote the capability
-		  of the OS. They are documented in the os.cdl file.
-		  For example, OROINT_OS_STDVECTOR denotes that the standard
-		  C++ vector implementation is available for the selected OS.
-		</entry>
-	      </row>
-	      <row>
-		<!-- one of (entrytbl entry) -->
-		<entry>corelib/*.hpp</entry>
-		<entry>The corelib headers are documented by Doxygen and
-		  the CoreLib manual. Most Orocos applications will
-		  use events, tasks and timing from the CoreLib.
-		</entry>
-	      </row>
-	      <row>
-		<!-- one of (entrytbl entry) -->
-		<entry>os/*.h, os/*.hpp</entry>
-		<entry>The os headers describe a limited set of
+		<entry>rtt/os/*.h, rtt/os/*.hpp</entry>
+		<entry>Not intended for normal users. The os headers describe a limited set of
 		  OS primitives, like locking a mutex or creating
 		  a thread. Read the OS manual carefully before
 		  using these headers, they are mostly used internally
@@ -1180,35 +1142,9 @@
 		</entry>
 	      </row>
 	      <row>
-		<!-- one of (entrytbl entry) -->
-		<entry>execution/*.hpp</entry>
-		<entry>The program and command execution headers enable
-		parsing and execution of script programs and state machines.
-		It provides a framework for setting up logical tasks which
-		can communicate in a peer-to-peer way.
-		</entry>
-	      </row>
-	      <row>
-		<!-- one of (entrytbl entry) -->
-		<entry>control_kernel/*.hpp</entry>
-		<entry>The Feedback Control Kernel and Components Headers.
-		The Open Robot Control Software framework, a framework for
-		implementing configurable, interactive control loops. Uses
-		much of the fucntionality of the execution package.
-		</entry>
-	      </row>
-	      <row>
-		<!-- one of (entrytbl entry) -->
-		<entry>device_drivers/*.h[pp]</entry>
-		<entry>Headers of any device drivers you enabled and some
-		common headers.
-		</entry>
-	      </row>
-	      <row>
-		<!-- one of (entrytbl entry) -->
-		<entry>device_interface/*.hpp</entry>
-		<entry>Headers of the C++ device interfaces for Orocos,
-		such as encoders, IO, and Sensors.
+		<entry>rtt/dev/*.h[pp]</entry>
+		<entry>C++ Headers of device drivers or device interfaces,
+		such as Comedi support.
 		</entry>
 	      </row>
 	      <row>
@@ -1216,24 +1152,17 @@
 		<entry>geometry/*.h[pp]</entry>
 		<entry>The Orocos Geometry library defines Frames, Vectors,
 		Twists, Paths, VelocityProfiles,... for 2D and 3D path planning.
+		This library will be replaced by the `KDL' (Kinematics and Dynamics Library)
 		</entry>
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
-		<entry>kindyn/*.hpp</entry>
-		<entry>An implementation of a stateful and stateless Kinematics
-		Component for 6DOF robots.
-		</entry>
-	      </row>
-	      <row>
-		<!-- one of (entrytbl entry) -->
-		<entry>can/*.hpp, comedi/*.hpp</entry>
-		<entry>Headers for Comedi and CANOpen device communication.
+		<entry>rtt/can/*.hpp</entry>
+		<entry>Headers for CANOpen device communication.
 		</entry>
 	      </row>
 	    </tbody>
 	  </tgroup>
-	  <!-- one of (graphic mediaobject tgroup) -->
 	</table>
       </para>
     </sect2>
