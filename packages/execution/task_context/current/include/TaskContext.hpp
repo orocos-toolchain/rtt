@@ -56,13 +56,13 @@ namespace RTT
      * A TaskContext exports the commands, methods, events, properties and ports
      * a task has. Furthermore, it allows to visit its peer tasks.
      *
-     * @section taskcontextint TaskContext interface
+     * @par TaskContext interface
      * When a command is exported, one can access it using commands(). A similar
      * mechanism is available for properties(), methods(), events() and ports().
      * The commands of this TaskContext are executed by its
      * ExecutionEngine.
      *
-     * @section taskcontextexec Executing a TaskContext
+     * @par Executing a TaskContext
      * In order to run the ExecutionEngine, the ExecutionEngine must
      * be invoked from an ActivityInterface implementation. As long as
      * there is no activity or the activity is not started, this
@@ -71,7 +71,7 @@ namespace RTT
      * of this class can determine himself at which point and at which
      * moment commands and programs can be executed.
      *
-     * @section taskcontextcon Connecting TaskContexts
+     * @par Connecting TaskContexts
      * TaskContexts are connected using the unidirectional addPeer() or bidirectional
      * connectPeers() methods. These methods setup data connections and allow
      * 'peer' TaskContexts to use each other's interface.

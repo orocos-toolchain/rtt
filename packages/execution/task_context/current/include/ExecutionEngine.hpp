@@ -69,8 +69,7 @@ namespace RTT
      * The ExecutionEngine bundles a CommandProcessor, ProgramProcessor,
      * StateMachineProcessor and EventProcessor.
      *
-     * @section ee_policy Changing the Execution Policy.
-     *
+     * @par Changing the Execution Policy
      * One can subclass this class in order to change the run-time
      * behaviour. Use TaskCore::setExecutionEngine in order to 
      * install a new ExecutionEngine in a component. All Members of

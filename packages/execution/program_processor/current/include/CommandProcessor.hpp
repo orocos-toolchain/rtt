@@ -59,7 +59,7 @@ namespace RTT
      * @brief This class implements an Orocos command processor.
      * It executes external commands when running.
      *
-     * @section cp_policy Changing the Command Processing Policy.
+     * @par Changing the Command Processing Policy
      *
      * The default policy of the CommandProcessor is to dequeue one
      * command in each step() and execute it. If you want to change

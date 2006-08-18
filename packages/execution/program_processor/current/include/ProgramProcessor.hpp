@@ -57,7 +57,7 @@ namespace RTT
      * This class implements a real-time program processor.
      * It executes Realtime Programs when running.
      *
-     * @section pp_policy Changing the Program Processing Policy.
+     * @par Changing the Program Processing Policy
      *
      * The default policy of the ProgramProcessor is to call
      * ProgramInterface::execute() of all loaded programs in each step(). Within

@@ -50,7 +50,7 @@ namespace RTT
     /**
      * This class implements a real-time state machine executor.
      *
-     * @section pp_policy Changing the State Machine Processing Policy.  
+     * @par Changing the State Machine Processing Policy
      *
      * The default policy of the StateMachineProcessor is to call
      * StateMachine::execute() of all loaded state machines in each
