@@ -41,12 +41,12 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    The <classname>Event</classname>,
-	    <classname>Method</classname>,
-	    <classname>Command</classname>,
-	    <classname>Property</classname>,
-	    <classname>Attribute</classname> and
-	    <classname>Port</classname> classes have changed in usage
+	    The <classname>RTT::Event</classname>,
+	    <classname>RTT::Method</classname>,
+	    <classname>RTT::Command</classname>,
+	    <classname>RTT::Property</classname>,
+	    <classname>RTT::Attribute</classname> and
+	    <classname>RTT::Port</classname> classes have changed in usage
 	    semantics. All these classes require a "name" as a
 	    constructor parameter in order to be initialised.  When no
 	    "name" is given (the default constructor) the objects are
@@ -60,7 +60,7 @@
 	    <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=119">
 	      [API] Improve Attribute/Property usage</ulink> and
 	      <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=111">
-		[API] Change event 'add' methods</ulink>for all details.
+		[API] Change event 'add' methods</ulink> for all details.
 	  </para>
 	</listitem>
 	<listitem>
@@ -168,7 +168,7 @@
 	    etc and such for each primitive. Retrieving a 'pointer' to
 	    a primitive from another TaskContext is then done by
 	    peer->getCommand("name"), peer->getProperty("name") etc.
-	    See <ulink url="">The Component Builder's Manual</ulink> for all details.
+	    See <ulink url="orocos-components-manual.html">The Component Builder's Manual</ulink> for all details.
 	  </para>
 	</listitem>
 	<listitem>
@@ -182,7 +182,7 @@ assert( myProp != 0 );</programlisting>
 assert( myProp.ready() );</programlisting>
 	    The ready() method checks if "Prop" could be found and had the correct value.
 	    This aproach must be taken for every Orocos primitive: Commands, Events, etc.
-	    See <ulink url="">The Component Builder's Manual</ulink> for all details.
+	    See <ulink url="orocos-components-manual.html">The Component Builder's Manual</ulink> for all details.
 	  </para>
 	</listitem>
       </itemizedlist>
