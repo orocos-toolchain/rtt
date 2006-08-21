@@ -4,8 +4,8 @@
 [
 <!ENTITY cvs         "<acronym>CVS</acronym>">
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY oldversion  "0.20.0">
-<!ENTITY version     "0.22.0">
+<!ENTITY oldversion  "0.24">
+<!ENTITY version     "0.25">
 <!ENTITY rtai        "<acronym>RTAI</acronym>">
 <!ENTITY rtos        "<acronym>RTOS</acronym>">
 ]
@@ -30,235 +30,185 @@
   <section id="caveats">
     <title>Caveats</title>
     <section>
-      <title>Core Infrastructure</title>
-    <itemizedlist>
-      <listitem>
-	<para>
-	  As warned in the previous release, the (long not maintained)
-	  FIFO infrastructure has been removed. To implement communication between
-	  kernel and user-space, use your OS specific communication primitives.
-	  Within the same package, the old 'buffer' implementations were removed
-	  as well.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  SingleThread had a semantic change with respect to start() and stop().
-	  Multiple invocations of start() will try to start the loop() function,
-	  but only the first invocation will call initialize(). A stop() will
-	  only call breakLoop() when the loop() function has not returned itself.
-	  If this succeeds, finalize() is called within stop() ( previously after
-	  loop() in the thread. )
-	</para>
-      </listitem>
-    </itemizedlist>
-    </section>
-    <section>
-      <title>Program and State Execution</title>
+      <title>Overall Changes</title>
       <itemizedlist>
 	<listitem>
 	  <para>
-	    API Change : The 'old' <classname>Processor</classname> has been replaced by
-	    the new <classname>ExecutionEngine</classname>, taking over the task of managing
-	    a task's commands, events, state machines etc. It delegates these tasks
-	    to specialised processors (<classname>EventProcessor</classname>,
-	    <classname>CommandProcessor</classname>,<classname>ProgramProcessor</classname> and
-	    <classname>StateMachineProcessor</classname> ).
-	    'Running' a task is now far more easier to setup. 
+	    The 'ORO_...' namespaces of Orocos have been renamed to 'RTT', 'RTT::OS', etc.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=65">
+	    [Project] new Orocos namespace</ulink> for all details.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    API Change : <classname>Program</classname>s and
-	    <classname>StateMachine</classname>s may now be directly
-	    controlled (start, pause, ...) by invoking the respective
-	    methods on these objects. Previously, manipulating these objects needed
-	    to happen through the <classname>Processor</classname>.
+	    The <classname>Event</classname>,
+	    <classname>Method</classname>,
+	    <classname>Command</classname>,
+	    <classname>Property</classname>,
+	    <classname>Attribute</classname> and
+	    <classname>Port</classname> classes have changed in usage
+	    semantics. All these classes require a "name" as a
+	    constructor parameter in order to be initialised.  When no
+	    "name" is given (the default constructor) the objects are
+	    empty boxes which will refuse to operate. In order to
+	    check for this condition, all these classes have a
+	    <function>ready()</function> method which returns true if
+	    the object is correctly setup. These new semantics allow
+	    far-going abstraction and network distribution of these
+	    primitives. See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=104">
+	    Commands and Methods : Away with the Template* classes</ulink>,
+	    <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=119">
+	      [API] Improve Attribute/Property usage</ulink> and
+	      <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=111">
+		[API] Change event 'add' methods</ulink>for all details.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The <function>addEvent</function>,
+	    <function>addMethod</function>,
+	    <function>addCommand</function>,
+	    <function>addProperty</function>,
+	    <function>addAttribute</function> and
+	    <function>addPort</function> functions 
+	    have been added to replace the 'TemplateFactory'
+	    classes of prior Orocos versions.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=104">
+	    Commands and Methods : Away with the Template* classes</ulink>,
+	    <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=119">
+	      [API] Improve Attribute/Property usage</ulink> and
+	      <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=111">
+		[API] Change event 'add' methods</ulink> for all details and a script
+	    which converts 0.24.0 application code to the new syntax.
 	  </para>
 	</listitem>
       </itemizedlist>
     </section>
     <section>
-      <title>Control Kernel Architecture</title>
+      <title>OS Changes</title>
       <itemizedlist>
 	<listitem>
 	  <para>
-	    By introduction of the <classname>Process</classname> Component, a new
-	    component which manages or provides services for other components, 
-	    the components which are started by default are managed by the 
-	    <classname>DefaultProcess</classname> Component.
+	    The ORO_OS namespace has been renamed to RTT::OS.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=65">
+	    [Project] new Orocos namespace</ulink> for all details.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    Each Component loaded in the Control Kernel has its own 'TaskContext'
-	    to store its commands, properties etc.
+	    The RTT::OS::PeriodicThread <function>setToStop()</function> function 
+	    now executes finalize() as well and no longer uses Events nor the
+	    Completion Processor.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=165">
+	    OS::PeriodicThread depends on RTT::Event, CompletionProcessor</ulink> for all details.
+	  </para>
+	</listitem>
+    </itemizedlist>
+    </section>
+    <section>
+      <title>CoreLib Changes</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The <classname>Event</classname> object has changed 'constructor' 
+	    semantics. An Event requires a "name" upon construction in order
+	    to be usable. Nameless events are 'empty' and require initialisation.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=111">
+	    [API] Change event 'add' methods</ulink> for all details.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The Activity classes can no longer react to Events. Use an <classname>EventProcessor</classname>
+	    or the <classname>ExecutionEngine</classname> to react to events.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=129">
+	    [Project] Removing Events out of activities</ulink> for all details.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>Scripting Changes</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The <command>emit</command> statement for emitting events has
+	    been replaced by the <command>do</command> statement in both
+	    program scripts and state machine scripts.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=154">
+	    Using events in TaskBrowser</ulink> for all details.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The <function>task.varname</function> prefix, required in programs
+	    and statemachines in order to access TaskContext variables has been
+	    dropped. One can now address a TaskContext variable by just writing
+	    <function>varname</function> in a script. The parser will not allow
+	    name clashes between program script variables and TaskContext
+	    variables in which the scripts are loaded.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=140">
+	    Using properties from a state machine</ulink> for all details.
 	  </para>
 	</listitem>
       </itemizedlist>
     </section>
   </section>
-  <section id="general">
-    <title>General Improvements</title>
-    <itemizedlist>
-      <listitem>
-	<para> 
-	  All 'locks' (mutexes) have been replaced with lock-free
-	  algorithms for events, commands, programs etc. Such that in
-	  a running real-time application, no more mutexes are used
-	  when communicating between threads. This has drastically
-	  improved performance (no OS kernel interaction) and time
-	  determinism (no more blocking threads).
-	</para>
-      </listitem>
-    </itemizedlist>
-  </section>
-  <section id="os">
-    <title>OS Specific Improvements</title>
+  <section>
+    <title>Improvements</title>
     <section>
-      <title>All</title>
+      <title>Orocos C++ Interface</title>
       <itemizedlist>
 	<listitem>
 	  <para>
-	    64bit support has been added and tested on the AMD64
-	    processors. Device drivers (Comedi, CAN) have not been ported to this platform.
+	    The classes and functions required to setup or access a component
+	    have been greatly simplified and are more uniform in naming.
+	    For example, adding a command is done by writing 
+	    commands()->addCommand(...), properties by properties()->addProperty(...)
+	    etc and such for each primitive. Retrieving a 'pointer' to
+	    a primitive from another TaskContext is then done by
+	    peer->getCommand("name"), peer->getProperty("name") etc.
+	    See <ulink url="">The Component Builder's Manual</ulink> for all details.
 	  </para>
 	</listitem>
-    </itemizedlist>
+	<listitem>
+	  <para>
+	    All Orocos primitives are to be used as 'objects' and not as 'pointers'.
+	    For example, one does no longer write 
+	    <programlisting>Property&lt;int&gt;* myProp = peer->properties()->getProperty&lt;int&gt;("Prop");
+assert( myProp != 0 );</programlisting>
+	    but instead: 
+	    <programlisting>Property&lt;int&gt; myProp = peer->properties()->getProperty&lt;int&gt;("Prop");
+assert( myProp.ready() );</programlisting>
+	    The ready() method checks if "Prop" could be found and had the correct value.
+	    This aproach must be taken for every Orocos primitive: Commands, Events, etc.
+	    See <ulink url="">The Component Builder's Manual</ulink> for all details.
+	  </para>
+	</listitem>
+      </itemizedlist>
     </section>
     <section>
-      <title>Xenomai</title>
+      <title>TaskBrowser</title>
       <itemizedlist>
 	<listitem>
 	  <para>
-	    A port to Xenomai 2.0 has been added. 
+	    One can emit events from the TaskBrowser by calling the event
+	    by name and providing the arguments.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=154">
+	    Using events in TaskBrowser</ulink> for all details.
 	  </para>
-      </listitem>
-    </itemizedlist>
+	</listitem>
+	<listitem>
+	  <para>
+	    An <classname>Orocos::TaskBrowser</classname> 'Component'
+	    has been created which is more powerful than the classical
+	    <classname>RTT::TaskBrowser</classname>.  It dynamically
+	    connects to Data Flow Ports and allows better testing of
+	    unconnected components.
+	  </para>
+	</listitem>
+      </itemizedlist>
     </section>
-  </section>
-  <section id="doc">
-    <title>Documentation Improvements</title>
-    <itemizedlist>
-      <listitem>
-	<para>
-	  The manuals have been updated with new examples and the
-	  updated interfaces. As ususual, the Online Doxygen documentation 
-	  has been updated.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The HTML manuals now link to the Doxygen online API,
-	  allowing the user to explore a class interface when it is discussed
-	  in the text.
-	</para>
-      </listitem>
-    </itemizedlist>
-  </section>
-  <section id="corelib">
-    <title>CoreLib Improvements</title>
-    <itemizedlist>
-      <listitem>
-	<para>
-	  The Event mechanism has been reworked to a new implementation
-	  which is now hard real-time safe, both in emitting events and
-	  connecting/disconnecting event handles. Orocos Events also are no
-	  longer subject to priority inversions or dead-locks.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  A pleathora of lock-free buffers, lists and queues has been added
-	  for real-time (local) data exchange, which is especially beneficial
-	  for communication between hard and soft/not real-time threads.
-	</para>
-      </listitem>
-    </itemizedlist>
-  </section>
-  <section id="control">
-    <title>Control Kernel and Components Improvements</title>
-    <itemizedlist>
-      <listitem>
-	<para>
-	  A new kind of Component, the <classname>Process</classname>
-	  Component has been added to provide a place to implement kinematic
-	  algorithms or fine grained control over which components are
-	  executed and in which order. Each application will have a Process Component.
-	  The <classname>DefaultProcess</classname> just executes all components
-	  in the default order, a <classname>CartesianProcess</classname> executes
-	  the cartesian path interpolation components with a Kinematics Component,
-	  the <classname>KinematicProcess</classname>. The Control Kernel example
-	  applications have been updated to use this component type.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  We have switched to the Boost::Ublas library for matrix calculations.
-	  The Orocos kinematics interfaces are the first to use these objects
-	  for Jacobian calculations.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  A new Kinematics Process Component has been added to manage 
-	  all kinematics of your controller. It provides all the kinematic
-	  algorithms as 'methods' in its component interface, and can
-	  be online reconfigured or read information from a property XML
-	  file.
-	</para>
-      </listitem>
-    </itemizedlist>
-  </section>
-  <section id="program">
-    <title>TaskContext, Program Processor and Parser Improvements</title>
-    <itemizedlist>
-      <listitem>
-	<para>
-	  The <classname>ExecutionEngine</classname> class has been added to replace the
-	  Processor class and manages access to the processors for commands, events,
-	  programs and state machines.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  The <classname>StateMachine</classname> can now react to events of peer
-	  tasks. A new 'event transition' syntax was added to the scripting language.
-	  The arguments (data) of the events are caught in script variables and
-	  are directly accessible to decide on the transition to another state.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  All processor interaction is now fully lock-free. This means that any
-	  command or event can not cause dead-locks or higher priority threads
-	  to wait within the Orocos framework.
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  Sending commands, invoking methods, using events,... Any part of the
-	  <classname>TaskContext</classname> interface creates 'user-friendly'
-	  C++ objects which represent the command, method or event. Lookup
-	  <classname>CommandC</classname>, <classname>MethodC</classname>,
-	  <classname>ConnectionC</classname> and <classname>EventC</classname>
-	  in the manuals and Doxygen pages to get a grip on how to use a
-	  TaskContext's interface without using the scripting.
-	</para>
-      </listitem>
-    </itemizedlist>
-  </section>
-  <section id="interfacing">
-    <title>Interfacing Improvements</title>
-    <itemizedlist>
-      <listitem>
-	<para>
-	  The KernelClient GUI version 0.8 has been released in two
-	  separate packages: one for direct connection to a Control Kernel
-	  and one for connection through CORBA.
-	</para>
-      </listitem>
-    </itemizedlist>
   </section>
 
   <appendix>
@@ -290,7 +240,7 @@
 	archive</ulink> ) .
       </para>
     <para>
-      Copyright (C) Peter Soetens
+      Copyright (C) FMTC
     </para>
     <para>
       Verbatim copying and distribution of this entire article is
