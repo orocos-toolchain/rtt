@@ -820,6 +820,16 @@ DataPort.     cd            ls
 	come in to be executed. Each time such an event happens, the user's
 	application code (<function>update()</function>) is called as well.
       </para>
+      <warning>
+	<para>
+	  Non periodic activities should be used with care and with much
+	  thought. The ExecutionEngine will do <emphasis>absolutely nothing</emphasis>
+	  if no commands or <emphasis>asynchronous events</emphasis> come in.
+	  This may lead to surprising 'bugs' when program scripts or 
+	  state machine scripts are executed, as they will only progress
+	  upon these events and seem to be stalled otherwise. 
+	</para>
+      </warning>
     </section>
     <section>
       <title>Interfacing the TaskContext</title>
@@ -1887,19 +1897,80 @@ DataPort.     cd            ls
     <para>
       A Real-Time system contains multiple concurrent
       tasks which must communicate to each other.
-      TaskContext objects can be connected to each other
-      so that they can communicate Real-Time data or commands.
-      We call them &quot;Peers&quot; as there is no fixed
-      hierarchy. A connection from one TaskContext to its
-      Peer can be uni- or bi-directional. In a uni-directional
-      connection, only one peer can send commands or data to the other, while
-      in a bi-directional connection, both can send each other
-      commands or data. This allows to build strictly hierarchical topological
-      networks as well as complete flat or circular networks or any
-      kind of mixed network.
+      TaskContext can be connected to each other
+      such that they can communicate Real-Time data.
     </para>
-    <section><title>Connecting Tasks</title>
-    <example><title>TaskContext Peer Topology Example</title>
+    <section>
+      <title>Setting up the Execution Flow</title>
+      <mediaobject>
+	<imageobject>
+	  <imagedata fileref="ConnectPeers" />
+	</imageobject>
+	<caption>
+	  <para>
+	    The <function>addPeer</function> and <function>connectPeers</function>
+	    functions are used to connect TaskContexts and allow them
+	    to use each other's interface. The <function>connectPorts</function>
+	    funtion sets up the data flow between tasks.
+	  </para>
+	</caption>
+      </mediaobject>
+      <para>
+	We call connected TaskContexts &quot;Peers&quot; as there is no fixed
+	hierarchy. A connection from one TaskContext to its
+	Peer can be uni- or bi-directional. In a uni-directional connection (<function>addPeer</function> ),
+	only one peer can use the interface of the other, while
+	in a bi-directional connection (<function>connectPeers</function>), both can use
+	each others interface.
+	This allows to build strictly hierarchical topological
+	networks as well as complete flat or circular networks or any
+	kind of mixed network. 
+      </para>
+      <para>
+	Peers are connected as such (<methodname>hasPeer</methodname> takes a string 
+      argument ):</para>
+      <para>
+      <programlisting>  // bi-directional :
+  connectPeers( &amp;a_task, &amp;b_task );
+  assert( a_task.hasPeer( &amp;b_task.getName() ) 
+          &amp;&amp; b_task.hasPeer( &amp;a_task.getName() );
+  // uni-directional :
+  a_task.addPeer( &amp;c_task );
+  assert( a_task.hasPeer( &amp;c_task.getName() ) 
+          &amp;&amp; ! c_task.hasPeer( &amp;a_task.getName() );
+
+  // Access the interface of a Peer:
+  Method&lt;bool(void) m = a_task.getPeer( "CTask" )->methods()->getMethod&lt;bool(void)>("aMethod");
+  // etc. See interface usage in previous sections.
+</programlisting></para>
+    <para>
+      Both <function>connectPeers</function> and <function>addPeer</function>
+      allow scripts or C++ code to use the interface of a connected Peer. <function>connectPeers</function>
+      does this connection in both directions.
+    </para>
+    <para>
+      From within a program script, peers can be accessed by
+      merely prefixing their name to the member you want to
+      access. A program <emphasis>within</emphasis> &quot;ATask&quot; could
+      access its peers as such :</para>
+    <para>
+      <programlisting>
+  var bool result = CTask.aMethod() </programlisting></para>
+    <para>
+      The peer connection graph can be traversed at arbitrary
+      depth. Thus you can access your peer's peers.
+    </para>
+    </section>
+    <section>
+      <title>Setting up the Data Flow</title>
+      <para>
+	Data Flow is setup by using <function>connectPorts</function>.
+	The direction of the data flow is imposed by the direction of
+	the ports.  The <function>connectPorts</function> function
+	creates a connection when both ports are not connected, or
+	adds an unconnected port to an existing connection.
+    </para>
+    <example><title>TaskContext Data Flow Topology Example</title>
     <para>This diagram shows some possible topologies. Four tasks,
     "A", "B", "C" and "D" have each a port "MyData" and a port "MyData2".
     The example demonstrates that connections are always made from
@@ -1911,7 +1982,7 @@ DataPort.     cd            ls
 	</imageobject>
 	<caption>
 	  <para>
-	    Example networks.
+	    Example data flow networks.
 	  </para>
 	</caption>
     </mediaobject>
@@ -1933,47 +2004,15 @@ DataPort.     cd            ls
     </para>
     </example>
     <para>
-      Peers are connected as such (<methodname>hasPeer</methodname> takes a string 
-      argument ):</para>
-    <para>
-      <programlisting>
-  // bi-directional :
-  a_task.connectPeers( &amp;b_task );
-  assert( a_task.hasPeer( &amp;b_task.getName() ) 
-          &amp;&amp; b_task.hasPeer( &amp;a_task.getName() );
-  // uni-directional :
-  a_task.addPeer( &amp;c_task );
-  assert( a_task.hasPeer( &amp;c_task.getName() ) 
-          &amp;&amp; ! c_task.hasPeer( &amp;a_task.getName() );</programlisting></para>
-    <para>
-      Both <function>connectPeers</function> and <function>addPeer</function>
-      connect the Data Flow Ports (see above) and allow scripts
-      or C++ code to browse the connected Peers. The Data Flow connections
-      are <emphasis>created</emphasis> from writer to reader. Thus <function>addPeer</function>
-      connects the write Data and Buffer Ports of "a_task" to the
-      read Ports of "c_task". <function>connectPeers</function>
-      does this connection <emphasis>creation</emphasis> in both directions. If a task's
-      Port already has a connection, any peer task
-      with compatible ports will automatically participate in
-      that connection by using either function call.
-      For example, if "a_task" and "b_task" exchange a
-      Data type "Data_X", and "c_task" reads "Data_X", the 
-      <function>addPeer</function> will forward "Data_X" to
-      "c_task" as well.
+      <function>connectPorts</function> tries to create connections in
+      both directions. If a task's Port already has a connection, any
+      task with compatible, unconnected ports will be added to that
+      connection.  For example, if "a_task" and "b_task" exchange a
+      Data type "Data_X", and "c_task" reads "Data_X", the
+      <function>connectPorts</function> will forward "Data_X" to "c_task"
+      as well.
     </para>
-    <para>
-      From within a program script, peers can be accessed by
-      merely prefixing their name to the member you want to
-      access. A program <emphasis>within</emphasis> &quot;ATask&quot; could
-      access its peers as such :</para>
-    <para>
-      <programlisting>
-  do BTask.object.command()
-  var int result = CTask.method() </programlisting></para>
-    <para>
-      The peer connection graph can be traversed at arbitrary
-      depth. Thus you can access your peer's peers.
-    </para></section>
+    </section>
     <section><title>Disconnecting Tasks</title>
     <para>
       Tasks can be disconnected from a network by invoking
@@ -1996,7 +2035,8 @@ DataPort.     cd            ls
 	</imageobject>
 	<caption>
 	  <para>
-	    Disconnecting tasks.
+	    Disconnecting tasks: one can disconnect a whole task or
+	    disconnect only a port or connection of a task.
 	  </para>
 	</caption>
     </mediaobject>
@@ -2207,7 +2247,7 @@ DataPort.     cd            ls
       framework in Orocos Tasks.
     </para>
     <section>
-      <title>Using the <classname>RTT::GenericTaskContext</classname></title>
+      <title>Using the <classname>GenericTaskContext</classname></title>
       <para>
 	To help users in setting up quickly a TaskContext, the GenericTaskContext
 	class has been made available which adds some standard methods and
