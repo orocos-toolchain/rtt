@@ -107,7 +107,11 @@ namespace RTT
     }
 
     bool NonPeriodicActivity::trigger() {
-        return false;
+        return SingleThread::isActive() ? SingleThread::start() : false;
+    }
+
+    bool NonPeriodicActivity::update() {
+        return SingleThread::isActive() ? SingleThread::start() : false;
     }
 
     bool NonPeriodicActivity::isRunning() const {

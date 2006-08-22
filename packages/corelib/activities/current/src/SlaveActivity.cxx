@@ -157,6 +157,13 @@ namespace RTT
 
     bool SlaveActivity::trigger()
     {
+        if (mmaster)
+            return mmaster->trigger();
+        return false;
+    }        
+
+    bool SlaveActivity::update()
+    {
         // non periodic case.
         if ( mperiod == 0.0 ) {
             if ( !active || running )

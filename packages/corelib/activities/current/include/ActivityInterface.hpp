@@ -39,7 +39,7 @@ namespace RTT
      * @brief Interface to start/stop and query a Activity.
      *
      * A ActivityInterface provides the control methods
-     * for activities. A activity can be periodic, non periodic, event driven
+     * for activities. An activity can be periodic, non periodic, event driven
      * or any activity object which can be started, stopped
      * and be queried for their state and (optional) period.
      *
@@ -90,7 +90,10 @@ namespace RTT
          * Query if the activity is initialized and executing.
          * This is more strict than isActive(), it is only true
          * after initialize() is executed and before finalize()
-         * is executed.
+         * is executed. More-over, an Activity may decide to be
+         * temporarily not running (not executing code), \a waiting for a signal
+         * to proceed. If this->isActive() and !this->isRunning()
+         * then the Activity is in a \a waiting state.
          *
          * @return true if it is running, false otherwise
          */
@@ -99,7 +102,8 @@ namespace RTT
         /**
          * Query if the activity is started.
          * This is less strict than isRunning(), it is true during
-         * initialize(), step() or loop() and finalize().
+         * initialize(), step() or loop() and finalize(). Use
+         * this method to check if an activity was start()ed.
          *
          * @return true if it is active, false otherwise
          */
@@ -121,12 +125,28 @@ namespace RTT
         virtual bool isPeriodic() const = 0;
 
         /**
-         * Trigger this activity such that it executes a step of the RunnableInterface.
-         * Some activity implementations allow a user controlled trigger.
+         * Update this activity such that it \a executes a step or loop of the RunnableInterface.
+         * When you invoke update() you intend to call the step() or loop() methods.
+         * Some activity implementations allow a user controlled update, others ignore it.
          * 
-         * @retval true When this->isRunning() and the implementation allows external
+         * @retval true When this->isActive() and the implementation allows external
+         * updates.
+         * @retval false When !this->isActive() or the implementation does not
+         * allow external updating.
+         * @see trigger() for use in callbacks which want update() to be executed.
+         */
+        virtual bool update() = 0;
+
+        /**
+         * Trigger that work has to be done. When you invoke trigger(), you intend
+         * to notify the instance that calls update(), that update() should be called.
+         * This allows a separation between actually executing code (update()) and notifying that
+         * code must be executed (trigger()). A trigger may be ignored by the
+         * implementation.
+         * 
+         * @retval true When this->isActive() and the implementation allows external
          * triggers.
-         * @retval false When !this->isRunning() or the implementation does not
+         * @retval false When !this->isActive() or the implementation does not
          * allow external triggering.
          */
         virtual bool trigger() = 0;

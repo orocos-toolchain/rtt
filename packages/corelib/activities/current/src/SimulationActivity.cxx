@@ -48,7 +48,7 @@ namespace RTT
         stop();
     }
 
-    bool SimulationActivity::trigger()
+    bool SimulationActivity::update()
     {
         if ( this->isRunning() ) {
             this->step();

@@ -66,7 +66,7 @@ namespace RTT
          *
          * @return The Activity which runs this RunnableInterface.
          */
-        ActivityInterface* getActivity() const;
+        inline ActivityInterface* getActivity() const;
 
         /**
          * @brief Set the task this interface is run in.
@@ -75,8 +75,11 @@ namespace RTT
          *
          * @param task The ActivityInterface running this interface.
          */
-      virtual void setActivity( ActivityInterface* task );
+        virtual void setActivity( ActivityInterface* task );
     };
+
+
+    ActivityInterface* RunnableInterface::getActivity() const { return owner_task; }
 }
 
 #endif

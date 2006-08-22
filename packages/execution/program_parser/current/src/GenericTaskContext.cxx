@@ -71,7 +71,7 @@ namespace RTT
         methods()->addMethod( method("isRunning",
                     &GenericTaskContext::isRunning, this), "Is this GenericTaskContext started ?" );
         methods()->addMethod( method("update",
-                    &GenericTaskContext::trigger, this), "Invoke the update method. Only succeeds if the task isRunning()." );
+                    &GenericTaskContext::doUpdate, this), "Invoke the update method. Only succeeds if the task isRunning()." );
     }
 
 #if 0
@@ -101,11 +101,11 @@ namespace RTT
         return mbt;
     }
 
-    bool GenericTaskContext::trigger()
+    bool GenericTaskContext::doUpdate()
     {
         if ( this->engine()->getActivity() == 0 )
             return false;
-        return this->engine()->getActivity()->trigger();
+        return this->engine()->getActivity()->update();
     }
 
     /**

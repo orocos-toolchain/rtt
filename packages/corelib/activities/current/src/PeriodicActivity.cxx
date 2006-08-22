@@ -197,6 +197,11 @@ namespace RTT
         this->step();
     }
 
+    bool PeriodicActivity::update()
+    {
+        return false;
+    }
+        
     bool PeriodicActivity::trigger()
     {
         return false;

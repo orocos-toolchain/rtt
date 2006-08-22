@@ -112,11 +112,8 @@ namespace RTT
 
         bool isActive() const;
 
-        /**
-         * Call this function to 'trigger' the execution
-         * of this Activity.
-         * @return true when this->isActive(), false otherwise.
-         */
+        bool update();
+
         bool trigger();
     private:
         ActivityInterface* mmaster;

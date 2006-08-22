@@ -46,8 +46,6 @@ namespace RTT
     
   RunnableInterface::RunnableInterface() : owner_task(0) {}
 
-  ActivityInterface* RunnableInterface::getActivity() const { return owner_task; }
-
   void RunnableInterface::setActivity( ActivityInterface* task ) {
     owner_task = task;
   }
