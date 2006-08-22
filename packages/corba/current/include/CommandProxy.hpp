@@ -29,10 +29,11 @@
 #ifndef ORO_CORBA_COMMANDPROXY_HPP
 #define ORO_CORBA_COMMANDPROXY_HPP
 
-#include "DispatchInterface.hpp"
+#include "../DispatchInterface.hpp"
 #include "ExecutionC.h"
 
-namespace Corba
+namespace RTT
+{namespace Corba
 {
 
     /**
@@ -114,6 +115,6 @@ namespace Corba
 
     };
 
-}
+}}
 
 #endif

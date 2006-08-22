@@ -29,7 +29,7 @@
 #ifndef ORO_GEOMETRY_ANYCONVERSION_HPP
 #define ORO_GEOMETRY_ANYCONVERSION_HPP
 
-#include "corba/CorbaConversion.hpp"
+#include "CorbaConversion.hpp"
 #include "GeometryC.h"
 
 namespace RTT

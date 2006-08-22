@@ -29,13 +29,14 @@
 #ifndef ORO_CORBA_EXPRESSIONPROXY_HPP
 #define ORO_CORBA_EXPRESSIONPROXY_HPP
 
-#include "DataSource.hpp"
+#include "../DataSource.hpp"
 #include "ExecutionC.h"
 #include "CORBAExpression.hpp"
-#include "Logger.hpp"
-#include "DataSources.hpp"
+#include "../Logger.hpp"
+#include "../DataSources.hpp"
 
-namespace Corba
+namespace RTT
+{namespace Corba
 {
 
     /**
@@ -243,6 +244,6 @@ namespace Corba
 
     };
 
-}
+}}
 
 #endif

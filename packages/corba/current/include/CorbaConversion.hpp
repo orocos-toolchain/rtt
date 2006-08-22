@@ -33,10 +33,10 @@
 #include <vector>
 #include <tao/Any.h>
 #include <tao/CORBA_String.h>
-#include "corba/OrocosTypesC.h"
-#include "Logger.hpp"
-#include "DataSourceTypeInfo.hpp"
-#include "corba/AttributesC.h"
+#include "OrocosTypesC.h"
+#include "../Logger.hpp"
+#include "../DataSourceTypeInfo.hpp"
+#include "AttributesC.h"
 
 namespace RTT
 {

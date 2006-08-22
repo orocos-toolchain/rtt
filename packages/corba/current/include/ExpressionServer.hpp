@@ -29,14 +29,15 @@
 #ifndef ORO_CORBA_EXPRESSIONSERVER_HPP
 #define ORO_CORBA_EXPRESSIONSERVER_HPP
 
-#include "DataSourceBase.hpp"
+#include "../DataSourceBase.hpp"
 #include "ExecutionC.h"
 
 
 // forward decl.
 class Orocos_AnyExpression_i;
 
-namespace Corba
+namespace RTT
+{namespace Corba
 {
 
     /**
@@ -108,6 +109,6 @@ namespace Corba
         static void copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned );
     };
 
-}
+}}
 
 #endif

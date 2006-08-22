@@ -29,15 +29,16 @@
 #ifndef ORO_CORBAEXPRESSION_HPP
 #define ORO_CORBAEXPRESSION_HPP
 
-#include "DataSource.hpp"
-#include "Logger.hpp"
-#include "BuildType.hpp"
-#include "CommandInterface.hpp"
-#include "CommandBinary.hpp"
+#include "../DataSource.hpp"
+#include "../Logger.hpp"
+#include "../BuildType.hpp"
+#include "../CommandInterface.hpp"
+#include "../CommandBinary.hpp"
 #include "CorbaConversion.hpp"
 
 
-namespace Corba
+namespace RTT
+{namespace Corba
 {
     struct  UpdatedCommand : public CommandInterface
     {
@@ -178,9 +179,12 @@ namespace Corba
             storage = detail::BuildType<value_t>::Value();
         }
 
-        
-        
         Orocos::Expression_ptr server()
+        {
+            return Orocos::AssignableExpression::_duplicate( mexpr );
+        }
+        
+        Orocos::Expression_ptr server() const
         {
             return Orocos::AssignableExpression::_duplicate( mexpr );
         }
@@ -217,6 +221,7 @@ namespace Corba
             mexpr->set( toset.in() );
         }
 
+        using AssignableDataSource<T>::update;
         
         virtual bool update(const CORBA::Any& any) {
             // send update and get result back.
@@ -258,6 +263,6 @@ namespace Corba
         }
     };
 
-}
+}}
 
 #endif
