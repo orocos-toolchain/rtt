@@ -122,11 +122,13 @@ namespace RTT
         }
     }
 
-    void TaskContext::connectDataFlow( TaskContext* peer )
+    bool TaskContext::connectPorts( TaskContext* peer )
     {
+        bool failure = false;
         const std::string& location = this->getName();
         Logger::In in( location.c_str()  );
         // connect our write ports to the read ports of 'peer'.
+        // and vice versa.
         DataFlowInterface::Ports myports = this->ports()->getPorts();
         for (DataFlowInterface::Ports::iterator it = myports.begin();
              it != myports.end();
@@ -142,16 +144,18 @@ namespace RTT
             if ( peerport->connected() && (*it)->connected() )
                 continue;
 
-            // Our our port is connected thus peerport is not connected.
+            // Our port is connected thus peerport is not connected.
             if ( (*it)->connected() ) {
                 // ask peer to connect to us:
                 if ( peerport->connectTo( *it ) ) {
                     Logger::log() <<Logger::Info<< "Connected Port " << (*it)->getName()
                                   << " of peer Task "<<peer->getName() << " to existing connection." << Logger::endl;
                 }
-                else
+                else {
                     Logger::log() <<Logger::Error<< "Failed to connect Port " << (*it)->getName()
                                   << " of peer Task "<<peer->getName() << " to existing connection." << Logger::endl;
+                    failure = true;
+                }
                 continue;
             }
 
@@ -161,22 +165,38 @@ namespace RTT
                     Logger::log() <<Logger::Info<< "Added Port " << (*it)->getName()
                                   << " to existing connection of peer Task "<<peer->getName() << "." << Logger::endl;
                 }
-                else
+                else {
                     Logger::log() <<Logger::Error<< "Not connecting Port " << (*it)->getName()
                                   << " to existing connection of peer Task "<<peer->getName() << "." << Logger::endl;
+                    failure = true;
+                }
                 continue;
             }
                 
+            // clone or anti-clone:
+            PortInterface* writer;
             // Last resort: both not connected: create new connection.
-            ConnectionInterface::shared_ptr con = (*it)->createConnection( peerport );
+            if ( peerport->getPortType() == PortInterface::ReadPort && 
+                 (*it)->getPortType() == PortInterface::ReadPort ) {
+                writer = peerport->antiClone();
+            } else {
+                writer = peerport->clone();
+            }
+            ConnectionInterface::shared_ptr con = (*it)->createConnection( writer );
             if ( !con ) {
                 // real error msg will be produced by factory itself.
                 Logger::log() <<Logger::Debug<< "Failed to connect Port " << (*it)->getName() << " to peer Task "<<peer->getName() <<"." << Logger::endl;
+                failure = true;
             } else {
+                // all went fine, add peerport as well, will always succeed:
+                peerport->connectTo( con );
                 con->connect();
                 Logger::log() <<Logger::Info<< "Connected Port " << (*it)->getName() << " to peer Task "<<peer->getName() <<"." << Logger::endl;
             }
+            //delete clone/anticlone:
+            delete writer;
         }
+        return !failure;
     }
 
     const std::string& TaskContext::getName() const
@@ -224,7 +244,6 @@ namespace RTT
                 return false;
             _task_map[ alias ] = peer;
             peer->addUser( this );
-            this->connectDataFlow(peer);
             this->exportPorts();
             peer->exportPorts();
             return true;
@@ -273,11 +292,10 @@ namespace RTT
         }
         // reconnect again to our peers and ask our 'users' to reconnect as well.
         for( PeerMap::iterator it = _task_map.begin(); it != _task_map.end(); ++it)
-            this->connectDataFlow(it->second);
+            this->connectPorts(it->second);
         this->exportPorts();
 
         for( Users::iterator it = musers.begin(); it != musers.end(); ++it) {
-            (*it)->connectDataFlow(this);
             (*it)->exportPorts();
         }
 
@@ -376,5 +394,13 @@ namespace RTT
         return false;
     }
 
+    bool connectPorts(TaskContext* A, TaskContext* B) { 
+        return A->connectPorts(B);
+    }
+
+    bool connectPeers(TaskContext* A, TaskContext* B) {
+        return A->connectPeers(B);
+    }
+    
 }
 

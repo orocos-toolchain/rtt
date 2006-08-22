@@ -38,8 +38,9 @@ namespace RTT
     class TaskContext;
 
     /**
-     * This interface provides access to the loaded programs
+     * This interface allows to load program scripts
      * and state machines and allows execution of code.
+     * It can be found as the \a scripting object of a TaskContext.
      */
     class ScriptingAccess
     {

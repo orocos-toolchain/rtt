@@ -100,7 +100,6 @@ namespace RTT
 
         ScriptingAccess* mscriptAcc;
 
-        void connectDataFlow( TaskContext* peer );
         void exportPorts();
 
         /**
@@ -174,9 +173,14 @@ namespace RTT
         void removePeer( TaskContext* peer );
 
         /**
-         * Add a two-way connection from  this task to a peer task.
+         * Add a two-way connection from this task to a peer task.
          */
         bool connectPeers( TaskContext* peer );
+
+        /**
+         * Add a data flow connection from this task's ports to a peer's ports.
+         */
+        bool connectPorts( TaskContext* peer );
 
         /**
          * Disconnect this TaskContext from it's peers.
@@ -388,6 +392,21 @@ namespace RTT
 
         MethodRepository meths;
     };
+
+    /**
+     * Connect the Data Flow Ports of A and B in both
+     * directions, by matching port names.
+     * @see TaskContext::connectPorts
+     */
+    bool connectPorts(TaskContext* A, TaskContext* B);
+
+    /**
+     * Set up the Execution Flow (who knows who)
+     * between A and B in both directions. Both will be able to 
+     * use each other's interface.
+     * @see TaskContext::connectPeers
+     */
+    bool connectPeers(TaskContext* A, TaskContext* B);
 }
 
 #endif
