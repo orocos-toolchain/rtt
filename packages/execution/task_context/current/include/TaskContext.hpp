@@ -271,7 +271,7 @@ namespace RTT
         }
 
         /**
-         * The commands of this task context.
+         * The command interface of this task context.
          */
         CommandRepository* commands()
         {
@@ -279,7 +279,7 @@ namespace RTT
         }
 
         /**
-         * The commands of this task context.
+         * The command interface of this task context.
          */
         const CommandRepository* commands() const
         {
@@ -287,7 +287,7 @@ namespace RTT
         }
 
         /**
-         * The methods of this task context.
+         * The method interface of this task context.
          */
         MethodRepository* methods()
         {
@@ -295,7 +295,7 @@ namespace RTT
         }
 
         /**
-         * The methods of this task context.
+         * The method interface of this task context.
          */
         const MethodRepository* methods() const
         {

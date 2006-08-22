@@ -252,7 +252,7 @@ namespace RTT
         bool TaskContext::connectPeers( TaskContext* peer )
         {
             if ( _task_map.count( peer->getName() ) != 0
-                 || peer->hasPeer( _task_name ) )
+                 || peer->hasPeer( mtask_name ) )
                 return false;
             this->addPeer ( peer );
             peer->addPeer ( this );

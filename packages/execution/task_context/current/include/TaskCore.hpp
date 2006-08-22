@@ -19,8 +19,12 @@ namespace RTT
         // non copyable
         TaskCore( TaskCore& );
     protected:
-        std::string    _task_name;
-    
+        std::string    mtask_name;
+
+        /**
+         * The execution engine which calls update() and processes
+         * our commands, events etc.
+         */
         ExecutionEngine* ee;
     public:
         /**
@@ -76,7 +80,7 @@ namespace RTT
          */
         const std::string& getName() const
         {
-            return _task_name;
+            return mtask_name;
         }
 
         /**
@@ -84,7 +88,7 @@ namespace RTT
          */
         void setName(const std::string& n)
         {
-            _task_name = n;
+            mtask_name = n;
         }
 
         /**
@@ -100,7 +104,6 @@ namespace RTT
 
         /**
          * Get a const pointer to the ExecutionEngine of this Task.
-         * @see getExecutionEngine()
          */
         const ExecutionEngine* engine() const
         {
@@ -109,7 +112,6 @@ namespace RTT
 
         /**
          * Get a pointer to the ExecutionEngine of this Task.
-         * @see getExecutionEngine()
          */
         ExecutionEngine* engine()
         {
