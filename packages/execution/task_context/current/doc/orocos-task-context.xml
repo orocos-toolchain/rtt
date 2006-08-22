@@ -297,12 +297,12 @@
  (type 'ls' for context info) :                                                     
     </screen>
     <para>
-      The first <screen>[ Info   ]</screen> lines are printed by the Orocos 
+      The first <command>[ Info   ]</command> lines are printed by the Orocos 
       <classname>RTT::Logger</classname>, which has been
       configured to display informative messages to console. Normally, only
       warnings or worse are displayed by Orocos. You can always
       watch the log file 'orocos.log' in the same directory to see all messages.
-      After the <screen>[Log Level]</screen>, the <screen>[Origin]</screen> of the message is
+      After the <command>[Log Level]</command>, the <command>[Origin]</command> of the message is
       printed, and finally the message itself. These messages leave a trace
       of what was going on in the main() function before the prompt apeared.
     </para>
@@ -373,7 +373,6 @@
       string when invoked.
     </para>
     <para>
-      
       In the example, the current task has only three objects:
       <emphasis>this</emphasis>, <emphasis>DataPort</emphasis> and
       <emphasis>BufferPort</emphasis>. The <emphasis>this</emphasis>
@@ -397,6 +396,9 @@
  In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) : <command>this</command>
       Got :this
+
+Printing Interface of 'Hello' :
+
   Command    : bool Command( string Hello )
    Hello Command Description
    Hello : Use 'World' as argument to make the command succeed.
@@ -510,6 +512,9 @@
  In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :<command>DataPort</command>
       Got :DataPort
+
+Printing Interface of 'DataPort' :
+
   Method     : string <emphasis>Get</emphasis>( )
    Get the current value of this Data Port
   Method     : void <emphasis>Set</emphasis>( string const&amp; <emphasis>Value</emphasis> )
@@ -693,7 +698,7 @@ DataPort.     cd            ls
 	</imageobject>
 	<caption>
 	  <para>The Execution Flow is formed by Programs and
-	    State Machines sending commands to Peer Tasks. The Data Flow
+	    State Machines using the interface of Peer Tasks. The Data Flow
 	    is the propagation of data from one task to another, where
 	    one producer can have multiple consumers.
 	  </para>
@@ -1893,7 +1898,7 @@ DataPort.     cd            ls
   </section>
   </section>
   <section id="connect-tasks">
-    <title>Task Connections</title>
+    <title>Connecting TaskContexts</title>
     <para>
       A Real-Time system contains multiple concurrent
       tasks which must communicate to each other.
@@ -2071,7 +2076,7 @@ DataPort.     cd            ls
     </section>
   </section>
   <section>
-    <title>Embedded and Feature-Complete Tasks</title>
+    <title>Deploying Components</title>
     <para>
       An Orocos component can be used in both embedded (&lt;1MB RAM) or
       big systems (128MB RAM), depending on how it is created or used.
@@ -2082,7 +2087,7 @@ DataPort.     cd            ls
     <section>
       <title>Overview</title>
       <para>
-	Figure <xref linkend="fig-comp-levels" /> shows the
+	<xref linkend="fig-comp-levels" /> shows the
 	distinction between the three levels of Component Deployment.
       </para>
       <figure id="fig-comp-levels">
@@ -2205,12 +2210,12 @@ DataPort.     cd            ls
 	possible as well. To save space or execution efficiency,
 	one can use TaskCores to implement local (hidden) functionality
 	and export publicly visible interface using a Taskcontext.
-	Figure <xref linkend="fig-deployment-example" /> is an
+	<xref linkend="fig-deployment-example" /> is an
 	small example of a TaskContext which uses two TaskCores to
 	delegate work to. The Execution Engines may run in one or
 	multiple threads.
       </para>
-      <figure id="fig-comp-levels">
+      <figure id="fig-deployment-example">
 	<title>
 	  Example Component Deployment.
 	</title>
