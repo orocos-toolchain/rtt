@@ -2070,6 +2070,162 @@ DataPort.     cd            ls
     </example>
     </section>
   </section>
+  <section>
+    <title>Embedded and Feature-Complete Tasks</title>
+    <para>
+      An Orocos component can be used in both embedded (&lt;1MB RAM) or
+      big systems (128MB RAM), depending on how it is created or used.
+      This is called <emphasis>Component Deployment</emphasis> as the
+      target receives one or more component implementations. The components
+      must be adapted as such that they fit the target.
+    </para>
+    <section>
+      <title>Overview</title>
+      <para>
+	Figure <xref linkend="fig-comp-levels" /> shows the
+	distinction between the three levels of Component Deployment.
+      </para>
+      <figure id="fig-comp-levels">
+	<title>
+	  Component Deployment Levels
+	</title>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="DeploymentLevels" />
+	  </imageobject>
+	  <caption>
+	    <para>
+	      Three levels of using or creating Components can be
+	      accomplished in Orocos: Not distributed, embedded distributed
+	      and fully distributed.
+	    </para>
+	  </caption>
+	</mediaobject>
+      </figure>
+      <para>
+	If your application will not use distributed components and
+	requires a very small footprint, the <classname>RTT::TaskCore</classname>
+	can be used. The Orocos primitives apear directly in the interface
+	and are called upon in a hard-coded way.
+      </para>
+      <para>
+	If you application requires a small footprint and distributed
+	components, the <emphasis>C++ Interface</emphasis> of the
+	<classname>RTT::TaskContext</classname> can be used in
+	combination with a <emphasis>Distribution Library</emphasis>
+	which does the network translation. It handles a predefined
+	set of data types (mostly the 'C' types) and needs to be
+	adapted if other data types need to be supported.
+      </para>
+      <para>
+	If footprint is of no concern to your application and you
+	want to distribute any component completely transparantly,
+	the <classname>RTT::TaskContext</classname> can be used in combination
+        with a <emphasis>Remoting Library</emphasis> which does the
+        network translation. A CORBA implementation of such a library is
+	being developed on. It is a write-once, use-many implementation,
+	which can pick up user defined types, without requiring modifications.
+	It uses the <emphasis>Orocos Type System</emphasis> to manage user 
+	defined types. 
+      </para>
+    </section>
+    <section>
+      <title>Embedded TaskCore Deployment</title>
+      <para>
+	A TaskCore is nothing more than a place holder for the
+	Execution Engine and application code functions
+	(<function>startup()</function>, <function>update()</function>
+	and <function>shutdown()</function> ). The Component
+	interface is built up by placing the Orocos primitives
+	as public class members in a TaskCore subclass. Each
+	component that wants to use this TaskCore must get a
+	'hard coded' pointer to it (or the interface it implements)
+	and invoke the command, method etc. Since Orocos is by
+	no means informed of the TaskCore's interface, it can not
+	distribute a TaskCore.
+      </para>
+    </section>
+    <section>
+      <title>Embedded TaskContext Deployment: C++ Interface</title>
+      <para>
+	Instead of putting the Orocos primitives in the public
+	interface of a subclass of TaskCore, one can subclass a
+	TaskContext and register the primitives to the
+	<emphasis>C++ Interface</emphasis>. This is a reduced
+	interface of the TaskContext, which allows distribution
+	by the use of a <emphasis>Distribution Library</emphasis>.
+      </para>
+      <note>
+	<para>
+	  The code presented is for commands, but can be equally
+	  applied for methds by using methods()->addMethod( &amp;
+	  method ) for events and for each other Orocos primitive.
+	</para>
+      </note>
+      <para>
+	The process goes as such: A component inherits from
+	<classname>RTT::TaskContext</classname> and has some
+	Orocos primitives as class members. Instead of calling:
+      </para>
+      <programlisting>  commands()->add<emphasis>Command</emphasis>(&amp;com, "Description", "Arg1","Arg1 Description",...);</programlisting>
+      <para>
+	and providing a description for the primitive as well as
+	each argument, one writes:
+      </para>
+      <programlisting>  commands()->add<emphasis>Command</emphasis>( &amp;com );</programlisting>
+      <para>
+	This is no more than a pointer registration, but already allows
+	all C++ code to use the added primitive.
+      </para>
+      <para>
+	In order to access the interface of such a Component,
+	the user code may use:
+      </para>
+      <programlisting>  taskA->commands()->get<emphasis>Command</emphasis>("Name");</programlisting>
+      <para>
+	In order to distribute this component, an implementation of
+	the Distribution Library is required. The specification of
+	this library, and the application setup is in left to another
+	design document.
+      </para>
+    </section>
+    <section>
+      <title>Full TaskContext Deployment: Dynamic Interface</title>
+      <para>
+	In case you are building your components as instructed in this
+	manual, your component is ready for distribution as-is, given
+	a Remoting library is used. The Orocos CORBA package implements
+	such a Remoting library. 
+      </para>
+    </section>
+    <section>
+      <title>Putting it together</title>
+      <para>
+	Using the three levels of deployment in one application is
+	possible as well. To save space or execution efficiency,
+	one can use TaskCores to implement local (hidden) functionality
+	and export publicly visible interface using a Taskcontext.
+	Figure <xref linkend="fig-deployment-example" /> is an
+	small example of a TaskContext which uses two TaskCores to
+	delegate work to. The Execution Engines may run in one or
+	multiple threads.
+      </para>
+      <figure id="fig-comp-levels">
+	<title>
+	  Example Component Deployment.
+	</title>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="CoreVsContext" />
+	  </imageobject>
+	  <caption>
+	    <para>
+	    </para>
+	  </caption>
+	</mediaobject>
+      </figure>
+    </section>
+  </section>
   <section id="run-tasks">
     <title>Using Tasks</title>
     <para>

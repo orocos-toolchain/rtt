@@ -459,7 +459,7 @@
          sodipodi:role="line"
          id="tspan3370"
          x="412.05597"
-         y="30.512833">addPrimitive(p)</tspan></text>
+         y="30.512833">addCommand(c)</tspan></text>
     <g
        id="g3372"
        transform="translate(410.4973,-387.2776)">
@@ -636,7 +636,7 @@
            id="tspan4299"
            y="328.75867"
            x="873.76703"
-           sodipodi:role="line">Scripting Interface:</tspan><tspan
+           sodipodi:role="line">Dynamic Interface:</tspan><tspan
            y="358.75867"
            x="873.76703"
            sodipodi:role="line"
@@ -704,7 +704,7 @@
          sodipodi:role="line"
          id="tspan4370"
          x="697.54706"
-         y="30.512833">addPrimitive(p, &quot;Description&quot;)</tspan></text>
+         y="30.512833">addCommand(c, &quot;Description&quot;)</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Charter"
