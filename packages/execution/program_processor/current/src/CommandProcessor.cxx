@@ -31,8 +31,6 @@
 #include <rtt/AtomicQueue.hpp>
 #include <rtt/Logger.hpp>
 
-#include <rtt/os/Semaphore.hpp>
-
 namespace RTT
 {
 
@@ -40,10 +38,9 @@ namespace RTT
     
     using namespace OS;
 
-    CommandProcessor::CommandProcessor(int queue_size, Semaphore* s )
+    CommandProcessor::CommandProcessor(int queue_size)
         :a_queue( new AtomicQueue<CommandInterface*>(queue_size) ),
          coms_processed(0),
-         queuesem( s ),
          accept(false)
     {
     }
@@ -71,8 +68,6 @@ namespace RTT
         CommandInterface* com(0);
         int res = a_queue->dequeueCounted( com );
         if ( com ) {
-            if ( queuesem )
-                queuesem->trywait();
             // note : the command's result is discarded.
             // Wrap your command (ie CommandDispatch) to keep track
             // of the result of enqueued commands.
@@ -86,8 +81,8 @@ namespace RTT
     {
         if (accept && c) {
             int result = a_queue->enqueueCounted( c );
-            if ( queuesem )
-                queuesem->signal();
+            if ( this->getActivity() )
+                this->getActivity()->trigger();
             return result;
         }
         return 0;

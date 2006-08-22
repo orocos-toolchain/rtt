@@ -79,22 +79,24 @@ namespace RTT
         : public RunnableInterface
     {
     protected:
-        OS::Semaphore* work_sem;
-        OS::Semaphore* loop_sem;
+        /**
+         * The parent or 'owner' of this ExecutionEngine, may be null.
+         */
         TaskCore*     taskc;
 
         /**
-         * We store them as RunnableInterface pointers,
-         * and static_cast them back to the correct type.
+         * We store the Processors as RunnableInterface pointers,
+         * and dynamic_cast them back to the correct type.
          */
         RunnableInterface* cproc;
         RunnableInterface* pproc;
         RunnableInterface* smproc;
         RunnableInterface* eproc;
 
+        /**
+         * All tasks which execute in this ExecutionEngine.
+         */
         std::vector<TaskCore*> children;
-
-        bool eerun;
 
         /**
          * Install new Processors.
@@ -105,6 +107,7 @@ namespace RTT
          * Create an execution engine with a CommandProcessor, ProgramProcessor 
          * and StateMachineProcessor.
          * @param owner The TaskCore in which this execution engine executes.
+         * It may be null, in that case no TaskCore owns this execution engine.
          */
         ExecutionEngine( TaskCore* owner );
         
@@ -117,10 +120,7 @@ namespace RTT
          * events and the TaskCore's update() function.
          */
         virtual void step();
-        /**
-         * Identical to step(), but blocks for commands and events.
-         */
-        virtual void loop();
+
         virtual bool breakLoop();
 
         virtual void finalize();
@@ -141,16 +141,6 @@ namespace RTT
          * Remove a TaskCore from execution.
          */
         virtual void removeChild(TaskCore* tc);
-
-        /**
-         * Returns the semaphore which is signaled when events or
-         * commands arrive. The user may signal this semaphore to
-         * force the execution of a step when the ExecutionEngine
-         * is in a non periodic activity.
-         * @return null if the ExecutionEngine is periodic, a Semaphore
-         * otherwise.
-         */
-        OS::Semaphore* getSemaphore() const;
 
         /**
          * Returns the owner of this execution engine.

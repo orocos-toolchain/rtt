@@ -45,10 +45,6 @@ namespace RTT
     template< class T, class RP, class WP>
     class AtomicQueue;
 
-    namespace OS
-    {
-        class Semaphore;
-    }
 }
 
 namespace RTT
@@ -76,11 +72,8 @@ namespace RTT
         /**
          * Constructs a new ProgramProcessor
          * @param f_queue_size The maximum number of 'functions' this processor can execute
-         * @param work_sem An optional semaphore which the semaphore will signal if it receives
-         * work and consume if it processes work. Only to be used in non periodic mode.
-         *
          */
-        ProgramProcessor(int f_queue_size = ORONUM_EXECUTION_PROC_QUEUE_SIZE, OS::Semaphore* work_sem = 0);
+        ProgramProcessor(int f_queue_size = ORONUM_EXECUTION_PROC_QUEUE_SIZE);
 
         virtual ~ProgramProcessor();
 
@@ -160,11 +153,6 @@ namespace RTT
         std::vector<ProgramInterface*> funcs;
 
         AtomicQueue<ProgramInterface*,NonBlockingPolicy,NonBlockingPolicy>* f_queue;
-
-        /**
-         * Queue semaphore
-         */
-        OS::Semaphore* f_queue_sem;
 
     };
 

@@ -33,33 +33,42 @@
 #include "Signal.hpp"
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
-#include "os/Semaphore.hpp"
 #include <vector>
 #include "DataObjectInterfaces.hpp"
 #include "ListLockFree.hpp"
 #include "boost/tuple/tuple.hpp"
+#include "NA.hpp"
 
 namespace RTT
 {
     class EventProcessor;
 
     namespace detail {
-        using OS::Semaphore;
         using boost::make_tuple;
 
         struct EventCatcher {
-            EventCatcher(Semaphore* s);
+            EventCatcher();
             virtual ~EventCatcher();
             virtual void complete() = 0;
 
+            /**
+             * Calls mep->getActivity()->trigger()
+             */
+            void signalWork();
+
+            /**
+             * EventProcessor is used to signal the destruction
+             * of this EventCatcher.
+             */
             EventProcessor* mep;
-            // optionally signal this semaphore in non blocking mode
-            Semaphore* sem;
-            // if the catcher is not enabled ( EventProcessor not running)
+
+            /**
+             * Boost Intrusive pointer reference count.
+             */
+            int refCount;
+
             // do not accept 'work'
             bool enabled;
-
-            int refCount;
 
             typedef boost::intrusive_ptr< EventCatcher > shared_ptr;
             
@@ -87,8 +96,8 @@ namespace RTT
             const Function f;
             bool work;
 
-            EventCatcherImpl(const Function& f_, SignalType& sig, Semaphore* s )
-                : EventCatcher(s), f(f_), work(false)
+            EventCatcherImpl(const Function& f_, SignalType& sig )
+                : f(f_), work(false)
             {
             }
             
@@ -99,9 +108,9 @@ namespace RTT
 
             Result handler( void ) {
                 work = this->enabled;
-                if ( sem && work )
-                    sem->signal();
-                return Result();
+                if ( work && mep ) // if enabled and mep, there is an getActivity() present.
+                    signalWork();
+                return detail::NA<Result>::na();
             }
 
             virtual void complete() {
@@ -123,8 +132,8 @@ namespace RTT
             typename ContainerType::template Data<typename Function::arg1_type> _a1;
             Function f;
 
-            EventCatcherImpl( const Function& f_, SignalType& sig, Semaphore* s )
-                : EventCatcher(s), f(f_)
+            EventCatcherImpl( const Function& f_, SignalType& sig )
+                : f(f_)
             {
             }
             Handle setup( SignalType& sig ) {
@@ -134,12 +143,12 @@ namespace RTT
 
             Result handler( typename Function::arg1_type a1 ) {
                 if ( !this->enabled )
-                    return Result();
+                    return detail::NA<Result>::na();
                 // the container decides if a1 needs to be stored
                 _a1 = a1;
-                if ( sem )
-                    sem->signal();
-                return Result();
+                if ( mep )
+                    signalWork();
+                return detail::NA<Result>::na();
             }
 
             virtual void complete() {
@@ -215,8 +224,8 @@ namespace RTT
             typename ContainerType::template Data< Args > args;
             Function f;
 
-            EventCatcherImpl( const Function& f_, SignalType& sig, Semaphore* s )
-                : EventCatcher(s), f(f_)
+            EventCatcherImpl( const Function& f_, SignalType& sig )
+                : f(f_)
             {}
             Handle setup( SignalType& sig ) {
                 return sig.setup( boost::bind( &EventCatcherImpl<2, SignalType, ContainerType>::handler,
@@ -226,11 +235,11 @@ namespace RTT
             Result handler( typename Function::arg1_type a1,
                             typename Function::arg2_type a2 ) {
                 if ( !this->enabled )
-                    return Result();
+                    return detail::NA<Result>::na();
                 args = make_tuple( a1, a2 );
-                if ( sem )
-                    sem->signal();
-                return Result();
+                if ( mep )
+                    signalWork();
+                return detail::NA<Result>::na();
             }
 
             virtual void complete() {
@@ -255,8 +264,8 @@ namespace RTT
             typename ContainerType::template Data< Args > args;
             Function f;
 
-            EventCatcherImpl( const Function& f_, SignalType& sig, Semaphore* s )
-                : EventCatcher(s), f(f_)
+            EventCatcherImpl( const Function& f_, SignalType& sig )
+                : f(f_)
             {}
 
             Handle setup( SignalType& sig ) {
@@ -268,11 +277,11 @@ namespace RTT
                             typename Function::arg2_type a2,
                             typename Function::arg3_type a3 ) {
                 if ( !this->enabled )
-                    return Result();
+                    return detail::NA<Result>::na();
                 args = make_tuple( a1, a2, a3 );
-                if ( sem )
-                    sem->signal();
-                return Result();
+                if ( mep )
+                    signalWork();
+                return detail::NA<Result>::na();
             }
 
             virtual void complete() {
@@ -302,8 +311,8 @@ namespace RTT
             typename ContainerType::template Data< Args > args;
             Function f;
 
-            EventCatcherImpl( const Function& f_, SignalType& sig, Semaphore* s )
-                : EventCatcher(s), f(f_)
+            EventCatcherImpl( const Function& f_, SignalType& sig )
+                : f(f_)
             {
             }
             Handle setup( SignalType& sig ) {
@@ -316,11 +325,11 @@ namespace RTT
                             typename Function::arg3_type a3,
                             typename Function::arg4_type a4 ) {
                 if ( !this->enabled )
-                    return Result();
+                    return detail::NA<Result>::na();
                 args = make_tuple( a1, a2, a3, a4 );
-                if ( sem )
-                    sem->signal();
-                return Result();
+                if ( mep )
+                    signalWork();
+                return detail::NA<Result>::na();
             }
 
             virtual void complete() {
@@ -352,8 +361,8 @@ namespace RTT
             typename ContainerType::template Data< Args > args;
             Function f;
 
-            EventCatcherImpl( const Function& f_, SignalType& sig, Semaphore* s )
-                : EventCatcher(s), f(f_)
+            EventCatcherImpl( const Function& f_, SignalType& sig )
+                : f(f_)
             {
             }
 
@@ -368,11 +377,11 @@ namespace RTT
                             typename Function::arg4_type a4,
                             typename Function::arg5_type a5) {
                 if ( !this->enabled )
-                    return Result();
+                    return detail::NA<Result>::na();
                 args = make_tuple( a1, a2, a3, a4, a5 );
-                if ( sem )
-                    sem->signal();
-                return Result();
+                if ( mep )
+                    signalWork();
+                return detail::NA<Result>::na();
             }
 
             virtual void complete() {
@@ -400,8 +409,8 @@ namespace RTT
             typename ContainerType::template Data< Args > args;
             Function f;
 
-            EventCatcherImpl( const Function& f_, SignalType& sig, Semaphore* s )
-                : EventCatcher(s), f(f_)
+            EventCatcherImpl( const Function& f_, SignalType& sig )
+                : f(f_)
             {
             }
 
@@ -418,11 +427,11 @@ namespace RTT
                             typename Function::arg5_type a5,
                             typename Function::arg6_type a6) {
                 if ( !this->enabled )
-                    return Result();
+                    return detail::NA<Result>::na();
                 args = make_tuple( a1, a2, a3, a4, a5, a6 );
-                if ( sem )
-                    sem->signal();
-                return Result();
+                if ( mep )
+                    signalWork();
+                return detail::NA<Result>::na();
             }
 
             virtual void complete() {
@@ -441,7 +450,7 @@ namespace RTT
      * asynchronous callbacks in their own implementation. The EventProcessor
      * is an argument in the Event's asynchronous connect method.
      *
-     * @section ep_policy Changing the Event Processing Policy.
+     * @par Changing the Event Processing Policy.
      *
      * The default policy of the EventProcessor is to process all asynchronous
      * callbacks in step().
@@ -463,12 +472,6 @@ namespace RTT
          */
         typedef ListLockFree<detail::EventCatcher*> List;
         List catchers;
-        boost::shared_ptr<OS::Semaphore> sem;
-        bool active;
-        /**
-         *  Used by derived classes.
-         */
-        EventProcessor(boost::shared_ptr<OS::Semaphore> s);
 
         friend class detail::EventCatcher;
         void destroyed( detail::EventCatcher* ec );
@@ -499,6 +502,11 @@ namespace RTT
         void step();
 
         void finalize();
+
+        /**
+         * Force the loop() method to return.
+         */
+        bool breakLoop();
 
         /**
          * Connect a function to an Event and process upon each event the function in this
@@ -538,7 +546,7 @@ namespace RTT
                 {
                     // Use function arity to select implementation :
                     typename detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyFirstCont>::shared_ptr ecf
-                        (new detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyFirstCont>(f, sig, sem.get()));
+                        (new detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyFirstCont>(f, sig));
                     h = ecf->setup( sig );
                     eci = ecf;
                 }
@@ -547,7 +555,7 @@ namespace RTT
                 {
                     // Use function arity to select implementation :
                     typename detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyLastCont>::shared_ptr ecl
-                        (new detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyLastCont>(f, sig, sem.get()));
+                        (new detail::EventCatcherImpl<SignalType::SlotFunction::arity, SignalType, detail::OnlyLastCont>(f, sig));
                     h = ecl->setup( sig );
                     eci = ecl;
                 }
@@ -555,7 +563,7 @@ namespace RTT
             }
             catchers.grow();
             catchers.append( eci.get() );
-            eci->enabled = this->active;
+            eci->enabled = this->getActivity() && this->getActivity()->isActive();
             eci->mep = this;
             return h;
         }
@@ -571,33 +579,13 @@ namespace RTT
     {
     public:
         /**
-         * Create a blocking (non periodic) EventProcessor, which will wait on OS::Semaphore  \a s.
-         * All connected Events will signal this semaphore if an Event needs 
-         * processing. Also, signal this semaphore to break loop(), or call breakLoop().
-         * The semaphore is shared through a shared_ptr, meaning that it will only delete
-         * \a s if it holds the last reference to it.
+         * Create a blocking (non periodic) EventProcessor, which will trigger()
+         * the activity if an event needs processing.
          */
-        BlockingEventProcessor( boost::shared_ptr<OS::Semaphore> s = boost::shared_ptr<OS::Semaphore>( new OS::Semaphore(0) ) );
+        BlockingEventProcessor();
 
         ~BlockingEventProcessor();
 
-        bool initialize();
-
-        /**
-         * Process Events until \a breakLoop() (or destructor) is called.
-         */
-        void loop();
-
-        /**
-         * Force the loop() method to return.
-         */
-        bool breakLoop();
-
-        /**
-         * Let all registered (and future) connections use
-         * OS::Semaphore \a s to signal work to be done.
-         */
-        void setSemaphore( boost::shared_ptr<OS::Semaphore> s);
     };
 
 }

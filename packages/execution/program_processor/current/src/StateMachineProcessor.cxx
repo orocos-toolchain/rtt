@@ -32,7 +32,6 @@
 #include <rtt/Exceptions.hpp>
 
 #include <boost/bind.hpp>
-#include <rtt/os/Semaphore.hpp>
 
 namespace RTT
 {
@@ -42,9 +41,8 @@ namespace RTT
     
 
 
-    StateMachineProcessor::StateMachineProcessor(OS::Semaphore* work_sem)
-        : states( new StateMap(4) ),
-          queuesem( work_sem )
+    StateMachineProcessor::StateMachineProcessor()
+        : states( new StateMap(4) )
     {
     }
 

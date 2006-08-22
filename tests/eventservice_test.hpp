@@ -23,6 +23,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <rtt/Event.hpp>
 #include <rtt/EventService.hpp>
+#include <rtt/SlaveActivity.hpp>
 #include <string>
 
 class EventServiceTest : public CppUnit::TestFixture
@@ -53,6 +54,7 @@ class EventServiceTest : public CppUnit::TestFixture
     bool t_completer_bool;
     RTT::EventProcessor* event_proc;
     RTT::EventService* es;
+    RTT::SlaveActivity act;
 public:
     void setUp();
     void tearDown();

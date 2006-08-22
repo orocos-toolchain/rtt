@@ -35,16 +35,19 @@ namespace RTT
 
     namespace detail
     {
-        using OS::Semaphore;
-
-        EventCatcher::EventCatcher(Semaphore* s)
-            : mep(0), sem(s), enabled(false), refCount(0) // special trick !
+        EventCatcher::EventCatcher()
+            : mep(0), refCount(0), enabled(false)
         {}
 
         EventCatcher::~EventCatcher() {
             // notify EP that we were deleted :
             if (mep)
                 mep->destroyed(this);
+        }
+
+        void EventCatcher::signalWork()
+        {
+            mep->getActivity()->trigger();
         }
 
         void intrusive_ptr_add_ref( EventCatcher* p ) { ++p->refCount; }
@@ -54,14 +57,8 @@ namespace RTT
 
     using namespace detail;
 
-    EventProcessor::EventProcessor(boost::shared_ptr<OS::Semaphore> s)
-        : catchers(4), sem(s), active(false)
-    {
-    }
-
     EventProcessor::EventProcessor()
-        : catchers(4),
-          sem( boost::shared_ptr<OS::Semaphore>() )
+        : catchers(4)
     {
     }
 
@@ -70,6 +67,8 @@ namespace RTT
     }
 
     EventProcessor::~EventProcessor() {
+        if (this->getActivity() && this->getActivity()->isRunning() )
+            this->getActivity()->stop();
         // clear us out from catchers such that they do not try
         // to call destroyed() lateron.
         catchers.apply( boost::bind(&clearEP,_1) );
@@ -91,7 +90,6 @@ namespace RTT
     }
 
     bool EventProcessor::initialize() {
-        active = true;
         catchers.apply( boost::bind(&enableAll, _1 ) );
         return true;
     }
@@ -102,49 +100,23 @@ namespace RTT
         catchers.apply( boost::bind(&EventCatcher::complete, _1 ) );
     }
 
+    bool EventProcessor::breakLoop() {
+        // override default breakLoop()
+        return true;
+    }
+
     void EventProcessor::finalize() {
-        active = false;
         catchers.apply( boost::bind(&disableAll, _1 ) );
     }
 
-    BlockingEventProcessor::BlockingEventProcessor(boost::shared_ptr<OS::Semaphore> s )
-        : EventProcessor( s )
+    BlockingEventProcessor::BlockingEventProcessor()
+        : EventProcessor()
     {
     }
 
     BlockingEventProcessor::~BlockingEventProcessor() {
-        this->breakLoop();
-        // race condition here, this->getActivity()->isRunning() better be false
-        // before EventProcessor is destructed, otherwise, solve with extra semaphore
+        if (this->getActivity() && this->getActivity()->isRunning() )
+            this->getActivity()->stop();
     }
 
-    bool BlockingEventProcessor::initialize() {
-        // we set active to true inhere to avoid a race condition
-        // it was originally set in loop(), but it went wrong there.
-        active = true;
-        return true;
-    }
-
-    void BlockingEventProcessor::loop() {
-        while ( active )
-            {
-                this->step();
-                // wait/block for the next Event
-                sem->wait();
-            }
-    }
-
-    bool BlockingEventProcessor::breakLoop() {
-        active = false;
-        sem->signal();
-        return true;
-    }
-
-    static void setSem(boost::shared_ptr<OS::Semaphore> s, EventCatcher* eci) {
-        eci->sem = s.get();
-    }
-
-    void BlockingEventProcessor::setSemaphore( boost::shared_ptr<OS::Semaphore> s) {
-        catchers.apply( boost::bind(&setSem, s, _1 ) );
-    }
 }

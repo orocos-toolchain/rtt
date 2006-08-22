@@ -22,6 +22,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <rtt/Event.hpp>
+#include <rtt/SlaveActivity.hpp>
 #include <string>
 
 class EventTest : public CppUnit::TestFixture
@@ -47,6 +48,7 @@ class EventTest : public CppUnit::TestFixture
     bool t_completer_value;
     std::string t_listener_what;
     RTT::EventProcessor* event_proc;
+    RTT::SlaveActivity act;
     float float_sum, float_sub;
 public:
     void setUp();

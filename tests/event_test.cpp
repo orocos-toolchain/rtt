@@ -43,6 +43,7 @@ EventTest::setUp()
     t_event_string = Event<void(std::string)>("t_event_string");
     t_event_float = Event<int(float, float)>("t_event_float");
     event_proc = new EventProcessor();
+    act.run( event_proc );
     reset();
     // to be sure
     CompletionProcessor::Instance()->start();
@@ -52,6 +53,7 @@ EventTest::setUp()
 void 
 EventTest::tearDown()
 {
+    act.stop();
     delete event_proc;
     SimulationThread::Release();
 }
@@ -105,12 +107,15 @@ struct Runner : public RunnableInterface
     Event<void(int)>& e;
     Handle h1;
     Handle h2;
-    Runner( Event<void(int)>& e_ ) : e(e_) {}
+    Runner( Event<void(int)>& e_ ) : e(e_) {
+        act.run(&ep);
+    }
 
+    SlaveActivity act;
     BlockingEventProcessor ep;
 
     bool initialize() {
-        ep.initialize();
+        act.start();
         result = false;
         // connect sync and async handler with event
         // and run async handler in thread of this task.
@@ -120,7 +125,7 @@ struct Runner : public RunnableInterface
     }
     void step() {
         e( 123456 );
-        ep.step();
+        ep.loop();
     }
 
     // blocking implementation
@@ -134,7 +139,7 @@ struct Runner : public RunnableInterface
     }
 
     void finalize() {
-        ep.finalize();
+        act.stop();
         h1.disconnect();
         h2.disconnect();
     }
@@ -151,11 +156,15 @@ struct SelfRemover : public RunnableInterface
 {
     Event<void(void)>& e;
     Handle h1, h2;
-    SelfRemover( Event<void(void)>& e_ ) : e(e_) {}
+    SelfRemover( Event<void(void)>& e_ ) : e(e_) {
+        act.run(&ep);
+    }
     
+    SlaveActivity act;
     EventProcessor ep;
 
     bool initialize() {
+        act.start();
         // connect sync and async handler with event
         // and run async handler in thread of this task.
         h1 = e.setup( bind(&SelfRemover::handle,this));
@@ -174,6 +183,7 @@ struct SelfRemover : public RunnableInterface
     }
 
     void finalize() {
+        act.stop();
     }
 
     void handle(void) {
@@ -199,12 +209,16 @@ struct CrossRemover : public RunnableInterface
 {
     Event<void(void)>& e;
     Handle h1,h2;
-    CrossRemover( Event<void(void)>& e_ ) : e(e_), count(0) {}
+    CrossRemover( Event<void(void)>& e_ ) : e(e_), count(0) {
+        act.run(&ep);
+    }
     int count;
 
+    SlaveActivity act;
     EventProcessor ep;
 
     bool initialize() {
+        act.start();
         // connect sync and async handler with event
         // and run async handler in thread of this task.
         e.connect( bind(&CrossRemover::handle,this));
@@ -227,6 +241,7 @@ struct CrossRemover : public RunnableInterface
     }
 
     void finalize() {
+        act.stop();
     }
 
     void handle(void) {
@@ -325,7 +340,7 @@ void EventTest::testEventArgs()
     float_sub = 0;
 
     // use event processor
-    event_proc->initialize();
+    CPPUNIT_ASSERT(act.start());
 
     h1 = t_event_float.connect(boost::bind(&EventTest::float_listener, this,_1,_2));
     h2 = t_event_float.connect(boost::bind(&EventTest::float_completer, this, _1, _2),
@@ -339,7 +354,7 @@ void EventTest::testEventArgs()
     CPPUNIT_ASSERT_EQUAL( float(20.0), float_sum );
 
     event_proc->step();
-    event_proc->finalize();
+    act.stop();
     // asyn handlers should reach only last total.
     CPPUNIT_ASSERT_EQUAL( float(-15.0), float_sub );
     h1.disconnect();
@@ -364,7 +379,7 @@ void EventTest::testSyncListenerThreadCompleter()
 {
     // in thread completer:
     reset();
-    event_proc->initialize();
+    CPPUNIT_ASSERT(act.start());
     // Manually call step
     event_proc->step();
     Handle h1 = t_event.connect( boost::bind(&EventTest::listener,this));
@@ -416,7 +431,7 @@ void EventTest::testCompletionProcessor()
     // in thread completer:
     reset();
 
-    CPPUNIT_ASSERT( CompletionProcessor::Instance()->isRunning() );
+    CPPUNIT_ASSERT( CompletionProcessor::Instance()->isActive() );
 
     Handle h2 = t_event.connect(boost::bind(&EventTest::completer,this),
                                 CompletionProcessor::Instance()
@@ -436,7 +451,9 @@ void EventTest::testCompletionProcessor()
 void EventTest::testRTEvent()
 {
     reset();
-    event_proc->initialize();
+
+    CPPUNIT_ASSERT(act.start());
+
     Handle hl( t_event.setup( boost::bind(&EventTest::listener,this) ) );
     Handle hc( t_event.setup( boost::bind(&EventTest::completer,this), event_proc ) );
 

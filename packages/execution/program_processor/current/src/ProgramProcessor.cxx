@@ -35,8 +35,6 @@
 
 #include <boost/bind.hpp>
 #include <functional>
-#include <rtt/os/Semaphore.hpp>
-#include <iostream>
 
 namespace RTT
 {
@@ -44,11 +42,10 @@ namespace RTT
     using namespace std;
     
 
-    ProgramProcessor::ProgramProcessor(int f_queue_size, OS::Semaphore* work_sem)
+    ProgramProcessor::ProgramProcessor(int f_queue_size)
         : programs( new ProgMap(4) ),
           funcs( f_queue_size ),
-          f_queue( new AtomicQueue<ProgramInterface*>(f_queue_size) ),
-          f_queue_sem( work_sem )
+          f_queue( new AtomicQueue<ProgramInterface*>(f_queue_size) )
     {
     }
 
@@ -165,9 +162,6 @@ namespace RTT
             // 1. Fetch new ones from queue.
             while ( !f_queue->isEmpty() && f_it != funcs.end() ) {
                 f_queue->dequeue( foo );
-                // decrement semaphore if looping, but be sure not to block in any case
-                if ( f_queue_sem )
-                    f_queue_sem->trywait();
                 *f_it = foo;
                 // stored successfully, now reset for next item from queue.
                 foo = 0;
@@ -192,8 +186,8 @@ namespace RTT
             if ( f->start() == false)
                 return false;
             int result = f_queue->enqueue( f );
-            if ( f_queue_sem )
-                f_queue_sem->signal();
+            // signal work is to be done:
+            this->getActivity()->trigger();
             return result != 0;
         }
         return false;

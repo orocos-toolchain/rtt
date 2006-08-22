@@ -41,12 +41,6 @@
 
 namespace RTT
 {
-    namespace OS
-    {
-        class Semaphore;
-    }
-
-
     /**
      * This class implements a real-time state machine executor.
      *
@@ -72,7 +66,7 @@ namespace RTT
         /**
          * Constructs a new StateMachineProcessor
          */
-        StateMachineProcessor(OS::Semaphore* work_sem = 0);
+        StateMachineProcessor();
 
         virtual ~StateMachineProcessor();
 
@@ -135,10 +129,6 @@ namespace RTT
         typedef ListLockFree<StateMachinePtr> StateMap;
         StateMap*   states;
 
-        /**
-         * Work semaphore.
-         */
-        OS::Semaphore* queuesem;
     };
 
 }

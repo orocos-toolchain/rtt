@@ -16,7 +16,6 @@ synchronous and asynchronous event handling."
     compile signal_base.cxx
     compile Handle.cxx
     compile CompletionProcessor.cxx
-    compile EventDrivenActivity.cxx
 
     cdl_component OROPKG_CORELIB_EVENTS_CP {
 	display "Completion Processor Properties"

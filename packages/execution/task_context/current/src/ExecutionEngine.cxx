@@ -27,7 +27,6 @@
  
  
 
-#include <rtt/os/Semaphore.hpp>
 #include <rtt/Logger.hpp>
 #include <rtt/ExecutionEngine.hpp>
 #include <rtt/TaskCore.hpp>
@@ -39,11 +38,8 @@ namespace RTT
     using namespace std;
 
     ExecutionEngine::ExecutionEngine( TaskCore* owner )
-        : work_sem( new OS::Semaphore(0) ),
-          loop_sem( new OS::Semaphore(0) ),
-          taskc(owner),
-          cproc( 0 ), pproc( 0 ), smproc( 0 ), eproc( 0 ),
-          eerun( false )
+        : taskc(owner),
+          cproc( 0 ), pproc( 0 ), smproc( 0 ), eproc( 0 )
     {
         this->setup();
     }
@@ -51,15 +47,13 @@ namespace RTT
     ExecutionEngine::~ExecutionEngine()
     {
         Logger::In in("~ExecutionEngine");
-        Logger::log() << Logger::Debug << "Destroying ExecutionEngine of "+taskc->getName()<<Logger::endl;
+        if (taskc)
+            Logger::log() << Logger::Debug << "Destroying ExecutionEngine of "+taskc->getName()<<Logger::endl;
 
         delete cproc;
         delete pproc;
         delete smproc;
         delete eproc;
-
-        delete work_sem;
-        delete loop_sem;
 
         // make a copy to avoid call-back troubles:
         std::vector<TaskCore*> copy = children;
@@ -73,20 +67,21 @@ namespace RTT
     {
         Logger::In in("ExecutionEngine");
 
-        Logger::log() << Logger::Debug << "Creating ExecutionEngine for "+taskc->getName()<<Logger::endl;
+        if (taskc)
+            Logger::log() << Logger::Debug << "Creating ExecutionEngine for "+taskc->getName()<<Logger::endl;
 
 #ifdef OROPKG_EXECUTION_ENGINE_COMMANDS
-        cproc = new CommandProcessor(ORONUM_EXECUTION_PROC_QUEUE_SIZE, work_sem);
+        cproc = new CommandProcessor(ORONUM_EXECUTION_PROC_QUEUE_SIZE);
 #else
         cproc = 0;
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
-        pproc = new ProgramProcessor(ORONUM_EXECUTION_PROC_QUEUE_SIZE, work_sem);
+        pproc = new ProgramProcessor(ORONUM_EXECUTION_PROC_QUEUE_SIZE);
 #else
         pproc = 0;
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
-        smproc = new StateMachineProcessor(work_sem);
+        smproc = new StateMachineProcessor();
 #else
         smproc = 0;
 #endif
@@ -99,10 +94,6 @@ namespace RTT
 
     TaskCore* ExecutionEngine::getParent() {
         return taskc;
-    }
-
-    OS::Semaphore* ExecutionEngine::getSemaphore() const {
-        return work_sem;
     }
 
     void ExecutionEngine::addChild(TaskCore* tc) {
@@ -130,7 +121,7 @@ namespace RTT
 
         RunnableInterface::setActivity(t);
         
-        if (t)
+        if (taskc && t)
             if ( ! t->isPeriodic() ) {
                 Logger::log() << Logger::Info << taskc->getName()+" is not periodic."<< Logger::endl;
             } else {
@@ -142,7 +133,7 @@ namespace RTT
 
     bool ExecutionEngine::initialize() {
         // call user startup code.
-        if ( taskc->startup() == false ) {
+        if ( taskc && taskc->startup() == false ) {
             //Logger::log() << Logger::Error << "ExecutionEngine's task startup() failed!" << Logger::endl;
             return false;
         }
@@ -155,7 +146,8 @@ namespace RTT
                 for ( ; rit != children.rend(); ++rit )
                     (*rit)->shutdown();
                 //Logger::log() << Logger::Error << "ExecutionEngine's children's startup() failed!" << Logger::endl;
-                this->taskc->shutdown();
+                if (taskc)
+                    this->taskc->shutdown();
                 return false;
             }
         }
@@ -164,9 +156,6 @@ namespace RTT
             if ( smproc ? smproc->initialize() : true ) {
                 if( cproc ? cproc->initialize() : true ) {
                     if ( eproc ? eproc->initialize() : true ) {
-                        // non periodic loop() uses this flag to detect breakLoop()
-                        if ( !this->getActivity()->isPeriodic() )
-                            eerun = true;
                         return true;
                     }
                     // failure: shut down again.
@@ -189,7 +178,12 @@ namespace RTT
     }
 
     void ExecutionEngine::step() {
-        Logger::In in( taskc->getName().c_str() );
+        const char* location;
+        if (taskc)
+            location = taskc->getName().c_str();
+        else
+            location = "ExecutionEngine";
+        Logger::In in( location );
         // this #ifdef ... #endif is only for speed optimisations.
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
         if (pproc)
@@ -207,7 +201,8 @@ namespace RTT
         if (eproc)
             eproc->step();
 #endif
-        taskc->update();
+        if (taskc)
+            taskc->update();
         // call all children as well.
         for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
             Logger::In in( (*it)->getName().c_str() );
@@ -216,26 +211,11 @@ namespace RTT
         return;
     }
 
-    void ExecutionEngine::loop() {
-        while( eerun ) {
-            work_sem->wait();
-            this->step();
-        }
-        loop_sem->signal();
-    }
-
     bool ExecutionEngine::breakLoop() {
-        if (eerun) {
-            eerun = false;
-            work_sem->signal();
-            loop_sem->wait();
-            return true;
-        }
-        return false;
+        return true;
     }
 
     void ExecutionEngine::finalize() {
-        eerun = false;
         if (pproc)
             pproc->finalize();
         if (smproc)
@@ -248,7 +228,8 @@ namespace RTT
         for (std::vector<TaskCore*>::reverse_iterator rit = children.rbegin(); rit != children.rend();++rit) {
             (*rit)->shutdown();
         }
-        taskc->shutdown();
+        if (taskc)
+            taskc->shutdown();
     }
 
     CommandProcessor* ExecutionEngine::commands() const {

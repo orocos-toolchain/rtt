@@ -54,6 +54,7 @@ Template_FactoryTest::setUp()
     CPPUNIT_ASSERT( tc->events()->addEvent( &t_event_float, "Description","a1","d1", "a2", "d2" ) );
     tsim = new SimulationActivity(0.001, tc->engine() );
     event_proc = new EventProcessor();
+    act.run(event_proc);
 }
 
 
@@ -64,6 +65,7 @@ Template_FactoryTest::tearDown()
 //         delete tc->getPeer("programs");
     tsim->stop();
     SimulationThread::Instance()->stop();
+    act.stop();
     delete tc;
     delete tsim;
     delete event_proc;
@@ -322,7 +324,7 @@ void Template_FactoryTest::testEventC()
     float_sub = 0;
 
     // use event processor
-    event_proc->initialize();
+    CPPUNIT_ASSERT(act.start());
 
     cc = tc->events()->setupConnection("FloatEvent").callback( this, &Template_FactoryTest::float_listener);
     h1 = cc.handle();

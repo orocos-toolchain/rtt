@@ -26,6 +26,7 @@
 #include <rtt/Parser.hpp>
 #include <rtt/CommandProcessor.hpp>
 #include <rtt/TaskContext.hpp>
+#include <rtt/SlaveActivity.hpp>
 #include <string>
 
 using namespace RTT;
@@ -44,6 +45,7 @@ class Template_FactoryTest : public CppUnit::TestFixture
     Parser parser;
     TaskContext* tc;
     ActivityInterface* tsim;
+    SlaveActivity act;
     CommandProcessor processor;
     TaskObject* createMethodFactory();
     TaskObject* createUserMethodFactory();

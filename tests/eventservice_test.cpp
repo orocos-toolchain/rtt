@@ -47,8 +47,10 @@ EventServiceTest::setUp()
     t_event2 = RTT::Event<void( std::string, double )>("t_event2");
     t_event3 = RTT::Event<void( std::string, double, bool )>("t_event3");
 
+    
     event_proc = new EventProcessor();
-    event_proc->initialize();
+    act.run(event_proc);
+    act.start();
     es = new EventService(event_proc);
     reset();
 }
@@ -57,8 +59,8 @@ EventServiceTest::setUp()
 void 
 EventServiceTest::tearDown()
 {
+    act.stop();
     delete es;
-    event_proc->finalize();
     delete event_proc;
 }
 

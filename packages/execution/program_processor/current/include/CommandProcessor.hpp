@@ -40,13 +40,6 @@
 
 #include <pkgconf/execution_program_processor.h>
 
-namespace OS
-{
-    class Semaphore;
-    class Mutex;
-    class MutexRecursive;
-}
-
 namespace RTT
 {
     template< class T, class RP, class WP>
@@ -64,7 +57,11 @@ namespace RTT
      * The default policy of the CommandProcessor is to dequeue one
      * command in each step() and execute it. If you want to change
      * this policy, subclass the CommandProcessor and override the
-     * virtual functions, such as step() or process().
+     * virtual functions, such as step() or process().  The current
+     * command queue is non blocking for push and pop operations.
+     * process() fails when the queue is full; step() does nothing
+     * when the queue is empty. A subclass may install a new
+     * command queue with for example blocking semantics.
      */
     class CommandProcessor
         : public RunnableInterface
@@ -74,7 +71,7 @@ namespace RTT
          * Constructs a new CommandProcessor
          * @param queue_size The size of the command queue.
          */
-        CommandProcessor(int queue_size = ORONUM_EXECUTION_PROC_QUEUE_SIZE, OS::Semaphore* work_sem = 0);
+        CommandProcessor(int queue_size = ORONUM_EXECUTION_PROC_QUEUE_SIZE);
 
         virtual ~CommandProcessor();
 
@@ -83,9 +80,17 @@ namespace RTT
         virtual void finalize();
 
         /**
-         * Queue and execute (process) a given command. The command is executed in step() or loop() 
-         * directly after all other queued CommandInterface objects. The constructor parameter \a queue_size 
-         * limits how many commands can be queued in between step()s or loop().
+         * Queue and execute (process) a given command. The command is
+         * executed in step() or loop() directly after all other
+         * queued CommandInterface objects. The constructor parameter
+         * \a queue_size limits how many commands can be queued in
+         * between step()s or loop().
+         *
+         * @warning process() assumes that step() is executed once
+         * for each command, hence, it invokes ActivityInterface::trigger() each time.
+         * In case you override step() in a subclass, override
+         * process as well in order to reduce calling trigger().
+         *
          * @return The command number. You can check if the given command was processed
          * by calling CommandProcessor::isProcessed( command id ). The command number is reset to one
          * each time the CommandProcessor is (re-)started. 
@@ -114,7 +119,6 @@ namespace RTT
          */
         int coms_processed;
 
-        OS::Semaphore* queuesem;
         bool accept;
     };
 
