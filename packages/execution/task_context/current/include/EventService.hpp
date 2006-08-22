@@ -31,8 +31,8 @@
 
 #include "Logger.hpp"
 #include "FunctorFactory.hpp"
-#include "TemplateEventFactory.hpp"
 #include "OperationFactory.hpp"
+#include "EventHook.hpp"
 #include "Event.hpp"
 #include "CompletionProcessor.hpp"
 #include "EventC.hpp"

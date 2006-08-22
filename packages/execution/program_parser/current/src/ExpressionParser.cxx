@@ -36,7 +36,6 @@
 #include "rtt/ArgumentsParser.hpp"
 #include <rtt/Operators.hpp>
 #include <rtt/DataSourceCondition.hpp>
-#include "rtt/DataSourceFactoryInterface.hpp"
 
 #include "rtt/DataSourceTime.hpp"
 #include "rtt/TaskContext.hpp"

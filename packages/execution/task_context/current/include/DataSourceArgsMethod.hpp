@@ -3,7 +3,7 @@
 
 #include "DataSource.hpp"
 #include "LocalMethod.hpp"
-#include "TemplateMemberFactory.hpp"
+#include "FunctorDataSource.hpp"
 
 namespace RTT
 {

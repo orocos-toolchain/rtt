@@ -1,7 +1,7 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  TemplateEventFactory.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  EventHook.hpp 
 
-                        TemplateEventFactory.hpp -  description
+                        EventHook.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
@@ -26,24 +26,17 @@
  ***************************************************************************/
  
  
-#ifndef TEMPLATE_EVENT_FACTORY_HPP
-#define TEMPLATE_EVENT_FACTORY_HPP
+#ifndef EVENT_HOOK_HPP
+#define EVENT_HOOK_HPP
  
 
 #include "Event.hpp"
 #include "ActivityInterface.hpp"
-#include "TemplateFactory.hpp"
-#include "TemplateMethodFactory.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/type_traits.hpp>
 
 
-/**
- * @file This file contains the Template factories for Event objects
- *
- * This is an internal file, not to be used directly by users.
- */
 namespace RTT{
 
     namespace detail {

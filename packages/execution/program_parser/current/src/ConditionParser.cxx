@@ -41,8 +41,6 @@
 
 #include <boost/bind.hpp>
 
-#include "rtt/DataSourceFactoryInterface.hpp"
-#include "rtt/TemplateFactory.hpp"
 #include "rtt/TryCommand.hpp"
 
 namespace RTT
