@@ -119,7 +119,7 @@ namespace RTT
          */
 
         if ( task->goRealtime )
-      rtos_task_make_hard_real_time( task->getTask() );
+            rtos_task_make_hard_real_time( task->getTask() );
 
         rtos_sem_signal( &(task->confDone) );
 
@@ -133,10 +133,10 @@ namespace RTT
                                 break;
                             // The configuration might have changed
                             // While waiting on the sem...
-	      if ( task->goRealtime && !rtos_task_is_hard_real_time( task->getTask() ) )
-		rtos_task_make_hard_real_time( task->getTask() );
-	      if ( ! task->goRealtime && rtos_task_is_hard_real_time( task->getTask() ) )
-		rtos_task_make_soft_real_time( task->getTask() );
+                            if ( task->goRealtime && !rtos_task_is_hard_real_time( task->getTask() ) )
+                                rtos_task_make_hard_real_time( task->getTask() );
+                            if ( ! task->goRealtime && rtos_task_is_hard_real_time( task->getTask() ) )
+                                rtos_task_make_soft_real_time( task->getTask() );
                         } else {
 
 #ifdef OROPKG_OS_THREAD_SCOPE
@@ -163,16 +163,16 @@ namespace RTT
                     d->switchOff( bit );
 #endif
                 if ( task->isHardRealtime() )
-	  rtos_task_make_soft_real_time( task->getTask() );
+                    rtos_task_make_soft_real_time( task->getTask() );
                 // set state to not running
                 task->inloop = false;
                 task->active = false;
 #ifdef OROPKG_CORELIB_REPORTING
-	Logger::log() << Logger::Fatal << "Single Thread "<< task->getName() <<" caught a C++ exception, stopping thread !"<<Logger::endl;
+                Logger::log() << Logger::Fatal << "Single Thread "<< task->getName() <<" caught a C++ exception, stopping thread !"<<Logger::endl;
 #endif
                 task->finalize();
                 if ( task->goRealtime )
-	  rtos_task_make_hard_real_time( task->getTask() );
+                    rtos_task_make_hard_real_time( task->getTask() );
             }
         }
             
@@ -283,7 +283,7 @@ namespace RTT
 
     bool SingleThread::isHardRealtime() const
     {
-    return rtos_task_is_hard_real_time( &rtos_task );
+        return rtos_task_is_hard_real_time( &rtos_task );
     }
 
     bool SingleThread::start() 
@@ -306,7 +306,7 @@ namespace RTT
     }
 
     void SingleThread::yield() {
-    rtos_task_yield( &rtos_task );
+        rtos_task_yield( &rtos_task );
     }
 
     bool SingleThread::stop() 
@@ -363,14 +363,14 @@ namespace RTT
             runComp->finalize();
     }
 
-  const char* SingleThread::getName() const
+    const char* SingleThread::getName() const
     {
-    return rtos_task_get_name(&rtos_task);
+        return rtos_task_get_name(&rtos_task);
     }
-
-  int SingleThread::getPriority() const
+    
+    int SingleThread::getPriority() const
     {
-    return rtos_task_get_priority(&rtos_task);
+        return rtos_task_get_priority(&rtos_task);
     }
    
 }}
