@@ -109,7 +109,7 @@ namespace RTT
          * @param owner The TaskCore in which this execution engine executes.
          * It may be null, in that case no TaskCore owns this execution engine.
          */
-        ExecutionEngine( TaskCore* owner );
+        ExecutionEngine( TaskCore* owner = 0);
         
         ~ExecutionEngine();
 
