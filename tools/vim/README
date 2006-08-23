@@ -1,0 +1,18 @@
+
+
+ VIM syntax highliting for .osd files
+======================================
+
+
+To enable syntax highliting for Orocos state diagram files (.osd):
+
+
+- Copy osd.vim to $(HOMEDIR)/.vim/syntax/ 
+  (or make a symbolic link)
+
+
+- Add the following lines to $(HOMEDIR)/.vim/filetype.vim
+
+     augroup filetypedetect
+     au BufNewFile,BufRead *.osd     setf osd
+     augroup END
