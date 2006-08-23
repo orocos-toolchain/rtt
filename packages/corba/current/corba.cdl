@@ -31,7 +31,6 @@ detection of the packages configure script"
     include_files GeometryC.h GeometryC.inl
     include_files Attributes.idl AttributesC.h AttributesS.h AttributesC.inl AttributesS.inl AttributesS_T.h AttributesS_T.inl AttributesS_T.cpp AttributesI.h
     include_files ScriptingAccess.idl ScriptingAccessC.h ScriptingAccessS.h ScriptingAccessC.inl ScriptingAccessS.inl ScriptingAccessS_T.h ScriptingAccessS_T.inl ScriptingAccessS_T.cpp ScriptingAccessI.h
-    include_files CosPropertyServiceI.h
 
 #     make_object {
 # 	src/kernelserver.o : $(REPOSITORY)/$(PACKAGE)/ControlTask.idl $(REPOSITORY)/$(PACKAGE)/src/kernelserver.cxx
