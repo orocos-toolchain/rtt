@@ -632,31 +632,6 @@ ORO_main( int argc, char** argv)
       </para>
     </section>
     <section>
-      <title>Event Driven Activities</title>
-      <para>
-	An alternative way to use non periodic activities is to use
-	the <classname>RTT::EventDrivenActivity</classname>,
-	which can be bound to an <classname>RTT::Event</classname> (see <xref linkend="corelib-events" /> )
-	and each time the Event is emitted, the step() method will be invoked
-	asynchronously in a given thread.
-	This will happen from the moment the activity's start method is called
-	until the stop method is called. The following example shows
-	how such a activity can be run asynchronously.
-	<programlisting>  #include &lt;rtt/EventDrivenActivity.hpp>
-
-  //...
-  <classname>RTT::Event</classname>&lt;void(void)> activity_event;
-  <classname>RTT::EventDrivenActivity</classname> activity( &amp;activity_event, <classname>RTT::ZeroTimeThread</classname>::Instance(), &amp;run_obj);
-
-  activity_event.emit(); // nothing happens
-
-  activity.start();      // initialize()s activity
-  activity_event.emit(); // activity's step() will be executed once in ZeroTimeThread
-
-  activity.stop();       // finalize()s activity</programlisting>
-      </para>
-    </section>
-    <section>
       <title>Accessing the Threads from Activities</title>
       <para>
 	Each Orocos Activity (periodic, non periodic and event driven)
@@ -762,7 +737,7 @@ ORO_main( int argc, char** argv)
     <title>Commands</title>
     <para>
       Commands offer a thread-safe realtime means of message passing
-      between threads. 
+      between threads.
     </para>
     <section>
       <title>The Command Processor</title>
