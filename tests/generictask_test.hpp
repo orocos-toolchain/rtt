@@ -31,6 +31,7 @@ using namespace RTT;
 class Generic_TaskTest : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( Generic_TaskTest );
+    CPPUNIT_TEST( testExecutionEngine );
     CPPUNIT_TEST( testCommand );
     CPPUNIT_TEST( testMethod );
     CPPUNIT_TEST( testCommandFromDS );
@@ -120,6 +121,7 @@ public:
     void setUp();
     void tearDown();
 
+    void testExecutionEngine();
     void testMethodsC();
     void testCommandsC();
     void testProperties();

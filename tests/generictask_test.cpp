@@ -70,6 +70,32 @@ bool Generic_TaskTest::assertBool( bool b) {
     return b;
 }
 
+void Generic_TaskTest::testExecutionEngine()
+{
+    // no owner:
+    ExecutionEngine ee1(0);
+    ExecutionEngine ee2(0);
+
+    // test setActivity:
+    CPPUNIT_ASSERT( tsim->run(&ee1) );
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(5) );
+
+    // this also tests setActivity:
+    CPPUNIT_ASSERT( tsim->run(&ee2) );
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(5) );
+
+    {
+        TaskCore tc1("tc1", &ee2);
+        TaskCore tc2("tc2", &ee2);
+
+        // run with two children.
+        CPPUNIT_ASSERT( SimulationThread::Instance()->run(5) );
+    }
+    // children removed again:
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(5) );
+    tsim->run(0);
+}
+
 TaskObject* Generic_TaskTest::createMethodFactory()
 {
     TaskObject* to = new TaskObject("methods");
@@ -169,11 +195,11 @@ void Generic_TaskTest::testCommandsC()
     CPPUNIT_ASSERT( !c32.valid() );
     CPPUNIT_ASSERT( !c33.valid() );
     CPPUNIT_ASSERT( !c44.valid() );
-    CPPUNIT_ASSERT( !cc.evaluate() );
-    CPPUNIT_ASSERT( !c20.evaluate() );
-    CPPUNIT_ASSERT( !c32.evaluate() );
-    CPPUNIT_ASSERT( !c33.evaluate() );
-    CPPUNIT_ASSERT( !c44.evaluate() );
+    CPPUNIT_ASSERT( !cc.done() );
+    CPPUNIT_ASSERT( !c20.done() );
+    CPPUNIT_ASSERT( !c32.done() );
+    CPPUNIT_ASSERT( !c33.done() );
+    CPPUNIT_ASSERT( !c44.done() );
     CPPUNIT_ASSERT( !cc.execute() );
     CPPUNIT_ASSERT( !c20.execute() );
     CPPUNIT_ASSERT( !c32.execute() );
@@ -199,11 +225,11 @@ void Generic_TaskTest::testCommandsC()
     CPPUNIT_ASSERT( !c32.valid() );
     CPPUNIT_ASSERT( !c33.valid() );
     CPPUNIT_ASSERT( !c44.valid() );
-    CPPUNIT_ASSERT( !cc.evaluate() );
-    CPPUNIT_ASSERT( !c20.evaluate() );
-    CPPUNIT_ASSERT( !c32.evaluate() );
-    CPPUNIT_ASSERT( !c33.evaluate() );
-    CPPUNIT_ASSERT( !c44.evaluate() );
+    CPPUNIT_ASSERT( !cc.done() );
+    CPPUNIT_ASSERT( !c20.done() );
+    CPPUNIT_ASSERT( !c32.done() );
+    CPPUNIT_ASSERT( !c33.done() );
+    CPPUNIT_ASSERT( !c44.done() );
 
     // Test Reset:
     cc.reset();
@@ -236,11 +262,11 @@ void Generic_TaskTest::testCommandsC()
     CPPUNIT_ASSERT( !c32.valid() );
     CPPUNIT_ASSERT( !c33.valid() );
     CPPUNIT_ASSERT( !c44.valid() );
-    CPPUNIT_ASSERT( !cc.evaluate() );
-    CPPUNIT_ASSERT( !c20.evaluate() );
-    CPPUNIT_ASSERT( !c32.evaluate() );
-    CPPUNIT_ASSERT( !c33.evaluate() );
-    CPPUNIT_ASSERT( !c44.evaluate() );
+    CPPUNIT_ASSERT( !cc.done() );
+    CPPUNIT_ASSERT( !c20.done() );
+    CPPUNIT_ASSERT( !c32.done() );
+    CPPUNIT_ASSERT( !c33.done() );
+    CPPUNIT_ASSERT( !c44.done() );
 
     // CASE 2 send command to running task
     CPPUNIT_ASSERT( tsim->start() );
@@ -271,11 +297,11 @@ void Generic_TaskTest::testCommandsC()
     CPPUNIT_ASSERT( !c32.valid() );
     CPPUNIT_ASSERT( !c33.valid() );
     CPPUNIT_ASSERT( !c44.valid() );
-    CPPUNIT_ASSERT( !cc.evaluate() );
-    CPPUNIT_ASSERT( !c20.evaluate() );
-    CPPUNIT_ASSERT( !c32.evaluate() );
-    CPPUNIT_ASSERT( !c33.evaluate() );
-    CPPUNIT_ASSERT( !c44.evaluate() );
+    CPPUNIT_ASSERT( !cc.done() );
+    CPPUNIT_ASSERT( !c20.done() );
+    CPPUNIT_ASSERT( !c32.done() );
+    CPPUNIT_ASSERT( !c33.done() );
+    CPPUNIT_ASSERT( !c44.done() );
     tc->engine()->step();
     tc->engine()->step();
     tc->engine()->step();
@@ -291,11 +317,11 @@ void Generic_TaskTest::testCommandsC()
     CPPUNIT_ASSERT( c32.valid() );
     CPPUNIT_ASSERT( c33.valid() );
     CPPUNIT_ASSERT( c44.valid() );
-    CPPUNIT_ASSERT( cc.evaluate() );
-    CPPUNIT_ASSERT( c20.evaluate() );
-    CPPUNIT_ASSERT( c32.evaluate() );
-    CPPUNIT_ASSERT( c33.evaluate() );
-    CPPUNIT_ASSERT( c44.evaluate() );
+    CPPUNIT_ASSERT( cc.done() );
+    CPPUNIT_ASSERT( c20.done() );
+    CPPUNIT_ASSERT( c32.done() );
+    CPPUNIT_ASSERT( c33.done() );
+    CPPUNIT_ASSERT( c44.done() );
     tsim->stop();
 #if 0
     string prog = string("program x { ")
@@ -399,17 +425,17 @@ void Generic_TaskTest::verifydispatch(DispatchInterface& com)
     CPPUNIT_ASSERT( com.accepted() );
     CPPUNIT_ASSERT( !com.executed() );
     CPPUNIT_ASSERT( !com.valid() );
-    CPPUNIT_ASSERT( !com.evaluate() );
+    CPPUNIT_ASSERT( !com.done() );
     CPPUNIT_ASSERT( SimulationThread::Instance()->run(1) );
     CPPUNIT_ASSERT( com.executed() );
     CPPUNIT_ASSERT( com.valid() );
-    CPPUNIT_ASSERT( com.evaluate() );
+    CPPUNIT_ASSERT( com.done() );
     com.reset();
     CPPUNIT_ASSERT( !com.sent() );
     CPPUNIT_ASSERT( !com.accepted() );
     CPPUNIT_ASSERT( !com.executed() );
     CPPUNIT_ASSERT( !com.valid() );
-    CPPUNIT_ASSERT( !com.evaluate() );
+    CPPUNIT_ASSERT( !com.done() );
 }
 
 void Generic_TaskTest::verifycommand(CommandC& com)
@@ -419,17 +445,17 @@ void Generic_TaskTest::verifycommand(CommandC& com)
     CPPUNIT_ASSERT( com.accepted() );
     CPPUNIT_ASSERT( !com.executed() );
     CPPUNIT_ASSERT( !com.valid() );
-    CPPUNIT_ASSERT( !com.evaluate() );
+    CPPUNIT_ASSERT( !com.done() );
     CPPUNIT_ASSERT( SimulationThread::Instance()->run(1) );
     CPPUNIT_ASSERT( com.executed() );
     CPPUNIT_ASSERT( com.valid() );
-    CPPUNIT_ASSERT( com.evaluate() );
+    CPPUNIT_ASSERT( com.done() );
     com.reset();
     CPPUNIT_ASSERT( !com.sent() );
     CPPUNIT_ASSERT( !com.accepted() );
     CPPUNIT_ASSERT( !com.executed() );
     CPPUNIT_ASSERT( !com.valid() );
-    CPPUNIT_ASSERT( !com.evaluate() );
+    CPPUNIT_ASSERT( !com.done() );
 }
 
 void Generic_TaskTest::testCommand()
