@@ -418,20 +418,28 @@ namespace RTT
         typedef std::map<std::string, detail::OperationFactoryPart<ResultT>* > map_t;
         map_t data;
     public:
-        OperationFactory()
-        {
-        }
+        /**
+         * The descriptions of an argumentlist.
+         */
+        typedef std::vector<ArgumentDescription> Descriptions;
 
-        ~OperationFactory()
-        {
-        }
+        /**
+         * The arguments for an operation.
+         */
+        typedef std::vector<DataSourceBase::shared_ptr> Arguments;
 
+        /**
+         * Remove and delete all added operations.
+         */
         void clear() {
             for ( typename map_t::iterator i = data.begin(); i != data.end(); ++i )
                 delete i->second;
             data.clear();
         }
 
+        /**
+         * Get a list of all the names of the added operations.
+         */
         std::vector<std::string> getNames() const
         {
             std::vector<std::string> ret;
@@ -441,18 +449,35 @@ namespace RTT
             return ret;
         }
 
+        /**
+         * Query if an operation is present.
+         */
         bool hasMember( const std::string& name ) const
         {
             return data.find( name ) != data.end();
         }
 
+        /** 
+         * Query the number of arguments of an operation
+         * 
+         * @param name The name of the operation
+         * 
+         * @return The arity, or -1 if \a name is not found.
+         */
         int getArity( const std::string& name ) const
         {
             typename map_t::const_iterator i = data.find( name );
             if ( i == data.end() ) return -1;
             return i->second->arity();
         }
-
+        /** 
+         * Produce an object that contains an operation. 
+         * 
+         * @param name The name of the operation
+         * @param args The arguments filled in as properties.
+         * 
+         * @return a new object.
+         */
         ResultT produce( const std::string& name, const PropertyBag& args ) const
         {
             typename map_t::const_iterator i = data.find( name );
@@ -464,6 +489,14 @@ namespace RTT
             return i->second->produce(dsVect);
         }
 
+        /** 
+         * Produce an object that contains an operation
+         * 
+         * @param name The name of the operation
+         * @param args The arguments filled in as data sources.
+         * 
+         * @return a new object
+         */
         ResultT produce( const std::string& name,
                          const std::vector<DataSourceBase::shared_ptr>& args ) const
         {
@@ -472,6 +505,13 @@ namespace RTT
             return i->second->produce( args );
         }
 
+        /** 
+         * Get the argument list of an operation as properties.
+         * 
+         * @param name The name of the operation
+         * 
+         * @return A PropertyBag which contains the properties.
+         */
         PropertyBag getArgumentSpec( const std::string& name ) const
         {
             typename map_t::const_iterator i = data.find( name );
@@ -479,13 +519,27 @@ namespace RTT
             return i->second->getArgumentSpec();
         }
 
-        std::vector<ArgumentDescription> getArgumentList( const std::string& name ) const
+        /** 
+         * Get the names and descriptions of all arguments of an operation.
+         * 
+         * @param name The name of the operation
+         * 
+         * @return A list of descriptions.
+         */
+        Descriptions getArgumentList( const std::string& name ) const
         {
             typename map_t::const_iterator i = data.find( name );
-            if ( i == data.end() ) ORO_THROW_OR_RETURN(name_not_found_exception(), std::vector<ArgumentDescription>());
+            if ( i == data.end() ) ORO_THROW_OR_RETURN(name_not_found_exception(), Descriptions());
             return i->second->getArgumentList();
         }
 
+        /** 
+         * Get the type name of the result type of an operation.
+         * 
+         * @param name The name of the operation
+         * 
+         * @return A name of a data type.
+         */
         std::string getResultType( const std::string& name ) const
         {
             typename map_t::const_iterator i = data.find( name );
@@ -493,6 +547,13 @@ namespace RTT
             return i->second->resultType();
         }
 
+        /** 
+         * Get the description of an operation
+         * 
+         * @param name The name of the operation
+         * 
+         * @return A user readable description.
+         */
         std::string getDescription( const std::string& name ) const
         {
             typename map_t::const_iterator i = data.find( name );
@@ -500,6 +561,12 @@ namespace RTT
             return i->second->description();
         }
 
+        /** 
+         * Add a new operation to the interface.
+         * 
+         * @param name The name of the operation
+         * @param part A part which creates the operation.
+         */
         void add( const std::string& name,
                   detail::OperationFactoryPart<ResultT>* part )
         {
@@ -510,6 +577,11 @@ namespace RTT
             data[name] = part;
         }
 
+        /** 
+         * Remove an added operation from the interface
+         * 
+         * @param name The name of the operation
+         */
         void remove( const std::string& name )
         {
             typename map_t::iterator i = data.find( name );
