@@ -172,7 +172,7 @@ namespace RTT
     bool CommandC::execute() {
         // execute dispatch command
         if (cc) {
-            if ( cc->evaluate() )
+            if ( cc->done() )
                 this->reset();
             return cc->dispatch();
         } else {
@@ -215,10 +215,10 @@ namespace RTT
         return false;
     }
 
-    bool CommandC::evaluate() const {
+    bool CommandC::done() const {
         // check if done
         if (cc )
-            return cc->evaluate();
+            return cc->done();
         return false;
     }
 

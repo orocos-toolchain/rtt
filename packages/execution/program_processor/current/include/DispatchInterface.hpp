@@ -90,12 +90,6 @@ namespace RTT
          */
         virtual bool done() const = 0;
 
-        /**
-         * Returns true if the command is done.
-         * @deprecated by done()
-         */
-        virtual bool evaluate() const { return this->done(); }
-
         virtual ConditionInterface* createCondition() const = 0;
 
         virtual DispatchInterface* clone() const = 0;

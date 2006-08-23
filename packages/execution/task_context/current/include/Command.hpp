@@ -212,7 +212,7 @@ namespace RTT
          */
         bool done() const {
             if (!this->impl) return false;
-            return this->impl->evaluate();
+            return this->impl->done();
         }
      
         /**
