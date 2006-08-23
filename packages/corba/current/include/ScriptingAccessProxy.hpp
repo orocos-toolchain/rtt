@@ -29,10 +29,11 @@
 #ifndef ORO_EXECUTION_SCRIPTING_ACCESS_PROXY_HPP
 #define ORO_EXECUTION_SCRIPTING_ACCESS_PROXY_HPP
 
-#include "ScriptingAccess.hpp"
+#include "../ScriptingAccess.hpp"
 #include "ScriptingAccessC.h"
 
-namespace Corba
+namespace RTT
+{namespace Corba
 {
 
     /**
@@ -75,6 +76,6 @@ namespace Corba
         virtual int getStateMachineLine(std::string name ) const;
         virtual std::string getCurrentState(std::string name ) const;
     };
-}
+}}
 
 #endif

@@ -37,7 +37,8 @@
 
 
 
-using namespace Orocos;
+using namespace RTT;
+using namespace RTT::Corba;
 using namespace std;
 
 // Implementation skeleton constructor
@@ -109,7 +110,7 @@ Orocos_AttributeInterface_i::~Orocos_AttributeInterface_i (void)
   ))
 {
     if ( !mar || !mar->hasAttribute( string(name) ) )
-        return Expression::_nil();
+        return ::Orocos::Expression::_nil();
     return mar->getValue( string(name) )->getDataSource()->server();
 }
 
@@ -123,7 +124,7 @@ Orocos_AttributeInterface_i::~Orocos_AttributeInterface_i (void)
     if (mar)
         mbag = mar->properties(); // leave this here to get latest propertybag.
     if ( mbag ==0 || !mbag->find( string(name) ) )
-        return Expression::_nil();
+        return ::Orocos::Expression::_nil();
     DataSourceBase::shared_ptr ds = mbag->find( string(name) )->getDataSource();
     return ds->server();
 }

@@ -29,10 +29,11 @@
 #ifndef ORO_CORBA_ACTIONPROXY_HPP
 #define ORO_CORBA_ACTIONPROXY_HPP
 
-#include "CommandInterface.hpp"
+#include "../CommandInterface.hpp"
 #include "ExecutionC.h"
 
-namespace Corba
+namespace RTT
+{namespace Corba
 {
 
     /**
@@ -88,6 +89,6 @@ namespace Corba
 
     };
 
-}
+}}
 
 #endif

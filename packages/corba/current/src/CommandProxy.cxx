@@ -35,7 +35,8 @@
 
 using namespace std;
 
-namespace Corba
+namespace RTT
+{namespace Corba
 {
     
     
@@ -68,7 +69,7 @@ namespace Corba
             {}
             bool evaluate()
             {
-                return mserver->valid();
+                return mserver->done();
             }
             
             ValidCondition* clone() const
@@ -82,7 +83,7 @@ namespace Corba
         };
     }
 
-    ConditionInterface* CommandProxy::createValidCondition() const {
+    ConditionInterface* CommandProxy::createCondition() const {
         return new ValidCondition( mdata.in() );
     }
 
@@ -106,5 +107,5 @@ namespace Corba
         return Orocos::Command::_duplicate( mdata.in() );
     }
 
-}
+}}
 

@@ -30,7 +30,8 @@
 #include "rtt/Logger.hpp"
 #include "rtt/corba/ExecutionI.h"
 
-namespace Corba
+namespace RTT
+{namespace Corba
 {
     
 
@@ -170,4 +171,4 @@ namespace Corba
 
     }
 
-}
+}}

@@ -35,10 +35,12 @@
 #include <sstream>
 
 using namespace std;
+using namespace RTT;
+using namespace RTT::Corba;
 
 
 // Implementation skeleton constructor
-Orocos_ScriptingAccess_i::Orocos_ScriptingAccess_i (ScriptingAccess* ee)
+Orocos_ScriptingAccess_i::Orocos_ScriptingAccess_i (RTT::ScriptingAccess* ee)
     :mee(ee)
 {
 }

@@ -31,8 +31,8 @@
 #include "rtt/corba/ScriptingAccessC.h"
 #include "rtt/ProgramExceptions.hpp"
 
-
-namespace Corba
+namespace RTT
+{namespace Corba
 {
     using namespace std;
     
@@ -148,4 +148,4 @@ namespace Corba
     string ScriptingAccessProxy::getCurrentState( string name ) const {
         return msa->getCurrentState( name.c_str() );
     }
-}
+}}

@@ -30,15 +30,17 @@
 
 #include "rtt/corba/FactoriesI.h"
 #include "rtt/corba/ExecutionI.h"
+#include "rtt/OperationFactory.hpp"
 
 using namespace Orocos;
 
 
-using namespace Corba;
+using namespace RTT;
+using namespace RTT::Corba;
 using namespace std;
 
 // Implementation skeleton constructor
-Orocos_MethodInterface_i::Orocos_MethodInterface_i (GlobalMemberFactory* gmf)
+Orocos_MethodInterface_i::Orocos_MethodInterface_i (MethodFactory* gmf)
     :mfact(gmf)
 {
 }
@@ -48,35 +50,15 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
 {
 }
 
-::Orocos::ObjectList * Orocos_MethodInterface_i::getObjects (
-    
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ))
-{
-    vector<string> flist = mfact->getObjectList();
-    ObjectList_var rlist = new ObjectList();
-    rlist->length( flist.size() );
-    for (size_t i=0; i != flist.size(); ++i)
-        rlist[i] = CORBA::string_dup( flist[i].c_str() );
-    return rlist._retn();
-}
-
 ::Orocos::MethodList * Orocos_MethodInterface_i::getMethods (
-    const char * obj
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
-    ,Orocos::NoSuchObjectException
   ))
 {
     MethodList_var rlist = new MethodList();
-    const MemberFactoryInterface* ofact = mfact->getObjectFactory( std::string( obj ) );
-    if ( ofact == 0)
-        throw Orocos::NoSuchObjectException( obj );
 
-    vector<string> flist = ofact->getNames();
+    vector<string> flist = mfact->getNames();
     rlist->length( flist.size() );
     for (size_t i=0; i != flist.size(); ++i)
         rlist[i] = CORBA::string_dup( flist[i].c_str() );
@@ -84,23 +66,18 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
 }
 
 ::Orocos::Descriptions * Orocos_MethodInterface_i::getArguments (
-      const char * obj, 
       const char* method
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-      ,Orocos::NoSuchObjectException
       ,Orocos::NoSuchNameException
       ))
 {
     Descriptions_var ret = new Descriptions();
-    const MemberFactoryInterface* ofact = mfact->getObjectFactory( std::string( obj ) );
-    if ( ofact == 0 )
-        throw Orocos::NoSuchObjectException( obj );
-    if ( ofact->hasMember( string( method ) ) == false )
+    if ( mfact->hasMember( string( method ) ) == false )
         throw Orocos::NoSuchNameException( method );
     // method found, convert args:
-    MemberFactoryInterface::Descriptions args = ofact->getArgumentList( string(method) );
+    MethodFactory::Descriptions args = mfact->getArgumentList( string(method) );
     ret->length( args.size() );
     for (size_t i =0; i != args.size(); ++i) {
         ret[i].name = CORBA::string_dup( args[i].name.c_str() );
@@ -111,67 +88,52 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
 }
   
  char * Orocos_MethodInterface_i::getResultType (
-      const char * obj, 
       const char* method
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-      ,Orocos::NoSuchObjectException
       ,Orocos::NoSuchNameException
     ))
 {
-    const MemberFactoryInterface* ofact = mfact->getObjectFactory( std::string( obj ) );
-    if ( ofact == 0 )
-        throw Orocos::NoSuchObjectException( obj );
-    if ( ofact->hasMember( string( method ) ) == false )
+    if ( mfact->hasMember( string( method ) ) == false )
         throw Orocos::NoSuchNameException( method );
-    return CORBA::string_dup( ofact->getResultType( string(method) ).c_str() );
+    return CORBA::string_dup( mfact->getResultType( string(method) ).c_str() );
 }
   
  char * Orocos_MethodInterface_i::getDescription (
-      const char * obj, 
       const char* method
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-      ,Orocos::NoSuchObjectException
       ,Orocos::NoSuchNameException
     ))
 {
-    const MemberFactoryInterface* ofact = mfact->getObjectFactory( std::string( obj ) );
-    if ( ofact == 0 )
-        throw Orocos::NoSuchObjectException( obj );
-    if ( ofact->hasMember( string( method ) ) == false )
+    if ( mfact->hasMember( string( method ) ) == false )
         throw Orocos::NoSuchNameException( method );
-    return CORBA::string_dup( ofact->getDescription( string(method) ).c_str() );
+    return CORBA::string_dup( mfact->getDescription( string(method) ).c_str() );
 }
 
 ::Orocos::Method_ptr Orocos_MethodInterface_i::createMethod (
-    const char * obj,
     const char * method,
     const ::Orocos::Arguments& args
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
-    ,Orocos::NoSuchObjectException
     ,Orocos::NoSuchNameException
     ,Orocos::WrongNumbArgException
     ,Orocos::WrongTypeArgException
   ))
 {
-    const MemberFactoryInterface* ofact = mfact->getObjectFactory( std::string( obj ) );
-    if ( ofact == 0 )
-        throw Orocos::NoSuchObjectException( obj );
-    if ( ofact->hasMember( string( method ) ) == false )
+    if ( mfact->hasMember( string( method ) ) == false )
         throw Orocos::NoSuchNameException( method );
     // convert Corba args to C++ args.
-    MemberFactoryInterface::Arguments nargs;
+    MethodFactory::Arguments nargs;
     nargs.reserve( args.length() );
     for (size_t i =0; i != args.length(); ++i)
         nargs.push_back( ExpressionProxy::Create( Expression::_duplicate( args[i] ) ) );
     // create a local data source and a new method servant to serve it.
     try {
-        return ofact->create( string(method), nargs )->method();
+        return mfact->produce(method, nargs )->method();
     } catch ( name_not_found_exception& nnf ) {
         throw Orocos::NoSuchNameException( method );
     } catch ( wrong_number_of_args_exception& wna ) {
@@ -183,31 +145,26 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
 }
 
 ::Orocos::Method_ptr Orocos_MethodInterface_i::createMethodAny (
-    const char * obj,
     const char * method,
     const ::Orocos::AnyArguments& args
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
-    ,Orocos::NoSuchObjectException
     ,Orocos::NoSuchNameException
     ,Orocos::WrongNumbArgException
     ,Orocos::WrongTypeArgException
   ))
 {
-    const MemberFactoryInterface* ofact = mfact->getObjectFactory( std::string( obj ) );
-    if ( ofact == 0 )
-        throw Orocos::NoSuchObjectException( obj );
-    if ( ofact->hasMember( string( method ) ) == false )
+    if ( mfact->hasMember( string( method ) ) == false )
         throw Orocos::NoSuchNameException( method );
     // convert Corba args to C++ args.
-    MemberFactoryInterface::Arguments nargs;
+    MethodFactory::Arguments nargs;
     nargs.reserve( args.length() );
     for (size_t i =0; i != args.length(); ++i)
         nargs.push_back( new ValueDataSource<CORBA::Any_var>( new CORBA::Any( args[i] ) ) );
     // create a local data source and a new method servant to serve it.
     try {
-        return ofact->create( string(method), nargs )->method();
+        return mfact->produce(method, nargs )->method();
     } catch ( name_not_found_exception& nnf ) {
         throw Orocos::NoSuchNameException( method );
     } catch ( wrong_number_of_args_exception& wna ) {
@@ -219,7 +176,7 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
 }
 
 // Implementation skeleton constructor
-Orocos_CommandInterface_i::Orocos_CommandInterface_i (GlobalCommandFactory* gcf)
+Orocos_CommandInterface_i::Orocos_CommandInterface_i (CommandFactory* gcf)
     :mfact(gcf)
 {
 }
@@ -229,35 +186,14 @@ Orocos_CommandInterface_i::~Orocos_CommandInterface_i (void)
 {
 }
 
-::Orocos::ObjectList * Orocos_CommandInterface_i::getObjects (
-    
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ))
-{
-    vector<string> flist = mfact->getObjectList();
-    ObjectList_var rlist = new ObjectList();
-    rlist->length( flist.size() );
-    for (size_t i=0; i != flist.size(); ++i)
-        rlist[i] = CORBA::string_dup( flist[i].c_str() );
-    return rlist._retn();
-}
-
 ::Orocos::CommandList * Orocos_CommandInterface_i::getCommands (
-    const char * obj
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
-    ,Orocos::NoSuchObjectException
   ))
 {
     CommandList_var rlist = new CommandList();
-    const CommandFactoryInterface* ofact = mfact->getObjectFactory( std::string( obj ) );
-    if ( ofact == 0 )
-        throw Orocos::NoSuchObjectException( obj );
-
-    vector<string> flist = ofact->getCommandList();
+    vector<string> flist = mfact->getNames();
     rlist->length( flist.size() );
     for (size_t i=0; i != flist.size(); ++i)
         rlist[i] = CORBA::string_dup( flist[i].c_str() );
@@ -265,23 +201,18 @@ Orocos_CommandInterface_i::~Orocos_CommandInterface_i (void)
 }
 
 ::Orocos::Descriptions * Orocos_CommandInterface_i::getArguments (
-      const char * obj, 
       const char* command
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchObjectException
     ,Orocos::NoSuchNameException
     ))
 {
     Descriptions_var ret = new Descriptions();
-    const CommandFactoryInterface* ofact = mfact->getObjectFactory( std::string( obj ) );
-    if ( ofact == 0 )
-        throw Orocos::NoSuchObjectException( obj );
-    if ( ofact->hasCommand( string( command ) ) == false )
+    if ( mfact->hasMember( string( command ) ) == false )
         throw Orocos::NoSuchNameException( command );
     // method found, convert args:
-    CommandFactoryInterface::Descriptions args = ofact->getArgumentList( string(command) );
+    CommandFactory::Descriptions args = mfact->getArgumentList( string(command) );
     ret->length( args.size() );
     for (size_t i =0; i != args.size(); ++i) {
         ret[i].name = CORBA::string_dup( args[i].name.c_str() );
@@ -293,64 +224,49 @@ Orocos_CommandInterface_i::~Orocos_CommandInterface_i (void)
 
   
  char * Orocos_CommandInterface_i::getResultType (
-      const char * obj, 
       const char* command
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchObjectException
     ,Orocos::NoSuchNameException
     ))
 {
-    const CommandFactoryInterface* ofact = mfact->getObjectFactory( std::string( obj ) );
-    if ( ofact == 0 )
-        throw Orocos::NoSuchObjectException( obj );
-    if ( ofact->hasCommand( string( command ) ) == false )
+    if ( mfact->hasMember( string( command ) ) == false )
         throw Orocos::NoSuchNameException( command );
-    return CORBA::string_dup( ofact->getResultType( string(command) ).c_str() );
+    return CORBA::string_dup( mfact->getResultType( string(command) ).c_str() );
 }
   
  char * Orocos_CommandInterface_i::getDescription (
-      const char * obj, 
       const char* command
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchObjectException
     ,Orocos::NoSuchNameException
     ))
 {
-    const CommandFactoryInterface* ofact = mfact->getObjectFactory( std::string( obj ) );
-    if ( ofact == 0 )
-        throw Orocos::NoSuchObjectException( obj );
-    if ( ofact->hasCommand( string( command ) ) == false )
+    if ( mfact->hasMember( string( command ) ) == false )
         throw Orocos::NoSuchNameException( command );
-    return CORBA::string_dup( ofact->getDescription( string(command) ).c_str() );
+    return CORBA::string_dup( mfact->getDescription( string(command) ).c_str() );
 }
 
 ::Orocos::Command_ptr Orocos_CommandInterface_i::createCommand (
-    const char * obj,
     const char * command,
     const ::Orocos::Arguments& args
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
-    ,Orocos::NoSuchObjectException
     ,Orocos::NoSuchNameException
     ,Orocos::WrongNumbArgException
     ,Orocos::WrongTypeArgException
   ))
 {
   // Add your implementation here
-    const CommandFactoryInterface* ofact = mfact->getObjectFactory( std::string( obj ) );
-    if ( ofact == 0 )
-        throw Orocos::NoSuchObjectException( obj );
-    if ( ofact->hasCommand( string( command ) ) == false )
+    if ( mfact->hasMember( string( command ) ) == false )
         throw Orocos::NoSuchNameException( command );
     // convert Corba args to C++ args.
     // Use CommandC:
     try {
-        CommandC comc = mfact->create( std::string( obj ), string( command ) );
+        CommandC comc(mfact, command);
         for (size_t i =0; i != args.length(); ++i)
             comc.arg( DataSourceBase::shared_ptr(ExpressionProxy::Create( Expression::_duplicate(args[i]) )) );
         // servant uses that object:
@@ -367,28 +283,23 @@ Orocos_CommandInterface_i::~Orocos_CommandInterface_i (void)
 }
 
 ::Orocos::Command_ptr Orocos_CommandInterface_i::createCommandAny (
-    const char * obj,
     const char * command,
     const ::Orocos::AnyArguments& args
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
-    ,Orocos::NoSuchObjectException
     ,Orocos::NoSuchNameException
     ,Orocos::WrongNumbArgException
     ,Orocos::WrongTypeArgException
   ))
 {
   // Add your implementation here
-    const CommandFactoryInterface* ofact = mfact->getObjectFactory( std::string( obj ) );
-    if ( ofact == 0 )
-        throw Orocos::NoSuchObjectException( obj );
-    if ( ofact->hasCommand( string( command ) ) == false )
+    if ( mfact->hasMember( string( command ) ) == false )
         throw Orocos::NoSuchNameException( command );
     // convert Corba args to C++ args.
     // Use CommandC:
     try {
-        CommandC comc = mfact->create( std::string( obj ), string( command ) );
+        CommandC comc(mfact, string( command ) );
         for (size_t i =0; i != args.length(); ++i)
             comc.arg( DataSourceBase::shared_ptr( new ValueDataSource<CORBA::Any_var>( new CORBA::Any( args[i] ) )));
         // servant uses that object:

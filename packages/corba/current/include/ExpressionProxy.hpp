@@ -118,7 +118,7 @@ namespace RTT
             Orocos::AssignableExpression_var ret = Orocos::AssignableExpression::_narrow( expr );
             if ( ret ) {
                 CORBA::Any_var any = ret->value();
-                typename DataSource<T>::value_t target;
+                typename DataSource<T>::value_t target = typename DataSource<T>::value_t();
                 if ( AnyConversion<T>::update( any.in(), target ) ) {
                     Logger::log() <<Logger::Debug<< "Found valid assignment conversion from server "<< ret->getType()
                                   <<" to local "<< DataSource<T>::GetType()<<Logger::endl;

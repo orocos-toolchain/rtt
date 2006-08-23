@@ -38,7 +38,8 @@
 // ACE Specific, for printing exceptions.
 #include <ace/SString.h>
 
-namespace Corba
+namespace RTT
+{namespace Corba
 {
     using namespace std;
     
@@ -274,4 +275,4 @@ namespace Corba
         return Orocos::ControlTask::_duplicate(mtask.in());
     }
 
-}
+}}

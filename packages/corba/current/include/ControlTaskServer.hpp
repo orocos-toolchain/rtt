@@ -29,11 +29,12 @@
 
 #include <map>
 #include <tao/corba.h>
-#include "TaskContext.hpp"
+#include "../TaskContext.hpp"
 #include "ApplicationServer.hpp"
 #include "ControlTaskS.h"
 
-namespace Corba
+namespace RTT
+{namespace Corba
 {
     /**
      * This class manages the creation of TaskContext Corba Servers
@@ -108,4 +109,4 @@ namespace Corba
          */
         Orocos::ControlTask_ptr server() const;
     };
-}
+}}

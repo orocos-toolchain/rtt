@@ -36,7 +36,8 @@
 
 using namespace std;
 
-namespace Corba
+namespace RTT
+{namespace Corba
 {
     
     
@@ -100,5 +101,5 @@ namespace Corba
 //         return Orocos::Expression::_duplicate( mdata.in() );
 //     }
 
-}
+}}
 

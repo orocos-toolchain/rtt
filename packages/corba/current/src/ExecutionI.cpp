@@ -34,7 +34,8 @@
 #include "rtt/Logger.hpp"
 
 
-
+using namespace RTT;
+using namespace RTT::Corba;
 
 
 // Implementation skeleton constructor
@@ -96,7 +97,7 @@ CORBA::Boolean Orocos_Command_i::execute (
     return morig->execute();
 }
 
-CORBA::Boolean Orocos_Command_i::evaluate (
+CORBA::Boolean Orocos_Command_i::done (
     
   )
   ACE_THROW_SPEC ((
@@ -105,8 +106,8 @@ CORBA::Boolean Orocos_Command_i::evaluate (
 {
   // Add your implementation here
     //Logger::In in("Orocos_Command_i");
-    //Logger::log() <<Logger::Debug << "Evaluating CommandC:"<<morig->evaluate()<<Logger::endl;
-    return morig->evaluate();
+    //Logger::log() <<Logger::Debug << "Evaluating CommandC:"<<morig->done()<<Logger::endl;
+    return morig->done();
 }
 
 CORBA::Boolean Orocos_Command_i::executed (
@@ -162,34 +163,6 @@ void Orocos_Command_i::reset (
 {
   // Add your implementation here
     return morig->reset();
-}
-
-::Orocos::Action_ptr Orocos_Command_i::createAction (
-    
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ))
-{
-  // Add your implementation here
-    Logger::In in("Orocos_Command_i");
-    Logger::log() <<Logger::Debug << "Creating Orocos::Action servant."<<Logger::endl;
-    Orocos_Action_i* act = new Orocos_Action_i( morig->createCommand() );
-    return act->_this();
-}
-
-::Orocos::Expression_ptr Orocos_Command_i::createCondition (
-    
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ))
-{
-  // Add your implementation here
-    Logger::In in("Orocos_Command_i");
-    Logger::log() <<Logger::Debug << "Creating Orocos::Expression servant."<<Logger::endl;
-    Orocos_Expression_i<bool>* exp = new Orocos_Expression_i<bool>( new DataSourceCondition( morig->createCondition() ) );
-    return exp->_this();
 }
 
 

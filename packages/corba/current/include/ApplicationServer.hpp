@@ -31,7 +31,8 @@
 
 #include <tao/corba.h>
 
-namespace Corba
+namespace RTT
+{namespace Corba
 {
     /**
      * A class which an provides ORB to
@@ -41,6 +42,6 @@ namespace Corba
     {
         static CORBA::ORB_var orb;
     };
-}
+}}
 
 #endif

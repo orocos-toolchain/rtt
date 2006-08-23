@@ -30,11 +30,13 @@
 #ifndef ORO_CORBAMETHODFACTORY_HPP
 #define ORO_CORBAMETHODFACTORY_HPP
  
-#include "MemberFactoryInterface.hpp"
-#include "FactoryExceptions.hpp"
+#include "../OperationInterface.hpp"
+#include "../FactoryExceptions.hpp"
+#include "ExpressionProxy.hpp"
 #include "FactoriesC.h"
 
-namespace Corba
+namespace RTT
+{namespace Corba
 {
 
     /**
@@ -43,51 +45,29 @@ namespace Corba
      * Corba objects to plain C++ objects.
      */
     class CorbaMethodFactory
-        : public MemberFactoryInterface
+        : public RTT::detail::OperationFactoryPart<DataSourceBase*>
     {
         Orocos::MethodInterface_var mfact;
-        std::string mobjname;
+        std::string method;
     public:
         typedef std::vector<DataSourceBase::shared_ptr> Arguments;
         typedef std::vector<std::string> Members;
         typedef std::vector< ArgumentDescription > Descriptions;
 
-        CorbaMethodFactory( std::string objname, Orocos::MethodInterface_ptr fact )
-            : mfact(Orocos::MethodInterface::_duplicate(fact) ), mobjname(objname)
+        CorbaMethodFactory( const std::string& method_name, Orocos::MethodInterface_ptr fact )
+            : RTT::detail::OperationFactoryPart<DataSourceBase*>("Corba Method"),
+              mfact(Orocos::MethodInterface::_duplicate(fact) ), method(method_name)
         {}
 
         virtual ~CorbaMethodFactory() {}
 
-        virtual Members getNames() const {
-            Members ret;
-            Orocos::MethodList_var result = mfact->getMethods( mobjname.c_str() );
-            ret.reserve( result->length() );
-            for (size_t i=0; i!= result->length(); ++i)
-                ret.push_back( std::string( result[i] ) );
-            return ret;
+        virtual int arity()  const {
+            return this->getArgumentList().size();
         }
 
-        virtual bool hasMember( const std::string& s ) const {
+        virtual std::string resultType() const {
             try {
-                Orocos::MethodList_var result = mfact->getMethods( mobjname.c_str() );
-                for (size_t i=0; i!= result->length(); ++i)
-                    if ( s == std::string(result[i]) )
-                        return true;
-            } catch ( Orocos::NoSuchNameException& nsn ) {
-                throw name_not_found_exception( nsn.name.in() );
-            }
-            return false;
-        }
-
-        virtual int getArity( const std::string& method )  const {
-            if (this->hasMember(method) == false)
-                return -1;
-            return this->getArgumentList(method).size();
-        }
-
-        virtual std::string getResultType( const std::string& method ) const {
-            try {
-                CORBA::String_var result = mfact->getResultType( mobjname.c_str(), method.c_str() );
+                CORBA::String_var result = mfact->getResultType( method.c_str() );
                 return std::string( result.in() );
             } catch ( Orocos::NoSuchNameException& nsn ) {
                 throw name_not_found_exception( nsn.name.in() );
@@ -95,9 +75,9 @@ namespace Corba
             return std::string();
         }
 
-        virtual std::string getDescription( const std::string& method ) const {
+        virtual std::string description() const {
             try {
-                CORBA::String_var result = mfact->getDescription( mobjname.c_str(), method.c_str() );
+                CORBA::String_var result = mfact->getDescription( method.c_str() );
                 return std::string( result.in() );
             } catch ( Orocos::NoSuchNameException& nsn ) {
                 throw name_not_found_exception( nsn.name.in() );
@@ -105,10 +85,10 @@ namespace Corba
             return std::string();
         }
 
-        virtual std::vector< ArgumentDescription > getArgumentList( const std::string& method ) const {
+        virtual std::vector< ArgumentDescription > getArgumentList() const {
             Descriptions ret;
             try {
-                Orocos::Descriptions_var result = mfact->getArguments( mobjname.c_str(), method.c_str() );
+                Orocos::Descriptions_var result = mfact->getArguments( method.c_str() );
                 ret.reserve( result->length() );
                 for (size_t i=0; i!= result->length(); ++i)
                     ret.push_back( ArgumentDescription(std::string( result[i].name.in() ),
@@ -121,25 +101,17 @@ namespace Corba
         }
 
         virtual PropertyBag
-        getArgumentSpec( const std::string& method ) const {
+        getArgumentSpec( ) const {
             return PropertyBag();
         }
 
-        virtual DataSourceBase* create(
-                                                    const std::string& name,
-                                                    const PropertyBag& args ) const {
-            return 0;
-        }
-
-        virtual DataSourceBase* create(
-                                                    const std::string& name,
-                                                    const Arguments& args ) const {
+        virtual DataSourceBase* produce( const Arguments& args ) const {
             Orocos::Arguments_var nargs = new Orocos::Arguments();
             nargs->length( args.size() );
             for (size_t i=0; i < args.size(); ++i )
                 nargs[i] = args[i]->server();
             try {
-                Orocos::Expression_var result = mfact->createMethod( mobjname.c_str(), name.c_str(), nargs.in() );
+                Orocos::Expression_var result = mfact->createMethod( method.c_str(), nargs.in() );
                 return ExpressionProxy::CreateDataSource( result._retn() );
             } catch ( Orocos::NoSuchNameException& nsn ) {
                 throw name_not_found_exception( nsn.name.in() );
@@ -150,14 +122,8 @@ namespace Corba
             }
             return 0; // not reached.
         }
-
-        virtual DataSourceBase* create(
-                                                    const std::string& name,
-                                                    const std::vector<DataSourceBase*>& args ) const {
-            return 0;
-        }
     };
 
-}
+}}
 
 #endif

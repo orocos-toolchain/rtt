@@ -38,7 +38,7 @@
 
 
 using namespace CosPropertyService;
-
+using namespace RTT;
 
 using namespace std;
 
@@ -144,7 +144,7 @@ CosPropertyService_PropertySet_i::CosPropertyService_PropertySet_i (  AttributeR
     vector<string> names = ar->names();
     for ( vector<string>::iterator it = names.begin(); it != names.end() ; ++it) {
         CORBA::Any_ptr any_value = ar->getValue(*it)->getDataSource()->getAny();
-        bag->add( new Property<CORBA::Any>( *it, "Task Attribute", *any_value ) );
+        bag->addProperty( new ::RTT::Property<CORBA::Any>( *it, "Task Attribute", *any_value ) );
     }
 }
 
@@ -172,7 +172,7 @@ void CosPropertyService_PropertySet_i::define_property (
 {
     // By default, store as Any, but if already present, try conversion.
     string pname( property_name );
-    Property<CORBA::Any>* p = bag->getProperty<CORBA::Any>( pname );
+    RTT::Property<CORBA::Any>* p = bag->getProperty<CORBA::Any>( pname );
     if ( p ) {
         Logger::log() << Logger::Debug << "Updating Property<CORBA::Any> "<< pname <<Logger::nl;
         p->value() = property_value;
@@ -189,7 +189,7 @@ void CosPropertyService_PropertySet_i::define_property (
         // new property...
         this->modified();
         Logger::log() << Logger::Debug << "Creating Property "<< pname <<Logger::nl;
-        bag->add( new Property<CORBA::Any>( pname, "Defined Property", property_value ) );
+        bag->add( new RTT::Property<CORBA::Any>( pname, "Defined Property", property_value ) );
     }
 }
 
@@ -273,7 +273,7 @@ CORBA::Any * CosPropertyService_PropertySet_i::get_property_value (
   ))
 {
     string pname( property_name );
-    Property<CORBA::Any>* p = bag->getProperty<CORBA::Any>( pname );
+    RTT::Property<CORBA::Any>* p = bag->getProperty<CORBA::Any>( pname );
     if ( p ) {
         Logger::log() << Logger::Debug<< "Returning value of Property<CORBA::Any>."<<Logger::endl;
         return new CORBA::Any( (p->get()) );

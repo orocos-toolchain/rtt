@@ -24,10 +24,37 @@ module Orocos
 {
 
   /**
+   * An Orocos TaskObject which hosts a method and command
+   * interface.
+   */
+  interface ControlObject
+  {
+    /**
+     * Return the name of this object.
+     */
+    string getName();
+    
+    /**
+     * Return the description of this object.
+     */
+    string getDescription();
+    
+    /**
+     * Synchronous Method Interface.
+     */
+    MethodInterface methods();
+
+    /**
+     * Asynchronous Command Interface.
+     */
+    CommandInterface commands();
+  };
+
+  /**
    * A ControlTask is the main entry point of a distributed
    * component.
    */
-  interface ControlTask
+  interface ControlTask : ControlObject
   {
     typedef sequence<string> ControlTaskNames;
 
@@ -42,16 +69,6 @@ module Orocos
     AttributeInterface attributes();
 
     /**
-     * Synchronous Method Interface.
-     */
-    MethodInterface methods();
-
-    /**
-     * Asynchronous Command Interface.
-     */
-    CommandInterface commands();
-
-    /**
      * The ScriptingAccess, for program and state machine
      * information of this Task.
      */
@@ -61,11 +78,6 @@ module Orocos
      * ControlTask Browsing functions.
      */
 
-    /**
-     * Return the name of this task.
-     */
-    string getName( );
-    
     /**
      * Get a list of all the peers this task is connected to.
      */
@@ -100,6 +112,22 @@ module Orocos
      * Destroy a two-way peer connection.
      */
     boolean disconnectPeers( in string name );
+
+    /**
+     * Get a list of all the objects this task is connected to.
+     */
+    ObjectList getObjectList( );
+
+    /**
+     * Get a object this task is connected to.
+     */
+    ControlObject getObject( in string name );
+
+    /**
+     * Has this task a object with given name ?
+     */
+    boolean hasObject( in string name );
+
   };
 };
 

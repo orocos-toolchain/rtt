@@ -29,12 +29,14 @@
 #ifndef ORO_CORBACOMMANDFACTORY_HPP
 #define ORO_CORBACOMMANDFACTORY_HPP
 
-#include "CommandFactoryInterface.hpp"
-#include "ConditionBoolDataSource.hpp"
+#include "../OperationFactory.hpp"
+#include "../ConditionBoolDataSource.hpp"
+#include "CommandProxy.hpp"
 #include "FactoriesC.h"
 #include "CommandProxy.hpp"
 
-namespace Corba
+namespace RTT
+{namespace Corba
 {
 
     /**
@@ -42,60 +44,35 @@ namespace Corba
      * factory.
      */
     class CorbaCommandFactory
-        : public CommandFactoryInterface
+        : public RTT::detail::OperationFactoryPart<DispatchInterface*>
     {
-        std::string mobjname;
+        std::string com;
         Orocos::CommandInterface_var mfact;
     public:
         typedef std::vector< ArgumentDescription > Descriptions;
         typedef std::vector<std::string> Commands;
         typedef std::vector<DataSourceBase::shared_ptr> Arguments;
 
-        CorbaCommandFactory(const std::string& obj, Orocos::CommandInterface_ptr fact) 
-            : mobjname(obj), mfact( Orocos::CommandInterface::_duplicate(fact) )
+        CorbaCommandFactory(const std::string& command, Orocos::CommandInterface_ptr fact) 
+            : RTT::detail::OperationFactoryPart<DispatchInterface*>("Corba Command"),
+              com(command), mfact( Orocos::CommandInterface::_duplicate(fact) )
         {}
 
         virtual ~CorbaCommandFactory() {}
 
-        virtual bool hasCommand(const std::string& com) const 
-        {
-            try {
-                Orocos::CommandList_var result = mfact->getCommands( mobjname.c_str() );
-                for (size_t i=0; i!= result->length(); ++i)
-                    if ( com == std::string(result[i]) )
-                        return true;
-            } catch ( Orocos::NoSuchNameException& nsn ) {
-                throw name_not_found_exception( nsn.name.in() );
-            }
-            return false;
+        virtual int arity()  const {
+            return this->getArgumentList().size();
         }
 
-        virtual int getArity( const std::string& com )  const {
-            if (this->hasCommand(com) == false)
-                return -1;
-            return this->getArgumentList(com).size();
-        }
-
-
-        virtual Commands getCommandList() const 
-        {
-            Commands ret;
-            Orocos::CommandList_var result = mfact->getCommands( mobjname.c_str() );
-            ret.reserve( result->length() );
-            for (size_t i=0; i!= result->length(); ++i)
-                ret.push_back( std::string( result[i] ) );
-            return ret;
-        }
-
-        virtual std::string getResultType( const std::string& com ) const 
+        virtual std::string resultType() const 
         {
             return "bool";
         }
 
-        virtual std::string getDescription( const std::string& com ) const 
+        virtual std::string description() const 
         {
             try {
-                CORBA::String_var result = mfact->getDescription( mobjname.c_str(), com.c_str() );
+                CORBA::String_var result = mfact->getDescription( com.c_str() );
                 return std::string( result.in() );
             } catch ( Orocos::NoSuchNameException& nsn ) {
                 throw name_not_found_exception( nsn.name.in() );
@@ -104,18 +81,18 @@ namespace Corba
         }
 
         virtual PropertyBag
-        getArgumentSpec( const std::string& command ) const {
+        getArgumentSpec() const {
             return PropertyBag();
         }
 
         /**
          * @brief Return the list of arguments of a certain command.
          */
-        virtual Descriptions getArgumentList( const std::string& command ) const
+        virtual Descriptions getArgumentList() const
         {
             Descriptions ret;
             try {
-                Orocos::Descriptions_var result = mfact->getArguments( mobjname.c_str(), command.c_str() );
+                Orocos::Descriptions_var result = mfact->getArguments( com.c_str() );
                 ret.reserve( result->length() );
                 for (size_t i=0; i!= result->length(); ++i)
                     ret.push_back( ArgumentDescription(std::string( result[i].name.in() ),
@@ -127,32 +104,16 @@ namespace Corba
             return ret;
         }
 
-        virtual ComCon create( const std::string& command,
-                               const PropertyBag& args,
-                               bool nodispatch) const
-        {
-            ComCon cc;
-            cc.first = 0;
-            cc.second = 0;
-            return cc;
-        }
-
-        virtual ComCon create(
-                              const std::string& command,
-                              const Arguments& args,
-                              bool nodispatch ) const 
+        virtual DispatchInterface* produce(const Arguments& args) const 
         {
             Orocos::Arguments_var nargs = new Orocos::Arguments();
             nargs->length( args.size() );
             for (size_t i=0; i < args.size(); ++i )
                 nargs[i] = args[i]->server();
             try {
-                Orocos::Command_var result = mfact->createCommand( mobjname.c_str(), command.c_str(), nargs.in() );
-                ComCon cc;
+                Orocos::Command_var result = mfact->createCommand( com.c_str(), nargs.in() );
                 // return a DispatchInterface object:
-                cc.first = CommandProxy::Create( result.in() );
-                cc.second = new ConditionBoolDataSource( DataSource<bool>::narrow( ExpressionProxy::Create( result->createCondition() ) ) );
-                return cc;
+                return CommandProxy::Create( result.in() );
             } catch ( Orocos::NoSuchNameException& nsn ) {
                 throw name_not_found_exception( nsn.name.in() );
             } catch ( Orocos::WrongNumbArgException& wa ) {
@@ -160,21 +121,9 @@ namespace Corba
             } catch ( Orocos::WrongTypeArgException& wta ) {
                 throw wrong_types_of_args_exception( wta.whicharg, wta.expected.in(), wta.received.in() );
             }
-            return ComCon(); // not reached.
+            return 0; // not reached.
         }
-
-        virtual ComCon create(
-                              const std::string& command,
-                              const std::vector<DataSourceBase*>& args,
-                              bool nodispatch ) const
-        {
-            ComCon cc;
-            cc.first = 0;
-            cc.second = 0;
-            return cc;
-        }
-
     };
-}
+}}
 
 #endif

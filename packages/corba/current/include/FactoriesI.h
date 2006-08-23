@@ -60,8 +60,7 @@
 #define FACTORIESI_H_
 
 #include "FactoriesS.h"
-#include "GlobalMemberFactory.hpp"
-#include "GlobalCommandFactory.hpp"
+#include "../OperationInterface.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -69,73 +68,55 @@
 
 class  Orocos_MethodInterface_i : public virtual POA_Orocos::MethodInterface, public virtual PortableServer::RefCountServantBase
 {
-    GlobalMemberFactory* mfact;
+    RTT::MethodFactory* mfact;
 public:
   //Constructor 
-  Orocos_MethodInterface_i (GlobalMemberFactory* mfact);
+  Orocos_MethodInterface_i (RTT::MethodFactory* mfact);
   
   //Destructor 
   virtual ~Orocos_MethodInterface_i (void);
   
   virtual
-  ::Orocos::ObjectList * getObjects (
-      
-    )
-    ACE_THROW_SPEC ((
-      CORBA::SystemException
-    ));
-  
-  virtual
   ::Orocos::MethodList * getMethods (
-      const char * obj
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchObjectException
     ));
   
   virtual
   ::Orocos::Descriptions * getArguments (
-      const char * obj, 
       const char* method
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-      ,Orocos::NoSuchObjectException
       ,Orocos::NoSuchNameException
     ));
   
   virtual
   char * getResultType (
-      const char * obj, 
       const char* method
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-      ,Orocos::NoSuchObjectException
       ,Orocos::NoSuchNameException
     ));
   
   virtual
   char * getDescription (
-      const char * obj, 
       const char* method
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-      ,Orocos::NoSuchObjectException
       ,Orocos::NoSuchNameException
     ));
   
   virtual
   ::Orocos::Method_ptr createMethod (
-      const char * obj,
       const char * method,
       const ::Orocos::Arguments& args
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchObjectException
     ,Orocos::NoSuchNameException
     ,Orocos::WrongNumbArgException
     ,Orocos::WrongTypeArgException
@@ -143,13 +124,11 @@ public:
 
   virtual
   ::Orocos::Method_ptr createMethodAny (
-      const char * obj,
       const char * method,
       const ::Orocos::AnyArguments& args
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchObjectException
     ,Orocos::NoSuchNameException
     ,Orocos::WrongNumbArgException
     ,Orocos::WrongTypeArgException
@@ -158,73 +137,55 @@ public:
 
 class  Orocos_CommandInterface_i : public virtual POA_Orocos::CommandInterface, public virtual PortableServer::RefCountServantBase
 {
-    GlobalCommandFactory* mfact;
+    RTT::CommandFactory* mfact;
 public:
   //Constructor 
-  Orocos_CommandInterface_i (GlobalCommandFactory* fact);
+  Orocos_CommandInterface_i (RTT::CommandFactory* fact);
   
   //Destructor 
   virtual ~Orocos_CommandInterface_i (void);
   
   virtual
-  ::Orocos::ObjectList * getObjects (
-      
-    )
-    ACE_THROW_SPEC ((
-      CORBA::SystemException
-    ));
-  
-  virtual
   ::Orocos::CommandList * getCommands (
-      const char * obj
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchObjectException
     ));
 
   virtual
   ::Orocos::Descriptions * getArguments (
-      const char * obj, 
       const char* command
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchObjectException
     ,Orocos::NoSuchNameException
     ));
   
   virtual
   char * getResultType (
-      const char * obj, 
       const char* command
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchObjectException
     ,Orocos::NoSuchNameException
     ));
   
   virtual
   char * getDescription (
-      const char * obj, 
       const char* command
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchObjectException
     ,Orocos::NoSuchNameException
     ));
   
   virtual
   ::Orocos::Command_ptr createCommand (
-      const char * obj,
       const char * command,
       const ::Orocos::Arguments& args
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchObjectException
     ,Orocos::NoSuchNameException
     ,Orocos::WrongNumbArgException
     ,Orocos::WrongTypeArgException
@@ -232,13 +193,11 @@ public:
   
   virtual
   ::Orocos::Command_ptr createCommandAny (
-      const char * obj,
       const char * command,
       const ::Orocos::AnyArguments& args
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchObjectException
     ,Orocos::NoSuchNameException
     ,Orocos::WrongNumbArgException
     ,Orocos::WrongTypeArgException

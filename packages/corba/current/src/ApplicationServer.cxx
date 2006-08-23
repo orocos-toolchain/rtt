@@ -28,9 +28,10 @@
  
 #include "rtt/corba/ApplicationServer.hpp"
 
-namespace Corba
+namespace RTT
+{namespace Corba
 {
 
     CORBA::ORB_var ApplicationServer::orb;
 
-}
+}}

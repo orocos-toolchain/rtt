@@ -57,15 +57,15 @@
 // be/be_codegen.cpp:859
 
 // must be outside of #ifdef macro.
-#include "DataSource.hpp"
+#include "../DataSource.hpp"
 
 #ifndef INCLUDE_EXECUTIONI_H_
 #define INCLUDE_EXECUTIONI_H_
 
 #include "ExecutionS.h"
 #include "CorbaConversion.hpp"
-#include "CommandInterface.hpp"
-#include "Logger.hpp"
+#include "../CommandInterface.hpp"
+#include "../Logger.hpp"
 
 namespace RTT
 {
@@ -81,14 +81,14 @@ class  Orocos_Expression_i
   : public virtual POA_Orocos::Expression
 {
 protected:
-    typename DataSource<DataType>::const_ptr morig;
-    typename DataSource<DataType>::value_t last_value;
+    typename RTT::DataSource<DataType>::const_ptr morig;
+    typename RTT::DataSource<DataType>::value_t last_value;
 public:
     typedef DataType SourceType;
-    typedef typename DataSource<DataType>::value_t ResultType;
+    typedef typename RTT::DataSource<DataType>::value_t ResultType;
 
   // Constructor 
-  Orocos_Expression_i (typename DataSource<SourceType>::const_ptr orig)
+  Orocos_Expression_i (typename RTT::DataSource<SourceType>::const_ptr orig)
       : morig( orig ), last_value()
     {}
   
@@ -102,7 +102,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
-      return AnyConversion<ResultType>::createAny( last_value );
+      return RTT::AnyConversion<ResultType>::createAny( last_value );
   }
   
   virtual
@@ -123,7 +123,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
-      return AnyConversion<ResultType>::createAny( morig->get() );
+      return RTT::AnyConversion<ResultType>::createAny( morig->get() );
   }
   
   virtual
@@ -148,25 +148,25 @@ public:
 };
 
 /**
- * A servant which serves a DataSource through the 'Any' methods.
+ * A servant which serves a RTT::DataSource through the 'Any' methods.
  * This servant is inferior to the template based ones.
  */
 class  Orocos_AnyExpression_i
   : public virtual POA_Orocos::Expression
 {
 protected:
-    DataSourceBase::const_ptr morig;
+    RTT::DataSourceBase::const_ptr morig;
     CORBA::Any_var last_value;
 public:
-    typedef DataSourceBase::const_ptr SourceType;
+    typedef RTT::DataSourceBase::const_ptr SourceType;
     typedef CORBA::Any                             ResultType;
 
-    virtual void copy( DataSourceBase::shared_ptr new_ds ) {
+    virtual void copy( RTT::DataSourceBase::shared_ptr new_ds ) {
         morig = new_ds;
     }
 
   // Constructor 
-  Orocos_AnyExpression_i (DataSourceBase::const_ptr orig)
+  Orocos_AnyExpression_i (RTT::DataSourceBase::const_ptr orig)
       : morig( orig ), last_value( morig->createAny() ) // create default Any.
     {}
   
@@ -193,7 +193,7 @@ public:
       last_value = morig->getAny();
       bool result = true;
       // if it is a bool, update result and return it, otherwise, just return true:
-      AnyConversion<bool>::update( last_value.in(), result );
+      RTT::AnyConversion<bool>::update( last_value.in(), result );
       return result;
   }
   
@@ -233,13 +233,13 @@ class  Orocos_Expression_i<void>
   : public virtual POA_Orocos::Expression
 {
 protected:
-    DataSource<void>::const_ptr morig;
+    RTT::DataSource<void>::const_ptr morig;
 public:
     typedef void SourceType;
     typedef void ResultType;
 
   // Constructor 
-  Orocos_Expression_i (DataSource<void>::const_ptr orig)
+  Orocos_Expression_i (RTT::DataSource<void>::const_ptr orig)
       : morig( orig )
     {}
   
@@ -303,14 +303,14 @@ template< class DataType>
 class  Orocos_AssignableExpression_i
   : public virtual POA_Orocos::AssignableExpression
 {
-    typename AssignableDataSource<DataType>::shared_ptr massign;
-    typename DataSource<DataType>::value_t last_value;
+    typename RTT::AssignableDataSource<DataType>::shared_ptr massign;
+    typename RTT::DataSource<DataType>::value_t last_value;
 public:
     typedef DataType SourceType;
-    typedef typename DataSource<DataType>::value_t ResultType;
+    typedef typename RTT::DataSource<DataType>::value_t ResultType;
 
   // Constructor 
-  Orocos_AssignableExpression_i (typename AssignableDataSource<SourceType>::shared_ptr assign )
+  Orocos_AssignableExpression_i (typename RTT::AssignableDataSource<SourceType>::shared_ptr assign )
       : massign( assign ), last_value() {}
   
   // Destructor 
@@ -325,9 +325,9 @@ public:
       )) {
       
       
-      if ( !AnyConversion<ResultType>::update( value, last_value ) ) {
-          Logger::log() << Logger::Error << "Orocos::AssignableExpression: Could not assign Any to "<<massign->getType() <<"." <<Logger::endl
-                                     <<" Tried to assign as "<< DataSource<ResultType>::GetType() << " to native type "<< DataSource<SourceType>::GetType()<< Logger::endl;
+      if ( !RTT::AnyConversion<ResultType>::update( value, last_value ) ) {
+          RTT::log(RTT::Error) << "Orocos::AssignableExpression: Could not assign Any to "<<massign->getType() <<"." <<RTT::endlog()
+							   <<" Tried to assign as "<< RTT::DataSource<ResultType>::GetType() << " to native type "<< RTT::DataSource<SourceType>::GetType()<< RTT::endlog();
           return false;
       }
       massign->set(last_value);
@@ -341,7 +341,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
-      return AnyConversion<ResultType>::createAny( last_value );
+      return RTT::AnyConversion<ResultType>::createAny( last_value );
   }
   
   virtual
@@ -362,7 +362,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
-      return AnyConversion<ResultType>::createAny( massign->get() );
+      return RTT::AnyConversion<ResultType>::createAny( massign->get() );
   }
   
   virtual
@@ -390,16 +390,16 @@ class  Orocos_AnyAssignableExpression_i
     : public Orocos_AnyExpression_i,
       public virtual POA_Orocos::AssignableExpression
 {
-    DataSourceBase::shared_ptr mset;
+    RTT::DataSourceBase::shared_ptr mset;
 public:
 
-    virtual void copy( DataSourceBase::shared_ptr new_ds ) {
+    virtual void copy( RTT::DataSourceBase::shared_ptr new_ds ) {
         mset = new_ds;
         morig = new_ds;
     }
 
   // Constructor 
-  Orocos_AnyAssignableExpression_i (DataSourceBase::shared_ptr orig)
+  Orocos_AnyAssignableExpression_i (RTT::DataSourceBase::shared_ptr orig)
       : Orocos_AnyExpression_i(orig), mset( orig )
     {}
   
@@ -419,21 +419,21 @@ public:
 };
 
 
-// Boolean Specialisations, like in DataSource<bool>:
+// Boolean Specialisations, like in RTT::DataSource<bool>:
 
 template<>
 class  Orocos_Expression_i<bool>
   : public virtual POA_Orocos::Expression
 {
 protected:
-    DataSource<bool>::const_ptr morig;
-    DataSource<bool>::value_t last_value;
+    RTT::DataSource<bool>::const_ptr morig;
+    RTT::DataSource<bool>::value_t last_value;
 public:
     typedef bool SourceType;
     typedef bool ResultType;
 
   // Constructor 
-  Orocos_Expression_i (DataSource<bool>::const_ptr orig)
+  Orocos_Expression_i (RTT::DataSource<bool>::const_ptr orig)
       : morig( orig ), last_value()
     {}
   
@@ -447,7 +447,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
-      return AnyConversion<bool>::createAny( last_value );
+      return RTT::AnyConversion<bool>::createAny( last_value );
   }
   
   virtual
@@ -469,7 +469,7 @@ public:
       CORBA::SystemException
       )) {
       last_value = morig->get();
-      return AnyConversion<bool>::createAny( last_value );
+      return RTT::AnyConversion<bool>::createAny( last_value );
   }
   
   virtual
@@ -497,14 +497,14 @@ template<>
 class  Orocos_AssignableExpression_i<bool>
   : public virtual POA_Orocos::AssignableExpression
 {
-    AssignableDataSource<bool>::shared_ptr massign;
+    RTT::AssignableDataSource<bool>::shared_ptr massign;
     bool last_value;
 public:
     typedef bool SourceType;
     typedef bool ResultType;
 
   // Constructor 
-  Orocos_AssignableExpression_i (AssignableDataSource<bool>::shared_ptr assign )
+  Orocos_AssignableExpression_i (RTT::AssignableDataSource<bool>::shared_ptr assign )
       : massign( assign ), last_value()
     {}
   
@@ -518,7 +518,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
-      return AnyConversion<bool>::update( value, massign->set() );
+      return RTT::AnyConversion<bool>::update( value, massign->set() );
   }
       
   virtual
@@ -528,7 +528,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
-      return AnyConversion<bool>::createAny( last_value );
+      return RTT::AnyConversion<bool>::createAny( last_value );
   }
   
   virtual
@@ -550,7 +550,7 @@ public:
       CORBA::SystemException
       )) {
       last_value =massign->get();
-      return AnyConversion<bool>::createAny( last_value );
+      return RTT::AnyConversion<bool>::createAny( last_value );
   }
   
   virtual
@@ -577,10 +577,10 @@ public:
 
 class  Orocos_Action_i : public virtual POA_Orocos::Action, public virtual PortableServer::RefCountServantBase
 {
-    CommandInterface* mcom;
+    RTT::CommandInterface* mcom;
 public:
   //Constructor 
-  Orocos_Action_i ( CommandInterface* com );
+  Orocos_Action_i ( RTT::CommandInterface* com );
   
   //Destructor 
     virtual ~Orocos_Action_i (void);
@@ -609,10 +609,10 @@ class  Orocos_Method_i
 {
 public:
     typedef T SourceType;
-    typedef typename DataSource<T>::value_t ResultType;
-    typename DataSource<SourceType>::shared_ptr mmethod;
+    typedef typename RTT::DataSource<T>::value_t ResultType;
+    typename RTT::DataSource<SourceType>::shared_ptr mmethod;
   //Constructor 
-  Orocos_Method_i ( typename DataSource<SourceType>::shared_ptr datas )
+  Orocos_Method_i ( typename RTT::DataSource<SourceType>::shared_ptr datas )
       : Orocos_Expression_i<SourceType>( datas ), mmethod( datas )
     {}
   
@@ -646,15 +646,15 @@ class  Orocos_AnyMethod_i
       public virtual PortableServer::RefCountServantBase
 {
 public:
-    DataSourceBase::shared_ptr mmethod;
+    RTT::DataSourceBase::shared_ptr mmethod;
 
-    virtual void copy( DataSourceBase::shared_ptr new_ds ) {
+    virtual void copy( RTT::DataSourceBase::shared_ptr new_ds ) {
         mmethod = new_ds;
         morig = new_ds;
     }
 
   //Constructor 
-  Orocos_AnyMethod_i ( DataSourceBase::shared_ptr datas )
+  Orocos_AnyMethod_i ( RTT::DataSourceBase::shared_ptr datas )
       : Orocos_AnyExpression_i( datas ), mmethod( datas )
     {}
   
@@ -685,10 +685,10 @@ public:
 
 class  Orocos_Command_i : public virtual POA_Orocos::Command, public virtual PortableServer::RefCountServantBase
 {
-    CommandC* morig;
+    RTT::CommandC* morig;
 public:
   //Constructor 
-  Orocos_Command_i (CommandC& c);
+  Orocos_Command_i (RTT::CommandC& c);
   
   //Destructor 
   virtual ~Orocos_Command_i (void);
@@ -734,7 +734,7 @@ public:
     ));
   
   virtual
-  CORBA::Boolean evaluate (
+  CORBA::Boolean done (
       
     )
     ACE_THROW_SPEC ((
@@ -749,21 +749,6 @@ public:
       CORBA::SystemException
     ));
   
-  virtual
-  ::Orocos::Action_ptr createAction (
-      
-    )
-    ACE_THROW_SPEC ((
-      CORBA::SystemException
-    ));
-  
-  virtual
-  ::Orocos::Expression_ptr createCondition (
-      
-    )
-    ACE_THROW_SPEC ((
-      CORBA::SystemException
-    ));
 };
 
 #endif /* INCLUDE_EXPRESSIONI_H_  */

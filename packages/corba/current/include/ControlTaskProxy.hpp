@@ -29,14 +29,15 @@
 
 #include <tao/corba.h>
 #include <exception>
-#include "TaskContext.hpp"
+#include "../TaskContext.hpp"
 #include <string>
 #include <map>
 #include "ControlTaskC.h"
 #include <orbsvcs/CosPropertyServiceC.h>
 #include "ApplicationServer.hpp"
 
-namespace Corba
+namespace RTT
+{namespace Corba
 {
     /**
      * Thrown if a server does not exist or has the wrong type.
@@ -120,8 +121,6 @@ namespace Corba
 
         virtual int queueCommand( CommandInterface* c);
 
-        virtual const std::string& getName();
-
         virtual void setName(const std::string& n);
 
         virtual bool addPeer( TaskContext* peer, std::string alias = "" );
@@ -144,4 +143,4 @@ namespace Corba
         CosPropertyService::PropertySet_ptr propertySet();
 
     };
-}
+}}

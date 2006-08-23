@@ -96,7 +96,6 @@ module Orocos
    */
   interface Command
   {
-
     /**
      * Send and execute the contained command.
      */
@@ -139,7 +138,7 @@ module Orocos
      * completion condition was true as well.
      * @retval false otherwise.
      */
-    boolean evaluate();
+    boolean done();
 
     /**
      * Reset the command.
@@ -147,17 +146,6 @@ module Orocos
      */
     void reset();
 
-    /**
-     * Create an action which will invoke execute()
-     * when executed.
-     */
-    Action createAction();
-
-    /**
-     * Create an expression which checks evaluate() of
-     * this command when evaluated.
-     */
-    Expression createCondition();
   };
 
 };

@@ -55,45 +55,42 @@ module Orocos
   {
     
     /**
-     * Get a list of all objects within this interface.
+     * Get a list of all methods.
      */
-    ObjectList getObjects();
+    MethodList getMethods();
 
     /**
-     * Get a list of all methods of a given object.
+     * Get a list of all arguments of a given method.
      */
-    MethodList getMethods(in string obj) raises (NoSuchObjectException);
+    Descriptions getArguments(in string method) raises (NoSuchNameException);
 
     /**
-     * Get a list of all arguments of a given object's method.
+     * Get a result type of a given method.
      */
-    Descriptions getArguments(in string obj, in string method) raises (NoSuchObjectException, NoSuchNameException);
+    string getResultType(in string method) raises (NoSuchNameException);
 
     /**
-     * Get a result type of a given object's method.
+     * Get a description of a given method.
      */
-    string getResultType(in string obj, in string method) raises (NoSuchObjectException, NoSuchNameException);
+    string getDescription(in string method) raises (NoSuchNameException);
 
     /**
-     * Get a description of a given object's method.
+     * Create a method and fill in the arguments later on.
      */
-    string getDescription(in string obj, in string method) raises (NoSuchObjectException, NoSuchNameException);
+    //Method createMethod(in string method) raises (NoSuchNameException);
 
     /**
-     * Create a method of an object with Expression arguments.
+     * Create a method with Expression arguments.
      */
-    Method createMethod(in string obj, in string method, in Arguments args) raises (NoSuchObjectException,
-										    NoSuchNameException,
-										    WrongNumbArgException,
-										    WrongTypeArgException);
-
+    Method createMethod(in string method, in Arguments args) raises (NoSuchNameException,
+								     WrongNumbArgException,
+								     WrongTypeArgException);
     /**
-     * Create a method of an object with Any arguments.
+     * Create a method with Any arguments.
      */
-    Method createMethodAny(in string obj, in string method, in AnyArguments args) raises (NoSuchObjectException,
-										    NoSuchNameException,
-										    WrongNumbArgException,
-										    WrongTypeArgException);
+    Method createMethodAny(in string method, in AnyArguments args) raises ( NoSuchNameException,
+									    WrongNumbArgException,
+									    WrongTypeArgException);
   };
 
   /**
@@ -101,47 +98,44 @@ module Orocos
    */
   interface CommandInterface
   {
-    
     /**
-     * Get a list of all objects within this interface.
+     * Get a list of all commands.
      */
-    ObjectList getObjects();
+    CommandList getCommands();
 
     /**
-     * Get a list of all commands of a given object.
+     * Get a list of all arguments of a given command.
      */
-    CommandList getCommands(in string obj) raises (NoSuchObjectException);
+    Descriptions getArguments(in string command) raises (NoSuchNameException);
 
     /**
-     * Get a list of all arguments of a given object's command.
+     * Get a result type of a given command.
      */
-    Descriptions getArguments(in string obj, in string command) raises (NoSuchObjectException, NoSuchNameException);
+    string getResultType(in string command) raises (NoSuchNameException);
 
     /**
-     * Get a result type of a given object's command.
+     * Get a description of a given command.
      */
-    string getResultType(in string obj, in string command) raises (NoSuchObjectException, NoSuchNameException);
+    string getDescription(in string command) raises (NoSuchNameException);
 
     /**
-     * Get a description of a given object's command.
+     * Create a command and fill in the arguments later.
      */
-    string getDescription(in string obj, in string command) raises (NoSuchObjectException, NoSuchNameException);
+    //Command createCommand(in string command) raises (NoSuchNameException);
 
     /**
      * Create a command of an object.
      */
-    Command createCommand(in string obj, in string command, in Arguments args) raises (NoSuchObjectException,
-										       NoSuchNameException,
-										       WrongNumbArgException,
-										       WrongTypeArgException);
+    Command createCommand(in string command, in Arguments args) raises ( NoSuchNameException,
+									 WrongNumbArgException,
+									 WrongTypeArgException);
     
     /**
      * Create a command of an object with any arguments.
      */
-    Command createCommandAny(in string obj, in string command, in AnyArguments args) raises (NoSuchObjectException,
-										       NoSuchNameException,
-										       WrongNumbArgException,
-										       WrongTypeArgException);
+    Command createCommandAny(in string command, in AnyArguments args) raises ( NoSuchNameException,
+									       WrongNumbArgException,
+									       WrongTypeArgException);
     
   };
 

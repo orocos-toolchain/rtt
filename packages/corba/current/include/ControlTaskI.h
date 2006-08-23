@@ -59,10 +59,10 @@
 #ifndef CONTROLTASKI_H_
 #define CONTROLTASKI_H_
 
-#include "corba/ControlTaskS.h"
-#include "corba/FactoriesC.h"
-#include "corba/AttributesC.h"
-#include "corba/ScriptingAccessC.h"
+#include "ControlTaskS.h"
+#include "FactoriesC.h"
+#include "AttributesC.h"
+#include "ScriptingAccessC.h"
 #include <orbsvcs/CosPropertyServiceC.h>
 #include "../TaskContext.hpp"
 
@@ -70,18 +70,64 @@
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-class  Orocos_ControlTask_i : public virtual POA_Orocos::ControlTask, public virtual PortableServer::RefCountServantBase
+class  Orocos_ControlObject_i : public virtual POA_Orocos::ControlObject, public virtual PortableServer::RefCountServantBase
 {
 protected:
-    TaskContext* mtask;
-	::CosPropertyService::PropertySet_var mCosProps;
-	::Orocos::AttributeInterface_var mAttrs;
+    RTT::OperationInterface* mobj;
 	::Orocos::MethodInterface_var mMFact;
 	::Orocos::CommandInterface_var mCFact;
+public:
+  //Constructor 
+  Orocos_ControlObject_i (RTT::OperationInterface* orig);
+  
+  //Destructor 
+  virtual ~Orocos_ControlObject_i (void);
+
+  virtual
+  char * getName (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+
+  virtual
+  char * getDescription (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+  
+  virtual
+  ::Orocos::MethodInterface_ptr methods (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+  
+  virtual
+  ::Orocos::CommandInterface_ptr commands (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+};
+
+class  Orocos_ControlTask_i 
+: public virtual POA_Orocos::ControlTask, public virtual PortableServer::RefCountServantBase,
+  public Orocos_ControlObject_i
+{
+protected:
+    RTT::TaskContext* mtask;
+	::CosPropertyService::PropertySet_var mCosProps;
+	::Orocos::AttributeInterface_var mAttrs;
 	::Orocos::ScriptingAccess_var mEEFact;
 public:
   //Constructor 
-  Orocos_ControlTask_i (TaskContext* orig);
+  Orocos_ControlTask_i (RTT::TaskContext* orig);
   
   //Destructor 
   virtual ~Orocos_ControlTask_i (void);
@@ -105,22 +151,6 @@ public:
     ));
   
   virtual
-  ::Orocos::MethodInterface_ptr methods (
-      
-    )
-    ACE_THROW_SPEC ((
-      CORBA::SystemException
-    ));
-  
-  virtual
-  ::Orocos::CommandInterface_ptr commands (
-      
-    )
-    ACE_THROW_SPEC ((
-      CORBA::SystemException
-    ));
-  
-  virtual
   ::Orocos::ScriptingAccess_ptr scripting (
       
     )
@@ -129,13 +159,23 @@ public:
     ));
   
   virtual
-  char * getName (
-      
-    )
+  ::Orocos::ObjectList* getObjectList()
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
   
+  virtual
+  ::Orocos::ControlObject* getObject(const char*)
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+
+  virtual
+  CORBA::Boolean hasObject(const char*)
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+
   virtual
   ::Orocos::ControlTask::ControlTaskNames * getPeerList (
       

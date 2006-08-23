@@ -34,11 +34,9 @@
 
 using namespace std;
 
-namespace Corba
+namespace RTT
+{namespace Corba
 {
-    
-    
-
     std::map<Orocos::Action_ptr, ActionProxy*> ActionProxy::proxies;
 
     ActionProxy::ActionProxy( ::Orocos::Action_ptr e) 
@@ -75,5 +73,5 @@ namespace Corba
         return Orocos::Action::_duplicate( mdata.in() );
     }
 
-}
+}}
 

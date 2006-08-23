@@ -44,11 +44,10 @@
 
 using namespace std;
 
-namespace Corba
+namespace RTT
+{namespace Corba
 {
     using namespace Orocos;
-    
-    
 
     IllegalServer::IllegalServer() : reason("This server does not exist or has the wrong type.") {}
 
@@ -106,7 +105,7 @@ namespace Corba
             }
             CORBA::String_var nm = mtask->getName(); // force connect to object.
             std::string newname( nm.in() );
-            this->_task_name = newname;
+            this->mtask_name = newname;
             Logger::log() << Logger::Info << "Successfully connected to ControlTaskServer '"+newname+"'."<<Logger::endl;
             proxies[mtask] = this;
         }
@@ -127,7 +126,7 @@ namespace Corba
         try {
             CORBA::String_var nm = mtask->getName(); // force connect to object.
             std::string name( nm.in() );
-            this->_task_name = name;
+            this->mtask_name = name;
             proxies[mtask] = this;
         }
         catch (CORBA::Exception &e) {
@@ -148,20 +147,23 @@ namespace Corba
         // load command and method factories.
         // methods:
         Logger::log() << Logger::Info << "Fetching Methods."<<Logger::endl;
-        ObjectList_var objs;
         MethodInterface_var mfact = mtask->methods();
         if (mfact) {
-            objs = mfact->getObjects();
+            MethodList_var objs;
+            objs = mfact->getMethods();
             for ( size_t i=0; i < objs->length(); ++i) {
-                this->methods()->registerObject( objs[i].in(), new CorbaMethodFactory( objs[i].in(), mfact.in() ) );
+                this->methods()->add( objs[i].in(), new CorbaMethodFactory( objs[i].in(), mfact.in() ) );
             }
         }
         // commands:
-      Logger::log() << Logger::Info << "Fetching Commands."<<Logger::endl;
+        Logger::log() << Logger::Info << "Fetching Commands."<<Logger::endl;
         CommandInterface_var cfact = mtask->commands();
-        objs = cfact->getObjects();
-        for ( size_t i=0; i < objs->length(); ++i) {
-            this->commands()->registerObject( objs[i].in(), new CorbaCommandFactory( objs[i].in(), cfact.in() ) );
+        if (cfact) {
+            CommandList_var objs;
+            objs = cfact->getCommands();
+            for ( size_t i=0; i < objs->length(); ++i) {
+                this->commands()->add( objs[i].in(), new CorbaCommandFactory( objs[i].in(), cfact.in() ) );
+            }
         }
 
         // first do properties:
@@ -230,17 +232,17 @@ namespace Corba
             if ( ti ) {
                 Logger::log() <<": found!"<<Logger::endl;
                 if ( CORBA::is_nil( as_expr ) ) {
-                    this->attributes()->setValue(attrs[i].in(), ti->buildConstant( ti->buildCorbaProxy( expr.in() ) ) );
+                    this->attributes()->setValue( ti->buildConstant( attrs[i].in(), ti->buildCorbaProxy( expr.in() ) ) );
                 }
                 else {
-                    this->attributes()->setValue(attrs[i].in(), ti->buildAttribute( ti->buildCorbaProxy( as_expr.in() ) ) );
+                    this->attributes()->setValue( ti->buildAttribute( attrs[i].in(), ti->buildCorbaProxy( as_expr.in() ) ) );
                 }
             } else {
                 Logger::log() <<": not found :-("<<Logger::endl;
                 if ( CORBA::is_nil( as_expr ) )
-                    this->attributes()->setValue( string( attrs[i] ), new Constant<CORBA::Any_ptr>( new CORBAExpression<CORBA::Any_ptr>( expr.in() ) ) );
+                    this->attributes()->setValue( new Constant<CORBA::Any_ptr>( attrs[i].in(), new CORBAExpression<CORBA::Any_ptr>( expr.in() ) ) );
                 else
-                this->attributes()->setValue( string( attrs[i] ), new Attribute<CORBA::Any_ptr>( new CORBAAssignableExpression<CORBA::Any_ptr>( as_expr.in() ) ) );
+                this->attributes()->setValue( new Attribute<CORBA::Any_ptr>( attrs[i].in(), new CORBAAssignableExpression<CORBA::Any_ptr>( as_expr.in() ) ) );
             }
         }
 
@@ -339,13 +341,6 @@ namespace Corba
         return 0;
     }
 
-    const std::string& ControlTaskProxy::getName()
-    {
-        CORBA::String_var result = mtask->getName();
-        this->_task_name = result.in();
-        return this->_task_name;
-    }
-
     void ControlTaskProxy::setName(const std::string& n)
     {
         //mtask->setName( n.c_str() );
@@ -409,5 +404,5 @@ namespace Corba
         return mtask->propertySet();
     }
     
-}
+}}
 

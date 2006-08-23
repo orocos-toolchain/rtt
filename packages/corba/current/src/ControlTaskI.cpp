@@ -35,21 +35,86 @@
 #include "rtt/corba/AttributesI.h"
 #include "rtt/corba/FactoriesI.h"
 #include "rtt/corba/ScriptingAccessI.h"
+#include "rtt/Method.hpp"
 
 
 
-using namespace Corba;
+using namespace RTT;
+using namespace RTT::Corba;
 using namespace CosPropertyService;
+
+// ControlObject:
+Orocos_ControlObject_i::Orocos_ControlObject_i (RTT::OperationInterface* orig )
+    : mobj( orig ), mMFact(), mCFact()
+{
+}
+
+// Implementation skeleton destructor
+Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
+{
+}
+
+ char* Orocos_ControlObject_i::getName (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) 
+{
+    CORBA::String_var ret = CORBA::string_dup( mobj->getName().c_str() );
+    return ret._retn();
+}
+
+ char* Orocos_ControlObject_i::getDescription (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) 
+{
+    CORBA::String_var ret = CORBA::string_dup( mobj->getDescription().c_str() );
+    return ret._retn();
+}
+
+::Orocos::MethodInterface_ptr Orocos_ControlObject_i::methods (
+    
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    if ( CORBA::is_nil( mMFact ) ) {
+        Logger::log() << Logger::Info << "Creating MethodInterface."<<Logger::endl;
+        Orocos_MethodInterface_i* mserv = new Orocos_MethodInterface_i( mobj->methods() );
+        mMFact = mserv->_this();
+    }
+    return Orocos::MethodInterface::_duplicate( mMFact.in() );
+}
+
+::Orocos::CommandInterface_ptr Orocos_ControlObject_i::commands (
+    
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    if ( CORBA::is_nil( mCFact ) ) {
+        Logger::log() << Logger::Info << "Creating CommandInterface."<<Logger::endl;
+        Orocos_CommandInterface_i* mserv = new Orocos_CommandInterface_i( mobj->commands() );
+        mCFact = mserv->_this();
+    }
+    return Orocos::CommandInterface::_duplicate( mCFact.in() );
+}
+
+
 
 // Implementation skeleton constructor
 Orocos_ControlTask_i::Orocos_ControlTask_i (TaskContext* orig)
-    : mtask( orig ), mCosProps( ), mMFact(), mCFact(), mEEFact()
+    : Orocos_ControlObject_i(orig), mtask( orig ), mCosProps( ), mEEFact()
 {
     // Add the corba object to the interface:
-    TemplateMethodFactory<Orocos_ControlTask_i>* cfact = newMethodFactory(this);
-    cfact->add("shutdown", method( &Orocos_ControlTask_i::shutdownCORBA,
-                                   "Shutdown CORBA ORB. This function makes RunOrb() return."));
-    mtask->methods()->registerObject( "CORBA", cfact );
+    mtask->methods()->addMethod(method("shutdown", &Orocos_ControlTask_i::shutdownCORBA, this),
+                                   "Shutdown CORBA ORB. This function makes RunOrb() return.");
 
 }
 
@@ -104,36 +169,6 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
 }
 
 
-::Orocos::MethodInterface_ptr Orocos_ControlTask_i::methods (
-    
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ))
-{
-    if ( CORBA::is_nil( mMFact ) ) {
-        Logger::log() << Logger::Info << "Creating MethodInterface."<<Logger::endl;
-        Orocos_MethodInterface_i* mserv = new Orocos_MethodInterface_i( mtask->methods() );
-        mMFact = mserv->_this();
-    }
-    return Orocos::MethodInterface::_duplicate( mMFact.in() );
-}
-
-::Orocos::CommandInterface_ptr Orocos_ControlTask_i::commands (
-    
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ))
-{
-    if ( CORBA::is_nil( mCFact ) ) {
-        Logger::log() << Logger::Info << "Creating CommandInterface."<<Logger::endl;
-        Orocos_CommandInterface_i* mserv = new Orocos_CommandInterface_i( mtask->commands() );
-        mCFact = mserv->_this();
-    }
-    return Orocos::CommandInterface::_duplicate( mCFact.in() );
-}
-
 ::Orocos::ScriptingAccess_ptr Orocos_ControlTask_i::scripting (
     
   )
@@ -150,17 +185,6 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
 }
 
 
- char* Orocos_ControlTask_i::getName (
-      
-    )
-    ACE_THROW_SPEC ((
-      CORBA::SystemException
-      )) 
-{
-    CORBA::String_var ret = CORBA::string_dup( mtask->getName().c_str() );
-    return ret._retn();
-}
-
 ::Orocos::ControlTask::ControlTaskNames * Orocos_ControlTask_i::getPeerList (
     
   )
@@ -176,6 +200,52 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
     
     return result._retn();
 }
+
+::Orocos::ControlObject_ptr Orocos_ControlTask_i::getObject (
+    const char * name
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    std::string pname(name);
+    OperationInterface* task = mtask->getObject( pname );
+    if ( task ) {
+        // create or lookup new server for this object.
+        Orocos_ControlObject_i* ret = new Orocos_ControlObject_i(task);
+        return ret->_this();
+    }
+    return 0;
+}
+
+
+::Orocos::ObjectList * Orocos_ControlTask_i::getObjectList (
+    
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    TaskContext::ObjectList objects = mtask->getObjectList();
+    ::Orocos::ObjectList_var result = new ::Orocos::ObjectList();
+    result->length( objects.size() );
+    for (unsigned int i=0; i != objects.size(); ++i )
+        result[i] = CORBA::string_dup( objects[i].c_str() );
+    
+    return result._retn();
+}
+
+CORBA::Boolean Orocos_ControlTask_i::hasObject (
+    const char * name
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    std::string mname(name);
+    return mtask->getObject(mname);
+}
+
 
 ::Orocos::ControlTask_ptr Orocos_ControlTask_i::getPeer (
     const char * name

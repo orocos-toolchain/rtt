@@ -71,6 +71,10 @@ namespace RTT
 
         virtual void readArguments() {}
 
+        virtual bool ready() const {
+            return mdata.in();
+        }
+
         virtual bool dispatch() {
             return mdata->execute();
         }
@@ -99,17 +103,17 @@ namespace RTT
             return mdata->valid();
         }
 
-        virtual bool evaluate() const {
-            return mdata->evaluate();
+        virtual bool done() const {
+            return mdata->done();
         }
 
-        virtual ConditionInterface* createValidCondition() const;
+        virtual ConditionInterface* createCondition() const;
 
         virtual DispatchInterface* clone() const {
             return new CommandProxy( mdata.in() );
         }
 
-        virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        virtual DispatchInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             return this->clone();
         }
 
