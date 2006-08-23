@@ -121,14 +121,17 @@ namespace RTT
 
         RunnableInterface::setActivity(t);
         
-        if (taskc && t)
-            if ( ! t->isPeriodic() ) {
-                Logger::log() << Logger::Info << taskc->getName()+" is not periodic."<< Logger::endl;
-            } else {
-                Logger::log() << Logger::Info << taskc->getName()+" is periodic."<< Logger::endl;
-            }
-        else
-            Logger::log() << Logger::Info << taskc->getName()+" is disconnected from its activity."<< Logger::endl;
+        // if an owner is present, print some info.
+        if (taskc) {
+            if ( t)
+                if ( ! t->isPeriodic() ) {
+                    Logger::log() << Logger::Info << taskc->getName()+" is not periodic."<< Logger::endl;
+                } else {
+                    Logger::log() << Logger::Info << taskc->getName()+" is periodic."<< Logger::endl;
+                }
+            else
+                Logger::log() << Logger::Info << taskc->getName()+" is disconnected from its activity."<< Logger::endl;
+        }
     }
 
     bool ExecutionEngine::initialize() {
