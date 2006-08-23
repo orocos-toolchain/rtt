@@ -1012,7 +1012,7 @@ public:
 
 #include "pkgconf/system.h"
 #ifdef OROPKG_CORBA
-#include "corba/GeometryConversion.hpp"
+#include <rtt/corba/GeometryConversion.hpp>
 #endif
 
 
