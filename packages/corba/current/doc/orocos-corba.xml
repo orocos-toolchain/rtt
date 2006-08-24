@@ -10,16 +10,6 @@
 <article>
   <articleinfo>
     <title>Distributing Orocos Components with CORBA</title>
-    <authorgroup>
-      <author>
-	<firstname>Peter</firstname>
-	<surname>Soetens</surname>
-	<affiliation>
-	  <orgname>K.U.Leuven</orgname>
-	  <address><country>Belgium</country></address>
-	</affiliation>
-      </author>
-    </authorgroup>
     <copyright>
       <year>2006</year>
       <holder>FMTC, Peter Soetens</holder>
@@ -40,6 +30,12 @@
 	<date>4 May 2006</date>
 	<authorinitials>ps</authorinitials>
 	<revremark>Initial version</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.02</revnumber>
+	<date>24 August 2006</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Update to new Orocos interfaces</revremark>
       </revision>
     </revhistory>
 
@@ -95,7 +91,6 @@
 	<listitem><para>Data Flow interface</para></listitem>
 	<listitem><para>Event interface</para></listitem>
       </itemizedlist> 
-      Both will be provided before the 1.0 release.
       </para>
     </section>
     <section>
@@ -155,14 +150,14 @@
       In order to setup your component to be available to other components
       <emphasis>transparantly</emphasis>, proceed as:
       <programlisting>  // server.cpp
-  #include &lt;rtt/PeriodicActivity.hpp>
   #include &lt;rtt/corba/ControlTaskServer.hpp>
+
+  #include &lt;rtt/PeriodicActivity.hpp>
   #include &lt;rtt/GenericTaskContext.hpp>
   #include &lt;rtt/os/main.h>
 
+  using namespace RTT;
   using namespace RTT::Corba;
-  using namespace RTT;
-  using namespace RTT;
 
   int ORO_main(int argc, char** argv)
   {
@@ -189,6 +184,7 @@
       a 'proxy' in another file:
       <programlisting>  // client.cpp
   #include &lt;rtt/corba/ControlTaskProxy.hpp>
+
   #include &lt;rtt/TaskBrowser.hpp>
   #include &lt;rtt/os/main.h>
 
@@ -262,8 +258,8 @@
       The relevant files are:
       <itemizedlist>
 	<listitem><para><filename>ControlTask.idl</filename>: The main Component Interface file, providing CORBA access to a TaskContext.</para></listitem>
-	<listitem><para><filename>Execution.idl</filename>: The interface of methods and commands.</para></listitem>
-	<listitem><para><filename>Factories.idl</filename>: The interface for creating methods and commands.</para></listitem>
+	<listitem><para><filename>Operations.idl</filename>: The interface of method and command objects.</para></listitem>
+	<listitem><para><filename>OperationInterface.idl</filename>: The interface for accessing methods and commands.</para></listitem>
 	<listitem><para><filename>ScriptingAccess.idl</filename>: The interface for loading and running scripts.</para></listitem>
 	<listitem><para><filename>Attributes.idl</filename>: The interface for attributes and properties.</para></listitem>
       </itemizedlist> 
