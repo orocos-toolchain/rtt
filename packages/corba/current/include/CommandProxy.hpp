@@ -30,7 +30,7 @@
 #define ORO_CORBA_COMMANDPROXY_HPP
 
 #include "../DispatchInterface.hpp"
-#include "ExecutionC.h"
+#include "OperationsC.h"
 
 namespace RTT
 {namespace Corba
@@ -43,15 +43,15 @@ namespace RTT
         : public DispatchInterface
     {
     protected:
-        static std::map<Orocos::Command_ptr, CommandProxy*> proxies;
+        static std::map<Corba::Command_ptr, CommandProxy*> proxies;
 
         /**
          * Private constructor which creates a new connection to
          * a corba object
          */
-        CommandProxy( ::Orocos::Command_ptr t );
+        CommandProxy( ::RTT::Corba::Command_ptr t );
 
-        Orocos::Command_var mdata;
+        Corba::Command_var mdata;
 
     public:
 
@@ -60,14 +60,14 @@ namespace RTT
          * @param act The Object to connect to.
          * @return A new or previously created CORBA proxy for \a act.
          */
-        static CommandProxy* Create(::Orocos::Command_ptr act);
+        static CommandProxy* Create(::RTT::Corba::Command_ptr act);
 
         /**
          * Get the Corba Object reference of the Command.
          * This object universally identifies the remote Command Object
          * and can be used to tell other (remote) objects where to find it.
          */
-        Orocos::Command_ptr server() const;
+        Corba::Command_ptr server() const;
 
         virtual void readArguments() {}
 

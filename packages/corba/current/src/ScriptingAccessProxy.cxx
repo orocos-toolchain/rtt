@@ -48,7 +48,7 @@ namespace RTT
     bool ScriptingAccessProxy::loadPrograms( string code, string filename, bool do_throw ) {
         try {
             msa->loadPrograms( code.c_str(), filename.c_str() );
-        } catch (Orocos::ScriptingAccess::LoadException& le)
+        } catch (Corba::ScriptingAccess::LoadException& le)
             {
                 if ( do_throw) {
                     throw program_load_exception( string(le.what) );
@@ -61,7 +61,7 @@ namespace RTT
     bool ScriptingAccessProxy::unloadProgram( string name, bool do_throw ){
         try {
             msa->unloadProgram( name.c_str() );
-        } catch (Orocos::ScriptingAccess::LoadException& le)
+        } catch (Corba::ScriptingAccess::LoadException& le)
             {
                 if ( do_throw) {
                     throw program_load_exception( string(le.what) );
@@ -73,7 +73,7 @@ namespace RTT
 
     std::vector<std::string> ScriptingAccessProxy::getPrograms() const{
         std::vector<std::string> ret;
-        Orocos::ScriptingAccess::ProgramNames_var cret = msa->getPrograms();
+        Corba::ScriptingAccess::ProgramNames_var cret = msa->getPrograms();
         for(CORBA::ULong i= 0; i != cret->length(); ++i)
             ret.push_back( string(cret[i]) );
         return ret;
@@ -98,7 +98,7 @@ namespace RTT
     bool ScriptingAccessProxy::loadStateMachines( string code, string filename, bool do_throw ) {
         try {
             msa->loadStateMachines( code.c_str(), filename.c_str() );
-        } catch (Orocos::ScriptingAccess::LoadException& le)
+        } catch (Corba::ScriptingAccess::LoadException& le)
             {
                 if ( do_throw) {
                     throw program_load_exception( string(le.what) );
@@ -111,7 +111,7 @@ namespace RTT
     bool ScriptingAccessProxy::unloadStateMachine( string name, bool do_throw ) {
         try {
             msa->unloadStateMachine( name.c_str() );
-        } catch (Orocos::ScriptingAccess::LoadException& le)
+        } catch (Corba::ScriptingAccess::LoadException& le)
             {
                 if ( do_throw) {
                     throw program_load_exception( string(le.what) );
@@ -123,7 +123,7 @@ namespace RTT
 
     std::vector<std::string> ScriptingAccessProxy::getStateMachines() const {
         std::vector<std::string> ret;
-        Orocos::ScriptingAccess::StateMachineNames_var cret = msa->getStateMachines();
+        Corba::ScriptingAccess::StateMachineNames_var cret = msa->getStateMachines();
         for(CORBA::ULong i= 0; i != cret->length(); ++i)
             ret.push_back( string(cret[i]) );
         return ret;

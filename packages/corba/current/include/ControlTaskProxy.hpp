@@ -61,7 +61,7 @@ namespace RTT
           public ApplicationServer
     {
     protected:
-        static std::map<Orocos::ControlTask_ptr, ControlTaskProxy*> proxies;
+        static std::map<Corba::ControlTask_ptr, ControlTaskProxy*> proxies;
 
         /**
          * Private constructor which creates a new connection to
@@ -73,11 +73,11 @@ namespace RTT
          * Private constructor which creates a new connection to
          * a corba object
          */
-        ControlTaskProxy( ::Orocos::ControlTask_ptr t );
+        ControlTaskProxy( ::RTT::Corba::ControlTask_ptr t );
 
         void synchronize();
 
-        Orocos::ControlTask_var mtask;
+        Corba::ControlTask_var mtask;
 
     public:
         ~ControlTaskProxy();
@@ -108,14 +108,14 @@ namespace RTT
          * @retval 0 if the ORB is not initialised
          * @return A new or previously created CORBA proxy for \a task.
          */
-        static ControlTaskProxy* Create(::Orocos::ControlTask_ptr task);
+        static ControlTaskProxy* Create(::RTT::Corba::ControlTask_ptr task);
 
         /**
          * Get the Corba Object of the ControlTask.
          * This object universally identifies the remote ControlTaskServer
          * and can be used to tell other (remote) objects where to find it.
          */
-        Orocos::ControlTask_ptr server() const;
+        Corba::ControlTask_ptr server() const;
 
         virtual bool executeCommand( CommandInterface* c);
 

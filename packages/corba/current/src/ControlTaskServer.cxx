@@ -98,7 +98,7 @@ namespace RTT
             PortableServer::ObjectId_var objId = poa->activate_object( servant.in() );
             // get object reference:
             CORBA::Object_var obj = poa->id_to_reference( objId.in() );
-            mtask = Orocos::ControlTask::_narrow( obj.in() );
+            mtask = Corba::ControlTask::_narrow( obj.in() );
 
             if ( use_naming ) {
                 CORBA::Object_var rootObj = orb->resolve_initial_references("NameService");
@@ -270,9 +270,9 @@ namespace RTT
         return cts;
     }
 
-    Orocos::ControlTask_ptr ControlTaskServer::server() const
+    Corba::ControlTask_ptr ControlTaskServer::server() const
     {
-        return Orocos::ControlTask::_duplicate(mtask.in());
+        return Corba::ControlTask::_duplicate(mtask.in());
     }
 
 }}

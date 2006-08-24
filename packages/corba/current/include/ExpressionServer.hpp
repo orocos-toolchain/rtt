@@ -30,7 +30,7 @@
 #define ORO_CORBA_EXPRESSIONSERVER_HPP
 
 #include "../DataSourceBase.hpp"
-#include "ExecutionC.h"
+#include "OperationsC.h"
 
 
 // forward decl.
@@ -49,9 +49,9 @@ namespace RTT
     {
     protected:
         typedef std::map<DataSourceBase::const_ptr, Orocos_AnyExpression_i* > EServantMap;
-        typedef std::map<DataSourceBase::const_ptr, Orocos::Expression_ptr > EServerMap;
-        typedef std::map<DataSourceBase::shared_ptr, Orocos::AssignableExpression_ptr> AServerMap;
-        typedef std::map<DataSourceBase::shared_ptr, Orocos::Method_ptr> MServerMap;
+        typedef std::map<DataSourceBase::const_ptr, Corba::Expression_ptr > EServerMap;
+        typedef std::map<DataSourceBase::shared_ptr, Corba::AssignableExpression_ptr> AServerMap;
+        typedef std::map<DataSourceBase::shared_ptr, Corba::Method_ptr> MServerMap;
 
         /**
          * All created servants end up in this map.
@@ -83,7 +83,7 @@ namespace RTT
          * @param expr The expression to serve
          * @return A new or previously created CORBA server for \a expr.
          */
-        static Orocos::Expression_ptr CreateExpression( DataSourceBase::const_ptr expr );
+        static Corba::Expression_ptr CreateExpression( DataSourceBase::const_ptr expr );
 
 
         /**
@@ -91,14 +91,14 @@ namespace RTT
          * @param expr The expression to serve
          * @return A new or previously created CORBA server for \a expr.
          */
-        static Orocos::AssignableExpression_ptr CreateAssignableExpression( DataSourceBase::shared_ptr expr );
+        static Corba::AssignableExpression_ptr CreateAssignableExpression( DataSourceBase::shared_ptr expr );
 
         /**
          * Factory method: create a CORBA server to a method
          * @param expr The expression to serve
          * @return A new or previously created CORBA server for \a expr.
          */
-        static Orocos::Method_ptr CreateMethod( DataSourceBase::shared_ptr expr );
+        static Corba::Method_ptr CreateMethod( DataSourceBase::shared_ptr expr );
 
         /**
          * This method informs the servants that a new DataSource needs to be used

@@ -318,7 +318,7 @@ namespace RTT
             return false;
         }
 
-        virtual DataSourceBase* buildCorbaProxy( Orocos::Expression* e ) const {
+        virtual DataSourceBase* buildCorbaProxy( Corba::Expression* e ) const {
             DataSourceBase* result = 0;
 #ifdef OROPKG_CORBA
             // first try as assignable DS, if not possible, try as normal DS.

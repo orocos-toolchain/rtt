@@ -66,7 +66,7 @@
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-class  Orocos_ScriptingAccess_i : public virtual POA_Orocos::ScriptingAccess, public virtual PortableServer::RefCountServantBase
+class  Orocos_ScriptingAccess_i : public virtual POA_RTT::Corba::ScriptingAccess, public virtual PortableServer::RefCountServantBase
 {
     RTT::ScriptingAccess* mee;
 public:
@@ -83,7 +83,7 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException,
-      ::Orocos::ScriptingAccess::LoadException
+      ::RTT::Corba::ScriptingAccess::LoadException
     ));
   
   virtual
@@ -92,11 +92,11 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException,
-      ::Orocos::ScriptingAccess::LoadException
+      ::RTT::Corba::ScriptingAccess::LoadException
     ));
   
   virtual
-  ::Orocos::ScriptingAccess::ProgramNames * getPrograms (
+  ::RTT::Corba::ScriptingAccess::ProgramNames * getPrograms (
       
     )
     ACE_THROW_SPEC ((
@@ -142,7 +142,7 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException,
-      ::Orocos::ScriptingAccess::LoadException
+      ::RTT::Corba::ScriptingAccess::LoadException
     ));
   
   virtual
@@ -151,11 +151,11 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException,
-      ::Orocos::ScriptingAccess::LoadException
+      ::RTT::Corba::ScriptingAccess::LoadException
     ));
   
   virtual
-  ::Orocos::ScriptingAccess::StateMachineNames * getStateMachines (
+  ::RTT::Corba::ScriptingAccess::StateMachineNames * getStateMachines (
       
     )
     ACE_THROW_SPEC ((

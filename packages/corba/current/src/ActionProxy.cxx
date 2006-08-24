@@ -27,7 +27,7 @@
  
  
 
-#include "rtt/corba/ExecutionI.h"
+#include "rtt/corba/OperationsI.h"
 #include "rtt/corba/ActionProxy.hpp"
 
 #include <ace/String_Base.h>
@@ -37,10 +37,10 @@ using namespace std;
 namespace RTT
 {namespace Corba
 {
-    std::map<Orocos::Action_ptr, ActionProxy*> ActionProxy::proxies;
+    std::map<Corba::Action_ptr, ActionProxy*> ActionProxy::proxies;
 
-    ActionProxy::ActionProxy( ::Orocos::Action_ptr e) 
-        : mdata( ::Orocos::Action::_duplicate(e) )
+    ActionProxy::ActionProxy( ::RTT::Corba::Action_ptr e) 
+        : mdata( ::RTT::Corba::Action::_duplicate(e) )
     {
         try {
             mdata->reset(); // force connect to object.
@@ -54,7 +54,7 @@ namespace RTT
         }
     }
 
-    ActionProxy* ActionProxy::Create(::Orocos::Action_ptr t) {
+    ActionProxy* ActionProxy::Create(::RTT::Corba::Action_ptr t) {
         if ( CORBA::is_nil( t ) )
             return 0;
 
@@ -68,9 +68,9 @@ namespace RTT
         return ctp;
     }
 
-    Orocos::Action_ptr ActionProxy::server() const
+    Corba::Action_ptr ActionProxy::server() const
     {
-        return Orocos::Action::_duplicate( mdata.in() );
+        return Corba::Action::_duplicate( mdata.in() );
     }
 
 }}

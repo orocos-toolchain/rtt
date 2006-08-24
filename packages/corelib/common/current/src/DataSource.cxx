@@ -144,7 +144,7 @@ namespace RTT
         // then try to see if it is a CORBA object.
         //Corba::ExpressionProxyInterface* prox = dynamic_cast< Corba::ExpressionProxyInterface* >(dsb);
         if ( dsb->hasServer() ) {
-            ::Orocos::Expression_var expr = dsb->server() ;
+            Corba::Expression_var expr = dsb->server() ;
             return new Corba::CORBAExpression<void>( expr.in() );
         }
 #endif
@@ -161,7 +161,7 @@ namespace RTT
         // then try to see if it is a CORBA object.
         //Corba::ExpressionProxyInterface* prox = dynamic_cast< Corba::ExpressionProxyInterface* >(dsb);
         if ( dsb->hasServer() ) {
-            ::Orocos::Expression_var expr = dsb->server() ;
+            Corba::Expression_var expr = dsb->server() ;
             return new Corba::CORBAExpression<void>( expr.in() );
         }
 #endif
@@ -179,7 +179,7 @@ namespace RTT
         // if it is a server, we can always just ask it's any value...
         if ( dsb->hasServer() ) {
             Logger::log() << Logger::Debug << "Narrowing server "<<dsb->getType() <<" to local CORBA::Any." <<Logger::endl;
-            ::Orocos::Expression_var expr = dsb->server() ;
+            Corba::Expression_var expr = dsb->server() ;
             return new Corba::CORBAExpression<CORBA::Any_ptr>( expr.in() );
         }
         // last resort, try to do it as 'Any':
@@ -205,7 +205,7 @@ namespace RTT
         // if it is a server, we can always just ask it's any value...
         if ( dsb->hasServer() ) {
             Logger::log() << Logger::Debug << "Narrowing server "<<dsb->getType() <<" to local CORBA::Any." <<Logger::endl;
-            ::Orocos::Expression_var expr = dsb->server() ;
+            Corba::Expression_var expr = dsb->server() ;
             return new Corba::CORBAExpression<CORBA::Any_ptr>( expr.in() );
         }
         // last resort, try to do it as 'Any':

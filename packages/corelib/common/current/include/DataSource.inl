@@ -69,26 +69,26 @@ namespace RTT
 #ifdef OROINT_OS_CORBA
 
     template< typename T>
-    Orocos::Expression_ptr DataSource<T>::server()
+    Corba::Expression_ptr DataSource<T>::server()
     {
         return Corba::ExpressionServer::CreateExpression( const_ptr(this) );
     }
 
     template< typename T>
-    Orocos::Expression_ptr DataSource<T>::server() const
+    Corba::Expression_ptr DataSource<T>::server() const
     {
         return Corba::ExpressionServer::CreateExpression( const_ptr(this) );
     }
 
     template< typename T>
-    Orocos::Method_ptr DataSource<T>::method()
+    Corba::Method_ptr DataSource<T>::method()
     {
         return Corba::ExpressionServer::CreateMethod( shared_ptr(this) );
     }
 
     
     template< typename T>
-    Orocos::Expression_ptr AssignableDataSource<T>::server()
+    Corba::Expression_ptr AssignableDataSource<T>::server()
     {
         return Corba::ExpressionServer::CreateAssignableExpression( shared_ptr(this) );
     }
@@ -128,7 +128,7 @@ namespace RTT
         //Corba::ExpressionProxyInterface* prox = dynamic_cast< Corba::ExpressionProxyInterface* >(dsb);
         if ( dsb->hasServer() ) {
             Logger::log() << Logger::Debug << "Trying to narrow server "<<dsb->getType()<<" to local "<<DataSource<T>::GetType() <<Logger::endl;
-            ::Orocos::Expression_var expr = dsb->server() ;
+            Corba::Expression_var expr = dsb->server() ;
             return Corba::ExpressionProxy::NarrowDataSource<T>( expr.in() );
         }
         // See if the DS contains an Any.
@@ -151,7 +151,7 @@ namespace RTT
         //Corba::ExpressionProxyInterface* prox = dynamic_cast< Corba::ExpressionProxyInterface* >(dsb);
         if ( dsb->hasServer() ) {
             Logger::log() << Logger::Debug << "Trying to narrow server "<<dsb->getType()<<" to local "<<DataSource<T>::GetType() <<Logger::endl;
-            ::Orocos::Expression_var expr = dsb->server() ;
+            Corba::Expression_var expr = dsb->server() ;
             return Corba::ExpressionProxy::NarrowDataSource<T>( expr.in() );
         }
         const DataSource<CORBA::Any_var>* aret = dynamic_cast< const DataSource<CORBA::Any_var>* >( dsb );
@@ -192,7 +192,7 @@ namespace RTT
         // then try to see if it is a CORBA object.
         //Corba::ExpressionProxyInterface* prox = dynamic_cast< Corba::ExpressionProxyInterface* >(dsb);
         if ( dsb->hasServer() ) {
-            ::Orocos::Expression_var expr = dsb->server() ;
+            Corba::Expression_var expr = dsb->server() ;
             return Corba::ExpressionProxy::NarrowAssignableDataSource<T>( expr.in() );
         }
 #endif
@@ -209,7 +209,7 @@ namespace RTT
         // then try to see if it is a CORBA object.
         //Corba::ExpressionProxyInterface* prox = dynamic_cast< Corba::ExpressionProxyInterface* >(dsb);
         if ( dsb->hasServer() ) {
-            ::Orocos::Expression_var expr = dsb->server() ;
+            Corba::Expression_var expr = dsb->server() ;
             return Corba::ExpressionProxy::NarrowAssignableDataSource<T>( expr.in() );
         }
 #endif

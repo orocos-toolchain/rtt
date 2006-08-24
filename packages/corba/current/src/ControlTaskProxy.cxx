@@ -47,8 +47,6 @@ using namespace std;
 namespace RTT
 {namespace Corba
 {
-    using namespace Orocos;
-
     IllegalServer::IllegalServer() : reason("This server does not exist or has the wrong type.") {}
 
     IllegalServer::~IllegalServer() throw() {}
@@ -56,7 +54,7 @@ namespace RTT
     const char* IllegalServer::what() const throw() { return reason.c_str(); }
 
 
-    std::map<Orocos::ControlTask_ptr, ControlTaskProxy*> ControlTaskProxy::proxies;
+    std::map<Corba::ControlTask_ptr, ControlTaskProxy*> ControlTaskProxy::proxies;
 
 
     ControlTaskProxy::~ControlTaskProxy()
@@ -80,7 +78,7 @@ namespace RTT
                     orb->string_to_object ( name.c_str() );
 
                 // Now downcast the object reference to the appropriate type
-                mtask = Orocos::ControlTask::_narrow (task_object.in ());
+                mtask = Corba::ControlTask::_narrow (task_object.in ());
             } else {
                 // NameService
                 CORBA::Object_var rootObj = orb->resolve_initial_references("NameService");
@@ -97,7 +95,7 @@ namespace RTT
 
                 // Get object reference
                 CORBA::Object_var task_object = rootContext->resolve(serverName);
-                mtask = Orocos::ControlTask::_narrow (task_object.in ());
+                mtask = Corba::ControlTask::_narrow (task_object.in ());
             }
             if ( CORBA::is_nil( mtask.in() ) ) {
                 Logger::log() << Logger::Error << "Failed to acquire ControlTaskServer '"+name+"'."<<Logger::endl;
@@ -120,7 +118,7 @@ namespace RTT
         this->synchronize();
     }
 
-    ControlTaskProxy::ControlTaskProxy( ::Orocos::ControlTask_ptr taskc) 
+    ControlTaskProxy::ControlTaskProxy( ::RTT::Corba::ControlTask_ptr taskc) 
         : TaskContext("CORBAProxy"), mtask( taskc )
     {
         try {
@@ -247,7 +245,7 @@ namespace RTT
         }
 
       Logger::log() << Logger::Info << "Fetching ScriptingAccess."<<Logger::endl;
-      Orocos::ScriptingAccess_var saC = mtask->scripting();
+      Corba::ScriptingAccess_var saC = mtask->scripting();
       if ( saC ) {
           delete mscriptAcc;
           mscriptAcc = new ScriptingAccessProxy( saC.in() );
@@ -312,7 +310,7 @@ namespace RTT
         return 0;
     }
 
-    ControlTaskProxy* ControlTaskProxy::Create(::Orocos::ControlTask_ptr t) {
+    ControlTaskProxy* ControlTaskProxy::Create(::RTT::Corba::ControlTask_ptr t) {
         if ( CORBA::is_nil(orb) || t == 0 )
             return 0;
 
@@ -376,7 +374,7 @@ namespace RTT
 
     TaskContext::PeerList ControlTaskProxy::getPeerList() const
     {
-        Orocos::ControlTask::ControlTaskNames_var plist = mtask->getPeerList();
+        Corba::ControlTask::ControlTaskNames_var plist = mtask->getPeerList();
         TaskContext::PeerList vlist;
         for( size_t i =0; i != plist->length(); ++i)
             vlist.push_back( std::string( plist[i] ) );
@@ -390,14 +388,14 @@ namespace RTT
 
     TaskContext* ControlTaskProxy::getPeer(const std::string& peer_name ) const
     {
-        Orocos::ControlTask_ptr ct = mtask->getPeer( peer_name.c_str() );
+        Corba::ControlTask_ptr ct = mtask->getPeer( peer_name.c_str() );
         if ( !ct )
             return 0;
         return ControlTaskProxy::Create( ct );
     }
 
-    Orocos::ControlTask_ptr ControlTaskProxy::server() const {
-        return Orocos::ControlTask::_duplicate(mtask);
+    Corba::ControlTask_ptr ControlTaskProxy::server() const {
+        return Corba::ControlTask::_duplicate(mtask);
     }
 
     CosPropertyService::PropertySet_ptr ControlTaskProxy::propertySet() {

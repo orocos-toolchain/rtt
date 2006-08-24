@@ -56,16 +56,16 @@ void Orocos_ScriptingAccess_i::loadPrograms (
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException,
-    ::Orocos::ScriptingAccess::LoadException
+    ::RTT::Corba::ScriptingAccess::LoadException
   ))
 {
     try {
         mee->loadPrograms( code, filename, true );
     }
     catch (program_load_exception &ple) {
-        throw Orocos::ScriptingAccess::LoadException( ple.what() );
+        throw ::RTT::Corba::ScriptingAccess::LoadException( ple.what() );
     } catch(file_parse_exception &fpe) {
-        throw Orocos::ScriptingAccess::LoadException( fpe.what().c_str() );
+        throw ::RTT::Corba::ScriptingAccess::LoadException( fpe.what().c_str() );
     }
 }
 
@@ -74,18 +74,18 @@ void Orocos_ScriptingAccess_i::unloadProgram (
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException,
-    ::Orocos::ScriptingAccess::LoadException
+    ::RTT::Corba::ScriptingAccess::LoadException
   ))
 {
     try {
         mee->unloadProgram( name, true );
     }
     catch (program_unload_exception &ple) {
-        throw Orocos::ScriptingAccess::LoadException( ple.what() );
+        throw ::RTT::Corba::ScriptingAccess::LoadException( ple.what() );
     }
 }
 
-::Orocos::ScriptingAccess::ProgramNames * Orocos_ScriptingAccess_i::getPrograms (
+::RTT::Corba::ScriptingAccess::ProgramNames * Orocos_ScriptingAccess_i::getPrograms (
     
   )
   ACE_THROW_SPEC ((
@@ -93,7 +93,7 @@ void Orocos_ScriptingAccess_i::unloadProgram (
   ))
 {
     std::vector<std::string> vlist = mee->getPrograms();
-    ::Orocos::ScriptingAccess::ProgramNames_var result = new ::Orocos::ScriptingAccess::ProgramNames();
+    ::RTT::Corba::ScriptingAccess::ProgramNames_var result = new ::RTT::Corba::ScriptingAccess::ProgramNames();
     result->length( vlist.size() );
     for (unsigned int i=0; i != vlist.size(); ++i )
         result[i] = CORBA::string_dup( vlist[i].c_str() );
@@ -146,16 +146,16 @@ void Orocos_ScriptingAccess_i::loadStateMachines (
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException,
-    ::Orocos::ScriptingAccess::LoadException
+    ::RTT::Corba::ScriptingAccess::LoadException
   ))
 {
     try {
         mee->loadStateMachines( code, filename, true);
     }
     catch (program_load_exception &ple) {
-        throw Orocos::ScriptingAccess::LoadException( ple.what() );
+        throw ::RTT::Corba::ScriptingAccess::LoadException( ple.what() );
     } catch(file_parse_exception &fpe) {
-        throw Orocos::ScriptingAccess::LoadException( fpe.what().c_str() );
+        throw ::RTT::Corba::ScriptingAccess::LoadException( fpe.what().c_str() );
     }
 }
 
@@ -164,18 +164,18 @@ void Orocos_ScriptingAccess_i::unloadStateMachine (
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException,
-    ::Orocos::ScriptingAccess::LoadException
+    ::RTT::Corba::ScriptingAccess::LoadException
   ))
 {
     try {
         mee->unloadStateMachine( name, true );
     }
     catch (program_unload_exception &ple) {
-        throw Orocos::ScriptingAccess::LoadException( ple.what() );
+        throw ::RTT::Corba::ScriptingAccess::LoadException( ple.what() );
     }
 }
 
-::Orocos::ScriptingAccess::StateMachineNames * Orocos_ScriptingAccess_i::getStateMachines (
+::RTT::Corba::ScriptingAccess::StateMachineNames * Orocos_ScriptingAccess_i::getStateMachines (
     
   )
   ACE_THROW_SPEC ((
@@ -184,7 +184,7 @@ void Orocos_ScriptingAccess_i::unloadStateMachine (
 {
   // Add your implementation here
     std::vector<std::string> vlist = mee->getStateMachines();
-    ::Orocos::ScriptingAccess::StateMachineNames_var result = new ::Orocos::ScriptingAccess::StateMachineNames();
+    ::RTT::Corba::ScriptingAccess::StateMachineNames_var result = new ::RTT::Corba::ScriptingAccess::StateMachineNames();
     result->length( vlist.size() );
     for (unsigned int i=0; i != vlist.size(); ++i )
         result[i] = CORBA::string_dup( vlist[i].c_str() );

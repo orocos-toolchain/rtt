@@ -1,34 +1,35 @@
 #ifndef ORO_CORBA_ATTRIBUTES
 #define ORO_CORBA_ATTRIBUTES
 
-#include "Execution.idl"
+#include "Operations.idl"
 
-module Orocos
+module RTT
 {
-  /**
-   * Exposes both attributes and properties
-   * of a task as Expression objects.
-   */
-  interface AttributeInterface
+  module Corba
   {
-    struct Property {
-      string name;
-      string description;
+    /**
+     * Exposes both attributes and properties
+     * of a task as Expression objects.
+     */
+    interface AttributeInterface
+    {
+      struct Property {
+	string name;
+	string description;
+      };
+
+      typedef sequence<Property> PropertyNames;
+      typedef sequence<string> AttributeNames;
+
+      AttributeNames getAttributeList();
+
+      PropertyNames  getPropertyList();
+
+      Expression getAttribute( in string name );
+
+      Expression getProperty( in string name );
     };
-
-    typedef sequence<Property> PropertyNames;
-    typedef sequence<string> AttributeNames;
-
-    AttributeNames getAttributeList();
-
-    PropertyNames  getPropertyList();
-
-    Expression getAttribute( in string name );
-
-    Expression getProperty( in string name );
   };
-
-
 };
 
 

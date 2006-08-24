@@ -36,7 +36,7 @@
 #include "os/oro_atomic.h"
 #include "pkgconf/os.h"
 #ifdef OROINT_OS_CORBA
-#include "corba/ExecutionC.h"
+#include "corba/OperationsC.h"
 #endif
 #include "CommandInterface.hpp"
 
@@ -261,7 +261,7 @@ namespace RTT
        * \a new server object reference otherwise.
        * @see Execution.idl
        */
-      virtual Orocos::Expression_ptr server() = 0;
+      virtual Corba::Expression_ptr server() = 0;
 
       /**
        * Create a CORBA object which 'mirrors' this DataSource.
@@ -269,7 +269,7 @@ namespace RTT
        * \a new server object reference otherwise.
        * @see Execution.idl
        */
-      virtual Orocos::Expression_ptr server() const = 0;
+      virtual Corba::Expression_ptr server() const = 0;
 
       /**
        * Create a CORBA object which 'mirrors' this DataSource.
@@ -277,7 +277,7 @@ namespace RTT
        * \a new method object reference otherwise.
        * @see Execution.idl
        */
-      virtual Orocos::Method_ptr method() = 0;
+      virtual Corba::Method_ptr method() = 0;
 #endif
 
   };

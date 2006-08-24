@@ -39,7 +39,7 @@ namespace RTT
     struct AnyConversion<ORO_Geometry::Vector>
     {
         typedef ORO_Geometry::Vector& StdType;
-        typedef Orocos::Vector CorbaType;
+        typedef Corba::Vector CorbaType;
 
         static bool update(const CORBA::Any& any, StdType tp) {
             CorbaType* at;
@@ -66,7 +66,7 @@ namespace RTT
     struct AnyConversion<ORO_Geometry::Rotation>
     {
         typedef ORO_Geometry::Rotation& StdType;
-        typedef Orocos::Rotation CorbaType;
+        typedef Corba::Rotation CorbaType;
 
         static bool update(const CORBA::Any& any, StdType tp) {
             CorbaType* at;
@@ -95,7 +95,7 @@ namespace RTT
     struct AnyConversion<ORO_Geometry::Frame>
     {
         typedef ORO_Geometry::Frame& StdType;
-        typedef Orocos::Frame CorbaType;
+        typedef Corba::Frame CorbaType;
 
         static bool update(const CORBA::Any& any, StdType tp) {
             CorbaType* at;
@@ -128,7 +128,7 @@ namespace RTT
     struct AnyConversion<ORO_Geometry::Twist>
     {
         typedef ORO_Geometry::Twist& StdType;
-        typedef Orocos::Twist CorbaType;
+        typedef Corba::Twist CorbaType;
 
         static bool update(const CORBA::Any& any, StdType tp) {
             CorbaType* at;
@@ -159,7 +159,7 @@ namespace RTT
     struct AnyConversion<ORO_Geometry::Wrench>
     {
         typedef ORO_Geometry::Wrench& StdType;
-        typedef Orocos::Wrench CorbaType;
+        typedef Corba::Wrench CorbaType;
 
         static bool update(const CORBA::Any& any, StdType tp) {
             CorbaType* at;

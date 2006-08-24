@@ -67,7 +67,7 @@
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-class  Orocos_ExecutionEngine_i : public virtual POA_Orocos::ExecutionEngine, public virtual PortableServer::RefCountServantBase
+class  Orocos_ExecutionEngine_i : public virtual POA_RTT::Corba::ExecutionEngine, public virtual PortableServer::RefCountServantBase
 {
     ExecutionEngine& mee;
     StatementProcessor sproc;
@@ -85,7 +85,7 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException,
-      ::Orocos::ExecutionEngine::LoadException
+      ::RTT::Corba::ExecutionEngine::LoadException
     ));
   
   virtual
@@ -94,11 +94,11 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException,
-      ::Orocos::ExecutionEngine::LoadException
+      ::RTT::Corba::ExecutionEngine::LoadException
     ));
   
   virtual
-  ::Orocos::ExecutionEngine::ProgramNames * getPrograms (
+  ::RTT::Corba::ExecutionEngine::ProgramNames * getPrograms (
       
     )
     ACE_THROW_SPEC ((
@@ -136,7 +136,7 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException,
-      ::Orocos::ExecutionEngine::LoadException
+      ::RTT::Corba::ExecutionEngine::LoadException
     ));
   
   virtual
@@ -145,11 +145,11 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException,
-      ::Orocos::ExecutionEngine::LoadException
+      ::RTT::Corba::ExecutionEngine::LoadException
     ));
   
   virtual
-  ::Orocos::ExecutionEngine::StateMachineNames * getStateMachines (
+  ::RTT::Corba::ExecutionEngine::StateMachineNames * getStateMachines (
       
     )
     ACE_THROW_SPEC ((

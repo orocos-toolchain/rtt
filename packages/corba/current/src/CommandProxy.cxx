@@ -27,7 +27,7 @@
  
  
 
-#include "rtt/corba/ExecutionI.h"
+#include "rtt/corba/OperationsI.h"
 #include "rtt/corba/CommandProxy.hpp"
 #include "rtt/ConditionInterface.hpp"
 
@@ -41,10 +41,10 @@ namespace RTT
     
     
 
-    std::map<Orocos::Command_ptr, CommandProxy*> CommandProxy::proxies;
+    std::map<Corba::Command_ptr, CommandProxy*> CommandProxy::proxies;
 
-    CommandProxy::CommandProxy( ::Orocos::Command_ptr e) 
-        : mdata( ::Orocos::Command::_duplicate(e) )
+    CommandProxy::CommandProxy( ::RTT::Corba::Command_ptr e) 
+        : mdata( ::RTT::Corba::Command::_duplicate(e) )
     {
         try {
             mdata->reset(); // force connect to object.
@@ -62,10 +62,10 @@ namespace RTT
         struct ValidCondition
             : public ConditionInterface
         {
-            ::Orocos::Command_var mserver;
+            ::RTT::Corba::Command_var mserver;
 
-            ValidCondition( ::Orocos::Command_ptr server )
-                : mserver(::Orocos::Command::_duplicate(server) )
+            ValidCondition( ::RTT::Corba::Command_ptr server )
+                : mserver(::RTT::Corba::Command::_duplicate(server) )
             {}
             bool evaluate()
             {
@@ -88,7 +88,7 @@ namespace RTT
     }
 
 
-    CommandProxy* CommandProxy::Create(::Orocos::Command_ptr t) {
+    CommandProxy* CommandProxy::Create(::RTT::Corba::Command_ptr t) {
         if ( CORBA::is_nil( t ) )
             return 0;
 
@@ -102,9 +102,9 @@ namespace RTT
         return ctp;
     }
 
-    Orocos::Command_ptr CommandProxy::server() const
+    Corba::Command_ptr CommandProxy::server() const
     {
-        return Orocos::Command::_duplicate( mdata.in() );
+        return Corba::Command::_duplicate( mdata.in() );
     }
 
 }}

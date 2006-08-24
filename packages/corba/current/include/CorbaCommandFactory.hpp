@@ -32,7 +32,7 @@
 #include "../OperationFactory.hpp"
 #include "../ConditionBoolDataSource.hpp"
 #include "CommandProxy.hpp"
-#include "FactoriesC.h"
+#include "OperationInterfaceC.h"
 #include "CommandProxy.hpp"
 
 namespace RTT
@@ -47,15 +47,15 @@ namespace RTT
         : public RTT::detail::OperationFactoryPart<DispatchInterface*>
     {
         std::string com;
-        Orocos::CommandInterface_var mfact;
+        Corba::CommandInterface_var mfact;
     public:
-        typedef std::vector< ArgumentDescription > Descriptions;
+        typedef std::vector< RTT::ArgumentDescription > Descriptions;
         typedef std::vector<std::string> Commands;
         typedef std::vector<DataSourceBase::shared_ptr> Arguments;
 
-        CorbaCommandFactory(const std::string& command, Orocos::CommandInterface_ptr fact) 
+        CorbaCommandFactory(const std::string& command, Corba::CommandInterface_ptr fact) 
             : RTT::detail::OperationFactoryPart<DispatchInterface*>("Corba Command"),
-              com(command), mfact( Orocos::CommandInterface::_duplicate(fact) )
+              com(command), mfact( Corba::CommandInterface::_duplicate(fact) )
         {}
 
         virtual ~CorbaCommandFactory() {}
@@ -74,7 +74,7 @@ namespace RTT
             try {
                 CORBA::String_var result = mfact->getDescription( com.c_str() );
                 return std::string( result.in() );
-            } catch ( Orocos::NoSuchNameException& nsn ) {
+            } catch ( Corba::NoSuchNameException& nsn ) {
                 throw name_not_found_exception( nsn.name.in() );
             }
             return std::string();
@@ -92,13 +92,13 @@ namespace RTT
         {
             Descriptions ret;
             try {
-                Orocos::Descriptions_var result = mfact->getArguments( com.c_str() );
+                Corba::Descriptions_var result = mfact->getArguments( com.c_str() );
                 ret.reserve( result->length() );
                 for (size_t i=0; i!= result->length(); ++i)
-                    ret.push_back( ArgumentDescription(std::string( result[i].name.in() ),
+                    ret.push_back( RTT::ArgumentDescription(std::string( result[i].name.in() ),
                                                        std::string( result[i].description.in() ),
                                                        std::string( result[i].type.in() ) ));
-            } catch ( Orocos::NoSuchNameException& nsn ) {
+            } catch ( Corba::NoSuchNameException& nsn ) {
                 throw name_not_found_exception( nsn.name.in() );
             }
             return ret;
@@ -106,19 +106,19 @@ namespace RTT
 
         virtual DispatchInterface* produce(const Arguments& args) const 
         {
-            Orocos::Arguments_var nargs = new Orocos::Arguments();
+            Corba::Arguments_var nargs = new Corba::Arguments();
             nargs->length( args.size() );
             for (size_t i=0; i < args.size(); ++i )
                 nargs[i] = args[i]->server();
             try {
-                Orocos::Command_var result = mfact->createCommand( com.c_str(), nargs.in() );
+                Corba::Command_var result = mfact->createCommand( com.c_str(), nargs.in() );
                 // return a DispatchInterface object:
                 return CommandProxy::Create( result.in() );
-            } catch ( Orocos::NoSuchNameException& nsn ) {
+            } catch ( Corba::NoSuchNameException& nsn ) {
                 throw name_not_found_exception( nsn.name.in() );
-            } catch ( Orocos::WrongNumbArgException& wa ) {
+            } catch ( Corba::WrongNumbArgException& wa ) {
                 throw wrong_number_of_args_exception( wa.wanted, wa.received );
-            } catch ( Orocos::WrongTypeArgException& wta ) {
+            } catch ( Corba::WrongTypeArgException& wta ) {
                 throw wrong_types_of_args_exception( wta.whicharg, wta.expected.in(), wta.received.in() );
             }
             return 0; // not reached.

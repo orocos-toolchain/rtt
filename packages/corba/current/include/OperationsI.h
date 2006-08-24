@@ -62,7 +62,7 @@
 #ifndef INCLUDE_EXECUTIONI_H_
 #define INCLUDE_EXECUTIONI_H_
 
-#include "ExecutionS.h"
+#include "OperationsS.h"
 #include "CorbaConversion.hpp"
 #include "../CommandInterface.hpp"
 #include "../Logger.hpp"
@@ -78,7 +78,7 @@ namespace RTT
 
 template< class DataType>
 class  Orocos_Expression_i
-  : public virtual POA_Orocos::Expression
+  : public virtual POA_RTT::Corba::Expression
 {
 protected:
     typename RTT::DataSource<DataType>::const_ptr morig;
@@ -152,7 +152,7 @@ public:
  * This servant is inferior to the template based ones.
  */
 class  Orocos_AnyExpression_i
-  : public virtual POA_Orocos::Expression
+  : public virtual POA_RTT::Corba::Expression
 {
 protected:
     RTT::DataSourceBase::const_ptr morig;
@@ -230,7 +230,7 @@ public:
 
 template<>
 class  Orocos_Expression_i<void>
-  : public virtual POA_Orocos::Expression
+  : public virtual POA_RTT::Corba::Expression
 {
 protected:
     RTT::DataSource<void>::const_ptr morig;
@@ -301,7 +301,7 @@ public:
 
 template< class DataType>
 class  Orocos_AssignableExpression_i
-  : public virtual POA_Orocos::AssignableExpression
+  : public virtual POA_RTT::Corba::AssignableExpression
 {
     typename RTT::AssignableDataSource<DataType>::shared_ptr massign;
     typename RTT::DataSource<DataType>::value_t last_value;
@@ -326,7 +326,7 @@ public:
       
       
       if ( !RTT::AnyConversion<ResultType>::update( value, last_value ) ) {
-          RTT::log(RTT::Error) << "Orocos::AssignableExpression: Could not assign Any to "<<massign->getType() <<"." <<RTT::endlog()
+          RTT::log(RTT::Error) << "Corba::AssignableExpression: Could not assign Any to "<<massign->getType() <<"." <<RTT::endlog()
 							   <<" Tried to assign as "<< RTT::DataSource<ResultType>::GetType() << " to native type "<< RTT::DataSource<SourceType>::GetType()<< RTT::endlog();
           return false;
       }
@@ -388,7 +388,7 @@ public:
 
 class  Orocos_AnyAssignableExpression_i
     : public Orocos_AnyExpression_i,
-      public virtual POA_Orocos::AssignableExpression
+      public virtual POA_RTT::Corba::AssignableExpression
 {
     RTT::DataSourceBase::shared_ptr mset;
 public:
@@ -423,7 +423,7 @@ public:
 
 template<>
 class  Orocos_Expression_i<bool>
-  : public virtual POA_Orocos::Expression
+  : public virtual POA_RTT::Corba::Expression
 {
 protected:
     RTT::DataSource<bool>::const_ptr morig;
@@ -495,7 +495,7 @@ public:
 
 template<>
 class  Orocos_AssignableExpression_i<bool>
-  : public virtual POA_Orocos::AssignableExpression
+  : public virtual POA_RTT::Corba::AssignableExpression
 {
     RTT::AssignableDataSource<bool>::shared_ptr massign;
     bool last_value;
@@ -575,7 +575,7 @@ public:
 
 };
 
-class  Orocos_Action_i : public virtual POA_Orocos::Action, public virtual PortableServer::RefCountServantBase
+class  Orocos_Action_i : public virtual POA_RTT::Corba::Action, public virtual PortableServer::RefCountServantBase
 {
     RTT::CommandInterface* mcom;
 public:
@@ -605,7 +605,7 @@ public:
 template<class T>
 class  Orocos_Method_i
     : public virtual Orocos_Expression_i<T>,
-      public virtual POA_Orocos::Method, public virtual PortableServer::RefCountServantBase
+      public virtual POA_RTT::Corba::Method, public virtual PortableServer::RefCountServantBase
 {
 public:
     typedef T SourceType;
@@ -642,7 +642,7 @@ public:
 
 class  Orocos_AnyMethod_i
     : public virtual Orocos_AnyExpression_i,
-      public virtual POA_Orocos::Method,
+      public virtual POA_RTT::Corba::Method,
       public virtual PortableServer::RefCountServantBase
 {
 public:
@@ -683,7 +683,7 @@ public:
 };
 
 
-class  Orocos_Command_i : public virtual POA_Orocos::Command, public virtual PortableServer::RefCountServantBase
+class  Orocos_Command_i : public virtual POA_RTT::Corba::Command, public virtual PortableServer::RefCountServantBase
 {
     RTT::CommandC* morig;
 public:

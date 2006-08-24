@@ -52,7 +52,7 @@ namespace RTT
          */
         ControlTaskServer(TaskContext* taskcontext, bool use_naming);
 
-        Orocos::ControlTask_var mtask;
+        Corba::ControlTask_var mtask;
         TaskContext* mtaskcontext;
         bool muse_naming;
 
@@ -107,6 +107,6 @@ namespace RTT
          * This object universally identifies the remote ControlTaskServer
          * and can be used to tell other (remote) objects where to find it.
          */
-        Orocos::ControlTask_ptr server() const;
+        Corba::ControlTask_ptr server() const;
     };
 }}

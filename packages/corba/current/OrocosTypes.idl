@@ -1,10 +1,13 @@
 #ifndef ORO_OROCOS_TYPES_IDL
 #define ORO_OROCOS_TYPES_IDL
 
-module Orocos
+module RTT
 {
-  // Classical Orocos type
-  typedef sequence<double> DoubleSequence;
+  module Corba
+  {
+    // Classical Orocos type
+    typedef sequence<double> DoubleSequence;
+  };
 
 };
 

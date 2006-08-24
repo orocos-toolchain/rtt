@@ -60,7 +60,7 @@
 #define CONTROLTASKI_H_
 
 #include "ControlTaskS.h"
-#include "FactoriesC.h"
+#include "OperationInterfaceC.h"
 #include "AttributesC.h"
 #include "ScriptingAccessC.h"
 #include <orbsvcs/CosPropertyServiceC.h>
@@ -70,12 +70,12 @@
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-class  Orocos_ControlObject_i : public virtual POA_Orocos::ControlObject, public virtual PortableServer::RefCountServantBase
+class  Orocos_ControlObject_i : public virtual POA_RTT::Corba::ControlObject, public virtual PortableServer::RefCountServantBase
 {
 protected:
     RTT::OperationInterface* mobj;
-	::Orocos::MethodInterface_var mMFact;
-	::Orocos::CommandInterface_var mCFact;
+	::RTT::Corba::MethodInterface_var mMFact;
+	::RTT::Corba::CommandInterface_var mCFact;
 public:
   //Constructor 
   Orocos_ControlObject_i (RTT::OperationInterface* orig);
@@ -100,7 +100,7 @@ public:
     ));
   
   virtual
-  ::Orocos::MethodInterface_ptr methods (
+  ::RTT::Corba::MethodInterface_ptr methods (
       
     )
     ACE_THROW_SPEC ((
@@ -108,7 +108,7 @@ public:
     ));
   
   virtual
-  ::Orocos::CommandInterface_ptr commands (
+  ::RTT::Corba::CommandInterface_ptr commands (
       
     )
     ACE_THROW_SPEC ((
@@ -117,14 +117,14 @@ public:
 };
 
 class  Orocos_ControlTask_i 
-: public virtual POA_Orocos::ControlTask, public virtual PortableServer::RefCountServantBase,
+: public virtual POA_RTT::Corba::ControlTask, public virtual PortableServer::RefCountServantBase,
   public Orocos_ControlObject_i
 {
 protected:
     RTT::TaskContext* mtask;
 	::CosPropertyService::PropertySet_var mCosProps;
-	::Orocos::AttributeInterface_var mAttrs;
-	::Orocos::ScriptingAccess_var mEEFact;
+	::RTT::Corba::AttributeInterface_var mAttrs;
+	::RTT::Corba::ScriptingAccess_var mEEFact;
 public:
   //Constructor 
   Orocos_ControlTask_i (RTT::TaskContext* orig);
@@ -143,7 +143,7 @@ public:
     ));
   
   virtual
-  ::Orocos::AttributeInterface_ptr attributes (
+  ::RTT::Corba::AttributeInterface_ptr attributes (
       
     )
     ACE_THROW_SPEC ((
@@ -151,7 +151,7 @@ public:
     ));
   
   virtual
-  ::Orocos::ScriptingAccess_ptr scripting (
+  ::RTT::Corba::ScriptingAccess_ptr scripting (
       
     )
     ACE_THROW_SPEC ((
@@ -159,13 +159,13 @@ public:
     ));
   
   virtual
-  ::Orocos::ObjectList* getObjectList()
+  ::RTT::Corba::ObjectList* getObjectList()
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
   
   virtual
-  ::Orocos::ControlObject* getObject(const char*)
+  ::RTT::Corba::ControlObject* getObject(const char*)
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
@@ -177,7 +177,7 @@ public:
     ));
 
   virtual
-  ::Orocos::ControlTask::ControlTaskNames * getPeerList (
+  ::RTT::Corba::ControlTask::ControlTaskNames * getPeerList (
       
     )
     ACE_THROW_SPEC ((
@@ -185,7 +185,7 @@ public:
     ));
   
   virtual
-  ::Orocos::ControlTask_ptr getPeer (
+  ::RTT::Corba::ControlTask_ptr getPeer (
       const char * name
     )
     ACE_THROW_SPEC ((
@@ -194,7 +194,7 @@ public:
   
   virtual
   CORBA::Boolean addPeer (
-      ::Orocos::ControlTask_ptr p,
+      ::RTT::Corba::ControlTask_ptr p,
       const char * alias
     )
     ACE_THROW_SPEC ((
@@ -219,7 +219,7 @@ public:
   
   virtual
   CORBA::Boolean connectPeers (
-      ::Orocos::ControlTask_ptr p
+      ::RTT::Corba::ControlTask_ptr p
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException

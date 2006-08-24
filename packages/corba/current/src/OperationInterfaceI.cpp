@@ -28,12 +28,9 @@
 // TAO_IDL - Generated from 
 // be/be_codegen.cpp:910
 
-#include "rtt/corba/FactoriesI.h"
-#include "rtt/corba/ExecutionI.h"
+#include "rtt/corba/OperationInterfaceI.h"
+#include "rtt/corba/OperationsI.h"
 #include "rtt/OperationFactory.hpp"
-
-using namespace Orocos;
-
 
 using namespace RTT;
 using namespace RTT::Corba;
@@ -50,7 +47,7 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
 {
 }
 
-::Orocos::MethodList * Orocos_MethodInterface_i::getMethods (
+::RTT::Corba::MethodList * Orocos_MethodInterface_i::getMethods (
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -65,17 +62,17 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
     return rlist._retn();
 }
 
-::Orocos::Descriptions * Orocos_MethodInterface_i::getArguments (
+::RTT::Corba::Descriptions * Orocos_MethodInterface_i::getArguments (
       const char* method
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-      ,Orocos::NoSuchNameException
+      ,::RTT::Corba::NoSuchNameException
       ))
 {
     Descriptions_var ret = new Descriptions();
     if ( mfact->hasMember( string( method ) ) == false )
-        throw Orocos::NoSuchNameException( method );
+        throw ::RTT::Corba::NoSuchNameException( method );
     // method found, convert args:
     MethodFactory::Descriptions args = mfact->getArgumentList( string(method) );
     ret->length( args.size() );
@@ -92,11 +89,11 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-      ,Orocos::NoSuchNameException
+      ,::RTT::Corba::NoSuchNameException
     ))
 {
     if ( mfact->hasMember( string( method ) ) == false )
-        throw Orocos::NoSuchNameException( method );
+        throw ::RTT::Corba::NoSuchNameException( method );
     return CORBA::string_dup( mfact->getResultType( string(method) ).c_str() );
 }
   
@@ -105,27 +102,27 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-      ,Orocos::NoSuchNameException
+      ,::RTT::Corba::NoSuchNameException
     ))
 {
     if ( mfact->hasMember( string( method ) ) == false )
-        throw Orocos::NoSuchNameException( method );
+        throw ::RTT::Corba::NoSuchNameException( method );
     return CORBA::string_dup( mfact->getDescription( string(method) ).c_str() );
 }
 
-::Orocos::Method_ptr Orocos_MethodInterface_i::createMethod (
+::RTT::Corba::Method_ptr Orocos_MethodInterface_i::createMethod (
     const char * method,
-    const ::Orocos::Arguments& args
+    const ::RTT::Corba::Arguments& args
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
-    ,Orocos::NoSuchNameException
-    ,Orocos::WrongNumbArgException
-    ,Orocos::WrongTypeArgException
+    ,::RTT::Corba::NoSuchNameException
+    ,::RTT::Corba::WrongNumbArgException
+    ,::RTT::Corba::WrongTypeArgException
   ))
 {
     if ( mfact->hasMember( string( method ) ) == false )
-        throw Orocos::NoSuchNameException( method );
+        throw ::RTT::Corba::NoSuchNameException( method );
     // convert Corba args to C++ args.
     MethodFactory::Arguments nargs;
     nargs.reserve( args.length() );
@@ -135,28 +132,28 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
     try {
         return mfact->produce(method, nargs )->method();
     } catch ( name_not_found_exception& nnf ) {
-        throw Orocos::NoSuchNameException( method );
+        throw ::RTT::Corba::NoSuchNameException( method );
     } catch ( wrong_number_of_args_exception& wna ) {
-        throw Orocos::WrongNumbArgException( wna.wanted, wna.received );
+        throw ::RTT::Corba::WrongNumbArgException( wna.wanted, wna.received );
     } catch (wrong_types_of_args_exception& wta ) {
-        throw Orocos::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
+        throw ::RTT::Corba::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
     }
-    return Orocos::Method::_nil();
+    return ::RTT::Corba::Method::_nil();
 }
 
-::Orocos::Method_ptr Orocos_MethodInterface_i::createMethodAny (
+::RTT::Corba::Method_ptr Orocos_MethodInterface_i::createMethodAny (
     const char * method,
-    const ::Orocos::AnyArguments& args
+    const ::RTT::Corba::AnyArguments& args
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
-    ,Orocos::NoSuchNameException
-    ,Orocos::WrongNumbArgException
-    ,Orocos::WrongTypeArgException
+    ,::RTT::Corba::NoSuchNameException
+    ,::RTT::Corba::WrongNumbArgException
+    ,::RTT::Corba::WrongTypeArgException
   ))
 {
     if ( mfact->hasMember( string( method ) ) == false )
-        throw Orocos::NoSuchNameException( method );
+        throw ::RTT::Corba::NoSuchNameException( method );
     // convert Corba args to C++ args.
     MethodFactory::Arguments nargs;
     nargs.reserve( args.length() );
@@ -166,13 +163,13 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
     try {
         return mfact->produce(method, nargs )->method();
     } catch ( name_not_found_exception& nnf ) {
-        throw Orocos::NoSuchNameException( method );
+        throw ::RTT::Corba::NoSuchNameException( method );
     } catch ( wrong_number_of_args_exception& wna ) {
-        throw Orocos::WrongNumbArgException( wna.wanted, wna.received );
+        throw ::RTT::Corba::WrongNumbArgException( wna.wanted, wna.received );
     } catch (wrong_types_of_args_exception& wta ) {
-        throw Orocos::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
+        throw ::RTT::Corba::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
     }
-    return Orocos::Method::_nil();
+    return ::RTT::Corba::Method::_nil();
 }
 
 // Implementation skeleton constructor
@@ -186,7 +183,7 @@ Orocos_CommandInterface_i::~Orocos_CommandInterface_i (void)
 {
 }
 
-::Orocos::CommandList * Orocos_CommandInterface_i::getCommands (
+::RTT::Corba::CommandList * Orocos_CommandInterface_i::getCommands (
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -200,17 +197,17 @@ Orocos_CommandInterface_i::~Orocos_CommandInterface_i (void)
     return rlist._retn();
 }
 
-::Orocos::Descriptions * Orocos_CommandInterface_i::getArguments (
+::RTT::Corba::Descriptions * Orocos_CommandInterface_i::getArguments (
       const char* command
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchNameException
+    ,::RTT::Corba::NoSuchNameException
     ))
 {
     Descriptions_var ret = new Descriptions();
     if ( mfact->hasMember( string( command ) ) == false )
-        throw Orocos::NoSuchNameException( command );
+        throw ::RTT::Corba::NoSuchNameException( command );
     // method found, convert args:
     CommandFactory::Descriptions args = mfact->getArgumentList( string(command) );
     ret->length( args.size() );
@@ -228,11 +225,11 @@ Orocos_CommandInterface_i::~Orocos_CommandInterface_i (void)
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchNameException
+    ,::RTT::Corba::NoSuchNameException
     ))
 {
     if ( mfact->hasMember( string( command ) ) == false )
-        throw Orocos::NoSuchNameException( command );
+        throw ::RTT::Corba::NoSuchNameException( command );
     return CORBA::string_dup( mfact->getResultType( string(command) ).c_str() );
 }
   
@@ -241,28 +238,28 @@ Orocos_CommandInterface_i::~Orocos_CommandInterface_i (void)
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchNameException
+    ,::RTT::Corba::NoSuchNameException
     ))
 {
     if ( mfact->hasMember( string( command ) ) == false )
-        throw Orocos::NoSuchNameException( command );
+        throw ::RTT::Corba::NoSuchNameException( command );
     return CORBA::string_dup( mfact->getDescription( string(command) ).c_str() );
 }
 
-::Orocos::Command_ptr Orocos_CommandInterface_i::createCommand (
+::RTT::Corba::Command_ptr Orocos_CommandInterface_i::createCommand (
     const char * command,
-    const ::Orocos::Arguments& args
+    const ::RTT::Corba::Arguments& args
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
-    ,Orocos::NoSuchNameException
-    ,Orocos::WrongNumbArgException
-    ,Orocos::WrongTypeArgException
+    ,::RTT::Corba::NoSuchNameException
+    ,::RTT::Corba::WrongNumbArgException
+    ,::RTT::Corba::WrongTypeArgException
   ))
 {
   // Add your implementation here
     if ( mfact->hasMember( string( command ) ) == false )
-        throw Orocos::NoSuchNameException( command );
+        throw ::RTT::Corba::NoSuchNameException( command );
     // convert Corba args to C++ args.
     // Use CommandC:
     try {
@@ -273,29 +270,29 @@ Orocos_CommandInterface_i::~Orocos_CommandInterface_i (void)
         Orocos_Command_i* com = new Orocos_Command_i( comc );
         return com->_this();
     } catch ( name_not_found_exception& nnf ) {
-        throw Orocos::NoSuchNameException( command );
+        throw ::RTT::Corba::NoSuchNameException( command );
     } catch ( wrong_number_of_args_exception& wna ) {
-        throw Orocos::WrongNumbArgException( wna.wanted, wna.received );
+        throw ::RTT::Corba::WrongNumbArgException( wna.wanted, wna.received );
     } catch (wrong_types_of_args_exception& wta ) {
-        throw Orocos::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
+        throw ::RTT::Corba::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
     }
-    return ::Orocos::Command::_nil();
+    return ::RTT::Corba::Command::_nil();
 }
 
-::Orocos::Command_ptr Orocos_CommandInterface_i::createCommandAny (
+::RTT::Corba::Command_ptr Orocos_CommandInterface_i::createCommandAny (
     const char * command,
-    const ::Orocos::AnyArguments& args
+    const ::RTT::Corba::AnyArguments& args
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
-    ,Orocos::NoSuchNameException
-    ,Orocos::WrongNumbArgException
-    ,Orocos::WrongTypeArgException
+    ,::RTT::Corba::NoSuchNameException
+    ,::RTT::Corba::WrongNumbArgException
+    ,::RTT::Corba::WrongTypeArgException
   ))
 {
   // Add your implementation here
     if ( mfact->hasMember( string( command ) ) == false )
-        throw Orocos::NoSuchNameException( command );
+        throw ::RTT::Corba::NoSuchNameException( command );
     // convert Corba args to C++ args.
     // Use CommandC:
     try {
@@ -306,12 +303,12 @@ Orocos_CommandInterface_i::~Orocos_CommandInterface_i (void)
         Orocos_Command_i* com = new Orocos_Command_i( comc );
         return com->_this();
     } catch ( name_not_found_exception& nnf ) {
-        throw Orocos::NoSuchNameException( command );
+        throw ::RTT::Corba::NoSuchNameException( command );
     } catch ( wrong_number_of_args_exception& wna ) {
-        throw Orocos::WrongNumbArgException( wna.wanted, wna.received );
+        throw ::RTT::Corba::WrongNumbArgException( wna.wanted, wna.received );
     } catch (wrong_types_of_args_exception& wta ) {
-        throw Orocos::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
+        throw ::RTT::Corba::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
     }
-    return ::Orocos::Command::_nil();
+    return ::RTT::Corba::Command::_nil();
 }
 

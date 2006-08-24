@@ -30,7 +30,7 @@
 #define ORO_CORBA_EXPRESSIONPROXY_HPP
 
 #include "../DataSource.hpp"
-#include "ExecutionC.h"
+#include "OperationsC.h"
 #include "CORBAExpression.hpp"
 #include "../Logger.hpp"
 #include "../DataSources.hpp"
@@ -46,16 +46,16 @@ namespace RTT
         : public DataSourceBase
     {
     protected:
-        static std::map<Orocos::Expression_ptr, ExpressionProxy*> proxies;
-        static std::map<Orocos::Expression_ptr, DataSourceBase*> dproxies;
+        static std::map<Corba::Expression_ptr, ExpressionProxy*> proxies;
+        static std::map<Corba::Expression_ptr, DataSourceBase*> dproxies;
 
         /**
          * Private constructor which creates a new connection to
          * a corba object
          */
-        ExpressionProxy( ::Orocos::Expression_ptr t );
+        ExpressionProxy( ::RTT::Corba::Expression_ptr t );
 
-        Orocos::Expression_var mdata;
+        Corba::Expression_var mdata;
 
     public:
 
@@ -64,14 +64,14 @@ namespace RTT
          * @param expr The Object to connect to.
          * @return A new or previously created CORBA proxy for \a expr.
          */
-        static ExpressionProxy* Create(::Orocos::Expression_ptr expr);
+        static ExpressionProxy* Create(::RTT::Corba::Expression_ptr expr);
 
         /**
          * Factory method: create a DataSource to an existing Expression Object.
          * @param expr The Object to connect to.
          * @return A new or previously created DataSource for \a expr.
          */
-        static DataSourceBase* CreateDataSource(::Orocos::Expression_ptr expr);
+        static DataSourceBase* CreateDataSource(::RTT::Corba::Expression_ptr expr);
 
 
         /**
@@ -81,7 +81,7 @@ namespace RTT
          * @return 0 if the Expression is not convertible to T.
          */
         template<class T>
-        static DataSource<T>* NarrowDataSource(::Orocos::Expression_ptr expr) {
+        static DataSource<T>* NarrowDataSource(::RTT::Corba::Expression_ptr expr) {
             
             CORBA::Any_var any = expr->value();
             typename DataSource<T>::value_t target = typename DataSource<T>::value_t();
@@ -113,9 +113,9 @@ namespace RTT
          * @return 0 if the Expression is not convertible to T.
          */
         template<class T>
-        static AssignableDataSource<T>* NarrowAssignableDataSource( ::Orocos::Expression_ptr expr) {
+        static AssignableDataSource<T>* NarrowAssignableDataSource( ::RTT::Corba::Expression_ptr expr) {
             
-            Orocos::AssignableExpression_var ret = Orocos::AssignableExpression::_narrow( expr );
+            Corba::AssignableExpression_var ret = Corba::AssignableExpression::_narrow( expr );
             if ( ret ) {
                 CORBA::Any_var any = ret->value();
                 typename DataSource<T>::value_t target = typename DataSource<T>::value_t();
@@ -161,7 +161,7 @@ namespace RTT
          * This object universally identifies the remote Expression Object
          * and can be used to tell other (remote) objects where to find it.
          */
-        //virtual Orocos::Expression_ptr createExpression() const;
+        //virtual Corba::Expression_ptr createExpression() const;
 
         virtual bool hasServer() const
         {
@@ -195,12 +195,12 @@ namespace RTT
             return mdata->get();
         }
 
-        virtual Orocos::Expression_ptr server() { return Orocos::Expression::_duplicate(mdata.in()); }
+        virtual Corba::Expression_ptr server() { return Corba::Expression::_duplicate(mdata.in()); }
 
-        virtual Orocos::Expression_ptr server() const { return Orocos::Expression::_duplicate(mdata.in()); }
+        virtual Corba::Expression_ptr server() const { return Corba::Expression::_duplicate(mdata.in()); }
 
-        virtual Orocos::Method_ptr method() {
-            return Orocos::Method::_narrow( mdata.in() );
+        virtual Corba::Method_ptr method() {
+            return Corba::Method::_narrow( mdata.in() );
         }
 
     private:

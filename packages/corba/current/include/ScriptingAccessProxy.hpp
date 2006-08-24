@@ -40,14 +40,14 @@ namespace RTT
      * A Corba Proxy for the ScriptingAccess class.
      */
     class ScriptingAccessProxy
-        : public ScriptingAccess
+        : public RTT::ScriptingAccess
     {
     protected:
-        Orocos::ScriptingAccess_var msa;
+        Corba::ScriptingAccess_var msa;
     public:
-        ScriptingAccessProxy( Orocos::ScriptingAccess_ptr sa )
+        ScriptingAccessProxy( Corba::ScriptingAccess_ptr sa )
             : ScriptingAccess( 0 ),
-              msa( Orocos::ScriptingAccess::_duplicate( sa ) )
+              msa( Corba::ScriptingAccess::_duplicate( sa ) )
         {}
         
         virtual ~ScriptingAccessProxy();

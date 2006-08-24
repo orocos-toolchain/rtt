@@ -40,17 +40,17 @@ namespace RTT
     bool AnyConversion<PropertyBag>::update(const CORBA::Any& any, StdType& _value) {
         Logger::In in("AnyConversion<PropertyBag>");
         //Logger::In in("AnyConversion");
-        Orocos::AttributeInterface_ptr attrs;
+        Corba::AttributeInterface_ptr attrs;
         // non deep copy:
         if ( any >>= attrs ) {
             Logger::log() << Logger::Debug << "Populating PropertyBag with AttributeInterface Properties." <<Logger::endl;
-            Orocos::AttributeInterface::PropertyNames_var props = attrs->getPropertyList();
+            Corba::AttributeInterface::PropertyNames_var props = attrs->getPropertyList();
 
             for (size_t i=0; i != props->length(); ++i) {
                 if ( _value.find( std::string(props[i].name.in()) ) )
                     continue; // previously added.
                 Logger::log() << Logger::Debug << "  Adding "<< string(props[i].name.in() ) <<Logger::endl;
-                Orocos::Expression_var expr = attrs->getProperty( props[i].name.in() );
+                Corba::Expression_var expr = attrs->getProperty( props[i].name.in() );
                 if ( CORBA::is_nil( expr ) ) {
                     Logger::log() <<Logger::Error <<"Property "<< std::string(props[i].name.in()) << " present in getPropertyList() but not accessible."<<Logger::endl;
                     continue; 
@@ -66,7 +66,7 @@ namespace RTT
                     continue;
                 }
 #endif
-                Orocos::AssignableExpression_var as_expr = Orocos::AssignableExpression::_narrow( expr.in() );
+                Corba::AssignableExpression_var as_expr = Corba::AssignableExpression::_narrow( expr.in() );
                 if ( CORBA::is_nil( as_expr ) ) {
                     Logger::log() <<Logger::Error <<"Property "<< std::string(props[i].name.in()) << " was not writable !"<<Logger::endl;
                 } else {
@@ -93,7 +93,7 @@ namespace RTT
     CORBA::Any_ptr AnyConversion<PropertyBag>::createAny( StdType t ) {
         Logger::log() << Logger::Debug << "Creating PropertyBag Server." <<Logger::endl;
         Orocos_AttributeInterface_i* attrs = new Orocos_AttributeInterface_i( new PropertyBag(t) );
-        Orocos::AttributeInterface_ptr server = attrs->_this();
+        Corba::AttributeInterface_ptr server = attrs->_this();
         CORBA::Any_ptr any = new CORBA::Any();
         *any <<= server;
         return any;

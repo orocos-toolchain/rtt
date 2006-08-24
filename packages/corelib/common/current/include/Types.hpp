@@ -40,7 +40,7 @@ namespace CORBA{
     class Any;
 }
 
-namespace Orocos {
+namespace Corba {
     class Expression;
 }
 
@@ -166,7 +166,7 @@ namespace RTT
         /**
          * Create a DataSource which is a proxy for a Corba Expression object.
          */
-        virtual DataSourceBase* buildCorbaProxy( Orocos::Expression* e ) const = 0;
+        virtual DataSourceBase* buildCorbaProxy( Corba::Expression* e ) const = 0;
 
         /**
          * Return unique the type name.

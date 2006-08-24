@@ -28,7 +28,7 @@
  
 
 #include <rtt/Types.hpp>
-#include "rtt/corba/ExecutionI.h"
+#include "rtt/corba/OperationsI.h"
 #include "rtt/corba/ExpressionProxy.hpp"
 #include <iostream>
 
@@ -42,11 +42,11 @@ namespace RTT
     
     
 
-    std::map<Orocos::Expression_ptr, ExpressionProxy*> ExpressionProxy::proxies;
-    std::map<Orocos::Expression_ptr, DataSourceBase*> ExpressionProxy::dproxies;
+    std::map<Corba::Expression_ptr, ExpressionProxy*> ExpressionProxy::proxies;
+    std::map<Corba::Expression_ptr, DataSourceBase*> ExpressionProxy::dproxies;
 
-    ExpressionProxy::ExpressionProxy( ::Orocos::Expression_ptr e) 
-        : mdata( ::Orocos::Expression::_duplicate(e) )
+    ExpressionProxy::ExpressionProxy( ::RTT::Corba::Expression_ptr e) 
+        : mdata( ::RTT::Corba::Expression::_duplicate(e) )
     {
         try {
             CORBA::String_var nm = mdata->getType(); // force connect to object.
@@ -60,7 +60,7 @@ namespace RTT
         }
     }
 
-    ExpressionProxy* ExpressionProxy::Create(::Orocos::Expression_ptr t) {
+    ExpressionProxy* ExpressionProxy::Create(::RTT::Corba::Expression_ptr t) {
         if ( CORBA::is_nil( t ) )
             return 0;
 
@@ -74,7 +74,7 @@ namespace RTT
         return ctp;
     }
 
-    DataSourceBase* ExpressionProxy::CreateDataSource(::Orocos::Expression_ptr t) {
+    DataSourceBase* ExpressionProxy::CreateDataSource(::RTT::Corba::Expression_ptr t) {
         if ( CORBA::is_nil( t ) )
             return 0;
 
@@ -96,9 +96,9 @@ namespace RTT
     }
 
 
-//     Orocos::Expression_ptr ExpressionProxy::createExpression() const
+//     Corba::Expression_ptr ExpressionProxy::createExpression() const
 //     {
-//         return Orocos::Expression::_duplicate( mdata.in() );
+//         return Corba::Expression::_duplicate( mdata.in() );
 //     }
 
 }}

@@ -59,14 +59,14 @@
 #ifndef FACTORIESI_H_
 #define FACTORIESI_H_
 
-#include "FactoriesS.h"
+#include "OperationInterfaceS.h"
 #include "../OperationInterface.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-class  Orocos_MethodInterface_i : public virtual POA_Orocos::MethodInterface, public virtual PortableServer::RefCountServantBase
+class  Orocos_MethodInterface_i : public virtual POA_RTT::Corba::MethodInterface, public virtual PortableServer::RefCountServantBase
 {
     RTT::MethodFactory* mfact;
 public:
@@ -77,19 +77,19 @@ public:
   virtual ~Orocos_MethodInterface_i (void);
   
   virtual
-  ::Orocos::MethodList * getMethods (
+  ::RTT::Corba::MethodList * getMethods (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
   
   virtual
-  ::Orocos::Descriptions * getArguments (
+  ::RTT::Corba::Descriptions * getArguments (
       const char* method
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-      ,Orocos::NoSuchNameException
+      ,::RTT::Corba::NoSuchNameException
     ));
   
   virtual
@@ -98,7 +98,7 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-      ,Orocos::NoSuchNameException
+      ,::RTT::Corba::NoSuchNameException
     ));
   
   virtual
@@ -107,35 +107,35 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-      ,Orocos::NoSuchNameException
+      ,::RTT::Corba::NoSuchNameException
     ));
   
   virtual
-  ::Orocos::Method_ptr createMethod (
+  ::RTT::Corba::Method_ptr createMethod (
       const char * method,
-      const ::Orocos::Arguments& args
+      const ::RTT::Corba::Arguments& args
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchNameException
-    ,Orocos::WrongNumbArgException
-    ,Orocos::WrongTypeArgException
+    ,::RTT::Corba::NoSuchNameException
+    ,::RTT::Corba::WrongNumbArgException
+    ,::RTT::Corba::WrongTypeArgException
     ));
 
   virtual
-  ::Orocos::Method_ptr createMethodAny (
+  ::RTT::Corba::Method_ptr createMethodAny (
       const char * method,
-      const ::Orocos::AnyArguments& args
+      const ::RTT::Corba::AnyArguments& args
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchNameException
-    ,Orocos::WrongNumbArgException
-    ,Orocos::WrongTypeArgException
+    ,::RTT::Corba::NoSuchNameException
+    ,::RTT::Corba::WrongNumbArgException
+    ,::RTT::Corba::WrongTypeArgException
     ));
 };
 
-class  Orocos_CommandInterface_i : public virtual POA_Orocos::CommandInterface, public virtual PortableServer::RefCountServantBase
+class  Orocos_CommandInterface_i : public virtual POA_RTT::Corba::CommandInterface, public virtual PortableServer::RefCountServantBase
 {
     RTT::CommandFactory* mfact;
 public:
@@ -146,19 +146,19 @@ public:
   virtual ~Orocos_CommandInterface_i (void);
   
   virtual
-  ::Orocos::CommandList * getCommands (
+  ::RTT::Corba::CommandList * getCommands (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
 
   virtual
-  ::Orocos::Descriptions * getArguments (
+  ::RTT::Corba::Descriptions * getArguments (
       const char* command
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchNameException
+    ,::RTT::Corba::NoSuchNameException
     ));
   
   virtual
@@ -167,7 +167,7 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchNameException
+    ,::RTT::Corba::NoSuchNameException
     ));
   
   virtual
@@ -176,31 +176,31 @@ public:
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchNameException
+    ,::RTT::Corba::NoSuchNameException
     ));
   
   virtual
-  ::Orocos::Command_ptr createCommand (
+  ::RTT::Corba::Command_ptr createCommand (
       const char * command,
-      const ::Orocos::Arguments& args
+      const ::RTT::Corba::Arguments& args
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchNameException
-    ,Orocos::WrongNumbArgException
-    ,Orocos::WrongTypeArgException
+    ,::RTT::Corba::NoSuchNameException
+    ,::RTT::Corba::WrongNumbArgException
+    ,::RTT::Corba::WrongTypeArgException
     ));
   
   virtual
-  ::Orocos::Command_ptr createCommandAny (
+  ::RTT::Corba::Command_ptr createCommandAny (
       const char * command,
-      const ::Orocos::AnyArguments& args
+      const ::RTT::Corba::AnyArguments& args
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-    ,Orocos::NoSuchNameException
-    ,Orocos::WrongNumbArgException
-    ,Orocos::WrongTypeArgException
+    ,::RTT::Corba::NoSuchNameException
+    ,::RTT::Corba::WrongNumbArgException
+    ,::RTT::Corba::WrongTypeArgException
     ));
 };
 

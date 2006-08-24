@@ -54,7 +54,7 @@ void Orocos_ExecutionEngine_i::loadPrograms (
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException,
-    ::Orocos::ExecutionEngine::LoadException
+    ::RTT::Corba::ExecutionEngine::LoadException
   ))
 {
     ProgramLoader loader(true);
@@ -63,9 +63,9 @@ void Orocos_ExecutionEngine_i::loadPrograms (
         loader.loadProgram( input, mee.getTaskContext(), filename );
     }
     catch (program_load_exception &ple) {
-        throw Orocos::ExecutionEngine::LoadException( ple.what() );
+        throw Corba::ExecutionEngine::LoadException( ple.what() );
     } catch(file_parse_exception &fpe) {
-        throw Orocos::ExecutionEngine::LoadException( fpe.what().c_str() );
+        throw Corba::ExecutionEngine::LoadException( fpe.what().c_str() );
     }
 }
 
@@ -74,7 +74,7 @@ void Orocos_ExecutionEngine_i::unloadProgram (
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException,
-    ::Orocos::ExecutionEngine::LoadException
+    ::RTT::Corba::ExecutionEngine::LoadException
   ))
 {
     ProgramLoader loader(true);
@@ -82,11 +82,11 @@ void Orocos_ExecutionEngine_i::unloadProgram (
         loader.unloadProgram( name, mee.getTaskContext() );
     }
     catch (program_unload_exception &ple) {
-        throw Orocos::ExecutionEngine::LoadException( ple.what() );
+        throw Corba::ExecutionEngine::LoadException( ple.what() );
     }
 }
 
-::Orocos::ExecutionEngine::ProgramNames * Orocos_ExecutionEngine_i::getPrograms (
+::RTT::Corba::ExecutionEngine::ProgramNames * Orocos_ExecutionEngine_i::getPrograms (
     
   )
   ACE_THROW_SPEC ((
@@ -94,7 +94,7 @@ void Orocos_ExecutionEngine_i::unloadProgram (
   ))
 {
     std::vector<std::string> vlist = mee.programs()->getProgramList();
-    ::Orocos::ExecutionEngine::ProgramNames_var result = new ::Orocos::ExecutionEngine::ProgramNames( vlist.size() );
+    ::RTT::Corba::ExecutionEngine::ProgramNames_var result = new ::RTT::Corba::ExecutionEngine::ProgramNames( vlist.size() );
     for (unsigned int i=0; i != vlist.size(); ++i )
         result[i] = CORBA::string_dup( vlist[i].c_str() );
     return result._retn();
@@ -142,7 +142,7 @@ void Orocos_ExecutionEngine_i::loadStateMachines (
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException,
-    ::Orocos::ExecutionEngine::LoadException
+    ::RTT::Corba::ExecutionEngine::LoadException
   ))
 {
     ProgramLoader loader(true);
@@ -151,9 +151,9 @@ void Orocos_ExecutionEngine_i::loadStateMachines (
         loader.loadStateMachine( input, mee.getTaskContext(), filename );
     }
     catch (program_load_exception &ple) {
-        throw Orocos::ExecutionEngine::LoadException( ple.what() );
+        throw Corba::ExecutionEngine::LoadException( ple.what() );
     } catch(file_parse_exception &fpe) {
-        throw Orocos::ExecutionEngine::LoadException( fpe.what().c_str() );
+        throw Corba::ExecutionEngine::LoadException( fpe.what().c_str() );
     }
 }
 
@@ -162,7 +162,7 @@ void Orocos_ExecutionEngine_i::unloadStateMachine (
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException,
-    ::Orocos::ExecutionEngine::LoadException
+    ::RTT::Corba::ExecutionEngine::LoadException
   ))
 {
     ProgramLoader loader(true);
@@ -170,11 +170,11 @@ void Orocos_ExecutionEngine_i::unloadStateMachine (
         loader.unloadStateMachine( name, mee.getTaskContext() );
     }
     catch (program_unload_exception &ple) {
-        throw Orocos::ExecutionEngine::LoadException( ple.what() );
+        throw Corba::ExecutionEngine::LoadException( ple.what() );
     }
 }
 
-::Orocos::ExecutionEngine::StateMachineNames * Orocos_ExecutionEngine_i::getStateMachines (
+::RTT::Corba::ExecutionEngine::StateMachineNames * Orocos_ExecutionEngine_i::getStateMachines (
     
   )
   ACE_THROW_SPEC ((
@@ -183,7 +183,7 @@ void Orocos_ExecutionEngine_i::unloadStateMachine (
 {
   // Add your implementation here
     std::vector<std::string> vlist = mee.states()->getStateMachineList();
-    ::Orocos::ExecutionEngine::StateMachineNames_var result = new ::Orocos::ExecutionEngine::StateMachineNames( vlist.size() );
+    ::RTT::Corba::ExecutionEngine::StateMachineNames_var result = new ::RTT::Corba::ExecutionEngine::StateMachineNames( vlist.size() );
     for (unsigned int i=0; i != vlist.size(); ++i )
         result[i] = CORBA::string_dup( vlist[i].c_str() );
     return result._retn();

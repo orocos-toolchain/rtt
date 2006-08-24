@@ -33,7 +33,8 @@
 #include "rtt/corba/ControlTaskProxy.hpp"
 #include "rtt/corba/CosPropertyServiceI.h"
 #include "rtt/corba/AttributesI.h"
-#include "rtt/corba/FactoriesI.h"
+#include "rtt/corba/OperationsI.h"
+#include "rtt/corba/OperationInterfaceI.h"
 #include "rtt/corba/ScriptingAccessI.h"
 #include "rtt/Method.hpp"
 
@@ -76,7 +77,7 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
     return ret._retn();
 }
 
-::Orocos::MethodInterface_ptr Orocos_ControlObject_i::methods (
+::RTT::Corba::MethodInterface_ptr Orocos_ControlObject_i::methods (
     
   )
   ACE_THROW_SPEC ((
@@ -88,10 +89,10 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
         Orocos_MethodInterface_i* mserv = new Orocos_MethodInterface_i( mobj->methods() );
         mMFact = mserv->_this();
     }
-    return Orocos::MethodInterface::_duplicate( mMFact.in() );
+    return MethodInterface::_duplicate( mMFact.in() );
 }
 
-::Orocos::CommandInterface_ptr Orocos_ControlObject_i::commands (
+::RTT::Corba::CommandInterface_ptr Orocos_ControlObject_i::commands (
     
   )
   ACE_THROW_SPEC ((
@@ -103,7 +104,7 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
         Orocos_CommandInterface_i* mserv = new Orocos_CommandInterface_i( mobj->commands() );
         mCFact = mserv->_this();
     }
-    return Orocos::CommandInterface::_duplicate( mCFact.in() );
+    return ::RTT::Corba::CommandInterface::_duplicate( mCFact.in() );
 }
 
 
@@ -144,7 +145,7 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
     return PropertySet::_duplicate( mCosProps.in() );
 }
 
-::Orocos::AttributeInterface_ptr Orocos_ControlTask_i::attributes (
+::RTT::Corba::AttributeInterface_ptr Orocos_ControlTask_i::attributes (
     
   )
   ACE_THROW_SPEC ((
@@ -156,7 +157,7 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
         Orocos_AttributeInterface_i* attrs = new Orocos_AttributeInterface_i( mtask->attributes() );
         mAttrs = attrs->_this();
     }
-    return Orocos::AttributeInterface::_duplicate( mAttrs.in() );
+    return AttributeInterface::_duplicate( mAttrs.in() );
 #if 0
     // create and activate servant.
     if ( CORBA::is_nil( mCosAttrs) ) {
@@ -169,7 +170,7 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
 }
 
 
-::Orocos::ScriptingAccess_ptr Orocos_ControlTask_i::scripting (
+::RTT::Corba::ScriptingAccess_ptr Orocos_ControlTask_i::scripting (
     
   )
   ACE_THROW_SPEC ((
@@ -181,11 +182,11 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
         Orocos_ScriptingAccess_i* mserv = new Orocos_ScriptingAccess_i( mtask->scripting() );
         mEEFact = mserv->_this();
     }
-    return Orocos::ScriptingAccess::_duplicate( mEEFact.in() );
+    return ::RTT::Corba::ScriptingAccess::_duplicate( mEEFact.in() );
 }
 
 
-::Orocos::ControlTask::ControlTaskNames * Orocos_ControlTask_i::getPeerList (
+::RTT::Corba::ControlTask::ControlTaskNames * Orocos_ControlTask_i::getPeerList (
     
   )
   ACE_THROW_SPEC ((
@@ -193,7 +194,7 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
   ))
 {
     TaskContext::PeerList peers = mtask->getPeerList();
-    ::Orocos::ControlTask::ControlTaskNames_var result = new ::Orocos::ControlTask::ControlTaskNames();
+    ::RTT::Corba::ControlTask::ControlTaskNames_var result = new ::RTT::Corba::ControlTask::ControlTaskNames();
     result->length( peers.size() );
     for (unsigned int i=0; i != peers.size(); ++i )
         result[i] = CORBA::string_dup( peers[i].c_str() );
@@ -201,7 +202,7 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
     return result._retn();
 }
 
-::Orocos::ControlObject_ptr Orocos_ControlTask_i::getObject (
+::RTT::Corba::ControlObject_ptr Orocos_ControlTask_i::getObject (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -219,7 +220,7 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
 }
 
 
-::Orocos::ObjectList * Orocos_ControlTask_i::getObjectList (
+::RTT::Corba::ObjectList * Orocos_ControlTask_i::getObjectList (
     
   )
   ACE_THROW_SPEC ((
@@ -227,7 +228,7 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
   ))
 {
     TaskContext::ObjectList objects = mtask->getObjectList();
-    ::Orocos::ObjectList_var result = new ::Orocos::ObjectList();
+    ::RTT::Corba::ObjectList_var result = new ::RTT::Corba::ObjectList();
     result->length( objects.size() );
     for (unsigned int i=0; i != objects.size(); ++i )
         result[i] = CORBA::string_dup( objects[i].c_str() );
@@ -247,7 +248,7 @@ CORBA::Boolean Orocos_ControlTask_i::hasObject (
 }
 
 
-::Orocos::ControlTask_ptr Orocos_ControlTask_i::getPeer (
+::RTT::Corba::ControlTask_ptr Orocos_ControlTask_i::getPeer (
     const char * name
   )
   ACE_THROW_SPEC ((
@@ -264,7 +265,7 @@ CORBA::Boolean Orocos_ControlTask_i::hasObject (
 }
 
 CORBA::Boolean Orocos_ControlTask_i::addPeer (
-    ::Orocos::ControlTask_ptr p,
+    ::RTT::Corba::ControlTask_ptr p,
     const char * alias
   )
   ACE_THROW_SPEC ((
@@ -301,7 +302,7 @@ CORBA::Boolean Orocos_ControlTask_i::removePeer (
 }
 
 CORBA::Boolean Orocos_ControlTask_i::connectPeers (
-    ::Orocos::ControlTask_ptr p
+    ::RTT::Corba::ControlTask_ptr p
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException

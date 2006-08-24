@@ -134,7 +134,7 @@ namespace RTT
             return false;
         }
 
-        virtual DataSourceBase* buildCorbaProxy( Orocos::Expression* e ) const {
+        virtual DataSourceBase* buildCorbaProxy( Corba::Expression* e ) const {
             Logger::In loc("TypeInfoName");
             Logger::log() << Logger::Error << "Can not create Corba Proxy of "<<tname<<"."<<Logger::endl;
             return 0;

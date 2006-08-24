@@ -28,7 +28,7 @@
  
 #include "rtt/corba/ExpressionServer.hpp"
 #include "rtt/Logger.hpp"
-#include "rtt/corba/ExecutionI.h"
+#include "rtt/corba/OperationsI.h"
 
 namespace RTT
 {namespace Corba
@@ -41,46 +41,46 @@ namespace RTT
     ExpressionServer::AServerMap ExpressionServer::AServers;
     ExpressionServer::MServerMap ExpressionServer::MServers;
 
-    Orocos::Expression_ptr ExpressionServer::CreateExpression( DataSourceBase::const_ptr expr ) {
+    Corba::Expression_ptr ExpressionServer::CreateExpression( DataSourceBase::const_ptr expr ) {
         // try to retrieve:
-        Orocos::Expression_ptr result = EServers[ expr ];
+        Corba::Expression_ptr result = EServers[ expr ];
         if (result )
-            return Orocos::Expression::_duplicate(result);
+            return Corba::Expression::_duplicate(result);
         // create new:
         Logger::log() <<Logger::Debug<< "Created 'Any' Expression server for type "<< expr->getType()<<Logger::endl;
         Orocos_AnyExpression_i* newexpr = new Orocos_AnyExpression_i( expr );
         EServants[expr] = newexpr;
         EServers[expr] = newexpr->_this();
-        return Orocos::Expression::_duplicate( EServers[expr] );
+        return Corba::Expression::_duplicate( EServers[expr] );
     }
 
 
-    Orocos::AssignableExpression_ptr ExpressionServer::CreateAssignableExpression( DataSourceBase::shared_ptr expr ){
+    Corba::AssignableExpression_ptr ExpressionServer::CreateAssignableExpression( DataSourceBase::shared_ptr expr ){
         // try to retrieve:
-        Orocos::AssignableExpression_ptr result = AServers[ expr ];
+        Corba::AssignableExpression_ptr result = AServers[ expr ];
         if (result )
-            return Orocos::AssignableExpression::_duplicate(result);
+            return Corba::AssignableExpression::_duplicate(result);
         // create new:
         Logger::log() <<Logger::Debug<< "Created 'Any' Assignable Expression server for type "<< expr->getType()<<Logger::endl;
         Orocos_AnyAssignableExpression_i* newexpr = new Orocos_AnyAssignableExpression_i( expr );
         AServers[expr] = newexpr->_this();
         EServants[expr] = newexpr;
-        EServers[expr] = Orocos::AssignableExpression::_narrow(AServers[expr]);
-        return Orocos::AssignableExpression::_duplicate( AServers[expr] );
+        EServers[expr] = Corba::AssignableExpression::_narrow(AServers[expr]);
+        return Corba::AssignableExpression::_duplicate( AServers[expr] );
     }
 
-    Orocos::Method_ptr ExpressionServer::CreateMethod( DataSourceBase::shared_ptr expr ) {
+    Corba::Method_ptr ExpressionServer::CreateMethod( DataSourceBase::shared_ptr expr ) {
         // try to retrieve:
-        Orocos::Method_ptr result = MServers[ expr ];
+        Corba::Method_ptr result = MServers[ expr ];
         if (result )
-            return Orocos::Method::_duplicate(result);
+            return Corba::Method::_duplicate(result);
         // create new:
         Logger::log() <<Logger::Debug<< "Created 'Any' Method server for type "<< expr->getType()<<Logger::endl;
         Orocos_AnyMethod_i* newexpr = new Orocos_AnyMethod_i( expr );
         MServers[expr] = newexpr->_this();
         EServants[expr] = newexpr;
-        EServers[expr] = Orocos::Expression::_narrow(MServers[expr]);
-        return Orocos::Method::_duplicate( MServers[expr] );
+        EServers[expr] = Corba::Expression::_narrow(MServers[expr]);
+        return Corba::Method::_duplicate( MServers[expr] );
     }
 
     void ExpressionServer::copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned )

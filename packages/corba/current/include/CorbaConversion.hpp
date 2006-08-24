@@ -168,7 +168,7 @@ namespace RTT
     template<>
     struct AnyConversion<PropertyBag>
     {
-        typedef Orocos::AttributeInterface_ptr CorbaType;
+        typedef Corba::AttributeInterface_ptr CorbaType;
         typedef PropertyBag StdType;
 
         static bool update(const CORBA::Any& any, StdType& _value);
@@ -273,7 +273,7 @@ namespace RTT
     template<>
     struct AnyConversion< std::vector<double> >
     {
-        typedef Orocos::DoubleSequence CorbaType;
+        typedef Corba::DoubleSequence CorbaType;
         typedef std::vector<double> StdType;
         static CorbaType* toAny(const std::vector<double>& orig) {
             //Logger::log() << Logger::Debug << "Converting type 'std::vector<double>' to sequence<CORBA::Double>." <<Logger::endl;

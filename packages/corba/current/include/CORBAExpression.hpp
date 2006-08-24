@@ -40,7 +40,7 @@
 namespace RTT
 {namespace Corba
 {
-    struct  UpdatedCommand : public CommandInterface
+    struct  UpdatedCommand : public ::RTT::CommandInterface
     {
         DataSourceBase::shared_ptr mds;
         UpdatedCommand( DataSourceBase* ds )
@@ -54,11 +54,11 @@ namespace RTT
 
         void readArguments() {}
 
-        CommandInterface* clone() const {
+        ::RTT::CommandInterface* clone() const {
             return new UpdatedCommand(mds.get());
         }
 
-        CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        ::RTT::CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             return new UpdatedCommand(mds->copy(alreadyCloned));
         }
     };
@@ -69,21 +69,21 @@ namespace RTT
     class CORBAExpression
         : public DataSource<T>
     {
-        Orocos::Expression_var mexpr;
+        Corba::Expression_var mexpr;
         mutable typename DataSource<T>::value_t last_value;
     public:
-        CORBAExpression( Orocos::Expression_ptr expr )
-            : mexpr( Orocos::Expression::_duplicate( expr ) ), last_value()
+        CORBAExpression( Corba::Expression_ptr expr )
+            : mexpr( Corba::Expression::_duplicate( expr ) ), last_value()
         {}
 
-        Orocos::Expression_ptr server()
+        Corba::Expression_ptr server()
         {
-            return Orocos::Expression::_duplicate( mexpr );
+            return Corba::Expression::_duplicate( mexpr );
         }
 
-        Orocos::Expression_ptr server() const
+        Corba::Expression_ptr server() const
         {
-            return Orocos::Expression::_duplicate( mexpr );
+            return Corba::Expression::_duplicate( mexpr );
         }
 
         typename DataSource<T>::result_t value() const {
@@ -98,7 +98,7 @@ namespace RTT
         }
 
         virtual DataSource<T>* clone() const {
-            return new CORBAExpression<T>( Orocos::Expression::_duplicate( mexpr.in() ) );
+            return new CORBAExpression<T>( Corba::Expression::_duplicate( mexpr.in() ) );
         } 
 
         virtual DataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
@@ -125,20 +125,20 @@ namespace RTT
     class CORBAExpression<void>
         : public DataSource<void>
     {
-        Orocos::Expression_var mexpr;
+        Corba::Expression_var mexpr;
     public:
-        CORBAExpression( Orocos::Expression_ptr expr )
-            : mexpr( Orocos::Expression::_duplicate( expr ) )
+        CORBAExpression( Corba::Expression_ptr expr )
+            : mexpr( Corba::Expression::_duplicate( expr ) )
         {}
 
-        Orocos::Expression_ptr server()
+        Corba::Expression_ptr server()
         {
-            return Orocos::Expression::_duplicate( mexpr );
+            return Corba::Expression::_duplicate( mexpr );
         }
 
-        Orocos::Expression_ptr server() const
+        Corba::Expression_ptr server() const
         {
-            return Orocos::Expression::_duplicate( mexpr );
+            return Corba::Expression::_duplicate( mexpr );
         }
 
         void value() const {
@@ -150,7 +150,7 @@ namespace RTT
         }
 
         virtual DataSource<void>* clone() const {
-            return new CORBAExpression<void>( Orocos::Expression::_duplicate( mexpr.in() ) );
+            return new CORBAExpression<void>( Corba::Expression::_duplicate( mexpr.in() ) );
         } 
 
         virtual DataSource<void>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
@@ -169,24 +169,24 @@ namespace RTT
         : public AssignableDataSource<T>
     {
         typedef typename AssignableDataSource<T>::value_t value_t;
-        Orocos::AssignableExpression_var mexpr;
+        Corba::AssignableExpression_var mexpr;
         typename AssignableDataSource<value_t>::shared_ptr storage;
         //mutable typename DataSource<T>::value_t last_value;
     public:
-        CORBAAssignableExpression( Orocos::AssignableExpression_ptr expr )
-            : mexpr( Orocos::AssignableExpression::_duplicate(expr) )//, last_value()
+        CORBAAssignableExpression( Corba::AssignableExpression_ptr expr )
+            : mexpr( Corba::AssignableExpression::_duplicate(expr) )//, last_value()
         {
             storage = detail::BuildType<value_t>::Value();
         }
 
-        Orocos::Expression_ptr server()
+        Corba::Expression_ptr server()
         {
-            return Orocos::AssignableExpression::_duplicate( mexpr );
+            return Corba::AssignableExpression::_duplicate( mexpr );
         }
         
-        Orocos::Expression_ptr server() const
+        Corba::Expression_ptr server() const
         {
-            return Orocos::AssignableExpression::_duplicate( mexpr );
+            return Corba::AssignableExpression::_duplicate( mexpr );
         }
 
         typename DataSource<T>::result_t value() const {
@@ -232,24 +232,24 @@ namespace RTT
             return false;
         }
 
-        CommandInterface* updateCommand( DataSourceBase* other) 
+        ::RTT::CommandInterface* updateCommand( DataSourceBase* other) 
         {
-            CommandInterface* ci = storage->updateCommand(other);
+            ::RTT::CommandInterface* ci = storage->updateCommand(other);
             if (ci)
                 return new CommandBinary( ci, new UpdatedCommand( this ) );
             return 0;
         }
 
-        virtual CommandInterface* updatePartCommand(DataSourceBase* index, DataSourceBase* rhs )
+        virtual ::RTT::CommandInterface* updatePartCommand(DataSourceBase* index, DataSourceBase* rhs )
         {
-            CommandInterface* ci = storage->updatePartCommand(index, rhs);
+            ::RTT::CommandInterface* ci = storage->updatePartCommand(index, rhs);
             if (ci)
                 return new CommandBinary( ci, new UpdatedCommand( this ) );
             return 0;
         }
 
         virtual AssignableDataSource<T>* clone() const {
-            return new CORBAAssignableExpression<T>( Orocos::AssignableExpression::_duplicate( mexpr.in() ) );
+            return new CORBAAssignableExpression<T>( Corba::AssignableExpression::_duplicate( mexpr.in() ) );
         } 
 
         virtual AssignableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {

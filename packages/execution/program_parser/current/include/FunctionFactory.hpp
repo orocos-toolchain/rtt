@@ -56,7 +56,6 @@ namespace RTT
         FunctionFactory(ProgramInterfacePtr func, ExecutionEngine* procs);
 
         std::string resultType() const;
-        std::string description() const;
 
         PropertyBag
         getArgumentSpec() const;

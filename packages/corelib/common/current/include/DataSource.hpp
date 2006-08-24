@@ -123,11 +123,11 @@ namespace RTT
       virtual CORBA::Any* getAny() const;
 
 #ifdef OROINT_OS_CORBA
-      virtual Orocos::Expression_ptr server();
+      virtual Corba::Expression_ptr server();
 
-      virtual Orocos::Expression_ptr server() const;
+      virtual Corba::Expression_ptr server() const;
 
-      virtual Orocos::Method_ptr method();
+      virtual Corba::Method_ptr method();
 #endif
       /**
        * This method narrows a DataSourceBase to a typeded DataSource,
@@ -209,7 +209,7 @@ namespace RTT
       virtual bool update(const CORBA::Any& any);
 
 #ifdef OROINT_OS_CORBA
-      virtual Orocos::Expression_ptr server();
+      virtual Corba::Expression_ptr server();
 #endif
 
       /**

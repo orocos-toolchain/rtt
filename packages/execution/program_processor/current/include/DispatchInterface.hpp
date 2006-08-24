@@ -42,6 +42,20 @@ namespace RTT
     {
     public:
         /**
+         * The status progressions of a Dispatchable Command.
+         * The order of these enums is important and should not be altered.
+         */
+        enum Status { NotReady, //! The command is not yet initialised.
+                      Ready,    //! The command is ready for execution.
+                      Sent,     //! The command has been sent/dispatched to the CommandProcessor.
+                      NotAccepted, //! The command was not accepted by the CommandProcessor.
+                      Accepted, //! The command was accepted by the CommandProcessor.
+                      Executed, //! The command was executed by the CommandProcessor.
+                      NotValid, //! The command's arguments were found to be invalid.
+                      Valid,    //! The command's arguments were valid.
+                      Done };   //! The command's effect is done.
+
+        /**
          * Returns true if the command is ready for dispatch.
          * If ready() returns true, dispatch() can be safely called,
          * otherwise, dispatch() will fail.

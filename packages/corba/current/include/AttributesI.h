@@ -67,7 +67,7 @@
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-class  Orocos_AttributeInterface_i : public virtual POA_Orocos::AttributeInterface, public virtual PortableServer::RefCountServantBase
+class  Orocos_AttributeInterface_i : public virtual POA_RTT::Corba::AttributeInterface, public virtual PortableServer::RefCountServantBase
 {
     RTT::AttributeRepository* mar;
     RTT::PropertyBag* mbag;
@@ -80,7 +80,7 @@ public:
   virtual ~Orocos_AttributeInterface_i (void);
   
   virtual
-  ::Orocos::AttributeInterface::AttributeNames * getAttributeList (
+  ::RTT::Corba::AttributeInterface::AttributeNames * getAttributeList (
       
     )
     ACE_THROW_SPEC ((
@@ -88,7 +88,7 @@ public:
     ));
   
   virtual
-  ::Orocos::AttributeInterface::PropertyNames * getPropertyList (
+  ::RTT::Corba::AttributeInterface::PropertyNames * getPropertyList (
       
     )
     ACE_THROW_SPEC ((
@@ -96,7 +96,7 @@ public:
     ));
   
   virtual
-  ::Orocos::Expression_ptr getAttribute (
+  ::RTT::Corba::Expression_ptr getAttribute (
       const char * name
     )
     ACE_THROW_SPEC ((
@@ -104,7 +104,7 @@ public:
     ));
   
   virtual
-  ::Orocos::Expression_ptr getProperty (
+  ::RTT::Corba::Expression_ptr getProperty (
       const char * name
     )
     ACE_THROW_SPEC ((

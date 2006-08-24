@@ -22,9 +22,9 @@ detection of the packages configure script"
     include_files ApplicationServer.hpp
     include_files ControlTaskProxy.hpp ControlTaskServer.hpp ExpressionProxy.hpp  ScriptingAccessProxy.hpp
     include_files ExpressionServer.hpp CORBAExpression.hpp ActionProxy.hpp CommandProxy.hpp
-    include_files Execution.idl ExecutionC.h ExecutionS.h ExecutionC.inl ExecutionS.inl ExecutionS_T.h ExecutionS_T.inl ExecutionS_T.cpp ExecutionI.h
+    include_files Operations.idl OperationsC.h OperationsS.h OperationsC.inl OperationsS.inl OperationsS_T.h OperationsS_T.inl OperationsS_T.cpp OperationsI.h
     include_files ControlTask.idl ControlTaskC.h ControlTaskS.h ControlTaskC.inl ControlTaskS.inl ControlTaskS_T.h ControlTaskS_T.inl ControlTaskS_T.cpp ControlTaskI.h
-    include_files Factories.idl FactoriesC.h FactoriesS.h FactoriesC.inl FactoriesS.inl FactoriesS_T.h FactoriesS_T.inl FactoriesS_T.cpp FactoriesI.h
+    include_files OperationInterface.idl OperationInterfaceC.h OperationInterfaceS.h OperationInterfaceC.inl OperationInterfaceS.inl OperationInterfaceS_T.h OperationInterfaceS_T.inl OperationInterfaceS_T.cpp OperationInterfaceI.h
     include_files CosPropertyServiceI.h
     include_files CorbaMethodFactory.hpp CorbaCommandFactory.hpp CorbaConversion.hpp 
     include_files OrocosTypesC.h OrocosTypesC.inl GeometryConversion.hpp
@@ -96,41 +96,41 @@ detection of the packages configure script"
 	touch $@
     }
 
-	#Execution Servers
+	#Operations Servers
     make_object {
-	src/ExecutionI.o : $(REPOSITORY)/$(PACKAGE)/Execution.idl $(REPOSITORY)/$(PACKAGE)/src/ExecutionI.cpp
-	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/ExecutionI.cpp -o src/$(OBJECT_PREFIX)_ExecutionI.o
+	src/OperationsI.o : $(REPOSITORY)/$(PACKAGE)/Operations.idl $(REPOSITORY)/$(PACKAGE)/src/OperationsI.cpp
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/OperationsI.cpp -o src/$(OBJECT_PREFIX)_OperationsI.o
 	touch $@
     }
 
     make_object {
-	ExecutionS.o : $(REPOSITORY)/$(PACKAGE)/Execution.idl
-	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/ExecutionS.cpp -o $(OBJECT_PREFIX)_ExecutionS.o
+	OperationsS.o : $(REPOSITORY)/$(PACKAGE)/Operations.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/OperationsS.cpp -o $(OBJECT_PREFIX)_OperationsS.o
 	touch $@
     }
 
     make_object {
-	ExecutionC.o : $(REPOSITORY)/$(PACKAGE)/Execution.idl
-	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/ExecutionC.cpp -o $(OBJECT_PREFIX)_ExecutionC.o
+	OperationsC.o : $(REPOSITORY)/$(PACKAGE)/Operations.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/OperationsC.cpp -o $(OBJECT_PREFIX)_OperationsC.o
 	touch $@
     }
 
-    # Factory servers
+    # OperationInterface servers
     make_object {
-	src/FactoriesI.o : $(REPOSITORY)/$(PACKAGE)/Factories.idl $(REPOSITORY)/$(PACKAGE)/src/FactoriesI.cpp
-	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/FactoriesI.cpp -o src/$(OBJECT_PREFIX)_FactoriesI.o
-	touch $@
-    }
-
-    make_object {
-	FactoriesS.o : $(REPOSITORY)/$(PACKAGE)/Factories.idl
-	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/FactoriesS.cpp -o $(OBJECT_PREFIX)_FactoriesS.o
+	src/OperationInterfaceI.o : $(REPOSITORY)/$(PACKAGE)/OperationInterface.idl $(REPOSITORY)/$(PACKAGE)/src/OperationInterfaceI.cpp
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/src/OperationInterfaceI.cpp -o src/$(OBJECT_PREFIX)_OperationInterfaceI.o
 	touch $@
     }
 
     make_object {
-	FactoriesC.o : $(REPOSITORY)/$(PACKAGE)/Factories.idl
-	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/FactoriesC.cpp -o $(OBJECT_PREFIX)_FactoriesC.o
+	OperationInterfaceS.o : $(REPOSITORY)/$(PACKAGE)/OperationInterface.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/OperationInterfaceS.cpp -o $(OBJECT_PREFIX)_OperationInterfaceS.o
+	touch $@
+    }
+
+    make_object {
+	OperationInterfaceC.o : $(REPOSITORY)/$(PACKAGE)/OperationInterface.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/OperationInterfaceC.cpp -o $(OBJECT_PREFIX)_OperationInterfaceC.o
 	touch $@
     }
 

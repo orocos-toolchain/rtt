@@ -30,7 +30,7 @@
 #define ORO_CORBA_ACTIONPROXY_HPP
 
 #include "../CommandInterface.hpp"
-#include "ExecutionC.h"
+#include "OperationsC.h"
 
 namespace RTT
 {namespace Corba
@@ -43,15 +43,15 @@ namespace RTT
         : public CommandInterface
     {
     protected:
-        static std::map<Orocos::Action_ptr, ActionProxy*> proxies;
+        static std::map<Corba::Action_ptr, ActionProxy*> proxies;
 
         /**
          * Private constructor which creates a new connection to
          * a corba object
          */
-        ActionProxy( ::Orocos::Action_ptr t );
+        ActionProxy( ::RTT::Corba::Action_ptr t );
 
-        Orocos::Action_var mdata;
+        Corba::Action_var mdata;
 
     public:
 
@@ -60,14 +60,14 @@ namespace RTT
          * @param act The Object to connect to.
          * @return A new or previously created CORBA proxy for \a act.
          */
-        static ActionProxy* Create(::Orocos::Action_ptr act);
+        static ActionProxy* Create(::RTT::Corba::Action_ptr act);
 
         /**
          * Get the Corba Object reference of the Action.
          * This object universally identifies the remote Action Object
          * and can be used to tell other (remote) objects where to find it.
          */
-        Orocos::Action_ptr server() const;
+        Corba::Action_ptr server() const;
 
         virtual void readArguments() {}
 

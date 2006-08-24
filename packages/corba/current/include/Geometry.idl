@@ -1,39 +1,41 @@
 #ifndef ORO_GEOMETRY_IDL
 #define ORO_GEOMETRY_IDL
 
-module Orocos
+module RTT
 {
-
-  typedef sequence<double,3> Vector;
-  typedef Vector Position;
-
-  typedef sequence<Vector,3> Rotation;
-
-  struct Frame
+  module Corba
   {
-    Rotation m;
-    Position p;
+
+    typedef sequence<double,3> Vector;
+    typedef Vector Position;
+
+    typedef sequence<Vector,3> Rotation;
+
+    struct Frame
+    {
+      Rotation m;
+      Position p;
+    };
+
+    struct Twist
+    {
+      Vector vel;
+      Vector rot;
+    };
+
+    struct Wrench
+    {
+      Vector force;
+      Vector torque;
+    };
+
+    typedef sequence<double> JacCol;
+
+    /**
+     * J[row][col] layout.
+     */
+    typedef sequence<JacCol> Jacobian;
   };
-
-  struct Twist
-  {
-    Vector vel;
-    Vector rot;
-  };
-
-  struct Wrench
-  {
-    Vector force;
-    Vector torque;
-  };
-
-  typedef sequence<double> JacCol;
-
-  /**
-   * J[row][col] layout.
-   */
-  typedef sequence<JacCol> Jacobian;
-
 };
 
 #endif
