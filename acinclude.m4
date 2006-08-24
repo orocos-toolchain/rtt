@@ -746,7 +746,7 @@ if [ test -f $ACE_DIR/ace/config-all.h && test -f $TAO_DIR/tao/ORB.h && test -f 
   # Always:
   ACX_CXXFLAGS="$ACX_CXXFLAGS -I$TAO_DIR/orbsvcs"
   TARGET_FLAGS="$TARGET_FLAGS -I$TAO_DIR/orbsvcs"
-  TARGET_LIBS="$TARGET_LIBS -lTAO -lTAO_IDL_BE -lACE -lTAO_PortableServer -lTAO_CosNaming"
+  TARGET_LIBS="$TARGET_LIBS -lTAO -lTAO_IDL_BE -lACE -lTAO_PortableServer -lTAO_CosNaming -lTAO_CosProperty"
 
   AC_MSG_RESULT([$ACE_DIR, $TAO_DIR, $ORBSVCS_DIR])
 

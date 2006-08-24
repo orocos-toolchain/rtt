@@ -38,14 +38,17 @@
 // ACE Specific, for printing exceptions.
 #include <ace/SString.h>
 
+#include "rtt/os/threads.hpp"
+#include "rtt/NonPeriodicActivity.hpp"
+
 namespace RTT
 {namespace Corba
 {
     using namespace std;
-    
-    
 
     std::map<TaskContext*, ControlTaskServer*> ControlTaskServer::servers;
+
+    ActivityInterface* ControlTaskServer::orbrunner = 0;
 
   ControlTaskServer::~ControlTaskServer()
   {
@@ -215,22 +218,40 @@ namespace RTT
 
     void ControlTaskServer::ShutdownOrb(bool wait_for_completion) 
     {
-      if ( CORBA::is_nil(orb) ) {
-	Logger::log() <<Logger::Error << "Orb Shutdown...failed! Orb is nil." << Logger::endl;
-	return;
-      }
+        Logger::In in("ShutdownOrb");
+        if ( CORBA::is_nil(orb) ) {
+            Logger::log() <<Logger::Error << "Orb Shutdown...failed! Orb is nil." << Logger::endl;
+            return;
+        }
+
+        DoShutdownOrb(wait_for_completion);
+    }
+
+    void ControlTaskServer::DoShutdownOrb(bool wait_for_completion) 
+    {
+        if ( CORBA::is_nil(orb) ) {
+            Logger::log() <<Logger::Error << "Orb Shutdown...failed! Orb is nil." << Logger::endl;
+            return;
+        }
+
         try {
             orb->shutdown( wait_for_completion );
-	    Logger::log() <<Logger::Info << "Orb Shutdown...done." << Logger::endl;
+            Logger::log() <<Logger::Info << "Orb Shutdown...done." << Logger::endl;
         }
         catch (CORBA::Exception &e) {
             Logger::log() <<Logger::Error << "Orb Shutdown...failed! CORBA exception raised." << Logger::nl;
             Logger::log() << e._info().c_str() << Logger::endl;
+            return;
         }
     }
 
+
     void ControlTaskServer::RunOrb()
     {
+        if ( CORBA::is_nil(orb) ) {
+            Logger::log() <<Logger::Error << "RunOrb...failed! Orb is nil." << Logger::endl;
+            return;
+        }
         try {
             orb->run();
             Logger::log() << Logger::Info <<"Breaking out of orb->run()."<<Logger::endl;
@@ -241,12 +262,68 @@ namespace RTT
         }
     }
 
+    /**
+     * Class which runs an orb in an Orocos thread.
+     */
+    struct OrbRunner
+        : public NonPeriodicActivity
+    {
+        OrbRunner()
+            : NonPeriodicActivity(RTT::OS::LowestPriority)
+        {}
+        void loop()
+        {
+            Logger::In in("OrbRunner");
+            ControlTaskServer::RunOrb();
+        }
+
+        bool breakLoop()
+        {
+            return true;
+        }
+
+        void finalize()
+        {
+            Logger::In in("OrbRunner");
+            Logger::log() << Logger::Info <<"Safely stopped."<<Logger::endl;
+        }
+    };
+
+    void ControlTaskServer::ThreadOrb()
+    {
+        Logger::In in("ThreadOrb");
+        if ( CORBA::is_nil(orb) ) {
+            Logger::log() <<Logger::Error << "ThreadOrb...failed! Orb is nil." << Logger::endl;
+            return;
+        }
+        if (orbrunner != 0) {
+            Logger::log() << Logger::Error <<"Orb already running in a thread."<<Logger::endl;
+        } else {
+            Logger::log() << Logger::Info <<"Starting Orb in a thread."<<Logger::endl;
+            orbrunner = new OrbRunner();
+
+            orbrunner->start();
+        }
+    }
+
     void ControlTaskServer::DestroyOrb()
     {
+        Logger::In in("DestroyOrb");
+        if ( CORBA::is_nil(orb) ) {
+            Logger::log() <<Logger::Error << "DestroyOrb...failed! Orb is nil." << Logger::endl;
+            return;
+        }
+
+        if (orbrunner) {
+            orbrunner->stop();
+            delete orbrunner;
+            orbrunner = 0;
+        }
+
         try {
             // Destroy the POA, waiting until the destruction terminates
             //poa->destroy (1, 1);
-	    CleanupServers();
+            CleanupServers();
             orb->destroy();
             Logger::log() << Logger::Info <<"Orb destroyed."<<Logger::endl;
         }
@@ -254,6 +331,7 @@ namespace RTT
             Logger::log() <<Logger::Error << "Orb Destroy : CORBA exception raised!" << Logger::nl;
             Logger::log() << e._info().c_str() << Logger::endl;
         }
+
     }
 
     ControlTaskServer* ControlTaskServer::Create(TaskContext* tc, bool use_naming) {

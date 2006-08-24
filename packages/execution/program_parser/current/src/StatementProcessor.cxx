@@ -319,15 +319,15 @@ namespace RTT
         } catch ( parse_exception_parser_fail &pe )
             {
                 // ignore, try next parser
-                Logger::log() << Logger::Error << "Ignoring ValueChange exception :"<<Logger::nl;
-                Logger::log() << Logger::Error << pe.what() <<Logger::nl;
+                Logger::log() << Logger::Debug << "Ignoring ValueChange exception :"<<Logger::nl;
+                Logger::log() << Logger::Debug << pe.what() <<Logger::nl;
         } catch ( parse_exception& pe ) { 
             // syntactic errors must be reported immediately
             Logger::log() << Logger::Error << "parse_exception :";
             Logger::log() << Logger::Error << pe.what() <<Logger::nl;
             return -1;
         }
-        Logger::log() << Logger::Error << "Trying Expression..."<<Logger::nl;
+        Logger::log() << Logger::Debug << "Trying Expression..."<<Logger::nl;
         try {
             // Check if it was a method or datasource :
             DataSourceBase::shared_ptr ds = _parser.parseExpression( comm, taskcontext );

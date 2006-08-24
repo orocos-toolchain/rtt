@@ -32,20 +32,27 @@
 #include "../TaskContext.hpp"
 #include "ApplicationServer.hpp"
 #include "ControlTaskS.h"
+#include "rtt/ActivityInterface.hpp"
 
 namespace RTT
 {namespace Corba
 {
+    class OrbRunner;
+
     /**
      * This class manages the creation of TaskContext Corba Servers
      * and a Corba Object Request Broker (Orb) which executes the servers.
+     * The Orb may be run from the main thread or in its own thread.
      */
     class ControlTaskServer
         : public ApplicationServer
     {
     protected:
+        friend class OrbRunner;
+
         typedef std::map<TaskContext*, ControlTaskServer*> ServerMap;
         static ServerMap servers;
+        static ActivityInterface* orbrunner;
 
         /**
          * Private constructor which creates a new servant.
@@ -62,6 +69,11 @@ namespace RTT
        */
       ~ControlTaskServer();
 
+        /**
+         * Internal shutdown function, used
+         * by both thread and ShutdownOrb.
+         */
+        static void DoShutdownOrb(bool wait_for_completion = true);
     public:
 
         /**
@@ -73,20 +85,27 @@ namespace RTT
         /**
          * Invoke this method once to shutdown the Orb which is
          * running the task servers in RunOrb(). When this function
-	 * returns, no CORBA invocations are in progress, unless wait_for_completion is false.
+         * returns, no CORBA invocations are in progress, unless wait_for_completion is false.
          */
         static void ShutdownOrb(bool wait_for_completion = true);
 
-      /**
-       * Destroys all ControlTaskServer objects.
-       */
-      static void CleanupServers();
+        /**
+         * Destroys all ControlTaskServer objects.
+         */
+        static void CleanupServers();
 
         /**
          * Invoke this method to run the orb and accept client requests.
          * Use ShutdownOrb() to break out of this method.
          */
         static void RunOrb();
+
+        /**
+         * Invoke this method to run the orb in a separate thread and accept client requests
+         * from that thread.
+         * Use ShutdownOrb() to break out of this method.
+         */
+        static void ThreadOrb();
 
         /**
          * Invoke this method once to cleanup the orb.

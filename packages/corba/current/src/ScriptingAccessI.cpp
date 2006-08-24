@@ -248,5 +248,5 @@ CORBA::Boolean Orocos_ScriptingAccess_i::execute (
     CORBA::SystemException
   ))
 {
-    return mee->execute( code );
+    return mee->execute( code ) == 0;
 }

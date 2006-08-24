@@ -67,7 +67,7 @@ namespace RTT
     }
 
     ControlTaskProxy::ControlTaskProxy(std::string name, bool is_ior) 
-        : TaskContext("CORBAProxy") 
+        : TaskContext("NotFound") 
     {
         try {
             if (is_ior) {
