@@ -106,7 +106,7 @@ gifimages: $(GIFIMGS)
 
 %.png:%.svg
 	mkdir -p svg
-	inkscape -d 45 $< -e $@
+	inkscape -D -d 60 $< -e $@
 
 %.jpg:%.png
 	$(CONVERT) -quality $(JPGQUALITY) $< $@
