@@ -57,20 +57,33 @@ namespace RTT {}
 #ifdef OROPKG_DEVICE_DRIVERS
 #include "dev/DeviceDrivers.hpp"
 #endif
-namespace RTT {
-#ifdef OROPKG_OS
-    namespace OS {
-    }
-#endif
 
+namespace RTT {
     /**
      * Implementation specific classes, not intended for
      * users.
      */
     namespace detail {}
+
+    namespace OS {}
+    namespace CAN {}
+    namespace Corba {}
 }
 
+namespace BFL {
+}
+
+namespace KDL {
+}
+
+/**
+ * The project wide Orocos namespace contains all user classes
+ * of various projects. When one writes @code using namespace Orocos;@endcode
+ * all classes from the RTT, KDL and BFL namespaces will be visible.
+ */
 namespace Orocos
 {
     using namespace RTT;
+    using namespace BFL;
+    using namespace KDL;
 }
