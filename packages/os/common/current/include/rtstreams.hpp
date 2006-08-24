@@ -33,6 +33,8 @@
 #ifndef RTSTREAMS_HPP
 #define RTSTREAMS_HPP
 
+namespace RTT
+{
 /**
  * (Almost) Real-Time output streams.
  * If you really have to print something out from a RealTime thread,
@@ -213,5 +215,5 @@ namespace rt_std
         };
         
 }
-
+}
 #endif

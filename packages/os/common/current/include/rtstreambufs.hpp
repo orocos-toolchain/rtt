@@ -31,7 +31,8 @@
 #include <string>
 #include "fosi.h"
 
-namespace rt_std
+namespace RTT
+{namespace rt_std
 {
 
 
@@ -170,7 +171,7 @@ namespace rt_std
         private:
    };
 
-} // namespace OS
+}}
 
 
 #endif
