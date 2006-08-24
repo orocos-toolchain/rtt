@@ -1,10 +1,7 @@
 
 cdl_package OROPKG_CORELIB_REPORTING {
-    display "CoreLib Reporting and Logging Infrastructure"
-    description "This package adds binary to text reporting
-of internal data in a separate thread. It is mainly used for
-logging and data gathering. See the README for a short 
-description of the nomenclature. Also, contains the Orocos
+    display "CoreLib Logging Infrastructure"
+    description "This package  contains the Orocos
 Logger implementation for tracking system configuration."
 
     include_dir rtt
@@ -12,11 +9,7 @@ Logger implementation for tracking system configuration."
     parent OROPKG_CORELIB
     requires OROPKG_CORELIB
 
-    compile ReportWriter.cxx
-    compile ReportCollectorInterface.cxx PropertyExporter.cxx
     compile Logger.cxx
-
-    requires OROPKG_CORELIB_PROPERTIES
 
     cdl_component OROBLD_CORELIB_REPORTING_LOGGING {
 	display "Configure Logging Messages"
