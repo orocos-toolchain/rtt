@@ -41,7 +41,7 @@ DETECT_PACKAGES
 
 # Only do this if tao_idl was detected.
 if test x$TAO_IDL != x; then
-for i in $(find . -name "*.idl"); do
+for i in $(find $srcdir -name "*.idl"); do
     echo "$TAO_IDL $ACX_CXXFLAGS -I$TAO_DIR -I$(dirname $i) $i -o $(dirname $i)"
     export ACE_ROOT=$ACE_DIR
     export TAO_ROOT=$TAO_DIR
