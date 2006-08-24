@@ -56,6 +56,11 @@ namespace RTT
         typedef CommandT Signature;
 
         /**
+         * The status progressions of a Command.
+         */
+        typedef DispatchInterface::Status Status;
+
+        /**
          * Create an empty, nameless command object. Use assignment to
          * initialise it.
          *

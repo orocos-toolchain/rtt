@@ -55,7 +55,8 @@ namespace RTT
             }
 
             virtual ~OperationFactoryPart() {};
-            std::string description() const
+
+            virtual std::string description() const
             {
                 return mdesc;
             }

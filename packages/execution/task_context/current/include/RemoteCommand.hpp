@@ -136,7 +136,7 @@ namespace RTT
 
             virtual ConditionInterface* createCondition() const
             {
-                return new detail::ConditionFunctor<bool(void)>( boost::bind<bool>( boost::mem_fn(&RemoteCommand::evaluate), this) );
+                return new detail::ConditionFunctor<bool(void)>( boost::bind<bool>( boost::mem_fn(&RemoteCommand::done), this) );
             }
 
             /** 
