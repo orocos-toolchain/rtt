@@ -27,7 +27,8 @@
 #include "rtt/os/rtstreams.hpp"
 #include "rtt/os/fosi.h"
 
-namespace rt_std
+namespace RTT
+{namespace rt_std
 {
 
     printstream cout;
@@ -232,4 +233,4 @@ namespace rt_std
     {}
 
 
-}
+}}
