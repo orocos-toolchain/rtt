@@ -63,7 +63,7 @@ the \"Detected Support Libraries->RTAI Installation\"
 package."
 	}
 
-	cdl_option OROBLD_OS_EXTRA_CFLAGS {
+	cdl_option OROBLD_OS_RTAI_CFLAGS {
 	    display "RTAI Include Directory"
 	    parent CYGBLD_GLOBAL_OPTIONS
 	    flavor data
@@ -277,7 +277,8 @@ compilation times."
 		" -march=".OROBLD_OS_ARCHITECTURE).
 		(OROBLD_OS_PROCESSOR == "none" ? "" : 
 		(CYGBLD_OS_COMPILER == "gcc4" ? " -mtune=" : " -mcpu=" ).OROBLD_OS_PROCESSOR)." ".
-		(OROBLD_OS_EXTRA_CFLAGS ? OROBLD_OS_EXTRA_CFLAGS : "")." ".
+		OROBLD_OS_RTAI_CFLAGS." ".
+		(OROPKG_SUPPORT_CXXFLAGS ? OROPKG_SUPPORT_CXXFLAGS : "")." ".
 		"-D_REENTRANT ".
 		(CYGBLD_OS_COMPILER == "gcc3" ? "" : "").
 		(CYGBLD_OS_COMPILER == "gcc4" ? "-fvisibility-inlines-hidden " : "").
