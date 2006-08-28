@@ -26,7 +26,7 @@ namespace RTT
          * int, Frame, double)
          *
          */
-        template<class CommandT>
+        template<class CommandT, class ProtocolT>
         class DLibCommandImpl
             : public CommandBase<CommandT>
         {
@@ -48,35 +48,35 @@ namespace RTT
              */
             bool invoke() {
                 if (id)
-                    return sendCommand(id);
+                    return ProtocolT::sendCommand(id);
                 return false;
             }
 
             template<class T1>
             bool invoke( T1 a1 ) {
                 if (id)
-                    return sendCommand(id, a1);
+                    return ProtocolT::sendCommand(id, a1);
                 return false;
             }
 
             template<class T1, class T2>
             bool invoke( T1 a1, T2 a2 ) {
                 if (id)
-                    return sendCommand(id, a1, a2);
+                    return ProtocolT::sendCommand(id, a1, a2);
                 return false;
             }
 
             template<class T1, class T2, class T3>
             bool invoke( T1 a1, T2 a2, T3 a3 ) {
                 if (id)
-                    return sendCommand(id, a1, a2, a3);
+                    return ProtocolT::sendCommand(id, a1, a2, a3);
                 return false;
             }
 
             template<class T1, class T2, class T3, class T4>
             bool invoke( T1 a1, T2 a2, T3 a3, T4 a4 ) {
                 if (id)
-                    return sendCommand(id, a1, a2, a4);
+                    return ProtocolT::sendCommand(id, a1, a2, a4);
                 return false;
             }
         };
@@ -87,10 +87,12 @@ namespace RTT
          * It inherits from the DLibCommandImpl class.
          * @param CommandT The function signature of the command. For example,
          * bool( int, Frame, double)
+         * @param ProtocolT A class containing static functions which implement the
+         * DLib Command Protocol.
          */
-        template<class CommandT>
+        template<class CommandT, class ProtocolT>
         class DLibCommand 
-            : public Invoker<CommandT,DLibCommandImpl<CommandT> >
+            : public Invoker<CommandT,DLibCommandImpl<CommandT,ProtocolT> >
         {
         public:
             typedef CommandT Signature;
@@ -103,7 +105,7 @@ namespace RTT
              */
             DLibCommand(std::string component, std::string name)
             {
-                this->id = getCommandId(component,command);
+                this->id = ProtocolT::getCommandId(component,command);
                 if (this->id == 0) {
                     log(Error) << "Could not find Component '"<<component <<"' or Command '"<<name"' in that component."<<endlog();
                 }
@@ -112,7 +114,7 @@ namespace RTT
             virtual void readArguments() {}
 
             virtual bool ready() const {
-                DispatchInterface::Status st = getCommandStatus(this->id);
+                DispatchInterface::Status st = ProtocolT::getCommandStatus(this->id);
                 return s == DispatchInterface::Ready || s == DispatchInterface::Done;
             }
 
@@ -125,23 +127,23 @@ namespace RTT
             }
         
             virtual bool done() const {
-                return getCommandStatus(this->id) == DispatchInterface::Done;
+                return ProtocolT::getCommandStatus(this->id) == DispatchInterface::Done;
             }
      
             virtual void reset() {
-                return resetCommand(this->id);
+                return ProtocolT::resetCommand(this->id);
             }
 
             virtual bool sent() const {
-                return getCommandStatus(this->id) >= DispatchInterface::Sent;
+                return ProtocolT::getCommandStatus(this->id) >= DispatchInterface::Sent;
             }
 
             virtual bool accepted() const {
-                return getCommandStatus(this->id) >= DispatchInterface::Accepted;
+                return ProtocolT::getCommandStatus(this->id) >= DispatchInterface::Accepted;
             }
 
             virtual bool executed() const {
-                return getCommandStatus(this->id) >= DispatchInterface::Executed;
+                return ProtocolT::getCommandStatus(this->id) >= DispatchInterface::Executed;
             }
 
             virtual bool valid() const {
