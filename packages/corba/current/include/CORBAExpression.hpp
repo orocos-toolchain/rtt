@@ -76,12 +76,12 @@ namespace RTT
             : mexpr( Corba::Expression::_duplicate( expr ) ), last_value()
         {}
 
-        Corba::Expression_ptr server()
+        Corba::Expression_ptr server(PortableServer::POA_ptr)
         {
             return Corba::Expression::_duplicate( mexpr );
         }
 
-        Corba::Expression_ptr server() const
+        Corba::Expression_ptr server(PortableServer::POA_ptr) const
         {
             return Corba::Expression::_duplicate( mexpr );
         }
@@ -131,12 +131,12 @@ namespace RTT
             : mexpr( Corba::Expression::_duplicate( expr ) )
         {}
 
-        Corba::Expression_ptr server()
+        Corba::Expression_ptr server(PortableServer::POA_ptr)
         {
             return Corba::Expression::_duplicate( mexpr );
         }
 
-        Corba::Expression_ptr server() const
+        Corba::Expression_ptr server(PortableServer::POA_ptr) const
         {
             return Corba::Expression::_duplicate( mexpr );
         }
@@ -179,12 +179,12 @@ namespace RTT
             storage = detail::BuildType<value_t>::Value();
         }
 
-        Corba::Expression_ptr server()
+        Corba::Expression_ptr server(PortableServer::POA_ptr)
         {
             return Corba::AssignableExpression::_duplicate( mexpr );
         }
         
-        Corba::Expression_ptr server() const
+        Corba::Expression_ptr server(PortableServer::POA_ptr) const
         {
             return Corba::AssignableExpression::_duplicate( mexpr );
         }

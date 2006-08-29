@@ -38,10 +38,6 @@ using namespace std;
 namespace RTT
 {namespace Corba
 {
-    
-    
-
-    std::map<Corba::Command_ptr, CommandProxy*> CommandProxy::proxies;
 
     CommandProxy::CommandProxy( ::RTT::Corba::Command_ptr e) 
         : mdata( ::RTT::Corba::Command::_duplicate(e) )
@@ -56,6 +52,10 @@ namespace RTT
         catch (...) {
             throw;
         }
+    }
+
+    CommandProxy::~CommandProxy()
+    {
     }
     
     namespace {
@@ -92,13 +92,8 @@ namespace RTT
         if ( CORBA::is_nil( t ) )
             return 0;
 
-        // proxy present for this object ?
-        if ( proxies.count( t ) )
-            return proxies[t];
-
         // create new:
         CommandProxy* ctp = new CommandProxy( t );
-        proxies[t] = ctp;
         return ctp;
     }
 

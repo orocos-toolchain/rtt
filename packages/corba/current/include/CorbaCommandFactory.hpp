@@ -48,14 +48,16 @@ namespace RTT
     {
         std::string com;
         Corba::CommandInterface_var mfact;
+        PortableServer::POA_var mpoa;
     public:
         typedef std::vector< RTT::ArgumentDescription > Descriptions;
         typedef std::vector<std::string> Commands;
         typedef std::vector<DataSourceBase::shared_ptr> Arguments;
 
-        CorbaCommandFactory(const std::string& command, Corba::CommandInterface_ptr fact) 
+        CorbaCommandFactory(const std::string& command, Corba::CommandInterface_ptr fact, PortableServer::POA_ptr the_poa) 
             : RTT::detail::OperationFactoryPart<DispatchInterface*>("Corba Command"),
-              com(command), mfact( Corba::CommandInterface::_duplicate(fact) )
+              com(command), mfact( Corba::CommandInterface::_duplicate(fact) ),
+              mpoa(PortableServer::POA::_duplicate(the_poa) )
         {}
 
         virtual ~CorbaCommandFactory() {}
@@ -109,7 +111,7 @@ namespace RTT
             Corba::Arguments_var nargs = new Corba::Arguments();
             nargs->length( args.size() );
             for (size_t i=0; i < args.size(); ++i )
-                nargs[i] = args[i]->server();
+                nargs[i] = args[i]->server( mpoa.in() );
             try {
                 Corba::Command_var result = mfact->createCommand( com.c_str(), nargs.in() );
                 // return a DispatchInterface object:

@@ -45,8 +45,8 @@ using namespace RTT::Corba;
 using namespace CosPropertyService;
 
 // ControlObject:
-Orocos_ControlObject_i::Orocos_ControlObject_i (RTT::OperationInterface* orig )
-    : mobj( orig ), mMFact(), mCFact()
+Orocos_ControlObject_i::Orocos_ControlObject_i (RTT::OperationInterface* orig, PortableServer::POA_ptr the_poa )
+    : mobj( orig ), mMFact(), mCFact(), mpoa( PortableServer::POA::_duplicate(the_poa) )
 {
 }
 
@@ -86,7 +86,7 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
 {
     if ( CORBA::is_nil( mMFact ) ) {
         Logger::log() << Logger::Info << "Creating MethodInterface."<<Logger::endl;
-        Orocos_MethodInterface_i* mserv = new Orocos_MethodInterface_i( mobj->methods() );
+        Orocos_MethodInterface_i* mserv = new Orocos_MethodInterface_i( mobj->methods(), mpoa.in() );
         mMFact = mserv->_this();
     }
     return MethodInterface::_duplicate( mMFact.in() );
@@ -101,7 +101,7 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
 {
     if ( CORBA::is_nil( mCFact ) ) {
         Logger::log() << Logger::Info << "Creating CommandInterface."<<Logger::endl;
-        Orocos_CommandInterface_i* mserv = new Orocos_CommandInterface_i( mobj->commands() );
+        Orocos_CommandInterface_i* mserv = new Orocos_CommandInterface_i( mobj->commands(), mpoa.in() );
         mCFact = mserv->_this();
     }
     return ::RTT::Corba::CommandInterface::_duplicate( mCFact.in() );
@@ -110,8 +110,8 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
 
 
 // Implementation skeleton constructor
-Orocos_ControlTask_i::Orocos_ControlTask_i (TaskContext* orig)
-    : Orocos_ControlObject_i(orig), mtask( orig ), mCosProps( ), mEEFact()
+Orocos_ControlTask_i::Orocos_ControlTask_i (TaskContext* orig, PortableServer::POA_ptr the_poa)
+    : Orocos_ControlObject_i(orig, mpoa.in()), mtask( orig ), mCosProps( ), mEEFact(), mpoa( PortableServer::POA::_duplicate(the_poa) )
 {
     // Add the corba object to the interface:
     mtask->methods()->addMethod(method("shutdown", &Orocos_ControlTask_i::shutdownCORBA, this),
@@ -154,7 +154,7 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
 {
     if ( CORBA::is_nil( mAttrs) ) {
         Logger::log() << Logger::Info << "Creating AttributeInterface."<<Logger::endl;
-        Orocos_AttributeInterface_i* attrs = new Orocos_AttributeInterface_i( mtask->attributes() );
+        Orocos_AttributeInterface_i* attrs = new Orocos_AttributeInterface_i( mtask->attributes(), mpoa.in() );
         mAttrs = attrs->_this();
     }
     return AttributeInterface::_duplicate( mAttrs.in() );
@@ -179,7 +179,7 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
 {
     if ( CORBA::is_nil( mEEFact ) ) {
         Logger::log() << Logger::Info << "Creating ScriptingAccess."<<Logger::endl;
-        Orocos_ScriptingAccess_i* mserv = new Orocos_ScriptingAccess_i( mtask->scripting() );
+        Orocos_ScriptingAccess_i* mserv = new Orocos_ScriptingAccess_i( mtask->scripting(), mpoa.in() );
         mEEFact = mserv->_this();
     }
     return ::RTT::Corba::ScriptingAccess::_duplicate( mEEFact.in() );
@@ -213,7 +213,7 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
     OperationInterface* task = mtask->getObject( pname );
     if ( task ) {
         // create or lookup new server for this object.
-        Orocos_ControlObject_i* ret = new Orocos_ControlObject_i(task);
+        Orocos_ControlObject_i* ret = new Orocos_ControlObject_i(task, mpoa.in() );
         return ret->_this();
     }
     return 0;

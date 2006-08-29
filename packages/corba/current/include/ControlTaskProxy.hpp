@@ -79,6 +79,10 @@ namespace RTT
 
         Corba::ControlTask_var mtask;
 
+        /**
+         * For now one POA handles all proxies.
+         */
+        static PortableServer::POA_var proxy_poa;
     public:
         ~ControlTaskProxy();
 
@@ -142,5 +146,9 @@ namespace RTT
          */
         CosPropertyService::PropertySet_ptr propertySet();
 
+        /**
+         * Returns the default POA for all proxies.
+         */
+        static PortableServer::POA_ptr ProxyPOA();
     };
 }}

@@ -51,7 +51,9 @@ namespace RTT
         
         virtual ~ParserScriptingAccess();
 
-        virtual bool execute( std::string code );
+        virtual int execute( std::string code );
+
+        virtual CommandC getCommand( int ticket );
 
         virtual Functions loadFunctions(std::string filename, bool do_throw = false );
         virtual Functions loadFunctions(std::string code, std::string filename, bool do_throw = false );

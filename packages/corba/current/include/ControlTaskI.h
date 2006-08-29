@@ -76,12 +76,19 @@ protected:
     RTT::OperationInterface* mobj;
 	::RTT::Corba::MethodInterface_var mMFact;
 	::RTT::Corba::CommandInterface_var mCFact;
+	PortableServer::POA_var mpoa;
+
 public:
   //Constructor 
-  Orocos_ControlObject_i (RTT::OperationInterface* orig);
+  Orocos_ControlObject_i (RTT::OperationInterface* orig, PortableServer::POA_ptr the_poa);
   
   //Destructor 
   virtual ~Orocos_ControlObject_i (void);
+
+    PortableServer::POA_ptr _default_POA()
+    {
+        return PortableServer::POA::_duplicate(mpoa);
+    }
 
   virtual
   char * getName (
@@ -125,12 +132,18 @@ protected:
 	::CosPropertyService::PropertySet_var mCosProps;
 	::RTT::Corba::AttributeInterface_var mAttrs;
 	::RTT::Corba::ScriptingAccess_var mEEFact;
+	PortableServer::POA_var mpoa;
 public:
   //Constructor 
-  Orocos_ControlTask_i (RTT::TaskContext* orig);
+  Orocos_ControlTask_i (RTT::TaskContext* orig, PortableServer::POA_ptr the_poa);
   
   //Destructor 
   virtual ~Orocos_ControlTask_i (void);
+
+    PortableServer::POA_ptr _default_POA()
+    {
+        return PortableServer::POA::_duplicate(mpoa);
+    }
 
   void shutdownCORBA();
   

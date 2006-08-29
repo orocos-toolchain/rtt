@@ -1,6 +1,8 @@
 #ifndef ORO_CORBA_SCRIPTINGACCESS_IDL
 #define ORO_CORBA_SCRIPTINGACCESS_IDL
 
+#include "Operations.idl"
+
 module RTT
 {
   module Corba
@@ -28,8 +30,18 @@ module RTT
 
       /**
        * Parse and execute a statement.
+       * @retval -1 if a parse error occured.
+       * @retval 0 if a statement was executed.
+       * @return a positive integer if \a code was a
+       * command. This number is the command's ticket
+       * number.
        */
-      boolean execute( in string code );
+      long execute( in string code );
+
+      /**
+       * Return the command with a given ticket number.
+       */
+      Command getCommand( in long ticket);
 
       void loadPrograms( in string code, in string filename ) raises (LoadException);
       void unloadProgram( in string name ) raises (LoadException);

@@ -71,13 +71,19 @@ class  Orocos_AttributeInterface_i : public virtual POA_RTT::Corba::AttributeInt
 {
     RTT::AttributeRepository* mar;
     RTT::PropertyBag* mbag;
+	PortableServer::POA_var mpoa;
 public:
   //Constructor 
-  Orocos_AttributeInterface_i ( RTT::AttributeRepository* ar);
-  Orocos_AttributeInterface_i ( RTT::PropertyBag* bag);
+  Orocos_AttributeInterface_i ( RTT::AttributeRepository* ar, PortableServer::POA_ptr the_poa);
+  Orocos_AttributeInterface_i ( RTT::PropertyBag* bag, PortableServer::POA_ptr the_poa );
   
   //Destructor 
   virtual ~Orocos_AttributeInterface_i (void);
+
+    PortableServer::POA_ptr _default_POA()
+    {
+        return PortableServer::POA::_duplicate(mpoa);
+    }
   
   virtual
   ::RTT::Corba::AttributeInterface::AttributeNames * getAttributeList (

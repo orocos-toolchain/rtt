@@ -31,6 +31,7 @@
 #include "rtt/corba/AttributesC.h"
 #include "rtt/corba/AttributesI.h"
 #include "rtt/corba/CORBAExpression.hpp"
+#include "rtt/corba/ControlTaskProxy.hpp"
 
 
 namespace RTT
@@ -92,7 +93,7 @@ namespace RTT
 
     CORBA::Any_ptr AnyConversion<PropertyBag>::createAny( StdType t ) {
         Logger::log() << Logger::Debug << "Creating PropertyBag Server." <<Logger::endl;
-        Orocos_AttributeInterface_i* attrs = new Orocos_AttributeInterface_i( new PropertyBag(t) );
+        Orocos_AttributeInterface_i* attrs = new Orocos_AttributeInterface_i( new PropertyBag(t), Corba::ControlTaskProxy::ProxyPOA() );
         Corba::AttributeInterface_ptr server = attrs->_this();
         CORBA::Any_ptr any = new CORBA::Any();
         *any <<= server;

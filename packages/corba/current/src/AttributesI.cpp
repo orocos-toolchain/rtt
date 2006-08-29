@@ -42,13 +42,13 @@ using namespace RTT::Corba;
 using namespace std;
 
 // Implementation skeleton constructor
-Orocos_AttributeInterface_i::Orocos_AttributeInterface_i (AttributeRepository* ar)
-    :mar (ar), mbag(0)
+Orocos_AttributeInterface_i::Orocos_AttributeInterface_i (AttributeRepository* ar, PortableServer::POA_ptr the_poa)
+    :mar (ar), mbag(0), mpoa( PortableServer::POA::_duplicate(the_poa))
 {
 }
 
-Orocos_AttributeInterface_i::Orocos_AttributeInterface_i (PropertyBag* bag)
-    :mar (0), mbag(bag)
+Orocos_AttributeInterface_i::Orocos_AttributeInterface_i (PropertyBag* bag, PortableServer::POA_ptr the_poa)
+    :mar (0), mbag(bag), mpoa( PortableServer::POA::_duplicate(the_poa))
 {
 }
 
@@ -111,7 +111,7 @@ Orocos_AttributeInterface_i::~Orocos_AttributeInterface_i (void)
 {
     if ( !mar || !mar->hasAttribute( string(name) ) )
         return ::RTT::Corba::Expression::_nil();
-    return mar->getValue( string(name) )->getDataSource()->server();
+    return mar->getValue( string(name) )->getDataSource()->server( mpoa.in() );
 }
 
 ::RTT::Corba::Expression_ptr Orocos_AttributeInterface_i::getProperty (
@@ -126,7 +126,7 @@ Orocos_AttributeInterface_i::~Orocos_AttributeInterface_i (void)
     if ( mbag ==0 || !mbag->find( string(name) ) )
         return ::RTT::Corba::Expression::_nil();
     DataSourceBase::shared_ptr ds = mbag->find( string(name) )->getDataSource();
-    return ds->server();
+    return ds->server( mpoa.in() );
 }
 
 

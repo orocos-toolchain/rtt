@@ -66,15 +66,23 @@
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-class  Orocos_MethodInterface_i : public virtual POA_RTT::Corba::MethodInterface, public virtual PortableServer::RefCountServantBase
+class  Orocos_MethodInterface_i
+    : public virtual POA_RTT::Corba::MethodInterface,
+      public virtual PortableServer::RefCountServantBase
 {
     RTT::MethodFactory* mfact;
+    PortableServer::POA_var mpoa;
 public:
   //Constructor 
-  Orocos_MethodInterface_i (RTT::MethodFactory* mfact);
+  Orocos_MethodInterface_i (RTT::MethodFactory* mfact, PortableServer::POA_ptr the_poa);
   
   //Destructor 
   virtual ~Orocos_MethodInterface_i (void);
+
+    PortableServer::POA_ptr _default_POA()
+    {
+        return PortableServer::POA::_duplicate(mpoa);
+    }
   
   virtual
   ::RTT::Corba::MethodList * getMethods (
@@ -135,15 +143,23 @@ public:
     ));
 };
 
-class  Orocos_CommandInterface_i : public virtual POA_RTT::Corba::CommandInterface, public virtual PortableServer::RefCountServantBase
+class  Orocos_CommandInterface_i
+    : public virtual POA_RTT::Corba::CommandInterface,
+      public virtual PortableServer::RefCountServantBase
 {
     RTT::CommandFactory* mfact;
+    PortableServer::POA_var mpoa;
 public:
   //Constructor 
-  Orocos_CommandInterface_i (RTT::CommandFactory* fact);
+  Orocos_CommandInterface_i (RTT::CommandFactory* fact, PortableServer::POA_ptr the_poa);
   
   //Destructor 
   virtual ~Orocos_CommandInterface_i (void);
+
+    PortableServer::POA_ptr _default_POA()
+    {
+        return PortableServer::POA::_duplicate(mpoa);
+    }
   
   virtual
   ::RTT::Corba::CommandList * getCommands (

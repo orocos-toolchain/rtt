@@ -37,6 +37,7 @@
 #include "pkgconf/os.h"
 #ifdef OROINT_OS_CORBA
 #include "corba/OperationsC.h"
+#include "corba/OperationsS.h"
 #endif
 #include "CommandInterface.hpp"
 
@@ -261,7 +262,7 @@ namespace RTT
        * \a new server object reference otherwise.
        * @see Execution.idl
        */
-      virtual Corba::Expression_ptr server() = 0;
+      virtual Corba::Expression_ptr server( PortableServer::POA_ptr ) = 0;
 
       /**
        * Create a CORBA object which 'mirrors' this DataSource.
@@ -269,7 +270,7 @@ namespace RTT
        * \a new server object reference otherwise.
        * @see Execution.idl
        */
-      virtual Corba::Expression_ptr server() const = 0;
+      virtual Corba::Expression_ptr server( PortableServer::POA_ptr ) const = 0;
 
       /**
        * Create a CORBA object which 'mirrors' this DataSource.
@@ -277,7 +278,7 @@ namespace RTT
        * \a new method object reference otherwise.
        * @see Execution.idl
        */
-      virtual Corba::Method_ptr method() = 0;
+      virtual Corba::Method_ptr method( PortableServer::POA_ptr ) = 0;
 #endif
 
   };

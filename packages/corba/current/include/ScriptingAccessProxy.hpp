@@ -55,7 +55,8 @@ namespace RTT
         using ScriptingAccess::loadPrograms;
         using ScriptingAccess::loadStateMachines;
 
-        virtual bool execute( std::string code );
+        virtual int execute( std::string code );
+        virtual CommandC getCommand( int ticket );
 
         virtual bool hasProgram( std::string name) const;
         virtual bool loadPrograms( std::string code, std::string filename, bool do_throw = false );

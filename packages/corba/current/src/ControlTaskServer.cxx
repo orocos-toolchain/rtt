@@ -91,12 +91,21 @@ namespace RTT
         servers[taskc] = this;
 
         try {
+            // Each server has its own POA.
+            CORBA::Object_var poa_object =
+                orb->resolve_initial_references ("RootPOA");
+            PortableServer::POA_var poa =
+                PortableServer::POA::_narrow (poa_object.in ());
+            PortableServer::POAManager_var poa_manager =
+                poa->the_POAManager ();
+            CORBA::PolicyList pl;
+            poa = poa->create_POA( taskc->getName().c_str(), poa_manager, pl); 
+            //            poa_manager->activate ();
+
             // The servant : TODO : cleanup servant in destructor !
-            Orocos_ControlTask_i* the_task = new Orocos_ControlTask_i( taskc );
+            Orocos_ControlTask_i* the_task = new Orocos_ControlTask_i( taskc, poa.in() );
             // move into var ptr.
             PortableServer::ServantBase_var  servant = the_task;
-            // get default poa.
-            PortableServer::POA_var poa = servant.in()->_default_POA();
             // explicit activation:
             PortableServer::ObjectId_var objId = poa->activate_object( servant.in() );
             // get object reference:

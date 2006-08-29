@@ -60,6 +60,7 @@
 #define SCRIPTINGACCESSI_H_
 
 #include "ScriptingAccessS.h"
+#include "OperationsC.h"
 #include "../ScriptingAccess.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
@@ -69,12 +70,18 @@
 class  Orocos_ScriptingAccess_i : public virtual POA_RTT::Corba::ScriptingAccess, public virtual PortableServer::RefCountServantBase
 {
     RTT::ScriptingAccess* mee;
+	PortableServer::POA_var mpoa;
 public:
   //Constructor 
-  Orocos_ScriptingAccess_i (RTT::ScriptingAccess* ee);
+  Orocos_ScriptingAccess_i (RTT::ScriptingAccess* ee, PortableServer::POA_ptr p);
   
   //Destructor 
   virtual ~Orocos_ScriptingAccess_i (void);
+
+    PortableServer::POA_ptr _default_POA()
+    {
+        return PortableServer::POA::_duplicate(mpoa);
+    }
   
   virtual
   void loadPrograms (
@@ -203,8 +210,16 @@ public:
     ));
   
   virtual
-  CORBA::Boolean execute (
+  CORBA::Long execute (
       const char * code
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+
+  virtual
+  ::RTT::Corba::Command_ptr getCommand (
+      CORBA::Long ticket
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException

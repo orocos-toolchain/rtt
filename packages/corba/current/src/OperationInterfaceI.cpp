@@ -37,8 +37,8 @@ using namespace RTT::Corba;
 using namespace std;
 
 // Implementation skeleton constructor
-Orocos_MethodInterface_i::Orocos_MethodInterface_i (MethodFactory* gmf)
-    :mfact(gmf)
+Orocos_MethodInterface_i::Orocos_MethodInterface_i (MethodFactory* gmf, PortableServer::POA_ptr the_poa)
+    :mfact(gmf), mpoa( PortableServer::POA::_duplicate(the_poa))
 {
 }
 
@@ -130,7 +130,7 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
         nargs.push_back( ExpressionProxy::Create( Expression::_duplicate( args[i] ) ) );
     // create a local data source and a new method servant to serve it.
     try {
-        return mfact->produce(method, nargs )->method();
+        return mfact->produce(method, nargs )->method( mpoa.in() );
     } catch ( name_not_found_exception& nnf ) {
         throw ::RTT::Corba::NoSuchNameException( method );
     } catch ( wrong_number_of_args_exception& wna ) {
@@ -161,7 +161,7 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
         nargs.push_back( new ValueDataSource<CORBA::Any_var>( new CORBA::Any( args[i] ) ) );
     // create a local data source and a new method servant to serve it.
     try {
-        return mfact->produce(method, nargs )->method();
+        return mfact->produce(method, nargs )->method( mpoa.in() );
     } catch ( name_not_found_exception& nnf ) {
         throw ::RTT::Corba::NoSuchNameException( method );
     } catch ( wrong_number_of_args_exception& wna ) {
@@ -173,8 +173,8 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
 }
 
 // Implementation skeleton constructor
-Orocos_CommandInterface_i::Orocos_CommandInterface_i (CommandFactory* gcf)
-    :mfact(gcf)
+Orocos_CommandInterface_i::Orocos_CommandInterface_i (CommandFactory* gcf, PortableServer::POA_ptr the_poa)
+    :mfact(gcf), mpoa( PortableServer::POA::_duplicate(the_poa) )
 {
 }
 
@@ -267,7 +267,7 @@ Orocos_CommandInterface_i::~Orocos_CommandInterface_i (void)
         for (size_t i =0; i != args.length(); ++i)
             comc.arg( DataSourceBase::shared_ptr(ExpressionProxy::Create( Expression::_duplicate(args[i]) )) );
         // servant uses that object:
-        Orocos_Command_i* com = new Orocos_Command_i( comc );
+        Orocos_Command_i* com = new Orocos_Command_i( comc, mpoa.in() );
         return com->_this();
     } catch ( name_not_found_exception& nnf ) {
         throw ::RTT::Corba::NoSuchNameException( command );
@@ -300,7 +300,7 @@ Orocos_CommandInterface_i::~Orocos_CommandInterface_i (void)
         for (size_t i =0; i != args.length(); ++i)
             comc.arg( DataSourceBase::shared_ptr( new ValueDataSource<CORBA::Any_var>( new CORBA::Any( args[i] ) )));
         // servant uses that object:
-        Orocos_Command_i* com = new Orocos_Command_i( comc );
+        Orocos_Command_i* com = new Orocos_Command_i( comc, mpoa.in() );
         return com->_this();
     } catch ( name_not_found_exception& nnf ) {
         throw ::RTT::Corba::NoSuchNameException( command );

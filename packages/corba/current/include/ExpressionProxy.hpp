@@ -195,11 +195,11 @@ namespace RTT
             return mdata->get();
         }
 
-        virtual Corba::Expression_ptr server() { return Corba::Expression::_duplicate(mdata.in()); }
+        virtual Corba::Expression_ptr server(PortableServer::POA_ptr) { return Corba::Expression::_duplicate(mdata.in()); }
 
-        virtual Corba::Expression_ptr server() const { return Corba::Expression::_duplicate(mdata.in()); }
+        virtual Corba::Expression_ptr server(PortableServer::POA_ptr) const { return Corba::Expression::_duplicate(mdata.in()); }
 
-        virtual Corba::Method_ptr method() {
+        virtual Corba::Method_ptr method(PortableServer::POA_ptr) {
             return Corba::Method::_narrow( mdata.in() );
         }
 

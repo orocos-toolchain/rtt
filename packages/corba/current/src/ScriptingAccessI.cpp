@@ -29,6 +29,7 @@
 // be/be_codegen.cpp:910
 
 #include "rtt/corba/ScriptingAccessI.h"
+#include "rtt/corba/OperationsI.h"
 #include "rtt/ScriptingAccess.hpp"
 #include "rtt/ProgramLoader.hpp"
 #include "rtt/parse_exception.hpp"
@@ -40,8 +41,8 @@ using namespace RTT::Corba;
 
 
 // Implementation skeleton constructor
-Orocos_ScriptingAccess_i::Orocos_ScriptingAccess_i (RTT::ScriptingAccess* ee)
-    :mee(ee)
+Orocos_ScriptingAccess_i::Orocos_ScriptingAccess_i (RTT::ScriptingAccess* ee, PortableServer::POA_ptr the_poa)
+    :mee(ee), mpoa( PortableServer::POA::_duplicate(the_poa))
 {
 }
 
@@ -241,12 +242,27 @@ char * Orocos_ScriptingAccess_i::getCurrentState (
     return CORBA::string_dup( mee->getCurrentState(name).c_str() );
 }
 
-CORBA::Boolean Orocos_ScriptingAccess_i::execute (
+CORBA::Long Orocos_ScriptingAccess_i::execute (
     const char * code
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
   ))
 {
-    return mee->execute( code ) == 0;
+    return mee->execute( code );
+}
+
+::RTT::Corba::Command_ptr Orocos_ScriptingAccess_i::getCommand (
+      CORBA::Long ticket
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+{
+    CommandC ret = mee->getCommand(ticket);
+    if ( !ret.ready() )
+        return 0;
+    Orocos_Command_i* com = new Orocos_Command_i( ret, mpoa.in() );
+    return com->_this();
+    
 }

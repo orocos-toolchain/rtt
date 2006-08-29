@@ -48,10 +48,14 @@ namespace RTT
     {
     }
 
-    bool ScriptingAccess::execute( string code ){
+    int ScriptingAccess::execute( string code ){
         Logger::In in("ScriptingAccess::execute");
         Logger::log() << Logger::Error << "No Parser available to execute '"+code+"' ." << Logger::endl;
-        return false;
+        return -1;
+    }
+
+    CommandC ScriptingAccess::getCommand(int ticket) {
+        return CommandC();
     }
 
     ScriptingAccess::Functions  ScriptingAccess::loadFunctions( std::string file, bool do_throw/* = false*/ )

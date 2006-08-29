@@ -43,8 +43,6 @@ namespace RTT
         : public DispatchInterface
     {
     protected:
-        static std::map<Corba::Command_ptr, CommandProxy*> proxies;
-
         /**
          * Private constructor which creates a new connection to
          * a corba object
@@ -54,6 +52,7 @@ namespace RTT
         Corba::Command_var mdata;
 
     public:
+        ~CommandProxy();
 
         /**
          * Factory method: create a CORBA connection to an existing Command Object.
@@ -109,11 +108,11 @@ namespace RTT
 
         virtual ConditionInterface* createCondition() const;
 
-        virtual DispatchInterface* clone() const {
+        virtual CommandProxy* clone() const {
             return new CommandProxy( mdata.in() );
         }
 
-        virtual DispatchInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
+        virtual CommandProxy* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             return this->clone();
         }
 

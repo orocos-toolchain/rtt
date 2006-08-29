@@ -56,6 +56,7 @@ namespace RTT
 
     std::map<Corba::ControlTask_ptr, ControlTaskProxy*> ControlTaskProxy::proxies;
 
+    PortableServer::POA_var ControlTaskProxy::proxy_poa;
 
     ControlTaskProxy::~ControlTaskProxy()
     {
@@ -115,6 +116,7 @@ namespace RTT
             Logger::log() <<Logger::Error <<"Unknown Exception in ControlTaskProxy construction!"<<Logger::endl;
             throw;
         }
+
         this->synchronize();
     }
 
@@ -150,7 +152,7 @@ namespace RTT
             MethodList_var objs;
             objs = mfact->getMethods();
             for ( size_t i=0; i < objs->length(); ++i) {
-                this->methods()->add( objs[i].in(), new CorbaMethodFactory( objs[i].in(), mfact.in() ) );
+                this->methods()->add( objs[i].in(), new CorbaMethodFactory( objs[i].in(), mfact.in(), proxy_poa.in() ) );
             }
         }
         // commands:
@@ -160,7 +162,7 @@ namespace RTT
             CommandList_var objs;
             objs = cfact->getCommands();
             for ( size_t i=0; i < objs->length(); ++i) {
-                this->commands()->add( objs[i].in(), new CorbaCommandFactory( objs[i].in(), cfact.in() ) );
+                this->commands()->add( objs[i].in(), new CorbaCommandFactory( objs[i].in(), cfact.in(), proxy_poa.in() ) );
             }
         }
 
@@ -271,6 +273,12 @@ namespace RTT
             PortableServer::POAManager_var poa_manager =
                 poa->the_POAManager ();
             poa_manager->activate ();
+
+            // new POA for the proxies:
+            // Use default manager, is already activated !
+            PortableServer::POAManager_var proxy_manager = poa->the_POAManager ();
+            CORBA::PolicyList pol;
+            proxy_poa = poa->create_POA( "ProxyPOA", proxy_manager, pol );
             return true;
         }
         catch (CORBA::Exception &e) {
@@ -401,6 +409,9 @@ namespace RTT
     CosPropertyService::PropertySet_ptr ControlTaskProxy::propertySet() {
         return mtask->propertySet();
     }
-    
+
+    PortableServer::POA_ptr ControlTaskProxy::ProxyPOA() {
+        return proxy_poa.in();
+    }
 }}
 

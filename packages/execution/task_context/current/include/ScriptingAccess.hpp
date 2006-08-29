@@ -32,6 +32,7 @@
 #include <vector>
 #include <string>
 #include "ProgramInterface.hpp"
+#include "CommandC.hpp"
 
 namespace RTT
 {
@@ -56,7 +57,9 @@ namespace RTT
         /**
          * Parse and execute a statement.
          */
-        virtual bool execute( std::string code );
+        virtual int execute( std::string code );
+
+        virtual CommandC getCommand( int ticket );
 
         /**
          * List of executed functions.

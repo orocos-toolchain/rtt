@@ -48,15 +48,18 @@ namespace RTT
         : public RTT::detail::OperationFactoryPart<DataSourceBase*>
     {
         Corba::MethodInterface_var mfact;
+        PortableServer::POA_var mpoa;
         std::string method;
     public:
         typedef std::vector<DataSourceBase::shared_ptr> Arguments;
         typedef std::vector<std::string> Members;
         typedef std::vector< RTT::ArgumentDescription > Descriptions;
 
-        CorbaMethodFactory( const std::string& method_name, Corba::MethodInterface_ptr fact )
+        CorbaMethodFactory( const std::string& method_name, Corba::MethodInterface_ptr fact, PortableServer::POA_ptr the_poa )
             : RTT::detail::OperationFactoryPart<DataSourceBase*>("Corba Method"),
-              mfact(Corba::MethodInterface::_duplicate(fact) ), method(method_name)
+              mfact(Corba::MethodInterface::_duplicate(fact) ), 
+              mpoa(PortableServer::POA::_duplicate(the_poa)),
+              method(method_name)
         {}
 
         virtual ~CorbaMethodFactory() {}
@@ -109,7 +112,7 @@ namespace RTT
             Corba::Arguments_var nargs = new Corba::Arguments();
             nargs->length( args.size() );
             for (size_t i=0; i < args.size(); ++i )
-                nargs[i] = args[i]->server();
+                nargs[i] = args[i]->server( mpoa.in() );
             try {
                 Corba::Expression_var result = mfact->createMethod( method.c_str(), nargs.in() );
                 return ExpressionProxy::CreateDataSource( result._retn() );

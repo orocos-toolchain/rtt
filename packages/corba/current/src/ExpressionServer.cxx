@@ -41,42 +41,42 @@ namespace RTT
     ExpressionServer::AServerMap ExpressionServer::AServers;
     ExpressionServer::MServerMap ExpressionServer::MServers;
 
-    Corba::Expression_ptr ExpressionServer::CreateExpression( DataSourceBase::const_ptr expr ) {
+    Corba::Expression_ptr ExpressionServer::CreateExpression( DataSourceBase::const_ptr expr, PortableServer::POA_ptr p ) {
         // try to retrieve:
         Corba::Expression_ptr result = EServers[ expr ];
         if (result )
             return Corba::Expression::_duplicate(result);
         // create new:
         Logger::log() <<Logger::Debug<< "Created 'Any' Expression server for type "<< expr->getType()<<Logger::endl;
-        Orocos_AnyExpression_i* newexpr = new Orocos_AnyExpression_i( expr );
+        Orocos_AnyExpression_i* newexpr = new Orocos_AnyExpression_i( expr, p );
         EServants[expr] = newexpr;
         EServers[expr] = newexpr->_this();
         return Corba::Expression::_duplicate( EServers[expr] );
     }
 
 
-    Corba::AssignableExpression_ptr ExpressionServer::CreateAssignableExpression( DataSourceBase::shared_ptr expr ){
+    Corba::AssignableExpression_ptr ExpressionServer::CreateAssignableExpression( DataSourceBase::shared_ptr expr, PortableServer::POA_ptr p ){
         // try to retrieve:
         Corba::AssignableExpression_ptr result = AServers[ expr ];
         if (result )
             return Corba::AssignableExpression::_duplicate(result);
         // create new:
         Logger::log() <<Logger::Debug<< "Created 'Any' Assignable Expression server for type "<< expr->getType()<<Logger::endl;
-        Orocos_AnyAssignableExpression_i* newexpr = new Orocos_AnyAssignableExpression_i( expr );
+        Orocos_AnyAssignableExpression_i* newexpr = new Orocos_AnyAssignableExpression_i( expr, p );
         AServers[expr] = newexpr->_this();
         EServants[expr] = newexpr;
         EServers[expr] = Corba::AssignableExpression::_narrow(AServers[expr]);
         return Corba::AssignableExpression::_duplicate( AServers[expr] );
     }
 
-    Corba::Method_ptr ExpressionServer::CreateMethod( DataSourceBase::shared_ptr expr ) {
+    Corba::Method_ptr ExpressionServer::CreateMethod( DataSourceBase::shared_ptr expr, PortableServer::POA_ptr p ) {
         // try to retrieve:
         Corba::Method_ptr result = MServers[ expr ];
         if (result )
             return Corba::Method::_duplicate(result);
         // create new:
         Logger::log() <<Logger::Debug<< "Created 'Any' Method server for type "<< expr->getType()<<Logger::endl;
-        Orocos_AnyMethod_i* newexpr = new Orocos_AnyMethod_i( expr );
+        Orocos_AnyMethod_i* newexpr = new Orocos_AnyMethod_i( expr, p );
         MServers[expr] = newexpr->_this();
         EServants[expr] = newexpr;
         EServers[expr] = Corba::Expression::_narrow(MServers[expr]);

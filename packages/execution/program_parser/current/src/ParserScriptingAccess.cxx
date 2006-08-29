@@ -47,10 +47,16 @@ namespace RTT
         delete sproc;
     }
 
-    bool ParserScriptingAccess::execute( string code ){
+    int ParserScriptingAccess::execute( string code ){
         if (sproc == 0)
             sproc = new StatementProcessor(mparent);
         return sproc->execute( code );
+    }
+
+    CommandC ParserScriptingAccess::getCommand( int ticket ){
+        if (sproc)
+            return sproc->getCommand(ticket);
+        return CommandC();
     }
 
     ParserScriptingAccess::Functions  ParserScriptingAccess::loadFunctions( std::string file, bool do_throw/* = false*/ )

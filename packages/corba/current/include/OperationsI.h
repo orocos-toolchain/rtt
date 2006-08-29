@@ -78,19 +78,26 @@ namespace RTT
 
 template< class DataType>
 class  Orocos_Expression_i
-  : public virtual POA_RTT::Corba::Expression
+  : public virtual POA_RTT::Corba::Expression,
+    public virtual PortableServer::RefCountServantBase
 {
 protected:
     typename RTT::DataSource<DataType>::const_ptr morig;
     typename RTT::DataSource<DataType>::value_t last_value;
+    PortableServer::POA_var mpoa;
 public:
     typedef DataType SourceType;
     typedef typename RTT::DataSource<DataType>::value_t ResultType;
 
   // Constructor 
-  Orocos_Expression_i (typename RTT::DataSource<SourceType>::const_ptr orig)
-      : morig( orig ), last_value()
+  Orocos_Expression_i (typename RTT::DataSource<SourceType>::const_ptr orig, PortableServer::POA_ptr the_poa)
+      : morig( orig ), last_value(), mpoa( PortableServer::POA::_duplicate(the_poa) )
     {}
+
+    PortableServer::POA_ptr _default_POA()
+    {
+        return PortableServer::POA::_duplicate(mpoa);
+    }
   
   // Destructor 
     virtual ~Orocos_Expression_i (void) {}
@@ -145,6 +152,13 @@ public:
       )) {
       return CORBA::string_dup( morig->getTypeName().c_str() );
   }
+
+  virtual void destroyExpression()
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+ {
+  }
 };
 
 /**
@@ -152,11 +166,13 @@ public:
  * This servant is inferior to the template based ones.
  */
 class  Orocos_AnyExpression_i
-  : public virtual POA_RTT::Corba::Expression
+  : public virtual POA_RTT::Corba::Expression,
+    public virtual PortableServer::RefCountServantBase
 {
 protected:
     RTT::DataSourceBase::const_ptr morig;
     CORBA::Any_var last_value;
+    PortableServer::POA_var mpoa;
 public:
     typedef RTT::DataSourceBase::const_ptr SourceType;
     typedef CORBA::Any                             ResultType;
@@ -166,9 +182,15 @@ public:
     }
 
   // Constructor 
-  Orocos_AnyExpression_i (RTT::DataSourceBase::const_ptr orig)
+  Orocos_AnyExpression_i (RTT::DataSourceBase::const_ptr orig, PortableServer::POA_ptr the_poa)
       : morig( orig ), last_value( morig->createAny() ) // create default Any.
+        , mpoa( PortableServer::POA::_duplicate(the_poa) )
     {}
+
+    PortableServer::POA_ptr _default_POA()
+    {
+        return PortableServer::POA::_duplicate(mpoa);
+    }
   
   // Destructor 
     virtual ~Orocos_AnyExpression_i (void) {}
@@ -226,22 +248,37 @@ public:
       )) {
       return CORBA::string_dup( morig->getTypeName().c_str() );
   }
+
+  virtual void destroyExpression()
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+ {
+  }
+
 };
 
 template<>
 class  Orocos_Expression_i<void>
-  : public virtual POA_RTT::Corba::Expression
+  : public virtual POA_RTT::Corba::Expression,
+    public virtual PortableServer::RefCountServantBase
 {
 protected:
     RTT::DataSource<void>::const_ptr morig;
+    PortableServer::POA_var mpoa;
 public:
     typedef void SourceType;
     typedef void ResultType;
 
   // Constructor 
-  Orocos_Expression_i (RTT::DataSource<void>::const_ptr orig)
-      : morig( orig )
+  Orocos_Expression_i (RTT::DataSource<void>::const_ptr orig, PortableServer::POA_ptr the_poa)
+      : morig( orig ), mpoa( PortableServer::POA::_duplicate(the_poa) )
     {}
+
+    PortableServer::POA_ptr _default_POA()
+    {
+        return PortableServer::POA::_duplicate(mpoa);
+    }
   
   // Destructor 
     virtual ~Orocos_Expression_i (void) {}
@@ -297,21 +334,37 @@ public:
       )) {
       return CORBA::string_dup( morig->getTypeName().c_str() );
   }
+
+  virtual void destroyExpression()
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+ {
+  }
+
 };
 
 template< class DataType>
 class  Orocos_AssignableExpression_i
-  : public virtual POA_RTT::Corba::AssignableExpression
+  : public virtual POA_RTT::Corba::AssignableExpression,
+    public virtual PortableServer::RefCountServantBase
 {
     typename RTT::AssignableDataSource<DataType>::shared_ptr massign;
     typename RTT::DataSource<DataType>::value_t last_value;
+    PortableServer::POA_var mpoa;
 public:
     typedef DataType SourceType;
     typedef typename RTT::DataSource<DataType>::value_t ResultType;
 
   // Constructor 
-  Orocos_AssignableExpression_i (typename RTT::AssignableDataSource<SourceType>::shared_ptr assign )
-      : massign( assign ), last_value() {}
+  Orocos_AssignableExpression_i (typename RTT::AssignableDataSource<SourceType>::shared_ptr assign, PortableServer::POA_ptr the_poa )
+      : massign( assign ), last_value(), mpoa( PortableServer::POA::_duplicate(the_poa) )
+      {}
+
+    PortableServer::POA_ptr _default_POA()
+    {
+        return PortableServer::POA::_duplicate(mpoa);
+    }
   
   // Destructor 
     virtual ~Orocos_AssignableExpression_i (void) {}
@@ -384,6 +437,14 @@ public:
       )) {
       return CORBA::string_dup( massign->getTypeName().c_str() );
   }
+
+  virtual void destroyExpression()
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+ {
+  }
+
 };
 
 class  Orocos_AnyAssignableExpression_i
@@ -399,9 +460,9 @@ public:
     }
 
   // Constructor 
-  Orocos_AnyAssignableExpression_i (RTT::DataSourceBase::shared_ptr orig)
-      : Orocos_AnyExpression_i(orig), mset( orig )
-    {}
+  Orocos_AnyAssignableExpression_i (RTT::DataSourceBase::shared_ptr orig, PortableServer::POA_ptr the_poa)
+      : Orocos_AnyExpression_i(orig, the_poa), mset( orig )
+   {}
   
   // Destructor 
     virtual ~Orocos_AnyAssignableExpression_i (void) {}
@@ -423,20 +484,27 @@ public:
 
 template<>
 class  Orocos_Expression_i<bool>
-  : public virtual POA_RTT::Corba::Expression
+  : public virtual POA_RTT::Corba::Expression,
+    public virtual PortableServer::RefCountServantBase
 {
 protected:
     RTT::DataSource<bool>::const_ptr morig;
     RTT::DataSource<bool>::value_t last_value;
+    PortableServer::POA_var mpoa;
 public:
     typedef bool SourceType;
     typedef bool ResultType;
 
   // Constructor 
-  Orocos_Expression_i (RTT::DataSource<bool>::const_ptr orig)
-      : morig( orig ), last_value()
+  Orocos_Expression_i (RTT::DataSource<bool>::const_ptr orig, PortableServer::POA_ptr the_poa)
+      : morig( orig ), last_value(), mpoa( PortableServer::POA::_duplicate(the_poa) )
     {}
-  
+
+    PortableServer::POA_ptr _default_POA()
+    {
+        return PortableServer::POA::_duplicate(mpoa);
+    }
+
   // Destructor 
     virtual ~Orocos_Expression_i (void) {}
   
@@ -491,22 +559,37 @@ public:
       )) {
       return CORBA::string_dup( morig->getTypeName().c_str() );
   }
+
+  virtual void destroyExpression()
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+ {
+  }
+
 };
 
 template<>
 class  Orocos_AssignableExpression_i<bool>
-  : public virtual POA_RTT::Corba::AssignableExpression
+  : public virtual POA_RTT::Corba::AssignableExpression,
+    public virtual PortableServer::RefCountServantBase
 {
     RTT::AssignableDataSource<bool>::shared_ptr massign;
     bool last_value;
+    PortableServer::POA_var mpoa;
 public:
     typedef bool SourceType;
     typedef bool ResultType;
 
   // Constructor 
-  Orocos_AssignableExpression_i (RTT::AssignableDataSource<bool>::shared_ptr assign )
-      : massign( assign ), last_value()
+  Orocos_AssignableExpression_i (RTT::AssignableDataSource<bool>::shared_ptr assign , PortableServer::POA_ptr the_poa)
+      : massign( assign ), last_value(), mpoa( PortableServer::POA::_duplicate(the_poa) )
     {}
+
+    PortableServer::POA_ptr _default_POA()
+    {
+        return PortableServer::POA::_duplicate(mpoa);
+    }
   
   // Destructor 
     virtual ~Orocos_AssignableExpression_i (void) {}
@@ -573,14 +656,29 @@ public:
       return CORBA::string_dup( massign->getTypeName().c_str() );
   }
 
+  virtual void destroyExpression()
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+ {
+  }
+
 };
 
-class  Orocos_Action_i : public virtual POA_RTT::Corba::Action, public virtual PortableServer::RefCountServantBase
+class  Orocos_Action_i
+    : public virtual POA_RTT::Corba::Action,
+      public virtual PortableServer::RefCountServantBase
 {
     RTT::CommandInterface* mcom;
+    PortableServer::POA_var mpoa;
 public:
   //Constructor 
-  Orocos_Action_i ( RTT::CommandInterface* com );
+  Orocos_Action_i ( RTT::CommandInterface* com, PortableServer::POA_ptr the_poa );
+
+    PortableServer::POA_ptr _default_POA()
+    {
+        return PortableServer::POA::_duplicate(mpoa);
+    }
   
   //Destructor 
     virtual ~Orocos_Action_i (void);
@@ -600,20 +698,28 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
       ));
+
+  virtual void destroyAction()
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+ {
+  }
+
 };
 
 template<class T>
 class  Orocos_Method_i
     : public virtual Orocos_Expression_i<T>,
-      public virtual POA_RTT::Corba::Method, public virtual PortableServer::RefCountServantBase
+      public virtual POA_RTT::Corba::Method
 {
 public:
     typedef T SourceType;
     typedef typename RTT::DataSource<T>::value_t ResultType;
     typename RTT::DataSource<SourceType>::shared_ptr mmethod;
   //Constructor 
-  Orocos_Method_i ( typename RTT::DataSource<SourceType>::shared_ptr datas )
-      : Orocos_Expression_i<SourceType>( datas ), mmethod( datas )
+  Orocos_Method_i ( typename RTT::DataSource<SourceType>::shared_ptr datas, PortableServer::POA_ptr the_poa )
+      : Orocos_Expression_i<SourceType>( datas, the_poa ), mmethod( datas )
     {}
   
   //Destructor 
@@ -642,8 +748,7 @@ public:
 
 class  Orocos_AnyMethod_i
     : public virtual Orocos_AnyExpression_i,
-      public virtual POA_RTT::Corba::Method,
-      public virtual PortableServer::RefCountServantBase
+      public virtual POA_RTT::Corba::Method
 {
 public:
     RTT::DataSourceBase::shared_ptr mmethod;
@@ -654,8 +759,8 @@ public:
     }
 
   //Constructor 
-  Orocos_AnyMethod_i ( RTT::DataSourceBase::shared_ptr datas )
-      : Orocos_AnyExpression_i( datas ), mmethod( datas )
+  Orocos_AnyMethod_i ( RTT::DataSourceBase::shared_ptr datas, PortableServer::POA_ptr the_poa )
+      : Orocos_AnyExpression_i( datas, the_poa ), mmethod( datas )
     {}
   
   //Destructor 
@@ -680,15 +785,31 @@ public:
       )) {
       this->mmethod->reset();
   }
+
+  virtual void destroyAction()
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+ {
+  }
+
 };
 
 
-class  Orocos_Command_i : public virtual POA_RTT::Corba::Command, public virtual PortableServer::RefCountServantBase
+class  Orocos_Command_i
+    : public virtual POA_RTT::Corba::Command,
+      public virtual PortableServer::RefCountServantBase
 {
     RTT::CommandC* morig;
+    PortableServer::POA_var mpoa;
 public:
   //Constructor 
-  Orocos_Command_i (RTT::CommandC& c);
+  Orocos_Command_i (RTT::CommandC& c, PortableServer::POA_ptr the_poa);
+
+    PortableServer::POA_ptr _default_POA()
+    {
+        return PortableServer::POA::_duplicate(mpoa);
+    }
   
   //Destructor 
   virtual ~Orocos_Command_i (void);
@@ -749,6 +870,10 @@ public:
       CORBA::SystemException
     ));
   
+  virtual void destroyCommand()
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
 };
 
 #endif /* INCLUDE_EXPRESSIONI_H_  */

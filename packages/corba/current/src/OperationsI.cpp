@@ -39,8 +39,8 @@ using namespace RTT::Corba;
 
 
 // Implementation skeleton constructor
-Orocos_Action_i::Orocos_Action_i (CommandInterface* com )
-    : mcom(com)
+Orocos_Action_i::Orocos_Action_i (CommandInterface* com, PortableServer::POA_ptr the_poa )
+    : mcom(com), mpoa( PortableServer::POA::_duplicate(the_poa) )
 {
 }
 
@@ -73,8 +73,8 @@ void Orocos_Action_i::reset (
 }
 
 // Implementation skeleton constructor
-Orocos_Command_i::Orocos_Command_i ( CommandC& orig)
-    : morig( new CommandC(orig) )
+Orocos_Command_i::Orocos_Command_i ( CommandC& orig, PortableServer::POA_ptr the_poa)
+    : morig( new CommandC(orig) ), mpoa( PortableServer::POA::_duplicate(the_poa) )
 {
 }
 
@@ -163,6 +163,17 @@ void Orocos_Command_i::reset (
 {
   // Add your implementation here
     return morig->reset();
+}
+
+void Orocos_Command_i::destroyCommand (
+    
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+  // Add your implementation here
+
 }
 
 
