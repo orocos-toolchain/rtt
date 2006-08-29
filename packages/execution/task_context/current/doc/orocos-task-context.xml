@@ -236,7 +236,7 @@
     </para>
     <note>
       <para>
-	The <classname>Orocos::TaskBrowser</classname> is a component
+	The Orocos::TaskBrowser is a component
 	of its own which is found in the same directory as the hello
 	world component.
       </para>
@@ -249,10 +249,10 @@
   int ORO_main( int, char** )
   {
       // Create your tasks
-      <classname>Orocos::TaskContext</classname>* task = ...
+      <classname>RTT::TaskContext</classname>* task = ...
 
       // when all is setup :
-      <classname>Orocos::TaskBrowser</classname> tbrowser( task );
+      <classname>RTT::TaskBrowser</classname> tbrowser( task );
 
       tbrowser.loop();
       return 0;
