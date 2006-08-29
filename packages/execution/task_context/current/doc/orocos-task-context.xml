@@ -227,9 +227,9 @@
     <para>
       The way we interact with TaskContexts during development of an
       Orocos application is through the <emphasis>Task Browser</emphasis>.  The
-      <classname>Orocos::TaskBrowser</classname> is a powerful console tool
+      <classname>RTT::TaskBrowser</classname> is a powerful console tool
       which helps you to explore, execute and debug
-      <classname>Orocos::TaskContext</classname>s in running programs. All you
+      <classname>RTT::TaskContext</classname>s in running programs. All you
       have to do is to create a TaskBrowser and call its loop()
       method. When the program is started from a console, the
       TaskBrowser takes over user input and output.
@@ -242,7 +242,7 @@
       </para>
     </note>
     <programlisting>
-  #include &lt;orocos/TaskBrowser.hpp&gt;
+  #include &lt;rtt/TaskBrowser.hpp&gt;
   #include &lt;rtt/os/main.h&gt;
   // ...
 
