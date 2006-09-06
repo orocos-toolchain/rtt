@@ -28,7 +28,7 @@
 #ifndef CANMESSAGE_HPP
 #define CANMESSAGE_HPP
 
-#include <can/cpmacro.h>
+#include <rtt/can/cpmacro.h>
 #include "CANDeviceInterface.hpp"
 #include <string.h>
 
