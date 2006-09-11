@@ -42,13 +42,5 @@ The name must be unique with respect to other threads."
 	    default_value {"\"CompletionProcessor\""}
 	    #legal_values string
 	}
-	cdl_option ORONUM_CORELIB_EVENTS_CP_PRIORITY {
-	    display "The priority of the completion processor"
-            description "
-Every thread needs a priority. The completion processor should probably have a low priority."
-	    flavor data
-	    default_value 20
-	    #legal_values positive number
-	}
     }
 }

@@ -170,16 +170,16 @@ The name must be unique with respect to other threads."
 	    default_value {"\"SimulationThread\""}
 	}
 
-	cdl_option ORONUM_CORELIB_ACTIVITIES_SIM_PRIORITY {
-	    display "The priority of the SimulationThread"
-            description "
-This value is quite arbitrary, but might be of importance
-if other threads communicate with this thread. In a fixed
-priority scheme, no thread will with lower priority."
-	    flavor data
-	    default_value 255
-            legal_values 0 to 255
-	}
+# 	cdl_option ORONUM_CORELIB_ACTIVITIES_SIM_PRIORITY {
+# 	    display "The priority of the SimulationThread"
+#             description "
+# This value is quite arbitrary, but might be of importance
+# if other threads communicate with this thread. In a fixed
+# priority scheme, no thread will with lower priority."
+# 	    flavor data
+# 	    default_value 255
+#             legal_values 0 to 255
+# 	}
 
 	cdl_option ORONUM_CORELIB_ACTIVITIES_SIM_PERIOD {
 	    display "The period of the SimulationThread in sec"
