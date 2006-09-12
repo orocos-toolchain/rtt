@@ -77,9 +77,9 @@ namespace RTT
 #endif
 
 #ifdef OROPKG_OS_THREAD_SCOPE
-#ifdef OROPKG_OS_THREAD_SCOPE_THREAD_ORDER
+#ifdef OROINT_OS_THREAD_SCOPE_THREAD_ORDER
 	// order thread scope toggle bit on thread number
-	unsigned int bit = task->threadnb;
+	unsigned int bit = task->threadNumber();
 #else
         // order thread scope toggle bit on priority
         unsigned int bit = task->getPriority();

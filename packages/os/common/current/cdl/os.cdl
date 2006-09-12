@@ -121,6 +121,19 @@ Standard IO Ports Device Driver).
 	flavor bool
 	#calculated OROINT_DEVICE_INTERFACE_THREAD_SCOPE
 	default_value 0
+
+        cdl_option OROINT_OS_THREAD_SCOPE_THREAD_ORDER {
+	display "Thread - Pin matching on the thread scope"
+	description "
+This options allow to change the mapping of the threads on the pins of
+	the thread scope device.  If enabled, pins will be assigned to
+	threads according to their unique thread number (the main
+	thread is thread 0, other threads are starting from 1 and incrementing.
+"
+	flavor bool
+	default_value 1
+    }
+
     }
 
     cdl_component OROSEM_OS_LOCK_MEMORY {
