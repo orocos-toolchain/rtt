@@ -33,8 +33,8 @@ using namespace RTT::OS;
 
 ThreadInterface::ThreadInterface()
 {
-    threads.inc();
     threadnb = threads.read();
+    threads.inc();
 }
 
 ThreadInterface::~ThreadInterface()
