@@ -133,6 +133,16 @@ namespace RTT
          * Required before invoking execute() a second time.
          */
         void reset();
+
+        /**
+         * Returns true if this method is ready for execution.
+         */
+        bool ready() const;
+
+        /**
+         * Get the contained data source.
+         */
+        DataSourceBase::shared_ptr getDataSource();
     };
 }
 

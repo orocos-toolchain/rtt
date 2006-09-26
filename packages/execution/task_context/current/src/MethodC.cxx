@@ -181,4 +181,11 @@ namespace RTT
         if (m)
             m->reset();
     }
+
+    bool MethodC::ready() const
+    {
+        return m;
+    }
+
+    DataSourceBase::shared_ptr MethodC::getDataSource() { return m; }
 }
