@@ -135,11 +135,11 @@ namespace RTT
 
         virtual ~TaskContext();
 
-        const std::string& getName() const;
+        virtual const std::string& getName() const;
 
-        const std::string& getDescription() const;
+        virtual const std::string& getDescription() const;
 
-        void setDescription(const std::string& descr);
+        virtual void setDescription(const std::string& descr);
 
         /**
          * Queue a command.
@@ -160,27 +160,27 @@ namespace RTT
          * @param alias An optional alias (another name) for the peer.
          * defaults to \a peer->getName()
          */
-        bool addPeer( TaskContext* peer, std::string alias = "" );
+        virtual bool addPeer( TaskContext* peer, std::string alias = "" );
 
         /**
          * Remove a one-way connection from this task to a peer task.
          */
-        void removePeer( const std::string& name );
+        virtual void removePeer( const std::string& name );
 
         /**
          * Remove a one-way connection from this task to a peer task.
          */
-        void removePeer( TaskContext* peer );
+        virtual void removePeer( TaskContext* peer );
 
         /**
          * Add a two-way connection from this task to a peer task.
          */
-        bool connectPeers( TaskContext* peer );
+        virtual bool connectPeers( TaskContext* peer );
 
         /**
          * Add a data flow connection from this task's ports to a peer's ports.
          */
-        bool connectPorts( TaskContext* peer );
+        virtual bool connectPorts( TaskContext* peer );
 
         /**
          * Disconnect this TaskContext from it's peers.
@@ -188,36 +188,36 @@ namespace RTT
          * the connections themselves may continue to exist to serve other TaskContexts.
          * This method invokes removePeer() as well on the peers listed in this->getPeerList().
          */
-        void disconnect();
+        virtual void disconnect();
 
         /**
          * Reconnect the data ports of this task, without
          * removing the peer relationship. Use this if you
          * changed a port name of an already connected task.
          */
-        void reconnect();
+        virtual void reconnect();
 
         /**
          * Remove a two-way connection from this task to a peer task.
          */
-        void disconnectPeers( const std::string& name );
+        virtual void disconnectPeers( const std::string& name );
 
         /**
          * Return a standard container which contains all the Peer names
          * of this TaskContext.
          */
-        PeerList getPeerList() const;
+        virtual PeerList getPeerList() const;
 
         /**
          * Return true if it knows a peer by that name.
          */
-        bool hasPeer( const std::string& peer_name ) const;
+        virtual bool hasPeer( const std::string& peer_name ) const;
 
         /**
          * Get a pointer to a peer of this task.
          * @return null if no such peer.
          */
-        TaskContext* getPeer(const std::string& peer_name ) const;
+        virtual TaskContext* getPeer(const std::string& peer_name ) const;
 
         /** 
          * Add a new TaskObject to this TaskContext.
@@ -227,7 +227,7 @@ namespace RTT
          * @return true if it cuold be added, false if such
          * object already exists.
          */
-        bool addObject( OperationInterface *obj );
+        virtual bool addObject( OperationInterface *obj );
 
         /** 
          * Get a pointer to a previously added TaskObject
@@ -236,14 +236,14 @@ namespace RTT
          * 
          * @return the pointer
          */
-        OperationInterface* getObject(const std::string& obj_name );
+        virtual OperationInterface* getObject(const std::string& obj_name );
 
         /** 
          * Get a list of all the object names of this TaskContext.
          * 
          * @return a list of string names.
          */
-        ObjectList getObjectList() const;
+        virtual ObjectList getObjectList() const;
 
         /** 
          * Remove and delete a previously added TaskObject.
@@ -252,7 +252,7 @@ namespace RTT
          * 
          * @return true if found and removed, false otherwise.
          */
-        bool removeObject(const std::string& obj_name );
+        virtual bool removeObject(const std::string& obj_name );
 
         /**
          * Get access to high level controls for
