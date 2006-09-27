@@ -197,7 +197,7 @@ namespace RTT
         this->step();
     }
 
-    bool PeriodicActivity::update()
+    bool PeriodicActivity::execute()
     {
         return false;
     }

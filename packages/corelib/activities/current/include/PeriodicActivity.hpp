@@ -137,7 +137,7 @@ namespace RTT
 
         virtual bool start();
 
-        virtual bool update();
+        virtual bool execute();
 
         virtual bool trigger();
 

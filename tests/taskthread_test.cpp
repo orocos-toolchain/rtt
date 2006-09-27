@@ -248,7 +248,7 @@ void ActivitiesThreadTest::testSlave()
     CPPUNIT_ASSERT( mtask.isRunning() == false );
     CPPUNIT_ASSERT( mtask.isPeriodic() == false );
     CPPUNIT_ASSERT( mtask.getPeriod() == 0.0 );
-    CPPUNIT_ASSERT( mtask.update() == false );
+    CPPUNIT_ASSERT( mtask.execute() == false );
     CPPUNIT_ASSERT( mtask.thread() == OS::MainThread::Instance() );
 
     // starting...
@@ -260,9 +260,9 @@ void ActivitiesThreadTest::testSlave()
     CPPUNIT_ASSERT( mtask.start() == false );
 
     // calls loop()
-    CPPUNIT_ASSERT( mtask.update() );
+    CPPUNIT_ASSERT( mtask.execute() );
     CPPUNIT_ASSERT( r.looped == true );
-    CPPUNIT_ASSERT( mtask.update() );
+    CPPUNIT_ASSERT( mtask.execute() );
 
     // stopping...
     CPPUNIT_ASSERT( mtask.stop() == true );
@@ -271,7 +271,7 @@ void ActivitiesThreadTest::testSlave()
     CPPUNIT_ASSERT( mtask.isActive() == false );
     CPPUNIT_ASSERT( mtask.stop() == false );
 
-    CPPUNIT_ASSERT( mtask.update() == false );
+    CPPUNIT_ASSERT( mtask.execute() == false );
 
     r.reset(true);
 
@@ -281,7 +281,7 @@ void ActivitiesThreadTest::testSlave()
     CPPUNIT_ASSERT( mslave.isRunning() == false );
     CPPUNIT_ASSERT( mslave.isPeriodic() == true );
     CPPUNIT_ASSERT_EQUAL( mslave.getPeriod(), t_task_np->getPeriod() );
-    CPPUNIT_ASSERT( mslave.update() == false );
+    CPPUNIT_ASSERT( mslave.execute() == false );
     CPPUNIT_ASSERT( mslave.thread() == t_task_np->thread() );
 
     CPPUNIT_ASSERT( !mslave.start() );
@@ -292,9 +292,9 @@ void ActivitiesThreadTest::testSlave()
     CPPUNIT_ASSERT( mslave.isRunning() );
 
     // calls step()
-    CPPUNIT_ASSERT( mslave.update() );
+    CPPUNIT_ASSERT( mslave.execute() );
     CPPUNIT_ASSERT( r.stepped == true );
-    CPPUNIT_ASSERT( mslave.update() );
+    CPPUNIT_ASSERT( mslave.execute() );
     CPPUNIT_ASSERT( !mslave.start() );
 
     // stopping...
@@ -311,14 +311,14 @@ void ActivitiesThreadTest::testSlave()
     CPPUNIT_ASSERT( mslave_p.isRunning() == false );
     CPPUNIT_ASSERT( mslave_p.isPeriodic() == true );
     CPPUNIT_ASSERT( mslave_p.getPeriod() == 0.001 );
-    CPPUNIT_ASSERT( mslave_p.update() == false );
+    CPPUNIT_ASSERT( mslave_p.execute() == false );
     CPPUNIT_ASSERT( mslave_p.thread() == OS::MainThread::Instance() );
 
     CPPUNIT_ASSERT( mslave_p.start() );
     CPPUNIT_ASSERT( r.init == true );
     CPPUNIT_ASSERT( mslave_p.isActive() );
     CPPUNIT_ASSERT( mslave_p.isRunning() );
-    CPPUNIT_ASSERT( mslave_p.update() );
+    CPPUNIT_ASSERT( mslave_p.execute() );
     CPPUNIT_ASSERT( r.stepped == true );
     CPPUNIT_ASSERT( !mslave_p.start() );
 
@@ -327,7 +327,7 @@ void ActivitiesThreadTest::testSlave()
     CPPUNIT_ASSERT( r.fini == true );
     CPPUNIT_ASSERT( !mslave_p.isActive() );
     CPPUNIT_ASSERT( !mslave_p.isRunning() );
-    CPPUNIT_ASSERT( !mslave_p.update() );
+    CPPUNIT_ASSERT( !mslave_p.execute() );
     
 }
 

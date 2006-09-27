@@ -162,7 +162,7 @@ namespace RTT
         return false;
     }        
 
-    bool SlaveActivity::update()
+    bool SlaveActivity::execute()
     {
         // non periodic case.
         if ( mperiod == 0.0 ) {

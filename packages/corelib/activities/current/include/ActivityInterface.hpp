@@ -125,22 +125,22 @@ namespace RTT
         virtual bool isPeriodic() const = 0;
 
         /**
-         * Update this activity such that it \a executes a step or loop of the RunnableInterface.
-         * When you invoke update() you intend to call the step() or loop() methods.
-         * Some activity implementations allow a user controlled update, others ignore it.
+         * Execute this activity such that it \a executes a step or loop of the RunnableInterface.
+         * When you invoke execute() you intend to call the step() or loop() methods.
+         * Some activity implementations allow a user controlled execute, others ignore it.
          * 
          * @retval true When this->isActive() and the implementation allows external
-         * updates.
+         * executes.
          * @retval false When !this->isActive() or the implementation does not
          * allow external updating.
-         * @see trigger() for use in callbacks which want update() to be executed.
+         * @see trigger() for use in callbacks which want execute() to be executed.
          */
-        virtual bool update() = 0;
+        virtual bool execute() = 0;
 
         /**
          * Trigger that work has to be done. When you invoke trigger(), you intend
-         * to notify the instance that calls update(), that update() should be called.
-         * This allows a separation between actually executing code (update()) and notifying that
+         * to notify the instance that calls execute(), that execute() should be called.
+         * This allows a separation between actually executing code (execute()) and notifying that
          * code must be executed (trigger()). A trigger may be ignored by the
          * implementation.
          * 

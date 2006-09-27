@@ -110,8 +110,8 @@ namespace RTT
         return SingleThread::isActive() ? SingleThread::start() : false;
     }
 
-    bool NonPeriodicActivity::update() {
-        return SingleThread::isActive() ? SingleThread::start() : false;
+    bool NonPeriodicActivity::execute() {
+        return false;
     }
 
     bool NonPeriodicActivity::isRunning() const {

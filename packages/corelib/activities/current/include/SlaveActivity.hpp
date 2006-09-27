@@ -112,7 +112,7 @@ namespace RTT
 
         bool isActive() const;
 
-        bool update();
+        bool execute();
 
         bool trigger();
     private:

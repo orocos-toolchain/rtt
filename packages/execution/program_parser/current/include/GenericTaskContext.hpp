@@ -143,7 +143,7 @@ namespace RTT
         /**
          * Invoke this method to instruct the TaskContext to execute
          * its ExecutionEngine and the update() method.
-         * @retval false if this->engine()->getActivity()->update() == false
+         * @retval false if this->engine()->getActivity()->execute() == false
          * @retval true otherwise.
          */
         virtual bool doUpdate();

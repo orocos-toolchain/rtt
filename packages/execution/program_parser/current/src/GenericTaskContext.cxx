@@ -105,7 +105,7 @@ namespace RTT
     {
         if ( this->engine()->getActivity() == 0 )
             return false;
-        return this->engine()->getActivity()->update();
+        return this->engine()->getActivity()->execute();
     }
 
     /**
