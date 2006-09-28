@@ -17,8 +17,6 @@
  ***************************************************************************/
 
 #include <rtt/dev/SimulationAxis.hpp>
-#include <iostream>
-
 
 using namespace RTT;
 
