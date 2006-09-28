@@ -21,7 +21,6 @@
 
 #include "AxisInterface.hpp"
 #include <rtt/TimeService.hpp>
-#include <iostream>
 
 namespace RTT
 {
