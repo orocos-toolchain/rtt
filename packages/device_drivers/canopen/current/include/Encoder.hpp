@@ -32,7 +32,8 @@
 #include <rtt/dev/EncoderInterface.hpp>
 
 
-namespace CAN
+namespace RTT
+{namespace CAN
 {
     using CAN::BeckhoffSSI;
 
@@ -78,6 +79,6 @@ namespace CAN
             return bhssi->upcounting();
         }
     };
-}
+}}
 
 #endif

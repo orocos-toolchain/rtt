@@ -27,7 +27,8 @@
 
 #include "rtt/can/CANMessage.hpp"
 
-namespace CAN
+namespace RTT
+{namespace CAN
 {
     CANDummyDevice CANMessage::candevice_dummy;
-}
+}}

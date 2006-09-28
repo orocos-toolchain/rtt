@@ -32,7 +32,8 @@
 #include <rtt/RunnableInterface.hpp>
 #include "CANOpenBus.hpp"
 
-namespace CAN
+namespace RTT
+{namespace CAN
 {
     /**
      * A class which writes a sync message to the bus when
@@ -48,6 +49,6 @@ namespace CAN
         void step() { bus->sync(); }
         void finalize() {}
     };
-}
+}}
 
 #endif

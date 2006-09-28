@@ -30,7 +30,8 @@
 
 #include "CANDeviceInterface.hpp"
 
-namespace CAN
+namespace RTT
+{namespace CAN
 {
 	/**
 	 * An interface describing a generic CANController.
@@ -43,7 +44,7 @@ namespace CAN
         virtual ~CANControllerInterface() {}
 	};
 			
-}
+}}
 
 
 #endif

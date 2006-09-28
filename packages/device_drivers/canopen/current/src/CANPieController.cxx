@@ -38,7 +38,8 @@
 #include "rtt/can/cpuser.h"
 #include <rtt/os/fosi.h>
 
-namespace CAN
+namespace RTT
+{namespace CAN
 {
 #ifdef OROPKG_CORELIB_ACTIVITIES
     
@@ -149,7 +150,7 @@ namespace CAN
         }
             
         CANPieController* CANPieController::controller[CP_CHANNEL_MAX];
-}
+}}
 
 
 

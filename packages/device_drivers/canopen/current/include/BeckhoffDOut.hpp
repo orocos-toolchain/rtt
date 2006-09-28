@@ -31,7 +31,8 @@
 #include "CAN.hpp"
 #include <rtt/dev/DigitalOutInterface.hpp>
 
-namespace CAN
+namespace RTT
+{namespace CAN
 {
 	/**
      * @brief A class representing an Beckhoff Digital Out Terminal.
@@ -99,7 +100,7 @@ namespace CAN
         unsigned int totalBits;
 	};
 			
-}
+}}
 
 
 #endif

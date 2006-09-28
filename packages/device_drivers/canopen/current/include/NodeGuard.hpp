@@ -34,7 +34,8 @@
 #include "CANMessage.hpp"
 #include "CANOpenBus.hpp"
 
-namespace CAN
+namespace RTT
+{namespace CAN
 {
 
     /**
@@ -170,6 +171,6 @@ namespace CAN
         }
     };
 
-}
+}}
 
 #endif

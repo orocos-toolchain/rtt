@@ -40,7 +40,8 @@
 #include <iostream>
 #include <rtt/os/rtstreams.hpp>
 
-namespace CAN
+namespace RTT
+{namespace CAN
 {
     
     using namespace std;
@@ -129,7 +130,7 @@ namespace CAN
 
 	};
 			
-}
+}}
 
 
 #endif

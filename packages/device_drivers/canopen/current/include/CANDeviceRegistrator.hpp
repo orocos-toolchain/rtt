@@ -31,7 +31,8 @@
 #include "CANDeviceInterface.hpp"
 #include "CANBusInterface.hpp"
 
-namespace CAN
+namespace RTT
+{namespace CAN
 {
     
 	/**
@@ -58,7 +59,7 @@ namespace CAN
         CANBusInterface* myBus;
         CANDeviceInterface* myDev;
 	};
-}
+}}
 
 
 #endif

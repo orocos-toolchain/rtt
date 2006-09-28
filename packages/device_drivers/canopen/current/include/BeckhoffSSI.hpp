@@ -40,7 +40,8 @@
 #include <iostream>
 #include <rtt/os/rtstreams.hpp>
 
-namespace CAN
+namespace RTT
+{namespace CAN
 {
 
 	/**
@@ -418,7 +419,7 @@ namespace CAN
         unsigned int totalTerminals;
 	};
 			
-}
+}}
 
 
 #endif

@@ -40,7 +40,8 @@
 
 #include "cpuser.h"
 
-namespace CAN
+namespace RTT
+{namespace CAN
 {
 
   /**
@@ -105,7 +106,7 @@ namespace CAN
     unsigned int generic_trns;
   };
 			
-}
+}}
 
 
 #endif

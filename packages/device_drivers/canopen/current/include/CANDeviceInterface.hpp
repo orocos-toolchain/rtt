@@ -28,7 +28,8 @@
 #ifndef CANDEVICEINTERFACE_HPP
 #define CANDEVICEINTERFACE_HPP
 
-namespace CAN
+namespace RTT
+{namespace CAN
 {
     class CANMessage;
 
@@ -80,7 +81,7 @@ namespace CAN
         NodeStatus status;
 	};
 			
-}
+}}
 
 
 #endif

@@ -31,8 +31,8 @@
 #include "rtt/Logger.hpp"
 
 
-
-namespace CAN
+namespace RTT
+{namespace CAN
 {
     BeckhoffCANCoupler::BeckhoffCANCoupler(CANBusInterface* _bus, unsigned int _node_id)
         : analogOutputs(),
@@ -179,7 +179,7 @@ namespace CAN
         bus->write(&msg);
     }
 
-}
+}}
 
 
 

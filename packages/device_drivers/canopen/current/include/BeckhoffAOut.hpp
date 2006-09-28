@@ -31,7 +31,8 @@
 #include "CAN.hpp"
 #include <rtt/dev/AnalogOutInterface.hpp>
 
-namespace CAN
+namespace RTT
+{namespace CAN
 {
     
     /**
@@ -99,7 +100,7 @@ namespace CAN
 
 
 
-}
+}}
 
 
 #endif

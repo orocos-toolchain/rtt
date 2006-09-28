@@ -36,7 +36,8 @@
 #include <algorithm>
 #include <rtt/os/rtstreams.hpp>
 
-namespace CAN
+namespace RTT
+{namespace CAN
 {
     using std::list;
     using std::find;
@@ -154,7 +155,7 @@ namespace CAN
         CANControllerInterface* controller;
 	};
 			
-}
+}}
 
 
 #endif

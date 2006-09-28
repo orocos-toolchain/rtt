@@ -35,7 +35,8 @@
 #include <rtt/Time.hpp>
 #include <rtt/os/rtstreams.hpp>
 
-namespace CAN
+namespace RTT
+{namespace CAN
 {
 
     
@@ -187,6 +188,6 @@ namespace CAN
         Seconds timeout;
     };
 
-}
+}}
 
 #endif

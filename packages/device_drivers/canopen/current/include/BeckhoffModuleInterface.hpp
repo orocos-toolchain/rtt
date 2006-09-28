@@ -29,7 +29,8 @@
 #define BECKHOFFTERMINALINTERFACE_HPP
 
 
-namespace CAN
+namespace RTT
+{namespace CAN
 {
     
 	/**
@@ -44,7 +45,7 @@ namespace CAN
         
 	};
 			
-}
+}}
 
 
 #endif

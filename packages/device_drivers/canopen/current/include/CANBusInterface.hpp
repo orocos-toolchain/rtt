@@ -28,7 +28,8 @@
 #ifndef CANBUSINTERFACE_HPP
 #define CANBUSINTERFACE_HPP
 
-namespace CAN
+namespace RTT
+{namespace CAN
 {
     class CANDeviceInterface;
     class CANMessage;
@@ -99,7 +100,7 @@ namespace CAN
 
 	};
 			
-}
+}}
 
 
 #endif

@@ -33,7 +33,8 @@
 #include "CANDeviceInterface.hpp"
 #include "CANMessage.hpp"
 
-namespace CAN
+namespace RTT
+{namespace CAN
 {
 
 	/**
@@ -88,7 +89,7 @@ namespace CAN
 
 	};
 			
-}
+}}
 
 
 #endif

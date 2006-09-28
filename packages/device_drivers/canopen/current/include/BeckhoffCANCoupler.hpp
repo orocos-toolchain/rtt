@@ -39,7 +39,8 @@
 
 #include <vector>
 
-namespace CAN
+namespace RTT
+{namespace CAN
 {
     
     using std::vector;
@@ -115,7 +116,7 @@ namespace CAN
         TimeService* hb;
     };
 			
-}
+}}
 
 
 #endif
