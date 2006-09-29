@@ -144,6 +144,10 @@ namespace RTT
             if ( peerport->connected() && (*it)->connected() )
                 continue;
 
+            // NOTE: all code below can be replaced by a single line:
+            // peerport->connectTo( *it ) || (*it)->connectTo(peerport);
+            // but that has less informational log messages.
+
             // Our port is connected thus peerport is not connected.
             if ( (*it)->connected() ) {
                 // ask peer to connect to us:
@@ -182,10 +186,10 @@ namespace RTT
             } else {
                 writer = peerport->clone();
             }
-            ConnectionInterface::shared_ptr con = (*it)->createConnection( writer );
+            ConnectionInterface::shared_ptr con = writer->createConnection( (*it) );
             if ( !con ) {
                 // real error msg will be produced by factory itself.
-                Logger::log() <<Logger::Debug<< "Failed to connect Port " << (*it)->getName() << " to peer Task "<<peer->getName() <<"." << Logger::endl;
+                Logger::log() <<Logger::Warning<< "Failed to connect Port " << (*it)->getName() << " to peer Task "<<peer->getName() <<"." << Logger::endl;
                 failure = true;
             } else {
                 // all went fine, add peerport as well, will always succeed:
