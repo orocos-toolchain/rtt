@@ -516,13 +516,16 @@ void Generic_TaskTest::testPorts()
 {
     WriteDataPort<double> wdp("WDName");
     ReadDataPort<double> rdp("RDName");
+    DataPort<double> dp("DName");
+    DataPort<double> dp2("D2Name");
 
     CPPUNIT_ASSERT( wdp.getPortType() == PortInterface::WritePort );
     CPPUNIT_ASSERT( rdp.getPortType() == PortInterface::ReadPort );
+    CPPUNIT_ASSERT( dp.getPortType() == PortInterface::ReadWritePort );
 
     // Test initial value
     wdp.Set( 1.0 );
-    CPPUNIT_ASSERT( wdp.Get() == 1.0 );
+    dp.Set( 2.0 );
 
     WriteBufferPort<double> wbp("WBName", 10);
     ReadBufferPort<double> rbp("RBName");
@@ -535,27 +538,61 @@ void Generic_TaskTest::testPorts()
 
     tc->ports()->addPort( &wdp );
     tc->ports()->addPort( &rdp );
+    tc->ports()->addPort( &dp );
+    tc->ports()->addPort( &dp2 );
+
     tc->ports()->addPort( &wbp );
     tc->ports()->addPort( &rbp );
     tc->ports()->addPort( &bp );
     tc->ports()->addPort( &bp2 );
 
     // Test connection creation.
-    wdp.createConnection( &rdp )->connect();
-    wbp.createConnection( &rbp )->connect();
-    bp.connectTo( rbp.connection() );
+    CPPUNIT_ASSERT(wdp.createConnection( &rdp )->connect());
+    CPPUNIT_ASSERT(dp.connectTo( rdp.connection() ));
+
+    CPPUNIT_ASSERT(wbp.createConnection( &rbp )->connect());
+    CPPUNIT_ASSERT(bp.connectTo( rbp.connection() ));
 
     CPPUNIT_ASSERT( wdp.connected() );
     CPPUNIT_ASSERT( rdp.connected() );
+    CPPUNIT_ASSERT( dp.connected() );
+
     CPPUNIT_ASSERT( wbp.connected() );
     CPPUNIT_ASSERT( rbp.connected() );
     CPPUNIT_ASSERT( bp.connected() );
 
     // Test data transfer
     CPPUNIT_ASSERT( rdp.Get() == 1.0 );
-    wdp.Set( 2.0 );
-    CPPUNIT_ASSERT( rdp.Get() == 2.0 );
+    wdp.Set( 3.0 );
+    CPPUNIT_ASSERT( rdp.Get() == 3.0 );
+    CPPUNIT_ASSERT( dp.Get() == 3.0 );
+    double dat = 0.0;
+    dp.Get( dat );
+    CPPUNIT_ASSERT( dat == 3.0 );
+    dat = 0.0;
+    rdp.Get( dat );
+    CPPUNIT_ASSERT( dat == 3.0 );
 
+    // Test Data-to-Data:
+    dp.disconnect();
+    CPPUNIT_ASSERT( dp.createConnection( &dp2 )->connect() );
+    CPPUNIT_ASSERT( dp.connected() );
+    CPPUNIT_ASSERT( dp2.connected() );
+
+    dp.Set( 5.0 );
+    dp2.Get( dat );
+    CPPUNIT_ASSERT( dat == 5.0 );
+    
+    dp2.Set( 6.0 );
+    CPPUNIT_ASSERT( dp.Get() == 6.0 );
+
+    dp.disconnect();
+    dp2.disconnect();
+    dp = new DataObject<double>("Data",10.0);
+    CPPUNIT_ASSERT( dp.connected() );
+    CPPUNIT_ASSERT( dp.Get() == 10.0 );
+
+    // Test buffer transfer
     double val;
     CPPUNIT_ASSERT( wbp.Push( 5.0 ) );
     CPPUNIT_ASSERT( rbp.Pop( val ) );
@@ -572,7 +609,7 @@ void Generic_TaskTest::testPorts()
 
     // Test Buffer-to-Buffer:
     bp.disconnect();
-    bp.createConnection( &bp2 )->connect();
+    CPPUNIT_ASSERT( bp.createConnection( &bp2 )->connect() );
     CPPUNIT_ASSERT( bp.connected() );
     CPPUNIT_ASSERT( bp2.connected() );
 
@@ -586,6 +623,13 @@ void Generic_TaskTest::testPorts()
     CPPUNIT_ASSERT( val == 5.0 );
     CPPUNIT_ASSERT( bp2.Pop( val ) == false );
 
+    bp.disconnect();
+    bp2.disconnect();
+    bp = new BufferLockFree<double>(10);
+    CPPUNIT_ASSERT( bp.connected() );
+    CPPUNIT_ASSERT( bp.buffer()->capacity() == 10 );
+
+    
 }
 
 void Generic_TaskTest::testCommandFactory()
@@ -732,14 +776,6 @@ void Generic_TaskTest::testCommandFromDS()
     verifycommand(c41);
     CPPUNIT_ASSERT( tsim->stop()) ;
 }
-
-template<class T, class F1, class F2, class O, class CP>
-Command<T> command(const char* name, F1 comf, F2 conf, O object, CP cp)
-{
-    return Command<typename boost::function_type_signature<F1>::representee>(std::string(name), comf, conf, object, cp);
-    //return Command<T>(std::string(name), comf, conf, object, cp);
-}
-
 
 void Generic_TaskTest::testDSCommand()
 {
@@ -1043,8 +1079,12 @@ void Generic_TaskTest::testAddMethod()
 void Generic_TaskTest::testAddCommand()
 {
 
-    Command<bool(void)> com0= command("command", &Generic_TaskTest::cd0, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
-    Command<bool(int)> com11= command("command", &Generic_TaskTest::cd1, &Generic_TaskTest::cn1, this, tc->engine()->commands() );
+    Command<bool(void)> com0("c0");
+    com0 = command("command", &Generic_TaskTest::cd0, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
+
+    Command<bool(int)> com11("c11");
+    com11= command("command", &Generic_TaskTest::cd1, &Generic_TaskTest::cn1, this, tc->engine()->commands() );
+
     Command<bool(int)> com10= command("command", &Generic_TaskTest::cd1, &Generic_TaskTest::cn0, this, tc->engine()->commands() );
 
     Command<bool(int,double)> com22= command("command", &Generic_TaskTest::cd2, &Generic_TaskTest::cn2, this, tc->engine()->commands() );
