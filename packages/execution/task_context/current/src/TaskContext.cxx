@@ -176,29 +176,16 @@ namespace RTT
                 }
                 continue;
             }
-                
-            // clone or anti-clone:
-            PortInterface* writer;
+
             // Last resort: both not connected: create new connection.
-            if ( peerport->getPortType() == PortInterface::ReadPort && 
-                 (*it)->getPortType() == PortInterface::ReadPort ) {
-                writer = peerport->antiClone();
-            } else {
-                writer = peerport->clone();
-            }
-            ConnectionInterface::shared_ptr con = writer->createConnection( (*it) );
-            if ( !con ) {
+            if ( !(*it)->connectTo( peerport ) ) {
                 // real error msg will be produced by factory itself.
-                Logger::log() <<Logger::Warning<< "Failed to connect Port " << (*it)->getName() << " to peer Task "<<peer->getName() <<"." << Logger::endl;
+                log(Warning)<< "Failed to connect Port " << (*it)->getName() << " of " << getName() << " to peer Task "<<peer->getName() <<"." << Logger::endl;
                 failure = true;
             } else {
                 // all went fine, add peerport as well, will always succeed:
-                peerport->connectTo( con );
-                con->connect();
                 Logger::log() <<Logger::Info<< "Connected Port " << (*it)->getName() << " to peer Task "<<peer->getName() <<"." << Logger::endl;
             }
-            //delete clone/anticlone:
-            delete writer;
         }
         return !failure;
     }
