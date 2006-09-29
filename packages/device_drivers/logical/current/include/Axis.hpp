@@ -79,6 +79,11 @@ namespace RTT
         virtual bool isStopped() const;
         virtual bool isDriven() const;
 
+        /**
+         * @brief Limit the range of the axis between lower and higher
+        angle. The provided event will be fired when the axis exceeds
+        this range limit.
+         */
         virtual void limitDrive( double lower, double higher, const Event<void(std::string)>& ev);
 
         /**
