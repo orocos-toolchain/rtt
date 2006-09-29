@@ -51,12 +51,57 @@ namespace RTT
     }
 
     bool PortInterface::connectTo( PortInterface* other ) {
-        if ( other->connection() == 0 )
+        if ( this->connected() || !other )
             return false;
+
+        // The aim of this function is to create a connection between
+        // this and other at all costs.
+
+        // if both are not connected, create a new one:
+        if ( other->connection() == 0 ) {
+            ConnectionInterface::shared_ptr ci = this->createConnection();
+            if (ci) {
+                if ( other->connectTo( ci ) )
+                    return ci->connect();
+                // failed, cleanup.
+                this->disconnect();
+                return false;
+            }
+            ci = other->createConnection();
+            if (ci) {
+                if ( this->connectTo( ci ) )
+                    return ci->connect();
+                // failed, cleanup.
+                other->disconnect();
+                return false;
+            }
+            // if here, both were readers.
+            Logger::In in("PortInterface::connectTo");
+            log(Warning) << "User requests to connect two Read ports. Creating a temporary default Writer." << endlog();
+            // create a writer:
+            PortInterface* aclone  = other->antiClone();
+            // clumsy way of working:
+            ci = aclone->createConnection();
+            // a writer must create a connection.
+            assert( ci );
+            ci->removeWriter(aclone);
+            delete aclone;
+            
+            if ( this->connectTo( ci ) )
+                return ci->connect();
+            // failed (type mismatch), cleanup.
+            other->disconnect();
+            return false;
+        }
         return this->connectTo( other->connection() );
     }
 
     ConnectionInterface::shared_ptr PortInterface::createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type )
+    {
+        return ConnectionInterface::shared_ptr();
+    }
+
+    ConnectionInterface::shared_ptr PortInterface::createConnection(ConnectionTypes::ConnectionType con_type )
     {
         return ConnectionInterface::shared_ptr();
     }

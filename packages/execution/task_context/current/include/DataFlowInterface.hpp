@@ -51,6 +51,11 @@ namespace RTT
          */
         typedef std::vector<PortInterface*> Ports;
 
+        /**
+         * A sequence of names of ports.
+         */
+        typedef std::vector<std::string> PortNames;
+
         DataFlowInterface() {}
         ~DataFlowInterface() {
         }
@@ -108,7 +113,7 @@ namespace RTT
          * Get all port names of this interface.
          * @return A sequence of strings containing the port names.
          */
-        std::vector<std::string> getPortNames() const { 
+        PortNames getPortNames() const { 
             std::vector<std::string> res;
             for ( Ports::const_iterator it(ports.begin());
                  it != ports.end();

@@ -895,7 +895,7 @@ DataPort.     cd            ls
 	exchange is done by "Data" Ports.
       </para>
       <para>
-	A Data Port can offer read-only access or read-write access
+	A Data Port can offer read-only, write-only or read-write access
 	to the unbuffered data. A Buffer Port can offer read-only,
 	write-only and read-write access to the buffered data.
 	The example below shows all these possiblities.
@@ -921,8 +921,10 @@ DataPort.     cd            ls
   {
     // Read-only data port:
     <classname>RTT::ReadDataPort</classname>&lt;double&gt; indatPort;
-    // Read-Write data port:
+    // Write-only data port:
     <classname>RTT::WriteDataPort</classname>&lt;double&gt; outdatPort;
+    // Read-Write data port:
+    <classname>RTT::DataPort</classname>&lt;double&gt; rwdatPort;
 
     // Read-only buffer port:
     <classname>RTT::ReadBufferPort</classname>&lt;double&gt; inbufPort;
@@ -936,12 +938,16 @@ DataPort.     cd            ls
       : <classname>RTT::GenericTaskContext</classname>(name),
         indatPort("Data_R"),
 	outdatPort("Data_W", 1.0),  // note: initial value
+	rwdatPort("Data_RW", 1.0),
+
 	inbufPort("SetPoint_X"),
 	outbufPort("Packet_1", 15), // note: buffer size
 	rwbufPort("Packet_2", 30)
     {
        this->ports()->addPort( &amp;indatPort );
        this->ports()->addPort( &amp;outdatPort );
+       this->ports()->addPort( &amp;rwdatPort );
+
        this->ports()->addPort( &amp;inbufPort );
        this->ports()->addPort( &amp;outbufPort );
        this->ports()->addPort( &amp;rwbufPort );
@@ -972,7 +978,8 @@ DataPort.     cd            ls
       <para>
 	Finally, a 'write' port can take an initial value in the
 	constructor as well. This value will be used when the connection
-	between two ports is created in order to initialise the connection.
+	between two ports is created in order to initialise the connection
+	( using 'connectPorts', see <xref linkend="connect-tasks" /> ).
 	If a 'write' port is connected to an existing connection, the
 	initial value (and buffer size) are ignored and the settings of
 	the existing connection are not touched. You can modify the
@@ -1003,8 +1010,8 @@ DataPort.     cd            ls
 	<para>
 	  The Data Flow interface is used by your task from within
 	  the program scripts or its <function>update()</function>
-	  method. Logically the script or method read the inbound
-	  data, calculate something and write the outbound data.
+	  method. Logically the script or method reads the inbound
+	  data, calculates something and writes the outbound data.
 	</para>
 	<programlisting>  #include &lt;rtt/Ports.hpp&gt;
   using namespace RTT;
@@ -1057,31 +1064,31 @@ DataPort.     cd            ls
 	  or the default value. A Pop of a disconnected port will
 	  always return false.
 	</para>
-	<section>
-	  <title>Connection Container Interface</title>
-	  <para>
-	    A port's connection can be accessed through the
-	    connection() method. To access the data within the connection
-	    (i.e. the container), a special method is provided by each port.
-	  </para>
-	  <para>
-	    A DataPort's data container can be accessed by the
-	    <function>data()</function> function, while a BufferPort's
-	    buffer container can be accessed by the
-	    <function>read()</function>,<function>write()</function>
-	    and <function>buffer()</function> functions for read-only,
-	    write-only and read-write buffers respectively.  More
-	    specifically, <function>data()</function> returns a
-	    (const)
-	    <classname>RTT::DataObjectInterface</classname>,
-	    <function>read</function> returns a
-	    <classname>RTT::ReadInterface</classname>,
-	    <function>write</function> returns a
-	    <classname>RTT::WriteInterface</classname> and
-	    <function>buffer</function> returns a
-	    <classname>RTT::BufferInterface</classname>.
-	  </para>
-	</section>
+<!-- 	<section> TO COMPLEX FOR USERS -->
+<!-- 	  <title>Connection Container Interface</title> -->
+<!-- 	  <para> -->
+<!-- 	    A port's connection can be accessed through the -->
+<!-- 	    connection() method. To access the data within the connection -->
+<!-- 	    (i.e. the container), a special method is provided by each port. -->
+<!-- 	  </para> -->
+<!-- 	  <para> -->
+<!-- 	    A DataPort's data container can be accessed by the -->
+<!-- 	    <function>data()</function> function, while a BufferPort's -->
+<!-- 	    buffer container can be accessed by the -->
+<!-- 	    <function>read()</function>,<function>write()</function> -->
+<!-- 	    and <function>buffer()</function> functions for read-only, -->
+<!-- 	    write-only and read-write buffers respectively.  More -->
+<!-- 	    specifically, <function>data()</function> returns a -->
+<!-- 	    (const) -->
+<!-- 	    <classname>RTT::DataObjectInterface</classname>, -->
+<!-- 	    <function>read</function> returns a -->
+<!-- 	    <classname>RTT::ReadInterface</classname>, -->
+<!-- 	    <function>write</function> returns a -->
+<!-- 	    <classname>RTT::WriteInterface</classname> and -->
+<!-- 	    <function>buffer</function> returns a -->
+<!-- 	    <classname>RTT::BufferInterface</classname>. -->
+<!-- 	  </para> -->
+<!-- 	</section> -->
       </section>
       <section>
 	<title>Using Data Flow in Scripts</title>
@@ -1095,7 +1102,7 @@ DataPort.     cd            ls
 	  A small program script could be loaded into MyTask with
 	  the following contents:
 	  <programlisting>  program MyControlProgram {
-    double K    = task.K        // read task property, see later.
+    double the_K  = K        // read task property, see later.
     double setp_d
 
     while ( true ) {
@@ -1467,11 +1474,11 @@ DataPort.     cd            ls
 	A program script can access the above attributes as in</para>
       <para>
 	<programlisting>  // a program in "ATask" does :
-  var double pi2 = task.pi * 2.
+  var double pi2 = pi * 2.
   var int    myMax = 3
-  set task.max = myMax
+  set max = myMax
 
-  set task.Param = "B Value"</programlisting>
+  set Param = "B Value"</programlisting>
 	<programlisting>  // an external (peer task) program does :
   var double pi2 = ATask.pi * 2.
   var int    myMax = 3
@@ -2463,7 +2470,7 @@ DataPort.     cd            ls
         }
         transitions {
 	   // guard this transition.
-           if task.checkSomeCondition() then
+           if checkSomeCondition() then
               select z
         }
      }
@@ -2500,7 +2507,7 @@ DataPort.     cd            ls
      // ...
      state y {
         transitions {
-           if task.progressflag == true then
+           if progressflag == true then
                 select z
         }
      }
@@ -2515,7 +2522,7 @@ DataPort.     cd            ls
   export function progress() {
     // Check if we may progress :
     if this.states.x.inState("y") then {
-          set task.progressflag = true
+          set progressflag = true
     }
   }</programlisting>
 	<para>
@@ -2541,7 +2548,7 @@ DataPort.     cd            ls
         }
         transitions {
 	   // guard this transition.
-           if task.checkSomeCondition() then
+           if checkSomeCondition() then
               select z
 	   // always good to go to states :
 	   select ok_1
@@ -2573,7 +2580,7 @@ DataPort.     cd            ls
          <para>
 	   This command will fail if the transition is not 
 	   possible ( for example, the state machine is not in
-	   state y, or task.checkSomeCondition() was not true ),
+	   state y, or checkSomeCondition() was not true ),
 	   otherwise, the state machine will make the transition
 	   and the command succeeds and completes when the z state
 	   is fully entered (it's init program completed).

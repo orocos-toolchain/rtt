@@ -30,19 +30,29 @@
 #define ORO_EXECUTION_BUFFER_CONNECTION_HPP
 
 #include <vector>
-#include "BufferPort.hpp"
-#include "DataPort.hpp"
 #include "BufferConnectionInterface.hpp"
-#include "BufferLockFree.hpp"
 #include "BufferDataSource.hpp"
+#ifdef OROPKG_CORBA
+#include "corba/Services.hpp"
+#include "corba/CorbaBuffer.hpp"
+#include "corba/DataFlowI.h"
+#endif
 
 namespace RTT
 {
+    template<class T>
+    class ReadBufferPort;
+
+    template<class T>
+    class WriteBufferPort;
+
     /**
      * A local connection with a Buffer, which is used to connect multiple
      * Ports to that Buffer.
+     * @see ConnectionInterface why connection management is not thread-safe
+     * in this class.
      */
-    template<class T, class BufferType = BufferLockFree<T> >
+    template<class T>
     class BufferConnection
         : public BufferConnectionInterface<T>
     {
@@ -56,97 +66,154 @@ namespace RTT
         WList writers;
         bool mconnected;
     public:
-        BufferConnection( WriteBufferPort<DataType>* w, ReadBufferPort<DataType>* r, int size, const T& initial_value)
-            : buf( new BufferType(size, initial_value) ), mconnected(false)
+        /**
+         * Create an BufferConnection with initially no readers and no writers.
+         */
+        BufferConnection( BufferInterface<T>* bufi )
+            : buf( bufi ), mconnected(false)
+        {
+        }
+
+        /**
+         * Create an BufferConnection with initially one reader and one writer.
+         */
+        BufferConnection( WriteBufferPort<DataType>* w, ReadBufferPort<DataType>* r, BufferInterface<T>* bufi )
+            : buf( bufi ), mconnected(false)
         {
             readers.push_back(r);
             writers.push_back(w);
         }
 
-        BufferConnection( WriteBufferPort<DataType>* w, ReadBufferPort<DataType>* r, int size)
-            : buf( new BufferType(size) ), mconnected(false)
-        {
-            readers.push_back(r);
-            writers.push_back(w);
-        }
-
+        /**
+         * The cleanup of BufferConnection does nothing. The only cause
+         * of deletion is that no Port holds a pointer to this
+         * connection (refcount becomes zero), hence, all readers and
+         * writers are already disconnected.
+         */
         ~BufferConnection() { }
 
         virtual DataSourceBase::shared_ptr getDataSource() const {
             return DataSourceBase::shared_ptr( new BufferDataSource<T>( buf ) );
         }
 
-        bool connect()
-        { 
-            if (!mconnected) { 
-                for ( typename WList::iterator it = ( writers.begin() ); it != writers.end(); ++it)
-                    (*it)->connect(this);
-                for ( typename RList::iterator it = ( readers.begin() ); it != readers.end(); ++it)
-                    (*it)->connect(this);
-                mconnected = true;
-                return true;
+        void setImplementation( BufferInterface<T>* bufi )
+        {
+            if (bufi) {
+                buf.reset( bufi );
             }
-            return false;
         }
+
+        bool connect();
 
         virtual bool connected() const { return mconnected; }
 
-        virtual bool disconnect()
-        {
-            if (mconnected) { 
-                for ( typename WList::iterator it( writers.begin() ); it != writers.end(); ++it)
-                    (*it)->disconnect();
-                for ( typename RList::iterator it( readers.begin() ); it != readers.end(); ++it)
-                    (*it)->disconnect();
-                mconnected = false;
-                return true;
-            }
-            return false;
-        }
+        virtual bool disconnect();
         
         virtual BufferInterface<T>* buffer() { return buf.get(); }
         virtual ReadInterface<T>* read() { return buf.get(); }
         virtual WriteInterface<T>* write() { return buf.get(); }
 
-        virtual bool addReader(PortInterface* r)
-        {
-            Reader* newr = dynamic_cast<Reader*>(r);
-            if ( newr == 0 ) return false;
-            readers.push_back( newr );
-            if ( this->connected() )
-                newr->connect(this);
-            return true;
-        }
+        virtual bool addReader(PortInterface* r);
 
-        virtual bool removeReader(PortInterface* r) {
-            typename RList::iterator it( find(readers.begin(), readers.end(), r ) );
-            if ( it != readers.end() ) {
-                readers.erase(it);
-                return true;
-            }
-            return false;
-        }
+        virtual bool removeReader(PortInterface* r);
 
+        virtual bool addWriter(PortInterface* w);
 
-        virtual bool addWriter(PortInterface* w)
-        {
-            Writer* neww = dynamic_cast<Writer*>(w);
-            if ( neww == 0 ) return false;
-            writers.push_back( neww );
-            if ( this->connected() )
-                neww->connect(this);
-            return true;
-        }
+        virtual bool removeWriter(PortInterface* w);
 
-        virtual bool removeWriter(PortInterface* r) {
-            typename WList::iterator it( find(writers.begin(), writers.end(), r ) );
-            if ( it != writers.end() ) {
-                writers.erase(it);
-                return true;
-            }
-            return false;
-        }
+#ifdef OROPKG_CORBA
+        virtual CORBA::Object_ptr toChannel();
+#endif
     };
 }
 
+#endif
+
+#ifndef ORO_BUFFER_CONNECTION_INLINE
+#define ORO_BUFFER_CONNECTION_INLINE
+#include "BufferPort.hpp"
+
+namespace RTT
+{
+    template<class T>
+    bool BufferConnection<T>::connect()
+    { 
+        if (!mconnected) { 
+            for ( typename WList::iterator it = ( writers.begin() ); it != writers.end(); ++it)
+                (*it)->connect(this);
+            for ( typename RList::iterator it = ( readers.begin() ); it != readers.end(); ++it)
+                (*it)->connect(this);
+            mconnected = true;
+            return true;
+        }
+        return false;
+    }
+    template<class T>
+    bool BufferConnection<T>::disconnect()
+    {
+        if (mconnected) { 
+            for ( typename WList::iterator it( writers.begin() ); it != writers.end(); ++it)
+                (*it)->disconnect();
+            for ( typename RList::iterator it( readers.begin() ); it != readers.end(); ++it)
+                (*it)->disconnect();
+            mconnected = false;
+            return true;
+        }
+        return false;
+    }
+
+    template<class T>
+    bool BufferConnection<T>::addReader(PortInterface* r)
+    {
+        Reader* newr = dynamic_cast<Reader*>(r);
+        if ( newr == 0 ) return false;
+        readers.push_back( newr );
+        if ( this->connected() )
+            newr->connect(this);
+        return true;
+    }
+
+    template<class T>
+    bool BufferConnection<T>::removeReader(PortInterface* r) {
+        typename RList::iterator it( find(readers.begin(), readers.end(), r ) );
+        if ( it != readers.end() ) {
+            readers.erase(it);
+            return true;
+        }
+        return false;
+    }
+
+    template<class T>
+    bool BufferConnection<T>::addWriter(PortInterface* w)
+    {
+        Writer* neww = dynamic_cast<Writer*>(w);
+        if ( neww == 0 ) return false;
+        writers.push_back( neww );
+        if ( this->connected() )
+            neww->connect(this);
+        return true;
+    }
+
+    template<class T>
+    bool BufferConnection<T>::removeWriter(PortInterface* w) {
+        typename WList::iterator it( find(writers.begin(), writers.end(), w ) );
+        if ( it != writers.end() ) {
+            writers.erase(it);
+            return true;
+        }
+        return false;
+    }
+
+#ifdef OROPKG_CORBA
+    template<class T>
+    CORBA::Object_ptr BufferConnection<T>::toChannel() {
+        log(Debug) << "Creating Corba BufferChannel." << endlog();
+        RTT_Corba_BufferChannel_i<T>* cbuf = new RTT_Corba_BufferChannel_i<T>( buf );
+        // activate servant:
+        CORBA::Object_var ret = cbuf->_this();
+        return ret._retn();
+    }
+#endif
+
+}
 #endif

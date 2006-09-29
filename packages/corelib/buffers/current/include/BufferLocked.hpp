@@ -59,10 +59,11 @@ namespace RTT
         /**
          * Create a buffer of size \a size.
          */
-        BufferLocked( size_type size )
+        BufferLocked( size_type size, const T& initial_value = T() )
             : buf()
         {
-            buf.reserve(size);
+            buf.resize(size, initial_value);
+            buf.resize(0);
         }
 
         /**

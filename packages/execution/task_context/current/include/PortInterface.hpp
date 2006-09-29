@@ -81,27 +81,36 @@ namespace RTT
         virtual PortType getPortType() const = 0;
 
         /**
-         * Inspect if this Port is connected with another Port.
+         * Inspect if this Port is currently connected with another Port.
          */
         virtual bool connected() const = 0;
 
         /**
-         * Returns the connection in which this Port participates.
-         * @retval 0 if not connected to another Port.
+         * Returns the connection in which this Port currently participates.
+         * It is possible that this port is part of a dormant connection,
+         * ( the connection object is not in the connected() state),
+         * in that case this method will return null, until the dormant
+         * connection becomes connected().
+         * @retval null if not connected to another Port.
          */
         virtual ConnectionInterface::shared_ptr connection() const = 0;
 
         /**
          * Connect this port to a Connection.
+         * If the connection is in the connected() state, this port
+         * will participate in that connection, otherwise, the port
+         * will become connected once \a conn becomes connected().
          * @return true if connection was possible, false otherwise.
          */
         virtual bool connectTo( ConnectionInterface::shared_ptr conn ) = 0;
 
         /**
-         * Connect to another Port, which has an existing Connection.
-         * This method exists only for convenience only and is equivalent
-         * to \a connectTo( \a other->connection() ).
-         * If \a other does not yet participate in a Connection, this method fails.
+         * Connect to another Port and create a new connection if necessary.
+         * - If this port is already connected, this method returns false.
+         * - If the other port has a connection, this method is equivalent to
+         * 'this->connectTo( other->connection() )'.
+         * - If the other port is
+         * not connected, a new connection is created and both ports are connected.
          * @return true upon success, false otherwise.
          */
         virtual bool connectTo( PortInterface* other );
@@ -124,15 +133,21 @@ namespace RTT
         virtual PortInterface* antiClone() const = 0;
 
         /**
-         * Create a connection to another port.
+         * Create a connection object from this port to another port.
          */
         virtual ConnectionInterface::shared_ptr createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
+
+        /**
+         * Create a new connection object to which this port is subscribed.
+         */
+        virtual ConnectionInterface::shared_ptr createConnection(ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
 
         /**
          * Create accessor Object for this Port, for addition to a
          * TaskContext Object interface.
          */
         virtual OperationInterface* createPortObject();
+
     };
 
 }

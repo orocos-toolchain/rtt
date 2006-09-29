@@ -54,6 +54,15 @@ namespace RTT
          * Return the DataObject of this Connection.
          */
         virtual DataObjectInterface<T>* data() = 0;
+
+        /**
+         * Let the connection use a new DataObject implementation.
+         * This may lead to information loss if called when the connection
+         * is in use.
+         * @param doi The new data object to use.
+         * @post \a doi is acquired by this connection.
+         */
+        virtual void setImplementation( DataObjectInterface<T>* doi ) = 0;
     };
 
 }

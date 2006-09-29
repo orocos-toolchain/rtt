@@ -105,6 +105,11 @@ namespace RTT
          */
         virtual const std::string& getName() const = 0;
 
+        /**
+         * Normally, value() does not trigger a get(), but for
+         * DataObjects, this is actually the sanest thing to
+         * do.
+         */
         typename DataSource<T>::result_t value() const {
             return this->Get();
         }
@@ -159,8 +164,8 @@ namespace RTT
          * 
          * @param _name The name of this DataObject.
          */
-        DataObjectLocked(const std::string& _name)
-            : data(), name(_name) {}
+        DataObjectLocked(const std::string& _name, const T& initial_value = T() )
+            : data(initial_value), name(_name) {}
 
         /** 
          * Return the name of this DataObject.
@@ -257,8 +262,8 @@ namespace RTT
          * 
          * @param _name The name of this DataObject.
          */
-        DataObjectPrioritySet(const std::string& _name)
-            : data(), mcopy(), name(_name) {}
+        DataObjectPrioritySet(const std::string& _name, const T& initial_value = T() )
+            : data(initial_value), mcopy(), name(_name) {}
 
         /** 
          * Return the name of this DataObject.
@@ -364,8 +369,8 @@ namespace RTT
          * 
          * @param _name The name of this DataObject.
          */
-        DataObjectPriorityGet(const std::string& _name )
-            : data(), mcopy(), name(_name) {}
+        DataObjectPriorityGet(const std::string& _name, const T& initial_value = T()  )
+            : data(initial_value), mcopy(), name(_name) {}
 
         /** 
          * Return the name of this DataObject.
@@ -521,25 +526,9 @@ namespace RTT
          * Construct a DataObjectLockFree by name.
          * 
          * @param _name The name of this DataObject.
-         */
-        DataObjectLockFree(const std::string& _name) 
-            : read_ptr(&data[ 0 ]), 
-              write_ptr(&data[ 1 ]), 
-              name(_name)
-        {
-            // prepare the buffer.
-            for (unsigned int i = 0; i < BUF_LEN-1; ++i)
-                data[i].next = &data[i+1];
-            data[BUF_LEN-1].next = &data[0];
-        }
-
-        /** 
-         * Construct a DataObjectLockFree by name.
-         * 
-         * @param _name The name of this DataObject.
          * @param initial_value The initial value of this DataObject.
          */
-        DataObjectLockFree(const std::string& _name, const T& initial_value ) 
+        DataObjectLockFree(const std::string& _name, const T& initial_value = T() ) 
             : read_ptr(&data[ 0 ]), 
               write_ptr(&data[ 1 ]), 
               name(_name)
@@ -665,8 +654,8 @@ namespace RTT
          * 
          * @param _name The name of this DataObject.
          */
-        DataObject(const std::string& _name )
-            : data(), name(_name) {}
+        DataObject(const std::string& _name, const T& initial_value = T()  )
+            : data(initial_value), name(_name) {}
 
         /** 
          * Return the name of this DataObject.

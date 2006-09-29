@@ -26,8 +26,8 @@
  ***************************************************************************/
  
  
-#ifndef ORO_EXECUTION_BUFFER_PORT_INTERFACE_HPP
-#define ORO_EXECUTION_BUFFER_PORT_INTERFACE_HPP
+#ifndef ORO_EXECUTION_BUFFER_PORT_HPP
+#define ORO_EXECUTION_BUFFER_PORT_HPP
 
 #include <string>
 #include "PortInterface.hpp"
@@ -51,13 +51,6 @@ namespace RTT
         typename ReadConnectionInterface<T>::shared_ptr mconn;
     public:
         /**
-         * Get the buffer to read from. The Task may use this to read from a
-         * Buffer connected to this port.
-         * @return 0 if !connected(), the buffer otherwise.
-         */
-        virtual ReadInterface<T>* read() const { return mconn ? mconn->read() : 0; }
-
-        /**
          * Construct an unconnected Port to a readable buffer.
          * @param name The name of this port.
          */
@@ -67,8 +60,6 @@ namespace RTT
             if (mconn) 
                 mconn->removeReader(this);
         }
-
-        virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
 
         /**
          * Pop a value from the buffer of this Port's connection.
@@ -91,28 +82,6 @@ namespace RTT
             if (mconn)
                 return mconn->read()->front();
             return T();
-        }
-
-        virtual PortType getPortType() const { return ReadPort; }
-
-        bool connected() const { return mconn; };
-
-        /**
-         * Connect a readable buffer to this Port.
-         */
-        virtual bool connect( typename ReadConnectionInterface<T>::shared_ptr conn) {
-            if ( mconn || !conn )
-                return false;
-            mconn = conn;
-            return true;
-        }
-
-        void disconnect() {
-            mconn = 0;
-        }
-
-        bool connectTo( ConnectionInterface::shared_ptr other) {
-            return !mconn && other->addReader( this );
         }
 
         /**
@@ -164,6 +133,43 @@ namespace RTT
                 return mconn->read()->full();
             return 0;
         }
+
+        virtual PortType getPortType() const { return ReadPort; }
+
+        /**
+         * Provide a new implementation for the connection of this port.
+         * If this port is not connected, a new connection is created.
+         */
+        ReadBufferPort& operator=(BufferInterface<T>* impl);
+
+        bool connected() const { return mconn; };
+
+        /**
+         * Connect a readable buffer to this Port.
+         */
+        virtual bool connect( typename ReadConnectionInterface<T>::shared_ptr conn) {
+            if ( mconn || !conn )
+                return false;
+            mconn = conn;
+            return true;
+        }
+
+        void disconnect() {
+            mconn = 0;
+        }
+
+        bool connectTo( ConnectionInterface::shared_ptr other) {
+            return other && !mconn && other->addReader( this );
+        }
+
+        /**
+         * Get the buffer to read from. The Task may use this to read from a
+         * Buffer connected to this port.
+         * @return 0 if !connected(), the buffer otherwise.
+         */
+        virtual ReadInterface<T>* read() const { return mconn ? mconn->read() : 0; }
+
+        virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
 
         virtual PortInterface* clone() const {
             return new ReadBufferPort<T>( this->getName() );
@@ -235,26 +241,12 @@ namespace RTT
                 mconn->removeWriter(this);
         }
 
-        ConnectionInterface::shared_ptr createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
-
         /**
          * Set the prefered buffersize before this port is
          * connected. If this->connected(), this value has no
          * effect.
          */
         void setBufferSize(size_t b_size) { buf_size = b_size; }
-
-        /**
-         * Get the buffer to write from.
-         * @return 0 if !connected(), the buffer otherwise.
-         */
-        virtual WriteInterface<T>* write() const { return mconn ? mconn->write() : 0; }
-
-        virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
-
-        virtual PortType getPortType() const { return WritePort; }
-
-        bool connected() const { return mconn; };
 
         /**
          * Push a value into the buffer of this Port's connection.
@@ -279,25 +271,6 @@ namespace RTT
         {
             minitial_value = data;
         }
-
-        /**
-         * Connect a writeable buffer to this Port.
-         */
-        virtual bool connect(typename WriteConnectionInterface<T>::shared_ptr conn) { 
-            if ( mconn  || !conn  )
-                return false;
-            mconn = conn;
-            return true;
-        }
-
-        bool connectTo( ConnectionInterface::shared_ptr other) {
-            return !mconn && other->addWriter( this );
-        }
-
-        void disconnect() {
-            mconn = 0;
-        }
-
 
         /**
          * Clears all contents of this buffer.
@@ -348,6 +321,46 @@ namespace RTT
                 return mconn->write()->full();
             return 0;
         }
+
+        bool connected() const { return mconn; };
+
+        /**
+         * Connect a writeable buffer to this Port.
+         */
+        virtual bool connect(typename WriteConnectionInterface<T>::shared_ptr conn) { 
+            if ( mconn  || !conn  )
+                return false;
+            mconn = conn;
+            return true;
+        }
+
+        bool connectTo( ConnectionInterface::shared_ptr other) {
+            return other && !mconn && other->addWriter( this );
+        }
+
+        void disconnect() {
+            mconn = 0;
+        }
+
+        /**
+         * Get the buffer to write to.
+         * @return 0 if !connected(), the buffer otherwise.
+         */
+        virtual WriteInterface<T>* write() const { return mconn ? mconn->write() : 0; }
+
+        virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
+
+        virtual PortType getPortType() const { return WritePort; }
+
+        /**
+         * Provide a new implementation for the connection of this port.
+         * If this port is not connected, a new connection is created.
+         */
+        WriteBufferPort& operator=(BufferInterface<T>* impl);
+
+        ConnectionInterface::shared_ptr createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
+
+        ConnectionInterface::shared_ptr createConnection(ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
 
         virtual PortInterface* clone() const {
             return new WriteBufferPort<T>( this->getName(), buf_size, minitial_value );
@@ -415,61 +428,6 @@ namespace RTT
         }
 
         /**
-         * Get the buffer to write from.
-         * @return 0 if !connected(), the buffer otherwise.
-         */
-        virtual BufferInterface<T>* buffer() const { return mconn ? mconn->buffer() : 0; }
-
-        virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
-
-        virtual PortType getPortType() const { return PortInterface::ReadWritePort; }
-
-        bool connected() const { return mconn; };
-
-        /**
-         * Connect a writeable buffer to this Port.
-         */
-        bool connect(typename BufferConnectionInterface<T>::shared_ptr conn) { 
-            if ( (mconn && conn != mconn) || !conn ) // allow to connect twice to same connection.
-                return false;
-            mconn = conn;
-            WriteBufferPort<T>::connect(conn);
-            ReadBufferPort<T>::connect(conn);
-            return true;
-        }
-
-        virtual bool connect(typename WriteConnectionInterface<T>::shared_ptr conn) { 
-            if ( this->connect( boost::dynamic_pointer_cast<BufferConnectionInterface<T> >(conn) ) ) {
-                 WriteBufferPort<T>::connect(mconn);
-                 ReadBufferPort<T>::connect(mconn);
-                 return true;
-            }
-            return false;
-        }
-
-        virtual bool connect(typename ReadConnectionInterface<T>::shared_ptr conn) {
-            if ( this->connect( boost::dynamic_pointer_cast<BufferConnectionInterface<T> >(conn) ) ) {
-                 WriteBufferPort<T>::connect(mconn);
-                 ReadBufferPort<T>::connect(mconn);
-                 return true;
-            }
-            return false;
-        }
-
-        bool connectTo( ConnectionInterface::shared_ptr other) {
-            if ( !mconn ) {
-                return other->addWriter( this ) && other->addReader( this );
-            }
-            return false;
-        }
-
-        void disconnect() {
-            mconn = 0;
-            WriteBufferPort<T>::disconnect();
-            ReadBufferPort<T>::disconnect();
-        }
-
-        /**
          * Clears all contents of this buffer.
          */
         void clear() {
@@ -519,12 +477,73 @@ namespace RTT
             return 0;
         }
 
+        bool connected() const { return mconn; };
+
+        /**
+         * Connect a writeable buffer to this Port.
+         */
+        bool connect(typename BufferConnectionInterface<T>::shared_ptr conn) { 
+            if ( (mconn && conn != mconn) || !conn ) // allow to connect twice to same connection.
+                return false;
+            mconn = conn;
+            WriteBufferPort<T>::connect(conn);
+            ReadBufferPort<T>::connect(conn);
+            return true;
+        }
+
+        virtual bool connect(typename WriteConnectionInterface<T>::shared_ptr conn) { 
+            if ( this->connect( boost::dynamic_pointer_cast<BufferConnectionInterface<T> >(conn) ) ) {
+                 WriteBufferPort<T>::connect(mconn);
+                 ReadBufferPort<T>::connect(mconn);
+                 return true;
+            }
+            return false;
+        }
+
+        virtual bool connect(typename ReadConnectionInterface<T>::shared_ptr conn) {
+            if ( this->connect( boost::dynamic_pointer_cast<BufferConnectionInterface<T> >(conn) ) ) {
+                 WriteBufferPort<T>::connect(mconn);
+                 ReadBufferPort<T>::connect(mconn);
+                 return true;
+            }
+            return false;
+        }
+
+        bool connectTo( ConnectionInterface::shared_ptr other) {
+            if ( other && !mconn ) {
+                return other->addWriter( this ) && other->addReader( this );
+            }
+            return false;
+        }
+
+        void disconnect() {
+            mconn = 0;
+            WriteBufferPort<T>::disconnect();
+            ReadBufferPort<T>::disconnect();
+        }
+
+        /**
+         * Get the buffer to write from.
+         * @return 0 if !connected(), the buffer otherwise.
+         */
+        virtual BufferInterface<T>* buffer() const { return mconn ? mconn->buffer() : 0; }
+
+        virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
+
+        virtual PortType getPortType() const { return PortInterface::ReadWritePort; }
+
+        /**
+         * Provide a new implementation for the connection of this port.
+         * If this port is not connected, a new connection is created.
+         */
+        BufferPort& operator=(BufferInterface<T>* impl);
+
         virtual PortInterface* clone() const {
             return new BufferPort<T>( this->getName(), this->buf_size, this->minitial_value );
         }
 
         virtual PortInterface* antiClone() const {
-            return new BufferPort<T>( this->getName(), this->buf_size, this->minitial_value );
+            return this->clone();
         }
 
         virtual OperationInterface* createPortObject() {
@@ -555,8 +574,13 @@ namespace RTT
         }
     };
 }
+#endif
+
+#ifndef ORO_BUFFER_PORT_INLINE
+#define ORO_BUFFER_PORT_INLINE
 
 #include "ConnectionFactory.hpp"
+#include "BufferConnection.hpp"
 
 namespace RTT
 {
@@ -567,10 +591,55 @@ namespace RTT
     }
 
     template<class T>
+    ReadBufferPort<T>& ReadBufferPort<T>::operator=(BufferInterface<T>* impl)
+    {
+        if ( !mconn ) {
+            ConnectionInterface::shared_ptr con = new BufferConnection<T>(impl);
+            this->connectTo(con);
+            con->connect();
+        } else
+            mconn->setImplementation(impl);
+        return *this;
+    }
+
+    template<class T>
+    WriteBufferPort<T>& WriteBufferPort<T>::operator=(BufferInterface<T>* impl)
+    {
+        if ( !mconn ) {
+            ConnectionInterface::shared_ptr con = new BufferConnection<T>(impl);
+            this->connectTo(con);
+            con->connect();
+        } else
+            mconn->setImplementation(impl);
+        return *this;
+    }
+
+    template<class T>
+    BufferPort<T>& BufferPort<T>::operator=(BufferInterface<T>* impl)
+    {
+        if ( !connected() ) {
+            ConnectionInterface::shared_ptr con = new BufferConnection<T>(impl);
+            this->connectTo(con);
+            con->connect();
+        } else
+            mconn->setImplementation(impl);
+        return *this;
+    }
+
+    template<class T>
     ConnectionInterface::shared_ptr WriteBufferPort<T>::createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type )
         {
             ConnectionFactory<T> cf;
             return ConnectionInterface::shared_ptr (cf.createBuffer(this, other, buf_size, minitial_value, con_type));
+        }
+
+    template<class T>
+    ConnectionInterface::shared_ptr WriteBufferPort<T>::createConnection(ConnectionTypes::ConnectionType con_type )
+        {
+            ConnectionFactory<T> cf;
+            ConnectionInterface::shared_ptr res = cf.createBuffer(buf_size, minitial_value, con_type);
+            res->addWriter(this);
+            return res;
         }
 }
 #endif
