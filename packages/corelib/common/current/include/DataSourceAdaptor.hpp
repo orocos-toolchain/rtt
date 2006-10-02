@@ -167,7 +167,7 @@ namespace RTT
          */
     template<class TFrom>
     struct DataSourceAdaptor<const TFrom&, const TFrom>
-        : public DataSource<TFrom>
+        : public DataSource<const TFrom>
     {
         typedef const TFrom& From;
         typedef const TFrom  To;

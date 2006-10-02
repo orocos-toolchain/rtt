@@ -50,11 +50,12 @@ namespace RTT
     protected:
         typename DataSource<T>::value_t mdata;
 
+    public:
         /**
          * Use shared_ptr.
          */
         ~ValueDataSource();
-    public:
+
         typedef boost::intrusive_ptr<ValueDataSource<T> > shared_ptr;
 
         ValueDataSource( T data );
@@ -97,12 +98,13 @@ namespace RTT
          * to not be a non-const reference.
          */
         typename boost::add_const<typename DataSource<T>::value_t>::type mdata;
-    protected:
+
+    public:
         /**
          * Use shared_ptr.
          */
         ~ConstantDataSource();
-    public:
+
         typedef boost::intrusive_ptr< ConstantDataSource<T> > shared_ptr;
 
         ConstantDataSource( T value );
@@ -127,12 +129,12 @@ namespace RTT
     {
         // a reference to a value_t
         typename AssignableDataSource<T>::reference_t mref;
-    protected:
+    public:
         /**
          * Use shared_ptr.
          */
         ~ReferenceDataSource();
-    public:
+
         typedef boost::intrusive_ptr<ReferenceDataSource<T> > shared_ptr;
 
         ReferenceDataSource( typename AssignableDataSource<T>::reference_t ref );
