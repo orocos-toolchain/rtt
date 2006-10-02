@@ -33,6 +33,7 @@
 #include "fosi.h"
 #include <iostream>
 #include <string.h>
+#include "../Logger.hpp"
 
 #define INTERNAL_QUAL static inline
 
@@ -90,7 +91,8 @@ namespace RTT
 		}
 	    }
 	    else {
-		rtos_printf( "Warning: SCHED_OTHER TASK always get priority 0\n" );
+            Logger::In in( task->name );
+            log(Warning) << "Forcing priority of thread with SCHED_OTHER policy to 0." <<endlog();
 	    }
 	    return pthread_create(&(task->thread), &(task->attr), 
 				  start_routine, obj);
