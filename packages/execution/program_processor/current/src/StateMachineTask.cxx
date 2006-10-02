@@ -114,6 +114,7 @@ namespace RTT
             : TaskContext( statemachine->getName(), ee ),
               _this( new ValueDataSource<StateMachineWPtr>( statemachine ) ) // was: VariableDataSource.
         {
+            this->clear();
             this->createCommandFactory();
             this->createMethodFactory();
         }

@@ -30,6 +30,7 @@
 #define ORO_EXECUTION_PARSER_SCRIPTING_ACCESS_HPP
 
 #include "ScriptingAccess.hpp"
+#include "OperationInterface.hpp"
 
 namespace RTT
 {
@@ -43,15 +44,25 @@ namespace RTT
     class ParserScriptingAccess
         : public ScriptingAccess
     {
+    protected:
         StatementProcessor* sproc;
+        bool doExecute(const std::string& code);
+
+        bool doLoadPrograms( std::string filename );
+        bool doLoadProgramText( std::string code );
+        bool doUnloadProgram( std::string name );
+
+        bool doLoadStateMachines( std::string filename );
+        bool doLoadStateMachineText( std::string code );
+        bool doUnloadStateMachine( std::string name );
+
+        OperationInterface* createTaskObject(OperationInterface* obj);
     public:
-        ParserScriptingAccess( TaskContext* parent )
-            : ScriptingAccess(parent), sproc(0)
-        {}
+        ParserScriptingAccess( TaskContext* parent );
         
         virtual ~ParserScriptingAccess();
 
-        virtual int execute( std::string code );
+        virtual int execute( const std::string& code );
 
         virtual CommandC getCommand( int ticket );
 

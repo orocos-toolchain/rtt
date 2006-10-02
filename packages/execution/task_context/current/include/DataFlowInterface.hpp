@@ -161,6 +161,14 @@ namespace RTT
         Type* getPortType(const std::string& name) {
             return dynamic_cast<Type*>( this->getPort(name) );
         }
+
+        /**
+         * Remove all added ports.
+         */
+        void clear()
+        {
+            ports.clear();
+        }
     };
 
 }

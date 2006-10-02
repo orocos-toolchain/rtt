@@ -65,6 +65,13 @@
 	<revremark>New command and method semantics. Added Hello World example
 	instead of complexer task-intro example.</revremark>
       </revision>
+      <revision>
+	<revnumber>0.25.1</revnumber>
+	<date>September 2006</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Improved Hello World Example. Added figures, added Deployment
+	section (TaskCore,...) Documented new connection functions.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -279,10 +286,10 @@
 0.020 [ Info   ][main()]      Calling Method : Hello World
 0.020 [ Info   ][main()] **** Emitting an Event:             ****
 0.021 [ Info   ][main()] **** Starting the TaskBrowser       ****
-0.021 [ Info   ][TaskBrowser] Creating a BufferConnection from BufferPort to BufferPort with size 13
-0.021 [ Info   ][TaskBrowser] Connected Port BufferPort to peer Task Hello.
-0.022 [ Info   ][Hello] Creating a DataConnection from DataPort to DataPort
-0.022 [ Info   ][Hello] Connected Port DataPort to peer Task TaskBrowser.
+0.021 [ Info   ][TaskBrowser] Creating a BufferConnection from the_buffer_port to the_buffer_port with size 13
+0.021 [ Info   ][TaskBrowser] Connected Port the_buffer_port to peer Task Hello.
+0.022 [ Info   ][Hello] Creating a DataConnection from The_Data_Port to The_Data_Port
+0.022 [ Info   ][Hello] Connected Port The_Data_Port to peer Task TaskBrowser.
    Switched to : Hello
 0.023 [ Info   ][main()] Entering Task Hello
 0.023 [ Info   ][Hello] Hello Command: World
@@ -336,21 +343,21 @@
  Listing Hello :
 
  Attributes   :
- (Attribute)      string <emphasis>Attribute</emphasis>      = Hello World
- (Attribute)      string <emphasis>Constant</emphasis>       = Hello World
- (Property )      string <emphasis>Property</emphasis>       = Hello World          (Hello World Description)
+ (Attribute)      string <emphasis>the_attribute</emphasis>      = Hello World
+ (Attribute)      string <emphasis>the_constant</emphasis>       = Hello World
+ (Property )      string <emphasis>the_property</emphasis>       = Hello World          (Hello World Description)
 
  Interface    :
-  Methods      : <emphasis>Method</emphasis>
-  Commands     : <emphasis>Command</emphasis>
-  Events       : <emphasis>Event</emphasis>
+  Methods      : <emphasis>the_method isRunning start stop trigger update</emphasis>
+  Commands     : <emphasis>the_command</emphasis>
+  Events       : <emphasis>the_event</emphasis>
 
  Objects      :
             <emphasis>this</emphasis> (  )
-        <emphasis>DataPort</emphasis> ( A Task Object. )
-      <emphasis>BufferPort</emphasis> ( A Task Object. )
+   <emphasis>the_data_port</emphasis> ( A Task Object. )
+ <emphasis>the_buffer_port</emphasis> ( A Task Object. )
 
- Ports        : <emphasis>DataPort</emphasis> <emphasis>BufferPort</emphasis>
+ Ports        : <emphasis>the_data_port</emphasis> <emphasis>the_bufferPort</emphasis>
  Peers        : <emphasis>TaskBrowser</emphasis>
     </screen>
     <note>
@@ -367,15 +374,15 @@
     </para>
     <para>
       Next, the interface of this component is listed: One method is
-      present <emphasis>Method</emphasis>, one command
-      <emphasis>Command</emphasis> and one event
-      <emphasis>Event</emphasis>. They all print a 'Hello World'
+      present <emphasis>the_method</emphasis>, one command
+      <emphasis>the_command</emphasis> and one event
+      <emphasis>the_event</emphasis>. They all print a 'Hello World'
       string when invoked.
     </para>
     <para>
       In the example, the current task has only three objects:
-      <emphasis>this</emphasis>, <emphasis>DataPort</emphasis> and
-      <emphasis>BufferPort</emphasis>. The <emphasis>this</emphasis>
+      <emphasis>this</emphasis>, <emphasis>the_data_port</emphasis> and
+      <emphasis>the_buffer_port</emphasis>. The <emphasis>this</emphasis>
       object serves as the public interface of the
       Hello component. These objects contain methods, commands or
       events.  The next two objects are created to represent the
@@ -399,31 +406,31 @@
 
 Printing Interface of 'Hello' :
 
-  Command    : bool Command( string Hello )
+  Command    : bool <emphasis>the_command</emphasis>( string the_arg )
    Hello Command Description
-   Hello : Use 'World' as argument to make the command succeed.
-  Method     : string Method( )
+   the_arg : Use 'World' as argument to make the command succeed.
+  Method     : string <emphasis>the_method</emphasis>( )
    Hello Method Description
-  Event     : void Event( string Hello )
+  Event     : void <emphasis>the_Event</emphasis>( string the_data )
    Hello Event Description
-   Hello : The data of this event.
+   the_data : The data of this event.
     </screen>
     <para>
       Now we get more details about the commands, methods and
       events registered in the public interface. We see now that
-      the <emphasis>Command</emphasis> command takes one argument
-      as a string, or that the <emphasis>Method</emphasis>
+      the <emphasis>the_command</emphasis> command takes one argument
+      as a string, or that the <emphasis>the_method</emphasis> method
       returns a string. One can invoke each one of them:
     </para>
     <screen>
  In Task Hello. (Status of last Command : none )
- (type 'ls' for context info) :<command>Method()</command>
-      Got :Method()
+ (type 'ls' for context info) :<command>the_method()</command>
+      Got :the_method()
  = Hello World
     </screen>
     <para>
       Methods are called directly and the TaskBrowser prints the
-      result. The return value of Method() was a string, which is
+      result. The return value of the_method() was a string, which is
       "Hello World".
     </para>
     <para>
@@ -434,8 +441,8 @@ Printing Interface of 'Hello' :
     </para>
     <screen>
  In Task Hello. (Status of last Command : <emphasis>none</emphasis> )
- (type 'ls' for context info) :<command>Command("World")</command>
-      Got :Command("World")
+ (type 'ls' for context info) :<command>the_command("World")</command>
+      Got :the_command("World")
 
  In Task Hello. (Status of last Command : <emphasis>queued</emphasis>)
 <command>1021.835 [ Info   ][Hello] Hello Command: World</command>
@@ -451,8 +458,8 @@ Printing Interface of 'Hello' :
     </para>
     <screen>
  In Task Hello. (Status of last Command : <emphasis>done</emphasis> )
- (type 'ls' for context info) :<command>Command("Belgium")</command>
-      Got :Command("Belgium")
+ (type 'ls' for context info) :<command>the_command("Belgium")</command>
+      Got :the_command("Belgium")
 
  In Task Hello. (Status of last Command : <emphasis>queued</emphasis> )
  (type 'ls' for context info) :
@@ -469,17 +476,17 @@ Printing Interface of 'Hello' :
     </para>
     <screen>
  In Task Hello. (Status of last Command : none )
- (type 'ls' for context info) :<command>Attribute</command>
-      Got :Attribute
+ (type 'ls' for context info) :<command>the_attribute</command>
+      Got :the_attribute
  = <command>Hello World</command>
  In Task Hello. (Status of last Command : none )
- (type 'ls' for context info) :<command>Attribute = "Veni Vidi Vici !"</command>
-      Got :Attribute = "Veni Vidi Vici !"
+ (type 'ls' for context info) :<command>the_attribute = "Veni Vidi Vici !"</command>
+      Got :the_attribute = "Veni Vidi Vici !"
  = <command>true</command>
 
  In Task Hello. (Status of last Command : none )
- (type 'ls' for context info) :<command>Attribute</command>
-      Got :Attribute
+ (type 'ls' for context info) :<command>the_attribute</command>
+      Got :the_attribute
  = <command>Veni Vidi Vici !</command>
     </screen>
     <para>
@@ -489,31 +496,31 @@ Printing Interface of 'Hello' :
     </para>
     <screen>
  In Task Hello. (Status of last Command : none )
- (type 'ls' for context info) :<command>Event(Attribute)</command>
-      Got :Event(Attribute)
+ (type 'ls' for context info) :<command>the_event(the_attribute)</command>
+      Got :the_event(the_attribute)
  = true
  In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :
 <command>354.592 [ Info   ][Hello] Receiving Event: Veni Vidi Vici !</command>
     </screen>
     <para>
-      The example above passed the Attribute object as an
+      The example above passed the the_attribute object as an
       argument to the event, and it was received by our task correctly.
       Events are related to commands, but allow broadcasting of
       data, while a command has a designated receiver.
     </para>
     <para>
-      The Data Ports can be accessed through the <emphasis>DataPort</emphasis>
-      and <emphasis>BufferPort</emphasis> object interfaces. Once
+      The Data Ports can be accessed through the <emphasis>the_data_port</emphasis>
+      and <emphasis>the_buffer_port</emphasis> object interfaces. Once
       again, we can inspect the interface of an object by typing
       its name:
     </para>
     <screen>
  In Task Hello. (Status of last Command : none )
- (type 'ls' for context info) :<command>DataPort</command>
-      Got :DataPort
+ (type 'ls' for context info) :<command>the_data_port</command>
+      Got :the_data_port
 
-Printing Interface of 'DataPort' :
+Printing Interface of 'the_data_port' :
 
   Method     : string <emphasis>Get</emphasis>( )
    Get the current value of this Data Port
@@ -522,20 +529,20 @@ Printing Interface of 'DataPort' :
    Value : The new value.
     </screen>
     <para>
-      The DataPort object has two methods: Get() and Set().
+      The the_data_port object has two methods: Get() and Set().
       Since data ports are used for sending unbuffered data packets
       between components, this makes sense. One can interact with
       the ports as such:
     </para>
     <screen>
  In Task Hello. (Status of last Command : none )
- (type 'ls' for context info) :<command>DataPort.Set("World")</command>
-      Got :DataPort.Set("World")
+ (type 'ls' for context info) :<command>the_data_port.Set("World")</command>
+      Got :the_data_port.Set("World")
  = <command>(void)</command>
 
  In Task Hello. (Status of last Command : none )
- (type 'ls' for context info) :<command>DataPort.Get()</command>
-      Got :DataPort.Get()
+ (type 'ls' for context info) :<command>the_data_port.Get()</command>
+      Got :the_data_port.Get()
  = <command>World</command>
     </screen>
     <para>
@@ -544,7 +551,7 @@ Printing Interface of 'DataPort' :
       the previously set value is present. The advantage of using
       ports is that they are completely thread-safe for reading
       and writing, without requiring user code. The Hello component
-      also contains a BufferPort for buffered data transfer. You
+      also contains a the_buffer_port for buffered data transfer. You
       are encouraged to play with that port as well.
     </para>
     <para>
@@ -568,26 +575,24 @@ Printing Interface of 'DataPort' :
  Attributes   : <emphasis>(none)</emphasis>
 
  Interface    :
-  Methods      : <emphasis>assert isRunning loadProgram loadStateMachine readProperties start stop unloadProgram unloadStateMachine update writeProperties</emphasis>
+  Methods      : <emphasis>isRunning start stop trigger update</emphasis>
   Commands     : <emphasis>(none)</emphasis>
   Events       : <emphasis>(none)</emphasis>
 
  Objects      :
             this (  )
-        DataPort ( A Task Object. )
-      BufferPort ( A Task Object. )
+        the_data_port ( A Task Object. )
+      the_buffer_port ( A Task Object. )
 
- Ports        : DataPort BufferPort
+ Ports        : the_data_port the_buffer_port
  Hello Peers : TaskBrowser
     </screen>
     <para>
       The following things are noteworthy: 'ls' shows now the contents
       of the TaskBrowser itself and no longer of the Hello Component.
-      The TaskBrowser has different methods, mainly because it inherits
-      from the <classname>RTT::GenericTaskContext</classname> instead
-      of the <classname>RTT::TaskContext</classname>. The TaskBrowser
-      has the same ports as the component it visist: <emphasis>DataPort</emphasis>
-      and <emphasis>BufferPort</emphasis>. These were created at run-time
+      The TaskBrowser
+      has the same ports as the component it visist: <emphasis>the_data_port</emphasis>
+      and <emphasis>the_buffer_port</emphasis>. These were created at run-time
       and allow to write or read ports from the visited component.
     </para>
     <para>
@@ -608,11 +613,11 @@ Printing Interface of 'DataPort' :
     <screen>
  In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :
-Attribute     Event         cd ..         quit
-BufferPort.   Method        help          this.
-Command       Property      leave
-Constant      TaskBrowser.  list
-DataPort.     cd            ls
+the_attribute     the_event         cd ..         quit
+the_buffer_port.  the_method        help          this.
+the_command       the_property      leave
+the_constant      TaskBrowser.  list
+the_data_port.     cd            ls
  (type 'ls' for context info) : 
     </screen>
     <para>
@@ -719,18 +724,15 @@ DataPort.     cd            ls
       <function>startup()</function>,
       <function>update()</function> and
       <function>shutdown()</function> functions of a TaskContext
-      by inheriting from that class. Orocos provides an 'enhanced'
-      TaskContext, the <classname>RTT::GenericTaskContext</classname>
-      which we will use in the examples to encourage users to
-      use this class:
+      by inheriting from that class.
     </para>
-    <programlisting>  #include &lt;rtt/GenericTaskContext.hpp>
+    <programlisting>  #include &lt;rtt/TaskContext.hpp>
   class MyTask 
-    : public <classname>RTT::GenericTaskContext</classname>
+    : public <classname>RTT::TaskContext</classname>
   {
   public:
        MyTask(std::string name) 
-         : <classname>RTT::GenericTaskContext</classname>(name)
+         : <classname>RTT::TaskContext</classname>(name)
        {
           // see lateron what to put here.
        }
@@ -779,7 +781,27 @@ DataPort.     cd            ls
 	from the CoreLib, for example
 	<classname>RTT::PeriodicActivity</classname> or
 	<classname>RTT::NonPeriodicActivity</classname>.
-	These classes will allocate a thread which executes the
+	This relation is shown in <xref linkend="fig-task-execution" />.
+      </para>
+      <figure id="fig-task-execution">
+      <title>
+	Executing a TaskContext
+      </title>
+      <mediaobject>
+	<imageobject>
+	  <imagedata fileref="TaskContextExecution" />
+	</imageobject>
+	<caption>
+	  <para>You can make a TaskContext '(re-)active' by creating
+	  an Activity object which executes its Execution Engine.
+	  The Execution Engine delegates all work to specific
+	  'Processors' and user code in update().
+	  </para>
+	</caption>
+      </mediaobject>
+    </figure>
+      <para>
+	The Activity classes will allocate a thread which executes the
 	Execution Engine. ( See the &coreman; for more documentation
 	about activities. ) The choosen
 	<classname>ActivityInterface</classname> object will invoke
@@ -917,7 +939,7 @@ DataPort.     cd            ls
   using namespace RTT;
 
   class MyTask
-    : public <classname>RTT::GenericTaskContext</classname>
+    : public <classname>RTT::TaskContext</classname>
   {
     // Read-only data port:
     <classname>RTT::ReadDataPort</classname>&lt;double&gt; indatPort;
@@ -935,7 +957,7 @@ DataPort.     cd            ls
   public:
     // ...
     MyTask(std::string name)
-      : <classname>RTT::GenericTaskContext</classname>(name),
+      : <classname>RTT::TaskContext</classname>(name),
         indatPort("Data_R"),
 	outdatPort("Data_W", 1.0),  // note: initial value
 	rwdatPort("Data_RW", 1.0),
@@ -1017,7 +1039,7 @@ DataPort.     cd            ls
   using namespace RTT;
 
   class MyTask
-    : public <classname>RTT::GenericTaskContext</classname>
+    : public <classname>RTT::TaskContext</classname>
   {
      // ...Constructor sets up Ports, see above.
 
@@ -1174,7 +1196,7 @@ DataPort.     cd            ls
   using namespace RTT;
 
   class MyTask
-    : public <classname>RTT::GenericTaskContext</classname>
+    : public <classname>RTT::TaskContext</classname>
   {
     public:
     void reset() { ... }
@@ -1187,7 +1209,7 @@ DataPort.     cd            ls
     Method&lt;double(double)&gt; paramMethod;
 
     MyTask(std::string name)
-      : <classname>RTT::GenericTaskContext</classname>(name),
+      : <classname>RTT::TaskContext</classname>(name),
       resetMethod(&quot;reset&quot;, &amp;MyTask::reset, this),
       nameMethod(&quot;name&quot;, &amp;MyTask::getName, this),
       resetMethod(&quot;changeP&quot;, &amp;MyTask::changeParameter, this)
@@ -1400,7 +1422,7 @@ DataPort.     cd            ls
   #include &lt;rtt/Attribute.hpp>
 
   class MyTask
-    : public <classname>RTT::GenericTaskContext</classname>
+    : public <classname>RTT::TaskContext</classname>
   {
      <classname>RTT::Attribute</classname>&lt;bool&gt; aflag;
      <classname>RTT::Attribute</classname>&lt;int&gt; max;
@@ -1412,7 +1434,7 @@ DataPort.     cd            ls
   public:
     // ...
     MyTask(std::string name)
-      : <classname>RTT::GenericTaskContext</classname>(name),
+      : <classname>RTT::TaskContext</classname>(name),
         param("Param","Param Description","The String"),
 	value("Value","Value Description", 1.23 ),
 	aflag("aflag", false),
@@ -1532,7 +1554,7 @@ DataPort.     cd            ls
   #include &lt;rtt/Command.hpp&gt;
 
   class MyTask
-    : public <classname>RTT::GenericTaskContext</classname>
+    : public <classname>RTT::TaskContext</classname>
   {
   public:
     /**
@@ -1553,7 +1575,7 @@ DataPort.     cd            ls
 
   public:
     MyTask(std::string name)
-      : <classname>RTT::GenericTaskContext</classname>(name),
+      : <classname>RTT::TaskContext</classname>(name),
         cycleCommand(&quot;startCycle&quot;,
 	             &amp;MyTask::startCycle,
                      &amp;MyTask::cycleDone, this),
@@ -1737,7 +1759,7 @@ DataPort.     cd            ls
 	<programlisting>  #include &lt;rtt/Event.hpp>
 
   class MyTask
-    : public <classname>RTT::GenericTaskContext</classname>
+    : public <classname>RTT::TaskContext</classname>
   {
     // An event with a bool argument:
     <classname>RTT::Event</classname>&lt; void(bool) &gt; turnSwitch;
@@ -1745,7 +1767,7 @@ DataPort.     cd            ls
     <classname>RTT::Event</classname>&lt; bool(double, double, double) &gt; moveAxis;
   public:
     MyTask(std::string name)
-      : <classname>RTT::GenericTaskContext</classname>(name),
+      : <classname>RTT::TaskContext</classname>(name),
         turnSwitch( "turnSwitch" ),
 	moveAxis( "move" )
     {
@@ -2258,12 +2280,12 @@ DataPort.     cd            ls
 	<classname>RTT::Property</classname> objects can be
 	added to a task's interface. To read and write properties from
 	or to files, you can use the
-	<classname>RTT::GenericTaskContext</classname>
+	<classname>RTT::TaskContext</classname>
 	class' methods. It creates or reads files in the XML Component
 	Property Format such that it is human readable and modifiable.
       </para>
       <programlisting>  // ...
-  <classname>RTT::GenericTaskContext</classname>* a_task = ...
+  <classname>RTT::TaskContext</classname>* a_task = ...
   a_task->readProperties( "PropertyFile.cpf" );
   // ...
   a_task->writeProperties( "PropertyFile.cpf" ); </programlisting>
@@ -2312,12 +2334,12 @@ DataPort.     cd            ls
 	  Any number of programs may be listed in a file.
 	</para>
 	<para>
-	  Orocos Programs are loaded as such into a GenericTaskContext
+	  Orocos Programs are loaded as such into a TaskContext
 	  :</para>
 	<para>
-	  <programlisting>  <classname>RTT::GenericTaskContext</classname>* a_task = ...
+	  <programlisting>  <classname>RTT::TaskContext</classname>* a_task = ...
 
-  a_task->loadProgram( "ProgramBar.ops" ); </programlisting></para>
+  a_task->scripting()->loadPrograms( "ProgramBar.ops" ); </programlisting></para>
 	<para>
 	  When the Program is loaded in the Task Context, it can
 	  also be controlled from other scripts or a TaskBrowser. Assuming
@@ -2373,9 +2395,9 @@ DataPort.     cd            ls
 	  Generic Task Context.
 	</para>
 	<para>
-	  <programlisting>  <classname>RTT::GenericTaskContext</classname>* a_task = ...
+	  <programlisting>  <classname>RTT::TaskContext</classname>* a_task = ...
 
-  a_task->loadStateMachine( "StateMachineBar.osd" ); </programlisting></para>
+  a_task->scripting()->loadStateMachines( "StateMachineBar.osd" ); </programlisting></para>
 	<para>
 	  When the State Machine is loaded in the Task Context, it can
 	  also be controlled from your scripts or TaskBrowser. Assuming
@@ -2422,9 +2444,9 @@ DataPort.     cd            ls
       framework in Orocos Tasks.
     </para>
     <section>
-      <title>Using the <classname>GenericTaskContext</classname></title>
+      <title>Using the <classname>TaskContext</classname></title>
       <para>
-	To help users in setting up quickly a TaskContext, the GenericTaskContext
+	To help users in setting up quickly a TaskContext, the TaskContext
 	class has been made available which adds some standard methods and
 	commands to its interface which are common to many tasks. It supports
 	loading Programs and StateMachines, saving Properties to disk and reading
@@ -2671,18 +2693,18 @@ DataPort.     cd            ls
 	C++ interface to a task's interface.
 	</para>
 	<programlisting>
-  #include &lt;rtt/GenericTaskContext.hpp&gt;
+  #include &lt;rtt/TaskContext.hpp&gt;
   #include &lt;rtt/Command.hpp&gt;
   #include &lt;rtt/Method.hpp&gt;
   #include "DeviceInterface.hpp"
 
   class TaskDeviceInterface
     : public DeviceInterface,
-      public <classname>RTT::GenericTaskContext</classname>
+      public <classname>RTT::TaskContext</classname>
   {
   public:
       TaskDeviceInterface()
-        : <classname>RTT::GenericTaskContext</classname>( "DeviceInterface" )
+        : <classname>RTT::TaskContext</classname>( "DeviceInterface" )
       {
          this->setup();
       }

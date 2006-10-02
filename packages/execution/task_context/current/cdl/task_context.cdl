@@ -66,4 +66,6 @@ of the standard ExecutionEngine"
     compile ConnectionInterface.cxx
     compile PortInterface.cxx
     compile TaskCore.cxx
+    compile ExecutionAccess.cxx
+    compile MarshallingAccess.cxx
 }

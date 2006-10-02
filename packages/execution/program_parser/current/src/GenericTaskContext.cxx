@@ -46,10 +46,6 @@ namespace RTT
         methods()->addMethod( method("assert",
                     &GenericTaskContext::assertion, this), "Assert will get your program in the error state if the argument is false.",
                             "MustBeTrue", "The result of a boolean expression which must be true.");
-        methods()->addMethod( method("start",
-                    &GenericTaskContext::start, this), "Start this GenericTaskContext." );
-        methods()->addMethod( method("stop",
-                    &GenericTaskContext::stop, this), "Stop this GenericTaskContext." );
         methods()->addMethod( method("readProperties",
                     &GenericTaskContext::readProperties, this), "Read Properties from a file.",
                             "Filename", "A CPF formatted XML file.");
@@ -68,30 +64,7 @@ namespace RTT
         methods()->addMethod( method("unloadStateMachine",
                     &GenericTaskContext::unloadStateMachine, this), "Unload an Orocos State Description from a file.",
                             "StateMachineName", "A name of a Root StateMachine instantiation.");
-        methods()->addMethod( method("isRunning",
-                    &GenericTaskContext::isRunning, this), "Is this GenericTaskContext started ?" );
-        methods()->addMethod( method("update",
-                    &GenericTaskContext::doUpdate, this), "Invoke the update method. Only succeeds if the task isRunning()." );
     }
-
-#if 0
-    GenericTaskContext::createScriptingObject()
-    {
-        TaskObject* to =  new TaskObject("scripting");
-        to->methods()->addMethod( method("loadProgram",
-                    &GenericTaskContext::loadProgram, this), "Load an Orocos Program Script from a file.",
-                            "Filename", "An ops file.");
-        to->methods()->addMethod( method("loadStateMachine",
-                    &GenericTaskContext::loadStateMachine, this), "Load an Orocos State Description from a file.",
-                            "Filename", "An osd file.");
-        to->methods()->addMethod( method("unloadProgram",
-                    &GenericTaskContext::unloadProgram, this), "Unload an Orocos Program Script from a file.",
-                            "ProgramName", "The Program's name.");
-        to->methods()->addMethod( method("unloadStateMachine",
-                    &GenericTaskContext::unloadStateMachine, this), "Unload an Orocos State Description from a file.",
-                            "StateMachineName", "A name of a Root StateMachine instantiation.");
-    }
-#endif
 
     GenericTaskContext::~GenericTaskContext()
     {}

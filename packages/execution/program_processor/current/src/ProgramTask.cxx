@@ -43,6 +43,8 @@ namespace RTT
         : TaskContext( prog->getName(), ee ),
           program( new ValueDataSource<ProgramInterfaceWPtr>(prog) ) // was: VariableDataSource.
     {
+        this->clear();
+
         DataSource<ProgramInterfaceWPtr>* ptr = program.get();
         // Commands :
         commands()->addCommandDS( ptr,

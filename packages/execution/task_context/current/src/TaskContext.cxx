@@ -37,13 +37,16 @@
 #include <boost/mem_fn.hpp>
 
 #include "rtt/DataSource.hpp"
+#include "rtt/Method.hpp"
 #include "rtt/ConnectionInterface.hpp"
 
 #include <pkgconf/os.h>
 #include <pkgconf/system.h>
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
 #include "rtt/ParserScriptingAccess.hpp"
+#include "rtt/ParserExecutionAccess.hpp"
 #endif
+#include "rtt/MarshallingAccess.hpp"
 
 namespace RTT
 {
@@ -52,40 +55,73 @@ namespace RTT
     using namespace std;
 
     TaskContext::TaskContext(const std::string& name)
-        :  TaskCore(name),
+        :  TaskCore(name)
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
-           mscriptAcc(new ParserScriptingAccess(this))
+           ,mscriptAcc(new ParserScriptingAccess(this))
 #else
-           mscriptAcc(new ScriptingAccess(this))
+           ,mscriptAcc(new ScriptingAccess(this))
 #endif
+#if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
+           ,mengAcc( new ParserExecutionAccess(this ) )
+#else
+           ,mengAcc( new ExecutionAccess(this ) )
+#endif
+           ,marshAcc( new MarshallingAccess(this) )
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
            ,eventService( ee )
 #endif
     {
-        // I'll only add  this line if there is  a good reason for
-        // (there  isn't) for  now, it's  confusing to  see 'this'
-        // being  listed as  peer.   while there  is  also a  this
-        // object.  //_task_map[ "this" ] = this;
+        this->setup();
     }
 
     TaskContext::TaskContext(const std::string& name, ExecutionEngine* parent )
-        :  TaskCore(name, parent),
+        :  TaskCore(name, parent)
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
-           mscriptAcc(new ParserScriptingAccess(this))
+           ,mscriptAcc(new ParserScriptingAccess(this))
 #else
-           mscriptAcc(new ScriptingAccess(this))
+           ,mscriptAcc(new ScriptingAccess(this))
 #endif
+#if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
+           ,mengAcc( new ParserExecutionAccess(this ) )
+#else
+           ,mengAcc( new ExecutionAccess(this ) )
+#endif
+           ,marshAcc( new MarshallingAccess(this) )
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
            ,eventService( ee )
 #endif
     {
+        this->setup();
     }
 
+    void TaskContext::setup()
+    {
+        mdescription = "The interface of this TaskContext.";
+
+        this->methods()
+            ->addMethod( method("start",&TaskContext::start, this),
+                         "Start the Execution Engine of this TaskContext." );
+        this->methods()
+            ->addMethod( method("stop",&TaskContext::stop, this),
+                         "Stop the Execution Engine of this TaskContext." );
+        this->methods()
+            ->addMethod( method("isRunning",&TaskContext::isRunning, this),
+                         "Is the Execution Engine of this TaskContext started ?" );
+        this->methods()
+            ->addMethod( method("update",&TaskContext::doUpdate, this),
+                         "Execute (call) the update method directly.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task." );
+
+        this->methods()
+            ->addMethod( method("trigger",&TaskContext::doTrigger, this),
+                         "Trigger the update method for execution in the thread of this task.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task." );
+    }
 
         TaskContext::~TaskContext()
         {
             attributeRepository.clear();
             delete mscriptAcc;
+            delete mengAcc;
+            delete marshAcc;
 
             // remove from all users.
             while( !musers.empty() ) {
@@ -205,15 +241,38 @@ namespace RTT
         mdescription = d;
     }
 
-    bool TaskContext::executeCommand( CommandInterface* c)
+    bool TaskContext::doUpdate()
     {
-        return ee->commands()->process( c ) != 0;
+        if ( this->engine()->getActivity() == 0 )
+            return false;
+        return this->engine()->getActivity()->execute();
     }
 
-    int TaskContext::queueCommand( CommandInterface* c)
+    bool TaskContext::doTrigger()
     {
-        return ee->commands()->process( c );
+        if ( this->engine()->getActivity() == 0 )
+            return false;
+        return this->engine()->getActivity()->trigger();
     }
+
+    bool TaskContext::start() {
+        if ( this->engine()->getActivity() == 0 )
+            return false;
+        return this->engine()->getActivity()->start();
+    }
+        
+    bool TaskContext::stop() {
+        if ( this->engine()->getActivity() == 0 )
+            return false;
+        return this->engine()->getActivity()->stop();
+    }
+  
+    bool TaskContext::isRunning() const {
+        if ( this->engine()->getActivity() == 0 )
+            return false;
+        return this->engine()->getActivity()->isRunning();
+    }
+
 
     void TaskContext::addUser( TaskContext* peer )
     {
@@ -374,8 +433,29 @@ namespace RTT
         return res;
     }
 
+    void TaskContext::clear()
+    {
+        this->attributes()->clear();
+        this->properties()->clear();
+        this->methods()->clear();
+        this->commands()->clear();
+        this->events()->clear();
+        this->ports()->clear();
+
+        Objects::const_iterator it = mobjects.begin();
+        while ( it != mobjects.end() ) {
+            delete *it;
+            ++it;
+        }
+        mobjects.clear();
+    }
 
     bool TaskContext::removeObject(const std::string& obj_name ) {
+        if (obj_name == "this") {
+            this->methods()->clear();
+            this->commands()->clear();
+            return true;
+        }
         OperationInterface* tgt = getObject(obj_name);
         if (tgt) {
             mobjects.erase( find(mobjects.begin(), mobjects.end(), tgt) );

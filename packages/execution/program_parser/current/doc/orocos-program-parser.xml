@@ -10,7 +10,7 @@
 <article>
   <articleinfo>
     <title>
-      The Orocos Scripting Manual
+      The Orocos Scripting Reference Manual
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis></subtitle>
     <authorgroup>
@@ -69,7 +69,7 @@
 	<revnumber>0.16</revnumber>
 	<date>July 2004</date>
 	<authorinitials>DD</authorinitials>
-	<revremark>New State Context syntax</revremark>
+	<revremark>New State Machine syntax</revremark>
       </revision>
       <revision>
 	<revnumber>0.18</revnumber>
@@ -94,10 +94,16 @@
       </revision> 
       <revision>
 	<revnumber>0.22.0</revnumber>
-	<date>January 2005</date>
+	<date>January 2006</date>
 	<authorinitials>PS</authorinitials>
 	<revremark>Extended syntax and updates on events and state machines.
 	Split off the developer specific info.</revremark>
+      </revision> 
+      <revision>
+	<revnumber>0.25.1</revnumber>
+	<date>September 2006</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>User feedback, drop 'task.' prefix for accessing properties.</revremark>
       </revision> 
    </revhistory>
 
@@ -286,15 +292,15 @@
   // define a constant of type double, with name "pi"
   const double pi = 3.14159265358979
   const double pi2 = 2*pi       // ok, pi2 is 6.28...
-  const int turn = counter * pi // error ! turn will be 0 !
+  const int turn = counter * pi // warning ! turn will be 0 !
 
   // define a constant at _parse-time_ !
   const totalParams = table.getNbOfParams()</programlisting>
 	  <para>
 	    Variables, constants and aliases are defined for the
-	    following types: bool, int, double, string, array,
-	    rotation, vector, frame, double6D. See the last section
-	    of the Parser Manual to see how to extend it with custom types.
+	    following types: bool, int, double, string and array.
+	    The Orocos Toolkit System allows any application or
+	    library to extend these types.
 	  </para>
 	</sect3>
 	<sect3>
@@ -341,26 +347,28 @@
 
   set values     = array(20)   // expand values to contain 20 doubles. (Non realtime!) </programlisting>
 	  <para>
-	    As the example above demonstrates, a fixed string or array may
-	    only be assigned from another string or array with equal or less elements.
+	    As the example above demonstrates, a <emphasis>fixed</emphasis> string or array may
+	    only be assigned from another string or array with equal or less elements,
+	    while a <emphasis>free</emphasis> string or array may be assigned any number
+	    of elements.
 	  </para>
 	  <important>
 	    <para>
 	      The value given upon construction must be a
 	      <emphasis>legal expression at parse time and is only
 	      evaluated once</emphasis>. The safest method is using a
-	      literal integer ( like in the examples ), but if you
+	      literal integer ( i.e. (10) like in the examples ), but if you
 	      create a Task constant or variable which holds an
 	      integer, you can also use it as in :
-	      <programlisting>  var array example( 5 * task.numberOfItems )</programlisting>
+	      <programlisting>  var array example( 5 * numberOfItems )</programlisting>
 	      The expression may not contain any
 	      program variables, these will all be zero upon parse
-	      time ! The following example is <emphasis>illegal</emphasis>
+	      time ! The following example is <emphasis>a common mistake</emphasis>
 	      also :
-	      <programlisting>  set task.numberOfItems = 10
-  var array example( 5 * task.numberOfItems )</programlisting>
+	      <programlisting>  set numberOfItems = 10
+  var array example( 5 * numberOfItems )</programlisting>
               Which will not lead to '50', but to '5 times the
-	      value of task.numberOfItems when the program is parsed'.
+	      value of numberOfItems, being still zero, when the program is parsed.
 	    </para>
 	    </important>
 	  <para>Another property of container types is that you can index (use []) their
@@ -397,7 +405,7 @@
 	<sect3>
 	  <title>The '.' Operator</title>
 	  <para>
-	    Some value types, like vector, rotation, array, string in
+	    Some value types, like array and string in
 	    the Parser framework are actually containing values
 	    or useful information themselves. For accessing these values, a
 	    value type can have a 'dot' operator which allows you to 
@@ -501,25 +509,24 @@
 	we show how you can load a program in your Real-Time Task.
       </para>
       <para>
-	Assume that you have a program "progname"
-	in a file <filename>program.ops</filename>.
-	You've read the Orocos Task Infrastructure manual and constructed
-	a <classname>RTT::TaskContext</classname> which has some methods and is connected to its
-	Peer TaskContexts. Parsing the program is then straightforward :
+	You have constructed a <classname>RTT::TaskContext</classname>
+	which has some methods and is connected to its Peer
+	TaskContexts. The program script
+	<filename>programs.ops</filename> contains a program
+	with the name "progname".  Parsing the program is then
+	straightforward :
       </para>
       <programlisting>
   #include &lt;rtt/PeriodicActivity.hpp&gt;
   #include &lt;rtt/TaskContext.hpp&gt;
-  #include &lt;rtt/ProgramLoader.hpp&gt;
 
   using namespace RTT;
 
   <classname>RTT::TaskContext</classname>   tc;
   <classname>RTT::PeriodicActivity</classname> ptask(5, 0.01, tc.engine() );
-  <classname>RTT::ProgramLoader</classname> loader;
 
   // Watch Logger output for errors :
-  loader.loadProgram( "program.ops", &amp;tc );
+  tc.scripting()->loadPrograms("program.ops");
 
   // start the task :
   ptask.start();
@@ -528,7 +535,7 @@
   tc.engine()->programs()->getProgram("progname")->start();
 </programlisting>
       <para>
-	The loader will load all programs and functions into tc. Next
+	The loader will load all programs and functions into 'tc'. Next
 	we start the task's execution engine and finally, the program
 	"progname" is started. Programs can also be started from
 	within other scripts.
@@ -670,7 +677,7 @@
 	<para>
 	  Methods behave like calling C functions. They take
 	  arguments and return a value immediately. They can be
-	  used in expressions or stand alone in a do statement :</para>
+	  used in expressions or stand alone :</para>
 	  <programlisting>
   // ignore the return value :
   do comp.method( args )
@@ -688,7 +695,7 @@
 	</para>
 	<warning>
 	  <para>
-	    A method returning a boolean result, may
+	    A method returning a boolean result, will
 	    cause a run-time program error if
 	    it returns false. If this is not wanted, use 'try'
 	    instead of 'do'. If the method returns
@@ -718,7 +725,7 @@
 	<note>
 	  <para>
 	    These if .. then clauses are different from the
-	    if/then/else statement later in this tekst and purely
+	    if/then/else statement later in this text and purely
 	    meant to detect alternative end conditions of a command.
 	  </para>
 	</note>
@@ -829,8 +836,8 @@
 	    which takes 'N' arguments. Other tasks subscribed to this
 	    event will receive the event synchronously or asynchronously
 	    with these arguments. More information about events can be
-	    found in the CoreLib manual.  The event must be added to the
-	    task as described in the task infrastructure manual.
+	    found in the CoreLib manual.  This event must be part of
+	    the task interface.
 	  </para>
       </sect3>
       <sect3>
@@ -851,10 +858,8 @@
   	  by value, but it returns no value.
   	  A function can be exported, in which case it becomes a public
 	  available command, which will fail if one of its
-	  commands fails. Exporting functions is a powerfull means to
-	  build reusable code in the scripting framework, since an
-	  external task can transparantly call a function or
-	  call a C++ command.
+	  statements fails. Hence, this allows to extend the command interface
+	  with exported functions of a task at runtime.
 	</para>
       </sect3>
       <sect3>
@@ -877,13 +882,13 @@
       <sect3>
 	<title>Waiting : The 'nothing' Command</title>
 	<para>
-	  A special command 'nothing' is provided, and I'm sure you
-	  can already guess what it does...  It is useful to implement
-	  statements, where the completion list is really the only
-	  useful thing to do. The nothing command's completion condition
-	  will pause execution exactly one execution step, it can thus
-	  also be inserted between methods to force execution to pause
-	  and resume in the next execution period.
+	  A special command 'nothing' is provided.  It is useful to
+	  implement statements, where the completion list is really
+	  the only useful thing to do. The nothing command's
+	  completion condition will pause execution exactly one
+	  execution step, it can thus also be inserted between methods
+	  to force execution to pause and resume in the next execution
+	  period.
 	</para>
       </sect3>
     </sect2>
@@ -899,6 +904,7 @@
 	<programlisting>
   do ATask.programs.progname.start()
   do ATask.programs.progname.pause()
+  do ATask.programs.progname.step()
   do ATask.programs.progname.step()
   do ATask.programs.progname.stop()</programlisting>
 	<para>The first line starts a program. The second line
@@ -921,13 +927,12 @@
     <sect2>
       <title>Introduction</title>
       <para>
-	A <classname>RTT::StateMachine</classname> is the state machine used in the &orocos;
-	  system.  It contains a collection of states, and each state
-	  defines a Program on entry of the state, when it is run
-	  and on exit.  It also defines all transitions to a next
-	  state.  A StateMachine must be loaded in a Task's Execution Engine ( see
-	  <ulink url="orocos-task-context.html"> The Online
-	  Task Context Manual</ulink> ).
+	A <classname>RTT::StateMachine</classname> is the state
+	machine used in the &orocos; system.  It contains a collection
+	of states, and each state defines a Program on entry of the
+	state, when it is run and on exit.  It also defines all
+	transitions to a next state. Like program scripts, a
+	StateMachine must be loaded in a Task's Execution Engine.
       </para>
     </sect2>
       <sect2>
@@ -1042,7 +1047,7 @@
 	</mediaobject>
 	</figure>
 	<para>
-	  In automatic mode, After the run program of the current
+	  In automatic mode, after the run program of the current
 	  state finishes, the transition table (to other states) of
 	  the current state is evaluated.  If a transition succeeds,
 	  the transition program is executed, then the exit program of
@@ -1071,22 +1076,20 @@
       <programlisting>
   #include &lt;rtt/PeriodicActivity.hpp&gt;
   #include &lt;rtt/TaskContext.hpp&gt;
-  #include &lt;rtt/ProgramLoader.hpp&gt;
 
   using namespace RTT;
 
   <classname>RTT::TaskContext</classname>   tc;
   <classname>RTT::PeriodicActivity</classname> ptask(5, 0.01, tc.engine() );
-  <classname>RTT::ProgramLoader</classname> loader;
 
-  loader.loadStateMachine( "state-machine.osd", &amp;tc );
+  tc.scripting()->loadStateMachines( "state-machine.osd" );
 
   // start the task's processor :
   ptask.start();
 
-  // activate a state context :
+  // activate a state machine :
   tc.engine()->states()->getStateMachine("MachineInstanceName")->activate();
-  // start a state context (automatic mode) :
+  // start a state machine (automatic mode) :
   tc.engine()->states()->getStateMachine("MachineInstanceName")->start();</programlisting>
       <para>
 	The loader loads all instantiated state machines in tc.
@@ -1316,7 +1319,7 @@
       <sect2 id="instantiating">
 	<title>Instantiating Machines: SubMachines and RootMachines</title>
 	<para>
-	  As mentionned before: you can look at a SubMachine
+	  As mentioned before: you can look at a SubMachine
 	  definition as the definition of a C++ class.  It is merely
 	  the template for its instantiations, and you have to
 	  instantiate it to actually be able to do anything with it.
@@ -1392,7 +1395,7 @@
   Rootmachine SomeStateMachine mymachine </programlisting>
 	    This example creates some handy public variables in the
 	    StateMachine SomeStateMachine, and uses them throughout
-	    the state context. They can also be read and modified from 
+	    the state machine. They can also be read and modified from 
 	    other tasks or programs :
 	    </para>
 	  <programlisting>  var int readcounter = 0
@@ -1586,10 +1589,10 @@
     <sect2>
       <title>Starting and Stopping StateMachines from scripts</title>
       <para>
-	Once a state context is parsed and loaded into the State Machine Processor,
+	Once a state machine is parsed and loaded into the State Machine Processor,
 	it can be manipulated from another script. This can be
 	done through the "states" subtask of the TaskContext
-	in which the state context was loaded. Assume that you loaded
+	in which the state machine was loaded. Assume that you loaded
 	"machine" with subcontexts "axisx" and "axisy"
 	in task "ATask", you can write
       </para>
@@ -1641,9 +1644,9 @@
         }
         transitions {
 	   // guard this transition.
-           if task.checkSomeCondition() then
+           if checkSomeCondition() then
               select z
-           if task.checkOtherCondition() then
+           if checkOtherCondition() then
               select exit
         }
      }
@@ -1701,7 +1704,7 @@
          <para>
 	   The requestState command will fail if the transition is not 
 	   possible ( for example, the state machine is not in
-	   state y, or task.checkSomeCondition() was not true ),
+	   state y, or checkSomeCondition() was not true ),
 	   otherwise, the state machine will make the transition
 	   and the command succeeds and completes when the z state
 	   is fully entered (it's init program completed).
@@ -1744,9 +1747,9 @@
         }
         transitions {
 	   // guard this transition.
-           if task.checkSomeCondition() then
+           if checkSomeCondition() then
               select z
-           if task.checkOtherCondition() then
+           if checkOtherCondition() then
               select exit
         }
      }
@@ -1795,9 +1798,9 @@
          <para>
 	   After the State Machine is activated, it is started,
 	   which lets the State Machine enter automatic mode. If
-	   task.checkSomeCondition() evaluates to true, the State 
+	   checkSomeCondition() evaluates to true, the State 
 	   Machine will make the transition to state "z" without
-	   user intervention, if task.checkOtherCondition() evaluates
+	   user intervention, if checkOtherCondition() evaluates
 	   to true, the "exit" state will be entered.
 	 </para>
 	 <para>

@@ -49,10 +49,18 @@ namespace RTT
 	{
     public:
         /**
-         * Enumerates the statuses of a ProgramInterface.
+         * Placeholder of the ProgramStatus.
          */
         struct Status {
-            enum ProgramStatus { stopped, running, paused, error, unloaded };
+            /**
+             * Enumerates the statuses of a ProgramInterface.
+             */
+            enum ProgramStatus { stopped, //! The program is loaded in a ProgramProcessor but not running.
+                                 running, //! The program is running.
+                                 paused,  //! The program was running but is now paused.
+                                 error,   //! The program was running but has encountered an error.
+                                 unloaded //! This program is currently not loaded in a ProgramProcessor.
+            };
         };
     protected:
         Status::ProgramStatus pStatus;

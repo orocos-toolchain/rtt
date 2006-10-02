@@ -39,6 +39,8 @@
 #include "DataFlowInterface.hpp"
 #include "ExecutionEngine.hpp"
 #include "ScriptingAccess.hpp"
+#include "ExecutionAccess.hpp"
+#include "MarshallingAccess.hpp"
 #include "TaskCore.hpp"
 #include "PropertyBag.hpp"
 
@@ -51,6 +53,8 @@ namespace RTT
     class ScriptingAccess;
     class TaskObject;
     class EventService;
+    class ExecutionAccess;
+    class MarshallingAccess;
 
     /**
      * A TaskContext exports the commands, methods, events, properties and ports
@@ -73,8 +77,9 @@ namespace RTT
      *
      * @par Connecting TaskContexts
      * TaskContexts are connected using the unidirectional addPeer() or bidirectional
-     * connectPeers() methods. These methods setup data connections and allow
-     * 'peer' TaskContexts to use each other's interface.
+     * connectPeers() methods. These methods only allow
+     * 'peer' TaskContexts to use each other's interface. Use connectPorts()
+     * to setup the data connections between data ports.
      * In order to disconnect this task from its peers, use disconnect(), which
      * will disconnect all the Data Flow Ports and remove this object from its
      * Peers.
@@ -100,8 +105,9 @@ namespace RTT
 
         ScriptingAccess* mscriptAcc;
 
-        void exportPorts();
+        ExecutionAccess* mengAcc;
 
+        MarshallingAccess* marshAcc;
         /**
          * Inform this TaskContext that \a user is using
          * our services.
@@ -113,6 +119,8 @@ namespace RTT
          * our services.
          */
         void removeUser(TaskContext* user);
+
+        void setup();
     public:
         typedef std::vector< std::string > PeerList;
         typedef std::vector< std::string > ObjectList;
@@ -142,17 +150,72 @@ namespace RTT
         virtual void setDescription(const std::string& descr);
 
         /**
-         * Queue a command.
-         * @return True if the Processor accepted the command.
+         * Call this function to force a TaskContext to export its
+         * Data Flow ports as scripting objects. This is done by the
+         * component itself when a peer connection is made, but in
+         * case you want to access the Data Flow ports of a
+         * stand-alone component from the scripting interface,
+         * you need to call this function.
          */
-        bool executeCommand( CommandInterface* c);
+        void exportPorts();
 
         /**
-         * Queue a command. If the Processor is not running or not accepting commands
-         * this will fail and return zero.
-         * @return The command id the processor returned.
+         * @name Script Methods
+         * The standard script methods of a TaskContext are for starting 
+         * and stopping its ExecutionEngine. The methods map to the
+         * ActivityInterface which executes the ExecutionEngine.
+         * @{
          */
-        int queueCommand( CommandInterface* c);
+        /**
+         * Start is a method which starts the execution engine's task.
+         * It can not be a command because if the engine is not running,
+         * it does not accept commands. Also, RunnableInterface::initialize()
+         * is then called in the context of the caller.
+         * You can override this method to do something else or in addition
+         * to starting the Processor.
+         * @return false if the engine was not assigned to a ActivityInterface
+         * or if initialize() returned false or it was already started.
+         */
+        virtual bool start();
+        
+        /**
+         * Stop is a method which stops the execution engine's task.
+         * RunnableInterface::finalize()
+         * is called in the context of the caller.
+         * You can override this method to do something else or in addition
+         * to stopping the engine.
+         * @return false if the engine was not assigned to a ActivityInterface
+         * or if it was not running.
+         */
+        virtual bool stop();
+  
+        /**
+         * DataSource to inspect if this Task is running.
+         * Defaults to this->getProcessor()->getActivity()
+         * && this->getProcessor()->getActivity()->isRunning()
+         */
+        virtual bool isRunning() const;
+
+        /**
+         * Invoke this method to \a execute
+         * the ExecutionEngine and the update() method. This method maps to
+         * the 'update()' method in the scripting language.
+         * @retval false if this->engine()->getActivity()->execute() == false
+         * @retval true otherwise.
+         */
+        virtual bool doUpdate();
+
+        /**
+         * Invoke this method to \a trigger the thread of this TaskContext to execute
+         * its ExecutionEngine and the update() method. This method maps to
+         * the 'trigger()' method in the scripting language.
+         * @retval false if this->engine()->getActivity()->trigger() == false
+         * @retval true otherwise.
+         */
+        virtual bool doTrigger();
+        /**
+         *@}
+         */
 
         /**
          * Add a one-way connection from this task to a peer task.
@@ -254,6 +317,13 @@ namespace RTT
          */
         virtual bool removeObject(const std::string& obj_name );
 
+        /** 
+         * Clear the complete interface of this Component.
+         * This method removes all objects and all methods, commands,
+         * events, properties and ports from the interface of this TaskContext.
+         */
+        void clear();
+
         /**
          * Get access to high level controls for
          * programs, state machines and scripting
@@ -272,6 +342,46 @@ namespace RTT
         const ScriptingAccess* scripting() const
         {
             return mscriptAcc;
+        }
+
+        /**
+         * Get access to high level controls for
+         * controlling programs and state machines.
+         * It is the implementation of the 'engine'
+         * TaskObject.
+         */
+        ExecutionAccess* execution()
+        {
+            return mengAcc;
+        }
+
+        /**
+         * Get access to high level controls for
+         * controlling programs and state machines.
+         * It is the implementation of the 'engine'
+         * TaskObject.
+         */
+        const ExecutionAccess* execution() const
+        {
+            return mengAcc;
+        }
+
+        /**
+         * Get access to high level controls for
+         * (de)serializing properties to/from an XML format.
+         */
+        MarshallingAccess* marshalling()
+        {
+            return marshAcc;
+        }
+
+        /**
+         * Get access to high level controls for
+         * (de)serializing properties to/from an XML format.
+         */
+        const MarshallingAccess* marshalling() const
+        {
+            return marshAcc;
         }
 
         /**

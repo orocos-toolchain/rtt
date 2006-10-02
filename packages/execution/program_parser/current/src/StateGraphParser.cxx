@@ -714,6 +714,7 @@ namespace RTT
         if ( __s == 0 ) {
             // install the __states if not yet present.
             __s = new TaskContext("__states", context->engine() );
+            __s->clear();
             context->addPeer( __s );
         }
 
@@ -793,6 +794,7 @@ namespace RTT
         if ( __s == 0 ) {
             // install the __states if not yet present.
             __s = new TaskContext("states", context->engine() );
+            __s->clear();
             context->addPeer( __s );
             __s->addPeer(context, "task");
         }

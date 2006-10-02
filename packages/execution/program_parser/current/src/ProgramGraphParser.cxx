@@ -352,6 +352,7 @@ namespace RTT
       if ( __p == 0 ) {
           // install the "programs" if not yet present.
           __p = new TaskContext("programs", rootc->engine() ); // this is leaked...
+          __p->clear();
           rootc->addPeer( __p );
           __p->addPeer(rootc, "task");
       }

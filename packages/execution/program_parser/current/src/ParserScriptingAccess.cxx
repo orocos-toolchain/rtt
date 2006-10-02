@@ -32,6 +32,8 @@
 #include "rtt/Parser.hpp"
 #include "rtt/Logger.hpp"
 #include "rtt/TaskContext.hpp"
+#include "rtt/Method.hpp"
+#include "rtt/Command.hpp"
 #include "rtt/ProgramProcessor.hpp"
 #include "rtt/StateMachineProcessor.hpp"
 #include <sstream>
@@ -40,14 +42,92 @@
 namespace RTT
 {
     using namespace std;
-    
+
+    ParserScriptingAccess::ParserScriptingAccess( TaskContext* parent )
+        : ScriptingAccess(parent), sproc(0)
+    {
+        OperationInterface* obj = parent->getObject("scripting");
+        obj = this->createTaskObject( obj );
+        parent->addObject( obj );
+    }
+
+    bool ParserScriptingAccess::doExecute(const std::string& code)
+    {
+        return this->execute(code) >= 0;
+    }
+
+    bool ParserScriptingAccess::doLoadPrograms( std::string filename )
+    {
+        return this->loadPrograms(filename, false);
+    }
+
+    bool ParserScriptingAccess::doLoadProgramText( std::string code )
+    {
+        return this->loadPrograms(code, "string", false);
+    }
+    bool ParserScriptingAccess::doUnloadProgram( std::string name )
+    {
+        return this->unloadProgram(name, false);
+    }
+
+    bool ParserScriptingAccess::doLoadStateMachines( std::string filename )
+    {
+        return this->loadStateMachines(filename, false);
+    }
+    bool ParserScriptingAccess::doLoadStateMachineText( std::string code )
+    {
+        return this->loadStateMachines(code, "string", false);
+    }
+    bool ParserScriptingAccess::doUnloadStateMachine( std::string name )
+    {
+        return this->unloadStateMachine(name, false);
+    }
+
+    OperationInterface* ParserScriptingAccess::createTaskObject(OperationInterface* obj)
+    {
+        if ( !obj )
+            obj = new TaskObject("scripting","Access to the Scripting interface. \
+Use this object in order to load or query programs or state machines.");
+
+        obj->methods()->addMethod( method( "execute", &ParserScriptingAccess::execute, this),
+                                   "Execute a line of code.", "Code", "A single statement.");
+        // Methods for loading programs
+        obj->methods()->addMethod( method( "loadPrograms", &ParserScriptingAccess::doLoadPrograms, this),
+                                   "Load a program from a given file.", "Filename", "The filename of the script."  );
+        obj->methods()->addMethod( method( "loadProgramText", &ParserScriptingAccess::doLoadProgramText, this),
+                                   "Load a program from a string.", "Code", "A string containing one or more program scripts." );
+        obj->methods()->addMethod( method( "unloadProgram", &ParserScriptingAccess::doUnloadProgram, this),
+                                   "Remove a loaded program.", "Name", "The name of the loaded Program"  );
+
+        // Query Methods for programs
+        obj->methods()->addMethod( method( "getProgramStatus", &ParserScriptingAccess::getProgramStatus, this),
+                                            "Get the status of a program?", "Name", "The Name of the loaded Program"  );
+        obj->methods()->addMethod( method( "getProgramLine", &ParserScriptingAccess::getProgramLine, this),
+                                            "Get the current line of execution of a program?", "Name", "The Name of the loaded Program"  );
+
+        // Methods for loading state machines
+        obj->methods()->addMethod( method( "loadStateMachines", &ParserScriptingAccess::doLoadStateMachines, this),
+                                   "Load a state machine from a given file.", "Filename", "The filename of the script."  );
+        obj->methods()->addMethod( method( "loadStateMachineText", &ParserScriptingAccess::doLoadStateMachineText, this),
+                                   "Load a state machine from a string.", "Code", "A string containing one or more state machine scripts." );
+        obj->methods()->addMethod( method( "unloadStateMachine", &ParserScriptingAccess::doUnloadStateMachine, this),
+                                   "Remove a loaded state machine.", "Name", "The name of the loaded State Machine"  );
+
+        // Query Methods for state machines
+        obj->methods()->addMethod( method( "getStateMachineStatus", &ParserScriptingAccess::getStateMachineStatus, this),
+                                            "Get the status of a state machine?", "Name", "The Name of the loaded State Machine"  );
+        obj->methods()->addMethod( method( "getStateMachineLine", &ParserScriptingAccess::getStateMachineLine, this),
+                                            "Get the current line of execution of a state machine?", "Name", "The Name of the loaded State Machine"  );
+
+        return obj;
+    }
 
     ParserScriptingAccess::~ParserScriptingAccess()
     {
         delete sproc;
     }
 
-    int ParserScriptingAccess::execute( string code ){
+    int ParserScriptingAccess::execute(const std::string& code ){
         if (sproc == 0)
             sproc = new StatementProcessor(mparent);
         return sproc->execute( code );

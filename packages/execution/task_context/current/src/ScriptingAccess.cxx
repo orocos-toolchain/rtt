@@ -48,7 +48,7 @@ namespace RTT
     {
     }
 
-    int ScriptingAccess::execute( string code ){
+    int ScriptingAccess::execute(const string& code ){
         Logger::In in("ScriptingAccess::execute");
         Logger::log() << Logger::Error << "No Parser available to execute '"+code+"' ." << Logger::endl;
         return -1;
