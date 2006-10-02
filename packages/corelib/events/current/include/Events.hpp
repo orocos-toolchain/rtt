@@ -36,7 +36,7 @@
  * @defgroup CoreLibEvents Event classes.
  * @ingroup CoreLib
  * Events (publish/subscribe) allow callback functions to be executed synchronously 
- * (in the same thread) or asynchronously (in a separate thread.
+ * (in the same thread) or asynchronously (in a separate thread).
  */
 
 #include "Event.hpp"
