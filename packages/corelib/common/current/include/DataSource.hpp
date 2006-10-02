@@ -118,16 +118,16 @@ namespace RTT
 
       virtual std::string getTypeName() const;
 
-      virtual CORBA::Any* createAny() const;
+      virtual CORBA::Any* createAny();
 
-      virtual CORBA::Any* getAny() const;
+      virtual CORBA::Any* getAny();
 
 #ifdef OROINT_OS_CORBA
       virtual Corba::Expression_ptr server( PortableServer::POA_ptr );
 
-      virtual Corba::Expression_ptr server(  PortableServer::POA_ptr ) const;
+      //virtual Corba::Expression_ptr server(  PortableServer::POA_ptr ) const;
 
-      virtual Corba::Method_ptr method( PortableServer::POA_ptr );
+      virtual Corba::Method_ptr method( MethodC* orig, PortableServer::POA_ptr );
 #endif
       /**
        * This method narrows a DataSourceBase to a typeded DataSource,
@@ -135,11 +135,6 @@ namespace RTT
        */
       static DataSource<T>* narrow(DataSourceBase* db);
 
-      /**
-       * This method narrows a DataSourceBase to a typeded DataSource,
-       * possibly returning a new object.
-       */
-      static const DataSource<T>* narrow(const DataSourceBase* db);
   };
 
   /**
@@ -218,11 +213,6 @@ namespace RTT
        */
       static AssignableDataSource<T>* narrow(DataSourceBase* db);
 
-      /**
-       * This method narrows a DataSourceBase to a typeded AssignableDataSource,
-       * possibly returning a new object.
-       */
-      static const AssignableDataSource<T>* narrow(const DataSourceBase* db);
   };
 }
 

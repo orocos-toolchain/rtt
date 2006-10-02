@@ -7,11 +7,9 @@ module RTT
 {
   module Corba
   {
-    typedef sequence<string> ObjectList;
     typedef sequence<string> MethodList;
     typedef sequence<string> CommandList;
     typedef sequence<Expression> Arguments;
-    typedef sequence<any> AnyArguments;
 
     /**
      * When querying a method or command for
@@ -27,27 +25,9 @@ module RTT
 
     typedef sequence<ArgumentDescription> Descriptions;
 
-    exception NoSuchObjectException
-    {
-      string name;
-    };
-
     exception NoSuchNameException
     {
       string name;
-    };
-
-    exception WrongNumbArgException
-    {
-      long wanted;
-      long received;
-    };
-
-    exception WrongTypeArgException
-    {
-      long whicharg;
-      string expected;
-      string received;
     };
 
     /**

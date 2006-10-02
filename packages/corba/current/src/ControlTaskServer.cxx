@@ -28,9 +28,11 @@
  
 
 #include "rtt/corba/ControlTaskServer.hpp"
+#include "rtt/corba/ControlTaskProxy.hpp"
 #include "rtt/corba/ControlTaskS.h"
 #include "rtt/corba/ControlTaskC.h"
 #include "rtt/corba/ControlTaskI.h"
+#include "rtt/corba/POAUtility.h"
 #include <orbsvcs/CosNamingC.h>
 #include <iostream>
 #include <fstream>
@@ -92,15 +94,24 @@ namespace RTT
 
         try {
             // Each server has its own POA.
+            // The server's objects have their own poa as well.
             CORBA::Object_var poa_object =
                 orb->resolve_initial_references ("RootPOA");
             PortableServer::POA_var poa =
                 PortableServer::POA::_narrow (poa_object.in ());
             PortableServer::POAManager_var poa_manager =
                 poa->the_POAManager ();
-            CORBA::PolicyList pl;
-            poa = poa->create_POA( taskc->getName().c_str(), poa_manager, pl); 
+
+            //poa = POAUtility::create_basic_POA( poa, poa_manager, taskc->getName().c_str(), 0, 1); 
             //            poa_manager->activate ();
+
+            // TODO : Use a better suited POA than create_basic_POA, use the 'session' or so type
+            // But watch out: we need implicit activation, our you will get exceptions upon ->_this()
+            // The POA for the Server's objects:
+//             PortableServer::POA_var objpoa = POAUtility::create_basic_POA(poa,
+//                                                               poa_manager,
+//                                                               std::string(taskc->getName() + "OBJPOA").c_str(), 
+//                                                               0, 0); // Not persistent, allow implicit.
 
             // The servant : TODO : cleanup servant in destructor !
             Orocos_ControlTask_i* the_task = new Orocos_ControlTask_i( taskc, poa.in() );
@@ -198,10 +209,10 @@ namespace RTT
                                  "" /* the ORB name, it can be anything! */);
             CORBA::Object_var poa_object =
                 orb->resolve_initial_references ("RootPOA");
-            PortableServer::POA_var poa =
+            rootPOA =
                 PortableServer::POA::_narrow (poa_object.in ());
             PortableServer::POAManager_var poa_manager =
-                poa->the_POAManager ();
+                rootPOA->the_POAManager ();
             poa_manager->activate ();
 
             return true;
@@ -351,11 +362,34 @@ namespace RTT
             Logger::log() << Logger::Debug << "Returning existing ControlTaskServer for "<<tc->getName()<<Logger::nl;
             return servers.find(tc)->second;
         }
+
         // create new:
         Logger::log() << Logger::Info << "Creating new ControlTaskServer for "<<tc->getName()<<Logger::nl;
         ControlTaskServer* cts = new ControlTaskServer(tc, use_naming);
         return cts;
     }
+
+    ControlTask_ptr ControlTaskServer::CreateServer(TaskContext* tc, bool use_naming) {
+        if ( !orb )
+            return 0;
+
+        if ( servers.count(tc) ) {
+            Logger::log() << Logger::Debug << "Returning existing ControlTaskServer for "<<tc->getName()<<Logger::nl;
+            return servers.find(tc)->second->server();
+        }
+
+        for (ControlTaskProxy::PMap::iterator it = ControlTaskProxy::proxies.begin(); it != ControlTaskProxy::proxies.end(); ++it)
+            if ( (it->second) == tc ) {
+                Logger::log() << Logger::Debug << "Returning server of Proxy for "<<tc->getName()<<Logger::nl;
+                return ControlTask::_duplicate(it->first);
+            }
+
+        // create new:
+        Logger::log() << Logger::Info << "Creating new ControlTaskServer for "<<tc->getName()<<Logger::nl;
+        ControlTaskServer* cts = new ControlTaskServer(tc, use_naming);
+        return cts->server();
+    }
+
 
     Corba::ControlTask_ptr ControlTaskServer::server() const
     {

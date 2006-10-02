@@ -83,7 +83,7 @@ namespace RTT
          * @param expr The expression to serve
          * @return A new or previously created CORBA server for \a expr.
          */
-        static Corba::Expression_ptr CreateExpression( DataSourceBase::const_ptr expr, PortableServer::POA_ptr p);
+        static Corba::Expression_ptr CreateExpression( DataSourceBase::shared_ptr expr, PortableServer::POA_ptr p);
 
 
         /**
@@ -98,7 +98,7 @@ namespace RTT
          * @param expr The expression to serve
          * @return A new or previously created CORBA server for \a expr.
          */
-        static Corba::Method_ptr CreateMethod( DataSourceBase::shared_ptr expr, PortableServer::POA_ptr p );
+        static Corba::Method_ptr CreateMethod( DataSourceBase::shared_ptr expr, MethodC* orig, PortableServer::POA_ptr p );
 
         /**
          * This method informs the servants that a new DataSource needs to be used

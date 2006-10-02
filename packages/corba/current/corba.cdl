@@ -31,6 +31,12 @@ detection of the packages configure script"
     include_files GeometryC.h GeometryC.inl
     include_files Attributes.idl AttributesC.h AttributesS.h AttributesC.inl AttributesS.inl AttributesS_T.h AttributesS_T.inl AttributesS_T.cpp AttributesI.h
     include_files ScriptingAccess.idl ScriptingAccessC.h ScriptingAccessS.h ScriptingAccessC.inl ScriptingAccessS.inl ScriptingAccessS_T.h ScriptingAccessS_T.inl ScriptingAccessS_T.cpp ScriptingAccessI.h
+    include_files Corba.hpp CorbaPort.hpp Services.hpp 
+    include_files CorbaDataObject.hpp CorbaDataObjectProxy.hpp
+    include_files CorbaBuffer.hpp CorbaBufferProxy.hpp POAUtility.h
+    include_files DataFlow.idl DataFlowC.h DataFlowS.h DataFlowC.inl DataFlowS.inl DataFlowS_T.h DataFlowS_T.inl DataFlowS_T.cpp DataFlowI.h
+    include_files Services.idl ServicesC.h ServicesS.h ServicesC.inl ServicesS.inl ServicesS_T.h ServicesS_T.inl ServicesS_T.cpp ServicesI.h
+
 
 #     make_object {
 # 	src/kernelserver.o : $(REPOSITORY)/$(PACKAGE)/ControlTask.idl $(REPOSITORY)/$(PACKAGE)/src/kernelserver.cxx
@@ -152,6 +158,37 @@ detection of the packages configure script"
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/ScriptingAccessC.cpp -o $(OBJECT_PREFIX)_ScriptingAccessC.o
 	touch $@    }
 
+    #DataFlow
+    make_object {
+	src/DataFlowI.o : $(REPOSITORY)/$(PACKAGE)/DataFlow.idl $(REPOSITORY)/$(PACKAGE)/src/DataFlowI.cpp
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -O2 -c $(REPOSITORY)/$(PACKAGE)/src/DataFlowI.cpp -o src/$(OBJECT_PREFIX)_DataFlowI.o
+	touch $@
+    }
+
+    make_object {
+	DataFlowS.o : $(REPOSITORY)/$(PACKAGE)/DataFlow.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -O2 -c $(REPOSITORY)/$(PACKAGE)/DataFlowS.cpp -o $(OBJECT_PREFIX)_DataFlowS.o
+	touch $@
+    }
+
+    make_object {
+	DataFlowC.o : $(REPOSITORY)/$(PACKAGE)/DataFlow.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/DataFlowC.cpp -o $(OBJECT_PREFIX)_DataFlowC.o
+	touch $@    }
+
+    #Services
+    make_object {
+	ServicesS.o : $(REPOSITORY)/$(PACKAGE)/Services.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -O2 -c $(REPOSITORY)/$(PACKAGE)/ServicesS.cpp -o $(OBJECT_PREFIX)_ServicesS.o
+	touch $@
+    }
+
+    make_object {
+	ServicesC.o : $(REPOSITORY)/$(PACKAGE)/Services.idl
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) -Isrc/ -O2 -c $(REPOSITORY)/$(PACKAGE)/ServicesC.cpp -o $(OBJECT_PREFIX)_ServicesC.o
+	touch $@    }
+
+
     #CosPropertyService
     make_object {
 	src/CosPropertyServiceI.o : $(REPOSITORY)/$(PACKAGE)/src/CosPropertyServiceI.cpp
@@ -169,4 +206,7 @@ detection of the packages configure script"
     compile CommandProxy.cxx
     compile CorbaConversion.cxx
     compile ScriptingAccessProxy.cxx
+    compile CorbaDataObject.cxx CorbaDataObjectProxy.cxx
+    compile CorbaBuffer.cxx CorbaBufferProxy.cxx
+    compile Services.cxx POAUtility.cxx
 }

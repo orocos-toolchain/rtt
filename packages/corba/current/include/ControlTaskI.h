@@ -63,6 +63,8 @@
 #include "OperationInterfaceC.h"
 #include "AttributesC.h"
 #include "ScriptingAccessC.h"
+#include "ServicesC.h"
+#include "DataFlowC.h"
 #include <orbsvcs/CosPropertyServiceC.h>
 #include "../TaskContext.hpp"
 
@@ -121,6 +123,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
+
 };
 
 class  Orocos_ControlTask_i 
@@ -132,18 +135,14 @@ protected:
 	::CosPropertyService::PropertySet_var mCosProps;
 	::RTT::Corba::AttributeInterface_var mAttrs;
 	::RTT::Corba::ScriptingAccess_var mEEFact;
-	PortableServer::POA_var mpoa;
+	::RTT::Corba::ServiceInterface_var mService;
+	::RTT::Corba::DataFlowInterface_var mDataFlow;
 public:
   //Constructor 
   Orocos_ControlTask_i (RTT::TaskContext* orig, PortableServer::POA_ptr the_poa);
   
   //Destructor 
   virtual ~Orocos_ControlTask_i (void);
-
-    PortableServer::POA_ptr _default_POA()
-    {
-        return PortableServer::POA::_duplicate(mpoa);
-    }
 
   void shutdownCORBA();
   
@@ -170,6 +169,23 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
+
+  virtual
+  ::RTT::Corba::ServiceInterface_ptr services (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+  
+  virtual
+  ::RTT::Corba::DataFlowInterface_ptr ports (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+  
   
   virtual
   ::RTT::Corba::ObjectList* getObjectList()

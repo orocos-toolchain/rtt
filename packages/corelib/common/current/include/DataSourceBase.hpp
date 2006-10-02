@@ -50,6 +50,7 @@ namespace RTT
 {
     class TypeInfo;
     class PropertyBag;
+    class MethodC;
 
   /**
    * @brief The base class for all DataSource's
@@ -206,7 +207,7 @@ namespace RTT
        * @return a valid Any object or nill if this type is
        * not supported.
        */
-      virtual CORBA::Any* createAny() const = 0;
+      virtual CORBA::Any* createAny() = 0;
 
       /**
        * Creates a CORBA Any object with the \b current value of this
@@ -215,7 +216,7 @@ namespace RTT
        * @return a valid Any object or nill if this type is
        * not supported.
        */
-      virtual CORBA::Any* getAny() const = 0;
+      virtual CORBA::Any* getAny() = 0;
 
       /**
        * Updates the value of this DataSource with the
@@ -260,25 +261,17 @@ namespace RTT
        * Create a CORBA object which 'mirrors' this DataSource.
        * @return The Expression server if hasServer(), or a 
        * \a new server object reference otherwise.
-       * @see Execution.idl
+       * @see Operations.idl
        */
       virtual Corba::Expression_ptr server( PortableServer::POA_ptr ) = 0;
 
       /**
        * Create a CORBA object which 'mirrors' this DataSource.
-       * @return The Expression server if hasServer(), or a 
-       * \a new server object reference otherwise.
-       * @see Execution.idl
-       */
-      virtual Corba::Expression_ptr server( PortableServer::POA_ptr ) const = 0;
-
-      /**
-       * Create a CORBA object which 'mirrors' this DataSource.
        * @return The Method server if hasServer(), or a 
        * \a new method object reference otherwise.
-       * @see Execution.idl
+       * @see Operations.idl
        */
-      virtual Corba::Method_ptr method( PortableServer::POA_ptr ) = 0;
+      virtual Corba::Method_ptr method( MethodC* orig, PortableServer::POA_ptr ) = 0;
 #endif
 
   };

@@ -192,7 +192,7 @@ namespace RTT
         {
         public:
             typedef typename AssignableDataSource<T>::shared_ptr LHSSource;
-            typedef typename DataSourceBase::const_ptr RHSSource;
+            typedef typename DataSourceBase::shared_ptr RHSSource;
         private:
             LHSSource lhs;
             RHSSource rhs;

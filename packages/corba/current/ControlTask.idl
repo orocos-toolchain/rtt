@@ -12,6 +12,8 @@
 #include "OperationInterface.idl"
 #include "Attributes.idl"
 #include "ScriptingAccess.idl"
+#include "Services.idl"
+#include "DataFlow.idl"
 
 // Forward declaration.
 module CosPropertyService
@@ -52,6 +54,8 @@ module RTT
       CommandInterface commands();
     };
 
+    typedef sequence<string> ObjectList;
+
     /**
      * A ControlTask is the main entry point of a distributed
      * component.
@@ -75,6 +79,16 @@ module RTT
        * information of this Task.
        */
       ScriptingAccess scripting();
+
+      /**
+       * Access to Process-wide services.
+       */
+      ServiceInterface services();
+
+      /**
+       * Access to the Data Flow ports.
+       */
+      DataFlowInterface ports();
 
       /**
        * ControlTask Browsing functions.

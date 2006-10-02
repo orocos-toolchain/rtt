@@ -31,6 +31,7 @@
 #include "rtt/corba/OperationsI.h"
 #include "rtt/CommandC.hpp"
 #include "rtt/DataSourceCondition.hpp"
+#include "rtt/CommandDataSource.hpp"
 #include "rtt/Logger.hpp"
 
 
@@ -39,8 +40,8 @@ using namespace RTT::Corba;
 
 
 // Implementation skeleton constructor
-Orocos_Action_i::Orocos_Action_i (CommandInterface* com, PortableServer::POA_ptr the_poa )
-    : mcom(com), mpoa( PortableServer::POA::_duplicate(the_poa) )
+Orocos_Action_i::Orocos_Action_i (MethodC* orig, CommandInterface* com, PortableServer::POA_ptr the_poa )
+    : morig(*orig), mcom(com), mpoa( PortableServer::POA::_duplicate(the_poa) )
 {
 }
 
@@ -61,6 +62,36 @@ CORBA::Boolean Orocos_Action_i::execute (
     return mcom->execute();
 }
 
+CORBA::Boolean Orocos_Action_i::executeAny (
+      const ::RTT::Corba::AnyArguments& args
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ,::RTT::Corba::WrongNumbArgException
+    ,::RTT::Corba::WrongTypeArgException
+	  )) {
+      RTT::MethodC mgen = morig;
+    try {
+        for (size_t i =0; i != args.length(); ++i)
+            mgen.arg( RTT::DataSourceBase::shared_ptr( new RTT::ValueDataSource<CORBA::Any_var>( new CORBA::Any( args[i] ) )));
+        // if not ready, not enough args were given, *guess* a one off error in the exception :-(
+        if ( !mgen.ready() )
+            throw ::RTT::Corba::WrongNumbArgException( args.length()+1, args.length() );
+        delete mcom;
+        if ( dynamic_cast< DataSource<bool>* >(mgen.getDataSource().get() ) )
+            mcom = new CommandDataSourceBool( dynamic_cast<DataSource<bool>*>(mgen.getDataSource().get() ));
+        else
+            mcom = new CommandDataSource( mgen.getDataSource() );
+        return this->execute();
+    } catch ( RTT::wrong_number_of_args_exception& wna ) {
+        throw ::RTT::Corba::WrongNumbArgException( wna.wanted, wna.received );
+    } catch ( RTT::wrong_types_of_args_exception& wta ) {
+        throw ::RTT::Corba::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
+    }
+    return 0;
+  }
+
+
 void Orocos_Action_i::reset (
     
   )
@@ -73,8 +104,8 @@ void Orocos_Action_i::reset (
 }
 
 // Implementation skeleton constructor
-Orocos_Command_i::Orocos_Command_i ( CommandC& orig, PortableServer::POA_ptr the_poa)
-    : morig( new CommandC(orig) ), mpoa( PortableServer::POA::_duplicate(the_poa) )
+Orocos_Command_i::Orocos_Command_i ( CommandC& orig, CommandC& comm, PortableServer::POA_ptr the_poa)
+    : morig( new CommandC(orig) ), mcomm( new CommandC(comm)), mpoa( PortableServer::POA::_duplicate(the_poa) )
 {
 }
 
@@ -82,6 +113,7 @@ Orocos_Command_i::Orocos_Command_i ( CommandC& orig, PortableServer::POA_ptr the
 Orocos_Command_i::~Orocos_Command_i (void)
 {
     delete morig;
+    delete mcomm;
 }
 
 CORBA::Boolean Orocos_Command_i::execute (
@@ -96,6 +128,31 @@ CORBA::Boolean Orocos_Command_i::execute (
     //Logger::log() <<Logger::Debug << "Executing CommandC."<<Logger::endl;
     return morig->execute();
 }
+
+CORBA::Boolean Orocos_Command_i::executeAny (
+      const ::RTT::Corba::AnyArguments& args
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ,::RTT::Corba::WrongNumbArgException
+    ,::RTT::Corba::WrongTypeArgException
+	  )) {
+      mcomm = morig;
+    try {
+        for (size_t i =0; i != args.length(); ++i)
+            mcomm->arg( DataSourceBase::shared_ptr( new ValueDataSource<CORBA::Any_var>( new CORBA::Any( args[i] ) )));
+        // if not ready, not enough args were given, *guess* a one off error in the exception :-(
+        if ( !mcomm->ready() )
+            throw ::RTT::Corba::WrongNumbArgException( args.length()+1, args.length() );
+        return this->execute();
+    } catch ( wrong_number_of_args_exception& wna ) {
+        throw ::RTT::Corba::WrongNumbArgException( wna.wanted, wna.received );
+    } catch (wrong_types_of_args_exception& wta ) {
+        throw ::RTT::Corba::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
+    }
+    return 0;
+  }
+
 
 CORBA::Boolean Orocos_Command_i::done (
     

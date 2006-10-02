@@ -36,8 +36,9 @@
 #include "rtt/corba/OperationsI.h"
 #include "rtt/corba/OperationInterfaceI.h"
 #include "rtt/corba/ScriptingAccessI.h"
+#include "rtt/corba/ServicesI.h"
+#include "rtt/corba/DataFlowI.h"
 #include "rtt/Method.hpp"
-
 
 
 using namespace RTT;
@@ -87,7 +88,11 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
     if ( CORBA::is_nil( mMFact ) ) {
         Logger::log() << Logger::Info << "Creating MethodInterface."<<Logger::endl;
         Orocos_MethodInterface_i* mserv = new Orocos_MethodInterface_i( mobj->methods(), mpoa.in() );
-        mMFact = mserv->_this();
+        try {
+            mMFact = mserv->_this();
+        } catch( ... ) {
+            log(Error) << "Failed to create MethodInterface." <<endlog();
+        }
     }
     return MethodInterface::_duplicate( mMFact.in() );
 }
@@ -100,9 +105,13 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
   ))
 {
     if ( CORBA::is_nil( mCFact ) ) {
-        Logger::log() << Logger::Info << "Creating CommandInterface."<<Logger::endl;
-        Orocos_CommandInterface_i* mserv = new Orocos_CommandInterface_i( mobj->commands(), mpoa.in() );
-        mCFact = mserv->_this();
+        try {
+            Logger::log() << Logger::Info << "Creating CommandInterface."<<Logger::endl;
+            Orocos_CommandInterface_i* mserv = new Orocos_CommandInterface_i( mobj->commands(), mpoa.in() );
+            mCFact = mserv->_this();
+        } catch( ... ) {
+            log(Error) << "Failed to create CommandInterface." <<endlog();
+        }
     }
     return ::RTT::Corba::CommandInterface::_duplicate( mCFact.in() );
 }
@@ -111,7 +120,7 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
 
 // Implementation skeleton constructor
 Orocos_ControlTask_i::Orocos_ControlTask_i (TaskContext* orig, PortableServer::POA_ptr the_poa)
-    : Orocos_ControlObject_i(orig, mpoa.in()), mtask( orig ), mCosProps( ), mEEFact(), mpoa( PortableServer::POA::_duplicate(the_poa) )
+    : Orocos_ControlObject_i(orig, the_poa), mtask( orig ), mCosProps( ), mEEFact()
 {
     // Add the corba object to the interface:
     mtask->methods()->addMethod(method("shutdown", &Orocos_ControlTask_i::shutdownCORBA, this),
@@ -154,8 +163,12 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
 {
     if ( CORBA::is_nil( mAttrs) ) {
         Logger::log() << Logger::Info << "Creating AttributeInterface."<<Logger::endl;
-        Orocos_AttributeInterface_i* attrs = new Orocos_AttributeInterface_i( mtask->attributes(), mpoa.in() );
-        mAttrs = attrs->_this();
+        try {
+            Orocos_AttributeInterface_i* attrs = new Orocos_AttributeInterface_i( mtask->attributes(), mpoa.in() );
+            mAttrs = attrs->_this();
+        } catch( ... ) {
+            log(Error) << "Failed to create AttributeInterface." <<endlog();
+        }
     }
     return AttributeInterface::_duplicate( mAttrs.in() );
 #if 0
@@ -184,6 +197,37 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
     }
     return ::RTT::Corba::ScriptingAccess::_duplicate( mEEFact.in() );
 }
+
+::RTT::Corba::ServiceInterface_ptr Orocos_ControlTask_i::services (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+{
+    if ( CORBA::is_nil( mService ) ) {
+        Logger::log() << Logger::Info << "Creating Services."<<Logger::endl;
+        RTT_Corba_ServiceInterface_i* mserv = new RTT_Corba_ServiceInterface_i();
+        mService = mserv->_this();
+    }
+    return ::RTT::Corba::ServiceInterface::_duplicate( mService.in() );
+}
+  
+::RTT::Corba::DataFlowInterface_ptr Orocos_ControlTask_i::ports (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+{
+    if ( CORBA::is_nil( mDataFlow ) ) {
+        Logger::log() << Logger::Info << "Creating DataFlowInterface."<<Logger::endl;
+        RTT_Corba_DataFlowInterface_i* mserv = new RTT_Corba_DataFlowInterface_i( mtask->ports() );
+        mDataFlow = mserv->_this();
+    }
+    return ::RTT::Corba::DataFlowInterface::_duplicate( mDataFlow.in() );
+}
+  
 
 
 ::RTT::Corba::ControlTask::ControlTaskNames * Orocos_ControlTask_i::getPeerList (
@@ -259,7 +303,8 @@ CORBA::Boolean Orocos_ControlTask_i::hasObject (
     TaskContext* task = mtask->getPeer( pname );
     if ( task ) {
         // create or lookup new server for this peer.
-        return ControlTaskServer::Create( task )->server();
+        // do not export it to the naming service.
+        return ControlTaskServer::CreateServer( task, false );
     }
     return 0;
 }

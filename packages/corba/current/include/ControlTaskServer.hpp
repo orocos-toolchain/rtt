@@ -25,7 +25,8 @@
  *                                                                         *
  ***************************************************************************/
  
- 
+#ifndef ORO_CORBA_CONTROLTASK_SERVER_HPP 
+#define ORO_CORBA_CONTROLTASK_SERVER_HPP 
 
 #include <map>
 #include <tao/corba.h>
@@ -122,10 +123,22 @@ namespace RTT
         static ControlTaskServer* Create(TaskContext* tc, bool use_naming = true);
 
         /**
+         * Factory method: create a CORBA server for an existing TaskContext.
+         * Same as above, but immediately return the Corba object. Also checks if
+         * \a tc is ControlTaskProxy and returns the server of the proxy if so.
+         * @param tc The TaskContext to serve.
+         * @param use_naming Set to \a false in order not to use the Corba Naming Service.
+         * @retval 0 if the ORB is not initialised
+         * @return A new or previously created CORBA server for \a tc.
+         */
+        static ControlTask_ptr CreateServer(TaskContext* tc, bool use_naming = true);
+
+        /**
          * Get the Corba Object of this ControlTask.
          * This object universally identifies the remote ControlTaskServer
          * and can be used to tell other (remote) objects where to find it.
          */
-        Corba::ControlTask_ptr server() const;
+        ControlTask_ptr server() const;
     };
 }}
+#endif

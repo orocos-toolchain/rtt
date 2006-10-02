@@ -5,6 +5,7 @@
 #include "DataSourceTypeInfo.hpp"
 #include "DataSourceAdaptor.hpp"
 
+#include <pkgconf/os.h>
 #ifdef OROINT_OS_CORBA
 #include "corba/ExpressionProxy.hpp"
 #include "corba/ExpressionServer.hpp"
@@ -71,19 +72,13 @@ namespace RTT
     template< typename T>
     Corba::Expression_ptr DataSource<T>::server( PortableServer::POA_ptr p)
     {
-        return Corba::ExpressionServer::CreateExpression( const_ptr(this), p );
+        return Corba::ExpressionServer::CreateExpression( shared_ptr(this), p );
     }
 
     template< typename T>
-    Corba::Expression_ptr DataSource<T>::server( PortableServer::POA_ptr p ) const
+    Corba::Method_ptr DataSource<T>::method( MethodC* orig, PortableServer::POA_ptr p )
     {
-        return Corba::ExpressionServer::CreateExpression( const_ptr(this), p );
-    }
-
-    template< typename T>
-    Corba::Method_ptr DataSource<T>::method( PortableServer::POA_ptr p )
-    {
-        return Corba::ExpressionServer::CreateMethod( shared_ptr(this), p );
+        return Corba::ExpressionServer::CreateMethod( shared_ptr(this), orig, p );
     }
 
     
@@ -95,24 +90,25 @@ namespace RTT
 #endif
 
     template<>
-    CORBA::Any* DataSource<void>::createAny() const;
+    CORBA::Any* DataSource<void>::createAny();
 
     template<>
-    CORBA::Any* DataSource<void>::getAny() const;
+    CORBA::Any* DataSource<void>::getAny();
 
     template< typename T>
-    CORBA::Any* DataSource<T>::createAny() const {
+    CORBA::Any* DataSource<T>::createAny() {
 #ifdef OROINT_OS_CORBA
-        return AnyConversion<typename DataSource<T>::value_t>::createAny( this->value() );
+        return DataSource<T>::GetTypeInfo()->createAny( this );
 #else
         return 0;
 #endif
     }
 
     template< typename T>
-    CORBA::Any* DataSource<T>::getAny() const {
+    CORBA::Any* DataSource<T>::getAny() {
 #ifdef OROINT_OS_CORBA
-        return AnyConversion<typename DataSource<T>::value_t>::createAny( this->get() );
+	this->get();
+        return DataSource<T>::GetTypeInfo()->createAny( this );
 #else
         return 0;
 #endif
@@ -141,46 +137,15 @@ namespace RTT
         return 0;
     }
 
-    template<class T>
-    const DataSource<T>* DataSource<T>::narrow(const DataSourceBase* dsb) {
-        // first try conventional C++ style cast.
-        const DataSource<T>* ret = dynamic_cast< const DataSource<T>* >( dsb );
-        if (ret) return ret;
-#ifdef OROINT_OS_CORBA
-        // then try to see if it is a CORBA object.
-        //Corba::ExpressionProxyInterface* prox = dynamic_cast< Corba::ExpressionProxyInterface* >(dsb);
-        if ( dsb->hasServer() ) {
-            Logger::log() << Logger::Debug << "Trying to narrow server "<<dsb->getType()<<" to local "<<DataSource<T>::GetType() <<Logger::endl;
-            Corba::Expression_var expr = dsb->server(0) ;
-            return Corba::ExpressionProxy::NarrowDataSource<T>( expr.in() );
-        }
-        const DataSource<CORBA::Any_var>* aret = dynamic_cast< const DataSource<CORBA::Any_var>* >( dsb );
-        if (aret){
-            typename ValueDataSource<T>::shared_ptr vds = new ValueDataSource<T>();
-            if ( AnyConversion<typename DataSource<T>::value_t>::update( aret->get().in(), vds->set() ) )
-                return vds.get();
-        }
-#endif
-        // all failed:
-        return 0;
-    }
-
     // specialise the void cases...
     template<>
     DataSource<void>* DataSource<void>::narrow(DataSourceBase* dsb);
-
-    // specialise the void cases...
-    template<>
-    const DataSource<void>* DataSource<void>::narrow(const DataSourceBase* dsb);
 
 #ifdef OROINT_OS_CORBA
     // specialise the Any cases...
     template<>
     DataSource<CORBA::Any_ptr>* DataSource<CORBA::Any_ptr>::narrow(DataSourceBase* dsb);
 
-    // specialise the Any cases...
-    template<>
-    const DataSource<CORBA::Any_ptr>* DataSource<CORBA::Any_ptr>::narrow(const DataSourceBase* dsb);
 #endif
 
     template<class T>
@@ -200,29 +165,10 @@ namespace RTT
         return 0;
     }
 
-    template<class T>
-    const AssignableDataSource<T>* AssignableDataSource<T>::narrow(const DataSourceBase* dsb) {
-        // first try conventional C++ style cast.
-        const AssignableDataSource<T>* ret = dynamic_cast< const AssignableDataSource<T>* >( dsb );
-        if (ret) return ret;
-#ifdef OROINT_OS_CORBA
-        // then try to see if it is a CORBA object.
-        //Corba::ExpressionProxyInterface* prox = dynamic_cast< Corba::ExpressionProxyInterface* >(dsb);
-        if ( dsb->hasServer() ) {
-            Corba::Expression_var expr = dsb->server(0) ;
-            return Corba::ExpressionProxy::NarrowAssignableDataSource<T>( expr.in() );
-        }
-#endif
-        // all failed:
-        return 0;
-    }
-
     template< typename T>
     bool AssignableDataSource<T>::update(const CORBA::Any& any) {
 #ifdef OROINT_OS_CORBA
-        if ( &(this->set()) == 0 )
-            return false;
-        return AnyConversion<typename DataSource<T>::value_t>::update( any, this->set() );
+        return DataSource<T>::GetTypeInfo()->update( any, this );
 #else
         return false;
 #endif

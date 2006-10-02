@@ -115,7 +115,7 @@ namespace RTT
                 nargs[i] = args[i]->server( mpoa.in() );
             try {
                 Corba::Expression_var result = mfact->createMethod( method.c_str(), nargs.in() );
-                return ExpressionProxy::CreateDataSource( result._retn() );
+                return ExpressionProxy::CreateDataSource( result._retn() ).get();
             } catch ( Corba::NoSuchNameException& nsn ) {
                 throw name_not_found_exception( nsn.name.in() );
             } catch ( Corba::WrongNumbArgException& wa ) {

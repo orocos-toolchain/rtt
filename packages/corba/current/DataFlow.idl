@@ -1,0 +1,87 @@
+#ifndef ORO_CORBA_DATAFLOW_IDL
+#define ORO_CORBA_DATAFLOW_IDL
+
+#include "Operations.idl"
+#include "orbsvcs/CosEventComm.idl"
+#include "orbsvcs/CosEventChannelAdmin.idl"
+
+module RTT
+{
+  module Corba
+  {
+
+    /**
+     * A buffer consists of an event channel and
+     * some query methods for reading the buffer's state.
+     */
+    interface BufferChannel 
+    {
+
+      CosEventChannelAdmin::EventChannel getChannel();
+
+      boolean push(in any value);
+
+      boolean pull(out any value);
+
+      any front();
+
+      boolean full();
+
+      boolean empty();
+
+      long capacity();
+
+      long size();
+
+      void clear();
+    };
+
+    /**
+     * An interface to access the dataflow
+     * of a ControlTask object. Data ports are exported as
+     * assignable expressions (Set/Get). Buffer ports are
+     * exported as buffer channels.
+     */
+    interface DataFlowInterface
+    {
+
+      typedef sequence<string> PortNames;
+
+      enum PortType { ReadPort, WritePort, ReadWritePort };
+
+      /**
+       * Returns the names of the ports of this component.
+       */
+      PortNames getPorts();
+
+      /**
+       * Creates a data connection for an Orocos data port. 
+       * You may use the returned AssignableExpression
+       * to write data to it or read data from it.
+       *
+       */
+      AssignableExpression createDataChannel(in string port_name);
+
+      /**
+       * Creates an bufferd channel for an Orocos port which will be used
+       * in a 'push' or 'pull' model. You may use the returned BufferChannel
+       * to write data to it or read data from it.
+       *
+       */
+      BufferChannel createBufferChannel(in string port_name);
+
+      /**
+       * Check if a port will read from or write to a Channel.
+       */
+      PortType getPortType(in string port_name);
+
+      /**
+       * Check if a port is already connected. If so, one can join
+       * in by using the create methods above. If not, the create
+       * methods above will setup a new connection.
+       */
+      boolean isConnected(in string port_name);
+    };
+  };
+};
+#endif

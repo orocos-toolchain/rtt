@@ -25,6 +25,8 @@
  *                                                                         *
  ***************************************************************************/
  
+#ifndef ORO_CORBA_CONTROLTASK_PROXY_HPP 
+#define ORO_CORBA_CONTROLTASK_PROXY_HPP 
  
 
 #include <tao/corba.h>
@@ -60,9 +62,11 @@ namespace RTT
         : public TaskContext,
           public ApplicationServer
     {
-    protected:
-        static std::map<Corba::ControlTask_ptr, ControlTaskProxy*> proxies;
+    public:
+        typedef std::map<Corba::ControlTask_ptr, ControlTaskProxy*> PMap;
+        static PMap proxies;
 
+    protected:
         /**
          * Private constructor which creates a new connection to
          * a stringified ior or taskname in NameServer.
@@ -131,6 +135,8 @@ namespace RTT
 
         virtual void removePeer( const std::string& name );
 
+        virtual void removePeer( TaskContext* peer );
+
         virtual bool connectPeers( TaskContext* peer );
 
         virtual void disconnectPeers( const std::string& name );
@@ -152,3 +158,4 @@ namespace RTT
         static PortableServer::POA_ptr ProxyPOA();
     };
 }}
+#endif

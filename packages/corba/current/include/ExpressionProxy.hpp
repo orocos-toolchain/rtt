@@ -45,33 +45,22 @@ namespace RTT
     class ExpressionProxy
         : public DataSourceBase
     {
-    protected:
-        static std::map<Corba::Expression_ptr, ExpressionProxy*> proxies;
-        static std::map<Corba::Expression_ptr, DataSourceBase*> dproxies;
-
-        /**
-         * Private constructor which creates a new connection to
-         * a corba object
-         */
-        ExpressionProxy( ::RTT::Corba::Expression_ptr t );
-
-        Corba::Expression_var mdata;
-
     public:
+        typedef boost::intrusive_ptr<ExpressionProxy> shared_ptr;
 
         /**
          * Factory method: create a CORBA connection to an existing Expression Object.
          * @param expr The Object to connect to.
          * @return A new or previously created CORBA proxy for \a expr.
          */
-        static ExpressionProxy* Create(::RTT::Corba::Expression_ptr expr);
+        static ExpressionProxy::shared_ptr Create(::RTT::Corba::Expression_ptr expr);
 
         /**
          * Factory method: create a DataSource to an existing Expression Object.
          * @param expr The Object to connect to.
          * @return A new or previously created DataSource for \a expr.
          */
-        static DataSourceBase* CreateDataSource(::RTT::Corba::Expression_ptr expr);
+        static DataSourceBase::shared_ptr CreateDataSource(::RTT::Corba::Expression_ptr expr);
 
 
         /**
@@ -85,7 +74,9 @@ namespace RTT
             
             CORBA::Any_var any = expr->value();
             typename DataSource<T>::value_t target = typename DataSource<T>::value_t();
-            if ( AnyConversion<T>::update( any.in(), target ) ) {
+            ReferenceDataSource<T> rds( target );
+            rds.ref();
+            if ( rds.update( any.in() ) ) {
                 Logger::log() <<Logger::Debug<< "Found valid conversion from server "<< expr->getType()
                               <<" to local "<< DataSource<T>::GetType()<<Logger::endl;
                 return new CORBAExpression<T>( expr );
@@ -119,7 +110,9 @@ namespace RTT
             if ( ret ) {
                 CORBA::Any_var any = ret->value();
                 typename DataSource<T>::value_t target = typename DataSource<T>::value_t();
-                if ( AnyConversion<T>::update( any.in(), target ) ) {
+                ReferenceDataSource<T> rds( target );
+                rds.ref();
+                if ( rds.update( any.in() ) ) {
                     Logger::log() <<Logger::Debug<< "Found valid assignment conversion from server "<< ret->getType()
                                   <<" to local "<< DataSource<T>::GetType()<<Logger::endl;
                     return new CORBAAssignableExpression<T>( ret._retn() );
@@ -187,11 +180,11 @@ namespace RTT
 
         virtual std::string getTypeName() const { return std::string( mdata->getTypeName() ); }
 
-        virtual CORBA::Any* createAny() const {
+        virtual CORBA::Any* createAny() {
             return mdata->value();
         }
 
-        virtual CORBA::Any* getAny() const {
+        virtual CORBA::Any* getAny() {
             return mdata->get();
         }
 
@@ -199,7 +192,7 @@ namespace RTT
 
         virtual Corba::Expression_ptr server(PortableServer::POA_ptr) const { return Corba::Expression::_duplicate(mdata.in()); }
 
-        virtual Corba::Method_ptr method(PortableServer::POA_ptr) {
+        virtual Corba::Method_ptr method(MethodC* , PortableServer::POA_ptr) {
             return Corba::Method::_narrow( mdata.in() );
         }
 
@@ -210,7 +203,9 @@ namespace RTT
             static DataSource<T>* Create(const CORBA::Any& any) {
                 
                 typename DataSource<T>::value_t target = typename DataSource<T>::value_t();
-                if ( AnyConversion<T>::update( any, target ) ) {
+                ReferenceDataSource<T> rds( target );
+                rds.ref();
+                if ( rds.update( any ) ) {
                     Logger::log() <<Logger::Debug<< "Found valid conversion from CORBA::Any "
                                   <<" to local constant "<< DataSource<T>::GetType()<<Logger::endl;
                     return new ConstantDataSource<T>( target );
@@ -233,7 +228,9 @@ namespace RTT
             static DataSource<const T&>* Create(const CORBA::Any& any) {
                 
                 typename DataSource<T>::value_t target = typename DataSource<T>::value_t();
-                if ( AnyConversion<const T&>::update( any, target ) ) {
+                ReferenceDataSource<T> rds( target );
+                rds.ref();
+                if ( rds.update( any ) ) {
                     Logger::log() <<Logger::Debug<< "Found valid conversion from CORBA::Any "
                                   <<" to local constant "<< DataSource<const T&>::GetType()<<Logger::endl;
                     return new ConstantDataSource<const T&>( target );
@@ -241,6 +238,21 @@ namespace RTT
                 return 0; // not convertible.
             }
         };
+
+    protected:
+        typedef std::map<Corba::Expression_ptr, ExpressionProxy::shared_ptr> EMap;
+        typedef std::map<Corba::Expression_ptr, DataSourceBase::shared_ptr> DMap;
+
+        static EMap proxies;
+        static DMap dproxies;
+
+        /**
+         * Private constructor which creates a new connection to
+         * a corba object
+         */
+        ExpressionProxy( ::RTT::Corba::Expression_ptr t );
+
+        Corba::Expression_var mdata;
 
     };
 

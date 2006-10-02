@@ -262,7 +262,7 @@ CORBA::Long Orocos_ScriptingAccess_i::execute (
     CommandC ret = mee->getCommand(ticket);
     if ( !ret.ready() )
         return 0;
-    Orocos_Command_i* com = new Orocos_Command_i( ret, mpoa.in() );
+    Orocos_Command_i* com = new Orocos_Command_i( ret, ret, mpoa.in() );
     return com->_this();
     
 }

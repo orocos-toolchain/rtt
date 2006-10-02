@@ -42,9 +42,9 @@ namespace RTT
         class AnyDataSource
             : public DataSource<CORBA::Any_ptr>
         {
-            DataSourceBase::const_ptr source;
+            DataSourceBase::shared_ptr source;
         public:
-            AnyDataSource( const DataSourceBase* orig )
+            AnyDataSource( DataSourceBase* orig )
                 : source(orig)
             {}
 

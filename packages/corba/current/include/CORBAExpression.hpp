@@ -92,7 +92,9 @@ namespace RTT
 
         virtual typename DataSource<T>::result_t get() const {
             CORBA::Any_var res = mexpr->get();
-            if (AnyConversion<T>::update( res.in(), last_value ) == false)
+            ReferenceDataSource<T> rds(last_value);
+            rds.ref();
+            if ( rds.update( res.in() ) == false)
                 Logger::log() <<Logger::Error << "Could not update CORBAExpression to remote value!"<<Logger::endl;
             return last_value;
         }
@@ -200,13 +202,17 @@ namespace RTT
 
         virtual typename DataSource<T>::result_t get() const {
             CORBA::Any_var res = mexpr->get();
-            if (AnyConversion<T>::update( res.in(), storage->set() ) == false)
+            ReferenceDataSource<T> rds( storage->set() );
+            rds.ref();
+            if ( rds.update( res.in() ) == false)
                 Logger::log() <<Logger::Error << "Could not update CORBAAssignableExpression to remote value!"<<Logger::endl;
             return storage->rvalue();
         }
 
         virtual void set( typename AssignableDataSource<T>::param_t t ) {
-            CORBA::Any_var toset = AnyConversion<T>::createAny(t);
+            ValueDataSource<T> vds(t);
+            vds.ref();
+            CORBA::Any_var toset = vds.createAny();
             mexpr->set( toset.in() );
             storage->set( t );
         }
@@ -217,7 +223,9 @@ namespace RTT
 
         virtual void updated()
         {
-            CORBA::Any_var toset = AnyConversion<T>::createAny( storage->value() );
+            ValueDataSource<T> vds( storage->value() );
+            vds.ref();
+            CORBA::Any_var toset = vds.createAny();
             mexpr->set( toset.in() );
         }
 

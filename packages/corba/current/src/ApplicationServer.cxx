@@ -34,4 +34,5 @@ namespace RTT
 
     CORBA::ORB_var ApplicationServer::orb;
 
+    PortableServer::POA_var ApplicationServer::rootPOA;
 }}

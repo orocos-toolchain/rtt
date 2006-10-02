@@ -298,7 +298,7 @@ namespace RTT
 #ifdef OROPKG_CORBA
             DataSource<T>* d = AdaptDataSource<T>()( source );
             if ( d )
-                return AnyConversion<PropertyType>::createAny( d->get() );
+                return AnyConversion<PropertyType>::createAny( d->value() );
 #endif
             return 0;
         }
@@ -309,11 +309,13 @@ namespace RTT
             //Only narrow.
 //             AssignableDataSource<T>* ad = AdaptAssignableDataSource<T>()( target );
             AssignableDataSource<T>* ad = AssignableDataSource<T>::narrow( target.get() );
-            if ( ad )
-                if (AnyConversion<PropertyType>::update(any, ad->set() ) ) {
-                    ad->updated();
+            if ( ad ) {
+                PropertyType value;
+                if (AnyConversion<PropertyType>::update(any, value ) ) {
+                    ad->set( value );
                     return true;
                 }
+            }
 #endif
             return false;
         }

@@ -6,6 +6,23 @@ module RTT
 
   module Corba
   {
+
+    typedef sequence<any> AnyArguments;
+
+    exception WrongNumbArgException
+    {
+      long wanted;
+      long received;
+    };
+
+    exception WrongTypeArgException
+    {
+      long whicharg;
+      string expected;
+      string received;
+    };
+
+
     /**
      * An expression is an object which returns a value.
      */
@@ -81,6 +98,12 @@ module RTT
       boolean execute();
 
       /**
+       * Send and execute the action with new arguments.
+       */
+      boolean executeAny(in AnyArguments args) raises (WrongNumbArgException,
+						       WrongTypeArgException);
+
+      /**
        * Reset this action.
        * Required for Actions used within a command,
        * It must be reset before execute is invoked.
@@ -109,9 +132,17 @@ module RTT
     interface Command
     {
       /**
-       * Send and execute the contained command.
+       * Send and execute the contained command. The
+       * arguments used are the last arguments provided
+       * or the one given upon command creation.
        */
       boolean execute();
+
+      /**
+       * Send and execute the command with new arguments.
+       */
+      boolean executeAny(in AnyArguments args) raises (WrongNumbArgException,
+						       WrongTypeArgException);
 
       /**
        * Check if the Command was sent to the receiving task,

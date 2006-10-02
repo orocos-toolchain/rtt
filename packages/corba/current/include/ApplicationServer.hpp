@@ -30,6 +30,7 @@
 #define ORO_APPLICATION_SERVER_HPP
 
 #include <tao/corba.h>
+#include <tao/PortableServer/PortableServerC.h>
 
 namespace RTT
 {namespace Corba
@@ -40,7 +41,16 @@ namespace RTT
      */
     struct ApplicationServer
     {
+        /**
+         * The orb of this process.
+         */
         static CORBA::ORB_var orb;
+
+        /**
+         * The root POA of this process.
+         */
+        static PortableServer::POA_var rootPOA;
+
     };
 }}
 

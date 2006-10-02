@@ -39,11 +39,9 @@ using namespace std;
 namespace RTT
 {namespace Corba
 {
-    
-    
 
-    std::map<Corba::Expression_ptr, ExpressionProxy*> ExpressionProxy::proxies;
-    std::map<Corba::Expression_ptr, DataSourceBase*> ExpressionProxy::dproxies;
+    ExpressionProxy::EMap ExpressionProxy::proxies;
+    ExpressionProxy::DMap ExpressionProxy::dproxies;
 
     ExpressionProxy::ExpressionProxy( ::RTT::Corba::Expression_ptr e) 
         : mdata( ::RTT::Corba::Expression::_duplicate(e) )
@@ -60,13 +58,14 @@ namespace RTT
         }
     }
 
-    ExpressionProxy* ExpressionProxy::Create(::RTT::Corba::Expression_ptr t) {
+    ExpressionProxy::shared_ptr ExpressionProxy::Create(::RTT::Corba::Expression_ptr t) {
         if ( CORBA::is_nil( t ) )
             return 0;
 
         // proxy present for this object ?
-        if ( proxies.count( t ) )
-            return proxies[t];
+        for (EMap::iterator it = proxies.begin(); it != proxies.end(); ++it)
+            if ( (it->first)->_is_equivalent( t ) )
+                return proxies[t];
 
         // create new:
         ExpressionProxy* ctp = new ExpressionProxy( t );
@@ -74,13 +73,14 @@ namespace RTT
         return ctp;
     }
 
-    DataSourceBase* ExpressionProxy::CreateDataSource(::RTT::Corba::Expression_ptr t) {
+    DataSourceBase::shared_ptr ExpressionProxy::CreateDataSource(::RTT::Corba::Expression_ptr t) {
         if ( CORBA::is_nil( t ) )
             return 0;
 
         // proxy present for this object ?
-        if ( dproxies.count( t ) )
-            return dproxies[t];
+        for (DMap::iterator it = dproxies.begin(); it != dproxies.end(); ++it)
+            if ( (it->first)->_is_equivalent( t ) )
+                return dproxies[t];
 
         // First, try to create according to 'typename':
         CORBA::String_var tn = t->getTypeName();
