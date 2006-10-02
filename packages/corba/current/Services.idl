@@ -1,0 +1,38 @@
+#ifndef ORO_CORBA_SERVICES_IDL
+#define ORO_CORBA_SERVICES_IDL
+
+#include "orbsvcs/CosNotifyChannelAdmin.idl"
+#include "orbsvcs/CosNotifyComm.idl"
+#include "orbsvcs/CosNaming.idl"
+
+module RTT
+{
+  module Corba
+  {
+
+    /**
+     * An interface to access the dataflow
+     * of a ControlTask object.
+     */
+    interface ServiceInterface
+    {
+      /**
+       * Retrieve a log message.
+       */
+      string getLogMessage();
+
+      /**
+       * Request the application's ORB to shut down (exit Run()).
+       * It will shut down the ORB, it is up to the application
+       * if it actually terminates the process as well.
+       */
+      boolean requestShutdown();
+
+      /**
+       * Get the Naming Service in use.
+       */
+      CosNaming::NamingContext getNamingContext();
+    };
+  };
+};
+#endif
