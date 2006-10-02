@@ -29,6 +29,9 @@
 #include <rtt/SimulationThread.hpp>
 #include <rtt/os/MainThread.hpp>
 #include <rtt/Logger.hpp>
+#ifdef OROPKG_OS_GNULINUX
+#include <pkgconf/os_gnulinux.h>
+#endif
 
 using namespace std;
 
@@ -214,12 +217,12 @@ void ActivitiesThreadTest::testPeriodic()
     CPPUNIT_ASSERT( mtask.isRunning() == false );
     CPPUNIT_ASSERT( mtask.thread()->isRunning() );
     CPPUNIT_ASSERT_EQUAL( 0.01, mtask.thread()->getPeriod() );
-#ifndef OROPKG_OS_GNULINUX
+#if !(defined(OROPKG_OS_GNULINUX) && defined(OROSEM_OS_SCHEDTYPE_SCHED_OTHER))
     CPPUNIT_ASSERT_EQUAL( 15, mtask.thread()->getPriority() );
 #endif
 
     PeriodicActivity m2task( 15, 0.01 );
-#ifndef OROPKG_OS_GNULINUX
+#if !(defined(OROPKG_OS_GNULINUX) && defined(OROSEM_OS_SCHEDTYPE_SCHED_OTHER))
     CPPUNIT_ASSERT( mtask.thread() == m2task.thread() );
 #endif
 
@@ -341,7 +344,7 @@ void ActivitiesThreadTest::testThreadConfig()
     TimerThreadPtr tt = TimerThread::Instance(15, 0.01);
 
     CPPUNIT_ASSERT_EQUAL( 0.01, tt->getPeriod());
-#ifdef OROPKG_OS_GNULINUX
+#if defined(OROPKG_OS_GNULINUX) && defined(OROSEM_OS_SCHEDTYPE_SCHED_OTHER)
     CPPUNIT_ASSERT_EQUAL( 0, tt->getPriority());
 #else
     CPPUNIT_ASSERT_EQUAL( 15, tt->getPriority());
@@ -360,7 +363,7 @@ void ActivitiesThreadTest::testThreadConfig()
         CPPUNIT_ASSERT( tt3 != tt2 );
     }
 
-#ifdef OROPKG_OS_GNULINUX
+#if defined(OROPKG_OS_GNULINUX) && defined(OROSEM_OS_SCHEDTYPE_SCHED_OTHER)
     // get it again.
     tt = TimerThread::Instance(0, 0.01);
     CPPUNIT_ASSERT( tt != 0 );
