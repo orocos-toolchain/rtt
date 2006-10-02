@@ -1976,11 +1976,18 @@ DataPort.     cd            ls
     <section>
       <title>Setting up the Data Flow</title>
       <para>
-	Data Flow is setup by using <function>connectPorts</function>.
-	The direction of the data flow is imposed by the direction of
-	the ports.  The <function>connectPorts</function> function
-	creates a connection when both ports are not connected, or
-	adds an unconnected port to an existing connection.
+	Data Flow between TaskContexts is setup by using <function>connectPorts</function>.
+	The direction of the data flow is imposed by the read/write direction of
+	the ports.  The <function>connectPorts(TaskContext* A, TaskContext* B)</function> function
+	creates a connection between TaskContext ports when both ports 
+	have the same name and type. It will never disconnect existing connections
+	and only tries to add ports to existing connections or create new
+	connections.
+      </para>
+      <para>
+	Before calling <function>connectPorts</function>, one may connect
+	individual ports using <function>a_port.connectTo(&amp;b_port);</function>
+	when complexer data flow networks need to be formed.
     </para>
     <example><title>TaskContext Data Flow Topology Example</title>
     <para>This diagram shows some possible topologies. Four tasks,
