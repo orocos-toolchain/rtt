@@ -1,0 +1,2015 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+[
+<!ENTITY % oro_ents SYSTEM "http://people.mech.kuleuven.be/~psoetens/orocos/doc/orocos.ent" >
+%oro_ents;
+]
+>
+
+<article>
+  <articleinfo>
+    <title>
+      The Orocos Scripting Reference Manual
+    </title>
+    <subtitle><emphasis>Open RObot COntrol Software</emphasis></subtitle>
+    <authorgroup>
+      <author>
+	<firstname>Dominique</firstname>
+	<surname>Devriese</surname>
+      </author>
+      <author>
+	<firstname>Peter</firstname>
+	<surname>Soetens</surname>
+      </author>
+    </authorgroup>
+    <copyright>
+      <year>2003,2004,2005,2006</year>
+      <holder>Peter Soetens, Herman Bruyninckx</holder>
+    </copyright>
+    
+    <abstract>
+      <para>
+	This document describes the &orocos; Scripting system.
+      </para>
+    </abstract>
+    
+    <revhistory>
+      <revision>
+	<revnumber>0.01</revnumber>
+	<date>20 Aug 2003</date>
+	<authorinitials>DD</authorinitials>
+	<revremark>Initial version</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.11.0</revnumber>
+	<date>31 Oct 2003</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Updated to reflect new release</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.12.0</revnumber>
+	<date>2 Feb 2004</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Support for functions and State Graph parsing</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.13.0</revnumber>
+	<date>31 March 2004</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>State Graph : Added Final_State</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.14</revnumber>
+	<date>2 June 2004</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Corrected examples</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.16</revnumber>
+	<date>July 2004</date>
+	<authorinitials>DD</authorinitials>
+	<revremark>New State Machine syntax</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.18</revnumber>
+	<date>21 Sept 2004</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Documented methods, 'and', 'try...catch'. Added exported
+	functions, function arguments and TaskContext integration.</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.19.2</revnumber>
+	<date>9 March 2005</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>New State Machine paradigm, removed control-kernel specific part. Added array
+	 and size allocators.</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.20.0</revnumber>
+	<date>May 2005</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Added '.' operator for complex valuetypes. Added ProgramLoader. Added expression-
+	based array and string initialisation.</revremark>
+      </revision> 
+      <revision>
+	<revnumber>0.22.0</revnumber>
+	<date>January 2006</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Extended syntax and updates on events and state machines.
+	Split off the developer specific info.</revremark>
+      </revision> 
+      <revision>
+	<revnumber>0.25.1</revnumber>
+	<date>September 2006</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>User feedback, drop 'task.' prefix for accessing properties.</revremark>
+      </revision> 
+   </revhistory>
+
+    <legalnotice>
+      <para>
+	Permission is granted to copy, distribute and/or modify this document
+	under the terms of the GNU Free Documentation License, Version 1.1 or
+	any later version published by the Free Software Foundation, with no
+	Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+	Texts. A copy of this license can be found at
+	<ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
+
+  </articleinfo>
+
+  <sect1 id="intro">
+    <title>Introduction</title>
+    <para>
+      The &orocos; Scripting language allows users of the &orocos; system to write
+      programs and state machines controlling the system in a
+      user-friendly realtime script language.  The advantage of scripting is
+      that it is easily extendible and does not need recompilation of
+      the main program.
+    </para>
+  </sect1>
+
+  <sect1 id="program-syntax-general-concepts">
+    <title>General Scripting Concepts</title>
+    <para>
+      Before starting to explain Program Syntax, it is necessary to
+      explain some general concepts that are used throughout the
+      program syntax.
+    </para>
+    <sect2 id="program-syntax-comments">
+      <title>Comments</title>
+	<para>
+	  Various sorts of comments are supported in the syntax.  Here
+	  is a small listing showing the various syntaxes:
+	  <programlisting>
+  # A perl-style comment, starting at a &apos;#&apos;, and running until
+  # the end of the line.
+  
+  // A C++/Java style comment, starting at &apos;//&apos;, and running
+  // until the end of the line.
+  
+  /* A C-style comment, starting at &apos;/*&apos;, and running until
+     the first closing */ /* Nesting is not allowed, that&apos;s
+     why I have to start a new comment here :-) 
+  */
+	  </programlisting>
+	  Whitespace is in general ignored, except for the fact that it
+	  is used to separate tokens.
+	</para>
+      </sect2>
+      <sect2 id="program-syntax-identifiers">
+	<title>Identifiers</title>
+	<para>
+	  Identifiers are names that the user can assign to variables,
+	  constants, aliases, labels.  The same identifier can only be
+	  used once, except that for labels you can use an identifier
+	  that has already been used as a variable, constant or alias.
+	  However, this is generally a bad idea, and you shouldn't do
+	  it.
+	</para>
+	<para>
+	  Some words cannot be used as identifiers, because they are
+	  reserved by the &orocos; Scripting Framework, either for
+	  current use, or for future expansions.  These are called
+	  keywords.  The current list of reserved keywords is included
+	  here:
+	  <simplelist columns="7">
+	    <member>alias</member>
+	    <member>and</member>
+	    <member>array</member>
+	    <member>break</member>
+	    <member>bool</member>
+	    <member>char</member>
+	    <member>catch</member>
+	    <member>const</member>
+	    <member>define</member>
+	    <member>do</member>
+	    <member>done</member>
+	    <member>double</member>
+	    <member>else</member>
+	    <member>end</member>
+	    <member>false</member>
+	    <member>for</member>
+	    <member>foreach</member>
+	    <member>frame</member>
+	    <member>if</member>
+	    <member>include</member>
+	    <member>int</member>
+	    <member>next</member>
+	    <member>not</member>
+	    <member>nothing</member>
+	    <member>or</member>
+	    <member>return</member>
+	    <member>rotation</member>
+	    <member>set</member>
+	    <member>string</member>
+	    <member>then</member>
+	    <member>time</member>
+	    <member>to</member>
+	    <member>true</member>
+	    <member>try</member>
+	    <member>twist</member>
+	    <member>until</member>
+	    <member>var</member>
+	    <member>vector</member>
+	    <member>while</member>
+	    <member>wrench</member>
+	  </simplelist>
+	  These, and all variations on the (upper- or lower-) case of
+	  each of the letters are reserved, and cannot be used as
+	  identifiers. 
+	</para>
+      </sect2>
+      <sect2 id="program-syntax-expressions">
+	<title>Expressions</title>
+	<para>
+	  Expressions are a general concept used throughout the Parser
+	  system.  Expressions represent values that can be calculated
+	  at runtime (like a+b).  They can be used as arguments to
+	  functions, conditions and whatmore.  Expressions implicitly
+	  are of a certain type, and the Parser system does strong
+	  type-checking.  Expressions can be constructed in various
+	  ways, that are described below...
+	</para>
+	<sect3>
+	  <title>Literals</title>
+	  <para>
+	    Literal values of various types are supported: string,
+	    int, double, bool.  Boolean literals are either the word
+	    "true" or the word "false".  Integer literals are normal,
+	    positive or negative integers.  Double literals are C/C++
+	    style double-precision floating point literals.  The only
+	    difference is that in order for the Parser to be able to
+	    see the difference with integers, we require a dot to be
+	    present.  String literals are surrounded by double quotes,
+	    and can contain all the normal C/C++ style escaped
+	    characters.  Here are some examples:
+	    <programlisting>
+  // a string with some escaped letters:
+  &quot;\&quot;OROCOS rocks, \&quot; my mother said...&quot;
+  // a normal integer
+  -123
+  // a double literal
+  3.14159265358979
+  // and another one..
+  1.23e10  	    </programlisting>
+  	  </para>
+	</sect3>
+	<sect3>
+	  <title>Constants, Variables and Aliases</title>
+	  <para>
+	    Constants, variables and aliases allow you to work with
+	    data in an easier way.  A constant is a name which is
+	    assigned a value at <emphasis>parse time</emphasis>, and
+	    keeps that value throughout the rest of the program.  A
+	    variable gets its value assigned at
+	    <emphasis>runtime</emphasis> and can be changed at other
+	    places in the program.  An alias does not carry a value,
+	    it is defined with an expression, for which it acts as an
+	    alias or an <emphasis>abbreviation</emphasis> during the
+	    rest of the program.  All of them can always be used as
+	    expressions.  Here is some code showing how to use them.
+	  </para>
+	    <programlisting>
+  // define a variable of type int, called counter,
+  // and give it the initial value 0.
+  var int counter = 0
+  // add 1 to the counter variable
+  set counter = counter + 1
+  
+  // make the name "counterPlusOne" an alias for the
+  // expression counter + 1.  After this, using
+  // counterPlusOne is completely equivalent to writing
+  // counter + 1
+  alias int counterPlusOne = counter + 1
+  // you can assign an arbitrarily complex expression
+  // to an alias
+  alias int reallycomplexalias = ( ( counter + 8 ) / 3 )*robot.position
+
+  // define a constant of type double, with name "pi"
+  const double pi = 3.14159265358979
+  const double pi2 = 2*pi       // ok, pi2 is 6.28...
+  const int turn = counter * pi // warning ! turn will be 0 !
+
+  // define a constant at _parse-time_ !
+  const totalParams = table.getNbOfParams()</programlisting>
+	  <para>
+	    Variables, constants and aliases are defined for the
+	    following types: bool, int, double, string and array.
+	    The Orocos Toolkit System allows any application or
+	    library to extend these types.
+	  </para>
+	</sect3>
+	<sect3>
+	  <title>Strings and Arrays</title>
+	  <para>
+	    For convenience, two variable size types have been
+	    added to the parser : <type>string</type> and <type>array</type>.
+	    They are special because their contents have variable size.
+	    For example a string can be empty or contain 10 characters. The
+	    same holds for an array, which contains doubles. String and array
+	    are thus container types. They are mapped on <type>std::string</type>
+	    and <type>std::vector&lt;double></type>. To access them safely from
+	    a task method or command, you need to to pass them by const reference : 
+	    <type>const std::string&amp; s</type>, <type>const std::vector&lt;double>&amp; v</type>.
+	  </para>
+	  <para>Container types can be used in two ways : with a predefined
+	    capacity (ie the <emphasis>possibility</emphasis> to hold N items),
+	    or with a free capacity, where capacity is expanded as there is need for it.
+	    The former way is necessary for realtime programs, the latter can only be
+	    used in non realtime tasks, since it may cause a memory allocation when
+	    capacity limits are exceeded.
+	  </para>
+	  <programlisting>  // A free string and free array :
+  // applestring is expanded to contain 6 characters (Non realtime!)
+  var string applestring = &quot;apples&quot;
+
+  // values is expanded to contain 15 elements (Non realtime!)
+  var array  values      = array(15)         
+
+  // A fixed string and fixed array :
+  var string fixstring(10)  // may contain a string of maximum 10 characters
+  
+  set fixstring  = applestring   // ok, enough capacity
+  set fixstring  = "0123456789x" // runtime program error, not enough room.
+
+
+  var array  fixvalues(10)  // fixvalues may never contain more than 10 elements
+  var array  morevalues(20) // arrays are initialised with n doubles of value 0.0 
+
+  set fixvalues  = morevalues  // will cause program error
+  set morevalues = fixvalues   // ok, morevalues has enough capacity, now contains 10 doubles
+
+  set fixvalues  = morevalues  // ok, since morevalues only contains 10 items.
+
+  set values     = array(20)   // expand values to contain 20 doubles. (Non realtime!) </programlisting>
+	  <para>
+	    As the example above demonstrates, a <emphasis>fixed</emphasis> string or array may
+	    only be assigned from another string or array with equal or less elements,
+	    while a <emphasis>free</emphasis> string or array may be assigned any number
+	    of elements.
+	  </para>
+	  <important>
+	    <para>
+	      The value given upon construction must be a
+	      <emphasis>legal expression at parse time and is only
+	      evaluated once</emphasis>. The safest method is using a
+	      literal integer ( i.e. (10) like in the examples ), but if you
+	      create a Task constant or variable which holds an
+	      integer, you can also use it as in :
+	      <programlisting>  var array example( 5 * numberOfItems )</programlisting>
+	      The expression may not contain any
+	      program variables, these will all be zero upon parse
+	      time ! The following example is <emphasis>a common mistake</emphasis>
+	      also :
+	      <programlisting>  set numberOfItems = 10
+  var array example( 5 * numberOfItems )</programlisting>
+              Which will not lead to '50', but to '5 times the
+	      value of numberOfItems, being still zero, when the program is parsed.
+	    </para>
+	    </important>
+	  <para>Another property of container types is that you can index (use []) their
+	    contents. The index may be any expression that return an int.
+	  </para>
+	  <programlisting>
+  // ... continued
+  // Set an item of a container :
+  for (int i=0; i &lt; 20; set i = i+1)
+       set values[i] = 1.0*i
+
+  // Get an item of a container :
+  var double sum
+  for (int i=0; i &lt; 20; set i = i+1)
+       set sum = sum + values[i]  </programlisting>
+	  <para>
+	    If an assignment tries to set an item out of range, the command will fail,
+	    if you try to read an item out of range, the result will return 0.0, or for
+	    strings, the null character.
+	  </para>
+	</sect3>
+	<sect3>
+	  <title>Operators</title>
+	  <para>
+	    Expressions can be combined using the C-style operators
+	    that you are already familiar with if you have ever
+	    programmed in C, C++ or Java.  All operators are
+	    supported, except for the if-then-else operator ("a?b:c"),
+	    and the precedence is the same as the one used in C, C++,
+	    Java and similar languages. In general all that you would
+	    expect, is present.
+	  </para>
+	</sect3>
+	<sect3>
+	  <title>The '.' Operator</title>
+	  <para>
+	    Some value types, like array and string in
+	    the Parser framework are actually containing values
+	    or useful information themselves. For accessing these values, a
+	    value type can have a 'dot' operator which allows you to 
+	    <emphasis>read-only</emphasis> contents of the container :
+	    <programlisting>  var string s1 = "abcdef"
+
+  // retrieve size and capacity of a string :
+  var int size = s1.size()
+  var int cap  = s1.capacity()</programlisting>
+	    <programlisting>  var array a1( 10 )
+  var array a2(20) = a1
+
+  // retrieve size and capacity of a array :
+  var int size = a2.size()      // 10
+  var int cap  = a2.capacity()  // 20</programlisting>
+	  </para>
+	  <para>
+	    Likewise, the following operators are available for the
+	    geometry types :
+	    <programlisting>  var frame f1, f2, f3
+  var rotation r
+  var vector   v
+  var twist    t
+  var wrench   w
+  // ...
+  
+  set f1 = f2.inv * f3 // frame transformations: inverse of f2 times f3
+
+  set v = f1.p          // read the position
+  set r = f1.R          // read the rotation
+  set r = f1.R.inv      // read the inverse rotation
+
+  set v = t.vel        // read the translational velocity
+  set v = t.rot        // read the rotational velocity
+
+  set v = w.force      // read the force
+  set v = w.torque     // read the torque
+
+  var double x = v.x  // also : v.y or v.z
+
+  var double p = r.roll  // also : r.pitch or r.yaw</programlisting>
+	  </para>
+	  <para>
+	    You can not use the '.' operator in the reverse direction.
+	    thus the following code is invalid :
+	    <programlisting>  set f.p = v         // Invalid !
+  set f1.R = r          // Invalid !</programlisting>
+            These are thus read-only accessors and can thus not be written to.
+	    To change them, you'll have to use a constructor from the next
+	    section.
+	  </para>
+	</sect3>
+	<sect3>
+	  <title>Constructors</title>
+	  <para>
+	    For some special types, a special kind of operator is
+	    provided.  These are called constructors.  The simplest
+	    example is the vector constructor, that looks like this:</para>
+	  <para>
+	    <programlisting>
+  vector( arg1, arg2, arg3 )	    </programlisting></para>
+	  <para>
+	    where arg1, arg2 and arg3 are expressions which
+	    <emphasis>must be of type double</emphasis>.
+	    This returns an expression of type vector, with arg1 as
+	    the x component, arg2 as the y component, and arg3 as the
+	    z component.
+	  </para>
+	  <para>
+	    Other constructors currently available are:
+	  </para>
+	    <programlisting>
+  // roll, pitch and yaw are double expressions, this
+  // returns a rotation, that is constructed using the
+  // Roll-Pitch-Yaw convention in RADIANS :
+  var double roll = 45.0 * (2.*3.14/360.)         // convert to radians
+  // ...
+  var rotation rot = rotation( roll, pitch, yaw )
+  
+  // Vect is a vector expression, rot is a rotation
+  // expression.  This returns a frame, constructed
+  // using the vector x as the origin, and rotation
+  // rot as the rotation..
+  var frame f = frame( vect, rot )
+
+  // or changing its vector and/or rotation:
+  f = frame( -f.p, f.M.inv )
+  
+  // Double6D is a commonly used type in Orocos
+  // and has been recently introduced in the parser
+  var double6d d6 = double6d(0.0)
+  set d6[0] = 1.0
+  var double d0 = d6[0]
+  set d6 = double6d( 1., 2., 3., 4., 5., 6. ) </programlisting>
+	</sect3>
+      </sect2>
+    <sect2>
+      <title>Parsing and Loading Programs</title>
+      <para>
+	Before we go on describing the details of the programs syntax,
+	we show how you can load a program in your Real-Time Task.
+      </para>
+      <para>
+	You have constructed a <classname>RTT::TaskContext</classname>
+	which has some methods and is connected to its Peer
+	TaskContexts. The program script
+	<filename>programs.ops</filename> contains a program
+	with the name "progname".  Parsing the program is then
+	straightforward :
+      </para>
+      <programlisting>
+  #include &lt;rtt/PeriodicActivity.hpp&gt;
+  #include &lt;rtt/TaskContext.hpp&gt;
+
+  using namespace RTT;
+
+  <classname>RTT::TaskContext</classname>   tc;
+  <classname>RTT::PeriodicActivity</classname> ptask(5, 0.01, tc.engine() );
+
+  // Watch Logger output for errors :
+  tc.scripting()->loadPrograms("program.ops");
+
+  // start the task :
+  ptask.start();
+
+  // start a program :
+  tc.engine()->programs()->getProgram("progname")->start();
+</programlisting>
+      <para>
+	The loader will load all programs and functions into 'tc'. Next
+	we start the task's execution engine and finally, the program
+	"progname" is started. Programs can also be started from
+	within other scripts.
+      </para>
+    </sect2>
+  </sect1>
+  <sect1 id="program-syntax">
+    <title>Orocos Program Scripts</title>
+    <sect2 id="program-semantics">
+      <title>Program Execution Semantics</title>
+      <para>
+	An &orocos; program script is a list of statements, quite similar
+	to a C program. Programs can call C/C++ functions and functions
+	can be loaded into the system, such that other programs
+	can call them. Program scripts are executed by the Execution Engine.
+      </para>
+      <para>
+	In general, program statements are executed immediately one after
+	the other. However, when the program needs to wait for a result,
+	the Execution Engine temporarily postpones program execution and
+	will try again in the next execution period. This
+	happens typically when the statement was a Task Command. Task Methods
+	and expressions on the other hand typically do not impose a
+	wait, and thus are executed immediately after each other.
+      </para>
+    </sect2>
+    <sect2 id="program-syntax-specifics">
+      <title>Program Syntax</title>
+      <sect3>
+	<title><symbol>program</symbol></title>
+	<para> A program is formed like this: </para>
+	<programlisting>  program progname {
+    // an arbitrary number of statements
+  }	</programlisting>
+	<para>
+	  The statements are executed in order, starting at the first
+	  and following the logical execution path imposed by your
+	  program's structure. If any of the statements causes a
+	  run-time error, the Program Processor will put the program
+	  in the error state and stop executing it.  It is the task of
+	  other logic (like state machines, see below) to detect such
+	  failures.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Variable <symbol>set</symbol> Statements</title>
+	<para>
+	  A variable <symbol>set</symbol> statement is a statement that sets a variable
+	  to a certain value.  It looks like this:
+	  <programlisting>
+  set variablename = <emphasis>expression</emphasis>
+	  </programlisting>
+	  Variablename is the name of the variable you want to assign
+	  to.  It should already have been defined.  Expression is an
+	  expression of the same type as the type of the variable.
+	</para>
+      </sect3>
+      <sect3>
+	<title>The if then else Statement</title>
+	<para>	A Program script can contain if..then..else blocks, very similar
+	to C syntax.
+</para>	  <programlisting>
+  if <emphasis>condition</emphasis> then <emphasis>statement</emphasis> 
+  [ else <emphasis>statement</emphasis> ]
+  // or :
+  if <emphasis>condition</emphasis> then {
+    <emphasis>statement</emphasis>
+    // ...
+  } [ else {
+    <emphasis>statement</emphasis>
+    // ...
+  } ]	  </programlisting>
+	<para>
+	  It is thus possible to group statements. Each statement can
+	  be another if clause. An else is always referring to the last
+	  if, just like in C/C++. If you like, you can also write
+	  parentheses around the condition. The else statement is
+	  optional.
+	</para>
+      </sect3>
+      <sect3>
+	<title>The for Statement</title>
+	<para>
+	  The for statement is almost equal to the C language.
+	  The first statement initialises a variable or is empty.
+	  The condition contains a boolean expression (use 'true'
+	  to simulate an empty condition).
+	  The second statement changes a variable or is empty.
+	  <programlisting>
+  for ( <emphasis>statement</emphasis>; <emphasis>condition</emphasis>; <emphasis>statement</emphasis> )
+        <emphasis>statement</emphasis>
+  // or :
+  for ( <emphasis>statement</emphasis>; <emphasis>condition</emphasis>; <emphasis>statement</emphasis> ) {
+        <emphasis>statement</emphasis>
+        // ...
+  }  </programlisting>
+	</para>
+      </sect3>
+      <sect3>
+	<title>The while Statement</title>
+	<para>
+	  The while statement is another looping primitive in 
+	  the Orocos script language. A <symbol>do</symbol> statement is not
+	  ( yet ) implemented</para>
+	  <programlisting>
+  while <emphasis>condition</emphasis> 
+      <emphasis>statement</emphasis>
+  // or :
+  while <emphasis>condition</emphasis> {
+      <emphasis>statement</emphasis>
+      // ...
+  }  </programlisting>
+	<para>
+	  As with the if statement, you can optionally put
+	  parentheses around the condition.
+	</para>
+      </sect3>
+      <sect3>
+	<title>The break Statement</title>
+	<para>
+	  To break out of a while or for loop, the 
+	  break statement is available. It will break
+	  out of the innermost loop, in case of nesting.
+	</para>
+	  <programlisting>
+  var int i = 0
+  while <emphasis>true</emphasis>  {
+      set i = i + 1
+      if i == 50 then
+          <emphasis>break</emphasis> 
+      // ...
+  }  </programlisting>
+	<para>
+	  It can be used likewise in a for loop.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Invoking Task Methods</title>
+	<para>
+	  Methods behave like calling C functions. They take
+	  arguments and return a value immediately. They can be
+	  used in expressions or stand alone :</para>
+	  <programlisting>
+  // ignore the return value :
+  do comp.method( args )
+  
+  // this will only work if the method returns a boolean :
+  if ( comp.method( args ) ) {
+  	    // ...
+  }
+  
+  // use another method in an expression :
+  set data = comp.getResult( args ) * 20. / comp.dataValue 
+	  </programlisting>
+	<para>
+	  Methods are executed directly one after the other.
+	</para>
+	<warning>
+	  <para>
+	    A method returning a boolean result, will
+	    cause a run-time program error if
+	    it returns false. If this is not wanted, use 'try'
+	    instead of 'do'. If the method returns
+	    nothing or something else than bool, 
+	    the result will be ignored in a do
+	    statement.
+	  </para>
+	</warning>
+      </sect3>
+      <sect3>
+	<title>Invoking Task Commands</title>
+	<para>
+	  A command statement is a statement that calls a certain
+	  command, and defines some reactions. It looks like:
+	  <programlisting>  do comp.action( args ) until {
+    if condition then continue
+    if condition2 then call func()
+    if condition3 then return
+  }  	  </programlisting>
+  	  It calls the command "action", on the task "comp", with
+  	  the comma-separated list of expressions args as the
+  	  arguments.  The Program Processor executes the command once, and
+  	  then checks where to go next using the "completion clauses"
+	  in the until part.  If none are true, then it waits another
+	  tick, and checks them again..
+	</para>
+	<note>
+	  <para>
+	    These if .. then clauses are different from the
+	    if/then/else statement later in this text and purely
+	    meant to detect alternative end conditions of a command.
+	  </para>
+	</note>
+	<para>
+	  A completion clause always looks like</para>
+	  <programlisting>  if condition then continue
+  // or
+  if condition then call func_name
+  // or
+  if condition then return  </programlisting>
+	<para>
+	  condition can be any kind of expression, that is of type
+	  boolean.  One special condition is provided, the keyword
+	  "done".  Every command has an associated "implicit
+	  completion condition", and the condition "done" is
+	  equivalent to that condition.  You can also combine the
+	  "done" condition with other expressions, as if it were a
+	  normal boolean expression. "continue" means to go to the
+	  next statement, return means to end the current program
+	  or function.
+	  The "call func_name" statement calls a function and is explained 
+	  in the next section
+	</para>
+	<para>
+	  If a completion list is left out, then an implicit one is
+	  generated.  This means that the two following statements are
+	  equivalent:
+	</para>
+	  <programlisting>  do comp.action( args )
+  // the implicitly generated completion list always looks like
+  // "if done then continue"
+  do comp.action( args ) until { if done then continue }
+	  </programlisting>
+	<sect4>
+	  <title>Accepting and Rejecting Commands</title>
+	  <para>
+	    A command can be accepted or rejected by a task.
+	    When it returns false, this is seen as a reject and
+	    the program goes into an error state. The user
+	    can then stop the program or try to continue
+	    the program again, which will lead to a re-issuing
+	    of the command, which may lead again to the error state.
+	  </para>
+	</sect4>
+	<sect4>
+	  <title>Try ... Catch Commands</title>
+	<para>
+	  When a command is rejected ( the C++ method returns false ),
+	  the program goes into an error state and waits for user
+	  intervention. This can be bypassed by using a 
+	  <emphasis>try...catch</emphasis> statement. It tries
+	  to execute the command, and if it is rejected,
+	  the optional catch clause is executed :</para>
+	    <programlisting>  // just try it :
+  try comp.action( args )
+  
+  // When rejected, execute the catch clause :
+  try comp.action( args ) catch { 
+      // statements...
+  } </programlisting>
+	  <para>
+	    You may place completion conditions between try
+	    and catch :
+	  </para>
+	    <programlisting>
+  try comp.action( args ) 
+  until {
+      if comp.evaluate() then continue
+  }
+  catch { 
+      // statements...
+  }
+  // next statement </programlisting>
+	  <para>
+	    If the command was accepted, the next statement is executed.
+	  </para>
+	</sect4>
+	<sect4>
+	  <title>Parallel Commands with 'and'</title>
+	  <para>
+	    When it is desired to execute commands as one command
+	    ( in one time ), they can be combined with an
+	    'and' operator :</para>
+	    <programlisting>
+  do comp.action1() and comp.action2() and comp.action3()
+	    </programlisting>
+	  <para>
+	    The implicit completion condition (i.e. 'done') is when all
+	    listed actions are done. This can be overridden
+	    by defining a completion condition with 'until'.
+	  </para>
+	  <para>
+	    The 'and' operator can also be used with 'try'.
+	    In that case, the catch clause will be executed in
+	    case any of the listed commands fails.
+	  </para>
+	</sect4>
+      </sect3>
+      <sect3>
+	<title>Emitting Task Events</title>
+	  <para>
+	    Events are called as methods and commands.
+	  </para>
+	    <programlisting>  // emitting an event:
+  do sometask.eventname( argument1, argument2, ..., argumentN ) </programlisting>
+	  <para>
+	    In this case, the task 'sometask' has an event 'eventname'
+	    which takes 'N' arguments. Other tasks subscribed to this
+	    event will receive the event synchronously or asynchronously
+	    with these arguments. More information about events can be
+	    found in the CoreLib manual.  This event must be part of
+	    the task interface.
+	  </para>
+      </sect3>
+      <sect3>
+	<title><symbol>function</symbol></title>
+	<para>Statements
+	can be grouped in functions. A function can only call a function
+	which is earlier defined. Thus recursive function calling is not allowed.
+	</para>
+	<programlisting>  function func_name( int arg1, double arg2 ) {
+    // an arbitrary number of statements
+  }
+  
+  export function func_nameN(bool arg) {
+    // ...
+  }</programlisting>
+        <para>
+	  A function can have any number of arguments, which are passed
+  	  by value, but it returns no value.
+  	  A function can be exported, in which case it becomes a public
+	  available command, which will fail if one of its
+	  statements fails. Hence, this allows to extend the command interface
+	  with exported functions of a task at runtime.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Calling functions</title>
+	<para>
+	  A function can be called by writing :
+	</para>
+	  <programlisting>
+  do foo(arg)   // see 'exported' functions
+  call foo(arg) // local functions</programlisting>
+	<para>
+	  The arguments are passed by value and no return value
+	  is possible. If one of the commands of the functions
+	  returns error, the calling program goes in error.
+	  A function may also be called in a completion 
+	  clause. If the function returns, the next statement
+	  of the calling function or program is executed.
+	</para>
+      </sect3>
+      <sect3>
+	<title>Waiting : The 'nothing' Command</title>
+	<para>
+	  A special command 'nothing' is provided.  It is useful to
+	  implement statements, where the completion list is really
+	  the only useful thing to do. The nothing command's
+	  completion condition will pause execution exactly one
+	  execution step, it can thus also be inserted between methods
+	  to force execution to pause and resume in the next execution
+	  period.
+	</para>
+      </sect3>
+    </sect2>
+    <sect2>
+	<title>Starting and Stopping Programs from scripts</title>
+	<para>
+	  Once a program is parsed and loaded into the Execution Engine,
+	  it can be manipulated from another script. This can be
+	  done through the programs subtask of the TaskContext
+	  in which the program was loaded. Assume that you loaded
+	  "progname" in task "ATask", you can write
+	</para>
+	<programlisting>
+  do ATask.programs.progname.start()
+  do ATask.programs.progname.pause()
+  do ATask.programs.progname.step()
+  do ATask.programs.progname.step()
+  do ATask.programs.progname.stop()</programlisting>
+	<para>The first line starts a program. The second line
+	  pauses it. The next two lines executes one command each of the
+	  program (like stepping in a debugger). The last line stops
+	  the program fully (running or paused).</para>
+	<para>
+	  Some basic properties of the program can be
+	  inspected likewise :</para>
+	<programlisting>
+  var bool res =  ATask.programs.progname.isRunning()
+  set res = ATask.programs.progname.inError()
+  set res = ATask.programs.progname.isPaused()</programlisting>
+	<para>
+	  which all return a boolean indicating true or false.</para>
+    </sect2>
+  </sect1>
+  <sect1>
+    <title>Orocos State Descriptions : The Real-Time State Machine</title>
+    <sect2>
+      <title>Introduction</title>
+      <para>
+	A <classname>RTT::StateMachine</classname> is the state
+	machine used in the &orocos; system.  It contains a collection
+	of states, and each state defines a Program on entry of the
+	state, when it is run and on exit.  It also defines all
+	transitions to a next state. Like program scripts, a
+	StateMachine must be loaded in a Task's Execution Engine.
+      </para>
+    </sect2>
+      <sect2>
+	<title>StateMachine Workings</title>
+	<para>
+	A StateMachine is composed of a set of states.  A running
+	StateMachine is always in exactly one of its states.  One
+	time per period, it checks whether it can transition from
+	that state to another state, and if so makes that
+	transition. By default, only one transition can be made
+	in one Execution Engine step.
+      </para>
+	<para>
+	  Besides a list of the possible transitions, every state also
+	  keeps record of programs to be executed at certain
+	  occasions.  There can be up to four (all optional) programs
+	  in every state: the <symbol>entry</symbol> program ( which will be executed
+	  each time the state is entered ), the <symbol>run</symbol> program ( which
+	  will be executed every time the state is the active state ),
+	  the <symbol>handle</symbol> program ( which will be executed if no transition
+	  succeeds ) and the <symbol>exit</symbol> program ( which will be executed
+	  when the state is left).
+	</para>
+	<para>
+	  There can be more than one StateMachine.  If there are more
+	  than one, then every StateMachine keeps working as if it was
+	  the only StateMachine available.  They separately keep track
+	  of their own current state, etc. 
+	</para>
+      <para>
+	A StateMachine can have any number of states.  It needs to
+	have exactly one "initial state", which is the state that will
+	be entered when the StateMachine is first activated.
+	There is also exactly one final state, which is
+        <emphasis>automatically</emphasis> entered when the StateMachine is stopped.
+	<emphasis>This means that the transition from any state to the
+	  final state must always be meaningful.</emphasis>
+      </para>
+      <para>
+	A State Machine can run in two modes. They are the automatic
+	mode and the reactive (also 'event' or 'request') mode.
+      </para>
+      <sect3 id="state-request">
+	<title>Reactive Mode: State Change Semantics</title>
+	<para>
+	  In order to enter the reactive mode, the State Machine
+	  must be 'activated'. When active, two possible causes of
+          state transitions can exist: because an <emphasis>event
+          </emphasis> occured or because a transition was
+          <emphasis>requested</emphasis>.
+	</para>
+	<figure><title>State Change Semantics in Reactive Mode</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata contentwidth="600px" width="600px" align="center" fileref="images/ReactiveState"/>
+	  </imageobject>
+	  <imageobject role="fop">
+	    <imagedata contentwidth="14cm" fileref="images/ReactiveState" align="center" />
+	  </imageobject>
+	</mediaobject>
+	</figure>
+	<para> 
+          A state can list to which Orocos (CoreLib) events it reacts,
+          and under which conditions it will make a transition to another
+          state. A state only reacts to events when its entry program
+          is fully executed (done) and an event may be processed when
+          the run program is executed, thus interrupt the run program.
+          The first event that triggers a transition will 'win' and
+          the state reacts to no more events, executes the event's transition program,
+	  then the state's exit program, and finally,
+          the next state is entered and its entry program is executed.
+          The next state now listens for events (if any) to make a 
+          transition or just executes its run program.
+        </para>
+	<para>
+	  Another program can request a transition to a particular 
+          state as well. When the request arrives, the current state
+	  checks its transition conditions and evaluates if a transition to that state
+	  is allowed. These conditions are separately listed from the event
+          transitions above. If a transition condition is valid,
+          the exit program of the current state
+	  is called, the transition program and then the entry program of the requested state is
+	  called and the requested state's run program is executed. 
+          If a transition to the current state was requested,
+	  only the run program of the current state is executed.
+	</para>
+	<para>
+	  In this mode, it is also possible to request a single
+	  transition to the 'best' next state. All transition conditions
+          are evaluated and the first one that succeeds makes a transition
+          to the target state. This mechanism is
+	  similar to automatic mode below, but only one transition is made
+	  ( or if none, handle is executed ) and then, the state
+	  machine waits again. The step() command triggers this behaviour.
+	</para>
+      </sect3>
+      <sect3 id="state-automatic">
+	<title>Automatic Mode: State Change Semantics</title>
+	<para>
+	  In order to enter automatic mode, the State Machine must be
+	  started with the start() command (see later on).
+	</para>
+	<note><para>
+	  This mechanism is in addition to 'reactive' mode. A
+	  state machine in automatic mode still reacts to events.
+	</para></note>
+	<figure><title>State Change Semantics in Automatic Mode</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata contentwidth="300px" width="300px" align="center" fileref="images/AutomaticState"/>
+	  </imageobject>
+	  <imageobject role="fop">
+	    <imagedata contentwidth="7cm" width="7cm" align="center"  fileref="images/AutomaticState"/>
+	  </imageobject>
+	  <caption><para>The automatic mode additionally actively evaluates
+	  guard conditions. Event reaction remains in effect, but is not shown
+	  in this diagram.</para></caption>
+	</mediaobject>
+	</figure>
+	<para>
+	  In automatic mode, after the run program of the current
+	  state finishes, the transition table (to other states) of
+	  the current state is evaluated.  If a transition succeeds,
+	  the transition program is executed, then the exit program of
+	  the current state is called and then the entry program of
+	  the next state is called. If no transition evaluated to
+	  true, the handle program (if any) of the current state is
+	  called. This goes on until the automatic mode is left, using
+	  the pause, stop or reactive command.
+	</para>
+      </sect3>
+    </sect2>
+    <sect2>
+      <title>Parsing and Loading StateMachines</title>
+      <para>
+	Analogous to the Program section, we first show how 
+	you can load a StateMachine in your Real-Time Task.
+      </para>
+      <para>
+	Assume that you have a StateMachine "statename"
+	in a file <filename>state-machine.osd</filename>.
+	You've read the Orocos Task Infrastructure manual and constructed
+	a <classname>RTT::TaskContext</classname> which has some methods and is connected to its
+	Peer TaskContexts. Parsing the StateMachine is very analogous
+	to parsing Programs:
+      </para>
+      <programlisting>
+  #include &lt;rtt/PeriodicActivity.hpp&gt;
+  #include &lt;rtt/TaskContext.hpp&gt;
+
+  using namespace RTT;
+
+  <classname>RTT::TaskContext</classname>   tc;
+  <classname>RTT::PeriodicActivity</classname> ptask(5, 0.01, tc.engine() );
+
+  tc.scripting()->loadStateMachines( "state-machine.osd" );
+
+  // start the task's processor :
+  ptask.start();
+
+  // activate a state machine :
+  tc.engine()->states()->getStateMachine("MachineInstanceName")->activate();
+  // start a state machine (automatic mode) :
+  tc.engine()->states()->getStateMachine("MachineInstanceName")->start();</programlisting>
+      <para>
+	The loader loads all instantiated state machines in tc.
+	Next we start the task's Execution Engine.
+	StateMachines have a more complex lifetime than
+	Programs. They need first to be activated, upon which they
+	enter a fixed initial state. When they are started, 
+	they enter automatic mode and state
+	transitions to other states can take place. StateMachines
+	can also be manipulated from within other scripts.
+      </para>
+    </sect2>
+      <sect2>
+	<title>Defining StateMachines</title>
+  	<para>
+	  You can think of StateMachines somewhat like C++ classes.  You
+	  first need to define a type of StateMachine, and you can then
+	  instantiate it any number of times afterwards.  A StateMachine
+	  ( the type ) can have parameters, so every instantiation can
+	  work differently based on the parameters it got in its
+	  instantiation.
+	</para>
+	<para>
+	  A StateMachine definition looks like this :
+	</para>
+	<example>
+	  <title>StateMachine Definition Format</title>
+	  <programlisting>  StateMachine <emphasis>MyStateMachineDefinition</emphasis>
+  {
+    initial state <emphasis>myInit</emphasis>
+    {
+        // all these programs are optional and can be left out:
+        entry {
+	    // entry program
+	}
+	run {
+	    // run program
+	}
+	handle {
+	    // handle program
+	}
+	exit {
+	    // exit program
+	}
+	transitions {
+	    // Ordered (conditional) select statements
+	}
+    }
+
+    final state <emphasis>myExit</emphasis> {
+	entry {
+	    // put everything in a safe state.
+	}
+	// leave out empty programs...
+
+	transitions {
+	    // ...
+	}
+    }
+
+    state <emphasis>Waiting</emphasis> {
+        // ...
+    }
+
+    // ... repeat
+  }  
+
+  // See <xref linkend="instantiating"/> :
+  RootMachine MyStateMachineDefinition MachineInstanceName</programlisting>
+	  <para>
+	    A StateMachine definition: a StateMachine can have any
+	    number of states.  It needs to have exactly one "initial
+	    state" ( which is the state that will be entered when the
+	    StateMachine is first started ).  Within a state, any
+	    method is optional, and a state can even be defined empty.
+	  </para>
+	</example>
+	<sect3>
+	  <title>The <function>state</function> Statement</title>
+	  <para>
+	    A state machine can have an unlimited number of states.  A
+	    state contains optionally 4 programs : entry, run, handle,
+	    exit.  Any one of them is optional, and a
+	    state can even conceivably be defined empty.
+	  </para>
+	</sect3>
+	<sect3>
+	  <title>The <function>entry</function> and
+	    <function>exit</function> Statements</title>
+	  <para>
+	    When a state is entered for the first time, the entry
+	    program is executed. When it is left, the exit program is
+	    called. The execution semantics are identical to the
+            program scripts above.</para>
+	</sect3>
+	<sect3>
+	  <title>The <function>run</function> Statement</title>
+	  <para>
+            The run program serves to define which activity is done
+            within the state. After the entry program finishes, the
+            run program is immediately started. It may be interrupted
+            by the events that state reacts to. In event mode, the
+            run program is executed once (although it may use an
+            infinite loop to repeatedly execute statements). In
+            automatic mode, when the run program completes, and no
+            transitions to another state can be made (see below)
+            it is started again (in the next execution step).
+          </para>
+	</sect3>
+	<sect3>
+	  <title>The <function>handle</function> and
+	    <function>transitions</function> Statement</title>
+	  <para>
+            When the run program returns in automatic mode, the
+            state evaluates its transitions to other states.
+	    The handle program is called only when no transition can be found to another state.
+	    The transitions section defines one or more <function>select</function>
+            <emphasis>state</emphasis> statements. These can be guarded by if...then clauses
+            (the transition conditions):
+	    <programlisting>  // In state XYZ :
+  transitions {
+    // conditionally select the START state
+    if HMI.startPushed then {
+        // (optional)
+        // transition program: HMI.startPushed was true
+        // when finished, go to START state
+    } select START
+
+    // next transition condition, with a transition failure program:
+    if HMI.waiting then
+      select WAIT else {
+        // (optional)
+        // transition failure program: HMI.startPushed was false
+    }
+  } 
+
+  handle {
+     // only executed if no transition above could be made
+     // if startPushed and waiting were false:
+     // ... 
+  } </programlisting>
+	    The transitions are checked in the same order as listed.
+	    A transition is allowed to select the current state, but
+	    the exit and entry functions will not be called in that
+	    case. Even more, a transition to the current state is always
+	    considered valid and this can not be overridden.
+	  </para>
+	</sect3>
+	<sect3>
+	  <title>State Preconditions</title>
+	  <para>
+	    Often it's useful to specify some preconditions that need
+	    to hold before entering a state. &orocos; states
+	    explicitly allow for this.  A state's preconditions will
+	    be checked before the state is entered.
+	  </para>
+	  <para>
+	    Preconditions are specified as follows:
+	    <programlisting>  state X {
+    // make sure the robot is not moving axis 1 when entering this state
+    // and a program is loaded.
+    precondition  robot.movingAxis( 1 ) == false
+    precondition  programLoaded == true
+    // ...
+  }</programlisting>
+            They are checked in addition to transitions to that state
+            and can make such a transition fail, hence block the
+            transition, as if the transition condition in the first place
+            did not succeed.
+	  </para>
+	</sect3>
+	<sect3>
+	  <title>Event Transitions</title>
+	  <para>
+	    An important property of state machines is that they can
+	    react to external (asynchronous) events. Since Orocos
+	    defined an Event framework in the CoreLib, this framework
+	    is used to react to events in this package.
+	  </para>
+	  <para>
+	    Event transitions are specified as:
+	  </para>
+	  <programlisting>  state X {
+    var int a, b
+    var double d
+    transition othertask.the_event(a, b, d) if (a+b &amp; 10 &amp;&amp; d >1.3) then {
+       // transition succeeds, transition program:
+       // ...
+    } select ONE_STATE else {
+       // transition fails, failure program:
+       // ...
+    } select OTHER_STATE
+
+    // other events likewise...
+  }</programlisting>
+	  <para>
+            Both the transition programs and the the select statements
+            are optional, but at least a program or select statement
+            must be given.  In this example,
+            <function>othertask</function> contains an event
+            <function>the_event</function>.  When the event
+            <function>the_event</function> is emitted, our state
+            machine reacts to it and the event arguments are stored in
+            a, b and d. The <function>if ... then</function> statement
+            may check these variables and any other state variables
+            and methods to evaluate the transition. If it succeeds, an
+            optional transition program may be given and a target
+            state <function>select</function>ed (ONE_STATE).  if the
+            transition fails, an optional failure program may be given
+            and an optional <function>select</function> (OTHER_STATE)
+            statement may be given.  The number of arguments must
+            match the number of arguments of the used event.  The
+            event is processed as an asynchronous callback, thus in
+            the thread or task of the StateMachine's processor.
+	  </para>
+	  <para>
+	    Event transitions are enabled after the entry program and
+	    before the exit program (also in automatic mode).  All events
+	    are processed in a state until the first event that leads
+	    to a valid state transition. In the mean time, the run program
+	    or handle programs may continue, but will be interrupted if an
+	    event occurs. The event transition program and/or exit program
+	    may or must thus perform the necessary cleanup.
+	  </para>
+	</sect3>
+      </sect2>
+      <sect2 id="instantiating">
+	<title>Instantiating Machines: SubMachines and RootMachines</title>
+	<para>
+	  As mentioned before: you can look at a SubMachine
+	  definition as the definition of a C++ class.  It is merely
+	  the template for its instantiations, and you have to
+	  instantiate it to actually be able to do anything with it.
+	  There is also a mechanism for passing parameter values to
+	  the StateMachines on instantiation.
+	</para>
+	<para>
+	  Note that you always need to write the instantiation after
+	  the definition of the StateMachine you're instantiating.
+	</para>
+	<sect3>
+	  <title>Root Machines</title>
+	  <para>
+	    A Root Machine is a normal instantiation of a
+	    StateMachine, one that does not depend on a parent
+	    StateMachine ( see below ).  They are defined as follows:
+	    <programlisting>  StateMachine SomeStateMachine
+  {
+      initial state initState
+      {
+        // ...
+      }
+      final state finalState
+      {
+        // ...
+      }
+  }
+
+  RootMachine SomeStateMachine someSMinstance </programlisting>
+	    This makes an instantiation of the StateMachine type
+	    SomeStateMachine by the name of 'someSMinstance', which can then
+	    be accessed from other scripts (by that name).
+	  </para>
+	</sect3>
+	<sect3>
+	  <title>Parameters and public variables</title>
+	  <sect4>
+	    <title>StateMachine public variables</title>
+	    <para>
+	      You can define variables at the StateMachine level.
+	      These variables are then accessible to the StateMachine
+	      methods (entry, handle, exit), the preconditions, the
+	      transitions and ( in the case of a SubMachine, see below
+	      ) the parent Machine.
+	    </para>
+	    <para>
+	      You can define a StateMachine public variable as follows:
+	      <programlisting>  StateMachine SomeStateMachine
+  {
+    // a public constant
+    const double pi = 3.1415926535897
+    var int counter = 0
+
+    initial state initState
+    {
+	handle
+	{
+            // change the value of counter...
+            set counter = counter + 1
+        }
+        // ...
+    }
+    final state finalState
+    {
+	entry
+        {
+            do someTask.doSomethingWithThisCounter( counter )
+        }
+        // ...
+    }
+  }
+
+  Rootmachine SomeStateMachine mymachine </programlisting>
+	    This example creates some handy public variables in the
+	    StateMachine SomeStateMachine, and uses them throughout
+	    the state machine. They can also be read and modified from 
+	    other tasks or programs :
+	    </para>
+	  <programlisting>  var int readcounter = 0
+  set readcounter = taskname.states.mymachine.counter
+
+  set taskname.states.mymachine.counter = taskname.states.mymachine.counter *  2</programlisting>
+	  </sect4>
+	  <sect4>
+	    <title>StateMachine parameters</title>
+	    <para>
+	      A StateMachine can have parameters that need to be set
+	      on its instantiation.  Here's an example:</para>
+	      <programlisting>
+  StateMachine AxisController
+  {
+      // a parameter specifying which axis this Controller controls
+      param int axisNumber
+      initial state init
+      {
+          entry
+          {
+              var double power = someTask.getPowerForAxis( axisNumber )
+  	    // do something with it...
+          }
+      }
+  }
+  
+  RootMachine AxisController axiscontroller1( axisNumber = 1 )
+  RootMachine AxisController axiscontroller2( axisNumber = 2 )
+  RootMachine AxisController axiscontroller3( axisNumber = 3 )
+  RootMachine AxisController axiscontroller4( axisNumber = 4 )
+  RootMachine AxisController axiscontroller5( axisNumber = 5 )
+  RootMachine AxisController axiscontroller6( axisNumber = 6 )</programlisting>
+	    <para>
+	      This example creates an AxisController StateMachine with
+	      one integer parameter called axisNumber.  When the
+	      StateMachine is instantiated, values for all of the
+	      parameters need to be given in the form "oneParamName=
+	      'some value', anotherParamName = 0,
+	      yetAnotherParamName=some_other_expression + 5".  Values
+	      need to be provided for all the parameters of the
+	      StateMachine. As you see, a StateMachine can of course
+	      be instantiated multiple times with different parameter
+	      values.
+	    </para>
+	  </sect4>
+	</sect3>
+	<sect3>
+	  <title>Building Hierarchies : SubMachines</title>
+	  <para>
+	    A SubMachine is a StateMachine that is instantiated within
+	    another StateMachine ( which we'll call the parent
+	    StateMachine ).  The parent StateMachine is owner of its
+	    child, and can decide when it needs to be started and
+	    stopped, by invoking the respective methods on its child.
+	  </para>
+	  <sect4>
+	    <title>Instantiating SubMachines</title>
+	    <para>
+	      An instantiation of a SubMachine is written as follows:
+	      <programlisting>
+  StateMachine ChildStateMachine
+  {
+      initial state initState
+      {
+          // ...
+      }
+      final state finalState
+      {
+          // ...
+      }
+  }
+  
+  StateMachine ParentStateMachine
+  {
+      SubMachine ChildStateMachine child1
+      SubMachine ChildStateMachine child2
+      initial state initState
+      {
+  	entry
+          {
+	      // enter initial state :
+  	    do child1.activate()
+  	    do child2.activate()
+          }
+          exit
+          {
+	      // enter final state :
+              do child2.stop()
+          }
+      }
+  
+      final state finalState
+      {
+          entry
+          {
+	      // enter final state :
+              do child1.stop()
+          }
+      }
+  } </programlisting>
+	      Here you see a ParentStateMachine which has two
+	      ChildStateMachines.  One of them is started in the
+	      initial state's entry method and stopped in its exit
+	      method.  The other one is started in the initial state's
+	      entry method and stopped in the final state's entry
+	      method.
+	    </para>
+	  </sect4>
+	  <sect4>
+	    <title>SubMachine manipulating</title>
+	    <para>
+	      In addition to starting and stopping a SubMachine, a
+	      parent StateMachine can also inspect its public
+	      variables, change its parameters, and check what state
+	      it is in...
+	    </para>
+	    <para>
+	      Inspecting StateMachine public variables is simply done
+	      using the syntax "someSubMachineInstName.someValue",
+	      just as you would do if someSubMachineInstName were an
+	      &orocos; task.  Like this, you can inspect
+	      all of a subcontext's public variables.
+	    </para>
+	    <para>
+	      Setting a StateMachine parameter must be done at its
+	      instantiation.  However, you can still change the values
+	      of the parameters afterwards.  The syntax is: "set
+	      someSubMachine.someParam = someExpression".  Here's an
+	      elaborate example:</para>
+	      <programlisting>  StateMachine ChildStateMachine
+  {
+      param int someValue
+      const double pi = 3.1415926535897
+      initial state initState
+      {
+          // ...
+      }
+      final state finalState
+      {
+          // ...
+      }
+  }
+
+  StateMachine ParentStateMachine
+  {
+      SubMachine ChildStateMachine child1( someValue = 0 )
+      SubMachine ChildStateMachine child2( someValue = 0 )
+  
+      var int counter = 0
+      initial state initState
+      {
+  	  entry
+          {
+  	      do child1.start()
+  	      do child2.start()
+              // set the subcontext's parameter
+              set child1.someValue = 2
+          }
+          run
+          {
+              set counter = counter + 1
+              // set the subcontext's parameters
+              set child2.someValue = counter
+              // use the subcontext's public variables
+              do someTask.doSomethingCool( child1.someValue )
+          }
+          exit
+          {
+              do child2.stop()
+          }
+      }
+  
+      final state finalState
+      {
+          entry
+          {
+              do child1.stop()
+          }
+      }
+  }</programlisting>
+	  <para>
+	    You can also query if a child State Machine is in a
+	    certain state.  The syntax looks like:
+	    <programlisting>someSubMachine.inState( "someStateName" )
+	    </programlisting>
+	  </para>
+	</sect4>
+      </sect3>
+    </sect2>
+    <sect2>
+      <title>Starting and Stopping StateMachines from scripts</title>
+      <para>
+	Once a state machine is parsed and loaded into the State Machine Processor,
+	it can be manipulated from another script. This can be
+	done through the "states" subtask of the TaskContext
+	in which the state machine was loaded. Assume that you loaded
+	"machine" with subcontexts "axisx" and "axisy"
+	in task "ATask", you can write
+      </para>
+      <programlisting>  do ATask.states.machine.activate()
+  do ATask.states.machine.axisx.activate()
+  // now in reactive mode...
+
+  do ATask.states.machine.axisx.start()
+  do ATask.states.machine.start()
+  // now in automatic mode...
+
+  do ATask.states.machine.stop()
+  // again in reactive mode, in final state
+
+  do ATask.states.machine.reset()
+  do ATask.states.machine.deactivate()
+  // deactivated.
+  // etc. </programlisting>
+      <para>
+	The first line activates a root StateMachine, thus it
+	enters the initial state and is put in reactive mode , the next line
+	actives its child, the next starts its child, then we
+	start the parent, which bring both in automatic mode.
+	Then the parent is stopped again, reset
+	back to its initial state and finally deactivated.
+      </para>
+      <para>
+	Thus both RootMachines and SubMachines can be controlled.
+	Some basic properties of the states can be
+	inspected likewise :</para>
+      <programlisting>  var bool res =  ATask.states.machine.isActive()      // Active ?
+  set res = ATask.states.machine.axisy.isRunning()     // Running ?
+  set res =  ATask.states.machine.isReactive()          // Waiting for requests or events? 
+  var string current = ATask.states.machine.getState() // Get current state
+  set res = ATask.states.machine.inState( current )    // inState ?</programlisting>
+      <para>
+	which makes it possible to monitor state machines from other
+	scripts or an operator console.</para>
+      <sect3 id="request-commands">
+	<title>On Reactive Mode Commands</title>
+	<para>
+	  Consider the following StateMachine :
+	</para>
+	<programlisting>  StateMachine X {
+     // ...
+     initial state y {
+        entry {
+	   // ...
+        }
+        transitions {
+	   // guard this transition.
+           if checkSomeCondition() then
+              select z
+           if checkOtherCondition() then
+              select exit
+        }
+     }
+     state z {
+       // ...
+        transitions {
+	   // always good to go to state :
+	   select ok_1
+        }
+     }
+     state ok_1 {
+       // ...
+     }
+     final state exit {
+       // ...
+     }
+  }
+
+  RootMachine X x</programlisting>
+	<para>
+	  A program interacting with this StateMachine can look like
+	  this :
+	</para>
+	<programlisting>
+   program interact {
+       // First activate x :
+       do states.x.activate()  // activate and wait.
+
+       // Request a state transition :
+       try states.x.requestState("z") catch {
+           // failed !
+       }
+
+       // ok we are in "z" now, try to make a valid transition :
+       do states.x.step()
+
+       // enter pause mode :
+       do states.x.pause()
+       // Different ! Executes a single program statement :
+       do states.x.step()
+
+       // unpause, by re-entering reactive Mode :
+       do states.x.reactive()
+
+       // we are in ok_1 now, again waiting...
+       do states.x.stop()      // go to the final state
+
+       // we are in "exit" now
+       do states.reset()
+
+       // back in state "y", handle current state :
+       do this.states.x.requestState( this.states.x.getState() )
+       // etc.
+    } </programlisting>
+         <para>
+	   The requestState command will fail if the transition is not 
+	   possible ( for example, the state machine is not in
+	   state y, or checkSomeCondition() was not true ),
+	   otherwise, the state machine will make the transition
+	   and the command succeeds and completes when the z state
+	   is fully entered (it's init program completed).
+	 </para>
+	 <para>
+	   The next command, step(), lets the state machine decide which
+	   state to enter, and since a transition to state "ok_1" is unconditionally,
+	   the "ok_1" state is entered. The stop() command brings
+	   the State Machine to the final state ("exit"), while the
+	   reset command sends it to the initial state ("y"). These
+	   transitions do not need to be specified explicitly, they
+	   are always available.
+	 </para>
+	 <para>
+	   The last command, is a bit cumbersome request to execute
+	   the handle program of the current state.
+	 </para>
+	 <para>
+	   At any time, the State Machine can be paused using
+	   pause(). The step() command changes to execute a single
+	   program statement or transition evaluation, instead of
+	   a full state transition.
+	 </para>
+	 <para>
+	   All these methods can of course also be called from parent
+	   to child State Machine, or across tasks.
+	</para>
+      </sect3>
+      <sect3 id="automatic-commands">
+	<title>Automatic Mode Commands</title>
+	<para>
+	  Consider the following StateMachine, as in the previous
+	  section :
+	</para>
+	<programlisting>  StateMachine X {
+     // ...
+     initial state y {
+        entry {
+	   // ...
+        }
+        transitions {
+	   // guard this transition.
+           if checkSomeCondition() then
+              select z
+           if checkOtherCondition() then
+              select exit
+        }
+     }
+     state z {
+       // ...
+        transitions {
+	   // always good to go to state :
+	   select ok_1
+        }
+     }
+     state ok_1 {
+       // ...
+     }
+     final state exit {
+       // ...
+     }
+  }
+
+  RootMachine X x</programlisting>
+	<para>
+	  A program interacting with this StateMachine can look like
+	  this :
+	</para>
+	<programlisting>
+   program interact {
+       // First activate x :
+       do states.x.activate()  // activate and wait.
+
+       // Enter automatic mode :
+       do states.x.start()
+
+       // pause program execution :
+       do states.x.pause()
+
+       // execute a single statement :
+       do states.x.step()
+
+       // resume automatic mode again :
+       do states.x.start()
+
+       // stop, enter final state, in request mode again.
+       do states.x.stop()
+
+       // etc...
+    } </programlisting>
+         <para>
+	   After the State Machine is activated, it is started,
+	   which lets the State Machine enter automatic mode. If
+	   checkSomeCondition() evaluates to true, the State 
+	   Machine will make the transition to state "z" without
+	   user intervention, if checkOtherCondition() evaluates
+	   to true, the "exit" state will be entered.
+	 </para>
+	 <para>
+	   When running, the State Machine can be paused at any time
+	   using pause(), and a single program statement ( a single
+	   line ) or single transition evaluation can be executed with
+	   calling step().  Automatic mode can be resumed by calling
+	   start() again.
+	 </para>
+	 <para>
+	   To enter the reactive mode when the State Machine is in
+	   automatic mode, one can call the reactive() command,
+	   which will finish the program or transition the State
+	   Machine is making and will complete if the State Machine
+	   is ready for requests.
+	 </para>
+	 <para>
+	   All these methods can of course also be called from parent
+	   to child State Machine, or across tasks.
+	</para>
+      </sect3>
+    </sect2>
+  </sect1>
+  <sect1>
+    <title>Program and State Example</title>
+    <para>
+      This sections shows the listings of an Orocos State
+      Description and an Orocos Program Script. They are
+      fictitious examples (but with valid syntax) which may
+      differ from actual available tasks. The example
+      tries to exploit most common functions.
+    </para>
+    <example>
+      <title>StateMachine Example (state.osd)</title>
+      <programlisting>
+  StateMachine MachineMachine
+  {
+      var bool error = false
+
+      /**
+       * This state is entered when the StateMachine is loaded.
+       * The kernel is not running yet...
+       */
+      initial state init_state {
+  	transitions {
+  	    select startup_state
+  	}
+      }
+  
+      /**
+       * Kernel is running, select the components.
+       */
+      state startup_state {
+  	entry {
+  	    do Kernel.startComponent("HWSensor")
+  	    do Kernel.startComponent("MoveToGenerator")
+  	    }
+  	transitions {
+  	    select stop_state
+  	    }
+      }
+  
+      /**
+       * This state is only reached when the StateMachine
+       * is stopped.
+       */
+      final state fini_state {
+  	entry {
+  	    do Kernel.stopComponent("HWSensor")
+  	    do Kernel.stopComponent("MoveToGenerator")
+  	    }
+      }
+  
+      /**
+       * This state is the 'turn off' state of the
+       * machine.
+       */
+      state stop_state {
+  	entry {
+  	    // stop some components
+  	    do Kernel.stopComponent("HWEffector")
+  	    do Kernel.stopComponent("PIDController")
+	    do PIDController.reset()
+  	transitions {
+  	    if HMI.start_pushed() &amp;&amp; error == 0 then
+  		 select run_state
+  	    }
+      }
+  
+      /**
+       * This state puts the machine under 'control'
+       * effectively accepting commands and driving
+       * the machine.
+       */
+      state run_state {
+  	entry {
+  	    // make sure we are not moving
+  	    do MoveToGenerator.safeStop()
+  	    // Select components controlling the machine
+  	    do Kernel.startComponent("PIDController")
+  	    do Kernel.startComponent("HWEffector")
+  	    }
+  
+  	transitions {
+  	    if HMI.stop_pushed() then
+  		 select stop_state
+  	    if HMI.start_program() then
+  		 select exec_state
+  	    }
+      }
+  
+      /**
+       * This state starts a previously loaded
+       * program.
+       */
+      state exec_state {
+  	entry {
+  	    do programs.MyProgram.start()
+  	    }
+  
+  	exit {
+	    set error = programs.MyPorgram.inError()
+  	    do programs.MyProgram.stop()
+  	    }
+  
+  	transitions {
+  	    if HMI.stop_program() then
+  		 select run_state
+  	    }
+	    // Detect Program Failure :
+	    if programs.MyProgram.inError() then
+	         select stop_state
+      }
+  }
+  
+  RootMachine MainMachine mainMachine
+      </programlisting>
+    </example>
+    <example>
+      <title>Program example (program.ops)</title>
+      <programlisting>
+  /**
+   * This program is executed in the exec_state.
+   */
+  
+  /**
+   * Request the HMI to load the user selected
+   * trajectory into the kernel.
+   */
+  export function HMILoadTrajectory() {
+  	// request a 'push' of the next
+  	// trajectory :
+  	do HMI.requestTrajectory()
+  	// when the HMI is done :
+  	do Generator.loadTrajectory()
+  }
+  
+  /**
+   * Do a Homing (reset) of the axes.
+   * This could also be done using a Homing state,
+   * without a program.
+   */
+  export function ResetAxes() {
+  	do Kernel.selectComponent("HomingGenerator")
+  	do HomingGenerator.homeAll()
+  }
+  
+  export function ResetAxis(int nr) {
+  	do Kernel.selectComponent("HomingGenerator")
+  	do HomingGenerator.homeAxis( nr )
+  }
+  
+  /**
+   * Request the Generator to use the current
+   * trajectory.
+   */
+  function runTrajectory() {
+  	do Generator.startTrajectory()
+  	// this function returns when the
+  	// trajectory is done.
+  }
+  
+  program DemoRun {
+  	do HMI.display("Program Started\n")
+  	var int cycle = 0
+  
+  	// We actually wait here until a 
+  	// Trajectory is present in the HMI.
+  	do nothing until {
+  	   if HMI.trajectoryPresent then continue
+  	}
+  
+  	while HMI.cycle {
+  	    do HMI.display("Cycle nr: %d.\n", cycle )
+  	    do ResetAxes()
+  	    do HMIRequestTrajectory()
+  	    do runTrajectory()
+  
+  	    do Timer.sleep( 5.0 ) // wait 5s
+  	}
+  
+  	do HMI.display("Program Ended\n")
+  }  </programlisting>
+    </example>
+  </sect1>
+</article>

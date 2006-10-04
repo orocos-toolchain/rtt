@@ -1,0 +1,278 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+[
+<!ENTITY cvs         "<acronym>CVS</acronym>">
+<!ENTITY orocos      "<acronym>Orocos</acronym>">
+<!ENTITY oldversion  "0.24">
+<!ENTITY version     "0.25">
+<!ENTITY rtai        "<acronym>RTAI</acronym>">
+<!ENTITY rtos        "<acronym>RTOS</acronym>">
+]
+>
+
+<article>
+  <articleinfo>
+    <title>
+      Orocos &version; Release Series
+      Changes, New Features, and Fixes 
+    </title>
+    <subtitle><emphasis>Open RObot COntrol Software</emphasis>
+    </subtitle>
+  </articleinfo>
+  <para>
+    This document provides a quick overview of what changed between Orocos &oldversion; and
+    Orocos &version;. Hence, this release includes all bugfixes of the &oldversion;
+    branch. If your application does not work, look here for
+    possible causes and solutions. Also feature additions and improvements
+    are documented.
+  </para>
+  <section id="caveats">
+    <title>Caveats</title>
+    <section>
+      <title>Overall Changes</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The 'ORO_...' namespaces of Orocos have been renamed to 'RTT', 'RTT::OS', etc.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=65">
+	    [Project] new Orocos namespace</ulink> for all details.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The <classname>RTT::Event</classname>,
+	    <classname>RTT::Method</classname>,
+	    <classname>RTT::Command</classname>,
+	    <classname>RTT::Property</classname>,
+	    <classname>RTT::Attribute</classname> and
+	    <classname>RTT::Port</classname> classes have changed in usage
+	    semantics. All these classes require a "name" as a
+	    constructor parameter in order to be initialised.  When no
+	    "name" is given (the default constructor) the objects are
+	    empty boxes which will refuse to operate. In order to
+	    check for this condition, all these classes have a
+	    <function>ready()</function> method which returns true if
+	    the object is correctly setup. These new semantics allow
+	    far-going abstraction and network distribution of these
+	    primitives. See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=104">
+	    Commands and Methods : Away with the Template* classes</ulink>,
+	    <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=119">
+	      [API] Improve Attribute/Property usage</ulink> and
+	      <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=111">
+		[API] Change event 'add' methods</ulink> for all details.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The <function>addEvent</function>,
+	    <function>addMethod</function>,
+	    <function>addCommand</function>,
+	    <function>addProperty</function>,
+	    <function>addAttribute</function> and
+	    <function>addPort</function> functions 
+	    have been added to replace the 'TemplateFactory'
+	    classes of prior Orocos versions.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=104">
+	    Commands and Methods : Away with the Template* classes</ulink>,
+	    <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=119">
+	      [API] Improve Attribute/Property usage</ulink> and
+	      <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=111">
+		[API] Change event 'add' methods</ulink> for all details and a script
+	    which converts 0.24.0 application code to the new syntax.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>OS Changes</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The ORO_OS namespace has been renamed to RTT::OS.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=65">
+	    [Project] new Orocos namespace</ulink> for all details.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The RTT::OS::PeriodicThread <function>setToStop()</function> function 
+	    now executes finalize() as well and no longer uses Events nor the
+	    Completion Processor.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=165">
+	    OS::PeriodicThread depends on RTT::Event, CompletionProcessor</ulink> for all details.
+	  </para>
+	</listitem>
+    </itemizedlist>
+    </section>
+    <section>
+      <title>CoreLib Changes</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The <classname>Event</classname> object has changed 'constructor' 
+	    semantics. An Event requires a "name" upon construction in order
+	    to be usable. Nameless events are 'empty' and require initialisation.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=111">
+	    [API] Change event 'add' methods</ulink> for all details.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The Activity classes can no longer react to Events. Use an <classname>EventProcessor</classname>
+	    or the <classname>ExecutionEngine</classname> to react to events.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=129">
+	    [Project] Removing Events out of activities</ulink> for all details.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>Scripting Changes</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The <command>emit</command> statement for emitting events has
+	    been replaced by the <command>do</command> statement in both
+	    program scripts and state machine scripts.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=154">
+	    Using events in TaskBrowser</ulink> for all details.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The <function>task.varname</function> prefix, required in programs
+	    and statemachines in order to access TaskContext variables has been
+	    dropped. One can now address a TaskContext variable by just writing
+	    <function>varname</function> in a script. The parser will not allow
+	    name clashes between program script variables and TaskContext
+	    variables in which the scripts are loaded.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=140">
+	    Using properties from a state machine</ulink> for all details.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>Corba IDL Changes</title>
+      <para>
+	These changes only apply if you directly used the IDL interface
+	of Orocos.
+      </para>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The <classname>RTT::Corba::ControlTask</classname> class
+	    and related classes have been revised to map better to the
+	    TaskContext interface. <classname>MethodFactory</classname>
+	    has been renamed to <classname>RTT::Corba::MethodInterface</classname>,
+	    <classname>CommandFactory</classname>
+            has been renamed to <classname>RTT::Corba::CommandInterface</classname>.
+	    The <classname>RTT::Corba::TaskObject</classname> has been added
+	    and getting a command or method from the interface is now
+	    similar to plain C++ usage.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    All created objects now have a <function>destroy_X</function>
+	    IDL method which you must call to free the serverside object.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+  </section>
+  <section>
+    <title>Improvements</title>
+    <section>
+      <title>Orocos C++ Interface</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The classes and functions required to setup or access a component
+	    have been greatly simplified and are more uniform in naming.
+	    For example, adding a command is done by writing 
+	    commands()->addCommand(...), properties by properties()->addProperty(...)
+	    etc and such for each primitive. Retrieving a 'pointer' to
+	    a primitive from another TaskContext is then done by
+	    peer->getCommand("name"), peer->getProperty("name") etc.
+	    See <ulink url="orocos-components-manual.html">The Component Builder's Manual</ulink> for all details.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    All Orocos primitives are to be used as 'objects' and not as 'pointers'.
+	    For example, one does no longer write 
+	    <programlisting>Property&lt;int&gt;* myProp = peer->properties()->getProperty&lt;int&gt;("Prop");
+assert( myProp != 0 );</programlisting>
+	    but instead: 
+	    <programlisting>Property&lt;int&gt; myProp = peer->properties()->getProperty&lt;int&gt;("Prop");
+assert( myProp.ready() );</programlisting>
+	    The ready() method checks if "Prop" could be found and had the correct value.
+	    This aproach must be taken for every Orocos primitive: Commands, Events, etc.
+	    See <ulink url="orocos-components-manual.html">The Component Builder's Manual</ulink> for all details.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>TaskBrowser</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    One can emit events from the TaskBrowser by calling the event
+	    by name and providing the arguments.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=154">
+	    Using events in TaskBrowser</ulink> for all details.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    An <classname>Orocos::TaskBrowser</classname> 'Component'
+	    has been created which is more powerful than the classical
+	    <classname>RTT::TaskBrowser</classname>.  It dynamically
+	    connects to Data Flow Ports and allows better testing of
+	    unconnected components.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+  </section>
+
+  <appendix>
+    <title>About Orocos</title>
+    <para>
+      Please send general, non technical, Orocos questions to <ulink
+	url="mailto:orocos at lists.mech.kuleuven.be">
+	orocos at lists.mech.kuleuven.be </ulink>. 
+    </para>
+    <para>
+      These pages are maintained by <ulink
+	url="http://www.orocos.org/about.php">the Orocos
+	team</ulink>.
+    </para>
+    <para>
+      For questions related to the use of the Orocos Software, please consult these
+      web pages and the <ulink
+	url="http://www.orocos.org/documentation.php">Orocos manuals</ulink>. If
+      that fails, the  <ulink
+	url="mailto:orocos-dev at lists.mech.kuleuven.be">
+	orocos-dev at lists.mech.kuleuven.be </ulink> mailing list might help.
+      Please
+      send comments on these web pages and the development of Orocos to
+      our developer mailing list at  <ulink
+	url="mailto:orocos-dev at lists.mech.kuleuven.be">
+	orocos-dev at lists.mech.kuleuven.be </ulink>. All of
+      our lists have <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos">public
+	archives</ulink> ( <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos-dev"> dev public
+	archive</ulink> ) .
+      </para>
+    <para>
+      Copyright (C) FMTC
+    </para>
+    <para>
+      Verbatim copying and distribution of this entire article is
+      permitted in any medium, provided this notice is preserved.
+    </para>
+  </appendix>
+</article>

@@ -101,7 +101,8 @@ OROCOS_EXPORT_FLAGS
 AC_CONFIG_FILES([ 
   Makefile 
   doc/Makefile
-  doc/catalog.xml
+  doc/xml/catalog.xml
+  doc/xml/Makefile
   tests/Makefile
   Doxyfile
   packages/orocos.pc

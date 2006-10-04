@@ -24,7 +24,7 @@ TXTDOCS= $(patsubst %.xml,%.txt,$(XMLDOCS))
 # convert pngs only only to jpg, gif reduces too much quality of screenshots.
 JPGIMGS= $(patsubst %.png,%.jpg,$(PNGS))
 EPSIMGS= $(patsubst %.dia,%.eps,$(DIAS))
-PNGIMGS= $(patsubst %.dia,%.png,$(DIAS)) $(patsubst %.png,%.png,$(PNGS))
+PNGIMGS= $(patsubst %.dia,%.png,$(DIAS)) $(PNGS)
 TIFFIMGS=$(patsubst %.dia,%.tiff,$(DIAS))
 GIFIMGS=$(patsubst %.png,%.gif,$(PNGIMGS))
 
@@ -43,8 +43,9 @@ docxml: dochtml docpdf
 
 dochtml: pngimages $(XMLDOCS)
 	${MAKE} $(HTMLDOCS)
+	cp $(srcdir)/../orocos-html.css .
 
-docpdf: gifimages jpgimages $(XMLDOCS)
+docpdf: gifimages $(XMLDOCS)
 	${MAKE} $(PDFDOCS)
 
 docps: jpgimages $(XMLDOCS)
@@ -57,6 +58,7 @@ epsimages: $(EPSIMGS)
 jpgimages: $(JPGIMGS)
 
 pngimages: $(PNGIMGS)
+	cp $(srcdir)/images/*png images/
 
 tiffimages: $(TIFFIMGS)
 
@@ -97,15 +99,12 @@ gifimages: $(GIFIMGS)
 
 #if $(srcdir) is set and points elsewhere, mv file from there to here.
 %.eps:%.dia
-	$(DIA) -t eps --nosplash $<
-	if test x$(srcdir) != x -a ! $(srcdir)/. -ef . ;then mv -f $(srcdir)/$@ .; fi
+	LC_NUMERIC="C" $(DIA) -t eps --nosplash -e $@ $<
 
 %.png:%.dia
-	$(DIA) -t png --nosplash $<
-	if test x$(srcdir) != x -a ! $(srcdir)/. -ef . ;then mv -f $(srcdir)/$@ .; fi
+	LC_NUMERIC="C" $(DIA) -t png --nosplash -e $@ $<
 
 %.png:%.svg
-	mkdir -p svg
 	inkscape -D -d 60 $< -e $@
 
 %.jpg:%.png
