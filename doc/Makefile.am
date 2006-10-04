@@ -11,3 +11,6 @@ EXTRA_DIST = \
 
 clean-local:
 
+docs:
+	${MAKE} -C xml docs
+
