@@ -39,7 +39,7 @@ namespace RTT
 {
 
     /**
-     * @brief An interface that describes the general senor
+     * @brief An interface that describes a general sensor
      * You can read a value/structure
      *
      * The OutputData is the actual SI unit of the measured data
