@@ -24,7 +24,10 @@
 
 namespace RTT
 {
-
+    /** @brief Helper class that implements a Position Sensor for a
+	SimulationAxis 
+	@see SimulationAxis
+    */
     class SimulationEncoder: public SensorInterface<double>
     {
     public:
@@ -43,6 +46,9 @@ namespace RTT
 	double _position, _velocity, _min, _max;
 	TimeService::ticks _previous_time;
 	TimeService::Seconds _delta_time;
+	/** The value of _first_drive is true as long as the setDrive()
+	    method has not been called
+	*/
 	bool _first_drive;
 
     }; // class
@@ -52,7 +58,8 @@ namespace RTT
     // Forward declare; see below
     class SimulationVelocitySensor;
 
-    /** @brief Non-Physical axis for simulation of a machine/robot
+    /** @brief Simple implementation of a non-physical axis for
+	simulation of a machine/robot
      */
     class SimulationAxis: public AxisInterface
     {
@@ -88,6 +95,9 @@ namespace RTT
   
     }; // class
 
+    /** @brief Helper class that implements a Velocity Sensor for a
+	SimulationAxis 
+    */
     class SimulationVelocitySensor : public SensorInterface<double>
     {
     public:
