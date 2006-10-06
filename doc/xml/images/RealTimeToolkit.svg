@@ -13,8 +13,8 @@
    height="1000.0000pt"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.42"
-   sodipodi:docbase="/home/sspr/src/orocos-trunk/doc/svg"
+   inkscape:version="0.43"
+   sodipodi:docbase="/home/sspr/src/orocos-trunk/doc/xml/images"
    sodipodi:docname="RealTimeToolkit.svg"
    inkscape:export-filename="RealTimeToolkit.png"
    inkscape:export-xdpi="90.000000"
@@ -137,7 +137,7 @@
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1.0"
-     inkscape:pageopacity="0.0"
+     inkscape:pageopacity="1"
      inkscape:pageshadow="2"
      inkscape:zoom="0.48125773"
      inkscape:cx="647.81367"
@@ -292,7 +292,7 @@
        sodipodi:linespacing="125.00000%"><tspan
          sodipodi:role="line"
          id="tspan2851"
-         x="371.91110"
+         x="371.9111"
          y="85.576401">Control Components</tspan></text>
     <text
        xml:space="preserve"

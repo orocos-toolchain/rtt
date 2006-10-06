@@ -75,6 +75,30 @@
     </para>
     </section>
     <section>
+      <title>Orocos Real-Time Toolkit Overview</title>
+      <para>
+	The Real-Time Toolkit allows deployment, distribution and
+	the building of real-time software components. It is
+	sometimes refered to as 'middleware' because it sits
+	between the application and the Operating System.
+	It takes care of the real-time communication and execution of 
+	software components.
+      </para>
+      <figure id="fig-orocos-framework">
+	<title>
+	  Orocos as Middleware
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="images/FrameworkOverview" />
+	  </imageobject>
+	  <imageobject>
+	    <imagedata fileref="images/FrameworkOverview" />
+	  </imageobject>
+	</mediaobject>
+      </figure>
+    </section>
+    <section>
       <title>Orocos Real-Time Toolkit Software Structure</title>
       <para>
 	The Real-Time Toolkit is structured in layers on top
@@ -83,17 +107,19 @@
       </para>
       <figure id="fig-orocos-app-stack">
 	<title>
-	  Real-Time Toolkit Overview
+	  Real-Time Toolkit Layers
 	</title>
 	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="images/ApplicationStack" />
+	  </imageobject>
 	  <imageobject>
 	    <imagedata fileref="images/ApplicationStack" />
 	  </imageobject>
 	</mediaobject>
       </figure>
       <para>
-	Every Orocos layer in <xref linkend="fig-orocos-app-stack" /> is
-	documented seperately. All Orocos software communicates
+	All Orocos software communicates
 	through Operating System abstractions with the underlying OS
 	or through Device Interfaces with the IO hardware. On the left
 	side on top of the OS Abstraction is the Core Library, which

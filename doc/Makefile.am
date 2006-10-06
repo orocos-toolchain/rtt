@@ -14,3 +14,6 @@ clean-local:
 docs:
 	${MAKE} -C xml docs
 
+api:
+	${MAKE} -C .. doxy-dist
+

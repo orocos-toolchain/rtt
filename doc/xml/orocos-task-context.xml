@@ -222,6 +222,9 @@
 	Schematic Overview of the Hello Component.
       </title>
       <mediaobject>
+	<imageobject role="html">
+	  <imagedata fileref="images/HelloWorld" />
+	</imageobject>
 	<imageobject>
 	  <imagedata fileref="images/HelloWorld" />
 	</imageobject>
@@ -274,22 +277,22 @@
     <screen>
 0.016 [ Info   ][main()] ./helloworld manually raises LogLevel to 'Info' (5). See also file 'orocos.log'.
 0.017 [ Info   ][main()] **** Creating the 'Hello' component ****
-0.018 [ Info   ][ConnectionC] Creating Asyn connection to Event.
+0.018 [ Info   ][ConnectionC] Creating Asyn connection to the_event.
 0.018 [ Info   ][ExecutionEngine::setActivity] Hello is periodic.
 0.019 [ Info   ][main()] **** Starting the 'Hello' component ****
 0.019 [ Info   ][main()] **** Using the 'Hello' component    ****
 0.019 [ Info   ][main()] **** Reading a Property:            ****
-0.019 [ Info   ][main()]      Property = Hello World
+0.019 [ Info   ][main()]      the_property = Hello World
 0.019 [ Info   ][main()] **** Sending a Command:             ****
-0.020 [ Info   ][main()]      Sending Command : 1
+0.020 [ Info   ][main()]      Sending the_command : 1
 0.020 [ Info   ][main()] **** Calling a Method:              ****
-0.020 [ Info   ][main()]      Calling Method : Hello World
+0.020 [ Info   ][main()]      Calling the_Method : Hello World
 0.020 [ Info   ][main()] **** Emitting an Event:             ****
 0.021 [ Info   ][main()] **** Starting the TaskBrowser       ****
 0.021 [ Info   ][TaskBrowser] Creating a BufferConnection from the_buffer_port to the_buffer_port with size 13
 0.021 [ Info   ][TaskBrowser] Connected Port the_buffer_port to peer Task Hello.
-0.022 [ Info   ][Hello] Creating a DataConnection from The_Data_Port to The_Data_Port
-0.022 [ Info   ][Hello] Connected Port The_Data_Port to peer Task TaskBrowser.
+0.022 [ Info   ][Hello] Creating a DataConnection from the_data_port to the_data_port
+0.022 [ Info   ][Hello] Connected Port the_data_port to peer Task TaskBrowser.
    Switched to : Hello
 0.023 [ Info   ][main()] Entering Task Hello
 0.023 [ Info   ][Hello] Hello Command: World
@@ -698,6 +701,9 @@ the_data_port.     cd            ls
 	Schematic Overview of a TaskContext
       </title>
       <mediaobject>
+	<imageobject role="html">
+	  <imagedata fileref="images/ATaskContext" />
+	</imageobject>
 	<imageobject>
 	  <imagedata fileref="images/ATaskContext" />
 	</imageobject>
@@ -788,6 +794,9 @@ the_data_port.     cd            ls
 	Executing a TaskContext
       </title>
       <mediaobject>
+	<imageobject role="html">
+	  <imagedata fileref="images/TaskContextExecution" />
+	</imageobject>
 	<imageobject>
 	  <imagedata fileref="images/TaskContextExecution" />
 	</imageobject>
@@ -902,6 +911,9 @@ the_data_port.     cd            ls
       task to another.
       </para></note>
       <mediaobject>
+	<imageobject role="fop">
+	  <imagedata width="5cm" fileref="images/DataFlowInterface" />
+	</imageobject>
 	<imageobject>
 	  <imagedata fileref="images/DataFlowInterface" />
 	</imageobject>
@@ -1167,6 +1179,9 @@ the_data_port.     cd            ls
       executed like a function. Use it to 'calculate' a result or
       change a parameter.</para></note>
       <mediaobject>
+	<imageobject role="fop">
+	  <imagedata width="5cm" fileref="images/MethodInterface" />
+	</imageobject>
 	<imageobject>
 	  <imagedata fileref="images/MethodInterface" />
 	</imageobject>
@@ -1400,6 +1415,9 @@ the_data_port.     cd            ls
       which can be read and written during runtime, for example, the
       current measured temperature.  </para></note>
       <mediaobject>
+	<imageobject role="fop">
+	  <imagedata width="5cm" fileref="images/PropertyInterface" />
+	</imageobject>
 	<imageobject>
 	  <imagedata fileref="images/PropertyInterface" />
 	</imageobject>
@@ -1536,6 +1554,9 @@ the_data_port.     cd            ls
       this takes time to accomplish. Command functions are, in contrast with methods,
       executed by the receiver.</para></note>
       <mediaobject>
+	<imageobject role="fop">
+	  <imagedata width="5cm" fileref="images/CommandInterface" />
+	</imageobject>
 	<imageobject>
 	  <imagedata fileref="images/CommandInterface" />
 	</imageobject>
@@ -1740,6 +1761,9 @@ the_data_port.     cd            ls
       to subscribers. Use it to 'notify' interested parties of a change
       in the system.</para></note>
       <mediaobject>
+	<imageobject role="fop">
+	  <imagedata width="5cm" fileref="images/EventInterface" />
+	</imageobject>
 	<imageobject>
 	  <imagedata fileref="images/EventInterface" />
 	</imageobject>
@@ -2018,6 +2042,9 @@ the_data_port.     cd            ls
     writer (sender) to reader (receiver).
     </para>
     <mediaobject>
+	<imageobject role="fop">
+	  <imagedata fileref="images/DataFlowTopology" />
+	</imageobject>
 	<imageobject>
 	  <imagedata fileref="images/DataFlowTopology" />
 	</imageobject>
@@ -2131,6 +2158,9 @@ the_data_port.     cd            ls
 	  Component Deployment Levels
 	</title>
 	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="images/DeploymentLevels" />
+	  </imageobject>
 	  <imageobject>
 	    <imagedata fileref="images/DeploymentLevels" />
 	  </imageobject>
@@ -2256,6 +2286,9 @@ the_data_port.     cd            ls
 	  Example Component Deployment.
 	</title>
 	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="images/CoreVsContext" />
+	  </imageobject>
 	  <imageobject>
 	    <imagedata fileref="images/CoreVsContext" />
 	  </imageobject>

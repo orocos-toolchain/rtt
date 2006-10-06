@@ -45,7 +45,7 @@ dochtml: pngimages $(XMLDOCS)
 	${MAKE} $(HTMLDOCS)
 	cp $(srcdir)/../orocos-html.css .
 
-docpdf: gifimages $(XMLDOCS)
+docpdf: pngimages $(XMLDOCS)
 	${MAKE} $(PDFDOCS)
 
 docps: jpgimages $(XMLDOCS)
@@ -58,11 +58,13 @@ epsimages: $(EPSIMGS)
 jpgimages: $(JPGIMGS)
 
 pngimages: $(PNGIMGS)
-	cp $(srcdir)/images/*png images/
+	-cp $(srcdir)/images/*png images/
+	-cp $(srcdir)/images/icons/*png images/icons
 
 tiffimages: $(TIFFIMGS)
 
 gifimages: $(GIFIMGS)
+	-cp $(srcdir)/images/icons/*gif images/icons/
 
 .sgml.html:
 	docbook2html -u $<
@@ -104,6 +106,7 @@ gifimages: $(GIFIMGS)
 %.png:%.dia
 	LC_NUMERIC="C" $(DIA) -t png --nosplash -e $@ $<
 
+# first is for html, second is for pdf.
 %.png:%.svg
 	inkscape -D -d 60 $< -e $@
 

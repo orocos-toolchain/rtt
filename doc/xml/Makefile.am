@@ -33,7 +33,8 @@ PNGS= images/ConfigTool.png images/ConfigToolAdmin.png \
       images/HelloWorld.png images/TaskPeers.png \
       images/ProgramTransitions.png images/ProgramStates.png \
       images/StateTransitions.png images/MachineStates.png \
-      images/TaskCommandSerialisation.png images/Functor.png
+      images/TaskCommandSerialisation.png images/Functor.png \
+      images/FrameworkOverview.png
 
 FOP_STYLESHEET := $(srcdir)/../xsl/orocos.xsl
 HTML_STYLESHEET := $(srcdir)/../xsl/orocos-html.xsl
@@ -59,8 +60,8 @@ docs: prepdocs $(DOC)
 
 prepdocs:
 	mkdir -p images/icons
-	cp $(srcdir)/images/icons/*png images/icons/
+	mkdir -p images/pdf
 
 clean-local:
 	$(RM) $(HTMLDOCS) $(PDFDOCS) $(PSDOCS) $(PDFDOCS) $(TXTDOCS) $(EPSIMGS)
-	$(RM) -r images orocos-html.css
+	$(RM) -r images orocos-html.css orocos-manual.tgz

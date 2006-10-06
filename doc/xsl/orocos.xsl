@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:src="http://nwalsh.com/xmlns/litprog/fragment"
+  xmlns:fo="http://www.w3.org/1999/XSL/Format"
   exclude-result-prefixes="src" version="1.0">
 
 <!-- THIS XSL IS FOR GENERATING FO OUTPUT -->
@@ -22,15 +23,14 @@
 
 <!-- use this to select the tiny 'note','warning',... images format for ps/pdf -->
   <xsl:param name="admon.graphics" select="1"/>
-<!-- assume this xsl sheet is read from a build/doc dir. Otherwise, uncomment online url below -->
-<!--   <xsl:param name="admon.graphics.path" select="'../../doc/images/icons/'"/> -->
-  <xsl:param name="admon.graphics.path" select="'http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/images/icons/'"/>
-  <xsl:param name="admon.graphics.extension" select="'.gif'"/>
+  <xsl:param name="admon.graphics.path" select="'images/icons/'"/>
+  <xsl:param name="admon.graphics.extension" select="'.png'"/>
 
   <xsl:param name="shade.verbatim" select="1"></xsl:param>
 
-<!-- use this to select the image type used for pdf / ps output across all files. -->
-  <xsl:param name="graphic.default.extension" select="'gif'"></xsl:param>
+  <!-- use this to select the image type used for pdf / ps output across all files. -->
+  <!-- 'gif' is natively supported by fop, 'png' requires the SUN 'jimi-1.0' library. -->
+  <xsl:param name="graphic.default.extension" select="'png'"></xsl:param>
 
   <xsl:param name="hyphenate.verbatim" select="0"></xsl:param>
 
@@ -97,6 +97,17 @@
 <!--   <xsl:param name="linenumbering.extension" select="0"></xsl:param> -->
 <!--   <xsl:param name="use.extensions" select="1"></xsl:param> -->
 
-
+<!-- Caption below figure -->
+<xsl:template match="figure">
+  <xsl:variable name="id">
+    <xsl:call-template name="object.id"/>
+  </xsl:variable>
+  
+  <fo:block id="{$id}"
+	    xsl:use-attribute-sets="formal.object.properties">
+    <xsl:apply-templates/>
+    <xsl:call-template name="formal.object.heading"/>
+  </fo:block>
+</xsl:template>
 
 </xsl:stylesheet>

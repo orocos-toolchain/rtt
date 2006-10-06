@@ -1,23 +1,40 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://web.resource.org/cc/"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="841.88976pt"
-   height="595.27559pt"
-   viewBox="20 0 28 21"
-   id="svg2"
+   width="297mm"
+   height="210mm"
+   id="svg1485"
    sodipodi:version="0.32"
-   inkscape:version="0.42"
-   sodipodi:docname="ApplicationStack.svg"
-   sodipodi:docbase="/home/sspr/src/orocos-trunk/doc">
+   inkscape:version="0.43"
+   sodipodi:docbase="/home/sspr/src/orocos-trunk/doc/xml/images"
+   sodipodi:docname="ApplicationStack.svg">
+  <defs
+     id="defs1487" />
+  <sodipodi:namedview
+     inkscape:document-units="mm"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.89632969"
+     inkscape:cx="485.87033"
+     inkscape:cy="435.25117"
+     inkscape:current-layer="layer1"
+     id="namedview1489"
+     inkscape:window-width="965"
+     inkscape:window-height="706"
+     inkscape:window-x="51"
+     inkscape:window-y="0" />
   <metadata
-     id="metadata97">
+     id="metadata1491">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
@@ -27,339 +44,222 @@
       </cc:Work>
     </rdf:RDF>
   </metadata>
-  <defs
-     id="defs95">
-    <linearGradient
-       inkscape:collect="always"
-       id="linearGradient1412">
-      <stop
-         style="stop-color:#00bcff;stop-opacity:1;"
-         offset="0"
-         id="stop1414" />
-      <stop
-         style="stop-color:#00bcff;stop-opacity:0;"
-         offset="1"
-         id="stop1416" />
-    </linearGradient>
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient1412"
-       id="linearGradient1418"
-       x1="19.267443"
-       y1="4.5174417"
-       x2="19.267443"
-       y2="18.520147"
-       gradientUnits="userSpaceOnUse" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient1412"
-       id="linearGradient1420"
-       x1="19.267443"
-       y1="4.5174417"
-       x2="19.267443"
-       y2="18.520147"
-       gradientUnits="userSpaceOnUse" />
-  </defs>
-  <sodipodi:namedview
-     inkscape:window-height="706"
-     inkscape:window-width="965"
-     inkscape:pageshadow="2"
-     inkscape:pageopacity="0.0"
-     borderopacity="1.0"
-     bordercolor="#666666"
-     pagecolor="#ffffff"
-     id="base"
-     inkscape:document-units="px"
-     inkscape:zoom="0.46230688"
-     inkscape:cx="491.21792"
-     inkscape:cy="480.35501"
-     inkscape:window-x="51"
-     inkscape:window-y="0"
-     inkscape:current-layer="svg2" />
-  <rect
-     style="fill:url(#linearGradient1418);fill-opacity:1.0"
-     x="44.328487"
-     y="4.5116277"
-     width="3.0000000"
-     height="14.000000"
-     id="rect4" />
-  <rect
-     style="fill:none;fill-opacity:0.0000000;stroke:#00bcff;stroke-width:0.10000000"
-     x="44.328487"
-     y="4.5116277"
-     width="3.0000000"
-     height="14.000000"
-     id="rect6" />
-  <rect
-     style="fill:url(#linearGradient1420);fill-opacity:1.0"
-     x="20.328489"
-     y="4.5116277"
-     width="3.0000000"
-     height="14.000000"
-     id="rect8" />
-  <rect
-     style="fill:none;fill-opacity:0.0000000;stroke:#00bcff;stroke-width:0.10000000"
-     x="20.328489"
-     y="4.5116277"
-     width="3.0000000"
-     height="14.000000"
-     id="rect10" />
-  <rect
-     style="fill:#ff0000"
-     x="23.328489"
-     y="16.511627"
-     width="10.000000"
-     height="2.0000000"
-     id="rect12" />
-  <rect
-     style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
-     x="23.328489"
-     y="16.511627"
-     width="10.000000"
-     height="2.0000000"
-     id="rect14" />
-  <rect
-     style="fill:#ff0000"
-     x="34.328487"
-     y="16.511627"
-     width="10.000000"
-     height="2.0000000"
-     id="rect16" />
-  <rect
-     style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
-     x="34.328487"
-     y="16.511627"
-     width="10.000000"
-     height="2.0000000"
-     id="rect18" />
-  <rect
-     style="fill:#ff3900"
-     x="23.328489"
-     y="12.511628"
-     width="10.000000"
-     height="4.0000000"
-     id="rect20" />
-  <rect
-     style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
-     x="23.328489"
-     y="12.511628"
-     width="10.000000"
-     height="4.0000000"
-     id="rect22" />
-  <rect
-     style="fill:#ffa500"
-     x="23.328489"
-     y="10.511628"
-     width="10.000000"
-     height="2.0000000"
-     id="rect24" />
-  <rect
-     style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
-     x="23.328489"
-     y="10.511628"
-     width="10.000000"
-     height="2.0000000"
-     id="rect26" />
-  <text
-     style="font-size:0.90311112;font-style:italic;font-weight:bold;text-anchor:middle;fill:#000000;font-family:Serif;font-stretch:normal;font-variant:normal;text-align:center;writing-mode:lr;line-height:125.00000%"
-     x="28.27849"
-     y="17.761627"
-     id="text28"
-     sodipodi:linespacing="125%">Hardware Target</text>
-  <text
-     style="font-size:1.0000000;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
-     x="28.328489"
-     y="15.511628"
-     id="text30">Operating System</text>
-  <text
-     style="fill: #000000; text-anchor:middle; font-size: 0.8; font-family: sans; font-style: normal; font-weight: normal"
-     x="28"
-     y="15"
-     id="text32" />
-  <text
-     style="font-size:0.79022223;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:Sans;font-stretch:normal;font-variant:normal;text-align:center;writing-mode:lr;line-height:125.00000%"
-     x="28.27849"
-     y="11.761628"
-     id="text34"
-     sodipodi:linespacing="125%">Orocos OS Abstration</text>
-  <rect
-     style="fill:#00bcff"
-     x="20.328489"
-     y="0.51162791"
-     width="27.000000"
-     height="4.0000000"
-     id="rect36" />
-  <rect
-     style="fill:none;fill-opacity:0.0000000;stroke:#00bcff;stroke-width:0.10000000"
-     x="20.328489"
-     y="0.51162791"
-     width="27.000000"
-     height="4.0000000"
-     id="rect38" />
-  <text
-     style="font-size:0.80000001;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
-     x="28.328489"
-     y="13.511628"
-     id="text40">Threads, Mutexes,</text>
-  <text
-     style="font-size:0.80000001;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
-     x="28.328489"
-     y="14.311628"
-     id="text42">Semaphores</text>
-  <rect
-     style="fill:#7ccb14"
-     x="23.328489"
-     y="4.5116277"
-     width="10.000000"
-     height="6.0000000"
-     id="rect44" />
-  <rect
-     style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
-     x="23.328489"
-     y="4.5116277"
-     width="10.000000"
-     height="6.0000000"
-     id="rect46" />
-  <text
-     style="font-size:1.0000000;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
-     x="28.228489"
-     y="10.111629"
-     id="text48">Orocos CoreLib</text>
-  <text
-     style="font-size:0.56444445;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:Sans;font-stretch:normal;font-variant:normal;text-align:center;writing-mode:lr;line-height:125.00000%"
-     x="28.228489"
-     y="9.1116285"
-     id="text50"
-     sodipodi:linespacing="125%">Activities,Events,Buffers,Properties,..</text>
-  <text
-     style="fill: #000000; text-anchor:middle; font-size: 0.8; font-family: sans; font-style: normal; font-weight: normal"
-     x="40"
-     y="18"
-     id="text52" />
-  <text
-     style="font-size:0.90311112;font-style:italic;font-weight:bold;text-anchor:middle;fill:#000000;font-family:Sans;font-stretch:normal;font-variant:normal;text-align:center;writing-mode:lr;line-height:125.00000%"
-     x="39.328487"
-     y="17.736628"
-     id="text54"
-     sodipodi:linespacing="125%">Hardware Devices</text>
-  <rect
-     style="fill:#ff3900"
-     x="34.328487"
-     y="12.511628"
-     width="10.000000"
-     height="4.0000000"
-     id="rect56" />
-  <rect
-     style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
-     x="34.328487"
-     y="12.511628"
-     width="10.000000"
-     height="4.0000000"
-     id="rect58" />
-  <text
-     style="font-size:1.0000000;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
-     x="39.328487"
-     y="14.711628"
-     id="text60">Operating System</text>
-  <text
-     style="font-size:1.0000000;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
-     x="39.328487"
-     y="15.711629"
-     id="text62">Device Drivers</text>
-  <text
-     style="font-size:0.79022223;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:Sans;font-stretch:normal;font-variant:normal;text-align:center;writing-mode:lr;line-height:125.00000%"
-     x="28.228489"
-     y="7.1116276"
-     id="text64"
-     sodipodi:linespacing="125%">Orocos Real-Time</text>
-  <text
-     style="font-size:1.0000000;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
-     x="28.228489"
-     y="8.1116285"
-     id="text66">Toolkit</text>
-  <text
-     style="font-size:0.80000001;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
-     x="28.478489"
-     y="5.3116279"
-     id="text68">Component Interface,</text>
-  <text
-     style="font-size:0.80000001;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
-     x="28.478489"
-     y="6.1116276"
-     id="text70">State Machines,...</text>
-  <text
-     style="font-size:1.2000000;font-style:italic;font-weight:700;text-anchor:middle;fill:#000000;font-family:serif"
-     x="39.328487"
-     y="20.511627"
-     id="text72">Orocos Application Stack</text>
-  <text
-     style="font-size:1.5000000;font-style:italic;font-weight:700;text-anchor:middle;fill:#000000;font-family:sans"
-     x="33.828587"
-     y="2.8866279"
-     id="text74">Your Component</text>
-  <rect
-     style="fill:#ffa500"
-     x="34.328487"
-     y="10.461628"
-     width="10.000000"
-     height="2.0500000"
-     id="rect76" />
-  <rect
-     style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
-     x="34.328487"
-     y="10.461628"
-     width="10.000000"
-     height="2.0500000"
-     id="rect78" />
-  <text
-     style="font-size:0.79022223;font-style:normal;font-weight:normal;text-anchor:middle;fill:#000000;font-family:Sans;font-stretch:normal;font-variant:normal;text-align:center;writing-mode:lr;line-height:125.00000%"
-     x="39.278488"
-     y="11.761628"
-     id="text80"
-     sodipodi:linespacing="125%">Orocos Device Interface</text>
-  <rect
-     style="fill:#7ccb14"
-     x="34.328487"
-     y="4.5116277"
-     width="10.000000"
-     height="6.0000000"
-     id="rect82" />
-  <rect
-     style="fill:none;fill-opacity:0.0000000;stroke:#000000;stroke-width:0.10000000"
-     x="34.328487"
-     y="4.5116277"
-     width="10.000000"
-     height="6.0000000"
-     id="rect84" />
-  <text
-     style="font-size:0.80000001;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
-     x="39.328487"
-     y="6.5116277"
-     id="text88">Robots, Machines,</text>
-  <text
-     style="font-size:0.80000001;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:sans"
-     x="39.328487"
-     y="7.3116279"
-     id="text90">Axes, Sensors,...</text>
-  <text
-     style="font-size:0.56444445;font-style:italic;font-weight:normal;text-anchor:middle;fill:#000000;font-family:Sans;font-stretch:normal;font-variant:normal;text-align:center;writing-mode:lr;line-height:125.00000%"
-     x="39.328487"
-     y="13.511628"
-     id="text92"
-     sodipodi:linespacing="125%">A/D IO, CANOpen, Encoders,...</text>
-  <text
-     xml:space="preserve"
-     style="font-size:1.0160000px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125.00000%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Sans"
-     x="39.245934"
-     y="8.6916161"
-     id="text1430"
-     sodipodi:linespacing="125.00000%"><tspan
-       sodipodi:role="line"
-       id="tspan1432"
-       x="39.245933"
-       y="8.6916161">Orocos Device</tspan><tspan
-       sodipodi:role="line"
-       x="39.245934"
-       y="9.9616161"
-       id="tspan1434">Objects</tspan></text>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#ff0000;stroke:#000000;stroke-opacity:1;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none"
+       x="250.26053"
+       y="532.52136"
+       width="226.47231"
+       height="45.294464"
+       id="rect12" />
+    <rect
+       style="fill:#ff0000;stroke:#000000;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       x="477.38004"
+       y="532.52136"
+       width="226.47231"
+       height="45.294464"
+       id="rect16" />
+    <rect
+       style="fill:#ff3900;stroke:#000000;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       x="250.26039"
+       y="478.80548"
+       width="226.47224"
+       height="54.170925"
+       id="rect20" />
+    <rect
+       style="fill:#ffa500;stroke:#000000;stroke-opacity:1;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none"
+       x="250.26053"
+       y="432.43042"
+       width="226.47231"
+       height="45.294464"
+       id="rect24" />
+    <text
+       style="font-size:17.89634514px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:119.00000572%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;font-family:Bitstream Vera Sans"
+       x="143.43811"
+       y="560.83038"
+       id="text28"
+       sodipodi:linespacing="119.00001%">Hardware Target</text>
+    <text
+       style="font-size:17.89634514px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:119.00000572%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;font-family:Bitstream Vera Sans"
+       x="144.36002"
+       y="514.09088"
+       id="text30"
+       sodipodi:linespacing="119.00001%">Operating System</text>
+    <text
+       style="font-size:17.89634514px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:119.00000572%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;font-family:Bitstream Vera Sans"
+       x="144.36438"
+       y="460.73947"
+       id="text34"
+       sodipodi:linespacing="119.00001%">Orocos OS Abstration</text>
+    <rect
+       style="fill:#7ccb14;stroke:#000000;stroke-opacity:1;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none"
+       x="250.26053"
+       y="296.54739"
+       width="226.47231"
+       height="135.88338"
+       id="rect44" />
+    <rect
+       style="fill:#ff3900;stroke:#000000;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       x="477.38004"
+       y="478.80548"
+       width="226.47224"
+       height="54.170925"
+       id="rect2260" />
+    <rect
+       style="fill:#ffa500;stroke:#000000;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       x="477.38004"
+       y="431.29807"
+       width="226.47231"
+       height="46.426823"
+       id="rect76" />
+    <rect
+       style="fill:#7ccb14;stroke:#000000;stroke-width:4.99999762;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       x="477.38004"
+       y="367.77838"
+       width="226.47231"
+       height="65.939041"
+       id="rect82" />
+    <text
+       xml:space="preserve"
+       style="font-size:17.89634514px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:119.00000572%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="146.7851"
+       y="345.79639"
+       id="text2262"
+       sodipodi:linespacing="119.00001%"><tspan
+         sodipodi:role="line"
+         id="tspan2264"
+         x="146.78509"
+         y="345.79639">Real-Time Toolkit</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:17.89634514px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:119.00000572%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="145.20041"
+       y="401.14273"
+       id="text2401"
+       sodipodi:linespacing="119.00001%"><tspan
+         sodipodi:role="line"
+         id="tspan2403"
+         x="145.20041"
+         y="401.14273">Corelib</tspan></text>
+    <text
+       style="font-size:17.89634514px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:119.00000572%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;font-family:Bitstream Vera Sans"
+       x="356.35175"
+       y="563.6416"
+       id="text2405"
+       sodipodi:linespacing="119.00001%">CPU/MotherBoard</text>
+    <text
+       xml:space="preserve"
+       style="font-size:17.89634514px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:119.00000572%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="365.01151"
+       y="512.03699"
+       id="text2411"
+       sodipodi:linespacing="119.00001%"><tspan
+         sodipodi:role="line"
+         id="tspan2413"
+         x="365.01151"
+         y="512.03699">Threads, Networking,...</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:17.89634514px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:119.00000572%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="357.4332"
+       y="462.25397"
+       id="text2415"
+       sodipodi:linespacing="119.00001%"><tspan
+         sodipodi:role="line"
+         id="tspan2417"
+         x="357.4332"
+         y="462.25397">OS Interface</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:18.11777687px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans"
+       x="364.9296"
+       y="392.97452"
+       id="text2419"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2421"
+         x="364.92959"
+         y="392.97452">Properties, Events,</tspan><tspan
+         sodipodi:role="line"
+         x="364.92959"
+         y="415.62174"
+         id="tspan2423">Activities, Commands,...</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:18.11777687px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans"
+       x="361.62357"
+       y="329.49033"
+       id="text2425"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="364.50755"
+         y="329.49033"
+         id="tspan2429">Component Execution, </tspan><tspan
+         sodipodi:role="line"
+         x="361.62357"
+         y="352.13755"
+         id="tspan2431">State Machines,...</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:18.11777687px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Sans"
+       x="591.51721"
+       y="404.74319"
+       id="text2435"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2437"
+         x="591.51721"
+         y="404.74319">Encoders, Sensors,...</tspan></text>
+    <text
+       style="font-size:17.89634514px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:119.00000572%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;font-family:Bitstream Vera Sans"
+       x="580.79333"
+       y="563.19489"
+       id="text2443"
+       sodipodi:linespacing="119.00001%">IO</text>
+    <text
+       xml:space="preserve"
+       style="font-size:17.89634514px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:119.00000572%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="589.45306"
+       y="511.59027"
+       id="text2445"
+       sodipodi:linespacing="119.00001%"><tspan
+         sodipodi:role="line"
+         id="tspan2447"
+         x="589.45307"
+         y="511.59027">Device Drivers</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:17.89634514px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:119.00000572%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="581.87476"
+       y="461.80728"
+       id="text2449"
+       sodipodi:linespacing="119.00001%"><tspan
+         sodipodi:role="line"
+         id="tspan2451"
+         x="581.87476"
+         y="461.80728">Device Interface</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:17.89634514px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:119.00000572%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="476.00003"
+       y="264.3381"
+       id="text2453"
+       sodipodi:linespacing="119.00001%"><tspan
+         sodipodi:role="line"
+         id="tspan2455"
+         x="476.00003"
+         y="264.3381">Orocos Component</tspan></text>
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:5.31496063;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="M 251.02371,368.11675 L 475.27155,368.11675"
+       id="path2461" />
+    <path
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 249.90805,288.90483 L 484.19684,288.90483 L 484.19684,360.30713 L 702.86638,360.30713 L 702.86638,220.84951 L 249.90805,220.84951 C 249.90805,220.84951 249.90804,288.90483 249.90805,288.90483 z "
+       id="path3340"
+       sodipodi:nodetypes="ccccccc" />
+  </g>
 </svg>

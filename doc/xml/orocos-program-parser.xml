@@ -989,7 +989,7 @@
 	  <imageobject role="html">
 	    <imagedata contentwidth="600px" width="600px" align="center" fileref="images/ReactiveState"/>
 	  </imageobject>
-	  <imageobject role="fop">
+	  <imageobject role="fo">
 	    <imagedata contentwidth="14cm" fileref="images/ReactiveState" align="center" />
 	  </imageobject>
 	</mediaobject>
@@ -1044,7 +1044,7 @@
 	  <imageobject role="html">
 	    <imagedata contentwidth="300px" width="300px" align="center" fileref="images/AutomaticState"/>
 	  </imageobject>
-	  <imageobject role="fop">
+	  <imageobject role="fo">
 	    <imagedata contentwidth="7cm" width="7cm" align="center"  fileref="images/AutomaticState"/>
 	  </imageobject>
 	  <caption><para>The automatic mode additionally actively evaluates

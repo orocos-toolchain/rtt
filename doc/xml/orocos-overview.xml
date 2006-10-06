@@ -198,6 +198,9 @@
 	  Orocos Real-Time Toolkit
 	</title>
 	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="images/RealTimeToolkit" />
+	  </imageobject>
 	  <imageobject>
 	    <imagedata fileref="images/RealTimeToolkit" />
 	  </imageobject>
@@ -237,6 +240,9 @@
 	    Orocos Control Component Interface
 	  </title>
 	  <mediaobject>
+	    <imageobject role="html">
+	      <imagedata fileref="images/ComponentInterface" />
+	  </imageobject>
 	    <imageobject>
 	      <imagedata fileref="images/ComponentInterface" />
 	  </imageobject>
@@ -328,6 +334,9 @@
 	    Orocos Control Component State Machines.
 	  </title>
 	  <mediaobject>
+	    <imageobject role="html">
+	      <imagedata fileref="images/ComponentImplementation" />
+	  </imageobject>
 	    <imageobject>
 	      <imagedata fileref="images/ComponentImplementation" />
 	  </imageobject>
