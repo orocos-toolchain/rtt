@@ -468,17 +468,6 @@ OROCOS_OUTPUT_INFO
 	        TARGET_LIBS="$TARGET_LIBS -lpthread"
                 ],
     [
-    AC_ARG_WITH(rtai,
-            [AC_HELP_STRING([--with-rtai],[Use RTAI (non-LXRT)])],
-            [
-            AC_MSG_RESULT(RTAI)
-	    ECOS_TARGET=rtai
-            if test $with_linux_given == false; then
-		AC_MSG_ERROR([
-You must specify the location of your patched linux kernel headers when using RTAI.
-For example : --with-linux=/usr/src/linux-rtai])
-	    fi
-    ],
     [
     AC_ARG_WITH(lxrt,
             [AC_HELP_STRING([--with-lxrt[=/usr/realtime] ],[Use Lxrt, specify installation directory])],
@@ -527,7 +516,6 @@ dnl Default to gnulinux
                 ECOS_TARGET=gnulinux
             ]
             )
-    ])
     ])
     ])
     ])
