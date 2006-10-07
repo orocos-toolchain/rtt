@@ -468,7 +468,6 @@ OROCOS_OUTPUT_INFO
 	        TARGET_LIBS="$TARGET_LIBS -lpthread"
                 ],
     [
-    [
     AC_ARG_WITH(lxrt,
             [AC_HELP_STRING([--with-lxrt[=/usr/realtime] ],[Use Lxrt, specify installation directory])],
             [
@@ -788,7 +787,8 @@ and rerun the bootstrap.sh script
 m4_define([DETECT_RTAI],
 [
 AC_MSG_CHECKING(for RTAI/LXRT Installation)
-AC_ARG_WITH(lxrt, [ --with-lxrt[=/usr/realtime] Specify location of RTAI/LXRT ],
+AC_ARG_WITH(lxrt, 
+	[AC_HELP_STRING([--with-lxrt[=/usr/realtime]],[Specify location of RTAI/LXRT.])],
 	[ if test x"$withval" != xyes; then RTAI_DIR="$withval"; fi ])
 AC_ARG_WITH(linux,
 	 [AC_HELP_STRING([--with-linux],[Specify RTAI-patched Linux directory (without /include).])],
