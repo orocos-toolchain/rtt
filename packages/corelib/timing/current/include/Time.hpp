@@ -66,7 +66,7 @@ namespace RTT
     const long MSECS_IN_SECS = 1000;
     const long USECS_IN_SECS = 1000 * MSECS_IN_SECS;
     const long NSECS_IN_SECS = 1000 * USECS_IN_SECS;
-    const long PSECS_IN_SECS = 1000 * NSECS_IN_SECS;
+    const long PSECS_IN_SECS = 1000LL * NSECS_IN_SECS;
 
     const long USECS_IN_MSECS = 1000;
     const long NSECS_IN_MSECS = 1000 * USECS_IN_MSECS;
