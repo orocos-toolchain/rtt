@@ -251,3 +251,13 @@ void PropertyTest::testMarshalling()
     deleteProperties(bag);
 #endif
 }
+
+void PropertyTest::testInit()
+{
+    // See if this compiles fine:
+    // detects collisions with other constructors...
+    Property<unsigned int> pui("PUI","", 0 );
+    Property<int> pi("PI","", 0 );
+    Property<bool> pb("PB","", false );
+    CPPUNIT_ASSERT(true);
+}

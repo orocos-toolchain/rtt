@@ -135,7 +135,7 @@ namespace RTT
          * @post ready() will be true if datasource is a valid pointer.
          */
         Property(const std::string& name, const std::string& description,
-                 AssignableDataSource<DataSourceType>* datasource )
+                 typename AssignableDataSource<DataSourceType>::shared_ptr datasource )
             : PropertyBase(name, description), _value( datasource )
         {}
 
