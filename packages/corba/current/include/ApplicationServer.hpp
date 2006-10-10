@@ -30,7 +30,7 @@
 #define ORO_APPLICATION_SERVER_HPP
 
 #include <tao/corba.h>
-#include <tao/PortableServer/PortableServerC.h>
+#include <tao/PortableServer/PortableServer.h>
 
 namespace RTT
 {namespace Corba

@@ -40,14 +40,6 @@ public:
         return true;
     }
 
-    virtual CosNotifyChannelAdmin::EventChannelFactory_ptr getEventChannelFactory()
-        ACE_THROW_SPEC ((
-                         CORBA::SystemException
-                         ))
-    {
-        return RTT::Corba::Services::getEventChannelFactory();
-    }
-
     virtual CosNaming::NamingContext_ptr getNamingContext()
         ACE_THROW_SPEC ((
                          CORBA::SystemException
