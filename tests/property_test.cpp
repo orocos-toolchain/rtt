@@ -119,13 +119,13 @@ void PropertyTest::testBags()
     CPPUNIT_ASSERT( bag.find( "pi1" ) == pi1 );
 
     // recursive search :
-    CPPUNIT_ASSERT( find( bag, "/pf", "/" ) == 0 );
-    CPPUNIT_ASSERT( find( bag, "::pi1" ) == pi1 ); // default is ::
-    CPPUNIT_ASSERT( find( bag, "s1" ) == &subbag1 );
-    CPPUNIT_ASSERT( find( bag, "pi1" ) == pi1 );
-    CPPUNIT_ASSERT( find( bag, "/s1/s2", "/" ) == &subbag2 );
-    CPPUNIT_ASSERT( find( bag, "/s1/s2/ps", "/" ) == &ps );
-    CPPUNIT_ASSERT( find( bag, "s1::s2::pc" ) == &pc );
+    CPPUNIT_ASSERT( findProperty( bag, "/pf", "/" ) == 0 );
+    CPPUNIT_ASSERT( findProperty( bag, "::pi1" ) == pi1 ); // default is ::
+    CPPUNIT_ASSERT( findProperty( bag, "s1" ) == &subbag1 );
+    CPPUNIT_ASSERT( findProperty( bag, "pi1" ) == pi1 );
+    CPPUNIT_ASSERT( findProperty( bag, "/s1/s2", "/" ) == &subbag2 );
+    CPPUNIT_ASSERT( findProperty( bag, "/s1/s2/ps", "/" ) == &ps );
+    CPPUNIT_ASSERT( findProperty( bag, "s1::s2::pc" ) == &pc );
                     
 }
 void PropertyTest::testBagOperations()
@@ -238,14 +238,14 @@ void PropertyTest::testMarshalling()
 
     CPPUNIT_ASSERT( bag.find("Wrench") != 0 );
 
-    CPPUNIT_ASSERT( find( bag, "Wrench::Force" ) != 0 );
-    CPPUNIT_ASSERT( find( bag, "Wrench::Force::X" ) != 0 );
-    CPPUNIT_ASSERT( find( bag, "Wrench::Force::Y" ) != 0 );
-    CPPUNIT_ASSERT( find( bag, "Wrench::Force::Z" ) != 0 );
-    CPPUNIT_ASSERT( find( bag, "Wrench::Torque" ) != 0 );
-    CPPUNIT_ASSERT( find( bag, "Wrench::Torque::X" ) != 0 );
-    CPPUNIT_ASSERT( find( bag, "Wrench::Torque::Y" ) != 0 );
-    CPPUNIT_ASSERT( find( bag, "Wrench::Torque::Z" ) != 0 );
+    CPPUNIT_ASSERT( findProperty( bag, "Wrench::Force" ) != 0 );
+    CPPUNIT_ASSERT( findProperty( bag, "Wrench::Force::X" ) != 0 );
+    CPPUNIT_ASSERT( findProperty( bag, "Wrench::Force::Y" ) != 0 );
+    CPPUNIT_ASSERT( findProperty( bag, "Wrench::Force::Z" ) != 0 );
+    CPPUNIT_ASSERT( findProperty( bag, "Wrench::Torque" ) != 0 );
+    CPPUNIT_ASSERT( findProperty( bag, "Wrench::Torque::X" ) != 0 );
+    CPPUNIT_ASSERT( findProperty( bag, "Wrench::Torque::Y" ) != 0 );
+    CPPUNIT_ASSERT( findProperty( bag, "Wrench::Torque::Z" ) != 0 );
 
     flattenPropertyBag(bag);
     deleteProperties(bag);
@@ -260,4 +260,53 @@ void PropertyTest::testInit()
     Property<int> pi("PI","", 0 );
     Property<bool> pb("PB","", false );
     CPPUNIT_ASSERT(true);
+}
+
+void PropertyTest::testUpdate()
+{
+    PropertyBag source;
+    PropertyBag target;
+
+    Property<PropertyBag> b1("b1","");
+    Property<PropertyBag> b2("b2","");
+    Property<int> p1("p1","",-1);
+
+    Property<PropertyBag> b1c("b1","");
+    Property<PropertyBag> b2c("b2","");
+    Property<int> p1c("p1","",0);
+
+    // setup source tree
+    source.addProperty( &b1 );
+    b1.value().addProperty( &b2 );
+    b2.value().addProperty( &p1 );
+
+    // update case:
+    // setup target tree
+    target.addProperty( &b1c );
+    b1c.value().addProperty( &b2c );
+    b2c.value().addProperty( &p1c );
+
+    CPPUNIT_ASSERT( p1.get() != p1c.get() );
+
+    CPPUNIT_ASSERT( updateProperty(target, source, "b1/b2/p1", "/") );
+
+    CPPUNIT_ASSERT( p1.get() == -1 );
+    CPPUNIT_ASSERT( p1c.get() == -1 );
+
+    // creation case:
+    target.removeProperty(&b1);
+    CPPUNIT_ASSERT( updateProperty(target, source, "b1/b2/p1", "/") );
+
+    Property<PropertyBag>* bag = target.getProperty<PropertyBag>("b1");
+    CPPUNIT_ASSERT( bag );
+    CPPUNIT_ASSERT( bag->getName() == "b1" );
+    bag = bag->get().getProperty<PropertyBag>("b2");
+    CPPUNIT_ASSERT( bag );
+    CPPUNIT_ASSERT( bag->getName() == "b2" );
+
+    Property<int>* res = bag->get().getProperty<int>("p1");
+    CPPUNIT_ASSERT( res );
+    CPPUNIT_ASSERT( res->getName() == "p1" );
+    CPPUNIT_ASSERT( res->get() == -1 );
+    
 }

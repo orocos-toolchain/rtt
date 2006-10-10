@@ -165,7 +165,7 @@ namespace RTT
         return *this;
     }
 
-    PropertyBase* find(const PropertyBag& bag, const std::string& nameSequence, const std::string& separator)
+    PropertyBase* findProperty(const PropertyBag& bag, const std::string& nameSequence, const std::string& separator)
     {
         PropertyBase* result;
         Property<PropertyBag>*  result_bag;
@@ -189,7 +189,7 @@ namespace RTT
         {
             result_bag = dynamic_cast<Property<PropertyBag>*>(result);
             if ( result_bag != 0 && start != std::string::npos ) {
-                return find( result_bag->get(), nameSequence.substr( start ), separator );// a bag so search recursively
+                return findProperty( result_bag->rvalue(), nameSequence.substr( start ), separator );// a bag so search recursively
             }
             else
                 return result; // not a bag, so it is a result.
@@ -197,28 +197,43 @@ namespace RTT
         return 0; // failure
     }
 
-    bool refreshProperties(const PropertyBag& target, const PropertyBag& source)
+    bool refreshProperties(const PropertyBag& target, const PropertyBag& source, bool allprops)
     {
+        Logger::In in("refreshProperties");
         //iterate over source, update PropertyBases
-        PropertyBag::const_iterator it( source.getProperties().begin() );
-        while ( it != source.getProperties().end() )
+        PropertyBag::const_iterator it( target.getProperties().begin() );
+        bool failure = false;
+        while ( it != target.getProperties().end() )
         {
-            PropertyBase* mine = target.find( (*it)->getName() );
-            if (mine != 0)
+            PropertyBase* srcprop = source.find( (*it)->getName() );
+            PropertyBase* tgtprop = *it;
+            if (srcprop != 0)
             {
                 //std::cout <<"*******************refresh"<<std::endl;
-                if ( mine->refresh( (*it) ) == false ) {
-                    Logger::log() << Logger::Error;
-                    Logger::log() << "refreshProperties: Could not refresh Property "
-                                  << mine->getType() << " "<< (*it)->getName()
-                                  << ": type mismatch, can not update with type "
-                                  << (*it)->getType() << Logger::endl;
-                    return false;
+                if ( tgtprop->refresh( srcprop ) == false ) {
+                    // try composition:
+                    if ( tgtprop->getTypeInfo()->composeType( srcprop->getDataSource(), tgtprop->getDataSource() ) == false ) {
+                        log(Error) << "Could not update, nor compose Property "
+                                   << tgtprop->getType() << " "<< srcprop->getName()
+                                   << ": type mismatch, can not refresh with type "
+                                   << srcprop->getType() << endlog();
+                        failure = true;
+                    } else {
+                        log(Debug) << "Composed Property "
+                                      << tgtprop->getType() << " "<< srcprop->getName()
+                                      << " from type "  << srcprop->getType() << endlog();
+                    }
                 }
+                // ok.
+            } else if (allprops) {
+                log(Error) << "Could not find Property "
+                           << tgtprop->getType() << " "<< tgtprop->getName()
+                           << " in source."<< endlog();
+                failure = true;
             }
             ++it;
         }
-        return true;
+        return !failure;
     }
 
     bool refreshProperty(const PropertyBag& target, const PropertyBase& source)
@@ -314,6 +329,70 @@ namespace RTT
             ++it;
         }
         return true;
+    }
+
+    bool updateProperty(PropertyBag& target, const PropertyBag& source, const std::string& name, const std::string& separator)
+    {
+        Logger::In in("updateProperty");
+        // this code has been copied&modified from findProperty().
+        PropertyBase* source_walker;
+        PropertyBase* target_walker;
+        std::string token;
+        std::string::size_type start = 0;
+        if ( separator.length() != 0 && name.find(separator) == 0 ) // detect 'root' attribute
+            start = separator.length();
+        std::string::size_type len = name.find(separator, start);
+        if (len != std::string::npos) {
+            token = name.substr(start,len-start);
+            start = len + separator.length();      // reset start to next token.
+            if ( start >= name.length() )
+                start = std::string::npos;
+        }
+        else {
+            token = name.substr(start);
+            start = std::string::npos; // do not look further.
+        }
+        source_walker = source.find(token);
+        target_walker = target.find(token);
+        if (source_walker != 0 )
+        {
+            if ( target_walker == 0 ) {
+                // if not present in target, create it !
+                target_walker = source_walker->create();
+                target.addProperty( target_walker );
+            }
+            Property<PropertyBag>*  source_walker_bag;
+            Property<PropertyBag>*  target_walker_bag;
+            source_walker_bag = dynamic_cast<Property<PropertyBag>*>(source_walker);
+            target_walker_bag = dynamic_cast<Property<PropertyBag>*>(target_walker);
+            if ( source_walker_bag != 0 && start != std::string::npos ) {
+                if ( target_walker_bag == 0 ) {
+                    log(Error) << "Property '"<<target_walker->getName()<<"' is not a PropertyBag !"<<endlog();
+                    return false;
+                }
+                return updateProperty( target_walker_bag->value(), source_walker_bag->rvalue(), name.substr( start ), separator );// a bag so search recursively
+            }
+            else {
+                // found it, update !
+                if (target_walker->update(source_walker) == false ) {
+                    // try composition:
+                    if ( target_walker->getTypeInfo()->composeType( source_walker->getDataSource(), target_walker->getDataSource() ) == false ) {
+                        log(Error) << "Could not update nor compose Property "
+                                   << target_walker->getType() << " "<< target_walker->getName()
+                                   << ": type mismatch, can not update with type "
+                                   << source_walker->getType() << Logger::endl;
+                    }
+                }
+                log(Debug) << "Found Property '"<<target_walker->getName() <<"': update done." << endlog();
+                return true;
+            }
+        } else {
+            // error wrong path, not present in source !
+            log(Error) << "Property '"<< token <<"' is not present in the source PropertyBag !"<<endlog();
+            return false;
+        }
+        // not reached.
+        return false; // failure
     }
 
     void deleteProperties(PropertyBag& target)

@@ -82,7 +82,7 @@ namespace RTT
      Property<ClassT> pb = bag.getProperty<ClassT>( "name" ).
      @endverbatim
      * Both will return null if no such property exists.
-	 * @see PropertyBase, Property
+	 * @see PropertyBase, Property, BagOperations
      * @ingroup CoreLibProperties
 	 */
     class PropertyBag
@@ -268,25 +268,26 @@ namespace RTT
         std::string type;
     };
 
-
     /**
-     * Some helper functions to retrieve PropertyBases from
-     * PropertyBags.
-     *
-     * @param bag The bag to look for a Property.
-     * @param nameSequence A sequence of names, separated by
-     *        a double colon indicating the path in the bag to a property,
-     *        omitting the name of the \a bag itself.
-     */
-    PropertyBase* find(const PropertyBag& bag, const std::string& nameSequence, const std::string& separator = std::string("::") );
-
-
-    /**
-     * @defgroup BagOperations These functions operate on the contents of bags,
-     *        possibly modifying, deleting or creating new Property objects.
+     * @defgroup BagOperations Recursive Property Bag Operations.
+     *        These functions operate recursively on the contents of bags,
+     *        possibly modifying, deleting or creating new Property objects
+     *        in the bag or in one of its sub-bags.
      * @ingroup CoreLibProperties
      * @{
      */
+
+    /**
+     * This function locates a Property in nested PropertyBags.
+     *
+     * @param bag The bag to look for a Property.
+     * @param path A sequence of names, separated by
+     *        \a separator indicating the path in the bag to a property,
+     *        omitting the name of the \a bag itself.
+     * @param separator The token to separate properties in the \a path,
+     * Defaults to "::".
+     */
+    PropertyBase* findProperty(const PropertyBag& bag, const std::string& path, const std::string& separator = std::string("::") );
 
     /**
      * This function refreshes the values of the properties in one PropertyBag with
@@ -294,11 +295,19 @@ namespace RTT
      * No new properties will be created.
      *
      * You can use this function to update the properties of a fixed bag.
+     * @param target The bag in which the properties must be refreshed.
+     * @param source The bag containing new values for \a target.
+     * @param strict Set to true if each property of \a target must be updated with a property
+     * or \a source. If a property from \a target is not present in \a source, this function
+     * returns false.
      */
-    bool refreshProperties(const PropertyBag& target, const PropertyBag& source);
+    bool refreshProperties(const PropertyBag& target, const PropertyBag& source, bool strict=false);
 
     /**
      * Refresh one Property in the target bag with the new value.
+     * @param target The bag in which a property with name source->getName() can be found.
+     * @param source A property which contains a new value for a property with the same
+     * name in \a target.
      */
     bool refreshProperty(const PropertyBag& target, const PropertyBase& source);
 
@@ -308,6 +317,8 @@ namespace RTT
      * contains Properties with the same name. Use updateProperties to avoid
      * duplicates and update exiting Properties.
      *
+     * @param target The bag in which the properties must be copied.
+     * @param source The bag containing properties for \a target.
      */
     bool copyProperties(PropertyBag& target, const PropertyBag& source);
 
@@ -318,8 +329,25 @@ namespace RTT
      * is not present in the target and updates existing Properties.
      *
      * Use copyProperties if you want complete duplication.
+     * @param target The bag in which the properties must be updated.
+     * @param source The bag containing new values, descriptions or properties for \a target.
      */
     bool updateProperties(PropertyBag& target, const PropertyBag& source);
+
+    /**
+     * This function updates (recursively) the values of a single Property object of one Bag with the
+     * property of another bag.
+     * It creates a new Property instances if the Property
+     * is not present in the target and updates existing Properties.
+     *
+     * Use copyProperties if you want complete duplication.
+     * @param target The bag in which the property must be updated.
+     * @param source The bag containing \a prop as one of its children.
+     * @param path The path to a property in \a source (or in a sub-bag of \a source), 
+     * which must be created or updated in \a target.
+     * @param separator The token to separate properties in the \a path,
+     */
+    bool updateProperty(PropertyBag& target, const PropertyBag& source, const std::string& path, const std::string& separator = "::");
 
     /**
      * This function iterates over a PropertyBag and deletes all Property objects in
@@ -351,36 +379,5 @@ namespace RTT
     /**
      * @}
      */
-
-    /**
-     * A helper class, like std::auto_ptr, meant to protect you from
-     * forgetting to delete the properties in a property bag of which
-     * you own the contents...  This class contains a PropertyBag, and
-     * calls deleteProperties() on it in its destructor.
-     */
-    struct PropertyBagOwner
-    {
-        PropertyBagOwner()
-            {
-            }
-        PropertyBagOwner( const PropertyBag& b )
-            : bag( b )
-            {
-            }
-        PropertyBag bag;
-        ~PropertyBagOwner()
-            {
-                deleteProperties( bag );
-            }
-        PropertyBagOwner& operator=( const PropertyBag& b )
-            {
-                deleteProperties( bag );
-                bag = b;
-                return *this;
-            }
-    private:
-        // don't copy PropertyBagOwner's !
-        PropertyBagOwner( const PropertyBagOwner& );
-    };
 } // Namespace RTT
 #endif

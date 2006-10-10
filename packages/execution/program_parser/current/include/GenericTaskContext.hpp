@@ -104,18 +104,34 @@ namespace RTT
          * Read this Task's properties from a file.
          * You can override this method to check for consistent
          * Properties.
+         * @param filename The name of the file.
          */
         virtual bool readProperties(const std::string& filename);
 
         /**
+         * Read a single property from a file.
+         * @param name The name of the property in the file.
+         * @param filename The name of the file.
+         */
+        virtual bool readProperty(const std::string& name,const std::string& filename);
+
+        /**
          * Write this Task's properties to a file.
+         * @param filename The name of the file.
          */
         virtual bool writeProperties(const std::string& filename);
+
+        /**
+         * Write a single property to a file.
+         * @param filename The name of the file.
+         */
+        virtual bool writeProperty(const std::string& name, const std::string& filename);
 
         /**
          * Load an Orocos Program Script from disk.
          * You can override this method to accept or reject new
          * programs in certain cases.
+         * @param filename The name of the file.
          */
         virtual bool loadProgram(const std::string& filename);
 
@@ -123,6 +139,7 @@ namespace RTT
          * Load an Orocos State Description from disk.
          * You can override this method to accept or reject new
          * State Machines in certain cases.
+         * @param filename The name of the file.
          */
         virtual bool loadStateMachine(const std::string& filename);
 

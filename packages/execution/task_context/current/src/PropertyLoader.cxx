@@ -42,29 +42,28 @@ using namespace std;
 using namespace RTT;
 
 
-bool PropertyLoader::configure(const std::string& filename, TaskContext* target, bool strict ) const
+bool PropertyLoader::configure(const std::string& filename, TaskContext* target, bool all ) const
 {
     Logger::In in("PropertyLoader:configure");
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
-        Logger::log() <<Logger::Error << "No Property Demarshaller configured !" << Logger::endl;
+        log(Error) << "No Property Demarshaller configured !" << endlog();
         return false;
     
 #else
     if ( target->attributes()->properties() == 0) {
-        Logger::log() <<Logger::Error << "TaskContext " <<target->getName()<<" has no Properties to configure." << Logger::endl;
+        log(Error) << "TaskContext " <<target->getName()<<" has no Properties to configure." << endlog();
         return false;
     }
 
-    Logger::log() <<Logger::Info << "Configuring TaskContext '" <<target->getName()
-                  <<"' with '"<<filename<<"'."<< Logger::endl;
+    log(Info) << "Configuring TaskContext '" <<target->getName()
+                  <<"' with '"<<filename<<"'."<< endlog();
     bool failure = false;
     OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER* demarshaller = 0;
     try
     {
         demarshaller = new OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER (filename);
     } catch (...) {
-        Logger::log() << Logger::Error
-                      << "Could not open file "<< filename << Logger::endl;
+        log(Error) << "Could not open file "<< filename << endlog();
         return false;
     }
     try {
@@ -74,32 +73,26 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
         if ( demarshaller->deserialize( propbag ) )
         {
             // Lookup props vs attrs :
-            if ( !strict )
-                failure = !updateProperties( *target->attributes()->properties(), propbag );
-            else {
-                // take restore-copy;
-                PropertyBag backup;
-                copyProperties( backup, *target->attributes()->properties() );
-                if ( updateProperties( *target->attributes()->properties(), propbag ) == false ) {
-                    // restore backup:
-                    updateProperties( *target->attributes()->properties(), backup );
-                    failure = true;
+            // take restore-copy;
+            PropertyBag backup;
+            copyProperties( backup, *target->attributes()->properties() );
+            if ( refreshProperties( *target->attributes()->properties(), propbag, all ) == false ) {
+                // restore backup:
+                refreshProperties( *target->attributes()->properties(), backup );
+                failure = true;
                 }
-                // cleanup
-                flattenPropertyBag( backup );
-                deleteProperties( backup );
-            }
+            // cleanup
+            deletePropertyBag( backup );
         }
         else
             {
-                Logger::log() << Logger::Error
-                              << "Some error occured while parsing "<< filename.c_str() <<Logger::endl;
+                log(Error) << "Some error occured while parsing "<< filename.c_str() <<endlog();
                 failure = true;
             }
     } catch (...)
     {
-        Logger::log() << Logger::Error
-                      << "Uncaught exception in deserialise !"<< Logger::endl;
+        log(Error)
+                      << "Uncaught exception in deserialise !"<< endlog();
         failure = true;
     }
     delete demarshaller;
@@ -108,17 +101,17 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
 
 }
 
-bool PropertyLoader::save(const std::string& filename, TaskContext* target) const
+bool PropertyLoader::save(const std::string& filename, TaskContext* target, bool all) const
 {
     Logger::In in("PropertyLoader::save");
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
-        Logger::log() <<Logger::Error << "No Property Marshaller configured !" << Logger::endl;
+        log(Error) << "No Property Marshaller configured !" << endlog();
         return false;
     
 #else
     if ( target->attributes()->properties() == 0 ) {
-        Logger::log() << Logger::Error << "TaskContext "<< target->getName()
-                      << " does not have Properties to save." << Logger::endl;
+        log(Error) << "TaskContext "<< target->getName()
+                      << " does not have Properties to save." << endlog();
         return false;
     }
     PropertyBag allProps;
@@ -129,17 +122,17 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target) cons
         // if target file does not exist, skip this step.
         if ( ifile ) {
             ifile.close();
-            Logger::log() << Logger::Info << target->getName()<<" updating of file "<< filename << Logger::endl;
+            log(Info) << target->getName()<<" updating of file "<< filename << endlog();
             // The demarshaller itself will open the file.
             OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER demarshaller( filename );
             if ( demarshaller.deserialize( allProps ) == false ) {
                 // Parse error, abort writing of this file.
-                Logger::log() << Logger::Error << "While updating "<< target->getName() <<" : Failed to read "<< filename << Logger::endl;
+                log(Error) << "While updating "<< target->getName() <<" : Failed to read "<< filename << endlog();
                 return false;
             }
         }
         else
-            Logger::log() << Logger::Info << "Creating "<< filename << Logger::endl;
+            log(Info) << "Creating "<< filename << endlog();
     }
 
     // Write results
@@ -152,29 +145,142 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target) cons
 
     // merge with target file contents,
     // override allProps.
-    bool updater = updateProperties( allProps, decompProps );
+    bool updater = false;
+    if (all) {
+        log(Info) << "Writing all properties of "<<target->getName()<<" to file "<< filename << endlog();
+        updater = updateProperties( allProps, decompProps ); // add new.
+    }
+    else {
+        log(Info) << "Refreshing properties in file "<< filename << " with values of properties of "<<target->getName() << endlog();
+        updater = refreshProperties( allProps, decompProps ); // only refresh existing.
+    }
     if (updater == false) {
-        Logger::log() << Logger::Error << "Could not update properties of file "<< filename <<"."<<Logger::endl;
-    }        
+        log(Error) << "Could not update properties of file "<< filename <<"."<<endlog();
+        deletePropertyBag( allProps );
+        deletePropertyBag( decompProps );
+        return false;
+    } 
+    // ok, finish.
     // serialize and cleanup
     std::ofstream file( filename.c_str() );
     if ( file )
         {
             OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER<std::ostream> marshaller( file );
             marshaller.serialize( allProps );
-            Logger::log() << Logger::Info << "Wrote "<< filename <<Logger::endl;
+            log(Info) << "Wrote "<< filename <<endlog();
         }
     else {
-        Logger::log() << Logger::Error << "Could not open file "<< filename <<" for writing."<<Logger::endl;
-        flattenPropertyBag( allProps );
-        deleteProperties( allProps );
+        log(Error) << "Could not open file "<< filename <<" for writing."<<endlog();
+        deletePropertyBag( allProps );
         return false;
     }
     // allProps contains copies (clone()), thus may be safely deleted :
-    flattenPropertyBag( allProps );
-    deleteProperties( allProps ); 
-    flattenPropertyBag( decompProps );
-    deleteProperties( decompProps ); 
+    deletePropertyBag( allProps );
+    deletePropertyBag( decompProps );
     return true;
 #endif
 }
+
+bool PropertyLoader::configure(const std::string& filename, TaskContext* task, const std::string& name ) const
+{
+    Logger::In in("PropertyLoader:configure");
+#ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
+    log(Error) << "No Property Demarshaller configured !" << endlog();
+    return false;
+    
+#else
+    log(Info) << "Reading Property '" <<name
+              <<"' from file '"<<filename<<"'."<< endlog();
+    bool failure = false;
+    OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER* demarshaller = 0;
+    try
+    {
+        demarshaller = new OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER (filename);
+    } catch (...) {
+        log(Error) << "Could not open file "<< filename << endlog();
+        return false;
+    }
+    try {
+        PropertyBag propbag;
+        if ( demarshaller->deserialize( propbag ) )
+        {
+            failure = !updateProperty( *(task->properties()), propbag, name );
+        }
+        else
+            {
+                log(Error) << "Some error occured while parsing "<< filename.c_str() <<endlog();
+                failure = true;
+            }
+    } catch (...)
+    {
+        log(Error) << "Uncaught exception in deserialise !"<< endlog();
+        failure = true;
+    }
+    delete demarshaller;
+    return !failure;
+#endif // OROPKG_CORELIB_PROPERTIES_MARSHALLING
+}
+
+bool PropertyLoader::save(const std::string& filename, TaskContext* task, const std::string& name) const
+{
+    Logger::In in("PropertyLoader::save");
+#ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
+        log(Error) << "No Property Marshaller configured !" << endlog();
+        return false;
+    
+#else
+    PropertyBag fileProps;
+    // Update exising file ?
+    {
+        // first check if the target file exists.
+        std::ifstream ifile( filename.c_str() );
+        // if target file does not exist, skip this step.
+        if ( ifile ) {
+            ifile.close();
+            log(Info) << "Updating file "<< filename << " with properties of "<<task->getName()<<endlog();
+            // The demarshaller itself will open the file.
+            OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER demarshaller( filename );
+            if ( demarshaller.deserialize( fileProps ) == false ) {
+                // Parse error, abort writing of this file.
+                log(Error) << "Failed to read "<< filename << endlog();
+                return false;
+            }
+        }
+        else
+            log(Info) << "Creating "<< filename << endlog();
+    }
+
+    // decompose task properties into primitive property types.
+    PropertyBag  taskProps;
+    PropertyBagIntrospector pbi( taskProps );
+    pbi.introspect( *(task->properties()) );
+
+    bool failure;
+    failure = ! updateProperty( fileProps, taskProps, name );
+    
+    deletePropertyBag( taskProps );
+
+    if ( failure ) {
+        log(Error) << "Could not update properties of file "<< filename <<"."<<endlog();
+        deletePropertyBag( fileProps );
+        return false;
+    }        
+    // serialize and cleanup
+    std::ofstream file( filename.c_str() );
+    if ( file )
+        {
+            OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER<std::ostream> marshaller( file );
+            marshaller.serialize( fileProps );
+            log(Info) << "Wrote Property "<<name <<" to "<< filename <<endlog();
+        }
+    else {
+        log(Error) << "Could not open file "<< filename <<" for writing."<<endlog();
+        deletePropertyBag( fileProps );
+        return false;
+    }
+    // fileProps contains copies (clone()), thus may be safely deleted :
+    deletePropertyBag( fileProps );
+    return true;
+#endif
+}
+

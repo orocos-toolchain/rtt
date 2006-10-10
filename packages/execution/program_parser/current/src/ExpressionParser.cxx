@@ -156,8 +156,6 @@ namespace RTT
             log(Error) << " no such constructor ! "<< endlog();
             throw parse_exception_no_such_constructor( meth, args );
         }
-        //ret->evaluate();
-        //log(Info) << " Value : "<< DataSourceBase::shared_ptr(ret) <<endlog(); 
     } else {
         // plain method:
 

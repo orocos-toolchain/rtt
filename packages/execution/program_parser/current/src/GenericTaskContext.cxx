@@ -81,81 +81,59 @@ namespace RTT
         return this->engine()->getActivity()->execute();
     }
 
-    /**
-     * Start is a method which starts the Processor's task.
-     * It can not be a command because if the Processor is not running,
-     * it does not accept commands. Also, RunnableInterface::initialize()
-     * is then called in the context of the caller.
-     */
     bool GenericTaskContext::start() {
         if ( this->engine()->getActivity() == 0 )
             return false;
         return this->engine()->getActivity()->start();
     }
         
-    /**
-     * Stop is a method which stops the Processor's task.
-     * RunnableInterface::finalize()
-     * is called in the context of the caller.
-     */
     bool GenericTaskContext::stop() {
         if ( this->engine()->getActivity() == 0 )
             return false;
         return this->engine()->getActivity()->stop();
     }
   
-    /**
-     * DataSource to inspect if this Task is running.
-     */
     bool GenericTaskContext::isRunning() const {
         if ( this->engine()->getActivity() == 0 )
             return false;
         return this->engine()->getActivity()->isRunning();
     }
 
-    /**
-     * Read this Task's properties from a file.
-     */
     bool GenericTaskContext::readProperties(const std::string& filename) {
         PropertyLoader p;
         return p.configure(filename, this);
     }
 
-    /**
-     * Write this Task's properties to a file.
-     */
     bool GenericTaskContext::writeProperties(const std::string& filename) {
         PropertyLoader p;
         return p.save(filename, this);
     }
 
-    /**
-     * Load an Orocos Program Script from disk.
-     */
+    bool GenericTaskContext::readProperty(const std::string& name, const std::string& filename) {
+        PropertyLoader p;
+        return p.configure(name, this, filename);
+    }
+
+    bool GenericTaskContext::writeProperty(const std::string& name, const std::string& filename) {
+        PropertyLoader p;
+        return p.save(name, this, filename);
+    }
+
     bool GenericTaskContext::loadProgram(const std::string& filename) {
         ProgramLoader p;
         return p.loadProgram(filename, this);
     }
 
-    /**
-     * Load an Orocos State Description from disk.
-     */
     bool GenericTaskContext::loadStateMachine(const std::string& filename) {
         ProgramLoader p;
         return p.loadStateMachine(filename, this);
     }
 
-    /**
-     * Unload an Orocos Program Script from disk.
-     */
     bool GenericTaskContext::unloadProgram(const std::string& progname) {
         ProgramLoader p;
         return p.unloadProgram(progname, this);
     }
 
-    /**
-     * Unload an Orocos State Description from disk.
-     */
     bool GenericTaskContext::unloadStateMachine(const std::string& instancename) {
         ProgramLoader p;
         return p.unloadStateMachine(instancename, this);

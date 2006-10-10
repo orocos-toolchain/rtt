@@ -125,6 +125,29 @@
 	    [Project] Removing Events out of activities</ulink> for all details.
 	  </para>
 	</listitem>
+	<listitem>
+	  <para>
+	    The NonPreemptibleActivity, PreemptibleActivity,
+	    NonRealTimeActivity classes and their Thread classes no
+	    longer exist. Use (or subclass) the
+	    <classname>RTT::PeriodicActivity</classname> instead.  See
+	    <ulink
+	    url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=210">
+	    Remove ZTT and friends</ulink> for all details.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The property reading and writing functions
+	    of the <classname>RTT::PropertyLoader</classname> have changed
+	    semantics. It is now possible to specify if all properties, some
+	    properties or one property must be written to or read from a file.
+	    The global 'find' function has been renamed to 'findProperty'.
+	    See <ulink
+	    url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=204">
+	    reading properties does not fail</ulink> for all details.
+	  </para>
+	</listitem>
       </itemizedlist>
     </section>
     <section>

@@ -36,7 +36,7 @@ namespace RTT
 {
     /**
      * Load and save property files
-     * to a TaskContext's AttributeRepository.
+     * to a TaskContext's PropertyBag.
      * The default file format is 'cpf' from the
      * CPFMarshaller class. You can select
      * another file format using the configuration tool
@@ -51,10 +51,11 @@ namespace RTT
          * There may be more properties in the file than attributes in the target.
          * @param filename The file to read from.
          * @param target   The TaskContext to configure.
-         * @param strict   Do not change any target Property if something goes wrong
+         * @param all   Configure all properties of \a target. Return an error
+         * if not all properties were found in \a filename.
          * @return true on success, false on error, consult Logger output for messages.
          */
-        bool configure(const std::string& filename, TaskContext* target, bool strict = true) const;
+        bool configure(const std::string& filename, TaskContext* target, bool all = true) const;
 
         /**
          * Write the XML cpf file with the attributes of the given TaskContext.
@@ -63,10 +64,29 @@ namespace RTT
          * between tasks.
          * @param filename The file to read from and write to (updating).
          * @param target   The TaskContext to configure.
+         * @param all   Write out all properties of \a target to \a filename,
+         * add missing ones if necessary.
          * @return true on success, false on error, consult Logger output for messages.
          */
-        bool save(const std::string& filename, TaskContext* target) const;
+        bool save(const std::string& filename, TaskContext* target, bool all = true) const;
 
+        /**
+         * Read a single property from a file.
+         * @param filename The file to read from.
+         * @param target   The TaskContext to configure.
+         * @param name The path to or name of a property in \a target.
+         * @return true on success, false on error, consult Logger output for messages.
+         */
+        bool configure(const std::string& filename, TaskContext* target, const std::string& name) const;
+
+        /**
+         * Write a single property to a file, or update an existing file.
+         * @param filename The file to update or write to.
+         * @param target   The TaskContext to configure.
+         * @param name The path to or name of a property in \a target.
+         * @return true on success, false on error, consult Logger output for messages.
+         */
+        bool save(const std::string& filename, TaskContext* target, const std::string& name) const;
     };
 }
 

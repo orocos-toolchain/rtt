@@ -49,6 +49,7 @@ class PropertyTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testBagOperations );
     CPPUNIT_TEST( testMarshalling );
     CPPUNIT_TEST( testInit );
+    CPPUNIT_TEST( testUpdate );
     CPPUNIT_TEST_SUITE_END();
 
     PropertyBag bag1;
@@ -71,6 +72,7 @@ public:
     void testComposition();
     void testRepository();
     void testInit();
+    void testUpdate();
 };
 
 #endif  // PROPERTYTEST_H
