@@ -1,9 +1,0 @@
-cdl_package OROPKG_KINDYN {
-    display "Kinematics and Dynamics"
-    include_dir kindyn
-
-    requires OROPKG_GEOMETRY
-    requires OROPKG_KINDYN_ARCH
-
-    compile KinematicsComponent.cxx KinematicsFactory.cxx
-}
