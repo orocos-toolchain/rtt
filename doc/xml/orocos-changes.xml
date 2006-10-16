@@ -239,6 +239,24 @@ assert( myProp.ready() );</programlisting>
       </itemizedlist>
     </section>
     <section>
+      <title>Component XML Configuration</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Orocos no longer has a hard dependency on Xerces, nor on
+	    'cpf.dtd' for XML parsing.  If Xerces is not detected on
+	    your system, an internal (TinyXML) implementation is
+	    used. Furthermore, the 'cpf.dtd' file is no longer
+	    required to parse Orocos XML files. Orocos has this file
+	    built-in and uses it to validate your document when the
+	    XML parser supports it (i.e. Xerces).  See <ulink
+	    url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=234">
+	    XML Parsing: DTD's and Parsers.</ulink> for all details.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
       <title>TaskBrowser</title>
       <itemizedlist>
 	<listitem>

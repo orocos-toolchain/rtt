@@ -5,6 +5,7 @@
 // with possible other libraries.
 #include "tinyxml.h"
 
+// This is currently not defined:
 #ifdef TIXML_USE_STL
 #include <iostream>
 #include <sstream>

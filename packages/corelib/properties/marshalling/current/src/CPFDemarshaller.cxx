@@ -28,6 +28,7 @@
  
 
 #include "rtt/marsh/CPFDemarshaller.hpp"
+#include "rtt/marsh/CPFDTD.hpp"
 
 #ifdef OROPKG_SUPPORT_XERCES_C
 #include <xercesc/util/PlatformUtils.hpp>
@@ -39,6 +40,8 @@
 #include <xercesc/util/XMLUniDefs.hpp>
 #include <xercesc/util/BinMemInputStream.hpp>
 #include <xercesc/framework/LocalFileInputSource.hpp>
+#include <xercesc/framework/MemBufInputSource.hpp>
+#include <xercesc/validators/common/Grammar.hpp>
 
 #include <vector>
 #include <stack>
@@ -56,12 +59,29 @@ namespace RTT
     using namespace XERCES_CPP_NAMESPACE;
 #endif
 
-    inline void XMLChToStdString(const XMLCh* const c, std::string& res)
+    inline bool XMLChToStdString(const XMLCh* const c, std::string& res)
     {
         char* chholder;
         chholder = XMLString::transcode( c );
-        res = chholder;
-        delete[] chholder;
+        if ( chholder ) {
+            res = chholder;
+            delete[] chholder;
+            return true;
+        }
+        return false;
+    }
+
+    inline std::string  XMLgetString(const XMLCh* const c)
+    {
+        std::string res;
+        char* chholder;
+        chholder = XMLString::transcode( c );
+        if ( chholder ) {
+            res = chholder;
+            delete[] chholder;
+            return res;
+        }
+        return res;
     }
 
     class SAX2CPFHandler : public DefaultHandler
@@ -397,8 +417,8 @@ namespace RTT
                 SAX2CPFHandler handler( v );
                 parser->setContentHandler( &handler );
                 parser->setErrorHandler( &handler );
-                parser->setFeature( XMLUni::fgSAX2CoreValidation, true );
-                parser->setFeature( XMLUni::fgXercesValidationErrorAsFatal, true );
+                parser->setFeature( XMLUni::fgSAX2CoreValidation, false );
+                parser->setFeature( XMLUni::fgXercesValidationErrorAsFatal, false );
                 parser->setFeature( XMLUni::fgXercesContinueAfterFatalError, false );
 #if 0
                 parser->setFeature( XMLUni::fgXercesSchemaFullChecking, false );
@@ -407,6 +427,17 @@ namespace RTT
                 parser->setFeature( XMLUni::fgSAX2CoreNameSpacePrefixes, true );
                 parser->setFeature( XMLUni::fgXercesSchema, false );
 #endif
+                // try to avoid loading the DTD mentioned in the xml file,
+                // and load our own grammer.
+                using namespace detail;
+                parser->setFeature( XMLUni::fgXercesLoadExternalDTD, false );
+                //parser->setDoValidation(true);
+                int length  = XMLString::stringLen(cpf_dtd);// string length
+                XMLByte* buffer = new XMLByte[length];
+                memcpy( buffer, cpf_dtd, length );
+                MemBufInputSource dtd(buffer, length, "internal_cpf.dtd");
+                parser->loadGrammar( dtd, Grammar::DTDGrammarType );
+                delete[] buffer;
 
                 parser->parse( *fis );
                 errorCount = parser->getErrorCount();
@@ -416,9 +447,10 @@ namespace RTT
         catch ( const XMLException & toCatch )
             {
                 Logger::log() << Logger::Error << "An XML parsing error occurred processing file " <<Logger::nl;
-                if ( XMLString::transcode(toCatch.getSrcFile()) )
-                    Logger::log() <<  XMLString::transcode(toCatch.getSrcFile()) << " parsing line " << toCatch.getSrcLine()<<Logger::nl ;
-                Logger::log()  << XMLString::transcode(toCatch.getMessage()) <<Logger::endl;
+                if ( toCatch.getSrcFile() ) {
+                    Logger::log() <<  toCatch.getSrcFile() << " parsing line " << toCatch.getSrcLine()<<Logger::nl ;
+                }
+                Logger::log()  << XMLgetString(toCatch.getMessage()) <<Logger::endl;
                 delete parser;
                 XMLPlatformUtils::Terminate();
                 return false;
@@ -426,12 +458,10 @@ namespace RTT
         catch ( const SAXParseException & toCatch )
             {
                 Logger::log() << Logger::Error << "An XML SAX parsing error occurred processing file " <<Logger::nl;
-                Logger::log()  << XMLString::transcode(toCatch.getMessage()) <<Logger::endl;
+                Logger::log()  << XMLgetString(toCatch.getMessage()) <<Logger::endl;
                 if ( toCatch.getPublicId() )
                     {
-                        std::string ent;
-                        XMLChToStdString(toCatch.getPublicId(), ent);
-                        Logger::log() << " At entity "<< ent <<Logger::nl;
+                        Logger::log() << " At entity "<< XMLgetString(toCatch.getPublicId()) <<Logger::nl;
                     }
                 Logger::log() << " Column "<< toCatch.getColumnNumber()<< " Line " <<toCatch.getLineNumber()<<Logger::endl;
                 delete parser;
@@ -441,7 +471,7 @@ namespace RTT
         catch ( const SAXException & toCatch )
             {
                 Logger::log() << Logger::Error << "An XML SAX exception occurred processing file " <<Logger::nl;
-                Logger::log()  << XMLString::transcode(toCatch.getMessage()) <<Logger::endl;
+                Logger::log()  << XMLgetString(toCatch.getMessage()) <<Logger::endl;
                 delete parser;
                 XMLPlatformUtils::Terminate();
                 return false;
