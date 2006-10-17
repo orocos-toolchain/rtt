@@ -31,6 +31,7 @@
 
 #include "RunnableInterface.hpp"
 #include "fosi.h"
+#include "threads.hpp"
 
 namespace RTT
 { namespace OS {
