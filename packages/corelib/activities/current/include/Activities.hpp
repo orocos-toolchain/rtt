@@ -41,6 +41,4 @@
 #include "PeriodicActivity.hpp"
 #include "NonPeriodicActivity.hpp"
 #include "RunnableInterface.hpp"
-#include "NonRealTimeActivity.hpp"
-#include "PreemptibleActivity.hpp"
-#include "NonPreemptibleActivity.hpp"
+
