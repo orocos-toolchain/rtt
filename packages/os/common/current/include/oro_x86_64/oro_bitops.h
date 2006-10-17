@@ -55,6 +55,8 @@
  * bit 0 is the LSB of addr; bit 32 is the LSB of (addr+1).
  */
 
+// this is required for multi-core cpus
+#define CONFIG_SMP
 #ifdef CONFIG_SMP
 #define LOCK_PREFIX "lock ; "
 #else
