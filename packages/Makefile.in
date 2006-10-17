@@ -1,5 +1,5 @@
 
-.PHONY: db clean orocos-dist doc-dist html-dist doc-dist-clean doxy-dist etags
+.PHONY: db clean etags configure
 
 etags:
 	-etags $$(find . -name "*.hpp" -o -name *.cxx -o -name "*.h" -o -name *.c )
@@ -21,44 +21,9 @@ configure: acinclude.m4 configure.ac
 	./autogen.sh
 	cd @PKG_BLD_DIR@; ./config.status --recheck; cd -
 
-clean: doc-dist-clean
+clean:
 	@echo "Cleaning up..."
 	rm -f support.epk pkgadd.db
 	find support -name "*.cdl" | xargs rm -f
 	rm -f ecos.db
-
-orocos-dist: doc-dist
-
-# After the tgz is made, we remove the 'heavy' files,
-# so that packages only contain the html+png version,
-# ps/pdf is for online docs.
-
-doc-dist:
-	@echo "Making doc tarballs..."
-	@for i in $$(find . -path "*/doc/Makefile"); do make -C $$(dirname $$i) XML_CATALOG_FILES=$$(pwd)/catalog.xml HTML_STYLESHEET=$$(pwd)/../doc/orocos-html.xsl FOP_STYLESHEET=$$(pwd)/../doc/orocos.xsl XSL_PARAMS="--stringparam admon.graphics.path $$(pwd)/../doc/images/" doc-dist; done
-	@rm -rf orocos-docs
-	@rm -rf gif
-	@mkdir  orocos-docs
-	@mkdir  gif
-	@echo "Copying..."
-	cp $$(find . -path "*/doc/*" -name "*.gif") gif
-	@mv $$(find . -name "*.tgz") orocos-docs
-	@(cd orocos-docs; tar -cf ../orocos-docs.tar *.tgz )
-	@echo "Done !"
-
-html-dist:
-	@echo "Making html docs..."
-	@for i in $$(find . -path "*/doc/Makefile"); do make -C $$(dirname $$i) XML_CATALOG_FILES=$$(pwd)/catalog.xml HTML_STYLESHEET=$$(pwd)/../doc/orocos-html.xsl dochtml; done
-
-doc-dist-clean:
-	@find . -name "*.pdf" -o -name "*.ps" -o -name "*.jpg" | xargs rm
-
-doc-clean:
-	@for i in $$(find . -path "*/doc/Makefile"); do make -C $$(dirname $$i) doc-clean; done
-
-html-dist-clean:
-	@find . -name "*.png" -o -name "*.html" | xargs rm
-
-doxy-dist:
-	@echo "Doxygen 'doxy-dist' make target has moved to the orocos/build directory."
 
