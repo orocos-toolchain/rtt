@@ -82,6 +82,12 @@ namespace RTT
 
     TypeInfo::~TypeInfo()
     {
+        // cleanup constructors
+        Constructors::iterator i= constructors.begin();
+        while (i != constructors.end() ) {
+            delete (*i);
+            ++i;
+        }
     }
 
     DataSourceBase::shared_ptr TypeInfo::construct(const std::vector<DataSourceBase::shared_ptr>& args) const 
