@@ -3,9 +3,8 @@ cdl_package OROPKG_DEVICE_INTERFACE_LOGICAL {
     display "Device Interfaces Logical"
 
     description "
-The Logical Device Interfaces are not yet
-stabilised. This package contains some experimental
-interfaces, but is strictly not needed by applications."
+The Logical Device Interfaces represent Axis, Sensor etc
+as logical devices instead of bare analog/digital IO."
 
     parent OROPKG_DEVICE_INTERFACE
     include_dir rtt/dev
