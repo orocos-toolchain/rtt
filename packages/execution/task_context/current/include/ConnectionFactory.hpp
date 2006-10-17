@@ -192,7 +192,7 @@ namespace RTT
                 return 0;
             }
             
-            Logger::log() << Logger::Info<< "Creating a BufferConnection from "<<writer->getName() <<" to "
+            Logger::log() << Logger::Debug<< "Creating a BufferConnection from "<<writer->getName() <<" to "
                           << reader->getName() << " with size "<<size<<Logger::endl;
             BufferConnectionInterface<T>* bci = this->createBuffer(size, initial_value, type);
             bci->addReader(reader);
@@ -265,7 +265,7 @@ namespace RTT
                 return 0;
             }
 
-            Logger::log() << Logger::Info<< "Creating a DataConnection from "<<writer->getName() <<" to "
+            Logger::log() << Logger::Debug<< "Creating a DataConnection from "<<writer->getName() <<" to "
                           << reader->getName() <<Logger::endl;
             DataConnectionInterface<T>* dci = this->createDataObject(initial_value, type);
             dci->addReader( reader );
@@ -277,7 +277,7 @@ namespace RTT
         DataConnectionInterface<T>* ConnectionFactory<T>::createDataObject(const T& initial_value, ConnectionTypes::ConnectionType type)
         {
             if (type == ConnectionTypes::lockfree)
-                return new DataConnection<T>(new DataObjectLockFree<T>("DataObject", initial_value) );
+                return new DataConnection<T>( new DataObjectLockFree<T>("DataObject", initial_value) );
             if (type == ConnectionTypes::locked)
                 return new DataConnection<T>( new DataObjectLocked<T>("DataObject", initial_value) );
             return 0;

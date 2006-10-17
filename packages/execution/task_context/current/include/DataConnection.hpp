@@ -69,6 +69,8 @@ namespace RTT
         DataConnection(DataObjectInterface<T>* doi)
             : buf( doi ), mconnected(false)
         {
+            // See DataObjectInterface constructor docs.
+            doi->deref();
         }
 
         /**
@@ -77,6 +79,8 @@ namespace RTT
         DataConnection(WriteDataPort<DataType>* writer,ReadDataPort<DataType>* reader, DataObjectInterface<T>* doi)
             : buf( doi ), mconnected(false)
         {
+            // See DataObjectInterface constructor docs.
+            doi->deref();
             readers.push_back(reader);
             writers.push_back(writer);
         }
