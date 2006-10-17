@@ -32,49 +32,64 @@
 
 namespace RTT
 {
-
-    
-
     /**
-     * A class representing an on/off switch, derived
-     * from a digital input.
+     * A class representing a switch which can be on or off.
+     * This class can be used in combination with a DigitalInInterface
+     * or as a 'virtual' switch in which case the on/off state is stored
+     * in an external boolean variable supplied to the constructor.
+     * @see also DigitalOutput
      */
     class DigitalInput
     {
-        public:
-            /**
-             * Create a switch object to read the state of a switch which
-             * can be on or off.
-             *
-             * @param dig_in The digital input device to use to read the status.
-             * @param bit_nr The bit number to use on the device.
-             */
-            DigitalInput( DigitalInInterface* dig_in, unsigned int bit_nr, bool _invert = false )
-                :board(dig_in), bitnumber(bit_nr) , invert(_invert)
-            {
-            }
+    public:
+        /**
+         * Create an object to read the state of a switch which
+         * can be on or off.
+         *
+         * @param dig_in The digital input device to use to read the status.
+         * @param bit_nr The bit number to use on the device.
+         * @param invert Set to true to return the inverted bit in isOn().
+         */
+        DigitalInput( DigitalInInterface* dig_in, unsigned int bit_nr, bool invert = false )
+            :board(dig_in), bitnumber(bit_nr) , minvert(invert), mvalue(invert)
+        {
+        }
 
-            /**
-             * Destruct the DigitalInput.
-             */
-            ~DigitalInput() {};
+        /**
+         * Create an object to read the state of a boolean value which
+         * can be on or off.
+         *
+         * @param value A reference to a boolean representing a digital input
+         * and which is used to read the status.
+         * @param invert Set to true to return the inverted \a value in isOn().
+         */
+        DigitalInput( const bool& value, bool invert = false )
+            :board(0), bitnumber(0), minvert(invert), mvalue(value)
+        {
+        }
 
-            /**
-             * Status.
-             *
-             * @return true if the input is high.
-             */
-            bool isOn() const
-            {  
-                // Q: who knew that != is logical xor ?
-                return invert != board->isOn(bitnumber);
-            }
+        /**
+         * Destruct the DigitalInput.
+         */
+        ~DigitalInput() {};
 
-        private:
+        /**
+         * Status.
+         *
+         * @return true if the input is high.
+         */
+        bool isOn() const
+        {  
+            // Q: who knew that != is logical xor ?
+            return board ? minvert != board->isOn(bitnumber) : minvert != mvalue;
+        }
+
+    private:
         DigitalInInterface *board;
         int bitnumber;
-        bool invert;
+        bool minvert;
+        const bool& mvalue;
     };
-};
+}
 
 #endif // DIGITALINPUT_HPP

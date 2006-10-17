@@ -32,82 +32,83 @@
 
 namespace RTT
 {
-
-    
-
     /**
      * A DigitalOut represents any on/off output. Examples are
      * brakes, valves, simple grippers etc.
+     * This class can be used in combination with a DigitalOutInterface
+     * or as a 'virtual' switch in which case the on/off state is stored
+     * in this object.
+     * @see also DigitalInput
      */
     class DigitalOutput
     {
-        public:
-            /**
-             * Create a new Relay acting on a digital output device.
-             * 
-             * @param dig_out The digital output device to use
-             * @param relay_nr The bit number to use on \a dig_out
-	     * @param _invert Set to true if \a isOn() must return inverted signal
-             */
-            DigitalOutput( DigitalOutInterface* dig_out, unsigned int relay_nr, bool _invert=false )
-                : board( dig_out ), relaynumber( relay_nr ), invert(_invert)
-            {}
-      /**
-       * Create a virtual (software) relay
-       * 
-       */
-      DigitalOutput ( )
-                : board( 0 ), relaynumber( 0 ), invert(false)
-      {}
+    public:
+        /**
+         * Create a new Relay acting on a digital output device.
+         * 
+         * @param dig_out The digital output device to use
+         * @param relay_nr The bit number to use on \a dig_out
+         * @param _invert Set to true if \a isOn() must return inverted signal
+         */
+        DigitalOutput( DigitalOutInterface* dig_out, unsigned int relay_nr, bool _invert=false )
+            : board( dig_out ), relaynumber( relay_nr ), invert(_invert)
+        {}
+
+        /**
+         * Create a virtual (software) relay
+         * 
+         */
+        DigitalOutput ( )
+            : board( 0 ), relaynumber( 0 ), invert(false)
+        {}
       
       
+        /**
+         * Destruct a DigitalOutput
+         */
+        ~DigitalOutput()
+        {}
 
-            /**
-             * Destruct a DigitalOutpuputt
-             */
-            ~DigitalOutput()
-            {}
-
-            /**
-             * Set the bit high of the digital output.
-             */
-            void switchOn()
-            {
-	      if(board)
+        /**
+         * Set the bit high of the digital output.
+         */
+        void switchOn()
+        {
+            if(board)
                 board->setBit( relaynumber, !invert );
-	      else
-		invert=true;
+            else
+                invert=true;
 	    }
 
-            /**
-             * Set the bit low of the digital output.
-             */
-            void switchOff()
-            {
-	      if(board)
+        /**
+         * Set the bit low of the digital output.
+         */
+        void switchOff()
+        {
+            if(board)
                 board->setBit( relaynumber, invert );
-	      else
-		invert=false;
+            else
+                invert=false;
 	    }
 
-            /**
-             * Check if the output is on (high).
-             *
-             * @return true if the bit is high.
-             */
-            bool isOn() const
-            {
-	      if(board)
+        /**
+         * Check if the output is on (high).
+         *
+         * @return true if the bit is high.
+         */
+        bool isOn() const
+        {
+            if(board)
                 return invert != board->checkBit( relaynumber );
-	      else
-		return invert;
+            else
+                return invert;
 	    }
 
-        private:
+    private:
         DigitalOutInterface *board;
         unsigned int relaynumber;
         bool invert;
     };
-};
+}
 
 #endif
