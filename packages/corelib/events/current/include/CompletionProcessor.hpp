@@ -22,6 +22,8 @@
 
 #include "NonPeriodicActivity.hpp"
 #include "EventProcessor.hpp"
+#include <boost/shared_ptr.hpp>
+#include <boost/checked_delete.hpp>
 
 namespace RTT
 {
@@ -44,10 +46,12 @@ namespace RTT
           public NonPeriodicActivity
     {
     public:
+        typedef CompletionProcessor* CompletionProcessorPtr;
+
         /**
          * Returns the unique (singleton) CompletionProcessor.
          */
-        static CompletionProcessor* Instance();
+        static CompletionProcessorPtr Instance();
 
         /**
          * Releases the CompletionProcessor
@@ -56,20 +60,19 @@ namespace RTT
          */
         static bool Release();
 
+        virtual ~CompletionProcessor();
+
     protected:
 
         /**
          * Constructor
          */
         CompletionProcessor();
-
-        virtual ~CompletionProcessor();
-
     private:
         /**
          * Singleton
          */    
-        static CompletionProcessor* cp;
+        static boost::shared_ptr<CompletionProcessor> cp;
     };
 }
 

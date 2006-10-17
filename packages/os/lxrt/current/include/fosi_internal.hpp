@@ -42,14 +42,7 @@
 
 #include <string.h>
 
-#ifdef OROPKG_CORELIB
-#include "pkgconf/corelib.h"
-#endif
-
-#ifdef OROPKG_CORELIB_REPORTING
 #include "rtt/Logger.hpp"
-using RTT::Logger;
-#endif
 
 namespace RTT
 { namespace OS {
@@ -71,12 +64,10 @@ namespace RTT
             //             exit();
             //         }
             struct sched_param param;
-            // we set the MT to the highest sched priority to allow the console
-            // to interrupt a loose running thread.
-            param.sched_priority = sched_get_priority_max(OROSEM_OS_SCHEDTYPE);
+
+            param.sched_priority = sched_get_priority_max(SCHED_OTHER);
             if (param.sched_priority != -1 )
-                sched_setscheduler( 0, OROSEM_OS_SCHEDTYPE, &param);
-            //init_linux_scheduler( OROSEM_OS_LXRT_SCHEDTYPE, 99);
+                sched_setscheduler( 0, SCHED_OTHER, &param);
 
             unsigned long name = nam2num("main");
             while ( rt_get_adr( name ) != 0 ) // check for existing 'MAINTHREAD'
@@ -93,9 +84,7 @@ namespace RTT
 #ifdef OROSEM_OS_LXRT_PERIODIC
             rt_set_periodic_mode();
             start_rt_timer( nano2count( NANO_TIME(ORODAT_OS_LXRT_PERIODIC_TICK*1000*1000*1000) ) );
-#ifdef OROPKG_CORELIB_REPORTING
             Logger::log() << Logger::Info << "RTAI Periodic Timer ticks at "<<ORODAT_OS_LXRT_PERIODIC_TICK<<" seconds." << Logger::endl;
-#endif
 #else
             // BE SURE TO SET rt_preempt_always(1) when using one shot mode
             rt_set_oneshot_mode();
@@ -108,13 +97,9 @@ namespace RTT
             rt_preempt_always(1);
 #endif
             start_rt_timer(0);
-#ifdef OROPKG_CORELIB_REPORTING
             Logger::log() << Logger::Info << "RTAI Periodic Timer runs in preemptive 'one-shot' mode." << Logger::endl;
 #endif
-#endif
-#ifdef OROPKG_CORELIB_REPORTING
             Logger::log() << Logger::Debug << "RTAI Task Created" << Logger::endl;
-#endif
             // stack, heap : see touchall.c in lxrt/lib
             // lock_all(stk,hp);
             mlockall(MCL_CURRENT | MCL_FUTURE );
@@ -126,29 +111,6 @@ namespace RTT
             // we don't stop the timer
             //stop_rt_timer();
             rt_task_delete(main_task->rtaitask);
-            return 0;
-        }
-
-        /**
-         * Helper function to convert RTAI to POSIX priority.
-         */
-        INTERNAL_QUAL int internal_posix_priority(int priority)
-        {
-            // FIXME mytask is not taken into account
-            // init the scheduler. The rt_task_initschmod code is broken, so we do it ourselves.
-            struct sched_param mysched;
-            mysched.sched_priority = sched_get_priority_max(OROSEM_OS_SCHEDTYPE) - priority;
-            // check lower bounds :
-            if (OROSEM_OS_SCHEDTYPE == SCHED_OTHER && mysched.sched_priority != 0 ) {
-                mysched.sched_priority = 0; // SCHED_OTHER must be zero
-            } else if (OROSEM_OS_SCHEDTYPE == !SCHED_OTHER &&  mysched.sched_priority < 1 ) {
-                mysched.sched_priority = 1; // !SCHED_OTHER must be 1 or higher
-            }
-            // check upper bound
-            if ( mysched.sched_priority > 99)
-                mysched.sched_priority = 99;
-            // set scheduler
-            sched_setscheduler(0, OROSEM_OS_SCHEDTYPE, &mysched);
             return 0;
         }
 
@@ -175,8 +137,9 @@ namespace RTT
                 std::cerr << "Exiting this thread." <<std::endl;
                 exit(-1);
             }
-            // Set POSIX priority of this thread.
-            internal_posix_priority(priority);
+
+            // New default: new threads are always hard.
+            rt_make_hard_real_time();
 
             return wrapper( data );
         }
@@ -206,8 +169,8 @@ namespace RTT
             task->name = strcpy( (char*)malloc( (strlen(name)+1)*sizeof(char) ), name);
             // name, priority, stack_size, msg_size, policy, cpus_allowed ( 1111 = 4 first cpus)
       
-	    // Set priority
-	    task->priority = priority;
+            // Set priority
+            task->priority = priority;
 	    
             RTAI_Thread* rt = (RTAI_Thread*)malloc( sizeof(RTAI_Thread) );
             rt->priority = priority;
@@ -223,16 +186,27 @@ namespace RTT
             rt_task_yield();
         }
 
-        INTERNAL_QUAL void rtos_task_make_hard_real_time(RTOS_TASK*) {
-            rt_make_hard_real_time();
+        INTERNAL_QUAL int rtos_task_set_scheduler(RTOS_TASK* t, int s) {
+            Logger::In in( t->name );
+            if ( t->rtaitask != rt_buddy() ) {
+                log(Error) << "RTAI/LXRT can not change the scheduler type from another thread." <<endlog();
+                return -1;
+            }
+            if (s == SCHED_LXRT_HARD)
+                rt_make_hard_real_time();
+            else if ( s == SCHED_LXRT_SOFT)
+                rt_make_soft_real_time();
+            else {
+                log(Error) << "Unknown scheduler type for RTAI/LXRT. Use SCHED_LXRT_HARD or SCHED_LXRT_SOFT." <<endlog();
+                return -1;
+            }
+            return 0;
         }
 
-        INTERNAL_QUAL void rtos_task_make_soft_real_time(RTOS_TASK*) {
-            rt_make_soft_real_time();
-        }
-
-        INTERNAL_QUAL int rtos_task_is_hard_real_time(const RTOS_TASK* t) {
-            return rt_is_hard_real_time( t->rtaitask );
+        INTERNAL_QUAL int rtos_task_get_scheduler(const RTOS_TASK* t) {
+            if ( rt_is_hard_real_time( t->rtaitask ) )
+                return SCHED_LXRT_HARD;
+            return SCHED_LXRT_SOFT;
         }
 
         INTERNAL_QUAL void rtos_task_make_periodic(RTOS_TASK* mytask, RTIME nanosecs )
@@ -270,8 +244,6 @@ namespace RTT
 
         INTERNAL_QUAL int rtos_task_set_priority(RTOS_TASK * mytask, int priority)
         {
-            // FIXME mytask is not taken into account
-            internal_posix_priority(priority);
             int rv;
             if ( (rv = rt_change_prio( mytask->rtaitask, priority)) == 0) {
                 mytask->priority = priority;

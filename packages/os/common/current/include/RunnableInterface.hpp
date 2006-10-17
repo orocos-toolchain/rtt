@@ -33,7 +33,7 @@
 
 namespace RTT
 { namespace OS {
-  class ThreadInterface;
+    class ThreadInterface;
 
     /**
      * @brief A class for running a certain piece of code in a thread.
@@ -74,8 +74,9 @@ namespace RTT
       virtual ~RunnableInterface();
 
         /**
-         * The method that will be called once each time before the periodical
-         * execution of \a step() ( or non periodical execution of \a loop() ) is started.
+         * The method that will be called before the first periodical
+         * execution of \a step() ( or non periodical execution of \a loop() ),
+         * when the thread is started.
          */
         virtual bool initialize() = 0;
 
@@ -88,24 +89,25 @@ namespace RTT
         /**
          * The method that will be executed once when this
          * class is run in a non periodic thread. The default 
-	 * implementation calls step() once.
+         * implementation calls step() once.
          */
-      virtual void loop();
+        virtual void loop();
 
         /**
-         * This method is called to break out of the \a loop() method.
-         * Reimplement this method to let \a loop() return and return
+         * This method is called by the framework to break out of the \a loop() method.
+         * Reimplement this method to signal \a loop() to return and return
          * true on success. When this method is not reimplemented by you, it
          * will always return \a false, denoting that the loop can not
-         * be breaked. The safest implementation of breakLoop only returns
-         * if \a loop() returns, and may thus itself be blocking.
+         * be broken. If breakLoop() returns \a true, the caller will wait
+         * until loop() returns.
          * @return true if the loop could be notified to return.
          */
-      virtual bool breakLoop();
+        virtual bool breakLoop();
 
         /**
-         * The method that will be called once each time after the periodical
-         * execution of \a step() ( or non periodical execution of \a loop() ) is stopped.
+         * The method that will be called after the last periodical
+         * execution of \a step() ( or non periodical execution of \a loop() ),
+         * when the RunnableInterface is stopped.
          */
         virtual void finalize() = 0;
 

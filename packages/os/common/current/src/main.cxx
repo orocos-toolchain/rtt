@@ -41,31 +41,18 @@
 #include <rtt/os/main.h>
 #ifdef HAVE_IOSTREAM
 #include <iostream>
+using namespace std;
 #else
 #include <cstdio>
 #endif
-// extern package config headers.
-#include "pkgconf/system.h"
-#ifdef OROPKG_CORELIB
-#include "pkgconf/corelib.h"
-#endif
 
-#ifdef OROPKG_CORELIB_REPORTING
 #include "rtt/Logger.hpp"
 using RTT::Logger;
-#endif
 
-#ifdef OROPKG_DEVICE_INTERFACE
-# include "pkgconf/device_interface.h"
+#ifdef OROPKG_OS_THREAD_SCOPE
 # include <boost/scoped_ptr.hpp>
-# ifdef OROPKG_OS_THREAD_SCOPE
-#  include "rtt/dev/DigitalOutInterface.hpp"
-   using namespace RTT;
-#  ifdef ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE
-#   include ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE
-    using namespace RTT;
-#  endif
-# endif
+# include "rtt/dev/DigitalOutInterface.hpp"
+  using namespace RTT;
 #endif
 
 #ifdef OROSEM_OS_LOCK_MEMORY
@@ -76,8 +63,6 @@ using RTT::Logger;
 #include <tao/Exception.h>
 #include <ace/String_Base.h>
 #endif
-
-using namespace std;
 
 const char* catchflag = "--nocatch";
 
@@ -91,52 +76,31 @@ int main(int argc, char* argv[])
     string location( argv[0] );
     location += "::main()";
     {
-#ifdef OROPKG_CORELIB_REPORTING
         Logger::In in( location.c_str() );
-#endif
 
-    bool dotry = true;
-    // look for --nocatch flag :
-    for( int i=1; i < argc; ++i)
-        if ( strncmp(catchflag, argv[i], strlen(catchflag) ) == 0 )
-            dotry = false;
+        bool dotry = true;
+        // look for --nocatch flag :
+        for( int i=1; i < argc; ++i)
+            if ( strncmp(catchflag, argv[i], strlen(catchflag) ) == 0 )
+                dotry = false;
 
 #ifdef OROPKG_OS_THREAD_SCOPE
         unsigned int bit = 0;
 
         boost::scoped_ptr<DigitalOutInterface> pp;
         DigitalOutInterface* d = 0;
-        try {
-            // this is the device users can use across all threads to control the
-            // scope's output.
-            if ( DigitalOutInterface::nameserver.getObject("ThreadScope") )
-                d = DigitalOutInterface::nameserver.getObject("ThreadScope");
-            else
-# ifdef OROCLS_DEVICE_DRIVERS_THREAD_SCOPE_DRIVER
-                {
-                    pp.reset( new OROCLS_DEVICE_DRIVERS_THREAD_SCOPE_DRIVER("ThreadScope") );
-                    d = pp.get();
-                }
-            
-# else
-                Logger::log() << Logger::Error<< "Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << Logger::endl;
-# endif
-        } catch( ... )
-            {
-#ifdef OROPKG_CORELIB_REPORTING
-                Logger::log() << Logger::Error<< "Failed to create ThreadScope." << Logger::endl;
-#endif
-            }
+        // this is the device users can use across all threads to control the
+        // scope's output.
+        if ( DigitalOutInterface::nameserver.getObject("ThreadScope") )
+            d = DigitalOutInterface::nameserver.getObject("ThreadScope");
+        else
+            Logger::log() << Logger::Error<< "Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << Logger::endl;
         if ( d ) {
-#ifdef OROPKG_CORELIB_REPORTING
             Logger::log() << Logger::Info << "ThreadScope : main thread toggles bit "<< bit << Logger::endl;
-#endif
             d->switchOn( bit );
         }
 #endif
-#ifdef OROPKG_CORELIB_REPORTING
-    Logger::log() << Logger::Debug << "ORO_main starting..." << Logger::endl;
-#endif
+        Logger::log() << Logger::Debug << "ORO_main starting..." << Logger::endl;
 
     // locking of all memory for this process
 #ifdef OROSEM_OS_LOCK_MEMORY
@@ -147,44 +111,40 @@ int main(int argc, char* argv[])
         mlockall(locktype);
 #endif
         
-    if ( dotry ) {
-        try {
-            res = ORO_main(argc, argv);
+        if ( dotry ) {
+            try {
+                res = ORO_main(argc, argv);
 #ifdef OROPKG_CORBA
-        } catch( CORBA::Exception &e )
-            {
-#ifdef OROPKG_CORELIB_REPORTING
-                Logger::log() <<Logger::Error << "ORO_main : CORBA exception raised!" << Logger::nl;
-                Logger::log() << e._info().c_str() << Logger::endl;
+            } catch( CORBA::Exception &e )
+                {
+                    Logger::log() <<Logger::Error << "ORO_main : CORBA exception raised!" << Logger::nl;
+                    Logger::log() << e._info().c_str() << Logger::endl;
 #endif
-#endif
-        } catch( ... )
-            {
+                } catch( ... )
+                    {
 #ifdef HAVE_IOSTREAM
-                cerr <<endl<< " Orocos has detected an uncaught C++ exception"<<endl;
-                cerr << " in the ORO_main() function."<<endl;
-                cerr << " You might have called a function which throws"<<endl;
-                cerr << " without a try {} catch {} block."<< endl << endl;
-                cerr << "To Debug this situation, issue the following command:"<<endl<<endl;
-                cerr << "   valgrind --num-callers=16 "<<argv[0]<<" " << catchflag << endl;
-                cerr << "Which will show where the exception occured."<<endl;
-                cerr << " ( Change num-callers for more/less detail."<<endl;
-                cerr << "   Also, compiling orocos and your program with"<<endl;
-                cerr << "   -g adds more usefull information. )"<<endl<<endl;
+                        cerr <<endl<< " Orocos has detected an uncaught C++ exception"<<endl;
+                        cerr << " in the ORO_main() function."<<endl;
+                        cerr << " You might have called a function which throws"<<endl;
+                        cerr << " without a try {} catch {} block."<< endl << endl;
+                        cerr << "To Debug this situation, issue the following command:"<<endl<<endl;
+                        cerr << "   valgrind --num-callers=16 "<<argv[0]<<" " << catchflag << endl;
+                        cerr << "Which will show where the exception occured."<<endl;
+                        cerr << " ( Change num-callers for more/less detail."<<endl;
+                        cerr << "   Also, compiling orocos and your program with"<<endl;
+                        cerr << "   -g adds more usefull information. )"<<endl<<endl;
 #else
-                printf("Orocos intercepted uncaught C++ exception\n");
+                        printf("Orocos intercepted uncaught C++ exception\n");
 #endif
-            }
-    } else {
-        res = ORO_main(argc, argv);
-    }
+                    }
+        } else {
+            res = ORO_main(argc, argv);
+        }
 #ifdef OROPKG_OS_THREAD_SCOPE
-    if (d)
-        d->switchOff(bit);
+        if (d)
+            d->switchOff(bit);
 #endif
-#ifdef OROPKG_CORELIB_REPORTING
-    Logger::log() << Logger::Debug << "ORO_main done." << Logger::endl;
-#endif
+        Logger::log() << Logger::Debug << "ORO_main done." << Logger::endl;
     }
     __os_exit();
 

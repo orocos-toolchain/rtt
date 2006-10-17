@@ -28,6 +28,14 @@ using namespace RTT;
 
 int ORO_main(int argc, char** argv)
 {
+    // disable logging of errors or warnings if no ORO_LOGLEVEL was set.
+    if ( log().getLogLevel() == Logger::Warning ) {
+        log(Info) << "Lowering LogLevel to Critical." << endlog();
+        log().setLogLevel(Logger::Critical);
+    } else {
+        log(Info) << "LogLevel unaltered by test-runner." << endlog();
+    }
+
     // Get the top level suite from the registry
     CppUnit::Test *suite = CppUnit::TestFactoryRegistry::getRegistry().makeTest();
 
@@ -38,10 +46,6 @@ int ORO_main(int argc, char** argv)
     // Change the default outputter to a compiler error format outputter
     runner.setOutputter( new CppUnit::CompilerOutputter( &runner.result(),
                                                          std::cerr ) );
-
-    // disable logging of errors or warnings if no ORO_LOGLEVEL was set.
-    if ( log().getLogLevel() == Logger::Warning )
-        log().setLogLevel(Logger::Critical);
 
     // Run the tests.
     bool wasSucessful = runner.run();

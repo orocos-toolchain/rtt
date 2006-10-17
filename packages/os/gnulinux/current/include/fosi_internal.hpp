@@ -38,8 +38,7 @@
 #define INTERNAL_QUAL static inline
 
 namespace RTT
-{ namespace OS {
-    namespace detail {
+{ namespace OS { namespace detail {
 
 	INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main_task)
 	{
@@ -66,6 +65,8 @@ namespace RTT
 					   ThreadInterface* obj) 
 	{
 	    int rv; // return value
+        // store user defined 'virtual' priority:
+        task->priority = priority;
       
 	    // Set name
 	    if ( strlen(name) == 0 )
@@ -77,7 +78,7 @@ namespace RTT
 	    }
 	    // Set scheduler type (_before_ assigning priorities!)
 	    if ( (rv = pthread_attr_setschedpolicy(&(task->attr), sched_type)) != 0){
-		return rv;
+            return rv;
 	    }
 	    /* SCHED_OTHER tasks are always assigned static priority 0, see
 	       man sched_setscheduler
@@ -101,15 +102,35 @@ namespace RTT
 	INTERNAL_QUAL void rtos_task_yield(RTOS_TASK*) {
 	}
 
-	INTERNAL_QUAL void rtos_task_make_hard_real_time(RTOS_TASK*) {
-	}
-    
-	INTERNAL_QUAL void rtos_task_make_soft_real_time(RTOS_TASK*) {
-	}
-
-	INTERNAL_QUAL int rtos_task_is_hard_real_time(const RTOS_TASK*) {
-	    return 0;
-	}
+    INTERNAL_QUAL int rtos_task_set_scheduler(RTOS_TASK* task, int sched_type) {
+        int policy = 0;
+        struct sched_param param;
+        // first retrieve thread scheduling parameters:
+        if( pthread_getschedparam(task->thread, &policy, &param) == 0) {
+            // adopt them to new sched_type:
+            if (sched_type == SCHED_OTHER) 
+                param.sched_priority = 0;
+            else if (sched_type == SCHED_FIFO || sched_type == SCHED_RR) {
+                // SCHED_FIFO/SCHED_RR:
+                if (param.sched_priority == 0)
+                    param.sched_priority = 1;
+            } else {
+                log(Error) << "Unknown Scheduler type to Linux: "<< sched_type <<endlog();
+                return -1;
+            }
+            // write new policy:
+            return pthread_setschedparam( task->thread, sched_type, &param);
+        }
+        return -1;
+    }
+        
+    INTERNAL_QUAL int rtos_task_get_scheduler(const RTOS_TASK* task) {
+        int policy = 0;
+        struct sched_param param;
+        // first retrieve thread scheduling parameters:
+        pthread_getschedparam(task->thread, &policy, &param);
+        return policy;
+    }
 
 	INTERNAL_QUAL void rtos_task_make_periodic(RTOS_TASK* mytask, NANO_TIME nanosecs )
 	{
@@ -154,34 +175,47 @@ namespace RTT
 
 	INTERNAL_QUAL void rtos_task_delete(RTOS_TASK* mytask) {
 	    free(mytask->name);
-	};
+	}
 
 	INTERNAL_QUAL int rtos_task_set_priority(RTOS_TASK * task, int priority)
 	{
-	    // FIXME, only works on the current task
-	    // init the scheduler. The rt_task_initschmod code is broken, so we do it ourselves.
-	    struct sched_param mysched;
-	    mysched.sched_priority = sched_get_priority_max(OROSEM_OS_SCHEDTYPE) - priority;
-	    // check lower bounds :
-	    if (OROSEM_OS_SCHEDTYPE == SCHED_OTHER && mysched.sched_priority != 0 ) {
-		mysched.sched_priority = 0; // SCHED_OTHER must be zero
-	    } else if (OROSEM_OS_SCHEDTYPE == !SCHED_OTHER &&  mysched.sched_priority < 1 ) {
-		mysched.sched_priority = 1; // !SCHED_OTHER must be 1 or higher
-	    }
-	    // check upper bound
-	    if ( mysched.sched_priority > 99)
-		mysched.sched_priority = 99;
-	    // set scheduler
-	    return sched_setscheduler(0, OROSEM_OS_SCHEDTYPE, &mysched);
-	}
+        int policy = 0;
+        struct sched_param param;
+        // first retrieve thread scheduling parameters:
+        if( pthread_getschedparam(task->thread, &policy, &param) == 0) {
+            task->priority = priority;
+            // adopt them to new sched_type:
+            if (policy == SCHED_OTHER) {
+                if ( priority != 0 ) {
+                    Logger::In in( task->name );
+                    log(Warning) << "Forcing priority of thread with SCHED_OTHER policy to 0." <<endlog();
+                    param.sched_priority = 0;
+                }
+            } else {
+                // SCHED_FIFO/SCHED_RR:
+                if (priority <= 0)
+                    param.sched_priority = 1;
+                if (priority >= 99)
+                    param.sched_priority = 99;
+            }
+            // write new policy:
+            return pthread_setschedparam( task->thread, policy, &param);
+        }
+        return -1;
+    }
 
 	INTERNAL_QUAL int rtos_task_get_priority(const RTOS_TASK *t)
 	{
-	    struct sched_param sp;
-	    int succeeded;
-	    succeeded = pthread_attr_getschedparam(&(t->attr), 
-						   &sp);
-	    return sp.sched_priority;
+        // if sched_other, return the 'virtual' priority
+        int policy = 0;
+        struct sched_param param;
+        // first retrieve thread scheduling parameters:
+        pthread_getschedparam(t->thread, &policy, &param);
+        if ( policy == SCHED_OTHER )
+            return t->priority;
+        // otherwise, return the real priority
+        // t->attr is thread specific.
+        return param.sched_priority;
 	}
 
 	INTERNAL_QUAL const char * rtos_task_get_name(const RTOS_TASK* t)

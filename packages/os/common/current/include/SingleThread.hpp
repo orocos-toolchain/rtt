@@ -125,14 +125,13 @@ namespace RTT
          */
         virtual RTOS_TASK * getTask(){return &(this->rtos_task);};
 
-        virtual bool makeHardRealtime();
-
-        virtual bool makeSoftRealtime();
-
-        virtual bool isHardRealtime() const;
+        virtual bool setScheduler(int sched_type);
+        virtual int getScheduler() const;
 
         virtual Seconds getPeriod() const { return 0.0; }
         virtual nsecs getPeriodNS() const { return 0; }
+
+        virtual bool setPriority(int priority);
 
         virtual int getPriority() const;
 
@@ -150,15 +149,15 @@ namespace RTT
 
     private:
         /**
+         * Desired scheduler type.
+         */
+        int msched_type;
+
+        /**
          * When set to 1, the thread will run, when set to 0
          * the thread will stop ( isActive() )
          */
         bool active;
-
-        /**
-         * True when the thread should go realtime.
-         */
-        bool goRealtime;
 
         /**
          * Signal the thread that it should exit.

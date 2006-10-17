@@ -100,34 +100,56 @@ namespace RTT
         virtual const char* getName() const = 0 ;
 
         /**
-       * Get the RTOS_TASK pointer
-       * FIXME should this be a const?
-       */
-      virtual RTOS_TASK * getTask() = 0;
-      
-        /**
-         * Instructs the thread to enter hard realtime mode.
-         *
-         * @return true if the operation succeeded.
+         * Get the RTOS_TASK pointer.
+         * @note Using this function leads to non-portable code.
+         * It is here for users which wish to tweak OS specific
+         * thread settings.
          */
-        virtual bool makeHardRealtime() = 0;
+        virtual RTOS_TASK * getTask() = 0;
 
         /**
-         * Instructs the thread to leave hard realtime mode.
+         * Change the scheduler policy in which this
+         * thread runs. 
+         * @param sched_type An OS-specific value which
+         * selects a scheduler. Orocos requires that these
+         * two values are available: 
+         * - ORO_SCHED_RT: Hint the OS that this thread should
+         * be scheduled as a priority or real-time process.
+         * - ORO_SCHED_OTHER: Hint the OS that this thread should
+         * \b not be scheduled as a priority or real-time process.
          *
-         * @return true if the operation succeeded.
+         * Your OS can in addition provide other \a sched_type's which
+         * map more naturally to the schedulers present. If your
+         * OS does not make a distinction between real-time and other,
+         * both values may map to the same scheduler type.
+         *
+         * @return true if the change could be made.
          */
-        virtual bool makeSoftRealtime() = 0;
+        virtual bool setScheduler(int sched_type) = 0;
 
         /**
-         * Returns whether the thread is hard realtime.
-         *
-         * @return true if the thread is hard realtime.
+         * Get the scheduler policy in which this
+         * thread runs. 
+         * @return An OS-specific value which
+         * represents the used scheduler.
+         * @see setScheduler
          */
-        virtual bool isHardRealtime() const = 0;
+        virtual int getScheduler() const = 0;
+
+        /**
+         * Set the priority of this Thread.
+         * @param priority The priority given upon construction of this
+         * thread. It has to be interpreted in the current OS scheduler.
+         * @see setScheduler
+         */
+        virtual bool setPriority(int priority) = 0;
 
         /**
          * The priority of this Thread.
+         * @return The priority given upon construction of this
+         * thread or set with setPriority. The returned number has to be interpreted
+         * in the current OS scheduler. 
+         * @see setScheduler
          */
         virtual int getPriority() const = 0;
 

@@ -73,11 +73,11 @@ namespace RTT
 
         virtual RTOS_TASK * getTask();
       
-        virtual bool makeHardRealtime();
+        virtual bool setScheduler(int sched_type);
 
-        virtual bool makeSoftRealtime();
+        virtual int getScheduler() const;
 
-        virtual bool isHardRealtime() const;
+        virtual bool setPriority(int priority);
 
         virtual int getPriority() const;
 

@@ -82,6 +82,15 @@
 	    which converts 0.24.0 application code to the new syntax.
 	  </para>
 	</listitem>
+	<listitem>
+	  <para>
+	    The device drivers have been removed from the RealTime Toolkit.
+	    Their new home is the Orocos Components package. This makes building
+	    the RTT more simple and gives each device driver an easier to find place.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=115">
+	    [Project] Move device drivers to orocos-components </ulink> for all details.
+	  </para>
+	</listitem>
       </itemizedlist>
     </section>
     <section>
@@ -101,6 +110,26 @@
 	    Completion Processor.
 	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=165">
 	    OS::PeriodicThread depends on RTT::Event, CompletionProcessor</ulink> for all details.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The RTT::OS::ThreadInterface functions
+	    <function>makeHardRealTime()</function>,
+	    <function>makeSoftRealTime()</function> and
+	    <function>isHardRealTime()</function> have been replaced
+	    with <function>bool
+	    ThreadInterface::setScheduler(int)</function> and
+	    <function>int
+	    ThreadInterface::getScheduler() const</function>. By default,
+	    all threads (except the main thread) are created as 'hard
+	    realtime' (if available). Use setScheduler to change the
+	    default with an OS defined parameter.  The rationale of
+	    this decision has been discussed on
+	    <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=210">
+	    Remove ZTT and friends</ulink>. This also lead to a renaming
+	    of the equivalent functions in the <filename>fosi_internal.h</filename>
+	    file.
 	  </para>
 	</listitem>
     </itemizedlist>
@@ -130,8 +159,8 @@
 	    The NonPreemptibleActivity, PreemptibleActivity,
 	    NonRealTimeActivity classes and their Thread classes no
 	    longer exist. Use (or subclass) the
-	    <classname>RTT::PeriodicActivity</classname> instead.  See
-	    <ulink
+	    <classname>RTT::PeriodicActivity</classname> instead and
+	    add a priority level in the constructor. See <ulink
 	    url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=210">
 	    Remove ZTT and friends</ulink> for all details.
 	  </para>
@@ -172,6 +201,20 @@
 	    variables in which the scripts are loaded.
 	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=140">
 	    Using properties from a state machine</ulink> for all details.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>Component TaskContext Changes</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The <classname>RTT::GenericTaskContext</classname> has been removed.
+	    All its functionality is now available from the 'TaskContext' class,
+	    although through a slightly different API.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=205">
+	    Deprecate GenericTaskContext, upgrade TaskContext</ulink> for all details.
 	  </para>
 	</listitem>
       </itemizedlist>

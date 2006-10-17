@@ -59,7 +59,7 @@ namespace RTT
      * @endverbatim
      *
      * When the application is started, set the displayed loglevel with
-     * setLogLevel() with a LogLevel parameter. The default is Info. Set the desired log streams
+     * setLogLevel() with a LogLevel parameter. The default is Warning. Set the desired log streams
      * ( a file or std output ) with logToStream() and setStdStream(). Additionally,
      * an \a orocos.log  which is always logs
      * at log level 'Info'.

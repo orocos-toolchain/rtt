@@ -23,9 +23,7 @@
 #include <unistd.h>
 #include <iostream>
 
-#include <rtt/ZeroTimeThread.hpp>
 #include <rtt/TimerThread.hpp>
-#include <rtt/ZeroLatencyThread.hpp>
 #include <rtt/SimulationThread.hpp>
 #include <rtt/os/MainThread.hpp>
 #include <rtt/Logger.hpp>
@@ -41,44 +39,6 @@ CPPUNIT_TEST_SUITE_REGISTRATION( ActivitiesThreadTest );
 using namespace RTT;
 
 struct A {};
-
-template<class T>
-struct TestTask
-    : public T
-{
-    bool result, _dothrow;
-    bool init, stepped, fini;
-
-    ActivityInterface* owner;
-
-    TestTask(double per, bool fail, bool dothrow = false)
-        :T(per), _dothrow(dothrow)
-    {
-        this->reset(fail);
-    }
-
-    bool initialize() {
-        init    = true;
-        return result;
-    }
-    void step() {
-        stepped = true;
-#ifndef ORO_EMBEDDED
-        if ( _dothrow )
-            throw A();
-#endif
-    }
-    void finalize() {
-        fini   = true;
-    }
-
-    void reset(bool fail) {
-        result = fail;
-        init = false;
-        stepped = false;
-        fini = false;
-    }
-};
 
 template<class T>
 struct TestActivity
@@ -191,21 +151,18 @@ struct TestAllocate
 void 
 ActivitiesThreadTest::setUp()
 {
-    t_task_np = new TestTask<NonPreemptibleActivity>( ZeroTimeThread::Instance()->getPeriod(), true );
-    t_task_np_bad = new TestTask<NonPreemptibleActivity>( ZeroTimeThread::Instance()->getPeriod(), true, true );
-    t_task_p = new TestTask<PreemptibleActivity>( ZeroLatencyThread::Instance()->getPeriod(), true );
-    t_task_sim = new TestTask<SimulationActivity>( SimulationThread::Instance()->getPeriod(), true );
+    t_task_np = new TestActivity<PeriodicActivity>(3, 0.001, true );
+    t_task_np_bad = new TestActivity<PeriodicActivity>(3, 0.001, true, true );
+    t_task_p = new TestActivity<PeriodicActivity>(3, 0.032, true );
 }
 
 
 void 
 ActivitiesThreadTest::tearDown()
 {
-    ZeroTimeThread::Instance()->start();
     delete t_task_np;
     delete t_task_np_bad;
     delete t_task_p;
-    delete t_task_sim;
 }
 
 void ActivitiesThreadTest::testPeriodic()
@@ -217,14 +174,10 @@ void ActivitiesThreadTest::testPeriodic()
     CPPUNIT_ASSERT( mtask.isRunning() == false );
     CPPUNIT_ASSERT( mtask.thread()->isRunning() );
     CPPUNIT_ASSERT_EQUAL( 0.01, mtask.thread()->getPeriod() );
-#if !(defined(OROPKG_OS_GNULINUX) && defined(OROSEM_OS_SCHEDTYPE_SCHED_OTHER))
     CPPUNIT_ASSERT_EQUAL( 15, mtask.thread()->getPriority() );
-#endif
 
     PeriodicActivity m2task( 15, 0.01 );
-#if !(defined(OROPKG_OS_GNULINUX) && defined(OROSEM_OS_SCHEDTYPE_SCHED_OTHER))
     CPPUNIT_ASSERT( mtask.thread() == m2task.thread() );
-#endif
 
     // starting...
     CPPUNIT_ASSERT( mtask.start() == true );
@@ -344,11 +297,7 @@ void ActivitiesThreadTest::testThreadConfig()
     TimerThreadPtr tt = TimerThread::Instance(15, 0.01);
 
     CPPUNIT_ASSERT_EQUAL( 0.01, tt->getPeriod());
-#if defined(OROPKG_OS_GNULINUX) && defined(OROSEM_OS_SCHEDTYPE_SCHED_OTHER)
-    CPPUNIT_ASSERT_EQUAL( 0, tt->getPriority());
-#else
     CPPUNIT_ASSERT_EQUAL( 15, tt->getPriority());
-#endif
 
     {
         // different priority, different thread.
@@ -363,25 +312,27 @@ void ActivitiesThreadTest::testThreadConfig()
         CPPUNIT_ASSERT( tt3 != tt2 );
     }
 
-#if defined(OROPKG_OS_GNULINUX) && defined(OROSEM_OS_SCHEDTYPE_SCHED_OTHER)
-    // get it again.
-    tt = TimerThread::Instance(0, 0.01);
-    CPPUNIT_ASSERT( tt != 0 );
-    CPPUNIT_ASSERT( tt == TimerThread::Instance(0,0.01) );
-#else
     tt = TimerThread::Instance(15, 0.01);
     CPPUNIT_ASSERT( tt != 0 );
     CPPUNIT_ASSERT( tt == TimerThread::Instance(15,0.01) );
-#endif
 
     // switching hard/soft
-    CPPUNIT_ASSERT( tt->makeHardRealtime() );
-    CPPUNIT_ASSERT( tt->makeHardRealtime() );
-    CPPUNIT_ASSERT( tt->makeSoftRealtime() );
-    CPPUNIT_ASSERT( tt->makeHardRealtime() );
-    CPPUNIT_ASSERT( tt->makeSoftRealtime() );
-    CPPUNIT_ASSERT( tt->makeSoftRealtime() );
-    CPPUNIT_ASSERT( tt->makeHardRealtime() );
+    // do not ASSERT since the ret-value may be false...
+    if ( tt->setScheduler(ORO_SCHED_OTHER) )
+        CPPUNIT_ASSERT( tt->getScheduler() == ORO_SCHED_OTHER );
+    if ( tt->setScheduler(ORO_SCHED_RT) )
+        CPPUNIT_ASSERT( tt->getScheduler() == ORO_SCHED_RT );
+    tt->setScheduler(ORO_SCHED_OTHER);
+    tt->setScheduler(ORO_SCHED_RT);
+    tt->setScheduler(ORO_SCHED_OTHER);
+    tt->setScheduler(ORO_SCHED_RT);
+    if ( tt->setPriority( 4 ) )
+        CPPUNIT_ASSERT( tt->getPriority() == 4 );
+
+    // even if the priority was changed after construction, 
+    // the thread can be found:
+    CPPUNIT_ASSERT( tt == TimerThread::Instance(4,0.01) );
+
     CPPUNIT_ASSERT( tt->start() );
 
     sleep(1);
@@ -389,8 +340,8 @@ void ActivitiesThreadTest::testThreadConfig()
     // prints annoying warning messages...
     Logger::LogLevel ll = Logger::log().getLogLevel();
     Logger::log().setLogLevel(Logger::Critical);
-    CPPUNIT_ASSERT( tt->makeHardRealtime() );
-    CPPUNIT_ASSERT( tt->makeSoftRealtime() == false );
+    CPPUNIT_ASSERT( tt->setScheduler(0) == false );
+    CPPUNIT_ASSERT( tt->setScheduler(1) == false );
     Logger::log().setLogLevel( ll );
     CPPUNIT_ASSERT( tt->setPeriod(0.3) == false );
     
@@ -409,7 +360,7 @@ void ActivitiesThreadTest::testThreadConfig()
 #ifndef ORO_EMBEDDED
 void ActivitiesThreadTest::testExceptionRecovery()
 {
-    //Logger::LogLevel ll = Logger::log().getLogLevel();
+    Logger::LogLevel ll = Logger::log().getLogLevel();
     Logger::log().setLogLevel( Logger::Never );
     CPPUNIT_ASSERT(t_task_np->start());
     CPPUNIT_ASSERT(t_task_np_bad->start());
@@ -417,8 +368,8 @@ void ActivitiesThreadTest::testExceptionRecovery()
 
     sleep(1);
     // thread should stop :
-    Logger::log().setLogLevel( Logger::Warning );
-    CPPUNIT_ASSERT( !ZeroTimeThread::Instance()->isRunning() );
+    Logger::log().setLogLevel( ll );
+    CPPUNIT_ASSERT( !t_task_np_bad->thread()->isRunning() );
 
     CPPUNIT_ASSERT( !t_task_np->isRunning() );
     CPPUNIT_ASSERT( !t_task_np_bad->isRunning() );
@@ -439,7 +390,7 @@ void ActivitiesThreadTest::testExceptionRecovery()
     t_task_p->stop();
 
     // see if we recovered ok :
-    CPPUNIT_ASSERT( ZeroTimeThread::Instance()->start() );
+    CPPUNIT_ASSERT( t_task_np_bad->thread()->start() );
 
     CPPUNIT_ASSERT(t_task_np->start());
 

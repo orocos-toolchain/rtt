@@ -48,21 +48,20 @@ namespace RTT
 
     RTOS_TASK * MainThread::getTask() { return &main_task; }
       
-    bool MainThread::makeHardRealtime()
+    bool MainThread::setScheduler(int sched_type)
     {
-        rtos_task_make_hard_real_time(&main_task);
-        return rtos_task_is_hard_real_time(&main_task);
+        if ( rtos_task_set_scheduler(&main_task, sched_type) == 0)
+            return true;
+        return false;
+    }
+    int MainThread::getScheduler() const
+    {
+        return rtos_task_get_scheduler(&main_task);
     }
 
-    bool MainThread::makeSoftRealtime()
+    bool MainThread::setPriority(int p) 
     {
-        rtos_task_make_soft_real_time(&main_task);
-        return !rtos_task_is_hard_real_time(&main_task);
-    }
-
-    bool MainThread::isHardRealtime() const
-    {
-        return rtos_task_is_hard_real_time(&main_task);
+        return rtos_task_set_priority(&main_task, p) == 0;
     }
 
     int MainThread::getPriority() const

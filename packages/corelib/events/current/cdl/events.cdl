@@ -17,30 +17,4 @@ synchronous and asynchronous event handling."
     compile Handle.cxx
     compile CompletionProcessor.cxx
 
-    cdl_component OROPKG_CORELIB_EVENTS_CP {
-	display "Completion Processor Properties"
-	description "
-The Completion Processor is a thread which processes
-periodically deferred completion requests of events."
-	flavor none
-
-        cdl_option OROSEM_CORELIB_EVENTS_AUTOSTART {
-	    display "Automatically start the CompletionProcessor"
-	    description "
-This option will enable starting the CompletionProcessor thread
-automatically in the background so that the application does
-no longer have to do so."
-	    flavor bool
-	    default_value 1
-        }
-
-	cdl_option ORODAT_CORELIB_EVENTS_CP_NAME {
-	    display "The name of the completion processor"
-	    description "
-The name must be unique with respect to other threads."
-	    flavor data
-	    default_value {"\"CompletionProcessor\""}
-	    #legal_values string
-	}
-    }
 }

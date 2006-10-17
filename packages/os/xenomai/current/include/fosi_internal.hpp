@@ -36,16 +36,7 @@
 #include <iostream>
 #define INTERNAL_QUAL static inline
 
-// extern package config headers.
-#include "pkgconf/system.h"
-#ifdef OROPKG_CORELIB
-#include "pkgconf/corelib.h"
-#endif
-
-#ifdef OROPKG_CORELIB_REPORTING
 #include "rtt/Logger.hpp"
-using RTT::Logger;
-#endif
 
 namespace RTT
 { namespace OS {
@@ -74,19 +65,13 @@ namespace RTT
 #ifdef OROSEM_OS_XENO_PERIODIC
             // time in nanoseconds
             rt_timer_start( ORODAT_OS_XENO_PERIODIC_TICK*1000*1000*1000 );
-#ifdef OROPKG_CORELIB_REPORTING
             Logger::In in("Scheduler");
             Logger::log() << Logger::Info << "Xenomai Periodic Timer ticks at "<<ORODAT_OS_XENO_PERIODIC_TICK<<" seconds." << Logger::endl;
-#endif
 #else
             rt_timer_start( TM_ONESHOT );
-#ifdef OROPKG_CORELIB_REPORTING
             Logger::log() << Logger::Info << "Xenomai Periodic Timer runs in preemptive 'one-shot' mode." << Logger::endl;
 #endif
-#endif
-#ifdef OROPKG_CORELIB_REPORTING
             Logger::log() << Logger::Debug << "Xenomai Timer and Main Task Created" << Logger::endl;
-#endif
             return 0;
         }
 
@@ -104,6 +89,10 @@ namespace RTT
 
         INTERNAL_QUAL void rtos_xeno_thread_wrapper( void* cookie )
         {
+            // store 'self'
+            RTOS_TASK* task = ((ThreadInterface*)((XenoCookie*)cookie)->data)->getTask();
+            task->xenoptr = rt_task_self();
+
             ((XenoCookie*)cookie)->wrapper( ((XenoCookie*)cookie)->data );
             free(cookie);
         }
@@ -115,8 +104,6 @@ namespace RTT
                                            void * (*start_routine)(void *),
                                            ThreadInterface* obj) 
         {
-            // work around const ptr !
-            task->xenoptr = &task->xenotask;
 
             if ( priority < 1 )
                 priority = 1;
@@ -157,18 +144,30 @@ namespace RTT
         }
 
         // we could implement here the interrupt shield logic.
-        INTERNAL_QUAL void rtos_task_make_hard_real_time(RTOS_TASK*) {
-            rt_task_set_mode( 0, T_PRIMARY, 0 );
+        INTERNAL_QUAL int rtos_task_set_scheduler(RTOS_TASK* t, int sched_type) {
+            Logger::In in( t->name );
+            // xenoptr was initialised from the thread wrapper.
+            if (t->xenoptr != rt_task_self() ) {
+                log(Error) << "Xenomai can not change the scheduler type from another thread." <<endlog();
+                return -1;
+            }
+            if (sched_type == SCHED_XENOMAI_HARD)
+                return rt_task_set_mode( 0, T_PRIMARY, 0 );
+            else if ( sched_type == SCHED_XENOMAI_SOFT)
+                return rt_task_set_mode( T_PRIMARY, 0, 0 );
+            log(Error) << "Unknown scheduler type for Xenomai. Use SCHED_XENOMAI_SOFT or SCHED_XENOMAI_HARD." <<endlog();
+            return -1;
         }
 
-        INTERNAL_QUAL void rtos_task_make_soft_real_time(RTOS_TASK*) {
-            rt_task_set_mode( T_PRIMARY, 0, 0 );
-        }
+        INTERNAL_QUAL int rtos_task_get_scheduler(const RTOS_TASK* mytask) {
 
-        INTERNAL_QUAL int rtos_task_is_hard_real_time(const RTOS_TASK* t) {
-            int mode;
-            rt_task_set_mode( 0, 0, &mode );
-            return mode & T_PRIMARY;
+            RT_TASK_INFO info;
+            // WORK AROUND constness: (need non-const mytask)
+            RT_TASK* tt = mytask->xenoptr;
+            if ( tt )
+                if ( rt_task_inquire ( tt, &info) == 0 ) 
+                    return info.status & T_PRIMARY;
+            return -1;
         }
 
         INTERNAL_QUAL void rtos_task_make_periodic(RTOS_TASK* mytask, RTIME nanosecs )
@@ -215,10 +214,10 @@ namespace RTT
 
         INTERNAL_QUAL int rtos_task_set_priority(RTOS_TASK * mytask, int priority)
         {
-	  // ignorint 'type'
-	  RT_TASK* tt = mytask->xenoptr;
-	  if ( tt )
-	    return rt_task_set_priority( tt, priority);
+            // ignorint 'type'
+            RT_TASK* tt = mytask->xenoptr;
+            if ( tt )
+                return rt_task_set_priority( tt, priority);
         }
     }
 }}

@@ -23,15 +23,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <rtt/NonPreemptibleActivity.hpp>
-#include <rtt/PreemptibleActivity.hpp>
+#include <rtt/PeriodicActivity.hpp>
 #include <rtt/SimulationActivity.hpp>
 #include <rtt/SlaveActivity.hpp>
 
 using namespace RTT;
 
 template<class T>
-struct TestTask;
+struct TestActivity;
 
 
 /**
@@ -54,11 +53,10 @@ class ActivitiesThreadTest : public CppUnit::TestFixture
 
     CPPUNIT_TEST_SUITE_END();
 
-    TestTask<NonPreemptibleActivity>* t_task_np;
-    TestTask<NonPreemptibleActivity>* t_task_np_bad;
-    TestTask<PreemptibleActivity>*    t_task_p;
-    TestTask<SimulationActivity>*     t_task_sim;
-    TestTask<SlaveActivity>*          t_task_slave;
+    TestActivity<PeriodicActivity>* t_task_np;
+    TestActivity<PeriodicActivity>* t_task_np_bad;
+    TestActivity<PeriodicActivity>* t_task_p;
+    TestActivity<SlaveActivity>*          t_task_slave;
 
     RunnableInterface* t_run_allocate;
 public:

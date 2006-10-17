@@ -112,6 +112,11 @@ extern "C" {
 		RTOS_XENO_TASK* xenoptr;
 	} RTOS_TASK;
 
+#define SCHED_XENOMAI_HARD 0 /** Hard real-time */
+#define SCHED_XENOMAI_SOFT 1 /** Soft real-time */
+#define ORO_SCHED_RT    0 /** Hard real-time */
+#define ORO_SCHED_OTHER 1 /** Soft real-time */
+
 	// inline functions if not agnostic.
 #ifndef OROBLD_OS_AGNOSTIC
 	// hrt is in ticks

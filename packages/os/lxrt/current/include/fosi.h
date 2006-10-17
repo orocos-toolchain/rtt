@@ -147,6 +147,12 @@ extern "C" {
 		RTOS_RTAI_TASK* rtaitask;
 	} RTOS_TASK;
 
+#define SCHED_LXRT_HARD 0 /** LXRT Hard real-time */
+#define SCHED_LXRT_SOFT 1 /** LXRT Soft real-time */
+#define ORO_SCHED_RT    0 /** LXRT Hard real-time */
+#define ORO_SCHED_OTHER 1 /** LXRT Soft real-time */
+
+
 
 
 // rtai undef cfr boost::graph library adjacency_list.hpp:443

@@ -30,33 +30,12 @@
 #include <rtt/os/SingleThread.hpp>
 #include <rtt/os/MutexLock.hpp>
 
-// extern package config headers.
-#include "pkgconf/system.h"
-#ifdef OROPKG_CORELIB
-#include "pkgconf/corelib.h"
-#endif
-#ifdef OROPKG_CORELIB_REPORTING
-#include "rtt/Logger.hpp"
-using RTT::Logger;
-#endif
-
-#include "pkgconf/os.h"
-
-#include <iostream>
-
 #include "rtt/Time.hpp"
 #include "rtt/os/threads.hpp"
-#ifdef OROPKG_DEVICE_INTERFACE
-# include "pkgconf/device_interface.h"
-# include <boost/scoped_ptr.hpp>
-# ifdef OROPKG_OS_THREAD_SCOPE
-#  include "rtt/dev/DigitalOutInterface.hpp"
-   using namespace RTT;
-#  ifdef ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE
-#   include ORODAT_DEVICE_DRIVERS_THREAD_SCOPE_INCLUDE
-    using namespace RTT;
-#  endif
-# endif
+
+#include "pkgconf/os.h"
+#ifdef OROPKG_OS_THREAD_SCOPE
+# include "rtt/dev/DigitalOutInterface.hpp"
 #endif
 
 
@@ -70,46 +49,35 @@ namespace RTT
          * This is one time initialisation
          */
         SingleThread* task = static_cast<OS::SingleThread*> (t);
+        // acquire the resulting scheduler type.
+        task->msched_type = rtos_task_get_scheduler( task->getTask() );
 
+        const char* modname = rtos_task_get_name( task->getTask() );
         // Reporting available from this point :
-#ifdef OROPKG_CORELIB_REPORTING
-    Logger::log() << Logger::Debug << "Single Thread "<< task->getName() <<" created."<<Logger::endl;
-#endif
+        {
+            Logger::In in(modname);
+            log(Info)<< "SingleThread created with priority "
+                     << rtos_task_get_priority(task->getTask())<< "." << endlog();
+            log(Info) << "Scheduler type was set to '"<< task->msched_type << "'."<<endlog();
+        }
 
 #ifdef OROPKG_OS_THREAD_SCOPE
-#ifdef OROINT_OS_THREAD_SCOPE_THREAD_ORDER
-	// order thread scope toggle bit on thread number
-	unsigned int bit = task->threadNumber();
-#else
         // order thread scope toggle bit on priority
         unsigned int bit = task->getPriority();
-#endif
 
         boost::scoped_ptr<DigitalOutInterface> pp;
         DigitalOutInterface* d = 0;
         try {
             if ( DigitalOutInterface::nameserver.getObject("ThreadScope") )
                 d = DigitalOutInterface::nameserver.getObject("ThreadScope");
-            else
-# ifdef OROCLS_DEVICE_DRIVERS_THREAD_SCOPE_DRIVER
-                {
-                    pp.reset( new OROCLS_DEVICE_DRIVERS_THREAD_SCOPE_DRIVER("ThreadScope") );
-                    d = pp.get();
-                }
-# else
                 Logger::log() << Logger::Warning<< "SingleThread : Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << Logger::endl;
-# endif
         } catch( ... )
             {
-#ifdef OROPKG_CORELIB_REPORTING
                 Logger::log() << Logger::Error<< "SingleThread : Failed to create ThreadScope." << Logger::endl;
-#endif
             }
         if ( d ) {
-#ifdef OROPKG_CORELIB_REPORTING
             Logger::log() << Logger::Info
                           << "ThreadScope : Single Thread "<< task->getName() <<" toggles bit "<< bit << Logger::endl;
-#endif
             d->switchOff( bit );
         }
 #endif
@@ -117,10 +85,6 @@ namespace RTT
         /**
          * The real task starts here.
          */
-
-        if ( task->goRealtime )
-            rtos_task_make_hard_real_time( task->getTask() );
-
         rtos_sem_signal( &(task->confDone) );
 
         while ( !task->prepareForExit ) {
@@ -133,10 +97,12 @@ namespace RTT
                                 break;
                             // The configuration might have changed
                             // While waiting on the sem...
-                            if ( task->goRealtime && !rtos_task_is_hard_real_time( task->getTask() ) )
-                                rtos_task_make_hard_real_time( task->getTask() );
-                            if ( ! task->goRealtime && rtos_task_is_hard_real_time( task->getTask() ) )
-                                rtos_task_make_soft_real_time( task->getTask() );
+                            if ( task->msched_type != rtos_task_get_scheduler( task->getTask()) )
+                                {
+                                    rtos_task_set_scheduler( task->getTask(), task->msched_type );
+                                    task->msched_type = rtos_task_get_scheduler(task->getTask());
+                                }
+
                         } else {
 
 #ifdef OROPKG_OS_THREAD_SCOPE
@@ -162,31 +128,15 @@ namespace RTT
                 if ( d )
                     d->switchOff( bit );
 #endif
-                if ( task->isHardRealtime() )
-                    rtos_task_make_soft_real_time( task->getTask() );
                 // set state to not running
                 task->inloop = false;
                 task->active = false;
-#ifdef OROPKG_CORELIB_REPORTING
                 Logger::log() << Logger::Fatal << "Single Thread "<< task->getName() <<" caught a C++ exception, stopping thread !"<<Logger::endl;
-#endif
                 task->finalize();
-                if ( task->goRealtime )
-                    rtos_task_make_hard_real_time( task->getTask() );
             }
         }
             
-    
-        /**
-         * Cleanup stuff
-         */
-        if ( task->isHardRealtime() )
-      rtos_task_make_soft_real_time( task->getTask() );
-
-#ifdef OROPKG_CORELIB_REPORTING
-    Logger::log() << Logger::Debug << "Single Thread "<< task->getName() <<" exiting."<<Logger::endl;
-#endif
-
+        Logger::log() << Logger::Debug << "Single Thread "<< task->getName() <<" exiting."<<Logger::endl;
         rtos_sem_signal( &(task->confDone) );
 
         return 0;
@@ -195,22 +145,20 @@ namespace RTT
   SingleThread::SingleThread(int _priority, 
 			     const std::string& name, 
 			     RunnableInterface* r) :
-    active(false), goRealtime(false), prepareForExit(false), 
-    inloop(false), runComp(r)
+      msched_type(0),
+      active(false), prepareForExit(false), 
+      inloop(false), runComp(r)
     {
-#ifdef OROPKG_CORELIB_REPORTING
-    Logger::log() << Logger::Debug << "SingleThread: Creating." <<Logger::endl;
-#endif
+        Logger::log() << Logger::Debug << "SingleThread: Creating." <<Logger::endl;
 
         rtos_sem_init( &sem, 0 );
         rtos_sem_init( &confDone, 0 );
-    int rv = rtos_task_create( &rtos_task, _priority, name.c_str(),OROSEM_OS_SCHEDTYPE,singleThread_f, this);
+    int rv = rtos_task_create( &rtos_task, _priority, name.c_str(), msched_type, singleThread_f, this);
     if ( rv != 0 ) {
-#ifdef OROPKG_CORELIB_REPORTING
-            Logger::In in("SingleThread");
-            Logger::log() << Logger::Critical << "Could not create thread "
-                          << rtos_task_get_name(&rtos_task) <<"."<<Logger::endl;
-#endif
+        Logger::In in("SingleThread");
+        Logger::log() << Logger::Critical << "Could not create thread "
+                      << rtos_task_get_name(&rtos_task) <<"."<<Logger::endl;
+
       rtos_sem_destroy( &sem );
       rtos_sem_destroy( &confDone );
 #ifndef ORO_EMBEDDED
@@ -224,15 +172,9 @@ namespace RTT
     
     SingleThread::~SingleThread() 
     {
-#ifdef OROPKG_CORELIB_REPORTING
         Logger::In in("~SingleThread");
-#endif
         if ( this->isRunning() && this->stop() == false )
-#ifdef OROPKG_CORELIB_REPORTING
-      Logger::log() << Logger::Error << "Failed to stop thread "<< getName() <<"."<<Logger::endl;
-#else
-        ; // intentional !
-#endif
+            Logger::log() << Logger::Error << "Failed to stop thread "<< getName() <<"."<<Logger::endl;
 
 
         // Send the message to the thread...
@@ -242,36 +184,37 @@ namespace RTT
         
         // Wait for the 'ok' answer of the thread.
         rtos_sem_wait( &confDone );
-    // Delete the task
-    rtos_task_delete(&rtos_task);
+        // Delete the task
+        rtos_task_delete(&rtos_task);
 
         rtos_sem_destroy( &confDone );
         rtos_sem_destroy( &sem );
 
     }
 
-    bool SingleThread::makeHardRealtime() 
-    { 
-        // This construct is so because
-        // the thread itself must call the proper RTAI function.
+    bool SingleThread::setScheduler(int sched_type)
+    {
         if ( !active ) 
             {
-                goRealtime = true;
+                msched_type = sched_type;
                 rtos_sem_signal(&sem);
+                return true;
             }
-        return goRealtime; 
+        log() << "Failed to change scheduler for "<< rtos_task_get_name(&rtos_task) <<" since thread is still running."<<endlog(Warning);
+        return false;
+
+#if 0 
+        // Alternative is not possible for RTAI: can only rt_make_hard_realtime() of current thread!
+        if ( rtos_task_set_scheduler(&rtos_task, sched_type) == 0)
+            return true;
+        return false;
+#endif
     }
 
-    bool SingleThread::makeSoftRealtime()
-    { 
-        if ( !active ) 
-            {
-                goRealtime = false; 
-                rtos_sem_signal(&sem);
-            }
-        return !goRealtime; 
+    int SingleThread::getScheduler() const
+    {
+        return rtos_task_get_scheduler(&rtos_task);
     }
-
 
     bool SingleThread::run( RunnableInterface* r)
     {
@@ -279,11 +222,6 @@ namespace RTT
             return false;
         runComp = r;
         return true;
-    }
-
-    bool SingleThread::isHardRealtime() const
-    {
-        return rtos_task_is_hard_real_time( &rtos_task );
     }
 
     bool SingleThread::start() 
@@ -368,6 +306,11 @@ namespace RTT
         return rtos_task_get_name(&rtos_task);
     }
     
+    bool SingleThread::setPriority(int p) 
+    {
+        return rtos_task_set_priority(&rtos_task, p) == 0;
+    }
+
     int SingleThread::getPriority() const
     {
         return rtos_task_get_priority(&rtos_task);

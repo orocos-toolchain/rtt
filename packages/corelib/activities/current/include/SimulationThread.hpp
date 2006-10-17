@@ -51,13 +51,25 @@ namespace RTT
      * All your activities in the same program must be a SimulationActivity for this
      * to work, since the TimeService global time is updated when this thread runs.
      *
+     * By default, the update period is 0.001 seconds. If you want to run
+     * with a finer or coarser grained time step, use the Instance() method and
+     * supply another period before SimulationActivities are created.
      * @see TimerThread, ZeroTimeThread
      */
     class SimulationThread
         : public TimerThread
     {
     public:
-        static SimulationThreadPtr Instance();
+        /**
+         * Create the SimulationThread with a given period.  Only one
+         * SimulationThread can be created.
+         *
+         * @param period The period in seconds at which the simulation
+         * takes steps and updates the TimeService. Only the first
+         * invocation of Instance will consider this parameter. The
+         * others will ignore it.
+         */
+        static SimulationThreadPtr Instance(double period = 0.001);
 
         /**
          * Releases the SimulationThread
@@ -109,7 +121,7 @@ namespace RTT
         /**
          * Constructor
          */
-        SimulationThread();
+        SimulationThread(double period);
 
     private:
 

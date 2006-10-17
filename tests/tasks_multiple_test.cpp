@@ -20,9 +20,7 @@
 
 #include "tasks_multiple_test.hpp"
 #include <rtt/TimerInterface.hpp>
-#include <rtt/ZeroTimeThread.hpp>
-#include <rtt/ZeroLatencyThread.hpp>
-#include <rtt/NonRealTimeThread.hpp>
+#include <rtt/os/threads.hpp>
 
 #include <iostream>
 using namespace std;
@@ -48,15 +46,15 @@ CPPUNIT_TEST_SUITE_REGISTRATION( ActivitiesMultipleTest );
         np_tasks.reserve(nr_of_np); 
         p_tasks.reserve(nr_of_p);
         for (unsigned int i=0; i< nr_of_np/2; ++i) 
-            np_tasks.push_back( new DummyNPTask( ZeroTimeThread::Instance()->getPeriod() ) );
+            np_tasks.push_back( new DummyNPTask( RTT::OS::HighestPriority, 0.001 ) );
         for (unsigned int i=0; i< nr_of_np/2; ++i) 
-            np_tasks.push_back( new DummyNPTask( ZeroTimeThread::Instance()->getPeriod()*8) );
+            np_tasks.push_back( new DummyNPTask( RTT::OS::HighestPriority, 0.001*8) );
         for (unsigned int i=0; i< nr_of_p/3; ++i) 
-            p_tasks.push_back( new DummyPTask( ZeroLatencyThread::Instance()->getPeriod()) );
+            p_tasks.push_back( new DummyPTask( RTT::OS::HighestPriority + RTT::OS::IncreasePriority, 0.032 ) );
         for (unsigned int i=0; i< nr_of_p/3; ++i) 
-            p_tasks.push_back( new DummyPTask( ZeroLatencyThread::Instance()->getPeriod()*2) );
+            p_tasks.push_back( new DummyPTask( RTT::OS::HighestPriority + RTT::OS::IncreasePriority, 0.032*2) );
         for (unsigned int i=0; i< nr_of_p/3; ++i) 
-            p_tasks.push_back( new DummyPTask( ZeroLatencyThread::Instance()->getPeriod()*7) );
+            p_tasks.push_back( new DummyPTask( RTT::OS::HighestPriority + RTT::OS::IncreasePriority, 0.032*7) );
         
         nr_of_p = p_tasks.size();
         nr_of_np = np_tasks.size();
@@ -77,11 +75,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( ActivitiesMultipleTest );
 
         // we lower the 'load' if the period is too short.
         // this is a bit arbitrary.
-        int correction = int(0.001 / ( ZeroTimeThread::Instance()->getPeriod() ));
-        if ( correction == 0)
-            correction = 1;
-        if ( correction > 20 )
-            correction = 20;
+        int correction = 1;
 
         while ( runs++ != 100/correction ) {
             if ( np_tasks[runningNp]->isRunning() )

@@ -59,10 +59,9 @@ namespace RTT
 
 		void rtos_task_yield(RTOS_TASK*);
 
-		// these should disappear in the future...
-		void rtos_task_make_hard_real_time(RTOS_TASK*);
-		void rtos_task_make_soft_real_time(RTOS_TASK*);
-		int rtos_task_is_hard_real_time(RTOS_TASK*);
+		// scheduler type/lanes
+		int rtos_task_set_scheduler(RTOS_TASK* t, int sched_type);
+		int rtos_task_get_scheduler(RTOS_TASK* t);
 
 		void rtos_task_make_periodic(RTOS_TASK* mytask, NANO_TIME nanosecs );
 		void rtos_task_set_period( RTOS_TASK* mytask, NANO_TIME nanosecs );

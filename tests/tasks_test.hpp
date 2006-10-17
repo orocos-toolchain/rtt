@@ -23,9 +23,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <rtt/RTT.hpp>
-#include <rtt/NonRealTimeActivity.hpp>
-#include <rtt/PreemptibleActivity.hpp>
-#include <rtt/NonPreemptibleActivity.hpp>
 #include <rtt/PeriodicActivity.hpp>
 #include <rtt/SimulationActivity.hpp>
 #include <rtt/NonPeriodicActivity.hpp>
@@ -67,14 +64,8 @@ class ActivitiesTest : public CppUnit::TestFixture
 
     CPPUNIT_TEST_SUITE_END();
 
-    NonRealTimeActivity*    t_task_nrt;
-    NonPreemptibleActivity* t_task_np;
-    PreemptibleActivity*    t_task_p;
     PeriodicActivity*   t_task_prio;
 
-    TestRunnableInterface*  t_run_int_np;
-    TestRunnableInterface*  t_run_int_p;
-    TestRunnableInterface*  t_run_int_nrt;
     TestRunnableInterface*  t_run_int_prio;
     TestRunnableInterface*  t_run_int_fail;
 

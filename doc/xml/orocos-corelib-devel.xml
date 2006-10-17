@@ -120,10 +120,6 @@
 	      <entry><classname>RTT::PeriodicTask</classname>::start(), 
 	      <classname>RTT::PeriodicTask</classname>::stop()</entry>
 	      <entry>
-		<para>( Applies to <classname>RTT::PriorityTask</classname>, 
-		<classname>RTT::NonRealtimeActivity</classname>, 
-		<classname>RTT::PreemptibleActivity</classname> and
-		<classname>RTT::NonPreemptibleActivity</classname>).
 		Uses Mutex for serialising concurrent access.
 		Alternative implementation are incorrect,
 		since stop() guarantees that finalize() will

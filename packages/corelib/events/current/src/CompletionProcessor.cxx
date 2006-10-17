@@ -29,54 +29,40 @@
 #include "rtt/Logger.hpp"
 #include <rtt/os/threads.hpp>
 
-#include <pkgconf/corelib_events.h>
-
-#ifdef OROSEM_CORELIB_EVENTS_AUTOSTART
 #include <rtt/os/StartStopManager.hpp>
 namespace RTT
 {
-    namespace
-    {
-        int startCPPThread()
-        {
-            CompletionProcessor::Instance()->start();
-            return true;
-        }
-
-        void stopCPPThread()
-        {
-            CompletionProcessor::Release();
-        }
-
-        OS::InitFunction CPPInit( &startCPPThread );
-        OS::CleanupFunction CPPCleanup( &stopCPPThread );
-    }
+   namespace {
+       // this function is required to cleanup the CP
+       // resources before the OS is being 'cleaned up'.
+       void stopCPPThread()
+       {
+           CompletionProcessor::Release();
+       }
+       OS::CleanupFunction CPPCleanup( &stopCPPThread );
+   }
 }
-#endif
-
-
 
 namespace RTT
 {
 
-    CompletionProcessor* CompletionProcessor::cp;
+    boost::shared_ptr<CompletionProcessor> CompletionProcessor::cp;
 
     CompletionProcessor* CompletionProcessor::Instance()
     {
-        if ( cp == 0 )
+        if ( !cp )
             {
-                cp = new CompletionProcessor();
+                cp.reset( new CompletionProcessor() );
             }
-        return cp;
+        return cp.get();
     }
 
     bool CompletionProcessor::Release()
     {
-        if ( cp != 0 )
+        if ( cp )
             {
                 cp->stop();
-                delete cp;
-                cp = 0;
+                cp.reset();
                 return true;
             }
         return false;
@@ -84,9 +70,9 @@ namespace RTT
 
     CompletionProcessor::CompletionProcessor()
         : NonPeriodicActivity( OS::LowestPriority + 2* OS::IncreasePriority, 
-                               ORODAT_CORELIB_EVENTS_CP_NAME, this )
+                               "CompletionProcessor", this )
     {
-        Logger::log() << Logger::Info << ORODAT_CORELIB_EVENTS_CP_NAME <<" created with priority ";
+        Logger::log() << Logger::Info << "CompletionProcessor created with priority ";
         Logger::log() << this->thread()->getPriority() <<Logger::endl;
     }
 

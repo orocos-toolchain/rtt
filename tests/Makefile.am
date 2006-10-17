@@ -38,8 +38,8 @@ core_test_SOURCES = test-runner.cpp \
 	logger_test.cpp logger_test.hpp
 
 task_test_SOURCES = test-runner.cpp \
-	tasks_test.cpp tasks_test.hpp \
 	taskthread_test.cpp taskthread_test.hpp \
+	tasks_test.cpp tasks_test.hpp \
 	tasks_multiple_test.cpp tasks_multiple_test.hpp
 
 event_test_SOURCES = test-runner.cpp \

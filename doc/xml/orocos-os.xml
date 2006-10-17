@@ -30,7 +30,7 @@
       </author>
     </authorgroup>
     <copyright>
-      <year>2003, 2004, 2005</year>
+      <year>2003, 2004, 2005, 2006</year>
       <holder>Peter Soetens, Herman Bruyninckx</holder>
     </copyright>
 
@@ -75,6 +75,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Added Thread monitoring via ParallelPort support.</revremark>
       </revision>
+      <revision>
+	<revnumber>0.22</revnumber>
+	<date>16 Okt 2006</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Documented new setScheduler call and priority management.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -99,7 +105,7 @@
 	The OS package makes an abstraction of the operating system on
 	which it runs. It provides C++ interfaces to only the
 	<emphasis>minimal set</emphasis> of operating system
-	primitives that it needs: mutexes, condition variables and
+	primitives that it needs: mutexes, semaphores and
 	threads. This is in accordance with the general developers
 	requirements of the project: a minimalistic approach is much
 	easier to scale, to maintain, and to port. The abstraction
@@ -129,19 +135,18 @@
 	example, a thread can be created, started, paused, scheduled,
 	etc., but each OS uses other function calls to do this.
 	&orocos; prefers C++ interfaces, which led to the
-	<classname>RTT::OS::ThreadInterface</classname> interface and
-	<classname>RTT::OS::PeriodicThread</classname> class as the
-	abstractions of a periodic thread. The
+	<classname>RTT::OS::ThreadInterface</classname> which allows
+	control and provides information about a thread in &orocos;.
+      </para>
+      <para>
+	Three thread classes are available in &orocos;:
+	<classname>RTT::OS::PeriodicThread</classname> houses
+	a periodic thread and 
 	<classname>RTT::OS::SingleThread</classname> is a non periodic thread
 	which executes the functionality once each time it is started.
-	Each OS implements in its <filename
-	  class="directory">rtt/os/&lt;OS-name-here&gt;</filename>
-	directory the specific system calls to get the desired effect.
-	The <classname>RTT::OS::Mutex</classname> and
-	<classname>RTT::OS::MutexRecursive</classname> classes in combination
-	with the <classname>RTT::OS::MutexLock</classname> and
-	<classname>RTT::OS::MutexTryLock</classname> classes are also commonly
-	used abstractions in multithreaded frameworks.
+	The <classname>RTT::MainThread</classname> is a special case as
+	only one such object exists and represents the thread that
+	executes the main() function.
       </para>
       <para>
 	This drawing situates the Operating System abstraction with
@@ -159,7 +164,7 @@
   <sect1>
     <title>OS Package Structure</title>
       <para>
-      The OS package has always a <filename>common</filename>
+      The OS package has a <filename>common</filename>
       directory for all common interfaces and configuration options.
       This directory is OS independent but may contain assembler
       instructions ( such as Compare And Swap ) for specific processor
@@ -172,91 +177,9 @@
       abstractions may be available, but only one can be configured
       and compiled in one configuration.
     </para>
-
-<!--     <sect2> -->
-<!--       <title>Using the OS abstraction in the Linux kernel </title> -->
-<!--       <para> -->
-<!-- 	When building kernel space applications, the realtime code -->
-<!-- 	does not run in a C++ friendly environment and we had to wrap -->
-<!-- 	some libraries with our own headers to guarantee correct -->
-<!-- 	functioning. If you want to use the Standard C++ library -->
-<!-- 	(without iostreams), you can include the desired header, but -->
-<!-- 	not a full implementation will be provided. The following -->
-<!-- 	table contains the latest kernel-approved header files: -->
-<!--       </para> -->
-<!--       <note> -->
-<!-- 	See the next section if you want full availability of -->
-<!-- 	all libraries. -->
-<!--       </note> -->
-<!--       <table frame="all"> -->
-<!-- 	<title>Header Files for Kernel Applications</title> -->
-<!-- 	<tgroup cols="3" colsep="1" rowsep="1"> -->
-<!-- 	  <thead > -->
-<!-- 	    <row> -->
-<!-- 	      <entry>Library</entry> -->
-<!-- 	      <entry>Which file to include</entry> -->
-<!-- 	      <entry>Remarks</entry> -->
-<!-- 	    </row> -->
-<!-- 	  </thead> -->
-<!-- 	  <tbody> -->
-<!-- 	    <row> -->
-<!-- 	      <entry align="center" valign="middle">OS -->
-<!-- 		functionality</entry> -->
-<!-- 	      <entry align="center" -->
-<!-- 		  valign="middle">rtt/os/fosi.h</entry> -->
-<!-- 	      <entry align="left" valign="middle">Include this file if -->
-<!-- 		you want to make system calls to the underlying -->
-<!-- 		operating system ( RTLinux, RTAI ) .</entry></row> -->
-<!-- 	    <row> -->
-<!-- 	      <entry align="center" valign="middle">Standard Template -->
-<!-- 		Library (STL) and Standard C++ Library</entry> -->
-<!-- 	      <entry align="center" -->
-<!-- 		  valign="middle">&lt;any_header&gt;</entry> -->
-<!-- 	      <entry align="left" valign="middle">No iostream support, -->
-<!-- 		limited support of other standard library classes for -->
-<!-- 		RTAI. RTLinux only supports string and -->
-<!-- 		vector.</entry></row> -->
-<!-- 	    <row> -->
-<!-- 	      <entry align="center" valign="middle">Streams</entry> -->
-<!-- 	      <entry align="center" -->
-<!-- 		  valign="middle">rtt/os/rtstreams.hpp</entry> -->
-<!-- 	      <entry align="left" valign="middle">Defines rt_std::cout -->
-<!-- 		which allows realtime printing, with limited -->
-<!-- 		functionality</entry></row> -->
-<!-- 	    <row> -->
-<!-- 	      <entry align="center" valign="middle">C Math -->
-<!-- 		Library</entry> -->
-<!-- 	      <entry align="center" valign="middle">math.h</entry> -->
-<!-- 	      <entry align="left" valign="middle">not all functions -->
-<!-- 		supported in RTLinux (i.e. log() )</entry></row> -->
-<!-- 	    <row> -->
-<!-- 	      <entry align="center" valign="middle">OS Abstraction -->
-<!-- 		classes</entry> -->
-<!-- 	      <entry align="center" valign="middle"> -->
-<!-- 		Mutex.hpp, MutexLock.hpp, PeriodicThread.hpp, -->
-<!-- 		EvenInterrupt.hpp -->
-<!-- 	      </entry> -->
-<!-- 	      <entry align="left" valign="middle"> -->
-<!-- 		The standard provided C++ OS primitives.</entry></row> -->
-<!-- 	  </tbody> -->
-<!-- 	</tgroup> -->
-<!--       </table>  -->
-<!--       <para> -->
-<!-- 	OSs implementing the POSIX Threads API -->
-<!-- 	<emphasis>correctly</emphasis> greatly eases porting. Since -->
-<!-- 	this api is not present in the Linux kernel itself, only -->
-<!-- 	limited support is available for most functions. The next -->
-<!-- 	sections provides an alternative. -->
-<!--       </para> -->
-<!--     </sect2> -->
     <sect2>
       <title>The RTAI/LXRT OS target</title>
       <para>
-	<!-- 	The previous section explained which headers to include -->
-<!-- 	when building Linux kernel applications. Fortunately, an -->
-<!-- 	application does not need to run in the Linux kernel -->
-<!-- 	to be realtime. Some OSes (like VxWorks) don't even have -->
-<!-- 	the notion of a kernel application. --> 
 	RTAI/LXRT is an
 	environment that allows user programs to run with realtime
 	determinism next to the normal programs. The advantage is
@@ -266,7 +189,7 @@
       <para>
 	An introduction to RTAI/LXRT can be found in the <ulink
 	  url="http://people.mech.kuleuven.be/~psoetens/lxrt/portingtolxrt.html"> 
-	  Porting to LXRT HOWTO</ulink>, which is a must- read if you
+	  Porting to LXRT HOWTO</ulink>, which is a must-read if you
 	don't know what LXRT is.
       </para>
       <para>
@@ -277,8 +200,7 @@
 	but not the native Linux ones, may be called from within
 	a hard realtime thread. Fortunately these system calls
 	can be done from a not hard realtime thread within the
-	same program. <emphasis>Using the Orocos provided C++ primitives
-	is in any case correct.</emphasis>
+	same program.
       </para>
     </sect2>
     <sect2>
@@ -286,7 +208,7 @@
       <para>
 	The OS package is the only part of Orocos that needs to
 	be ported to other Operating Sytems or processor architectures
-	in case the target supports Standard C++. The rtt/os/common directory
+	in case the target supports Standard C++. The os/common directory
 	contains code common to all OS'es and the architecture dependent
 	headers (for example atomic counters and compare-and-swap ).
 	The latter must be extended to support other processor architectures.
@@ -295,9 +217,9 @@
 	change the target processor.
       </para>
       <para>
-	In order to start your port, look at the <filename>fosi_interace.h</filename>
+	In order to start your port, look at the <filename>fosi_interface.h</filename>
 	and <filename>fosi_internal_interface.h</filename> files in
-	the rtt/os/common package. These two files list the C function
+	the os/common package. These two files list the C function
 	signatures of all to be ported functions in order to support
 	a new OS. The main categories are: time reading, mutexes,
 	semaphores and threads.
@@ -333,28 +255,6 @@
 		you want to make system calls to the underlying
 		operating system ( LXRT, GNU/Linux ) .</entry></row>
 	    <row>
-	      <entry align="center" valign="middle">Standard Template
-		Library (STL) and Standard C++ Library</entry>
-	      <entry align="center"
-		  valign="middle">&lt;any_header&gt;</entry>
-	      <entry align="left" valign="middle">All headers
-		can be included, exceptions and iostreams
-		may not be used from a hard realtime thread.</entry>
-	    </row>
-	    <row>
-	      <entry align="center" valign="middle">Streams</entry>
-	      <entry align="center"
-		  valign="middle">rtt/os/rtstreams.hpp</entry>
-	      <entry align="left" valign="middle">Defines rt_std::cout
-		which allows realtime printing, with limited
-		functionality</entry></row>
-	    <row>
-	      <entry align="center" valign="middle">C Math
-		Library</entry>
-	      <entry align="center" valign="middle">math.h</entry>
-	      <entry align="left" valign="middle"> Fully supported
-		</entry></row>
-	    <row>
 	      <entry align="center" valign="middle">OS Abstraction
 		classes</entry>
 	      <entry align="center" valign="middle">
@@ -379,10 +279,9 @@
 	thread.  The OS abstraction expects an <function>int
 	  ORO_main(int argc, char** argv)</function> function (which
 	the user has written) and will call that after all system
-	initialisation has been done, meaning thread creation or
-	setting up the realtime primitives. Inside ORO_main() the user
+	initialisation has been done. Inside ORO_main() the user
 	may expect that the system is properly set up and can be used.
-	The resulting libtarget.a library will contain the real main()
+	The resulting orocos-rtt library will contain the real main()
 	function which will call the ORO_main() function.
       </para>
       <important>
@@ -406,37 +305,6 @@
 	  events instead.
 	</para>
       </note>
-<!--       <sect3> -->
-<!-- 	<title>Starting Kernel Applications</title> -->
-<!-- 	<para> -->
-<!-- 	<emphasis> Starting an application is a bit more complex in -->
-<!-- 	  the kernel (RTAI, RTLinux)</emphasis>. For a program to be -->
-<!-- 	executed in kernelspace-realtime, it has to be compiled into a -->
-<!-- 	kernel module. Each kernel module needs exactly one -->
-<!-- 	<function>init_module()</function> and -->
-<!-- 	<function>cleanup_module()</function> function call. The -->
-<!-- 	former will be called when the module is loaded, the latter -->
-<!-- 	will be called when the module is unloaded. Our policy is to -->
-<!-- 	put these functions in a <filename>module.c</filename> -->
-<!-- 	file, which will call then our real C++ functions, which -->
-<!-- 	reside in another file.  -->
-<!-- 	</para> -->
-<!-- 	<para> -->
-<!-- 	  First, a special function is called to -->
-<!-- 	  initialize all static variables your program might have. -->
-<!-- 	  When this is done the real initialisation function is -->
-<!-- 	  called. There we instantiate all objects we need, and -->
-<!-- 	  finally start the services. Each service is now running as a -->
-<!-- 	  realtime thread, using the data you provided on -->
-<!-- 	  instantiation. Be warned that when this function exits, all -->
-<!-- 	  local data is destroyed, that is why we allocate global -->
-<!-- 	  variables. -->
-<!-- 	</para> -->
-<!-- 	<note> -->
-<!-- 	  Writing kernel applications is doing it the hard way and -->
-<!-- 	  is not advised for beginners. Use RTAI/LXRT instead. -->
-<!-- 	</note> -->
-<!--       </sect3>     -->
     </sect2>
     <sect2>
       <title>The Orocos Thread System</title>
@@ -445,11 +313,13 @@
 	<para>
 	  An &orocos; thread, which must execute a task periodically,
 	  is defined by the
-	  <classname>RTT::OS::ThreadInterface</classname>. The most
+	  <classname>RTT::OS::PeriodicThread</classname>. The most
 	  common operations are <methodname>start()</methodname>,
 	  <methodname>stop()</methodname> and setting the periodicity.
-	  What is executed is defined in the 
-	  <classname>RTT::OS::RunnableInterface</classname>. It contains three methods :
+	  What is executed is defined in an user object which
+	  implements the
+	  <classname>RTT::OS::RunnableInterface</classname>. It
+	  contains three methods :
 	  <methodname>initialize()</methodname>,
 	  <methodname>step()</methodname> and
 	  <methodname>finalize()</methodname>. You can inherit from
@@ -461,19 +331,14 @@
 	  right after the last step() when the component is stop()'ed.
 	</para>
 	<para>
-	  &orocos; delivers one implementation of the
-	  <classname>RTT::OS::ThreadInterface</classname> : <classname>
-	    RTT::OS::PeriodicThread</classname>, which creates a thread
-	  according to the operating system you are compiling for.
 	  However, you are encouraged <emphasis>NOT</emphasis> to use
-	  it! The CoreLib uses this class as a basis to provide a more
-	  fundamental task-based (as opposite to thread based)
-	  execution mechanism which will insert your periodic tasks in
-	  a periodic thread. It is provided in the rtt/task
-	  package.
+	  the OS classes! The CoreLib uses these classes as a basis to provide a more
+	  fundamental activity-based (as opposite to thread based)
+	  execution mechanism which will insert your periodic activities in
+	  a periodic thread.
 	</para>
 	<para>
-	  Common uses are :
+	  Common uses of periodic threads are :
 	  <itemizedlist>
 	  <listitem>
 	    <para>Running periodic control tasks.</para>
@@ -492,34 +357,35 @@
 	<para>
 	  For non-periodic threads, which block or do lenghty
 	  calculations, the <classname>RTT::OS::SingleThread</classname> class
-	  can be used.  The rtt/task package uses the SingleThread
-	  for the <classname>RTT::TaskNonPeriodic</classname>.  Porting applications to Orocos
+	  can be used.  The rtt/activities package uses the SingleThread
+	  for the <classname>RTT::NonPeriodicActivity</classname>.  Porting applications to Orocos
 	  might benifit this class in a first adaptation step. It
 	  has a start() method, which will invoke one single call to
-	  loop() ( in contrast to step() above). It can be
+	  the user's loop() function ( in contrast to step() above). It can be
 	  re-started each time the loop() function returns. The
 	  initialise() functions is called when the
 	  SingleThread is started the first time. When stopped,
 	  the finalise() function is called after loop() returns.
 	</para>
 	<para>
-	  The user himself is responsible for providing a mechanism
-	  to return from the loop() function. The SingleThread expects
-	  this mechanism to be implemented in the RunnableInterface::breakLoop()
-	  function, which must return true if the loop() function could be
-	  forced to return. Hence, SingleThread will call breakLoop() in its
-	  stop() method if loop() is still being executed.
-	  The <function>SingleThread::isRunning()</function>
-	  function can be used to check if loop() is being executed or not.
+	  The user himself is responsible for providing a mechanism to
+	  return from the loop() function. The SingleThread expects
+	  this mechanism to be implemented in the
+	  RunnableInterface::breakLoop() function, which must return
+	  true if the loop() function could be signaled to
+	  return. SingleThread will call breakLoop() in its stop()
+	  method if loop() is still being executed and, if succesful,
+	  will wait until loop() returns.  The
+	  <function>SingleThread::isRunning()</function> function can
+	  be used to check if loop() is being executed or not.
 	</para>
 	<note>
-	  <para>The
-	  <classname>RTT::TaskNonPeriodic</classname> in
+	  <para>The <classname>RTT::NonPeriodicActivity</classname> in
 	  CoreLib provides a better integrated implementation for
 	  SingleThread and should be favourably used.</para>
 	</note>
 	<para>
-	  Common uses are :
+	  Common uses of non periodic threads are :
 	  <itemizedlist>
 	  <listitem>
 	    <para>Listening for data on a network socket.</para>
@@ -544,14 +410,41 @@
 	</para>
       </sect3>
       <sect3>
-	<title>ThreadScope : Oscilloscope Monitoring of Orocos Threads</title>
+	<title>Setting the Scheduler and Priorities.</title>
+	<para>
+	  The Orocos thread priorities are set during thread
+	  construction time and can be changed later on with
+	  <function>setPriority</function>. Priorities are integer
+	  numbers which are passed directly to the underlying OS. One
+	  can use priorities portably by using the
+	  <classname>RTT::OS::LowestPriority</classname>,
+	  <classname>RTT::OS::HighestPriority</classname> and
+	  <classname>RTT::OS::IncreasePriority</classname> variables
+	  which are defined for each OS.
+	</para>
+	<para>
+	  OS's that support multiple schedulers can use the
+	  <function>setScheduler</function> function to influence
+	  the scheduling policy of a given thread. Orocos guarantees
+	  that the <classname>ORO_SCHED_RT</classname> and
+	  <classname>ORO_SCHED_OTHER</classname> variables are 
+	  defined and can be used portably. The former `hints'
+	  a real-time scheduling policy, while the latter `hints'
+	  a not real-time secheduling policy. Each OS may define
+	  additional variables which map more appropriately to
+	  its scheduler policies. When only one scheduling policy
+	  is available, both variables map to the same scheduler.
+	</para>
+      </sect3>
+      <sect3>
+	<title>ThreadScope: Oscilloscope Monitoring of Orocos Threads</title>
 	<para>
 	  You can configure the OS package using the configtool to
 	  report thread execution as block-waves on the parallel port
-	  or any other digital output device.
-	  Monitoring through the parallel port requires that the Device
-	  Drivers Standard IO Ports package is installed, and for Linux based
-	  OS'es, that you execute the Orocos program as root.
+	  or any other digital output device.  Monitoring through the
+	  parallel port requires that a parallel port Device Driver is
+	  installed, and for Linux based OS'es, that you execute the
+	  Orocos program as root.
 	</para>
 	<para>
 	  If the CoreLib Logger is active, it will log the mapping of

@@ -25,8 +25,8 @@
  *                                                                         *
  ***************************************************************************/ 
 
-#ifndef PERIODIC_THREAD_HPP
-#define PERIODIC_THREAD_HPP
+#ifndef ORO_PERIODIC_THREAD_HPP
+#define ORO_PERIODIC_THREAD_HPP
 
 // Our own package config headers.
 #include "pkgconf/os.h"
@@ -36,10 +36,6 @@
 #include "ThreadInterface.hpp"
 
 #include <string>
-
-namespace RTT {
-    class Handle;
-}
 
 namespace RTT
 { namespace OS {
@@ -69,7 +65,7 @@ namespace RTT
          * @param r        The optional RunnableInterface instance to run. If not present,
          *                 the thread's own virtual functions are executed.
          */
-    PeriodicThread(int priority,const std::string & name, double period, OS::RunnableInterface* r=0);
+        PeriodicThread(int priority,const std::string & name, double period, OS::RunnableInterface* r=0);
     
         virtual ~PeriodicThread();
 
@@ -119,20 +115,21 @@ namespace RTT
          */
         virtual const char* getName() const;
 
-    /**
-     * Get the RTOS_TASK pointer
-     * FIXME should this be a const?
-     */
-    virtual RTOS_TASK * getTask(){return &rtos_task;};
+        /**
+         * Get the RTOS_TASK pointer
+         * FIXME should this be a const?
+         */
+        virtual RTOS_TASK * getTask(){return &rtos_task;};
 
-        virtual bool makeHardRealtime();
-        virtual bool makeSoftRealtime();
-        virtual bool isHardRealtime() const;
+        virtual bool setScheduler(int sched_type);
+        virtual int getScheduler() const;
 
         /**
          * Set the periodicity of this thread
          */
         bool setPeriod(  TIME_SPEC p );
+
+        virtual bool setPriority(int priority);
 
         virtual int getPriority() const;
 
@@ -177,15 +174,15 @@ namespace RTT
         RTOS_TASK rtos_task;
 
         /**
+         * Desired scheduler type.
+         */
+        int msched_type;
+
+        /**
          * When set to 1, the thread will run, when set to 0
          * the thread will stop
          */
         bool running;
-
-        /**
-         * True when the thread should go realtime.
-         */
-        bool goRealtime;
 
         bool prepareForExit;
 

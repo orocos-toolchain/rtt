@@ -32,29 +32,14 @@
  * The target calls these functions at startup time.
  */
 
-#include <pkgconf/system.h>
 #include <pkgconf/os.h>
-
 #include <rtt/os/startstop.h>
-
-    
-// extern package config headers.
-#include "pkgconf/system.h"
-#ifdef OROPKG_CORELIB
-#include "pkgconf/corelib.h"
-#endif
-
-#ifdef OROPKG_CORELIB_REPORTING
-#include "rtt/Logger.hpp"
-using RTT::Logger;
-#endif
-#ifdef OROPKG_CORELIB_TIMING
-#include "rtt/TimeService.hpp"
-using RTT::TimeService;
-#endif
- 
 #include "rtt/os/MainThread.hpp"
 #include "rtt/os/StartStopManager.hpp"
+
+    
+#include "rtt/Logger.hpp"
+#include "rtt/TimeService.hpp"
 
 using namespace RTT;
 static OS::StartStopManager* initM;
@@ -67,13 +52,9 @@ int __os_init(int argc, char** argv )
 #endif
 
     OS::MainThread::Instance();
-#ifdef OROPKG_CORELIB_REPORTING
     Logger::log() << Logger::Debug << "MainThread started." << Logger::endl;
-#endif
 
-#ifdef OROPKG_CORELIB_REPORTING
     Logger::log() << Logger::Debug << "Starting StartStopManager." << Logger::endl;
-#endif
     initM = OS::StartStopManager::Instance();
     return initM->start();
 }
@@ -81,25 +62,18 @@ int __os_init(int argc, char** argv )
 extern "C"
 void __os_exit(void)
 {
-#ifdef OROPKG_CORELIB_REPORTING
     Logger::log() << Logger::Debug << "Stopping StartStopManager." << Logger::endl;
-#endif
     initM->stop();
     OS::StartStopManager::Release();
 
-#if defined(OS_HAVE_MAIN_THREAD) && defined(OROPKG_CORELIB_REPORTING)
     // This should be the (one but) last message to be logged :
     Logger::log() << Logger::Debug << "Stopping MainThread." << Logger::endl;
-#endif
 
     // Stop logging
-#ifdef OROPKG_CORELIB_REPORTING
     Logger::Release();
-#endif
+
     // Stop TimeService if present.
-#ifdef OROPKG_CORELIB_TIMING
     TimeService::Release();
-#endif
 
     // Stop Main Thread
     OS::MainThread::Release();

@@ -23,9 +23,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <rtt/NonRealTimeActivity.hpp>
-#include <rtt/PreemptibleActivity.hpp>
-#include <rtt/NonPreemptibleActivity.hpp>
+#include <rtt/PeriodicActivity.hpp>
 
 using namespace RTT;
 
@@ -42,8 +40,8 @@ class DummyTask : public T
     unsigned int okstarts;
     unsigned int okstops;
 public:
-    DummyTask(double period)
-        : T(period),
+    DummyTask(int prio, double period)
+        : T(prio, period),
           inits(0), steps(0), fins(0),
           starts(0), stops(0),
           okstarts(0), okstops(0) {}
@@ -76,8 +74,8 @@ public:
     unsigned int nrOfOKStops() { return okstops;}
 };
 
-typedef DummyTask<PreemptibleActivity> DummyPTask;
-typedef DummyTask<NonPreemptibleActivity> DummyNPTask;
+typedef DummyTask<PeriodicActivity> DummyPTask;
+typedef DummyTask<PeriodicActivity> DummyNPTask;
 
 /**
  * Test for starting and stopping tasks

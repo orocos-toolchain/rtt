@@ -54,7 +54,13 @@ extern "C"
     NANO_TIME period;
   
     char* name;
+
+    int priority;
   } RTOS_TASK;
+
+
+#define ORO_SCHED_RT    0 /** Linux FIFO scheduler */
+#define ORO_SCHED_OTHER 1 /** Linux normal scheduler */
 
 
 	// Orocos Implementation (i386 specific)

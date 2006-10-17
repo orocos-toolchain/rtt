@@ -33,32 +33,20 @@
 #include "rtt/Logger.hpp"
 #include <rtt/os/threads.hpp>
 
-#include "pkgconf/corelib_activities.h"
-
-// NO AUTO START ! Only create/release
-#ifdef OROSEM_CORELIB_ACTIVITIES_AUTOSTART
 #include <rtt/os/StartStopManager.hpp>
 namespace RTT
 {
     namespace
     {
-        int startSIMThread()
-        {
-            SimulationThread::Instance();
-            return true;
-        }
-
+        // Stop it before the application quits.
         void stopSIMThread()
         {
             SimulationThread::Release();
         }
 
-        OS::InitFunction SIMInit( &startSIMThread );
         OS::CleanupFunction SIMCleanup( &stopSIMThread );
     }
 }
-#endif
-
 
 namespace RTT
 {
@@ -66,11 +54,11 @@ namespace RTT
     // The static class variables
     SimulationThreadPtr SimulationThread::_instance;
 
-    SimulationThreadPtr SimulationThread::Instance()
+    SimulationThreadPtr SimulationThread::Instance(double period)
     {
         if ( !_instance )
         {
-            _instance.reset( new SimulationThread() );
+            _instance.reset( new SimulationThread(period) );
         }
 
         return _instance;
@@ -83,14 +71,14 @@ namespace RTT
     }
 
 
-    SimulationThread::SimulationThread()
+    SimulationThread::SimulationThread(double period)
         : TimerThread( OS::LowestPriority,
-                      ORODAT_CORELIB_ACTIVITIES_SIM_NAME, 
-                      ORONUM_CORELIB_ACTIVITIES_SIM_PERIOD),
+                      "SimulationThread", 
+                      period),
           beat( TimeService::Instance() ), maxsteps_(0)
     {
         this->continuousStepping( true );
-        Logger::log() << Logger::Info << ORODAT_CORELIB_ACTIVITIES_SIM_NAME <<" created with "<< ORONUM_CORELIB_ACTIVITIES_SIM_PERIOD <<"s periodicity";
+        Logger::log() << Logger::Info << this->getName() <<" created with "<< this->getPeriod() <<"s periodicity";
         Logger::log() << Logger::Info << " and priority " << this->getPriority() << Logger::endl;
     }
 
@@ -106,7 +94,7 @@ namespace RTT
         while( cur != ms ) {
             ++cur;
             TimerThread::step();
-            beat->secondsChange(ORONUM_CORELIB_ACTIVITIES_SIM_PERIOD);
+            beat->secondsChange(this->getPeriod());
         }
         this->finalize();
         return true;
@@ -141,7 +129,7 @@ namespace RTT
 
         if ( maxsteps_ == 0 || cursteps < maxsteps_ + 1 ) {
             TimerThread::step();
-            beat->secondsChange(ORONUM_CORELIB_ACTIVITIES_SIM_PERIOD);
+            beat->secondsChange(this->getPeriod());
         }
 
         // call stop once :

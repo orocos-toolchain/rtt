@@ -52,6 +52,9 @@ extern "C"
 #include "oro_atomic.h"
 #include "oro_bitops.h"
 
+#define ORO_SCHED_RT    0 /** Hard real-time scheduler type. @see RTT::OS::ThreadInterface::setScheduler */
+#define ORO_SCHED_OTHER 1 /** Soft real-time scheduler type. @see RTT::OS::ThreadInterface::setScheduler */
+
   /**
    * Time functions.
    */
@@ -103,9 +106,10 @@ extern "C"
   int rtos_mutex_rec_trylock( rt_rec_mutex_t* m);
   int rtos_mutex_rec_unlock( rt_rec_mutex_t* m);
 
-  // 'real-time' print functions
-
-  int rtos_printf( const char *fmt, ... );
+	/**
+	 * 'real-time' print function.
+	 */
+	int rtos_printf( const char *fmt, ... );
 
 #ifdef __cplusplus
 }

@@ -205,48 +205,6 @@
       by the user, and event driven activities, which are run when an Orocos event occurs.
     </para>
     <section>
-      <title>Standard Periodic Activities</title>
-      <para>
-	For convenience, Orocos provides implementations
-	for three types of periodic activities ( which only differ in
-	periodicity and priority ) but allows to extend to more for
-	your specific needs.
-	A basic periodic control application needs for example, a high
-	priority periodic thread and a low priority periodic
-	thread. The high priority thread is used for all periodic
-	activities that need to be executed atomically. No action in
-	this thread will ever be preempted by another thread. The low
-	priority realtime thread is used for all periodic activities
-	which may be preempted but still have hard deadlines. It can
-	always be preempted by the high priority thread. There is also
-	a non realtime (periodic) thread which gives no deadline
-	guarantees.  
-      </para>
-      <para>
-	Orocos provides, by default, two hard realtime periodic
-	activties and a non realtime periodic activity to execute your
-	functions. The
-	<classname>RTT::NonPreemptibleActivity</classname> has the
-	highest priority, the
-	<classname>RTT::PreemptibleActivity</classname> has a
-	lower priority and the
-	<classname>RTT::NonRealTimeActivity</classname> has an
-	even lower priority is not realtime at all (but still
-	periodic). Each instance of the same type run in the same thread.
-	In complexer control applications, one can create additional
-	threads by using the <classname>RTT::PeriodicActivity</classname>.
-	If these activities are used, Orocos will create a thread and
-	start/stop them automatically, otherwise, these threads
-	are not created.
-      </para>
-      <important>
-	<para>
-	  You must configure the priority and periodicity of the
-	  three predefined threads in the configtool program.
-	</para>
-      </important>
-    </section>
-    <section>
       <title>Creating a Periodic Activity</title>
       <para>
 	If you want to execute functionality in one of the Orocos threads, you need to 
@@ -268,21 +226,6 @@
 		<entry><classname>RTT::TimerThread</classname></entry>
 		<entry><classname>RTT::PeriodicActivity</classname></entry>
 		<!-- one of (entrytbl entry) -->
-	      </row>
-	      <row>
-		<entry><classname>RTT::ZeroTimeThread</classname></entry>
-		<entry><classname>RTT::NonPreemptibleActivity</classname></entry>
-		<!-- one of (entrytbl entry) -->
-	      </row>
-	      <row>
-		<!-- one of (entrytbl entry) -->
-		<entry><classname>RTT::ZeroLatencyThread</classname></entry>
-		<entry><classname>RTT::PreemptibleActivity</classname></entry>
-	      </row>
-	      <row>
-		<!-- one of (entrytbl entry) -->
-		<entry><classname>RTT::NonRealTimeThread</classname></entry>
-		<entry><classname>RTT::NonRealTimeActivity</classname></entry>
 	      </row>
 	      <row>
 		<!-- one of (entrytbl entry) -->
@@ -399,15 +342,10 @@
     <section>
       <title>Periodic Activity Ordering</title>
       <para>
-	The standard periodic Activities (NonPreemptibleActivity,
-	PreemptibleActivity and NonRealTimeActivity) are executed
-	<emphasis>in the order as they are started</emphasis>.  The
-	periodic thread responsible for the Activity will execute all
-	activities one after the other, respecting the periodicity of
-	the periodic activity. This means that a Activity with a lower
-	periodicity of the thread (e.g. 10 times lower) will only be
-	called a fraction of the time (thus every 10th period), still
-	respecting the ordering.
+	In case multiple activities are executed (serialised) in one
+	thread, their execution must be ordered. The order of execution is
+	determined by the order in which they are started. Stopping
+	an activity removes it from the list.
       </para>
       <para>
 	<figure><title>Execution sequence diagram</title>
@@ -436,100 +374,39 @@
 	  This example shows how all kinds of activities can be created. When a activity
 	  is started it will add itself to the correct thread.
 	</para>
-	<programlisting>#include "rtt/NonPreemptibleActivity.hpp"
-#include "rtt/PreemptibleActivity.hpp"
-#include "rtt/NonRealTimeActivity.hpp"
-#include "rtt/PeriodicActivity.hpp"
+	<programlisting>#include "rtt/PeriodicActivity.hpp"
 
 using namespace RTT;
 
 ORO_main( int argc, char** argv)
 {
-  // Define your activities
+  // Define your tasks.
 
   // ...
 
   // The threads are created by Orocos.
   // Both activities run in the same thread:
-  <classname>RTT::NonPreemptibleActivity</classname> fast_activity1(0.001, &amp;vel_loop);
-  <classname>RTT::NonPreemptibleActivity</classname> fast_activity2(0.001, &amp;vel_loop2);
-
-  <classname>RTT::PreemptibleActivity</classname> slow_activity(0.01, &amp;pos_loop);
-  <classname>RTT::NonRealTimeActivity</classname> nrt_activity( 0.1, &amp;display_server );
+  <classname>RTT::PeriodicActivity</classname> fast_activity1(0, 0.001, &amp;vel_loop);
+  <classname>RTT::PeriodicActivity</classname> fast_activity2(0, 0.001, &amp;vel_loop2);
 
   // This activity is run in its own thread.
   <classname>RTT::PeriodicActivity</classname> own_activity( 9, 0.05, &amp;kine_loop );
 
+  // This activity is run in its own thread as well.
+  <classname>RTT::PeriodicActivity</classname> own_activity2( 9, 0.5, &amp;kine_loop2 );
+
   // All is transparant from here on.
   fast_activity1->start();
   fast_activity2->start(); // is always run directly after fast_activity1 !
-  slow_activity->start();
-  own_activity->start();
-  nrt_activity->start();
 
   // ...
 
   fast_activity1->stop();
   fast_activity2->stop();
-  slow_activity->stop();
-  own_activity->stop();
-  nrt_activity->stop();
 
   return 0;
 }</programlisting>
       </example>
-    </section>
-    <section>
-      <title>Standard Periodic Threads Overview</title>
-      <para>
-	The high priority thread is the
-	<classname>RTT::ZeroTimeThread</classname>. It will execute all
-	<classname>RTT::NonPreemptibleActivity</classname> Activities
-	synchronically. You can create your own not preemptable activity by
-	inheriting from this class. Its name is derived from the fact
-	that some activities need to be executed in an infinite small
-	amount of time to work correctly. Control loops are an example
-	of this. To come as close as possible to this (impossible)
-	constraint, we make sure that the activity is never preempted by
-	another activity and thus is executed 'atomically'.
-      </para>
-      <para>
-	The low priority activities are executed by the
-	<classname>RTT::ZeroLatencyThread</classname> class. It will
-	execute all <classname>RTT::PreemptibleActivity</classname> Activities
-	sequentially, when no non-preemptible activities are executed.
-	Every <classname>RTT::PreemptibleActivity</classname> can be preempted
-	by a <classname>RTT::NonPreemptibleActivity</classname> but not by
-	another <classname>RTT::PreemptibleActivity</classname>. The
-	ZeroLatencyThread has this name because the zero time
-	constraint is dropped, but replaced by the constraint that no
-	latency may occur and thus, execution is still realtime.
-	Again, to satisfy this constraint, only deterministic time
-	operations may be done in this thread.
-      </para>
-      <para>
-	For not realtime executions, as there are userspace
-	communication, memory allocations,... we use the
-	NonRealTimeThread. Roughly put, you can do
-	<emphasis>anything</emphasis> in this thread, as long as it
-	takes finite time. This is the lowest priority thread in the
-	system and it should never lock a resource of the realtime
-	thread. Activities being executed in the NonRealTimeThread are
-	called <classname>RTT::NonRealTimeActivity</classname>.
-      </para>
-      <para>
-	The last standard thread type Orocos provides is the 
-	<classname>RTT::SimulationThread</classname> which runs
-	<classname>RTT::SimulationActivity</classname>s. It is special in
-	that it executes all its activities as fast as possible
-	( thus without periodic sleeps ) and adjusting the
-	system's clock between each <emphasis>step()</emphasis>.
-	The latter allows correct timing measurement in the
-	activities running in a SimulationThread. The SimulationThread
-	runs by default not-realtime, but this can be changed by
-	calling the <function>SimulationThread::Instance()->makeHardRealtime()</function>
-	function.
-      </para>
     </section>
     <section id="activity-non-periodic">
       <title>Non Periodic Activities</title>
@@ -1056,20 +933,23 @@ emergencyStop(); // User not notified</programlisting>
     <section>
       <title>The Completion Processor</title>
       <para>
-	The <classname>RTT::CompletionProcessor</classname> is implemented using the
-	Singleton design pattern, analogous to the
-	periodic activity threads. It is the lowest priority, not realtime
-	thread in the &orocos; framework. It will execute all
-	asynchronous event callbacks that have to be completed when no other work has to
-	be done. The only constraint it imposes is that all functions it
+	The <classname>RTT::CompletionProcessor</classname> is an
+	optional lowest priority, not realtime thread in the &orocos;
+	framework. It is only created if the user did not specify a thread
+	in which to process events. 
+      </para>
+      <para>
+	Its purpose is to execute asynchronous event callbacks
+	that have to be `completed' when no other work has to be
+	done. The only constraint it imposes is that all functions it
 	executes must require finite time to complete (it cannot
 	detect timeouts). You can get its thread pointer like this :
-	<programlisting>  #include &lt;rtt/CompletionProcessor.hpp>
+	<programlisting> #include &lt;rtt/CompletionProcessor.hpp>
 
   ActivityInterface* cp = CompletionProcessor::Instance()</programlisting>
       </para>
       <para>
-	The CompletionProcessor is a NonPeriodicActivity, thus not consuming
+	The CompletionProcessor is a <classname>RTT::NonPeriodicActivity</classname>, thus not consuming
 	time resources when no Events need to be processed. If you need a 
 	hard realtime CompletionProcessor, use a default NonPeriodicActivity ( see
 	<xref linkend="activity-non-periodic" /> ), call its makeHardRealTime() method
