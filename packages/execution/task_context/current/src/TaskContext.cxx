@@ -177,8 +177,12 @@ namespace RTT
             }
 
             // Detect already connected ports.
-            if ( peerport->connected() && (*it)->connected() )
-                continue;
+            if ( peerport->connected() && (*it)->connected() ) {
+                if (peerport->connection() == (*it)->connection() )
+                    continue;
+                log() << "Ports '"<< peerport->getName() << "' of task " <<peer->getName() << " and task " << getName()
+                      << " have the same name but are not connected to each other." << endlog(Warning);
+            }
 
             // NOTE: all code below can be replaced by a single line:
             // peerport->connectTo( *it ) || (*it)->connectTo(peerport);
