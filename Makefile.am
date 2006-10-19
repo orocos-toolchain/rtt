@@ -84,6 +84,7 @@ install-exec-local:
 	@libtool --mode=finish $(DESTDIR)$(libdir)
 	@install -m 755 -d $(DESTDIR)$(libdir)/pkgconfig 
 	install -m 644 packages/orocos.pc $(DESTDIR)$(libdir)/pkgconfig/orocos-$(ECOS_TARGET).pc
+	install -m 644 packages/orocos.pc $(DESTDIR)$(libdir)/pkgconfig/orocos-rtt.pc
 	@echo "Installing new modules"
 	if test -d packages/install/modules; then install -m 755 -d $(DESTDIR)$(prefix)/modules ; fi
 	@for i in $$( find packages/install/modules/ -type f ); do \
@@ -168,6 +169,7 @@ packages: init_packages
 	ECOS_REPOSITORY=$(ECOS_REP) $(ECOSCONFIG) export .upgrade.ecc &&\
 	cd install/lib && ln -sf libtarget.a liborocos-$(ECOS_TARGET).a &&\
 	mkdir -p pkgconfig; cp ../../orocos-local.pc pkgconfig/orocos-$(ECOS_TARGET).pc 
+	mkdir -p pkgconfig; cp ../../orocos-local.pc pkgconfig/orocos-rtt.pc 
 
 # make all packages from current template with ecosconfig compiler.
 # in packages dir, then export the config info.
