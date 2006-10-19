@@ -20,7 +20,6 @@ support for all packages used in Orocos."
     implements OROINT_OS_TARGET
     implements OROINT_OS_STDCXXLIB
     implements OROINT_OS_MAIN
-    implements OROINT_OS_LINUX_IOPERM
 
     define_proc {
         puts $::cdl_system_header "\#define CYGBLD_OS_TARGET_H   <pkgconf/os_lxrt.h>"
@@ -78,49 +77,6 @@ the \"Detected Support Libraries->RTAI Installation\"
 package.
 "
 	}
-
-#     cdl_option OROBLD_OS_LINUX_KERNEL {
-# 	display "Target Linux Kernel Directory"
-# 	description "
-# Provide the location of the RTAI-patched linux kernel, for example, /usr/src/linux."
-# 	flavor booldata
-# 	default_value { "" }
-# 	implements OROINT_OS_KERNEL_MODULE
-#     }
-
-    cdl_component OROSEM_OS_SCHEDTYPE {
-	display "Scheduling Algorithm for Threads"
-	description "
-This option sets the default scheduling algorithm for the threads. 
-See man sched_setscheduler for
-more information on the available types. Set to SCHED_FIFO for
-reliable applications ( functions not going in an endless loop), 
-for non-realtime testing, set to SCHED_OTHER."
-	flavor data
-	default_value { "SCHED_OTHER" }
-	legal_values { "SCHED_FIFO" "SCHED_RR" "SCHED_OTHER" }
-    }
-
-    cdl_component OROBLD_OS_ENABLE_LINUX_KERNEL {
-	display "Build LXRT kernel Modules"
-	description "
-Enable this option when LXRT KERNEL MODULES need
-to be build."
-	parent CYGBLD_GLOBAL_OPTIONS
-	flavor bool
-	default_value 1
-	implements OROINT_OS_KERNEL_MODULE
-
-	cdl_option OROBLD_OS_LINUX_KERNEL {
-	    display "Target Linux Kernel path"
-	    flavor  data
-	    no_define
- 	    calculated { OROBLD_SUPPORT_RTAI_LINUX_KERNEL }
-	    description "The path to the linux kernel when building kernel modules. For LXRT, this is set in 
-	\"Detected Support Libraries->Kernel Directory\" package"
-	}
-    }
-
 
    cdl_component CYGBLD_GLOBAL_OPTIONS {
        display "Global build options"
@@ -196,17 +152,6 @@ specific assembler instructions in Orocos."
 	flavor data
 	default_value { OROBLD_OS_ARCHITECTURE == "athlon64" ? "x86_64" : "i386" }
 	legal_values { "x86_64" "i386" }
-    }
-
-    cdl_option CYGBLD_OS_CONFIG_SMP {
-	    display "Build for SMP Systems"
-	    parent CYGBLD_GLOBAL_OPTIONS
-	    flavor  bool
-	    no_define
-	    define CONFIG_SMP
-	    default_value 0
-	    description   "
-Enable this flag if you want to use Orocos on SMP systems."
     }
 
     cdl_option CYGBLD_OS_COMPILER {

@@ -16,7 +16,6 @@ real-time userspace applications"
     implements OROINT_OS_TARGET
     implements OROINT_OS_STDCXXLIB
     implements OROINT_OS_MAIN
-    implements OROINT_OS_LINUX_IOPERM
 
     requires OROPKG_SUPPORT_XENOMAI
 
@@ -24,39 +23,6 @@ real-time userspace applications"
 
     define_proc {
         puts $::cdl_system_header "\#define CYGBLD_OS_TARGET_H   <pkgconf/os_xenomai.h>"
-    }
-
-    cdl_component OROSEM_OS_SCHEDTYPE {
-	display "Scheduling Algorithm for Threads"
-	description "
-This option sets the default scheduling algorithm for the threads. 
-See man sched_setscheduler for
-more information on the available types. Set to SCHED_FIFO for
-reliable applications ( functions not going in an endless loop), 
-for non-realtime testing, set to SCHED_OTHER."
-	flavor data
-	default_value { "SCHED_OTHER" }
-	legal_values { "SCHED_FIFO" "SCHED_RR" "SCHED_OTHER" }
-    }
-
-    cdl_component OROBLD_OS_ENABLE_LINUX_KERNEL {
-	display "Build Linux kernel Modules"
-	description "
-Enable this option when Linux KERNEL MODULES need
-to be build and set the correct path, for example
-/usr/src/linux"
-	parent CYGBLD_GLOBAL_OPTIONS
-	flavor bool
-	default_value 1
-	implements OROINT_OS_KERNEL_MODULE
-
-	cdl_option OROBLD_OS_LINUX_KERNEL {
-	    display "Target Linux Kernel path"
-	    flavor  data
-	    no_define
-	    default_value { OROBLD_SUPPORT_XENOMAI_LINUX_KERNEL }
-	    description "The target linux path."
-	}
     }
 
     cdl_option OROSEM_OS_XENO_CHECK {
@@ -170,17 +136,6 @@ specific assembler instructions in Orocos."
 	flavor data
 	default_value { OROBLD_OS_ARCHITECTURE == "athlon64" ? "x86_64" : "i386" }
 	legal_values { "x86_64" "i386" }
-    }
-
-    cdl_option CYGBLD_OS_CONFIG_SMP {
-	    display "Build for SMP Systems"
-	    parent CYGBLD_GLOBAL_OPTIONS
-	    flavor  bool
-	    no_define
-	    define CONFIG_SMP
-	    default_value 0
-	    description   "
-Enable this flag if you want to use Orocos on SMP systems."
     }
 
     cdl_option CYGBLD_OS_COMPILER {
