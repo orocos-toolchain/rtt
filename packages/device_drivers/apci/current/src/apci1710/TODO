@@ -1,7 +1,0 @@
-This driver is not completely finished.
-
-TODO:
-	- support for incremental counter
-	- user space library
-	- support for loading new functions in the EEPROM's
-	- ...
