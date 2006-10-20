@@ -31,10 +31,9 @@
 #include "rtt/os/threads.hpp"
 #include "rtt/Logger.hpp"
 
-#include <boost/scoped_ptr.hpp>
-
 #include "pkgconf/os.h"
 #ifdef OROPKG_OS_THREAD_SCOPE
+#include <boost/scoped_ptr.hpp>
 # include "rtt/dev/DigitalOutInterface.hpp"
 #endif
 
