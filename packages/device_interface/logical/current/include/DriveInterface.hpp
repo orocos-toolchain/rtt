@@ -6,6 +6,8 @@
 
 namespace RTT
 {
+    class DigitalOutput;
+
     /**
      * @brief A Drive Object controls a single axis. It is responsible
      * for keeping track of its status (enabled, disabled).
@@ -30,6 +32,11 @@ namespace RTT
          */
         virtual bool isEnabled() const = 0;
 
+        /**
+         * @brief Get the enable signal of the drive as a DigitalOutput.
+         */
+        virtual DigitalOutput* getEnable() = 0;
+  
         /**
          * Add an offset to the current drive value.
          * Use this value to compensate for drift when

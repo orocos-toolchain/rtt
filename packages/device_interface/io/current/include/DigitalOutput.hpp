@@ -56,10 +56,10 @@ namespace RTT
 
         /**
          * Create a virtual (software) relay
-         * 
+         * @param initial_state The initial on/off state of the DigitalOutput.
          */
-        DigitalOutput ( )
-            : board( 0 ), relaynumber( 0 ), invert(false)
+        DigitalOutput ( bool initial_state = false )
+            : board( 0 ), relaynumber( 0 ), invert(initial_state)
         {}
       
       

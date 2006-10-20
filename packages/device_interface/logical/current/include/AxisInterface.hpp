@@ -34,97 +34,109 @@
 namespace RTT
 {
     class DigitalInput;
+    class DigitalOutput;
 }
 
 namespace RTT
 {
-    /** @brief AxisInterface.  It represents an axis from a control
-	point of view
+    /** 
+     * The AxisInterface  represents an axis from a control
+     * point of view
      */
     class AxisInterface
     {
     public:
 
-	AxisInterface() {};
-	virtual ~AxisInterface() {};
+        AxisInterface() {};
+        virtual ~AxisInterface() {};
 
-	/**
-	 * @brief Stop the Axis (electronically), brakes disabled,
-	 * drive enabled and set to zero.
-	 */
-	virtual bool stop() = 0;
+        /**
+         * @brief Stop the Axis (electronically), brakes disabled,
+         * drive enabled and set to zero.
+         */
+        virtual bool stop() = 0;
 
-	/**
-	 * @brief Lock the Axis (mechanically), brakes enabled, drive
-	 * disabled.
-	 */
-	virtual bool lock() = 0;
+        /**
+         * @brief Lock the Axis (mechanically), brakes enabled, drive
+         * disabled.
+         */
+        virtual bool lock() = 0;
 
-	/**
-	 * @brief Unlock the Axis (mechanically), brakes enabled, drive
-	 * enabled.
-	 */
-	virtual bool unlock() = 0;
+        /**
+         * @brief Unlock the Axis (mechanically), brakes enabled, drive
+         * enabled.
+         */
+        virtual bool unlock() = 0;
 
-	/**
-	 * @brief Drive a certain 'physical unit' (eg velocity, torque,...).
-	 */
-	virtual bool drive( double v ) = 0;
+        /**
+         * @brief Drive a certain 'physical unit' (eg velocity, torque,...).
+         */
+        virtual bool drive( double v ) = 0;
 
-	/**
-	 * @brief Get the drive value (eg velocity, torque,...).
-	 */
-	virtual double getDriveValue() const = 0;
+        /**
+         * @brief Get the drive value (eg velocity, torque,...).
+         */
+        virtual double getDriveValue() const = 0;
 
-	/**
-	 * @brief Return true if the drive is disabled, and brakes are on.
-	 */
-	virtual bool isLocked() const = 0;
+        /**
+         * @brief Return true if the drive is disabled, and brakes are on.
+         */
+        virtual bool isLocked() const = 0;
 
-	/**
-	 * @brief Return true if the drive is enabled but not moving, and brakes are off.
-	 */
-	virtual bool isStopped() const = 0;
+        /**
+         * @brief Return true if the drive is enabled but not moving, and brakes are off.
+         */
+        virtual bool isStopped() const = 0;
 
-	/**
-	 * @brief Return true if the drive is enabled, and brakes are off.
-	 */
-	virtual bool isDriven() const = 0;
+        /**
+         * @brief Return true if the drive is enabled, and brakes are off.
+         */
+        virtual bool isDriven() const = 0;
+
+        /**
+         * @brief Get the brake signal of the Axis as a DigitalOutput.
+         */
+        virtual DigitalOutput* getBrake() = 0;
+
+        /**
+         * @brief Get the enable signal of the Axis as a DigitalOutput.
+         */
+        virtual DigitalOutput* getEnable() = 0;
   
-	/**
-	 * @brief Retrieve a sensor from the Axis.
-	 */
-	virtual SensorInterface<double>* getSensor(const std::string& name) const = 0;
+        /**
+         * @brief Retrieve a sensor from the Axis.
+         */
+        virtual SensorInterface<double>* getSensor(const std::string& name) const = 0;
 
-	/**
-	 * @brief Retrieve a list of the sensor from the Axis.
-	 */
-	virtual std::vector<std::string> sensorList() const = 0;
+        /**
+         * @brief Retrieve a list of the sensor from the Axis.
+         */
+        virtual std::vector<std::string> sensorList() const = 0;
   
-	/**
-	 * @brief Retrieve a switch (digital input) from the Axis.
-	 */
-	virtual DigitalInput* getSwitch(const std::string& name) const = 0;
+        /**
+         * @brief Retrieve a switch (digital input) from the Axis.
+         */
+        virtual DigitalInput* getSwitch(const std::string& name) const = 0;
 
-	/**
-	 * @brief Retrieve a list of the digital input switches from the Axis.
-	 */
-	virtual std::vector<std::string> switchList() const = 0;
+        /**
+         * @brief Retrieve a list of the digital input switches from the Axis.
+         */
+        virtual std::vector<std::string> switchList() const = 0;
   
-	/**
-	 * @brief Retrieve a counter from the Axis.
-	 */
-	virtual SensorInterface<int>* getCounter(const std::string& name) const = 0;
+        /**
+         * @brief Retrieve a counter from the Axis.
+         */
+        virtual SensorInterface<int>* getCounter(const std::string& name) const = 0;
 
-	/**
-	 * @brief Retrieve a list of the counter from the Axis.
-	 */
-	virtual std::vector<std::string> counterList() const = 0;
+        /**
+         * @brief Retrieve a list of the counter from the Axis.
+         */
+        virtual std::vector<std::string> counterList() const = 0;
   
     };
 
 
-}; // namespace RTT
+} // namespace RTT
 
 #endif //_AXISINTERFACE_HPP
 
