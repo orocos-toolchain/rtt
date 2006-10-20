@@ -168,8 +168,8 @@ packages: init_packages
 	{ $(MAKE) -C . CC=$(CC) || exit -1; } &&\
 	ECOS_REPOSITORY=$(ECOS_REP) $(ECOSCONFIG) export .upgrade.ecc &&\
 	cd install/lib && ln -sf libtarget.a liborocos-$(ECOS_TARGET).a &&\
-	mkdir -p pkgconfig; cp ../../orocos-local.pc pkgconfig/orocos-$(ECOS_TARGET).pc 
-	mkdir -p pkgconfig; cp ../../orocos-local.pc pkgconfig/orocos-rtt.pc 
+	mkdir -p pkgconfig; cp ../../orocos-local.pc pkgconfig/orocos-$(ECOS_TARGET).pc &&\
+	cp ../../orocos-local.pc pkgconfig/orocos-rtt.pc 
 
 # make all packages from current template with ecosconfig compiler.
 # in packages dir, then export the config info.
