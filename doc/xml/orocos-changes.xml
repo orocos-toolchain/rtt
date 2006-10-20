@@ -217,6 +217,19 @@
 	    Deprecate GenericTaskContext, upgrade TaskContext</ulink> for all details.
 	  </para>
 	</listitem>
+	<listitem>
+	  <para>
+	    The <classname>RTT::WritePort</classname> has been renamed to 
+	    <classname>RTT::DataPort</classname> and a 'new' <classname>RTT::WritePort</classname>
+	    implementation with only a <function>Get()</function> function has been
+	    added. This means that applications that did 'Get()' on a 'WritePort'
+	    will no longer compile and need to rename to 'DataPort'. 
+	    This was done to improve naming consistency with the
+	    <classname>RTT::BufferPort</classname> class.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=201">
+	    [API] Rename WriteDataPort class to DataPort</ulink> for all details.
+	  </para>
+	</listitem>
       </itemizedlist>
     </section>
     <section>
