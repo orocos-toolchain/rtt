@@ -279,6 +279,13 @@ assert( myProp.ready() );</programlisting>
 	    See <ulink url="orocos-components-manual.html">The Component Builder's Manual</ulink> for all details.
 	  </para>
 	</listitem>
+	<listitem>
+	  <para>
+	    The <classname>RTT::Command</classname>'s <function>evaluate()</function> function has been renamed to 
+	    <function>done()</function>.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=188">[API] Commands: evaluate() deprecated, use done()</ulink> for all details.
+	  </para>
+	</listitem>
       </itemizedlist>
     </section>
     <section>
