@@ -432,7 +432,6 @@ m4_define([DETECT_PACKAGES],[
 DETECT_CORBAPKG
 DETECT_BOOSTPKG
 DETECT_XERCESCPKG
-DETECT_COMEDIPKG
 DETECT_READLINE
 DETECT_RTAI
 DETECT_XENOMAI
@@ -625,65 +624,6 @@ and rerun the bootstrap.sh script
 AC_SUBST(ORO_XERCESC_PARSER_DETECT)
 ])
 
-
-
-m4_define([DETECT_COMEDIPKG],
-[
-
-AC_MSG_CHECKING(for Comedi dir)
-AC_ARG_WITH(comedi, [ AC_HELP_STRING([--with-comedi=/usr/src/comedi/include],[Specify location of comedilib.h ]) ],
-	            [ if test x"$withval" != xyes; then COMEDI_DIR="$withval";fi],[ COMEDI_DIR="/usr/src/comedi/include" ])
-
-if test -f $COMEDI_DIR/comedilib.h; then
-  # gnu linux comedilib
-  PACKAGES="$srcdir/support/comedi/current/comedi.cdl $PACKAGES"
-  CPPFLAGS="-I$COMEDI_DIR"
-  TARGET_FLAGS="$TARGET_FLAGS -I$COMEDI_DIR"
-  TARGET_LIBS="$TARGET_LIBS -lcomedi"
-  AC_MSG_RESULT(gnulinux header found in $COMEDI_DIR)
-else
-  if test -f $COMEDI_DIR/linux/comedilib.h; then
-    # lxrt comedi package
-    PACKAGES="$srcdir/support/comedi/current/comedi.cdl $PACKAGES"
-    CPPFLAGS="-I$COMEDI_DIR"
-    TARGET_FLAGS="$TARGET_FLAGS -I$COMEDI_DIR"
-    TARGET_LIBS="$TARGET_LIBS -lkcomedilxrt"
-    AC_MSG_RESULT(lxrt header found in $COMEDI_DIR/linux)
-  else
-    # no comedi found
-    AC_MSG_RESULT(not found)
-   #AC_MSG_WARN([No comedi installation found !
-   #(tried : $COMEDI_DIR/comedilib.h and $COMEDI_DIR/linux/comedilib.h).
-   #Comedi will be unavailable.])
-    NO_COMEDI_DIR=1
-  fi
-fi
-
-# Now check the headers.
-CPPFLAGS="-I$COMEDI_DIR"
-AC_CHECK_HEADERS([ linux/comedilib.h ],
-[
-  if test x$NO_COMEDI_DIR = x1; then
-    PACKAGES="$srcdir/support/comedi/current/comedi.cdl $PACKAGES"
-    TARGET_LIBS="$TARGET_LIBS -lkcomedilxrt"
-    AC_MSG_RESULT(lxrt header found in $COMEDI_DIR/linux)
-    unset NO_COMEDI_DIR
-  fi 
-],[])
-AC_CHECK_HEADERS([ comedilib.h ],
-[
-  if test x$NO_COMEDI_DIR = x1; then
-    PACKAGES="$srcdir/support/comedi/current/comedi.cdl $PACKAGES"
-    TARGET_LIBS="$TARGET_LIBS -lcomedi"
-    AC_MSG_RESULT(gnulinux header found in $COMEDI_DIR)
-    unset NO_COMEDI_DIR
-  fi 
-],[])
-])
-
-AC_SUBST(COMEDI_DIR)
-])
-
 m4_define([DETECT_CORBAPKG],
 [
 
@@ -733,7 +673,7 @@ if [ test -f $ACE_DIR/ace/config-all.h && test -f $TAO_DIR/tao/ORB.h && test -f 
   # Always:
   ACX_CXXFLAGS="$ACX_CXXFLAGS -I$TAO_DIR/orbsvcs"
   TARGET_FLAGS="$TARGET_FLAGS -I$TAO_DIR/orbsvcs"
-  TARGET_LIBS="$TARGET_LIBS -lTAO -lTAO_IDL_BE -lACE -lTAO_PortableServer -lTAO_CosNaming -lTAO_CosProperty -lTAO_CosEvent -lTAO_CosNotification -lTAO_CosEvent_Skel"
+  TARGET_LIBS="$TARGET_LIBS -lTAO -lTAO_IDL_BE -lACE -lTAO_PortableServer -lTAO_CosNaming"
 
   AC_MSG_RESULT([$ACE_DIR, $TAO_DIR, $ORBSVCS_DIR])
 
