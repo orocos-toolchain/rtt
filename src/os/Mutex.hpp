@@ -30,7 +30,7 @@
 #define OS_MUTEX_HPP
 
 #include "fosi.h"
-#include <pkgconf/os.h>
+#include "os.h"
 
 namespace RTT
 { namespace OS {
