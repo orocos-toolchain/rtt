@@ -52,7 +52,7 @@
 #include <boost/bind.hpp>
 #include <boost/lambda/lambda.hpp>
 
-#include <rtt-config.h>
+#include "rtt-config.h"
 #ifdef OROPKG_GEOMETRY
 #include <geometry/frames.h>
 #include <geometry/frames_io.h>

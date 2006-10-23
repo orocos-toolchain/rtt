@@ -45,7 +45,7 @@
 #include <boost/lambda/lambda.hpp>
 
 #include <boost/bind.hpp>
-#include <rtt-config.h>
+#include "rtt-config.h"
 #include <iostream>
 
 namespace RTT

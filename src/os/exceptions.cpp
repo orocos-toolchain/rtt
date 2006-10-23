@@ -27,7 +27,7 @@
  
  
 
-#include <rtt-config.h>
+#include "rtt-config.h"
 #include <os.h>
 
 #include <exception>

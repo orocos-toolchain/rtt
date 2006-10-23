@@ -40,7 +40,7 @@
 #include <boost/function_types/function_type.hpp>
 #include <boost/function_types/function_type_signature.hpp>
 
-#include <rtt-config.h>
+#include "rtt-config.h"
 #ifdef OROPKG_CORBA
 #include "corba/ExpressionProxy.hpp"
 #endif

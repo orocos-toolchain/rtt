@@ -26,7 +26,7 @@
  ***************************************************************************/
 #include "Types.hpp"
 
-#include <rtt-config.h>
+#include "rtt-config.h"
 #include <corelib.h>
 
 #include <MultiVector.hpp>
