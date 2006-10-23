@@ -47,8 +47,8 @@ extern "C" {
 #include "oro_atomic.h"
 #include "oro_bitops.h"
 
-#include "pkgconf/os.h"
-#include "pkgconf/os_lxrt.h"
+#include "os.h"
+#include "os_lxrt.h"
 #if !defined(OROBLD_OS_AGNOSTIC) || defined(OROBLD_OS_LXRT_INTERNAL) // define the latter to include nevertheless the RTAI header files
 
 	// force inlining if internal and internal to avoid an extra indirection.
