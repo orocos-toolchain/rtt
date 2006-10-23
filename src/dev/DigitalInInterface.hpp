@@ -29,8 +29,8 @@
 #ifndef DIGITALININTERFACE_HPP
 #define DIGITALININTERFACE_HPP
 
-#include <rtt/NameServer.hpp>
-#include <rtt/NameServerRegistrator.hpp>
+#include <NameServer.hpp>
+#include <NameServerRegistrator.hpp>
 
 namespace RTT
 {

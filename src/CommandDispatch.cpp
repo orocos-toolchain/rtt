@@ -27,11 +27,11 @@
  
  
 
-#include "rtt/CommandDispatch.hpp"
-#include "rtt/TryCommand.hpp"
-#include "rtt/ConditionComposite.hpp"
-#include "rtt/ConditionBoolDataSource.hpp"
-#include "rtt/CommandProcessor.hpp"
+#include "CommandDispatch.hpp"
+#include "TryCommand.hpp"
+#include "ConditionComposite.hpp"
+#include "ConditionBoolDataSource.hpp"
+#include "CommandProcessor.hpp"
 
 namespace RTT
 {

@@ -28,8 +28,8 @@
 #ifndef PI_PROPERTIES_SIMPLE_MARSHALLER
 #define PI_PROPERTIES_SIMPLE_MARSHALLER
 
-#include <rtt/Property.hpp>
-#include <rtt/PropertyIntrospection.hpp>
+#include <Property.hpp>
+#include <PropertyIntrospection.hpp>
 
 #include <iostream>
 #include <vector>

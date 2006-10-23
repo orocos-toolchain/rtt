@@ -26,9 +26,9 @@
  ***************************************************************************/
  
  
-#include <rtt/Logger.hpp>
-#include "rtt/TryCommand.hpp"
-#include <rtt/DataSources.hpp>
+#include <Logger.hpp>
+#include "TryCommand.hpp"
+#include <DataSources.hpp>
 
 namespace RTT 
 {

@@ -25,12 +25,12 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "rtt/parser-debug.hpp"
-#include "rtt/parse_exception.hpp"
-#include "rtt/ValueParser.hpp"
-#include "rtt/Attribute.hpp"
+#include "parser-debug.hpp"
+#include "parse_exception.hpp"
+#include "ValueParser.hpp"
+#include "Attribute.hpp"
 
-#include "rtt/TaskContext.hpp"
+#include "TaskContext.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>

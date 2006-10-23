@@ -26,10 +26,10 @@
  ***************************************************************************/
  
  
-#include "rtt/CommandProcessor.hpp"
-#include <rtt/CommandInterface.hpp>
-#include <rtt/AtomicQueue.hpp>
-#include <rtt/Logger.hpp>
+#include "CommandProcessor.hpp"
+#include <CommandInterface.hpp>
+#include <AtomicQueue.hpp>
+#include <Logger.hpp>
 
 namespace RTT
 {

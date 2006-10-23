@@ -26,11 +26,11 @@
  ***************************************************************************/
  
  
-#include "rtt/TimerSequencer.hpp"
-#include <rtt/os/MutexLock.hpp>
+#include "TimerSequencer.hpp"
+#include <os/MutexLock.hpp>
 #include <cmath>
 #include <algorithm>
-#include "rtt/PeriodicActivity.hpp"
+#include "PeriodicActivity.hpp"
 
 namespace RTT
 {

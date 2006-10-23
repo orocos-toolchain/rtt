@@ -25,27 +25,27 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "rtt/parser-debug.hpp"
-#include "rtt/parse_exception.hpp"
+#include "parser-debug.hpp"
+#include "parse_exception.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "rtt/ExpressionParser.hpp"
+#include "ExpressionParser.hpp"
 
-#include "rtt/ArgumentsParser.hpp"
-#include <rtt/Operators.hpp>
-#include <rtt/DataSourceCondition.hpp>
+#include "ArgumentsParser.hpp"
+#include <Operators.hpp>
+#include <DataSourceCondition.hpp>
 
-#include "rtt/DataSourceTime.hpp"
-#include "rtt/TaskContext.hpp"
-#include "rtt/PeerParser.hpp"
-#include "rtt/Types.hpp"
+#include "DataSourceTime.hpp"
+#include "TaskContext.hpp"
+#include "PeerParser.hpp"
+#include "Types.hpp"
 
 #include <boost/lambda/lambda.hpp>
 
 #include <boost/bind.hpp>
-#include <pkgconf/system.h>
+#include <pkgconf/rtt-config.h>
 #include <iostream>
 
 namespace RTT

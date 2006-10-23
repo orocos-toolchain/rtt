@@ -24,13 +24,13 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "rtt/StateMachine.hpp"
-#include <rtt/EventProcessor.hpp>
-#include "rtt/StateMachineProcessor.hpp"
-#include "rtt/EventService.hpp"
+#include "StateMachine.hpp"
+#include <EventProcessor.hpp>
+#include "StateMachineProcessor.hpp"
+#include "EventService.hpp"
 
-#include <rtt/DataSource.hpp>
-#include <rtt/Logger.hpp>
+#include <DataSource.hpp>
+#include <Logger.hpp>
 #include <functional>
 
 #include <assert.h>

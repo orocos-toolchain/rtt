@@ -30,7 +30,7 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "rtt/ListLockFree.hpp"
+#include "ListLockFree.hpp"
 
 
 void intrusive_ptr_add_ref( RTT::detail::IntrusiveStorage* p ) {

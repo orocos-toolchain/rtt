@@ -27,8 +27,8 @@
  
  
 
-#include "rtt/AttributeRepository.hpp"
-#include "rtt/mystd.hpp"
+#include "AttributeRepository.hpp"
+#include "mystd.hpp"
 #include <functional>
 #include <boost/bind.hpp>
 

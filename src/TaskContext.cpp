@@ -27,8 +27,8 @@
  
  
 
-#include "rtt/TaskContext.hpp"
-#include <rtt/CommandInterface.hpp>
+#include "TaskContext.hpp"
+#include <CommandInterface.hpp>
 
 #include <string>
 #include <algorithm>
@@ -36,17 +36,17 @@
 #include <boost/bind.hpp>
 #include <boost/mem_fn.hpp>
 
-#include "rtt/DataSource.hpp"
-#include "rtt/Method.hpp"
-#include "rtt/ConnectionInterface.hpp"
+#include "DataSource.hpp"
+#include "Method.hpp"
+#include "ConnectionInterface.hpp"
 
 #include <pkgconf/os.h>
-#include <pkgconf/system.h>
+#include <pkgconf/rtt-config.h>
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
-#include "rtt/ParserScriptingAccess.hpp"
-#include "rtt/ParserExecutionAccess.hpp"
+#include "ParserScriptingAccess.hpp"
+#include "ParserExecutionAccess.hpp"
 #endif
-#include "rtt/MarshallingAccess.hpp"
+#include "MarshallingAccess.hpp"
 
 namespace RTT
 {

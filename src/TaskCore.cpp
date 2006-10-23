@@ -1,5 +1,5 @@
 
-#include "rtt/TaskCore.hpp"
+#include "TaskCore.hpp"
 
 namespace RTT
 {

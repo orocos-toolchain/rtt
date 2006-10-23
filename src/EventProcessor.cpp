@@ -27,8 +27,8 @@
  
  
 
-#include "rtt/EventProcessor.hpp"
-#include <rtt/os/threads.hpp>
+#include "EventProcessor.hpp"
+#include <os/threads.hpp>
 
 namespace RTT
 {

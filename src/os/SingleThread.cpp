@@ -26,17 +26,17 @@
  ***************************************************************************/
 
 // include OS-internal fosi as first file.
-#include "rtt/os/fosi_internal.hpp"
-#include <rtt/os/SingleThread.hpp>
-#include <rtt/os/MutexLock.hpp>
+#include "os/fosi_internal.hpp"
+#include <os/SingleThread.hpp>
+#include <os/MutexLock.hpp>
 
-#include "rtt/Time.hpp"
-#include "rtt/os/threads.hpp"
+#include "Time.hpp"
+#include "os/threads.hpp"
 
 #include "pkgconf/os.h"
 #ifdef OROPKG_OS_THREAD_SCOPE
 #include <boost/scoped_ptr.hpp>
-# include "rtt/dev/DigitalOutInterface.hpp"
+# include "dev/DigitalOutInterface.hpp"
 #endif
 
 

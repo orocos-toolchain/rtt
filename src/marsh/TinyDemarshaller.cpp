@@ -1,4 +1,4 @@
-#include "rtt/marsh/TinyDemarshaller.hpp"
+#include "marsh/TinyDemarshaller.hpp"
 
 
 // Modified tinyxml* to include it in the RTT namespace to avoid clashes
@@ -15,9 +15,9 @@ using namespace std;
 #endif
 
 #include <stack>
-#include <rtt/Property.hpp>
-#include <rtt/PropertyBag.hpp>
-#include <rtt/Logger.hpp>
+#include <Property.hpp>
+#include <PropertyBag.hpp>
+#include <Logger.hpp>
 
 namespace RTT
 {

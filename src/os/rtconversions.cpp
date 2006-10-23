@@ -25,7 +25,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "rtt/os/rtconversions.hpp"
+#include "os/rtconversions.hpp"
 
 #include <string>
 

@@ -27,15 +27,15 @@
  
  
 
-#include "rtt/ParserScriptingAccess.hpp"
-#include "rtt/StatementProcessor.hpp"
-#include "rtt/Parser.hpp"
-#include "rtt/Logger.hpp"
-#include "rtt/TaskContext.hpp"
-#include "rtt/Method.hpp"
-#include "rtt/Command.hpp"
-#include "rtt/ProgramProcessor.hpp"
-#include "rtt/StateMachineProcessor.hpp"
+#include "ParserScriptingAccess.hpp"
+#include "StatementProcessor.hpp"
+#include "Parser.hpp"
+#include "Logger.hpp"
+#include "TaskContext.hpp"
+#include "Method.hpp"
+#include "Command.hpp"
+#include "ProgramProcessor.hpp"
+#include "StateMachineProcessor.hpp"
 #include <sstream>
 #include <fstream>
 

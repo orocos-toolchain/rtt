@@ -29,8 +29,8 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "rtt/NonPeriodicActivity.hpp"
-#include "rtt/Logger.hpp"
+#include "NonPeriodicActivity.hpp"
+#include "Logger.hpp"
 
 namespace RTT
 {

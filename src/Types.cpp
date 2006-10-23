@@ -24,22 +24,22 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "rtt/Types.hpp"
+#include "Types.hpp"
 
-#include <pkgconf/system.h>
+#include <pkgconf/rtt-config.h>
 #include <pkgconf/corelib.h>
 
-#include <rtt/MultiVector.hpp>
-#include <rtt/Logger.hpp>
-#include "rtt/Attribute.hpp"
-#include "rtt/DataSourceAdaptor.hpp"
-#include "rtt/TemplateTypeInfo.hpp"
-#include "rtt/TypeInfoName.hpp"
-#include <rtt/TypeStream.hpp>
-#include <rtt/mystd.hpp>
+#include <MultiVector.hpp>
+#include <Logger.hpp>
+#include "Attribute.hpp"
+#include "DataSourceAdaptor.hpp"
+#include "TemplateTypeInfo.hpp"
+#include "TypeInfoName.hpp"
+#include <TypeStream.hpp>
+#include <mystd.hpp>
 
 #ifdef OROCFG_CORELIB_REALTIME_TOOLKIT_IMPORT
-#include <rtt/RealTimeToolkit.hpp>
+#include <RealTimeToolkit.hpp>
 #endif
 
 #include <functional>
@@ -49,7 +49,7 @@ using namespace std;
 using namespace RTT::detail;
 
 #ifdef OROCFG_CORELIB_REALTIME_TOOLKIT_IMPORT
-#include <rtt/os/StartStopManager.hpp>
+#include <os/StartStopManager.hpp>
 namespace RTT {
     namespace {
 

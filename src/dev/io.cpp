@@ -24,8 +24,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "rtt/dev/DigitalInInterface.hpp"
-#include "rtt/dev/DigitalOutInterface.hpp"
+#include "dev/DigitalInInterface.hpp"
+#include "dev/DigitalOutInterface.hpp"
 
 using namespace RTT;
 

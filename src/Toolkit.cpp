@@ -26,8 +26,8 @@
  ***************************************************************************/
  
  
-#include <rtt/Toolkit.hpp>
-#include <rtt/Logger.hpp>
+#include <Toolkit.hpp>
+#include <Logger.hpp>
 #include <algorithm>
 
 namespace RTT

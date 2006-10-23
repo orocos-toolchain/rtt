@@ -1,9 +1,9 @@
 
-#include "rtt/ParserExecutionAccess.hpp"
-#include "rtt/Logger.hpp"
-#include "rtt/TaskContext.hpp"
-#include "rtt/Method.hpp"
-#include "rtt/Command.hpp"
+#include "ParserExecutionAccess.hpp"
+#include "Logger.hpp"
+#include "TaskContext.hpp"
+#include "Method.hpp"
+#include "Command.hpp"
 
 namespace RTT
 {

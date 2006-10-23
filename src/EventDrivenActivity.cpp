@@ -30,8 +30,8 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "rtt/EventDrivenActivity.hpp"
-#include "rtt/TimerThread.hpp"
+#include "EventDrivenActivity.hpp"
+#include "TimerThread.hpp"
 #include <boost/bind.hpp>
 
 

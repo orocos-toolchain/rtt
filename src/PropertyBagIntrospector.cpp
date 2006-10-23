@@ -28,4 +28,4 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "rtt/PropertyBagIntrospector.hpp"
+#include "PropertyBagIntrospector.hpp"

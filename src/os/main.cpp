@@ -37,8 +37,8 @@
 #include "pkgconf/os.h"
 #ifdef OS_HAVE_MAIN
 
-#include <rtt/os/startstop.h>
-#include <rtt/os/main.h>
+#include <os/startstop.h>
+#include <os/main.h>
 #ifdef HAVE_IOSTREAM
 #include <iostream>
 using namespace std;
@@ -46,12 +46,12 @@ using namespace std;
 #include <cstdio>
 #endif
 
-#include "rtt/Logger.hpp"
+#include "Logger.hpp"
 using RTT::Logger;
 
 #ifdef OROPKG_OS_THREAD_SCOPE
 # include <boost/scoped_ptr.hpp>
-# include "rtt/dev/DigitalOutInterface.hpp"
+# include "dev/DigitalOutInterface.hpp"
   using namespace RTT;
 #endif
 

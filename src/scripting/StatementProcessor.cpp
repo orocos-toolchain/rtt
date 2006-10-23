@@ -27,23 +27,23 @@
  
  
 
-#include "rtt/StatementProcessor.hpp"
-#include "rtt/Parser.hpp"
-#include "rtt/TaskContext.hpp"
+#include "StatementProcessor.hpp"
+#include "Parser.hpp"
+#include "TaskContext.hpp"
 #include <vector>
-#include "rtt/DispatchInterface.hpp"
-#include "rtt/parse_exception.hpp"
-#include "rtt/ConditionInterface.hpp"
+#include "DispatchInterface.hpp"
+#include "parse_exception.hpp"
+#include "ConditionInterface.hpp"
 #include <boost/tuple/tuple.hpp>
-#include "rtt/Logger.hpp"
+#include "Logger.hpp"
 #include <iostream>
-#include <pkgconf/system.h>
+#include <pkgconf/rtt-config.h>
 #ifdef OROPKG_GEOMETRY
 #include <geometry/frames.h>
 #include <geometry/frames_io.h>
 #endif
-#include <rtt/MultiVector.hpp>
-#include <rtt/TypeStream.hpp>
+#include <MultiVector.hpp>
+#include <TypeStream.hpp>
 
 
 #ifdef OROPKG_GEOMETRY

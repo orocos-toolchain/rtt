@@ -25,31 +25,31 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "rtt/parser-debug.hpp"
-#include "rtt/parse_exception.hpp"
+#include "parser-debug.hpp"
+#include "parse_exception.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "rtt/CommandParser.hpp"
+#include "CommandParser.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <functional>
 #include <algorithm>
 
-#include "rtt/CommandNOP.hpp"
-#include "rtt/CommandDataSource.hpp"
-#include "rtt/ConditionTrue.hpp"
-#include "rtt/ConditionOnce.hpp"
+#include "CommandNOP.hpp"
+#include "CommandDataSource.hpp"
+#include "ConditionTrue.hpp"
+#include "ConditionOnce.hpp"
 
-#include "rtt/AsynchCommandDecorator.hpp"
+#include "AsynchCommandDecorator.hpp"
 
-#include "rtt/TaskContext.hpp"
-#include "rtt/ArgumentsParser.hpp"
-#include "rtt/ConditionComposite.hpp"
-#include "rtt/CommandDispatch.hpp"
-#include "rtt/DispatchAction.hpp"
+#include "TaskContext.hpp"
+#include "ArgumentsParser.hpp"
+#include "ConditionComposite.hpp"
+#include "CommandDispatch.hpp"
+#include "DispatchAction.hpp"
 
 namespace RTT
 {

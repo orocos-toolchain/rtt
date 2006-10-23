@@ -26,7 +26,7 @@
  ***************************************************************************/
  
  
-#include "rtt/DataSources.hpp"
+#include "DataSources.hpp"
 
 namespace RTT
 {

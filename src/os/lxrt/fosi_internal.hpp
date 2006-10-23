@@ -37,12 +37,12 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include "pkgconf/system.h"
+#include "pkgconf/rtt-config.h"
 #define INTERNAL_QUAL static inline
 
 #include <string.h>
 
-#include "rtt/Logger.hpp"
+#include "Logger.hpp"
 
 namespace RTT
 { namespace OS {

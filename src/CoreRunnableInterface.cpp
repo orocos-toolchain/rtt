@@ -27,8 +27,8 @@
  
  
 
-#include "rtt/RunnableInterface.hpp"
-#include "rtt/Logger.hpp"
+#include "RunnableInterface.hpp"
+#include "Logger.hpp"
 
 namespace RTT
 {

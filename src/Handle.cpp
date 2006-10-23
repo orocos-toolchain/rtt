@@ -26,7 +26,7 @@
  ***************************************************************************/
  
  
-#include "rtt/Handle.hpp"
+#include "Handle.hpp"
 
 
 namespace RTT

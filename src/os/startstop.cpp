@@ -33,13 +33,13 @@
  */
 
 #include <pkgconf/os.h>
-#include <rtt/os/startstop.h>
-#include "rtt/os/MainThread.hpp"
-#include "rtt/os/StartStopManager.hpp"
+#include <os/startstop.h>
+#include "os/MainThread.hpp"
+#include "os/StartStopManager.hpp"
 
     
-#include "rtt/Logger.hpp"
-#include "rtt/TimeService.hpp"
+#include "Logger.hpp"
+#include "TimeService.hpp"
 
 using namespace RTT;
 static OS::StartStopManager* initM;

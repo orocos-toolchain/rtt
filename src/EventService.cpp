@@ -26,10 +26,10 @@
  ***************************************************************************/
  
  
-#include "rtt/EventService.hpp"
+#include "EventService.hpp"
 
-#include "rtt/ExecutionEngine.hpp"
-#include <rtt/CompletionProcessor.hpp>
+#include "ExecutionEngine.hpp"
+#include <CompletionProcessor.hpp>
 
 
 

@@ -27,9 +27,9 @@
  
  
 
-#include <rtt/Logger.hpp>
-#include <rtt/ExecutionEngine.hpp>
-#include <rtt/TaskCore.hpp>
+#include <Logger.hpp>
+#include <ExecutionEngine.hpp>
+#include <TaskCore.hpp>
 #include <algorithm>
 
 namespace RTT

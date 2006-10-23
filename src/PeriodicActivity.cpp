@@ -28,20 +28,20 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "rtt/Time.hpp"
-#include "rtt/PeriodicActivity.hpp"
-#include "rtt/os/MutexLock.hpp"
-#include "rtt/Logger.hpp"
-#include "rtt/TimerThread.hpp"
+#include "Time.hpp"
+#include "PeriodicActivity.hpp"
+#include "os/MutexLock.hpp"
+#include "Logger.hpp"
+#include "TimerThread.hpp"
 
 // This define is used for creating and static_casting the Timer.
 #include <pkgconf/corelib_activities.h>
 #ifdef OROSEM_CORELIB_ACTIVITIES_TASKTIMER_TimerOneShot
-#include "rtt/TimerOneShot.hpp"
+#include "TimerOneShot.hpp"
 #elif defined(OROSEM_CORELIB_ACTIVITIES_TASKTIMER_TimerSequencer)
-#include "rtt/TimerSequencer.hpp"
+#include "TimerSequencer.hpp"
 #else
-#include "rtt/TimerOneShot.hpp" // default
+#include "TimerOneShot.hpp" // default
 #endif
 
 #include <cmath>

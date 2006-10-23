@@ -28,8 +28,8 @@
 #ifndef PI_PROPERTIES_TABLESERIALIZER
 #define PI_PROPERTIES_TABLESERIALIZER
 
-#include <rtt/Property.hpp>
-#include <rtt/PropertyIntrospection.hpp>
+#include <Property.hpp>
+#include <PropertyIntrospection.hpp>
 #include "StreamProcessor.hpp"
 
 namespace RTT

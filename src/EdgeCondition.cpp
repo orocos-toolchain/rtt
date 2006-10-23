@@ -24,10 +24,10 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "rtt/EdgeCondition.hpp"
-#include <rtt/ConditionTrue.hpp>
-#include <rtt/ConditionInterface.hpp>
-#include <rtt/DataSource.hpp>
+#include "EdgeCondition.hpp"
+#include <ConditionTrue.hpp>
+#include <ConditionInterface.hpp>
+#include <DataSource.hpp>
 
 namespace RTT
 {

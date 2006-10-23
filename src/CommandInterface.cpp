@@ -29,7 +29,7 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "rtt/CommandInterface.hpp"
+#include "CommandInterface.hpp"
 
 namespace RTT {
   CommandInterface::~CommandInterface() {

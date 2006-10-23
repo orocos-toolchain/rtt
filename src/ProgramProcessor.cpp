@@ -27,11 +27,11 @@
  
  
 
-#include "rtt/ProgramProcessor.hpp"
-#include "rtt/ProgramInterface.hpp"
-#include <rtt/AtomicQueue.hpp>
-#include <rtt/Logger.hpp>
-#include <rtt/Exceptions.hpp>
+#include "ProgramProcessor.hpp"
+#include "ProgramInterface.hpp"
+#include <AtomicQueue.hpp>
+#include <Logger.hpp>
+#include <Exceptions.hpp>
 
 #include <boost/bind.hpp>
 #include <functional>

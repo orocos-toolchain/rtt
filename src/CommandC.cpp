@@ -26,15 +26,15 @@
  ***************************************************************************/
  
  
-#include "rtt/CommandC.hpp"
-#include "rtt/OperationInterface.hpp"
-#include "rtt/DispatchInterface.hpp"
-#include "rtt/TryCommand.hpp"
-#include "rtt/ConditionComposite.hpp"
-#include "rtt/ConditionBoolDataSource.hpp"
-#include "rtt/FactoryExceptions.hpp"
-#include "rtt/Logger.hpp"
-#include <rtt/Exceptions.hpp>
+#include "CommandC.hpp"
+#include "OperationInterface.hpp"
+#include "DispatchInterface.hpp"
+#include "TryCommand.hpp"
+#include "ConditionComposite.hpp"
+#include "ConditionBoolDataSource.hpp"
+#include "FactoryExceptions.hpp"
+#include "Logger.hpp"
+#include <Exceptions.hpp>
 #include <vector>
 
 namespace RTT

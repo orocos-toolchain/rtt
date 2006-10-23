@@ -26,10 +26,10 @@
  ***************************************************************************/
 
 
-#include "rtt/Property.hpp"
-#include "rtt/PropertyBag.hpp"
-#include "rtt/VectorComposition.hpp"
-#include "rtt/Logger.hpp"
+#include "Property.hpp"
+#include "PropertyBag.hpp"
+#include "VectorComposition.hpp"
+#include "Logger.hpp"
 #include <ostream>
 #include <sstream>
 

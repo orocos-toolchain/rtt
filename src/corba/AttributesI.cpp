@@ -28,11 +28,11 @@
 // TAO_IDL - Generated from 
 // be/be_codegen.cpp:910
 
-#include "rtt/corba/AttributesI.h"
-#include "rtt/corba/AttributesC.h"
+#include "corba/AttributesI.h"
+#include "corba/AttributesC.h"
 #include <vector>
-#include <rtt/PropertyBag.hpp>
-#include <rtt/Property.hpp>
+#include <PropertyBag.hpp>
+#include <Property.hpp>
 
 
 

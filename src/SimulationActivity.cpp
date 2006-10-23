@@ -26,9 +26,9 @@
  ***************************************************************************/
  
  
-#include "rtt/SimulationActivity.hpp"
-#include "rtt/SimulationThread.hpp"
-#include "rtt/TimerInterface.hpp"
+#include "SimulationActivity.hpp"
+#include "SimulationThread.hpp"
+#include "TimerInterface.hpp"
 
 namespace RTT
 {

@@ -26,12 +26,12 @@
  ***************************************************************************/
  
  
-#include "rtt/OperationInterface.hpp"
-#include "rtt/MethodC.hpp"
-#include "rtt/FactoryExceptions.hpp"
-#include "rtt/DataSourceCommand.hpp"
-#include "rtt/Logger.hpp"
-#include <rtt/Exceptions.hpp>
+#include "OperationInterface.hpp"
+#include "MethodC.hpp"
+#include "FactoryExceptions.hpp"
+#include "DataSourceCommand.hpp"
+#include "Logger.hpp"
+#include <Exceptions.hpp>
 #include <vector>
 
 namespace RTT

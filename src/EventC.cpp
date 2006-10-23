@@ -26,10 +26,10 @@
  ***************************************************************************/
  
  
-#include "rtt/EventService.hpp"
-#include "rtt/EventC.hpp"
-#include "rtt/FactoryExceptions.hpp"
-#include "rtt/Logger.hpp"
+#include "EventService.hpp"
+#include "EventC.hpp"
+#include "FactoryExceptions.hpp"
+#include "Logger.hpp"
 #include <vector>
 
 namespace RTT

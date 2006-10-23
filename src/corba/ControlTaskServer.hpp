@@ -33,7 +33,7 @@
 #include "../TaskContext.hpp"
 #include "ApplicationServer.hpp"
 #include "ControlTaskS.h"
-#include "rtt/ActivityInterface.hpp"
+#include "ActivityInterface.hpp"
 
 namespace RTT
 {namespace Corba

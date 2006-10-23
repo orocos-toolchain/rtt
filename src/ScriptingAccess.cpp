@@ -27,16 +27,16 @@
  
  
 
-#include "rtt/ScriptingAccess.hpp"
-#include "rtt/Logger.hpp"
-#include "rtt/TaskContext.hpp"
+#include "ScriptingAccess.hpp"
+#include "Logger.hpp"
+#include "TaskContext.hpp"
 
 #include <pkgconf/execution_task_context.h>
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
-#include "rtt/ProgramProcessor.hpp"
+#include "ProgramProcessor.hpp"
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
-#include "rtt/StateMachineProcessor.hpp"
+#include "StateMachineProcessor.hpp"
 #endif
 
 namespace RTT

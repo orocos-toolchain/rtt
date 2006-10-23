@@ -28,7 +28,7 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "rtt/dev/EncoderInterface.hpp"
+#include "dev/EncoderInterface.hpp"
 
 namespace RTT {
     NameServer<EncoderInterface*> EncoderInterface::nameserver;

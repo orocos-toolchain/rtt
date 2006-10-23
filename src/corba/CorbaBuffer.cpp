@@ -1,1 +1,1 @@
-#include "rtt/corba/CorbaBuffer.hpp"
+#include "corba/CorbaBuffer.hpp"

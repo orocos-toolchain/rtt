@@ -44,9 +44,9 @@
 #include <stack>
 #include <map>
 #include <string>
-#include <rtt/Property.hpp>
+#include <Property.hpp>
 #include "StreamProcessor.hpp"
-#include <rtt/Marshaller.hpp>
+#include <Marshaller.hpp>
 #include <istream>
 
 namespace RTT

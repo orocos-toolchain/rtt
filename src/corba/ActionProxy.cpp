@@ -27,8 +27,8 @@
  
  
 
-#include "rtt/corba/OperationsI.h"
-#include "rtt/corba/ActionProxy.hpp"
+#include "corba/OperationsI.h"
+#include "corba/ActionProxy.hpp"
 
 #include <ace/String_Base.h>
 

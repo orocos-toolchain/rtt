@@ -28,17 +28,17 @@
 // TAO_IDL - Generated from 
 // be/be_codegen.cpp:910
 
-#include "rtt/corba/ControlTaskI.h"
-#include "rtt/corba/ControlTaskServer.hpp"
-#include "rtt/corba/ControlTaskProxy.hpp"
-#include "rtt/corba/CosPropertyServiceI.h"
-#include "rtt/corba/AttributesI.h"
-#include "rtt/corba/OperationsI.h"
-#include "rtt/corba/OperationInterfaceI.h"
-#include "rtt/corba/ScriptingAccessI.h"
-#include "rtt/corba/ServicesI.h"
-#include "rtt/corba/DataFlowI.h"
-#include "rtt/Method.hpp"
+#include "corba/ControlTaskI.h"
+#include "corba/ControlTaskServer.hpp"
+#include "corba/ControlTaskProxy.hpp"
+#include "corba/CosPropertyServiceI.h"
+#include "corba/AttributesI.h"
+#include "corba/OperationsI.h"
+#include "corba/OperationInterfaceI.h"
+#include "corba/ScriptingAccessI.h"
+#include "corba/ServicesI.h"
+#include "corba/DataFlowI.h"
+#include "Method.hpp"
 
 
 using namespace RTT;

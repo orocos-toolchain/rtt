@@ -27,18 +27,18 @@
  
  
 
-#include <pkgconf/system.h>
-#include <rtt/RealTimeToolkit.hpp>
-#include <rtt/Types.hpp>
-#include <rtt/Operators.hpp>
-#include <rtt/OperatorTypes.hpp>
-#include <rtt/TemplateTypeInfo.hpp>
-#include <rtt/MultiVector.hpp>
-#include <rtt/mystd.hpp>
+#include <pkgconf/rtt-config.h>
+#include <RealTimeToolkit.hpp>
+#include <Types.hpp>
+#include <Operators.hpp>
+#include <OperatorTypes.hpp>
+#include <TemplateTypeInfo.hpp>
+#include <MultiVector.hpp>
+#include <mystd.hpp>
 
-#include <rtt/TypeStream.hpp>
-#include <rtt/PropertyBag.hpp>
-#include <rtt/VectorComposition.hpp>
+#include <TypeStream.hpp>
+#include <PropertyBag.hpp>
+#include <VectorComposition.hpp>
 #include <ostream>
 
 namespace RTT

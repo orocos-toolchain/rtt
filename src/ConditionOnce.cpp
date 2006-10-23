@@ -27,7 +27,7 @@
  
  
 
-#include "rtt/ConditionOnce.hpp"
+#include "ConditionOnce.hpp"
 
 namespace RTT
 {

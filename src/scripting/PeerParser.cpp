@@ -27,11 +27,11 @@
  
  
 
-#include "rtt/PeerParser.hpp"
-#include "rtt/parser-debug.hpp"
-#include "rtt/parse_exception.hpp"
-#include "rtt/TaskContext.hpp"
-#include "rtt/parser-types.hpp"
+#include "PeerParser.hpp"
+#include "parser-debug.hpp"
+#include "parse_exception.hpp"
+#include "TaskContext.hpp"
+#include "parser-types.hpp"
 
 #include <boost/bind.hpp>
 #include <iostream>

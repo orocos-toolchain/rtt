@@ -27,14 +27,14 @@
  
  
 
-#include "rtt/PropertyParser.hpp"
-#include "rtt/parser-debug.hpp"
-#include "rtt/parse_exception.hpp"
-#include "rtt/TaskContext.hpp"
-#include "rtt/parser-types.hpp"
+#include "PropertyParser.hpp"
+#include "parser-debug.hpp"
+#include "parse_exception.hpp"
+#include "TaskContext.hpp"
+#include "parser-types.hpp"
 
-#include <rtt/Property.hpp>
-#include <rtt/PropertyBag.hpp>
+#include <Property.hpp>
+#include <PropertyBag.hpp>
 #include <boost/bind.hpp>
 
 namespace RTT

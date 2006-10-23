@@ -27,13 +27,13 @@
  
  
 
-#include <rtt/GenericTaskContext.hpp>
+#include <GenericTaskContext.hpp>
 
-#include <rtt/ProgramLoader.hpp>
-#include <rtt/PropertyLoader.hpp>
+#include <ProgramLoader.hpp>
+#include <PropertyLoader.hpp>
 
 // To create commands, methods, etc :
-#include <rtt/Method.hpp>
+#include <Method.hpp>
 
 namespace RTT
 {

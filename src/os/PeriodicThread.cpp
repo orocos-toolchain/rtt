@@ -25,16 +25,16 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "rtt/os/fosi_internal.hpp"
-#include <rtt/os/PeriodicThread.hpp>
-#include <rtt/os/Time.hpp>
-#include "rtt/os/threads.hpp"
-#include "rtt/Logger.hpp"
+#include "os/fosi_internal.hpp"
+#include <os/PeriodicThread.hpp>
+#include <os/Time.hpp>
+#include "os/threads.hpp"
+#include "Logger.hpp"
 
 #include "pkgconf/os.h"
 #ifdef OROPKG_OS_THREAD_SCOPE
 #include <boost/scoped_ptr.hpp>
-# include "rtt/dev/DigitalOutInterface.hpp"
+# include "dev/DigitalOutInterface.hpp"
 #endif
 
 namespace RTT

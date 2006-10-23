@@ -26,7 +26,7 @@
  ***************************************************************************/
  
  
-#include "rtt/corba/ApplicationServer.hpp"
+#include "corba/ApplicationServer.hpp"
 
 namespace RTT
 {namespace Corba

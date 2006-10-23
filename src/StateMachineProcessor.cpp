@@ -27,9 +27,9 @@
  
  
 
-#include "rtt/StateMachineProcessor.hpp"
-#include <rtt/Logger.hpp>
-#include <rtt/Exceptions.hpp>
+#include "StateMachineProcessor.hpp"
+#include <Logger.hpp>
+#include <Exceptions.hpp>
 
 #include <boost/bind.hpp>
 

@@ -29,7 +29,7 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "rtt/ActionInterface.hpp"
+#include "ActionInterface.hpp"
 
 namespace RTT {
   ActionInterface::~ActionInterface() {

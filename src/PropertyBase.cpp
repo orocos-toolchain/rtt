@@ -28,7 +28,7 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "rtt/PropertyBase.hpp"
+#include "PropertyBase.hpp"
 
 namespace RTT {
 

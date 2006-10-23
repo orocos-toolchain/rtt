@@ -28,10 +28,10 @@
 // TAO_IDL - Generated from 
 // be/be_codegen.cpp:910
 
-#include "rtt/corba/ExecutionEngineI.h"
-#include "rtt/ExecutionEngine.hpp"
-#include "rtt/ProgramLoader.hpp"
-#include "rtt/parse_exception.hpp"
+#include "corba/ExecutionEngineI.h"
+#include "ExecutionEngine.hpp"
+#include "ProgramLoader.hpp"
+#include "parse_exception.hpp"
 #include <sstream>
 
 using namespace std;

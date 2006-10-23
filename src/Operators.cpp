@@ -25,24 +25,24 @@
  *                                                                         *
  ***************************************************************************/
 
-#include <rtt/Operators.hpp>
-#include <rtt/OperatorTypes.hpp>
-#include <rtt/DataSourceAdaptor.hpp>
+#include <Operators.hpp>
+#include <OperatorTypes.hpp>
+#include <DataSourceAdaptor.hpp>
 
 #include <functional>
 
 // Cappellini Consonni Extension
-#include <rtt/MultiVector.hpp>
+#include <MultiVector.hpp>
 
-#include <rtt/Logger.hpp>
+#include <Logger.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <rtt/mystd.hpp>
+#include <mystd.hpp>
 
 #include <pkgconf/corelib.h>
 #ifdef OROCFG_CORELIB_GEOMETRY_TOOLKIT_IMPORT
-#include <rtt/RealTimeToolkit.hpp>
+#include <RealTimeToolkit.hpp>
 #endif
 
 namespace RTT

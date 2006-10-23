@@ -27,12 +27,12 @@
  
 // to retrieve RTAI version, if any.
 #define OROBLD_OS_LXRT_INTERNAL 
-#include "rtt/os/StartStopManager.hpp"
-#include "rtt/os/MutexLock.hpp"
-#include "rtt/os/Mutex.hpp"
-#include "rtt/TimeService.hpp"
+#include "os/StartStopManager.hpp"
+#include "os/MutexLock.hpp"
+#include "os/Mutex.hpp"
+#include "TimeService.hpp"
 
-#include "rtt/Logger.hpp"
+#include "Logger.hpp"
 #include <iomanip>
 
 #ifdef OROSEM_PRINTF_LOGGING
@@ -49,7 +49,7 @@
 #endif
 
 #include <stdlib.h>
-#include <pkgconf/system.h>
+#include <pkgconf/rtt-config.h>
 #ifdef OROPKG_OS_LXRT
 #include <pkgconf/os_lxrt.h>
 #endif

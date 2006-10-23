@@ -27,12 +27,12 @@
  
  
 
-#include "rtt/StateMachineTask.hpp"
-#include <rtt/Attribute.hpp>
-#include "rtt/TaskContext.hpp"
-#include "rtt/FactoryExceptions.hpp"
-#include "rtt/CommandDS.hpp"
-#include "rtt/Method.hpp"
+#include "StateMachineTask.hpp"
+#include <Attribute.hpp>
+#include "TaskContext.hpp"
+#include "FactoryExceptions.hpp"
+#include "CommandDS.hpp"
+#include "Method.hpp"
 
 namespace RTT
 {

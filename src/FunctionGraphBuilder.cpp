@@ -27,18 +27,18 @@
  
  
 
-#include "rtt/FunctionGraphBuilder.hpp"
-#include "rtt/CommandComposite.hpp"
-#include "rtt/AttributeBase.hpp"
-#include "rtt/DataSource.hpp"
-//#include "rtt/parse_exception.hpp"
-#include "rtt/FactoryExceptions.hpp"
+#include "FunctionGraphBuilder.hpp"
+#include "CommandComposite.hpp"
+#include "AttributeBase.hpp"
+#include "DataSource.hpp"
+//#include "parse_exception.hpp"
+#include "FactoryExceptions.hpp"
 #include "GraphCopier.hpp"
 
-#include "rtt/CommandNOP.hpp"
-#include "rtt/ConditionFalse.hpp"
-#include "rtt/ConditionTrue.hpp"
-#include "rtt/ConditionTrue.hpp"
+#include "CommandNOP.hpp"
+#include "ConditionFalse.hpp"
+#include "ConditionTrue.hpp"
+#include "ConditionTrue.hpp"
 #include <boost/graph/copy.hpp>
 #include <utility>
 

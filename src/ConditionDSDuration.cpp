@@ -27,7 +27,7 @@
  
  
 
-#include "rtt/ConditionDSDuration.hpp"
+#include "ConditionDSDuration.hpp"
 
 namespace RTT
 {

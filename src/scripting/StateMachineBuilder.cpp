@@ -26,8 +26,8 @@
  ***************************************************************************/
 
 
-#include "rtt/StateMachineBuilder.hpp"
-#include "rtt/ParsedStateMachine.hpp"
+#include "StateMachineBuilder.hpp"
+#include "ParsedStateMachine.hpp"
 #include <assert.h>
 
 namespace RTT {

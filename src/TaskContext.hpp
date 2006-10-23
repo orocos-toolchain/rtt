@@ -31,7 +31,7 @@
 
 #include "AttributeRepository.hpp"
 
-#include "pkgconf/system.h"
+#include "pkgconf/rtt-config.h"
 #ifdef OROPKG_CORELIB_EVENTS
 #include "EventService.hpp"
 #endif

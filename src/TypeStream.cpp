@@ -26,7 +26,7 @@
  ***************************************************************************/
  
  
-#include <rtt/TypeStream.hpp>
+#include <TypeStream.hpp>
 #include <sstream>
 
 namespace RTT

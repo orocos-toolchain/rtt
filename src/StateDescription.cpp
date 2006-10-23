@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 
-#include "rtt/StateDescription.hpp"
+#include "StateDescription.hpp"
 
 namespace RTT {
     

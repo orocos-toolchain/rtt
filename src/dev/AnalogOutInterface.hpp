@@ -39,8 +39,8 @@
 #ifndef ANALOGOUTINTERFACE_HPP
 #define ANALOGOUTINTERFACE_HPP
 
-#include <rtt/NameServer.hpp>
-#include <rtt/NameServerRegistrator.hpp>
+#include <NameServer.hpp>
+#include <NameServerRegistrator.hpp>
 
 namespace RTT
 {

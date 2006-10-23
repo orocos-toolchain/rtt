@@ -27,8 +27,8 @@
  
  
 
-#include "rtt/os/RunnableInterface.hpp"
-#include "rtt/os/ThreadInterface.hpp"
+#include "os/RunnableInterface.hpp"
+#include "os/ThreadInterface.hpp"
 
 namespace RTT
 { namespace OS {

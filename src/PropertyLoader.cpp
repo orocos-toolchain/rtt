@@ -27,15 +27,15 @@
  
  
 
-#include "rtt/PropertyLoader.hpp"
-#include <pkgconf/system.h>
+#include "PropertyLoader.hpp"
+#include <pkgconf/rtt-config.h>
 #ifdef OROPKG_CORELIB_PROPERTIES_MARSHALLING
 #include <pkgconf/corelib_properties_marshalling.h>
 #include ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE
 #include ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE
 #endif
-#include <rtt/Logger.hpp>
-#include <rtt/PropertyBagIntrospector.hpp>
+#include <Logger.hpp>
+#include <PropertyBagIntrospector.hpp>
 #include <fstream>
 
 using namespace std;

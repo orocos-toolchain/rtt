@@ -26,10 +26,10 @@
  ***************************************************************************/
  
  
-#include "rtt/TimerLockFree.hpp"
-#include "rtt/PeriodicActivity.hpp"
+#include "TimerLockFree.hpp"
+#include "PeriodicActivity.hpp"
 
-#include "rtt/Logger.hpp"
+#include "Logger.hpp"
 #include <boost/bind.hpp>
 #include <assert.h>
 

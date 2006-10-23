@@ -27,8 +27,8 @@
  
  
 
-#include "rtt/marsh/CPFDemarshaller.hpp"
-#include "rtt/marsh/CPFDTD.hpp"
+#include "marsh/CPFDemarshaller.hpp"
+#include "marsh/CPFDTD.hpp"
 
 #ifdef OROPKG_SUPPORT_XERCES_C
 #include <xercesc/util/PlatformUtils.hpp>
@@ -49,9 +49,9 @@
 #include <string>
 #include <iostream>
 
-#include <rtt/Property.hpp>
-#include "rtt/PropertyIntrospection.hpp"
-#include <rtt/Logger.hpp>
+#include <Property.hpp>
+#include "PropertyIntrospection.hpp"
+#include <Logger.hpp>
 
 namespace RTT
 {

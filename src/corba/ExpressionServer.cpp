@@ -26,10 +26,10 @@
  ***************************************************************************/
  
  
-#include "rtt/corba/ExpressionServer.hpp"
-#include "rtt/corba/ApplicationServer.hpp"
-#include "rtt/Logger.hpp"
-#include "rtt/corba/OperationsI.h"
+#include "corba/ExpressionServer.hpp"
+#include "corba/ApplicationServer.hpp"
+#include "Logger.hpp"
+#include "corba/OperationsI.h"
 
 namespace RTT
 {namespace Corba

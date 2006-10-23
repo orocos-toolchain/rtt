@@ -25,23 +25,23 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "rtt/parser-debug.hpp"
-#include "rtt/parse_exception.hpp"
-#include "rtt/ProgramGraphParser.hpp"
-#include "rtt/ArgumentsParser.hpp"
+#include "parser-debug.hpp"
+#include "parse_exception.hpp"
+#include "ProgramGraphParser.hpp"
+#include "ArgumentsParser.hpp"
 
-#include "rtt/CommandNOP.hpp"
-#include "rtt/CommandDataSource.hpp"
-#include "rtt/ConditionTrue.hpp"
-#include "rtt/Logger.hpp"
-#include "rtt/DataSourceCondition.hpp"
+#include "CommandNOP.hpp"
+#include "CommandDataSource.hpp"
+#include "ConditionTrue.hpp"
+#include "Logger.hpp"
+#include "DataSourceCondition.hpp"
 
-#include "rtt/ConditionComposite.hpp"
-#include "rtt/CommandComposite.hpp"
-#include "rtt/TryCommand.hpp"
-#include "rtt/FunctionFactory.hpp"
-#include "rtt/CommandBinary.hpp"
-#include "rtt/ProgramTask.hpp"
+#include "ConditionComposite.hpp"
+#include "CommandComposite.hpp"
+#include "TryCommand.hpp"
+#include "FunctionFactory.hpp"
+#include "CommandBinary.hpp"
+#include "ProgramTask.hpp"
 
 #include <iostream>
 #include <boost/bind.hpp>

@@ -25,28 +25,28 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "rtt/parser-debug.hpp"
-#include "rtt/parse_exception.hpp"
-#include "rtt/StateGraphParser.hpp"
-#include "rtt/CommonParser.hpp"
-#include "rtt/ConditionParser.hpp"
-#include "rtt/CommandParser.hpp"
-#include "rtt/ValueChangeParser.hpp"
-#include "rtt/ProgramGraphParser.hpp"
-#include "rtt/PeerParser.hpp"
-#include "rtt/ArgumentsParser.hpp"
-#include "rtt/StateMachineBuilder.hpp"
-#include "rtt/TaskContext.hpp"
-#include "rtt/StateMachineTask.hpp"
+#include "parser-debug.hpp"
+#include "parse_exception.hpp"
+#include "StateGraphParser.hpp"
+#include "CommonParser.hpp"
+#include "ConditionParser.hpp"
+#include "CommandParser.hpp"
+#include "ValueChangeParser.hpp"
+#include "ProgramGraphParser.hpp"
+#include "PeerParser.hpp"
+#include "ArgumentsParser.hpp"
+#include "StateMachineBuilder.hpp"
+#include "TaskContext.hpp"
+#include "StateMachineTask.hpp"
 
 
-#include "rtt/CommandComposite.hpp"
-#include "rtt/Exceptions.hpp"
-#include "rtt/AttributeBase.hpp"
-#include "rtt/ConditionTrue.hpp"
-#include "rtt/ConditionInvert.hpp"
-#include "rtt/StateDescription.hpp"
-#include "rtt/ParsedStateMachine.hpp"
+#include "CommandComposite.hpp"
+#include "Exceptions.hpp"
+#include "AttributeBase.hpp"
+#include "ConditionTrue.hpp"
+#include "ConditionInvert.hpp"
+#include "StateDescription.hpp"
+#include "ParsedStateMachine.hpp"
 
 #include <iostream>
 #include <functional>

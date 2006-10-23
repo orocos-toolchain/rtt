@@ -1,7 +1,7 @@
 
 // this file must be included always first. 
-#include "rtt/os/fosi_internal.hpp"
-#include "rtt/os/MainThread.hpp"
+#include "os/fosi_internal.hpp"
+#include "os/MainThread.hpp"
 
 namespace RTT
 { namespace OS {

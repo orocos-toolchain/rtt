@@ -25,20 +25,20 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "rtt/parser-debug.hpp"
-#include "rtt/parser-types.hpp"
-#include "rtt/parse_exception.hpp"
-#include "rtt/Parser.hpp"
-#include "rtt/ProgramGraphParser.hpp"
-#include "rtt/StateGraphParser.hpp"
-#include "rtt/ConditionParser.hpp"
-#include "rtt/ExpressionParser.hpp"
-#include "rtt/ValueChangeParser.hpp"
-#include "rtt/CommandParser.hpp"
-#include "rtt/ProgramTask.hpp"
-#include "rtt/StateMachineTask.hpp"
-#include "rtt/DataSourceCommand.hpp"
-#include "rtt/ConditionInterface.hpp"
+#include "parser-debug.hpp"
+#include "parser-types.hpp"
+#include "parse_exception.hpp"
+#include "Parser.hpp"
+#include "ProgramGraphParser.hpp"
+#include "StateGraphParser.hpp"
+#include "ConditionParser.hpp"
+#include "ExpressionParser.hpp"
+#include "ValueChangeParser.hpp"
+#include "CommandParser.hpp"
+#include "ProgramTask.hpp"
+#include "StateMachineTask.hpp"
+#include "DataSourceCommand.hpp"
+#include "ConditionInterface.hpp"
 
 #include <iostream>
 #include <fstream>

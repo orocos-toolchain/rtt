@@ -24,14 +24,14 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "rtt/DataSource.hpp"
-#include "rtt/TypeInfoName.hpp"
+#include "DataSource.hpp"
+#include "TypeInfoName.hpp"
 
 #include <pkgconf/os.h>
 #ifdef OROINT_OS_CORBA
-#include "rtt/AnyDataSource.hpp"
+#include "AnyDataSource.hpp"
 #endif
-#include "rtt/TemplateTypeInfo.hpp"
+#include "TemplateTypeInfo.hpp"
 
 namespace RTT
 {

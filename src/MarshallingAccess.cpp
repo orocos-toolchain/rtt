@@ -1,8 +1,8 @@
-#include "rtt/MarshallingAccess.hpp"
+#include "MarshallingAccess.hpp"
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
-#include "rtt/Method.hpp"
+#include "Method.hpp"
 #endif
-#include "rtt/PropertyLoader.hpp" 
+#include "PropertyLoader.hpp" 
 
 namespace RTT
 {

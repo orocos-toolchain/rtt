@@ -27,7 +27,7 @@
  
  
 
-#include <rtt/os/threads.hpp>
+#include <os/threads.hpp>
 
 namespace RTT
 { namespace OS {

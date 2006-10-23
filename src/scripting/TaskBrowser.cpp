@@ -30,17 +30,17 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include <rtt/Logger.hpp>
-#include <rtt/MultiVector.hpp>
-#include <rtt/TypeStream.hpp>
-#include "rtt/TaskBrowser.hpp"
+#include <Logger.hpp>
+#include <MultiVector.hpp>
+#include <TypeStream.hpp>
+#include "TaskBrowser.hpp"
 
-#include "rtt/TryCommand.hpp"
-#include <rtt/TaskContext.hpp>
-#include <rtt/Parser.hpp>
-#include <rtt/ProgramLoader.hpp>
-#include <rtt/parse_exception.hpp>
-#include <rtt/PeerParser.hpp>
+#include "TryCommand.hpp"
+#include <TaskContext.hpp>
+#include <Parser.hpp>
+#include <ProgramLoader.hpp>
+#include <parse_exception.hpp>
+#include <PeerParser.hpp>
 
 #include <iostream>
 #include <sstream>
@@ -52,7 +52,7 @@
 #include <boost/bind.hpp>
 #include <boost/lambda/lambda.hpp>
 
-#include <pkgconf/system.h>
+#include <pkgconf/rtt-config.h>
 #ifdef OROPKG_GEOMETRY
 #include <geometry/frames.h>
 #include <geometry/frames_io.h>

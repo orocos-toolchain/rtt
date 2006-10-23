@@ -32,9 +32,9 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <rtt/Property.hpp>
-#include <rtt/PropertyIntrospection.hpp>
-#include <rtt/Marshaller.hpp>
+#include <Property.hpp>
+#include <PropertyIntrospection.hpp>
+#include <Marshaller.hpp>
 #include "StreamProcessor.hpp"
 
 

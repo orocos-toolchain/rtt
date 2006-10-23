@@ -26,11 +26,11 @@
  ***************************************************************************/
  
  
-#include "rtt/EventService.hpp"
-#include "rtt/ConnectionC.hpp"
-#include "rtt/FactoryExceptions.hpp"
-#include <rtt/EventProcessor.hpp>
-#include <rtt/Logger.hpp>
+#include "EventService.hpp"
+#include "ConnectionC.hpp"
+#include "FactoryExceptions.hpp"
+#include <EventProcessor.hpp>
+#include <Logger.hpp>
 #include <vector>
 #include <boost/bind.hpp>
 

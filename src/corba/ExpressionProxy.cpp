@@ -27,9 +27,9 @@
  
  
 
-#include <rtt/Types.hpp>
-#include "rtt/corba/OperationsI.h"
-#include "rtt/corba/ExpressionProxy.hpp"
+#include <Types.hpp>
+#include "corba/OperationsI.h"
+#include "corba/ExpressionProxy.hpp"
 #include <iostream>
 
 #include <ace/String_Base.h>

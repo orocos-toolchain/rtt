@@ -32,8 +32,8 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <rtt/Property.hpp>
-#include <rtt/PropertyIntrospection.hpp>
+#include <Property.hpp>
+#include <PropertyIntrospection.hpp>
 
 namespace RTT
 {

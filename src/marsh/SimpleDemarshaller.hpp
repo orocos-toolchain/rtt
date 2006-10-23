@@ -28,7 +28,7 @@
 #ifndef PI_PROPERTIES_SIMPLE_DEMARSHALLER
 #define PI_PROPERTIES_SIMPLE_DEMARSHALLER
 
-#include <rtt/Property.hpp>
+#include <Property.hpp>
 
 #include <vector>
 #include <map>

@@ -27,10 +27,10 @@
  
  
 
-#include "rtt/ProgramLoader.hpp"
-#include "rtt/Parser.hpp"
-#include "rtt/ParsedStateMachine.hpp"
-#include "rtt/Logger.hpp"
+#include "ProgramLoader.hpp"
+#include "Parser.hpp"
+#include "ParsedStateMachine.hpp"
+#include "Logger.hpp"
 
 #include <iostream>
 #include <fstream>

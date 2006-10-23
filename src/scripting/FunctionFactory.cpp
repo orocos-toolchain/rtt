@@ -26,23 +26,23 @@
  ***************************************************************************/
  
  
-#include <rtt/FunctionFactory.hpp>
+#include <FunctionFactory.hpp>
 
-#include <rtt/ExecutionEngine.hpp>
-#include "rtt/CommandComposite.hpp"
-#include "rtt/CommandBinary.hpp"
-#include "rtt/CommandExecFunction.hpp"
-#include "rtt/CommandDispatch.hpp"
-#include "rtt/ConditionComposite.hpp"
-#include "rtt/TryCommand.hpp"
+#include <ExecutionEngine.hpp>
+#include "CommandComposite.hpp"
+#include "CommandBinary.hpp"
+#include "CommandExecFunction.hpp"
+#include "CommandDispatch.hpp"
+#include "ConditionComposite.hpp"
+#include "TryCommand.hpp"
 #include <sstream>
 #include <map>
 #include <string>
-#include "rtt/mystd.hpp"
-#include <rtt/PropertyBag.hpp>
-#include <rtt/Property.hpp>
-#include "rtt/Attribute.hpp"
-#include "rtt/parse_exception.hpp"
+#include "mystd.hpp"
+#include <PropertyBag.hpp>
+#include <Property.hpp>
+#include "Attribute.hpp"
+#include "parse_exception.hpp"
 #include <boost/bind.hpp>
 
 namespace RTT

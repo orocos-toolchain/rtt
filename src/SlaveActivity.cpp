@@ -26,8 +26,8 @@
  ***************************************************************************/
  
  
-#include "rtt/SlaveActivity.hpp"
-#include "rtt/os/MainThread.hpp"
+#include "SlaveActivity.hpp"
+#include "os/MainThread.hpp"
 
 namespace RTT
 {

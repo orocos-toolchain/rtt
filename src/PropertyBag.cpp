@@ -28,9 +28,9 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "rtt/PropertyBag.hpp"
-#include "rtt/Property.hpp"
-#include "rtt/Logger.hpp"
+#include "PropertyBag.hpp"
+#include "Property.hpp"
+#include "Logger.hpp"
 
 namespace RTT
 {

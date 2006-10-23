@@ -29,7 +29,7 @@
 #ifndef ORO_PROPERTIES_EMPTY_SERIALIZER
 #define ORO_PROPERTIES_EMPTY_SERIALIZER
 
-#include <rtt/Marshaller.hpp>
+#include <Marshaller.hpp>
 
 namespace RTT
 {

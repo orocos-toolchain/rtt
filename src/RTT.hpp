@@ -25,7 +25,7 @@
  *                                                                         *
  ***************************************************************************/
  
-#include <pkgconf/system.h> 
+#include <pkgconf/rtt-config.h> 
 
 /**
  * @file RTT.hpp

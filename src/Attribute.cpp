@@ -26,7 +26,7 @@
  ***************************************************************************/
  
  
-#include "rtt/Attribute.hpp"
+#include "Attribute.hpp"
 
 namespace RTT
 {

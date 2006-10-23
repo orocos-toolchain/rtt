@@ -26,7 +26,7 @@
  ***************************************************************************/
  
  
-#include "rtt/DataObjectInterfaces.hpp"
+#include "DataObjectInterfaces.hpp"
 
 // This file is purely for testing the instantiations.
 

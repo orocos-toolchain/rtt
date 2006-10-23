@@ -25,7 +25,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "rtt/os/StartStopManager.hpp"
+#include "os/StartStopManager.hpp"
 
 namespace RTT
 { namespace OS {

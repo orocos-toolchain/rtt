@@ -26,15 +26,15 @@
  ***************************************************************************/
  
  
-#include "rtt/FunctionGraph.hpp"
+#include "FunctionGraph.hpp"
 #include "GraphCopier.hpp"
-#include "rtt/AttributeBase.hpp"
-#include "rtt/ProgramTask.hpp"
-#include "rtt/ProgramProcessor.hpp"
+#include "AttributeBase.hpp"
+#include "ProgramTask.hpp"
+#include "ProgramProcessor.hpp"
 
-#include "rtt/CommandNOP.hpp"
-#include "rtt/ConditionFalse.hpp"
-#include "rtt/ConditionTrue.hpp"
+#include "CommandNOP.hpp"
+#include "ConditionFalse.hpp"
+#include "ConditionTrue.hpp"
 #include <boost/graph/copy.hpp>
 #include <utility>
 

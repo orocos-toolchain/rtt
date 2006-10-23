@@ -25,11 +25,11 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "rtt/CompletionProcessor.hpp"
-#include "rtt/Logger.hpp"
-#include <rtt/os/threads.hpp>
+#include "CompletionProcessor.hpp"
+#include "Logger.hpp"
+#include <os/threads.hpp>
 
-#include <rtt/os/StartStopManager.hpp>
+#include <os/StartStopManager.hpp>
 namespace RTT
 {
    namespace {

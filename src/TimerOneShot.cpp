@@ -27,11 +27,11 @@
  
  
 
-#include "rtt/TimerOneShot.hpp"
-#include "rtt/PeriodicActivity.hpp"
-#include <rtt/os/MutexLock.hpp>
+#include "TimerOneShot.hpp"
+#include "PeriodicActivity.hpp"
+#include <os/MutexLock.hpp>
 #include <algorithm>
-#include "rtt/Logger.hpp"
+#include "Logger.hpp"
 #include <assert.h>
 namespace RTT
 {

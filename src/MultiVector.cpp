@@ -28,7 +28,7 @@
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "rtt/MultiVector.hpp"
+#include "MultiVector.hpp"
 
 namespace RTT {
     template class MultiVector<6, double>;

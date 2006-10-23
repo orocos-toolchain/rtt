@@ -36,7 +36,7 @@
 #include <iostream>
 #define INTERNAL_QUAL static inline
 
-#include "rtt/Logger.hpp"
+#include "Logger.hpp"
 
 namespace RTT
 { namespace OS {

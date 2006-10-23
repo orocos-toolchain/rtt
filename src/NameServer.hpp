@@ -31,7 +31,7 @@
 #include <iterator>
 #include <string>
 #include <map>
-// #include "pkgconf/system.h"
+// #include "pkgconf/rtt-config.h"
 // #ifdef OROPKG_CORELIB_REPORTING
 // #include "Logger.hpp"
 // #endif

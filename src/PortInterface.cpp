@@ -27,7 +27,7 @@
  
  
 
-#include "rtt/PortInterface.hpp"
+#include "PortInterface.hpp"
 
 
 namespace RTT

@@ -22,8 +22,8 @@
  *
  */
 
-#include "rtt/os/fosi.h"
-#include "rtt/TimeService.hpp"
+#include "os/fosi.h"
+#include "TimeService.hpp"
 
 namespace RTT
 {

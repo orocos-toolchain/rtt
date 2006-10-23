@@ -29,7 +29,7 @@
 #ifndef OS_COMMON_CAS_HPP
 #define OS_COMMON_CAS_HPP
 
-#include "oro_system.h"
+#include "oro_rtt-config.h"
 
 namespace RTT
 { namespace OS {

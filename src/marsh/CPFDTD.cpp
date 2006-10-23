@@ -1,5 +1,5 @@
 
-#include "rtt/marsh/CPFDTD.hpp"
+#include "marsh/CPFDTD.hpp"
 
 namespace RTT
 {

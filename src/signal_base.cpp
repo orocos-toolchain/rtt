@@ -26,11 +26,11 @@
  ***************************************************************************/
  
  
-#include "rtt/impl/signal_base.hpp"
+#include "impl/signal_base.hpp"
 
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
 #else
-#include <rtt/os/MutexLock.hpp>
+#include <os/MutexLock.hpp>
 #endif
 
 namespace RTT {

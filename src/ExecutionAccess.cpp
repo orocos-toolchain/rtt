@@ -1,8 +1,8 @@
-#include "rtt/ExecutionAccess.hpp"
-#include "rtt/OperationInterface.hpp"
-#include "rtt/Command.hpp"
-#include "rtt/Method.hpp"
-#include "rtt/NA.hpp"
+#include "ExecutionAccess.hpp"
+#include "OperationInterface.hpp"
+#include "Command.hpp"
+#include "Method.hpp"
+#include "NA.hpp"
 
 namespace RTT
 {

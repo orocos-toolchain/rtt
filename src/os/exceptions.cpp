@@ -27,14 +27,14 @@
  
  
 
-#include <pkgconf/system.h>
+#include <pkgconf/rtt-config.h>
 #include <pkgconf/os.h>
 
 #include <exception>
 #include <boost/throw_exception.hpp>
 
 #ifdef OROPKG_CORELIB_LOGGER
-#include <rtt/Logger.hpp>
+#include <Logger.hpp>
 #endif
 
 #ifdef OROBLD_OS_NOEXCEPTIONS

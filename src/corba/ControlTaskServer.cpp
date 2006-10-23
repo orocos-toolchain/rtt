@@ -27,12 +27,12 @@
  
  
 
-#include "rtt/corba/ControlTaskServer.hpp"
-#include "rtt/corba/ControlTaskProxy.hpp"
-#include "rtt/corba/ControlTaskS.h"
-#include "rtt/corba/ControlTaskC.h"
-#include "rtt/corba/ControlTaskI.h"
-#include "rtt/corba/POAUtility.h"
+#include "corba/ControlTaskServer.hpp"
+#include "corba/ControlTaskProxy.hpp"
+#include "corba/ControlTaskS.h"
+#include "corba/ControlTaskC.h"
+#include "corba/ControlTaskI.h"
+#include "corba/POAUtility.h"
 #include <orbsvcs/CosNamingC.h>
 #include <iostream>
 #include <fstream>
@@ -40,8 +40,8 @@
 // ACE Specific, for printing exceptions.
 #include <ace/SString.h>
 
-#include "rtt/os/threads.hpp"
-#include "rtt/NonPeriodicActivity.hpp"
+#include "os/threads.hpp"
+#include "NonPeriodicActivity.hpp"
 
 namespace RTT
 {namespace Corba

@@ -25,13 +25,13 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "rtt/ParsedStateMachine.hpp"
-#include "rtt/DataSource.hpp"
-#include "rtt/ExecutionEngine.hpp"
-#include "rtt/StateDescription.hpp"
+#include "ParsedStateMachine.hpp"
+#include "DataSource.hpp"
+#include "ExecutionEngine.hpp"
+#include "StateDescription.hpp"
 
-#include "rtt/TaskContext.hpp"
-#include "rtt/StateMachineTask.hpp"
+#include "TaskContext.hpp"
+#include "StateMachineTask.hpp"
 #include <iostream>
 
 #include <boost/lambda/lambda.hpp>

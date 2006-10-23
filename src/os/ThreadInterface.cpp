@@ -26,8 +26,8 @@
  ***************************************************************************/
  
  
-#include "rtt/os/ThreadInterface.hpp"
-#include "rtt/os/threads.hpp"
+#include "os/ThreadInterface.hpp"
+#include "os/threads.hpp"
 
 using namespace RTT::OS;
 

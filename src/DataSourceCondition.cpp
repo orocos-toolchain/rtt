@@ -24,9 +24,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#include "rtt/DataSourceCondition.hpp"
+#include "DataSourceCondition.hpp"
 
-#include "rtt/ConditionInterface.hpp"
+#include "ConditionInterface.hpp"
 
 namespace RTT
 {

@@ -28,11 +28,11 @@
 // TAO_IDL - Generated from 
 // be/be_codegen.cpp:910
 
-#include "rtt/corba/OperationsI.h"
-#include "rtt/CommandC.hpp"
-#include "rtt/DataSourceCondition.hpp"
-#include "rtt/CommandDataSource.hpp"
-#include "rtt/Logger.hpp"
+#include "corba/OperationsI.h"
+#include "CommandC.hpp"
+#include "DataSourceCondition.hpp"
+#include "CommandDataSource.hpp"
+#include "Logger.hpp"
 
 
 using namespace RTT;

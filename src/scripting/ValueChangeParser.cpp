@@ -25,19 +25,19 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "rtt/parser-debug.hpp"
-#include "rtt/parse_exception.hpp"
-#include "rtt/ValueChangeParser.hpp"
+#include "parser-debug.hpp"
+#include "parse_exception.hpp"
+#include "ValueChangeParser.hpp"
 
-#include "rtt/TaskContext.hpp"
-#include "rtt/Types.hpp"
-#include "rtt/Attribute.hpp"
+#include "TaskContext.hpp"
+#include "Types.hpp"
+#include "Attribute.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/construct.hpp>
 
-#include <rtt/Logger.hpp>
+#include <Logger.hpp>
 
 #include <sstream>
 #include <iostream>

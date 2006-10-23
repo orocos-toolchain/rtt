@@ -25,9 +25,9 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "rtt/TimerThread.hpp"
-#include "rtt/PeriodicActivity.hpp"
-#include "rtt/TimerInterface.hpp"
+#include "TimerThread.hpp"
+#include "PeriodicActivity.hpp"
+#include "TimerInterface.hpp"
 
 #include "pkgconf/corelib_activities.h"
 
@@ -35,14 +35,14 @@
 // with respect to step() and finalize()
 #define OROSEM_ONESHOT_TIMER
 #ifdef OROSEM_ONESHOT_TIMER
-#include "rtt/TimerOneShot.hpp"
+#include "TimerOneShot.hpp"
 #else
-#include "rtt/TimerLockFree.hpp"
+#include "TimerLockFree.hpp"
 #endif
-#include "rtt/Time.hpp"
-#include "rtt/Logger.hpp"
+#include "Time.hpp"
+#include "Logger.hpp"
 #include <algorithm>
-#include <rtt/os/MutexLock.hpp>
+#include <os/MutexLock.hpp>
 
 namespace RTT
 {

@@ -35,16 +35,16 @@
 
 #include <pkgconf/execution_task_context.h>
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-#include "rtt/EventProcessor.hpp"
+#include "EventProcessor.hpp"
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_COMMANDS
-#include "rtt/CommandProcessor.hpp"
+#include "CommandProcessor.hpp"
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
-#include "rtt/ProgramProcessor.hpp"
+#include "ProgramProcessor.hpp"
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
-#include "rtt/StateMachineProcessor.hpp"
+#include "StateMachineProcessor.hpp"
 #endif
 
 namespace RTT

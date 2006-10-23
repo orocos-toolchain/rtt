@@ -27,7 +27,7 @@
  
  
 
-#include "rtt/ConnectionInterface.hpp"
+#include "ConnectionInterface.hpp"
 
 namespace RTT
 {

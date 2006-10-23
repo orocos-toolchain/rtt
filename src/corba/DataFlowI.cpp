@@ -28,10 +28,10 @@
 // TAO_IDL - Generated from 
 // be/be_codegen.cpp:910
 
-#include "rtt/corba/DataFlowI.h"
-#include "rtt/PortInterface.hpp"
-#include "rtt/ConnectionInterface.hpp"
-#include "rtt/Logger.hpp"
+#include "corba/DataFlowI.h"
+#include "PortInterface.hpp"
+#include "ConnectionInterface.hpp"
+#include "Logger.hpp"
 
 using namespace RTT;
 

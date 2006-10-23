@@ -1,7 +1,7 @@
 #ifndef PROPERTIES_TINY_DEMARSHALLER
 #define PROPERTIES_TINY_DEMARSHALLER
 
-#include <rtt/Marshaller.hpp>
+#include <Marshaller.hpp>
 #include <string>
 
 namespace RTT

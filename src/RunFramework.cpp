@@ -25,16 +25,16 @@
  *                                                                         *
  ***************************************************************************/
 
-#include <rtt/os/fosi.h>
-#include <rtt/os/cpp.hpp>
+#include <os/fosi.h>
+#include <os/cpp.hpp>
 
-#include "rtt/Framework.hpp"
-#include "rtt/TimeService.hpp"
-#include "rtt/ZeroTimeThread.hpp"
-#include "rtt/ZeroLatencyThread.hpp"
-#include "rtt/CompletionProcessor.hpp"
+#include "Framework.hpp"
+#include "TimeService.hpp"
+#include "ZeroTimeThread.hpp"
+#include "ZeroLatencyThread.hpp"
+#include "CompletionProcessor.hpp"
 #include <rtstl/rtstreams.hpp>
-#include <rtt/os/MainThread.hpp>
+#include <os/MainThread.hpp>
 
 /**
  *

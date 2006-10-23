@@ -28,17 +28,17 @@
  
 
 
-#include "rtt/corba/ControlTaskProxy.hpp"
-#include "rtt/corba/ControlTaskServer.hpp"
-#include "rtt/corba/ControlTaskC.h"
-#include "rtt/corba/CorbaMethodFactory.hpp"
-#include "rtt/corba/CorbaCommandFactory.hpp"
-#include "rtt/corba/CORBAExpression.hpp"
-#include "rtt/corba/ScriptingAccessProxy.hpp"
-#include "rtt/corba/CorbaPort.hpp"
+#include "corba/ControlTaskProxy.hpp"
+#include "corba/ControlTaskServer.hpp"
+#include "corba/ControlTaskC.h"
+#include "corba/CorbaMethodFactory.hpp"
+#include "corba/CorbaCommandFactory.hpp"
+#include "corba/CORBAExpression.hpp"
+#include "corba/ScriptingAccessProxy.hpp"
+#include "corba/CorbaPort.hpp"
 
-#include "rtt/CommandInterface.hpp"
-#include "rtt/Types.hpp"
+#include "CommandInterface.hpp"
+#include "Types.hpp"
 #include "orbsvcs/CosNamingC.h"
 #include <iostream>
 

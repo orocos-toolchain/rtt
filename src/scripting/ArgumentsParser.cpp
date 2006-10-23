@@ -25,17 +25,17 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "rtt/parser-debug.hpp"
+#include "parser-debug.hpp"
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
-#include "rtt/ArgumentsParser.hpp"
+#include "ArgumentsParser.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "rtt/ExpressionParser.hpp"
-#include "rtt/TaskContext.hpp"
+#include "ExpressionParser.hpp"
+#include "TaskContext.hpp"
 
 
 namespace RTT

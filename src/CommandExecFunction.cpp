@@ -26,7 +26,7 @@
  ***************************************************************************/
  
  
-#include "rtt/CommandExecFunction.hpp"
+#include "CommandExecFunction.hpp"
 
 namespace RTT
 {

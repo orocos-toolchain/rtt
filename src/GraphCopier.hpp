@@ -26,7 +26,7 @@
  ***************************************************************************/
  
  
-#include <rtt/FunctionGraph.hpp>
+#include <FunctionGraph.hpp>
 
     namespace {
         

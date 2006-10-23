@@ -26,7 +26,7 @@
  ***************************************************************************/
  
  
-#include "rtt/ConditionInterface.hpp"
+#include "ConditionInterface.hpp"
 
 namespace RTT {
     ConditionInterface::~ConditionInterface() {

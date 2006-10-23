@@ -1,7 +1,7 @@
 #ifndef ORO_EXECUTION_ACCESS_HPP
 #define ORO_EXECUTION_ACCESS_HPP
 
-#include <rtt/TaskContext.hpp>
+#include <TaskContext.hpp>
 
 namespace RTT
 {
