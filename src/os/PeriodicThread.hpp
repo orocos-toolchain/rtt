@@ -29,7 +29,7 @@
 #define ORO_PERIODIC_THREAD_HPP
 
 // Our own package config headers.
-#include "pkgconf/os.h"
+#include "os.h"
 #include "fosi.h"
 
 #include "RunnableInterface.hpp"

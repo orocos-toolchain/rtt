@@ -29,7 +29,7 @@
 #ifndef MULTIVECTOR_HPP
 #define MULTIVECTOR_HPP
 
-#include "pkgconf/os.h"
+#include "os.h"
 
 #if OROINT_OS_STDIOSTREAM
 #include <ostream>

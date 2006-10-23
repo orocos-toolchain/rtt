@@ -32,7 +32,7 @@
  * The target calls these functions at startup time.
  */
 
-#include <pkgconf/os.h>
+#include <os.h>
 #include <os/startstop.h>
 #include "os/MainThread.hpp"
 #include "os/StartStopManager.hpp"

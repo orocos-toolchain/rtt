@@ -32,7 +32,7 @@
 #include "Types.hpp"
 #include "DataSourceTypeInfo.hpp"
 #include "Logger.hpp"
-#include <pkgconf/rtt-config.h>
+#include <rtt-config.h>
 
 namespace RTT
 {

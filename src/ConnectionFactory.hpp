@@ -30,7 +30,7 @@
 #define ORO_EXECUTION_CONNECTION_FACTORY_HPP
 
 #include "ConnectionTypes.hpp"
-#include <pkgconf/rtt-config.h>
+#include <rtt-config.h>
 
 namespace RTT
 {

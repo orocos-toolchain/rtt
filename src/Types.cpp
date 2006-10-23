@@ -26,8 +26,8 @@
  ***************************************************************************/
 #include "Types.hpp"
 
-#include <pkgconf/rtt-config.h>
-#include <pkgconf/corelib.h>
+#include <rtt-config.h>
+#include <corelib.h>
 
 #include <MultiVector.hpp>
 #include <Logger.hpp>

@@ -29,7 +29,7 @@
 #include "PeriodicActivity.hpp"
 #include "TimerInterface.hpp"
 
-#include "pkgconf/corelib_activities.h"
+#include "corelib_activities.h"
 
 // this timer is the only correct, synchronising one
 // with respect to step() and finalize()

@@ -49,9 +49,9 @@
 #endif
 
 #include <stdlib.h>
-#include <pkgconf/rtt-config.h>
+#include <rtt-config.h>
 #ifdef OROPKG_OS_LXRT
-#include <pkgconf/os_lxrt.h>
+#include <os_lxrt.h>
 #endif
 
 namespace RTT 

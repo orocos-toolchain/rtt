@@ -31,7 +31,7 @@
 #include "os/threads.hpp"
 #include "Logger.hpp"
 
-#include "pkgconf/os.h"
+#include "os.h"
 #ifdef OROPKG_OS_THREAD_SCOPE
 #include <boost/scoped_ptr.hpp>
 # include "dev/DigitalOutInterface.hpp"

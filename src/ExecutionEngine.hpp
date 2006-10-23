@@ -33,7 +33,7 @@
 #include "ActivityInterface.hpp"
 #include <vector>
 
-#include <pkgconf/execution_task_context.h>
+#include <execution_task_context.h>
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
 #include "EventProcessor.hpp"
 #endif

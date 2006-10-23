@@ -27,8 +27,8 @@
  
  
 
-#include <pkgconf/rtt-config.h>
-#include <pkgconf/os.h>
+#include <rtt-config.h>
+#include <os.h>
 
 #include <exception>
 #include <boost/throw_exception.hpp>

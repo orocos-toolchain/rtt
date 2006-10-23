@@ -40,7 +40,7 @@
 
 #include <mystd.hpp>
 
-#include <pkgconf/corelib.h>
+#include <corelib.h>
 #ifdef OROCFG_CORELIB_GEOMETRY_TOOLKIT_IMPORT
 #include <RealTimeToolkit.hpp>
 #endif

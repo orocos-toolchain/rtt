@@ -34,7 +34,7 @@
  * which calls the user's ORO_main function.
  * (See os.cdl)
  */
-#include "pkgconf/os.h"
+#include "os.h"
 #ifdef OS_HAVE_MAIN
 
 #include <os/startstop.h>

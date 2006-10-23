@@ -27,7 +27,7 @@
 #include "DataSource.hpp"
 #include "TypeInfoName.hpp"
 
-#include <pkgconf/os.h>
+#include <os.h>
 #ifdef OROINT_OS_CORBA
 #include "AnyDataSource.hpp"
 #endif

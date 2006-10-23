@@ -29,7 +29,7 @@
 #ifndef ORO_EXCEPTIONS_HPP
 #define ORO_EXCEPTIONS_HPP
 
-#include <pkgconf/os.h>
+#include <os.h>
 
 /**
  * @file Exceptions.hpp

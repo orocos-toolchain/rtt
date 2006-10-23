@@ -30,7 +30,7 @@
 
 #include <map>
 #include <string>
-#include <pkgconf/os.h>
+#include <os.h>
 #include <boost/call_traits.hpp>
 #include <boost/type_traits.hpp>
 

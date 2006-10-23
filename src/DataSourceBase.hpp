@@ -34,7 +34,7 @@
 #include <map>
 #include <string>
 #include "os/oro_atomic.h"
-#include "pkgconf/os.h"
+#include "os.h"
 #ifdef OROINT_OS_CORBA
 #include "corba/OperationsC.h"
 #include "corba/OperationsS.h"

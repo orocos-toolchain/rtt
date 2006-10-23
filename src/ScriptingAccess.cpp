@@ -31,7 +31,7 @@
 #include "Logger.hpp"
 #include "TaskContext.hpp"
 
-#include <pkgconf/execution_task_context.h>
+#include <execution_task_context.h>
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
 #include "ProgramProcessor.hpp"
 #endif

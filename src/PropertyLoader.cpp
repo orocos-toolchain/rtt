@@ -28,9 +28,9 @@
  
 
 #include "PropertyLoader.hpp"
-#include <pkgconf/rtt-config.h>
+#include <rtt-config.h>
 #ifdef OROPKG_CORELIB_PROPERTIES_MARSHALLING
-#include <pkgconf/corelib_properties_marshalling.h>
+#include <corelib_properties_marshalling.h>
 #include ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE
 #include ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE
 #endif
