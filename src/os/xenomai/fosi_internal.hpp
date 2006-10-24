@@ -31,7 +31,7 @@
 #define OS_FOSI_INTERNAL_HPP
 
 #define OROBLD_OS_INTERNAL
-#include "ThreadInterface.hpp"
+#include "os/ThreadInterface.hpp"
 #include "fosi.h"
 #include <iostream>
 #define INTERNAL_QUAL static inline

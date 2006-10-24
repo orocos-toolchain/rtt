@@ -32,7 +32,7 @@
 
 #include <iostream>
 #include <sched.h>
-#include "ThreadInterface.hpp"
+#include "os/ThreadInterface.hpp"
 #include "fosi.h"
 #include <sys/mman.h>
 #include <unistd.h>

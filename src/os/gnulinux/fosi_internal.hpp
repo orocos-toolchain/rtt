@@ -29,11 +29,11 @@
 #ifndef OS_FOSI_INTERNAL_HPP
 #define OS_FOSI_INTERNAL_HPP
 
-#include "ThreadInterface.hpp"
+#include "os/ThreadInterface.hpp"
 #include "fosi.h"
 #include <iostream>
 #include <string.h>
-#include "../Logger.hpp"
+#include "Logger.hpp"
 
 #define INTERNAL_QUAL static inline
 

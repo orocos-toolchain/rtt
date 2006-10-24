@@ -1,5 +1,9 @@
-FILE( GLOB CPPS [^.]*.cpp )
-FILE( GLOB HPPS [^.]*.hpp )
+IF(CORBA_SUPPORT)
 
-GLOBAL_ADD_INCLUDE( rtt/corba ${HPPS})
-GLOBAL_ADD_SRC( ${CPPS})
+#  EXEC_PROGRAM(tao_idl ARGS)
+  FILE( GLOB CPPS [^.]*.cpp )
+  FILE( GLOB HPPS [^.]*.hpp )
+
+  GLOBAL_ADD_INCLUDE( rtt/corba ${HPPS})
+  GLOBAL_ADD_SRC( ${CPPS})
+ENDIF(CORBA_SUPPORT)

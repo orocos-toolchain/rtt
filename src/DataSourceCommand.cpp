@@ -26,9 +26,9 @@
  ***************************************************************************/
  
  
-#include "rtt/DataSourceCommand.hpp"
+#include "DataSourceCommand.hpp"
 
-#include "rtt/CommandInterface.hpp"
+#include "CommandInterface.hpp"
 
 namespace RTT
 {

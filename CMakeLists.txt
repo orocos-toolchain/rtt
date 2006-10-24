@@ -87,16 +87,6 @@ INCLUDE_DIRECTORIES( ${PROJ_SOURCE_DIR} )
 #                                                         #
 ###########################################################
 
-# Only do this once.
-IF ( NOT WROTE_CONFIG_H )
-  MESSAGE( STATUS "Writing config.h" )
-  INCLUDE(config/write_config_h.cmake)
-  SET( WROTE_CONFIG_H TRUE CACHE INTERNAL 
-       "Remember that we've already written config.h" )
-ELSE ( NOT WROTE_CONFIG_H )
-  MESSAGE( STATUS "Not writing config.h -- wrote it previously" )
-ENDIF ( NOT WROTE_CONFIG_H )
-
 ###########################################################
 #                                                         #
 # Look for dependencies required by individual components #
@@ -104,6 +94,7 @@ ENDIF ( NOT WROTE_CONFIG_H )
 ###########################################################
 
 INCLUDE(config/check_depend.cmake)
+INCLUDE(config/write_rtt_config_h.cmake)
 INCLUDE(config/rtt_rules.cmake)
 
 SET(ENV{GLOBAL_LIBRARY_SRCS})
@@ -159,11 +150,6 @@ ELSE ( "${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" STREQUAL "2.4" )
 
 ENDIF ( "${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" STREQUAL "2.4" )
 
-##########################
-#                        #
-# Setting Subdirectories #
-#                        #
-##########################
 
 #############################
 #			    #
@@ -173,3 +159,7 @@ ENDIF ( "${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" STREQUAL "2.4" )
 
 ADD_CUSTOM_TARGET(docs "doxygen" "Doxyfile")
   
+
+
+
+INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR}/src ${PROJ_BINARY_DIR}/src)
