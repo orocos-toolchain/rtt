@@ -25,7 +25,6 @@
  *                                                                         *
  ***************************************************************************/
  
- 
 #include "rtt-config.h"
 #ifdef OROBLD_OS_AGNOSTIC
 # if defined(OROBLD_OS_ARCH_i386)

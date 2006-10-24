@@ -42,10 +42,10 @@
 
 #include "rtt-config.h"
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
-#include "ParserScriptingAccess.hpp"
-#include "ParserExecutionAccess.hpp"
+#include "scripting/ParserScriptingAccess.hpp"
+#include "scripting/ParserExecutionAccess.hpp"
 #endif
-#include "MarshallingAccess.hpp"
+#include "marsh/MarshallingAccess.hpp"
 
 namespace RTT
 {

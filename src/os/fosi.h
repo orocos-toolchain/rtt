@@ -1,3 +1,5 @@
+#include "rtt-config.h"
+
 #ifdef OROPKG_OS_GNULINUX
  #include "gnulinux/fosi.h"
 #endif
