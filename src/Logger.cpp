@@ -50,9 +50,6 @@
 
 #include <stdlib.h>
 #include "rtt-config.h"
-#ifdef OROPKG_OS_LXRT
-#include "os/os_lxrt.h"
-#endif
 
 namespace RTT 
 {
