@@ -1,7 +1,7 @@
 #ifndef CYGONCE_PKGCONF_EXECUTION_PROGRAM_PROCESSOR_H
 #define CYGONCE_PKGCONF_EXECUTION_PROGRAM_PROCESSOR_H
 /*
- * File <pkgconf/execution_program_processor.h>
+ * File <execution_program_processor.h>
  *
  * This file is generated automatically by the configuration
  * system. It should not be edited. Any changes to this file

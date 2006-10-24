@@ -1,7 +1,7 @@
 #ifndef CYGONCE_PKGCONF_SYSTEM_H
 #define CYGONCE_PKGCONF_SYSTEM_H
 /*
- * File <pkgconf/system.h>
+ * File <system.h>
  *
  * This file is generated automatically by the configuration
  * system. It should not be edited. Any changes to this file
@@ -14,7 +14,7 @@
 #define ORONUM_OS_LXRT_VERSION_MAJOR CYGNUM_VERSION_CURRENT
 #define ORONUM_OS_LXRT_VERSION_MINOR -1
 #define ORONUM_OS_LXRT_VERSION_RELEASE -1
-#define CYGBLD_OS_TARGET_H   <pkgconf/os_lxrt.h>
+#define CYGBLD_OS_TARGET_H   <os_lxrt.h>
 #define OROPKG_SUPPORT current
 #define OROPKG_SUPPORT_current
 #define ORONUM_SUPPORT_VERSION_MAJOR CYGNUM_VERSION_CURRENT

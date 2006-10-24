@@ -29,7 +29,7 @@
 #ifndef ORO_CORELIB_lOGGER_HPP
 #define ORO_CORELIB_lOGGER_HPP
 
-#include "corelib_reporting.h"
+#include "rtt-config.h"
 #ifndef OROBLD_DISABLE_LOGGING
 #include <ostream>
 #include <sstream>

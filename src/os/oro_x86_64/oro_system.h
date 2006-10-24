@@ -34,7 +34,7 @@
  * 
  */
 
-#include "pkgconf/os.h"
+#include "rtt-config.h"
 #ifdef OROBLD_OS_AGNOSTIC
 #include "oro_bitops.h"
 // do not rely on system headers :

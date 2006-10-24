@@ -28,7 +28,7 @@
 #ifndef PI_PROPERTIES_CPFDESERIALIZER
 #define PI_PROPERTIES_CPFDESERIALIZER
 
-#include <support_xercesc.h>
+#include "rtt-config.h"
 
 #ifdef OROPKG_SUPPORT_XERCES_C
 #include <xercesc/util/XMLUniDefs.hpp>

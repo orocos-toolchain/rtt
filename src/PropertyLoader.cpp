@@ -30,7 +30,6 @@
 #include "PropertyLoader.hpp"
 #include "rtt-config.h"
 #ifdef OROPKG_CORELIB_PROPERTIES_MARSHALLING
-#include <corelib_properties_marshalling.h>
 #include ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE
 #include ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE
 #endif

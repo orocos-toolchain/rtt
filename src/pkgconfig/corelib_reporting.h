@@ -1,7 +1,7 @@
 #ifndef CYGONCE_PKGCONF_CORELIB_REPORTING_H
 #define CYGONCE_PKGCONF_CORELIB_REPORTING_H
 /*
- * File <pkgconf/corelib_reporting.h>
+ * File <corelib_reporting.h>
  *
  * This file is generated automatically by the configuration
  * system. It should not be edited. Any changes to this file

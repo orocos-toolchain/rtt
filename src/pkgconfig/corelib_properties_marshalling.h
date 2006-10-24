@@ -1,7 +1,7 @@
 #ifndef CYGONCE_PKGCONF_CORELIB_PROPERTIES_MARSHALLING_H
 #define CYGONCE_PKGCONF_CORELIB_PROPERTIES_MARSHALLING_H
 /*
- * File <pkgconf/corelib_properties_marshalling.h>
+ * File <corelib_properties_marshalling.h>
  *
  * This file is generated automatically by the configuration
  * system. It should not be edited. Any changes to this file

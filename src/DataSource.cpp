@@ -27,7 +27,7 @@
 #include "DataSource.hpp"
 #include "TypeInfoName.hpp"
 
-#include <os.h>
+#include "rtt-config.h"
 #ifdef OROINT_OS_CORBA
 #include "AnyDataSource.hpp"
 #endif

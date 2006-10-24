@@ -1,7 +1,7 @@
 #ifndef CYGONCE_PKGCONF_CORELIB_H
 #define CYGONCE_PKGCONF_CORELIB_H
 /*
- * File <pkgconf/corelib.h>
+ * File <corelib.h>
  *
  * This file is generated automatically by the configuration
  * system. It should not be edited. Any changes to this file

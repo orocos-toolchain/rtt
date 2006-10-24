@@ -29,7 +29,7 @@
 #ifndef ORO_EXCEPTIONS_HPP
 #define ORO_EXCEPTIONS_HPP
 
-#include <os.h>
+#include "rtt-config.h"
 
 /**
  * @file Exceptions.hpp

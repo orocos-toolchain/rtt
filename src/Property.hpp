@@ -28,7 +28,7 @@
 #ifndef ORO_PROPERTY_HPP
 #define ORO_PROPERTY_HPP
 
-#include <corelib_properties.h>
+#include "rtt-config.h"
 #include "Marshaller.hpp"
 #include "PropertyBase.hpp"
 #include "PropertyBag.hpp"

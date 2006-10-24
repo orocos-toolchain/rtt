@@ -33,7 +33,7 @@
 #include "ActivityInterface.hpp"
 #include <vector>
 
-#include <execution_task_context.h>
+#include "rtt-config.h"
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
 #include "EventProcessor.hpp"
 #endif

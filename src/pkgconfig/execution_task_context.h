@@ -1,7 +1,7 @@
 #ifndef CYGONCE_PKGCONF_EXECUTION_TASK_CONTEXT_H
 #define CYGONCE_PKGCONF_EXECUTION_TASK_CONTEXT_H
 /*
- * File <pkgconf/execution_task_context.h>
+ * File <execution_task_context.h>
  *
  * This file is generated automatically by the configuration
  * system. It should not be edited. Any changes to this file

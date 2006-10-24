@@ -1,7 +1,7 @@
 #ifndef CYGONCE_PKGCONF_DEVICE_INTERFACE_H
 #define CYGONCE_PKGCONF_DEVICE_INTERFACE_H
 /*
- * File <pkgconf/device_interface.h>
+ * File <device_interface.h>
  *
  * This file is generated automatically by the configuration
  * system. It should not be edited. Any changes to this file
