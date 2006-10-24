@@ -48,7 +48,6 @@ extern "C" {
 #include "os/oro_bitops.h"
 
 #include "rtt-config.h"
-#include "os_lxrt.h"
 #if !defined(OROBLD_OS_AGNOSTIC) || defined(OROBLD_OS_LXRT_INTERNAL) // define the latter to include nevertheless the RTAI header files
 
 	// force inlining if internal and internal to avoid an extra indirection.

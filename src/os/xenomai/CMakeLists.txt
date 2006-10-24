@@ -1,6 +1,7 @@
-FILE( GLOB CPPS [^.]*.cpp )
-FILE( GLOB HPPS [^.]*.hpp )
+IF (OROCOS_TARGET STREQUAL "xenomai")
+  FILE( GLOB CPPS [^.]*.cpp )
+  FILE( GLOB HPPS [^.]*.hpp )
 
-GLOBAL_ADD_INCLUDE( os/xenomai ${HPPS})
-GLOBAL_ADD_SRC( ${CPPS})
-
+  GLOBAL_ADD_INCLUDE( os/xenomai ${HPPS})
+  GLOBAL_ADD_SRC( ${CPPS})
+ENDIF (OROCOS_TARGET STREQUAL "xenomai")

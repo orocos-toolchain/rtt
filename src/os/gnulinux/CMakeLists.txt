@@ -1,5 +1,7 @@
-FILE( GLOB CPPS [^.]*.cpp )
-FILE( GLOB HPPS [^.]*.hpp )
+IF (OROCOS_TARGET STREQUAL "gnulinux")
+  FILE( GLOB CPPS [^.]*.cpp )
+  FILE( GLOB HPPS [^.]*.hpp )
 
-GLOBAL_ADD_INCLUDE( os/gnulinux ${HPPS})
-GLOBAL_ADD_SRC( ${CPPS})
+  GLOBAL_ADD_INCLUDE( os/gnulinux ${HPPS})
+  GLOBAL_ADD_SRC( ${CPPS})
+ENDIF (OROCOS_TARGET STREQUAL "gnulinux")
