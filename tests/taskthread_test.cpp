@@ -27,9 +27,7 @@
 #include <SimulationThread.hpp>
 #include <os/MainThread.hpp>
 #include <Logger.hpp>
-#ifdef OROPKG_OS_GNULINUX
-#include <pkgconf/os_gnulinux.h>
-#endif
+#include "rtt-config"
 
 using namespace std;
 

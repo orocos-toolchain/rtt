@@ -24,9 +24,6 @@ ENDIF(NOT CMAKE_INSTALL_PREFIX)
 SET( PROJ_SOURCE_DIR ${Orocos-RTT_SOURCE_DIR} )
 SET( PROJ_BINARY_DIR ${Orocos-RTT_BINARY_DIR} )
 
-# The dependencies of the COMPONENTS_LIBRARY
-SET( COMPONENTS_LIBRARY_DEPS "" CACHE STRING "Dependencies of the resulting library")
-
 # Set the default build type to debug.
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Debug CACHE STRING
@@ -94,7 +91,6 @@ INCLUDE_DIRECTORIES( ${PROJ_SOURCE_DIR} )
 ###########################################################
 
 INCLUDE(config/check_depend.cmake)
-INCLUDE(config/write_rtt_config_h.cmake)
 INCLUDE(config/rtt_rules.cmake)
 
 SET(ENV{GLOBAL_LIBRARY_SRCS})
