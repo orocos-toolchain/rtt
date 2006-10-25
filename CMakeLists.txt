@@ -99,6 +99,7 @@ INCLUDE(config/rtt_rules.cmake)
 
 SET(ENV{GLOBAL_LIBRARY_SRCS})
 ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(tests)
 ADD_LIBRARY(rtt SHARED $ENV{GLOBAL_LIBRARY_SRCS})
 
 CONFIGURE_FILE( orocos-rtt.pc.in orocos-rtt.pc @ONLY)
