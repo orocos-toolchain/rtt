@@ -23,10 +23,10 @@
 #include <unistd.h>
 #include <iostream>
 
-#include <rtt/TimerThread.hpp>
-#include <rtt/SimulationThread.hpp>
-#include <rtt/os/MainThread.hpp>
-#include <rtt/Logger.hpp>
+#include <TimerThread.hpp>
+#include <SimulationThread.hpp>
+#include <os/MainThread.hpp>
+#include <Logger.hpp>
 #ifdef OROPKG_OS_GNULINUX
 #include <pkgconf/os_gnulinux.h>
 #endif

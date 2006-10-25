@@ -19,8 +19,8 @@
  
 
 #include "tasks_multiple_test.hpp"
-#include <rtt/TimerInterface.hpp>
-#include <rtt/os/threads.hpp>
+#include <TimerInterface.hpp>
+#include <os/threads.hpp>
 
 #include <iostream>
 using namespace std;

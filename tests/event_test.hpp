@@ -21,8 +21,8 @@
 #define EVENTTEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
-#include <rtt/Event.hpp>
-#include <rtt/SlaveActivity.hpp>
+#include <Event.hpp>
+#include <SlaveActivity.hpp>
 #include <string>
 
 class EventTest : public CppUnit::TestFixture

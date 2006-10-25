@@ -22,15 +22,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <rtt/RTT.hpp>
-#include <rtt/AtomicQueue.hpp>
-#include <rtt/BufferLockFree.hpp>
-#include <rtt/ListLockFree.hpp>
-#include <rtt/DataObjectInterfaces.hpp>
-#include <rtt/MemoryPool.hpp>
-//#include <rtt/SortedList.hpp>
+#include <RTT.hpp>
+#include <AtomicQueue.hpp>
+#include <BufferLockFree.hpp>
+#include <ListLockFree.hpp>
+#include <DataObjectInterfaces.hpp>
+#include <MemoryPool.hpp>
+//#include <SortedList.hpp>
 
-#include <rtt/os/SingleThread.hpp>
+#include <os/SingleThread.hpp>
 #include <pkgconf/system.h>
 
 using namespace RTT;

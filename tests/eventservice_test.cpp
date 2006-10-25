@@ -17,15 +17,15 @@
  ***************************************************************************/
  
  
-#include <rtt/Event.hpp>
-#include <rtt/Logger.hpp>
-#include <rtt/RunnableInterface.hpp>
-#include <rtt/SimulationActivity.hpp>
-#include <rtt/SimulationThread.hpp>
-#include <rtt/NonPeriodicActivity.hpp>
+#include <Event.hpp>
+#include <Logger.hpp>
+#include <RunnableInterface.hpp>
+#include <SimulationActivity.hpp>
+#include <SimulationThread.hpp>
+#include <NonPeriodicActivity.hpp>
 
-#include <rtt/EventService.hpp>
-#include <rtt/DataSourceGenerator.hpp>
+#include <EventService.hpp>
+#include <DataSourceGenerator.hpp>
 
 #include "eventservice_test.hpp"
 #include <boost/bind.hpp>

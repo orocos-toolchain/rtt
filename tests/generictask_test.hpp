@@ -22,7 +22,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <rtt/TaskContext.hpp>
+#include <TaskContext.hpp>
 #include <string>
 
 using namespace RTT;

@@ -21,15 +21,15 @@
 #include "template_factory_test.hpp"
 #include <unistd.h>
 #include <iostream>
-#include <rtt/FunctionGraph.hpp>
-#include <rtt/Command.hpp>
-#include <rtt/Method.hpp>
-#include <rtt/DataSourceAdaptor.hpp>
-#include <rtt/DataSourceGenerator.hpp>
-#include <rtt/ProgramProcessor.hpp>
+#include <FunctionGraph.hpp>
+#include <Command.hpp>
+#include <Method.hpp>
+#include <DataSourceAdaptor.hpp>
+#include <DataSourceGenerator.hpp>
+#include <ProgramProcessor.hpp>
 
-#include <rtt/SimulationActivity.hpp>
-#include <rtt/SimulationThread.hpp>
+#include <SimulationActivity.hpp>
+#include <SimulationThread.hpp>
 
 #include <pkgconf/system.h>
 #ifdef OROPKG_GEOMETRY

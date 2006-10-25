@@ -22,9 +22,9 @@
 #include <unistd.h>
 #include <iostream>
 
-#include <rtt/PeriodicActivity.hpp>
-#include <rtt/TimerOneShot.hpp>
-#include <rtt/TimeService.hpp>
+#include <PeriodicActivity.hpp>
+#include <TimerOneShot.hpp>
+#include <TimeService.hpp>
 
 #include <boost/scoped_ptr.hpp>
 

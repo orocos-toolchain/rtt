@@ -21,15 +21,15 @@
 #include "generictask_test.hpp"
 #include <unistd.h>
 #include <iostream>
-#include <rtt/FunctionGraph.hpp>
-#include <rtt/Ports.hpp>
-#include <rtt/Command.hpp>
-#include <rtt/CommandDS.hpp>
-#include <rtt/Method.hpp>
-#include <rtt/OperationInterface.hpp>
+#include <FunctionGraph.hpp>
+#include <Ports.hpp>
+#include <Command.hpp>
+#include <CommandDS.hpp>
+#include <Method.hpp>
+#include <OperationInterface.hpp>
 
-#include <rtt/SimulationActivity.hpp>
-#include <rtt/SimulationThread.hpp>
+#include <SimulationActivity.hpp>
+#include <SimulationThread.hpp>
 
 #include <boost/function_types/function_type_signature.hpp>
 

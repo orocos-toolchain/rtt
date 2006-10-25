@@ -18,13 +18,13 @@
  
  
 
-#include <rtt/Event.hpp>
-#include <rtt/Logger.hpp>
-#include <rtt/RunnableInterface.hpp>
-#include <rtt/SimulationActivity.hpp>
-#include <rtt/SimulationThread.hpp>
-#include <rtt/NonPeriodicActivity.hpp>
-#include <rtt/CompletionProcessor.hpp>
+#include <Event.hpp>
+#include <Logger.hpp>
+#include <RunnableInterface.hpp>
+#include <SimulationActivity.hpp>
+#include <SimulationThread.hpp>
+#include <NonPeriodicActivity.hpp>
+#include <CompletionProcessor.hpp>
 
 #include "event_test.hpp"
 #include <boost/bind.hpp>

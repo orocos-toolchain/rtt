@@ -22,11 +22,11 @@
 #include <unistd.h>
 #include <iostream>
 #include <sstream>
-#include <rtt/FunctionGraph.hpp>
-#include <rtt/SimulationThread.hpp>
-#include <rtt/TaskBrowser.hpp>
-#include <rtt/Method.hpp>
-#include <rtt/Command.hpp>
+#include <FunctionGraph.hpp>
+#include <SimulationThread.hpp>
+#include <TaskBrowser.hpp>
+#include <Method.hpp>
+#include <Command.hpp>
 
 using namespace std;
 

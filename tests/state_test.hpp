@@ -24,12 +24,12 @@
 
 //#define NOPARSER
 #ifndef NOPARSER
-#include <rtt/Parser.hpp>
+#include <Parser.hpp>
 #endif
 
-#include <rtt/TaskContext.hpp>
+#include <TaskContext.hpp>
 #include <string>
-#include <rtt/SimulationActivity.hpp>
+#include <SimulationActivity.hpp>
 
 using namespace RTT;
 using namespace RTT;

@@ -23,7 +23,7 @@
 
 #include "property_test.hpp"
 #include <boost/bind.hpp>
-#include <rtt/PropertyBagIntrospector.hpp>
+#include <PropertyBagIntrospector.hpp>
 #include <pkgconf/system.h>
 #ifdef OROPKG_GEOMETRY
 #include <geometry/frames.h>

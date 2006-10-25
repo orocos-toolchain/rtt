@@ -22,10 +22,10 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <rtt/RTT.hpp>
-#include <rtt/PeriodicActivity.hpp>
-#include <rtt/SimulationActivity.hpp>
-#include <rtt/NonPeriodicActivity.hpp>
+#include <RTT.hpp>
+#include <PeriodicActivity.hpp>
+#include <SimulationActivity.hpp>
+#include <NonPeriodicActivity.hpp>
 
 using namespace RTT;
 using namespace RTT::detail;

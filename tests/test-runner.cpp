@@ -18,11 +18,11 @@
  
  
 
-#include <rtt/os/main.h>
+#include <os/main.h>
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
-#include <rtt/Logger.hpp>
+#include <Logger.hpp>
 
 using namespace RTT;
 

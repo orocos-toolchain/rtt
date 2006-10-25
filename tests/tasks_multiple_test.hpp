@@ -23,7 +23,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <rtt/PeriodicActivity.hpp>
+#include <PeriodicActivity.hpp>
 
 using namespace RTT;
 

@@ -23,9 +23,9 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <rtt/PeriodicActivity.hpp>
-#include <rtt/SimulationActivity.hpp>
-#include <rtt/SlaveActivity.hpp>
+#include <PeriodicActivity.hpp>
+#include <SimulationActivity.hpp>
+#include <SlaveActivity.hpp>
 
 using namespace RTT;
 

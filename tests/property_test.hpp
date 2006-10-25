@@ -21,8 +21,8 @@
 #define PROPERTYTEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
-#include <rtt/Property.hpp>
-#include <rtt/PropertyBag.hpp>
+#include <Property.hpp>
+#include <PropertyBag.hpp>
 #include <pkgconf/system.h>
 #ifdef OROPKG_GEOMETRY
 #include <geometry/MotionProperties.hpp>

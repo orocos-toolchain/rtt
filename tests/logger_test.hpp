@@ -22,7 +22,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <rtt/Logger.hpp>
+#include <Logger.hpp>
 
 using namespace RTT;
 

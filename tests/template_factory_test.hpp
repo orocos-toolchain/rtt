@@ -22,11 +22,11 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <rtt/MultiVector.hpp>
-#include <rtt/Parser.hpp>
-#include <rtt/CommandProcessor.hpp>
-#include <rtt/TaskContext.hpp>
-#include <rtt/SlaveActivity.hpp>
+#include <MultiVector.hpp>
+#include <Parser.hpp>
+#include <CommandProcessor.hpp>
+#include <TaskContext.hpp>
+#include <SlaveActivity.hpp>
 #include <string>
 
 using namespace RTT;

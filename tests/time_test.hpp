@@ -22,8 +22,8 @@
 #define TIMETEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
-#include <rtt/Time.hpp>
-#include <rtt/TimeService.hpp>
+#include <Time.hpp>
+#include <TimeService.hpp>
 #include <string>
 #include <pkgconf/system.h>
 
