@@ -27,7 +27,7 @@
 #include <SimulationThread.hpp>
 #include <os/MainThread.hpp>
 #include <Logger.hpp>
-#include "rtt-config"
+#include "rtt-config.h"
 
 using namespace std;
 

@@ -60,10 +60,10 @@ INCLUDE (${CMAKE_ROOT}/Modules/CMakeDetermineCXXCompiler.cmake)
 ###################################################
 
 # Put your 'flags' inhere if you want them to apear in the
-# orocos-components.pc file. Various .cmake scripts below do
+# rtt.pc file. Various .cmake scripts below do
 # this.
-SET( ENV{OROCOS_COMPONENTS_CFLAGS} "")
-SET( ENV{OROCOS_COMPONENTS_LINKFLAGS} "")
+SET( RTT_CFLAGS "" INTERNAL "")
+SET( RTT_LINKFLAGS "" INTERNAL"")
 
 INCLUDE(config/global_setup.cmake)
 
