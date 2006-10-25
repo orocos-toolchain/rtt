@@ -4,9 +4,9 @@ IF ( BUILD_TESTS)
     FILE( GLOB SRCS [^.]*.cpp )
 
     # Add a test program
-    GLOBAL_ADD_TESTS( buffers_test buffers_test.cpp )
-    # Use  TARGET_LINK_LIBRARIES( report libs... ) to add library deps.
+    GLOBAL_ADD_TESTS( test_runner ${SRCS} )
 
+    # Use  TARGET_LINK_LIBRARIES( report libs... ) to add library deps.
     TARGET_LINK_LIBRARIES( buffers_test rtt )
 
 ENDIF ( BUILD_TESTS)
