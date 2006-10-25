@@ -22,15 +22,10 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <Parser.hpp>
+#include "scripting/Parser.hpp"
 #include <ExecutionEngine.hpp>
 #include <TaskContext.hpp>
 #include <string>
-#include <pkgconf/system.h>
-#ifdef OROPKG_GEOMETRY
-#include <geometry/frames.h>
-using namespace ORO_Geometry;
-#endif
 
 using namespace RTT;
 
@@ -47,13 +42,6 @@ class TypesTest : public CppUnit::TestFixture
     ActivityInterface* tsim;
     TaskObject* createMethodFactory();
     bool assertBool( bool );
-#ifdef OROPKG_GEOMETRY
-    bool equalFrames(const Frame f1, Frame& f2);
-    bool equalVectors(const Vector f1, Vector& f2);
-    bool equalVFrames(const Frame& f1, Frame f2);
-    bool equalVVectors(const Vector& f1, Vector f2);
-    bool equalWrench(const Wrench f1, Wrench& f2, const Wrench& f3, Wrench f4);
-#endif
     bool assertMsg( bool, const std::string& msg);
     void executePrograms(const std::string& prog);
     void executeStates(const std::string& state);

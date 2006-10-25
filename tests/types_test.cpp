@@ -25,15 +25,10 @@
 #include <Method.hpp>
 #include <SimulationActivity.hpp>
 #include <SimulationThread.hpp>
-#include <TaskBrowser.hpp>
-#include <GenericTaskContext.hpp>
+#include <TaskContext.hpp>
 #include <ProgramProcessor.hpp>
 #include <StateMachineProcessor.hpp>
-#ifdef OROPKG_GEOMETRY
-#include <geometry/GeometryToolkit.hpp>
-#include <geometry/frames_io.h>
-using namespace ORO_Geometry;
-#endif
+
 using namespace std;
 
 // Registers the fixture into the 'registry'
@@ -43,13 +38,9 @@ CPPUNIT_TEST_SUITE_REGISTRATION( TypesTest );
 void 
 TypesTest::setUp()
 {
-    tc =  new GenericTaskContext( "root" );
+    tc =  new TaskContext( "root" );
     tc->addObject( this->createMethodFactory() );
     tsim = new SimulationActivity( 0.001, tc->engine() );
-
-#ifdef OROPKG_GEOMETRY
-    Toolkit::Import( GeometryToolkit );
-#endif
 }
 
 
@@ -78,55 +69,9 @@ bool TypesTest::assertMsg( bool b, const std::string& msg) {
                                   "Assert", "bool", "");
         to->methods()->addMethod( method("assertMsg", &TypesTest::assertMsg, this),
                                      "Assert message", "bool", "", "text", "text" );
-#ifdef OROPKG_GEOMETRY
-        to->methods()->addMethod( method("equalFrames", &TypesTest::equalFrames, this),
-                                     "Assert equal frames", "f1", "", "f2", "" );
-        to->methods()->addMethod( method("equalVectors", &TypesTest::equalVectors, this),
-                                     "Assert equal vectors", "v1", "", "v2", "" );
-        to->methods()->addMethod( method("equalVFrames", &TypesTest::equalVFrames, this),
-                                     "Assert equal frames", "f1", "", "f2", "" );
-        to->methods()->addMethod( method("equalVVectors", &TypesTest::equalVVectors, this),
-                                     "Assert equal vectors", "v1", "", "v2", "" );
-        to->methods()->addMethod( method("equalWrench", &TypesTest::equalWrench, this),
-                                     "Assert equal wrench", "v1", "", "v2", "", "v3","","v4","" );
-#endif
         return to;
     }
 
-#ifdef OROPKG_GEOMETRY
-
-bool TypesTest::equalWrench(const Wrench f1, Wrench& f2, const Wrench& f3, Wrench f4)
-{
-    //cout <<"equalWrench("<< f1 <<", "<< f2 <<", "<< f3 <<", "<< f4 <<")"<<endl;
-    return f1 == f2 && f2 == f3 && f3 == f4 && f1.force != Vector::Zero() && f1.torque != Vector::Zero();
-}
-
-// Test passing const and by reference
-bool TypesTest::equalFrames(const Frame f1, Frame& f2)
-{
-    //cout <<"equalFrames("<< f1 <<", "<< f2 <<")"<<endl;
-    return f1 == f2 && f1.p != Vector::Zero() && f1.M != Rotation::Identity();
-}
-
-bool TypesTest::equalVectors(const Vector f1, Vector& f2)
-{
-    //cout <<"equalVectors("<< f1 <<", "<< f2 <<")"<<endl;
-    return f1 == f2 && f1 != Vector::Zero();
-}
-
-// Test passing const& and by value
-bool TypesTest::equalVFrames(const Frame& f1, Frame f2)
-{
-    //cout <<"equalVFrames("<< f1 <<", "<< f2 <<")"<<endl;
-    return f1 == f2 && f1.p != Vector::Zero() && f1.M != Rotation::Identity();
-}
-
-bool TypesTest::equalVVectors(const Vector& f1, Vector f2)
-{
-    //cout <<"equalVVectors("<< f1 <<", "<< f2 <<")"<<endl;
-    return f1 == f2 && f1 != Vector::Zero();
-}
-#endif
 
 void TypesTest::testTypes()
 {
@@ -142,16 +87,6 @@ void TypesTest::testTypes()
         "do test.assert( b == false )\n" +
         "var string s=\"string\"\n"+
         "do test.assert( s == \"string\" )\n" +
-#ifdef OROPKG_GEOMETRY
-        "var double6d d6 = double6d(0.1,0.2,0.3,0.4,0.5,0.6)\n"+
-        // 10
-//         "do test.assert( d6 == d6 )\n" +
-//         "do test.assert( d6 == double6d(0.1,0.2,0.3,0.4,0.5,0.6) )\n" + // fails to parse
-        "var double6d d6_2 = double6d(0.01)\n"+
-//         "do test.assert( d6_2 == d6_2 )\n" +
-//         "do test.assert( double6d(0.01) == double6d(0.01) )\n" +
-//         "do test.assert( d6_2 == double6d(0.01) )\n" +
-#endif
         "const int ic = i2\n" +
         "do test.assert( ic == 0 )\n" + // i was null at parse time !
         "const double dc = 10.0\n"+     // evaluate 10.0 at parse time
@@ -160,42 +95,6 @@ void TypesTest::testTypes()
         "do test.assert( bc == false )\n" +
         "const string sc= \"hello\"\n"+
         "do test.assert( sc == \"hello\" )\n" +
-#ifdef OROPKG_GEOMETRY
-        "const double6d d6c = double6d(0.1,0.2,0.3,0.4,0.5,0.6)\n" +
-        // 20
-//         "do test.assert( d6c == d6 )\n" +
-        "set d6[0]=1.0\n"+
-        "do test.assert( d6[0] == 1.0 )\n" +
-        "set d6[1]=d6[0]\n"+
-        "do test.assert( d6[1] == 1.0 )\n" +
-        "set d6[2]=d6[0]\n"+
-        "do test.assert( d6[2] == 1.0 )\n" +
-        "set d6[3]=d6[0]\n"+
-        "do test.assert( d6[3] == 1.0 )\n" +
-        "set d6[4]=d6[0]\n"+
-        "do test.assert( d6[4] == 1.0 )\n" +
-        // 30
-        "set d6[5]=d6[0]\n"+
-        "do test.assert( d6[5] == 1.0 )\n" +
-        "var vector v = vector(0.1,0.2,0.3)\n"+
-        "var rotation r = rotation(0.3,0.2,0.1) \n"+
-        "var frame f = frame(v,r) \n"+
-        "const vector vc = vector(0.1,0.2,0.3)\n"+
-        "const rotation rc = rotation(0.3,0.2,0.1)\n"+
-        "const frame fc = frame(vc,rc)\n"+
-        "do test.equalFrames(f, f)\n"+
-        "do test.equalVectors(v, v)\n"+
-        // 40
-        "do test.equalVFrames(f, f)\n"+
-        "do test.equalVVectors(v, v)\n"+
-        "var wrench w = wrench(vector(1.0,2.0,3.0),vector(0.1,0.2,0.3))\n"+
-        "do test.equalWrench(wrench(vector(1.0,2.0,3.0),vector(0.1,0.2,0.3)),w,wrench(vector(1.0,2.0,3.0),vector(0.1,0.2,0.3)),wrench(vector(1.0,2.0,3.0),vector(0.1,0.2,0.3)))\n"+
-        "do test.equalFrames(fc, f)\n"+
-        "do test.equalVectors(vc, v)\n"+
-        "do test.equalVFrames(fc, f)\n"+
-        "do test.equalVVectors(vc, v)\n"+
-#endif
-#ifndef ORO_EMBEDDED
         "var array ar(10)\n"+
         "set ar[0] = 0.0\n"+
         // 40
@@ -209,7 +108,6 @@ void TypesTest::testTypes()
         "do test.assert( ar[8] == 0.8 )\n"+
         "do test.assert( ar[9] == 9.0 )\n"+
         "do test.assert( ar[10] == 0.0 )\n"+
-#endif
         // 50
         "var string str(10) = \"hello\"\n"+
         "set str[0] = 'a'\n"+
@@ -248,21 +146,10 @@ void TypesTest::testOperators()
         "do test.assert( d == 30.0 )\n" +
         "var bool b = false\n"+
         "var string s=\"string\"\n"+
-#ifdef OROPKG_GEOMETRY
-        "var double6d d6 = double6d(0.,1.,2.,3.,4.,5.)\n"+
-        "var double6d d6_2 = double6d(0.0)\n"+
-        "set d = d+1.0-1.0-2.0*1.0/2.0*0.0/i \n"+
-#endif
 //         "do test.assert( d == 10.0 )\n" +
         "set b = b\n or\n b\n and\n true\n && false\n || true\n"+
         "do test.assert( b == false )\n" +
 //         "set s = s+\"abc\"\n"+
-#ifdef OROPKG_GEOMETRY
-        "set d6 = (d6 + double6d(2.) ) * d6 - d6\n"+
-        "var vector v = vector(0.,0.,0.)\n"+
-        "var rotation r = rotation(0.,0.,0.) \n"+
-        "var frame f = frame(v,r) \n"+
-#endif
         "}";
     // execute
     executePrograms(prog);
@@ -296,21 +183,6 @@ void TypesTest::testProperties()
         "do test.assert( Double3 == 0.3 )\n" +
         "set Collection.Collection.Collection.Double3 = 3.0\n" +
         "do test.assert( Double3 == 3.0 )\n" +
-#ifdef OROPKG_GEOMETRY
-        "var vector v = vector(0.,0.,0.)\n"+
-        "var rotation r = rotation(0.,0.,0.)\n"+
-        "do test.assert( Frame == Frame ) \n"+
-        "do test.assert( Rotation == rotation(0., 45., 60. ) ) \n"+
-        // -> = 20
-        "set v = vector(0.,2.,4.)\n"+
-        "set r = rotation(0.,45.,60.) \n"+
-        "set Frame = frame( v, r )\n"+
-        "set Rotation = r\n"+
-        "do test.assert( Frame.p.x == frame(v,r).p.x ) \n"+
-        "do test.assert( Rotation.roll == rotation(0., 45., 60. ).roll ) \n"+
-        "do test.assert( Frame.p.x == Collection.Frame.p.x ) \n"+
-        "do test.assert( Collection.Rotation.pitch == rotation(0., 45., 60. ).pitch ) \n"+
-#endif
         "}";
 
     Property<PropertyBag> pb("Collection","");
@@ -319,14 +191,6 @@ void TypesTest::testProperties()
     Property<double> pd3("Double3","",3.234);
 
     Property< std::vector<double> > pv("V","",std::vector<double>(4, 4.0) );
-#ifdef OROPKG_GEOMETRY
-    Property<Frame> pf("Frame","", Frame::Identity() );
-    Property<Rotation> pr("Rotation","", Rotation::RPY(0.0, 45.0, 60.0) );
-    tc->properties()->addProperty( &pf );
-    tc->properties()->addProperty( &pr );
-    pb.value().add( &pf );
-    pb.value().add( &pr );
-#endif
 
     pb.value().add( &pd1 );
     pb.value().add( &pd3 );

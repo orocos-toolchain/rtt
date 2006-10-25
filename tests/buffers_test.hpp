@@ -31,7 +31,7 @@
 //#include <SortedList.hpp>
 
 #include <os/SingleThread.hpp>
-#include <pkgconf/system.h>
+#include "rtt-config.h"
 
 using namespace RTT;
 using namespace RTT::OS;

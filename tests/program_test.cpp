@@ -24,7 +24,6 @@
 #include <sstream>
 #include <FunctionGraph.hpp>
 #include <SimulationThread.hpp>
-#include <TaskBrowser.hpp>
 #include <Method.hpp>
 #include <Command.hpp>
 

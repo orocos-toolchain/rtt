@@ -4,7 +4,7 @@ IF ( BUILD_TESTS)
     FILE( GLOB SRCS [^.]*.cpp )
 
      ENABLE_TESTING()
-     INCLUDE_DIRECTORIES( ${PROJ_SOURCE_DIR} )
+     INCLUDE_DIRECTORIES( ${PROJ_SOURCE_DIR}/src  ${PROJ_BINARY_DIR}/src )
 
      # repeat for each test
      ADD_EXECUTABLE( test_runner ${SRCS} )

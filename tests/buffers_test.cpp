@@ -341,7 +341,7 @@ void BuffersTest::testBufLockFree()
     BufferBase::size_type sz = 10;
     CPPUNIT_ASSERT( lockfree->write( *c ) );
     CPPUNIT_ASSERT( lockfree->write( *d ) );
-    CPPUNIT_ASSERT( lockfree->write( v ) == v.size() );
+    CPPUNIT_ASSERT( lockfree->write( v ) == (int)v.size() );
     CPPUNIT_ASSERT( lockfree->write( *c ) );
     CPPUNIT_ASSERT( lockfree->write( *d ) );
     CPPUNIT_ASSERT( lockfree->write( v ) == 1 );

@@ -33,7 +33,7 @@
 
 #include <boost/function_types/function_type_signature.hpp>
 
-#include <pkgconf/system.h>
+#include "rtt-config.h"
 #ifdef OROPKG_GEOMETRY
 #include <geometry/frames.h>
 using namespace ORO_Geometry;

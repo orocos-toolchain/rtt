@@ -90,7 +90,6 @@ TimeTest::testTimeProgress()
 {
     // A time measurement takes time :
     TimeService::ticks t = hbg->getTicks();
-    Seconds s;
     CPPUNIT_ASSERT( t !=  hbg->getTicks() );
     CPPUNIT_ASSERT( 0 !=  hbg->ticksSince(t) );
     CPPUNIT_ASSERT( 0 !=  hbg->secondsSince(t) );
@@ -109,7 +108,6 @@ TimeTest::testTimeProgress()
     // CPPUNIT_ASSERT_EQUAL( Seconds(0.0) ,  hbg->secondsSince(t) );
 
     Seconds change_S  = 0.123456789;
-    nsecs   change_ns = 123456789;
 
     hbg->secondsChange( change_S );
     CPPUNIT_ASSERT( t !=  hbg->getTicks() ); // ticks must have changed

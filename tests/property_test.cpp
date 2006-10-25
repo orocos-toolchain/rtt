@@ -24,12 +24,7 @@
 #include "property_test.hpp"
 #include <boost/bind.hpp>
 #include <PropertyBagIntrospector.hpp>
-#include <pkgconf/system.h>
-#ifdef OROPKG_GEOMETRY
-#include <geometry/frames.h>
-#include <geometry/GeometryToolkit.hpp>
-using namespace ORO_Geometry;
-#endif
+#include "rtt-config.h"
 
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( PropertyTest );
@@ -218,38 +213,8 @@ void PropertyTest::testComposition()
 }
 
 
-#ifdef OROPKG_GEOMETRY
-using namespace ORO_Geometry;
-#endif
-
 void PropertyTest::testMarshalling()
 {
-#ifdef OROPKG_GEOMETRY
-    if ( !Toolkit::hasTool("Geometry")) 
-        Toolkit::Import( GeometryToolkit );
-
-    // decompose some types
-    PropertyBag bag;
-    PropertyBagIntrospector  inspector( bag );
-
-    Property<Wrench> w("Wrench","A Wrench", Wrench(Vector(0.1,0.2,0.3),Vector(0.5,0.6,0.7)));
-
-    inspector.introspect( &w );
-
-    CPPUNIT_ASSERT( bag.find("Wrench") != 0 );
-
-    CPPUNIT_ASSERT( findProperty( bag, "Wrench::Force" ) != 0 );
-    CPPUNIT_ASSERT( findProperty( bag, "Wrench::Force::X" ) != 0 );
-    CPPUNIT_ASSERT( findProperty( bag, "Wrench::Force::Y" ) != 0 );
-    CPPUNIT_ASSERT( findProperty( bag, "Wrench::Force::Z" ) != 0 );
-    CPPUNIT_ASSERT( findProperty( bag, "Wrench::Torque" ) != 0 );
-    CPPUNIT_ASSERT( findProperty( bag, "Wrench::Torque::X" ) != 0 );
-    CPPUNIT_ASSERT( findProperty( bag, "Wrench::Torque::Y" ) != 0 );
-    CPPUNIT_ASSERT( findProperty( bag, "Wrench::Torque::Z" ) != 0 );
-
-    flattenPropertyBag(bag);
-    deleteProperties(bag);
-#endif
 }
 
 void PropertyTest::testInit()

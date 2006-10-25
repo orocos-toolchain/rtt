@@ -22,7 +22,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <Parser.hpp>
+#include <scripting/Parser.hpp>
 #include <TaskContext.hpp>
 #include <string>
 #include <SimulationActivity.hpp>
