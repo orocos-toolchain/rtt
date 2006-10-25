@@ -62,8 +62,9 @@ INCLUDE (${CMAKE_ROOT}/Modules/CMakeDetermineCXXCompiler.cmake)
 # Put your 'flags' inhere if you want them to apear in the
 # rtt.pc file. Various .cmake scripts below do
 # this.
-SET( RTT_CFLAGS "" INTERNAL "")
-SET( RTT_LINKFLAGS "" INTERNAL"")
+SET( RTT_CFLAGS "")
+SET( RTT_LINKFLAGS "")
+SET( RTT_LIBS "" CACHE INTERNAL "needed libraries" FORCE)
 
 INCLUDE(config/global_setup.cmake)
 
