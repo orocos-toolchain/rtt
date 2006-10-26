@@ -238,6 +238,8 @@ namespace RTT
     PeriodicThread::~PeriodicThread() 
     {
         Logger::In in("~PeriodicThread");
+        if (this->isRunning())
+            this->stop();
 
         log(Debug) << "Terminating "<< this->getName() <<endlog();
         terminate();
@@ -481,8 +483,6 @@ namespace RTT
         rtos_sem_wait(&confDone);
         rtos_task_delete(&rtos_task);
 
-        // if ( pthread_join(thread,0) != 0 ) 
-        //     // Logger::log() << Logger::Critical << "Failed to join "<< rtos_task_get_name(&rtos_task) <<"."<< Logger::endl;
     }
 
     bool PeriodicThread::setToStop()

@@ -141,7 +141,14 @@ namespace RTT
             // New default: new threads are always hard.
             rt_make_hard_real_time();
 
-            return wrapper( data );
+            data = wrapper( data );
+
+            // Exit in soft mode to avoid RTAI warnings.
+            rt_make_soft_real_time();
+            // cleanup here to avoid "LXRT Releases PID" warnings.
+            rt_task_delete(task->rtaitask);
+            // See rtos_task_delete for further cleanups.
+            return data;
         }
 
         INTERNAL_QUAL int rtos_task_create(RTOS_TASK* task,
@@ -238,18 +245,23 @@ namespace RTT
         }
 
         INTERNAL_QUAL void rtos_task_delete(RTOS_TASK* mytask) {
+            if ( pthread_join((mytask->thread),0) != 0 ) 
+                Logger::log() << Logger::Critical << "Failed to join "<< mytask->name <<"."<< Logger::endl;
+
             free( mytask->name );
-            rt_task_delete(mytask->rtaitask);
+            // rt_task_delete is done in wrapper !
         }
 
         INTERNAL_QUAL int rtos_task_set_priority(RTOS_TASK * mytask, int priority)
         {
             int rv;
-            if ( (rv = rt_change_prio( mytask->rtaitask, priority)) == 0) {
+            // returns the old priority.
+            rv = rt_change_prio( mytask->rtaitask, priority);
+            if (rv == mytask->priority) {
                 mytask->priority = priority;
                 return 0;
             }
-            return rv;
+            return -1;
         }
 
         INTERNAL_QUAL const char * rtos_task_get_name(const RTOS_TASK* t)

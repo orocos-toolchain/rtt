@@ -1,8 +1,6 @@
 #ifndef ORO_CORBA_SERVICES_IDL
 #define ORO_CORBA_SERVICES_IDL
 
-#include "orbsvcs/CosNotifyChannelAdmin.idl"
-#include "orbsvcs/CosNotifyComm.idl"
 #include "orbsvcs/CosNaming.idl"
 
 module RTT

@@ -77,6 +77,7 @@ namespace RTT
                       period),
           beat( TimeService::Instance() ), maxsteps_(0)
     {
+        this->setScheduler(ORO_SCHED_OTHER);
         this->continuousStepping( true );
         Logger::log() << Logger::Info << this->getName() <<" created with "<< this->getPeriod() <<"s periodicity";
         Logger::log() << Logger::Info << " and priority " << this->getPriority() << Logger::endl;

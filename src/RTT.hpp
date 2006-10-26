@@ -66,7 +66,6 @@ namespace RTT {
     namespace detail {}
 
     namespace OS {}
-    namespace CAN {}
     namespace Corba {}
 }
 
