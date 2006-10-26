@@ -156,8 +156,5 @@ ENDIF ( "${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" STREQUAL "2.4" )
 #############################
 
 ADD_CUSTOM_TARGET(docs "doxygen" "Doxyfile")
-  
-
-
 
 INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR}/src ${PROJ_BINARY_DIR}/src)

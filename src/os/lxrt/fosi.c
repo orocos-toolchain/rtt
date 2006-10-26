@@ -27,7 +27,7 @@
  
  
 #define OROBLD_OS_LXRT_INTERNAL
-#include "rtt/os/fosi.h"
+#include "os/fosi.h"
 
 #ifdef OROBLD_OS_AGNOSTIC
 // Encapsulate all RTAI/LXRT specific functions

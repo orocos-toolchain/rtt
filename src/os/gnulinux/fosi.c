@@ -26,7 +26,7 @@
  ***************************************************************************/
  
  
-#include <rtt/os/fosi.h>
+#include <os/fosi.h>
 #include <sys/poll.h>
 #include <sys/signal.h>
 #include <unistd.h>
