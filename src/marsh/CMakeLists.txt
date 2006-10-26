@@ -4,8 +4,8 @@ GLOBAL_ADD_INCLUDE( march CPFDemarshaller.hpp INIMarshaller.hpp Orocos1Demarshal
            XMLRPCMarshaller.hpp StreamProcessor.hpp EmptyHeaderMarshaller.hpp EmptyMarshaller.hpp TinyDemarshaller.hpp)
 GLOBAL_ADD_SRC( src/marsh/CPFDTD.cpp src/marsh/MarshallingAccess.cpp )
 
-IF (XERCES_SUPPORT)
+IF (XERCES)
     GLOBAL_ADD_SRC( src/marsh/CPFDemarshaller.cpp )
-ELSE (XERCES_SUPPORT)
+ELSE (XERCES)
     GLOBAL_ADD_SRC( TinyDemarshaller.cpp tinyxml.cpp tinyxmlparser.cpp tinyxmlerror.cpp tinystr.cpp )
-ENDIF (XERCES_SUPPORT)
+ENDIF (XERCES)
