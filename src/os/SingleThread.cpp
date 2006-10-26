@@ -33,7 +33,7 @@
 #include "Time.hpp"
 #include "os/threads.hpp"
 
-#include "rtt-config.h"
+#include "../rtt-config.h"
 #ifdef OROPKG_OS_THREAD_SCOPE
 #include <boost/scoped_ptr.hpp>
 # include "dev/DigitalOutInterface.hpp"

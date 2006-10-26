@@ -1,5 +1,5 @@
 FILE( GLOB CPPS [^.]*.cpp )
-FILE( GLOB HPPS [^.]*.hpp )
+FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
 
 GLOBAL_ADD_INCLUDE( rtt ${HPPS})
 GLOBAL_ADD_INCLUDE( rtt rtt-config.h)
@@ -12,4 +12,5 @@ ADD_SUBDIRECTORY( os )
 ADD_SUBDIRECTORY( marsh )
 ADD_SUBDIRECTORY( impl )
 ADD_SUBDIRECTORY( dlib )
+ADD_SUBDIRECTORY( boost )
 

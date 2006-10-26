@@ -2,7 +2,7 @@ IF(CORBA_SUPPORT)
 
 #  EXEC_PROGRAM(tao_idl ARGS)
   FILE( GLOB CPPS [^.]*.cpp )
-  FILE( GLOB HPPS [^.]*.hpp )
+  FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
 
   GLOBAL_ADD_INCLUDE( rtt/corba ${HPPS})
   GLOBAL_ADD_SRC( ${CPPS})

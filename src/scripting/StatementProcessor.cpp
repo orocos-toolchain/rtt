@@ -37,7 +37,7 @@
 #include <boost/tuple/tuple.hpp>
 #include "Logger.hpp"
 #include <iostream>
-#include "rtt-config.h"
+#include "../rtt-config.h"
 #ifdef OROPKG_GEOMETRY
 #include <geometry/frames.h>
 #include <geometry/frames_io.h>

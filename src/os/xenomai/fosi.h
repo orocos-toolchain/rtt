@@ -43,7 +43,7 @@ extern "C" {
 #include "os/oro_atomic.h"
 #include "os/oro_bitops.h"
 
-#include "rtt-config.h"
+#include "../../rtt-config.h"
 #if !defined(OROBLD_OS_AGNOSTIC) || defined(OROBLD_OS_INTERNAL)
 
 	//Xenomai headers

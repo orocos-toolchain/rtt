@@ -34,7 +34,7 @@
  * which calls the user's ORO_main function.
  * (See os.cdl)
  */
-#include "rtt-config.h"
+#include "../rtt-config.h"
 #ifdef OS_HAVE_MAIN
 
 #include <os/startstop.h>

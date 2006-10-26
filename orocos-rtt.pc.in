@@ -5,7 +5,7 @@
 #
 # See orocos.pc.in for the installable version of this file.
 
-prefix=@INST_DIR@
+prefix=@CMAKE_INSTALL_PREFIX@
 exec_prefix=${prefix}  # defining another variable in terms of the first
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include

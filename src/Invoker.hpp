@@ -1,8 +1,8 @@
 #ifndef ORO_INVOKER_BASE_HPP
 #define ORO_INVOKER_BASE_HPP
 
-#include <boost/function_types/function_type.hpp>
-#include <boost/function_types/function_type_arity.hpp>
+#include "boost/function_types/function_type.hpp"
+#include "boost/function_types/function_type_arity.hpp"
 #include "NA.hpp"
 
 namespace RTT

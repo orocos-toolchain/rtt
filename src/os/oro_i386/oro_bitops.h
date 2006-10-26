@@ -25,7 +25,7 @@
  *                                                                         *
  ***************************************************************************/
  
-#include "rtt-config.h"
+#include "../../rtt-config.h"
 #ifdef OROBLD_OS_AGNOSTIC
  
 #ifndef _I386_BITOPS_H

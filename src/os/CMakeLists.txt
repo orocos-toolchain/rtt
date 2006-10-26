@@ -1,7 +1,7 @@
-FILE( GLOB CPPS [^.]*.cpp )
-FILE( GLOB HPPS [^.]*.hpp )
+FILE( GLOB CPPS [^.]*.cpp [^.]*.c)
+FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
 
-GLOBAL_ADD_INCLUDE( os ${HPPS})
+GLOBAL_ADD_INCLUDE( rtt/os ${HPPS})
 GLOBAL_ADD_SRC( ${CPPS})
 
 ADD_SUBDIRECTORY( gnulinux )

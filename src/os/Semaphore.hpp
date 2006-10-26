@@ -32,7 +32,7 @@
 #define OS_SEMAPHORE_HPP
 
 #include "fosi.h"
-#include "rtt-config.h"
+#include "../rtt-config.h"
 
 namespace RTT
 { namespace OS {
