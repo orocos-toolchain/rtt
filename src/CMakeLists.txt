@@ -2,7 +2,7 @@ FILE( GLOB CPPS [^.]*.cpp )
 FILE( GLOB HPPS [^.]*.hpp )
 
 GLOBAL_ADD_INCLUDE( rtt ${HPPS})
-GLOBAL_ADD_INCLUDE( . rtt-config.h)
+GLOBAL_ADD_INCLUDE( rtt rtt-config.h)
 GLOBAL_ADD_SRC( ${CPPS})
 
 ADD_SUBDIRECTORY( corba )
