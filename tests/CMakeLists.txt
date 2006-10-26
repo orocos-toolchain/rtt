@@ -6,7 +6,7 @@ IF ( BUILD_TESTS)
     LINK_DIRECTORIES(${LXRT_LINK_DIR})
      
     # repeat for each test
-    ADD_EXECUTABLE( core-test test-runner.cpp time_test.cpp property_test.cpp buffers_test.cpp logger_test.cpp )
+    ADD_EXECUTABLE( core-test test-runner.cpp time_test.cpp property_test.cpp logger_test.cpp)# buffers_test.cpp )
     TARGET_LINK_LIBRARIES( core-test rtt cppunit ${XERCES_LIB} ${LXRT_LIB})
     ADD_TEST( core-test core-test )
 
