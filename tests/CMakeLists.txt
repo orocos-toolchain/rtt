@@ -2,7 +2,7 @@ IF ( BUILD_TESTS)
 
     # This gathers all the .cpp files into the variable 'SRCS'
     ENABLE_TESTING()
-    INCLUDE_DIRECTORIES( ${PROJ_SOURCE_DIR}/src  ${PROJ_BINARY_DIR}/src )
+    INCLUDE_DIRECTORIES( ${PROJ_SOURCE_DIR}/src ${PROJ_BINARY_DIR}/src ${PROJ_BINARY_DIR}/src/os ${PROJ_BINARY_DIR}/src/os/gnulinux)
     LINK_DIRECTORIES(${LXRT_LINK_DIR})
      
     # repeat for each test
