@@ -1,9 +1,6 @@
 #
 # Include and link against required stuff
 #
-ADD_DEFINITIONS( "-Wall -D_REENTRANT" )
-
-
 
 #
 # RTT supplies header files which should be included when 

@@ -62,9 +62,8 @@ INCLUDE (${CMAKE_ROOT}/Modules/CMakeDetermineCXXCompiler.cmake)
 # Put your 'flags' inhere if you want them to apear in the
 # rtt.pc file. Various .cmake scripts below do
 # this.
-SET( RTT_CFLAGS "")
-SET( RTT_LINKFLAGS "")
-SET( RTT_LIBS "" CACHE INTERNAL "needed libraries" FORCE)
+SET( RTT_CFLAGS "" CACHE INTERNAL "")
+SET( RTT_LINKFLAGS "" CACHE INTERNAL "")
 
 INCLUDE(config/global_setup.cmake)
 
@@ -76,8 +75,6 @@ CONFIGURE_FILE(
 
 ADD_CUSTOM_TARGET(uninstall
   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
-
-INCLUDE_DIRECTORIES( ${PROJ_SOURCE_DIR} )
 
 ###########################################################
 #                                                         #
@@ -93,11 +90,15 @@ INCLUDE_DIRECTORIES( ${PROJ_SOURCE_DIR} )
 
 INCLUDE(config/check_depend.cmake)
 INCLUDE(config/rtt_rules.cmake)
-
+ADD_DEFINITIONS( "-Wall -D_REENTRANT" )
+SET(RTT_CFLAGS "${RTT_CFLAGS} -D_REENTRANT" CACHE INTERNAL "")
 SET(ENV{GLOBAL_LIBRARY_SRCS})
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(tests)
 ADD_LIBRARY(rtt SHARED $ENV{GLOBAL_LIBRARY_SRCS})
+INSTALL_TARGETS(/lib rtt)
+
+
 
 CONFIGURE_FILE( orocos-rtt.pc.in orocos-rtt.pc @ONLY)
 INSTALL_FILES( /lib/pkgconfig FILES orocos-rtt.pc)

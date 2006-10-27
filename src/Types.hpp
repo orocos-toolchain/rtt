@@ -40,12 +40,15 @@ namespace CORBA{
     class Any;
 }
 
-namespace Corba {
-    class Expression;
-}
+
 
 namespace RTT
 {
+
+    namespace Corba {
+        class Expression;
+    }
+
     class PropertyBase;
     class PropertyBag;
     class AttributeBase;
