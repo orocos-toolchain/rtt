@@ -20,6 +20,8 @@
 #include "time_test.hpp"
 #include <boost/bind.hpp>
 
+#define EPSILON 0.000000001
+
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( TimeTest );
 
@@ -111,7 +113,8 @@ TimeTest::testTimeProgress()
 
     hbg->secondsChange( change_S );
     CPPUNIT_ASSERT( t !=  hbg->getTicks() ); // ticks must have changed
-    CPPUNIT_ASSERT_EQUAL( change_S,  hbg->secondsSince(t) );
+    CPPUNIT_ASSERT( -EPSILON < (change_S - hbg->secondsSince(t)) &&
+                     EPSILON > (change_S - hbg->secondsSince(t)) );
 
     // Restart Time Progress
     hbg->enableSystemClock( true );
