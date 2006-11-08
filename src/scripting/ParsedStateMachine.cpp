@@ -155,7 +155,8 @@ namespace RTT {
                 if (egraph)
                     eprog.reset( egraph->copy(replacements) );
 
-                bool eresult = ret->createEventTransition(es, ename, newargs, fromState, toState, condition, tprog, elseState, eprog );
+                bool eresult;
+		eresult = ret->createEventTransition(es, ename, newargs, fromState, toState, condition, tprog, elseState, eprog );
                 assert( eresult );
             }
         }
