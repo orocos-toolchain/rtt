@@ -57,26 +57,27 @@ struct TestPeriodic
 {
     int fail;
     bool stepped;
-
-  TimeService::ticks ts;
-
-  TestPeriodic()
+    
+    TimeService::ticks ts;
+    
+    TestPeriodic()
     {
     }
-
+    
     bool initialize() {
         this->reset();
-	return true;
+        return true;
     }
     void step() {
-      if (stepped == false ) {
-	ts = TimeService::Instance()->getTicks();
-	stepped = true;
-      } else {
-	TimeService::Seconds s = TimeService::Instance()->secondsSince( ts );
-	  if ( s < this->getThread()->getPeriod() *0.5 ) // if elapsed time is smaller than 50% of period, something went wrong
-	    ++fail;
-      }
+        if (stepped == false ) {
+            ts = TimeService::Instance()->getTicks();
+            stepped = true;
+        } else {
+            TimeService::Seconds s = TimeService::Instance()->secondsSince( ts );
+            if ( s < this->getThread()->getPeriod() *0.5 ) // if elapsed time is smaller than 50% of period, something went wrong
+                ++fail;
+            ts = TimeService::Instance()->getTicks();
+        }
     }
     void finalize() {
     }

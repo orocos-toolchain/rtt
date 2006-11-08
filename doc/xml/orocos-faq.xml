@@ -144,7 +144,7 @@ Alex Russell
 	    In the <ulink url="http://www.orocos.org/downloads.php">
 	      Download Section</ulink> of the Orocos website and the
 	    <ulink
-	      url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-installation.html"> 
+	      url="orocos-installation.html"> 
 	      Orocos Installation Manual</ulink>.</para>
 	</answer>
       </qandaentry>
@@ -190,7 +190,7 @@ Alex Russell
 	  <para>Where can I find the latest configuration instructions?</para>
 	</question>
 	<answer>
-	  <para>In the <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-installation.html">
+	  <para>In the <ulink url="orocos-installation.html">
 	    Orocos Installation Manual</ulink>. </para>
 	</answer>
       </qandaentry>
@@ -211,7 +211,7 @@ Alex Russell
 	  <para>
 	    Orocos works with RTAI 3.0r5 ( you need to apply a <ulink
 	      url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/patches/rtai-3.0rx.patch">patch</ulink> if you use 3.0r(1-4)
-	    ), RTAI 3.1 and RTAI-3.2 (no patch).
+	    ), RTAI 3.1, 3.2 and 3.3 (no patching required).
 	  </para>
 	</answer>
       </qandaentry>
@@ -473,9 +473,9 @@ $ ldd core-test
 	<answer>
 	  <para>You did not put your program in the ORO_main()
 	    function. ( see <ulink
-	      url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-installation.html"> 
+	      url="http://drupal.orocos.org/stable/current/doc/orocos-installation.html"> 
 	      The Installation Manual </ulink> and <ulink
-	      url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/orocos-os.html"> 
+	      url="http://drupal.orocos.org/stable/current/doc/orocos-os.html"> 
 	      The Orocos OS Manual</ulink>. )
 	  </para>
 	</answer>
@@ -487,14 +487,14 @@ $ ldd core-test
 	<answer>
 	  <para>
 	    Well, that is not a question really, but anyway...
-	    Did you read the section about <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/latest/orocos-corelib.html#core-priority-inversions"> Priority Inversions </ulink> in the Orocos CoreLib Manual ? 
+	    Did you read the section about <ulink url="orocos-components-manual.html#core-priority-inversions"> Priority Inversions </ulink> in the Orocos CoreLib Manual ? 
 	  </para>
 	</answer>
 	<answer>
 	  <para>
 	    Are you calling Linux system calls from a hard-realtime
 	    thread ? See <ulink
-	      url="http://people.mech.kuleuven.ac.be/~psoetens/lxrt/portingtolxrt.html"> 
+	      url="http://people.mech.kuleuven.be/~psoetens/lxrt/portingtolxrt.html"> 
 	      this document </ulink> for what you can and can't do
 	    within hard-realtime LXRT tasks.
 	  </para>
@@ -513,33 +513,6 @@ $ ldd core-test
 	    'userspace') test programs work before blaming Orocos. Choosing
 	    a different compiler ( GCC 3.3 ) mostly solves that problem.
 	  </para>
-	</answer>
-      </qandaentry>
-    </qandadiv>
-    <qandadiv>
-      <title>C++ Application Questions</title>
-      <qandaentry>
-	<question>
-	  <para>It says: "[CRITICAL] PeriodicTask with period 0.005s failed to
-	  schedule in thread ZeroTimeThread which has period 0.01s." 
-	  How do I change the frequency of the threads ?</para>
-	</question>
-	<answer>
-	  <para>The frequency of the ZeroTimeThread is a configuration option in the Ecos 
-	  config tool (make configure_packages). It's under:
-<screen>
-"CoreLib, core classes and Interfaces"
--> "CoreLib Periodic Task/Thread Infrastructure"
-   -> "Properties of the ZeroTimeThread"
-</screen></para><para>
-It can also be changed at runtime. To do so, include this at the very 
-beginning of your ORO_Main():
-<programlisting>    // change frequency of nonrealtimethread
-    //===========================
-    ZeroTimeThread::Instance()->stop();
-    ZeroTimeThread::Instance()->setPeriod(0.001);
-    ZeroTimeThread::Instance()->start();</programlisting>
-	  The same holds for the other Thread types. See also the 'CoreLib' Manual.</para>
 	</answer>
       </qandaentry>
     </qandadiv>
@@ -588,7 +561,7 @@ beginning of your ORO_Main():
 	  </para>
 	  <para>
 	    It can be cross compiled, although the build system is
-	    <ulink url="http://people.mech.kuleuven.be/~psoetens/orocos/doc/latest/orocos-installation.html#cross-compile"> not
+	    <ulink url="orocos-installation.html#cross-compile"> not
 	    particularly friendly to that means</ulink>. Search the
 	    <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos-dev">Orocos-dev mailing list</ulink> as well
 	    for discussions.
@@ -613,7 +586,7 @@ beginning of your ORO_Main():
 	    package, this is the only place of Orocos you need to port, where the
 	    'gnulinux' package is a good starting point if you intend to port to a
 	    Posix compliant OS. See also
-	    <ulink url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/doc/latest/orocos-os.html">The OS Manual</ulink>.
+	    <ulink url="orocos-components-manual.html#orocos-os">The OS Reference</ulink>.
 	  </para>
 	</answer>
       </qandaentry>
@@ -636,7 +609,7 @@ beginning of your ORO_Main():
 	  <para>
 	    C++ is a fundamental pillar of Orocos' design. If you need to
 	    be convinced that this actually works, take a look at
-	    <ulink url="http://www.orocos.org/applications.php">
+	    <ulink url="http://drupal.orocos.org/applications">
 	      Demonstration movies </ulink> , and read <ulink
 	      url="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2002/n1396.pdf"> 
 	      a Technical Report on C++ Performance </ulink>, but
@@ -656,8 +629,8 @@ beginning of your ORO_Main():
     <title>About Orocos</title>
     <para>
       Please send general, non technical, Orocos questions to <ulink
-	url="mailto:orocos@lists.mech.kuleuven.ac.be">
-	orocos@lists.mech.kuleuven.ac.be </ulink>. 
+	url="mailto:orocos@lists.mech.kuleuven.be">
+	orocos@lists.mech.kuleuven.be </ulink>. 
     </para>
     <para>
       These pages are maintained by <ulink
@@ -669,15 +642,15 @@ beginning of your ORO_Main():
       web pages and the <ulink
 	url="http://www.orocos.org/documentation.php">Orocos manuals</ulink>. If
       that fails, the  <ulink
-	url="mailto: orocos-dev at lists.mech.kuleuven.ac.be">
-	orocos-dev at lists.mech.kuleuven.ac.be </ulink> mailing list might help.
+	url="mailto: orocos-dev at lists.mech.kuleuven.be">
+	orocos-dev at lists.mech.kuleuven.be </ulink> mailing list might help.
       Please
       send comments on these web pages and the development of Orocos to
       our developer mailing list at  <ulink
-	url="mailto:orocos-dev at lists.mech.kuleuven.ac.be">
-	orocos-dev at lists.mech.kuleuven.ac.be </ulink>. All of
-      our lists have <ulink url="http://lists.mech.kuleuven.ac.be/mailman/listinfo/orocos">public
-	archives</ulink> ( <ulink url="http://lists.mech.kuleuven.ac.be/mailman/listinfo/orocos-dev"> dev public
+	url="mailto:orocos-dev at lists.mech.kuleuven.be">
+	orocos-dev at lists.mech.kuleuven.be </ulink>. All of
+      our lists have <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos">public
+	archives</ulink> ( <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos-dev"> dev public
 	archive</ulink> ) .
       </para>
     <para>

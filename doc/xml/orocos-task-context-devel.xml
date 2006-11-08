@@ -54,14 +54,14 @@
 
   </articleinfo>
 
-  <sect1>
+  <section>
     <title>Introduction</title>
     <para>
       This manual documents how low-level commands can be used
       to communicate with tasks.
     </para>
-  </sect1>
-  <sect1>
+  </section>
+  <section>
     <title>The DataSource Interface</title>
       <note><title>Purpose</title><para>A task's datasources are
       read-only data the task wishes to export, for example, for
@@ -76,7 +76,7 @@
 	algorithmic expressions. The only way they differ from
 	Methods, is that the corresponding C++ function must be const.
       </para>
-      <sect2>
+      <section>
 	<title>The Template DataSource Factory</title>
 	<para>
 	  To add a method to the DataSource Factory, one can use
@@ -132,8 +132,8 @@
 	  take ownership of the registered or added objects. You are not
 	  allowed to delete them.</para>
 	</important>
-      </sect2>
-      <sect2>
+      </section>
+      <section>
 	<title>The Map DataSource Factory</title>
 	<para>
 	  If your application has set up DataSources itself (for example,
@@ -162,8 +162,8 @@
 	  TaskContexts. You must use DataObjectLockFree to exchange
 	  any composite type between threads.
 	</para>
-      </sect2>
-      <sect2>
+      </section>
+      <section>
 	<title>Accessing DataSources from Scripts</title>
 	<para>
 	  In scripting, the braces are optional when no arguments must be
@@ -179,15 +179,15 @@
 	  Again, the &quot;this&quot; object can be used if the 
 	  DataSource should belong to the task's interface.
 	</para>
-    </sect2>
-  </sect1>
-  <sect1>
+    </section>
+  </section>
+  <section>
     <title>ProgramLoader and PropertyLoader</title>
     <para>
       The GenericTaskContext uses these two classes
       to manage properties and programs scripts.
     </para>
-    <sect2>
+    <section>
       <title>Task Property Configuration</title>
       <para>
 	As was seen in <xref linkend="task-attr-rep" />, CoreLib Properties
@@ -212,15 +212,15 @@
 	 implemented this functionality also as script methods, thus
 	 you do not need to do this manually.
        </para>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>Task Program Scripts</title>
-      <sect3>
+      <section>
 	<title>Functions</title>
 	<para>
 	  A function is formed by a group of commands and
 	  methods, which can be executed by a task.
-	  The &parseman; defines functions as :</para>
+	  The scripting language defines functions as :</para>
 	<para>
 	  <programlisting>
   export function myFun( int arg1, double arg2 )
@@ -275,8 +275,8 @@
 	    as a Command. Otherwise, use programs to call such functions.
 	  </para>
 	</warning>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>Programs</title>
 	<para>
 	  Programs are special functions in that they
@@ -310,12 +310,12 @@
 
   loader.loadProgram( "ProgramBar.ops", a_task ); </programlisting></para>
 	<para>
-	  Take a look at the &procman; and the
+	  Take a look the
 	  <classname>RTT::ProgramInterface</classname> class
 	  reference for more program related functions.
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>State Machines</title>
 	<para>
 	  Hierarchical state machines are modelled in Orocos
@@ -323,8 +323,7 @@
 	  They are like programs in that they can call a
 	  peer task's members, but the calls are grouped
 	  in a state and only executed when the state machine
-	  is in that state. A detailed introduction can be found
-	  in the &parseman;. This section limits to showing
+	  is in that state. This section limits to showing
 	  how an Orocos State Description (osd) script can be loaded in a 
 	  Task Context.
 	</para>
@@ -337,13 +336,13 @@
 
   loader.loadStateMachine( "StateMachineBar.osd", a_task ); </programlisting></para>
 	<para>
-	  Again, take a look at the &procman; and the StateMachine
-	  class reference for more details about state context related functions.
+	  Again, take a look at the StateMachine class reference for
+	  more details about state context related functions.
 	</para>
-      </sect3>
-    </sect2>
-  </sect1>
-  <sect1>
+      </section>
+    </section>
+  </section>
+  <section>
     <title>Using Low-level Commands and Methods in C++</title>
     <para>
       Besides using scripts, you can directly build C++ commands or
@@ -351,7 +350,7 @@
       advantage is that you are not limited to the scripting
       language's syntax and do not need to use the script parsers.
     </para>
-    <sect2>
+    <section>
       <title>Sending a Task a Command</title>
       <para>
 	To request a command from one task to another task, the
@@ -419,8 +418,8 @@
 	You only know if it got in the queue, but not if the command
 	function itself returned true.
       </para>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>Advanced Command Queueing</title>
       <para>
 	The previous section showed how a command can be given to a
@@ -469,8 +468,8 @@
 	<function>result()</function> functions are reset to their
 	initial values.
       </para>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>Calling a Task's Method</title>
       <para>
 	To call a task's method, the method must be fetched from the
@@ -523,8 +522,8 @@
 	the result; <function>evaluate()</function> on the other hand
 	only executes the method and does not return the result.
       </para>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>Passing results by argument</title>
       <para>
 	The same rules apply for passing values by argument as with scripts.
@@ -533,6 +532,6 @@
 	After the command or method finished, you find the new values in the objects
 	referenced by vector&lt;DataSourceBase::shared_ptr&gt;.
       </para>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 </article>

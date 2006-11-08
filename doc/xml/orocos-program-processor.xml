@@ -110,7 +110,7 @@
     </legalnotice>
 
   </articleinfo>
-  <sect1>
+  <section>
     <title>Introduction to the Execution Engine</title>
     <para>
       &orocos; is meant for building realtime systems. You will find
@@ -137,21 +137,17 @@
       understanding the Orocos task execution infrastructure.
     </para>
     <para>
-      The ExecutionEngine is not what the user will use directly.
-      The user will mainly use the <ulink url="orocos-program-parser.html">
-	Orocos Program Parser</ulink> with the <ulink url="orocos-task-context.html">
-	Orocos Task Infrastructure</ulink>. The Parser will
-      generate Programs and StateMachines from user friendly
-      text files, which are then executed in realtime.
+      The Parser will generate Programs and StateMachines from user
+      defined text files, which are then executed in realtime.
     </para>
-  </sect1>
-  <sect1>
+  </section>
+  <section>
     <title>The Execution Engine</title>
     <para>
       A TaskContext's ExecutionEngine Executes Programs, Hierarchical StateMachines and
       processes Commands and events.
     </para>
-    <sect2>
+    <section>
       <title>Purpose</title>
       <para>
 	The <classname>RTT::ExecutionEngine</classname> is the core class
@@ -170,8 +166,8 @@
 	Execution Engine executes the
 	<emphasis>implementation</emphasis>.
       </para>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>Running the Execution Engine</title>
       <para>
 	In order to start a task context, its execution engine must be
@@ -193,8 +189,8 @@
 	periodic step. First the Program Processor, then the State Machine
 	Processor, then the Command Processor and finally the Event Processor.
       </para>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>Executing Programs</title>
       <para>
 	The <classname>RTT::FunctionGraph</classname> is a tree composed
@@ -230,9 +226,7 @@
 	  </mediaobject>
 	</figure>
       <para>
-	Programs are generated from a script, this is explained in 
-	the <ulink url="orocos-program-parser.html">Orocos
-	  Program Parser</ulink> Manual. The Parser is able to
+	Programs are generated from a script. The Parser is able to
 	convert Orocos Program Scripts to a Program which can
 	be loaded in the Program Processor.
       </para>
@@ -257,8 +251,8 @@
 	  frontend for loading Programs and Functions in tasks.
 	</para>
       </tip>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>State Machine and States</title>
       <para>
 	The <classname>RTT::StateMachine</classname> is a
@@ -299,11 +293,8 @@
 	    </imageobject>
 	  </mediaobject>
 	</figure>
-      <para>To see how a State Machine can be used in Orocos, we refer
-	to the <ulink url="orocos-program-parser.html">Orocos
-	  Program Parser</ulink> Manual. The Parser is able to
-	convert Orocos State Descriptions to a State Machine
-	wich can be loaded in the Processor.
+      <para> The Parser is able to convert Orocos State Descriptions
+      to a State Machine wich can be loaded in the Processor.
       </para>
       <para>
 	In order to access (activate, start, stop, pause,...) a loaded state machine, use :
@@ -341,8 +332,8 @@
 	  user-friendly frontend for loading State Machines.
 	</para>
       </tip>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>The Command Processor</title>
       <para>
 	The <classname>RTT::CommandProcessor</classname> is responsible for accepting command
@@ -389,9 +380,9 @@
 	  </caption>
 	</mediaobject>
       </figure>
-    </sect2>
-  </sect1>
-  <sect1>
+    </section>
+  </section>
+  <section>
     <title>Creating Commands</title>
     <note>
       <para>
@@ -407,7 +398,7 @@
       the Processor to execute. This is usefull if a function must be
       called at a later moment.
     </para>
-    <sect2>
+    <section>
       <title>Generic Functors</title>
       <para>
 	Orocos uses the 'Generic Functor' paradigm to encapsulate Commands.
@@ -425,8 +416,8 @@
 	    </imageobject>
 	  </mediaobject>
 	</figure>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>Creating a CommandFunctor</title>
       <para>
 	The CommandFunctor is the object used to store the function
@@ -494,8 +485,8 @@
 	Since the Program Processor can execute CommandInterface objects,
 	it is a powerfull way to delay calling of a function to a later moment.
       </para>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>Processing a Command</title>
       <para>
 	Using the CommandFunctor from the previous section, we can pass
@@ -518,8 +509,8 @@
 	function. The easiest way to do this is to create a Task which
 	runs the Processor.
       </para>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>Common Usage Examples</title>
       <para>
 	The CommandFunctor can be used when a separate thread of
@@ -533,9 +524,9 @@
 	commands in the Processor after the control calculations
 	are done. In this way, safe data access can be guaranteed.
       </para>
-    </sect2>
-  </sect1>
-  <sect1>
+    </section>
+  </section>
+  <section>
     <title>StateMachine and Program Implementation Details</title>
     <note>
       <para>
@@ -543,7 +534,7 @@
 	of Programs and StateMachines, and can be skipped by most users.
       </para>
     </note>
-    <sect2 id="progproc-condition">
+    <section id="progproc-condition">
       <title>( State ) Transitions : Condition Edge</title>
       <para>
 	The <classname>RTT::ConditionEdge</classname> defines an edge
@@ -555,8 +546,8 @@
 	order they are checked. A multiple of
 	conditions can lead to the same state.
       </para>
-      </sect2>
-      <sect2 id="progproc-command">
+      </section>
+      <section id="progproc-command">
 	<title>Statements : Command Node</title>
 	<para>
 	  The <classname>RTT::CommandNode</classname> contains a
@@ -572,8 +563,8 @@
 	  Also a line number can be associated with each command node,
 	  as a reference to the input file formatted by the user.
 	</para>
-      </sect2>
-      <sect2>
+      </section>
+      <section>
 	<title>The Command class</title>
 	<para>
 	  The <classname>Command</classname> is the abstraction of a
@@ -583,8 +574,8 @@
 	  The basic interface, CommandInterface, is provided by the
 	  Orocos CoreLib.
 	</para>
-      </sect2>
-      <sect2>
+      </section>
+      <section>
 	<title>The Condition class</title>
 	<para>
 	  The <classname>Condition</classname> is the abstraction of a
@@ -594,6 +585,6 @@
 	  Conditions. The basic interface, ConditionInterface, is
 	  provided by the Orocos CoreLib
 	</para>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 </article>

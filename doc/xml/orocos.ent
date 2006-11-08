@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
-<!ENTITY oversion    "0.25.1">
+<!ENTITY oversion    "1.0.0-pre0">
 <!ENTITY cvs         "<acronym>CVS</acronym>">
 <!ENTITY svn         "<acronym>SVN</acronym>">
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
 <!ENTITY rtai        "<acronym>RTAI</acronym>">
 <!ENTITY rtos        "<acronym>RTOS</acronym>">
-<!ENTITY procman     "Execution Engine Manual">
-<!ENTITY parseman    "Scripting Manual">
-<!ENTITY coreman     "CoreLib Manual">
-<!ENTITY taskman     "TaskContext Manual">
-<!ENTITY procpkg     "Program Processor Package">
-<!ENTITY parsepkg    "Program Parser Package">
-<!ENTITY corepkg     "CoreLib Package">
-<!ENTITY taskpkg     "TaskContext Package">
-<!ENTITY kindynpkg   "Kinematics Package">
+<!ENTITY bfl         "Bayesian Filtering Library (<acronym>BFL</acronym>)">
+<!ENTITY rtt         "Real-Time Toolkit (<acronym>RTT</acronym>)">
+<!ENTITY kdl         "Kinematics and Dynamics Library (<acronym>KDL</acronym>)">
+<!ENTITY ocl         "Orocos Components Library (<acronym>OCL</acronym>)">

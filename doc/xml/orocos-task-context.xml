@@ -237,7 +237,7 @@
     <para>
       The way we interact with TaskContexts during development of an
       Orocos application is through the <emphasis>Task Browser</emphasis>.  The
-      <classname>RTT::TaskBrowser</classname> is a powerful console tool
+      <classname>TaskBrowser</classname> is a powerful console tool
       which helps you to explore, execute and debug
       <classname>RTT::TaskContext</classname>s in running programs. All you
       have to do is to create a TaskBrowser and call its loop()
@@ -247,14 +247,15 @@
     <note>
       <para>
 	The Orocos::TaskBrowser is a component
-	of its own which is found in the same directory as the hello
-	world component.
+	of its own which is found in the Orocos Component Library (OCL).
       </para>
     </note>
     <programlisting>
-  #include &lt;rtt/TaskBrowser.hpp&gt;
+  #include &lt;ocl/TaskBrowser.hpp&gt;
   #include &lt;rtt/os/main.h&gt;
   // ...
+
+  using namespace Orocos;
 
   int ORO_main( int, char** )
   {
@@ -262,7 +263,7 @@
       <classname>RTT::TaskContext</classname>* task = ...
 
       // when all is setup :
-      <classname>RTT::TaskBrowser</classname> tbrowser( task );
+      <classname>TaskBrowser</classname> tbrowser( task );
 
       tbrowser.loop();
       return 0;
@@ -811,8 +812,7 @@ the_data_port.     cd            ls
     </figure>
       <para>
 	The Activity classes will allocate a thread which executes the
-	Execution Engine. ( See the &coreman; for more documentation
-	about activities. ) The choosen
+	Execution Engine. The choosen
 	<classname>ActivityInterface</classname> object will invoke
 	the Execution Engine, which will in turn invoke the
 	application's methods above.
@@ -2422,8 +2422,7 @@ the_data_port.     cd            ls
 	  They are like programs in that they can call a
 	  peer task's members, but the calls are grouped
 	  in a state and only executed when the state machine
-	  is in that state. A detailed introduction can be found
-	  in the &parseman;. This section limits to showing
+	  is in that state. This section limits to showing
 	  how an Orocos State Description (osd) script can be loaded in a 
 	  Generic Task Context.
 	</para>
@@ -2457,14 +2456,6 @@ the_data_port.     cd            ls
 	<para>
 	  The Scripting Manual goes in great detail on how to 
 	  construct and control State Machines.
-	</para>
-      </section>
-      <section>
-	<title>Further Reading</title>
-	<para>
-	  In addition to this text, be sure to read the &parseman;
-	  such that you get a grip of the full power of Real-Time
-	  Orocos scripts.
 	</para>
       </section>
     </section>

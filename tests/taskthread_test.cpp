@@ -294,6 +294,8 @@ void ActivitiesThreadTest::testThreadConfig()
 {
     TimerThreadPtr tt = TimerThread::Instance(15, 0.01);
 
+    CPPUNIT_ASSERT( tt->isRunning() == false );
+
     CPPUNIT_ASSERT_EQUAL( 0.01, tt->getPeriod());
     CPPUNIT_ASSERT_EQUAL( 15, tt->getPriority());
 
@@ -324,12 +326,13 @@ void ActivitiesThreadTest::testThreadConfig()
     tt->setScheduler(ORO_SCHED_RT);
     tt->setScheduler(ORO_SCHED_OTHER);
     tt->setScheduler(ORO_SCHED_RT);
-    if ( tt->setPriority( 4 ) )
+    if ( tt->setPriority( 4 ) ) {
         CPPUNIT_ASSERT( tt->getPriority() == 4 );
 
-    // even if the priority was changed after construction, 
-    // the thread can be found:
-    CPPUNIT_ASSERT( tt == TimerThread::Instance(4,0.01) );
+        // even if the priority was changed after construction, 
+        // the thread can be found:
+        CPPUNIT_ASSERT( tt == TimerThread::Instance(4,0.01) );
+    }
 
     CPPUNIT_ASSERT( tt->start() );
 

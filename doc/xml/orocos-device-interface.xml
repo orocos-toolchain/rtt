@@ -79,7 +79,7 @@
 
   </articleinfo>
 
-    <sect1>
+    <section>
       <title>The Orocos Device Interface (<acronym>DI</acronym>)</title>
       <para>
 	Designing portable software which should interact with
@@ -151,8 +151,8 @@ of the physical interfaces they use underneath. You just want to know the
 	also put a simulation of an encoder in place of the device
 	driver for testing purposes.
       </para>
-    </sect1>
-    <sect1>
+    </section>
+    <section>
       <title>The Device Interface Classes</title>
       <para>
 	The most common used interfaces for machine control
@@ -160,7 +160,7 @@ of the physical interfaces they use underneath. You just want to know the
 	All the Device Interface classes reside in the
 	<classname>RTT</classname> namespace.
       </para>
-      <sect2>
+      <section>
 	<title>Physical IO</title>
 	<para>
 	  There are several classes for representing
@@ -211,8 +211,8 @@ of the physical interfaces they use underneath. You just want to know the
 	  </tgroup>
 	  <!-- one of (graphic mediaobject tgroup) -->
 	</table>
-      </sect2>
-      <sect2>
+      </section>
+      <section>
 	<title>Logical Device Interfaces</title>
 	<para>
 	  From a logical point of view, the generic
@@ -231,9 +231,9 @@ of the physical interfaces they use underneath. You just want to know the
 	  <classname>DigitalOutput</classname> and
 	  <classname>AnalogDrive</classname>.
 	</para>
-      </sect2>
-    </sect1>
-    <sect1>
+      </section>
+    </section>
+    <section>
       <title>Porting Device Drivers to Device Interfaces</title>
       <para>
 	The methods in each interface are well documented
@@ -245,8 +245,8 @@ of the physical interfaces they use underneath. You just want to know the
 	use these implementations to provide higher level
 	functionalities.
       </para>
-    </sect1>
-    <sect1>
+    </section>
+    <section>
       <title>Interface Name Serving</title>
       <para>
 	Name Serving is introduced in the Orocos CoreLib documentation.
@@ -275,5 +275,5 @@ delete card;
 	  </programlisting>
 	</example>
       </para>
-    </sect1>
+    </section>
 </article>

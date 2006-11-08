@@ -27,6 +27,7 @@
 #include <Method.hpp>
 #include <Command.hpp>
 
+
 using namespace std;
 
 // Registers the fixture into the 'registry'

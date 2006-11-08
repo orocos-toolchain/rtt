@@ -97,9 +97,9 @@
 
   </articleinfo>
 
-  <sect1>
+  <section>
     <title>Introduction</title>
-    <sect2>
+    <section>
       <title>Realtime OS Abstraction</title>
       <para>
 	The OS package makes an abstraction of the operating system on
@@ -123,11 +123,11 @@
 	the wrappers can be called inline. See the <option>OROBLD_OS_AGNOSTIC</option>
 	option in the configuration tool to control inlining.
       </para>
-    </sect2>
-  </sect1>
-  <sect1>
+    </section>
+  </section>
+  <section>
     <title>The Operating System Interface</title>
-    <sect2>
+    <section>
       <title>Basics</title>
       <para>
 	Keeping the &orocos; core portable requires an extra
@@ -159,9 +159,9 @@
 	  </mediaobject>
       </figure>
       </para>
-    </sect2>
-  </sect1>
-  <sect1>
+    </section>
+  </section>
+  <section>
     <title>OS Package Structure</title>
       <para>
       The OS package has a <filename>common</filename>
@@ -177,7 +177,7 @@
       abstractions may be available, but only one can be configured
       and compiled in one configuration.
     </para>
-    <sect2>
+    <section>
       <title>The RTAI/LXRT OS target</title>
       <para>
 	RTAI/LXRT is an
@@ -202,8 +202,8 @@
 	can be done from a not hard realtime thread within the
 	same program.
       </para>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>Porting Orocos to other Architectures / OS'es</title>
       <para>
 	The OS package is the only part of Orocos that needs to
@@ -228,8 +228,8 @@
 	modifying the functions to match those in your OS. This package
 	is recommended because it uses the standard Unix/Posix functions.
       </para>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>OS Header Files</title>
       <para>
 	The following table gives a short overview of the available
@@ -268,11 +268,11 @@
 	  </tbody>
 	</tgroup>
       </table> 
-    </sect2>
-  </sect1>
-  <sect1>
+    </section>
+  </section>
+  <section>
     <title>Using Threads and Realtime Execution of Your Program</title>
-    <sect2>
+    <section>
       <title>Writing the Program main()</title>
       <para>
 	All tasks in the realtime system have to be performed by some
@@ -305,10 +305,10 @@
 	  events instead.
 	</para>
       </note>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>The Orocos Thread System</title>
-      <sect3>
+      <section>
 	<title>Periodic Threads</title>
 	<para>
 	  An &orocos; thread, which must execute a task periodically,
@@ -351,8 +351,8 @@
 	  </listitem>
 	</itemizedlist>
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>Non Periodic Threads</title>
 	<para>
 	  For non-periodic threads, which block or do lenghty
@@ -408,8 +408,8 @@
 	  The user of this class must be aware that he must provide himself
 	  the locking primitives (like RTT::OS::Mutex) to provide thread safety.
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>Setting the Scheduler and Priorities.</title>
 	<para>
 	  The Orocos thread priorities are set during thread
@@ -435,8 +435,8 @@
 	  its scheduler policies. When only one scheduling policy
 	  is available, both variables map to the same scheduler.
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>ThreadScope: Oscilloscope Monitoring of Orocos Threads</title>
 	<para>
 	  You can configure the OS package using the configtool to
@@ -463,15 +463,15 @@ if ( pp )
 	  main thread claims pin zero, the other pins are assigned
 	  incrementally as each new Orocos thread is created.
 	</para>
-      </sect3>
-    </sect2>
-    <sect2>
+      </section>
+    </section>
+    <section>
       <title>Synchronisation Primitives</title>
       <para>
 	Orocos OS only provides a few synchronisation primitives,
 	mainly for guarding critical sections.
       </para>
-      <sect3>
+      <section>
 	<title>Mutexes</title>
 	<para>
 	  There are two kinds of Mutexes : <classname>RTT::OS::Mutex</classname>
@@ -514,8 +514,8 @@ if ( pp )
      //...
   }  </programlisting>
 	</example>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>Signals and Semaphores</title>
 	<para>
 	  Orocos provides a C++ semaphore abstraction class
@@ -541,8 +541,8 @@ if ( pp )
          // sem.value() was non-zero and is now decremented.
      }
   }  </programlisting>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>Compare And Swap ( CAS )</title>
 	<para>
 	  CAS is a fundamental building block of the CoreLib package
@@ -550,7 +550,7 @@ if ( pp )
 	  each OS target. See the Lock-Free sections of the CoreLib manual
 	  for Orocos classes which use this primitive.
 	</para>
-      </sect3>
-    </sect2>
-  </sect1>
+      </section>
+    </section>
+  </section>
 </article>

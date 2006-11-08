@@ -2,7 +2,8 @@ SUBDIRS = .
 
 XMLDOCS=orocos-overview.xml orocos-installation.xml \
 	orocos-overview-devel.xml \
-	orocos-user-manual.xml orocos-components-manual.xml orocos-devel-manual.xml
+	orocos-user-manual.xml orocos-components-manual.xml orocos-devel-manual.xml \
+	orocos-kdl-plugin.xml orocos-ocl-intro.xml
 
 # the faq only renders correctly in html, the changes is only for online viewing.
 EXTRAHTMLDOCS=orocos-faq.html orocos-changes.html
@@ -58,10 +59,12 @@ endif
 
 docs: prepdocs $(DOC)
 
+all-local: prepdocs
+
 prepdocs:
 	mkdir -p images/icons
 	mkdir -p images/pdf
 
 clean-local:
 	$(RM) $(HTMLDOCS) $(PDFDOCS) $(PSDOCS) $(PDFDOCS) $(TXTDOCS) $(EPSIMGS)
-	$(RM) -r images orocos-html.css orocos-manual.tgz
+	$(RM) -rf images orocos-html.css

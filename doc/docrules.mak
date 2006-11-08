@@ -58,12 +58,14 @@ epsimages: $(EPSIMGS)
 jpgimages: $(JPGIMGS)
 
 pngimages: $(PNGIMGS)
+	mkdir -p images/icons
 	-cp $(srcdir)/images/*png images/
 	-cp $(srcdir)/images/icons/*png images/icons
 
 tiffimages: $(TIFFIMGS)
 
 gifimages: $(GIFIMGS)
+	mkdir -p images/icons
 	-cp $(srcdir)/images/icons/*gif images/icons/
 
 .sgml.html:
@@ -108,7 +110,8 @@ gifimages: $(GIFIMGS)
 
 # first is for html, second is for pdf.
 %.png:%.svg
-	inkscape -D -d 60 $< -e $@
+	mkdir -p images
+	inkscape -z -D -d 60 $< -e $@
 
 %.jpg:%.png
 	$(CONVERT) -quality $(JPGQUALITY) $< $@

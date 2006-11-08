@@ -48,7 +48,7 @@
          <classname>Namespace::Classname</classname>
      Otherwise, the default docbook style is applied.
 -->
-  <xsl:variable name="orocos.doxygen.path" select="'api/html'" />
+  <xsl:variable name="orocos.doxygen.path" select="'../api/html'" />
   <xsl:variable name="orocos.doxygen.ext" select="'html'" />
   <xsl:template match="classname">
     <xsl:variable name="orocos.doxygen.classname">

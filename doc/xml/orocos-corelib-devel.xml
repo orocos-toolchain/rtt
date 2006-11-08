@@ -119,7 +119,7 @@
 	    <row>
 	      <entry><classname>RTT::PeriodicTask</classname>::start(), 
 	      <classname>RTT::PeriodicTask</classname>::stop()</entry>
-	      <entry>
+	      <entry><para>
 		Uses Mutex for serialising concurrent access.
 		Alternative implementation are incorrect,
 		since stop() guarantees that finalize() will

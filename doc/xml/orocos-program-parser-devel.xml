@@ -58,7 +58,7 @@
 
   </articleinfo>
 
-  <sect1 id="intro">
+  <section id="intro">
     <title>Introduction</title>
     <para>
       The &orocos; Parser allows users of the &orocos; system to write
@@ -72,8 +72,8 @@
       This document is about extending the &orocos; parser to support extra types,
       overload existing operators, and/or add new operators.
     </para>
-  </sect1>
-  <sect1 id="extending-the-parser">
+  </section>
+  <section id="extending-the-parser">
     <title>Extending the parser</title>
     <note>
       <para>
@@ -81,7 +81,7 @@
 	the internals of the Orocos Parser framework.
       </para>
     </note>
-    <sect2 id="parser-limitations">
+    <section id="parser-limitations">
       <title>Parser Limitations</title>
       <para>
 	For various reasons, during the development of the &orocos;
@@ -101,13 +101,13 @@
 	  </listitem>
 	</itemizedlist>
       </para>
-    </sect2>
-    <sect2 id="alleviating-parser-limitations">
+    </section>
+    <section id="alleviating-parser-limitations">
       <title>Alleviating the Limitations</title>
       <para>
 	We will address the ways to address the various limitations.
       </para>
-      <sect3 id="adding-syntax">
+      <section id="adding-syntax">
 	<title>Adding special syntax</title>
 	<para>
 	  This section will explain how to add a custom constructor,
@@ -148,7 +148,7 @@
 	  like "+", you should use the string you chose while defining
 	  your new syntax above.
 	</para>
-      </sect3>
-    </sect2>
-  </sect1>
+      </section>
+    </section>
+  </section>
 </article>

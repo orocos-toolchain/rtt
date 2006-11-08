@@ -121,7 +121,7 @@
 
   </articleinfo>
 
-  <sect1 id="intro">
+  <section id="intro">
     <title>Introduction</title>
     <para>
       The &orocos; Scripting language allows users of the &orocos; system to write
@@ -130,16 +130,16 @@
       that it is easily extendible and does not need recompilation of
       the main program.
     </para>
-  </sect1>
+  </section>
 
-  <sect1 id="program-syntax-general-concepts">
+  <section id="program-syntax-general-concepts">
     <title>General Scripting Concepts</title>
     <para>
       Before starting to explain Program Syntax, it is necessary to
       explain some general concepts that are used throughout the
       program syntax.
     </para>
-    <sect2 id="program-syntax-comments">
+    <section id="program-syntax-comments">
       <title>Comments</title>
 	<para>
 	  Various sorts of comments are supported in the syntax.  Here
@@ -159,8 +159,8 @@
 	  Whitespace is in general ignored, except for the fact that it
 	  is used to separate tokens.
 	</para>
-      </sect2>
-      <sect2 id="program-syntax-identifiers">
+      </section>
+      <section id="program-syntax-identifiers">
 	<title>Identifiers</title>
 	<para>
 	  Identifiers are names that the user can assign to variables,
@@ -179,7 +179,6 @@
 	  <simplelist columns="7">
 	    <member>alias</member>
 	    <member>and</member>
-	    <member>array</member>
 	    <member>break</member>
 	    <member>bool</member>
 	    <member>char</member>
@@ -194,7 +193,6 @@
 	    <member>false</member>
 	    <member>for</member>
 	    <member>foreach</member>
-	    <member>frame</member>
 	    <member>if</member>
 	    <member>include</member>
 	    <member>int</member>
@@ -203,7 +201,6 @@
 	    <member>nothing</member>
 	    <member>or</member>
 	    <member>return</member>
-	    <member>rotation</member>
 	    <member>set</member>
 	    <member>string</member>
 	    <member>then</member>
@@ -211,19 +208,16 @@
 	    <member>to</member>
 	    <member>true</member>
 	    <member>try</member>
-	    <member>twist</member>
 	    <member>until</member>
 	    <member>var</member>
-	    <member>vector</member>
 	    <member>while</member>
-	    <member>wrench</member>
 	  </simplelist>
 	  These, and all variations on the (upper- or lower-) case of
 	  each of the letters are reserved, and cannot be used as
 	  identifiers. 
 	</para>
-      </sect2>
-      <sect2 id="program-syntax-expressions">
+      </section>
+      <section id="program-syntax-expressions">
 	<title>Expressions</title>
 	<para>
 	  Expressions are a general concept used throughout the Parser
@@ -234,7 +228,7 @@
 	  type-checking.  Expressions can be constructed in various
 	  ways, that are described below...
 	</para>
-	<sect3>
+	<section>
 	  <title>Literals</title>
 	  <para>
 	    Literal values of various types are supported: string,
@@ -257,8 +251,8 @@
   // and another one..
   1.23e10  	    </programlisting>
   	  </para>
-	</sect3>
-	<sect3>
+	</section>
+	<section>
 	  <title>Constants, Variables and Aliases</title>
 	  <para>
 	    Constants, variables and aliases allow you to work with
@@ -302,8 +296,8 @@
 	    The Orocos Toolkit System allows any application or
 	    library to extend these types.
 	  </para>
-	</sect3>
-	<sect3>
+	</section>
+	<section>
 	  <title>Strings and Arrays</title>
 	  <para>
 	    For convenience, two variable size types have been
@@ -389,8 +383,8 @@
 	    if you try to read an item out of range, the result will return 0.0, or for
 	    strings, the null character.
 	  </para>
-	</sect3>
-	<sect3>
+	</section>
+	<section>
 	  <title>Operators</title>
 	  <para>
 	    Expressions can be combined using the C-style operators
@@ -401,8 +395,8 @@
 	    Java and similar languages. In general all that you would
 	    expect, is present.
 	  </para>
-	</sect3>
-	<sect3>
+	</section>
+	<section>
 	  <title>The '.' Operator</title>
 	  <para>
 	    Some value types, like array and string in
@@ -422,87 +416,9 @@
   var int size = a2.size()      // 10
   var int cap  = a2.capacity()  // 20</programlisting>
 	  </para>
-	  <para>
-	    Likewise, the following operators are available for the
-	    geometry types :
-	    <programlisting>  var frame f1, f2, f3
-  var rotation r
-  var vector   v
-  var twist    t
-  var wrench   w
-  // ...
-  
-  set f1 = f2.inv * f3 // frame transformations: inverse of f2 times f3
-
-  set v = f1.p          // read the position
-  set r = f1.R          // read the rotation
-  set r = f1.R.inv      // read the inverse rotation
-
-  set v = t.vel        // read the translational velocity
-  set v = t.rot        // read the rotational velocity
-
-  set v = w.force      // read the force
-  set v = w.torque     // read the torque
-
-  var double x = v.x  // also : v.y or v.z
-
-  var double p = r.roll  // also : r.pitch or r.yaw</programlisting>
-	  </para>
-	  <para>
-	    You can not use the '.' operator in the reverse direction.
-	    thus the following code is invalid :
-	    <programlisting>  set f.p = v         // Invalid !
-  set f1.R = r          // Invalid !</programlisting>
-            These are thus read-only accessors and can thus not be written to.
-	    To change them, you'll have to use a constructor from the next
-	    section.
-	  </para>
-	</sect3>
-	<sect3>
-	  <title>Constructors</title>
-	  <para>
-	    For some special types, a special kind of operator is
-	    provided.  These are called constructors.  The simplest
-	    example is the vector constructor, that looks like this:</para>
-	  <para>
-	    <programlisting>
-  vector( arg1, arg2, arg3 )	    </programlisting></para>
-	  <para>
-	    where arg1, arg2 and arg3 are expressions which
-	    <emphasis>must be of type double</emphasis>.
-	    This returns an expression of type vector, with arg1 as
-	    the x component, arg2 as the y component, and arg3 as the
-	    z component.
-	  </para>
-	  <para>
-	    Other constructors currently available are:
-	  </para>
-	    <programlisting>
-  // roll, pitch and yaw are double expressions, this
-  // returns a rotation, that is constructed using the
-  // Roll-Pitch-Yaw convention in RADIANS :
-  var double roll = 45.0 * (2.*3.14/360.)         // convert to radians
-  // ...
-  var rotation rot = rotation( roll, pitch, yaw )
-  
-  // Vect is a vector expression, rot is a rotation
-  // expression.  This returns a frame, constructed
-  // using the vector x as the origin, and rotation
-  // rot as the rotation..
-  var frame f = frame( vect, rot )
-
-  // or changing its vector and/or rotation:
-  f = frame( -f.p, f.M.inv )
-  
-  // Double6D is a commonly used type in Orocos
-  // and has been recently introduced in the parser
-  var double6d d6 = double6d(0.0)
-  set d6[0] = 1.0
-  var double d0 = d6[0]
-  set d6 = double6d( 1., 2., 3., 4., 5., 6. ) </programlisting>
-	</sect3>
-      </sect2>
-    <sect2>
+	</section>
+      </section>
+    <section>
       <title>Parsing and Loading Programs</title>
       <para>
 	Before we go on describing the details of the programs syntax,
@@ -540,11 +456,11 @@
 	"progname" is started. Programs can also be started from
 	within other scripts.
       </para>
-    </sect2>
-  </sect1>
-  <sect1 id="program-syntax">
+    </section>
+  </section>
+  <section id="program-syntax">
     <title>Orocos Program Scripts</title>
-    <sect2 id="program-semantics">
+    <section id="program-semantics">
       <title>Program Execution Semantics</title>
       <para>
 	An &orocos; program script is a list of statements, quite similar
@@ -561,10 +477,10 @@
 	and expressions on the other hand typically do not impose a
 	wait, and thus are executed immediately after each other.
       </para>
-    </sect2>
-    <sect2 id="program-syntax-specifics">
+    </section>
+    <section id="program-syntax-specifics">
       <title>Program Syntax</title>
-      <sect3>
+      <section>
 	<title><symbol>program</symbol></title>
 	<para> A program is formed like this: </para>
 	<programlisting>  program progname {
@@ -579,8 +495,8 @@
 	  other logic (like state machines, see below) to detect such
 	  failures.
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>Variable <symbol>set</symbol> Statements</title>
 	<para>
 	  A variable <symbol>set</symbol> statement is a statement that sets a variable
@@ -592,8 +508,8 @@
 	  to.  It should already have been defined.  Expression is an
 	  expression of the same type as the type of the variable.
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>The if then else Statement</title>
 	<para>	A Program script can contain if..then..else blocks, very similar
 	to C syntax.
@@ -615,8 +531,8 @@
 	  parentheses around the condition. The else statement is
 	  optional.
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>The for Statement</title>
 	<para>
 	  The for statement is almost equal to the C language.
@@ -633,8 +549,8 @@
         // ...
   }  </programlisting>
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>The while Statement</title>
 	<para>
 	  The while statement is another looping primitive in 
@@ -652,8 +568,8 @@
 	  As with the if statement, you can optionally put
 	  parentheses around the condition.
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>The break Statement</title>
 	<para>
 	  To break out of a while or for loop, the 
@@ -671,8 +587,8 @@
 	<para>
 	  It can be used likewise in a for loop.
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>Invoking Task Methods</title>
 	<para>
 	  Methods behave like calling C functions. They take
@@ -704,8 +620,8 @@
 	    statement.
 	  </para>
 	</warning>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>Invoking Task Commands</title>
 	<para>
 	  A command statement is a statement that calls a certain
@@ -759,7 +675,7 @@
   // "if done then continue"
   do comp.action( args ) until { if done then continue }
 	  </programlisting>
-	<sect4>
+	<section>
 	  <title>Accepting and Rejecting Commands</title>
 	  <para>
 	    A command can be accepted or rejected by a task.
@@ -769,8 +685,8 @@
 	    the program again, which will lead to a re-issuing
 	    of the command, which may lead again to the error state.
 	  </para>
-	</sect4>
-	<sect4>
+	</section>
+	<section>
 	  <title>Try ... Catch Commands</title>
 	<para>
 	  When a command is rejected ( the C++ method returns false ),
@@ -802,8 +718,8 @@
 	  <para>
 	    If the command was accepted, the next statement is executed.
 	  </para>
-	</sect4>
-	<sect4>
+	</section>
+	<section>
 	  <title>Parallel Commands with 'and'</title>
 	  <para>
 	    When it is desired to execute commands as one command
@@ -822,9 +738,9 @@
 	    In that case, the catch clause will be executed in
 	    case any of the listed commands fails.
 	  </para>
-	</sect4>
-      </sect3>
-      <sect3>
+	</section>
+      </section>
+      <section>
 	<title>Emitting Task Events</title>
 	  <para>
 	    Events are called as methods and commands.
@@ -839,8 +755,8 @@
 	    found in the CoreLib manual.  This event must be part of
 	    the task interface.
 	  </para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title><symbol>function</symbol></title>
 	<para>Statements
 	can be grouped in functions. A function can only call a function
@@ -861,8 +777,8 @@
 	  statements fails. Hence, this allows to extend the command interface
 	  with exported functions of a task at runtime.
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>Calling functions</title>
 	<para>
 	  A function can be called by writing :
@@ -878,8 +794,8 @@
 	  clause. If the function returns, the next statement
 	  of the calling function or program is executed.
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>Waiting : The 'nothing' Command</title>
 	<para>
 	  A special command 'nothing' is provided.  It is useful to
@@ -890,9 +806,9 @@
 	  to force execution to pause and resume in the next execution
 	  period.
 	</para>
-      </sect3>
-    </sect2>
-    <sect2>
+      </section>
+    </section>
+    <section>
 	<title>Starting and Stopping Programs from scripts</title>
 	<para>
 	  Once a program is parsed and loaded into the Execution Engine,
@@ -920,11 +836,11 @@
   set res = ATask.programs.progname.isPaused()</programlisting>
 	<para>
 	  which all return a boolean indicating true or false.</para>
-    </sect2>
-  </sect1>
-  <sect1>
+    </section>
+  </section>
+  <section>
     <title>Orocos State Descriptions : The Real-Time State Machine</title>
-    <sect2>
+    <section>
       <title>Introduction</title>
       <para>
 	A <classname>RTT::StateMachine</classname> is the state
@@ -934,8 +850,8 @@
 	transitions to a next state. Like program scripts, a
 	StateMachine must be loaded in a Task's Execution Engine.
       </para>
-    </sect2>
-      <sect2>
+    </section>
+      <section>
 	<title>StateMachine Workings</title>
 	<para>
 	A StateMachine is composed of a set of states.  A running
@@ -975,7 +891,7 @@
 	A State Machine can run in two modes. They are the automatic
 	mode and the reactive (also 'event' or 'request') mode.
       </para>
-      <sect3 id="state-request">
+      <section id="state-request">
 	<title>Reactive Mode: State Change Semantics</title>
 	<para>
 	  In order to enter the reactive mode, the State Machine
@@ -1028,8 +944,8 @@
 	  ( or if none, handle is executed ) and then, the state
 	  machine waits again. The step() command triggers this behaviour.
 	</para>
-      </sect3>
-      <sect3 id="state-automatic">
+      </section>
+      <section id="state-automatic">
 	<title>Automatic Mode: State Change Semantics</title>
 	<para>
 	  In order to enter automatic mode, the State Machine must be
@@ -1063,9 +979,9 @@
 	  called. This goes on until the automatic mode is left, using
 	  the pause, stop or reactive command.
 	</para>
-      </sect3>
-    </sect2>
-    <sect2>
+      </section>
+    </section>
+    <section>
       <title>Parsing and Loading StateMachines</title>
       <para>
 	Analogous to the Program section, we first show how 
@@ -1107,8 +1023,8 @@
 	transitions to other states can take place. StateMachines
 	can also be manipulated from within other scripts.
       </para>
-    </sect2>
-      <sect2>
+    </section>
+      <section>
 	<title>Defining StateMachines</title>
   	<para>
 	  You can think of StateMachines somewhat like C++ classes.  You
@@ -1173,7 +1089,7 @@
 	    method is optional, and a state can even be defined empty.
 	  </para>
 	</example>
-	<sect3>
+	<section>
 	  <title>The <function>state</function> Statement</title>
 	  <para>
 	    A state machine can have an unlimited number of states.  A
@@ -1181,8 +1097,8 @@
 	    exit.  Any one of them is optional, and a
 	    state can even conceivably be defined empty.
 	  </para>
-	</sect3>
-	<sect3>
+	</section>
+	<section>
 	  <title>The <function>entry</function> and
 	    <function>exit</function> Statements</title>
 	  <para>
@@ -1190,8 +1106,8 @@
 	    program is executed. When it is left, the exit program is
 	    called. The execution semantics are identical to the
             program scripts above.</para>
-	</sect3>
-	<sect3>
+	</section>
+	<section>
 	  <title>The <function>run</function> Statement</title>
 	  <para>
             The run program serves to define which activity is done
@@ -1204,8 +1120,8 @@
             transitions to another state can be made (see below)
             it is started again (in the next execution step).
           </para>
-	</sect3>
-	<sect3>
+	</section>
+	<section>
 	  <title>The <function>handle</function> and
 	    <function>transitions</function> Statement</title>
 	  <para>
@@ -1243,8 +1159,8 @@
 	    case. Even more, a transition to the current state is always
 	    considered valid and this can not be overridden.
 	  </para>
-	</sect3>
-	<sect3>
+	</section>
+	<section>
 	  <title>State Preconditions</title>
 	  <para>
 	    Often it's useful to specify some preconditions that need
@@ -1266,8 +1182,8 @@
             transition, as if the transition condition in the first place
             did not succeed.
 	  </para>
-	</sect3>
-	<sect3>
+	</section>
+	<section>
 	  <title>Event Transitions</title>
 	  <para>
 	    An important property of state machines is that they can
@@ -1320,9 +1236,9 @@
 	    event occurs. The event transition program and/or exit program
 	    may or must thus perform the necessary cleanup.
 	  </para>
-	</sect3>
-      </sect2>
-      <sect2 id="instantiating">
+	</section>
+      </section>
+      <section id="instantiating">
 	<title>Instantiating Machines: SubMachines and RootMachines</title>
 	<para>
 	  As mentioned before: you can look at a SubMachine
@@ -1336,7 +1252,7 @@
 	  Note that you always need to write the instantiation after
 	  the definition of the StateMachine you're instantiating.
 	</para>
-	<sect3>
+	<section>
 	  <title>Root Machines</title>
 	  <para>
 	    A Root Machine is a normal instantiation of a
@@ -1359,10 +1275,10 @@
 	    SomeStateMachine by the name of 'someSMinstance', which can then
 	    be accessed from other scripts (by that name).
 	  </para>
-	</sect3>
-	<sect3>
+	</section>
+	<section>
 	  <title>Parameters and public variables</title>
-	  <sect4>
+	  <section>
 	    <title>StateMachine public variables</title>
 	    <para>
 	      You can define variables at the StateMachine level.
@@ -1408,8 +1324,8 @@
   set readcounter = taskname.states.mymachine.counter
 
   set taskname.states.mymachine.counter = taskname.states.mymachine.counter *  2</programlisting>
-	  </sect4>
-	  <sect4>
+	  </section>
+	  <section>
 	    <title>StateMachine parameters</title>
 	    <para>
 	      A StateMachine can have parameters that need to be set
@@ -1447,9 +1363,9 @@
 	      be instantiated multiple times with different parameter
 	      values.
 	    </para>
-	  </sect4>
-	</sect3>
-	<sect3>
+	  </section>
+	</section>
+	<section>
 	  <title>Building Hierarchies : SubMachines</title>
 	  <para>
 	    A SubMachine is a StateMachine that is instantiated within
@@ -1458,7 +1374,7 @@
 	    child, and can decide when it needs to be started and
 	    stopped, by invoking the respective methods on its child.
 	  </para>
-	  <sect4>
+	  <section>
 	    <title>Instantiating SubMachines</title>
 	    <para>
 	      An instantiation of a SubMachine is written as follows:
@@ -1510,8 +1426,8 @@
 	      entry method and stopped in the final state's entry
 	      method.
 	    </para>
-	  </sect4>
-	  <sect4>
+	  </section>
+	  <section>
 	    <title>SubMachine manipulating</title>
 	    <para>
 	      In addition to starting and stopping a SubMachine, a
@@ -1589,10 +1505,10 @@
 	    <programlisting>someSubMachine.inState( "someStateName" )
 	    </programlisting>
 	  </para>
-	</sect4>
-      </sect3>
-    </sect2>
-    <sect2>
+	</section>
+      </section>
+    </section>
+    <section>
       <title>Starting and Stopping StateMachines from scripts</title>
       <para>
 	Once a state machine is parsed and loaded into the State Machine Processor,
@@ -1637,7 +1553,7 @@
       <para>
 	which makes it possible to monitor state machines from other
 	scripts or an operator console.</para>
-      <sect3 id="request-commands">
+      <section id="request-commands">
 	<title>On Reactive Mode Commands</title>
 	<para>
 	  Consider the following StateMachine :
@@ -1738,8 +1654,8 @@
 	   All these methods can of course also be called from parent
 	   to child State Machine, or across tasks.
 	</para>
-      </sect3>
-      <sect3 id="automatic-commands">
+      </section>
+      <section id="automatic-commands">
 	<title>Automatic Mode Commands</title>
 	<para>
 	  Consider the following StateMachine, as in the previous
@@ -1827,10 +1743,10 @@
 	   All these methods can of course also be called from parent
 	   to child State Machine, or across tasks.
 	</para>
-      </sect3>
-    </sect2>
-  </sect1>
-  <sect1>
+      </section>
+    </section>
+  </section>
+  <section>
     <title>Program and State Example</title>
     <para>
       This sections shows the listings of an Orocos State
@@ -2011,5 +1927,5 @@
   	do HMI.display("Program Ended\n")
   }  </programlisting>
     </example>
-  </sect1>
+  </section>
 </article>

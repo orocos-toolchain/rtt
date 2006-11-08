@@ -5,7 +5,7 @@
 <!ENTITY cvs         "<acronym>CVS</acronym>">
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
 <!ENTITY oldversion  "0.24">
-<!ENTITY version     "0.25">
+<!ENTITY version     "1.0">
 <!ENTITY rtai        "<acronym>RTAI</acronym>">
 <!ENTITY rtos        "<acronym>RTOS</acronym>">
 ]
@@ -32,6 +32,21 @@
     <section>
       <title>Overall Changes</title>
       <itemizedlist>
+	<listitem>
+	  <para>
+	    The make targets and make results have changed. One has now 'make rtt'
+	    (equivalent to 'make all'), 'make rtt-embedded' or 'make rtt-corba'.
+	    The resulting library and .pc file have the names 'liborocos-rtt.a'
+	    and 'orocos-rtt.pc' respectively. All standard headers are installed in the
+	    'rtt' directory. The device interface headers reside in 'rtt/dev'. The
+	    OS headers reside in 'rtt/os'. The Corba headers are in 'rtt/corba'.
+	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=265">
+	    Clean up the build system</ulink> and 
+	    <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=168">
+	    for all details.
+	    </ulink>
+	  </para>
+	</listitem>
 	<listitem>
 	  <para>
 	    The 'ORO_...' namespaces of Orocos have been renamed to 'RTT', 'RTT::OS', etc.
@@ -85,7 +100,7 @@
 	<listitem>
 	  <para>
 	    The device drivers have been removed from the RealTime Toolkit.
-	    Their new home is the Orocos Components package. This makes building
+	    Their new home is the Orocos Components Library (OCL). This makes building
 	    the RTT more simple and gives each device driver an easier to find place.
 	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=115">
 	    [Project] Move device drivers to orocos-components </ulink> for all details.
@@ -101,6 +116,7 @@
 	    The ORO_OS namespace has been renamed to RTT::OS.
 	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=65">
 	    [Project] new Orocos namespace</ulink> for all details.
+	    The headers are installed in 'rtt/os'.
 	  </para>
 	</listitem>
 	<listitem>
@@ -219,6 +235,17 @@
 	</listitem>
 	<listitem>
 	  <para>
+	    The <classname>RTT::TaskBrowser</classname> has been
+	    removed.  All its functionality is now available from the
+	    <classname>Orocos::TaskBrowser</classname> component in
+	    the Orocos Component Library.  See <ulink
+	    url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=262">
+	    Remove RTT::TaskBrowser, use Orocos::TaskBrowser</ulink>
+	    for all details.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
 	    The <classname>RTT::WritePort</classname> has been renamed to 
 	    <classname>RTT::DataPort</classname> and a 'new' <classname>RTT::WritePort</classname>
 	    implementation with only a <function>Get()</function> function has been
@@ -317,10 +344,21 @@ assert( myProp.ready() );</programlisting>
 	    XML Parsing: DTD's and Parsers.</ulink> for all details.
 	  </para>
 	</listitem>
+	<listitem>
+	  <para>
+	    The <function>readProperties</function> and <function>writeProperties</function>
+	    functions have become more strict. All properties must be read or written
+	    or they will refuse to change any values. To have more flexible
+	    behaviour, alternative functions have been added to fill the gap.
+	    See <ulink
+	    url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=204">
+	    reading properties does not fail</ulink> for all details.
+	  </para>
+	</listitem>
       </itemizedlist>
     </section>
     <section>
-      <title>TaskBrowser</title>
+      <title>TaskBrowser Component</title>
       <itemizedlist>
 	<listitem>
 	  <para>

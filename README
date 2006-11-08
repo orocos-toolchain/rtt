@@ -13,9 +13,9 @@ do :
 mkdir build
 cd build
 ../configure
-make new_packages
-make configure_packages
-make
+make rtt
+make check
+make install
 
 
 General Instructions
@@ -25,16 +25,11 @@ The installation manual can be found in the doc dir of
 this package (orocos-base). You can also consult it
 online on the http://www.orocos.org website.
 
-Each separate software package comes with its own
-documentation in the common/doc dir. They are also
-online consultable.
-
 To check out the latest Orocos source with subversion,
 use the following command :
 
 svn co http://svn.mech.kuleuven.be/repos/orocos/orocos-trunk
 
-The examples are in :
+Some examples are in :
 
-svn co http://svn.mech.kuleuven.be/repos/orocos/orocos-apps/kernel_sample
-svn co http://svn.mech.kuleuven.be/repos/orocos/orocos-apps/task-intro
+svn co http://svn.mech.kuleuven.be/repos/orocos/orocos-apps/examples

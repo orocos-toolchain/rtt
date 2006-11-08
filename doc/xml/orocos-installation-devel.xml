@@ -42,13 +42,83 @@
     </legalnotice>
 
   </articleinfo>
-  <sect1 id="technical-install">
+  <section id="technical-install">
     <title>Installation Technical Details</title>
     <para>
       This section groups some technical installation instructions
       for Orocos developers.
     </para>
-    <sect2>
+    <section>
+      <title>Using the Graphical configtool program</title>
+      <para>
+	When the target is selected with configure, you can run
+	<command>make configure_packages</command> to pop up the GUI configtool.
+	You need to install this program on your system.
+	Some things to do  are :
+      </para>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Add/Remove a Package to/from your configuration : click on <menuchoice>
+	      <guimenu>Build->Packages</guimenu></menuchoice>. Only
+	    packages in the repository can be added or removed. <emphasis>This operation does not
+	    remove a package from the repository.</emphasis>
+	  </para>
+	  <informalfigure>
+	    <mediaobject>
+	      <imageobject>
+		<imagedata fileref="images/ConfigToolPackages" />
+	      </imageobject>
+<!-- 	      <imageobject role="fo"> -->
+<!-- 		<imagedata format="JPG" fileref="images/ConfigToolPackages.jpg" /> -->
+<!-- 	      </imageobject> -->
+	    </mediaobject>
+	  </informalfigure>
+	</listitem>
+	<listitem>
+	  <para>
+	    Install a new Package in the repository : click on <menuchoice>
+	      <guimenu>Tools->Administration</guimenu></menuchoice>, this allows you to select an
+	    <filename>.epk</filename> file from your harddisk, which will be
+	    added to your packages repository.
+	  </para>
+	  <informalfigure>
+	    <mediaobject>
+	      <imageobject>
+		<imagedata fileref="images/ConfigToolAdmin" />
+	      </imageobject>
+<!-- 	      <imageobject role="fo"> -->
+<!-- 		<imagedata format="JPG" fileref="images/ConfigToolAdmin.jpg" /> -->
+<!-- 	      </imageobject> -->
+	    </mediaobject>
+	  </informalfigure>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>Upgrading Your Configuration</title>
+      <para>
+	In between Orocos versions, configuration options may be added
+	or removed to reflect feature additions or removal. In that
+	case, your current <filename>orocos.ecc</filename> file will
+	not be properly parsed by the tools. To solve this, you need
+	to run <screen>  make upgrade_packages</screen> such that your
+	old configuration is imported in the new one. After an
+	upgrade, your selected template, added packages and so on will
+	remain as before.
+      </para>
+      <note>
+	<para>You can manually save your configuration using
+	  <command>ecosconfig export /tmp/savefile.ecc</command> in
+	  your old build tree, followed by <command>make
+	    new_packages</command> and <command>ecosconfig import
+	    /tmp/savefile.ecc</command> in your new build tree.
+	  ( manually invoking ecosconfig requires setting ECOS_REPOSITORY )
+	    to your packages directory).
+	</para>
+      </note>
+    </section>
+    <section>
       <title>Introduction to the eCos toolset</title>
       <para>
 	This section goes into more detail how package management
@@ -153,8 +223,8 @@
 	    </listitem>
 	  </orderedlist>
 	</para>
-    </sect2>
-    <sect2>
+    </section>
+    <section>
       <title>Installing Orocos from Subversion (similar to CVS)</title>
       <para>
 	This section will do its best to help you through the
@@ -203,6 +273,6 @@
 	next section. Of course, you don't have to apply the
 	<command>ecosadmin.tcl</command> command when installing from &svn;.
       </para>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 </article>

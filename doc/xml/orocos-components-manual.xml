@@ -149,7 +149,7 @@
       </para>
     </section>
   </chapter>
-  <chapter>
+  <chapter id="orocos-taskcontext">
     <title>Setting up the Component Interface</title>
     <xi:include  href="orocos-task-context.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
@@ -157,15 +157,15 @@
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
-  <chapter>
-    <title>Orocos Scripting</title>
+  <chapter id="orocos-scripting">
+    <title>Orocos Scripting Reference</title>
     <xi:include  href="orocos-program-parser.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-program-parser.xml#xpointer(/article/sect1[*])"  
+    <xi:include  href="orocos-program-parser.xml#xpointer(/article/section[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
-  <chapter>
+  <chapter id="orocos-corba">
     <title>Distributing Orocos Components with CORBA</title>
     <xi:include  href="orocos-corba.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
@@ -173,7 +173,7 @@
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
-  <chapter>
+  <chapter id="orocos-corelib">
     <title>Core Library Reference</title>
     <xi:include  href="orocos-corelib.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
@@ -181,21 +181,19 @@
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 
-  <chapter>
+  <chapter id="orocos-os">
+    <title>OS Abstraction Reference</title>
+    <xi:include  href="orocos-os.xml#xpointer(/article/articleinfo/abstract)"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="orocos-os.xml#xpointer(/article/section[*])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </chapter>
+
+  <chapter id="orocos-fdi">
     <title>Hardware Device Interfaces</title>
     <xi:include  href="orocos-device-interface.xml#xpointer(/article/articleinfo/abstract)"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-device-interface.xml#xpointer(/article/sect1[*])"  
+    <xi:include  href="orocos-device-interface.xml#xpointer(/article/section[*])"  
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
-
-  <chapter>
-    <title>Hardware Device Drivers</title>
-    <xi:include  href="orocos-device-drivers.xml#xpointer(/article/articleinfo/abstract)"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-device-drivers.xml#xpointer(/article/sect1[*])"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-  </chapter>
-
-
 </book>

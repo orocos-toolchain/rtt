@@ -53,7 +53,7 @@
     </legalnotice>
 
   </articleinfo>
-  <sect1 id="vision">
+  <section id="vision">
     <title>Development Vision</title>
     <para>
       Developing code for the Orocos project is guided by
@@ -83,7 +83,7 @@
 	url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos">
 	mailinglist. </ulink>
     </para>
-    <sect2 id="proj-dev-req">
+    <section id="proj-dev-req">
       <title>Software engineering requirements</title>
       <para>
 	&orocos; has a vision on <emphasis>how</emphasis> developers should
@@ -340,8 +340,8 @@
 	&ldquo;Core&rdquo;, motion control functionality, primitives for
 	communication between &orocos; components, robot kinematics, etc.
       </para>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
   <bibliography>
     <title>Bibliography</title>
 

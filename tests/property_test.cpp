@@ -115,12 +115,12 @@ void PropertyTest::testBags()
 
     // recursive search :
     CPPUNIT_ASSERT( findProperty( bag, "/pf", "/" ) == 0 );
-    CPPUNIT_ASSERT( findProperty( bag, "::pi1" ) == pi1 ); // default is ::
+    CPPUNIT_ASSERT( findProperty( bag, ".pi1" ) == pi1 ); // default is "."
     CPPUNIT_ASSERT( findProperty( bag, "s1" ) == &subbag1 );
     CPPUNIT_ASSERT( findProperty( bag, "pi1" ) == pi1 );
     CPPUNIT_ASSERT( findProperty( bag, "/s1/s2", "/" ) == &subbag2 );
     CPPUNIT_ASSERT( findProperty( bag, "/s1/s2/ps", "/" ) == &ps );
-    CPPUNIT_ASSERT( findProperty( bag, "s1::s2::pc" ) == &pc );
+    CPPUNIT_ASSERT( findProperty( bag, "s1.s2.pc" ) == &pc );
                     
 }
 void PropertyTest::testBagOperations()
@@ -215,6 +215,7 @@ void PropertyTest::testComposition()
 
 void PropertyTest::testMarshalling()
 {
+
 }
 
 void PropertyTest::testInit()

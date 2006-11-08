@@ -55,13 +55,13 @@
       </para>
     </legalnotice>
   </articleinfo>
-  <sect1>
+  <section>
     <title>Introduction</title>
     <para>
       This section explains installation, and gives an overview of the
       features and interface of the &orocos; &kindynpkg;.
     </para>
-    <sect2>
+    <section>
       <title>Installation</title>
       <para>
         Install the Orocos Geometry package first, it contains
@@ -75,8 +75,8 @@
 	instructions for the advised configuration and installation
 	procedure. 
       </para>
-    </sect2>
-    <sect2><title>Prerequisites</title>
+    </section>
+    <section><title>Prerequisites</title>
       <tip>
 	<para>	We highly advise you to read first the Orocos CoreLib and Geometry
 	documentation before going on.
@@ -88,11 +88,11 @@
 	of this package. You will find a lot of complementary
 	information in there not presented here.</para>
       </tip>
-    </sect2>
-  </sect1>
-  <sect1>
+    </section>
+  </section>
+  <section>
     <title>Kinematics</title>
-    <sect2>
+    <section>
       <title>Introduction</title>
       <para>
 	Kinematics are used for converting postions, velocities,...
@@ -123,7 +123,7 @@
 	Our kinematics algorithms keep track of all the above and much
 	more. This can clearly be seen from the used interfaces too.
       </para>
-      <sect3>
+      <section>
 	<title>Kinematics Value Types</title>
 	<para>
 	  The types used to convert to and from in the kinematic
@@ -145,8 +145,8 @@
 	  <classname>ORO_Geometry::Frame</classname>, <classname>ORO_Geometry::Vector</classname>,
 	  <classname>ORO_Geometry::Twist</classname>,...
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>The KinematicsInterface</title>
 	<para>
 	  The <classname>ORO_KinDyn::KinematicsInterface</classname>
@@ -170,8 +170,8 @@
 	  than 360 degrees). All state information is kept in the
 	  <classname>ORO_KinDyn::KinematicsComponent</classname>.
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>The KinematicsFactory</title>
 	<para>
 	  The <classname>ORO_KinDyn::KinematicsFactory</classname> class can be
@@ -194,8 +194,8 @@
   // each newly created KinematicsInterface object 
   // gets the new configuration.</programlisting>
 	</para>
-      </sect3>
-      <sect3>
+      </section>
+      <section>
 	<title>The KinematicsComponent</title>
 	<para>
 	  As each robot only needs one instance of the
@@ -217,18 +217,18 @@
 	  See the <classname>ORO_KinDyn::KinematicProcess</classname> for use
 	  of kinematics in the Control Kernel.
 	</para>
-      </sect3>
-    </sect2>
-  </sect1>
+      </section>
+    </section>
+  </section>
 <!--
-  <sect1 id="chap-interface">
+  <section id="chap-interface">
     <title>Interfaces</title>
     <para>
       This section describes the <emphasis>interfaces</emphasis> of
       the different components in the motion control part of &orocos;.
     </para>
 
-    <sect2 id="interface-motivation">
+    <section id="interface-motivation">
       <title>Motivation</title>
       <para>
 A complex and feature-rich application such as motion control can be
@@ -302,18 +302,18 @@ A complex and feature-rich application such as motion control can be
 </itemizedlist>
       </para>
 
-    </sect2>
+    </section>
 
 
-    <sect2 id="interface-cart-motion">
+    <section id="interface-cart-motion">
       <title>Cartesian motion</title>
       <para>
 	moveTo (Cartesian position); move (Cartesian velocity);
       </para>
 
-    </sect2>
+    </section>
 
-    <sect2 id="interface-axis-motion">
+    <section id="interface-axis-motion">
       <title>Axis</title>
       <para>
 	readId(); setId();
@@ -332,9 +332,9 @@ A complex and feature-rich application such as motion control can be
 	home ();
       </para>
 
-    </sect2>
+    </section>
 
-    <sect2 id="interface-device">
+    <section id="interface-device">
       <title>Device</title>
       <para>
 	readId(); setId();
@@ -343,9 +343,9 @@ A complex and feature-rich application such as motion control can be
 	Activate(), deactivate().
       </para>
 
-    </sect2>
+    </section>
 
-    <sect2 id="interface-robot">
+    <section id="interface-robot">
       <title>Robot</title>
       <para>
 	readId(); setId();
@@ -354,29 +354,29 @@ A complex and feature-rich application such as motion control can be
 	composite of Axis objects;
       </para>
 
-    </sect2>
+    </section>
 
-    <sect2 id="interface-servo">
+    <section id="interface-servo">
       <title>Servo</title>
       <para>
       </para>
 
-    </sect2>
+    </section>
 
-    <sect2 id="interface-trajectory">
+    <section id="interface-trajectory">
       <title>Trajectory</title>
       <para>
       </para>
 
-    </sect2>
+    </section>
 
-    <sect2 id="interface-interpolation">
+    <section id="interface-interpolation">
       <title>Interpolation</title>
       <para>
       </para>
 
-    </sect2>
+    </section>
 
-  </sect1>
+  </section>
 -->
 </article>
