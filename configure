@@ -1,0 +1,57 @@
+#!/bin/sh
+
+echo "Orocos configure script."
+
+function usage
+{
+   echo "This script allows you to set the compiler."
+   echo "Usage : ../configure [--prefix=/install/path][CC=compiler][CXX=compiler]"
+}
+
+function getcompiler
+{
+    arg=$1
+    if [ $(expr match "$arg" "CC=") != 0 ]; then
+	CMAKE_CC="$arg"
+    fi
+
+    if [ $(expr match "$arg" "CXX=") != 0 ]; then
+	CMAKE_CXX="$arg"
+    fi
+}
+
+while [ "$1" != "" ]; do
+    case $1 in
+        -h | --help )           usage
+                                exit
+                                ;;
+        * )                     getcompiler $1
+    esac
+    shift
+done
+
+if [ -f ./configure ]; then
+   echo "Error: run configure from a 'build' directory:"
+   echo " $ mkdir build"
+   echo " $ cd build"
+   echo " $ ../configure [options]"
+   exit 1
+fi
+
+if [ -f ./CMakeCache.txt ]; then
+   echo "Error: One can not change the compiler once configured !"
+   echo "Error: In order to change the compiler, use a fresh build directory."
+   exit 1
+fi
+
+if [ x$(which cmake) == x ]; then
+   echo "Error: 'cmake' executable not found. Download it from http://www.cmake.org"
+   echo "Error: or install the cmake package of your distribution version 2.2 or higher."
+   exit 1
+fi
+
+echo "Invoking: 'CC=$CMAKE_CC CXX=$CMAKE_CXX cmake ..'"
+
+bash -c "$CMAKE_CC $CMAKE_CXX cmake .." || (echo "Error: cmake produced an error."; exit 1)
+
+echo "OK: configure done."
