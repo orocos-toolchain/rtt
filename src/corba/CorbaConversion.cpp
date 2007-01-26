@@ -26,12 +26,12 @@
  ***************************************************************************/
  
  
-#include "corba/CorbaConversion.hpp"
+#include "CorbaConversion.hpp"
 #include "PropertyBag.hpp"
-#include "corba/AttributesC.h"
-#include "corba/AttributesI.h"
-#include "corba/CORBAExpression.hpp"
-#include "corba/ControlTaskProxy.hpp"
+#include "AttributesC.h"
+#include "AttributesI.h"
+#include "CORBAExpression.hpp"
+#include "ControlTaskProxy.hpp"
 
 
 namespace RTT

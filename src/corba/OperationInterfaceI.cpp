@@ -28,8 +28,8 @@
 // TAO_IDL - Generated from 
 // be/be_codegen.cpp:910
 
-#include "corba/OperationInterfaceI.h"
-#include "corba/OperationsI.h"
+#include "OperationInterfaceI.h"
+#include "OperationsI.h"
 #include "OperationFactory.hpp"
 
 using namespace RTT;

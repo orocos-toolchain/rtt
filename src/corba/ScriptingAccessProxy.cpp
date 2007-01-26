@@ -27,10 +27,10 @@
  
  
 
-#include "corba/ScriptingAccessProxy.hpp"
-#include "corba/ScriptingAccessC.h"
+#include "ScriptingAccessProxy.hpp"
+#include "ScriptingAccessC.h"
 #include "ProgramExceptions.hpp"
-#include "corba/CommandProxy.hpp"
+#include "CommandProxy.hpp"
 
 namespace RTT
 {namespace Corba

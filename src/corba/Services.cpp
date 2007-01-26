@@ -1,7 +1,7 @@
-#include "corba/Services.hpp"
-#include "corba/ApplicationServer.hpp"
+#include "Services.hpp"
+#include "ApplicationServer.hpp"
 #include "Logger.hpp"
-#include "corba/ControlTaskProxy.hpp"
+#include "ControlTaskProxy.hpp"
 
 // See comment below.
 #if 0

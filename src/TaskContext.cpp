@@ -45,7 +45,7 @@
 #include "scripting/ParserScriptingAccess.hpp"
 #include "scripting/ParserExecutionAccess.hpp"
 #endif
-#include "marsh/MarshallingAccess.hpp"
+#include "MarshallingAccess.hpp"
 
 namespace RTT
 {

@@ -28,8 +28,8 @@
  
 
 #include <Types.hpp>
-#include "corba/OperationsI.h"
-#include "corba/ExpressionProxy.hpp"
+#include "OperationsI.h"
+#include "ExpressionProxy.hpp"
 #include <iostream>
 
 #include <ace/String_Base.h>

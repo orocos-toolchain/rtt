@@ -28,14 +28,14 @@
  
 
 
-#include "corba/ControlTaskProxy.hpp"
-#include "corba/ControlTaskServer.hpp"
-#include "corba/ControlTaskC.h"
-#include "corba/CorbaMethodFactory.hpp"
-#include "corba/CorbaCommandFactory.hpp"
-#include "corba/CORBAExpression.hpp"
-#include "corba/ScriptingAccessProxy.hpp"
-#include "corba/CorbaPort.hpp"
+#include "ControlTaskProxy.hpp"
+#include "ControlTaskServer.hpp"
+#include "ControlTaskC.h"
+#include "CorbaMethodFactory.hpp"
+#include "CorbaCommandFactory.hpp"
+#include "CORBAExpression.hpp"
+#include "ScriptingAccessProxy.hpp"
+#include "CorbaPort.hpp"
 
 #include "CommandInterface.hpp"
 #include "Types.hpp"

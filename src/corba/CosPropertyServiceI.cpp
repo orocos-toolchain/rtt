@@ -28,7 +28,7 @@
 // TAO_IDL - Generated from 
 // be/be_codegen.cpp:925
 
-#include "corba/CosPropertyServiceI.h"
+#include "CosPropertyServiceI.h"
 #include <Property.hpp>
 #include <PropertyBag.hpp>
 #include <Logger.hpp>

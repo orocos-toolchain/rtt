@@ -1,1 +1,1 @@
-#include "corba/CorbaDataObject.hpp"
+#include "CorbaDataObject.hpp"

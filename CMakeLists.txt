@@ -12,7 +12,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.2)
 
 PROJECT(Orocos-RTT)
 
-SET( VERSION 1.0 CACHE STRING "Version of Orocos RTT" )
+SET( VERSION 1.2.0 CACHE STRING "Version of Orocos RTT" )
   MESSAGE( "Orocos RTT version ${VERSION}" )
 
 # Do not rely on environment variables to find the path, because that's confusing
@@ -90,20 +90,33 @@ ADD_CUSTOM_TARGET(uninstall
 
 INCLUDE(config/check_depend.cmake)
 INCLUDE(config/rtt_rules.cmake)
-ADD_DEFINITIONS( "-Wall -D_REENTRANT" )
-SET(RTT_CFLAGS "${RTT_CFLAGS} -D_REENTRANT" CACHE INTERNAL "")
+ADD_DEFINITIONS( "-Wall" )
 SET(ENV{GLOBAL_LIBRARY_SRCS})
+SET(ENV{GLOBAL_GENERATED_SRCS})
 ADD_SUBDIRECTORY(src)
-ADD_SUBDIRECTORY(tests)
+
+SET_SOURCE_FILES_PROPERTIES($ENV{GLOBAL_GENERATED_SRCS} PROPERTIES GENERATED 1)
+
 ADD_LIBRARY(orocos-rtt SHARED $ENV{GLOBAL_LIBRARY_SRCS})
 INSTALL_TARGETS(/lib orocos-rtt)
 
-
+#
+# If corba is enabled, the orocos-rtt-corba helper library is built.
+#
+IF ( OROINT_OS_CORBA )
+ADD_DEPENDENCIES(orocos-rtt orocos-rtt-corba)
+TARGET_LINK_LIBRARIES(orocos-rtt orocos-rtt-corba)
+INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/src/corba ) # generated files.
+ENDIF ( OROINT_OS_CORBA )
 
 CONFIGURE_FILE( orocos-rtt.pc.in orocos-rtt.pc @ONLY)
 INSTALL_FILES( /lib/pkgconfig FILES orocos-rtt.pc)
 
 CONFIGURE_FILE(Doxyfile.in Doxyfile @ONLY)
+
+ADD_SUBDIRECTORY(doc)
+ADD_SUBDIRECTORY(tests)
+
 
 ############################################################
 ##                                                         #

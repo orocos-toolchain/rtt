@@ -28,11 +28,11 @@
 // TAO_IDL - Generated from 
 // be/be_codegen.cpp:910
 
-#include "corba/ScriptingAccessI.h"
-#include "corba/OperationsI.h"
+#include "ScriptingAccessI.h"
+#include "OperationsI.h"
 #include "ScriptingAccess.hpp"
-#include "ProgramLoader.hpp"
-#include "parse_exception.hpp"
+#include "../scripting/ProgramLoader.hpp"
+#include "../scripting/parse_exception.hpp"
 #include <sstream>
 
 using namespace std;

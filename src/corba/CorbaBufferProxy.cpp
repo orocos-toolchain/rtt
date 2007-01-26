@@ -1,1 +1,1 @@
-#include "corba/CorbaBufferProxy.hpp"
+#include "CorbaBufferProxy.hpp"

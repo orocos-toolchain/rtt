@@ -29,7 +29,7 @@
 #define ORO_PROPERTY_HPP
 
 #include "rtt-config.h"
-#include "marsh/Marshaller.hpp"
+#include "Marshaller.hpp"
 #include "PropertyBase.hpp"
 #include "PropertyBag.hpp"
 #include "PropertyCommands.hpp"

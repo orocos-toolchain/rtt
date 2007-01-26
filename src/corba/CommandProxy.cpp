@@ -27,8 +27,8 @@
  
  
 
-#include "corba/OperationsI.h"
-#include "corba/CommandProxy.hpp"
+#include "OperationsI.h"
+#include "CommandProxy.hpp"
 #include "ConditionInterface.hpp"
 
 #include <ace/String_Base.h>

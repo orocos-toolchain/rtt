@@ -27,12 +27,12 @@
  
  
 
-#include "corba/ControlTaskServer.hpp"
-#include "corba/ControlTaskProxy.hpp"
-#include "corba/ControlTaskS.h"
-#include "corba/ControlTaskC.h"
-#include "corba/ControlTaskI.h"
-#include "corba/POAUtility.h"
+#include "ControlTaskServer.hpp"
+#include "ControlTaskProxy.hpp"
+#include "ControlTaskS.h"
+#include "ControlTaskC.h"
+#include "ControlTaskI.h"
+#include "POAUtility.h"
 #include <orbsvcs/CosNamingC.h>
 #include <iostream>
 #include <fstream>

@@ -173,7 +173,7 @@ namespace RTT
          */
         virtual bool removeWriter(PortInterface* w) = 0;
 
-#ifdef OROPKG_CORBA
+#ifdef OROINT_OS_CORBA
         /**
          * Create a corba object which exports this connection to a Corba Object.
          */

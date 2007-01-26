@@ -28,16 +28,16 @@
 // TAO_IDL - Generated from 
 // be/be_codegen.cpp:910
 
-#include "corba/ControlTaskI.h"
-#include "corba/ControlTaskServer.hpp"
-#include "corba/ControlTaskProxy.hpp"
-#include "corba/CosPropertyServiceI.h"
-#include "corba/AttributesI.h"
-#include "corba/OperationsI.h"
-#include "corba/OperationInterfaceI.h"
-#include "corba/ScriptingAccessI.h"
-#include "corba/ServicesI.h"
-#include "corba/DataFlowI.h"
+#include "ControlTaskI.h"
+#include "ControlTaskServer.hpp"
+#include "ControlTaskProxy.hpp"
+#include "CosPropertyServiceI.h"
+#include "AttributesI.h"
+#include "OperationsI.h"
+#include "OperationInterfaceI.h"
+#include "ScriptingAccessI.h"
+#include "ServicesI.h"
+#include "DataFlowI.h"
 #include "Method.hpp"
 
 

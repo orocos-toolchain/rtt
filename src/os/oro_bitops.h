@@ -26,7 +26,7 @@
  ***************************************************************************/
  
  
-#include "../rtt-config.h"
+#include "rtt-config.h"
 #ifdef OROBLD_OS_AGNOSTIC
 # if defined(OROBLD_OS_ARCH_i386)
 #  include "oro_i386/oro_bitops.h"

@@ -27,8 +27,8 @@
  
  
 
-#include "corba/OperationsI.h"
-#include "corba/ActionProxy.hpp"
+#include "OperationsI.h"
+#include "ActionProxy.hpp"
 
 #include <ace/String_Base.h>
 

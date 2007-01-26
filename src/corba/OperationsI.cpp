@@ -28,7 +28,7 @@
 // TAO_IDL - Generated from 
 // be/be_codegen.cpp:910
 
-#include "corba/OperationsI.h"
+#include "OperationsI.h"
 #include "CommandC.hpp"
 #include "DataSourceCondition.hpp"
 #include "CommandDataSource.hpp"

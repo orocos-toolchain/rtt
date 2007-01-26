@@ -1,5 +1,5 @@
 
-#include "corba/POAUtility.h"
+#include "POAUtility.h"
 
 PortableServer::POA_ptr
 POAUtility::create_basic_POA(

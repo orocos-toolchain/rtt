@@ -56,7 +56,6 @@
 #cmakedefine OROBLD_OS_ARCH_i386
 #cmakedefine OROBLD_OS_ARCH_x86_64
 
+#cmakedefine OROINT_OS_CORBA
+
 #endif
-
-
-
