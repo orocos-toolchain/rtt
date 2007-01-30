@@ -54,9 +54,6 @@ namespace RTT {}
 #ifdef OROPKG_DEVICE_INTERFACE
 #include "dev/DeviceInterface.hpp"
 #endif
-#ifdef OROPKG_DEVICE_DRIVERS
-#include "dev/DeviceDrivers.hpp"
-#endif
 
 namespace RTT {
     /**
