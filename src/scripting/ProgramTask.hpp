@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:29 CEST 2004  straits.cxx 
+  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  ProgramTask.hpp 
 
-                        straits.cxx -  description
+                        ProgramTask.hpp -  description
                            -------------------
-    begin                : Mon May 10 2004
-    copyright            : (C) 2004 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.ac.be
+    begin                : Wed January 18 2006
+    copyright            : (C) 2006 Peter Soetens
+    email                : peter.soetens@mech.kuleuven.be
  
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -34,20 +34,44 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-#ifdef ORO_PRAGMA_INTERFACE
-#pragma implementation
-#endif "std/straits.h"
+ 
+ 
 
-#include "rtt/rtstl.hpp"
-#include <string>
+#ifndef PROGRAM_TASK_HPP
+#define PROGRAM_TASK_HPP
 
-typedef char c;
+#include "../TaskContext.hpp"
+#include "../ProgramInterface.hpp"
+#include "../DataSources.hpp"
 
-//template class string_char_traits<c>;
+namespace RTT
+{
 
-// This will kill us sooner or later
-// it should point to an array. see ctype.h
+    /**
+     * @brief This class represents a program as a task in
+     * the Orocos TaskContext system.
+     */
+    class ProgramTask
+        : public TaskContext
+    {
+        ValueDataSource<ProgramInterfaceWPtr>::shared_ptr program;
+    public:
+        /**
+         * By constructing this object, a program is added to a taskcontext
+         * as a TaskContext, with its commands and methods.
+         */
+        ProgramTask( ProgramInterfacePtr, ExecutionEngine* ee = 0 );
 
-#error This code will crash in userspace programs
+        ~ProgramTask();
 
-const unsigned short int *__ctype_b;
+        /**
+         * Returns the Program of this task.
+         */
+        ProgramInterfacePtr getProgram() const { return program->get().lock(); }
+
+    };
+}
+
+#endif
+
+
