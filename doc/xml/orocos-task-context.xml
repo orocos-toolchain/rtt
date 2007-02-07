@@ -672,8 +672,8 @@ the_data_port.     cd            ls
       <para>
 	The ready-to-execute code of this section can be found in the
 	'simple-task' package on the <ulink
-	url="http://www.orocos.org/download.html">Download</ulink>
-	page of the Orocos.org website.
+	url="http://www.orocos.org/rtt">RTT Download</ulink>
+	section of the Orocos.org website.
       </para>
     </important>
     <para>
@@ -871,12 +871,12 @@ the_data_port.     cd            ls
       <title>Interfacing the TaskContext</title>
       <para>
 	During development of your TaskContext, it is handy to connect
-	the <classname>RTT::TaskBrowser</classname> to your
+	the <classname>OCL::TaskBrowser</classname> to your
 	task such that you can interactively manipulate it and it's 
 	properties:
-	<programlisting>  #include &lt;rtt/TaskBrowser.hpp>
+	<programlisting>  #include &lt;ocl/TaskBrowser.hpp>
   // ... see above
-  <classname>RTT::TaskBrowser</classname> browser(a_task);
+  <classname>OCL::TaskBrowser</classname> browser(a_task);
 
   // Start the interactive console:
   browser.loop();</programlisting>
@@ -940,7 +940,7 @@ the_data_port.     cd            ls
 	  <para>
 	    The ready-to-execute code of this section can be found in the
 	    'dataflow-task' package on the <ulink
-	    url="http://www.orocos.org/download.html">Download</ulink>
+	    url="http://www.orocos.org/rtt">RTT Download</ulink>
 	    page of the Orocos.org website.
 	  </para>
 	</important>
@@ -1391,7 +1391,7 @@ the_data_port.     cd            ls
 		<entry>string, array</entry>
 	      </row>
 	      <row>
-		<entry>Orocos Fixed Container types : RTT::Double6D, ORO_Geometry::[Frame | Rotation | Twist | ... ]</entry>
+		<entry>Orocos Fixed Container types : RTT::Double6D, KDL::[Frame | Rotation | Twist | ... ]</entry>
 		<entry><emphasis>const &amp;</emphasis></entry>
 		<entry>double6d, frame, rotation, twist, ...</entry>
 	      </row>
@@ -1477,7 +1477,7 @@ the_data_port.     cd            ls
 	value of false and 5 to the task's interface. A constant 'pi' is added as well.
 	The methods return false if an attribute with that name already exists.
 	Adding a Property is also straightforward. The property is added in a 
-	<classname>ORO_Corelib::PropertyBag</classname>.
+	<classname>RTT::PropertyBag</classname>.
       </para>
     </section>
     <section>
@@ -1770,9 +1770,8 @@ the_data_port.     cd            ls
       </mediaobject>
     <para>
       A task may register its events in its interface in order to be
-      used by its state machines and other tasks as well.  Events
-      are defined and explained in the Orocos
-      CoreLib Manual.
+      used by its state machines and other tasks as well.  Events are
+      defined and explained in the Orocos CoreLib Reference Manual.
     </para>
     <section>
       <title>Adding Events</title>
@@ -1819,7 +1818,7 @@ the_data_port.     cd            ls
       <para>
 	Once events are added, they can be emitted using the
 	<classname>RTT::Event</classname> object.
-	<programlisting>  <classname>RTT::Event&lt; bool(double, double, double) &gt;</classname> move_event 
+	<programlisting>  <classname>RTT::Event</classname>&lt; bool(double, double, double) &gt; move_event 
     = a_task.events()->getEvent( "move" );
   assert( move_event.ready() );
 
@@ -1895,7 +1894,7 @@ the_data_port.     cd            ls
 	</para>
       </note>
       <para>
-	Analogous to the event example in the CoreLib Manual,
+	Analogous to the event example in the CoreLib Reference Manual,
 	a class is made to react to the event. A connection
 	is setup between the "move" event and the <function>react_callback</function>
 	function of "r". The connection can be controlled using
@@ -1991,11 +1990,11 @@ the_data_port.     cd            ls
       <programlisting>  // bi-directional :
   connectPeers( &amp;a_task, &amp;b_task );
   assert( a_task.hasPeer( &amp;b_task.getName() ) 
-          &amp;&amp; b_task.hasPeer( &amp;a_task.getName() );
+          &amp; b_task.hasPeer( &amp;a_task.getName() ) );
   // uni-directional :
   a_task.addPeer( &amp;c_task );
   assert( a_task.hasPeer( &amp;c_task.getName() ) 
-          &amp;&amp; ! c_task.hasPeer( &amp;a_task.getName() );
+          &amp; ! c_task.hasPeer( &amp;a_task.getName() ) );
 
   // Access the interface of a Peer:
   Method&lt;bool(void) m = a_task.getPeer( "CTask" )->methods()->getMethod&lt;bool(void)>("aMethod");

@@ -9,16 +9,26 @@
  
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU Lesser General Public            *
- *   License as published by the Free Software Foundation; either          *
- *   version 2.1 of the License, or (at your option) any later version.    *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
  *                                                                         *
  *   This library is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
  *   Lesser General Public License for more details.                       *
  *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
+ *   You should have received a copy of the GNU General Public             *
  *   License along with this library; if not, write to the Free Software   *
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
@@ -167,7 +177,8 @@ namespace RTT
                 foo = 0;
                 f_it = find(f_it, funcs.end(), foo );
             }
-            // 2. execute all present
+            // 2. execute all present: DO NOT REMOVE/NULLIFY an element of funcs in other functions !
+            // use it->stop() to remove an item from this list.
             for(std::vector<ProgramInterface*>::iterator it = funcs.begin();
                 it != funcs.end(); ++it )
                 if ( *it )
@@ -183,8 +194,10 @@ namespace RTT
     {
         if (this->getActivity() && this->getActivity()->isRunning() && f) {
             f->setProgramProcessor(this);
-            if ( f->start() == false)
+            if ( f->start() == false) {
+                f->setProgramProcessor(0);
                 return false;
+            }
             int result = f_queue->enqueue( f );
             // signal work is to be done:
             this->getActivity()->trigger();
@@ -195,10 +208,11 @@ namespace RTT
 
     bool ProgramProcessor::removeFunction( ProgramInterface* f )
     {
+        // we can not remove it from the queue, as step() may be accessing this pointer.
         std::vector<ProgramInterface*>::iterator f_it = find(funcs.begin(), funcs.end(), f );
         if ( f_it != funcs.end() ) {
-            f->setProgramProcessor(0);
-            *f_it = 0;
+            f->stop();
+            this->getActivity()->trigger();
             return true;
         }
         return false;

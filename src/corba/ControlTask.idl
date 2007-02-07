@@ -30,6 +30,7 @@ module RTT
     /**
      * An Orocos TaskObject which hosts a method and command
      * interface.
+     * @ingroup CompIDL
      */
     interface ControlObject
     {
@@ -63,6 +64,21 @@ module RTT
     interface ControlTask : ControlObject
     {
       typedef sequence<string> ControlTaskNames;
+
+      /**
+       * Start this component.
+       */
+      boolean start();
+
+      /**
+       * Stop this component.
+       */
+      boolean stop();
+
+      /**
+       * Is this component running ?
+       */
+      boolean isRunning();
 
       /**
        * Query the properties of this interface as a CosPropertyService::PropertySet.

@@ -49,7 +49,7 @@ Alex Russell
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis>
     </subtitle>
-    <pubdate>13 January, 2005</pubdate>
+    <pubdate>8 November 2006</pubdate>
     <revhistory>
       <revision>
         <revnumber>0.1</revnumber>
@@ -75,6 +75,22 @@ Alex Russell
 	  Added 'Testing Orocos' section.
         </revremark>
       </revision>
+      <revision>
+        <revnumber>0.4</revnumber>
+        <date>8 Nov 2006</date>
+        <authorinitials>PS</authorinitials>
+        <revremark>
+	  Updated to Orocos 1.0
+        </revremark>
+      </revision>
+      <revision>
+        <revnumber>0.5</revnumber>
+        <date>17 Nov 2006</date>
+        <authorinitials>PS</authorinitials>
+        <revremark>
+	  Fixed wrong links.
+        </revremark>
+      </revision>
     </revhistory>
     <abstract>
       <para>
@@ -89,22 +105,18 @@ Alex Russell
       <title>General Questions</title>
       <qandaentry>
 	<question>
-	  <para>What is Orocos - RealTime Control Services - Robot Control Software ?</para>
+	  <para>What is Orocos - Real-Time Toolkit ?</para>
 	</question>
 	<answer>
 	  <para>
 	    Orocos stands for Open Robot Control Software and was a
 	    EU funded project to write Free Software for robots. This faq is
-	    about the RealTime Control Services and Robot Control Software
-	    libraries for writing hard realtime control applications in
+	    about the Real-Time Toolkit
+	    library for writing hard realtime control applications in
 	    C++. It supports hard realtime <ulink
-	      url="http://www.rtai.org">RTAI/LXRT</ulink> and non
-	    realtime GNU/Linux programs. Take a look at the webpage for <ulink
-	      url="http://www.orocos.org/about.php"> Orocos history
-	    </ulink> and the <ulink
-	      url="http://www.orocos.org"> 
-	      main page</ulink> for the difference between the RealTime Control
-	  Services and the Robot Control Software.</para>
+	      url="http://www.rtai.org">RTAI/LXRT</ulink> and <ulink
+	      url="http://www.xenomai.org">Xenomai</ulink> and normal
+	    GNU/Linux programs.</para>
 	</answer>
       </qandaentry>
       <qandaentry>
@@ -126,12 +138,11 @@ Alex Russell
 	<answer>
 	  <para>
 	    In the <ulink
-	      url="http://www.orocos.org/documentation.php">
+	      url="http://www.orocos.org/documentation.html">
 	      Documentation Section </ulink> of the Orocos website,
 	    you can find all online documents (and this FAQ). Also,
-	    the <ulink url="http://www.orocos.org/downloads.php">
-	      Download Section </ulink> contains separate manuals for
-	    all software packages.
+	    the <ulink url="http://www.orocos.org/rtt"> RTT
+	      Users Section </ulink> contains links to the manuals.
 	  </para>
 	</answer>
       </qandaentry>
@@ -154,8 +165,8 @@ Alex Russell
 	</question>
 	<answer>
 	  <para>
-	    In the <ulink url="http://www.orocos.org/downloads.php">
-	      Download Section</ulink> of the Orocos website for each
+	    In the <ulink url="http://www.orocos.org/rtt"> RTT
+	      Users Section</ulink> of the Orocos website for each
 	      use of Orocos.
 	  </para>
 	</answer>
@@ -236,7 +247,7 @@ Alex Russell
 	      </listitem>
 	    </itemizedlist>
 	  </para>
-	  <para>The follwing Linux options must be enabled to guarantee
+	  <para>The following Linux options must be enabled to guarantee
 	    the most stable performance :
 	    <itemizedlist>
 	      <listitem>
@@ -258,7 +269,7 @@ Alex Russell
 	  <para>How should I configure RTAI?</para>
 	</question>
 	<answer>
-	  <para>The follwing RTAI options must be enabled (and modules must be loaded) :
+	  <para>The following RTAI options must be enabled (and modules must be loaded) :
 	    <itemizedlist>
 	      <listitem>
 		<para>
@@ -292,18 +303,9 @@ Alex Russell
 	    popup the configuration GUI. If you unload packages (see also Build->Packages...)
 	    they will no longer be compiled (without removing them physically).
 	  </para>
-	</answer>
-	<answer>
 	  <para>
-	    Use <command>make control_services</command> in your build directory to build
-	    only the RealTime Control Services library of Orocos.
-	  </para>
-	</answer>
-	<answer>
-	  <para>
-	    Use <command>make robot_control</command> in your build directory to build
-	    the RealTime Control Services library, kinematics and the (feedback) control kernel application
-	    framework.
+	    Use <command>make rtt-corba</command> in your build directory to build
+	    only the library for distributed components using Corba.
 	  </para>
 	</answer>
       </qandaentry>
@@ -335,23 +337,9 @@ Alex Russell
 	</question>
 	<answer>
 	  <para>
-	    You can download the 'taskintro' application from the download page.
-	    The Component Builder's Manual gives a short walk-through in the first Chapter.
-	    You need to download, build 'control_services' and install Orocos on your system 
-	    to be able to compile the demo.
-	  </para>
-	</answer>
-	<answer>
-	  <para>
-	    The kernel_sample package contains a number of example feedback
-	    control kernels, using the Orocos 'robot_control' build.
-	  </para>
-	</answer>
-	<answer>
-	  <para>
-	    The KDE 'kernelclient' package contains an examples directory
-	    which can be used with the 'kernelclient' to monitor a remote (CORBA)
-	    control kernel using the Orocos 'robot_control' build.
+	    You can download the Orocos Component Library (OCL),
+	    install it and check out the examples you can download 
+	    on the Orocos RTT page as well.
 	  </para>
 	</answer>
       </qandaentry>
@@ -361,7 +349,8 @@ Alex Russell
 	</question>
 	<answer>
 	  <para>Did you read the README ? Did you install Orocos in /usr/local/orocos ?
-	  Otherwise, adapt the Makefile.
+	  Otherwise, set ORO_PATH to the correct location in the Makefile or
+	  specify it in <command>make ORO_PATH=/path/to/install</command>
 	  </para>
 	</answer>
       </qandaentry>
@@ -405,26 +394,6 @@ $ ldd core-test
 	</para>
 	</answer>
       </qandaentry>
-      <qandaentry>
-	<question>
-	  <para>I get sporadic crashes on my SMP or hyper-threading system.</para>
-	</question>
-	<answer>
-	  <para>Select the 'Build for SMP' option under 'Global Build Options'
-	  of the graphical configuration tool. This will enable the 'CONFIG_SMP'
-	  flag.</para>
-	</answer>
-	<answer>
-	  <para>With some distributions, you can disable the 'Hide
-	  System includes from Orocos' option in under 'OS Abstraction
-	  Layer' in the graphical configuration tool. Orocos requires some
-	  assembler instructions to be present (such as in atomic.h). Since
-	  most distributions do not deliver these files (correctly), Orocos
-	  uses a default implementation, which may not be correct for your
-	  platform. This flag tells Orocos to use the system headers. Orocos
-	  will not compile if they are not present or not fit.</para>
-	</answer>
-      </qandaentry>
     </qandadiv>
     <qandadiv>
       <title>Runtime Problems with RTAI/LXRT</title>
@@ -465,7 +434,7 @@ $ ldd core-test
 	<answer>
 	  <para>You tried to use RTAI's functions while RTAI was not yet initialised.
 	    This happens if you use global objects which contain Mutexes. Examples
-	    are ORO_CoreLib::Event and some DataObjects, Buffers and the Logger class.
+	    are Event and some DataObjects, Buffers and the Logger class.
 	    The solution is not to use global objects, but use global pointers and
 	    create the objects in ORO_main() with new.
 	  </para>
@@ -596,7 +565,8 @@ $ ldd core-test
 	</question>
 	<answer>
 	  <para>The eCos Operating System (and all its supported processors)
-	  and the ACE library (and all its supported OS's).
+	  and the ACE library (and all its supported OS's). The Orocos developers
+	  are very willing to assist you in porting Orocos to your Operating System.
 	  </para>
 	</answer>
       </qandaentry>

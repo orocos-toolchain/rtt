@@ -38,6 +38,12 @@
 	<authorinitials>PS</authorinitials>
 	<revremark>Split off the main manual.</revremark>
       </revision>
+      <revision>
+	<revnumber>1.0.2</revnumber>
+	<date>18 January 2007</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Removed outdated text.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>

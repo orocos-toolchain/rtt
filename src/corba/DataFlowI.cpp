@@ -89,19 +89,22 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
         ci = p->connection();
     }
 
-    assert(ci);
+    if ( !ci ) {
+        RTT::log() << "Failed to create Data Connection for Port: "<< port_name <<endlog(Error);
+        return 0;
+    }
 
-    RTT::log(Info) << "Creating new channel." << endlog();
     CORBA::Object_var ret = ci->toChannel();
     if ( CORBA::is_nil( ret ) ) {
-        RTT::log() << "Could not create DataChannel for Port "<< port_name <<endlog(Error);
+        RTT::log() << "Could not create DataChannel for Port: "<< port_name <<endlog(Error);
         return 0;
     }
     ::RTT::Corba::AssignableExpression_var ec = ::RTT::Corba::AssignableExpression::_narrow( ret.in() );
 
     if ( ec.in() )
         return ec._retn();
-    RTT::log() << "Could not create DataChannel for Port "<< port_name <<endlog(Error);
+
+    RTT::log() << "Could not create DataChannel for Port (try BufferChannel ?): "<< port_name <<endlog(Error);
     return 0;
 }
 
@@ -123,15 +126,55 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
     } else {
         ci = p->connection();
     }
+
+    if ( !ci ) {
+        RTT::log() << "Failed to create Buffer Connection for Port: "<< port_name <<endlog(Error);
+        return 0;
+    }
     
     CORBA::Object_var ret = ci->toChannel();
+    if ( CORBA::is_nil( ret ) ) {
+        RTT::log() << "Could not create BufferChannel for Port: "<< port_name <<endlog(Error);
+        return 0;
+    }
     ::RTT::Corba::BufferChannel_var ec = ::RTT::Corba::BufferChannel::_narrow( ret.in() );
 
     if ( ec.in() )
         return ec._retn();
-    RTT::log() << "Could not create BufferChannel for Port "<< port_name <<endlog(Error);
+    RTT::log() << "Could not create BufferChannel for Port (try DataChannel?): "<< port_name <<endlog(Error);
     return 0;
 }
+
+::RTT::Corba::Expression_ptr RTT_Corba_DataFlowInterface_i::createDataObject (
+    const char * port_name
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    RTT::Logger::In in("createDataObject");
+  // Add your implementation here
+    PortInterface* p = mdf->getPort(port_name);
+    if ( p == 0) {
+        RTT::log() << "No such Port: "<< port_name <<endlog(Error);
+        return 0;
+    }
+    ConnectionInterface::shared_ptr ci;
+    if ( p->connected() == false) {
+        RTT::log() << "Can not create DataObject for unconnected Port: "<< port_name <<endlog(Error);
+        return 0;
+    } else {
+        ci = p->connection();
+    }
+
+    ::RTT::Corba::Expression_var ret = ci->getDataSource()->server(0);
+    if ( CORBA::is_nil( ret ) ) {
+        RTT::log() << "Could not create DataObject for connected Port: "<< port_name <<endlog(Error);
+        return 0;
+    }
+    return ret._retn();
+}
+
 
 ::RTT::Corba::DataFlowInterface::PortType RTT_Corba_DataFlowInterface_i::getPortType (
     const char * port_name

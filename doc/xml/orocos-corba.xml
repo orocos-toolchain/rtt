@@ -37,6 +37,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Update to new Orocos interfaces</revremark>
       </revision>
+      <revision>
+	<revnumber>0.03</revnumber>
+	<date>9 November 2006</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>1.0.0 release updates</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -83,12 +89,11 @@
 	<listitem><para>Command interface: fully</para></listitem>
 	<listitem><para>Method interface: fully</para></listitem>
 	<listitem><para>Scripting interface: fully</para></listitem>
+	<listitem><para>Data Flow interface: fully</para></listitem>
       </itemizedlist> 
       </para>
-
       <para>These interfaces are work in progress and not yet available:
       <itemizedlist>
-	<listitem><para>Data Flow interface</para></listitem>
 	<listitem><para>Event interface</para></listitem>
       </itemizedlist> 
       </para>
@@ -118,21 +123,16 @@
 	Orocos Corba components are work in progress. The following limitations apply:
 	<itemizedlist>
 	  <listitem><para>Components can only communicate standard C++
-	  types (double, int, string, etc.), std::vector&lt;double>
-	  and the Orocos 3D Frame, Rotation and Vector types. Adding
-	  user types (user defined structs) is work in
-	  progress. </para></listitem>
-	  <listitem><para>The Corba interfaces have not stabilised
-	  fully and may change (albeit not drastically) before the
-	  Orocos 1.0 release. This is hidden if you use the 'transparant'
-	  approach below.</para></listitem>
+	  types (double, int, string, etc.) and std::vector&lt;double>.
+	  Adding user types is possible using the 'Toolkit Plugin' feature
+	  ( see also 'Orocos Type System' ).
+	  </para></listitem>
 	  <listitem><para>Some Corba objects (for example 'commands')
 	  have a longer lifetime in memory than necessary. This does
 	  not cause harm in 'simple' setups, but is problematic when
-	  thousands of such objects are created. This issue is being
-	  addressed.</para></listitem>
+	  thousands of such objects are created.
+	  </para></listitem>
 	</itemizedlist>
-	We aim for removing all these limitations before the Orocos 1.0 release.
       </para>
     </section>
   </section>
@@ -153,7 +153,7 @@
   #include &lt;rtt/corba/ControlTaskServer.hpp>
 
   #include &lt;rtt/PeriodicActivity.hpp>
-  #include &lt;rtt/GenericTaskContext.hpp>
+  #include &lt;rtt/TaskContext.hpp>
   #include &lt;rtt/os/main.h>
 
   using namespace RTT;
@@ -162,7 +162,7 @@
   int ORO_main(int argc, char** argv)
   {
      // Setup a component
-     <classname>RTT::GenericTaskContext</classname> mycomponent("HelloWorld");
+     <classname>RTT::TaskContext</classname> mycomponent("HelloWorld");
      // Execute a component
      <classname>RTT::PeriodicActivity</classname>   myact(1, 0.01, mycomponent.engine() );
      myact.start();
@@ -200,7 +200,7 @@
      <classname>RTT::TaskContext</classname>* component = ControlTaskProxy::Create( "HelloWorld" );
 
      // Interface it:
-     <classname>RTT::TaskBrowser</classname> browse( component );
+     <classname>OCL::TaskBrowser</classname> browse( component );
      browse.loop();
 
      // Cleanup Corba:
@@ -262,6 +262,7 @@
 	<listitem><para><filename>OperationInterface.idl</filename>: The interface for accessing methods and commands.</para></listitem>
 	<listitem><para><filename>ScriptingAccess.idl</filename>: The interface for loading and running scripts.</para></listitem>
 	<listitem><para><filename>Attributes.idl</filename>: The interface for attributes and properties.</para></listitem>
+	<listitem><para><filename>DataFlow.idl</filename>: The interface for communicating buffered or unbufferd data.</para></listitem>
       </itemizedlist> 
       All data is communicated with CORBA::Any types. The way of using
       these interfaces is very similar to using Orocos in C++, but using

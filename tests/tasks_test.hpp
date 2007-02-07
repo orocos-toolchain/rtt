@@ -38,7 +38,7 @@ class ActivitiesTest : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE( ActivitiesTest );
     // Periodic Thread Test :
     CPPUNIT_TEST( testThreads );
-
+#if 0
     // Periodic Overrun Thread Test :
     // Does not work in GNU/Linux nor RAI
     //CPPUNIT_TEST( testOverrun );
@@ -61,7 +61,7 @@ class ActivitiesTest : public CppUnit::TestFixture
 
     // non periodic Test :
     CPPUNIT_TEST( testNonPeriodic );
-
+#endif
     CPPUNIT_TEST_SUITE_END();
 
     PeriodicActivity*   t_task_prio;

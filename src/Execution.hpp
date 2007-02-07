@@ -9,16 +9,26 @@
  
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU Lesser General Public            *
- *   License as published by the Free Software Foundation; either          *
- *   version 2.1 of the License, or (at your option) any later version.    *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
  *                                                                         *
  *   This library is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
  *   Lesser General Public License for more details.                       *
  *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
+ *   You should have received a copy of the GNU General Public             *
  *   License along with this library; if not, write to the Free Software   *
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
@@ -26,20 +36,11 @@
  ***************************************************************************/ 
  
 /**
- * @defgroup Tasks Component Building
- * @brief Task Infrastructure, Program Script Loaders and Parsers, Hierarchical State Machines,
- * Asynchronous Command Processing, Online Task Browsing.
+ * @defgroup CompModel Component Model
+ * @brief The RTT Component model is built around the TaskContext class.
  *
- * It is meant to group all packages for executing user commands
- * in a realtime system. It currently contains the %Task Infrastructure, %Program %Parser and
- * The %Program %Processor.
- *
- * Key classes are GenericTaskContext, ProgramLoader, PropertyLoader and TaskBrowser.
- *
- * The packages are documented in the 
- * <a href="../../orocos-task-context.html">
- * Online %Task %Infrastructure Manual</a>, the * <a href="../../orocos-program-parser.html">
- * Online %Program %Parser Manual</a> and the <a href="../../orocos-program-processor.html">
- * Online %Program %Processor Manual</a>.
- * 
+ * The approach allows application builders to specify the interface of 
+ * a component and the functionality. The component interface can be built
+ * by using the @ref RTTComponentInterface classes, while the implementation
+ * (algorithm) is being run by the @ref Processor classes.
  */

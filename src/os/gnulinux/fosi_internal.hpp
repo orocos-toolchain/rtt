@@ -92,8 +92,8 @@ namespace RTT
 		}
 	    }
 	    else {
-            Logger::In in( task->name );
-            log(Warning) << "Forcing priority of thread with SCHED_OTHER policy to 0." <<endlog();
+		Logger::In in(task->name);
+		log(Warning) << "Forcing priority of SCHED_OTHER thread to 0." <<endlog();
 	    }
 	    return pthread_create(&(task->thread), &(task->attr), 
 				  start_routine, obj);
@@ -193,10 +193,14 @@ namespace RTT
                 }
             } else {
                 // SCHED_FIFO/SCHED_RR:
-                if (priority <= 0)
-                    param.sched_priority = 1;
-                if (priority >= 99)
-                    param.sched_priority = 99;
+	      if (priority <= 0){
+                  log(Warning) << "Forcing priority of thread with !SCHED_OTHER policy to 1." <<endlog();
+                  param.sched_priority = 1;
+              }
+              if (priority >= 99){
+                  log(Warning) << "Forcing priority of thread with !SCHED_OTHER policy to 99." <<endlog();
+                  param.sched_priority = 99;
+              }
             }
             // write new policy:
             return pthread_setschedparam( task->thread, policy, &param);

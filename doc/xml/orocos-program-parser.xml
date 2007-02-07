@@ -105,6 +105,12 @@
 	<authorinitials>PS</authorinitials>
 	<revremark>User feedback, drop 'task.' prefix for accessing properties.</revremark>
       </revision> 
+      <revision>
+	<revnumber>1.0.0</revnumber>
+	<date>28 November 2006</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Added two new 'array' constructors.</revremark>
+      </revision> 
    </revhistory>
 
     <legalnotice>
@@ -313,15 +319,65 @@
 	  <para>Container types can be used in two ways : with a predefined
 	    capacity (ie the <emphasis>possibility</emphasis> to hold N items),
 	    or with a free capacity, where capacity is expanded as there is need for it.
-	    The former way is necessary for realtime programs, the latter can only be
-	    used in non realtime tasks, since it may cause a memory allocation when
-	    capacity limits are exceeded.
+	    The former way is necessary for real-time programs, the latter can only be
+	    used in non real-time tasks, since it may cause a memory allocation when
+	    capacity limits are exceeded. The following table lists all available
+	    constructors:
 	  </para>
+	<table frame="all">
+	  <title>array and string constructors</title>
+	  <tgroup cols="3">
+	    <thead>
+	      <row>
+		<entry>Constructor Syntax</entry>
+		<entry>Real-Time Initialising</entry>
+		<entry>Notes</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><programlisting>var string x = string()</programlisting></entry>
+		<entry><programlisting>var string x</programlisting></entry>
+		<entry>Creates an empty string. (<type>std::string</type>)</entry>
+	      </row>
+	      <row>
+		<entry><programlisting>var string x = string("Hello World")</programlisting></entry>
+		<entry><programlisting>var string x("Hello World")</programlisting></entry>
+		<entry>Creates a string with contents "Hello World".</entry>
+	      </row>
+	      <row>
+		<entry><programlisting>var array x = array()</programlisting></entry>
+		<entry><programlisting>var array x</programlisting></entry>
+		<entry>Creates an empty array. (<type>std::vector&lt;double&gt;)</type></entry>
+	      </row>
+	      <row>
+		<entry><programlisting>var array x = array(10)</programlisting></entry>
+		<entry><programlisting>var array x(10)</programlisting></entry>
+		<entry>Creates an array with 10 elements, all equal to 0.0.</entry>
+	      </row>
+	      <row>
+		<entry><programlisting>var array x = array(10, 3.0)</programlisting></entry>
+		<entry><programlisting>var array x(10, 3.0)</programlisting></entry>
+		<entry>Creates an array with 10 elements, all equal to 3.0.</entry>
+	      </row>
+	      <row>
+		<entry><programlisting>var array x = array(1.0, 2.0, 3.0)</programlisting></entry>
+		<entry><programlisting>var array x(1.0, 2.0, 3.0)</programlisting></entry>
+		<entry>Creates an array with 3 elements: {1.0, 2.0, 3.0}. Any number of
+		arguments may be given.</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
+	<warning><para>The 'Constructor Syntax' syntax leads to not
+	real-time scripts !  See the examples below. </para></warning>
+	<example>
+	  <title>string and array creation</title>
 	  <programlisting>  // A free string and free array :
-  // applestring is expanded to contain 6 characters (Non realtime!)
+  // applestring is expanded to contain 6 characters (Non real-time!)
   var string applestring = &quot;apples&quot;
 
-  // values is expanded to contain 15 elements (Non realtime!)
+  // values is expanded to contain 15 elements (Non real-time!)
   var array  values      = array(15)         
 
   // A fixed string and fixed array :
@@ -339,16 +395,22 @@
 
   set fixvalues  = morevalues  // ok, since morevalues only contains 10 items.
 
-  set values     = array(20)   // expand values to contain 20 doubles. (Non realtime!) </programlisting>
+  set values     = array(20)   // expand values to contain 20 doubles. (Non real-time!) 
+
+  var array list(1.0, 2.0, 3.0, 4.0) // list contains {1.0, 2.0, 3.0, 4.0}
+  var array biglist;                 // creates an empty array
+  set biglist = list           // 'biglist' is now equal to 'list' (Non real-time!)
+	  </programlisting>
 	  <para>
 	    As the example above demonstrates, a <emphasis>fixed</emphasis> string or array may
 	    only be assigned from another string or array with equal or less elements,
 	    while a <emphasis>free</emphasis> string or array may be assigned any number
 	    of elements.
 	  </para>
+	</example>
 	  <important>
 	    <para>
-	      The value given upon construction must be a
+	      The 'size' value given upon construction (array(10) or string(17)) must be a
 	      <emphasis>legal expression at parse time and is only
 	      evaluated once</emphasis>. The safest method is using a
 	      literal integer ( i.e. (10) like in the examples ), but if you
@@ -364,7 +426,7 @@
               Which will not lead to '50', but to '5 times the
 	      value of numberOfItems, being still zero, when the program is parsed.
 	    </para>
-	    </important>
+	  </important>
 	  <para>Another property of container types is that you can index (use []) their
 	    contents. The index may be any expression that return an int.
 	  </para>

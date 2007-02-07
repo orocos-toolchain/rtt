@@ -1,3 +1,15 @@
+# This is a comment
+prefix=@prefix@
+exec_prefix=@exec_prefix@  # defining another variable in terms of the first
+libdir=@libdir@
+includedir=@includedir@
+
+Name: Orocos                            # human-readable name
+Description: Open Robot Control Software # human-readable description
+Version: @PACKAGE_VERSION@
+Libs: -L${libdir} -lorocos-rtt @TARGET_LIBS@
+#Libs.private: @TARGET_LIBS@
+Cflags: -I${includedir} @TARGET_FLAGS@
 
 #
 # THIS FILE IS NOT FOR INSTALLATION !

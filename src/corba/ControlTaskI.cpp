@@ -138,6 +138,34 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
 {
 }
 
+CORBA::Boolean Orocos_ControlTask_i::start (
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    return mtask->start();
+}
+
+CORBA::Boolean Orocos_ControlTask_i::stop (
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    return mtask->stop();
+}
+
+CORBA::Boolean Orocos_ControlTask_i::isRunning (
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    return mtask->isRunning();
+}
+
+
 ::CosPropertyService::PropertySet_ptr Orocos_ControlTask_i::propertySet (
     
   )
@@ -254,12 +282,24 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
   ))
 {
     std::string pname(name);
+    // detect 'this':
+    if ( pname == "this" )
+        return this->_this();
+
+    // Cache other objects
     OperationInterface* task = mtask->getObject( pname );
     if ( task ) {
-        // create or lookup new server for this object.
-        Orocos_ControlObject_i* ret = new Orocos_ControlObject_i(task, mpoa.in() );
+        // do caching....
+        Orocos_ControlObject_i* ret;
+        if ( ctobjmap[pname] == 0 ) {
+            // create or lookup new server for this object.
+            ctobjmap[pname] = new Orocos_ControlObject_i(task, mpoa.in() );
+        }
+        ret = ctobjmap[pname];
         return ret->_this();
     }
+    // clear cache if possible.
+    ctobjmap.erase( pname );
     return 0;
 }
 

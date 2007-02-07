@@ -9,16 +9,26 @@
  
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU Lesser General Public            *
- *   License as published by the Free Software Foundation; either          *
- *   version 2.1 of the License, or (at your option) any later version.    *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
  *                                                                         *
  *   This library is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
  *   Lesser General Public License for more details.                       *
  *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
+ *   You should have received a copy of the GNU General Public             *
  *   License along with this library; if not, write to the Free Software   *
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
@@ -26,20 +36,19 @@
  ***************************************************************************/ 
  
 
-#ifndef CONFIGURATOR_HPP
-#define CONFIGURATOR_HPP
+#ifndef ORO_CONFIGURATOR_HPP
+#define ORO_CONFIGURATOR_HPP
 
 #include "ConfigurationInterface.hpp"
-#include "NonRealTimeActivity.hpp"
-#include "PreemptibleActivity.hpp"
-#include "NonPreemptibleActivity.hpp"
+#include "PeriodicActivity.hpp"
 #include "TimeService.hpp"
 #include "Time.hpp"
 
 namespace RTT
 {
     /**
-     * @brief A task which configures components.
+     * @brief A class which configures other objects in small steps 
+     * spread in time.
      *
      * This is a step-wise configurator which instructs
      * another class to do a configuration 'step'. After
@@ -47,15 +56,12 @@ namespace RTT
      * step and so on until an error occured or the configuration
      * is finished.
      *
-     * @param BaseActivity Template : The Activity formalism to use.
+     * @see ConfigurationInterface
      */
-    template< class BaseActivity >
     class Configurator 
-        : protected BaseActivity
+        : protected PeriodicActivity
     {
     public:
-        typedef BaseActivity Base;
-        
         /**
          * Creates a Configurator with configuration
          * period of \a period.
@@ -63,20 +69,20 @@ namespace RTT
          * @param period The period between each configuration step.
          */
         Configurator( double period )
-            :Base( period ), target(0), status (false)
+            :PeriodicActivity(RTT::OS::LowestPriority, period ), mtarget(0), status (false)
         {
         }
 
         /**
-         * Configures <_target>. Returns when the configuration
+         * Configures \a target. Returns when the configuration
          * finished or terminated in error. So this is a blocking call,
          * but the Configurator itself is a non blocking task.
          *
          * @return true if the configuration finished, false otherwise.
          */
-        bool configure( ConfigurationInterface* _target, Seconds _timeout = 0 )
+        bool configure( ConfigurationInterface* target, Seconds _timeout = 0 )
         {
-            target = _target;
+            mtarget = target;
             TimeService::ticks timestamp = TimeService::Instance()->getTicks();
             this->start();
 
@@ -99,29 +105,29 @@ namespace RTT
          */
         ConfigurationInterface* configTarget() const
         {
-            return target;
+            return mtarget;
         }
 
         bool initialize()
         {
-            target->configInit();
+            mtarget->configInit();
             return true;
         }
 
         void step()
         {
-            if ( !target->configStep() || target->isFinished() )
+            if ( !mtarget->configStep() || mtarget->isFinished() )
                 this->stop();
         }
 
         void finalize()
         {
-            status = target->isFinished();
-            target->configCleanup();
+            status = mtarget->isFinished();
+            mtarget->configCleanup();
         }
 
     protected:
-        ConfigurationInterface* target;
+        ConfigurationInterface* mtarget;
 
         /**
          * Flag to save status of the target.
@@ -129,18 +135,6 @@ namespace RTT
         bool status;
     };
 
-    /**
-     * A NonPreemptible Configurator.
-     */
-    typedef Configurator<NonPreemptibleActivity> NonPreemptibleConfigurator;
-    /**
-     * A Preemptible Configurator.
-     */
-    typedef Configurator<PreemptibleActivity> PreemptibleConfigurator;
-    /**
-     * A NonRealTime Configurator.
-     */
-    typedef Configurator<NonRealTimeActivity> NonRealTimeConfigurator;
 }
 
 

@@ -9,16 +9,26 @@
  
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU Lesser General Public            *
- *   License as published by the Free Software Foundation; either          *
- *   version 2.1 of the License, or (at your option) any later version.    *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
  *                                                                         *
  *   This library is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
  *   Lesser General Public License for more details.                       *
  *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
+ *   You should have received a copy of the GNU General Public             *
  *   License along with this library; if not, write to the Free Software   *
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
@@ -268,19 +278,11 @@ namespace RTT
     bool updateProperties(PropertyBag& target, const PropertyBag& source)
     {
         // check type consistency...
-        // this was probably intended to convert old xml formats to new ones.
-        // but deleting in target seems just very wrong...
-#if 0
-        if ( target.getType() != source.getType() ) {
-            // if different types, discard the old contents and
-            // put in the new contents...
-            // update type info...
-            // delete old type contents...
-            flattenPropertyBag(target);
-            deleteProperties(target);
-            // now continue 'updating'
+        // if the target is typed, it is replaced by source.
+        if ( !(target.getType() == "" || target.getType() == "type_less") ) {
+            log(Debug) << "Rebuilding typed PropertyBag."<<endlog();
+            deletePropertyBag(target);
         }
-#endif
 
         target.setType( source.getType() );
 
@@ -384,6 +386,69 @@ namespace RTT
                     }
                 }
                 log(Debug) << "Found Property '"<<target_walker->getName() <<"': update done." << endlog();
+                return true;
+            }
+        } else {
+            // error wrong path, not present in source !
+            log(Error) << "Property '"<< token <<"' is not present in the source PropertyBag !"<<endlog();
+            return false;
+        }
+        // not reached.
+        return false; // failure
+    }
+
+    bool refreshProperty(PropertyBag& target, const PropertyBag& source, const std::string& name, const std::string& separator)
+    {
+        Logger::In in("refreshProperty");
+        // this code has been copied&modified from findProperty().
+        PropertyBase* source_walker;
+        PropertyBase* target_walker;
+        std::string token;
+        std::string::size_type start = 0;
+        if ( separator.length() != 0 && name.find(separator) == 0 ) // detect 'root' attribute
+            start = separator.length();
+        std::string::size_type len = name.find(separator, start);
+        if (len != std::string::npos) {
+            token = name.substr(start,len-start);
+            start = len + separator.length();      // reset start to next token.
+            if ( start >= name.length() )
+                start = std::string::npos;
+        }
+        else {
+            token = name.substr(start);
+            start = std::string::npos; // do not look further.
+        }
+        source_walker = source.find(token);
+        target_walker = target.find(token);
+        if (source_walker != 0 )
+        {
+            if ( target_walker == 0 ) {
+                log(Error) << "Property '"<<source_walker->getName()<<"' was not found in target !"<<endlog();
+                return false;
+            }
+            Property<PropertyBag>*  source_walker_bag;
+            Property<PropertyBag>*  target_walker_bag;
+            source_walker_bag = dynamic_cast<Property<PropertyBag>*>(source_walker);
+            target_walker_bag = dynamic_cast<Property<PropertyBag>*>(target_walker);
+            if ( source_walker_bag != 0 && start != std::string::npos ) {
+                if ( target_walker_bag == 0 ) {
+                    log(Error) << "Property '"<<target_walker->getName()<<"' is not a PropertyBag !"<<endlog();
+                    return false;
+                }
+                return refreshProperty( target_walker_bag->value(), source_walker_bag->rvalue(), name.substr( start ), separator );// a bag so search recursively
+            }
+            else {
+                // found it, refresh !
+                if (target_walker->refresh(source_walker) == false ) {
+                    // try composition:
+                    if ( target_walker->getTypeInfo()->composeType( source_walker->getDataSource(), target_walker->getDataSource() ) == false ) {
+                        log(Error) << "Could not refresh nor compose Property "
+                                   << target_walker->getType() << " "<< target_walker->getName()
+                                   << ": type mismatch, can not refresh with type "
+                                   << source_walker->getType() << Logger::endl;
+                    }
+                }
+                log(Debug) << "Found Property '"<<target_walker->getName() <<"': refresh done." << endlog();
                 return true;
             }
         } else {

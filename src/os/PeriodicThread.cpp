@@ -9,16 +9,26 @@
  
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU Lesser General Public            *
- *   License as published by the Free Software Foundation; either          *
- *   version 2.1 of the License, or (at your option) any later version.    *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
  *                                                                         *
  *   This library is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
  *   Lesser General Public License for more details.                       *
  *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
+ *   You should have received a copy of the GNU General Public             *
  *   License along with this library; if not, write to the Free Software   *
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
@@ -51,44 +61,11 @@ namespace RTT
         // acquire the resulting scheduler type.
         task->msched_type = rtos_task_get_scheduler( task->getTask() );
 
-        const char* modname = rtos_task_get_name( task->getTask() );
-        // Reporting available from this point :
-        {
-            Logger::In in(modname);
-            log(Info)<< "PeriodicThread created with priority "
-                     << rtos_task_get_priority(task->getTask())<<" and period "<< task->getPeriod() << "." <<Logger::endl;
-            log(Info) << "Scheduler type was set to '"<< task->msched_type << "'."<<endlog();
-        }
-
 #ifdef OROPKG_OS_THREAD_SCOPE
         // order thread scope toggle bit on thread number
         unsigned int bit = task->threadNumber();
-
-        boost::scoped_ptr<DigitalOutInterface> pp;
-        DigitalOutInterface* d = 0;
-#ifndef ORO_EMBEDDED
-        try {
-#endif // !ORO_EMBEDDED
-            if ( DigitalOutInterface::nameserver.getObject("ThreadScope") )
-                d = DigitalOutInterface::nameserver.getObject("ThreadScope");
-            else
-                {
-                    Logger::In in(modname);
-                    Logger::log() << Logger::Warning<< "Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << Logger::endl;
-                }
-#ifndef ORO_EMBEDDED
-        } catch( ... )
-            {
-                Logger::In in(modname);
-                Logger::log() << Logger::Error<< "Failed to create ThreadScope." << Logger::endl;
-            }
-#endif
-        if ( d ) {
-            Logger::In in(modname);
-            Logger::log() << Logger::Info
-                          << "ThreadScope :"<< rtos_task_get_name(task->getTask()) <<" toggles bit "<< bit << Logger::endl;
-            d->switchOff( bit );
-        }
+        if ( task->d )
+            task->d->switchOff( bit );
 #endif // OROPKG_OS_THREAD_SCOPE
         int overruns = 0;
         while ( !task->prepareForExit ) {
@@ -120,16 +97,15 @@ namespace RTT
                         } else {
                             // task->isRunning()
 #ifdef OROPKG_OS_THREAD_SCOPE
-                            if ( d )
-                                d->switchOn( bit );
+                            if ( task->d )
+                                task->d->switchOn( bit );
 #endif
                             {
-                                Logger::In in(modname);
                                 task->step(); // one cycle
                             }
 #ifdef OROPKG_OS_THREAD_SCOPE
-                            if ( d )
-                                d->switchOff( bit );
+                            if ( task->d )
+                                task->d->switchOff( bit );
 #endif
                             // return non-zero to indicate overrun.
                             if ( rtos_task_wait_period( task->getTask() ) != 0) {
@@ -142,30 +118,27 @@ namespace RTT
                     }
                 if ( overruns == task->maxOverRun ) {
 #ifdef OROPKG_OS_THREAD_SCOPE
-                    if ( d )
-                        d->switchOff( bit );
+                    if ( task->d )
+                        task->d->switchOff( bit );
 #endif
                     task->emergencyStop();
-                    Logger::In in(modname);
+                    Logger::In in(rtos_task_get_name(task->getTask()));
                     Logger::log() << Logger::Fatal << rtos_task_get_name(task->getTask()) <<" got too many periodic overruns in step() ("<< overruns << " times), stopped Thread !"<<Logger::nl;
                     Logger::log() <<" See PeriodicThread::setMaxOverrun() for info." << Logger::endl;
                 }
 #ifndef ORO_EMBEDDED
             } catch( ... ) {
 #ifdef OROPKG_OS_THREAD_SCOPE
-                if ( d )
-                    d->switchOff( bit );
+                if ( task->d )
+                    task->d->switchOff( bit );
 #endif
                 task->emergencyStop();
-                Logger::In in(modname);
+                Logger::In in(rtos_task_get_name(task->getTask()));
                 Logger::log() << Logger::Fatal << rtos_task_get_name(task->getTask()) <<" caught a C++ exception, stopped thread !"<<Logger::endl;
             }
 #endif // !ORO_EMBEDDED
         } // while (!prepareForExit)
     
-        Logger::In in(modname);
-        Logger::log() << Logger::Debug << rtos_task_get_name(task->getTask()) <<" exiting."<<Logger::endl;
-
         rtos_sem_signal( &(task->confDone));
 
         return 0;
@@ -186,6 +159,9 @@ namespace RTT
         msched_type(0), running(false), prepareForExit(false),
         wait_for_step(true), runComp(r), 
         maxOverRun( OROSEM_OS_PERIODIC_THREADS_MAX_OVERRUN)
+#ifdef OROPKG_OS_THREAD_SCOPE
+							 ,d(NULL)
+#endif
     {
         int ret;
         
@@ -218,6 +194,18 @@ namespace RTT
 
         if (runComp)
             runComp->setThread(this);
+#ifdef OROPKG_OS_THREAD_SCOPE
+        // Check if threadscope device already exists
+        {
+            Logger::In in("PeriodicThread");
+            if ( DigitalOutInterface::nameserver.getObject("ThreadScope") ){
+                d = DigitalOutInterface::nameserver.getObject("ThreadScope");
+            }
+            else{
+                log(Warning) << "Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << endlog();
+            }
+        }
+#endif
         int rv = rtos_task_create(&rtos_task, _priority, name.c_str(), msched_type, periodicThread, this );
         if ( rv != 0 ) {
             Logger::In in("PeriodicThread");

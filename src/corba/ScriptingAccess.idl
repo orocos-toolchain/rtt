@@ -11,6 +11,7 @@ module RTT
     /**
      * This interface provides easy access to
      * a task's programs and state machines.
+     * @ingroup CompIDL
      */
     interface ScriptingAccess
     {

@@ -72,7 +72,6 @@ void
 BuffersTest::setUp()
 {
     aqueue = new AtomicQueue<Dummy*>(QS);
-    aqueue->clear();
 
     lockfree = new BufferLockFree<Dummy>(QS);
 
@@ -685,6 +684,120 @@ void BuffersTest::testListLockFree()
     CPPUNIT_ASSERT( aworker->appends == aworker->erases );
     CPPUNIT_ASSERT( bworker->appends == bworker->erases );
     CPPUNIT_ASSERT( cworker->appends == cworker->erases );
+
+    delete aworker;
+    delete bworker;
+    delete cworker;
+    delete grower;
+}
+
+struct AQWorker : public RTT::OS::RunnableInterface
+{
+    bool stop;
+    typedef AtomicQueue<Dummy*> T;
+    T* mlst;
+    int appends;
+    int erases;
+    AQWorker(T* l ) : stop(false), mlst(l) {} 
+    bool initialize() {
+        stop = false;
+        appends = 0; erases = 0;
+        return true;
+    }
+    void step() {
+        Dummy* orig = new Dummy( 1,2,3);
+        Dummy* d = orig;
+        while (stop == false ) {
+            //cout << "Appending, i="<<i<<endl;
+            if ( mlst->enqueue( d ) ) { ++appends; }
+            //cout << "Erasing, i="<<i<<endl;
+            if ( mlst->dequeue( d ) ) { ++erases; }
+        }
+        delete orig;
+        //cout << "Stopping, i="<<i<<endl;
+    }
+
+    void finalize() {}
+
+    bool breakLoop() {
+        stop = true;
+        return true;
+    }
+};
+
+struct AQGrower : public RTT::OS::RunnableInterface
+{
+    bool stop;
+    typedef AtomicQueue<Dummy*> T;
+    T* mlst;
+    int i;
+    AQGrower(T* l ) : stop(false), mlst(l), i(0) {} 
+    bool initialize() {
+        stop = false; i = 0;
+        return true;
+    }
+    void step() {
+        // stress full queue
+        Dummy* orig = new Dummy( 1,2,3);
+        Dummy* d = orig;
+        while (stop == false ) {
+            if ( mlst->enqueue(d) )
+                ++i;
+        }
+        delete orig;
+    }
+
+    void finalize() {}
+
+    bool breakLoop() {
+        stop = true;
+        return true;
+    }
+};
+
+
+void BuffersTest::testAtomicQueue()
+{
+    AQWorker* aworker = new AQWorker( aqueue );
+    AQWorker* bworker = new AQWorker( aqueue );
+    AQWorker* cworker = new AQWorker( aqueue );
+    AQGrower* grower = new AQGrower( aqueue );
+
+    {
+        boost::scoped_ptr<SingleThread> athread( new SingleThread(20,"ThreadA", aworker ));
+        boost::scoped_ptr<SingleThread> bthread( new SingleThread(20,"ThreadB", bworker ));
+        boost::scoped_ptr<SingleThread> cthread( new SingleThread(20,"ThreadC", cworker ));
+        boost::scoped_ptr<SingleThread> gthread( new SingleThread(20,"ThreadG", grower ));
+    
+        athread->start();
+        bthread->start();
+        cthread->start();
+        gthread->start();
+        sleep(3);
+        gthread->stop();
+        athread->stop();
+        bthread->stop();
+        cthread->stop();
+    }
+
+    cout << "Athread appends: " << aworker->appends<<endl;
+    cout << "Athread erases: " << aworker->erases<<endl;
+    cout << "Bthread appends: " << bworker->appends<<endl;
+    cout << "Bthread erases: " << bworker->erases<<endl;
+    cout << "Cthread appends: " << cworker->appends<<endl;
+    cout << "Cthread erases: " << cworker->erases<<endl;
+    cout << "Grower appends: " << grower->i<<endl;
+    cout << "Queue capacity: "<< aqueue->capacity()<<endl;
+    cout << "Queue size: "<< aqueue->size()<<endl;
+//     while( aqueue->empty() == false ) {
+//         Dummy d =  aqueue->back();
+//         //cout << "Left: "<< d <<endl;
+//         CPPUNIT_ASSERT( aqueue->erase( d ) );
+//     }
+
+    // assert: sum queues == sum dequeues
+    CPPUNIT_ASSERT( aworker->appends + bworker->appends + cworker->appends + grower->i 
+                    == aworker->erases + bworker->erases + cworker->erases + aqueue->size() );
 
     delete aworker;
     delete bworker;

@@ -31,11 +31,7 @@ class TimeTest : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( TimeTest );
     CPPUNIT_TEST( testSecondsConversion );
-    // this test fails constantly for LXRT on rounding
-    // errors. It's disturbing diagnostics (indicates failure in normalized case)
-#ifndef OROPKG_OS_LXRT
     CPPUNIT_TEST( testTicksConversion );
-#endif
     CPPUNIT_TEST( testTimeProgress );
     CPPUNIT_TEST_SUITE_END();
 

@@ -59,12 +59,9 @@ namespace RTT
         assertion<std::string> expect_closecurly("Closing curly brace '}' expected ( or could not find out what this line means ).");
         assertion<std::string> expect_open("Open brace '(' expected.");
         assertion<std::string> expect_close("Closing brace ')' expected.");
-        assertion<std::string> expect_then("Wrongly formatted \"if ... then\" clause.");
         assertion<std::string> expect_comma("Expected a comma separator.");
         assertion<std::string> expect_ident("Expected a valid identifier.");
         assertion<std::string> expect_semicolon("Semicolon ';' expected after statement.");
-        assertion<std::string> expect_ifblock("Expected a statement (or { block } ).");
-        assertion<std::string> expect_elseblock("Expected a statement (or {block} ) after else.");
         assertion<std::string> expect_condition("Expected a boolean expression ( a condition ).");
         assertion<std::string> expect_expression("Expected an expression.");
         assertion<std::string> expect_command("Expected a command after 'do'.");
@@ -91,6 +88,12 @@ namespace RTT
         exportf(false),
         ln_offset(0)
   {
+      // putting the code in setup() works around a GCC 4.1 bug.
+      this->setup();
+      this->setup2();
+  }
+
+  void ProgramGraphParser::setup() {
     BOOST_SPIRIT_DEBUG_RULE( newline );
     BOOST_SPIRIT_DEBUG_RULE( openbrace );
     BOOST_SPIRIT_DEBUG_RULE( closebrace );
@@ -204,9 +207,6 @@ namespace RTT
     andpart = str_p("and")
         >> expect_and_command ( commandparser.parser()[ bind( &ProgramGraphParser::seenandcall, this ) ] );
 
-    catchpart = (str_p("catch") [bind(&ProgramGraphParser::startcatchpart, this)]
-                 >> expect_ifblock( ifblock ) )[bind(&ProgramGraphParser::seencatchpart, this)];
-
     // a function statement : "call functionname"
     funcstatement = (
       str_p( "call" )
@@ -231,48 +231,8 @@ namespace RTT
         >> opencurly
         >> expect_term(+terminationclause)
         >> closecurly;
-
-    forstatement = ( str_p("for") >> openbrace
-                     >> !valuechange_parsers[bind(&ProgramGraphParser::seenforinit, this)] >> semicolon
-                     >> condition >> semicolon
-                     >> !valuechange_parsers[bind(&ProgramGraphParser::seenforincr, this)] >> closebrace
-                     ) [bind(&ProgramGraphParser::seenforstatement, this)]
-                                  >> expect_ifblock( ifblock[ bind(&ProgramGraphParser::endforstatement, this) ]);
-
-    ifstatement = (str_p("if")
-                   >> condition
-                   >> expect_then( str_p("then")[bind(&ProgramGraphParser::seenifstatement, this)] )
-                   >> expect_ifblock( ifblock[ bind(&ProgramGraphParser::endifblock, this) ] )
-                   >> !( str_p("else") >> expect_elseblock(ifblock) )
-                   )[ bind(&ProgramGraphParser::endifstatement, this) ];
-
-    // ifblock is used for a group of statements or one statement (see also whilestatement)
-    ifblock = ( ch_p('{') >> *line >> closecurly ) | statement;
-
-    whilestatement =
-        (str_p("while")
-         >> condition )
-        [bind(&ProgramGraphParser::seenwhilestatement, this)]
-         >> expect_ifblock( ifblock[ bind(&ProgramGraphParser::endwhilestatement, this) ] );
-
-    // a termination clause: "if xxx then call yyy" where xxx is
-    // a condition, and yyy is an identifier.
-    terminationclause =
-        str_p( "if" )
-            >> condition
-            >> expect_then( str_p("then") )
-            >> (callpart | returnpart | continuepart)[lambda::var(eol_skip_functor::skipeol) = false]
-            >> commonparser.eos[lambda::var(eol_skip_functor::skipeol) = true];
-
-    continuepart = str_p("continue")[ bind( &ProgramGraphParser::seencontinue, this)];
-
-    callpart = str_p("call")
-        >> commonparser.identifier[ bind( &ProgramGraphParser::seencallfunclabel,
-                                          this, _1, _2 ) ] ;
-    returnpart = str_p("return")[ bind( &ProgramGraphParser::seenreturnlabel, this)];
-
   }
-
+  
     void ProgramGraphParser::initBodyParser(const std::string& name, TaskContext* stck, int offset) {
         ln_offset = offset;
         assert(program_builder != 0 );

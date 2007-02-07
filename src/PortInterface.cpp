@@ -9,16 +9,26 @@
  
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU Lesser General Public            *
- *   License as published by the Free Software Foundation; either          *
- *   version 2.1 of the License, or (at your option) any later version.    *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
  *                                                                         *
  *   This library is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
  *   Lesser General Public License for more details.                       *
  *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
+ *   You should have received a copy of the GNU General Public             *
  *   License along with this library; if not, write to the Free Software   *
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
@@ -75,18 +85,30 @@ namespace RTT
                 other->disconnect();
                 return false;
             }
-            // if here, both were readers.
+
+            // if here, both were readers or both refused to create a connection.
             Logger::In in("PortInterface::connectTo");
-            log(Warning) << "User requests to connect two Read ports. Creating a temporary default Writer." << endlog();
+            log(Warning) << "Creating a temporary default Writer." << endlog();
             // create a writer:
             PortInterface* aclone  = other->antiClone();
             // clumsy way of working:
             ci = aclone->createConnection();
-            // a writer must create a connection.
-            assert( ci );
+            // this can still fail
+            if (!ci) {
+                delete aclone;
+                aclone = this->antiClone();
+                ci = aclone->createConnection();
+                if (!ci) {
+                    log(Warning) <<"Complete failure to connect read ports. Neither port wants to create a connection."<< endlog();
+                    delete aclone;
+                    return false;
+                }
+            }
             ci->removeWriter(aclone);
             delete aclone;
             
+            // finally a connection object !
+
             if ( this->connectTo( ci ) )
                 return ci->connect();
             // failed (type mismatch), cleanup.
@@ -106,7 +128,7 @@ namespace RTT
         return ConnectionInterface::shared_ptr();
     }
 
-    OperationInterface* PortInterface::createPortObject() {
+    TaskObject* PortInterface::createPortObject() {
         return 0;
     }
 

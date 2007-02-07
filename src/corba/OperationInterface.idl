@@ -32,6 +32,7 @@ module RTT
 
     /**
      * A Method interface delivers objects which contain expressions.
+     * @ingroup CompIDL
      */
     interface MethodInterface
     {
@@ -77,6 +78,7 @@ module RTT
 
     /**
      * A Command interface delivers objects which contain asynchronous commands.
+     * @ingroup CompIDL
      */
     interface CommandInterface
     {

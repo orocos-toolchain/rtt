@@ -122,7 +122,7 @@
       series of <classname>Processor</classname>s which loads state
       machine and program definitions and executes them. Execution of
       the programs and state machines will happen in real-time. In
-      addition, it processes incomming commands and events in
+      addition, it processes incoming commands and events in
       real-time as well. The execution engine thus exists of four
       processors : <classname>RTT::ProgramProcessor</classname>,
       <classname>RTT::StateMachineProcessor</classname>,
@@ -446,13 +446,13 @@
   void foo( int x, int y );
   int a1 = 1, a2 = 2;
 
-  CommandInterface* command = newCommandFunctor( boost::bind( &amp;foo, a1, a2 ) );
+  ActionInterface* command = newCommandFunctor( boost::bind( &amp;foo, a1, a2 ) );
 
   command->execute(); // calls foo(a1,a2)
 
   delete command;
 	</programlisting>
-	Argument 'binding' is a very powerfull feature of C++. It allows to 
+	Argument 'binding' is a very powerful feature of C++. It allows to 
 	provide the arguments of a function in advance and execute the function
 	lateron.
       </para>
@@ -472,7 +472,7 @@
 
   X x_object;
   int a1 = 1, a2 = 2;
-  CommandInterface* command = newCommandFunctor( boost::bind( &amp;X::foo, x_object, a1, a2 ) );
+  ActionInterface* command = newCommandFunctor( boost::bind( &amp;X::foo, x_object, a1, a2 ) );
 
   command->execute(); // calls x_object.foo(a1,a2)
 

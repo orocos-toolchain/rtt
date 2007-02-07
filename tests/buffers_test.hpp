@@ -49,6 +49,7 @@ class BuffersTest : public CppUnit::TestFixture
 #ifdef OROPKG_OS_GNULINUX
     // this test assumes a not real-time OS.
     CPPUNIT_TEST( testListLockFree );
+    CPPUNIT_TEST( testAtomicQueue );
 #endif
     CPPUNIT_TEST( testMemoryPool );
     CPPUNIT_TEST_SUITE_END();
@@ -73,6 +74,7 @@ public:
 
     void testAtomic();
     void testAtomicCounted();
+    void testAtomicQueue();
     void testBufLockFree();
     void testDObjLockFree();
     void testMemoryPool();

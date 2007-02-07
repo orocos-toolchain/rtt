@@ -1,24 +1,34 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  AtomicQueue.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  AtomicQueue.hpp 
 
                         AtomicQueue.hpp -  description
                            -------------------
-    begin                : Tue December 21 2004
-    copyright            : (C) 2004 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.ac.be
+    begin                : Wed January 18 2006
+    copyright            : (C) 2006 Peter Soetens
+    email                : peter.soetens@mech.kuleuven.be
  
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU Lesser General Public            *
- *   License as published by the Free Software Foundation; either          *
- *   version 2.1 of the License, or (at your option) any later version.    *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
  *                                                                         *
  *   This library is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
  *   Lesser General Public License for more details.                       *
  *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
+ *   You should have received a copy of the GNU General Public             *
  *   License along with this library; if not, write to the Free Software   *
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
@@ -26,24 +36,24 @@
  ***************************************************************************/
  
  
-#ifndef ORO_CORELIB_ATOMIC_QUEUE_HPP
-#define ORO_CORELIB_ATOMIC_QUEUE_HPP
-
+#ifndef ORO_QUEUE_LOCK_FREE_HPP
+#define ORO_QUEUE_LOCK_FREE_HPP
+ 
+#include <vector>
+#include "os/oro_atomic.h"
 #include "os/CAS.hpp"
 #include "BufferPolicy.hpp"
-#include <utility>
 
-namespace RTT 
+namespace RTT
 {
     /**
-     * Create an atomic, non-blocking single ended queue (FIFO) for storing
-     * a pointer \a T by value. It is a 
-     * Many Readers, Many Writers implementation
-     * based on the atomic Compare And Swap instruction. Any number of threads
-     * may access the queue concurrently.
-     * @warning You can not store null pointers.
-     * @param T The pointer type to be stored in the Queue.
-     * Example : AtomicQueue< A* > is a queue of pointers to A.
+     * A lock-free queue implementation to \a enqueue or \a dequeue
+     * a pointer of type \a T.
+     * No memory allocation is done during read or write, but the maximum number
+     * of threads which can access this object is defined by
+     * MAX_THREADS.
+     * @param T The pointer type to be stored in the queue.
+     * Example : \begincode AtomicQueue<A*> \endcode is a queue which holds values of type A.
      * @param ReadPolicy The Policy to block (wait) on \a empty (during dequeue)
      * using \a BlockingPolicy, or to return \a false, using \a NonBlockingPolicy (Default).
      * This does not influence partial filled queue behaviour.
@@ -52,109 +62,132 @@ namespace RTT
      * This does not influence partial filled buffer behaviour.
      * @ingroup CoreLibBuffers
      */
-    template<class T, class ReadPolicy = NonBlockingPolicy, class WritePolicy = NonBlockingPolicy>
+    template< class T, class ReadPolicy = NonBlockingPolicy, class WritePolicy = NonBlockingPolicy>
     class AtomicQueue
     {
-        //typedef _T* T;
-        const int _size;
-        typedef std::pair<T, int>  C;
-        typedef volatile C* volatile WriteType;
-        typedef volatile C* volatile const ReadType;
-        typedef volatile C* CachePtrType;
-        typedef C* volatile CacheObjType;
-        typedef C  ValueType;
-        typedef C* PtrType;
+    public:
+        /** 
+         * @brief The maximum number of threads.
+         *
+         * The number of threads which may concurrently access this buffer.
+         */
+        const unsigned int MAX_THREADS;
+
+        typedef T value_t;
+    private:
+        typedef std::vector<value_t> BufferType;
+        typedef typename BufferType::iterator Iterator;
+        typedef typename BufferType::const_iterator CIterator;
+        struct Item {
+            Item()  {
+                //ATOMIC_INIT(count);
+                atomic_set(&count,-1);
+            }
+            mutable atomic_t count;  // refcount
+            BufferType data;
+        };
+
+        struct StorageImpl
+        {
+            Item* items;
+            StorageImpl(size_t alloc) : items( new Item[alloc] ) {
+            }
+            ~StorageImpl() {
+                delete[] items;
+            }
+            Item& operator[](int i) {
+                return items[i];
+            }
+        };
 
         /**
-         * The pointer to the buffer can be cached,
-         * the contents are volatile.
+         * Our single storage
          */
-        CachePtrType  _buf;
+        typedef StorageImpl* Storage;
 
-        /**
-         * A volatile pointer to a volatile cell.
-         */
-        WriteType _wptr;
+        Storage newStorage(size_t alloc, size_t items, bool init = true)
+        {
+            Storage st( new StorageImpl(alloc) );
+            for (unsigned int i=0; i < alloc; ++i) {
+                (*st)[i].data.reserve( items ); // pre-allocate
+            }
+            // bootstrap the first queue :
+            if (init) {
+                active = &(*st)[0];
+                atomic_inc( &active->count );
+            }
 
-        /**
-         * This pointer is also writable because we
-         * set it to zero to indicate it has been read.
-         */
-        WriteType _rptr;
+            return st;
+        }
+
+        Storage bufs;
+        Item* volatile active;
+
+        // each thread has one 'working' buffer, and one 'active' buffer
+        // lock. Thus we require to allocate twice as much buffers as threads,
+        // for all the locks to succeed in a worst case scenario.
+        inline size_t BufNum() const {
+            return MAX_THREADS * 2;
+        }
 
         WritePolicy write_policy;
         ReadPolicy read_policy;
 
-        /**
-         * Atomic advance and wrap of the Write pointer.
-         * Return the old position or zero if queue is full.
-         */
-        CachePtrType advance_w()
-        {
-            CachePtrType oldval, newval;
-            do {
-                oldval = _wptr;
-                newval =  oldval+1;
-                if ( newval >= _buf+_size )
-                    newval -= _size;
-                // check for full : 
-                if ( newval->first != 0 || newval == _rptr || newval == _rptr + _size )
-                    return 0;
-                // if ptr is unchanged, replace it with newval.
-            } while ( !OS::CAS( &_wptr, oldval, newval) );
-            // frome here on :
-            // oldval is 'unique', other preempting threads
-            // will have a different value for oldval, as
-            // _wptr advances.
-
-            // return the old position to write to :
-            return oldval;
-        }
-        /**
-         * Atomic advance and wrap of the Read pointer.
-         * Return the data position or zero if queue is empty.
-         */
-        CachePtrType advance_r()
-        {
-            CachePtrType oldval, newval;
-            do {
-                oldval = _rptr;
-                newval =  oldval+1;
-                if ( newval >= _buf+_size )
-                    newval -= _size;
-                // check for empty : 
-                if ( oldval->first == 0 )
-                    return 0;
-                // if ptr is unchanged, replace it with newval.
-            } while ( !OS::CAS( &_rptr, oldval, newval) );
-            // frome here on :
-            // oldval is 'unique', other preempting threads
-            // will have a different value for oldval, as
-            // _rptr advances.
-
-            // return the old position to read from :
-            return oldval;
-        }
-
-        // non-copyable !
-        AtomicQueue( const AtomicQueue<T>& );
+        atomic_t counter;
+        atomic_t dcounter;
     public:
         typedef unsigned int size_type;
 
         /**
-         * Create an AtomicQueue with queue size \a size.
-         * @param size The size of the queue, should be 1 or greater.
-         */
-        AtomicQueue( unsigned int size )
-            : _size(size+1), write_policy(size), read_policy(0)
+         * Create a lock-free queue wich can store \a lsize elements.
+         * @param lsize the capacity of the queue.
+         * @param threads the number of threads which may concurrently
+         * read or write this buffer. Defaults to ORONUM_OS_MAX_THREADS, but you
+         * may lower this number in case not all threads will read this buffer.
+         * A lower number will consume less memory.
+'        */
+        AtomicQueue(unsigned int lsize, unsigned int threads = ORONUM_OS_MAX_THREADS )
+            : MAX_THREADS( threads ), write_policy(lsize), read_policy(0)
         {
-            _buf= new C[_size];
-            this->clear();
+            const unsigned int BUF_NUM = BufNum();
+            bufs = newStorage( BUF_NUM, lsize );
+            atomic_set(&counter,0);
+            atomic_set(&dcounter,0);
         }
 
-        ~AtomicQueue()
+        ~AtomicQueue() {
+            delete bufs;
+        }
+
+        size_t capacity() const
         {
-            delete[] _buf;
+            size_t res;
+            Item* orig = lockAndGetActive();
+            res = orig->data.capacity();
+            atomic_dec( &orig->count ); // lockAndGetActive
+            return res;
+        }
+
+        size_t size() const
+        {
+            size_t res;
+            Item* orig = lockAndGetActive();
+            res = orig->data.size();
+            atomic_dec( &orig->count ); // lockAndGetActive
+            return res;
+        }
+
+        /**
+         * Inspect if the Queue is empty.
+         * @return true if empty, false otherwise.
+         */
+        bool isEmpty() const
+        {
+            bool res;
+            Item* orig = lockAndGetActive();
+            res = orig->data.empty();
+            atomic_dec( &orig->count ); // lockAndGetActive
+            return res;
         }
 
         /**
@@ -163,37 +196,31 @@ namespace RTT
          */
         bool isFull() const
         {
-            // two cases where the queue is full : 
-            // if wptr is one behind rptr or if wptr is at end
-            // and rptr at beginning.
-            return _wptr->first != 0 || _wptr == _rptr - 1 || _wptr == _rptr+_size - 1;
-        }
-        
-        /**
-         * Inspect if the Queue is empty.
-         * @return true if empty, false otherwise.
-         */
-        bool isEmpty() const
-        {
-            // empty if nothing to read.
-            return _rptr->first == 0;
+            bool res;
+            Item* orig = lockAndGetActive();
+            res = (orig->data.size() == orig->data.capacity());
+            atomic_dec( &orig->count ); // lockAndGetActive
+            return res;
         }
 
-        /**
-         * Return the maximum number of items this queue can contain.
-         */
-        size_type capacity() const
+        void clear()
         {
-            return _size -1;
-        }
-
-        /**
-         * Return the number of elements in the queue.
-         */
-        size_type size() const
-        {
-            int c = (_wptr - _rptr);
-            return c >= 0 ? c : c + _size;
+            Item* orig(0);
+            Item* nextbuf(0);
+            int items = 0;
+            do {
+                if (orig) {
+                    atomic_dec(&orig->count);
+                    atomic_dec(&nextbuf->count);
+                }
+                orig = lockAndGetActive();
+                items = orig->data.size();
+                nextbuf = findEmptyBuf(); // find unused Item in bufs
+            } while ( OS::CAS(&active, orig, nextbuf ) == false );
+            atomic_dec( &orig->count ); // lockAndGetActive
+            atomic_dec( &orig->count ); // ref count
+            atomic_set(&counter,0);
+            atomic_set(&dcounter,0);
         }
 
         /**
@@ -203,13 +230,25 @@ namespace RTT
          */
         bool enqueue(const T& value)
         {
-            if ( value == 0 )
-                return false;
+            Item* orig=0;
+            Item* usingbuf(0);
             write_policy.pop();
-            CachePtrType loc = advance_w();
-            if ( loc == 0 )
-                return false;
-            loc->first = value;
+            do {
+                if (orig) {
+                    atomic_dec(&orig->count);
+                    atomic_dec(&usingbuf->count);
+                }
+                orig = lockAndGetActive();
+                if ( orig->data.size() == orig->data.capacity() ) { // check for full
+                    atomic_dec( &orig->count );
+                    return false;
+                }
+                usingbuf = findEmptyBuf(); // find unused Item in bufs
+                usingbuf->data = orig->data;
+                usingbuf->data.push_back( value );
+            } while ( OS::CAS(&active, orig, usingbuf ) ==false);
+            atomic_dec( &orig->count ); // lockAndGetActive()
+            atomic_dec( &orig->count ); // set queue free
             read_policy.push();
             return true;
         }
@@ -218,44 +257,63 @@ namespace RTT
          * Enqueue an item and return its 'ticket' number.
          * @param value The value to enqueue.
          * @return zero if the queue is full, the 'ticket' number otherwise.
+         * @deprecated <b> Do not use this function </b>
          */
         int enqueueCounted(const T& value)
         {
-            if ( value == 0 )
-                return 0;
-            write_policy.pop();
-            CachePtrType loc = advance_w();
-            if ( loc == 0 )
-                return 0;
-            loc->first = value;
-            read_policy.push();
-            return loc->second;
+            if ( enqueue( value ) ) {
+                atomic_inc(&counter);
+                return atomic_read(&counter);
+            }
+            return 0;
         }
 
         /**
          * Dequeue an item.
-         * @param value The value dequeued.
+         * @param result The value dequeued.
          * @return false if queue is empty, true if dequeued.
          */
         bool dequeue( T& result )
         {
+            Item* orig=0;
+            Item* usingbuf(0);
             read_policy.pop();
-            CachePtrType loc = advance_r();
-            if ( loc == 0 )
-                return false;
-            result = loc->first;
-            loc->second += _size; // give the cell a new number.
-            loc->first   = 0; // this releases the cell to write to.
+            do {
+                if (orig) {
+                    atomic_dec(&orig->count);
+                    atomic_dec(&usingbuf->count);
+                }
+                orig = lockAndGetActive();
+                if ( orig->data.empty() ) { // check for empty
+                    atomic_dec( &orig->count );
+                    return false;
+                }
+                usingbuf = findEmptyBuf(); // find unused Item in bufs
+                result = orig->data.front();
+                CIterator it = ++(orig->data.begin());
+                for ( ;  it != orig->data.end(); ++it )
+                    usingbuf->data.push_back(*it);
+                //usingbuf->data.insert( usingbuf->data.end(), it, orig->data.end() ); // ALTERNATIVE. (does it allocate??)
+            } while ( OS::CAS(&active, orig, usingbuf ) ==false);
+            atomic_dec( &orig->count ); // lockAndGetActive()
+            atomic_dec( &orig->count ); // set queue free
             write_policy.push();
             return true;
         }
 
         /**
-         * Return the next to be read value.
+         * Dequeue an item and return the same 'ticket' number when it was queued.
+         * @param value The value dequeued.
+         * @return zero if the queue is empty, the 'ticket' number otherwise.
+         * @deprecated <b> Do not use this function </b>
          */
-        const T front() const
+        int dequeueCounted( T& result )
         {
-            return _rptr;
+            if (dequeue(result) ) {
+                atomic_inc(&dcounter);
+                return atomic_read(&dcounter);
+            }
+            return 0;
         }
 
         /**
@@ -267,56 +325,88 @@ namespace RTT
         template<class MPoolType>
         T lockfront(MPoolType& mp) const
         {
-            CachePtrType loc=0;
             bool was_locked = false;
+            Item* orig=0;
+            T result;
             do {
-                if (was_locked)
-                    mp.unlock(loc->first);
-                loc = _rptr;
-                if (loc->first == 0)
-                    return 0;
-                was_locked = mp.lock(loc->first);
-                // retry if lock failed or read moved.
-            } while( !was_locked || loc != _rptr ); // obstruction detection.
-            return loc->first;
-        }
-
-        /**
-         * Dequeue an item and return the same 'ticket' number when it was queued.
-         * @param value The value dequeued.
-         * @return zero if the queue is empty, the 'ticket' number otherwise.
-         */
-        int dequeueCounted( T& result )
-        {
-            read_policy.pop();
-            CachePtrType loc = advance_r();
-            if ( loc == 0 )
-                return 0;
-            result = loc->first;
-            int nr = loc->second;
-            loc->second += _size; // give the cell a new number.
-            loc->first = 0; // this releases the cell to write to.
-            write_policy.push();
-            return nr;
-        }
-
-        /**
-         * Clear all contents of the Queue and thus make it empty.
-         */
-        void clear()
-        {
-            for(int i = 0 ; i != _size; ++i) {
-                if ( _buf[i].first != 0 ) {
-                    _buf[i].first  = 0;
+                if (orig) {
+                    mp.unlock( orig->data.front() );
+                    atomic_dec(&orig->count);
                 }
-                _buf[i].second = i+1; // init the counters
-            }
-            _rptr = _buf;
-            _wptr = _buf;
-            write_policy.reset( _size - 1 );
-            read_policy.reset(0);
+                orig = lockAndGetActive();
+                if ( orig->data.empty() ) { // check for empty
+                    atomic_dec( &orig->count ); //lockAndGetActive
+                    return 0;
+                }
+
+                was_locked = mp.lock( orig->data.front() );
+                // retry if lock failed or read moved.
+            } while( !was_locked );
+            result = orig->data.front();
+            atomic_dec( &orig->count ); // lockAndGetActive()
+            return result;
         }
-            
+
+        /**
+         * Returns the first element of the queue.
+         */
+        value_t front() const
+        {
+            Item* orig = lockAndGetActive();
+            value_t ret(orig->data.front());
+            atomic_dec( &orig->count ); //lockAndGetActive
+            return ret;
+        }
+
+        /**
+         * Returns the last element of the queue.
+         */
+        value_t back() const
+        {
+            Item* orig = lockAndGetActive();
+            value_t ret(orig->data.back());
+            atomic_dec( &orig->count ); //lockAndGetActive
+            return ret;
+        }
+
+    private:
+        /**
+         * Item returned is guaranteed empty
+         */
+        Item* findEmptyBuf() {
+            // These two functions are copy/pasted from BufferLockFree.
+            // If MAX_THREADS is large enough, this will always succeed :
+            Item* start = &(*bufs)[0];
+            while( true ) {
+                if ( atomic_inc_and_test( &start->count ) )
+                    break;
+                atomic_dec( &start->count );
+                ++start;
+                if (start == &(*bufs)[0] + BufNum() )
+                    start = &(*bufs)[0]; // in case of races, rewind
+            }
+            start->data.clear();
+            return start; // unique pointer across all threads
+        }
+
+        /**
+         * Only to be used by reserve() !
+         * Caller must guarantee that active points to valid memory.
+         */
+        Item* lockAndGetActive() const {
+            // only operates on active's refcount.
+            Item* orig=0;
+            do {
+                if (orig)
+                    atomic_dec( &orig->count );
+                orig = active;
+                atomic_inc( &orig->count );
+                // this synchronisation point is 'aggressive' (a _sufficient_ condition)
+                // if active is still equal to orig, the increase of orig->count is
+                // surely valid, since no contention (change of active) occured.
+            } while ( active != orig );
+            return orig;
+        }
     };
 
 }

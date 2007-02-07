@@ -2,11 +2,13 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version='1.0'
                 xmlns="http://www.w3.org/TR/xhtml1/transitional"
+		xmlns:str="http://xsltsl.org/string"
                 exclude-result-prefixes="#default">
 
 <!-- Change this to the path to where you have installed Norman
      Walsh's XSL stylesheets.  -->
 <xsl:import href="/usr/share/xml/docbook/stylesheet/nwalsh/xhtml/docbook.xsl"/>
+<xsl:import href="xsltsl-1.2.1/stdlib.xsl"/>
 
 <!-- 
   These parameters are specific for the Orocos project and override

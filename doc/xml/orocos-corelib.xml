@@ -186,7 +186,7 @@
       Activities, which execute functions in a thread, in the system. 
       Events allow callback functions to be executed when state changes
       occur. Commands are used to send instructions between threads.
-      The following sections explain usefull classes which
+      The following sections explain useful classes which
       are used throughout the framework such as the TimeService and
       Properties.
     </para>
@@ -622,7 +622,7 @@ ORO_main( int argc, char** argv)
 	The <classname>RTT::CommandProcessor</classname> is
 	responsible for accepting command requests from other
 	(realtime) tasks. It uses a non-blocking queue to store
-	incomming requests and fetch-and-execute them in its periodic
+	incoming requests and fetch-and-execute them in its periodic
 	step.
       </para>
       <figure><title>Tasks Sending Commands</title>
@@ -1125,7 +1125,7 @@ emergencyStop(); // User not notified</programlisting>
   bag.add( &amp;bd );
 
   // setup mirrors:	
-  <classname>RTT::Property&lt;double&gt;</classname> weight = bag.getProperty&lt;double&gt;("Weight");
+  <classname>RTT::Property</classname>&lt;double&gt; weight = bag.getProperty&lt;double&gt;("Weight");
   assert( weight.ready() );
 
   // values are mirrored:
@@ -1149,22 +1149,22 @@ emergencyStop(); // User not notified</programlisting>
       <title>Marshalling and Demarshalling Properties (Serialization)</title>
       <para>
 	Marshalling is converting a property C++ object to a format
-	suitable for transportation or storage, like XML Demarshalling
+	suitable for transportation or storage, like XML. Demarshalling
 	reconstructs the property again from the stored format. In
 	Orocos, the <classname>RTT::Marshaller</classname>
 	interface defines how properties can be marshalled.  The
 	available marshallers (property to file) in Orocos are the
-	<classname>RTT::SimpleMarshaller</classname>,
+	<classname>RTT::TinyMarshaller</classname>,
 	<classname>RTT::XMLMarshaller</classname>,
 	<classname>RTT::XMLRPCMarshaller</classname>,
 	<classname>RTT::INIMarshaller</classname> and the
-	<classname>RTT::CPFMarshaller</classname>.  
+	RTT::CPFMarshaller (only if Xerces is available).  
       </para>
       <para>
 	The inverse operation (file to property) is currently
-	supported by only two demarshallers:
-	<classname>RTT::SimpleDemarshaller</classname> and the
-	<classname>RTT::CPFDemarshaller</classname>.  They
+	supported by two demarshallers:
+	<classname>RTT::TinyDemarshaller</classname> and the
+	RTT::CPFDemarshaller (only if Xerces is available).  They
 	implement the <classname>RTT::Demarshaller</classname>
 	interface.
       </para>
@@ -1407,7 +1407,7 @@ emergencyStop(); // User not notified</programlisting>
       file is <parameter>Logger::Info</parameter>. It will get more verbose if
       you increase <envar>ORO_LOGLEVEL</envar>, but will not go below Info. 
       This file is always created if the logging infrastructure is used. You can inspect this file
-      if you want to know the most usefull information of what is happening inside Orocos.
+      if you want to know the most useful information of what is happening inside Orocos.
     </para>
     <para>If you want to disable logging completely, use <screen>export ORO_LOGLEVEL=-1</screen>
       before you start your program.</para>
@@ -1425,7 +1425,7 @@ emergencyStop(); // User not notified</programlisting>
   log() &lt;&lt; " more debug info." &lt;&lt; data &lt;&lt; endlog();
   log() &lt;&lt; "A warning." &lt;&lt; endlog( Warning );</programlisting>
       <para>As you can see, the Logger can be used like the standard C++ input streams.
-	You may change the Log message's level using the <classname>RTT::LogLevel</classname>
+	You may change the Log message's level using the LogLevel
 	enums in front (using log() ) or at the end (using endlog()) of the log message.
 	When no log level is specified, the previously set level is used.
 	The above message could result in :

@@ -232,32 +232,22 @@ void ActivitiesTest::testThreads()
   // create
   boost::scoped_ptr<TestPeriodic> run( new TestPeriodic() );
 
-  boost::scoped_ptr<RTT::OS::ThreadInterface> t( new RTT::OS::PeriodicThread(25,"PThread", 0.1) );
+  boost::scoped_ptr<RTT::OS::ThreadInterface> t( new RTT::OS::PeriodicThread(RTT::OS::HighestPriority,"PThread", 0.1) );
   t->run( run.get() );
 
   r = t->start();
   CPPUNIT_ASSERT_MESSAGE( "Failed to start Thread", r);
   r = t->stop();
   CPPUNIT_ASSERT_MESSAGE( "Failed to stop Thread", r);
-  CPPUNIT_ASSERT_EQUAL_MESSAGE("Periodic Failure !", run->fail, 0);
+  CPPUNIT_ASSERT_EQUAL_MESSAGE("Periodic Failure: period of step() to long !", run->overfail, 0);
+  CPPUNIT_ASSERT_EQUAL_MESSAGE("Periodic Failure: period of step() to short!", run->underfail, 0);
   r = t->start();
   CPPUNIT_ASSERT_MESSAGE( "Failed to start Thread", r);
   sleep(1);
   r = t->stop();
   CPPUNIT_ASSERT_MESSAGE( "Failed to stop Thread", r);
-  CPPUNIT_ASSERT_EQUAL_MESSAGE( "Periodic Failure !", run->fail, 0);
-  r = t->start();
-  CPPUNIT_ASSERT_MESSAGE( "Failed to start Thread", r);
-  sleep(1);
-  r = t->stop();
-  CPPUNIT_ASSERT_MESSAGE( "Failed to stop Thread", r);
-  CPPUNIT_ASSERT_EQUAL_MESSAGE( "Periodic Failure !", run->fail, 0);
-  r = t->start();
-  CPPUNIT_ASSERT_MESSAGE( "Failed to start Thread after long stop", r);
-  sleep(1);
-  r = t->stop();
-  CPPUNIT_ASSERT_MESSAGE("Failed to stop Thread", r);
-  CPPUNIT_ASSERT_EQUAL_MESSAGE("Periodic Failure !",  run->fail, 0);
+  CPPUNIT_ASSERT_EQUAL_MESSAGE("Periodic Failure: period of step() to long !", run->overfail, 0);
+  CPPUNIT_ASSERT_EQUAL_MESSAGE("Periodic Failure: period of step() to short!", run->underfail, 0);
   t->run(0);
 }
 

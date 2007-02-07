@@ -9,16 +9,26 @@
  
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU Lesser General Public            *
- *   License as published by the Free Software Foundation; either          *
- *   version 2.1 of the License, or (at your option) any later version.    *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
  *                                                                         *
  *   This library is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
  *   Lesser General Public License for more details.                       *
  *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
+ *   You should have received a copy of the GNU General Public             *
  *   License along with this library; if not, write to the Free Software   *
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
@@ -63,6 +73,12 @@ extern "C" {
 #include <signal.h>
 #include <getopt.h>
 #include <time.h>
+
+#include <xeno_config.h> // version number
+	// From Xenomai 2.1 on, it defines LOCK_PREFIX itself, undef ours
+#if !(CONFIG_XENO_VERSION_MAJOR == 2 && CONFIG_XENO_VERSION_MINOR == 0)
+#undef LOCK_PREFIX 
+#endif
 
 #include <native/task.h>
 #include <native/timer.h>
@@ -136,12 +152,12 @@ inline TICK_TIME timespec2ticks(const TIME_SPEC* ts)
 // turn this on to have maximum detection of valid system calls.
 #ifdef OROSEM_OS_XENO_CHECK
 #define CHK_XENO_CALL() do { if(rt_task_self() == 0) { \
-        printf("XENO NOT INITIALISED IN THIS THREAD pid=%d,\n\
+        printf("RTT: XENO NOT INITIALISED IN THIS THREAD pid=%d,\n\
     BUT TRIES TO INVOKE XENO FUNCTION >>%s<< ANYWAY\n", getpid(), __FUNCTION__ );\
         assert( rt_task_self() != 0 ); }\
         } while(0)
 #define CHK_XENO_PTR(ptr) do { if(ptr == 0) { \
-        printf("TRIED TO PASS NULL POINTER TO XENO IN THREAD pid=%d,\n\
+        printf("RTT: TRIED TO PASS NULL POINTER TO XENO IN THREAD pid=%d,\n\
     IN TRYING TO INVOKE XENO FUNCTION >>%s<<\n", getpid(), __FUNCTION__ );\
         assert( ptr != 0 ); }\
         } while(0)
@@ -150,20 +166,25 @@ inline TICK_TIME timespec2ticks(const TIME_SPEC* ts)
 #define CHK_XENO_PTR( a )
 #endif
     
-inline NANO_TIME rtos_get_time_ns(void) { return rt_timer_read(); }
+inline NANO_TIME rtos_get_time_ns(void) { return rt_timer_ticks2ns(rt_timer_read()); }
 
 inline TICK_TIME rtos_get_time_ticks(void) { return rt_timer_tsc(); }
 
-inline TICK_TIME ticksPerSec(void) { return rt_timer_ns2ticks( 1000 * 1000 * 1000 ); }
+inline TICK_TIME ticksPerSec(void) { return rt_timer_ns2tsc( 1000 * 1000 * 1000 ); }
 
-inline TICK_TIME nano2ticks(NANO_TIME t) { return rt_timer_ns2ticks(t); }
-inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_ticks2ns(t); }
+// WARNING: Orocos 'ticks' are 'Xenomai tsc' and Xenomai `ticks' are not
+// used in the Orocos API. Thus Orocos uses `Xenomai tsc' and `Xenomai ns', 
+// yet Xenomai requires `Xenomai ticks' at the interface
+// ==> do not use nano2ticks to convert to `Xenomai ticks' because it
+// converts to `Xenomai tsc'.
+inline TICK_TIME nano2ticks(NANO_TIME t) { return rt_timer_ns2tsc(t); }
+inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
 
 	inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
 	{
 		CHK_XENO_CALL();
 		RTIME ticks = rqtp->tv_sec * 1000000000LL + rqtp->tv_nsec;
-		rt_task_sleep( ticks );
+		rt_task_sleep( rt_timer_ns2ticks(ticks) );
 		return 0;
 	}
 
@@ -210,7 +231,7 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_ticks2ns(t); }
     static inline int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay )
     {
         CHK_XENO_CALL();
-        return rt_sem_p(m, nano2ticks(delay) );
+        return rt_sem_p(m, rt_timer_ns2ticks(delay) );
     }
 
     static inline int rtos_mutex_init(rt_mutex_t* m)

@@ -13,6 +13,7 @@ module RTT
     /**
      * A buffer consists of an event channel and
      * some query methods for reading the buffer's state.
+     * @ingroup CompIDL
      */
     interface BufferChannel 
     {
@@ -41,6 +42,7 @@ module RTT
      * of a ControlTask object. Data ports are exported as
      * assignable expressions (Set/Get). Buffer ports are
      * exported as buffer channels.
+     * @ingroup CompIDL
      */
     interface DataFlowInterface
     {
@@ -69,6 +71,15 @@ module RTT
        *
        */
       BufferChannel createBufferChannel(in string port_name);
+
+      /**
+       * Creates a read-only data object which represents the status
+       * of a Data or Buffer Channel connection. For a DataChannel, it returns the
+       * current value, for a BufferChannel, it returns the value of
+       * the front() element.
+       * If the port is not connected, nill is returned.
+       */
+      Expression createDataObject(in string port_name);
 
       /**
        * Check if a port will read from or write to a Channel.

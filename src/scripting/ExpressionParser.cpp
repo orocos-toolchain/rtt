@@ -241,13 +241,6 @@ namespace RTT
     BOOST_SPIRIT_DEBUG_RULE( orexp );
     BOOST_SPIRIT_DEBUG_RULE( andexp );
     BOOST_SPIRIT_DEBUG_RULE( ifthenelseexp );
-    BOOST_SPIRIT_DEBUG_RULE( frameexp );
-    BOOST_SPIRIT_DEBUG_RULE( wrenchexp );
-    BOOST_SPIRIT_DEBUG_RULE( twistexp );
-    BOOST_SPIRIT_DEBUG_RULE( vectorexp );
-    BOOST_SPIRIT_DEBUG_RULE( double6Dexp );
-    BOOST_SPIRIT_DEBUG_RULE( arrayexp );
-    BOOST_SPIRIT_DEBUG_RULE( rotexp );
     BOOST_SPIRIT_DEBUG_RULE( groupexp );
     BOOST_SPIRIT_DEBUG_RULE( dotexp );
     BOOST_SPIRIT_DEBUG_RULE( atomicexpression );

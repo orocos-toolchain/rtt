@@ -9,16 +9,26 @@
  
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU Lesser General Public            *
- *   License as published by the Free Software Foundation; either          *
- *   version 2.1 of the License, or (at your option) any later version.    *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
  *                                                                         *
  *   This library is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
  *   Lesser General Public License for more details.                       *
  *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
+ *   You should have received a copy of the GNU General Public             *
  *   License along with this library; if not, write to the Free Software   *
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
@@ -82,7 +92,7 @@ int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
         CHK_LXRT_CALL();
 		// store the pointer in m->opaque...
         m->sem = rt_sem_init( rt_get_name(0) , value);
-		return m->sem == 0 ? -1 : 0;
+        return m->sem == 0 ? -1 : 0;
     }
 
     int rtos_sem_destroy(rt_sem_t* m )
@@ -124,69 +134,69 @@ int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
     int rtos_mutex_init(rt_mutex_t* m)
     {
         CHK_LXRT_CALL();
-        return pthread_mutex_init_rt(m, 0);
+        m->sem = rt_typed_sem_init( rt_get_name(0),1, BIN_SEM | PRIO_Q);
+        return m->sem == 0 ? -1 : 0;
     }
 
     int rtos_mutex_destroy(rt_mutex_t* m )
     {
         CHK_LXRT_CALL();
-		CHK_LXRT_PTR(m);
-        return pthread_mutex_destroy_rt(m);
+        CHK_LXRT_PTR(m);
+        return rt_sem_delete(m->sem);
     }
 
     int rtos_mutex_rec_init(rt_mutex_t* m)
     {
         CHK_LXRT_CALL();
-        pthread_mutexattr_t ma_t;
-        pthread_mutexattr_init(&ma_t);
-		pthread_mutexattr_settype(&ma_t,PTHREAD_MUTEX_RECURSIVE_NP);
-        return pthread_mutex_init_rt(m, 0);
+        // RES_SEM is PRIO_Q anyhow.
+        m->sem = rt_typed_sem_init( rt_get_name(0), 1, RES_SEM);
+        return m->sem == 0 ? -1 : 0;
     }
 
     int rtos_mutex_rec_destroy(rt_mutex_t* m )
     {
         CHK_LXRT_CALL();
-		CHK_LXRT_PTR(m);
-        return pthread_mutex_destroy_rt(m);
+        CHK_LXRT_PTR(m->sem);
+        return rt_sem_delete(m->sem);
     }
 
     int rtos_mutex_rec_lock( rt_rec_mutex_t* m)
     {
         CHK_LXRT_CALL();
-        return pthread_mutex_lock_rt(m);
+        return rt_sem_wait(m->sem);
     }
 
     int rtos_mutex_rec_trylock( rt_rec_mutex_t* m)
     {
         CHK_LXRT_CALL();
-        return pthread_mutex_trylock_rt(m);
+        return rt_sem_wait_if(m->sem) > 0 ? 0 : -EAGAIN;
     }
 
     int rtos_mutex_rec_unlock( rt_rec_mutex_t* m)
     {
         CHK_LXRT_CALL();
-        return pthread_mutex_unlock_rt(m);
+        return rt_sem_signal(m->sem);
     }
 
     int rtos_mutex_lock( rt_mutex_t* m)
     {
         CHK_LXRT_CALL();
-		CHK_LXRT_PTR(m);
-        return pthread_mutex_lock_rt(m);
+        CHK_LXRT_PTR(m->sem);
+        return rt_sem_wait(m->sem);
     }
 
     int rtos_mutex_trylock( rt_mutex_t* m)
     {
         CHK_LXRT_CALL();
-		CHK_LXRT_PTR(m);
-        return pthread_mutex_trylock_rt(m);
+        CHK_LXRT_PTR(m->sem);
+        return rt_sem_wait_if(m->sem) > 0 ? 0 : -EAGAIN;
     }
 
     int rtos_mutex_unlock( rt_mutex_t* m)
     {
         CHK_LXRT_CALL();
-		CHK_LXRT_PTR(m);
-        return pthread_mutex_unlock_rt(m);
+        CHK_LXRT_PTR(m->sem);
+        return rt_sem_signal(m->sem);
     }
 
 int rtos_printf(const char *fmt, ...)

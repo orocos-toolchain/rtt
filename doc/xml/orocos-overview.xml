@@ -18,7 +18,7 @@
     <subtitle><emphasis>Open RObot COntrol Software</emphasis>
     </subtitle>
     <copyright>
-      <year>2002,2003,2004,2005,2006</year>
+      <year>2002-2007</year>
       <holder>Herman Bruyninckx, Peter Soetens</holder>
     </copyright>
 
@@ -50,6 +50,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Added section 'Building Orocos Applications"</revremark>
       </revision>
+      <revision>
+	<revnumber>1.0.2</revnumber>
+	<date>4 Jan 2007</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Made this a less technical document</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -74,22 +80,51 @@
 	  Software</ulink></emphasis> project. The project's aim is to develop
       a general-purpose, free software, and modular <emphasis>framework</emphasis>
       for <emphasis>robot</emphasis>and <emphasis>machine control</emphasis>.
+      The &orocos; project supports 4 C++ libraries: the Real-Time Toolkit, the
+      Kinematics and Dynamics Library, the Bayesian Filtering Library and
+      the Orocos Component Library.
     </para>
-    <para>
-      A framework is a set of source code from which applications in a
-      particular domain can be made <citation>Johnson97</citation>). So, the
-      framework is not an application
-      in itself, but it provides the infrastructure and the functionalities to
-      build applications in C++.  Usually, application builders must fill
-      in some &ldquo;hot spots&rdquo; that are specific to their
-      application, and hence, which cannot be provided by the framework.
-    </para>
-    <para>
-      &orocos; works in a &ldquo;bottom-up&rdquo; fashion, so current
-      activities are currently more focused on developing 
-      <emphasis>basic infrastructure</emphasis> than on implementing
-      advanced control, planning or sensor processing algorithms.
-    </para>
+    <mediaobject>
+      <imageobject role="html">
+	<imagedata fileref="images/RTT_KDL_BFL_400" />
+      </imageobject>
+    </mediaobject>
+    <itemizedlist>
+      <listitem>
+	<para>
+	  The &orocos; Real-Time Toolkit (RTT) is not an application
+	  in itself, but it provides the infrastructure and the
+	  functionalities to build robotics applications in C++. The
+	  emphasis is on <emphasis>real-time</emphasis>,
+	  <emphasis>online interactive</emphasis> and
+	  <emphasis>component based</emphasis> applications.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The &orocos; Components Library (OCL) provides some ready to
+	  use control components. Both Component management and
+	  Components for control and hardware access are available.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The &orocos; Kinematics and Dynamics Library (KDL) is a C++
+	  library which allows to calculate kinematic chains in
+	  real-time.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  The &orocos; Bayesian Filtering Library (BFL) provides an
+	  application independent framework for inference in Dynamic
+	  Bayesian Networks, i.e., recursive information processing
+	  and estimation algorithms based on Bayes' rule, such as
+	  (Extended) Kalman Filters, Particle Filters (Sequential
+	  Monte methods), etc.
+	</para>
+      </listitem>
+    </itemizedlist>
     <para>
       &orocos; is a free software project, hence its code and documentation
       are released under Free Software licenses.
@@ -111,6 +146,16 @@
       because the robotics community is not homogeneous, &orocos;
       targets four different categories of &ldquo;Users&rdquo; (or, in
       the first place, &ldquo;Developers&rdquo;):
+    </para>
+    <mediaobject>
+      <imageobject role="html">
+	<imagedata fileref="images/FrameworkOverview" />
+      </imageobject>
+      <imageobject>
+	<imagedata fileref="images/FrameworkOverview" />
+      </imageobject>
+    </mediaobject>
+    <para>
       <orderedlist>
 	<listitem>
 	  <para>
@@ -127,7 +172,8 @@
 	    &orocos; project, the supporting code (the &ldquo;Framework&rdquo;)
 	    gets a lot of attention. The hope is, of course, that this work will
 	    pay of by facilitating the developments for the other
-	    &ldquo;Builders&rdquo;.
+	    &ldquo;Builders&rdquo;. The RTT, KDL and BFL are created by Framework
+	    builders
 	  </para>
 	</listitem>
 	<listitem>
@@ -142,7 +188,8 @@
 	    Kinematics Component may be designed as such that it can
 	    &ldquo;serve&rdquo; different kinematic architectures.
 	    Other examples are Components to hardware devices, Components
-	    for diagnostics, safety or simulation.
+	    for diagnostics, safety or simulation. The OCL is created by 
+	    Component Builders.
 	  </para>
 	</listitem>
 	<listitem>
@@ -150,14 +197,12 @@
 	    <emphasis>Application Builders.</emphasis>
 	  </para>
 	  <para>
-	    These developers use the &orocos;' Framework and Components, and
-	    integrate them into one particular application. That means that they
-	    add a specific, application-dependent
-	    <emphasis>architecture</emphasis> on top
-	    of the functionalities offered by the Framework and the Components.
-	    An example Orocos application is the Orocos Control Kernel, which
-	    provides an application framework for (motion) control, with a set
-	    of components which implement control or planning algorithms.
+	    These developers use the &orocos;' Framework and
+	    Components, and integrate them into one particular
+	    application. That means that they create a specific,
+	    application-dependent <emphasis>architecture</emphasis>:
+	    Components are connected and configured as such that they
+	    form an application.
 	  </para>
 	</listitem>
 	<listitem>
@@ -170,11 +215,6 @@
 	  </para>
 	</listitem>
       </orderedlist>
-      The focus in the &orocos; project lies primarily with the Framework
-      Builders and the Component Builders. But, since all contributors
-      are motivated by their own particular applications, the needs of
-      the Application Builders are also taken into account, albeit
-      indirectly. 
     </para>
     <para>
       End Users do not directly belong to the target audience of
@@ -209,21 +249,22 @@
       <section>
 	<title>Application Templates</title>
 	<para>
-	  The "Application Templates" are the kick-start 'Component
-	  tapers' which do nothing more than selecting and connecting
-	  a few components which work well together in order to
-	  realise a running application. An application template
-	  should be so simple that any Orocos user can pick one and
-	  modify it, hence it is the first thing a new user will
-	  encounter. An application template should be explainable on
-	  one page with one figure explaining the architecture.
+	  An "Application Template" is a set of components that work
+	  well together. For example, the application template for
+	  motion control contains components for path planning,
+	  position control, hardware access and data reporting. The
+	  components are choosen as such that their interfaces are
+	  compatible.
+	</para>
+	<para>
+	  An application template should be so simple that any Orocos
+	  user can pick one and modify it, hence it is the first thing
+	  a new user will encounter. An application template should be
+	  explainable on one page with one figure explaining the
+	  architecture.
 	</para>
 	<note>
-	  <para>We are currently reworking the template infrastructure
-	  to match this description.  The current "Control Kernel"
-	  application template does not fit that description very well
-	  and will disappear as such [v1.0]. Also, an application
-	  template will have no longer any relation to 'C++'
+	  <para>An application template has no relation to 'C++'
 	  templates.
 	  </para>
 	</note>
@@ -258,17 +299,6 @@
 	  through their (XML) properties or command/method interface
 	  in order to configure their applications.
 	</para>
-	<note><para>
-	  The current Orocos 'Control
-	  Kernel' components need to be converted in order to fit in
-	  this description and are to be split off in separate
-	  packages [v1.0].
-	</para></note>
-	<para>
-	  The Component interface is defined by the
-	  'TaskContext' class as released in version 0.22.0 and
-	  described in the "Component Builders Guide".
-	</para>
 	<para>
 	  There are five distinct ways in which an Orocos
 	  component can be interfaced: through its properties,
@@ -282,18 +312,17 @@
 	  fictuous component interfaces for a 'Robot' Component:
 	<itemizedlist>
 	  <listitem>
-	    <para><emphasis>Properties:</emphasis>
-	    Are run-time modifyable parameters, stored
-	    in XML files. For example:
-	    "Kinematic Algorithm", "Control Parameters", 
-	    "Homing Position", "ToolType",...</para>
+	    <para><emphasis>Data-Flow Ports:</emphasis> Are a thread-safe
+	    data transport mechanism to communicate buffered or
+	    un-buffered data between components.  For example:
+	    "JointSetpoints", "EndEffectorFrame",
+	    "FeedForward",...</para>
 	  </listitem>
 	  <listitem>
-	    <para><emphasis>Events:</emphasis> 
-	    Provide a 'callback' mechanism to 'publish'
-	    a change to 'subscribers'. For example:
-	    "Position Reached", "Emergency Stop", 
-	    "Object Grasped",...</para>
+	    <para><emphasis>Properties:</emphasis> Are run-time
+	    modifyable parameters, stored in XML files. For example:
+	    "Kinematic Algorithm", "Control Parameters", "Homing
+	    Position", "ToolType",...</para>
 	  </listitem>
 	  <listitem>
 	    <para><emphasis>Methods:</emphasis> Are callable by other
@@ -314,11 +343,10 @@
 	    </para>
 	  </listitem>
 	  <listitem>
-	    <para><emphasis>Data-Flow Ports:</emphasis> Are a 'raw'
-	    data transport mechanism to communicate buffered or
-	    un-buffered data between components.  For example:
-	    "JointSetpoints", "EndEffectorFrame",
-	    "FeedForward",...</para>
+	    <para><emphasis>Events:</emphasis> Allows functions to be
+	    executed when a change in the system occurs. For example:
+	    "Position Reached", "Emergency Stop", "Object
+	    Grasped",...</para>
 	  </listitem>
 	</itemizedlist>
 	</para>
@@ -344,53 +372,8 @@
 	</figure>
 	</para>
       </section>
-      <section><title>Orocos Toolkits</title>
-      <para>
-	The lowest level of Orocos will exist out of 3 independent libraries:
-	The "Real-Time Toolkit", the "Bayesian Filtering Library" and the "Kinematics 
-	and Dynamics Library". The project is currently refactoring some parts 
-	in preparation of the 1.0 release. These changes are marked with 
-	a version number such as [v1.0].
-      </para>
-      <section>
-	<title>Real-Time Toolkit (RTT)</title>
-	<para>
-	  This is a set of C++ classes which allows a developer to
-	  build Orocos components. It provides the OS
-	  abstraction, low-level device drivers and device interfaces,
-	  and the 'task infrastructure' to build components.  It also
-	  encapsulates any distribution (using CORBA [v0.24.0]) specific code required
-	  to distribute components. This is what we are now calling
-	  the 'Real-Time Control Services' on our website. The 
-	  <emphasis>real-time</emphasis> stands for time determinism and
-	  thread-safety but does not automatically require a real-time
-	  Operating System to be useful. The aim is that beginning
-	  Orocos users will not be working immediately with this
-	  toolkit, but use the ready made components instead.
-	</para>
-      </section>
-      <section>
-	<title>Bayesian Filtering Library (BFL)</title>
-	<para>
-	  This C++ library can be used independently of Orocos today but will get a more 
-	  prominent place on the Orocos webpage. It will be used by Orocos Components
-	  which (actively) do intelligent sensor processing [v1.0]. Current BFL users will 
-	  still be able to use this library as before.
-	</para>
-      </section>
-      <section>
-	<title>Kinematics and Dynamics Library (KDL)</title>
-	<para>
-	  This C++ library is today integrated within Orocos as the 'geometry' and 
-	  'kindyn' packages. It will be split off [v1.0] as an independent library for 
-	  kinematics usable by developers who do not wish to use the Real-Time Toolkit. 
-	  Credits go to Erwin Aertbelien who developed a major part of this library, 
-	  and new candidates are ready to take over the job.
-	</para>
-      </section>
     </section>
-  </section>
-  <section>
+    <section>
     <title>Related 'Orocos' Projects</title>
     <para>
       The Orocos project spawned a couple of largely independent

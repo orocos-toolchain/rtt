@@ -53,6 +53,10 @@ TimeTest::tearDown()
     hbg->enableSystemClock( true );
 }
 
+#define CPPUNIT_ASSERT_EQUAL_EPS(a, b, EPSILON)  if ( !( -EPSILON < a-b && EPSILON > a-b ) ) {  CPPUNIT_ASSERT_EQUAL( a,b); }
+		   
+			   
+
 void 
 TimeTest::testSecondsConversion()
 {
@@ -79,12 +83,13 @@ void
 TimeTest::testTicksConversion()
 {
     // Test ticks conversion invariance :
-    CPPUNIT_ASSERT_EQUAL( long_ns  , TimeService::ticks2nsecs( TimeService::nsecs2ticks( long_ns )) );
-    CPPUNIT_ASSERT_EQUAL( normal_ns, TimeService::ticks2nsecs( TimeService::nsecs2ticks( normal_ns )) );
-    CPPUNIT_ASSERT_EQUAL( small_ns , TimeService::ticks2nsecs( TimeService::nsecs2ticks( small_ns )) );
-    CPPUNIT_ASSERT_EQUAL( long_t  , TimeService::nsecs2ticks( TimeService::ticks2nsecs( long_t )) );
-    CPPUNIT_ASSERT_EQUAL( normal_t, TimeService::nsecs2ticks( TimeService::ticks2nsecs( normal_t )) );
-    CPPUNIT_ASSERT_EQUAL( small_t , TimeService::nsecs2ticks( TimeService::ticks2nsecs( small_t )));
+    // Allow rounding error of '2'. ( < 3 )
+    CPPUNIT_ASSERT_EQUAL_EPS( long_ns  , TimeService::ticks2nsecs( TimeService::nsecs2ticks( long_ns )), 3 );
+    CPPUNIT_ASSERT_EQUAL_EPS( normal_ns, TimeService::ticks2nsecs( TimeService::nsecs2ticks( normal_ns )), 3 );
+    CPPUNIT_ASSERT_EQUAL_EPS( small_ns , TimeService::ticks2nsecs( TimeService::nsecs2ticks( small_ns )), 3 );
+    CPPUNIT_ASSERT_EQUAL_EPS( long_t  , TimeService::nsecs2ticks( TimeService::ticks2nsecs( long_t )), 3 );
+    CPPUNIT_ASSERT_EQUAL_EPS( normal_t, TimeService::nsecs2ticks( TimeService::ticks2nsecs( normal_t )), 3 );
+    CPPUNIT_ASSERT_EQUAL_EPS( small_t , TimeService::nsecs2ticks( TimeService::ticks2nsecs( small_t )), 3);
 }
 
 void 

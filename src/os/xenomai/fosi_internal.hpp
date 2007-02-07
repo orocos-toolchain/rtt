@@ -9,16 +9,26 @@
  
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU Lesser General Public            *
- *   License as published by the Free Software Foundation; either          *
- *   version 2.1 of the License, or (at your option) any later version.    *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
  *                                                                         *
  *   This library is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
  *   Lesser General Public License for more details.                       *
  *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
+ *   You should have received a copy of the GNU General Public             *
  *   License along with this library; if not, write to the Free Software   *
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
@@ -44,33 +54,54 @@ namespace RTT
 
         INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main)
         {
-            if ( getuid() != 0 ) {
-                std::cerr << "You are not root. This program requires that you are root." << std::endl;
+            // first check if root.
+            if ( geteuid() != 0 ) {
+                printf( "You are not root. This program requires that you are root.\n");
                 exit(1);
+            }
+
+            // locking of all memory for this process
+            int rv = mlockall(MCL_CURRENT | MCL_FUTURE);
+            if ( rv != 0 ) {
+                perror( "rtos_task_create_main: Could not lock memory using mlockall" ); // Logger unavailable.
             }
 
             struct sched_param param;
             // we set the MT to the highest sched priority to allow the console
             // to interrupt a loose running thread.
-            param.sched_priority = sched_get_priority_max(OROSEM_OS_SCHEDTYPE);
+            param.sched_priority = sched_get_priority_max(ORO_SCHED_OTHER);
             if (param.sched_priority != -1 )
-                sched_setscheduler( 0, OROSEM_OS_SCHEDTYPE, &param);
+                sched_setscheduler( 0, ORO_SCHED_OTHER, &param);
 
             // name, priority, mode
             if ( rt_task_shadow( &(main->xenotask),"MainThread", 10, 0) != 0 ) {
-                std::cerr << "Cannot rt_task_create() MainThread." << std::endl;
+                printf( "Cannot rt_task_create() MainThread.\n");
                 exit(1);
             }
 
 #ifdef OROSEM_OS_XENO_PERIODIC
+# if CONFIG_XENO_VERSION_MAJOR == 2 && CONFIG_XENO_VERSION_MINOR == 0
             // time in nanoseconds
             rt_timer_start( ORODAT_OS_XENO_PERIODIC_TICK*1000*1000*1000 );
             Logger::In in("Scheduler");
-            Logger::log() << Logger::Info << "Xenomai Periodic Timer ticks at "<<ORODAT_OS_XENO_PERIODIC_TICK<<" seconds." << Logger::endl;
+            Logger::log() << Logger::Info << "Xenomai Periodic Timer started using "<<ORODAT_OS_XENO_PERIODIC_TICK<<" seconds." << Logger::endl;
+# else
+            Logger::In in("Scheduler");
+            Logger::log() << Logger::Error << "Set Xenomai Periodic Timer using the Linux kernel configuration." << Logger::endl;
+# endif
 #else
+# if CONFIG_XENO_VERSION_MAJOR == 2 && CONFIG_XENO_VERSION_MINOR == 0
             rt_timer_start( TM_ONESHOT );
             Logger::log() << Logger::Info << "Xenomai Periodic Timer runs in preemptive 'one-shot' mode." << Logger::endl;
+# else
+#  if CONFIG_XENO_OPT_TIMING_PERIODIC
+            Logger::log() << Logger::Info << "Xenomai Periodic Timer configured in 'periodic' mode." << Logger::endl;
+#   else
+            Logger::log() << Logger::Info << "Xenomai Periodic Timer runs in preemptive 'one-shot' mode." << Logger::endl;
+#  endif
+# endif
 #endif
+
             Logger::log() << Logger::Debug << "Xenomai Timer and Main Task Created" << Logger::endl;
             return 0;
         }
@@ -78,6 +109,7 @@ namespace RTT
         INTERNAL_QUAL int rtos_task_delete_main(RTOS_TASK* main_task)
         {
             rt_task_delete( &(main_task->xenotask) );
+            munlockall();
             return 0;
         }
 
@@ -93,6 +125,10 @@ namespace RTT
             RTOS_TASK* task = ((ThreadInterface*)((XenoCookie*)cookie)->data)->getTask();
             task->xenoptr = rt_task_self();
 
+            // create hard mode by default.
+            rt_task_set_mode( 0, T_PRIMARY, 0 );
+
+            // call user function
             ((XenoCookie*)cookie)->wrapper( ((XenoCookie*)cookie)->data );
             free(cookie);
         }
@@ -104,7 +140,6 @@ namespace RTT
                                            void * (*start_routine)(void *),
                                            ThreadInterface* obj) 
         {
-
             if ( priority < 1 )
                 priority = 1;
             if ( priority > 99)
@@ -115,26 +150,26 @@ namespace RTT
             if ( name == 0 || strlen(name) == 0)
                 name = "XenoThread";
             task->name = strncpy( (char*)malloc( (strlen(name)+1)*sizeof(char) ), name, strlen(name)+1 );
+            int rv;
             // task, name, stack, priority, mode, fun, arg
             // UGLY, how can I check in Xenomai that a name is in use before calling rt_task_spawn ???
-            int rv = 0;
             rv = rt_task_spawn(&(task->xenotask), name, 0, priority, 0, rtos_xeno_thread_wrapper, xcookie);
             if ( rv == -EEXIST ) {
                 free( task->name );
                 task->name = strncpy( (char*)malloc( (strlen(name)+2)*sizeof(char) ), name, strlen(name)+1 );
                 task->name[ strlen(name) ] = '0';
                 task->name[ strlen(name)+1 ] = 0;
-                while ( rv == -EEXIST &&  task->name[ strlen(name)+1 ] != '9') {
-                    task->name[ strlen(name)+1 ] += 1;
+                while ( rv == -EEXIST &&  task->name[ strlen(name) ] != '9') {
+                    task->name[ strlen(name) ] += 1;
                     rv = rt_task_spawn(&(task->xenotask), task->name, 0, priority, 0, rtos_xeno_thread_wrapper, xcookie);
                 }
             }
             if ( rv == -EEXIST ) {
-                std::cerr << name << ": an object with that name is already existing in Xenomai." << std::endl;
+                Logger::log() << name << ": an object with that name is already existing in Xenomai." << endlog();
                 rv = rt_task_spawn(&(task->xenotask), 0, 0, priority, 0, rtos_xeno_thread_wrapper, xcookie);
             }
             if ( rv != 0) {
-                std::cerr << name << " : CANNOT INIT Xeno TASK " << task->name <<" error code: "<< rv << std::endl;
+                Logger::log() << name << " : CANNOT INIT Xeno TASK " << task->name <<" error code: "<< rv << endlog();
             }
             return rv;
         }
@@ -176,21 +211,28 @@ namespace RTT
                 rt_task_set_periodic( &(mytask->xenotask), TM_NOW, TM_INFINITE);
             }
             else {
-                rt_task_set_periodic( &(mytask->xenotask), TM_NOW, nano2ticks(nanosecs) );
+                rt_task_set_periodic( &(mytask->xenotask), TM_NOW, rt_timer_ns2ticks(nanosecs) );
             }
         }
 
         INTERNAL_QUAL void rtos_task_set_period( RTOS_TASK* mytask, RTIME nanosecs )
         {
             rtos_task_make_periodic( mytask, nanosecs);
-            //rt_task_set_period(&(mytask->xenotask), nano2ticks( nanosecs ));
+            //rt_task_set_period(&(mytask->xenotask), rt_timer_ns2ticks( nanosecs ));
         }
 
         INTERNAL_QUAL int rtos_task_wait_period( RTOS_TASK* mytask )
         {
             // detect overrun.
+#if CONFIG_XENO_VERSION_MAJOR == 2 && CONFIG_XENO_VERSION_MINOR == 0
             if ( rt_task_wait_period() == -ETIMEDOUT) 
                 return 1;
+#else // 2.1, 2.2, 2.3,...
+            long unsigned int overrun = 0;
+            rt_task_wait_period(&overrun);
+            if ( overrun != 0)
+                return 1;
+#endif
             return 0;
         }
 
@@ -218,6 +260,7 @@ namespace RTT
             RT_TASK* tt = mytask->xenoptr;
             if ( tt )
                 return rt_task_set_priority( tt, priority);
+            return -1;
         }
     }
 }}

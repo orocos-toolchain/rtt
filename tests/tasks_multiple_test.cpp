@@ -43,6 +43,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION( ActivitiesMultipleTest );
         errStepP ="Not all PreemptibleActivity::step() functions were called\n";
         errFinP ="Not all PreemptibleActivity::finalize() functions were called\n";
 
+        log(Info) << "Creating "<< nr_of_np << " High priority and "<< nr_of_p << " Low priority activities."<<endlog();
+
         np_tasks.reserve(nr_of_np); 
         p_tasks.reserve(nr_of_p);
         for (unsigned int i=0; i< nr_of_np/2; ++i) 
@@ -55,6 +57,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION( ActivitiesMultipleTest );
             p_tasks.push_back( new DummyPTask( RTT::OS::HighestPriority + RTT::OS::IncreasePriority, 0.032*2) );
         for (unsigned int i=0; i< nr_of_p/3; ++i) 
             p_tasks.push_back( new DummyPTask( RTT::OS::HighestPriority + RTT::OS::IncreasePriority, 0.032*7) );
+
+        log(Info) << "Done."<<endlog();
         
         nr_of_p = p_tasks.size();
         nr_of_np = np_tasks.size();

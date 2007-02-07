@@ -9,16 +9,26 @@
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU Lesser General Public            *
- *   License as published by the Free Software Foundation; either          *
- *   version 2.1 of the License, or (at your option) any later version.    *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
  *                                                                         *
  *   This library is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
  *   Lesser General Public License for more details.                       *
  *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
+ *   You should have received a copy of the GNU General Public             *
  *   License along with this library; if not, write to the Free Software   *
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
@@ -268,7 +278,7 @@ namespace RTT
         std::string type;
     };
 
-    /**
+    /*
      * @defgroup BagOperations Recursive Property Bag Operations.
      *        These functions operate recursively on the contents of bags,
      *        possibly modifying, deleting or creating new Property objects
@@ -285,9 +295,10 @@ namespace RTT
      *        \a separator indicating the path in the bag to a property,
      *        omitting the name of the \a bag itself.
      * @param separator The token to separate properties in the \a path,
-     * Defaults to "::".
+     * Defaults to ".".
+     * @ingroup CoreLibProperties
      */
-    PropertyBase* findProperty(const PropertyBag& bag, const std::string& path, const std::string& separator = std::string("::") );
+    PropertyBase* findProperty(const PropertyBag& bag, const std::string& path, const std::string& separator = std::string(".") );
 
     /**
      * This function refreshes the values of the properties in one PropertyBag with
@@ -300,6 +311,7 @@ namespace RTT
      * @param strict Set to true if each property of \a target must be updated with a property
      * or \a source. If a property from \a target is not present in \a source, this function
      * returns false.
+     * @ingroup CoreLibProperties
      */
     bool refreshProperties(const PropertyBag& target, const PropertyBag& source, bool strict=false);
 
@@ -308,6 +320,7 @@ namespace RTT
      * @param target The bag in which a property with name source->getName() can be found.
      * @param source A property which contains a new value for a property with the same
      * name in \a target.
+     * @ingroup CoreLibProperties
      */
     bool refreshProperty(const PropertyBag& target, const PropertyBase& source);
 
@@ -319,6 +332,7 @@ namespace RTT
      *
      * @param target The bag in which the properties must be copied.
      * @param source The bag containing properties for \a target.
+     * @ingroup CoreLibProperties
      */
     bool copyProperties(PropertyBag& target, const PropertyBag& source);
 
@@ -331,6 +345,7 @@ namespace RTT
      * Use copyProperties if you want complete duplication.
      * @param target The bag in which the properties must be updated.
      * @param source The bag containing new values, descriptions or properties for \a target.
+     * @ingroup CoreLibProperties
      */
     bool updateProperties(PropertyBag& target, const PropertyBag& source);
 
@@ -346,8 +361,24 @@ namespace RTT
      * @param path The path to a property in \a source (or in a sub-bag of \a source), 
      * which must be created or updated in \a target.
      * @param separator The token to separate properties in the \a path,
+     * @ingroup CoreLibProperties
      */
-    bool updateProperty(PropertyBag& target, const PropertyBag& source, const std::string& path, const std::string& separator = "::");
+    bool updateProperty(PropertyBag& target, const PropertyBag& source, const std::string& path, const std::string& separator = ".");
+
+    /**
+     * This function refreshes (recursively) the values of a single Property object of one Bag with the
+     * property of another bag.
+     * It will \b not create a new Property instances if the Property
+     * is not present in the target and hence fail in that case.
+     *
+     * @param target The bag in which the property exists and must be refreshed.
+     * @param source The bag containing \a prop as one of its children.
+     * @param path The path to a property in \a source (or in a sub-bag of \a source), 
+     * which must be created or updated in \a target.
+     * @param separator The token to separate properties in the \a path,
+     * @ingroup CoreLibProperties
+     */
+    bool refreshProperty(PropertyBag& target, const PropertyBag& source, const std::string& path, const std::string& separator = ".");
 
     /**
      * This function iterates over a PropertyBag and deletes all Property objects in
@@ -355,6 +386,7 @@ namespace RTT
      *
      * @post All objects in this bag are deleted and no elements reside in the bag
      *       anymore.
+     * @ingroup CoreLibProperties
      */
     void deleteProperties(PropertyBag& target);
 
@@ -363,6 +395,7 @@ namespace RTT
      *
      * @post All objects in this bag (and possible subbags) are deleted and no elements reside in the bag
      *       anymore.
+     * @ingroup CoreLibProperties
      */
     void deletePropertyBag(PropertyBag& target);
 
@@ -373,8 +406,9 @@ namespace RTT
      * in that bag is also a bag, the same operation is performed recursively.
      * So any bag in \a target will show up at the
      * root of \a target with the path prefixed.
+     * @ingroup CoreLibProperties
      */
-    void flattenPropertyBag(PropertyBag& target, const std::string& separator="::");
+    void flattenPropertyBag(PropertyBag& target, const std::string& separator=".");
 
     /**
      * @}

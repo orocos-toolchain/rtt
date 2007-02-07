@@ -12,9 +12,9 @@
 <article>
   <articleinfo>
     <title>
-      The OROCOS Installation Guide 
+      The OROCOS Real-Time Toolkit Installation Guide 
     </title>
-    <subtitle><emphasis>Open Robot Control Software Version &oversion;</emphasis></subtitle>
+    <subtitle><emphasis>Real-Time Toolkit Version &oversion;</emphasis></subtitle>
     <copyright>
       <year>2002,2003,2004,2005,2006</year>
       <holder>Peter Soetens</holder>
@@ -23,7 +23,7 @@
     <abstract>
       <para>
 	This document explains how the
-	packages of <ulink url="http://www.orocos.org">&orocos;</ulink>,
+	Real-Time Toolkit of <ulink url="http://www.orocos.org">&orocos;</ulink>,
 	the <emphasis>Open RObot COntrol Software</emphasis> project
 	must be installed and configured.
       </para>
@@ -58,7 +58,7 @@
 	<revnumber>0.22.0</revnumber>
 	<date>17 Feb 2006</date>
 	<authorinitials>ps</authorinitials>
-	<revremark>Simplified configuration section, removed RTLinux, added Xenoami</revremark>
+	<revremark>Simplified configuration section, removed RTLinux, added Xenomai</revremark>
       </revision>
       <revision>
 	<revnumber>0.25.0</revnumber>
@@ -71,6 +71,18 @@
 	<date>27 Okt 2006</date>
 	<authorinitials>ps</authorinitials>
 	<revremark>Simplified build system.</revremark>
+      </revision>
+      <revision>
+	<revnumber>1.0.0</revnumber>
+	<date>27 Okt 2006</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Simplified build system.</revremark>
+      </revision>
+      <revision>
+	<revnumber>1.0.1</revnumber>
+	<date>21 Nov 2006</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Updated build/run/doc dependencies.</revremark>
       </revision>
     </revhistory>
 
@@ -118,7 +130,7 @@
 	  middle number indicates a <emphasis>stable</emphasis>
 	  version. For example :
 	  <itemizedlist>
-	    <listitem><para>0.1.4 : Release 0, unstable (1), revision
+	    <listitem><para>1.1.4 : Release 1, unstable (1), revision
 		4.</para></listitem>
 	    <listitem><para>1.2.1 : Release 1, stable   (2), revision
 		1.</para></listitem>
@@ -479,8 +491,7 @@
 		Compiling : <option>-I/usr/realtime/include</option>
 	      </para>
 	      <para>
-		This is the RTAI headers installation directory. This option is not needed
-		if you configured Orocos with the 'Agnostic headers' option.
+		This is the RTAI headers installation directory.
 	      </para>
 	    </listitem>
 	    <listitem>

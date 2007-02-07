@@ -9,16 +9,26 @@
  
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU Lesser General Public            *
- *   License as published by the Free Software Foundation; either          *
- *   version 2.1 of the License, or (at your option) any later version.    *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
  *                                                                         *
  *   This library is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
  *   Lesser General Public License for more details.                       *
  *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
+ *   You should have received a copy of the GNU General Public             *
  *   License along with this library; if not, write to the Free Software   *
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
@@ -147,6 +157,17 @@ public:
   }
 
   virtual
+  char * toString (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      std::string result = morig->toString();
+      return CORBA::string_dup( result.c_str() );
+  }
+
+  virtual
   char * getTypeName (
       
     )
@@ -243,6 +264,18 @@ public:
   }
 
   virtual
+  char * toString (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      std::string result = morig->toString();
+      return CORBA::string_dup( result.c_str() );
+  }
+
+
+  virtual
   char * getTypeName (
       
     )
@@ -267,14 +300,14 @@ class  Orocos_Expression_i<void>
     public virtual PortableServer::RefCountServantBase
 {
 protected:
-    RTT::DataSource<void>::const_ptr morig;
+    RTT::DataSource<void>::shared_ptr morig;
     PortableServer::POA_var mpoa;
 public:
     typedef void SourceType;
     typedef void ResultType;
 
   // Constructor 
-  Orocos_Expression_i (RTT::DataSource<void>::const_ptr orig, PortableServer::POA_ptr the_poa)
+  Orocos_Expression_i (RTT::DataSource<void>::shared_ptr orig, PortableServer::POA_ptr the_poa)
       : morig( orig ), mpoa( PortableServer::POA::_duplicate(the_poa) )
     {}
 
@@ -326,6 +359,17 @@ public:
       CORBA::SystemException
       )) {
       return CORBA::string_dup( morig->getType().c_str() );
+  }
+
+  virtual
+  char * toString (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      std::string result = morig->toString();
+      return CORBA::string_dup( result.c_str() );
   }
 
   virtual
@@ -432,6 +476,17 @@ public:
   }
 
   virtual
+  char * toString (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      std::string result = massign->toString();
+      return CORBA::string_dup( result.c_str() );
+  }
+
+  virtual
   char * getTypeName (
       
     )
@@ -491,7 +546,7 @@ class  Orocos_Expression_i<bool>
     public virtual PortableServer::RefCountServantBase
 {
 protected:
-    RTT::DataSource<bool>::const_ptr morig;
+    RTT::DataSource<bool>::shared_ptr morig;
     RTT::DataSource<bool>::value_t last_value;
     PortableServer::POA_var mpoa;
 public:
@@ -499,7 +554,7 @@ public:
     typedef bool ResultType;
 
   // Constructor 
-  Orocos_Expression_i (RTT::DataSource<bool>::const_ptr orig, PortableServer::POA_ptr the_poa)
+  Orocos_Expression_i (RTT::DataSource<bool>::shared_ptr orig, PortableServer::POA_ptr the_poa)
       : morig( orig ), last_value(), mpoa( PortableServer::POA::_duplicate(the_poa) )
     {}
 
@@ -551,6 +606,17 @@ public:
       CORBA::SystemException
       )) {
       return CORBA::string_dup( morig->getType().c_str() );
+  }
+
+  virtual
+  char * toString (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      std::string result = morig->toString();
+      return CORBA::string_dup( result.c_str() );
   }
 
   virtual
@@ -647,6 +713,17 @@ public:
       CORBA::SystemException
       )) {
       return CORBA::string_dup( massign->getType().c_str() );
+  }
+
+  virtual
+  char * toString (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      std::string result = massign->toString();
+      return CORBA::string_dup( result.c_str() );
   }
 
   virtual

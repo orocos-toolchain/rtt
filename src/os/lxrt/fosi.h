@@ -58,22 +58,21 @@ extern "C" {
 
 // include custom redirect-like include
 #if ORONUM_RTAI_VERSION == 3
-#include <rtai_config.h>
-#define ORO_RTAI_CONFIG_VERSION CONFIG_RTAI_VERSION_MAJOR.CONFIG_RTAI_VERSION_MINOR
+# include <rtai_config.h>
+# define ORO_RTAI_CONFIG_VERSION CONFIG_RTAI_VERSION_MAJOR.CONFIG_RTAI_VERSION_MINOR
 #else
-#include "rtai_config.h"
-#define ORO_RTAI_CONFIG_VERSION 2.0
+# include "rtai_config.h"
+# define ORO_RTAI_CONFIG_VERSION 2.0
 #endif
 
-
 #if ORONUM_RTAI_VERSION == 3
-#include <rtai_lxrt.h>
-#include <rtai_posix.h>
+# include <rtai_lxrt.h>
+# include <rtai_sem.h>
 #else
-#define KEEP_STATIC_INLINE
-#include <rtai_declare.h>
-#include <rtai_usp_posix.h>
-#include <rtai_lxrt_user.h> 
+# define KEEP_STATIC_INLINE
+# include <rtai_declare.h>
+# include <rtai_usp_posix.h>
+# include <rtai_lxrt_user.h> 
 
     /**
      * About KEEP_STATIC_INLINE:
@@ -103,7 +102,6 @@ extern "C" {
 
     typedef __LXRT_HANDLE_STRUCT RTOS_RTAI_TASK;
     typedef __LXRT_HANDLE_STRUCT RTOS_RTAI_SEM;
-    typedef __LXRT_HANDLE_STRUCT RTOS_RTAI_CND; 
 #else
     // v24.1.x :
 	typedef struct oro_lxrt_t {
@@ -121,16 +119,11 @@ extern "C" {
 		RTOS_RTAI_SEM* sem;
 	} rt_sem_t;
 
-	/**
-	 * Typdefs
-	 */
-	int lock_all(int stk, int heap);
-
 #define __LXRT_USERSPACE__
 
 
-	typedef pthread_mutex_t rt_mutex_t;
-    typedef pthread_mutex_t rt_rec_mutex_t;
+	typedef rt_sem_t rt_mutex_t;
+    typedef rt_sem_t rt_rec_mutex_t;
 	
 	// Time Related
 	
@@ -254,64 +247,64 @@ inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
     static inline int rtos_mutex_init(rt_mutex_t* m)
     {
         CHK_LXRT_CALL();
-        return pthread_mutex_init_rt(m, 0);
+        m->sem = rt_typed_sem_init( rt_get_name(0),1, BIN_SEM | PRIO_Q);
+        return m->sem == 0 ? -1 : 0;
     }
 
     static inline int rtos_mutex_destroy(rt_mutex_t* m )
     {
         CHK_LXRT_CALL();
-        return pthread_mutex_destroy_rt(m);
+        return rt_sem_delete(m->sem);
     }
 
     static inline int rtos_mutex_rec_init(rt_rec_mutex_t* m)
     {
         CHK_LXRT_CALL();
-        pthread_mutexattr_t ma_t;
-        pthread_mutexattr_init(&ma_t);
-		pthread_mutexattr_settype(&ma_t,PTHREAD_MUTEX_RECURSIVE_NP);
-        return pthread_mutex_init_rt(m, 0);
+        // RES_SEM is PRIO_Q anyhow.
+        m->sem = rt_typed_sem_init( rt_get_name(0), 1, RES_SEM);
+        return m->sem == 0 ? -1 : 0;
     }
 
     static inline int rtos_mutex_rec_destroy(rt_rec_mutex_t* m )
     {
         CHK_LXRT_CALL();
-        return pthread_mutex_destroy_rt(m);
+        return rt_sem_delete(m->sem);
     }
 
     static inline int rtos_mutex_lock( rt_mutex_t* m)
     {
         CHK_LXRT_CALL();
-        return pthread_mutex_lock_rt(m);
+        return rt_sem_wait(m->sem);
     }
 
     static inline int rtos_mutex_rec_lock( rt_rec_mutex_t* m)
     {
         CHK_LXRT_CALL();
-        return pthread_mutex_lock_rt(m);
+        return rt_sem_wait(m->sem);
     }
 
     static inline int rtos_mutex_trylock( rt_mutex_t* m)
     {
         CHK_LXRT_CALL();
-        return pthread_mutex_trylock_rt(m);
+        return rt_sem_wait_if(m->sem) > 0 ? 0 : -EAGAIN;
     }
 
     static inline int rtos_mutex_rec_trylock( rt_rec_mutex_t* m)
     {
         CHK_LXRT_CALL();
-        return pthread_mutex_trylock_rt(m);
+        return rt_sem_wait_if(m->sem) > 0 ? 0 : -EAGAIN;
     }
 
     static inline int rtos_mutex_unlock( rt_mutex_t* m)
     {
         CHK_LXRT_CALL();
-        return pthread_mutex_unlock_rt(m);
+        return rt_sem_signal(m->sem);
     }
 
     static inline int rtos_mutex_rec_unlock( rt_rec_mutex_t* m)
     {
         CHK_LXRT_CALL();
-        return pthread_mutex_unlock_rt(m);
+        return rt_sem_signal(m->sem);
     }
 
 inline

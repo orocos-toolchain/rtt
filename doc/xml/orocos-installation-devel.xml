@@ -12,9 +12,9 @@
 <article>
   <articleinfo>
     <title>
-      Inside the Orocos Build System
+      Inside the RTT Build System
     </title>
-    <subtitle><emphasis>Open Robot Control Software Version &oversion;</emphasis></subtitle>
+    <subtitle><emphasis>Orocos Real-Time Toolkit Version &oversion;</emphasis></subtitle>
     <copyright>
       <year>2002,2003,2004,2005,2006</year>
       <holder>Peter Soetens</holder>

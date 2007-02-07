@@ -9,16 +9,26 @@
  
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU Lesser General Public            *
- *   License as published by the Free Software Foundation; either          *
- *   version 2.1 of the License, or (at your option) any later version.    *
+ *   modify it under the terms of the GNU General Public                   *
+ *   License as published by the Free Software Foundation;                 *
+ *   version 2 of the License.                                             *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction.  Specifically, if other files   *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License.  This exception does not however invalidate any other        *
+ *   reasons why the executable file might be covered by the GNU General   *
+ *   Public License.                                                       *
  *                                                                         *
  *   This library is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
  *   Lesser General Public License for more details.                       *
  *                                                                         *
- *   You should have received a copy of the GNU Lesser General Public      *
+ *   You should have received a copy of the GNU General Public             *
  *   License along with this library; if not, write to the Free Software   *
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
@@ -53,35 +63,12 @@ namespace RTT
         // acquire the resulting scheduler type.
         task->msched_type = rtos_task_get_scheduler( task->getTask() );
 
-        const char* modname = rtos_task_get_name( task->getTask() );
-        // Reporting available from this point :
-        {
-            Logger::In in(modname);
-            log(Info)<< "SingleThread created with priority "
-                     << rtos_task_get_priority(task->getTask())<< "." << endlog();
-            log(Info) << "Scheduler type was set to '"<< task->msched_type << "'."<<endlog();
-        }
-
 #ifdef OROPKG_OS_THREAD_SCOPE
-        // order thread scope toggle bit on priority
-        unsigned int bit = task->getPriority();
-
-        boost::scoped_ptr<DigitalOutInterface> pp;
-        DigitalOutInterface* d = 0;
-        try {
-            if ( DigitalOutInterface::nameserver.getObject("ThreadScope") )
-                d = DigitalOutInterface::nameserver.getObject("ThreadScope");
-                Logger::log() << Logger::Warning<< "SingleThread : Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << Logger::endl;
-        } catch( ... )
-            {
-                Logger::log() << Logger::Error<< "SingleThread : Failed to create ThreadScope." << Logger::endl;
-            }
-        if ( d ) {
-            Logger::log() << Logger::Info
-                          << "ThreadScope : Single Thread "<< task->getName() <<" toggles bit "<< bit << Logger::endl;
-            d->switchOff( bit );
-        }
-#endif
+        // order thread scope toggle bit on thread number
+        unsigned int bit = task->threadNumber();
+        if ( task->d )
+            task->d->switchOff( bit );
+#endif // OROPKG_OS_THREAD_SCOPE
 
         /**
          * The real task starts here.
@@ -107,8 +94,8 @@ namespace RTT
                         } else {
 
 #ifdef OROPKG_OS_THREAD_SCOPE
-                            if ( d )
-                                d->switchOn( bit );
+                            if ( task->d )
+                                task->d->switchOn( bit );
 #endif
                             {
                                 // this mutex guarantees that stop() waits
@@ -119,15 +106,15 @@ namespace RTT
                                 task->inloop = false;
                             }
 #ifdef OROPKG_OS_THREAD_SCOPE
-                            if ( d )
-                                d->switchOff( bit );
+                            if ( task->d )
+                                task->d->switchOff( bit );
 #endif
                         }
                     }
             } catch( ... ) {
 #ifdef OROPKG_OS_THREAD_SCOPE
-                if ( d )
-                    d->switchOff( bit );
+                if ( task->d )
+                    task->d->switchOff( bit );
 #endif
                 // set state to not running
                 task->inloop = false;
@@ -137,7 +124,6 @@ namespace RTT
             }
         }
             
-        Logger::log() << Logger::Debug << "Single Thread "<< task->getName() <<" exiting."<<Logger::endl;
         rtos_sem_signal( &(task->confDone) );
 
         return 0;
@@ -149,26 +135,55 @@ namespace RTT
       msched_type(0),
       active(false), prepareForExit(false), 
       inloop(false), runComp(r)
+#ifdef OROPKG_OS_THREAD_SCOPE
+						   , d(NULL)
+#endif
     {
         Logger::log() << Logger::Debug << "SingleThread: Creating." <<Logger::endl;
 
         rtos_sem_init( &sem, 0 );
         rtos_sem_init( &confDone, 0 );
-    int rv = rtos_task_create( &rtos_task, _priority, name.c_str(), msched_type, singleThread_f, this);
-    if ( rv != 0 ) {
-        Logger::In in("SingleThread");
-        Logger::log() << Logger::Critical << "Could not create thread "
-                      << rtos_task_get_name(&rtos_task) <<"."<<Logger::endl;
-
-      rtos_sem_destroy( &sem );
-      rtos_sem_destroy( &confDone );
-#ifndef ORO_EMBEDDED
-      throw std::bad_alloc();
-#else
-      return;
+	
+#ifdef OROPKG_OS_THREAD_SCOPE
+        // Check if threadscope device already exsists
+	{
+            Logger::In in("SingleThread");
+            if ( DigitalOutInterface::nameserver.getObject("ThreadScope") ){
+                d = DigitalOutInterface::nameserver.getObject("ThreadScope");
+	    }
+	    else{
+                log(Warning) << "SingleThread : Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << endlog();
+            }
+	}
 #endif
-    }
-        rtos_sem_wait( &confDone );
+	int rv = rtos_task_create( &rtos_task, _priority, name.c_str(), msched_type, singleThread_f, this);
+	if ( rv != 0 ) {
+	    Logger::In in("SingleThread");
+	    Logger::log() << Logger::Critical << "Could not create thread "
+			  << rtos_task_get_name(&rtos_task) <<"."<<Logger::endl;
+
+	    rtos_sem_destroy( &sem );
+	    rtos_sem_destroy( &confDone );
+#ifndef ORO_EMBEDDED
+	    throw std::bad_alloc();
+#else
+	    return;
+#endif
+	}
+        rtos_sem_wait( &confDone ); // wait until thread is created !
+	
+	const char* modname = getName();
+	Logger::In in(modname);
+	log(Info)<< "SingleThread created with priority " << getPriority()
+		 << " and period " << getPeriod() << "." << endlog();
+	log(Info) << "Scheduler type was set to `"<< getScheduler() << "'."<<endlog();
+
+#ifdef OROPKG_OS_THREAD_SCOPE
+	if (d){
+	  unsigned int bit = threadNumber();
+	  log(Info) << "ThreadScope :"<< modname <<" toggles bit "<< bit << endlog();
+	}
+#endif
     }
     
     SingleThread::~SingleThread() 
@@ -185,8 +200,10 @@ namespace RTT
         
         // Wait for the 'ok' answer of the thread.
         rtos_sem_wait( &confDone );
-        // Delete the task
+        log(Debug) << "Terminating "<< this->getName();
+        // Delete the task, it's name etc...
         rtos_task_delete(&rtos_task);
+        log(Debug) << " done."<< endlog();
 
         rtos_sem_destroy( &confDone );
         rtos_sem_destroy( &sem );

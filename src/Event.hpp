@@ -56,6 +56,7 @@ namespace RTT
      * event to call a function 'void foo(int x, double y)';
      * @see The Orocos CoreLib manual for usage.
      * @ingroup CoreLibEvents
+     * @ingroup RTTComponentInterface
      */
     template<
         typename SignatureT // function type R (T1, T2, ..., TN)

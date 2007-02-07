@@ -10,6 +10,7 @@ module RTT
     /**
      * Exposes both attributes and properties
      * of a task as Expression objects.
+     * @ingroup CompIDL
      */
     interface AttributeInterface
     {

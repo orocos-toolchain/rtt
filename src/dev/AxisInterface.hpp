@@ -42,6 +42,7 @@ namespace RTT
     /** 
      * The AxisInterface  represents an axis from a control
      * point of view
+     * @ingroup DeviceInterface
      */
     class AxisInterface
     {

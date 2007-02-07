@@ -22,7 +22,8 @@ PNGS= images/ConfigTool.png images/ConfigToolAdmin.png \
       images/ConfigToolPackages.png images/ConfigToolFlags.png \
       images/RealTimeToolkit.png images/ComponentInterface.png \
       images/ComponentImplementation.png images/ApplicationStack.png \
-      images/fdi.png images/DataObjectBuffer.png images/TaskEventSerialisation.png \
+      images/fdi.png images/FDIvsFOSI.png \
+      images/DataObjectBuffer.png images/TaskEventSerialisation.png \
       images/CommandExecution.png images/execution-sequence.png \
       images/ReactiveState.png images/AutomaticState.png \
       images/CoreVsContext.png images/DeploymentLevels.png \
@@ -35,7 +36,7 @@ PNGS= images/ConfigTool.png images/ConfigToolAdmin.png \
       images/ProgramTransitions.png images/ProgramStates.png \
       images/StateTransitions.png images/MachineStates.png \
       images/TaskCommandSerialisation.png images/Functor.png \
-      images/FrameworkOverview.png
+      images/FrameworkOverview.png images/RTT_KDL_BFL_400.png
 
 FOP_STYLESHEET := $(srcdir)/../xsl/orocos.xsl
 HTML_STYLESHEET := $(srcdir)/../xsl/orocos-html.xsl
@@ -43,7 +44,8 @@ HTML_STYLESHEET := $(srcdir)/../xsl/orocos-html.xsl
 include $(srcdir)/../docrules.mak
 
 EXTRA_DIST = \
-	$(XMLDOCS) \
+	images \
+	$(ALL_XMLDOCS) \
 	$(HTMLDOCS) \
 	$(PNGIMGS) \
 	catalog.xml.in \
