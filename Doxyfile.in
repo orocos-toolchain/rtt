@@ -459,8 +459,8 @@ WARN_LOGFILE           = doxygen.warnings
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = packages/install/include \
-                         ../packages/Orocos.Main.hpp
+INPUT                  = /install/include \
+                         ../src/Orocos.Main.hpp
 
 # If the value of the INPUT tag contains directories, you can use the 
 # FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 

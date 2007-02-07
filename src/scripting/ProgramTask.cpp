@@ -37,13 +37,13 @@
  
  
 
-#include "rtt/scripting/ProgramTask.hpp"
+#include "scripting/ProgramTask.hpp"
 
-#include "rtt/CommandDS.hpp"
-#include "rtt/Method.hpp"
-#include "rtt/TaskContext.hpp"
-#include "rtt/FactoryExceptions.hpp"
-#include <rtt/DataSources.hpp>
+#include "CommandDS.hpp"
+#include "Method.hpp"
+#include "TaskContext.hpp"
+#include "FactoryExceptions.hpp"
+#include "DataSources.hpp"
 
 namespace RTT
 {
