@@ -1,5 +1,8 @@
-FILE( GLOB CPPS [^.]*.cpp )
-FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
 
-GLOBAL_ADD_INCLUDE( rtt/scripting ${HPPS})
-GLOBAL_ADD_SRC( ${CPPS})
+IF (NOT ORO_EMBEDDED OR ORO_EMBEDDED_SCRIPTING)
+  FILE( GLOB CPPS [^.]*.cpp )
+  FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
+
+  GLOBAL_ADD_INCLUDE( rtt/scripting ${HPPS})
+  GLOBAL_ADD_SRC( ${CPPS})
+ENDIF (NOT ORO_EMBEDDED OR ORO_EMBEDDED_SCRIPTING)

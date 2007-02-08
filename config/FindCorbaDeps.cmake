@@ -1,9 +1,5 @@
 # Locate TAO install directory
 
-# This module defines
-# BLF_INSTALL where to find include, lib, bin, etc.
-# BLF_FOUND, is set to true
-
 INCLUDE (${PROJ_SOURCE_DIR}/config/FindPkgConfig.cmake)
 
     MESSAGE ( STATUS "Looking for TAO with orbsvcs...")
@@ -56,23 +52,8 @@ INCLUDE (${PROJ_SOURCE_DIR}/config/FindPkgConfig.cmake)
   IF (ACE_CONFIG AND TAO_ORB AND TAO_ORBSVCS )
     MESSAGE ( "TAO with orbsvcs found.")
 
-  # Add includes / lib paths if necessary
-  IF( NOT ${ACE_DIR} STREQUAL /usr/include )
-    INCLUDE_DIRECTORIES( ${ACE_DIR} )
-    LINK_DIRECTORIES( ${ACE_DIR}/lib )
-  ENDIF( NOT ${ACE_DIR} STREQUAL /usr/include )
-  IF( NOT ${TAO_DIR} STREQUAL /usr/include )
-    INCLUDE_DIRECTORIES( ${TAO_DIR} )
-  ENDIF( NOT ${TAO_DIR} STREQUAL /usr/include )
-  IF( NOT ${ORBSVCS_DIR} STREQUAL /usr/include )
-    INCLUDE_DIRECTORIES( ${ORBSVCS_DIR} )
-  ENDIF( NOT ${ORBSVCS_DIR} STREQUAL /usr/include )
-
-  # Finally:
-  LINK_LIBRARIES( TAO TAO_IDL_BE TAO_PortableServer TAO_CosNaming TAO_CosProperty TAO_CosEvent ACE  )
-
-  FIND_PROGRAM( ORO_TAOIDL_EXECUTABLE tao_idl PATHS ${ACE_ROOT}/bin NO_DEFAULT_PATHS )
-  FIND_PROGRAM( ORO_TAOIDL_EXECUTABLE tao_idl )
+    FIND_PROGRAM( ORO_TAOIDL_EXECUTABLE tao_idl PATHS "${ACE_DIR}/bin" NO_DEFAULT_PATH )
+    FIND_PROGRAM( ORO_TAOIDL_EXECUTABLE tao_idl )
 
     IF( NOT ORO_TAOIDL_EXECUTABLE )
       MESSAGE( FATAL "TAO Headers found but no tao_idl !")
@@ -80,6 +61,6 @@ INCLUDE (${PROJ_SOURCE_DIR}/config/FindPkgConfig.cmake)
       MESSAGE( "tao_idl: ${ORO_TAOIDL_EXECUTABLE}")
     ENDIF( NOT ORO_TAOIDL_EXECUTABLE )
   
-ENDIF (ACE_CONFIG AND TAO_ORB AND TAO_ORBSVCS )
+  ENDIF (ACE_CONFIG AND TAO_ORB AND TAO_ORBSVCS )
 
 

@@ -25,14 +25,26 @@ SET( PROJ_SOURCE_DIR ${Orocos-RTT_SOURCE_DIR} )
 SET( PROJ_BINARY_DIR ${Orocos-RTT_BINARY_DIR} )
 
 # Set the default build type to debug.
-IF(NOT CMAKE_BUILD_TYPE)
-  SET(CMAKE_BUILD_TYPE Debug CACHE STRING
-      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-      FORCE)
-ENDIF(NOT CMAKE_BUILD_TYPE)
+#
+# Set the build type (affects debugging symbols and optimization)
+#
+IF ( NOT CMAKE_BUILD_TYPE )
+  SET( CMAKE_BUILD_TYPE "RTT" CACHE STRING "Build type: None (Use CMAKE_C_FLAGS and CMAKE_CXX_FLAGS), RTT (Recommended), Release, Debug, RelWithDebInfo, MinSizeRel." FORCE )
+  MESSAGE( "Setting build type to '${CMAKE_BUILD_TYPE}'" )
+  SET( CMAKE_C_FLAGS_RTT "-O2 -DNDEBUG" CACHE STRING "The CFLAGS for RTT" )
+  SET( CMAKE_CXX_FLAGS_RTT "-O2 -DNDEBUG" CACHE STRING "The CXXFLAGS flags for RTT"  )
+ELSE ( NOT CMAKE_BUILD_TYPE )
+  MESSAGE( "Build type set to '${CMAKE_BUILD_TYPE}' by user." )
+  IF ( NOT CMAKE_BUILD_TYPE STREQUAL "RTT" )
+    MARK_AS_ADVANCED(FORCE CMAKE_C_FLAGS_RTT CMAKE_CXX_FLAGS_RTT)
+  ELSE ( NOT CMAKE_BUILD_TYPE STREQUAL "RTT" )
+    MARK_AS_ADVANCED(CLEAR CMAKE_C_FLAGS_RTT CMAKE_CXX_FLAGS_RTT)
+  ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "RTT" )
+
+ENDIF ( NOT CMAKE_BUILD_TYPE )
 
 # Make compilation verbose by default
-SET(CMAKE_VERBOSE_MAKEFILE FALSE)
+SET(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 ###################################################
 #                                                 #
@@ -65,6 +77,7 @@ INCLUDE (${CMAKE_ROOT}/Modules/CMakeDetermineCXXCompiler.cmake)
 SET( RTT_CFLAGS "" CACHE INTERNAL "")
 SET( RTT_LINKFLAGS "" CACHE INTERNAL "")
 
+INCLUDE(config/check_depend.cmake)
 INCLUDE(config/global_setup.cmake)
 
 ## Uninstall target
@@ -78,47 +91,28 @@ ADD_CUSTOM_TARGET(uninstall
 
 ###########################################################
 #                                                         #
-# Look for low-level C headers, write defines to config.h #
-#                                                         #
-###########################################################
-
-###########################################################
-#                                                         #
 # Look for dependencies required by individual components #
 #                                                         #
 ###########################################################
 
-INCLUDE(config/check_depend.cmake)
 INCLUDE(config/rtt_rules.cmake)
+
+###########################################################
+#                                                         #
+# Create build                                            #
+#                                                         #
+###########################################################
+
 ADD_DEFINITIONS( "-Wall" )
-SET(ENV{GLOBAL_LIBRARY_SRCS})
-SET(ENV{GLOBAL_GENERATED_SRCS})
+#INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR}/src ${PROJ_BINARY_DIR}/src ${PROJ_BINARY_DIR}/src/os ${PROJ_BINARY_DIR}/src/os/${OROCOS_TARGET})
+INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR}/src ${PROJ_BINARY_DIR}/src ${PROJ_BINARY_DIR}/src/os)
 ADD_SUBDIRECTORY(src)
-
-SET_SOURCE_FILES_PROPERTIES($ENV{GLOBAL_GENERATED_SRCS} PROPERTIES GENERATED 1)
-
-ADD_LIBRARY(orocos-rtt SHARED $ENV{GLOBAL_LIBRARY_SRCS})
-INCLUDE_DIRECTORIES(${PROJ_BINARY_DIR})
-INSTALL_TARGETS(/lib orocos-rtt)
-
-#
-# If corba is enabled, the orocos-rtt-corba helper library is built.
-#
-IF ( OROINT_OS_CORBA )
-ADD_DEPENDENCIES(orocos-rtt orocos-rtt-corba)
-TARGET_LINK_LIBRARIES(orocos-rtt orocos-rtt-corba)
-INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/src/corba ) # generated files.
-INCLUDE_DIRECTORIES(${PROJ_BINARY_DIR})
-ENDIF ( OROINT_OS_CORBA )
-
-CONFIGURE_FILE( orocos-rtt.pc.in orocos-rtt.pc @ONLY)
-INSTALL_FILES( /lib/pkgconfig FILES orocos-rtt.pc)
-
-CONFIGURE_FILE(Doxyfile.in Doxyfile @ONLY)
-
 ADD_SUBDIRECTORY(doc)
 ADD_SUBDIRECTORY(tests)
 
+CONFIGURE_FILE( orocos-rtt.pc.in orocos-rtt.pc @ONLY)
+INSTALL_FILES( /lib/pkgconfig FILES orocos-rtt.pc)
+CONFIGURE_FILE(Doxyfile.in Doxyfile @ONLY)
 
 ############################################################
 ##                                                         #
@@ -171,6 +165,8 @@ ENDIF ( "${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" STREQUAL "2.4" )
 #                           #
 #############################
 
-ADD_CUSTOM_TARGET(docs "doxygen" "Doxyfile")
+IF (DOXYGEN)
+  ADD_CUSTOM_TARGET(docs "doxygen" "Doxyfile")
+ENDIF (DOXYGEN)
 
-INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR}/src ${PROJ_BINARY_DIR}/src ${PROJ_BINARY_DIR}/src/os ${PROJ_BINARY_DIR}/src/os/${OROCOS_TARGET})
+

@@ -1,8 +1,13 @@
 #
+# SET PROJECT WIDE OPTIONS, INCLUDE DIRECTORIES ETC.
+#
+# Prefer to prefix with ENABLE_X Check dependencies with a FindX.cmake file.
+#
+
+#
 # Include cmake modules required to look for dependencies
 #
-INCLUDE( ${CMAKE_ROOT}/Modules/CheckIncludeFileCXX.cmake )
-INCLUDE( ${CMAKE_ROOT}/Modules/CheckIncludeFile.cmake )
+INCLUDE( config/DependentOption.cmake )
 
 #
 # If we're using gcc, make sure the version is OK.
@@ -27,10 +32,7 @@ INCLUDE( ${CMAKE_ROOT}/Modules/CheckIncludeFile.cmake )
 #
 INCLUDE( ${CMAKE_ROOT}/Modules/FindDoxygen.cmake )
 IF ( DOXYGEN )
-  MESSAGE( STATUS "Found Doxygen -- documentation can be built" )
-
-  OPTION( GENERATE_DOCUMENTATION "Build Documentation" OFF )
-
+  MESSAGE( STATUS "Found Doxygen -- API documentation can be built" )
 ELSE ( DOXYGEN )
   MESSAGE( STATUS "Doxygen not found -- unable to build documentation" )
 ENDIF ( DOXYGEN )
@@ -39,5 +41,26 @@ ENDIF ( DOXYGEN )
 #
 # An option for tests, to make it easy to turn off all tests
 #
-OPTION( BUILD_TESTS "Turn me off to disable compilation of all tests" OFF )
+OPTION( ENABLE_TESTS "Turn me off to disable compilation of all tests" OFF )
+
+#
+# CORBA
+#
+DEPENDENT_OPTION( ENABLE_CORBA "Enable CORBA (using TAO)" ON "ACE_CONFIG AND TAO_ORB AND TAO_ORBSVCS;NOT ORO_EMBEDDED" OFF)
+IF (ENABLE_CORBA)
+  # Add includes / lib paths if necessary
+  IF( NOT ${ACE_DIR} STREQUAL /usr/include )
+    INCLUDE_DIRECTORIES( ${ACE_DIR} )
+    LINK_DIRECTORIES( ${ACE_DIR}/lib )
+  ENDIF( NOT ${ACE_DIR} STREQUAL /usr/include )
+  IF( NOT ${TAO_DIR} STREQUAL /usr/include )
+    INCLUDE_DIRECTORIES( ${TAO_DIR} )
+  ENDIF( NOT ${TAO_DIR} STREQUAL /usr/include )
+  IF( NOT ${ORBSVCS_DIR} STREQUAL /usr/include )
+    INCLUDE_DIRECTORIES( ${ORBSVCS_DIR} )
+  ENDIF( NOT ${ORBSVCS_DIR} STREQUAL /usr/include )
+
+  # Finally:
+  LINK_LIBRARIES( TAO TAO_IDL_BE TAO_PortableServer TAO_CosNaming TAO_CosProperty TAO_CosEvent ACE  )
+ENDIF (ENABLE_CORBA)
 

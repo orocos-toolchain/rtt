@@ -1,12 +1,18 @@
-GLOBAL_ADD_INCLUDE( rtt/marsh CPFDemarshaller.hpp INIMarshaller.hpp Orocos1Demarshaller.hpp SimpleDemarshaller.hpp  
-           TableHeaderMarshaller.hpp  XMLDemarshaller.hpp  XMLRPCDemarshaller.hpp CPFDTD.hpp CPFMarshaller.hpp
-           MarshallerAdaptors.hpp Orocos1Marshaller.hpp SimpleMarshaller.hpp TableMarshaller.hpp  XMLMarshaller.hpp   
-           XMLRPCMarshaller.hpp StreamProcessor.hpp EmptyHeaderMarshaller.hpp EmptyMarshaller.hpp TinyDemarshaller.hpp
-           )
-GLOBAL_ADD_SRC( src/marsh/CPFDTD.cpp )
 
-IF (XERCES)
-    GLOBAL_ADD_SRC( src/marsh/CPFDemarshaller.cpp )
-ELSE (XERCES)
-    GLOBAL_ADD_SRC( src/marsh/TinyDemarshaller.cpp src/marsh/tinyxml.cpp src/marsh/tinyxmlparser.cpp src/marsh/tinyxmlerror.cpp src/marsh/tinystr.cpp )
-ENDIF (XERCES)
+IF (ENABLE_MARSHALLING)
+  GLOBAL_ADD_INCLUDE( rtt/marsh INIMarshaller.hpp Orocos1Demarshaller.hpp SimpleDemarshaller.hpp CPFMarshaller.hpp
+           TableHeaderMarshaller.hpp  XMLDemarshaller.hpp  XMLRPCDemarshaller.hpp CPFDTD.hpp
+           MarshallerAdaptors.hpp Orocos1Marshaller.hpp SimpleMarshaller.hpp TableMarshaller.hpp  XMLMarshaller.hpp   
+           XMLRPCMarshaller.hpp StreamProcessor.hpp EmptyHeaderMarshaller.hpp EmptyMarshaller.hpp
+           )
+  GLOBAL_ADD_SRC( marsh/CPFDTD.cpp )
+
+  IF (XERCES)
+    GLOBAL_ADD_INCLUDE( rtt/marsh CPFDemarshaller.hpp)
+    GLOBAL_ADD_SRC( marsh/CPFDemarshaller.cpp )
+    SET(RTT_LINKFLAGS "${RTT_LINKFLAGS} -lxerces-c" CACHE INTERNAL "")
+  ELSE (XERCES)
+    GLOBAL_ADD_INCLUDE( rtt/marsh TinyDemarshaller.hpp )
+    GLOBAL_ADD_SRC( marsh/TinyDemarshaller.cpp marsh/tinyxml.cpp marsh/tinyxmlparser.cpp marsh/tinyxmlerror.cpp marsh/tinystr.cpp )
+  ENDIF (XERCES)
+ENDIF(ENABLE_MARSHALLING)

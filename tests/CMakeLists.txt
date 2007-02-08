@@ -3,6 +3,7 @@
     ENABLE_TESTING()
 
     INCLUDE_DIRECTORIES( ${PROJ_SOURCE_DIR}/src ${PROJ_BINARY_DIR}/src ${PROJ_BINARY_DIR}/src/os ${PROJ_BINARY_DIR}/src/os/${OROCOS_TARGET})
+    LINK_DIRECTORIES( ${PROJ_BINARY_DIR}/src )
     ADD_DEFINITIONS("-g")
 
     # repeat for each test
@@ -35,6 +36,6 @@
     ADD_TEST( state-test state-test )
 
 
-ADD_CUSTOM_TARGET(check "ctest" 
+ADD_CUSTOM_TARGET(check ctest -V 
   DEPENDS core-test task-test event-test taskcontext-test parser-test program-test state-test
   WORKING_DIRECTORY ${PROJ_BINARY_DIR}/tests)

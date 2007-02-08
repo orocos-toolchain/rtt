@@ -4,10 +4,8 @@
 #                                                         #
 ###########################################################
 
-# For examples of dependency checks see orca-components/config/check_depend.cmake
-
-# Look for Player (ctually looks for v.>=1.6)
-# INCLUDE (${PROJ_SOURCE_DIR}/config/FindPlayer2.cmake)
+INCLUDE( ${CMAKE_ROOT}/Modules/CheckIncludeFileCXX.cmake )
+INCLUDE( ${CMAKE_ROOT}/Modules/CheckIncludeFile.cmake )
 
 SET(CURSES_INCLUDE_DIR 0 INTERNAL)
 INCLUDE( ${CMAKE_ROOT}/Modules/FindCurses.cmake )
@@ -37,15 +35,19 @@ FIND_LIBRARY(XERCES NAMES xerces-c
 IF ( XERCES )
   MESSAGE("-- Looking for Xerces - found")
   SET(OROPKG_SUPPORT_XERCES_C TRUE CACHE INTERNAL "" FORCE)
-  SET(MARSH_INCLUDE \"marsh/CPFDemarshaller.hpp\" CACHE INTERNAL "" FORCE)
-  SET(MARSHALLER CPFDemarshaller CACHE INTERNAL "" FORCE)
-  SET(RTT_LINKFLAGS "${RTT_LINKFLAGS} -lxerces-c" CACHE INTERNAL "")
   LINK_LIBRARIES(xerces-c)
+  SET(ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE "\"marsh/CPFMarshaller.hpp\"")
+  SET(OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER "CPFMarshaller")
+  SET(ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE "\"marsh/CPFDemarshaller.hpp\"")
+  SET(OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER "CPFDemarshaller")
 ELSE ( XERCES )
   MESSAGE("-- Looking for Xerces - not found")
   SET(OROPKG_SUPPORT_XERCES_C FALSE CACHE INTERNAL "" FORCE)
-  SET(MARSH_INCLUDE \"marsh/TinyDemarshaller.hpp\" CACHE INTERNAL "" FORCE)
-  SET(MARSHALLER TinyDemarshaller CACHE INTERNAL "" FORCE)
+
+  SET(ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE "marsh/CPFMarshaller.hpp")
+  SET(OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER CPFMarshaller)
+  SET(ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE "marsh/TinyDemarshaller.hpp")
+  SET(OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER TinyDemarshaller)
 ENDIF ( XERCES )
 
 SET( OROCOS_TARGET gnulinux CACHE STRING "The Operating System target. One of [lxrt gnulinux xenomai]")
@@ -53,9 +55,6 @@ SET(LINUX_SOURCE_DIR ${LINUX_SOURCE_DIR} CACHE PATH "path to linux source dir" F
 
 # Look for TAO and ACE
 INCLUDE(${PROJ_SOURCE_DIR}/config/FindCorbaDeps.cmake)
-IF(TAO_FOUND)
-  #EXEC_PROGRAM(tao_idl)
-ENDIF(TAO_FOUND)
 
 
 IF(OROCOS_TARGET STREQUAL "lxrt")
@@ -130,5 +129,3 @@ ELSE(CMAKE_SYSTEM_PROCESSOR STREQUAL "i386" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "
   ENDIF(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
 ENDIF(CMAKE_SYSTEM_PROCESSOR STREQUAL "i386" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "i486" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "i586" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "i686")
 
-
-CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/rtt-config.h.in ${PROJ_BINARY_DIR}/src/rtt-config.h @ONLY)

@@ -1,11 +1,12 @@
 
+
 INCLUDE (${PROJ_SOURCE_DIR}/config/TaoIDL.cmake)
+INCLUDE (${PROJ_SOURCE_DIR}/config/DependentOption.cmake)
 
-OPTION(OROINT_OS_CORBA "Enable CORBA (using TAO)" ON)
+#this option was set in global_rules.cmake
+IF(ENABLE_CORBA)
+  MESSAGE( "CORBA Support enabled.")
 
-IF(OROINT_OS_CORBA)
-
-#  EXEC_PROGRAM(tao_idl ARGS)
   FILE( GLOB IDLS [^.]*.idl )
   FILE( GLOB CPPS [^.]*.cpp )
   FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
@@ -17,10 +18,22 @@ IF(OROINT_OS_CORBA)
   GLOBAL_ADD_INCLUDE( rtt/corba ${HPPS})
   #GLOBAL_ADD_SRC( ${CPPS} )
   INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
-  INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/.. )
-  INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR}/.. )
 
-  ADD_LIBRARY(orocos-rtt-corba SHARED ${CPPS})
-  INSTALL_TARGETS(/lib orocos-rtt-corba)
+  IF ( BUILD_STATIC )
+    ADD_LIBRARY(orocos-rtt-corba-static STATIC ${CPPS})
+    SET_TARGET_PROPERTIES(orocos-rtt-corba-static
+      PROPERTIES OUTPUT_NAME orocos-rtt-corba
+      CLEAN_DIRECT_OUTPUT 1)
+    INSTALL_TARGETS(/lib orocos-rtt-corba-static)
+  ENDIF ( BUILD_STATIC )
 
-ENDIF(OROINT_OS_CORBA)
+  IF ( BUILD_DYNAMIC )
+    ADD_LIBRARY(orocos-rtt-corba-dynamic SHARED ${CPPS})
+    SET_TARGET_PROPERTIES(orocos-rtt-corba-dynamic
+      PROPERTIES OUTPUT_NAME orocos-rtt-corba
+      CLEAN_DIRECT_OUTPUT 1
+      SOVERSION ${VERSION} )
+    INSTALL_TARGETS(/lib orocos-rtt-corba-dynamic)
+  ENDIF ( BUILD_DYNAMIC )
+
+ENDIF(ENABLE_CORBA)
