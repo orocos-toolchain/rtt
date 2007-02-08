@@ -51,10 +51,37 @@ namespace RTT
         assertion<std::string> expect_ifblock("Expected a statement (or { block } ).");
         assertion<std::string> expect_then("Wrongly formatted \"if ... then\" clause.");
         assertion<std::string> expect_elseblock("Expected a statement (or {block} ) after else.");
+        assertion<std::string> expect_term("No valid termination claues found in do ... until { } block.");
+        assertion<std::string> expect_ident("Expected a valid identifier.");
     }
     // Work around GCC 4.1 bug: not too much templates in one.cpp file.
   void ProgramGraphParser::setup2()
   {
+
+    // a function statement : "call functionname"
+    funcstatement = (
+      str_p( "call" )
+      >> expect_ident( commonparser.identifier[bind( &ProgramGraphParser::seenfuncidentifier, this, _1, _2) ] )
+      >> !arguments[ bind( &ProgramGraphParser::seencallfuncargs, this )]
+      )[ bind( &ProgramGraphParser::seencallfuncstatement, this ) ];
+
+    // a return statement : "return"
+    returnstatement =
+        str_p( "return" )[ bind( &ProgramGraphParser::seenreturnstatement, this ) ];
+
+    // break from a while or for loop,...
+    breakstatement =
+        str_p( "break" )[ bind (&ProgramGraphParser::seenbreakstatement, this) ];
+
+    // the termination clause part of a (call) statement.  A
+    // call statement looks like "do xxx until {
+    // terminationclauses }".  The termination clause part is
+    // everything starting at "until"..
+    terminationpart =
+        str_p( "until" )
+        >> opencurly
+        >> expect_term(+terminationclause)
+        >> closecurly;
 
     catchpart = (str_p("catch") [bind(&ProgramGraphParser::startcatchpart, this)]
                  >> expect_ifblock( ifblock ) )[bind(&ProgramGraphParser::seencatchpart, this)];

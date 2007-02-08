@@ -207,30 +207,6 @@ namespace RTT
     andpart = str_p("and")
         >> expect_and_command ( commandparser.parser()[ bind( &ProgramGraphParser::seenandcall, this ) ] );
 
-    // a function statement : "call functionname"
-    funcstatement = (
-      str_p( "call" )
-      >> expect_ident( commonparser.identifier[bind( &ProgramGraphParser::seenfuncidentifier, this, _1, _2) ] )
-      >> !arguments[ bind( &ProgramGraphParser::seencallfuncargs, this )]
-      )[ bind( &ProgramGraphParser::seencallfuncstatement, this ) ];
-
-    // a return statement : "return"
-    returnstatement =
-        str_p( "return" )[ bind( &ProgramGraphParser::seenreturnstatement, this ) ];
-
-    // break from a while or for loop,...
-    breakstatement =
-        str_p( "break" )[ bind (&ProgramGraphParser::seenbreakstatement, this) ];
-
-    // the termination clause part of a (call) statement.  A
-    // call statement looks like "do xxx until {
-    // terminationclauses }".  The termination clause part is
-    // everything starting at "until"..
-    terminationpart =
-        str_p( "until" )
-        >> opencurly
-        >> expect_term(+terminationclause)
-        >> closecurly;
   }
   
     void ProgramGraphParser::initBodyParser(const std::string& name, TaskContext* stck, int offset) {
