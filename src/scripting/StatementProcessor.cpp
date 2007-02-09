@@ -39,26 +39,20 @@
 
 #include "StatementProcessor.hpp"
 #include "Parser.hpp"
-#include "TaskContext.hpp"
-#include <vector>
-#include "DispatchInterface.hpp"
 #include "parse_exception.hpp"
+
+#include "TaskContext.hpp"
+#include "DispatchInterface.hpp"
 #include "ConditionInterface.hpp"
-#include <boost/tuple/tuple.hpp>
-#include "Logger.hpp"
-#include <iostream>
-#include "../rtt-config.h"
-#ifdef OROPKG_GEOMETRY
-#include <geometry/frames.h>
-#include <geometry/frames_io.h>
-#endif
 #include <MultiVector.hpp>
 #include <TypeStream.hpp>
+#include "Logger.hpp"
+
+#include <vector>
+#include <boost/tuple/tuple.hpp>
+#include <iostream>
 
 
-#ifdef OROPKG_GEOMETRY
-using namespace ORO_Geometry;
-#endif
 using namespace boost;
 
 namespace RTT

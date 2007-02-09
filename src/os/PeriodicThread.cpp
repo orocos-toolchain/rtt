@@ -42,10 +42,6 @@
 #include "Logger.hpp"
 
 #include "../rtt-config.h"
-#ifdef OROPKG_OS_THREAD_SCOPE
-#include <boost/scoped_ptr.hpp>
-# include "dev/DigitalOutInterface.hpp"
-#endif
 
 namespace RTT
 { namespace OS {
@@ -219,8 +215,20 @@ namespace RTT
             return;
 #endif
         }
-        
-        rtos_sem_wait(&confDone);
+ 
+        rtos_sem_wait(&confDone); // wait until thread is created.
+ 
+        const char* modname = getName();
+        Logger::In in(modname);
+        log(Info)<< "PeriodicThread created with priority " << getPriority()
+                 <<" and period "<< getPeriod() << "." << endlog();
+        log(Info) << "Scheduler type was set to '"<< getScheduler() << "'."<< endlog();
+#ifdef OROPKG_OS_THREAD_SCOPE
+        if (d){
+            unsigned int bit = threadNumber();
+            log(Info) << "ThreadScope :"<< modname <<" toggles bit "<< bit << endlog();
+        }
+#endif
     }
     
     PeriodicThread::~PeriodicThread() 
@@ -231,6 +239,7 @@ namespace RTT
 
         log(Debug) << "Terminating "<< this->getName() <<endlog();
         terminate();
+        log(Debug) << " done"<< endlog();
         rtos_sem_destroy(&confDone);
         rtos_sem_destroy(&sem);
 

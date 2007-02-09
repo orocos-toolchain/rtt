@@ -33,13 +33,13 @@ class Generic_TaskTest : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE( Generic_TaskTest );
 
     CPPUNIT_TEST( testMethod );
-    CPPUNIT_TEST( testMethodsC );
     CPPUNIT_TEST( testMethodFromDS );
     CPPUNIT_TEST( testMethodFactory );
     CPPUNIT_TEST( testDSMethod );
     CPPUNIT_TEST( testCRMethod );
+    CPPUNIT_TEST( testMethodsC );
     CPPUNIT_TEST( testAddMethod );
-
+    
     CPPUNIT_TEST_SUITE_END();
 
     TaskContext* tc;

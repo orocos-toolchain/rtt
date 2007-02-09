@@ -43,10 +43,6 @@
 extern "C" {
 #endif
 
-	// Orocos Implementation (i386 specific)
-#include "os/oro_atomic.h"
-#include "os/oro_bitops.h"
-
 #include "../../rtt-config.h"
 #if !defined(OROBLD_OS_AGNOSTIC) || defined(OROBLD_OS_LXRT_INTERNAL) // define the latter to include nevertheless the RTAI header files
 
@@ -122,8 +118,8 @@ extern "C" {
 #define __LXRT_USERSPACE__
 
 
-	typedef rt_sem_t rt_mutex_t;
-    typedef rt_sem_t rt_rec_mutex_t;
+  typedef rt_sem_t rt_mutex_t;
+  typedef rt_sem_t rt_rec_mutex_t;
 	
 	// Time Related
 	

@@ -54,14 +54,12 @@
 #include <functional>
 #include <sstream>
 
-using namespace std;
-using namespace RTT::detail;
-
 #ifdef OROCFG_CORELIB_REALTIME_TOOLKIT_IMPORT
 #include <os/StartStopManager.hpp>
 namespace RTT {
     namespace {
-
+        using namespace detail;
+        
         /**
          * This struct has the sole purpose of invoking
          * the Import function.

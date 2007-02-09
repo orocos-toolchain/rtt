@@ -108,3 +108,58 @@
              xmlns:xi="http://www.w3.org/2001/XInclude" />
   </chapter>
 </book>
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+[
+<!ENTITY % oro_ents SYSTEM "http://people.mech.kuleuven.be/~psoetens/orocos/doc/orocos.ent" >
+%oro_ents;
+]
+>
+
+<book>
+  <bookinfo>
+    <title>
+      Tutorial on the Component Interface
+    </title>
+    <subtitle><emphasis>Open RObot COntrol Software</emphasis>
+    </subtitle>
+    <subtitle>&oversion;</subtitle>
+    <copyright>
+      <year>2002,2003,2004,2005,2006</year>
+      <holder>Peter Soetens</holder>
+      <holder>FMTC</holder>
+    </copyright>
+
+    <abstract>
+      <para>
+	This document gives an introduction on the different aspects
+	of interfacing an &orocos; component. This is an excerpt from 
+	the Component Builder's Manual and walks through the 'Hello World'
+	program.
+      </para>
+    </abstract>
+
+    <legalnotice>
+      <para>
+	Orocos Version &oversion;.
+      </para>
+      <para>
+	Permission is granted to copy, distribute and/or modify this document
+	under the terms of the GNU Free Documentation License, Version 1.1 or
+	any later version published by the Free Software Foundation, with no
+	Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+	Texts. A copy of this license can be found at
+	<ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
+  </bookinfo>
+  <chapter id="orocos-ocl-intro">
+    <title></title>
+    <xi:include  href="orocos-task-context.xml#xpointer(/article/section[1])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include  href="orocos-task-context.xml#xpointer(/article/section[2])"  
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </chapter>
+</book>

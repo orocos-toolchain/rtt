@@ -154,9 +154,10 @@ namespace RTT {
                 ProgramInterfacePtr egraph( j->get<8>() );
                 if (egraph)
                     eprog.reset( egraph->copy(replacements) );
-
-                bool eresult;
-		eresult = ret->createEventTransition(es, ename, newargs, fromState, toState, condition, tprog, elseState, eprog );
+#ifndef NDEBUG
+                bool eresult =
+#endif                    
+                    ret->createEventTransition(es, ename, newargs, fromState, toState, condition, tprog, elseState, eprog );
                 assert( eresult );
             }
         }

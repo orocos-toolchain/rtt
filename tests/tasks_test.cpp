@@ -55,12 +55,13 @@ struct TestOverrun
 struct TestPeriodic
     : public RTT::OS::RunnableInterface
 {
-    int fail;
+    int overfail, underfail, succ;
     bool stepped;
-    
+     
     TimeService::ticks ts;
     
     TestPeriodic()
+        : overfail(0), underfail(0), succ(0), stepped(false)
     {
     }
     
@@ -74,17 +75,30 @@ struct TestPeriodic
             stepped = true;
         } else {
             TimeService::Seconds s = TimeService::Instance()->secondsSince( ts );
-            if ( s < this->getThread()->getPeriod() *0.5 ) // if elapsed time is smaller than 50% of period, something went wrong
-                ++fail;
+            if ( s < this->getThread()->getPeriod() *0.9 ) { // if elapsed time is smaller than 10% of period, something went wrong
+                ++underfail;
+                //rtos_printf("UnderFailPeriod: %f \n", s);
+            }
+            else if ( s > this->getThread()->getPeriod() *1.1 ) { // if elapsed time is smaller than 10% of period, something went wrong
+                ++overfail;
+                //rtos_printf("OverFailPeriod: %f \n", s);
+            }
+            else {
+                ++succ;
+                //rtos_printf("SuccPeriod: %f \n", s);
+            }
             ts = TimeService::Instance()->getTicks();
         }
-    }
-    void finalize() {
-    }
-
+        void finalize() {
+         if (overfail || underfail)
+             cerr <<"overfail is:"<<overfail<<", underfail is:"<<underfail<< " success is: "<<succ<<endl;
+        }
+        
     void reset() {
-      fail = 0;
-      stepped = false;
+        overfail = 0;
+        underfail = 0;
+        succ = 0;
+        stepped = false;
     }
 };
 
@@ -214,7 +228,7 @@ void ActivitiesTest::testOverrun()
 
   t->start();
   sleep(2);
-
+  
   r = !t->isRunning();
 
   t->run(0);

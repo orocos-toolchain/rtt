@@ -22,7 +22,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "scripting/Parser.hpp"
+#include <scripting/Parser.hpp>
 #include <ExecutionEngine.hpp>
 #include <TaskContext.hpp>
 #include <string>

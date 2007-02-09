@@ -350,3 +350,179 @@
   set d6 = double6d( 1., 2., 3., 4., 5., 6. ) </programlisting>
   </section>
 </article>
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+[
+<!ENTITY % oro_ents SYSTEM "http://people.mech.kuleuven.be/~psoetens/orocos/doc/orocos.ent" >
+%oro_ents;
+]
+>
+
+<article>
+  <articleinfo>
+    <title>
+      The Orocos Kinematics and Dynamics Library Plugin
+    </title>
+    <copyright>
+      <year>2006</year>
+      <holder>Peter Soetens, Herman Bruyninckx</holder>
+    </copyright>
+    
+    <abstract>
+      <para>
+	This document describes the &orocos; Kinematics and Dynamics
+	Library Plugin for the Real-Time Toolkit.
+      </para>
+    </abstract>
+    
+    <revhistory>
+      <revision>
+	<revnumber>0.01</revnumber>
+	<date>30/10/2006</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Initial version, text stripped from Main manual.</revremark>
+      </revision>
+   </revhistory>
+
+    <legalnotice>
+      <para>
+	Permission is granted to copy, distribute and/or modify this document
+	under the terms of the GNU Free Documentation License, Version 1.1 or
+	any later version published by the Free Software Foundation, with no
+	Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+	Texts. A copy of this license can be found at
+	<ulink
+	  url="http://www.fsf.org/copyleft/fdl.html">http://www.fsf.org/copyleft/fdl.html</ulink>.
+      </para>
+    </legalnotice>
+
+  </articleinfo>
+
+  <section id="intro">
+    <title>Introduction</title>
+    <para>
+      The &orocos; Scripting language allows users of the &orocos; system to write
+      programs and state machines controlling the system in a
+      user-friendly realtime script language.  The advantage of scripting is
+      that it is easily extendible and does not need recompilation of
+      the main program.
+    </para>
+    <para>
+      This document describes the extensions the Kinematics and
+      Dynamics Library (KDL) plugin adds to this scripting language.
+    </para>
+  </section>
+  <section>
+    <title>Setting up the KDL toolkit</title>
+    <para>
+      In order to obtain the kdl plugin, the kdl needs to be configured
+      with the path to the Real-Time Toolkit. The <filename>kdltk</filename>
+      library and the <filename>kdl/kdltk/toolkit.hpp</filename> header
+      file are then required for each application which wishes to use
+      the KDL with the RTT.
+    </para>
+    <para>
+      The KDL plugin can then be enabled in your program by writing:
+    </para>
+    <programlisting>  #include &lt;kdl/kdltk/toolkit.hpp&gt;
+
+  int ORO_main(int, char*)
+  {
+     RTT::Toolkit::Import( KDL::KDLToolkit );
+  }
+    </programlisting>
+    <para>
+      The Import statement may occur multiple times in the same program,
+      the first one will actually import KDL into the RTT. From now on
+      the KDL types described below are available at the TaskBrowser
+      prompt and in scripts.
+    </para>
+  </section>
+  <section id="kdl-types">
+    <title>KDL Types</title>
+    <para>
+      The KDL adds 3D vector, rotation, frame, twist and wrench types
+      to the scripting language.
+    </para>
+    <para>
+      Likewise, the following operators are available for the
+      geometry types :
+      <programlisting>  var frame f1, f2, f3
+  var rotation r
+  var vector   v
+  var twist    t
+  var wrench   w
+  // ...
+  
+  set f1 = f2.inv * f3 // frame transformations: inverse of f2 times f3
+
+  set v = f1.p          // read the position
+  set r = f1.R          // read the rotation
+  set r = f1.R.inv      // read the inverse rotation
+
+  set v = t.vel        // read the translational velocity
+  set v = t.rot        // read the rotational velocity
+
+  set v = w.force      // read the force
+  set v = w.torque     // read the torque
+
+  var double x = v.x  // also : v.y or v.z
+
+  var double p = r.roll  // also : r.pitch or r.yaw</programlisting>
+    </para>
+    <para>
+      You can not use the '.' operator in the reverse direction.
+      thus the following code is invalid :
+      <programlisting>  set f.p = v         // Invalid !
+  set f1.R = r          // Invalid !</programlisting>
+  These are thus read-only accessors and can thus not be written to.
+  To change them, you'll have to use a constructor from the next
+  section.
+    </para>
+  </section>
+  <section>
+    <title>Constructors</title>
+    <para>
+      For the KDL types, scripting constructors are provided.  The
+      simplest example is the vector constructor, that looks like
+      this:
+    </para>
+    <para>
+      <programlisting>
+  vector( arg1, arg2, arg3 )	    </programlisting></para>
+    <para>
+      where arg1, arg2 and arg3 are expressions which
+      <emphasis>must be of type double</emphasis>.
+      This returns an expression of type vector, with arg1 as
+      the x component, arg2 as the y component, and arg3 as the
+      z component.
+    </para>
+    <para>
+      Other constructors currently available are:
+    </para>
+    <programlisting>
+  // roll, pitch and yaw are double expressions, this
+  // returns a rotation, that is constructed using the
+  // Roll-Pitch-Yaw convention in RADIANS :
+  var double roll = 45.0 * (2.*3.14/360.)         // convert to radians
+  // ...
+  var rotation rot = rotation( roll, pitch, yaw )
+  
+  // Vect is a vector expression, rot is a rotation
+  // expression.  This returns a frame, constructed
+  // using the vector x as the origin, and rotation
+  // rot as the rotation..
+  var frame f = frame( vect, rot )
+
+  // or changing its vector and/or rotation:
+  f = frame( -f.p, f.M.inv )
+  
+  // Double6D is a commonly used type in Orocos
+  // and has been recently introduced in the parser
+  var double6d d6 = double6d(0.0)
+  set d6[0] = 1.0
+  var double d0 = d6[0]
+  set d6 = double6d( 1., 2., 3., 4., 5., 6. ) </programlisting>
+  </section>
+</article>

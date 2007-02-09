@@ -53,9 +53,7 @@ TimeTest::tearDown()
     hbg->enableSystemClock( true );
 }
 
-#define CPPUNIT_ASSERT_EQUAL_EPS(a, b, EPSILON)  if ( !( -EPSILON < a-b && EPSILON > a-b ) ) {  CPPUNIT_ASSERT_EQUAL( a,b); }
-		   
-			   
+#define CPPUNIT_ASSERT_EQUAL_EPS(a, b, EPSILON)  if ( !( -EPSILON < a-b && EPSILON > a-b ) ) {  CPPUNIT_ASSERT_EQUAL( a,b); }	   
 
 void 
 TimeTest::testSecondsConversion()

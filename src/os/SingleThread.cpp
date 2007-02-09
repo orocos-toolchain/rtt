@@ -41,14 +41,10 @@
 #include <os/MutexLock.hpp>
 
 #include "Time.hpp"
+#include "Logger.hpp"
 #include "os/threads.hpp"
 
 #include "../rtt-config.h"
-#ifdef OROPKG_OS_THREAD_SCOPE
-#include <boost/scoped_ptr.hpp>
-# include "dev/DigitalOutInterface.hpp"
-#endif
-
 
 namespace RTT
 { namespace OS {

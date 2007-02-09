@@ -55,13 +55,13 @@ namespace CORBA{
 namespace RTT
 {
 
-    namespace Corba {
-        class Expression;
-    }
-
     class PropertyBase;
     class PropertyBag;
     class AttributeBase;
+
+    namespace Corba {
+        class Expression;
+    }
 
     /**
      * \file We need some information on types if we want to make

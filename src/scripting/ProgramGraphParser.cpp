@@ -38,10 +38,10 @@
 
 #include "ConditionComposite.hpp"
 #include "CommandComposite.hpp"
+#include "CommandBinary.hpp"
+
 #include "TryCommand.hpp"
 #include "FunctionFactory.hpp"
-#include "CommandBinary.hpp"
-#include "ProgramTask.hpp"
 
 #include <iostream>
 #include <boost/bind.hpp>

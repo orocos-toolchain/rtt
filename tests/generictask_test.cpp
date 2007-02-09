@@ -23,8 +23,6 @@
 #include <iostream>
 #include <FunctionGraph.hpp>
 #include <Ports.hpp>
-#include <Command.hpp>
-#include <CommandDS.hpp>
 #include <Method.hpp>
 #include <OperationInterface.hpp>
 
@@ -34,10 +32,6 @@
 #include <boost/function_types/function_type_signature.hpp>
 
 #include "rtt-config.h"
-#ifdef OROPKG_GEOMETRY
-#include <geometry/frames.h>
-using namespace ORO_Geometry;
-#endif
 
 using namespace std;
 
@@ -49,7 +43,6 @@ void
 Generic_TaskTest::setUp()
 {
     tc =  new TaskContext( "root" );
-    tc->addObject( this->createMethodFactory() );
     tsim = new SimulationActivity(0.001, tc->engine() );
 }
 

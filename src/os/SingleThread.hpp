@@ -50,7 +50,7 @@
 #include <string>
 
 #ifdef OROPKG_OS_THREAD_SCOPE
-# include "rtt/dev/DigitalOutInterface.hpp"
+# include "/dev/DigitalOutInterface.hpp"
 #endif
 
 namespace RTT
