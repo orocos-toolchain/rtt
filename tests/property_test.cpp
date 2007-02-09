@@ -213,11 +213,6 @@ void PropertyTest::testComposition()
 }
 
 
-void PropertyTest::testMarshalling()
-{
-
-}
-
 void PropertyTest::testInit()
 {
     // See if this compiles fine:

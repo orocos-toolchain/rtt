@@ -28,9 +28,9 @@
 #ifndef PULSETRAINGENERATOR_HPP
 #define PULSETRAINGENERATOR_HPP
 
-#include <rtt/NameServer.hpp>
-#include <rtt/NameServerRegistrator.hpp>
-#include <rtt/Time.hpp> // Orocos Time types
+#include "../NameServer.hpp"
+#include "../NameServerRegistrator.hpp"
+#include "../Time.hpp" // Orocos Time types
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface

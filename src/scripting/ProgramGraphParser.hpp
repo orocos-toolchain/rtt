@@ -53,9 +53,11 @@
 #include <vector>
 #include <string>
 
-namespace RTT {
-    class ProgramTask;
-}
+
+#include "ProgramTask.hpp"
+//namespace RTT {
+//    class ProgramTask;
+//}
 
 namespace RTT { namespace detail
 {
