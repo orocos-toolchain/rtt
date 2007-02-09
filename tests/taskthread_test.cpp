@@ -1,4 +1,4 @@
-/***************************************************************************
+\/***************************************************************************
   tag: Peter Soetens  Tue Apr 5 16:53:26 CEST 2005  taskthread_test.cpp 
 
                         taskthread_test.cpp -  description
@@ -27,7 +27,7 @@
 #include <SimulationThread.hpp>
 #include <os/MainThread.hpp>
 #include <Logger.hpp>
-#include "rtt-config.h"
+#include <rtt-config.h>
 
 using namespace std;
 

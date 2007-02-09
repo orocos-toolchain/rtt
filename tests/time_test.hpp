@@ -25,7 +25,7 @@
 #include <Time.hpp>
 #include <TimeService.hpp>
 #include <string>
-#include "rtt-config.h"
+#include <rtt-config.h>
 
 class TimeTest : public CppUnit::TestFixture
 {

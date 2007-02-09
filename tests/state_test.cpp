@@ -18,7 +18,7 @@ b/***************************************************************************
  
  
 
-#include "rtt-config.h"
+#include <rtt-config.h>
 #include "state_test.hpp"
 #include <unistd.h>
 #include <iostream>
@@ -38,10 +38,10 @@ using namespace std;
 CPPUNIT_TEST_SUITE_REGISTRATION( StateTest );
 
 
-    StateTest::StateTest()
-        :gtc("root"),
-         gtask( 0.01, gtc.engine() )
-    {}
+StateTest::StateTest()
+    :gtc("root"),
+     gtask( 0.01, gtc.engine() )
+{}
 
 
 void 

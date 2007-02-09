@@ -24,7 +24,7 @@
 #include "property_test.hpp"
 #include <boost/bind.hpp>
 #include <PropertyBagIntrospector.hpp>
-#include "rtt-config.h"
+#include <rtt-config.h>
 
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( PropertyTest );

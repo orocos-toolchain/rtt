@@ -31,7 +31,7 @@
 
 #include <boost/function_types/function_type_signature.hpp>
 
-#include "rtt-config.h"
+#include <rtt-config.h>
 
 using namespace std;
 
