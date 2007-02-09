@@ -43,7 +43,7 @@
 #include "../Logger.hpp"
 #include "../BuildType.hpp"
 #include "../CommandInterface.hpp"
-#include "../scripting/CommandBinary.hpp"
+#include "../CommandBinary.hpp"
 #include "CorbaConversion.hpp"
 
 
