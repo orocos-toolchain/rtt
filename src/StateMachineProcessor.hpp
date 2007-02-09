@@ -47,7 +47,7 @@
 #include <vector>
 #include "ListLockFree.hpp"
 
-#include "rtt-config.h"
+#include <rtt-config.h>
 
 namespace RTT
 {

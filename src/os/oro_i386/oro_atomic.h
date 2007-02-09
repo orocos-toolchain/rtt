@@ -37,7 +37,7 @@
  
  
 
-#include "rtt-config.h"
+#include <rtt-config.h>
 #ifdef OROBLD_OS_AGNOSTIC
 // provide own implementation, but avoid name clashes :
 

@@ -48,7 +48,7 @@
 #include <string>
 #include <vector>
 
-#include "rtt-config.h"
+#include <rtt-config.h>
 
 namespace RTT
 {

@@ -47,7 +47,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include "../../rtt-config.h"
+#include <rtt-config.h>
 #define INTERNAL_QUAL static inline
 
 #include <string.h>

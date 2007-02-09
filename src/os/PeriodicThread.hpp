@@ -39,7 +39,7 @@
 #define ORO_PERIODIC_THREAD_HPP
 
 // Our own package config headers.
-#include "../rtt-config.h"
+#include <rtt-config.h>
 #include "fosi.h"
 
 #include "RunnableInterface.hpp"

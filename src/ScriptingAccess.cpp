@@ -41,7 +41,7 @@
 #include "Logger.hpp"
 #include "TaskContext.hpp"
 
-#include "rtt-config.h"
+#include <rtt-config.h>
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
 #include "ProgramProcessor.hpp"
 #endif

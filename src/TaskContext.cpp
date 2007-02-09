@@ -50,7 +50,7 @@
 #include "Method.hpp"
 #include "ConnectionInterface.hpp"
 
-#include "rtt-config.h"
+#include <rtt-config.h>
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
 #include "scripting/ParserScriptingAccess.hpp"
 #include "scripting/ParserExecutionAccess.hpp"

@@ -1,34 +1,3 @@
-# This is a comment
-prefix=@prefix@
-exec_prefix=@exec_prefix@  # defining another variable in terms of the first
-libdir=@libdir@
-includedir=@includedir@
-
-Name: Orocos                            # human-readable name
-Description: Open Robot Control Software # human-readable description
-Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -lorocos-rtt @TARGET_LIBS@
-#Libs.private: @TARGET_LIBS@
-Cflags: -I${includedir} @TARGET_FLAGS@
-# This is a comment
-prefix=@prefix@
-exec_prefix=@exec_prefix@  # defining another variable in terms of the first
-libdir=@libdir@
-includedir=@includedir@
-
-Name: Orocos                            # human-readable name
-Description: Open Robot Control Software # human-readable description
-Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -lorocos-rtt @TARGET_LIBS@
-#Libs.private: @TARGET_LIBS@
-Cflags: -I${includedir} @TARGET_FLAGS@
-
-#
-# THIS FILE IS NOT FOR INSTALLATION !
-# Only to be used for the build/packages/install/lib/pkgconfig directory.
-#
-# See orocos.pc.in for the installable version of this file.
-
 prefix=@CMAKE_INSTALL_PREFIX@
 exec_prefix=${prefix}  # defining another variable in terms of the first
 libdir=${exec_prefix}/lib

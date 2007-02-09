@@ -35,7 +35,7 @@
  *                                                                         *
  ***************************************************************************/
  
-#include "../../rtt-config.h"
+#include <rtt-config.h>
 #ifdef OROBLD_OS_AGNOSTIC
  
 #ifndef _x86_64_BITOPS_H

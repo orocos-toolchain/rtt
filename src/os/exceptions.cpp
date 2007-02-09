@@ -37,7 +37,7 @@
  
  
 
-#include "../rtt-config.h"
+#include <rtt-config.h>
 
 #include <exception>
 #include <boost/throw_exception.hpp>

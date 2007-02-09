@@ -44,7 +44,7 @@
 #include <map>
 #include <string>
 #include "os/oro_atomic.h"
-#include "rtt-config.h"
+#include <rtt-config.h>
 #ifdef OROINT_OS_CORBA
 #include "corba/OperationsC.h"
 #include "corba/OperationsS.h"
