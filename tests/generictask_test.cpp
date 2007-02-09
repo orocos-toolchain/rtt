@@ -43,6 +43,7 @@ void
 Generic_TaskTest::setUp()
 {
     tc =  new TaskContext( "root" );
+    tc->addObject( this->createMethodFactory() );
     tsim = new SimulationActivity(0.001, tc->engine() );
 }
 

@@ -89,10 +89,11 @@ struct TestPeriodic
             }
             ts = TimeService::Instance()->getTicks();
         }
-        void finalize() {
-         if (overfail || underfail)
-             cerr <<"overfail is:"<<overfail<<", underfail is:"<<underfail<< " success is: "<<succ<<endl;
-        }
+    }
+    void finalize() {
+        if (overfail || underfail)
+            cerr <<"overfail is:"<<overfail<<", underfail is:"<<underfail<< " success is: "<<succ<<endl;
+    }
         
     void reset() {
         overfail = 0;
