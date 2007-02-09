@@ -71,16 +71,18 @@ namespace RTT
         if ( other->connection() == 0 ) {
             ConnectionInterface::shared_ptr ci = this->createConnection();
             if (ci) {
-                if ( other->connectTo( ci ) )
-                    return ci->connect();
+                if ( other->connectTo( ci ) && ci->connect() ) {
+                    return true;
+                }
                 // failed, cleanup.
                 this->disconnect();
                 return false;
             }
             ci = other->createConnection();
             if (ci) {
-                if ( this->connectTo( ci ) )
-                    return ci->connect();
+                if ( this->connectTo( ci ) && ci->connect() ){
+                    return true;
+                }
                 // failed, cleanup.
                 other->disconnect();
                 return false;

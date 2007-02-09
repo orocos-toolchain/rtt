@@ -179,7 +179,7 @@ namespace RTT
             // Then try to get the peer port's connection
             PortInterface* peerport = peer->ports()->getPort( (*it)->getName() );
             if ( !peerport ) {
-                Logger::log() <<Logger::Debug<< "Peer Task "<<peer->getName() <<" has no Port " << (*it)->getName() << Logger::endl;
+                log(Debug)<< "Peer Task "<<peer->getName() <<" has no Port " << (*it)->getName() << endlog();
                 continue;
             }
 
@@ -187,8 +187,8 @@ namespace RTT
             if ( peerport->connected() && (*it)->connected() ) {
                 if (peerport->connection() == (*it)->connection() )
                     continue;
-                log() << "Ports '"<< peerport->getName() << "' of task " <<peer->getName() << " and task " << getName()
-                      << " have the same name but are not connected to each other." << endlog(Warning);
+                log(Warning) << "Ports '"<< peerport->getName() << "' of task " <<peer->getName() << " and task " << getName()
+                      << " have the same name but are not connected to each other." << endlog();
             }
 
             // NOTE: all code below can be replaced by a single line:
@@ -199,12 +199,12 @@ namespace RTT
             if ( (*it)->connected() ) {
                 // ask peer to connect to us:
                 if ( peerport->connectTo( *it ) ) {
-                    Logger::log() <<Logger::Info<< "Connected Port " << (*it)->getName()
-                                  << " of peer Task "<<peer->getName() << " to existing connection." << Logger::endl;
+                    log(Info)<< "Connected Port " << (*it)->getName()
+                                  << " of peer Task "<<peer->getName() << " to existing connection." << endlog();
                 }
                 else {
-                    Logger::log() <<Logger::Error<< "Failed to connect Port " << (*it)->getName()
-                                  << " of peer Task "<<peer->getName() << " to existing connection." << Logger::endl;
+                    log(Error)<< "Failed to connect Port " << (*it)->getName()
+                                  << " of peer Task "<<peer->getName() << " to existing connection." << endlog();
                     failure = true;
                 }
                 continue;
@@ -213,12 +213,12 @@ namespace RTT
             // Peer port is connected thus our port is not connected.
             if ( peerport->connected() ) {
                 if ( (*it)->connectTo( peerport ) ) {
-                    Logger::log() <<Logger::Info<< "Added Port " << (*it)->getName()
-                                  << " to existing connection of peer Task "<<peer->getName() << "." << Logger::endl;
+                    log(Info)<< "Added Port " << (*it)->getName()
+                                  << " to existing connection of peer Task "<<peer->getName() << "." << endlog();
                 }
                 else {
-                    Logger::log() <<Logger::Error<< "Not connecting Port " << (*it)->getName()
-                                  << " to existing connection of peer Task "<<peer->getName() << "." << Logger::endl;
+                    log(Error)<< "Not connecting Port " << (*it)->getName()
+                                  << " to existing connection of peer Task "<<peer->getName() << "." << endlog();
                     failure = true;
                 }
                 continue;
@@ -227,11 +227,11 @@ namespace RTT
             // Last resort: both not connected: create new connection.
             if ( !(*it)->connectTo( peerport ) ) {
                 // real error msg will be produced by factory itself.
-                log(Warning)<< "Failed to connect Port " << (*it)->getName() << " of " << getName() << " to peer Task "<<peer->getName() <<"." << Logger::endl;
+                log(Warning)<< "Failed to connect Port " << (*it)->getName() << " of " << getName() << " to peer Task "<<peer->getName() <<"." << endlog();
                 failure = true;
             } else {
                 // all went fine, add peerport as well, will always succeed:
-                Logger::log() <<Logger::Info<< "Connected Port " << (*it)->getName() << " to peer Task "<<peer->getName() <<"." << Logger::endl;
+                log(Info)<< "Connected Port " << (*it)->getName() << " to peer Task "<<peer->getName() <<"." << endlog();
             }
         }
         return !failure;
@@ -342,7 +342,7 @@ namespace RTT
     void TaskContext::reconnect()
     {
         Logger::In in( this->getName().c_str()  );
-        Logger::log() << Logger::Info << "Starting reconnection..."<<Logger::endl;
+        log(Info) << "Starting reconnection..."<<endlog();
         // first disconnect all our ports
         DataFlowInterface::Ports myports = this->ports()->getPorts();
         for (DataFlowInterface::Ports::iterator it = myports.begin();
@@ -360,7 +360,7 @@ namespace RTT
             (*it)->exportPorts();
         }
 
-        Logger::log() << Logger::Info << "Reconnection done."<<Logger::endl;
+        log(Info) << "Reconnection done."<<endlog();
     }
 
     void TaskContext::disconnect() {

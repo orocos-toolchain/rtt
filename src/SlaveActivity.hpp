@@ -78,7 +78,8 @@ namespace RTT
         SlaveActivity( ActivityInterface* master, RunnableInterface* run = 0 );
 
         /**
-         * Create an activity which is periodic.
+         * Create an activity which is periodic. If \a period == 0.0, this constructor
+         * is equivalent to the one below for non periodic activities.
          * @param period The periodicity at which you will \a trigger() this activity.
          * @param run Run this instance.
          */
@@ -86,6 +87,7 @@ namespace RTT
 
         /**
          * Create an activity for which \a trigger() will not be periodically called.
+         * The period of this activity will be 0.0.
          * @param run Run this instance.
          */
         SlaveActivity( RunnableInterface* run = 0 );
