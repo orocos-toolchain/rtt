@@ -86,15 +86,15 @@ namespace RTT
         struct Item {
             Item( const T& initial_value )
                 : content(initial_value) {
-                atomic_set(&rc, 0);
+                oro_atomic_set(&rc, 0);
             }
             Item()
                 : content() {
-                atomic_set(&rc, 0);
+                oro_atomic_set(&rc, 0);
             }
             // the order is important !
             T content;
-            atomic_t rc;
+            oro_atomic_t rc;
         };
 
         /**
@@ -200,7 +200,7 @@ namespace RTT
             // iterate over the whole pool and try to get a free slot.
             for ( typename PoolType::iterator it = mpool.begin(); it != mpool.end(); ++it ) {
                 if ( it->first->dequeue( result ) ) {
-                    atomic_inc( &static_cast<Item*>(result)->rc);
+                    oro_atomic_inc( &static_cast<Item*>(result)->rc);
                     return static_cast<pointer>( result );
                 }
             }
@@ -213,9 +213,9 @@ namespace RTT
          */
         bool lock(pointer m) {
             Item* it = reinterpret_cast<Item*>(m);
-            if ( atomic_read(&it->rc) == 0 )
+            if ( oro_atomic_read(&it->rc) == 0 )
                 return false;
-            atomic_inc(&(it->rc) );
+            oro_atomic_inc(&(it->rc) );
             return true;
         }
 
@@ -234,9 +234,9 @@ namespace RTT
         bool deallocate( pointer m )
         {
             Item* item = reinterpret_cast<Item*>(m);
-            if ( atomic_read(&item->rc) == 0 )
+            if ( oro_atomic_read(&item->rc) == 0 )
                 return false;
-            if( atomic_dec_and_test( &(item->rc) ) ) {
+            if( oro_atomic_dec_and_test( &(item->rc) ) ) {
                 for ( typename PoolType::iterator it = mpool.begin(); it != mpool.end(); ++it ) {
                     if ( it->first->enqueue( static_cast<void*>(m) ) ) {
                         return true;
@@ -252,7 +252,7 @@ namespace RTT
          * is used.
          */
         size_type useCount( pointer m ) {
-            return atomic_read( &static_cast< Item* >(m)->rc );
+            return oro_atomic_read( &static_cast< Item* >(m)->rc );
         }
     };
 
@@ -277,15 +277,15 @@ namespace RTT
         struct Item {
             Item( const T& initial_value )
                 : content(initial_value) {
-                atomic_set(&rc, 0);
+                oro_atomic_set(&rc, 0);
             }
             Item()
                 : content() {
-                atomic_set(&rc, 0);
+                oro_atomic_set(&rc, 0);
             }
             // the order is important !
             T content;
-            atomic_t rc;
+            oro_atomic_t rc;
         };
 
         /**
@@ -349,7 +349,7 @@ namespace RTT
             // iterate over the whole pool and try to get a free slot.
             if ( mpool.dequeue( result ) ) {
                 Item* it = static_cast<Item*>(result);
-                atomic_inc( &(it->rc) );
+                oro_atomic_inc( &(it->rc) );
                 return (&it->content);
             }
             return 0;
@@ -361,9 +361,9 @@ namespace RTT
          */
         bool lock(pointer m) {
             Item* it = reinterpret_cast<Item*>(m);
-            if ( atomic_read(&it->rc) == 0 )
+            if ( oro_atomic_read(&it->rc) == 0 )
                 return false;
-            atomic_inc(&(it->rc) );
+            oro_atomic_inc(&(it->rc) );
             return true;
         }
 
@@ -382,9 +382,9 @@ namespace RTT
         bool deallocate( pointer m )
         {
             Item* it = reinterpret_cast<Item*>(m);
-            if ( atomic_read(&it->rc) == 0 )
+            if ( oro_atomic_read(&it->rc) == 0 )
                 return false;
-            if( atomic_dec_and_test( &(it->rc) ) )
+            if( oro_atomic_dec_and_test( &(it->rc) ) )
                 if ( mpool.enqueue( static_cast<void*>(m) ) == false )
                     assert(false && "Deallocating more elements than allocated !");
             return true;

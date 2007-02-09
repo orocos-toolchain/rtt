@@ -46,40 +46,47 @@
 
 #include <rtt-config.h>
 #ifdef OROBLD_OS_AGNOSTIC
-#include "oro_bitops.h"
 // do not rely on system headers :
 // x86_64 :
 
-struct __xchg_dummy { unsigned long a[100]; };
-#define __xg(x) ((struct __xchg_dummy *)(x))
+// this is required for multi-core cpus
+// Export ORO_LOCK_PREFIX, just like the classical bitops.h does.
+#ifndef CONFIG_FORCE_UP
+#define ORO_LOCK_PREFIX "lock ; "
+#else
+#define ORO_LOCK_PREFIX ""
+#endif
 
-static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
+struct oro__xchg_dummy { unsigned long a[100]; };
+#define oro__xg(x) ((struct oro__xchg_dummy *)(x))
+
+static inline unsigned long __oro_cmpxchg(volatile void *ptr, unsigned long old,
 				      unsigned long _new, int size)
 {
 	unsigned long prev;
 	switch (size) {
 	case 1:
-		__asm__ __volatile__(LOCK_PREFIX "cmpxchgb %b1,%2"
+		__asm__ __volatile__(ORO_LOCK_PREFIX "cmpxchgb %b1,%2"
 				     : "=a"(prev)
-				     : "q"(_new), "m"(*__xg(ptr)), "0"(old)
+				     : "q"(_new), "m"(*oro__xg(ptr)), "0"(old)
 				     : "memory");
 		return prev;
 	case 2:
-		__asm__ __volatile__(LOCK_PREFIX "cmpxchgw %w1,%2"
+		__asm__ __volatile__(ORO_LOCK_PREFIX "cmpxchgw %w1,%2"
 				     : "=a"(prev)
-				     : "q"(_new), "m"(*__xg(ptr)), "0"(old)
+				     : "q"(_new), "m"(*oro__xg(ptr)), "0"(old)
 				     : "memory");
 		return prev;
 	case 4:
-		__asm__ __volatile__(LOCK_PREFIX "cmpxchgl %k1,%2"
+		__asm__ __volatile__(ORO_LOCK_PREFIX "cmpxchgl %k1,%2"
 				     : "=a"(prev)
-				     : "q"(_new), "m"(*__xg(ptr)), "0"(old)
+				     : "q"(_new), "m"(*oro__xg(ptr)), "0"(old)
 				     : "memory");
 		return prev;
 	case 8:
-		__asm__ __volatile__(LOCK_PREFIX "cmpxchgq %1,%2"
+		__asm__ __volatile__(ORO_LOCK_PREFIX "cmpxchgq %1,%2"
 				     : "=a"(prev)
-				     : "q"(_new), "m"(*__xg(ptr)), "0"(old)
+				     : "q"(_new), "m"(*oro__xg(ptr)), "0"(old)
 				     : "memory");
 		return prev;
 
@@ -87,8 +94,8 @@ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
 	return old;
 }
 
-#define cmpxchg(ptr,o,n)\
-	((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
+#define oro_cmpxchg(ptr,o,n)\
+	((__typeof__(*(ptr)))__oro_cmpxchg((ptr),(unsigned long)(o),\
 					(unsigned long)(n),sizeof(*(ptr))))
 
 

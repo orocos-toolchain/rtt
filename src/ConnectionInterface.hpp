@@ -104,7 +104,7 @@ namespace RTT
     protected:
         friend void ::intrusive_ptr_add_ref( ConnectionInterface* p );
         friend void ::intrusive_ptr_release( ConnectionInterface* p );
-        atomic_t refcount;
+        oro_atomic_t refcount;
     public:
         
         typedef boost::intrusive_ptr<ConnectionInterface> shared_ptr;

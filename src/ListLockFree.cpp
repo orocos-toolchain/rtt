@@ -44,11 +44,11 @@
 
 
 void intrusive_ptr_add_ref( RTT::detail::IntrusiveStorage* p ) {
-    atomic_inc( &p->ref );
+    oro_atomic_inc( &p->ref );
 }
 
 void intrusive_ptr_release( RTT::detail::IntrusiveStorage* p ) {
-    if (atomic_dec_and_test( &p->ref ) )
+    if (oro_atomic_dec_and_test( &p->ref ) )
         delete p;
 }
 

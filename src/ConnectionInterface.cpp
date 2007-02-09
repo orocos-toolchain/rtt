@@ -42,7 +42,7 @@
 namespace RTT
 {
 
-    ConnectionInterface::ConnectionInterface() { atomic_set(&refcount,0); }
+    ConnectionInterface::ConnectionInterface() { oro_atomic_set(&refcount,0); }
 
     ConnectionInterface::~ConnectionInterface()
     {
@@ -57,10 +57,10 @@ namespace RTT
 }
 void intrusive_ptr_add_ref( RTT::ConnectionInterface* p )
 { 
-    atomic_inc(&(p->refcount) ); 
+    oro_atomic_inc(&(p->refcount) ); 
 }
 
 void intrusive_ptr_release( RTT::ConnectionInterface* p )
 {
-    if ( atomic_dec_and_test(&(p->refcount) ) ) delete p;
+    if ( oro_atomic_dec_and_test(&(p->refcount) ) ) delete p;
 }

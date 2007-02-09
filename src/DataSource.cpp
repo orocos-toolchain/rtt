@@ -46,9 +46,9 @@
 namespace RTT
 {
 
-    DataSourceBase::DataSourceBase() { atomic_set(&refcount,0); }
-    void DataSourceBase::ref() const { atomic_inc(&refcount); }
-    void DataSourceBase::deref() const { if ( atomic_dec_and_test(&refcount) ) delete this; }
+    DataSourceBase::DataSourceBase() { oro_atomic_set(&refcount,0); }
+    void DataSourceBase::ref() const { oro_atomic_inc(&refcount); }
+    void DataSourceBase::deref() const { if ( oro_atomic_dec_and_test(&refcount) ) delete this; }
 
     DataSourceBase::~DataSourceBase()
     {

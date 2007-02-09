@@ -512,9 +512,9 @@ namespace RTT
             DataBuf()
                 : data(), counter(), next()
             {
-                atomic_set(&counter, 0);
+                oro_atomic_set(&counter, 0);
             }
-            DataType data; mutable atomic_t counter; DataBuf* next;
+            DataType data; mutable oro_atomic_t counter; DataBuf* next;
         };
 
         typedef DataBuf* volatile VolPtrType;
@@ -588,16 +588,16 @@ namespace RTT
             // could become write_ptr ( then we would read corrupted data).
             do {
                 reading = read_ptr;            // copy buffer location
-                atomic_inc(&reading->counter); // lock buffer, no more writes
+                oro_atomic_inc(&reading->counter); // lock buffer, no more writes
                 if ( reading != read_ptr )     // if read_ptr changed, 
-                    atomic_dec(&reading->counter); // better to start over.
+                    oro_atomic_dec(&reading->counter); // better to start over.
                 else
                     break;
             } while ( true );
             // from here on we are sure that 'reading'
             // is a valid buffer to read from.
             pull = reading->data;               // takes some time
-            atomic_dec(&reading->counter);       // release buffer
+            oro_atomic_dec(&reading->counter);       // release buffer
         }
 
         /**
@@ -620,7 +620,7 @@ namespace RTT
             PtrType wrote_ptr = write_ptr;
             // if next field is occupied (by read_ptr or counter),
             // go to next and check again...
-            while ( atomic_read( &write_ptr->next->counter ) != 0 || write_ptr->next == read_ptr )
+            while ( oro_atomic_read( &write_ptr->next->counter ) != 0 || write_ptr->next == read_ptr )
                 {
                     write_ptr = write_ptr->next;
                     if (write_ptr == wrote_ptr)

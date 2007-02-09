@@ -60,7 +60,6 @@ extern "C"
   // include 'atomic' functions,
   // depends on processor target, not OS.
 #include "oro_atomic.h"
-#include "oro_bitops.h"
 
 #define ORO_SCHED_RT    0 /** Hard real-time scheduler type. @see RTT::OS::ThreadInterface::setScheduler */
 #define ORO_SCHED_OTHER 1 /** Soft real-time scheduler type. @see RTT::OS::ThreadInterface::setScheduler */

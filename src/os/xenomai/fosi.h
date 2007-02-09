@@ -51,7 +51,6 @@ extern "C" {
 
 	// Orocos Implementation (CPU specific)
 #include "os/oro_atomic.h"
-#include "os/oro_bitops.h"
 
 #include <rtt-config.h>
 #if !defined(OROBLD_OS_AGNOSTIC) || defined(OROBLD_OS_INTERNAL)
@@ -75,9 +74,9 @@ extern "C" {
 #include <time.h>
 
 #include <xeno_config.h> // version number
-	// From Xenomai 2.1 on, it defines LOCK_PREFIX itself, undef ours
+	// From Xenomai 2.1 on, it defines ORO_LOCK_PREFIX itself, undef ours
 #if !(CONFIG_XENO_VERSION_MAJOR == 2 && CONFIG_XENO_VERSION_MINOR == 0)
-#undef LOCK_PREFIX 
+#undef ORO_LOCK_PREFIX 
 #endif
 
 #include <native/task.h>

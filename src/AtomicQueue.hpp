@@ -80,10 +80,10 @@ namespace RTT
         typedef typename BufferType::const_iterator CIterator;
         struct Item {
             Item()  {
-                //ATOMIC_INIT(count);
-                atomic_set(&count,-1);
+                //ORO_ATOMIC_INIT(count);
+                oro_atomic_set(&count,-1);
             }
-            mutable atomic_t count;  // refcount
+            mutable oro_atomic_t count;  // refcount
             BufferType data;
         };
 
@@ -114,7 +114,7 @@ namespace RTT
             // bootstrap the first queue :
             if (init) {
                 active = &(*st)[0];
-                atomic_inc( &active->count );
+                oro_atomic_inc( &active->count );
             }
 
             return st;
@@ -133,8 +133,8 @@ namespace RTT
         WritePolicy write_policy;
         ReadPolicy read_policy;
 
-        atomic_t counter;
-        atomic_t dcounter;
+        oro_atomic_t counter;
+        oro_atomic_t dcounter;
     public:
         typedef unsigned int size_type;
 
@@ -151,8 +151,8 @@ namespace RTT
         {
             const unsigned int BUF_NUM = BufNum();
             bufs = newStorage( BUF_NUM, lsize );
-            atomic_set(&counter,0);
-            atomic_set(&dcounter,0);
+            oro_atomic_set(&counter,0);
+            oro_atomic_set(&dcounter,0);
         }
 
         ~AtomicQueue() {
@@ -164,7 +164,7 @@ namespace RTT
             size_t res;
             Item* orig = lockAndGetActive();
             res = orig->data.capacity();
-            atomic_dec( &orig->count ); // lockAndGetActive
+            oro_atomic_dec( &orig->count ); // lockAndGetActive
             return res;
         }
 
@@ -173,7 +173,7 @@ namespace RTT
             size_t res;
             Item* orig = lockAndGetActive();
             res = orig->data.size();
-            atomic_dec( &orig->count ); // lockAndGetActive
+            oro_atomic_dec( &orig->count ); // lockAndGetActive
             return res;
         }
 
@@ -186,7 +186,7 @@ namespace RTT
             bool res;
             Item* orig = lockAndGetActive();
             res = orig->data.empty();
-            atomic_dec( &orig->count ); // lockAndGetActive
+            oro_atomic_dec( &orig->count ); // lockAndGetActive
             return res;
         }
 
@@ -199,7 +199,7 @@ namespace RTT
             bool res;
             Item* orig = lockAndGetActive();
             res = (orig->data.size() == orig->data.capacity());
-            atomic_dec( &orig->count ); // lockAndGetActive
+            oro_atomic_dec( &orig->count ); // lockAndGetActive
             return res;
         }
 
@@ -210,17 +210,17 @@ namespace RTT
             int items = 0;
             do {
                 if (orig) {
-                    atomic_dec(&orig->count);
-                    atomic_dec(&nextbuf->count);
+                    oro_atomic_dec(&orig->count);
+                    oro_atomic_dec(&nextbuf->count);
                 }
                 orig = lockAndGetActive();
                 items = orig->data.size();
                 nextbuf = findEmptyBuf(); // find unused Item in bufs
             } while ( OS::CAS(&active, orig, nextbuf ) == false );
-            atomic_dec( &orig->count ); // lockAndGetActive
-            atomic_dec( &orig->count ); // ref count
-            atomic_set(&counter,0);
-            atomic_set(&dcounter,0);
+            oro_atomic_dec( &orig->count ); // lockAndGetActive
+            oro_atomic_dec( &orig->count ); // ref count
+            oro_atomic_set(&counter,0);
+            oro_atomic_set(&dcounter,0);
         }
 
         /**
@@ -235,20 +235,20 @@ namespace RTT
             write_policy.pop();
             do {
                 if (orig) {
-                    atomic_dec(&orig->count);
-                    atomic_dec(&usingbuf->count);
+                    oro_atomic_dec(&orig->count);
+                    oro_atomic_dec(&usingbuf->count);
                 }
                 orig = lockAndGetActive();
                 if ( orig->data.size() == orig->data.capacity() ) { // check for full
-                    atomic_dec( &orig->count );
+                    oro_atomic_dec( &orig->count );
                     return false;
                 }
                 usingbuf = findEmptyBuf(); // find unused Item in bufs
                 usingbuf->data = orig->data;
                 usingbuf->data.push_back( value );
             } while ( OS::CAS(&active, orig, usingbuf ) ==false);
-            atomic_dec( &orig->count ); // lockAndGetActive()
-            atomic_dec( &orig->count ); // set queue free
+            oro_atomic_dec( &orig->count ); // lockAndGetActive()
+            oro_atomic_dec( &orig->count ); // set queue free
             read_policy.push();
             return true;
         }
@@ -262,8 +262,8 @@ namespace RTT
         int enqueueCounted(const T& value)
         {
             if ( enqueue( value ) ) {
-                atomic_inc(&counter);
-                return atomic_read(&counter);
+                oro_atomic_inc(&counter);
+                return oro_atomic_read(&counter);
             }
             return 0;
         }
@@ -280,12 +280,12 @@ namespace RTT
             read_policy.pop();
             do {
                 if (orig) {
-                    atomic_dec(&orig->count);
-                    atomic_dec(&usingbuf->count);
+                    oro_atomic_dec(&orig->count);
+                    oro_atomic_dec(&usingbuf->count);
                 }
                 orig = lockAndGetActive();
                 if ( orig->data.empty() ) { // check for empty
-                    atomic_dec( &orig->count );
+                    oro_atomic_dec( &orig->count );
                     return false;
                 }
                 usingbuf = findEmptyBuf(); // find unused Item in bufs
@@ -295,8 +295,8 @@ namespace RTT
                     usingbuf->data.push_back(*it);
                 //usingbuf->data.insert( usingbuf->data.end(), it, orig->data.end() ); // ALTERNATIVE. (does it allocate??)
             } while ( OS::CAS(&active, orig, usingbuf ) ==false);
-            atomic_dec( &orig->count ); // lockAndGetActive()
-            atomic_dec( &orig->count ); // set queue free
+            oro_atomic_dec( &orig->count ); // lockAndGetActive()
+            oro_atomic_dec( &orig->count ); // set queue free
             write_policy.push();
             return true;
         }
@@ -310,8 +310,8 @@ namespace RTT
         int dequeueCounted( T& result )
         {
             if (dequeue(result) ) {
-                atomic_inc(&dcounter);
-                return atomic_read(&dcounter);
+                oro_atomic_inc(&dcounter);
+                return oro_atomic_read(&dcounter);
             }
             return 0;
         }
@@ -331,11 +331,11 @@ namespace RTT
             do {
                 if (orig) {
                     mp.unlock( orig->data.front() );
-                    atomic_dec(&orig->count);
+                    oro_atomic_dec(&orig->count);
                 }
                 orig = lockAndGetActive();
                 if ( orig->data.empty() ) { // check for empty
-                    atomic_dec( &orig->count ); //lockAndGetActive
+                    oro_atomic_dec( &orig->count ); //lockAndGetActive
                     return 0;
                 }
 
@@ -343,7 +343,7 @@ namespace RTT
                 // retry if lock failed or read moved.
             } while( !was_locked );
             result = orig->data.front();
-            atomic_dec( &orig->count ); // lockAndGetActive()
+            oro_atomic_dec( &orig->count ); // lockAndGetActive()
             return result;
         }
 
@@ -354,7 +354,7 @@ namespace RTT
         {
             Item* orig = lockAndGetActive();
             value_t ret(orig->data.front());
-            atomic_dec( &orig->count ); //lockAndGetActive
+            oro_atomic_dec( &orig->count ); //lockAndGetActive
             return ret;
         }
 
@@ -365,7 +365,7 @@ namespace RTT
         {
             Item* orig = lockAndGetActive();
             value_t ret(orig->data.back());
-            atomic_dec( &orig->count ); //lockAndGetActive
+            oro_atomic_dec( &orig->count ); //lockAndGetActive
             return ret;
         }
 
@@ -378,9 +378,9 @@ namespace RTT
             // If MAX_THREADS is large enough, this will always succeed :
             Item* start = &(*bufs)[0];
             while( true ) {
-                if ( atomic_inc_and_test( &start->count ) )
+                if ( oro_atomic_inc_and_test( &start->count ) )
                     break;
-                atomic_dec( &start->count );
+                oro_atomic_dec( &start->count );
                 ++start;
                 if (start == &(*bufs)[0] + BufNum() )
                     start = &(*bufs)[0]; // in case of races, rewind
@@ -398,9 +398,9 @@ namespace RTT
             Item* orig=0;
             do {
                 if (orig)
-                    atomic_dec( &orig->count );
+                    oro_atomic_dec( &orig->count );
                 orig = active;
-                atomic_inc( &orig->count );
+                oro_atomic_inc( &orig->count );
                 // this synchronisation point is 'aggressive' (a _sufficient_ condition)
                 // if active is still equal to orig, the increase of orig->count is
                 // surely valid, since no contention (change of active) occured.

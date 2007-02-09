@@ -95,7 +95,7 @@ namespace RTT
          much desired, and that refcounting happens in an efficient way,
          which is also nice :)
       */
-      mutable atomic_t refcount;
+      mutable oro_atomic_t refcount;
 
       /** the destructor is private.  You are not allowed to delete this
        * class yourself, use a shared pointer !

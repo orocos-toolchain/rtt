@@ -52,7 +52,7 @@ namespace RTT
      */
     template< class T, class V, class W >
     bool CAS( volatile T* addr, const V& expected, const W& value) {
-        return expected == cmpxchg(addr, expected, value);
+        return expected == oro_cmpxchg(addr, expected, value);
     }
 
 }}
