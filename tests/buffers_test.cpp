@@ -797,7 +797,7 @@ void BuffersTest::testAtomicQueue()
 
     // assert: sum queues == sum dequeues
     CPPUNIT_ASSERT( aworker->appends + bworker->appends + cworker->appends + grower->i 
-                    == aworker->erases + bworker->erases + cworker->erases + aqueue->size() );
+                    == aworker->erases + bworker->erases + cworker->erases + (int)(aqueue->size()) );
 
     delete aworker;
     delete bworker;
