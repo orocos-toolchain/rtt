@@ -26,10 +26,10 @@ MACRO(ORO_ADD_CORBA_SERVERS _sources _headers)
          )
      ENDIF (NOT HAVE_${_basename}_SERVER_RULE)
 
-     SET(${_sources} ${${_sources}} ${_server} ${_tserver} ${_tclient})
-     SET(${_headers} ${${_headers}} ${_serverh} ${_tserverh} ${_tclienth})
+     SET(${_sources} ${${_sources}} ${_server} ${_tserver} ${_client})
+     SET(${_headers} ${${_headers}} ${_serverh} ${_tserverh} ${_clienth})
 
-     SET_SOURCE_FILES_PROPERTIES(${_server} ${_serverh} ${_tserver} ${_tclient} ${_tserverh} ${_tclienth} PROPERTIES GENERATED true)
+     SET_SOURCE_FILES_PROPERTIES(${_server} ${_serverh} ${_tserver} ${_client} ${_tserverh} ${_clienth} PROPERTIES GENERATED true)
     ENDFOREACH (_current_FILE)
 
 ENDMACRO(ORO_ADD_CORBA_SERVERS)

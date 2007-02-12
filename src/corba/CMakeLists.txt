@@ -28,6 +28,7 @@ IF(ENABLE_CORBA)
   ENDIF ( BUILD_STATIC )
 
   IF ( BUILD_DYNAMIC )
+    #MESSAGE("CPPS: ${CPPS}")
     ADD_LIBRARY(orocos-rtt-corba-dynamic SHARED ${CPPS})
     SET_TARGET_PROPERTIES(orocos-rtt-corba-dynamic
       PROPERTIES OUTPUT_NAME orocos-rtt-corba
