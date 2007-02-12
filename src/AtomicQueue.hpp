@@ -159,18 +159,18 @@ namespace RTT
             delete bufs;
         }
 
-        size_t capacity() const
+        size_type capacity() const
         {
-            size_t res;
+            size_type res;
             Item* orig = lockAndGetActive();
             res = orig->data.capacity();
             oro_atomic_dec( &orig->count ); // lockAndGetActive
             return res;
         }
 
-        size_t size() const
+        size_type size() const
         {
-            size_t res;
+            size_type res;
             Item* orig = lockAndGetActive();
             res = orig->data.size();
             oro_atomic_dec( &orig->count ); // lockAndGetActive
