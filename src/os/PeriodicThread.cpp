@@ -55,7 +55,8 @@ namespace RTT
          */
         PeriodicThread* task = static_cast<OS::PeriodicThread*> (t);
         // acquire the resulting scheduler type.
-        task->msched_type = rtos_task_get_scheduler( task->getTask() );
+        //task->msched_type = rtos_task_get_scheduler( task->getTask() );
+        task->configure();
 
 #ifdef OROPKG_OS_THREAD_SCOPE
         // order thread scope toggle bit on thread number
@@ -152,7 +153,7 @@ namespace RTT
                                    const std::string & name, 
                                    Seconds periods, 
                                    RunnableInterface* r) :
-        msched_type(0), running(false), prepareForExit(false),
+        msched_type(ORO_SCHED_RT), running(false), prepareForExit(false),
         wait_for_step(true), runComp(r), 
         maxOverRun( OROSEM_OS_PERIODIC_THREADS_MAX_OVERRUN)
 #ifdef OROPKG_OS_THREAD_SCOPE
@@ -220,9 +221,8 @@ namespace RTT
  
         const char* modname = getName();
         Logger::In in(modname);
-        log(Info)<< "PeriodicThread created with priority " << getPriority()
+        log(Info)<< "PeriodicThread created with scheduler type '"<< getScheduler() <<"', priority " << getPriority()
                  <<" and period "<< getPeriod() << "." << endlog();
-        log(Info) << "Scheduler type was set to '"<< getScheduler() << "'."<< endlog();
 #ifdef OROPKG_OS_THREAD_SCOPE
         if (d){
             unsigned int bit = threadNumber();
@@ -341,7 +341,7 @@ namespace RTT
                     return true;
                 }
 
-                log() << "Setting scheduler type for Thread "<< rtos_task_get_name(&rtos_task) <<" to "<< sched_type;
+                log(Error) << "Setting scheduler type for Thread "<< rtos_task_get_name(&rtos_task) <<" to "<< sched_type;
                 msched_type = sched_type; 
                 rtos_sem_signal(&sem);
                 rtos_sem_wait(&confDone);
@@ -382,6 +382,7 @@ namespace RTT
         if ( msched_type != rtos_task_get_scheduler(&rtos_task) )
             {
                 rtos_task_set_scheduler( &rtos_task, msched_type );
+                msched_type = rtos_task_get_scheduler(&rtos_task);
             }
     }
         

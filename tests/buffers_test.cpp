@@ -650,6 +650,12 @@ void BuffersTest::testListLockFree()
         boost::scoped_ptr<SingleThread> cthread( new SingleThread(20,"ThreadC", cworker ));
         boost::scoped_ptr<SingleThread> gthread( new SingleThread(20,"ThreadG", grower ));
     
+        // avoid system lock-ups
+        athread->setScheduler(ORO_SCHED_OTHER);
+        bthread->setScheduler(ORO_SCHED_OTHER);
+        cthread->setScheduler(ORO_SCHED_OTHER);
+        gthread->setScheduler(ORO_SCHED_OTHER);
+
         athread->start();
         bthread->start();
         cthread->start();
@@ -769,6 +775,12 @@ void BuffersTest::testAtomicQueue()
         boost::scoped_ptr<SingleThread> cthread( new SingleThread(20,"ThreadC", cworker ));
         boost::scoped_ptr<SingleThread> gthread( new SingleThread(20,"ThreadG", grower ));
     
+        // avoid system lock-ups
+        athread->setScheduler(ORO_SCHED_OTHER);
+        bthread->setScheduler(ORO_SCHED_OTHER);
+        cthread->setScheduler(ORO_SCHED_OTHER);
+        gthread->setScheduler(ORO_SCHED_OTHER);
+
         athread->start();
         bthread->start();
         cthread->start();

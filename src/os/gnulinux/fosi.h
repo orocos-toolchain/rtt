@@ -59,8 +59,8 @@ extern "C"
   } RTOS_TASK;
 
 
-#define ORO_SCHED_RT    0 /** Linux FIFO scheduler */
-#define ORO_SCHED_OTHER 1 /** Linux normal scheduler */
+#define ORO_SCHED_RT    SCHED_FIFO /** Linux FIFO scheduler */
+#define ORO_SCHED_OTHER SCHED_OTHER /** Linux normal scheduler */
 
 
 	// Orocos Implementation (i386 specific)

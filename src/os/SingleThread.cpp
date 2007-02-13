@@ -57,7 +57,12 @@ namespace RTT
          */
         SingleThread* task = static_cast<OS::SingleThread*> (t);
         // acquire the resulting scheduler type.
-        task->msched_type = rtos_task_get_scheduler( task->getTask() );
+        if ( task->msched_type != rtos_task_get_scheduler( task->getTask()) )
+            {
+                rtos_task_set_scheduler( task->getTask(), task->msched_type );
+                task->msched_type = rtos_task_get_scheduler(task->getTask());
+            }
+        //task->msched_type = rtos_task_get_scheduler( task->getTask() );
 
 #ifdef OROPKG_OS_THREAD_SCOPE
         // order thread scope toggle bit on thread number
@@ -128,7 +133,7 @@ namespace RTT
   SingleThread::SingleThread(int _priority, 
 			     const std::string& name, 
 			     RunnableInterface* r) :
-      msched_type(0),
+      msched_type(ORO_SCHED_RT),
       active(false), prepareForExit(false), 
       inloop(false), runComp(r)
 #ifdef OROPKG_OS_THREAD_SCOPE
@@ -166,7 +171,7 @@ namespace RTT
 	    return;
 #endif
 	}
-        rtos_sem_wait( &confDone ); // wait until thread is created !
+    rtos_sem_wait( &confDone ); // wait until thread is created !
 	
 	const char* modname = getName();
 	Logger::In in(modname);
