@@ -19,6 +19,13 @@ IF(ENABLE_CORBA)
   #GLOBAL_ADD_SRC( ${CPPS} )
   INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 
+  #
+  # Set compilation flags:
+  #
+  SET_SOURCE_FILES_PROPERTIES( ${CPPS} PROPERTIES
+    COMPILE_FLAGS ${RTT_CXXFLAGS}
+    )
+
   IF ( BUILD_STATIC )
     ADD_LIBRARY(orocos-rtt-corba-static STATIC ${CPPS})
     SET_TARGET_PROPERTIES(orocos-rtt-corba-static

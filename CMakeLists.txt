@@ -95,7 +95,7 @@ ADD_CUSTOM_TARGET(uninstall
 #                                                         #
 ###########################################################
 
-INCLUDE(config/rtt_rules.cmake)
+INCLUDE(config/rtt_macros.cmake)
 
 ###########################################################
 #                                                         #

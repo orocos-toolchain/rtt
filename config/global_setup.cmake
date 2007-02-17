@@ -9,23 +9,30 @@
 #
 INCLUDE( config/DependentOption.cmake )
 
+SET(CMAKE_VERSION "${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}")
+MESSAGE("CMAKE_VERSION: ${CMAKE_VERSION}")
+
 #
 # If we're using gcc, make sure the version is OK.
 #
-#STRING( REGEX MATCH gcc USING_GCC ${CMAKE_C_COMPILER} )
-# IF (  ${CMAKE_C_COMPILER} MATCHES gcc )
-#   EXEC_PROGRAM( ${CMAKE_C_COMPILER} ARGS --version OUTPUT_VARIABLE CMAKE_C_COMPILER_VERSION )
-#   # Why doesn't this work?
-#   #STRING( REGEX MATCHALL "gcc\.*" VERSION_STRING ${CMAKE_C_COMPILER} )
-#   IF( CMAKE_C_COMPILER_VERSION MATCHES ".*4\\.[0-9]\\.[0-9]" )
-#     MESSAGE("gcc version: ${CMAKE_C_COMPILER_VERSION}")
-# #   ELSE(CMAKE_C_COMPILER_VERSION MATCHES ".*4\\.[0-9]\\.[0-9]")
-# #     MESSAGE("ERROR: You seem to be using gcc version:")
-# #     MESSAGE("${CMAKE_C_COMPILER_VERSION}")
-# #     MESSAGE( FATAL_ERROR "ERROR: For gcc, Orocos requires version 4.x")
-#   ENDIF(CMAKE_C_COMPILER_VERSION MATCHES ".*4\\.[0-9]\\.[0-9]")
-# ENDIF (  ${CMAKE_C_COMPILER} MATCHES gcc )
-
+EXECUTE_PROCESS( COMMAND ${CMAKE_CXX_COMPILER} -dumpversion RESULT_VARIABLE CXX_HAS_VERSION OUTPUT_VARIABLE CXX_VERSION)
+IF ( ${CXX_HAS_VERSION} EQUAL 0 )
+  # We are assuming here that -dumpversion is gcc specific.
+  IF( CXX_VERSION MATCHES "4\\.[0-9]\\.[0-9]" )
+    MESSAGE("Detected gcc4: ${CXX_VERSION}")
+    SET(RTT_CXXFLAGS "-fvisibility-inlines-hidden")
+  ELSE(CXX_VERSION MATCHES "4\\.[0-9]\\.[0-9]")
+    IF( CXX_VERSION MATCHES "3\\.[0-9]\\.[0-9]" )
+      MESSAGE("Detected gcc3: ${CXX_VERSION}")
+    ELSE( CXX_VERSION MATCHES "3\\.[0-9]\\.[0-9]" )
+      MESSAGE("ERROR: You seem to be using gcc version:")
+      MESSAGE("${CXX_VERSION}")
+      MESSAGE( FATAL_ERROR "ERROR: For gcc, Orocos requires version 4.x or 3.x")
+    ENDIF( CXX_VERSION MATCHES "3\\.[0-9]\\.[0-9]" )
+  ENDIF(CXX_VERSION MATCHES "4\\.[0-9]\\.[0-9]")
+ELSE ( ${CXX_HAS_VERSION} EQUAL 0)
+  MESSAGE("Could not determine gcc version: ${CXX_HAS_VERSION}")
+ENDIF ( ${CXX_HAS_VERSION} EQUAL 0)
 
 #
 # Check for Doxygen and enable documentation building
