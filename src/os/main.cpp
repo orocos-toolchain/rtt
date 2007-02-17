@@ -49,7 +49,7 @@
 
 #include <os/startstop.h>
 #include <os/main.h>
-#ifdef HAVE_IOSTREAM
+#ifdef OS_HAVE_IOSTREAM
 #include <iostream>
 using namespace std;
 #else
@@ -69,7 +69,7 @@ using RTT::Logger;
 #include <sys/mman.h>
 #endif
 
-#ifdef OROPKG_CORBA
+#ifdef OROINT_OS_CORBA
 #include <tao/Exception.h>
 #include <ace/String_Base.h>
 #endif
@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
         if ( dotry ) {
             try {
                 res = ORO_main(argc, argv);
-#ifdef OROPKG_CORBA
+#ifdef OROINT_OS_CORBA
             } catch( CORBA::Exception &e )
                 {
                     Logger::log() <<Logger::Error << "ORO_main : CORBA exception raised!" << Logger::nl;
@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
 #endif
                 } catch( ... )
                     {
-#ifdef HAVE_IOSTREAM
+#ifdef OS_HAVE_IOSTREAM
                         cerr <<endl<< " Orocos has detected an uncaught C++ exception"<<endl;
                         cerr << " in the ORO_main() function."<<endl;
                         cerr << " You might have called a function which throws"<<endl;

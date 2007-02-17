@@ -81,6 +81,18 @@ namespace RTT
          */
         PeriodicThread(int priority,const std::string & name, double period, OS::RunnableInterface* r=0);
     
+        /**
+         * Create a Thread with a given scheduler type, priority and a name.
+         *
+         * @param scheduler The scheduler, one of ORO_SCHED_RT or ORO_SCHED_OTHER.
+         * @param priority The priority of the thread, with zero being the highest, 99 being the lowest.
+         * @param name     The name of the Thread.
+         * @param period   The period in seconds (eg 0.001) of the thread.
+         * @param r        The optional RunnableInterface instance to run. If not present,
+         *                 the thread's own virtual functions are executed.
+         */
+        PeriodicThread(int scheduler, int priority,const std::string & name, double period, OS::RunnableInterface* r=0);
+    
         virtual ~PeriodicThread();
 
         virtual bool run( OS::RunnableInterface* r);
@@ -174,6 +186,9 @@ namespace RTT
 
         virtual void finalize();
      private:
+
+        void setup(int _priority, const std::string& name);
+
         /**
          * Do configuration actions when the thread is stopped.
          */

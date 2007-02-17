@@ -38,10 +38,6 @@
  
 
 #include <rtt-config.h>
-#ifdef OROBLD_OS_AGNOSTIC
-// provide own implementation, but avoid name clashes :
-
-
 #ifndef __ARCH_x86_64_ORO_ATOMIC__
 #define __ARCH_x86_64_ORO_ATOMIC__
 
@@ -429,11 +425,4 @@ __asm__ __volatile__(ORO_LOCK "orl %0,%1" \
 #define smp_mb__after_oro_atomic_inc()	barrier()
 
 #undef ORO_LOCK
-#endif
-
-#else // OROBLD_OS_AGNOSTIC
-
-#include <asm/atomic.h>
-#undef ORO_LOCK
-
 #endif

@@ -88,6 +88,18 @@ namespace RTT
         TimerThread(int priority, const std::string& name, double periodicity);
 
         /**
+         * Create a periodic Timer thread with a given scheduler type.
+         *
+         * @param scheduler 
+         *        The scheduler in which this thread runs
+         * @param priority 
+         *        The priority of this thread within \a scheduler
+         * @param periodicity
+         *        The periodicity of this thread in seconds (e.g. 0.001 = 1000Hz )
+         */
+        TimerThread(int scheduler, int priority, const std::string& name, double periodicity);
+
+        /**
          * Destructor
          */
         virtual ~TimerThread();
@@ -104,9 +116,14 @@ namespace RTT
         detail::TimerInterface* timerGet( Seconds period ) const;
 
         /**
-         * Create a TimerThread with a given priority and periodicity.
+         * Create a TimerThread with a given priority and periodicity,
+         * using the default scheduler, ORO_SCHED_RT.
          */
         static TimerThreadPtr Instance(int priority, double periodicity);
+        /**
+         * Create a TimerThread with a given scheduler, priority and periodicity.
+         */
+        static TimerThreadPtr Instance(int scheduler, int priority, double periodicity);
     protected:
         virtual bool initialize();
         virtual void step();

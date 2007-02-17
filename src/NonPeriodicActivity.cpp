@@ -52,6 +52,14 @@ namespace RTT
             runner->setActivity(this);
     }
 
+    NonPeriodicActivity::NonPeriodicActivity(int scheduler, int priority, RunnableInterface* _r )
+        : OS::SingleThread(scheduler, priority, "NonPeriodicActivity" ),
+          runner(_r)
+    {
+        if ( runner )
+            runner->setActivity(this);
+    }
+
     NonPeriodicActivity::NonPeriodicActivity(int priority, const std::string& name, RunnableInterface* _r )
         : OS::SingleThread(priority, name ),
           runner(_r)

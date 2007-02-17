@@ -38,23 +38,26 @@ using namespace RTT::OS;
 
 class Dummy;
 
+typedef AtomicQueue<Dummy*> QueueType;
+
 class BuffersTest : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( BuffersTest );
     CPPUNIT_TEST( testAtomic );
     CPPUNIT_TEST( testAtomicCounted );
+#ifdef OROPKG_OS_GNULINUX
+    // this test assumes a not real-time OS.
+    //CPPUNIT_TEST( testListLockFree );
+    CPPUNIT_TEST( testAtomicQueue );
+#endif
     CPPUNIT_TEST( testBufLockFree );
     CPPUNIT_TEST( testDObjLockFree );
     //CPPUNIT_TEST( testSortedList );
-#ifdef OROPKG_OS_GNULINUX
-    // this test assumes a not real-time OS.
-    CPPUNIT_TEST( testListLockFree );
-    CPPUNIT_TEST( testAtomicQueue );
-#endif
     CPPUNIT_TEST( testMemoryPool );
     CPPUNIT_TEST_SUITE_END();
 
     AtomicQueue<Dummy*>* aqueue;
+
     BufferLockFree<Dummy>* lockfree;
     DataObjectLockFree<Dummy>* dataobj;
     //SortedList<Dummy>* mslist;

@@ -42,7 +42,9 @@ class ActivitiesThreadTest : public CppUnit::TestFixture
     // Configuration Test :
     CPPUNIT_TEST( testThreadConfig );
     CPPUNIT_TEST( testPeriodic );
+    CPPUNIT_TEST( testNonPeriodic );
     CPPUNIT_TEST( testSlave );
+    CPPUNIT_TEST( testScheduler );
 
 #ifndef ORO_EMBEDDED
     CPPUNIT_TEST( testExceptionRecovery );
@@ -69,7 +71,10 @@ public:
 #endif
     void testThreadConfig();
     void testPeriodic();
+    void testNonPeriodic();
     void testSlave();
+
+    void testScheduler();
 
     void testAllocation();
     void testRemoveAllocate();

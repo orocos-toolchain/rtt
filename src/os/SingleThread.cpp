@@ -131,14 +131,32 @@ namespace RTT
     }
 
   SingleThread::SingleThread(int _priority, 
-			     const std::string& name, 
-			     RunnableInterface* r) :
-      msched_type(ORO_SCHED_RT),
-      active(false), prepareForExit(false), 
-      inloop(false), runComp(r)
+                             const std::string& name, 
+                             RunnableInterface* r) 
+      : msched_type(ORO_SCHED_RT),
+        active(false), prepareForExit(false), 
+        inloop(false), runComp(r)
 #ifdef OROPKG_OS_THREAD_SCOPE
-						   , d(NULL)
+        , d(NULL)
 #endif
+    {
+        this->setup(_priority, name);
+    }
+
+    SingleThread::SingleThread(int scheduler, int _priority, 
+                               const std::string& name, 
+                               RunnableInterface* r)
+        : msched_type(scheduler),
+          active(false), prepareForExit(false), 
+          inloop(false), runComp(r)
+#ifdef OROPKG_OS_THREAD_SCOPE
+        , d(NULL)
+#endif
+    {
+        this->setup(_priority, name);
+    }
+
+    void SingleThread::setup(int _priority, const std::string& name) 
     {
         Logger::log() << Logger::Debug << "SingleThread: Creating." <<Logger::endl;
 

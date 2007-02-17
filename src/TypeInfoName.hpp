@@ -113,7 +113,7 @@ namespace RTT
 
         virtual std::ostream& write( std::ostream& os, DataSourceBase::shared_ptr in ) const {
             Logger::In loc("TypeInfoName");
-#if HAVE_STREAMS
+#ifdef OS_HAVE_STREAMS
                 std::string output = std::string("(")+ in->getTypeName() +")";
                 os << output;
 #endif

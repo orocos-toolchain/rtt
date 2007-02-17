@@ -41,14 +41,12 @@
 
 #include <rtt-config.h>
 
-#if OROINT_OS_STDIOSTREAM
 #include <ostream>
+#ifdef OS_HAVE_STREAMS
 #include <sstream>
 #endif
 
-#if OROINT_OS_STDCXXLIB
 #include <vector>
-#endif
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
@@ -126,7 +124,6 @@ namespace RTT
                 data[ i ] = 0;
         }
 
-#if OROINT_OS_STDCXXLIB
         /**
          * Creates a vector from a std::vector.
          * If there are more items in vect than the size of this
@@ -142,7 +139,6 @@ namespace RTT
                 else
                     data[ i ] = 0;
         }
-#endif
 
         /**
          * Adds another MultiVector to this MultiVector
@@ -315,7 +311,6 @@ namespace RTT
             return false;
         }
 
-#if OROINT_OS_STDCXXLIB
         /**
          * Return the contents of this MultiVector as an std::vector
          * Resizes \a vect to the size of this MultiVector.
@@ -341,7 +336,6 @@ namespace RTT
                 data[i] = vect[i];
             return true;
         }
-#endif
 
         /*
          * This is just plain wrong since assignment with integer
@@ -430,14 +424,13 @@ namespace RTT
     extern template class MultiVector<6, bool>;
     extern template class MultiVector<6, long>;
 
-#if OROINT_OS_STDIOSTREAM
-
     /**
      * Output to standard C++ output stream
      */
     template <unsigned int S, class T>
     std::ostream &operator<<(std::ostream &os, MultiVector<S,T> &q) 
     { 
+#ifdef OS_HAVE_STREAMS
         std::stringstream ss;
         ss << "(";
         for (unsigned int i = 0; i < (S - 1) ; i++) {
@@ -445,9 +438,9 @@ namespace RTT
         }
         ss << q[ S - 1 ] << ")";
         os << ss.str();
+#endif
         return os; 
     } 
-#endif
 
 }
 

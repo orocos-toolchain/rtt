@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <iostream>
 
+#include <Activities.hpp>
 #include <TimerThread.hpp>
 #include <SimulationThread.hpp>
 #include <os/MainThread.hpp>
@@ -173,6 +174,7 @@ void ActivitiesThreadTest::testPeriodic()
     CPPUNIT_ASSERT( mtask.thread()->isRunning() );
     CPPUNIT_ASSERT_EQUAL( 0.01, mtask.thread()->getPeriod() );
     CPPUNIT_ASSERT_EQUAL( 15, mtask.thread()->getPriority() );
+    CPPUNIT_ASSERT_EQUAL( ORO_SCHED_RT, mtask.thread()->getScheduler() );
 
     PeriodicActivity m2task( 15, 0.01 );
     CPPUNIT_ASSERT( mtask.thread() == m2task.thread() );
@@ -192,6 +194,48 @@ void ActivitiesThreadTest::testPeriodic()
     CPPUNIT_ASSERT( m2task.isRunning() == true );
     CPPUNIT_ASSERT( m2task.stop() == true );
     CPPUNIT_ASSERT( m2task.isRunning() == false );
+
+    // Different Scheduler
+    PeriodicActivity m3task(ORO_SCHED_OTHER, 15, 0.01);
+    CPPUNIT_ASSERT( mtask.thread() != m3task.thread() );
+    CPPUNIT_ASSERT_EQUAL( ORO_SCHED_OTHER, m3task.thread()->getScheduler() );
+    
+}
+
+void ActivitiesThreadTest::testNonPeriodic()
+{
+    // Test periodic task sequencing...
+
+    NonPeriodicActivity mtask( 15 );
+    CPPUNIT_ASSERT( mtask.isActive() == false );
+    CPPUNIT_ASSERT( mtask.isRunning() == false );
+    CPPUNIT_ASSERT( mtask.thread()->isRunning() == false );
+    CPPUNIT_ASSERT_EQUAL( 15, mtask.thread()->getPriority() );
+    CPPUNIT_ASSERT_EQUAL( ORO_SCHED_RT, mtask.thread()->getScheduler() );
+
+    NonPeriodicActivity m2task( 15 );
+    CPPUNIT_ASSERT( mtask.thread() != m2task.thread() );
+
+    // starting...
+    CPPUNIT_ASSERT( mtask.start() == true );
+    CPPUNIT_ASSERT( mtask.isActive() == true );
+    CPPUNIT_ASSERT( m2task.isActive() == false );
+    CPPUNIT_ASSERT( m2task.start() == true );
+    CPPUNIT_ASSERT( m2task.isActive() == true );
+
+    sleep(1);
+
+    // stopping...
+    CPPUNIT_ASSERT( mtask.stop() == true );
+    CPPUNIT_ASSERT( mtask.isActive() == false );
+    CPPUNIT_ASSERT( m2task.isActive() == true );
+    CPPUNIT_ASSERT( m2task.stop() == true );
+    CPPUNIT_ASSERT( m2task.isActive() == false );
+
+    // Different Scheduler
+    NonPeriodicActivity m3task(ORO_SCHED_OTHER, 15);
+    CPPUNIT_ASSERT( mtask.thread() != m3task.thread() );
+    CPPUNIT_ASSERT_EQUAL( ORO_SCHED_OTHER, m3task.thread()->getScheduler() );
     
 }
 
@@ -289,6 +333,29 @@ void ActivitiesThreadTest::testSlave()
     
 }
 
+void ActivitiesThreadTest::testScheduler()
+{
+    TimerThreadPtr tt = TimerThread::Instance(ORO_SCHED_OTHER, 15, 0.01);
+    CPPUNIT_ASSERT( tt != 0 );
+
+    CPPUNIT_ASSERT( tt->isRunning() == false );
+
+    CPPUNIT_ASSERT_EQUAL( 0.01, tt->getPeriod());
+    CPPUNIT_ASSERT_EQUAL( 15, tt->getPriority());
+    CPPUNIT_ASSERT_EQUAL( ORO_SCHED_OTHER, tt->getScheduler());
+
+    {
+        // different scheduler, different thread.
+        TimerThreadPtr tt2 = TimerThread::Instance(ORO_SCHED_RT, 15, 0.01);
+        CPPUNIT_ASSERT( tt2 != 0 );
+        CPPUNIT_ASSERT( tt2 != tt );
+        CPPUNIT_ASSERT_EQUAL( ORO_SCHED_RT, tt2->getScheduler());
+
+        tt = TimerThread::Instance(15, 0.01); // ORO_SCHED_RT is the default.
+        CPPUNIT_ASSERT( tt == tt2 );
+    }
+}
+
 
 void ActivitiesThreadTest::testThreadConfig()
 {
@@ -327,7 +394,7 @@ void ActivitiesThreadTest::testThreadConfig()
     tt->setScheduler(ORO_SCHED_OTHER);
     tt->setScheduler(ORO_SCHED_RT);
     if ( tt->setPriority( 4 ) ) {
-        CPPUNIT_ASSERT( tt->getPriority() == 4 );
+        CPPUNIT_ASSERT_EQUAL( tt->getPriority(), 4 );
 
         // even if the priority was changed after construction, 
         // the thread can be found:
@@ -341,8 +408,8 @@ void ActivitiesThreadTest::testThreadConfig()
     // prints annoying warning messages...
     Logger::LogLevel ll = Logger::log().getLogLevel();
     Logger::log().setLogLevel(Logger::Critical);
-    CPPUNIT_ASSERT( tt->setScheduler(0) == false );
-    CPPUNIT_ASSERT( tt->setScheduler(1) == false );
+    CPPUNIT_ASSERT( tt->setScheduler(ORO_SCHED_RT) == false );
+    CPPUNIT_ASSERT( tt->setScheduler(ORO_SCHED_OTHER) == false );
     Logger::log().setLogLevel( ll );
     CPPUNIT_ASSERT( tt->setPeriod(0.3) == false );
     

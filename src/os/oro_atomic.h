@@ -48,5 +48,21 @@
 #  error "Unknown Processor Architecture"
 # endif
 #else
+
 #include <asm/atomic.h>
+
+#define oro_atomic_inc atomic_inc
+#define oro_atomic_t atomic_t
+#define ORO_ATOMIC_INIT ATOMIC_INIT
+#define oro_atomic_read atomic_read
+#define oro_atomic_set atomic_set
+#define oro_atomic_add atomic_add
+#define oro_atomic_sub atomic_sub
+#define oro_atomic_sub_and_test atomic_sub_and_test
+#define oro_atomic_inc atomic_inc
+#define oro_atomic_dec atomic_dec
+#define oro_atomic_inc_and_test atomic_inc_and_test
+#define oro_atomic_dec_and_test atomic_dec_and_test
+#define oro_atomic_add_negative atomic_add_negative
+
 #endif

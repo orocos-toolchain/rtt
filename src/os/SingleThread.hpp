@@ -82,13 +82,27 @@ namespace RTT
         : public OS::ThreadInterface
     {
         friend void* singleThread_f( void* t );
-
     public:
         /**
          * Create a single-shot Thread with priority \a priority, a \a name and optionally,
          * an object to execute.
+         * @param priority The priority of the thread, in the ORO_SCHED_RT domain.
+         * @param name     The name of the Thread.
+         * @param r        The optional RunnableInterface instance to run. If not present,
+         *                 the thread's own virtual functions are executed.
          */
         SingleThread(int priority, const std::string& name, OS::RunnableInterface* r=0);
+    
+        /**
+         * Create a single-shot Thread with priority \a priority, a \a name and optionally,
+         * an object to execute.
+         * @param scheduler The scheduler, one of ORO_SCHED_RT or ORO_SCHED_OTHER.
+         * @param priority The priority of the thread, in the \a scheduler domain.
+         * @param name     The name of the Thread.
+         * @param r        The optional RunnableInterface instance to run. If not present,
+         *                 the thread's own virtual functions are executed.
+         */
+        SingleThread(int scheduler, int priority, const std::string& name, OS::RunnableInterface* r=0);
     
         virtual ~SingleThread();
 
@@ -162,6 +176,8 @@ namespace RTT
         virtual void finalize();
 
     private:
+        void setup(int _priority, const std::string& name);
+
         /**
          * Desired scheduler type.
          */

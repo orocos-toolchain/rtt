@@ -64,6 +64,11 @@ namespace RTT
 
     TimerThreadPtr TimerThread::Instance(int pri, double per)
     {
+        return Instance(ORO_SCHED_RT, pri, per);
+    }
+
+    TimerThreadPtr TimerThread::Instance(int scheduler, int pri, double per)
+    {
         // Since the period is stored as nsecs, we convert per to NS in order
         // to get a match.
         TimerThreadList::iterator it = TimerThreads.begin();
@@ -75,18 +80,32 @@ namespace RTT
                 it = TimerThreads.begin();
                 continue;
             }
-            if ( tptr->getPriority() == pri && tptr->getPeriodNS() == Seconds_to_nsecs(per) ) {
+            if ( tptr->getScheduler() == scheduler && tptr->getPriority() == pri && tptr->getPeriodNS() == Seconds_to_nsecs(per) ) {
                 return tptr;
             }
             ++it;
         }
-        TimerThreadPtr ret( new TimerThread(pri, "TimerThreadInstance", per) );
+        TimerThreadPtr ret( new TimerThread(scheduler, pri, "TimerThreadInstance", per) );
         TimerThreads.push_back( ret );
         return ret;
     }
 
     TimerThread::TimerThread(int priority, const std::string& name, double periodicity)
         : PeriodicThread( priority, name, periodicity)
+    {
+        // create one default timer for the tasks with this periodicity.
+        TimerInterface* timer = 
+#ifdef OROSEM_ONESHOT_TIMER
+            new TimerOneShot( Seconds_to_nsecs( periodicity ) );
+#else
+            new TimerLockFree( Seconds_to_nsecs( periodicity ) );
+#endif
+        this->timerAdd( timer );
+
+    }
+
+    TimerThread::TimerThread(int scheduler, int priority, const std::string& name, double periodicity)
+        : PeriodicThread(scheduler, priority, name, periodicity)
     {
         // create one default timer for the tasks with this periodicity.
         TimerInterface* timer = 

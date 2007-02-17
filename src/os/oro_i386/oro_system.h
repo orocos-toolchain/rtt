@@ -35,18 +35,7 @@
  *                                                                         *
  ***************************************************************************/
  
- 
-
-/**
- * Header file for including the asm/system.h file
- * which contains the cmpxch function, which we need
- * for multithreaded data exchange.
- * 
- */
-
 #include <rtt-config.h>
-#ifdef OROBLD_OS_AGNOSTIC
-
 // do not rely on system headers :
 // i386 :
 #ifndef __ASM_ORO_SYSTEM_H
@@ -95,20 +84,3 @@ static inline unsigned long __oro_cmpxchg(volatile void *ptr, unsigned long old,
 					(unsigned long)(n),sizeof(*(ptr))))
 
 #endif // __ASM_ORO_SYSTEM_H
-#else // OROBLD_OS_AGNOSTIC
-
-// use system headers
-#define new _new
-#ifndef CONFIG_X86_CMPXCHG
-#define CONFIG_X86_CMPXCHG
-#endif
-#include "asm/bitops.h"
-#include "asm/system.h"
-#undef new
-#undef mb
-#undef alternative
-#undef alternative_input
-#undef wmb
-#undef rmb
-
-#endif // OROBLD_OS_AGNOSTIC

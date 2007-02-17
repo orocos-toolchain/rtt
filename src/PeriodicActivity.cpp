@@ -69,6 +69,15 @@ namespace RTT
         this->init();
     }
 
+    PeriodicActivity::PeriodicActivity(int scheduler, int priority, Seconds period, RunnableInterface* r )
+        : runner(r), running(false), active(false),
+          thread_( TimerThread::Instance(scheduler, priority,period) )
+    {
+        thread_->start();
+        per_ns = Seconds_to_nsecs( period );
+        this->init();
+    }
+
     PeriodicActivity::PeriodicActivity(TimerThreadPtr thread, RunnableInterface* r )
         : runner(r), running(false), active(false),
           thread_( thread )

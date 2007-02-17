@@ -65,7 +65,7 @@ namespace RTT
         {
             static std::ostream& write(std::ostream& os, T t)
             {
-#if HAVE_STREAMS
+#ifdef OS_HAVE_STREAMS
                 os << t;
 #endif
                 return os;
@@ -249,7 +249,7 @@ namespace RTT
             if ( d && use_ostream )
                 detail::TypeStreamSelector<T, use_ostream>::write( os, d->value() );
             else {
-#if HAVE_STREAMS
+#ifdef OS_HAVE_STREAMS
                 std::string output = std::string("(")+ in->getTypeName() +")";
                 os << output;
 #endif

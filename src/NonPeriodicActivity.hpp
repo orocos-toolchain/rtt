@@ -66,11 +66,24 @@ namespace RTT
 
         /**
          * Create an NonPeriodicActivity with a given priority and
-         * RunnableInterface instance.
+         * RunnableInterface instance. The default scheduler for NonPeriodicActivity
+         * objects is ORO_SCHED_RT.
+         *
          * @param priority The priority of the underlying thread.
          * @param _r The optional runner, if none, this->loop() is called.
          */
         NonPeriodicActivity(int priority, RunnableInterface* _r = 0 );
+
+        /**
+         * Create an NonPeriodicActivity with a given scheduler type, priority and
+         * RunnableInterface instance.
+         * @param scheduler
+         *        The scheduler in which the activitie's thread must run. Use ORO_SCHED_OTHER or
+         *        ORO_SCHED_RT.
+         * @param priority The priority of the underlying thread.
+         * @param _r The optional runner, if none, this->loop() is called.
+         */
+        NonPeriodicActivity(int scheduler, int priority, RunnableInterface* _r = 0 );
 
         /**
          * Create an NonPeriodicActivity with a given priority, name and

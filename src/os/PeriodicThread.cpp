@@ -155,10 +155,32 @@ namespace RTT
                                    RunnableInterface* r) :
         msched_type(ORO_SCHED_RT), running(false), prepareForExit(false),
         wait_for_step(true), runComp(r), 
-        maxOverRun( OROSEM_OS_PERIODIC_THREADS_MAX_OVERRUN)
+        maxOverRun( OROSEM_OS_PERIODIC_THREADS_MAX_OVERRUN),
+        period(Seconds_to_nsecs(periods))    // Do not call setPeriod(), since the semaphores are not yet used !
 #ifdef OROPKG_OS_THREAD_SCOPE
 							 ,d(NULL)
 #endif
+    {
+        this->setup(_priority, name);
+    }
+
+    PeriodicThread::PeriodicThread(int scheduler, int _priority, 
+                                   const std::string & name, 
+                                   Seconds periods, 
+                                   RunnableInterface* r) :
+        msched_type(scheduler), running(false), prepareForExit(false),
+        wait_for_step(true), runComp(r), 
+        maxOverRun( OROSEM_OS_PERIODIC_THREADS_MAX_OVERRUN),
+        period(Seconds_to_nsecs(periods))    // Do not call setPeriod(), since the semaphores are not yet used !
+#ifdef OROPKG_OS_THREAD_SCOPE
+							 ,d(NULL)
+#endif
+    {
+        log(Info) << "Creating PeriodicThread for scheduler: "<< scheduler << endlog();
+        this->setup(_priority, name);
+    }
+
+    void PeriodicThread::setup(int _priority, const std::string& name) 
     {
         int ret;
         
@@ -185,9 +207,6 @@ namespace RTT
             return;
 #endif
         }
-
-        // Do not call setPeriod(), since the semaphores are not yet used !
-        period = Seconds_to_nsecs(periods);
 
         if (runComp)
             runComp->setThread(this);
