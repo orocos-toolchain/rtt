@@ -39,7 +39,7 @@
 #ifndef MULTIVECTOR_HPP
 #define MULTIVECTOR_HPP
 
-#include <rtt-config.h>
+#include "rtt-config.h"
 
 #include <ostream>
 #ifdef OS_HAVE_STREAMS

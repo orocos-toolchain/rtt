@@ -52,7 +52,7 @@ extern "C" {
 	// Orocos Implementation (CPU specific)
 #include "os/oro_atomic.h"
 
-#include <rtt-config.h>
+#include "../../rtt-config.h"
 #if !defined(OROBLD_OS_AGNOSTIC) || defined(OROBLD_OS_INTERNAL)
 
 	//Xenomai headers

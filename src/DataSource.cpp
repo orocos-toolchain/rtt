@@ -37,7 +37,7 @@
 #include "DataSource.hpp"
 #include "TypeInfoName.hpp"
 
-#include <rtt-config.h>
+#include "rtt-config.h"
 #ifdef OROINT_OS_CORBA
 #include "AnyDataSource.hpp"
 #endif

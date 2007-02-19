@@ -45,7 +45,6 @@
 #include "Logger.hpp"
 #include <iomanip>
 
-#include <rtt-config.h>
 #ifdef OROSEM_PRINTF_LOGGING
 #  include <stdio.h>
 #else
@@ -60,6 +59,7 @@
 #endif
 
 #include <stdlib.h>
+#include "rtt-config.h"
 
 namespace RTT 
 {

@@ -41,7 +41,7 @@
 #include "os/threads.hpp"
 #include "Logger.hpp"
 
-#include <rtt-config.h>
+#include "../rtt-config.h"
 
 namespace RTT
 { namespace OS {

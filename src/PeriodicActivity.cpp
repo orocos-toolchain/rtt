@@ -45,7 +45,7 @@
 #include "TimerThread.hpp"
 
 // This define is used for creating and static_casting the Timer.
-#include <rtt-config.h>
+#include "rtt-config.h"
 #ifdef OROSEM_CORELIB_ACTIVITIES_TASKTIMER_TimerOneShot
 #include "TimerOneShot.hpp"
 #elif defined(OROSEM_CORELIB_ACTIVITIES_TASKTIMER_TimerSequencer)

@@ -42,7 +42,7 @@
  * The target calls these functions at startup time.
  */
 
-#include <rtt-config.h>
+#include "../rtt-config.h"
 #include <os/startstop.h>
 #include "os/MainThread.hpp"
 #include "os/StartStopManager.hpp"

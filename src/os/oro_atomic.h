@@ -36,7 +36,7 @@
  ***************************************************************************/
  
  
-#include <rtt-config.h>
+#include "../rtt-config.h"
 #ifdef OROBLD_OS_AGNOSTIC
 # if defined( __GNUC__ ) && defined( __i386__ )
 #  include "oro_i386/oro_atomic.h"

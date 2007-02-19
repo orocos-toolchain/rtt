@@ -35,7 +35,7 @@
  *                                                                         *
  ***************************************************************************/
  
-#include <rtt-config.h>
+#include "../../rtt-config.h"
 #ifndef __ARCH_x86_64_ORO_SYSTEM__
 #define __ARCH_x86_64_ORO_SYSTEM__
 

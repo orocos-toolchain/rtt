@@ -5,7 +5,7 @@
 #include "DataSourceTypeInfo.hpp"
 #include "DataSourceAdaptor.hpp"
 
-#include <rtt-config.h>
+#include "rtt-config.h"
 #ifdef OROINT_OS_CORBA
 #include "corba/ExpressionProxy.hpp"
 #include "corba/ExpressionServer.hpp"

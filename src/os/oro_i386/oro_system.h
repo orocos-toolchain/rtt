@@ -35,7 +35,8 @@
  *                                                                         *
  ***************************************************************************/
  
-#include <rtt-config.h>
+#include "../../rtt-config.h"
+
 // do not rely on system headers :
 // i386 :
 #ifndef __ASM_ORO_SYSTEM_H
