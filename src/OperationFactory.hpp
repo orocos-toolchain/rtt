@@ -506,7 +506,7 @@ namespace RTT
         int getArity( const std::string& name ) const
         {
             typename map_t::const_iterator i = data.find( name );
-            if ( i == data.end() ) return -1;
+            if ( i == data.end() || i->second == 0 ) return -1;
             return i->second->arity();
         }
         /** 
@@ -520,7 +520,7 @@ namespace RTT
         ResultT produce( const std::string& name, const PropertyBag& args ) const
         {
             typename map_t::const_iterator i = data.find( name );
-            if ( i == data.end() ) ORO_THROW_OR_RETURN(name_not_found_exception(), ResultT());
+            if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), ResultT());
             std::vector<DataSourceBase::shared_ptr> dsVect;
             std::transform( args.begin(), args.end(),
                             std::back_inserter( dsVect ),
@@ -540,7 +540,7 @@ namespace RTT
                          const std::vector<DataSourceBase::shared_ptr>& args ) const
         {
             typename map_t::const_iterator i = data.find( name );
-            if ( i == data.end() ) ORO_THROW_OR_RETURN(name_not_found_exception(), ResultT());
+            if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), ResultT());
             return i->second->produce( args );
         }
 
@@ -554,7 +554,7 @@ namespace RTT
         PropertyBag getArgumentSpec( const std::string& name ) const
         {
             typename map_t::const_iterator i = data.find( name );
-            if ( i == data.end() ) ORO_THROW_OR_RETURN(name_not_found_exception(), PropertyBag());
+            if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), PropertyBag());
             return i->second->getArgumentSpec();
         }
 
@@ -568,7 +568,7 @@ namespace RTT
         Descriptions getArgumentList( const std::string& name ) const
         {
             typename map_t::const_iterator i = data.find( name );
-            if ( i == data.end() ) ORO_THROW_OR_RETURN(name_not_found_exception(), Descriptions());
+            if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), Descriptions());
             return i->second->getArgumentList();
         }
 
@@ -582,7 +582,7 @@ namespace RTT
         std::string getResultType( const std::string& name ) const
         {
             typename map_t::const_iterator i = data.find( name );
-            if ( i == data.end() ) ORO_THROW_OR_RETURN(name_not_found_exception(), std::string());
+            if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), std::string());
             return i->second->resultType();
         }
 
@@ -596,7 +596,7 @@ namespace RTT
         std::string getDescription( const std::string& name ) const
         {
             typename map_t::const_iterator i = data.find( name );
-            if ( i == data.end() ) ORO_THROW_OR_RETURN(name_not_found_exception(), std::string());
+            if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), std::string());
             return i->second->description();
         }
 

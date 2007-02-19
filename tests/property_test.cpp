@@ -220,6 +220,23 @@ void PropertyTest::testInit()
     Property<unsigned int> pui("PUI","", 0 );
     Property<int> pi("PI","", 0 );
     Property<bool> pb("PB","", false );
+
+    // Test null assignment
+    PropertyBase* pbase = 0;
+    Property<int> p2 = pbase;
+    CPPUNIT_ASSERT( !p2.ready() );
+    Property<int> p3;
+    CPPUNIT_ASSERT( !p3.ready() );
+
+    p3 = pbase;
+    CPPUNIT_ASSERT( !p3.ready() );
+
+    p2 = p3;
+    CPPUNIT_ASSERT( !p2.ready() );
+
+    p2 = pi;
+    CPPUNIT_ASSERT( p2.ready() );
+
     CPPUNIT_ASSERT(true);
 }
 

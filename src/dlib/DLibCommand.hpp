@@ -76,12 +76,13 @@ namespace RTT
         {
         protected:
             int id;
+            ProtocolT* protocol;
         public:
             /**
              * The defaults are reset by the constructor.
              */
             DLibCommandImpl()
-                : id(0)
+                : id(0), protocol(0)
             {
             }
 
@@ -91,36 +92,36 @@ namespace RTT
              * @return true if ready and succesfully sent.
              */
             bool invoke() {
-                if (id)
-                    return ProtocolT::sendCommand(id);
+                if (id && (this->protocol->getCommandStatus(id) & ( DispatchInterface::Ready | DispatchInterface::Done) ) )
+                    return protocol->sendCommand(id);
                 return false;
             }
 
             template<class T1>
             bool invoke( T1 a1 ) {
-                if (id)
-                    return ProtocolT::sendCommand(id, a1);
+                if (id && (this->protocol->getCommandStatus(id) & ( DispatchInterface::Ready | DispatchInterface::Done) ) )
+                    return protocol->sendCommand(id, a1);
                 return false;
             }
 
             template<class T1, class T2>
             bool invoke( T1 a1, T2 a2 ) {
-                if (id)
-                    return ProtocolT::sendCommand(id, a1, a2);
+                if (id && (this->protocol->getCommandStatus(id) & ( DispatchInterface::Ready | DispatchInterface::Done) ) )
+                    return protocol->sendCommand(id, a1, a2);
                 return false;
             }
 
             template<class T1, class T2, class T3>
             bool invoke( T1 a1, T2 a2, T3 a3 ) {
-                if (id)
-                    return ProtocolT::sendCommand(id, a1, a2, a3);
+                if (id && (this->protocol->getCommandStatus(id) & ( DispatchInterface::Ready | DispatchInterface::Done) ) )
+                    return protocol->sendCommand(id, a1, a2, a3);
                 return false;
             }
 
             template<class T1, class T2, class T3, class T4>
             bool invoke( T1 a1, T2 a2, T3 a3, T4 a4 ) {
-                if (id)
-                    return ProtocolT::sendCommand(id, a1, a2, a4);
+                if (id && (this->protocol->getCommandStatus(id) & ( DispatchInterface::Ready | DispatchInterface::Done) ) )
+                    return protocol->sendCommand(id, a1, a2, a3, a4);
                 return false;
             }
         };
@@ -147,9 +148,10 @@ namespace RTT
              * @param component The name of the target component.
              * @param name The name of this command.
              */
-            DLibCommand(std::string component, std::string name)
+            DLibCommand(std::string component, std::string name, ProtocolT* _protocol)
             {
-                this->id = ProtocolT::getCommandId(component,name);
+            	this->protocol = _protocol;
+                this->id = this->protocol->getCommandId(component,name);
                 if (this->id == 0) {
                     log(Error) << "Could not find Component '"<<component <<"' or Command '"<<name<<"' in that component."<<endlog();
                 }
@@ -158,7 +160,7 @@ namespace RTT
             virtual void readArguments() {}
 
             virtual bool ready() const {
-                DispatchInterface::Status st = ProtocolT::getCommandStatus(this->id);
+                unsigned int st = this->protocol->getCommandStatus(this->id);
                 return st == DispatchInterface::Ready || st == DispatchInterface::Done;
             }
 
@@ -171,27 +173,27 @@ namespace RTT
             }
         
             virtual bool done() const {
-                return ProtocolT::getCommandStatus(this->id) == DispatchInterface::Done;
+                return this->protocol->getCommandStatus(this->id) == DispatchInterface::Done;
             }
      
             virtual void reset() {
-                return ProtocolT::resetCommand(this->id);
+                return this->protocol->resetCommand(this->id);
             }
 
             virtual bool sent() const {
-                return ProtocolT::getCommandStatus(this->id) >= DispatchInterface::Sent;
+                return this->protocol->getCommandStatus(this->id) >= DispatchInterface::Sent;
             }
 
             virtual bool accepted() const {
-                return ProtocolT::getCommandStatus(this->id) >= DispatchInterface::Accepted;
+                return this->protocol->getCommandStatus(this->id) >= DispatchInterface::Accepted;
             }
 
             virtual bool executed() const {
-                return ProtocolT::getCommandStatus(this->id) >= DispatchInterface::Executed;
+                return this->protocol->getCommandStatus(this->id) >= DispatchInterface::Executed;
             }
 
             virtual bool valid() const {
-                return getCommandStatus(this->id) >= DispatchInterface::Valid;
+                return this->protocol->getCommandStatus(this->id) >= DispatchInterface::Valid;
             }
 
             virtual ConditionInterface* createCondition() const

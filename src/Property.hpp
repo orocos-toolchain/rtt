@@ -121,7 +121,7 @@ namespace RTT
          */
         Property( const Property<T>& orig)
             : PropertyBase(orig.getName(), orig.getDescription()),
-              _value( orig._value->clone() )
+              _value( orig._value ? orig._value->clone() : 0 )
         {}
 
         /**
@@ -131,7 +131,7 @@ namespace RTT
          * @see ready() to inspect if the creation succeeded.
          */
         Property( PropertyBase* source)
-            : PropertyBase(source->getName(), source->getDescription()),
+            : PropertyBase(source ? source->getName() : "", source ? source->getDescription() : ""),
               _value( source ? AssignableDataSource<DataSourceType>::narrow(source->getDataSource().get() ) : 0 )
         {
         }
@@ -167,14 +167,20 @@ namespace RTT
          */
         Property<T>& operator=( PropertyBase* source )
         {
-            this->setName( source->getName() );
-            this->setDescription( source->getDescription() );
-            typename AssignableDataSource<DataSourceType>::shared_ptr vptr
-                = AssignableDataSource<DataSourceType>::narrow(source->getDataSource().get() );
-            if (vptr)
-                _value = vptr;
-            else
-                _value = detail::BuildType<value_t>::Value() ;
+            if ( source ) {
+                this->setName( source->getName() );
+                this->setDescription( source->getDescription() );
+                typename AssignableDataSource<DataSourceType>::shared_ptr vptr
+                    = AssignableDataSource<DataSourceType>::narrow(source->getDataSource().get() );
+                if (vptr)
+                    _value = vptr;
+                else
+                    _value = detail::BuildType<value_t>::Value() ;
+            } else {
+                this->setName( "" );
+                this->setDescription( "" );
+                _value = 0;
+            }
             return *this;
         }
 

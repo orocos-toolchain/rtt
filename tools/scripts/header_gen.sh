@@ -20,11 +20,30 @@ echo "    copyright            : (C) "`date +%Y` $1 >> $3.tmp.header
 echo "    email                : "$2 >> $3.tmp.header
 echo " " >> $3.tmp.header
 echo " ***************************************************************************" >> $3.tmp.header
+echo " *   This library is free software; you can redistribute it and/or         *" >> $3.tmp.header
+echo " *   modify it under the terms of the GNU General Public                   *" >> $3.tmp.header
+echo " *   License as published by the Free Software Foundation;                 *" >> $3.tmp.header
+echo " *   version 2 of the License.                                             *" >> $3.tmp.header
 echo " *                                                                         *" >> $3.tmp.header
-echo " *   This program is free software; you can redistribute it and/or modify  *" >> $3.tmp.header
-echo " *   it under the terms of the GNU General Public License as published by  *" >> $3.tmp.header
-echo " *   the Free Software Foundation; either version 2 of the License, or     *" >> $3.tmp.header
-echo " *   (at your option) any later version.                                   *" >> $3.tmp.header
+echo " *   As a special exception, you may use this file as part of a free       *" >> $3.tmp.header
+echo " *   software library without restriction.  Specifically, if other files   *" >> $3.tmp.header
+echo " *   instantiate templates or use macros or inline functions from this     *" >> $3.tmp.header
+echo " *   file, or you compile this file and link it with other files to        *" >> $3.tmp.header
+echo " *   produce an executable, this file does not by itself cause the         *" >> $3.tmp.header
+echo " *   resulting executable to be covered by the GNU General Public          *" >> $3.tmp.header
+echo " *   License.  This exception does not however invalidate any other        *" >> $3.tmp.header
+echo " *   reasons why the executable file might be covered by the GNU General   *" >> $3.tmp.header
+echo " *   Public License.                                                       *" >> $3.tmp.header
+echo " *                                                                         *" >> $3.tmp.header
+echo " *   This library is distributed in the hope that it will be useful,       *" >> $3.tmp.header
+echo " *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *" >> $3.tmp.header
+echo " *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *" >> $3.tmp.header
+echo " *   Lesser General Public License for more details.                       *" >> $3.tmp.header
+echo " *                                                                         *" >> $3.tmp.header
+echo " *   You should have received a copy of the GNU General Public             *" >> $3.tmp.header
+echo " *   License along with this library; if not, write to the Free Software   *" >> $3.tmp.header
+echo " *   Foundation, Inc., 59 Temple Place,                                    *" >> $3.tmp.header
+echo " *   Suite 330, Boston, MA  02111-1307  USA                                *" >> $3.tmp.header
 echo " *                                                                         *" >> $3.tmp.header
 echo " ***************************************************************************/" >> $3.tmp.header
 echo " " >> $3.tmp.header
