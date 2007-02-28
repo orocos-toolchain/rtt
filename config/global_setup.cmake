@@ -15,12 +15,13 @@ MESSAGE("CMAKE_VERSION: ${CMAKE_VERSION}")
 #
 # If we're using gcc, make sure the version is OK.
 #
+SET(RTT_CXXFLAGS "")
 EXECUTE_PROCESS( COMMAND ${CMAKE_CXX_COMPILER} -dumpversion RESULT_VARIABLE CXX_HAS_VERSION OUTPUT_VARIABLE CXX_VERSION)
 IF ( ${CXX_HAS_VERSION} EQUAL 0 )
   # We are assuming here that -dumpversion is gcc specific.
   IF( CXX_VERSION MATCHES "4\\.[0-9]\\.[0-9]" )
     MESSAGE("Detected gcc4: ${CXX_VERSION}")
-    SET(RTT_CXXFLAGS "-fvisibility-inlines-hidden")
+    #SET(RTT_CXXFLAGS "-fvisibility-inlines-hidden")
   ELSE(CXX_VERSION MATCHES "4\\.[0-9]\\.[0-9]")
     IF( CXX_VERSION MATCHES "3\\.[0-9]\\.[0-9]" )
       MESSAGE("Detected gcc3: ${CXX_VERSION}")
@@ -59,12 +60,16 @@ IF (ENABLE_CORBA)
   IF( NOT ${ACE_DIR} STREQUAL /usr/include )
     INCLUDE_DIRECTORIES( ${ACE_DIR} )
     LINK_DIRECTORIES( ${ACE_DIR}/lib )
+    SET(RTT_CFLAGS "${RTT_CFLAGS} -I${ACE_DIR}" CACHE INTERNAL "")
+    SET(RTT_LINKFLAGS "${RTT_LINKFLAGS} -L${ACE_DIR}/lib" CACHE INTERNAL "")
   ENDIF( NOT ${ACE_DIR} STREQUAL /usr/include )
   IF( NOT ${TAO_DIR} STREQUAL /usr/include )
     INCLUDE_DIRECTORIES( ${TAO_DIR} )
+    SET(RTT_CFLAGS "${RTT_CFLAGS} -I${TAO_DIR}" CACHE INTERNAL "")
   ENDIF( NOT ${TAO_DIR} STREQUAL /usr/include )
   IF( NOT ${ORBSVCS_DIR} STREQUAL /usr/include )
     INCLUDE_DIRECTORIES( ${ORBSVCS_DIR} )
+    SET(RTT_CFLAGS "${RTT_CFLAGS} -I${ORBSVCS_DIR}" CACHE INTERNAL "")
   ENDIF( NOT ${ORBSVCS_DIR} STREQUAL /usr/include )
 
   # Finally:
