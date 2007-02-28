@@ -20,6 +20,14 @@ OPTION(OS_EMBEDDED "Build/Customise for embedded Operating System" OFF)
 DEPENDENT_OPTION(OS_NOEXCEPTIONS "Disable exceptions." ON "ORO_EMBEDDED" OFF)
 DEPENDENT_OPTION(OS_EMBEDDED_SCRIPTING "Enable Scripting for embedded Operating System. (requires EXCEPTIONS)" OFF "NOT OROBLD_OS_NOEXCEPTIONS" OFF)
 
+IF ( OS_NOEXCEPTIONS )
+  SET( RTT_CXXFLAGS "${RTT_CXXFLAGS} -fno-exceptions" )
+ENDIF ( OS_NOEXCEPTIONS )
+
+IF ( OS_EMBEDDED )
+  SET( RTT_CXXFLAGS "${RTT_CXXFLAGS} -ffunction-sections -fdata-sections" )
+ENDIF ( OS_EMBEDDED )
+
 ### Logger
 OPTION(OROBLD_DISABLE_LOGGING "Disable Logging Infrastructure" OFF)
 DEPENDENT_OPTION(OROSEM_PRINTF_LOGGING "Logger uses printf()/fprintf() instead of std::iostream." OFF "NOT OROBLD_DISABLE_LOGGING" OFF)
@@ -70,9 +78,9 @@ ADD_SUBDIRECTORY( dlib )
 ADD_SUBDIRECTORY( boost )
 
 #
-# Set compilation flags:
+# Set accumulated compilation flags:
 #
-SET_SOURCE_FILES_PROPERTIES( ${GLOBAL_LIBRARY_SRCS} PROPERTIES
+SET_SOURCE_FILES_PROPERTIES( $ENV{GLOBAL_LIBRARY_SRCS} PROPERTIES
   COMPILE_FLAGS ${RTT_CXXFLAGS}
   )
 
@@ -101,7 +109,6 @@ IF ( BUILD_STATIC )
   #
   IF ( ENABLE_CORBA )
     ADD_DEPENDENCIES(orocos-rtt-static orocos-rtt-corba-static)
-    TARGET_LINK_LIBRARIES(orocos-rtt-static orocos-rtt-corba-static)
     INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/src/corba ) # generated files.
   ENDIF ( ENABLE_CORBA )
   
@@ -124,7 +131,9 @@ IF( BUILD_DYNAMIC)
   #
   IF ( ENABLE_CORBA )
     ADD_DEPENDENCIES(orocos-rtt-dynamic orocos-rtt-corba-dynamic)
+    TARGET_LINK_LIBRARIES(orocos-rtt-dynamic orocos-rtt-corba)
     TARGET_LINK_LIBRARIES(orocos-rtt-dynamic orocos-rtt-corba-dynamic)
+    #SET_TARGET_PROPERTIES(orocos-rtt-dynamic PROPERTIES LINK_FLAGS "-L${PROJ_BINARY_DIR}/src/corba" )
     INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/src/corba ) # generated files.
   ENDIF ( ENABLE_CORBA )
   
