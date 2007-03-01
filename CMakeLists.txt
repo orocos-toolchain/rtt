@@ -12,7 +12,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.2)
 
 PROJECT(Orocos-RTT)
 
-SET( VERSION 1.2.0 CACHE STRING "Version of Orocos RTT" )
+SET( VERSION 1.1.0 CACHE STRING "Version of Orocos RTT" )
   MESSAGE( "Orocos RTT version ${VERSION}" )
 
 # Do not rely on environment variables to find the path, because that's confusing
