@@ -22,9 +22,11 @@ IF(ENABLE_CORBA)
   #
   # Set compilation flags:
   #
+  IF (${RTT_CXXFLAGS})
   SET_SOURCE_FILES_PROPERTIES( ${CPPS} PROPERTIES
     COMPILE_FLAGS ${RTT_CXXFLAGS}
     )
+  ENDIF (${RTT_CXXFLAGS})
 
   IF ( BUILD_STATIC )
     ADD_LIBRARY(orocos-rtt-corba-static STATIC ${CPPS})
