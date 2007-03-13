@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "Orocos configure script."
 
@@ -50,7 +50,7 @@ if [ x$(which cmake) == x ]; then
    exit 1
 fi
 
-echo "Invoking: 'CC=$CMAKE_CC CXX=$CMAKE_CXX cmake ..'"
+echo "Invoking: '$CMAKE_CC $CMAKE_CXX cmake ..'"
 
 bash -c "$CMAKE_CC $CMAKE_CXX cmake .." || (echo "Error: cmake produced an error."; exit 1)
 
