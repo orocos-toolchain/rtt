@@ -165,6 +165,11 @@ namespace RTT
         virtual int getPriority() const = 0;
 
         /**
+         * Yields (but to the back of the scheduler queue) the calling thread.
+         */
+        virtual void yield() = 0;
+
+        /**
          * The unique thread number.
          */
         unsigned int threadNumber() const { return threadnb; }

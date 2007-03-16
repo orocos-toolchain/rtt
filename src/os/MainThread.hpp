@@ -119,6 +119,8 @@ namespace RTT
 
         virtual int getPriority() const;
 
+        virtual void yield();
+
         /**
          * Returns zero, the number of the main() thread.
          */

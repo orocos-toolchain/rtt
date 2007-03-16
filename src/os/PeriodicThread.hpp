@@ -159,6 +159,8 @@ namespace RTT
 
         virtual int getPriority() const;
 
+        virtual void yield();
+
         void setMaxOverrun( int m );
         int getMaxOverrun() const;
         /**

@@ -163,7 +163,7 @@ namespace RTT
 
         virtual int getPriority() const;
 
-        void yield();
+        virtual void yield();
 
     protected:
 

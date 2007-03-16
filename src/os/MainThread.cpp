@@ -107,6 +107,11 @@ namespace RTT
         return rtos_task_get_priority(&main_task);
     }
 
+    void MainThread::yield()
+    {
+        rtos_task_yield(&main_task);
+    }
+
     unsigned int MainThread::threadNumber() const { return 0; }
 }}
 

@@ -483,6 +483,11 @@ namespace RTT
         return period;
     }
 
+    void PeriodicThread::yield() {
+        rtos_task_yield( &rtos_task );
+    }
+
+
     void PeriodicThread::continuousStepping(bool yes_no)
     {
         wait_for_step = !yes_no;

@@ -111,7 +111,18 @@ namespace RTT
                               start_routine, obj);
 	}
 
-	INTERNAL_QUAL void rtos_task_yield(RTOS_TASK*) {
+	INTERNAL_QUAL void rtos_task_yield(RTOS_TASK* t) {
+#if 0
+        //under plain gnulinux, sched_yield may have little influence, so sleep
+        // to force rescheduling of other threads.
+	    NANO_TIME timeRemaining = 1000; // 1ms
+		TIME_SPEC ts( ticks2timespec( timeRemaining ) );
+		rtos_nanosleep( &ts , NULL );
+#else
+        int ret = sched_yield();
+        if ( ret != 0)
+            perror("rtos_task_yield");
+#endif
 	}
 
     INTERNAL_QUAL int rtos_task_set_scheduler(RTOS_TASK* task, int sched_type) {
