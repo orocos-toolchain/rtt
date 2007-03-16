@@ -99,48 +99,21 @@ ENDIF (${RTT_CXXFLAGS})
 #
 OPTION(BUILD_STATIC "Build Orocos RTT as a static library." OFF)
 IF ( BUILD_STATIC )
-  ADD_LIBRARY(orocos-rtt-static STATIC $ENV{GLOBAL_LIBRARY_SRCS})
-  SET_TARGET_PROPERTIES(orocos-rtt-static
-    PROPERTIES 
-    OUTPUT_NAME orocos-rtt
-    CLEAN_DIRECT_OUTPUT 1)
-  INSTALL_TARGETS(/lib orocos-rtt-static)
-
-  #
-  # If corba is enabled, the orocos-rtt-corba helper library is built.
-  #
-  IF ( ENABLE_CORBA )
-    ADD_DEPENDENCIES(orocos-rtt-static orocos-rtt-corba-static)
-    INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/src/corba ) # generated files.
-  ENDIF ( ENABLE_CORBA )
-  
+  ADD_LIBRARY(orocos-rtt STATIC $ENV{GLOBAL_LIBRARY_SRCS})
+ELSE( BUILD_STATIC )
+  ADD_LIBRARY(orocos-rtt SHARED $ENV{GLOBAL_LIBRARY_SRCS})
+  TARGET_LINK_LIBRARIES(orocos-rtt orocos-rtt-corba)
 ENDIF ( BUILD_STATIC )
 
 #
-# Settings for building a dynamic library (.so/.dll)
+# If corba is enabled, the orocos-rtt-corba helper library is built.
 #
-OPTION(BUILD_DYNAMIC "Build Orocos RTT as a dynamic library (Default)." ON)
-IF( BUILD_DYNAMIC)
-  ADD_LIBRARY(orocos-rtt-dynamic SHARED $ENV{GLOBAL_LIBRARY_SRCS})
-  SET_TARGET_PROPERTIES(orocos-rtt-dynamic
-    PROPERTIES OUTPUT_NAME orocos-rtt
-    CLEAN_DIRECT_OUTPUT 1
-    SOVERSION ${VERSION} )
-  INSTALL_TARGETS(/lib orocos-rtt-dynamic)
-
-  #
-  # If corba is enabled, the orocos-rtt-corba helper library is built.
-  #
-  IF ( ENABLE_CORBA )
-    ADD_DEPENDENCIES(orocos-rtt-dynamic orocos-rtt-corba-dynamic)
-    TARGET_LINK_LIBRARIES(orocos-rtt-dynamic orocos-rtt-corba)
-    TARGET_LINK_LIBRARIES(orocos-rtt-dynamic orocos-rtt-corba-dynamic)
-    #SET_TARGET_PROPERTIES(orocos-rtt-dynamic PROPERTIES LINK_FLAGS "-L${PROJ_BINARY_DIR}/src/corba" )
-    INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/src/corba ) # generated files.
-  ENDIF ( ENABLE_CORBA )
+IF ( ENABLE_CORBA )
+  ADD_DEPENDENCIES(orocos-rtt orocos-rtt-corba)
+  INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/src/corba ) # generated files.
+ENDIF ( ENABLE_CORBA )
   
-ENDIF ( BUILD_DYNAMIC )
-
+INSTALL_TARGETS(/lib orocos-rtt)
 
 ### Generate rtt-config.h : HAS NO ACCESS TO SUBDIRECTORY VARIABLES !!!
 CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/rtt-config.h.in ${PROJ_BINARY_DIR}/src/rtt-config.h @ONLY)

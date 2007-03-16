@@ -29,21 +29,11 @@ IF(ENABLE_CORBA)
   ENDIF (${RTT_CXXFLAGS})
 
   IF ( BUILD_STATIC )
-    ADD_LIBRARY(orocos-rtt-corba-static STATIC ${CPPS})
-    SET_TARGET_PROPERTIES(orocos-rtt-corba-static
-      PROPERTIES OUTPUT_NAME orocos-rtt-corba
-      CLEAN_DIRECT_OUTPUT 1)
-    INSTALL_TARGETS(/lib orocos-rtt-corba-static)
+    ADD_LIBRARY(orocos-rtt-corba STATIC ${CPPS})
+  ELSE( BUILD_STATIC )
+    ADD_LIBRARY(orocos-rtt-corba SHARED ${CPPS})
   ENDIF ( BUILD_STATIC )
 
-  IF ( BUILD_DYNAMIC )
-    #MESSAGE("CPPS: ${CPPS}")
-    ADD_LIBRARY(orocos-rtt-corba-dynamic SHARED ${CPPS})
-    SET_TARGET_PROPERTIES(orocos-rtt-corba-dynamic
-      PROPERTIES OUTPUT_NAME orocos-rtt-corba
-      CLEAN_DIRECT_OUTPUT 1
-      SOVERSION ${VERSION} )
-    INSTALL_TARGETS(/lib orocos-rtt-corba-dynamic)
-  ENDIF ( BUILD_DYNAMIC )
+  INSTALL_TARGETS(/lib orocos-rtt-corba)
 
 ENDIF(ENABLE_CORBA)
