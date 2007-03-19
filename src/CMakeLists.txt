@@ -102,7 +102,6 @@ IF ( BUILD_STATIC )
   ADD_LIBRARY(orocos-rtt STATIC $ENV{GLOBAL_LIBRARY_SRCS})
 ELSE( BUILD_STATIC )
   ADD_LIBRARY(orocos-rtt SHARED $ENV{GLOBAL_LIBRARY_SRCS})
-  TARGET_LINK_LIBRARIES(orocos-rtt orocos-rtt-corba)
 ENDIF ( BUILD_STATIC )
 
 #
@@ -110,6 +109,7 @@ ENDIF ( BUILD_STATIC )
 #
 IF ( ENABLE_CORBA )
   ADD_DEPENDENCIES(orocos-rtt orocos-rtt-corba)
+  TARGET_LINK_LIBRARIES(orocos-rtt orocos-rtt-corba)
   INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/src/corba ) # generated files.
 ENDIF ( ENABLE_CORBA )
   
