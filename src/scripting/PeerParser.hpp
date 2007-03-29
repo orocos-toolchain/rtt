@@ -44,6 +44,7 @@
 #include "CommonParser.hpp"
 #include <queue>
 #include <string>
+#include "../rtt-config.h"
 
 namespace RTT 
 {
@@ -54,7 +55,7 @@ namespace RTT
      * Get the peer and object from an invocation path like
      *  a.b.c.d() .
      */
-    class PeerParser
+    class RTT_API PeerParser
     {
         CommonParser commonparser;
         rule_t peerpath, peerlocator;
@@ -63,10 +64,10 @@ namespace RTT
         TaskContext* context;
         TaskContext* _peer;
         bool mfullpath;
-        void done();
+        RTT_HIDE void done();
 
-        void seenobjectname( iter_t begin, iter_t end );
-        void locatepeer( iter_t begin, iter_t end );
+        RTT_HIDE void seenobjectname( iter_t begin, iter_t end );
+        RTT_HIDE void locatepeer( iter_t begin, iter_t end );
 
     public:
         /**

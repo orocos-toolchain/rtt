@@ -41,6 +41,7 @@
 
 #include <string>
 #include "../TaskContext.hpp"
+#include "../rtt-config.h"
 
 namespace RTT
 {
@@ -51,7 +52,7 @@ namespace RTT
      * Parse exceptions are directed to the Logger class or
      * rethrown if requested by the user.
      */
-    class ProgramLoader
+    class RTT_API ProgramLoader
     {
         bool mrethrow;
     public:

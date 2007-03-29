@@ -40,6 +40,7 @@
 #include <string>
 #include <vector>
 #include "../DataSourceBase.hpp"
+#include "../rtt-config.h"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
@@ -54,7 +55,7 @@ namespace RTT
      * along with the location in the file and the file where it
      * occurred.
      */
-    class file_parse_exception
+    class RTT_EXPORT file_parse_exception
     {
         parse_exception* mpe;
         std::string mfile;
@@ -79,7 +80,7 @@ namespace RTT
      * Throughout the parser system, exceptions are thrown that inherit
      * from this.
      */
-    class parse_exception
+    class RTT_EXPORT parse_exception
     {
         // make these private
         parse_exception& operator=( const parse_exception& );
@@ -98,7 +99,7 @@ namespace RTT
          * a part of the string, but got into trouble lateron,
          * for example, a missing argument or non existing component.
          */
-        class semantic_parse_exception
+        class RTT_EXPORT semantic_parse_exception
             : public parse_exception
         {
             // make these private
@@ -112,7 +113,7 @@ namespace RTT
          * knows the input is plain wrong and no further attemts
          * should be made to parse it.
          */
-        class fatal_syntactic_parse_exception
+        class RTT_EXPORT fatal_syntactic_parse_exception
             : public parse_exception
         {
             // make these private
@@ -127,7 +128,7 @@ namespace RTT
          * should not be passed to another parser. for
          * example, a missing argument, or the incorrect type.
          */
-        class fatal_semantic_parse_exception
+        class RTT_EXPORT fatal_semantic_parse_exception
             : public parse_exception
         {
             // make these private
@@ -141,7 +142,7 @@ namespace RTT
          * recognised the input, but got stuck later due to a
          * syntactic error, like a missing brace.
          */
-        class syntactic_parse_exception
+        class RTT_EXPORT syntactic_parse_exception
             : public parse_exception
         {
             // make these private
@@ -152,7 +153,7 @@ namespace RTT
 
 
 
-        class parse_exception_illegal_identifier
+        class RTT_EXPORT parse_exception_illegal_identifier
             : public syntactic_parse_exception
         {
             std::string mident;
@@ -182,7 +183,7 @@ namespace RTT
          * parse_exception class that is used for various semantic errors
          * for which it was not worth defining a proper exception class.
          */
-        class parse_exception_semantic_error
+        class RTT_EXPORT parse_exception_semantic_error
             : public semantic_parse_exception
         {
             std::string mdesc;
@@ -212,7 +213,7 @@ namespace RTT
          * parse_exception class that is used for fatal semantic errors
          * for which it was not worth defining a proper exception class.
          */
-        class parse_exception_fatal_semantic_error
+        class RTT_EXPORT parse_exception_fatal_semantic_error
             : public fatal_semantic_parse_exception
         {
             std::string mdesc;
@@ -244,7 +245,7 @@ namespace RTT
          * interpret its validity. It is the equivalent of a 
          * failing parser rule.
          */
-        class parse_exception_parser_fail
+        class RTT_EXPORT parse_exception_parser_fail
             : public parse_exception
         {
         public:
@@ -267,7 +268,7 @@ namespace RTT
          * parse_exception class that is used for various syntactic errors
          * for which it was not worth defining a proper exception class.
          */
-        class parse_exception_syntactic_error
+        class RTT_EXPORT parse_exception_syntactic_error
             : public syntactic_parse_exception
         {
             std::string mdesc;
@@ -293,7 +294,7 @@ namespace RTT
             }
         };
 
-        class parse_exception_no_such_component
+        class RTT_EXPORT parse_exception_no_such_component
             : public semantic_parse_exception
         {
             std::string mname;
@@ -320,7 +321,7 @@ namespace RTT
             }
         };
 
-        class parse_exception_no_such_method_on_component
+        class RTT_EXPORT parse_exception_no_such_method_on_component
             : public semantic_parse_exception
         {
             std::string mcomponentname;
@@ -353,7 +354,7 @@ namespace RTT
             }
         };
 
-        class parse_exception_wrong_number_of_arguments
+        class RTT_EXPORT parse_exception_wrong_number_of_arguments
             : public fatal_semantic_parse_exception
         {
             std::string mcomponentname;
@@ -398,7 +399,7 @@ namespace RTT
             }
         };
 
-        class parse_exception_wrong_type_of_argument
+        class RTT_EXPORT parse_exception_wrong_type_of_argument
             : public fatal_semantic_parse_exception
         {
             std::string mcomponentname;
@@ -438,7 +439,7 @@ namespace RTT
             }
         };
 
-        class parse_exception_undefined_value
+        class RTT_EXPORT parse_exception_undefined_value
             : public fatal_semantic_parse_exception
         {
             std::string mname;
@@ -463,7 +464,7 @@ namespace RTT
             }
         };
 
-        class parse_exception_no_such_constructor
+        class RTT_EXPORT parse_exception_no_such_constructor
             : public fatal_semantic_parse_exception
         {
             std::string margsig;

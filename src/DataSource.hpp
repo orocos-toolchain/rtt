@@ -55,7 +55,7 @@ namespace RTT
      * of an assignment of a DataSource with a DataSourceBase
      * differ.
      */
-    struct bad_assignment
+    struct RTT_EXPORT bad_assignment
     {
     };
 #endif
@@ -73,7 +73,7 @@ namespace RTT
    * a string, but may store the string itself by value.
    */
   template<typename T>
-  class DataSource
+  class RTT_EXPORT DataSource
     : public DataSourceBase
   {
   protected:
@@ -152,7 +152,7 @@ namespace RTT
    * @param T See DataSource for the semantics of \a T.
    */
   template<typename T>
-  class AssignableDataSource
+  class RTT_EXPORT AssignableDataSource
     : public DataSource<T>
   {
   protected:

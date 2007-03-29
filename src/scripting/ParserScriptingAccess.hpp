@@ -41,6 +41,7 @@
 
 #include "../ScriptingAccess.hpp"
 #include "../OperationInterface.hpp"
+#include "../rtt-config.h"
 
 namespace RTT
 {
@@ -51,7 +52,7 @@ namespace RTT
      * and state machines and allows execution of code, using the
      * Orocos parser framework.
      */
-    class ParserScriptingAccess
+    class RTT_API ParserScriptingAccess
         : public ScriptingAccess
     {
     protected:

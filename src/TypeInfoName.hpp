@@ -49,7 +49,7 @@ namespace RTT
     /**
      * Empty implementation of TypeInfo interface.
      */
-    class EmptyTypeInfo
+    class RTT_API EmptyTypeInfo
         : public TypeInfo
     {
         const std::string tname;
@@ -158,7 +158,7 @@ namespace RTT
      * @see TemplateTypeInfo for adding full type info to Orocos.
      */
     template<typename T>
-    struct TypeInfoName 
+    struct RTT_API TypeInfoName 
         : public EmptyTypeInfo
     {
         /**

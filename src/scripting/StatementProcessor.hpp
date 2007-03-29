@@ -41,6 +41,7 @@
 
 #include <string>
 #include "../CommandC.hpp"
+#include "../rtt-config.h"
 
 namespace RTT
 {
@@ -50,7 +51,7 @@ namespace RTT
      * This class parses and executes a single scripting
      * statement.
      */
-    class StatementProcessor
+    class RTT_API StatementProcessor
     {
         class D;
         D* d;

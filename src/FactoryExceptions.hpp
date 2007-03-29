@@ -40,6 +40,7 @@
 
 #include <string>
 #include <exception>
+#include "rtt-config.h"
 
 /**
  * \file FactoryExceptions.hpp This file contains some structs that can be thrown by both
@@ -51,7 +52,7 @@ namespace RTT
      * Exception thrown when a factory is requested to 
      * create an object with an unknown name.
      */
-    struct name_not_found_exception 
+    struct RTT_EXPORT name_not_found_exception 
         : public std::exception
   {
       name_not_found_exception( const std::string& n="name" );
@@ -65,7 +66,7 @@ namespace RTT
      * Exception thrown when a factory is requested to 
      * create an object but the wrong number of arguments was given.
      */
-  struct wrong_number_of_args_exception
+  struct RTT_EXPORT wrong_number_of_args_exception
       : public std::exception
   {
       int wanted;
@@ -80,7 +81,7 @@ namespace RTT
      * Exception thrown when a factory is requested to 
      * create an object, but a wrong argument type was given.
      */
-  struct wrong_types_of_args_exception
+  struct RTT_EXPORT wrong_types_of_args_exception
       : public std::exception
   {
       // this contains the number of the argument that had the wrong
@@ -100,7 +101,7 @@ namespace RTT
      * be an lvalue (AssignableDataSource) and an rvalue
      * (plain DataSource) was given.
      */
-  struct non_lvalue_args_exception
+  struct RTT_EXPORT non_lvalue_args_exception
       : public std::exception
   {
       // thrown when a factory expects an AssignableDataSource (lvalue), but only

@@ -40,6 +40,7 @@
 #define DATASOURCE_TYPE_INFO_HPP
 
 #include <string>
+#include "rtt-config.h"
 
 namespace RTT
 {
@@ -47,7 +48,7 @@ namespace RTT
 
     namespace detail {
 
-        struct UnknownType {};
+        struct RTT_API UnknownType {};
 
         template< class T>
         struct DataSourceTypeInfo;
@@ -58,7 +59,7 @@ namespace RTT
          * @see DataSource.cxx
          */
         template<>
-        struct DataSourceTypeInfo<UnknownType> {
+        struct RTT_API DataSourceTypeInfo<UnknownType> {
             typedef UnknownType value_type;
             typedef DataSourceTypeInfo<UnknownType> value_type_info;
 
@@ -80,7 +81,7 @@ namespace RTT
          * if a type T is a pointer, or reference, or...
          */
         template< class T>
-        struct DataSourceTypeInfo<const T&> {
+        struct RTT_EXPORT DataSourceTypeInfo<const T&> {
             typedef T value_type;
             typedef DataSourceTypeInfo<T> value_type_info;
             static const std::string& getType()  { return DataSourceTypeInfo< T >::getType(); }
@@ -89,7 +90,7 @@ namespace RTT
         };
 
         template< class T>
-        struct DataSourceTypeInfo<T&> {
+        struct RTT_EXPORT DataSourceTypeInfo<T&> {
             typedef T value_type;
             typedef DataSourceTypeInfo<T> value_type_info;
             static const std::string& getType()  { return DataSourceTypeInfo< T >::getType(); }
@@ -98,7 +99,7 @@ namespace RTT
         };
 
         template< class T>
-        struct DataSourceTypeInfo<const T> {
+        struct RTT_EXPORT DataSourceTypeInfo<const T> {
             typedef T value_type;
             typedef DataSourceTypeInfo<T> value_type_info;
             static const std::string& getType()  { return DataSourceTypeInfo< T >::getType(); }
@@ -107,7 +108,7 @@ namespace RTT
         };
 
         template< class T>
-        struct DataSourceTypeInfo<T*> {
+        struct RTT_EXPORT DataSourceTypeInfo<T*> {
             typedef T value_type;
             typedef DataSourceTypeInfo<T> value_type_info;
             static const std::string& getType()  { return DataSourceTypeInfo< T >::getType(); }
@@ -116,7 +117,7 @@ namespace RTT
         };
 
         template< class T>
-        struct DataSourceTypeInfo<const T*> {
+        struct RTT_EXPORT DataSourceTypeInfo<const T*> {
             typedef T value_type;
             typedef DataSourceTypeInfo<T> value_type_info;
             static const std::string& getType()  { return DataSourceTypeInfo< T >::getType(); }
@@ -131,7 +132,7 @@ namespace RTT
          * the type will get known to Orocos.
          */
         template< class T>
-        struct DataSourceTypeInfo {
+        struct RTT_EXPORT DataSourceTypeInfo {
             typedef T value_type;
             typedef DataSourceTypeInfo<T> value_type_info;
 
@@ -161,7 +162,7 @@ namespace RTT
          * (void) is a special case.
          */
         template<>
-        class DataSourceTypeInfo<void> {
+        class RTT_API DataSourceTypeInfo<void> {
             static const std::string tname;
         public:
             typedef void value_type;
@@ -191,6 +192,7 @@ namespace RTT
     }
 
 }
+
 #endif
 
 #include "DataSourceTypeInfo.inl"

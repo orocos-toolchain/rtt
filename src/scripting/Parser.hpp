@@ -48,6 +48,7 @@
 #include "../DataSource.hpp"
 #include "../ProgramInterface.hpp"
 #include "ParsedStateMachine.hpp"
+#include "../rtt-config.h"
 
 namespace RTT
 {
@@ -72,7 +73,7 @@ namespace RTT
      * @see ProgramLoader. Use the ProgramLoader for a more user friendly loading of scripts
      * into TaskContexts.
      */
-    class Parser
+    class RTT_API Parser
     {
     public:
         /**

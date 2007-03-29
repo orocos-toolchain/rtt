@@ -40,6 +40,7 @@
 #define ORO_PARSEREXECUTION_ACCESS_HPP
 
 #include "../ExecutionAccess.hpp"
+#include "../rtt-config.h"
 
 namespace RTT
 {
@@ -50,7 +51,7 @@ namespace RTT
      * and state machines loaded in the execution engine.
      * It can be found as the \a engine object of a TaskContext.
      */
-    class ParserExecutionAccess
+    class RTT_API ParserExecutionAccess
         : public ExecutionAccess
     {
     public:

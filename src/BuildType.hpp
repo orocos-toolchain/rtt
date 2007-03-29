@@ -51,7 +51,7 @@ namespace RTT
          * A helper class to build a value of type T.
          */
         template<class T>
-        struct BuildType
+        struct RTT_API BuildType
         {
             static typename AssignableDataSource<T>::shared_ptr Value(const T& value = T()) {
                 typename AssignableDataSource<T>::shared_ptr _value;

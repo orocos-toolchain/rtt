@@ -72,7 +72,7 @@ namespace RTT
     /**
      * This interface describes how constructors work.
      */
-    struct TypeBuilder
+    struct RTT_API TypeBuilder
     {
         virtual ~TypeBuilder();
         /**
@@ -86,7 +86,7 @@ namespace RTT
      * A class for representing a user type, and which can build
      * instances of that type.
      */
-    class TypeInfo
+    class RTT_API TypeInfo
     {
     protected:
         typedef std::vector<TypeBuilder*> Constructors;
@@ -191,7 +191,7 @@ namespace RTT
      * This class contains all known types to Orocos.
      * @see TemplateTypeInfo to add your own classes to Orocos.
      */
-    class TypeInfoRepository
+    class RTT_API TypeInfoRepository
     {
         TypeInfoRepository();
         typedef std::map<std::string, TypeInfo*> map_t;
