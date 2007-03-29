@@ -4,8 +4,8 @@
 [
 <!ENTITY cvs         "<acronym>CVS</acronym>">
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY oldversion  "0.24">
-<!ENTITY version     "1.0">
+<!ENTITY oldversion  "1.0">
+<!ENTITY version     "1.2">
 <!ENTITY rtai        "<acronym>RTAI</acronym>">
 <!ENTITY rtos        "<acronym>RTOS</acronym>">
 ]
@@ -14,96 +14,40 @@
 <article>
   <articleinfo>
     <title>
-      Orocos &version; Release Series
+      Orocos Real-Time Toolkit &version; Release Series
       Changes, New Features, and Fixes 
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis>
     </subtitle>
   </articleinfo>
   <para>
-    This document provides a quick overview of what changed between Orocos &oldversion; and
-    Orocos &version;. Hence, this release includes all bugfixes of the &oldversion;
-    branch. If your application does not work, look here for
-    possible causes and solutions. Also feature additions and improvements
-    are documented.
+    This document provides a quick overview of what changed between
+    the Real-Time Toolkit &oldversion; and version &version;. This
+    release includes all bugfixes of the &oldversion; branch. If your
+    application does not work, look here for possible causes and
+    solutions. Also feature additions and improvements are documented.
   </para>
   <section id="caveats">
     <title>Caveats</title>
     <section>
-      <title>Overall Changes</title>
+      <title>Building the RTT</title>
       <itemizedlist>
 	<listitem>
 	  <para>
-	    The make targets and make results have changed. One has now 'make rtt'
-	    (equivalent to 'make all'), 'make rtt-embedded' or 'make rtt-corba'.
-	    The resulting library and .pc file have the names 'liborocos-rtt.a'
-	    and 'orocos-rtt.pc' respectively. All standard headers are installed in the
-	    'rtt' directory. The device interface headers reside in 'rtt/dev'. The
-	    OS headers reside in 'rtt/os'. The Corba headers are in 'rtt/corba'.
-	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=265">
-	    Clean up the build system</ulink> and 
-	    <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=168">
-	    for all details.
-	    </ulink>
+	    Orocos RTT is now built with the 'CMake' tool, instead of
+	    the automake tool previously. See the installation manual
+	    for the new build instructions.  The installed libraries
+	    and header files names and locations have not changed.
+	    However, the <filename>pkgconf</filename> directory has
+	    disappeared and is replaced with the
+	    <filename>rtt/rtt-config.h</filename> file, which contains
+	    the same defined macros.
 	  </para>
-	</listitem>
-	<listitem>
 	  <para>
-	    The 'ORO_...' namespaces of Orocos have been renamed to 'RTT', 'RTT::OS', etc.
-	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=65">
-	    [Project] new Orocos namespace</ulink> for all details.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The <classname>RTT::Event</classname>,
-	    <classname>RTT::Method</classname>,
-	    <classname>RTT::Command</classname>,
-	    <classname>RTT::Property</classname>,
-	    <classname>RTT::Attribute</classname> and
-	    <classname>RTT::Port</classname> classes have changed in usage
-	    semantics. All these classes require a "name" as a
-	    constructor parameter in order to be initialised.  When no
-	    "name" is given (the default constructor) the objects are
-	    empty boxes which will refuse to operate. In order to
-	    check for this condition, all these classes have a
-	    <function>ready()</function> method which returns true if
-	    the object is correctly setup. These new semantics allow
-	    far-going abstraction and network distribution of these
-	    primitives. See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=104">
-	    Commands and Methods : Away with the Template* classes</ulink>,
-	    <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=119">
-	      [API] Improve Attribute/Property usage</ulink> and
-	      <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=111">
-		[API] Change event 'add' methods</ulink> for all details.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The <function>addEvent</function>,
-	    <function>addMethod</function>,
-	    <function>addCommand</function>,
-	    <function>addProperty</function>,
-	    <function>addAttribute</function> and
-	    <function>addPort</function> functions 
-	    have been added to replace the 'TemplateFactory'
-	    classes of prior Orocos versions.
-	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=104">
-	    Commands and Methods : Away with the Template* classes</ulink>,
-	    <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=119">
-	      [API] Improve Attribute/Property usage</ulink> and
-	      <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=111">
-		[API] Change event 'add' methods</ulink> for all details and a script
-	    which converts 0.24.0 application code to the new syntax.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The device drivers have been removed from the RealTime Toolkit.
-	    Their new home is the Orocos Components Library (OCL). This makes building
-	    the RTT more simple and gives each device driver an easier to find place.
-	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=115">
-	    [Project] Move device drivers to orocos-components </ulink> for all details.
+	    The new build system may on your system detect installed
+	    libraries differently than in version &oldversion;. If you
+	    encounter problems, notify the orocos-dev mailinglist and
+	    a hotfix will be prepared.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -113,84 +57,35 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    The ORO_OS namespace has been renamed to RTT::OS.
-	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=65">
-	    [Project] new Orocos namespace</ulink> for all details.
-	    The headers are installed in 'rtt/os'.
+	    An <function>rtos_task_yield()</function> function is now
+	    required in the FOSI layer, which maps to the yield function
+	    of your OS. If your OS does not support a 'thread yield',
+	    you may implement this as an empty function.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The RTT::OS::PeriodicThread <function>setToStop()</function> function 
-	    now executes finalize() as well and no longer uses Events nor the
-	    Completion Processor.
-	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=165">
-	    OS::PeriodicThread depends on RTT::Event, CompletionProcessor</ulink> for all details.
+	    The <classname>RTT::OS::SingleThread</classname> and the
+	    <classname>RTT::NonPeriodicActivity</classname> threading
+	    classes had undefined semantics for start() and stop()
+	    with respect to loop() in case start() was called multiple
+	    times in a row. With the old behaviour, start()
+	    invocations had an accumulative effect, causing loop() to
+	    be executed as much as start() was called, even after stop()
+	    was called. The new behaviour only allows start() to succeed
+	    if loop() is not executing. stop() will only return when
+	    loop() finishes.
 	  </para>
 	</listitem>
-	<listitem>
-	  <para>
-	    The RTT::OS::ThreadInterface functions
-	    <function>makeHardRealTime()</function>,
-	    <function>makeSoftRealTime()</function> and
-	    <function>isHardRealTime()</function> have been replaced
-	    with <function>bool
-	    ThreadInterface::setScheduler(int)</function> and
-	    <function>int
-	    ThreadInterface::getScheduler() const</function>. By default,
-	    all threads (except the main thread) are created as 'hard
-	    realtime' (if available). Use setScheduler to change the
-	    default with an OS defined parameter.  The rationale of
-	    this decision has been discussed on
-	    <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=210">
-	    Remove ZTT and friends</ulink>. This also lead to a renaming
-	    of the equivalent functions in the <filename>fosi_internal.h</filename>
-	    file.
-	  </para>
-	</listitem>
-    </itemizedlist>
+      </itemizedlist>
     </section>
     <section>
-      <title>CoreLib Changes</title>
+      <title>RTT Changes</title>
       <itemizedlist>
 	<listitem>
 	  <para>
-	    The <classname>Event</classname> object has changed 'constructor' 
-	    semantics. An Event requires a "name" upon construction in order
-	    to be usable. Nameless events are 'empty' and require initialisation.
-	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=111">
-	    [API] Change event 'add' methods</ulink> for all details.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The Activity classes can no longer react to Events. Use an <classname>EventProcessor</classname>
-	    or the <classname>ExecutionEngine</classname> to react to events.
-	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=129">
-	    [Project] Removing Events out of activities</ulink> for all details.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The NonPreemptibleActivity, PreemptibleActivity,
-	    NonRealTimeActivity classes and their Thread classes no
-	    longer exist. Use (or subclass) the
-	    <classname>RTT::PeriodicActivity</classname> instead and
-	    add a priority level in the constructor. See <ulink
-	    url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=210">
-	    Remove ZTT and friends</ulink> for all details.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The property reading and writing functions
-	    of the <classname>RTT::PropertyLoader</classname> have changed
-	    semantics. It is now possible to specify if all properties, some
-	    properties or one property must be written to or read from a file.
-	    The global 'find' function has been renamed to 'findProperty'.
-	    See <ulink
-	    url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=204">
-	    reading properties does not fail</ulink> for all details.
+	    See the above remark about the changed behaviour of 
+	    <classname>RTT::NonPeriodicActivity</classname>.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -200,61 +95,31 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    The <command>emit</command> statement for emitting events has
-	    been replaced by the <command>do</command> statement in both
-	    program scripts and state machine scripts.
-	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=154">
-	    Using events in TaskBrowser</ulink> for all details.
+	    The <function>programs.MyProgram</function> and
+	    <function>states.MyStateMachine</function> prefixes,
+	    required to access loaded programs and statemachines has
+	    been dropped. One can now address a TaskContext program or
+	    state machine by just writing
+	    <function>MyProgram</function> or
+	    <function>MyStateMachine</function> in a script. The
+	    parser will not allow name clashes between script
+	    names and TaskContext objects. The parser has been modified
+	    to allow the old syntax and warn the user of the change.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The <function>task.varname</function> prefix, required in programs
-	    and statemachines in order to access TaskContext variables has been
-	    dropped. One can now address a TaskContext variable by just writing
-	    <function>varname</function> in a script. The parser will not allow
-	    name clashes between program script variables and TaskContext
-	    variables in which the scripts are loaded.
-	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=140">
-	    Using properties from a state machine</ulink> for all details.
-	  </para>
-	</listitem>
-      </itemizedlist>
-    </section>
-    <section>
-      <title>Component TaskContext Changes</title>
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    The <classname>RTT::GenericTaskContext</classname> has been removed.
-	    All its functionality is now available from the 'TaskContext' class,
-	    although through a slightly different API.
-	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=205">
-	    Deprecate GenericTaskContext, upgrade TaskContext</ulink> for all details.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The <classname>RTT::TaskBrowser</classname> has been
-	    removed.  All its functionality is now available from the
-	    <classname>Orocos::TaskBrowser</classname> component in
-	    the Orocos Component Library.  See <ulink
-	    url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=262">
-	    Remove RTT::TaskBrowser, use Orocos::TaskBrowser</ulink>
-	    for all details.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The <classname>RTT::WritePort</classname> has been renamed to 
-	    <classname>RTT::DataPort</classname> and a 'new' <classname>RTT::WritePort</classname>
-	    implementation with only a <function>Get()</function> function has been
-	    added. This means that applications that did 'Get()' on a 'WritePort'
-	    will no longer compile and need to rename to 'DataPort'. 
-	    This was done to improve naming consistency with the
-	    <classname>RTT::BufferPort</classname> class.
-	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=201">
-	    [API] Rename WriteDataPort class to DataPort</ulink> for all details.
+	    Program and state machine scripts are no longer loaded as
+	    <classname>RTT::TaskContext</classname> C++ objects but as
+	    <classname>RTT::TaskObject</classname> C++ objects. In
+	    practice, this has no effect on existing applications,
+	    unless the user uses <function>getPeer()</function> in
+	    order to access loaded scripts (instead of the recommended
+	    <function>states()</function>,
+	    <function>programs()</function> or
+	    <function>execution()</function>).  In that case, the user
+	    needs to call <function>getObject()</function> instead or
+	    revert to the recommended functions.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -268,21 +133,9 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    The <classname>RTT::Corba::ControlTask</classname> class
-	    and related classes have been revised to map better to the
-	    TaskContext interface. <classname>MethodFactory</classname>
-	    has been renamed to <classname>RTT::Corba::MethodInterface</classname>,
-	    <classname>CommandFactory</classname>
-            has been renamed to <classname>RTT::Corba::CommandInterface</classname>.
-	    The <classname>RTT::Corba::TaskObject</classname> has been added
-	    and getting a command or method from the interface is now
-	    similar to plain C++ usage.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    All created objects now have a <function>destroy_X</function>
-	    IDL method which you must call to free the serverside object.
+	    The <classname>RTT::Corba::ControlTaskObject</classname> class
+	    and related classes have been revised to map to the
+	    TaskContext and TaskObject interface.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -291,90 +144,27 @@
   <section>
     <title>Improvements</title>
     <section>
-      <title>Orocos C++ Interface</title>
+      <title>Shared libraries</title>
       <itemizedlist>
 	<listitem>
 	  <para>
-	    The classes and functions required to setup or access a component
-	    have been greatly simplified and are more uniform in naming.
-	    For example, adding a command is done by writing 
-	    commands()->addCommand(...), properties by properties()->addProperty(...)
-	    etc and such for each primitive. Retrieving a 'pointer' to
-	    a primitive from another TaskContext is then done by
-	    peer->getCommand("name"), peer->getProperty("name") etc.
-	    See <ulink url="orocos-components-manual.html">The Component Builder's Manual</ulink> for all details.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    All Orocos primitives are to be used as 'objects' and not as 'pointers'.
-	    For example, one does no longer write 
-	    <programlisting>Property&lt;int&gt;* myProp = peer->properties()->getProperty&lt;int&gt;("Prop");
-assert( myProp != 0 );</programlisting>
-	    but instead: 
-	    <programlisting>Property&lt;int&gt; myProp = peer->properties()->getProperty&lt;int&gt;("Prop");
-assert( myProp.ready() );</programlisting>
-	    The ready() method checks if "Prop" could be found and had the correct value.
-	    This aproach must be taken for every Orocos primitive: Commands, Events, etc.
-	    See <ulink url="orocos-components-manual.html">The Component Builder's Manual</ulink> for all details.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The <classname>RTT::Command</classname>'s <function>evaluate()</function> function has been renamed to 
-	    <function>done()</function>.
-	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=188">[API] Commands: evaluate() deprecated, use done()</ulink> for all details.
+	    From release 1.1.0 on, Orocos RTT is built by default as a shared
+	    library. This significantly improves link times and application
+	    development times. It also allows dynamic component deployment in
+	    the Orocos Component Library.
 	  </para>
 	</listitem>
       </itemizedlist>
     </section>
     <section>
-      <title>Component XML Configuration</title>
+      <title>Corba Support</title>
       <itemizedlist>
 	<listitem>
 	  <para>
-	    Orocos no longer has a hard dependency on Xerces, nor on
-	    'cpf.dtd' for XML parsing.  If Xerces is not detected on
-	    your system, an internal (TinyXML) implementation is
-	    used. Furthermore, the 'cpf.dtd' file is no longer
-	    required to parse Orocos XML files. Orocos has this file
-	    built-in and uses it to validate your document when the
-	    XML parser supports it (i.e. Xerces).  See <ulink
-	    url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=234">
-	    XML Parsing: DTD's and Parsers.</ulink> for all details.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The <function>readProperties</function> and <function>writeProperties</function>
-	    functions have become more strict. All properties must be read or written
-	    or they will refuse to change any values. To have more flexible
-	    behaviour, alternative functions have been added to fill the gap.
-	    See <ulink
-	    url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=204">
-	    reading properties does not fail</ulink> for all details.
-	  </para>
-	</listitem>
-      </itemizedlist>
-    </section>
-    <section>
-      <title>TaskBrowser Component</title>
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    One can emit events from the TaskBrowser by calling the event
-	    by name and providing the arguments.
-	    See <ulink url="https://proj.fmtc.be/orocos-bugzilla/show_bug.cgi?id=154">
-	    Using events in TaskBrowser</ulink> for all details.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    An <classname>Orocos::TaskBrowser</classname> 'Component'
-	    has been created which is more powerful than the classical
-	    <classname>RTT::TaskBrowser</classname>.  It dynamically
-	    connects to Data Flow Ports and allows better testing of
-	    unconnected components.
+	    From release 1.1.0 on, Orocos RTT has better build and run-time
+	    support for Corba (using ACE/TAO). Remote modification of
+	    component parameters has been improved and is taken advantage
+	    of by the Corba based KTaskbrowser 1.2.
 	  </para>
 	</listitem>
       </itemizedlist>
