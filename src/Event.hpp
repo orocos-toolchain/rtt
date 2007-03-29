@@ -177,6 +177,9 @@ namespace RTT
             return this->impl;
         }
 
+        /**
+         * Returns the name of this event, given upon construction.
+         */
         const std::string& getName() const { return mname; }
 
         /**
