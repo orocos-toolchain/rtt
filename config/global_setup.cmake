@@ -22,6 +22,7 @@ IF ( ${CXX_HAS_VERSION} EQUAL 0 )
   IF( CXX_VERSION MATCHES "4\\.[0-9]\\.[0-9]" )
     MESSAGE("Detected gcc4: ${CXX_VERSION}")
     #SET(RTT_CXXFLAGS "-fvisibility-inlines-hidden")
+    SET(RTT_GCC_HASVISIBILITY TRUE)
   ELSE(CXX_VERSION MATCHES "4\\.[0-9]\\.[0-9]")
     IF( CXX_VERSION MATCHES "3\\.[0-9]\\.[0-9]" )
       MESSAGE("Detected gcc3: ${CXX_VERSION}")
@@ -52,6 +53,11 @@ ENDIF ( DOXYGEN )
 OPTION( ENABLE_TESTS "Turn me off to disable compilation of all tests" OFF )
 
 #
+# STATIC or SHARED
+#
+OPTION( BUILD_STATIC "Build Orocos RTT as a static library." OFF)
+
+#
 # CORBA
 #
 DEPENDENT_OPTION( ENABLE_CORBA "Enable CORBA (using TAO)" ON "ACE_CONFIG AND TAO_ORB AND TAO_ORBSVCS;NOT ORO_EMBEDDED" OFF)
@@ -73,6 +79,14 @@ IF (ENABLE_CORBA)
   ENDIF( NOT ${ORBSVCS_DIR} STREQUAL /usr/include )
 
   # Finally:
+  IF (BUILD_STATIC)
+    SET(RTT_LINKFLAGS "${RTT_LINKFLAGS} -lorocos-rtt-corba -lorocos-rtt -lTAO -lTAO_IDL_BE -lTAO_PortableServer -lTAO_CosNaming -lACE" CACHE INTERNAL "")
+  ELSE(BUILD_STATIC)
+    # shared.
+  ENDIF (BUILD_STATIC)
+
+  # Is used for building both the library and the tests.
   LINK_LIBRARIES( TAO TAO_IDL_BE TAO_PortableServer TAO_CosNaming TAO_CosProperty TAO_CosEvent ACE  )
 ENDIF (ENABLE_CORBA)
+
 

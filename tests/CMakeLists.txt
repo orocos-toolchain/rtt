@@ -7,6 +7,10 @@
     IF(ENABLE_CORBA)
       INCLUDE_DIRECTORIES( ${PROJ_BINARY_DIR}/src/corba/ )
       LINK_DIRECTORIES( ${PROJ_BINARY_DIR}/src/corba/ )
+      # Work around unresolved symbols in tests when using CORBA *and* STATIC
+      IF(BUILD_STATIC)
+	LINK_LIBRARIES( orocos-rtt-corba orocos-rtt orocos-rtt-corba orocos-rtt)
+      ENDIF(BUILD_STATIC)
     ENDIF(ENABLE_CORBA)
     ADD_DEFINITIONS("-g")
 

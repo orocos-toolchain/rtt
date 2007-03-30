@@ -97,7 +97,6 @@ ENDIF (${RTT_CXXFLAGS})
 #
 # Settings for building a static library (.a)
 #
-OPTION(BUILD_STATIC "Build Orocos RTT as a static library." OFF)
 IF ( BUILD_STATIC )
   ADD_LIBRARY(orocos-rtt STATIC $ENV{GLOBAL_LIBRARY_SRCS})
 ELSE( BUILD_STATIC )

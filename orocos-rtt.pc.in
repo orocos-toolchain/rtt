@@ -8,4 +8,4 @@ Description: Open Robot Control Software # human-readable description
 Version: @VERSION@
 Libs: -L${libdir} -lorocos-rtt @RTT_LINKFLAGS@ 
 #Libs.private: @RTT_LIBS@
-Cflags: -I${includedir} -I${includedir}/rtt @RTT_CFLAGS@ 
+Cflags: -I${includedir} @RTT_CFLAGS@ 

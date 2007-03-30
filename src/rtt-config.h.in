@@ -89,7 +89,8 @@
 //
 // See: <http://gcc.gnu.org/wiki/Visibility>
 //
-#if defined(__GNUG__) && defined(__unix__)
+#cmakedefine RTT_GCC_HASVISIBILITY
+#if defined(__GNUG__) && defined(__unix__) && defined(RTT_GCC_HASVISIBILITY)
 
 # if defined(RTT_DLL_EXPORT)
    // Use RTT_API for normal function exporting
