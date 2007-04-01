@@ -33,7 +33,7 @@
     TARGET_LINK_LIBRARIES( event-test orocos-rtt cppunit )
     ADD_TEST( event-test event-test )
 
-    ADD_EXECUTABLE( taskcontext-test ${DO_EXCLUDE} test-runner.cpp generictask_test.cpp )
+    ADD_EXECUTABLE( taskcontext-test ${DO_EXCLUDE} test-runner.cpp generictask_test.cpp generictask_test_2.cpp generictask_test_3.cpp )
     TARGET_LINK_LIBRARIES( taskcontext-test orocos-rtt cppunit )
     ADD_TEST( taskcontext-test taskcontext-test )
 
