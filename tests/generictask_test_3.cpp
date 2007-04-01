@@ -21,10 +21,10 @@
 #include "generictask_test_3.hpp"
 #include <unistd.h>
 #include <iostream>
-#include <rtt/Ports.hpp>
+#include <Ports.hpp>
 
-#include <rtt/SimulationActivity.hpp>
-#include <rtt/SimulationThread.hpp>
+#include <SimulationActivity.hpp>
+#include <SimulationThread.hpp>
 
 #include <boost/function_types/function_type_signature.hpp>
 
