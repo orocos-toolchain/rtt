@@ -127,9 +127,13 @@ namespace RTT
 
     string TypeInfo::toString( DataSourceBase::shared_ptr in ) const
     {
+#ifdef OS_HAVE_STREAMS
         stringstream result;
         this->write( result, in );
         return result.str();
+#else
+        return string("(") + in->getTypeInfo()->getTypeName() + ")";
+#endif
     }
 
     namespace {
