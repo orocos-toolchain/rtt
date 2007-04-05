@@ -42,6 +42,8 @@
 #  include "oro_i386/oro_atomic.h"
 # elif defined( __GNUC__ ) && defined( __x86_64__ )
 #  include "oro_x86_64/oro_atomic.h"
+# elif defined( __GNUC__ ) && (defined( __powerpc__ ) || defined( __PPC__ ) )
+#  include "oro_powerpc/oro_atomic.h"
 # elif defined( __GNUC__ ) && defined( __ia64__ )
 #  error "ia64 Is not yet supported, contact the orocos-dev mailinglist for further actions."
 # else
