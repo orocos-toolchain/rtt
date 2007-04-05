@@ -403,7 +403,7 @@ namespace RTT
     template<typename T>
     std::ostream& operator<<(std::ostream &os, Property<T> &p)
     {
-#if HAVE_STREAMS
+#ifdef OS_HAVE_STREAMS
         os << p.get();
 #endif
         return os;
