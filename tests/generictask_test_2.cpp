@@ -21,12 +21,12 @@
 #include "generictask_test_2.hpp"
 #include <unistd.h>
 #include <iostream>
-#include <rtt/Command.hpp>
-#include <rtt/CommandDS.hpp>
-#include <rtt/OperationInterface.hpp>
+#include <Command.hpp>
+#include <CommandDS.hpp>
+#include <OperationInterface.hpp>
 
-#include <rtt/SimulationActivity.hpp>
-#include <rtt/SimulationThread.hpp>
+#include <SimulationActivity.hpp>
+#include <SimulationThread.hpp>
 
 #include <boost/function_types/function_type_signature.hpp>
 
