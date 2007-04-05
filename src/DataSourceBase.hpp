@@ -195,7 +195,7 @@ namespace RTT
       virtual DataSourceBase* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const = 0;
 
       /**
-       * Return usefull type info in a human readable format.
+       * Return useful type info in a human readable format.
        */
       virtual std::string getType() const = 0;
 
