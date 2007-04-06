@@ -4,37 +4,37 @@
 #                                                         #
 ###########################################################
 
-INCLUDE( ${CMAKE_ROOT}/Modules/CheckIncludeFileCXX.cmake )
-INCLUDE( ${CMAKE_ROOT}/Modules/CheckIncludeFile.cmake )
+# The cmake version is f*cked up, i.e. the spirit of cmake.
+INCLUDE( config/CheckIncludeFileCXX.cmake )
 
 # Look for boost
 IF (NOT CMAKE_CROSS_COMPILE)
-SET(BOOST FALSE CACHE INTERNAL "if Boost-C++ is found")
 
+# This is the Orocos version of the macro:
 CHECK_INCLUDE_FILE_CXX( boost/shared_ptr.hpp BOOST)
-CHECK_INCLUDE_FILE_CXX( boost/spirit.hpp BOOST)
-CHECK_INCLUDE_FILE_CXX( boost/graph/adjacency_list.hpp BOOST)
-IF(BOOST)
+CHECK_INCLUDE_FILE_CXX( boost/spirit.hpp BOOST_SPIRIT)
+CHECK_INCLUDE_FILE_CXX( boost/graph/adjacency_list.hpp BOOST_GRAPH)
+IF(BOOST AND BOOST_GRAPH AND BOOST_SPIRIT)
   MESSAGE("-- Looking for Boost headers - found")
   SET(ORO_SUPPORT_BOOST TRUE CACHE INTERNAL "" FORCE)
-ELSE(BOOST)
+ELSE(BOOST AND BOOST_GRAPH AND BOOST_SPIRIT)
   MESSAGE("-- Looking for Boost headers - not found")
   SET(ORO_SUPPORT_BOOST FALSE CACHE INTERNAL "" FORCE)
-  MESSAGE( FATAL_ERROR "Install Boost C++ (libboost-dev) version 0.32.0 or newer.")
-ENDIF(BOOST)
+  MESSAGE( FATAL_ERROR "Install Boost C++ (libboost-dev, libboost-graph-dev) version 0.32.0 or newer.")
+ENDIF(BOOST AND BOOST_GRAPH AND BOOST_SPIRIT)
 ENDIF (NOT CMAKE_CROSS_COMPILE)
 
-# Look for Xerces
-SET(XERCES FALSE CACHE INTERNAL "if xerces is found")
+# Look for Xerces (Do not change these SET statements !)
 IF (NOT CMAKE_CROSS_COMPILE )
   FIND_LIBRARY(XERCES NAMES xerces-c 
     PATHS /usr/local/lib /usr/lib )
+  CHECK_INCLUDE_FILE_CXX( xercesc/util/PlatformUtils.hpp XERCES_HEADERS)
 ELSE (NOT CMAKE_CROSS_COMPILE )
   FIND_LIBRARY(XERCES NAMES xerces-c 
     NO_DEFAULT_PATH
     )
 ENDIF (NOT CMAKE_CROSS_COMPILE )
-IF ( XERCES )
+IF ( XERCES AND XERCES_HEADERS)
   MESSAGE("-- Looking for Xerces - found")
   SET(OROPKG_SUPPORT_XERCES_C TRUE CACHE INTERNAL "" FORCE)
   LINK_LIBRARIES(xerces-c)
@@ -42,15 +42,18 @@ IF ( XERCES )
   SET(OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER "CPFMarshaller")
   SET(ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE "\"marsh/CPFDemarshaller.hpp\"")
   SET(OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER "CPFDemarshaller")
-ELSE ( XERCES )
-  MESSAGE("-- Looking for Xerces - not found")
+ELSE ( XERCES AND XERCES_HEADERS )
+  IF (NOT XERCES_HEADERS)
+    MESSAGE("-- Looking for Xerces - headers not found")
+  ENDIF (NOT XERCES_HEADERS)
+
   SET(OROPKG_SUPPORT_XERCES_C FALSE CACHE INTERNAL "" FORCE)
 
   SET(ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE "\"marsh/CPFMarshaller.hpp\"")
   SET(OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER "CPFMarshaller")
   SET(ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE "\"marsh/TinyDemarshaller.hpp\"")
   SET(OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER "TinyDemarshaller")
-ENDIF ( XERCES )
+ENDIF ( XERCES AND XERCES_HEADERS )
 
 SET( OROCOS_TARGET gnulinux CACHE STRING "The Operating System target. One of [lxrt gnulinux xenomai]")
 SET(LINUX_SOURCE_DIR ${LINUX_SOURCE_DIR} CACHE PATH "path to linux source dir" FORCE)
