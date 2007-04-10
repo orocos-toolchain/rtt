@@ -18,6 +18,18 @@ function getcompiler
     if [ $(expr match "$arg" "CXX=") != 0 ]; then
 	CMAKE_CXX="$arg"
     fi
+
+    if [ $(expr match "$arg" "--prefix=") != 0 ]; then
+	CMAKE_PREFIX="${arg:9}"
+    fi
+    if [ $(expr match "$arg" "--with-xenomai") != 0 ]; then
+	CMAKE_XENO=1
+        CMAKE_XENO_PATH="${arg:15}"
+    fi
+    if [ $(expr match "$arg" "--with-lxrt") != 0 ]; then
+	CMAKE_LXRT=1
+	CMAKE_LXRT_PATH="${arg:12}"
+    fi
 }
 
 while [ "$1" != "" ]; do
@@ -50,8 +62,31 @@ if [ x$(which cmake) == x ]; then
    exit 1
 fi
 
-echo "Invoking: '$CMAKE_CC $CMAKE_CXX cmake ..'"
+# --prefix
+if [ x$CMAKE_PREFIX != x ]; then
+   CMAKE_ARGS="-DCMAKE_INSTALL_PREFIX=$CMAKE_PREFIX"
+fi
 
-bash -c "$CMAKE_CC $CMAKE_CXX cmake .." || (echo "Error: cmake produced an error."; exit 1)
+# --with-lxrt
+if [ x$CMAKE_LXRT != x ]; then
+   CMAKE_ARGS="$CMAKE_ARGS -DOROCOS_TARGET=lxrt"
+   if [ x$CMAKE_LXRT_PATH != x ]; then
+     CMAKE_ARGS="$CMAKE_ARGS -DRTAI_INSTALL_DIR=$CMAKE_LXRT_PATH"
+   fi   
+fi
 
-echo "OK: configure done."
+# --with-xenomai
+if [ x$CMAKE_XENO != x ]; then
+   CMAKE_ARGS="$CMAKE_ARGS -DOROCOS_TARGET=xenomai"
+   if [ x$CMAKE_XENO_PATH != x ]; then
+     CMAKE_ARGS="$CMAKE_ARGS -DXENOMAI_INSTALL_DIR=$CMAKE_XENO_PATH"
+   fi   
+fi
+
+CMAKE_EXE=$(which cmake)
+
+echo "Invoking: '$CMAKE_CC $CMAKE_CXX $CMAKE_EXE .. $CMAKE_ARGS'"
+$CMAKE_CC $CMAKE_CXX $CMAKE_EXE .. $CMAKE_ARGS || { echo -e "\ncmake produced an error - removing cache."; rm CMakeCache.txt; exit 1; }
+
+echo
+echo "OK: configure done. Now issue 'make'."
