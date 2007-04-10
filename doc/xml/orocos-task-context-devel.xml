@@ -196,10 +196,10 @@
     <section>
       <title>Task Property Configuration</title>
       <para>
-	As was seen in <xref linkend="task-attr-rep" />, CoreLib Properties
-	can be added to a task's AttributeRepository. To read and write
-	properties from or to files, you can use the <classname>RTT::PropertyLoader</classname>
-	class. It uses the XML Component Property Format such that it is human readable.
+	Properties can be added to a task's AttributeRepository. To
+	read and write properties from or to files, you can use the
+	<classname>RTT::PropertyLoader</classname> class. It uses the
+	XML Component Property Format such that it is human readable.
       </para>
       <programlisting>  #include &lt;rtt/PropertyLoader.hpp&gt;
   // ...
@@ -238,14 +238,15 @@
   } 
   // repeat... </programlisting></para>
 	<para>
-	  where the optional <option>export</option> keyword makes the function
-	  available as a task's command ( which will fail
-	  if one of its contained commands fail ) :
-	  <programlisting>  do ATask.myFun( 1, 2. )</programlisting>
-	  If you omit the export keyword, then the function will not
-	  become available as a command. To use such a function, you need to 
-	  execute it in the Execution Engine's Program Processor ( see below ), or call it in a program,
-	  which was parsed in the same file (see <xref linkend="task-context-programs" /> ).
+	  where the optional <option>export</option> keyword makes the
+	  function available as a task's command ( which will fail if
+	  one of its contained commands fail ) : 
+	  <programlisting> do ATask.myFun( 1, 2. )</programlisting> 
+	  If you omit the export
+	  keyword, then the function will not become available as a
+	  command. To use such a function, you need to execute it in
+	  the Execution Engine's Program Processor ( see below ), or
+	  call it in a program, which was parsed in the same file.
 	</para>
 	<para>
 	  Functions must be parsed by the <classname>RTT::Parser</classname>,

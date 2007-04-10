@@ -142,9 +142,8 @@
 	</para>
 	<para>
 	  Next, you need to define the operator in Operators.cpp, in
-	  much the same way as you should do for <link
-	  linkend="overloading-operators">overloading an existing
-	  operator</link>.  However, instead of then using an existing string
+	  much the same way as you should do for overloading an existing
+	  operator.  However, instead of then using an existing string
 	  like "+", you should use the string you chose while defining
 	  your new syntax above.
 	</para>
