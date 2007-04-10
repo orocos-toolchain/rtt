@@ -200,6 +200,11 @@ namespace RTT
         bool inloop;
 
         /**
+         * Signal flag between thread and start()/stop()
+         */
+        bool runloop;
+
+        /**
          * The realtime task structure created by this object.
          */
         RTOS_TASK rtos_task;

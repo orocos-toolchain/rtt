@@ -81,7 +81,10 @@ namespace RTT
                 while(1) 
                     {
                         rtos_sem_wait( &(task->sem) );
-                        if ( ! task->active ) {
+                        // this mutex guarantees that stop() waits
+                        // until loop() returns.
+                        MutexLock lock(task->breaker);
+                        if ( ! task->runloop ) {
                             if ( task->prepareForExit )
                                 break;
                             // The configuration might have changed
@@ -99,9 +102,6 @@ namespace RTT
                                 task->d->switchOn( bit );
 #endif
                             {
-                                // this mutex guarantees that stop() waits
-                                // until loop() returns.
-                                MutexLock lock(task->breaker);
                                 task->inloop = true;
                                 task->loop();
                                 task->inloop = false;
@@ -135,7 +135,7 @@ namespace RTT
                              RunnableInterface* r) 
       : msched_type(ORO_SCHED_RT),
         active(false), prepareForExit(false), 
-        inloop(false), runComp(r)
+        inloop(false), runloop(false), runComp(r)
 #ifdef OROPKG_OS_THREAD_SCOPE
         , d(NULL)
 #endif
@@ -148,7 +148,7 @@ namespace RTT
                                RunnableInterface* r)
         : msched_type(scheduler),
           active(false), prepareForExit(false), 
-          inloop(false), runComp(r)
+          inloop(false), runloop(false), runComp(r)
 #ifdef OROPKG_OS_THREAD_SCOPE
         , d(NULL)
 #endif
@@ -214,6 +214,7 @@ namespace RTT
 
         // Send the message to the thread...
         active = false;
+        runloop = false;
         prepareForExit = true;
         rtos_sem_signal( &sem );
         
@@ -265,6 +266,8 @@ namespace RTT
     {
         // just signal if already active.
         if ( isActive() ) {
+            if ( rtos_sem_value(&sem) > 0 )
+                return false;
             rtos_sem_signal(&sem);
             return true;
         }
@@ -275,6 +278,7 @@ namespace RTT
             return false;
         }
 
+        runloop = true;
         rtos_sem_signal(&sem);
 
         return true;
@@ -289,12 +293,18 @@ namespace RTT
         if ( !isActive() ) return false;
 
         // if inloop and breakloop does not work, sorry.
-        if ( inloop ) { 
-            if ( !this->breakLoop() )
-                return false;
-            // breakLoop was ok, wait for loop() to return.
+        {
             MutexLock lock(breaker);
+            runloop = false;
+            if ( inloop ) { 
+                if ( !this->breakLoop() ) {
+                    runloop = true;
+                    return false;
+                }
+                // breakLoop was ok, wait for loop() to return.
+            }
         }
+
         // from this point on, inloop == false
 
         this->finalize();
