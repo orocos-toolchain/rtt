@@ -77,8 +77,21 @@
 #cmakedefine OROPKG_OS_GNULINUX
 #cmakedefine OROPKG_OS_XENOMAI
 
-#cmakedefine OROBLD_OS_ARCH_i386
-#cmakedefine OROBLD_OS_ARCH_x86_64
+// Detect the CPU we are compiling for
+# if defined( __GNUC__ ) && defined( __i386__ )
+#  define OROBLD_OS_ARCH_i386
+# elif defined( __GNUC__ ) && defined( __x86_64__ )
+#  define OROBLD_OS_ARCH_x86_64
+# elif defined( __GNUC__ ) && (defined( __powerpc__ ) || defined( __PPC__ ) )
+#  define OROBLD_OS_ARCH_ppc
+# elif defined( __GNUC__ ) && defined( __ia64__ )
+#  error "ia64 Is not yet supported, contact the orocos-dev mailinglist for further actions."
+#  define OROBLD_OS_ARCH_ia64
+# else
+#  error "Unknown Processor Architecture"
+#  define OROBLD_OS_ARCH_unknown
+# endif
+
 
 #cmakedefine ENABLE_CORBA
 #ifdef ENABLE_CORBA
