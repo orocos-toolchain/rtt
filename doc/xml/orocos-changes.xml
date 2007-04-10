@@ -57,6 +57,15 @@
       <itemizedlist>
 	<listitem>
 	  <para>
+	    Support for real-time PowerPC (with FPU) has been
+	    added. The functionality has been tested with a Linux 2.4
+	    PPC kernel (patched for Xenomai), with gcc 3.3.6 and glibc
+	    2.2.5 but should work with other kernels and compilers as
+	    well.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
 	    An <function>rtos_task_yield()</function> function is now
 	    required in the FOSI layer, which maps to the yield function
 	    of your OS. If your OS does not support a 'thread yield',
@@ -86,6 +95,23 @@
 	  <para>
 	    See the above remark about the changed behaviour of 
 	    <classname>RTT::NonPeriodicActivity</classname>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The <classname>RTT::TaskContext</classname>
+	    <function>startup()</function>,
+	    <function>update()</function>,
+	    <function>shutdown()</function> user functions are in the
+	    process of being renamed. They are still valid, but
+	    deprecated and new applications should no longer use these
+	    names.  The new names are
+	    <function>startHook()</function>,
+	    <function>updateHook()</function> and
+	    <function>stopHook()</function>. The new naming is less
+	    confusing in combination with the new configuration state
+	    of the TaskContext (see below). Again, existing RTT 1.0
+	    applications using the old naming remain working.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -152,6 +178,30 @@
 	    library. This significantly improves link times and application
 	    development times. It also allows dynamic component deployment in
 	    the Orocos Component Library.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>RTT classes</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The <classname>RTT::TaskContext</classname> class has been
+	    extended to support a configuration state. A component now
+	    has a configure() and cleanup() method to configure the component
+	    or free all resources. If a component is not configured, it
+	    will refuse to start running. User functions (configureHook() and
+	    cleanupHook()) allow the user to control the transitions.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The <classname>RTT::PeriodicActivity</classname> and
+	    <classname>RTT::NonPeriodicActivity</classname> classes have
+	    received additional constructors which allow to set the scheduler
+	    type to ORO_SCHED_RT (default) or ORO_SCHED_OTHER. This allows
+	    easier creation of not real-time threads in the Orocos RTT.
 	  </para>
 	</listitem>
       </itemizedlist>
