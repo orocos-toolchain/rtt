@@ -1,8 +1,6 @@
 #ifndef ORO_CORBA_SERVICES_IDL
 #define ORO_CORBA_SERVICES_IDL
 
-#include "orbsvcs/CosNaming.idl"
-
 module RTT
 {
   module Corba
@@ -26,10 +24,6 @@ module RTT
        */
       boolean requestShutdown();
 
-      /**
-       * Get the Naming Service in use.
-       */
-      CosNaming::NamingContext getNamingContext();
     };
   };
 };

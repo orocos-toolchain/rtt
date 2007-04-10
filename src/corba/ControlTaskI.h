@@ -170,7 +170,7 @@ class  Orocos_ControlTask_i
 {
 protected:
     RTT::TaskContext* mtask;
-	::CosPropertyService::PropertySet_var mCosProps;
+	//::CosPropertyService::PropertySet_var mCosProps;
 	::RTT::Corba::ScriptingAccess_var mEEFact;
 	::RTT::Corba::ServiceInterface_var mService;
 	::RTT::Corba::DataFlowInterface_var mDataFlow;
@@ -233,13 +233,13 @@ public:
     ));
   
   
-  virtual
-  ::CosPropertyService::PropertySet_ptr propertySet (
+/*   virtual */
+/*   ::CosPropertyService::PropertySet_ptr propertySet ( */
       
-    )
-    ACE_THROW_SPEC ((
-      CORBA::SystemException
-    ));
+/*     ) */
+/*     ACE_THROW_SPEC (( */
+/*       CORBA::SystemException */
+/*     )); */
   
   virtual
   ::RTT::Corba::ScriptingAccess_ptr scripting (

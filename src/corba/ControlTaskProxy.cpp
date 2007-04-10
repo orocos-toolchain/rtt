@@ -471,7 +471,7 @@ namespace RTT
         return false;
     }
 
-    TaskContext::TaskState getTaskState() const {
+    TaskContext::TaskState ControlTaskProxy::getTaskState() const {
         if (mtask)
             return TaskContext::TaskState( mtask->getTaskState() );
         return TaskContext::Init;
@@ -573,11 +573,13 @@ namespace RTT
         return Corba::ControlTask::_duplicate(mtask);
     }
 
+#if 0
     CosPropertyService::PropertySet_ptr ControlTaskProxy::propertySet() {
         if ( !mtask )
             return 0;
         return mtask->propertySet();
     }
+#endif
 
     PortableServer::POA_ptr ControlTaskProxy::ProxyPOA() {
         if ( !orb.in() )

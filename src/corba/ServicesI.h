@@ -39,9 +39,6 @@
 #ifndef ORO_CORBA_SERVICES_I_HPP
 #define ORO_CORBA_SERVICES_I_HPP
 
-#include "orbsvcs/CosNotifyChannelAdminS.h"
-#include "orbsvcs/CosNotifyCommC.h"
-#include "orbsvcs/CosNamingC.h"
 #include "Services.hpp"
 #include "ServicesC.h"
 #include "ServicesS.h"
@@ -76,14 +73,6 @@ public:
             return false;
         RTT::Corba::ControlTaskServer::ShutdownOrb(false);
         return true;
-    }
-
-    virtual CosNaming::NamingContext_ptr getNamingContext()
-        ACE_THROW_SPEC ((
-                         CORBA::SystemException
-                         ))
-    {
-        return RTT::Corba::Services::getNamingContext();
     }
 
 };

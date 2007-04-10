@@ -31,7 +31,7 @@
 #include "ControlTaskI.h"
 #include "ControlTaskServer.hpp"
 #include "ControlTaskProxy.hpp"
-#include "CosPropertyServiceI.h"
+//#include "CosPropertyServiceI.h"
 #include "AttributesI.h"
 #include "OperationsI.h"
 #include "OperationInterfaceI.h"
@@ -43,7 +43,7 @@
 
 using namespace RTT;
 using namespace RTT::Corba;
-using namespace CosPropertyService;
+//using namespace CosPropertyService;
 
 // ControlObject:
 Orocos_ControlObject_i::Orocos_ControlObject_i (RTT::OperationInterface* orig, PortableServer::POA_ptr the_poa )
@@ -205,7 +205,7 @@ CORBA::Boolean Orocos_ControlObject_i::hasObject (
 
 // Implementation skeleton constructor
 Orocos_ControlTask_i::Orocos_ControlTask_i (TaskContext* orig, PortableServer::POA_ptr the_poa)
-    : Orocos_ControlObject_i(orig, the_poa), mtask( orig ), mCosProps( ), mEEFact()
+    : Orocos_ControlObject_i(orig, the_poa), mtask( orig ), mEEFact()
 {
     // Add the corba object to the interface:
     mtask->methods()->addMethod(method("shutdown", &Orocos_ControlTask_i::shutdownCORBA, this),
@@ -286,7 +286,7 @@ CORBA::Boolean Orocos_ControlTask_i::isConfigured (
     return mtask->isConfigured();
 }
 
-
+#if 0
 ::CosPropertyService::PropertySet_ptr Orocos_ControlTask_i::propertySet (
     
   )
@@ -302,6 +302,7 @@ CORBA::Boolean Orocos_ControlTask_i::isConfigured (
     }
     return PropertySet::_duplicate( mCosProps.in() );
 }
+#endif
 
 ::RTT::Corba::ScriptingAccess_ptr Orocos_ControlTask_i::scripting (
     

@@ -62,6 +62,9 @@ namespace RTT
          */
         static bool MayShutdown;
 
+        /**
+         * Lookup and return the root naming context ("NameService").
+         */
         static CosNaming::NamingContext_ptr getNamingContext();
     };
 

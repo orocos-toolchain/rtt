@@ -15,11 +15,11 @@
 #include "Services.idl"
 #include "DataFlow.idl"
 
-// Forward declaration.
-module CosPropertyService
-{
-  interface PropertySet;
-};
+// // Forward declaration.
+// module CosPropertyService
+// {
+//   interface PropertySet;
+// };
 
 
 module RTT
@@ -126,7 +126,7 @@ module RTT
       /**
        * Query the properties of this interface as a CosPropertyService::PropertySet.
        */
-      CosPropertyService::PropertySet propertySet();
+      //CosPropertyService::PropertySet propertySet();
 
       /**
        * The ScriptingAccess, for program and state machine

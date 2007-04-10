@@ -44,7 +44,6 @@
 #include "BufferDataSource.hpp"
 #ifdef OROPKG_CORBA
 #include "corba/Services.hpp"
-#include "corba/CorbaBuffer.hpp"
 #include "corba/DataFlowI.h"
 #endif
 

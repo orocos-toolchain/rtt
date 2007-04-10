@@ -94,27 +94,6 @@ public:
   //Destructor 
     virtual ~RTT_Corba_BufferChannel_i (void) {}
   
-  virtual
-  ::CosEventChannelAdmin::EventChannel_ptr getChannel (
-      
-    )
-    ACE_THROW_SPEC ((
-      CORBA::SystemException
-      )) { 
-        RTT::Logger::In in("CorbaBufferChannelI::getChannel");
-        RTT::log(RTT::Error) << "Not yet implemented."<<RTT::endlog();
-        return 0;
-#if 0
-        // Although this theoretically works, there is currently no real benefit in supporting this.
-        RTT::log(RTT::Info) << "Connecting Orocos Buffer to Corba Event Channel."<<RTT::endlog();
-        CosEventChannelAdmin::EventChannel_var ec = Services::createChannel();
-
-        RTT::Corba::CorbaBuffer<T>* buf = new RTT::Corba::CorbaBuffer<T>( mbuf, ec.in() )
-
-        return buf->_this();
-#endif
-  }
-
     virtual CORBA::Boolean push (const ::CORBA::Any & data)
         ACE_THROW_SPEC ((
                          CORBA::SystemException

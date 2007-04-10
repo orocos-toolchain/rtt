@@ -86,7 +86,7 @@ IF (ENABLE_CORBA)
   ENDIF (BUILD_STATIC)
 
   # Is used for building both the library and the tests.
-  LINK_LIBRARIES( TAO TAO_IDL_BE TAO_PortableServer TAO_CosNaming TAO_CosProperty TAO_CosEvent ACE  )
+  LINK_LIBRARIES( TAO TAO_IDL_BE TAO_PortableServer TAO_CosNaming ACE  )
 ENDIF (ENABLE_CORBA)
 
 

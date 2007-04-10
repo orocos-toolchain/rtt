@@ -2,8 +2,6 @@
 #define ORO_CORBA_DATAFLOW_IDL
 
 #include "Operations.idl"
-#include "orbsvcs/CosEventComm.idl"
-#include "orbsvcs/CosEventChannelAdmin.idl"
 
 module RTT
 {
@@ -17,8 +15,6 @@ module RTT
      */
     interface BufferChannel 
     {
-
-      CosEventChannelAdmin::EventChannel getChannel();
 
       boolean push(in any value);
 
