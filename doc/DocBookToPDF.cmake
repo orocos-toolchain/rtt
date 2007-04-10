@@ -3,27 +3,42 @@
 macro( DOCBOOK_TO_PDF XSLT_SHEET )
   set(_in_catalogs FALSE)
   set(_in_files FALSE)
+  set(_catalog_FILES "")
   foreach (_current_FILE ${ARGN})
 
-    if ( _current_FILE STREQUAL "CATALOG" OR _in_catalogs)
+    if ( _current_FILE STREQUAL "CATALOG")
+      
       set(_in_catalogs TRUE)
-      # Detect break out of loop...
-      if (_current_FILE STREQUAL "FILES")
-	set(_in_catalogs FALSE)
-      endif(_current_FILE STREQUAL "FILES")
-      set( _catalog_FILES "${_catalog_FILES} ${_current_FILE}")
-    endif ( _current_FILE STREQUAL "CATALOG" OR _in_catalogs)
+      
+    else ( _current_FILE STREQUAL "CATALOG")
 
-    if ( _current_FILE STREQUAL "FILES" OR _in_files)
+      if ( _in_catalogs )
+	# Detect break out of loop...
+	if (_current_FILE STREQUAL "FILES")
+	  set(_in_catalogs FALSE)
+	else (_current_FILE STREQUAL "FILES")
+          set( _catalog_FILES ${_catalog_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/${_current_FILE})
+	endif(_current_FILE STREQUAL "FILES")
+      endif ( _in_catalogs )
+
+    endif ( _current_FILE STREQUAL "CATALOG")
+
+    if ( _current_FILE STREQUAL "FILES")
       set(_in_files TRUE)
+    else ( _current_FILE STREQUAL "FILES")
+      if ( _in_files)
       string(REPLACE ".xml" ".pdf" _current_PDFFILE ${_current_FILE})
       string(REPLACE ".xml" ".fo" _current_FOPFILE ${_current_FILE})
 
+      MESSAGE( "Converting ${_current_FILE} to ${_current_PDFFILE}" )
       add_custom_command(OUTPUT ${_current_PDFFILE}
-	COMMAND XML_CATALOG_FILES=${_catalog_FILES} xsltproc --xinclude ${XSLT_SHEET} ${_current_FILE} > ${_current_FOPFILE}
+	COMMAND XML_CATALOG_FILES=${_catalog_FILES} xsltproc --xinclude ${CMAKE_CURRENT_SOURCE_DIR}/${XSLT_SHEET} ${CMAKE_CURRENT_SOURCE_DIR}/${_current_FILE} > ${_current_FOPFILE}
 	COMMAND fop ${_current_FOPFILE} ${_current_PDFFILE}
-	DEPENDS ${_current_FILE} ${XSLT_SHEET} ${_catalog_FILES}
+        COMMAND rm ${_current_FOPFILE}
+	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${_current_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/${XSLT_SHEET} ${_catalog_FILES}
 	)
-    endif ( _current_FILE STREQUAL "FILES" OR _in_files)
+      #add_custom_target(docpdf DEPENDS ${_current_PDFFILE} )
+      endif ( _in_files)
+    endif ( _current_FILE STREQUAL "FILES")
   endforeach (_current_FILE ${ARGN})
 endmacro( DOCBOOK_TO_PDF XSLT_SHEET )
