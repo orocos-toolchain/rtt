@@ -437,13 +437,13 @@ namespace RTT
 
     bool ControlTaskProxy::start() {
         if (mtask)
-            return mtask-start();
+            return mtask->start();
         return false;
     }
     
     bool ControlTaskProxy::stop() {
         if (mtask)
-            return mtask-stop();
+            return mtask->stop();
         return false;
     }
     
@@ -451,6 +451,30 @@ namespace RTT
         if (mtask)
             return mtask->isRunning();
         return false;
+    }
+
+    bool ControlTaskProxy::configure() {
+        if (mtask)
+            return mtask->configure();
+        return false;
+    }
+    
+    bool ControlTaskProxy::cleanup() {
+        if (mtask)
+            return mtask->cleanup();
+        return false;
+    }
+    
+    bool ControlTaskProxy::isConfigured() const {
+        if (mtask)
+            return mtask->isConfigured();
+        return false;
+    }
+
+    TaskContext::TaskState getTaskState() const {
+        if (mtask)
+            return TaskContext::TaskState( mtask->getTaskState() );
+        return TaskContext::Init;
     }
 
     bool ControlTaskProxy::executeCommand( CommandInterface* c)

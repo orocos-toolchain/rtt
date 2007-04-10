@@ -144,6 +144,14 @@ namespace RTT
 
         virtual bool isRunning() const;
 
+        virtual bool configure();
+
+        virtual bool cleanup();
+
+        virtual bool isConfigured() const;
+
+        virtual TaskState getTaskState() const;
+
         virtual bool executeCommand( CommandInterface* c);
 
         virtual int queueCommand( CommandInterface* c);
