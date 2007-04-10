@@ -1,10 +1,9 @@
-           The Orocos Real-Time Toolkit v1.0.0.
+           The Orocos Real-Time Toolkit v1.1.0.
            ====================================
 
- The Orocos development team is proud to announce the first
- stable release of the Real-Time Toolkit (RTT), a C++ toolkit
- for building component based, real-time robotics and machine
- control applications.
+ This is a developer's release and provides a look-ahead on RTT 1.2.0.
+ It passes all unit tests for the gnulinux target. The documentation
+ manuals have not yet been updated with the latest changes.
 
  *******************************************************************
 * See the http://www.orocos.org website for all information         *

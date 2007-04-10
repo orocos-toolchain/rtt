@@ -2,8 +2,11 @@
 The Orocos Real-Time Toolkit
 ============================
 
-Installation
-============
+Quick Installation
+==================
+
+The Orocos RTT requires the 'cmake' program to be present, version
+2.4.0 or later is recommended. http://www.cmake.org
 
 Download the latest version from http://www.orocos.org/rtt
 
@@ -12,10 +15,20 @@ Download the latest version from http://www.orocos.org/rtt
 	mkdir build
 	cd build
 	../configure
-	make rtt
+	make
 	make check
 	make install
 
 The installation manual can be found in the doc dir.  You can also
 consult it online on the http://www.orocos.org website.
 
+
+Configuring Orocos RTT
+======================
+
+Instead of '../configure', issue 'ccmake ..' from your build
+directory.  The keys to use are 'arrows'/'enter' to modify a setting,
+'c' to run a configuration check (may be required multiple times), 'g'
+to generate the makefiles. If an additional configuration check is
+required, the 'g' key can not be used and you must press 'c' and
+examine the output.
