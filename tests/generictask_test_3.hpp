@@ -22,11 +22,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <TaskContext.hpp>
+#include "TaskContext.hpp"
 #include <string>
 
 using namespace RTT;
-using namespace RTT;
+
+class StatesTC;
 
 class Generic_TaskTest_3 : public CppUnit::TestFixture
 {
@@ -35,10 +36,15 @@ class Generic_TaskTest_3 : public CppUnit::TestFixture
     CPPUNIT_TEST( testPorts );
     CPPUNIT_TEST( testProperties );
     CPPUNIT_TEST( testAttributes );
+    CPPUNIT_TEST( testTCStates );
+    CPPUNIT_TEST( testSpecialTCStates );
+    CPPUNIT_TEST( testFailingTCStates );
     CPPUNIT_TEST_SUITE_END();
 
     TaskContext* tc;
+    StatesTC* stc;
     ActivityInterface* tsim;
+    ActivityInterface* stsim;
 
 public:
 
@@ -49,6 +55,9 @@ public:
     void testProperties();
     void testAttributes();
     void testPorts();
+    void testTCStates();
+    void testSpecialTCStates();
+    void testFailingTCStates();
 
 };
 

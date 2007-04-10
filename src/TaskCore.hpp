@@ -89,8 +89,20 @@ namespace RTT
          * starts its processors. If it returns \a false, the startup
          * of the TaskCore is aborted.  The default implementation is an
          * empty function which returns \a true.
+         * @deprecated Use the startHook() function instead.
          */
         virtual bool startup();
+
+        /**
+         * Implement this method such that it contains the code which
+         * will be executed when \a start() is called. The default implementation is an
+         * empty function which returns \a true.
+         * @retval true to indicate that the component may run and
+         * the Running state may be entered.
+         * @retval false to indicate that the component may not run and the
+         * Stopped state is entered.
+         */
+        virtual bool startHook();
 
         /**
          * Function where the user must insert his 'application' code.
@@ -102,16 +114,38 @@ namespace RTT
          * forever, since no commands or events are processed when
          * this function executes.  The default implementation is an
          * empty function.
+         * @deprecated Use the updateHook() function instead.
          */
         virtual void update();
+
+        /**
+         * Function where the user must insert his 'application' code.
+         * When the ExecutionEngine's Activity is a PeriodicActivity, this
+         * function is called by the ExecutionEngine in each periodic
+         * step after all command, event,... are processed. When it is executed by a
+         * NonPeriodicActivity, this function is called after an Event or
+         * Command is received and executed.  It should not loop
+         * forever, since no commands or events are processed when
+         * this function executes.  The default implementation is an
+         * empty function.
+         */
+        virtual void updateHook();
 
         /**
          * Function where the user must insert his 'shutdown' code.
          * This function is called by the ExecutionEngine after it
          * stops its processors.  The default implementation is an
          * empty function.
+         * @deprecated Use the stopHook() function instead.
          */
         virtual void shutdown();
+
+        /**
+         * Implement this method such that it contains the code which
+         * will be executed when \a stop() is called. The default
+         * implementation is an empty function.
+         */
+        virtual void stopHook();
 
         /**
          * Get the name of this TaskCore.

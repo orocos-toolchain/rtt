@@ -76,6 +76,7 @@ namespace RTT
            ,mengAcc( new ExecutionAccess(this ) )
 #endif
            ,marshAcc( new MarshallingAccess(this) )
+           ,mTaskState(Stopped)
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
            ,eventService( ee )
 #endif
@@ -96,6 +97,7 @@ namespace RTT
            ,mengAcc( new ExecutionAccess(this ) )
 #endif
            ,marshAcc( new MarshallingAccess(this) )
+           ,mTaskState(Stopped)
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
            ,eventService( ee )
 #endif
@@ -108,6 +110,12 @@ namespace RTT
         mdescription = "The interface of this TaskContext.";
 
         this->methods()
+            ->addMethod( method("configure",&TaskContext::configure, this),
+                         "Configure this TaskContext (read properties etc)." );
+        this->methods()
+            ->addMethod( method("isConfigured",&TaskContext::isConfigured, this),
+                         "Is this TaskContext configured ?" );
+        this->methods()
             ->addMethod( method("start",&TaskContext::start, this),
                          "Start the Execution Engine of this TaskContext." );
         this->methods()
@@ -116,6 +124,9 @@ namespace RTT
         this->methods()
             ->addMethod( method("isRunning",&TaskContext::isRunning, this),
                          "Is the Execution Engine of this TaskContext started ?" );
+        this->methods()
+            ->addMethod( method("cleanup",&TaskContext::cleanup, this),
+                         "Reset this TaskContext to the PreOperational state (write properties etc)." );
         this->methods()
             ->addMethod( method("update",&TaskContext::doUpdate, this),
                          "Execute (call) the update method directly.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task." );
@@ -127,6 +138,11 @@ namespace RTT
 
         TaskContext::~TaskContext()
         {
+            // We don't call stop() or cleanup() here since this is
+            // the responsibility of the subclass. Calling these functions
+            // here would only lead to calling invalid virtual functions.
+            // [Rule no 1: Don't call virtual functions in a destructor.]
+            // [Rule no 2: Don't call virtual functions in a constructor.]
             attributeRepository.clear();
             delete mscriptAcc;
             delete mengAcc;
@@ -163,6 +179,10 @@ namespace RTT
             if ( ms )
                 this->addObject( ms );
         }
+    }
+
+    TaskContext::TaskState TaskContext::getTaskState() const {
+        return mTaskState;
     }
 
     bool TaskContext::connectPorts( TaskContext* peer )
@@ -266,22 +286,60 @@ namespace RTT
         return this->engine()->getActivity()->trigger();
     }
 
-    bool TaskContext::start() {
-        if ( this->engine()->getActivity() == 0 )
-            return false;
-        return this->engine()->getActivity()->start();
+    bool TaskContext::configure() {
+        if ( mTaskState <= Stopped ) {
+            if (configureHook() ) {
+                mTaskState = Stopped;
+                return true;
+            } else {
+                mTaskState = PreOperational;
+                return false;
+            }
+        }
+        return false; // no configure when running.
+    }
+
+    bool TaskContext::configureHook() {
+        return true;
     }
         
-    bool TaskContext::stop() {
-        if ( this->engine()->getActivity() == 0 )
+    bool TaskContext::start() {
+        if ( this->engine()->getActivity() == 0 || mTaskState != Stopped )
             return false;
-        return this->engine()->getActivity()->stop();
+        return this->engine()->getActivity()->start() && (mTaskState = Running);
+    }
+
+    bool TaskContext::stop() {
+        if ( this->engine()->getActivity() == 0 || mTaskState != Running )
+            return false;
+        return this->engine()->getActivity()->stop() && (mTaskState = Stopped);
+    }
+
+    bool TaskContext::cleanup() {
+        if ( mTaskState == Stopped ) {
+            cleanupHook();
+            mTaskState = PreOperational;
+            return true;
+        }
+        return false; // no cleanup when running or not configured.
+    }
+
+    void TaskContext::cleanupHook() {
     }
   
     bool TaskContext::isRunning() const {
+        // this code does not detect if the user stopped the activity himself.
+        return mTaskState == Running;
+        /* Alternative:
         if ( this->engine()->getActivity() == 0 )
             return false;
         return this->engine()->getActivity()->isRunning();
+        */
+
+    }
+
+    bool TaskContext::isConfigured() const {
+        return mTaskState >= Stopped;
     }
 
 

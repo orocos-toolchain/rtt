@@ -76,9 +76,16 @@ namespace RTT
      * The commands of this TaskContext are executed by its
      * ExecutionEngine.
      *
+     * @par TaskContext state behaviour
+     * When a TaskContext is created it defaults to the 'Stopped' state or
+     * the 'PreOperational' state. If it is 'Stopped', it can be started as 
+     * soon as an activity object is attached to it. If it is 'PreOperational',
+     * it must first be configured before it can be started.
+     * @see TaskState for a detailed explanation.
+     *
      * @par Executing a TaskContext
      * In order to run the ExecutionEngine, the ExecutionEngine must
-     * be invoked from an ActivityInterface implementation. As long as
+     * be run by an ActivityInterface implementation. As long as
      * there is no activity or the activity is not started, this
      * TaskContext will not accept any commands, nor process events,
      * nor execute programs or state machines.  In this way, the user
@@ -98,43 +105,47 @@ namespace RTT
         : public OperationInterface,
           public TaskCore
     {
-        // non copyable
-        TaskContext( TaskContext& );
-    protected:
-        std::string mdescription;
-    
-        typedef std::map< std::string, TaskContext* > PeerMap;
-        typedef std::vector< TaskContext* > Users;
-        typedef std::vector< OperationInterface* > Objects;
-        /// map of the tasks we are using
-        PeerMap         _task_map;
-        /// map of the tasks that are using us.
-        Users         musers;
-        /// the TaskObjects.
-        Objects mobjects;
-
-        ScriptingAccess* mscriptAcc;
-
-        ExecutionAccess* mengAcc;
-
-        MarshallingAccess* marshAcc;
-        /**
-         * Inform this TaskContext that \a user is using
-         * our services.
-         */
-        void addUser(TaskContext* user);
-
-        /**
-         * Inform this TaskContext that \a user is no longer using
-         * our services.
-         */
-        void removeUser(TaskContext* user);
-
-        void setup();
     public:
+        /**
+         * A list of Peer TaskContext names.
+         */
         typedef std::vector< std::string > PeerList;
+        /**
+         * A list of internal TaskObject names.
+         */
         typedef std::vector< std::string > ObjectList;
 
+        /**
+         * Describes the different states a component can have.
+         * When a TaskContext is being constructed, it is in the
+         * \a Init state. After the construction ends, the
+         * component arrives in the \a PreOperational (additional
+         * configuration required) or the \a Stopped (ready to run)
+         * state. Invoking \a start() will make a transition to the
+         * \a Running state and \a stop() back to the \a Stopped state.
+         *
+         * In order to check if these transitions are allowed, hook functions
+         * are executed, which can be filled in by the component builder.
+         * - A transition from \a PreOperational to \a Stopped is checked
+         * by calling the \a configureHook() method. If this method returns \a true,
+         * the transition is made, otherwise, the state remains \a PreOperational.
+         * - A transition from \a Stopped to \a Running is checked by calling
+         * the \a startHook() method. If this method returns \a true,
+         * the transition is made, otherwise, the state remains \a Stopped.
+         * - A transition from \a Running to \a Stopped is always allowed
+         * and the \a stopHook() method is called to inform the component of
+         * this transtion.
+         * - A transition from \a Stopped to \a PreOperational is always allowed
+         * and the \a cleanupHook() method is called to inform the component of
+         * this transtion.
+         *
+         */
+        enum TaskState { Init,           //! The state during component construction.
+                         PreOperational, //! The state indicating additional configuration is required.
+                         Stopped,        //! The state indicating the component is ready to run.
+                         Running         //! The state indicating the component is running.
+        }; 
+        
         /**
          * Create a TaskContext visible with \a name.
          * It's ExecutionEngine will be newly constructed with private 
@@ -160,6 +171,11 @@ namespace RTT
         virtual void setDescription(const std::string& descr);
 
         /**
+         * Returns the current state of the TaskContext.
+         */
+        TaskState getTaskState() const;
+
+        /**
          * Call this function to force a TaskContext to export its
          * Data Flow ports as scripting objects. This is done by the
          * component itself when a peer connection is made, but in
@@ -170,41 +186,75 @@ namespace RTT
         void exportPorts();
 
         /**
-         * @name Script Methods
-         * The standard script methods of a TaskContext are for starting 
-         * and stopping its ExecutionEngine. The methods map to the
-         * ActivityInterface which executes the ExecutionEngine.
-         * @{
+         * @name Script Methods 
+         *
+         * The standard script methods of a TaskContext are for
+         * configuration and starting and stopping its
+         * ExecutionEngine.  @{
          */
+
         /**
-         * Start is a method which starts the execution engine's task.
-         * It can not be a command because if the engine is not running,
-         * it does not accept commands. Also, RunnableInterface::initialize()
-         * is then called in the context of the caller.
+         * This method instructs the component to (re-)read configuration data
+         * and try to enter the \a Stopped state. This can only succeed
+         * if the component is not running and \a configureHook() returns true.
+         */
+        virtual bool configure();
+
+        /**
+         * Implement this method such that it contains the code which
+         * will be executed when \a configure() is called. The default
+         * implementation is an empty function which returns \a true.
+         *
+         * @retval true to indicate that configuration succeeded and
+         * the Stopped state may be entered.
+         * @retval false to indicate that configuration failed and the
+         * Preoperational state is entered.
+         */
+        virtual bool configureHook();
+
+        /**
+         * This method starts the execution engine of this component.
+         * This function calls \a startHook(), which must return \a true in order to
+         * allow this component to run.
          * You can override this method to do something else or in addition
-         * to starting the Processor.
-         * @return false if the engine was not assigned to a ActivityInterface
-         * or if initialize() returned false or it was already started.
+         * to starting the ExecutionEngine.
+         * @return false if the engine was not assigned to an ActivityInterface
+         * or if startHook() returned false or it was already started.
          */
         virtual bool start();
         
         /**
-         * Stop is a method which stops the execution engine's task.
-         * RunnableInterface::finalize()
-         * is called in the context of the caller.
+         * This method stops the execution engine of this component.
          * You can override this method to do something else or in addition
-         * to stopping the engine.
-         * @return false if the engine was not assigned to a ActivityInterface
-         * or if it was not running.
+         * to stopping the engine. This function calls cleanupHook() as well.
+         * @return false if the engine was not running.
          */
         virtual bool stop();
+
+        /**
+         * This method instructs a stopped component to enter the
+         * pre-operational state again. It calls cleanupHook().
+         * @return true if the component was in the stopped state.
+         */
+        virtual bool cleanup();
+
+        /**
+         * Implement this method such that it contains the code which
+         * will be executed when \a cleanup() is called. The default
+         * implementation is an empty function.
+         */
+        virtual void cleanupHook();
   
         /**
-         * DataSource to inspect if this Task is running.
-         * Defaults to this->getProcessor()->getActivity()
-         * && this->getProcessor()->getActivity()->isRunning()
+         * Inspect if the component is in the Running state.
          */
         virtual bool isRunning() const;
+
+        /**
+         * Inspect if the component is configured, i.e. in
+         * the Stopped or Running state.
+         */
+        virtual bool isConfigured() const;
 
         /**
          * Invoke this method to \a execute
@@ -489,6 +539,43 @@ namespace RTT
         const DataFlowInterface* ports() const {
             return &dataPorts;
         }
+
+    private:
+        // non copyable
+        TaskContext( TaskContext& );
+    protected:
+        std::string mdescription;
+    
+        typedef std::map< std::string, TaskContext* > PeerMap;
+        typedef std::vector< TaskContext* > Users;
+        typedef std::vector< OperationInterface* > Objects;
+        /// map of the tasks we are using
+        PeerMap         _task_map;
+        /// map of the tasks that are using us.
+        Users         musers;
+        /// the TaskObjects.
+        Objects mobjects;
+
+        ScriptingAccess* mscriptAcc;
+
+        ExecutionAccess* mengAcc;
+
+        MarshallingAccess* marshAcc;
+
+        TaskState mTaskState;
+        /**
+         * Inform this TaskContext that \a user is using
+         * our services.
+         */
+        void addUser(TaskContext* user);
+
+        /**
+         * Inform this TaskContext that \a user is no longer using
+         * our services.
+         */
+        void removeUser(TaskContext* user);
+
+        void setup();
 
     private:
         /**

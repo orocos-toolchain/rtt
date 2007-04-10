@@ -145,22 +145,22 @@ namespace RTT
     }
 
     bool ExecutionEngine::initialize() {
-        // call user startup code.
-        if ( taskc && taskc->startup() == false ) {
-            //Logger::log() << Logger::Error << "ExecutionEngine's task startup() failed!" << Logger::endl;
+        // call user startHook code.
+        if ( taskc && taskc->startHook() == false ) {
+            //Logger::log() << Logger::Error << "ExecutionEngine's task startHook() failed!" << Logger::endl;
             return false;
         }
 
         // call all children
         for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it){
-            if ( (*it)->startup() == false ) {
+            if ( (*it)->startHook() == false ) {
                 std::vector<TaskCore*>::reverse_iterator rit( it );
                 --rit;
                 for ( ; rit != children.rend(); ++rit )
-                    (*rit)->shutdown();
-                //Logger::log() << Logger::Error << "ExecutionEngine's children's startup() failed!" << Logger::endl;
+                    (*rit)->stopHook();
+                //Logger::log() << Logger::Error << "ExecutionEngine's children's startHook() failed!" << Logger::endl;
                 if (taskc)
-                    this->taskc->shutdown();
+                    this->taskc->stopHook();
                 return false;
             }
         }
@@ -185,7 +185,7 @@ namespace RTT
 
         // call all children
         for (std::vector<TaskCore*>::reverse_iterator rit = children.rbegin(); rit != children.rend();++rit){
-            (*rit)->shutdown();
+            (*rit)->stopHook();
         }
         return false;
     }
@@ -215,11 +215,11 @@ namespace RTT
             eproc->step();
 #endif
         if (taskc)
-            taskc->update();
+            taskc->updateHook();
         // call all children as well.
         for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
             Logger::In in( (*it)->getName().c_str() );
-            (*it)->update();
+            (*it)->updateHook();
         }
         return;
     }
@@ -239,10 +239,10 @@ namespace RTT
             eproc->finalize();
         // call all children
         for (std::vector<TaskCore*>::reverse_iterator rit = children.rbegin(); rit != children.rend();++rit) {
-            (*rit)->shutdown();
+            (*rit)->stopHook();
         }
         if (taskc)
-            taskc->shutdown();
+            taskc->stopHook();
     }
 
     CommandProcessor* ExecutionEngine::commands() const {

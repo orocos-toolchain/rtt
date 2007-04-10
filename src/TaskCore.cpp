@@ -38,6 +38,21 @@ namespace RTT
     void TaskCore::shutdown()
     {}
 
+    bool TaskCore::startHook()
+    {
+        return startup();
+    }
+
+    void TaskCore::updateHook()
+    {
+        update();
+    }
+
+    void TaskCore::stopHook()
+    {
+        shutdown();
+    }
+
     void TaskCore::setExecutionEngine(ExecutionEngine* engine) {
         if ( ee == engine )
             return;

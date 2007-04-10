@@ -158,6 +158,13 @@ public:
   void shutdownCORBA();
 
   virtual
+  ::RTT::Corba::TaskState getTaskState (
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+  
+  virtual
   CORBA::Boolean start (
     )
     ACE_THROW_SPEC ((
@@ -173,6 +180,27 @@ public:
   
   virtual
   CORBA::Boolean isRunning (
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+  
+  virtual
+  CORBA::Boolean configure (
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+  
+  virtual
+  CORBA::Boolean cleanup (
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+  
+  virtual
+  CORBA::Boolean isConfigured (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException

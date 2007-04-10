@@ -138,6 +138,15 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
 {
 }
 
+::RTT::Corba::TaskState Orocos_ControlTask_i::getTaskState (
+    )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    return ::RTT::Corba::TaskState(mtask->getTaskState());
+}
+
 CORBA::Boolean Orocos_ControlTask_i::start (
   )
   ACE_THROW_SPEC ((
@@ -163,6 +172,33 @@ CORBA::Boolean Orocos_ControlTask_i::isRunning (
   ))
 {
     return mtask->isRunning();
+}
+
+CORBA::Boolean Orocos_ControlTask_i::configure (
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    return mtask->configure();
+}
+
+CORBA::Boolean Orocos_ControlTask_i::cleanup (
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    return mtask->cleanup();
+}
+
+CORBA::Boolean Orocos_ControlTask_i::isConfigured (
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    return mtask->isConfigured();
 }
 
 
