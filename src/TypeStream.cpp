@@ -39,8 +39,64 @@
 #include <TypeStream.hpp>
 #include <sstream>
 
+namespace {
+    // Code ripped from KDL 0.2
+
+
+    // Eats space-like characters and comments
+    // possibly returns the number of space-like characters eaten.
+    int _EatSpace( std::istream& is,int* countp=NULL) {
+        int ch;
+        int count;
+        count=-1;
+        do { 
+            if( !is )
+                return '!';
+
+            ch = is.get(); 
+            count++;
+        } while ((ch==' ')||(ch=='\n')||(ch=='\t'));
+        if (countp!=NULL) *countp =  count;
+        return ch;
+    }
+
+    // Eats whites, returns, tabs and the delim character
+    //  Checks wether delim char. is encountered.
+    bool Eat( std::istream& is, int delim )
+    {   
+        if( !is )
+            return false;
+        int ch;
+        ch=_EatSpace(is);
+        if (ch != delim) {
+            return false;
+        }
+        ch=_EatSpace(is);   
+        is.putback(ch);
+        return true;
+    }
+
+    // Eats whites, returns, tabs and the delim character
+    //  Checks wether delim char. is encountered.
+    // EatEnd does not eat all space-like char's at the end.
+    bool EatEnd( std::istream& is, int delim )
+    {   
+        if( !is )
+            return false;
+        int ch;
+        ch=_EatSpace(is);
+        if (ch != delim) {
+            return false;
+        }
+        return true;
+    }
+
+}
+
 namespace RTT
 {
+
+
     using namespace std;
     std::ostream& operator<<(std::ostream& os, const std::vector<double>& v)
     {
@@ -57,24 +113,20 @@ namespace RTT
         return os;
     }
 
-#if 0
-    // Declared in MultiVector.hpp
-    std::ostream& operator<<(std::ostream& os, const Double6D& v)
+    std::istream& operator>>(std::istream& os, std::vector<double>& v)
     {
-        std::stringstream ss;
-        ss << "[";
-        for(unsigned int  i = 0; i < v.size; ++i) {
-            ss << v[i];
-            if (i + 1 != v.size ) {
-                ss << ", ";
+        std::vector<double> t( v.size() );
+        Eat( os, '{' );
+        for(unsigned int  i = 0; i < v.size(); ++i) {
+            os >> t[i];
+            if (i + 1 != v.size() ) {
+                Eat(os, ',');
             }
         }
-        ss << "]";
-        os << ss.str();
+        EatEnd( os, '}' );
+        if (os )
+            v = t;
         return os;
     }
-#endif
-
-
 }
 

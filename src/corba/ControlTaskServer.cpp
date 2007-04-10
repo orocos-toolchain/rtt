@@ -134,8 +134,12 @@ namespace RTT
             mtask = Corba::ControlTask::_narrow( obj.in() );
 
             if ( use_naming ) {
-                CORBA::Object_var rootObj = orb->resolve_initial_references("NameService");
-                CosNaming::NamingContext_var rootNC = CosNaming::NamingContext::_narrow(rootObj.in());
+                CORBA::Object_var rootObj;
+                CosNaming::NamingContext_var rootNC;
+                try {
+                    rootObj = orb->resolve_initial_references("NameService");
+                    rootNC = CosNaming::NamingContext::_narrow(rootObj.in());
+                } catch (...) {}
             
                 if (CORBA::is_nil( rootNC.in() ) ) {
                     Logger::log() <<Logger::Warning << "ControlTask '"<< taskc->getName() << "' could not find CORBA Naming Service."<<Logger::nl;

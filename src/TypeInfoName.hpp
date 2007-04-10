@@ -120,6 +120,11 @@ namespace RTT
             return os;
         }
 
+        virtual std::istream& read( std::istream& is, DataSourceBase::shared_ptr out ) const {
+            Logger::In loc("TypeInfoName");
+            return is;
+        }
+
         virtual bool decomposeType( DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {
             Logger::In loc("TypeInfoName");
             Logger::log() << Logger::Error << "Can not decompose "<<tname<<"."<<Logger::endl;

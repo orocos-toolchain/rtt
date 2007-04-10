@@ -136,6 +136,12 @@ namespace RTT
 #endif
     }
 
+    bool TypeInfo::fromString( const std::string& value, DataSourceBase::shared_ptr out ) const
+    {
+        stringstream result(value);
+        return this->read( result, out );
+    }
+
     namespace {
         boost::shared_ptr<TypeInfoRepository> typerepos;
     }

@@ -433,6 +433,22 @@ public:
       massign->set(last_value);
       return true;
   }
+
+  virtual
+  CORBA::Boolean fromString (
+      const char* value
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      
+      if ( !massign->getTypeInfo()->fromString( value, massign ) ) {
+          RTT::log(RTT::Error) << "Corba::AssignableExpression: Could not assign string to "<<massign->getType() <<"." <<RTT::endlog()
+							   <<" Tried to assign as "<< RTT::DataSource<ResultType>::GetType() << " to native type "<< RTT::DataSource<SourceType>::GetType()<< RTT::endlog();
+          return false;
+      }
+      return true;
+  }
       
   virtual
   CORBA::Any* value (
@@ -533,6 +549,22 @@ public:
       CORBA::SystemException
       )) {
       return mset->update( value );
+  }
+
+  virtual
+  CORBA::Boolean fromString (
+      const char* value
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      
+      if ( !mset->getTypeInfo()->fromString( value, mset ) ) {
+          RTT::log(RTT::Error) << "Corba::AssignableExpression: Could not assign string to "<<mset->getType() <<"." <<RTT::endlog()
+							   <<" Tried to assign as "<< RTT::DataSource<ResultType>::GetType() << " to native type "<< RTT::DataSource<SourceType>::GetType()<< RTT::endlog();
+          return false;
+      }
+      return true;
   }
       
 };
@@ -671,7 +703,7 @@ public:
       CORBA::SystemException
       )) {
       return RTT::AnyConversion<bool>::update( value, massign->set() );
-  }
+  }\
       
   virtual
   CORBA::Any* value (
@@ -725,6 +757,23 @@ public:
       std::string result = massign->toString();
       return CORBA::string_dup( result.c_str() );
   }
+
+  virtual
+  CORBA::Boolean fromString (
+      const char* value
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      
+      if ( !massign->getTypeInfo()->fromString( value, massign ) ) {
+          RTT::log(RTT::Error) << "Corba::AssignableExpression: Could not assign string to "<<massign->getType() <<"." <<RTT::endlog()
+							   <<" Tried to assign as "<< RTT::DataSource<ResultType>::GetType() << " to native type "<< RTT::DataSource<SourceType>::GetType()<< RTT::endlog();
+          return false;
+      }
+      return true;
+  }
+      
 
   virtual
   char * getTypeName (

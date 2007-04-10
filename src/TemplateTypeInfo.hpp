@@ -70,11 +70,22 @@ namespace RTT
 #endif
                 return os;
             }
+            static std::istream& read(std::istream& os, T& t)
+            {
+#ifdef OS_HAVE_STREAMS
+                os >> t;
+#endif
+                return os;
+            }
         };            
         template<typename T>
         struct TypeStreamSelector<T,false>
         {
             static std::ostream& write(std::ostream& os, T)
+            {
+                return os;
+            }
+            static std::istream& read(std::istream& os, T& )
             {
                 return os;
             }
@@ -256,6 +267,20 @@ namespace RTT
             }
             return os;
             //return os << "("<< tname <<")"
+        }
+
+        virtual std::istream& read( std::istream& os, DataSourceBase::shared_ptr out ) const {
+            AssignableDataSource<T>* d = AdaptAssignableDataSource<T>()( out );
+            if ( d && use_ostream ) {
+                detail::TypeStreamSelector<T, use_ostream>::read( os, d->set() );
+                d->updated(); // because use of set().
+            }
+            else {
+#ifdef OS_HAVE_STREAMS
+                // NOP
+#endif
+            }
+            return os;
         }
 
         virtual bool decomposeType( DataSourceBase::shared_ptr source, PropertyBag& targetbag ) const {

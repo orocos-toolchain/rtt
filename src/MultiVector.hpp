@@ -442,6 +442,29 @@ namespace RTT
         return os; 
     } 
 
+    /**
+     * Output to standard C++ input stream
+     */
+    template <unsigned int S, class T>
+    std::istream &operator>>(std::istream &os, MultiVector<S,T> &q) 
+    { 
+#ifdef OS_HAVE_STREAMS
+        MultiVector<S, T> p;
+        char c;
+        os >> c; // '('
+        for (unsigned int i = 0; i < (S - 1) ; i++) {
+            os >> p[i];
+            os >> c; // ','
+            os >> c; // ' '
+        }
+        os >> p[ S - 1 ];
+        os >> c; // ')';
+        if ( os )
+            q = p;
+#endif
+        return os; 
+    } 
+
 }
 
 #endif

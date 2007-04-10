@@ -148,9 +148,20 @@ namespace RTT
         virtual std::ostream& write(std::ostream& os, DataSourceBase::shared_ptr in ) const = 0;
 
         /**
+         * Read a new value for this datasource from a human readable string.
+         * The default does nothing.
+         */
+        virtual std::istream& read(std::istream& os, DataSourceBase::shared_ptr out ) const = 0;
+
+        /**
          * Usability function which converts data to a string.
          */
         virtual std::string toString( DataSourceBase::shared_ptr in ) const;
+
+        /**
+         * Usability function which converts a string to data.
+         */
+        virtual bool fromString( const std::string& value, DataSourceBase::shared_ptr out ) const;
 
         /**
          * Decompose a structure as basic components into a PropertyBag.

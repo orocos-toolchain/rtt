@@ -89,6 +89,12 @@ module RTT
        */
       boolean set(in any value);
     
+      /**
+       * Set the value of the expression from \a value.
+       * @return false if \a value is of the wrong type.
+       */
+      boolean fromString(in string value);
+
     };
 
     /**
