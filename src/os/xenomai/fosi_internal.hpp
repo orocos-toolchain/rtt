@@ -73,10 +73,38 @@ namespace RTT
             if (param.sched_priority != -1 )
                 sched_setscheduler( 0, ORO_SCHED_OTHER, &param);
 
-            // name, priority, mode
-            if ( rt_task_shadow( &(main->xenotask),"MainThread", 10, 0) != 0 ) {
-                printf( "Cannot rt_task_create() MainThread.\n");
-                exit(1);
+            const char* mt_name = "MainThread";
+
+            int ret = -1;
+            while( ret != 0) {
+                // name, priority, mode
+                if ( (ret = rt_task_shadow( &(main->xenotask),mt_name, 10, 0)) != 0 ) {
+                    if ( ret == -ENOMEM ) {
+                        // fail: abort
+                        printf( "Cannot rt_task_create() MainThread: Out of memory.\n");
+                        exit(1);
+                    }
+                    if ( ret == -EBUSY ) {
+                        // ok: we are a xeno thread (may log() ):
+                        log(Info) << "MainThread already a Xenomai task." <<endlog();
+                        break;
+                    }
+                    if ( ret == -EEXIST ) {
+                        // fail: retry without using a name.
+                        mt_name = 0; // do not register
+                        continue;
+                    }
+                    if ( ret == -EPERM ) {
+                        // fail: abort
+                        printf( "Can not rt_task_create() MainThread: No permission.\n");
+                        exit(1);
+                    }
+                }
+            }
+            // We are a xeno thread now:
+            // Only use Logger after this point (i.e. when rt_task_shadow was succesful).
+            if ( mt_name == 0) {
+                log(Warning) << "'MainThread' name was already in use.\n" <<endlog();
             }
 
 #ifdef OROSEM_OS_XENO_PERIODIC
@@ -165,11 +193,11 @@ namespace RTT
                 }
             }
             if ( rv == -EEXIST ) {
-                Logger::log() << name << ": an object with that name is already existing in Xenomai." << endlog();
+                Logger::log(Warning) << name << ": an object with that name is already existing in Xenomai." << endlog();
                 rv = rt_task_spawn(&(task->xenotask), 0, 0, priority, 0, rtos_xeno_thread_wrapper, xcookie);
             }
             if ( rv != 0) {
-                Logger::log() << name << " : CANNOT INIT Xeno TASK " << task->name <<" error code: "<< rv << endlog();
+                Logger::log(Error) << name << " : CANNOT INIT Xeno TASK " << task->name <<" error code: "<< rv << endlog();
             }
             return rv;
         }

@@ -1,35 +1,21 @@
 
-The Open RObot COntrol Software (OROCOS) Framework
-==================================================
+The Orocos Real-Time Toolkit
+============================
 
-After orocos-install.tcl
-========================
-If you got here after executing orocos-install.tcl,
-source the orocosenv.sh scripts as told earlier,
-then proceed with the build instructions as described
-in the installation manual. For a quick start you can
-do :
+Installation
+============
 
-mkdir build
-cd build
-../configure
-make rtt
-make check
-make install
+Download the latest version from http://www.orocos.org/rtt
 
+	tar -xvjf orocos-rtt-<version>-src.tar.bz2
+	cd orocos-rtt-<version>
+	mkdir build
+	cd build
+	../configure
+	make rtt
+	make check
+	make install
 
-General Instructions
-====================
+The installation manual can be found in the doc dir.  You can also
+consult it online on the http://www.orocos.org website.
 
-The installation manual can be found in the doc dir of 
-this package (orocos-base). You can also consult it
-online on the http://www.orocos.org website.
-
-To check out the latest Orocos source with subversion,
-use the following command :
-
-svn co http://svn.mech.kuleuven.be/repos/orocos/orocos-trunk
-
-Some examples are in :
-
-svn co http://svn.mech.kuleuven.be/repos/orocos/orocos-apps/examples
