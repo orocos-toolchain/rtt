@@ -86,9 +86,11 @@ class  Orocos_ControlObject_i : public virtual POA_RTT::Corba::ControlObject, pu
 {
 protected:
     RTT::OperationInterface* mobj;
+	::RTT::Corba::AttributeInterface_var mAttrs;
 	::RTT::Corba::MethodInterface_var mMFact;
 	::RTT::Corba::CommandInterface_var mCFact;
 	PortableServer::POA_var mpoa;
+    std::map<std::string, Orocos_ControlObject_i*> ctobjmap;
 
 public:
   //Constructor 
@@ -119,6 +121,14 @@ public:
     ));
   
   virtual
+  ::RTT::Corba::AttributeInterface_ptr attributes (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+  
+  virtual
   ::RTT::Corba::MethodInterface_ptr methods (
       
     )
@@ -134,6 +144,24 @@ public:
       CORBA::SystemException
     ));
 
+  virtual
+  ::RTT::Corba::ObjectList* getObjectList()
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+  
+  virtual
+  ::RTT::Corba::ControlObject* getObject(const char*)
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+
+  virtual
+  CORBA::Boolean hasObject(const char*)
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+
 };
 
 class  Orocos_ControlTask_i 
@@ -143,11 +171,9 @@ class  Orocos_ControlTask_i
 protected:
     RTT::TaskContext* mtask;
 	::CosPropertyService::PropertySet_var mCosProps;
-	::RTT::Corba::AttributeInterface_var mAttrs;
 	::RTT::Corba::ScriptingAccess_var mEEFact;
 	::RTT::Corba::ServiceInterface_var mService;
 	::RTT::Corba::DataFlowInterface_var mDataFlow;
-    std::map<std::string, Orocos_ControlObject_i*> ctobjmap;
 public:
   //Constructor 
   Orocos_ControlTask_i (RTT::TaskContext* orig, PortableServer::POA_ptr the_poa);
@@ -216,14 +242,6 @@ public:
     ));
   
   virtual
-  ::RTT::Corba::AttributeInterface_ptr attributes (
-      
-    )
-    ACE_THROW_SPEC ((
-      CORBA::SystemException
-    ));
-  
-  virtual
   ::RTT::Corba::ScriptingAccess_ptr scripting (
       
     )
@@ -248,24 +266,6 @@ public:
     ));
   
   
-  virtual
-  ::RTT::Corba::ObjectList* getObjectList()
-    ACE_THROW_SPEC ((
-      CORBA::SystemException
-    ));
-  
-  virtual
-  ::RTT::Corba::ControlObject* getObject(const char*)
-    ACE_THROW_SPEC ((
-      CORBA::SystemException
-    ));
-
-  virtual
-  CORBA::Boolean hasObject(const char*)
-    ACE_THROW_SPEC ((
-      CORBA::SystemException
-    ));
-
   virtual
   ::RTT::Corba::ControlTask::ControlTaskNames * getPeerList (
       

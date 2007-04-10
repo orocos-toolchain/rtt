@@ -46,6 +46,7 @@
 #include "PeerParser.hpp"
 #include "PropertyParser.hpp"
 #include "../Types.hpp"
+#include "../OperationInterface.hpp"
 
 namespace RTT { namespace detail
 {
@@ -102,13 +103,14 @@ namespace RTT { namespace detail
         variableassignment, variablechange, paramdefinition, baredefinition,
         vardecl, constdecl, baredecl;
 
-    TaskContext* context;
-    ExpressionParser expressionparser;
-    PeerParser peerparser;
-    PropertyParser propparser;
-    CommonParser commonparser;
+      TaskContext* context;
+      OperationInterface* mstore;
+      ExpressionParser expressionparser;
+      PeerParser peerparser;
+      PropertyParser propparser;
+      CommonParser commonparser;
 
-    DataSourceBase::shared_ptr index_ds;
+      DataSourceBase::shared_ptr index_ds;
 
       int sizehint;
       boost::shared_ptr<TypeInfoRepository> typerepos;
@@ -124,8 +126,10 @@ namespace RTT { namespace detail
        * to store the added values in another task context as well. 
        * After reset(), \a tc will be cleared of all the stored values.
        * \a tc is thus used as a temporary storage container.
+       * If you want the new added values in a different \a storage, use
+       * the second argument. Defaults to tc.
        */
-      ValueChangeParser( TaskContext* tc);
+      ValueChangeParser( TaskContext* tc, OperationInterface* storage= 0);
 
       /**
        * Clear assignCommands(), definedValues() and 
@@ -136,7 +140,7 @@ namespace RTT { namespace detail
       /**
        * Store allDefinedNames() in an additional TaskContext.
        */
-      void store( TaskContext* other );
+      void store( OperationInterface* other );
 
     /**
      * This CommandInterface holds the command assigning a value to

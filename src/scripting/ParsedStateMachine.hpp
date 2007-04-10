@@ -47,7 +47,7 @@ namespace RTT {
 
     class StateDescription;
     class Processor;
-    class TaskContext;
+    class TaskObject;
     class StateMachineTask;
 
     namespace detail {
@@ -89,7 +89,7 @@ namespace RTT {
 
         void setText( std::string text);
 
-        TaskContext* getTaskContext() const;
+        StateMachineTask* getTaskContext() const;
 
         void setTaskContext(StateMachineTask* tc);
 

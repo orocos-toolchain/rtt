@@ -32,7 +32,7 @@
 
 #include "TaskContext.hpp"
 #include "StateMachineTask.hpp"
-#include <iostream>
+#include <cassert>
 
 #include <boost/lambda/lambda.hpp>
 
@@ -208,9 +208,10 @@ namespace RTT {
     void ParsedStateMachine::handleUnload()
     {
         // just kill off the interface.
-        if ( context && context->getPeer("states") )
-            context->getPeer("states")->removePeer( context->getName() );
-        delete context;
+        if (context && context->getParent() ) {
+            assert( context == context->getParent()->getObject( context->getName() ) );
+            context->getParent()->removeObject( context->getName() );
+        }
         context = 0;
     }
 
@@ -260,7 +261,9 @@ namespace RTT {
             std::string subname = name + "." + (*i)->getName();
             ParsedStateMachine* psc = static_cast<ParsedStateMachine*>( i->get() );
             psc->setName( subname, true );
-            this->getTaskContext()->addPeer( psc->getTaskContext() );
+            // we own our child:
+            psc->getTaskContext()->setParent( 0 );
+            this->getTaskContext()->addObject( psc->getTaskContext() );
         }
     }
 
@@ -274,12 +277,14 @@ namespace RTT {
         *_text = text;
     }
 
-    TaskContext* ParsedStateMachine::getTaskContext() const {
+    StateMachineTask* ParsedStateMachine::getTaskContext() const {
         return context;
     }
     void ParsedStateMachine::setTaskContext(StateMachineTask* tc) {
+        assert(tc);
         context = tc;
-        this->eproc = tc->engine()->events();
+        this->eproc = tc->events()->getEventProcessor();
+        assert(this->eproc);
     }
 
     bool ParsedStateMachine::inState( const std::string& name ) {

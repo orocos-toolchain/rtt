@@ -49,6 +49,7 @@
 namespace RTT 
 {
     class TaskContext;
+    class OperationInterface;
 
     namespace detail {
     /**
@@ -60,7 +61,8 @@ namespace RTT
         CommonParser commonparser;
         rule_t peerpath, peerlocator;
         std::queue<std::string> callqueue;
-        std::string mcurobject;
+        OperationInterface* mcurobject;
+        std::string mlastobject;
         TaskContext* context;
         TaskContext* _peer;
         bool mfullpath;
@@ -102,9 +104,20 @@ namespace RTT
          */
         rule_t& locator();
 
+        /**
+         * Returns the last matching peer.
+         */
         TaskContext* peer();
 
+        /**
+         * Returns the last matching object name.
+         */
         std::string object();
+        
+        /**
+         * Returns the last matching TaskObject or zero if not found.
+         */
+        OperationInterface* taskObject();
     };
 }}
             

@@ -275,7 +275,16 @@ namespace RTT
             }
         }
 
-        log(Debug) << "Fetching Objects:"<<endlog();
+        this->fetchObjects(this, mtask.in() );
+
+        log(Debug) << "All Done."<<endlog();
+    }
+
+    // Recursively fetch remote objects and create local proxies.
+    void ControlTaskProxy::fetchObjects(OperationInterface* parent, ControlObject_ptr mtask)
+    {
+        log(Debug) << "Fetching Objects of "<<parent->getName()<<":"<<endlog();
+
         Corba::ObjectList_var plist = mtask->getObjectList();
 
         for( size_t i =0; i != plist->length(); ++i) {
@@ -284,31 +293,68 @@ namespace RTT
             ControlObject_var cobj = mtask->getObject(plist[i]);
             CORBA::String_var descr = cobj->getDescription();
             TaskObject* tobj = new TaskObject( std::string(plist[i]), std::string(descr.in()) );
-            
-            // methods:
-            log(Info) << plist[i] << ": fetching Methods."<<endlog();
-            MethodInterface_var mfact = cobj->methods();
-            if (mfact) {
-                MethodList_var objs;
-                objs = mfact->getMethods();
-                for ( size_t i=0; i < objs->length(); ++i) {
-                    tobj->methods()->add( objs[i].in(), new CorbaMethodFactory( objs[i].in(), mfact.in(), ProxyPOA() ) );
-                }
-            }
-            // commands:
-            log(Info) << plist[i] << ": fetching Commands."<<endlog();
-            CommandInterface_var cfact = cobj->commands();
-            if (cfact) {
-                CommandList_var objs;
-                objs = cfact->getCommands();
-                for ( size_t i=0; i < objs->length(); ++i) {
-                    tobj->commands()->add( objs[i].in(), new CorbaCommandFactory( objs[i].in(), cfact.in(), ProxyPOA() ) );
-                }
-            }
-            this->addObject( tobj );
-        }
 
-        log(Debug) << "All Done."<<endlog();
+            // add attributes:
+            log(Info) << plist[i] << ": fetching Attributes."<<endlog();
+            AttributeInterface::AttributeNames_var attrs = cobj->attributes()->getAttributeList();
+        
+            for (size_t i=0; i != attrs->length(); ++i) {
+                if ( tobj->attributes()->hasAttribute( string(attrs[i].in()) ) )
+                    continue; // previously added.
+                Expression_var expr = cobj->attributes()->getAttribute( attrs[i].in() );
+                if ( CORBA::is_nil( expr ) ) {
+                    log(Error) <<"Attribute "<< string(attrs[i].in()) << " present in getAttributeList() but not accessible."<<endlog();
+                    continue; 
+                }
+                AssignableExpression_var as_expr = AssignableExpression::_narrow( expr.in()  );
+                // If the type is known, immediately build the correct attribute and datasource,
+                // otherwise, build a attribute of CORBA::Any.
+                CORBA::String_var tn = expr->getTypeName();
+                TypeInfo* ti = TypeInfoRepository::Instance()->type( tn.in() );
+                log(Info) << "Looking up Attribute " << tn.in();
+                if ( ti ) {
+                    Logger::log() <<": found!"<<endlog();
+                    if ( CORBA::is_nil( as_expr ) ) {
+                        tobj->attributes()->setValue( ti->buildConstant( attrs[i].in(), ti->buildCorbaProxy( expr.in() ) ) );
+                    }
+                    else {
+                        tobj->attributes()->setValue( ti->buildAttribute( attrs[i].in(), ti->buildCorbaProxy( as_expr.in() ) ) );
+                    }
+                } else {
+                    Logger::log() <<": not found :-("<<endlog();
+                    if ( CORBA::is_nil( as_expr ) )
+                        tobj->attributes()->setValue( new Constant<CORBA::Any_ptr>( attrs[i].in(), new CORBAExpression<CORBA::Any_ptr>( expr.in() ) ) );
+                    else
+                        tobj->attributes()->setValue( new Attribute<CORBA::Any_ptr>( attrs[i].in(), new CORBAAssignableExpression<CORBA::Any_ptr>( as_expr.in() ) ) );
+                }
+
+                // methods:
+                log(Info) << plist[i] << ": fetching Methods."<<endlog();
+                MethodInterface_var mfact = cobj->methods();
+                if (mfact) {
+                    MethodList_var objs;
+                    objs = mfact->getMethods();
+                    for ( size_t i=0; i < objs->length(); ++i) {
+                        tobj->methods()->add( objs[i].in(), new CorbaMethodFactory( objs[i].in(), mfact.in(), ProxyPOA() ) );
+                    }
+                }
+                // commands:
+                log(Info) << plist[i] << ": fetching Commands."<<endlog();
+                CommandInterface_var cfact = cobj->commands();
+                if (cfact) {
+                    CommandList_var objs;
+                    objs = cfact->getCommands();
+                    for ( size_t i=0; i < objs->length(); ++i) {
+                        tobj->commands()->add( objs[i].in(), new CorbaCommandFactory( objs[i].in(), cfact.in(), ProxyPOA() ) );
+                    }
+                }
+                parent->addObject( tobj );
+
+                // Recurse:
+                this->fetchObjects( tobj, cobj.in() );
+            }
+
+        }
     }
 
     bool ControlTaskProxy::InitOrb(int argc, char* argv[] ) {

@@ -98,6 +98,8 @@ namespace RTT
          * For now one POA handles all proxies.
          */
         static PortableServer::POA_var proxy_poa;
+
+        void fetchObjects(OperationInterface* parent, ControlObject_ptr mtask);
     public:
         ~ControlTaskProxy();
 

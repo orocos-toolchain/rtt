@@ -793,9 +793,9 @@ void BuffersTest::testAtomicQueue()
         cthread->stop();
     }
 
-    cout <<endl
-         << "Total appends: " << aworker->appends + bworker->appends + cworker->appends+ grower->i<<endl;
-    cout << "Total erases : " << aworker->erases + bworker->erases+ cworker->erases + qt->size()<<endl;
+    //cout <<endl
+    //     << "Total appends: " << aworker->appends + bworker->appends + cworker->appends+ grower->i<<endl;
+    //cout << "Total erases : " << aworker->erases + bworker->erases+ cworker->erases + qt->size()<<endl;
     int i = 0; // left-over count
     Dummy* d = 0;
     while( qt->size() != 0 ) {
@@ -804,7 +804,7 @@ void BuffersTest::testAtomicQueue()
         i++;
     }
     CPPUNIT_ASSERT( qt->dequeue(d) == false );
-    cout << "Left in Queue: "<< i <<endl;
+    //cout << "Left in Queue: "<< i <<endl;
 
     // assert: sum queues == sum dequeues
     CPPUNIT_ASSERT( aworker->appends + bworker->appends + cworker->appends + grower->i 

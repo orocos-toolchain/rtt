@@ -32,6 +32,7 @@
 #pragma implementation
 #endif
 #include "ExpressionParser.hpp"
+//#include "DumpObject.hpp"
 
 #include "ArgumentsParser.hpp"
 #include <Operators.hpp>
@@ -71,8 +72,7 @@ namespace RTT
 
 
   DataCallParser::DataCallParser( ExpressionParser& p, TaskContext* c )
-      : expressionparser( p ), peerparser( c ),
-        context( c )
+      : expressionparser( p ), peerparser( c )
   {
     BOOST_SPIRIT_DEBUG_RULE( datacall );
     BOOST_SPIRIT_DEBUG_RULE( arguments );
@@ -100,6 +100,7 @@ namespace RTT
   {
       mobject =  peerparser.object();
       TaskContext* peer = peerparser.peer();
+      OperationInterface* ops  = peerparser.taskObject();
       peerparser.reset();
 
       // Check if it is a constructor
@@ -109,21 +110,24 @@ namespace RTT
           // it ain't...
           //cout << "DCP saw method "<< mmethod <<" of object "<<mobject<<" of peer "<<peer->getName()<<endl;
           // this is slightly different from CommandParser
-          OperationInterface* ops = peer->getObject(mobject);
-          if ( ops == 0 )
+          if ( ops == 0 ) {
+              //DumpObject( peer );
               throw_( iter_t(), std::string("Task '")+peer->getName()+"' has no object '"+mobject+"'." );
+          }
 
-          if ( ops->methods()->hasMember(mmethod) == false )
+          if ( ops->methods()->hasMember(mmethod) == false ) {
+              //DumpObject( peer );
               if ( mobject != "this" )
-                  throw parse_exception_no_such_method_on_component( mobject, mmethod );
+                  throw parse_exception_no_such_method_on_component( "DataCall::"+mobject, mmethod );
               else
-                  throw parse_exception_no_such_method_on_component( peer->getName(), mmethod );
+                  throw parse_exception_no_such_method_on_component( "DataCall::"+peer->getName(), mmethod );
+          }
       }
            
       // create an argument parser for the call..
-      // Store the peer in the ArgumentsParser !
+      // Store everything in the ArgumentsParser ! This DataCallParser instance is recursively called !
       ArgumentsParser* argspar =
-          new ArgumentsParser( expressionparser, peer,
+          new ArgumentsParser( expressionparser, peer, ops,
                                mobject, mmethod );
       // we no longer need these two..
       mobject.clear();
@@ -145,7 +149,7 @@ namespace RTT
     std::string obj = argspar->objectname();
     std::string meth = argspar->methodname();
     std::vector<DataSourceBase::shared_ptr> args = argspar->result();
-    TaskContext* peer = argspar->peer();
+    OperationInterface* peer = argspar->object();
     delete argspar;
 
     // separate track if we are handling a constructor:
@@ -159,7 +163,7 @@ namespace RTT
     } else {
         // plain method:
 
-        OperationInterface* ops = peer->getObject(obj);
+        OperationInterface* ops = peer;
         // we already checked for the existence of this object and method
         // in seendataname()..
 
@@ -218,7 +222,7 @@ namespace RTT
     }
 
   ExpressionParser::ExpressionParser( TaskContext* pc )
-      : context( pc ), datacallparser( *this, pc ),
+      : datacallparser( *this, pc ),
         valueparser( pc ),
         _invert_time(false),
         opreg( OperatorRepository::Instance() )

@@ -41,8 +41,8 @@
 
 #include "CommandDS.hpp"
 #include "Method.hpp"
-#include "TaskContext.hpp"
 #include "FactoryExceptions.hpp"
+#include "ExecutionEngine.hpp"
 #include <DataSources.hpp>
 
 namespace RTT
@@ -51,24 +51,22 @@ namespace RTT
     using namespace detail;
 
     ProgramTask::ProgramTask(ProgramInterfacePtr prog, ExecutionEngine* ee)
-        : TaskContext( prog->getName(), ee ),
-          program( new ValueDataSource<ProgramInterfaceWPtr>(prog) ) // was: VariableDataSource.
+        : TaskObject( prog->getName(), "Orocos Program Script"),
+          program( new ValueDataSource<ProgramInterfaceWPtr>(prog) )
     {
-        this->clear();
-
         DataSource<ProgramInterfaceWPtr>* ptr = program.get();
         // Commands :
         commands()->addCommandDS( ptr,
-                                  command_ds("start",&ProgramInterface::start, &ProgramInterface::isRunning,engine()->commands()),
+                                  command_ds("start",&ProgramInterface::start, &ProgramInterface::isRunning,ee->commands()),
                                   "Start or continue this program.");
         commands()->addCommandDS( ptr,
-                                  command_ds("pause",&ProgramInterface::pause, &ProgramInterface::isPaused,engine()->commands()),
+                                  command_ds("pause",&ProgramInterface::pause, &ProgramInterface::isPaused,ee->commands()),
                                   "Pause this program.");
         commands()->addCommandDS( ptr,
-                                  command_ds("step", &ProgramInterface::step, &ProgramInterface::stepDone,engine()->commands()),
+                                  command_ds("step", &ProgramInterface::step, &ProgramInterface::stepDone,ee->commands()),
                                   "Step a paused program.");
         commands()->addCommandDS( ptr,
-                                  command_ds("stop", &ProgramInterface::stop, &ProgramInterface::isStopped,engine()->commands()),
+                                  command_ds("stop", &ProgramInterface::stop, &ProgramInterface::isStopped,ee->commands()),
                                   "Stop and reset this program.");
 
         // DataSources:

@@ -42,7 +42,7 @@
 #include "AttributeRepository.hpp"
 
 #include "rtt-config.h"
-#ifdef OROPKG_CORELIB_EVENTS
+#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
 #include "EventService.hpp"
 #endif
 
@@ -59,13 +59,6 @@
 
 namespace RTT
 {
-    class CommandProcessor;
-    class ScriptingAccess;
-    class TaskObject;
-    class EventService;
-    class ExecutionAccess;
-    class MarshallingAccess;
-
     /**
      * A TaskContext exports the commands, methods, events, properties and ports
      * a task has. Furthermore, it allows to visit its peer tasks.
@@ -113,7 +106,6 @@ namespace RTT
         /**
          * A list of internal TaskObject names.
          */
-        typedef std::vector< std::string > ObjectList;
 
         /**
          * Describes the different states a component can have.
@@ -169,6 +161,20 @@ namespace RTT
         virtual const std::string& getDescription() const;
 
         virtual void setDescription(const std::string& descr);
+
+        virtual OperationInterface* getParent() { return this; }
+
+        /**
+         * This method is ignored by the TaskContext.
+         */
+        virtual void setParent(OperationInterface*) { }
+
+        /**
+         * This method is ignored by the TaskContext.
+         * @see TaskCore::setExecutionEngine for (re-)setting a new
+         * ExecutionEngine, which is a base class of TaskContext.
+         */
+        virtual void setEngine(ExecutionEngine*) { }
 
         /**
          * Returns the current state of the TaskContext.
@@ -353,31 +359,6 @@ namespace RTT
         virtual bool addObject( OperationInterface *obj );
 
         /** 
-         * Get a pointer to a previously added TaskObject
-         * 
-         * @param obj_name The name of the TaskObject
-         * 
-         * @return the pointer
-         */
-        virtual OperationInterface* getObject(const std::string& obj_name );
-
-        /** 
-         * Get a list of all the object names of this TaskContext.
-         * 
-         * @return a list of string names.
-         */
-        virtual ObjectList getObjectList() const;
-
-        /** 
-         * Remove and delete a previously added TaskObject.
-         * 
-         * @param obj_name The name of the TaskObject
-         * 
-         * @return true if found and removed, false otherwise.
-         */
-        virtual bool removeObject(const std::string& obj_name );
-
-        /** 
          * Clear the complete interface of this Component.
          * This method removes all objects and all methods, commands,
          * events, properties and ports from the interface of this TaskContext.
@@ -445,85 +426,17 @@ namespace RTT
         }
 
         /**
-         * The command interface of this task context.
-         */
-        CommandRepository* commands()
-        {
-            return &comms;
-        }
-
-        /**
-         * The command interface of this task context.
-         */
-        const CommandRepository* commands() const
-        {
-            return &comms;
-        }
-
-        /**
-         * The method interface of this task context.
-         */
-        MethodRepository* methods()
-        {
-            return &meths;
-        }
-
-        /**
-         * The method interface of this task context.
-         */
-        const MethodRepository* methods() const
-        {
-            return &meths;
-        }
-
-        /**
-         * The task-local values ( attributes and properties ) of this TaskContext.
-         */
-        AttributeRepository* attributes() {
-            return &attributeRepository;
-        }
-
-        /**
-         * The task-local values ( attributes and properties ) of this TaskContext.
-         */
-        const AttributeRepository* attributes() const {
-            return &attributeRepository;
-        }
-
-        /**
          * The properties of this TaskContext.
          */
         PropertyBag* properties() {
-            return attributeRepository.properties();
+            return mattributes.properties();
         }
 
         /**
          * The properties of this TaskContext.
          */
         const PropertyBag* properties() const {
-            return attributeRepository.properties();
-        }
-
-        /**
-         * The task-local events ( 'signals' ) of this TaskContext.
-         */
-        EventService* events() {
-#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-            return &eventService;
-#else
-            return 0;
-#endif
-        }
-
-        /**
-         * The task-local events ( 'signals' ) of this TaskContext.
-         */
-        const EventService* events() const {
-#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-            return &eventService;
-#else
-            return 0;
-#endif
+            return mattributes.properties();
         }
 
         /**
@@ -579,25 +492,9 @@ namespace RTT
 
     private:
         /**
-         * The task-local values ( attributes ) of this TaskContext.
-         */
-        AttributeRepository     attributeRepository;
-
-#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-        /**
-         * The task-local events ( 'signals' ) of this TaskContext.
-         */
-        EventService            eventService;
-#endif
-
-        /**
          * The task-local ports.
          */
         DataFlowInterface dataPorts;
-
-        CommandRepository comms;
-
-        MethodRepository meths;
     };
 
     /**

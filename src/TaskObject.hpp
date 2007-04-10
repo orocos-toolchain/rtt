@@ -1,11 +1,11 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  ProgramTask.hpp 
+  tag: FMTC  do nov 2 13:06:09 CET 2006  TaskObject.hpp 
 
-                        ProgramTask.hpp -  description
+                        TaskObject.hpp -  description
                            -------------------
-    begin                : Wed January 18 2006
-    copyright            : (C) 2006 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.be
+    begin                : do november 02 2006
+    copyright            : (C) 2006 FMTC
+    email                : peter.soetens@fmtc.be
  
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -36,41 +36,58 @@
  ***************************************************************************/
  
  
+#ifndef ORO_TASK_OBJECT_HPP
+#define ORO_TASK_OBJECT_HPP
 
-#ifndef PROGRAM_TASK_HPP
-#define PROGRAM_TASK_HPP
-
-#include "../TaskObject.hpp"
-#include "../ProgramInterface.hpp"
-#include "../DataSources.hpp"
+#include <string>
+#include "OperationInterface.hpp"
 
 namespace RTT
 {
-    class ExecutionEngine;
-
     /**
-     * @brief This class represents a program as an TaskObject in
-     * the Orocos TaskContext system.
+     * A task object groups a set of commands and methods (operations)
+     * which may be invoked.
      */
-    class ProgramTask
-        : public TaskObject
+    class TaskObject
+        : public OperationInterface
     {
-        ValueDataSource<ProgramInterfaceWPtr>::shared_ptr program;
+    protected:
+        std::string mname;
+        std::string mdescription;
+
+        OperationInterface* mparent;
+
     public:
         /**
-         * By constructing this object, a program is added to a taskcontext
-         * as a TaskContext, with its commands and methods.
+         * Create a TaskObject with a given \a name and \a description.
          */
-        ProgramTask( ProgramInterfacePtr, ExecutionEngine* ee = 0 );
-
-        ~ProgramTask();
+        TaskObject(std::string name, std::string description ="A Task Object.");
 
         /**
-         * Returns the Program of this task.
+         * Create a TaskObject with a given \a name and \a description and tie it to a \a parent.
+         * @param parent The OperationInterface to tie the new TaskObject to. In case
+         * a TaskObject with the same name is already present in \a parent, the TaskObject
+         * will not be tied and new->getParent() == 0.
          */
-        ProgramInterfacePtr getProgram() const { return program->get().lock(); }
+        TaskObject(OperationInterface* parent, std::string name, std::string description ="A Task Object.");
 
+        ~TaskObject();
+
+        virtual OperationInterface* getParent() { return mparent; }
+
+        virtual void setParent(OperationInterface* newparent) { mparent = newparent; }
+
+        virtual void setEngine(ExecutionEngine* newengine);
+
+        const std::string& getName() const { return mname; }
+
+        const std::string& getDescription() const { return mdescription; }
+
+        void setDescription(const std::string& d) { mdescription = d;}
+
+        void setName(const std::string& n) { mname = n;}
     };
 }
+
 
 #endif

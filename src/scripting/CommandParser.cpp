@@ -103,26 +103,21 @@ namespace RTT
 
   void CommandParser::seenstartofcall()
   {
-      mcurobject =  peerparser.object();
+      mcurobject = peerparser.object();
       peer = peerparser.peer();
+      OperationInterface* obj = peerparser.taskObject();
       peerparser.reset();
 
-      OperationInterface* obj = 0;
-      if (mcurobject != "this") 
-          if ( (obj = peer->getObject(mcurobject)) == 0 )
-              throw parse_exception_no_such_component( peer->getName(), mcurobject+"."+mcurmethod );
-          else {
-              if ( obj->methods()->hasMember(mcurmethod) == false && obj->commands()->hasMember(mcurmethod) == false)
-                  throw parse_exception_no_such_method_on_component( mcurobject, mcurmethod );
-          }
+      if ( obj == 0 )
+          throw parse_exception_no_such_component( peer->getName(), mcurobject+"."+mcurmethod );
       else {
-          if ( peer->methods()->hasMember(mcurmethod) == false && peer->commands()->hasMember(mcurmethod) == false && peer->events()->hasMember(mcurmethod) == false )
-              throw parse_exception_no_such_method_on_component( peer->getName(), mcurmethod );
+          if ( obj->methods()->hasMember(mcurmethod) == false && obj->commands()->hasMember(mcurmethod) == false && obj->events()->hasMember(mcurmethod) == false)
+              throw parse_exception_no_such_method_on_component( "CommandParser::"+mcurobject, mcurmethod );
       }
 
       // ok object and method are found.
-      argsparser = new ArgumentsParser( expressionparser, peer,
-                                      mcurobject, mcurmethod );
+      argsparser = new ArgumentsParser( expressionparser, peer, obj,
+                                        mcurobject, mcurmethod );
       arguments = argsparser->parser();
   }
 
@@ -134,20 +129,11 @@ namespace RTT
     mcurobject = argsparser->objectname();
     mcurmethod = argsparser->methodname();
 
-    OperationInterface* obj = 0;
-    CommandRepository::Factory* cfi = 0;
-    MethodRepository::Factory* mfi = 0;
-    EventService::Factory* efi = 0;
-    if ( mcurobject != "this" ) {
-        obj = peer->getObject(mcurobject);
-        assert(obj);
-        mfi = obj->methods();
-        cfi = obj->commands();
-    } else {
-        mfi = peer->methods();
-        cfi = peer->commands();
-    }
-    efi = peer->events();
+    OperationInterface* obj = argsparser->object();
+    CommandRepository::Factory* cfi = obj->commands();
+    MethodRepository::Factory* mfi = obj->methods();
+    EventService::Factory* efi = obj->events();
+
     assert(mfi);
     assert(cfi);
     assert(efi);
@@ -232,10 +218,10 @@ namespace RTT
             {
                 assert( false );
             }
+    else {
+        assert( false );
+    }
 
-
-    mcurobject.clear();
-    mcurmethod.clear();
     delete argsparser;
     argsparser = 0;
 
@@ -243,7 +229,7 @@ namespace RTT
     // and mcurobject.mcurmethod should exist, we checked that in
     // seenstartofcall() already, so com should really be valid..
     if ( ! comcon.first )
-      throw parse_exception_semantic_error(
+      throw parse_exception_fatal_semantic_error(
         "Something weird went wrong in calling method \"" + mcurmethod +
         "\" on object \"" + mcurobject + "\"." );
     if ( ! comcon.second )
@@ -251,6 +237,9 @@ namespace RTT
 
     retcommand = comcon.first;
     implicittermcondition = comcon.second;
+
+    mcurobject.clear();
+    mcurmethod.clear();
   }
 
     CommandParser::~CommandParser()

@@ -39,10 +39,12 @@
 #ifndef ORO_EXECUTION_ACCESS_HPP
 #define ORO_EXECUTION_ACCESS_HPP
 
-#include "TaskContext.hpp"
+#include <string>
 
 namespace RTT
 {
+    class TaskContext;
+
     /**
      * @brief The ExecutionAccess provides access to programs
      * and state machines loaded in the execution engine.

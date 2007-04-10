@@ -41,6 +41,7 @@
 #include "AttributeBase.hpp"
 #include "scripting/ProgramTask.hpp"
 #include "ProgramProcessor.hpp"
+#include "TaskObject.hpp"
 
 #include "CommandNOP.hpp"
 #include "ConditionFalse.hpp"
@@ -116,7 +117,7 @@ namespace RTT
         this->handleUnload();
     }
 
-    void FunctionGraph::setProgramTask(TaskContext* mytask)
+    void FunctionGraph::setProgramTask(TaskObject* mytask)
     {
         context = mytask;
     }
@@ -124,9 +125,8 @@ namespace RTT
     void FunctionGraph::handleUnload()
     {
         // just kill off the interface.
-        if ( context && context->getPeer("programs") )
-            context->getPeer("programs")->removePeer( context->getName() );
-        delete context;
+        if (context && context->getParent() )
+            context->getParent()->removeObject(context->getName());
         context = 0;
     }
 

@@ -42,7 +42,7 @@
 #include <string>
 #include "ConnectionTypes.hpp"
 #include "ConnectionInterface.hpp"
-#include "OperationInterface.hpp"
+#include "TaskObject.hpp"
 
 namespace RTT
 {

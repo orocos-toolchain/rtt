@@ -76,10 +76,8 @@ namespace RTT
            ,mengAcc( new ExecutionAccess(this ) )
 #endif
            ,marshAcc( new MarshallingAccess(this) )
+
            ,mTaskState(Stopped)
-#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-           ,eventService( ee )
-#endif
     {
         this->setup();
     }
@@ -98,9 +96,6 @@ namespace RTT
 #endif
            ,marshAcc( new MarshallingAccess(this) )
            ,mTaskState(Stopped)
-#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
-           ,eventService( ee )
-#endif
     {
         this->setup();
     }
@@ -143,7 +138,8 @@ namespace RTT
             // here would only lead to calling invalid virtual functions.
             // [Rule no 1: Don't call virtual functions in a destructor.]
             // [Rule no 2: Don't call virtual functions in a constructor.]
-            attributeRepository.clear();
+            mattributes.clear();
+
             delete mscriptAcc;
             delete mengAcc;
             delete marshAcc;
@@ -161,9 +157,15 @@ namespace RTT
             // Do not call this->disconnect() !!!
             // Ports are probably already destructed by user code.
 
+            // We need to force-unload programs and states first,
+            // such that we can then delete the remaining objects.
+            engine()->programs()->clear();
+            engine()->states()->clear();
+
             Objects::const_iterator it = mobjects.begin();
             while ( it != mobjects.end() ) {
-                delete *it;
+                if ( (*it)->getParent() == this )
+                    delete *it;
                 ++it;
             }
         }
@@ -474,41 +476,16 @@ namespace RTT
         }
 
     bool TaskContext::addObject( OperationInterface *obj ) {
-        if ( getObject( obj->getName() ) )
+        if (OperationInterface::addObject(obj) == false)
             return false;
-        mobjects.push_back(obj);
+        obj->setEngine( this->engine() );
         return true;
-    }
-
-    OperationInterface* TaskContext::getObject(const std::string& obj_name )
-    {
-        if (obj_name == "this")
-            return this;
-        Objects::const_iterator it = mobjects.begin();
-        while ( it != mobjects.end() )
-            if ( (*it)->getName() == obj_name )
-                return *it;
-            else
-                ++it;
-        return 0;
-    }
-
-    std::vector<std::string> TaskContext::getObjectList() const
-    {
-        std::vector<std::string> res;
-        res.push_back("this");
-        std::transform(mobjects.begin(), mobjects.end(),
-                       std::back_inserter( res ), boost::bind(&OperationInterface::getName,_1));
-        return res;
     }
 
     void TaskContext::clear()
     {
-        this->attributes()->clear();
+        this->removeObject("this");
         this->properties()->clear();
-        this->methods()->clear();
-        this->commands()->clear();
-        this->events()->clear();
         this->ports()->clear();
 
         Objects::const_iterator it = mobjects.begin();
@@ -517,21 +494,6 @@ namespace RTT
             ++it;
         }
         mobjects.clear();
-    }
-
-    bool TaskContext::removeObject(const std::string& obj_name ) {
-        if (obj_name == "this") {
-            this->methods()->clear();
-            this->commands()->clear();
-            return true;
-        }
-        OperationInterface* tgt = getObject(obj_name);
-        if (tgt) {
-            mobjects.erase( find(mobjects.begin(), mobjects.end(), tgt) );
-            delete tgt;
-            return true;
-        }
-        return false;
     }
 
     bool connectPorts(TaskContext* A, TaskContext* B) { 

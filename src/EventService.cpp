@@ -55,6 +55,10 @@ namespace RTT
             : (eproc ? eproc : CompletionProcessor::Instance());
     }
 
+    void EventService::setEventProcessor(EventProcessor* ep) {
+        eproc = ep;
+    }
+
     bool EventService::hasEvent(const std::string& ename) const
     {
         return this->hasMember(ename);

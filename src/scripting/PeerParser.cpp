@@ -75,32 +75,47 @@ namespace RTT
         void PeerParser::done()
         {
             //std::cerr<<"Peerparser operating in "<<  context->getName()<<std::endl;
+            mlastobject = "this";
 
             // if size() > 1, it must be a peer 
             while ( callqueue.size() > 0 && _peer->hasPeer( callqueue.front() ) ) {
-//                 std::cerr<< _peer->getName() <<" has peer " << callqueue.front()<<std::endl;
+                //std::cerr<< _peer->getName() <<" has peer " << callqueue.front()<<std::endl;
                 _peer = _peer->getPeer( callqueue.front() );
                 callqueue.pop();
             }
 
-            // Something went wrong, a subtask was not found:
-            if ( callqueue.size() > 1 || (mfullpath && callqueue.size() != 0) ) {
+            // BC: user uses 'states.' or 'programs'.
+            std::string name = callqueue.front();
+            if ( (name == "states" || name == "programs") && _peer->getObject(name) == 0) {
+                log(Warning) << "'"<<name<<"' peer not found. The use of '"<<name<<"' has been deprecated."<<endlog();
+                log(Warning) << "Modify your script to use the program's or state machine's name directly."<<endlog();
+                callqueue.pop();
+            }
+
+            mcurobject = _peer;
+
+            // all peers done, traverse objects:
+            while ( callqueue.size() > 0 && mcurobject->getObject( callqueue.front() ) ) {
+                //std::cerr<< mcurobject->getName() <<" has object " << callqueue.front()<<std::endl;
+                mcurobject = mcurobject->getObject( callqueue.front() );
+                mlastobject = callqueue.front();
+                callqueue.pop();
+            }
+
+            // Something went wrong, a peer or object was not found:
+            if ( mfullpath && callqueue.size() != 0 ) {
                 // print to user the mismatch :
-                std::string object = callqueue.front();
+                string object = callqueue.front();
                 while ( !callqueue.empty() )
                     callqueue.pop();
                 iter_t begin;
                 throw_(begin, "From TaskContext '"+context->getName()+"': Task '"+_peer->getName()+"' has no task or object '"+object+"'." );
             }
-            if ( callqueue.empty() )
-                callqueue.push("this");
 
-            mcurobject = callqueue.front();
-            callqueue.pop();
         }
 
         PeerParser::PeerParser(TaskContext* c, bool fullpath)
-            : mcurobject("this"),context(c), _peer(context), mfullpath(fullpath)
+            : mcurobject(c), mlastobject("this"), context(c), _peer(context), mfullpath(fullpath)
         {
             BOOST_SPIRIT_DEBUG_RULE( peerpath );
             BOOST_SPIRIT_DEBUG_RULE( peerlocator );
@@ -118,8 +133,11 @@ namespace RTT
     void PeerParser::reset()
     {
         _peer = context;
-        mcurobject = "this";
+        mcurobject = context;
+        mlastobject = "this";
         advance_on_error = 0;
+        while( !callqueue.empty() )
+            callqueue.pop();
     }
 
     void PeerParser::seenobjectname( iter_t begin, iter_t end )
@@ -135,18 +153,29 @@ namespace RTT
         std::string name( begin, end );
         name.erase( name.length() -1  ); // compensate for extra "."
 
-        if ( _peer->hasPeer( name ) ) {
+        if ( mcurobject == _peer && _peer->hasPeer( name ) ) {
             _peer = _peer->getPeer( name );
+            mcurobject = _peer;
             advance_on_error += end - begin;
 
             //cout << "PP located "<<name <<endl;
         }
+        else if ( mcurobject->getObject(name) ) {
+            mcurobject = mcurobject->getObject(name);
+            advance_on_error += end - begin;
+        }
         else {
+            if ( name == "states" || name == "programs") {
+                log(Warning) << "'"<<name<<"' peer not found. The use of '"<<name<<"' has been deprecated."<<endlog();
+                log(Warning) << "Modify your script to use the program's or state machine's name directly."<<endlog();
+                advance_on_error += end - begin;
+                return;
+            }
             //cout << "PP failed "<<name <<endl;
             // store object name for higher level access.
             // do not consume it though.
             //cout << std::string(begin, end +10)<<endl;
-            mcurobject = name;
+            mlastobject = name;
             throw_(begin, peer_not_found );
         }
     }
@@ -166,9 +195,14 @@ namespace RTT
         return _peer;
     }
 
-    std::string PeerParser::object()
+    OperationInterface* PeerParser::taskObject()
     {
         return mcurobject;
+    }
+
+    std::string PeerParser::object()
+    {
+        return mlastobject;
     }
 
 }

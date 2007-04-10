@@ -1,4 +1,9 @@
+
+#include "RTT.hpp"
 #include "MarshallingAccess.hpp"
+#include "TaskContext.hpp"
+#include "TaskObject.hpp"
+
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
 #include "Method.hpp"
 #endif

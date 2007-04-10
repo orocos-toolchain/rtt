@@ -40,8 +40,8 @@
 #include "StateMachineTask.hpp"
 
 #include "../Attribute.hpp"
-#include "../TaskContext.hpp"
 #include "../FactoryExceptions.hpp"
+#include "../ExecutionEngine.hpp"
 #include "../CommandDS.hpp"
 #include "../Method.hpp"
 
@@ -58,35 +58,35 @@ namespace RTT
             DataSource<StateMachineWPtr>* ptr = _this.get();
 
             commands()->addCommandDS(ptr, command_ds("activate",
-                                               &StateMachine::activate, &StateMachine::isStrictlyActive, engine()->commands()),
+                                               &StateMachine::activate, &StateMachine::isStrictlyActive, mengine->commands()),
                                     "Activate this StateMachine to initial state and enter request Mode.");
             commands()->addCommandDS(ptr, command_ds("deactivate",
-                                               &StateMachine::deactivate, &StateMachine::isActive, engine()->commands(),true),
+                                               &StateMachine::deactivate, &StateMachine::isActive, mengine->commands(),true),
                                     "Deactivate this StateMachine");
             commands()->addCommandDS(ptr, command_ds("start",
-                                               &StateMachine::automatic, &StateMachine::isAutomatic, engine()->commands()),
+                                               &StateMachine::automatic, &StateMachine::isAutomatic, mengine->commands()),
                                     "Start this StateMachine, enter automatic Mode.");
             commands()->addCommandDS(ptr, command_ds("automatic",
-                                               &StateMachine::automatic, &StateMachine::isAutomatic, engine()->commands()),
+                                               &StateMachine::automatic, &StateMachine::isAutomatic, mengine->commands()),
                                     "Start this StateMachine, enter automatic Mode.");
             commands()->addCommandDS(ptr, command_ds("pause",
-                      &StateMachine::pause, &StateMachine::isPaused, engine()->commands()),
+                      &StateMachine::pause, &StateMachine::isPaused, mengine->commands()),
                                  "Pause this StateMachine, enter paused Mode.");
             commands()->addCommandDS(ptr, command_ds("step",
-                      &StateMachine::step, &StateMachine::stepDone, engine()->commands()),
+                      &StateMachine::step, &StateMachine::stepDone, mengine->commands()),
                                  "Step this StateMachine. When paused, step a single instruction or transition evaluation. \n"
                                  "When in reactive mode, evaluate transitions and go to a next state, or if none, run handle.");
             commands()->addCommandDS(ptr, command_ds("reset",
-                      &StateMachine::reset, &StateMachine::inInitialState, engine()->commands()),
+                      &StateMachine::reset, &StateMachine::inInitialState, mengine->commands()),
                                  "Reset this StateMachine to the initial state");
             commands()->addCommandDS(ptr, command_ds("stop",
-                      &StateMachine::stop, &StateMachine::inFinalState, engine()->commands()),
+                      &StateMachine::stop, &StateMachine::inFinalState, mengine->commands()),
                                  "Stop this StateMachine to the final state and enter request Mode.");
             commands()->addCommandDS(ptr, command_ds("reactive",
-                      &StateMachine::reactive, &StateMachine::isStrictlyActive, engine()->commands()),
+                      &StateMachine::reactive, &StateMachine::isStrictlyActive, mengine->commands()),
                                  "Enter reactive mode (see requestState() and step() ).\n Command is done if ready for requestState() or step() command.");
             commands()->addCommandDS(ptr, command_ds("requestState",
-                      &StateMachine::requestState, &StateMachine::inStrictState, engine()->commands()),
+                      &StateMachine::requestState, &StateMachine::inStrictState, mengine->commands()),
                                  "Request to go to a particular state. Will succeed if there exists a valid transition from this state to the requested state.",
                                  "State", "The state to make the transition to.");
         }
@@ -111,7 +111,7 @@ namespace RTT
             // if this gets copied, all created commands will use the new instance of StateMachineTask to
             // call the member functions. Further more, all future commands for the copy will also call the new instance
             // while future commands for the original will still call the original. 
-            StateMachineTask* tmp = new StateMachineTask( newsc, this->engine() );
+            StateMachineTask* tmp = new StateMachineTask( newsc, this->mengine );
             replacements[ _this.get() ] = tmp->_this.get(); // put 'newsc' in map
 
             AttributeRepository* dummy = this->attributes()->copy( replacements, instantiate );
@@ -122,10 +122,10 @@ namespace RTT
         }
 
         StateMachineTask::StateMachineTask(StateMachinePtr statemachine, ExecutionEngine* ee)
-            : TaskContext( statemachine->getName(), ee ),
-              _this( new ValueDataSource<StateMachineWPtr>( statemachine ) ) // was: VariableDataSource.
+            : TaskObject( statemachine->getName() ),
+              _this( new ValueDataSource<StateMachineWPtr>( statemachine ) ),
+              mengine(ee)
         {
-            this->clear();
             this->createCommandFactory();
             this->createMethodFactory();
         }

@@ -113,6 +113,11 @@ namespace RTT
         bool unloadProgram(const std::string& name);
 
         /**
+         * Stop and unload all programs from the ProgramProcessor.
+         */
+        void clear();
+
+        /**
          * Return the status of a Program.
          */
         Status::ProgramStatus getProgramStatus(const std::string& name) const;

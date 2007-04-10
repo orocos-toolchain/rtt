@@ -25,6 +25,7 @@
 #include <sstream>
 #ifndef NOPARSER
 #include <scripting/ParsedStateMachine.hpp>
+#include <scripting/DumpObject.hpp>
 #endif
 #include <SimulationThread.hpp>
 #include <CommandFunctor.hpp>
@@ -767,6 +768,9 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
         }
         getline( sctext, sline, '\n' );
         errormsg <<"here  > " << sline << endl;
+        if ( sm->inError() ) {
+            RTT::detail::DumpObject( tc );
+        }
         CPPUNIT_ASSERT_MESSAGE( "Runtime error (inError() == true) encountered" + errormsg.str(), sm->inError() == false );
         // check error status of all children:
         StateMachine::ChildList cl = sm->getChildren();
@@ -810,13 +814,6 @@ void StateTest::finishState(TaskContext* tc, std::string prog_name)
             CPPUNIT_ASSERT_MESSAGE( "Uncaught Processor unload exception", false );
     }
 
-    TaskContext* ptc = tc->getPeer("states")->getPeer(prog_name);
-    tc->getPeer("states")->removePeer(prog_name);
-    delete ptc;
-
-    ptc= tc->getPeer("states");
-    tc->removePeer("states");
-    delete ptc;
 }
 
     

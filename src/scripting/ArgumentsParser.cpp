@@ -50,10 +50,10 @@ namespace RTT
     }
 
   ArgumentsParser::ArgumentsParser(
-    ExpressionParser& p,  TaskContext* peer, const std::string& o,
+    ExpressionParser& p,  TaskContext* peer, OperationInterface* tobject, const std::string& o,
     const std::string& m )
     : mparsed( false ), expressionparser( p ),
-      mobject( o ), mmethod( m ), _peer(peer)
+      mobject( o ), mmethod( m ), _peer(peer), mtobject(tobject)
   {
     BOOST_SPIRIT_DEBUG_RULE( argument );
     BOOST_SPIRIT_DEBUG_RULE( arguments );

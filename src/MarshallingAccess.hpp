@@ -41,10 +41,11 @@
 #define ORO_MARSHALLING_ACCESS_HPP
 
 #include <string>
-#include "TaskContext.hpp"
 
 namespace RTT
 {
+    class TaskContext;
+
     /**
      * Load and save properties of a TaskContext.
      */

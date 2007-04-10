@@ -103,6 +103,11 @@ namespace RTT
         bool deleteStateMachine( const std::string& name );
 
         /**
+         * Stop and unload all programs from the StateMachineProcessor.
+         */
+        void clear();
+
+        /**
          * Return the status of a StateMachine.
          */
         Status::StateMachineStatus getStateMachineStatus(const std::string& name) const;

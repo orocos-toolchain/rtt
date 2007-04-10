@@ -27,6 +27,8 @@ module RTT
   module Corba
   {
 
+    typedef sequence<string> ObjectList;
+
     /**
      * An Orocos TaskObject which hosts a method and command
      * interface.
@@ -45,6 +47,11 @@ module RTT
       string getDescription();
     
       /**
+       * Query the attributes of this interface.
+       */
+      AttributeInterface attributes();
+
+      /**
        * Synchronous Method Interface.
        */
       MethodInterface methods();
@@ -53,9 +60,23 @@ module RTT
        * Asynchronous Command Interface.
        */
       CommandInterface commands();
-    };
 
-    typedef sequence<string> ObjectList;
+      /**
+       * Get a list of all the child objects this object is connected to.
+       */
+      ObjectList getObjectList( );
+
+      /**
+       * Get a child object this object is connected to.
+       */
+      ControlObject getObject( in string name );
+
+      /**
+       * Has this object a child object with given name ?
+       */
+      boolean hasObject( in string name );
+
+    };
 
     enum TaskState { Init, PreOperational, Stopped, Running };
 
@@ -106,11 +127,6 @@ module RTT
        * Query the properties of this interface as a CosPropertyService::PropertySet.
        */
       CosPropertyService::PropertySet propertySet();
-
-      /**
-       * Query the attributes of this interface.
-       */
-      AttributeInterface attributes();
 
       /**
        * The ScriptingAccess, for program and state machine
@@ -166,21 +182,6 @@ module RTT
        * Destroy a two-way peer connection.
        */
       boolean disconnectPeers( in string name );
-
-      /**
-       * Get a list of all the objects this task is connected to.
-       */
-      ObjectList getObjectList( );
-
-      /**
-       * Get a object this task is connected to.
-       */
-      ControlObject getObject( in string name );
-
-      /**
-       * Has this task a object with given name ?
-       */
-      boolean hasObject( in string name );
 
     };
   };

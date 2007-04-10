@@ -62,6 +62,12 @@ namespace RTT
         states->apply( bind( &StateMachine::deactivate, _1));
         states->apply( bind( &StateMachine::deactivate, _1));
     
+        this->clear();
+
+        delete states;
+    }
+
+    void StateMachineProcessor::clear() {
         while ( !states->empty() ) {
             // try to unload all
             Logger::log() << Logger::Info << "StateMachineProcessor unloads StateMachine "<< states->front()->getName() << "..."<<Logger::endl;
@@ -80,8 +86,6 @@ namespace RTT
             }
 #endif
         }
-            
-        delete states;
     }
 
      StateMachine::Status::StateMachineStatus StateMachineProcessor::getStateMachineStatus(const std::string& name) const

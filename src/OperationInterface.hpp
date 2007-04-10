@@ -40,54 +40,163 @@
 #define ORO_OPERATION_INTERFACE_HPP
 
 #include <string>
+#include <vector>
+#include "RTT.hpp"
 #include "CommandRepository.hpp"
 #include "MethodRepository.hpp"
+#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
+#include "EventService.hpp"
+#endif
+#include "AttributeRepository.hpp"
 
 namespace RTT
 {
+    class ExecutionEngine;
+
     /**
-     * The interface for accessing and executing 'operations', being commands
-     * and methods.
+     * The interface for accessing and executing 'operations', being commands,
+     * methods, events and attributes. OperationInterface objects can be
+     * hierarchically nested.
      */
     class OperationInterface
     {
-    public:
-        virtual ~OperationInterface() {}
-        virtual const std::string& getName() const = 0;
-        virtual const std::string& getDescription() const = 0;
-        virtual CommandRepository* commands() = 0;
-
-        virtual MethodRepository* methods() = 0;
-    };
-
-
-    /**
-     * A task object groups a set of commands and methods (operations)
-     * which may be invoked.
-     */
-    class TaskObject
-        : public OperationInterface
-    {
-        std::string mname;
-        std::string mdescription;
-
+    protected:
         CommandRepository mcommands;
 
         MethodRepository mmethods;
+
+#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
+        EventService mevents;
+#endif
+
+        AttributeRepository mattributes;
+
+        typedef std::vector< OperationInterface* > Objects;
+        /// the Child TaskObjects.
+        Objects mobjects;
     public:
-        TaskObject(std::string name, std::string description ="A Task Object.")
-            : mname(name), mdescription(description)
-        {}
+        OperationInterface();
 
-        const std::string& getName() const { return mname; }
+        OperationInterface(ExecutionEngine* ee);
+        /**
+         * A list of all child objects of this interface.
+         */
+        typedef std::vector< std::string > ObjectList;
 
-        const std::string& getDescription() const { return mdescription; }
+        /**
+         * Returns the commands of this interface.
+         */
+        CommandRepository* commands() { return &mcommands; }
 
-        void setDescription(const std::string& d) { mdescription = d;}
+        const CommandRepository* commands() const { return &mcommands; }
 
-        virtual CommandRepository* commands() { return &mcommands; }
+        /**
+         * Returns the methods of this interface.
+         */
+        MethodRepository* methods() { return &mmethods; }
 
-        virtual MethodRepository* methods() { return &mmethods;}
+        const MethodRepository* methods() const { return &mmethods; }
+
+        /**
+         * The task-local events ( 'signals' ) of this TaskContext.
+         */
+        EventService* events() {
+#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
+            return &mevents;
+#else
+            return 0;
+#endif
+        }
+
+        /**
+         * The task-local events ( 'signals' ) of this TaskContext.
+         */
+        const EventService* events() const {
+#ifdef OROPKG_EXECUTION_ENGINE_EVENTS
+            return &mevents;
+#else
+            return 0;
+#endif
+        }
+
+        /**
+         * Returns the attributes of this interface.
+         */
+        AttributeRepository* attributes() { return &mattributes; }
+
+        const AttributeRepository* attributes() const { return &mattributes; }
+
+        virtual ~OperationInterface() {}
+
+        /**
+         * Returns the name of this interface.
+         */
+        virtual const std::string& getName() const = 0;
+
+        /**
+         * Returns the description of this interface.
+         */
+        virtual const std::string& getDescription() const = 0;
+
+        /** 
+         * Add a new child interface to this interface. 
+         * 
+         * @param obj This object becomes owned by this interface.
+         * 
+         * @return true if it cuold be added, false if such
+         * object already exists.
+         */
+        virtual bool addObject( OperationInterface *obj );
+
+        /** 
+         * Get a pointer to a previously added TaskObject
+         * 
+         * @param obj_name The name of the TaskObject
+         * 
+         * @return the pointer
+         */
+        virtual OperationInterface* getObject(const std::string& obj_name );
+
+        /** 
+         * Get a list of all the object names of this interface
+         * 
+         * @return a list of string names.
+         */
+        virtual ObjectList getObjectList() const;
+
+        /** 
+         * Remove and delete a previously added TaskObject.
+         * Deletion will only occur if \a obj_name's parent is \a this.
+         * You can avoid deletion by first calling 
+         * @code this->getObject( obj_name )->setParent(0); @endcode
+         * 
+         * @param obj_name The name of the TaskObject to remove
+         * 
+         * @return true if found and removed, false otherwise.
+         */
+        virtual bool removeObject(const std::string& obj_name );
+
+        /**
+         * Returns the parent OperationInterface in which this TaskObject lives.
+         * A TaskObject can have only one parent.
+         * @return null in case no parent is set, the parent otherwise.
+         */
+        virtual OperationInterface* getParent() = 0;
+
+        /**
+         * Set a new parent for this interface.  Do not call this
+         * method directly. This function is automatically called when
+         * a TaskObject is added to another TaskObject.
+         */
+        virtual void setParent(OperationInterface* newparent) = 0;
+
+        /**
+         * Set the execution engine of the parent TaskContext.  Do not
+         * call this method directly. This function is automatically
+         * called when a TaskObject is added to a TaskContext.
+         */
+        virtual void setEngine(ExecutionEngine* newengine) = 0;
+
     };
 }
 

@@ -148,6 +148,10 @@ namespace RTT
             }
         }
 
+        void setEventProcessor(EventProcessor* smproc) {
+            eproc = smproc;
+        }
+
         /**
          * Request a transition to a given state.
          */

@@ -81,7 +81,6 @@ namespace RTT { namespace detail
     CommonParser commonparser;
     ExpressionParser& expressionparser;
     PeerParser peerparser;
-    TaskContext* context;
     std::stack<ArgumentsParser*> argparsers;
   public:
     DataCallParser( ExpressionParser& p, TaskContext* pc );
@@ -142,7 +141,6 @@ namespace RTT { namespace detail
       void inverttime();
       void seentimeexpr();
 
-      TaskContext* context;
       DataCallParser datacallparser;
       CommonParser commonparser;
       ValueParser valueparser;

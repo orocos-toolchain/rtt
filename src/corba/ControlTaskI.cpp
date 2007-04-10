@@ -78,6 +78,34 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
     return ret._retn();
 }
 
+::RTT::Corba::AttributeInterface_ptr Orocos_ControlObject_i::attributes (
+    
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    if ( CORBA::is_nil( mAttrs) ) {
+        Logger::log() << Logger::Info << "Creating AttributeInterface."<<Logger::endl;
+        try {
+            Orocos_AttributeInterface_i* attrs = new Orocos_AttributeInterface_i( mobj->attributes(), mpoa.in() );
+            mAttrs = attrs->_this();
+        } catch( ... ) {
+            log(Error) << "Failed to create AttributeInterface." <<endlog();
+        }
+    }
+    return AttributeInterface::_duplicate( mAttrs.in() );
+#if 0
+    // create and activate servant.
+    if ( CORBA::is_nil( mCosAttrs) ) {
+        Logger::log() << Logger::Info << "Creating Attributes PropertySet."<<Logger::endl;
+        CosPropertyService_PropertySet_i* props = new CosPropertyService_PropertySet_i( mobj->attributes() );
+        mCosProps = props->_this();
+    }
+    return PropertySet::_duplicate( mCosProps.in() );
+#endif
+}
+
 ::RTT::Corba::MethodInterface_ptr Orocos_ControlObject_i::methods (
     
   )
@@ -114,6 +142,63 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
         }
     }
     return ::RTT::Corba::CommandInterface::_duplicate( mCFact.in() );
+}
+
+::RTT::Corba::ControlObject_ptr Orocos_ControlObject_i::getObject (
+    const char * name
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    std::string pname(name);
+    // detect 'this':
+    if ( pname == "this" )
+        return this->_this();
+
+    // Cache other objects
+    OperationInterface* task = mobj->getObject( pname );
+    if ( task ) {
+        // do caching....
+        Orocos_ControlObject_i* ret;
+        if ( ctobjmap[pname] == 0 ) {
+            // create or lookup new server for this object.
+            ctobjmap[pname] = new Orocos_ControlObject_i(task, mpoa.in() );
+        }
+        ret = ctobjmap[pname];
+        return ret->_this();
+    }
+    // clear cache if possible.
+    ctobjmap.erase( pname );
+    return 0;
+}
+
+
+::RTT::Corba::ObjectList * Orocos_ControlObject_i::getObjectList (
+    
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    TaskContext::ObjectList objects = mobj->getObjectList();
+    ::RTT::Corba::ObjectList_var result = new ::RTT::Corba::ObjectList();
+    result->length( objects.size() );
+    for (unsigned int i=0; i != objects.size(); ++i )
+        result[i] = CORBA::string_dup( objects[i].c_str() );
+    
+    return result._retn();
+}
+
+CORBA::Boolean Orocos_ControlObject_i::hasObject (
+    const char * name
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    std::string mname(name);
+    return mobj->getObject(mname);
 }
 
 
@@ -218,35 +303,6 @@ CORBA::Boolean Orocos_ControlTask_i::isConfigured (
     return PropertySet::_duplicate( mCosProps.in() );
 }
 
-::RTT::Corba::AttributeInterface_ptr Orocos_ControlTask_i::attributes (
-    
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ))
-{
-    if ( CORBA::is_nil( mAttrs) ) {
-        Logger::log() << Logger::Info << "Creating AttributeInterface."<<Logger::endl;
-        try {
-            Orocos_AttributeInterface_i* attrs = new Orocos_AttributeInterface_i( mtask->attributes(), mpoa.in() );
-            mAttrs = attrs->_this();
-        } catch( ... ) {
-            log(Error) << "Failed to create AttributeInterface." <<endlog();
-        }
-    }
-    return AttributeInterface::_duplicate( mAttrs.in() );
-#if 0
-    // create and activate servant.
-    if ( CORBA::is_nil( mCosAttrs) ) {
-        Logger::log() << Logger::Info << "Creating Attributes PropertySet."<<Logger::endl;
-        CosPropertyService_PropertySet_i* props = new CosPropertyService_PropertySet_i( mtask->attributes() );
-        mCosProps = props->_this();
-    }
-    return PropertySet::_duplicate( mCosProps.in() );
-#endif
-}
-
-
 ::RTT::Corba::ScriptingAccess_ptr Orocos_ControlTask_i::scripting (
     
   )
@@ -308,63 +364,6 @@ CORBA::Boolean Orocos_ControlTask_i::isConfigured (
         result[i] = CORBA::string_dup( peers[i].c_str() );
     
     return result._retn();
-}
-
-::RTT::Corba::ControlObject_ptr Orocos_ControlTask_i::getObject (
-    const char * name
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ))
-{
-    std::string pname(name);
-    // detect 'this':
-    if ( pname == "this" )
-        return this->_this();
-
-    // Cache other objects
-    OperationInterface* task = mtask->getObject( pname );
-    if ( task ) {
-        // do caching....
-        Orocos_ControlObject_i* ret;
-        if ( ctobjmap[pname] == 0 ) {
-            // create or lookup new server for this object.
-            ctobjmap[pname] = new Orocos_ControlObject_i(task, mpoa.in() );
-        }
-        ret = ctobjmap[pname];
-        return ret->_this();
-    }
-    // clear cache if possible.
-    ctobjmap.erase( pname );
-    return 0;
-}
-
-
-::RTT::Corba::ObjectList * Orocos_ControlTask_i::getObjectList (
-    
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ))
-{
-    TaskContext::ObjectList objects = mtask->getObjectList();
-    ::RTT::Corba::ObjectList_var result = new ::RTT::Corba::ObjectList();
-    result->length( objects.size() );
-    for (unsigned int i=0; i != objects.size(); ++i )
-        result[i] = CORBA::string_dup( objects[i].c_str() );
-    
-    return result._retn();
-}
-
-CORBA::Boolean Orocos_ControlTask_i::hasObject (
-    const char * name
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ))
-{
-    std::string mname(name);
-    return mtask->getObject(mname);
 }
 
 

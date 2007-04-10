@@ -61,14 +61,17 @@ namespace RTT
 
     ProgramProcessor::~ProgramProcessor()
     {
+        this->clear();
+        delete programs;
+        delete f_queue;
+    }
+
+    void ProgramProcessor::clear() {
         while ( !programs->empty() ) {
             Logger::log() << Logger::Info << "ProgramProcessor deletes Program "<< programs->front()->getName() << "..."<<Logger::endl;
             programs->front()->stop();
             this->unloadProgram( programs->front()->getName() );
         }
-
-        delete programs;
-        delete f_queue;
     }
 
      ProgramInterface::Status::ProgramStatus ProgramProcessor::getProgramStatus(const std::string& name) const

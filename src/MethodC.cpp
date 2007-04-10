@@ -36,10 +36,10 @@
  ***************************************************************************/
  
  
-#include "OperationInterface.hpp"
 #include "MethodC.hpp"
 #include "FactoryExceptions.hpp"
 #include "DataSourceCommand.hpp"
+#include "MethodRepository.hpp"
 #include "Logger.hpp"
 #include <Exceptions.hpp>
 #include <vector>

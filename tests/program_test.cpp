@@ -434,13 +434,6 @@ void ProgramTest::finishProgram(TaskContext* tc, std::string prog_name)
     CPPUNIT_ASSERT( tc->engine()->programs()->getProgram( prog_name )->stop() );
     tc->engine()->programs()->unloadProgram( prog_name );
 
-    TaskContext* ptc= tc->getPeer("programs")->getPeer(prog_name);
-    tc->getPeer("programs")->removePeer(prog_name);
-    delete ptc;
-
-    ptc= tc->getPeer("programs");
-    tc->removePeer("programs");
-    delete ptc;
 }
 
     

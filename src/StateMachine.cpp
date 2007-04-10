@@ -625,7 +625,7 @@ namespace RTT
             handle = es->setupSyn( ename, bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto), args );
         }
 
-        if ( !handle ) {
+        if ( !handle.ready() ) {
             Logger::log() << Logger::Error << "Could not setup handle for event '"<<ename<<"'."<<Logger::endl;
             return false; // event does not exist...
         }
@@ -654,14 +654,16 @@ namespace RTT
             if ( c->evaluate() && checkConditions(to, false) == 1 ) {
 //                 Logger::log() <<Logger::Error <<"Valid transition from "<<from->getName()
 //                               <<" to "<<to->getName()<<"."<<Logger::endl;
-                changeState( to, p );                // valid transition to 'to'.
+                changeState( to, p );              //  valid transition to 'to'.
             }
             else if ( elseto && checkConditions(elseto, false) == 1 ) {
-                changeState( elseto, elsep );        // valid transition to 'elseto'.
+//                 Logger::log() <<Logger::Error <<"Valid transition from "<<from->getName()
+//                               <<" to "<<elseto->getName()<<"."<<Logger::endl;
+                changeState( elseto, elsep );      //  valid transition to 'elseto'.
             }
             else {
 //                 Logger::log() <<Logger::Error <<"Rejected transition from "<<from->getName()
-//                               <<" within "<<current->getName()<<": conditions not met"<<Logger::endl;
+//                               <<" within "<<current->getName()<<": in Transition."<<Logger::endl;
             }
         }
 //         else {

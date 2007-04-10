@@ -31,6 +31,7 @@
 #include "Attribute.hpp"
 
 #include "TaskContext.hpp"
+#include "TaskObject.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
@@ -116,13 +117,15 @@ namespace RTT
   {
     std::string name( begin, end );
     TaskContext* peer = peerparser.peer();
+    OperationInterface* task = peerparser.taskObject();
     peerparser.reset();
 //     std::cerr << "ValueParser: seenvar : "<< name
 //               <<" is bag : " << (propparser.bag() != 0) << " is prop: "<< (propparser.property() != 0) << std::endl;
-    if ( propparser.bag() && propparser.property() ) {
+    // in case our task is a taskcontext:
+    if ( task == peer && propparser.bag() && propparser.property() ) {
         // nested property case :
         if ( ! propparser.bag()->find( name ) ) {
-//             std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
+            //             std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
             throw_(begin, "Property " + name + " not present in PropertyBag "+propparser.property()->getName()+" in "+ peer->getName()+".");
         }
         ret = propparser.bag()->find( name )->getDataSource();
@@ -131,11 +134,11 @@ namespace RTT
     }
 
     // non-nested property or attribute case :
-    if ( peer->attributes()->hasAttribute( name ) ) {
-      ret = peer->attributes()->getValue(name)->getDataSource();
+    if ( task->attributes()->hasAttribute( name ) ) {
+      ret = task->attributes()->getValue(name)->getDataSource();
       return;
     }
-    if ( peer->attributes()->hasProperty( name ) ) {
+    if ( peer==task && peer->attributes()->hasProperty( name ) ) {
         ret = peer->attributes()->properties()->find(name)->getDataSource();
         return;
     }
@@ -143,7 +146,7 @@ namespace RTT
     //    std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
 //         peerparser.peer()->debug(true);
 //         peer->debug(true);
-    throw_(begin, "Value " + name + " not defined in "+ peer->getName()+".");
+    throw_(begin, "Value " + name + " not defined in "+ task->getName()+".");
     //      throw parse_exception_undefined_value( name );
   }
 

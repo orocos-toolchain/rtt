@@ -48,7 +48,7 @@ namespace RTT
 {
     class FunctionGraph;
     typedef boost::shared_ptr<FunctionGraph> FunctionGraphPtr;
-    class TaskContext;
+    class TaskObject;
 
     /**
      * This class represents a function. It has
@@ -113,7 +113,7 @@ namespace RTT
 
         virtual void handleUnload();
 
-        TaskContext* context;
+        TaskObject* context;
     public:
         /**
          * Create a FunctionGraph with a given name.
@@ -127,7 +127,7 @@ namespace RTT
 
         ~FunctionGraph();
 
-        void setProgramTask(TaskContext* mytask);
+        void setProgramTask(TaskObject* mytask);
 
         /**
          * To be called after a function is constructed.

@@ -54,6 +54,7 @@ namespace RTT
     class ParsedStateMachine;
     class ProgramInterface;
     class StateMachineTask;
+    class OperationInterface;
 }
 namespace RTT { namespace detail
 {
@@ -82,7 +83,7 @@ namespace RTT { namespace detail
       TaskContext* context;
       // The TC of the current StateMachine
       StateMachineTask* curcontext ;
-      TaskContext* peer;
+      OperationInterface* peer;
       our_pos_iter_t& mpositer;
       our_pos_iter_t saveStartPos;
       // offset relative to StateMachine text.

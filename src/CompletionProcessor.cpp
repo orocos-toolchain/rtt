@@ -63,6 +63,7 @@ namespace RTT
         if ( !cp )
             {
                 cp.reset( new CompletionProcessor() );
+                cp->start();
             }
         return cp.get();
     }
@@ -80,7 +81,7 @@ namespace RTT
 
     CompletionProcessor::CompletionProcessor()
         : NonPeriodicActivity( OS::LowestPriority + 2* OS::IncreasePriority, 
-                               "CompletionProcessor", this )
+                               "CompletionProcessor", this ) // execute 'BlockingEventProcessor' base class.
     {
         Logger::log() << Logger::Info << "CompletionProcessor created with priority ";
         Logger::log() << this->thread()->getPriority() <<Logger::endl;

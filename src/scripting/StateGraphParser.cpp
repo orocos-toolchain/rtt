@@ -39,7 +39,6 @@
 #include "TaskContext.hpp"
 #include "StateMachineTask.hpp"
 
-
 #include "CommandComposite.hpp"
 #include "Exceptions.hpp"
 #include "AttributeBase.hpp"
@@ -419,10 +418,14 @@ namespace RTT
 
         // seenselect() will use evname to see if event is causing transition
         assert(evname.length());
-        peer    = peerparser->peer();
+        peer    = peerparser->taskObject();
         peerparser->reset();
+
+        if (peer->events()->hasEvent(evname) == false )
+            ORO_THROW( parse_exception_fatal_semantic_error("In state "+curstate->getName()+": Event "+evname+" not found in Task "+peer->getName() ));
+
         argsparser =
-            new ArgumentsParser( *expressionparser, peer,
+            new ArgumentsParser( *expressionparser, context, peer,
                                  evname, "handle" );
         argslist = argsparser->parser();
     }
@@ -465,11 +468,11 @@ namespace RTT
 //             if ( elsestate != 0)
 //                 res = curtemplate->createEventTransition( &(peer->eventService), evname, evargs, curstate, next_state, curcondition->clone(), transProgram, elsestate, elseProgram );
 //             else
+            //cerr << "Registering "<<evname<<" handler for SM."<<endl;
             res = curtemplate->createEventTransition( peer->events(), evname, evargs, curstate, next_state, curcondition->clone(), transProgram );
+            assert( res ); // checked in seeneventname()
             elsestate = 0;
             elseProgram.reset();
-            if (res == false)
-                ORO_THROW( parse_exception_fatal_semantic_error("In state "+curstate->getName()+": Event "+evname+" not found in Task "+peer->getName() ));
         }
     }
 
@@ -527,11 +530,10 @@ namespace RTT
                 ORO_THROW( parse_exception_semantic_error("State " + *it + " not defined, but referenced to."));
         }
 
-        // retrieve all defined variables and parameters, store them and cleanup the
+        // retrieve _all_ defined variables and parameters, store them and cleanup the
         // valuechangeparser.
         valuechangeparser->store( curtemplate->getTaskContext() );
         valuechangeparser->reset();
-
 
         // prepend the commands for initialising the subMachine
         // variables..
@@ -553,8 +555,12 @@ namespace RTT
         for( StateMachine::ChildList::const_iterator it= curtemplate->getChildren().begin();
              it != curtemplate->getChildren().end(); ++it ) {
             ParsedStateMachine* psc = dynamic_cast<ParsedStateMachine*>( it->get() );
-            if (psc)
-                context->removePeer( psc->getTaskContext()->getName() );
+            if (psc) {
+                psc->getTaskContext()->setParent(0);
+                // since context is not the parent of psc, it wil not delete it.
+                context->removeObject( psc->getTaskContext()->getName() );
+            }
+
         }
 
         // finally : 
@@ -670,12 +676,13 @@ namespace RTT
           for( StateMachine::ChildList::const_iterator it= curtemplate->getChildren().begin();
                it != curtemplate->getChildren().end(); ++it ) {
               ParsedStateMachine* psc = dynamic_cast<ParsedStateMachine*>( it->get() );
-              if (psc)
-                  context->removePeer( psc->getTaskContext()->getName() );
+              //if (psc) {
+              //    context->removeObject( psc->getTaskContext()->getName() );
+              //}
           }
 
           // remove the type from __states
-          context->getPeer("__states")->removePeer( curtemplate->getTaskContext()->getName() ) ;
+          //context->getPeer("__states")->removeObject( curtemplate->getTaskContext()->getName() ) ;
 
           // will also delete all children : 
           curtemplate.reset();
@@ -719,20 +726,19 @@ namespace RTT
         }
 
         // check if the type exists already :
-        if ( __s->hasPeer( curcontextname ) )
-            ORO_THROW( parse_exception_semantic_error("State Context " + curcontextname + " redefined."));
+        if ( context->getObject( curcontextname ) || __s->getObject( curcontextname ) )
+            ORO_THROW( parse_exception_semantic_error("StateMachine " + curcontextname + " redefined."));
 
         curtemplate.reset(new ParsedStateMachine());
         // Connect the new SC to the relevant contexts.
         // 'sc' acts as a stack for storing variables.
         curcontext = new StateMachineTask(curtemplate, context->engine() );
         curcontext->setName( curcontextname );
-        __s->addPeer( curcontext );   // store in __states.
+        __s->addObject( curcontext );   // store in __states.
+        curcontext->setParent(0);
         curtemplate->setTaskContext( curcontext ); // store.
+        curtemplate->setEventProcessor( context->engine()->events() ); //handle events in TaskContext.
         
-        // add the 'task' peer :
-        curcontext->addPeer( context, "task" );
-
         // we pass the plain file positer such that parse errors are
         // refering to correct file line numbers.
         progParser = new ProgramGraphParser(mpositer, context);
@@ -789,21 +795,11 @@ namespace RTT
         // furthermore, it adds the TC of each child as peer TC to the parent.
         curinstantiatedcontext->setName( curinstcontextname, true );
 
-        // add it to the "states" (all instantiated) of the current context :
-        TaskContext* __s = context->getPeer("states");
-        if ( __s == 0 ) {
-            // install the __states if not yet present.
-            __s = new TaskContext("states", context->engine() );
-            __s->clear();
-            context->addPeer( __s );
-            __s->addPeer(context, "task");
-        }
-
         // check if the type exists already :
-        if ( __s->hasPeer( curinstcontextname ) )
-            ORO_THROW( parse_exception_semantic_error("Task '"+context->getName()+"' has already a State Context '" + curinstcontextname + "' ."));
-        __s->connectPeers( curinstantiatedcontext->getTaskContext() );
-        curinstantiatedcontext->getTaskContext()->addPeer(context, "task");
+        if ( context->getObject( curinstcontextname ) )
+            ORO_THROW( parse_exception_semantic_error("TaskContext '"+context->getName()+"' has already an Object named '" + curinstcontextname + "' ."));
+
+        context->addObject( curinstantiatedcontext->getTaskContext() );
 
         curinstantiatedcontext.reset();
         curinstcontextname.clear();
@@ -819,14 +815,16 @@ namespace RTT
         // make each subMachine a peer of the task so that we can access
         // its methods.
 
-        if ( !context->addPeer( curinstantiatedcontext->getTaskContext() ) )
+        if ( !context->addObject( curinstantiatedcontext->getTaskContext() ) )
             ORO_THROW( parse_exception_semantic_error(
                 "Name clash: name of instantiated context \"" + curinstcontextname +
-                "\"  already used as peer name in task '"+context->getName()+"'." ));
-            
+                "\"  already used as object name in task '"+context->getName()+"'." ));
+        // this trick sets the parent back to zero, such that the next call to addObject on curtemplate
+        // will re-set the parent. We will removeObject on 'context' lateron.
+        curinstantiatedcontext->getTaskContext()->setParent(0);
 
         curtemplate->addChild( curinstantiatedcontext );
-        curtemplate->getTaskContext()->addPeer( curinstantiatedcontext->getTaskContext() );
+        curtemplate->getTaskContext()->addObject( curinstantiatedcontext->getTaskContext() );
         // we add this statecontext to the list of variables, so that the
         // user can refer to it by its name...
         //detail::ParsedAlias<std::string>* pv = new detail::ParsedAlias<std::string>( curinstantiatedcontext->getNameDS() );
@@ -945,6 +943,7 @@ namespace RTT
         std::vector<CommandInterface*> acv = valuechangeparser->assignCommands();
         for(std::vector<CommandInterface*>::iterator it = acv.begin(); it!=acv.end(); ++it)
             varinitcommands.push_back( *it );
+        // this only clears the last parsed variables, not the 'store' (see reset())
         valuechangeparser->clear();
     }
 
@@ -954,6 +953,7 @@ namespace RTT
         assert( pnames.size() == tbases.size() );
         for (unsigned int i = 0; i < pnames.size(); ++i)
             curtemplate->addParameter( pnames[i] , tbases[i] );
+        // this only clears the last parsed variables, not the 'store'  (see reset())
         valuechangeparser->clear();
     }
 

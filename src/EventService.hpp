@@ -93,7 +93,9 @@ namespace RTT
         EventService( EventProcessor* ep = 0 );
 
         EventProcessor* getEventProcessor();
-            
+
+        void setEventProcessor(EventProcessor* ep);
+
         /** 
          * Add an Event to the event interface. This version
          * of addEvent only adds \a e to the C++ interface and

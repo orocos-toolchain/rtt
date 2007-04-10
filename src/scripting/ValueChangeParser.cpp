@@ -29,9 +29,11 @@
 #include "parse_exception.hpp"
 #include "ValueChangeParser.hpp"
 
-#include "TaskContext.hpp"
+#include "OperationInterface.hpp"
 #include "Types.hpp"
 #include "Attribute.hpp"
+#include "../TaskContext.hpp"
+//#include "DumpObject.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/lambda/bind.hpp>
@@ -67,8 +69,9 @@ namespace RTT
     }
 
 
-    ValueChangeParser::ValueChangeParser( TaskContext* pc )
-        : type( 0 ), context( pc ), expressionparser( pc ), peerparser( pc ), sizehint(-1),
+    ValueChangeParser::ValueChangeParser( TaskContext* pc, OperationInterface* storage )
+        : type( 0 ), context( pc ), mstore( storage ? storage : pc ), 
+          expressionparser( pc ), peerparser( pc ), sizehint(-1),
           typerepos( TypeInfoRepository::Instance() )
     {
         BOOST_SPIRIT_DEBUG_RULE( constantdefinition );
@@ -197,7 +200,7 @@ namespace RTT
                     ("Attempt to initialize a const "+type->getTypeName()+" with a "+expr->getTypeName()+"." );
             }
 
-        context->attributes()->setValue( var );
+        mstore->attributes()->setValue( var );
         definedvalues.push_back( var );
         definednames.push_back( valuename );
         alldefinednames.push_back( valuename );
@@ -206,7 +209,7 @@ namespace RTT
     void ValueChangeParser::storedefinitionname( iter_t begin, iter_t end )
     {
         std::string name( begin, end );
-        if ( context->attributes()->getValue( name ) ) {
+        if ( mstore->attributes()->getValue( name ) ) {
             this->cleanup();
             throw parse_exception_semantic_error( "Identifier \"" + name +
                                                   "\" is already defined." );
@@ -235,7 +238,7 @@ namespace RTT
             throw parse_exception_semantic_error(
                                                  "Attempt to define an alias of type "+type->getTypeName()+" to an expression of type "+expr->getTypeName()+"." );
         }
-        context->attributes()->setValue( alias );
+        mstore->attributes()->setValue( alias );
         definedvalues.push_back( alias );
         definednames.push_back( valuename );
         alldefinednames.push_back( valuename );
@@ -253,7 +256,7 @@ namespace RTT
         else {
             var = type->buildVariable(valuename,sizehint);
         }
-        context->attributes()->setValue( var );
+        mstore->attributes()->setValue( var );
         definedvalues.push_back( var );
         definednames.push_back( valuename );
         alldefinednames.push_back( valuename );
@@ -286,7 +289,7 @@ namespace RTT
         else {
             var = type->buildVariable(valuename,sizehint);
         }
-        context->attributes()->setValue( var );
+        mstore->attributes()->setValue( var );
         definedvalues.push_back( var );
         definednames.push_back( valuename );
         alldefinednames.push_back( valuename );
@@ -323,7 +326,7 @@ namespace RTT
         AttributeBase* var = 0;
         PropertyBase*     prop = 0;
 
-        TaskContext* peername = peerparser.peer();
+        OperationInterface* peername = peerparser.taskObject();
         peerparser.reset();
  
         // if bag is non-null, 'valuename' must be one of its properties :
@@ -334,7 +337,7 @@ namespace RTT
             // taskattributebase assignment commands lateron.
             prop = propparser.bag()->find( valuename );
             if ( prop == 0 )
-                throw parse_exception_semantic_error( "In "+context->getName()+": Property \"" + valuename + "\" not defined in nested PropertyBag '"+propparser.property()->getName()+"' of TaskContext '"+peername->getName()+"'." );
+                throw parse_exception_semantic_error( "In "+context->getName()+": Property \"" + valuename + "\" not defined in nested PropertyBag '"+propparser.property()->getName()+"' of TaskObject '"+peername->getName()+"'." );
 
             propparser.reset();
         } else {
@@ -348,8 +351,10 @@ namespace RTT
                 // the DS still points to the peer's attribute, and not to a new copy. Attribute and Properties
                 // takes care of this by definition, but the variable of a loaded StateMachine or program
                 // must first get an instantiation-copy() before they become uncopyable. 
-                if ( !var )
+                if ( !var ) {
+                    //DumpObject( context );
                     throw parse_exception_semantic_error(  "In "+context->getName()+": Attribute \"" + valuename + "\" not defined in task '"+peername->getName()+"'." );
+                }
             }
         }
 
@@ -417,7 +422,7 @@ namespace RTT
                 assigncommands.push_back(assigncommand);
                 // if null, not allowed.
                 if ( ! assigncommand )
-                    throw parse_exception_semantic_error( "Cannot set constant or alias \"" + valuename + "\" in TaskContext "+ peername->getName()+"." );
+                    throw parse_exception_semantic_error( "Cannot set constant or alias \"" + valuename + "\" in OperationInterface "+ peername->getName()+"." );
             }
             catch( const bad_assignment& e )
                 {
@@ -467,11 +472,11 @@ namespace RTT
         //assert( !expressionparser.hasResult() );
     }
 
-    void ValueChangeParser::store(TaskContext* o)
+    void ValueChangeParser::store(OperationInterface* o)
     {
         for(std::vector<std::string>::iterator it = alldefinednames.begin();
             it != alldefinednames.end(); ++it) {
-            o->attributes()->setValue( context->attributes()->getValue(*it)->clone() );
+            o->attributes()->setValue( mstore->attributes()->getValue(*it)->clone() );
         }
     }
 
@@ -494,7 +499,7 @@ namespace RTT
         // erase/delete added values from the context:
         for(std::vector<std::string>::iterator it = alldefinednames.begin();
             it != alldefinednames.end(); ++it) {
-            context->attributes()->removeValue( *it );
+            mstore->attributes()->removeValue( *it );
         }
         alldefinednames.clear();
         this->cleanup();

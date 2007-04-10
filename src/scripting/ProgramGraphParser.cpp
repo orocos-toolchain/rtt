@@ -209,7 +209,7 @@ namespace RTT
 
   }
   
-    void ProgramGraphParser::initBodyParser(const std::string& name, TaskContext* stck, int offset) {
+    void ProgramGraphParser::initBodyParser(const std::string& name, OperationInterface* stck, int offset) {
         ln_offset = offset;
         assert(program_builder != 0 );
         program_builder->startFunction(name);
@@ -233,7 +233,7 @@ namespace RTT
         return program_builder->endFunction( mpositer.get_position().line - ln_offset );
     }
 
-    void ProgramGraphParser::setStack(TaskContext* st) {
+    void ProgramGraphParser::setStack(OperationInterface* st) {
         context = st;
     }
 
@@ -284,24 +284,14 @@ namespace RTT
 
       std::string def(begin, end);
 
-      TaskContext* __p = rootc->getPeer("programs");
-      if ( __p == 0 ) {
-          // install the "programs" if not yet present.
-          __p = new TaskContext("programs", rootc->engine() ); // this is leaked...
-          __p->clear();
-          rootc->addPeer( __p );
-          __p->addPeer(rootc, "task");
-      }
-
-      if ( __p->hasPeer( def ) )
-          throw parse_exception_semantic_error("Program '" + def + "' redefined in task '"+rootc->getName()+"'.");
+      if ( rootc->getObject( def ) != 0 )
+          throw parse_exception_semantic_error("Object with name '" + def + "' already present in task '"+rootc->getName()+"'.");
 
       FunctionGraphPtr pi(program_builder->startFunction( def ));
       ProgramTask* ptsk(new ProgramTask( pi, rootc->engine() ));
       pi->setProgramTask(ptsk);
       context = ptsk;
-      __p->connectPeers( context );
-      context->addPeer(rootc,"task"); // alias
+      rootc->addObject( ptsk );
   }
 
   void ProgramGraphParser::programtext( iter_t begin, iter_t end )
@@ -337,8 +327,7 @@ namespace RTT
 
       // Connect the new function to the relevant contexts.
       // 'fun' acts as a stack for storing variables.
-      fcontext = context = new TaskContext(funcdef, rootc->engine() );
-      context->addPeer(rootc,"task");
+      context = fcontext = new TaskContext(funcdef, rootc->engine() );
   }
 
   void ProgramGraphParser::seenfunctionarg()
@@ -425,7 +414,7 @@ namespace RTT
       mcallfunc = mfuncs[ fname ];
 
       // Parse the function's args in the programs context.
-      argsparser = new ArgumentsParser( expressionparser, rootc,
+      argsparser = new ArgumentsParser( expressionparser, rootc, rootc,
                                         "this", fname );
       arguments = argsparser->parser();
 
