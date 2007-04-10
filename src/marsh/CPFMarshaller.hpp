@@ -38,154 +38,78 @@
 #ifndef PI_PROPERTIES_CPFSERIALIZER
 #define PI_PROPERTIES_CPFSERIALIZER
 
-#include <iostream>
-#include <vector>
-#include <map>
+#include <ostream>
+#include <fstream>
 #include <string>
-#include <Property.hpp>
-#include <PropertyIntrospection.hpp>
+#include "../Property.hpp"
+#include "../PropertyIntrospection.hpp"
 #include "StreamProcessor.hpp"
 
 namespace RTT
 {
+
+    template<class T>
+    class CPFMarshaller;
+
     /**
      * A class for marshalling a property or propertybag into a
      * component property description, following the CORBA 3 standard.
      * @see CPFDemarshaller for reading the result back in.
      */
-    template<typename output_stream>
-    class CPFMarshaller 
-        : public Marshaller, protected PropertyIntrospection, public StreamProcessor<output_stream>
+    template<>
+    class CPFMarshaller<std::ostream>
+        : public Marshaller,
+          protected PropertyIntrospection,
+          public StreamProcessor<std::ostream>
     {
+        std::fstream mfile;
         /**
          * Write-out formatting of a property.
          */
         template<class T>
-        void doWrite( const Property<T> &v, const std::string& type )
-        { 
-            *(this->s)<<indent << "<simple name=\"" << this->escape( v.getName() ) << "\" type=\""<< type <<"\">";
-            if ( !v.getDescription().empty() )
-                *(this->s) << "<description>"<< this->escape( v.getDescription() ) << "</description>";
-            *(this->s) << "<value>" << v.get() << "</value></simple>\n";
-        }
+        void doWrite( const Property<T> &v, const std::string& type );
 
         /**
          * Specialisation in case of a string.
          */
-        void doWrite( const Property<std::string> &v, const std::string& type )
-        { 
-            *(this->s)<<indent << "<simple name=\"" << this->escape( v.getName() ) << "\" type=\""<< type <<"\">";
-            if ( !v.getDescription().empty() )
-                *(this->s) << "<description>"<< this->escape( v.getDescription() ) << "</description>";
-            *(this->s) << "<value>" << this->escape( v.get() ) << "</value></simple>\n";
-        }
+        void doWrite( const Property<std::string> &v, const std::string& type );
 
         std::string indent;
 
-        std::string escape(std::string s)
-        {
-            std::string::size_type n=0;
-            // replace amps first.
-            while ((n = s.find("&",n)) != s.npos) {
-                s.replace(n, 1, std::string("&amp;"));
-                n += 5;
-            }
+        std::string escape(std::string s);
 
-            n=0;
-            while ((n = s.find("<",n)) != s.npos) {
-                s.replace(n, 1, std::string("&lt;"));
-                n += 4;
-            }
+        virtual void introspect(PropertyBase* pb);
 
-            n=0;
-            while ((n = s.find(">",n)) != s.npos) {
-                s.replace(n, 1, std::string("&gt;"));
-                n += 4;
-            }
+        virtual void introspect(Property<bool> &v);
 
-            // TODO: Added escapes for other XML entities
-            return s;
-        }
+        virtual void introspect(Property<char> &v);
 
-        virtual void introspect(PropertyBase* pb)
-        {
-            PropertyIntrospection::introspect( pb );
-        }
-
-        virtual void introspect(Property<bool> &v) 
-        { 
-            doWrite( v, "boolean");
-        }
-
-        virtual void introspect(Property<char> &v) 
-        { 
-            doWrite( v, "char");
-        }
-
-        virtual void introspect(Property<int> &v) 
-        { 
-            doWrite( v, "long");
-        }
+        virtual void introspect(Property<int> &v);
 			
-        virtual void introspect(Property<unsigned int> &v) 
-        { 
-            doWrite( v, "ulong");
-        }
+        virtual void introspect(Property<unsigned int> &v);
 			
-        virtual void introspect(Property<double> &v) 
-        {
-            doWrite( v, "double");
-        }
+        virtual void introspect(Property<double> &v);
 
-        virtual void introspect(Property<std::string> &v) 
-        {
-            doWrite( v, "string");
-        }
+        virtual void introspect(Property<std::string> &v);
 			
-        virtual void introspect(Property<PropertyBag> &b) 
-        {
-            PropertyBag v = b.get();
-            *(this->s) <<indent<<"<struct name=\""<<escape(b.getName())<<"\" type=\""<< escape(v.getType())<< "\">\n";
-            indent +="   ";
-            if ( !b.getDescription().empty() )
-                *(this->s) <<indent<<"<description>"  <<escape(b.getDescription()) << "</description>\n";
-
-            b.value().identify(this);
-
-            indent = indent.substr(0, indent.length()-3); 
-            *(this->s) <<indent<<"</struct>\n";
-        }
+        virtual void introspect(Property<PropertyBag> &b);
 
     public:
         /**
-         * Construct a CPFMarshaller.
+         * Construct a CPFMarshaller from a stream.
          */
-        CPFMarshaller(output_stream &os) :
-            StreamProcessor<output_stream>(os), indent("  ")
-        {
-        }
+        CPFMarshaller(std::ostream &os);
 
-        virtual void serialize(PropertyBase* v)
-        {
-            v->identify( this );
-        }
+        /**
+         * Construct a CPFMarshaller from a file.
+         */
+        CPFMarshaller(const std::string& filename);
 
-        virtual void serialize(const PropertyBag &v) 
-        {
-            *(this->s) <<"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                       <<"<!DOCTYPE properties SYSTEM \"cpf.dtd\">\n";
-            *(this->s) <<"<properties>\n";
+        virtual void serialize(PropertyBase* v);
 
-            v.identify(this);
+        virtual void serialize(const PropertyBag &v);
 
-            *(this->s) << "</properties>\n";
-        }
-
-        virtual void flush()
-        {
-            this->s->flush();
-        }
-            
+        virtual void flush();
 	};
 }
 #endif

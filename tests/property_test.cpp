@@ -24,6 +24,8 @@
 #include "property_test.hpp"
 #include <boost/bind.hpp>
 #include <PropertyBagIntrospector.hpp>
+#include "marsh/PropertyMarshaller.hpp"
+#include "marsh/PropertyDemarshaller.hpp"
 #include <rtt-config.h>
 
 // Registers the fixture into the 'registry'
@@ -287,4 +289,48 @@ void PropertyTest::testUpdate()
     CPPUNIT_ASSERT( res->getName() == "p1" );
     CPPUNIT_ASSERT( res->get() == -1 );
     
+}
+
+// This test does not yet test all types !
+void PropertyTest::testPropMarsh()
+{
+    std::string filename = ".property_test.cpf";
+
+    PropertyBag source; // to file
+    PropertyBag target; // from file
+
+    Property<PropertyBag> b1("b1","b1d");
+    Property<PropertyBag> b2("b2","b2d");
+    Property<int> p1("p1","p1d",-1);
+
+    // setup source tree
+    source.addProperty( &b1 );
+    b1.value().addProperty( &b2 );
+    b2.value().addProperty( &p1 );
+
+    {
+        // scope required such that file is closed
+        PropertyMarshaller pm( filename );
+        pm.serialize( source );
+    }
+
+    {
+        // scope required such that file is closed
+        PropertyDemarshaller pd( filename );
+        CPPUNIT_ASSERT( pd.deserialize( target ) );
+    }
+
+    Property<PropertyBag> bag = target.getProperty<PropertyBag>("b1");
+    CPPUNIT_ASSERT( bag.ready() );
+    CPPUNIT_ASSERT( bag.getDescription() == "b1d" );
+
+    bag = bag.rvalue().getProperty<PropertyBag>("b2");
+    CPPUNIT_ASSERT( bag.ready() );
+    CPPUNIT_ASSERT( bag.getDescription() == "b2d" );
+
+    Property<int> pi = bag.rvalue().getProperty<int>("p1");
+    CPPUNIT_ASSERT( pi.ready() );
+    CPPUNIT_ASSERT( pi.get() == -1 );
+    CPPUNIT_ASSERT( pi.getDescription() == "p1d" );
+
 }

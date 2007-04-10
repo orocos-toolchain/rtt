@@ -38,8 +38,8 @@
 #ifndef PI_PROPERTIES_OROCOS1_MARSHALLER
 #define PI_PROPERTIES_OROCOS1_MARSHALLER
 
-#include <Property.hpp>
-#include <PropertyIntrospection.hpp>
+#include "../Property.hpp"
+#include "../PropertyIntrospection.hpp"
 
 #include <sstream>
 

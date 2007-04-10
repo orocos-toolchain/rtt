@@ -38,8 +38,8 @@
 #ifndef PI_PROPERTIES_OROCOS1_DEMARSHALLER
 #define PI_PROPERTIES_OROCOS1_DEMARSHALLER
 
-#include <Property.hpp>
-#include <Marshaller.hpp>
+#include "../Property.hpp"
+#include "../Marshaller.hpp"
 #include <istream>
 
 

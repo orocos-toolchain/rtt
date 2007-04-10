@@ -38,8 +38,8 @@
 #ifndef PI_PROPERTIES_XMLDESERIALIZER
 #define PI_PROPERTIES_XMLDESERIALIZER
 
-#include <Property.hpp>
-#include <Marshaller.hpp>
+#include "../Property.hpp"
+#include "../Marshaller.hpp"
 
 namespace RTT
 {

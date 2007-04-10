@@ -1,4 +1,4 @@
-/***************************************************************************
+'/***************************************************************************
   tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  SimpleDemarshaller.hpp 
 
                         SimpleDemarshaller.hpp -  description
@@ -38,7 +38,7 @@
 #ifndef PI_PROPERTIES_SIMPLE_DEMARSHALLER
 #define PI_PROPERTIES_SIMPLE_DEMARSHALLER
 
-#include <Property.hpp>
+#include "../Property.hpp"
 
 #include <vector>
 #include <map>

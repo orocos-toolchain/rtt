@@ -38,8 +38,8 @@
 #ifndef PI_PROPERTIES_TABLEHEADER_SERIALIZER
 #define PI_PROPERTIES_TABLEHEADER_SERIALIZER
 
-#include <Property.hpp>
-#include <PropertyIntrospection.hpp>
+#include "../Property.hpp"
+#include "../PropertyIntrospection.hpp"
 #include "StreamProcessor.hpp"
 
 namespace RTT

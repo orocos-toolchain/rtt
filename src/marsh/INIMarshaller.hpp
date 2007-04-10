@@ -42,8 +42,8 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <Property.hpp>
-#include <PropertyIntrospection.hpp>
+#include "../Property.hpp"
+#include "../PropertyIntrospection.hpp"
 
 namespace RTT
 {

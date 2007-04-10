@@ -39,8 +39,8 @@
 #ifndef PI_PROPERTIES_EMPTYHEADER_SERIALIZER
 #define PI_PROPERTIES_EMPTYHEADER_SERIALIZER
 
-#include <Property.hpp>
-#include <PropertyIntrospection.hpp>
+#include "../Property.hpp"
+#include "../PropertyIntrospection.hpp"
 #include "StreamProcessor.hpp"
 
 namespace RTT
