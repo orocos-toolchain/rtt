@@ -294,7 +294,6 @@ namespace RTT
 
         // if inloop and breakloop does not work, sorry.
         {
-            MutexLock lock(breaker);
             runloop = false;
             if ( inloop ) { 
                 if ( !this->breakLoop() ) {
@@ -303,6 +302,8 @@ namespace RTT
                 }
                 // breakLoop was ok, wait for loop() to return.
             }
+            // always take this lock, but after breakLoop was called !
+            MutexLock lock(breaker);
         }
 
         // from this point on, inloop == false
