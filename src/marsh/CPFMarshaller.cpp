@@ -110,7 +110,7 @@ namespace RTT
 
     CPFMarshaller<std::ostream>::CPFMarshaller(const std::string& filename)
         : StreamProcessor<std::ostream>(mfile), 
-          mfile(filename.c_str()),
+          mfile(filename.c_str(), std::fstream::out),
           indent("  ")
     {
         if ( !mfile ) {
