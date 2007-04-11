@@ -4,7 +4,7 @@
 "/usr/share/sgml/docbook/dtd/xml/4.1.2/docbookx.dtd" 
 [
 <!ENTITY cvs         "<acronym>CVS</acronym>">
-<!ENTITY orocos      "<acronym>Orocos</acronym>">
+<!ENTITY orocos      "<acronym>Orocos</acronym> <acronym>RTT</acronym>">
 <!ENTITY rtai        "<acronym>RTAI</acronym>">
 <!ENTITY rtos        "<acronym>RTOS</acronym>">
 ]
@@ -45,7 +45,7 @@ Alex Russell
 <article class="faq">
   <articleinfo>
     <title>
-      Orocos Frequently Asked Questions (FAQ)
+      &orocos; Frequently Asked Questions (FAQ)
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis>
     </subtitle>
@@ -95,7 +95,7 @@ Alex Russell
     <abstract>
       <para>
 	This document provides answers to frequently asked questions (faq) about
-	Orocos installation, configuration and usage.
+	installing, configuration and usage of the Real-Time Toolkit.
       </para>
     </abstract>
   </articleinfo>
@@ -121,28 +121,28 @@ Alex Russell
       </qandaentry>
       <qandaentry>
 	<question>
-	  <para>Where can a find a quick overview of what features Orocos currently has ?</para>
+	  <para>Where can a find a quick overview of what features the Real-Time Tookit currently has ?</para>
 	</question>
 	<answer>
 	  <para>
 	    In the <ulink
-	      url="http://www.orocos.org/documents/OrocosOverview-05-05.pdf">10 Minutes Orocos Overview</ulink> 
+	      url="http://www.orocos.org/documents/OrocosIn3Slides.pdf">Orocos in 3 slides Overview</ulink> 
 	    Presentation.
 	  </para>
 	</answer>
       </qandaentry>
       <qandaentry>
 	<question>
-	  <para>Where can I find the latest Orocos documentation?</para>
+	  <para>Where can I find the latest RTT documentation?</para>
 	</question>
 	<answer>
 	  <para>
 	    In the <ulink
-	      url="http://www.orocos.org/documentation.html">
-	      Documentation Section </ulink> of the Orocos website,
+	      url="http://www.orocos.org/rtt/manuals">
+	      Manuals Section </ulink> of the Orocos website,
 	    you can find all online documents (and this FAQ). Also,
 	    the <ulink url="http://www.orocos.org/rtt"> RTT
-	      Users Section </ulink> contains links to the manuals.
+	      Documentation Section </ulink> contains links to the manuals.
 	  </para>
 	</answer>
       </qandaentry>
@@ -161,23 +161,11 @@ Alex Russell
       </qandaentry>
       <qandaentry>
 	<question>
-	  <para>Where can I find the software manuals?</para>
-	</question>
-	<answer>
-	  <para>
-	    In the <ulink url="http://www.orocos.org/rtt"> RTT
-	      Users Section</ulink> of the Orocos website for each
-	      use of Orocos.
-	  </para>
-	</answer>
-      </qandaentry>
-      <qandaentry>
-	<question>
 	  <para>Where can I ask Orocos software related questions (even newbie questions) ?</para>
 	</question>
 	<answer>
 	  <para>
-	    On the <ulink url="http://lists.mech.kuleuven.ac.be/mailman/listinfo/orocos-dev">
+	    On the <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos-dev">
 	      Orocos-dev mailinglist</ulink> (medium traffic).
 	  </para>
 	</answer>
@@ -188,21 +176,21 @@ Alex Russell
 	</question>
 	<answer>
 	  <para>
-	    On the <ulink url="http://lists.mech.kuleuven.ac.be/mailman/listinfo/orocos">
+	    On the <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos">
 	      Orocos mailinglist</ulink> ( low traffic ).
 	  </para>
 	</answer>
       </qandaentry>
     </qandadiv>
     <qandadiv>
-      <title>Configuring and Compiling Orocos</title>
+      <title>Configuring and Compiling &orocos;</title>
       <qandaentry>
 	<question>
 	  <para>Where can I find the latest configuration instructions?</para>
 	</question>
 	<answer>
 	  <para>In the <ulink url="orocos-installation.html">
-	    Orocos Installation Manual</ulink>. </para>
+	    Orocos RTT Installation Manual</ulink>. </para>
 	</answer>
       </qandaentry>
       <qandaentry>
@@ -210,7 +198,7 @@ Alex Russell
 	  <para>Which Linux version should I use?</para>
 	</question>
 	<answer>
-	  <para>Orocos works with <ulink url="http://www.kernel.org">
+	  <para>The RTT works with <ulink url="http://www.kernel.org">
 	      vanilla </ulink> Linux 2.4 and 2.6 kernels.</para>
 	</answer>
       </qandaentry>
@@ -220,9 +208,9 @@ Alex Russell
 	</question>
 	<answer>
 	  <para>
-	    Orocos works with RTAI 3.0r5 ( you need to apply a <ulink
+	    The RTT works with RTAI 3.0r5 ( you need to apply a <ulink
 	      url="http://people.mech.kuleuven.ac.be/~psoetens/orocos/patches/rtai-3.0rx.patch">patch</ulink> if you use 3.0r(1-4)
-	    ), RTAI 3.1, 3.2 and 3.3 (no patching required).
+	    ), RTAI 3.1, 3.2, 3.3 and 3.4 (no patching required).
 	  </para>
 	</answer>
       </qandaentry>
@@ -295,7 +283,7 @@ Alex Russell
       </qandaentry>
       <qandaentry>
 	<question>
-	  <para>How can I change which files get compiled in Orocos ?</para>
+	  <para>How can I change which files get compiled in the RTT ?</para>
 	</question>
 	<answer>
 	  <para>
@@ -311,11 +299,11 @@ Alex Russell
       </qandaentry>
       <qandaentry>
 	<question>
-	  <para>What are the system requirements of Orocos?</para>
+	  <para>What are the system requirements of &orocos;?</para>
 	</question>
 	<answer>
 	  <para>
-	    For compiling Orocos, you need a very fast machine with minimum 256MB RAM,
+	    For compiling the RTT, you need a very fast machine with minimum 256MB RAM,
 	    and 512MB RAM to be comfortable.
 	  </para>
 	</answer>
@@ -330,16 +318,17 @@ Alex Russell
       </qandaentry>
     </qandadiv>
     <qandadiv>
-      <title>Testing Orocos</title>
+      <title>Testing &orocos;</title>
       <qandaentry>
 	<question>
 	  <para>Where can I find a quick demo application ?</para>
 	</question>
 	<answer>
 	  <para>
-	    You can download the Orocos Component Library (OCL),
-	    install it and check out the examples you can download 
-	    on the Orocos RTT page as well.
+	    You can download the <ulink
+	    url="http://www.orocos.org/ocl">Orocos Component Library
+	    (OCL)</ulink>, install it and check out the examples you
+	    can download on the Orocos RTT page as well.
 	  </para>
 	</answer>
       </qandaentry>
@@ -356,7 +345,7 @@ Alex Russell
       </qandaentry>
     </qandadiv>
     <qandadiv>
-      <title>Runtime Problems/Crashes with Orocos</title>
+      <title>Runtime Problems/Crashes with &orocos;</title>
       <para>
 	This section covers 'general' causes of crashes.
 	If you are using RTAI, also check out the next Section.
@@ -416,7 +405,7 @@ $ ldd core-test
       </qandaentry>
       <qandaentry>
 	<question>
-	  <para>Orocos hangs after the first threads are created !</para>
+	  <para>&orocos; hangs after the first threads are created !</para>
 	</question>
 	<answer>
 	  <para>Check if the LXRT userspace tests work. Orocos should be compiled
@@ -456,7 +445,7 @@ $ ldd core-test
 	<answer>
 	  <para>
 	    Well, that is not a question really, but anyway...
-	    Did you read the section about <ulink url="orocos-components-manual.html#core-priority-inversions"> Priority Inversions </ulink> in the Orocos CoreLib Manual ? 
+	    Did you read the section about <ulink url="orocos-components-manual.html#core-priority-inversions"> Priority Inversions </ulink> in the RTT CoreLib Manual ? 
 	  </para>
 	</answer>
 	<answer>
@@ -476,7 +465,7 @@ $ ldd core-test
 	</question>
 	<answer>
 	  <para>
-	    The Orocos testcases test the system to its limits and may
+	    The RTT testcases test the system to its limits and may
 	    crash RTAI if not properly configured. Especially RTAI 3.0
 	    and older.  Also, verify that the RTAI/LXRT (aka
 	    'userspace') test programs work before blaming Orocos. Choosing
@@ -539,10 +528,10 @@ $ ldd core-test
       </qandaentry>
       <qandaentry>
 	<question>
-	  <para>Is Orocos Portable ?</para>
+	  <para>Is the &orocos; Portable ?</para>
 	</question>
 	<answer>
-	  <para>The minimum requirements for running Orocos on a
+	  <para>The minimum requirements for running the RTT on a
 	  different target are for the CPU : floating point unit (FPU)
 	  or FPU emulation (will degrade performance),
 	  compare-and-swap instruction ( CAS, cmpxch ), and is
@@ -551,8 +540,8 @@ $ ldd core-test
 	  Template Library, periodic threads, semaphores and recursive
 	  mutexes.</para>
 	  <para>
-	    Orocos has a very thin wrapper around the above OS functions in the 'OS'
-	    package, this is the only place of Orocos you need to port, where the
+	    The RTT has a very thin wrapper around the above OS functions in the 'OS'
+	    package, this is the only place of the RTT you need to port, where the
 	    'gnulinux' package is a good starting point if you intend to port to a
 	    Posix compliant OS. See also
 	    <ulink url="orocos-components-manual.html#orocos-os">The OS Reference</ulink>.
@@ -566,7 +555,7 @@ $ ldd core-test
 	<answer>
 	  <para>The eCos Operating System (and all its supported processors)
 	  and the ACE library (and all its supported OS's). The Orocos developers
-	  are very willing to assist you in porting Orocos to your Operating System.
+	  are very willing to assist you in porting the RTT to your Operating System.
 	  </para>
 	</answer>
       </qandaentry>
