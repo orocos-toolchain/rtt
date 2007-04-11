@@ -124,7 +124,7 @@ STRIP_FROM_PATH        =
 # definition is used. Otherwise one should specify the include paths that 
 # are normally passed to the compiler using the -I flag.
 
-STRIP_FROM_INC_PATH    = 
+STRIP_FROM_INC_PATH    = @CMAKE_CURRENT_BINARY_DIR@
 
 # If the SHORT_NAMES tag is set to YES, doxygen will generate much shorter 
 # (but less readable) file names. This can be useful is your file systems 
@@ -459,7 +459,7 @@ WARN_LOGFILE           = doxygen.warnings
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = ../src/Orocos.Main.hpp ../src
+INPUT                  = rtt rtt/Orocos.Main.hpp
 
 # If the value of the INPUT tag contains directories, you can use the 
 # FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
@@ -483,7 +483,7 @@ RECURSIVE              = YES
 # excluded from the INPUT source files. This way you can easily exclude a 
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
-EXCLUDE                = *.Main.hpp ../src/boost ../src/impl
+EXCLUDE                = rtt/boost rtt/impl
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or 
 # directories that are symbolic links (a Unix filesystem feature) are excluded 
@@ -1099,7 +1099,7 @@ HIDE_UNDOC_RELATIONS   = YES
 # toolkit from AT&T and Lucent Bell Labs. The other options in this section 
 # have no effect if this option is set to NO (the default)
 
-HAVE_DOT               = @ORODOT@
+HAVE_DOT               = NO
 
 # If the CLASS_GRAPH and HAVE_DOT tags are set to YES then doxygen 
 # will generate a graph for each documented class showing the direct and 
@@ -1243,7 +1243,7 @@ GENERATE_LEGEND        = YES
 # remove the intermediate dot files that are used to generate 
 # the various graphs.
 
-DOT_CLEANUP            = NO
+DOT_CLEANUP            = YES
 
 #---------------------------------------------------------------------------
 # Configuration::additions related to the search engine   

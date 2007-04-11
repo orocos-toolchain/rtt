@@ -114,6 +114,9 @@ CONFIGURE_FILE( orocos-rtt.pc.in orocos-rtt.pc @ONLY)
 INSTALL_FILES( /lib/pkgconfig FILES orocos-rtt.pc)
 CONFIGURE_FILE(Doxyfile.in Doxyfile @ONLY)
 
+# provide a link to src. Used by Doxygen.
+EXECUTE_PROCESS(COMMAND ln -s ${CMAKE_CURRENT_SOURCE_DIR}/src rtt)
+
 ############################################################
 ##                                                         #
 ## Setup PACKAGING                                         #
