@@ -50,40 +50,65 @@
          <classname>Namespace::Classname</classname>
      Otherwise, the default docbook style is applied.
 -->
-  <xsl:variable name="orocos.doxygen.path" select="'../api/html'" />
+  <xsl:variable name="orocos.doxygen.path.rtt" select="'../api/html'" />
+  <xsl:variable name="orocos.doxygen.path.ocl" select="'../../../ocl/v0.2.x/api/html'" />
+  <xsl:variable name="orocos.doxygen.path.kdl" select="'../../../kdl/v0.2.x/api/html'" />
   <xsl:variable name="orocos.doxygen.ext" select="'html'" />
   <xsl:template match="classname">
     <xsl:variable name="orocos.doxygen.classname">
-      <xsl:call-template name="string.subst">
-          <xsl:with-param name="string" select="substring-after( ., '::')"></xsl:with-param>
-          <xsl:with-param name="target" select="'_'"></xsl:with-param>
-          <xsl:with-param name="replacement" select="'__'"></xsl:with-param>
+      <xsl:call-template name="str:subst">
+	<xsl:with-param name="text" select="."/>
+	<xsl:with-param name="replace">_</xsl:with-param>
+	<xsl:with-param name="with">__</xsl:with-param>
       </xsl:call-template>
-<!--      <xsl:value-of select="substring-after( replace(.,'_','__'), '::')" /> -->
     </xsl:variable>
-    <xsl:variable name="orocos.doxygen.namespace">
-      <xsl:call-template name="string.subst">
-          <xsl:with-param name="string" select="substring-before( ., '::')"></xsl:with-param>
-          <xsl:with-param name="target" select="'_'"></xsl:with-param>
-          <xsl:with-param name="replacement" select="'__'"></xsl:with-param>
+    <xsl:variable name="orocos.doxygen.classname1">
+      <xsl:call-template name="str:subst">
+	<xsl:with-param name="text" select="$orocos.doxygen.classname"/>
+	<xsl:with-param name="replace">:</xsl:with-param>
+	<xsl:with-param name="with">_1</xsl:with-param>
       </xsl:call-template>
-<!--       <xsl:value-of select="substring-before( replace(.,'_','__'), '::')" /> -->
-<!-- Doxygen escapes the following characters with underscore: -->
-<!--       <xsl:value-of select="replace(.,'_','__')" /> -->
-<!--       <xsl:value-of select="replace(.,'.','_8')" /> -->
-<!--       <xsl:value-of select="replace(.,':','_1')" /> -->
     </xsl:variable>
+    <xsl:variable name="orocos.doxygen.classname2">
+      <xsl:call-template name="str:subst">
+	<xsl:with-param name="text" select="$orocos.doxygen.classname1"/>
+	<xsl:with-param name="replace">.</xsl:with-param>
+	<xsl:with-param name="with">_8</xsl:with-param>
+      </xsl:call-template>
+    </xsl:variable>
+    <!-- Extract the classname without the scope -->
+    <xsl:variable name="orocos.doxygen.showname">
+      <xsl:call-template name="str:substring-after-last">
+	<xsl:with-param name="text" select="$orocos.doxygen.classname"/>
+	<xsl:with-param name="chars">::</xsl:with-param>
+      </xsl:call-template>
+    </xsl:variable>
+
     <xsl:variable name="orocos.doxygen.filename">
       <xsl:text>class</xsl:text>
-      <xsl:value-of select="$orocos.doxygen.namespace" />
-      <xsl:text>_1_1</xsl:text><!-- ':' maps to '_1' -->
-      <xsl:value-of select="$orocos.doxygen.classname" />
+      <xsl:value-of select="$orocos.doxygen.classname2" />
     </xsl:variable>
-      
+
+    <!-- Choose final path for finding other headers -->
+    <xsl:variable name="orocos.doxygen.path">
+      <xsl:choose>
+	<xsl:when test="contains($orocos.doxygen.classname2,'OCL_1_1')">
+	  <xsl:value-of select="$orocos.doxygen.path.ocl" />
+	</xsl:when>
+	<xsl:when test="contains($orocos.doxygen.classname2,'KDL_1_1')">
+	  <xsl:value-of select="$orocos.doxygen.path.kdl" />
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:value-of select="$orocos.doxygen.path.rtt" />
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <!-- Only insert a link when a scope (::) symbol was used in the classname tag-->
     <xsl:choose>
-    <xsl:when test="contains(.,'::')">
+    <xsl:when test="contains($orocos.doxygen.classname2,'_1')">
       <a href="{$orocos.doxygen.path}/{$orocos.doxygen.filename}.html">
-      <xsl:value-of select="$orocos.doxygen.classname" />
+      <xsl:value-of select="$orocos.doxygen.showname" />
       </a>
     </xsl:when>
     <xsl:otherwise>
