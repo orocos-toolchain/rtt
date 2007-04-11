@@ -154,7 +154,7 @@
 	&orocos; <figure><title>OS Interface overview</title>
 	  <mediaobject>
 	    <imageobject>
-	      <imagedata fileref="FDIvsFOSI" />
+	      <imagedata fileref="images/FDIvsFOSI" />
 	    </imageobject>
 	  </mediaobject>
       </figure>
