@@ -48,7 +48,7 @@
  * link, select a module and then you get the most important classes
  * for this module.
  *
- * You will most likely also need to read the <a href="http://www.orocos.org/documentation.html">online manuals</a>.
+ * You will most likely also need to read the <a href="http://www.orocos.org/rtt/">online manuals</a>.
  *
  * @section corelib Real-Time Toolkit classes (RTT)
  * The classes in the RTT namespace form the application
@@ -62,10 +62,11 @@
  * Scripting is enabled by the RTT::ScriptingAccess, XML can be read by 
  * the RTT::MarshallingAccess. Many other classes are available as well.
  *
- * @section devdrivers Hardware Access and Device Drivers
- * Orocos has an abstraction layer and some utility classes to easily
- * access your devices from within your applications and allow you to reuse Orocos
- * infrastructure. The Device Interface headers can be found in rtt/dev. 
+ * @section devdrivers Hardware Access and Device Interface 
+ *
+ * Orocos has an abstraction layer and some utility classes to access
+ * common devices (IO, encoders,...) from applications. The Device
+ * Interface headers can be found in rtt/dev.
  *
  * The device drivers are not implemented by the RTT, but provided by components.
  * See the Orocos Components Library (OCL) documentation for a list of supported
