@@ -86,7 +86,9 @@ fi
 CMAKE_EXE=$(which cmake)
 
 echo "Invoking: '$CMAKE_CC $CMAKE_CXX $CMAKE_EXE .. $CMAKE_ARGS'"
-$CMAKE_CC $CMAKE_CXX $CMAKE_EXE .. $CMAKE_ARGS || { echo -e "\ncmake produced an error - removing cache."; rm CMakeCache.txt; exit 1; }
+export $CMAKE_CC 
+export $CMAKE_CXX 
+$CMAKE_EXE .. $CMAKE_ARGS || { echo -e "\ncmake produced an error - removing cache."; rm CMakeCache.txt; exit 1; }
 
 echo
 echo "OK: configure done. Now issue 'make'."
