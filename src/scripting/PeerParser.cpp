@@ -85,11 +85,13 @@ namespace RTT
             }
 
             // BC: user uses 'states.' or 'programs'.
-            std::string name = callqueue.front();
-            if ( (name == "states" || name == "programs") && _peer->getObject(name) == 0) {
-                log(Warning) << "'"<<name<<"' peer not found. The use of '"<<name<<"' has been deprecated."<<endlog();
-                log(Warning) << "Modify your script to use the program's or state machine's name directly."<<endlog();
-                callqueue.pop();
+            if ( !callqueue.empty() ) {
+                std::string name = callqueue.front();
+                if ( (name == "states" || name == "programs") && _peer->getObject(name) == 0) {
+                    log(Warning) << "'"<<name<<"' peer not found. The use of '"<<name<<"' has been deprecated."<<endlog();
+                    log(Warning) << "Modify your script to use the program's or state machine's name directly."<<endlog();
+                    callqueue.pop();
+                }
             }
 
             mcurobject = _peer;
