@@ -50,8 +50,8 @@
 #ifndef ANALOGININTERFACE_HPP
 #define ANALOGININTERFACE_HPP
 
-#include <NameServer.hpp>
-#include <NameServerRegistrator.hpp>
+#include "../NameServer.hpp"
+#include "../NameServerRegistrator.hpp"
 
 namespace RTT
 {

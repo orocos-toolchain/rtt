@@ -39,8 +39,8 @@
 #ifndef DIGITALOUTINTERFACE_HPP
 #define DIGITALOUTINTERFACE_HPP
 
-#include <NameServer.hpp>
-#include <NameServerRegistrator.hpp>
+#include "../NameServer.hpp"
+#include "../NameServerRegistrator.hpp"
 
 namespace RTT
 {
