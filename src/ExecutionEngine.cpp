@@ -145,8 +145,8 @@ namespace RTT
     }
 
     bool ExecutionEngine::initialize() {
-        // call user startHook code.
-        if ( taskc && taskc->startHook() == false ) {
+        // call user startHook code. MUST check getTaskState to intercept user calling start on activity.
+        if ( taskc && (taskc->getTaskState() != TaskCore::Stopped || taskc->startHook() == false) ) {
             //Logger::log() << Logger::Error << "ExecutionEngine's task startHook() failed!" << Logger::endl;
             return false;
         }

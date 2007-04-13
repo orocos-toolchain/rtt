@@ -1,5 +1,6 @@
 
 #include "TaskCore.hpp"
+#include "ActivityInterface.hpp"
 
 namespace RTT
 {
@@ -9,12 +10,16 @@ namespace RTT
     TaskCore::TaskCore(const std::string& name)
         :  mtask_name(name),
            ee( new ExecutionEngine(this) )
+           ,mTaskState(Stopped)
+
     {
     }
 
     TaskCore::TaskCore(const std::string& name, ExecutionEngine* parent )
         :  mtask_name(name),
            ee( parent )
+           ,mTaskState(Stopped)
+
     {
         parent->addChild( this );
     }
@@ -27,6 +32,82 @@ namespace RTT
         } else {
             ee->removeChild(this);
         }
+    }
+
+    TaskCore::TaskState TaskCore::getTaskState() const {
+        return mTaskState;
+    }
+
+
+    bool TaskCore::doUpdate()
+    {
+        if ( this->engine()->getActivity() == 0 )
+            return false;
+        return this->engine()->getActivity()->execute();
+    }
+
+    bool TaskCore::doTrigger()
+    {
+        if ( this->engine()->getActivity() == 0 )
+            return false;
+        return this->engine()->getActivity()->trigger();
+    }
+
+    bool TaskCore::configure() {
+        if ( mTaskState <= Stopped ) {
+            if (configureHook() ) {
+                mTaskState = Stopped;
+                return true;
+            } else {
+                mTaskState = PreOperational;
+                return false;
+            }
+        }
+        return false; // no configure when running.
+    }
+
+    bool TaskCore::configureHook() {
+        return true;
+    }
+        
+    bool TaskCore::start() {
+        if ( this->engine()->getActivity() == 0 || mTaskState != Stopped )
+            return false;
+        if (this->engine()->getActivity()->start() ) {
+            mTaskState = Running;
+            return true;
+        }
+        return false;
+    }
+
+    bool TaskCore::stop() {
+        if ( this->engine()->getActivity() == 0 || mTaskState != Running )
+            return false;
+        if (this->engine()->getActivity()->stop() ) {
+            mTaskState = Stopped;
+            return true;
+        }
+        return false;
+    }
+
+    bool TaskCore::cleanup() {
+        if ( mTaskState == Stopped ) {
+            cleanupHook();
+            mTaskState = PreOperational;
+            return true;
+        }
+        return false; // no cleanup when running or not configured.
+    }
+
+    void TaskCore::cleanupHook() {
+    }
+  
+    bool TaskCore::isRunning() const {
+        return mTaskState == Running;
+    }
+
+    bool TaskCore::isConfigured() const {
+        return mTaskState >= Stopped;
     }
 
     bool TaskCore::startup()

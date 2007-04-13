@@ -108,37 +108,6 @@ namespace RTT
          */
 
         /**
-         * Describes the different states a component can have.
-         * When a TaskContext is being constructed, it is in the
-         * \a Init state. After the construction ends, the
-         * component arrives in the \a PreOperational (additional
-         * configuration required) or the \a Stopped (ready to run)
-         * state. Invoking \a start() will make a transition to the
-         * \a Running state and \a stop() back to the \a Stopped state.
-         *
-         * In order to check if these transitions are allowed, hook functions
-         * are executed, which can be filled in by the component builder.
-         * - A transition from \a PreOperational to \a Stopped is checked
-         * by calling the \a configureHook() method. If this method returns \a true,
-         * the transition is made, otherwise, the state remains \a PreOperational.
-         * - A transition from \a Stopped to \a Running is checked by calling
-         * the \a startHook() method. If this method returns \a true,
-         * the transition is made, otherwise, the state remains \a Stopped.
-         * - A transition from \a Running to \a Stopped is always allowed
-         * and the \a stopHook() method is called to inform the component of
-         * this transtion.
-         * - A transition from \a Stopped to \a PreOperational is always allowed
-         * and the \a cleanupHook() method is called to inform the component of
-         * this transtion.
-         *
-         */
-        enum TaskState { Init,           //! The state during component construction.
-                         PreOperational, //! The state indicating additional configuration is required.
-                         Stopped,        //! The state indicating the component is ready to run.
-                         Running         //! The state indicating the component is running.
-        }; 
-        
-        /**
          * Create a TaskContext visible with \a name.
          * It's ExecutionEngine will be newly constructed with private 
          * ExecutionEngine processing its commands, events,
@@ -177,11 +146,6 @@ namespace RTT
         virtual void setEngine(ExecutionEngine*) { }
 
         /**
-         * Returns the current state of the TaskContext.
-         */
-        TaskState getTaskState() const;
-
-        /**
          * Call this function to force a TaskContext to export its
          * Data Flow ports as scripting objects. This is done by the
          * component itself when a peer connection is made, but in
@@ -190,98 +154,6 @@ namespace RTT
          * you need to call this function.
          */
         void exportPorts();
-
-        /**
-         * @name Script Methods 
-         *
-         * The standard script methods of a TaskContext are for
-         * configuration and starting and stopping its
-         * ExecutionEngine.  @{
-         */
-
-        /**
-         * This method instructs the component to (re-)read configuration data
-         * and try to enter the \a Stopped state. This can only succeed
-         * if the component is not running and \a configureHook() returns true.
-         */
-        virtual bool configure();
-
-        /**
-         * Implement this method such that it contains the code which
-         * will be executed when \a configure() is called. The default
-         * implementation is an empty function which returns \a true.
-         *
-         * @retval true to indicate that configuration succeeded and
-         * the Stopped state may be entered.
-         * @retval false to indicate that configuration failed and the
-         * Preoperational state is entered.
-         */
-        virtual bool configureHook();
-
-        /**
-         * This method starts the execution engine of this component.
-         * This function calls \a startHook(), which must return \a true in order to
-         * allow this component to run.
-         * You can override this method to do something else or in addition
-         * to starting the ExecutionEngine.
-         * @return false if the engine was not assigned to an ActivityInterface
-         * or if startHook() returned false or it was already started.
-         */
-        virtual bool start();
-        
-        /**
-         * This method stops the execution engine of this component.
-         * You can override this method to do something else or in addition
-         * to stopping the engine. This function calls cleanupHook() as well.
-         * @return false if the engine was not running.
-         */
-        virtual bool stop();
-
-        /**
-         * This method instructs a stopped component to enter the
-         * pre-operational state again. It calls cleanupHook().
-         * @return true if the component was in the stopped state.
-         */
-        virtual bool cleanup();
-
-        /**
-         * Implement this method such that it contains the code which
-         * will be executed when \a cleanup() is called. The default
-         * implementation is an empty function.
-         */
-        virtual void cleanupHook();
-  
-        /**
-         * Inspect if the component is in the Running state.
-         */
-        virtual bool isRunning() const;
-
-        /**
-         * Inspect if the component is configured, i.e. in
-         * the Stopped or Running state.
-         */
-        virtual bool isConfigured() const;
-
-        /**
-         * Invoke this method to \a execute
-         * the ExecutionEngine and the update() method. This method maps to
-         * the 'update()' method in the scripting language.
-         * @retval false if this->engine()->getActivity()->execute() == false
-         * @retval true otherwise.
-         */
-        virtual bool doUpdate();
-
-        /**
-         * Invoke this method to \a trigger the thread of this TaskContext to execute
-         * its ExecutionEngine and the update() method. This method maps to
-         * the 'trigger()' method in the scripting language.
-         * @retval false if this->engine()->getActivity()->trigger() == false
-         * @retval true otherwise.
-         */
-        virtual bool doTrigger();
-        /**
-         *@}
-         */
 
         /**
          * Add a one-way connection from this task to a peer task.
@@ -475,7 +347,6 @@ namespace RTT
 
         MarshallingAccess* marshAcc;
 
-        TaskState mTaskState;
         /**
          * Inform this TaskContext that \a user is using
          * our services.

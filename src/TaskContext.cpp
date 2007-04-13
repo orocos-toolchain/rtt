@@ -77,7 +77,6 @@ namespace RTT
 #endif
            ,marshAcc( new MarshallingAccess(this) )
 
-           ,mTaskState(Stopped)
     {
         this->setup();
     }
@@ -95,7 +94,6 @@ namespace RTT
            ,mengAcc( new ExecutionAccess(this ) )
 #endif
            ,marshAcc( new MarshallingAccess(this) )
-           ,mTaskState(Stopped)
     {
         this->setup();
     }
@@ -181,10 +179,6 @@ namespace RTT
             if ( ms )
                 this->addObject( ms );
         }
-    }
-
-    TaskContext::TaskState TaskContext::getTaskState() const {
-        return mTaskState;
     }
 
     bool TaskContext::connectPorts( TaskContext* peer )
@@ -273,77 +267,6 @@ namespace RTT
     {
         mdescription = d;
     }
-
-    bool TaskContext::doUpdate()
-    {
-        if ( this->engine()->getActivity() == 0 )
-            return false;
-        return this->engine()->getActivity()->execute();
-    }
-
-    bool TaskContext::doTrigger()
-    {
-        if ( this->engine()->getActivity() == 0 )
-            return false;
-        return this->engine()->getActivity()->trigger();
-    }
-
-    bool TaskContext::configure() {
-        if ( mTaskState <= Stopped ) {
-            if (configureHook() ) {
-                mTaskState = Stopped;
-                return true;
-            } else {
-                mTaskState = PreOperational;
-                return false;
-            }
-        }
-        return false; // no configure when running.
-    }
-
-    bool TaskContext::configureHook() {
-        return true;
-    }
-        
-    bool TaskContext::start() {
-        if ( this->engine()->getActivity() == 0 || mTaskState != Stopped )
-            return false;
-        return this->engine()->getActivity()->start() && (mTaskState = Running);
-    }
-
-    bool TaskContext::stop() {
-        if ( this->engine()->getActivity() == 0 || mTaskState != Running )
-            return false;
-        return this->engine()->getActivity()->stop() && (mTaskState = Stopped);
-    }
-
-    bool TaskContext::cleanup() {
-        if ( mTaskState == Stopped ) {
-            cleanupHook();
-            mTaskState = PreOperational;
-            return true;
-        }
-        return false; // no cleanup when running or not configured.
-    }
-
-    void TaskContext::cleanupHook() {
-    }
-  
-    bool TaskContext::isRunning() const {
-        // this code does not detect if the user stopped the activity himself.
-        return mTaskState == Running;
-        /* Alternative:
-        if ( this->engine()->getActivity() == 0 )
-            return false;
-        return this->engine()->getActivity()->isRunning();
-        */
-
-    }
-
-    bool TaskContext::isConfigured() const {
-        return mTaskState >= Stopped;
-    }
-
 
     void TaskContext::addUser( TaskContext* peer )
     {
