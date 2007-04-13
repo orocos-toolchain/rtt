@@ -45,14 +45,13 @@
 #include "RunnableInterface.hpp"
 #include "ThreadInterface.hpp"
 
-#ifdef OROPKG_OS_THREAD_SCOPE
-# include "dev/DigitalOutInterface.hpp"
-#endif
-
 #include <string>
 
 namespace RTT
-{ namespace OS {
+{ 
+    class DigitalOutInterface;
+
+    namespace OS {
     /**
      * A PeriodicThread executes its step() method (or a RunnableInterface ) periodically.
      *

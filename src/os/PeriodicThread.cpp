@@ -43,6 +43,10 @@
 
 #include "../rtt-config.h"
 
+#ifdef OROPKG_OS_THREAD_SCOPE
+# include "dev/DigitalOutInterface.hpp"
+#endif
+
 namespace RTT
 { namespace OS {
     using RTT::Logger;
