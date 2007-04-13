@@ -11,6 +11,9 @@ IF(ENABLE_CORBA)
   FILE( GLOB CPPS [^.]*.cpp )
   FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
 
+  # exclude some files:
+  LIST( REMOVE_ITEM HPPS CorbaDataObject.hpp CorbaBuffer.hpp)
+
   ORO_ADD_CORBA_SERVERS(CPPS HPPS ${IDLS} )
   SET( ENV{GLOBAL_GENERATED_SRCS} "${CPPS}" )
   #MESSAGE("CPPS: $ENV{GLOBAL_GENERATED_SRCS}")
