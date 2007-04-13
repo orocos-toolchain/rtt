@@ -46,7 +46,7 @@
 #include "CommandParser.hpp"
 #include "ExpressionParser.hpp"
 #include "../TaskContext.hpp"
-#include "FunctionGraphBuilder.hpp"
+#include "../FunctionGraphBuilder.hpp"
 #include "ValueChangeParser.hpp"
 
 #include <map>
