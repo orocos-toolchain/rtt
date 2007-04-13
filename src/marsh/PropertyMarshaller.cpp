@@ -1,20 +1,24 @@
 #include "PropertyMarshaller.hpp"
 #include "rtt-config.h"
 
+#ifdef ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE
 #include ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE
+#endif
 
 #include <Logger.hpp>
 #include <fstream>
 
 namespace RTT
 {
-    using namespace detail;
-
     PropertyMarshaller::PropertyMarshaller(const std::string& filename)
         : m( 0 )
     {
         Logger::In in("PropertyMarshaller");
+#ifdef ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE
         m = new OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER<std::ostream>( filename );
+#else
+        log(Error) << "Orocos RTT was configured without Property Marshalling support !"<<endlog();
+#endif
     }
     
     PropertyMarshaller::~PropertyMarshaller()
