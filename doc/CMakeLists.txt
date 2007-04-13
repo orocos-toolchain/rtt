@@ -6,7 +6,11 @@ include(AnyToPNG.cmake)
 
 IF (BUILD_DOCS)
   #list the xml files:
-  SET( XML_SOURCES xml/orocos-overview.xml xml/orocos-installation.xml xml/orocos-overview-devel.xml xml/orocos-user-manual.xml xml/orocos-components-manual.xml xml/orocos-devel-manual.xml xml/orocos-changes.xml xml/orocos-faq.xml)
+  SET( XML_SOURCES
+    xml/orocos-overview.xml xml/orocos-installation.xml xml/orocos-overview-devel.xml
+    xml/orocos-user-manual.xml xml/orocos-components-manual.xml xml/orocos-devel-manual.xml
+    xml/orocos-changes.xml xml/orocos-user-manual.xml xml/orocos-ocl-intro.xml
+    xml/orocos-toolkit-plugin.xml xml/orocos-faq.xml )
 
   SEPARATE_ARGUMENTS(XML_SOURCES)
 
@@ -40,7 +44,7 @@ IF (BUILD_DOCS)
   ADD_DEPENDENCIES(dochtml docpng)
   ADD_DEPENDENCIES(docpdf docpng)
 
-  ADD_CUSTOM_TARGET(message ALL echo "Use: make docapi dochtml docpdf to build the documentation.")
+  ADD_CUSTOM_TARGET(message ALL echo "Use: 'make docapi dochtml docpdf' to build the documentation.")
 
 
 ENDIF (BUILD_DOCS)

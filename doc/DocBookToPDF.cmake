@@ -30,7 +30,7 @@ macro( DOCBOOK_TO_PDF RESULT XSLT_SHEET )
       string(REPLACE ".xml" ".pdf" _current_PDFFILE ${_current_FILE})
       string(REPLACE ".xml" ".fo" _current_FOPFILE ${_current_FILE})
 
-      MESSAGE( "Converting ${_current_FILE} to ${_current_PDFFILE}" )
+      #MESSAGE( "Converting ${_current_FILE} to ${_current_PDFFILE}" )
       add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${_current_PDFFILE}
 	COMMAND XML_CATALOG_FILES=${_catalog_FILES} xsltproc --xinclude ${CMAKE_CURRENT_SOURCE_DIR}/${XSLT_SHEET} ${CMAKE_CURRENT_SOURCE_DIR}/${_current_FILE} > ${_current_FOPFILE}
 	COMMAND fop ${_current_FOPFILE} ${_current_PDFFILE}
