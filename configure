@@ -5,7 +5,11 @@ echo "Orocos configure script."
 function usage
 {
    echo "This script allows you to set the compiler."
-   echo "Usage : ../configure [--prefix=/install/path][CC=compiler][CXX=compiler]"
+   echo "Usage : ../configure [--prefix=/usr/local] [--with-target=/target/path] [CC=compiler] [CXX=compiler]"
+   echo
+   echo "Supported --with-target's: --with-xenomai --with-lxrt --with-gnulinux"
+   echo
+   echo "Example: ../configure --prefix=/usr/local/orocos --with-xenomai=/usr/xenomai CC=gcc-3.3.6 CXX=g++-3.3.6"
 }
 
 function getcompiler
@@ -29,6 +33,10 @@ function getcompiler
     if [ $(expr match "$arg" "--with-lxrt") != 0 ]; then
 	CMAKE_LXRT=1
 	CMAKE_LXRT_PATH="${arg:12}"
+    fi
+    if [ $(expr match "$arg" "--with-linux") != 0 ]; then
+	CMAKE_LINUX=1
+	CMAKE_LINUX_PATH="${arg:13}"
     fi
 }
 
@@ -83,11 +91,29 @@ if [ x$CMAKE_XENO != x ]; then
    fi   
 fi
 
+# --with-linux
+if [ x$CMAKE_LINUX != x ]; then
+   if [ x$CMAKE_LINUX_PATH != x ]; then
+     CMAKE_ARGS="$CMAKE_ARGS -DLINUX_SOURCE_DIR=$CMAKE_LINUX_PATH"
+#   else
+#     CMAKE_ARGS="$CMAKE_ARGS -DLINUX_SOURCE_DIR=/usr/include"
+   fi   
+fi
+
 CMAKE_EXE=$(which cmake)
 
+if [ x$CMAKE_EXE = x ]; then
+  echo "Error: cmake program not found. See http://www.cmake.org"
+  exit 1;
+fi
+
 echo "Invoking: '$CMAKE_CC $CMAKE_CXX $CMAKE_EXE .. $CMAKE_ARGS'"
+if [ x$CMAKE_CC != x ]; then
 export $CMAKE_CC 
+fi
+if [ x$CMAKE_CXX != x ]; then
 export $CMAKE_CXX 
+fi
 $CMAKE_EXE .. $CMAKE_ARGS || { echo -e "\ncmake produced an error - removing cache."; rm CMakeCache.txt; exit 1; }
 
 echo
