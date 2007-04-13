@@ -49,12 +49,11 @@
 
 #include <string>
 
-#ifdef OROPKG_OS_THREAD_SCOPE
-# include "/dev/DigitalOutInterface.hpp"
-#endif
-
 namespace RTT
-{ namespace OS {
+{ 
+    class DigitalOutInterface;
+
+    namespace OS {
     /**
      * This Thread abstraction class represents a single-shot thread
      * which can be started many times.  The first invocation of
