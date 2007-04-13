@@ -16,6 +16,8 @@ IF (BUILD_DOCS)
     FILES 
     ${XML_SOURCES} )
 
+  LIST(REMOVE_ITEM XML_SOURCES xml/orocos-faq.xml)
+
   DOCBOOK_TO_PDF( PDF_OUTPUT xsl/orocos-pdf.xsl
     CATALOG
     xml/catalog.xml

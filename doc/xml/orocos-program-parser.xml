@@ -182,7 +182,7 @@
 	  current use, or for future expansions.  These are called
 	  keywords.  The current list of reserved keywords is included
 	  here:
-	  <simplelist columns="7">
+	  <simplelist columns="4">
 	    <member>alias</member>
 	    <member>and</member>
 	    <member>break</member>
@@ -214,6 +214,7 @@
 	    <member>to</member>
 	    <member>true</member>
 	    <member>try</member>
+	    <member>uint</member>
 	    <member>until</member>
 	    <member>var</member>
 	    <member>while</member>
