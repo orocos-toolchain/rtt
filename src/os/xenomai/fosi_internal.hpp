@@ -193,11 +193,11 @@ namespace RTT
                 }
             }
             if ( rv == -EEXIST ) {
-                Logger::log(Warning) << name << ": an object with that name is already existing in Xenomai." << endlog();
+                log(Warning) << name << ": an object with that name is already existing in Xenomai." << endlog();
                 rv = rt_task_spawn(&(task->xenotask), 0, 0, priority, 0, rtos_xeno_thread_wrapper, xcookie);
             }
             if ( rv != 0) {
-                Logger::log(Error) << name << " : CANNOT INIT Xeno TASK " << task->name <<" error code: "<< rv << endlog();
+                log(Error) << name << " : CANNOT INIT Xeno TASK " << task->name <<" error code: "<< rv << endlog();
             }
             return rv;
         }
