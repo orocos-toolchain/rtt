@@ -16,8 +16,9 @@
     </title>
     <subtitle><emphasis>Real-Time Toolkit Version &oversion;</emphasis></subtitle>
     <copyright>
-      <year>2002,2003,2004,2005,2006</year>
+      <year>2002,2003,2004,2005,2006,2007</year>
       <holder>Peter Soetens</holder>
+      <holder>FMTC</holder>
     </copyright>
 
     <abstract>
@@ -84,6 +85,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Updated build/run/doc dependencies.</revremark>
       </revision>
+      <revision>
+	<revnumber>1.1.0</revnumber>
+	<date>13 Apr 2007</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Rewritten for Orocos 1.2.0.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -115,17 +122,17 @@
 	  (<ulink url="http://www.rtai.org">http://www.rtai.org</ulink>), GNU/Linux
 	  userspace, Xenomai (<ulink
 	    url="http://www.xenomai.org">Xenomai.org</ulink>). So,
-	  you can first write your software as a normal program, using the framework
+	  you can first write your software as a normal Linux program, using the framework
 	  for testing and debugging purposes in plain userspace Linux and recompile
-	  later to another target.
+	  later to another real-time target.
 	</para>
       </section>
       <section>
 	<title>The versioning scheme</title>
 	<para>
-	  &orocos; uses the well-known even/stable uneven/unstable
-	  version numbering scheme, just as the Linux kernel and many
-	  other projects. A particular version is represented by three
+	  &orocos; uses the even/stable uneven/unstable
+	  version numbering scheme, just as the Linux kernel.
+	  A particular version is represented by three
 	  numbers separated by dots. An <emphasis>even</emphasis>
 	  middle number indicates a <emphasis>stable</emphasis>
 	  version. For example :
@@ -137,7 +144,7 @@
 	  </itemizedlist> This numbering allows to develop and release
 	  two kinds of versions, where the unstable version is mainly
 	  for testing new features and designs and the stable version
-	  is for people wanting to run a reliable system.
+	  is for users wanting to run a reliable system.
 	</para>
       </section>
       <section>
@@ -145,7 +152,7 @@
 	<para>Before you install Orocos, verify that you have the
 	following software installed on your platform : </para>
 	<table frame="all">
-	  <title>Build Products Locations</title>
+	  <title>Build Requirements</title>
 	  <tgroup cols="3">
 	    <thead>
 	      <row>
@@ -155,11 +162,6 @@
 	      </row>
 	    </thead>
 	    <tbody>
-	      <row>
-		<entry>TCL</entry>
-		<entry>8.0</entry>
-		<entry><ulink url="http://www.tcl.tk">tcl.tk</ulink></entry>
-	      </row>
 	      <row>
 		<entry>Boost C++ Libraries</entry>
 		<entry>0.32.0 (0.33.0 Recommended!)</entry>
@@ -200,38 +202,20 @@
       </section>
     </section>
     <section>
-      <title>Basic Orocos Installation</title>
+      <title>Basic Real-Time Toolkit Installation</title>
       <para>
-	Orocos has switched to a less common system for distribution
-	and configuration. It is taken from the eCos operating system,
-	but, apart from the name, has nothing to do with it when used
-	with &orocos;. </para>
+	The RTT uses the <ulink url="http://www.cmake.org">CMake</ulink>
+	build system for configuring and building the library.
+      </para>
       <section>
 	<title>Orocos Build and Configuration Tools </title>
 	<para>
-	  The tool you will need is <command>ecosconfig</command>
+	  The tool you will need is <command>cmake</command>
 	  In Debian, you can use the official Debian version using
-	  <screen>  apt-get install ecosconfig</screen>
-	  If this does not work for you, Orocos will use
-	  the ready-to-use tools in Orocos' tools/bin
-	  subdirectory (i386 only). The build system will try to locate the tools
-	  in that directory and use them if present.
+	  <screen>  apt-get install cmake</screen>
+	  If this does not work for you, you can download cmake from
+	  the CMake homepage.
 	</para>
-	<para>
-	  If the build tools cause problems, consult the <ulink
-	    url="http://www.ecoscentric.com/devzone/configtool.shtml"> eCos
-	    Configuration Tool Version 2</ulink> webpage for source
-	  and binary downloads or consult the <ulink url="http://www.orocos.org/download.php#ecostools">
-	    Orocos download page</ulink>.
-	</para>
-	<note>
-	  <para>
-	    The optional <command>configtool</command> is a GUI in which users can configure
-	    some build options. It uses the libwxgtk2.4 library.
-	    The required <command>ecosconfig</command> is a commandline program, used by
-	    the make system.
-	  </para>
-	</note>
       </section>
       <section>
 	<title>Quick Installation Instructions</title> 
@@ -246,7 +230,7 @@
 	  <screen><command> 
   mkdir orocos-rtt-&oversion;/build 
   cd orocos-rtt-&oversion;/build
-  ../configure --with-&lt;target&gt;
+  ../configure --with-&lt;target&gt; [--prefix=/usr/local]
   make
   make check
   make install</command> </screen>
@@ -256,68 +240,73 @@
 	</para>
 	<note>
 	  <para>
-	    The <command>../configure</command> script must be rerun after
-	    you installed missing libraries (like Boost, ...).
+	    The <command>configure</command> script is a wrapper
+	    around the 'cmake' command and must be rerun after you
+	    installed missing libraries (like Boost, ...) before you
+	    can build the RTT.
 	  </para>
 	</note>
       </section>
-<!--       <section> -->
-<!-- 	<title>Configuration</title> -->
-<!-- 	<para> -->
-<!-- 	  Orocos is configured in a two-stage system. First the configure scripts -->
-<!-- 	  detect available libraries and take some command-line options to point -->
-<!-- 	  it in the right direction. Also, it takes the Operating System you want -->
-<!-- 	  to configure for as an argument ( <parameter>-\-with-lxrt</parameter>, -->
-<!-- 	  <parameter>-\-with-gnulinux</parameter>, <parameter>-\-with-xenomai</parameter>).  -->
-<!-- 	</para> -->
-<!-- 	<para> -->
-<!-- 	  The second stage is when you issue a <command>make configure_packages</command>, -->
-<!-- 	  which will show a GUI where you can further tweak build flags and package -->
-<!-- 	  specific options. -->
-<!-- 	  This is also the stage where you can add/remove packages for compilation. -->
-<!-- 	</para> -->
-<!-- 	  <informalfigure> -->
-<!-- 	    <mediaobject> -->
-<!-- 	      <imageobject> -->
-<!-- 		<imagedata fileref="images/ConfigTool" /> -->
-<!-- 	      </imageobject> -->
-<!-- 	    </mediaobject> -->
-<!-- 	  </informalfigure> -->
-<!-- 	<para> -->
-<!-- 	  When you completed these two stages, you can now <command>make</command>. -->
-<!-- 	  For more details, consult <xref linkend="install-configure"/>. -->
-<!-- 	</para> -->
-<!--       </section> -->
       <section>
-	<title>Building The Real-Time Toolkit (RTT)</title>
+	<title>Real-Time Toolkit Flavours</title>
 	<para>
-	  The RTT can be compiled in three flavours: 
-	  <screen><command> make rtt </command>
-<command> make rtt-corba </command>
-<command> make rtt-embedded </command></screen> 
-          builds the 'standard', 'embedded' or 'corba' version. The embedded version
-	  is standard without scripting, the corba version is standard with Corba interfaces.
+	  The RTT can be compiled in three flavours: the 'standard',
+	  'embedded' or 'CORBA' version. The embedded version is
+	  standard without scripting, the CORBA version is standard
+	  with CORBA interfaces. In order to select your flavour, you
+	  need to invoke the <command>ccmake</command> command:
 	</para>
+	  <screen><command> 
+  cd orocos-rtt-&oversion;/build
+  cmake ..</command> </screen>
+        <para>
+	  from your build directory. It will offer a configuration
+	  screen.  The keys to use are 'arrows'/'enter' to modify a
+	  setting, 'c' to run a configuration check (may be required
+	  multiple times), 'g' to generate the makefiles. If an
+	  additional configuration check is required, the 'g' key can
+	  not be used and you must press again 'c' and examine the output.
+	</para>
+	<section>
+	  <title>RTT with CORBA flavour</title>
+	  <para>
+	    CORBA will be enabled when a valid installation of TAO is
+	    detected on your system. You can turn the <option>ENABLE_CORBA</option>
+	    option off (using ccmake) in case you do not wish to use it.
+	    Enabling CORBA doubles the size of of the RTT library and
+	    considerably slows down link and compile times.
+	  </para>
+	</section>
+	<section>
+	  <title>Embedded RTT flavour</title>
+	  <para>
+	    In order to run Orocos applications on embedded systems,
+	    one can turn the <option>OS_EMBEDDED</option> option on.
+	    Next press 'c' again and additional options will be
+	    presented which allow you to select what part of the RTT
+	    is used.  By default, the <option>OS_EMBEDDED</option>
+	    option already disables some 'fat' features. One can also
+	    choose to build the RTT as a static library
+	    (<option>BUILD_STATIC</option>).
+	  </para>
+	</section>
       </section>
       <section>
 	<title>Build results</title>
 	<para>
-	  The <command>make</command> command will have made a directory
-	  <filename>packages</filename> where the
-	  building takes place. The results of the build are in the
-	  <filename>packages/install</filename>
-	  directory. You will find the header files and a library called
-	  <filename>liborocos-rtt.a</filename>. These files
-	  allow you to build applications with &orocos;.
+	  The <command>make</command> command will have created a
+	  <filename>liborocos-rtt.so</filename> library, and if
+	  CORBA is enabled a <filename>liborocos-rtt-corba.so</filename>
+	  library.
 	</para>
 	<para>
-	  The <command>make docs</command> and
-	  <command>make doxy-dist</command> (both in 'build') commands build 
-	  manuals and API documentation in the build/doc directory.
+	  The <command>make docapi</command> and
+	  <command>make docpdf dochtml</command> (both in 'build') commands build 
+	  API documentation and PDF/HTML documentation in the build/doc directory.
 	</para>
       </section>
       <section>
-	<title>Using &orocos; concurrently for multiple targets</title>
+	<title>Building &orocos; for multiple targets</title>
 	<para>
 	  When you want to build for another target,
 	  create a new build-&lt;target&gt; directory and simply re-invoke ../configure --with-&lt;target&gt;
@@ -327,11 +316,11 @@
 	  If this step fails, it means that you have not everything installed
 	  which is needed for a basic &orocos; build. Most users don't have the
 	  Boost library (<filename>libboost-dev</filename> or
-	  <filename>libboost-devel</filename>) installed.  Please install this
+	  <filename>libboost-devel</filename>) installed.  Install this
 	  package from the binary or source package repository of your Linux
 	  distribution, or download and install it from the <ulink
 	    url="http://www.boost.org">Boost project.</ulink> As soon as the
-	  configure step succeeds, all the rest will succeed too. Please use the
+	  configure step succeeds, all the rest will succeed too. Use the
 	  mailinglist at <email>orocos-dev@lists.mech.kuleuven.be</email> for
 	  support questions.
 	</para>
@@ -340,77 +329,83 @@
     <section>
       <title>Installing an Orocos Build</title>
       <para>
-	Orocos can optionally ( <emphasis> but recommended</emphasis> ) be installed on your system with <screen>
-  make install</screen>
-	The
-	default directory is <filename>/usr/local/orocos</filename>, but 
-	can be changed with the <option>--with-prefix</option> option :
-	<screen>  ../configure --with-prefix=/opt/other/</screen></para>
+	Orocos can optionally (<emphasis> but recommended</emphasis>)
+	be installed on your system with <screen> make install</screen> 
+	The default directory is
+	<filename>/usr/local</filename>, but can be changed
+	with the <option>--with-prefix</option> option : <screen>
+	../configure --with-prefix=/opt/other/</screen></para>
       <para>
 	If you choose not to install Orocos, you can find the build's result
-	in the <filename>build/packages/install/[lib/include]</filename> directory.
+	in the <filename>build/rtt</filename> directory.
       </para>
     </section>
   </section>
   <section id="install-configure">
-    <title>Configuration Details</title>
-    <section>
-      <title>Configuring Orocos</title>
+    <title>Detailed Configuration using 'CMake'</title>
       <para>
-	In your build directory, run <command>../configure</command> or <command>../configure
-	--with-gnulinux</command> to select the os/gnulinux target.
-	Alternative targets are:
-	<itemizedlist>
-	  <listitem><para><option>--with-lxrt[=/usr/realtime] --with-linux[=/patched/linux/tree]</option></para></listitem>
-	  <listitem><para><option>--with-xenomai[=/usr/realtime]  --with-linux[=/patched/linux/tree]</option></para></listitem>
-	</itemizedlist>
-	The latter targets require the presence of the
-	<option>--with-linux=/path/to/linux</option> option since
-	these targets require Linux headers during the Orocos build.
-	To use the LibC Kernel headers in
-	<filename>/usr/include/linux</filename>, specify
-	<option>--with-linux=/usr</option>.  Watch carefully the
-	output to find any errors.
+	In order to start cmake configuration, in your build
+	directory, run <command>ccmake ..</command> .  Press 'c' (from
+	'c'onfigure), watch the output, press 'e' (from 'e'xit) and
+	modify the new options. Repeat these steps until no errors
+	are reported and the 'g' (from 'g'enerate) key can be pressed.
+	This causes the makefiles to be generated which allow the 
+	library to be built.
       </para>
+    <section>
+      <title>Configuring the target Operating System</title>
+      <para>
+	Move to the <option>OROCOS_TARGET</option>, press enter and type 
+	on of the following supported targets (all in lowercase):
+	<itemizedlist>
+	  <listitem><para>gnulinux</para></listitem>
+	  <listitem><para>xenomai</para></listitem>
+	  <listitem><para>lxrt</para></listitem>
+	</itemizedlist>
+	The xenomai and lxrt targets require the presence of the
+	<option>LINUX_SOURCE_DIR</option> option since these targets
+	require Linux headers during the Orocos build.  To use the
+	LibC Kernel headers in
+	<filename>/usr/include/linux</filename>, specify
+	<option>/usr</option>.  Inspect the output to find any errors.
+      </para>
+      <note><para>From Xenomai version 2.2.0 on, Xenomai configuration
+      does no longer require the --with-linux option.</para></note>
     </section>
     <section id="install-flags">
-      <title>General Build Compiler Flags</title>
+      <title>Setting Build Compiler Flags</title>
       <para>
-	You must set the compiler flags during the 'configure' step.
-	For example:
-	<screen><command>../configure CXXFLAGS="-g -O0" CFLAGS="-g -O0" --with-gnulinux</command></screen>
-	if you want to enable debugging or change the optimisation flags.
+	You can set the compiler flags using the <option>CMAKE_BUILD_TYPE</option>
+	option. You may edit this field to contain:
+	<itemizedlist>
+	  <listitem><para>RTT (default)</para></listitem>
+	  <listitem><para>Release</para></listitem>
+	  <listitem><para>Debug</para></listitem>
+	  <listitem><para>RelWithDebInfo</para></listitem>
+	</itemizedlist>
       </para>
     </section>
     <section id="general_setup_rtai">
-      <title >Building for RTAI / LXRT</title>
+      <title>Building for RTAI / LXRT</title>
       <para>
 	Read first the 'Getting Started' section from <ulink
 	  url="http://people.mech.kuleuven.be/~psoetens/portingtolxrt.html">this 
 	  page</ulink> if you are not familiar with RTAI installation
       </para>
       <para>
-	Orocos has been tested with RTAI 3.0, 3.1, 3.2 and 3.3.
+	Orocos has been tested with RTAI 3.0, 3.1, 3.2, 3.3 and 3.4.
 	You can obtain it from 
 	<ulink url="http://www.aero.polimi.it/projects/rtai/">
 	  the RTAI home page</ulink>.
 	Read The README.* files in the
 	<filename class="directory">rtai</filename> directory for detailed
-	instructions.  First, you need to patch your Linux kernel with the RTAI patch. A patch per
-	kernel version can be found in the <filename>rtai-core/arch/i386/patches</filename> directory. You should
-	apply
-	the <filename>hal12-X.Y.Z.patch</filename> (or later) for RTAI  to a clean
-	<filename>Linux-X.Y.Z</filename> kernel.  We refer to the RTAI installation instructions for more
-	details.
-      </para>
-      <para>
-	Next do <command>make menuconfig</command>
+	build instructions, as these depend on the RTAI version.
       </para>
       <section>
 	<title> RTAI settings </title>
 	<para>
 	  RTAI comes with documentation for configuration and
-	  installation.  In the configuration process, make sure that
+	  installation.  During 'make menuconfig', make sure that
 	  you enable the following options (<emphasis>in addition to
 	  options you feel you need for your application</emphasis>) :
 	  <itemizedlist>
@@ -419,7 +414,7 @@
 	    </listitem>
 	    <listitem>
 	      <para>Core System -&gt; Native RTAI schedulers &gt;
-	      Scheduler options -&gt; 'Number of LXRT slots' ('500') </para>
+	      Scheduler options -&gt; 'Number of LXRT slots' ('1000') </para>
 	    </listitem>
 	    <listitem>
 	      <para>Machine -&gt; 'Enable FPU support'</para>
@@ -438,15 +433,18 @@
 	    </listitem>
 	  </itemizedlist>
 	  After configuring you must run 'make' and 'make install' in your RTAI directory:
-	  <command>make ; make install</command>
+	  <command>make</command>
+	  <command>sudo make install</command>
 	</para>
 	<para>
-	  After installation, RTAI can be found in <filename>/usr/realtime</filename>. You'll have to 
-	  specify during the Orocos configure step the alternative if you chose so.
+	  After installation, RTAI can be found in
+	  <filename>/usr/realtime</filename>. You'll have to specify
+	  this directory in the <option>RTAI_INSTALL_DIR</option> option
+	  during 'ccmake'.
 	</para>
       </section>
       <section>
-	<title> Loading RTAI with LXRT</title>
+	<title>Loading RTAI with LXRT</title>
 	<para>
 	  LXRT is a all-in-one scheduler that works for kernel and userspace.
 	  So if you use this, you can still run kernel programs but have the ability
@@ -461,23 +459,6 @@
 	  </itemizedlist>
 	  For example, by executing as root:
 	  <command>modprobe rtai_lxrt; modprobe rtai_sem</command>.
-	</para>
-	<para>For a more detailed description of what LXRT really is,
-	  you can read the LXRT HOWTO 
-	  <ulink url="http://people.mech.kuleuven.be/~psoetens/lxrt/portingtolxrt.html">here</ulink>
-	</para>
-      </section>
-      <section>
-	<title>Configuring Orocos for LXRT</title>
-	<para>
-	  In your build directory, run:
-	  <command>../configure --with-lxrt[=/usr/realtime] --with-linux[=/patched/linux/tree]</command>
-	  The LXRT target requires the presence of the
-	  <option>--with-linux=/path/to/linux</option> option since
-	  these targets require Linux headers during the Orocos build.
-	  To use the LibC Kernel headers in
-	  <filename>/usr/include/linux</filename>, specify
-	  <option>--with-linux=/usr</option>.
 	</para>
       </section>
       <section>
@@ -515,78 +496,60 @@
       </section>
     </section>
     <section id="general_setup_xeno">
-      <title >Building for Xenomai</title>
+      <title >Building for Xenomai (version 2.2.0 or newer)</title>
+      <note><para>
+	For older Xenomai versions, consult the Xenomai README of that
+	version.</para>
+      </note>
       <para>
 	Xenomai provides a real-time scheduler for Linux applications.
-	It is similar to, and once developed with, RTAI/LXRT, but the
-	project is now independent of RTAI. See
-	<ulink url="http://www.xenomai.org">
-	  the Xenomai home page</ulink>. Xenomai requires a patch one needs to apply upon
-	  the Linux kernel. See the Xenomai installation manual. When
-	  applied, one needs to enable the <option>ADEOS</option> or
-	  <option>IPIPE</option> option during Linux kernel
-	  configuration.
+	See <ulink url="http://www.xenomai.org"> the Xenomai home
+	page</ulink>. Xenomai requires a patch one needs to apply upon
+	the Linux kernel, using the
+	<command>scripts/prepare-kernel.sh</command> script. See the
+	Xenomai installation manual. When applied, one needs to enable
+	the <option>General Setup -&gt; Interrupt Pipeline</option>
+	option during Linux kernel configuration and next the
+	<option>Real-Time Sub-system -&gt; </option>,
+	<option>Xenomai</option> and <option>Nucleus</option>. Enable
+	the <option>Native</option> skin, <option>Semaphores</option>,
+	<option>Mutexes</option> and <option>Memory Heap</option>. Finally
+	enable the <option>Posix</option> skin as well.
       </para>
       <para>
 	When the Linux kernel is built, do in the Xenomai directory:
-	<command>make menuconfig; make; make install</command>. Consult the
-	README files in the top Xenomai directory for further help
-	with installation.
+	<command>./configure ; make; make install</command>.
       </para>
-      <section>
-	<title>Xenomai settings</title>
-	<para>
-	  The default settings for Xenomai are fine for Orocos.  The
-	  only option that requires to be set is the location of the
-	  patched Linux kernel.  After configuring you can run 'make'
-	  and 'make install' in your Xenomai directory.
-	</para>
-	<para>
-	  After installation, Xenomai can be found in
-	  <filename>/usr/realtime</filename> or
-	  <filename>/usr/xenomai</filename>. Orocos looks in the first
-	  directory for Xenomai. You'll have to specify
-	  during the Orocos configure step the alternative if you
-	  chose so.
-	</para>
-      </section>
+      <para>
+	You'll have to specify the install directory in the
+	<option>XENOMAI_INSTALL_DIR</option> option during 'ccmake'.
+      </para>
       <section>
 	<title>Loading Xenomai</title>
 	<para>
-	  Orocos uses the native Xenomai API to address the real-time scheduler.
-	  The Xenomai kernel modules can be found in <filename>/usr/realtime/modules</filename>.
-	  Thus only the following kernel modules need to be loaded:
+	  The RTT uses the native Xenomai API to address the real-time
+	  scheduler. The Xenomai kernel modules can be found in
+	  <filename>/usr/xenomai/modules</filename>.  Only the
+	  following kernel modules need to be loaded:
 	  <itemizedlist>
 	    <listitem><para>xeno_hal.ko</para></listitem>
 	    <listitem><para>xeno_nucleus.ko</para></listitem>
 	    <listitem><para>xeno_native.ko</para></listitem>
-	  </itemizedlist> in that order.
-	  For example, by executing as root:
-	  <command>insmod xeno_hal.ko; insmod xeno_nucleus.ko; insmod xeno_native.ko</command>.
-	</para>
-      </section>
-      <section>
-	<title>Configuring Orocos for Xenomai</title>
-	<para>
-	  In your build directory, run:
-	  <command>../configure --with-xenomai[=/usr/realtime] --with-linux[=/patched/linux/tree]</command>
-	  The Xenomai target requires the presence of the
-	  <option>--with-linux=/path/to/linux</option> option since
-	  these targets require Linux headers during the Orocos build.
-	  To use the LibC Kernel headers in
-	  <filename>/usr/include/linux</filename>, specify
-	  <option>--with-linux=/usr</option>.
+	  </itemizedlist> 
+	  in that order.  For example, by executing
+	  as root: <command>insmod xeno_hal.ko; insmod
+	  xeno_nucleus.ko; insmod xeno_native.ko</command>.
 	</para>
       </section>
       <section>
 	<title>Compiling Applications with Xenomai</title>
 	<para>
-	  Application which use Xenomai as a target need special flags when being
-	  compiled and linked. Especially :
+	  Application which use Xenomai as a target need special flags
+	  when being compiled and linked. Especially :
 	  <itemizedlist>
 	    <listitem>
 	      <para>
-		Compiling : <option>-I/usr/realtime/include</option>
+		Compiling : <option>-I/usr/xenomai/include</option>
 	      </para>
 	      <para>
 		This is the Xenomai headers installation directory.
@@ -594,18 +557,18 @@
 	    </listitem>
 	    <listitem>
 	      <para>
-		Linking : <option>-L/usr/realtime/lib
+		Linking : <option>-L/usr/xenomai/lib
 		-lnative</option> for dynamic (.so) linking OR add
-		<option> /usr/realtime/libnative.a </option> for
+		<option> /usr/xenomai/libnative.a </option> for
 		static (.a) linking.
 	      </para>
 	      <important>
 		<para>
 		  You might also need to add
-		  <filename>/usr/realtime/lib</filename> to the
+		  <filename>/usr/xenomai/lib</filename> to the
 		  <filename>/etc/ld.so.conf</filename> file and rerun
 		  <command>ldconfig</command>, such that libnative.so
-		  can be found.
+		  can be found automatically.
 		</para>
 	      </important>
 	    </listitem>
@@ -616,14 +579,14 @@
     <section id="install-config-corba">
       <title>Configuring for CORBA</title>
       <para>
-	Orocos is recommended to be used with 'The Ace Orb' or 
-	<emphasis>TAO</emphasis> version prepared by 
-	OCI (Object Computing Inc.). You can find the 
-	latest TAO version on 
-	<ulink url="http://www.theaceorb.com">OCI's TAO
-	website</ulink>. Orocos was tested with OCI's TAO 1.3 and 1.4.
-	The OCI version is more stable than the versions
-	provided by the DOC group on the <ulink url="http://www.cs.wustl.edu/~schmidt/TAO.html">
+	In case your application benefits from remote access over a
+	network, the RTT can be used with 'The Ace Orb' or
+	<emphasis>TAO</emphasis> version prepared by OCI (Object
+	Computing Inc.). You can find the latest TAO version on <ulink
+	url="http://www.theaceorb.com">OCI's TAO website</ulink>. The
+	RTT was tested with OCI's TAO 1.3 and 1.4.  The OCI version is
+	prefered above the versions provided by the DOC group on the
+	<ulink url="http://www.cs.wustl.edu/~schmidt/TAO.html">
 	Real-time CORBA with TAO (The ACE ORB) website</ulink>.
       </para>
       <note>
@@ -665,46 +628,19 @@
 	</para>
       </section>
       <section>
-	<title>Configuring Orocos for TAO</title>
+	<title>Configuring the RTT for TAO</title>
 	<para>
 	  Orocos will first try to detect your location of ACE and TAO
-	  using the ACE_ROOT and TAO_ROOT variables.
-	  Alternatively, you may add a configure flag to tell
-	  Orocos where to find the <filename>ACE_wrappers</filename>
-	  directory: <screen>../configure --with-ace=/path/to/ACE_wrappers
-	  --with-tao=/path/to/ACE_wrappers/TAO</screen> Orocos then assumes
-	  that the ACE headers are then found in
-	  <filename>/path/to/ACE_wrappers/ace</filename>, the TAO
-	  headers are found in
-	  <filename>/path/to/ACE_wrappers/TAO/tao</filename>, the
-	  libraries are found in
-	  <filename>/path/to/ACE_wrappers/lib</filename> and the IDL
-	  compiler in <filename>/path/to/ACE_wrappers/bin</filename>.
-	  These are all the correct values when using the downloaded
-	  packages.
-	</para>
-	<para>
-	  If none  of the above is done, Orocos tries to find ACE
-	  and TAO in the standard include and bin paths.
-	</para>
-      </section>
-      <section>
-	<title>IDL File Compilation</title>
-	<para>
-	  When Orocos detects the presence of TAO, it immediately
-	  generates the client and server files for all the Orocos IDL
-	  files during the configure step. Thus in order to
-	  re-generate these files, the configure script needs to be
-	  called again. When you do not make use of Orocos' Corba
-	  functionality, these files are not compiled nor used in any
-	  way by the Orocos build.
+	  using the ACE_ROOT and TAO_ROOT variables. If these are set
+	  CORBA support (<option>ENABLE_CORBA</option>) is automatically
+	  enabled.
 	</para>
       </section>
       <section>
 	<title>Application Development with TAO</title>
 	<para>
 	  Once you compile and link your application with Orocos and with the
-	  Corba functionality enabled, you must provide the correct include
+	  CORBA functionality enabled, you must provide the correct include
 	  and link flags in your own Makefile if TAO and ACE are not
 	  installed in the default path. Then you must add:
 	  <itemizedlist>
@@ -756,9 +692,8 @@
       <title>A quick test</title>
       <para>
 	You can issue a <command>make check</command> in the Orocos
-	build directory, but this stresses your system heavily, so it might crash
-	not fully stable RTAI installations. make check for the gnulinux
-	target should successfully complete.
+	build directory, but this stresses your system heavily. make
+	check for the gnulinux target should successfuly complete.
       </para>
       <para>
 	To quickly test an &orocos; application, you can download the examples
@@ -772,9 +707,8 @@
 	test program to see how it works? 
       </para>
       <para>
-	  Building a sample application with &orocos; is quite simple,
-	  but some care must be taken in initialising the realtime
-	  environment. First of all, you need to provide a function
+	Some care must be taken in initialising the realtime
+	environment. First of all, you need to provide a function
 	  <function>int ORO_main(int argc, char** argv)
 	    {...}</function>, defined in &lt;rtt/os/main.h&gt; which contains your program :
 	    <programlisting>  #include &lt;rtt/os/main.h&gt;
@@ -785,7 +719,7 @@
      // allow Orocos to cleanup system resources.
   } </programlisting>
           If you link
-	  with the liborocos-rtt.a library, this function will
+	  with the liborocos-rtt.so library, this function will
 	  be called after the run-time environment is set up. To put in
 	  other words, the Orocos library already contains a
 	  main() function which will call the user-defined ORO_main()
@@ -796,14 +730,14 @@
 	  <para>
 	    You can then simply compile your program with a Makefile
 	    resembling this one : 
-	    <programlisting>  OROPATH=/usr/local/orocos
+	    <programlisting>  OROPATH=/usr/local
   CXXFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-rtt --cflags`
   LDFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-rtt --libs`
 
   all: myprogram.cpp
         g++ myprogram.cpp ${CXXFLAGS} ${LDFLAGS} -o myprogram  </programlisting>
 	    The flags must be extended with compile and link options
-	    for your particular configuration.
+	    for your particular application.
 	  </para>
 	<para>
 	  <important>
@@ -836,27 +770,27 @@
 	    <tbody>
 	      <row>
 		<entry>rtt/*.hpp</entry>
-		<entry>The `Real-Time Toolkit' directory contains all the
-		headers an Orocos user requires for building components.
+		<entry>The `Real-Time Toolkit' directory contains the 
+		headers which describe the public API.
 		</entry>
 	      </row>
 	      <row>
 		<entry>rtt/os/*.h, rtt/os/*.hpp</entry>
-		<entry>Not intended for normal users. The os headers describe a limited set of
-		  OS primitives, like locking a mutex or creating
-		  a thread. Read the OS manual carefully before
-		  using these headers, they are mostly used internally
-		  in the corelib's implementation.
+		<entry>Not intended for normal users. The os headers
+		describe a limited set of OS primitives, like locking
+		a mutex or creating a thread. Read the OS manual
+		carefully before using these headers, they are mostly
+		used internally by the RTT.
 		</entry>
 	      </row>
 	      <row>
-		<entry>rtt/dev/*.h[pp]</entry>
-		<entry>C++ Headers of device interfaces
+		<entry>rtt/dev/*.hpp</entry>
+		<entry>C++ Headers for accessing hardware interfaces.
 		</entry>
 	      </row>
 	      <row>
 		<entry>rtt/corba/*.hpp</entry>
-		<entry>C++ Headers for Corba support.
+		<entry>C++ Headers for CORBA support.
 		</entry>
 	      </row>
 	    </tbody>
@@ -865,53 +799,18 @@
       </para>
     </section>
   </section>
-  <section>
-    <title>Expert configuration and embedded systems.</title>
-    <para>
-      For embedded systems, the <command>make rtt-embedded</command>
-      target should be built. This removes the scripting files from the build.
-    </para>
-    <para>
-      It is possible to shrink even more code size by using the
-      <command>make configure_packages</command> command and disable
-      exceptions and enable 'embedded operating system'. Next proceed
-      with <command>make build</command> to build the adapted configuration.
-    </para>
-    <warning>
-      <para>
-	Invoking <command>make rtt-embedded</command> removes any
-	configuration changes you have made. Use <command>make
-	build</command> ( or <command>make cross</command> ) to build
-	a custom configured configuration. Use <command>make new_packages</command>
-	to start with a clean configuration.
-      </para>
-    </warning>
-    <para>
-      See the Developer's manual for using the configtool program which
-      allows to select what gets built and which allows to tune build
-      parameters for embedded systems.
-    </para>
-  </section>
   <section id="cross-compile">
     <title>Cross Compiling Orocos</title>
     <para>
       This section lists some points of attention when
       cross-compiling Orocos.
     </para>
-    <section>
-      <title>Compilation</title>
-      <para>
-	The 'autoconf' system Orocos is using is not very
-	suitable for out of the box cross compilation. It is
-	hence advised to:
-      </para>
-      <itemizedlist>
-	<listitem><para>Run plain "configure", as if you were building
-	for the host.</para></listitem>
-	<listitem><para>Start the configtool with "make configure_packages"</para></listitem>
-	<listitem><para>Use the configtool's "Global Build Options" to set your compiler and include paths.</para></listitem>
-	<listitem><para>Compile Orocos with "make cross"</para></listitem>
-      </itemizedlist>
-    </section>
+    <para>
+      Run plain "cmake" or "ccmake" with the following options:
+      <screen><command> 
+      CC=cross-gcc CXX=cross-g++ cmake .. -DCROSS_COMPILE=cross-</command></screen>
+      and substitute the 'cross-' prefix with your target tripplet, 
+      for example: 'powerpc-linux-gnu-'.
+    </para>
   </section>
 </article>

@@ -159,8 +159,8 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    The <classname>RTT::Corba::ControlTaskObject</classname> class
-	    and related classes have been revised to map to the
+	    The <classname>ControlTask</classname> class
+	    and related classes have been extended to map to the
 	    TaskContext and TaskObject interface.
 	  </para>
 	</listitem>

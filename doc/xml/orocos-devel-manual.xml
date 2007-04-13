@@ -10,7 +10,7 @@
 <book>
   <bookinfo>
     <title>
-      The Orocos Open Realtime Control Services Developer's Manual
+      The Orocos Real-Time Toolkit Developer's Manual
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis>
     </subtitle>
@@ -24,7 +24,7 @@
       <para>
 	This document delves deeply into
 	the <ulink url="http://www.orocos.org">&orocos;</ulink>
-	<emphasis> ( Open RObot COntrol Software ) </emphasis> infrastructure.
+	<emphasis> ( Open RObot COntrol Software ) </emphasis> RTT infrastructure.
 	It targets developers which wish to extend or understand Orocos.
 	It is complementary to the user's manuals.
       </para>
@@ -32,7 +32,7 @@
 
     <legalnotice>
       <para>
-	Orocos Version &oversion;.
+	Orocos Real-Time Toolkit Version &oversion;.
       </para>
       <para>
 	Permission is granted to copy, distribute and/or modify this document
@@ -49,30 +49,26 @@
     <title>How to Read this Manual</title>
     <para>
       This manual is for Software developers who wish to extend
-      the Orocos framework.
+      the RTT framework.
     </para>
     <para>
-      The first Chapter details some aspects of the build system, for
-      those who want full controll over footprint.
-    </para>
-    <para>
-      The second Chapter details the classes and concepts of the
+      The first Chapter details the classes and concepts of the
       OS abstraction layer. It is useful to understand the 
       Orocos threading mechanism and how Orocos can be ported
       to other platforms.
     </para>
     <para>
-      The third and fourth Chapters document the Core Library and Task
+      The second and third Chapters document the Core Library and Task
       Infrastructure and are the same
       as the one found in the Component Builder's manual.
     </para>
     <para>
-      The fifth Chapter shows some mechanisms on how 
+      The next Chapter shows some mechanisms on how 
       to use CoreLib primitives behind the scenes in the 
       Task Infrastructure.
     </para>
     <para>
-      The sixth Chapter details the workings of the Execution Engine
+      The next Chapter details the workings of the Execution Engine
       and how it uses the various 'Processor' types to handle
       program execution and communication.
     </para>
@@ -108,14 +104,6 @@
       </para>
     </section>
   </chapter>
-  <chapter>
-    <title>Inside the Build System</title>
-    <xi:include  href="orocos-installation-devel.xml#xpointer(/article/articleinfo/abstract)"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-    <xi:include  href="orocos-installation-devel.xml#xpointer(/article/section[*])"  
-             xmlns:xi="http://www.w3.org/2001/XInclude" />
-  </chapter>
-
   <chapter>
     <title>Inside The Core Library</title>
     <xi:include  href="orocos-corelib-devel.xml#xpointer(/article/articleinfo/abstract)"  

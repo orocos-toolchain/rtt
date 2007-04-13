@@ -40,7 +40,7 @@ IF (BUILD_DOCS)
   ADD_DEPENDENCIES(dochtml docpng)
   ADD_DEPENDENCIES(docpdf docpng)
 
-  ADD_CUSTOM_TARGET(message ALL echo "Use: make dochtml docpdf to build the documentation.")
+  ADD_CUSTOM_TARGET(message ALL echo "Use: make docapi dochtml docpdf to build the documentation.")
 
 
 ENDIF (BUILD_DOCS)
