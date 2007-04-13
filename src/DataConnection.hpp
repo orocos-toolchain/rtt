@@ -42,11 +42,6 @@
 #include "DataConnectionInterface.hpp"
 #include "DataObjectInterfaces.hpp"
 
-#ifdef OROPKG_CORBA
-#include "corba/CorbaDataObject.hpp"
-#include "corba/Services.hpp"
-#endif
-
 namespace RTT
 {
     template<class T>
@@ -229,7 +224,7 @@ namespace RTT
     template<class T>
     CORBA::Object_ptr DataConnection<T>::toChannel() {
         // create a default channel.
-        log(Debug) << "Creating CorbaDataObject." << endlog();
+        log(Debug) << "Returning Corba Data Object." << endlog();
         return buf->server(0);
     }
 #endif
