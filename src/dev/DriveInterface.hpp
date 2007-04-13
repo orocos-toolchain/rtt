@@ -40,7 +40,7 @@
 #ifndef DEVICE_DRIVERS_DRIVE_INTERFACE_HPP
 #define DEVICE_DRIVERS_DRIVE_INTERFACE_HPP
 
-#include "Event.hpp"
+#include "../Event.hpp"
 
 namespace RTT
 {
