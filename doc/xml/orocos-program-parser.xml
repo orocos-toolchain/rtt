@@ -881,11 +881,11 @@
 	  "progname" in task "ATask", you can write
 	</para>
 	<programlisting>
-  do ATask.programs.progname.start()
-  do ATask.programs.progname.pause()
-  do ATask.programs.progname.step()
-  do ATask.programs.progname.step()
-  do ATask.programs.progname.stop()</programlisting>
+  do ATask.progname.start()
+  do ATask.progname.pause()
+  do ATask.progname.step()
+  do ATask.progname.step()
+  do ATask.progname.stop()</programlisting>
 	<para>The first line starts a program. The second line
 	  pauses it. The next two lines executes one command each of the
 	  program (like stepping in a debugger). The last line stops
@@ -894,9 +894,9 @@
 	  Some basic properties of the program can be
 	  inspected likewise :</para>
 	<programlisting>
-  var bool res =  ATask.programs.progname.isRunning()
-  set res = ATask.programs.progname.inError()
-  set res = ATask.programs.progname.isPaused()</programlisting>
+  var bool res =  ATask.progname.isRunning()
+  set res = ATask.progname.inError()
+  set res = ATask.progname.isPaused()</programlisting>
 	<para>
 	  which all return a boolean indicating true or false.</para>
     </section>
@@ -1384,9 +1384,9 @@
 	    other tasks or programs :
 	    </para>
 	  <programlisting>  var int readcounter = 0
-  set readcounter = taskname.states.mymachine.counter
+  set readcounter = taskname.mymachine.counter
 
-  set taskname.states.mymachine.counter = taskname.states.mymachine.counter *  2</programlisting>
+  set taskname.mymachine.counter = taskname.mymachine.counter *  2</programlisting>
 	  </section>
 	  <section>
 	    <title>StateMachine parameters</title>
@@ -1581,19 +1581,19 @@
 	"machine" with subcontexts "axisx" and "axisy"
 	in task "ATask", you can write
       </para>
-      <programlisting>  do ATask.states.machine.activate()
-  do ATask.states.machine.axisx.activate()
+      <programlisting>  do ATask.machine.activate()
+  do ATask.machine.axisx.activate()
   // now in reactive mode...
 
-  do ATask.states.machine.axisx.start()
-  do ATask.states.machine.start()
+  do ATask.machine.axisx.start()
+  do ATask.machine.start()
   // now in automatic mode...
 
-  do ATask.states.machine.stop()
+  do ATask.machine.stop()
   // again in reactive mode, in final state
 
-  do ATask.states.machine.reset()
-  do ATask.states.machine.deactivate()
+  do ATask.machine.reset()
+  do ATask.machine.deactivate()
   // deactivated.
   // etc. </programlisting>
       <para>
@@ -1608,11 +1608,11 @@
 	Thus both RootMachines and SubMachines can be controlled.
 	Some basic properties of the states can be
 	inspected likewise :</para>
-      <programlisting>  var bool res =  ATask.states.machine.isActive()      // Active ?
-  set res = ATask.states.machine.axisy.isRunning()     // Running ?
-  set res =  ATask.states.machine.isReactive()          // Waiting for requests or events? 
-  var string current = ATask.states.machine.getState() // Get current state
-  set res = ATask.states.machine.inState( current )    // inState ?</programlisting>
+      <programlisting>  var bool res =  ATask.machine.isActive()      // Active ?
+  set res = ATask.machine.axisy.isRunning()     // Running ?
+  set res =  ATask.machine.isReactive()          // Waiting for requests or events? 
+  var string current = ATask.machine.getState() // Get current state
+  set res = ATask.machine.inState( current )    // inState ?</programlisting>
       <para>
 	which makes it possible to monitor state machines from other
 	scripts or an operator console.</para>
@@ -1658,32 +1658,32 @@
 	<programlisting>
    program interact {
        // First activate x :
-       do states.x.activate()  // activate and wait.
+       do x.activate()  // activate and wait.
 
        // Request a state transition :
-       try states.x.requestState("z") catch {
+       try x.requestState("z") catch {
            // failed !
        }
 
        // ok we are in "z" now, try to make a valid transition :
-       do states.x.step()
+       do x.step()
 
        // enter pause mode :
-       do states.x.pause()
+       do x.pause()
        // Different ! Executes a single program statement :
-       do states.x.step()
+       do x.step()
 
        // unpause, by re-entering reactive Mode :
-       do states.x.reactive()
+       do x.reactive()
 
        // we are in ok_1 now, again waiting...
-       do states.x.stop()      // go to the final state
+       do x.stop()      // go to the final state
 
        // we are in "exit" now
-       do states.reset()
+       do reset()
 
        // back in state "y", handle current state :
-       do this.states.x.requestState( this.states.x.getState() )
+       do this.x.requestState( this.x.getState() )
        // etc.
     } </programlisting>
          <para>
@@ -1761,22 +1761,22 @@
 	<programlisting>
    program interact {
        // First activate x :
-       do states.x.activate()  // activate and wait.
+       do x.activate()  // activate and wait.
 
        // Enter automatic mode :
-       do states.x.start()
+       do x.start()
 
        // pause program execution :
-       do states.x.pause()
+       do x.pause()
 
        // execute a single statement :
-       do states.x.step()
+       do x.step()
 
        // resume automatic mode again :
-       do states.x.start()
+       do x.start()
 
        // stop, enter final state, in request mode again.
-       do states.x.stop()
+       do x.stop()
 
        // etc...
     } </programlisting>
@@ -1903,12 +1903,12 @@
        */
       state exec_state {
   	entry {
-  	    do programs.MyProgram.start()
+  	    do MyProgram.start()
   	    }
   
   	exit {
-	    set error = programs.MyPorgram.inError()
-  	    do programs.MyProgram.stop()
+	    set error = MyPorgram.inError()
+  	    do MyProgram.stop()
   	    }
   
   	transitions {
@@ -1916,7 +1916,7 @@
   		 select run_state
   	    }
 	    // Detect Program Failure :
-	    if programs.MyProgram.inError() then
+	    if MyProgram.inError() then
 	         select stop_state
       }
   }
