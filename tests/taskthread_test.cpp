@@ -200,6 +200,12 @@ void ActivitiesThreadTest::testPeriodic()
     CPPUNIT_ASSERT( mtask.thread() != m3task.thread() );
     CPPUNIT_ASSERT_EQUAL( ORO_SCHED_OTHER, m3task.thread()->getScheduler() );
     
+    // Starting thread if thread not running
+    CPPUNIT_ASSERT( mtask.thread()->stop() );
+    CPPUNIT_ASSERT( mtask.thread()->isRunning() == false );
+    CPPUNIT_ASSERT( mtask.start() );
+    CPPUNIT_ASSERT( mtask.isRunning() == true );
+    CPPUNIT_ASSERT( mtask.thread()->isRunning() == true);
 }
 
 void ActivitiesThreadTest::testNonPeriodic()

@@ -148,10 +148,13 @@ namespace RTT
 
     bool PeriodicActivity::start()
     {
-        if ( !timer_ || isActive() || !thread_->isRunning() ) {
+        if ( !timer_ || isActive() || !thread_ ) {
             //Logger::log() << Logger::Error << "PeriodicActivity : no timer, already active or thread not running." << Logger::endl;
             return false;
         }
+        // If thread is not yet running, try to start it.
+        if ( !thread_->isRunning() && thread_->start() == false )
+            return false;
 	
         active = true;
         bool inError = !this->initialize();
