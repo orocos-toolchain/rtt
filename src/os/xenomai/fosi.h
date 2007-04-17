@@ -119,13 +119,12 @@ extern "C" {
 	typedef XENO_TASK_HANDLE RTOS_XENO_TASK;
 #endif
 
-    // Thread/Task related.
-    typedef struct {
-        char * name;
-        RTOS_XENO_TASK xenotask;
-        RTOS_XENO_TASK* xenoptr;
-        int sched_type;
-    } RTOS_TASK;
+	// Thread/Task related.
+	typedef struct {
+		char * name;
+		RTOS_XENO_TASK xenotask;
+		RTOS_XENO_TASK* xenoptr;
+	} RTOS_TASK;
 
 #define SCHED_XENOMAI_HARD 0 /** Hard real-time */
 #define SCHED_XENOMAI_SOFT 1 /** Soft real-time */
