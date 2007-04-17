@@ -12,3 +12,7 @@
 #ifdef OROPKG_OS_XENOMAI
  #include "xenomai/fosi_internal.hpp"
 #endif
+
+#ifdef OROPKG_OS_ECOS
+ #include "ecos/fosi_internal.hpp"
+#endif

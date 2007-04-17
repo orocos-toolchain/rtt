@@ -76,6 +76,7 @@
 #cmakedefine OROPKG_OS_LXRT
 #cmakedefine OROPKG_OS_GNULINUX
 #cmakedefine OROPKG_OS_XENOMAI
+#cmakedefine OROPKG_OS_ECOS
 
 // Detect the CPU we are compiling for
 # if defined( __GNUC__ ) && defined( __i386__ )

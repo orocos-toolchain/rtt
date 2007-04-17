@@ -55,7 +55,7 @@ OPTION( ENABLE_TESTS "Turn me off to disable compilation of all tests" OFF )
 #
 # STATIC or SHARED
 #
-OPTION( BUILD_STATIC "Build Orocos RTT as a static library." OFF)
+OPTION( BUILD_STATIC "Build Orocos RTT as a static library." ${FORCE_BUILD_STATIC})
 
 #
 # CORBA

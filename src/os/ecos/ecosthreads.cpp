@@ -1,4 +1,4 @@
-#include <pkgconf/os_ecos.h>
+#include "os_ecos.h"
 #include <rtt/os/threads.hpp>
 
 namespace RTT

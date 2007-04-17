@@ -25,8 +25,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef __FOSI_H
-#define __FOSI_H
+#ifndef RTT_ECOS__FOSI_H
+#define RTT_ECOS__FOSI_H
 
 #define HAVE_FOSI_API
 
@@ -38,7 +38,7 @@ extern "C"
 #include <stdio.h>
 #include <cyg/kernel/kapi.h>
   // #include <errno.h>
-#include <pkgconf/os_ecos.h>
+#include "os_ecos.h"
 #include <pkgconf/kernel.h>
 #include <cyg/infra/diag.h> // for diag_printf
 
@@ -82,9 +82,6 @@ extern "C"
     cyg_sem_t wakeup_sem;
   } RTOS_TASK;
 
-  // Orocos Atomic implementation (i386 specific)
-#include "oro_atomic.h"
-#include "oro_bitops.h"
 
   // Time Related
 #include <time.h>
