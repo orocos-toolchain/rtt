@@ -74,6 +74,8 @@ namespace RTT
                 sched_setscheduler( 0, ORO_SCHED_OTHER, &param);
 
             const char* mt_name = "MainThread";
+            main->sched_type = SCHED_XENOMAI_SOFT; // default for MainThread
+            main->name = strncpy( (char*)malloc( (strlen(mt_name)+1)*sizeof(char) ), mt_name, strlen(mt_name)+1 );
 
             int ret = -1;
             while( ret != 0) {
@@ -99,6 +101,9 @@ namespace RTT
                         printf( "Can not rt_task_create() MainThread: No permission.\n");
                         exit(1);
                     }
+                    // uncaught error: abort
+                    printf( "Can not rt_task_create() MainThread: Error %d.\n",ret);
+                    exit(1);
                 }
             }
             // We are a xeno thread now:
@@ -137,6 +142,7 @@ namespace RTT
         INTERNAL_QUAL int rtos_task_delete_main(RTOS_TASK* main_task)
         {
             rt_task_delete( &(main_task->xenotask) );
+            free (main_task->name);
             munlockall();
             return 0;
         }
@@ -178,6 +184,7 @@ namespace RTT
             if ( name == 0 || strlen(name) == 0)
                 name = "XenoThread";
             task->name = strncpy( (char*)malloc( (strlen(name)+1)*sizeof(char) ), name, strlen(name)+1 );
+            task->sched_type = SCHED_XENOMAI_HARD; // default
             int rv;
             // task, name, stack, priority, mode, fun, arg
             // UGLY, how can I check in Xenomai that a name is in use before calling rt_task_spawn ???
@@ -215,22 +222,37 @@ namespace RTT
                 return -1;
             }
             if (sched_type == SCHED_XENOMAI_HARD)
-                return rt_task_set_mode( 0, T_PRIMARY, 0 );
-            else if ( sched_type == SCHED_XENOMAI_SOFT)
-                return rt_task_set_mode( T_PRIMARY, 0, 0 );
+                if ( rt_task_set_mode( 0, T_PRIMARY, 0 ) == 0 ) {
+                    t->sched_type = SCHED_XENOMAI_HARD;
+                    return 0;
+                } else
+                    return -1;
+            else if ( sched_type == SCHED_XENOMAI_SOFT) 
+                if (rt_task_set_mode( T_PRIMARY, 0, 0 ) == 0 ) {
+                    t->sched_type = SCHED_XENOMAI_SOFT;
+                    return 0;
+                } else
+                    return -1;
+                    
             log(Error) << "Unknown scheduler type for Xenomai. Use SCHED_XENOMAI_SOFT or SCHED_XENOMAI_HARD." <<endlog();
             return -1;
         }
 
         INTERNAL_QUAL int rtos_task_get_scheduler(const RTOS_TASK* mytask) {
-
-            RT_TASK_INFO info;
+#if 0
             // WORK AROUND constness: (need non-const mytask)
             RT_TASK* tt = mytask->xenoptr;
+            RT_TASK_INFO info;
             if ( tt )
-                if ( rt_task_inquire ( tt, &info) == 0 ) 
-                    return info.status & T_PRIMARY;
+                if ( rt_task_inquire( tt, &info) == 0 ) 
+                    if ( info.status & XNRELAX )
+                        return SCHED_XENOMAI_SOFT;
+                    else
+                        return SCHED_XENOMAI_HARD;
             return -1;
+#else
+            return mytask->sched_type;
+#endif
         }
 
         INTERNAL_QUAL void rtos_task_make_periodic(RTOS_TASK* mytask, RTIME nanosecs )
