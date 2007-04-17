@@ -150,8 +150,8 @@ struct TestAllocate
 void 
 ActivitiesThreadTest::setUp()
 {
-    t_task_np = new TestActivity<PeriodicActivity>(3, 0.001, true );
-    t_task_np_bad = new TestActivity<PeriodicActivity>(3, 0.001, true, true );
+    t_task_np = new TestActivity<PeriodicActivity>(3, 0.01, true );
+    t_task_np_bad = new TestActivity<PeriodicActivity>(3, 0.01, true, true );
     t_task_p = new TestActivity<PeriodicActivity>(3, 0.032, true );
 }
 
@@ -236,7 +236,6 @@ void ActivitiesThreadTest::testNonPeriodic()
     NonPeriodicActivity m3task(ORO_SCHED_OTHER, 15);
     CPPUNIT_ASSERT( mtask.thread() != m3task.thread() );
     CPPUNIT_ASSERT_EQUAL( ORO_SCHED_OTHER, m3task.thread()->getScheduler() );
-    
 }
 
 void ActivitiesThreadTest::testSlave()
