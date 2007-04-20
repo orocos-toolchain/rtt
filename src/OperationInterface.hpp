@@ -126,7 +126,9 @@ namespace RTT
 
         const AttributeRepository* attributes() const { return &mattributes; }
 
-        virtual ~OperationInterface() {}
+        virtual ~OperationInterface();
+
+        virtual void clear();
 
         /**
          * Returns the name of this interface.

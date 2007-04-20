@@ -684,9 +684,6 @@ namespace RTT
               //}
           }
 
-          // remove the type from __states
-          //context->getPeer("__states")->removeObject( curtemplate->getTaskContext()->getName() ) ;
-
           // will also delete all children : 
           curtemplate.reset();
         }
@@ -704,41 +701,21 @@ namespace RTT
           delete i->second;
         contextbuilders.clear();
         
-        // We also remove all parsed SC's because there is for now no possiblity for
-        // reuse, since only the TaskContext pointer is stored and not the ParsedSC's.
-        TaskContext* __s = context->getPeer("__states");
-        if ( __s ) {
-            context->removePeer("__states");
-            delete __s;
-        }
-
     }
 
     void StateGraphParser::seenstatecontextname( iter_t begin, iter_t end ) {
         // the 'type' of the SC :
         curcontextname = std::string ( begin, end );
 
-        // store the SC in the TaskContext current.__states
-        // __states is a storage for template SC's
-        TaskContext* __s = context->getPeer("__states");
-        if ( __s == 0 ) {
-            // install the __states if not yet present.
-            __s = new TaskContext("__states", context->engine() );
-            __s->clear();
-            context->addPeer( __s );
-        }
-
         // check if the type exists already :
-        if ( context->getObject( curcontextname ) || __s->getObject( curcontextname ) )
-            ORO_THROW( parse_exception_semantic_error("StateMachine " + curcontextname + " redefined."));
+        if ( contextbuilders.count( curcontextname ) != 0 )
+            ORO_THROW( parse_exception_semantic_error("StateMachine type " + curcontextname + " redefined."));
 
         curtemplate.reset(new ParsedStateMachine());
         // Connect the new SC to the relevant contexts.
         // 'sc' acts as a stack for storing variables.
         curcontext = new StateMachineTask(curtemplate, context->engine() );
         curcontext->setName( curcontextname );
-        __s->addObject( curcontext );   // store in __states.
-        curcontext->setParent(0);
         curtemplate->setTaskContext( curcontext ); // store.
         curtemplate->setEventProcessor( context->engine()->events() ); //handle events in TaskContext.
         
@@ -802,6 +779,8 @@ namespace RTT
         if ( context->getObject( curinstcontextname ) )
             ORO_THROW( parse_exception_semantic_error("TaskContext '"+context->getName()+"' has already an Object named '" + curinstcontextname + "' ."));
 
+        // Transfer ownership to the owning task.
+        curinstantiatedcontext->getTaskContext()->setParent( 0 );
         context->addObject( curinstantiatedcontext->getTaskContext() );
 
         curinstantiatedcontext.reset();

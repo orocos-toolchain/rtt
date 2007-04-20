@@ -155,12 +155,6 @@ namespace RTT
             // Do not call this->disconnect() !!!
             // Ports are probably already destructed by user code.
 
-            Objects::const_iterator it = mobjects.begin();
-            while ( it != mobjects.end() ) {
-                if ( (*it)->getParent() == this )
-                    delete *it;
-                ++it;
-            }
         }
 
     void TaskContext::exportPorts()
@@ -406,12 +400,7 @@ namespace RTT
         this->properties()->clear();
         this->ports()->clear();
 
-        Objects::const_iterator it = mobjects.begin();
-        while ( it != mobjects.end() ) {
-            delete *it;
-            ++it;
-        }
-        mobjects.clear();
+        OperationInterface::clear();
     }
 
     bool connectPorts(TaskContext* A, TaskContext* B) { 

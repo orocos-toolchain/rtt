@@ -125,9 +125,16 @@ namespace RTT
 
     void FunctionGraph::handleUnload()
     {
+        if (context == 0)
+            return;
         // just kill off the interface.
-        if (context && context->getParent() )
+        if (context->getParent() ) {
             context->getParent()->removeObject(context->getName());
+        } else {
+            // no parent, delete it ourselves.
+            delete context;
+        }
+
         context = 0;
     }
 

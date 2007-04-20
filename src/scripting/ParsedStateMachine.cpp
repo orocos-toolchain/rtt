@@ -209,9 +209,14 @@ namespace RTT {
     void ParsedStateMachine::handleUnload()
     {
         // just kill off the interface.
-        if (context && context->getParent() ) {
+        if ( context == 0)
+            return;
+        if ( context->getParent() ) {
             assert( context == context->getParent()->getObject( context->getName() ) );
             context->getParent()->removeObject( context->getName() );
+        } else {
+            // no parent, delete it ourselves.
+            delete context;
         }
         context = 0;
     }

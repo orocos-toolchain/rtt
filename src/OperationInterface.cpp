@@ -11,6 +11,23 @@ namespace RTT
 #endif
     {}
 
+    OperationInterface::~OperationInterface()
+    {
+        // better scope such that virtual subclass function is not called.
+        OperationInterface::clear();
+    }
+
+    void OperationInterface::clear()
+    {
+        Objects::const_iterator it = mobjects.begin();
+        while ( it != mobjects.end() ) {
+            if ( (*it)->getParent() == this )
+                delete *it;
+            ++it;
+        }
+        mobjects.clear();
+        mattributes.clear();
+    }
 
     bool OperationInterface::addObject( OperationInterface *obj ) {
         assert(obj);
