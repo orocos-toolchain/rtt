@@ -69,6 +69,7 @@ namespace RTT
             Logger::In in("ConnectionC");
             if (syn_ecb ) {
                 Logger::log() << Logger::Info << "Creating Syn connection to "+ mname +"."<<Logger::endl;
+                // syn_ecb is never deleted !
                 h = mgcf->setupSyn(mname, bind(&EventCallBack::callback, syn_ecb), syn_ecb->args());
                 if (!h)
                     Logger::log() << Logger::Error << "Creating Syn connection to "+ mname +" failed."<<Logger::endl;
@@ -76,6 +77,7 @@ namespace RTT
             }
             if (asyn_ecb) {
                 Logger::log() << Logger::Info << "Creating Asyn connection to "+ mname +"."<<Logger::endl;
+                // asyn_ecb is never deleted !
                 h = mgcf->setupAsyn(mname, bind(&EventCallBack::callback, asyn_ecb), asyn_ecb->args(), mep, ms_type);
                 if (!h)
                     Logger::log() << Logger::Error << "Creating ASyn connection to "+ mname +" failed."<<Logger::endl;
@@ -86,6 +88,7 @@ namespace RTT
         void callback(EventCallBack* ecb) { 
             if (syn_ecb || asyn_ecb) {
                 Logger::log() << Logger::Error << "Ignoring added Synchronous 'callback': already present."<<Logger::endl;
+                delete ecb;
                 return;
             }
             syn_ecb = ecb; 
@@ -93,6 +96,7 @@ namespace RTT
         void callback(EventCallBack* ecb, EventProcessor* ep, EventProcessor::AsynStorageType s_type) {
             if (syn_ecb || asyn_ecb) {
                 Logger::log() << Logger::Error << "Ignoring added Asynchronous 'callback': already present."<<Logger::endl;
+                delete ecb;
                 return;
             }
             asyn_ecb = ecb; mep = ep; ms_type = s_type;
@@ -106,12 +110,17 @@ namespace RTT
         D(const D& other)
             : mgcf( other.mgcf), mname(other.mname),
               syn_ecb( other.syn_ecb ), asyn_ecb( other.asyn_ecb ),
-              mep(other.mep), h( other.h )
+              mep( other.mep ), h( other.h )
         {
+            // We steal the connection info from other.
+            //other.syn_ecb = 0;
+            //other.asyn_ecb = 0;
         }
 
         ~D()
         {
+            //delete syn_ecb;
+            //delete asyn_ecb;
         }
 
         /**
@@ -163,6 +172,7 @@ namespace RTT
             d->callback( ecb );
         } else {
             Logger::log() << Logger::Warning << "Ignoring added 'callback' on empty Connection."<<Logger::endl;
+            delete ecb; // created by us.
         }
         return *this;
     }
@@ -174,6 +184,7 @@ namespace RTT
             d->callback( ecb, ep, s_type );
         } else {
             Logger::log() << Logger::Warning << "Ignoring added 'callback' on empty Connection."<<Logger::endl;
+            delete ecb; // created by us.
         }
         return *this;
     }
@@ -187,7 +198,7 @@ namespace RTT
 
         // now check if we actually got a valid handle
         // if nothing new was added, 'h' still has the previous added connections.
-        if ( !d ) {
+        if ( !h ) {
             Logger::log() << Logger::Warning << "Used handle() on empty Connection. Returned invalid handle to Event "+ (d ? d->mname : "") +"."<<Logger::endl;
         }
         return h;
