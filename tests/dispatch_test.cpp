@@ -45,10 +45,12 @@ DispatchTest::DispatchTest()
 void 
 DispatchTest::setUp()
 {
+    ltc.clear();
+    mtc.clear();
+    gtc.clear();
     // ltc has a test object
     ltc.addObject( this->createObject("test", ltc.engine()->commands()) );
     // mtc has two methods.
-    mtc.addObject( this->createObject("this", mtc.engine()->commands()) );
     mtc.addObject( this->createObject("test", mtc.engine()->commands()) );
 
     gtc.addPeer( &mtc );
