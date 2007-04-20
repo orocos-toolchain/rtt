@@ -4,12 +4,18 @@ echo "Orocos configure script."
 
 function usage
 {
-   echo "This script allows you to set the compiler."
+   echo "This script allows you to set the compiler and CFLAGS/LDFLAGS."
    echo "Usage : ../configure [--prefix=/usr/local] [--with-target=/target/path] [CC=compiler] [CXX=compiler]"
    echo
    echo "Supported --with-target's: --with-xenomai --with-lxrt --with-gnulinux"
    echo
-   echo "Example: ../configure --prefix=/usr/local/orocos --with-xenomai=/usr/xenomai CC=gcc-3.3.6 CXX=g++-3.3.6"
+   echo "Options:"
+   echo "   --disable-corba     Disable CORBA, even if installed on the system."
+   echo "   --with-linux=/path  Provide a Linux path for RTAI/LXRT or old Xenomai versions."
+   echo
+   echo "Example: CFLAGS='-g' $0 --prefix=/usr/local/orocos --with-xenomai=/usr/xenomai CC=gcc-3.3.6 CXX=g++-3.3.6"
+   echo
+   echo "For more advanced configuration, use the 'ccmake' utility directly."
 }
 
 function getcompiler
@@ -38,6 +44,9 @@ function getcompiler
 	CMAKE_LINUX=1
 	CMAKE_LINUX_PATH="${arg:13}"
     fi
+    if [ $(expr match "$arg" "--disable-corba") != 0 ]; then
+	CMAKE_DISABLE_CORBA=1
+    fi
 }
 
 while [ "$1" != "" ]; do
@@ -50,13 +59,15 @@ while [ "$1" != "" ]; do
     shift
 done
 
-if [ -f ./configure ]; then
-   echo "Error: run configure from a 'build' directory:"
-   echo " $ mkdir build"
-   echo " $ cd build"
-   echo " $ ../configure [options]"
-   exit 1
-fi
+# if [ -f ./configure ]; then
+#    echo "Error: run configure from a 'build' directory:"
+#    echo " $ mkdir build"
+#    echo " $ cd build"
+#    echo " $ ../configure [options]"
+#    exit 1
+# fi
+
+src_dir=$(dirname $0)
 
 if [ -f ./CMakeCache.txt ]; then
    echo "Error: One can not change the compiler once configured !"
@@ -100,6 +111,11 @@ if [ x$CMAKE_LINUX != x ]; then
    fi   
 fi
 
+# --disable-corba
+if [ x$CMAKE_DISABLE_CORBA != x ]; then
+    CMAKE_ARGS="$CMAKE_ARGS -DENABLE_CORBA=FALSE"
+fi
+
 CMAKE_EXE=$(which cmake)
 
 if [ x$CMAKE_EXE = x ]; then
@@ -114,7 +130,7 @@ fi
 if [ x$CMAKE_CXX != x ]; then
 export $CMAKE_CXX 
 fi
-$CMAKE_EXE .. $CMAKE_ARGS || { echo -e "\ncmake produced an error - removing cache."; rm CMakeCache.txt; exit 1; }
+$CMAKE_EXE $src_dir $CMAKE_ARGS || { echo -e "\ncmake produced an error - removing cache."; rm CMakeCache.txt; exit 1; }
 
 echo
 echo "OK: configure done. Now issue 'make'."
