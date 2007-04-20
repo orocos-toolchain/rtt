@@ -106,7 +106,7 @@ namespace RTT
             methods()->addMethodDS(ptr, method_ds("inTransition", &StateMachine::inTransition), "Is this StateMachine executing a entry|handle|exit program ?");
         }
 
-        StateMachineTask* StateMachineTask::copy(StateMachinePtr newsc, std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate )
+        StateMachineTask* StateMachineTask::copy(ParsedStateMachinePtr newsc, std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate )
         {
             // if this gets copied, all created commands will use the new instance of StateMachineTask to
             // call the member functions. Further more, all future commands for the copy will also call the new instance
@@ -121,9 +121,10 @@ namespace RTT
             return tmp;
         }
 
-        StateMachineTask::StateMachineTask(StateMachinePtr statemachine, ExecutionEngine* ee)
-            : TaskObject( statemachine->getName() ),
-              _this( new ValueDataSource<StateMachineWPtr>( statemachine ) ),
+        StateMachineTask::StateMachineTask(ParsedStateMachinePtr statem, ExecutionEngine* ee)
+            : TaskObject( statem->getName() ),
+              _this( new ValueDataSource<StateMachineWPtr>( statem ) ),
+              statemachine(statem),
               mengine(ee)
         {
             this->createCommandFactory();
@@ -132,6 +133,11 @@ namespace RTT
 
     StateMachineTask::~StateMachineTask()
     {
+        // When the this TaskObject is deleted, make sure the program does not reference us.
+        ParsedStateMachinePtr prog = statemachine.lock();
+        if ( prog && prog->getStatus() != StateMachine::Status::unloaded ) {
+            prog->setTaskContext(0);
+        }
     }
 }
 

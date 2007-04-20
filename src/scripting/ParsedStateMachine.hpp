@@ -43,20 +43,18 @@
 #include "../DataSource.hpp"
 #include <boost/shared_ptr.hpp>
 
-namespace RTT {
-
-    class StateDescription;
-    class Processor;
+namespace RTT 
+{
     class TaskObject;
     class StateMachineTask;
 
-    namespace detail {
-        class StateMachineCommands;
-    }
-
     class ParsedStateMachine;
     typedef boost::shared_ptr<ParsedStateMachine> ParsedStateMachinePtr;
+    typedef boost::weak_ptr<ParsedStateMachine> ParsedStateMachineWPtr;
 
+    /**
+     * State machine created by the scripting engine which represents a parsed state machine.
+     */
     class ParsedStateMachine
         : public StateMachine
     {

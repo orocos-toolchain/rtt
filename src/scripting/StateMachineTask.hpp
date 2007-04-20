@@ -41,7 +41,7 @@
 #define STATEMACHINE_TASK_HPP
 
 #include "../TaskObject.hpp"
-#include "../StateMachine.hpp"
+#include "ParsedStateMachine.hpp"
 
 namespace RTT
 {
@@ -59,7 +59,8 @@ namespace RTT
         //boost::weak_ptr<StateMachine> sm;
         // used when state machines are copied.
         // functions have a similar mechanism
-        ValueDataSource< StateMachineWPtr >::shared_ptr _this; 
+        ValueDataSource< StateMachineWPtr >::shared_ptr _this;
+        ParsedStateMachineWPtr statemachine;
         ExecutionEngine* mengine;
 
         bool true_gen() const;
@@ -68,13 +69,13 @@ namespace RTT
         void createMethodFactory();
 
     public:
-        StateMachineTask* copy(StateMachinePtr newsc, std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate );
+        StateMachineTask* copy(ParsedStateMachinePtr newsc, std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate );
 
         /**
          * By constructing this object, a stateMachine is added to a taskcontext
          * as a TaskObject, with its commands and methods.
          */
-        StateMachineTask(StateMachinePtr statemachine, ExecutionEngine* ee=0);
+        StateMachineTask(ParsedStateMachinePtr statemachine, ExecutionEngine* ee=0);
 
         ~StateMachineTask();
 

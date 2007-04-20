@@ -48,6 +48,7 @@ namespace RTT
 {
     class FunctionGraph;
     typedef boost::shared_ptr<FunctionGraph> FunctionGraphPtr;
+    typedef boost::weak_ptr<FunctionGraph> FunctionGraphWPtr;
     class TaskObject;
 
     /**

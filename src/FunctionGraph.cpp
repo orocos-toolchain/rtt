@@ -114,6 +114,7 @@ namespace RTT
         std::vector<AttributeBase*>::iterator it = args.begin();
         for ( ; it != args.end(); ++it)
             delete *it;
+        pStatus = Status::unloaded;
         this->handleUnload();
     }
 

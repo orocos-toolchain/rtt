@@ -41,7 +41,7 @@
 #define PROGRAM_TASK_HPP
 
 #include "../TaskObject.hpp"
-#include "../ProgramInterface.hpp"
+#include "../FunctionGraph.hpp"
 #include "../DataSources.hpp"
 
 namespace RTT
@@ -56,12 +56,13 @@ namespace RTT
         : public TaskObject
     {
         ValueDataSource<ProgramInterfaceWPtr>::shared_ptr program;
+        FunctionGraphWPtr function;
     public:
         /**
          * By constructing this object, a program is added to a taskcontext
          * as a TaskContext, with its commands and methods.
          */
-        ProgramTask( ProgramInterfacePtr, ExecutionEngine* ee = 0 );
+        ProgramTask( FunctionGraphPtr prog, ExecutionEngine* ee = 0 );
 
         ~ProgramTask();
 

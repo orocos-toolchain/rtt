@@ -155,11 +155,6 @@ namespace RTT
             // Do not call this->disconnect() !!!
             // Ports are probably already destructed by user code.
 
-            // We need to force-unload programs and states first,
-            // such that we can then delete the remaining objects.
-            engine()->programs()->clear();
-            engine()->states()->clear();
-
             Objects::const_iterator it = mobjects.begin();
             while ( it != mobjects.end() ) {
                 if ( (*it)->getParent() == this )

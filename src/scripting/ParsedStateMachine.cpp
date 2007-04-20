@@ -180,6 +180,7 @@ namespace RTT {
     }
 
     ParsedStateMachine::~ParsedStateMachine() {
+        this->smStatus = Status::unloaded;
         this->handleUnload();
 
         // we own our states...
@@ -281,10 +282,11 @@ namespace RTT {
         return context;
     }
     void ParsedStateMachine::setTaskContext(StateMachineTask* tc) {
-        assert(tc);
         context = tc;
-        this->eproc = tc->events()->getEventProcessor();
-        assert(this->eproc);
+        if (tc) {
+            this->eproc = tc->events()->getEventProcessor();
+            assert(this->eproc);
+        }
     }
 
     bool ParsedStateMachine::inState( const std::string& name ) {

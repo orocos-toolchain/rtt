@@ -288,6 +288,7 @@ namespace RTT
           throw parse_exception_semantic_error("Object with name '" + def + "' already present in task '"+rootc->getName()+"'.");
 
       FunctionGraphPtr pi(program_builder->startFunction( def ));
+      // ptsk becomes the owner of pi.
       ProgramTask* ptsk(new ProgramTask( pi, rootc->engine() ));
       pi->setProgramTask(ptsk);
       context = ptsk;

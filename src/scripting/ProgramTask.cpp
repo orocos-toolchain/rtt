@@ -50,9 +50,10 @@ namespace RTT
     
     using namespace detail;
 
-    ProgramTask::ProgramTask(ProgramInterfacePtr prog, ExecutionEngine* ee)
+    ProgramTask::ProgramTask(FunctionGraphPtr prog, ExecutionEngine* ee)
         : TaskObject( prog->getName(), "Orocos Program Script"),
-          program( new ValueDataSource<ProgramInterfaceWPtr>(prog) )
+          program( new ValueDataSource<ProgramInterfaceWPtr>(prog) ),
+          function(prog)
     {
         DataSource<ProgramInterfaceWPtr>* ptr = program.get();
         // Commands :
@@ -83,5 +84,10 @@ namespace RTT
     }
 
     ProgramTask::~ProgramTask() {
+        // When the this TaskObject is deleted, make sure the program does not reference us.
+        FunctionGraphPtr prog = function.lock();
+        if ( prog && prog->getStatus() != ProgramInterface::Status::unloaded ) {
+            prog->setProgramTask(0);
+        }
     }
 }
