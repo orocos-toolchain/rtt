@@ -57,12 +57,6 @@ clean:
 
 	# Add here commands to clean up after the build process.
 	-rm -rf build
-ifneq "$(wildcard /usr/share/misc/config.sub)" ""
-	cp -f /usr/share/misc/config.sub config.sub
-endif
-ifneq "$(wildcard /usr/share/misc/config.guess)" ""
-	cp -f /usr/share/misc/config.guess config.guess
-endif
 
 
 	dh_clean 
