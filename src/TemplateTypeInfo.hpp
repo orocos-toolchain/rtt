@@ -234,7 +234,7 @@ namespace RTT
 
         AttributeBase* buildAlias(std::string name, DataSourceBase::shared_ptr in ) const
         {
-            DataSource<T>* ds = AdaptDataSource<T>()( in );
+            typename DataSource<T>::shared_ptr ds = AdaptDataSource<T>()( in );
             if ( ! ds )
                 return 0;
             return new Alias<T>( name, ds );
@@ -244,9 +244,11 @@ namespace RTT
 
         virtual PropertyBase* buildProperty(const std::string& name, const std::string& desc, DataSourceBase::shared_ptr source = 0) const {
             if (source) {
-                AssignableDataSource<PropertyType>* ad
+               typename AssignableDataSource<PropertyType>::shared_ptr ad
                     = AdaptAssignableDataSource<PropertyType>()( source );
-                return new Property<PropertyType>(name, desc, ad );
+                if (ad)
+                    return new Property<PropertyType>(name, desc, ad );
+                // else ?
             }
             return new Property<PropertyType>(name, desc);
         }
@@ -256,7 +258,7 @@ namespace RTT
         }
 
         virtual std::ostream& write( std::ostream& os, DataSourceBase::shared_ptr in ) const {
-            DataSource<T>* d = AdaptDataSource<T>()( in );
+            typename DataSource<T>::shared_ptr d = AdaptDataSource<T>()( in );
             if ( d && use_ostream )
                 detail::TypeStreamSelector<T, use_ostream>::write( os, d->value() );
             else {
@@ -270,7 +272,7 @@ namespace RTT
         }
 
         virtual std::istream& read( std::istream& os, DataSourceBase::shared_ptr out ) const {
-            AssignableDataSource<T>* d = AdaptAssignableDataSource<T>()( out );
+            typename AssignableDataSource<T>::shared_ptr d = AdaptAssignableDataSource<T>()( out );
             if ( d && use_ostream ) {
                 detail::TypeStreamSelector<T, use_ostream>::read( os, d->set() );
                 d->updated(); // because use of set().
@@ -343,7 +345,7 @@ namespace RTT
             //This line causes a compile error in DataSourceAdaptor.hpp (where the bug is)
             //Only narrow.
 //             AssignableDataSource<T>* ad = AdaptAssignableDataSource<T>()( target );
-            AssignableDataSource<T>* ad = AssignableDataSource<T>::narrow( target.get() );
+            typename AssignableDataSource<T>::shared_ptr ad = AssignableDataSource<T>::narrow( target.get() );
             if ( ad ) {
                 PropertyType value;
                 if (AnyConversion<PropertyType>::update(any, value ) ) {
