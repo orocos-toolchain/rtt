@@ -649,6 +649,9 @@ namespace RTT
 
     void StateGraphParser::clear() {
 
+        // remove tmp vars from TaskContext
+        valuechangeparser->clear();
+
         // in case of corrupt file, skipeol could have remained on false,
         // so make sure it is set correctly again (I hate this global variable approach, it should be a member of commonparser !)
         eol_skip_functor::skipeol = true;
