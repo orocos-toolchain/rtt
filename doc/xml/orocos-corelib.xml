@@ -127,6 +127,12 @@
 	<revremark>Activity simplifications. 
 	Added commands section.</revremark>
       </revision>
+      <revision>
+	<revnumber>1.2.0</revnumber>
+	<date>April 18, 2007</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Selecting the scheduler section.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -462,6 +468,28 @@ ORO_main( int argc, char** argv)
 	value).  <function>stop()</function> then waits until loop()
 	returns or aborts if <function>breakLoop()</function> returns
 	false. When successful, stop() executes the finalize() function.
+      </para>
+    </section>
+    <section>
+      <title>Selecting the Scheduler</title>
+      <para>
+	When a <classname>RTT::PeriodicActivity</classname> or
+	<classname>RTT::NonPeriodicActivity</classname> is created, it
+	runs in the default 'ORO_SCHED_RT' scheduler, which is the
+	real-time scheduler if that is present on your platform. You
+	can specify the scheduler type, by providing an extra argument
+	during construction.
+      </para>
+      <programlisting>  // Equivalent to PeriodicActivity my_act(OS::HighestPriority, 0.001) :
+  PeriodicActivity my_act(ORO_SCHED_RT, OS::HighestPriority, 0.001);
+
+  // Run in the alternative scheduler (not real-time):
+  PeriodicActivity other_act (ORO_SCHED_OTHER, OS::HighestPriority, 0.01);
+      </programlisting>
+      <para>
+	ORO_SCHED_RT and ORO_SCHED_OTHER map to different scheduler policies
+	across operating systems. If your OS only supports one scheduler type,
+	both map to the same scheduler.
       </para>
     </section>
     <section>
@@ -1173,6 +1201,12 @@ emergencyStop(); // User not notified</programlisting>
 	to store your own classes in a Property ( like <classname>BirthDate</classname>
 	in the example above ), the class must be added to the Orocos
 	type system.
+      </para>
+      <para>
+	In order to read/write portably (XML) files, use the
+	<classname>RTT::PropertyMarshaller</classname> and
+	<classname>RTT::PropertyDemarshaller</classname> classes which
+	use the default marshaller behind the scenes.
       </para>
     </section>
   </section>
