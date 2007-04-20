@@ -65,7 +65,7 @@ namespace RTT
 
     bool ScriptingAccessProxy::loadPrograms( string code, string filename, bool do_throw ) {
         try {
-            msa->loadPrograms( code.c_str(), filename.c_str() );
+            msa->loadPrograms( code.c_str(), filename.c_str(), true );
         } catch (Corba::ScriptingAccess::LoadException& le)
             {
                 if ( do_throw) {
@@ -78,7 +78,7 @@ namespace RTT
     
     bool ScriptingAccessProxy::unloadProgram( string name, bool do_throw ){
         try {
-            msa->unloadProgram( name.c_str() );
+            msa->unloadProgram( name.c_str(), true  );
         } catch (Corba::ScriptingAccess::LoadException& le)
             {
                 if ( do_throw) {
@@ -115,7 +115,7 @@ namespace RTT
 
     bool ScriptingAccessProxy::loadStateMachines( string code, string filename, bool do_throw ) {
         try {
-            msa->loadStateMachines( code.c_str(), filename.c_str() );
+            msa->loadStateMachines( code.c_str(), filename.c_str(), true  );
         } catch (Corba::ScriptingAccess::LoadException& le)
             {
                 if ( do_throw) {
@@ -128,7 +128,7 @@ namespace RTT
     
     bool ScriptingAccessProxy::unloadStateMachine( string name, bool do_throw ) {
         try {
-            msa->unloadStateMachine( name.c_str() );
+            msa->unloadStateMachine( name.c_str(), true  );
         } catch (Corba::ScriptingAccess::LoadException& le)
             {
                 if ( do_throw) {
