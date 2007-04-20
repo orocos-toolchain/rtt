@@ -53,10 +53,14 @@ namespace RTT
         assertion<std::string> expect_elseblock("Expected a statement (or {block} ) after else.");
         assertion<std::string> expect_term("No valid termination claues found in do ... until { } block.");
         assertion<std::string> expect_ident("Expected a valid identifier.");
+        assertion<std::string> expect_and_command("Expected a command after 'and'.");
     }
     // Work around GCC 4.1 bug: not too much templates in one.cpp file.
   void ProgramGraphParser::setup2()
   {
+
+    andpart = str_p("and")
+        >> expect_and_command ( commandparser.parser()[ bind( &ProgramGraphParser::seenandcall, this ) ] );
 
     // a function statement : "call functionname"
     funcstatement = (

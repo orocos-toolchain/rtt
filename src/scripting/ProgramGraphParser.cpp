@@ -65,7 +65,6 @@ namespace RTT
         assertion<std::string> expect_condition("Expected a boolean expression ( a condition ).");
         assertion<std::string> expect_expression("Expected an expression.");
         assertion<std::string> expect_command("Expected a command after 'do'.");
-        assertion<std::string> expect_and_command("Expected a command after 'and'.");
         assertion<std::string> expect_nl("Expected a newline after statement.");
         assertion<std::string> expect_eof("Invalid input in file.");
         assertion<std::string> expect_term("No valid termination claues found in do ... until { } block.");
@@ -203,9 +202,6 @@ namespace RTT
              >> *andpart)[bind( &ProgramGraphParser::seencommands, this )] >> !terminationpart
          ) [ bind( &ProgramGraphParser::seendostatement, this ) ]
          >> !catchpart;
-
-    andpart = str_p("and")
-        >> expect_and_command ( commandparser.parser()[ bind( &ProgramGraphParser::seenandcall, this ) ] );
 
   }
   
