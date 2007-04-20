@@ -91,9 +91,15 @@ namespace RTT
         return true;
     }
         
-    EventService::~EventService() {
+    void EventService::clear() {
         for (Hooks::iterator it = mhooks.begin(); it !=mhooks.end(); ++it )
             delete it->second;
+        OperationFactory< ActionInterface*>::clear();
+    }
+
+
+    EventService::~EventService() {
+        clear();
     }
 
     EventC EventService::setupEmit(const std::string& ename) const {

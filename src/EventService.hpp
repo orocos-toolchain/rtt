@@ -92,9 +92,16 @@ namespace RTT
          */
         EventService( EventProcessor* ep = 0 );
 
+        ~EventService();
+
         EventProcessor* getEventProcessor();
 
         void setEventProcessor(EventProcessor* ep);
+
+        /** 
+         * Clear all added methods from the repository, saving memory space.
+         */
+        void clear();
 
         /** 
          * Add an Event to the event interface. This version
@@ -338,8 +345,6 @@ namespace RTT
          */
         bool removeEvent( const std::string& ename );
         
-        ~EventService();
-
         /**
          * Setup an object to emit events with arguments.
          * Use this method as in
