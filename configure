@@ -10,15 +10,17 @@ function usage
    echo "Supported --with-target's: --with-xenomai --with-lxrt --with-gnulinux"
    echo
    echo "Options:"
-   echo "   --disable-corba     Disable CORBA, even if installed on the system."
+   echo "   --enable-corba      Enable CORBA, if installed on the system."
+   echo "   --disable-shared    Build static libraries instead of shared libraries."
+   echo "   --embedded          Disable Scripting, Exceptions and reduce the type system."
    echo "   --with-linux=/path  Provide a Linux path for RTAI/LXRT or old Xenomai versions."
    echo
-   echo "Example: CFLAGS='-g' $0 --prefix=/usr/local/orocos --with-xenomai=/usr/xenomai CC=gcc-3.3.6 CXX=g++-3.3.6"
+   echo "Example: CXXFLAGS='-g' $0 --prefix=/usr/local/orocos --with-xenomai=/usr/xenomai CC=gcc-3.3.6 CXX=g++-3.3.6"
    echo
    echo "For more advanced configuration, use the 'ccmake' utility directly."
 }
 
-function getcompiler
+function getoptions
 {
     arg=$1
     if [ $(expr match "$arg" "CC=") != 0 ]; then
@@ -31,21 +33,38 @@ function getcompiler
 
     if [ $(expr match "$arg" "--prefix=") != 0 ]; then
 	CMAKE_PREFIX="${arg:9}"
+	CMAKE_ARGS="-DCMAKE_INSTALL_PREFIX=$CMAKE_PREFIX"
     fi
     if [ $(expr match "$arg" "--with-xenomai") != 0 ]; then
-	CMAKE_XENO=1
         CMAKE_XENO_PATH="${arg:15}"
+	CMAKE_ARGS="$CMAKE_ARGS -DOROCOS_TARGET=xenomai"
+	if [ x$CMAKE_XENO_PATH != x ]; then
+	    CMAKE_ARGS="$CMAKE_ARGS -DXENOMAI_INSTALL_DIR=$CMAKE_XENO_PATH"
+	fi   
     fi
     if [ $(expr match "$arg" "--with-lxrt") != 0 ]; then
-	CMAKE_LXRT=1
 	CMAKE_LXRT_PATH="${arg:12}"
+	CMAKE_ARGS="$CMAKE_ARGS -DOROCOS_TARGET=lxrt"
+	if [ x$CMAKE_LXRT_PATH != x ]; then
+	    CMAKE_ARGS="$CMAKE_ARGS -DRTAI_INSTALL_DIR=$CMAKE_LXRT_PATH"
+	fi
     fi
     if [ $(expr match "$arg" "--with-linux") != 0 ]; then
-	CMAKE_LINUX=1
 	CMAKE_LINUX_PATH="${arg:13}"
+	if [ x$CMAKE_LINUX_PATH != x ]; then
+	    CMAKE_ARGS="$CMAKE_ARGS -DLINUX_SOURCE_DIR=$CMAKE_LINUX_PATH"
+#       else
+#           CMAKE_ARGS="$CMAKE_ARGS -DLINUX_SOURCE_DIR=/usr/include"
+	fi
+    fi   
+    if [ $(expr match "$arg" "--enable-corba") != 0 ]; then
+	CMAKE_ARGS="$CMAKE_ARGS -DENABLE_CORBA=TRUE"
     fi
-    if [ $(expr match "$arg" "--disable-corba") != 0 ]; then
-	CMAKE_DISABLE_CORBA=1
+    if [ $(expr match "$arg" "--disable-shared") != 0 ]; then
+	CMAKE_ARGS="$CMAKE_ARGS -DBUILD_STATIC=ON"
+    fi
+    if [ $(expr match "$arg" "--embedded") != 0 ]; then
+	CMAKE_ARGS="$CMAKE_ARGS -DOS_EMBEDDED=ON"
     fi
 }
 
@@ -54,7 +73,7 @@ while [ "$1" != "" ]; do
         -h | --help )           usage
                                 exit
                                 ;;
-        * )                     getcompiler $1
+        * )                     getoptions $1
     esac
     shift
 done
@@ -81,39 +100,14 @@ if [ x$(which cmake) == x ]; then
    exit 1
 fi
 
-# --prefix
-if [ x$CMAKE_PREFIX != x ]; then
-   CMAKE_ARGS="-DCMAKE_INSTALL_PREFIX=$CMAKE_PREFIX"
+# If CXXFLAGS set, build type must be set to None to have them picked up.
+if [ "x$CXXFLAGS" != "x" ]; then
+    CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_BUILD_TYPE=None"
+    export CXXFLAGS
 fi
-
-# --with-lxrt
-if [ x$CMAKE_LXRT != x ]; then
-   CMAKE_ARGS="$CMAKE_ARGS -DOROCOS_TARGET=lxrt"
-   if [ x$CMAKE_LXRT_PATH != x ]; then
-     CMAKE_ARGS="$CMAKE_ARGS -DRTAI_INSTALL_DIR=$CMAKE_LXRT_PATH"
-   fi   
-fi
-
-# --with-xenomai
-if [ x$CMAKE_XENO != x ]; then
-   CMAKE_ARGS="$CMAKE_ARGS -DOROCOS_TARGET=xenomai"
-   if [ x$CMAKE_XENO_PATH != x ]; then
-     CMAKE_ARGS="$CMAKE_ARGS -DXENOMAI_INSTALL_DIR=$CMAKE_XENO_PATH"
-   fi   
-fi
-
-# --with-linux
-if [ x$CMAKE_LINUX != x ]; then
-   if [ x$CMAKE_LINUX_PATH != x ]; then
-     CMAKE_ARGS="$CMAKE_ARGS -DLINUX_SOURCE_DIR=$CMAKE_LINUX_PATH"
-#   else
-#     CMAKE_ARGS="$CMAKE_ARGS -DLINUX_SOURCE_DIR=/usr/include"
-   fi   
-fi
-
-# --disable-corba
-if [ x$CMAKE_DISABLE_CORBA != x ]; then
-    CMAKE_ARGS="$CMAKE_ARGS -DENABLE_CORBA=FALSE"
+if [ "x$LDFLAGS" != "x" ]; then
+    #CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_BUILD_TYPE=None"
+    export LDFLAGS
 fi
 
 CMAKE_EXE=$(which cmake)
