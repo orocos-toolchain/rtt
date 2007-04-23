@@ -1,0 +1,27 @@
+Creating .tar.gz & .tar.bz2 archives.
+=====================================
+
+Use:
+
+$ svn export http://svn.mech.kuleuven.be/repos/orocos/trunk/rtt orocos-rtt-x.y.z
+$ tar -cjf orocos-rtt-x.y.z.tar.bz2 orocos-rtt-x.y.z
+$ tar -czf orocos-rtt-x.y.z.tar.gz orocos-rtt-x.y.z
+
+Creating Debian packages.
+=========================
+
+Using SVN:
+
+$ svn co http://svn.mech.kuleuven.be/repos/orocos/trunk/rtt orocos-rtt
+$ cd orocos-rtt
+$ svn-buildpackage -rfakeroot [--svn-ignore]
+
+Results can be found in ../build-area/
+--svn-ignore ignores uncommitted pieces, only for testing. Do not use when building releases !
+
+Using .tar.gz:
+
+$ tar -xzf orocos-rtt-x.y.z.tar.gz
+$ cd orocos-rtt-x.y.z
+$ dpkg-buildpackage -rfakeroot
+
