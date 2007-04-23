@@ -48,7 +48,15 @@ ELSE ( NOT CMAKE_BUILD_TYPE )
 
 ENDIF ( NOT CMAKE_BUILD_TYPE )
 
-# Make compilation verbose by default
+#Use these variables to store build-local flags.
+#They are used when the targets are configured.
+IF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
+  SET ( CMAKE_CXX_FLAGS_ADD "${CMAKE_CXX_FLAGS}" CACHE STRING "Specify here your additional flags.")
+  SET ( CMAKE_C_FLAGS_ADD "${CMAKE_C_FLAGS}"  CACHE STRING "Specify here your additional flags.")
+ENDIF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
+
+
+# Make compilation verbose
 SET(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 ###################################################
@@ -78,7 +86,8 @@ INCLUDE (${CMAKE_ROOT}/Modules/CMakeDetermineCXXCompiler.cmake)
 
 # Put your 'flags' inhere if you want them to apear in the
 # rtt.pc file. Various .cmake scripts below do
-# this.
+# this. These flags should ONLY by -I or -D flags, NOT -O.. 
+# -W... or alike. The user's application is compiled with these flags !
 SET( RTT_CFLAGS "" CACHE INTERNAL "")
 SET( RTT_LINKFLAGS "" CACHE INTERNAL "")
 

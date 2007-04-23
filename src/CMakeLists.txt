@@ -17,15 +17,16 @@ OPTION(CONFIG_FORCE_UP "Enable to optimise for single core/cpu systems." OFF)
 
 ### Embedded
 OPTION(OS_EMBEDDED "Build/Customise for embedded Operating System" OFF)
-DEPENDENT_OPTION(OS_NOEXCEPTIONS "Disable exceptions." ON "ORO_EMBEDDED" OFF)
+DEPENDENT_OPTION(OS_NOEXCEPTIONS "Disable exceptions." ON "OS_EMBEDDED" OFF)
 DEPENDENT_OPTION(OS_EMBEDDED_SCRIPTING "Enable Scripting for embedded Operating System. (requires EXCEPTIONS)" OFF "NOT OROBLD_OS_NOEXCEPTIONS" OFF)
 
+#Set build-local CFLAGS.
 IF ( OS_NOEXCEPTIONS )
-  SET( RTT_CXXFLAGS "${RTT_CXXFLAGS} -fno-exceptions" )
+  SET( CMAKE_CXX_FLAGS_ADD "${CMAKE_CXX_FLAGS_ADD} -fno-exceptions")
 ENDIF ( OS_NOEXCEPTIONS )
 
 IF ( OS_EMBEDDED )
-  SET( RTT_CXXFLAGS "${RTT_CXXFLAGS} -ffunction-sections -fdata-sections" )
+  SET( CMAKE_CXX_FLAGS_ADD "${CMAKE_CXX_FLAGS_ADD} -ffunction-sections -fdata-sections")
 ENDIF ( OS_EMBEDDED )
 
 ### Logger
@@ -77,15 +78,6 @@ ADD_SUBDIRECTORY( impl )
 ADD_SUBDIRECTORY( dlib )
 ADD_SUBDIRECTORY( boost )
 
-#
-# Set accumulated compilation flags:
-#
-IF (${RTT_CXXFLAGS})
-SET_SOURCE_FILES_PROPERTIES( $ENV{GLOBAL_LIBRARY_SRCS} PROPERTIES
-  COMPILE_FLAGS ${RTT_CXXFLAGS}
-  )
-ENDIF (${RTT_CXXFLAGS})
-
 # Reduce debugging info in scripting dir.
 # IF (NOT OS_EMBEDDED OR OS_EMBEDDED_SCRIPTING)
 # SET_SOURCE_FILES_PROPERTIES( $ENV{GLOBAL_SCRIPTING_SRCS} PROPERTIES COMPILE_FLAGS "-g1" )
@@ -101,8 +93,18 @@ IF ( BUILD_STATIC )
   ADD_LIBRARY(orocos-rtt STATIC $ENV{GLOBAL_LIBRARY_SRCS})
 ELSE( BUILD_STATIC )
   ADD_LIBRARY(orocos-rtt SHARED $ENV{GLOBAL_LIBRARY_SRCS})
-  SET_TARGET_PROPERTIES( orocos-rtt PROPERTIES DEFINE_SYMBOL "RTT_DLL_EXPORT")
+  SET_TARGET_PROPERTIES( orocos-rtt PROPERTIES 
+    DEFINE_SYMBOL "RTT_DLL_EXPORT"
+    SOVERSION "${RTT_VERSION}"
+    )
 ENDIF ( BUILD_STATIC )
+
+#
+# Set accumulated compilation flags: (.so and .a)
+#
+SET_TARGET_PROPERTIES( orocos-rtt PROPERTIES
+  COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS}"
+  )
 
 #
 # If corba is enabled, the orocos-rtt-corba helper library is built.
