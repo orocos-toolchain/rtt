@@ -5,7 +5,7 @@ includedir=${prefix}/include
 
 Name: Orocos                            # human-readable name
 Description: Open Robot Control Software # human-readable description
-Version: @VERSION@
+Version: @RTT_VERSION@
 Libs: -L${libdir} -lorocos-rtt @RTT_LINKFLAGS@ 
 #Libs.private: @RTT_LIBS@
 Cflags: -I${includedir} @RTT_CFLAGS@ 
