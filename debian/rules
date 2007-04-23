@@ -38,7 +38,9 @@ build/Makefile: configure
 	# Add here commands to configure the package.
 	mkdir -p build
 	# LDFLAGS="-Wl,-z,defs"
-	cd build; CFLAGS="$(CFLAGS)" ../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --disable-corba
+	cd build; CXXFLAGS="$(CFLAGS)" ../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --disable-corba
+	mkdir -p build.a
+	cd build.a; CXXFLAGS="$(CFLAGS)" ../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --disable-corba --disable-shared
 
 
 build: build-stamp
@@ -47,6 +49,7 @@ build-stamp:  build/Makefile
 
 	# Add here commands to compile the package.
 	cd build; $(MAKE)
+	cd build.a; $(MAKE)
 
 	touch $@
 
@@ -56,8 +59,7 @@ clean:
 	rm -f build-stamp 
 
 	# Add here commands to clean up after the build process.
-	-rm -rf build
-
+	-rm -rf build build.a
 
 	dh_clean 
 
@@ -68,7 +70,8 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/tmp
-	cd build; $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp/usr
+	cd build; $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
+	cd build.a; $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 
 
 # Build architecture-independent files here.
@@ -82,7 +85,7 @@ binary-arch: build install
 	dh_installchangelogs ChangeLog
 	dh_installdocs
 	dh_installexamples
-#	dh_install
+	dh_install --sourcedir=debian/tmp
 #	dh_installmenu
 #	dh_installdebconf	
 #	dh_installlogrotate
