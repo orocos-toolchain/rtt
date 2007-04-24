@@ -3,8 +3,8 @@ exec_prefix=${prefix}  # defining another variable in terms of the first
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
 
-Name: Orocos                            # human-readable name
-Description: Open Robot Control Software # human-readable description
+Name: Orocos-RTT                          # human-readable name
+Description: Open Robot Control Software: Real-Time Tookit # human-readable description
 Version: @RTT_VERSION@
 Libs: -L${libdir} -lorocos-rtt @RTT_LINKFLAGS@ 
 #Libs.private: @RTT_LIBS@
