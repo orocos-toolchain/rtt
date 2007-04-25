@@ -404,7 +404,7 @@ namespace RTT
     std::ostream& operator<<(std::ostream &os, Property<T> &p)
     {
 #ifdef OS_HAVE_STREAMS
-        os << p.get();
+        os << p.getDataSource();
 #endif
         return os;
     }
