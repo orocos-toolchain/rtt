@@ -71,6 +71,7 @@ namespace RTT
     {
         // Since the period is stored as nsecs, we convert per to NS in order
         // to get a match.
+        OS::CheckPriority(scheduler, pri);
         TimerThreadList::iterator it = TimerThreads.begin();
         while ( it != TimerThreads.end() ) {
             TimerThreadPtr tptr = it->lock();
