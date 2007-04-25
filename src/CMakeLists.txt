@@ -18,7 +18,7 @@ OPTION(CONFIG_FORCE_UP "Enable to optimise for single core/cpu systems." OFF)
 ### Embedded
 OPTION(OS_EMBEDDED "Build/Customise for embedded Operating System" OFF)
 DEPENDENT_OPTION(OS_NOEXCEPTIONS "Disable exceptions." ON "OS_EMBEDDED" OFF)
-DEPENDENT_OPTION(OS_EMBEDDED_SCRIPTING "Enable Scripting for embedded Operating System. (requires EXCEPTIONS)" OFF "NOT OROBLD_OS_NOEXCEPTIONS" OFF)
+DEPENDENT_OPTION(OS_EMBEDDED_SCRIPTING "Enable Scripting for embedded Operating System. (requires EXCEPTIONS)" OFF "NOT OS_NOEXCEPTIONS" OFF)
 
 #Set build-local CFLAGS.
 IF ( OS_NOEXCEPTIONS )

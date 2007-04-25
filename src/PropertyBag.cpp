@@ -46,7 +46,7 @@ namespace RTT
 {
 
     PropertyBag::PropertyBag( )
-        : mproperties(), type("type_less")
+        : mproperties(), type("PropertyBag")
     {}
 
     PropertyBag::PropertyBag( const std::string& _type)
@@ -215,7 +215,11 @@ namespace RTT
         bool failure = false;
         while ( it != target.getProperties().end() )
         {
-            PropertyBase* srcprop = source.find( (*it)->getName() );
+            PropertyBase* srcprop;
+            if ( (*it)->getName() == "" && target.getType() == "Sequence" )
+                srcprop = source.getItem( it - target.getProperties().begin() );
+            else
+                srcprop = source.find( (*it)->getName() );
             PropertyBase* tgtprop = *it;
             if (srcprop != 0)
             {
@@ -278,8 +282,11 @@ namespace RTT
     bool updateProperties(PropertyBag& target, const PropertyBag& source)
     {
         // check type consistency...
-        // if the target is typed, it is replaced by source.
-        if ( !(target.getType() == "" || target.getType() == "type_less") ) {
+        if ( target.getType() == "" || target.getType() == "type_less" )
+            target.setType("PropertyBag"); // RTT 1.2.0
+
+        // if the target is of different type than source, it is replaced by source.
+        if ( target.getType() != "PropertyBag" && target.getType() != source.getType() ) {
             log(Debug) << "Rebuilding typed PropertyBag."<<endlog();
             deletePropertyBag(target);
         }
@@ -291,7 +298,11 @@ namespace RTT
         PropertyBag::const_iterator it( source.getProperties().begin() );
         while ( it != source.getProperties().end() )
         {
-            PropertyBase* mine = target.find( (*it)->getName() );
+            PropertyBase* mine;
+            if ( (*it)->getName() == "" && target.getType() == "Sequence" )
+                mine = target.getItem( it - source.getProperties().begin() );
+            else
+                mine = target.find( (*it)->getName() );
             if (mine != 0) {
 #ifndef NDEBUG
                 Logger::log() << Logger::Debug;

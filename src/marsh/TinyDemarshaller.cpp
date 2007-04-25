@@ -206,13 +206,6 @@ namespace RTT
                     else
                         if ( ln == "struct" || ln == "sequence")
                         {
-                            if ( ln == "struct" )
-                                tag_stack.push( TAG_STRUCT );
-                            else 
-                                tag_stack.push( TAG_SEQUENCE );
-
-                            //type tag is optional (?)
-                            bool hasType = false;
                             while (attributes)
                                 {
                                     std::string an = attributes->Name();
@@ -222,16 +215,19 @@ namespace RTT
                                         }
                                     else if ( an == "type")
                                         {
-                                            hasType = true;
                                             type = attributes->Value();
                                         }
                                     attributes = attributes->Next();
                                 }
+                            if ( ln == "struct" )
+                                tag_stack.push( TAG_STRUCT );
+                            else {
+                                tag_stack.push( TAG_SEQUENCE );
+                                type = "Sequence"; // override
+                            }
+
                             Property<PropertyBag> *prop;
-                            if (hasType)
-                                prop = new Property<PropertyBag>(name,"",PropertyBag(type));
-                            else
-                                prop = new Property<PropertyBag>(name,"");
+                            prop = new Property<PropertyBag>(name,"",PropertyBag(type));
                             
                             // take reference to bag itself !
                             bag_stack.push(std::make_pair( &(prop->value()), prop));

@@ -208,6 +208,17 @@ namespace RTT
         }
 
         /**
+         * Returns the \a i'th Property, starting from 0.
+         * @return zero if \a i is out of range.
+         */
+        PropertyBase* getItem( int i) const
+        {
+            if ( i < 0 || i >= int(mproperties.size()) )
+                return 0;
+            return mproperties[i];
+        }
+
+        /**
          * Get the number of Properties in this bag.
          */
         size_t size() const { return mproperties.size(); }

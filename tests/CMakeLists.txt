@@ -20,8 +20,13 @@
       SET(DO_EXCLUDE EXCLUDE_FROM_ALL)
     ENDIF (${CMAKE_VERSION} STRGREATER "2.4.3" )
 
+    # Copy over CPF files.
+    ADD_CUSTOM_TARGET(prep-cpf
+      cp -a "${CMAKE_CURRENT_SOURCE_DIR}/*.cpf" "${CMAKE_CURRENT_BINARY_DIR}"
+      )
+
     # repeat for each test
-    ADD_EXECUTABLE( core-test ${DO_EXCLUDE} test-runner.cpp time_test.cpp property_test.cpp logger_test.cpp buffers_test.cpp )
+    ADD_EXECUTABLE( core-test ${DO_EXCLUDE} test-runner.cpp time_test.cpp property_test.cpp ) #logger_test.cpp buffers_test.cpp )
     TARGET_LINK_LIBRARIES( core-test orocos-rtt cppunit )
     ADD_TEST( core-test core-test )
 
@@ -51,5 +56,7 @@
 
 
 ADD_CUSTOM_TARGET(check ctest -V 
-  DEPENDS core-test task-test event-test taskcontext-test parser-test program-test state-test
+  DEPENDS core-test task-test event-test taskcontext-test parser-test program-test state-test 
   WORKING_DIRECTORY ${PROJ_BINARY_DIR}/tests)
+
+ADD_DEPENDENCIES(check prep-cpf)

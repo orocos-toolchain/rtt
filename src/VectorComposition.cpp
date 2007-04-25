@@ -48,22 +48,16 @@ namespace RTT
 
     // A decomposeProperty method for decomposing a Property< vector<double> >
     // into a PropertyBag with Property<double>'s.
-    // The dimension of the vector must be less than 100 if you want the
-    // Property<double>'s to have a different name.
     void decomposeProperty(const std::vector<double>& vec, PropertyBag& targetbag)
     {
-        targetbag.setType("std::vector<double>");
-        Property<int>* dimension = new Property<int>("Size","Dimension of the Vector", vec.size() );
+        targetbag.setType("array");
+        int dimension = vec.size();
 
-        targetbag.add( dimension );
+        assert( targetbag.empty() );
 
-        std::stringstream data_name;
-
-        for ( int i=0; i < dimension->get() ; i++)
+        for ( int i=0; i < dimension ; i++)
             {
-                data_name  << i;
-                targetbag.add( new Property<double>(data_name.str(),"",vec[i]) ); // Put variables in the bag
-                data_name.str("");
+                targetbag.add( new Property<double>("","",vec[i]) ); // Put variables in the bag
             }
     }
 
@@ -72,62 +66,39 @@ namespace RTT
 
     bool composeProperty(const PropertyBag& bag, std::vector<double>& result)
     {
-        if ( bag.getType() == "std::vector<double>")
-            {
-                Property<int>* dim;
-                PropertyBase* v_base = bag.find("Size");
-                if ( v_base == 0 ) {
-                    Logger::log() << Logger::Error << "In PropertyBag for Property< std::vector<double> > :"
-                                  << " could not find property \"Size\"."<<Logger::endl;
-                    return false;
-                }
-                dim = dynamic_cast< Property<int>* >(v_base);
-                if ( dim == 0) {
-                    Logger::log() << Logger::Error << "In PropertyBag for Property< std::vector<double> > :"
-                                  << " Expected \"Size\" to be of type short."<<Logger::endl;
-                    return false;
-                }
+        if ( bag.getType() == "std::vector<double>" || bag.getType() == "array" ) {
+            Property<double>* comp;
+            int dimension = bag.size();
+            result.resize( dimension );
 
-                int dimension = dim->get();
-                // cerr << dimension << endl;
-                // Set dimension
-                result.resize(dimension);
-
-                Property<double>* comp;
-                std::stringstream data_name;
-
-
-                // Get values
-                for (int i = 0; i < dimension ; i++)
-                    {
-                        data_name  << i;
-                        PropertyBase* element = bag.find(data_name.str());
-                        if ( element == 0 ) {
-                            Logger::log() << Logger::Error << "Aborting composition of Property< vector<double> > "
-                                          << ": Data element "<< data_name.str() <<" not found !"
-                                          <<Logger::endl;
-                            return false;
-                        }
-                        comp = dynamic_cast< Property<double>* >( element );
-                        if ( comp == 0 ) {
-                            Logger::log() << Logger::Error << "Aborting composition of Property< vector<double> > "
-                                          << ": Exptected data element "<< data_name.str() << " to be of type double"
-                                          <<" got type " << element->getType()
-                                          <<Logger::endl;
-                            return false;
-                        }
-                        result[i] = comp->get();
-
-                        data_name.str("");
+            // Get values
+            int size_correction = 0;
+            for (int i = 0; i < dimension ; i++) {
+                PropertyBase* element = bag.getItem( i );
+                comp = dynamic_cast< Property<double>* >( element );
+                if ( comp == 0 ) {
+                    // detect LEGACY element:
+                    if ( element->getName() == "Size" ) {
+                        // oops, our result vector will be one smaller.
+                        size_correction += 1;
+                        continue;
                     }
+                    Logger::log() << Logger::Error << "Aborting composition of Property< vector<double> > "
+                                  << ": Exptected data element "<< i << " to be of type double"
+                                  <<" got type " << element->getType()
+                                  <<Logger::endl;
+                    return false;
+                }
+                result[ i - size_correction ] = comp->get();
             }
-        else
-            {
-                Logger::log() << Logger::Error << "Composing Property< std::vector<double> > :"
-                              << " type mismatch, got type '"<< bag.getType()
-                              << "', expected type 'std::vector<double>'."<<Logger::endl;
-                return false;
-            }
+            result.resize( dimension - size_correction );
+        }
+        else {
+            Logger::log() << Logger::Error << "Composing Property< std::vector<double> > :"
+                          << " type mismatch, got type '"<< bag.getType()
+                          << "', expected type 'array'."<<Logger::endl;
+            return false;
+        }
         return true;
     }
 

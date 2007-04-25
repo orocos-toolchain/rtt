@@ -24,9 +24,11 @@
 #include "property_test.hpp"
 #include <boost/bind.hpp>
 #include <PropertyBagIntrospector.hpp>
+#include "MultiVector.hpp"
 #include "marsh/PropertyMarshaller.hpp"
 #include "marsh/PropertyDemarshaller.hpp"
 #include <rtt-config.h>
+#include <iostream>
 
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( PropertyTest );
@@ -131,12 +133,16 @@ void PropertyTest::testBagOperations()
 
 bool operator==(const std::vector<double>& a, const std::vector<double>& b)
 {
-    if ( a.size() != b.size() )
+    if ( a.size() != b.size() ) {
+        log(Error) << "Wrong vector sizes : " << a.size() <<" "<< b.size()<<endlog();
         return false;
+    }
     for(unsigned int i =0; i != a.size(); ++i)
         {
-            if (a[i] != b[i])
+            if (a[i] != b[i]) {
+                log(Error) << "Wrong vector element: "<<a[i]<<" != "<<b[i]<<" i:" << i<<endlog();
                 return false;
+            }
         }
     return true;
 }
@@ -190,7 +196,7 @@ void PropertyTest::testComposition()
     // Decompose to property bag and back:
     CPPUNIT_ASSERT( pvd.getTypeInfo()->decomposeType( pvd.getDataSource(), bag.value() ) );
     CPPUNIT_ASSERT( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd2.getDataSource() ) );
-    CPPUNIT_ASSERT( pvd == pvd2);
+    CPPUNIT_ASSERT( pvd == pvd2 );
     pvd2.value().clear();
     deletePropertyBag( bag.value() );
 
@@ -333,4 +339,66 @@ void PropertyTest::testPropMarsh()
     CPPUNIT_ASSERT( pi.get() == -1 );
     CPPUNIT_ASSERT( pi.getDescription() == "p1d" );
 
+}
+
+void PropertyTest::testPropMarshVect()
+{
+    std::string filename = ".property_test_vect.cpf";
+
+    PropertyBag source; // to file
+    PropertyBag target; // from file
+
+    Property<std::vector<double> > p1("p1","p1d", std::vector<double>(7, 1.234) );
+
+    // setup source tree
+    source.addProperty( &p1 );
+
+    {
+        // scope required such that file is closed
+        PropertyMarshaller pm( filename );
+        pm.serialize( source );
+    }
+
+    p1.set() = std::vector<double>(3, 0.234);
+    {
+        // scope required such that file is closed
+        PropertyDemarshaller pd( filename );
+        CPPUNIT_ASSERT( pd.deserialize( target ) );
+    }
+
+    // check bag:
+    Property<PropertyBag> bag = target.getProperty<PropertyBag>("p1");
+    CPPUNIT_ASSERT( bag.ready() );
+    CPPUNIT_ASSERT( bag.getDescription() == "p1d" );
+    CPPUNIT_ASSERT( bag.rvalue().size() == 7 );
+    
+    // update bag -> array.
+    CPPUNIT_ASSERT( updateProperties( source, target) );
+
+    //p1 = source.getProperty< std::vector<double> >("p1");
+    CPPUNIT_ASSERT( p1.ready() );
+    CPPUNIT_ASSERT( p1.rvalue().size() == 7 );
+    CPPUNIT_ASSERT( p1.rvalue()[0] == 1.234 );
+
+    // Test legacy:
+    deleteProperties( target );
+    p1.setName("driveLimits");
+    {
+        // scope required such that file is closed
+        PropertyDemarshaller pd( "property_test_vect.cpf" );
+        CPPUNIT_ASSERT( pd.deserialize( target ) );
+    }
+    bag = target.getProperty<PropertyBag>("driveLimits");
+    CPPUNIT_ASSERT( bag.ready() );
+    CPPUNIT_ASSERT( bag.rvalue().size() == 7 );
+
+    // update bag -> array.
+    CPPUNIT_ASSERT( updateProperties( source, target) );
+
+    //p1 = source.getProperty< std::vector<double> >("p1");
+    CPPUNIT_ASSERT( p1.ready() );
+    //cout << p1 << endl;
+    CPPUNIT_ASSERT( p1.rvalue().size() == 6 );
+    CPPUNIT_ASSERT( p1.rvalue()[0] == 1 );
+    
 }

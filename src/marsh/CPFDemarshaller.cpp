@@ -137,10 +137,10 @@ namespace RTT
                     case TAG_SIMPLE:
                         if ( type == "boolean" )
                         {
-                            if ( value_string == "1" )
+                            if ( value_string == "1" || value_string == "true")
                                 bag_stack.top().first->add
                                 ( new Property<bool>( name, description, true ) );
-                            else if ( value_string == "0" )
+                            else if ( value_string == "0" || value_string == "false" )
                                 bag_stack.top().first->add
                                 ( new Property<bool>( name, description, false ) );
                             else
@@ -275,13 +275,6 @@ namespace RTT
                     else
                         if ( ln == "struct" || ln == "sequence")
                         {
-                            if ( ln == "struct" )
-                                tag_stack.push( TAG_STRUCT );
-                            else 
-                                tag_stack.push( TAG_SEQUENCE );
-
-                            //type tag is optional (?)
-                            bool hasType = false;
                             for (unsigned int ac = 0; ac < attributes.getLength(); ++ac)
                             {
                                 std::string an;
@@ -292,15 +285,19 @@ namespace RTT
                                 }
                                 else if ( an == "type") 
                                 {
-                                    hasType = true;
                                     XMLChToStdString( attributes.getValue(ac), type);
                                 }
                             }
+
+                            if ( ln == "struct" )
+                                tag_stack.push( TAG_STRUCT );
+                            else {
+                                tag_stack.push( TAG_SEQUENCE );
+                                type = "Sequence"; // override
+                            }
+
                             Property<PropertyBag> *prop;
-                            if (hasType)
-                                prop = new Property<PropertyBag>(name,"",PropertyBag(type));
-                            else
-                                prop = new Property<PropertyBag>(name,"");
+                            prop = new Property<PropertyBag>(name,"",PropertyBag(type));
                             
                             // take reference to bag itself !
                             bag_stack.push(std::make_pair( &(prop->value()), prop));
