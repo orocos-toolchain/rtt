@@ -6,7 +6,10 @@ namespace RTT
     template<class T>
     void CPFMarshaller<std::ostream>::doWrite( const Property<T> &v, const std::string& type )
     { 
-        *(this->s)<<indent << "<simple name=\"" << this->escape( v.getName() ) << "\" type=\""<< type <<"\">";
+        *(this->s) <<indent << "<simple ";
+        if ( !v.getName().empty() )
+            *(this->s) <<"name=\"" << this->escape( v.getName() ) <<"\" ";
+        *(this->s) << "type=\""<< type <<"\">";
         if ( !v.getDescription().empty() )
             *(this->s) << "<description>"<< this->escape( v.getDescription() ) << "</description>";
         *(this->s) << "<value>" << v.get() << "</value></simple>\n";
@@ -14,7 +17,10 @@ namespace RTT
 
     void CPFMarshaller<std::ostream>::doWrite( const Property<std::string> &v, const std::string& type )
     { 
-        *(this->s)<<indent << "<simple name=\"" << this->escape( v.getName() ) << "\" type=\""<< type <<"\">";
+        *(this->s) <<indent << "<simple ";
+        if ( !v.getName().empty() )
+            *(this->s) <<"name=\"" << this->escape( v.getName() ) <<"\" ";
+        *(this->s) << "type=\""<< type <<"\">";
         if ( !v.getDescription().empty() )
             *(this->s) << "<description>"<< this->escape( v.getDescription() ) << "</description>";
         *(this->s) << "<value>" << this->escape( v.get() ) << "</value></simple>\n";
