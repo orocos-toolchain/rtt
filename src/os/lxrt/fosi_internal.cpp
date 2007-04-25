@@ -44,11 +44,12 @@
 #include <sched.h>
 #include "os/ThreadInterface.hpp"
 #include "fosi.h"
+#include "../fosi_internal_interface.hpp"
 #include <sys/mman.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include "../../rtt-config.h"
-#define INTERNAL_QUAL static inline
+#define INTERNAL_QUAL 
 
 #include <string.h>
 
@@ -57,7 +58,7 @@
 namespace RTT
 { namespace OS {
     namespace detail {
-
+        
         INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main_task)
         {
             if ( geteuid() != 0 ) {
@@ -213,20 +214,28 @@ namespace RTT
             rt_task_yield();
         }
 
+        INTERNAL_QUAL int rtos_task_check_scheduler(int* scheduler)
+        {
+            if (*scheduler != SCHED_LXRT_HARD && *scheduler != SCHED_LXRT_SOFT ) {
+                log(Error) << "Unknown scheduler type." <<endlog();
+                *scheduler = SCHED_LXRT_SOFT;
+                return -1;
+            }
+            return 0;
+        }
+
         INTERNAL_QUAL int rtos_task_set_scheduler(RTOS_TASK* t, int s) {
             Logger::In in( t->name );
             if ( t->rtaitask != rt_buddy() ) {
                 log(Error) << "RTAI/LXRT can not change the scheduler type from another thread." <<endlog();
                 return -1;
             }
+            if (rtos_task_check_scheduler(&s) == -1)
+                return -1;
             if (s == SCHED_LXRT_HARD)
                 rt_make_hard_real_time();
             else if ( s == SCHED_LXRT_SOFT)
                 rt_make_soft_real_time();
-            else {
-                log(Error) << "Unknown scheduler type for RTAI/LXRT. Use SCHED_LXRT_HARD or SCHED_LXRT_SOFT." <<endlog();
-                return -1;
-            }
             return 0;
         }
 
@@ -271,11 +280,32 @@ namespace RTT
             free( mytask->name );
             // rt_task_delete is done in wrapper !
         }
+    
+        INTERNAL_QUAL int rtos_task_check_priority(int* scheduler, int* priority)
+        {
+            int ret = 0;
+            // check scheduler first.
+            ret = rtos_task_check_scheduler(scheduler);
+
+            // correct priority
+            // Hard & Soft:
+            if (*priority < 0){
+                log(Warning) << "Forcing priority ("<<*priority<<") of thread to 0." <<endlog();
+                *priority = 0;
+                ret = -1;
+            }
+            if (*priority > 255){
+                log(Warning) << "Forcing priority ("<<*priority<<") of thread to 255." <<endlog();
+                *priority = 255;
+                ret = -1;
+            }
+            return ret;
+        }
 
         INTERNAL_QUAL int rtos_task_set_priority(RTOS_TASK * mytask, int priority)
         {
             int rv;
-            // returns the old priority.
+            // returns the *old* priority.
             rv = rt_change_prio( mytask->rtaitask, priority);
             if (rv == mytask->priority) {
                 mytask->priority = priority;

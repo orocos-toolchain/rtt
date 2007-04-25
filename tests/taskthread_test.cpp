@@ -173,8 +173,13 @@ void ActivitiesThreadTest::testPeriodic()
     CPPUNIT_ASSERT( mtask.isRunning() == false );
     CPPUNIT_ASSERT( mtask.thread()->isRunning() );
     CPPUNIT_ASSERT_EQUAL( 0.01, mtask.thread()->getPeriod() );
-    CPPUNIT_ASSERT_EQUAL( 15, mtask.thread()->getPriority() );
-    CPPUNIT_ASSERT_EQUAL( ORO_SCHED_RT, mtask.thread()->getScheduler() );
+
+    // Adapt priority levels to OS.
+    int bprio = 15, rtsched = ORO_SCHED_RT;
+    OS::CheckPriority( rtsched, bprio );
+
+    CPPUNIT_ASSERT_EQUAL( bprio, mtask.thread()->getPriority() );
+    CPPUNIT_ASSERT_EQUAL( rtsched, mtask.thread()->getScheduler() );
 
     PeriodicActivity m2task( 15, 0.01 );
     CPPUNIT_ASSERT( mtask.thread() == m2task.thread() );
@@ -195,10 +200,18 @@ void ActivitiesThreadTest::testPeriodic()
     CPPUNIT_ASSERT( m2task.stop() == true );
     CPPUNIT_ASSERT( m2task.isRunning() == false );
 
-    // Different Scheduler
-    PeriodicActivity m3task(ORO_SCHED_OTHER, 15, 0.01);
-    CPPUNIT_ASSERT( mtask.thread() != m3task.thread() );
-    CPPUNIT_ASSERT_EQUAL( ORO_SCHED_OTHER, m3task.thread()->getScheduler() );
+    // Different Scheduler (don't test if invalid priorities)
+    bprio = 15; 
+    rtsched = ORO_SCHED_RT;
+    if ( OS::CheckPriority( rtsched, bprio ) ) {
+        PeriodicActivity m3task(ORO_SCHED_OTHER, 15, 0.01);
+        bprio = 15; 
+        rtsched = ORO_SCHED_OTHER;
+        if ( OS::CheckPriority( rtsched, bprio ) ) {
+            CPPUNIT_ASSERT( mtask.thread() != m3task.thread() );
+            CPPUNIT_ASSERT_EQUAL( ORO_SCHED_OTHER, m3task.thread()->getScheduler() );
+        }
+    }
     
     // Starting thread if thread not running
     CPPUNIT_ASSERT( mtask.thread()->stop() );
@@ -213,11 +226,16 @@ void ActivitiesThreadTest::testNonPeriodic()
     // Test periodic task sequencing...
 
     NonPeriodicActivity mtask( 15 );
+
+    // Adapt priority levels to OS.
+    int bprio = 15, rtsched = ORO_SCHED_RT;
+    OS::CheckPriority( rtsched, bprio );
+
     CPPUNIT_ASSERT( mtask.isActive() == false );
     CPPUNIT_ASSERT( mtask.isRunning() == false );
     CPPUNIT_ASSERT( mtask.thread()->isRunning() == false );
-    CPPUNIT_ASSERT_EQUAL( 15, mtask.thread()->getPriority() );
-    CPPUNIT_ASSERT_EQUAL( ORO_SCHED_RT, mtask.thread()->getScheduler() );
+    CPPUNIT_ASSERT_EQUAL( bprio, mtask.thread()->getPriority() );
+    CPPUNIT_ASSERT_EQUAL( rtsched, mtask.thread()->getScheduler() );
 
     NonPeriodicActivity m2task( 15 );
     CPPUNIT_ASSERT( mtask.thread() != m2task.thread() );
@@ -239,9 +257,13 @@ void ActivitiesThreadTest::testNonPeriodic()
     CPPUNIT_ASSERT( m2task.isActive() == false );
 
     // Different Scheduler
-    NonPeriodicActivity m3task(ORO_SCHED_OTHER, 15);
-    CPPUNIT_ASSERT( mtask.thread() != m3task.thread() );
-    CPPUNIT_ASSERT_EQUAL( ORO_SCHED_OTHER, m3task.thread()->getScheduler() );
+    bprio = 15;
+    rtsched = ORO_SCHED_OTHER;
+    if ( OS::CheckPriority( rtsched, bprio ) ) {
+        NonPeriodicActivity m3task(ORO_SCHED_OTHER, 15);
+        CPPUNIT_ASSERT( mtask.thread() != m3task.thread() );
+        CPPUNIT_ASSERT_EQUAL( ORO_SCHED_OTHER, m3task.thread()->getScheduler() );
+    }
 }
 
 void ActivitiesThreadTest::testSlave()
@@ -340,23 +362,30 @@ void ActivitiesThreadTest::testSlave()
 
 void ActivitiesThreadTest::testScheduler()
 {
-    TimerThreadPtr tt = TimerThread::Instance(ORO_SCHED_OTHER, 15, 0.01);
+    int rtsched = ORO_SCHED_OTHER;
+    int bprio = 15;
+
+    OS::CheckPriority( rtsched, bprio );
+    TimerThreadPtr tt = TimerThread::Instance(rtsched, bprio, 0.0123);
     CPPUNIT_ASSERT( tt != 0 );
 
     CPPUNIT_ASSERT( tt->isRunning() == false );
 
-    CPPUNIT_ASSERT_EQUAL( 0.01, tt->getPeriod());
-    CPPUNIT_ASSERT_EQUAL( 15, tt->getPriority());
-    CPPUNIT_ASSERT_EQUAL( ORO_SCHED_OTHER, tt->getScheduler());
+    CPPUNIT_ASSERT_EQUAL( 0.0123, tt->getPeriod());
 
-    {
-        // different scheduler, different thread.
-        TimerThreadPtr tt2 = TimerThread::Instance(ORO_SCHED_RT, 15, 0.01);
+    CPPUNIT_ASSERT_EQUAL( bprio, tt->getPriority());
+    CPPUNIT_ASSERT_EQUAL( rtsched, tt->getScheduler());
+
+    // different scheduler, different thread.
+    rtsched = ORO_SCHED_RT;
+    bprio = 15;
+    if ( OS::CheckPriority( rtsched, bprio ) ) {
+        TimerThreadPtr tt2 = TimerThread::Instance(rtsched, bprio, 0.0123);
         CPPUNIT_ASSERT( tt2 != 0 );
         CPPUNIT_ASSERT( tt2 != tt );
-        CPPUNIT_ASSERT_EQUAL( ORO_SCHED_RT, tt2->getScheduler());
+        CPPUNIT_ASSERT_EQUAL( rtsched, tt2->getScheduler());
 
-        tt = TimerThread::Instance(15, 0.01); // ORO_SCHED_RT is the default.
+        tt = TimerThread::Instance(bprio, 0.0123); // ORO_SCHED_RT is the default.
         CPPUNIT_ASSERT( tt == tt2 );
     }
 }
@@ -364,29 +393,34 @@ void ActivitiesThreadTest::testScheduler()
 
 void ActivitiesThreadTest::testThreadConfig()
 {
-    TimerThreadPtr tt = TimerThread::Instance(15, 0.01);
+    int rtsched = ORO_SCHED_RT;
+    int bprio = 15;
+    TimerThreadPtr tt = TimerThread::Instance(bprio, 0.0123);
 
     CPPUNIT_ASSERT( tt->isRunning() == false );
 
-    CPPUNIT_ASSERT_EQUAL( 0.01, tt->getPeriod());
-    CPPUNIT_ASSERT_EQUAL( 15, tt->getPriority());
-
+    CPPUNIT_ASSERT_EQUAL( 0.0123, tt->getPeriod());
+    
+    // only do this if valid priority/scheduler range:
+    if ( OS::CheckPriority( rtsched, bprio ) == true)
     {
+        CPPUNIT_ASSERT_EQUAL( bprio, tt->getPriority());
+    
         // different priority, different thread.
-        TimerThreadPtr tt2 = TimerThread::Instance(16, 0.01);
+        TimerThreadPtr tt2 = TimerThread::Instance(bprio - 1, 0.0123);
         CPPUNIT_ASSERT( tt2 != 0 );
         CPPUNIT_ASSERT( tt2 != tt );
         
         // different period, different thread.
-        TimerThreadPtr tt3 = TimerThread::Instance(15, 0.1);
+        TimerThreadPtr tt3 = TimerThread::Instance(bprio, 0.123);
         CPPUNIT_ASSERT( tt3 != 0 );
         CPPUNIT_ASSERT( tt3 != tt );
         CPPUNIT_ASSERT( tt3 != tt2 );
     }
 
-    tt = TimerThread::Instance(15, 0.01);
+    tt = TimerThread::Instance(bprio, 0.0123);
     CPPUNIT_ASSERT( tt != 0 );
-    CPPUNIT_ASSERT( tt == TimerThread::Instance(15,0.01) );
+    CPPUNIT_ASSERT( tt == TimerThread::Instance(bprio,0.0123) );
 
     // switching hard/soft
     // do not ASSERT since the ret-value may be false...
@@ -403,7 +437,7 @@ void ActivitiesThreadTest::testThreadConfig()
 
         // even if the priority was changed after construction, 
         // the thread can be found:
-        CPPUNIT_ASSERT( tt == TimerThread::Instance(4,0.01) );
+        CPPUNIT_ASSERT( tt == TimerThread::Instance(4,0.0123) );
     }
 
     CPPUNIT_ASSERT( tt->start() );

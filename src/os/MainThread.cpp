@@ -38,7 +38,7 @@
  
 
 // this file must be included always first. 
-#include "os/fosi_internal.hpp"
+#include "os/fosi_internal_interface.hpp"
 #include "os/MainThread.hpp"
 
 namespace RTT

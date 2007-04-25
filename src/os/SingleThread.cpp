@@ -36,7 +36,7 @@
  ***************************************************************************/
 
 // include OS-internal fosi as first file.
-#include "os/fosi_internal.hpp"
+#include "os/fosi_internal_interface.hpp"
 #include <os/SingleThread.hpp>
 #include <os/MutexLock.hpp>
 

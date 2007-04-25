@@ -69,5 +69,24 @@ namespace RTT
      * to get an 'n' times higher priority.
      */
     extern const int IncreasePriority;
+
+    /**
+     * Check if the scheduler is a valid type in the current process
+     * and adapt to a valid value.
+     * @return true if \a sched_type made sense, false if a
+     * correction was applied.
+     */
+    bool CheckScheduler(int& sched_type);
+
+    /**
+     * Check if the scheduler type and priority match and
+     * adapt to a valid value. If \a sched_type is unknown
+     * a default is choosen. If \a priority is invalid within
+     * \a sched_type, a default is choosen.
+     * @return true if the arguments made sense, false if a
+     * correction was applied.
+     */ 
+    bool CheckPriority(int& sched_type, int& priority);
+
 }}
 #endif

@@ -47,8 +47,6 @@
 #ifndef OS_FOSI_INTERNAL_INTERFACE_HPP
 #define OS_FOSI_INTERNAL_INTERFACE_HPP
 
-#error "This file is a template for developers, do not include directly."
-
 #include "ThreadInterface.hpp"
 #include "fosi.h"
 
@@ -64,6 +62,7 @@ namespace RTT
 		int rtos_task_create(RTOS_TASK* task, 
 							 int priority,
 							 const char * name,
+                             int sched_type,
 							 void * (*start_routine)(void *), 
 							 ThreadInterface* obj);
 
@@ -71,19 +70,21 @@ namespace RTT
 
 		// scheduler type/lanes
 		int rtos_task_set_scheduler(RTOS_TASK* t, int sched_type);
-		int rtos_task_get_scheduler(RTOS_TASK* t);
+		int rtos_task_get_scheduler(const RTOS_TASK* t);
 
 		void rtos_task_make_periodic(RTOS_TASK* mytask, NANO_TIME nanosecs );
 		void rtos_task_set_period( RTOS_TASK* mytask, NANO_TIME nanosecs );
-		NANOTIME rtos_task_get_period( RTOS_TASK* mytask );
+		NANO_TIME rtos_task_get_period( RTOS_TASK* mytask );
     
 		// return zero if no "overruns" did occur
 		int rtos_task_wait_period( RTOS_TASK* task );
     
 		void rtos_task_delete(RTOS_TASK* mytask);
 
+        int rtos_task_check_scheduler(int* sched_type);
+        int rtos_task_check_priority(int* sched_type, int* priority);
 		int rtos_task_set_priority(RTOS_TASK * task,int priority);
-		int rtos_task_get_priority(RTOS_TASK * task);
+		int rtos_task_get_priority(const RTOS_TASK * task);
 
 		const char * rtos_task_get_name(const RTOS_TASK* t);
 	}

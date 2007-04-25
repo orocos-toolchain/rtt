@@ -35,7 +35,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "os/fosi_internal.hpp"
+#include "fosi_internal_interface.hpp"
 #include <os/PeriodicThread.hpp>
 #include <os/Time.hpp>
 #include "os/threads.hpp"
@@ -359,6 +359,8 @@ namespace RTT
     {
         if ( !running ) 
             {
+                if ( OS::CheckScheduler(sched_type) == false)
+                    return false;
                 if ( this->getScheduler() == sched_type ) {
                     log(Debug) << "Scheduler type for Thread "<< rtos_task_get_name(&rtos_task) <<" is already configured as "<< sched_type << endlog();
                     return true;

@@ -37,14 +37,12 @@
  
  
 
-#ifndef OS_FOSI_INTERNAL_HPP
-#define OS_FOSI_INTERNAL_HPP
-
 #define OROBLD_OS_INTERNAL
 #include "os/ThreadInterface.hpp"
 #include "fosi.h"
-#include <iostream>
-#define INTERNAL_QUAL static inline
+#include "../fosi_internal_interface.hpp"
+#include <cassert>
+#define INTERNAL_QUAL 
 
 #include "Logger.hpp"
 
@@ -213,6 +211,38 @@ namespace RTT
             rt_task_yield();
         }
 
+    INTERNAL_QUAL int rtos_task_check_scheduler(int* scheduler)
+    {
+        if (*scheduler != SCHED_XENOMAI_HARD && *scheduler != SCHED_XENOMAI_SOFT ) {
+            log(Error) << "Unknown scheduler type." <<endlog();
+            *scheduler = SCHED_XENOMAI_SOFT;
+            return -1;
+        }
+        return 0;
+    }
+
+	INTERNAL_QUAL int rtos_task_check_priority(int* scheduler, int* priority)
+    {
+        int ret = 0;
+        // check scheduler first.
+        ret = rtos_task_check_scheduler(scheduler);
+
+        // correct priority
+        // Hard & Soft:
+        if (*priority <= 0){
+            log(Warning) << "Forcing priority ("<<*priority<<") of thread to 1." <<endlog();
+            *priority = 1;
+            ret = -1;
+        }
+        if (*priority >= 99){
+            log(Warning) << "Forcing priority ("<<*priority<<") of thread to 99." <<endlog();
+            *priority = 99;
+            ret = -1;
+        }
+        return ret;
+    }
+
+
         // we could implement here the interrupt shield logic.
         INTERNAL_QUAL int rtos_task_set_scheduler(RTOS_TASK* t, int sched_type) {
             Logger::In in( t->name );
@@ -221,6 +251,10 @@ namespace RTT
                 log(Error) << "Xenomai can not change the scheduler type from another thread." <<endlog();
                 return -1;
             }
+
+            if ( rtos_task_check_scheduler( &sched_type ) == -1)
+                return -1;
+
             if (sched_type == SCHED_XENOMAI_HARD)
                 if ( rt_task_set_mode( 0, T_PRIMARY, 0 ) == 0 ) {
                     t->sched_type = SCHED_XENOMAI_HARD;
@@ -233,8 +267,8 @@ namespace RTT
                     return 0;
                 } else
                     return -1;
-                    
-            log(Error) << "Unknown scheduler type for Xenomai. Use SCHED_XENOMAI_SOFT or SCHED_XENOMAI_HARD." <<endlog();
+
+            assert(false);
             return -1;
         }
 
@@ -315,4 +349,4 @@ namespace RTT
     }
 }}
 #undef INTERNAL_QUAL
-#endif
+

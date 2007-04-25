@@ -26,18 +26,16 @@
  ***************************************************************************/
  
  
-#ifndef ORO_OS_FOSI_INTERNAL_HPP
-#define ORO_OS_FOSI_INTERNAL_HPP
-
 #include <pkgconf/kernel.h>
 #include <pkgconf/os_ecos.h>
 #include "ThreadInterface.hpp"
 #include "fosi.h"
+#include "../fosi_internal_interface.hpp"
 #include <cyg/kernel/kapi.h>
 #include <iostream>
 #include <string>
 
-#define INTERNAL_QUAL static inline
+#define INTERNAL_QUAL 
 
 namespace RTT
 {namespace OS {
@@ -64,7 +62,7 @@ namespace RTT
       /* sched_type is unused in eCos */
       // Allocate room for threads name
       if ( strlen(name) == 0 )
-	name = "Thread";
+          name = "Thread";
       task->name = strcpy( (char*)malloc( (strlen(name) + 1) * sizeof(char)), name);
       
       // Allocate necessary stack...
@@ -93,18 +91,6 @@ namespace RTT
 
     INTERNAL_QUAL void rtos_task_yield(RTOS_TASK*) {
       cyg_thread_yield();
-    }
-
-    INTERNAL_QUAL void rtos_task_make_hard_real_time(RTOS_TASK* t) {
-      t->hrt = true;
-    }
-
-    INTERNAL_QUAL void rtos_task_make_soft_real_time(RTOS_TASK* t) {
-      t->hrt = false;
-    }
-
-    INTERNAL_QUAL int rtos_task_is_hard_real_time(const RTOS_TASK* t) {
-      return t->hrt;
     }
 
     INTERNAL_QUAL void wakeup_handler(cyg_handle_t alarm_handle,cyg_addrword_t data)
@@ -190,7 +176,7 @@ namespace RTT
       // KG: Peter does not check return values, it appears...
       bool succeed = cyg_thread_delete(mytask->handle);
       if (succeed == false)
-	diag_printf("cyg_thread_delete: Error deleting task\n");
+          diag_printf("cyg_thread_delete: Error deleting task\n");
       // Free stack space
       free(mytask->stack);
     }
@@ -201,7 +187,7 @@ namespace RTT
       cyg_thread_info info;
       bool succeed = cyg_thread_get_info(t->handle,cyg_thread_get_id(t->handle),&info);
       if (succeed == false)
-	diag_printf("fosi_internal.hpp rtos_task_get_name() WARNING: cyg_thread_get_info returned false...\n");
+          diag_printf("fosi_internal.hpp rtos_task_get_name() WARNING: cyg_thread_get_info returned false...\n");
       return info.name;
     }
 
@@ -226,9 +212,32 @@ namespace RTT
           return SCHED_ECOS_FIFO;
       }
 
+    INTERNAL_QUAL int rtos_task_check_scheduler(int* scheduler)
+    {
+        if (*scheduler != SCHED_ECOS_FIFO )
+            log(Error) << "Unknown scheduler type." <<endlog();
+            *scheduler = SCHED_ECOS_FIFO;
+            return -1;
+        }
+        return 0;
+    }
+
+      INTERNAL_QUAL int rtos_task_check_priority(int* scheduler, int* priority) 
+      {
+          int ret = 0;
+          ret = rtos_task_check_scheduler(&scheduler);
+
+          // FIXME: what are the valid priority ranges ???
+
+          return ret;
+      }
+          
+          
+          
+
     
 
   }
 }}
 #undef INTERNAL_QUAL
-#endif
+

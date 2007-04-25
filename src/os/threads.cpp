@@ -37,8 +37,22 @@
  
  
 #include "os/threads.hpp"
+#include "os/fosi_internal_interface.hpp"
 
 namespace RTT
 { namespace OS {
     AtomicInt threads(0);
+
+    using namespace detail;
+
+    bool CheckScheduler(int& sched_type)
+    {
+        return rtos_task_check_scheduler(&sched_type) == 0;
+    }
+
+    bool CheckPriority(int& sched_type, int& priority)
+    {
+        return rtos_task_check_priority(&sched_type, &priority) == 0;
+    }
+
 }}
