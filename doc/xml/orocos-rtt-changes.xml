@@ -49,6 +49,14 @@
 	    encounter problems, notify the orocos-dev mailinglist and
 	    a hotfix will be prepared.
 	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=223">
+	    Change Orocos directory structure</ulink> and 
+	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=28">
+	      [Project]Build shared libraries
+	    </ulink>.
+	  </para>
 	</listitem>
       </itemizedlist>
     </section>
@@ -63,6 +71,15 @@
 	    2.2.5 but should work with other kernels and compilers as
 	    well.
 	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=27">
+	      [Project] eCos Port
+	      </ulink> and 
+	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=289">
+	      Rethink the os/oro_*.h assembly functions 
+	    </ulink>.
+	  </para>
 	</listitem>
 	<listitem>
 	  <para>
@@ -70,6 +87,22 @@
 	    required in the FOSI layer, which maps to the yield function
 	    of your OS. If your OS does not support a 'thread yield',
 	    you may implement this as an empty function.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Two functions, <function>int
+	    rtos_task_check_scheduler(int* scheduler)</function> and
+	    <function>int rtos_task_check_priority(int* scheduler,
+	    int* priority)</function>, have been added to the internal
+	    FOSI layer. Each OS must implement these functions and
+	    check the arguments for validity.
+	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=382">
+	      RTT does not provide means to check scheduler/priority combos
+	      </ulink>.
 	  </para>
 	</listitem>
 	<listitem>
@@ -84,6 +117,12 @@
 	    was called. The new behaviour only allows start() to succeed
 	    if loop() is not executing. stop() will only return when
 	    loop() finishes.
+	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=253">
+	      loopActivity
+	      </ulink>.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -113,6 +152,12 @@
 	    of the TaskContext (see below). Again, existing RTT 1.0
 	    applications using the old naming remain working.
 	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=352">
+	      TaskContext offers no configuration function
+	      </ulink>.
+	  </para>
 	</listitem>
       </itemizedlist>
     </section>
@@ -132,6 +177,12 @@
 	    names and TaskContext objects. The parser has been modified
 	    to allow the old syntax and warn the user of the change.
 	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=328">
+	      [Project]Refactor TaskObject vs TaskContext
+	      </ulink>.
+	  </para>
 	</listitem>
 	<listitem>
 	  <para>
@@ -146,6 +197,64 @@
 	    <function>execution()</function>).  In that case, the user
 	    needs to call <function>getObject()</function> instead or
 	    revert to the recommended functions.
+	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=328">
+	      [Project]Refactor TaskObject vs TaskContext
+	      </ulink>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Toolkit plugins which use the RTT::TemplateTypeInfo class
+	    to add user data types to the Real-Time Toolkit must provide
+	    operator>> as well for their type when 'use_ostream' is enabled.
+	    In other words, if you defined operator&lt;&lt; for your toolkit type,
+	    you now also need to define operator>>.
+	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=301">
+	      Toolkit Plugins should provide read()/operator>> as well 
+	      </ulink>.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>XML Changes</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    When a <classname>RTT::PropertyBag</classname> object is
+	    stored in an XML struct element, it previously had the
+	    type="type_less" attribute. XML files written by RTT 1.2.0
+	    will use the type="PropertyBag" attribute (conforming
+	    scripting naming). If an old-style file is found, it is
+	    automatically converted.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    When a std::vector&lt;double&gt; property is stored in an
+	    XML struct element, it previously had the type
+	    type="std::vector&amp;lt;double&amp;gt;" attribute. XML
+	    files written by RTT 1.2.0 will use the type="array"
+	    attribute (conforming scripting naming). Also, the 'Size'
+	    element is no longer required and may be omitted. The
+	    elements of the array struct also no longer require a
+	    name, and the name is ignored. The ordering in the file
+	    counts as index number.  If an old-style file is found, it
+	    is automatically converted.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    See also
+	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=326">
+	      [Project]XML format: change of type="xyz" fields
+	      </ulink>.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -194,6 +303,12 @@
 	    will refuse to start running. User functions (configureHook() and
 	    cleanupHook()) allow the user to control the transitions.
 	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=352">
+	      TaskContext offers no configuration function
+	      </ulink>.
+	  </para>
 	</listitem>
 	<listitem>
 	  <para>
@@ -202,6 +317,25 @@
 	    received additional constructors which allow to set the scheduler
 	    type to ORO_SCHED_RT (default) or ORO_SCHED_OTHER. This allows
 	    easier creation of not real-time threads in the Orocos RTT.
+	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=314">
+	      Priority and scheduler of activities
+	      </ulink>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The <classname>RTT::PeriodicActivity</classname> class could
+	    no longer be started if its thread was stopped for some reason.
+	    If the thread is not running, it tries to start it again. 
+	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=367">
+	      PeriodicActivity does not start PeriodicThread if necessary.
+	      </ulink>.
 	  </para>
 	</listitem>
       </itemizedlist>
