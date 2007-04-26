@@ -164,9 +164,12 @@ namespace RTT
              it != myports.end();
              ++it) {
             // Add the port to the method interface.
-            OperationInterface* ms =  this->ports()->createPortObject((*it)->getName());
-            if ( ms )
-                this->addObject( ms );
+            if (this->getObject((*it)->getName()) == 0) {
+                OperationInterface* ms = this->ports()->createPortObject((*it)->getName());
+                if ( ms )
+                    if ( this->addObject( ms ) == false )
+                        delete ms;
+            }
         }
     }
 
