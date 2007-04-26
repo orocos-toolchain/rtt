@@ -32,3 +32,9 @@ directory.  The keys to use are 'arrows'/'enter' to modify a setting,
 to generate the makefiles. If an additional configuration check is
 required, the 'g' key can not be used and you must press 'c' and
 examine the output.
+
+CORBA
+=====
+Corba is not enabled by default. If you have ACE/TAO installed, use
+../configure --enable-corba (set ACE_ROOT,TAO_ROOT if necessary), or
+use ccmake to enable the ENABLE_CORBA option.
