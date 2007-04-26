@@ -319,6 +319,8 @@ Use this object in order to load or query programs or state machines.");
             {
 #ifndef ORO_EMBEDDED
                 Logger::log() << Logger::Error <<filename<<" :"<< exc.what() << Logger::endl;
+                if ( mrethrow )
+                    throw;
 #endif
                 return false;
             }
