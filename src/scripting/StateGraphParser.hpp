@@ -81,8 +81,8 @@ namespace RTT { namespace detail
   {
       // Our task we are loaded in :
       TaskContext* context;
-      // The TC of the current StateMachine
-      StateMachineTask* curcontext ;
+      // The TaskObject of the current StateMachine
+      StateMachineTask* curobject ;
       OperationInterface* peer;
       our_pos_iter_t& mpositer;
       our_pos_iter_t saveStartPos;
@@ -90,23 +90,23 @@ namespace RTT { namespace detail
       int ln_offset;
 
       typedef boost::shared_ptr<ParsedStateMachine> ParsedStateMachinePtr;
-      typedef std::map<std::string, ParsedStateMachinePtr> contextnamemap_t;
-      typedef std::map<std::string, AttributeBase*> contextparams_t;
-      typedef std::map<std::string, DataSourceBase::shared_ptr> contextparamvalues_t;
-      typedef std::map<std::string, StateDescription*> contextstatesmap_t;
-      typedef std::map<std::string, StateMachineBuilder*> contextbuilders_t;
+      typedef std::map<std::string, ParsedStateMachinePtr> machinenamemap_t;
+      typedef std::map<std::string, AttributeBase*> machineparams_t;
+      typedef std::map<std::string, DataSourceBase::shared_ptr> machineparamvalues_t;
+      typedef std::map<std::string, StateDescription*> machinestatesmap_t;
+      typedef std::map<std::string, StateMachineBuilder*> machinebuilders_t;
 
-      contextnamemap_t rootcontexts;
-      contextbuilders_t contextbuilders;
+      machinenamemap_t rootmachines;
+      machinebuilders_t machinebuilders;
       ParsedStateMachinePtr curtemplate;
       std::vector<CommandInterface*> paraminitcommands;
       std::vector<CommandInterface*> varinitcommands;
-      ParsedStateMachinePtr curinstantiatedcontext;
-      StateMachineBuilder* curcontextbuilder;
-      std::string curinstcontextname;
-      contextparamvalues_t curinstcontextparams;
-      std::string curcontextinstargumentname;
-      std::string curcontextname;
+      ParsedStateMachinePtr curinstantiatedmachine;
+      StateMachineBuilder* curmachinebuilder;
+      std::string curinstmachinename;
+      machineparamvalues_t curinstmachineparams;
+      std::string curmachineinstargumentname;
+      std::string curmachinename;
       bool curinitialstateflag;
       bool curfinalstateflag;
       StateDescription* curstate;
@@ -117,7 +117,7 @@ namespace RTT { namespace detail
       boost::shared_ptr<ProgramInterface> elseProgram;
       ConditionInterface* curcondition;
 #if 0
-      std::string curscvccontextname;
+      std::string curscvcmachinename;
       std::string curscvcparamname;
 #endif
       /**
@@ -133,10 +133,10 @@ namespace RTT { namespace detail
 
       rule_t production;
       rule_t newline;
-      rule_t rootcontextinstantiation;
-      rule_t statecontext;
-      rule_t contextinstantiation;
-      rule_t statecontextcontent;
+      rule_t rootmachineinstantiation;
+      rule_t statemachine;
+      rule_t machineinstantiation;
+      rule_t statemachinecontent;
       rule_t varline;
       rule_t state;
       rule_t vardec;
@@ -159,13 +159,13 @@ namespace RTT { namespace detail
       rule_t selectcommand;
       rule_t brancher;
       rule_t selector;
-      rule_t contextinstarguments;
-      rule_t contextinstargument;
-      rule_t contextmemvar;
-      rule_t contextvariable;
-      rule_t contextparam;
-      rule_t contextconstant;
-      rule_t contextalias;
+      rule_t machineinstarguments;
+      rule_t machineinstargument;
+      rule_t machinememvar;
+      rule_t machinevariable;
+      rule_t machineparam;
+      rule_t machineconstant;
+      rule_t machinealias;
       rule_t subMachinevarchange;
 
       ConditionParser* conditionparser;
@@ -200,25 +200,25 @@ namespace RTT { namespace detail
       void seeneventtrans();
       void seeneventargs();
 
-      void seenstatecontextname( iter_t begin, iter_t end );
+      void seenstatemachinename( iter_t begin, iter_t end );
       void storeOffset();
       void saveText( iter_t begin, iter_t end );
-      void startrootcontextinstantiation();
-      void seenrootcontextinstantiation();
-      void seenstatecontextend();
+      void startrootmachineinstantiation();
+      void seenrootmachineinstantiation();
+      void seenstatemachineend();
       void seensubMachineinstantiation();
 
       void inpreconditions();
       void seenpreconditions();
 
-      void seencontexttypename( iter_t begin, iter_t end );
-      void seeninstcontextname( iter_t begin, iter_t end );
-      void seencontextinstantiation();
-      void seencontextinstargumentname( iter_t begin,  iter_t end );
-      void seencontextinstargumentvalue();
+      void seenmachinetypename( iter_t begin, iter_t end );
+      void seeninstmachinename( iter_t begin, iter_t end );
+      void seenmachineinstantiation();
+      void seenmachineinstargumentname( iter_t begin,  iter_t end );
+      void seenmachineinstargumentvalue();
 
-      void seencontextvariable();
-      void seencontextparam();
+      void seenmachinevariable();
+      void seenmachineparam();
 
 #if 0
       void seenscvcsubMachinename( iter_t begin, iter_t end );
@@ -228,8 +228,8 @@ namespace RTT { namespace detail
     StateGraphParser( iter_t& positer, TaskContext* tc );
     ~StateGraphParser();
 
-    // tries to parse, returns the instantiated root contexts.  On all
-    // returned contexts setName() will have been called with the
+    // tries to parse, returns the instantiated root machines.  On all
+    // returned machines setName() will have been called with the
     // correct name.
     // will throw an file_parse_exception on error
     std::vector<ParsedStateMachinePtr> parse( iter_t& begin, iter_t end );

@@ -135,8 +135,8 @@ namespace RTT
     {
         // When the this TaskObject is deleted, make sure the program does not reference us.
         ParsedStateMachinePtr prog = statemachine.lock();
-        if ( prog && prog->getStatus() != StateMachine::Status::unloaded ) {
-            prog->setTaskContext(0);
+        if ( prog ) {
+            prog->setTaskObject(0);
         }
     }
 }

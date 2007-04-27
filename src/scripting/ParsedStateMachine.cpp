@@ -30,7 +30,7 @@
 #include "ExecutionEngine.hpp"
 #include "StateDescription.hpp"
 
-#include "TaskContext.hpp"
+#include "TaskObject.hpp"
 #include "StateMachineTask.hpp"
 #include <cassert>
 
@@ -64,7 +64,7 @@ namespace RTT {
 
         // First copy the task such that commands and attributes can be correctly
         // copied.
-        ret->setTaskContext( this->context->copy(ret, replacements, instantiate) );
+        ret->setTaskObject( this->object->copy(ret, replacements, instantiate) );
 
         // the parameters of the SC, similar to FunctionGraph's Arguments.
         for ( VisibleWritableValuesMap::const_iterator i = parametervalues.begin();
@@ -72,8 +72,8 @@ namespace RTT {
         {
             // What is sure, is that each param
             // must also be in the attributerepository.
-            assert( ret->getTaskContext()->attributes()->getValue( i->first ) );
-            ret->parametervalues[i->first] = ret->getTaskContext()->attributes()->getValue( i->first );
+            assert( ret->getTaskObject()->attributes()->getValue( i->first ) );
+            ret->parametervalues[i->first] = ret->getTaskObject()->attributes()->getValue( i->first );
         }
 
         //**********************
@@ -201,7 +201,7 @@ namespace RTT {
     }
 
     ParsedStateMachine::ParsedStateMachine()
-        : StateMachine( StateMachinePtr() ), context(0) // no parent, no task
+        : StateMachine( StateMachinePtr() ), object(0) // no parent, no task
     {
         _text.reset( new string("No Text Set.") );
     }
@@ -209,16 +209,16 @@ namespace RTT {
     void ParsedStateMachine::handleUnload()
     {
         // just kill off the interface.
-        if ( context == 0)
+        if ( object == 0)
             return;
-        if ( context->getParent() ) {
-            assert( context == context->getParent()->getObject( context->getName() ) );
-            context->getParent()->removeObject( context->getName() );
+        if ( object->getParent() ) {
+            assert( object == object->getParent()->getObject( object->getName() ) );
+            object->getParent()->removeObject( object->getName() );
         } else {
             // no parent, delete it ourselves.
-            delete context;
+            delete object;
         }
-        context = 0;
+        object = 0;
     }
 
     void ParsedStateMachine::addParameter( const std::string& name, AttributeBase* var )
@@ -261,15 +261,15 @@ namespace RTT {
 
         if ( recursive == false )
             return;
-        //this->getTaskContext()->addPeer( this->getTaskContext()->getPeer("states")->getPeer("task") );
+        //this->getTaskObject()->addPeer( this->getTaskObject()->getPeer("states")->getPeer("task") );
         for ( ChildList::const_iterator i = getChildren().begin(); i != getChildren().end(); ++i )
         {
             std::string subname = name + "." + (*i)->getName();
             ParsedStateMachine* psc = static_cast<ParsedStateMachine*>( i->get() );
             psc->setName( subname, true );
             // we own our child:
-            psc->getTaskContext()->setParent( 0 );
-            this->getTaskContext()->addObject( psc->getTaskContext() );
+            psc->getTaskObject()->setParent( 0 );
+            this->getTaskObject()->addObject( psc->getTaskObject() );
         }
     }
 
@@ -283,11 +283,11 @@ namespace RTT {
         *_text = text;
     }
 
-    StateMachineTask* ParsedStateMachine::getTaskContext() const {
-        return context;
+    StateMachineTask* ParsedStateMachine::getTaskObject() const {
+        return object;
     }
-    void ParsedStateMachine::setTaskContext(StateMachineTask* tc) {
-        context = tc;
+    void ParsedStateMachine::setTaskObject(StateMachineTask* tc) {
+        object = tc;
         if (tc) {
             this->eproc = tc->events()->getEventProcessor();
             assert(this->eproc);

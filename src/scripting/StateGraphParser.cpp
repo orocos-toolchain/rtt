@@ -95,12 +95,12 @@ namespace RTT
     StateGraphParser::StateGraphParser( iter_t& positer,
                                         TaskContext* tc )
         : context( tc ),
-          curcontext( 0 ),
+          curobject( 0 ),
           mpositer( positer ),
           ln_offset(0),
           curtemplate(),
-          curinstantiatedcontext(),
-          curcontextbuilder( 0 ),
+          curinstantiatedmachine(),
+          curmachinebuilder( 0 ),
           curinitialstateflag( false ),
           curfinalstateflag( false ),
           curstate( 0 ),
@@ -119,10 +119,10 @@ namespace RTT
           peerparser( new PeerParser(context, true) ) // full-path peer parser for events.
     {
         BOOST_SPIRIT_DEBUG_RULE( production );
-        BOOST_SPIRIT_DEBUG_RULE( rootcontextinstantiation );
-        BOOST_SPIRIT_DEBUG_RULE( statecontext );
-        BOOST_SPIRIT_DEBUG_RULE( contextinstantiation );
-        BOOST_SPIRIT_DEBUG_RULE( statecontextcontent );
+        BOOST_SPIRIT_DEBUG_RULE( rootmachineinstantiation );
+        BOOST_SPIRIT_DEBUG_RULE( statemachine );
+        BOOST_SPIRIT_DEBUG_RULE( machineinstantiation );
+        BOOST_SPIRIT_DEBUG_RULE( statemachinecontent );
         BOOST_SPIRIT_DEBUG_RULE( varline );
         BOOST_SPIRIT_DEBUG_RULE( state );
         BOOST_SPIRIT_DEBUG_RULE( vardec );
@@ -140,61 +140,61 @@ namespace RTT
         BOOST_SPIRIT_DEBUG_RULE( selectcommand );
         BOOST_SPIRIT_DEBUG_RULE( brancher );
         BOOST_SPIRIT_DEBUG_RULE( selector );
-        BOOST_SPIRIT_DEBUG_RULE( contextinstarguments );
-        BOOST_SPIRIT_DEBUG_RULE( contextinstargument );
-        BOOST_SPIRIT_DEBUG_RULE( contextmemvar );
-        BOOST_SPIRIT_DEBUG_RULE( contextvariable );
-        BOOST_SPIRIT_DEBUG_RULE( contextparam );
-        BOOST_SPIRIT_DEBUG_RULE( contextconstant );
-        BOOST_SPIRIT_DEBUG_RULE( contextalias );
+        BOOST_SPIRIT_DEBUG_RULE( machineinstarguments );
+        BOOST_SPIRIT_DEBUG_RULE( machineinstargument );
+        BOOST_SPIRIT_DEBUG_RULE( machinememvar );
+        BOOST_SPIRIT_DEBUG_RULE( machinevariable );
+        BOOST_SPIRIT_DEBUG_RULE( machineparam );
+        BOOST_SPIRIT_DEBUG_RULE( machineconstant );
+        BOOST_SPIRIT_DEBUG_RULE( machinealias );
         BOOST_SPIRIT_DEBUG_RULE( subMachinevarchange );
 
-        production = *( (statecontext[ bind( &StateGraphParser::seenstatecontextend, this ) ]
-                         >> *( rootcontextinstantiation ))[bind( &StateGraphParser::saveText, this, _1, _2)])
+        production = *( (statemachine[ bind( &StateGraphParser::seenstatemachineend, this ) ]
+                         >> *( rootmachineinstantiation ))[bind( &StateGraphParser::saveText, this, _1, _2)])
                          >> expect_eof(end_p);
 
-        rootcontextinstantiation =
-            str_p("RootMachine")[bind (&StateGraphParser::startrootcontextinstantiation, this) ]
-            >> contextinstantiation[ bind( &StateGraphParser::seenrootcontextinstantiation, this ) ];
+        rootmachineinstantiation =
+            str_p("RootMachine")[bind (&StateGraphParser::startrootmachineinstantiation, this) ]
+            >> machineinstantiation[ bind( &StateGraphParser::seenrootmachineinstantiation, this ) ];
 
-        statecontext =
+        statemachine =
             str_p("StateMachine") //[bind( &StateGraphParser::storeOffset, this)]
-            >> expect_ident( commonparser->identifier[ bind( &StateGraphParser::seenstatecontextname, this, _1, _2 )] )
+            >> expect_ident( commonparser->identifier[ bind( &StateGraphParser::seenstatemachinename, this, _1, _2 )] )
             >> expect_open( ch_p( '{' ) )
-            >> statecontextcontent
+            >> statemachinecontent
             >> expect_end( ch_p( '}' ) );
 
         // Zero or more declarations and Zero or more states
-        statecontextcontent = *( varline | state );
+        statemachinecontent = *( varline | state );
 
         varline = vardec[lambda::var(eol_skip_functor::skipeol) = false] >> commonparser->eos[lambda::var(eol_skip_functor::skipeol) = true];
 
-        vardec = subMachinedecl | contextmemvar | contextparam;
+        vardec = subMachinedecl | machinememvar | machineparam;
 
-        contextmemvar = ( contextconstant | contextvariable | contextalias )[bind( &StateGraphParser::seencontextvariable, this )];
-        contextconstant = valuechangeparser->constantDefinitionParser();
-        contextvariable = valuechangeparser->variableDefinitionParser();
-        contextalias = valuechangeparser->aliasDefinitionParser();
+        machinememvar = ( machineconstant | machinevariable | machinealias )[bind( &StateGraphParser::seenmachinevariable, this )];
+        machineconstant = valuechangeparser->constantDefinitionParser();
+        machinevariable = valuechangeparser->variableDefinitionParser();
+        machinealias = valuechangeparser->aliasDefinitionParser();
 
-        contextparam = valuechangeparser->paramDefinitionParser()[bind( &StateGraphParser::seencontextparam, this )];
+        machineparam = valuechangeparser->paramDefinitionParser()[bind( &StateGraphParser::seenmachineparam, this )];
 
         subMachinedecl = str_p("SubMachine")
-                         >> contextinstantiation[bind( &StateGraphParser::seensubMachineinstantiation, this )];
+                         >> machineinstantiation[bind( &StateGraphParser::seensubMachineinstantiation, this )];
 
-        contextinstantiation =
-            expect_ident( commonparser->identifier[ bind( &StateGraphParser::seencontexttypename, this, _1, _2 )] )
-            >> expect_ident( commonparser->identifier[ bind( &StateGraphParser::seeninstcontextname, this, _1, _2 )] )
+        machineinstantiation =
+            expect_ident( commonparser->identifier[ bind( &StateGraphParser::seenmachinetypename, this, _1, _2 )] )
+            >> expect_ident( commonparser->identifier[ bind( &StateGraphParser::seeninstmachinename, this, _1, _2 )] )
             >> ( ! ( ch_p( '(' )
-                     >> !contextinstarguments
-                     >> expect_close_parenth( ch_p( ')' ) ) ) )[ bind( &StateGraphParser::seencontextinstantiation, this )];
+                     >> !machineinstarguments
+                     >> expect_close_parenth( ch_p( ')' ) ) ) )[ bind( &StateGraphParser::seenmachineinstantiation, this )];
 
-        contextinstarguments =
-            contextinstargument >> *( ',' >> contextinstargument );
+        machineinstarguments =
+            machineinstargument >> *( ',' >> machineinstargument );
 
-        contextinstargument =
-            commonparser->identifier[ bind( &StateGraphParser::seencontextinstargumentname, this, _1, _2 )]
+        machineinstargument =
+            commonparser->identifier[ bind( &StateGraphParser::seenmachineinstargumentname, this, _1, _2 )]
             >> '='
-            >> expressionparser->parser()[ bind( &StateGraphParser::seencontextinstargumentvalue, this )];
+            >> expressionparser->parser()[ bind( &StateGraphParser::seenmachineinstargumentvalue, this )];
 
         state =
           !( str_p( "initial" )[bind( &StateGraphParser::seeninitialstate,this )]
@@ -217,7 +217,7 @@ namespace RTT
             | handle
             | transitions
             | exit
-            | contextmemvar[lambda::var(eol_skip_functor::skipeol) = false] >> commonparser->eos[lambda::var(eol_skip_functor::skipeol) = true];
+            | machinememvar[lambda::var(eol_skip_functor::skipeol) = false] >> commonparser->eos[lambda::var(eol_skip_functor::skipeol) = true];
 
         precondition = str_p( "precondition")
             >> conditionparser->parser()[ bind( &StateGraphParser::seenprecondition, this)] ;
@@ -310,7 +310,7 @@ namespace RTT
         }
         else
         {
-            curstate = new StateDescription(def, curtemplate->getTaskContext()->engine()->programs(), mpositer.get_position().line - ln_offset ); // create an empty state
+            curstate = new StateDescription(def, curtemplate->getTaskObject()->engine()->programs(), mpositer.get_position().line - ln_offset ); // create an empty state
             curtemplate->addState( curstate );
         }
 
@@ -345,8 +345,8 @@ namespace RTT
         // dynamically assign this parser to body.
         assert( progParser != 0 );
         // program name, stack, line offset.
-        //cerr << "SGP : Stack is " << curcontext->getName() <<endl;
-        progParser->initBodyParser( name, curcontext, ln_offset );
+        //cerr << "SGP : Stack is " << curobject->getName() <<endl;
+        progParser->initBodyParser( name, curobject, ln_offset );
         
         programBody = progParser->bodyParser();
     }
@@ -387,14 +387,14 @@ namespace RTT
     void StateGraphParser::seentransprog()
     {
         transProgram = finishProgram();
-        transProgram->setProgramProcessor(curtemplate->getTaskContext()->engine()->programs());
+        transProgram->setProgramProcessor(curtemplate->getTaskObject()->engine()->programs());
     }
 
     void StateGraphParser::seenelseprog()
     {
         // reuse transProgram to store else progr. See seenselect().
         transProgram = finishProgram();
-        transProgram->setProgramProcessor(curtemplate->getTaskContext()->engine()->programs());
+        transProgram->setProgramProcessor(curtemplate->getTaskObject()->engine()->programs());
     }
 
     void StateGraphParser::seenelse()
@@ -447,7 +447,7 @@ namespace RTT
         }
         else
         {
-            next_state = new StateDescription(state_id,curtemplate->getTaskContext()->engine()->programs(), 1); // create an empty state
+            next_state = new StateDescription(state_id,curtemplate->getTaskObject()->engine()->programs(), 1); // create an empty state
             curtemplate->addState( next_state );
         }
         assert( next_state );
@@ -503,7 +503,7 @@ namespace RTT
     }
 
 
-    void StateGraphParser::seenstatecontextend()
+    void StateGraphParser::seenstatemachineend()
     {
         assert( curtemplate );
         assert( ! curstate );
@@ -518,7 +518,7 @@ namespace RTT
             ORO_THROW( parse_exception_semantic_error("No final state defined."));
 
         if ( curtemplate->getStateList().empty() )
-            ORO_THROW( parse_exception_semantic_error("No states defined in this state context !"));
+            ORO_THROW( parse_exception_semantic_error("No states defined in this state machine !"));
 
         // Check if all States are defined.
         vector<string> states = curtemplate->getStateList();
@@ -532,7 +532,7 @@ namespace RTT
 
         // retrieve _all_ defined variables and parameters, store them and cleanup the
         // valuechangeparser.
-        valuechangeparser->store( curtemplate->getTaskContext() );
+        valuechangeparser->store( curtemplate->getTaskObject() );
         valuechangeparser->reset();
 
         // prepend the commands for initialising the subMachine
@@ -556,9 +556,9 @@ namespace RTT
              it != curtemplate->getChildren().end(); ++it ) {
             ParsedStateMachine* psc = dynamic_cast<ParsedStateMachine*>( it->get() );
             if (psc) {
-                psc->getTaskContext()->setParent(0);
+                psc->getTaskObject()->setParent(0);
                 // since context is not the parent of psc, it wil not delete it.
-                context->removeObject( psc->getTaskContext()->getName() );
+                context->removeObject( psc->getTaskObject()->getName() );
             }
 
         }
@@ -570,10 +570,10 @@ namespace RTT
         progParser = 0;
 
         StateMachineBuilder* scb = new StateMachineBuilder( curtemplate );
-        contextbuilders[curcontextname] = scb;
+        machinebuilders[curmachinename] = scb;
 
-        // save curcontextname for saveText.
-        curcontext = 0;
+        // save curmachinename for saveText.
+        curobject = 0;
         curtemplate.reset();
     }
 
@@ -600,8 +600,8 @@ namespace RTT
                     mpositer.get_position().file, mpositer.get_position().line,
                     mpositer.get_position().column );
             }
-            std::vector<ParsedStateMachinePtr> ret = values( rootcontexts );
-            rootcontexts.clear();
+            std::vector<ParsedStateMachinePtr> ret = values( rootmachines );
+            rootmachines.clear();
             return ret;
         }
         catch( const parser_error<std::string, iter_t>& e )
@@ -650,7 +650,7 @@ namespace RTT
     void StateGraphParser::clear() {
 
         // remove tmp vars from TaskContext
-        valuechangeparser->clear();
+        valuechangeparser->reset();
 
         // in case of corrupt file, skipeol could have remained on false,
         // so make sure it is set correctly again (I hate this global variable approach, it should be a member of commonparser !)
@@ -666,22 +666,22 @@ namespace RTT
         curstate = 0;
         delete curnonprecstate;
         curnonprecstate = 0;
-        // we own curcontextbuilder, but not through this pointer...
-        curcontextbuilder = 0;
-        curinstantiatedcontext.reset();
+        // we own curmachinebuilder, but not through this pointer...
+        curmachinebuilder = 0;
+        curinstantiatedmachine.reset();
         // If non null, there was a parse-error, undo all :
         if ( curtemplate )
         {
           // remove all 'this' data factories
-          curtemplate->getTaskContext()->methods()->clear();
+          curtemplate->getTaskObject()->methods()->clear();
 
           // remove temporary subMachine peers from current task.
           for( StateMachine::ChildList::const_iterator it= curtemplate->getChildren().begin();
                it != curtemplate->getChildren().end(); ++it ) {
               ParsedStateMachine* psc = dynamic_cast<ParsedStateMachine*>( it->get() );
-              //if (psc) {
-              //    context->removeObject( psc->getTaskContext()->getName() );
-              //}
+              if (psc) {
+                  context->removeObject( psc->getTaskObject()->getName() );
+              }
           }
 
           // will also delete all children : 
@@ -696,27 +696,27 @@ namespace RTT
               i != paraminitcommands.end(); ++ i )
             delete *i;
         paraminitcommands.clear();
-        for ( contextbuilders_t::iterator i = contextbuilders.begin();
-              i != contextbuilders.end(); ++i )
+        for ( machinebuilders_t::iterator i = machinebuilders.begin();
+              i != machinebuilders.end(); ++i )
           delete i->second;
-        contextbuilders.clear();
+        machinebuilders.clear();
         
     }
 
-    void StateGraphParser::seenstatecontextname( iter_t begin, iter_t end ) {
+    void StateGraphParser::seenstatemachinename( iter_t begin, iter_t end ) {
         // the 'type' of the SC :
-        curcontextname = std::string ( begin, end );
+        curmachinename = std::string ( begin, end );
 
         // check if the type exists already :
-        if ( contextbuilders.count( curcontextname ) != 0 )
-            ORO_THROW( parse_exception_semantic_error("StateMachine type " + curcontextname + " redefined."));
+        if ( machinebuilders.count( curmachinename ) != 0 )
+            ORO_THROW( parse_exception_semantic_error("StateMachine type " + curmachinename + " redefined."));
 
         curtemplate.reset(new ParsedStateMachine());
-        // Connect the new SC to the relevant contexts.
+        // Connect the new SC to the relevant machines.
         // 'sc' acts as a stack for storing variables.
-        curcontext = new StateMachineTask(curtemplate, context->engine() );
-        curcontext->setName( curcontextname );
-        curtemplate->setTaskContext( curcontext ); // store.
+        curobject = new StateMachineTask(curtemplate, context->engine() );
+        curobject->setName( curmachinename );
+        curtemplate->setTaskObject( curobject ); // store.
         curtemplate->setEventProcessor( context->engine()->events() ); //handle events in TaskContext.
         
         // we pass the plain file positer such that parse errors are
@@ -724,7 +724,7 @@ namespace RTT
         progParser = new ProgramGraphParser(mpositer, context);
 
         // set the 'type' name :
-        curtemplate->setName( curcontextname, false );
+        curtemplate->setName( curmachinename, false );
     }
 
     void StateGraphParser::storeOffset() {
@@ -736,12 +736,12 @@ namespace RTT
     }
 
     void StateGraphParser::saveText( iter_t begin, iter_t end ) {
-        assert( curcontextname.length() != 0 );
+        assert( curmachinename.length() != 0 );
         //cerr << std::string(begin, end)<<endl;
-        if ( contextbuilders.count( curcontextname ) == 0 )
+        if ( machinebuilders.count( curmachinename ) == 0 )
             return; // yes this might be possible
         // due to the shared-text implementation, we can set the text afterwards.
-        contextbuilders[curcontextname]->item()->setText( std::string( saveStartPos, end) );
+        machinebuilders[curmachinename]->item()->setText( std::string( saveStartPos, end) );
         this->storeOffset();
     }
 
@@ -760,98 +760,98 @@ namespace RTT
         curnonprecstate = 0;
     }
 
-    void StateGraphParser::startrootcontextinstantiation() {
+    void StateGraphParser::startrootmachineinstantiation() {
         isroot = true;
     }
 
-    void StateGraphParser::seenrootcontextinstantiation() {
+    void StateGraphParser::seenrootmachineinstantiation() {
         // first reset the flag.
         isroot = false;
-        if( rootcontexts.find( curinstcontextname ) != rootcontexts.end() )
-            ORO_THROW( parse_exception_semantic_error( "Root context \"" + curinstcontextname + "\" already defined." ));
-        rootcontexts[curinstcontextname] = curinstantiatedcontext;
+        if( rootmachines.find( curinstmachinename ) != rootmachines.end() )
+            ORO_THROW( parse_exception_semantic_error( "Root machine \"" + curinstmachinename + "\" already defined." ));
+        rootmachines[curinstmachinename] = curinstantiatedmachine;
 
         // recursively set the name of this SC and all subs :
         // furthermore, it adds the TC of each child as peer TC to the parent.
-        curinstantiatedcontext->setName( curinstcontextname, true );
+        curinstantiatedmachine->setName( curinstmachinename, true );
 
         // check if the type exists already :
-        if ( context->getObject( curinstcontextname ) )
-            ORO_THROW( parse_exception_semantic_error("TaskContext '"+context->getName()+"' has already an Object named '" + curinstcontextname + "' ."));
+        if ( context->getObject( curinstmachinename ) )
+            ORO_THROW( parse_exception_semantic_error("TaskContext '"+context->getName()+"' has already an Object named '" + curinstmachinename + "' ."));
 
         // Transfer ownership to the owning task.
-        curinstantiatedcontext->getTaskContext()->setParent( 0 );
-        context->addObject( curinstantiatedcontext->getTaskContext() );
+        curinstantiatedmachine->getTaskObject()->setParent( 0 );
+        context->addObject( curinstantiatedmachine->getTaskObject() );
 
-        curinstantiatedcontext.reset();
-        curinstcontextname.clear();
+        curinstantiatedmachine.reset();
+        curinstmachinename.clear();
     }
 
     void StateGraphParser::seensubMachineinstantiation() {
         if ( find_if( curtemplate->getChildren().begin(),
                       curtemplate->getChildren().end(),
-                      bind( equal_to<string>(), bind(&StateMachine::getName,_1), curinstcontextname )) != curtemplate->getChildren().end() )
-            ORO_THROW( parse_exception_semantic_error( "SubMachine \"" + curinstcontextname + "\" already defined." ));
+                      bind( equal_to<string>(), bind(&StateMachine::getName,_1), curinstmachinename )) != curtemplate->getChildren().end() )
+            ORO_THROW( parse_exception_semantic_error( "SubMachine \"" + curinstmachinename + "\" already defined." ));
 
         // Since we parse in the task context, we must _temporarily_
         // make each subMachine a peer of the task so that we can access
         // its methods.
 
-        if ( !context->addObject( curinstantiatedcontext->getTaskContext() ) )
+        if ( !context->addObject( curinstantiatedmachine->getTaskObject() ) )
             ORO_THROW( parse_exception_semantic_error(
-                "Name clash: name of instantiated context \"" + curinstcontextname +
+                "Name clash: name of instantiated machine \"" + curinstmachinename +
                 "\"  already used as object name in task '"+context->getName()+"'." ));
         // this trick sets the parent back to zero, such that the next call to addObject on curtemplate
         // will re-set the parent. We will removeObject on 'context' lateron.
-        curinstantiatedcontext->getTaskContext()->setParent(0);
+        curinstantiatedmachine->getTaskObject()->setParent(0);
 
-        curtemplate->addChild( curinstantiatedcontext );
-        curtemplate->getTaskContext()->addObject( curinstantiatedcontext->getTaskContext() );
-        // we add this statecontext to the list of variables, so that the
+        curtemplate->addChild( curinstantiatedmachine );
+        curtemplate->getTaskObject()->addObject( curinstantiatedmachine->getTaskObject() );
+        // we add this statemachine to the list of variables, so that the
         // user can refer to it by its name...
-        //detail::ParsedAlias<std::string>* pv = new detail::ParsedAlias<std::string>( curinstantiatedcontext->getNameDS() );
-        //context->attributes()->setValue( curinstcontextname, pv );
+        //detail::ParsedAlias<std::string>* pv = new detail::ParsedAlias<std::string>( curinstantiatedmachine->getNameDS() );
+        //context->attributes()->setValue( curinstmachinename, pv );
 
-        curinstantiatedcontext->setName(curinstcontextname, false ); // not recursive !
+        curinstantiatedmachine->setName(curinstmachinename, false ); // not recursive !
 
-        curinstantiatedcontext.reset();
-        curinstcontextname.clear();
+        curinstantiatedmachine.reset();
+        curinstmachinename.clear();
     }
 
-    void StateGraphParser::seencontexttypename( iter_t begin, iter_t end ) {
-        assert( curcontextbuilder == 0 );
+    void StateGraphParser::seenmachinetypename( iter_t begin, iter_t end ) {
+        assert( curmachinebuilder == 0 );
         std::string name( begin, end );
-        contextbuilders_t::iterator i = contextbuilders.find( name );
-        if ( i == contextbuilders.end() )
+        machinebuilders_t::iterator i = machinebuilders.find( name );
+        if ( i == machinebuilders.end() )
             ORO_THROW( parse_exception_semantic_error( "StateMachine \"" + name + "\" not defined." ));
-        curcontextbuilder = i->second;
+        curmachinebuilder = i->second;
     }
 
-    void StateGraphParser::seeninstcontextname( iter_t begin, iter_t end ) {
-        assert( curcontextbuilder != 0 );
-        assert( curinstcontextname.empty() );
-        curinstcontextname = std::string( begin, end );
+    void StateGraphParser::seeninstmachinename( iter_t begin, iter_t end ) {
+        assert( curmachinebuilder != 0 );
+        assert( curinstmachinename.empty() );
+        curinstmachinename = std::string( begin, end );
     }
 
-    void StateGraphParser::seencontextinstargumentname( iter_t begin, iter_t end ) {
-        assert( curcontextinstargumentname.empty() );
+    void StateGraphParser::seenmachineinstargumentname( iter_t begin, iter_t end ) {
+        assert( curmachineinstargumentname.empty() );
         std::string name( begin, end );
-        curcontextinstargumentname = name;
+        curmachineinstargumentname = name;
     }
 
-    void StateGraphParser::seencontextinstargumentvalue() {
+    void StateGraphParser::seenmachineinstargumentvalue() {
         DataSourceBase::shared_ptr value = expressionparser->getResult();
         // let's not forget this...
         expressionparser->dropResult();
-        if ( curinstcontextparams.find( curcontextinstargumentname ) != curinstcontextparams.end() )
+        if ( curinstmachineparams.find( curmachineinstargumentname ) != curinstmachineparams.end() )
             ORO_THROW( parse_exception_semantic_error(
-                "In initialisation of StateMachine \"" + curinstcontextname +
-                "\": Parameter \"" + curcontextinstargumentname +"\" initialised twice..." ));
-        curinstcontextparams[curcontextinstargumentname] = value;
-        curcontextinstargumentname.clear();
+                "In initialisation of StateMachine \"" + curinstmachinename +
+                "\": Parameter \"" + curmachineinstargumentname +"\" initialised twice..." ));
+        curinstmachineparams[curmachineinstargumentname] = value;
+        curmachineinstargumentname.clear();
     }
 
-    void StateGraphParser::seencontextinstantiation()
+    void StateGraphParser::seenmachineinstantiation()
     {
         // TODO : move this code to the ParsedStateMachine builder.
 
@@ -859,25 +859,25 @@ namespace RTT
         // if RootMachine, make special copy which fixes attributes such
         // that on subsequent copy() they keep pointing to same var.
         // use shared_ptr to release on throw's below.
-        ParsedStateMachinePtr nsc( curcontextbuilder->build( isroot ) );
+        ParsedStateMachinePtr nsc( curmachinebuilder->build( isroot ) );
 
         // we stored the attributes which are params of nsc 
         // in the build operation :
-        contextparams_t params = nsc->getParameters();
+        machineparams_t params = nsc->getParameters();
 
         // first run over the given parameters to see if they all exist in
         // the context we're instantiating...
-        for ( contextparamvalues_t::iterator i = curinstcontextparams.begin(); i != curinstcontextparams.end(); ++i )
+        for ( machineparamvalues_t::iterator i = curinstmachineparams.begin(); i != curinstmachineparams.end(); ++i )
         {
-            contextparams_t::iterator j = params.find( i->first );
+            machineparams_t::iterator j = params.find( i->first );
             if ( j == params.end() )
                 ORO_THROW( parse_exception_semantic_error( "No parameter \"" + i->first + "\" in this StateMachine." ) );
         }
 
-        for ( contextparams_t::iterator i = params.begin(); i != params.end(); ++i )
+        for ( machineparams_t::iterator i = params.begin(); i != params.end(); ++i )
         {
-            contextparamvalues_t::iterator j = curinstcontextparams.find( i->first );
-            if ( j == curinstcontextparams.end() )
+            machineparamvalues_t::iterator j = curinstmachineparams.find( i->first );
+            if ( j == curinstmachineparams.end() )
                 ORO_THROW( parse_exception_semantic_error(
                     "No value given for argument \"" + i->first + "\" in instantiation of this StateMachine." ));
 #ifndef ORO_EMBEDDED
@@ -897,7 +897,7 @@ namespace RTT
 #endif
         }
 
-        curinstantiatedcontext = nsc;
+        curinstantiatedmachine = nsc;
 
         // prepend the commands for initialising the subMachine
         // parameters
@@ -908,20 +908,20 @@ namespace RTT
                       i != paraminitcommands.end(); ++i )
                     comcom->add( *i );
                 // init the vars as last (if any), so that they can be inited by an expression containing the params :
-                if ( curinstantiatedcontext->getInitCommand() )
-                    comcom->add( curinstantiatedcontext->getInitCommand() );
-                curinstantiatedcontext->setInitCommand( comcom );
+                if ( curinstantiatedmachine->getInitCommand() )
+                    comcom->add( curinstantiatedmachine->getInitCommand() );
+                curinstantiatedmachine->setInitCommand( comcom );
             }
         paraminitcommands.clear();
 
-        curcontextbuilder = 0;
-        curinstcontextparams.clear();
+        curmachinebuilder = 0;
+        curinstmachineparams.clear();
 
         // set the TaskContext name to the instance name :
-        curinstantiatedcontext->getTaskContext()->setName(curinstcontextname );
+        curinstantiatedmachine->getTaskObject()->setName(curinstmachinename );
     }
 
-    void StateGraphParser::seencontextvariable() {
+    void StateGraphParser::seenmachinevariable() {
         std::vector<CommandInterface*> acv = valuechangeparser->assignCommands();
         for(std::vector<CommandInterface*>::iterator it = acv.begin(); it!=acv.end(); ++it)
             varinitcommands.push_back( *it );
@@ -929,7 +929,7 @@ namespace RTT
         valuechangeparser->clear();
     }
 
-    void StateGraphParser::seencontextparam() {
+    void StateGraphParser::seenmachineparam() {
         std::vector<std::string> pnames = valuechangeparser->definedNames();
         std::vector<AttributeBase*> tbases = valuechangeparser->definedValues();
         assert( pnames.size() == tbases.size() );

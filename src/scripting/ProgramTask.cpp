@@ -86,7 +86,7 @@ namespace RTT
     ProgramTask::~ProgramTask() {
         // When the this TaskObject is deleted, make sure the program does not reference us.
         FunctionGraphPtr prog = function.lock();
-        if ( prog && prog->getStatus() != ProgramInterface::Status::unloaded ) {
+        if ( prog ) {
             prog->setProgramTask(0);
         }
     }

@@ -77,9 +77,9 @@ namespace RTT
         std::vector<std::string> getParameterNames() const;
 
         /**
-         * Set the name of this context. If \a recurisive == true, this also sets subMachines'
+         * Set the name of this machine. If \a recurisive == true, this also sets subMachines'
          * names, to the given name + "." + the name they have been
-         * instantiated by in this context.
+         * instantiated by in this machine.
          */
         void setName( const std::string& name, bool recursive );
 
@@ -87,13 +87,13 @@ namespace RTT
 
         void setText( std::string text);
 
-        StateMachineTask* getTaskContext() const;
+        StateMachineTask* getTaskObject() const;
 
-        void setTaskContext(StateMachineTask* tc);
+        void setTaskObject(StateMachineTask* tc);
 
         bool inState( const std::string& name );
         /**
-         * Call this function if the state context is parsed.
+         * Call this function if the state machine is parsed.
          */
         void finish();
     private:
@@ -101,7 +101,7 @@ namespace RTT
 
         boost::shared_ptr<std::string> _text;
 
-        StateMachineTask* context;
+        StateMachineTask* object;
     };
 }
 
