@@ -90,7 +90,8 @@ protected:
 	::RTT::Corba::MethodInterface_var mMFact;
 	::RTT::Corba::CommandInterface_var mCFact;
 	PortableServer::POA_var mpoa;
-    std::map<std::string, Orocos_ControlObject_i*> ctobjmap;
+    typedef std::map<std::string, Orocos_ControlObject_i*> CTObjMap;
+    CTObjMap ctobjmap;
 
 public:
   //Constructor 
