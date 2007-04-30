@@ -38,3 +38,27 @@ body {
 
 /* Add any desired customizations below. */
 
+div.figure 
+{ 
+  text-align:     center;
+  }
+
+div.figure, div.screenshot 
+{ 
+  text-align:     center;  /* needed for ms5 */
+  margin-top:     1em;
+  margin-bottom:  1em;
+  }                 
+
+div.figure table, div.screenshot table
+{     /* see http://theodorakis.net/tablecentertest.html*/
+  margin-left: auto;
+  margin-right: auto;
+  } 
+
+div.figure p.title
+{ 
+  text-align:     center; 
+  margin-left:    15%;
+  margin-right:   15%;
+  }

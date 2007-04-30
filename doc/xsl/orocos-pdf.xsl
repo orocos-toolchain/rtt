@@ -21,6 +21,24 @@
   <xsl:param name="section.autolabel" select="1"></xsl:param>
   <xsl:param name="section.autolabel.max.depth" select="3"></xsl:param>
 
+  <!--###################################################
+                      Center figure captions
+    ################################################### -->
+  
+  <xsl:attribute-set name="informalfigure.properties">
+    <xsl:attribute name="text-align">center</xsl:attribute>
+    <xsl:attribute name="align">center</xsl:attribute>
+  </xsl:attribute-set>
+ 
+  <xsl:attribute-set name="figure.properties">
+    <xsl:attribute name="text-align">center</xsl:attribute>
+    <xsl:attribute name="align">center</xsl:attribute>
+  </xsl:attribute-set>
+
+  <xsl:attribute-set name="component.title.properties">
+    <xsl:attribute name="text-align">center</xsl:attribute>
+  </xsl:attribute-set>
+
 <!-- use this to select the tiny 'note','warning',... images format for ps/pdf -->
   <xsl:param name="admon.graphics" select="1"/>
   <xsl:param name="admon.graphics.path" select="'images/icons/'"/>
