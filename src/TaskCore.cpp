@@ -7,18 +7,18 @@ namespace RTT
     
     using namespace std;
 
-    TaskCore::TaskCore(const std::string& name)
+    TaskCore::TaskCore(const std::string& name, TaskState initial_state /*= Stopped*/ )
         :  mtask_name(name),
            ee( new ExecutionEngine(this) )
-           ,mTaskState(Stopped)
+           ,mTaskState(initial_state)
 
     {
     }
 
-    TaskCore::TaskCore(const std::string& name, ExecutionEngine* parent )
+    TaskCore::TaskCore(const std::string& name, ExecutionEngine* parent, TaskState initial_state /*= Stopped*/  )
         :  mtask_name(name),
            ee( parent )
-           ,mTaskState(Stopped)
+           ,mTaskState(initial_state)
 
     {
         parent->addChild( this );

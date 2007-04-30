@@ -39,10 +39,8 @@ class StatesTC
 {
 public:
     StatesTC()
-        : TaskContext("TC")
+        : TaskContext("TC", PreOperational)
     {
-        // Require user configuration:
-        mTaskState = PreOperational;
         this->reset();
         validconfig = true;
         validstart = true;
@@ -94,7 +92,7 @@ public:
 void 
 Generic_TaskTest_3::setUp()
 {
-    tc =  new TaskContext( "root" );
+    tc =  new TaskContext( "root", TaskContext::Stopped );
     stc = new StatesTC();
     tsim = new SimulationActivity(0.001, tc->engine() );
     stsim = new SimulationActivity(0.001, stc->engine() );

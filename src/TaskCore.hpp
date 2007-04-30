@@ -87,20 +87,25 @@ namespace RTT
         }; 
         
         /**
-         * Create a TaskCore visible with \a name.
-         * It's ExecutionEngine will be newly constructed
-         * processing its commands, events,
-         * programs and state machines.
+         * Create a TaskCore.
+         * It's ExecutionEngine will be newly constructed with private 
+         * processing of commands, events, programs and state machines.
+         * @param name The name of this component.
+         * @param initial_state Provide the \a PreOperational parameter flag here
+         * to force users in calling configure(), before they call start().
          */
-        TaskCore( const std::string& name );
+        TaskCore( const std::string& name, TaskState initial_state = Stopped  );
 
         /**
-         * Create a TaskCore visible with \a name. Its commands
-         * programs and state machines are processed by \a parent.
+         * Create a TaskCore.
+         * Its commands programs and state machines are processed by \a parent.
          * Use this constructor to share execution engines among task contexts, such that
          * the execution of their functionality is serialised (executed in the same thread).
+         * @param name The name of this component.
+         * @param initial_state Provide the \a PreOperational parameter flag here
+         * to force users in calling configure(), before they call start().
          */
-        TaskCore(const std::string& name, ExecutionEngine* parent );
+        TaskCore(const std::string& name, ExecutionEngine* parent, TaskState initial_state = Stopped );
 
         virtual ~TaskCore();
 

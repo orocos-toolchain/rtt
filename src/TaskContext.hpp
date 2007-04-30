@@ -73,8 +73,9 @@ namespace RTT
      * When a TaskContext is created it defaults to the 'Stopped' state or
      * the 'PreOperational' state. If it is 'Stopped', it can be started as 
      * soon as an activity object is attached to it. If it is 'PreOperational',
-     * it must first be configured before it can be started.
-     * @see TaskState for a detailed explanation.
+     * it must first be configured before it can be started. You can choose
+     * between both using the constructor.
+     * @see TaskState (in TaskCore) for a detailed explanation.
      *
      * @par Executing a TaskContext
      * In order to run the ExecutionEngine, the ExecutionEngine must
@@ -108,20 +109,25 @@ namespace RTT
          */
 
         /**
-         * Create a TaskContext visible with \a name.
+         * Create a TaskContext.
          * It's ExecutionEngine will be newly constructed with private 
-         * ExecutionEngine processing its commands, events,
-         * programs and state machines.
+         * processing of commands, events, programs and state machines.
+         * @param name The name of this component.
+         * @param initial_state Provide the \a PreOperational parameter flag here
+         * to force users in calling configure(), before they call start().
          */
-        TaskContext( const std::string& name );
+        TaskContext( const std::string& name, TaskState initial_state = Stopped );
 
         /**
-         * Create a TaskContext visible with \a name. Its commands
-         * programs and state machines are processed by \a parent.
+         * Create a TaskContext. 
+         * Its commands programs and state machines are processed by \a parent.
          * Use this constructor to share execution engines among task contexts, such that
          * the execution of their functionality is serialised (executed in the same thread).
+         * @param name The name of this component.
+         * @param initial_state Provide the \a PreOperational parameter flag here
+         * to force users in calling configure(), before they call start().
          */
-        TaskContext(const std::string& name, ExecutionEngine* parent );
+        TaskContext(const std::string& name, ExecutionEngine* parent, TaskState initial_state = Stopped );
 
         virtual ~TaskContext();
 

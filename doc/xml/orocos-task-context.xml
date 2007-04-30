@@ -824,24 +824,27 @@ the_data_port.     cd            ls
           // Your configuration cleanup code
        }
   };</programlisting>
-    <para>
-      By default, the TaskContext enters the
-      <function>Stopped</function> state 
-      (<xref linkend="fig-component-states" />)
-      when it is created, which
-      makes <function>configure()</function> an optional call. If you
-      want to force the user to call configure() of your TaskContext,
-      set the state in your constructor as such:
+    <important>
+      <para>
+	By default, the TaskContext enters the
+	<function>Stopped</function> state 
+	(<xref linkend="fig-component-states" />)
+	when it is created, which
+	makes <function>configure()</function> an optional call. 
+      </para>
+    </important>
+    <para> If you want to <emphasis>>force</emphasis> the user to call
+    configure() of your TaskContext, set the TaskState in your constructor
+    as such:
     </para>
     <programlisting>class MyTask 
     : public <classname>RTT::TaskContext</classname>
   {
   public:
        MyTask(std::string name) 
-         : <classname>RTT::TaskContext</classname>(name)
+         : <classname>RTT::TaskContext</classname>(name, <emphasis>PreOperational</emphasis>) // demand configure() call.
        {
           //...
-          this->setTaskState(PreOperational); // demand configure() call.
        }
   };</programlisting>
     <para>

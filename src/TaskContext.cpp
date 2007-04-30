@@ -63,8 +63,8 @@ namespace RTT
     using namespace boost;
     using namespace std;
 
-    TaskContext::TaskContext(const std::string& name)
-        :  TaskCore(name)
+    TaskContext::TaskContext(const std::string& name, TaskState initial_state /*= Stopped*/)
+        :  TaskCore(name, initial_state)
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
            ,mscriptAcc(new ParserScriptingAccess(this))
 #else
@@ -81,8 +81,8 @@ namespace RTT
         this->setup();
     }
 
-    TaskContext::TaskContext(const std::string& name, ExecutionEngine* parent )
-        :  TaskCore(name, parent)
+    TaskContext::TaskContext(const std::string& name, ExecutionEngine* parent, TaskState initial_state /*= Stopped*/ )
+        :  TaskCore(name, parent, initial_state)
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
            ,mscriptAcc(new ParserScriptingAccess(this))
 #else
