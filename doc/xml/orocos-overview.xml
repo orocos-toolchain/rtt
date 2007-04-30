@@ -84,11 +84,14 @@
       Kinematics and Dynamics Library, the Bayesian Filtering Library and
       the Orocos Component Library.
     </para>
-    <mediaobject>
-      <imageobject role="html">
-	<imagedata fileref="images/RTT_KDL_BFL_400" />
-      </imageobject>
-    </mediaobject>
+    <figure>
+      <title>Orocos Libraries</title>
+      <mediaobject>
+	<imageobject role="html">
+	  <imagedata fileref="images/RTT_KDL_BFL_400" />
+	</imageobject>
+      </mediaobject>
+    </figure>
     <itemizedlist>
       <listitem>
 	<para>
