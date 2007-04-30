@@ -289,7 +289,7 @@ namespace RTT
 #endif
         }
 
-        INTERNAL_QUAL void rtos_task_make_periodic(RTOS_TASK* mytask, RTIME nanosecs )
+        INTERNAL_QUAL void rtos_task_make_periodic(RTOS_TASK* mytask, NANO_TIME nanosecs )
         {
             if (nanosecs == 0) {
                 rt_task_set_periodic( &(mytask->xenotask), TM_NOW, TM_INFINITE);
@@ -299,7 +299,7 @@ namespace RTT
             }
         }
 
-        INTERNAL_QUAL void rtos_task_set_period( RTOS_TASK* mytask, RTIME nanosecs )
+        INTERNAL_QUAL void rtos_task_set_period( RTOS_TASK* mytask, NANO_TIME nanosecs )
         {
             rtos_task_make_periodic( mytask, nanosecs);
             //rt_task_set_period(&(mytask->xenotask), rt_timer_ns2ticks( nanosecs ));

@@ -245,7 +245,7 @@ namespace RTT
             return SCHED_LXRT_SOFT;
         }
 
-        INTERNAL_QUAL void rtos_task_make_periodic(RTOS_TASK* mytask, RTIME nanosecs )
+        INTERNAL_QUAL void rtos_task_make_periodic(RTOS_TASK* mytask, NANO_TIME nanosecs )
         {
             if (nanosecs == 0) {
                 // in RTAI, to drop from periodic to non periodic, do a 
@@ -260,7 +260,7 @@ namespace RTT
             }
         }
 
-        INTERNAL_QUAL void rtos_task_set_period( RTOS_TASK* mytask, RTIME nanosecs )
+        INTERNAL_QUAL void rtos_task_set_period( RTOS_TASK* mytask, NANO_TIME nanosecs )
         {
             rt_set_period(mytask->rtaitask, nano2count( nanosecs ));
         }
