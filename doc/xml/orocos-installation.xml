@@ -270,11 +270,11 @@
 	<section>
 	  <title>RTT with CORBA flavour</title>
 	  <para>
-	    CORBA will be enabled when a valid installation of TAO is
-	    detected on your system. You can turn the <option>ENABLE_CORBA</option>
-	    option off (using ccmake) in case you do not wish to use it.
-	    Enabling CORBA doubles the size of of the RTT library and
-	    considerably slows down link and compile times.
+	    In order to enable CORBA a valid installation of TAO must be
+	    detected on your system and you must turn the <option>ENABLE_CORBA</option>
+	    option on (using ccmake).
+	    Enabling CORBA almost doubles the size of the RTT library and
+	    slows down link and compile times.
 	  </para>
 	</section>
 	<section>
