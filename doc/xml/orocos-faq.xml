@@ -11,7 +11,7 @@
 >
 
 <!--- NOTE I HAVE EDITED /usr/share/xml/docbook/stylesheet/nwalsh/fo/qandaset.xsl
-      TO WORK AROUND AN DUPLICATE "id" BUG IN FOP : (presented patch is inverted)
+      TO WORK AROUND AN DUPLICATE "id" BUG IN FOP: (presented patch is inverted)
 
 Patching the stylesheet is fairly straightforward. Here's the diff from my 
 environment:
@@ -91,6 +91,14 @@ Alex Russell
 	  Fixed wrong links.
         </revremark>
       </revision>
+      <revision>
+        <revnumber>0.6</revnumber>
+        <date>3 May 2007</date>
+        <authorinitials>PS</authorinitials>
+        <revremark>
+	  Updated to RTT 1.2
+        </revremark>
+      </revision>
     </revhistory>
     <abstract>
       <para>
@@ -116,7 +124,8 @@ Alex Russell
 	    C++. It supports hard realtime <ulink
 	      url="http://www.rtai.org">RTAI/LXRT</ulink> and <ulink
 	      url="http://www.xenomai.org">Xenomai</ulink> and normal
-	    GNU/Linux programs.</para>
+	    GNU/Linux programs.
+	  </para>
 	</answer>
       </qandaentry>
       <qandaentry>
@@ -152,7 +161,7 @@ Alex Russell
 	</question>
 	<answer>
 	  <para>
-	    In the <ulink url="http://www.orocos.org/downloads.php">
+	    In the <ulink url="http://www.orocos.org/rtt">
 	      Download Section</ulink> of the Orocos website and the
 	    <ulink
 	      url="orocos-installation.html"> 
@@ -166,7 +175,8 @@ Alex Russell
 	<answer>
 	  <para>
 	    On the <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos-dev">
-	      Orocos-dev mailinglist</ulink> (medium traffic).
+	      Orocos-dev mailinglist</ulink> (medium traffic) or the
+	      <ulink url="http://www.orocos.org/rtt/forum">forum</ulink>.
 	  </para>
 	</answer>
       </qandaentry>
@@ -177,7 +187,7 @@ Alex Russell
 	<answer>
 	  <para>
 	    On the <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos">
-	      Orocos mailinglist</ulink> ( low traffic ).
+	      Orocos mailinglist</ulink> (very low traffic ).
 	  </para>
 	</answer>
       </qandaentry>
@@ -221,7 +231,7 @@ Alex Russell
 	<answer>
 	  <para>Disable anything that is remotely 'Experimental' or
 	  not necessarily needed.  The following Linux options must be
-	  disabled to guarantee the most stable performance :
+	  disabled to guarantee the most stable performance:
 	    <itemizedlist>
 	      <listitem>
 		<para>Disable APM / ACPI. These can interfere with scheduling and RTAI.</para>
@@ -236,7 +246,7 @@ Alex Russell
 	    </itemizedlist>
 	  </para>
 	  <para>The following Linux options must be enabled to guarantee
-	    the most stable performance :
+	    the most stable performance:
 	    <itemizedlist>
 	      <listitem>
 		<para>Enable your USB driver ( or disable USB in your BIOS ). The aim
@@ -257,7 +267,7 @@ Alex Russell
 	  <para>How should I configure RTAI?</para>
 	</question>
 	<answer>
-	  <para>The following RTAI options must be enabled (and modules must be loaded) :
+	  <para>The following RTAI options must be enabled (and modules must be loaded):
 	    <itemizedlist>
 	      <listitem>
 		<para>
@@ -283,17 +293,18 @@ Alex Russell
       </qandaentry>
       <qandaentry>
 	<question>
-	  <para>How can I change which files get compiled in the RTT ?</para>
+	  <para>How can I configure the RTT ?</para>
 	</question>
 	<answer>
 	  <para>
-	    Use <command>make configure_packages</command> in your build directory , which will
-	    popup the configuration GUI. If you unload packages (see also Build->Packages...)
-	    they will no longer be compiled (without removing them physically).
+	    Use the <command>cmake ..</command> command in your <filename>build</filename> directory , which will
+	    popup the configuration menu. 
+	    See the <ulink url="http://www.orocos.org/stable/documentation/rtt/v1.2.x/doc/orocos-installation.html"> 
+	    the Installation Manual </ulink>.
 	  </para>
 	  <para>
-	    Use <command>make rtt-corba</command> in your build directory to build
-	    only the library for distributed components using Corba.
+	    Or, use <command>../configure --help</command> in your <filename>build</filename> directory
+	    for configuring only basic options.
 	  </para>
 	</answer>
       </qandaentry>
@@ -309,10 +320,10 @@ Alex Russell
 	</answer>
 	<answer>
 	  <para>
-	    For running an Orocos application, you need an Intel Pentium-like Processor with minimum 32MB RAM,
-	    but much depends on the application itself. Orocos has not been tested
-	    on other (PowerPC, ARM,...) processors, but an FPU unit (or emulation) and
-	    Compare-And-Swap processor instruction is surely needed. See also below.
+	    For running a full-featured Orocos application, you need an Intel
+	    Pentium-like or PowerPC processor with minimum 32MB RAM if
+	    all options are enabled, but much depends on the
+	    application itself.
 	  </para>
 	</answer>
       </qandaentry>
@@ -431,9 +442,9 @@ $ ldd core-test
 	<answer>
 	  <para>You did not put your program in the ORO_main()
 	    function. ( see <ulink
-	      url="http://drupal.orocos.org/stable/current/doc/orocos-installation.html"> 
+	      url="http://www.orocos.org/stable/documentation/rtt/v1.2.x/doc-xml/orocos-installation.html"> 
 	      The Installation Manual </ulink> and <ulink
-	      url="http://drupal.orocos.org/stable/current/doc/orocos-os.html"> 
+	      url="http://www.orocos.org/stable/documentation/rtt/v1.2.x/doc-xml/orocos-os.html"> 
 	      The Orocos OS Manual</ulink>. )
 	  </para>
 	</answer>
@@ -478,20 +489,6 @@ $ ldd core-test
       <title>Orocos Design Questions</title>
       <qandaentry>
 	<question>
-	  <para>The Control Kernel architecture does not fit my application.
-	  So is Orocos useless for me ?</para>
-	</question>
-	<answer>
-	  <para>
-	    No, the Control Kernel is designed for flexible realtime feedback control.
-	    If that does not fit your application, take a look
-	    at the Realtime Control Services and all surrounding documents
-	    to map your realtime tasks into Orocos.
-	  </para>
-	</answer>
-      </qandaentry>
-      <qandaentry>
-	<question>
 	  <para>Does Orocos run on Embedded Systems ?</para>
 	</question>
 	<answer>
@@ -508,7 +505,7 @@ $ ldd core-test
 	  </para>
 	  <para>
 	    Orocos contains tinyXML for parsing XML scripts on embedded
-	    systems as well.
+	    systems as well, but you can disable XML completely.
 	  </para>
 	  <para>
 	    The Orocos Logger can be disabled at compile time to save on memory footprint.
@@ -518,11 +515,9 @@ $ ldd core-test
 	    at compile time to save on memory footprint.
 	  </para>
 	  <para>
-	    It can be cross compiled, although the build system is
-	    <ulink url="orocos-installation.html#cross-compile"> not
-	    particularly friendly to that means</ulink>. Search the
-	    <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos-dev">Orocos-dev mailing list</ulink> as well
-	    for discussions.
+	    It can be cross compiled. See the 
+	    <ulink url="orocos-installation.html#cross-compile"> 
+	      installation manual.</ulink>.
 	  </para>
 	</answer>
       </qandaentry>
@@ -531,8 +526,15 @@ $ ldd core-test
 	  <para>Is the &orocos; Portable ?</para>
 	</question>
 	<answer>
+	  <para>&orocos; runs on eCos, standard GNU/Linux, Xenomai and RTAI
+	  and supports cross-compiling.
+	  For eCos, you need to create a specially crafted C++ GNU toolchain,
+	  see <ulink url="http://www.zylin.com/libstdc++.html">libstdc++ for eCos</ulink>.
+	  </para>
+	</answer>
+	<answer>
 	  <para>The minimum requirements for running the RTT on a
-	  different target are for the CPU : floating point unit (FPU)
+	  different target are for the CPU: floating point unit (FPU)
 	  or FPU emulation (will degrade performance),
 	  compare-and-swap instruction ( CAS, cmpxch ), and is
 	  targetted at 32 or 64 bit processors. The target Operating System
@@ -553,9 +555,8 @@ $ ldd core-test
 	  <para>What future ports are most likely ?</para>
 	</question>
 	<answer>
-	  <para>The eCos Operating System (and all its supported processors)
-	  and the ACE library (and all its supported OS's). The Orocos developers
-	  are very willing to assist you in porting the RTT to your Operating System.
+	  <para>The Orocos developers are very willing to assist you
+	  in porting the RTT to your Operating System.
 	  </para>
 	</answer>
       </qandaentry>
@@ -568,17 +569,17 @@ $ ldd core-test
 	  <para>
 	    C++ is a fundamental pillar of Orocos' design. If you need to
 	    be convinced that this actually works, take a look at
-	    <ulink url="http://drupal.orocos.org/applications">
+	    <ulink url="http://www.orocos.org/applications">
 	      Demonstration movies </ulink> , and read <ulink
-	      url="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2002/n1396.pdf"> 
+	      url="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2002/n1396.pdf">
 	      a Technical Report on C++ Performance </ulink>, but
-	    Google can point you to <ulink
-	      url="http://www.google.com/search?hl=en&amp;ie=UTF-8&amp;c2coff=1&amp;q=C%2B%2B+Embedded+Real+time&amp;spell=1"> 
+	      Google can point you to <ulink
+	      url="http://www.google.com/search?hl=en&amp;ie=UTF-8&amp;c2coff=1&amp;q=C%2B%2B+Embedded+Real+time&amp;spell=1">
 	      lots more documents</ulink>. We are still finding ways
-	    to measure the overhead of using Orocos itself, and much
-	    depends on the application, but the minimum system
-	    requirements to run it are a Pentium-class processor with 32 MB
-	    of RAM. 
+	      to measure the overhead of using Orocos itself, and much
+	      depends on the application, but the minimum system
+	      requirements to run it are a Pentium-class processor or
+	      PowerPC with 32 MB of RAM.
 	  </para>
 	</answer>
       </qandaentry>
@@ -593,13 +594,13 @@ $ ldd core-test
     </para>
     <para>
       These pages are maintained by <ulink
-	url="http://www.orocos.org/about.php">the Orocos
+	url="http://www.orocos.org/orocos/whatis">the Orocos
 	team</ulink>.
     </para>
     <para>
       For questions related to the use of the Orocos Software, please consult these
       web pages and the <ulink
-	url="http://www.orocos.org/documentation.php">Orocos manuals</ulink>. If
+	url="http://www.orocos.org/rtt">Orocos RTT manuals</ulink>. If
       that fails, the  <ulink
 	url="mailto: orocos-dev at lists.mech.kuleuven.be">
 	orocos-dev at lists.mech.kuleuven.be </ulink> mailing list might help.
@@ -613,7 +614,7 @@ $ ldd core-test
 	archive</ulink> ) .
       </para>
     <para>
-      Copyright (C) Peter Soetens
+      Copyright (C) Peter Soetens, FMTC
     </para>
     <para>
       Verbatim copying and distribution of this entire article is

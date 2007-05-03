@@ -73,7 +73,7 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    Support for real-time PowerPC (with FPU) has been
+	    Support for real-time PowerPC (40x and 60x were tested) has been
 	    added. The functionality has been tested with a Linux 2.4
 	    PPC kernel (patched for Xenomai), with gcc 3.3.6 and glibc
 	    2.2.5 but should work with other kernels and compilers as
@@ -81,12 +81,20 @@
 	  </para>
 	  <para>
 	    See also
-	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=27">
-	      [Project] eCos Port
-	      </ulink> and 
 	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=289">
 	      Rethink the os/oro_*.h assembly functions 
 	    </ulink>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The necessary files have been added to run Orocos RTT on eCos.
+	    However, you need to create a specially crafted C++ GNU toolchain,
+	    see <ulink url="http://www.zylin.com/libstdc++.html">libstdc++ for eCos</ulink>,
+	    because the free eCos version does not supply a Standard C++ toolchain.
+	    See also <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=27">
+	      [Project] eCos Port
+	      </ulink>.
 	  </para>
 	</listitem>
 	<listitem>
@@ -291,7 +299,7 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    From release 1.1.0 on, Orocos RTT is built by default as a shared
+	    From release 1.2.0 on, Orocos RTT is built by default as a shared
 	    library. This significantly improves link times and application
 	    development times. It also allows dynamic component deployment in
 	    the Orocos Component Library.
@@ -353,7 +361,7 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    From release 1.1.0 on, Orocos RTT has better build and run-time
+	    From release 1.2.0 on, Orocos RTT has better build and run-time
 	    support for Corba (using ACE/TAO). Remote modification of
 	    component parameters has been improved and is taken advantage
 	    of by the Corba based KTaskbrowser 1.2.
@@ -378,7 +386,7 @@
     <para>
       For questions related to the use of the Orocos Software, please consult these
       web pages and the <ulink
-	url="http://www.orocos.org/documentation.php">Orocos manuals</ulink>. If
+	url="http://www.orocos.org/rtt">Orocos RTT manuals</ulink>. If
       that fails, the  <ulink
 	url="mailto:orocos-dev at lists.mech.kuleuven.be">
 	orocos-dev at lists.mech.kuleuven.be </ulink> mailing list might help.
