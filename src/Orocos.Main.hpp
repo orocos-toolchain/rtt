@@ -50,17 +50,36 @@
  *
  * You will most likely also need to read the <a href="http://www.orocos.org/rtt/">online manuals</a>.
  *
- * @section corelib Real-Time Toolkit classes (RTT)
- * The classes in the RTT namespace form the application
- * independent control services 
- * which defines the portable framework using the five parts of a Component interface: 
- * events: RTT::Event, commands: RTT::Command, methods: RTT::Method, properties:
- * RTT::Property, RTT::Attribute and data ports: RTT::DataPort, RTT::BufferPort.
- * A Control Component is run by a RTT::PeriodicActivity or RTT::NonPeriodicActivity and inherits
- * from a RTT::TaskContext. The RTT::ExecutionEngine is the heart of each component
- * which contains the application code, reacts to events, processes commands etc.
- * Scripting is enabled by the RTT::ScriptingAccess, XML can be read by 
- * the RTT::MarshallingAccess. Many other classes are available as well.
+ * @section corelib Real-Time Toolkit classes (RTT) 
+ *
+ * The classes in the RTT namespace form the application independent
+ * control services which defines the portable framework for 
+ * defining software components.
+ *
+ * A component is implemented using the RTT::TaskContext class. The
+ * Component interface consits of five parts: events: RTT::Event, commands:
+ * RTT::Command, methods: RTT::Method, properties: RTT::Property,
+ * RTT::Attribute and data ports: RTT::DataPort, RTT::BufferPort. 
+ *
+ * A Component is run by a RTT::PeriodicActivity or
+ * RTT::NonPeriodicActivity which attaches a thread to the Execution Engine.
+ * The RTT::ExecutionEngine is the beating heart of each
+ * component which executes the the application code, reacts to
+ * events, processes commands etc.  Scripting is enabled by the
+ * RTT::ScriptingAccess, XML can be read by the
+ * RTT::MarshallingAccess. Many other classes are available as well.
+ *
+ * @section rttcorba CORBA support (network communication)
+ *
+ * Components can be connected over a network using the CORBA classes.
+ * Only two classes are required: RTT::Corba::ControlTaskServer and
+ * RTT::Corba::ControlTaskProxy. The former exports a local TaskContext instance
+ * to the network, using the CORBA Naming Service if available, the latter
+ * represents a remote TaskContext (located using the name or IOR) and allows
+ * local TaskContexts to communicate with the remote instance.
+ *
+ * The RTT must be compiled with the --enable-corba flag in order to
+ * enable this extension.
  *
  * @section devdrivers Hardware Access and Device Interface 
  *

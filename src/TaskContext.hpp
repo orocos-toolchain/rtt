@@ -64,16 +64,16 @@ namespace RTT
      * a task has. Furthermore, it allows to visit its peer tasks.
      *
      * @par TaskContext interface
-     * When a command is exported, one can access it using commands(). A similar
-     * mechanism is available for properties(), methods(), events() and ports().
-     * The commands of this TaskContext are executed by its
-     * ExecutionEngine.
+     * You can define the interface of a TaskContext by adding communication primitives.
+     * These are commands(), properties(), methods(), events(), attributes() and ports().
+     * Setting up the interface is explained at length in the Orocos Component Builder's
+     * Manual.
      *
      * @par TaskContext state behaviour
      * When a TaskContext is created it defaults to the 'Stopped' state or
-     * the 'PreOperational' state. If it is 'Stopped', it can be started as 
+     * the 'PreOperational' state. If it is 'Stopped', it can be start()'ed as 
      * soon as an activity object is attached to it. If it is 'PreOperational',
-     * it must first be configured before it can be started. You can choose
+     * it must first be configure()'d before it can be started. You can choose
      * between both using the constructor.
      * @see TaskState (in TaskCore) for a detailed explanation.
      *
@@ -88,8 +88,8 @@ namespace RTT
      *
      * @par Connecting TaskContexts
      * TaskContexts are connected using the unidirectional addPeer() or bidirectional
-     * connectPeers() methods. These methods only allow
-     * 'peer' TaskContexts to use each other's interface. Use connectPorts()
+     * RTT::connectPeers() methods. These methods only allow
+     * 'peer' TaskContexts to use each other's interface. Use RTT::connectPorts()
      * to setup the data connections between data ports.
      * In order to disconnect this task from its peers, use disconnect(), which
      * will disconnect all the Data Flow Ports and remove this object from its

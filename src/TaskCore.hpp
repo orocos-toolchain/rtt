@@ -117,9 +117,9 @@ namespace RTT
         /**
          * @name Script Methods 
          *
-         * The standard script methods of a TaskContext are for
-         * configuration and starting and stopping its
-         * ExecutionEngine.  @{
+         * These TaskCore functions are exported in a TaskContext as script
+         * methods and are for configuration, starting and stopping
+         * its ExecutionEngine.  @{
          */
 
         /**
@@ -128,18 +128,6 @@ namespace RTT
          * if the component is not running and \a configureHook() returns true.
          */
         virtual bool configure();
-
-        /**
-         * Implement this method such that it contains the code which
-         * will be executed when \a configure() is called. The default
-         * implementation is an empty function which returns \a true.
-         *
-         * @retval true to indicate that configuration succeeded and
-         * the Stopped state may be entered.
-         * @retval false to indicate that configuration failed and the
-         * Preoperational state is entered.
-         */
-        virtual bool configureHook();
 
         /**
          * This method starts the execution engine of this component.
@@ -167,13 +155,6 @@ namespace RTT
          */
         virtual bool cleanup();
 
-        /**
-         * Implement this method such that it contains the code which
-         * will be executed when \a cleanup() is called. The default
-         * implementation is an empty function.
-         */
-        virtual void cleanupHook();
-  
         /**
          * Inspect if the component is in the Running state.
          */
@@ -206,6 +187,25 @@ namespace RTT
          *@}
          */
 
+        /**
+         * Implement this method such that it contains the code which
+         * will be executed when \a configure() is called. The default
+         * implementation is an empty function which returns \a true.
+         *
+         * @retval true to indicate that configuration succeeded and
+         * the Stopped state may be entered.
+         * @retval false to indicate that configuration failed and the
+         * Preoperational state is entered.
+         */
+        virtual bool configureHook();
+
+        /**
+         * Implement this method such that it contains the code which
+         * will be executed when \a cleanup() is called. The default
+         * implementation is an empty function.
+         */
+        virtual void cleanupHook();
+  
         /**
          * Implement this method such that it contains the code which
          * will be executed when \a start() is called. The default implementation is an
