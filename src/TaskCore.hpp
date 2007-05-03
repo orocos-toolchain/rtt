@@ -314,6 +314,10 @@ namespace RTT
         }
 
     protected:
+        // Required to set mTaskState to Running or Stopped.
+        // As an alternative, one could query the EE.
+        friend class ExecutionEngine;
+
         std::string    mtask_name;
 
         /**

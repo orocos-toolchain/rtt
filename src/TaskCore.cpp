@@ -74,7 +74,6 @@ namespace RTT
         if ( this->engine()->getActivity() == 0 || mTaskState != Stopped )
             return false;
         if (this->engine()->getActivity()->start() ) {
-            mTaskState = Running;
             return true;
         }
         return false;
@@ -84,7 +83,6 @@ namespace RTT
         if ( this->engine()->getActivity() == 0 || mTaskState != Running )
             return false;
         if (this->engine()->getActivity()->stop() ) {
-            mTaskState = Stopped;
             return true;
         }
         return false;

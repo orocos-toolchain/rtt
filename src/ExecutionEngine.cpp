@@ -146,9 +146,12 @@ namespace RTT
 
     bool ExecutionEngine::initialize() {
         // call user startHook code. MUST check getTaskState to intercept user calling start on activity.
-        if ( taskc && (taskc->getTaskState() != TaskCore::Stopped || taskc->startHook() == false) ) {
-            //Logger::log() << Logger::Error << "ExecutionEngine's task startHook() failed!" << Logger::endl;
-            return false;
+        if ( taskc ) {
+            // We only check the state of the parent here.
+            if (taskc->getTaskState() != TaskCore::Stopped || taskc->startHook() == false)
+                return false;
+            // update state:
+            this->taskc->mTaskState = TaskCore::Running;
         }
 
         // call all children
@@ -156,12 +159,20 @@ namespace RTT
             if ( (*it)->startHook() == false ) {
                 std::vector<TaskCore*>::reverse_iterator rit( it );
                 --rit;
-                for ( ; rit != children.rend(); ++rit )
+                for ( ; rit != children.rend(); ++rit ) {
                     (*rit)->stopHook();
+                    (*it)->mTaskState = TaskCore::Stopped;
+                }
+
                 //Logger::log() << Logger::Error << "ExecutionEngine's children's startHook() failed!" << Logger::endl;
-                if (taskc)
+                if (taskc) {
                     this->taskc->stopHook();
+                    this->taskc->mTaskState = TaskCore::Stopped;
+                }
                 return false;
+            } else {
+                // ok, update state:
+                (*it)->mTaskState = TaskCore::Running;
             }
         }
 
@@ -183,9 +194,16 @@ namespace RTT
         }
         //Logger::log() << Logger::Error << "ExecutionEngine's processors failed!" << Logger::endl;
 
-        // call all children
+        // stop all children again.
         for (std::vector<TaskCore*>::reverse_iterator rit = children.rbegin(); rit != children.rend();++rit){
             (*rit)->stopHook();
+            (*rit)->mTaskState = TaskCore::Stopped;
+        }
+
+        // stop parent
+        if (taskc) {
+            this->taskc->stopHook();
+            this->taskc->mTaskState = TaskCore::Stopped;
         }
         return false;
     }
@@ -240,9 +258,13 @@ namespace RTT
         // call all children
         for (std::vector<TaskCore*>::reverse_iterator rit = children.rbegin(); rit != children.rend();++rit) {
             (*rit)->stopHook();
+            (*rit)->mTaskState = TaskCore::Stopped;
         }
-        if (taskc)
+        if (taskc) {
             taskc->stopHook();
+            taskc->mTaskState = TaskCore::Stopped;
+        }
+
     }
 
     CommandProcessor* ExecutionEngine::commands() const {
