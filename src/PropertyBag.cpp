@@ -216,7 +216,7 @@ namespace RTT
         while ( it != target.getProperties().end() )
         {
             PropertyBase* srcprop;
-            if ( (*it)->getName() == "" && target.getType() == "Sequence" )
+            if ( (*it)->getName() == "" ) //&& target.getType() == "Sequence" )
                 srcprop = source.getItem( it - target.getProperties().begin() );
             else
                 srcprop = source.find( (*it)->getName() );
