@@ -299,7 +299,8 @@ namespace RTT
         while ( it != source.getProperties().end() )
         {
             PropertyBase* mine;
-            if ( (*it)->getName() == "" && target.getType() == "Sequence" )
+            // if the name is not given, this bag is probably an array or sequence.
+            if ( (*it)->getName() == "" ) // && target.getType() == "Sequence" )
                 mine = target.getItem( it - source.getProperties().begin() );
             else
                 mine = target.find( (*it)->getName() );
