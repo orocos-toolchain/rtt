@@ -59,7 +59,7 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
         return false;
     
 #else
-    if ( target->attributes()->properties() == 0) {
+    if ( target->properties() == 0) {
         log(Error) << "TaskContext " <<target->getName()<<" has no Properties to configure." << endlog();
         return false;
     }
@@ -84,10 +84,10 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
             // Lookup props vs attrs :
             // take restore-copy;
             PropertyBag backup;
-            copyProperties( backup, *target->attributes()->properties() );
-            if ( refreshProperties( *target->attributes()->properties(), propbag, all ) == false ) {
+            copyProperties( backup, *target->properties() );
+            if ( refreshProperties( *target->properties(), propbag, all ) == false ) {
                 // restore backup:
-                refreshProperties( *target->attributes()->properties(), backup );
+                refreshProperties( *target->properties(), backup );
                 failure = true;
                 }
             // cleanup
@@ -118,7 +118,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target, bool
         return false;
     
 #else
-    if ( target->attributes()->properties() == 0 ) {
+    if ( target->properties() == 0 ) {
         log(Error) << "TaskContext "<< target->getName()
                       << " does not have Properties to save." << endlog();
         return false;
@@ -145,7 +145,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target, bool
     }
 
     // Write results
-    PropertyBag* compProps = target->attributes()->properties();
+    PropertyBag* compProps = target->properties();
 
     // decompose repos into primitive property types.
     PropertyBag  decompProps;

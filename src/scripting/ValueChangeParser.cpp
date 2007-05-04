@@ -277,7 +277,7 @@ namespace RTT
         // the peerparser.object() should contain "this"
         //peerparser.reset();
         // reset the Property parser to traverse this peers bag :
-        propparser.setPropertyBag( peerparser.peer()->attributes()->properties() ); // may be null. ok.
+        propparser.setPropertyBag( peerparser.peer()->properties() ); // may be null. ok.
     }
 
     void ValueChangeParser::seenvariabledefinition()
@@ -343,7 +343,7 @@ namespace RTT
         } else {
             // first check if it is a property :
             if ( peername->attributes()->hasProperty( valuename ) ) {
-                prop =  peername->attributes()->properties()->find( valuename );
+                prop =  peername->properties()->find( valuename );
             } else {
                 // not a property case :
                 var = peername->attributes()->getValue( valuename );

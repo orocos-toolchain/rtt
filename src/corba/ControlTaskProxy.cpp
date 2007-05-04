@@ -72,9 +72,9 @@ namespace RTT
 
     ControlTaskProxy::~ControlTaskProxy()
     {
-        if ( this->attributes()->properties() ) {
-            flattenPropertyBag( *this->attributes()->properties() );
-            deleteProperties( *this->attributes()->properties() );
+        if ( this->properties() ) {
+            flattenPropertyBag( *this->properties() );
+            deleteProperties( *this->properties() );
         }
         this->attributes()->clear();
     }

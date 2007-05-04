@@ -302,7 +302,7 @@ CORBA::Boolean Orocos_ControlTask_i::isConfigured (
     // create and activate servant.
     if ( CORBA::is_nil( mCosProps) ) {
         Logger::log() << Logger::Info << "Creating PropertySet."<<Logger::endl;
-        CosPropertyService_PropertySet_i* props = new CosPropertyService_PropertySet_i( mtask->attributes()->properties() );
+        CosPropertyService_PropertySet_i* props = new CosPropertyService_PropertySet_i( mtask->properties() );
         mCosProps = props->_this();
     }
     return PropertySet::_duplicate( mCosProps.in() );
