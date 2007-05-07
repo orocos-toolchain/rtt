@@ -343,7 +343,7 @@ namespace RTT
         } else {
             // first check if it is a property :
             if ( peername->attributes()->hasProperty( valuename ) ) {
-                prop =  peername->properties()->find( valuename );
+                prop =  peername->attributes()->properties()->find( valuename );
             } else {
                 // not a property case :
                 var = peername->attributes()->getValue( valuename );
