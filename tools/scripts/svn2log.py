@@ -1,3 +1,4 @@
+#!/usr/bin/python
 #
 # Copyright (c) 2003 The University of Wroclaw.
 # All rights reserved.
@@ -106,7 +107,7 @@ def convert_user(u):
   else:
     return ''
 
-def wrap_text_line(str, pref, width):
+def wrap_text_line(str, pref, width, start):
   ret = u""
   line = u""
   first_line = True
@@ -114,10 +115,11 @@ def wrap_text_line(str, pref, width):
     if line == u"":
       line = word
     else:
-      if len(line + u" " + word) > width:
+      if len(line + u" " + word) > (width - start):
         if first_line:
           ret += line + u"\n"
           first_line = False
+          start = 0
           line = word
         else:
           ret += pref + line + u"\n"
@@ -125,19 +127,19 @@ def wrap_text_line(str, pref, width):
       else:
         line += u" " + word
   if first_line:
-    ret += line + u"\n"
+    ret += line
   else:
-    ret += pref + line + u"\n"
+    ret += pref + line
   return ret
 
-def wrap_text(str, pref, width):
+def wrap_text(str, pref, width, start = 0):
   if not list_format:
-    return wrap_text_line(str,pref,width)
+    return wrap_text_line(str,pref,width,start)
   else:
     items = re.split(r"\-\s+",str)
-    ret = wrap_text_line(items[0],pref,width)
+    ret = wrap_text_line(items[0],pref,width,start)
     for item in items[1:]:
-      ret += pref + u"- " + wrap_text_line(item,pref+"  ",width)
+      ret += pref + u"- " + wrap_text_line(item,pref+"  ",width,start)
     return ret
 
 class Entry:
@@ -206,9 +208,12 @@ def process_entry(e):
           paths.append(nam)
      
     if paths != [] and no_files == False:
-      return Entry(tm, rev, author, "\t* %s\n" % wrap_text(", ".join(paths) + ": " + msg, "\t  ", 65))
+      pathlines = wrap_text(", ".join(paths),"\t* ", 65)
+      start = len(pathlines) - pathlines.rfind("\n") + 1
+      message   = wrap_text(": " + msg, "\t  ", 65, start )
+      return Entry(tm, rev, author, "\t* %s %s\n\n" % (pathlines, message))
     elif paths != [] and no_files == True:
-      return Entry(tm, rev, author, "\t* %s\n" % wrap_text(msg, "\t  ", 65))
+      return Entry(tm, rev, author, "\t* %s\n\n" % wrap_text(msg, "\t  ", 65))
 
   return None
 
