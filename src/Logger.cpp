@@ -405,7 +405,7 @@ namespace RTT
             
         d->timestamp = TimeService::Instance()->getTicks();
         *this<<xtramsg<<Logger::nl;
-        *this<< " OROCOS version '" ORO_xstr(OROPKG_CORELIB) "'";
+        *this<< " OROCOS version '" ORO_xstr(RTT_VERSION) "'";
 #ifdef __GNUC__
         *this << " compiled with GCC " ORO_xstr(__GNUC__) "." ORO_xstr(__GNUC_MINOR__) "." ORO_xstr(__GNUC_PATCHLEVEL__) ".";
 #endif
