@@ -793,6 +793,31 @@
 		<entry>C++ Headers for CORBA support.
 		</entry>
 	      </row>
+	      <row>
+		<entry>rtt/scripting/*.hpp</entry>
+		<entry>C++ Headers for real-time scripting. Do not include these
+		directly as they are mainly for internal use.
+		</entry>
+	      </row>
+	      <row>
+		<entry>rtt/marsh/*.hpp</entry>
+		<entry>C++ Headers for XML configuration and converting
+		data to text and vice versa.
+		</entry>
+	      </row>
+	      <row>
+		<entry>rtt/dlib/*.hpp</entry>
+		<entry>C++ Headers for the experimental Distribution
+		Library which allows embedded systems to use some
+		RTT primitives over a network. This directory does not
+		contain such a library but only interface headers.
+		</entry>
+	      </row>
+	      <row>
+		<entry>rtt/impl/*.hpp</entry>
+		<entry>C++ Headers for internal use.
+		</entry>
+	      </row>
 	    </tbody>
 	  </tgroup>
 	</table>
