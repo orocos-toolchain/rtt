@@ -291,6 +291,31 @@
 	</listitem>
       </itemizedlist>
     </section>
+    <section>
+      <title>Shared Libraries</title>
+      <para>
+	Since the RTT can be build as a shared library, this imposes
+	a limitation on your derived libraries or applications.
+      </para>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    When the RTT is built as a shared library (default), dependent
+	    libraries, such as the OCL, KDL or your own library which
+	    includes RTT headers, must also be a shared library. If you
+	    do not obey this rule, crashes or compilation errors may occur.
+	    It is not yet clear if this is a bug in the GNU linker or expected
+	    behaviour.
+	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=402">
+	      Mixing liborocos-rtt.a and .so causes crash upon exit
+	      </ulink>.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
   </section>
   <section>
     <title>Improvements</title>
