@@ -169,6 +169,7 @@ namespace RTT
             mconn = 0;
         }
 
+        using PortInterface::connectTo;
         bool connectTo( ConnectionInterface::shared_ptr other) {
             return other && !mconn && other->addReader( this );
         }
@@ -348,6 +349,7 @@ namespace RTT
             return true;
         }
 
+        using PortInterface::connectTo;
         bool connectTo( ConnectionInterface::shared_ptr other) {
             return other && !mconn && other->addWriter( this );
         }
@@ -527,6 +529,7 @@ namespace RTT
             return false;
         }
 
+        using PortInterface::connectTo;
         bool connectTo( ConnectionInterface::shared_ptr other) {
             if ( other && !mconn ) {
                 return other->addWriter( this ) && other->addReader( this );

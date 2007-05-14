@@ -399,15 +399,19 @@ void Generic_TaskTest_3::testPorts()
     CPPUNIT_ASSERT( rbp.getPortType() == PortInterface::ReadPort );
     CPPUNIT_ASSERT( bp.getPortType() == PortInterface::ReadWritePort );
 
-    tc->ports()->addPort( &wdp );
-    tc->ports()->addPort( &rdp );
-    tc->ports()->addPort( &dp );
-    tc->ports()->addPort( &dp2 );
+    CPPUNIT_ASSERT( tc->ports()->addPort( &wdp ));
+    CPPUNIT_ASSERT( tc->ports()->addPort( &rdp ));
+    CPPUNIT_ASSERT( tc->ports()->addPort( &dp ));
+    CPPUNIT_ASSERT( tc->ports()->addPort( &dp2 ));
 
-    tc->ports()->addPort( &wbp );
-    tc->ports()->addPort( &rbp );
-    tc->ports()->addPort( &bp );
-    tc->ports()->addPort( &bp2 );
+    CPPUNIT_ASSERT( tc->ports()->addPort( &wdp ) == false);
+
+    CPPUNIT_ASSERT( tc->ports()->addPort( &wbp ));
+    CPPUNIT_ASSERT( tc->ports()->addPort( &rbp ));
+    CPPUNIT_ASSERT( tc->ports()->addPort( &bp ));
+    CPPUNIT_ASSERT( tc->ports()->addPort( &bp2 ));
+
+    CPPUNIT_ASSERT( tc->ports()->addPort( &wbp ) == false);
 
     // Test connection creation.
     CPPUNIT_ASSERT(wdp.createConnection( &rdp )->connect());
@@ -495,3 +499,113 @@ void Generic_TaskTest_3::testPorts()
     
 }
 
+void Generic_TaskTest_3::testPortObjects()
+{
+    WriteDataPort<double> wdp("WDName");
+    ReadDataPort<double> rdp("RDName");
+    DataPort<double> dp("DName");
+    DataPort<double> dp2("D2Name");
+
+    tc->ports()->addPort( &wdp );
+    tc->ports()->addPort( &rdp );
+    tc->ports()->addPort( &dp );
+    tc->ports()->addPort( &dp2 );
+
+    // Check if ports were added as objects as well
+    CPPUNIT_ASSERT( tc->getObject("WDName") != 0 );
+    CPPUNIT_ASSERT( tc->getObject("RDName") != 0 );
+    CPPUNIT_ASSERT( tc->getObject("DName") != 0 );
+    CPPUNIT_ASSERT( tc->getObject("D2Name") != 0 );
+
+    // Set initial value
+    wdp.Set( 1.0 );
+    dp.Set( 2.0 );
+    
+    // Connect ports.
+    wdp.connectTo( &rdp );
+    dp.connectTo( &dp2 );
+
+    WriteBufferPort<double> wbp("WBName", 10);
+    ReadBufferPort<double> rbp("RBName");
+    BufferPort<double> bp("BName", 10);
+    BufferPort<double> bp2("B2Name", 10);
+
+    tc->ports()->addPort( &wbp );
+    tc->ports()->addPort( &rbp );
+    tc->ports()->addPort( &bp );
+    tc->ports()->addPort( &bp2 );
+
+    // Check if ports were added as objects as well
+    CPPUNIT_ASSERT( tc->getObject("WBName") != 0 );
+    CPPUNIT_ASSERT( tc->getObject("RBName") != 0 );
+    CPPUNIT_ASSERT( tc->getObject("BName") != 0 );
+    CPPUNIT_ASSERT( tc->getObject("B2Name") != 0 );
+
+    // Connect ports.
+    wbp.connectTo( &rbp );
+    bp.connectTo( &bp2 );
+
+    // Test Methods set/get
+    Method<void(const double&)> mset;
+    Method<double(void)> mget;
+
+    mset = tc->getObject("WDName")->methods()->getMethod<void(const double&)>("Set");
+    CPPUNIT_ASSERT( mset.ready() );
+
+    mget = tc->getObject("RDName")->methods()->getMethod<double(void)>("Get");
+    CPPUNIT_ASSERT( mget.ready() );
+
+    mset( 3.991 );
+
+    CPPUNIT_ASSERT( mget() == 3.991 );
+
+    // Test Methods for DataPort
+    mset = tc->getObject("DName")->methods()->getMethod<void(const double&)>("Set");
+    CPPUNIT_ASSERT( mset.ready() );
+
+    mget = tc->getObject("D2Name")->methods()->getMethod<double(void)>("Get");
+    CPPUNIT_ASSERT( mget.ready() );
+
+    mset( 3.992 );
+
+    CPPUNIT_ASSERT( mget() == 3.992 );
+
+    // Test Methods push/pull
+    Method<bool(const double&)> mpush;
+    Method<bool(double&)> mpop;
+
+    mpush = tc->getObject("WBName")->methods()->getMethod<bool(const double&)>("Push");
+    CPPUNIT_ASSERT( mpush.ready() );
+
+    mpop = tc->getObject("RBName")->methods()->getMethod<bool(double&)>("Pop");
+    CPPUNIT_ASSERT( mpop.ready() );
+
+    CPPUNIT_ASSERT( mpush( 3.991 ) );
+
+    double ret;
+    CPPUNIT_ASSERT( mpop(ret) );
+
+    CPPUNIT_ASSERT( ret == 3.991 );
+
+    // Test Methods push/pop for DataPort
+    mpush = tc->getObject("BName")->methods()->getMethod<bool(const double&)>("Push");
+    CPPUNIT_ASSERT( mpush.ready() );
+
+    mpop = tc->getObject("B2Name")->methods()->getMethod<bool(double&)>("Pop");
+    CPPUNIT_ASSERT( mpop.ready() );
+
+    CPPUNIT_ASSERT( mpush( 3.993 ) );
+
+    CPPUNIT_ASSERT( mpop(ret) );
+
+    CPPUNIT_ASSERT( ret == 3.993 );
+
+    // Finally, check cleanup. Ports and port objects must be gone:
+    tc->ports()->removePort("RDName");
+    CPPUNIT_ASSERT( tc->getObject("RDName") == 0 );
+    CPPUNIT_ASSERT( tc->ports()->getPort("RDName") == 0 );
+
+    tc->ports()->removePort("BName");
+    CPPUNIT_ASSERT( tc->getObject("BName") == 0 );
+    CPPUNIT_ASSERT( tc->ports()->getPort("BName") == 0 );
+}

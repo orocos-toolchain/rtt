@@ -34,6 +34,7 @@ class Generic_TaskTest_3 : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE( Generic_TaskTest_3 );
     CPPUNIT_TEST( testExecutionEngine );
     CPPUNIT_TEST( testPorts );
+    CPPUNIT_TEST( testPortObjects );
     CPPUNIT_TEST( testProperties );
     CPPUNIT_TEST( testAttributes );
     CPPUNIT_TEST( testTCStates );
@@ -55,6 +56,7 @@ public:
     void testProperties();
     void testAttributes();
     void testPorts();
+    void testPortObjects();
     void testTCStates();
     void testSpecialTCStates();
     void testFailingTCStates();

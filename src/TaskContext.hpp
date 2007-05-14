@@ -153,11 +153,9 @@ namespace RTT
 
         /**
          * Call this function to force a TaskContext to export its
-         * Data Flow ports as scripting objects. This is done by the
-         * component itself when a peer connection is made, but in
-         * case you want to access the Data Flow ports of a
-         * stand-alone component from the scripting interface,
-         * you need to call this function.
+         * Data Flow ports as scripting objects. 
+         * @deprecated Do not use this function, it is no longer
+         * required.
          */
         void exportPorts();
 

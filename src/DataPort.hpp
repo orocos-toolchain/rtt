@@ -118,6 +118,7 @@ namespace RTT
 
         bool connected() const { return mconn; };
 
+        using PortInterface::connectTo;
         bool connectTo( ConnectionInterface::shared_ptr other) {
             return other && !mconn && other->addReader( this );
         }
@@ -227,6 +228,7 @@ namespace RTT
 
         bool connected() const { return mconn; };
 
+        using PortInterface::connectTo;
         bool connectTo( ConnectionInterface::shared_ptr other) {
             return other && !mconn && other->addWriter( this );
         }
@@ -370,6 +372,7 @@ namespace RTT
 
         bool connected() const { return WriteDataPort<T>::connected() && ReadDataPort<T>::connected(); }
 
+        using PortInterface::connectTo;
         bool connectTo( ConnectionInterface::shared_ptr other) {
             return WriteDataPort<T>::connectTo(other) && ReadDataPort<T>::connectTo(other);
         }

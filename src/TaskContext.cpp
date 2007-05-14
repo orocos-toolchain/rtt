@@ -76,7 +76,7 @@ namespace RTT
            ,mengAcc( new ExecutionAccess(this ) )
 #endif
            ,marshAcc( new MarshallingAccess(this) )
-
+           ,dataPorts(this)
     {
         this->setup();
     }
@@ -94,6 +94,7 @@ namespace RTT
            ,mengAcc( new ExecutionAccess(this ) )
 #endif
            ,marshAcc( new MarshallingAccess(this) )
+           ,dataPorts(this)
     {
         this->setup();
     }
@@ -280,8 +281,6 @@ namespace RTT
                 return false;
             _task_map[ alias ] = peer;
             peer->addUser( this );
-            this->exportPorts();
-            peer->exportPorts();
             return true;
         }
 
@@ -324,16 +323,10 @@ namespace RTT
              it != myports.end();
              ++it) {
             (*it)->disconnect();
-            this->removeObject( (*it)->getName() );
         }
         // reconnect again to our peers and ask our 'users' to reconnect as well.
         for( PeerMap::iterator it = _task_map.begin(); it != _task_map.end(); ++it)
             this->connectPorts(it->second);
-        this->exportPorts();
-
-        for( Users::iterator it = musers.begin(); it != musers.end(); ++it) {
-            (*it)->exportPorts();
-        }
 
         log(Info) << "Reconnection done."<<endlog();
     }
@@ -346,7 +339,6 @@ namespace RTT
              it != myports.end();
              ++it) {
             (*it)->disconnect();
-            this->removeObject( (*it)->getName() );
         }
 
         // remove from all users.

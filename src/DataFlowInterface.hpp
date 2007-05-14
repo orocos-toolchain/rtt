@@ -53,9 +53,9 @@ namespace RTT
      */
     class DataFlowInterface
     {
-        typedef std::map<PortInterface*, std::string> Descr;
-        Descr descriptions;
-        std::vector<PortInterface*> ports;
+        typedef std::vector<std::pair<PortInterface*,std::string> > PortStore;
+        PortStore mports;
+        OperationInterface* mparent;
     public:
         /**
          * A sequence of pointers to ports.
@@ -67,9 +67,14 @@ namespace RTT
          */
         typedef std::vector<std::string> PortNames;
 
-        DataFlowInterface() {}
-        ~DataFlowInterface() {
-        }
+        /**
+         * Construct the DataFlow interface of a TaskContext.
+         * @param parent If not null, a TaskObject will be added
+         * to \a parent  for each port added to this interface.
+         */
+        DataFlowInterface(OperationInterface* parent = 0);
+
+        ~DataFlowInterface();
 
         /**
          * Add a Port to this task. It is only added to the C++
@@ -77,15 +82,8 @@ namespace RTT
          * @param port The port to add.
          * @return true if the port could be added, false if already added.
          *
-         * @internal When added, it is owned by the DataFlowInterface and will be
-         * destroyed when removed.
          */
-        bool addPort(PortInterface* port) {
-            if ( find(ports.begin(), ports.end(), port) != ports.end() )
-                return false;
-            ports.push_back( port );
-            return true;
-        }
+        bool addPort(PortInterface* port);
 
         /**
          * Add a Port to the interface of this task. It is added to
@@ -93,60 +91,32 @@ namespace RTT
          * @param port The port to add.
          * @param description A user readable description of this port.
          */
-        bool addPort(PortInterface* port, std::string description) {
-            if (this->addPort(port) == false)
-                return false;
-            descriptions[port] = description;
-            return true;
-        }
+        bool addPort(PortInterface* port, std::string description);
 
         /**
          * Remove a Port from this interface.
          * @param port The port to remove.
          */
-        void removePort(const std::string& name) {
-            for ( Ports::iterator it(ports.begin());
-                 it != ports.end();
-                 ++it)
-                if ( (*it)->getName() == name ) {
-                    ports.erase(it);
-                    return;
-                }
-        }
+        void removePort(const std::string& name);
 
         /**
          * Get all ports of this interface.
          * @return A sequence of pointers to ports.
          */
-        Ports getPorts() const { return ports; }
+        Ports getPorts() const;
 
         /**
          * Get all port names of this interface.
          * @return A sequence of strings containing the port names.
          */
-        PortNames getPortNames() const { 
-            std::vector<std::string> res;
-            for ( Ports::const_iterator it(ports.begin());
-                 it != ports.end();
-                 ++it)
-                res.push_back( (*it)->getName() );
-            return res;
-        }
-
+        PortNames getPortNames() const;
 
         /**
          * Get an added port.
          * @param name The port name
          * @return a pointer to a port or null if it does not exist.
          */
-        PortInterface* getPort(const std::string& name) const {
-            for ( Ports::const_iterator it(ports.begin());
-                 it != ports.end();
-                 ++it)
-                if ( (*it)->getName() == name )
-                    return *it;
-            return 0;
-        }
+        PortInterface* getPort(const std::string& name) const;
 
         /** 
          * Get the description of an added Port.
@@ -155,35 +125,16 @@ namespace RTT
          * 
          * @return The description or "" if it does not exist.
          */
-        std::string getPortDescription(const std::string& name) const {
-            for ( Descr::const_iterator it(descriptions.begin());
-                  it != descriptions.end();
-                  ++it)
-                if ( it->first->getName() == name )
-                    return it->second;
-            return "";
-        }
+        std::string getPortDescription(const std::string& name) const;
 
         /**
          * Create a Task Object through which one can access a Port.
          * This is required to access ports from the scripting interface.
          * @param name The port name
+         * @deprecated Do not use this function. It is no longer required.,
+         * the objects are directly added to the parent TaskContext in \a addPort.
          */
-        OperationInterface* createPortObject(const std::string& name) {
-            PortInterface* p = this->getPort(name);
-            if ( !p )
-                return 0;
-            TaskObject* to = p->createPortObject();
-            if (to) {
-                std::string d = this->getPortDescription(name);
-                if ( !d.empty() )
-                    to->setDescription( d );
-                else
-                    to->setDescription("(No description set for this Port)");
-            }
-            return to;
-        }
-
+        OperationInterface* createPortObject(const std::string& name);
 
         /**
          * Get a port of a specific type.
@@ -194,13 +145,10 @@ namespace RTT
         }
 
         /**
-         * Remove all added ports.
+         * Remove all added ports from this interface and
+         * all associated TaskObjects.
          */
-        void clear()
-        {
-            ports.clear();
-            descriptions.clear();
-        }
+        void clear();
     };
 
 }
