@@ -80,6 +80,7 @@ namespace RTT
         // first erase the hook.
         for (Hooks::iterator it = mhooks.begin(); it !=mhooks.end(); ++it ) {
             if ( it->first == ename ) {
+                delete it->second;
                 mhooks.erase( it );
                 break;
             }
@@ -95,6 +96,7 @@ namespace RTT
         for (Hooks::iterator it = mhooks.begin(); it !=mhooks.end(); ++it )
             delete it->second;
         OperationFactory< ActionInterface*>::clear();
+        mevents.clear();
     }
 
 

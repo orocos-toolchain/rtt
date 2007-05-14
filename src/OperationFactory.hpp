@@ -624,8 +624,10 @@ namespace RTT
         void remove( const std::string& name )
         {
             typename map_t::iterator i = data.find( name );
-            if ( i != data.end() )
+            if ( i != data.end() ) {
+                delete i->second;
                 data.erase(i);
+            }
         }
     };
 
