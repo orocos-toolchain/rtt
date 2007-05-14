@@ -404,14 +404,18 @@ void Generic_TaskTest_3::testPorts()
     CPPUNIT_ASSERT( tc->ports()->addPort( &dp ));
     CPPUNIT_ASSERT( tc->ports()->addPort( &dp2 ));
 
+    // check adding same port twice.
     CPPUNIT_ASSERT( tc->ports()->addPort( &wdp ) == false);
+    {
+        // also check adding different port with same name.
+        DataPort<double> tdp("WDName");
+        CPPUNIT_ASSERT( tc->ports()->addPort( &tdp ) == false);
+    }
 
     CPPUNIT_ASSERT( tc->ports()->addPort( &wbp ));
     CPPUNIT_ASSERT( tc->ports()->addPort( &rbp ));
     CPPUNIT_ASSERT( tc->ports()->addPort( &bp ));
     CPPUNIT_ASSERT( tc->ports()->addPort( &bp2 ));
-
-    CPPUNIT_ASSERT( tc->ports()->addPort( &wbp ) == false);
 
     // Test connection creation.
     CPPUNIT_ASSERT(wdp.createConnection( &rdp )->connect());
