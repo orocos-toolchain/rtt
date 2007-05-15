@@ -211,7 +211,8 @@
 	    <function>states()</function>,
 	    <function>programs()</function> or
 	    <function>execution()</function>).  In that case, the user
-	    needs to call <function>getObject()</function> instead or
+	    needs to call <function>getObject()</function> instead of
+	    <function>getPeer()</function> or
 	    revert to the recommended functions.
 	  </para>
 	  <para>
@@ -339,10 +340,14 @@
 	  <para>
 	    The <classname>RTT::TaskContext</classname> class has been
 	    extended to support a configuration state. A component now
-	    has a configure() and cleanup() method to configure the component
-	    or free all resources. If a component is not configured, it
-	    will refuse to start running. User functions (configureHook() and
-	    cleanupHook()) allow the user to control the transitions.
+	    has a <function>configure()</function> and
+	    <function>cleanup()</function> method to configure the
+	    component or free all resources. If a component is not
+	    configured, it will refuse to start running. The
+	    associated user functions
+	    (<function>configureHook()</function> and
+	    <function>cleanupHook()</function>) allow the user to
+	    control the transitions.
 	  </para>
 	  <para>
 	    See also
