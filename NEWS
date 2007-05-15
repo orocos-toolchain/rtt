@@ -1,10 +1,163 @@
-           The Orocos Real-Time Toolkit v1.1.0.
+           The Orocos Real-Time Toolkit v1.2.0.
            ====================================
 
- This is a developer's release and provides a look-ahead on RTT 1.2.0.
- It passes all unit tests for the gnulinux target. The documentation
- manuals have not yet been updated with the latest changes.
+  The Orocos development team is pleased to announce the second major
+feature release of the Real-Time Toolkit, a C++ toolkit for building
+ component based, real-time robotics and machine control applications.
+
+You can download this release from
+  <http://www.orocos.org/stable/rtt/v1.2.0/orocos-rtt-1.2.0-src.tar.gz>
+and read the installation instructions on
+  <http://www.orocos.org/stable/documentation/rtt/v1.2.x/doc-xml/orocos-installation.html>
+
+
+The Real-Time Toolkit (RTT) library allows application designers to
+build highly configurable and interactive component-based real-time
+control applications. You might use it to:
+
+ * Control devices ranging from sensors to complete robots 
+ * Capture the data flows between components
+ * Tune your algorithms at run-time
+ * Write your controller as a hierarchical state machine
+ * Interact with your devices directly from a GUI or command prompt
+ * Extend it with your own data types
+ * Configure components and the application from XML files
+ * Extend your legacy control applications with all the above
+ * Run it on standard operating systems as well as dedicated real-time
+   systems
+
+This release has improved on several user reported issues such as an
+improved component model, allowing on-line component
+(re-)configuration and better control over threading. This release's
+major feature highlights are:
+
+ * Improved run-time component configuration possibilities
+ * New build system for shared and static libraries using CMake
+ * Configurable for large or embedded systems
+ * PowerPC port
+ * Enables dynamic component loading and configuration using the 
+   Orocos Component Library
+
+If you'd like a high level overview of the Orocos libraries, visit
+  <http://www.orocos.org/stable/documentation/rtt/v1.2.x/doc-xml/orocos-overview.html>
+If you'd like to get started building your own components, visit
+  <http://www.orocos.org/stable/documentation/rtt/v1.2.x/doc-xml/orocos-components-manual.html>
+
+This release is backwards compatible with the 1.0.x releases, although
+some functionality has been deprecated or alternative usage patterns
+are preferred. These and other changes and improvements can be found
+in the Orocos RTT Changes document on
+  <http://www.orocos.org/stable/documentation/rtt/v1.2.x/doc-xml/orocos-rtt-changes.html>
+
+
+               The Orocos Real-Time Toolkit v1.0.4.
+                       http://www.orocos.org
+               ====================================
+
+The Orocos development team announces the fourth bug-fix release of
+the Orocos Real-Time Toolkit 1.0. This release addresses the following
+reported issues:
+
+   ID    Vers   TargetM   Summary 
+  378    1.0.3   1.0.4   Loading program in KTaskbrowser reports success upon syntax error
+  379    1.0.3   1.0.4   'Ghost' attributes appear in TaskContext when state machine loading fails
+  356    1.0.3   1.0.4   CompletionProcessor is not automatically started
+  397    1.0.3   1.0.4   -fvisibility-inlines-hidden causes undefined symbols
+
+You can download this release from http://www.orocos.org/rtt
+
+               The Orocos Real-Time Toolkit v1.0.3.
+                       http://www.orocos.org
+               ====================================
+
+The Orocos development team announces the third bug-fix release of
+the Orocos Real-Time Toolkit 1.0.   This release improved the on-line
+documentation and addressed the following reported issues:
+
+   ID    Vers   TargetM   Summary 
+  338    1.0.2   1.0.3   setScheduler() not working correctly under GNU/Linux 
+  332    1.0.2   1.0.3   Crash when assigning '0' to Property<T> 
+  324    oroco   1.0.3   make install broken wrt headers (Ubuntu Edgy)
+
+You can download this release from http://www.orocos.org/rtt
+
+               The Orocos Real-Time Toolkit v1.0.2.
+                       http://www.orocos.org
+               ====================================
+
+The Orocos development team announces the second bug-fix release of
+the Orocos Real-Time Toolkit 1.0. A licence change from LGPL to the
+GPL + linking exception was done. The LGPL did not cover C++ templates
+correctly, while the new license does and is legally more sound for use in
+commercial applications.  This release improved the on-line
+documentation and addressed the following reported issues:
+
+   ID    Vers   TargetM   Summary 
+  257    oroco   1.0.2   Warning when compiling ParsedStateMachine 
+  305    1.0.1   1.0.2   Change license from LGPL to GPL+exception 
+  307    1.0.1   1.0.2   Race condition in AtomicQueue 
+  310    oroco   1.0.2   PulseTrainGenerator Interface 
+  312    oroco   1.0.2   MutexTryLock does not work correctly in LXRT
+  313    oroco   1.0.2   Corba build fails due to broken packages/configure.ac
+
+You can download this release from http://www.orocos.org/rtt
+
+               The Orocos Real-Time Toolkit v1.0.1.
+                       http://www.orocos.org
+               ====================================
+
+The Orocos development team announces the first bug-fix release of
+the Orocos Real-Time Toolkit 1.0. This release improved the on-line 
+documentation, contains additions to the CORBA interface and 
+addressed the following reported issues:
+
+   ID    Vers   TargetM   Summary 
+  281    1.0.0   1.0.1   RTT does not compile with Xenomai 2.1.x and 2.2.x 
+  283    1.0.0   1.0.1   Corba detection is too verbose and unsuitable for cross compiling
+  284    1.0.0   1.0.1   Corba ControlTask.idl api lacks start/stop/isRunning 
+  285    1.0.0   1.0.1   RTT requires libtool, but it is not included in the package. 
+  286    1.0.0   1.0.1   RTT 1.0.0 does not compile with RTAI 3.4 
+  290    1.0.0   1.0.1   support array (std::vector) constructor with 2 arguments 
+  291    1.0.0   1.0.1   Reading unknown tag in XML file causes crash 
+  292    1.0.0   1.0.1   --enable-debug does not work 
+
+You can download this release from http://www.orocos.org/rtt
+
+
+               The Orocos Real-Time Toolkit v1.0.0.
+                       http://www.orocos.org
+               ====================================
+
+ The Orocos development team is proud to announce the first stable
+ release of the Real-Time Toolkit (RTT), a C++ toolkit for building
+ component based, real-time robotics and machine control applications.
+
+ A new community website has been created in order to provide Orocos
+ users a forum for collaboration and easier access to information.
+
+ The website features also the releases of:
+
+    * the 'Kinematics and Dynamics Library' (KDL) for calculating
+    kinematic chains in real-time applications; 
+
+    * the 'Orocos Components Library' (OCL) which offers components
+    for hardware access (such as vision or force sensors), motion
+    control and component management;
+
+    * the 'Bayesian Filtering Library' (BFL) which provides an
+    application independent framework for inference in Dynamic
+    Bayesian Networks.
+
+ The Real-Time Toolkit 1.0 allows rapid software component development
+ and prototyping for control applications. Each component comes with
+ built-in XML configuration, a real-time scripting interface, data
+ ports for thread-safe data exchange and a user definable command
+ interface. 
+
+ The powerful Orocos 'TaskBrowser' component helps developers
+ to run and debug their components, stand-alone or in a network and
+ helps eliminating recompilation steps during development.
 
  *******************************************************************
-* See the http://www.orocos.org website for all information         *
+*    See the http://www.orocos.org website for all information      *
  *******************************************************************
