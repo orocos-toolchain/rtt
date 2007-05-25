@@ -223,7 +223,6 @@ namespace RTT
             // SCHED_FIFO/SCHED_RR:
             if (*priority <= 0){
                 log(Warning) << "Forcing priority ("<<*priority<<") of thread with !SCHED_OTHER policy to 1." <<endlog();
-                abort();
                 *priority = 1;
                 ret = -1;
             }
