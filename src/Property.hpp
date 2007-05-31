@@ -79,7 +79,7 @@ namespace RTT
      * @ingroup RTTComponentInterface
 	 */
     template<typename T>
-    class Property
+    class RTT_EXPORT Property
         : public PropertyBase
     {
     public:

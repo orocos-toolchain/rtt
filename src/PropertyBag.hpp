@@ -95,7 +95,7 @@ namespace RTT
 	 * @see PropertyBase, Property, BagOperations
      * @ingroup CoreLibProperties
 	 */
-    class PropertyBag
+    class RTT_EXPORT PropertyBag
     {
     public:
         /**
