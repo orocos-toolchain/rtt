@@ -192,7 +192,7 @@ namespace RTT
 #endif
 
             if ( wt == 0 || rt == 0 || wt->connection() || rt->connection() ){
-                Logger::log() <<Logger::Warning<< "ConnectionFactory could not create a BufferConnection between "<<writer->getName() <<" and "
+                Logger::log() <<Logger::Warning<< "ConnectionFactory could not create a BufferConnection between Writer:"<<writer->getName() <<" and Reader:"
                               << reader->getName() <<Logger::endl;
                 std::string msg = (wt == 0 ? "Writer is not a WriteBufferPort or has wrong data type."
                                    : (rt == 0 ? "Reader is not a ReadBufferPort or has wrong data type."
@@ -265,7 +265,7 @@ namespace RTT
 #endif
             
             if ( wt == 0 || rt == 0 || wt->connection() || rt->connection() ) {
-                Logger::log() <<Logger::Warning<< "ConnectionFactory could not create a DataConnection between "<<writer->getName() <<" and "
+                Logger::log() <<Logger::Warning<< "ConnectionFactory could not create a DataConnection between Writer:"<<writer->getName() <<" and Reader:"
                               << reader->getName() << Logger::nl;
                 std::string msg = (wt == 0 ? "Writer is not a WriteDataPort or has wrong data type."
                                    : (rt == 0 ? "Reader is not a ReadDataPort or has wrong data type."
