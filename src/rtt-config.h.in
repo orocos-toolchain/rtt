@@ -101,8 +101,15 @@
 
 #cmakedefine ENABLE_CORBA
 #ifdef ENABLE_CORBA
-#define OROPKG_CORBA
-#define OROINT_OS_CORBA 1
+
+# define OROPKG_CORBA
+# define OROINT_OS_CORBA 1
+
+// Some ACE versions require this
+# if !defined(_REENTRANT)
+#  define _REENTRANT 1
+# endif
+
 #endif
 
 //
