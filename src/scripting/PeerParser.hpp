@@ -77,8 +77,7 @@ namespace RTT
          * a task.
          * @param c The task to start searching from.
          * @param fullpath Set to true if the parser() must
-         * resolve the full path and hence, the resulting object()
-         * should always be "this".
+         * resolve the full path.
          */
         PeerParser(TaskContext* c, bool fullpath=false);
 
