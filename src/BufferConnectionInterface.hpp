@@ -60,6 +60,14 @@ namespace RTT
          */
         virtual ReadInterface<T>* read() = 0;
 
+        /**
+         * Let the connection use a new Buffer implementation.
+         * This may lead to information loss if called when the connection
+         * is in use.
+         * @param doi The new buffer to use.
+         * @post \a doi is acquired by this connection.
+         */
+        virtual void setImplementation( BufferInterface<T>* doi ) = 0;
     };
 
     /**
@@ -77,6 +85,14 @@ namespace RTT
          */
         virtual WriteInterface<T>* write() = 0;
 
+        /**
+         * Let the connection use a new Buffer implementation.
+         * This may lead to information loss if called when the connection
+         * is in use.
+         * @param doi The new buffer to use.
+         * @post \a doi is acquired by this connection.
+         */
+        virtual void setImplementation( BufferInterface<T>* doi ) = 0;
     };
 
     /**
