@@ -861,12 +861,11 @@ class  Orocos_Method_i
  protected:
     typedef T SourceType;
     typedef typename RTT::DataSource<T>::value_t ResultType;
-    typename RTT::DataSource<SourceType>::shared_ptr mmethod;
-	RTT::MethodC morig;
+	RTT::MethodC methodc;
  public:
   //Constructor 
   Orocos_Method_i (RTT::MethodC orig, typename RTT::DataSource<SourceType>::shared_ptr datas, PortableServer::POA_ptr the_poa )
-      : Orocos_Expression_i<SourceType>( datas, the_poa ), mmethod( datas ), morig(orig)
+      : Orocos_Expression_i<SourceType>( datas, the_poa ), methodc(orig)
     {}
   
   //Destructor 
@@ -891,14 +890,14 @@ class  Orocos_Method_i
     ,::RTT::Corba::WrongNumbArgException
     ,::RTT::Corba::WrongTypeArgException
 	  )) {
-      RTT::MethodC mgen = morig;
+      RTT::MethodC mgen = methodc;
     try {
         for (size_t i =0; i != args.length(); ++i)
             mgen.arg( RTT::DataSourceBase::shared_ptr( new RTT::ValueDataSource<CORBA::Any_var>( new CORBA::Any( args[i] ) )));
         // if not ready, not enough args were given, *guess* a one off error in the exception :-(
         if ( !mgen.ready() )
             throw ::RTT::Corba::WrongNumbArgException( args.length()+1, args.length() );
-        this->mmethod = mgen.getDataSource();
+        this->morig = mgen.getDataSource();
         return this->execute();
     } catch ( RTT::wrong_number_of_args_exception& wna ) {
         throw ::RTT::Corba::WrongNumbArgException( wna.wanted, wna.received );
@@ -916,7 +915,7 @@ class  Orocos_Method_i
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
-      this->mmethod->reset();
+      this->morig->reset();
   }
 };
 
@@ -925,17 +924,16 @@ class  Orocos_AnyMethod_i
       public virtual POA_RTT::Corba::Method
 {
 protected:
-    RTT::DataSourceBase::shared_ptr mmethod;
-	RTT::MethodC morig;
+	RTT::MethodC mmethodc;
 
 public:
     virtual void copy( RTT::DataSourceBase::shared_ptr new_ds ) {
-        mmethod = new_ds;
+        morig = new_ds;
     }
 
   //Constructor 
   Orocos_AnyMethod_i (RTT::MethodC orig, RTT::DataSourceBase::shared_ptr datas, PortableServer::POA_ptr the_poa )
-      : Orocos_AnyExpression_i( datas, the_poa ), mmethod( datas ), morig(orig)
+      : Orocos_AnyExpression_i( datas, the_poa ), mmethodc(orig)
     {}
   
   //Destructor 
@@ -959,15 +957,15 @@ public:
     ,::RTT::Corba::WrongNumbArgException
     ,::RTT::Corba::WrongTypeArgException
 	  )) {
-      RTT::MethodC mgen = morig;
+      RTT::MethodC mgen = mmethodc;
     try {
         for (size_t i =0; i != args.length(); ++i)
             mgen.arg( RTT::DataSourceBase::shared_ptr( new RTT::ValueDataSource<CORBA::Any_var>( new CORBA::Any( args[i] ) )));
         // if not ready, not enough args were given, *guess* a one off error in the exception :-(
         if ( !mgen.ready() )
             throw ::RTT::Corba::WrongNumbArgException( args.length()+1, args.length() );
-        mmethod = mgen.getDataSource();
-        return this->execute();
+        morig = mgen.getDataSource();
+        return this->evaluate();
     } catch ( RTT::wrong_number_of_args_exception& wna ) {
         throw ::RTT::Corba::WrongNumbArgException( wna.wanted, wna.received );
     } catch ( RTT::wrong_types_of_args_exception& wta ) {
@@ -983,7 +981,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
-      this->mmethod->reset();
+      this->morig->reset();
   }
 
   virtual void destroyAction()
