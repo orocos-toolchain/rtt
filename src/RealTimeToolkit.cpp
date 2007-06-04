@@ -334,6 +334,7 @@ namespace RTT
         oreg->add( newBinaryOperator( "-", subs3<double,double, int>() ) );
 
         // strings
+        // causes memory allocation....
         //  oreg->add( newBinaryOperator( "+", std::plus<std::string>() ) );
         oreg->add( newBinaryOperator( "==", std::equal_to<const std::string&>() ) );
         oreg->add( newBinaryOperator( "!=", std::not_equal_to< const std::string&>() ) );
