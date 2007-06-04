@@ -1716,7 +1716,7 @@ the_data_port.     cd            ls
         cycleCommand(&quot;startCycle&quot;,
 	             &amp;MyTask::startCycle,
                      &amp;MyTask::cycleDone, this),
-        messCommand( &quot;cleanup&quot;,
+        messCommand( &quot;cleanupMess&quot;,
                      &amp;MyTask::cleanupMess,
                      &amp;MyTask::isMessCleaned, this)
     {
@@ -1791,15 +1791,15 @@ the_data_port.     cd            ls
 	arguments and variable arguments are supported:
       </para>
       <programlisting>  // get a command:
-  Command&lt;bool(double)> mycleanup_1 =
-      a_task.commands()->getCommand&lt;bool(double)>("cleanup");
+  Command&lt;bool(double)> mycleanupMess_1 =
+      a_task.commands()->getCommand&lt;bool(double)>("cleanupMess");
 
-  // Send 'cleanup' to a_task with argument '1.0'
-  bool result_1 = mycleanup_1( 1.0 );
+  // Send 'cleanupMess' to a_task with argument '1.0'
+  bool result_1 = mycleanupMess_1( 1.0 );
 
   bool d_arg = 5.0;
-  // Send 'cleanup' to a_task, reads contents of d_arg.
-  bool result_2 = mycleanup_1(d_arg);</programlisting>
+  // Send 'cleanupMess' to a_task, reads contents of d_arg.
+  bool result_2 = mycleanupMess_1(d_arg);</programlisting>
        <para>
 	 The current implementation supports up to 4 arguments.
 	 Since the use of 'structs' is allowed, this is enough
@@ -1825,19 +1825,19 @@ the_data_port.     cd            ls
 	arguments and variable arguments are supported:
       </para>
       <programlisting>  // const argument (note: 'argC'):
-  CommandC mycleanup_1 =
-      a_task.commands()->create("this", "cleanup").argC(1.0);
+  CommandC mycleanupMess_1 =
+      a_task.commands()->create("this", "cleanupMess").argC(1.0);
 
   // variable argument (note: 'arg'):
   double d_arg = 1.23;
-  CommandC mycleanup_2 =
-      a_task.commands()->create("this", "cleanup").arg( d_arg );
+  CommandC mycleanupMess_2 =
+      a_task.commands()->create("this", "cleanupMess").arg( d_arg );
 
-  // Send 'cleanup' to a_task with argument '1.0'
-  bool result_1 = mycleanup_1.execute();
+  // Send 'cleanupMess' to a_task with argument '1.0'
+  bool result_1 = mycleanupMess_1.execute();
 
-  // Send 'cleanup' to a_task, reads contents of d_arg.
-  bool result_2 = mycleanup_2.execute();</programlisting>
+  // Send 'cleanupMess' to a_task, reads contents of d_arg.
+  bool result_2 = mycleanupMess_2.execute();</programlisting>
        <para>
 	 Any number of arguments can be given, but an error will be
 	 logged when a wrong number or wrong type of argument is given.
@@ -1851,7 +1851,7 @@ the_data_port.     cd            ls
       <para>
 	<programlisting>
   do startCycle()
-  do cleanup( 0.1 )	</programlisting></para>
+  do cleanupMess( 0.1 )	</programlisting></para>
       <para>
 	when the program is loaded in a_task.
       </para>
