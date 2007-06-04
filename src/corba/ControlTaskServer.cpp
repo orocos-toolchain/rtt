@@ -73,7 +73,7 @@ namespace RTT
             CosNaming::NamingContext_var rootNC = CosNaming::NamingContext::_narrow(rootObj.in());
             
             if (CORBA::is_nil( rootNC.in() ) ) {
-                Logger::log() <<Logger::Warning << "ControlTask '"<< mtaskcontext->getName() << "' could not find CORBA Naming Service."<<Logger::nl;
+                log(Warning) << "ControlTask '"<< mtaskcontext->getName() << "' could not find CORBA Naming Service."<<endlog();
             } else {
                 // Nameserver found...
                 CosNaming::Name name;
@@ -82,14 +82,14 @@ namespace RTT
                 name[1].id = CORBA::string_dup( mtaskcontext->getName().c_str() );
                 try {
                     rootNC->unbind(name);
-                    Logger::log() <<Logger::Info << "Successfully removed ControlTask '"<<mtaskcontext->getName()<<"' from CORBA Naming Service."<<Logger::endl;
+                    log(Info) << "Successfully removed ControlTask '"<<mtaskcontext->getName()<<"' from CORBA Naming Service."<<endlog();
                 }
                 catch( ... ) {
-                    Logger::log() <<Logger::Warning << "ControlTask '"<< mtaskcontext->getName() << "' unbinding failed."<<Logger::endl;
+                    log(Warning) << "ControlTask '"<< mtaskcontext->getName() << "' unbinding failed."<<endlog();
                 }
             }
         } catch (...) {
-            Logger::log() <<Logger::Warning << "ControlTask '"<< mtaskcontext->getName() << "' unbinding failed from CORBA Naming Service."<<Logger::endl;
+            log(Warning) << "ControlTask '"<< mtaskcontext->getName() << "' unbinding failed from CORBA Naming Service."<<endlog();
         }
     }
   }
@@ -142,8 +142,8 @@ namespace RTT
                 } catch (...) {}
             
                 if (CORBA::is_nil( rootNC.in() ) ) {
-                    Logger::log() <<Logger::Warning << "ControlTask '"<< taskc->getName() << "' could not find CORBA Naming Service."<<Logger::nl;
-                    Logger::log() <<"Writing IOR to 'std::cerr' and file '" << taskc->getName() <<".ior'"<<Logger::endl;
+                    log(Warning) << "ControlTask '"<< taskc->getName() << "' could not find CORBA Naming Service."<<endlog();
+                    log() <<"Writing IOR to 'std::cerr' and file '" << taskc->getName() <<".ior'"<<endlog();
 
                     // this part only publishes the IOR to a file.
                     CORBA::String_var ior = orb->object_to_string( mtask.in() );
@@ -157,7 +157,7 @@ namespace RTT
                     }
                     return;
                 }
-                Logger::log() <<Logger::Info << "ControlTask '"<< taskc->getName() << "' found CORBA Naming Service."<<Logger::endl;
+                log(Info) << "ControlTask '"<< taskc->getName() << "' found CORBA Naming Service."<<endlog();
                 // Nameserver found...
                 CosNaming::Name name;
                 name.length(1);
@@ -167,7 +167,7 @@ namespace RTT
                     controlNC = rootNC->bind_new_context(name);
                 }
                 catch( CosNaming::NamingContext::AlreadyBound&) {
-                    Logger::log() <<Logger::Debug << "NamingContext 'ControlTasks' already bound to CORBA Naming Service."<<Logger::endl;
+                    log(Debug) << "NamingContext 'ControlTasks' already bound to CORBA Naming Service."<<endlog();
                     // NOP.
                 }
 
@@ -175,23 +175,23 @@ namespace RTT
                 name[1].id = CORBA::string_dup( taskc->getName().c_str() );
                 try {
                     rootNC->bind(name, obj.in() );
-                    Logger::log() <<Logger::Info << "Successfully added ControlTask '"<<taskc->getName()<<"' to CORBA Naming Service."<<Logger::endl;
+                    log(Info) << "Successfully added ControlTask '"<<taskc->getName()<<"' to CORBA Naming Service."<<endlog();
                 }
                 catch( CosNaming::NamingContext::AlreadyBound&) {
-                    Logger::log() <<Logger::Warning << "ControlTask '"<< taskc->getName() << "' already bound to CORBA Naming Service."<<Logger::endl;
-                    Logger::log() <<"Trying to rebind...";
+                    log(Warning) << "ControlTask '"<< taskc->getName() << "' already bound to CORBA Naming Service."<<endlog();
+                    log() <<"Trying to rebind...";
                     try {
                         rootNC->rebind(name, obj.in() );
                     } catch( ... ) {
-                        Logger::log() << " failed!"<<Logger::endl;
+                        log() << " failed!"<<endlog();
                         return;
                     }
-                    Logger::log() << " done. New ControlTask bound to Naming Service."<<Logger::endl;
+                    log() << " done. New ControlTask bound to Naming Service."<<endlog();
                 }
             } // use_naming
             else {
-                Logger::log() <<Logger::Info <<"ControlTask '"<< taskc->getName() << "' is not using the CORBA Naming Service."<<Logger::endl;
-                Logger::log() <<"Writing IOR to 'std::cerr' and file '" << taskc->getName() <<".ior'"<<Logger::endl;
+                log(Info) <<"ControlTask '"<< taskc->getName() << "' is not using the CORBA Naming Service."<<endlog();
+                log() <<"Writing IOR to 'std::cerr' and file '" << taskc->getName() <<".ior'"<<endlog();
                 
                 // this part only publishes the IOR to a file.
                 CORBA::String_var ior = orb->object_to_string( mtask.in() );
@@ -207,8 +207,8 @@ namespace RTT
             }
         }
         catch (CORBA::Exception &e) {
-            Logger::log() <<Logger::Error << "CORBA exception raised!" << Logger::endl;
-            Logger::log() << e._info().c_str() << Logger::endl;
+            log(Error) << "CORBA exception raised!" << endlog();
+            log() << e._info().c_str() << endlog();
         }
 
     }
@@ -232,8 +232,8 @@ namespace RTT
             return true;
         }
         catch (CORBA::Exception &e) {
-            Logger::log() <<Logger::Error << "Orb Init : CORBA exception raised!" << Logger::nl;
-            Logger::log() << e._info().c_str() << Logger::endl;
+            log(Error) << "Orb Init : CORBA exception raised!" << endlog();
+            log() << e._info().c_str() << endlog();
         }
         return false;
 
@@ -241,40 +241,38 @@ namespace RTT
 
     void ControlTaskServer::CleanupServers() {
         if ( !CORBA::is_nil(orb) ) {
-            Logger::log() <<Logger::Info << "Cleaning up ControlTaskServers..."<<Logger::nl;
+            log(Info) << "Cleaning up ControlTaskServers..."<<endlog();
             ServerMap::iterator it = servers.begin();
             while ( !servers.empty() ){
                 delete servers.begin()->second;
             }
-            Logger::log() << "Cleanup done."<<Logger::endl;
+            log() << "Cleanup done."<<endlog();
         }
     }
 
     void ControlTaskServer::ShutdownOrb(bool wait_for_completion) 
     {
         Logger::In in("ShutdownOrb");
-        if ( CORBA::is_nil(orb) ) {
-            Logger::log() <<Logger::Error << "Orb Shutdown...failed! Orb is nil." << Logger::endl;
-            return;
-        }
-
         DoShutdownOrb(wait_for_completion);
     }
 
     void ControlTaskServer::DoShutdownOrb(bool wait_for_completion) 
     {
         if ( CORBA::is_nil(orb) ) {
-            Logger::log() <<Logger::Error << "Orb Shutdown...failed! Orb is nil." << Logger::endl;
+            log(Error) << "Orb Shutdown...failed! Orb is nil." << endlog();
             return;
         }
 
         try {
+            log(Info) << "Orb Shutdown...";
+            if (wait_for_completion)
+                log(Info)<<"waiting..."<<endlog();
             orb->shutdown( wait_for_completion );
-            Logger::log() <<Logger::Info << "Orb Shutdown...done." << Logger::endl;
+            log(Info) << "done." << endlog();
         }
         catch (CORBA::Exception &e) {
-            Logger::log() <<Logger::Error << "Orb Shutdown...failed! CORBA exception raised." << Logger::nl;
-            Logger::log() << e._info().c_str() << Logger::endl;
+            log(Error) << "Orb Shutdown...failed! CORBA exception raised." << endlog();
+            log() << e._info().c_str() << endlog();
             return;
         }
     }
@@ -283,16 +281,17 @@ namespace RTT
     void ControlTaskServer::RunOrb()
     {
         if ( CORBA::is_nil(orb) ) {
-            Logger::log() <<Logger::Error << "RunOrb...failed! Orb is nil." << Logger::endl;
+            log(Error) << "RunOrb...failed! Orb is nil." << endlog();
             return;
         }
         try {
+            log(Info) <<"Entering orb->run()."<<endlog();
             orb->run();
-            Logger::log() << Logger::Info <<"Breaking out of orb->run()."<<Logger::endl;
+            log(Info) <<"Breaking out of orb->run()."<<endlog();
         }
         catch (CORBA::Exception &e) {
-            Logger::log() <<Logger::Error << "Orb Run : CORBA exception raised!" << Logger::nl;
-            Logger::log() << e._info().c_str() << Logger::endl;
+            log(Error) << "Orb Run : CORBA exception raised!" << endlog();
+            log() << e._info().c_str() << endlog();
         }
     }
 
@@ -319,7 +318,7 @@ namespace RTT
         void finalize()
         {
             Logger::In in("OrbRunner");
-            Logger::log() << Logger::Info <<"Safely stopped."<<Logger::endl;
+            log(Info) <<"Safely stopped."<<endlog();
         }
     };
 
@@ -327,13 +326,13 @@ namespace RTT
     {
         Logger::In in("ThreadOrb");
         if ( CORBA::is_nil(orb) ) {
-            Logger::log() <<Logger::Error << "ThreadOrb...failed! Orb is nil." << Logger::endl;
+            log(Error) << "ThreadOrb...failed! Orb is nil." << endlog();
             return;
         }
         if (orbrunner != 0) {
-            Logger::log() << Logger::Error <<"Orb already running in a thread."<<Logger::endl;
+            log(Error) <<"Orb already running in a thread."<<endlog();
         } else {
-            Logger::log() << Logger::Info <<"Starting Orb in a thread."<<Logger::endl;
+            log(Info) <<"Starting Orb in a thread."<<endlog();
             orbrunner = new OrbRunner();
 
             orbrunner->start();
@@ -344,7 +343,7 @@ namespace RTT
     {
         Logger::In in("DestroyOrb");
         if ( CORBA::is_nil(orb) ) {
-            Logger::log() <<Logger::Error << "DestroyOrb...failed! Orb is nil." << Logger::endl;
+            log(Error) << "DestroyOrb...failed! Orb is nil." << endlog();
             return;
         }
 
@@ -359,11 +358,11 @@ namespace RTT
             //poa->destroy (1, 1);
             CleanupServers();
             orb->destroy();
-            Logger::log() << Logger::Info <<"Orb destroyed."<<Logger::endl;
+            log(Info) <<"Orb destroyed."<<endlog();
         }
         catch (CORBA::Exception &e) {
-            Logger::log() <<Logger::Error << "Orb Destroy : CORBA exception raised!" << Logger::nl;
-            Logger::log() << e._info().c_str() << Logger::endl;
+            log(Error) << "Orb Destroy : CORBA exception raised!" << endlog();
+            log() << e._info().c_str() << endlog();
         }
 
     }
@@ -373,12 +372,12 @@ namespace RTT
             return 0;
 
         if ( servers.count(tc) ) {
-            Logger::log() << Logger::Debug << "Returning existing ControlTaskServer for "<<tc->getName()<<Logger::nl;
+            log(Debug) << "Returning existing ControlTaskServer for "<<tc->getName()<<endlog();
             return servers.find(tc)->second;
         }
 
         // create new:
-        Logger::log() << Logger::Info << "Creating new ControlTaskServer for "<<tc->getName()<<Logger::nl;
+        log(Info) << "Creating new ControlTaskServer for "<<tc->getName()<<endlog();
         ControlTaskServer* cts = new ControlTaskServer(tc, use_naming);
         return cts;
     }
@@ -388,18 +387,18 @@ namespace RTT
             return 0;
 
         if ( servers.count(tc) ) {
-            Logger::log() << Logger::Debug << "Returning existing ControlTaskServer for "<<tc->getName()<<Logger::nl;
+            log(Debug) << "Returning existing ControlTaskServer for "<<tc->getName()<<endlog();
             return servers.find(tc)->second->server();
         }
 
         for (ControlTaskProxy::PMap::iterator it = ControlTaskProxy::proxies.begin(); it != ControlTaskProxy::proxies.end(); ++it)
             if ( (it->second) == tc ) {
-                Logger::log() << Logger::Debug << "Returning server of Proxy for "<<tc->getName()<<Logger::nl;
+                log(Debug) << "Returning server of Proxy for "<<tc->getName()<<endlog();
                 return ControlTask::_duplicate(it->first);
             }
 
         // create new:
-        Logger::log() << Logger::Info << "Creating new ControlTaskServer for "<<tc->getName()<<Logger::nl;
+        log(Info) << "Creating new ControlTaskServer for "<<tc->getName()<<endlog();
         ControlTaskServer* cts = new ControlTaskServer(tc, use_naming);
         return cts->server();
     }
