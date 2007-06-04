@@ -39,6 +39,7 @@
 #ifndef ORO_APPLICATION_SERVER_HPP
 #define ORO_APPLICATION_SERVER_HPP
 
+#include "../rtt-config.h"
 #include <tao/corba.h>
 #include <tao/PortableServer/PortableServer.h>
 

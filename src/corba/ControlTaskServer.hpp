@@ -39,6 +39,7 @@
 #define ORO_CORBA_CONTROLTASK_SERVER_HPP 
 
 #include <map>
+#include "../rtt-config.h"
 #include <tao/corba.h>
 #include "../TaskContext.hpp"
 #include "ApplicationServer.hpp"
