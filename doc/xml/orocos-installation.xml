@@ -230,13 +230,25 @@
 	  <screen><command> 
   mkdir orocos-rtt-&oversion;/build 
   cd orocos-rtt-&oversion;/build
-  ../configure --with-&lt;target&gt; [--prefix=/usr/local]
+  ../configure --with-&lt;target&gt; [--prefix=/usr/local][--with-linux=/usr/src/linux]
   make
   make check
   make install</command> </screen>
-	  Where &lt;target&gt; is one of listed in <command>../configure --help</command>.
-	  ( currently 'gnulinux', 'lxrt' or 'xenomai' ). When none is specified,
-	  'gnulinux' is used.
+        </para>
+	<para>
+	  Where
+	  <itemizedlist>
+	    <listitem><para>
+	      &lt;target&gt; is one of listed in <command>../configure --help</command>.
+	      ( currently 'gnulinux', 'lxrt' or 'xenomai' ). When none is specified,
+	      'gnulinux' is used.</para></listitem>
+	    <listitem><para><option>--prefix</option> specifies where
+	    to install the RTT.</para></listitem>
+	    <listitem><para><option>--with-linux</option> is required for RTAI/LXRT
+	    and older Xenomai version (&lt;2.2.0). It points to
+	    the source location of the RTAI/Xenomai patched Linux kernel.</para></listitem>
+	  </itemizedlist>
+	  See <command>configure --help</command> for a full list of options.
 	</para>
 	<note>
 	  <para>
@@ -276,6 +288,11 @@
 	    Enabling CORBA almost doubles the size of the RTT library and
 	    slows down link and compile times.
 	  </para>
+	<para>
+	  Alternatively, when you use the configure wrapper, you
+	  can specify:
+	</para>
+	<screen>  ../configure --enable-corba</screen>
 	</section>
 	<section>
 	  <title>Embedded RTT flavour</title>
@@ -289,6 +306,11 @@
 	    choose to build the RTT as a static library
 	    (<option>BUILD_STATIC</option>).
 	  </para>
+	<para>
+	  Alternatively, when you use the configure wrapper, you
+	  can specify:
+	</para>
+	<screen>  ../configure --embedded</screen>
 	</section>
       </section>
       <section>
@@ -631,10 +653,14 @@
 	<title>Configuring the RTT for TAO</title>
 	<para>
 	  Orocos will first try to detect your location of ACE and TAO
-	  using the ACE_ROOT and TAO_ROOT variables. If these are set
-	  CORBA support (<option>ENABLE_CORBA</option>) is automatically
-	  enabled.
+	  using the ACE_ROOT and TAO_ROOT variables. If these are set, you can enable
+	  CORBA support (<option>ENABLE_CORBA</option>) within CMake.
 	</para>
+	<para>
+	  Alternatively, when you use the configure wrapper, you
+	  can specify:
+	</para>
+	<screen>  ../configure --enable-corba</screen>
       </section>
       <section>
 	<title>Application Development with TAO</title>
