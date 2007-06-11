@@ -69,6 +69,7 @@
 #ifndef SCRIPTINGACCESSI_H_
 #define SCRIPTINGACCESSI_H_
 
+#include "../rtt-config.h"
 #include "ScriptingAccessS.h"
 #include "OperationsC.h"
 #include "../ScriptingAccess.hpp"

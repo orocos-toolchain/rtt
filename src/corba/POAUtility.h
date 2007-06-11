@@ -39,6 +39,7 @@
 #ifndef RTT_CORBA_POAUTILITY_H_
 #define RTT_CORBA_POAUTILITY_H_
 
+#include "../rtt-config.h"
 #include <tao/corba.h>
 #include <tao/PortableServer/PortableServer.h>
 

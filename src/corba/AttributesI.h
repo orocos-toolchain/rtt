@@ -69,6 +69,7 @@
 #ifndef ATTRIBUTESI_H_
 #define ATTRIBUTESI_H_
 
+#include "../rtt-config.h"
 #include "AttributesS.h"
 #include "../AttributeRepository.hpp"
 #include "../PropertyBag.hpp"

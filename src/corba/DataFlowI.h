@@ -69,6 +69,7 @@
 #ifndef DATAFLOWI_H_
 #define DATAFLOWI_H_
 
+#include "../rtt-config.h"
 #include "DataFlowS.h"
 #include "../DataFlowInterface.hpp"
 #include "../BufferInterface.hpp"

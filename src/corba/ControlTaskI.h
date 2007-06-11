@@ -69,6 +69,7 @@
 #ifndef CONTROLTASKI_H_
 #define CONTROLTASKI_H_
 
+#include "../rtt-config.h"
 #include "ControlTaskS.h"
 #include "OperationInterfaceC.h"
 #include "AttributesC.h"

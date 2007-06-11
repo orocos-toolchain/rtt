@@ -69,6 +69,7 @@
 #ifndef FACTORIESI_H_
 #define FACTORIESI_H_
 
+#include "../rtt-config.h"
 #include "OperationInterfaceS.h"
 #include "../OperationInterface.hpp"
 
