@@ -33,7 +33,7 @@ macro( DOCBOOK_TO_PDF RESULT XSLT_SHEET )
       #MESSAGE( "Converting ${_current_FILE} to ${_current_PDFFILE}" )
       add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${_current_PDFFILE}
 	COMMAND XML_CATALOG_FILES=${_catalog_FILES} xsltproc --xinclude ${CMAKE_CURRENT_SOURCE_DIR}/${XSLT_SHEET} ${CMAKE_CURRENT_SOURCE_DIR}/${_current_FILE} > ${_current_FOPFILE}
-	COMMAND fop ${_current_FOPFILE} ${_current_PDFFILE}
+	COMMAND JAVA_OPTS="-Xmx768m" fop ${_current_FOPFILE} ${_current_PDFFILE}
         COMMAND rm ${_current_FOPFILE}
 	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${_current_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/${XSLT_SHEET} ${_catalog_FILES}
 	)

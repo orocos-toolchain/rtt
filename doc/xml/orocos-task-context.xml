@@ -104,8 +104,11 @@
 	Tasks Run in Threads
       </title>
       <mediaobject>
-	<imageobject>
+	<imageobject role="html">
 	  <imagedata fileref="images/TaskPeers" />
+	</imageobject>
+	<imageobject role="fo">
+	  <imagedata fileref="images/hires/TaskPeers" />
 	</imageobject>
 	<caption>
 	  <para>
@@ -188,8 +191,11 @@
 	Schematic Overview of a TaskContext
       </title>
       <mediaobject>
-	<imageobject>
+	<imageobject role="html">
 	  <imagedata fileref="images/ATaskContext" />
+	</imageobject>
+	<imageobject role="fo">
+	  <imagedata fileref="images/hires/ATaskContext" />
 	</imageobject>
 	<caption>
 	  <para>The Execution Flow is formed by Programs and
@@ -225,8 +231,8 @@
 	<imageobject role="html">
 	  <imagedata fileref="images/HelloWorld" />
 	</imageobject>
-	<imageobject>
-	  <imagedata fileref="images/HelloWorld" />
+	<imageobject role="fo">
+	  <imagedata fileref="images/hires/HelloWorld" />
 	</imageobject>
 	<caption>
 	  <para>Our hello world task.
@@ -705,8 +711,8 @@ the_data_port.     cd            ls
 	<imageobject role="html">
 	  <imagedata fileref="images/ComponentArch-2" />
 	</imageobject>
-	<imageobject>
-	  <imagedata fileref="images/ComponentArch-2" />
+	<imageobject role="fo">
+	  <imagedata fileref="images/hires/ComponentArch-2" />
 	</imageobject>
 	<caption>
 	  <para>
@@ -735,8 +741,8 @@ the_data_port.     cd            ls
 	<imageobject role="html">
 	  <imagedata fileref="images/ComponentStates" />
 	</imageobject>
-	<imageobject>
-	  <imagedata fileref="images/ComponentStates" />
+	<imageobject role="fo">
+	  <imagedata fileref="images/hires/ComponentStates" />
 	</imageobject>
 	<caption>
 	  <para>
@@ -892,8 +898,8 @@ the_data_port.     cd            ls
 	<imageobject role="html">
 	  <imagedata fileref="images/TaskContextExecution" />
 	</imageobject>
-	<imageobject>
-	  <imagedata fileref="images/TaskContextExecution" />
+	<imageobject role="fo">
+	  <imagedata fileref="images/hires/TaskContextExecution" />
 	</imageobject>
 	<caption>
 	  <para>You can make a TaskContext '(re-)active' by creating
@@ -1003,8 +1009,8 @@ the_data_port.     cd            ls
 	<imageobject role="html">
 	  <imagedata fileref="images/ATaskContext" />
 	</imageobject>
-	<imageobject>
-	  <imagedata fileref="images/ATaskContext" />
+	<imageobject role="fo">
+	  <imagedata fileref="images/hires/ATaskContext" />
 	</imageobject>
 	<caption>
 	  <para>
@@ -1030,7 +1036,7 @@ the_data_port.     cd            ls
 	<imageobject role="fop">
 	  <imagedata width="5cm" fileref="images/DataFlowInterface" />
 	</imageobject>
-	<imageobject>
+	<imageobject role="html">
 	  <imagedata fileref="images/DataFlowInterface" />
 	</imageobject>
       </mediaobject>
@@ -1298,7 +1304,7 @@ the_data_port.     cd            ls
 	<imageobject role="fop">
 	  <imagedata width="5cm" fileref="images/MethodInterface" />
 	</imageobject>
-	<imageobject>
+	<imageobject role="html">
 	  <imagedata fileref="images/MethodInterface" />
 	</imageobject>
       </mediaobject>
@@ -1534,7 +1540,7 @@ the_data_port.     cd            ls
 	<imageobject role="fop">
 	  <imagedata width="5cm" fileref="images/PropertyInterface" />
 	</imageobject>
-	<imageobject>
+	<imageobject role="html">
 	  <imagedata fileref="images/PropertyInterface" />
 	</imageobject>
       </mediaobject>
@@ -1673,7 +1679,7 @@ the_data_port.     cd            ls
 	<imageobject role="fop">
 	  <imagedata width="5cm" fileref="images/CommandInterface" />
 	</imageobject>
-	<imageobject>
+	<imageobject role="html">
 	  <imagedata fileref="images/CommandInterface" />
 	</imageobject>
       </mediaobject>
@@ -1880,7 +1886,7 @@ the_data_port.     cd            ls
 	<imageobject role="fop">
 	  <imagedata width="5cm" fileref="images/EventInterface" />
 	</imageobject>
-	<imageobject>
+	<imageobject role="html">
 	  <imagedata fileref="images/EventInterface" />
 	</imageobject>
       </mediaobject>
@@ -2076,8 +2082,11 @@ the_data_port.     cd            ls
     <section>
       <title>Setting up the Execution Flow</title>
       <mediaobject>
-	<imageobject>
+	<imageobject role="html">
 	  <imagedata fileref="images/ConnectPeers" />
+	</imageobject>
+	<imageobject role="fo">
+	  <imagedata fileref="images/hires/ConnectPeers" />
 	</imageobject>
 	<caption>
 	  <para>
@@ -2157,11 +2166,11 @@ the_data_port.     cd            ls
     writer (sender) to reader (receiver).
     </para>
     <mediaobject>
-	<imageobject role="fop">
+	<imageobject role="html">
 	  <imagedata fileref="images/DataFlowTopology" />
 	</imageobject>
-	<imageobject>
-	  <imagedata fileref="images/DataFlowTopology" />
+	<imageobject role="fo">
+	  <imagedata fileref="images/hires/DataFlowTopology" />
 	</imageobject>
 	<caption>
 	  <para>
@@ -2213,8 +2222,11 @@ the_data_port.     cd            ls
     the connection itself is disconnected.
     </para>
     <mediaobject>
-	<imageobject>
+	<imageobject role="html">
 	  <imagedata fileref="images/DataFlowDisconnect" />
+	</imageobject>
+	<imageobject role="fo">
+	  <imagedata fileref="images/hires/DataFlowDisconnect" />
 	</imageobject>
 	<caption>
 	  <para>
@@ -2436,8 +2448,8 @@ the_data_port.     cd            ls
 	  <imageobject role="html">
 	    <imagedata fileref="images/DeploymentLevels" />
 	  </imageobject>
-	  <imageobject>
-	    <imagedata fileref="images/DeploymentLevels" />
+	  <imageobject role="fo">
+	    <imagedata fileref="images/hires/DeploymentLevels" />
 	  </imageobject>
 	  <caption>
 	    <para>
@@ -2565,8 +2577,8 @@ the_data_port.     cd            ls
 	  <imageobject role="html">
 	    <imagedata fileref="images/CoreVsContext" />
 	  </imageobject>
-	  <imageobject>
-	    <imagedata fileref="images/CoreVsContext" />
+	  <imageobject role="fo">
+	    <imagedata fileref="images/hires/CoreVsContext" />
 	  </imageobject>
 	  <caption>
 	    <para>

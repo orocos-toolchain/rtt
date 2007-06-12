@@ -127,8 +127,11 @@ of the physical interfaces they use underneath. You just want to know the
       <para> 
 	<figure><title>Device Interface Overview</title>
 	  <mediaobject>
-	    <imageobject>
+	    <imageobject role="html">
 	      <imagedata fileref="images/fdi" />
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata fileref="images/hires/fdi" />
 	    </imageobject>
 	  </mediaobject>
 	</figure>

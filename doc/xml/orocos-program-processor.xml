@@ -220,8 +220,11 @@
       </para>
 	<figure><title>Executing Program Statements</title>
 	  <mediaobject>
-	    <imageobject>
+	    <imageobject role="html">
 	      <imagedata fileref="images/ProgramTransitions" />
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata fileref="images/hires/ProgramTransitions" />
 	    </imageobject>
 	  </mediaobject>
 	</figure>
@@ -232,8 +235,11 @@
       </para>
 	<figure><title>Using a Program</title>
 	  <mediaobject>
-	    <imageobject>
+	    <imageobject role="html">
 	      <imagedata fileref="images/ProgramStates" />
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata fileref="images/hires/ProgramStates" />
 	    </imageobject>
 	  </mediaobject>
 	</figure>
@@ -288,8 +294,11 @@
       </para>
 	<figure><title>Executing a StateMachine</title>
 	  <mediaobject>
-	    <imageobject>
+	    <imageobject role="html">
 	      <imagedata fileref="images/StateTransitions" />
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata fileref="images/hires/StateTransitions" />
 	    </imageobject>
 	  </mediaobject>
 	</figure>
@@ -313,8 +322,11 @@
       </para>
 	<figure><title>Using a StateMachine</title>
 	  <mediaobject>
-	    <imageobject>
+	    <imageobject role="html">
 	      <imagedata fileref="images/MachineStates" />
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata fileref="images/hires/MachineStates" />
 	    </imageobject>
 	</mediaobject>
 	</figure>
@@ -361,8 +373,11 @@
      // still busy ! </programlisting>
       <figure><title>Tasks Sending Commands</title>
 	<mediaobject>
-	  <imageobject>
+	  <imageobject role="html">
 	    <imagedata fileref="images/TaskCommandSerialisation" />
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="images/hires/TaskCommandSerialisation" />
 	  </imageobject>
 	  <caption>
 	    <para>
@@ -411,8 +426,11 @@
       </para>
 	<figure><title>A Generic Functor</title>
 	  <mediaobject>
-	    <imageobject>
+	    <imageobject role="html">
 	      <imagedata width="7.5cm" fileref="images/Functor" />
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata width="7.5cm" fileref="images/hires/Functor" />
 	    </imageobject>
 	  </mediaobject>
 	</figure>

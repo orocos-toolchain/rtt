@@ -90,6 +90,9 @@
 	<imageobject role="html">
 	  <imagedata fileref="images/RTT_KDL_BFL_400" />
 	</imageobject>
+	<imageobject role="fo">
+	  <imagedata fileref="images/RTT_KDL_BFL_fill" />
+	</imageobject>
       </mediaobject>
     </figure>
     <itemizedlist>
@@ -154,8 +157,8 @@
       <imageobject role="html">
 	<imagedata fileref="images/FrameworkOverview" />
       </imageobject>
-      <imageobject>
-	<imagedata fileref="images/FrameworkOverview" />
+      <imageobject role="fo">
+	<imagedata fileref="images/hires/FrameworkOverview" />
       </imageobject>
     </mediaobject>
     <para>
@@ -244,8 +247,8 @@
 	  <imageobject role="html">
 	    <imagedata fileref="images/RealTimeToolkit" />
 	  </imageobject>
-	  <imageobject>
-	    <imagedata fileref="images/RealTimeToolkit" />
+	  <imageobject role="fo">
+	    <imagedata fileref="images/hires/RealTimeToolkit" />
 	  </imageobject>
 	</mediaobject>
       </figure>
@@ -287,8 +290,8 @@
 	    <imageobject role="html">
 	      <imagedata fileref="images/ComponentInterface" />
 	  </imageobject>
-	    <imageobject>
-	      <imagedata fileref="images/ComponentInterface" />
+	    <imageobject role="fo">
+	      <imagedata fileref="images/hires/ComponentInterface" />
 	  </imageobject>
 	  </mediaobject>
 	</figure>
@@ -368,8 +371,8 @@
 	    <imageobject role="html">
 	      <imagedata fileref="images/ComponentImplementation" />
 	  </imageobject>
-	    <imageobject>
-	      <imagedata fileref="images/ComponentImplementation" />
+	    <imageobject role="fo">
+	      <imagedata fileref="images/hires/ComponentImplementation" />
 	  </imageobject>
 	  </mediaobject>
 	</figure>

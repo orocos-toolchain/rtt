@@ -356,8 +356,11 @@
       <para>
 	<figure><title>Execution sequence diagram</title>
 	  <mediaobject>
-	    <imageobject>
+	    <imageobject role="html">
 	      <imagedata fileref="images/execution-sequence" />
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata fileref="images/hires/execution-sequence" />
 	    </imageobject>
 	    <!--
 	    <caption><para>
@@ -655,8 +658,11 @@ ORO_main( int argc, char** argv)
       </para>
       <figure><title>Tasks Sending Commands</title>
 	<mediaobject>
-	  <imageobject>
+	  <imageobject role="html">
 	    <imagedata fileref="images/CommandExecution" />
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="images/hires/CommandExecution" />
 	  </imageobject>
 	  <caption>
 	    <para>
@@ -693,8 +699,11 @@ ORO_main( int argc, char** argv)
     </para>
     <figure><title>Event Handling</title>
     <mediaobject>
-      <imageobject>
+      <imageobject role="html">
 	<imagedata fileref="images/TaskEventSerialisation" />
+      </imageobject>
+      <imageobject role="fo">
+	<imagedata fileref="images/hires/TaskEventSerialisation" />
       </imageobject>
       <caption><para>Activity A1 runs in PeriodicThread (a) while Activity A2
       runs in PeriodicThread (b). At some time, A1 registers a
@@ -1282,8 +1291,11 @@ emergencyStop(); // User not notified</programlisting>
     </para>
     <figure><title>DataObjects versus Buffers</title>
     <mediaobject>
-      <imageobject>
+      <imageobject role="html">
 	<imagedata fileref="images/DataObjectBuffer" />
+      </imageobject>
+      <imageobject role="fo">
+	<imagedata fileref="images/hires/DataObjectBuffer" />
       </imageobject>
       <caption><para>DataObjects are most suitable for single writer, many readers,
       and always return the last written value. Buffers have a fixed queue length

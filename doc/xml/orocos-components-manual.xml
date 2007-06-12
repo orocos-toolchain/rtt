@@ -92,8 +92,8 @@
 	  <imageobject role="html">
 	    <imagedata fileref="images/FrameworkOverview" />
 	  </imageobject>
-	  <imageobject>
-	    <imagedata fileref="images/FrameworkOverview" />
+	  <imageobject role="fo">
+	    <imagedata fileref="images/hires/FrameworkOverview" />
 	  </imageobject>
 	</mediaobject>
       </figure>
@@ -113,8 +113,8 @@
 	  <imageobject role="html">
 	    <imagedata fileref="images/ApplicationStack" />
 	  </imageobject>
-	  <imageobject>
-	    <imagedata fileref="images/ApplicationStack" />
+	  <imageobject role="fo">
+	    <imagedata fileref="images/hires/ApplicationStack" />
 	  </imageobject>
 	</mediaobject>
       </figure>

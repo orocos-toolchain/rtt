@@ -153,8 +153,11 @@
 	respect to device driver interfacing (DI) and the rest of
 	&orocos; <figure><title>OS Interface overview</title>
 	  <mediaobject>
-	    <imageobject>
+	    <imageobject role="html">
 	      <imagedata fileref="images/FDIvsFOSI" />
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata fileref="images/hires/FDIvsFOSI" />
 	    </imageobject>
 	  </mediaobject>
       </figure>
