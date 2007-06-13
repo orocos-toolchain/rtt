@@ -13,14 +13,8 @@
       The Orocos Task Infrastructure Manual
     </title>
     <subtitle>Designing Real-Time Orocos Applications</subtitle>
-    <authorgroup>
-      <author>
-	<firstname>Peter</firstname>
-	<surname>Soetens</surname>
-      </author>
-    </authorgroup>
     <copyright>
-      <year>2004,2005,2006</year>
+      <year>2004,2005,2006,2007</year>
       <holder>Peter Soetens</holder>
     </copyright>
     
@@ -32,48 +26,6 @@
       </para>
     </abstract>
     
-    <revhistory>
-      <revision>
-	<revnumber>0.18.0</revnumber>
-	<date>19 Nov 2004</date>
-	<authorinitials>PS</authorinitials>
-	<revremark>Initial version</revremark>
-      </revision>
-      <revision>
-	<revnumber>0.20.0</revnumber>
-	<date>1 May 2005</date>
-	<authorinitials>PS</authorinitials>
-	<revremark>Moved TaskBrowser to front and updated to ProgramLoader</revremark>
-      </revision>
-      <revision>
-	<revnumber>0.22.0</revnumber>
-	<date>January 2006</date>
-	<authorinitials>PS</authorinitials>
-	<revremark>Updates on new Execution Engine</revremark>
-      </revision>
-      <revision>
-	<revnumber>0.22.0</revnumber>
-	<date>17 February 2006</date>
-	<authorinitials>PS</authorinitials>
-	<revremark>Went through biggest part of manual to 'prettyfy' examples.
-	Cut out all the developer specific comments.</revremark>
-      </revision>
-      <revision>
-	<revnumber>0.25.0</revnumber>
-	<date>18 July 2006</date>
-	<authorinitials>PS</authorinitials>
-	<revremark>New command and method semantics. Added Hello World example
-	instead of complexer task-intro example.</revremark>
-      </revision>
-      <revision>
-	<revnumber>0.25.1</revnumber>
-	<date>September 2006</date>
-	<authorinitials>PS</authorinitials>
-	<revremark>Improved Hello World Example. Added figures, added Deployment
-	section (TaskCore,...) Documented new connection functions.</revremark>
-      </revision>
-    </revhistory>
-
     <legalnotice>
       <para>
 	Permission is granted to copy, distribute and/or modify this document
@@ -153,14 +105,14 @@
       </itemizedlist>
     </para>
     <para>
-      This document relates to other manuals as such :
+      This chapter relates to other chapters as such :
       <glosslist>
 	<glossentry>
 	  <glossterm>Core Library</glossterm>
 	  <glossdef>
-	    <para> provides the Event infrastructure,
-	      activity to thread mapping, Properties and lock-free data exchange
-	      implementations.
+	    <para> provides the Command and Event infrastructure, activity to
+	    thread mapping, Properties and lock-free data exchange
+	    implementations.
 	    </para>
 	  </glossdef>
 	</glossentry>
@@ -168,14 +120,15 @@
 	  <glossterm>Execution Engine</glossterm>
 	  <glossdef>
 	    <para> provides a real-time program execution framework.
-	    It executes the real-time programs which interact with other tasks.
+	    It executes the real-time programs and scripts which
+	    interact with other tasks.
 	    </para>
 	  </glossdef>
 	</glossentry>
 	<glossentry>
-	  <glossterm>Program Parser</glossterm>
+	  <glossterm>Orocos Scripting</glossterm>
 	  <glossdef>
-	    <para> provides a scripting language which is convertible to
+	    <para> provides a real-time scripting language which is convertible to
 	    a form which can be accepted by the Execution Engine.
 	    </para>
 	  </glossdef>
@@ -183,7 +136,7 @@
       </glosslist>
     </para>
     <para>
-      The Scripting manual gives more details about script syntax
+      The Scripting chapter gives more details about script syntax
       for state machines and programs.
     </para>
     <figure id="fig-a-task-context">

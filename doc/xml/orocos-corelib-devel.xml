@@ -10,18 +10,8 @@
 <article>
   <articleinfo>
     <title>Inside the Orocos Core Library Manual</title>
-    <authorgroup>
-      <author>
-	<firstname>Peter</firstname>
-	<surname>Soetens</surname>
-	<affiliation>
-	  <orgname>K.U.Leuven</orgname>
-	  <address><country>Belgium</country></address>
-	</affiliation>
-      </author>
-    </authorgroup>
     <copyright>
-      <year>2006</year>
+      <year>2006,2007</year>
       <holder>Peter Soetens, Herman Bruyninckx</holder>
     </copyright>
 

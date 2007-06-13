@@ -32,48 +32,6 @@
 
     <revhistory>
       <revision>
-	<revnumber>0.01</revnumber>
-	<date>28 Oct 2003</date>
-	<authorinitials>ps</authorinitials>
-	<revremark>Initial version</revremark>
-      </revision>
-      <revision>
-	<revnumber>0.02</revnumber>
-	<date>21 Jan 2004</date>
-	<authorinitials>ps</authorinitials>
-	<revremark>ecostools updates</revremark>
-      </revision>
-      <revision>
-	<revnumber>0.18.0</revnumber>
-	<date>1 Dec 2004</date>
-	<authorinitials>ps</authorinitials>
-	<revremark>easier make system documented, reordered the sections</revremark>
-      </revision>
-      <revision>
-	<revnumber>0.20.0</revnumber>
-	<date>28 Feb 2005</date>
-	<authorinitials>ps</authorinitials>
-	<revremark>added upgrade section</revremark>
-      </revision>
-      <revision>
-	<revnumber>0.22.0</revnumber>
-	<date>17 Feb 2006</date>
-	<authorinitials>ps</authorinitials>
-	<revremark>Simplified configuration section, removed RTLinux, added Xenomai</revremark>
-      </revision>
-      <revision>
-	<revnumber>0.25.0</revnumber>
-	<date>17 Aug 2006</date>
-	<authorinitials>ps</authorinitials>
-	<revremark>Updated directory structure.</revremark>
-      </revision>
-      <revision>
-	<revnumber>1.0.0</revnumber>
-	<date>27 Okt 2006</date>
-	<authorinitials>ps</authorinitials>
-	<revremark>Simplified build system.</revremark>
-      </revision>
-      <revision>
 	<revnumber>1.0.0</revnumber>
 	<date>27 Okt 2006</date>
 	<authorinitials>ps</authorinitials>

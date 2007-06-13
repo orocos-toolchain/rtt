@@ -10,28 +10,8 @@
 <article>
   <articleinfo>
     <title>Orocos Hardware Device Interface</title>
-    <authorgroup>
-      <author>
-	<firstname>Peter</firstname>
-	<surname>Soetens</surname>
-	<affiliation>
-	  <orgname>K.U.Leuven</orgname>
-	  <address><country>Belgium</country></address>
-	</affiliation>
-      </author>
-
-      <author>
-	<firstname>Herman</firstname>
-	<surname>Bruyninckx</surname>
-	<affiliation>
-	  <orgname>K.U.Leuven</orgname>
-	  <address><country>Belgium</country></address>
-	</affiliation>
-      </author>
-      
-    </authorgroup>
     <copyright>
-      <year>2002,2003,2004,2005,2006</year>
+      <year>2002,2003,2004,2005,2006,2007</year>
       <holder>Peter Soetens, Herman Bruyninckx</holder>
     </copyright>
 

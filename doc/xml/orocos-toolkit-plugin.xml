@@ -9,16 +9,6 @@
 <article>
   <articleinfo>
     <title>Extending the Real-Time Toolkit</title>
-    <authorgroup>
-      <author>
-	<firstname>Peter</firstname>
-	<surname>Soetens</surname>
-	<affiliation>
-	  <orgname>FMTC/K.U.Leuven</orgname>
-	  <address><country>Belgium</country></address>
-	</affiliation>
-      </author>
-    </authorgroup>
     <copyright>
       <year>2006</year>
       <holder>Peter Soetens, FMTC</holder>

@@ -13,18 +13,8 @@
       The Orocos Scripting Reference Manual
     </title>
     <subtitle><emphasis>Open RObot COntrol Software</emphasis></subtitle>
-    <authorgroup>
-      <author>
-	<firstname>Dominique</firstname>
-	<surname>Devriese</surname>
-      </author>
-      <author>
-	<firstname>Peter</firstname>
-	<surname>Soetens</surname>
-      </author>
-    </authorgroup>
     <copyright>
-      <year>2003,2004,2005,2006</year>
+      <year>2003,2004,2005,2006,2007</year>
       <holder>Peter Soetens, Herman Bruyninckx</holder>
     </copyright>
     
