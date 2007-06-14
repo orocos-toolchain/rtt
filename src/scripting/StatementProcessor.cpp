@@ -108,7 +108,7 @@ namespace RTT
         {
             comms.push_back( boost::tuple<int, DispatchInterface*, ConditionInterface*,std::string>(seq, command, cond, code) );
             Logger::log() <<Logger::Info<<"Executing Command ("<<seq<<") '"<< code << "'..." <<Logger::endl;
-            command->execute();
+            command->dispatch();
             ++seq;
             return seq -1;
         }
