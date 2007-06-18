@@ -59,7 +59,7 @@ namespace RTT
          */
         class D;
         D* d;
-        DispatchInterface* cc;
+        DispatchInterface::shared_ptr cc;
     public:
         /**
          * The default constructor
@@ -84,6 +84,12 @@ namespace RTT
          * @param di The command, the CommandC takes ownership.
          */
         CommandC(DispatchInterface* di);
+
+        /**
+         * Create a CommandC object from a dispatch command.
+         * @param di The command shares ownership of di.
+         */
+        CommandC(DispatchInterface::shared_ptr di);
 
         /**
          * A CommandC is assignable.

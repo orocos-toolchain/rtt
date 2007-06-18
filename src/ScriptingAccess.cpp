@@ -64,8 +64,8 @@ namespace RTT
         return -1;
     }
 
-    CommandC ScriptingAccess::getCommand(int ticket) {
-        return CommandC();
+    DispatchInterface::shared_ptr ScriptingAccess::getCommand(int ticket) {
+        return DispatchInterface::shared_ptr();
     }
 
     ScriptingAccess::Functions  ScriptingAccess::loadFunctions( std::string file, bool do_throw/* = false*/ )

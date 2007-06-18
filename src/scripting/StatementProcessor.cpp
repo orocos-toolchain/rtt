@@ -61,13 +61,13 @@ namespace RTT
     struct StatementProcessor::D
     {
         TaskContext* tc;
-        std::vector<boost::tuple<int, DispatchInterface*, ConditionInterface*, std::string> > comms;
+        std::vector<boost::tuple<int, DispatchInterface::shared_ptr, ConditionInterface*, std::string> > comms;
         int seq;
         D() : seq(0) {}
 
         void checkFinished()
         {
-            std::vector<boost::tuple<int, DispatchInterface*, ConditionInterface*, std::string> >::iterator it = comms.begin();
+            std::vector<boost::tuple<int, DispatchInterface::shared_ptr, ConditionInterface*, std::string> >::iterator it = comms.begin();
             while( it != comms.end() )
                 {
                     if ( it->get<1>()->valid() && it->get<2>()->evaluate() == true ) {
@@ -95,18 +95,18 @@ namespace RTT
                 }
         }
 
-        CommandC getCommand(int cnr)
+        DispatchInterface::shared_ptr getCommand(int cnr)
         {
-            std::vector<boost::tuple<int, DispatchInterface*, ConditionInterface*, std::string> >::iterator it = comms.begin();
+            std::vector<boost::tuple<int, DispatchInterface::shared_ptr, ConditionInterface*, std::string> >::iterator it = comms.begin();
             while( it != comms.end() )
                 if ( it->get<0>() == cnr )
-                    return CommandC( it->get<1>() );
-            return CommandC();
+                    return it->get<1>();
+            return DispatchInterface::shared_ptr();
         }
 
         int add(DispatchInterface* command, ConditionInterface* cond, std::string code)
         {
-            comms.push_back( boost::tuple<int, DispatchInterface*, ConditionInterface*,std::string>(seq, command, cond, code) );
+            comms.push_back( boost::tuple<int, DispatchInterface::shared_ptr, ConditionInterface*,std::string>(seq, DispatchInterface::shared_ptr(command), cond, code) );
             Logger::log() <<Logger::Info<<"Executing Command ("<<seq<<") '"<< code << "'..." <<Logger::endl;
             command->dispatch();
             ++seq;
@@ -245,7 +245,7 @@ namespace RTT
         d->checkFinished();
     }
     
-    CommandC StatementProcessor::getCommand(int cnr) {
+    DispatchInterface::shared_ptr StatementProcessor::getCommand(int cnr) {
         Logger::In in("StatementProcessor");
         return d->getCommand(cnr);
     }

@@ -40,7 +40,7 @@
 #define ORO_EXECUTION_STATEMENT_PROCESSOR_HPP
 
 #include <string>
-#include "../CommandC.hpp"
+#include "../DispatchInterface.hpp"
 #include "../rtt-config.h"
 
 namespace RTT
@@ -76,7 +76,7 @@ namespace RTT
         /**
          * Return the command with the ticket number \a cnr.
          */
-        CommandC getCommand( int cnr );
+        DispatchInterface::shared_ptr getCommand( int cnr );
     };
 
 

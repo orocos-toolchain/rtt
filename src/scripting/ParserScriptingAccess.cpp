@@ -143,10 +143,10 @@ Use this object in order to load or query programs or state machines.");
         return sproc->execute( code );
     }
 
-    CommandC ParserScriptingAccess::getCommand( int ticket ){
+    DispatchInterface::shared_ptr ParserScriptingAccess::getCommand( int ticket ){
         if (sproc)
             return sproc->getCommand(ticket);
-        return CommandC();
+        return DispatchInterface::shared_ptr();
     }
 
     ParserScriptingAccess::Functions  ParserScriptingAccess::loadFunctions( std::string file, bool do_throw/* = false*/ )

@@ -117,14 +117,19 @@ namespace RTT
     CommandC::CommandC(DispatchInterface* di)
         : d(0), cc()
     {
-        this->cc = di;
+        this->cc.reset( di );
+    }
+
+    CommandC::CommandC(DispatchInterface::shared_ptr di)
+        : d(0), cc(di)
+    {
     }
 
     CommandC::CommandC(const CommandRepository::Factory* cr, const std::string& name)
         : d( cr ? new D( cr, name) : 0 ), cc()
     {
         if ( d->comcon.first ) {
-            this->cc = d->comcon.first->clone();
+            this->cc.reset( d->comcon.first->clone() );
             delete d;
             d = 0;
         }
@@ -134,19 +139,18 @@ namespace RTT
         : d( other.d ? new D(*other.d) : 0 ), cc()
     {
         if (other.cc)
-            this->cc = other.cc->clone();
+            this->cc.reset( other.cc->clone() );
     }
 
     CommandC& CommandC::operator=( const CommandC& other )
     {
         delete d;
-        delete cc;
 
         if ( other.d )
             d = new D(*other.d);
         else {
             if (other.cc)
-                this->cc = other.cc->clone();
+                this->cc.reset( other.cc->clone() );
         }
         return *this;
     }
@@ -154,7 +158,6 @@ namespace RTT
     CommandC::~CommandC()
     {
         delete d;
-        delete cc;
     }
 
     CommandC& CommandC::arg( DataSourceBase::shared_ptr a )
@@ -165,7 +168,7 @@ namespace RTT
             Logger::log() <<Logger::Warning << "Extra argument discarded for CommandC."<<Logger::endl;
         }
         if ( d && d->comcon.first ) {
-            this->cc = d->comcon.first->clone();
+            this->cc.reset( d->comcon.first->clone() );
             delete d;
             d = 0;
         }
@@ -175,7 +178,7 @@ namespace RTT
     bool CommandC::ready() const {
         // if no d pointer present, we have built the command.
         // analogous to cc != 0
-        return d == 0 && cc != 0;
+        return d == 0 && cc;
     }
 
     bool CommandC::execute() {

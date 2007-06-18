@@ -41,6 +41,7 @@
  
 #include "CommandInterface.hpp"
 #include "ConditionInterface.hpp"
+#include <boost/shared_ptr.hpp>
 
 namespace RTT
 {
@@ -51,6 +52,12 @@ namespace RTT
         : public CommandInterface
     {
     public:
+        /**
+         * If you want to share ownership of DispatchInterface instances, use
+         * this shared_ptr type.
+         */
+        typedef boost::shared_ptr<DispatchInterface> shared_ptr;
+
         /**
          * The status progressions of a Dispatchable Command.
          * The order of these enums is important and should not be altered.

@@ -42,7 +42,7 @@
 #include <vector>
 #include <string>
 #include "ProgramInterface.hpp"
-#include "CommandC.hpp"
+#include "DispatchInterface.hpp"
 
 namespace RTT
 {
@@ -82,7 +82,7 @@ namespace RTT
          * 
          * @return An object which represents the command.
          */
-        virtual CommandC getCommand( int ticket );
+        virtual DispatchInterface::shared_ptr getCommand( int ticket );
 
         /**
          * List of executed functions.

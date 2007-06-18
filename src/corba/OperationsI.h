@@ -75,7 +75,7 @@
 #include "OperationsC.h"
 #include "OperationsS.h"
 #include "CorbaConversion.hpp"
-#include "../CommandInterface.hpp"
+#include "../DispatchInterface.hpp"
 #include "../Logger.hpp"
 #include "../MethodC.hpp"
 #include "../DataSources.hpp"
@@ -1004,7 +1004,18 @@ protected:
     PortableServer::POA_var mpoa;
 public:
   //Constructor 
+    /**
+     * Create a CORBA servant for a CommandC object.
+     * @param orig A CommandC object being ready for receiving arg() calls. This is required
+     * for executeAny(), such that new arguments can be provided.
+     * @param c A CommandC object being ready for execute(). This is required for execute().
+     */
   Orocos_Command_i (RTT::CommandC& orig,RTT::CommandC& c, PortableServer::POA_ptr the_poa);
+
+  /**
+   * Create a CORBA servant for a CommandC object without executeAny() support.
+   */
+  Orocos_Command_i (RTT::DispatchInterface::shared_ptr orig, PortableServer::POA_ptr the_poa);
 
     PortableServer::POA_ptr _default_POA()
     {

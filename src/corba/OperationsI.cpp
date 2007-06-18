@@ -109,6 +109,11 @@ Orocos_Command_i::Orocos_Command_i ( CommandC& orig, CommandC& comm, PortableSer
 {
 }
 
+Orocos_Command_i::Orocos_Command_i ( DispatchInterface::shared_ptr di, PortableServer::POA_ptr the_poa)
+    : morig( new CommandC( di->clone() ) ), mcomm( new CommandC( di )), mpoa( PortableServer::POA::_duplicate(the_poa) )
+{
+}
+
 // Implementation skeleton destructor
 Orocos_Command_i::~Orocos_Command_i (void)
 {
@@ -126,7 +131,7 @@ CORBA::Boolean Orocos_Command_i::execute (
   // Add your implementation here
     //Logger::In in("Orocos_Command_i");
     //Logger::log() <<Logger::Debug << "Executing CommandC."<<Logger::endl;
-    return morig->execute();
+    return mcomm->execute();
 }
 
 CORBA::Boolean Orocos_Command_i::executeAny (
@@ -137,7 +142,13 @@ CORBA::Boolean Orocos_Command_i::executeAny (
     ,::RTT::Corba::WrongNumbArgException
     ,::RTT::Corba::WrongTypeArgException
 	  )) {
-      mcomm = morig;
+    // if morig is already set, we can not create a new command.
+    if ( morig->ready() ) {
+        Logger::In in("executeAny()");
+        log(Error) << "This CORBA Command does not support execution with new arguments." <<endlog();
+        return false;
+    }
+      *mcomm = *morig;
     try {
         for (size_t i =0; i != args.length(); ++i)
             mcomm->arg( DataSourceBase::shared_ptr( new ValueDataSource<CORBA::Any_var>( new CORBA::Any( args[i] ) )));
@@ -163,8 +174,8 @@ CORBA::Boolean Orocos_Command_i::done (
 {
   // Add your implementation here
     //Logger::In in("Orocos_Command_i");
-    //Logger::log() <<Logger::Debug << "Evaluating CommandC:"<<morig->done()<<Logger::endl;
-    return morig->done();
+    //Logger::log() <<Logger::Debug << "Evaluating CommandC:"<<mcomm->done()<<Logger::endl;
+    return mcomm->done();
 }
 
 CORBA::Boolean Orocos_Command_i::executed (
@@ -175,7 +186,7 @@ CORBA::Boolean Orocos_Command_i::executed (
   ))
 {
   // Add your implementation here
-    return morig->executed();
+    return mcomm->executed();
 }
 
 CORBA::Boolean Orocos_Command_i::sent (
@@ -186,7 +197,7 @@ CORBA::Boolean Orocos_Command_i::sent (
   ))
 {
   // Add your implementation here
-    return morig->sent();
+    return mcomm->sent();
 }
 
 CORBA::Boolean Orocos_Command_i::accepted (
@@ -197,7 +208,7 @@ CORBA::Boolean Orocos_Command_i::accepted (
   ))
 {
   // Add your implementation here
-    return morig->accepted();
+    return mcomm->accepted();
 }
 
 CORBA::Boolean Orocos_Command_i::valid (
@@ -208,7 +219,7 @@ CORBA::Boolean Orocos_Command_i::valid (
   ))
 {
   // Add your implementation here
-    return morig->valid();
+    return mcomm->valid();
 }
 
 void Orocos_Command_i::reset (
@@ -219,7 +230,7 @@ void Orocos_Command_i::reset (
   ))
 {
   // Add your implementation here
-    return morig->reset();
+    return mcomm->reset();
 }
 
 void Orocos_Command_i::destroyCommand (
