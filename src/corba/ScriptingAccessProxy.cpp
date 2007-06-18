@@ -56,11 +56,11 @@ namespace RTT
         return msa->execute( code.c_str() );
     }
 
-    CommandC ScriptingAccessProxy::getCommand( int ticket ) {
+    DispatchInterface::shared_ptr ScriptingAccessProxy::getCommand( int ticket ) {
         Command_var result = msa->getCommand(ticket);
         if ( CORBA::is_nil(result) )
-            return CommandC();
-        return CommandC( CommandProxy::Create( result.in() ) );
+            return DispatchInterface::shared_ptr();
+        return DispatchInterface::shared_ptr( CommandProxy::Create( result.in() ) );
     }
 
     bool ScriptingAccessProxy::loadPrograms( string code, string filename, bool do_throw ) {
