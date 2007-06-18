@@ -33,7 +33,7 @@ function getoptions
 
     if [ $(expr match "$arg" "--prefix=") != 0 ]; then
 	CMAKE_PREFIX="${arg:9}"
-	CMAKE_ARGS="-DCMAKE_INSTALL_PREFIX=$CMAKE_PREFIX"
+	CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=$CMAKE_PREFIX"
     fi
     if [ $(expr match "$arg" "--with-xenomai") != 0 ]; then
         CMAKE_XENO_PATH="${arg:15}"
