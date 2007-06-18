@@ -40,7 +40,6 @@
 #define ORO_CORBACOMMANDFACTORY_HPP
 
 #include "../OperationFactory.hpp"
-#include "../ConditionBoolDataSource.hpp"
 #include "CommandProxy.hpp"
 #include "OperationInterfaceC.h"
 #include "CommandProxy.hpp"

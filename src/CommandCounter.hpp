@@ -45,7 +45,7 @@ namespace RTT
     /**
      * @brief This command increments a counter when executed. 
      *
-     * (Currently solely used by jilske for testing purposes.)
+     * @deprecated Remove this low-level class since it's nowhere used.
      */
     class CommandCounter
         : public CommandInterface

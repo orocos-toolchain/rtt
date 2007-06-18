@@ -42,7 +42,6 @@
 #include "CommandComposite.hpp"
 #include "CommandBinary.hpp"
 #include "CommandExecFunction.hpp"
-#include "CommandDispatch.hpp"
 #include "ConditionComposite.hpp"
 #include "TryCommand.hpp"
 #include <sstream>

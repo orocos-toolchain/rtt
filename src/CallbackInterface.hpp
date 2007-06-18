@@ -46,6 +46,7 @@ namespace RTT
      * A CallbackInterface allows you to signal an instance
      * that something has to be completed. This can be an Event,
      * or any other mechanism.
+     * @deprecated Remove this low-level class since it's nowhere used.
      */
     struct CallbackInterface
     {

@@ -84,8 +84,7 @@ namespace RTT
     /**
      * A command which queues (dispatches) a FunctionFraph for execution
      * in a ProgramProcessor. See ConditionExecFunction to check if
-     * it is done or not. It does not need the CommandDispatch
-     * to be thread-safe.
+     * it is done or not. 
      */
     class CommandExecFunction
         : public DispatchInterface

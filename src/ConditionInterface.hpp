@@ -52,6 +52,10 @@ namespace RTT
      * @brief This interface represents the concept of
      * a condition which can be evaluated and return
      * true or false.
+     * @todo This class is a light-weight implementation of a 
+     * DataSource<bool>. It may be profitable to remove this low
+     * level class and replace its use by DataSource<bool>. That
+     * would also cause the removal of most Condition* classes.
      */
     class ConditionInterface
     {

@@ -41,7 +41,6 @@
 #include "DispatchInterface.hpp"
 #include "TryCommand.hpp"
 #include "ConditionComposite.hpp"
-#include "ConditionBoolDataSource.hpp"
 #include "FactoryExceptions.hpp"
 #include "Logger.hpp"
 #include <Exceptions.hpp>

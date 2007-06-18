@@ -57,6 +57,15 @@ namespace RTT
             // This requires template specialisations on the TemplateFactory level.
             DataSource<StateMachineWPtr>* ptr = _this.get();
 
+            // I had to make activate() a command because the entry {}
+            // may contain commands upon which the state machine is
+            // not strictly active (entry executed and no transition
+            // in progress) when activate() returns, hence activate()
+            // takes time and is thus a command. This is however in
+            // violation with the concept of 'initialisation of the
+            // SM' which may contain non-rt safe code. When activate() is
+            // called directly upon the SM in C++, it _is_ a method, but
+            // with the same deficiencies.
             commands()->addCommandDS(ptr, command_ds("activate",
                                                &StateMachine::activate, &StateMachine::isStrictlyActive, mengine->commands()),
                                     "Activate this StateMachine to initial state and enter request Mode.");

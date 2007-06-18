@@ -57,6 +57,8 @@ namespace RTT
      * @see The Orocos CoreLib manual for usage.
      * @ingroup CoreLibEvents
      * @ingroup RTTComponentInterface
+     * @todo Remove NameServer functionality, as this is deprecated by the EventService
+     * class.
      */
     template<
         typename SignatureT // function type R (T1, T2, ..., TN)

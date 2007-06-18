@@ -49,32 +49,20 @@
 namespace RTT
 {
     /**
-     * @brief A nameserver for Orocos classes.
+     * @brief A nameserver for Orocos Device classes.
      *
-     * There will be a seperate nameserver for every class, it should be statically
-     * declared in the private section of the class and you should register your object
-     * in the constructor of your nameserved class.<br>
-     * <tt>
-     *
-     * advantages:
-     *  -> with this system you can ask a specific class for component "X" (
-     *   with X a string) and you will get immediately the right type
-     *   (or 0, which means the object of that type isn't registered)
-     *
-     * the possibilities of the nameserver are :
-     *  -> coupling a name to a typed pointer
-     *   Let's say you want object "Servoloop2" of type Servoloop (the type
-     *   may be the type of the instance itself or an ancestor class of the
-     *   instance). The code is very simple :
-     *    Servoloop::nameserver.getObject("Servoloop2")
-     *
-     *  -> getting all names registered in the nameservers
-     *   with the getnBegin() and getnEnd() will get you a name_iterator suitable for iterating
-     *   over all registered names
-     * </tt>
-     *
+     * This class allows to globally set up device driver objects and find them back
+     * in the same process by querying this class. Every Orocos device driver type has a
+     * Device::nameserver type which allows retrieval of the object:
+     @verbatim
+     // At application startup code:
+     Device* init_device = new Device("device_name");
+     // ...
+     // In other places:
+     Device* myDevice = Device::nameserver.getObject("device_name");
+     @endverbatim
      * In case two objects are registered with the same name, the first one is kept and the
-     * second one rejected.<br>
+     * second one rejected.
      *
      *  @param _ValueType  The type of objects you want to have nameserved( usually a pointer type ).
      * @ingroup CoreLib

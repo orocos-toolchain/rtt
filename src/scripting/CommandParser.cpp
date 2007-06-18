@@ -48,7 +48,6 @@
 #include "TaskContext.hpp"
 #include "ArgumentsParser.hpp"
 #include "ConditionComposite.hpp"
-#include "CommandDispatch.hpp"
 #include "DispatchAction.hpp"
 
 namespace RTT

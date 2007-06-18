@@ -50,6 +50,7 @@ namespace RTT
      * @brief A Command indicating that an error was encountered
      * somewhere, most likely during the construction of
      * another command.
+     * @deprecated Remove this low-level class since it's nowhere used.
      */
     class CommandIllegal
         : public CommandInterface

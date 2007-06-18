@@ -49,6 +49,7 @@ namespace RTT
   /**
    * ConditionBoolProperty is a Condition which reads out a
    * Property<bool>.
+   * @deprecated Remove this low-level class since it's nowhere used.
    */
   class ConditionBoolProperty
     : public ConditionInterface

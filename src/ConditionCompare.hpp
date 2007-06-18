@@ -53,6 +53,7 @@ namespace RTT
    * std::greater, std::greater_equal, std::equal_to and
    * std::not_equal_to or other binary predicate functors as
    * compare_op..
+   * @deprecated Remove this low-level class since it's nowhere used.
    */
   template<typename T, typename compare_op>
   class ConditionCompare

@@ -45,7 +45,7 @@ namespace RTT
 
 	/**
 	 * @brief This command displays a string when executed. 
-     * (Currently solely used by jilske for testing purposes.)
+     * @deprecated Remove this low-level class since it's nowhere used.
 	 */
 	class CommandString : public CommandInterface
 	{

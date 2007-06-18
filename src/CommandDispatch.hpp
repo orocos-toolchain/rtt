@@ -54,6 +54,7 @@ namespace RTT
      * on that the dispatched command failed. Hence, this execute()
      * must not wrapped in an AsyncCommandDecorator, but directly
      * executed by the caller.
+     * @deprecated This class is nowhere used and to low level for users.
      */
     class CommandDispatch
         : public DispatchInterface
