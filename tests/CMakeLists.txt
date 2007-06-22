@@ -26,11 +26,11 @@
       )
 
     # repeat for each test
-    ADD_EXECUTABLE( core-test ${DO_EXCLUDE} test-runner.cpp time_test.cpp property_test.cpp ) #logger_test.cpp buffers_test.cpp )
+    ADD_EXECUTABLE( core-test ${DO_EXCLUDE} test-runner.cpp time_test.cpp property_test.cpp logger_test.cpp buffers_test.cpp )
     TARGET_LINK_LIBRARIES( core-test orocos-rtt cppunit )
     ADD_TEST( core-test core-test )
 
-    ADD_EXECUTABLE( task-test ${DO_EXCLUDE} test-runner.cpp taskthread_test.cpp tasks_test.cpp tasks_multiple_test.cpp )
+    ADD_EXECUTABLE( task-test ${DO_EXCLUDE} test-runner.cpp tasks_test.cpp taskthread_test.cpp tasks_multiple_test.cpp )
     TARGET_LINK_LIBRARIES( task-test orocos-rtt cppunit )
     ADD_TEST( task-test task-test )
 
