@@ -231,7 +231,7 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
     static inline int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay )
     {
         CHK_XENO_CALL();
-        return rt_sem_p(m, rt_timer_ns2ticks(delay) );
+        return rt_sem_p(m, rt_timer_ns2ticks(delay) ) == 0 ? 0 : -1;
     }
 
     static inline int rtos_mutex_init(rt_mutex_t* m)

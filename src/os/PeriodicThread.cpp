@@ -325,7 +325,7 @@ namespace RTT
 
         // wait until the loop detects running == false
         // we wait 10 times 5*period.
-        while ( ret != 0 && cnt < 10 )
+        while ( ret == -1 && cnt < 10 )
             {
                 // given time in argument is relative to 'now'
                 ret = rtos_sem_wait_timed( &confDone, 5*period );

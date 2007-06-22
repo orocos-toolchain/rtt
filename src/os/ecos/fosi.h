@@ -163,7 +163,7 @@ extern "C"
     if (cyg_semaphore_timed_wait(m,cyg_current_time()+nano2ticks(delay)) == true)
       return 0;
     else
-      return 1;
+      return -1;
   }
 
   static inline int rtos_sem_value(rt_sem_t* m )
