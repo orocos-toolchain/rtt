@@ -40,7 +40,6 @@
 #ifndef ORO_CORELIB_LOCAL_EVENT_HPP
 #define ORO_CORELIB_LOCAL_EVENT_HPP
 
-#include "os/fosi.h"
 #include "Signal.hpp"
 
 namespace RTT
