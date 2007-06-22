@@ -20,7 +20,7 @@
 #include "time_test.hpp"
 #include <boost/bind.hpp>
 
-#define EPSILON 0.000000001
+#define EPSILON 0.000000002
 
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( TimeTest );
