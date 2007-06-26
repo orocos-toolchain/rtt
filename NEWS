@@ -1,3 +1,29 @@
+           The Orocos Real-Time Toolkit v1.2.1.
+           ====================================
+
+  The Orocos development team is pleased to announce the first bug-fix
+release of the Real-Time Toolkit v1.2, a C++ toolkit for building
+ component based, real-time robotics and machine control applications.
+
+You can download this release from
+  <http://www.orocos.org/stable/rtt/v1.2.1/orocos-rtt-1.2.1-src.tar.gz>
+and read the installation instructions on
+  <http://www.orocos.org/stable/documentation/rtt/v1.2.x/doc-xml/orocos-installation.html>
+The main manual for building your own components can be found on
+  <http://www.orocos.org/stable/documentation/rtt/v1.2.x/doc-xml/orocos-components-manual.html>
+
+The following reported bugs were fixed in this release:
+
+  ID     Vers   TargetM  Summary 
+  412    1.2.0   1.2.1   _REENTRANT has to be defined for Corba build 
+  420    1.2.0   1.2.1   Compiler warnings when compiling with g++-3.4 
+  410    1.2.0   1.2.1   gnulinux fosi contains accidental abort() statement. 
+  417    1.2.0   1.2.1   Compile error when configuring Read/WriteBufferPort connections
+  422    rtt-t   1.2.1   StatementProcessor::getCommand(int ticket) causes segfault 
+  360    rtt-t   1.2.1   tests fail on linux-2.6.19.7 and rtai-3.5 
+  419    1.2.0   1.2.1   CORBA Action::executeAny does not use given arguments.
+
+
            The Orocos Real-Time Toolkit v1.2.0.
            ====================================
 
