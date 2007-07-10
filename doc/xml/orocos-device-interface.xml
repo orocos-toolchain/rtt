@@ -71,7 +71,7 @@
 	with it.  Therefore, we aim at supporting every Comedi
 	supported card.  We invite you to help us writing a C++
 	wrapper for this API and port comedilib (which adds more
-	functionality) to the realtime kernels.
+	functionality) to the real-time kernels.
       </para>
       <para>
 	We do not want to force people into using Comedi, and most of
@@ -222,7 +222,7 @@ of the physical interfaces they use underneath. You just want to know the
 	The methods in each interface are well documented
 	and porting existing drivers (which mostly have a C API)
 	to these should be quite straightforward. It is the
-	intention that the developper writes a class that
+	intention that the developer writes a class that
 	inherits from one or more interfaces and implements
 	the corresponding methods. Logical Devices can then
 	use these implementations to provide higher level

@@ -62,6 +62,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Documented new setScheduler call and priority management.</revremark>
       </revision>
+      <revision>
+	<revnumber>1.2.1</revnumber>
+	<date>10 July 2007</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Small updates in porting section, spelling fixes.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -81,7 +87,7 @@
   <section>
     <title>Introduction</title>
     <section>
-      <title>Realtime OS Abstraction</title>
+      <title>Real-time OS Abstraction</title>
       <para>
 	The OS package makes an abstraction of the operating system on
 	which it runs. It provides C++ interfaces to only the
@@ -101,8 +107,8 @@
       </para>
       <para>
 	The abstractions cause (almost) no execution overhead, because
-	the wrappers can be called inline. See the <option>OROBLD_OS_AGNOSTIC</option>
-	option in the configuration tool to control inlining.
+	the wrappers can be called in-line. See the <option>OROBLD_OS_AGNOSTIC</option>
+	option in CMake build tool to control in-lining.
       </para>
     </section>
   </section>
@@ -146,28 +152,21 @@
     </section>
   </section>
   <section>
-    <title>OS Package Structure</title>
+    <title>OS directory Structure</title>
       <para>
-      The OS package has a <filename>common</filename>
-      directory for all common interfaces and configuration options.
-      This directory is OS independent but may contain assembler
-      instructions ( such as Compare And Swap ) for specific processor
-      architectures. However, if Orocos grows to support many
-      different architectures, an <filename>arch</filename> directory
-      will most likely be introduced to sort files for specific
-      architectures. Next to the common directory is a
-      <filename>&lt;target></filename> directory which contains the
-      abstraction implementations for a specific OS. Multiple OS
-      abstractions may be available, but only one can be configured
-      and compiled in one configuration.
+      The OS directory contains C++ classes to access Operating System
+      functionality, like creating threads or signaling
+      semaphores. Two kinds of subdirectories are used: the CPU <emphasis>architecture</emphasis>
+      (i386, powerpc, x86_64) and the Operating System (gnulinux, xenomai, lxrt),
+      or <emphasis>target</emphasis>.
     </para>
     <section>
       <title>The RTAI/LXRT OS target</title>
       <para>
 	RTAI/LXRT is an
-	environment that allows user programs to run with realtime
+	environment that allows user programs to run with real-time
 	determinism next to the normal programs. The advantage is
-	that the realtime application can use normal system libraries
+	that the real-time application can use normal system libraries
 	for its functioning, like showing a graphical user interface.
       </para>
       <para>
@@ -177,47 +176,44 @@
 	don't know what LXRT is.
       </para>
       <para>
-	The common rule when using LXRT is that any userspace (GNU/Linux)
-	library can be used and any header included as long as their non-realtime
-	functions are not called from within a hard realtime thread.
+	The common rule when using LXRT is that any user space (GNU/Linux)
+	library can be used and any header included as long as their non-real-time
+	functions are not called from within a hard real-time thread.
 	Specifically, this means that all the RTAI (and Orocos) OS functions,
 	but not the native Linux ones, may be called from within
-	a hard realtime thread. Fortunately these system calls
-	can be done from a not hard realtime thread within the
+	a hard real-time thread. Fortunately these system calls
+	can be done from a not hard real-time thread within the
 	same program.
       </para>
     </section>
     <section>
-      <title>Porting Orocos to other Architectures / OS'es</title>
+      <title>Porting Orocos to other Architectures / OSes</title>
       <para>
-	The OS package is the only part of Orocos that needs to
-	be ported to other Operating Sytems or processor architectures
-	in case the target supports Standard C++. The os/common directory
-	contains code common to all OS'es and the architecture dependent
-	headers (for example atomic counters and compare-and-swap ).
-	The latter must be extended to support other processor architectures.
-	Also, when a processor architecture is added, it must be made
-	available in the os.cdl configuration file, allowing the user to
-	change the target processor.
+	The OS directory is the only part of the Real-Time Toolkit
+	that needs to be ported to other Operating Systems or
+	processor architectures in case the target supports Standard
+	C++. The os directory contains code common to all OSes. The
+	<emphasis>oro_arch</emphasis> directories contain the
+	architecture dependent headers (for example atomic counters
+	and compare-and-swap ).
       </para>
       <para>
 	In order to start your port, look at the <filename>fosi_interface.h</filename>
-	and <filename>fosi_internal_interface.h</filename> files in
-	the os/common package. These two files list the C function
+	and <filename>fosi_internal_interface.hpp</filename> files in
+	the os directory. These two files list the C/C++ function
 	signatures of all to be ported functions in order to support
-	a new OS. The main categories are: time reading, mutexes,
+	a new Operating System. The main categories are: time reading, mutexes,
 	semaphores and threads.
-	The easiest way to port Orocos to another operating sytem, 
-	is to copy the gnulinux package into a new target and start
-	modifying the functions to match those in your OS. This package
-	is recommended because it uses the standard Unix/Posix functions.
+	The easiest way to port Orocos to another operating system, 
+	is to copy the gnulinux directory into a new directory and start
+	modifying the functions to match those in your OS.
       </para>
     </section>
     <section>
       <title>OS Header Files</title>
       <para>
 	The following table gives a short overview of the available
-	headers in the OS package.
+	headers in the os directory.
       </para>
       <table frame="all">
 	<title>Header Files</title>
@@ -255,11 +251,11 @@
     </section>
   </section>
   <section>
-    <title>Using Threads and Realtime Execution of Your Program</title>
+    <title>Using Threads and Real-time Execution of Your Program</title>
     <section>
       <title>Writing the Program main()</title>
       <para>
-	All tasks in the realtime system have to be performed by some
+	All tasks in the real-time system have to be performed by some
 	thread.  The OS abstraction expects an <function>int
 	  ORO_main(int argc, char** argv)</function> function (which
 	the user has written) and will call that after all system
@@ -331,7 +327,7 @@
 	    <para>Fetching periodic progress reports.</para>
 	  </listitem>
 	  <listitem>
-	    <para>Running the corelib periodic tasks.</para>
+	    <para>Running the CoreLib periodic tasks.</para>
 	  </listitem>
 	</itemizedlist>
 	</para>
@@ -339,11 +335,11 @@
       <section>
 	<title>Non Periodic Threads</title>
 	<para>
-	  For non-periodic threads, which block or do lenghty
+	  For non-periodic threads, which block or do lengthy
 	  calculations, the <classname>RTT::OS::SingleThread</classname> class
-	  can be used.  The rtt/activities package uses the SingleThread
+	  can be used.  The RTT uses the SingleThread
 	  for the <classname>RTT::NonPeriodicActivity</classname>.  Porting applications to Orocos
-	  might benifit this class in a first adaptation step. It
+	  might benefit this class in a first adaptation step. It
 	  has a start() method, which will invoke one single call to
 	  the user's loop() function ( in contrast to step() above). It can be
 	  re-started each time the loop() function returns. The
@@ -358,7 +354,7 @@
 	  RunnableInterface::breakLoop() function, which must return
 	  true if the loop() function could be signaled to
 	  return. SingleThread will call breakLoop() in its stop()
-	  method if loop() is still being executed and, if succesful,
+	  method if loop() is still being executed and, if successful,
 	  will wait until loop() returns.  The
 	  <function>SingleThread::isRunning()</function> function can
 	  be used to check if loop() is being executed or not.
@@ -375,7 +371,7 @@
 	    <para>Listening for data on a network socket.</para>
 	  </listitem>
 	  <listitem>
-	    <para>Reading a file or files from harddisk.</para>
+	    <para>Reading a file or files from hard-disk.</para>
 	  </listitem>
 	  <listitem>
 	    <para>Waiting for user input.</para>
@@ -407,14 +403,14 @@
 	  which are defined for each OS.
 	</para>
 	<para>
-	  OS's that support multiple schedulers can use the
+	  OSes that support multiple schedulers can use the
 	  <function>setScheduler</function> function to influence
 	  the scheduling policy of a given thread. Orocos guarantees
 	  that the <classname>ORO_SCHED_RT</classname> and
 	  <classname>ORO_SCHED_OTHER</classname> variables are 
 	  defined and can be used portably. The former `hints'
 	  a real-time scheduling policy, while the latter `hints'
-	  a not real-time secheduling policy. Each OS may define
+	  a not real-time scheduling policy. Each OS may define
 	  additional variables which map more appropriately to
 	  its scheduler policies. When only one scheduling policy
 	  is available, both variables map to the same scheduler.
@@ -423,11 +419,11 @@
       <section>
 	<title>ThreadScope: Oscilloscope Monitoring of Orocos Threads</title>
 	<para>
-	  You can configure the OS package using the configtool to
+	  You can configure the OS layer at compilation time using CMake to
 	  report thread execution as block-waves on the parallel port
 	  or any other digital output device.  Monitoring through the
 	  parallel port requires that a parallel port Device Driver is
-	  installed, and for Linux based OS'es, that you execute the
+	  installed, and for Linux based OSes, that you execute the
 	  Orocos program as root.
 	</para>
 	<para>
@@ -435,7 +431,7 @@
 	  Threads to the device's output pins to the <filename>orocos.log</filename>
 	  file. Just before step() is entered, the pin will be set
 	  high, and when step() is left, the pin is set low again.
-	  From within any (CoreLib) task, you may then additionally use the
+	  From within any RTT activity function, you may then additionally use the
 	  ThreadScope driver as such :
 	</para>
 	<programlisting>  <classname>RTT::DigitalOutInterface</classname>* pp = DigitalOutInterface::nameserver.getObject("ThreadScope");
@@ -467,7 +463,7 @@ if ( pp )
 	</para>
 	<para>
 	  For ease of use, there is a <classname>RTT::OS::MutexLock</classname> which
-	  gets a Mutex as argument in the contstructor. As long as the
+	  gets a Mutex as argument in the constructor. As long as the
 	  MutexLock object exists, the given Mutex is locked. This is
 	  called a scoped lock.
 	</para>
@@ -529,7 +525,7 @@ if ( pp )
       <section>
 	<title>Compare And Swap ( CAS )</title>
 	<para>
-	  CAS is a fundamental building block of the CoreLib package
+	  CAS is a fundamental building block of the CoreLib classes
 	  for inter-thread communication and must be implemented for
 	  each OS target. See the Lock-Free sections of the CoreLib manual
 	  for Orocos classes which use this primitive.

@@ -78,7 +78,7 @@
       of priority-inversions, and all operations are lock-free (also
       data sharing and other forms of communication such as events and
       commands).  Real-time tasks can communicate with non real-time
-      tasks (and vice versa) transparantly.
+      tasks (and vice verse) transparently.
     </para>
     <para>
       The Orocos Task Infrastructure enables :
@@ -154,7 +154,7 @@
 	  <para>The Execution Flow is formed by Programs and
 	    State Machines sending commands, events,... to Peer Tasks. The Data Flow
 	    is the propagation of data from one task to another, where
-	    one producer can have multiple consumers and vice versa.
+	    one producer can have multiple consumers and vice verse.
 	  </para>
 	</caption>
       </mediaobject>
@@ -274,7 +274,7 @@
       watch the log file 'orocos.log' in the same directory to see all messages.
       After the <command>[Log Level]</command>, the <command>[Origin]</command> of the message is
       printed, and finally the message itself. These messages leave a trace
-      of what was going on in the main() function before the prompt apeared.
+      of what was going on in the main() function before the prompt appeared.
     </para>
     <para>
       Depending on what you type, the TaskBrowser will act differently.
@@ -554,7 +554,7 @@ Printing Interface of 'the_data_port' :
       The following things are noteworthy: 'ls' shows now the contents
       of the TaskBrowser itself and no longer of the Hello Component.
       The TaskBrowser
-      has the same ports as the component it visist: <emphasis>the_data_port</emphasis>
+      has the same ports as the component it visits: <emphasis>the_data_port</emphasis>
       and <emphasis>the_buffer_port</emphasis>. These were created at run-time
       and allow to write or read ports from the visited component.
     </para>
@@ -598,7 +598,7 @@ the_data_port.     cd            ls
 1575.741 [ Info   ][Logger] Orocos Logging Deactivated.      
     </screen>
     <para>
-      The TaskBrowser Component is application independent, so that your enduser-application
+      The TaskBrowser Component is application independent, so that your end user-application
       might need a more suitable interface. However, for testing and
       inspecting what is happening inside your real-time programs,
       it is a very useful tool. The next sections show how you can add
@@ -741,7 +741,7 @@ the_data_port.     cd            ls
        MyTask(std::string name) 
          : <classname>RTT::TaskContext</classname>(name)
        {
-          // see lateron what to put here.
+          // see later on what to put here.
        }
   
        /**
@@ -754,8 +754,8 @@ the_data_port.     cd            ls
        }
 
        /**
-        * This function is for the application's startup code.
-	* Return false to abort startup.
+        * This function is for the application's start up code.
+	* Return false to abort start up.
 	*/
        bool startHook() {
           // ...
@@ -820,7 +820,7 @@ the_data_port.     cd            ls
       (<xref linkend="fig-component-states" />)
       may be <function>start()</function>'ed upon which
       <function>startHook()</function> is called once and may abort
-      the startup sequence by returning false. If true, it enters the
+      the start up sequence by returning false. If true, it enters the
       <function>Running</function> state and
       <function>updateHook()</function> is called (a)periodically by
       the ExecutionEngine, see below.  When the task is
@@ -865,7 +865,7 @@ the_data_port.     cd            ls
     </figure>
       <para>
 	The Activity classes will allocate a thread which executes the
-	Execution Engine. The choosen
+	Execution Engine. The chosen
 	<classname>ActivityInterface</classname> object will invoke
 	the Execution Engine, which will in turn invoke the
 	application's methods above.
@@ -940,7 +940,7 @@ the_data_port.     cd            ls
     <section>
       <title>Introducing the TaskContext's Interface</title>
       <para>
-	A TaskContext exists of a number of accessor methods which
+	A TaskContext exists of a number of access or methods which
 	expose a specific part of the interface. These methods are:
     </para>
     <para>
@@ -1007,7 +1007,7 @@ the_data_port.     cd            ls
 	A Data Port can offer read-only, write-only or read-write access
 	to the unbuffered data. A Buffer Port can offer read-only,
 	write-only and read-write access to the buffered data.
-	The example below shows all these possiblities.
+	The example below shows all these possibilities.
       </para>
       <section>
 	<title>Setting up the Data Flow Interface</title>
@@ -1167,7 +1167,7 @@ the_data_port.     cd            ls
 	  It is wise to check in the <function>startHook()</function>
 	  function if all necessary ports are <function>connected()</function>
 	  ( or <function>ready()</function> ).
-	  At this point, the task startup can still be aborted by
+	  At this point, the task start up can still be aborted by
 	  returning false. Otherwise, a write to a port
 	  will be discarded, while a read returns the initial value
 	  or the default value. A Pop of a disconnected port will
@@ -1205,7 +1205,7 @@ the_data_port.     cd            ls
 	  When a Port is connected, it becomes available to the
 	  Orocos scripting system such that (part of) the calculation
 	  can happen in a script. Also, the TaskBrowser can then
-	  be used to inspect the contents of the DataFlow online.
+	  be used to inspect the contents of the DataFlow on-line.
 	</para>
 	<para>
 	  A small program script could be loaded into MyTask with
@@ -1226,7 +1226,7 @@ the_data_port.     cd            ls
          The program "MyControlProgram" starts with declaring
 	 two variables and reading the task's Property 'K'.
 	 Then it goes into an endless loop, trying to Pop
-	 a setpoint value from the "SetPoint_X" Buffer Port. If that succeeds (buffer not empty)
+	 a set point value from the "SetPoint_X" Buffer Port. If that succeeds (buffer not empty)
 	 the  "Data_R" Data Port is read and a simple 
 	 calculation is done. The result is written to the
 	 "Data_W" Data Port and can now be read by the other
@@ -1487,7 +1487,7 @@ the_data_port.     cd            ls
       certain values. Properties have the advantage of being writable
       to an XML format, hence can store 'persistent' state.  For
       example, a control parameter. Attributes are lightweight values
-      which can be read and written during runtime, for example, the
+      which can be read and written during run-time, for example, the
       current measured temperature.  </para></note>
       <mediaobject>
 	<imageobject role="fop">
@@ -1817,7 +1817,7 @@ the_data_port.     cd            ls
       <para>
 	Commands returning false will propagate that error
 	to the program or function calling that command, which
-	will cause the program to enter an error state, ie
+	will cause the program to enter an error state, i.e.
 	it stops its execution.
       </para>
       <important>
@@ -2046,7 +2046,7 @@ the_data_port.     cd            ls
 	    The <function>addPeer</function> and <function>connectPeers</function>
 	    functions are used to connect TaskContexts and allow them
 	    to use each other's interface. The <function>connectPorts</function>
-	    funtion sets up the data flow between tasks.
+	    function sets up the data flow between tasks.
 	  </para>
 	</caption>
       </mediaobject>
@@ -2261,7 +2261,7 @@ the_data_port.     cd            ls
 	  state machine which dictates which program script snippets
 	  are executed upon which event.  </para>	</listitem>
 	</itemizedlist>
-	Both are loaded at runtime into a task. The scripts are parsed
+	Both are loaded at run-time into a task. The scripts are parsed
 	to an object tree, which can then be executed by the
 	<classname>RTT::ExecutionEngine</classname> of a
 	task.
@@ -2416,7 +2416,7 @@ the_data_port.     cd            ls
       <para>
 	If your application will not use distributed components and
 	requires a very small footprint, the <classname>RTT::TaskCore</classname>
-	can be used. The Orocos primitives apear directly in the interface
+	can be used. The Orocos primitives appear directly in the interface
 	and are called upon in a hard-coded way.
       </para>
       <para>
@@ -2430,7 +2430,7 @@ the_data_port.     cd            ls
       </para>
       <para>
 	If footprint is of no concern to your application and you
-	want to distribute any component completely transparantly,
+	want to distribute any component completely transparently,
 	the <classname>RTT::TaskContext</classname> can be used in combination
         with a <emphasis>Remoting Library</emphasis> which does the
         network translation. A CORBA implementation of such a library is
@@ -2470,7 +2470,7 @@ the_data_port.     cd            ls
       <note>
 	<para>
 	  The code presented is for commands, but can be equally
-	  applied for methds by using methods()->addMethod( &amp;
+	  applied for methods by using methods()->addMethod( &amp;
 	  method ) for events and for each other Orocos primitive.
 	</para>
       </note>
@@ -2516,7 +2516,7 @@ the_data_port.     cd            ls
 	Using the three levels of deployment in one application is
 	possible as well. To save space or execution efficiency,
 	one can use TaskCores to implement local (hidden) functionality
-	and export publicly visible interface using a Taskcontext.
+	and export publicly visible interface using a TaskContext.
 	<xref linkend="fig-deployment-example" /> is an
 	small example of a TaskContext which uses two TaskCores to
 	delegate work to. The Execution Engines may run in one or
@@ -2632,7 +2632,7 @@ the_data_port.     cd            ls
 	  lies within the State Machine.
 	</para>
 	<para>
-	  Off course, the example can be simplified by setting/
+	  Of course, the example can be simplified by setting/
 	  resetting a boolean flag between function and
 	  State Machine.
 	</para>
@@ -2788,8 +2788,8 @@ the_data_port.     cd            ls
 	Now suppose you want to do make this interface available,
 	such that program scripts of other tasks can access this 
 	interface. Because you have many devices, you surely want
-	all of them to be accessed transparantly from a supervising
-	task. Luckily for you, C++ polymorphism can be transparantly
+	all of them to be accessed transparently from a supervising
+	task. Luckily for you, C++ polymorphism can be transparently
 	adopted in Orocos TaskContexts. This is how it goes.
       </para>
       <section>
@@ -2884,11 +2884,11 @@ the_data_port.     cd            ls
 	<para>
 	  From now on, the "supervisor" task will be able to access
 	  "device". If the implementation changes, the same interface
-	  can be reused whithout changing the programs in the supervisor.
+	  can be reused without changing the programs in the supervisor.
 	</para>
 	<para>
 	  A big warning needs to be issued though : if you change a
-	  peer at runtime (after parsing programs),
+	  peer at run-time (after parsing programs),
 	  you need to reload all the programs, functions,
 	  state contexts which use that peer so that they reference
 	  the new peer and its C++ implementation.
@@ -2926,7 +2926,7 @@ the_data_port.     cd            ls
 	  When  the program "ControlDevice" is started,
 	  it initialises some parameters from its own attributes.
 	  Next, the program goes into a loop and sends updateData commands
-	  to the device as long as underlying supervisor (ie "this") logic requests
+	  to the device as long as underlying supervisor (i.e. "this") logic requests
 	  an update and no error is reported. This code guarantees that
 	  no two updateData commands will intervene each other since the
 	  program waits for the commands completion or error.
@@ -2939,9 +2939,9 @@ the_data_port.     cd            ls
 	</para>
 	<itemizedlist>
 	  <listitem>
-	    <para>If any error occurs (ie a command or method returns false),
+	    <para>If any error occurs (i.e. a command or method returns false),
 	    the program stops and other programs or state contexts can
-	    detect this and take apropriate action.</para>
+	    detect this and take appropriate action.</para>
 	  </listitem>
 	  <listitem>
 	    <para>The  "<function>device.updateData()</function>" call waits
@@ -2979,3 +2979,4 @@ the_data_port.     cd            ls
     </section>
   </section>
 </article>
+

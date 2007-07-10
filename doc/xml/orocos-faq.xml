@@ -118,10 +118,10 @@ Alex Russell
 	<answer>
 	  <para>
 	    Orocos stands for Open Robot Control Software and was a
-	    EU funded project to write Free Software for robots. This faq is
+	    EU funded project to write Free Software for robots. This FAQ is
 	    about the Real-Time Toolkit
-	    library for writing hard realtime control applications in
-	    C++. It supports hard realtime <ulink
+	    library for writing hard real-time control applications in
+	    C++. It supports hard real-time <ulink
 	      url="http://www.rtai.org">RTAI/LXRT</ulink> and <ulink
 	      url="http://www.xenomai.org">Xenomai</ulink> and normal
 	    GNU/Linux programs.
@@ -130,7 +130,7 @@ Alex Russell
       </qandaentry>
       <qandaentry>
 	<question>
-	  <para>Where can a find a quick overview of what features the Real-Time Tookit currently has ?</para>
+	  <para>Where can a find a quick overview of what features the Real-Time Toolkit currently has ?</para>
 	</question>
 	<answer>
 	  <para>
@@ -149,7 +149,7 @@ Alex Russell
 	    In the <ulink
 	      url="http://www.orocos.org/rtt/manuals">
 	      Manuals Section </ulink> of the Orocos website,
-	    you can find all online documents (and this FAQ). Also,
+	    you can find all on-line documents (and this FAQ). Also,
 	    the <ulink url="http://www.orocos.org/rtt"> RTT
 	      Documentation Section </ulink> contains links to the manuals.
 	  </para>
@@ -175,7 +175,7 @@ Alex Russell
 	<answer>
 	  <para>
 	    On the <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos-dev">
-	      Orocos-dev mailinglist</ulink> (medium traffic) or the
+	      Orocos-dev mailing list</ulink> (medium traffic) or the
 	      <ulink url="http://www.orocos.org/rtt/forum">forum</ulink>.
 	  </para>
 	</answer>
@@ -187,7 +187,7 @@ Alex Russell
 	<answer>
 	  <para>
 	    On the <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos">
-	      Orocos mailinglist</ulink> (very low traffic ).
+	      Orocos mailing list</ulink> (very low traffic ).
 	  </para>
 	</answer>
       </qandaentry>
@@ -241,7 +241,7 @@ Alex Russell
 	      </listitem>
 	      <listitem>
 		<para>Disable CONFIG_REGPARM. This option causes BIG problems when using LXRT,
-		and renders it completely unusable alltogether.</para>
+		and renders it completely unusable all together.</para>
 	      </listitem>
 	    </itemizedlist>
 	  </para>
@@ -254,7 +254,7 @@ Alex Russell
 	      </listitem>
 	      <listitem>
 		<para>
-		  Enable your IDE chipset and choose the correct CPU.
+		  Enable your IDE chip-set and choose the correct CPU.
 		  Wrong settings for one of these will cause lock-ups.
 		</para>
 	      </listitem>
@@ -298,7 +298,7 @@ Alex Russell
 	<answer>
 	  <para>
 	    Use the <command>cmake ..</command> command in your <filename>build</filename> directory , which will
-	    popup the configuration menu. 
+	    pop-up the configuration menu. 
 	    See the <ulink url="http://www.orocos.org/stable/documentation/rtt/v1.2.x/doc/orocos-installation.html"> 
 	    the Installation Manual </ulink>.
 	  </para>
@@ -356,7 +356,7 @@ Alex Russell
       </qandaentry>
     </qandadiv>
     <qandadiv>
-      <title>Runtime Problems/Crashes with &orocos;</title>
+      <title>Run-time Problems/Crashes with &orocos;</title>
       <para>
 	This section covers 'general' causes of crashes.
 	If you are using RTAI, also check out the next Section.
@@ -389,16 +389,16 @@ $ ldd core-test
         ....</screen>
 	the double occurence of 'libstdc++' is the cause of the crash. </para>
 	<para>
-	  Compile all your libraries (cppunit, orocos,...) with the
+	  Compile all your libraries (cppunit, Orocos,...) with the
 	  same compiler.
 	</para>
 	</answer>
       </qandaentry>
     </qandadiv>
     <qandadiv>
-      <title>Runtime Problems with RTAI/LXRT</title>
+      <title>Run-time Problems with RTAI/LXRT</title>
       <para>This section documents causes of crashes that only occur when you
-      run orocos for LXRT and disapear when you run the same program under GNU/Linux.
+      run Orocos for LXRT and disappear when you run the same program under GNU/Linux.
       See also the section above.
       </para>
       <qandaentry>
@@ -410,7 +410,7 @@ $ ldd core-test
 	  rtai_up is <emphasis>not</emphasis> loaded.</para>
 	  <para>
 	    If that does not help, set <screen>export ORO_LOGLEVEL=6</screen> and
-	    send the output to the Orocos-dev mailinglist.
+	    send the output to the Orocos-dev mailing list.
 	  </para>
 	</answer>
       </qandaentry>
@@ -419,9 +419,9 @@ $ ldd core-test
 	  <para>&orocos; hangs after the first threads are created !</para>
 	</question>
 	<answer>
-	  <para>Check if the LXRT userspace tests work. Orocos should be compiled
+	  <para>Check if the LXRT user space tests work. Orocos should be compiled
 	  with the same compiler as RTAI and Linux. RTAI/LXRT is quite sensitive
-	  about the choosen compiler. Problems have been reported with RedHat's 
+	  about the chosen compiler. Problems have been reported with Red Hat's 
 	  GCC 3.4 compiler for example.</para>
 	</answer>
       </qandaentry>
@@ -451,7 +451,7 @@ $ ldd core-test
       </qandaentry>
       <qandaentry>
 	<question>
-	  <para>The realtime performance is Terrible !</para>
+	  <para>The real-time performance is Terrible !</para>
 	</question>
 	<answer>
 	  <para>
@@ -461,11 +461,11 @@ $ ldd core-test
 	</answer>
 	<answer>
 	  <para>
-	    Are you calling Linux system calls from a hard-realtime
+	    Are you calling Linux system calls from a hard-real-time
 	    thread ? See <ulink
 	      url="http://people.mech.kuleuven.be/~psoetens/lxrt/portingtolxrt.html"> 
 	      this document </ulink> for what you can and can't do
-	    within hard-realtime LXRT tasks.
+	    within hard-real-time LXRT tasks.
 	  </para>
 	</answer>
       </qandaentry>
@@ -476,10 +476,10 @@ $ ldd core-test
 	</question>
 	<answer>
 	  <para>
-	    The RTT testcases test the system to its limits and may
+	    The RTT test cases test the system to its limits and may
 	    crash RTAI if not properly configured. Especially RTAI 3.0
 	    and older.  Also, verify that the RTAI/LXRT (aka
-	    'userspace') test programs work before blaming Orocos. Choosing
+	    'user space') test programs work before blaming Orocos. Choosing
 	    a different compiler ( GCC 3.3 ) mostly solves that problem.
 	  </para>
 	</answer>
@@ -493,7 +493,7 @@ $ ldd core-test
 	</question>
 	<answer>
 	  <para>
-	    Orocos is targetted at 32bit or 64bit systems and can
+	    Orocos is targeted at 32bit or 64bit systems and can
 	    run on systems with &lt; 1MB of RAM (for code&amp;data &amp; 
 	    application code) although with reduced functionality.
 	  </para>
@@ -504,7 +504,7 @@ $ ldd core-test
 	    not be used.
 	  </para>
 	  <para>
-	    Orocos contains tinyXML for parsing XML scripts on embedded
+	    Orocos contains tiny XML for parsing XML scripts on embedded
 	    systems as well, but you can disable XML completely.
 	  </para>
 	  <para>
@@ -528,7 +528,7 @@ $ ldd core-test
 	<answer>
 	  <para>&orocos; runs on eCos, standard GNU/Linux, Xenomai and RTAI
 	  and supports cross-compiling.
-	  For eCos, you need to create a specially crafted C++ GNU toolchain,
+	  For eCos, you need to create a specially crafted C++ GNU tool chain,
 	  see <ulink url="http://www.zylin.com/libstdc++.html">libstdc++ for eCos</ulink>.
 	  </para>
 	</answer>
@@ -537,7 +537,7 @@ $ ldd core-test
 	  different target are for the CPU: floating point unit (FPU)
 	  or FPU emulation (will degrade performance),
 	  compare-and-swap instruction ( CAS, cmpxch ), and is
-	  targetted at 32 or 64 bit processors. The target Operating System
+	  targeted at 32 or 64 bit processors. The target Operating System
 	  (OS) must support the GNU C/C++ compiler with the Standard
 	  Template Library, periodic threads, semaphores and recursive
 	  mutexes.</para>
@@ -545,7 +545,7 @@ $ ldd core-test
 	    The RTT has a very thin wrapper around the above OS functions in the 'OS'
 	    package, this is the only place of the RTT you need to port, where the
 	    'gnulinux' package is a good starting point if you intend to port to a
-	    Posix compliant OS. See also
+	    POSIX compliant OS. See also
 	    <ulink url="orocos-components-manual.html#orocos-os">The OS Reference</ulink>.
 	  </para>
 	</answer>
@@ -563,7 +563,7 @@ $ ldd core-test
       <qandaentry>
 	<question>
 	  <para>What is the overhead of all this C++, can it be
-	  Realtime ?</para>
+	  real-time ?</para>
 	</question>
 	<answer>
 	  <para>
@@ -603,12 +603,12 @@ $ ldd core-test
 	url="http://www.orocos.org/rtt">Orocos RTT manuals</ulink>. If
       that fails, the  <ulink
 	url="mailto: orocos-dev at lists.mech.kuleuven.be">
-	orocos-dev at lists.mech.kuleuven.be </ulink> mailing list might help.
+	Orocos-dev at lists.mech.kuleuven.be </ulink> mailing list might help.
       Please
       send comments on these web pages and the development of Orocos to
       our developer mailing list at  <ulink
 	url="mailto:orocos-dev at lists.mech.kuleuven.be">
-	orocos-dev at lists.mech.kuleuven.be </ulink>. All of
+	Orocos-dev at lists.mech.kuleuven.be </ulink>. All of
       our lists have <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos">public
 	archives</ulink> ( <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos-dev"> dev public
 	archive</ulink> ) .

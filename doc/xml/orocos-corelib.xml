@@ -137,10 +137,10 @@
 	<listitem><para>Properties and XML configuration</para></listitem>
 	<listitem><para>Time measurement</para></listitem>
 	<listitem><para>Application logging framework</para></listitem>
-	<listitem><para>Lock-free data exchange primitives such as fifo buffers or shared data.</para></listitem>
+	<listitem><para>Lock-free data exchange primitives such as FIFO buffers or shared data.</para></listitem>
       </itemizedlist> 
-      and additionally provides interfaces which are common for all realtime services.
-      The Core Library provides a hard realtime <emphasis>infrastructure</emphasis>:
+      and additionally provides interfaces which are common for all real-time services.
+      The Core Library provides a hard real-time <emphasis>infrastructure</emphasis>:
     </para>
     <blockquote>
       <para>
@@ -154,7 +154,7 @@
       </para>
     </blockquote>
     <para>
-      Of course, the realtime performance depends not only on
+      Of course, the real-time performance depends not only on
       the underlying operating system 
       <emphasis>but also on the hardware.</emphasis> Hardware devices are abstracted
       in the Orocos Device Interface.
@@ -376,7 +376,7 @@ ORO_main( int argc, char** argv)
   // This activity is run in its own thread as well.
   <classname>RTT::PeriodicActivity</classname> own_activity2( 9, 0.5, &amp;kine_loop2 );
 
-  // All is transparant from here on.
+  // All is transparent from here on.
   fast_activity1->start();
   fast_activity2->start(); // is always run directly after fast_activity1 !
 
@@ -436,7 +436,7 @@ ORO_main( int argc, char** argv)
 	Then loop() is executed once. Since the activity may be blocked in the user's loop()
 	function, the user must reimplement the
 	<function>RunnableInterface::breakLoop()</function>
-	function. This funcion must do whatever necessary to let the
+	function. This function must do whatever necessary to let the
 	user's loop() function return (mostly set a flag).  It must return true on
 	success, false if it was unable to let the loop() function
 	return (the latter is the default implementation's return
@@ -519,7 +519,7 @@ ORO_main( int argc, char** argv)
 	interface which gives a non-zero pointer to a
 	<classname>RTT::OS::ThreadInterface</classname> object which provides
 	general thread information such as the priority and periodicity and allows to
-	control the realtimeness of the thread which runs this activity. A
+	control the real-timeness of the thread which runs this activity. A
 	non periodic activity's thread will return a period of zero.
       </para>
       <para>
@@ -591,7 +591,7 @@ ORO_main( int argc, char** argv)
   <classname>RTT::SimulationActivity</classname> fast_sim_activity(0.001, &amp;vel_loop);
   <classname>RTT::SimulationActivity</classname> slow_sim_activity(0.01, &amp;pos_loop);
 
-  // All is transparant from here on.
+  // All is transparent from here on.
   fast_sim_activity->start();
   slow_sim_activity->start();
 
@@ -616,7 +616,7 @@ ORO_main( int argc, char** argv)
   <section id="corelib-commands">
     <title>Commands</title>
     <para>
-      Commands offer a thread-safe realtime means of message passing
+      Commands offer a thread-safe real-time means of message passing
       between threads.
     </para>
     <section>
@@ -624,7 +624,7 @@ ORO_main( int argc, char** argv)
       <para>
 	The <classname>RTT::CommandProcessor</classname> is
 	responsible for accepting command requests from other
-	(realtime) tasks. It uses a non-blocking queue to store
+	(real-time) tasks. It uses a non-blocking queue to store
 	incoming requests and fetch-and-execute them in its periodic
 	step.
       </para>
@@ -679,7 +679,7 @@ ORO_main( int argc, char** argv)
       </imageobject>
       <caption><para>Activity A1 runs in PeriodicThread (a) while Activity A2
       runs in PeriodicThread (b). At some time, A1 registers a
-      synchonous and asynchronous callback function ( reaction ) with
+      synchronous and asynchronous callback function ( reaction ) with
       activity A2's Event. When A2 emits the Event, the
       synchronous Event callback is executed first ( within Thread (b)
       ), while the asynchronous ( deferred ) callback is queued and
@@ -689,7 +689,7 @@ ORO_main( int argc, char** argv)
     <para>
       The Orocos Event extends the signal semantics with asynchronous event handling. 
       Any kind of function can be connected to the event as long as it has the
-      same signature as the Event. 'Raising', 'fireing' or 'emiting' an Orocos Event is
+      same signature as the Event. 'Raising', 'firing' or 'emitting' an Orocos Event is
       done by using the <methodname>()</methodname> operator.
     </para>
     <section>
@@ -738,7 +738,7 @@ assert( emergencyStop.ready() );
 
 // boost::bind is a way to connect the method of an object instance to
 // an event.
-std::cout &lt;&lt; "Register apropriate handlers to the Emergency Stop Event\n";
+std::cout &lt;&lt; "Register appropriate handlers to the Emergency Stop Event\n";
 emergencyHandle = 
    emergencyStop.connect( bind( &amp;SafetyStopRobot::handle_now, &amp;safety));
 assert( emergencyHandle.connected() );
@@ -758,7 +758,7 @@ notifyHandle.disconnect();
 std::cout &lt;&lt; "Doing a quiet safety stop..."&lt;&lt;std::endl;
 emergencyStop(); // User not notified</programlisting>
       <screen>
-	  Register apropriate handlers to the Emergency Stop Event
+	  Register appropriate handlers to the Emergency Stop Event
 	  Emit the event
 	   Putting the robot in a safe state fast !
 	  The program stopped the robot !
@@ -891,7 +891,7 @@ emergencyStop(); // User not notified</programlisting>
       </note>
       <para>
 	The default thread which executes asynchronous callbacks
-	is called the <classname>RTT::CompletionProcessor</classname>. This is a non realtime
+	is called the <classname>RTT::CompletionProcessor</classname>. This is a non real-time
 	thread, which means that the reaction time is not bounded.
 	If you want to execute the callback in another thread,
 	an additional argument can be given in the
@@ -903,7 +903,7 @@ emergencyStop(); // User not notified</programlisting>
 
   event.connect( &amp;asyn_func, &amp;eproc );</programlisting>
 	The above lists how the an EventProcessor will execute the
-	asyn_func if event is emited. The EventProcessor is not a thread
+	asyn_func if event is emitted. The EventProcessor is not a thread
 	itself, but an object which can be executed by an activity. If you
 	want to both process events and insert application code in the same
 	activity object, you'll need to call the EventProcessor's initialize(), step() 
@@ -920,10 +920,10 @@ emergencyStop(); // User not notified</programlisting>
     <section>
       <title>Event Overrun Policy</title>
       <para>
-	An Event can only be emited by one thread at the same time.
+	An Event can only be emitted by one thread at the same time.
 	The synchronous handlers will always be executed
-	as much times as the event is emited. This is not the case
-	for asynchronous handlers. If an Event is emited multiple
+	as much times as the event is emitted. This is not the case
+	for asynchronous handlers. If an Event is emitted multiple
 	times before the completion thread executes, the asynchronous
 	handler will be called only once in the completion thread's execution
 	step.
@@ -931,7 +931,7 @@ emergencyStop(); // User not notified</programlisting>
       <para>
 	The question that rises is with which arguments this handler
 	is called. The user can choose between the first (default) and
-	the last. The first is choosen as default because this causes the least
+	the last. The first is chosen as default because this causes the least
 	overhead in execution time. To choose which policy is used,
 	an optional parameter can be given during connect :
       </para>
@@ -943,7 +943,7 @@ emergencyStop(); // User not notified</programlisting>
       <title>The Completion Processor</title>
       <para>
 	The <classname>RTT::CompletionProcessor</classname> is an
-	optional lowest priority, not realtime thread in the &orocos;
+	optional lowest priority, not real-time thread in the &orocos;
 	framework. It is only created if the user did not specify a thread
 	in which to process events. 
       </para>
@@ -960,7 +960,7 @@ emergencyStop(); // User not notified</programlisting>
       <para>
 	The CompletionProcessor is a <classname>RTT::NonPeriodicActivity</classname>, thus not consuming
 	time resources when no Events need to be processed. If you need a 
-	hard realtime CompletionProcessor, use a default NonPeriodicActivity ( see
+	hard real-time CompletionProcessor, use a default NonPeriodicActivity ( see
 	<xref linkend="activity-non-periodic" /> ), call its makeHardRealTime() method
 	and add an EventProcessor object in <methodname>run()</methodname>.
       </para>
@@ -1030,7 +1030,7 @@ emergencyStop(); // User not notified</programlisting>
     <para>
       <example><title>Creating attributes</title> 
 	      <programlisting>
-  // an attribute, respresening a double of value 1.0:
+  // an attribute, representing a double of value 1.0:
   <classname>RTT::Attribute</classname>&lt;double> myAttr(1.0);
   myAttr.set( 10.9 );
   double a = myAttr.get(); 
@@ -1055,29 +1055,29 @@ emergencyStop(); // User not notified</programlisting>
 	Orocos provides configuration by properties through the <classname>RTT::Property</classname>
 	class.
 	They are used to store primitive data (float, strings,...) in
-	a hierachies (using <classname>RTT::PropertyBag</classname>). A Property can be changed by the user and has immediate
+	a hierarchies (using <classname>RTT::PropertyBag</classname>). A Property can be changed by the user and has immediate
 	effect on the behaviour of the program. Changing parameters of an
 	algorithm is a good example where properties can be used. Each parameter
 	has a value, a name and a description. The user can ask any PropertyBag
 	for its contents and change the values as they see fit. Java for
 	example presents a Property API. 
 	The Doxygen Property API should
-	provide enough information for succesfully using them in your Software Component.
+	provide enough information for successfully using them in your Software Component.
 	<note>
 	  <para>
 	    Reading and writing a properties value can be done in
-	    realtime. Every other transaction, like marshalling
-	    (writing to disk), demarshalling (reading from disk) or
-	    building the property is not a realtime operation.
+	    real-time. Every other transaction, like marshaling
+	    (writing to disk), demarshaling (reading from disk) or
+	    building the property is not a real-time operation.
 	  </para>
 	  <para>
 	    <example><title>Using properties</title> 
 	      <programlisting>
-  // a property, respresening a double of value 1.0:
+  // a property, representing a double of value 1.0:
 
-  <classname>RTT::Property</classname>&lt;double> myProp("Parameter A","A demo parameter", 1.0); // not realtime !
-  myProp = 10.9; // realtime
-  double a = myProp.get(); // realtime  </programlisting>
+  <classname>RTT::Property</classname>&lt;double> myProp("Parameter A","A demo parameter", 1.0); // not real-time !
+  myProp = 10.9; // real-time
+  double a = myProp.get(); // real-time  </programlisting>
 	    </example>
 	  </para>
 	</note>
@@ -1086,7 +1086,7 @@ emergencyStop(); // User not notified</programlisting>
 	Properties are mainly used for two purposes. First, they allow an external
 	entity to browse their contents, as they can form hierarchies using
 	PropertyBags. Second, they can be written to screen, disk,
-	or any kind of stream and their contents can be restored lateron, for example
+	or any kind of stream and their contents can be restored later on, for example
 	after a system restart. The next sections give a short introduction to these
 	two usages.
       </para>
@@ -1104,7 +1104,7 @@ emergencyStop(); // User not notified</programlisting>
 	If you want to duplicate the contents of a PropertyBag or perform recursive
 	operations on a bag, you can use the helper functions we created and which
 	are defined in <filename>PropertyBag.hpp</filename> (see Doxygen documentation).
-	These operations are however, most likely not realtime.
+	These operations are however, most likely not real-time.
       </para>
       <note><para>When you want to put a PropertyBag into another PropertyBag, you need
       to make a Property&lt;PropertyBag&gt; and insert that property into the 
@@ -1196,15 +1196,10 @@ emergencyStop(); // User not notified</programlisting>
     <section>
       <title>Introduction</title>
       <para>
-	A useful element in the &orocos; framework is what we call the strong typed
-	nameserver. It is a (string based) nameserver which stores name, object pairs
-	of only one type of object in the local program. 
-	Off course, polymorphism allows us to collect many
-	derivative types into one nameserver. A nameserver allows late configuration
-	of objects. All possible used objects are created first and stored in the
-	nameserver. Depending of the run-time users choice (from a text file,
-	console input,...), another object is retrieved from the nameserver and
-	used in the program.
+	The name server class in the &orocos; framework stores (name, object) pairs
+	of only one (base) class type of object in the local process. It is mainly used
+	in the device abstraction layer such that device drivers are created in one place
+	and can be used in different places throughout the program.
       </para>
     </section>
     <section>
@@ -1215,7 +1210,7 @@ emergencyStop(); // User not notified</programlisting>
 	common usage syntax is given below.
       </para>
       <note><para>
-	The most common use of nameserving is keeping track of pointers to objects.
+	The most common use of name serving is keeping track of pointers to objects.
 	A NameServer almost always takes pointers to an object as arguments and 
 	returns a pointer when the object is looked up again.</para>
       </note>
@@ -1228,8 +1223,8 @@ emergencyStop(); // User not notified</programlisting>
   if (an_a != 0 )
       cout &lt;&lt; "ATeam was successfully stored and retrieved !" &gt;&gt; endl;     </programlisting>
       <para>
-	A typical use of nameserving is that the nameserver is nested inside the class
-	it is nameserving itself. For convenience, the constructor of that class is then
+	A typical use of name serving is that the nameserver is nested inside the class
+	it is name serving itself. For convenience, the constructor of that class is then
 	extended to take a string as argument to indicate the (optional) desired name
 	of the object. Imagine that the above ClassA had such a nested nameserver,
 	in that case, it would be used as follows :
@@ -1242,8 +1237,8 @@ emergencyStop(); // User not notified</programlisting>
     cout &lt;&lt; "The ATeam was successfully stored and retrieved !" &gt;&gt; endl;     </programlisting>
       <para>
 	The above technique is used in many classes inside &orocos;. Events, Devices, 
-	Control Kernels and Components, ... anything you wish to configure at runtime
-	can be nameserved.
+	Control Kernels and Components, ... anything you wish to configure at run-time
+	can be name served.
       </para>
     </section>
   </section>
@@ -1342,16 +1337,16 @@ emergencyStop(); // User not notified</programlisting>
   <section id="core-logging">
     <title>Logging</title>
     <para>
-      Orocos applications can have pretty complex startup and
+      Orocos applications can have pretty complex start-up and
       initialisation code.  A logging framework, using
       <classname>RTT::Logger</classname> helps to track what
       your program is doing.
     </para>
       <note><para>Logging can
-      only be done in the non-realtime parts of your application, thus not in
-	the Realtime Periodic Activities !</para></note>
+      only be done in the non-real-time parts of your application, thus not in
+	the Real-time Periodic Activities !</para></note>
     <para>
-      There are currently 8 loglevels :
+      There are currently 8 log levels :
       <table>
 	<title>Logger Log Levels</title>
 	<tgroup cols="3">
@@ -1456,3 +1451,4 @@ emergencyStop(); // User not notified</programlisting>
     </example>
   </section>
 </article>
+

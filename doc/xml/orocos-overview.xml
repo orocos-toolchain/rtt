@@ -102,7 +102,7 @@
 	  in itself, but it provides the infrastructure and the
 	  functionalities to build robotics applications in C++. The
 	  emphasis is on <emphasis>real-time</emphasis>,
-	  <emphasis>online interactive</emphasis> and
+	  <emphasis>on-line interactive</emphasis> and
 	  <emphasis>component based</emphasis> applications.
 	</para>
       </listitem>
@@ -139,7 +139,7 @@
       Your feedback and suggestions are greatly appreciated. Please, use the
       project's 
       <ulink
-	url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos">mailinglist</ulink> for this purpose.
+	url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos">mailing list</ulink> for this purpose.
     </para>
   </section>
   <section id="audience">
@@ -259,7 +259,7 @@
 	  well together. For example, the application template for
 	  motion control contains components for path planning,
 	  position control, hardware access and data reporting. The
-	  components are choosen as such that their interfaces are
+	  components are chosen as such that their interfaces are
 	  compatible.
 	</para>
 	<para>
@@ -315,7 +315,7 @@
 	  Orocos Component Builder's Manual. Each component
 	  documents its interface as well. To get a grip
 	  on what these interfaces mean, here are some
-	  fictuous component interfaces for a 'Robot' Component:
+	  fictitious component interfaces for a 'Robot' Component:
 	<itemizedlist>
 	  <listitem>
 	    <para><emphasis>Data-Flow Ports:</emphasis> Are a thread-safe
@@ -326,7 +326,7 @@
 	  </listitem>
 	  <listitem>
 	    <para><emphasis>Properties:</emphasis> Are run-time
-	    modifyable parameters, stored in XML files. For example:
+	    modifiable parameters, stored in XML files. For example:
 	    "Kinematic Algorithm", "Control Parameters", "Homing
 	    Position", "ToolType",...</para>
 	  </listitem>
@@ -362,7 +362,7 @@
 	  Builder to write hierarchical state machines which use these
 	  primitives. This is the Orocos way of defining your
 	  application specific logic. State machines can be (un-)loaded
-	  at runtime in any component.
+	  at run-time in any component.
 	<figure id="fig-orocos-component-implementation">
 	  <title>
 	    Orocos Control Component State Machines.
@@ -384,7 +384,7 @@
     <para>
       The Orocos project spawned a couple of largely independent
       software projects. The documentation you are reading is about
-      the Real-Time Control Software located on the Orocos.org webpage.
+      the Real-Time Control Software located on the Orocos.org web page.
       The other <emphasis>not real-time</emphasis> projects are :
       <itemizedlist>
 	<listitem>
@@ -402,7 +402,7 @@
 	  </para>
 	</listitem>
       </itemizedlist>
-      This documentation is targetted at industrial robotics and real-time control.
+      This documentation is targeted at industrial robotics and real-time control.
     </para>
   </section>
 </article>
