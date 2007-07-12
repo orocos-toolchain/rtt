@@ -209,12 +209,6 @@ namespace RTT
     }
 
     void ExecutionEngine::step() {
-        const char* location;
-        if (taskc)
-            location = taskc->getName().c_str();
-        else
-            location = "ExecutionEngine";
-        Logger::In in( location );
         // this #ifdef ... #endif is only for speed optimisations.
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
         if (pproc)
@@ -236,7 +230,6 @@ namespace RTT
             taskc->updateHook();
         // call all children as well.
         for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
-            Logger::In in( (*it)->getName().c_str() );
             (*it)->updateHook();
         }
         return;
