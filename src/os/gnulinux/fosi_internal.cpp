@@ -61,6 +61,7 @@ namespace RTT
 
 	INTERNAL_QUAL int rtos_task_delete_main(RTOS_TASK* main_task)
 	{
+        pthread_attr_destroy( &(main_task->attr) );
 	    return 0;
 	}
 
@@ -71,7 +72,7 @@ namespace RTT
 					   void * (*start_routine)(void *), 
 					   ThreadInterface* obj) 
 	{
-	    int rv; // return value
+        int rv; // return value
         rtos_task_check_priority( &sched_type, &priority );
         // Save priority internally, since the pthread_attr* calls are broken !
         // we will pick it up later in rtos_task_set_scheduler().
@@ -188,6 +189,8 @@ namespace RTT
 	}
 
 	INTERNAL_QUAL void rtos_task_delete(RTOS_TASK* mytask) {
+        pthread_join( mytask->thread, 0);
+        pthread_attr_destroy( &(mytask->attr) );
 	    free(mytask->name);
 	}
 
