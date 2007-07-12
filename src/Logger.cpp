@@ -351,7 +351,7 @@ namespace RTT
 
     Logger::In::~In() 
     {
-        Logger::log().in( oldmod );
+        Logger::log().out();
     }
 
     Logger& Logger::in(const char* modname) 
