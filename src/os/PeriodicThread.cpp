@@ -186,11 +186,11 @@ namespace RTT
 
     void PeriodicThread::setup(int _priority, const std::string& name) 
     {
+        Logger::In in("PeriodicThread");
         int ret;
         
         ret = rtos_sem_init(&sem, 0);
         if ( ret != 0 ) {
-            Logger::In in("PeriodicThread");
             Logger::log() << Logger::Critical << "Could not allocate configuration semaphore 'sem' for "<< rtos_task_get_name(&rtos_task) <<". Throwing std::bad_alloc."<<Logger::endl;
             rtos_sem_destroy( &sem );
 #ifndef ORO_EMBEDDED
@@ -202,7 +202,6 @@ namespace RTT
 
         ret = rtos_sem_init(&confDone, 0);
         if ( ret != 0 ) {
-            Logger::In in("PeriodicThread");
             Logger::log() << Logger::Critical << "Could not allocate configuration semaphore 'confDone' for "<< rtos_task_get_name(&rtos_task) <<". Throwing std::bad_alloc."<<Logger::endl;
             rtos_sem_destroy( &sem );
 #ifndef ORO_EMBEDDED
@@ -217,7 +216,6 @@ namespace RTT
 #ifdef OROPKG_OS_THREAD_SCOPE
         // Check if threadscope device already exists
         {
-            Logger::In in("PeriodicThread");
             if ( DigitalOutInterface::nameserver.getObject("ThreadScope") ){
                 d = DigitalOutInterface::nameserver.getObject("ThreadScope");
             }
@@ -228,7 +226,6 @@ namespace RTT
 #endif
         int rv = rtos_task_create(&rtos_task, _priority, name.c_str(), msched_type, periodicThread, this );
         if ( rv != 0 ) {
-            Logger::In in("PeriodicThread");
             Logger::log() << Logger::Critical << "Could not create thread "
                           << rtos_task_get_name(&rtos_task) <<"."<<Logger::endl;
             rtos_sem_destroy( &sem );
@@ -243,7 +240,7 @@ namespace RTT
         rtos_sem_wait(&confDone); // wait until thread is created.
  
         const char* modname = getName();
-        Logger::In in(modname);
+        Logger::In in2(modname);
         log(Info)<< "PeriodicThread created with scheduler type '"<< getScheduler() <<"', priority " << getPriority()
                  <<" and period "<< getPeriod() << "." << endlog();
 #ifdef OROPKG_OS_THREAD_SCOPE

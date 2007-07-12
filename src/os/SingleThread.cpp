@@ -162,15 +162,15 @@ namespace RTT
 
     void SingleThread::setup(int _priority, const std::string& name) 
     {
-        Logger::log() << Logger::Debug << "SingleThread: Creating." <<Logger::endl;
+        Logger::In in("SingleThread");
+        Logger::log() << Logger::Debug << "Creating." <<Logger::endl;
 
         rtos_sem_init( &sem, 0 );
         rtos_sem_init( &confDone, 0 );
 	
 #ifdef OROPKG_OS_THREAD_SCOPE
         // Check if threadscope device already exsists
-	{
-            Logger::In in("SingleThread");
+        {
             if ( DigitalOutInterface::nameserver.getObject("ThreadScope") ){
                 d = DigitalOutInterface::nameserver.getObject("ThreadScope");
 	    }
@@ -181,7 +181,6 @@ namespace RTT
 #endif
 	int rv = rtos_task_create( &rtos_task, _priority, name.c_str(), msched_type, singleThread_f, this);
 	if ( rv != 0 ) {
-	    Logger::In in("SingleThread");
 	    Logger::log() << Logger::Critical << "Could not create thread "
 			  << rtos_task_get_name(&rtos_task) <<"."<<Logger::endl;
 
@@ -193,10 +192,10 @@ namespace RTT
 	    return;
 #endif
 	}
-    rtos_sem_wait( &confDone ); // wait until thread is created !
+	rtos_sem_wait( &confDone ); // wait until thread is created !
 	
 	const char* modname = getName();
-	Logger::In in(modname);
+	Logger::In in2(modname);
 	log(Info)<< "SingleThread created with priority " << getPriority()
 		 << " and period " << getPeriod() << "." << endlog();
 	log(Info) << "Scheduler type was set to `"<< getScheduler() << "'."<<endlog();
