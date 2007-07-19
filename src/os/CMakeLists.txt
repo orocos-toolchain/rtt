@@ -4,9 +4,13 @@ FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
 GLOBAL_ADD_INCLUDE( rtt/os ${HPPS})
 GLOBAL_ADD_SRC( ${CPPS})
 
+# Supported Operating Systems
 ADD_SUBDIRECTORY( gnulinux )
 ADD_SUBDIRECTORY( lxrt )
 ADD_SUBDIRECTORY( xenomai )
 ADD_SUBDIRECTORY( ecos )
+
+# Supported Hardware
 ADD_SUBDIRECTORY( oro_i386 )
 ADD_SUBDIRECTORY( oro_x86_64 )
+ADD_SUBDIRECTORY( oro_powerpc )
