@@ -133,6 +133,8 @@ int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
 #if defined(CONFIG_RTAI_VERSION_MINOR) && defined(CONFIG_RTAI_VERSION_MAJOR)
 #  if CONFIG_RTAI_VERSION_MAJOR == 3 && CONFIG_RTAI_VERSION_MINOR > 3
 	return (ret == RTE_TIMOUT) ? -1 : 0;
+#  else
+	return (ret == SEM_TIMOUT) ? -1 : 0;
 #  endif
 #else
 	return (ret == SEM_TIMOUT) ? -1 : 0;
