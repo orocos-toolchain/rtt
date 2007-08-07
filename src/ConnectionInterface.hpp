@@ -42,9 +42,7 @@
 #include <boost/intrusive_ptr.hpp>
 #include "os/fosi.h"
 #include "DataSourceBase.hpp"
-#ifdef OROPKG_CORBA
-#include "tao/corba.h"
-#endif
+#include "BufferBase.hpp"
 
 namespace RTT
 {
@@ -114,9 +112,16 @@ namespace RTT
 
         /**
          * Get a Data source representing the current value of this
-         * connection.
+         * connection. This function always returns a meaningful data source.
          */
         virtual DataSourceBase::shared_ptr getDataSource() const = 0;
+
+        /**
+         * Returns the buffer and its associated status of this connection,
+         * if this connection is buffered. Otherwise, this returns the null
+         * pointer.
+         */
+        virtual BufferBase::shared_ptr getBuffer() const = 0;
 
         /**
          * Connect all readers and writers.
@@ -183,12 +188,6 @@ namespace RTT
          */
         virtual bool removeWriter(PortInterface* w) = 0;
 
-#ifdef OROINT_OS_CORBA
-        /**
-         * Create a corba object which exports this connection to a Corba Object.
-         */
-        virtual CORBA::Object_ptr toChannel();
-#endif
     };
 }
 

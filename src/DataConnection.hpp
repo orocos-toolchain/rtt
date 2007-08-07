@@ -102,6 +102,10 @@ namespace RTT
             return buf;
         }
 
+        virtual BufferBase::shared_ptr getBuffer() const {
+            return BufferBase::shared_ptr();
+        }
+
         void setImplementation( DataObjectInterface<T>* doi ) {
             if ( doi ) {
                 buf = doi;
@@ -126,9 +130,6 @@ namespace RTT
 
         virtual bool removeWriter(PortInterface* w);
         
-#ifdef OROPKG_CORBA
-        virtual CORBA::Object_ptr toChannel();
-#endif
     };
 }
 
@@ -220,15 +221,6 @@ namespace RTT
         return false;
     }
         
-#ifdef OROPKG_CORBA
-    template<class T>
-    CORBA::Object_ptr DataConnection<T>::toChannel() {
-        // create a default channel.
-        log(Debug) << "Returning Corba Data Object." << endlog();
-        return buf->server(0);
-    }
-#endif
-
 }
 
 #endif

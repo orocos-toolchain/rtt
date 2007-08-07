@@ -45,6 +45,8 @@
 #include "DataFlowC.h"
 #include "orbsvcs/CosEventChannelAdminC.h"
 #include "orbsvcs/CosEventCommC.h"
+#include <tao/corba.h>
+#include <tao/PortableServer/PortableServer.h>
 
 namespace RTT
 { namespace Corba {
@@ -80,6 +82,12 @@ namespace RTT
          */
         virtual PortType getPortType() const {
             return PortType(int(mdata->getPortType( this->getName().c_str() )));
+        }
+
+        virtual const TypeInfo* getTypeInfo() const {
+            TypeInfo* ret = TypeInfoRepository::Instance()->type( mdata->getDataType(this->getName().c_str()) ) ; 
+            if (ret) return ret;
+            return detail::DataSourceTypeInfo<detail::UnknownType>::getTypeInfo();
         }
 
         virtual bool connected() const {

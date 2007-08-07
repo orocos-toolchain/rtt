@@ -128,17 +128,6 @@ namespace RTT
 
       virtual std::string getTypeName() const;
 
-      virtual CORBA::Any* createAny();
-
-      virtual CORBA::Any* getAny();
-
-#ifdef OROINT_OS_CORBA
-      virtual Corba::Expression_ptr server( PortableServer::POA_ptr );
-
-      //virtual Corba::Expression_ptr server(  PortableServer::POA_ptr ) const;
-
-      virtual Corba::Method_ptr method( MethodC* orig, PortableServer::POA_ptr );
-#endif
       /**
        * This method narrows a DataSourceBase to a typeded DataSource,
        * possibly returning a new object.
@@ -167,10 +156,6 @@ namespace RTT
       // remove the 'const' for the 'small' types. This to avoid requiring a DataSourceAdaptor.
       // Big types (classes) are still passed by const&.
       typedef typename boost::remove_const<typename boost::call_traits<value_t>::param_type>::type copy_t;
-
-#ifdef OROINT_OS_CORBA
-      using DataSource<T>::server;
-#endif
 
       /**
        * Use this type to store a pointer to an AssignableDataSource.
@@ -201,8 +186,6 @@ namespace RTT
        */
       virtual const_reference_t rvalue() const = 0;
 
-      using DataSourceBase::update;
-
       virtual bool update( DataSourceBase* other );
 
       virtual CommandInterface* updateCommand( DataSourceBase* other);
@@ -211,11 +194,9 @@ namespace RTT
 
       virtual AssignableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const = 0;
 
-      virtual bool update(const CORBA::Any& any);
+      virtual bool updateBlob(int protocol, const void* data);
 
-#ifdef OROINT_OS_CORBA
-      virtual Corba::Expression_ptr server(  PortableServer::POA_ptr );
-#endif
+      virtual void* server(int protocol, void* data );
 
       /**
        * This method narrows a DataSourceBase to a typeded AssignableDataSource,

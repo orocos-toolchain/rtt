@@ -35,7 +35,21 @@
  *                                                                         *
  ***************************************************************************/
  
- 
+/**
+ * * * * B I G  N O T E * * * *
+ * This class uses the TypeTransport of Orocos which uses (void*) for
+ * passing on data. TAO's CORBA implementation uses virtual inheritance,
+ * which does not work well together with (void*). That is, you must cast
+ * back to the exect same type the (void*) originated from and NOT to a 
+ * sub- or super-class. That would have been allowed without virtual inheritance.
+ *
+ * Hence, this class uses always the same base class (Expression_ptr) to
+ * communicate with the TypeTransport interface. Such that we know that when
+ * we receive a (void*) it came from an (Expression_ptr) and vice versa.
+ *
+ * Don't obey this and you'll get immediate hard to dissect crashes !
+ * * * * B I G  N O T E * * * *
+ */
 
 
 #include "ControlTaskProxy.hpp"
@@ -213,7 +227,7 @@ namespace RTT
                 Logger::log() <<Logger::Info << "Looking up Property " << tn.in();
                 if ( ti ) {
                     this->attributes()->addProperty( ti->buildProperty( props[i].name.in(), props[i].description.in(), 
-                                                                        ti->buildCorbaProxy( as_expr.in() ) ) );
+                                                                        ti->getProtocol(ORO_CORBA_PROTOCOL_ID)->proxy( expr.in() ) ) );
                     Logger::log() <<Logger::Info <<" found!"<<endlog();
                 }
                 else {
@@ -244,17 +258,17 @@ namespace RTT
             if ( ti ) {
                 Logger::log() <<": found!"<<endlog();
                 if ( CORBA::is_nil( as_expr ) ) {
-                    this->attributes()->setValue( ti->buildConstant( attrs[i].in(), ti->buildCorbaProxy( expr.in() ) ) );
+                    this->attributes()->setValue( ti->buildConstant( attrs[i].in(), ti->getProtocol(ORO_CORBA_PROTOCOL_ID)->proxy( expr.in() ) ) );
                 }
                 else {
-                    this->attributes()->setValue( ti->buildAttribute( attrs[i].in(), ti->buildCorbaProxy( as_expr.in() ) ) );
+                    this->attributes()->setValue( ti->buildAttribute( attrs[i].in(), ti->getProtocol(ORO_CORBA_PROTOCOL_ID)->proxy( expr.in() ) ) );
                 }
             } else {
                 Logger::log() <<": not found :-("<<endlog();
                 if ( CORBA::is_nil( as_expr ) )
                     this->attributes()->setValue( new Constant<CORBA::Any_ptr>( attrs[i].in(), new CORBAExpression<CORBA::Any_ptr>( expr.in() ) ) );
                 else
-                this->attributes()->setValue( new Attribute<CORBA::Any_ptr>( attrs[i].in(), new CORBAAssignableExpression<CORBA::Any_ptr>( as_expr.in() ) ) );
+                    this->attributes()->setValue( new Attribute<CORBA::Any_ptr>( attrs[i].in(), new CORBAAssignableExpression<CORBA::Any_ptr>( as_expr.in() ) ) );
             }
         }
 
@@ -315,10 +329,10 @@ namespace RTT
                 if ( ti ) {
                     Logger::log() <<": found!"<<endlog();
                     if ( CORBA::is_nil( as_expr ) ) {
-                        tobj->attributes()->setValue( ti->buildConstant( attrs[i].in(), ti->buildCorbaProxy( expr.in() ) ) );
+                        tobj->attributes()->setValue( ti->buildConstant( attrs[i].in(), ti->getProtocol(ORO_CORBA_PROTOCOL_ID)->proxy( expr.in() ) ) );
                     }
                     else {
-                        tobj->attributes()->setValue( ti->buildAttribute( attrs[i].in(), ti->buildCorbaProxy( as_expr.in() ) ) );
+                        tobj->attributes()->setValue( ti->buildAttribute( attrs[i].in(), ti->getProtocol(ORO_CORBA_PROTOCOL_ID)->proxy( expr.in() ) ) );
                     }
                 } else {
                     Logger::log() <<": not found :-("<<endlog();

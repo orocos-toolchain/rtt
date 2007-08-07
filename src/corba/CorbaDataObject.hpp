@@ -193,7 +193,7 @@ namespace RTT
                 log(Debug) << "Returning DataObject value."<<endlog();
                 ReferenceDataSource<T> rds( mimpl->Get() );
                 rds.ref();
-                CORBA::Any_var toset = rds.createAny( );
+                CORBA::Any_var toset = (CORBA::Any_ptr)rds.createBlob(ORO_CORBA_PROTOCOL_ID );
                 return toset._retn();
             }
 

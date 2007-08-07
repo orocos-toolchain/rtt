@@ -51,9 +51,6 @@ namespace RTT {
      template class Property<unsigned int>;
      template class Property<std::string>;
      template class Property<const std::string&>;
-#ifdef OROINT_OS_CORBA
-     template class Property<CORBA::Any>;
-#endif
 #endif
 
     template<>

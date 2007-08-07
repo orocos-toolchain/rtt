@@ -68,7 +68,7 @@ namespace RTT
     }
 
 
-    Corba::AssignableExpression_ptr ExpressionServer::CreateAssignableExpression( DataSourceBase::shared_ptr expr, PortableServer::POA_ptr p ){
+    Corba::Expression_ptr ExpressionServer::CreateAssignableExpression( DataSourceBase::shared_ptr expr, PortableServer::POA_ptr p ){
         // try to retrieve:
         Corba::AssignableExpression_ptr result = AServers[ expr ];
         if (result )

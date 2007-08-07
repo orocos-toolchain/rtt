@@ -82,9 +82,9 @@ namespace RTT
         /**
          * @brief Call all registered start functions.
          *
-         * @return -1 if one or more failed.
+         * @return false if one or more failed.
          */
-        int start();
+        bool start();
 
         /**
          * @brief Call all registered stop functions.
@@ -100,7 +100,7 @@ namespace RTT
         void res_collector( start_fun f )
         {
             if ( f() != 0 )
-                res = -1;
+                res = false;
         }
 
         static void caller( stop_fun f)
@@ -108,7 +108,7 @@ namespace RTT
             f();
         }
 
-        int res;
+        bool res;
             
         std::vector<start_fun> startv;
         std::vector<stop_fun> stopv;

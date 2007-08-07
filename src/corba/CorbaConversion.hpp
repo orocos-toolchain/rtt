@@ -47,6 +47,7 @@
 #include "../Logger.hpp"
 #include "../DataSourceTypeInfo.hpp"
 #include "AttributesC.h"
+#include "CorbaLib.hpp"
 
 namespace RTT
 {

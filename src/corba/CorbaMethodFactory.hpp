@@ -122,7 +122,7 @@ namespace RTT
             Corba::Arguments_var nargs = new Corba::Arguments();
             nargs->length( args.size() );
             for (size_t i=0; i < args.size(); ++i )
-                nargs[i] = args[i]->server( mpoa.in() );
+                nargs[i] = (Corba::Expression_ptr)args[i]->server(ORO_CORBA_PROTOCOL_ID, mpoa.in() );
             try {
                 Corba::Expression_var result = mfact->createMethod( method.c_str(), nargs.in() );
                 return ExpressionProxy::CreateDataSource( result._retn() ).get();

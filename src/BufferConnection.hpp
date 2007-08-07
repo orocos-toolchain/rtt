@@ -42,10 +42,6 @@
 #include <vector>
 #include "BufferConnectionInterface.hpp"
 #include "BufferDataSource.hpp"
-#ifdef OROPKG_CORBA
-#include "corba/Services.hpp"
-#include "corba/DataFlowI.h"
-#endif
 
 namespace RTT
 {
@@ -105,6 +101,10 @@ namespace RTT
             return DataSourceBase::shared_ptr( new BufferDataSource<T>( buf ) );
         }
 
+        virtual BufferBase::shared_ptr getBuffer() const {
+            return buf;
+        }
+
         void setImplementation( BufferInterface<T>* bufi )
         {
             if (bufi) {
@@ -130,9 +130,6 @@ namespace RTT
 
         virtual bool removeWriter(PortInterface* w);
 
-#ifdef OROPKG_CORBA
-        virtual CORBA::Object_ptr toChannel();
-#endif
     };
 }
 
@@ -212,17 +209,6 @@ namespace RTT
         }
         return false;
     }
-
-#ifdef OROPKG_CORBA
-    template<class T>
-    CORBA::Object_ptr BufferConnection<T>::toChannel() {
-        log(Debug) << "Creating Corba BufferChannel." << endlog();
-        RTT_Corba_BufferChannel_i<T>* cbuf = new RTT_Corba_BufferChannel_i<T>( buf );
-        // activate servant:
-        CORBA::Object_var ret = cbuf->_this();
-        return ret._retn();
-    }
-#endif
 
 }
 #endif

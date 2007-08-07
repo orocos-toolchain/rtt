@@ -41,6 +41,7 @@
 
 #include "../DataSourceBase.hpp"
 #include "OperationsC.h"
+#include "tao/PortableServer/PortableServer.h"
 
 
 // forward decl.
@@ -101,7 +102,7 @@ namespace RTT
          * @param expr The expression to serve
          * @return A new or previously created CORBA server for \a expr.
          */
-        static Corba::AssignableExpression_ptr CreateAssignableExpression( DataSourceBase::shared_ptr expr, PortableServer::POA_ptr p );
+        static Corba::Expression_ptr CreateAssignableExpression( DataSourceBase::shared_ptr expr, PortableServer::POA_ptr p );
 
         /**
          * Factory method: create a CORBA server to a method

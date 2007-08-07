@@ -51,9 +51,6 @@
 #include <boost/function_types/function_type_signature.hpp>
 
 #include "rtt-config.h"
-#ifdef OROPKG_CORBA
-#include "corba/ExpressionProxy.hpp"
-#endif
 
 namespace RTT
 {
@@ -331,42 +328,6 @@ namespace RTT
             return false;
         }
 
-        virtual CORBA::Any* createAny(DataSourceBase::shared_ptr source) const {
-#ifdef OROPKG_CORBA
-            DataSource<T>* d = AdaptDataSource<T>()( source );
-            if ( d )
-                return AnyConversion<PropertyType>::createAny( d->value() );
-#endif
-            return 0;
-        }
-
-        virtual bool update(const CORBA::Any& any, DataSourceBase::shared_ptr target) const {
-#ifdef OROPKG_CORBA
-            //This line causes a compile error in DataSourceAdaptor.hpp (where the bug is)
-            //Only narrow.
-//             AssignableDataSource<T>* ad = AdaptAssignableDataSource<T>()( target );
-            typename AssignableDataSource<T>::shared_ptr ad = AssignableDataSource<T>::narrow( target.get() );
-            if ( ad ) {
-                PropertyType value;
-                if (AnyConversion<PropertyType>::update(any, value ) ) {
-                    ad->set( value );
-                    return true;
-                }
-            }
-#endif
-            return false;
-        }
-
-        virtual DataSourceBase* buildCorbaProxy( Corba::Expression* e ) const {
-            DataSourceBase* result = 0;
-#ifdef OROPKG_CORBA
-            // first try as assignable DS, if not possible, try as normal DS.
-            result = Corba::ExpressionProxy::NarrowAssignableDataSource<PropertyType>( e );
-            if (!result )
-                result = Corba::ExpressionProxy::NarrowDataSource<PropertyType>( e );
-#endif
-            return result;;
-        }
     };
 
     template< class T>

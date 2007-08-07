@@ -40,6 +40,9 @@
 
 #include <map>
 #include "../rtt-config.h"
+#ifndef _REENTRANT
+#define _REENTRANT
+#endif
 #include <tao/corba.h>
 #include "../TaskContext.hpp"
 #include "ApplicationServer.hpp"

@@ -134,4 +134,7 @@ namespace RTT
         return 0;
     }
 
+    int PortInterface::serverProtocol() const {
+        return 0;
+    }
 }

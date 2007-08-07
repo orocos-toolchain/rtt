@@ -30,6 +30,7 @@
 
 #include "AttributesI.h"
 #include "AttributesC.h"
+#include "CorbaLib.hpp"
 #include <vector>
 #include <PropertyBag.hpp>
 #include <Property.hpp>
@@ -111,7 +112,7 @@ Orocos_AttributeInterface_i::~Orocos_AttributeInterface_i (void)
 {
     if ( !mar || !mar->hasAttribute( string(name) ) )
         return ::RTT::Corba::Expression::_nil();
-    return mar->getValue( string(name) )->getDataSource()->server( mpoa.in() );
+    return (::RTT::Corba::Expression_ptr)mar->getValue( string(name) )->getDataSource()->server(ORO_CORBA_PROTOCOL_ID, (void*) mpoa.in() );
 }
 
 ::RTT::Corba::Expression_ptr Orocos_AttributeInterface_i::getProperty (
@@ -126,7 +127,7 @@ Orocos_AttributeInterface_i::~Orocos_AttributeInterface_i (void)
     if ( mbag ==0 || !mbag->find( string(name) ) )
         return ::RTT::Corba::Expression::_nil();
     DataSourceBase::shared_ptr ds = mbag->find( string(name) )->getDataSource();
-    return ds->server( mpoa.in() );
+    return static_cast<Expression_ptr>(ds->server(ORO_CORBA_PROTOCOL_ID, (void*)mpoa.in() ));
 }
 
 

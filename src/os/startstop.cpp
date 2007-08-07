@@ -66,7 +66,7 @@ int __os_init(int argc, char** argv )
 
     Logger::log() << Logger::Debug << "Starting StartStopManager." << Logger::endl;
     initM = OS::StartStopManager::Instance();
-    return initM->start();
+    return initM->start() ? 0 : -1;
 }
 
 extern "C"

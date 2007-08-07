@@ -31,6 +31,7 @@
 #include "OperationInterfaceI.h"
 #include "OperationsI.h"
 #include "OperationFactory.hpp"
+#include "ExpressionProxy.hpp"
 
 using namespace RTT;
 using namespace RTT::Corba;
@@ -131,7 +132,7 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
     // create a local data source and a new method servant to serve it.
     try {
         MethodC orig(mfact, method);
-        return mfact->produce(method, nargs )->method( &orig, mpoa.in() );
+        return (::RTT::Corba::Method_ptr)(mfact->produce(method, nargs )->method(ORO_CORBA_PROTOCOL_ID, &orig, mpoa.in() ));
     } catch ( name_not_found_exception& nnf ) {
         throw ::RTT::Corba::NoSuchNameException( method );
     } catch ( wrong_number_of_args_exception& wna ) {
@@ -163,7 +164,7 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
     // create a local data source and a new method servant to serve it.
     try {
         MethodC orig(mfact, method);
-        return mfact->produce(method, nargs )->method( &orig, mpoa.in() );
+        return (RTT::Corba::Method_ptr)(mfact->produce(method, nargs )->method(ORO_CORBA_PROTOCOL_ID, &orig, mpoa.in() ));
     } catch ( name_not_found_exception& nnf ) {
         throw ::RTT::Corba::NoSuchNameException( method );
     } catch ( wrong_number_of_args_exception& wna ) {

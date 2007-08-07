@@ -44,6 +44,7 @@
 #include "../DataObjectInterfaces.hpp"
 #include "../DataSources.hpp"
 #include "OperationsC.h"
+#include "CorbaLib.hpp"
 
 namespace RTT
 { namespace Corba {
@@ -111,7 +112,7 @@ namespace RTT
             v = mec->get();
             ReferenceDataSource<T> rds(pull);
             rds.ref();
-            if ( rds.update( v.in() ) == false) {
+            if ( rds.updateBlob(ORO_CORBA_PROTOCOL_ID, &v.in() ) == false) {
                 log(Error) << "Could not read remote value: wrong data type."<<endlog();
                 return;
             }
@@ -137,7 +138,7 @@ namespace RTT
             // invoke Get() first.
             ValueDataSource<T> vds(push);
             vds.ref();
-            CORBA::Any_var toset = vds.createAny();
+            CORBA::Any_var toset = (CORBA::Any_ptr)vds.createBlob(ORO_CORBA_PROTOCOL_ID);
             mec->set( toset.in() ); 
         }
 

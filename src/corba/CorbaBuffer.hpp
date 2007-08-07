@@ -190,7 +190,7 @@ namespace RTT
             {
                 ReferenceDataSource<T> rds(  mimpl->front()  );
                 rds.ref();
-                CORBA::Any_var toset = rds.createAny();
+                CORBA::Any_var toset = (CORBA::Any_ptr)rds.createBlob(ORO_CORBA_PROTOCOL_ID);
                 return toset._retn();
             }
 
@@ -209,7 +209,7 @@ namespace RTT
                 has_event = mimpl->Pop( data );
                 ReferenceDataSource<T> rds( data );
                 rds.ref();
-                CORBA::Any_var toset = rds.createAny();
+                CORBA::Any_var toset = (CORBA::Any_ptr)rds.createBlob(ORO_CORBA_PROTOCOL_ID);
                 return toset._retn();
             }
 

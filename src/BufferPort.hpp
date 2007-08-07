@@ -147,6 +147,8 @@ namespace RTT
 
         virtual PortType getPortType() const { return ReadPort; }
 
+        virtual const TypeInfo* getTypeInfo() const { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
+
         /**
          * Provide a new implementation for the connection of this port.
          * If this port is not connected, a new connection is created.
@@ -368,6 +370,8 @@ namespace RTT
 
         virtual PortType getPortType() const { return WritePort; }
 
+        virtual const TypeInfo* getTypeInfo() const { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
+
         /**
          * Provide a new implementation for the connection of this port.
          * If this port is not connected, a new connection is created.
@@ -552,6 +556,8 @@ namespace RTT
         virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
 
         virtual PortType getPortType() const { return PortInterface::ReadWritePort; }
+
+        virtual const TypeInfo* getTypeInfo() const { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
 
         /**
          * Provide a new implementation for the connection of this port.

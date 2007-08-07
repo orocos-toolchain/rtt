@@ -91,6 +91,11 @@ namespace RTT
         virtual PortType getPortType() const = 0;
 
         /**
+         * Get the data type of this port.
+         */
+        virtual const TypeInfo* getTypeInfo() const = 0;
+
+        /**
          * Inspect if this Port is currently connected with another Port.
          */
         virtual bool connected() const = 0;
@@ -158,6 +163,10 @@ namespace RTT
          */
         virtual TaskObject* createPortObject();
 
+        /**
+         * Returns the protocol over which this port can be accessed.
+         */
+        virtual int serverProtocol() const;
     };
 
 }

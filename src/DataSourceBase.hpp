@@ -45,16 +45,7 @@
 #include <string>
 #include "os/oro_atomic.h"
 #include "rtt-config.h"
-#ifdef OROINT_OS_CORBA
-#include "corba/OperationsC.h"
-#include "corba/OperationsS.h"
-#endif
 #include "CommandInterface.hpp"
-
-namespace CORBA
-{
-    class Any;
-}
 
 namespace RTT
 {
@@ -211,32 +202,6 @@ namespace RTT
       virtual std::string getTypeName() const = 0;
 
       /**
-       * Creates a CORBA Any object with the \b current value of this
-       * DataSource. This does \b not trigger the evaluation() of this
-       * data source.
-       * @return a valid Any object or nill if this type is
-       * not supported.
-       */
-      virtual CORBA::Any* createAny() = 0;
-
-      /**
-       * Creates a CORBA Any object with the \b current value of this
-       * DataSource. This \b does trigger the evaluation() of this
-       * data source.
-       * @return a valid Any object or nill if this type is
-       * not supported.
-       */
-      virtual CORBA::Any* getAny() = 0;
-
-      /**
-       * Updates the value of this DataSource with the
-       * value of a CORBA Any object.
-       * @param any The value to update to.
-       * @return true if \a any had the correct type.
-       */
-      virtual bool update(const CORBA::Any& any);
-
-      /**
        * Stream the contents of this object.
        * @see TypeInfo
        */
@@ -260,30 +225,54 @@ namespace RTT
        */
       bool composeType( DataSourceBase::shared_ptr source);
 
-#ifdef OROINT_OS_CORBA
       /**
-       * Inspect if this DataSource has an Expression server
-       * reference.
+       * Creates a transportable data object with the \b current value of this
+       * DataSource. This does \b not trigger the evaluation() of this
+       * data source.
+       * @return a valid object or nill if this type is
+       * not supported.
        */
-      virtual bool hasServer() const;
+      virtual void* createBlob(int protocol);
 
       /**
-       * Create a CORBA object which 'mirrors' this DataSource.
-       * @return The Expression server if hasServer(), or a 
+       * Creates a transportable data object with the \b current value of this
+       * DataSource. This \b does trigger the evaluation() of this
+       * data source. Equivalent to this->evaluate(); this->createBlob();
+       * @return a valid object or nill if this type is
+       * not supported. 
+       */
+      virtual void* getBlob(int protocol);
+
+      /**
+       * Updates the value of this DataSource with the
+       * value of a transportable data object.
+       * @param any The value to update to.
+       * @return true if \a any had the correct type.
+       */
+      virtual bool updateBlob(int protocol, const void* data);
+
+      /**
+       * Inspect if this DataSource is a proxy for a remote server object.
+       * @return 0 if it is a local DataSource, or the protocol id if it
+       * is a proxy for a remove server.
+       */
+      virtual int serverProtocol() const;
+
+      /**
+       * Create an object server which 'mirrors' this DataSource.
+       * @return The existing server if serverProtocol() == \a protocol, or a 
        * \a new server object reference otherwise.
        * @see Operations.idl
        */
-      virtual Corba::Expression_ptr server( PortableServer::POA_ptr ) = 0;
+      virtual void* server( int protocol, void* arg );
 
       /**
-       * Create a CORBA object which 'mirrors' this DataSource.
-       * @return The Method server if hasServer(), or a 
+       * Create an object server which 'mirrors' this DataSource.
+       * @return The existing server if serverProtocol() == \a protocol, or a 
        * \a new method object reference otherwise.
        * @see Operations.idl
        */
-      virtual Corba::Method_ptr method( MethodC* orig, PortableServer::POA_ptr ) = 0;
-#endif
-
+      virtual void* method( int protocol, MethodC* orig, void* arg );
   };
 
     /**

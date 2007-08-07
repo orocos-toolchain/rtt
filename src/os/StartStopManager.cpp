@@ -65,11 +65,12 @@ namespace RTT
         stopv.push_back(t);
     }
 
-    int StartStopManager::start()
+    bool StartStopManager::start()
     {
         // save some memory trick
         //startv.resize( startv.size() );
         //stopv.resize( stopv.size() );
+        res = true;
         std::for_each(startv.begin(), startv.end(), boost::function<void (start_fun)>( std::bind1st(std::mem_fun( &StartStopManager::res_collector ), this) ) );
         return res;
     }
@@ -79,7 +80,7 @@ namespace RTT
         std::for_each(stopv.rbegin(), stopv.rend(), boost::function<void (stop_fun)>( &StartStopManager::caller ) );
     }
 
-    StartStopManager::StartStopManager() : res(0) {}
+    StartStopManager::StartStopManager() : res(true) {}
 
     StartStopManager::~StartStopManager()
     {

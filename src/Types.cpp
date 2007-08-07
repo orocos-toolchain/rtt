@@ -42,8 +42,7 @@
 #include <Logger.hpp>
 #include "Attribute.hpp"
 #include "DataSourceAdaptor.hpp"
-#include "TemplateTypeInfo.hpp"
-#include "TypeInfoName.hpp"
+#include "TypeTransporter.hpp"
 #include <TypeStream.hpp>
 #include <mystd.hpp>
 
@@ -142,6 +141,24 @@ namespace RTT
         return this->read( result, out );
     }
 
+    bool TypeInfo::addProtocol(int protocol_id, TypeTransporter* tt)
+    {
+        transporters.resize(protocol_id + 1);
+        if ( transporters[protocol_id] ) {
+            log(Error) << "A protocol with id "<<protocol_id<<" was already added for type "<< getTypeName()<<endlog();
+            return false;
+        }
+        transporters[protocol_id] = tt;
+        return true;
+    }
+    
+    TypeTransporter* TypeInfo::getProtocol(int protocol_id) const
+    {
+        if ( protocol_id > int(transporters.size()) )
+            return 0;
+        return transporters[protocol_id];
+    }
+
     namespace {
         boost::shared_ptr<TypeInfoRepository> typerepos;
     }
@@ -179,11 +196,17 @@ namespace RTT
 
     bool TypeInfoRepository::addType(TypeInfo* t)
     {
-        if ( data.count( t->getTypeName() ) != 0 ) {
-            Logger::log() << Logger::Warning << "Attempt to register Type '"<<t->getTypeName() <<"' twice to the Orocos Type System."<<Logger::endl;
+        std::string tname = t->getTypeName();
+        if ( data.count( tname ) != 0 ) {
+            Logger::log() << Logger::Warning << "Attempt to register Type '"<<tname <<"' twice to the Orocos Type System."<<Logger::endl;
         }
-        data[ t->getTypeName() ] = t;
-        Logger::log() << Logger::Debug << "Registered Type '"<<t->getTypeName() <<"' to the Orocos Type System."<<Logger::endl;
+        data[ tname ] = t;
+        Logger::log() << Logger::Debug << "Registered Type '"<<tname <<"' to the Orocos Type System."<<Logger::endl;
+        for(Transports::iterator it = transports.begin(); it != transports.end(); ++it)
+            if ( (*it)->registerTransport( tname, t) )  
+                log(Info) << "Registered new '"<< (*it)->getTransportName()<<"' transport for " << tname <<endlog();
+            else
+                log(Warning) << "No '"<< (*it)->getTransportName()<<"' transport available for " << tname << endlog();
         return true;
     }
 
@@ -192,4 +215,14 @@ namespace RTT
         return keys( data );
     }
 
+    void TypeInfoRepository::registerTransport( TransportRegistrator* tr )
+    {
+        transports.reserve( transports.size() + 1 );
+        transports.push_back( tr );
+        // infor transport of existing types.
+        map_t::const_iterator i = data.begin();
+        for( ; i != data.end(); ++i )
+            if ( tr->registerTransport( i->first , i->second ) )
+                log(Info) << "Registered new '"<< tr->getTransportName()<<"' transport for " << i->first <<endlog();
+    }
 }

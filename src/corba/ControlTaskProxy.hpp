@@ -40,13 +40,16 @@
  
 
 #include "../rtt-config.h"
+#ifndef _REENTRANT
+#define _REENTRANT
+#endif
 #include <tao/corba.h>
 #include <exception>
 #include "../TaskContext.hpp"
 #include <string>
 #include <map>
 #include "ControlTaskC.h"
-#include <orbsvcs/CosPropertyServiceC.h>
+//#include <orbsvcs/CosPropertyServiceC.h>
 #include "ApplicationServer.hpp"
 
 namespace RTT
@@ -178,7 +181,7 @@ namespace RTT
         /**
          * Returns the properties of this Task as a PropertySet.
          */
-        CosPropertyService::PropertySet_ptr propertySet();
+        //CosPropertyService::PropertySet_ptr propertySet();
 
         /**
          * Returns the default POA for all proxies.

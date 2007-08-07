@@ -86,7 +86,7 @@ namespace RTT
                     Logger::log() <<Logger::Info << "Looking up Property " << tn.in();
                     if ( ti ) {
                         _value.add( ti->buildProperty( props[i].name.in(), props[i].description.in(), 
-                                                                            ti->buildCorbaProxy( as_expr.in() ) ) );
+                                                                            ti->getProtocol(ORO_CORBA_PROTOCOL_ID)->proxy( expr.in() ) ) );
                         Logger::log() <<Logger::Info<<" found!"<<Logger::endl;
                     }
                     else {

@@ -48,12 +48,6 @@ namespace RTT
     {
     }
 
-#ifdef OROPKG_CORBA
-    CORBA::Object_ptr ConnectionInterface::toChannel() { 
-        return 0;
-    }
-#endif
-
 }
 void intrusive_ptr_add_ref( RTT::ConnectionInterface* p )
 { 

@@ -74,7 +74,9 @@ namespace RTT
     };
 
 
-    
+    /**
+     * Mirrors a remote expression object.
+     */
     template<class T>
     class CORBAExpression
         : public DataSource<T>
@@ -86,14 +88,18 @@ namespace RTT
             : mexpr( Corba::Expression::_duplicate( expr ) ), last_value()
         {}
 
-        Corba::Expression_ptr server(PortableServer::POA_ptr)
+        void* server(int p, void* arg)
         {
-            return Corba::Expression::_duplicate( mexpr );
+            if ( p == ORO_CORBA_PROTOCOL_ID)
+                return Corba::Expression::_duplicate( mexpr );
+            return 0;
         }
 
-        Corba::Expression_ptr server(PortableServer::POA_ptr) const
+        void* server(int p, void* arg) const
         {
-            return Corba::Expression::_duplicate( mexpr );
+            if ( p == ORO_CORBA_PROTOCOL_ID)
+                return Corba::Expression::_duplicate( mexpr );
+            return 0;
         }
 
         typename DataSource<T>::result_t value() const {
@@ -104,7 +110,7 @@ namespace RTT
             CORBA::Any_var res = mexpr->get();
             ReferenceDataSource<T> rds(last_value);
             rds.ref();
-            if ( rds.update( res.in() ) == false)
+            if ( rds.updateBlob(ORO_CORBA_PROTOCOL_ID, &res.in() ) == false)
                 Logger::log() <<Logger::Error << "Could not update CORBAExpression to remote value!"<<Logger::endl;
             return last_value;
         }
@@ -124,9 +130,9 @@ namespace RTT
             //return std::string( mexpr->getType() );
         }
 
-        virtual bool hasServer() const
+        virtual int serverProtocol() const
         {
-            return true;
+            return ORO_CORBA_PROTOCOL_ID;
         }
     };
 
@@ -143,14 +149,18 @@ namespace RTT
             : mexpr( Corba::Expression::_duplicate( expr ) )
         {}
 
-        Corba::Expression_ptr server(PortableServer::POA_ptr)
+        void* server(int p, void* arg)
         {
-            return Corba::Expression::_duplicate( mexpr );
+            if ( p == ORO_CORBA_PROTOCOL_ID)
+                return Corba::Expression::_duplicate( mexpr );
+            return 0;
         }
 
-        Corba::Expression_ptr server(PortableServer::POA_ptr) const
+        void* server(int p, void* arg) const
         {
-            return Corba::Expression::_duplicate( mexpr );
+            if ( p == ORO_CORBA_PROTOCOL_ID)
+                return Corba::Expression::_duplicate( mexpr );
+            return 0;
         }
 
         void value() const {
@@ -170,12 +180,15 @@ namespace RTT
             return const_cast<CORBAExpression<void>*>(this);
         }
 
-        virtual bool hasServer() const
+        virtual int serverProtocol() const
         {
-            return true;
+            return ORO_CORBA_PROTOCOL_ID;
         }
     };
 
+    /**
+     * Mirrors a remote assignable expression.
+     */
     template<class T>
     class CORBAAssignableExpression
         : public AssignableDataSource<T>
@@ -191,14 +204,18 @@ namespace RTT
             storage = detail::BuildType<value_t>::Value();
         }
 
-        Corba::Expression_ptr server(PortableServer::POA_ptr)
+        void* server(int p, void* arg)
         {
-            return Corba::AssignableExpression::_duplicate( mexpr );
+            if ( p == ORO_CORBA_PROTOCOL_ID)
+                return Corba::AssignableExpression::_duplicate( mexpr );
+            return 0;
         }
         
-        Corba::Expression_ptr server(PortableServer::POA_ptr) const
+        void* server(int p, void* arg) const
         {
-            return Corba::AssignableExpression::_duplicate( mexpr );
+            if ( p == ORO_CORBA_PROTOCOL_ID)
+                return Corba::AssignableExpression::_duplicate( mexpr );
+            return 0;
         }
 
         typename DataSource<T>::result_t value() const {
@@ -214,7 +231,7 @@ namespace RTT
             CORBA::Any_var res = mexpr->get();
             ReferenceDataSource<T> rds( storage->set() );
             rds.ref();
-            if ( rds.update( res.in() ) == false)
+            if ( rds.updateBlob(ORO_CORBA_PROTOCOL_ID, &res.in() ) == false)
                 Logger::log() <<Logger::Error << "Could not update CORBAAssignableExpression to remote value!"<<Logger::endl;
             return storage->rvalue();
         }
@@ -222,7 +239,7 @@ namespace RTT
         virtual void set( typename AssignableDataSource<T>::param_t t ) {
             ValueDataSource<T> vds(t);
             vds.ref();
-            CORBA::Any_var toset = vds.createAny();
+            CORBA::Any_var toset = (CORBA::Any_ptr)vds.createBlob(ORO_CORBA_PROTOCOL_ID);
             mexpr->set( toset.in() );
             storage->set( t );
         }
@@ -235,7 +252,7 @@ namespace RTT
         {
             ValueDataSource<T> vds( storage->value() );
             vds.ref();
-            CORBA::Any_var toset = vds.createAny();
+            CORBA::Any_var toset = (CORBA::Any_ptr)vds.createBlob(ORO_CORBA_PROTOCOL_ID);
             mexpr->set( toset.in() );
         }
 
@@ -275,9 +292,9 @@ namespace RTT
             return const_cast<CORBAAssignableExpression<T>*>(this);
         }
 
-        virtual bool hasServer() const
+        virtual int serverProtocol() const
         {
-            return true;
+            return ORO_CORBA_PROTOCOL_ID;
         }
     };
 

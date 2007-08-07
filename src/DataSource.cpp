@@ -38,10 +38,8 @@
 #include "TypeInfoName.hpp"
 
 #include "rtt-config.h"
-#ifdef OROINT_OS_CORBA
-#include "AnyDataSource.hpp"
-#endif
-#include "TemplateTypeInfo.hpp"
+#include "Types.hpp"
+#include "TypeTransporter.hpp"
 
 namespace RTT
 {
@@ -92,13 +90,6 @@ namespace RTT
         return false;
     }
 
-#ifdef OROINT_OS_CORBA
-    bool DataSourceBase::hasServer() const
-    {
-        return false;
-    }
-#endif
-
     void DataSourceBase::updated()
     {}
 
@@ -115,10 +106,6 @@ namespace RTT
         return 0;
     }
 
-    bool DataSourceBase::update(const CORBA::Any& ) {
-        return false;
-    }
-
     template<>
     bool DataSource<bool>::evaluate() const
     {
@@ -126,86 +113,48 @@ namespace RTT
         return true;
     }
 
-    template<>
-    CORBA::Any* DataSource<void>::createAny()
+    void* DataSourceBase::createBlob(int protocol)
     {
-#ifdef OROINT_OS_CORBA
-        return new CORBA::Any();
-#endif
+        detail::TypeTransporter* tt = getTypeInfo()->getProtocol(protocol);
+        if ( tt )
+            return tt->createBlob( DataSourceBase::shared_ptr(this) );
         return 0;
     }
-
-    template<>
-    CORBA::Any* DataSource<void>::getAny()
+    
+    void* DataSourceBase::getBlob(int protocol)
     {
         this->evaluate();
-#ifdef OROINT_OS_CORBA
-        return new CORBA::Any();
-#endif
+        detail::TypeTransporter* tt = getTypeInfo()->getProtocol(protocol);
+        if ( tt )
+            return tt->createBlob( DataSourceBase::shared_ptr(this) );
         return 0;
     }
-
-    template<>
-    DataSource<void>* DataSource<void>::narrow(DataSourceBase* dsb) {
-        // first try conventional C++ style cast.
-        DataSource<void>* ret = dynamic_cast< DataSource<void>* >( dsb );
-        if (ret) return ret;
-#ifdef OROINT_OS_CORBA
-        // then try to see if it is a CORBA object.
-        //Corba::ExpressionProxyInterface* prox = dynamic_cast< Corba::ExpressionProxyInterface* >(dsb);
-        if ( dsb->hasServer() ) {
-            Corba::Expression_var expr = dsb->server(0) ;
-            return new Corba::CORBAExpression<void>( expr.in() );
-        }
-#endif
-        // all failed:
-        return 0;
-    }
-
-
-#ifdef OROINT_OS_CORBA
-    template<>
-    DataSource<CORBA::Any_ptr>* DataSource<CORBA::Any_ptr>::narrow(DataSourceBase* dsb) {
-        // first try conventional C++ style cast.
-        DataSource<CORBA::Any_ptr>* ret = dynamic_cast< DataSource<CORBA::Any_ptr>* >( dsb );
-        if (ret) return ret;
-        // if it is a server, we can always just ask it's any value...
-        if ( dsb->hasServer() ) {
-            Logger::log() << Logger::Debug << "Narrowing server "<<dsb->getType() <<" to local CORBA::Any." <<Logger::endl;
-            Corba::Expression_var expr = dsb->server(0) ;
-            return new Corba::CORBAExpression<CORBA::Any_ptr>( expr.in() );
-        }
-        // last resort, try to do it as 'Any':
-#if 0
-        // This piece of code requires 'tao/Typecode.h' or 'tao/TypeCode.h'
-        CORBA::Any_var any = dsb->createAny();
-        if ( (any->type())->equal(CORBA::_tc_null) == false ) {
-            // if other's any is meaningful (not null), create Any.
-            Logger::log() << Logger::Debug << "'Emergency' narrowing DataSource "<<dsb->getType() <<" to local CORBA::Any." <<Logger::endl;
-            return new detail::AnyDataSource( dsb );
-        }
-        Logger::log() << Logger::Debug << "Narrowing DataSource "<<dsb->getType() <<" to AnyDataSource." <<Logger::endl;
-        return new detail::AnyDataSource( dsb );
-#endif
-        return 0;
-    }
-
-    template<>
-    CommandInterface* AssignableDataSource<CORBA::Any_ptr>::updateCommand( DataSourceBase* other) 
+    
+    bool DataSourceBase::updateBlob(int protocol, const void* data)
     {
-        //CORBA::Any_ptr any = other->getAny();
-        if ( true ) {
-            // if other's any is meaningful (not null), create Any.
-            Logger::log() << Logger::Debug << "Creating updateCommand for "<<other->getType() <<" as CORBA::Any." <<Logger::endl;
-            return new detail::AssignAnyCommand<CORBA::Any_ptr>( this, other );
-        }
+        return false; // overridden in AssignableDataSource<T>
+    }
 
-        Logger::log() << Logger::Error << "Could not create updateCommand for "<<other->getType() <<" as CORBA::Any." <<Logger::endl;
-        throw bad_assignment();
+    int DataSourceBase::serverProtocol() const
+    {
+        return 0; // default to local DataSource.
+    }
 
+    void* DataSourceBase::server( int protocol, void* arg )
+    {
+        detail::TypeTransporter* tt = getTypeInfo()->getProtocol(protocol);
+        if ( tt )
+            return tt->server( DataSourceBase::shared_ptr(this), false, arg );
         return 0;
     }
-#endif
+
+    void* DataSourceBase::method( int protocol, MethodC* orig, void* arg )
+    {
+        detail::TypeTransporter* tt = getTypeInfo()->getProtocol(protocol);
+        if ( tt )
+            return tt->method( DataSourceBase::shared_ptr(this), orig, arg );
+        return 0;
+    }
 
     namespace detail {
 

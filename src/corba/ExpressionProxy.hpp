@@ -86,7 +86,7 @@ namespace RTT
             typename DataSource<T>::value_t target = typename DataSource<T>::value_t();
             ReferenceDataSource<T> rds( target );
             rds.ref();
-            if ( rds.update( any.in() ) ) {
+            if ( rds.updateBlob(ORO_CORBA_PROTOCOL_ID, &any.in() ) ) {
                 Logger::log() <<Logger::Debug<< "Found valid conversion from server "<< expr->getType()
                               <<" to local "<< DataSource<T>::GetType()<<Logger::endl;
                 return new CORBAExpression<T>( expr );
@@ -122,7 +122,7 @@ namespace RTT
                 typename DataSource<T>::value_t target = typename DataSource<T>::value_t();
                 ReferenceDataSource<T> rds( target );
                 rds.ref();
-                if ( rds.update( any.in() ) ) {
+                if ( rds.updateBlob(ORO_CORBA_PROTOCOL_ID, &any.in() ) ) {
                     Logger::log() <<Logger::Debug<< "Found valid assignment conversion from server "<< ret->getType()
                                   <<" to local "<< DataSource<T>::GetType()<<Logger::endl;
                     return new CORBAAssignableExpression<T>( ret._retn() );
@@ -166,9 +166,9 @@ namespace RTT
          */
         //virtual Corba::Expression_ptr createExpression() const;
 
-        virtual bool hasServer() const
+        virtual int serverProtocol() const
         {
-            return true;
+            return ORO_CORBA_PROTOCOL_ID;
         }
 
         virtual bool evaluate() const {
@@ -190,20 +190,34 @@ namespace RTT
 
         virtual std::string getTypeName() const { return std::string( mdata->getTypeName() ); }
 
-        virtual CORBA::Any* createAny() {
-            return mdata->value();
+        virtual void* createBlob(int p) {
+            if (p == ORO_CORBA_PROTOCOL_ID)
+                return mdata->value();
+            return 0;
         }
 
-        virtual CORBA::Any* getAny() {
-            return mdata->get();
+        virtual void* getBlob(int p) {
+            if (p == ORO_CORBA_PROTOCOL_ID)
+                return mdata->get();
+            return 0;
         }
 
-        virtual Corba::Expression_ptr server(PortableServer::POA_ptr) { return Corba::Expression::_duplicate(mdata.in()); }
+        virtual void* server(int p, void* arg) { 
+            if (p == ORO_CORBA_PROTOCOL_ID)
+                return Corba::Expression::_duplicate(mdata.in()); 
+            return 0;
+        }
 
-        virtual Corba::Expression_ptr server(PortableServer::POA_ptr) const { return Corba::Expression::_duplicate(mdata.in()); }
+        virtual void* server(int p, void* arg) const { 
+            if (p == ORO_CORBA_PROTOCOL_ID)
+                return Corba::Expression::_duplicate(mdata.in()); 
+            return 0;
+        }
 
-        virtual Corba::Method_ptr method(MethodC* , PortableServer::POA_ptr) {
-            return Corba::Method::_narrow( mdata.in() );
+        virtual void* method(int p, MethodC* , void* arg) {
+            if (p == ORO_CORBA_PROTOCOL_ID)
+                return Corba::Method::_narrow( mdata.in() );
+            return 0;
         }
 
     private:
@@ -215,7 +229,7 @@ namespace RTT
                 typename DataSource<T>::value_t target = typename DataSource<T>::value_t();
                 ReferenceDataSource<T> rds( target );
                 rds.ref();
-                if ( rds.update( any ) ) {
+                if ( rds.updateBlob(ORO_CORBA_PROTOCOL_ID, &any ) ) {
                     Logger::log() <<Logger::Debug<< "Found valid conversion from CORBA::Any "
                                   <<" to local constant "<< DataSource<T>::GetType()<<Logger::endl;
                     return new ConstantDataSource<T>( target );
@@ -240,7 +254,7 @@ namespace RTT
                 typename DataSource<T>::value_t target = typename DataSource<T>::value_t();
                 ReferenceDataSource<T> rds( target );
                 rds.ref();
-                if ( rds.update( any ) ) {
+                if ( rds.updateBlob(ORO_CORBA_PROTOCOL_ID, &any ) ) {
                     Logger::log() <<Logger::Debug<< "Found valid conversion from CORBA::Any "
                                   <<" to local constant "<< DataSource<const T&>::GetType()<<Logger::endl;
                     return new ConstantDataSource<const T&>( target );

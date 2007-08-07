@@ -46,9 +46,11 @@
 #include "AttributeBase.hpp"
 #include "Logger.hpp"
 
-namespace CORBA{
-    class Any;
-}
+/**
+ * \file We need some information on types if we want to make
+ * properties, variables or corba types of them, the classes in this file
+ * provide that information.
+ */
 
 
 
@@ -58,16 +60,11 @@ namespace RTT
     class PropertyBase;
     class PropertyBag;
     class AttributeBase;
-
-    namespace Corba {
-        class Expression;
+ 
+    namespace detail {
+        class TransportRegistrator;
+        class TypeTransporter;
     }
-
-    /**
-     * \file We need some information on types if we want to make
-     * properties, variables or corba types of them, the classes in this file
-     * provide that information.
-     */
 
     /**
      * This interface describes how constructors work.
@@ -90,9 +87,21 @@ namespace RTT
     {
     protected:
         typedef std::vector<TypeBuilder*> Constructors;
+        typedef std::vector<detail::TypeTransporter*> Transporters;
         Constructors constructors;
+        Transporters transporters;
     public:
         virtual ~TypeInfo();
+        /**
+         * Return unique the type name.
+         */
+        virtual const std::string& getTypeName() const = 0;
+
+        /**
+         * @name Type building/factory functions
+         * Used to create objects that hold data of a certain type.
+         * @{
+         */
         /**
          * Build a non modifyable instance of this type.
          * @param sizehint For variable size instances, use it to hint
@@ -140,7 +149,13 @@ namespace RTT
          * Build a ValueDataSource of this type.
          */
         virtual DataSourceBase::shared_ptr buildValue() const = 0;
+        /** @} */
 
+        /**
+         * @name Conversion to/from text
+         * Used to convert data to human readable text and vice versa.
+         * @{
+         */
         /**
          * Output this datasource as a human readable string.
          * The default just writes the type name in parentheses to \a os.
@@ -162,7 +177,13 @@ namespace RTT
          * Usability function which converts a string to data.
          */
         virtual bool fromString( const std::string& value, DataSourceBase::shared_ptr out ) const;
+        /** @} */
 
+        /**
+         * @name Inspecting data structures.
+         * Used to write a complex type to an external representation, like XML.
+         * @{
+         */
         /**
          * Decompose a structure as basic components into a PropertyBag.
          * @retval true decomposition resulted in new types added to targetbag.
@@ -176,26 +197,27 @@ namespace RTT
          * not work, because source and target have different type, this function returns false.
          */
         virtual bool composeType( DataSourceBase::shared_ptr source, DataSourceBase::shared_ptr target) const = 0;
+        /**
+         * @}
+         */
 
         /**
-         * Create an Any object which contains the value of \a source.
+         * @name Distribution of objects
+         * Used to transport data over a network.
+         * @{
          */
-        virtual CORBA::Any* createAny(DataSourceBase::shared_ptr source) const = 0;
 
         /**
-         * Update \a target with the contents of \a any.
+         * Register a protocol for data transport over a network.
          */
-        virtual bool update(const CORBA::Any& any, DataSourceBase::shared_ptr target) const = 0;
+        bool addProtocol(int protocol_id, detail::TypeTransporter* tt);
 
+        detail::TypeTransporter* getProtocol(int protocol_id) const; 
+        
         /**
-         * Create a DataSource which is a proxy for a Corba Expression object.
+         * @}
          */
-        virtual DataSourceBase* buildCorbaProxy( Corba::Expression* e ) const = 0;
 
-        /**
-         * Return unique the type name.
-         */
-        virtual const std::string& getTypeName() const = 0;
     };
 
     /**
@@ -207,6 +229,9 @@ namespace RTT
         TypeInfoRepository();
         typedef std::map<std::string, TypeInfo*> map_t;
         map_t data;
+        
+        typedef std::vector<detail::TransportRegistrator*> Transports;
+        Transports transports;
     public:
         ~TypeInfoRepository();
         typedef boost::shared_ptr<TypeInfoRepository> shared_ptr;
@@ -225,6 +250,12 @@ namespace RTT
          * List all types.
          */
         std::vector<std::string> getTypes() const;
+
+        /**
+         * Call this function to add a new (network) transport
+         * for Orocos types.
+         */
+        void registerTransport( detail::TransportRegistrator* tr );
     };
 }
 

@@ -71,22 +71,6 @@ OPTION( BUILD_STATIC "Build Orocos RTT as a static library." ${FORCE_BUILD_STATI
 #
 DEPENDENT_OPTION( ENABLE_CORBA "Enable CORBA (using TAO)" OFF "ACE_CONFIG AND TAO_ORB AND TAO_ORBSVCS;NOT ORO_EMBEDDED" OFF)
 IF (ENABLE_CORBA)
-  # Add includes / lib paths if necessary
-  IF( NOT ${ACE_DIR} STREQUAL /usr/include )
-    INCLUDE_DIRECTORIES( ${ACE_DIR} )
-    LINK_DIRECTORIES( ${ACE_DIR}/lib )
-    SET(RTT_CFLAGS "${RTT_CFLAGS} -I${ACE_DIR}" CACHE INTERNAL "")
-    SET(RTT_LINKFLAGS "${RTT_LINKFLAGS} -L${ACE_DIR}/lib" CACHE INTERNAL "")
-  ENDIF( NOT ${ACE_DIR} STREQUAL /usr/include )
-  IF( NOT ${TAO_DIR} STREQUAL /usr/include )
-    INCLUDE_DIRECTORIES( ${TAO_DIR} )
-    SET(RTT_CFLAGS "${RTT_CFLAGS} -I${TAO_DIR}" CACHE INTERNAL "")
-  ENDIF( NOT ${TAO_DIR} STREQUAL /usr/include )
-  IF( NOT ${ORBSVCS_DIR} STREQUAL /usr/include )
-    INCLUDE_DIRECTORIES( ${ORBSVCS_DIR} )
-    SET(RTT_CFLAGS "${RTT_CFLAGS} -I${ORBSVCS_DIR}" CACHE INTERNAL "")
-  ENDIF( NOT ${ORBSVCS_DIR} STREQUAL /usr/include )
-
   # Finally:
   IF (BUILD_STATIC)
     SET(RTT_LINKFLAGS "${RTT_LINKFLAGS} -lorocos-rtt-corba -lorocos-rtt -lTAO -lTAO_IDL_BE -lTAO_PortableServer -lTAO_CosNaming -lACE" CACHE INTERNAL "")
@@ -94,8 +78,6 @@ IF (ENABLE_CORBA)
     # shared.
   ENDIF (BUILD_STATIC)
 
-  # Is used for building both the library and the tests.
-  LINK_LIBRARIES( TAO TAO_IDL_BE TAO_PortableServer TAO_CosNaming ACE  )
 ENDIF (ENABLE_CORBA)
 
 

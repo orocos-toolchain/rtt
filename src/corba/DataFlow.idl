@@ -83,6 +83,11 @@ module RTT
       PortType getPortType(in string port_name);
 
       /**
+       * Get the type of data this port processes.
+       */
+      string getDataType(in string port_name);
+
+      /**
        * Check if a port is already connected. If so, one can join
        * in by using the create methods above. If not, the create
        * methods above will setup a new connection.

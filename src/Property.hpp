@@ -54,10 +54,6 @@
 #pragma interface
 #endif
 
-#ifdef OROINT_OS_CORBA
-#include "corba/CorbaConversion.hpp"
-#endif
-
 namespace RTT
 {
 	/**
@@ -414,15 +410,18 @@ namespace RTT
         Property<T>* res = dynamic_cast<Property<T>*>( prop );
         if (res)
             return res->clone();
-#ifdef OROINT_CORBA
-        if ( prop->getDataSource()->hasServer() ) {
+        // If this property is a proxy:
+        int p_id = prop->getDataSource()->serverProtocol();
+        if ( p_id ) {
+            assert(false); // untested code.
+#if 0
             T result;
-            CORBA::Any_var any = propbase->getDataSource()->getAny();
-            if( AnyConversion<T>::update( any.in() , result ) ) {
+            void* ret = propbase->getDataSource()->getBlob(p_id);
+            if( A n y Conversion<T>::update( any.in() , result ) ) {
                 return new Property<T>( propbase->getName(), propbase->getDescription(), result );
             }
-        } 
 #endif
+        } 
         return 0;
     }
 
@@ -434,9 +433,6 @@ namespace RTT
     extern template class Property<unsigned int>;
     extern template class Property<std::string>;
     extern template class Property<const std::string &>;
-#ifdef OROINT_OS_CORBA
-    extern template class Property<CORBA::Any>;
-#endif
 #endif
 }
 

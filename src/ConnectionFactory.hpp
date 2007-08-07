@@ -139,12 +139,6 @@ namespace RTT
 #include "BufferLocked.hpp"
 #include "BufferLockFree.hpp"
 #include "DataObjectInterfaces.hpp"
-#ifdef OROPKG_CORBA
-#include "corba/CorbaPort.hpp"
-#include "corba/CorbaDataObjectProxy.hpp"
-#include "corba/CorbaBufferProxy.hpp"
-#include "corba/DataFlowI.h"
-#endif
 
 namespace RTT
 {
@@ -154,42 +148,35 @@ namespace RTT
         {
             WriteBufferPort<T>* wt = dynamic_cast<WriteBufferPort<T>*>( writer );
             ReadBufferPort<T>* rt  = dynamic_cast<ReadBufferPort<T>*>( reader );
-            
-#ifdef OROPKG_CORBA
-            using namespace Corba;
-            // Detect corba connection
-            CorbaPort* wcp = dynamic_cast<CorbaPort*>( writer );
-            CorbaPort* rcp = dynamic_cast<CorbaPort*>( reader );
 
-            if ( wcp || rcp ) {
-                log(Info) << "Connecting ports using 'corba' connection type." <<endlog();
-                if ( (wcp && rcp) ) {
+            BufferBase* conn_buffer = 0;
+            int protocol = 0;
+            if ( (protocol = writer->serverProtocol()) ) {
+                if ( reader->serverProtocol() ) {
                     log() << "Can not connect two remote ports." <<endlog(Error);
                     log() << "One must be local and one must be remote." <<endlog(Error);
                     return 0;
                 }
-                if (wcp && rt) {
-                    // remote writer, local reader connection
-                    // The writer is requested to open an event channel (getEventChannel), our
-                    // local connection object reads from that channel through the CorbaDataObjectProxy.
-                    // Only the local reader connected. If a writer is connected lateron, it will write
-                    // into the Event Channel as well.
-                    BufferConnection<T>* dc = new BufferConnection<T>(new CorbaBufferProxy<T>( wcp->getBufferChannel() ));
-                    dc->addReader(rt);
-                    return dc;
-                }
-
-                if ( rcp && wt ) {
-                    // remote reader, local writer connection
-                    // quite the same as above.
-                    BufferConnection<T>* dc = new BufferConnection<T>(new CorbaBufferProxy<T>( rcp->getBufferChannel() ));
-                    dc->addWriter(wt);
-                    return dc;
-                }
-                log(Error) << "Failed to setup Corba connection: local reader or writer was null." <<endlog();
-                return 0;
+                conn_buffer = writer->getTypeInfo()->getProtocol( writer->serverProtocol() )->bufferProxy(writer);
             }
-#endif
+            else {
+                if ( (protocol=reader->serverProtocol()) ) {
+                    conn_buffer = reader->getTypeInfo()->getProtocol( reader->serverProtocol() )->bufferProxy(writer);
+                }
+            }
+            // if BufferBase, we already got a remote connection.
+            if (conn_buffer) {
+                BufferInterface<T>* bi = dynamic_cast<BufferInterface<T>*>(conn_buffer);
+                if (!bi) {
+                    log(Error) << "Misconfigured protocol "<<protocol<<": could not dynamic_cast to data type."<<endlog();
+                    delete conn_buffer;
+                    return 0;
+                }
+                BufferConnectionInterface<T>* bci = new BufferConnection<T>( bi );
+                bci->addReader(reader);
+                bci->addWriter(writer);
+                return bci;
+            }
 
             if ( wt == 0 || rt == 0 || wt->connection() || rt->connection() ){
                 Logger::log() <<Logger::Warning<< "ConnectionFactory could not create a BufferConnection between Writer:"<<writer->getName() <<" and Reader:"
@@ -228,42 +215,35 @@ namespace RTT
             WriteDataPort<T>* wt = dynamic_cast<WriteDataPort<T>*>( writer );
             ReadDataPort<T>* rt  = dynamic_cast<ReadDataPort<T>*>( reader );
 
-#ifdef OROPKG_CORBA
-            using namespace Corba;
-            // Detect corba connection
-            CorbaPort* wcp = dynamic_cast<CorbaPort*>( writer );
-            CorbaPort* rcp = dynamic_cast<CorbaPort*>( reader );
-
-            if ( wcp || rcp ) {
-                log(Info) << "Connecting ports using 'corba' connection type." <<endlog();
-                if ( (wcp && rcp) ) {
+            DataSourceBase::shared_ptr conn_data;
+            int protocol = 0;
+            if ( (protocol = writer->serverProtocol()) ) {
+                if ( reader->serverProtocol() ) {
                     log() << "Can not connect two remote ports." <<endlog(Error);
                     log() << "One must be local and one must be remote." <<endlog(Error);
                     return 0;
                 }
-                if (wcp && rt) {
-                    // remote writer, local reader connection
-                    // The writer is requested to open an event channel (getEventChannel), our
-                    // local connection object reads from that channel through the CorbaDataObjectProxy.
-                    // Only the local reader connected. If a writer is connected lateron, it will write
-                    // into the Event Channel as well.
-                    DataConnection<T>* dc = new DataConnection<T>(new CorbaDataObjectProxy<T>("CorbaProxy", wcp->getDataChannel() ));
-                    dc->addReader(rt);
-                    return dc;
-                }
-
-                if ( rcp && wt ) {
-                    // remote reader, local writer connection
-                    // quite the same as above.
-                    DataConnection<T>* dc = new DataConnection<T>(new CorbaDataObjectProxy<T>("CorbaProxy", rcp->getDataChannel() ));
-                    dc->addWriter(wt);
-                    return dc;
-                }
-                log(Error) << "Failed to setup Corba connection: local reader or writer was null." <<endlog();
-                return 0;
+                conn_data = writer->getTypeInfo()->getProtocol( writer->serverProtocol() )->dataProxy(writer);
             }
-#endif
-            
+            else {
+                if ( (protocol=reader->serverProtocol()) ) {
+                    conn_data = reader->getTypeInfo()->getProtocol( reader->serverProtocol() )->dataProxy(writer);
+                }
+            }
+            // if DataBase, we already got a remote connection.
+            if (conn_data) {
+                DataObjectInterface<T>* bi = dynamic_cast<DataObjectInterface<T>*>( conn_data.get() );
+                if (!bi) {
+                    log(Error) << "Misconfigured protocol "<<protocol<<": could not dynamic_cast to data type."<<endlog();
+                    delete bi;
+                    return 0;
+                }
+                DataConnectionInterface<T>* bci = new DataConnection<T>( bi );
+                bci->addReader(reader);
+                bci->addWriter(writer);
+                return bci;
+            }
+
             if ( wt == 0 || rt == 0 || wt->connection() || rt->connection() ) {
                 Logger::log() <<Logger::Warning<< "ConnectionFactory could not create a DataConnection between Writer:"<<writer->getName() <<" and Reader:"
                               << reader->getName() << Logger::nl;

@@ -114,9 +114,6 @@ namespace RTT
         ti->addType( new TemplateTypeInfo<double, true>("double") );
         ti->addType( new BoolTypeInfo() );
 
-#ifdef OROPKG_CORBA
-        ti->addType( new TemplateTypeInfo<CORBA::Any, false>("CORBA::Any") );
-#endif
 #ifndef ORO_EMBEDDED
         ti->addType( new TemplateTypeInfo<PropertyBag, false>("PropertyBag") );
         ti->addType( new TemplateTypeInfo<float, true>("float") );

@@ -34,6 +34,7 @@
 #include "Logger.hpp"
 
 using namespace RTT;
+using namespace RTT::Corba;
 
 
 // Implementation skeleton constructor
@@ -89,16 +90,13 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
         ci = p->connection();
     }
 
-    if ( !ci ) {
-        RTT::log() << "Failed to create Data Connection for Port: "<< port_name <<endlog(Error);
+    if ( !ci || ci->getDataSource()->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID) == 0) {
+        RTT::log() << "Failed to create CORBA Data Connection for Port: "<< port_name <<endlog(Error);
         return 0;
     }
 
-    CORBA::Object_var ret = ci->toChannel();
-    if ( CORBA::is_nil( ret ) ) {
-        RTT::log() << "Could not create DataChannel for Port: "<< port_name <<endlog(Error);
-        return 0;
-    }
+    ::RTT::Corba::Expression_var ret = static_cast<Expression_ptr>(ci->getDataSource()->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID)->dataServer( ci->getDataSource(), 0 ));
+
     ::RTT::Corba::AssignableExpression_var ec = ::RTT::Corba::AssignableExpression::_narrow( ret.in() );
 
     if ( ec.in() )
@@ -127,20 +125,17 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
         ci = p->connection();
     }
 
-    if ( !ci ) {
-        RTT::log() << "Failed to create Buffer Connection for Port: "<< port_name <<endlog(Error);
+    // use the datasource to obtain the protocol.
+    if ( !ci || ci->getDataSource()->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID) == 0) {
+        RTT::log() << "Failed to create CORBA Buffer Connection for Port: "<< port_name <<endlog(Error);
         return 0;
     }
-    
-    CORBA::Object_var ret = ci->toChannel();
-    if ( CORBA::is_nil( ret ) ) {
-        RTT::log() << "Could not create BufferChannel for Port: "<< port_name <<endlog(Error);
-        return 0;
-    }
-    ::RTT::Corba::BufferChannel_var ec = ::RTT::Corba::BufferChannel::_narrow( ret.in() );
 
-    if ( ec.in() )
-        return ec._retn();
+    // use the getBuffer method to obtain the buffer.
+    ::RTT::Corba::BufferChannel_var ret = static_cast<BufferChannel_ptr>(ci->getDataSource()->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID)->bufferServer( ci->getBuffer(), 0 ));
+
+    if ( ret.in() )
+        return ret._retn();
     RTT::log() << "Could not create BufferChannel for Port (try DataChannel?): "<< port_name <<endlog(Error);
     return 0;
 }
@@ -167,7 +162,7 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
         ci = p->connection();
     }
 
-    ::RTT::Corba::Expression_var ret = ci->getDataSource()->server(0);
+    ::RTT::Corba::Expression_var ret = (::RTT::Corba::Expression_ptr)ci->getDataSource()->server(ORO_CORBA_PROTOCOL_ID, 0);
     if ( CORBA::is_nil( ret ) ) {
         RTT::log() << "Could not create DataObject for connected Port: "<< port_name <<endlog(Error);
         return 0;
@@ -188,6 +183,21 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
     if ( p == 0)
         return ::RTT::Corba::DataFlowInterface::PortType();
     return ::RTT::Corba::DataFlowInterface::PortType( int(p->getPortType()) );
+}
+
+char* RTT_Corba_DataFlowInterface_i::getDataType (
+    const char * port_name
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+  // Add your implementation here
+  // Add your implementation here
+    PortInterface* p = mdf->getPort(port_name);
+    if ( p == 0)
+        return CORBA::string_dup( detail::DataSourceTypeInfo<detail::UnknownType>::getType().c_str() );
+    return CORBA::string_dup( p->getTypeInfo()->getTypeName().c_str() );
 }
 
 CORBA::Boolean RTT_Corba_DataFlowInterface_i::isConnected (

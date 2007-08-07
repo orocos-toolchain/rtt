@@ -73,6 +73,7 @@
 #include "DataFlowS.h"
 #include "../DataFlowInterface.hpp"
 #include "../BufferInterface.hpp"
+#include "CorbaConversion.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -240,6 +241,14 @@ public:
       CORBA::SystemException
     ));
   
+  virtual
+  char* getDataType (
+      const char * port_name
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+
   virtual
   CORBA::Boolean isConnected (
       const char * port_name

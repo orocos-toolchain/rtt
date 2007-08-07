@@ -46,6 +46,7 @@
 #include "orbsvcs/CosEventChannelAdminC.h"
 #include "orbsvcs/CosEventCommC.h"
 #include "../DataSources.hpp"
+#include "CorbaLib.hpp"
 
 
 namespace RTT
@@ -89,7 +90,7 @@ namespace RTT
             log(Debug) << "Sending Buffer value."<<endlog();
             ValueDataSource<T> vds(item);
             vds.ref();
-            CORBA::Any_var toset = vds.createAny();
+            CORBA::Any_var toset = (CORBA::Any_ptr)vds.createBlob(ORO_CORBA_PROTOCOL_ID);
             try {
                 buf->push( toset.in() );
             } catch (...) {
@@ -117,7 +118,7 @@ namespace RTT
                 if ( buf->pull( res.out() ) ) {
                     ReferenceDataSource<T> rds(item);
                     rds.ref();
-                    if ( rds.update( res.in() ) == false) {
+                    if ( rds.updateBlob(ORO_CORBA_PROTOCOL_ID, &res.in() ) == false) {
                         Logger::log() <<Logger::Error << "Could not Convert remote value: wrong data type."<<Logger::endl;
                         return false;
                     }
@@ -151,7 +152,7 @@ namespace RTT
             }
             ReferenceDataSource<T> rds( item );
             rds.ref();
-            if ( rds.update( res.in() ) == false) {
+            if ( rds.updateBlob(ORO_CORBA_PROTOCOL_ID, &res.in() ) == false) {
                 Logger::log() <<Logger::Error << "Could not inspect remote value: wrong data type."<<Logger::endl;
             }
             return item;

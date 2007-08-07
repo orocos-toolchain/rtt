@@ -137,23 +137,6 @@ namespace RTT
             return false;
         }
 
-        virtual CORBA::Any* createAny(DataSourceBase::shared_ptr source) const {
-            Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not create Any of "<<tname<<"."<<Logger::endl;
-            return 0;
-        }
-
-        virtual bool update(const CORBA::Any& any, DataSourceBase::shared_ptr target) const {
-            Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not update type "<<tname<<"."<<Logger::endl;
-            return false;
-        }
-
-        virtual DataSourceBase* buildCorbaProxy( Corba::Expression* e ) const {
-            Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not create Corba Proxy of "<<tname<<"."<<Logger::endl;
-            return 0;
-        }
     };
 
     /**

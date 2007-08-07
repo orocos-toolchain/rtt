@@ -187,55 +187,6 @@ namespace RTT
                 return new AssignIndexCommand( lhs->copy( alreadyCloned ), i->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
             }
         };
-
-#ifdef OROINT_OS_CORBA
-        /**
-         * This is a command that will assign the CORBA::Any value of an expression to
-         * an AssignableDatasource. The command will fail if the any was not convertible
-         * to \a T. This command is not hard real-time and mainly used for distributed communication.
-         * @param T The type of the AssignableDataSource to assign the Any to.
-         */
-        template<class T>
-        class AssignAnyCommand
-            : public CommandInterface
-        {
-        public:
-            typedef typename AssignableDataSource<T>::shared_ptr LHSSource;
-            typedef typename DataSourceBase::shared_ptr RHSSource;
-        private:
-            LHSSource lhs;
-            RHSSource rhs;
-        public:
-            /**
-             * Assign \a r (rvalue) to \a l (lvalue);
-             */
-            AssignAnyCommand( LHSSource l, RHSSource r )
-                : lhs( l ), rhs( r )
-            {
-            }
-
-            void readArguments() {
-                rhs->evaluate();
-            }
-
-            bool execute()
-            {
-                CORBA::Any_var any = rhs->createAny();
-                return lhs->update( *any  );
-            }
-
-            virtual CommandInterface* clone() const
-            {
-                return new AssignAnyCommand( lhs.get(), rhs.get() );
-            }
-
-            virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
-                return new AssignAnyCommand( lhs->copy( alreadyCloned ), rhs->copy( alreadyCloned ) );
-            }
-        };
-
-#endif
-
     }
 }
 

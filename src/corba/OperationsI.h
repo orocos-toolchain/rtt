@@ -207,7 +207,7 @@ public:
 
   // Constructor 
   Orocos_AnyExpression_i (RTT::DataSourceBase::shared_ptr orig, PortableServer::POA_ptr the_poa)
-      : morig( orig ), last_value( morig->createAny() ) // create default Any.
+      : morig( orig ), last_value( (CORBA::Any_ptr)morig->createBlob(ORO_CORBA_PROTOCOL_ID) ) // create default Any.
         , mpoa( PortableServer::POA::_duplicate(the_poa) )
     {}
 
@@ -236,7 +236,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
-      last_value = morig->getAny();
+      last_value = (CORBA::Any_ptr)morig->getBlob(ORO_CORBA_PROTOCOL_ID);
       bool result = true;
       // if it is a bool, update result and return it, otherwise, just return true:
       RTT::AnyConversion<bool>::update( last_value.in(), result );
@@ -250,7 +250,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
-      return morig->getAny();
+      return (CORBA::Any*)morig->getBlob(ORO_CORBA_PROTOCOL_ID);
   }
   
   virtual
@@ -548,7 +548,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
-      return mset->update( value );
+      return mset->updateBlob(ORO_CORBA_PROTOCOL_ID, &value );
   }
 
   virtual
