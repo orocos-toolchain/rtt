@@ -144,6 +144,12 @@ TICK_TIME ticksPerSec(void) { return rt_timer_ns2tsc( 1000 * 1000 * 1000 ); }
         return rt_sem_p(m, rt_timer_ns2ticks(delay) );
     }
 
+     int rtos_sem_wait_until(rt_sem_t* m, NANO_TIME when )
+    {
+        CHK_XENO_CALL();
+        return rt_sem_p(m, rt_timer_ns2ticks(when) - rt_timer_read() ) == 0 ? 0 : -1;
+    }
+
      int rtos_mutex_init(rt_mutex_t* m)
     {
         CHK_XENO_CALL();

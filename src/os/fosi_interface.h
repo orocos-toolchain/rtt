@@ -65,9 +65,12 @@ extern "C"
 #define ORO_SCHED_OTHER 1 /** Soft real-time scheduler type. @see RTT::OS::ThreadInterface::setScheduler */
 
   /**
-   * Time functions.
+   * OS representation of nano seconds.
    */
   typedef long long NANO_TIME;
+  /**
+   * OS representation of system ticks.
+   */
   typedef long long TICK_TIME;
 
   /**
@@ -82,9 +85,12 @@ extern "C"
   TICK_TIME rtos_get_time_ticks (void );
   
   /**
-   * Time conversions.
+   * Time conversions from nano seconds to system ticks.
    */
   TICK_TIME nano2ticks( NANO_TIME nano );
+  /**
+   * Time conversions from system ticks to nano seconds.
+   */
   NANO_TIME ticks2nano( TICK_TIME count );
 
   // Semaphore functions
@@ -98,6 +104,7 @@ extern "C"
   int rtos_sem_wait(rt_sem_t* m );
   int rtos_sem_trywait(rt_sem_t* m );
   int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay );
+  int rtos_sem_wait_until(rt_sem_t* m, NANO_TIME abs_time );
   int rtos_sem_value(rt_sem_t* m );
 
   // Mutex and recursive mutex functions

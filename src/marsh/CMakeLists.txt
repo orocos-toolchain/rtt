@@ -13,6 +13,7 @@ IF (ENABLE_MARSHALLING)
   IF (XERCES AND NOT OS_NOEXCEPTIONS)
     GLOBAL_ADD_INCLUDE( rtt/marsh CPFDemarshaller.hpp)
     GLOBAL_ADD_SRC( marsh/CPFDemarshaller.cpp )
+    # This doesn't help anything:
     SET(RTT_LINKFLAGS "${RTT_LINKFLAGS} -lxerces-c" CACHE INTERNAL "")
   ELSE (XERCES AND NOT OS_NOEXCEPTIONS)
     GLOBAL_ADD_INCLUDE( rtt/marsh TinyDemarshaller.hpp )

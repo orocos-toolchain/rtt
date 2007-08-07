@@ -52,12 +52,18 @@ namespace RTT
         }
         if ( this->owner_task )
             this->owner_task->run(0);
+        assert( owner_task == 0);
     }
     
   RunnableInterface::RunnableInterface() : owner_task(0) {}
 
   void RunnableInterface::setActivity( ActivityInterface* task ) {
     owner_task = task;
+    // also change the thread if the activity changes.
+    if ( owner_task )
+        this->setThread( owner_task->thread() );
+    else
+        this->setThread( 0 );
   }
  
 }

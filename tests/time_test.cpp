@@ -19,12 +19,15 @@
  
 #include "time_test.hpp"
 #include <boost/bind.hpp>
+#include <Timer.hpp>
+#include <iostream>
 
 #define EPSILON 0.000000002
 
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( TimeTest );
 
+using namespace std;
 using namespace RTT;
 using namespace boost;
 
@@ -53,7 +56,7 @@ TimeTest::tearDown()
     hbg->enableSystemClock( true );
 }
 
-#define CPPUNIT_ASSERT_EQUAL_EPS(a, b, EPSILON)  if ( !( -EPSILON < a-b && EPSILON > a-b ) ) {  CPPUNIT_ASSERT_EQUAL( a,b); }	   
+#define CPPUNIT_ASSERT_EQUAL_EPS(a, b, eps)  if ( !( -(eps) < ((a)-(b)) && (eps) > ((a)-(b)) ) ) {  CPPUNIT_ASSERT_EQUAL( a,b); }	   
 
 void 
 TimeTest::testSecondsConversion()
@@ -128,5 +131,156 @@ TimeTest::testTimeProgress()
     
 }
 
-    
+struct TestTimer
+    : public Timer
+{
+    std::vector< std::pair<Timer::TimerId, Seconds> > occured;
+    TimeService::Seconds mstart;
+    TestTimer()
+        :Timer(32, ORO_SCHED_RT, OS::HighestPriority)
+    {
+        occured.reserve(100);
+        mstart = TimeService::Instance()->secondsSince(0);
+    }
+    void timeout(Timer::TimerId id)
+    {
+        Seconds now = TimeService::Instance()->secondsSince( 0 );
+        occured.push_back( std::make_pair(id, now) );
+        cout << "Occured: "<< id <<" on " << now - mstart <<"\n";
+    }
 
+    ~TestTimer()
+    {
+        cout.flush();
+    }
+};
+
+void TimeTest::testTimers()
+{
+    TestTimer timer;
+    Seconds now = hbg->secondsSince( 0 );
+    // Test arming
+    CPPUNIT_ASSERT( timer.arm(0, 0.5) );
+    CPPUNIT_ASSERT( timer.arm(1, 0.6) );
+    CPPUNIT_ASSERT( timer.arm(2, 0.5) );
+
+    CPPUNIT_ASSERT( timer.arm(3, 0.8) );
+    CPPUNIT_ASSERT( timer.arm(3, 0.9) );
+
+    CPPUNIT_ASSERT( timer.isActive( 0 ) );
+    CPPUNIT_ASSERT( timer.isActive( 1 ) );
+    CPPUNIT_ASSERT( timer.isActive( 2 ) );
+    CPPUNIT_ASSERT( timer.isActive( 3 ) );
+
+    sleep(1);
+
+    // Test clearing
+    CPPUNIT_ASSERT( !timer.isActive( 0 ) );
+    CPPUNIT_ASSERT( !timer.isActive( 1 ) );
+    CPPUNIT_ASSERT( !timer.isActive( 2 ) );
+    CPPUNIT_ASSERT( !timer.isActive( 3 ) );
+
+    // Test sequence
+    CPPUNIT_ASSERT( timer.occured.size() == 4 );
+    CPPUNIT_ASSERT( timer.occured[0].first == 0 );
+    CPPUNIT_ASSERT( timer.occured[1].first == 2 );
+    CPPUNIT_ASSERT( timer.occured[2].first == 1 );
+    CPPUNIT_ASSERT( timer.occured[3].first == 3 );
+
+    // Test timeliness
+    CPPUNIT_ASSERT_EQUAL_EPS( timer.occured[0].second, now+0.5, 0.1 );
+    CPPUNIT_ASSERT_EQUAL_EPS( timer.occured[1].second, now+0.5, 0.1 );
+    CPPUNIT_ASSERT_EQUAL_EPS( timer.occured[2].second, now+0.6, 0.1 );
+    CPPUNIT_ASSERT_EQUAL_EPS( timer.occured[3].second, now+0.9, 0.1 );
+
+    // Test wrong parameters.
+    CPPUNIT_ASSERT( timer.arm(4, -0.1) == false);
+    CPPUNIT_ASSERT( timer.arm(500, 0.1) == false);
+
+    timer.occured.clear();
+
+    // Test resize.
+    CPPUNIT_ASSERT( timer.arm(10, 0.5) );
+    timer.setMaxTimers( 5 ); // clears the timer
+    sleep(1);
+    CPPUNIT_ASSERT( timer.occured.size() == 0 );
+}
+
+void TimeTest::testTimerPeriod()
+{
+    TestTimer timer;
+    Seconds now = hbg->secondsSince( 0 );
+    // Test starting periodics
+    CPPUNIT_ASSERT( timer.startTimer(0, 0.1) );
+    CPPUNIT_ASSERT( timer.startTimer(1, 0.6) );
+    CPPUNIT_ASSERT( timer.startTimer(2, 0.5) );
+
+    CPPUNIT_ASSERT( timer.startTimer(3, 0.5) );
+    CPPUNIT_ASSERT( timer.startTimer(3, 0.2) );
+
+    CPPUNIT_ASSERT( timer.isActive( 0 ) );
+    CPPUNIT_ASSERT( timer.isActive( 1 ) );
+    CPPUNIT_ASSERT( timer.isActive( 2 ) );
+    CPPUNIT_ASSERT( timer.isActive( 3 ) );
+
+    sleep(1);
+
+    // Test clearing
+    CPPUNIT_ASSERT( timer.killTimer( 0 ) );
+    CPPUNIT_ASSERT( timer.killTimer( 1 ) );
+    CPPUNIT_ASSERT( timer.killTimer( 2 ) );
+    CPPUNIT_ASSERT( timer.killTimer( 3 ) );
+    CPPUNIT_ASSERT( !timer.isActive( 0 ) );
+    CPPUNIT_ASSERT( !timer.isActive( 1 ) );
+    CPPUNIT_ASSERT( !timer.isActive( 2 ) );
+    CPPUNIT_ASSERT( !timer.isActive( 3 ) );
+
+    // Test sequence
+    //CPPUNIT_ASSERT( timer.occured.size() == 4 ); hard to estimate
+    CPPUNIT_ASSERT( timer.occured[0].first == 0 );
+    CPPUNIT_ASSERT( timer.occured[1].first == 0 );
+    CPPUNIT_ASSERT( timer.occured[2].first == 3 );
+    CPPUNIT_ASSERT( timer.occured[3].first == 0 );
+    CPPUNIT_ASSERT( timer.occured[4].first == 0 );
+    CPPUNIT_ASSERT( timer.occured[5].first == 3 );
+
+    CPPUNIT_ASSERT( timer.occured[6].first == 0 );
+    CPPUNIT_ASSERT( timer.occured[7].first == 2 );
+
+    CPPUNIT_ASSERT( timer.occured[8].first == 0 );
+    CPPUNIT_ASSERT( timer.occured[9].first == 1 );
+    CPPUNIT_ASSERT( timer.occured[10].first == 3 );
+    CPPUNIT_ASSERT( timer.occured[11].first == 0 );
+    CPPUNIT_ASSERT( timer.occured[12].first == 0 );
+    CPPUNIT_ASSERT( timer.occured[13].first == 3 );
+    CPPUNIT_ASSERT( timer.occured[14].first == 0 );
+
+    // Test timeliness
+    CPPUNIT_ASSERT_EQUAL_EPS( timer.occured[0].second, now+0.1, 0.1 );
+    CPPUNIT_ASSERT_EQUAL_EPS( timer.occured[1].second, now+0.2, 0.1 );
+    CPPUNIT_ASSERT_EQUAL_EPS( timer.occured[2].second, now+0.2, 0.1 );
+    CPPUNIT_ASSERT_EQUAL_EPS( timer.occured[3].second, now+0.3, 0.1 );
+    CPPUNIT_ASSERT_EQUAL_EPS( timer.occured[4].second, now+0.4, 0.1 );
+    CPPUNIT_ASSERT_EQUAL_EPS( timer.occured[5].second, now+0.4, 0.1 );
+    CPPUNIT_ASSERT_EQUAL_EPS( timer.occured[6].second, now+0.5, 0.1 );
+    CPPUNIT_ASSERT_EQUAL_EPS( timer.occured[7].second, now+0.5, 0.1 );
+    CPPUNIT_ASSERT_EQUAL_EPS( timer.occured[8].second, now+0.6, 0.1 );
+    CPPUNIT_ASSERT_EQUAL_EPS( timer.occured[9].second, now+0.6, 0.1 );
+    CPPUNIT_ASSERT_EQUAL_EPS( timer.occured[10].second, now+0.6, 0.1 );
+    CPPUNIT_ASSERT_EQUAL_EPS( timer.occured[11].second, now+0.7, 0.1 );
+    CPPUNIT_ASSERT_EQUAL_EPS( timer.occured[12].second, now+0.8, 0.1 );
+    CPPUNIT_ASSERT_EQUAL_EPS( timer.occured[13].second, now+0.8, 0.1 );
+    CPPUNIT_ASSERT_EQUAL_EPS( timer.occured[14].second, now+0.9, 0.1 );
+
+    // Test wrong parameters.
+    CPPUNIT_ASSERT( timer.startTimer(4, -0.1) == false);
+    CPPUNIT_ASSERT( timer.startTimer(500, 0.1) == false);
+
+    timer.occured.clear();
+
+    // Test resize.
+    CPPUNIT_ASSERT( timer.startTimer(10, 0.5) );
+    timer.setMaxTimers( 5 ); // clears the timer
+    sleep(1);
+    CPPUNIT_ASSERT( timer.occured.size() == 0 );
+}

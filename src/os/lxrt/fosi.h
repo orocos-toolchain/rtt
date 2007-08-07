@@ -241,12 +241,28 @@ inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
         ret = rt_sem_wait_timed(m->sem, nano2count(delay) ) ;
 #if defined(CONFIG_RTAI_VERSION_MINOR) && defined(CONFIG_RTAI_VERSION_MAJOR)
 #  if CONFIG_RTAI_VERSION_MAJOR == 3 && CONFIG_RTAI_VERSION_MINOR > 3
-	return (ret == RTE_TIMOUT) ? -1 : 0;
+        return (ret == RTE_TIMOUT) ? -1 : 0;
 #  else
-	return (ret == SEM_TIMOUT) ? -1 : 0;
+        return (ret == SEM_TIMOUT) ? -1 : 0;
 #  endif
 #else
-	return (ret == SEM_TIMOUT) ? -1 : 0;
+        return (ret == SEM_TIMOUT) ? -1 : 0;
+#endif
+    }
+
+    static inline int rtos_sem_wait_until(rt_sem_t* m, NANO_TIME when )
+    {
+        int ret;
+        CHK_LXRT_CALL();
+        ret = rt_sem_wait_until(m->sem, nano2count(when) ) ;
+#if defined(CONFIG_RTAI_VERSION_MINOR) && defined(CONFIG_RTAI_VERSION_MAJOR)
+#  if CONFIG_RTAI_VERSION_MAJOR == 3 && CONFIG_RTAI_VERSION_MINOR > 3
+        return (ret == RTE_TIMOUT) ? -1 : 0;
+#  else
+        return (ret == SEM_TIMOUT) ? -1 : 0;
+#  endif
+#else
+        return (ret == SEM_TIMOUT) ? -1 : 0;
 #endif
     }
 
@@ -376,6 +392,7 @@ int rtos_sem_wait(rt_sem_t* m );
 int rtos_sem_trywait(rt_sem_t* m );
 int rtos_sem_value(rt_sem_t* m );
 int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay );
+int rtos_sem_wait_until(rt_sem_t* m, NANO_TIME when );
 
 #endif // OSBLD_OS_AGNOSTIC
 

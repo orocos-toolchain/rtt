@@ -38,11 +38,12 @@
  
  
 
-#ifndef OS_SEMAPHORE_HPP
-#define OS_SEMAPHORE_HPP
+#ifndef RTT_OS_SEMAPHORE_HPP
+#define RTT_OS_SEMAPHORE_HPP
 
 #include "fosi.h"
 #include "../rtt-config.h"
+#include "Time.hpp"
 
 namespace RTT
 { namespace OS {
@@ -64,6 +65,7 @@ namespace RTT
     public:
         /**
          * Initialize a Semaphore with an initial \a count.
+         * @see value() to retrieve the current count.
          */
         Semaphore(int count)
         {
@@ -78,11 +80,19 @@ namespace RTT
             rtos_sem_destroy( &sem );
         }
 
+        /**
+         * Lower this semaphore and return if value() is non zero. Or
+         * wait if value() is zero until a signal occurs.
+         */
         void wait()
         {
             rtos_sem_wait( &sem );
         }
 
+        /**
+         * Raise this semaphore and signal one thread waiting on this
+         * semaphore.
+         */
         void signal()
         {
             rtos_sem_signal( &sem );
@@ -100,6 +110,37 @@ namespace RTT
             return false;
         }
 
+        /**
+         * Wait on this semaphore until a maximum absolute time.
+         * @param abs_time Absolute time in seconds until which to wait on this semaphore.
+         * @retval true if the semaphore was signaled before abs_time expired.
+         * @retval false if the semaphore was not signaled.
+         * @see rtos_get_time_ns() to get the current time in nano seconds.
+         */
+        bool waitUntil( Seconds abs_time )
+        {
+            if (rtos_sem_wait_until( &sem, Seconds_to_nsecs(abs_time) ) == 0 )
+                return true;
+            return false;
+        }
+
+        /**
+         * Wait on this semaphore until a maximum absolute time.
+         * @param abs_time Absolute time in nano seconds until which to wait on this semaphore.
+         * @retval true if the semaphore was signaled before abs_time expired.
+         * @retval false if the semaphore was not signaled.
+         * @see rtos_get_time_ns() to get the current time in nano seconds.
+         */
+        bool waitUntil( nsecs abs_time )
+        {
+            if (rtos_sem_wait_until( &sem, abs_time ) == 0 )
+                return true;
+            return false;
+        }
+
+        /**
+         * Return the current count of this semaphore.
+         */
         int value()
         {
             return rtos_sem_value( &sem );

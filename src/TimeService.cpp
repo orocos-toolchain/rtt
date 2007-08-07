@@ -29,6 +29,10 @@ namespace RTT
 {
     TimeService* TimeService::_instance = 0;
 
+    const TimeService::ticks TimeService::InfiniteTicks = ::InfiniteTicks;
+    const TimeService::nsecs TimeService::InfiniteNSecs = ::InfiniteNSecs;
+    const TimeService::Seconds TimeService::InfiniteSeconds  = ::InfiniteSeconds;
+
     TimeService::ticks TimeService::nsecs2ticks( const nsecs m )
     {
         return nano2ticks( m );

@@ -24,6 +24,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <Time.hpp>
 #include <TimeService.hpp>
+#include <Timer.hpp>
 #include <string>
 #include <rtt-config.h>
 
@@ -33,6 +34,8 @@ class TimeTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testSecondsConversion );
     CPPUNIT_TEST( testTicksConversion );
     CPPUNIT_TEST( testTimeProgress );
+    CPPUNIT_TEST( testTimers );
+    CPPUNIT_TEST( testTimerPeriod );
     CPPUNIT_TEST_SUITE_END();
 
     RTT::TimeService* hbg;
@@ -46,6 +49,8 @@ public:
     void testSecondsConversion();
     void testTicksConversion();
     void testTimeProgress();
+    void testTimers();
+    void testTimerPeriod();
 };
 
 #endif  // TIMETEST_H

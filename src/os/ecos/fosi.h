@@ -49,8 +49,12 @@ extern "C"
 #define ORO_SCHED_RT    0
 #define ORO_SCHED_OTHER 0
 
-  typedef long long NANO_TIME;
-  typedef cyg_tick_count_t TICK_TIME;
+    typedef long long NANO_TIME;
+    typedef cyg_tick_count_t TICK_TIME;
+
+    const TICK_TIME InfiniteTicks = ULONG_LONG_MAX;
+    const NANO_TIME InfiniteNSecs = LONG_LONG_MAX;
+    const double    InfiniteSeconds = DBL_MAX;
 
   typedef struct {
     // the thread

@@ -72,6 +72,8 @@ extern "C" {
 #include <signal.h>
 #include <getopt.h>
 #include <time.h>
+#include <limits.h>
+#include <float.h>
 
 #include <xeno_config.h> // version number
 	// From Xenomai 2.1 on, it defines ORO_LOCK_PREFIX itself, undef ours
@@ -95,9 +97,15 @@ extern "C" {
 	typedef struct timespec TIME_SPEC;
 	typedef RT_TASK         RTOS_XENO_TASK;
 
+    const TICK_TIME InfiniteTicks = LONG_LONG_MAX;
+    const NANO_TIME InfiniteNSecs = LONG_LONG_MAX;
+    const double    InfiniteSeconds = DBL_MAX;
+
 #else
 
 #include <pthread.h>
+#include <limits.h>
+#include <float.h>
 	//Xenomai redefinitions.
 	// Wrap/typedef Xeno types to Orocos Types.
 	typedef unsigned long XENO_rt_handle_t;
@@ -110,6 +118,10 @@ extern "C" {
 	typedef long long       NANO_TIME;
 	typedef long long       TICK_TIME;
 	typedef struct timespec TIME_SPEC;
+
+    const TICK_TIME InfiniteTicks = LONG_LONG_MAX;
+    const NANO_TIME InfiniteNSecs = LONG_LONG_MAX;
+    const double    InfiniteSeconds = DBL_MAX;
 
 	typedef struct {
 		XENO_rt_handle_t handle;
@@ -232,6 +244,12 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
     {
         CHK_XENO_CALL();
         return rt_sem_p(m, rt_timer_ns2ticks(delay) ) == 0 ? 0 : -1;
+    }
+
+    static inline int rtos_sem_wait_until(rt_sem_t* m, NANO_TIME when )
+    {
+        CHK_XENO_CALL();
+        return rt_sem_p(m, rt_timer_ns2ticks(when) - rt_timer_read() ) == 0 ? 0 : -1;
     }
 
     static inline int rtos_mutex_init(rt_mutex_t* m)
@@ -369,6 +387,7 @@ int rtos_sem_wait(rt_sem_t* m );
 int rtos_sem_trywait(rt_sem_t* m );
 int rtos_sem_value(rt_sem_t* m );
 int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay );
+int rtos_sem_wait_until(rt_sem_t* m, NANO_TIME when );
 
 #ifdef __cplusplus
 }

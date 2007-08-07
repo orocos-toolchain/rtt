@@ -188,6 +188,20 @@ namespace RTT
          */
         static nsecs ticks2nsecs( const ticks t );
 
+        /**
+         * The largest number representable in ticks.
+         */
+        static const ticks InfiniteTicks;
+
+        /**
+         * The largest number representable in nsecs.
+         */
+        static const nsecs InfiniteNSecs;
+
+        /**
+         * The largest number representable in Seconds.
+         */
+        static const Seconds InfiniteSeconds;
     protected:
 
         /**

@@ -36,7 +36,7 @@
  ***************************************************************************/
  
  
-
+#include <cassert>
 #include "os/RunnableInterface.hpp"
 #include "os/ThreadInterface.hpp"
 
@@ -52,6 +52,9 @@ namespace RTT
 
   RunnableInterface::~RunnableInterface()
   {
+      if(rthread)
+          rthread->run(0);
+      assert( rthread == 0 );
   }
 
   void RunnableInterface::loop() { this->step(); }

@@ -193,6 +193,9 @@ namespace RTT
 #endif
 	}
 	rtos_sem_wait( &confDone ); // wait until thread is created !
+
+    if (runComp)
+        runComp->setThread(this);
 	
 	const char* modname = getName();
 	Logger::In in2(modname);
@@ -231,6 +234,9 @@ namespace RTT
         rtos_sem_destroy( &confDone );
         rtos_sem_destroy( &sem );
 
+        if (runComp)
+            runComp->setThread(0);
+
     }
 
     bool SingleThread::setScheduler(int sched_type)
@@ -261,7 +267,11 @@ namespace RTT
     {
         if ( isActive() )
             return false;
+        if (runComp)
+            runComp->setThread(0);
         runComp = r;
+        if (runComp)
+            runComp->setThread(this);
         return true;
     }
 

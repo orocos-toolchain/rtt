@@ -41,8 +41,16 @@ extern "C"
 #include <pthread.h>
 #include <errno.h>
 #include <string.h>
-  typedef long long NANO_TIME;
-  typedef long long TICK_TIME;
+#include <limits.h>
+#include <float.h>
+#include <assert.h>
+
+    typedef long long NANO_TIME;
+    typedef long long TICK_TIME;
+
+    const TICK_TIME InfiniteTicks = LLONG_MAX;
+    const NANO_TIME InfiniteNSecs = LLONG_MAX;
+    const double    InfiniteSeconds = DBL_MAX;
 
   typedef struct {
     //  GNUTask( pthread_t th, NANO_TIME periodi ) 
@@ -73,21 +81,26 @@ extern "C"
 
     typedef struct timespec TIME_SPEC;
 
+	// high-resolution time to timespec
+	// hrt is in ticks
+	inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
+	{
+		TIME_SPEC timevl;
+		timevl.tv_sec = hrt / 1000000000LL;
+		timevl.tv_nsec = hrt % 1000000000LL;
+		return timevl;
+	}
+
     inline NANO_TIME rtos_get_time_ns( void )
     {
 
-        struct timeval tv;
-
-        int res = gettimeofday( &tv, 0 );
-
-        if ( res == -1 )
-            printf( "ERROR invoking gettimeofday in fosi.h\n" );
-
+        TIME_SPEC tv;
+        clock_gettime(CLOCK_REALTIME, &tv);
+        // we can not include the C++ Time.hpp header !
 #ifdef __cplusplus 
-        //  printf("TimeOFDay: %e ns\n", double(tv.tv_usec*1000LL + tv.tv_sec*1000000000LL));
-        return NANO_TIME( tv.tv_sec ) * 1000000000LL + NANO_TIME( tv.tv_usec ) * 1000LL;
+        return NANO_TIME( tv.tv_sec ) * 1000000000LL + NANO_TIME( tv.tv_nsec );
 #else
-        return ( NANO_TIME ) ( tv.tv_sec * 1000000000LL ) + ( NANO_TIME ) ( tv.tv_usec * 1000LL );
+        return ( NANO_TIME ) ( tv.tv_sec * 1000000000LL ) + ( NANO_TIME ) ( tv.tv_nsec );
 #endif 
     }
 
@@ -95,7 +108,7 @@ extern "C"
      * This function should return ticks,
      * but we use ticks == nsecs in userspace
      */
-  inline NANO_TIME rtos_get_time_ticks()
+    inline NANO_TIME rtos_get_time_ticks()
     {
         return rtos_get_time_ns();
     }
@@ -152,19 +165,27 @@ extern "C"
 
     static inline int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay )
     {
-		NANO_TIME end;
-		TIME_SPEC timevl;
-		end = rtos_get_time_ns() + delay;
-		// sleep for 11 ms.
-		timevl.tv_sec = 0;
-		timevl.tv_nsec = 11000000LL;
+		TIME_SPEC timevl, delayvl;
+        clock_gettime(CLOCK_REALTIME, &timevl);
+        delayvl = ticks2timespec(delay);
 
-		while ( sem_trywait(m) != 0 ) {
-			nanosleep( &timevl, 0);
-			if ( end < rtos_get_time_ns() )
-				return sem_trywait(m);
-		}
-		return 0;
+        // add current time with delay, detect&correct overflows.
+        timevl.tv_sec += delayvl.tv_sec;
+        timevl.tv_nsec += delayvl.tv_nsec;
+        if ( timevl.tv_nsec >= 1000000000) {
+            ++timevl.tv_sec;
+            timevl.tv_nsec -= 1000000000;
+        }
+
+        assert( timevl.tv_nsec < 1000000000 );
+
+        return sem_timedwait( m, &timevl);
+    }
+
+    static inline int rtos_sem_wait_until(rt_sem_t* m, NANO_TIME abs_time )
+    {
+        TIME_SPEC arg_time = ticks2timespec( abs_time );
+        return sem_timedwait( m, &arg_time);
     }
 
     static inline int rtos_sem_value(rt_sem_t* m )
@@ -178,9 +199,9 @@ extern "C"
     // Mutex functions
 
     typedef pthread_mutex_t rt_mutex_t;
-  typedef pthread_mutex_t rt_rec_mutex_t;
+    typedef pthread_mutex_t rt_rec_mutex_t;
 
-  static inline int rtos_mutex_init(rt_mutex_t* m)
+    static inline int rtos_mutex_init(rt_mutex_t* m)
     {
         return pthread_mutex_init(m, 0 );
     }
@@ -190,7 +211,7 @@ extern "C"
         return pthread_mutex_destroy(m);
     }
 
-  static inline int rtos_mutex_rec_init(rt_mutex_t* m)
+    static inline int rtos_mutex_rec_init(rt_mutex_t* m)
     {
         pthread_mutexattr_t ma_t;
         pthread_mutexattr_init(&ma_t);
@@ -208,43 +229,33 @@ extern "C"
         return pthread_mutex_lock(m);
     }
 
-  static inline int rtos_mutex_rec_lock( rt_mutex_t* m)
-  {
-    return pthread_mutex_lock(m);
-  }
+    static inline int rtos_mutex_rec_lock( rt_mutex_t* m)
+    {
+        return pthread_mutex_lock(m);
+    }
 
     static inline int rtos_mutex_trylock( rt_mutex_t* m)
     {
         return pthread_mutex_trylock(m);
     }
 
-  static inline int rtos_mutex_rec_trylock( rt_mutex_t* m)
-  {
-    return pthread_mutex_trylock(m);
-  }
+    static inline int rtos_mutex_rec_trylock( rt_mutex_t* m)
+    {
+        return pthread_mutex_trylock(m);
+    }
 
     static inline int rtos_mutex_unlock( rt_mutex_t* m)
     {
         return pthread_mutex_unlock(m);
     }
 
-  static inline int rtos_mutex_rec_unlock( rt_mutex_t* m)
-  {
-    return pthread_mutex_unlock(m);
-  }
+    static inline int rtos_mutex_rec_unlock( rt_mutex_t* m)
+    {
+        return pthread_mutex_unlock(m);
+    }
 
 
 #define rtos_printf printf
-
-	// high-resolution time to timespec
-	// hrt is in ticks
-	inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
-	{
-		TIME_SPEC timevl;
-		timevl.tv_sec = hrt / 1000000000LL;
-		timevl.tv_nsec = hrt % 1000000000LL;
-		return timevl;
-	}
 
 #ifdef __cplusplus
 }
