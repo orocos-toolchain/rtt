@@ -72,7 +72,17 @@ namespace RTT
         AttributeRepository();
         ~AttributeRepository();
 
+        /**
+         * A vector containing the names of all attribute objects
+         * in this repository.
+         */
         typedef std::vector<std::string> AttributeNames;
+
+        /**
+         * A vector containing pointers to all attribute objects
+         * stored in this repository.
+         */
+        typedef std::vector<AttributeBase*> AttributeObjects;
 
         /**
          * Erases the whole repository.
@@ -80,7 +90,7 @@ namespace RTT
         void clear();
 
         /**
-         * Check if an attribute is present.
+         * Check if an attribute is present in this interface.
          */
         bool hasAttribute( const std::string& name ) const;
 
@@ -203,12 +213,20 @@ namespace RTT
 
         /**
          * Return the names of all attributes.
+         * @deprecated by getAttributes()
          */
         AttributeNames names() const;
           
         /**
+         * Return the names of all attributes in this repository.
+         */
+        AttributeNames getAttributes() const;
+          
+        /**
          * Return a bag of all properties.
          * @return null if none present.
+         * @deprecated Properties should no longer be used as a part of the
+         * AttributeRepository, but accessed using TaskContext::properties().
          */
         PropertyBag* properties() const;
           

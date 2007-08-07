@@ -86,6 +86,22 @@ namespace RTT
             OperationFactory<DataSourceBase*>::clear();
         }
 
+        /**
+         * Returns the names of all methods added to this interface.
+         * @see getNames() to get a list of all methods available to scripting.
+         */
+        std::vector<std::string> getMethods() const {
+            return keys( simplemethods );
+        }
+
+        /**
+         * Query for the existence of a Method in this interface.
+         * @see hasMember() to verify if a method is available to scripting as well.
+         */
+        bool hasMethod(const std::string& name) const {
+            return simplemethods.count(name) == 1;
+        }
+
         /** 
          * Add a Method object to the method interface. This version
          * of addMethod does not add the Method object to the scripting
@@ -416,6 +432,17 @@ namespace RTT
          */
         MethodC create(std::string name) {
             return MethodC( this, name );
+        }
+
+        /**
+         * Reset the implementation of a method.
+         */
+        bool resetMethod(std::string name, ActionInterface::shared_ptr impl)
+        {
+            if (!hasMethod(name))
+                return false;
+            simplemethods[name] = impl;
+            return true;
         }
     };
 }

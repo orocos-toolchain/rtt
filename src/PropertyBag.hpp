@@ -268,8 +268,20 @@ namespace RTT
 
         void setType(const std::string& newtype) { type = newtype; }
 
+        /**
+         * Returns a list of all the property objects in this bag.
+         */
         Properties& getProperties() { return mproperties; }
+
+        /**
+         * Returns a list of all the property objects in this bag.
+         */
         const Properties& getProperties() const { return mproperties; }
+
+        /**
+         * Returns a list of all the names of the properties in this bag.
+         */
+        Names getPropertyNames() const { return list(); }
 
         iterator begin() { return mproperties.begin(); }
         const_iterator begin() const { return mproperties.begin(); }

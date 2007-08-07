@@ -121,6 +121,21 @@ namespace RTT
             OperationFactory<DispatchInterface*>::clear();
         }
 
+        /**
+         * Returns the names of all commands added to this interface.
+         * @see getNames() to get a list of all commands available to scripting.
+         */
+        std::vector<std::string> getCommands() const {
+            return keys( simplecommands );
+        }
+
+        /**
+         * Query for the existence of a Command in this interface.
+         * @see hasMember() to verify if a command is available to scripting as well.
+         */
+        bool hasCommand(const std::string& name) const {
+            return simplecommands.count(name) == 1;
+        }
 
         /** 
          * Add a Command object to the command interface. The command is 

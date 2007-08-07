@@ -108,8 +108,15 @@ namespace RTT
         /**
          * Get all port names of this interface.
          * @return A sequence of strings containing the port names.
+         * @deprecated by getNames()
          */
         PortNames getPortNames() const;
+
+        /**
+         * Get all port names of this interface.
+         * @return A sequence of strings containing the port names.
+         */
+        PortNames getNames() const;
 
         /**
          * Get an added port.

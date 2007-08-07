@@ -37,6 +37,7 @@
  
  
 #include "EventService.hpp"
+#include "mystd.hpp"
 
 #include "ExecutionEngine.hpp"
 #include <CompletionProcessor.hpp>
@@ -61,12 +62,12 @@ namespace RTT
 
     bool EventService::hasEvent(const std::string& ename) const
     {
-        return this->hasMember(ename);
+        return mevents.count(ename) == 1;
     }
 
     std::vector<std::string> EventService::getEvents() const
     {
-        return this->getNames();
+        return keys( mevents );
     }
 
     int EventService::arity(const std::string& name) const

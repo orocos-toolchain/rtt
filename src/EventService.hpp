@@ -103,6 +103,12 @@ namespace RTT
          */
         void clear();
 
+        /**
+         * Returns the names of all events added to this interface.
+         * @see getNames() to get a list of all events available to scripting.
+         */
+        std::vector<std::string> getEvents() const; 
+
         /** 
          * Add an Event to the event interface. This version
          * of addEvent only adds \a e to the C++ interface and
@@ -325,13 +331,9 @@ namespace RTT
 
         /**
          * Query for the existence of an Event in this Service.
+         * @see hasMember() to verify if an event is available to scripting as well.
          */
         bool hasEvent(const std::string& ename) const;
-
-        /**
-         * Get a list of the names of all the present events.
-         */
-        std::vector<std::string> getEvents() const;
 
         /**
          * Return the number of arguments a given event has.
