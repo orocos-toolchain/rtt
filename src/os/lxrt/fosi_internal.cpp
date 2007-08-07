@@ -262,7 +262,10 @@ namespace RTT
 
         INTERNAL_QUAL void rtos_task_set_period( RTOS_TASK* mytask, NANO_TIME nanosecs )
         {
-            rt_set_period(mytask->rtaitask, nano2count( nanosecs ));
+            if ( nanosecs == 0 )
+                rt_set_period(mytask->rtaitask, 0 );
+            else
+                rt_set_period(mytask->rtaitask, nano2count( nanosecs ));
         }
 
         INTERNAL_QUAL int rtos_task_wait_period( RTOS_TASK* mytask )
