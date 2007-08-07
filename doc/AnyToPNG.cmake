@@ -3,7 +3,7 @@ macro( ANY_TO_PNG RESULT)
   #SEPARATE_ARGUMENTS( ARGN )
   foreach (_current_FILE ${ARGN})
     # Create the target directory.
-    MESSAGE( "Processing ${CMAKE_CURRENT_BINARY_DIR}/${_current_FILE}" )
+    #MESSAGE( "Processing ${CMAKE_CURRENT_BINARY_DIR}/${_current_FILE}" )
     get_filename_component(DIRNAME ${CMAKE_CURRENT_BINARY_DIR}/${_current_FILE} PATH)
     get_filename_component(FILENAME ${CMAKE_CURRENT_BINARY_DIR}/${_current_FILE} NAME)
     get_filename_component(FILE_WE ${CMAKE_CURRENT_BINARY_DIR}/${_current_FILE} NAME_WE)
