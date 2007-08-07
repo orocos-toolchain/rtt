@@ -691,18 +691,12 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     CPPUNIT_ASSERT( tc->engine() );
     CPPUNIT_ASSERT( tc->engine()->states());
 
-#ifndef NOPARSER
+#if 0
+    // Classical way: use parser directly.
     Parser::ParsedStateMachines pg_list;
-#else
-    std::vector<StateMachine*> pg_list;
-    sleep(5);
-#endif
     try {
-#ifndef NOPARSER
         pg_list = parser.parseStateMachine( prog, tc );
-#endif
     }
-#ifndef NOPARSER
     catch( const file_parse_exception& exc )
         {
             CPPUNIT_ASSERT_MESSAGE( exc.what(), false );
@@ -711,7 +705,6 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
         {
             CPPUNIT_ASSERT_MESSAGE( exc.what(), false );
         }
-#endif
     catch( ... ) {
             CPPUNIT_ASSERT_MESSAGE( "Uncaught Parse Exception", false );
     }
@@ -719,9 +712,19 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
         {
             CPPUNIT_ASSERT( false );
         }
+#endif
+    // Alternative way: test ScriptingAccess as well.
     try {
-        tc->engine()->states()->loadStateMachine( *pg_list.begin() );
+        tc->scripting()->loadStateMachines( prog, std::string("state_test.cpp"), true );
     } 
+    catch( const file_parse_exception& exc )
+        {
+            CPPUNIT_ASSERT_MESSAGE( exc.what(), false );
+        }
+    catch( const parse_exception& exc )
+        {
+            CPPUNIT_ASSERT_MESSAGE( exc.what(), false );
+        }
     catch( const program_load_exception& e)
         {
             CPPUNIT_ASSERT_MESSAGE( e.what(), false );
@@ -730,7 +733,8 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
             CPPUNIT_ASSERT_MESSAGE( "Uncaught Processor load exception", false );
     }
     CPPUNIT_ASSERT( gtask.start() );
-    StateMachinePtr sm = *pg_list.begin();
+    StateMachinePtr sm = tc->engine()->states()->getStateMachine("x");
+    CPPUNIT_ASSERT( sm );
     CommandInterface* ca = newCommandFunctor(boost::bind(&StateMachine::activate, sm ));
     CommandInterface* cs = newCommandFunctor(boost::bind(&StateMachine::automatic,sm ));
 //      cerr << "Before activate :"<<endl;
