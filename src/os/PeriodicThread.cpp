@@ -505,8 +505,8 @@ namespace RTT
         prepareForExit = true;
         rtos_sem_signal(&sem);
     
-        rtos_sem_wait(&confDone);
-        rtos_task_delete(&rtos_task);
+        rtos_sem_wait(&confDone); // this is strictly not necessary
+        rtos_task_delete(&rtos_task); // this joins the thread.
 
     }
 
