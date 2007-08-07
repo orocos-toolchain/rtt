@@ -11,7 +11,7 @@
   <articleinfo>
     <title>Distributing Orocos Components with CORBA</title>
     <copyright>
-      <year>2006</year>
+      <year>2006, 2007</year>
       <holder>FMTC, Peter Soetens</holder>
     </copyright>
 
@@ -42,6 +42,12 @@
 	<date>9 November 2006</date>
 	<authorinitials>ps</authorinitials>
 	<revremark>1.0.0 release updates</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.04</revnumber>
+	<date>3 August 2007</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>1.2.2 release updates, added corbaloc options.</revremark>
       </revision>
     </revhistory>
 
@@ -100,20 +106,43 @@
     </section>
     <section>
       <title>Requirements and Setup</title>
+      <important><para>Follow these instructions carefully or your setup will not work !</para></important>
       <para>
-	In order to distribute Orocos components over a network, your system
-	must be setup correctly for using Corba.
+	In order to distribute Orocos components over a network, your
+	computers must be setup correctly for using Corba.
       </para>
       <para>The following must be done
       <itemizedlist>
-	<listitem><para>Install the Ace and Tao libraries and header files on your system. Tao version 1.3 or 1.4.</para></listitem>
-	<listitem><para>Configure Orocos with Corba support. See the Getting Started Manual.</para></listitem>
-	<listitem><para>Load the 'Corba' package in your configuration tool, using <command>make configure_packages</command>.
-	See the Getting Started Manual.</para></listitem>
-	<listitem><para>Start a Corba Naming Service once with multicasting on. Using the TAO
-	Naming Service, this would be: <command>Naming_Service -m 1 &amp;</command></para></listitem>
-	<listitem><para>Compile your applications with the appropriate include and linker flags. See the
+	<listitem><para>Install the Ace and Tao libraries and header
+	files on your system. Tao version 1.3, 1.4 or
+	1.5.</para></listitem>
+	<listitem><para>Configure Orocos with Corba support. See the
 	Getting Started Manual.</para></listitem>
+	<listitem><para>Start a Corba Naming Service once with
+	multicasting on. Using the TAO Naming Service, this would be:
+	</para>
+	<screen>
+  $ Naming_Service -m 1 &amp;</screen>
+        <para>And your application as: </para>
+	<screen>
+  $ ./your-corba-app</screen></listitem>
+        <listitem>
+	<para> <emphasis>OR:</emphasis> if that fails, start the
+	Naming Service with the following options set:</para>
+	<screen>
+  $ Naming_Service -m 0 -ORBListenEndpoints iiop://<emphasis>&lt;the-ns-ip-address&gt;</emphasis>:2809 -ORBDaemon</screen>
+	<para>The <emphasis>&lt;the-ns-ip-address&gt;</emphasis> must
+	be replaced with the ip address of a network interface of the
+	computer where you start the Naming Service. And each computer
+	where your start the application:</para>
+	<screen>
+  $ export NameServiceIOR=corbaloc:iiop:&lt;the-ns-ip-address&gt;:2809/NameService
+  $ ./your-corba-app</screen>
+	<para>With <emphasis>&lt;the-ns-ip-address&gt;</emphasis> the same as above.</para>
+	</listitem>
+	<listitem><para>Compile your applications with the appropriate
+	include and linker flags. See the Getting Started
+	Manual.</para></listitem>
       </itemizedlist> 
       </para>
     </section>
@@ -231,7 +260,7 @@
 	  execution timing will be worse.
 	</para></listitem>
 	<listitem><para>
-	  If you call 'CORBA.shutdown()' upon a component, the
+	  If you call '.shutdown()' upon a component, the
 	  whole CORBA part of that executable is shut down. It will cause
 	  the 'RunOrb()' function to return.
 	</para></listitem>
@@ -268,5 +297,56 @@
       these interfaces is very similar to using Orocos in C++, but using
       CORBA syntax.
     </para>
+  </section>
+  <section>
+    <title>Using the Naming Service</title>
+    <para>
+      Orocos uses the CORBA Naming Service such that components can
+      find each other on the same or different networked stations.
+    </para>
+    <para>
+      The components are registered under the naming context path
+      "ControlTasks/<emphasis>ComponentName</emphasis>"
+      (<emphasis>id</emphasis> fields). The <emphasis>kind</emphasis>
+      fields are left empty. Only the components which were explicitly
+      exported in your code, using
+      <classname>RTT::Corba::ControlTaskServer</classname>, are added
+      to the Naming Service. Others write their address as an IOR to
+      a file "<emphasis>ComponentName</emphasis>.ior", but you can 'browse'
+      to other components using the exported name and then using 'getPeer()'
+      to access its peer components.
+    </para>
+    <section><title>Example</title>
+    <para>
+      Since the multicast service of the CORBA Naming_Server behaves very
+      unpredictable (see <ulink url="http://www.theaceorb.com/faq/index.html#115">this link</ulink>), you
+      shouldn't use it.  Instead, it is better started via some extra lines in
+      <filename>/etc/rc.local</filename>:
+      <programlisting>
+  ################################################################################
+  #  Start CORBA Naming Service
+  echo Starting CORBA Naming Service
+  pidof Naming_Service || Naming_Service -m 0 -ORBListenEndpoints iiop://192.168.246.151:2809 -ORBDaemon
+  ################################################################################ </programlisting>
+      Where 192.168.246.151 should of course be replaced by your ip adres
+      (using a hostname may yield trouble due to the new 127.0.1.1
+      entries in /etc/hosts, we think).
+    </para>
+    <para>
+      All clients (i.e. both your application and the ktaskbrowser)
+      wishing to connect to the Naming_Service should use the environment
+      variable NameServiceIOR
+      <screen>
+  [user@host ~]$ echo $NameServiceIOR
+  corbaloc:iiop:192.168.246.151:2809/NameService </screen>
+      You can set it f.i. in your .bashrc file or on the command line via
+      <programlisting>
+  export NameServiceIOR=corbaloc:iiop:192.168.246.151:2809/NameService</programlisting>
+    </para>
+    <para>
+      See the orocos website for more information on compiling/running the
+      ktaskbrowser.
+    </para>
+    </section>
   </section>
 </article>
