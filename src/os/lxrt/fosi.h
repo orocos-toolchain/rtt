@@ -135,6 +135,10 @@ extern "C" {
 		RTOS_RTAI_TASK* rtaitask;
 	} RTOS_TASK;
 
+    const TICK_TIME InfiniteTicks = LLONG_MAX;
+    const NANO_TIME InfiniteNSecs = LLONG_MAX;
+    const double    InfiniteSeconds = DBL_MAX;
+
 #define SCHED_LXRT_HARD 0 /** LXRT Hard real-time */
 #define SCHED_LXRT_SOFT 1 /** LXRT Soft real-time */
 #define ORO_SCHED_RT    0 /** LXRT Hard real-time */

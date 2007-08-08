@@ -97,10 +97,6 @@ extern "C" {
 	typedef struct timespec TIME_SPEC;
 	typedef RT_TASK         RTOS_XENO_TASK;
 
-    const TICK_TIME InfiniteTicks = LONG_LONG_MAX;
-    const NANO_TIME InfiniteNSecs = LONG_LONG_MAX;
-    const double    InfiniteSeconds = DBL_MAX;
-
 #else
 
 #include <pthread.h>
@@ -119,10 +115,6 @@ extern "C" {
 	typedef long long       TICK_TIME;
 	typedef struct timespec TIME_SPEC;
 
-    const TICK_TIME InfiniteTicks = LONG_LONG_MAX;
-    const NANO_TIME InfiniteNSecs = LONG_LONG_MAX;
-    const double    InfiniteSeconds = DBL_MAX;
-
 	typedef struct {
 		XENO_rt_handle_t handle;
 		XENO_rt_handle_t handle2;
@@ -138,6 +130,10 @@ extern "C" {
         RTOS_XENO_TASK* xenoptr;
         int sched_type;
     } RTOS_TASK;
+
+    const TICK_TIME InfiniteTicks = LONG_LONG_MAX;
+    const NANO_TIME InfiniteNSecs = LONG_LONG_MAX;
+    const double    InfiniteSeconds = DBL_MAX;
 
 #define SCHED_XENOMAI_HARD 0 /** Hard real-time */
 #define SCHED_XENOMAI_SOFT 1 /** Soft real-time */
