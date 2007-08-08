@@ -38,6 +38,8 @@
 #include <sys/types.h>
 #include <sched.h>
 #include <assert.h> 
+#include <limits.h>
+#include <float.h>
 
 #ifdef __cplusplus
 extern "C" {
