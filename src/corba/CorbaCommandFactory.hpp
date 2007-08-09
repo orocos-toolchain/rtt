@@ -91,11 +91,6 @@ namespace RTT
             return std::string();
         }
 
-        virtual PropertyBag
-        getArgumentSpec() const {
-            return PropertyBag();
-        }
-
         /**
          * @brief Return the list of arguments of a certain command.
          */

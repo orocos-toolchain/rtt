@@ -80,7 +80,12 @@ namespace RTT
          * be linked with one OperationFactoryPart that knows how to produce
          * the thing that the name is used for..  Below are standard
          * implementations for functors of various signatures.
-         * @{
+         *
+         * @todo The OperationFactoryPartN classes could use
+         * FunctorFactoryPartN internally for the produce method. Now
+         * this is duplicate code.
+         *
+         *@{
          */
         template<typename ResultT>
         class OperationFactoryPart
@@ -103,11 +108,6 @@ namespace RTT
              */
             virtual std::string resultType() const = 0;
 
-            /**
-             * Get a description of the desired arguments in
-             * the property format.
-             */
-            virtual PropertyBag getArgumentSpec() const = 0;
             /**
              * Get a description of the desired arguments in
              * the ArgumentDescription format.
@@ -139,23 +139,19 @@ namespace RTT
             {
             }
 
-            PropertyBag getArgumentSpec() const
-            {
-                return PropertyBag();
-            }
-
             std::string resultType() const
             {
                 return DataSource<typename FunctorT::result_type>::GetType();
             }
 
-            std::vector<ArgumentDescription> getArgumentList() const
-            {
-                return std::vector<ArgumentDescription>();
-            }
-
             int arity() const { return 0; }
 
+            std::vector< ArgumentDescription > getArgumentList( ) const
+            {
+                std::vector< ArgumentDescription > mlist;
+                return mlist;
+            }
+            
             ResultT produce(
                             const std::vector<DataSourceBase::shared_ptr>& args) const
             {
@@ -192,13 +188,6 @@ namespace RTT
                 std::vector< ArgumentDescription > mlist;
                 mlist.push_back( ArgumentDescription( arg1name, arg1desc, DataSource<arg1_type>::GetType() ) );
                 return mlist;
-            }
-
-            PropertyBag getArgumentSpec() const
-            {
-                PropertyBag ret;
-                ret.add( new Property<arg1_type>( arg1name, arg1desc ) );
-                return ret;
             }
 
             int arity() const { return 1; }
@@ -250,14 +239,6 @@ namespace RTT
                 mlist.push_back( ArgumentDescription( arg1name, arg1desc, DataSource<arg1_type>::GetType() ) );
                 mlist.push_back( ArgumentDescription( arg2name, arg2desc, DataSource<arg2_type>::GetType() ) );
                 return mlist;
-            }
-
-            PropertyBag getArgumentSpec() const
-            {
-                PropertyBag ret;
-                ret.add( new Property<arg1_type>( arg1name, arg1desc ) );
-                ret.add( new Property<arg2_type>( arg2name, arg2desc ) );
-                return ret;
             }
 
             int arity() const { return 2; }
@@ -312,15 +293,6 @@ namespace RTT
             std::string resultType() const
             {
                 return DataSource<typename FunctorT::result_type>::GetType();
-            }
-
-            PropertyBag getArgumentSpec() const
-            {
-                PropertyBag ret;
-                ret.add( new Property<arg1_type>( arg1name, arg1desc ) );
-                ret.add( new Property<arg2_type>( arg2name, arg2desc ) );
-                ret.add( new Property<arg3_type>( arg3name, arg3desc ) );
-                return ret;
             }
 
             std::vector< ArgumentDescription > getArgumentList( ) const
@@ -393,16 +365,6 @@ namespace RTT
             std::string resultType() const
             {
                 return DataSource<typename FunctorT::result_type>::GetType();
-            }
-
-            PropertyBag getArgumentSpec() const
-            {
-                PropertyBag ret;
-                ret.add( new Property<arg1_type>( arg1name, arg1desc ) );
-                ret.add( new Property<arg2_type>( arg2name, arg2desc ) );
-                ret.add( new Property<arg3_type>( arg3name, arg3desc ) );
-                ret.add( new Property<arg4_type>( arg4name, arg4desc ) );
-                return ret;
             }
 
             std::vector< ArgumentDescription > getArgumentList( ) const
@@ -542,20 +504,6 @@ namespace RTT
             typename map_t::const_iterator i = data.find( name );
             if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), ResultT());
             return i->second->produce( args );
-        }
-
-        /** 
-         * Get the argument list of an operation as properties.
-         * 
-         * @param name The name of the operation
-         * 
-         * @return A PropertyBag which contains the properties.
-         */
-        PropertyBag getArgumentSpec( const std::string& name ) const
-        {
-            typename map_t::const_iterator i = data.find( name );
-            if ( i == data.end() || i->second == 0) ORO_THROW_OR_RETURN(name_not_found_exception(), PropertyBag());
-            return i->second->getArgumentSpec();
         }
 
         /** 

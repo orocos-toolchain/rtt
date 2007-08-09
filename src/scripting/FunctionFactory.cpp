@@ -66,18 +66,6 @@ namespace RTT
             return std::string("bool");
         }
 
-        PropertyBag
-        FunctionFactory::getArgumentSpec() const
-        {
-            std::vector<AttributeBase*> origlist = func->getArguments();
-
-            PropertyBag ret;
-            for ( std::vector<AttributeBase*>::const_iterator it = origlist.begin();
-                  it != origlist.end(); ++it)
-                ret.add( (*it)->getDataSource()->getTypeInfo()->buildProperty("arg","Function Argument."));
-            return ret;
-        }
-
         std::vector< ArgumentDescription > FunctionFactory::getArgumentList() const
         {
             std::vector<AttributeBase*> origlist = func->getArguments();

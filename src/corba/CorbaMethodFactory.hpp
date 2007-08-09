@@ -113,11 +113,6 @@ namespace RTT
             return ret;
         }
 
-        virtual PropertyBag
-        getArgumentSpec( ) const {
-            return PropertyBag();
-        }
-
         virtual DataSourceBase* produce( const Arguments& args ) const {
             Corba::Arguments_var nargs = new Corba::Arguments();
             nargs->length( args.size() );

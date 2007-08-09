@@ -68,9 +68,6 @@ namespace RTT
 
         std::string resultType() const;
 
-        PropertyBag
-        getArgumentSpec() const;
-
         std::vector< ArgumentDescription > getArgumentList() const;
 
         int arity() const;
