@@ -154,8 +154,18 @@ namespace RTT
     
     TypeTransporter* TypeInfo::getProtocol(int protocol_id) const
     {
-        if ( protocol_id > int(transporters.size()) )
-            return 0;
+        // if the protocol is unknown to this type, return the protocol of the 'unknown type'
+        // type, which is a fallback such that we won't have to return zero, but can 
+        // gracefully fall-back.
+        // In order to not endlessly recurse, we check if we aren't the UnknownType !
+        if ( protocol_id > int(transporters.size()) || transporters[protocol_id] == 0) {
+            if ( DataSourceTypeInfo<UnknownType>::getTypeInfo() != this )
+                return DataSourceTypeInfo<UnknownType>::getTypeInfo()->getProtocol( protocol_id );
+            else {
+                log(Warning) << "A protocol with id "<<protocol_id<<" did not register a fall-back handler for unknown types!"<<endlog();
+                return 0; // That transport did not register a fall-back !
+            }
+        }
         return transporters[protocol_id];
     }
 

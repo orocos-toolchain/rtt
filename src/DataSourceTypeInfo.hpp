@@ -56,7 +56,7 @@ namespace RTT
         /**
          * This class offers the default implementation
          * of type information for an unknown type.
-         * @see DataSource.cxx
+         * @see DataSource.cpp
          */
         template<>
         struct RTT_API DataSourceTypeInfo<UnknownType> {
@@ -73,7 +73,9 @@ namespace RTT
             static const std::string cptrqual;
             static const std::string& getType();
             static const std::string& getQualifier();
-            static const TypeInfo* getTypeInfo();
+            // we drop the const qualifier in this specialisation, since it is
+            // not registered in the type repository (which returns a non const in type() )
+            static TypeInfo* getTypeInfo();
         };
 
         /**

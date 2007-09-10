@@ -84,7 +84,7 @@ namespace RTT
                     CORBA::String_var tn = as_expr->getTypeName();
                     TypeInfo* ti = TypeInfoRepository::Instance()->type( tn.in() );
                     Logger::log() <<Logger::Info << "Looking up Property " << tn.in();
-                    if ( ti ) {
+                    if ( ti && ti->getProtocol(ORO_CORBA_PROTOCOL_ID) ) {
                         _value.add( ti->buildProperty( props[i].name.in(), props[i].description.in(), 
                                                                             ti->getProtocol(ORO_CORBA_PROTOCOL_ID)->proxy( expr.in() ) ) );
                         Logger::log() <<Logger::Info<<" found!"<<Logger::endl;

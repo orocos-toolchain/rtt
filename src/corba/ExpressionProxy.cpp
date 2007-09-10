@@ -96,7 +96,7 @@ namespace RTT
         CORBA::String_var tn = t->getTypeName();
         TypeInfo* builder = TypeInfoRepository::Instance()->type( tn.in() );
         DataSourceBase* dsb;
-        if ( builder )
+        if ( builder && builder->getProtocol(ORO_CORBA_PROTOCOL_ID) )
             dsb = builder->getProtocol(ORO_CORBA_PROTOCOL_ID)->proxy( t );
         else
             return Create( t ); // failed, create default proxy.

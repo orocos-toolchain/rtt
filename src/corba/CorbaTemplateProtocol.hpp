@@ -145,10 +145,8 @@ namespace RTT
               // Detect corba connection
               Corba::CorbaPort* cp = dynamic_cast<Corba::CorbaPort*>( data );
               
-              if ( !cp ) {
-                  log(Error) << "Tried to create proxy for non CorbaPort." <<endlog();
-                  return 0;
-              }
+              assert(cp);
+
               return new Corba::CorbaDataObjectProxy<T>("CorbaProxy", cp->getDataChannel());
           }
           
@@ -168,10 +166,8 @@ namespace RTT
               // Detect corba connection
               Corba::CorbaPort* cp = dynamic_cast<Corba::CorbaPort*>( data );
               
-              if ( !cp ) {
-                  log(Error) << "Tried to create proxy for non CorbaPort." <<endlog();
-                  return 0;
-              }
+              assert( cp );
+
               return new Corba::CorbaBufferProxy<T>( cp->getBufferChannel() );
           }
 

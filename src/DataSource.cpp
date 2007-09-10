@@ -162,7 +162,7 @@ namespace RTT
 
         const std::string& DataSourceTypeInfo<UnknownType>::getType() { return getTypeInfo()->getTypeName(); }
         const std::string& DataSourceTypeInfo<UnknownType>::getQualifier() { return noqual; }
-        const TypeInfo* DataSourceTypeInfo<UnknownType>::getTypeInfo() { 
+        TypeInfo* DataSourceTypeInfo<UnknownType>::getTypeInfo() { 
             if (!TypeInfoObject)
                 TypeInfoObject = new TypeInfoName<UnknownType>("unknown type");
             return TypeInfoObject; 

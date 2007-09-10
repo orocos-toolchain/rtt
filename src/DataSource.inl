@@ -91,9 +91,12 @@ namespace RTT
         // if narrowing failed, maybe this DS is a proxy for a remote object.
         int p_id = dsb->serverProtocol();
         if ( p_id ) {
-            DataSourceBase* ret2 = DataSource<T>::GetTypeInfo()->getProtocol( p_id )->narrowDataSource( dsb );
-            assert( dynamic_cast<DataSource<T>*>(ret2) == static_cast<DataSource<T>*>(ret2) );
-            return static_cast<DataSource<T>*>(ret2);
+            detail::TypeTransporter* tt = DataSource<T>::GetTypeInfo()->getProtocol( p_id );
+            if (tt) {
+                DataSourceBase* ret2 = tt->narrowDataSource( dsb );
+                assert( dynamic_cast<DataSource<T>*>(ret2) == static_cast<DataSource<T>*>(ret2) );
+                return static_cast<DataSource<T>*>(ret2);
+            }
         }
         // all failed:
         return 0;
@@ -106,9 +109,12 @@ namespace RTT
         if (ret) return ret;
         int p_id = dsb->serverProtocol();
         if ( p_id ) {
-            DataSourceBase* ret2 = DataSource<T>::GetTypeInfo()->getProtocol( p_id )->narrowAssignableDataSource( dsb );
-            assert( dynamic_cast<AssignableDataSource<T>*>(ret2) == static_cast<AssignableDataSource<T>*>(ret2) );
-            return static_cast<AssignableDataSource<T>*>(ret2);
+            detail::TypeTransporter* tt = DataSource<T>::GetTypeInfo()->getProtocol( p_id );
+            if (tt) {
+                DataSourceBase* ret2 = tt->narrowAssignableDataSource( dsb );
+                assert( dynamic_cast<AssignableDataSource<T>*>(ret2) == static_cast<AssignableDataSource<T>*>(ret2) );
+                return static_cast<AssignableDataSource<T>*>(ret2);
+            }
         }
         // all failed:
         return 0;

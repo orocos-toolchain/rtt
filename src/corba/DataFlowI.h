@@ -80,7 +80,7 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 /*
- * This class is unused. See CorbaBuffer
+ * Represent a buffered data channel.
  */
 template< class T>
 class  RTT_Corba_BufferChannel_i : public virtual POA_RTT::Corba::BufferChannel, public virtual PortableServer::RefCountServantBase
@@ -123,8 +123,10 @@ public:
         Logger::In in("CorbaBufferChannelI::pull");
         log(Debug) << "Returning buffer value."<<endlog();
         T result;
-        if ( mbuf->Pop( result ) == false )
+        if ( mbuf->Pop( result ) == false ) {
+            data = new CORBA::Any();
             return false;
+        }
         CORBA::Any_var toset = AnyConversion<T>::createAny( result );
         data = toset._retn();
         return true;
@@ -190,6 +192,107 @@ public:
       mbuf->clear();
   }
 };
+
+/**
+ * Specialise for when we really don't know this C++ type.
+ */
+template<>
+class  RTT_Corba_BufferChannel_i<RTT::detail::UnknownType> : public virtual POA_RTT::Corba::BufferChannel, public virtual PortableServer::RefCountServantBase
+{
+    RTT::BufferBase::shared_ptr mbuf;
+public:
+  //Constructor 
+  RTT_Corba_BufferChannel_i ( RTT::BufferBase::shared_ptr buf)
+      : mbuf(buf)
+    {}
+  
+  //Destructor 
+    virtual ~RTT_Corba_BufferChannel_i (void) {}
+  
+    virtual CORBA::Boolean push (const ::CORBA::Any & data)
+        ACE_THROW_SPEC ((
+                         CORBA::SystemException
+                         ))
+    {
+        using namespace RTT;
+        Logger::In in("CorbaBufferChannelI::push");
+        log(Error) << "Don't know how to interprete this data type."<<endlog();
+        return false;
+    }
+
+    virtual CORBA::Boolean pull ( ::CORBA::Any_out data)
+        ACE_THROW_SPEC ((
+                         CORBA::SystemException
+                         ))
+    {
+        using namespace RTT;
+        data = new CORBA::Any();
+        Logger::In in("CorbaBufferChannelI::pull");
+        log(Error) << "Don't know how to transfer this data type."<<endlog();
+        return false;
+    }
+  
+  virtual
+  ::CORBA::Any_ptr front(
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      return new CORBA::Any();
+  }
+  
+  virtual
+  CORBA::Boolean full (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      return mbuf->full();
+  }
+  
+  virtual
+  CORBA::Boolean empty (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      return mbuf->full();
+  }
+  
+  virtual
+  CORBA::Long capacity (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )){
+      return mbuf->capacity();
+  }
+  
+  virtual
+  CORBA::Long size (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      return mbuf->size();
+  }
+  
+  virtual
+  void clear (
+      
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+      )) {
+      mbuf->clear();
+  }
+};
+
 
 class  RTT_Corba_DataFlowInterface_i : public virtual POA_RTT::Corba::DataFlowInterface, public virtual PortableServer::RefCountServantBase
 {

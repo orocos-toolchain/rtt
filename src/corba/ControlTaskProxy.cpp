@@ -225,7 +225,7 @@ namespace RTT
                 CORBA::String_var tn = as_expr->getTypeName();
                 TypeInfo* ti = TypeInfoRepository::Instance()->type( tn.in() );
                 Logger::log() <<Logger::Info << "Looking up Property " << tn.in();
-                if ( ti ) {
+                if ( ti && ti->getProtocol(ORO_CORBA_PROTOCOL_ID)) {
                     this->attributes()->addProperty( ti->buildProperty( props[i].name.in(), props[i].description.in(), 
                                                                         ti->getProtocol(ORO_CORBA_PROTOCOL_ID)->proxy( expr.in() ) ) );
                     Logger::log() <<Logger::Info <<" found!"<<endlog();
@@ -255,7 +255,7 @@ namespace RTT
             CORBA::String_var tn = expr->getTypeName();
             TypeInfo* ti = TypeInfoRepository::Instance()->type( tn.in() );
             log(Info) << "Looking up Attribute " << tn.in();
-            if ( ti ) {
+            if ( ti && ti->getProtocol(ORO_CORBA_PROTOCOL_ID) ) {
                 Logger::log() <<": found!"<<endlog();
                 if ( CORBA::is_nil( as_expr ) ) {
                     this->attributes()->setValue( ti->buildConstant( attrs[i].in(), ti->getProtocol(ORO_CORBA_PROTOCOL_ID)->proxy( expr.in() ) ) );
@@ -326,7 +326,7 @@ namespace RTT
                 CORBA::String_var tn = expr->getTypeName();
                 TypeInfo* ti = TypeInfoRepository::Instance()->type( tn.in() );
                 log(Info) << "Looking up Attribute " << tn.in();
-                if ( ti ) {
+                if ( ti && ti->getProtocol(ORO_CORBA_PROTOCOL_ID) ) {
                     Logger::log() <<": found!"<<endlog();
                     if ( CORBA::is_nil( as_expr ) ) {
                         tobj->attributes()->setValue( ti->buildConstant( attrs[i].in(), ti->getProtocol(ORO_CORBA_PROTOCOL_ID)->proxy( expr.in() ) ) );

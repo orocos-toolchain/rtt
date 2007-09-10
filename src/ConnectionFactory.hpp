@@ -157,11 +157,15 @@ namespace RTT
                     log() << "One must be local and one must be remote." <<endlog(Error);
                     return 0;
                 }
-                conn_buffer = writer->getTypeInfo()->getProtocol( writer->serverProtocol() )->bufferProxy(writer);
+                TypeTransporter* tt =writer->getTypeInfo()->getProtocol( writer->serverProtocol() );
+                if (tt)
+                    conn_buffer = tt->bufferProxy(writer);
             }
             else {
                 if ( (protocol=reader->serverProtocol()) ) {
-                    conn_buffer = reader->getTypeInfo()->getProtocol( reader->serverProtocol() )->bufferProxy(writer);
+                    TypeTransporter* tt = reader->getTypeInfo()->getProtocol( reader->serverProtocol() );
+                    if (tt)
+                        conn_buffer = tt->bufferProxy(writer);
                 }
             }
             // if BufferBase, we already got a remote connection.
@@ -181,8 +185,8 @@ namespace RTT
             if ( wt == 0 || rt == 0 || wt->connection() || rt->connection() ){
                 Logger::log() <<Logger::Warning<< "ConnectionFactory could not create a BufferConnection between Writer:"<<writer->getName() <<" and Reader:"
                               << reader->getName() <<Logger::endl;
-                std::string msg = (wt == 0 ? "Writer is not a WriteBufferPort or has wrong data type."
-                                   : (rt == 0 ? "Reader is not a ReadBufferPort or has wrong data type."
+                std::string msg = (wt == 0 ? "Writer is not a WriteBufferPort or has wrong/unknown data type."
+                                   : (rt == 0 ? "Reader is not a ReadBufferPort or has wrong/unknown data type."
                                       : ( wt->connection() ? "Writer already connected. Use connectTo()."
                                           : "Reader already connected. Use connectTo()." )));
                 Logger::log() << msg  << Logger::endl;
@@ -223,11 +227,15 @@ namespace RTT
                     log() << "One must be local and one must be remote." <<endlog(Error);
                     return 0;
                 }
-                conn_data = writer->getTypeInfo()->getProtocol( writer->serverProtocol() )->dataProxy(writer);
+                TypeTransporter* tt = writer->getTypeInfo()->getProtocol( writer->serverProtocol() );
+                if (tt)
+                    conn_data = tt->dataProxy(writer); // else: let it fail further on.
             }
             else {
                 if ( (protocol=reader->serverProtocol()) ) {
-                    conn_data = reader->getTypeInfo()->getProtocol( reader->serverProtocol() )->dataProxy(writer);
+                    TypeTransporter* tt =writer->getTypeInfo()->getProtocol( writer->serverProtocol() );
+                    if (tt)
+                        conn_data = tt->dataProxy(writer); // else: let it fail further on.
                 }
             }
             // if DataBase, we already got a remote connection.
@@ -247,8 +255,8 @@ namespace RTT
             if ( wt == 0 || rt == 0 || wt->connection() || rt->connection() ) {
                 Logger::log() <<Logger::Warning<< "ConnectionFactory could not create a DataConnection between Writer:"<<writer->getName() <<" and Reader:"
                               << reader->getName() << Logger::nl;
-                std::string msg = (wt == 0 ? "Writer is not a WriteDataPort or has wrong data type."
-                                   : (rt == 0 ? "Reader is not a ReadDataPort or has wrong data type."
+                std::string msg = (wt == 0 ? "Writer is not a WriteDataPort or has wrong/unknown data type."
+                                   : (rt == 0 ? "Reader is not a ReadDataPort or has wrong/unknown data type."
                                       : ( wt->connection() ? "Writer already connected. Use connectTo()."
                                           : "Reader already connected. Use connectTo()" )));
                 Logger::log() << msg  << Logger::endl;
