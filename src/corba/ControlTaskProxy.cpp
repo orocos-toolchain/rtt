@@ -147,7 +147,7 @@ namespace RTT
     }
 
     ControlTaskProxy::ControlTaskProxy( ::RTT::Corba::ControlTask_ptr taskc) 
-        : TaskContext("CORBAProxy"), mtask( taskc )
+        : TaskContext("CORBAProxy"), mtask( Corba::ControlTask::_duplicate(taskc) )
     {
         try {
             CORBA::String_var nm = mtask->getName(); // force connect to object.
