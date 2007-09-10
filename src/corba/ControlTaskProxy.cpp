@@ -80,7 +80,7 @@ namespace RTT
     const char* IllegalServer::what() const throw() { return reason.c_str(); }
 
 
-    std::map<Corba::ControlTask_ptr, ControlTaskProxy*> ControlTaskProxy::proxies;
+    std::map<ControlTaskProxy*, Corba::ControlTask_ptr> ControlTaskProxy::proxies;
 
     PortableServer::POA_var ControlTaskProxy::proxy_poa;
 
@@ -132,7 +132,7 @@ namespace RTT
             std::string newname( nm.in() );
             this->mtask_name = newname;
             Logger::log() << Logger::Info << "Successfully connected to ControlTaskServer '"+newname+"'."<<endlog();
-            proxies[mtask] = this;
+            proxies[this] = mtask;
         }
         catch (CORBA::Exception &e) {
             log(Error)<< "CORBA exception raised when resolving Object !" << endlog();
@@ -153,7 +153,7 @@ namespace RTT
             CORBA::String_var nm = mtask->getName(); // force connect to object.
             std::string name( nm.in() );
             this->mtask_name = name;
-            proxies[mtask] = this;
+            proxies[this] = mtask;
         }
         catch (CORBA::Exception &e) {
             log(Error) << "CORBA exception raised when creating ControlTaskProxy!" << Logger::nl;
@@ -429,14 +429,20 @@ namespace RTT
     }
 
     ControlTaskProxy* ControlTaskProxy::Create(::RTT::Corba::ControlTask_ptr t) {
-        if ( CORBA::is_nil(orb) || t == 0 )
+      if ( CORBA::is_nil(orb) ) {
+	log(Error) << "Can not create proxy when ORB is nill !"<<endlog();
             return 0;
+      }
+      if ( !t ) {
+	log(Error) << "Can not create proxy for nill peer !" <<endlog();
+	return 0;
+      }
 
         // proxy present for this object ?
         // is_equivalent is actually our best try.
         for (PMap::iterator it = proxies.begin(); it != proxies.end(); ++it)
-            if ( (it->first)->_is_equivalent( t ) )
-                 return proxies[t];
+            if ( (it->second)->_is_equivalent( t ) )
+	      return it->first;
 
         // create new:
         try {

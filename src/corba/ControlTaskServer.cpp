@@ -392,9 +392,9 @@ namespace RTT
         }
 
         for (ControlTaskProxy::PMap::iterator it = ControlTaskProxy::proxies.begin(); it != ControlTaskProxy::proxies.end(); ++it)
-            if ( (it->second) == tc ) {
+            if ( (it->first) == tc ) {
                 log(Debug) << "Returning server of Proxy for "<<tc->getName()<<endlog();
-                return ControlTask::_duplicate(it->first);
+                return ControlTask::_duplicate(it->second);
             }
 
         // create new:

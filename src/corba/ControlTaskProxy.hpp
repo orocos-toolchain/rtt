@@ -78,7 +78,7 @@ namespace RTT
           public ApplicationServer
     {
     public:
-        typedef std::map<Corba::ControlTask_ptr, ControlTaskProxy*> PMap;
+        typedef std::map<ControlTaskProxy*, Corba::ControlTask_ptr> PMap;
         static PMap proxies;
 
     protected:
