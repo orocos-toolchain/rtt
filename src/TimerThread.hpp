@@ -52,9 +52,6 @@
 
 namespace RTT
 {
-    namespace detail {
-        class TimerInterface;
-    }
     class PeriodicActivity;
     class TimerThread;
 
@@ -67,16 +64,18 @@ namespace RTT
 
     /**
      * This Periodic Thread is meant for executing a PeriodicActivity
-     * object periodically. It does this by invoking a Timer object which
-     * executes the activities.
+     * object periodically.
      *
      * @see PeriodicActivity
      */
     class TimerThread
         : public OS::PeriodicThread
     {
-
+        typedef std::vector<PeriodicActivity*> ActivityList ;
+        ActivityList tasks;
+        bool cleanup;
     public:
+    	static const unsigned int MAX_ACTIVITIES = 64;
         /**
          * Create a periodic Timer thread.
          *
@@ -108,12 +107,9 @@ namespace RTT
          * Add an Timer that will be ticked every execution period
          * Once added, a timer can not be removed.
          */
-        bool timerAdd( detail::TimerInterface* );
+        bool addActivity( PeriodicActivity* t );
 
-        /**
-         * Get a Timer ticking at a certain period.
-         */
-        detail::TimerInterface* timerGet( Seconds period ) const;
+        bool removeActivity( PeriodicActivity* t );        
 
         /**
          * Create a TimerThread with a given priority and periodicity,
@@ -128,22 +124,12 @@ namespace RTT
         virtual bool initialize();
         virtual void step();
         virtual void finalize();
-
-        typedef std::vector<detail::TimerInterface*> TimerList;
-
-        /**
-         * A list containing all the Timer instances
-         *  we must tick
-         *
-         * @see Timer
-         */ 
-        TimerList clocks;
-
+        void reorderList();
         /**
          * A Activity can not create a activity of same priority from step().
          * If so a deadlock will occur.
          */
-        mutable OS::Mutex lock;
+        mutable OS::MutexRecursive mutex;
 
         /**
          * A Boost weak pointer is used to store non-owning pointers

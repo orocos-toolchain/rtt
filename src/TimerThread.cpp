@@ -37,18 +37,9 @@
 
 #include "TimerThread.hpp"
 #include "PeriodicActivity.hpp"
-#include "TimerInterface.hpp"
 
 #include "rtt-config.h"
 
-// this timer is the only correct, synchronising one
-// with respect to step() and finalize()
-#define OROSEM_ONESHOT_TIMER
-#ifdef OROSEM_ONESHOT_TIMER
-#include "TimerOneShot.hpp"
-#else
-#include "TimerLockFree.hpp"
-#endif
 #include "Time.hpp"
 #include "Logger.hpp"
 #include <algorithm>
@@ -57,7 +48,6 @@
 namespace RTT
 {
     using OS::MutexLock;
-    using namespace detail;
     using namespace std;
 
     TimerThread::TimerThreadList TimerThread::TimerThreads;
@@ -92,94 +82,105 @@ namespace RTT
     }
 
     TimerThread::TimerThread(int priority, const std::string& name, double periodicity)
-        : PeriodicThread( priority, name, periodicity)
+        : PeriodicThread( priority, name, periodicity), cleanup(false)
     {
-        // create one default timer for the tasks with this periodicity.
-        TimerInterface* timer = 
-#ifdef OROSEM_ONESHOT_TIMER
-            new TimerOneShot( Seconds_to_nsecs( periodicity ) );
-#else
-            new TimerLockFree( Seconds_to_nsecs( periodicity ) );
-#endif
-        this->timerAdd( timer );
-
+    	tasks.reserve(MAX_ACTIVITIES);
     }
 
     TimerThread::TimerThread(int scheduler, int priority, const std::string& name, double periodicity)
-        : PeriodicThread(scheduler, priority, name, periodicity)
+        : PeriodicThread(scheduler, priority, name, periodicity), cleanup(false)
     {
-        // create one default timer for the tasks with this periodicity.
-        TimerInterface* timer = 
-#ifdef OROSEM_ONESHOT_TIMER
-            new TimerOneShot( Seconds_to_nsecs( periodicity ) );
-#else
-            new TimerLockFree( Seconds_to_nsecs( periodicity ) );
-#endif
-        this->timerAdd( timer );
-
+    	tasks.reserve(MAX_ACTIVITIES);
     }
 
     TimerThread::~TimerThread()
     {
         // make sure the thread does not run when we start deleting clocks...
         this->stop();
-        // cleanup all timers :
-        TimerList::iterator itl;
-        for (itl = clocks.begin(); itl != clocks.end(); ++itl)
-            delete *itl; 
     }
 
-    bool TimerThread::initialize()
-    {
-        TimerList::iterator itl;
-        MutexLock locker(lock);
-        for (itl = clocks.begin(); itl != clocks.end(); ++itl)
-            (*itl)->start();
-        return true;
-    }
-
-    void TimerThread::step()
-    {
-        TimerList::iterator itl;
-        {
-            // This critical section can be 'removed' if we
-            // clocks.reserve() enough elements.
-            // now it is needed as the thread is running while timerAdd() is called.
-            MutexLock locker(lock);
-            for (itl = clocks.begin(); itl != clocks.end(); ++itl)
-                (*itl)->tick();
+    bool TimerThread::addActivity( PeriodicActivity* t ) {
+        MutexLock lock(mutex);
+        if ( tasks.size() == MAX_ACTIVITIES ) {
+//             Logger::log() << Logger:: << "TimerThread : tasks queue full, failed to add Activity : "<< t << Logger::endl;
+            return false;
         }
-    }        
-
-    void TimerThread::finalize()
-    {
-        TimerList::iterator itl;
-        MutexLock locker(lock);
-        for (itl = clocks.begin(); itl != clocks.end(); ++itl)
-            (*itl)->stop();
-    }
-
-    TimerInterface* TimerThread::timerGet( Seconds period ) const {
-        MutexLock locker(lock);
-        for (TimerList::const_iterator it = clocks.begin(); it != clocks.end(); ++it)
-            if ( (*it)->getPeriod() == Seconds_to_nsecs(period) )
-                return *it;
-        //Logger::log() << Logger::Debug << "Failed to find Timer in "<< this->taskNameGet()<<" : "<< period << Logger::endl;
-
-        return 0;
-    }
-
-    bool TimerThread::timerAdd( TimerInterface* t)
-    {
-        nsecs p = Seconds_to_nsecs( this->getPeriod() );
-        // if period is too small or not a multiple :
-        // we also detect t with period zero, 
-        if ( t->getPeriod() < p || t->getPeriod() % p != 0  ) // comparison in nsecs
-            return false; // can not use this timer.
-        t->setTrigger( p );
-        MutexLock locker(lock);
-        clocks.push_back( t );
+        tasks.push_back( t );
+//         Logger::log() << Logger::Debug << "TimerThread : successfully started Activity : "<< t  << Logger::endl;
         return true;
     }
+
+    bool TimerThread::removeActivity( PeriodicActivity* t ) {
+        MutexLock lock(mutex);
+        ActivityList::iterator it = find(tasks.begin(), tasks.end(), t);
+        if ( it != tasks.end() ) {
+            *it = 0; // clear task away
+            cleanup = true;
+            return true;
+        }
+//         Logger::log() << Logger::Debug << "TimerThread : failed to stop Activity : "<< t->getPeriod() << Logger::endl;
+        return false;
+    }
+
+    bool TimerThread::initialize() {
+    	return true;
+    }
+
+    void TimerThread::finalize() {
+        MutexLock lock(mutex);
+        
+        for( ActivityList::iterator t_iter = tasks.begin(); t_iter != tasks.end(); ++t_iter) 
+            if ( *t_iter )
+                (*t_iter)->stop(); // stop() calls us back to removeActivity (recursive mutex).
+        if ( cleanup )
+            this->reorderList();
+    }
+
+    void TimerThread::step() {
+        MutexLock lock(mutex);
+        
+        // The size of the tasks vector does not change during add/remove, thus
+        // t_iter is never invalidated.
+        for( ActivityList::iterator t_iter = tasks.begin(); t_iter != tasks.end(); ++t_iter) 
+        	if ( *t_iter )
+        		(*t_iter)->step();
+                        
+        if ( cleanup )
+            this->reorderList();
+    }
+
+    void TimerThread::reorderList() {
+        // reorder the list to remove clear'ed tasks
+        ActivityList::iterator begin = tasks.begin();
+        // first zero :
+        PeriodicActivity* nullActivity = 0;
+        ActivityList::iterator it = tasks.begin();
+
+        it = find( tasks.begin(), tasks.end(), nullActivity); // First zero
+        begin = it+1;
+        while ( it != tasks.end() ) {
+            // Look for first non-zero after 'it' :
+            while ( begin != tasks.end() &&  *begin == 0  )
+                ++begin;
+            if ( begin == tasks.end() )  { // if no task found after zero :
+//                 Logger::log() << Logger::Error << "beginBefore resize :"<< tasks.size() << Logger::endl;
+                tasks.resize( it - tasks.begin() ); // cut out the items after 'it'
+//                 Logger::log() << Logger::Error << "beginAfter resize :"<< tasks.size() << Logger::endl;
+                break; // This is our exit condition !
+            }
+            // first zero after begin :
+            ActivityList::iterator end = find ( begin, tasks.end(), nullActivity);
+            // if end == tasks.end() ==> next while will copy all
+            // if end != tasks.end() ==> next while will copy first zero's
+            while ( begin != end ) {
+                *it = *begin; // copy operation
+                ++begin;
+                ++it; // go to next slot to inspect.
+            }
+        }
+
+        cleanup = false;
+    }
+
 
 }

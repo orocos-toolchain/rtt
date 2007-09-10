@@ -43,9 +43,6 @@ class ActivitiesTest : public CppUnit::TestFixture
     // Does not work in GNU/Linux nor RAI
     //CPPUNIT_TEST( testOverrun );
 
-    // Timer Test :
-    CPPUNIT_TEST( testTimer );
-
     // Start - Stop Test :
     CPPUNIT_TEST( testStartStop );
 
@@ -72,7 +69,6 @@ class ActivitiesTest : public CppUnit::TestFixture
     RunnableInterface* t_run_allocate;
     TestSelfRemove* t_self_remove;
 
-    TimerInterface* tti;
 public:
 
     void setUp();
@@ -87,8 +83,6 @@ public:
     void testStop();
 
     void testSelfRemove();
-
-    void testTimer();
 
     void testNonPeriodic();
 

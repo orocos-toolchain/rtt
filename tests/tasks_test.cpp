@@ -23,7 +23,6 @@
 #include <iostream>
 
 #include <PeriodicActivity.hpp>
-#include <TimerOneShot.hpp>
 #include <TimeService.hpp>
 
 #include <boost/scoped_ptr.hpp>
@@ -190,7 +189,6 @@ ActivitiesTest::setUp()
     t_run_allocate = new TestAllocate();
     t_self_remove  = new TestSelfRemove();
 
-    tti = new TimerOneShot(1);
 }
 
 
@@ -204,7 +202,6 @@ ActivitiesTest::tearDown()
 
     delete t_run_allocate;
     delete t_self_remove;
-    delete tti;
 }
 
 void ActivitiesTest::testFailInit()
@@ -264,50 +261,6 @@ void ActivitiesTest::testThreads()
   CPPUNIT_ASSERT_EQUAL_MESSAGE("Periodic Failure: period of step() to long !", run->overfail, 0);
   CPPUNIT_ASSERT_EQUAL_MESSAGE("Periodic Failure: period of step() to short!", run->underfail, 0);
   t->run(0);
-}
-
-void ActivitiesTest::testTimer()
-{
-    PeriodicActivity a1(3, 0.1);
-    PeriodicActivity a2(3, 0.1);
-    PeriodicActivity a3(3, 0.1);
-    PeriodicActivity a4(3, 0.1);
-    PeriodicActivity a5(3, 0.1);
-
-    // Add tasks.
-    CPPUNIT_ASSERT( tti->addActivity( &a1 ) );
-    CPPUNIT_ASSERT( tti->addActivity( &a2 ) );
-    CPPUNIT_ASSERT( tti->addActivity( &a3 ) );
-    CPPUNIT_ASSERT( tti->addActivity( &a4 ) );
-    CPPUNIT_ASSERT( tti->addActivity( &a5 ) );
-
-    // Remove last :
-    CPPUNIT_ASSERT( tti->removeActivity( &a5 ) );
-    tti->tick();
-
-    // Remove First:
-    CPPUNIT_ASSERT( tti->removeActivity( &a1 ) );
-    tti->tick();
-
-    // Remove middle :
-    CPPUNIT_ASSERT( tti->removeActivity( &a3 ) );
-    tti->tick();
-
-    CPPUNIT_ASSERT( tti->addActivity( &a1 ) );
-    CPPUNIT_ASSERT( tti->addActivity( &a3 ) );
-    CPPUNIT_ASSERT( tti->addActivity( &a5 ) );
-
-    //Remove 2 in middle :
-    CPPUNIT_ASSERT( tti->removeActivity( &a4 ) );
-    CPPUNIT_ASSERT( tti->removeActivity( &a1 ) );
-    tti->tick();
-
-    //Remove all :
-    CPPUNIT_ASSERT( tti->removeActivity( &a3 ) );
-    CPPUNIT_ASSERT( tti->removeActivity( &a2 ) );
-    CPPUNIT_ASSERT( tti->removeActivity( &a5 ) );
-    tti->tick();
-
 }
 
 void ActivitiesTest::testNonPeriodic()

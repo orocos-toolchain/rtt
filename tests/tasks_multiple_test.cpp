@@ -19,22 +19,20 @@
  
 
 #include "tasks_multiple_test.hpp"
-#include <TimerInterface.hpp>
 #include <os/threads.hpp>
 #include "Logger.hpp"
 
 #include <iostream>
 using namespace std;
 using namespace RTT;
-using namespace RTT::detail;
 
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( ActivitiesMultipleTest );
 
     void ActivitiesMultipleTest::setUp()
     {
-        nr_of_p = TimerInterface::MAX_ACTIVITIES/2;
-        nr_of_np = TimerInterface::MAX_ACTIVITIES/2;
+        nr_of_p = TimerThread::MAX_ACTIVITIES/2;
+        nr_of_np = TimerThread::MAX_ACTIVITIES/2;
         runningP = 1; 
         runningNp = 1; // see step() why it's 1 and not 0
         errInitNP = "Not all NonPreemptibleActivity::init() or finalize() functions were called\n";

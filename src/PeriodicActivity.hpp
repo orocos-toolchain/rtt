@@ -43,7 +43,6 @@
 #include "Time.hpp"
 #include "ActivityInterface.hpp"
 #include "TimerThread.hpp"
-#include "os/Mutex.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
@@ -51,20 +50,14 @@
 
 namespace RTT
 {
-    namespace detail {
-        class TimerInterface;
-    }
 
     /**
      * @brief A PeriodicActivity is the general implementation of a Activity
      * which has (realtime) periodic constraints.
      *
      * A PeriodicActivity is executed in a TimerThread. Multiple
-     * PeriodicActivities executing in the same TimerThread will be
-     * executed one after the other.  If, by user choice, the
-     * PeriodicActivity has a period which is a multiple (n) of the
-     * thread's period, it may be executed every n'th execution period
-     * of that thread.
+     * PeriodicActivities having the same priority and periodicity will be executed
+     * in the same TimerThread one after the other.
      * 
      * It will execute a RunnableInterface, or the equivalent methods in
      * it's own interface when none is given.
@@ -197,10 +190,6 @@ namespace RTT
          */
         virtual void finalize();
 
-        /**
-         * Called by the TimerInterface.
-         */
-        void doStep();
     protected:
         void init();
 
@@ -221,19 +210,9 @@ namespace RTT
         bool active;
 
         /**
-         * This activity's period in nanoseconds.
-         */
-        nsecs per_ns;
-
-        /**
          * The thread which runs this activity.
          */
         TimerThreadPtr thread_;
-
-        /**
-         * The timer which steps this activity.
-         */
-        detail::TimerInterface* timer_;
     };
 
 }

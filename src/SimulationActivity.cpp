@@ -38,7 +38,6 @@
  
 #include "SimulationActivity.hpp"
 #include "SimulationThread.hpp"
-#include "TimerInterface.hpp"
 
 namespace RTT
 {
@@ -71,7 +70,7 @@ namespace RTT
     // COPY/PASTE from PeriodicActivity.cxx
     bool SimulationActivity::start()
     {
-        if ( !timer_ || isActive() ) { //|| !thread_->isRunning() ) {
+        if ( isActive() ) { //|| !thread_->isRunning() ) {
             //Logger::log() << Logger::Error << "PeriodicActivity : no timer, already active or thread not running." << Logger::endl;
             return false;
         }
@@ -85,7 +84,7 @@ namespace RTT
         }
 
         bool res;
-        res = timer_->addActivity( this );
+        res = thread_->addActivity( this );
         if ( res == false ) {
             //Logger::log() << Logger::Error << "PeriodicActivity : addActivity() returned false " << Logger::endl;
             this->finalize();

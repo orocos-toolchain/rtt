@@ -43,29 +43,15 @@
 #include "os/MutexLock.hpp"
 #include "Logger.hpp"
 #include "TimerThread.hpp"
-
-// This define is used for creating and static_casting the Timer.
-#include "rtt-config.h"
-#ifdef OROSEM_CORELIB_ACTIVITIES_TASKTIMER_TimerOneShot
-#include "TimerOneShot.hpp"
-#elif defined(OROSEM_CORELIB_ACTIVITIES_TASKTIMER_TimerSequencer)
-#include "TimerSequencer.hpp"
-#else
-#include "TimerOneShot.hpp" // default
-#endif
-
 #include <cmath>
 
 namespace RTT
 {
-    using namespace detail;
     
     PeriodicActivity::PeriodicActivity(int priority, Seconds period, RunnableInterface* r )
         : runner(r), running(false), active(false),
           thread_( TimerThread::Instance(priority,period) )
     {
-        thread_->start();
-        per_ns = Seconds_to_nsecs( period );
         this->init();
     }
 
@@ -73,8 +59,6 @@ namespace RTT
         : runner(r), running(false), active(false),
           thread_( TimerThread::Instance(scheduler, priority,period) )
     {
-        thread_->start();
-        per_ns = Seconds_to_nsecs( period );
         this->init();
     }
 
@@ -82,7 +66,6 @@ namespace RTT
         : runner(r), running(false), active(false),
           thread_( thread )
     {
-        per_ns = Seconds_to_nsecs( thread->getPeriod() );
         this->init();
     }
 
@@ -90,14 +73,12 @@ namespace RTT
         : runner(r), running(false), active(false),
           thread_(thread)
     {
-        per_ns = Seconds_to_nsecs( period );
         this->init();
     }
 
     PeriodicActivity::PeriodicActivity(secs s, nsecs ns, TimerThreadPtr thread, RunnableInterface* r )
         : runner(r),
           running(false), active(false),
-          per_ns( secs_to_nsecs(s) + ns),
           thread_(thread)
     {
         this->init();
@@ -113,24 +94,7 @@ namespace RTT
     void PeriodicActivity::init() {
         if (runner)
             runner->setActivity(this);
-
-        TimerInterface* timer = thread_->timerGet( this->getPeriod() );
-        if ( timer == 0 ) {
-            timer = new TimerOneShot( per_ns );
-//             Logger::log() << Logger::Debug << "Timer Created, period_ns: "<< per_ns <<" thread :"<< thread_->getName() <<Logger::endl;
-            // The timer is owned by the thread !
-            if ( thread_->timerAdd( timer ) == false ) {
-                delete timer;
-                timer = 0;
-                Logger::log() << Logger::Critical << "PeriodicActivity with period "<<this->getPeriod()
-                              << "s failed to schedule in thread " << thread_->getName()
-                              << " which has period "<< thread_->getPeriod()<<"s."<< Logger::endl;
-            }
-        }
-//         else
-//             Logger::log() << Logger::Debug << "Existing timer, period_ns: "<< timer->getPeriod() <<" thread :"<< thread_->getName() <<Logger::endl;
-
-        timer_ = timer;
+        thread_->start();
     }
 
      
@@ -148,8 +112,8 @@ namespace RTT
 
     bool PeriodicActivity::start()
     {
-        if ( !timer_ || isActive() || !thread_ ) {
-            //Logger::log() << Logger::Error << "PeriodicActivity : no timer, already active or thread not running." << Logger::endl;
+        if ( isActive() || !thread_ ) {
+            //Logger::log() << Logger::Error << "PeriodicActivity : already active or thread not running." << Logger::endl;
             return false;
         }
         // If thread is not yet running, try to start it.
@@ -165,7 +129,7 @@ namespace RTT
         }
 
         bool res;
-        res = timer_->addActivity( this );
+        res = thread_->addActivity( this );
         if ( res == false ) {
             //Logger::log() << Logger::Error << "PeriodicActivity : addActivity() returned false " << Logger::endl;
             this->finalize();
@@ -183,7 +147,7 @@ namespace RTT
 
         // since removeActivity synchronises, we do not need to mutex-lock
         // stop()
-        if ( timer_->removeActivity( this ) ) {
+        if ( thread_->removeActivity( this ) ) {
             running = false;
             this->finalize();
             active = false;
@@ -204,7 +168,7 @@ namespace RTT
 
     Seconds PeriodicActivity::getPeriod() const
     {
-        return nsecs_to_Seconds( per_ns );
+        return thread_->getPeriod();
     }
 
     bool PeriodicActivity::initialize() { 
@@ -212,11 +176,6 @@ namespace RTT
             return runner->initialize();
         else
             return true;
-    }
-
-    void PeriodicActivity::doStep()
-    {
-        this->step();
     }
 
     bool PeriodicActivity::execute()
