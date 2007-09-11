@@ -157,13 +157,13 @@ namespace RTT
                     log() << "One must be local and one must be remote." <<endlog(Error);
                     return 0;
                 }
-                TypeTransporter* tt =writer->getTypeInfo()->getProtocol( writer->serverProtocol() );
+                detail::TypeTransporter* tt =writer->getTypeInfo()->getProtocol( writer->serverProtocol() );
                 if (tt)
                     conn_buffer = tt->bufferProxy(writer);
             }
             else {
                 if ( (protocol=reader->serverProtocol()) ) {
-                    TypeTransporter* tt = reader->getTypeInfo()->getProtocol( reader->serverProtocol() );
+                    detail::TypeTransporter* tt = reader->getTypeInfo()->getProtocol( reader->serverProtocol() );
                     if (tt)
                         conn_buffer = tt->bufferProxy(writer);
                 }
@@ -227,13 +227,13 @@ namespace RTT
                     log() << "One must be local and one must be remote." <<endlog(Error);
                     return 0;
                 }
-                TypeTransporter* tt = writer->getTypeInfo()->getProtocol( writer->serverProtocol() );
+                detail::TypeTransporter* tt = writer->getTypeInfo()->getProtocol( writer->serverProtocol() );
                 if (tt)
                     conn_data = tt->dataProxy(writer); // else: let it fail further on.
             }
             else {
                 if ( (protocol=reader->serverProtocol()) ) {
-                    TypeTransporter* tt =writer->getTypeInfo()->getProtocol( writer->serverProtocol() );
+                    detail::TypeTransporter* tt =writer->getTypeInfo()->getProtocol( writer->serverProtocol() );
                     if (tt)
                         conn_data = tt->dataProxy(writer); // else: let it fail further on.
                 }
