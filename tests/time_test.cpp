@@ -146,7 +146,7 @@ struct TestTimer
     {
         Seconds now = TimeService::Instance()->secondsSince( 0 );
         occured.push_back( std::make_pair(id, now) );
-        cout << "Occured: "<< id <<" on " << now - mstart <<"\n";
+        //cout << "Occured: "<< id <<" on " << now - mstart <<"\n";
     }
 
     ~TestTimer()
