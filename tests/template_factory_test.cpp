@@ -51,6 +51,7 @@ Template_FactoryTest::setUp()
     tsim = new SimulationActivity(0.001, tc->engine() );
     event_proc = new EventProcessor();
     act.run(event_proc);
+    SimulationThread::Instance()->stop();
 }
 
 
@@ -60,7 +61,6 @@ Template_FactoryTest::tearDown()
 //     if ( tc->getPeer("programs") )
 //         delete tc->getPeer("programs");
     tsim->stop();
-    SimulationThread::Instance()->stop();
     act.stop();
     delete tc;
     delete tsim;

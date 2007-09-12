@@ -41,6 +41,7 @@ TypesTest::setUp()
     tc =  new TaskContext( "root" );
     tc->addObject( this->createMethodFactory() );
     tsim = new SimulationActivity( 0.001, tc->engine() );
+    SimulationThread::Instance()->stop();
 }
 
 
@@ -48,7 +49,6 @@ void
 TypesTest::tearDown()
 {
     tsim->stop();
-    SimulationThread::Instance()->stop();
     delete tc;
     delete tsim;
 }

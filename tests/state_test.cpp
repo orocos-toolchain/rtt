@@ -58,6 +58,7 @@ StateTest::setUp()
     gtc.events()->addEvent( &d_event, "D", "a1", "arg1 D" );
     gtc.events()->addEvent( &b_event, "B", "a1", "arg1 B" );
     i = 0;
+    SimulationThread::Instance()->stop();
 }
 
 
@@ -65,7 +66,6 @@ void
 StateTest::tearDown()
 {
     // if a test failed, we must still stop :
-    SimulationThread::Instance()->stop();
     gtask.stop();
 }
 

@@ -55,7 +55,6 @@ EventTest::tearDown()
 {
     act.stop();
     delete event_proc;
-    SimulationThread::Release();
 }
 
 void EventTest::listener(void)
@@ -278,6 +277,7 @@ void EventTest::testTask()
     Event<void(int)> event("Event");
     Runner runobj(event);
     SimulationActivity task(0.01, &runobj);
+    CPPUNIT_ASSERT( SimulationThread::Instance()->stop() );
     CPPUNIT_ASSERT(task.start());
     CPPUNIT_ASSERT( SimulationThread::Instance()->run(100) );
     CPPUNIT_ASSERT( runobj.result );
@@ -287,6 +287,7 @@ void EventTest::testSelfRemoval()
 {
     SelfRemover runobj(t_event);
     SimulationActivity task(0.01, &runobj);
+    CPPUNIT_ASSERT( SimulationThread::Instance()->stop() );
     CPPUNIT_ASSERT( task.start() );
     CPPUNIT_ASSERT( SimulationThread::Instance()->run(100) );
     CPPUNIT_ASSERT( task.stop() );
@@ -296,6 +297,7 @@ void EventTest::testCrossRemoval()
 {
     CrossRemover runobj(t_event);
     SimulationActivity task(0.01, &runobj);
+    CPPUNIT_ASSERT( SimulationThread::Instance()->stop() );
     CPPUNIT_ASSERT( task.start() );
     CPPUNIT_ASSERT( SimulationThread::Instance()->run(100) );
     CPPUNIT_ASSERT( task.stop() );

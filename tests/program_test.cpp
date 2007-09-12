@@ -56,6 +56,7 @@ ProgramTest::setUp()
     gtc.attributes()->addConstant( const_i );
     var_i.set(-1);
     i = 0;
+    SimulationThread::Instance()->stop();
 }
 
 
@@ -63,7 +64,6 @@ void
 ProgramTest::tearDown()
 {
     delete const_i;
-    SimulationThread::Instance()->stop();
     gtask.stop();
 }
 
