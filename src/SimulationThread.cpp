@@ -85,7 +85,7 @@ namespace RTT
         : TimerThread( OS::LowestPriority,
                       "SimulationThread", 
                       period),
-          beat( TimeService::Instance() ), maxsteps_(0)
+          beat( TimeService::Instance() ), maxsteps_(0), sim_running(false)
     {
         this->setScheduler(ORO_SCHED_OTHER);
         this->continuousStepping( true );
@@ -97,16 +97,37 @@ namespace RTT
     {
     }
 
+    bool SimulationThread::isRunning() const
+    {
+        return sim_running || PeriodicThread::isRunning();
+    }
+
+    bool SimulationThread::start()
+    {
+        maxsteps_ = 0;
+        return OS::PeriodicThread::start();
+    }
+    
+    bool SimulationThread::start(unsigned int maxsteps)
+    {
+        if (maxsteps == 0)
+            return false;
+        maxsteps_ = maxsteps;
+        return OS::PeriodicThread::start();
+    }
+
     bool SimulationThread::run(unsigned int ms)
     {
-        if ( this->initialize() == false || ms == 0)
+        if ( this->initialize() == false || ms == 0 || this->isRunning() )
             return false;
         unsigned int cur = 0;
+        this->sim_running = true;
         while( cur != ms ) {
             ++cur;
             TimerThread::step();
             beat->secondsChange(this->getPeriod());
         }
+        this->sim_running = false;
         this->finalize();
         return true;
     }

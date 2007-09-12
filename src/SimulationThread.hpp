@@ -64,7 +64,7 @@ namespace RTT
      * By default, the update period is 0.001 seconds. If you want to run
      * with a finer or coarser grained time step, use the Instance() method and
      * supply another period before SimulationActivities are created.
-     * @see TimerThread, ZeroTimeThread
+     * @see TimerThread
      */
     class SimulationThread
         : public TimerThread
@@ -94,23 +94,19 @@ namespace RTT
          */
         virtual ~SimulationThread();
 
-        virtual bool start()
-        {
-            maxsteps_ = 0;
-            return OS::PeriodicThread::start();
-        }
+        virtual bool start();
+
+        /**
+         * Returns true if thread is running or run( unsigned int ) is being
+         * invoked.
+         */
+        virtual bool isRunning() const;
 
         /**
          * Only run the simulation \a maxsteps time steps, then stop the SimulationThread.
          * @return false if maxsteps == 0 or if thread could not be started.
          */
-        virtual bool start(unsigned int maxsteps)
-        {
-            if (maxsteps == 0)
-                return false;
-            maxsteps_ = maxsteps;
-            return OS::PeriodicThread::start();
-        }
+        virtual bool start(unsigned int maxsteps);
 
         using OS::PeriodicThread::run;
         /**
@@ -146,6 +142,8 @@ namespace RTT
         TimeService* beat;
 
         unsigned int maxsteps_, cursteps;
+
+        bool sim_running;
     };
 } // namespace RTT
 
