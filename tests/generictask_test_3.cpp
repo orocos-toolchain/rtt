@@ -78,6 +78,7 @@ public:
     }
 
     void updateHook() {
+        CPPUNIT_ASSERT( mTaskState == Running );
         didupdate = true;
     }
 
@@ -96,6 +97,7 @@ Generic_TaskTest_3::setUp()
     stc = new StatesTC();
     tsim = new SimulationActivity(0.001, tc->engine() );
     stsim = new SimulationActivity(0.001, stc->engine() );
+    SimulationThread::Instance()->stop();
 }
 
 
@@ -106,7 +108,6 @@ Generic_TaskTest_3::tearDown()
 //         delete tc->getPeer("programs");
     tsim->stop();
     stsim->stop();
-    SimulationThread::Instance()->stop();
     delete tc;
     delete tsim;
     delete stc;
@@ -179,7 +180,17 @@ void Generic_TaskTest_3::testSpecialTCStates()
     stc->reset();
 
 
-    // Running state:
+    // Running state / updateHook :
+    SimulationThread::Instance()->run(1);
+    // test flags
+    CPPUNIT_ASSERT( stc->didconfig == false );
+    CPPUNIT_ASSERT( stc->didstart == false );
+    CPPUNIT_ASSERT( stc->didupdate == true );
+    CPPUNIT_ASSERT( stc->didstop == false );
+    CPPUNIT_ASSERT( stc->didcleanup == false );
+    stc->reset();
+
+    // Back to stopped
     CPPUNIT_ASSERT( stc->stop() == true );
     CPPUNIT_ASSERT( stc->didstop == true );
     // test flags

@@ -42,6 +42,7 @@ Generic_TaskTest_2::setUp()
     tc =  new TaskContext( "root" );
     tc->addObject( this->createCommandFactory() );
     tsim = new SimulationActivity(0.001, tc->engine() );
+    SimulationThread::Instance()->stop();
 }
 
 
@@ -87,8 +88,6 @@ void Generic_TaskTest_2::testCommandsC()
     CommandC c32 = tc->getObject("commands")->commands()->create("c31").argC(1).argC(1.0).argC('a');
     CommandC c33 = tc->getObject("commands")->commands()->create("c33").argC(1).argC(1.0).argC('a');
     CommandC c44 = tc->getObject("commands")->commands()->create("c44").argC(1).argC(1.0).argC('a').argC(true);
-    SimulationThread::Instance()->stop();
-    tsim->stop();
 
     // CASE 1 : Send command to not running task.
     CPPUNIT_ASSERT( cc.ready() );
