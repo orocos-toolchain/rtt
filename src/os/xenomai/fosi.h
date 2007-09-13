@@ -53,7 +53,6 @@ extern "C" {
 #include "../oro_atomic.h"
 
 #include "../../rtt-config.h"
-#if !defined(OROBLD_OS_AGNOSTIC) || defined(OROBLD_OS_INTERNAL)
 
 	//Xenomai headers
 	//#include <linux/types.h>
@@ -76,11 +75,6 @@ extern "C" {
 #include <float.h>
 
 #include <xeno_config.h> // version number
-	// From Xenomai 2.1 on, it defines ORO_LOCK_PREFIX itself, undef ours
-#if !(CONFIG_XENO_VERSION_MAJOR == 2 && CONFIG_XENO_VERSION_MINOR == 0)
-#undef ORO_LOCK_PREFIX 
-#endif
-
 #include <native/task.h>
 #include <native/timer.h>
 #include <native/mutex.h>
@@ -96,32 +90,6 @@ extern "C" {
 	typedef SRTIME          TICK_TIME;
 	typedef struct timespec TIME_SPEC;
 	typedef RT_TASK         RTOS_XENO_TASK;
-
-#else
-
-#include <pthread.h>
-#include <limits.h>
-#include <float.h>
-	//Xenomai redefinitions.
-	// Wrap/typedef Xeno types to Orocos Types.
-	typedef unsigned long XENO_rt_handle_t;
-	typedef struct {
-		XENO_rt_handle_t handle;
-	} XENO_HANDLE;
-	typedef XENO_HANDLE     rt_mutex_t;
-	typedef XENO_HANDLE     rt_rec_mutex_t;
-	typedef XENO_HANDLE     rt_sem_t;
-	typedef long long       NANO_TIME;
-	typedef long long       TICK_TIME;
-	typedef struct timespec TIME_SPEC;
-
-	typedef struct {
-		XENO_rt_handle_t handle;
-		XENO_rt_handle_t handle2;
-	} XENO_TASK_HANDLE;
-
-	typedef XENO_TASK_HANDLE RTOS_XENO_TASK;
-#endif
 
     // Thread/Task related.
     typedef struct {
@@ -140,8 +108,6 @@ extern "C" {
 #define ORO_SCHED_RT    0 /** Hard real-time */
 #define ORO_SCHED_OTHER 1 /** Soft real-time */
 
-	// inline functions if not agnostic.
-#ifndef OROBLD_OS_AGNOSTIC
 	// hrt is in ticks
 inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
 {
@@ -301,7 +267,7 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
     static inline int rtos_mutex_rec_trylock( rt_rec_mutex_t* m)
     {
         CHK_XENO_CALL();
-        return rt_mutex_trylock(m);
+        return rtos_mutex_trylock(m);
     }
 
     static inline int rtos_mutex_rec_unlock( rt_rec_mutex_t* m)
@@ -311,79 +277,7 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
     }
 
 
-inline
-int rtos_printf(const char *fmt, ...)
-{
-    va_list list;
-    char printkbuf [2000];
-    printkbuf[0] = '\0';
-    va_start (list, fmt);
-    vsprintf(printkbuf, fmt, list);
-    va_end (list);
-    return printf(printkbuf);
-}
-
-#else  // OSBLD_OS_AGNOSTIC
-
-/* 	typedef RT_MUTEX rt_mutex_t; */
-/* 	typedef RT_SEM rt_sem_t; */
-/* 	// Time Related */
-	
-/* 	// 'S' -> Signed long long */
-/* 	typedef SRTIME NANO_TIME; */
-/* 	typedef SRTIME TICK_TIME; */
-/* 	typedef struct timespec TIME_SPEC; */
-
-#endif
-
-/**
- * Fosi Interface
- */
-
-TIME_SPEC ticks2timespec(TICK_TIME hrt);
-
-NANO_TIME rtos_get_time_ns(void);
-
-TICK_TIME rtos_get_time_ticks(void);
-
-TICK_TIME ticksPerSec(void);
-
-TICK_TIME nano2ticks(NANO_TIME t);
-
-NANO_TIME ticks2nano(TICK_TIME t);
-
-int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp) ;
-
-int rtos_mutex_init(rt_mutex_t* m);
-
-int rtos_mutex_destroy(rt_mutex_t* m );
-
-int rtos_mutex_rec_init(rt_mutex_t* m);
-
-int rtos_mutex_rec_destroy(rt_mutex_t* m );
-
-int rtos_mutex_lock( rt_mutex_t* m);
-
-int rtos_mutex_trylock( rt_mutex_t* m);
-
-int rtos_mutex_unlock( rt_mutex_t* m);
-
-int rtos_mutex_rec_lock( rt_rec_mutex_t* m);
-
-int rtos_mutex_rec_trylock( rt_rec_mutex_t* m);
-
-int rtos_mutex_rec_unlock( rt_rec_mutex_t* m);
-
-int rtos_printf(const char *fmt, ...);
-
-int rtos_sem_init(rt_sem_t* m, int value );
-int rtos_sem_destroy(rt_sem_t* m );
-int rtos_sem_signal(rt_sem_t* m );
-int rtos_sem_wait(rt_sem_t* m );
-int rtos_sem_trywait(rt_sem_t* m );
-int rtos_sem_value(rt_sem_t* m );
-int rtos_sem_wait_timed(rt_sem_t* m, NANO_TIME delay );
-int rtos_sem_wait_until(rt_sem_t* m, NANO_TIME when );
+    int rtos_printf(const char *fmt, ...);
 
 #ifdef __cplusplus
 }
