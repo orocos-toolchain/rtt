@@ -186,7 +186,7 @@ namespace RTT
             int rv;
             // task, name, stack, priority, mode, fun, arg
             // UGLY, how can I check in Xenomai that a name is in use before calling rt_task_spawn ???
-            rv = rt_task_spawn(&(task->xenotask), name, 0, priority, 0, rtos_xeno_thread_wrapper, xcookie);
+            rv = rt_task_spawn(&(task->xenotask), name, 0, priority, T_JOINABLE, rtos_xeno_thread_wrapper, xcookie);
             if ( rv == -EEXIST ) {
                 free( task->name );
                 task->name = strncpy( (char*)malloc( (strlen(name)+2)*sizeof(char) ), name, strlen(name)+1 );
@@ -194,12 +194,12 @@ namespace RTT
                 task->name[ strlen(name)+1 ] = 0;
                 while ( rv == -EEXIST &&  task->name[ strlen(name) ] != '9') {
                     task->name[ strlen(name) ] += 1;
-                    rv = rt_task_spawn(&(task->xenotask), task->name, 0, priority, 0, rtos_xeno_thread_wrapper, xcookie);
+                    rv = rt_task_spawn(&(task->xenotask), task->name, 0, priority, T_JOINABLE, rtos_xeno_thread_wrapper, xcookie);
                 }
             }
             if ( rv == -EEXIST ) {
                 log(Warning) << name << ": an object with that name is already existing in Xenomai." << endlog();
-                rv = rt_task_spawn(&(task->xenotask), 0, 0, priority, 0, rtos_xeno_thread_wrapper, xcookie);
+                rv = rt_task_spawn(&(task->xenotask), 0, 0, priority, T_JOINABLE, rtos_xeno_thread_wrapper, xcookie);
             }
             if ( rv != 0) {
                 log(Error) << name << " : CANNOT INIT Xeno TASK " << task->name <<" error code: "<< rv << endlog();
@@ -335,6 +335,9 @@ namespace RTT
         }
 
         INTERNAL_QUAL void rtos_task_delete(RTOS_TASK* mytask) {
+            if ( rt_task_join(&(mytask->xenotask)) != 0 ) {
+                log(Error) << "Failed to join with thread " << mytask->name << endlog();
+            }
             rt_task_delete(&(mytask->xenotask));
         }
 
