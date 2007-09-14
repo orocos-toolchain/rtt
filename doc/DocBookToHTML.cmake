@@ -19,7 +19,7 @@ macro( DOCBOOK_TO_HTML RESULT XSLT_SHEET )
 	if (_current_FILE STREQUAL "FILES")
 	  set(_in_catalogs FALSE)
 	else(_current_FILE STREQUAL "FILES")
-	  set( _catalog_FILES ${_catalog_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/${_current_FILE})
+	  set( _catalog_FILES ${_catalog_FILES} ${_current_FILE})
 	endif(_current_FILE STREQUAL "FILES")
       endif ( _in_catalogs )
 

@@ -29,6 +29,6 @@
 
     </group>
 
-    <system systemId="http://people.mech.kuleuven.be/~psoetens/orocos/doc/orocos.ent" uri="file://@PROJ_SOURCE_DIR@/doc/xml/orocos.ent" />
+    <system systemId="http://people.mech.kuleuven.be/~psoetens/orocos/doc/orocos.ent" uri="file://@PROJ_BINARY_DIR@/doc/xml/orocos.ent" />
 
 </catalog>
