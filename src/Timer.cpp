@@ -48,20 +48,27 @@ namespace RTT
             // Timeout handling
             if (ret == -1) {
                 // a timer expired
-                timeout( next_timer_id );
-                OS::MutexLock locker(m);
-                // detect corner case for resize:
-                if ( next_timer_id < mtimers.size() ) {
-                    // now clear or reprogram it.
-                    TimerIds::iterator tim = mtimers.begin() + next_timer_id;
-                    if ( tim->second ) {
-                        // periodic timer
-                        tim->first += tim->second;
-                    } else {
-                        // aperiodic timer
-                        tim->first = 0;
+                // First: reset/reprogram the timer that expired:
+                {
+                    OS::MutexLock locker(m);
+                    // detect corner case for resize:
+                    if ( next_timer_id < mtimers.size() ) {
+                        // now clear or reprogram it.
+                        TimerIds::iterator tim = mtimers.begin() + next_timer_id;
+                        if ( tim->second ) {
+                            // periodic timer
+                            tim->first += tim->second;
+                        } else {
+                            // aperiodic timer
+                            tim->first = 0;
+                        }
                     }
                 }
+                // Second: send the timeout signal and allow (within the callback)
+                // to reprogram the timer.
+                // If we would first call timeout(), the code above would overwrite
+                // user settings.
+                timeout( next_timer_id );
             }
         }
     }
