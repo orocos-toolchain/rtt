@@ -45,7 +45,7 @@
 #include "../CommandInterface.hpp"
 #include "../CommandBinary.hpp"
 #include "CorbaConversion.hpp"
-
+#include <cassert>
 
 namespace RTT
 {namespace Corba
@@ -86,7 +86,9 @@ namespace RTT
     public:
         CORBAExpression( Corba::Expression_ptr expr )
             : mexpr( Corba::Expression::_duplicate( expr ) ), last_value()
-        {}
+        {
+            assert( mexpr.in() );
+        }
 
         void* server(int p, void* arg)
         {
@@ -147,7 +149,9 @@ namespace RTT
     public:
         CORBAExpression( Corba::Expression_ptr expr )
             : mexpr( Corba::Expression::_duplicate( expr ) )
-        {}
+        {
+            assert( expr );
+        }
 
         void* server(int p, void* arg)
         {
@@ -202,6 +206,7 @@ namespace RTT
             : mexpr( Corba::AssignableExpression::_duplicate(expr) )//, last_value()
         {
             storage = detail::BuildType<value_t>::Value();
+            assert( expr );
         }
 
         void* server(int p, void* arg)
