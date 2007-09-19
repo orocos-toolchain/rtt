@@ -96,6 +96,7 @@ namespace RTT
     ControlTaskProxy::ControlTaskProxy(std::string name, bool is_ior) 
         : TaskContext("NotFound") 
     {
+        this->clear();
         try {
             if (is_ior) {
                 // Use the first argument to create the task object reference,
@@ -149,6 +150,7 @@ namespace RTT
     ControlTaskProxy::ControlTaskProxy( ::RTT::Corba::ControlTask_ptr taskc) 
         : TaskContext("CORBAProxy"), mtask( Corba::ControlTask::_duplicate(taskc) )
     {
+        this->clear();
         try {
             CORBA::String_var nm = mtask->getName(); // force connect to object.
             std::string name( nm.in() );
@@ -312,12 +314,12 @@ namespace RTT
             log(Info) << plist[i] << ": fetching Attributes."<<endlog();
             AttributeInterface::AttributeNames_var attrs = cobj->attributes()->getAttributeList();
         
-            for (size_t i=0; i != attrs->length(); ++i) {
-                if ( tobj->attributes()->hasAttribute( string(attrs[i].in()) ) )
+            for (size_t j=0; j != attrs->length(); ++i) {
+                if ( tobj->attributes()->hasAttribute( string(attrs[j].in()) ) )
                     continue; // previously added.
-                Expression_var expr = cobj->attributes()->getAttribute( attrs[i].in() );
+                Expression_var expr = cobj->attributes()->getAttribute( attrs[j].in() );
                 if ( CORBA::is_nil( expr ) ) {
-                    log(Error) <<"Attribute "<< string(attrs[i].in()) << " present in getAttributeList() but not accessible."<<endlog();
+                    log(Error) <<"Attribute "<< string(attrs[j].in()) << " present in getAttributeList() but not accessible."<<endlog();
                     continue; 
                 }
                 AssignableExpression_var as_expr = AssignableExpression::_narrow( expr.in()  );
@@ -329,45 +331,44 @@ namespace RTT
                 if ( ti && ti->getProtocol(ORO_CORBA_PROTOCOL_ID) ) {
                     Logger::log() <<": found!"<<endlog();
                     if ( CORBA::is_nil( as_expr ) ) {
-                        tobj->attributes()->setValue( ti->buildConstant( attrs[i].in(), ti->getProtocol(ORO_CORBA_PROTOCOL_ID)->proxy( expr.in() ) ) );
+                        tobj->attributes()->setValue( ti->buildConstant( attrs[j].in(), ti->getProtocol(ORO_CORBA_PROTOCOL_ID)->proxy( expr.in() ) ) );
                     }
                     else {
-                        tobj->attributes()->setValue( ti->buildAttribute( attrs[i].in(), ti->getProtocol(ORO_CORBA_PROTOCOL_ID)->proxy( expr.in() ) ) );
+                        tobj->attributes()->setValue( ti->buildAttribute( attrs[j].in(), ti->getProtocol(ORO_CORBA_PROTOCOL_ID)->proxy( expr.in() ) ) );
                     }
                 } else {
                     Logger::log() <<": not found :-("<<endlog();
                     if ( CORBA::is_nil( as_expr ) )
-                        tobj->attributes()->setValue( new Constant<CORBA::Any_ptr>( attrs[i].in(), new CORBAExpression<CORBA::Any_ptr>( expr.in() ) ) );
+                        tobj->attributes()->setValue( new Constant<CORBA::Any_ptr>( attrs[j].in(), new CORBAExpression<CORBA::Any_ptr>( expr.in() ) ) );
                     else
-                        tobj->attributes()->setValue( new Attribute<CORBA::Any_ptr>( attrs[i].in(), new CORBAAssignableExpression<CORBA::Any_ptr>( as_expr.in() ) ) );
+                        tobj->attributes()->setValue( new Attribute<CORBA::Any_ptr>( attrs[j].in(), new CORBAAssignableExpression<CORBA::Any_ptr>( as_expr.in() ) ) );
                 }
-
-                // methods:
-                log(Info) << plist[i] << ": fetching Methods."<<endlog();
-                MethodInterface_var mfact = cobj->methods();
-                if (mfact) {
-                    MethodList_var objs;
-                    objs = mfact->getMethods();
-                    for ( size_t i=0; i < objs->length(); ++i) {
-                        tobj->methods()->add( objs[i].in(), new CorbaMethodFactory( objs[i].in(), mfact.in(), ProxyPOA() ) );
-                    }
-                }
-                // commands:
-                log(Info) << plist[i] << ": fetching Commands."<<endlog();
-                CommandInterface_var cfact = cobj->commands();
-                if (cfact) {
-                    CommandList_var objs;
-                    objs = cfact->getCommands();
-                    for ( size_t i=0; i < objs->length(); ++i) {
-                        tobj->commands()->add( objs[i].in(), new CorbaCommandFactory( objs[i].in(), cfact.in(), ProxyPOA() ) );
-                    }
-                }
-                parent->addObject( tobj );
-
-                // Recurse:
-                this->fetchObjects( tobj, cobj.in() );
             }
 
+            // methods:
+            log(Info) << plist[i] << ": fetching Methods."<<endlog();
+            MethodInterface_var mfact = cobj->methods();
+            if (mfact) {
+                MethodList_var objs;
+                objs = mfact->getMethods();
+                for ( size_t i=0; i < objs->length(); ++i) {
+                    tobj->methods()->add( objs[i].in(), new CorbaMethodFactory( objs[i].in(), mfact.in(), ProxyPOA() ) );
+                }
+            }
+            // commands:
+            log(Info) << plist[i] << ": fetching Commands."<<endlog();
+            CommandInterface_var cfact = cobj->commands();
+            if (cfact) {
+                CommandList_var objs;
+                objs = cfact->getCommands();
+                for ( size_t i=0; i < objs->length(); ++i) {
+                    tobj->commands()->add( objs[i].in(), new CorbaCommandFactory( objs[i].in(), cfact.in(), ProxyPOA() ) );
+                }
+            }
+            parent->addObject( tobj );
+
+            // Recurse:
+            this->fetchObjects( tobj, cobj.in() );
         }
     }
 
@@ -565,10 +566,12 @@ namespace RTT
 
     TaskContext::PeerList ControlTaskProxy::getPeerList() const
     {
-        Corba::ControlTask::ControlTaskNames_var plist = mtask->getPeerList();
         TaskContext::PeerList vlist;
-        for( size_t i =0; i != plist->length(); ++i)
-            vlist.push_back( std::string( plist[i] ) );
+        if (mtask) {
+            Corba::ControlTask::ControlTaskNames_var plist = mtask->getPeerList();
+            for( size_t i =0; i != plist->length(); ++i)
+                vlist.push_back( std::string( plist[i] ) );
+        }
         return vlist;
     }
 
