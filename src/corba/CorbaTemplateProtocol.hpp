@@ -116,16 +116,22 @@ namespace RTT
           {
               // then try to see if it is a CORBA object.
               //Corba::ExpressionProxyInterface* prox = dynamic_cast< Corba::ExpressionProxyInterface* >(dsb);
-              if ( dsb->serverProtocol() == ORO_CORBA_PROTOCOL_ID ) {
+              // Only try if the names match in the first place.
+              if ( dsb->serverProtocol() == ORO_CORBA_PROTOCOL_ID && dsb->getTypeName() == DataSource<T>::GetTypeName() ) {
                   Logger::log() << Logger::Debug << "Trying to narrow server "<<dsb->getType()<<" to local "<<DataSource<T>::GetType() <<Logger::endl;
                   Corba::Expression_var expr = (Corba::Expression_ptr)dsb->server(ORO_CORBA_PROTOCOL_ID, 0) ;
+                  assert( expr.in() );
                   return Corba::ExpressionProxy::NarrowDataSource<T>( expr.in() );
               }
+              Logger::log() << Logger::Debug << "Failed to narrow server "<<dsb->getType()<<" to local "<<DataSource<T>::GetType() <<Logger::endl;
+#if 0
+              // I believe this is very old dead code.
               // See if the DS contains an Any.
               DataSource<CORBA::Any_var>* aret = dynamic_cast< DataSource<CORBA::Any_var>* >( dsb );
               if (aret){
                   return Corba::ExpressionProxy::NarrowConstant<T>( aret->get().in() );
               }
+#endif
               return 0;
           }
           
@@ -133,7 +139,7 @@ namespace RTT
           {
               // then try to see if it is a CORBA object.
               //Corba::ExpressionProxyInterface* prox = dynamic_cast< Corba::ExpressionProxyInterface* >(dsb);
-              if ( dsb->serverProtocol() == ( ORO_CORBA_PROTOCOL_ID ) ) {
+              if ( dsb->serverProtocol() == ( ORO_CORBA_PROTOCOL_ID ) && dsb->getTypeName() == DataSource<T>::GetTypeName() ) {
                   Corba::Expression_var expr = (Corba::Expression_ptr)dsb->server(ORO_CORBA_PROTOCOL_ID,0) ;
                   return Corba::ExpressionProxy::NarrowAssignableDataSource<T>( expr.in() );
               }
