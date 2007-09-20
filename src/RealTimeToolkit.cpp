@@ -91,18 +91,21 @@ namespace RTT
      * Write boolean as 'true' or 'false'.
      */
     struct BoolTypeInfo
-        : public TemplateTypeInfo<bool>
+        : public TemplateTypeInfo<bool,true>
     {
         BoolTypeInfo()
-            : TemplateTypeInfo<bool>("bool")
+            : TemplateTypeInfo<bool,true>("bool")
         {}
         
         virtual std::ostream& write( std::ostream& os, DataSourceBase::shared_ptr in ) const {
+#ifdef OS_HAVE_STREAMS
             DataSource<bool>* d = AdaptDataSource<bool>()( in );
             if (d)
                 return os << boolalpha << d->value();
+#endif
             return os;
         }
+
     };
 
     bool RealTimeToolkitPlugin::loadTypes() 

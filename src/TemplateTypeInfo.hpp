@@ -274,11 +274,6 @@ namespace RTT
                 detail::TypeStreamSelector<T, use_ostream>::read( os, d->set() );
                 d->updated(); // because use of set().
             }
-            else {
-#ifdef OS_HAVE_STREAMS
-                // NOP
-#endif
-            }
             return os;
         }
 
