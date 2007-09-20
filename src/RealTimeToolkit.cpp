@@ -91,17 +91,29 @@ namespace RTT
      * Write boolean as 'true' or 'false'.
      */
     struct BoolTypeInfo
-        : public TemplateTypeInfo<bool,true>
+        : public TemplateTypeInfo<bool>
     {
         BoolTypeInfo()
-            : TemplateTypeInfo<bool,true>("bool")
+            : TemplateTypeInfo<bool>("bool")
         {}
-        
+
         virtual std::ostream& write( std::ostream& os, DataSourceBase::shared_ptr in ) const {
 #ifdef OS_HAVE_STREAMS
             DataSource<bool>* d = AdaptDataSource<bool>()( in );
             if (d)
                 return os << boolalpha << d->value();
+#endif
+            return os;
+        }
+
+        virtual std::istream& read( std::istream& os, DataSourceBase::shared_ptr out ) const {
+#ifdef OS_HAVE_STREAMS
+            AssignableDataSource<bool>::shared_ptr d = AdaptAssignableDataSource<bool>()( out );
+            if ( d ) {
+                boolalpha(os);
+                os >> d->set();
+                d->updated(); // because use of set().
+            }
 #endif
             return os;
         }
