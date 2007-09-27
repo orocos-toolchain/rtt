@@ -4,8 +4,8 @@
 [
 <!ENTITY cvs         "<acronym>CVS</acronym>">
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY oldversion  "1.0">
-<!ENTITY version     "1.2">
+<!ENTITY oldversion  "1.2">
+<!ENTITY version     "1.4">
 <!ENTITY rtai        "<acronym>RTAI</acronym>">
 <!ENTITY rtos        "<acronym>RTOS</acronym>">
 ]
@@ -28,7 +28,7 @@
     solutions. Also feature additions and improvements are documented.
   </para>
   <para>
-    There is a <ulink url="https://www.fmtc.be/orocos-bugzilla/buglist.cgi?query_format=advanced&amp;short_desc_type=allwordssubstr&amp;short_desc=&amp;product=RTT&amp;target_milestone=1.2.0&amp;long_desc_type=substring&amp;long_desc=&amp;bug_file_loc_type=allwordssubstr&amp;bug_file_loc=&amp;bug_status=RESOLVED&amp;resolution=FIXED&amp;emailassigned_to1=1&amp;emailtype1=substring&amp;email1=&amp;emailassigned_to2=1&amp;emailreporter2=1&amp;emailcc2=1&amp;emailtype2=substring&amp;email2=&amp;bugidtype=include&amp;bug_id=&amp;votes=&amp;chfieldfrom=&amp;chfieldto=Now&amp;chfieldvalue=&amp;cmdtype=doit&amp;order=Reuse+same+sort+as+last+time&amp;field0-0-0=noop&amp;type0-0-0=noop&amp;value0-0-0=">list of tracked issues</ulink> fixed in this release.
+    There is a <ulink url="">list of tracked issues</ulink> fixed in this release.
   </para>
   <para>
     The <ulink
@@ -37,298 +37,23 @@
   </para>
   <section id="caveats">
     <title>Caveats</title>
-    <section>
-      <title>Building the RTT</title>
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    Orocos RTT is now built with the 'CMake' tool, instead of
-	    the automake tool previously. See the installation manual
-	    for the new build instructions.  The installed libraries
-	    and header files names and locations have not changed.
-	    However, the <filename>pkgconf</filename> directory has
-	    disappeared and is replaced with the
-	    <filename>rtt/rtt-config.h</filename> file, which contains
-	    the same defined macros.
-	  </para>
-	  <para>
-	    The new build system may on your system detect installed
-	    libraries differently than in version &oldversion;. If you
-	    encounter problems, notify the orocos-dev mailinglist and
-	    a hotfix will be prepared.
-	  </para>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=223">
-	    Change Orocos directory structure</ulink> and 
-	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=28">
-	      [Project]Build shared libraries
-	    </ulink>.
-	  </para>
-	</listitem>
-      </itemizedlist>
-    </section>
-    <section>
-      <title>OS Changes</title>
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    Support for real-time PowerPC (40x and 60x were tested) has been
-	    added. The functionality has been tested with a Linux 2.4
-	    PPC kernel (patched for Xenomai), with gcc 3.3.6 and glibc
-	    2.2.5 but should work with other kernels and compilers as
-	    well.
-	  </para>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=289">
-	      Rethink the os/oro_*.h assembly functions 
-	    </ulink>.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The necessary files have been added to run Orocos RTT on eCos.
-	    However, you need to create a specially crafted C++ GNU toolchain,
-	    see <ulink url="http://www.zylin.com/libstdc++.html">libstdc++ for eCos</ulink>,
-	    because the free eCos version does not supply a Standard C++ toolchain.
-	    See also <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=27">
-	      [Project] eCos Port
-	      </ulink>.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    An <function>rtos_task_yield()</function> function is now
-	    required in the FOSI layer, which maps to the yield function
-	    of your OS. If your OS does not support a 'thread yield',
-	    you may implement this as an empty function.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Two functions, <function>int
-	    rtos_task_check_scheduler(int* scheduler)</function> and
-	    <function>int rtos_task_check_priority(int* scheduler,
-	    int* priority)</function>, have been added to the internal
-	    FOSI layer. Each OS must implement these functions and
-	    check the arguments for validity.
-	  </para>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=382">
-	      RTT does not provide means to check scheduler/priority combos
-	      </ulink>.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The <classname>RTT::OS::SingleThread</classname> and the
-	    <classname>RTT::NonPeriodicActivity</classname> threading
-	    classes had undefined semantics for start() and stop()
-	    with respect to loop() in case start() was called multiple
-	    times in a row. With the old behaviour, start()
-	    invocations had an accumulative effect, causing loop() to
-	    be executed as much as start() was called, even after stop()
-	    was called. The new behaviour only allows start() to succeed
-	    if loop() is not executing. stop() will only return when
-	    loop() finishes.
-	  </para>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=253">
-	      loopActivity
-	      </ulink>.
-	  </para>
-	</listitem>
-      </itemizedlist>
-    </section>
-    <section>
-      <title>RTT Changes</title>
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    See the above remark about the changed behaviour of 
-	    <classname>RTT::NonPeriodicActivity</classname>.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The <classname>RTT::TaskContext</classname>
-	    <function>startup()</function>,
-	    <function>update()</function>,
-	    <function>shutdown()</function> user functions are in the
-	    process of being renamed. They are still valid, but
-	    deprecated and new applications should no longer use these
-	    names.  The new names are
-	    <function>startHook()</function>,
-	    <function>updateHook()</function> and
-	    <function>stopHook()</function>. The new naming is less
-	    confusing in combination with the new configuration state
-	    of the TaskContext (see below). Existing RTT 1.0.x
-	    applications using the old naming remain working.
-	  </para>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=352">
-	      TaskContext offers no configuration function
-	      </ulink>.
-	  </para>
-	</listitem>
-      </itemizedlist>
-    </section>
-    <section>
-      <title>Scripting Changes</title>
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    The <function>programs.MyProgram</function> and
-	    <function>states.MyStateMachine</function> prefixes,
-	    required to access loaded programs and statemachines has
-	    been dropped. One can now address a TaskContext program or
-	    state machine by just writing
-	    <function>MyProgram</function> or
-	    <function>MyStateMachine</function> in a script. The
-	    parser will not allow name clashes between script
-	    names and TaskContext objects. The parser has been modified
-	    to allow the old syntax and warn the user of the change.
-	  </para>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=328">
-	      [Project]Refactor TaskObject vs TaskContext
-	      </ulink>.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Program and state machine scripts are no longer loaded as
-	    <classname>RTT::TaskContext</classname> C++ objects but as
-	    <classname>RTT::TaskObject</classname> C++ objects. In
-	    practice, this has no effect on existing applications,
-	    unless the user uses <function>getPeer()</function> in
-	    order to access loaded scripts (instead of the recommended
-	    <function>states()</function>,
-	    <function>programs()</function> or
-	    <function>execution()</function>).  In that case, the user
-	    needs to call <function>getObject()</function> instead of
-	    <function>getPeer()</function> or
-	    revert to the recommended functions.
-	  </para>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=328">
-	      [Project]Refactor TaskObject vs TaskContext
-	      </ulink>.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Toolkit plugins which use the RTT::TemplateTypeInfo class
-	    to add user data types to the Real-Time Toolkit must provide
-	    operator>> as well for their type when 'use_ostream' is enabled.
-	    In other words, if you defined operator&lt;&lt; for your toolkit type,
-	    you now also need to define operator>>.
-	  </para>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=301">
-	      Toolkit Plugins should provide read()/operator>> as well 
-	      </ulink>.
-	  </para>
-	</listitem>
-      </itemizedlist>
-    </section>
-    <section>
-      <title>XML Changes</title>
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    When a <classname>RTT::PropertyBag</classname> object is
-	    stored in an XML struct element, it previously had the
-	    type="type_less" attribute. XML files written by RTT 1.2.0
-	    will use the type="PropertyBag" attribute (conforming
-	    scripting naming). If an old-style file is found, it is
-	    automatically converted.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    When a std::vector&lt;double&gt; property is stored in an
-	    XML struct element, it previously had the type
-	    type="std::vector&amp;lt;double&amp;gt;" attribute. XML
-	    files written by RTT 1.2.0 will use the type="array"
-	    attribute (conforming scripting naming). Also, the 'Size'
-	    element is no longer required and may be omitted. The
-	    elements of the array struct also no longer require a
-	    name, and the name is ignored. The ordering in the file
-	    counts as index number.  If an old-style file is found, it
-	    is automatically converted.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=326">
-	      [Project]XML format: change of type="xyz" fields
-	      </ulink>.
-	  </para>
-	</listitem>
-      </itemizedlist>
-    </section>
-    <section>
-      <title>Corba IDL Changes</title>
-      <para>
-	These changes only apply if you directly used the IDL interface
-	of Orocos.
-      </para>
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    The <classname>ControlTask</classname> class
-	    and related classes have been extended to map to the
-	    TaskContext and TaskObject interface.
-	  </para>
-	</listitem>
-      </itemizedlist>
-    </section>
-    <section>
-      <title>Shared Libraries</title>
-      <para>
-	Since the RTT can be build as a shared library, this imposes
-	a limitation on your derived libraries or applications.
-      </para>
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    When the RTT is built as a shared library (default), dependent
-	    libraries, such as the OCL, KDL or your own library which
-	    includes RTT headers, must also be a shared library. If you
-	    do not obey this rule, crashes or compilation errors may occur.
-	    It is not yet clear if this is a bug in the GNU linker or expected
-	    behaviour.
-	  </para>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=402">
-	      Mixing liborocos-rtt.a and .so causes crash upon exit
-	      </ulink>.
-	  </para>
-	</listitem>
-      </itemizedlist>
-    </section>
+    <para>
+      None known.
+    </para>
   </section>
   <section>
     <title>Improvements</title>
     <section>
-      <title>Shared libraries</title>
+      <title>Component network communication</title>
       <itemizedlist>
 	<listitem>
 	  <para>
-	    From release 1.2.0 on, Orocos RTT is built by default as a shared
-	    library. This significantly improves link times and application
-	    development times. It also allows dynamic component deployment in
-	    the Orocos Component Library.
+	    From release 1.4.0 on, the decision if a component is accessible
+	    over a network is no longer taken at compile time, but at runtime.
+	    This is possible since the RTT has defined a 'plugin' API for
+	    network communication. Moving this code to an external library
+	    drastically improves compile time and  memory footprint of a
+	    component.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -339,35 +64,49 @@
 	<listitem>
 	  <para>
 	    The <classname>RTT::TaskContext</classname> class has been
-	    extended to support a configuration state. A component now
-	    has a <function>configure()</function> and
-	    <function>cleanup()</function> method to configure the
-	    component or free all resources. If a component is not
-	    configured, it will refuse to start running. The
-	    associated user functions
-	    (<function>configureHook()</function> and
-	    <function>cleanupHook()</function>) allow the user to
-	    control the transitions.
+	    extended to support an InError state. A
+	    component now has an <function>error()</function> and
+	    <function>reset()</function> method to enter and leave the
+	    InError state. If a component is in error, it will stop
+	    running and refuse to start until it is reset(). Depending
+	    upon implementation, a reset causes the component to enter
+	    the PreOperational or Stopped state. The associated user
+	    function (<function>resetHook()</function>) allow the user
+	    to control that transition. 
 	  </para>
 	  <para>
 	    See also
-	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=352">
-	      TaskContext offers no configuration function
+	    <ulink url="">
 	      </ulink>.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The <classname>RTT::PeriodicActivity</classname> and
-	    <classname>RTT::NonPeriodicActivity</classname> classes have
-	    received additional constructors which allow to set the scheduler
-	    type to ORO_SCHED_RT (default) or ORO_SCHED_OTHER. This allows
-	    easier creation of not real-time threads in the Orocos RTT.
+	    The <classname>RTT::TaskContext</classname> class has been
+	    extended to support an Active state. A
+	    component now has an <function>activate()</function> method to enter 
+	    the Active state. If a component is in error, it will stop
+	    running and refuse to start until it is reset(). Depending
+	    upon implementation, a reset causes the component to enter
+	    the PreOperational or Stopped state. The associated user
+	    function (<function>resetHook()</function>) allow the user
+	    to control that transition. 
 	  </para>
 	  <para>
 	    See also
-	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=314">
-	      Priority and scheduler of activities
+	    <ulink url="">
+	      </ulink>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The <classname>RTT::PeriodicActivity</classname> has
+	    received a more efficient implementation, removing
+	    unneccessary internal classes.
+	  </para>
+	  <para>
+	    See also
+	    <ulink url="">
 	      </ulink>.
 	  </para>
 	</listitem>

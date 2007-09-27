@@ -2231,19 +2231,19 @@ the_data_port.     cd            ls
 	<classname>RTT::Property</classname> objects can be
 	added to a task's interface. To read and write properties from
 	or to files, you can use the
-	<classname>RTT::TaskContext</classname>
+	<classname>RTT::MarshallingAccess</classname>
 	class' methods. It creates or reads files in the XML Component
 	Property Format such that it is human readable and modifiable.
       </para>
       <programlisting>  // ...
   <classname>RTT::TaskContext</classname>* a_task = ...
-  a_task->readProperties( "PropertyFile.cpf" );
+  a_task->marshalling()->readProperties( "PropertyFile.cpf" );
   // ...
-  a_task->writeProperties( "PropertyFile.cpf" ); </programlisting>
+  a_task->marshalling()->writeProperties( "PropertyFile.cpf" ); </programlisting>
        <para>
 	 Where <function>readProperties()</function> reads the file and updates the
-	 task's properties and <function>writeProperties()</function> <emphasis>updates</emphasis> the
-	 given file with the properties of the task. It is allowed to
+	 task's properties and <function>writeProperties()</function> writes the
+	 given file with the properties of the task. Other functions allow to
 	 share a single file with multiple tasks or update the task's
 	 properties from multiple files.
        </para>
