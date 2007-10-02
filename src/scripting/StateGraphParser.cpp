@@ -469,7 +469,24 @@ namespace RTT
 //                 res = curtemplate->createEventTransition( &(peer->eventService), evname, evargs, curstate, next_state, curcondition->clone(), transProgram, elsestate, elseProgram );
 //             else
             //cerr << "Registering "<<evname<<" handler for SM."<<endl;
-            res = curtemplate->createEventTransition( peer->events(), evname, evargs, curstate, next_state, curcondition->clone(), transProgram );
+            try {
+                res = curtemplate->createEventTransition( peer->events(), evname, evargs, curstate, next_state, curcondition->clone(), transProgram );
+            } 
+            catch( const wrong_number_of_args_exception& e )
+                {
+                    throw parse_exception_wrong_number_of_arguments
+                        ( peer->getName(), evname, e.wanted, e.received );
+                }
+            catch( const wrong_types_of_args_exception& e )
+                {
+                    throw parse_exception_wrong_type_of_argument
+                        ( peer->getName(), evname, e.whicharg, e.expected_, e.received_ );
+                }
+            catch( ... )
+                {
+                    assert( false );
+                }
+
             assert( res ); // checked in seeneventname()
             elsestate = 0;
             elseProgram.reset();
