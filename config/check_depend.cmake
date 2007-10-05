@@ -56,6 +56,8 @@ ELSE ( XERCES AND XERCES_HEADERS )
 ENDIF ( XERCES AND XERCES_HEADERS )
 
 SET( OROCOS_TARGET gnulinux CACHE STRING "The Operating System target. One of [lxrt gnulinux xenomai]")
+STRING(TOUPPER ${OROCOS_TARGET} OROCOS_TARGET_CAP)
+
 SET(LINUX_SOURCE_DIR ${LINUX_SOURCE_DIR} CACHE PATH "path to linux source dir" FORCE)
 
 # Look for TAO and ACE

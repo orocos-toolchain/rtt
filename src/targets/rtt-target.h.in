@@ -1,0 +1,14 @@
+/**
+ * This is a helper file in the targets subdirectory
+ * It includes the correct target, on behalf of rtt-config.h
+ */
+
+#define ORO_RTT_CONFIG_str(s) ORO_RTT_CONFIG__str(s)
+#define ORO_RTT_CONFIG__str(s) #s
+
+#define OROCOS_TARGET_HEADER ORO_RTT_CONFIG_str(OROCOS_TARGET)
+
+#include OROCOS_TARGET_HEADER
+
+#undef ORO_RTT_CONFIG_str
+#undef ORO_RTT_CONFIG__str

@@ -10,7 +10,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.2)
 #                                                 #
 ###################################################
 
-PROJECT(Orocos-RTT)
+PROJECT(orocos-rtt)
 
 SET( RTT_VERSION 1.4.99 )
 STRING( REGEX MATCHALL "[0-9]+" RTT_VERSIONS ${RTT_VERSION} )
@@ -26,8 +26,8 @@ IF(NOT CMAKE_INSTALL_PREFIX)
   MESSAGE( STATUS "Setting installation directory to ${CMAKE_INSTALL_PREFIX}" )
 ENDIF(NOT CMAKE_INSTALL_PREFIX)
 
-SET( PROJ_SOURCE_DIR ${Orocos-RTT_SOURCE_DIR} )
-SET( PROJ_BINARY_DIR ${Orocos-RTT_BINARY_DIR} )
+SET( PROJ_SOURCE_DIR ${orocos-rtt_SOURCE_DIR} )
+SET( PROJ_BINARY_DIR ${orocos-rtt_BINARY_DIR} )
 
 # Set the default build type to debug.
 #
@@ -124,8 +124,8 @@ ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(doc)
 ADD_SUBDIRECTORY(tests)
 
-CONFIGURE_FILE( orocos-rtt.pc.in orocos-rtt.pc @ONLY)
-INSTALL_FILES( /lib/pkgconfig FILES orocos-rtt.pc)
+CONFIGURE_FILE( orocos-rtt.pc.in orocos-rtt-${OROCOS_TARGET}.pc @ONLY)
+INSTALL_FILES( /lib/pkgconfig FILES orocos-rtt-${OROCOS_TARGET}.pc)
 CONFIGURE_FILE(Doxyfile.in Doxyfile @ONLY)
 
 # provide a link to src. Used by Doxygen.

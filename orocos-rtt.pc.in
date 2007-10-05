@@ -6,6 +6,6 @@ includedir=${prefix}/include
 Name: Orocos-RTT                          # human-readable name
 Description: Open Robot Control Software: Real-Time Tookit # human-readable description
 Version: @RTT_VERSION@
-Libs: -L${libdir} -lorocos-rtt @RTT_LINKFLAGS@ 
+Libs: -L${libdir} -lorocos-rtt-@OROCOS_TARGET@ @RTT_LINKFLAGS@ 
 #Libs.private: @RTT_LIBS@
-Cflags: -I${includedir} @RTT_CFLAGS@ 
+Cflags: -I${includedir} -DOROCOS_TARGET=@OROCOS_TARGET@ @RTT_CFLAGS@ 
