@@ -56,32 +56,9 @@ extern "C" {
 #endif
 
 // include custom redirect-like include
-#if ORONUM_RTAI_VERSION == 3
-# include <rtai_config.h>
-# define ORO_RTAI_CONFIG_VERSION CONFIG_RTAI_VERSION_MAJOR.CONFIG_RTAI_VERSION_MINOR
-#else
-# include "rtai_config.h"
-# define ORO_RTAI_CONFIG_VERSION 2.0
-#endif
-
-#if ORONUM_RTAI_VERSION == 3
-# include <rtai_lxrt.h>
-# include <rtai_sem.h>
-#else
-# define KEEP_STATIC_INLINE
-# include <rtai_declare.h>
-# include <rtai_usp_posix.h>
-# include <rtai_lxrt_user.h> 
-
-    /**
-     * About KEEP_STATIC_INLINE:
-     *  What is below is questionable, sometimes it crashes, sometimes not. I disassembled the C and C++ object code,
-     *  they were the same for 3.x compilers. (ps)
-     *  crashes on C++ stuff when using 2.95 compiler, thus you can not include rtai_lxrt.h or you get multiple
-     * defined symbols. Missing defines from rtai_lxrt.h need to be redefined in other headerfile.
-     */
-//#include <rtai_fifos_lxrt_user.h> 
-#endif
+#include <rtai_config.h>
+#include <rtai_lxrt.h>
+#include <rtai_sem.h>
 
 	// Finally, define the types we use :
 	typedef RT_TASK RTOS_RTAI_TASK;
@@ -93,7 +70,6 @@ extern "C" {
 	// For PeriodicTask.cxx :
 	// we need to define the types without the headers,
 	// this is RTAI version dependent.
-#if ORONUM_RTAI_VERSION == 3
     // v3.x :
 	typedef struct oro_lxrt_t {
 		int opaque;
@@ -101,15 +77,6 @@ extern "C" {
 
     typedef __LXRT_HANDLE_STRUCT RTOS_RTAI_TASK;
     typedef __LXRT_HANDLE_STRUCT RTOS_RTAI_SEM;
-#else
-    // v24.1.x :
-	typedef struct oro_lxrt_t {
-		int opaque;
-	} __LXRT_HANDLE_STRUCT;
-    typedef void RTOS_RTAI_TASK;
-    typedef __LXRT_HANDLE_STRUCT RTOS_RTAI_SEM;
-    typedef void RTOS_RTAI_CND; 
-#endif
 #endif // OROBLD_OS_AGNOSTIC // for RTAI header files.
 
 	// this is required because the rtos_sem_init function takes a pointer to RTOS_SEM,
