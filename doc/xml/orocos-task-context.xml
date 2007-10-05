@@ -1141,7 +1141,7 @@ the_data_port.     cd            ls
        }
      }
 
-     bool updateHook() {
+     void updateHook() {
        // Read and write the Data Flow:
        // Unbuffered:
        double val = indatPort.Get();
@@ -1302,12 +1302,12 @@ the_data_port.     cd            ls
       : <classname>RTT::TaskContext</classname>(name),
       resetMethod(&quot;reset&quot;, &amp;MyTask::reset, this),
       nameMethod(&quot;name&quot;, &amp;MyTask::getName, this),
-      resetMethod(&quot;changeP&quot;, &amp;MyTask::changeParameter, this)
+      paramMethod(&quot;changeP&quot;, &amp;MyTask::changeParameter, this)
     {
        // Add the method objects to the method interface:
        this->methods()->addMethod( &amp;resetMethod, &quot;Reset the system.&quot;);
        this->methods()->addMethod( &amp;nameMethod, &quot;Read out the name of the system.&quot;);
-       this->methods()->addMethod( &amp;changeP,
+       this->methods()->addMethod( &amp;paramMethod,
                                    &quot;Change a parameter, return the old value.&quot;,
 	                           &quot;New Value&quot;, &quot;The new value for the parameter.&quot;); 
 
@@ -1876,6 +1876,7 @@ the_data_port.     cd            ls
                                 "Turn switch description", 
                                 "d","Direction" ); 
       this->events()->addEvent( &amp;moveAxis,
+                                "Move the axis."
                                 "x","X axis position",
 				"y","Y axis position",
 				"z","Z axis direction");
@@ -2818,13 +2819,13 @@ the_data_port.     cd            ls
       {
          // Add Methods :
          this->methods()-&gt;addMethod(method(&quot;setParameter&quot;,
-                    &amp;DeviceInterface::setParameter),
+                    &amp;DeviceInterface::setParameter, this),
 	                   &quot;Set a device parameter.&quot;,
 	                   &quot;Parameter&quot;, &quot;The number of the parameter.&quot;,
 	                   &quot;New Value&quot;, &quot;The new value for the parameter.&quot;); 
 
          this->methods()-&gt;addMethod(method(&quot;getParameter&quot;,
-                     &amp;DeviceInterface::getParameter),
+                     &amp;DeviceInterface::getParameter, this),
 	                  &quot;Get a device parameter.&quot;,
                           &quot;Parameter&quot;, &quot;The number of the parameter.&quot;);
          this->methods()-&gt;addMethod(method(&quot;getError&quot;,
@@ -2833,7 +2834,7 @@ the_data_port.     cd            ls
 
          // Add Commands :
          this->commands()-&gt;addCommand(method(&quot;updateData&quot;,
-                          &amp;DeviceInterface::updateData),
+                          &amp;DeviceInterface::updateData, this),
                                  &amp;DeviceInterface::updated,
                                  &quot;Command data acquisition.&quot; );
       }

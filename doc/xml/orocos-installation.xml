@@ -149,6 +149,15 @@
 		XML parser is used.</entry>
 	      </row>
 	      <row>
+		<entry>ACE &amp; TAO</entry>
+		<entry>TAO 1.3 (Optional)</entry>
+		<entry><ulink url="http://www.cs.wustl.edu/~schmidt/">ACE &amp; TAO website</ulink>
+		When you start your components in a networked environment,
+		TAO can be used to set up communication between components.
+		
+		</entry>
+	      </row>
+	      <row>
 		<entry>CppUnit Library</entry>
 		<entry>1.9.6 (Optional)</entry>
 		<entry><ulink url="http://cppunit.sourceforge.net/cgi-bin/moin.cgi">CppUnit website.</ulink>
@@ -224,12 +233,16 @@
 	</note>
       </section>
       <section>
-	<title>Real-Time Toolkit Flavours</title>
+	<title>Real-Time Toolkit Configuration</title>
 	<para>
-	  The RTT can be compiled in three flavours: the 'standard',
-	  'embedded' or 'CORBA' version. The embedded version is
-	  standard without scripting, the CORBA version is standard
-	  with CORBA interfaces. In order to select your flavour, you
+	  The RTT can be configured depending on you target. 
+	  For embedded targets, the large scripting infrastructure and
+	  use of exceptions can be left out. When CORBA is available,
+	  an additional library is built which allows components to
+	  communicate over a network.
+	</para>
+	<para>
+	  In order to configure the RTT in detail, you
 	  need to invoke the <command>ccmake</command> command:
 	</para>
 	  <screen><command> 
@@ -244,19 +257,19 @@
 	  not be used and you must press again 'c' and examine the output.
 	</para>
 	<section>
-	  <title>RTT with CORBA flavour</title>
+	  <title>RTT with CORBA plugin</title>
 	  <para>
 	    In order to enable CORBA a valid installation of TAO must be
 	    detected on your system and you must turn the <option>ENABLE_CORBA</option>
 	    option on (using ccmake).
-	    Enabling CORBA almost doubles the size of the RTT library and
-	    slows down link and compile times.
+	    Enabling CORBA does not modify the RTT library, but
+	    builds and installs an additional library and headers.
 	  </para>
-	<para>
-	  Alternatively, when you use the configure wrapper, you
-	  can specify:
-	</para>
-	<screen>  ../configure --enable-corba</screen>
+	  <para>
+	    Alternatively, when you use the configure wrapper, you
+	    can specify:
+	  </para>
+	  <screen>  ../configure --enable-corba</screen>
 	</section>
 	<section>
 	  <title>Embedded RTT flavour</title>
@@ -270,20 +283,20 @@
 	    choose to build the RTT as a static library
 	    (<option>BUILD_STATIC</option>).
 	  </para>
-	<para>
-	  Alternatively, when you use the configure wrapper, you
-	  can specify:
-	</para>
-	<screen>  ../configure --embedded</screen>
+	  <para>
+	    Alternatively, when you use the configure wrapper, you
+	    can specify:
+	  </para>
+	  <screen>  ../configure --embedded</screen>
 	</section>
       </section>
       <section>
 	<title>Build results</title>
 	<para>
 	  The <command>make</command> command will have created a
-	  <filename>liborocos-rtt.so</filename> library, and if
-	  CORBA is enabled a <filename>liborocos-rtt-corba.so</filename>
-	  library.
+	  <filename>liborocos-rtt-&lt;target&gt;.so</filename> library, and if
+	  CORBA is enabled a <filename>liborocos-rtt-corba-&lt;target&gt;.so</filename>
+	  library. 
 	</para>
 	<para>
 	  The <command>make docapi</command> and
@@ -294,9 +307,10 @@
       <section>
 	<title>Building &orocos; for multiple targets</title>
 	<para>
-	  When you want to build for another target,
-	  create a new build-&lt;target&gt; directory and simply re-invoke ../configure --with-&lt;target&gt;
-	  from that build directory.
+	  When you want to build for another target, create a new
+	  build-&lt;target&gt; directory and simply re-invoke
+	  <command>../configure --with-&lt;target&gt;</command> from
+	  that build directory.
 	</para>
 	<para>
 	  If this step fails, it means that you have not everything installed
@@ -323,7 +337,7 @@
 	../configure --with-prefix=/opt/other/</screen></para>
       <para>
 	If you choose not to install Orocos, you can find the build's result
-	in the <filename>build/rtt</filename> directory.
+	in the <filename>build/src</filename> directory.
       </para>
     </section>
   </section>
@@ -636,7 +650,7 @@
 	  <itemizedlist>
 	    <listitem>
 	      <para>
-		Compiling : <option>-I/path/to/ACE_wrappers -I/path/to/ACE_wrappers/TAO</option>
+		Compiling : <option>-I/path/to/ACE_wrappers -I/path/to/ACE_wrappers/TAO -I/path/to/ACE_wrappers/TAO/orbsvcs</option>
 	      </para>
 	      <para>
 		This is the ACE build directory in case you use OCI's
@@ -823,9 +837,16 @@
     <para>
       Run plain "cmake" or "ccmake" with the following options:
       <screen><command> 
-      CC=cross-gcc CXX=cross-g++ cmake .. -DCROSS_COMPILE=cross-</command></screen>
+      CC=cross-gcc CXX=cross-g++ LD=cross-ld cmake .. -DCROSS_COMPILE=cross-</command></screen>
       and substitute the 'cross-' prefix with your target tripplet, 
-      for example with 'powerpc-linux-gnu-'.
+      for example with 'powerpc-linux-gnu-'. This works roughly when
+      running on Linux stations, but is not the official 'CMake' approach.
+    </para>
+    <para>
+      For having native cross compilation support, you must upgrade
+      to CMake 2.6.0 or later and follow the instructions on the
+      <ulink url="http://www.cmake.org/Wiki/CMake_Cross_Compiling">
+      CMake Cross Compiling page</ulink>.
     </para>
   </section>
 </article>
