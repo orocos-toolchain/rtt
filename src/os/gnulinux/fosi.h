@@ -44,6 +44,7 @@ extern "C"
 #include <limits.h>
 #include <float.h>
 #include <assert.h>
+#include "../oro_limits.h"
 
     typedef long long NANO_TIME;
     typedef long long TICK_TIME;

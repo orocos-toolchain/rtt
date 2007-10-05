@@ -40,6 +40,7 @@
 #include <assert.h> 
 #include <limits.h>
 #include <float.h>
+#include "../oro_limits.h"
 
 #ifdef __cplusplus
 extern "C" {

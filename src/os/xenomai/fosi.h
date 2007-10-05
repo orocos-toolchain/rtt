@@ -73,6 +73,7 @@ extern "C" {
 #include <time.h>
 #include <limits.h>
 #include <float.h>
+#include "../oro_limits.h"
 
 #include <xeno_config.h> // version number
 #include <native/task.h>
