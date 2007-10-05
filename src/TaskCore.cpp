@@ -32,6 +32,10 @@ namespace RTT
         } else {
             ee->removeChild(this);
         }
+        // Note: calling cleanup() here has no use or even dangerous, as
+        // cleanupHook() is a virtual function and the user code is already
+        // destroyed. The user's subclass is responsible to make this state 
+        // transition in its destructor if required.
     }
 
     TaskCore::TaskState TaskCore::getTaskState() const {
