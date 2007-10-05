@@ -66,9 +66,11 @@ namespace RTT
     template<typename T>
     bool AssignableDataSource<T>::updateBlob(int protocol, const void* data)
     {
+#ifndef ORO_EMBEDDED
         detail::TypeTransporter* tt = this->getTypeInfo()->getProtocol(protocol);
         if ( tt )
             return tt->updateBlob( data, DataSourceBase::shared_ptr(this) );
+#endif
         return false;
     }
 
@@ -76,9 +78,11 @@ namespace RTT
     template<typename T>
     void* AssignableDataSource<T>::server( int protocol, void* arg )
     {
+#ifndef ORO_EMBEDDED
         detail::TypeTransporter* tt = this->getTypeInfo()->getProtocol(protocol);
         if ( tt )
             return tt->server( DataSourceBase::shared_ptr(this), true, arg );
+#endif
         return 0;
     }
 
@@ -88,16 +92,18 @@ namespace RTT
         // first try conventional C++ style cast.
         DataSource<T>* ret = dynamic_cast< DataSource<T>* >( dsb );
         if (ret) return ret;
+#ifndef ORO_EMBEDDED
         // if narrowing failed, maybe this DS is a proxy for a remote object.
         int p_id = dsb->serverProtocol();
         if ( p_id ) {
             detail::TypeTransporter* tt = DataSource<T>::GetTypeInfo()->getProtocol( p_id );
             if (tt) {
                 DataSourceBase* ret2 = tt->narrowDataSource( dsb );
-                assert( dynamic_cast<DataSource<T>*>(ret2) == static_cast<DataSource<T>*>(ret2) );
-                return static_cast<DataSource<T>*>(ret2);
+                // it may be that <T> is a 'const &' and the protocol returns a value type.
+                return dynamic_cast<DataSource<T>*>(ret2);
             }
         }
+#endif
         // all failed:
         return 0;
     }
@@ -107,15 +113,16 @@ namespace RTT
         // first try conventional C++ style cast.
         AssignableDataSource<T>* ret = dynamic_cast< AssignableDataSource<T>* >( dsb );
         if (ret) return ret;
+#ifndef ORO_EMBEDDED
         int p_id = dsb->serverProtocol();
         if ( p_id ) {
             detail::TypeTransporter* tt = DataSource<T>::GetTypeInfo()->getProtocol( p_id );
             if (tt) {
                 DataSourceBase* ret2 = tt->narrowAssignableDataSource( dsb );
-                assert( dynamic_cast<AssignableDataSource<T>*>(ret2) == static_cast<AssignableDataSource<T>*>(ret2) );
-                return static_cast<AssignableDataSource<T>*>(ret2);
+                return dynamic_cast<AssignableDataSource<T>*>(ret2);
             }
         }
+#endif
         // all failed:
         return 0;
     }
