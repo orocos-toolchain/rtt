@@ -94,6 +94,7 @@ namespace RTT
          */
         ControlTaskProxy( ::RTT::Corba::ControlTask_ptr t );
 
+        void synchronizeOnce();
         void synchronize();
 
         Corba::ControlTask_var mtask;

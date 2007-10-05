@@ -144,7 +144,7 @@ namespace RTT
             throw;
         }
 
-        this->synchronize();
+        this->synchronizeOnce();
     }
 
     ControlTaskProxy::ControlTaskProxy( ::RTT::Corba::ControlTask_ptr taskc) 
@@ -164,11 +164,29 @@ namespace RTT
         catch (...) {
             throw;
         }
+        this->synchronizeOnce();
+    }
+
+    void ControlTaskProxy::synchronizeOnce()
+    {
+        // Add here the interfaces that need to be synchronised only once at creation time.
+        if (!mtask)
+            return;
+
+        log(Debug) << "Fetching ScriptingAccess."<<endlog();
+        Corba::ScriptingAccess_var saC = mtask->scripting();
+        if ( saC ) {
+            delete mscriptAcc;
+            mscriptAcc = new ScriptingAccessProxy( saC.in() );
+        }
+
         this->synchronize();
     }
 
     void ControlTaskProxy::synchronize()
     {
+        // Add here the interfaces that need to be synchronised every time a lookup is done.
+        // Detect already added parts of an interface, does not yet detect removed parts...
         if (!mtask)
             return;
 
@@ -180,6 +198,8 @@ namespace RTT
             MethodList_var objs;
             objs = mfact->getMethods();
             for ( size_t i=0; i < objs->length(); ++i) {
+                if (this->methods()->hasMember( string(objs[i].in() )))
+                    continue; // already added.
                 this->methods()->add( objs[i].in(), new CorbaMethodFactory( objs[i].in(), mfact.in(), ProxyPOA() ) );
             }
         }
@@ -190,6 +210,8 @@ namespace RTT
             CommandList_var objs;
             objs = cfact->getCommands();
             for ( size_t i=0; i < objs->length(); ++i) {
+                if (this->commands()->hasMember( string(objs[i].in() )))
+                    continue; // already added.
                 this->commands()->add( objs[i].in(), new CorbaCommandFactory( objs[i].in(), cfact.in(), ProxyPOA() ) );
             }
         }
@@ -274,19 +296,14 @@ namespace RTT
             }
         }
 
-        log(Debug) << "Fetching ScriptingAccess."<<endlog();
-        Corba::ScriptingAccess_var saC = mtask->scripting();
-        if ( saC ) {
-            delete mscriptAcc;
-            mscriptAcc = new ScriptingAccessProxy( saC.in() );
-        }
-
         log(Debug) << "Fetching Ports."<<endlog();
         DataFlowInterface_var dfact = mtask->ports();
         if (dfact) {
             DataFlowInterface::PortNames_var objs;
             objs = dfact->getPorts();
             for ( size_t i=0; i < objs->length(); ++i) {
+                if (this->ports()->getPort( objs[i].in() ))
+                    continue; // already added.
                 this->ports()->addPort( new CorbaPort( objs[i].in(), dfact.in(), ProxyPOA() ) );
             }
         }
@@ -308,13 +325,16 @@ namespace RTT
                 continue;
             ControlObject_var cobj = mtask->getObject(plist[i]);
             CORBA::String_var descr = cobj->getDescription();
-            TaskObject* tobj = new TaskObject( std::string(plist[i]), std::string(descr.in()) );
+
+            OperationInterface* tobj = this->getObject(std::string(plist[i]));
+            if (tobj == 0)
+                tobj = new TaskObject( std::string(plist[i]), std::string(descr.in()) );
 
             // add attributes:
-            log(Info) << plist[i] << ": fetching Attributes."<<endlog();
+            log(Debug) << plist[i] << ": fetching Attributes."<<endlog();
             AttributeInterface::AttributeNames_var attrs = cobj->attributes()->getAttributeList();
         
-            for (size_t j=0; j != attrs->length(); ++i) {
+            for (size_t j=0; j != attrs->length(); ++j) {
                 if ( tobj->attributes()->hasAttribute( string(attrs[j].in()) ) )
                     continue; // previously added.
                 Expression_var expr = cobj->attributes()->getAttribute( attrs[j].in() );
@@ -327,7 +347,7 @@ namespace RTT
                 // otherwise, build a attribute of CORBA::Any.
                 CORBA::String_var tn = expr->getTypeName();
                 TypeInfo* ti = TypeInfoRepository::Instance()->type( tn.in() );
-                log(Info) << "Looking up Attribute " << tn.in();
+                log(Debug) << "Looking up Attribute " << tn.in();
                 if ( ti && ti->getProtocol(ORO_CORBA_PROTOCOL_ID) ) {
                     Logger::log() <<": found!"<<endlog();
                     if ( CORBA::is_nil( as_expr ) ) {
@@ -346,26 +366,32 @@ namespace RTT
             }
 
             // methods:
-            log(Info) << plist[i] << ": fetching Methods."<<endlog();
+            log(Debug) << plist[i] << ": fetching Methods."<<endlog();
             MethodInterface_var mfact = cobj->methods();
             if (mfact) {
                 MethodList_var objs;
                 objs = mfact->getMethods();
                 for ( size_t i=0; i < objs->length(); ++i) {
+                    if (tobj->methods()->hasMember( string(objs[i].in() )))
+                        continue; // already added.
                     tobj->methods()->add( objs[i].in(), new CorbaMethodFactory( objs[i].in(), mfact.in(), ProxyPOA() ) );
                 }
             }
             // commands:
-            log(Info) << plist[i] << ": fetching Commands."<<endlog();
+            log(Debug) << plist[i] << ": fetching Commands."<<endlog();
             CommandInterface_var cfact = cobj->commands();
             if (cfact) {
                 CommandList_var objs;
                 objs = cfact->getCommands();
                 for ( size_t i=0; i < objs->length(); ++i) {
+                    if (tobj->commands()->hasMember( string(objs[i].in() )))
+                        continue; // already added.
                     tobj->commands()->add( objs[i].in(), new CorbaCommandFactory( objs[i].in(), cfact.in(), ProxyPOA() ) );
                 }
             }
-            parent->addObject( tobj );
+            // Add if not yet present.
+            if (parent->getObject( string(plist[i].in()) ) == 0 )
+                parent->addObject( tobj );
 
             // Recurse:
             this->fetchObjects( tobj, cobj.in() );
