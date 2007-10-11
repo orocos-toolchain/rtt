@@ -30,6 +30,8 @@
 #define _GNU_SOURCE   // use all Posix features (and then some).
 #endif
 
+#define _XOPEN_SOURCE 600   // use all Posix features.
+
 #define HAVE_FOSI_API
 
 #include <stdio.h>
