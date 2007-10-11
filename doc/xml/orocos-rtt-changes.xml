@@ -28,9 +28,6 @@
     solutions. Also feature additions and improvements are documented.
   </para>
   <para>
-    There is a <ulink url="">list of tracked issues</ulink> fixed in this release.
-  </para>
-  <para>
     The <ulink
     url="http://svn.mech.kuleuven.be/websvn/orocos/trunk/rtt/?op=log&amp;max=150&amp;">complete
     changelog</ulink> is available as well.
@@ -38,7 +35,23 @@
   <section id="caveats">
     <title>Caveats</title>
     <para>
-      None known.
+      A number of fuctions were added to
+      <classname>RTT::TaskContext</classname> and
+      <classname>RTT::TaskCore</classname> in version 1.4:
+      <function>bool activate()</function> and <function>bool
+      activateHook()</function>, <function>void fatal()</function>,
+      <function>bool reset()</function> and <function>bool
+      resetHook()</function>, <function>void warning()</function>,
+      <function>void error()</function>, <function>void
+      recovered()</function> and <function>bool
+      errorHook()</function>.  The queries <function>int getErrorCount()</function>,
+      <function>int getWarningCount()</function>, <function>int inFatalError()</function>,
+      <function>int inRunTimeError()</function> and <function>int inRunTimeWarning()</function>
+      have been added as well.
+      If your RTT 1.2 component has functions
+      like these, they need to be renamed or match the semantics of
+      the new component state model.  See the Component Builder's
+      Manual for a description of these new hooks.
     </para>
   </section>
   <section>
@@ -76,7 +89,8 @@
 	  </para>
 	  <para>
 	    See also
-	    <ulink url="">
+	    <ulink url="https://svn.fmtc.be/bugzilla/orocos/show_bug.cgi?id=424">
+	      Orocos components do not have an 'Error' state
 	      </ulink>.
 	  </para>
 	</listitem>
@@ -94,7 +108,8 @@
 	  </para>
 	  <para>
 	    See also
-	    <ulink url="">
+	    <ulink url="https://svn.fmtc.be/bugzilla/orocos/show_bug.cgi?id=423">
+	      [Project] Improve Component execution model
 	      </ulink>.
 	  </para>
 	</listitem>
@@ -106,20 +121,37 @@
 	  </para>
 	  <para>
 	    See also
-	    <ulink url="">
+	    <ulink url="https://svn.fmtc.be/bugzilla/orocos/show_bug.cgi?id=371">
+	      [Project] PeriodicActivity/TimerThread imposes too much overhead
 	      </ulink>.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The <classname>RTT::PeriodicActivity</classname> class could
-	    no longer be started if its thread was stopped for some reason.
-	    If the thread is not running, it tries to start it again. 
+	    The <classname>RTT::TaskContext</classname> interface classes
+	    (commands, methods, events, properties,...)
+	    were made more consistent in returning the contents of the 
+	    interface in the get&lt;InterfaceKind&gt;() functions.
 	  </para>
 	  <para>
 	    See also
-	    <ulink url="https://www.fmtc.be/orocos-bugzilla/show_bug.cgi?id=367">
-	      PeriodicActivity does not start PeriodicThread if necessary.
+	    <ulink url="https://svn.fmtc.be/bugzilla/orocos/show_bug.cgi?id=442">
+	      RTT::EventService: getEvents returns no names
+	      </ulink>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    A <classname>RTT::Timer</classname> class has been added
+	    which can be armed with multiple timers, such that time based
+	    events or user code can be executed at a programmed interval.
+	    The Orocos Components Library extends this class with a
+	    TimerComponent which exports this class as an Orocos component.
+	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://svn.fmtc.be/bugzilla/orocos/show_bug.cgi?id=438">
+	      [Project]TimerComponent for time based events
 	      </ulink>.
 	  </para>
 	</listitem>
@@ -130,10 +162,18 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    From release 1.2.0 on, Orocos RTT has better build and run-time
-	    support for Corba (using ACE/TAO). Remote modification of
-	    component parameters has been improved and is taken advantage
-	    of by the Corba based KTaskbrowser 1.2.
+	    From release 1.4.0 on, CORBA transport is an optional, run-time plugin
+	    for the Real-Time Toolkit. This means that any component, built with
+	    RTT 1.4.0 or later, can at any time be distributed over a network
+	    without being recompiled, even if at the time of compilation CORBA
+	    was not available or enabled. All CORBA specific functionality is
+	    now encapsualted in the 'orocos-rtt-corba' library.
+	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://svn.fmtc.be/bugzilla/orocos/show_bug.cgi?id=439">
+	      [Project]Make CORBA transport pluggable
+	      </ulink>.
 	  </para>
 	</listitem>
       </itemizedlist>
