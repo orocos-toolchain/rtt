@@ -115,18 +115,22 @@ namespace RTT
 
     void* DataSourceBase::createBlob(int protocol)
     {
+#ifndef ORO_EMBEDDED
         detail::TypeTransporter* tt = getTypeInfo()->getProtocol(protocol);
         if ( tt )
             return tt->createBlob( DataSourceBase::shared_ptr(this) );
+#endif
         return 0;
     }
     
     void* DataSourceBase::getBlob(int protocol)
     {
         this->evaluate();
+#ifndef ORO_EMBEDDED
         detail::TypeTransporter* tt = getTypeInfo()->getProtocol(protocol);
         if ( tt )
             return tt->createBlob( DataSourceBase::shared_ptr(this) );
+#endif
         return 0;
     }
     
@@ -142,17 +146,21 @@ namespace RTT
 
     void* DataSourceBase::server( int protocol, void* arg )
     {
+#ifndef ORO_EMBEDDED
         detail::TypeTransporter* tt = getTypeInfo()->getProtocol(protocol);
         if ( tt )
             return tt->server( DataSourceBase::shared_ptr(this), false, arg );
+#endif
         return 0;
     }
 
     void* DataSourceBase::method( int protocol, MethodC* orig, void* arg )
     {
+#ifndef ORO_EMBEDDED
         detail::TypeTransporter* tt = getTypeInfo()->getProtocol(protocol);
         if ( tt )
             return tt->method( DataSourceBase::shared_ptr(this), orig, arg );
+#endif
         return 0;
     }
 
