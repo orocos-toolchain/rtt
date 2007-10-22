@@ -50,6 +50,7 @@ namespace RTT
 	INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main_task)
 	{
 	    main_task->name = "main";
+        main_task->thread = 0;
 	    pthread_attr_init( &(main_task->attr) );
 	    struct sched_param sp;
 	    sp.sched_priority=0;
@@ -103,8 +104,10 @@ namespace RTT
                 return rv;
             }
 	    }
-	    return pthread_create(&(task->thread), &(task->attr), 
+	    rv = pthread_create(&(task->thread), &(task->attr), 
                               start_routine, obj);
+        log(Debug) <<"Created Posix thread "<< task->thread <<endlog();
+        return rv;
 	}
 
 	INTERNAL_QUAL void rtos_task_yield(RTOS_TASK* t) {
@@ -125,7 +128,7 @@ namespace RTT
         int policy = -1;
         struct sched_param param;
         // first check the argument
-        if (rtos_task_check_scheduler( &sched_type) == -1 )
+        if ( task && task->thread != 0 && rtos_task_check_scheduler( &sched_type) == -1 )
             return -1;
         // if sched_type is different, the priority must change as well.
         if (pthread_getschedparam(task->thread, &policy, &param) == 0) {
@@ -142,7 +145,7 @@ namespace RTT
         int policy = -1;
         struct sched_param param;
         // first retrieve thread scheduling parameters:
-        if (pthread_getschedparam(task->thread, &policy, &param) == 0)
+        if ( task && task->thread != 0 && pthread_getschedparam(task->thread, &policy, &param) == 0)
             return policy;
         return -1;
     }
@@ -243,7 +246,7 @@ namespace RTT
         int policy = 0;
         struct sched_param param;
         // first retrieve thread scheduling parameters:
-        if( pthread_getschedparam(task->thread, &policy, &param) == 0) {
+        if( task && task->thread != 0 && pthread_getschedparam(task->thread, &policy, &param) == 0) {
             if ( rtos_task_check_priority( &policy, &priority ) != 0 )
                 return -1;
             param.sched_priority = priority;
@@ -254,20 +257,20 @@ namespace RTT
         return -1;
     }
 
-	INTERNAL_QUAL int rtos_task_get_priority(const RTOS_TASK *t)
+	INTERNAL_QUAL int rtos_task_get_priority(const RTOS_TASK *task)
 	{
         // if sched_other, return the 'virtual' priority
         int policy = 0;
         struct sched_param param;
         // first retrieve thread scheduling parameters:
-        if (pthread_getschedparam(t->thread, &policy, &param) != 0)
+        if ( task && task->thread != 0 && pthread_getschedparam(task->thread, &policy, &param) != 0)
             return -1;
         return param.sched_priority;
 	}
 
-	INTERNAL_QUAL const char * rtos_task_get_name(const RTOS_TASK* t)
+	INTERNAL_QUAL const char * rtos_task_get_name(const RTOS_TASK* task)
 	{
-	    return t->name;
+	    return task->name;
 	}
 
     }
