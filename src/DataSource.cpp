@@ -172,7 +172,7 @@ namespace RTT
         const std::string& DataSourceTypeInfo<UnknownType>::getQualifier() { return noqual; }
         TypeInfo* DataSourceTypeInfo<UnknownType>::getTypeInfo() { 
             if (!TypeInfoObject)
-                TypeInfoObject = new TypeInfoName<UnknownType>("unknown type");
+                TypeInfoObject = new TypeInfoName<UnknownType>("unknown_t");
             return TypeInfoObject; 
         }
 
