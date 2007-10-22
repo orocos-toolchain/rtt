@@ -20,7 +20,7 @@ namespace RTT
         // This code is executed from mThread's thread
         while (!mdo_quit) {
             Time wake_up_time;
-            TimerId next_timer_id;
+            TimerId next_timer_id = 0;
 
             // Select next timer.
             {// This scope is for OS::MutexLock.
@@ -52,7 +52,7 @@ namespace RTT
                 {
                     OS::MutexLock locker(m);
                     // detect corner case for resize:
-                    if ( next_timer_id < mtimers.size() ) {
+                    if ( next_timer_id < int(mtimers.size()) ) {
                         // now clear or reprogram it.
                         TimerIds::iterator tim = mtimers.begin() + next_timer_id;
                         if ( tim->second ) {
@@ -110,7 +110,7 @@ namespace RTT
 
     bool Timer::startTimer(TimerId timer_id, double period)
     {
-        if ( timer_id < 0 || timer_id > mtimers.size() || period < 0.0)
+        if ( timer_id < 0 || timer_id > int(mtimers.size()) || period < 0.0)
             return false;
 
         Time due_time = mTimeserv->getNSecs() + Seconds_to_nsecs( period );
@@ -126,7 +126,7 @@ namespace RTT
 
     bool Timer::arm(TimerId timer_id, double wait_time)
     {
-        if ( timer_id < 0 || timer_id > mtimers.size() || wait_time < 0.0)
+        if ( timer_id < 0 || timer_id > int(mtimers.size()) || wait_time < 0.0)
             return false;
 
         Time now = mTimeserv->getNSecs();
@@ -144,7 +144,7 @@ namespace RTT
     bool Timer::isActive(TimerId timer_id) const
     {
         OS::MutexLock locker(m);
-        if (timer_id < 0 || timer_id > mtimers.size() )
+        if (timer_id < 0 || timer_id > int(mtimers.size()) )
             return false;
         return mtimers[timer_id].first != 0;
     }
@@ -152,7 +152,7 @@ namespace RTT
     double Timer::timeRemaining(TimerId timer_id) const
     {
         OS::MutexLock locker(m);
-        if (timer_id < 0 || timer_id > mtimers.size() )
+        if (timer_id < 0 || timer_id > int(mtimers.size()) )
             return 0.0;
         Time now = mTimeserv->getNSecs();
         Time result = mtimers[timer_id].first - now;
@@ -165,7 +165,7 @@ namespace RTT
     bool Timer::killTimer(TimerId timer_id)
     {
         OS::MutexLock locker(m);
-        if (timer_id < 0 || timer_id > mtimers.size() )
+        if (timer_id < 0 || timer_id > int(mtimers.size()) )
             return false;
         mtimers[timer_id].first = 0;
         mtimers[timer_id].second = 0;
