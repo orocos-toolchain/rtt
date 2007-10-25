@@ -15,7 +15,7 @@
 #include <boost/mpl/is_sequence.hpp>
 #include <boost/mpl/size.hpp>
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#include <boost/function_types/detail/tags.hpp>
+#include "detail/tags.hpp"
 //------------------------------------------------------------------------------
 namespace boost { namespace function_types {
 //------------------------------------------------------------------------------

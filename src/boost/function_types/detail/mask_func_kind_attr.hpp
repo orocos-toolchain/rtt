@@ -10,7 +10,7 @@
 #include <boost/mpl/bitand.hpp>
 #include <boost/mpl/integral_c.hpp>
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#include <boost/function_types/detail/tags.hpp>
+#include "tags.hpp"
 //------------------------------------------------------------------------------
 namespace boost { namespace function_types {
 //------------------------------------------------------------------------------

@@ -13,7 +13,7 @@
 #include <boost/mpl/size_t.hpp>
 #include <boost/mpl/vector/vector0.hpp>
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#include <boost/function_types/detail/tags.hpp>
+#include "detail/tags.hpp"
 //------------------------------------------------------------------------------
 namespace boost { namespace function_types {
 //------------------------------------------------------------------------------

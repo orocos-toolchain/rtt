@@ -10,7 +10,7 @@
 #include <boost/mpl/bitand.hpp>
 #include <boost/mpl/equal_to.hpp>
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#include <boost/function_types/function_type_signature.hpp>
+#include "function_type_signature.hpp"
 //------------------------------------------------------------------------------
 namespace boost { 
 //------------------------------------------------------------------------------

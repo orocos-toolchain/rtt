@@ -16,7 +16,7 @@
 #include <boost/mpl/bitxor.hpp>
 #include <boost/mpl/shift_right.hpp>
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#include <boost/function_types/detail/config.hpp>
+#include "config.hpp"
 //------------------------------------------------------------------------------
 namespace boost { namespace function_types {
 //------------------------------------------------------------------------------

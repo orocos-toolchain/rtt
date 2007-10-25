@@ -7,7 +7,7 @@
 #ifndef BOOST_FT_FUNCTION_TYPE_ARITY_HPP_INCLUDED
 #define BOOST_FT_FUNCTION_TYPE_ARITY_HPP_INCLUDED
 //------------------------------------------------------------------------------
-#include <boost/function_types/function_type_signature.hpp>
+#include "function_type_signature.hpp"
 //------------------------------------------------------------------------------
 namespace boost {
 //------------------------------------------------------------------------------

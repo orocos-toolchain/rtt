@@ -47,8 +47,8 @@
 #include <boost/mpl/back.hpp>
 #include <boost/mpl/int.hpp>
 #include <boost/type_traits.hpp>
-#include <boost/function_types/function_type.hpp>
-#include <boost/function_types/function_type_signature.hpp>
+#include "boost/function_types/function_type.hpp"
+#include "boost/function_types/function_type_signature.hpp"
 
 
 namespace RTT

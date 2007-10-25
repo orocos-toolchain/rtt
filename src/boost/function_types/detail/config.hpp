@@ -64,19 +64,19 @@
 #ifdef BOOST_FT_PREPROCESSING_MODE
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #   define BOOST_FT_PREPROCESSED(facility) \
-      <boost/function_types/detail/gen_ ## facility.inl>
+      <rtt/boost/function_types/detail/gen_ ## facility.inl>
 
 #   define BOOST_FT_FRAGMENT(facility,comment) \
-      <boost/function_types/detail/gen_ ## facility.inl>
+      <rtt/boost/function_types/detail/gen_ ## facility.inl>
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #else // def } BOOST_FT_PREPROCESSING_MODE { ndef
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #   define BOOST_FT_PREPROCESSED(facility) \
-      <boost/function_types/detail/pp_ ## facility.inl>
+      <rtt/boost/function_types/detail/pp_ ## facility.inl>
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #endif // ndef BOOST_FT_PREPROCESSING_MODE
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #define BOOST_FT_DEPENDENCIES(facility) \
-  <boost/function_types/detail/dep_ ## facility.inl>
+  <rtt/boost/function_types/detail/dep_ ## facility.inl>
 //------------------------------------------------------------------------------
 #endif // ndef BOOST_FT_DETAIL_CONFIG_HPP_INCLUDED
