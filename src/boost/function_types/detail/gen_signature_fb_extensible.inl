@@ -14,7 +14,7 @@ namespace boost { namespace mpl {
 // Extensible Sequence
 
 #   define op clear
-#   include BOOST_FT_FRAGMENT(signature_fb_extensible, MPL-intrinsic decoration)
+#   include BOOST_DETAIL_FT_FRAGMENT(signature_fb_extensible, MPL-intrinsic decoration)
 
 // (insert/erase default implementation should work just fine)
 
@@ -23,20 +23,20 @@ namespace boost { namespace mpl {
 
 #   define op push_front
 #   define p T
-#   include BOOST_FT_FRAGMENT(signature_fb_extensible, MPL-intrinsic decoration)
+#   include BOOST_DETAIL_FT_FRAGMENT(signature_fb_extensible, MPL-intrinsic decoration)
 
 #   define op pop_front
-#   include BOOST_FT_FRAGMENT(signature_fb_extensible, MPL-intrinsic decoration)
+#   include BOOST_DETAIL_FT_FRAGMENT(signature_fb_extensible, MPL-intrinsic decoration)
 
 
 // Back Extensible Sequence
 
 #   define op push_back
 #   define p T
-#   include BOOST_FT_FRAGMENT(signature_fb_extensible, MPL-intrinsic decoration)
+#   include BOOST_DETAIL_FT_FRAGMENT(signature_fb_extensible, MPL-intrinsic decoration)
 
 #   define op pop_back
-#   include BOOST_FT_FRAGMENT(signature_fb_extensible, MPL-intrinsic decoration)
+#   include BOOST_DETAIL_FT_FRAGMENT(signature_fb_extensible, MPL-intrinsic decoration)
 
 //------------------------------------------------------------------------------
 } } // namespace ::boost::mpl

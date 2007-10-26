@@ -61,22 +61,46 @@
 //==============================================================================
 // Loader for preprocessed files
 //==============================================================================
+
+// Helper macros.
+#define ORO_CONCAT_BOOST2(x,y) x##y
+#define ORO_CONCAT_BOOST(x,y) ORO_CONCAT_BOOST2(x,y)
+
+#define ORO_BOOST_str(s) ORO_BOOST__str(s)
+#define ORO_BOOST__str(s) #s
+
+#define ORO_BOOST_HEADER(x, y) ORO_BOOST_str( ORO_CONCAT_BOOST( x, y) )
+
 #ifdef BOOST_FT_PREPROCESSING_MODE
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#   define BOOST_DETAIL_FT_PREPROCESSED(facility) \
+    ORO_BOOST_HEADER(gen_, facility.inl)
+
+#   define BOOST_DETAIL_FT_FRAGMENT(facility,comment) \
+    ORO_BOOST_HEADER(gen_, facility.inl)
+
 #   define BOOST_FT_PREPROCESSED(facility) \
-      <rtt/boost/function_types/detail/gen_ ## facility.inl>
+    ORO_BOOST_HEADER(detail/gen_, facility.inl)
 
 #   define BOOST_FT_FRAGMENT(facility,comment) \
-      <rtt/boost/function_types/detail/gen_ ## facility.inl>
+    ORO_BOOST_HEADER(detail/gen_, facility.inl)
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #else // def } BOOST_FT_PREPROCESSING_MODE { ndef
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#   define BOOST_DETAIL_FT_PREPROCESSED(facility) \
+    ORO_BOOST_HEADER(pp_, facility.inl)
+
 #   define BOOST_FT_PREPROCESSED(facility) \
-      <rtt/boost/function_types/detail/pp_ ## facility.inl>
+    ORO_BOOST_HEADER(detail/pp_, facility.inl)
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #endif // ndef BOOST_FT_PREPROCESSING_MODE
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#define BOOST_DETAIL_FT_DEPENDENCIES(facility) \
+    ORO_BOOST_HEADER(dep_, facility.inl)
+
 #define BOOST_FT_DEPENDENCIES(facility) \
-  <rtt/boost/function_types/detail/dep_ ## facility.inl>
+    ORO_BOOST_HEADER(detail/dep_, facility.inl)
 //------------------------------------------------------------------------------
 #endif // ndef BOOST_FT_DETAIL_CONFIG_HPP_INCLUDED

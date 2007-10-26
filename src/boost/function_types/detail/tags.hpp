@@ -98,7 +98,7 @@ namespace detail
 } } // namespace ::boost::function_types
 //------------------------------------------------------------------------------
 // Load generated tag constants and types
-#include BOOST_FT_PREPROCESSED(tags)
+#include BOOST_DETAIL_FT_PREPROCESSED(tags)
 //------------------------------------------------------------------------------
 namespace boost { namespace function_types { namespace detail {
 //------------------------------------------------------------------------------

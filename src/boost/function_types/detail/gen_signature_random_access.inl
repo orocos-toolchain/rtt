@@ -14,32 +14,32 @@ namespace boost { namespace mpl {
 // Forward Sequence
 
 #   define op size
-#   include BOOST_FT_FRAGMENT(signature_random_access, MPL-intrinsic decoration)
+#   include BOOST_DETAIL_FT_FRAGMENT(signature_random_access, MPL-intrinsic decoration)
 
 #   define op empty
-#   include BOOST_FT_FRAGMENT(signature_random_access, MPL-intrinsic decoration)
+#   include BOOST_DETAIL_FT_FRAGMENT(signature_random_access, MPL-intrinsic decoration)
 
 #   define op front
-#   include BOOST_FT_FRAGMENT(signature_random_access, MPL-intrinsic decoration)
+#   include BOOST_DETAIL_FT_FRAGMENT(signature_random_access, MPL-intrinsic decoration)
 
 
 // Bidirectional Sequence
 
 #   define op back
-#   include BOOST_FT_FRAGMENT(signature_random_access, MPL-intrinsic decoration)
+#   include BOOST_DETAIL_FT_FRAGMENT(signature_random_access, MPL-intrinsic decoration)
 
 
 // Random Access Sequence
 
 #   define op begin
-#   include BOOST_FT_FRAGMENT(signature_random_access, MPL-intrinisc decoration)
+#   include BOOST_DETAIL_FT_FRAGMENT(signature_random_access, MPL-intrinisc decoration)
 
 #   define op end
-#   include BOOST_FT_FRAGMENT(signature_random_access, MPL-intrinsic decoration)
+#   include BOOST_DETAIL_FT_FRAGMENT(signature_random_access, MPL-intrinsic decoration)
 
 #   define op at
 #   define p N
-#   include BOOST_FT_FRAGMENT(signature_random_access, MPL-intrinsic decoration)
+#   include BOOST_DETAIL_FT_FRAGMENT(signature_random_access, MPL-intrinsic decoration)
 
 //------------------------------------------------------------------------------
 } } // namespace ::boost::mpl

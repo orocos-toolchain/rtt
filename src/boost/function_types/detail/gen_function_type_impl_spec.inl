@@ -23,7 +23,7 @@ struct function_type_impl<no_function,S, N>
   typedef S type; 
 };
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#   define  BOOST_PP_FILENAME_1 BOOST_FT_FRAGMENT(function_type_impl_spec,arity)
+#   define  BOOST_PP_FILENAME_1 BOOST_DETAIL_FT_FRAGMENT(function_type_impl_spec,arity)
 #   define  BOOST_PP_ITERATION_LIMITS (0,BOOST_PP_INC(BOOST_FT_MAX_ARITY))
 #   include BOOST_PP_ITERATE()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -35,7 +35,7 @@ struct function_type_impl<no_function,S, N>
 #   define ii BOOST_PP_INC(i)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #   define BOOST_FT_CLIENT \
-              BOOST_FT_FRAGMENT(function_type_impl_spec,specialization) 
+              BOOST_DETAIL_FT_FRAGMENT(function_type_impl_spec,specialization) 
 #   if ii < 2
 #     define BOOST_FT_FOR BOOST_FT_PLAIN_FUNC
 #   else

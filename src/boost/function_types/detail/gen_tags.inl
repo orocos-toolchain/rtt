@@ -21,7 +21,7 @@
 //------------------------------------------------------------------------------
 //  Setup the unroll facility (used later and by dependent components)
 //  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-#   define BOOST_FT_UNROLL() BOOST_FT_FRAGMENT(tags,unroll entry point)
+#   define BOOST_FT_UNROLL() BOOST_DETAIL_FT_FRAGMENT(tags,unroll entry point)
 
 #   define BOOST_FT_PLAIN_FUNC     (0)
 #   define BOOST_FT_FUNC_REF       (1)
@@ -90,7 +90,7 @@ namespace constants
       BOOST_FT_MEM_FUN_PTRS
 #   define  BOOST_FT_GEN_ABSTRACT     /**/
 #   define  BOOST_FT_FORCE_DEF_CC     /**/
-#   define  BOOST_FT_CLIENT BOOST_FT_FRAGMENT(tags,generate constant)
+#   define  BOOST_FT_CLIENT BOOST_DETAIL_FT_FRAGMENT(tags,generate constant)
 #   include BOOST_FT_UNROLL()
 
 #   undef   BOOST_FT_GEN_CONSTANT
@@ -109,7 +109,7 @@ namespace tags
       BOOST_FT_MEM_FUN_PTRS
 #   define  BOOST_FT_GEN_ABSTRACT     /**/
 #   define  BOOST_FT_FORCE_DEF_CC     /**/
-#   define  BOOST_FT_CLIENT BOOST_FT_FRAGMENT(tags,generate tag)
+#   define  BOOST_FT_CLIENT BOOST_DETAIL_FT_FRAGMENT(tags,generate tag)
 #   include BOOST_FT_UNROLL()
 } 
 using namespace tags;
@@ -148,10 +148,10 @@ using namespace function_types::tags;
 #elif !defined(BOOST_FT_FIRST_UNROLL_DIM)                  // unroll entry point
 //------------------------------------------------------------------------------
 #   ifndef BOOST_PP_IS_ITERATING
-#     define  BOOST_PP_FILENAME_1 BOOST_FT_FRAGMENT(tags,type derivation)
+#     define  BOOST_PP_FILENAME_1 BOOST_DETAIL_FT_FRAGMENT(tags,type derivation)
 #     define BOOST_FT_FIRST_UNROLL_DIM 1
 #   else
-#     define  BOOST_PP_FILENAME_2 BOOST_FT_FRAGMENT(tags,type derivation)
+#     define  BOOST_PP_FILENAME_2 BOOST_DETAIL_FT_FRAGMENT(tags,type derivation)
 #     define BOOST_FT_FIRST_UNROLL_DIM 2
 #   endif
 #   define  BOOST_PP_ITERATION_LIMITS (0,BOOST_PP_SEQ_SIZE(BOOST_FT_FOR)-1)
@@ -215,9 +215,9 @@ using namespace function_types::tags;
 //  Iterate calling conventions
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #   if BOOST_FT_FIRST_UNROLL_DIM == 1
-#     define BOOST_PP_FILENAME_2 BOOST_FT_FRAGMENT(tags, CCs)
+#     define BOOST_PP_FILENAME_2 BOOST_DETAIL_FT_FRAGMENT(tags, CCs)
 #   else
-#     define BOOST_PP_FILENAME_3 BOOST_FT_FRAGMENT(tags, CCs)
+#     define BOOST_PP_FILENAME_3 BOOST_DETAIL_FT_FRAGMENT(tags, CCs)
 #   endif
 #   define  BOOST_PP_ITERATION_LIMITS (0,BOOST_PP_SEQ_SIZE(tc)-1)
 #   include BOOST_PP_ITERATE()
@@ -258,7 +258,7 @@ using namespace function_types::tags;
 #         define f3 f1
 #         define n3 n1
 #         define fv 1
-#         include BOOST_FT_FRAGMENT(tags, vary variadic)
+#         include BOOST_DETAIL_FT_FRAGMENT(tags, vary variadic)
 #         undef  fv
 #         undef  n3
 #         undef  f3
@@ -276,7 +276,7 @@ using namespace function_types::tags;
 //      Only continue if no custom CCs or forced
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #       if BOOST_PP_SEQ_SIZE(tc) == 1 || defined(BOOST_FT_FORCE_DEF_CC)
-#         include BOOST_FT_FRAGMENT(tags, vary variadic)
+#         include BOOST_DETAIL_FT_FRAGMENT(tags, vary variadic)
 #       endif
 // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 //    Custom cc
@@ -291,7 +291,7 @@ using namespace function_types::tags;
 #       define f3 f2
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #       define fv BOOST_PP_TUPLE_ELEM(3,2,fc) 
-#       include BOOST_FT_FRAGMENT(tags, vary variadic)
+#       include BOOST_DETAIL_FT_FRAGMENT(tags, vary variadic)
 #     endif
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #     undef fv
@@ -316,7 +316,7 @@ using namespace function_types::tags;
 #     ifdef BOOST_FT_GEN_ABSTRACT
 #       define f f3
 #       define n4 n3
-#       include BOOST_FT_FRAGMENT(tags, invoke client)
+#       include BOOST_DETAIL_FT_FRAGMENT(tags, invoke client)
 #       undef  n4
 #       undef  f
 #     endif
@@ -325,7 +325,7 @@ using namespace function_types::tags;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #     define f f3 | BOOST_FT_NON_VARIADIC_FLAG
 #     define n4 BOOST_PP_SEQ_CAT((BOOST_FT_NON_VARIADIC_PREFIX)(_)(n3))
-#     include BOOST_FT_FRAGMENT(tags, invoke client)
+#     include BOOST_DETAIL_FT_FRAGMENT(tags, invoke client)
 #     undef  n4
 #     undef  f
 #     undef  t
@@ -336,7 +336,7 @@ using namespace function_types::tags;
 #       define f f3 | BOOST_FT_VARIADIC_FLAG
 #       define n4 BOOST_PP_SEQ_CAT((BOOST_FT_VARIADIC_PREFIX)(_)(n3))
 #       define t(n,o_name) t4(n,o_name,BOOST_PP_IDENTITY(...))
-#       include BOOST_FT_FRAGMENT(tags, invoke client)
+#       include BOOST_DETAIL_FT_FRAGMENT(tags, invoke client)
 #       undef  t
 #       undef  n4
 #       undef  f
