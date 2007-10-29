@@ -39,16 +39,47 @@
 
 /**
  * @file main.h
- * The prototyp of the application's ORO_main
+ * The prototype of the application's ORO_main
  *
  */
 
-#ifdef __cplusplus
-extern "C"
-#endif
+#include "startstop.h"
+#include "../Logger.hpp"
 
 /**
- * The users startup code.
+ * Forward declare this wrapper around the user code.
+ * @see ORO_main
  */
-int ORO_main(int argc, char** argv);
+int ORO_main_impl(int,char**);
+
+/**
+ * Declare the function 'int ORO_main(int argc, char **argv)' instead
+ * of 'int main(int argc, char **argv)' such that the Real-Time
+ * Toolkit can setup the OS environment, prior to executing user
+ * code. Using ORO_main is optional, but in some RTOS'es, you'll be
+ * required to call __os_init() and __os_exit() instead when not using
+ * ORO_main.
+ *
+ * @see __os_init(), __os_exit()
+ */
+#define ORO_main \
+    main( int argc, char **argv) { \
+        int res; \
+        std::string location(argv[0]); location += "::main()"; \
+        __os_init(argc, argv); \
+        RTT::Logger::In in(location.c_str()); \
+        if ( __os_checkException(argc,argv) ) { \
+        try { \
+            res = ORO_main_impl(argc, argv); \
+        } catch( ... ) \
+            { \
+                __os_printFailure(); \
+            } \
+        } else {                         \
+            res = ORO_main_impl(argc, argv);    \
+        } \
+        __os_exit(); \
+        return res; \
+} \
+int ORO_main_impl
 

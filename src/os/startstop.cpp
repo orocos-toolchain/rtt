@@ -47,6 +47,18 @@
 #include "os/MainThread.hpp"
 #include "os/StartStopManager.hpp"
 
+#ifdef OROPKG_OS_THREAD_SCOPE
+# include <boost/scoped_ptr.hpp>
+# include "dev/DigitalOutInterface.hpp"
+  using namespace RTT;
+#endif
+
+#ifdef OS_HAVE_IOSTREAM
+#include <iostream>
+using namespace std;
+#else
+#include <cstdio>
+#endif
     
 #include "Logger.hpp"
 #include "TimeService.hpp"
@@ -66,12 +78,69 @@ int __os_init(int argc, char** argv )
 
     Logger::log() << Logger::Debug << "Starting StartStopManager." << Logger::endl;
     initM = OS::StartStopManager::Instance();
-    return initM->start() ? 0 : -1;
+    int ret = initM->start();
+
+#ifdef OROPKG_OS_THREAD_SCOPE
+        unsigned int bit = 0;
+
+        boost::scoped_ptr<DigitalOutInterface> pp;
+        DigitalOutInterface* d = 0;
+        // this is the device users can use across all threads to control the
+        // scope's output.
+        if ( DigitalOutInterface::nameserver.getObject("ThreadScope") )
+            d = DigitalOutInterface::nameserver.getObject("ThreadScope");
+        else
+            Logger::log() << Logger::Error<< "Failed to find 'ThreadScope' object in DigitalOutInterface::nameserver." << Logger::endl;
+        if ( d ) {
+            Logger::log() << Logger::Info << "ThreadScope : main thread toggles bit "<< bit << Logger::endl;
+            d->switchOn( bit );
+        }
+#endif
+        return ret;
+}
+
+extern "C"
+void __os_printFailure()
+{
+#ifdef OS_HAVE_IOSTREAM
+                        cerr <<endl<< " Orocos has detected an uncaught C++ exception"<<endl;
+                        cerr << " in the ORO_main() function."<<endl;
+                        cerr << " You might have called a function which throws"<<endl;
+                        cerr << " without a try {} catch {} block."<< endl << endl;
+                        cerr << "To Debug this situation, issue the following command:"<<endl<<endl;
+                        cerr << "   valgrind --num-callers=16 <program> --nocatch" << endl;
+                        cerr << "Which will show where the exception occured."<<endl;
+                        cerr << " ( Change num-callers for more/less detail."<<endl;
+                        cerr << "   Also, compiling orocos and your program with"<<endl;
+                        cerr << "   -g adds more usefull information. )"<<endl<<endl;
+#else
+                        printf("Orocos intercepted uncaught C++ exception\n");
+#endif
+
+}
+
+const char* oro_catchflag = "--nocatch";
+
+extern "C"
+int __os_checkException(int argc, char** argv)
+{
+    bool dotry = true;
+    // look for --nocatch flag :
+    for( int i=1; i < argc; ++i)
+        if ( strncmp(oro_catchflag, argv[i], strlen(oro_catchflag) ) == 0 )
+            dotry = false;
+    
+    return dotry;
 }
 
 extern "C"
 void __os_exit(void)
 {
+#ifdef OROPKG_OS_THREAD_SCOPE
+        if (d)
+            d->switchOff(bit);
+#endif
+
     Logger::log() << Logger::Debug << "Stopping StartStopManager." << Logger::endl;
     initM->stop();
     OS::StartStopManager::Release();

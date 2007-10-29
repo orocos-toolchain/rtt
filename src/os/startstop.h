@@ -45,9 +45,39 @@
 #ifdef __cplusplus
 extern "C"
 #endif
+/**
+ * Call this function from within main() before
+ * using the RTT services. You do not need this
+ * when you use ORO_main().
+ */
 int __os_init(int argc, char** argv );
 
 #ifdef __cplusplus
 extern "C"
 #endif
+/**
+ * Call this function from within main() after
+ * using the RTT services, just before returning. 
+ * You do not need this when you use ORO_main().
+ */
 void __os_exit(void);
+
+#ifdef __cplusplus
+extern "C"
+#endif
+/**
+ * Internal: Inform the user that a failure occured.
+ * @see ORO_main
+ */
+void __os_printFailure();
+
+#ifdef __cplusplus
+extern "C"
+#endif
+/**
+ * Internal: Check if the user requests disabling
+ * exception catching at run-time.
+ * @see ORO_main
+ */
+int __os_checkException(int, char**);
+
