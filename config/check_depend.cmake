@@ -10,7 +10,14 @@ INCLUDE( config/CheckIncludeFileCXX.cmake )
 # Look for boost
 IF (NOT CMAKE_CROSS_COMPILE)
 
+SET(BOOST_INSTALL "" CACHE STRING "Specify the location (e.g. /opt/include) in which the Boost/C++ headers have been installed.")
+
 # This is the Orocos version of the macro:
+IF( BOOST_INSTALL )
+MESSAGE("-- Looking for Boost/C++ headers in ${BOOST_INSTALL}")
+SET(CMAKE_REQUIRED_INCLUDES ${BOOST_INSTALL})
+SET( RTT_CFLAGS "${RTT_CFLAGS} -I${BOOST_INSTALL}" )
+ENDIF( BOOST_INSTALL )
 CHECK_INCLUDE_FILE_CXX( boost/shared_ptr.hpp BOOST)
 CHECK_INCLUDE_FILE_CXX( boost/spirit.hpp BOOST_SPIRIT)
 CHECK_INCLUDE_FILE_CXX( boost/graph/adjacency_list.hpp BOOST_GRAPH)
