@@ -62,24 +62,24 @@ int ORO_main_impl(int,char**);
  *
  * @see __os_init(), __os_exit()
  */
-#define ORO_main \
-    main( int argc, char **argv) { \
-        int res; \
-        std::string location(argv[0]); location += "::main()"; \
-        __os_init(argc, argv); \
-        RTT::Logger::In in(location.c_str()); \
-        if ( __os_checkException(argc,argv) ) { \
-        try { \
-            res = ORO_main_impl(argc, argv); \
-        } catch( ... ) \
-            { \
-                __os_printFailure(); \
-            } \
-        } else {                         \
-            res = ORO_main_impl(argc, argv);    \
-        } \
-        __os_exit(); \
-        return res; \
-} \
+#define ORO_main                                                \
+    main( int argc, char **argv) {                              \
+        int res;                                                \
+        std::string location(argv[0]); location += "::main()";  \
+        __os_init(argc, argv); {                                \
+            RTT::Logger::In in(location.c_str());               \
+            if ( __os_checkException(argc,argv) ) {             \
+                try {                                           \
+                    res = ORO_main_impl(argc, argv);            \
+                } catch( ... )                                  \
+                      {                                         \
+                          __os_printFailure();                  \
+                      }                                         \
+            } else {                                            \
+                res = ORO_main_impl(argc, argv);                \
+            }                                                   \
+        } __os_exit();                                          \
+        return res;                                             \
+    }                                                           \
 int ORO_main_impl
 
