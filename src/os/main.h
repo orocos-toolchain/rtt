@@ -64,7 +64,7 @@ int ORO_main_impl(int,char**);
  */
 #define ORO_main                                                \
     main( int argc, char **argv) {                              \
-        int res;                                                \
+        int res = -1                                            \
         std::string location(argv[0]); location += "::main()";  \
         __os_init(argc, argv); {                                \
             RTT::Logger::In in(location.c_str());               \
