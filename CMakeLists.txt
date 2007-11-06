@@ -12,7 +12,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.2)
 
 PROJECT(orocos-rtt)
 
-SET( RTT_VERSION 1.4.99 )
+SET( RTT_VERSION 1.4.0 )
 STRING( REGEX MATCHALL "[0-9]+" RTT_VERSIONS ${RTT_VERSION} )
 LIST( GET RTT_VERSIONS 0 RTT_VERSION_MAJOR)
 LIST( GET RTT_VERSIONS 1 RTT_VERSION_MINOR)
@@ -124,8 +124,8 @@ ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(doc)
 ADD_SUBDIRECTORY(tests)
 
-CONFIGURE_FILE( orocos-rtt.pc.in orocos-rtt-${OROCOS_TARGET}.pc @ONLY)
-INSTALL_FILES( /lib/pkgconfig FILES orocos-rtt-${OROCOS_TARGET}.pc)
+#CONFIGURE_FILE( orocos-rtt.pc.in orocos-rtt-${OROCOS_TARGET}.pc @ONLY)
+#INSTALL_FILES( /lib/pkgconfig FILES orocos-rtt-${OROCOS_TARGET}.pc)
 CONFIGURE_FILE(Doxyfile.in Doxyfile @ONLY)
 
 # provide a link to src. Used by Doxygen.

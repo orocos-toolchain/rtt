@@ -16,7 +16,8 @@ DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
 
-CFLAGS = -Wall -g
+#CFLAGS = -Wall -g
+CFLAGS = -Wall
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -O0
@@ -25,41 +26,55 @@ else
 endif
 
 # shared library versions, option 1
-version=1.1.0
-major=1
-# option 2, assuming the library is created as src/.libs/libfoo.so.2.0.5 or so
-#version=`ls src/.libs/lib*.so.* | \
-# awk '{if (match($$0,/[0-9]+\.[0-9]+\.[0-9]+$$/)) print substr($$0,RSTART)}'`
-#major=`ls src/.libs/lib*.so.* | \
-# awk '{if (match($$0,/\.so\.[0-9]+$$/)) print substr($$0,RSTART+4)}'`
+#version=1.1.0
+#major=1
+# option 2, assuming the library is created as build/src/libfoo.so.2.0.5 or so
+version=`find . -name liborocos-rtt.*.so.* | head -1 | awk '{if (match($$0,/[0-9]+\.[0-9]+\.[0-9]+$$/)) print substr($$0,RSTART)}'`
+major=`find . -name liborocos-rtt.*.so.* | awk '{if (match($$0,/\.so\.[0-9]+$$/)) print substr($$0,RSTART+4)}'`
 
-build/Makefile: configure
+configure: configure-stamp
+configure-stamp:
 	dh_testdir
-	# Add here commands to configure the package.
-	mkdir -p build
-	# LDFLAGS="-Wl,-z,defs"
-	cd build; CXXFLAGS="$(CFLAGS)" ../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --disable-corba
-	mkdir -p build.a
-	cd build.a; CXXFLAGS="$(CFLAGS)" ../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --disable-corba --disable-shared
+# Add here commands to configure the package.
+# LDFLAGS="-Wl,-z,defs"
+#	mkdir -p build.lxrt
+#	cd build.lxrt; \
+#	unset ACE_ROOT TAO_ROOT; CXXFLAGS="$(CFLAGS)" ../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --enable-corba --with-lxrt=/usr/realtime
 
+	mkdir -p build.gnulinux
+	cd  build.gnulinux; \
+	unset ACE_ROOT TAO_ROOT; CXXFLAGS="$(CFLAGS)" ../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --enable-corba --enable-static --with-gnulinux
+
+	mkdir -p build.xenomai
+	cd build.xenomai; \
+	unset ACE_ROOT TAO_ROOT; CXXFLAGS="$(CFLAGS)" ../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --enable-corba --enable-static --with-xenomai=/usr/xenomai
+	touch configure-stamp
+
+# Keeps our makefile dependencies ok:
+#	mkdir -p build
+#	touch build/Makefile
 
 build: build-stamp
-build-stamp:  build/Makefile
+build-stamp: configure-stamp
 	dh_testdir
 
-	# Add here commands to compile the package.
-	cd build; $(MAKE)
-	cd build.a; $(MAKE)
+# Add here commands to compile the package.
+#	cd build.lxrt; $(MAKE) VERBOSE=1; 
+	cd build.gnulinux; $(MAKE) VERBOSE=1; $(MAKE) docapi dochtml VERBOSE=1
+	cd build.xenomai; $(MAKE) VERBOSE=1; 
+
+	touch build-stamp
 
 	touch $@
 
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp 
+	rm -f build-stamp
+	rm -f configure-stamp
 
-	# Add here commands to clean up after the build process.
-	-rm -rf build build.a
+# Add here commands to clean up after the build process.
+	-rm -rf build*
 
 	dh_clean 
 
@@ -69,9 +84,11 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 
-	# Add here commands to install the package into debian/tmp
-	cd build; $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
-	cd build.a; $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
+# Each flavor installs in debian/tmp/flavor. Be sure to edit package.install
+# such that the flavor is stripped when building the package.
+	cd build.gnulinux; $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
+#	cd build.lxrt; $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
+	cd build.xenomai; $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 
 
 # Build architecture-independent files here.

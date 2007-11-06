@@ -1,12 +1,11 @@
-
-
 INCLUDE (${PROJ_SOURCE_DIR}/config/TaoIDL.cmake)
 INCLUDE (${PROJ_SOURCE_DIR}/config/DependentOption.cmake)
 
 #this option was set in global_rules.cmake
 IF(ENABLE_CORBA)
   MESSAGE( "CORBA Support enabled.")
-
+  # Finally:
+  
   # Add includes / lib paths if necessary
   IF( NOT ${ACE_DIR} STREQUAL /usr/include )
     INCLUDE_DIRECTORIES( ${ACE_DIR} )
@@ -25,6 +24,8 @@ IF(ENABLE_CORBA)
   # Is used for building  the library
   LINK_LIBRARIES( TAO TAO_IDL_BE TAO_PortableServer TAO_CosNaming ACE  )
 
+  SET(RTT_LINKFLAGS "${RTT_LINKFLAGS} -lTAO -lTAO_IDL_BE -lTAO_PortableServer -lTAO_CosNaming -lACE" CACHE INTERNAL "")
+
   FILE( GLOB IDLS [^.]*.idl )
   FILE( GLOB CPPS [^.]*.cpp )
   FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
@@ -40,20 +41,33 @@ IF(ENABLE_CORBA)
   #GLOBAL_ADD_SRC( ${CPPS} )
   INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 
-  IF ( BUILD_STATIC )
-    ADD_LIBRARY(orocos-rtt-corba-${OROCOS_TARGET} STATIC ${CPPS})
-  ELSE( BUILD_STATIC )
-    ADD_LIBRARY(orocos-rtt-corba-${OROCOS_TARGET} SHARED ${CPPS})
-    SET_TARGET_PROPERTIES( orocos-rtt-corba-${OROCOS_TARGET} PROPERTIES
-      DEFINE_SYMBOL "RTT_DLL_EXPORT"
-      SOVERSION "${RTT_VERSION}"
-      )
-  ENDIF ( BUILD_STATIC )
+IF ( BUILD_STATIC )
+  ADD_LIBRARY(orocos-rtt-corba_static-${OROCOS_TARGET} STATIC ${CPPS})
+  SET_TARGET_PROPERTIES( orocos-rtt-corba_static-${OROCOS_TARGET} 
+  PROPERTIES DEFINE_SYMBOL "RTT_DLL_EXPORT"
+  OUTPUT_NAME orocos-rtt-corba-${OROCOS_TARGET}
+  CLEAN_DIRECT_OUTPUT 1
+  VERSION "${RTT_VERSION}"
+  COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -D_REENTRANT -DOROCOS_TARGET=${OROCOS_TARGET}" )
+ENDIF( BUILD_STATIC )
 
-  SET_TARGET_PROPERTIES( orocos-rtt-corba-${OROCOS_TARGET} PROPERTIES
-      COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -D_REENTRANT"
-      )
+  ADD_LIBRARY(orocos-rtt-corba_dynamic-${OROCOS_TARGET} SHARED ${CPPS})
+  SET_TARGET_PROPERTIES( orocos-rtt-corba_dynamic-${OROCOS_TARGET} PROPERTIES
+  DEFINE_SYMBOL "RTT_DLL_EXPORT"
+  OUTPUT_NAME orocos-rtt-corba-${OROCOS_TARGET}
+  CLEAN_DIRECT_OUTPUT 1
+  COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -D_REENTRANT -DOROCOS_TARGET=${OROCOS_TARGET}"
+  SOVERSION "${RTT_VERSION_MAJOR}.${RTT_VERSION_MINOR}"
+  VERSION "${RTT_VERSION}")
 
-  INSTALL_TARGETS(/lib orocos-rtt-corba-${OROCOS_TARGET})
+
+CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/corba/orocos-rtt-corba.pc.in ${PROJ_BINARY_DIR}/src/corba/orocos-rtt-corba-${OROCOS_TARGET}.pc @ONLY)
+
+IF ( BUILD_STATIC )
+  INSTALL_TARGETS(/lib orocos-rtt-corba_static-${OROCOS_TARGET})
+ENDIF( BUILD_STATIC )
+
+  INSTALL_TARGETS(/lib orocos-rtt-corba_dynamic-${OROCOS_TARGET})
+  INSTALL_FILES( /lib/pkgconfig FILES orocos-rtt-corba-${OROCOS_TARGET}.pc)
 
 ENDIF(ENABLE_CORBA)

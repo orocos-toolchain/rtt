@@ -63,6 +63,9 @@ function getoptions
     if [ $(expr match "$arg" "--disable-shared") != 0 ]; then
 	CMAKE_ARGS="$CMAKE_ARGS -DBUILD_STATIC=ON"
     fi
+    if [ $(expr match "$arg" "--enable-static") != 0 ]; then
+	CMAKE_ARGS="$CMAKE_ARGS -DBUILD_STATIC=ON"
+    fi
     if [ $(expr match "$arg" "--embedded") != 0 ]; then
 	CMAKE_ARGS="$CMAKE_ARGS -DOS_EMBEDDED=ON"
     fi

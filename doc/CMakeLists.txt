@@ -52,5 +52,6 @@ IF (BUILD_DOCS)
 
   ADD_CUSTOM_TARGET(message ALL echo "Use: 'make docapi dochtml docpdf' to build the documentation.")
 
-
+  INSTALL_FILES(/doc/liborocos-rtt/api ${CMAKE_CURRENT_BINARY_DIR}/api/*)
+  INSTALL_FILES(/doc/liborocos-rtt/xml ${CMAKE_CURRENT_BINARY_DIR}/xml/*)
 ENDIF (BUILD_DOCS)

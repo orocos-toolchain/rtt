@@ -1,3 +1,15 @@
+orocos-rtt (1.4.0-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Leopold Palomo Avellaneda <lepalom@wol.es>  Mon, 15 Oct 2007 12:07:13 +0200
+
+orocos-rtt (1.2.1-1) feisty; urgency=low
+
+  * New upstream release
+
+ -- Peter Soetens <peter.soetens@fmtc.be>  Thu, 26 Jul 2007 14:04:37 +0200
+
 orocos-rtt (1.1.0-1) unstable; urgency=low
 
   * Initial release

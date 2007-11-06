@@ -1,0 +1,5 @@
+usr/lib/liborocos-rtt-xenomai.so
+usr/lib/liborocos-rtt-xenomai.a
+usr/lib/pkgconfig/orocos-rtt-xenomai.pc
+usr/include/rtt/targets/xenomai
+usr/include/rtt/os/xenomai

@@ -1,0 +1,5 @@
+usr/lib/liborocos-rtt-gnulinux.a
+usr/lib/liborocos-rtt-gnulinux.so
+usr/lib/pkgconfig/orocos-rtt-gnulinux.pc
+usr/include/rtt/targets/gnulinux
+usr/include/rtt/os/gnulinux
