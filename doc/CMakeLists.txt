@@ -16,7 +16,7 @@ IF (BUILD_DOCS)
 
   DOCBOOK_TO_HTML( HTML_OUTPUT xsl/orocos-html.xsl 
     CATALOG
-    xml/catalog.xml
+    ${CMAKE_CURRENT_BINARY_DIR}/xml/catalog.xml
     FILES 
     ${XML_SOURCES} )
 
@@ -24,7 +24,7 @@ IF (BUILD_DOCS)
 
   DOCBOOK_TO_PDF( PDF_OUTPUT xsl/orocos-pdf.xsl
     CATALOG
-    xml/catalog.xml
+    ${CMAKE_CURRENT_BINARY_DIR}/xml/catalog.xml
     FILES
     ${XML_SOURCES} )
 
