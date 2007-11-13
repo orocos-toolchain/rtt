@@ -44,11 +44,17 @@
 
 namespace RTT
 {
+    /**
+     * @todo Rewrite some duplicate code such that 'taskc'
+     * is manipulated together with the children, but keep
+     * the taskc pointer as a reference in order to keep
+     * track of the owner of this EE.
+     */
     
     using namespace std;
 
     ExecutionEngine::ExecutionEngine( TaskCore* owner )
-        : taskc(owner),
+        : taskc(owner), estate( Stopped ),
           cproc( 0 ), pproc( 0 ), smproc( 0 ), eproc( 0 )
     {
         this->setup();
@@ -133,7 +139,7 @@ namespace RTT
         
         // if an owner is present, print some info.
         if (taskc) {
-            if ( t)
+            if ( t )
                 if ( ! t->isPeriodic() ) {
                     Logger::log() << Logger::Info << taskc->getName()+" is not periodic."<< Logger::endl;
                 } else {
@@ -144,68 +150,143 @@ namespace RTT
         }
     }
 
-    bool ExecutionEngine::initialize() {
-        // call user startHook code. MUST check getTaskState to intercept user calling start on activity.
-        if ( taskc ) {
-            // We only check the state of the parent here.
-            if (taskc->getTaskState() != TaskCore::Stopped || taskc->startHook() == false)
-                return false;
-            // update state:
-            this->taskc->mTaskState = TaskCore::Running;
+    bool ExecutionEngine::activate()
+    {
+        // only do this from stopped.
+        if (estate != Stopped || this->getActivity() == 0)
+            return false;
+        // Note: use this flag to communicate to startContexts (called within start() below).
+        estate = Activating;
+        if ( this->getActivity()->start() ) {
+            assert( estate == Active );
+            return true;
         }
+        // failure to activate:
+        estate = Stopped;
+        return false;
+    }
 
-        // call all children
-        for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it){
-            if ( (*it)->startHook() == false ) {
-                std::vector<TaskCore*>::reverse_iterator rit( it );
-                --rit;
-                for ( ; rit != children.rend(); ++rit ) {
-                    (*rit)->stopHook();
-                    (*it)->mTaskState = TaskCore::Stopped;
-                }
-
-                //Logger::log() << Logger::Error << "ExecutionEngine's children's startHook() failed!" << Logger::endl;
-                if (taskc) {
-                    this->taskc->stopHook();
-                    this->taskc->mTaskState = TaskCore::Stopped;
-                }
-                return false;
-            } else {
-                // ok, update state:
-                (*it)->mTaskState = TaskCore::Running;
+    bool ExecutionEngine::start()
+    {
+        if (this->getActivity() == 0) 
+            return false;
+        // identical to starting the activity if Stopped
+        if (estate == Stopped ) {
+            assert( this->getActivity()->isActive() == false );
+            if ( this->getActivity()->start() ) {
+                assert( estate == Running );
+                return true;
             }
         }
-
-        if ( pproc ? pproc->initialize() : true ) {
-            if ( smproc ? smproc->initialize() : true ) {
-                if( cproc ? cproc->initialize() : true ) {
-                    if ( eproc ? eproc->initialize() : true ) {
-                        return true;
-                    }
-                    // failure: shut down again.
-                    if (cproc)
-                        cproc->finalize();
-                } 
-                if (smproc)
-                    smproc->finalize();
-            }
-            if ( pproc )
-                pproc->finalize();
-        }
-        //Logger::log() << Logger::Error << "ExecutionEngine's processors failed!" << Logger::endl;
-
-        // stop all children again.
-        for (std::vector<TaskCore*>::reverse_iterator rit = children.rbegin(); rit != children.rend();++rit){
-            (*rit)->stopHook();
-            (*rit)->mTaskState = TaskCore::Stopped;
-        }
-
-        // stop parent
-        if (taskc) {
-            this->taskc->stopHook();
-            this->taskc->mTaskState = TaskCore::Stopped;
+        // Only start Contexts if already active.
+        if (estate == Active) {
+            assert( this->getActivity()->isActive() );
+            return startContexts();
         }
         return false;
+    }
+
+    bool ExecutionEngine::stop()
+    {
+        if ( this->getActivity() == 0 )
+            return false;
+        if (this->getActivity()->stop() ) {
+            assert( estate == Stopped );
+            return true;
+        }
+        return false;
+    }
+
+    bool ExecutionEngine::startContexts()
+    {
+        // call user startHook or activateHook code.
+        if (estate == Running)
+            return false;
+        if (estate == Stopped || estate == Active ) {
+            if ( taskc ) {
+                assert( taskc->mTaskState < TaskCore::Running); // we control the running flag.
+                // detect error/unconfigured task.
+                if ( taskc->mTaskState < TaskCore::Stopped || taskc->startHook() == false )
+                    return false;
+                taskc->mTaskState = TaskCore::Running;
+            }
+
+            // call all children
+            for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
+                assert( (*it)->mTaskState < TaskCore::Running);
+                if ( (*it)->mTaskState < TaskCore::Stopped || (*it)->startHook() == false) {
+                    // rewind
+                    std::vector<TaskCore*>::reverse_iterator rit( it );
+                    --rit;
+                    for ( ; rit != children.rend(); ++rit ) {
+                        (*rit)->stopHook();
+                        (*it)->mTaskState = estate == Stopped ? TaskCore::Stopped : TaskCore::Active; //revert to old state.
+                    }
+
+                    //Logger::log() << Logger::Error << "ExecutionEngine's children's startHook() failed!" << Logger::endl;
+                    if (taskc) {
+                        this->taskc->stopHook();
+                        this->taskc->mTaskState = estate == Stopped ? TaskCore::Stopped : TaskCore::Active;
+                    }
+                    // estate remains Active or Stopped.
+                    return false;
+                }
+            }
+            estate = Running; // got to running
+            return true;
+        }
+        // Make all tasks active:
+        if (estate == Activating) {
+            if ( taskc ) {
+                assert( taskc->mTaskState < TaskCore::Active);
+                if ( taskc->mTaskState < TaskCore::Stopped || taskc->activateHook() == false)
+                    return false;
+                taskc->mTaskState = TaskCore::Active;
+            }
+            // call all children
+            for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
+                assert( (*it)->mTaskState < TaskCore::Active );
+                // this line also detects unconfigured/error tasks:
+                if ( (*it)->mTaskState < TaskCore::Stopped || (*it)->activateHook() == false) {
+                    // rewind
+                    std::vector<TaskCore*>::reverse_iterator rit( it );
+                    --rit;
+                    for ( ; rit != children.rend(); ++rit ) {
+                        (*rit)->stopHook();
+                        (*it)->mTaskState = TaskCore::Stopped; //revert to old state.
+                    }
+
+                    //Logger::log() << Logger::Error << "ExecutionEngine's children's startHook() failed!" << Logger::endl;
+                    if (taskc) {
+                        this->taskc->stopHook();
+                        this->taskc->mTaskState = TaskCore::Stopped;
+                    }
+                    // estate falls back to Stopped.
+                    estate = Stopped;
+                    return false;
+                }
+            }
+            estate = Active; // got to active
+            return true;
+        }
+        return false;
+    }
+    
+    bool ExecutionEngine::initialize() {
+        if ( this->startContexts() == false )
+            return false;
+
+        // these always return true:
+        bool ret = true;
+        if ( pproc ) ret = pproc->initialize();
+        assert (ret);
+        if ( smproc ) ret = smproc->initialize();
+        assert (ret);
+        if ( cproc  ) ret = cproc->initialize();
+        assert (ret);
+        if ( eproc ) ret =eproc->initialize();
+        assert (ret);
+        return ret;
     }
 
     void ExecutionEngine::step() {
@@ -226,13 +307,31 @@ namespace RTT
         if (eproc)
             eproc->step();
 #endif
-        if (taskc)
-            taskc->updateHook();
+        // only call updateHook in the Running state.
+        if ( taskc ) {
+            if ( taskc->mTaskState == TaskCore::Running || taskc->mTaskState == TaskCore::RunTimeWarning )
+                taskc->updateHook();
+            if (  taskc->mTaskState == TaskCore::RunTimeError )
+                taskc->errorHook();
+            // If an error occured (Running=>FatalError state), abort all !
+            if ( taskc->mTaskState == TaskCore::FatalError) {
+                this->getActivity()->stop(); // calls finalize() 
+                return;
+            }
+        }
+
         // call all children as well.
         for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
-            (*it)->updateHook();
+            if ( (*it)->mTaskState == TaskCore::Running || (*it)->mTaskState == TaskCore::RunTimeWarning )
+                (*it)->updateHook();
+            if (  (*it)->mTaskState == TaskCore::RunTimeError )
+                (*it)->errorHook();
+            // If an error occured (Running=>FatalError state), abort all !
+            if ( (*it)->mTaskState == TaskCore::FatalError) {
+                this->getActivity()->stop(); // calls finalize()
+                return;
+            }
         }
-        return;
     }
 
     bool ExecutionEngine::breakLoop() {
@@ -248,16 +347,22 @@ namespace RTT
             cproc->finalize();
         if (eproc)
             eproc->finalize();
-        // call all children
+        // call all children, but only if they are not in the error state !
         for (std::vector<TaskCore*>::reverse_iterator rit = children.rbegin(); rit != children.rend();++rit) {
             (*rit)->stopHook();
-            (*rit)->mTaskState = TaskCore::Stopped;
+            if ((*rit)->mTaskState != TaskCore::FatalError ) {
+                (*rit)->mTaskState = TaskCore::Stopped;
+            }
+
         }
-        if (taskc) {
+        if (taskc ) {
             taskc->stopHook();
-            taskc->mTaskState = TaskCore::Stopped;
+            if ( taskc->mTaskState != TaskCore::FatalError)
+                taskc->mTaskState = TaskCore::Stopped;
         }
 
+        // Finally:
+        estate = Stopped;
     }
 
     CommandProcessor* ExecutionEngine::commands() const {

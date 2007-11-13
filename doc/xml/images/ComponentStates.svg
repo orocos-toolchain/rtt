@@ -12,15 +12,14 @@
    height="1052.3622"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.45"
+   inkscape:version="0.45.1"
    version="1.0"
    sodipodi:docbase="/home/sspr/src/Orocos/trunk/rtt/doc/xml/images"
    sodipodi:docname="ComponentStates.svg"
    inkscape:export-filename="/home/sspr/src/orocos-trunk/doc/ComponentArch-2.png"
    inkscape:export-xdpi="200"
    inkscape:export-ydpi="200"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   sodipodi:modified="true">
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
   <defs
      id="defs4">
     <marker
@@ -415,6 +414,15 @@
        sodipodi:rx="25.048725"
        sodipodi:ry="25.048725"
        d="M 172.39417 278.48288 A 25.048725 25.048725 0 1 1  122.29672,278.48288 A 25.048725 25.048725 0 1 1  172.39417 278.48288 z" />
+    <rect
+       style="opacity:1;color:#000000;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#dc4900;stroke-width:1.70787406;stroke-linecap:round;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       id="rect2338"
+       width="121.71844"
+       height="46.907372"
+       x="142.85094"
+       y="165.24995"
+       rx="0"
+       ry="0" />
     <g
        id="g4906"
        transform="matrix(0.9320876,0,0,0.9320876,-132.5904,-52.882759)">
@@ -641,7 +649,7 @@
          y="115.64908">TaskState</tspan></text>
     <path
        style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:0.77858418px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline"
-       d="M 159.79782,217.57761 L 195.63692,241.60167"
+       d="M 171.79782,209.57761 L 207.63692,233.60167"
        id="path6694" />
     <path
        sodipodi:type="arc"
@@ -659,14 +667,14 @@
     <text
        xml:space="preserve"
        style="font-size:16.8873558px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline;font-family:Sans"
-       x="142.0851"
-       y="212.46487"
+       x="154.0851"
+       y="204.46487"
        id="text6696"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan6698"
-         x="142.0851"
-         y="212.46487"
+         x="154.0851"
+         y="204.46487"
          style="font-size:13.04922676px">user code</tspan></text>
     <path
        style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:0.77858418px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline"
@@ -744,7 +752,7 @@
          x="41.046301"
          y="178.92302">Data Flow</tspan><tspan
          sodipodi:role="line"
-         x="41.046302"
+         x="41.046303"
          y="206.88565"
          id="tspan10689">Ports</tspan></text>
     <text

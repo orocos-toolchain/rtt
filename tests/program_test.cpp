@@ -81,7 +81,7 @@ int ProgramTest::increase() {
     return ++i;
 }
 
-void ProgramTest::reset() {
+void ProgramTest::resetI() {
     i = 0;
 }
 
@@ -93,8 +93,8 @@ OperationInterface* ProgramTest::createObject(OperationInterface* dat, CommandPr
                               "Assert", "bool", "" );
     dat->methods()->addMethod( method( "increase", &ProgramTest::increase, this),
                                 "Return increasing i"  );
-    dat->methods()->addMethod( method( "reset", &ProgramTest::reset, this),
-                              "Reset i" );
+    dat->methods()->addMethod( method( "resetI", &ProgramTest::resetI, this),
+                              "ResetI i" );
     dat->methods()->addMethod( method( "assertMsg", &ProgramTest::assertMsg, this),
                                  "Assert message", "bool", "", "text", "text"  );
     dat->methods()->addMethod( method( "isTrue", &ProgramTest::assertBool, this),
@@ -148,20 +148,19 @@ void ProgramTest::testParseProgram()
     // a program which should never fail
     // test this methods, commands etc.
     string prog = string("program x { do test.instantDone() \n")
-        + " \n and \n test.instantDone()"
-        + " and test.instantDone()\n"
+        + " \n " + "and\n" + " test.instantDone() and test.instantDone()\n"
         + " do test.assert( test.isTrue( true ) )\n"
         + " do test.assert( test.i == 0 )\n"
         + " do test.increase()\n"
         + " do test.assert( test.i == 1 )\n"
-        + " do test.reset()\n"
+        + " do test.resetI()\n"
         + " do test.assert( test.i == 0 )\n"
         + " if test.increase() + test.increase() + test.increase() != 6  then \n "
         + "    do test.assert( false )\n"
         + " do assert( isTrue( true ) )\n"
         + " do instantDone() \n"
         + " and instantDone() and instantDone()\n"
-        + " do reset()\n"
+        + " do resetI()\n"
         + " do assert( i == 0 )\n"
         + " if increase() + increase() + increase() != 6  then \n "
         + "    do assert( false )\n"
@@ -213,13 +212,13 @@ void ProgramTest::testProgramCondition()
         + "else \n"
         + "   do test.instantFail() \n"
         + "var bool trig = false \n"
-        + "do test.reset()\n"
+        + "do test.resetI()\n"
         + "while test.increase() != 100 && !trig \n"
         + "   if test.i == 50 then \n"
         + "       set trig = true \n"
         + "if test.i != 51 then \n" // the test.increase() will first increment i to 51, and then we detect trig.
         + "    do test.instantFail() \n"
-        + "do test.reset()\n"
+        + "do test.resetI()\n"
         + "set trig = false\n"
         + "for (var int i = 0; i != 100 && !trig ; set i = test.increase() )\n"
         + "   if test.i == 50 then \n"
@@ -236,7 +235,7 @@ void ProgramTest::testProgramBreak()
 {
     // see if  break statement works
     string prog = string("program x { \n")
-        + "do test.reset()\n"
+        + "do test.resetI()\n"
         + "while (test.increase() != 100)\n"
         + "   if test.i == 50 then {\n"
         + "       break\n"
@@ -244,7 +243,7 @@ void ProgramTest::testProgramBreak()
         + "   }\n"
         + "if test.i != 50 then \n" // break on 50
         + "    do test.instantFail() \n"
-        + "do test.reset()\n"
+        + "do test.resetI()\n"
         + "for (var int i = 0; i != 100  ; set i = test.increase() )\n"
         + "   if test.i != 50 then \n"
         + "       do nothing \n"
@@ -254,7 +253,7 @@ void ProgramTest::testProgramBreak()
         + "     }\n"
         + "if test.i != 50 then \n" // break on 50
         + "    do test.instantFail() \n"
-        + "do test.reset()\n"
+        + "do test.resetI()\n"
         + "while test.increase() != 100 {\n"
         + "   while test.increase() != 100 \n"
         + "     if test.i == 50 then {\n"
@@ -306,7 +305,7 @@ void ProgramTest::testProgramTry()
         + "      do instantFail()\n"
         + "  }\n"
         + "}\n"
-        + "do test.reset() \n"
+        + "do test.resetI() \n"
         + "try test.instantDone() \n"
         + "and test.instantFail() \n"
         + "and test.instantDone() until {\n"
@@ -346,7 +345,7 @@ void ProgramTest::testProgramUntil()
 {
     // see if checking a remote condition works
     string prog = string("program proguntil {\n")
-        +" do test.reset()\n"
+        +" do test.resetI()\n"
         +" do test.neverDone()\n"
         + "until { \n"
         + " if  time > 10 ms then continue \n" //  test in simulation takes far less than 1 second

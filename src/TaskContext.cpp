@@ -111,16 +111,49 @@ namespace RTT
                          "Is this TaskContext configured ?" );
         this->methods()
             ->addMethod( method("start",&TaskContext::start, this),
-                         "Start the Execution Engine of this TaskContext." );
+                         "Start the Execution Engine of this TaskContext (= activate + updateHook() )." );
+        this->methods()
+            ->addMethod( method("activate",&TaskContext::activate, this),
+                         "Activate the Execution Engine of this TaskContext (= events and commands)." );
         this->methods()
             ->addMethod( method("stop",&TaskContext::stop, this),
                          "Stop the Execution Engine of this TaskContext." );
         this->methods()
             ->addMethod( method("isRunning",&TaskContext::isRunning, this),
-                         "Is the Execution Engine of this TaskContext started ?" );
+                         "Is the Execution Engine executing this TaskContext ?" );
+        this->methods()
+            ->addMethod( method("getPeriod",&TaskContext::getPeriod, this),
+                         "Get the configured execution period. -1.0: no thread associated, 0.0: non periodic, > 0.0: the period." );
+        this->methods()
+            ->addMethod( method("isActive",&TaskContext::isActive, this),
+                         "Is the Execution Engine of this TaskContext processing events and commands ?" );
+        this->methods()
+            ->addMethod( method("inFatalError",&TaskContext::inFatalError, this),
+                         "Check if this TaskContext is in the FatalError state." );
+        this->methods()
+            ->addMethod( method("warning",&TaskContext::warning, this),
+                         "Enter the RunTimeWarning state." );
+        this->methods()
+            ->addMethod( method("inRunTimeWarning",&TaskContext::inRunTimeWarning, this),
+                         "Check if this TaskContext is in the RunTimeWarning state." );
+        this->methods()
+            ->addMethod( method("getWarningCount",&TaskContext::getWarningCount, this),
+                         "Check if the number of times the RunTimeWarning state has been entered." );
+        this->methods()
+            ->addMethod( method("error",&TaskContext::error, this),
+                         "Enter the RunTimeError state." );
+        this->methods()
+            ->addMethod( method("inRunTimeError",&TaskContext::inRunTimeError, this),
+                         "Check if this TaskContext is in the RunTimeError state." );
+        this->methods()
+            ->addMethod( method("getErrorCount",&TaskContext::getErrorCount, this),
+                         "Check if the number of times the RunTimeError state has been entered." );
         this->methods()
             ->addMethod( method("cleanup",&TaskContext::cleanup, this),
                          "Reset this TaskContext to the PreOperational state (write properties etc)." );
+        this->methods()
+            ->addMethod( method("resetError",&TaskContext::resetError, this),
+                         "Reset this TaskContext from the FatalError state." );
         this->methods()
             ->addMethod( method("update",&TaskContext::doUpdate, this),
                          "Execute (call) the update method directly.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task." );

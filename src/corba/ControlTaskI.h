@@ -207,6 +207,13 @@ public:
     ));
   
   virtual
+  CORBA::Boolean isActive (
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+  
+  virtual
   CORBA::Boolean isRunning (
     )
     ACE_THROW_SPEC ((
@@ -228,13 +235,62 @@ public:
     ));
   
   virtual
+  CORBA::Boolean resetError (
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+  
+  virtual
+  CORBA::Boolean activate (
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+  
+  virtual
   CORBA::Boolean isConfigured (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
   
+  virtual
+  CORBA::Boolean inFatalError (
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
   
+    virtual
+  CORBA::Boolean inRunTimeWarning (
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+  
+    virtual
+  CORBA::Boolean inRunTimeError (
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+  
+    virtual
+  CORBA::Long getWarningCount (
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+  
+    virtual
+  CORBA::Long getErrorCount (
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+  
+
 /*   virtual */
 /*   ::CosPropertyService::PropertySet_ptr propertySet ( */
       

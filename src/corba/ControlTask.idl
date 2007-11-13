@@ -78,7 +78,7 @@ module RTT
 
     };
 
-    enum TaskState { Init, PreOperational, Stopped, Running };
+    enum TaskState { Init, PreOperational, FatalError, Stopped, Active, Running, RunTimeWarning, RunTimeError };
 
     /**
      * A ControlTask is the main entry point of a distributed
@@ -104,6 +104,11 @@ module RTT
       boolean start();
 
       /**
+       * Activate this component.
+       */
+      boolean activate();
+
+      /**
        * Stop this component.
        */
       boolean stop();
@@ -114,6 +119,16 @@ module RTT
       boolean cleanup();
 
       /**
+       * Reset the error state of this component.
+       */
+      boolean resetError();
+
+      /**
+       * Is this component active ?
+       */
+      boolean isActive();
+
+      /**
        * Is this component running ?
        */
       boolean isRunning();
@@ -122,6 +137,31 @@ module RTT
        * Is this component configured ?
        */
       boolean isConfigured();
+
+      /**
+       * Is this component in a Fatal error state ?
+       */
+      boolean inFatalError();
+
+      /**
+       * Is this component in a RunTime warning state ?
+       */
+      boolean inRunTimeWarning();
+
+      /**
+       * Is this component in a RunTime error state ?
+       */
+      boolean inRunTimeError();
+
+      /**
+       * Read the number of times the warning state was entered.
+       */
+      long getWarningCount();
+
+      /**
+       * Read the number of times the error state was entered.
+       */
+      long getErrorCount();
 
       /**
        * Query the properties of this interface as a CosPropertyService::PropertySet.

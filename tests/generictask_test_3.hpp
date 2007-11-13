@@ -32,6 +32,7 @@ class StatesTC;
 class Generic_TaskTest_3 : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( Generic_TaskTest_3 );
+    CPPUNIT_TEST( testPeriod );
     CPPUNIT_TEST( testExecutionEngine );
     CPPUNIT_TEST( testPorts );
     CPPUNIT_TEST( testPortObjects );
@@ -52,6 +53,7 @@ public:
     void setUp();
     void tearDown();
 
+    void testPeriod();
     void testExecutionEngine();
     void testProperties();
     void testAttributes();

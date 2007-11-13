@@ -83,7 +83,7 @@ int StateTest::increase() {
     return ++i;
 }
 
-void StateTest::reset() {
+void StateTest::resetI() {
     i = 0;
 }
 
@@ -96,8 +96,8 @@ TaskObject* StateTest::createObject(string a)
                               "Assert", "bool", "" );
     dat->methods()->addMethod( method( "increase", &StateTest::increase, this),
                                 "Return increasing i"  );
-    dat->methods()->addMethod( method( "reset", &StateTest::reset, this),
-                              "Reset i" );
+    dat->methods()->addMethod( method( "resetI", &StateTest::resetI, this),
+                              "ResetI i" );
     dat->methods()->addMethod( method( "assertMsg", &StateTest::assertMsg, this),
                                  "Assert message", "bool", "", "text", "text"  );
     dat->methods()->addMethod( method( "isTrue", &StateTest::assertBool, this),

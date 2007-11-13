@@ -23,6 +23,7 @@
 #include <iostream>
 #include "Ports.hpp"
 
+#include "SlaveActivity.hpp"
 #include "SimulationActivity.hpp"
 #include "SimulationThread.hpp"
 
@@ -41,18 +42,23 @@ public:
     StatesTC()
         : TaskContext("TC", PreOperational)
     {
-        this->reset();
+        this->resetFlags();
         validconfig = true;
         validstart = true;
+        validreset = true;
+        validactivate = true;
+        do_error = false;
     }
 
-    void reset()
+    void resetFlags()
     {
         didconfig = false;
         didstart = false;
         didstop = false;
         didcleanup = false;
         didupdate = false;
+        didreset = false;
+        didactivate = false;
     }
 
     bool configureHook() {
@@ -62,13 +68,13 @@ public:
     }
 
     bool startHook() {
-        CPPUNIT_ASSERT( mTaskState == Stopped );
+        CPPUNIT_ASSERT( mTaskState == Stopped || mTaskState == Active);
         didstart = true;
         return validstart;
     }
 
     void stopHook() {
-        CPPUNIT_ASSERT( mTaskState == Running );
+        CPPUNIT_ASSERT( mTaskState >= Running || mTaskState == Active || mTaskState == FatalError);
         didstop = true;
     }
 
@@ -80,6 +86,18 @@ public:
     void updateHook() {
         CPPUNIT_ASSERT( mTaskState == Running );
         didupdate = true;
+        if (do_error)
+            this->fatal();
+    }
+
+    bool resetHook() {
+        didreset = true;
+        return validreset;
+    }
+
+    bool activateHook() {
+        didactivate = true;
+        return  validactivate;
     }
 
     bool validconfig, didconfig;
@@ -87,6 +105,8 @@ public:
     bool didstop;
     bool didcleanup;
     bool didupdate;
+    bool validreset, didreset, didactivate, validactivate;
+    bool do_error;
 };
 
 
@@ -114,34 +134,83 @@ Generic_TaskTest_3::tearDown()
     delete stsim;
 }
 
+void Generic_TaskTest_3::testPeriod()
+{
+    // check unconfigured TC
+    TaskContext pertc("PerTC");
+    CPPUNIT_ASSERT( pertc.getPeriod() < 0.0 );
+
+    // check periodic TC
+    SlaveActivity sa(1.0, pertc.engine());
+    CPPUNIT_ASSERT( sa.getPeriod() == 1.0 );
+    CPPUNIT_ASSERT( pertc.getPeriod() == 1.0 );
+
+    // check non periodic TC
+    SlaveActivity sb(0.0, pertc.engine());
+    CPPUNIT_ASSERT( sb.getPeriod() == 0.0 );
+    CPPUNIT_ASSERT( pertc.getPeriod() == 0.0 );
+
+}
 void Generic_TaskTest_3::testTCStates()
 {
     // Test the states of a Default TC, no user methods.
     CPPUNIT_ASSERT( tc->getTaskState() == TaskContext::Stopped );
 
+    // Configure in Stop
     CPPUNIT_ASSERT( tc->isConfigured() == true );
     CPPUNIT_ASSERT( tc->isRunning() == false );
+    CPPUNIT_ASSERT( tc->isActive() == false );
     CPPUNIT_ASSERT( tc->configure() == true );
+    CPPUNIT_ASSERT( tc->resetError() == false );
 
+    // Stop to Running
     CPPUNIT_ASSERT( tc->start() == true );
     CPPUNIT_ASSERT( tc->isRunning() == true );
+    CPPUNIT_ASSERT( tc->isActive() == true );
     CPPUNIT_ASSERT( tc->configure() == false );
     CPPUNIT_ASSERT( tc->start() == false );
     CPPUNIT_ASSERT( tc->cleanup() == false );
+    CPPUNIT_ASSERT( tc->resetError() == false );
 
+    // Running to Stop
     CPPUNIT_ASSERT( tc->stop() == true );
     CPPUNIT_ASSERT( tc->isRunning() == false);
+    CPPUNIT_ASSERT( tc->isActive() == false );
     CPPUNIT_ASSERT( tc->stop() == false );
     CPPUNIT_ASSERT( tc->configure() == true );
     CPPUNIT_ASSERT( tc->isConfigured() == true );
 
+    // Stop to Active to Stop
+    CPPUNIT_ASSERT( tc->activate() == true );
+    CPPUNIT_ASSERT( tc->isActive() == true);
+    CPPUNIT_ASSERT( tc->isRunning() == false );
+    CPPUNIT_ASSERT( tc->configure() == false );
+    CPPUNIT_ASSERT( tc->resetError() == false );
+    CPPUNIT_ASSERT( tc->stop() == true );
+    CPPUNIT_ASSERT( tc->isConfigured() == true );
+
+    // Stop to Active to Running to Stop
+    CPPUNIT_ASSERT( tc->activate() == true );
+    CPPUNIT_ASSERT( tc->start() == true );
+    CPPUNIT_ASSERT( tc->isRunning() == true );
+    CPPUNIT_ASSERT( tc->isActive() == true );
+    CPPUNIT_ASSERT( tc->configure() == false );
+    CPPUNIT_ASSERT( tc->start() == false );
+    CPPUNIT_ASSERT( tc->cleanup() == false );
+    CPPUNIT_ASSERT( tc->resetError() == false );
+    CPPUNIT_ASSERT( tc->stop() == true );
+    CPPUNIT_ASSERT( tc->isConfigured() == true );
+
+    // Stop to PreOp
     CPPUNIT_ASSERT( tc->cleanup() == true );
     CPPUNIT_ASSERT( tc->isConfigured() == false);
     CPPUNIT_ASSERT( tc->isRunning() == false);
 
+    // PreOp to stop
     CPPUNIT_ASSERT( tc->configure() == true );
     CPPUNIT_ASSERT( tc->isConfigured() == true);
     CPPUNIT_ASSERT( tc->isRunning() == false);
+    CPPUNIT_ASSERT( tc->isActive() == false );
 
 }
 
@@ -161,12 +230,13 @@ void Generic_TaskTest_3::testSpecialTCStates()
     CPPUNIT_ASSERT( stc->didupdate == false );
     CPPUNIT_ASSERT( stc->didstop == false );
     CPPUNIT_ASSERT( stc->didcleanup == false );
-    stc->reset();
+    CPPUNIT_ASSERT( stc->didactivate == false );
+    stc->resetFlags();
 
     // Stopped state:
     CPPUNIT_ASSERT( stc->start() == true );
     CPPUNIT_ASSERT( stc->didstart == true );
-    stc->reset();
+    stc->resetFlags();
     CPPUNIT_ASSERT( stc->isRunning() == true );
     CPPUNIT_ASSERT( stc->configure() == false );
     CPPUNIT_ASSERT( stc->start() == false );
@@ -177,7 +247,8 @@ void Generic_TaskTest_3::testSpecialTCStates()
     CPPUNIT_ASSERT( stc->didupdate == false );
     CPPUNIT_ASSERT( stc->didstop == false );
     CPPUNIT_ASSERT( stc->didcleanup == false );
-    stc->reset();
+    CPPUNIT_ASSERT( stc->didactivate == false );
+    stc->resetFlags();
 
 
     // Running state / updateHook :
@@ -188,7 +259,8 @@ void Generic_TaskTest_3::testSpecialTCStates()
     CPPUNIT_ASSERT( stc->didupdate == true );
     CPPUNIT_ASSERT( stc->didstop == false );
     CPPUNIT_ASSERT( stc->didcleanup == false );
-    stc->reset();
+    CPPUNIT_ASSERT( stc->didactivate == false );
+    stc->resetFlags();
 
     // Back to stopped
     CPPUNIT_ASSERT( stc->stop() == true );
@@ -199,7 +271,8 @@ void Generic_TaskTest_3::testSpecialTCStates()
     CPPUNIT_ASSERT( stc->didupdate == false );
     CPPUNIT_ASSERT( stc->didstop == true );
     CPPUNIT_ASSERT( stc->didcleanup == false );
-    stc->reset();
+    CPPUNIT_ASSERT( stc->didactivate == false );
+    stc->resetFlags();
 
     CPPUNIT_ASSERT( stc->isRunning() == false);
     CPPUNIT_ASSERT( stc->stop() == false );
@@ -211,10 +284,51 @@ void Generic_TaskTest_3::testSpecialTCStates()
     CPPUNIT_ASSERT( stc->didupdate == false );
     CPPUNIT_ASSERT( stc->didstop == false );
     CPPUNIT_ASSERT( stc->didcleanup == false );
-    stc->reset();
+    CPPUNIT_ASSERT( stc->didactivate == false );
+    stc->resetFlags();
 
 
-    // Stopped state:
+    // Active state:
+    CPPUNIT_ASSERT( stc->activate() == true );
+    CPPUNIT_ASSERT( stc->didactivate == true );
+    stc->resetFlags();
+    CPPUNIT_ASSERT( stc->isActive() == true );
+    CPPUNIT_ASSERT( stc->configure() == false );
+    CPPUNIT_ASSERT( stc->activate() == false );
+    CPPUNIT_ASSERT( stc->cleanup() == false );
+    // test flags
+    CPPUNIT_ASSERT( stc->didconfig == false );
+    CPPUNIT_ASSERT( stc->didstart == false );
+    CPPUNIT_ASSERT( stc->didupdate == false );
+    CPPUNIT_ASSERT( stc->didstop == false );
+    CPPUNIT_ASSERT( stc->didcleanup == false );
+    CPPUNIT_ASSERT( stc->didactivate == false );
+    stc->resetFlags();
+    // continue to start
+    CPPUNIT_ASSERT( stc->start() == true );
+    CPPUNIT_ASSERT( stc->didstart == true );
+    stc->resetFlags();
+    CPPUNIT_ASSERT( stc->isActive() == true );
+    CPPUNIT_ASSERT( stc->isRunning() == true );
+    CPPUNIT_ASSERT( stc->configure() == false );
+    CPPUNIT_ASSERT( stc->activate() == false );
+    CPPUNIT_ASSERT( stc->cleanup() == false );
+    CPPUNIT_ASSERT( stc->start() == false );
+    // running to stop to active to stop
+    CPPUNIT_ASSERT( stc->stop() == true );
+    CPPUNIT_ASSERT( stc->activate() == true );
+    stc->resetFlags();
+    CPPUNIT_ASSERT( stc->stop() == true );
+    CPPUNIT_ASSERT( stc->didstop == true );
+    // test flags
+    CPPUNIT_ASSERT( stc->didconfig == false );
+    CPPUNIT_ASSERT( stc->didstart == false );
+    CPPUNIT_ASSERT( stc->didupdate == false );
+    CPPUNIT_ASSERT( stc->didcleanup == false );
+    CPPUNIT_ASSERT( stc->didactivate == false );
+    stc->resetFlags();
+
+    // Stopped to PreOp state:
     CPPUNIT_ASSERT( stc->cleanup() == true );
     CPPUNIT_ASSERT( stc->isConfigured() == false);
     CPPUNIT_ASSERT( stc->isRunning() == false);
@@ -224,7 +338,8 @@ void Generic_TaskTest_3::testSpecialTCStates()
     CPPUNIT_ASSERT( stc->didupdate == false );
     CPPUNIT_ASSERT( stc->didstop == false );
     CPPUNIT_ASSERT( stc->didcleanup == true );
-    stc->reset();
+    CPPUNIT_ASSERT( stc->didactivate == false );
+    stc->resetFlags();
     CPPUNIT_ASSERT( stc->start() == false );
     CPPUNIT_ASSERT( stc->cleanup() == false );
     // test flags
@@ -233,10 +348,11 @@ void Generic_TaskTest_3::testSpecialTCStates()
     CPPUNIT_ASSERT( stc->didupdate == false );
     CPPUNIT_ASSERT( stc->didstop == false );
     CPPUNIT_ASSERT( stc->didcleanup == false );
-    stc->reset();
+    CPPUNIT_ASSERT( stc->didactivate == false );
+    stc->resetFlags();
 
 
-    // PreOperational state:
+    // PreOperational to Stopped state:
     CPPUNIT_ASSERT( stc->configure() == true );
     CPPUNIT_ASSERT( stc->isConfigured() == true);
     CPPUNIT_ASSERT( stc->isRunning() == false);
@@ -246,7 +362,8 @@ void Generic_TaskTest_3::testSpecialTCStates()
     CPPUNIT_ASSERT( stc->didupdate == false );
     CPPUNIT_ASSERT( stc->didstop == false );
     CPPUNIT_ASSERT( stc->didcleanup == false );
-    stc->reset();
+    CPPUNIT_ASSERT( stc->didactivate == false );
+    stc->resetFlags();
 
 }
 
@@ -255,6 +372,8 @@ void Generic_TaskTest_3::testFailingTCStates()
     // Test the states of a TC failing in transitions
     stc->validconfig = false;
     stc->validstart = false;
+    stc->validactivate = false;
+    stc->validreset = false;
 
     // PreOperational state:
     CPPUNIT_ASSERT( stc->isConfigured() == false );
@@ -263,7 +382,8 @@ void Generic_TaskTest_3::testFailingTCStates()
     CPPUNIT_ASSERT( stc->didconfig == true );
     CPPUNIT_ASSERT( stc->isConfigured() == false );
     CPPUNIT_ASSERT( stc->isRunning() == false );
-    stc->reset();
+    CPPUNIT_ASSERT( stc->isActive() == false );
+    stc->resetFlags();
 
     // Retry:
     stc->validconfig = true;
@@ -271,14 +391,16 @@ void Generic_TaskTest_3::testFailingTCStates()
     CPPUNIT_ASSERT( stc->didconfig == true );
     CPPUNIT_ASSERT( stc->isConfigured() == true );
     CPPUNIT_ASSERT( stc->isRunning() == false );
-    stc->reset();
+    CPPUNIT_ASSERT( stc->isActive() == false );
+    stc->resetFlags();
 
     // Stopped state:
     CPPUNIT_ASSERT( stc->start() == false );
     CPPUNIT_ASSERT( stc->didstart == true );
     CPPUNIT_ASSERT( stc->isRunning() == false );
+    CPPUNIT_ASSERT( stc->isActive() == false );
     CPPUNIT_ASSERT( stc->isConfigured() == true );
-    stc->reset();
+    stc->resetFlags();
 
     // Retry:
     stc->validstart = true;
@@ -286,8 +408,63 @@ void Generic_TaskTest_3::testFailingTCStates()
     CPPUNIT_ASSERT( stc->didstart == true );
     CPPUNIT_ASSERT( stc->isConfigured() == true );
     CPPUNIT_ASSERT( stc->isRunning() == true );
-    stc->reset();
+    CPPUNIT_ASSERT( stc->isActive() == true );
+    stc->resetFlags();
 
+    // Stopped to Active
+    CPPUNIT_ASSERT( stc->stop() == true );
+    CPPUNIT_ASSERT( stc->activate() == false );
+    CPPUNIT_ASSERT( stc->didactivate == true );
+    CPPUNIT_ASSERT( stc->isRunning() == false );
+    CPPUNIT_ASSERT( stc->isActive() == false );
+    CPPUNIT_ASSERT( stc->isConfigured() == true );
+    stc->resetFlags();
+    // Retry:
+    stc->validactivate = true;
+    CPPUNIT_ASSERT( stc->activate() == true );
+    CPPUNIT_ASSERT( stc->didactivate == true );
+    CPPUNIT_ASSERT( stc->isConfigured() == true );
+    CPPUNIT_ASSERT( stc->isActive() == true );
+    CPPUNIT_ASSERT( stc->isRunning() == false );
+    stc->resetFlags();
+
+    // Active to Running
+    stc->validstart = false;
+    CPPUNIT_ASSERT( stc->start() == false );
+    CPPUNIT_ASSERT( stc->didstart == true );
+    CPPUNIT_ASSERT( stc->isRunning() == false );
+    CPPUNIT_ASSERT( stc->isActive() == true );
+    CPPUNIT_ASSERT( stc->isConfigured() == true );
+    stc->resetFlags();
+
+    // Retry:
+    stc->validstart = true;
+    CPPUNIT_ASSERT( stc->start() == true );
+    CPPUNIT_ASSERT( stc->didstart == true );
+    CPPUNIT_ASSERT( stc->isConfigured() == true );
+    CPPUNIT_ASSERT( stc->isRunning() == true );
+    CPPUNIT_ASSERT( stc->isActive() == true );
+    stc->resetFlags();
+
+    // Error state.
+    stc->do_error = true;
+    // Running state / updateHook :
+    SimulationThread::Instance()->run(1);
+    CPPUNIT_ASSERT( stc->inFatalError() == true );
+    CPPUNIT_ASSERT( stc->resetError() == true ); // brings us to PreOp.
+    CPPUNIT_ASSERT( stc->didreset == true );
+    CPPUNIT_ASSERT( stc->isConfigured() == false);
+    // Retry:
+    CPPUNIT_ASSERT( stc->configure() == true);
+    CPPUNIT_ASSERT( stc->start() == true );
+    stc->validreset = true;
+    // Running state / updateHook :
+    SimulationThread::Instance()->run(1);
+    CPPUNIT_ASSERT( stc->inFatalError() == true );
+    CPPUNIT_ASSERT( stc->resetError() == true ); // brings us to Stopped.
+    CPPUNIT_ASSERT( stc->didreset == true );
+    CPPUNIT_ASSERT( stc->isConfigured() == true);
+   
 }
 
 void Generic_TaskTest_3::testExecutionEngine()

@@ -874,7 +874,7 @@ the_data_port.     cd            ls
 
   using namespace RTT;
 
-  <classname>RTT::TaskContext</classname>* a_task = new MyTask("the_task")
+  <classname>RTT::TaskContext</classname>* a_task = new MyTask("the_task");
   // create a periodic activity with priority=5, period=1000Hz
   <classname>RTT::PeriodicActivity</classname> act(5, 0.001, a_task->engine() );
   // ... start the execution engine of a_task :
@@ -897,7 +897,7 @@ the_data_port.     cd            ls
 
   using namespace RTT;
 
-  <classname>RTT::TaskContext</classname>* a_task = new MyTask("the_task")
+  <classname>RTT::TaskContext</classname>* a_task = new MyTask("the_task");
   // create a non periodic activity with priority=5
   <classname>RTT::NonPeriodicActivity</classname> nonpAct(5, a_task->engine() );
   // ... start the execution engine of a_task :
@@ -919,6 +919,138 @@ the_data_port.     cd            ls
 	  upon these events and seem to be stalled otherwise. 
 	</para>
       </warning>
+    </section>
+    <section>
+      <title>A TaskContext's Error and Active states</title>
+      <para>
+	In addition to the <function>PreOperational</function>,
+	<function>Stopped</function> and <function>Running</function>
+	TaskContext states, you can use two additional states for more
+	advanced component behaviour: the <function>FatalError</function>
+	and the <function>Active</function> states, as in 
+	<xref linkend="fig-ext-component-states" />
+      </para>
+      <figure id="fig-ext-component-states">
+	<title>
+	  Extended TaskContext State Diagram
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="images/ComponentStatesExtended" />
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="images/hires/ComponentStatesExtended" />
+	  </imageobject>
+	  <caption>
+	    <para>
+	      This figure shows the complete state diagram of a
+	      TaskContext.  This is <xref linkend="fig-component-states" />
+	      extended with two more states: <function>Active</function>
+	      and <function>FatalError</function>.
+	    </para>
+	  </caption>
+	</mediaobject>
+      </figure>
+      <para>
+	The <function>FatalError</function> state is entered whenever
+	the TaskContext's <function>fatal()</function> function is
+	called, and indicates that an unrecoverable error occured,
+	possibly in the <function>updateHook()</function> or in any
+	other component function. The ExecutionEngine is immediately
+	stopped and <function>stopHook()</function> is called when
+	this state is entered.
+      </para>
+      <para>
+	In order to leave the <function>FatalError</function> state,
+	one needs to call <function>resetError()</function> which calls
+	<function>resetHook()</function>, the user function, in turn.
+	When <function>resetHook()</function> returns true, error
+	recovery was possible and the component becomes
+	<function>Stopped</function> again. In case
+	<function>resetHook()</function> returns false, the
+	TaskContext becomes <function>PreOperational</function> and
+	requires configuration.
+      </para>
+      <para>
+	The <function>Active</function> state is for processing
+	incomming commands and events, but not yet running the
+	<function>updateHook()</function> user function. It is 
+	used for components that require to accept commands
+	before they are running. The <function>Active</function>
+	state is optional and can be skipped.
+      </para>
+      <para>
+	The <function>Active</function> state is entered when
+	<function>activate()</function> is called from the
+	<function>Stopped</function> state. In order to check this
+	transition the user function
+	<function>activateHook()</function> is called which must
+	return true to let the transition succeed, otherwise, the
+	TaskContext remains <function>Stopped</function>.  Once the
+	TaskContext is <function>Active</function>, it can be
+	<function>start()</function>'ed (continue to
+	<function>Running</function>) or <function>stop()</function>'ed
+	(go back to <function>Stopped</function>).
+      </para>
+    </section>
+    <section>
+      <title>A TaskContext's Run-Time Errors</title>
+      <para>
+	It is possible that non-fatal run-time errors occur which
+	may require user action on one hand, but do not prevent
+	the component from performing it's task, or allow degraded
+	performance.
+	Therefor, in the <function>Running</function> state, one can
+	make a transition to the
+	<function>RunTimeWarning</function> and <function>RunTimeError</function>
+	sub-states by calling <function>warning()</function> and
+	<function>error()</function> respectively. See
+	<xref linkend="fig-ext-runtime-states" />
+      </para>
+      <figure id="fig-ext-runtime-states">
+	<title>
+	  Possible Run-Time failure states.
+	</title>
+	<mediaobject>
+	  <imageobject role="html">
+	    <imagedata fileref="images/RunTimeStates" />
+	  </imageobject>
+	  <imageobject role="fo">
+	    <imagedata fileref="images/hires/RunTimeStates" />
+	  </imageobject>
+	  <caption>
+	    <para>
+	      This figure shows the sub-states of the Running state
+	      as a UML state chart.
+	    </para>
+	  </caption>
+	</mediaobject>
+      </figure>
+      <para>
+	When the application code calls <function>error()</function>,
+	the RunTimeError state is entered and
+	<function>errorHook()</function> is executed instead of
+	<function>updateHook()</function>.  If at some moment the
+	component detects that it can resume normal operation, it
+	calls the <function>recovered()</function> function, which
+	leads to the Running state again and in the next iteration,
+	<function>updateHook()</function> is called again. When
+	<function>warning()</function> is called, the RunTimeWarning
+	state is entered and <function>updateHook()</function> is
+	still executed (there is no
+	<function>warningHook()</function>). Use
+	<function>recovered()</function> again to go back to the
+	Running state.
+      </para>
+      <para>
+	Use <function>getErrorCount()</function> and
+	<function>getWarningCount()</function> to read the number of
+	times the error and warning states were entered.  Using these
+	functions, you can track if any intermittent problem has
+	occured. The counters are reset using the
+	<function>cleanup()</function> method in the
+	<function>Stopped</function> state.
+      </para>
     </section>
     <section>
       <title>Interfacing the TaskContext</title>
@@ -2829,7 +2961,7 @@ the_data_port.     cd            ls
 	                  &quot;Get a device parameter.&quot;,
                           &quot;Parameter&quot;, &quot;The number of the parameter.&quot;);
          this->methods()-&gt;addMethod(method(&quot;getError&quot;,
-                     &amp;DeviceInterface::getError),
+                     &amp;DeviceInterface::getError, this),
 	                 &quot;Get device error status.&quot;);
 
          // Add Commands :

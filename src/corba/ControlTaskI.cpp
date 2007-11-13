@@ -255,6 +255,15 @@ CORBA::Boolean Orocos_ControlTask_i::stop (
     return mtask->stop();
 }
 
+CORBA::Boolean Orocos_ControlTask_i::isActive (
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    return mtask->isActive();
+}
+
 CORBA::Boolean Orocos_ControlTask_i::isRunning (
   )
   ACE_THROW_SPEC ((
@@ -290,6 +299,79 @@ CORBA::Boolean Orocos_ControlTask_i::isConfigured (
 {
     return mtask->isConfigured();
 }
+
+  
+CORBA::Boolean Orocos_ControlTask_i::resetError (
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+{
+    return mtask->resetError();
+}
+  
+  
+CORBA::Boolean Orocos_ControlTask_i::activate (
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+{
+    return mtask->activate();
+}
+  
+CORBA::Boolean Orocos_ControlTask_i::inFatalError (
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+{
+    return mtask->inFatalError();
+}
+  
+    
+CORBA::Boolean Orocos_ControlTask_i::inRunTimeWarning (
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+{
+    return mtask->inRunTimeWarning();
+}
+
+  
+    
+CORBA::Boolean Orocos_ControlTask_i::inRunTimeError (
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+{
+    return mtask->inRunTimeError();
+}
+  
+    
+CORBA::Long Orocos_ControlTask_i::getWarningCount (
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+{
+    return mtask->getWarningCount();
+}
+
+  
+    
+CORBA::Long Orocos_ControlTask_i::getErrorCount (
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+{
+    return mtask->getErrorCount();
+}
+  
+
 
 #if 0
 ::CosPropertyService::PropertySet_ptr Orocos_ControlTask_i::propertySet (

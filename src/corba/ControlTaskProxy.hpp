@@ -143,6 +143,8 @@ namespace RTT
          */
         Corba::ControlTask_ptr server() const;
 
+        virtual bool activate();
+
         virtual bool start();
 
         virtual bool stop();
@@ -153,13 +155,23 @@ namespace RTT
 
         virtual bool cleanup();
 
+        virtual bool resetError();
+
+        virtual bool isActive() const;
+
         virtual bool isConfigured() const;
 
+        virtual bool inFatalError() const;
+
+        virtual bool inRunTimeWarning() const;
+
+        virtual bool inRunTimeError() const;
+
+        virtual int getErrorCount() const;
+
+        virtual int getWarningCount() const;
+
         virtual TaskState getTaskState() const;
-
-        virtual bool executeCommand( CommandInterface* c);
-
-        virtual int queueCommand( CommandInterface* c);
 
         virtual void setName(const std::string& n);
 

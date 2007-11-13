@@ -494,6 +494,24 @@ namespace RTT
         return false;
     }
     
+    bool ControlTaskProxy::activate() {
+        if (mtask)
+            return mtask->activate();
+        return false;
+    }
+    
+    bool ControlTaskProxy::resetError() {
+        if (mtask)
+            return mtask->resetError();
+        return false;
+    }
+
+    bool ControlTaskProxy::isActive() const {
+        if (mtask)
+            return mtask->isActive();
+        return false;
+    }
+
     bool ControlTaskProxy::isRunning() const {
         if (mtask)
             return mtask->isRunning();
@@ -518,20 +536,40 @@ namespace RTT
         return false;
     }
 
+    bool ControlTaskProxy::inFatalError() const {
+        if (mtask)
+            return mtask->inFatalError();
+        return false;
+    }
+
+    bool ControlTaskProxy::inRunTimeWarning() const {
+        if (mtask)
+            return mtask->inRunTimeWarning();
+        return false;
+    }
+
+    bool ControlTaskProxy::inRunTimeError() const {
+        if (mtask)
+            return mtask->inRunTimeError();
+        return false;
+    }
+
+    int ControlTaskProxy::getErrorCount() const {
+        if (mtask)
+            return mtask->getErrorCount();
+        return -1;
+    }
+
+    int ControlTaskProxy::getWarningCount() const {
+        if (mtask)
+            return mtask->getWarningCount();
+        return -1;
+    }
+
     TaskContext::TaskState ControlTaskProxy::getTaskState() const {
         if (mtask)
             return TaskContext::TaskState( mtask->getTaskState() );
         return TaskContext::Init;
-    }
-
-    bool ControlTaskProxy::executeCommand( CommandInterface* c)
-    {
-        return false;
-    }
-
-    int ControlTaskProxy::queueCommand( CommandInterface* c)
-    {
-        return 0;
     }
 
     void ControlTaskProxy::setName(const std::string& n)

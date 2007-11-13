@@ -54,7 +54,7 @@ class ProgramTest : public CppUnit::TestFixture
     bool assertBool( bool );
     bool assertMsg( bool, const std::string& msg);
     int increase();
-    void reset();
+    void resetI();
     void doProgram( const std::string& prog, TaskContext*, bool test=true );
     void finishProgram( TaskContext* , std::string );
     void loopProgram( ProgramInterfacePtr );

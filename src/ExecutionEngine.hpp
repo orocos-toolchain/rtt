@@ -64,9 +64,6 @@ namespace RTT
     class EventProcessor;
     class ProgramProcessor;
     class StateMachineProcessor;
-    namespace OS {
-        class Semaphore;
-    }
 
     /**
      * An execution engine serialises (executes one after the other)
@@ -90,10 +87,17 @@ namespace RTT
         : public RunnableInterface
     {
     protected:
+        enum EngineState { Stopped, Activating, Active, Running };
         /**
          * The parent or 'owner' of this ExecutionEngine, may be null.
          */
         TaskCore*     taskc;
+
+        /**
+         * The ExecutionEngine keeps a state of its own which is synchronised
+         * with the parent and child TaskCore states.
+         */
+        EngineState     estate;
 
         /**
          * We store the Processors as RunnableInterface pointers,
@@ -113,6 +117,12 @@ namespace RTT
          * Install new Processors.
          */
         void setup();
+
+        /**
+         * Call all necessary hook functions of parent and children
+         * TaskContexts.
+         */
+        bool startContexts();
     public:
         /**
          * Create an execution engine with a CommandProcessor, ProgramProcessor 
@@ -123,6 +133,23 @@ namespace RTT
         ExecutionEngine( TaskCore* owner = 0);
         
         ~ExecutionEngine();
+
+        /**
+         * Run the Execution Engine's processors, but not the updateHook()
+         * functions of the TaskCores.
+         */
+        bool activate();
+
+        /**
+         * Run the Execution Engine's processors \b and the updateHook()
+         * functions of the TaskCores.
+         */
+        bool start();
+
+        /**
+         * Stop the processors and all TaskCores.
+         */
+        bool stop();
 
         virtual bool initialize();
 

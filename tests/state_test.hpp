@@ -58,7 +58,7 @@ class StateTest : public CppUnit::TestFixture
     bool assertBool( bool );
     bool assertMsg( bool, const std::string& msg);
     int increase();
-    void reset();
+    void resetI();
     void doState( const std::string& prog, TaskContext*, bool test=true );
     void finishState( TaskContext* , std::string );
 
