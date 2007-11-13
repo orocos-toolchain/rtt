@@ -34,25 +34,46 @@
   </para>
   <section id="caveats">
     <title>Caveats</title>
-    <para>
-      A number of fuctions were added to
-      <classname>RTT::TaskContext</classname> and
-      <classname>RTT::TaskCore</classname> in version 1.4:
-      <function>bool activate()</function> and <function>bool
-      activateHook()</function>, <function>void fatal()</function>,
-      <function>bool reset()</function> and <function>bool
-      resetHook()</function>, <function>void warning()</function>,
-      <function>void error()</function>, <function>void
-      recovered()</function> and <function>bool
-      errorHook()</function>.  The queries <function>int getErrorCount()</function>,
-      <function>int getWarningCount()</function>, <function>int inFatalError()</function>,
-      <function>int inRunTimeError()</function> and <function>int inRunTimeWarning()</function>
-      have been added as well.
-      If your RTT 1.2 component has functions
-      like these, they need to be renamed or match the semantics of
-      the new component state model.  See the Component Builder's
-      Manual for a description of these new hooks.
-    </para>
+    <itemizedlist>
+      <listitem>
+      <para>The RTT library names and .pc files have been
+      renamed from <filename>liborocos-rtt.so</filename> and <filename>orocos-rtt.pc</filename>
+      to <filename>liborocos-rtt-&lt;target&gt;.so</filename> and
+      <filename>orocos-rtt-&lt;target&gt;.pc</filename>. You need to update
+      your Makefiles in order to look for these files. Also, the 
+      <filename>liborocos-rtt-corba.so</filename> file has been renamed to
+      <filename>liborocos-rtt-corba-&lt;target&gt;.so</filename>.
+      Where <emphasis>target</emphasis> refers to the OS target, for 
+      example: lxrt, gnulinux or xenomai.</para>
+      <para>This was necessary to allow multiple RTT installations in
+      the same place and to clearly distinguish between the libraries, which
+      are all binary different.
+      </para>
+      </listitem>
+      <listitem>
+	<para>
+	  A number of fuctions were added to
+	  <classname>RTT::TaskContext</classname> and
+	  <classname>RTT::TaskCore</classname> in version 1.4:
+	  <function>bool activate()</function> and <function>bool
+	  activateHook()</function>, <function>void
+	  fatal()</function>, <function>bool resetError()</function> and
+	  <function>bool resetHook()</function>, <function>void
+	  warning()</function>, <function>void error()</function>,
+	  <function>void recovered()</function> and <function>bool
+	  errorHook()</function>.  The queries <function>int
+	  getErrorCount()</function>, <function>int
+	  getWarningCount()</function>, <function>int
+	  inFatalError()</function>, <function>int
+	  inRunTimeError()</function> and <function>int
+	  inRunTimeWarning()</function> have been added as well.  If
+	  your RTT 1.2 component has functions like these, they need
+	  to be renamed or match the semantics of the new component
+	  state model.  See the Component Builder's Manual for a
+	  description of these new hooks.
+	</para>
+      </listitem>
+    </itemizedlist>
   </section>
   <section>
     <title>Improvements</title>
@@ -79,10 +100,10 @@
 	    The <classname>RTT::TaskContext</classname> class has been
 	    extended to support an InError state. A
 	    component now has an <function>error()</function> and
-	    <function>reset()</function> method to enter and leave the
+	    <function>resetError()</function> method to enter and leave the
 	    InError state. If a component is in error, it will stop
-	    running and refuse to start until it is reset(). Depending
-	    upon implementation, a reset causes the component to enter
+	    running and refuse to start until it receives resetError(). Depending
+	    upon implementation, a resetError causes the component to enter
 	    the PreOperational or Stopped state. The associated user
 	    function (<function>resetHook()</function>) allow the user
 	    to control that transition. 
@@ -100,8 +121,8 @@
 	    extended to support an Active state. A
 	    component now has an <function>activate()</function> method to enter 
 	    the Active state. If a component is in error, it will stop
-	    running and refuse to start until it is reset(). Depending
-	    upon implementation, a reset causes the component to enter
+	    running and refuse to start until it is resetError(). Depending
+	    upon implementation, a resetError causes the component to enter
 	    the PreOperational or Stopped state. The associated user
 	    function (<function>resetHook()</function>) allow the user
 	    to control that transition. 
