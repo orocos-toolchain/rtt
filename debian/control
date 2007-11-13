@@ -93,6 +93,94 @@ Description: Orocos Real-Time Toolkit for CORBA library
  .
  This package provides the RTT library.
 
+Package: liborocos-rtt-corba-lxrt-dev
+Section: libdevel
+Architecture: any
+Depends: liborocos-rtt-corba-lxrt1.4 (= ${Source-Version}), liborocos-rtt-corba-common-dev
+Conflicts: liborocos-rtt-dev
+Description: Orocos Real-Time Toolkit for CORBA development files
+ Orocos (http://www.orocos.org) is the acronym of the
+ Open Robot Control Software project. The project's aim is to develop
+ a general-purpose, free software, and modular framework
+ for robotand machine control.
+ The Orocos project supports 4 C++ libraries: the Real-Time Toolkit, the
+ Kinematics and Dynamics Library, the Bayesian Filtering Library and
+ the Orocos Component Library.
+ .
+ The Orocos Real-Time Toolkit (RTT) is not an application
+ in itself, but it provides the infrastructure and the
+ functionalities to build robotics applications in C++. The
+ emphasis is on real-time, online interactive and
+ component based applications.
+ .
+ This package provides the headers for developing Orocos applications.
+
+Package: liborocos-rtt-corba-lxrt1.4
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, liborocos-rtt-lxrt1.4
+Conflicts: liborocos-rtt1
+Description: Orocos Real-Time Toolkit for CORBA library
+ Orocos (http://www.orocos.org) is the acronym of the
+ Open Robot Control Software project. The project's aim is to develop
+ a general-purpose, free software, and modular framework
+ for robotand machine control.
+ The Orocos project supports 4 C++ libraries: the Real-Time Toolkit, the
+ Kinematics and Dynamics Library, the Bayesian Filtering Library and
+ the Orocos Component Library.
+ .
+ The Orocos Real-Time Toolkit (RTT) is not an application
+ in itself, but it provides the infrastructure and the
+ functionalities to build robotics applications in C++. The
+ emphasis is on real-time, online interactive and
+ component based applications.
+ .
+ This package provides the RTT library.
+
+Package: liborocos-rtt-lxrt-dev
+Section: libdevel
+Architecture: any
+Depends: liborocos-rtt-lxrt1.4 (= ${Source-Version}), liborocos-rtt-common-dev
+Conflicts: liborocos-rtt-dev
+Description: Orocos Real-Time Toolkit for CORBA development files
+ Orocos (http://www.orocos.org) is the acronym of the
+ Open Robot Control Software project. The project's aim is to develop
+ a general-purpose, free software, and modular framework
+ for robotand machine control.
+ The Orocos project supports 4 C++ libraries: the Real-Time Toolkit, the
+ Kinematics and Dynamics Library, the Bayesian Filtering Library and
+ the Orocos Component Library.
+ .
+ The Orocos Real-Time Toolkit (RTT) is not an application
+ in itself, but it provides the infrastructure and the
+ functionalities to build robotics applications in C++. The
+ emphasis is on real-time, online interactive and
+ component based applications.
+ .
+ This package provides the headers for developing Orocos applications.
+
+Package: liborocos-rtt-lxrt1.4
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}
+Conflicts: liborocos-rtt1
+Description: Orocos Real-Time Toolkit for CORBA library
+ Orocos (http://www.orocos.org) is the acronym of the
+ Open Robot Control Software project. The project's aim is to develop
+ a general-purpose, free software, and modular framework
+ for robotand machine control.
+ The Orocos project supports 4 C++ libraries: the Real-Time Toolkit, the
+ Kinematics and Dynamics Library, the Bayesian Filtering Library and
+ the Orocos Component Library.
+ .
+ The Orocos Real-Time Toolkit (RTT) is not an application
+ in itself, but it provides the infrastructure and the
+ functionalities to build robotics applications in C++. The
+ emphasis is on real-time, online interactive and
+ component based applications.
+ .
+ This package provides the RTT library.
+
 
 Package: liborocos-rtt-corba-gnulinux-dev
 Section: libdevel

@@ -37,9 +37,9 @@ configure-stamp:
 	dh_testdir
 # Add here commands to configure the package.
 # LDFLAGS="-Wl,-z,defs"
-#	mkdir -p build.lxrt
-#	cd build.lxrt; \
-#	unset ACE_ROOT TAO_ROOT; CXXFLAGS="$(CFLAGS)" ../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --enable-corba --with-lxrt=/usr/realtime
+	mkdir -p build.lxrt
+	cd build.lxrt; \
+	unset ACE_ROOT TAO_ROOT; CXXFLAGS="$(CFLAGS)" ../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --enable-corba --enable-static --with-lxrt=/usr/realtime
 
 	mkdir -p build.gnulinux
 	cd  build.gnulinux; \
@@ -59,7 +59,7 @@ build-stamp: configure-stamp
 	dh_testdir
 
 # Add here commands to compile the package.
-#	cd build.lxrt; $(MAKE) VERBOSE=1; 
+	cd build.lxrt; $(MAKE) VERBOSE=1; 
 	cd build.gnulinux; $(MAKE) VERBOSE=1; $(MAKE) docapi dochtml VERBOSE=1
 	cd build.xenomai; $(MAKE) VERBOSE=1; 
 
@@ -87,7 +87,7 @@ install: build
 # Each flavor installs in debian/tmp/flavor. Be sure to edit package.install
 # such that the flavor is stripped when building the package.
 	cd build.gnulinux; $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
-#	cd build.lxrt; $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
+	cd build.lxrt; $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 	cd build.xenomai; $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 
 
