@@ -78,7 +78,8 @@
       <itemizedlist>
 	<listitem><para>Connection and Communication of Orocos components over a network</para></listitem>
 	<listitem><para>Clients (like visualisation) making a connection to any running Orocos component using the IDL interface.</para></listitem>
-	<listitem><para>Transparant use: existing Orocos applications only need to be recompiled.</para></listitem>
+	<listitem><para>Transparant use: no recompilation of existing components required.
+	The library acts as a run-time plugin.</para></listitem>
       </itemizedlist> 
     </para>
     <section>
@@ -86,7 +87,7 @@
       <para>
 	The Corba package is work in progress and aims to make the whole
 	Orocos Component interface available over the network. Consult the
-	<emphasis>Component Builder's Guide</emphasis> for an overview of a Component's
+	<emphasis>Component Builder's Manual</emphasis> for an overview of a Component's
 	interface.
       </para>
       <para>These Component interfaces are currently available:
@@ -159,7 +160,8 @@
 	  <listitem><para>Some Corba objects (for example 'commands')
 	  have a longer lifetime in memory than necessary. This does
 	  not cause harm in 'simple' setups, but is problematic when
-	  thousands of such objects are created.
+	  thousands of such objects are created. Try to re-use these
+	  objects as much as possible.
 	  </para></listitem>
 	</itemizedlist>
       </para>
@@ -169,7 +171,7 @@
     <title>Code Examples</title>
     <para>
       This example assumes that you have taken a look at the 'Component Builder's
-      Guide'. It creates a simple 'Hello World' component and makes it available
+      Manual'. It creates a simple 'Hello World' component and makes it available
       to the network. Another program connects to that component and starts the
       component interface browser in order to control the 'Hello World' component.
       Both programs may be run on the same or on different computers, given that
@@ -194,7 +196,7 @@
      <classname>RTT::TaskContext</classname> mycomponent("HelloWorld");
      // Execute a component
      <classname>RTT::PeriodicActivity</classname>   myact(1, 0.01, mycomponent.engine() );
-     myact.start();
+     mycomponent.start();
 
      // Setup Corba and Export:
      <classname>RTT::Corba::ControlTaskServer</classname>::InitOrb(argc, argv);
@@ -250,12 +252,22 @@
       When your Corba enabled component is running, the following usage
       rules should be known:
       <itemizedlist>
+	<listitem><para> 
+	  The Orocos Component Library provides two CORBA enabled programs:
+	  the <filename>cdeployer</filename> and the <filename>ctaskbrowser</filename>.
+	  The first is a CORBA enabled <classname>OCL::DeploymentComponent</classname>
+	  which allows you to load components and exports their interface using CORBA.
+	  The <filename>ctaskbrowser</filename> connects to the <filename>cdeployer</filename>
+	  and provides the <classname>OCL::TaskBrowser</classname> console which
+	  accesses this component. See also the KTaskbrowser for using a GUI
+	  to connect to the <filename>cdeployer</filename>.
+	</para></listitem>
 	<listitem><para>
 	  Components should not call remote components
 	  during real-time execution. However, real-time components may
 	  be called upon by any component, local or remote. A component
 	  may thus always receive a request from any component, but not
-	  every component may send a request to any component. If you
+	  every component should send a request to any component. If you
 	  violate this rule, it will not crash your program, but your
 	  execution timing will be worse.
 	</para></listitem>
