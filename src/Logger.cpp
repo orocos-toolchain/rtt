@@ -410,10 +410,13 @@ namespace RTT
         *this << " compiled with GCC " ORO_xstr(__GNUC__) "." ORO_xstr(__GNUC_MINOR__) "." ORO_xstr(__GNUC_PATCHLEVEL__) ".";
 #endif
 #ifdef OROPKG_OS_LXRT
-        *this<<" Running in LXRT, RTAI version '" ORO_xstr(ORO_RTAI_CONFIG_VERSION) "'."<< Logger::nl;
+        *this<<" Running in LXRT/RTAI."<< Logger::nl;
 #endif
 #ifdef OROPKG_OS_GNULINUX
         *this<<" Running in GNU/Linux."<< Logger::nl;
+#endif
+#ifdef OROPKG_OS_XENOMAI
+        *this<<" Running in Xenomai."<< Logger::nl;
 #endif
         *this<<"Orocos Logging Activated at level : " << d->showLevel( d->outloglevel ) << " ( "<<int(d->outloglevel)<<" ) "<< Logger::nl;
         *this<<"Reference System Time is : " << d->timestamp << " ticks ( "<< Seconds(TimeService::ticks2nsecs(d->timestamp))/NSECS_IN_SECS <<" seconds )." << Logger::nl;
