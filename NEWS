@@ -32,7 +32,7 @@ instead of compile time. Also component compile times and memory footprints
 have drastically improved. 
 This release's major feature highlights are:
 
- * Components have been extended with an InError and Active state
+ * Components have been extended with an Error and Active state
  * Optional, 'hot' pluggable CORBA library for network communication
  * Timer class (and TimerComponent in OCL) for time based events
  * More efficient periodic task execution
