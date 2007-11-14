@@ -47,25 +47,25 @@
     ADD_EXECUTABLE( taskcontext-test ${DO_EXCLUDE} test-runner.cpp generictask_test.cpp generictask_test_2.cpp generictask_test_3.cpp )
     TARGET_LINK_LIBRARIES( taskcontext-test orocos-rtt-${OROCOS_TARGET} cppunit )
     SET_TARGET_PROPERTIES( taskcontext-test PROPERTIES
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS}-DOROCOS_TARGET=${OROCOS_TARGET}")
+    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")
     ADD_TEST( taskcontext-test taskcontext-test )
 
     ADD_EXECUTABLE( parser-test ${DO_EXCLUDE} test-runner.cpp types_test.cpp template_factory_test.cpp dispatch_test.cpp )
     TARGET_LINK_LIBRARIES( parser-test orocos-rtt-${OROCOS_TARGET} cppunit )
     SET_TARGET_PROPERTIES( parser-test PROPERTIES
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS}-DOROCOS_TARGET=${OROCOS_TARGET}")
+    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")
     ADD_TEST( parser-test parser-test )
     
     ADD_EXECUTABLE( program-test ${DO_EXCLUDE} test-runner.cpp program_test.cpp function_test.cpp )
     TARGET_LINK_LIBRARIES( program-test orocos-rtt-${OROCOS_TARGET} cppunit)
     SET_TARGET_PROPERTIES( program-test PROPERTIES
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS}-DOROCOS_TARGET=${OROCOS_TARGET}")
+    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")
     ADD_TEST( program-test program-test )
 
     ADD_EXECUTABLE( state-test ${DO_EXCLUDE} test-runner.cpp state_test.cpp )
     TARGET_LINK_LIBRARIES( state-test orocos-rtt-${OROCOS_TARGET} cppunit )
     SET_TARGET_PROPERTIES( state-test PROPERTIES
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS}-DOROCOS_TARGET=${OROCOS_TARGET}")
+    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")
     ADD_TEST( state-test state-test )
 
 
