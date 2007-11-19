@@ -6,7 +6,7 @@ feature release of the Real-Time Toolkit, a C++ toolkit for building
  component based, real-time robotics and machine control applications.
 
 You can download this release from
-  <http://www.orocos.org/stable/rtt/v1.4.0/orocos-rtt-1.4.0-src.tar.gz>
+  <http://www.orocos.org/stable/rtt/v1.4.0/orocos-rtt-1.4.0-src.tar.bz2>
 and read the installation instructions on
   <http://www.orocos.org/stable/documentation/rtt/v1.4.x/doc-xml/orocos-installation.html>
 
@@ -16,7 +16,7 @@ build highly configurable and interactive component-based real-time
 control applications. You might use it to:
 
  * Control devices ranging from sensors to complete robots 
- * Capture the data flows between components
+ * Capture and plot the data flows between components
  * Tune your algorithms at run-time
  * Write your controller as a hierarchical state machine
  * Interact with your devices directly from a GUI or command prompt
@@ -34,9 +34,10 @@ This release's major feature highlights are:
 
  * Components have been extended with an Error and Active state
  * Optional, 'hot' pluggable CORBA library for network communication
- * Timer class (and TimerComponent in OCL) for time based events
+ * Timer class (and TimerComponent in OCL) for generating time based events
  * More efficient periodic task execution
- * Debian packages
+ * Debian packages for Debian Etch at
+   deb http://svn.fmtc.be/debian etch contrib
 
 If you'd like a high level overview of the Orocos libraries, visit
   <http://www.orocos.org/stable/documentation/rtt/v1.4.x/doc-xml/orocos-overview.html>
@@ -58,7 +59,7 @@ release of the Real-Time Toolkit v1.2, a C++ toolkit for building
  component based, real-time robotics and machine control applications.
 
 You can download this release from
-  <http://www.orocos.org/stable/rtt/v1.2.1/orocos-rtt-1.2.1-src.tar.gz>
+  <http://www.orocos.org/stable/rtt/v1.2.1/orocos-rtt-1.2.1-src.tar.bz2>
 and read the installation instructions on
   <http://www.orocos.org/stable/documentation/rtt/v1.2.x/doc-xml/orocos-installation.html>
 The main manual for building your own components can be found on
@@ -84,7 +85,7 @@ feature release of the Real-Time Toolkit, a C++ toolkit for building
  component based, real-time robotics and machine control applications.
 
 You can download this release from
-  <http://www.orocos.org/stable/rtt/v1.2.0/orocos-rtt-1.2.0-src.tar.gz>
+  <http://www.orocos.org/stable/rtt/v1.2.0/orocos-rtt-1.2.0-src.tar.bz2>
 and read the installation instructions on
   <http://www.orocos.org/stable/documentation/rtt/v1.2.x/doc-xml/orocos-installation.html>
 
