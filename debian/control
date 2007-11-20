@@ -1,7 +1,7 @@
 Source: orocos-rtt
 Priority: optional
 Maintainer: Peter Soetens <peter.soetens@fmtc.be>
-Build-Depends: debhelper (>= 5), cmake, libboost-dev, libboost-graph-dev, xsltproc, doxygen, libtao-dev, libtao-orbsvcs-dev, xenomai-dev, xenomai
+Build-Depends: debhelper (>= 5), cmake, libboost-dev, libboost-graph-dev, xsltproc, doxygen, libtao-dev, libtao-orbsvcs-dev, xenomai-dev, xenomai, dia, inkscape
 Standards-Version: 3.7.2
 Section: libs
 
@@ -52,7 +52,7 @@ Description: Orocos Real-Time Toolkit for CORBA library
 Package: liborocos-rtt-xenomai-dev
 Section: libdevel
 Architecture: any
-Depends: liborocos-rtt-xenomai1.4 (= ${Source-Version}), liborocos-rtt-common-dev
+Depends: liborocos-rtt-xenomai1.4 (= ${Source-Version}), liborocos-rtt-common-dev, xenomai-dev
 Conflicts: liborocos-rtt-dev
 Description: Orocos Real-Time Toolkit for CORBA development files
  Orocos (http://www.orocos.org) is the acronym of the
@@ -273,6 +273,7 @@ Description: Orocos Real-Time Toolkit for CORBA library
 Package: liborocos-rtt-common-dev
 Section: libs
 Architecture: any
+Depends: libboost-dev, libboost-graph-dev
 Conflicts: liborocos-rtt-dev
 Description: Orocos Real-Time Toolkit common development files
  Orocos (http://www.orocos.org) is the acronym of the
@@ -294,7 +295,7 @@ Description: Orocos Real-Time Toolkit common development files
 Package: liborocos-rtt-corba-common-dev
 Section: libs
 Architecture: any
-Depends: liborocos-rtt-common-dev 
+Depends: liborocos-rtt-common-dev, libtao-dev, libtao-orbsvcs-dev 
 Conflicts: liborocos-rtt-dev
 Description: Orocos Real-Time Toolkit common CORBA development files
  Orocos (http://www.orocos.org) is the acronym of the
