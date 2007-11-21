@@ -35,6 +35,11 @@ IF(ENABLE_CORBA)
 
   ORO_ADD_CORBA_SERVERS(CPPS HPPS ${IDLS} )
   SET( ENV{GLOBAL_GENERATED_SRCS} "${CPPS}" )
+
+  #This has been added in order to generate files before make -j<N>
+  # make -j<N> causes corruption of generated files because of overwriting
+  ADD_CUSTOM_TARGET( idl DEPENDS ${CPPS} ${HPPS} COMMENT "Generating sources from .idl files")
+
   #MESSAGE("CPPS: $ENV{GLOBAL_GENERATED_SRCS}")
   #MESSAGE("HPPS: ${HPPS}")
   GLOBAL_ADD_INCLUDE( rtt/corba ${HPPS})

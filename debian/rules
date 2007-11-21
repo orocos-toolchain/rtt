@@ -59,9 +59,9 @@ build-stamp: configure-stamp
 	dh_testdir
 
 # Add here commands to compile the package.
-	cd build.lxrt; $(MAKE) $(MAKE_FLAGS); 
-	cd build.gnulinux; $(MAKE) $(MAKE_FLAGS); # $(MAKE) docapi dochtml VERBOSE=1
-	cd build.xenomai; $(MAKE) $(MAKE_FLAGS); 
+	cd build.lxrt; $(MAKE) idl ;$(MAKE) $(MAKE_FLAGS); 
+	cd build.gnulinux; $(MAKE) idl ;$(MAKE) $(MAKE_FLAGS); # $(MAKE) docapi dochtml VERBOSE=1
+	cd build.xenomai; $(MAKE) idl ;$(MAKE) $(MAKE_FLAGS); 
 
 	touch build-stamp
 
