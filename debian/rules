@@ -47,7 +47,7 @@ configure-stamp:
 
 	mkdir -p build.xenomai
 	cd build.xenomai; \
-	unset ACE_ROOT TAO_ROOT; CXXFLAGS="$(CFLAGS)" ../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --enable-corba --enable-static --with-xenomai=/usr/xenomai
+	unset ACE_ROOT TAO_ROOT; CXXFLAGS="$(CFLAGS)" ../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --enable-corba --enable-static --with-xenomai=/usr
 	touch configure-stamp
 
 # Keeps our makefile dependencies ok:
