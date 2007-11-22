@@ -3,9 +3,9 @@ exec_prefix=${prefix}  # defining another variable in terms of the first
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
 
-Name: Orocos-RTT                          # human-readable name
+Name: Orocos-RTT-CORBA                                     # human-readable name
 Description: Open Robot Control Software: Real-Time Tookit # human-readable description
+Requires: orocos-rtt-@OROCOS_TARGET@
 Version: @RTT_VERSION@
 Libs: -L${libdir} -lorocos-rtt-corba-@OROCOS_TARGET@ @RTT_LINKFLAGS@ 
-#Libs.private: @RTT_LIBS@
-Cflags: -I${includedir} -DOROCOS_TARGET=@OROCOS_TARGET@ @RTT_CFLAGS@ 
+Cflags:
