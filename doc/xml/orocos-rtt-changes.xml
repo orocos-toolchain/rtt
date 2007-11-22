@@ -47,8 +47,28 @@
       example: lxrt, gnulinux or xenomai.</para>
       <para>This was necessary to allow multiple RTT installations in
       the same place and to clearly distinguish between the libraries, which
-      are all binary different.
+      are all binary different.</para>
+      <para>
+	The Orocos Component Library (OCL) has adopted the same naming convention.
       </para>
+      </listitem>
+      <listitem>
+	<para>
+	  Compiling Orocos applications (or components) now requires
+	  the OROCOS_TARGET macro to be set during compilation. For
+	  example:
+	  <screen> gcc -c program.cpp -DOROCOS_TARGET=gnulinux </screen>
+	  Will compile your program or component for the 'gnulinux' target.
+	</para>
+	<para>
+	  If you use pkg-config to get the build options,
+	  this define is returned as well:
+	  <screen> gcc -c program.cpp $(pkg-config orocos-rtt-gnulinux --cflags) </screen>
+	</para>
+	<para>
+	  If you use CMake, you can use the FindOrocosRTT.cmake file from
+	  the Orocos Component Library. 
+	</para>
       </listitem>
       <listitem>
 	<para>
@@ -88,6 +108,30 @@
 	    network communication. Moving this code to an external library
 	    drastically improves compile time and  memory footprint of a
 	    component.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>OS Abstraction</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The ORO_main function (from rtt/os/main.h) has now become a macro, and is
+	    optional to some extent. If you choose not to use ORO_main
+	    and write an application using the standard main()
+	    function, you need to call an additional function before
+	    using RTT functions: <function>__os_init()</function> and
+	    call <function>__os_exit()</function> just before
+	    returning from main(). This new implementation allows the
+	    RTT library to be compiled on other platforms with
+	    stricter library conventions than Linux.
+	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://svn.fmtc.be/bugzilla/orocos/show_bug.cgi?id=459">
+	      ORO_main should be optionally defined
+	      </ulink>.
 	  </para>
 	</listitem>
       </itemizedlist>

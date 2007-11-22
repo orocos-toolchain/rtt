@@ -55,6 +55,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Minor clarifications.</revremark>
       </revision>
+      <revision>
+	<revnumber>1.4.0</revnumber>
+	<date>22 Nov 2007</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Changes in the library name (-target) and .pc files</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -715,6 +721,7 @@
 	environment. First of all, you need to provide a function
 	  <function>int ORO_main(int argc, char** argv)
 	    {...}</function>, defined in &lt;rtt/os/main.h&gt; which contains your program :
+      </para>
 	    <programlisting>  #include &lt;rtt/os/main.h&gt;
 	      
   int ORO_main(int argc, char** argv)
@@ -722,12 +729,9 @@
      // Your code, do not use 'exit()', use 'return' to 
      // allow Orocos to cleanup system resources.
   } </programlisting>
-          If you link
-	  with the liborocos-rtt.so library, this function will
-	  be called after the run-time environment is set up. To put in
-	  other words, the Orocos library already contains a
-	  main() function which will call the user-defined ORO_main()
-	  function.
+        <para>
+	  If you do not use this function, it is possible that 
+	  some (OS dependent) Orocos functionality will not work.
 	</para>
 	<example>
 	  <title>A Makefile for an Orocos Application</title>
@@ -735,8 +739,10 @@
 	    You can then simply compile your program with a Makefile
 	    resembling this one : 
 	    <programlisting>  OROPATH=/usr/local
-  CXXFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-rtt --cflags`
-  LDFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-rtt --libs`
+
+  # Use 'gnulinux' target:
+  CXXFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-rtt-gnulinux --cflags`
+  LDFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-rtt-gnulinux --libs`
 
   all: myprogram.cpp
         g++ myprogram.cpp ${CXXFLAGS} ${LDFLAGS} -o myprogram  </programlisting>

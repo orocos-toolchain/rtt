@@ -51,6 +51,32 @@ in the Orocos RTT Changes document on
   <http://www.orocos.org/stable/documentation/rtt/v1.4.x/doc-xml/orocos-rtt-changes.html>
 
 
+           The Orocos Real-Time Toolkit v1.2.2.
+           ====================================
+
+  The Orocos development team is pleased to announce the second bug-fix
+release of the Real-Time Toolkit v1.2, a C++ toolkit for building
+ component based, real-time robotics and machine control applications.
+
+You can download this release from
+  <http://www.orocos.org/stable/rtt/v1.2.2/orocos-rtt-1.2.2-src.tar.bz2>
+and read the installation instructions on
+  <http://www.orocos.org/stable/documentation/rtt/v1.2.x/doc-xml/orocos-installation.html>
+The main manual for building your own components can be found on
+  <http://www.orocos.org/stable/documentation/rtt/v1.2.x/doc-xml/orocos-components-manual.html>
+
+The following reported bugs were fixed in this release:
+
+  ID     Vers   TargetM  Summary 
+  427    1.2.1   1.2.2   [Critical] Could not create thread TimerThreadInstance. 
+  428    1.2.1   1.2.2   Logger::In in("module") may crash in multi-threaded scenarios 
+  447    1.2.1   1.2.2   Several crashes using ctaskbrowser (CORBA)
+  448    1.2.1   1.2.2   RTT applications get killed under Xenomai 2.3.2 and higher 
+  449    1.2.1   1.2.2   Xenomai fosi.h needs cleanup 
+  451    1.2.1   1.2.2   RTT Corba Proxy object does not replicate remote interface correctly 
+  454    rtt-t   1.2.2   bug in Orocos component builder's guide
+
+
            The Orocos Real-Time Toolkit v1.2.1.
            ====================================
 
