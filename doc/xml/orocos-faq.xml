@@ -588,9 +588,9 @@ $ ldd core-test
   <appendix>
     <title>About Orocos</title>
     <para>
-      Please send general, non technical, Orocos questions to <ulink
-	url="mailto:orocos@lists.mech.kuleuven.be">
-	orocos@lists.mech.kuleuven.be </ulink>. 
+      Please your Orocos questions to <ulink
+	url="mailto:orocos-users at lists.mech.kuleuven.be">
+	orocos-users at lists.mech.kuleuven.be </ulink>. 
     </para>
     <para>
       These pages are maintained by <ulink
@@ -609,7 +609,7 @@ $ ldd core-test
       our developer mailing list at  <ulink
 	url="mailto:orocos-dev at lists.mech.kuleuven.be">
 	Orocos-dev at lists.mech.kuleuven.be </ulink>. All of
-      our lists have <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos">public
+      our lists have <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos-users">public
 	archives</ulink> ( <ulink url="http://lists.mech.kuleuven.be/mailman/listinfo/orocos-dev"> dev public
 	archive</ulink> ) .
       </para>
