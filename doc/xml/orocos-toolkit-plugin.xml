@@ -367,7 +367,7 @@ bool loadOperators() {
 
   // Tell Orocos a constructor is available:
   // Attention: "ControlData" must have been added before with 'addType' !
-  RTT::TypeInfoRepository::Instance()->type("ControlData")->addConstructor( &amp;createCD );
+  RTT::TypeInfoRepository::Instance()->type("ControlData")->addConstructor( newConstructor(&amp;createCD) );
 	</programlisting>
 	<para>
 	  From now on, one can write in a script:
