@@ -1047,9 +1047,98 @@ the_data_port.     cd            ls
 	<function>getWarningCount()</function> to read the number of
 	times the error and warning states were entered.  Using these
 	functions, you can track if any intermittent problem has
-	occured. The counters are reset using the
-	<function>cleanup()</function> method in the
+	occured. The counters are reset when the
+	<function>cleanup()</function> method is called in the
 	<function>Stopped</function> state.
+      </para>
+    </section>
+    <section>
+      <title>Error States Example</title>
+      <para>
+	Here is a very simple use case, a TaskContext communicates over
+	a socket with a remote device. Normally, we get a data packet
+	every 10ms, but sometimes one may be missing. This is signaled
+	as a run time warning, but we just continue. When we don't
+	receive 5 packets in a row, we signal this as a run time
+	error. From the moment packets come in again we go back to run
+	time warning. Now if the data we get is corrupt, we go into
+	fatal error mode, as we have no idea what the current state of
+	the remote device is, and shouldn't be updating our state, as
+	no one can rely on the correct functioning of the TaskContext.
+      </para>
+      <para>
+	Here's the pseudo code:
+	<programlisting> class MyComponent : public TaskContext
+ {
+       int faults;
+ public:
+       MyComponent(const std::string &amp;name) 
+         : TaskContext(name), faults(0) 
+       {}
+
+ protected:
+       // read the socket with a timeout. 
+       // If ok, process data, otherwise, trigger
+       // a runtime warning
+       void updateHook()
+       {
+            char* data;
+            double timeout = 0.02; // 20ms
+            int rv = my_socket_read(data, timeout);
+            if (rv == 0) {
+               this->stateUpdate(data);
+               faults = 0;
+            } else {
+               faults++;
+               if (faults > 4)
+                   this->error();
+               else
+                   this->warning();
+            }
+
+            // This is special for non periodic activities, it makes
+            // the TaskContext call updateHook() again after
+            // commands and events are processed.
+            this->getActivity()->trigger(); 
+       }
+
+       // Called instead of updateHook() when in runtime error state.
+       void errorHook()
+       {
+            this->updateHook(); // just call updateHook anyway.
+       }
+
+       // Called by updateHook()
+       void stateUpdate(char* data)
+       {
+            // Check for corrupt data
+            if ( checkData(data) == -1 ) {
+                 this->fatalError(); // we will enter the FatalError state.
+            } else {
+                 // data is ok: update internal state...
+            }
+       }
+ };
+
+ MyComponent mycomp("MyComp");
+                          //scheduler, priority, execution engine
+ NonPeriodicActivity myact( ORO_SCHED_RT, 0, mycomp.engine() ); 
+
+ mycomp.start();</programlisting>
+      </para>
+      <para>
+	Finally, you start this component with a NonPeriodicActivity,
+	which allows you to wait in updateHook() for as long as you
+	want. Commands and events are processed when you leave the
+	function, that's why you can not use a while(1) {} loop within
+	updateHook(), but re-trigger the activity again for a next
+	run.
+      </para>
+      <para>
+	When you want to discard the 'warning' state of the component,
+	call mycomp.recovered().  If your component went into
+	FatalError, call mycomp.reset() and mycomp.start() again for
+	processing updateHook() again.
       </para>
     </section>
     <section>
