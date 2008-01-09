@@ -110,7 +110,11 @@ namespace RTT
             delete aclone;
             
             // finally a connection object !
+            // 1. connect other.
+            if ( other->connectTo( ci ) == false )
+                return false;
 
+            // 2. connect this.
             if ( this->connectTo( ci ) )
                 return ci->connect();
             // failed (type mismatch), cleanup.
