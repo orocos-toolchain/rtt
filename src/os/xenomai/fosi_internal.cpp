@@ -262,6 +262,7 @@ namespace RTT
                 } else
                     return -1;
             else if ( sched_type == SCHED_XENOMAI_SOFT) 
+                // This mode setting is only temporary. See rtos_task_wait_period() as well !
                 if (rt_task_set_mode( T_PRIMARY, 0, 0 ) == 0 ) {
                     t->sched_type = SCHED_XENOMAI_SOFT;
                     return 0;
@@ -311,9 +312,14 @@ namespace RTT
 #if CONFIG_XENO_VERSION_MAJOR == 2 && CONFIG_XENO_VERSION_MINOR == 0
             if ( rt_task_wait_period() == -ETIMEDOUT) 
                 return 1;
-#else // 2.1, 2.2, 2.3,...
+#else // 2.1, 2.2, 2.3, 2.4,...
             long unsigned int overrun = 0;
             rt_task_wait_period(&overrun);
+
+            // When running soft, switch to secondary mode:
+            if ( mytask->sched_type == SCHED_XENOMAI_SOFT )
+                rt_task_set_mode(T_PRIMARY, 0, 0 );
+
             if ( overrun != 0)
                 return 1;
 #endif
