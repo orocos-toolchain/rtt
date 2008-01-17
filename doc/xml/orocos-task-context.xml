@@ -10,7 +10,7 @@
 <article>
   <articleinfo>
     <title>
-      The Orocos Task Infrastructure Manual
+      The Orocos TaskContext Manual
     </title>
     <subtitle>Designing Real-Time Orocos Applications</subtitle>
     <copyright>
@@ -20,9 +20,9 @@
     
     <abstract>
       <para>
-	This document describes the &orocos; Task Infrastructure, which
-	allows to design Real-Time tasks which transparantly communicate
-	with each other.
+	This document describes the &orocos; Component Model, which
+	allows to design Real-Time software components which
+	transparantly communicate with each other.
       </para>
     </abstract>
     
@@ -43,45 +43,57 @@
   <section id="task-context-intro">
     <title>Introduction</title>
     <para>
-      This manual documents how multi-threaded components can be defined in &orocos;
-      such that they form a thread-safe robotics/machine control application.
-      Each control component is defined as a "TaskContext", which defines 
-      the "context" in which the component task is executed. The context
-      is built by the five Orocos primitives: Event, Property, Command, Method
-      and Data Port. This document defines how a user can write his own 
-      task context and how it can be used in an application.
+      This manual documents how multi-threaded components can be
+      defined in &orocos; such that they form a thread-safe
+      robotics/machine control application.  Each control component is
+      defined as a "TaskContext", which defines the environment or
+      "context" in which an application specific task is executed. The
+      context is described by the five Orocos primitives: Event, Property,
+      Command, Method and Data Port. This document defines how a user
+      can write his own task context and how it can be used in an
+      application.
     </para>
     <figure id="fig-task-peers">
       <title>
-	Tasks Run in Threads
+	Components Run in Threads
       </title>
       <mediaobject>
 	<imageobject role="html">
-	  <imagedata fileref="images/TaskPeers" />
+	  <imagedata fileref="images/TaskPeers2" />
 	</imageobject>
 	<imageobject role="fo">
-	  <imagedata fileref="images/hires/TaskPeers" />
+	  <imagedata fileref="images/hires/TaskPeers2" />
 	</imageobject>
 	<caption>
 	  <para>
-	    Tasks run in (periodic) threads.
+	    Components run in (periodic) threads and can communicate
+	    transparantly. The Orocos RTT does a 'best effort' to
+	    deliver the highest performance to the highest priority
+	    threads.
 	  </para>
 	</caption>
       </mediaobject>
     </figure>
     <para>
-      A task is a basic unit of functionality which executes one or
+      A component is a basic unit of functionality which executes one or
       more (real-time) programs in a single thread.  The program can
       vary from a mere C function over a real-time program script to a
       real-time hierarchical state machine. The focus is completely on
       thread-safe time determinism. Meaning, that the system is free
       of priority-inversions, and all operations are lock-free (also
       data sharing and other forms of communication such as events and
-      commands).  Real-time tasks can communicate with non real-time
-      tasks (and vice verse) transparently.
+      commands).  Real-time components can communicate with non real-time
+      components (and vice verse) transparently.
     </para>
+    <note>
+      <para>
+	In this manual, the words task and component are used as equal
+	words, meaning a software component built using the C++
+	TaskContext class.
+      </para>
+    </note>
     <para>
-      The Orocos Task Infrastructure enables :
+      The Orocos Component Model enables :
       <itemizedlist>
 	<listitem>
 	  <para>Lock free, thread-safe, inter-thread function calls.</para>
@@ -160,7 +172,7 @@
       </mediaobject>
     </figure>
     <para>
-      A task's interface consists of : Attributes and Properties, Commands,
+      A component's interface consists of : Attributes and Properties, Commands,
       Methods, Events and Data Flow ports which are all public.
       The class <classname>RTT::TaskContext</classname> 
       groups all these interfaces and serves as the basic building
@@ -172,9 +184,10 @@
     <title>Hello World !</title>
     <para>
       This section introduces tasks through the "hello world"
-      application, which can be downloaded from Orocos.org.  It
-      contains one TaskContext component which has one instance of each
-      communication primitive.
+      application, which is included in the Orocos Component Library.
+      It contains one TaskContext component,
+      <classname>OCL::HelloWorld</classname>, which has one instance
+      of each communication primitive.
     </para>
     <figure id="fig-hello-world">
       <title>
@@ -188,28 +201,35 @@
 	  <imagedata fileref="images/hires/HelloWorld" />
 	</imageobject>
 	<caption>
-	  <para>Our hello world task.
+	  <para>Our hello world component.
 	  </para>
 	</caption>
       </mediaobject>
     </figure>
-    <para>
-      The way we interact with TaskContexts during development of an
-      Orocos application is through the <emphasis>Task Browser</emphasis>.  The
-      <classname>TaskBrowser</classname> is a powerful console tool
-      which helps you to explore, execute and debug
-      <classname>RTT::TaskContext</classname>s in running programs. All you
-      have to do is to create a TaskBrowser and call its loop()
-      method. When the program is started from a console, the
-      TaskBrowser takes over user input and output.
-    </para>
-    <note>
+    <section>
+      <title>Setting up the TaskBrowser</title>
       <para>
-	The Orocos::TaskBrowser is a component
-	of its own which is found in the Orocos Component Library (OCL).
+	The way we interact with TaskContexts during development of an
+	Orocos application is through the <emphasis>Task
+	Browser</emphasis>.  The
+	<classname>OCL::TaskBrowser</classname> is a powerful console
+	tool which helps you to explore, execute and debug
+	<classname>RTT::TaskContext</classname>s in running
+	programs. All you have to do is to create a TaskBrowser and
+	call its loop() method. When the program is started from a
+	console, the TaskBrowser takes over user input and output.
+	The TaskBrowser uses the GNU readline library to easily enter
+	commands to the tasks in your system. This means you can press
+	TAB to complete your commands or press the up arrow to scroll
+	through previous commands. 
       </para>
-    </note>
-    <programlisting>
+      <note>
+	<para>
+	  The <classname>OCL::TaskBrowser</classname> is a component
+	  of its own which is found in the Orocos Component Library (OCL).
+	</para>
+      </note>
+      <programlisting>
   #include &lt;ocl/TaskBrowser.hpp&gt;
   #include &lt;rtt/os/main.h&gt;
   // ...
@@ -222,19 +242,32 @@
       <classname>RTT::TaskContext</classname>* task = ...
 
       // when all is setup :
-      <classname>TaskBrowser</classname> tbrowser( task );
+      <classname>OCL::TaskBrowser</classname> tbrowser( task );
 
       tbrowser.loop();
       return 0;
   }
-    </programlisting>
-    <para>
-      The TaskBrowser uses the GNU readline library to easily
-      enter commands to the tasks in your system. This means you
-      can press TAB to complete your commands or press the up arrow
-      to scroll through previous commands.
-    </para>
-    <screen>
+      </programlisting>
+    </section>
+    <section>
+      <title>Starting your First Application</title>
+      <para>
+	Now let's start the helloworld application. If you downloaded
+	OCL and compiled it from source, You can do this by
+	entering the helloworld subdirectory of your OCL build
+	directory and running <command>./helloworld</command>
+      </para>
+      <para>
+	In case you got OCL as a binary package, enter
+	<command>loadComponent("Hello","orocos-helloworld")</command>
+	at the prompt of the deployer application for your target:
+	<command>ORO_LOGLEVEL=5 deployer-gnulinux</command> for example. This
+	command loads the Orocos-HelloWorld component library and
+	creates a component with name "Hello" (<emphasis>Requires
+	OCL 1.4.1 or later</emphasis>).  Finally, type <command>cd
+	Hello</command> to start with the exercise.
+      </para>
+      <screen>
 0.016 [ Info   ][main()] ./helloworld manually raises LogLevel to 'Info' (5). See also file 'orocos.log'.
 0.017 [ Info   ][main()] **** Creating the 'Hello' component ****
 0.018 [ Info   ][ConnectionC] Creating Asyn connection to the_event.
@@ -265,41 +298,48 @@
 
  In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :                                                     
-    </screen>
-    <para>
-      The first <command>[ Info   ]</command> lines are printed by the Orocos 
-      <classname>RTT::Logger</classname>, which has been
-      configured to display informative messages to console. Normally, only
-      warnings or worse are displayed by Orocos. You can always
-      watch the log file 'orocos.log' in the same directory to see all messages.
-      After the <command>[Log Level]</command>, the <command>[Origin]</command> of the message is
-      printed, and finally the message itself. These messages leave a trace
-      of what was going on in the main() function before the prompt appeared.
-    </para>
-    <para>
-      Depending on what you type, the TaskBrowser will act differently.
-      The built-in commands <command>cd</command>, <command>help</command>,
-      <command>quit</command> and <command>ls</command> are seen as commands
-      to the TaskBrowser itself, if you typed something else,
-      it tries to evaluate your command to an expression and will
-      print the result to the console. If you did not type an expression,
-      it tries to parse it as a command to a (peer) task. If that also
-      fails, it means you made a typo and it prints the syntax error
-      to console.
-    </para>
-    <screen>
+      </screen>
+      <para>
+	The first <command>[ Info ]</command> lines are printed by the
+	Orocos <classname>RTT::Logger</classname>, which has been
+	configured to display informative messages to
+	console. Normally, only warnings or worse are displayed by
+	Orocos. You can always watch the log file 'orocos.log' in the
+	same directory to see all messages.  After the <command>[Log
+	Level]</command>, the <command>[Origin]</command> of the
+	message is printed, and finally the message itself. These
+	messages leave a trace of what was going on in the main()
+	function before the prompt appeared.
+      </para>
+      <para>
+	Depending on what you type, the TaskBrowser will act
+	differently.  The built-in commands <command>cd</command>,
+	<command>help</command>, <command>quit</command> and
+	<command>ls</command> are seen as commands to the TaskBrowser
+	itself, if you typed something else, it tries to evaluate your
+	command to an expression and will print the result to the
+	console. If you did not type an expression, it tries to parse
+	it as a command to a (peer) task. If that also fails, it means
+	you made a typo and it prints the syntax error to console.
+      </para>
+      <screen>
  In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :<command>1+1</command>
       Got :1+1
    = <command>2</command>
-    </screen>
-    <para>To display the contents of the current task, type <command>ls</command>,
-      and switch to one of the listed peers with <command>cd</command>, while
-      <command>cd ..</command> takes you one peer back in history. Since there
-      are no peers other than the TaskBrowser itself, one can not <command>cd</command>
-      anywhere in this example.
-    </para>
-    <screen>
+      </screen>
+    </section>
+    <section>
+      <title>Displaying a TaskContext</title>
+      <para>
+	To display the contents of the current task, type
+	<command>ls</command>, and switch to one of the listed peers
+	with <command>cd</command>, while <command>cd ..</command>
+	takes you one peer back in history. Since there are no peers
+	other than the TaskBrowser itself, one can not
+	<command>cd</command> anywhere in this example.
+      </para>
+      <screen>
  In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :<command>ls</command>
 
@@ -322,47 +362,53 @@
 
  Ports        : <emphasis>the_data_port</emphasis> <emphasis>the_bufferPort</emphasis>
  Peers        : <emphasis>TaskBrowser</emphasis>
-    </screen>
-    <note>
-    <para>To get a quick overview of the commands, type
-      <command>help</command>.
-    </para>
-    </note>
-    <para>
-      First you get a list of the Properties and Attributes
-      (alphabetical) of the current component. Properties are meant
-      for configuration and can be written to disk. Attributes are
-      solely for run-time values. Each of them can be changed (except
-      constants.)
-    </para>
-    <para>
-      Next, the interface of this component is listed: One method is
-      present <emphasis>the_method</emphasis>, one command
-      <emphasis>the_command</emphasis> and one event
-      <emphasis>the_event</emphasis>. They all print a 'Hello World'
-      string when invoked.
-    </para>
-    <para>
-      In the example, the current task has only three objects:
-      <emphasis>this</emphasis>, <emphasis>the_data_port</emphasis> and
-      <emphasis>the_buffer_port</emphasis>. The <emphasis>this</emphasis>
-      object serves as the public interface of the
-      Hello component. These objects contain methods, commands or
-      events.  The next two objects are created to represent the
-      data ports of the Hello component and contain the operations
-      to send or receive data or query connection status.
-    </para>
-    <para>
-      Last, the peers are shown, that is, the components which
-      are connected to this component. The HelloWorld component is
-      a stand-alone component and has only the TaskBrowser as
-      a peer. 
-    </para>
-    <para>
-      To get a list of the Task's interface, you can
-      always type an object name, for example <emphasis>this</emphasis>.
-    </para>
-    <screen>
+      </screen>
+      <note>
+	<para>To get a quick overview of the commands, type
+	<command>help</command>.
+	</para>
+      </note>
+      <para>
+	First you get a list of the Properties and Attributes
+	(alphabetical) of the current component. Properties are meant
+	for configuration and can be written to disk. Attributes are
+	solely for run-time values. Each of them can be changed
+	(except constants.)
+      </para>
+      <para>
+	Next, the interface of this component is listed: One method is
+	present <emphasis>the_method</emphasis>, one command
+	<emphasis>the_command</emphasis> and one event
+	<emphasis>the_event</emphasis>. They all print a 'Hello World'
+	string when invoked.
+      </para>
+      <para>
+	In the example, the current task has only three objects:
+	<emphasis>this</emphasis>, <emphasis>the_data_port</emphasis>
+	and <emphasis>the_buffer_port</emphasis>. The
+	<emphasis>this</emphasis> object serves as the public
+	interface of the Hello component. These objects contain
+	methods, commands or events.  The
+	<emphasis>the_data_port</emphasis> and
+	<emphasis>the_buffer_port</emphasis> objects are created to
+	represent the data ports of the Hello component. They allow
+	you to to send or receive data to these ports and check if
+	they are connected.
+      </para>
+      <para>
+	Last, the peers are shown, that is, the components which are
+	known, and may be used, by this component. The
+	<classname>OCL::HelloWorld</classname> component is a
+	stand-alone component and has only the TaskBrowser as a peer.
+      </para>
+    </section>
+    <section>
+      <title>Listing the Interface</title>
+      <para>
+	To get a list of the Task's interface, you can
+	always type an object name, for example <emphasis>this</emphasis>.
+      </para>
+      <screen>
  In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) : <command>this</command>
       Got :this
@@ -377,32 +423,39 @@ Printing Interface of 'Hello' :
   Event     : void <emphasis>the_Event</emphasis>( string the_data )
    Hello Event Description
    the_data : The data of this event.
-    </screen>
-    <para>
-      Now we get more details about the commands, methods and
-      events registered in the public interface. We see now that
-      the <emphasis>the_command</emphasis> command takes one argument
-      as a string, or that the <emphasis>the_method</emphasis> method
-      returns a string. One can invoke each one of them:
+      </screen>
+      <para>
+	Now we get more details about the commands, methods and
+	events registered in the public interface. We see now that
+	the <emphasis>the_command</emphasis> command takes one argument
+	as a string, or that the <emphasis>the_method</emphasis> method
+	returns a string. One can invoke each one of them.
     </para>
-    <screen>
+    </section>
+    <section>
+      <title>Calling a Method</title>
+      <screen>
  In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :<command>the_method()</command>
       Got :the_method()
- = Hello World
-    </screen>
-    <para>
-      Methods are called directly and the TaskBrowser prints the
-      result. The return value of the_method() was a string, which is
-      "Hello World".
-    </para>
-    <para>
-      When a command is entered, it is sent to the Hello component, which
-      will execute it on behalf of the sender. The different stages of
-      its lifetime are displayed by the prompt. Hitting enter will
-      refresh the status line:
-    </para>
-    <screen>
+ = <command>Hello World</command>
+      </screen>
+      <para>
+	Methods are called directly and the TaskBrowser prints the
+	result. The return value of the_method() was a string, which is
+	"Hello World". This works just like calling a 'C' function.
+      </para>
+    </section>
+    <section>
+      <title>Sending a Command</title>
+      <para>
+	When a command is entered, it is <emphasis>sent</emphasis> to
+	the Hello component, which will execute it in its own threadon
+	behalf of the sender. The different stages of its lifetime are
+	displayed by the prompt. Hitting enter will refresh the status
+	line:
+      </para>
+      <screen>
  In Task Hello. (Status of last Command : <emphasis>none</emphasis> )
  (type 'ls' for context info) :<command>the_command("World")</command>
       Got :the_command("World")
@@ -414,12 +467,12 @@ Printing Interface of 'Hello' :
 <command>1259.900 [ Info   ][main()] Checking Command: World</command>
  In Task Hello. (Status of last Command : <emphasis>done</emphasis> )
  (type 'ls' for context info) :                   
-    </screen>
-    <para>
-      A Command might be rejected (return false) in case it received
-      invalid arguments:
-    </para>
-    <screen>
+      </screen>
+      <para>
+	A Command might be rejected (return false) in case it received
+	invalid arguments:
+      </para>
+      <screen>
  In Task Hello. (Status of last Command : <emphasis>done</emphasis> )
  (type 'ls' for context info) :<command>the_command("Belgium")</command>
       Got :the_command("Belgium")
@@ -431,13 +484,17 @@ Printing Interface of 'Hello' :
 
  In Task Hello. (Status of last Command : <emphasis>fail</emphasis> )
  (type 'ls' for context info) :         
-    </screen>
-    <para>
-      Besides sending commands to tasks, you can alter the attributes of 
-      any task, program or state machine. The TaskBrowser will confirm
-      validity of the assignment with 'true' or 'false' :
-    </para>
-    <screen>
+      </screen>
+    </section>
+    <section>
+      <title>Changing Values</title>
+      <para>
+	Besides sending commands to tasks, you can alter the
+	attributes of any task, program or state machine. The
+	TaskBrowser will confirm validity of the assignment with
+	'true' or 'false' :
+      </para>
+      <screen>
  In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :<command>the_attribute</command>
       Got :the_attribute
@@ -451,34 +508,51 @@ Printing Interface of 'Hello' :
  (type 'ls' for context info) :<command>the_attribute</command>
       Got :the_attribute
  = <command>Veni Vidi Vici !</command>
-    </screen>
-    <para>
-      Finally, let's emit an Event. The Hello World Event requires
-      a payload. A callback handler was registered by the component,
-      thus when we emit it, it can react to it:
-    </para>
-    <screen>
+      </screen>
+    </section>
+    <section>
+      <title>Emiting Events</title>
+      <para>
+	Finally, let's emit an Event. The Hello World Event requires a
+	payload. A callback handler was registered by the component,
+	thus when we emit it, it can react to it:
+      </para>
+      <screen>
  In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :<command>the_event(the_attribute)</command>
       Got :the_event(the_attribute)
- = true
+ = <command>true</command>
  In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :
 <command>354.592 [ Info   ][Hello] Receiving Event: Veni Vidi Vici !</command>
-    </screen>
-    <para>
-      The example above passed the the_attribute object as an
-      argument to the event, and it was received by our task correctly.
-      Events are related to commands, but allow broadcasting of
-      data, while a command has a designated receiver.
-    </para>
-    <para>
-      The Data Ports can be accessed through the <emphasis>the_data_port</emphasis>
-      and <emphasis>the_buffer_port</emphasis> object interfaces. Once
-      again, we can inspect the interface of an object by typing
-      its name:
-    </para>
-    <screen>
+      </screen>
+      <para>
+	The example above passed the the_attribute object as an
+	argument to the event, and it was received by our task correctly.
+	Events are related to commands, but allow broadcasting of
+	data, while a command has a designated receiver.
+      </para>
+    </section>
+    <section>
+      <title>Reading and Writing Data Ports</title>
+      <para>
+	The Data Ports can be accessed through the
+	<emphasis>the_data_port</emphasis> and
+	<emphasis>the_buffer_port</emphasis> object interfaces. 
+      </para>
+      <para>
+	Initially, these ports are unconnected, as the HelloWorld
+	component did not connect its ports to another component.
+	Unconnected ports can hardly be used. In order to test them,
+	you can instruct the TaskBrowser to connect to them. This is
+	done by entering the <command>.connect</command> command (note
+	the '.'). 
+      </para>
+      <para>
+	Since each port has an associated object, we can inspect the
+	interface of a port by typing its name:
+      </para>
+      <screen>
  In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :<command>the_data_port</command>
       Got :the_data_port
@@ -490,14 +564,14 @@ Printing Interface of 'the_data_port' :
   Method     : void <emphasis>Set</emphasis>( string const&amp; <emphasis>Value</emphasis> )
    Set the current value of this Data Port
    Value : The new value.
-    </screen>
-    <para>
-      The the_data_port object has two methods: Get() and Set().
-      Since data ports are used for sending unbuffered data packets
-      between components, this makes sense. One can interact with
-      the ports as such:
-    </para>
-    <screen>
+      </screen>
+      <para>
+	The the_data_port object has two methods: Get() and Set().
+	Since data ports are used for sending unbuffered data packets
+	between components, this makes sense. One can interact with
+	the ports as such:
+      </para>
+      <screen>
  In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :<command>the_data_port.Set("World")</command>
       Got :the_data_port.Set("World")
@@ -507,25 +581,28 @@ Printing Interface of 'the_data_port' :
  (type 'ls' for context info) :<command>the_data_port.Get()</command>
       Got :the_data_port.Get()
  = <command>World</command>
-    </screen>
-    <para>
-      When a value is Set(), it is sent to whatever is connected to
-      that port, when we read the port using Get(), we see that
-      the previously set value is present. The advantage of using
-      ports is that they are completely thread-safe for reading
-      and writing, without requiring user code. The Hello component
-      also contains a the_buffer_port for buffered data transfer. You
-      are encouraged to play with that port as well.
-    </para>
-    <para>
-      Remember that the TaskBrowser was a component as well ? When
-      a user enters <command>ls</command>, the interface of the
-      visited component is listed. It is also possible to get an
-      'outside' view of the visited component, through the eyes of
-      an external component. The <command>leave</command> allows
-      a view from within the TaskBrowser itself:
-    </para>
-    <screen>
+      </screen>
+      <para>
+	When a value is Set(), it is sent to whatever is connected to
+	that port, when we read the port using Get(), we see that the
+	previously set value is present. The advantage of using ports
+	is that they are completely thread-safe for reading and
+	writing, without requiring user code. The Hello component also
+	contains a the_buffer_port for buffered data transfer. You are
+	encouraged to play with that port as well.
+      </para>
+    </section>
+    <section>
+      <title>Advanced Component Browsing</title>
+      <para>
+	Remember that the TaskBrowser was a component as well ? When a
+	user enters <command>ls</command>, the interface of the visited
+	component is listed. It is also possible to get an 'outside'
+	view of the visited component, through the eyes of an external
+	component. The <command>leave</command> allows a view from
+	within the TaskBrowser itself:
+      </para>
+      <screen>
  <emphasis>In</emphasis> Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :<command>leave</command>
 1001.607 [ Info   ][main()] Watching Task Hello
@@ -549,31 +626,36 @@ Printing Interface of 'the_data_port' :
 
  Ports        : the_data_port the_buffer_port
  Hello Peers : TaskBrowser
-    </screen>
-    <para>
-      The following things are noteworthy: 'ls' shows now the contents
-      of the TaskBrowser itself and no longer of the Hello Component.
-      The TaskBrowser
-      has the same ports as the component it visits: <emphasis>the_data_port</emphasis>
-      and <emphasis>the_buffer_port</emphasis>. These were created at run-time
-      and allow to write or read ports from the visited component.
-    </para>
-    <para>
-      One can enter the 'inside' view again by entering <command>enter</command>:
-    </para>
-    <screen>
+      </screen>
+      <para>
+	The following things are noteworthy: 'ls' shows now the
+	contents of the TaskBrowser itself and no longer of the Hello
+	Component.  In this example, the TaskBrowser has the same ports as the
+	component it visits: <emphasis>the_data_port</emphasis> and
+	<emphasis>the_buffer_port</emphasis>. These were created when
+	we issued the <command>.connect</command> previously. Otherwise,
+	there would be no data ports.
+      </para>
+      <para>
+	One can return to the 'inside' view again by typing
+	<command>enter</command>:
+      </para>
+      <screen>
  <emphasis>Watching</emphasis> Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :<command>enter</command>
 <command>1322.653 [ Info   ][main()] Entering Task Hello</command>
 
  <emphasis>In</emphasis> Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :      
-    </screen>
-    <para>
-      Last but not least, hitting TAB twice, will show you a list of
-      possible completions, such as peers or commands :
-    </para>
-    <screen>
+      </screen>
+    </section>
+    <section>
+      <title>Last Words</title>
+      <para>
+	Last but not least, hitting TAB twice, will show you a list of
+	possible completions, such as peers or commands :
+      </para>
+      <screen>
  In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :
 the_attribute     the_event         cd ..         quit
@@ -582,34 +664,36 @@ the_command       the_property      leave
 the_constant      TaskBrowser.  list
 the_data_port.     cd            ls
  (type 'ls' for context info) : 
-    </screen>
-    <para>
-      TAB completion works even across peers, such that you can type
-      a TAB completed command to another peer than the current peer.
-    </para>
-    <para>
-      In order to quit the TaskBrowser, enter <command>quit</command>:
-    </para>
-    <screen>
+      </screen>
+      <para>
+	TAB completion works even across peers, such that you can type
+	a TAB completed command to another peer than the current peer.
+      </para>
+      <para>
+	In order to quit the TaskBrowser, enter <command>quit</command>:
+      </para>
+      <screen>
  In Task Hello. (Status of last Command : none )
  (type 'ls' for context info) :<command>quit</command>
 
 1575.720 [ Info   ][ExecutionEngine::setActivity] Hello is disconnected from its activity.
 1575.741 [ Info   ][Logger] Orocos Logging Deactivated.      
-    </screen>
-    <para>
-      The TaskBrowser Component is application independent, so that your end user-application
-      might need a more suitable interface. However, for testing and
-      inspecting what is happening inside your real-time programs,
-      it is a very useful tool. The next sections show how you can add
-      properties, commands, methods etc to a TaskContext.
-    </para>
-    <note>
+      </screen>
       <para>
-	If you want a more in-depth tutorial, see the 'task-intro' example
-	for a TaskBrowser which visits a network of three TaskContexts.
+	The TaskBrowser Component is application independent, so that
+	your end user-application might need a more suitable
+	interface. However, for testing and inspecting what is
+	happening inside your real-time programs, it is a very useful
+	tool. The next sections show how you can add properties,
+	commands, methods etc to a TaskContext.
       </para>
-    </note>
+      <note>
+	<para>
+	  If you want a more in-depth tutorial, see the 'task-intro' example
+	  for a TaskBrowser which visits a network of three TaskContexts.
+	</para>
+      </note>
+    </section>
   </section>
   <section id="basic-task">
     <title>Setting Up a Basic Task</title>

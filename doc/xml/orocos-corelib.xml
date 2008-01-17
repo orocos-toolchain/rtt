@@ -171,9 +171,6 @@
   </section>
   <section>
     <title>Periodic and non Periodic Activities</title>
-    <note>
-      <para>In older Orocos versions, 'Activities' were named 'Tasks'.</para>
-    </note>
     <para>
       An Activity executes a function when a 'trigger' occurs. Although, 
       ultimately, an activity is executed by a thread, it does not map

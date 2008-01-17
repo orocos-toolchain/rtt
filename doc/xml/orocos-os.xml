@@ -131,7 +131,7 @@
 	a periodic thread and 
 	<classname>RTT::OS::SingleThread</classname> is a non periodic thread
 	which executes the functionality once each time it is started.
-	The <classname>RTT::MainThread</classname> is a special case as
+	The <classname>RTT::OS::MainThread</classname> is a special case as
 	only one such object exists and represents the thread that
 	executes the main() function.
       </para>
