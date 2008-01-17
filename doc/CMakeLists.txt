@@ -1,5 +1,8 @@
 OPTION(BUILD_DOCS "Build the documentation" ON)
 
+ADD_SUBDIRECTORY(api)
+ADD_SUBDIRECTORY(xml)
+
 include(DocBookToHTML.cmake)
 include(DocBookToPDF.cmake)
 include(AnyToPNG.cmake)
