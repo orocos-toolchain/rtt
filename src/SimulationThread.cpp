@@ -118,7 +118,7 @@ namespace RTT
 
     bool SimulationThread::run(unsigned int ms)
     {
-        if ( this->initialize() == false || ms == 0 || this->isRunning() )
+        if ( ms == 0 || this->isRunning() || this->initialize() == false )
             return false;
         unsigned int cur = 0;
         this->sim_running = true;
