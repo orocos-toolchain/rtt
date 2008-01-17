@@ -30,6 +30,7 @@
 
 #include "OperationsI.h"
 #include "CommandC.hpp"
+#include "AnyDataSource.hpp"
 #include "DataSourceCondition.hpp"
 #include "CommandDataSource.hpp"
 #include "Logger.hpp"
@@ -73,7 +74,7 @@ CORBA::Boolean Orocos_Action_i::executeAny (
       RTT::MethodC mgen = morig;
     try {
         for (size_t i =0; i != args.length(); ++i)
-            mgen.arg( RTT::DataSourceBase::shared_ptr( new RTT::ValueDataSource<CORBA::Any_var>( new CORBA::Any( args[i] ) )));
+            mgen.arg( RTT::DataSourceBase::shared_ptr( new RTT::Corba::AnyDataSource( new CORBA::Any( args[i] ) )));
         // if not ready, not enough args were given, *guess* a one off error in the exception :-(
         if ( !mgen.ready() )
             throw ::RTT::Corba::WrongNumbArgException( args.length()+1, args.length() );
@@ -151,7 +152,7 @@ CORBA::Boolean Orocos_Command_i::executeAny (
       *mcomm = *morig;
     try {
         for (size_t i =0; i != args.length(); ++i)
-            mcomm->arg( DataSourceBase::shared_ptr( new ValueDataSource<CORBA::Any_var>( new CORBA::Any( args[i] ) )));
+            mcomm->arg( DataSourceBase::shared_ptr( new RTT::Corba::AnyDataSource( new CORBA::Any( args[i] ) )));
         // if not ready, not enough args were given, *guess* a one off error in the exception :-(
         if ( !mcomm->ready() )
             throw ::RTT::Corba::WrongNumbArgException( args.length()+1, args.length() );

@@ -124,14 +124,12 @@ namespace RTT
                   return Corba::ExpressionProxy::NarrowDataSource<T>( expr.in() );
               }
               Logger::log() << Logger::Debug << "Failed to narrow server "<<dsb->getType()<<" to local "<<DataSource<T>::GetType() <<Logger::endl;
-#if 0
-              // I believe this is very old dead code.
-              // See if the DS contains an Any.
+
+              // See if the DS contains an Any. This is required for the createMethodAny variants:
               DataSource<CORBA::Any_var>* aret = dynamic_cast< DataSource<CORBA::Any_var>* >( dsb );
               if (aret){
                   return Corba::ExpressionProxy::NarrowConstant<T>( aret->get().in() );
               }
-#endif
               return 0;
           }
           

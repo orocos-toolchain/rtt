@@ -32,6 +32,7 @@
 #include "OperationsI.h"
 #include "OperationFactory.hpp"
 #include "ExpressionProxy.hpp"
+#include "AnyDataSource.hpp"
 
 using namespace RTT;
 using namespace RTT::Corba;
@@ -160,7 +161,7 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
     MethodFactory::Arguments nargs;
     nargs.reserve( args.length() );
     for (size_t i =0; i != args.length(); ++i)
-        nargs.push_back( new ValueDataSource<CORBA::Any_var>( new CORBA::Any( args[i] ) ) );
+        nargs.push_back( new AnyDataSource( new CORBA::Any( args[i] ) ) );
     // create a local data source and a new method servant to serve it.
     try {
         MethodC orig(mfact, method);
@@ -303,7 +304,7 @@ Orocos_CommandInterface_i::~Orocos_CommandInterface_i (void)
         CommandC comc(mfact, string( command ) );
         CommandC orig(mfact, string( command ) );
         for (size_t i =0; i != args.length(); ++i)
-            comc.arg( DataSourceBase::shared_ptr( new ValueDataSource<CORBA::Any_var>( new CORBA::Any( args[i] ) )));
+            comc.arg( DataSourceBase::shared_ptr( new AnyDataSource( new CORBA::Any( args[i] ) )));
         // servant uses that object:
         Orocos_Command_i* com = new Orocos_Command_i( orig, comc, mpoa.in() );
         return com->_this();

@@ -75,6 +75,7 @@
 #include "OperationsC.h"
 #include "OperationsS.h"
 #include "CorbaConversion.hpp"
+#include "AnyDataSource.hpp"
 #include "../DispatchInterface.hpp"
 #include "../Logger.hpp"
 #include "../MethodC.hpp"
@@ -342,7 +343,7 @@ public:
       RTT::MethodC mgen = mmethodc;
     try {
         for (size_t i =0; i != args.length(); ++i)
-            mgen.arg( RTT::DataSourceBase::shared_ptr( new RTT::ValueDataSource<CORBA::Any_var>( new CORBA::Any( args[i] ) )));
+            mgen.arg( RTT::DataSourceBase::shared_ptr( new RTT::Corba::AnyDataSource( new CORBA::Any( args[i] ) )));
         // if not ready, not enough args were given, *guess* a one off error in the exception :-(
         if ( !mgen.ready() )
             throw ::RTT::Corba::WrongNumbArgException( args.length()+1, args.length() );

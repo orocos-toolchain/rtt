@@ -74,8 +74,17 @@
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")
     ADD_TEST( dev-test dev-test )
 
+    IF(ENABLE_CORBA)
+      ADD_EXECUTABLE( corba-test ${DO_EXCLUDE} test-runner.cpp corba_test.cpp )
+      TARGET_LINK_LIBRARIES( corba-test orocos-rtt-${OROCOS_TARGET} orocos-rtt-corba-${OROCOS_TARGET} cppunit )
+      SET_TARGET_PROPERTIES( corba-test PROPERTIES
+      COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")
+      ADD_TEST( corba-test corba-test )
+      SET(ORO_EXTRA_TESTS "corba-test")
+    ENDIF(ENABLE_CORBA)
+
 ADD_CUSTOM_TARGET(check ctest -V 
-  DEPENDS core-test task-test event-test taskcontext-test parser-test program-test state-test dev-test
+  DEPENDS core-test task-test event-test taskcontext-test parser-test program-test state-test dev-test ${ORO_EXTRA_TESTS}
   WORKING_DIRECTORY ${PROJ_BINARY_DIR}/tests)
 
 ADD_DEPENDENCIES(check prep-cpf)
