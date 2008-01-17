@@ -375,10 +375,10 @@ namespace RTT
         if (msched_type != rtos_task_get_scheduler(&rtos_task) )
             {
                 msched_type = rtos_task_get_scheduler(&rtos_task);
-                log() << " failed."<<endlog(Error);
+                log() << ": failed."<<endlog(Error);
                 return false;
             }
-        log() << " done."<<endlog(Debug);
+        log() << ": done."<<endlog(Debug);
         return true;
 
 #if 0 
