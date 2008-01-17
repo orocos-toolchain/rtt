@@ -57,6 +57,7 @@ namespace RTT
 	    // Set priority
 	    // fixme check return value and bail out if necessary
 	    pthread_attr_setschedparam(&(main_task->attr), &sp);
+        main_task->priority = sp.sched_priority;
 	    return 0;
 	}
 
