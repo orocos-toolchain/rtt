@@ -20,9 +20,6 @@
 #include <Event.hpp>
 #include <Logger.hpp>
 #include <RunnableInterface.hpp>
-#include <SimulationActivity.hpp>
-#include <SimulationThread.hpp>
-#include <NonPeriodicActivity.hpp>
 
 #include <EventService.hpp>
 #include <DataSourceGenerator.hpp>
