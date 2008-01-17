@@ -68,9 +68,14 @@
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")
     ADD_TEST( state-test state-test )
 
+    ADD_EXECUTABLE( dev-test ${DO_EXCLUDE} test-runner.cpp dev_test.cpp )
+    TARGET_LINK_LIBRARIES( dev-test orocos-rtt-${OROCOS_TARGET} cppunit )
+    SET_TARGET_PROPERTIES( dev-test PROPERTIES
+    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")
+    ADD_TEST( dev-test dev-test )
 
 ADD_CUSTOM_TARGET(check ctest -V 
-  DEPENDS core-test task-test event-test taskcontext-test parser-test program-test state-test 
+  DEPENDS core-test task-test event-test taskcontext-test parser-test program-test state-test dev-test
   WORKING_DIRECTORY ${PROJ_BINARY_DIR}/tests)
 
 ADD_DEPENDENCIES(check prep-cpf)

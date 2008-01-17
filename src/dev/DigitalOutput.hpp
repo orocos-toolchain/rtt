@@ -81,6 +81,18 @@ namespace RTT
         {}
 
         /**
+         * Set the bit to the on or off state.
+         * @param on_off Set to \a true to turn the bit on.
+         */
+        void setBit( bool on_off )
+        {
+            if(board)
+                board->setBit( relaynumber, on_off != invert );
+            else
+                invert=on_off;
+        }
+
+        /**
          * Set the bit high of the digital output.
          */
         void switchOn()
