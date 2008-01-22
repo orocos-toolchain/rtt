@@ -1,13 +1,14 @@
 OPTION(BUILD_DOCS "Build the documentation" ON)
 
-ADD_SUBDIRECTORY(api)
-ADD_SUBDIRECTORY(xml)
 
 include(DocBookToHTML.cmake)
 include(DocBookToPDF.cmake)
 include(AnyToPNG.cmake)
 
 IF (BUILD_DOCS)
+  FILE( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/api/html)
+  FILE( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/xml)
+
   #list the xml files:
   SET( XML_SOURCES
     xml/orocos-overview.xml xml/orocos-installation.xml xml/orocos-overview-devel.xml
@@ -58,6 +59,6 @@ IF (BUILD_DOCS)
   INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/xml DESTINATION share/doc/liborocos-rtt )
   IF (DOXYGEN)
     INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/api DESTINATION share/doc/liborocos-rtt )
-    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/rtt.tag DESTINATION share/doc/liborocos-rtt )
+    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/rtt.tag DESTINATION share/doc/liborocos-rtt OPTIONAL)
   ENDIF (DOXYGEN)
 ENDIF (BUILD_DOCS)
