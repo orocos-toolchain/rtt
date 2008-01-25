@@ -103,6 +103,8 @@ namespace RTT
                     std::cerr << "Cannot rt_task_init() MainThread." << std::endl;
                     exit(1);
                 }
+            // Avoid the LXRT CHANGED MODE (TRAP), PID = 4088, VEC = 14, SIGNO = 11. warning
+            rt_task_use_fpu(main_task->rtaitask, 1);
                 
 #ifdef OROSEM_OS_LXRT_PERIODIC
             rt_set_periodic_mode();
@@ -158,6 +160,9 @@ namespace RTT
                 std::cerr << "Exiting this thread." <<std::endl;
                 exit(-1);
             }
+
+            // Avoid the LXRT CHANGED MODE (TRAP), PID = 4088, VEC = 14, SIGNO = 11. warning
+            rt_task_use_fpu(task->rtaitask, 1);
 
             // New default: new threads are always hard.
             rt_make_hard_real_time();
