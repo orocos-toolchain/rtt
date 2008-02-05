@@ -169,7 +169,7 @@
       Properties.
     </para>
   </section>
-  <section>
+  <section id="corelib-activities">
     <title>Periodic and non Periodic Activities</title>
     <para>
       An Activity executes a function when a 'trigger' occurs. Although, 
@@ -179,7 +179,7 @@
       which are triggered periodically, non periodic activities, which are triggered
       by the user, and event driven activities, which are run when an Orocos event occurs.
     </para>
-    <section>
+    <section id="corelib-periodic-activity">
       <title>Creating a Periodic Activity</title>
       <para>
 	If you want to execute functionality in one of the Orocos threads, you need to 
@@ -386,7 +386,7 @@ ORO_main( int argc, char** argv)
 }</programlisting>
       </example>
     </section>
-    <section id="activity-non-periodic">
+    <section id="corelib-non-periodic-activity">
       <title>Non Periodic Activities</title>
       <para>
 	Non periodic activities are run in <emphasis>non
@@ -464,7 +464,7 @@ ORO_main( int argc, char** argv)
 	both map to the same scheduler.
       </para>
     </section>
-    <section>
+    <section id="corelib-slave-activity">
       <title>Custom or Slave Activities</title>
       <para>
 	If non of the above activity schemes fit you, you can always fall back on
@@ -508,7 +508,7 @@ ORO_main( int argc, char** argv)
 	user's responsibility to call <function>trigger()</function>.
       </para>
     </section>
-    <section>
+    <section id="corelib-threads">
       <title>Accessing the Threads from Activities</title>
       <para>
 	Each Orocos Activity (periodic, non periodic and event driven)
@@ -557,7 +557,7 @@ ORO_main( int argc, char** argv)
       </example>
       </para>
     </section>
-    <section>
+    <section id="corelib-simulation">
       <title>Simulation</title>
       <para>
 	The SimulationThread is available to do as fast as possible 
@@ -958,7 +958,7 @@ emergencyStop(); // User not notified</programlisting>
 	The CompletionProcessor is a <classname>RTT::NonPeriodicActivity</classname>, thus not consuming
 	time resources when no Events need to be processed. If you need a 
 	hard real-time CompletionProcessor, use a default NonPeriodicActivity ( see
-	<xref linkend="activity-non-periodic" /> ), call its makeHardRealTime() method
+	<xref linkend="corelib-non-periodic-activity" /> ), call its makeHardRealTime() method
 	and add an EventProcessor object in <methodname>run()</methodname>.
       </para>
       <para>
@@ -1011,7 +1011,7 @@ emergencyStop(); // User not notified</programlisting>
       </para>
     </section>
   </section>
-  <section>
+  <section id="corelib-attributes">
     <title>Attributes</title>
     <para>
       Attributes are class members which contain a (constant) value. Orocos
@@ -1039,7 +1039,7 @@ emergencyStop(); // User not notified</programlisting>
       </example>
     </para>
   </section>
-  <section>
+  <section id="corelib-properties">
     <title>Properties</title>
     <para>
       Properties are more powerful than attributes (above) since they can be
@@ -1188,7 +1188,7 @@ emergencyStop(); // User not notified</programlisting>
       </para>
     </section>
   </section>
-  <section>
+  <section id="corelib-nameserver">
     <title>The NameServer</title>
     <section>
       <title>Introduction</title>
@@ -1239,7 +1239,7 @@ emergencyStop(); // User not notified</programlisting>
       </para>
     </section>
   </section>
-  <section>
+  <section id="corelib-buffers-data">
     <title>Buffers and DataObjects</title>
     <para>
       Orocos provides some basic inter-thread buffering mechanisms in the
@@ -1331,7 +1331,7 @@ emergencyStop(); // User not notified</programlisting>
       </para>
     </section>
   </section>
-  <section id="core-logging">
+  <section id="corelib-logging">
     <title>Logging</title>
     <para>
       Orocos applications can have pretty complex start-up and

@@ -14,7 +14,7 @@
     </title>
     <subtitle>Designing Real-Time Orocos Applications</subtitle>
     <copyright>
-      <year>2004,2005,2006,2007</year>
+      <year>2004,2005,2006,2007,2008</year>
       <holder>Peter Soetens</holder>
     </copyright>
     
@@ -714,9 +714,9 @@ the_data_port.     cd            ls
     <important>
       <para>
 	The ready-to-execute code of this section can be found in the
-	'simple-task' package on the <ulink
-	url="http://www.orocos.org/rtt">RTT Download</ulink>
-	section of the Orocos.org website.
+	'simple-task' RTT example on the <ulink
+	url="http://www.orocos.org/rtt/source">RTT Source code</ulink>
+	page of the Orocos.org website.
       </para>
     </important>
     <para>
@@ -847,10 +847,10 @@ the_data_port.     cd            ls
        }
 
        /**
-        * This function is periodically called.
+        * This function is called by the Execution Engine.
 	*/
        void updateHook() {
-          // Your algorithm for periodic execution goes inhere
+          // Your component's algorithm/code goes in here.
        }
 
        /**
@@ -876,7 +876,7 @@ the_data_port.     cd            ls
 	makes <function>configure()</function> an optional call. 
       </para>
     </important>
-    <para> If you want to <emphasis>>force</emphasis> the user to call
+    <para> If you want to <emphasis>force</emphasis> the user to call
     configure() of your TaskContext, set the TaskState in your constructor
     as such:
     </para>
@@ -926,6 +926,11 @@ the_data_port.     cd            ls
 	RTT, for example <classname>RTT::PeriodicActivity</classname>
 	or <classname>RTT::NonPeriodicActivity</classname>.  This
 	relation is shown in <xref linkend="fig-task-execution" />.
+	The Activity classes will allocate a thread which executes the
+	Execution Engine. The chosen
+	<classname>ActivityInterface</classname> object will invoke
+	the Execution Engine, which will in turn invoke the
+	application's hooks above.
       </para>
       <figure id="fig-task-execution">
       <title>
@@ -947,12 +952,10 @@ the_data_port.     cd            ls
 	</caption>
       </mediaobject>
     </figure>
+    <section><title>Periodic Task Execution</title>
       <para>
-	The Activity classes will allocate a thread which executes the
-	Execution Engine. The chosen
-	<classname>ActivityInterface</classname> object will invoke
-	the Execution Engine, which will in turn invoke the
-	application's methods above.
+	A common task in control is executing an algorithm periodically.
+	This is done by attaching a periodic activity to the Execution Engine.
 	<programlisting>
   #include &lt;rtt/PeriodicActivity.hpp&gt;
 
@@ -966,16 +969,42 @@ the_data_port.     cd            ls
   // ...
   a_task->stop();</programlisting></para>
       <para>
-	Which will run the Execution Engine of "ATask" with a timer
+	Which will run the Execution Engine of "ATask" with a
 	frequency of 1kHz. This is the frequency at which state
 	machines are evaluated, program steps taken, commands and
-	events are accepted and executed and the application code is
-	run. When the periodic activity is stopped again, all programs are
-	stopped, state machines are brought into the final state and
-	no more commands or events are accepted.
+	events are accepted and executed and the application code in
+	<function>updateHook()</function> is run. When the periodic
+	activity is stopped again, all programs are stopped, state
+	machines are brought into the final state and no more commands
+	or events are accepted.
       </para>
       <para>
-	A TaskContext can also be run in a non periodic activity:
+	An <function>updateHook()</function> function of a periodic
+	task could look like:
+	<programlisting>  class MyTask 
+    : public <classname>RTT::TaskContext</classname>
+  {
+  public:
+       // ...
+  
+       /**
+        * This function is periodically called.
+	*/
+       void updateHook() {
+          // Your algorithm for periodic execution goes inhere
+	  outPort.Set( inPort.Get() * 2.0 );
+       }
+
+  };</programlisting></para>
+       <para>You can find more detailed information in
+       <xref linkend="corelib-periodic-activity" /> in the CoreLib
+       reference.</para>
+    </section>
+    <section><title>Non Periodic Task Execution</title>
+      <para>
+	A TaskContext can also be run in a non periodic activity. This
+	is useful when <function>updateHook()</function> must wait on
+	network connections or does any other blocking operation.
 	<programlisting>
   #include &lt;rtt/NonPeriodicActivity.hpp&gt;
 
@@ -993,16 +1022,53 @@ the_data_port.     cd            ls
 	come in to be executed. Each time such an event happens, the user's
 	application code (<function>updateHook()</function>) is called as well.
       </para>
+      <para>
+	An <function>updateHook()</function> function of a non periodic
+	task could look like:
+	<programlisting>  class MyTask 
+    : public <classname>RTT::TaskContext</classname>
+  {
+  public:
+       // ...
+  
+       /**
+        * This function is only called by the Execution Engine 
+	* when 'trigger()' is called or an event or command arrives.
+	*/
+       void updateHook() {
+            // Your blocking algorithm goes inhere
+            char* data;
+            double timeout = 0.02; // 20ms
+            int rv = my_socket_read(data, timeout);
+
+            if (rv == 0) {
+	       // process data
+               this->stateUpdate(data);
+            }
+	    <emphasis>
+            // This is special for non periodic activities, it makes
+            // the TaskContext call updateHook() again after
+            // commands and events are processed.</emphasis>
+            this->engine()->getActivity()->trigger(); 
+       }
+
+  };</programlisting></para>
       <warning>
 	<para>
-	  Non periodic activities should be used with care and with much
-	  thought. The ExecutionEngine will do <emphasis>absolutely nothing</emphasis>
-	  if no commands or <emphasis>asynchronous events</emphasis> come in.
-	  This may lead to surprising 'bugs' when program scripts or 
-	  state machine scripts are executed, as they will only progress
-	  upon these events and seem to be stalled otherwise. 
+	  Non periodic activities should be used with care and with
+	  much thought in combination with scripts (see later). The
+	  ExecutionEngine will do <emphasis>absolutely
+	  nothing</emphasis> if no commands or <emphasis>asynchronous
+	  events</emphasis> or no <emphasis>trigger</emphasis> comes
+	  in.  This may lead to surprising 'bugs' when program scripts
+	  or state machine scripts are executed, as they will only
+	  progress upon these events and seem to be stalled otherwise.
 	</para>
       </warning>
+       <para>You can find more detailed information in
+       <xref linkend="corelib-non-periodic-activity" /> in the CoreLib
+       reference.</para>
+      </section>
     </section>
     <section>
       <title>A TaskContext's Error and Active states</title>
@@ -1161,15 +1227,15 @@ the_data_port.     cd            ls
        {}
 
  protected:
-       // read the socket with a timeout. 
+       // Read data from a buffer.
        // If ok, process data, otherwise, trigger
-       // a runtime warning
+       // a runtime warning. When to many faults occur,
+       // trigger a runtime error.
        void updateHook()
        {
-            char* data;
-            double timeout = 0.02; // 20ms
-            int rv = my_socket_read(data, timeout);
-            if (rv == 0) {
+            Data_t data;
+            bool rv = mybuf.Pop( data );
+            if ( rv ) {
                this->stateUpdate(data);
                faults = 0;
             } else {
@@ -1180,10 +1246,6 @@ the_data_port.     cd            ls
                    this->warning();
             }
 
-            // This is special for non periodic activities, it makes
-            // the TaskContext call updateHook() again after
-            // commands and events are processed.
-            this->getActivity()->trigger(); 
        }
 
        // Called instead of updateHook() when in runtime error state.
@@ -1193,7 +1255,7 @@ the_data_port.     cd            ls
        }
 
        // Called by updateHook()
-       void stateUpdate(char* data)
+       void stateUpdate(Data_t data)
        {
             // Check for corrupt data
             if ( checkData(data) == -1 ) {
@@ -1202,13 +1264,7 @@ the_data_port.     cd            ls
                  // data is ok: update internal state...
             }
        }
- };
-
- MyComponent mycomp("MyComp");
-                          //scheduler, priority, execution engine
- NonPeriodicActivity myact( ORO_SCHED_RT, 0, mycomp.engine() ); 
-
- mycomp.start();</programlisting>
+ };</programlisting>
       </para>
       <para>
 	Finally, you start this component with a NonPeriodicActivity,
@@ -1320,7 +1376,7 @@ the_data_port.     cd            ls
 	  <para>
 	    The ready-to-execute code of this section can be found in the
 	    'dataflow-task' package on the <ulink
-	    url="http://www.orocos.org/rtt">RTT Download</ulink>
+	    url="http://www.orocos.org/rtt/source">RTT Source code</ulink>
 	    page of the Orocos.org website.
 	  </para>
 	</important>
@@ -1358,13 +1414,13 @@ the_data_port.     cd            ls
 	outbufPort("Packet_1", 15), // note: buffer size
 	rwbufPort("Packet_2", 30)
     {
-       this->ports()->addPort( &amp;indatPort );
-       this->ports()->addPort( &amp;outdatPort );
-       this->ports()->addPort( &amp;rwdatPort );
+       this->ports()->addPort( &amp;indatPort, "Input Data Port" );
+       this->ports()->addPort( &amp;outdatPort, "Output Data Port" );
+       this->ports()->addPort( &amp;rwdatPort, "Read-Write Data Port" );
 
-       this->ports()->addPort( &amp;inbufPort );
-       this->ports()->addPort( &amp;outbufPort );
-       this->ports()->addPort( &amp;rwbufPort );
+       this->ports()->addPort( &amp;inbufPort, "Read-Only Buffer Port" );
+       this->ports()->addPort( &amp;outbufPort, "Write-Only Buffer Port" );
+       this->ports()->addPort( &amp;rwbufPort, "Read-Write Buffer Port" );
 
        // more additions to follow, see below
      }
@@ -1373,21 +1429,23 @@ the_data_port.     cd            ls
   };</programlisting>
       </para>
       <para>
-	The example starts with declaring all the ports of
-	MyTask. A template parameter specifies the type of data the 
-	task wants to exchange through that port. Logically, if two
-	tasks are connected, they must agree on this type.
-	The constructor of MyTask initialises each port with a name.
-	This name is used to 'match' ports between connected tasks.
-	Orocos will warn at run-time if names or types do not match.
+	The example starts with declaring all the ports of MyTask. A
+	template parameter '&lt;double&gt;' specifies the type of data
+	the task wants to exchange through that port. Logically, if
+	two tasks are connected, they must agree on this type.  The
+	constructor of MyTask initialises each port with a name.  This
+	name is used to 'match' ports between connected tasks
+	( using 'connectPorts', see <xref linkend="connect-tasks" /> ),
+	but it is possible to connect Ports with different names as well.
       </para>
       <para>
-	Write and read-write Buffers take besides a name, the
-	prefered buffer size as a parameter. In the example,
-	these are the values 15 and 30. Before the task is
-	connected to its peers, you can still change this
-	value with the <function>setBufferSize()</function>
-	function of the Port.
+	Write and read-write Buffers take besides a name, the prefered
+	buffer size as a parameter. In the example, these are the
+	values 15 and 30. Before the task is connected to its peers,
+	you can still change this value with the
+	<function>setBufferSize()</function> function of the Port, for
+	example in the <function>configureHook()</function> function
+	of your TaskContext.
       </para>
       <para>
 	Finally, a 'write' port can take an initial value in the
@@ -1444,6 +1502,7 @@ the_data_port.     cd            ls
        if ( !outdatPort.connected() ) {
           // ...
        }
+       return true;
      }
 
      void updateHook() {
@@ -1470,8 +1529,9 @@ the_data_port.     cd            ls
   };</programlisting>
 	<para>
 	  It is wise to check in the <function>startHook()</function>
+	  ( or earlier: in <function>configureHook()</function> )
 	  function if all necessary ports are <function>connected()</function>
-	  ( or <function>ready()</function> ).
+	  ( or <function>ready()</function> ). 
 	  At this point, the task start up can still be aborted by
 	  returning false. Otherwise, a write to a port
 	  will be discarded, while a read returns the initial value
@@ -1546,7 +1606,7 @@ the_data_port.     cd            ls
 	  must be present. The "do nothing" command inserts such a
 	  wait point and is part of the Scripting syntax.  If you plan
 	  to use Scripting state machines, such a
-	  <function>while(true)</function> loop and hence wait point
+	  <function>while(true)</function> loop (and hence wait point)
 	  is not necessary. See the Scripting Manual for a full
 	  overview of the syntax.
 	</para>
@@ -1556,8 +1616,8 @@ the_data_port.     cd            ls
       <title>The Method Interface</title>
       <note><title>Purpose</title><para>A task's methods are intended
       to be called 'synchronously' by the caller, i.e. are directly
-      executed like a function. Use it to 'calculate' a result or
-      change a parameter.</para></note>
+      executed like a function in the thread of the caller. Use it to
+      'calculate' a result or change a parameter.</para></note>
       <mediaobject>
 	<imageobject role="fop">
 	  <imagedata width="5cm" fileref="images/MethodInterface" />
@@ -1887,6 +1947,10 @@ the_data_port.     cd            ls
   The attributes 'the_flag' and 'the_max' are called 'mirrors' of the
   original attributes of the task.
       </para>
+      <para>
+	See also <xref linkend="corelib-properties" /> in
+	the Orocos CoreLib reference.
+      </para>
     </section>
     <section>
       <title>Accessing Task Attributes in Scripts</title>
@@ -1917,6 +1981,10 @@ the_data_port.     cd            ls
 	  the attribute types, when you want to access them from program scripts.
 	</para>
       </important>
+      <para>
+	See also <xref linkend="corelib-attributes" /> in
+	the Orocos CoreLib reference.
+      </para>
     </section>
     <section>
       <title>Storing and Loading Task Properties</title>
@@ -1932,7 +2000,7 @@ the_data_port.     cd            ls
       to be called 'asynchronously', thus <emphasis>sent</emphasis> by the caller
       to the receiver. Use it to 'reach a goal' in the receiver, typically
       this takes time to accomplish. Command functions are, in contrast with methods,
-      executed by the receiver.</para></note>
+      executed by the receiver's thread.</para></note>
       <mediaobject>
 	<imageobject role="fop">
 	  <imagedata width="5cm" fileref="images/CommandInterface" />
@@ -1943,7 +2011,23 @@ the_data_port.     cd            ls
       </mediaobject>
     <para>
       The command interface is very similar to the Method interface above.
+      The diffence with methods is two-fold:
     </para>
+    <itemizedlist>
+      <listitem><para>The 'command function' of the TaskContext is executed
+      in the thread of the receiving TaskContext. Is is an asynchronous function call.</para></listitem>
+      <listitem><para>There is a second function, the 'completion
+      condition' which is called to check if the command's
+      <emphasis>effect</emphasis> is done.  Take a command to move to
+      a position for example. The 'command function' programs the
+      target position, while the 'completion condition' will check if
+      the target position has been reached, long after the command
+      function has been executed. Commands will often work together
+      with the <function>updateHook()</function> function which
+      further processes the command's data.
+    </para>
+      </listitem>
+    </itemizedlist>
     <section>
       <title>Adding Commands to a TaskContext</title>
       <para>
@@ -1957,22 +2041,44 @@ the_data_port.     cd            ls
   class MyTask
     : public <classname>RTT::TaskContext</classname>
   {
-  public:
+  protected:
     /**
-     * The first command starts a cycle.
+     * The first command starts a 'cycle'.
      */
     bool startCycle() { ... }
+    /**
+     * The completion condition checks if updateHook() has
+     * finished processing this command.
+     */
     bool cycleDone() const { ... }
 
     Command&lt;bool(void)> cycleCommand;
 
     /**
-     * Another command cleans stuff up.
+     * This command programs the Task to go to a position.
      */
-    bool cleanupMess(double f) { ... }
-    bool isMessCleaned() const { ... }
+    bool gotoPosition(double p) { ... }
+    /**
+     * The completion condition checks if updateHook() has
+     * finished processing this command.
+     */
+    bool positionReached(double p) const { return p == cur_pos; }
 
-    Command&lt;bool(double)> messCommand;
+    Command&lt;bool(double)> gotoCommand;
+
+    /**
+     * The commands 'program' the TaskContext, the
+     * updateHook function, finishes off the command
+     * over a period of time.
+     */
+    void updateHook() {
+       if ( inCycleMode() ) {
+         nextCycleStep();
+       }
+       if ( inGotoMode() ) {
+         incrementPosition();
+       }
+    }  
 
   public:
     MyTask(std::string name)
@@ -1980,31 +2086,31 @@ the_data_port.     cd            ls
         cycleCommand(&quot;startCycle&quot;,
 	             &amp;MyTask::startCycle,
                      &amp;MyTask::cycleDone, this),
-        messCommand( &quot;cleanupMess&quot;,
-                     &amp;MyTask::cleanupMess,
-                     &amp;MyTask::isMessCleaned, this)
+        gotoCommand( &quot;gotoPosition&quot;,
+                     &amp;MyTask::gotoPosition,
+                     &amp;MyTask::positionReached, this)
     {
       // ... other startup code here
 
       this->commands()->addCommand( &amp;cycleCommand,
                                     &quot;Start a new cycle.&quot;);
-      this->commands()->addCommand( &amp;messCommand,
-                                    &quot;Start cleanup operation.&quot;,
-	                            &quot;cfactor&quot;, &quot;A cfactor denoting the thoroughness.&quot;);
+      this->commands()->addCommand( &amp;gotoCommand,
+                                    &quot;Goto a position.&quot;,
+	                            &quot;pos&quot;, &quot;A position endpoint.&quot;);
     }
   };</programlisting></para>
       <para>
-	Commands differ from Methods in that they take
-	an extra function which is called the <emphasis>Completion
-	Condition</emphasis>. It is a function which returns true
-	when the command is done. The command itself
+	Clearly, commands differ from Methods in that they take
+	an extra function which is called the <emphasis>completion
+	condition</emphasis>. It is a function which returns true
+	when the command's effect is done. The command itself
 	also returns a boolean which indicates if it 
 	was accepted or not. Reasons to be rejected
 	can be faulty arguments or that the system
 	is not ready to accept a new command.
       </para>
       <para>
-	The <classname>Command</classname> object requires two member
+	The <classname>Command</classname> object requires two function
 	pointers instead of one, which must both return a 'bool'.  The
 	first one is the command function that does the actual work,
 	and the completion condition is a function having :</para>
@@ -2055,15 +2161,12 @@ the_data_port.     cd            ls
 	arguments and variable arguments are supported:
       </para>
       <programlisting>  // get a command:
-  Command&lt;bool(double)> mycleanupMess_1 =
-      a_task.commands()->getCommand&lt;bool(double)>("cleanupMess");
-
-  // Send 'cleanupMess' to a_task with argument '1.0'
-  bool result_1 = mycleanupMess_1( 1.0 );
+  Command&lt;bool(double)> myGoto_1 =
+      a_task.commands()->getCommand&lt;bool(double)>("gotoPosition");
 
   bool d_arg = 5.0;
-  // Send 'cleanupMess' to a_task, reads contents of d_arg.
-  bool result_2 = mycleanupMess_1(d_arg);</programlisting>
+  // Send 'gotoPosition' to a_task, reads contents of d_arg.
+  bool result_2 = myGoto_1(d_arg);</programlisting>
        <para>
 	 The current implementation supports up to 4 arguments.
 	 Since the use of 'structs' is allowed, this is enough
@@ -2115,14 +2218,14 @@ the_data_port.     cd            ls
       <para>
 	<programlisting>
   do startCycle()
-  do cleanupMess( 0.1 )	</programlisting></para>
+  do gotoPosition( -3.0 )</programlisting></para>
       <para>
 	when the program is loaded in a_task.
       </para>
       <para>
 	Commands returning false will propagate that error
 	to the program or function calling that command, which
-	will cause the program to enter an error state, i.e.
+	will cause the program script to enter an error state, i.e.
 	it stops its execution.
       </para>
       <important>
@@ -2132,14 +2235,19 @@ the_data_port.     cd            ls
 	  to access them from program scripts.
 	</para>
       </important>
+      <para>
+	See also <xref linkend="corelib-commands" /> in
+	the Orocos CoreLib reference.
+      </para>
     </section>
   </section>
   <section>
     <title>The Event Interface</title>
       <note><title>Purpose</title><para>A task's events are intended
       to be 'emitted', thus <emphasis>published</emphasis> by the task
-      to subscribers. Use it to 'notify' interested parties of a change
-      in the system.</para></note>
+      to subscribers. Use it to 'notify' interested parties of a
+      change in the system. It allows you to have one or more
+      functions called when an event happens.</para></note>
       <mediaobject>
 	<imageobject role="fop">
 	  <imagedata width="5cm" fileref="images/EventInterface" />
@@ -2151,7 +2259,8 @@ the_data_port.     cd            ls
     <para>
       A task may register its events in its interface in order to be
       used by its state machines and other tasks as well.  Events are
-      defined and explained in the Orocos CoreLib Reference Manual.
+      defined and explained in the Orocos CoreLib reference,
+      <xref linkend="corelib-events" />.
     </para>
     <section>
       <title>Adding Events</title>
@@ -2275,8 +2384,9 @@ the_data_port.     cd            ls
 	</para>
       </note>
       <para>
-	Analogous to the event example in the CoreLib Reference Manual,
-	a class is made to react to the event. A connection
+	Analogous to the event example in the CoreLib reference 
+	(<xref linkend="corelib-events" />),
+	a class funcion is made to react to the event. A connection
 	is setup between the "move" event and the <function>react_callback</function>
 	function of "r". The connection can be controlled using
 	the handle to connect or disconnect the reaction to events.
@@ -2857,13 +2967,16 @@ the_data_port.     cd            ls
     <section>
       <title>Using the <classname>TaskContext</classname></title>
       <para>
-	To help users in setting up quickly a TaskContext, the TaskContext
-	class has been made available which adds some standard methods and
-	commands to its interface which are common to many tasks. It supports
-	loading Programs and StateMachines, saving Properties to disk and reading
-	them back in and stopping and starting the Task.
-	You can download an introduction to setting up TaskContexts which
-	uses this class from the Orocos.org download page.
+	To help users in setting up quickly a TaskContext, the
+	TaskContext class has been made available which adds some
+	standard methods and commands to its interface which are
+	common to many tasks. It supports loading Programs and
+	StateMachines, saving Properties to disk and reading them back
+	in and stopping and starting the Task.  You can download an
+	introduction to setting up TaskContexts which uses this class
+	from the 'task-intro' RTT example on the <ulink
+	url="http://www.orocos.org/rtt/source">RTT Source code</ulink>
+	page of the Orocos.org website.
       </para>
     </section>
     <section>
