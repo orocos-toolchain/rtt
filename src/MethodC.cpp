@@ -85,6 +85,8 @@ namespace RTT
 
         void ret(AttributeBase* r)
         {
+            if (rta)
+                delete rta;
             this->rta = r->clone();
         }
 
