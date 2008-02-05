@@ -918,7 +918,6 @@ namespace RTT
             initc->reset();
             initc->readArguments();
             if ( initc->execute() == false ) {
-                assert(false);
                 return false; // fail to activate.
             }
         }
