@@ -86,12 +86,6 @@ namespace RTT
             //             std::cerr <<"It appears the rtai_lxrt module is not loaded !"<<std::endl;
             //             exit();
             //         }
-            struct sched_param param;
-
-            param.sched_priority = sched_get_priority_max(SCHED_OTHER);
-            if (param.sched_priority != -1 )
-                sched_setscheduler( 0, SCHED_OTHER, &param);
-
             unsigned long name = nam2num("main");
             while ( rt_get_adr( name ) != 0 ) // check for existing 'MAINTHREAD'
                 ++name;
@@ -103,6 +97,13 @@ namespace RTT
                     std::cerr << "Cannot rt_task_init() MainThread." << std::endl;
                     exit(1);
                 }
+
+            struct sched_param param;
+
+            param.sched_priority = sched_get_priority_max(SCHED_OTHER);
+            if (param.sched_priority != -1 )
+                sched_setscheduler( 0, SCHED_OTHER, &param);
+
             // Avoid the LXRT CHANGED MODE (TRAP), PID = 4088, VEC = 14, SIGNO = 11. warning
             rt_task_use_fpu(main_task->rtaitask, 1);
                 
@@ -160,6 +161,12 @@ namespace RTT
                 std::cerr << "Exiting this thread." <<std::endl;
                 exit(-1);
             }
+
+            // Schedule in Linux' SCHED_OTHER
+            struct sched_param param;
+            param.sched_priority = sched_get_priority_max(SCHED_OTHER);
+            if (param.sched_priority != -1 )
+                sched_setscheduler( 0, SCHED_OTHER, &param);
 
             // Avoid the LXRT CHANGED MODE (TRAP), PID = 4088, VEC = 14, SIGNO = 11. warning
             rt_task_use_fpu(task->rtaitask, 1);
