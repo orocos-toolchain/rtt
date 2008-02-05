@@ -49,11 +49,23 @@ CorbaTest::tearDown()
     delete tc;
     //delete ts;
     delete tp;
+
 }
 
 bool CorbaTest::assertBool( bool b) { 
     return b;
 }
+
+
+void CorbaTest::setupCorba()
+{
+}
+
+void CorbaTest::cleanupCorba()
+{
+    Corba::ControlTaskProxy::DestroyOrb();
+}
+
 
 TaskObject* CorbaTest::createMethodFactory()
 {

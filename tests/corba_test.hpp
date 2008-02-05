@@ -14,9 +14,11 @@ class CorbaTest : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( CorbaTest );
 
+    CPPUNIT_TEST( setupCorba );
     CPPUNIT_TEST( testRemoteMethodC );
     //CPPUNIT_TEST( testRemoteMethod );
     CPPUNIT_TEST( testAnyMethod );
+    CPPUNIT_TEST( cleanupCorba );
     
     CPPUNIT_TEST_SUITE_END();
 
@@ -48,6 +50,9 @@ class CorbaTest : public CppUnit::TestFixture
 
     bool assertBool( bool );
 public:
+
+    void setupCorba();
+    void cleanupCorba();
 
     void setUp();
     void tearDown();
