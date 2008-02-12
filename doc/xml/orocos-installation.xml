@@ -61,6 +61,13 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Changes in the library name (-target) and .pc files</revremark>
       </revision>
+      <revision>
+	<revnumber>1.4.1</revnumber>
+	<date>12 Feb 2008</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Added Debian/Ubuntu packages install instructions and updated
+	Getting started/Makefile section.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -160,7 +167,6 @@
 		<entry><ulink url="http://www.cs.wustl.edu/~schmidt/">ACE &amp; TAO website</ulink>
 		When you start your components in a networked environment,
 		TAO can be used to set up communication between components.
-		
 		</entry>
 	      </row>
 	      <row>
@@ -175,10 +181,52 @@
 	</table>
 	<para>
 	  All these packages are provided by most Linux distributions.
-	  Take also a look on the Orocos.org download page for
-	  the latest information. 
+	  Take also a look on the Orocos.org <ulink
+	  url="http://www.orocos.org/rtt/source">RTT download</ulink> page
+	  for the latest information.
 	</para>
       </section>
+    </section>
+    <section>
+      <title>Installing on Debian Etch or Ubuntu Feisty</title>
+      <para>
+	The Orocos Real-Time Toolkit and Component Library have been
+	prepared as Debian packages for Debian Etch, but they install
+	equally well on Ubuntu Feisty, due to only little dependencies.
+      </para>
+      <para>
+	Add The following rules to your <filename>/etc/apt/apt.sources</filename>
+	file:
+	<programlisting>  deb http://www.fmtc.be/debian etch main
+  deb http://zathras.tuxcnc.org/xenomai sid main</programlisting>
+        The first line contains the Orocos RTT and OCL packages. You need
+	the second line in order to obtain the Xenomai library, in case
+	you install Orocos for the Xenomai target.
+      </para>
+      <para>
+	Next type:
+	<programlisting>  $ apt-get update
+  $ apt-get install liborocos-rtt-corba-<emphasis>gnulinux</emphasis>-dev</programlisting>
+        You can install Orocos for additional targets by replacing
+        <emphasis>gnulinux</emphasis> by another target name (see above) if you
+	want real-time performance. All targets can be installed at the same time.
+      </para>
+      <para>
+	For your application development, you'll most likely use the Orocos
+	Component library as well:
+	<programlisting>  $ apt-get install orocos-ocl-<emphasis>gnulinux</emphasis>-dev orocos-ocl-<emphasis>gnulinux</emphasis>-bin</programlisting>
+	Again, you may install additional targets.
+      </para>
+      <para>
+	We recommend using the <filename>pkg-config</filename> tool
+	to discover the compilation flags required to compile your
+	application with the RTT or OCL. 
+      </para>
+      <para>
+	You can skip the rest of this manual and go to <xref
+	linkend="getting-started" /> for compiling components and
+	applications with the RTT.
+      </para>
     </section>
     <section>
       <title>Basic Real-Time Toolkit Installation</title>
@@ -692,7 +740,7 @@
     </section>
   </section>
 
-  <section id="started">
+  <section id="getting-started">
     <title>Getting Started with the Code</title>
     <para>
       This Section provides a short overview of how to proceed next using the
@@ -701,13 +749,17 @@
     <section>
       <title>A quick test</title>
       <para>
-	You can issue a <command>make check</command> in the Orocos
-	build directory, but this stresses your system heavily. make
-	check for the gnulinux target should successfuly complete.
+	To quickly test an &orocos; application, you can download the examples
+	from the webpage on <ulink url="http://www.orocos.org/ocl/source">
+	Component template</ulink>, which contains a suitable CMake
+	environment for building components
+	or <ulink url="http://www.orocos.org/rtt/source">RTT Examples</ulink>
+	which contains a variety of demo programs.
       </para>
       <para>
-	To quickly test an &orocos; application, you can download the examples
-	from the webpage.
+	If you built the RTT yourself, you can issue a <command>make
+	check</command> in the build directory, which will test the
+	RTT against your current target.
       </para>
     </section>
     <section>
@@ -733,35 +785,71 @@
 	  If you do not use this function, it is possible that 
 	  some (OS dependent) Orocos functionality will not work.
 	</para>
-	<example>
-	  <title>A Makefile for an Orocos Application</title>
+    </section>
+    <section>
+      <title>Building components and applications</title>
+      <para>
+	You can quick-start build components using the Orocos
+	Component Template package which you can download from
+	<ulink url="http://www.orocos.org/ocl/source">
+	the OCL download page</ulink>, which uses CMake. 
+	If you do not wish to use CMake, you can use the example
+	below to write your own Makefiles.
+      </para>
+      <example>
+	  <title>A Makefile for an Orocos Application or Component</title>
 	  <para>
-	    You can then simply compile your program with a Makefile
+	    You can compile your program with a Makefile
 	    resembling this one : 
 	    <programlisting>  OROPATH=/usr/local
 
-  # Use 'gnulinux' target:
+  all: myprogram mycomponent.so
+
+  # Build a purely RTT application for gnulinux.
+  # Use the 'OCL' settings below if you use the TaskBrowser or other OCL functionality.
+  #
   CXXFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-rtt-gnulinux --cflags`
   LDFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-rtt-gnulinux --libs`
 
-  all: myprogram.cpp
-        g++ myprogram.cpp ${CXXFLAGS} ${LDFLAGS} -o myprogram  </programlisting>
-	    The flags must be extended with compile and link options
-	    for your particular application.
+  myprogram: myprogram.cpp
+        g++ myprogram.cpp ${CXXFLAGS} ${LDFLAGS} -o myprogram
+
+
+  # Building dynamic loadable components requires the OCL to be installed as well:
+  #
+  CXXFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-ocl-gnulinux --cflags`
+  LDFLAGS=`PKG_CONFIG_PATH=${OROPATH}/lib/pkgconfig pkg-config orocos-ocl-gnulinux --libs`
+
+  mycomonent.so: mycomponent.cpp
+        g++ mycomponent.cpp ${CXXFLAGS} ${LDFLAGS} -fPIC -shared -DOCL_DLL_EXPORT  -o mycomponent.so
+</programlisting>
+	    Where your replace <emphasis>gnulinux</emphasis> with the target
+	    for which you wish to compile. If you use parts of the OCL,
+	    use the flags from <filename>orocos-ocl-gnulinux</filename>.
 	  </para>
-	<para>
-	  <important>
-	    <para>The <option>LDFLAGS</option> option must be placed after
-	    the <filename>.cpp</filename> or <filename>.o</filename>
-	    files in the gcc command.</para>
-	  </important>
-	  <note>
-	    <para>Make sure you have read <xref linkend="install-configure" />
+	  <para>
+	    We strongly recommend reading the <ulink
+	    url="http://www.orocos.org/ocl/deployment">Deployment
+	    Component</ulink> manual for building and loading Orocos
+	    components into an application.
+	  </para>
+	  <para>
+	    These flags must be extended with compile and link options
+	    for your particular application. 
+	  </para>
+	  <para>
+	    <important>
+	      <para>The <option>LDFLAGS</option> option must be placed after
+	      the <filename>.cpp</filename> or <filename>.o</filename>
+	      files in the gcc command.</para>
+	    </important>
+	    <note>
+	      <para>Make sure you have read <xref linkend="install-configure" />
 	      for your target if you application has compilation or link errors
 	      ( for example when using LXRT ).
-	    </para>
-	  </note>
-	</para>
+	      </para>
+	    </note>
+	  </para>
 	</example>
       </section>
     <section>
@@ -849,8 +937,9 @@
       running on Linux stations, but is not the official 'CMake' approach.
     </para>
     <para>
-      For having native cross compilation support, you must upgrade
-      to CMake 2.6.0 or later and follow the instructions on the
+      For having native cross compilation support, you must upgrade to
+      CMake 2.6.0 (not released yet of this writing) or later and
+      follow the instructions on the
       <ulink url="http://www.cmake.org/Wiki/CMake_Cross_Compiling">
       CMake Cross Compiling page</ulink>.
     </para>
