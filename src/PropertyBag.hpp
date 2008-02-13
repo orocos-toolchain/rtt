@@ -332,7 +332,7 @@ namespace RTT
      * @param target The bag in which the properties must be refreshed.
      * @param source The bag containing new values for \a target.
      * @param strict Set to true if each property of \a target must be updated with a property
-     * or \a source. If a property from \a target is not present in \a source, this function
+     * of \a source. If a property from \a target is not present in \a source, this function
      * returns false.
      * @ingroup CoreLibProperties
      */
