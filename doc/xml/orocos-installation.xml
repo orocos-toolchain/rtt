@@ -188,20 +188,18 @@
       </section>
     </section>
     <section>
-      <title>Installing on Debian Etch or Ubuntu Feisty</title>
+      <title>Installing on Debian Etch</title>
       <para>
 	The Orocos Real-Time Toolkit and Component Library have been
-	prepared as Debian packages for Debian Etch, but they install
-	equally well on Ubuntu Feisty, due to only little dependencies.
+	prepared as Debian packages for Debian Etch. See below for 
+	instructions for building your own packages on other distributions,
+	like Ubuntu.
       </para>
       <para>
-	Add The following rules to your <filename>/etc/apt/apt.sources</filename>
-	file:
-	<programlisting>  deb http://www.fmtc.be/debian etch main
-  deb http://zathras.tuxcnc.org/xenomai sid main</programlisting>
-        The first line contains the Orocos RTT and OCL packages. You need
-	the second line in order to obtain the Xenomai library, in case
-	you install Orocos for the Xenomai target.
+	For debian, copy/paste the following commands, and enter your password when asked:
+	<programlisting>  wget -q -O - http://people.mech.kuleuven.be/~psoetens/gpg/key.gpg | sudo apt-key add -
+  sudo wget -q http://www.fmtc.be/sources.list.d/fmtc.list -O /etc/apt/sources.list.d/fmtc.list  </programlisting>
+        These commands install the GPG key and the repository location of the Orocos packages.
       </para>
       <para>
 	Next type:
@@ -226,6 +224,20 @@
 	You can skip the rest of this manual and go to <xref
 	linkend="getting-started" /> for compiling components and
 	applications with the RTT.
+      </para>
+      <para>
+	If you're using Ubuntu, you need to source the packages and build them 
+	yourself, this is not such a hard task! Type from your '$HOME/src' directory:
+	<programlisting>  $ cd src
+  $ apt-get source orocos-rtt
+  $ apt-get build-dep orocos-rtt
+  $ apt-get install devscripts build-essential fakeroot dpatch
+  $ cd orocos-rtt-1.4.0
+  $ dpkg-buildpackage -rfakeroot -uc -us
+  $ cd ..
+  $ for i in *.deb; sudo dpkg -i $i; done
+</programlisting>
+         You can repeat the same process for orocos-ocl.
       </para>
     </section>
     <section>
