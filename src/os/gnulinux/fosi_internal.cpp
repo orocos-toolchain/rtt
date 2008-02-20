@@ -264,8 +264,10 @@ namespace RTT
         int policy = 0;
         struct sched_param param;
         // first retrieve thread scheduling parameters:
-        if ( task && task->thread != 0 && pthread_getschedparam(task->thread, &policy, &param) != 0)
+        if ( task == 0 )
             return -1;
+        if ( task->thread == 0 || pthread_getschedparam(task->thread, &policy, &param) != 0)
+            return task->priority;
         return param.sched_priority;
 	}
 
