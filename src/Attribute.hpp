@@ -129,8 +129,8 @@ namespace RTT
          * @see ready() to check if \a ab was accepted.
          */
         Attribute( AttributeBase* ab)
-            : AttributeBase( ab->getName() ),
-              data( AssignableDataSource<T>::narrow( ab->getDataSource().get() ) )
+            : AttributeBase( ab ? ab->getName() : "" ),
+              data( ab ? AssignableDataSource<T>::narrow( ab->getDataSource().get() ) : 0 )
         {
         }
 
@@ -142,6 +142,10 @@ namespace RTT
          */
         Attribute<T>& operator=(AttributeBase* ab)
         {
+            if (!ab) {
+                data = 0;
+                return *this;
+            }
             mname = ab->getName();
             Attribute<T>* a = dynamic_cast<Attribute<T>*>(ab);
             if (a)
@@ -240,8 +244,10 @@ namespace RTT
          * @see ready() to check if ab was accepted.
          */
         Constant( AttributeBase* ab )
-            : AttributeBase(ab->getName())
+            : AttributeBase( ab ? ab->getName() : "")
         {
+            if ( !ab )
+                return;
             Constant<T>* c = dynamic_cast<Constant<T>*>(ab);
             if (c)
                 data = c->getDataSource();
@@ -256,6 +262,10 @@ namespace RTT
          */
         Constant<T>& operator=(AttributeBase* ab)
         {
+            if (!ab) {
+                data = 0;
+                return *this;
+            }
             mname = ab->getName();
             Constant<T>* c = dynamic_cast<Constant<T>*>(ab);
             if (c)
