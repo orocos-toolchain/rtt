@@ -263,8 +263,10 @@ namespace RTT
         brancher = str_p( "if") >> conditionparser->parser()[ bind( &StateGraphParser::seencondition, this)]
                                 >> expect_if(str_p( "then" ))
                                 >> !transprog
-                                >> !selector
-                                >> !(str_p("else")[bind( &StateGraphParser::seenelse, this )] >> expect_select( (elseprog >> !selector) | selector));
+                                >> ( selector | eps_p[bind( &StateGraphParser::noselect, this )] )
+                                >> !(str_p("else")[bind( &StateGraphParser::seenelse, this )]
+                                     >> expect_select( (elseprog >> (selector | eps_p[bind( &StateGraphParser::noselect, this )])) | selector));
+
         transprog =
             ch_p('{')[ bind( &StateGraphParser::inprogram, this, "transition" )]
                 >> programBody
@@ -437,9 +439,20 @@ namespace RTT
         argsparser = 0;
     }
 
+    void StateGraphParser::noselect()
+    {
+        // if omitted, implicitly re-enter current state.
+        doselect( curstate->getName() );
+    }
+
     void StateGraphParser::seenselect( iter_t s, iter_t f)
     {
         std::string state_id(s,f);
+        doselect(state_id);
+    }
+
+    void StateGraphParser::doselect( const std::string& state_id )
+    {
         StateInterface* next_state;
         if ( curtemplate->getState( state_id ) != 0 )
         {

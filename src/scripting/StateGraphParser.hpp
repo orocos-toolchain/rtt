@@ -194,7 +194,9 @@ namespace RTT { namespace detail
       void seentransprog();
       void seenelseprog();
       void seenelse();
+      void noselect();
       void seenselect( iter_t s, iter_t f);
+      void doselect(const std::string& name);
       void seenprecondition();
       void seeneventname(iter_t s, iter_t f);
       void seeneventtrans();

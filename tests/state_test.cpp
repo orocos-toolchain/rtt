@@ -421,6 +421,62 @@ void StateTest::testStateEmpty()
      this->finishState( &gtc, "x");
 }
 
+void StateTest::testStateTransitions()
+{
+    // test processing of transition statements.
+    string prog = string("StateMachine X {\n")
+        + " initial state INIT {\n"
+        + " var int i = 0;\n" // transition counter
+        + " var int j = 0;\n" // entry counter
+        + " var int k = 0;\n" // run counter
+        + " entry {\n"
+        + "   set j = j + 1\n"
+        + " }\n"
+        + " run {\n"
+        + "   set k = k + 1\n"
+        + " }\n"
+        + " transitions {\n"
+        + "  if i < 5 then {\n"
+        + "    set i = i + 1;\n" // execute this program
+        + "  } select INIT\n" // test EXPLICIT transition to self: no entry/exit.
+        + "  if i < 10 then {\n"
+        + "    set i = i + 1;\n" // execute this program
+        + "  }\n" // test IMPLICIT transition to self: no entry/exit.
+        + "  if i < 10 then {\n"
+        + "  } select TRANS_SHOULD_NOT_CHECK\n" // should never be reached.
+        + "  if i == 10 then {\n"
+        + "    set i = i + 1;\n" // execute this program
+        + "  } select TEST_ENTRY\n" 
+        + " }\n"
+        + " }\n"
+        + " state TEST_ENTRY {\n" // test if entry was executed one time
+        + " transitions {\n"
+        + "  if k != i then {\n"
+        + "  } select RUN_FAILED\n" 
+        + "  if j != 1 then {\n"
+        + "  } select ENTRY_FAILED\n" 
+        + "  else select FINI\n" 
+        + " }\n"
+        + " }\n"
+        + " state TRANS_SHOULD_NOT_CHECK {\n" // failure state
+        + " entry { do test.assert(false); }\n"
+        + " }\n"
+        + " state ENTRY_FAILED {\n"           // failure state
+        + " entry { do test.assert(false); }\n"
+        + " }\n"
+        + " state RUN_FAILED {\n"           // failure state
+        + " entry { do test.assert(false); }\n"
+        + " }\n"
+        + " final state FINI {\n" // Success state.
+        + " }\n"
+        + " }\n"
+        + " RootMachine X x\n" // instantiate a non hierarchical SC
+        ;
+     this->doState( prog, &gtc );
+     this->finishState( &gtc, "x");
+}
+
+
 void StateTest::testStateSubStateVars()
 {
     // test get/set access of substate variables and parameters
@@ -729,7 +785,8 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
         {
             CPPUNIT_ASSERT_MESSAGE( e.what(), false );
         }
-    catch( ... ) {
+    catch( const std::exception& e ) {
+            CPPUNIT_ASSERT_MESSAGE( e.what(), false );
             CPPUNIT_ASSERT_MESSAGE( "Uncaught Processor load exception", false );
     }
     CPPUNIT_ASSERT( gtask.start() );
