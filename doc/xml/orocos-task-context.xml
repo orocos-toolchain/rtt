@@ -1347,7 +1347,7 @@ the_data_port.     cd            ls
       task to another.
       </para></note>
       <mediaobject>
-	<imageobject role="fop">
+	<imageobject role="fo">
 	  <imagedata width="5cm" fileref="images/DataFlowInterface" />
 	</imageobject>
 	<imageobject role="html">
@@ -1619,7 +1619,7 @@ the_data_port.     cd            ls
       executed like a function in the thread of the caller. Use it to
       'calculate' a result or change a parameter.</para></note>
       <mediaobject>
-	<imageobject role="fop">
+	<imageobject role="fo">
 	  <imagedata width="5cm" fileref="images/MethodInterface" />
 	</imageobject>
 	<imageobject role="html">
@@ -1855,7 +1855,7 @@ the_data_port.     cd            ls
       which can be read and written during run-time, for example, the
       current measured temperature.  </para></note>
       <mediaobject>
-	<imageobject role="fop">
+	<imageobject role="fo">
 	  <imagedata width="5cm" fileref="images/PropertyInterface" />
 	</imageobject>
 	<imageobject role="html">
@@ -2002,7 +2002,7 @@ the_data_port.     cd            ls
       this takes time to accomplish. Command functions are, in contrast with methods,
       executed by the receiver's thread.</para></note>
       <mediaobject>
-	<imageobject role="fop">
+	<imageobject role="fo">
 	  <imagedata width="5cm" fileref="images/CommandInterface" />
 	</imageobject>
 	<imageobject role="html">
@@ -2249,7 +2249,7 @@ the_data_port.     cd            ls
       change in the system. It allows you to have one or more
       functions called when an event happens.</para></note>
       <mediaobject>
-	<imageobject role="fop">
+	<imageobject role="fo">
 	  <imagedata width="5cm" fileref="images/EventInterface" />
 	</imageobject>
 	<imageobject role="html">
