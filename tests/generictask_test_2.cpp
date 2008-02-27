@@ -24,6 +24,7 @@
 #include <Command.hpp>
 #include <CommandDS.hpp>
 #include <OperationInterface.hpp>
+#include <RemoteCommand.hpp>
 
 #include <SimulationActivity.hpp>
 #include <SimulationThread.hpp>
@@ -298,6 +299,21 @@ void Generic_TaskTest_2::verifycommand(CommandC& com)
     CPPUNIT_ASSERT( !com.done() );
 }
 
+void Generic_TaskTest_2::testRemoteCommand()
+{
+    Command<bool(void)> com0;
+    Command<bool(int)> com11;
+
+    com0 = new detail::RemoteCommand<bool(void)>(tc->getObject("commands")->commands(), "c00");
+    com11 = new detail::RemoteCommand<bool(int)>(tc->getObject("commands")->commands(), "c11");
+
+    CPPUNIT_ASSERT( com0.ready() );
+    com0(); // execute
+
+    CPPUNIT_ASSERT( com0.ready() );
+    com11(1); // execute
+
+}
 void Generic_TaskTest_2::testCommand()
 {
     Command<bool(void)> com0("command", &Generic_TaskTest_2::cd0, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );

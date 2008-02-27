@@ -36,19 +36,15 @@ CorbaTest::setUp()
     tc =  new TaskContext( "root" );
     tc->addObject( this->createMethodFactory() );
 
-    Corba::ControlTaskProxy::InitOrb(0,0);
-
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
 }
 
 
 void 
 CorbaTest::tearDown()
 {
-    delete tc;
+    //delete tc;
     //delete ts;
-    delete tp;
+    //delete tp;
 
 }
 
@@ -59,6 +55,7 @@ bool CorbaTest::assertBool( bool b) {
 
 void CorbaTest::setupCorba()
 {
+    Corba::ControlTaskProxy::InitOrb(0,0);
 }
 
 void CorbaTest::cleanupCorba()
@@ -84,6 +81,10 @@ TaskObject* CorbaTest::createMethodFactory()
 
 void CorbaTest::testRemoteMethodC()
 {
+
+    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
+    tp = Corba::ControlTaskProxy::Create( ts->server() );
+
     // This test tests 'transparant' remote invocation of Orocos MethodC objects.
     MethodC mc;
     double r = 0.0;
@@ -107,6 +108,10 @@ void CorbaTest::testRemoteMethodC()
 
 void CorbaTest::testRemoteMethod()
 {
+
+    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
+    tp = Corba::ControlTaskProxy::Create( ts->server() );
+
     // This test tests 'transparant' remote invocation of Orocos methods.
     // This requires the RemoteMethod class, which does not work yet.
     Method<double(void)> m0 = tp->getObject("methods")->methods()->getMethod<double(void)>("m0");
@@ -124,6 +129,10 @@ void CorbaTest::testRemoteMethod()
 
 void CorbaTest::testAnyMethod()
 {
+
+    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
+    tp = Corba::ControlTaskProxy::Create( ts->server() );
+
     // This test tests the createMethodAny() function of the server.
     Corba::ControlObject_var co = ts->server()->getObject("methods");
     CPPUNIT_ASSERT( co.in() );

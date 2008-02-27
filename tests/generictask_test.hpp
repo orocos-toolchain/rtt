@@ -35,6 +35,7 @@ class Generic_TaskTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testMethod );
     CPPUNIT_TEST( testMethodFromDS );
     CPPUNIT_TEST( testMethodFactory );
+    CPPUNIT_TEST( testRemoteMethod );
     CPPUNIT_TEST( testDSMethod );
     CPPUNIT_TEST( testCRMethod );
     CPPUNIT_TEST( testMethodsC );
@@ -77,6 +78,7 @@ public:
     void tearDown();
 
     void testMethodsC();
+    void testRemoteMethod();
     void testAddMethod();
     void testCRMethod();
     void testMethod();

@@ -25,6 +25,7 @@
 #include <Ports.hpp>
 #include <Method.hpp>
 #include <OperationInterface.hpp>
+#include <RemoteMethod.hpp>
 
 #include <SimulationActivity.hpp>
 #include <SimulationThread.hpp>
@@ -75,6 +76,22 @@ TaskObject* Generic_TaskTest::createMethodFactory()
     to->methods()->addMethod( method("m3",  &Generic_TaskTest::m3, this), "M3","a","ad","a","ad","a","ad");
     to->methods()->addMethod( method("m4",  &Generic_TaskTest::m4, this), "M4","a","ad","a","ad","a","ad","a","ad");
     return to;
+}
+
+void Generic_TaskTest::testRemoteMethod()
+{
+    Method<double(void)> m0;
+    boost::shared_ptr<ActionInterface> implementation( new detail::RemoteMethod<double(void)>(tc->getObject("methods")->methods(),"m0") );
+    m0 = implementation;
+    CPPUNIT_ASSERT( m0.ready() );
+
+    Method<double(int)> m1;
+    implementation.reset( new detail::RemoteMethod<double(int)>(tc->getObject("methods")->methods(),"m1") );
+    m1 = implementation;
+    CPPUNIT_ASSERT( m1.ready() );
+
+    CPPUNIT_ASSERT_EQUAL( -2.0, m1(1) );
+    CPPUNIT_ASSERT_EQUAL( -1.0, m0() );
 }
 
 void Generic_TaskTest::testMethodsC()

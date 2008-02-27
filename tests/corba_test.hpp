@@ -16,7 +16,7 @@ class CorbaTest : public CppUnit::TestFixture
 
     CPPUNIT_TEST( setupCorba );
     CPPUNIT_TEST( testRemoteMethodC );
-    //CPPUNIT_TEST( testRemoteMethod );
+    CPPUNIT_TEST( testRemoteMethod );
     CPPUNIT_TEST( testAnyMethod );
     CPPUNIT_TEST( cleanupCorba );
     
