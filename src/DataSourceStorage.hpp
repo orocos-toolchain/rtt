@@ -50,19 +50,60 @@ namespace RTT
 {
     namespace detail
     {
-        // Partial specialisations for storing a void or not a void.
+        // Partial specialisations for storing a void, not a void or reference
         template<class R>
         struct DataSourceResultStorage
         {
-            typename ValueDataSource<R>::shared_ptr value;
+            typename ValueDataSource<R>::shared_ptr result;
+
             DataSourceResultStorage()
-                : value(new ValueDataSource<R>() )
-            {}
+                : result(new ValueDataSource<R>() )
+            {
+            }
+
+            template<class ContainerT>
+            void initRet(ContainerT& cc) {
+                cc.ret(DataSourceBase::shared_ptr(result));
+            }
+
+            R getResult() {
+                return result->get();
+            }
         };
 
         template<>
         struct DataSourceResultStorage<void>
         {
+            DataSourceResultStorage()
+            {
+            }
+
+            template<class ContainerT>
+            void initRet(ContainerT& ) {}
+
+            void getResult() {}
+        };
+
+        //! @bug return of references are not supported yet in RemoteMethod.
+        //! The user receives a reference to a local variable.
+        template<class R>
+        struct DataSourceResultStorage<R&>
+        {
+            typename ValueDataSource<R>::shared_ptr result;
+
+            DataSourceResultStorage()
+                : result(new ValueDataSource<R>() )
+            {
+            }
+
+            template<class ContainerT>
+            void initRet(ContainerT& cc) {
+                cc.ret(DataSourceBase::shared_ptr(result));
+            }
+
+            R getResult() {
+                return result->get();
+            }
         };
 
         // Partial specialisations for storing a reference or not reference
@@ -75,19 +116,17 @@ namespace RTT
             {}
         };
 
-#if 0
-        // references not used for now:
-        // the result will not be communicated back to user code.
+        //! @bug reference arguments are not supported yet in RemoteMethod and RemoteCommand.
+        //! The result will not be communicated back to user code.
         template<class A>
         struct DataSourceArgStorage<A&>
         {
-            ReferenceDataSource<A&>::shared_ptr value;
-            DataSourceArgStorage(A& a)
-                : value(new ReferenceDataSource<A&>(a) )
+            // strips the reference !
+            typename ValueDataSource<A>::shared_ptr value;
+            DataSourceArgStorage()
+                : value(new ValueDataSource<A>() )
             {}
         };
-#endif
-
 
         template<int, class T>
         struct DataSourceStorageImpl;
@@ -108,13 +147,14 @@ namespace RTT
          */
         template<class DataType>
         struct DataSourceStorageImpl<1, DataType>
+            : public DataSourceResultStorage<typename boost::function_traits<DataType>::result_type>
         {
             typedef typename boost::function_traits<DataType>::arg1_type   arg1_type;
             DataSourceArgStorage<arg1_type> ma1;
 
             template<class ContainerT>
             void initArgs(ContainerT& cc) {
-                cc.arg( ma1.value );
+                cc.arg( DataSourceBase::shared_ptr(ma1.value.get()) );
             }
 
             void store(arg1_type a1) {
@@ -124,6 +164,7 @@ namespace RTT
 
         template<class DataType>
         struct DataSourceStorageImpl<2, DataType>
+            : public DataSourceResultStorage<typename boost::function_traits<DataType>::result_type>
         {
             typedef typename boost::function_traits<DataType>::arg1_type   arg1_type;
             typedef typename boost::function_traits<DataType>::arg2_type   arg2_type;
@@ -132,8 +173,8 @@ namespace RTT
 
             template<class ContainerT>
             void initArgs(ContainerT& cc) {
-                cc.arg( ma1.value );
-                cc.arg( ma2.value );
+                cc.arg( DataSourceBase::shared_ptr(ma1.value) );
+                cc.arg( DataSourceBase::shared_ptr(ma2.value) );
             }
             void store(arg1_type a1, arg2_type a2) {
                 ma1.value->set(a1);
@@ -143,6 +184,7 @@ namespace RTT
 
         template<class DataType>
         struct DataSourceStorageImpl<3, DataType>
+            : public DataSourceResultStorage<typename boost::function_traits<DataType>::result_type>
         {
             typedef typename boost::function_traits<DataType>::arg1_type   arg1_type;
             typedef typename boost::function_traits<DataType>::arg2_type   arg2_type;
@@ -153,9 +195,9 @@ namespace RTT
 
             template<class ContainerT>
             void initArgs(ContainerT& cc) {
-                cc.arg( ma1.value );
-                cc.arg( ma2.value );
-                cc.arg( ma3.value );
+                cc.arg( DataSourceBase::shared_ptr(ma1.value) );
+                cc.arg( DataSourceBase::shared_ptr(ma2.value) );
+                cc.arg( DataSourceBase::shared_ptr(ma3.value) );
             }
             void store(arg1_type a1, arg2_type a2, arg3_type a3) {
                 ma1.value->set(a1);
@@ -166,6 +208,7 @@ namespace RTT
 
         template<class DataType>
         struct DataSourceStorageImpl<4, DataType>
+            : public DataSourceResultStorage<typename boost::function_traits<DataType>::result_type>
         {
             typedef typename boost::function_traits<DataType>::arg1_type   arg1_type;
             typedef typename boost::function_traits<DataType>::arg2_type   arg2_type;
@@ -178,10 +221,10 @@ namespace RTT
 
             template<class ContainerT>
             void initArgs(ContainerT& cc) {
-                cc.arg( ma1.value );
-                cc.arg( ma2.value );
-                cc.arg( ma3.value );
-                cc.arg( ma4.value );
+                cc.arg( DataSourceBase::shared_ptr(ma1.value) );
+                cc.arg( DataSourceBase::shared_ptr(ma2.value) );
+                cc.arg( DataSourceBase::shared_ptr(ma3.value) );
+                cc.arg( DataSourceBase::shared_ptr(ma4.value) );
             }
             void store(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4) {
                 ma1.value->set(a1);

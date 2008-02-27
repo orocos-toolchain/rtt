@@ -120,6 +120,12 @@ namespace RTT
         MethodC& ret( AttributeBase* r );
 
         /**
+         * Store the result of the method in a DataSource.
+         * @param r A data source in which the result is stored.
+         */
+        MethodC& ret( DataSourceBase::shared_ptr r);
+
+        /**
          * Store the result of the method in variable.
          * @param r A reference to the variable in which the result is stored.
          */

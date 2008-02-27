@@ -54,7 +54,7 @@ namespace RTT
         const MethodRepository::Factory* mmr;
         std::string mname;
         std::vector<DataSourceBase::shared_ptr> args;
-        AttributeBase* rta;
+        DataSourceBase::shared_ptr rta;
         DataSourceBase::shared_ptr m;
 
         void checkAndCreate() {
@@ -72,7 +72,7 @@ namespace RTT
                     if ( !m )
                         return;
                     if (rta)
-                        m = new DataSourceCommand( rta->getDataSource()->updateCommand( m.get() ) );
+                        m = new DataSourceCommand( rta->updateCommand( m.get() ) );
                 }
             }
         }
@@ -85,26 +85,28 @@ namespace RTT
 
         void ret(AttributeBase* r)
         {
-            if (rta)
-                delete rta;
-            this->rta = r->clone();
+            this->rta = r->getDataSource();
+        }
+
+        void ret(DataSourceBase::shared_ptr d)
+        {
+            this->rta = d;
         }
 
         D( const MethodRepository::Factory* mr, const std::string& name)
-            : mmr(mr), mname(name), rta(0), m()
+            : mmr(mr), mname(name), rta(), m()
         {
             this->checkAndCreate();
         }
 
         D(const D& other)
             : mmr(other.mmr), mname(other.mname),
-              args( other.args ), rta( other.rta ? other.rta->clone() : 0 ), m( other.m )
+              args( other.args ), rta( other.rta ), m( other.m )
         {
         }
 
         ~D()
         {
-            delete rta;
         }
 
     };
@@ -164,10 +166,16 @@ namespace RTT
         else {
             m = new DataSourceCommand(r->getDataSource()->updateCommand( m.get() ) );
         }
-        if ( d && d->m ) {
-            this->m = d->m;
-            delete d;
-            d = 0;
+        return *this;
+    }
+
+    MethodC& MethodC::ret(DataSourceBase::shared_ptr r)
+    {
+        if (d)
+            d->ret( r );
+        else {
+            // no d, store manually:
+            m = new DataSourceCommand(r->updateCommand( m.get() ) );
         }
         return *this;
     }

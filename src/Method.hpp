@@ -150,7 +150,7 @@ namespace RTT
          * 
          * @return *this
          */
-        Method& operator=(ActionInterface* implementation)
+        Method& operator=(boost::shared_ptr<ActionInterface> implementation)
         {
             if (this->impl && this->impl == implementation)
                 return *this;

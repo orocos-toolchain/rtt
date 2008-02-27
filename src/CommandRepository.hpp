@@ -43,7 +43,6 @@
 #include "OperationFactory.hpp"
 #include "CommandC.hpp"
 #include "LocalCommand.hpp"
-//#define ORO_REMOTING
 #ifdef ORO_REMOTING
 #include "RemoteCommand.hpp"
 #endif

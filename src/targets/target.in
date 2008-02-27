@@ -35,6 +35,8 @@
 #define OROPKG_EXECUTION_PROGRAM_PARSER
 #endif
 
+#cmakedefine ORO_REMOTING
+
 #cmakedefine OROBLD_DISABLE_LOGGING
 #cmakedefine OROSEM_PRINTF_LOGGING
 #cmakedefine OROSEM_FILE_LOGGING

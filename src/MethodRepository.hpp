@@ -43,6 +43,9 @@
 #include "LocalMethod.hpp"
 #include "DataSourceArgsMethod.hpp"
 #include "MethodC.hpp"
+#ifdef ORO_REMOTING
+#include "RemoteMethod.hpp"
+#endif
 #include <boost/shared_ptr.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/function_traits.hpp>
@@ -150,6 +153,12 @@ namespace RTT
                     log(Error) << "Method '"<< name <<"' found, but has wrong Signature."<<endlog();
                 return boost::shared_ptr<ActionInterface>();
             }
+
+#ifdef ORO_REMOTING
+            if ( this->hasMember(name ) ) {
+                return boost::shared_ptr<ActionInterface>(new detail::RemoteMethod<Signature>(this, name));
+            }
+#endif
             log(Warning) << "No such method: "<< name <<endlog();
             return boost::shared_ptr<ActionInterface>();
         }
