@@ -63,7 +63,7 @@ namespace RTT {
             Logger::log() <<Logger::Debug <<"Creating an instance of "<< this->_name << Logger::endl;
 
         // First copy the task such that commands and attributes can be correctly
-        // copied.
+        // copied. This also sets the EventProcessor for the SM.
         ret->setTaskObject( this->object->copy(ret, replacements, instantiate) );
 
         // the parameters of the SC, similar to FunctionGraph's Arguments.

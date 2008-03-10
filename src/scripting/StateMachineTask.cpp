@@ -138,6 +138,7 @@ namespace RTT
         {
             this->createCommandFactory();
             this->createMethodFactory();
+            this->setEngine( ee );
         }
 
     StateMachineTask::~StateMachineTask()

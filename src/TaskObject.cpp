@@ -6,7 +6,8 @@ namespace RTT
 
     TaskObject::TaskObject(std::string name, std::string description)
         : mname(name), mdescription(description), mparent(0)
-    {}
+    {
+    }
 
     TaskObject::TaskObject(OperationInterface* parent, std::string name, std::string description)
         : mname(name), mdescription(description), mparent(0)
@@ -14,6 +15,7 @@ namespace RTT
         assert(parent);
         if ( parent->addObject( this ) )
             mparent = parent;
+        this->mevents.setEventProcessor( parent->events()->getEventProcessor() );
     }
 
     TaskObject::~TaskObject()
@@ -29,6 +31,7 @@ namespace RTT
         // In case objects form circular links, this will run forever
         for (Objects::iterator it = mobjects.begin(); it != mobjects.end(); ++it)
             (*it)->setEngine(newengine);
+
     }
 
 }

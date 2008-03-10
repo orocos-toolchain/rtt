@@ -55,6 +55,8 @@ namespace RTT
           program( new ValueDataSource<ProgramInterfaceWPtr>(prog) ),
           function(prog)
     {
+        this->setEngine( ee );
+
         DataSource<ProgramInterfaceWPtr>* ptr = program.get();
         // Commands :
         commands()->addCommandDS( ptr,

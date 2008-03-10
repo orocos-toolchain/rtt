@@ -101,6 +101,9 @@ namespace RTT
 
     void TaskContext::setup()
     {
+        // Work around for bug
+        this->mevents.setEventProcessor( ee->events() );
+
         mdescription = "The interface of this TaskContext.";
 
         this->methods()

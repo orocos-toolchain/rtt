@@ -927,10 +927,11 @@ namespace RTT
         reqstep = stateMap.find( next )->second.begin();
         reqend = stateMap.find( next )->second.end();
 
-        smStatus = Status::activating;
         // execute the entry program of the initial state.
         if ( this->executePending() )
             smStatus = Status::active;
+        else
+            smStatus = Status::activating;
 
         return true;
     }
@@ -964,9 +965,11 @@ namespace RTT
 
         // this will execute the exitFunction (if any) and, if successfull,
         // set current to zero (using next).
-        smStatus = Status::deactivating;
         if ( this->executePending() )
             smStatus = Status::inactive;
+        else
+            smStatus = Status::deactivating;
+
 
         return true;
     }
