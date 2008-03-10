@@ -78,6 +78,8 @@
 // New format:
 #define OROCOS_TARGET_@OROCOS_TARGET_CAP@ 1
 
+#define OROCOS_TARGET_NAME "@OROCOS_TARGET@"
+
 // Safety check:
 #ifndef OROPKG_OS_@OROCOS_TARGET_CAP@
 #error "Configuration error: OROPKG_OS_@OROCOS_TARGET_CAP@ not defined !"
