@@ -132,4 +132,25 @@ namespace RTT
 
 }
 
+/**
+ * Once you defined your Toolkit Plugin static object,
+ * you can use this macro to make it available as a
+ * plugin.
+ * @note Do not use this macro inside a namespace !
+ * For example: ORO_TOOLKIT_PLUGIN ( KDL::KDLToolkit )
+ * where KDL::KDLToolkit is a global object (not a classname !).
+ */
+#define ORO_TOOLKIT_PLUGIN( TOOLKIT ) \
+    namespace RTT { class TaskContext; } \
+    extern "C" {                      \
+        bool loadRTTPlugin(RTT::TaskContext* ) {    \
+        RTT::Toolkit::Import( TOOLKIT ); \
+        return true; \
+    } \
+    std::string getRTTPluginName() { \
+        return TOOLKIT.getName(); \
+    } \
+}
+
+
 #endif
