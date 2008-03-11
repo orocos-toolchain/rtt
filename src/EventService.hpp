@@ -343,7 +343,7 @@ namespace RTT
         int arity(const std::string& name) const;            
         
         /**
-         * Add an added Event from this Service.
+         * Remove an added Event from this Service.
          */
         bool removeEvent( const std::string& ename );
         
