@@ -11,7 +11,11 @@ OPTION(OS_AGNOSTIC "Do not use asm/system.h and asm/atomic.h global system heade
 OPTION(OS_HAVE_IOSTREAM "Use C++ iostream library." ON)
 OPTION(OS_HAVE_STREAMS "Use C++ streams library." ON)
 OPTION(OS_HAVE_MAIN "Provide main() function in rtt library, which sets up the OS. The user implements ORO_main()." ON)
-SET(OS_MAX_THREADS 8 CACHE STRING  "Maximum number of threads in the application.")
+
+SET(OS_MAX_CONC_ACCESS 8 CACHE STRING  "The maximum number of threads that will access a lock-free resource at exactly the same time. The Default (8) is very conservative. Your application may have more threads than this number.")
+SET(OS_MAX_THREADS ${OS_MAX_CONC_ACCESS})
+MARK_AS_ADVANCED(FORCE OS_MAX_CONC_ACCESS)
+
 OPTION(OS_THREAD_SCOPE "Enable to monitor thread execution times through ThreadScope API." OFF)
 OPTION(CONFIG_FORCE_UP "Enable to optimise for single core/cpu systems." OFF)
 
