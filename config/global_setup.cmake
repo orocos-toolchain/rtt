@@ -70,7 +70,13 @@ OPTION( BUILD_STATIC "Build Orocos RTT as a static library." ${FORCE_BUILD_STATI
 # CORBA
 #
 DEPENDENT_OPTION( ENABLE_CORBA "Enable CORBA (using TAO)" OFF "ACE_CONFIG AND TAO_ORB AND TAO_ORBSVCS;NOT ORO_EMBEDDED" OFF)
-OPTION( ORO_REMOTING "Enable transparant Remote Methods and Commands in C++")
+OPTION( ORO_REMOTING "Enable transparant Remote Methods and Commands in C++" ${ENABLE_CORBA} )
+# Force remoting when CORBA is enabled.
+IF ( ENABLE_CORBA AND NOT ORO_REMOTING )
+  MESSAGE( "Forcing ORO_REMOTING to ON")
+  SET( ORO_REMOTING ON CACHE BOOL "Enable transparant Remote Methods and Commands in C++" FORCE)
+ENDIF( ENABLE_CORBA AND NOT ORO_REMOTING )
+
 #IF (ENABLE_CORBA)
   # Finally:
 #  IF (BUILD_STATIC)
