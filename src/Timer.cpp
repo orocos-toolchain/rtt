@@ -179,7 +179,7 @@ namespace RTT
         return true;
     }
 
-    bool Timer::isActive(TimerId timer_id) const
+    bool Timer::isArmed(TimerId timer_id) const
     {
         OS::MutexLock locker(m);
         if (timer_id < 0 || timer_id > int(mtimers.size()) )

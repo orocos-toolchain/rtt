@@ -149,7 +149,7 @@ namespace RTT
          * Check if a given timer id is armed.
          * @param timer_id The number of the timer, starting from zero.
          */
-        bool isActive(TimerId timer_id) const;
+        bool isArmed(TimerId timer_id) const;
 
         /**
          * Disable an armed timer.
