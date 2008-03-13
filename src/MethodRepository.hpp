@@ -70,40 +70,29 @@ namespace RTT
         }
         
     protected:
-        std::map<std::string,boost::shared_ptr<ActionInterface> > simplemethods;
+        typedef std::map<std::string,boost::shared_ptr<ActionInterface> > SimpleMethods;
+        SimpleMethods simplemethods;
     public:
         typedef MethodFactory Factory;
 
-        ~MethodRepository()
-        {
-            clear();
-        }
+        ~MethodRepository();
 
         /** 
          * Clear all added methods from the repository, saving memory space.
          */
-        void clear() {
-            while ( !simplemethods.empty() ) {
-                simplemethods.erase( simplemethods.begin() );
-            }
-            OperationFactory<DataSourceBase*>::clear();
-        }
+        void clear();
 
         /**
          * Returns the names of all methods added to this interface.
          * @see getNames() to get a list of all methods available to scripting.
          */
-        std::vector<std::string> getMethods() const {
-            return keys( simplemethods );
-        }
+        std::vector<std::string> getMethods() const;
 
         /**
          * Query for the existence of a Method in this interface.
          * @see hasMember() to verify if a method is available to scripting as well.
          */
-        bool hasMethod(const std::string& name) const {
-            return simplemethods.count(name) == 1;
-        }
+        bool hasMethod(const std::string& name) const;
 
         /** 
          * Add a Method object to the method interface. This version
@@ -162,7 +151,11 @@ namespace RTT
             log(Warning) << "No such method: "<< name <<endlog();
             return boost::shared_ptr<ActionInterface>();
         }
-        
+
+        /**
+         * Removes a previously added method.
+         */
+        void removeMethod( const std::string& name );
 
         /** 
          * Add a local method object to the interface. This version

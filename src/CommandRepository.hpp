@@ -69,14 +69,12 @@ namespace RTT
             return t;
         }
         
-        std::map<std::string,DispatchInterface*> simplecommands;
+        typedef std::map<std::string,DispatchInterface*> SimpleCommands;
+        SimpleCommands simplecommands;
     public:
         typedef CommandFactory Factory;
 
-        ~CommandRepository()
-        {
-            clear();
-        }
+        ~CommandRepository();
 
         /** 
          * Return the pointer to an added command for use in a Command object.
@@ -112,30 +110,25 @@ namespace RTT
         /**
          * Clears the complete interface and frees all memory.
          */
-        void clear() {
-            while ( !simplecommands.empty() ) {
-                delete simplecommands.begin()->second;
-                simplecommands.erase( simplecommands.begin() );
-            }
-            OperationFactory<DispatchInterface*>::clear();
-        }
+        void clear();
 
         /**
          * Returns the names of all commands added to this interface.
          * @see getNames() to get a list of all commands available to scripting.
          */
-        std::vector<std::string> getCommands() const {
-            return keys( simplecommands );
-        }
+        std::vector<std::string> getCommands() const;
 
         /**
          * Query for the existence of a Command in this interface.
          * @see hasMember() to verify if a command is available to scripting as well.
          */
-        bool hasCommand(const std::string& name) const {
-            return simplecommands.count(name) == 1;
-        }
+        bool hasCommand(const std::string& name) const;
 
+        /**
+         * Removes a previously added command.
+         */
+        void removeCommand(const std::string& name);
+        
         /** 
          * Add a Command object to the command interface. The command is 
          * added to the C++ interface and not added to the scripting interface.
