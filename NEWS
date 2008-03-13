@@ -1,3 +1,27 @@
+           The Orocos Real-Time Toolkit v1.4.1.
+           ====================================
+
+  The Orocos development team is pleased to announce the first bug-fix
+release of the Real-Time Toolkit v1.4, a C++ toolkit for building
+ component based, real-time robotics and machine control applications.
+
+You can download this release from
+  <http://www.orocos.org/stable/rtt/v1.4.1/orocos-rtt-1.4.1-src.tar.bz2>
+and read the installation instructions on
+  <http://www.orocos.org/stable/documentation/rtt/v1.4.x/doc-xml/orocos-installation.html>
+The main manual for building your own components can be found on
+  <http://www.orocos.org/stable/documentation/rtt/v1.4.x/doc-xml/orocos-components-manual.html>
+
+In addition to documentation updates and various minor bug fixes, the
+following reported bugs were fixed in this release:
+
+  ID     Vers   TargetM  Summary 
+ 178   	 rtt-b 	 1.4.1   Event transition in state machine script undetected if no 'select' statement
+ 481 	 1.4.0	 1.4.1 	 connectPorts only partially connects two read ports
+ 482 	 1.4.0	 1.4.1 	 Corba's createMethodAny and createCommandAny methods broken
+ 486 	 1.4.0	 1.4.1 	 SimulationThread locks up system under Xenomai 2.4
+ 521 	 1.4.0	 1.4.1 	 event transitions can cause crashes (in state machines,...)
+
            The Orocos Real-Time Toolkit v1.4.0.
            ====================================
 
