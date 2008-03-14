@@ -167,18 +167,18 @@ void TimeTest::testTimers()
     CPPUNIT_ASSERT( timer.arm(3, 0.8) );
     CPPUNIT_ASSERT( timer.arm(3, 0.9) );
 
-    CPPUNIT_ASSERT( timer.isActive( 0 ) );
-    CPPUNIT_ASSERT( timer.isActive( 1 ) );
-    CPPUNIT_ASSERT( timer.isActive( 2 ) );
-    CPPUNIT_ASSERT( timer.isActive( 3 ) );
+    CPPUNIT_ASSERT( timer.isArmed( 0 ) );
+    CPPUNIT_ASSERT( timer.isArmed( 1 ) );
+    CPPUNIT_ASSERT( timer.isArmed( 2 ) );
+    CPPUNIT_ASSERT( timer.isArmed( 3 ) );
 
     sleep(1);
 
     // Test clearing
-    CPPUNIT_ASSERT( !timer.isActive( 0 ) );
-    CPPUNIT_ASSERT( !timer.isActive( 1 ) );
-    CPPUNIT_ASSERT( !timer.isActive( 2 ) );
-    CPPUNIT_ASSERT( !timer.isActive( 3 ) );
+    CPPUNIT_ASSERT( !timer.isArmed( 0 ) );
+    CPPUNIT_ASSERT( !timer.isArmed( 1 ) );
+    CPPUNIT_ASSERT( !timer.isArmed( 2 ) );
+    CPPUNIT_ASSERT( !timer.isArmed( 3 ) );
 
     // Test sequence
     CPPUNIT_ASSERT( timer.occured.size() == 4 );
@@ -218,10 +218,10 @@ void TimeTest::testTimerPeriod()
     CPPUNIT_ASSERT( timer.startTimer(3, 0.5) );
     CPPUNIT_ASSERT( timer.startTimer(3, 0.2) );
 
-    CPPUNIT_ASSERT( timer.isActive( 0 ) );
-    CPPUNIT_ASSERT( timer.isActive( 1 ) );
-    CPPUNIT_ASSERT( timer.isActive( 2 ) );
-    CPPUNIT_ASSERT( timer.isActive( 3 ) );
+    CPPUNIT_ASSERT( timer.isArmed( 0 ) );
+    CPPUNIT_ASSERT( timer.isArmed( 1 ) );
+    CPPUNIT_ASSERT( timer.isArmed( 2 ) );
+    CPPUNIT_ASSERT( timer.isArmed( 3 ) );
 
     sleep(1);
 
@@ -230,10 +230,10 @@ void TimeTest::testTimerPeriod()
     CPPUNIT_ASSERT( timer.killTimer( 1 ) );
     CPPUNIT_ASSERT( timer.killTimer( 2 ) );
     CPPUNIT_ASSERT( timer.killTimer( 3 ) );
-    CPPUNIT_ASSERT( !timer.isActive( 0 ) );
-    CPPUNIT_ASSERT( !timer.isActive( 1 ) );
-    CPPUNIT_ASSERT( !timer.isActive( 2 ) );
-    CPPUNIT_ASSERT( !timer.isActive( 3 ) );
+    CPPUNIT_ASSERT( !timer.isArmed( 0 ) );
+    CPPUNIT_ASSERT( !timer.isArmed( 1 ) );
+    CPPUNIT_ASSERT( !timer.isArmed( 2 ) );
+    CPPUNIT_ASSERT( !timer.isArmed( 3 ) );
 
     // Test sequence
     //CPPUNIT_ASSERT( timer.occured.size() == 4 ); hard to estimate
