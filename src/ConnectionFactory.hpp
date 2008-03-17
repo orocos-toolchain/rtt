@@ -146,15 +146,12 @@ namespace RTT
         template<class T>
         BufferConnectionInterface<T>* ConnectionFactory<T>::createBuffer(PortInterface* writer, PortInterface* reader, int size, const T& initial_value, ConnectionTypes::ConnectionType type )
         {
-            WriteBufferPort<T>* wt = dynamic_cast<WriteBufferPort<T>*>( writer );
-            ReadBufferPort<T>* rt  = dynamic_cast<ReadBufferPort<T>*>( reader );
-
             BufferBase* conn_buffer = 0;
             int protocol = 0;
             if ( (protocol = writer->serverProtocol()) ) {
                 if ( reader->serverProtocol() ) {
-                    log() << "Can not connect two remote ports." <<endlog(Error);
-                    log() << "One must be local and one must be remote." <<endlog(Error);
+                    log(Error) << "Can not connect two remote ports." <<endlog();
+                    log(Error) << "One must be local and one must be remote." <<endlog();
                     return 0;
                 }
                 detail::TypeTransporter* tt =writer->getTypeInfo()->getProtocol( writer->serverProtocol() );
@@ -165,7 +162,7 @@ namespace RTT
                 if ( (protocol=reader->serverProtocol()) ) {
                     detail::TypeTransporter* tt = reader->getTypeInfo()->getProtocol( reader->serverProtocol() );
                     if (tt)
-                        conn_buffer = tt->bufferProxy(writer);
+                        conn_buffer = tt->bufferProxy(reader);
                 }
             }
             // if BufferBase, we already got a remote connection.
@@ -181,6 +178,9 @@ namespace RTT
                 bci->addWriter(writer);
                 return bci;
             }
+
+            WriteBufferPort<T>* wt = dynamic_cast<WriteBufferPort<T>*>( writer );
+            ReadBufferPort<T>* rt  = dynamic_cast<ReadBufferPort<T>*>( reader );
 
             if ( wt == 0 || rt == 0 || wt->connection() || rt->connection() ){
                 Logger::log() <<Logger::Warning<< "ConnectionFactory could not create a BufferConnection between Writer:"<<writer->getName() <<" and Reader:"
@@ -215,16 +215,12 @@ namespace RTT
         template<class T>
         DataConnectionInterface<T>* ConnectionFactory<T>::createDataObject(PortInterface* writer, PortInterface* reader, const T& initial_value, ConnectionTypes::ConnectionType type)
         {
-            
-            WriteDataPort<T>* wt = dynamic_cast<WriteDataPort<T>*>( writer );
-            ReadDataPort<T>* rt  = dynamic_cast<ReadDataPort<T>*>( reader );
-
             DataSourceBase::shared_ptr conn_data;
             int protocol = 0;
             if ( (protocol = writer->serverProtocol()) ) {
                 if ( reader->serverProtocol() ) {
-                    log() << "Can not connect two remote ports." <<endlog(Error);
-                    log() << "One must be local and one must be remote." <<endlog(Error);
+                    log(Error) << "Can not connect two remote ports." <<endlog();
+                    log(Error) << "One must be local and one must be remote." <<endlog();
                     return 0;
                 }
                 detail::TypeTransporter* tt = writer->getTypeInfo()->getProtocol( writer->serverProtocol() );
@@ -233,9 +229,9 @@ namespace RTT
             }
             else {
                 if ( (protocol=reader->serverProtocol()) ) {
-                    detail::TypeTransporter* tt =writer->getTypeInfo()->getProtocol( writer->serverProtocol() );
+                    detail::TypeTransporter* tt = reader->getTypeInfo()->getProtocol( reader->serverProtocol() );
                     if (tt)
-                        conn_data = tt->dataProxy(writer); // else: let it fail further on.
+                        conn_data = tt->dataProxy(reader); // else: let it fail further on.
                 }
             }
             // if DataBase, we already got a remote connection.
@@ -247,10 +243,14 @@ namespace RTT
                     return 0;
                 }
                 DataConnectionInterface<T>* bci = new DataConnection<T>( bi );
+                // the remote one of these will fail to add.
                 bci->addReader(reader);
                 bci->addWriter(writer);
                 return bci;
             }
+
+            WriteDataPort<T>* wt = dynamic_cast<WriteDataPort<T>*>( writer );
+            ReadDataPort<T>* rt  = dynamic_cast<ReadDataPort<T>*>( reader );
 
             if ( wt == 0 || rt == 0 || wt->connection() || rt->connection() ) {
                 Logger::log() <<Logger::Warning<< "ConnectionFactory could not create a DataConnection between Writer:"<<writer->getName() <<" and Reader:"
