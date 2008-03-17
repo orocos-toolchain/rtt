@@ -223,6 +223,13 @@ module RTT
        */
       boolean disconnectPeers( in string name );
 
+      /**
+       * Connect all compatible and equally named
+       * data ports with another ControlTask's 
+       * data ports.
+       */
+      boolean connectPorts( in ControlTask p );
+
     };
   };
 };

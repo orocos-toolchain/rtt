@@ -359,6 +359,24 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
+
+  virtual
+  CORBA::Boolean connectDataPort (
+     const char * port_name,
+     ::RTT::Corba::AssignableExpression_ptr data
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+
+  virtual
+  CORBA::Boolean connectBufferPort (
+     const char * port_name,
+     ::RTT::Corba::BufferChannel_ptr buffer
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
 };
 
 

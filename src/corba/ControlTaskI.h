@@ -380,6 +380,15 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
+
+  virtual
+  CORBA::Boolean connectPorts (
+      ::RTT::Corba::ControlTask_ptr p
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+  
 };
 
 

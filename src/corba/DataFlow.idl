@@ -93,6 +93,18 @@ module RTT
        * methods above will setup a new connection.
        */
       boolean isConnected(in string port_name);
+      
+      /**
+       * Connect a data port from this interface with an external
+       * data channel.
+       */
+      boolean connectDataPort(in string port_name, in AssignableExpression data);
+
+      /**
+       * Connect a buffer port from this interface with an external
+       * buffer channel.
+       */
+      boolean connectBufferPort(in string port_name, in BufferChannel buffer); 
     };
   };
 };

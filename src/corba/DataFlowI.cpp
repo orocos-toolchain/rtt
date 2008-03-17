@@ -70,6 +70,8 @@
 #include "PortInterface.hpp"
 #include "ConnectionInterface.hpp"
 #include "Logger.hpp"
+#include "CorbaPort.hpp"
+#include "ControlTaskProxy.hpp"
 
 using namespace RTT;
 using namespace RTT::Corba;
@@ -253,4 +255,41 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::isConnected (
     return p->connected();
 }
 
+CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectDataPort (
+     const char * port_name,
+     ::RTT::Corba::AssignableExpression_ptr data
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+{
+    PortInterface* p = mdf->getPort(port_name);
+    if ( p == 0)
+        return 0;
+    // Create a helper proxy object and use the common C++ calls to connect to that proxy.
+    ::RTT::Corba::CorbaPort cport( port_name, _this(), data, ControlTaskProxy::ProxyPOA() ) ;
+    ConnectionInterface::shared_ptr ci = cport.createConnection( p );
+    if (ci)
+        ci->connect();
+    return ci->connected();
+}
+
+CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectBufferPort (
+     const char * port_name,
+     ::RTT::Corba::BufferChannel_ptr buffer
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+{
+    PortInterface* p = mdf->getPort(port_name);
+    if ( p == 0)
+        return 0;
+    // Create a helpr proxy object and use the common C++ calls to connect to that proxy.
+    ::RTT::Corba::CorbaPort cport( port_name, _this(), buffer, ControlTaskProxy::ProxyPOA() ) ;
+    ConnectionInterface::shared_ptr ci = cport.createConnection(p);
+    if (ci)
+        ci->connect();
+    return ci->connected();
+}
 

@@ -58,40 +58,61 @@ namespace RTT
     class CorbaPort
         : public PortInterface
     {
-        DataFlowInterface_var mdata;
+        AssignableExpression_var mdatachannel;
+        BufferChannel_var mbufchannel;
+        DataFlowInterface_var mdflow;
         ConnectionInterface::shared_ptr dc;
     public:
         CorbaPort(const std::string& name, DataFlowInterface_ptr dflow, PortableServer::POA_ptr )
             : PortInterface(name),
-              mdata( DataFlowInterface::_duplicate(dflow) )
+              mdatachannel(0), mbufchannel(0),
+              mdflow( DataFlowInterface::_duplicate(dflow) )
+        {
+        }
+        
+        CorbaPort(const std::string& name, DataFlowInterface_ptr dflow, AssignableExpression_ptr datachannel, PortableServer::POA_ptr )
+            : PortInterface(name),
+              mdatachannel(AssignableExpression::_duplicate(datachannel)), mbufchannel(0),
+              mdflow( DataFlowInterface::_duplicate(dflow) )
+        {
+        }
+
+        CorbaPort(const std::string& name, DataFlowInterface_ptr dflow, BufferChannel_ptr bufchannel, PortableServer::POA_ptr )
+            : PortInterface(name),
+              mdatachannel(0), mbufchannel( BufferChannel::_duplicate(bufchannel)),
+              mdflow( DataFlowInterface::_duplicate(dflow) )
         {
         }
 
         AssignableExpression_ptr getDataChannel()
         {
-            return mdata->createDataChannel( this->getName().c_str() );
+            if ( mdatachannel.in() )
+                return AssignableExpression::_duplicate(mdatachannel);
+            return mdflow->createDataChannel( this->getName().c_str() );
         }
 
         BufferChannel_ptr getBufferChannel()
         {
-            return mdata->createBufferChannel( this->getName().c_str() );
+            if ( mbufchannel.in() )
+                return BufferChannel::_duplicate(mbufchannel);
+            return mdflow->createBufferChannel( this->getName().c_str() );
         }
 
         /**
          * Get the PortType of this port.
          */
         virtual PortType getPortType() const {
-            return PortType(int(mdata->getPortType( this->getName().c_str() )));
+            return PortType(int(mdflow->getPortType( this->getName().c_str() )));
         }
 
         virtual const TypeInfo* getTypeInfo() const {
-            TypeInfo* ret = TypeInfoRepository::Instance()->type( mdata->getDataType(this->getName().c_str()) ) ; 
+            TypeInfo* ret = TypeInfoRepository::Instance()->type( mdflow->getDataType(this->getName().c_str()) ) ; 
             if (ret) return ret;
             return detail::DataSourceTypeInfo<detail::UnknownType>::getTypeInfo();
         }
 
         virtual bool connected() const {
-            return mdata->isConnected( this->getName().c_str() );
+            return mdflow->isConnected( this->getName().c_str() );
         }
 
         virtual ConnectionInterface::shared_ptr connection() const {
@@ -110,11 +131,11 @@ namespace RTT
         }
 
         virtual PortInterface* clone() const {
-            return new CorbaPort( this->getName(), mdata.in(), 0 );
+            return new CorbaPort( this->getName(), mdflow.in(), 0 );
         }
 
         virtual PortInterface* antiClone() const {
-            return new CorbaPort( this->getName(), mdata.in(), 0 );
+            return new CorbaPort( this->getName(), mdflow.in(), 0 );
         }
 
         /**
@@ -124,8 +145,8 @@ namespace RTT
         {
             // prevent infinite call-back:
             if ( dynamic_cast<CorbaPort*>(other) ) {
-                log() << "Can not connect two remote ports." <<endlog(Error);
-                log() << "One must be local and one must be remote." <<endlog(Error);
+                log(Error) << "Can not connect two remote ports." <<endlog();
+                log(Error) << "One must be local and one must be remote." <<endlog();
                 return 0;
             }
 
@@ -139,7 +160,7 @@ namespace RTT
         virtual ConnectionInterface::shared_ptr createConnection(ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree) 
         {
             Logger::In in("CorbaPort");
-            log() << "Can not create remote port connection without local port." <<endlog(Error);
+            log(Error) << "Can not create remote port connection without local port." <<endlog();
             return 0;
         }
     };

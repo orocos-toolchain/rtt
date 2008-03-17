@@ -570,4 +570,15 @@ CORBA::Boolean Orocos_ControlTask_i::disconnectPeers (
     return true;
 }
 
+CORBA::Boolean Orocos_ControlTask_i::connectPorts (
+    ::RTT::Corba::ControlTask_ptr p
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    TaskContext* t = ControlTaskProxy::Create( p );
+    return mtask->connectPorts( t );
+}
+
 
