@@ -163,6 +163,10 @@ namespace RTT
             log(Error) << "Can not create remote port connection without local port." <<endlog();
             return 0;
         }
+
+        virtual int serverProtocol() const {
+            return ORO_CORBA_PROTOCOL_ID;
+        }
     };
 
 }}
