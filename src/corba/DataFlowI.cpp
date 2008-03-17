@@ -125,7 +125,8 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
     if ( p->connected() == false) {
         ci = p->createConnection();
         // A newly created connection starts unconnected.
-        ci->connect();
+        if (ci)
+            ci->connect();
     } else {
         ci = p->connection();
     }
@@ -160,7 +161,8 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
     if ( p->connected() == false) {
         ci = p->createConnection();
         // A newly created connection starts unconnected.
-        ci->connect();
+        if (ci)
+            ci->connect();
     } else {
         ci = p->connection();
     }
@@ -269,9 +271,11 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectDataPort (
     // Create a helper proxy object and use the common C++ calls to connect to that proxy.
     ::RTT::Corba::CorbaPort cport( port_name, _this(), data, ControlTaskProxy::ProxyPOA() ) ;
     ConnectionInterface::shared_ptr ci = cport.createConnection( p );
-    if (ci)
+    if (ci) {
         ci->connect();
-    return ci->connected();
+        return ci->connected();
+    }
+    return 0;
 }
 
 CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectBufferPort (
@@ -288,8 +292,10 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectBufferPort (
     // Create a helpr proxy object and use the common C++ calls to connect to that proxy.
     ::RTT::Corba::CorbaPort cport( port_name, _this(), buffer, ControlTaskProxy::ProxyPOA() ) ;
     ConnectionInterface::shared_ptr ci = cport.createConnection(p);
-    if (ci)
+    if (ci) {
         ci->connect();
-    return ci->connected();
+        return ci->connected();
+    }
+    return 0;
 }
 
