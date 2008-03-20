@@ -4,6 +4,8 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <TaskContext.hpp>
+#include <DataPort.hpp>
+#include <BufferPort.hpp>
 #include <corba/ControlTaskServer.hpp>
 #include <corba/ControlTaskProxy.hpp>
 #include <string>
@@ -18,14 +20,26 @@ class CorbaTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testRemoteMethodC );
     CPPUNIT_TEST( testRemoteMethod );
     CPPUNIT_TEST( testAnyMethod );
+    CPPUNIT_TEST( testPorts );
+    CPPUNIT_TEST( testConnectPorts );
+    CPPUNIT_TEST( testConnections );
     CPPUNIT_TEST( cleanupCorba );
     
     CPPUNIT_TEST_SUITE_END();
 
     TaskContext* tc;
+    TaskContext* t2;
     Corba::ControlTaskProxy* tp;
     Corba::ControlTaskServer* ts;
+    Corba::ControlTaskProxy* tp2;
+    Corba::ControlTaskServer* ts2;
     TaskObject* createMethodFactory();
+    
+    // Ports
+    DataPort<double>* md1;
+    DataPort<double>* md2;
+    BufferPort<double>* mb1;
+    BufferPort<double>* mb2;
 
     // ref/const-ref tests:
     double ret;
@@ -60,6 +74,9 @@ public:
     void testRemoteMethodC();
     void testRemoteMethod();
     void testAnyMethod();
+    void testPorts();
+    void testConnectPorts();
+    void testConnections();
 };
 
 #endif

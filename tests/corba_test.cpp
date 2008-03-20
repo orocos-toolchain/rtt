@@ -33,9 +33,19 @@ CPPUNIT_TEST_SUITE_REGISTRATION( CorbaTest );
 void 
 CorbaTest::setUp()
 {
+    md1 = new DataPort<double>("md", 1.0);
+    md2 = new DataPort<double>("md", 1.0);
+    mb1 = new BufferPort<double>("mb", 10, 1.0);
+    mb2 = new BufferPort<double>("mb", 10, 1.0);
+    
     tc =  new TaskContext( "root" );
     tc->addObject( this->createMethodFactory() );
+    t2 = new TaskContext("other");
 
+    tc->ports()->addPort( md1 );
+    t2->ports()->addPort( md2 );
+    tc->ports()->addPort( mb1 );
+    t2->ports()->addPort( mb2 );
 }
 
 
@@ -202,4 +212,70 @@ void CorbaTest::testAnyMethod()
     CPPUNIT_ASSERT( m4.in() );
 
     CPPUNIT_ASSERT(m4->executeAny( any_args.in() ));
+}
+
+void CorbaTest::testPorts()
+{
+    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
+    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+    
+}
+
+// Test the IDL connectPorts statement.
+void CorbaTest::testConnectPorts()
+{
+    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
+    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+    
+    CPPUNIT_ASSERT( ts->server()->connectPorts( ts2->server() ) );
+    
+    // DATA PORTS
+    // Check if connection succeeded both ways:
+    CPPUNIT_ASSERT( md1->connected() );
+    CPPUNIT_ASSERT( md2->connected() );
+    // Check if both ports return same initial value: 
+    CPPUNIT_ASSERT_EQUAL( 1.0, md1->Get() );
+    CPPUNIT_ASSERT_EQUAL( 1.0, md2->Get() );
+    
+    // Check writing from both ways:
+    md1->Set( 3.0 );
+    CPPUNIT_ASSERT_EQUAL( 3.0, md1->Get() );
+    CPPUNIT_ASSERT_EQUAL( 3.0, md2->Get() );
+    md2->Set( -3.0 );
+    CPPUNIT_ASSERT_EQUAL( -3.0, md1->Get() );
+    CPPUNIT_ASSERT_EQUAL( -3.0, md2->Get() );
+    
+    // 
+    // BUFFER PORTS
+    // Check if connection succeeded both ways:
+    double val = 0.0;
+    CPPUNIT_ASSERT( mb1->connected() );
+    CPPUNIT_ASSERT( mb2->connected() );
+    CPPUNIT_ASSERT_EQUAL( 10, mb2->size() );
+    
+    // Check writing from both ways:
+    CPPUNIT_ASSERT( mb1->Push( 3.0 ) );
+    CPPUNIT_ASSERT( mb1->front() == 3.0 );
+    CPPUNIT_ASSERT( mb2->front() == 3.0 );
+    CPPUNIT_ASSERT( mb2->Pop( val ));
+    CPPUNIT_ASSERT( val == 3.0 );
+    
+    CPPUNIT_ASSERT( mb2->Push( -3.0 ) );
+    CPPUNIT_ASSERT( mb1->front() == -3.0 );
+    CPPUNIT_ASSERT( mb2->front() == -3.0 );
+    CPPUNIT_ASSERT( mb2->Pop( val ));
+    CPPUNIT_ASSERT( val == -3.0 );
+}
+
+void CorbaTest::testConnections()
+{
+    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
+    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+    
 }
