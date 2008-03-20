@@ -328,11 +328,7 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectPorts (
     if (is_buffer)
 	cport.getBufferChannel();
     else
-	if (! cport.getDataChannel())
-	{
-	    RTT::log(Error) << "cannot create data channel" << endlog(Error);
-	    return false;
-	}
+	cport.getDataChannel();
 
     ConnectionInterface::shared_ptr ci = cport.createConnection(p);
     if (ci)
