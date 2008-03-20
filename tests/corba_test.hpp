@@ -74,9 +74,14 @@ public:
     void testRemoteMethodC();
     void testRemoteMethod();
     void testAnyMethod();
+
     void testPorts();
     void testConnectPorts();
     void testConnections();
+
+    // helper test functions
+    void testPortStats();
+    void testPortDisconnect();
 };
 
 #endif
