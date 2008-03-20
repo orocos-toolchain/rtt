@@ -124,6 +124,12 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
     ConnectionInterface::shared_ptr ci;
     if ( p->connected() == false) {
         ci = p->createConnection();
+	if (! ci)
+	{
+	    RTT::log() << "Failed to create CORBA Data Connection for Port: "<< port_name <<endlog(Error);
+	    return 0;
+	}
+
         // A newly created connection starts unconnected.
         if (ci)
             ci->connect();
@@ -160,6 +166,12 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
     ConnectionInterface::shared_ptr ci;
     if ( p->connected() == false) {
         ci = p->createConnection();
+	if (! ci)
+	{
+	    RTT::log() << "Failed to create CORBA Data Connection for Port: "<< port_name <<endlog(Error);
+	    return 0;
+	}
+	
         // A newly created connection starts unconnected.
         if (ci)
             ci->connect();
