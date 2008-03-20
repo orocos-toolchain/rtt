@@ -124,12 +124,6 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
     ConnectionInterface::shared_ptr ci;
     if ( p->connected() == false) {
         ci = p->createConnection();
-	if (! ci)
-	{
-	    RTT::log() << "Failed to create CORBA Data Connection for Port: "<< port_name <<endlog(Error);
-	    return 0;
-	}
-
         // A newly created connection starts unconnected.
         if (ci)
             ci->connect();
@@ -137,8 +131,13 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
         ci = p->connection();
     }
 
-    if ( !ci || ci->getDataSource()->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID) == 0) {
+    if ( !ci ) {
         RTT::log() << "Failed to create CORBA Data Connection for Port: "<< port_name <<endlog(Error);
+        return 0;
+    }
+    else if ( ci->getDataSource()->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID) == 0 )
+    {
+        RTT::log() << "CORBA transport unavailable in data connection for port: "<< port_name << endlog(Error);
         return 0;
     }
 
@@ -166,12 +165,6 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
     ConnectionInterface::shared_ptr ci;
     if ( p->connected() == false) {
         ci = p->createConnection();
-	if (! ci)
-	{
-	    RTT::log() << "Failed to create CORBA Data Connection for Port: "<< port_name <<endlog(Error);
-	    return 0;
-	}
-	
         // A newly created connection starts unconnected.
         if (ci)
             ci->connect();
@@ -180,8 +173,13 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
     }
 
     // use the datasource to obtain the protocol.
-    if ( !ci || ci->getDataSource()->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID) == 0) {
+    if ( !ci ) {
         RTT::log() << "Failed to create CORBA Buffer Connection for Port: "<< port_name <<endlog(Error);
+        return 0;
+    }
+    else if ( ci->getDataSource()->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID) == 0 )
+    {
+        RTT::log() << "CORBA transport unavailable for connection on port: "<< port_name << endlog(Error);
         return 0;
     }
 
