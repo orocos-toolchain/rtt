@@ -105,6 +105,11 @@ module RTT
        * buffer channel.
        */
       boolean connectBufferPort(in string port_name, in BufferChannel buffer); 
+
+      /**
+       * Connect the given named port to the given remote port
+       */
+      boolean connectPorts(in string local_port, in DataFlowInterface remote_ports, in string remote_port, in boolean is_buffer);
     };
   };
 };

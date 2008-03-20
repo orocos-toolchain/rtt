@@ -377,6 +377,17 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
+
+  virtual
+  CORBA::Boolean connectPorts (
+     const char * local_port, 
+     ::RTT::Corba::DataFlowInterface_ptr remote_ports, 
+     const char * remote_port,
+     CORBA::Boolean is_buffer
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
 };
 
 

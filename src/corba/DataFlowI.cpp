@@ -309,3 +309,37 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectBufferPort (
     return 0;
 }
 
+CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectPorts (
+     const char * local_name, 
+     ::RTT::Corba::DataFlowInterface_ptr remote_ports, 
+     const char * remote_name,
+     CORBA::Boolean is_buffer
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ))
+{
+    PortInterface* p = mdf->getPort(local_name);
+    if ( p == 0)
+        return false;
+
+    // Create a helpr proxy object and use the common C++ calls to connect to that proxy.
+    ::RTT::Corba::CorbaPort cport( remote_name, remote_ports, ControlTaskProxy::ProxyPOA() ) ;
+    if (is_buffer)
+	cport.getBufferChannel();
+    else
+	if (! cport.getDataChannel())
+	{
+	    RTT::log(Error) << "cannot create data channel" << endlog(Error);
+	    return false;
+	}
+
+    ConnectionInterface::shared_ptr ci = cport.createConnection(p);
+    if (ci)
+    {
+        ci->connect();
+	return ci->connected();
+    }
+    return false;
+}
+
