@@ -98,6 +98,10 @@ namespace RTT
             return mdflow->createBufferChannel( this->getName().c_str() );
         }
 
+	virtual ConnectionModel getConnectionModel() const {
+	    return ConnectionModel(int(mdflow->getConnectionModel( this->getName().c_str() )));
+	}
+
         /**
          * Get the PortType of this port.
          */

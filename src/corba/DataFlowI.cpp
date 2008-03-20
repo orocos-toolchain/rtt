@@ -117,10 +117,16 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
     RTT::Logger::In in("createDataChannel");
   // Add your implementation here
     PortInterface* p = mdf->getPort(port_name);
+
     if ( p == 0) {
         RTT::log() << "No such Port: "<< port_name <<endlog(Error);
         return 0;
     }
+    else if (p->getConnectionModel() != PortInterface::Data) {
+	RTT::log(Error) << port_name << " is not a data port" << RTT::endlog(Error);
+	return 0;
+    }
+
     ConnectionInterface::shared_ptr ci;
     if ( p->connected() == false) {
         ci = p->createConnection();
@@ -159,9 +165,17 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
     CORBA::SystemException
   ))
 {
+    RTT::Logger::In in("createBufferChannel");
     PortInterface* p = mdf->getPort(port_name);
-    if ( p == 0)
+    if ( p == 0) {
+        RTT::log() << "No such Port: "<< port_name <<endlog(Error);
         return 0;
+    }
+    else if (p->getConnectionModel() != PortInterface::Buffered) {
+	RTT::log(Error) << port_name << " is not a buffer port" << RTT::endlog(Error);
+	return 0;
+    }
+
     ConnectionInterface::shared_ptr ci;
     if ( p->connected() == false) {
         ci = p->createConnection();
@@ -222,6 +236,19 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
     return ret._retn();
 }
 
+::RTT::Corba::DataFlowInterface::ConnectionModel RTT_Corba_DataFlowInterface_i::getConnectionModel (
+    const char * port_name
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    PortInterface* p = mdf->getPort(port_name);
+    if (p == 0)
+        return ::RTT::Corba::DataFlowInterface::ConnectionModel();
+    return ::RTT::Corba::DataFlowInterface::ConnectionModel( int(p->getConnectionModel()) );
+}
+  
 
 ::RTT::Corba::DataFlowInterface::PortType RTT_Corba_DataFlowInterface_i::getPortType (
     const char * port_name
@@ -278,6 +305,9 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectDataPort (
     PortInterface* p = mdf->getPort(port_name);
     if ( p == 0)
         return 0;
+    else if (p->getConnectionModel() != PortInterface::Data)
+	RTT::log(Error) << port_name << " is not a data port" << RTT::endlog(Error);
+
     // Create a helper proxy object and use the common C++ calls to connect to that proxy.
     ::RTT::Corba::CorbaPort cport( port_name, _this(), data, ControlTaskProxy::ProxyPOA() ) ;
     ConnectionInterface::shared_ptr ci = cport.createConnection( p );
@@ -299,6 +329,9 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectBufferPort (
     PortInterface* p = mdf->getPort(port_name);
     if ( p == 0)
         return 0;
+    else if (p->getConnectionModel() != PortInterface::Buffered)
+	RTT::log(Error) << port_name << " is not a buffer port" << RTT::endlog(Error);
+
     // Create a helpr proxy object and use the common C++ calls to connect to that proxy.
     ::RTT::Corba::CorbaPort cport( port_name, _this(), buffer, ControlTaskProxy::ProxyPOA() ) ;
     ConnectionInterface::shared_ptr ci = cport.createConnection(p);

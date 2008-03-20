@@ -337,6 +337,14 @@ public:
     ));
   
   virtual
+  ::RTT::Corba::DataFlowInterface::ConnectionModel getConnectionModel (
+      const char * port_name
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+  
+  virtual
   ::RTT::Corba::DataFlowInterface::PortType getPortType (
       const char * port_name
     )

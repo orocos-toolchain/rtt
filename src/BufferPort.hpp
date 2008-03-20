@@ -150,6 +150,7 @@ namespace RTT
         }
 
         virtual PortType getPortType() const { return ReadPort; }
+	virtual ConnectionModel getConnectionModel() const { return Buffered; }
 
         virtual const TypeInfo* getTypeInfo() const { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
 
@@ -373,6 +374,7 @@ namespace RTT
         virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
 
         virtual PortType getPortType() const { return WritePort; }
+	virtual ConnectionModel getConnectionModel() const { return Buffered; }
 
         virtual const TypeInfo* getTypeInfo() const { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
 
@@ -440,6 +442,7 @@ namespace RTT
 
     public:
         typedef PortInterface::PortType PortType;
+        typedef PortInterface::ConnectionModel ConnectionModel;
 
         /**
          * Construct an unconnected Port to a writeable buffer.
@@ -560,6 +563,7 @@ namespace RTT
         virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
 
         virtual PortType getPortType() const { return PortInterface::ReadWritePort; }
+	virtual ConnectionModel getConnectionModel() const { return PortInterface::Buffered; }
 
         virtual const TypeInfo* getTypeInfo() const { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
 

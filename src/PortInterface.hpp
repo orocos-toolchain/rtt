@@ -64,6 +64,12 @@ namespace RTT
          */
         enum PortType { ReadPort, WritePort, ReadWritePort };
  
+        /**
+         * This enum classifies the kind of data connections
+	 * that are available through ports: buffered or data
+         */
+        enum ConnectionModel { Buffered, Data };
+ 
         virtual ~PortInterface();
 
         /**
@@ -84,6 +90,11 @@ namespace RTT
          * Identical to connected().
          */
         bool ready() const;
+
+        /**
+         * Get the ConnectionModel of this port.
+         */
+        virtual ConnectionModel getConnectionModel() const = 0;
 
         /**
          * Get the PortType of this port.

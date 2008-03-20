@@ -46,6 +46,7 @@ module RTT
       typedef sequence<string> PortNames;
 
       enum PortType { ReadPort, WritePort, ReadWritePort };
+      enum ConnectionModel { Buffered, Data };
 
       /**
        * Returns the names of the ports of this component.
@@ -76,6 +77,11 @@ module RTT
        * If the port is not connected, nill is returned.
        */
       Expression createDataObject(in string port_name);
+
+      /**
+       * Check the kind of channel one can get from a given port
+       */
+      ConnectionModel getConnectionModel(in string port_name);
 
       /**
        * Check if a port will read from or write to a Channel.

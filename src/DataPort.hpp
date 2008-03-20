@@ -107,6 +107,7 @@ namespace RTT
         }
 
         virtual PortType getPortType() const { return ReadPort; }
+	virtual ConnectionModel getConnectionModel() const { return Data; }
 
         virtual const TypeInfo* getTypeInfo() const { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
 
@@ -219,6 +220,7 @@ namespace RTT
         }
 
         virtual PortType getPortType() const { return WritePort; }
+	virtual ConnectionModel getConnectionModel() const { return Data; }
 
         virtual const TypeInfo* getTypeInfo() const { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
 
@@ -371,6 +373,7 @@ namespace RTT
         }
 
         virtual PortInterface::PortType getPortType() const { return PortInterface::ReadWritePort; }
+	using ReadDataPort<T>::getConnectionModel;
 
         virtual const TypeInfo* getTypeInfo() const { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
 
