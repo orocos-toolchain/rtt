@@ -310,12 +310,8 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectDataPort (
 
     // Create a helper proxy object and use the common C++ calls to connect to that proxy.
     ::RTT::Corba::CorbaPort cport( port_name, _this(), data, ControlTaskProxy::ProxyPOA() ) ;
-    ConnectionInterface::shared_ptr ci = cport.createConnection( p );
-    if (ci) {
-        ci->connect();
-        return ci->connected();
-    }
-    return 0;
+
+    return p->connectTo( &cport );
 }
 
 CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectBufferPort (
@@ -334,12 +330,8 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectBufferPort (
 
     // Create a helpr proxy object and use the common C++ calls to connect to that proxy.
     ::RTT::Corba::CorbaPort cport( port_name, _this(), buffer, ControlTaskProxy::ProxyPOA() ) ;
-    ConnectionInterface::shared_ptr ci = cport.createConnection(p);
-    if (ci) {
-        ci->connect();
-        return ci->connected();
-    }
-    return 0;
+
+    return p->connectTo( &cport );
 }
 
 CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectPorts (
@@ -360,23 +352,10 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectPorts (
     PortInterface::ConnectionModel remote_model = cport.getConnectionModel();
     if (remote_model != p->getConnectionModel())
     {
-	RTT::log(Error) << "incompatible connection models between ports" << RTT::endlog();
-	return 0;
+        RTT::log(Error) << "Incompatible connection models between ports "<<local_name<< " and "<<remote_name << RTT::endlog();
+        return 0;
     }
 
-    // Create the channel objects
-    if (remote_model == PortInterface::Buffered)
-	cport.getBufferChannel();
-    else
-	cport.getDataChannel();
-
-    // ... and connect
-    ConnectionInterface::shared_ptr ci = cport.createConnection(p);
-    if (ci)
-    {
-        ci->connect();
-	return ci->connected();
-    }
-    return false;
+    return p->connectTo( &cport );
 }
 

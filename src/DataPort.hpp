@@ -78,10 +78,6 @@ namespace RTT
          */
         ReadDataPort& operator=(DataObjectInterface<T>* impl);
 
-	/** Create a connection with a writing port.
-	 */
-        ConnectionInterface::shared_ptr createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
-
         /**
          * Get the current value of this Port.
          * @retval this->data()->Get() if this->connected()
@@ -107,7 +103,7 @@ namespace RTT
         }
 
         virtual PortType getPortType() const { return ReadPort; }
-	virtual ConnectionModel getConnectionModel() const { return Data; }
+        virtual ConnectionModel getConnectionModel() const { return Data; }
 
         virtual const TypeInfo* getTypeInfo() const { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
 
@@ -220,7 +216,7 @@ namespace RTT
         }
 
         virtual PortType getPortType() const { return WritePort; }
-	virtual ConnectionModel getConnectionModel() const { return Data; }
+        virtual ConnectionModel getConnectionModel() const { return Data; }
 
         virtual const TypeInfo* getTypeInfo() const { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
 
@@ -373,7 +369,7 @@ namespace RTT
         }
 
         virtual PortInterface::PortType getPortType() const { return PortInterface::ReadWritePort; }
-	using ReadDataPort<T>::getConnectionModel;
+        virtual PortInterface::ConnectionModel getConnectionModel() const { return PortInterface::Data; }
 
         virtual const TypeInfo* getTypeInfo() const { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
 
@@ -468,23 +464,6 @@ namespace RTT
             } else
                 mconn->setImplementation(impl);
         return *this;
-    }
-
-    template<class T>
-    ConnectionInterface::shared_ptr ReadDataPort<T>::createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type)
-    {
-	// If the other side is remote, we must create the connection
-	// ourselves. In that case, the initial value and buffer size are not
-	// used by the connection factory.
-	//
-	// This is a hack -- it needs a proper solution.
-	if (other->serverProtocol())
-	{
-	    ConnectionFactory<T> cf;
-	    return ConnectionInterface::shared_ptr ( cf.createDataObject(other, this, T(), con_type) );
-	}
-	else
-	    other->createConnection(this, con_type);
     }
 
     template<class T>

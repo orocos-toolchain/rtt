@@ -654,6 +654,14 @@ namespace RTT
         return ControlTaskProxy::Create( ct );
     }
 
+    bool ControlTaskProxy::connectPorts( TaskContext* peer )
+    {
+        if (!mtask)
+            return false;
+        ControlTaskServer* newpeer = ControlTaskServer::Create(peer);
+        return mtask->connectPorts( newpeer->server() );
+    }
+
     Corba::ControlTask_ptr ControlTaskProxy::server() const {
         if ( !mtask )
             return 0;

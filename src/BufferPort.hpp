@@ -72,10 +72,6 @@ namespace RTT
                 mconn->removeReader(this);
         }
 
-	/** Create a connection with a writing port.
-	 */
-        ConnectionInterface::shared_ptr createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
-
         /**
          * Pop a value from the buffer of this Port's connection.
          * @param data The location where to store the popped value.
@@ -150,7 +146,7 @@ namespace RTT
         }
 
         virtual PortType getPortType() const { return ReadPort; }
-	virtual ConnectionModel getConnectionModel() const { return Buffered; }
+        virtual ConnectionModel getConnectionModel() const { return Buffered; }
 
         virtual const TypeInfo* getTypeInfo() const { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
 
@@ -374,7 +370,7 @@ namespace RTT
         virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
 
         virtual PortType getPortType() const { return WritePort; }
-	virtual ConnectionModel getConnectionModel() const { return Buffered; }
+        virtual ConnectionModel getConnectionModel() const { return Buffered; }
 
         virtual const TypeInfo* getTypeInfo() const { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
 
@@ -563,7 +559,7 @@ namespace RTT
         virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
 
         virtual PortType getPortType() const { return PortInterface::ReadWritePort; }
-	virtual ConnectionModel getConnectionModel() const { return PortInterface::Buffered; }
+        virtual ConnectionModel getConnectionModel() const { return PortInterface::Buffered; }
 
         virtual const TypeInfo* getTypeInfo() const { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
 
@@ -654,24 +650,6 @@ namespace RTT
             mconn->setImplementation(impl);
         return *this;
     }
-
-    template<class T>
-    ConnectionInterface::shared_ptr ReadBufferPort<T>::createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type )
-    {
-	// If the other side is remote, we must create the connection
-	// ourselves. In that case, the initial value and buffer size are not
-	// used by the connection factory.
-	//
-	// This is a hack -- it needs a proper solution.
-	if (other->serverProtocol())
-	{
-	    ConnectionFactory<T> cf;
-	    return ConnectionInterface::shared_ptr ( cf.createBuffer(other, this, 0, T(), con_type) );
-	}
-	else
-	    return other->createConnection(this, con_type);
-    }
-
 
     template<class T>
     WriteBufferPort<T>& WriteBufferPort<T>::operator=(BufferInterface<T>* impl)
