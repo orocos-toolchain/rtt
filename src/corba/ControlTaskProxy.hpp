@@ -191,6 +191,8 @@ namespace RTT
 
         virtual TaskContext* getPeer(const std::string& peer_name ) const;
 
+        virtual bool connectPorts( TaskContext* peer );
+
         /**
          * Returns the properties of this Task as a PropertySet.
          */
