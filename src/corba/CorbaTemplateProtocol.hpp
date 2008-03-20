@@ -219,9 +219,7 @@ namespace RTT
               typename RTT::BufferInterface<T>::shared_ptr bi = boost::dynamic_pointer_cast< RTT::BufferInterface<T> >( source );
               log(Debug) << "Creating Corba BufferChannel." << endlog();
               RTT_Corba_BufferChannel_i<T>* cbuf = new RTT_Corba_BufferChannel_i<T>( bi );
-              // activate servant:
-              CORBA::Object_var ret = cbuf->_this();
-              return ret._retn();
+              return cbuf->_this();
           }
       };
 }
