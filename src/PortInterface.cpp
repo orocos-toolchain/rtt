@@ -69,18 +69,18 @@ namespace RTT
 
         // if both are not connected, create a new one:
         if ( other->connection() == 0 ) {
-            ConnectionInterface::shared_ptr ci = this->createConnection();
+            ConnectionInterface::shared_ptr ci = this->createConnection(other);
             if (ci) {
-                if ( other->connectTo( ci ) && ci->connect() ) {
+                if ( ci->connect() ) {
                     return true;
                 }
                 // failed, cleanup.
                 this->disconnect();
                 return false;
             }
-            ci = other->createConnection();
+            ci = other->createConnection( this );
             if (ci) {
-                if ( this->connectTo( ci ) && ci->connect() ){
+                if ( ci->connect() ){
                     return true;
                 }
                 // failed, cleanup.
