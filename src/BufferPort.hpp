@@ -72,6 +72,10 @@ namespace RTT
                 mconn->removeReader(this);
         }
 
+	/** Create a connection with a writing port.
+	 */
+        ConnectionInterface::shared_ptr createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
+
         /**
          * Pop a value from the buffer of this Port's connection.
          * @param data The location where to store the popped value.
@@ -601,6 +605,22 @@ namespace RTT
             return 0;
 #endif
         }
+
+        ConnectionInterface::shared_ptr createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree) 
+        {
+            ConnectionInterface::shared_ptr ret = WriteBufferPort<T>::createConnection(other, con_type);
+            ret->addReader( this );
+            ret->addWriter( other );
+            return ret;
+        }
+
+        ConnectionInterface::shared_ptr createConnection(ConnectionTypes::ConnectionType con_type)
+        {
+            ConnectionInterface::shared_ptr ret = WriteBufferPort<T>::createConnection(con_type);
+            ret->addReader( this );
+            return ret;
+        }
+
     };
 }
 #endif
@@ -630,6 +650,24 @@ namespace RTT
             mconn->setImplementation(impl);
         return *this;
     }
+
+    template<class T>
+    ConnectionInterface::shared_ptr ReadBufferPort<T>::createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type )
+    {
+	// If the other side is remote, we must create the connection
+	// ourselves. In that case, the initial value and buffer size are not
+	// used by the connection factory.
+	//
+	// This is a hack -- it needs a proper solution.
+	if (other->serverProtocol())
+	{
+	    ConnectionFactory<T> cf;
+	    return ConnectionInterface::shared_ptr ( cf.createBuffer(other, this, 0, T(), con_type) );
+	}
+	else
+	    other->createConnection(this, con_type);
+    }
+
 
     template<class T>
     WriteBufferPort<T>& WriteBufferPort<T>::operator=(BufferInterface<T>* impl)
