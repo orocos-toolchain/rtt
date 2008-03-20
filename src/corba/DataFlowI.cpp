@@ -345,8 +345,7 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectBufferPort (
 CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectPorts (
      const char * local_name, 
      ::RTT::Corba::DataFlowInterface_ptr remote_ports, 
-     const char * remote_name,
-     CORBA::Boolean is_buffer
+     const char * remote_name
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -358,11 +357,20 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectPorts (
 
     // Create a helpr proxy object and use the common C++ calls to connect to that proxy.
     ::RTT::Corba::CorbaPort cport( remote_name, remote_ports, ControlTaskProxy::ProxyPOA() ) ;
-    if (is_buffer)
+    PortInterface::ConnectionModel remote_model = cport.getConnectionModel();
+    if (remote_model != p->getConnectionModel())
+    {
+	RTT::log(Error) << "incompatible connection models between ports" << RTT::endlog();
+	return 0;
+    }
+
+    // Create the channel objects
+    if (remote_model == PortInterface::Buffered)
 	cport.getBufferChannel();
     else
 	cport.getDataChannel();
 
+    // ... and connect
     ConnectionInterface::shared_ptr ci = cport.createConnection(p);
     if (ci)
     {

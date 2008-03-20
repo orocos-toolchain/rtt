@@ -390,8 +390,7 @@ public:
   CORBA::Boolean connectPorts (
      const char * local_port, 
      ::RTT::Corba::DataFlowInterface_ptr remote_ports, 
-     const char * remote_port,
-     CORBA::Boolean is_buffer
+     const char * remote_port
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
