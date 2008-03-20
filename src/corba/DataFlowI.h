@@ -159,7 +159,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
-      return mbuf->full();
+      return mbuf->empty();
   }
   
   virtual
