@@ -669,7 +669,7 @@ namespace RTT
 	    return ConnectionInterface::shared_ptr ( cf.createBuffer(other, this, 0, T(), con_type) );
 	}
 	else
-	    other->createConnection(this, con_type);
+	    return other->createConnection(this, con_type);
     }
 
 
