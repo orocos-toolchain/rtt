@@ -648,19 +648,24 @@
 	In case your application benefits from remote access over a
 	network, the RTT can be used with 'The Ace Orb' or
 	<emphasis>TAO</emphasis>. The RTT was tested with TAO 1.3.x
-	and 1.4.x but should work with more recent versions as
-	well. There are two major TAO development lines.  One line is
-	prepared by OCI (Object Computing Inc.)  and the other by the
-	DOC group. You can find the latest OCI TAO version on <ulink
+	and 1.4.x. There are two major TAO development lines. One line
+	is prepared by <ulink url="http://www.ociweb.com">OCI (Object Computing
+	Inc.)</ulink> and the other by the <ulink
+	url="http://www.dre.vanderbilt.edu/">DOC group</ulink>. You
+	can find the latest OCI TAO version on <ulink
 	url="http://www.theaceorb.com">OCI's TAO website</ulink>.  The
-	DOC group's TAO version, supported by <ulink
-	url="http://www.riverace.com">Riverace</ulink> and <ulink
-	url="http://www.prismtech.com">Prismtech</ulink>, can be found
-	on the
+	DOC group's TAO version can be found on the
 	<ulink url="http://www.cs.wustl.edu/~schmidt/TAO.html">
 	Real-time CORBA with TAO (The ACE ORB) website</ulink>.
 	Debian and Ubuntu users use the latter version when they
 	install from .deb packages.
+      </para>
+      <para>
+	If you need commercial support for any TAO release or seek
+	expert advice on which TAO version or development line to use,
+	consult the
+	<ulink url="http://www.cs.wustl.edu/~schmidt/commercial-support.html">
+	  commercial support website</ulink>.
       </para>
       <section>
 	<title>TAO installation (Optional)</title>
