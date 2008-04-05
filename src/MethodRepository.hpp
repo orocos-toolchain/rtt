@@ -116,7 +116,6 @@ namespace RTT
                 return false;
             }
             simplemethods[meth->getName()] = meth->getMethodImpl();
-            log(Debug) << "Added Method: '"<< meth->getName() <<"'." <<endlog();
             return true;
         }
 

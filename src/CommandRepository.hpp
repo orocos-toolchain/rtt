@@ -152,7 +152,6 @@ namespace RTT
             }
             simplecommands[com->getName()] = com->getCommandImpl()->clone();
             this->add(com->getName(), 0);
-            log(Debug) << "Added Command: '"<< com->getName() <<"'." <<endlog();
             return true;
         }
 

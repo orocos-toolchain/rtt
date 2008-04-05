@@ -136,7 +136,6 @@ namespace RTT
             }
 
             mevents[ename] = e->getImplementation();
-            log(Debug) << "Added Event '"<<ename<<"' to EventService." << endlog();
             return true;
         }
 
