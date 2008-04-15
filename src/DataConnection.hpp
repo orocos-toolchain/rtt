@@ -39,16 +39,11 @@
 #ifndef ORO_EXECUTION_DATA_CONNECTION_HPP
 #define ORO_EXECUTION_DATA_CONNECTION_HPP
 
-#include "DataConnectionInterface.hpp"
+#include "ConnectionInterface.hpp"
 #include "DataObjectInterfaces.hpp"
 
 namespace RTT
 {
-    template<class T>
-    class ReadDataPort;
-    template<class T>
-    class WriteDataPort;
-
     /**
      * A local connection with a DataObject, which is used to connect multiple
      * Ports to that DataObject.
@@ -58,36 +53,20 @@ namespace RTT
      */
     template<class T>
     class DataConnection
-        :public DataConnectionInterface<T>
+        :public ConnectionInterface
     {
         typedef T DataType;
         typename DataObjectInterface<T>::shared_ptr buf;
-        typedef std::vector<ReadDataPort<DataType>*> RList;
-        RList readers;
-        typedef std::vector<WriteDataPort<DataType>*> WList;
-        WList writers;
-        bool mconnected;
     public:
+        typedef boost::intrusive_ptr<DataConnection> shared_ptr;
         /**
          * Create a Data Connection with initially no readers and no writers.
          */
         DataConnection(DataObjectInterface<T>* doi)
-            : buf( doi ), mconnected(false)
+            : buf( doi )
         {
             // See DataObjectInterface constructor docs.
             doi->deref();
-        }
-
-        /**
-         * Create a Data Connection with initially one reader and one writer.
-         */
-        DataConnection(WriteDataPort<DataType>* writer,ReadDataPort<DataType>* reader, DataObjectInterface<T>* doi)
-            : buf( doi ), mconnected(false)
-        {
-            // See DataObjectInterface constructor docs.
-            doi->deref();
-            readers.push_back(reader);
-            writers.push_back(writer);
         }
 
         /**
@@ -106,121 +85,20 @@ namespace RTT
             return BufferBase::shared_ptr();
         }
 
+        virtual const TypeInfo* getTypeInfo() const {
+            return detail::DataSourceTypeInfo<T>::getTypeInfo();
+        }
+        
         void setImplementation( DataObjectInterface<T>* doi ) {
             if ( doi ) {
                 buf = doi;
             }
         }
 
-        bool connect();
+        DataObjectInterface<T>* data() { return buf.get(); }
 
-        virtual bool connected() const { return mconnected; }
-
-        virtual bool disconnect();
-        
-        virtual DataObjectInterface<T>* data() { return buf.get(); }
-
-        virtual const DataObjectInterface<T>* data() const { return buf.get(); }
-
-        virtual bool addReader(PortInterface* r);
-
-        virtual bool removeReader(PortInterface* r);
-
-        virtual bool addWriter(PortInterface* w);
-
-        virtual bool removeWriter(PortInterface* w);
-        
+        const DataObjectInterface<T>* data() const { return buf.get(); }
     };
-}
-
-#endif
-#ifndef ORO_DATA_CONNECTION_INLINE
-#define ORO_DATA_CONNECTION_INLINE
-#include "DataPort.hpp"
-
-namespace RTT
-{
-    template<class T>
-    bool DataConnection<T>::connect()
-    { 
-        // note, this method is not thread-safe.
-        if (!mconnected) { 
-
-            // first check existing connections:
-            for ( typename WList::iterator it( writers.begin() ); it != writers.end(); ++it)
-                if ((*it)->connected())
-                    return false;
-            for ( typename RList::iterator it( readers.begin() ); it != readers.end(); ++it)
-                if ((*it)->connected())
-                    return false;
-
-            // now do connect:
-            for ( typename WList::iterator it( writers.begin() ); it != writers.end(); ++it)
-                (*it)->connect(this);
-            for ( typename RList::iterator it( readers.begin() ); it != readers.end(); ++it)
-                (*it)->connect(this);
-            mconnected = true;
-            return true;
-        }
-        return false;
-    }
-
-    template<class T>
-    bool DataConnection<T>::disconnect()
-    {
-        if (mconnected) { 
-            for ( typename WList::iterator it( writers.begin() ); it != writers.end(); ++it)
-                (*it)->disconnect();
-            for ( typename RList::iterator it( readers.begin() ); it != readers.end(); ++it)
-                (*it)->disconnect();
-            mconnected = false;
-            return true;
-        }
-        return false;
-    }
-        
-    template<class T>
-    bool DataConnection<T>::addReader(PortInterface* r)
-    {
-        ReadDataPort<DataType>* newr = dynamic_cast<ReadDataPort<DataType>*>(r);
-        if ( newr == 0 ) return false;
-        readers.push_back( newr );
-        if ( this->connected() )
-            newr->connect(this);
-        return true;
-    }
-
-    template<class T>
-    bool DataConnection<T>::removeReader(PortInterface* r) {
-        typename RList::iterator it( find(readers.begin(), readers.end(), r ) );
-        if ( it != readers.end() ) {
-            readers.erase(it);
-            return true;
-        }
-        return false;
-    }
-
-    template<class T>
-    bool DataConnection<T>::addWriter(PortInterface* w)
-    {
-        WriteDataPort<DataType>* neww = dynamic_cast<WriteDataPort<DataType>*>(w);
-        if ( neww == 0 ) return false;
-        writers.push_back( neww );
-        if ( this->connected() )
-            neww->connect(this);
-        return true;
-    }
-
-    template<class T>
-    bool DataConnection<T>::removeWriter(PortInterface* w) {
-        typename WList::iterator it( find(writers.begin(), writers.end(), w ) );
-        if ( it != writers.end() ) {
-            writers.erase(it);
-            return true;
-        }
-        return false;
-    }
-        
 }
 
 #endif

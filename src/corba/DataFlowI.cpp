@@ -67,11 +67,12 @@
 // be/be_codegen.cpp:910
 
 #include "DataFlowI.h"
-#include "PortInterface.hpp"
-#include "ConnectionInterface.hpp"
-#include "Logger.hpp"
+#include "../PortInterface.hpp"
+#include "../ConnectionInterface.hpp"
+#include "../Logger.hpp"
 #include "CorbaPort.hpp"
 #include "ControlTaskProxy.hpp"
+
 
 using namespace RTT;
 using namespace RTT::Corba;
@@ -306,12 +307,19 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectDataPort (
     if ( p == 0)
         return 0;
     else if (p->getConnectionModel() != PortInterface::Data)
-	RTT::log(Error) << port_name << " is not a data port" << RTT::endlog(Error);
+        RTT::log(Error) << port_name << " is not a data port" << RTT::endlog(Error);
 
-    // Create a helper proxy object and use the common C++ calls to connect to that proxy.
-    ::RTT::Corba::CorbaPort cport( port_name, _this(), data, ControlTaskProxy::ProxyPOA() ) ;
-
-    return p->connectTo( &cport );
+    // create a proxy to data
+    detail::TypeTransporter* tt = p->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
+    if (tt) {
+        DataSourceBase::shared_ptr data_impl( tt->dataProxy( data ) );
+        assert(data_impl);
+        ConnectionInterface::shared_ptr ci = p->createConnection ( data_impl );
+        assert(ci);
+        ci->connect();
+        return ci->connected();
+    }
+    return false;
 }
 
 CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectBufferPort (
@@ -326,12 +334,17 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectBufferPort (
     if ( p == 0)
         return 0;
     else if (p->getConnectionModel() != PortInterface::Buffered)
-	RTT::log(Error) << port_name << " is not a buffer port" << RTT::endlog(Error);
+        RTT::log(Error) << port_name << " is not a buffer port" << RTT::endlog(Error);
 
-    // Create a helpr proxy object and use the common C++ calls to connect to that proxy.
-    ::RTT::Corba::CorbaPort cport( port_name, _this(), buffer, ControlTaskProxy::ProxyPOA() ) ;
-
-    return p->connectTo( &cport );
+    // create a proxy to buffer
+    detail::TypeTransporter* tt = p->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
+    if (tt) {
+        BufferBase::shared_ptr buf_impl( tt->bufferProxy( buffer ) );
+    
+        ConnectionInterface::shared_ptr ci = p->createConnection ( buf_impl );
+        return ci->connect();
+    }
+    return false;
 }
 
 CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectPorts (

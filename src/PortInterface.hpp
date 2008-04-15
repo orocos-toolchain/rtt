@@ -55,8 +55,16 @@ namespace RTT
     class PortInterface
     {
     protected:
+        friend class ConnectionInterface;
         std::string portname;
         PortInterface(const std::string& name);
+        
+        /**
+         * Connects this port to a connection object.
+         * This function must test if this port is compatible with \a conn.
+         * @return true if a successful connection could be made.
+         */
+        virtual bool connect(ConnectionInterface::shared_ptr conn) = 0;
     public:
         /**
          * This enum classifies if a port is inbound
@@ -159,14 +167,23 @@ namespace RTT
         virtual PortInterface* antiClone() const = 0;
 
         /**
-         * Create a connection object from this port to another port.
-         */
-        virtual ConnectionInterface::shared_ptr createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
-
-        /**
          * Create a new connection object to which this port is subscribed.
          */
         virtual ConnectionInterface::shared_ptr createConnection(ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
+
+        /**
+         * Create a new connection object using a buffered connection implementation.
+         * @return null if this->connected() or this->getConnectionModel() != Buffered
+         *  else a valid connection object is returned.
+         */
+        virtual ConnectionInterface::shared_ptr createConnection( BufferBase::shared_ptr buf );
+
+        /**
+         * Create a new connection object using a data connection implementation.
+         * @return null if this->connected() or this->getConnectionModel() != Data
+         *  else a valid connection object is returned.
+         */
+        virtual ConnectionInterface::shared_ptr createConnection( DataSourceBase::shared_ptr data );
 
         /**
          * Create accessor Object for this Port, for addition to a

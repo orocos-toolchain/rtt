@@ -37,7 +37,7 @@
  
  
 #include "CorbaTemplateProtocol.hpp"
-#include <os/StartStopManager.hpp>
+#include "os/StartStopManager.hpp"
 
 namespace RTT {
     namespace Corba {
@@ -114,6 +114,11 @@ namespace RTT {
                 return 0; // ConnectionFactory checks for this, you should too !
             }
 
+            virtual DataSourceBase* dataProxy( void* data ) const {
+                log(Warning) << "Can not create a proxy for data connection." <<endlog();
+                return 0; // ConnectionFactory checks for this, you should too !
+            }
+
             virtual void* dataServer( DataSourceBase::shared_ptr source, void* arg) const {
                 return this->server(source, true, arg );
             }
@@ -127,15 +132,18 @@ namespace RTT {
                 return 0; // ConnectionFactory checks for this, you should too !
             }
 
+            virtual BufferBase* bufferProxy( void* data ) const {
+                log(Warning) << "Can not create a proxy for buffer connection." <<endlog();
+                return 0; // ConnectionFactory checks for this, you should too !
+            }
+
             virtual void* bufferServer( BufferBase::shared_ptr source, void* arg) const 
             {
               // arg is POA !
               log(Warning) << "Can not create a useful server for an unknown data type." << endlog();
               RTT_Corba_BufferChannel_i<UnknownType>* cbuf = new RTT_Corba_BufferChannel_i<UnknownType>( source );
               // activate servant:
-              CORBA::Object_var ret = cbuf->_this();
-              return ret._retn();
-                
+              return cbuf->_this();
             }
 
             /**

@@ -62,7 +62,7 @@ module RTT
       AssignableExpression createDataChannel(in string port_name);
 
       /**
-       * Creates an bufferd channel for an Orocos port which will be used
+       * Creates an buffered channel for an Orocos port which will be used
        * in a 'push' or 'pull' model. You may use the returned BufferChannel
        * to write data to it or read data from it.
        *

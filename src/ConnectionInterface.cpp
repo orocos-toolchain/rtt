@@ -38,16 +38,70 @@
  
 
 #include "ConnectionInterface.hpp"
+#include "PortInterface.hpp"
 
 namespace RTT
 {
 
-    ConnectionInterface::ConnectionInterface() { oro_atomic_set(&refcount,0); }
+    ConnectionInterface::ConnectionInterface() 
+    : mconnected(false) 
+    { oro_atomic_set(&refcount,0); }
 
     ConnectionInterface::~ConnectionInterface()
     {
     }
+    
+    bool ConnectionInterface::connected() const
+    {
+        return mconnected;
+    }
 
+    bool ConnectionInterface::connect()
+    { 
+        // note, this method is not thread-safe.
+        if (!mconnected) { 
+
+            // first check existing connections:
+            for ( PList::iterator it( ports.begin() ); it != ports.end(); ++it)
+                if ((*it)->connected())
+                    return false;
+
+            // now do connect:
+            for ( PList::iterator it( ports.begin() ); it != ports.end(); ++it)
+                (*it)->connect(this);
+            mconnected = true;
+            return true;
+        }
+        return false;
+    }
+
+    bool ConnectionInterface::disconnect()
+    {
+        if (mconnected) { 
+            for ( PList::iterator it( ports.begin() ); it != ports.end(); ++it)
+                (*it)->disconnect();
+            mconnected = false;
+            return true;
+        }
+        return false;
+    }
+        
+    bool ConnectionInterface::addPort(PortInterface* r)
+    {
+        ports.push_back( r );
+        if ( this->connected() )
+            r->connect(this);
+        return true;
+    }
+
+    bool ConnectionInterface::removePort(PortInterface* r) {
+        PList::iterator it( find(ports.begin(), ports.end(), r ) );
+        if ( it != ports.end() ) {
+            ports.erase(it);
+            return true;
+        }
+        return false;
+    }
 }
 void intrusive_ptr_add_ref( RTT::ConnectionInterface* p )
 { 

@@ -40,17 +40,11 @@
 #define ORO_EXECUTION_BUFFER_CONNECTION_HPP
 
 #include <vector>
-#include "BufferConnectionInterface.hpp"
+#include "ConnectionInterface.hpp"
 #include "BufferDataSource.hpp"
 
 namespace RTT
 {
-    template<class T>
-    class ReadBufferPort;
-
-    template<class T>
-    class WriteBufferPort;
-
     /**
      * A local connection with a Buffer, which is used to connect multiple
      * Ports to that Buffer.
@@ -59,34 +53,19 @@ namespace RTT
      */
     template<class T>
     class BufferConnection
-        : public BufferConnectionInterface<T>
+        : public ConnectionInterface
     {
         typedef T DataType;
-        typedef ReadBufferPort<DataType> Reader;
-        typedef WriteBufferPort<DataType> Writer;
         typename BufferInterface<T>::shared_ptr buf;
-        typedef std::vector<Reader*> RList;
-        RList readers;
-        typedef std::vector<Writer*> WList;
-        WList writers;
-        bool mconnected;
     public:
+        typedef boost::intrusive_ptr<BufferConnection> shared_ptr;
+
         /**
          * Create an BufferConnection with initially no readers and no writers.
          */
-        BufferConnection( BufferInterface<T>* bufi )
-            : buf( bufi ), mconnected(false)
+        BufferConnection( typename BufferInterface<T>::shared_ptr bufi )
+            : buf( bufi )
         {
-        }
-
-        /**
-         * Create an BufferConnection with initially one reader and one writer.
-         */
-        BufferConnection( WriteBufferPort<DataType>* w, ReadBufferPort<DataType>* r, BufferInterface<T>* bufi )
-            : buf( bufi ), mconnected(false)
-        {
-            readers.push_back(r);
-            writers.push_back(w);
         }
 
         /**
@@ -105,6 +84,11 @@ namespace RTT
             return buf;
         }
 
+        virtual const TypeInfo* getTypeInfo() const {
+            return detail::DataSourceTypeInfo<T>::getTypeInfo();
+        }
+
+        
         void setImplementation( BufferInterface<T>* bufi )
         {
             if (bufi) {
@@ -112,103 +96,8 @@ namespace RTT
             }
         }
 
-        bool connect();
-
-        virtual bool connected() const { return mconnected; }
-
-        virtual bool disconnect();
-        
-        virtual BufferInterface<T>* buffer() { return buf.get(); }
-        virtual ReadInterface<T>* read() { return buf.get(); }
-        virtual WriteInterface<T>* write() { return buf.get(); }
-
-        virtual bool addReader(PortInterface* r);
-
-        virtual bool removeReader(PortInterface* r);
-
-        virtual bool addWriter(PortInterface* w);
-
-        virtual bool removeWriter(PortInterface* w);
-
+        BufferInterface<T>* buffer() { return buf.get(); }
     };
 }
 
-#endif
-
-#ifndef ORO_BUFFER_CONNECTION_INLINE
-#define ORO_BUFFER_CONNECTION_INLINE
-#include "BufferPort.hpp"
-
-namespace RTT
-{
-    template<class T>
-    bool BufferConnection<T>::connect()
-    { 
-        if (!mconnected) { 
-            for ( typename WList::iterator it = ( writers.begin() ); it != writers.end(); ++it)
-                (*it)->connect(this);
-            for ( typename RList::iterator it = ( readers.begin() ); it != readers.end(); ++it)
-                (*it)->connect(this);
-            mconnected = true;
-            return true;
-        }
-        return false;
-    }
-    template<class T>
-    bool BufferConnection<T>::disconnect()
-    {
-        if (mconnected) { 
-            for ( typename WList::iterator it( writers.begin() ); it != writers.end(); ++it)
-                (*it)->disconnect();
-            for ( typename RList::iterator it( readers.begin() ); it != readers.end(); ++it)
-                (*it)->disconnect();
-            mconnected = false;
-            return true;
-        }
-        return false;
-    }
-
-    template<class T>
-    bool BufferConnection<T>::addReader(PortInterface* r)
-    {
-        Reader* newr = dynamic_cast<Reader*>(r);
-        if ( newr == 0 ) return false;
-        readers.push_back( newr );
-        if ( this->connected() )
-            newr->connect(this);
-        return true;
-    }
-
-    template<class T>
-    bool BufferConnection<T>::removeReader(PortInterface* r) {
-        typename RList::iterator it( find(readers.begin(), readers.end(), r ) );
-        if ( it != readers.end() ) {
-            readers.erase(it);
-            return true;
-        }
-        return false;
-    }
-
-    template<class T>
-    bool BufferConnection<T>::addWriter(PortInterface* w)
-    {
-        Writer* neww = dynamic_cast<Writer*>(w);
-        if ( neww == 0 ) return false;
-        writers.push_back( neww );
-        if ( this->connected() )
-            neww->connect(this);
-        return true;
-    }
-
-    template<class T>
-    bool BufferConnection<T>::removeWriter(PortInterface* w) {
-        typename WList::iterator it( find(writers.begin(), writers.end(), w ) );
-        if ( it != writers.end() ) {
-            writers.erase(it);
-            return true;
-        }
-        return false;
-    }
-
-}
 #endif

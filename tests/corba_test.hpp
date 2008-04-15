@@ -38,6 +38,10 @@ class CorbaTest : public CppUnit::TestFixture
     // Ports
     DataPort<double>* md1;
     DataPort<double>* md2;
+    ReadDataPort<double>* mdr1;
+    ReadDataPort<double>* mdr2;
+    WriteDataPort<double>* mdw1;
+    WriteDataPort<double>* mdw2;
     BufferPort<double>* mb1;
     BufferPort<double>* mb2;
 

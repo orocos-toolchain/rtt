@@ -46,9 +46,9 @@ namespace RTT
 {
     class PortInterface;
     template<class T>
-    class BufferConnectionInterface;
+    class BufferConnection;
     template<class T>
-    class DataConnectionInterface;
+    class DataConnection;
     /**
      * Builds Connections (buffers or data objects) between
      * the ports of tasks.
@@ -58,25 +58,6 @@ namespace RTT
     class ConnectionFactory
     {
     public:
-        /** 
-         * Create a new Buffered data connection.
-         * 
-         * @param writer A port which will write to the connection
-         * @param reader A port which will read from the connection
-         * @param size The maximum capacity of the connnection's buffer
-         * @param initial_value The initial value of all elements within
-         * the buffer. Use this parameter if the data uses dynamic memory
-         * or requires an initial state.
-         * @param type The connection type: lock based or lock-free. The
-         * latter is highly advised.
-         * 
-         * @return a new connection object
-         * @see BufferInterface for a look at the internal buffer structure
-         * @see ReadBufferPort, WriteBufferPort, BufferPort for ports to which this
-         * connection can be attached.
-         */
-        BufferConnectionInterface<T>* createBuffer(PortInterface* writer, PortInterface* reader, int size, const T& initial_value = T(), ConnectionTypes::ConnectionType type = ConnectionTypes::lockfree);
-
         /** 
          * Create an empty Buffered data connection.
          * 
@@ -92,25 +73,7 @@ namespace RTT
          * @see ReadBufferPort, WriteBufferPort, BufferPort for ports to which this
          * connection can be attached.
          */
-        BufferConnectionInterface<T>* createBuffer(int size, const T& initial_value = T(), ConnectionTypes::ConnectionType type = ConnectionTypes::lockfree);
-
-        /** 
-         * Create a new unbuffered data connection.
-         * 
-         * @param writer A port which will write to the connection
-         * @param reader A port which will read from the connection
-         * @param initial_value The initial value of all elements within
-         * the buffer. Use this parameter if the data uses dynamic memory
-         * or requires an initial state.
-         * @param type The connection type: lock based or lock-free. The
-         * latter is highly advised.
-         * 
-         * @return a new connection object
-         * @see DataObjectInterface for a look at the internal data sharing structure
-         * @see ReadDataPort, WriteDataPort for ports to which this
-         * connection can be attached.
-         */
-        DataConnectionInterface<T>* createDataObject(PortInterface* writer, PortInterface* reader, const T& initial_value = T(), ConnectionTypes::ConnectionType type = ConnectionTypes::lockfree);
+        BufferConnection<T>* createBuffer(int size, const T& initial_value = T(), ConnectionTypes::ConnectionType type = ConnectionTypes::lockfree);
 
         /** 
          * Create an empty unbuffered data connection.
@@ -126,7 +89,7 @@ namespace RTT
          * @see ReadDataPort, WriteDataPort for ports to which this
          * connection can be attached.
          */
-        DataConnectionInterface<T>* createDataObject(const T& initial_value = T(), ConnectionTypes::ConnectionType type = ConnectionTypes::lockfree);
+        DataConnection<T>* createDataObject(const T& initial_value = T(), ConnectionTypes::ConnectionType type = ConnectionTypes::lockfree);
 
     };
 }
@@ -144,135 +107,17 @@ namespace RTT
 {
 
         template<class T>
-        BufferConnectionInterface<T>* ConnectionFactory<T>::createBuffer(PortInterface* writer, PortInterface* reader, int size, const T& initial_value, ConnectionTypes::ConnectionType type )
-        {
-            BufferBase* conn_buffer = 0;
-            int protocol = 0;
-            if ( (protocol = writer->serverProtocol()) ) {
-                if ( reader->serverProtocol() ) {
-                    log(Error) << "Can not connect two remote ports." <<endlog();
-                    log(Error) << "One must be local and one must be remote." <<endlog();
-                    return 0;
-                }
-                detail::TypeTransporter* tt =writer->getTypeInfo()->getProtocol( writer->serverProtocol() );
-                if (tt)
-                    conn_buffer = tt->bufferProxy(writer);
-            }
-            else {
-                if ( (protocol=reader->serverProtocol()) ) {
-                    detail::TypeTransporter* tt = reader->getTypeInfo()->getProtocol( reader->serverProtocol() );
-                    if (tt)
-                        conn_buffer = tt->bufferProxy(reader);
-                }
-            }
-            // if BufferBase, we already got a remote connection.
-            if (conn_buffer) {
-                BufferInterface<T>* bi = dynamic_cast<BufferInterface<T>*>(conn_buffer);
-                if (!bi) {
-                    log(Error) << "Misconfigured protocol "<<protocol<<": could not dynamic_cast to data type."<<endlog();
-                    delete conn_buffer;
-                    return 0;
-                }
-                BufferConnectionInterface<T>* bci = new BufferConnection<T>( bi );
-                bci->addReader(reader);
-                bci->addWriter(writer);
-                return bci;
-            }
-
-            WriteBufferPort<T>* wt = dynamic_cast<WriteBufferPort<T>*>( writer );
-            ReadBufferPort<T>* rt  = dynamic_cast<ReadBufferPort<T>*>( reader );
-
-            if ( wt == 0 || rt == 0 || wt->connection() || rt->connection() ){
-                Logger::log() <<Logger::Warning<< "ConnectionFactory could not create a BufferConnection between Writer:"<<writer->getName() <<" and Reader:"
-                              << reader->getName() <<Logger::endl;
-                std::string msg = (wt == 0 ? "Writer is not a WriteBufferPort or has wrong/unknown data type."
-                                   : (rt == 0 ? "Reader is not a ReadBufferPort or has wrong/unknown data type."
-                                      : ( wt->connection() ? "Writer already connected. Use connectTo()."
-                                          : "Reader already connected. Use connectTo()." )));
-                Logger::log() << msg  << Logger::endl;
-                return 0;
-            }
-            
-            Logger::log() << Logger::Debug<< "Creating a BufferConnection from "<<writer->getName() <<" to "
-                          << reader->getName() << " with size "<<size<<Logger::endl;
-            BufferConnectionInterface<T>* bci = this->createBuffer(size, initial_value, type);
-            bci->addReader(reader);
-            bci->addWriter(writer);
-            return bci;
-        }
-
-        template<class T>
-        BufferConnectionInterface<T>* ConnectionFactory<T>::createBuffer(int size, const T& initial_value, ConnectionTypes::ConnectionType type )
+        BufferConnection<T>* ConnectionFactory<T>::createBuffer(int size, const T& initial_value, ConnectionTypes::ConnectionType type )
         {
             if (type == ConnectionTypes::lockfree)
-                return new BufferConnection<T>(new BufferLockFree<T>(size, initial_value) );
+                return new BufferConnection<T>( typename BufferInterface<T>::shared_ptr(new BufferLockFree<T>(size, initial_value)) );
             if (type == ConnectionTypes::locked)
-                return new BufferConnection<T>(new BufferLocked<T>(size, initial_value) );
+                return new BufferConnection<T>( typename BufferInterface<T>::shared_ptr(new BufferLocked<T>(size, initial_value)) );
             return 0;
         }
-            
 
         template<class T>
-        DataConnectionInterface<T>* ConnectionFactory<T>::createDataObject(PortInterface* writer, PortInterface* reader, const T& initial_value, ConnectionTypes::ConnectionType type)
-        {
-            DataSourceBase::shared_ptr conn_data;
-            int protocol = 0;
-            if ( (protocol = writer->serverProtocol()) ) {
-                if ( reader->serverProtocol() ) {
-                    log(Error) << "Can not connect two remote ports." <<endlog();
-                    log(Error) << "One must be local and one must be remote." <<endlog();
-                    return 0;
-                }
-                detail::TypeTransporter* tt = writer->getTypeInfo()->getProtocol( writer->serverProtocol() );
-                if (tt)
-                    conn_data = tt->dataProxy(writer); // else: let it fail further on.
-            }
-            else {
-                if ( (protocol=reader->serverProtocol()) ) {
-                    detail::TypeTransporter* tt = reader->getTypeInfo()->getProtocol( reader->serverProtocol() );
-                    if (tt)
-                        conn_data = tt->dataProxy(reader); // else: let it fail further on.
-                }
-            }
-            // if DataBase, we already got a remote connection.
-            if (conn_data) {
-                DataObjectInterface<T>* bi = dynamic_cast<DataObjectInterface<T>*>( conn_data.get() );
-                if (!bi) {
-                    log(Error) << "Misconfigured protocol "<<protocol<<": could not dynamic_cast to data type."<<endlog();
-                    delete bi;
-                    return 0;
-                }
-                DataConnectionInterface<T>* bci = new DataConnection<T>( bi );
-                // the remote one of these will fail to add.
-                bci->addReader(reader);
-                bci->addWriter(writer);
-                return bci;
-            }
-
-            WriteDataPort<T>* wt = dynamic_cast<WriteDataPort<T>*>( writer );
-            ReadDataPort<T>* rt  = dynamic_cast<ReadDataPort<T>*>( reader );
-
-            if ( wt == 0 || rt == 0 || wt->connection() || rt->connection() ) {
-                Logger::log() <<Logger::Warning<< "ConnectionFactory could not create a DataConnection between Writer:"<<writer->getName() <<" and Reader:"
-                              << reader->getName() << Logger::nl;
-                std::string msg = (wt == 0 ? "Writer is not a WriteDataPort or has wrong/unknown data type."
-                                   : (rt == 0 ? "Reader is not a ReadDataPort or has wrong/unknown data type."
-                                      : ( wt->connection() ? "Writer already connected. Use connectTo()."
-                                          : "Reader already connected. Use connectTo()" )));
-                Logger::log() << msg  << Logger::endl;
-                return 0;
-            }
-
-            Logger::log() << Logger::Debug<< "Creating a DataConnection from "<<writer->getName() <<" to "
-                          << reader->getName() <<Logger::endl;
-            DataConnectionInterface<T>* dci = this->createDataObject(initial_value, type);
-            dci->addReader( reader );
-            dci->addWriter( writer );
-            return dci;
-        }
-
-        template<class T>
-        DataConnectionInterface<T>* ConnectionFactory<T>::createDataObject(const T& initial_value, ConnectionTypes::ConnectionType type)
+        DataConnection<T>* ConnectionFactory<T>::createDataObject(const T& initial_value, ConnectionTypes::ConnectionType type)
         {
             if (type == ConnectionTypes::lockfree)
                 return new DataConnection<T>( new DataObjectLockFree<T>("DataObject", initial_value) );

@@ -47,6 +47,7 @@
 #include "orbsvcs/CosEventCommC.h"
 #include <tao/corba.h>
 #include <tao/PortableServer/PortableServer.h>
+#include "CorbaConnection.hpp"
 
 namespace RTT
 { namespace Corba {
@@ -58,10 +59,53 @@ namespace RTT
     class CorbaPort
         : public PortInterface
     {
+    protected:
+        friend class ConnectionInterface;
         AssignableExpression_var mdatachannel;
         BufferChannel_var mbufchannel;
         DataFlowInterface_var mdflow;
         ConnectionInterface::shared_ptr dc;
+        bool connect(ConnectionInterface::shared_ptr conn)
+        {
+            if ( dc || !conn )
+                return false;
+            // create a server and connect the remote port to this server.
+            // ALWAYS check getBuffer() first because getDataSource() always returns a data source.
+            if ( conn->getBuffer() ) {
+                // OK: we have a buffered connection.
+                if (mdflow->getConnectionModel(this->getName().c_str()) != DataFlowInterface::Buffered)
+                    return false; 
+                detail::TypeTransporter* tt = getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
+                if (tt) {
+                    BufferChannel_var bc = (BufferChannel_ptr)tt->bufferServer( conn->getBuffer(), 0);
+                    if (mdflow->connectBufferPort(this->getName().c_str(), bc.in() ) ) {
+                        dc=conn;
+                        return true;
+                    }
+                }
+                return false;
+            }
+            if ( conn->getDataSource() ) {
+                if (mdflow->getConnectionModel(this->getName().c_str()) != DataFlowInterface::Data)
+                    return false; 
+                detail::TypeTransporter* tt = getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
+                if (tt) {
+                    Expression_var expr = (Expression_ptr)tt->dataServer(conn->getDataSource(), 0);
+                    AssignableExpression_var ae = AssignableExpression::_narrow( expr.in() );
+                    if (!ae.in()) {
+                        log(Error) << "Could not create server from "<<this->getName() <<endlog();
+                        return false;
+                    }
+                    if (mdflow->connectDataPort(this->getName().c_str(), ae.in() ) ) {
+                        dc=conn;    
+                        return true;
+                    }
+                }
+                return false;
+            }
+            return false;
+        }
+
     public:
         CorbaPort(const std::string& name, DataFlowInterface_ptr dflow, PortableServer::POA_ptr )
             : PortInterface(name),
@@ -98,9 +142,9 @@ namespace RTT
             return mdflow->createBufferChannel( this->getName().c_str() );
         }
 
-	virtual ConnectionModel getConnectionModel() const {
-	    return ConnectionModel(int(mdflow->getConnectionModel( this->getName().c_str() )));
-	}
+        virtual ConnectionModel getConnectionModel() const {
+            return ConnectionModel(int(mdflow->getConnectionModel( this->getName().c_str() )));
+        }
 
         /**
          * Get the PortType of this port.
@@ -126,10 +170,37 @@ namespace RTT
         using PortInterface::connectTo;
 
         virtual bool connectTo( ConnectionInterface::shared_ptr conn ) {
-            dc = conn;
-            return true;
+            // Since a connection is given, an existing impl exists.
+            if (this->getConnectionModel() == Buffered ) {
+                BufferBase::shared_ptr impl = conn->getBuffer();
+                if (!impl)
+                    return false;
+                detail::TypeTransporter* tt = conn->getTypeInfo()->getProtocol( ORO_CORBA_PROTOCOL_ID );
+                if (tt) {
+                    //let remote side create to local server.
+                    Corba::BufferChannel_var bufs = (Corba::BufferChannel_ptr) tt->bufferServer(impl, 0); 
+                    mdflow->connectBufferPort( this->getName().c_str(), bufs.in() );
+                    dc = conn;
+                    return true;
+                }
+            }
+            if (this->getConnectionModel() == Data ) {
+                DataSourceBase::shared_ptr impl = conn->getDataSource();
+                if (!impl)
+                    return false;
+                detail::TypeTransporter* tt = conn->getTypeInfo()->getProtocol( ORO_CORBA_PROTOCOL_ID );
+                if (tt) {
+                    //let remote side create to local server.
+                    Corba::Expression_var expr = (Corba::Expression_ptr) tt->dataServer( impl, 0 );
+                    Corba::AssignableExpression_var as_expr = Corba::AssignableExpression::_narrow( expr.in() );
+                    mdflow->connectDataPort( this->getName().c_str(), as_expr.in() );
+                    dc = conn;
+                    return true;
+                }
+            }
+            return false;
         }
-
+        
         virtual void disconnect() {
             dc = 0;
         }
@@ -143,29 +214,47 @@ namespace RTT
         }
 
         /**
-         * Create a connection to a local port.
-         */
-        virtual ConnectionInterface::shared_ptr createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree) 
-        {
-            // prevent infinite call-back:
-            if ( dynamic_cast<CorbaPort*>(other) ) {
-                log(Error) << "Can not connect two remote ports." <<endlog();
-                log(Error) << "One must be local and one must be remote." <<endlog();
-                return 0;
-            }
-
-            // if the other is local, its connection factory will setup the connection.
-            return other->createConnection(this, con_type);
-        }
-
-        /**
-         * Do not create a connection without a peer port.
+         * Create a remote server to which one can connect to.
          */
         virtual ConnectionInterface::shared_ptr createConnection(ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree) 
         {
             Logger::In in("CorbaPort");
-            log(Error) << "Can not create remote port connection without local port." <<endlog();
+            // create a connection one can write to.
+            if ( this->getPortType() != ReadPort ) {
+                ConnectionInterface::shared_ptr ci = new CorbaConnection( this->getName(), mdflow.in(), 0 );
+                ci->addPort(this);
+                return ci;
+            }
+            // read ports do not create writable connections.
             return 0;
+        }
+        
+        virtual ConnectionInterface::shared_ptr createConnection( BufferBase::shared_ptr buf )
+        {
+            ConnectionInterface::shared_ptr ci;
+            if (mdflow->getConnectionModel(this->getName().c_str()) != DataFlowInterface::Buffered)
+                return ci; 
+            detail::TypeTransporter* tt = getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
+            if (tt) {
+                BufferChannel_var bc = (BufferChannel_ptr)tt->bufferServer(buf, 0);
+                ci = new CorbaConnection( this->getName(), mdflow.in(), bc.in(), 0 );
+                ci->addPort(this);
+            }
+            return ci;
+        }
+
+        virtual ConnectionInterface::shared_ptr createConnection( DataSourceBase::shared_ptr data )
+        {
+            ConnectionInterface::shared_ptr ci;
+            if (mdflow->getConnectionModel(this->getName().c_str()) != DataFlowInterface::Data)
+                return ci; 
+            detail::TypeTransporter* tt = getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
+            if (tt) {
+                AssignableExpression_var ae = (AssignableExpression_ptr)tt->dataServer(data, 0);
+                ci = new CorbaConnection( this->getName(), mdflow.in(), ae.in(), 0 );
+                ci->addPort(this);
+            }
+            return ci;
         }
 
         virtual int serverProtocol() const {

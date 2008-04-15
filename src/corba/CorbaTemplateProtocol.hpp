@@ -192,6 +192,13 @@ namespace RTT
               return new Corba::CorbaDataObjectProxy<T>("CorbaProxy", cp->getDataChannel());
           }
           
+          virtual DataSourceBase* dataProxy( void* data ) const
+          {
+              Corba::AssignableExpression_ptr ae = static_cast<Corba::AssignableExpression_ptr>(data);
+              log(Debug) << "Creating Corba DataSource proxy." << endlog();
+              return new Corba::CorbaDataObjectProxy<T>("CorbaProxy", ae );
+          }
+          
           virtual void* dataServer( DataSourceBase::shared_ptr source, void* arg) const 
           {
               // create a default channel.
@@ -209,8 +216,15 @@ namespace RTT
               Corba::CorbaPort* cp = dynamic_cast<Corba::CorbaPort*>( data );
               
               assert( cp );
-
+              
               return new Corba::CorbaBufferProxy<T>( cp->getBufferChannel() );
+          }
+
+          virtual BufferBase* bufferProxy( void* data ) const 
+          {
+              Corba::BufferChannel_ptr buf = static_cast<Corba::BufferChannel_ptr>(data);
+              log(Debug) << "Creating Corba BufferChannel proxy." << endlog();
+              return new Corba::CorbaBufferProxy<T>( buf );
           }
 
             virtual void* bufferServer( BufferBase::shared_ptr source, void* arg) const 

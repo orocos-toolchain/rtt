@@ -107,7 +107,6 @@ namespace RTT
          */
         void Get( DataType& pull ) const {
             Logger::In in("CorbaDataObjectProxy::Get");
-            log(Debug) << "Reading DataObject value."<<endlog();
             CORBA::Any_var v;
             v = mec->get();
             ReferenceDataSource<T> rds(pull);
@@ -131,8 +130,6 @@ namespace RTT
          * @param push The data which must be set.
          */
         void Set( const DataType& push ) { 
-            Logger::In in("CorbaDataObjectProxy::Set");
-            log(Debug) << "Sending DataObject value."<<endlog();
             // Trick: we must create a datasource to convert 'push' to
             // an Any. We do not convert it ourselves, since this would
             // invoke Get() first.

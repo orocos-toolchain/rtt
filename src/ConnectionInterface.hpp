@@ -43,6 +43,7 @@
 #include "os/fosi.h"
 #include "DataSourceBase.hpp"
 #include "BufferBase.hpp"
+#include <vector>
 
 namespace RTT
 {
@@ -103,8 +104,11 @@ namespace RTT
         friend void ::intrusive_ptr_add_ref( ConnectionInterface* p );
         friend void ::intrusive_ptr_release( ConnectionInterface* p );
         oro_atomic_t refcount;
+
+        typedef std::vector<PortInterface*> PList;
+        PList ports;
+        bool mconnected;
     public:
-        
         typedef boost::intrusive_ptr<ConnectionInterface> shared_ptr;
 
         ConnectionInterface();
@@ -130,63 +134,52 @@ namespace RTT
          * @return false if at least one reader or writer was already
          * participating in a connection or if connected()
          */
-        virtual bool connect() = 0;
+        virtual bool connect();
 
         /**
          * Get Connection status.
          */
-        virtual bool connected() const = 0;
+        virtual bool connected() const;
 
         /**
          * Disconnect all readers and writers.
          */
-        virtual bool disconnect() = 0;
+        virtual bool disconnect();
 
         /** 
-         * Add a Port as possible reader (consumer) of the connection.
-         * If this->connected(), also immediately connect \a r
+         * Add a Port to the connection.
+         * If this->connected(), also immediately connect \a p
          * to this connection.
          * 
-         * @param r A port which wants to read data from this connection.
+         * @param p A port which wants to read or write data from this connection.
          * 
-         * @return true if \a r has the correct type and could
+         * @return true if \a p has the correct type and could
          * be added
          */
-        virtual bool addReader(PortInterface* r) = 0;
+        virtual bool addPort(PortInterface* p);
 
         /** 
-         * Remove a Port as possible reader (consumer) of the connection.
-         * If this->connected(), also immediately disconnect \a r
+         * Remove a Port from the connection.
+         * If this->connected(), also immediately disconnect \a p
          * from this connection.
          * 
-         * @param r A port which no longer wants to read data from this connection.
+         * @param p A port which no longer wants to read or write data from this connection.
          * 
-         * @return true if \a r was present.
+         * @return true if \a p was present.
          */
-        virtual bool removeReader(PortInterface* r) = 0;
+        virtual bool removePort(PortInterface* p);
 
-        /** 
-         * Add a Port as possible writer (producer) of the connection.
-         * If this->connected(), also immediately connect \a w
-         * to this connection.
-         * 
-         * @param w A port which wants to write data into this connection.
-         * 
-         * @return true if \a w has the correct type and could
-         * be added.
+        /**
+         * Get the data type of this port.
          */
-        virtual bool addWriter(PortInterface* w) = 0;
+        virtual const TypeInfo* getTypeInfo() const = 0;
 
-        /** 
-         * Remove a Port as possible writer (producer) of the connection.
-         * If this->connected(), also immediately disconnect \a w
-         * from this connection.
-         * 
-         * @param w A port which no longer wants to write data into this connection.
-         * 
-         * @return true if \a w was present.
+        /**
+         * Returns the protocol over which this connection can be accessed.
          */
-        virtual bool removeWriter(PortInterface* w) = 0;
+        virtual int serverProtocol() const {
+            return 0;
+        }
 
     };
 }

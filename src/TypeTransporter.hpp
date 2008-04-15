@@ -97,6 +97,8 @@ namespace RTT
              */
             virtual DataSourceBase* dataProxy( PortInterface* data ) const = 0;
 
+            virtual DataSourceBase* dataProxy( void* data ) const = 0;
+
             virtual void* dataServer( DataSourceBase::shared_ptr source, void* arg) const = 0;
 
             /**
@@ -104,6 +106,8 @@ namespace RTT
              * Used to setup a Corba Data Flow.
              */
             virtual BufferBase* bufferProxy( PortInterface* data ) const = 0;
+
+            virtual BufferBase* bufferProxy( void* data ) const = 0;
 
             virtual void* bufferServer( BufferBase::shared_ptr source, void* arg) const = 0;
 

@@ -86,8 +86,6 @@ namespace RTT
         
         bool Push( param_t item )
         {
-            Logger::In in("CorbaBufferProxy::Push");
-            log(Debug) << "Sending Buffer value."<<endlog();
             ValueDataSource<T> vds(item);
             vds.ref();
             CORBA::Any_var toset = (CORBA::Any_ptr)vds.createBlob(ORO_CORBA_PROTOCOL_ID);

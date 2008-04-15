@@ -606,10 +606,10 @@ void Generic_TaskTest_3::testPorts()
     CPPUNIT_ASSERT( tc->ports()->addPort( &bp2 ));
 
     // Test connection creation.
-    CPPUNIT_ASSERT(wdp.createConnection( &rdp )->connect());
+    CPPUNIT_ASSERT(wdp.connectTo( &rdp ) );
     CPPUNIT_ASSERT(dp.connectTo( rdp.connection() ));
 
-    CPPUNIT_ASSERT(wbp.createConnection( &rbp )->connect());
+    CPPUNIT_ASSERT(wbp.connectTo( &rbp ) );
     CPPUNIT_ASSERT(bp.connectTo( rbp.connection() ));
 
     CPPUNIT_ASSERT( wdp.connected() );
@@ -634,7 +634,7 @@ void Generic_TaskTest_3::testPorts()
 
     // Test Data-to-Data:
     dp.disconnect();
-    CPPUNIT_ASSERT( dp.createConnection( &dp2 )->connect() );
+    CPPUNIT_ASSERT( dp.connectTo( &dp2 ) );
     CPPUNIT_ASSERT( dp.connected() );
     CPPUNIT_ASSERT( dp2.connected() );
 
@@ -668,7 +668,7 @@ void Generic_TaskTest_3::testPorts()
 
     // Test Buffer-to-Buffer:
     bp.disconnect();
-    CPPUNIT_ASSERT( bp.createConnection( &bp2 )->connect() );
+    CPPUNIT_ASSERT( bp.connectTo( &bp2 ) );
     CPPUNIT_ASSERT( bp.connected() );
     CPPUNIT_ASSERT( bp2.connected() );
 

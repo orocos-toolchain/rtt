@@ -41,62 +41,39 @@
 
 #include <string>
 #include "PortInterface.hpp"
-#include "BufferConnectionInterface.hpp"
+#include "BufferConnection.hpp"
 #include "OperationInterface.hpp"
 #include "Method.hpp"
 
 namespace RTT
 {
-    /**
-     * A Port to a readable Buffer.
-     * Use connection() to access the buffer. If the port is not
-     * connected, connection() returns null.
-     * @param T The type of the data of the buffer.
-     * @ingroup Ports
-     */
     template<class T>
-    class ReadBufferPort
-        : public virtual PortInterface
+    class BufferPortBase
+        : public PortInterface
     {
     protected:
-        typename ReadConnectionInterface<T>::shared_ptr mconn;
+        typename BufferConnection<T>::shared_ptr mconn;
+
+        /**
+         * Connect a readable buffer to this Port.
+         */
+        virtual bool connect( typename ConnectionInterface::shared_ptr conn) {
+            if ( mconn || !conn )
+                return false;
+            mconn = boost::dynamic_pointer_cast< BufferConnection<T> >(conn);
+            return (mconn);
+        }
+
     public:
         /**
          * Construct an unconnected Port to a readable buffer.
          * @param name The name of this port.
          */
-        ReadBufferPort(const std::string& name) : PortInterface(name), mconn() {}
+        BufferPortBase(const std::string& name) : PortInterface(name), mconn() {}
 
-        ~ReadBufferPort() {
+        ~BufferPortBase() {
             if (mconn) 
-                mconn->removeReader(this);
-        }
-
-	/** Create a connection with a writing port.
-	 */
-        ConnectionInterface::shared_ptr createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
-
-        /**
-         * Pop a value from the buffer of this Port's connection.
-         * @param data The location where to store the popped value.
-         * @retval this->read()->Pop(data) if this->connected()
-         * @retval false if !this->connected() 
-         */
-        bool Pop(T& data)
-        {
-            if (mconn)
-                return mconn->read()->Pop(data);
-            return false;
-        }
-
-        /**
-         * Get the next value to be Pop()'ed, or
-         * the default value if empty.
-         */
-        T front() const {
-            if (mconn)
-                return mconn->read()->front();
-            return T();
+                mconn->removePort(this);
         }
 
         /**
@@ -104,366 +81,7 @@ namespace RTT
          */
         void clear() {
             if (mconn)
-                return mconn->read()->clear();
-        }
-
-        /**
-         * Returns the actual number of items that are stored in the
-         * buffer.
-         * @return number of items.
-         */
-        BufferBase::size_type size() const {
-            if (mconn)
-                return mconn->read()->size();
-            return 0;
-        }
-
-        /**
-         * Returns the maximum number of items that can be stored in the
-         * buffer.
-         * @return maximum number of items.
-         */
-        BufferBase::size_type capacity() const {
-            if (mconn)
-                return mconn->read()->capacity();
-            return 0;
-        }
-            
-        /**
-         * Check if this buffer is empty.
-         * @return true if size() == 0
-         */
-        bool empty() const {
-            if (mconn)
-                return mconn->read()->empty();
-            return 0;
-        }
-            
-        /**
-         * Check if this buffer is full.
-         * @return true if size() == capacity()
-         */
-        bool full() const {
-            if (mconn)
-                return mconn->read()->full();
-            return 0;
-        }
-
-        virtual PortType getPortType() const { return ReadPort; }
-        virtual ConnectionModel getConnectionModel() const { return Buffered; }
-
-        virtual const TypeInfo* getTypeInfo() const { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
-
-        /**
-         * Provide a new implementation for the connection of this port.
-         * If this port is not connected, a new connection is created.
-         */
-        ReadBufferPort& operator=(BufferInterface<T>* impl);
-
-        bool connected() const { return mconn; };
-
-        /**
-         * Connect a readable buffer to this Port.
-         */
-        virtual bool connect( typename ReadConnectionInterface<T>::shared_ptr conn) {
-            if ( mconn || !conn )
-                return false;
-            mconn = conn;
-            return true;
-        }
-
-        void disconnect() {
-            mconn = 0;
-        }
-
-        using PortInterface::connectTo;
-        bool connectTo( ConnectionInterface::shared_ptr other) {
-            return other && !mconn && other->addReader( this );
-        }
-
-        /**
-         * Get the buffer to read from. The Task may use this to read from a
-         * Buffer connected to this port.
-         * @return 0 if !connected(), the buffer otherwise.
-         */
-        virtual ReadInterface<T>* read() const { return mconn ? mconn->read() : 0; }
-
-        virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
-
-        virtual PortInterface* clone() const {
-            return new ReadBufferPort<T>( this->getName() );
-        }
-
-        /**
-         * The anti-Clone of a ReadBufferPort is a WriteBufferPort with
-         * prefered buffer size '1'.
-         */
-        virtual PortInterface* antiClone() const;
-
-        virtual TaskObject* createPortObject() {
-#ifndef ORO_EMBEDDED
-            TaskObject* to = new TaskObject( this->getName() );
-            to->methods()->addMethod( method("ready",&PortInterface::ready, this),
-                                      "Check if this port is connected and ready for use.");
-            to->methods()->addMethod(method("Pop", &ReadBufferPort<T>::Pop, this),
-                                     "Pop a single value from the Buffer. Returns false if empty.",
-                                     "Val", "The value returned by argument.");
-            to->methods()->addMethod(method("front", &ReadBufferPort<T>::front, this),
-                                     "Get the next to be popped value from the buffer. Returns default value if buffer is empty.");
-            to->methods()->addMethod(method("size", &ReadBufferPort<T>::size, this),
-                                     "Get the used size of the buffer.");
-            to->methods()->addMethod(method("capacity", &ReadBufferPort<T>::capacity, this),
-                                     "Get the capacity of the buffer.");
-            to->methods()->addMethod(method("empty", &ReadBufferPort<T>::empty, this),
-                                     "Inspect if the buffer is empty.");
-            to->methods()->addMethod(method("full", &ReadBufferPort<T>::full, this),
-                                     "Inspect if the buffer is full.");
-            to->methods()->addMethod(method("clear", &ReadBufferPort<T>::clear, this),
-                                     "Clear the contents of the buffer.");
-            return to;
-#else
-            return 0;
-#endif
-        }
-    };
-
-    /**
-     * A Port to a writable Buffer.
-     * Use connection() to access the buffer. If the port is not
-     * connected, connection() returns null.
-     * @param T The type of the data of the buffer.
-     * @ingroup Ports
-     */
-    template<class T>
-    class WriteBufferPort
-        : public virtual PortInterface
-    {
-    protected:
-        /**
-         * The buffer to write from.
-         */
-        typename WriteConnectionInterface<T>::shared_ptr mconn;
-
-        size_t buf_size;
-
-        T minitial_value;
-    public:
-        /**
-         * Construct an unconnected Port to a writeable buffer.
-         * @param name The name of this port.
-         * @param initial_value The initial value of this port's connection
-         * when the connection is created. If this port is connected to an
-         * existing connection, this value is ignored.
-         */
-        WriteBufferPort(const std::string& name, size_t preferred_size, const T& initial_value = T() )
-            : PortInterface(name), mconn(), buf_size(preferred_size), minitial_value(initial_value) {}
-
-        ~WriteBufferPort() {
-            if (mconn) 
-                mconn->removeWriter(this);
-        }
-
-        /**
-         * Set the prefered buffersize before this port is
-         * connected. If this->connected(), this value has no
-         * effect.
-         */
-        void setBufferSize(size_t b_size) { buf_size = b_size; }
-
-        /**
-         * Push a value into the buffer of this Port's connection.
-         * @param data The data to push.
-         * @retval this->read()->Push(data) if this->connected()
-         * @retval false if !this->connected()
-         */
-        bool Push(const T& data)
-        {
-            if (mconn)
-                return mconn->write()->Push(data);
-            return false;
-        }
-
-        /**
-         * Set the initial value of the port's connection.
-         * This value is only used when the connection is created.
-         * If this port is connected to an existing connection,
-         * the value is ignored.
-         */
-        void Set(const T& data)
-        {
-            minitial_value = data;
-        }
-
-        /**
-         * Clears all contents of this buffer.
-         */
-        void clear() {
-            if (mconn)
-                return mconn->write()->clear();
-        }
-
-        /**
-         * Returns the actual number of items that are stored in the
-         * buffer.
-         * @return number of items.
-         */
-        BufferBase::size_type size() const {
-            if (mconn)
-                return mconn->write()->size();
-            return 0;
-        }
-
-        /**
-         * Returns the maximum number of items that can be stored in the
-         * buffer.
-         * @return maximum number of items.
-         */
-        BufferBase::size_type capacity() const {
-            if (mconn)
-                return mconn->write()->capacity();
-            return 0;
-        }
-            
-        /**
-         * Check if this buffer is empty.
-         * @return true if size() == 0
-         */
-        bool empty() const {
-            if (mconn)
-                return mconn->write()->empty();
-            return 0;
-        }
-            
-        /**
-         * Check if this buffer is full.
-         * @return true if size() == capacity()
-         */
-        bool full() const {
-            if (mconn)
-                return mconn->write()->full();
-            return 0;
-        }
-
-        bool connected() const { return mconn; };
-
-        /**
-         * Connect a writeable buffer to this Port.
-         */
-        virtual bool connect(typename WriteConnectionInterface<T>::shared_ptr conn) { 
-            if ( mconn  || !conn  )
-                return false;
-            mconn = conn;
-            return true;
-        }
-
-        using PortInterface::connectTo;
-        bool connectTo( ConnectionInterface::shared_ptr other) {
-            return other && !mconn && other->addWriter( this );
-        }
-
-        void disconnect() {
-            mconn = 0;
-        }
-
-        /**
-         * Get the buffer to write to.
-         * @return 0 if !connected(), the buffer otherwise.
-         */
-        virtual WriteInterface<T>* write() const { return mconn ? mconn->write() : 0; }
-
-        virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
-
-        virtual PortType getPortType() const { return WritePort; }
-        virtual ConnectionModel getConnectionModel() const { return Buffered; }
-
-        virtual const TypeInfo* getTypeInfo() const { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
-
-        /**
-         * Provide a new implementation for the connection of this port.
-         * If this port is not connected, a new connection is created.
-         */
-        WriteBufferPort& operator=(BufferInterface<T>* impl);
-
-        ConnectionInterface::shared_ptr createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
-
-        ConnectionInterface::shared_ptr createConnection(ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
-
-        virtual PortInterface* clone() const {
-            return new WriteBufferPort<T>( this->getName(), buf_size, minitial_value );
-        }
-
-        virtual PortInterface* antiClone() const {
-            return new ReadBufferPort<T>( this->getName() );
-        }
-
-        virtual TaskObject* createPortObject() {
-#ifndef ORO_EMBEDDED
-            TaskObject* to = new TaskObject( this->getName() );
-            to->methods()->addMethod( method("ready",&PortInterface::ready, this),
-                                      "Check if this port is connected and ready for use.");
-            to->methods()->addMethod(method("Push", &WriteBufferPort<T>::Push, this),
-                                     "Push a single value in the Buffer. Returns false if full().",
-                                     "Val", "The value.");
-            to->methods()->addMethod(method("size", &WriteBufferPort<T>::size, this),
-                                     "Get the used size of the buffer.");
-            to->methods()->addMethod(method("capacity", &WriteBufferPort<T>::capacity, this),
-                                     "Get the capacity of the buffer.");
-            to->methods()->addMethod(method("empty", &WriteBufferPort<T>::empty, this),
-                                     "Inspect if the buffer is empty.");
-            to->methods()->addMethod(method("full", &WriteBufferPort<T>::full, this),
-                                     "Inspect if the buffer is full.");
-            to->methods()->addMethod(method("clear", &WriteBufferPort<T>::clear, this),
-                                     "Clear the contents of the buffer.");
-            return to;
-#else
-            return 0;
-#endif
-        }
-    };
-
-
-    /**
-     * A Port to a read-write Buffer.
-     * Use connection() to access the buffer. If the port is not
-     * connected, connection() returns null.
-     * @param T The type of the data of the buffer.
-     * @ingroup Ports
-     * @ingroup RTTComponentInterface
-     */
-    template<class T>
-    class BufferPort
-        : public WriteBufferPort<T>, public ReadBufferPort<T>
-    {
-    protected:
-        /**
-         * The buffer to write from.
-         */
-        typename BufferConnectionInterface<T>::shared_ptr mconn;
-
-    public:
-        typedef PortInterface::PortType PortType;
-        typedef PortInterface::ConnectionModel ConnectionModel;
-
-        /**
-         * Construct an unconnected Port to a writeable buffer.
-         * @param name The name of this port.
-         */
-        BufferPort(const std::string& name, size_t prefered_size, const T& initial_value = T())
-            : PortInterface(name), WriteBufferPort<T>(name,prefered_size, initial_value), ReadBufferPort<T>(name), mconn() {}
-
-        ~BufferPort() {
-            if (mconn) {
-                mconn->removeReader(this);
-                mconn->removeWriter(this);
-            }
-        }
-
-        /**
-         * Clears all contents of this buffer.
-         */
-        void clear() {
-            if (mconn)
-                return mconn->buffer()->clear();
+                mconn->buffer()->clear();
         }
 
         /**
@@ -508,62 +126,7 @@ namespace RTT
             return 0;
         }
 
-        bool connected() const { return mconn; };
-
-        /**
-         * Connect a writeable buffer to this Port.
-         */
-        bool connect(typename BufferConnectionInterface<T>::shared_ptr conn) { 
-            if ( (mconn && conn != mconn) || !conn ) // allow to connect twice to same connection.
-                return false;
-            mconn = conn;
-            WriteBufferPort<T>::connect(conn);
-            ReadBufferPort<T>::connect(conn);
-            return true;
-        }
-
-        virtual bool connect(typename WriteConnectionInterface<T>::shared_ptr conn) { 
-            if ( this->connect( boost::dynamic_pointer_cast<BufferConnectionInterface<T> >(conn) ) ) {
-                 WriteBufferPort<T>::connect(mconn);
-                 ReadBufferPort<T>::connect(mconn);
-                 return true;
-            }
-            return false;
-        }
-
-        virtual bool connect(typename ReadConnectionInterface<T>::shared_ptr conn) {
-            if ( this->connect( boost::dynamic_pointer_cast<BufferConnectionInterface<T> >(conn) ) ) {
-                 WriteBufferPort<T>::connect(mconn);
-                 ReadBufferPort<T>::connect(mconn);
-                 return true;
-            }
-            return false;
-        }
-
-        using PortInterface::connectTo;
-        bool connectTo( ConnectionInterface::shared_ptr other) {
-            if ( other && !mconn ) {
-                return other->addWriter( this ) && other->addReader( this );
-            }
-            return false;
-        }
-
-        void disconnect() {
-            mconn = 0;
-            WriteBufferPort<T>::disconnect();
-            ReadBufferPort<T>::disconnect();
-        }
-
-        /**
-         * Get the buffer to write from.
-         * @return 0 if !connected(), the buffer otherwise.
-         */
-        virtual BufferInterface<T>* buffer() const { return mconn ? mconn->buffer() : 0; }
-
-        virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
-
-        virtual PortType getPortType() const { return PortInterface::ReadWritePort; }
-        virtual ConnectionModel getConnectionModel() const { return PortInterface::Buffered; }
+        virtual ConnectionModel getConnectionModel() const { return Buffered; }
 
         virtual const TypeInfo* getTypeInfo() const { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
 
@@ -571,7 +134,300 @@ namespace RTT
          * Provide a new implementation for the connection of this port.
          * If this port is not connected, a new connection is created.
          */
-        BufferPort& operator=(BufferInterface<T>* impl);
+        BufferPortBase<T>& operator=(BufferInterface<T>* impl);
+
+        bool connected() const { return mconn; };
+
+        void disconnect() {
+            mconn = 0;
+        }
+
+        using PortInterface::connectTo;
+        bool connectTo( ConnectionInterface::shared_ptr other) {
+            return other && !mconn && other->addPort( this );
+        }
+
+        /**
+         * Get the buffer to read from or write to.
+         * @return 0 if !connected(), the buffer otherwise.
+         */
+        virtual BufferInterface<T>* buffer() { return mconn ? mconn->buffer() : 0; }
+
+        virtual const BufferInterface<T>* buffer() const { return mconn ? mconn->buffer() : 0; }
+
+        virtual ConnectionInterface::shared_ptr connection() const { return mconn; }
+
+        ConnectionInterface::shared_ptr createConnection(BufferBase::shared_ptr impl) {
+            typename BufferInterface<T>::shared_ptr buf = boost::dynamic_pointer_cast< BufferInterface<T> >( impl );
+            ConnectionInterface::shared_ptr ci( new BufferConnection<T>( buf ) );
+            ci->addPort(this);
+            return ci;
+        }
+
+        virtual TaskObject* createPortObject() {
+#ifndef ORO_EMBEDDED
+            TaskObject* to = new TaskObject( this->getName() );
+            to->methods()->addMethod( method("ready",&PortInterface::ready, this),
+                                      "Check if this port is connected and ready for use.");
+            to->methods()->addMethod(method("size", &BufferPortBase<T>::size, this),
+                                     "Get the used size of the buffer.");
+            to->methods()->addMethod(method("capacity", &BufferPortBase<T>::capacity, this),
+                                     "Get the capacity of the buffer.");
+            to->methods()->addMethod(method("empty", &BufferPortBase<T>::empty, this),
+                                     "Inspect if the buffer is empty.");
+            to->methods()->addMethod(method("full", &BufferPortBase<T>::full, this),
+                                     "Inspect if the buffer is full.");
+            to->methods()->addMethod(method("clear", &BufferPortBase<T>::clear, this),
+                                     "Clear the contents of the buffer.");
+            return to;
+#else
+            return 0;
+#endif
+        }
+    };
+
+    /**
+     * A Port to a readable Buffer.
+     * Use connection() to access the buffer. If the port is not
+     * connected, connection() returns null.
+     * @param T The type of the data of the buffer.
+     * @ingroup Ports
+     */
+    template<class T>
+    class ReadBufferPort
+        : public BufferPortBase<T>
+    {
+        using BufferPortBase<T>::mconn;
+        using BufferPortBase<T>::operator=;
+    public:
+        
+        /**
+         * Construct an unconnected Port to a readable buffer.
+         * @param name The name of this port.
+         */
+        ReadBufferPort(const std::string& name) : BufferPortBase<T>(name){}
+
+        /**
+         * Pop a value from the buffer of this Port's connection.
+         * @param data The location where to store the popped value.
+         * @retval this->buffer()->Pop(data) if this->connected()
+         * @retval false if !this->connected() 
+         */
+        bool Pop(T& data)
+        {
+            if (mconn)
+                return mconn->buffer()->Pop(data);
+            return false;
+        }
+
+        /**
+         * Get the next value to be Pop()'ed, or
+         * the default value if empty.
+         */
+        T front() const {
+            if (mconn)
+                return mconn->buffer()->front();
+            return T();
+        }
+
+        virtual PortInterface::PortType getPortType() const { return PortInterface::ReadPort; }
+
+        virtual PortInterface* clone() const {
+            return new ReadBufferPort<T>( this->getName() );
+        }
+
+        /**
+         * The anti-Clone of a ReadBufferPort is a WriteBufferPort with
+         * prefered buffer size '1'.
+         */
+        virtual PortInterface* antiClone() const;
+
+        virtual TaskObject* createPortObject() {
+#ifndef ORO_EMBEDDED
+            TaskObject* to = BufferPortBase<T>::createPortObject();
+            to->methods()->addMethod(method("Pop", &ReadBufferPort<T>::Pop, this),
+                                     "Pop a single value from the Buffer. Returns false if empty.",
+                                     "Val", "The value returned by argument.");
+            to->methods()->addMethod(method("front", &ReadBufferPort<T>::front, this),
+                                     "Get the next to be popped value from the buffer. Returns default value if buffer is empty.");
+            return to;
+#else
+            return 0;
+#endif
+        }
+    };
+
+    /**
+     * A Port to a writable Buffer.
+     * Use connection() to access the buffer. If the port is not
+     * connected, connection() returns null.
+     * @param T The type of the data of the buffer.
+     * @ingroup Ports
+     */
+    template<class T>
+    class WriteBufferPort
+        : public BufferPortBase<T>
+    {
+    protected:
+        size_t buf_size;
+
+        T minitial_value;
+        using BufferPortBase<T>::mconn;
+        using BufferPortBase<T>::operator=;
+    public:
+        /**
+         * Construct an unconnected Port to a writeable buffer.
+         * @param name The name of this port.
+         * @param initial_value The initial value of this port's connection
+         * when the connection is created. If this port is connected to an
+         * existing connection, this value is ignored.
+         */
+        WriteBufferPort(const std::string& name, size_t preferred_size, const T& initial_value = T() )
+            : BufferPortBase<T>(name), buf_size(preferred_size), minitial_value(initial_value) {}
+
+        /**
+         * Set the prefered buffersize before this port is
+         * connected. If this->connected(), this value has no
+         * effect.
+         */
+        void setBufferSize(size_t b_size) { buf_size = b_size; }
+
+        /**
+         * Push a value into the buffer of this Port's connection.
+         * @param data The data to push.
+         * @retval this->buffer()->Push(data) if this->connected()
+         * @retval false if !this->connected()
+         */
+        bool Push(const T& data)
+        {
+            if (mconn)
+                return mconn->buffer()->Push(data);
+            return false;
+        }
+
+        /**
+         * Set the initial value of the port's connection.
+         * This value is only used when the connection is created.
+         * If this port is connected to an existing connection,
+         * the value is ignored.
+         */
+        void Set(const T& data)
+        {
+            minitial_value = data;
+        }
+
+        virtual PortInterface::PortType getPortType() const { return PortInterface::WritePort; }
+
+        ConnectionInterface::shared_ptr createConnection(ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
+        
+        virtual PortInterface* clone() const {
+            return new WriteBufferPort<T>( this->getName(), buf_size, minitial_value );
+        }
+
+        virtual PortInterface* antiClone() const {
+            return new ReadBufferPort<T>( this->getName() );
+        }
+
+        virtual TaskObject* createPortObject() {
+#ifndef ORO_EMBEDDED
+            TaskObject* to = BufferPortBase<T>::createPortObject();
+            to->methods()->addMethod(method("Push", &WriteBufferPort<T>::Push, this),
+                                     "Push a single value in the Buffer. Returns false if full().",
+                                     "Val", "The value.");
+            return to;
+#else
+            return 0;
+#endif
+        }
+    };
+
+
+    /**
+     * A Port to a read-write Buffer.
+     * Use connection() to access the buffer. If the port is not
+     * connected, connection() returns null.
+     * @param T The type of the data of the buffer.
+     * @ingroup Ports
+     * @ingroup RTTComponentInterface
+     */
+    template<class T>
+    class BufferPort
+        : public BufferPortBase<T>
+    {
+    protected:
+        size_t buf_size;
+
+        T minitial_value;
+        using BufferPortBase<T>::mconn;
+        using BufferPortBase<T>::operator=;
+    public:
+        typedef PortInterface::PortType PortType;
+        typedef PortInterface::ConnectionModel ConnectionModel;
+
+        /**
+         * Construct an unconnected Port to a writeable buffer.
+         * @param name The name of this port.
+         */
+        BufferPort(const std::string& name, size_t prefered_size, const T& initial_value = T())
+            : BufferPortBase<T>(name), buf_size(prefered_size), minitial_value(initial_value)
+            {}
+
+        /**
+         * Set the prefered buffersize before this port is
+         * connected. If this->connected(), this value has no
+         * effect.
+         */
+        void setBufferSize(size_t b_size) { buf_size = b_size; }
+
+        /**
+         * Pop a value from the buffer of this Port's connection.
+         * @param data The location where to store the popped value.
+         * @retval this->buffer()->Pop(data) if this->connected()
+         * @retval false if !this->connected() 
+         */
+        bool Pop(T& data)
+        {
+            if (mconn)
+                return mconn->buffer()->Pop(data);
+            return false;
+        }
+
+        /**
+         * Get the next value to be Pop()'ed, or
+         * the default value if empty.
+         */
+        T front() const {
+            if (mconn)
+                return mconn->buffer()->front();
+            return T();
+        }
+
+        /**
+         * Push a value into the buffer of this Port's connection.
+         * @param data The data to push.
+         * @retval this->buffer()->Push(data) if this->connected()
+         * @retval false if !this->connected()
+         */
+        bool Push(const T& data)
+        {
+            if (mconn)
+                return mconn->buffer()->Push(data);
+            return false;
+        }
+
+        /**
+         * Set the initial value of the port's connection.
+         * This value is only used when the connection is created.
+         * If this port is connected to an existing connection,
+         * the value is ignored.
+         */
+        void Set(const T& data)
+        {
+            minitial_value = data;
+        }
+
+
+        virtual PortInterface::PortType getPortType() const { return PortInterface::ReadWritePort; }
 
         virtual PortInterface* clone() const {
             return new BufferPort<T>( this->getName(), this->buf_size, this->minitial_value );
@@ -583,48 +439,22 @@ namespace RTT
 
         virtual TaskObject* createPortObject() {
 #ifndef ORO_EMBEDDED
-            TaskObject* to = new TaskObject( this->getName() );
-            to->methods()->addMethod( method("ready",&PortInterface::ready, this),
-                                      "Check if this port is connected and ready for use.");
-            to->methods()->addMethod(method("Push", &WriteBufferPort<T>::Push, this),
+            TaskObject* to = BufferPortBase<T>::createPortObject();
+            to->methods()->addMethod(method("Push", &BufferPort<T>::Push, this),
                                      "Push a single value in the Buffer. Returns false if full().",
                                      "Val", "The value.");
-            to->methods()->addMethod(method("Pop", &ReadBufferPort<T>::Pop, this),
+            to->methods()->addMethod(method("Pop", &BufferPort<T>::Pop, this),
                                      "Pop a single value from the Buffer. Returns false if empty.",
                                      "Val", "The value returned by argument.");
-            to->methods()->addMethod(method("front", &ReadBufferPort<T>::front, this),
+            to->methods()->addMethod(method("front", &BufferPort<T>::front, this),
                                      "Get the next to be popped value from the buffer. Returns default value if buffer is empty.");
-            to->methods()->addMethod(method("size", &BufferPort<T>::size, this),
-                                     "Get the used size of the buffer.");
-            to->methods()->addMethod(method("capacity", &BufferPort<T>::capacity, this),
-                                     "Get the capacity of the buffer.");
-            to->methods()->addMethod(method("empty", &BufferPort<T>::empty, this),
-                                     "Inspect if the buffer is empty.");
-            to->methods()->addMethod(method("full", &BufferPort<T>::full, this),
-                                     "Inspect if the buffer is full.");
-            to->methods()->addMethod(method("clear", &BufferPort<T>::clear, this),
-                                     "Clear the contents of the buffer.");
             return to;
 #else
             return 0;
 #endif
         }
 
-        ConnectionInterface::shared_ptr createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree) 
-        {
-            ConnectionInterface::shared_ptr ret = WriteBufferPort<T>::createConnection(other, con_type);
-            ret->addReader( this );
-            ret->addWriter( other );
-            return ret;
-        }
-
-        ConnectionInterface::shared_ptr createConnection(ConnectionTypes::ConnectionType con_type)
-        {
-            ConnectionInterface::shared_ptr ret = WriteBufferPort<T>::createConnection(con_type);
-            ret->addReader( this );
-            return ret;
-        }
-
+        ConnectionInterface::shared_ptr createConnection(ConnectionTypes::ConnectionType con_type);
     };
 }
 #endif
@@ -644,72 +474,32 @@ namespace RTT
     }
 
     template<class T>
-    ReadBufferPort<T>& ReadBufferPort<T>::operator=(BufferInterface<T>* impl)
+    BufferPortBase<T>& BufferPortBase<T>::operator=(BufferInterface<T>* impl)
     {
         if ( !mconn ) {
-            ConnectionInterface::shared_ptr con = new BufferConnection<T>(impl);
+            ConnectionInterface::shared_ptr con = new BufferConnection<T>( typename BufferInterface<T>::shared_ptr(impl) );
             this->connectTo(con);
             con->connect();
         } else
             mconn->setImplementation(impl);
         return *this;
     }
-
-    template<class T>
-    ConnectionInterface::shared_ptr ReadBufferPort<T>::createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type )
-    {
-	// If the other side is remote, we must create the connection
-	// ourselves. In that case, the initial value and buffer size are not
-	// used by the connection factory.
-	//
-	// This is a hack -- it needs a proper solution.
-	if (other->serverProtocol())
-	{
-	    ConnectionFactory<T> cf;
-	    return ConnectionInterface::shared_ptr ( cf.createBuffer(other, this, 0, T(), con_type) );
-	}
-	else
-	    return other->createConnection(this, con_type);
-    }
-
-
-    template<class T>
-    WriteBufferPort<T>& WriteBufferPort<T>::operator=(BufferInterface<T>* impl)
-    {
-        if ( !mconn ) {
-            ConnectionInterface::shared_ptr con = new BufferConnection<T>(impl);
-            this->connectTo(con);
-            con->connect();
-        } else
-            mconn->setImplementation(impl);
-        return *this;
-    }
-
-    template<class T>
-    BufferPort<T>& BufferPort<T>::operator=(BufferInterface<T>* impl)
-    {
-        if ( !connected() ) {
-            ConnectionInterface::shared_ptr con = new BufferConnection<T>(impl);
-            this->connectTo(con);
-            con->connect();
-        } else
-            mconn->setImplementation(impl);
-        return *this;
-    }
-
-    template<class T>
-    ConnectionInterface::shared_ptr WriteBufferPort<T>::createConnection(PortInterface* other, ConnectionTypes::ConnectionType con_type )
-        {
-            ConnectionFactory<T> cf;
-            return ConnectionInterface::shared_ptr (cf.createBuffer(this, other, buf_size, minitial_value, con_type));
-        }
 
     template<class T>
     ConnectionInterface::shared_ptr WriteBufferPort<T>::createConnection(ConnectionTypes::ConnectionType con_type )
         {
             ConnectionFactory<T> cf;
             ConnectionInterface::shared_ptr res = cf.createBuffer(buf_size, minitial_value, con_type);
-            res->addWriter(this);
+            res->addPort(this);
+            return res;
+        }
+
+    template<class T>
+    ConnectionInterface::shared_ptr BufferPort<T>::createConnection(ConnectionTypes::ConnectionType con_type )
+        {
+            ConnectionFactory<T> cf;
+            ConnectionInterface::shared_ptr res = cf.createBuffer(buf_size, minitial_value, con_type);
+            res->addPort(this);
             return res;
         }
 }
