@@ -58,6 +58,11 @@ namespace RTT
     {
     }
 
+    PropertyBag::~PropertyBag()
+    {
+        this->clear();
+    }
+
     void PropertyBag::add(PropertyBase *p)
     {
         this->addProperty(p);
@@ -66,6 +71,24 @@ namespace RTT
     void PropertyBag::remove(PropertyBase *p)
     {
         this->removeProperty(p);
+    }
+
+    bool PropertyBag::ownProperty(PropertyBase* p)
+    {
+        if ( ! p->ready() )
+            return false;
+        removeProperty(p);
+        mproperties.push_back(p);
+        mowned_props.push_back(p);
+        return true;
+    }
+
+    bool PropertyBag::ownsProperty(PropertyBase* p)
+    {
+        iterator i = std::find(mowned_props.begin(), mowned_props.end(), p);
+        if ( i != mowned_props.end() )
+            return true;
+        return false;
     }
 
     bool PropertyBag::addProperty(PropertyBase *p)
@@ -78,11 +101,14 @@ namespace RTT
 
     bool PropertyBag::removeProperty(PropertyBase *p)
     {
-        iterator i = mproperties.begin();
-        i = mproperties.end();
-        i = std::find(mproperties.begin(), mproperties.end(), p);
+        iterator i = std::find(mproperties.begin(), mproperties.end(), p);
         if ( i != mproperties.end() ) {
             mproperties.erase(i);
+            i = std::find(mowned_props.begin(), mowned_props.end(), p);
+            if ( i != mowned_props.end() ) {
+                mowned_props.erase(i);
+                delete *i;
+            }
             return true;
         }
         return false;
@@ -91,14 +117,20 @@ namespace RTT
     void PropertyBag::clear()
     {
         mproperties.clear();
+        for ( iterator i = mowned_props.begin();
+              i != mowned_props.end();
+              i++ )
+            {
+                delete *i;
+            }
+        mowned_props.clear();
     }
 
     void PropertyBag::list(std::vector<std::string> &names) const
     {
-        for (
-             const_iterator i = mproperties.begin();
-             i != mproperties.end();
-             i++ )
+        for ( const_iterator i = mproperties.begin();
+              i != mproperties.end();
+              i++ )
             {
                 names.push_back( (*i)->getName() );
             }
@@ -107,10 +139,9 @@ namespace RTT
     std::vector<std::string> PropertyBag::list() const
     {
         std::vector<std::string> names;
-        for (
-             const_iterator i = mproperties.begin();
-             i != mproperties.end();
-             i++ )
+        for ( const_iterator i = mproperties.begin();
+              i != mproperties.end();
+              i++ )
             {
                 names.push_back( (*i)->getName() );
             }
@@ -147,7 +178,7 @@ namespace RTT
 
     PropertyBag& PropertyBag::operator=(const PropertyBag& orig)
     {
-        mproperties.clear();
+        this->clear();
 
         const_iterator i = orig.getProperties().begin();
         while (i != orig.getProperties().end() )
@@ -474,11 +505,12 @@ namespace RTT
 
     void deleteProperties(PropertyBag& target)
     {
-        //recursive delete.
+        //non-recursive delete.
         PropertyBag::const_iterator it( target.getProperties().begin() );
         while ( it != target.getProperties().end() )
         {
-            delete (*it);
+            if (!target.ownsProperty( *it ))
+                delete (*it);
             ++it;
         }
         target.clear();
@@ -493,7 +525,8 @@ namespace RTT
             Property<PropertyBag>* result = dynamic_cast< Property<PropertyBag>* >( *it );
             if ( result != 0 )
                 deletePropertyBag( result->value() );
-            delete (*it);
+            if (!target.ownsProperty( *it ))
+                delete (*it);
             ++it;
         }
         target.clear();

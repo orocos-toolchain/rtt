@@ -56,6 +56,9 @@ namespace RTT
         OperationInterface* obj = parent->getObject("marshalling");
         if (!obj)
             obj = new TaskObject("marshalling","Read and write Properties to a file.");
+        obj->methods()->addMethod(method("loadProperties",&MarshallingAccess::loadProperties, this),
+                                  "Read, and create if necessary, Properties from a file.",
+                                  "Filename","The file to read the (new) Properties from.");
         obj->methods()->addMethod(method("updateProperties",&MarshallingAccess::updateProperties, this),
                                   "Read some Properties from a file.",
                                   "Filename","The file to read the Properties from.");
@@ -80,6 +83,13 @@ namespace RTT
         mparent->addObject( obj );
 #endif
     }
+    
+    bool MarshallingAccess::loadProperties(const std::string& filename) const
+    {
+        PropertyLoader pl;
+        return pl.load( filename, mparent );
+    }
+
     bool MarshallingAccess::readProperties(const std::string& filename) const
     {
         PropertyLoader pl;

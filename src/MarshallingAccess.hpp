@@ -59,6 +59,14 @@ namespace RTT
         MarshallingAccess(TaskContext* parent);
 
         /**
+         * Read a property file and update (or create any missing) properties in the
+         * TaskContext. This function allows to dynamically add properties to a
+         * component. This can be useful in combination with Orocos scripts when
+         * the script requires additional properties from the parent TaskContext.
+         */
+        bool loadProperties(const std::string& filename) const;
+
+        /**
          * Read the property file and 'refresh' \b all the properties of the TaskContext.
          * There may be more properties in the file than properties in the TaskContext,
          * but all properties of the TaskContext must be present in \a filename.

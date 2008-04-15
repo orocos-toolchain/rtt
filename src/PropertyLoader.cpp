@@ -50,6 +50,68 @@
 using namespace std;
 using namespace RTT;
 
+bool PropertyLoader::load(const std::string& filename, TaskContext* target) const
+{
+    Logger::In in("PropertyLoader:load");
+#ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
+        log(Error) << "No Property Demarshaller configured !" << endlog();
+        return false;
+    
+#else
+    if ( target->properties() == 0) {
+        log(Error) << "TaskContext " <<target->getName()<<" has no Properties to configure." << endlog();
+        return false;
+    }
+
+    log(Info) << "Loading properties into TaskContext '" <<target->getName()
+                  <<"' with '"<<filename<<"'."<< endlog();
+    bool failure = false;
+    OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER* demarshaller = 0;
+    try
+    {
+        demarshaller = new OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER (filename);
+    } catch (...) {
+        log(Error) << "Could not open file "<< filename << endlog();
+        return false;
+    }
+    try {
+        PropertyBag propbag;
+        vector<CommandInterface*> assignComs;
+
+        if ( demarshaller->deserialize( propbag ) )
+        {
+            // take restore-copy;
+            PropertyBag backup;
+            copyProperties( backup, *target->properties() );
+            // First test if the updateProperties will succeed:
+            if ( refreshProperties(  *target->properties(), propbag, false) ) { // not strict
+                // this just adds the new properties, *should* never fail, but
+                // let's record failure to be sure.
+                failure = !updateProperties( *target->properties(), propbag );
+            } else {
+                // restore backup in case of failure:
+                refreshProperties( *target->properties(), backup, false ); // not strict
+                failure = true;
+            }
+            // cleanup
+            deletePropertyBag( backup );
+        }
+        else
+            {
+                log(Error) << "Some error occured while parsing "<< filename.c_str() <<endlog();
+                failure = true;
+            }
+    } catch (...)
+    {
+        log(Error)
+                      << "Uncaught exception in deserialise !"<< endlog();
+        failure = true;
+    }
+    delete demarshaller;
+    return !failure;
+#endif // OROPKG_CORELIB_PROPERTIES_MARSHALLING
+
+}
 
 bool PropertyLoader::configure(const std::string& filename, TaskContext* target, bool all ) const
 {

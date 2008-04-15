@@ -139,6 +139,11 @@ namespace RTT
         PropertyBag( const PropertyBag& orig);
 
         /**
+         * Destroy this object and destroy all owned properties.
+         */
+        ~PropertyBag();
+
+        /**
          * Add a valid property to the container. Analogous to addProperty.
          * @param p Pointer to the property to be added.
          */
@@ -162,6 +167,16 @@ namespace RTT
          * @param p Pointer to the property to be removed.
          */
         bool removeProperty(PropertyBase *p);
+
+        /**
+         * Set a property to be owned by this bag.
+         */
+        bool ownProperty(PropertyBase* p);
+
+        /**
+         * Returns true if this property is owned by this Bag.
+         */
+        bool ownsProperty(PropertyBase* p);
 
         /**
          * Removes all PropertyBases from this bag, without deleting
@@ -289,6 +304,7 @@ namespace RTT
         const_iterator end() const { return mproperties.end(); }
     protected:
         Properties mproperties;
+        Properties mowned_props;
 
         /**
          * A function object for finding a Property by name.

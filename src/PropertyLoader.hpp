@@ -45,20 +45,25 @@
 namespace RTT
 {
     /**
-     * Load and save property files
-     * to a TaskContext's PropertyBag.
-     * The default file format is 'cpf' from the
-     * CPFMarshaller class. You can select
-     * another file format using the configuration tool
-     * in CoreLib->Properties->Marshalling->Default.
+     * Load and save property files to a TaskContext's PropertyBag.
+     * The default file format is 'cpf' from the CPFMarshaller class.
      */
     class PropertyLoader
     {
     public:
 
         /**
-         * Read the XML cpf file and 'refresh' the matching attributes of the given TaskContext.
-         * There may be more properties in the file than attributes in the target.
+         * Read the XML cpf file and create (or refresh the matching properties) of the given TaskContext.
+         * Any property in the file which is not in the target, is created in the target.
+         * @param filename The file to read from.
+         * @param target   The TaskContext to load the new properties into.
+         * @return true on success, false on error, consult Logger output for messages.
+         */
+        bool load(const std::string& filename, TaskContext* target) const;
+
+        /**
+         * Read the XML cpf file and 'refresh' the matching properties of the given TaskContext.
+         * There may be more properties in the file than properties in the target.
          * @param filename The file to read from.
          * @param target   The TaskContext to configure.
          * @param all   Configure all properties of \a target. Return an error
@@ -68,9 +73,9 @@ namespace RTT
         bool configure(const std::string& filename, TaskContext* target, bool all = true) const;
 
         /**
-         * Write the XML cpf file with the attributes of the given TaskContext.
+         * Write the XML cpf file with the properties of the given TaskContext.
          * The file is first read in, the resulting tree is updated with the task's
-         * attributes and then written to disk again. This allows to share files
+         * properties and then written to disk again. This allows to share files
          * between tasks.
          * @param filename The file to read from and write to (updating).
          * @param target   The TaskContext to configure.
