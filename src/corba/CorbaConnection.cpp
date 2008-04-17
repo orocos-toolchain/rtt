@@ -1,6 +1,7 @@
 #include "CorbaConnection.hpp"
 #include "../PortInterface.hpp"
 #include "CorbaLib.hpp"
+#include "ExpressionProxy.hpp"
 
 namespace RTT
 {
@@ -44,10 +45,28 @@ namespace RTT
             if (lcc)
                 return lcc->getDataSource();
             detail::TypeTransporter* tt = getTypeInfo()->getProtocol( ORO_CORBA_PROTOCOL_ID );
+            // getDataSource returns data value or buffer's front() value
+            // Data case
             if (tt && mdflow->getConnectionModel( mname.c_str() ) == DataFlowInterface::Data) {
                 if (mdatachannel.in() )
                     return tt->dataProxy( (void*)mdatachannel.in() );
                 return tt->dataProxy( mdflow->createDataChannel(mname.c_str() ) );
+            }
+            // Buffer case
+            if (tt && mdflow->getConnectionModel( mname.c_str() ) == DataFlowInterface::Buffered) {
+                // return a data source proxy to front().
+                // make sure there is a remote buffer.
+                BufferChannel_var buf = mdflow->createBufferChannel(mname.c_str());
+                // get the front() data object
+                Expression_var front = mdflow->createDataObject(mname.c_str());
+                if ( front.in() == 0 )
+                    return DataSourceBase::shared_ptr();
+                // convert to local data object
+                DataSourceBase::shared_ptr ds = ExpressionProxy::CreateDataSource( front.in() );
+                DataSourceBase::shared_ptr ret = tt->narrowDataSource( ds.get() );
+                if (ret)
+                    return ret; // full conversion succesful.
+                return ds;      // return proxy (basic functionality).
             }
             return DataSourceBase::shared_ptr();
 
