@@ -467,9 +467,9 @@ ORO_main( int argc, char** argv)
     <section id="corelib-slave-activity">
       <title>Custom or Slave Activities</title>
       <para>
-	If non of the above activity schemes fit you, you can always fall back on
+	If none of the above activity schemes fit you, you can always fall back on
 	the <classname>RTT::SlaveActivity</classname>, which lets the user
-	control when the activity is executed. A special function <function>bool trigger()</function>
+	control when the activity is executed. A special function <function>bool execute()</function>
 	is implemented which will execute <function>RunnableInterface::step()</function>
 	or <function>RunnableInterface::loop()</function> when called by the user.
 	Three versions of the <classname>SlaveActivity</classname> can be constructed:
@@ -482,11 +482,11 @@ ORO_main( int argc, char** argv)
   <classname>RTT::SlaveActivity</classname> slave_one( &amp;master_one );
 
   slave_one.start();   // fail: master not running.
-  slave_one.trigger(); // fail: slave not running.
+  slave_one.execute(); // fail: slave not running.
 
   master_one.start();  // start the master.
   slave_one.start();   // ok: master is running.
-  slave_one.trigger(); // ok: calls step(), repeat...
+  slave_one.execute(); // ok: calls step(), repeat...
   
   // <emphasis>Without master</emphasis>
   // a 'slave' without explicit master, with period of 1KHz.
@@ -495,18 +495,30 @@ ORO_main( int argc, char** argv)
   <classname>RTT::SlaveActivity</classname> slave_three();
 
   slave_two.start();   // ok: start periodic without master
-  slave_two.trigger(); // ok, calls 'step()', repeat...
+  slave_two.execute(); // ok, calls 'step()', repeat...
   slave_two.stop();
 
   slave_three.start();   // start not periodic.
-  slave_three.trigger(); // ok, calls 'loop()', may block !
-  // <emphasis>if loop() blocks, trigger() blocks as well.</emphasis>
+  slave_three.execute(); // ok, calls 'loop()', may block !
+  // <emphasis>if loop() blocks, execute() blocks as well.</emphasis>
 	</programlisting>
       </para>
       <para>
 	Note that although there may be a master, it is still the
-	user's responsibility to call <function>trigger()</function>.
+	user's responsibility to call <function>execute()</function>.
       </para>
+      <para>
+	There is also a <function>trigger()</function> function for
+	slaves with a non periodic
+	master. <function>trigger()</function> will in that case call
+	trigger() upon the master thread, which will cause it to
+	execute. The master thread is then still responsible to call
+	execute() on the slave. In constrast, calling
+	<function>trigger()</function> upon periodic slaves or periodic
+	activities will always fail. Periodic activities are triggered
+	internally by the elapse of time.
+      </para>
+
     </section>
     <section id="corelib-threads">
       <title>Accessing the Threads from Activities</title>

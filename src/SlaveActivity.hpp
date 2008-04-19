@@ -51,19 +51,25 @@ namespace RTT
 
     /**
      * @brief An ActivityInterface implementation which executes
-     * 'step' upon the invocation of 'trigger()', which is called by
+     * 'step' upon the invocation of 'execute()', which is called by
      * another Activity.  The SlaveActivity can only be started if the
      * master is active or if no master is present. If a master is used, 
      * this activity takes periodicity over from the master. If no
      * master is present, use one of the alternative constructors to make
      * a periodic slave or a non periodic slave.
      *
-     * \section TrigReact Reactions to trigger():
+     * \section ExecReact Reactions to execute():
      * In the non periodic case, RunnableInterface::loop() is called, in the
      * periodic case, RunnableInterface::step() is called. In case the
      * RunnableInterface did not implement loop(), step() is invoked by default.
      * If no RunnableInterface is given, said functions are called upon
      * SlaveActivity itself.
+     *
+     * \section TrigReact Reactions to trigger():
+     * In the non periodic
+     * case, trigger() is called upon the master (causing it to
+     * execute), in the periodic case, it is ignored (you can not
+     * trigger periodic activities). 
      * @ingroup CoreLibActivities
      */
     class SlaveActivity
