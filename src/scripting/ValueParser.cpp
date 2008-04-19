@@ -48,8 +48,10 @@ namespace RTT
         : peerparser(tc), context(tc)
   {
     BOOST_SPIRIT_DEBUG_RULE( constant );
+    BOOST_SPIRIT_DEBUG_RULE( const_float );
     BOOST_SPIRIT_DEBUG_RULE( const_double );
     BOOST_SPIRIT_DEBUG_RULE( const_int );
+    BOOST_SPIRIT_DEBUG_RULE( const_uint );
     BOOST_SPIRIT_DEBUG_RULE( const_bool );
     BOOST_SPIRIT_DEBUG_RULE( const_string );
     BOOST_SPIRIT_DEBUG_RULE( named_constant );
@@ -58,12 +60,18 @@ namespace RTT
     // useful "cannot use x as identifier" error if it fails, so we
     // must first show all non-identifier rules.
     constant =
-        const_double
+        const_float
+      | const_double
       | const_int
+      | const_uint
       | const_bool
       | const_char
       | const_string
       | named_constant;
+
+    const_float =
+      strict_real_p [
+        bind( &ValueParser::seenfloatconstant, this, _1 ) ] >> ch_p('f');
 
     const_double =
       strict_real_p [
@@ -72,6 +80,10 @@ namespace RTT
     const_int =
       int_p [
         bind( &ValueParser::seenintconstant, this, _1 ) ];
+
+    const_uint =
+      uint_p [
+        bind( &ValueParser::seenuintconstant, this, _1 ) ] >> ch_p('u');
 
     const_bool =
       ( str_p( "true" ) | "false" )[
@@ -163,6 +175,16 @@ namespace RTT
   void ValueParser::seenintconstant( int i )
   {
     ret = new ConstantDataSource<int>( i );
+  }
+
+  void ValueParser::seenuintconstant( uint i )
+  {
+    ret = new ConstantDataSource<uint>( i );
+  }
+
+  void ValueParser::seenfloatconstant( double i )
+  {
+    ret = new ConstantDataSource<float>( i );
   }
 
   void ValueParser::seendoubleconstant( double i )

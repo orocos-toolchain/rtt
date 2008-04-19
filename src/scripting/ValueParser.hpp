@@ -58,7 +58,7 @@ namespace RTT
      */
   class ValueParser
   {
-    rule_t constant, const_double, const_int, const_bool, named_constant,
+    rule_t constant, const_float, const_double, const_int, const_uint, const_bool, named_constant,
       const_string, const_char;
     CommonParser commonparser;
     PeerParser peerparser;
@@ -85,7 +85,9 @@ namespace RTT
     void seennamedconstant( iter_t begin, iter_t end );
     void seenboolconstant( iter_t begin, iter_t end );
     void seenintconstant( int c );
+    void seenuintconstant( uint c );
     void seencharconstant( iter_t c );
+    void seenfloatconstant( double c );
     void seendoubleconstant( double c );
     void push_str_char( char c );
     void seenstring();
