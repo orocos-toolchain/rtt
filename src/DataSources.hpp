@@ -41,6 +41,7 @@
 
 #include "DataSource.hpp"
 #include "DataSourceAdaptor.hpp"
+#include "DataSourceTypeInfo.hpp"
 #include "AssignCommand.hpp"
 #include <vector>
 
@@ -206,7 +207,7 @@ namespace RTT
         {
             DataSourceBase::shared_ptr r( rhs );
             DataSourceBase::shared_ptr i( index );
-            DataSource<SetType>* t = AdaptDataSource<SetType>()( r );
+            DataSource<SetType>* t = AdaptDataSource<SetType>()( detail::DataSourceTypeInfo<SetType>::getTypeInfo()->convert(r) );
             if ( ! t ) {
 #ifndef ORO_EMBEDDED
                 throw bad_assignment();

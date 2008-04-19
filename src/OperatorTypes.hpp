@@ -68,7 +68,7 @@ namespace RTT
             {
                 if ( op != mop ) return 0;
                 typename DataSource<arg_t>::shared_ptr arg =
-                    AdaptDataSource<arg_t>()( a );
+                    AdaptDataSource<arg_t>()( a ); // do not call convert(a) here ! Would always succeed.
                 if ( ! arg ) return 0;
                 return new UnaryDataSource<function>( arg, fun );
             }
@@ -96,12 +96,13 @@ namespace RTT
             DataSource<result_t>* build( const std::string& op, DataSourceBase* a,
                                          DataSourceBase* b )
             {
-                if ( op != mop ) return 0;
+                // operation (+,-,...) and first argument type must match.
+                if ( op != mop || a->getTypeInfo() != DataSourceTypeInfo<arg1_t>::getTypeInfo() ) return 0;
                 //         Logger::log() << Logger::Debug << "BinaryOperator: "<< op << Logger::nl;
                 typename DataSource<arg1_t>::shared_ptr arg1 =
-                    AdaptDataSource<arg1_t>()( a );
+                    AdaptDataSource<arg1_t>()( a ); // first argument must be exact match.
                 typename DataSource<arg2_t>::shared_ptr arg2 =
-                    AdaptDataSource<arg2_t>()( b );
+                    AdaptDataSource<arg2_t>()( DataSourceTypeInfo<arg2_t>::getTypeInfo()->convert(b) );
                 //         Logger::log() << "arg1 : "<< arg1 <<" second arg: "<<arg2<<"..." << Logger::endl;
                 //         Logger::log() << "arg1 was: "<< typeid(arg1).name()  <<" a was: "<<typeid(a).name()<<"..." << Logger::endl;
                 if ( !arg1 || ! arg2 ) return 0;

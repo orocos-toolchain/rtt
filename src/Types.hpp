@@ -77,6 +77,14 @@ namespace RTT
          * if such a constructor exists.
          */
         virtual DataSourceBase::shared_ptr build(const std::vector<DataSourceBase::shared_ptr>& args) const = 0;
+        
+        /**
+         * Automatic type conversion (float->double,... ). Fails by default.
+         */
+        virtual DataSourceBase::shared_ptr convert(DataSourceBase::shared_ptr arg) const
+        {
+            return DataSourceBase::shared_ptr();
+        }
     };
 
     /**
@@ -125,7 +133,14 @@ namespace RTT
         virtual DataSourceBase::shared_ptr construct(const std::vector<DataSourceBase::shared_ptr>& args) const;
 
         /**
-         * Add a constructor.
+         * Automatic conversion: convert a DataSource to this type.
+         * For example, for converting float -> double. If no valid conversion was found,
+         * returns arg again, otherwise, a new data source.
+         */
+        virtual DataSourceBase::shared_ptr convert(DataSourceBase::shared_ptr arg) const;
+
+        /**
+         * Add a constructor/convertor object.
          */
         virtual void addConstructor(TypeBuilder* tb);
 

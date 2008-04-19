@@ -130,7 +130,7 @@ namespace RTT
     template<class T>
     bool AssignableDataSource<T>::update( DataSourceBase* other ) {
         DataSourceBase::shared_ptr r( other );
-        typename DataSource<T>::shared_ptr o = AdaptDataSource<T>()(r);
+        typename DataSource<T>::shared_ptr o = AdaptDataSource<T>()( detail::DataSourceTypeInfo<T>::getTypeInfo()->convert(r) );
         if (o) {
             this->set( o->get() );
             return true;
@@ -142,7 +142,7 @@ namespace RTT
     CommandInterface* AssignableDataSource<T>::updateCommand( DataSourceBase* other) {
         // Use the same rules of parameter passing as C++, but no const for 'int',...
         DataSourceBase::shared_ptr r( other );
-        typename DataSource<copy_t>::shared_ptr t = AdaptDataSource<copy_t>()( r );
+        typename DataSource<copy_t>::shared_ptr t = AdaptDataSource<copy_t>()( detail::DataSourceTypeInfo<T>::getTypeInfo()->convert(r) );
         if ( t )
             return new detail::AssignCommand<T,copy_t>( this, t );
 

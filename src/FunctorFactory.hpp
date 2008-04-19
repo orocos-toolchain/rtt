@@ -106,7 +106,7 @@ namespace RTT
                 if ( args.size() != 1 )
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 1, args.size() ), ResultT());
                 typename DataSource<arg1_type>::shared_ptr a =
-                    AdaptDataSource<arg1_type>()( args[0] );
+                    AdaptDataSource<arg1_type>()( DataSourceTypeInfo<arg1_type>::getTypeInfo()->convert(args[0]) );
                 if ( ! a )
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 1, DataSource<arg1_type>::GetType(), args[0]->getType() ), ResultT());
                 return fun.create( a.get() );
@@ -134,11 +134,11 @@ namespace RTT
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 2, args.size() ), ResultT());
 
                 typename DataSource<arg1_type>::shared_ptr a =
-                    AdaptDataSource<arg1_type>()( args[0] );
+                    AdaptDataSource<arg1_type>()( DataSourceTypeInfo<arg1_type>::getTypeInfo()->convert(args[0]) );
                 if ( !a ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 1, DataSource<arg1_type>::GetType(), args[0]->getType() ), ResultT());
                 typename DataSource<arg2_type>::shared_ptr b =
-                    AdaptDataSource<arg2_type>()( args[1] );
+                    AdaptDataSource<arg2_type>()( DataSourceTypeInfo<arg2_type>::getTypeInfo()->convert(args[1]) );
                 if ( !b ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 2, DataSource<arg2_type>::GetType(), args[1]->getType() ), ResultT());
 
@@ -169,15 +169,15 @@ namespace RTT
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 3, args.size() ), ResultT());
 
                 typename DataSource<arg1_type>::shared_ptr a =
-                    AdaptDataSource<arg1_type>()( args[0] );
+                    AdaptDataSource<arg1_type>()( DataSourceTypeInfo<arg1_type>::getTypeInfo()->convert(args[0]) );
                 if ( !a ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 1, DataSource<arg1_type>::GetType(), args[0]->getType() ), ResultT());
                 typename DataSource<arg2_type>::shared_ptr b =
-                    AdaptDataSource<arg2_type>()( args[1] );
+                    AdaptDataSource<arg2_type>()( DataSourceTypeInfo<arg2_type>::getTypeInfo()->convert(args[1]) );
                 if ( !b ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 2, DataSource<arg2_type>::GetType(), args[1]->getType() ), ResultT());
                 typename DataSource<arg3_type>::shared_ptr c =
-                    AdaptDataSource<arg3_type>()( args[2] );
+                    AdaptDataSource<arg3_type>()( DataSourceTypeInfo<arg3_type>::getTypeInfo()->convert(args[2]) );
                 if ( !c ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 3, DataSource<arg3_type>::GetType(), args[2]->getType() ), ResultT());
 
@@ -209,19 +209,19 @@ namespace RTT
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 4, args.size() ), ResultT());
 
                 typename DataSource<arg1_type>::shared_ptr a =
-                    AdaptDataSource<arg1_type>()( args[0] );
+                    AdaptDataSource<arg1_type>()( DataSourceTypeInfo<arg1_type>::getTypeInfo()->convert(args[0]) );
                 if ( !a ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 1, DataSource<arg1_type>::GetType(), args[0]->getType() ), ResultT());
                 typename DataSource<arg2_type>::shared_ptr b =
-                    AdaptDataSource<arg2_type>()( args[1] );
+                    AdaptDataSource<arg2_type>()( DataSourceTypeInfo<arg2_type>::getTypeInfo()->convert(args[1]) );
                 if ( !b ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 2, DataSource<arg2_type>::GetType(), args[1]->getType() ), ResultT());
                 typename DataSource<arg3_type>::shared_ptr c =
-                    AdaptDataSource<arg3_type>()( args[2] );
+                    AdaptDataSource<arg3_type>()( DataSourceTypeInfo<arg3_type>::getTypeInfo()->convert(args[2]) );
                 if ( !c ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 3, DataSource<arg3_type>::GetType(), args[2]->getType() ), ResultT());
                 typename DataSource<arg4_type>::shared_ptr d =
-                    AdaptDataSource<arg4_type>()( args[3] );
+                    AdaptDataSource<arg4_type>()( DataSourceTypeInfo<arg4_type>::getTypeInfo()->convert(args[3]) );
                 if ( !d )
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 4, DataSource<arg4_type>::GetType(), args[3]->getType() ), ResultT());
 
@@ -254,24 +254,24 @@ namespace RTT
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 5, args.size() ), ResultT());
 
                 typename DataSource<arg1_type>::shared_ptr a =
-                    AdaptDataSource<arg1_type>()( args[0] );
+                    AdaptDataSource<arg1_type>()( DataSourceTypeInfo<arg1_type>::getTypeInfo()->convert(args[0]) );
                 if ( !a ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 1, DataSource<arg1_type>::GetType(), args[0]->getType() ), ResultT());
                 typename DataSource<arg2_type>::shared_ptr b =
-                    AdaptDataSource<arg2_type>()( args[1] );
+                    AdaptDataSource<arg2_type>()( DataSourceTypeInfo<arg2_type>::getTypeInfo()->convert(args[1]) );
                 if ( !b ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 2, DataSource<arg2_type>::GetType(), args[1]->getType() ), ResultT());
                 typename DataSource<arg3_type>::shared_ptr c =
-                    AdaptDataSource<arg3_type>()( args[2] );
+                    AdaptDataSource<arg3_type>()( DataSourceTypeInfo<arg3_type>::getTypeInfo()->convert(args[2]) );
                 if ( !c ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 3, DataSource<arg3_type>::GetType(), args[2]->getType() ), ResultT());
                 typename DataSource<arg4_type>::shared_ptr d =
-                    AdaptDataSource<arg4_type>()( args[3] );
+                    AdaptDataSource<arg4_type>()( DataSourceTypeInfo<arg4_type>::getTypeInfo()->convert(args[3]) );
                 if ( !d )
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 4, DataSource<arg4_type>::GetType(), args[3]->getType() ), ResultT());
 
                 typename DataSource<arg5_type>::shared_ptr e =
-                    AdaptDataSource<arg5_type>()( args[4] );
+                    AdaptDataSource<arg5_type>()( DataSourceTypeInfo<arg5_type>::getTypeInfo()->convert(args[4]) );
                 if ( !e )
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 5, DataSource<arg5_type>::GetType(), args[4]->getType() ), ResultT());
 
@@ -305,29 +305,29 @@ namespace RTT
                     ORO_THROW_OR_RETURN(wrong_number_of_args_exception( 6, args.size() ), ResultT());
 
                 typename DataSource<arg1_type>::shared_ptr a =
-                    AdaptDataSource<arg1_type>()( args[0] );
+                    AdaptDataSource<arg1_type>()( DataSourceTypeInfo<arg1_type>::getTypeInfo()->convert(args[0]) );
                 if ( !a ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 1, DataSource<arg1_type>::GetType(), args[0]->getType() ), ResultT());
                 typename DataSource<arg2_type>::shared_ptr b =
-                    AdaptDataSource<arg2_type>()( args[1] );
+                    AdaptDataSource<arg2_type>()( DataSourceTypeInfo<arg2_type>::getTypeInfo()->convert(args[1]) );
                 if ( !b ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 2, DataSource<arg2_type>::GetType(), args[1]->getType() ), ResultT());
                 typename DataSource<arg3_type>::shared_ptr c =
-                    AdaptDataSource<arg3_type>()( args[2] );
+                    AdaptDataSource<arg3_type>()( DataSourceTypeInfo<arg3_type>::getTypeInfo()->convert(args[2]) );
                 if ( !c ) 
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 3, DataSource<arg3_type>::GetType(), args[2]->getType() ), ResultT());
                 typename DataSource<arg4_type>::shared_ptr d =
-                    AdaptDataSource<arg4_type>()( args[3] );
+                    AdaptDataSource<arg4_type>()( DataSourceTypeInfo<arg4_type>::getTypeInfo()->convert(args[3]) );
                 if ( !d )
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 4, DataSource<arg4_type>::GetType(), args[3]->getType() ), ResultT());
 
                 typename DataSource<arg5_type>::shared_ptr e =
-                    AdaptDataSource<arg5_type>()( args[4] );
+                    AdaptDataSource<arg5_type>()( DataSourceTypeInfo<arg5_type>::getTypeInfo()->convert(args[4]) );
                 if ( !e )
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 5, DataSource<arg5_type>::GetType(), args[4]->getType() ), ResultT());
 
                 typename DataSource<arg6_type>::shared_ptr f =
-                    AdaptDataSource<arg6_type>()( args[5] );
+                    AdaptDataSource<arg6_type>()( DataSourceTypeInfo<arg6_type>::getTypeInfo()->convert(args[5]) );
                 if ( !f )
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 6, DataSource<arg6_type>::GetType(), args[5]->getType() ), ResultT());
 

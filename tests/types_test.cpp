@@ -155,6 +155,23 @@ void TypesTest::testOperators()
     executePrograms(prog);
 }
 
+void TypesTest::testConversions()
+{
+    string prog = string("program x {\n") +
+        "var int i = 3.0\n" +
+        "var double d = float(10.0*i)\n"+
+        "do test.assert( float(d) == float(30.0) )\n" +        
+        "var float f = 5\n" +
+        "set f = double(5) * double(-1) + i\n" +
+        "set i = f\n" +
+        "set f = i\n" +
+        "set i = double(float(int(f)))\n" +
+        "set f = int(float(double(int(3.333))))\n" +
+        "do test.assert( f == 3 )\n" +        
+        "}";
+    // execute
+    executePrograms(prog);
+}
 void TypesTest::testProperties()
 {
     string prog = string("program x {\n") +

@@ -218,6 +218,17 @@ namespace RTT
                 return *(ptr);
             }
         };
+
+            double float_to_double( float val ) {return val;}
+            float double_to_float( double val ) {return val;}
+
+            
+            int float_to_int(float f) { return int(f); }
+            float int_to_float(int i) { return i; }
+            int double_to_int(double f) { return int(f); }
+            double int_to_double(int i) { return i; }
+            unsigned int int_to_uint(int i) { return i; }
+            int uint_to_int(unsigned int ui) { return ui; }
 #endif
 
         struct string_ctor
@@ -290,6 +301,14 @@ namespace RTT
         ti->type("array")->addConstructor( newConstructor( array_ctor() ) );
         ti->type("array")->addConstructor( newConstructor( array_ctor2() ) );
         ti->type("array")->addConstructor( new ArrayBuilder() ); // var number of args
+        ti->type("double")->addConstructor( newConstructor( &float_to_double, true ));
+        ti->type("double")->addConstructor( newConstructor( &int_to_double, true ));
+        ti->type("float")->addConstructor( newConstructor( &int_to_float, true ));
+        ti->type("float")->addConstructor( newConstructor( &double_to_float, true ));
+        ti->type("int")->addConstructor( newConstructor( &float_to_int, false ));
+        ti->type("int")->addConstructor( newConstructor( &double_to_int, false ));
+        ti->type("int")->addConstructor( newConstructor( &uint_to_int, false ));
+        ti->type("uint")->addConstructor( newConstructor( &int_to_uint, false ));
 #endif
         ti->type("string")->addConstructor( newConstructor( string_ctor() ) );
         return true;
@@ -320,8 +339,22 @@ namespace RTT
         oreg->add( newBinaryOperator( ">=", std::greater_equal<int>() ) );
         oreg->add( newBinaryOperator( "==", std::equal_to<int>() ) );
         oreg->add( newBinaryOperator( "!=", std::not_equal_to<int>() ) );
-
-
+#ifndef ORO_EMBEDDED
+        // uint stuff
+        oreg->add( newUnaryOperator( "-", std::negate<unsigned int>() ) );
+        oreg->add( newUnaryOperator( "+", identity<unsigned int>() ) );
+        oreg->add( newBinaryOperator( "*", std::multiplies<unsigned int>() ) );
+        oreg->add( newBinaryOperator( "/", divides3<unsigned int,unsigned int,unsigned int>() ) ); // use our own divides<> which detects div by zero
+        oreg->add( newBinaryOperator( "%", std::modulus<unsigned int>() ) );
+        oreg->add( newBinaryOperator( "+", std::plus<unsigned int>() ) );
+        oreg->add( newBinaryOperator( "-", std::minus<unsigned int>() ) );
+        oreg->add( newBinaryOperator( "<", std::less<unsigned int>() ) );
+        oreg->add( newBinaryOperator( "<=", std::less_equal<unsigned int>() ) );
+        oreg->add( newBinaryOperator( ">", std::greater<unsigned int>() ) );
+        oreg->add( newBinaryOperator( ">=", std::greater_equal<unsigned int>() ) );
+        oreg->add( newBinaryOperator( "==", std::equal_to<unsigned int>() ) );
+        oreg->add( newBinaryOperator( "!=", std::not_equal_to<unsigned int>() ) );
+#endif
         // double stuff..
         oreg->add( newUnaryOperator( "-", std::negate<double>() ) );
         oreg->add( newUnaryOperator( "+", identity<double>() ) );
@@ -335,19 +368,24 @@ namespace RTT
         oreg->add( newBinaryOperator( ">=", std::greater_equal<double>() ) );
         oreg->add( newBinaryOperator( "==", std::equal_to<double>() ) );
         oreg->add( newBinaryOperator( "!=", std::not_equal_to<double>() ) );
-        // with integers :
-        oreg->add( newBinaryOperator( "*", multiplies3<double,int, double>() ) );
-        oreg->add( newBinaryOperator( "*", multiplies3<double,double, int>() ) );
-        oreg->add( newBinaryOperator( "/", divides3<double,int, double>() ) );
-        oreg->add( newBinaryOperator( "/", divides3<double,double, int>() ) );
-        oreg->add( newBinaryOperator( "+", adds3<double,int, double>() ) );
-        oreg->add( newBinaryOperator( "+", adds3<double,double, int>() ) );
-        oreg->add( newBinaryOperator( "-", subs3<double,int, double>() ) );
-        oreg->add( newBinaryOperator( "-", subs3<double,double, int>() ) );
-
+#ifndef ORO_EMBEDDED
+        // float stuff
+        oreg->add( newUnaryOperator( "-", std::negate<float>() ) );
+        oreg->add( newUnaryOperator( "+", identity<float>() ) );
+        oreg->add( newBinaryOperator( "*", std::multiplies<float>() ) );
+        oreg->add( newBinaryOperator( "/", std::divides<float>() ) );
+        oreg->add( newBinaryOperator( "+", std::plus<float>() ) );
+        oreg->add( newBinaryOperator( "-", std::minus<float>() ) );
+        oreg->add( newBinaryOperator( "<", std::less<float>() ) );
+        oreg->add( newBinaryOperator( "<=", std::less_equal<float>() ) );
+        oreg->add( newBinaryOperator( ">", std::greater<float>() ) );
+        oreg->add( newBinaryOperator( ">=", std::greater_equal<float>() ) );
+        oreg->add( newBinaryOperator( "==", std::equal_to<float>() ) );
+        oreg->add( newBinaryOperator( "!=", std::not_equal_to<float>() ) );
+#endif        
         // strings
         // causes memory allocation....
-        //  oreg->add( newBinaryOperator( "+", std::plus<std::string>() ) );
+        oreg->add( newBinaryOperator( "+", std::plus<std::string>() ) );
         oreg->add( newBinaryOperator( "==", std::equal_to<const std::string&>() ) );
         oreg->add( newBinaryOperator( "!=", std::not_equal_to< const std::string&>() ) );
         oreg->add( newBinaryOperator( "<", std::less<const std::string&>() ) );

@@ -198,7 +198,8 @@ namespace RTT
 
         AttributeBase* buildConstant(std::string name, DataSourceBase::shared_ptr dsb) const
         {
-            typename DataSource<PropertyType>::shared_ptr res = AdaptDataSource<PropertyType>()(dsb);
+            typename DataSource<PropertyType>::shared_ptr res = 
+                AdaptDataSource<PropertyType>()( detail::DataSourceTypeInfo<PropertyType>::getTypeInfo()->convert(dsb));
             if ( res ) {
                 res->get();
                 Logger::log() << Logger::Info << "Building "<<tname<<" Constant '"<<name<<"' with value "<< dsb->getTypeInfo()->toString(dsb) <<Logger::endl;
@@ -231,7 +232,7 @@ namespace RTT
 
         AttributeBase* buildAlias(std::string name, DataSourceBase::shared_ptr in ) const
         {
-            typename DataSource<T>::shared_ptr ds = AdaptDataSource<T>()( in );
+            typename DataSource<T>::shared_ptr ds = AdaptDataSource<T>()( detail::DataSourceTypeInfo<T>::getTypeInfo()->convert(in) );
             if ( ! ds )
                 return 0;
             return new Alias<T>( name, ds );
@@ -449,7 +450,11 @@ namespace RTT
 
     namespace detail
     {
-
+        /**
+         * The constructor classes allow to define type constructors
+         * or type conversions (convert type B from type A).
+         * @see TypeInfo::addConstructor()
+         */
         template<class Signature, int>
         struct TemplateConstructor;
 
@@ -458,19 +463,51 @@ namespace RTT
             : public TypeBuilder,
               public FunctorFactoryPart1<DataSourceBase*, DataSourceArgsMethod<S> >
         {
+            typedef typename boost::function_traits<S>::result_type result_type;
+            typedef typename boost::function_traits<S>::arg1_type arg1_type;
+            
+            bool automatic;
             template<class FInit>
-            TemplateConstructor( FInit f)
-                : FunctorFactoryPart1<DataSourceBase*, DataSourceArgsMethod<S> >(f )
+            TemplateConstructor( FInit f, bool autom)
+                : FunctorFactoryPart1<DataSourceBase*, DataSourceArgsMethod<S> >(f ),
+                automatic(autom)
             {}
 
             virtual DataSourceBase::shared_ptr build(const std::vector<DataSourceBase::shared_ptr>& args) const {
+                // these checks are necessary because produce(args) calls convert, which could lead to endless loops.
+                // detect same type converion.
+                if ( args.size() == 1 && args[0]->getTypeInfo() == DataSourceTypeInfo<result_type>::getTypeInfo() ) {
+                    return args[0];
+                }
+                // detect invalid type conversion.
+                if ( args.size() == 1 && args[0]->getTypeInfo() != DataSourceTypeInfo<arg1_type>::getTypeInfo() ) {
+                    return DataSourceBase::shared_ptr();
+                }
                 try {
                     return this->produce( args );
                 } catch ( ... ) {
                 }
                 return DataSourceBase::shared_ptr();
             }
-            
+
+            virtual DataSourceBase::shared_ptr convert(DataSourceBase::shared_ptr arg) const {
+                // these checks are necessary because produce(args) calls convert, which could lead to endless loops.
+                // detect same type converion.
+                if ( arg->getTypeInfo() == DataSourceTypeInfo<result_type>::getTypeInfo() ) {
+                    return arg;
+                }
+                // detect invalid type conversion.
+                if ( arg->getTypeInfo() != DataSourceTypeInfo<arg1_type>::getTypeInfo() ) {
+                    return DataSourceBase::shared_ptr();
+                }
+                // from now on, it should always succeed.
+                std::vector<DataSourceBase::shared_ptr> args;
+                args.push_back(arg);
+                DataSourceBase::shared_ptr ret = this->build(args);
+                if (ret && !automatic)
+                    log(Warning) << "Conversion from " << arg->getTypeName() << " to " << ret->getTypeName() <<endlog();
+                return ret;
+            }
         };
 
         template<class S>
@@ -479,7 +516,7 @@ namespace RTT
               public FunctorFactoryPart2<DataSourceBase*, DataSourceArgsMethod<S> >
         {
             template<class FInit>
-            TemplateConstructor( FInit f)
+            TemplateConstructor( FInit f, bool autom)
                 : FunctorFactoryPart2<DataSourceBase*, DataSourceArgsMethod<S> >(f )
             {}
 
@@ -499,7 +536,7 @@ namespace RTT
               public FunctorFactoryPart3<DataSourceBase*, DataSourceArgsMethod<S> >
         {
             template<class FInit>
-            TemplateConstructor( FInit f)
+            TemplateConstructor( FInit f, bool autom)
                 : FunctorFactoryPart3<DataSourceBase*, DataSourceArgsMethod<S> >(f )
             {}
 
@@ -519,7 +556,7 @@ namespace RTT
               public FunctorFactoryPart4<DataSourceBase*, DataSourceArgsMethod<S> >
         {
             template<class FInit>
-            TemplateConstructor( FInit f)
+            TemplateConstructor( FInit f, bool autom)
                 : FunctorFactoryPart4<DataSourceBase*, DataSourceArgsMethod<S> >(f )
             {}
 
@@ -539,7 +576,7 @@ namespace RTT
               public FunctorFactoryPart6<DataSourceBase*, DataSourceArgsMethod<S> >
         {
             template<class FInit>
-            TemplateConstructor( FInit f)
+            TemplateConstructor( FInit f, bool autom)
                 : FunctorFactoryPart6<DataSourceBase*, DataSourceArgsMethod<S> >(f )
             {}
 
@@ -558,24 +595,25 @@ namespace RTT
      * Create a new Constructor.
      * 
      * @param foo A pointer to the 'C' function which creates an object.
-     * 
+     * @param automatic Set to true to allow automatic conversion (without warning) to this type.
      * @return a Constructor object suitable for the type system.
      */
     template<class Function>
-    TypeBuilder* newConstructor( Function* foo ) {
-        return new detail::TemplateConstructor<Function, boost::function_traits<Function>::arity>(foo);
+    TypeBuilder* newConstructor( Function* foo, bool automatic = false ) {
+        return new detail::TemplateConstructor<Function, boost::function_traits<Function>::arity>(foo, automatic);
     }
 
     /**
      * Create a new Constructor.
      * 
      * @param obj A function object which has operator().
+     * @param automatic Set to true to allow automatic conversion (without warning) to this type.
      * 
      * @return a Constructor object suitable for the type system.
      */
     template<class Object>
-    TypeBuilder* newConstructor( Object obj ) {
-        return new detail::TemplateConstructor<typename Object::Signature, boost::function_traits<typename Object::Signature>::arity>(obj);
+    TypeBuilder* newConstructor( Object obj, bool automatic = false) {
+        return new detail::TemplateConstructor<typename Object::Signature, boost::function_traits<typename Object::Signature>::arity>(obj, automatic);
     }
 }
 

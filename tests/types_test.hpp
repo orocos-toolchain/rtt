@@ -35,6 +35,7 @@ class TypesTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testTypes );
     CPPUNIT_TEST( testOperators );
     CPPUNIT_TEST( testProperties );
+    CPPUNIT_TEST( testConversions );
     CPPUNIT_TEST_SUITE_END();
 
     Parser parser;
@@ -53,6 +54,7 @@ public:
     void testTypes();
     void testOperators();
     void testProperties();
+    void testConversions();
 };
 
 #endif

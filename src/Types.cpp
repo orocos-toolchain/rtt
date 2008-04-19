@@ -101,7 +101,7 @@ namespace RTT
 
     DataSourceBase::shared_ptr TypeInfo::construct(const std::vector<DataSourceBase::shared_ptr>& args) const 
     {
-        Logger::log() << Logger::Debug << "Constructor of " << getTypeName() <<Logger::endl;
+        
         DataSourceBase::shared_ptr ds;
         if ( args.empty() ) {
             AttributeBase* ab = this->buildVariable("constructor");
@@ -122,6 +122,22 @@ namespace RTT
 
     void TypeInfo::addConstructor(TypeBuilder* tb) {
         constructors.push_back(tb);
+    }
+
+    DataSourceBase::shared_ptr TypeInfo::convert(DataSourceBase::shared_ptr arg) const 
+    {
+        DataSourceBase::shared_ptr ds;
+        Constructors::const_iterator i= constructors.begin();
+        //log(Info) << getTypeName() << ": trying to convert from " << arg->getTypeName()<<endlog();
+        while (i != constructors.end() ) {
+            ds = (*i)->convert( arg );
+            if ( ds ) {
+                return ds;
+            }
+            ++i;
+        }
+        // if no conversion happend, return arg again.
+        return arg;
     }
 
     string TypeInfo::toString( DataSourceBase::shared_ptr in ) const
