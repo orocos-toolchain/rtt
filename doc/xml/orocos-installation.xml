@@ -68,6 +68,12 @@
 	<revremark>Added Debian/Ubuntu packages install instructions and updated
 	Getting started/Makefile section.</revremark>
       </revision>
+      <revision>
+	<revnumber>1.4.2</revnumber>
+	<date>22 Apr 2008</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Improved/fixed Debian/Ubuntu package install instructions.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -196,13 +202,21 @@
 	like Ubuntu.
       </para>
       <para>
-	For debian, copy/paste the following commands, and enter your password when asked:
+	Copy/paste the following commands, and enter your password when asked
+	(only works in Ubuntu Feisty or later and Debian Etch or later):
 	<programlisting>  wget -q -O - http://www.orocos.org/keys/psoetens.gpg | sudo apt-key add -
   sudo wget -q http://www.fmtc.be/debian/sources.list.d/fmtc.list -O /etc/apt/sources.list.d/fmtc.list  </programlisting>
         These commands install the GPG key and the repository location of the Orocos packages.
       </para>
+      <note>
+	<para>If you are using an older Debian/Ubuntu version, just add the line
+	<programlisting>  deb-src http://www.fmtc.be/debian etch main </programlisting>
+          to your <filename>/etc/apt/sources.list</filename> file and issue
+	  <command>sudo apt-get update</command>.
+	</para>
+      </note>
       <para>
-	Next type:
+	Next, for Debian Etch, type:
 	<programlisting>  $ sudo apt-get update
   $ sudo apt-get install liborocos-rtt-corba-<emphasis>gnulinux</emphasis>-dev</programlisting>
         You can install Orocos for additional targets by replacing
@@ -226,9 +240,11 @@
 	applications with the RTT.
       </para>
       <para>
-	If you're using Ubuntu, you need to source the packages and build them 
-	yourself, this is not such a hard task! Type from your '$HOME/src' directory:
+	If you're using Ubuntu or older Debian versions, you need to source the packages and build them 
+	yourself, this is not such a hard task! First, make sure you added the deb-src
+	line as noted above. Next, type from your '$HOME/src' directory:
 	<programlisting>  $ cd src
+  $ sudo apt-get update
   $ apt-get source orocos-rtt
   $ sudo apt-get build-dep orocos-rtt
   $ sudo apt-get install devscripts build-essential fakeroot dpatch
