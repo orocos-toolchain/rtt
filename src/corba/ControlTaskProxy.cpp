@@ -138,6 +138,7 @@ namespace RTT
         catch (CORBA::Exception &e) {
             log(Error)<< "CORBA exception raised when resolving Object !" << endlog();
             Logger::log() << e._info().c_str() << endlog();
+            throw;
         }
         catch (...) {
             log(Error) <<"Unknown Exception in ControlTaskProxy construction!"<<endlog();
