@@ -328,6 +328,7 @@ namespace RTT
                 this->disconnect();
             }
 #endif
+            minitial_value = data;
         }
 
         /**
