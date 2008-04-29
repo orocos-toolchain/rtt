@@ -47,7 +47,6 @@
 #include "CorbaBufferProxy.hpp"
 #include "ExpressionServer.hpp"
 #include "DataFlowI.h"
-#include "corba/Services.hpp"
 
 namespace RTT
 { namespace detail
