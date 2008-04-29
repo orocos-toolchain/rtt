@@ -231,8 +231,6 @@ namespace RTT
         for(Transports::iterator it = transports.begin(); it != transports.end(); ++it)
             if ( (*it)->registerTransport( tname, t) )  
                 log(Info) << "Registered new '"<< (*it)->getTransportName()<<"' transport for " << tname <<endlog();
-            else
-                log(Warning) << "No '"<< (*it)->getTransportName()<<"' transport available for " << tname << endlog();
         return true;
     }
 
