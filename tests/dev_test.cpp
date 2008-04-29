@@ -51,8 +51,8 @@ void DevTest::testClasses()
 {
     DigitalInput din(true, false); // init, invert
     DigitalOutput dout(false); // init.
-    AnalogInput<unsigned int> ain(0,0);
-    AnalogOutput<unsigned int> aout(0,0);
+    AnalogInput ain(0,0);
+    AnalogOutput aout(0,0);
 
 
     CPPUNIT_ASSERT( din.isOn() );
@@ -70,8 +70,8 @@ void DevTest::testNaming()
     FakeAnalogDevice fad;
     FakeDigitalDevice fdd;
 
-    AnalogInInterface<unsigned int>* aii = AnalogInInterface<unsigned int>::nameserver.getObject("FakeAnalogDevice");
-    AnalogOutInterface<unsigned int>* aoi = AnalogOutInterface<unsigned int>::nameserver.getObject("FakeAnalogDevice");
+    AnalogInInterface* aii = AnalogInInterface::nameserver.getObject("FakeAnalogDevice");
+    AnalogOutInterface* aoi = AnalogOutInterface::nameserver.getObject("FakeAnalogDevice");
 
     DigitalInInterface* dii = DigitalInInterface::nameserver.getObject("FakeDigitalDevice");
     DigitalOutInterface* doi = DigitalOutInterface::nameserver.getObject("FakeDigitalDevice");

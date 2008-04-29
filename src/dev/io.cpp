@@ -36,10 +36,12 @@
  ***************************************************************************/
 #include "dev/DigitalInInterface.hpp"
 #include "dev/DigitalOutInterface.hpp"
+#include "dev/AnalogInInterface.hpp"
+#include "dev/AnalogOutInterface.hpp"
 
 using namespace RTT;
 
-// REMARK Analog In and Out are declared in the headerfiles
-
 NameServer<DigitalInInterface*> DigitalInInterface::nameserver;
 NameServer<DigitalOutInterface*> DigitalOutInterface::nameserver;
+NameServer<AnalogInInterface*> AnalogInInterface::nameserver;
+NameServer<AnalogOutInterface*> AnalogOutInterface::nameserver;

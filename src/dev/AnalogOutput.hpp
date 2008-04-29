@@ -48,11 +48,8 @@ namespace RTT
     /**
      * A class representing an analog output channel.
      *
-     * @param OutputType The type (int, unsigned int, double,...)
-     * in which data is sent to the board.
      * @ingroup DeviceInterface
      */
-    template< class OutputType >
     class AnalogOutput
     {
     public:
@@ -62,7 +59,7 @@ namespace RTT
          * @param ana_out     The analog output device to use to read the status.
          * @param channel_nr The channel number to use on the device.
          */
-        AnalogOutput( AnalogOutInterface<OutputType>* ana_out, unsigned int channel_nr )
+        AnalogOutput( AnalogOutInterface* ana_out, unsigned int channel_nr )
             :board(ana_out), channel(channel_nr)
         {
         }
@@ -74,31 +71,20 @@ namespace RTT
 
         /**
          * Write the value of this channel.
+         * @return 0 on success.
          */
-        void value(double v)
+        int value(double v)
         {
-            if ( v < board->lowest(channel ) )
-                d_cache = board->lowest( channel );
-            else if ( v > board->highest( channel ) )
-                d_cache = board->highest( channel ) ;
-            else
-                d_cache = v;
-            i_cache = board->binaryLowest() + OutputType( ( d_cache - board->lowest(channel) ) * board->resolution(channel) );
-            board->write(channel, i_cache);
+            return board->write(channel, v);
         }
 
         /**
          * Write the raw value of this channel.
+         * @return 0 on success.
          */
-        void rawValue(OutputType i)
+        int rawValue(unsigned int i)
         {
-            if ( i < board->binaryLowest(channel ) )
-                i_cache = board->binaryLowest( channel );
-            else if ( i > board->binaryHighest( channel ) )
-                i_cache = board->binaryHighest( channel ) ;
-            else
-                i_cache = i;
-            board->write(channel, i);
+            return board->rawWrite(channel, i);
         }
 
         /**
@@ -106,15 +92,19 @@ namespace RTT
          */
         double value()
         {
-             return d_cache;
+            double r;
+            board->read(channel, r);
+            return r;
         }
 
         /**
          * Read the raw value of this channel.
          */
-        OutputType rawValue()
+        unsigned int rawValue()
         {
-            return i_cache;
+            unsigned int r;
+            board->rawRead(channel, r);
+            return r;
         }
 
         /**
@@ -134,10 +124,8 @@ namespace RTT
         }
 
     private:
-        AnalogOutInterface<OutputType> *board;
+        AnalogOutInterface *board;
         int channel;
-        double d_cache;
-        OutputType i_cache;
     };
 }
 

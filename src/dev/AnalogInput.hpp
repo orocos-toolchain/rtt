@@ -42,17 +42,11 @@
 
 namespace RTT
 {
-
-    
-
     /**
      * A class representing an analog input channel.
      *
-     * @param InputType The type (int, unsigned int, double,...)
-     * in which data is sent to the board.
      * @ingroup DeviceInterface
      */
-    template< class InputType >
     class AnalogInput
     {
     public:
@@ -62,7 +56,7 @@ namespace RTT
          * @param ana_in     The analog input device to use to read the status.
          * @param channel_nr The channel number to use on the device.
          */
-        AnalogInput( AnalogInInterface<InputType>* ana_in, unsigned int channel_nr )
+        AnalogInput( AnalogInInterface* ana_in, unsigned int channel_nr )
             :board(ana_in), channel(channel_nr)
         {
         }
@@ -77,23 +71,23 @@ namespace RTT
          */
         double value() const
         {
-            InputType r;
+            double r(0.0);
             board->read(channel, r);
-            return ( r - board->binaryLowest() ) / board->resolution(channel) + board->lowest(channel);
+            return r;
         }
 
         /**
          * Read the raw value of this channel.
          */
-        InputType rawValue() const
+        int rawValue() const
         {
-            InputType r;
-            board->read(channel, r);
+            unsigned int r(0);
+            board->rawRead(channel, r);
             return r;
         }
 
     private:
-        AnalogInInterface<InputType> *board;
+        AnalogInInterface *board;
         int channel;
     };
 }

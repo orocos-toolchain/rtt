@@ -38,8 +38,8 @@ namespace RTT
      * It reproduces on the output what it gets on the input.
      */
     struct FakeAnalogDevice :
-        public AnalogInInterface<unsigned int>,
-        public AnalogOutInterface<unsigned int>
+        public AnalogInInterface,
+        public AnalogOutInterface
     {
         unsigned int nbofchans;
         unsigned int* mchannels;
@@ -47,8 +47,8 @@ namespace RTT
         double mlowest, mhighest;
 
         FakeAnalogDevice(unsigned int channels=32, unsigned int bin_range=4096, double lowest = -5.0, double highest = +5.0)
-            : AnalogInInterface<unsigned int>("FakeAnalogDevice"),
-              AnalogOutInterface<unsigned int>("FakeAnalogDevice"),
+            : AnalogInInterface("FakeAnalogDevice"),
+              AnalogOutInterface("FakeAnalogDevice"),
               nbofchans(channels),
               mchannels( new unsigned int[channels] ),
               mbin_range( bin_range),
@@ -70,28 +70,40 @@ namespace RTT
             return nbofchans;
         }
 
-        virtual void read( unsigned int chan, unsigned int& value ) const 
+        virtual int read( unsigned int chan, double& value ) 
         {
-            if (chan < nbofchans)
-                value = mchannels[chan];
+            if (chan < nbofchans) {
+                value = mchannels[chan] / resolution(chan) + mlowest;
+                return 0;
+            }
+            return -1;
         }
 
-        virtual void write( unsigned int chan, unsigned int value ) {
+        virtual int write( unsigned int chan, double value ) {
+            if (chan < nbofchans) {
+                mchannels[chan] = (unsigned int)((value - mlowest) * resolution(chan));
+                return 0;
+            }
+            return -1;
+        }
+
+        virtual int rawRead( unsigned int chan, unsigned int & value )
+        {
+            if (chan < nbofchans) {
+                 value = mchannels[chan];
+                 return 0;
+            }
+            return -1;
+        }
+
+        virtual int rawWrite( unsigned int chan, unsigned int value ) {
             if (chan < nbofchans)
                 mchannels[chan] = value;
-        }
-
-        virtual unsigned int binaryRange() const
-        {
-            return mbin_range;
-        }
-
-        virtual unsigned int binaryLowest() const 
-        {
             return 0;
         }
 
-        virtual unsigned int binaryHighest() const
+
+        virtual unsigned int rawRange() const
         {
             return mbin_range;
         }
