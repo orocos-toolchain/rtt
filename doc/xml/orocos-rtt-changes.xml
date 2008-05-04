@@ -4,8 +4,8 @@
 [
 <!ENTITY cvs         "<acronym>CVS</acronym>">
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY oldversion  "1.2">
-<!ENTITY version     "1.4">
+<!ENTITY oldversion  "1.4">
+<!ENTITY version     "1.6">
 <!ENTITY rtai        "<acronym>RTAI</acronym>">
 <!ENTITY rtos        "<acronym>RTOS</acronym>">
 ]
@@ -24,8 +24,9 @@
     This document provides a quick overview of what changed between
     the Real-Time Toolkit &oldversion; and version &version;. This
     release includes all bugfixes of the &oldversion; branch. If your
-    application does not work, look here for possible causes and
-    solutions. Also feature additions and improvements are documented.
+    application does not work with this release, look here for
+    possible causes and solutions. Also feature additions and
+    improvements are documented.
   </para>
   <para>
     The <ulink
@@ -36,61 +37,21 @@
     <title>Caveats</title>
     <itemizedlist>
       <listitem>
-      <para>The RTT library names and .pc files have been
-      renamed from <filename>liborocos-rtt.so</filename> and <filename>orocos-rtt.pc</filename>
-      to <filename>liborocos-rtt-&lt;target&gt;.so</filename> and
-      <filename>orocos-rtt-&lt;target&gt;.pc</filename>. You need to update
-      your Makefiles in order to look for these files. Also, the 
-      <filename>liborocos-rtt-corba.so</filename> file has been renamed to
-      <filename>liborocos-rtt-corba-&lt;target&gt;.so</filename>.
-      Where <emphasis>target</emphasis> refers to the OS target, for 
-      example: lxrt, gnulinux or xenomai.</para>
-      <para>This was necessary to allow multiple RTT installations in
-      the same place and to clearly distinguish between the libraries, which
-      are all binary different.</para>
-      <para>
-	The Orocos Component Library (OCL) has adopted the same naming convention.
-      </para>
-      </listitem>
-      <listitem>
-	<para>
-	  Compiling Orocos applications (or components) now requires
-	  the OROCOS_TARGET macro to be set during compilation. For
-	  example:
-	  <screen> gcc -c program.cpp -DOROCOS_TARGET=gnulinux </screen>
-	  Will compile your program or component for the 'gnulinux' target.
+	<para> The <classname>RTT::AnalogInInterface</classname>,
+	<classname>RTT::AnalogOutInterface</classname>
+	<classname>RTT::AnalogInput</classname> and
+	<classname>RTT::AnalogOutput</classname> classes have a
+	slightly changed interface. This makes them incompatible with
+	RTT 1.4 and older. The template parameter has been dropped
+	and the default 'raw' value is now <option>int</option>. In this
+	way, two's complement and unsigned A/D converters are supported
+	upto 31 bits.
 	</para>
 	<para>
-	  If you use pkg-config to get the build options,
-	  this define is returned as well:
-	  <screen> gcc -c program.cpp $(pkg-config orocos-rtt-gnulinux --cflags) </screen>
-	</para>
-	<para>
-	  If you use CMake, you can use the FindOrocosRTT.cmake file from
-	  the Orocos Component Library. 
-	</para>
-      </listitem>
-      <listitem>
-	<para>
-	  A number of fuctions were added to
-	  <classname>RTT::TaskContext</classname> and
-	  <classname>RTT::TaskCore</classname> in version 1.4:
-	  <function>bool activate()</function> and <function>bool
-	  activateHook()</function>, <function>void
-	  fatal()</function>, <function>bool resetError()</function> and
-	  <function>bool resetHook()</function>, <function>void
-	  warning()</function>, <function>void error()</function>,
-	  <function>void recovered()</function> and <function>bool
-	  errorHook()</function>.  The queries <function>int
-	  getErrorCount()</function>, <function>int
-	  getWarningCount()</function>, <function>int
-	  inFatalError()</function>, <function>int
-	  inRunTimeError()</function> and <function>int
-	  inRunTimeWarning()</function> have been added as well.  If
-	  your RTT 1.2 component has functions like these, they need
-	  to be renamed or match the semantics of the new component
-	  state model.  See the Component Builder's Manual for a
-	  description of these new hooks.
+	  See also
+	  <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=488">
+	    AnalogIn/OutInterface is an atrocity.
+	    </ulink>.
 	</para>
       </listitem>
     </itemizedlist>
@@ -98,16 +59,22 @@
   <section>
     <title>Improvements</title>
     <section>
-      <title>Component network communication</title>
+      <title>Scripting</title>
       <itemizedlist>
 	<listitem>
 	  <para>
-	    From release 1.4.0 on, the decision if a component is accessible
-	    over a network is no longer taken at compile time, but at runtime.
-	    This is possible since the RTT has defined a 'plugin' API for
-	    network communication. Moving this code to an external library
-	    drastically improves compile time and  memory footprint of a
-	    component.
+	    Scripting now supports automatic type converions. This
+	    means you can provide an integer argument where a double
+	    is expected and vice verse. The 'C++ style cast' is supported
+	    as well. One can write for example
+	    <programlisting>var int i = int(3.456); // i == 3</programlisting>
+	    Conversions that reduce precision will print a Logger warning during
+	    parsing, unless this explicit cast is used.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Scripting now also supports the C 'float' type.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -117,20 +84,10 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    The ORO_main function (from rtt/os/main.h) has now become a macro, and is
-	    optional to some extent. If you choose not to use ORO_main
-	    and write an application using the standard main()
-	    function, you need to call an additional function before
-	    using RTT functions: <function>__os_init()</function> and
-	    call <function>__os_exit()</function> just before
-	    returning from main(). This new implementation allows the
-	    RTT library to be compiled on other platforms with
-	    stricter library conventions than Linux.
-	  </para>
-	  <para>
-	    See also
-	    <ulink url="https://svn.fmtc.be/bugzilla/orocos/show_bug.cgi?id=459">
-	      ORO_main should be optionally defined
+	    An initial Max OSX port has been done, but is not yet stable.
+	    If you like to contribute, see
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=459">
+	      FILL IN BUG
 	      </ulink>.
 	  </para>
 	</listitem>
@@ -141,52 +98,38 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    The <classname>RTT::TaskContext</classname> class has been
-	    extended to support an InError state. A
-	    component now has an <function>error()</function> and
-	    <function>resetError()</function> method to enter and leave the
-	    InError state. If a component is in error, it will stop
-	    running and refuse to start until it receives resetError(). Depending
-	    upon implementation, a resetError causes the component to enter
-	    the PreOperational or Stopped state. The associated user
-	    function (<function>resetHook()</function>) allow the user
-	    to control that transition. 
+	    The <classname>RTT::DataPort</classname> and
+	    <classname>RTT::BufferPort</classname> classes and base
+	    classes have been refactored for lower code size and
+	    faster execution. This change is backwards compatible,
+	    except for the (internal)
+	    <function>createConnection(PortInterface*)</function>
+	    function, which has disappeared. Use
+	    <function>connectTo(PortInterface*)</function> instead.
 	  </para>
 	  <para>
 	    See also
-	    <ulink url="https://svn.fmtc.be/bugzilla/orocos/show_bug.cgi?id=424">
-	      Orocos components do not have an 'Error' state
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=527">
+	      FILL IN BUG
 	      </ulink>.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The <classname>RTT::TaskContext</classname> class has been
-	    extended to support an Active state. A
-	    component now has an <function>activate()</function> method to enter 
-	    the Active state. If a component is in error, it will stop
-	    running and refuse to start until it is resetError(). Depending
-	    upon implementation, a resetError causes the component to enter
-	    the PreOperational or Stopped state. The associated user
-	    function (<function>resetHook()</function>) allow the user
-	    to control that transition. 
 	  </para>
 	  <para>
 	    See also
-	    <ulink url="https://svn.fmtc.be/bugzilla/orocos/show_bug.cgi?id=423">
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=423">
 	      [Project] Improve Component execution model
 	      </ulink>.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The <classname>RTT::PeriodicActivity</classname> has
-	    received a more efficient implementation, removing
-	    unneccessary internal classes.
 	  </para>
 	  <para>
 	    See also
-	    <ulink url="https://svn.fmtc.be/bugzilla/orocos/show_bug.cgi?id=371">
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=371">
 	      [Project] PeriodicActivity/TimerThread imposes too much overhead
 	      </ulink>.
 	  </para>
@@ -194,14 +137,13 @@
 	<listitem>
 	  <para>
 	    The <classname>RTT::TaskContext</classname> interface classes
-	    (commands, methods, events, properties,...)
-	    were made more consistent in returning the contents of the 
-	    interface in the get&lt;InterfaceKind&gt;() functions.
+	    (commands, methods, events, properties,...) now all have a
+	    <function>remove...()</function> function to selectively remove
+	    elements from the interface again.
 	  </para>
 	  <para>
 	    See also
-	    <ulink url="https://svn.fmtc.be/bugzilla/orocos/show_bug.cgi?id=442">
-	      RTT::EventService: getEvents returns no names
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=442">
 	      </ulink>.
 	  </para>
 	</listitem>
@@ -215,7 +157,7 @@
 	  </para>
 	  <para>
 	    See also
-	    <ulink url="https://svn.fmtc.be/bugzilla/orocos/show_bug.cgi?id=438">
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=438">
 	      [Project]TimerComponent for time based events
 	      </ulink>.
 	  </para>
@@ -227,17 +169,14 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    From release 1.4.0 on, CORBA transport is an optional, run-time plugin
-	    for the Real-Time Toolkit. This means that any component, built with
-	    RTT 1.4.0 or later, can at any time be distributed over a network
-	    without being recompiled, even if at the time of compilation CORBA
-	    was not available or enabled. All CORBA specific functionality is
-	    now encapsualted in the 'orocos-rtt-corba' library.
+	    CORBA DataPorts have been thoroughly tested and fixed.
+	    They now respect connection direction and can be connected
+	    using only the IDL interface.
 	  </para>
 	  <para>
 	    See also
-	    <ulink url="https://svn.fmtc.be/bugzilla/orocos/show_bug.cgi?id=439">
-	      [Project]Make CORBA transport pluggable
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=532">
+	      Corba Data/Buffer ports do not respect connection direction
 	      </ulink>.
 	  </para>
 	</listitem>
