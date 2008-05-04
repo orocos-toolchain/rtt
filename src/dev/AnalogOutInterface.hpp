@@ -119,12 +119,12 @@ namespace RTT
          * Write a raw \a value to channel \a chan
          * @return 0 on success.
          */
-        virtual int rawWrite( unsigned int chan, unsigned int value ) = 0;
+        virtual int rawWrite( unsigned int chan, int value ) = 0;
 
         /**
          * Read the current raw value from channel \a chan.
          */
-        virtual int rawRead( unsigned int chan, unsigned int& value ) = 0;
+        virtual int rawRead( unsigned int chan, int& value ) = 0;
 
         /**
          * Returns the absolute raw range (e.g. 12bits DA -> 4096)

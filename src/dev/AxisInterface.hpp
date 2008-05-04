@@ -28,14 +28,10 @@
 #define _AXISINTERFACE_HPP
 
 #include "SensorInterface.hpp"
+#include "DigitalInput.hpp"
+#include "DigitalOutput.hpp"
 #include <string>
 #include <vector>
-
-namespace RTT
-{
-    class DigitalInput;
-    class DigitalOutput;
-}
 
 namespace RTT
 {

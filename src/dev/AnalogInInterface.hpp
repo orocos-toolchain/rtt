@@ -118,7 +118,7 @@ namespace RTT
          * Read a raw \a value from channel \a chan
          * @return 0 on sucess.
          */
-        virtual int rawRead( unsigned int chan, unsigned int& value ) = 0;
+        virtual int rawRead( unsigned int chan, int& value ) = 0;
 
         /**
          * Read the real \a value from channel \a chan

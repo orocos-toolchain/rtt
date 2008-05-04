@@ -42,7 +42,7 @@ namespace RTT
         public AnalogOutInterface
     {
         unsigned int nbofchans;
-        unsigned int* mchannels;
+        int* mchannels;
         unsigned int mbin_range;
         double mlowest, mhighest;
 
@@ -50,7 +50,7 @@ namespace RTT
             : AnalogInInterface("FakeAnalogDevice"),
               AnalogOutInterface("FakeAnalogDevice"),
               nbofchans(channels),
-              mchannels( new unsigned int[channels] ),
+              mchannels( new int[channels] ),
               mbin_range( bin_range),
               mlowest( lowest),
               mhighest( highest)
@@ -87,7 +87,7 @@ namespace RTT
             return -1;
         }
 
-        virtual int rawRead( unsigned int chan, unsigned int & value )
+        virtual int rawRead( unsigned int chan,  int & value )
         {
             if (chan < nbofchans) {
                  value = mchannels[chan];
@@ -96,7 +96,7 @@ namespace RTT
             return -1;
         }
 
-        virtual int rawWrite( unsigned int chan, unsigned int value ) {
+        virtual int rawWrite( unsigned int chan,  int value ) {
             if (chan < nbofchans)
                 mchannels[chan] = value;
             return 0;

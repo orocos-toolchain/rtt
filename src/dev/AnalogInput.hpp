@@ -81,7 +81,7 @@ namespace RTT
          */
         int rawValue() const
         {
-            unsigned int r(0);
+            int r(0);
             board->rawRead(channel, r);
             return r;
         }

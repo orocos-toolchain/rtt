@@ -82,7 +82,7 @@ namespace RTT
          * Write the raw value of this channel.
          * @return 0 on success.
          */
-        int rawValue(unsigned int i)
+        int rawValue(int i)
         {
             return board->rawWrite(channel, i);
         }
@@ -100,9 +100,9 @@ namespace RTT
         /**
          * Read the raw value of this channel.
          */
-        unsigned int rawValue()
+        int rawValue()
         {
-            unsigned int r;
+            int r;
             board->rawRead(channel, r);
             return r;
         }
