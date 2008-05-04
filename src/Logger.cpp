@@ -67,9 +67,9 @@ namespace RTT
 
     Logger* Logger::_instance = 0;
 
-    Logger* Logger::Instance() {
+    Logger* Logger::Instance(std::ostream& str) {
         if (_instance == 0) {
-            _instance =  new Logger();
+            _instance =  new Logger(str);
         }
         return _instance;
     }
@@ -97,9 +97,9 @@ namespace RTT
      */
     struct Logger::D
     {
-        D() :
+        D(std::ostream& str) :
 #ifndef OROSEM_PRINTF_LOGGING
-              stdoutput(&std::cerr),
+              stdoutput(str),
 #endif
 #ifdef OROSEM_REMOTE_LOGGING
               messagecnt(0),

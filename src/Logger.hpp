@@ -47,6 +47,9 @@
 #include <iosfwd>
 #endif
 #include <string>
+#ifndef OROSEM_PRINTF_LOGGING
+#include <iostream>            // for std::cerr
+#endif
 
 namespace RTT 
 {
@@ -169,8 +172,12 @@ namespace RTT
 
         /**
          * Get the singleton logger.
+         * \post If the singleton did not already exist then it is created
+         * and associated with the given ostream. If the singleton already
+         * existed then no change occurs (and the singleton remains associated
+         * with its existing ostream).
          */
-        static Logger* Instance();
+        static Logger* Instance(std::ostream& str=std::cerr);
 
         /**
          * Delete the singleton logger.
@@ -283,7 +290,7 @@ namespace RTT
          */
         bool mayLog() const;
 
-        Logger();
+        Logger(std::ostream& str=std::cerr);
         ~Logger();
 
         static Logger* _instance;
