@@ -99,7 +99,7 @@ namespace RTT
     {
         D(std::ostream& str) :
 #ifndef OROSEM_PRINTF_LOGGING
-              stdoutput(str),
+              stdoutput( &str ),
 #endif
 #ifdef OROSEM_REMOTE_LOGGING
               messagecnt(0),
@@ -288,8 +288,8 @@ namespace RTT
         OS::Mutex startguard;
     };
 
-    Logger::Logger()
-        :d ( new Logger::D() )
+    Logger::Logger(std::ostream& str)
+        :d ( new Logger::D(str) )
     {
       this->startup();
     }
