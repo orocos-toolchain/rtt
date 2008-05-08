@@ -13,7 +13,6 @@ usr/include/rtt/AttributeRepository.hpp
 usr/include/rtt/BindStorage.hpp
 usr/include/rtt/BufferBase.hpp
 usr/include/rtt/BufferConnection.hpp
-usr/include/rtt/BufferConnectionInterface.hpp
 usr/include/rtt/BufferDataSource.hpp
 usr/include/rtt/BufferInterface.hpp
 usr/include/rtt/BufferLockFree.hpp
@@ -66,7 +65,6 @@ usr/include/rtt/ConnectionTypes.hpp
 usr/include/rtt/CoreLib.Main.hpp
 usr/include/rtt/CoreLib.hpp
 usr/include/rtt/DataConnection.hpp
-usr/include/rtt/DataConnectionInterface.hpp
 usr/include/rtt/DataFlowInterface.hpp
 usr/include/rtt/DataObjectInterfaces.hpp
 usr/include/rtt/DataPort.hpp
@@ -232,4 +230,4 @@ usr/include/rtt/os/rtstreambufs.hpp
 usr/include/rtt/os/rtstreams.hpp
 usr/include/rtt/os/startstop.h
 usr/include/rtt/os/threads.hpp
-usr/include/rtt/os/utils.h
+
