@@ -473,6 +473,68 @@ void StateTest::testStateTransitions()
         + " RootMachine X x\n" // instantiate a non hierarchical SC
         ;
      this->doState( prog, &gtc );
+     CPPUNIT_ASSERT( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
+     this->finishState( &gtc, "x");
+}
+
+void StateTest::testStateGlobalTransitions()
+{
+    // test processing of transition statements.
+    string prog = string("StateMachine X {\n")
+        + " var int gi = 0;\n" // transition counter
+        + " transitions {\n"
+        
+        + "  if gi < 5 then {\n"
+        + "    set gi = gi + 1;\n" // execute this program
+        + "  } select INIT\n" // test EXPLICIT transition to self: no entry/exit.
+        
+        + "  if gi < 10 then {\n"
+        + "    if gi < 5 then do test.assert(false);\n"
+        + "    set gi = gi + 1;\n" // execute this program
+        + "  }\n" // test IMPLICIT transition to self: no entry/exit.
+        + "  if gi < 10 then {\n"
+        + "   do test.assert(false);\n"
+        + "  } select TRANS_SHOULD_NOT_CHECK\n" // should never be reached.
+        + "  if gi >= 10 then {\n"
+        + "  } select FINI\n" // we must be checked before 
+        + " }\n"
+        + " initial state INIT {\n"
+        + " var int i = 0;\n" // transition counter
+        + " var int j = 0;\n" // entry counter
+        + " var int k = 0;\n" // run counter
+        + " entry {\n"
+        + "   set j = j + 1\n"
+        + " }\n"
+        + " run {\n"
+        + "   set k = k + 1\n"
+        + " }\n"
+        + " transitions {\n"
+        + "  if i < 5 then {\n"
+        + "    set i = i + 1;\n" // execute this program
+        + "  } select INIT\n" // test EXPLICIT transition to self: no entry/exit.
+        + "  if i < 10 then {\n"
+        + "    set i = i + 1;\n" // execute this program
+        + "  }\n" // test IMPLICIT transition to self: no entry/exit.
+        + "  if i < 10 then {\n"
+        + "  } select TRANS_SHOULD_NOT_CHECK\n" // should never be reached.
+        + " }\n"
+        + " }\n"
+        + " state TRANS_SHOULD_NOT_CHECK {\n" // failure state
+        + " entry { do test.assert(false); }\n"
+        + " }\n"
+        + " state ENTRY_FAILED {\n"           // failure state
+        + " entry { do test.assert(false); }\n"
+        + " }\n"
+        + " state RUN_FAILED {\n"           // failure state
+        + " entry { do test.assert(false); }\n"
+        + " }\n"
+        + " final state FINI {\n" // Success state.
+        + " }\n"
+        + " }\n"
+        + " RootMachine X x\n" // instantiate a non hierarchical SC
+        ;
+     this->doState( prog, &gtc );
+     CPPUNIT_ASSERT( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
      this->finishState( &gtc, "x");
 }
 
@@ -541,6 +603,7 @@ void StateTest::testStateSubStateVars()
         ;
 
      this->doState( prog, &gtc );
+     CPPUNIT_ASSERT( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
      this->finishState( &gtc, "x");
 }
 
@@ -634,10 +697,10 @@ void StateTest::testStateEvents()
         + " var   double t = 0.0\n"
         + " var   double et = 0.0\n"
         + " var   bool eb = false\n"
-        + " initial state INIT {\n"
         + " transition d_event(et)\n"
-        + "     if et < 0. then select ISNEGATIVE\n"
+        + "     if et < 0. then  select ISNEGATIVE\n"
         + "     else select ISPOSITIVE\n"
+        + " initial state INIT {\n"
         + " transition b_event(eb)\n"
         + "     if eb == false then select ISFALSE\n"
         + "     else select ISTRUE\n"
@@ -724,6 +787,7 @@ void StateTest::testStateEvents()
         ;
 
      this->doState( prog, &gtc );
+     CPPUNIT_ASSERT( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
      this->finishState( &gtc, "x");
 }
 
@@ -812,7 +876,7 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 //         tc->getPeer("__states")->getPeer("Y")->debug(false);
 //     cerr << "               x.y1 running : "<< (gprocessor.getStateMachineStatus("x.y1") == Processor::StateMachineStatus::running) << endl;
 //     cerr << "               x running : "<< (gprocessor.getStateMachineStatus("x") == Processor::StateMachineStatus::running) << endl;
-    string sline;
+
     if (test ) {
         // check error status of parent :
         CPPUNIT_ASSERT_MESSAGE( "Error : State Context '"+sm->getName()+"' did not get activated.", sm->isActive() );
@@ -846,15 +910,17 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
             ++clit;
         }
     }
-    tc->engine()->states()->getStateMachine( sm->getName() )->stop();
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(500) );
-    stringstream errormsg;
-    errormsg << " on line " << sm->getLineNumber() <<", status is "<< gtc.engine()->states()->getStateMachineStatusStr("x") <<endl <<"here  > " << sline << endl;;
-    CPPUNIT_ASSERT_MESSAGE( "StateMachine stalled " + errormsg.str(), sm->isStopped() );
 }
 
 void StateTest::finishState(TaskContext* tc, std::string prog_name)
 {
+    StateMachinePtr sm = tc->engine()->states()->getStateMachine(prog_name);
+    CPPUNIT_ASSERT( sm );
+    tc->engine()->states()->getStateMachine( prog_name )->stop();
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(500) );
+    stringstream errormsg;
+    errormsg << " on line " << sm->getLineNumber() <<", status is "<< tc->engine()->states()->getStateMachineStatusStr(prog_name) <<endl <<"here  > " << sline << endl;;
+    CPPUNIT_ASSERT_MESSAGE( "StateMachine stalled " + errormsg.str(), sm->isStopped() );
     // you can call deactivate even when the proc is not running.
     // but deactivation may be 'in progress if exit state has commands in it.
     CPPUNIT_ASSERT( tc->engine()->states()->getStateMachine( prog_name )->deactivate() );

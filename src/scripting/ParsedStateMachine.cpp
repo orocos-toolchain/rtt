@@ -101,9 +101,10 @@ namespace RTT {
 
         // First make a copy of all states.  All states are either
         // known by their name or by a transition from or to them...
+        statemapping[0] = 0; // insert null element.
         for ( TransitionMap::const_iterator i = stateMap.begin(); i != stateMap.end(); ++i )
         {
-            if( statemapping.find( i->first ) == statemapping.end() ) {
+            if( statemapping.find( i->first ) == statemapping.end() && i->first != 0 ) {
                 StateInterface* cpy = i->first->copy( replacements );
                 ret->addState( cpy );
                 statemapping[i->first] = cpy;

@@ -36,15 +36,15 @@
 #include "PeerParser.hpp"
 #include "ArgumentsParser.hpp"
 #include "StateMachineBuilder.hpp"
-#include "TaskContext.hpp"
+#include "../TaskContext.hpp"
 #include "StateMachineTask.hpp"
 
-#include "CommandComposite.hpp"
-#include "Exceptions.hpp"
-#include "AttributeBase.hpp"
-#include "ConditionTrue.hpp"
-#include "ConditionInvert.hpp"
-#include "StateDescription.hpp"
+#include "../CommandComposite.hpp"
+#include "../Exceptions.hpp"
+#include "../AttributeBase.hpp"
+#include "../ConditionTrue.hpp"
+#include "../ConditionInvert.hpp"
+#include "../StateDescription.hpp"
 #include "ParsedStateMachine.hpp"
 
 #include <iostream>
@@ -165,7 +165,7 @@ namespace RTT
             >> expect_end( ch_p( '}' ) );
 
         // Zero or more declarations and Zero or more states
-        statemachinecontent = *( varline | state );
+        statemachinecontent = *( varline | state | transitions);
 
         varline = vardec[lambda::var(eol_skip_functor::skipeol) = false] >> commonparser->eos[lambda::var(eol_skip_functor::skipeol) = true];
 
@@ -205,6 +205,8 @@ namespace RTT
           >> statecontent
           >> expect_end_of_state(ch_p( '}' ))[ bind( &StateGraphParser::seenstateend, this ) ];
 
+        // BUG: there should only be one entry, run, handle exit...
+        // transitions and machinememvar 'abuse' this '*'.
         // the content of a program can be any number of lines
         // a line is not strictly defined in the sense of text-line.
         statecontent = *statecontentline;
@@ -253,7 +255,7 @@ namespace RTT
         // condition based transition.
         // the order of rule "transition" vs "transitions" is important
         transitions = ( str_p( "transitions" )
-                        >> expect_open(ch_p('{'))>> *transline >> expect_end(ch_p('}')) ) | transition;
+                        >> expect_open(ch_p('{'))>> *transline >> expect_end(ch_p('}')) ) | transition | transline;
 
         transline = selectcommand;
 
@@ -424,7 +426,10 @@ namespace RTT
         peerparser->reset();
 
         if (peer->events()->hasEvent(evname) == false )
-            ORO_THROW( parse_exception_fatal_semantic_error("In state "+curstate->getName()+": Event "+evname+" not found in Task "+peer->getName() ));
+            if (curstate)
+                ORO_THROW( parse_exception_fatal_semantic_error("In state "+curstate->getName()+": Event "+evname+" not found in Task "+peer->getName() ));
+            else
+                ORO_THROW( parse_exception_fatal_semantic_error("In statemachine: Event "+evname+" not found in Task "+peer->getName() ));
 
         argsparser =
             new ArgumentsParser( *expressionparser, context, peer,
@@ -442,7 +447,10 @@ namespace RTT
     void StateGraphParser::noselect()
     {
         // if omitted, implicitly re-enter current state.
-        doselect( curstate->getName() );
+        if (curstate)
+            doselect( curstate->getName() );
+        else 
+            doselect(""); // global events/transitions
     }
 
     void StateGraphParser::seenselect( iter_t s, iter_t f)
@@ -453,17 +461,19 @@ namespace RTT
 
     void StateGraphParser::doselect( const std::string& state_id )
     {
-        StateInterface* next_state;
-        if ( curtemplate->getState( state_id ) != 0 )
-        {
-            next_state = curtemplate->getState( state_id );
+        StateInterface* next_state = 0;
+        if ( !state_id.empty() ) {
+            if ( curtemplate->getState( state_id ) != 0 )
+            {
+                next_state = curtemplate->getState( state_id );
+            }
+            else
+            {
+                next_state = new StateDescription(state_id,curtemplate->getTaskObject()->engine()->programs(), 1); // create an empty state
+                curtemplate->addState( next_state );
+            }
+            assert( next_state );
         }
-        else
-        {
-            next_state = new StateDescription(state_id,curtemplate->getTaskObject()->engine()->programs(), 1); // create an empty state
-            curtemplate->addState( next_state );
-        }
-        assert( next_state );
 
         if (curcondition == 0)
             curcondition = new ConditionTrue;

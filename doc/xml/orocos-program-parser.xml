@@ -101,6 +101,12 @@
 	<authorinitials>PS</authorinitials>
 	<revremark>Added two new 'array' constructors.</revremark>
       </revision> 
+      <revision>
+	<revnumber>1.6.0</revnumber>
+	<date>8 May 2008</date>
+	<authorinitials>PS</authorinitials>
+	<revremark>Added 'global' transitions</revremark>
+      </revision> 
    </revhistory>
 
     <legalnotice>
@@ -498,7 +504,7 @@
   tc.scripting()->loadPrograms("program.ops");
 
   // start the task :
-  ptask.start();
+  tc.start();
 
   // start a program :
   tc.engine()->programs()->getProgram("progname")->start();
@@ -921,15 +927,13 @@
 	  in every state: the <symbol>entry</symbol> program ( which will be executed
 	  each time the state is entered ), the <symbol>run</symbol> program ( which
 	  will be executed every time the state is the active state ),
-	  the <symbol>handle</symbol> program ( which will be executed if no transition
+	  the <symbol>handle</symbol> program ( which will be executed right after <symbol>run</symbol>, if no transition
 	  succeeds ) and the <symbol>exit</symbol> program ( which will be executed
 	  when the state is left).
 	</para>
 	<para>
-	  There can be more than one StateMachine.  If there are more
-	  than one, then every StateMachine keeps working as if it was
-	  the only StateMachine available.  They separately keep track
-	  of their own current state, etc. 
+	  There can be more than one StateMachine. They separately keep track
+	  of their own current state, etc.
 	</para>
       <para>
 	A StateMachine can have any number of states.  It needs to
@@ -942,7 +946,8 @@
       </para>
       <para>
 	A State Machine can run in two modes. They are the automatic
-	mode and the reactive (also 'event' or 'request') mode.
+	mode and the reactive (also 'event' or 'request') mode. You can
+	switch from one mode to another at run-time.
       </para>
       <section id="state-request">
 	<title>Reactive Mode: State Change Semantics</title>
@@ -1002,7 +1007,8 @@
 	<title>Automatic Mode: State Change Semantics</title>
 	<para>
 	  In order to enter automatic mode, the State Machine must be
-	  started with the start() command (see later on).
+	  first reactive and then started with the start() command
+	  (see later on).
 	</para>
 	<note><para>
 	  This mechanism is in addition to 'reactive' mode. A
@@ -1060,7 +1066,7 @@
   tc.scripting()->loadStateMachines( "state-machine.osd" );
 
   // start the task's processor :
-  ptask.start();
+  tc.start();
 
   // activate a state machine :
   tc.engine()->states()->getStateMachine("MachineInstanceName")->activate();

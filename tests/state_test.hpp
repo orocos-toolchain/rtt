@@ -45,6 +45,7 @@ class StateTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testStateSubStateCommands );
     CPPUNIT_TEST( testStateEvents );
     CPPUNIT_TEST( testStateTransitions );
+    CPPUNIT_TEST( testStateGlobalTransitions );
 //     CPPUNIT_TEST( testStateUntilFail );
     CPPUNIT_TEST_SUITE_END();
 
@@ -71,6 +72,7 @@ class StateTest : public CppUnit::TestFixture
     bool bool_gen( bool b ) const { return b; }
     int getI() const {return i;}
     int i;
+    std::string sline;
 public:
     StateTest();
 
@@ -87,6 +89,7 @@ public:
     void testStateUntil();
     void testStateUntilFail();
     void testStateTransitions();
+    void testStateGlobalTransitions();
 
 };
 

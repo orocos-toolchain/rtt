@@ -61,14 +61,18 @@ namespace RTT
           initstate(0), finistate(0), current( 0 ), next(0), initc(0),
           currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), currentRun(0), currentTrans(0),
           checking_precond(false), mstep(false), evaluating(0)
-    {}
+    {
+        this->addState(0); // allows global state transitions
+    }
  
     StateMachine::StateMachine(StateMachinePtr parent, EventProcessor* tc, const string& name )
         : smpStatus(nill), _parent (parent) , _name(name), eproc(tc), smStatus(Status::unloaded), smp(0),
           initstate(0), finistate(0), current( 0 ), next(0), initc(0),
           currentProg(0), currentExit(0), currentHandle(0), currentEntry(0), currentRun(0), currentTrans(0),
           checking_precond(false), mstep(false), evaluating(0)
-    {}
+    {
+        this->addState(0); // allows global state transitions
+    }
 
    StateMachine::~StateMachine()
     {
@@ -232,8 +236,10 @@ namespace RTT
             break;
         case Status::activating:
             this->executePending();
-            if ( !this->inTransition() )
+            if ( !this->inTransition() ) {
                 smStatus = Status::active;
+                enableEvents(0); // enable global events
+            }
             break;
         case Status::stopping:
             if ( this->executePending() )
@@ -298,7 +304,7 @@ namespace RTT
                     // execute the default action (schedule handle )
                     // if no transition to another state took place and no transprog specified.
                     // only schedule a handle if not yet in progress.
-                    if (currentHandle == 0)
+                    if ( currentHandle == 0 )
                         handleState( current );
                 }
             }
@@ -367,7 +373,25 @@ namespace RTT
         if ( !interruptible() ) {
             return current; // can not accept request, still in transition.
         }
-        if ( reqstep == reqend ) { // if nothing to evaluate, just handle()
+        if ( reqstep == reqend ) { // if nothing to evaluate, eval globals, then just handle()
+
+            // to a state specified by the user (global)
+            TransList::const_iterator it1, it2;
+            it1 = stateMap.find( 0 )->second.begin();
+            it2 = stateMap.find( 0 )->second.end();
+
+            for ( ; it1 != it2; ++it1 )
+                if ( get<0>(*it1)->evaluate()
+                     && checkConditions( get<1>(*it1) ) == 1 ) {
+                    StateInterface* next = get<1>(*it1);
+                    if ( next == 0 ) // handle current if no next
+                        changeState( current, get<4>(*it1).get(), stepping );
+                    else
+                        changeState( next, get<4>(*it1).get(), stepping );
+                    // the request was accepted
+                    return current;
+                }
+            // no transition found: handle()
             changeState( current, 0, stepping );
             return current;
         }
@@ -387,6 +411,22 @@ namespace RTT
                 // if cres == -1 : precondition failed, increment reqstep...
             }
             if ( reqstep + 1 == reqend ) {
+                // to a state specified by the user (global)
+                TransList::const_iterator it1, it2;
+                it1 = stateMap.find( 0 )->second.begin();
+                it2 = stateMap.find( 0 )->second.end();
+
+                for ( ; it1 != it2; ++it1 ) {
+                    if ( get<0>(*it1)->evaluate() && checkConditions( get<1>(*it1) ) == 1 ) {
+                             StateInterface* next = get<1>(*it1);
+                             if ( next == 0) // handle current if no next
+                                 changeState( current, get<4>(*it1).get(), stepping );
+                             else
+                                 changeState( next, get<4>(*it1).get(), stepping );
+                             // the request was accepted
+                             return current;
+                         }
+                    }
                 // no transition was found, reset and 'schedule' a handle :
                 reqstep = stateMap.find( current )->second.begin();
                 evaluating = get<3>(*reqstep);
@@ -403,6 +443,7 @@ namespace RTT
     }
 
     int StateMachine::checkConditions( StateInterface* state, bool stepping ) {
+        
         // if the preconditions of \a state are checked the first time in stepping mode, reset the iterators.
         if ( !checking_precond || !stepping ) {
             prec_it = precondMap.equal_range(state); // state is the _target_ state
@@ -443,8 +484,18 @@ namespace RTT
         it2 = stateMap.find( current )->second.end();
 
         for ( ; it1 != it2; ++it1 )
-            if ( get<0>(*it1)->evaluate() && checkConditions( get<1>(*it1)) == 1 )
+            if ( get<0>(*it1)->evaluate() && checkConditions( get<1>(*it1)) == 1 ) {
                 return get<1>(*it1);
+            }
+
+        // also check the global transitions.
+        it1 = stateMap.find( 0 )->second.begin();
+        it2 = stateMap.find( 0 )->second.end();
+
+        for ( ; it1 != it2; ++it1 )
+            if ( get<0>(*it1)->evaluate() && checkConditions( get<1>(*it1)) == 1 ) {
+                return get<1>(*it1);
+            }
 
         return current;
     }
@@ -452,7 +503,9 @@ namespace RTT
     std::vector<std::string> StateMachine::getStateList() const {
         vector<string> result;
         vector<StateInterface*> sl;
+        StateInterface* dummy = 0;
         transform( stateMap.begin(), stateMap.end(), back_inserter(sl), select1st<TransitionMap::value_type>() );
+        sl.erase( find(sl.begin(), sl.end(), dummy) );
         transform( sl.begin(), sl.end(), back_inserter(result), bind( &StateInterface::getName, _1 ) );
         return result;
     }
@@ -467,7 +520,7 @@ namespace RTT
     {
         TransitionMap::const_iterator it = stateMap.begin();
         while ( it != stateMap.end() ) {
-            if ( it->first->getName() == name )
+            if ( it->first && it->first->getName() == name )
                 return it->first;
             ++it;
         }
@@ -496,6 +549,19 @@ namespace RTT
         TransList::iterator it1, it2;
         it1 = stateMap.find( current )->second.begin();
         it2 = stateMap.find( current )->second.end();
+
+        for ( ; it1 != it2; ++it1 )
+            if ( get<1>(*it1) == s_n
+                 && get<0>(*it1)->evaluate()
+                 && checkConditions( s_n ) == 1 ) {
+                changeState( s_n, get<4>(*it1).get() );
+                // the request was accepted
+                return true;
+            }
+
+        // to a state specified by the user (global)
+        it1 = stateMap.find( 0 )->second.begin();
+        it2 = stateMap.find( 0 )->second.end();
 
         for ( ; it1 != it2; ++it1 )
             if ( get<1>(*it1) == s_n
@@ -587,12 +653,10 @@ namespace RTT
             return false;
         }
 
-        if ( !( es && from && guard ) ) {
+        if ( !( es && guard ) ) {
             Logger::log() << Logger::Error << "Invalid arguments for event '"<< ename <<"'. ";
             if (!es) 
                 Logger::log() <<"EventService was null. ";
-            if (!from) 
-                Logger::log() <<"From State was null. ";
             if (!guard) 
                 Logger::log() <<"Guard Condition was null. ";
             Logger::log()<<Logger::endl;
@@ -650,6 +714,12 @@ namespace RTT
         // in transition already.
         // If condition fails, check precondition 'else' state (if present) and
         // execute else program (may be null).
+        if (from == 0)
+            from  = current;
+        if (to == 0)
+            to = current;
+        if (elseto == 0)
+            elseto = current;
         if ( from == current && !this->inTransition() ) {
             if ( c->evaluate() && checkConditions(to, false) == 1 ) {
 //                 Logger::log() <<Logger::Error <<"Valid transition from "<<from->getName()
@@ -928,8 +998,10 @@ namespace RTT
         reqend = stateMap.find( next )->second.end();
 
         // execute the entry program of the initial state.
-        if ( this->executePending() )
+        if ( this->executePending() ) {
             smStatus = Status::active;
+            enableEvents(0); // enable global events
+        }
         else
             smStatus = Status::activating;
 
@@ -943,6 +1015,9 @@ namespace RTT
             //assert(false);
             return false;
         }
+        
+        // disable global events
+        disableEvents(0);
 
         // whatever state we are in, leave it.
         // but if current exit is in error, skip it alltogether.
