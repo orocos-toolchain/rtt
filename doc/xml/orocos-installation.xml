@@ -251,7 +251,7 @@
   $ cd orocos-rtt-1.4.0
   $ dpkg-buildpackage -rfakeroot -uc -us
   $ cd ..
-  $ for i in *.deb; sudo dpkg -i $i; done
+  $ for i in *.deb; do sudo dpkg -i $i; done
 </programlisting>
          You can repeat the same process for orocos-ocl.
       </para>
