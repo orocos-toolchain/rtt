@@ -154,6 +154,7 @@ usr/include/rtt/RTT.hpp
 usr/include/rtt/ReadInterface.hpp
 usr/include/rtt/RealTimeToolkit.hpp
 usr/include/rtt/RemoteCommand.hpp
+usr/include/rtt/RemoteMethod.hpp
 usr/include/rtt/RunnableInterface.hpp
 usr/include/rtt/ScriptingAccess.hpp
 usr/include/rtt/Signal.hpp
