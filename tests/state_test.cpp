@@ -50,6 +50,7 @@ StateTest::setUp()
 {
     d_event = Event<void(double)>("d_event");
     b_event = Event<void(bool)>("b_event");
+    t_event = Event<void(void)>("t_event");
 
 
     // ltc has a test object
@@ -57,6 +58,7 @@ StateTest::setUp()
 
     gtc.events()->addEvent( &d_event, "D", "a1", "arg1 D" );
     gtc.events()->addEvent( &b_event, "B", "a1", "arg1 B" );
+    gtc.events()->addEvent( &t_event, "T" );
     i = 0;
     SimulationThread::Instance()->stop();
 }
@@ -135,7 +137,7 @@ void StateTest::testParseState()
         + " var double d_dummy = -1.0\n"
         + " var int    i_dummy = -1\n"
         + " var bool   varinit = false\n"
-        + " var bool   b_dummy = true\n"
+        + " var bool   b_dummy = true\n" // 10
         + " initial state INIT {\n"
         // XXX bug : preconditions are not checked in the initial state.
 //         + " preconditions {\n"
@@ -155,7 +157,7 @@ void StateTest::testParseState()
         + "     do test.instantDone()\n"
         + " }\n"
         + " handle {\n"
-        + "     do test.instantDone()\n"
+        + "     do test.instantDone()\n" // 20
         + " }\n"
         + " exit {\n"
         + "     do test.instantDone()\n"
@@ -165,12 +167,12 @@ void StateTest::testParseState()
         + " transitions {\n"
         + "     if false then select ERROR\n"
         + "     if varinit == true then select PRE_VARFAIL\n"
-        + "     if (d_dummy != 1.234) || (i_dummy != -2)  then select ENTRYFAIL\n"
-        + "     if (istrrue == false) || (isflse == true) || (isten != 10) ||( isnegative >= 0. )  then select PARAMFAIL\n"
-        + "     if isok == false then select PARAMFAIL\n"
-        + "     select FINI\n"
-        + "     select ERROR\n" // do not reach
+        + "     if (d_dummy != 1.234) || (i_dummy != -2)  then select ENTRYFAIL\n" // 30
         + " }\n"
+        + " transition if (istrrue == false) || (isflse == true) || (isten != 10) ||( isnegative >= 0. )  then select PARAMFAIL\n"
+        + " transition if isok == false then select PARAMFAIL\n"
+        + " transition select FINI\n"
+        + " transition select ERROR\n" // do not reach
         + " }\n"
         + " state PRE_ERROR { entry { do test.assert(false) }\n"
         + " }\n"
@@ -407,7 +409,7 @@ void StateTest::testStateEmpty()
     string prog = string("StateMachine X {\n")
         + " initial state INIT {\n"
         + " transitions {\n"
-        + "     select TEST\n" // only a transition
+        + "     select TEST;\n" // only a transition
         + " }\n"
         + " }\n"
         + " state TEST {\n"  // not even used
@@ -697,6 +699,7 @@ void StateTest::testStateEvents()
         + " var   double t = 0.0\n"
         + " var   double et = 0.0\n"
         + " var   bool eb = false\n"
+        + " transition t_event() select TESTSELF\n" // test self transition
         + " transition d_event(et)\n"
         + "     if et < 0. then  select ISNEGATIVE\n"
         + "     else select ISPOSITIVE\n"
@@ -725,10 +728,13 @@ void StateTest::testStateEvents()
         + "      select INIT\n"
         + " }\n"
         + " }\n"
-        + " state DEFAULT {\n"
-        + " transitions {\n"
-        + "      select FINI\n"
-        + "      }\n"
+        + " state TESTSELF {\n"
+        + " entry {\n"
+        + "      set eb = !eb\n"
+        + " }\n"
+        + " transition t_event() select TESTSELF\n"     // does not execute entry {}
+        + " transition b_event(eb) { set eb = true; }\n"
+        + " transition select INIT\n"
         + " }\n"
         + " final state FINI {\n"
         + " }\n"
@@ -767,6 +773,22 @@ void StateTest::testStateEvents()
         + "     do test.assert( y1.inState(\"ISFALSE\") )\n"
         + "     do y1.requestState(\"INIT\")\n"
         + "     do test.assert( y1.inState(\"INIT\") )\n"
+        // test self transitions
+        + "     set y1.eb = true;\n"
+        + "     do t_event()\n"
+        + "     do test.assert( !y1.inState(\"INIT\") )\n"
+        + "     do test.assert( !y1.inState(\"ISPOSITIVE\") )\n"
+        + "     do test.assert( !y1.inState(\"ISNEGATIVE\") )\n"
+        + "     do test.assert( y1.inState(\"TESTSELF\") )\n"
+        + "     do test.assert( y1.eb == false )\n"
+        + "     do t_event()\n"
+        + "     do test.assert( y1.inState(\"TESTSELF\") )\n"
+        + "     do test.assert( y1.eb == false )\n" // no entry
+        + "     do b_event(true)\n"
+        + "     do test.assert( y1.inState(\"TESTSELF\") )\n"
+        + "     do test.assert( y1.eb == true )\n"
+        + "     do y1.requestState(\"INIT\")\n"
+        + "     do test.assert( y1.inState(\"INIT\") )\n"
         //+ "     do y1.deactivate()\n"
         + " }\n"
         + " transitions {\n"
@@ -787,7 +809,7 @@ void StateTest::testStateEvents()
         ;
 
      this->doState( prog, &gtc );
-     CPPUNIT_ASSERT( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
+     //CPPUNIT_ASSERT( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
      this->finishState( &gtc, "x");
 }
 

@@ -56,6 +56,7 @@ class StateTest : public CppUnit::TestFixture
     SimulationActivity gtask;
     Event<void(double)> d_event;
     Event<void(bool)> b_event;
+    Event<void(void)> t_event;
     TaskObject* createObject(std::string);
     bool assertBool( bool );
     bool assertMsg( bool, const std::string& msg);

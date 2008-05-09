@@ -105,7 +105,7 @@
 	<revnumber>1.6.0</revnumber>
 	<date>8 May 2008</date>
 	<authorinitials>PS</authorinitials>
-	<revremark>Added 'global' transitions</revremark>
+	<revremark>Added 'global' transitions. Rewrote 'transitions' statement to 'transition' statements</revremark>
       </revision> 
    </revhistory>
 
@@ -1115,9 +1115,10 @@
 	exit {
 	    // exit program
 	}
-	transitions {
-	    // Ordered (conditional) select statements
-	}
+	// Ordered event based and conditional select statements
+	transition ... { /* transition program */ } select ...
+	transition ...
+
     }
 
     final state <emphasis>myExit</emphasis> {
@@ -1126,9 +1127,7 @@
 	}
 	// leave out empty programs...
 
-	transitions {
-	    // ...
-	}
+	transition ...
     }
 
     state <emphasis>Waiting</emphasis> {
@@ -1182,30 +1181,28 @@
 	</section>
 	<section>
 	  <title>The <function>handle</function> and
-	    <function>transitions</function> Statement</title>
+	    <function>transition</function> Statement</title>
 	  <para>
-            When the run program returns in automatic mode, the
+            When the run program finishes in automatic mode, the
             state evaluates its transitions to other states.
 	    The handle program is called only when no transition can be found to another state.
 	    The transitions section defines one or more <function>select</function>
             <emphasis>state</emphasis> statements. These can be guarded by if...then clauses
             (the transition conditions):
 	    <programlisting>  // In state XYZ :
-  transitions {
-    // conditionally select the START state
-    if HMI.startPushed then {
+  // conditionally select the START state
+  transition if HMI.startPushed then {
         // (optional)
         // transition program: HMI.startPushed was true
         // when finished, go to START state
-    } select START
+  } select START
 
-    // next transition condition, with a transition failure program:
-    if HMI.waiting then
+  // next transition condition, with a transition failure program:
+  transition if HMI.waiting then
       select WAIT else {
         // (optional)
         // transition failure program: HMI.startPushed was false
-    }
-  } 
+  }
 
   handle {
      // only executed if no transition above could be made
@@ -1251,7 +1248,9 @@
 	    is used to react to events in this package.
 	  </para>
 	  <para>
-	    Event transitions are specified as:
+	    Event transitions are an extension to the transitions
+	    above and cite an event between the transition and the
+	    if statement. They are specified as:
 	  </para>
 	  <programlisting>  state X {
     var int a, b
@@ -1623,20 +1622,17 @@
         entry {
 	   // ...
         }
-        transitions {
-	   // guard this transition.
-           if checkSomeCondition() then
+       // guard this transition.
+       transition if checkSomeCondition() then
               select z
-           if checkOtherCondition() then
+       transition if checkOtherCondition() then
               select exit
-        }
      }
      state z {
        // ...
-        transitions {
-	   // always good to go to state :
-	   select ok_1
-        }
+       // always good to go to state :
+       transition select ok_1
+	  select ok_1
      }
      state ok_1 {
        // ...
@@ -1726,20 +1722,16 @@
         entry {
 	   // ...
         }
-        transitions {
-	   // guard this transition.
-           if checkSomeCondition() then
+        // guard this transition.
+        transition if checkSomeCondition() then
               select z
-           if checkOtherCondition() then
+        transition if checkOtherCondition() then
               select exit
-        }
      }
      state z {
        // ...
-        transitions {
-	   // always good to go to state :
-	   select ok_1
-        }
+       // always good to go to state :
+       transition select ok_1
      }
      state ok_1 {
        // ...
@@ -1826,9 +1818,7 @@
        * The kernel is not running yet...
        */
       initial state init_state {
-  	transitions {
-  	    select startup_state
-  	}
+  	transition select startup_state
       }
   
       /**
@@ -1839,9 +1829,7 @@
   	    do Kernel.startComponent("HWSensor")
   	    do Kernel.startComponent("MoveToGenerator")
   	    }
-  	transitions {
-  	    select stop_state
-  	    }
+  	transition select stop_state
       }
   
       /**
@@ -1865,10 +1853,8 @@
   	    do Kernel.stopComponent("HWEffector")
   	    do Kernel.stopComponent("PIDController")
 	    do PIDController.reset()
-  	transitions {
-  	    if HMI.start_pushed() &amp;&amp; error == 0 then
-  		 select run_state
-  	    }
+  	transition if HMI.start_pushed() &amp;&amp; error == 0 then
+	    select run_state
       }
   
       /**
@@ -1885,12 +1871,10 @@
   	    do Kernel.startComponent("HWEffector")
   	    }
   
-  	transitions {
-  	    if HMI.stop_pushed() then
-  		 select stop_state
-  	    if HMI.start_program() then
-  		 select exec_state
-  	    }
+  	transition if HMI.stop_pushed() then
+            select stop_state
+  	transition if HMI.start_program() then
+            select exec_state
       }
   
       /**
@@ -1907,13 +1891,11 @@
   	    do MyProgram.stop()
   	    }
   
-  	transitions {
-  	    if HMI.stop_program() then
-  		 select run_state
-  	    }
-	    // Detect Program Failure :
-	    if MyProgram.inError() then
-	         select stop_state
+  	transition if HMI.stop_program() then
+  	    select run_state
+	// Detect Program Failure :
+	transition if MyProgram.inError() then
+	    select stop_state
       }
   }
   

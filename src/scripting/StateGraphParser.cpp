@@ -79,8 +79,10 @@ namespace RTT
         assertion<std::string> expect_end_of_state("Exptected ending '}' at end of state ( or could not find out what this line means ).");
         assertion<std::string> expect_if("Wrongly formatted \"if ... then select\" clause.");
         assertion<std::string> expect_select("'select' statement required after emty transition program.");
+        assertion<std::string> expect_select_ident("'select' requires a valid state name.");
         assertion<std::string> expect_comma("Expected a comma separator.");
         assertion<std::string> expect_ident("Expected a valid identifier.");
+        assertion<std::string> expect_event_or_if("Expected an event name or an if clause in transition statement.");
         assertion<std::string> expect_open("Open brace expected.");
         assertion<std::string> expect_eof("Invalid input in file.");
         assertion<std::string> expect_eol("Newline expected at end of statement.");
@@ -137,8 +139,11 @@ namespace RTT
         BOOST_SPIRIT_DEBUG_RULE( transition );
         BOOST_SPIRIT_DEBUG_RULE( exit );
         BOOST_SPIRIT_DEBUG_RULE( transline );
-        BOOST_SPIRIT_DEBUG_RULE( selectcommand );
-        BOOST_SPIRIT_DEBUG_RULE( brancher );
+        BOOST_SPIRIT_DEBUG_RULE( eventline );
+        BOOST_SPIRIT_DEBUG_RULE( ifbranch );
+        BOOST_SPIRIT_DEBUG_RULE( elsebranch );
+        BOOST_SPIRIT_DEBUG_RULE( progselect );
+        BOOST_SPIRIT_DEBUG_RULE( program );
         BOOST_SPIRIT_DEBUG_RULE( selector );
         BOOST_SPIRIT_DEBUG_RULE( machineinstarguments );
         BOOST_SPIRIT_DEBUG_RULE( machineinstargument );
@@ -165,7 +170,7 @@ namespace RTT
             >> expect_end( ch_p( '}' ) );
 
         // Zero or more declarations and Zero or more states
-        statemachinecontent = *( varline | state | transitions);
+        statemachinecontent = *( varline | state | transitions | transition);
 
         varline = vardec[lambda::var(eol_skip_functor::skipeol) = false] >> commonparser->eos[lambda::var(eol_skip_functor::skipeol) = true];
 
@@ -205,8 +210,6 @@ namespace RTT
           >> statecontent
           >> expect_end_of_state(ch_p( '}' ))[ bind( &StateGraphParser::seenstateend, this ) ];
 
-        // BUG: there should only be one entry, run, handle exit...
-        // transitions and machinememvar 'abuse' this '*'.
         // the content of a program can be any number of lines
         // a line is not strictly defined in the sense of text-line.
         statecontent = *statecontentline;
@@ -218,15 +221,16 @@ namespace RTT
             | run
             | handle
             | transitions
+            | transition
             | exit
-            | machinememvar[lambda::var(eol_skip_functor::skipeol) = false] >> commonparser->eos[lambda::var(eol_skip_functor::skipeol) = true];
+            | (machinememvar[lambda::var(eol_skip_functor::skipeol) = false] >> commonparser->eos[lambda::var(eol_skip_functor::skipeol) = true]);
 
         precondition = str_p( "precondition")
             >> conditionparser->parser()[ bind( &StateGraphParser::seenprecondition, this)] ;
 
         preconditions = (str_p( "preconditions" )[ bind( &StateGraphParser::inpreconditions, this )]
                         >> expect_open( ch_p( '{' ))
-                        >> *transline
+                        >> *transline[bind(&StateGraphParser::seenendcondition,this)]
                         >> expect_end( ch_p( '}' ) )[
                             bind( &StateGraphParser::seenpreconditions, this )]) | precondition;
 
@@ -246,44 +250,56 @@ namespace RTT
                  >> expect_open(ch_p('{'))>> programBody >> expect_end(ch_p('}'))[
                      bind( &StateGraphParser::seenhandle, this )];
 
-        // event based transition
-        transition = str_p("transition")
-            >> !peerparser->parser() >> expect_ident(commonparser->identifier[ bind( &StateGraphParser::seeneventname, this,_1,_2)])
-            >> expect_eventargs(argslist[ bind( &StateGraphParser::seeneventargs, this)])
-            >> expect_eventselect(selectcommand[ bind( &StateGraphParser::seeneventtrans, this)]);
+        // formal:
+        // transition [event] [[ {program} ][ select s]] | [ if c then ][ {program} ][select s][ else [ {program} ][select s]]
+        // parsed:
+        // transition [ [if c then ][ {program} ][select s][ else [ {program} ][select s]]] 
+        //          | [ event [[ {program} ][ select s]] | [ if c then ][ {program} ][select s][ else [ {program} ][select s]] ]
+        // rules:
+        // transition = "transition" >> (transline | eventline)
+        // transline  = progselect
+        //            | (ifbranch >> !elsebranch)
+        // eventline  = eventname >> transline
+        // progselect = (selector | (program >> !selector)) 
+        // ifbranch   = "if" >> c >> "then" >> progselect
+        // elsebranch = "else" >> progselect
+        // selector   = "select" >> ...
+        // program    = "{" >> ...
+        // 
 
-        // condition based transition.
+        // old transition statements
         // the order of rule "transition" vs "transitions" is important
         transitions = ( str_p( "transitions" )
-                        >> expect_open(ch_p('{'))>> *transline >> expect_end(ch_p('}')) ) | transition | transline;
+                        >> expect_open(ch_p('{'))
+                        >> *((transline|eventline)[bind(&StateGraphParser::seenendcondition,this)])
+                        >> expect_end(ch_p('}')) );
 
-        transline = selectcommand;
+        // new transition statements
+        transition = str_p("transition") >> expect_event_or_if( transline | eventline )[bind(&StateGraphParser::seenendcondition,this)];
+        transline  = progselect | (ifbranch >> !elsebranch);
+        eventline  =
+            !peerparser->parser() >> commonparser->identifier[ bind( &StateGraphParser::seeneventname, this,_1,_2)]
+            >> expect_eventargs(argslist[ bind( &StateGraphParser::seeneventargs, this)])
+            >> expect_eventselect(transline[ bind( &StateGraphParser::seeneventtrans, this)]);
 
-        // You are only allowed to select a new state in transitions :
-        selectcommand = (brancher | selector)[bind(&StateGraphParser::seenendcondition,this)];
+        progselect = selector | (program >> (selector | eps_p[bind( &StateGraphParser::noselect, this )] ));
+        // | eps_p[bind( &StateGraphParser::noselect, this )] ); // if eos fails skipeol stays false !, see clear() !
 
-        brancher = str_p( "if") >> conditionparser->parser()[ bind( &StateGraphParser::seencondition, this)]
+        ifbranch = str_p( "if") >> conditionparser->parser()[ bind( &StateGraphParser::seencondition, this)]
                                 >> expect_if(str_p( "then" ))
-                                >> !transprog
-                                >> ( selector | eps_p[bind( &StateGraphParser::noselect, this )] )
-                                >> !(str_p("else")[bind( &StateGraphParser::seenelse, this )]
-                                     >> expect_select( (elseprog >> (selector | eps_p[bind( &StateGraphParser::noselect, this )])) | selector));
+                                >> progselect;
+        elsebranch = str_p("else")[bind( &StateGraphParser::seenelse, this )]
+            >> progselect;
 
-        transprog =
+        program =
             ch_p('{')[ bind( &StateGraphParser::inprogram, this, "transition" )]
                 >> programBody
                 >> expect_end(ch_p('}'))[bind( &StateGraphParser::seentransprog, this )];
 
-        elseprog = 
-            ch_p('{')[ bind( &StateGraphParser::inprogram, this, "elsetransition" )]
-                >> programBody
-                >> expect_end(ch_p('}'))[bind( &StateGraphParser::seenelseprog, this )];
-
-
-        selector = str_p( "select" ) >> ( commonparser->identifier[ bind( &StateGraphParser::seenselect, this, _1, _2) ]
-                                          >> *("or" >> commonparser->identifier[ bind( &StateGraphParser::seenselect, this, _1, _2) ])
+        selector =  str_p( "select" ) >> expect_select_ident(( commonparser->identifier[ bind( &StateGraphParser::seenselect, this, _1, _2) ]
+                                           >> *("or" >> commonparser->identifier[ bind( &StateGraphParser::seenselect, this, _1, _2) ])
                                           )[lambda::var(eol_skip_functor::skipeol) = false]
-                                     >> commonparser->eos[lambda::var(eol_skip_functor::skipeol) = true]; // if eos fails skipeol stays false !, see cleanup() !
+                                                       >> commonparser->eos[lambda::var(eol_skip_functor::skipeol) = true]);
 
     }
 
@@ -397,8 +413,8 @@ namespace RTT
     void StateGraphParser::seenelseprog()
     {
         // reuse transProgram to store else progr. See seenselect().
-        transProgram = finishProgram();
-        transProgram->setProgramProcessor(curtemplate->getTaskObject()->engine()->programs());
+        //transProgram = finishProgram();
+        //transProgram->setProgramProcessor(curtemplate->getTaskObject()->engine()->programs());
     }
 
     void StateGraphParser::seenelse()
