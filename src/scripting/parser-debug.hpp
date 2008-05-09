@@ -37,6 +37,14 @@
 #ifndef PARSER_DEBUG_HPP
 #define PARSER_DEBUG_HPP
 
+/**
+ * You need to set this flag globally (for all sources)
+ * in order to enable the text-debugging of parser rules.
+ * All parser files must include this file first or debugging
+ * may not work (nothing is printed).
+ * Do not set BOOST_SPIRIT_DEBUG in a single file, this will
+ * not work.
+ */
 //#define BOOST_SPIRIT_DEBUG 
 #ifndef BOOST_SPIRIT_DEBUG_OUT
 #define BOOST_SPIRIT_DEBUG_OUT std::cerr
