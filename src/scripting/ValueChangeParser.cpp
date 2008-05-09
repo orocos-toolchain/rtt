@@ -81,7 +81,9 @@ namespace RTT
         BOOST_SPIRIT_DEBUG_RULE( variablechange );
         BOOST_SPIRIT_DEBUG_RULE( paramdefinition );
         BOOST_SPIRIT_DEBUG_RULE( baredefinition );
-        BOOST_SPIRIT_DEBUG_RULE( decl );
+        BOOST_SPIRIT_DEBUG_RULE( constdecl );
+        BOOST_SPIRIT_DEBUG_RULE( vardecl );
+        BOOST_SPIRIT_DEBUG_RULE( baredecl );
 
         // we can't use commonparser.identifier to parse a type name,
         // because that one is meant to be used for identifier used by the
