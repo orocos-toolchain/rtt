@@ -45,7 +45,7 @@
 	RTT 1.4 and older. The template parameter has been dropped
 	and the default 'raw' value is now <option>int</option>. In this
 	way, two's complement and unsigned A/D converters are supported
-	upto 31 bits.
+	upto 31 bits. This change did also change the Comedi API in OCL.
 	</para>
 	<para>
 	  See also
@@ -71,10 +71,58 @@
 	    Conversions that reduce precision will print a Logger warning during
 	    parsing, unless this explicit cast is used.
 	  </para>
+	<para>
+	  See also
+	  <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=516">
+	    [Scripting]No conversions available from int -> double ->...
+	    </ulink>.
+	</para>
 	</listitem>
 	<listitem>
 	  <para>
-	    Scripting now also supports the C 'float' type.
+	    Scripting now also supports the C 'float' type. You can now write
+	    <programlisting>var float f = 10.0f;</programlisting>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Event based transitions in statemachines are now always asynchronous.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Event transitions in statemachines can now be written more
+	    naturally.  The if and select statements are optional when
+	    a transition program is given. For example:
+	    <programlisting>  transition some_event(a) { do foo(a); }
+  transition some_event(a) if (a &lt; 10.0) then { do foo(a); }
+	    </programlisting>
+	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=544">
+	         Unable have event transition with no select statements
+	      </ulink>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The transition syntax has been unified. One can write both condition
+	    and event transitions in transitions blocks or with the keyword
+	    transition. For example:
+	    <programlisting>  transition if (a &lt; 10.0) { do foo(a); }
+  transitions {
+      some_event(a) if (a &lt; 10.0) then { do foo(a); }
+      // ... repeat
+  }</programlisting>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Both condition and event transitions can be specified at the
+	    top level of a state machine. These 'global' transitions apply
+	    to any state of that state machine and are evaluated after
+	    the transitions of the current state.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -86,8 +134,8 @@
 	  <para>
 	    An initial Max OSX port has been done, but is not yet stable.
 	    If you like to contribute, see
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=459">
-	      FILL IN BUG
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=533">
+	      Mac OS X port
 	      </ulink>.
 	  </para>
 	</listitem>
@@ -110,27 +158,23 @@
 	  <para>
 	    See also
 	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=527">
-	      FILL IN BUG
 	      </ulink>.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
+	    It is now possible to load <emphasis>new</emphasis>
+	    Properties from XML files into a TaskContext. This is done
+	    using the <function>loadProperties()</function> function,
+	    available in the C++ MarshallingAccess interface and also
+	    in the scripting interface. This allows to load new parameters
+	    into a component, even after it was compiled. You can use this
+	    to provide extra parameters to (multiple) scripts for example.
 	  </para>
 	  <para>
 	    See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=423">
-	      [Project] Improve Component execution model
-	      </ulink>.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	  </para>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=371">
-	      [Project] PeriodicActivity/TimerThread imposes too much overhead
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=512">
+	      [Project] Allow to load extra properties from file in a TaskContext
 	      </ulink>.
 	  </para>
 	</listitem>
@@ -143,22 +187,20 @@
 	  </para>
 	  <para>
 	    See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=442">
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=524">
+	      Method-Command repositories do not have removeX
 	      </ulink>.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    A <classname>RTT::Timer</classname> class has been added
-	    which can be armed with multiple timers, such that time based
-	    events or user code can be executed at a programmed interval.
-	    The Orocos Components Library extends this class with a
-	    TimerComponent which exports this class as an Orocos component.
+	    The <classname>RTT::Logger</classname> class has been restored
+	    to correctly log the [Location] tag after recursing into functions.
 	  </para>
 	  <para>
 	    See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=438">
-	      [Project]TimerComponent for time based events
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=545">
+	         Logger In() instances do not nest correctly 
 	      </ulink>.
 	  </para>
 	</listitem>
@@ -171,12 +213,36 @@
 	  <para>
 	    CORBA DataPorts have been thoroughly tested and fixed.
 	    They now respect connection direction and can be connected
-	    using only the IDL interface.
+	    using only the IDL interface. Also, the ports disconnect
+	    automatically when a remote connection no longer exists, making
+	    it free again to setup a new connection.
 	  </para>
 	  <para>
 	    See also
 	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=532">
 	      Corba Data/Buffer ports do not respect connection direction
+	      </ulink>.
+	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=527">
+	      Can not connect ports using only IDL interface
+	      </ulink>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Completely transparant Method and Command invocation in
+	    C++ on remote CORBA TaskContexts has been added.  This
+	    feature however increases code size, even if CORBA is not
+	    used. A CMake variable ORO_REMOTING has been defined which
+	    allows to turn this feature off. It is enabled by default
+	    if you build the RTT with the CORBA protocol library.
+	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=520">
+	      getMethod&lt;...&gt;("name") does not work for remote/CORBA components
 	      </ulink>.
 	  </para>
 	</listitem>
