@@ -294,6 +294,11 @@ namespace RTT
         const Properties& getProperties() const { return mproperties; }
 
         /**
+         * Returns a list of all property objects with the name \a name.
+         */
+        Properties getProperties(const std::string& name) const;
+
+        /**
          * Returns a list of all the names of the properties in this bag.
          */
         Names getPropertyNames() const { return list(); }

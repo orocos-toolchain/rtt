@@ -41,6 +41,7 @@
 #include "PropertyBag.hpp"
 #include "Property.hpp"
 #include "Logger.hpp"
+#include <algorithm>
 
 namespace RTT
 {
@@ -147,6 +148,20 @@ namespace RTT
             }
         return names;
     }
+
+    PropertyBag::Properties PropertyBag::getProperties(const std::string& name) const
+    {
+        Properties names;
+        for ( const_iterator i = mproperties.begin();
+              i != mproperties.end();
+              i++ )
+            {
+                if ( (*i)->getName() ==  name )
+                    names.push_back( (*i) );
+            }
+        return names;
+    }
+        
 
     void PropertyBag::identify( PropertyIntrospection* pi ) const
     {
@@ -326,50 +341,54 @@ namespace RTT
 
         // Make an updated if present, create if not present
         //iterate over source, update or clone PropertyBases
-        PropertyBag::const_iterator it( source.getProperties().begin() );
-        while ( it != source.getProperties().end() )
+    
+        PropertyBag::Names allnames = source.list();
+        std::unique(allnames.begin(), allnames.end());
+        PropertyBag::Names::const_iterator it( allnames.begin() );
+        while ( it != allnames.end() )
         {
-            PropertyBase* mine;
-            // if the name is not given, this bag is probably an array or sequence.
-            if ( (*it)->getName() == "" ) // && target.getType() == "Sequence" )
-                mine = target.getItem( it - source.getProperties().begin() );
-            else
-                mine = target.find( (*it)->getName() );
-            if (mine != 0) {
+            PropertyBag::Properties sources = source.getProperties(*it);
+            PropertyBag::Properties mines = target.getProperties(*it);
+            PropertyBag::iterator mit = mines.begin();
+            for( PropertyBag::const_iterator sit = sources.begin(); sit != sources.end(); ++sit ) {
+                if ( mit != mines.end() ) {
+                    assert( (*sit)->getName() == (*mit)->getName());
 #ifndef NDEBUG
-                Logger::log() << Logger::Debug;
-                Logger::log() << "updateProperties: updating Property "
-                              << (*it)->getType() << " "<< (*it)->getName()
-                              << "." << Logger::endl;
+                    Logger::log() << Logger::Debug;
+                    Logger::log() << "updateProperties: updating Property "
+                                  << (*sit)->getType() << " "<< (*sit)->getName()
+                                  << "." << Logger::endl;
 #endif
-                  // no need to make new one, just update existing one
-                if ( mine->update( (*it) ) == false ) {
-                    // try composition:
-                    if ( mine->getTypeInfo()->composeType( (*it)->getDataSource(), mine->getDataSource() ) == false ) {
-                        Logger::log() << Logger::Error;
-                        Logger::log() << "updateProperties: Could not update, nor compose Property "
-                                      << mine->getType() << " "<< (*it)->getName()
-                                      << ": type mismatch, can not update with type "
-                                      << (*it)->getType() << Logger::endl;
-                        return false;
+                    // no need to make new one, just update existing one
+                    if ( (*mit)->update( (*sit) ) == false ) {
+                        // try composition:
+                        if ( (*mit)->getTypeInfo()->composeType( (*sit)->getDataSource(), (*mit)->getDataSource() ) == false ) {
+                            Logger::log() << Logger::Error;
+                            Logger::log() << "updateProperties: Could not update, nor compose Property "
+                                          << (*mit)->getType() << " "<< (*mit)->getName()
+                                          << ": type mismatch, can not update with "
+                                          << (*sit)->getType() << " "<< (*sit)->getName() << Logger::endl;
+                            return false;
+                        }
                     }
+                    // ok.
+                    ++mit;
                 }
-                // ok.
-            }
-            else
-            {
+                else
+                    {
 #ifndef NDEBUG
-                Logger::log() << Logger::Debug;
-                Logger::log() << "updateProperties: created Property "
-                              << (*it)->getType() << " "<< (*it)->getName()
-                              << "." << Logger::endl;
+                        Logger::log() << Logger::Debug;
+                        Logger::log() << "updateProperties: created Property "
+                                      << (*sit)->getType() << " "<< (*sit)->getName()
+                                      << "." << Logger::endl;
 #endif
-                // step 1 : clone a new instance (non deep copy)
-                PropertyBase* temp = (*it)->create();
-                // step 2 : deep copy clone with original, will never fail.
-                temp->update( (*it) );
-                // step 3 : add result to target bag.
-                target.add( temp );
+                        // step 1 : clone a new instance (non deep copy)
+                        PropertyBase* temp = (*sit)->create();
+                        // step 2 : deep copy clone with original, will never fail.
+                        temp->update( (*sit) );
+                        // step 3 : add result to target bag.
+                        target.add( temp );
+                    }
             }
             ++it;
         }
