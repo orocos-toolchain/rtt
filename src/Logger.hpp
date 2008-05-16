@@ -127,27 +127,27 @@ namespace RTT
          @endverbatim
         */
         struct In {
-            In(const char* module);
+            In(const std::string& module);
             ~In();
-            const char* oldmod;
+			std::string oldmod;
         };
 
         /**
          * Inform the Logger of the entry of a module.
          * @see In. Use Logger::In(\a modname) for management.
          */
-        Logger& in(const char* modname);
+        Logger& in(const std::string& modname);
 
         /**
          * The counterpart of in().
          * @see In. Use Logger::In(\a modname) for management.
          */
-        Logger& out();
+        Logger& out(const std::string& modname);
 
         /**
          * Get the name of the current Log generating Module.
          */
-        const char* getLogModule() const;
+		std::string getLogModule() const;
 
         /**
          * Function signature of the functions that influence the

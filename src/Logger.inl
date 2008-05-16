@@ -64,7 +64,7 @@ namespace RTT
     }
 
 
-    inline Logger::In::In(const char*)
+    inline Logger::In::In(const std::string&)
     {
     }
 
@@ -72,17 +72,17 @@ namespace RTT
     {
     }
 
-    inline Logger& Logger::in(const char*) 
+    inline Logger& Logger::in(const std::string&) 
     {
         return *this;
     }
 
-    inline Logger& Logger::out()
+    inline Logger& Logger::out(const std::string&)
     {
         return *this;
     }
 
-    inline const char* Logger::getLogModule() const {
+    inline std::string Logger::getLogModule() const {
         return "";
     }
 
@@ -99,7 +99,7 @@ namespace RTT
     inline void Logger::setStdStream( std::ostream& ) {
     }
 
-    inline Logger& Logger::operator<<( const char* ) {
+    inline Logger& Logger::operator<<( const std::string& ) {
         return *this;
     }
 

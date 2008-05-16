@@ -111,7 +111,7 @@ namespace RTT
               outloglevel(Warning),
               timestamp(0),
               started(false), showtime(true), allowRT(false), 
-              loggermodule("Logger"), moduleptr(loggermodule)
+              moduleptr("Logger")
         {
 #if defined(OROSEM_FILE_LOGGING) && defined(OROSEM_PRINTF_LOGGING)
             logfile = fopen("orocos.log","w");
@@ -281,11 +281,9 @@ namespace RTT
 
         bool allowRT;
 
-        const char* loggermodule;
-        const char* moduleptr;
+        std::string moduleptr;
 
         OS::Mutex inpguard;
-        OS::Mutex startguard;
     };
 
     Logger::Logger(std::ostream& str)
@@ -343,7 +341,7 @@ namespace RTT
     }
 
 
-    Logger::In::In(const char* modname)
+    Logger::In::In(const std::string& modname)
         : oldmod( Logger::log().getLogModule() )
     {
         Logger::log().in(modname);
@@ -351,22 +349,24 @@ namespace RTT
 
     Logger::In::~In() 
     {
-        Logger::log().out();
+        Logger::log().out(oldmod);
     }
 
-    Logger& Logger::in(const char* modname) 
+    Logger& Logger::in(const std::string& modname) 
     {
+        OS::MutexLock lock( d->inpguard );
         d->moduleptr = modname;
         return *this;
     }
 
-    Logger& Logger::out()
+    Logger& Logger::out(const std::string& oldmod)
     {
-        d->moduleptr = d->loggermodule;
+        OS::MutexLock lock( d->inpguard );
+        d->moduleptr = oldmod;
         return *this;
     }
 
-    const char* Logger::getLogModule() const {
+    std::string Logger::getLogModule() const {
         return d->moduleptr;
     }
 
