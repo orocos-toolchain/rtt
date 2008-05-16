@@ -58,6 +58,7 @@ namespace RTT
          * This is one time initialisation
          */
         PeriodicThread* task = static_cast<OS::PeriodicThread*> (t);
+        Logger::In in( task->getName() );
         // acquire the resulting scheduler type.
         //task->msched_type = rtos_task_get_scheduler( task->getTask() );
         task->configure();
@@ -180,7 +181,6 @@ namespace RTT
 							 ,d(NULL)
 #endif
     {
-        log(Info) << "Creating PeriodicThread for scheduler: "<< scheduler << endlog();
         this->setup(_priority, name);
     }
 
@@ -189,6 +189,7 @@ namespace RTT
         Logger::In in("PeriodicThread");
         int ret;
         
+        log(Info) << "Creating PeriodicThread for scheduler: "<< msched_type << endlog();
         ret = rtos_sem_init(&sem, 0);
         if ( ret != 0 ) {
             Logger::log() << Logger::Critical << "Could not allocate configuration semaphore 'sem' for "<< rtos_task_get_name(&rtos_task) <<". Throwing std::bad_alloc."<<Logger::endl;
@@ -284,6 +285,7 @@ namespace RTT
     bool PeriodicThread::start() 
     {
         if ( running ) return false;
+        Logger::In in("PeriodicThread::start");
 
         Logger::log() << Logger::Debug << "Periodic Thread "<< rtos_task_get_name(&rtos_task) <<" started."<<Logger::endl;
 
@@ -314,6 +316,7 @@ namespace RTT
     {
         if ( !running ) return false;
 
+        Logger::In in("PeriodicThread::start");
         Logger::log() << Logger::Debug << "Periodic Thread "<< rtos_task_get_name(&rtos_task) <<" stopping...";
 
         running=false;
@@ -354,6 +357,7 @@ namespace RTT
 
     bool PeriodicThread::setScheduler(int sched_type)
     {
+        Logger::In in("PeriodicThread::setScheduler");
         if ( !running ) 
             {
                 if ( OS::CheckScheduler(sched_type) == false)
@@ -363,22 +367,21 @@ namespace RTT
                     return true;
                 }
 
-                log(Error) << "Setting scheduler type for Thread "<< rtos_task_get_name(&rtos_task) <<" to "<< sched_type;
+                log(Info) << "Setting scheduler type for Thread "<< rtos_task_get_name(&rtos_task) <<" to "<< sched_type <<endlog();
                 msched_type = sched_type; 
                 rtos_sem_signal(&sem);
                 rtos_sem_wait(&confDone);
             }
         else {
-            log() << "Failed to change scheduler for "<< rtos_task_get_name(&rtos_task) <<" since thread is still running."<<endlog(Warning);
+            log(Warning) << "Failed to change scheduler for "<< rtos_task_get_name(&rtos_task) <<" since thread is still running."<<endlog();
             return false;
         }
         if (msched_type != rtos_task_get_scheduler(&rtos_task) )
             {
                 msched_type = rtos_task_get_scheduler(&rtos_task);
-                log() << ": failed."<<endlog(Error);
+                log(Error) << "Setting scheduler failed!"<<endlog();
                 return false;
             }
-        log() << ": done."<<endlog(Debug);
         return true;
 
 #if 0 

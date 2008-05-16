@@ -60,6 +60,7 @@ namespace RTT
          * This is one time initialisation
          */
         SingleThread* task = static_cast<OS::SingleThread*> (t);
+        Logger::In in( task->getName() );
         // acquire the resulting scheduler type.
         if ( task->msched_type != rtos_task_get_scheduler( task->getTask()) )
             {
