@@ -79,5 +79,5 @@ extern "C"
  * exception catching at run-time.
  * @see ORO_main
  */
-int __os_checkException(int, char**);
+int __os_checkException(int&, char**);
 

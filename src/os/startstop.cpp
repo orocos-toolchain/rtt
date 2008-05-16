@@ -108,7 +108,7 @@ void __os_printFailure()
                         cerr << " You might have called a function which throws"<<endl;
                         cerr << " without a try {} catch {} block."<< endl << endl;
                         cerr << "To Debug this situation, issue the following command:"<<endl<<endl;
-                        cerr << "   valgrind --num-callers=16 <program> --nocatch" << endl;
+                        cerr << "   valgrind --num-callers=16 <program> [options] --nocatch" << endl;
                         cerr << "Which will show where the exception occured."<<endl;
                         cerr << " ( Change num-callers for more/less detail."<<endl;
                         cerr << "   Also, compiling orocos and your program with"<<endl;
@@ -122,13 +122,17 @@ void __os_printFailure()
 const char* oro_catchflag = "--nocatch";
 
 extern "C"
-int __os_checkException(int argc, char** argv)
+int __os_checkException(int& argc, char** argv)
 {
     bool dotry = true;
     // look for --nocatch flag :
     for( int i=1; i < argc; ++i)
-        if ( strncmp(oro_catchflag, argv[i], strlen(oro_catchflag) ) == 0 )
+        if ( strncmp(oro_catchflag, argv[i], strlen(oro_catchflag) ) == 0 ) {
+            // if --no-catch was given last, remove it from the argc.
+            if ( i == argc-1)
+                --argc;
             dotry = false;
+        }
     
     return dotry;
 }
