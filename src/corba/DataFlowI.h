@@ -369,6 +369,14 @@ public:
     ));
 
   virtual
+  void disconnect (
+      const char * port_name
+    )
+    ACE_THROW_SPEC ((
+      CORBA::SystemException
+    ));
+
+  virtual
   CORBA::Boolean connectDataPort (
      const char * port_name,
      ::RTT::Corba::AssignableExpression_ptr data

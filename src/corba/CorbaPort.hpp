@@ -64,7 +64,7 @@ namespace RTT
         AssignableExpression_var mdatachannel;
         BufferChannel_var mbufchannel;
         DataFlowInterface_var mdflow;
-        ConnectionInterface::shared_ptr dc;
+        mutable ConnectionInterface::shared_ptr dc;
         bool connect(ConnectionInterface::shared_ptr conn)
         {
             if ( dc || !conn )
@@ -164,6 +164,9 @@ namespace RTT
         }
 
         virtual ConnectionInterface::shared_ptr connection() const {
+            // return a connection object if remote side is connected.
+            if ( !dc && this->connected() )
+                dc = new CorbaConnection(this->getName(), mdflow.in(), 0 );
             return dc;
         }
 
@@ -202,6 +205,8 @@ namespace RTT
         }
         
         virtual void disconnect() {
+            // disconnect the remote port
+            mdflow->disconnect( this->getName().c_str() );
             dc = 0;
         }
 

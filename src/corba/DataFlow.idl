@@ -99,6 +99,11 @@ module RTT
        * methods above will setup a new connection.
        */
       boolean isConnected(in string port_name);
+
+      /**
+       * Disconnects this port.
+       */
+      void disconnect(in string port_name);
       
       /**
        * Connect a data port from this interface with an external

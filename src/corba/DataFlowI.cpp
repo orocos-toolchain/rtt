@@ -295,6 +295,19 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::isConnected (
     return p->connected();
 }
 
+void RTT_Corba_DataFlowInterface_i::disconnect (
+    const char * port_name
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    PortInterface* p = mdf->getPort(port_name);
+    if ( p == 0)
+        return;
+    p->disconnect();
+}
+
 CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectDataPort (
      const char * port_name,
      ::RTT::Corba::AssignableExpression_ptr data
