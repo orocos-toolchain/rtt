@@ -21,6 +21,7 @@ class CorbaTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testRemoteMethod );
     CPPUNIT_TEST( testAnyMethod );
     CPPUNIT_TEST( testPorts );
+    CPPUNIT_TEST( testConnectPortsIDL );
     CPPUNIT_TEST( testConnectPorts );
     CPPUNIT_TEST( testConnections );
     CPPUNIT_TEST( cleanupCorba );
@@ -80,6 +81,7 @@ public:
     void testAnyMethod();
 
     void testPorts();
+    void testConnectPortsIDL();
     void testConnectPorts();
     void testConnections();
 

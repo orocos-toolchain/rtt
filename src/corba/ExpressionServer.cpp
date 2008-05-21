@@ -80,8 +80,9 @@ namespace RTT
         Orocos_AnyAssignableExpression_i* newexpr = new Orocos_AnyAssignableExpression_i( expr, p );
         AServers[expr] = newexpr->_this();
         EServants[expr] = newexpr;
-        EServers[expr] = Corba::AssignableExpression::_narrow(AServers[expr]);
-        return Corba::AssignableExpression::_duplicate( AServers[expr] );
+        EServers[expr] = Corba::Expression::_narrow(AServers[expr]);
+        Corba::Expression_var ret = Corba::Expression::_duplicate( EServers[expr] );
+        return ret._retn();
     }
 
     Corba::Method_ptr ExpressionServer::CreateMethod( DataSourceBase::shared_ptr expr, MethodC* orig, PortableServer::POA_ptr p ) {

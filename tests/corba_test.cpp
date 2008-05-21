@@ -287,7 +287,7 @@ void CorbaTest::testPorts()
 }
 
 // Test the IDL connectPorts statement.
-void CorbaTest::testConnectPorts()
+void CorbaTest::testConnectPortsIDL()
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
     tp = Corba::ControlTaskProxy::Create( ts->server() );
@@ -297,6 +297,39 @@ void CorbaTest::testConnectPorts()
     // Default direction is from ts to ts2, but it will also need to
     // connect ports from ts2 to ts when ts is reader and ts2 is writer.
     CPPUNIT_ASSERT( ts->server()->connectPorts( ts2->server() ) );
+
+    testPortStats();
+    testPortDisconnect();
+}
+
+void CorbaTest::testConnectPorts()
+{
+    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
+    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+    
+    // The tests expect the default direction is from ts (tc) to ts2 (t2), but it will also need to
+    // connect ports from ts2 to ts when ts is reader and ts2 is writer.
+    CPPUNIT_ASSERT( connectPorts(tp, tp2 ) ); // fails on !md2.connected();
+    //CPPUNIT_ASSERT( connectPorts(tc, tp2 ) ); // works
+    //CPPUNIT_ASSERT( connectPorts(tp, t2 ) ); // works
+
+    testPortStats();
+    testPortDisconnect();
+
+    tc->disconnect();
+    t2->disconnect();
+
+    CPPUNIT_ASSERT( connectPorts(tc, tp2 ) );
+
+    testPortStats();
+    testPortDisconnect();
+
+    tc->disconnect();
+    t2->disconnect();
+
+    CPPUNIT_ASSERT( connectPorts(tp, t2 ) );
 
     testPortStats();
     testPortDisconnect();

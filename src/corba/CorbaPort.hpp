@@ -92,7 +92,7 @@ namespace RTT
                 if (tt) {
                     Expression_var expr = (Expression_ptr)tt->dataServer(conn->getDataSource(), 0);
                     AssignableExpression_var ae = AssignableExpression::_narrow( expr.in() );
-                    if (!ae.in()) {
+                    if ( CORBA::is_nil(expr.in()) || CORBA::is_nil(ae.in()) ) {
                         log(Error) << "Could not create server from "<<this->getName() <<endlog();
                         return false;
                     }
@@ -242,8 +242,10 @@ namespace RTT
             detail::TypeTransporter* tt = getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
             if (tt) {
                 BufferChannel_var bc = (BufferChannel_ptr)tt->bufferServer(buf, 0);
-                ci = new CorbaConnection( this->getName(), mdflow.in(), bc.in(), 0 );
-                ci->addPort(this);
+                if (bc.in() ) {
+                    ci = new CorbaConnection( this->getName(), mdflow.in(), bc.in(), 0 );
+                    ci->addPort(this);
+                } // else: leave ci empty.
             }
             return ci;
         }
@@ -255,9 +257,12 @@ namespace RTT
                 return ci; 
             detail::TypeTransporter* tt = getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
             if (tt) {
-                AssignableExpression_var ae = (AssignableExpression_ptr)tt->dataServer(data, 0);
-                ci = new CorbaConnection( this->getName(), mdflow.in(), ae.in(), 0 );
-                ci->addPort(this);
+                Expression_var ex = (Expression_ptr)tt->dataServer(data, 0);
+                AssignableExpression_var ae = AssignableExpression::_narrow( ex.in() );
+                if ( !CORBA::is_nil(ae.in()) ) {
+                    ci = new CorbaConnection( this->getName(), mdflow.in(), ae.in(), 0 );
+                    ci->addPort(this);
+                } // else: leave ci empty.
             }
             return ci;
         }
