@@ -96,6 +96,7 @@ namespace RTT
     ControlTaskProxy::ControlTaskProxy(std::string name, bool is_ior) 
         : TaskContext("NotFound") 
     {
+        Logger::In in("ControlTaskProxy");
         this->clear();
         try {
             if (is_ior) {
@@ -151,6 +152,7 @@ namespace RTT
     ControlTaskProxy::ControlTaskProxy( ::RTT::Corba::ControlTask_ptr taskc) 
         : TaskContext("CORBAProxy"), mtask( Corba::ControlTask::_duplicate(taskc) )
     {
+        Logger::In in("ControlTaskProxy");
         this->clear();
         try {
             CORBA::String_var nm = mtask->getName(); // force connect to object.
