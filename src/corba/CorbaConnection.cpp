@@ -68,6 +68,7 @@ namespace RTT
                     return ret; // full conversion succesful.
                 return ds;      // return proxy (basic functionality).
             }
+            assert( tt && "CORBA should always return a fallback protocol!");
             return DataSourceBase::shared_ptr();
 
         }
@@ -82,6 +83,7 @@ namespace RTT
                     return BufferBase::shared_ptr( tt->bufferProxy( (void*) mbufchannel.in() ) );
                 return BufferBase::shared_ptr( tt->bufferProxy( mdflow->createBufferChannel(mname.c_str() ) ) );
             }
+            assert( tt && "CORBA should always return a fallback protocol!");
             return BufferBase::shared_ptr();
         }
         bool CorbaConnection::connect()

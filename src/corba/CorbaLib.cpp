@@ -111,12 +111,14 @@ namespace RTT {
              */
             virtual DataSourceBase* dataProxy( PortInterface* data ) const {
                 log(Warning) << "Can not create a proxy for data connection of remote port "<<data->getName() <<endlog();
-                return 0; // ConnectionFactory checks for this, you should too !
+                Corba::CorbaPort* cp = dynamic_cast<Corba::CorbaPort*>( data );
+                return new Corba::CorbaDataObjectProxy<detail::UnknownType>("CorbaProxy", cp->getDataChannel());
             }
 
             virtual DataSourceBase* dataProxy( void* data ) const {
                 log(Warning) << "Can not create a proxy for data connection." <<endlog();
-                return 0; // ConnectionFactory checks for this, you should too !
+                Corba::AssignableExpression_ptr ae = static_cast<Corba::AssignableExpression_ptr>(data);
+                return new Corba::CorbaDataObjectProxy<detail::UnknownType>("CorbaProxy", ae );
             }
 
             virtual void* dataServer( DataSourceBase::shared_ptr source, void* arg) const {
@@ -129,12 +131,14 @@ namespace RTT {
              */
             virtual BufferBase* bufferProxy( PortInterface* data ) const {
                 log(Warning) << "Can not create a proxy for buffer connection of remote port "<<data->getName() <<endlog();
-                return 0; // ConnectionFactory checks for this, you should too !
+                Corba::CorbaPort* cp = dynamic_cast<Corba::CorbaPort*>( data );
+                return new Corba::CorbaBufferProxy<detail::UnknownType>( cp->getBufferChannel() );
             }
 
             virtual BufferBase* bufferProxy( void* data ) const {
                 log(Warning) << "Can not create a proxy for buffer connection." <<endlog();
-                return 0; // ConnectionFactory checks for this, you should too !
+                Corba::BufferChannel_ptr buf = static_cast<Corba::BufferChannel_ptr>(data);
+                return new Corba::CorbaBufferProxy<detail::UnknownType>( buf );
             }
 
             virtual void* bufferServer( BufferBase::shared_ptr source, void* arg) const 
