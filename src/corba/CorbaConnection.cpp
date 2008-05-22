@@ -86,6 +86,7 @@ namespace RTT
         }
         bool CorbaConnection::connect()
         {
+            this->mconnected = true;
             if (lcc)
                 return lcc->connect();
             return true;
@@ -100,6 +101,7 @@ namespace RTT
 
         bool CorbaConnection::disconnect()
         {
+            this->mconnected = false;
             if (lcc)
                 return lcc->disconnect();
             return true;
@@ -116,7 +118,7 @@ namespace RTT
         bool CorbaConnection::removePort(PortInterface* r)
         {
             if (!lcc)
-                return this->createConnection(r);
+                return ConnectionInterface::removePort(r);
             else
                 return lcc->removePort(r);
         }
@@ -149,8 +151,11 @@ namespace RTT
                 log(Debug) << "Using scndry port to create bufferconnection."<<endlog();
                 lcc = p->createConnection( impl );
                 assert(lcc);
+                lcc->addPort(p);
                 for ( PList::iterator it( ports.begin() ); it != ports.end(); ++it)
                     lcc->addPort(*it);
+                if ( mdflow->isConnected( mname.c_str() ) )
+                    return lcc->connect();
                 return true;
             }
             DataSourceBase::shared_ptr ds = getDataSource();
@@ -158,11 +163,16 @@ namespace RTT
                 log(Debug) << "Using scndry port to create dataconnection."<<endlog();
                 lcc = p->createConnection( ds );
                 assert(lcc);
+                lcc->addPort(p);
                 for ( PList::iterator it( ports.begin() ); it != ports.end(); ++it)
                     lcc->addPort(*it);
+                if ( mdflow->isConnected( mname.c_str() ) )
+                    return lcc->connect();
                 return true;
             }
-            return false;
+            // failed to create: store port for later adding.
+            ConnectionInterface::addPort( p ); 
+            return true;
         }
         
         const TypeInfo* CorbaConnection::getTypeInfo() const {
