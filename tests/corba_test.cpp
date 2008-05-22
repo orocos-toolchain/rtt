@@ -35,6 +35,7 @@ CorbaTest::setUp()
 {
     // connect DataPorts
     md1 = new DataPort<double>("md", 1.0);
+    md1bis = new DataPort<double>("mdbis", 2.0); // a free port.
     md2 = new DataPort<double>("md", -1.0);
     // connect Write to Read ports (connection direction testing)
     mdr1 = new ReadDataPort<double>("mdrwA");
@@ -51,6 +52,7 @@ CorbaTest::setUp()
     t2 = new TaskContext("other");
 
     tc->ports()->addPort( md1 );
+    tc->ports()->addPort( md1bis );
     t2->ports()->addPort( md2 );
     tc->ports()->addPort( mdr1 );
     t2->ports()->addPort( mdr2 );
@@ -302,41 +304,108 @@ void CorbaTest::testConnectPortsIDL()
     testPortDisconnect();
 }
 
-void CorbaTest::testConnectPorts()
+void CorbaTest::testConnectPortsLR()
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
     tp = Corba::ControlTaskProxy::Create( ts->server() );
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
     tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
-    
-    // The tests expect the default direction is from ts (tc) to ts2 (t2), but it will also need to
-    // connect ports from ts2 to ts when ts is reader and ts2 is writer.
-    CPPUNIT_ASSERT( connectPorts(tp, tp2 ) ); // fails on !md2.connected();
-    //CPPUNIT_ASSERT( connectPorts(tc, tp2 ) ); // works
-    //CPPUNIT_ASSERT( connectPorts(tp, t2 ) ); // works
+
+    CPPUNIT_ASSERT( connectPorts(tc, tp2 ) ); 
 
     testPortStats();
     testPortDisconnect();
 
-    tc->disconnect();
-    t2->disconnect();
-
-    CPPUNIT_ASSERT( connectPorts(tc, tp2 ) );
-
-    testPortStats();
-    testPortDisconnect();
-
-    tc->disconnect();
-    t2->disconnect();
-
-    CPPUNIT_ASSERT( connectPorts(tp, t2 ) );
-
-    testPortStats();
-    testPortDisconnect();
 }
+void CorbaTest::testConnectPortsRL()
+{
+    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
+    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+
+    CPPUNIT_ASSERT( connectPorts(tp, t2 ) ); 
+
+    testPortStats();
+    testPortDisconnect();
+
+}
+
+void CorbaTest::testConnectPortsRR()
+{
+    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
+    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+
+    CPPUNIT_ASSERT( connectPorts(tp, tp2 ) ); 
+
+    testPortStats();
+    testPortDisconnect();
+
+}
+
+void CorbaTest::testConnectPortsLRC()
+{
+    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
+    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+
+    // test connecting to existing connection:
+    ConnectionInterface::shared_ptr ci = md1->createConnection(ConnectionTypes::lockfree);
+    CPPUNIT_ASSERT( md1->connectTo(ci) );
+    CPPUNIT_ASSERT( ci->connect() );
+
+    CPPUNIT_ASSERT( connectPorts(tc, tp2 ) ); 
+
+    testPortStats();
+    testPortDisconnect();
+
+}
+void CorbaTest::testConnectPortsRLC()
+{
+    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
+    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+
+    // test connecting to existing connection:
+    ConnectionInterface::shared_ptr ci = md1->createConnection(ConnectionTypes::lockfree);
+    CPPUNIT_ASSERT( md1->connectTo(ci) );
+    CPPUNIT_ASSERT( ci->connect() );
+
+    CPPUNIT_ASSERT( connectPorts(tp, t2 ) ); 
+
+    testPortStats();
+    testPortDisconnect();
+
+}
+
+void CorbaTest::testConnectPortsRRC()
+{
+    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
+    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+
+    // test connecting to existing connection:
+    ConnectionInterface::shared_ptr ci = md1->createConnection(ConnectionTypes::lockfree);
+    CPPUNIT_ASSERT( md1->connectTo(ci) );
+    CPPUNIT_ASSERT( ci->connect() );
+
+    CPPUNIT_ASSERT( connectPorts(tp, tp2 ) ); 
+
+    testPortStats();
+    testPortDisconnect();
+
+}
+
 
 void CorbaTest::testPortStats()
 {
+    // ALWAYS connect from tc/tp TO t2/tp2 
+    // The test assumes the connection direction is tc->t2.
     // Tests if ports are correctly working, this test is called by the other test functions.
     // DATA PORTS
     // Check if connection succeeded both ways:

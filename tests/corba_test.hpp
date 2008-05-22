@@ -22,7 +22,12 @@ class CorbaTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testAnyMethod );
     CPPUNIT_TEST( testPorts );
     CPPUNIT_TEST( testConnectPortsIDL );
-    CPPUNIT_TEST( testConnectPorts );
+    CPPUNIT_TEST( testConnectPortsRL );
+    CPPUNIT_TEST( testConnectPortsLR );
+    CPPUNIT_TEST( testConnectPortsRR );
+    CPPUNIT_TEST( testConnectPortsLRC );
+    CPPUNIT_TEST( testConnectPortsRLC );
+    CPPUNIT_TEST( testConnectPortsRRC );
     CPPUNIT_TEST( testConnections );
     CPPUNIT_TEST( cleanupCorba );
     
@@ -38,6 +43,7 @@ class CorbaTest : public CppUnit::TestFixture
     
     // Ports
     DataPort<double>* md1;
+    DataPort<double>* md1bis;
     DataPort<double>* md2;
     ReadDataPort<double>* mdr1;
     ReadDataPort<double>* mdr2;
@@ -82,7 +88,12 @@ public:
 
     void testPorts();
     void testConnectPortsIDL();
-    void testConnectPorts();
+    void testConnectPortsRL();
+    void testConnectPortsLR();
+    void testConnectPortsRR();
+    void testConnectPortsRLC();
+    void testConnectPortsLRC();
+    void testConnectPortsRRC();
     void testConnections();
 
     // helper test functions
