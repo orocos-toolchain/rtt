@@ -134,7 +134,7 @@ namespace RTT
 //     std::cerr << "ValueParser: seenvar : "<< name
 //               <<" is bag : " << (propparser.bag() != 0) << " is prop: "<< (propparser.property() != 0) << std::endl;
     // in case our task is a taskcontext:
-    if ( task == peer && propparser.bag() && propparser.property() ) {
+    if ( task == 0 && propparser.bag() && propparser.property() ) {
         // nested property case :
         if ( ! propparser.bag()->find( name ) ) {
             //             std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
@@ -146,7 +146,7 @@ namespace RTT
     }
 
     // non-nested property or attribute case :
-    if ( task->attributes()->hasAttribute( name ) ) {
+    if ( task && task->attributes()->hasAttribute( name ) ) {
       ret = task->attributes()->getValue(name)->getDataSource();
       return;
     }
@@ -158,7 +158,7 @@ namespace RTT
     //    std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
 //         peerparser.peer()->debug(true);
 //         peer->debug(true);
-    throw_(begin, "Value " + name + " not defined in "+ task->getName()+".");
+    throw_(begin, "Value " + name + " not defined in "+ peer->getName()+".");
     //      throw parse_exception_undefined_value( name );
   }
 

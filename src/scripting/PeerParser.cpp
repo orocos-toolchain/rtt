@@ -178,6 +178,7 @@ namespace RTT
             // do not consume it though.
             //cout << std::string(begin, end +10)<<endl;
             mlastobject = name;
+            mcurobject = 0;
             throw_(begin, peer_not_found );
         }
     }

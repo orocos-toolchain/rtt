@@ -64,7 +64,7 @@ namespace RTT
       : mas_action( as_action ),
         dcom(0), retcommand( 0 ),
         implicittermcondition( 0 ), peer(0), context( c ),
-        argsparser( 0 ), expressionparser( c ), peerparser( c )
+        argsparser( 0 ), expressionparser( c ), peerparser( c, true )
   {
     BOOST_SPIRIT_DEBUG_RULE( objectmethod );
     BOOST_SPIRIT_DEBUG_RULE( callcommand );
