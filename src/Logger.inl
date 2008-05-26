@@ -103,10 +103,6 @@ namespace RTT
         return *this;
     }
 
-    inline Logger& Logger::operator<<( const std::string& ) {
-        return *this;
-    }
-
     inline Logger& Logger::operator<<(LogLevel) {
         return *this;
     }

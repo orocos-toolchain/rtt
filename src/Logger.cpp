@@ -553,7 +553,7 @@ namespace RTT
 
 #else // OROBLD_DISABLE_LOGGING
 
-    Logger::Logger()
+    Logger::Logger(std::ostream& )
         : d(0)
     {
     }
