@@ -21,7 +21,10 @@
 #include "logger_test.hpp"
 #include <unistd.h>
 #include <iostream>
+#include <boost/scoped_ptr.hpp>
+#include "os/PeriodicThread.hpp"
 
+using namespace boost;
 using namespace std;
 
 // Registers the fixture into the 'registry'
@@ -77,3 +80,37 @@ void LoggerTest::testNewLog()
     log() << "Test Log Environment variable : flush" << flushlog();
     log() << " and std::endl." << std::endl;
 }
+
+struct TestLog
+  : public RTT::OS::RunnableInterface
+{
+  bool fini;
+  bool initialize() { fini = false; return true; }
+
+  void step() {
+      Logger::In in("TLOG");
+      log(Info) << "Hello this is the world speaking elaborately and lengthy...!" <<endlog();
+  }
+
+  void finalize() {
+    fini = true;
+  }
+};
+
+void LoggerTest::testThreadLog()
+{
+  boost::scoped_ptr<TestLog> run( new TestLog() );
+  boost::scoped_ptr<RTT::OS::ThreadInterface> t( new RTT::OS::PeriodicThread(25,"ORThread", 0.001) );
+  boost::scoped_ptr<TestLog> run2( new TestLog() );
+  boost::scoped_ptr<RTT::OS::ThreadInterface> t2( new RTT::OS::PeriodicThread(25,"ORThread", 0.001) );
+
+  t->run( run.get() );
+  t2->run( run2.get() );
+
+  t->start();
+  t2->start();
+  sleep(1);
+  t->stop();
+  t2->stop();
+
+}    
