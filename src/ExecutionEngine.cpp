@@ -294,18 +294,22 @@ namespace RTT
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
         if (pproc)
             pproc->step();
+        if ( !this->getActivity()->isRunning() ) return;
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
         if (smproc)
             smproc->step();
+        if ( !this->getActivity()->isRunning() ) return;
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_COMMANDS
         if (cproc)
             cproc->step();
+        if ( !this->getActivity()->isRunning() ) return;
 #endif
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
         if (eproc)
             eproc->step();
+        if ( !this->getActivity()->isRunning() ) return;
 #endif
         // only call updateHook in the Running state.
         if ( taskc ) {
@@ -319,6 +323,7 @@ namespace RTT
                 return;
             }
         }
+        if ( !this->getActivity()->isRunning() ) return;
 
         // call all children as well.
         for (std::vector<TaskCore*>::iterator it = children.begin(); it != children.end();++it) {
@@ -331,6 +336,7 @@ namespace RTT
                 this->getActivity()->stop(); // calls finalize()
                 return;
             }
+            if ( !this->getActivity()->isRunning() ) return;
         }
     }
 

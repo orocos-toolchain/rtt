@@ -168,6 +168,12 @@ struct TestSelfRemove
         fini = false;
         return true;
     }
+    bool breakLoop() {
+        return true;
+    }
+    void loop() {
+        this->getActivity()->stop();
+    }
     void step() {
         ++c;
         if (c == 5)
@@ -290,11 +296,19 @@ void ActivitiesTest::testNonPeriodic()
 
 void ActivitiesTest::testSelfRemove()
 {
+    scoped_ptr<TestSelfRemove> t_run_int_nonper
+        ( new TestSelfRemove() );
+    scoped_ptr<NonPeriodicActivity> t_task_nonper
+        ( new NonPeriodicActivity( 14 ) );
+    CPPUNIT_ASSERT( t_task_nonper->run( t_run_int_nonper.get() ) );
+    CPPUNIT_ASSERT( t_task_nonper->start() );
     CPPUNIT_ASSERT( t_task_prio->run(t_self_remove) );
     CPPUNIT_ASSERT( t_task_prio->start() );
     sleep(1);
     CPPUNIT_ASSERT( !t_task_prio->isRunning() );
     CPPUNIT_ASSERT( t_self_remove->fini );
+    CPPUNIT_ASSERT( !t_task_nonper->isRunning() );
+    CPPUNIT_ASSERT( t_run_int_nonper->fini );
 }
 
 void ActivitiesTest::testStartStop()

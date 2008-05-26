@@ -311,6 +311,7 @@ namespace RTT
             runloop = false;
             if ( inloop ) { 
                 if ( !this->breakLoop() ) {
+                    log(Warning) << "Failed to stop thread " << this->getName() << ": breakLoop() returned false."<<endlog();
                     runloop = true;
                     return false;
                 }
@@ -320,7 +321,7 @@ namespace RTT
             MutexLock lock(breaker);
         }
 
-        // from this point on, inloop == false
+        // from this point on, inloop == false, unless self called stop()
 
         this->finalize();
         active = false;

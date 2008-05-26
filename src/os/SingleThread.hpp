@@ -227,7 +227,7 @@ namespace RTT
         /**
          * Used to implement synchronising breakLoop().
          */
-        Mutex breaker;
+        MutexRecursive breaker;
 
 #ifdef OROPKG_OS_THREAD_SCOPE
 	// Pointer to Threadscope device
