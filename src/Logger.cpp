@@ -272,7 +272,8 @@ namespace RTT
 
         std::string showModule() const
         {
-            return "["+std::string(moduleptr)+"]";
+            // moduleptr is protected by lock in logIt()
+            return "["+moduleptr+"]";
         }
 
         bool started;
@@ -367,7 +368,9 @@ namespace RTT
     }
 
     std::string Logger::getLogModule() const {
-        return d->moduleptr;
+        OS::MutexLock lock( d->inpguard );
+        std::string ret = d->moduleptr;
+        return ret;
     }
 
 
