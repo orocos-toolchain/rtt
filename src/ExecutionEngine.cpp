@@ -66,10 +66,11 @@ namespace RTT
         if (taskc)
             Logger::log() << Logger::Debug << "Destroying ExecutionEngine of "+taskc->getName()<<Logger::endl;
 
-        delete cproc;
-        delete pproc;
+        // this order is fragile, so don't change it !
         delete smproc;
+        delete pproc;
         delete eproc;
+        delete cproc;
 
         // make a copy to avoid call-back troubles:
         std::vector<TaskCore*> copy = children;
