@@ -298,9 +298,9 @@ namespace RTT
         TypeInfoRepository::shared_ptr ti = TypeInfoRepository::Instance();
 
 #ifndef ORO_EMBEDDED
+        ti->type("array")->addConstructor( new ArrayBuilder() ); // var number of args
         ti->type("array")->addConstructor( newConstructor( array_ctor() ) );
         ti->type("array")->addConstructor( newConstructor( array_ctor2() ) );
-        ti->type("array")->addConstructor( new ArrayBuilder() ); // var number of args
         ti->type("double")->addConstructor( newConstructor( &float_to_double, true ));
         ti->type("double")->addConstructor( newConstructor( &int_to_double, true ));
         ti->type("float")->addConstructor( newConstructor( &int_to_float, true ));
