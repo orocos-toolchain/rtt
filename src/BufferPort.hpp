@@ -52,7 +52,7 @@ namespace RTT
         : public PortInterface
     {
     protected:
-        typename BufferConnection<T>::shared_ptr mconn;
+        mutable typename BufferConnection<T>::shared_ptr mconn;
 
         /**
          * Connect a readable buffer to this Port.
@@ -87,7 +87,7 @@ namespace RTT
                     return mconn->buffer()->clear();
 #ifndef ORO_EMBEDDED
             } catch (...) {
-                this->disconnect();
+                mconn = 0;
             }
 #endif
         }
@@ -97,7 +97,7 @@ namespace RTT
          * buffer.
          * @return number of items.
          */
-        BufferBase::size_type size() {
+        BufferBase::size_type size() const {
 #ifndef ORO_EMBEDDED            
             try {
 #endif
@@ -105,7 +105,7 @@ namespace RTT
                     return mconn->buffer()->size();
 #ifndef ORO_EMBEDDED
             } catch (...) {
-                this->disconnect();
+                mconn = 0;
             }
 #endif
             return 0;
@@ -116,7 +116,7 @@ namespace RTT
          * buffer.
          * @return maximum number of items.
          */
-        BufferBase::size_type capacity() {
+        BufferBase::size_type capacity() const {
 #ifndef ORO_EMBEDDED            
             try {
 #endif
@@ -124,7 +124,7 @@ namespace RTT
                     return mconn->buffer()->capacity();
 #ifndef ORO_EMBEDDED
             } catch (...) {
-                this->disconnect();
+                mconn = 0;
             }
 #endif
             return 0;
@@ -134,7 +134,7 @@ namespace RTT
          * Check if this buffer is empty.
          * @return true if size() == 0
          */
-        bool empty() {
+        bool empty() const {
 #ifndef ORO_EMBEDDED            
             try {
 #endif
@@ -142,7 +142,7 @@ namespace RTT
                     return mconn->buffer()->empty();
 #ifndef ORO_EMBEDDED
             } catch (...) {
-                this->disconnect();
+                mconn = 0;
             }
 #endif
             return true;
@@ -152,7 +152,7 @@ namespace RTT
          * Check if this buffer is full.
          * @return true if size() == capacity()
          */
-        bool full() {
+        bool full() const {
 #ifndef ORO_EMBEDDED
             try {
 #endif
@@ -160,7 +160,7 @@ namespace RTT
                     return mconn->buffer()->full();
 #ifndef ORO_EMBEDDED
             } catch (...) {
-                this->disconnect();
+                mconn = 0;
             }
 #endif
             return false;
@@ -262,7 +262,7 @@ namespace RTT
                     return mconn->buffer()->Pop(data);
 #ifndef ORO_EMBEDDED
             } catch (...) {
-                this->disconnect();
+                mconn = 0;
             }
 #endif
             return false;
@@ -272,7 +272,7 @@ namespace RTT
          * Get the next value to be Pop()'ed, or
          * the default value if empty.
          */
-        T front() {
+        T front() const {
 #ifndef ORO_EMBEDDED
             try {
 #endif
@@ -280,7 +280,7 @@ namespace RTT
                     return mconn->buffer()->front();
 #ifndef ORO_EMBEDDED
             } catch (...) {
-                this->disconnect();
+                mconn = 0;
             }
 #endif
             return T();
@@ -363,7 +363,7 @@ namespace RTT
                     return mconn->buffer()->Push(data);
 #ifndef ORO_EMBEDDED
             } catch (...) {
-                this->disconnect();
+                mconn = 0;
             }
 #endif
             return false;
@@ -458,7 +458,7 @@ namespace RTT
                     return mconn->buffer()->Pop(data);
 #ifndef ORO_EMBEDDED
             } catch (...) {
-                this->disconnect();
+                mconn = 0;
             }
 #endif
             return false;
@@ -468,7 +468,7 @@ namespace RTT
          * Get the next value to be Pop()'ed, or
          * the default value if empty.
          */
-        T front() {
+        T front() const {
 #ifndef ORO_EMBEDDED
             try {
 #endif
@@ -476,7 +476,7 @@ namespace RTT
                     return mconn->buffer()->front();
 #ifndef ORO_EMBEDDED
             } catch (...) {
-                this->disconnect();
+                mconn = 0;
             }
 #endif
             return T();
@@ -497,7 +497,7 @@ namespace RTT
                     return mconn->buffer()->Push(data);
 #ifndef ORO_EMBEDDED
             } catch (...) {
-                this->disconnect();
+                mconn = 0;
             }
 #endif
             return false;

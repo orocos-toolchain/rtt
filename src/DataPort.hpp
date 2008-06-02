@@ -116,7 +116,7 @@ namespace RTT
         /**
          * The connection to read from.
          */
-        typename DataConnection<T>::shared_ptr mconn;
+        mutable typename DataConnection<T>::shared_ptr mconn;
     };
 
     /**
@@ -146,7 +146,7 @@ namespace RTT
          * @retval this->data()->Get() if this->connected()
          * @retval T() if !this->connected()
          */
-        T Get()
+        T Get() const
         {
 #ifndef ORO_EMBEDDED            
             try {
@@ -155,7 +155,7 @@ namespace RTT
                     return mconn->data()->Get();
 #ifndef ORO_EMBEDDED
             } catch (...) {
-                this->disconnect();
+                mconn = 0;
             }
 #endif
             return T();
@@ -176,7 +176,7 @@ namespace RTT
                     return mconn->data()->Get(result);
 #ifndef ORO_EMBEDDED
             } catch (...) {
-                this->disconnect();
+                mconn = 0;
             }
 #endif
         }
@@ -191,7 +191,7 @@ namespace RTT
 
         virtual TaskObject* createPortObject() {
 #ifndef ORO_EMBEDDED
-            typedef T (ReadDataPort<T>::*GetType)(void);
+            typedef T (ReadDataPort<T>::*GetType)(void) const;
             GetType get_type = &ReadDataPort<T>::Get;
             TaskObject* to = new TaskObject( this->getName() );
             to->methods()->addMethod( method("ready",&PortInterface::ready, this),
@@ -247,7 +247,7 @@ namespace RTT
                     return mconn->data()->Set(data);
 #ifndef ORO_EMBEDDED
             } catch (...) {
-                this->disconnect();
+                mconn = 0;
             }
 #endif
             minitial_value = data;
@@ -325,7 +325,7 @@ namespace RTT
                     return mconn->data()->Set(data);
 #ifndef ORO_EMBEDDED
             } catch (...) {
-                this->disconnect();
+                mconn = 0;
             }
 #endif
             minitial_value = data;
@@ -337,7 +337,7 @@ namespace RTT
          * @retval this->data()->Get() if this->connected()
          * @retval initial_value if !this->connected()
          */
-        DataType Get()
+        DataType Get() const
         {
 #ifndef ORO_EMBEDDED            
             try {
@@ -346,7 +346,7 @@ namespace RTT
                     return mconn->data()->Get();
 #ifndef ORO_EMBEDDED
             } catch (...) {
-                this->disconnect();
+                mconn = 0;
             }
 #endif
             return minitial_value;
@@ -368,7 +368,7 @@ namespace RTT
                     return mconn->data()->Get(result);
 #ifndef ORO_EMBEDDED
             } catch (...) {
-                this->disconnect();
+                mconn = 0;
             }
 #endif
             result = minitial_value;
@@ -386,7 +386,7 @@ namespace RTT
 
         virtual TaskObject* createPortObject() {
 #ifndef ORO_EMBEDDED
-            typedef T (DataPort<T>::*GetType)(void);
+            typedef T (DataPort<T>::*GetType)(void) const;
             GetType get_type = &DataPort<T>::Get;
             TaskObject* to = new TaskObject( this->getName() );
             to->methods()->addMethod( method("ready",&PortInterface::ready, this),
