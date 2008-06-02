@@ -172,22 +172,27 @@ namespace RTT
 	INTERNAL_QUAL int rtos_task_wait_period( RTOS_TASK* task )
 	{
 	    if ( task->period == 0 )
-		return 0;
+            return 0;
       
 	    //rtos_printf("Time is %lld nsec, Mark is %lld nsec.\n",rtos_get_time_ns(), task->periodMark );
 	    // CALCULATE in nsecs
 	    NANO_TIME timeRemaining = task->periodMark - rtos_get_time_ns();
+	    // set next wake-up time :
+	    task->periodMark += task->period;
+
+        // XXX Racecondition bug:
+        // if interrupted by another thread here, we will nanosleep to long !
+        // is there a better Linux API??
 
 	    if ( timeRemaining > 0 ) {
-		//rtos_printf("Waiting for %lld nsec\n",timeRemaining);
-		TIME_SPEC ts( ticks2timespec( timeRemaining ) );
-		rtos_nanosleep( &ts , NULL );
+            //rtos_printf("Waiting for %lld nsec\n",timeRemaining);
+            TIME_SPEC ts( ticks2timespec( timeRemaining ) );
+            // see nanosleep man page for this construct:
+            while ( rtos_nanosleep( &ts , &ts ) == -1 && errno == EINTR ) {
+                errno = 0;
+            }
+            return 0;
 	    }
-	    //             else
-	    //                 rtos_printf( "GNULinux task did not get deadline !\n" );
-
-	    // next wake-up time :
-	    task->periodMark += task->period;
 
 	    return 0;
 	}
