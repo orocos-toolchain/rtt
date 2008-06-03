@@ -79,6 +79,7 @@ void TypesTest::testTypes()
     // for some reason, we can not compare the double6D's one fails
     // to parse, the others assert false, thus inequality.
     string test = 
+        // Line 2:
         string("var int i2 = -1, j = 10, k; set k = 20\n") +
         "do test.assert( i2 == -1 ) ; do test.assert( j == 10 ); do test.assert(k == 20)\n" +
         "var double d = 10.0\n"+
@@ -95,9 +96,9 @@ void TypesTest::testTypes()
         "do test.assert( bc == false )\n" +
         "const string sc= \"hello\"\n"+
         "do test.assert( sc == \"hello\" )\n" +
-        "var array ar(10)\n"+
+        "var array ar(10)\n"+ // size hint syntax != constructor syntax 
         "set ar[0] = 0.0\n"+
-        // 40
+        // 20:
         "set ar[1] = 1.0\n"+
         "set ar[2] = 0.2\n"+
         "set ar[8] = 0.8\n"+
@@ -108,7 +109,7 @@ void TypesTest::testTypes()
         "do test.assert( ar[8] == 0.8 )\n"+
         "do test.assert( ar[9] == 9.0 )\n"+
         "do test.assert( ar[10] == 0.0 )\n"+
-        // 50
+        // 30:
         "var string str(10) = \"hello\"\n"+
         "set str[0] = 'a'\n"+
         "set str[1] = 'b'\n"+
@@ -119,9 +120,22 @@ void TypesTest::testTypes()
         "do test.assert( str == \"abclo\" )\n"+
         "do test.assert( str[20] == '\\0' )\n"+
         "do test.assert( str[8] == '\\0' )\n"+
-        // 60
+        // 40:
         "do test.assert( str[9] == '\\0' )\n"+
-        "do test.assert( str[10] == '\\0' )\n";
+        "do test.assert( str[10] == '\\0' )\n"+
+        // various array constructors
+        "var array ar2 = array(10.,5.)\n"+
+        "do test.assert( ar2[0] == 10.0 )\n"+
+        "do test.assert( ar2[1] == 5.0 )\n"+
+        "var array ar3 = array(10.)\n"+
+        "do test.assert( ar3[0] == 10.0 )\n"+
+        "var array ar4 = array(2, 7.)\n"+
+        "do test.assert( ar4[0] == 7.0 )\n"+
+        "do test.assert( ar4[1] == 7.0 )\n"+
+        // various array assignments
+        "set ar2 = ar4\n"+
+        "do test.assert( ar2[0] == 7.0 )\n"+
+        "do test.assert( ar2[1] == 7.0 )\n";
 
     string state = string("StateMachine X { initial state Init { run {\n")
         +test
