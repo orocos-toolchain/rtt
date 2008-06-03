@@ -342,8 +342,8 @@ namespace RTT
     {
         bool operator()(const T& v1, const T& v2) const
         {
-            // v1 may be assigned to v2 if it has sufficient capacity.
-            return v1.capacity() < v2.size();
+            // v2 may be assigned to v1 if it has sufficient capacity.
+            return v1.capacity() >= v2.size();
         }
     };
 
