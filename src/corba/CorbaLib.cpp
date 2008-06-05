@@ -206,29 +206,23 @@ namespace RTT {
             }
 
         } CorbaLibRegistrator;
-    };
-}
 
-namespace RTT 
-{
-    class TaskContext;
-}
-using namespace RTT;
-using namespace RTT::Corba;
+        /**
+         * This struct has the sole purpose of invoking
+         * the Import function.
+         */
+        int loadCorbaLib()
+        {
+            log(Info) << "Loading CorbaLib in RTT type system." <<endlog();
+            TypeInfoRepository::Instance()->registerTransport( &CorbaLibRegistrator );
+            // register fallback.
+            DataSourceTypeInfo<UnknownType>::getTypeInfo()->addProtocol( ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol() );
+            return 0;
+        }
 
-extern "C"{
-    /**
-     * This struct has the sole purpose of invoking
-     * the Import function.
-     */
-    bool loadRTTPlugin(RTT::TaskContext*)
-    {
-        log(Info) << "Loading CorbaLib in RTT type system." <<endlog();
-        TypeInfoRepository::Instance()->registerTransport( &CorbaLibRegistrator );
-        // register fallback.
-        DataSourceTypeInfo<UnknownType>::getTypeInfo()->addProtocol( ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol() );
-        return true;
+        OS::InitFunction CorbaLoader( &loadCorbaLib );
     }
+
     
 }
 
