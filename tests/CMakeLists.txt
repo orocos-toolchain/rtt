@@ -1,4 +1,4 @@
-
+IF (ENABLE_TESTS)
     # See ADD_TEST() below.
     ENABLE_TESTING()
     SET(COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")
@@ -83,8 +83,9 @@
       SET(ORO_EXTRA_TESTS "corba-test")
     ENDIF(ENABLE_CORBA)
 
-ADD_CUSTOM_TARGET(check ctest -V 
-  DEPENDS core-test task-test event-test taskcontext-test parser-test program-test state-test dev-test ${ORO_EXTRA_TESTS}
-  WORKING_DIRECTORY ${PROJ_BINARY_DIR}/tests)
+    ADD_CUSTOM_TARGET(check ctest -V 
+      DEPENDS core-test task-test event-test taskcontext-test parser-test program-test state-test dev-test ${ORO_EXTRA_TESTS}
+      WORKING_DIRECTORY ${PROJ_BINARY_DIR}/tests)
 
-ADD_DEPENDENCIES(check prep-cpf)
+    ADD_DEPENDENCIES(check prep-cpf)
+ENDIF(ENABLE_TESTS)
