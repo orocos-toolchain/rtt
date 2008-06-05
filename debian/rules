@@ -14,7 +14,7 @@
 # from having to guess our platform (since we know it already)
 DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
-
+DEB_BUILD_GNU_CPU ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_CPU)
 
 #CFLAGS = -Wall -g
 CFLAGS = -Wall
@@ -32,46 +32,77 @@ endif
 version=`find . -name liborocos-rtt.*.so.* | head -1 | awk '{if (match($$0,/[0-9]+\.[0-9]+\.[0-9]+$$/)) print substr($$0,RSTART)}'`
 major=`find . -name liborocos-rtt.*.so.* | awk '{if (match($$0,/\.so\.[0-9]+$$/)) print substr($$0,RSTART+4)}'`
 
-configure: configure-stamp
-configure-stamp:
-	dh_testdir
-# Add here commands to configure the package.
-# LDFLAGS="-Wl,-z,defs"
-	mkdir -p build.lxrt
-	cd build.lxrt; \
-	unset ACE_ROOT TAO_ROOT; CXXFLAGS="$(CFLAGS)" ../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --enable-corba --enable-static --with-lxrt=/usr/realtime
+ifeq (${DEB_BUILD_GNU_CPU},x86_64)
+configure: configure-gnulinux 
+else
+configure: configure-gnulinux configure-lxrt configure-xenomai
+endif
 
+configure-gnulinux: configure-gnulinux-stamp
+
+configure-lxrt: configure-lxrt-stamp
+
+configure-xenomai: configure-xenomai-stamp
+
+configure-gnulinux-stamp:
+	dh_testdir
 	mkdir -p build.gnulinux
 	cd  build.gnulinux; \
 	unset ACE_ROOT TAO_ROOT; CXXFLAGS="$(CFLAGS)" ../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --enable-corba --enable-static --with-gnulinux
+	touch configure-gnulinux-stamp
 
+configure-lxrt-stamp:
+	dh_testdir
+	mkdir -p build.lxrt
+	cd build.lxrt; \
+	unset ACE_ROOT TAO_ROOT; CXXFLAGS="$(CFLAGS)" ../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --enable-corba --enable-static --with-lxrt=/usr/realtime
+	touch configure-stamp-lxrt
+
+configure-xenomai-stamp:
+	dh_testdir
 	mkdir -p build.xenomai
 	cd build.xenomai; \
 	unset ACE_ROOT TAO_ROOT; CXXFLAGS="$(CFLAGS)" ../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --enable-corba --enable-static --with-xenomai=/usr
-	touch configure-stamp
+	touch configure-stamp-xenomai
 
-# Keeps our makefile dependencies ok:
-#	mkdir -p build
-#	touch build/Makefile
+ifeq (${DEB_BUILD_GNU_CPU},x86_64)
+build: build-gnulinux 
+else
+build: build-gnulinux build-lxrt build-xenomai
+endif
 
-build: build-stamp
-build-stamp: configure-stamp
+build-gnulinux: build-gnulinux-stamp
+
+build-gnulinux-stamp: configure-gnulinux-stamp
 	dh_testdir
-
-# Add here commands to compile the package.
-	cd build.lxrt; $(MAKE) idl ;$(MAKE) $(MAKE_FLAGS); 
 	cd build.gnulinux; $(MAKE) idl ;$(MAKE) $(MAKE_FLAGS); # $(MAKE) docapi dochtml VERBOSE=1
+
+	touch build-gnulinux-stamp
+	touch $@
+
+build-lxrt: build-lxrt-stamp
+
+build-lxrt-stamp: configure-lxrt-stamp
+	dh_testdir
+	cd build.lxrt; $(MAKE) idl ;$(MAKE) $(MAKE_FLAGS); 
+
+	touch build-lxrt-stamp
+
+	touch $@
+
+build-xenomai: configure-xenomai-stamp
+	dh_testdir
 	cd build.xenomai; $(MAKE) idl ;$(MAKE) $(MAKE_FLAGS); 
 
-	touch build-stamp
+	touch build-lxrt-stamp
 
 	touch $@
 
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp
-	rm -f configure-stamp
+	rm -f build-*-stamp
+	rm -f configure-*-stamp
 
 # Add here commands to clean up after the build process.
 	-rm -rf build*
@@ -86,9 +117,14 @@ install: build
 
 # Each flavor installs in debian/tmp/flavor. Be sure to edit package.install
 # such that the flavor is stripped when building the package.
+ifeq (${DEB_BUILD_GNU_CPU},x86_64)
+	cd build.gnulinux; $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
+else
 	cd build.gnulinux; $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 	cd build.lxrt; $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 	cd build.xenomai; $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
+endif
+
 
 
 # Build architecture-independent files here.

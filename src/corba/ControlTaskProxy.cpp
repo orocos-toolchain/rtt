@@ -116,7 +116,7 @@ namespace RTT
                     log(Error) << "ControlTaskProxy could not acquire NameService."<<endlog();
                     throw IllegalServer();
                 }
-                Logger::log() <<Logger::Debug << "ControlTaskProxy found CORBA NameService."<<endlog();
+                log(Debug) << "ControlTaskProxy found CORBA NameService."<<endlog();
                 CosNaming::Name serverName;
                 serverName.length(2);
                 serverName[0].id = CORBA::string_dup("ControlTasks");
@@ -127,13 +127,13 @@ namespace RTT
                 mtask = Corba::ControlTask::_narrow (task_object.in ());
             }
             if ( CORBA::is_nil( mtask.in() ) ) {
-                Logger::log() << Logger::Error << "Failed to acquire ControlTaskServer '"+name+"'."<<endlog();
+                log(Error) << "Failed to acquire ControlTaskServer '"+name+"'."<<endlog();
                 throw IllegalServer();
             }
             CORBA::String_var nm = mtask->getName(); // force connect to object.
             std::string newname( nm.in() );
             this->mtask_name = newname;
-            Logger::log() << Logger::Info << "Successfully connected to ControlTaskServer '"+newname+"'."<<endlog();
+            log(Info) << "Successfully connected to ControlTaskServer '"+newname+"'."<<endlog();
             proxies[this] = mtask;
         }
         catch (CORBA::Exception &e) {
@@ -251,15 +251,15 @@ namespace RTT
                 // otherwise, build a property of CORBA::Any.
                 CORBA::String_var tn = as_expr->getTypeName();
                 TypeInfo* ti = TypeInfoRepository::Instance()->type( tn.in() );
-                Logger::log() <<Logger::Info << "Looking up Property " << tn.in();
+                log(Info) << "Looking up Property " << tn.in();
                 if ( ti && ti->getProtocol(ORO_CORBA_PROTOCOL_ID)) {
                     this->attributes()->addProperty( ti->buildProperty( props[i].name.in(), props[i].description.in(), 
                                                                         ti->getProtocol(ORO_CORBA_PROTOCOL_ID)->proxy( expr.in() ) ) );
-                    Logger::log() <<Logger::Info <<" found!"<<endlog();
+                    log(Info) <<" found!"<<endlog();
                 }
                 else {
                     this->attributes()->addProperty( new Property<CORBA::Any_ptr>( string(props[i].name.in()), string(props[i].description.in()), new CORBAAssignableExpression<Property<CORBA::Any_ptr>::DataSourceType>( as_expr.in() ) ) );
-                    Logger::log()  <<Logger::Info<<" not found :-("<<endlog();
+                    log(Info)<<" not found :-("<<endlog();
                 }
             }
         }
