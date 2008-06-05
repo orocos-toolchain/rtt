@@ -41,6 +41,8 @@
 #include "../fosi_internal_interface.hpp"
 #include "../../Logger.hpp"
 #include <cassert>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 #define INTERNAL_QUAL 
 
@@ -206,9 +208,16 @@ namespace RTT
     INTERNAL_QUAL int rtos_task_check_scheduler(int* scheduler)
     {
         if (*scheduler != SCHED_OTHER && geteuid() != 0 ) {
-            log(Warning) << "Lowering scheduler type to SCHED_OTHER for non-root users.." <<endlog();
-            *scheduler = SCHED_OTHER;
-            return -1;
+            // they're not root and they want a real-time priority, which _might_
+            // be acceptable if they're using pam_limits and have set the rtprio ulimit
+            // (see "/etc/security/limits.conf" and "ulimit -a")
+            struct rlimit	r;
+            if ((0 != getrlimit(RLIMIT_RTPRIO, &r)) || (0 == r.rlim_cur))
+            {
+                log(Warning) << "Lowering scheduler type to SCHED_OTHER for non-privileged users.." <<endlog();
+                *scheduler = SCHED_OTHER;
+                return -1;
+            }
         }
         if (*scheduler != SCHED_OTHER && *scheduler != SCHED_FIFO && *scheduler != SCHED_RR ) {
             log(Error) << "Unknown scheduler type." <<endlog();
@@ -241,6 +250,23 @@ namespace RTT
             if (*priority > 99){
                 log(Warning) << "Forcing priority ("<<*priority<<") of thread with !SCHED_OTHER policy to 99." <<endlog();
                 *priority = 99;
+                ret = -1;
+            }
+            // and limit them according to pam_Limits
+            struct rlimit	r;
+            if (0 == getrlimit(RLIMIT_RTPRIO, &r))
+            {
+                if (*priority > (int)r.rlim_cur)
+                {
+                    log(Warning) << "Forcing priority ("<<*priority<<") of thread with !SCHED_OTHER policy to the pam_limit of " << r.rlim_cur <<endlog();
+                    *priority = r.rlim_cur;
+                    ret = -1;
+                }
+            }
+            else
+            {
+                // this should not be possible, but do something intelligent
+                *priority = 1;
                 ret = -1;
             }
         }
