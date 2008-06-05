@@ -109,7 +109,26 @@ void TypesTest::testTypes()
         "do test.assert( ar[8] == 0.8 )\n"+
         "do test.assert( ar[9] == 9.0 )\n"+
         "do test.assert( ar[10] == 0.0 )\n"+
-        // 30:
+        //30:
+        //"var array ar1(12,2.0)\n"+
+        //"do test.assert(ar1.size == 12)\n"+
+        //"do test.assert(ar1[0] == 2.0)\n"+
+        "var array ar2 = array(5,3.0)\n"+
+        "do test.assert(ar2.size == 5)\n"+
+        "do test.assert(ar2[0] == 3.0)\n"+
+        "var array ar3(2.0,3.0,4.0)\n"+
+        "do test.assert(ar3.size == 3)\n"+
+        "do test.assert(ar3[0]==2.0)\n"+
+        "do test.assert(ar3[1]==3.0)\n"+
+        //40:
+        "do test.assert(ar3[2]==4.0)\n"+
+        "var array ar4 = array(2.0,3.0,4.0,5.0)\n"+
+        "do test.assert(ar4.size == 4)\n"+
+        "do test.assert(ar4[0]==2.0)\n"+
+        "do test.assert(ar4[1]==3.0)\n"+
+        "do test.assert(ar4[2]==4.0)\n"+
+        "do test.assert(ar4[3]==5.0)\n"+
+        // 47:
         "var string str(10) = \"hello\"\n"+
         "set str[0] = 'a'\n"+
         "set str[1] = 'b'\n"+
@@ -120,7 +139,7 @@ void TypesTest::testTypes()
         "do test.assert( str == \"abclo\" )\n"+
         "do test.assert( str[20] == '\\0' )\n"+
         "do test.assert( str[8] == '\\0' )\n"+
-        // 40:
+        // 58:
         "do test.assert( str[9] == '\\0' )\n"+
         "do test.assert( str[10] == '\\0' )\n"+
         // various array constructors
