@@ -32,10 +32,10 @@ using namespace RTT;
 class TypesTest : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( TypesTest );
-    CPPUNIT_TEST( testTypes );
+    //CPPUNIT_TEST( testTypes );
     CPPUNIT_TEST( testOperators );
-    CPPUNIT_TEST( testProperties );
-    CPPUNIT_TEST( testConversions );
+//    CPPUNIT_TEST( testProperties );
+//    CPPUNIT_TEST( testConversions );
     CPPUNIT_TEST_SUITE_END();
 
     Parser parser;

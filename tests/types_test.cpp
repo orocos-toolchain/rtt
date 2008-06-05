@@ -89,7 +89,6 @@ void TypesTest::testTypes()
         "var string s=\"string\"\n"+
         "do test.assert( s == \"string\" )\n" +
         "const int ic = i2\n" +
-        //10:
         "do test.assert( ic == 0 )\n" + // i was null at parse time !
         "const double dc = 10.0\n"+     // evaluate 10.0 at parse time
         "do test.assert( dc == 10.0 )\n" +
@@ -97,9 +96,10 @@ void TypesTest::testTypes()
         "do test.assert( bc == false )\n" +
         "const string sc= \"hello\"\n"+
         "do test.assert( sc == \"hello\" )\n" +
-        "var array ar(10)\n"+ // size hint syntax != constructor syntax 
-        "do test.assert(ar.size == 10)\n"
-        //20:
+        "var array ar(10)\n"+ // size hint syntax != constructor syntax
+        "do test.assert( ar.size == 10)\n"+
+        // 20:
+        "do test.assert( ar.capacity == 10)\n"+
         "set ar[0] = 0.0\n"+
         "set ar[1] = 1.0\n"+
         "set ar[2] = 0.2\n"+
@@ -109,20 +109,18 @@ void TypesTest::testTypes()
         "do test.assert( ar[1] == 1.0 )\n"+
         "do test.assert( ar[2] == 0.2 )\n"+
         "do test.assert( ar[8] == 0.8 )\n"+
+        // 30:
         "do test.assert( ar[9] == 9.0 )\n"+
-        //30:
         "do test.assert( ar[10] == 0.0 )\n"+
         "var array ar1(12,2.0)\n"+
         "do test.assert(ar1.size == 12)\n"+
         "do test.assert(ar1[0] == 2.0)\n"+
-        "var array ar2 = array(3,3.0)\n"+
-        "do test.assert(ar2.size == 3)\n"+
+        "var array ar2 = array(5,3.0)\n"+
+        "do test.assert(ar2.size == 5)\n"+
         "do test.assert(ar2[0] == 3.0)\n"+
-        "do test.assert(ar2[1] == 3.0)\n"+
-        "do test.assert(ar2[2] == 3.0)\n"+
         "var array ar3(2.0,3.0,4.0)\n"+
-        //40:
         "do test.assert(ar3.size == 3)\n"+
+        //40:
         "do test.assert(ar3[0]==2.0)\n"+
         "do test.assert(ar3[1]==3.0)\n"+
         "do test.assert(ar3[2]==4.0)\n"+
@@ -132,29 +130,48 @@ void TypesTest::testTypes()
         "do test.assert(ar4[1]==3.0)\n"+
         "do test.assert(ar4[2]==4.0)\n"+
         "do test.assert(ar4[3]==5.0)\n"+
-        //50:
         "var string str(10) = \"hello\"\n"+
-        "var array ar5 = array(10.)\n"+
-        "do test.assert(ar5.size == 1)\n"+
-        "do test.assert( ar5[0] == 10.0 )\n"+
-        // various array assignments
-        "set ar2 = ar3\n"+
-        "do test.assert( ar2[0] == 2.0 )\n"+
-        "do test.assert( ar2[1] == 3.0 )\n"+
-        "do test.assert( ar2[1] == 4.0 )\n"+
-        //string tests
+        // 50:
+        "do test.assert( str.size == 10)\n"+
+        "do test.assert( str.capacity == 10)\n"+
         "set str[0] = 'a'\n"+
         "set str[1] = 'b'\n"+
-        //60:
         "set str[2] = 'c'\n"+
         "do test.assert( str[0] == 'a' )\n"+
         "do test.assert( str[1] == 'b' )\n"+
         "do test.assert( str[2] == 'c' )\n"+
         "do test.assert( str == \"abclo\" )\n"+
         "do test.assert( str[20] == '\\0' )\n"+
+        // 60:
         "do test.assert( str[8] == '\\0' )\n"+
         "do test.assert( str[9] == '\\0' )\n"+
         "do test.assert( str[10] == '\\0' )\n"+
+        // various array constructors
+        "var array ar2 = array(10.,5.)\n"+
+        "do test.assert( ar2.size == 2)\n"+
+        "do test.assert( ar2.capacity == 2)\n"+
+        "do test.assert( ar2[0] == 10.0 )\n"+
+        "do test.assert( ar2[1] == 5.0 )\n"+
+        "var array ar3 = array(10.)\n"+
+        "do test.assert( ar3.size == 1)\n"+
+        "do test.assert( ar3.capacity == 1)\n"+
+        "do test.assert( ar3[0] == 10.0 )\n"+
+        "var array ar4 = array(2, 7.)\n"+
+        "do test.assert( ar4.size == 2)\n"+
+        "do test.assert( ar4.capacity == 2)\n"+
+        "do test.assert( ar4[0] == 7.0 )\n"+
+        "do test.assert( ar4[1] == 7.0 )\n"+
+        // various array assignments
+        "set ar2 = ar4\n"+
+        "do test.assert( ar2.size == 2)\n"+
+        "do test.assert( ar2.capacity == 2)\n"+
+        "do test.assert( ar2[0] == 7.0 )\n"+
+        "do test.assert( ar2[1] == 7.0 )\n"+
+        "set ar = ar2\n"+
+        "do test.assert( ar.size == 2)\n"+
+        "do test.assert( ar.capacity == 10)\n"+
+        "do test.assert( ar2[0] == 7.0 )\n"+
+        "do test.assert( ar2[1] == 7.0 )\n";
 
     string state = string("StateMachine X { initial state Init { run {\n")
         +test
@@ -182,6 +199,9 @@ void TypesTest::testOperators()
 //         "do test.assert( d == 10.0 )\n" +
         "set b = b\n or\n b\n and\n true\n && false\n || true\n"+
         "do test.assert( b == false )\n" +
+        "var array a1 = array(2, 7.)\n"+
+        "do test.assert( a1.size == 2 )\n" +
+        "do test.assert( a1.capacity == 2 )\n" +
 //         "set s = s+\"abc\"\n"+
         "}";
     // execute

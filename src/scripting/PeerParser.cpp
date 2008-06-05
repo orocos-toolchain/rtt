@@ -178,7 +178,8 @@ namespace RTT
             // do not consume it though.
             //cout << std::string(begin, end +10)<<endl;
             mlastobject = name;
-            mcurobject = 0;
+            if (mfullpath)
+                mcurobject = 0; //when partial paths are OK, leave curobject pointing to last valid object.
             throw_(begin, peer_not_found );
         }
     }
