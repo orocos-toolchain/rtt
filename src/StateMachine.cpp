@@ -238,7 +238,6 @@ namespace RTT
             this->executePending();
             if ( !this->inTransition() ) {
                 smStatus = Status::active;
-                enableEvents(0); // enable global events
             }
             break;
         case Status::stopping:
@@ -368,9 +367,10 @@ namespace RTT
     StateInterface* StateMachine::requestNextState(bool stepping)
     {
         // bad idea, user, don't run this if we're not active...
-        assert ( current != 0 );
+        if( current == 0 )
+            return 0;
         // only a run program may be interrupted...
-        if ( !interruptible() ) {
+        if ( !interruptible() || currentTrans ) {
             return current; // can not accept request, still in transition.
         }
         if ( reqstep == reqend ) { // if nothing to evaluate, eval globals, then just handle()
@@ -478,7 +478,8 @@ namespace RTT
     StateInterface* StateMachine::nextState()
     {
         // bad idea, user, don't run this if we're not active...
-        assert ( current != 0 );
+        if ( current == 0 )
+            return 0;
         TransList::const_iterator it1, it2;
         it1 = stateMap.find( current )->second.begin();
         it2 = stateMap.find( current )->second.end();
@@ -530,7 +531,8 @@ namespace RTT
     bool StateMachine::requestStateChange( StateInterface * s_n )
     {
         // bad idea, user, don't run this if we're not active...
-        assert ( current != 0 );
+        if( current == 0 )
+            return false;
 
         if ( !interruptible() ) {
             return false; // can not accept request, still in transition
@@ -679,15 +681,9 @@ namespace RTT
         // instance. Ownership of guard and transprog is to be determined, but seems to ly
         // with the SM. handle.destroy() can be called upon SM destruction.
         Handle handle;
-        if ( es->getEventProcessor() != eproc ) {// asyn if not same proc.
-            Logger::log() << Logger::Debug << "Creating Asynchronous handler for '"<< ename <<"'."<<Logger::endl;
-            handle = es->setupAsyn( ename, bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto), args,
+        Logger::log() << Logger::Debug << "Creating Asynchronous handler for '"<< ename <<"'."<<Logger::endl;
+        handle = es->setupAsyn( ename, bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto), args,
                                     eproc );
-        }
-        else {
-            Logger::log() << Logger::Debug << "Creating Synchronous handler for '"<< ename <<"'."<<Logger::endl;
-            handle = es->setupSyn( ename, bind( &StateMachine::eventTransition, this, from, guard, transprog.get(), to, elseprog.get(), elseto), args );
-        }
 
         if ( !handle.ready() ) {
             Logger::log() << Logger::Error << "Could not setup handle for event '"<<ename<<"'."<<Logger::endl;
@@ -714,6 +710,8 @@ namespace RTT
         // in transition already.
         // If condition fails, check precondition 'else' state (if present) and
         // execute else program (may be null).
+        if ( !current)
+            return;
         if (from == 0)
             from  = current;
         if (to == 0)
@@ -722,28 +720,30 @@ namespace RTT
             elseto = current;
         if ( from == current && !this->inTransition() ) {
             if ( c->evaluate() && checkConditions(to, false) == 1 ) {
-//                 Logger::log() <<Logger::Error <<"Valid transition from "<<from->getName()
-//                               <<" to "<<to->getName()<<"."<<Logger::endl;
+//                 log(Debug) <<"Valid transition from "<<from->getName()
+//                            <<" to "<<to->getName()<<"."<<Logger::endl;
                 changeState( to, p );              //  valid transition to 'to'.
             }
             else if ( elseto && checkConditions(elseto, false) == 1 ) {
-//                 Logger::log() <<Logger::Error <<"Valid transition from "<<from->getName()
-//                               <<" to "<<elseto->getName()<<"."<<Logger::endl;
+//                 log(Debug) <<"Valid transition from "<<from->getName()
+//                            <<" to "<<elseto->getName()<<"."<<Logger::endl;
                 changeState( elseto, elsep );      //  valid transition to 'elseto'.
             }
             else {
-//                 Logger::log() <<Logger::Error <<"Rejected transition from "<<from->getName()
-//                               <<" within "<<current->getName()<<": in Transition."<<Logger::endl;
+//                 log(Debug) <<"Rejected transition from "<<from->getName()
+//                            <<" within "<<current->getName()<<": guards failed."<<Logger::endl;
             }
         }
-//         else {
-//             if (this->inTransition() )
-//                 Logger::log() <<Logger::Error <<"Rejected transition from "<<from->getName()
-//                               <<" within "<<current->getName()<<": in transition."<<Logger::endl;
-//             else
-//                 Logger::log() <<Logger::Error <<"Rejected transition from "<<from->getName()
-//                               <<" within "<<current->getName()<<": wrong state."<<Logger::endl;
-//         }
+#if 0
+        else {
+            if (this->inTransition() )
+                Logger::log() <<Logger::Error <<"Rejected transition from "<<from->getName()
+                              <<" within "<<current->getName()<<": in transition."<<Logger::endl;
+            else
+                Logger::log() <<Logger::Error <<"Rejected transition from "<<from->getName()
+                              <<" within "<<current->getName()<<": wrong state."<<Logger::endl;
+        }
+#endif
     }
 
 #if 0
@@ -770,6 +770,7 @@ namespace RTT
 
     void StateMachine::leaveState( StateInterface* s )
     {
+        assert(s);
         currentExit = s->getExitProgram();
         if ( currentExit ) {
             currentExit->reset();
@@ -783,6 +784,7 @@ namespace RTT
 
     void StateMachine::runState( StateInterface* s )
     {
+        assert(s);
         currentRun = s->getRunProgram();
         if ( currentRun ) {
             currentRun->reset();
@@ -795,6 +797,7 @@ namespace RTT
 
     void StateMachine::handleState( StateInterface* s )
     {
+        assert(s);
         currentHandle = s->getHandleProgram();
         if ( currentHandle ) { 
             currentHandle->reset();
@@ -807,6 +810,7 @@ namespace RTT
 
     void StateMachine::enterState( StateInterface* s )
     {
+        assert(s);
         // Before a state is entered, all transitions are reset !
         TransList::iterator it;
         for ( it= stateMap.find(s)->second.begin(); it != stateMap.find(s)->second.end(); ++it)
@@ -883,15 +887,13 @@ namespace RTT
             }
             // make change transition after exit of previous state:
             current = next;
-            if ( !currentEntry )
-                enableEvents( current ); // see also below
+            enableEvents( current );
         }
 
         if ( currentEntry ) {
             if ( this->executeProgram(currentEntry, stepping) == false )
                 return false;
             // done.
-            enableEvents( current ); // see also above
             // in stepping mode, delay 'true' one executePending().
             if ( stepping ) {
                 currentProg = currentRun;
@@ -941,7 +943,7 @@ namespace RTT
             return false;
         }
 
-        if ( !currentProg->isStopped() )
+        if ( currentProg && !currentProg->isStopped() )
             return false; 
 
         cp = currentProg = 0;
@@ -997,10 +999,11 @@ namespace RTT
         reqstep = stateMap.find( next )->second.begin();
         reqend = stateMap.find( next )->second.end();
 
+        enableEvents(0); // enable global events
+
         // execute the entry program of the initial state.
         if ( this->executePending() ) {
             smStatus = Status::active;
-            enableEvents(0); // enable global events
         }
         else
             smStatus = Status::activating;
@@ -1012,7 +1015,6 @@ namespace RTT
     bool StateMachine::deactivate()
     {
         if ( current == 0 ) {
-            //assert(false);
             return false;
         }
         
