@@ -45,21 +45,29 @@ extern "C"
 #include <float.h>
 #include <assert.h>
 #include "../oro_limits.h"
+	// Orocos Implementation (i386 specific)
+#include "../oro_atomic.h"
+
+    // Time Related
+#include <sys/time.h>
+#include <time.h>
+#include <unistd.h>
+
 
     typedef long long NANO_TIME;
     typedef long long TICK_TIME;
+    typedef struct timespec TIME_SPEC;
+
 
     const TICK_TIME InfiniteTicks = LLONG_MAX;
     const NANO_TIME InfiniteNSecs = LLONG_MAX;
     const double    InfiniteSeconds = DBL_MAX;
 
   typedef struct {
-    //  GNUTask( pthread_t th, NANO_TIME periodi ) 
-    // : thread(th), periodMark(0), period( periodi ) {}
     pthread_t thread;
     pthread_attr_t attr;
 
-    NANO_TIME periodMark;
+    TIME_SPEC periodMark;
     NANO_TIME period;
   
     char* name;
@@ -71,16 +79,6 @@ extern "C"
 #define ORO_SCHED_RT    SCHED_FIFO /** Linux FIFO scheduler */
 #define ORO_SCHED_OTHER SCHED_OTHER /** Linux normal scheduler */
 
-
-	// Orocos Implementation (i386 specific)
-#include "../oro_atomic.h"
-
-    // Time Related
-#include <sys/time.h>
-#include <time.h>
-#include <unistd.h>
-
-    typedef struct timespec TIME_SPEC;
 
 	// high-resolution time to timespec
 	// hrt is in ticks
@@ -96,7 +94,7 @@ extern "C"
     {
 
         TIME_SPEC tv;
-        clock_gettime(CLOCK_REALTIME, &tv);
+        clock_gettime(CLOCK_MONOTONIC, &tv);
         // we can not include the C++ Time.hpp header !
 #ifdef __cplusplus 
         return NANO_TIME( tv.tv_sec ) * 1000000000LL + NANO_TIME( tv.tv_nsec );

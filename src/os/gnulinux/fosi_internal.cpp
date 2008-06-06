@@ -43,6 +43,8 @@
 #include <cassert>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <iostream>
+using namespace std;
 
 #define INTERNAL_QUAL 
 
@@ -158,13 +160,12 @@ namespace RTT
 	    // set period
 	    mytask->period = nanosecs;
 	    // set next wake-up time.
-	    mytask->periodMark = rtos_get_time_ns() + nanosecs;
+	    mytask->periodMark = ticks2timespec( nano2ticks( rtos_get_time_ns() + nanosecs ) );
 	}
         
 	INTERNAL_QUAL void rtos_task_set_period( RTOS_TASK* mytask, NANO_TIME nanosecs )
 	{
-	    mytask->period = nanosecs;
-	    mytask->periodMark = rtos_get_time_ns() + nanosecs;
+        rtos_task_make_periodic(mytask, nanosecs);
 	}
 
 	INTERNAL_QUAL NANO_TIME rtos_task_get_period(const RTOS_TASK* t) {
@@ -175,26 +176,19 @@ namespace RTT
 	{
 	    if ( task->period == 0 )
             return 0;
-      
-	    //rtos_printf("Time is %lld nsec, Mark is %lld nsec.\n",rtos_get_time_ns(), task->periodMark );
-	    // CALCULATE in nsecs
-	    NANO_TIME timeRemaining = task->periodMark - rtos_get_time_ns();
-	    // set next wake-up time :
-	    task->periodMark += task->period;
 
-        // XXX Racecondition bug:
-        // if interrupted by another thread here, we will nanosleep to long !
-        // is there a better Linux API??
+        // inspired by nanosleep man page for this construct:
+        while ( clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &(task->periodMark), NULL) == -1 && errno == EINTR ) {
+            errno = 0;
+        }
 
-	    if ( timeRemaining > 0 ) {
-            //rtos_printf("Waiting for %lld nsec\n",timeRemaining);
-            TIME_SPEC ts( ticks2timespec( timeRemaining ) );
-            // see nanosleep man page for this construct:
-            while ( rtos_nanosleep( &ts , &ts ) == -1 && errno == EINTR ) {
-                errno = 0;
-            }
-            return 0;
-	    }
+        // program next period:
+        // 1. convert period to timespec
+        TIME_SPEC ts = ticks2timespec( nano2ticks( task->period) );
+        // 2. Add ts to periodMark (danger: tn guards for overflows!)
+        NANO_TIME tn = (task->periodMark.tv_nsec + ts.tv_nsec);
+        task->periodMark.tv_nsec = tn % 1000000000LL;
+        task->periodMark.tv_sec += ts.tv_sec + tn / 1000000000LL;
 
 	    return 0;
 	}
