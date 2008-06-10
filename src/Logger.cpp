@@ -111,6 +111,7 @@ namespace RTT
               outloglevel(Warning),
               timestamp(0),
               started(false), showtime(true), allowRT(false), 
+              mlogStdOut(true), mlogFile(true),
               moduleptr("Logger")
         {
 #if defined(OROSEM_FILE_LOGGING) && defined(OROSEM_PRINTF_LOGGING)
@@ -125,13 +126,13 @@ namespace RTT
         }
 
         bool maylogStdOut() const {
-            if ( inloglevel <= outloglevel && outloglevel != Never && inloglevel != Never ) 
+            if ( inloglevel <= outloglevel && outloglevel != Never && inloglevel != Never && mlogStdOut) 
                 return true;
             return false;
         }
 
         bool maylogFile() const {
-            if ( inloglevel <= Info || inloglevel <= outloglevel )
+            if ( inloglevel <= Info || inloglevel <= outloglevel  && mlogFile)
                 return true;
             return false;
         }
@@ -282,6 +283,8 @@ namespace RTT
 
         bool allowRT;
 
+        bool mlogStdOut, mlogFile;
+                                            
         std::string moduleptr;
 
         OS::Mutex inpguard;
@@ -300,6 +303,14 @@ namespace RTT
 
     bool Logger::mayLog() const {
         return d->maylog();
+    }
+
+    void Logger::mayLogStdOut(bool tf) {
+        d->mlogStdOut = tf;
+    }
+
+    void Logger::mayLogFile(bool tf) {
+        d->mlogFile = tf;
     }
 
     void Logger::allowRealTime() {

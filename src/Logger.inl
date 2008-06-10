@@ -39,6 +39,12 @@ namespace RTT
         return false;
     }
 
+    inline void Logger::mayLogStdOut(bool ) {
+    }
+
+    inline void Logger::mayLogFile(bool ) {
+    }
+
     inline void Logger::allowRealTime() {
     }
 

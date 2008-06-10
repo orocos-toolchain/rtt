@@ -113,6 +113,18 @@ namespace RTT
         void disallowRealTime();
 
         /**
+         * Toggles the flag if the logger may log to the
+         * standard output stream.
+         */
+        void mayLogStdOut(bool tf);
+
+        /**
+         * Toggles the flag if the logger may log to the
+         * file stream.
+         */
+        void mayLogFile(bool tf);
+
+        /**
          * Notify the Logger in which 'module' the message occured. This returns an object
          * whose scope (i.e. {...} ) is indicative for the boundaries of the module.
          * This is reset to the previous module name (default is 'Logger') after the in object is destroyed. Practical
