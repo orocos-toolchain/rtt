@@ -38,7 +38,7 @@
 #include "os/rtconversions.hpp"
 
 #include <string>
-#include <stdlib.h>
+#include <cstdlib>
 
 using namespace std;
 

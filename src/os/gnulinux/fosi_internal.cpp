@@ -44,7 +44,7 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 using namespace std;
 
 #define INTERNAL_QUAL 
