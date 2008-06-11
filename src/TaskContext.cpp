@@ -433,6 +433,11 @@ namespace RTT
 
         OperationInterface::clear();
     }
+    
+    bool TaskContext::ready()
+    {
+        return true;
+    }
 
     bool connectPorts(TaskContext* A, TaskContext* B) { 
         return A->connectPorts(B);

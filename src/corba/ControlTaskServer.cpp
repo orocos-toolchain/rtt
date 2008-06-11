@@ -101,7 +101,6 @@ namespace RTT
       :mtaskcontext(taskc), muse_naming(use_naming)
     {
         servers[taskc] = this;
-
         try {
             // Each server has its own POA.
             // The server's objects have their own poa as well.

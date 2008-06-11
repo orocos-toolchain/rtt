@@ -239,8 +239,18 @@ namespace RTT
          * This method removes all objects and all methods, commands,
          * events, properties and ports from the interface of this TaskContext.
          */
-        void clear();
+        virtual void clear();
 
+        /**
+         * Checks the validity of this TaskContext.
+         * When this method returns false, the TaskContext
+         * should not be used and various methods may throw
+         * exceptions. Use this in case the TaskContext could be
+         * a remote object. Will always return true when this
+         * TaskContext is local.
+         */
+        virtual bool ready();
+        
         /**
          * Get access to high level controls for
          * programs, state machines and scripting

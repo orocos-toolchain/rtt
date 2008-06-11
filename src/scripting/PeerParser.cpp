@@ -81,6 +81,12 @@ namespace RTT
             while ( callqueue.size() > 0 && _peer->hasPeer( callqueue.front() ) ) {
                 //std::cerr<< _peer->getName() <<" has peer " << callqueue.front()<<std::endl;
                 _peer = _peer->getPeer( callqueue.front() );
+
+                if ( _peer->ready() == false ) {
+                    throw parse_exception_semantic_error
+                                    ("Attempt to use TaskContext "+ callqueue.front() +" which is not ready to use." );
+                }
+
                 callqueue.pop();
             }
 
@@ -157,6 +163,10 @@ namespace RTT
 
         if ( mcurobject == _peer && _peer->hasPeer( name ) ) {
             _peer = _peer->getPeer( name );
+            if ( _peer->ready() == false ) {
+                throw parse_exception_semantic_error
+                                ("Attempt to use TaskContext "+name+" which is not ready to use." );
+            }
             mcurobject = _peer;
             advance_on_error += end - begin;
 

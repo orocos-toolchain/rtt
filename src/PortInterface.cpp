@@ -57,11 +57,19 @@ namespace RTT
     }
 
     bool PortInterface::ready() const {
-        return this->connected();
+#ifndef ORO_EMBEDDED  
+        try {
+#endif
+            return this->connected() && this->connection()->getDataSource()->evaluate();
+#ifndef ORO_EMBEDDED            
+        } catch(...)
+        {}
+        return false;
+#endif
     }
 
     bool PortInterface::connectTo( PortInterface* other ) {
-        if ( this->connected() || !other )
+        if ( this->ready() || !other )
             return false;
 
         // The aim of this function is to create a connection between
@@ -100,7 +108,7 @@ namespace RTT
          */
 
         // if both are not connected, create a new one:
-        if ( !other->connected() ) {
+        if ( !other->ready() ) {
             if ( this->getPortType() != ReadPort ) { // we are a writer
                 ConnectionInterface::shared_ptr ci = this->createConnection(); //creates a 'server'
                 if (ci) {

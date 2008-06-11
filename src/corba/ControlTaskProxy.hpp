@@ -97,7 +97,7 @@ namespace RTT
         void synchronizeOnce();
         void synchronize();
 
-        Corba::ControlTask_var mtask;
+        mutable Corba::ControlTask_var mtask;
 
         /**
          * For now one POA handles all proxies.
@@ -134,7 +134,7 @@ namespace RTT
          * @retval 0 if the ORB is not initialised
          * @return A new or previously created CORBA proxy for \a task.
          */
-        static ControlTaskProxy* Create(::RTT::Corba::ControlTask_ptr task);
+        static TaskContext* Create(::RTT::Corba::ControlTask_ptr task);
 
         /**
          * Get the Corba Object of the ControlTask.
@@ -193,6 +193,7 @@ namespace RTT
 
         virtual bool connectPorts( TaskContext* peer );
 
+        virtual bool ready();
         /**
          * Returns the properties of this Task as a PropertySet.
          */

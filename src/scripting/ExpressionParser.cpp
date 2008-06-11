@@ -178,9 +178,11 @@ namespace RTT
                 throw parse_exception_wrong_type_of_argument
                     (obj, meth, e.whicharg, e.expected_, e.received_ );
             }
+#ifndef NDEBUG
         catch(...) {
             assert(false);
         }
+#endif
     }
     assert( ret.get() );
   }

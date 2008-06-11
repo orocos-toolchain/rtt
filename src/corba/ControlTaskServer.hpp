@@ -53,6 +53,7 @@ namespace RTT
 {namespace Corba
 {
     class OrbRunner;
+    class ControlTaskProxy;
 
     /**
      * This class manages the creation of TaskContext Corba Servers
@@ -65,7 +66,8 @@ namespace RTT
     {
     protected:
         friend class OrbRunner;
-
+        friend class ControlTaskProxy;
+        
         typedef std::map<TaskContext*, ControlTaskServer*> ServerMap;
         static ServerMap servers;
         static ActivityInterface* orbrunner;

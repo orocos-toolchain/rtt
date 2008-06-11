@@ -67,11 +67,13 @@
 // be/be_codegen.cpp:910
 
 #include "DataFlowI.h"
+#include "DataFlowS.h"
 #include "../PortInterface.hpp"
 #include "../ConnectionInterface.hpp"
 #include "../Logger.hpp"
 #include "CorbaPort.hpp"
 #include "ControlTaskProxy.hpp"
+#include "rtt-config-compat.h"
 
 
 using namespace RTT;
@@ -128,8 +130,9 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
 	return 0;
     }
 
+    //use this->isConnected() to thoroughly check the liveness of the connection.
     ConnectionInterface::shared_ptr ci;
-    if ( p->connected() == false) {
+    if ( this->isConnected(port_name) == false) {
         ci = p->createConnection();
         // A newly created connection starts unconnected.
         if (ci)
@@ -173,12 +176,12 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
         return 0;
     }
     else if (p->getConnectionModel() != PortInterface::Buffered) {
-	RTT::log(Error) << port_name << " is not a buffer port" << RTT::endlog(Error);
-	return 0;
+        RTT::log(Error) << port_name << " is not a buffer port" << RTT::endlog(Error);
+        return 0;
     }
 
     ConnectionInterface::shared_ptr ci;
-    if ( p->connected() == false) {
+    if ( this->isConnected(port_name) == false) {
         ci = p->createConnection();
         // A newly created connection starts unconnected.
         if (ci)
@@ -222,7 +225,7 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
         return 0;
     }
     ConnectionInterface::shared_ptr ci;
-    if ( p->connected() == false) {
+    if ( this->isConnected(port_name) == false) {
         RTT::log() << "Can not create DataObject for unconnected Port: "<< port_name <<endlog(Error);
         return 0;
     } else {
@@ -292,7 +295,19 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::isConnected (
     PortInterface* p = mdf->getPort(port_name);
     if ( p == 0)
         return 0;
-    return p->connected();
+    // this is CORBA: double check if connection is really real.
+    try {
+        // if the connection points to dead data, this throws TRANSIENT.
+        if ( p->connected() && p->connection()->getDataSource()->evaluate() ) {
+            return true;
+        }
+    } catch(...) {
+        // evalutate() threw, so disconnect
+        // note: should we disconnect the port or the complete connection() ?
+        p->connection()->disconnect();
+    }
+    assert( p->connected() == false);
+    return false;
 }
 
 void RTT_Corba_DataFlowInterface_i::disconnect (

@@ -86,11 +86,13 @@ namespace RTT
 
     ControlTaskProxy::~ControlTaskProxy()
     {
+        log(Info) << "Terminating ControlTaskProxy for " <<  this->mtask_name <<endlog();
         if ( this->properties() ) {
             flattenPropertyBag( *this->properties() );
             deleteProperties( *this->properties() );
         }
         this->attributes()->clear();
+        proxies.erase(this);
     }
 
     ControlTaskProxy::ControlTaskProxy(std::string name, bool is_ior) 
@@ -175,7 +177,7 @@ namespace RTT
         // Add here the interfaces that need to be synchronised only once at creation time.
         if (!mtask)
             return;
-
+        log(Info) << "Creating Proxy interface for " << mtask_name <<endlog();
         log(Debug) << "Fetching ScriptingAccess."<<endlog();
         Corba::ScriptingAccess_var saC = mtask->scripting();
         if ( saC ) {
@@ -458,22 +460,34 @@ namespace RTT
         return 0;
     }
 
-    ControlTaskProxy* ControlTaskProxy::Create(::RTT::Corba::ControlTask_ptr t) {
-      if ( CORBA::is_nil(orb) ) {
-	log(Error) << "Can not create proxy when ORB is nill !"<<endlog();
+    TaskContext* ControlTaskProxy::Create(::RTT::Corba::ControlTask_ptr t) {
+        Logger::In in("ControlTaskProxy::Create");
+        if ( CORBA::is_nil(orb) ) {
+            log(Error) << "Can not create proxy when ORB is nill !"<<endlog();
             return 0;
-      }
-      if ( !t ) {
-	log(Error) << "Can not create proxy for nill peer !" <<endlog();
-	return 0;
-      }
+        }
+        if ( !t ) {
+            log(Error) << "Can not create proxy for nill peer !" <<endlog();
+            return 0;
+        }
 
         // proxy present for this object ?
         // is_equivalent is actually our best try.
         for (PMap::iterator it = proxies.begin(); it != proxies.end(); ++it)
-            if ( (it->second)->_is_equivalent( t ) )
-	      return it->first;
+            if ( (it->second)->_is_equivalent( t ) ) {
+                log(Debug) << "Existing proxy found !" <<endlog();
+                return it->first;
+            }
+        
+        
+        // XXX TODO complete this code
+        for (ControlTaskServer::ServerMap::iterator it = ControlTaskServer::servers.begin(); it != ControlTaskServer::servers.end(); ++it)
+            if ( it->second->server()->_is_equivalent( t ) ) {
+                log(Debug) << "Local server found !" <<endlog();
+                return it->first;
+            }
 
+        log(Debug) << "No local taskcontext found..." <<endlog();
         // create new:
         try {
             ControlTaskProxy* ctp = new ControlTaskProxy( t );
@@ -486,92 +500,164 @@ namespace RTT
     }
 
     bool ControlTaskProxy::start() {
-        if (mtask)
-            return mtask->start();
+        try {
+            if (mtask)
+                return mtask->start();
+        } catch(...) {
+            mtask = 0;
+            this->setName("NotFound");
+            this->clear();
+        }
         return false;
     }
     
     bool ControlTaskProxy::stop() {
-        if (mtask)
-            return mtask->stop();
+        try {
+            if (mtask)
+                return mtask->stop();
+        } catch(...) {
+            mtask = 0;
+            this->setName("NotFound");
+            this->clear();
+        }
         return false;
     }
     
     bool ControlTaskProxy::activate() {
-        if (mtask)
-            return mtask->activate();
+        try {
+            if (mtask)
+                return mtask->activate();
+        } catch(...) {
+            mtask = 0;
+            this->setName("NotFound");
+            this->clear();
+        }
         return false;
     }
     
     bool ControlTaskProxy::resetError() {
-        if (mtask)
-            return mtask->resetError();
+        try {
+            if (mtask)
+                return mtask->resetError();
+        } catch(...) {
+            mtask = 0;
+            this->setName("NotFound");
+            this->clear();
+        }
         return false;
     }
 
     bool ControlTaskProxy::isActive() const {
-        if (mtask)
-            return mtask->isActive();
+        try {
+            if (mtask)
+                return mtask->isActive();
+        } catch(...) {
+            mtask = 0;
+        }
         return false;
     }
 
     bool ControlTaskProxy::isRunning() const {
-        if (mtask)
-            return mtask->isRunning();
+        try {
+            if (mtask)
+                return mtask->isRunning();
+        } catch(...) {
+            mtask = 0;
+        }
         return false;
     }
 
     bool ControlTaskProxy::configure() {
-        if (mtask)
-            return mtask->configure();
+        try {
+            if (mtask)
+                return mtask->configure();
+        } catch(...) {
+            mtask = 0;
+            this->setName("NotFound");
+            this->clear();
+        }
         return false;
     }
     
     bool ControlTaskProxy::cleanup() {
-        if (mtask)
-            return mtask->cleanup();
+        try {
+            if (mtask)
+                return mtask->cleanup();
+        } catch(...) {
+            mtask = 0;
+            this->setName("NotFound");
+            this->clear();
+        }
         return false;
     }
     
     bool ControlTaskProxy::isConfigured() const {
-        if (mtask)
-            return mtask->isConfigured();
+        try {
+            if (mtask)
+                return mtask->isConfigured();
+        } catch(...) {
+            mtask = 0;
+        }
         return false;
     }
 
     bool ControlTaskProxy::inFatalError() const {
-        if (mtask)
-            return mtask->inFatalError();
+        try {
+            if (mtask)
+                return mtask->inFatalError();
+        } catch(...) {
+            mtask = 0;
+        }
         return false;
     }
 
     bool ControlTaskProxy::inRunTimeWarning() const {
-        if (mtask)
-            return mtask->inRunTimeWarning();
+        try {
+            if (mtask)
+                return mtask->inRunTimeWarning();
+        } catch(...) {
+            mtask = 0;
+        }
         return false;
     }
 
     bool ControlTaskProxy::inRunTimeError() const {
-        if (mtask)
-            return mtask->inRunTimeError();
+        try {
+            if (mtask)
+                return mtask->inRunTimeError();
+        } catch(...) {
+            mtask = 0;
+        }
         return false;
     }
 
     int ControlTaskProxy::getErrorCount() const {
-        if (mtask)
-            return mtask->getErrorCount();
+        try {
+            if (mtask)
+                return mtask->getErrorCount();
+        } catch(...) {
+            mtask = 0;
+        }
         return -1;
     }
 
     int ControlTaskProxy::getWarningCount() const {
-        if (mtask)
-            return mtask->getWarningCount();
+        try {
+            if (mtask)
+                return mtask->getWarningCount();
+        } catch(...) {
+            mtask = 0;
+        }
         return -1;
     }
 
     TaskContext::TaskState ControlTaskProxy::getTaskState() const {
-        if (mtask)
-            return TaskContext::TaskState( mtask->getTaskState() );
+        try {
+            if (mtask)
+                return TaskContext::TaskState( mtask->getTaskState() );
+        } catch(...) {
+            mtask = 0;
+        }
         return TaskContext::Init;
     }
 
@@ -582,89 +668,159 @@ namespace RTT
 
     bool ControlTaskProxy::addPeer( TaskContext* peer, std::string alias /*= ""*/ )
     {
-        if (!mtask)
-            return false;
+        try {
+            if (!mtask)
+                return false;
 
-        // if peer is a proxy, add the proxy, otherwise, create new server.
-        ControlTaskProxy* ctp = dynamic_cast<ControlTaskProxy*>( peer );
-        if (ctp) {
-            if ( mtask->addPeer( ctp->server(), alias.c_str() ) ) {
+            // if peer is a proxy, add the proxy, otherwise, create new server.
+            ControlTaskProxy* ctp = dynamic_cast<ControlTaskProxy*>( peer );
+            if (ctp) {
+                if ( mtask->addPeer( ctp->server(), alias.c_str() ) ) {
+                    this->synchronize();
+                    return true;
+                }
+                return false;
+            }
+            // no server yet, create it.
+            ControlTaskServer* newpeer = ControlTaskServer::Create(peer);
+            if ( mtask->addPeer( newpeer->server(), alias.c_str() ) ) {
                 this->synchronize();
                 return true;
             }
-            return false;
-        }
-        // no server yet, create it.
-        ControlTaskServer* newpeer = ControlTaskServer::Create(peer);
-        if ( mtask->addPeer( newpeer->server(), alias.c_str() ) ) {
-            this->synchronize();
-            return true;
+        } catch(...) {
+            mtask = 0;
+            this->setName("NotFound");
+            this->clear();
         }
         return false;
     }
 
     void ControlTaskProxy::removePeer( const std::string& name )
     {
-        if (!mtask)
-            return;
-        mtask->removePeer( name.c_str() );
+        try {
+            if (!mtask)
+                return;
+            mtask->removePeer( name.c_str() );
+        } catch(...) {
+            mtask = 0;
+            this->setName("NotFound");
+            this->clear();
+        }
     }
 
     void ControlTaskProxy::removePeer( TaskContext* peer )
     {
-        if (!mtask)
-            return;
-        mtask->removePeer( peer->getName().c_str() );
+        try {
+            if (!mtask)
+                return;
+            mtask->removePeer( peer->getName().c_str() );
+        } catch(...) {
+            mtask = 0;
+            this->setName("NotFound");
+            this->clear();
+        }
     }
 
     bool ControlTaskProxy::connectPeers( TaskContext* peer )
     {
-        if (!mtask)
-            return false;
-        ControlTaskServer* newpeer = ControlTaskServer::Create(peer);
-        return mtask->connectPeers( newpeer->server() );
+        try {
+            if (!mtask)
+                return false;
+            ControlTaskServer* newpeer = ControlTaskServer::Create(peer);
+            return mtask->connectPeers( newpeer->server() );
+        } catch(...) {
+            mtask = 0;
+            this->setName("NotFound");
+            this->clear();
+        }
+        return false;
     }
 
     void ControlTaskProxy::disconnectPeers( const std::string& name )
     {
-        if (mtask)
-            mtask->disconnectPeers( name.c_str() );
+        try {
+            if (mtask)
+                mtask->disconnectPeers( name.c_str() );
+        } catch(...) {
+            mtask = 0;
+            this->setName("NotFound");
+            this->clear();
+        }
     }
 
     TaskContext::PeerList ControlTaskProxy::getPeerList() const
     {
+
         TaskContext::PeerList vlist;
-        if (mtask) {
-            Corba::ControlTask::ControlTaskNames_var plist = mtask->getPeerList();
-            for( size_t i =0; i != plist->length(); ++i)
-                vlist.push_back( std::string( plist[i] ) );
+        try {
+            if (mtask) {
+                Corba::ControlTask::ControlTaskNames_var plist = mtask->getPeerList();
+                for( size_t i =0; i != plist->length(); ++i)
+                    vlist.push_back( std::string( plist[i] ) );
+            }
+        } catch(...) {
+            mtask = 0;
         }
         return vlist;
     }
 
     bool ControlTaskProxy::hasPeer( const std::string& peer_name ) const
     {
-        return mtask && mtask->hasPeer( peer_name.c_str() );
+        try {
+            return mtask && mtask->hasPeer( peer_name.c_str() );
+        } catch(...) {
+            mtask = 0;
+        }
+        return false;
     }
 
     TaskContext* ControlTaskProxy::getPeer(const std::string& peer_name ) const
     {
-        if ( !mtask )
-            return 0;
-        Corba::ControlTask_ptr ct = mtask->getPeer( peer_name.c_str() );
-        if ( !ct )
-            return 0;
-        return ControlTaskProxy::Create( ct );
+        try {
+            if ( !mtask )
+                return 0;
+            Corba::ControlTask_ptr ct = mtask->getPeer( peer_name.c_str() );
+            if ( !ct )
+                return 0;
+            return ControlTaskProxy::Create( ct );
+        } catch(...) {
+            mtask = 0;
+        }
+        return 0;
     }
 
     bool ControlTaskProxy::connectPorts( TaskContext* peer )
     {
-        if (!mtask)
-            return false;
-        ControlTaskServer* newpeer = ControlTaskServer::Create(peer);
-        return mtask->connectPorts( newpeer->server() );
+        try {
+            if (!mtask)
+                return false;
+            ControlTaskServer* newpeer = ControlTaskServer::Create(peer);
+            return mtask->connectPorts( newpeer->server() );
+        } catch(...) {
+            mtask = 0;
+            this->setName("NotFound");
+            this->clear();
+        }
+        return false;
     }
-
+    
+    bool ControlTaskProxy::ready()
+    {
+        if (!mtask) {
+            this->clear();
+            return false;
+        }
+        try {
+            mtask->getName(); // basic check
+            return true;
+        } catch(...) {
+            // we could also try to re-establish the connection in case of naming...
+            this->clear();
+            mtask = 0;
+        }
+        return false;
+    }
+    
     Corba::ControlTask_ptr ControlTaskProxy::server() const {
         if ( !mtask )
             return 0;

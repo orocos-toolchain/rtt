@@ -143,11 +143,7 @@ namespace RTT
             value_t item = value_t();
             // Corba's pull() is equal to Orocos' front().
             CORBA::Any_var res;
-            try {
-                res = buf->front();
-            } catch (...) {
-                return item;
-            }
+            res = buf->front();
             ReferenceDataSource<T> rds( item );
             rds.ref();
             if ( rds.updateBlob(ORO_CORBA_PROTOCOL_ID, &res.in() ) == false) {

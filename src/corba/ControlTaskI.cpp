@@ -127,7 +127,7 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
   ))
 {
     if ( CORBA::is_nil( mAttrs) ) {
-        Logger::log() << Logger::Info << "Creating AttributeInterface."<<Logger::endl;
+        log(Debug) << "Creating AttributeInterface."<<endlog();
         try {
             Orocos_AttributeInterface_i* attrs = new Orocos_AttributeInterface_i( mobj->attributes(), mpoa.in() );
             mAttrs = attrs->_this();
@@ -139,7 +139,7 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
 #if 0
     // create and activate servant.
     if ( CORBA::is_nil( mCosAttrs) ) {
-        Logger::log() << Logger::Info << "Creating Attributes PropertySet."<<Logger::endl;
+        log(Debug) << "Creating Attributes PropertySet."<<endlog();
         CosPropertyService_PropertySet_i* props = new CosPropertyService_PropertySet_i( mobj->attributes() );
         mCosProps = props->_this();
     }
@@ -155,7 +155,7 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
   ))
 {
     if ( CORBA::is_nil( mMFact ) ) {
-        Logger::log() << Logger::Info << "Creating MethodInterface."<<Logger::endl;
+        log(Debug) << "Creating MethodInterface."<<endlog();
         Orocos_MethodInterface_i* mserv = new Orocos_MethodInterface_i( mobj->methods(), mpoa.in() );
         try {
             mMFact = mserv->_this();
@@ -175,7 +175,7 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
 {
     if ( CORBA::is_nil( mCFact ) ) {
         try {
-            Logger::log() << Logger::Info << "Creating CommandInterface."<<Logger::endl;
+            log(Debug) << "Creating CommandInterface."<<endlog();
             Orocos_CommandInterface_i* mserv = new Orocos_CommandInterface_i( mobj->commands(), mpoa.in() );
             mCFact = mserv->_this();
         } catch( ... ) {
@@ -421,7 +421,7 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
 {
     // create and activate servant.
     if ( CORBA::is_nil( mCosProps) ) {
-        Logger::log() << Logger::Info << "Creating PropertySet."<<Logger::endl;
+        log(Debug) << "Creating PropertySet."<<endlog();
         CosPropertyService_PropertySet_i* props = new CosPropertyService_PropertySet_i( mtask->properties() );
         mCosProps = props->_this();
     }
@@ -437,7 +437,7 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
   ))
 {
     if ( CORBA::is_nil( mEEFact ) ) {
-        Logger::log() << Logger::Info << "Creating ScriptingAccess."<<Logger::endl;
+        log(Debug) << "Creating ScriptingAccess."<<endlog();
         Orocos_ScriptingAccess_i* mserv = new Orocos_ScriptingAccess_i( mtask->scripting(), mpoa.in() );
         mEEFact = mserv->_this();
     }
@@ -452,7 +452,7 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
     ))
 {
     if ( CORBA::is_nil( mService ) ) {
-        Logger::log() << Logger::Info << "Creating Services."<<Logger::endl;
+        log(Debug) << "Creating Services."<<endlog();
         RTT_Corba_ServiceInterface_i* mserv = new RTT_Corba_ServiceInterface_i();
         mService = mserv->_this();
     }
@@ -467,7 +467,7 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
     ))
 {
     if ( CORBA::is_nil( mDataFlow ) ) {
-        Logger::log() << Logger::Info << "Creating DataFlowInterface."<<Logger::endl;
+        log(Debug) << "Creating DataFlowInterface."<<endlog();
         RTT_Corba_DataFlowInterface_i* mserv = new RTT_Corba_DataFlowInterface_i( mtask->ports() );
         mDataFlow = mserv->_this();
     }
