@@ -46,6 +46,7 @@
 	and the default 'raw' value is now <option>int</option>. In this
 	way, two's complement and unsigned A/D converters are supported
 	upto 31 bits. This change did also change the Comedi API in OCL.
+	Also, Comedi classes moved from the RTT to the OCL namespace.
 	</para>
 	<para>
 	  See also
@@ -86,7 +87,12 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    Event based transitions in statemachines are now always asynchronous.
+	    Event based transitions in statemachines are now always
+	    asynchronous and can be received during the entry and run
+	    programs. State machines can react immediately in the same
+	    state to events emited in the entry program.  Events
+	    emited in the run program can only be processed in the next
+	    execution step of the state machine.
 	  </para>
 	</listitem>
 	<listitem>
@@ -132,7 +138,7 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    An initial Max OSX port has been done, but is not yet stable.
+	    An initial Max OSX port has been done, and stable enough for broader testing.
 	    If you like to contribute, see
 	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=533">
 	      Mac OS X port
@@ -212,7 +218,7 @@
 	<listitem>
 	  <para>
 	    CORBA DataPorts have been thoroughly tested and fixed.
-	    They now respect connection direction and can be connected
+	    They now respect connection direction and can also be connected
 	    using only the IDL interface. Also, the ports disconnect
 	    automatically when a remote connection no longer exists, making
 	    it free again to setup a new connection.
@@ -232,8 +238,45 @@
 	</listitem>
 	<listitem>
 	  <para>
+	    Orocos better intercepts lost connections to remote TaskContexts.
+	    The Orocos Component Library's deployer and taskbrowser use
+	    this infrastructure to detect and cope with lost connections.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The OCL CORBA deployer can now create CORBA servers and
+	    CORBA proxies for any component type. When a local
+	    component is created, one can set the boolean
+	    <option>Server</option> property to 1, in which case it is
+	    exported as a ControlTask CORBA server using the naming
+	    service.  If the naming service is not available, set the
+	    boolean property <option>UseNamingService</option> to 0. In that
+	    case, an IOR file is generated. Currently, it is not possible
+	    to create a server from the scripting interface, although
+	    the deployer itself is a CORBA server.
+	  </para>
+	  <para>
+	    CORBA proxies can be created in three ways: by using the
+	    naming service, by using an IOR file or by specifying the IOR
+	    literally. This is done by specifying the 'type' field of the component
+	    as "CORBA", "IORFile" or "IOR" and providing the registered name,
+	    IOR file location or IOR respectively in the 'name' field.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The <option>AutoConnect</option> feature now also works across
+	    distributed components, provided that both components have
+	    the AutoConnect option set in the XML configuration and that
+	    one is known as a peer to the other.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
 	    Completely transparant Method and Command invocation in
-	    C++ on remote CORBA TaskContexts has been added.  This
+	    C++ on remote CORBA TaskContexts has been added (this was 
+	    already available in the scripting interface). This
 	    feature however increases code size, even if CORBA is not
 	    used. A CMake variable ORO_REMOTING has been defined which
 	    allows to turn this feature off. It is enabled by default
