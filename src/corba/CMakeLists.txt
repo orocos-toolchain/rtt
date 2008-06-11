@@ -22,10 +22,13 @@ IF(ENABLE_CORBA)
     SET(RTT_CFLAGS "${RTT_CFLAGS} -I${ORBSVCS_DIR}" CACHE INTERNAL "")
   ENDIF( NOT ${ORBSVCS_DIR} STREQUAL /usr/include )
   # Is used for building  the library
-  LINK_LIBRARIES( TAO TAO_IDL_BE TAO_PortableServer TAO_CosNaming ACE  )
-
-  SET(RTT_LINKFLAGS "${RTT_LINKFLAGS} -lTAO -lTAO_IDL_BE -lTAO_PortableServer -lTAO_CosNaming -lACE" CACHE INTERNAL "")
-
+  LINK_LIBRARIES( TAO TAO_PortableServer TAO_CosNaming ACE  )
+  SET(RTT_LINKFLAGS "${RTT_LINKFLAGS} -lTAO -lTAO_PortableServer -lTAO_CosNaming -lACE" CACHE INTERNAL "")
+  IF( NOT TAO_15 )
+      LINK_LIBRARIES( TAO TAO_IDL_BE )
+      SET(RTT_LINKFLAGS "${RTT_LINKFLAGS} -lTAO_IDL_BE" CACHE INTERNAL "")
+  ENDIF( NOT TAO_15 )
+ 
   FILE( GLOB IDLS [^.]*.idl )
   FILE( GLOB CPPS [^.]*.cpp )
   FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)

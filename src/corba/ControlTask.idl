@@ -7,20 +7,11 @@
  * Orocos Control Task Component.
  */
 
-// avoid inclusion of this header since tao_idl is broken.
-//#include <orbsvcs/CosPropertyService.idl>
 #include "OperationInterface.idl"
 #include "Attributes.idl"
 #include "ScriptingAccess.idl"
 #include "Services.idl"
 #include "DataFlow.idl"
-
-// // Forward declaration.
-// module CosPropertyService
-// {
-//   interface PropertySet;
-// };
-
 
 module RTT
 {
@@ -162,11 +153,6 @@ module RTT
        * Read the number of times the error state was entered.
        */
       long getErrorCount();
-
-      /**
-       * Query the properties of this interface as a CosPropertyService::PropertySet.
-       */
-      //CosPropertyService::PropertySet propertySet();
 
       /**
        * The ScriptingAccess, for program and state machine

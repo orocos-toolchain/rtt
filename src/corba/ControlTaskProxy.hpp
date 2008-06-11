@@ -49,7 +49,6 @@
 #include <string>
 #include <map>
 #include "ControlTaskC.h"
-//#include <orbsvcs/CosPropertyServiceC.h>
 #include "ApplicationServer.hpp"
 
 namespace RTT
@@ -194,11 +193,6 @@ namespace RTT
         virtual bool connectPorts( TaskContext* peer );
 
         virtual bool ready();
-        /**
-         * Returns the properties of this Task as a PropertySet.
-         */
-        //CosPropertyService::PropertySet_ptr propertySet();
-
         /**
          * Returns the default POA for all proxies.
          */

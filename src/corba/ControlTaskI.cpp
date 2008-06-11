@@ -69,7 +69,6 @@
 #include "ControlTaskI.h"
 #include "ControlTaskServer.hpp"
 #include "ControlTaskProxy.hpp"
-//#include "CosPropertyServiceI.h"
 #include "AttributesI.h"
 #include "OperationsI.h"
 #include "OperationInterfaceI.h"
@@ -81,7 +80,6 @@
 
 using namespace RTT;
 using namespace RTT::Corba;
-//using namespace CosPropertyService;
 
 // ControlObject:
 Orocos_ControlObject_i::Orocos_ControlObject_i (RTT::OperationInterface* orig, PortableServer::POA_ptr the_poa )
@@ -136,15 +134,6 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
         }
     }
     return AttributeInterface::_duplicate( mAttrs.in() );
-#if 0
-    // create and activate servant.
-    if ( CORBA::is_nil( mCosAttrs) ) {
-        log(Debug) << "Creating Attributes PropertySet."<<endlog();
-        CosPropertyService_PropertySet_i* props = new CosPropertyService_PropertySet_i( mobj->attributes() );
-        mCosProps = props->_this();
-    }
-    return PropertySet::_duplicate( mCosProps.in() );
-#endif
 }
 
 ::RTT::Corba::MethodInterface_ptr Orocos_ControlObject_i::methods (
@@ -409,25 +398,6 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
     return mtask->getErrorCount();
 }
   
-
-
-#if 0
-::CosPropertyService::PropertySet_ptr Orocos_ControlTask_i::propertySet (
-    
-  )
-  ACE_THROW_SPEC ((
-    CORBA::SystemException
-  ))
-{
-    // create and activate servant.
-    if ( CORBA::is_nil( mCosProps) ) {
-        log(Debug) << "Creating PropertySet."<<endlog();
-        CosPropertyService_PropertySet_i* props = new CosPropertyService_PropertySet_i( mtask->properties() );
-        mCosProps = props->_this();
-    }
-    return PropertySet::_duplicate( mCosProps.in() );
-}
-#endif
 
 ::RTT::Corba::ScriptingAccess_ptr Orocos_ControlTask_i::scripting (
     

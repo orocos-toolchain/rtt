@@ -827,14 +827,6 @@ namespace RTT
         return Corba::ControlTask::_duplicate(mtask);
     }
 
-#if 0
-    CosPropertyService::PropertySet_ptr ControlTaskProxy::propertySet() {
-        if ( !mtask )
-            return 0;
-        return mtask->propertySet();
-    }
-#endif
-
     PortableServer::POA_ptr ControlTaskProxy::ProxyPOA() {
         if ( !orb.in() )
             return 0;

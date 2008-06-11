@@ -76,7 +76,6 @@
 #include "ScriptingAccessC.h"
 #include "ServicesC.h"
 #include "DataFlowC.h"
-#include <orbsvcs/CosPropertyServiceC.h>
 #include "../TaskContext.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
@@ -172,7 +171,7 @@ class  Orocos_ControlTask_i
 {
 protected:
     RTT::TaskContext* mtask;
-	//::CosPropertyService::PropertySet_var mCosProps;
+
 	::RTT::Corba::ScriptingAccess_var mEEFact;
 	::RTT::Corba::ServiceInterface_var mService;
 	::RTT::Corba::DataFlowInterface_var mDataFlow;
@@ -291,14 +290,6 @@ public:
     ));
   
 
-/*   virtual */
-/*   ::CosPropertyService::PropertySet_ptr propertySet ( */
-      
-/*     ) */
-/*     ACE_THROW_SPEC (( */
-/*       CORBA::SystemException */
-/*     )); */
-  
   virtual
   ::RTT::Corba::ScriptingAccess_ptr scripting (
       
