@@ -73,7 +73,6 @@
 #include "../Logger.hpp"
 #include "CorbaPort.hpp"
 #include "ControlTaskProxy.hpp"
-#include "rtt-config-compat.h"
 
 
 using namespace RTT;
