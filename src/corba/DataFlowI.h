@@ -74,7 +74,6 @@
 #include "../DataFlowInterface.hpp"
 #include "../BufferInterface.hpp"
 #include "CorbaConversion.hpp"
-#include <tao/Any.h>
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
