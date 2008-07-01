@@ -5,6 +5,15 @@ Build-Depends: debhelper (>= 5), cmake, libboost-dev, libboost-graph-dev, xsltpr
 Standards-Version: 3.7.2
 Section: libs
 
+Package: orocos-rtt-dbg
+Section: libdevel
+Priority: extra
+Architecture: any
+Depends: liborocos-rtt-common-dev (= ${binary:Version})
+Description: Orocos Real-Time Toolkit (debug symbols)
+ .
+ This package contains the debugging symbols.
+
 Package: liborocos-rtt-corba-xenomai-dev
 Section: libdevel
 Architecture: any
