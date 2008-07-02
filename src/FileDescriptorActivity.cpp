@@ -116,7 +116,7 @@ bool FileDescriptorActivity::breakLoop()
         fd_set set;
         FD_ZERO(&set);
         FD_SET(pipe, &set);
-        if (select(pipe + 1, &set, NULL, NULL, NULL) == EBADF)
+        if (select(pipe + 1, &set, NULL, NULL, NULL) == -1 && errno == EBADF)
             return true;
     }
     // never reached
