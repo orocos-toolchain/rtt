@@ -47,6 +47,11 @@ FileDescriptorActivity::FileDescriptorActivity(int priority, const std::string& 
     , m_fd(-1), m_close_on_stop(false)
     , runner(_r) {}
 
+FileDescriptorActivity::~FileDescriptorActivity()
+{
+    stop();
+}
+
 int FileDescriptorActivity::getFileDescriptor() const { return m_fd; }
 void FileDescriptorActivity::setFileDescriptor(int fd, bool close_on_stop)
 {

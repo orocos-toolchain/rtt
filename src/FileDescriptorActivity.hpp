@@ -66,6 +66,8 @@ namespace RTT {
          */
         FileDescriptorActivity(int priority, const std::string& name, RunnableInterface* _r = 0 );
 
+        virtual ~FileDescriptorActivity();
+
         int  getFileDescriptor() const;
         void setFileDescriptor(int fd, bool close_on_stop = false);
 
