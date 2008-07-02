@@ -96,26 +96,10 @@ void FileDescriptorActivity::loop()
         FD_SET(pipe, &set);
 
         int ret = select(max + 1, &set, NULL, NULL, NULL);
-        if (ret > 0)
-        {
-            if (FD_ISSET(fd, &set)) // data is available
-                step();
-            if (FD_ISSET(pipe, &set)) // breakLoop request
-            {
-                sleep(1);
-                std::cerr << "BREAKING" << std::endl;
-                break;
-            }
-        }
-        else if (ret == -1)
-        {
-            const int error = errno;
-            if (error != EINTR)
-            {
-                stop();
-                break;
-            }
-        }
+        if (ret == -1 || FD_ISSET(fd, &set)) // data is available
+            step();
+        if (ret > 0 && FD_ISSET(pipe, &set)) // breakLoop request
+            break;
     }
     close(pipe);
 }

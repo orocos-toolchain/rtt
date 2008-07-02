@@ -5,7 +5,9 @@
 
 namespace RTT {
     /** An activity which is triggered by the availability of data on a given
-     * file descriptor.
+     * file descriptor. step() (and hence the RunnableInterface's step()
+     * method) is called when data is available or when an error is encountered
+     * on the file descriptor.
      *
      * The file descriptor can be given by two means:
      * <ul>
