@@ -106,7 +106,6 @@ void FileDescriptorActivity::loop()
         if (ret > 0 && FD_ISSET(pipe, &set)) // breakLoop request
             break;
     }
-    close(pipe);
 }
 
 bool FileDescriptorActivity::breakLoop()
@@ -114,17 +113,8 @@ bool FileDescriptorActivity::breakLoop()
     if (write(m_interrupt_pipe[1], "1", 1) != 1)
         return false;
 
-    while(true)
-    {
-        // wait for the read side to be closed
-        int pipe = m_interrupt_pipe[0];
-        fd_set set;
-        FD_ZERO(&set);
-        FD_SET(pipe, &set);
-        if (select(pipe + 1, &set, NULL, NULL, NULL) == -1 && errno == EBADF)
-            return true;
-    }
-    // never reached
+    // OS::SingleThread properly waits for loop() to return
+    return true;
 }
 
 void FileDescriptorActivity::step()
@@ -145,6 +135,7 @@ bool FileDescriptorActivity::stop()
             m_fd = -1;
         }
 
+        close(m_interrupt_pipe[0]);
         close(m_interrupt_pipe[1]); // read side closed by breakLoop 
         return true;
     }
