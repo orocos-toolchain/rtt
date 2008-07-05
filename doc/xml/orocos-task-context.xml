@@ -2641,7 +2641,7 @@ the_data_port.     cd            ls
       from a 'Task user' perspective.
     </para>
     <section id="task-property-config">
-      <title>Task Property Configuration</title>
+      <title>Task Property Configuration and XML format</title>
       <para>
 	As was seen in <xref linkend="task-attr-rep" />,
 	<classname>RTT::Property</classname> objects can be
@@ -2663,6 +2663,134 @@ the_data_port.     cd            ls
 	 share a single file with multiple tasks or update the task's
 	 properties from multiple files.
        </para>
+       <para>
+	 The PropertyFile.cpf file syntax can be easily learnt by
+	 using <function>writeProperties()</function> and looking at
+	 the contents of the file. It will contain elements for each
+	 Property or PropertyBag in your task.  Below is a
+	 component with five properties. There are three properties at
+	 the top level of which one is a PropertyBag, holding two
+	 other properties.
+       </para>
+       <para>
+	<programlisting>  #include &lt;rtt/Property.hpp>
+
+  class MyTask
+    : public <classname>RTT::TaskContext</classname>
+  {
+     
+     <classname>RTT::Property</classname>&lt;int&gt; i_param;
+     <classname>RTT::Property</classname>&lt;double&gt; d_param;
+     <classname>RTT::Property</classname>&lt;PropertyBag&gt; sub_bag;
+     <classname>RTT::Property</classname>&lt;std::string&gt; s_param;
+     <classname>RTT::Property</classname>&lt;bool&gt; b_param;
+  public:
+    // ...
+    MyTask(std::string name)
+      : <classname>RTT::TaskContext</classname>(name),
+        i_param("IParam","Param Description", 5 ),
+        d_param("DParam","Param Description", -3.0),
+        sub_bag("SubBag","Bag Description"),
+        s_param("SParam","Param Description","The String"),
+        b_param("BParam","Param Description", false)
+    {
+       // other code here...
+
+       this->properties()->addProperty( &amp;i_param );
+       this->properties()->addProperty( &amp;d_param );
+       this->properties()->addProperty( &amp;sub_bag );
+
+       // we need to call addProperty on the PropertyBag object
+       // contained within the Property object, hence rvalue() is used.
+       sub_bag.rvalue().addProperty( &amp;s_param );
+       sub_bag.rvalue().addProperty( &amp;b_param );
+     }
+     // ...
+  };
+</programlisting></para><para>
+         Using writeProperties() would produce the following XML file:
+      <programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "cpf.dtd">
+<properties>
+
+  <simple name="IParam" type="short">
+    <description>Param Description</description>
+    <value>5</value>
+    </simple>
+  <simple name="DParam" type="double">
+    <description>Param Description</description>
+    <value>-3.0</value>
+  </simple>
+
+  <struct name="SubBag" type="PropertyBag">
+    <simple name="SParam" type="string">
+      <description>Param Description</description>
+      <value>The String</value>
+    </simple>
+    <simple name="BParam" type="boolean">
+      <description>Param Description</description>
+      <value>0</value>
+    </simple>
+  </struct>
+
+</properties>]]></programlisting></para>
+        <para> PropertyBags (nested properties) are represented as
+        &lt;struct&gt; elements in this format. A &lt;struct&gt; can contain
+	another &lt;struct&gt; or a &lt;simple&gt; property.
+      </para>
+      <para>
+	The following table lists the conversion from C++ data types
+	to XML Property types.
+	<table id="property-types-table">
+	  <title>C++ &amp; Property Types</title>
+	  <tgroup cols="3">
+	    <thead>
+	      <row>
+		<entry>C++ Type</entry>
+		<entry>Property type</entry>
+		<entry>Example valid XML &lt;value&gt; contents</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry>double</entry>
+		<entry>double</entry>
+		<entry>3.0</entry>
+	      </row>
+	      <row>
+		<entry>int</entry>
+		<entry><emphasis>short or long</emphasis></entry>
+		<entry>-2</entry>
+	      </row>
+	      <row>
+		<entry>bool</entry>
+		<entry><emphasis>boolean</emphasis></entry>
+		<entry><emphasis>1 or 0</emphasis></entry>
+	      </row>
+	      <row>
+		<entry>float</entry>
+		<entry>float</entry>
+		<entry>15.0</entry>
+	      </row>
+	      <row>
+		<entry>char</entry>
+		<entry>char</entry>
+		<entry>c</entry>
+	      </row>
+	      <row>
+		<entry>std::string</entry>
+		<entry>string</entry>
+		<entry>Hello World</entry>
+	      </row>
+	      <row>
+		<entry>unsigned int</entry>
+		<entry><emphasis>ulong or ushort</emphasis></entry>
+		<entry>4</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
+      </para>
     </section>
     <section>
       <title>Task Scripts</title>
