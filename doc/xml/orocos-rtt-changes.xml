@@ -37,6 +37,13 @@
     <title>Caveats</title>
     <itemizedlist>
       <listitem>
+	<para>
+	  This release is binary incompatible with RTT
+	  &oldversion;.x. You need to recompile all your applications
+	  in order to upgrade to this release.
+	</para>
+      </listitem>
+      <listitem>
 	<para> The <classname>RTT::AnalogInInterface</classname>,
 	<classname>RTT::AnalogOutInterface</classname>
 	<classname>RTT::AnalogInput</classname> and
@@ -45,8 +52,8 @@
 	RTT 1.4 and older. The template parameter has been dropped
 	and the default 'raw' value is now <option>int</option>. In this
 	way, two's complement and unsigned A/D converters are supported
-	upto 31 bits. This change did also change the Comedi API in OCL.
-	Also, Comedi classes moved from the RTT to the OCL namespace.
+	upto 31 bits. This change did also change the Comedi API in OCL,
+	see below.
 	</para>
 	<para>
 	  See also
@@ -238,6 +245,66 @@
 	</listitem>
 	<listitem>
 	  <para>
+	    Completely transparant Method and Command invocation in
+	    C++ on remote CORBA TaskContexts has been added (this was 
+	    already available in the scripting interface). This
+	    feature however increases code size, even if CORBA is not
+	    used. A CMake variable ORO_REMOTING has been defined which
+	    allows to turn this feature off. It is enabled by default
+	    if you build the RTT with the CORBA protocol library.
+	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=520">
+	      getMethod&lt;...&gt;("name") does not work for remote/CORBA components
+	      </ulink>.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+  </section>
+  <section>
+    <title>Orocos Component Library</title>
+    <section>
+      <title>Caveats</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    This release is binary incompatible with OCL
+	    &oldversion;.x. You need to recompile all your applications
+	    in order to upgrade to this release.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>The Comedi API in OCL has changed to the API of the new
+	  RTT base classes.  Also, Comedi classes moved from
+	  the RTT to the OCL namespace. 
+	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=488">
+	      AnalogIn/OutInterface is an atrocity.
+	      </ulink>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para> The <classname>RTT::Axis</classname> and related
+	  classes from the OCL hardware package have been moved to the
+	  <classname>OCL</classname> namespace.
+	  </para>
+	  <para> See also
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=">
+	      Move Axes classes to OCL namespace.
+	      </ulink>.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>Improvements</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
 	    Orocos better intercepts lost connections to remote TaskContexts.
 	    The Orocos Component Library's deployer and taskbrowser use
 	    this infrastructure to detect and cope with lost connections.
@@ -266,27 +333,41 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    The <option>AutoConnect</option> feature now also works across
-	    distributed components, provided that both components have
-	    the AutoConnect option set in the XML configuration and that
-	    one is known as a peer to the other.
+	    The <option>AutoConnect</option> feature of the deployer
+	    now also works across distributed components, provided
+	    that both components have the AutoConnect option set in
+	    the XML configuration and that one is known as a peer to
+	    the other.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    Completely transparant Method and Command invocation in
-	    C++ on remote CORBA TaskContexts has been added (this was 
-	    already available in the scripting interface). This
-	    feature however increases code size, even if CORBA is not
-	    used. A CMake variable ORO_REMOTING has been defined which
-	    allows to turn this feature off. It is enabled by default
-	    if you build the RTT with the CORBA protocol library.
+	    An <option>Include</option> feature has been added to
+	    the deployer's XML file syntax. This directive allows to
+	    include another XML file in place such that you can better
+	    manage multiple XML files or share XML files between users.
 	  </para>
+	</listitem>
+	<listitem>
 	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=520">
-	      getMethod&lt;...&gt;("name") does not work for remote/CORBA components
-	      </ulink>.
+	    The deployer logs improved diagnostics in stopComponents,
+	    startComponents,...  family of functions.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The deployer does 'spell' checking for unknown or misspelled
+	    XML 'name' attributes, which goes further than the standard
+	    XML syntax checking.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The taskbrowser can be compiled with the -DNO_GPL flag
+	    such that it does not contain any GPL'ed code. This flag
+	    removes the dependency on the GPL readline
+	    library. TAB-completion and history are not available in
+	    that case.
 	  </para>
 	</listitem>
       </itemizedlist>
