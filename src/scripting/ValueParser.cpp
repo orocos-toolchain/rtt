@@ -52,6 +52,7 @@ namespace RTT
     BOOST_SPIRIT_DEBUG_RULE( const_double );
     BOOST_SPIRIT_DEBUG_RULE( const_int );
     BOOST_SPIRIT_DEBUG_RULE( const_uint );
+    BOOST_SPIRIT_DEBUG_RULE( const_char );
     BOOST_SPIRIT_DEBUG_RULE( const_bool );
     BOOST_SPIRIT_DEBUG_RULE( const_string );
     BOOST_SPIRIT_DEBUG_RULE( named_constant );
@@ -102,14 +103,14 @@ namespace RTT
           |
           ( peerparser.locator()[bind( &ValueParser::seenpeer, this) ]
             >> propparser.locator()
-            >> commonparser.identifier[bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]) ) 
+            >> commonparser.identifier[bind( &ValueParser::seennamedconstant, this, _1, _2 ) ]) )
         ;
   }
 
     void ValueParser::seenpeer() {
         // inform propparser of new peer :
-//         std::cerr << "ValueParser: seenpeer : "<< peerparser.peer()->getName()
-//                   <<" has props :" << (peerparser.peer()->properties() != 0) << std::endl;
+        //std::cerr << "ValueParser: seenpeer : "<< peerparser.peer()->getName()
+        //          <<" has props :" << (peerparser.peer()->properties() != 0) << std::endl;
         propparser.setPropertyBag( peerparser.peer()->properties() );
     }
 
@@ -131,13 +132,13 @@ namespace RTT
     TaskContext* peer = peerparser.peer();
     OperationInterface* task = peerparser.taskObject();
     peerparser.reset();
-//     std::cerr << "ValueParser: seenvar : "<< name
-//               <<" is bag : " << (propparser.bag() != 0) << " is prop: "<< (propparser.property() != 0) << std::endl;
+    //std::cerr << "ValueParser: seenvar : "<< name
+    //          <<" is bag : " << (propparser.bag() != 0) << " is prop: "<< (propparser.property() != 0) << std::endl;
     // in case our task is a taskcontext:
-    if ( task == 0 && propparser.bag() && propparser.property() ) {
+    if ( task == peer && propparser.bag() && propparser.property() ) {
         // nested property case :
         if ( ! propparser.bag()->find( name ) ) {
-            //             std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
+            //std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
             throw_(begin, "Property " + name + " not present in PropertyBag "+propparser.property()->getName()+" in "+ peer->getName()+".");
         }
         ret = propparser.bag()->find( name )->getDataSource();
@@ -155,11 +156,7 @@ namespace RTT
         return;
     }
 
-    //    std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
-//         peerparser.peer()->debug(true);
-//         peer->debug(true);
     throw_(begin, "Value " + name + " not defined in "+ peer->getName()+".");
-    //      throw parse_exception_undefined_value( name );
   }
 
     void ValueParser::seennull()

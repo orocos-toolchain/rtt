@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Sat May 21 20:15:52 CEST 2005  PropertyParser.hpp 
+  tag: Peter Soetens  Sat May 21 20:15:52 CEST 2005  PropertyParser.hpp
 
                         PropertyParser.hpp -  description
                            -------------------
     begin                : Sat May 21 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #ifndef ORO_PROPERTYPARSER_HPP
 #define ORO_PROPERTYPARSER_HPP
@@ -44,7 +44,7 @@
 #include "CommonParser.hpp"
 #include <string>
 
-namespace RTT 
+namespace RTT
 {
     namespace detail {
     /**
@@ -88,5 +88,5 @@ namespace RTT
         PropertyBag*  bag() const { return _bag; }
     };
 }}
-            
+
 #endif
