@@ -22,7 +22,7 @@ function usage
 
 function getoptions
 {
-    arg=$1
+    arg="$1"
     if [ $(expr match "$arg" "CC=") != 0 ]; then
 	CMAKE_CC="$arg"
     fi
@@ -89,7 +89,7 @@ done
 #    exit 1
 # fi
 
-src_dir=$(dirname $0)
+src_dir="$(dirname $0)"
 
 if [ -f ./CMakeCache.txt ]; then
    echo "Error: One can not change the compiler once configured !"
