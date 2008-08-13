@@ -1,12 +1,12 @@
 '/***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  SimpleDemarshaller.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  SimpleDemarshaller.hpp
 
                         SimpleDemarshaller.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef PI_PROPERTIES_SIMPLE_DEMARSHALLER
 #define PI_PROPERTIES_SIMPLE_DEMARSHALLER
 
@@ -69,8 +69,8 @@ public:
       // FIXME first check if the target file exists...
       _is = new std::ifstream( filename.c_str() );
     }
-	
-            virtual bool deserialize(PropertyBag &v) 
+
+            virtual bool deserialize(PropertyBag &v)
 			{
 				using namespace std;
 #if 0
@@ -79,13 +79,13 @@ public:
 				if(begin_token == '{')
 					cerr << "read begin";
 #endif
-			
+
 				char c;
       while( _is->read(&c,1) )
 				{
 					unsigned char name_length, value_length;
-					char name[256];					
-					char value[256];				
+					char name[256];
+					char value[256];
 					int intvalue;
 					double doublevalue;
 	  _is->read(reinterpret_cast<char*>(&name_length),1);
@@ -145,8 +145,8 @@ public:
                 }
 #endif
 //                _os <<"</Bag>\n";
-	
-#if 0		
+
+#if 0
       *_is >> end_token;
 				if(end_token == '}')
 					cerr << "read end";
@@ -157,7 +157,7 @@ public:
   protected:
     // Input stream
     input_stream * _is;
-			
+
 
     };
 }

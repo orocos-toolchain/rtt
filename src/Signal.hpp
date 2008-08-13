@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:38 CET 2006  Signal.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:38 CET 2006  Signal.hpp
 
                         Signal.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_CORELIB_SIGNAL_HPP
 #define ORO_CORELIB_SIGNAL_HPP
 
@@ -152,11 +152,11 @@ namespace RTT {
     protected:
         typedef typename detail::get_signal_impl< Signature,
                                                   SlotFunction>::type base_type;
-        
+
     public:
         signal() {}
     };
-    
+
     } // end namespace detail
 
 } // namespace RTT

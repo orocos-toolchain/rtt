@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Mar 2 08:30:18 CET 2006  DataPort.hpp 
+  tag: Peter Soetens  Thu Mar 2 08:30:18 CET 2006  DataPort.hpp
 
                         DataPort.hpp -  description
                            -------------------
     begin                : Thu March 02 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_EXECUTION_DATA_PORT_INTERFACE_HPP
 #define ORO_EXECUTION_DATA_PORT_INTERFACE_HPP
 
@@ -148,7 +148,7 @@ namespace RTT
          */
         T Get() const
         {
-#ifndef ORO_EMBEDDED            
+#ifndef ORO_EMBEDDED
             try {
 #endif
                 if ( mconn )
@@ -169,7 +169,7 @@ namespace RTT
          */
         void Get(T& result)
         {
-#ifndef ORO_EMBEDDED            
+#ifndef ORO_EMBEDDED
             try {
 #endif
                 if ( mconn )
@@ -221,7 +221,7 @@ namespace RTT
         using DataPortBase<T>::operator=;
     public:
         typedef T DataType;
-        
+
         /**
          * Construct an unconnected Port to a writable DataObject.
          * @param name The name of this port.
@@ -240,7 +240,7 @@ namespace RTT
          */
         void Set(const T& data )
         {
-#ifndef ORO_EMBEDDED            
+#ifndef ORO_EMBEDDED
             try {
 #endif
                 if ( mconn )
@@ -318,7 +318,7 @@ namespace RTT
          */
         void Set(const DataType& data )
         {
-#ifndef ORO_EMBEDDED            
+#ifndef ORO_EMBEDDED
             try {
 #endif
                 if ( mconn )
@@ -339,7 +339,7 @@ namespace RTT
          */
         DataType Get() const
         {
-#ifndef ORO_EMBEDDED            
+#ifndef ORO_EMBEDDED
             try {
 #endif
                 if ( mconn )
@@ -361,7 +361,7 @@ namespace RTT
          */
         void Get(DataType& result)
         {
-#ifndef ORO_EMBEDDED            
+#ifndef ORO_EMBEDDED
             try {
 #endif
                 if ( mconn )
@@ -375,7 +375,7 @@ namespace RTT
         }
 
         virtual PortInterface::PortType getPortType() const { return PortInterface::ReadWritePort; }
-        
+
         virtual PortInterface* clone() const {
             return new DataPort<T>( this->getName(), this->minitial_value );
         }
@@ -440,7 +440,7 @@ namespace RTT
         ci->addPort(this);
         return ci;
     }
-    
+
     template<class T>
     ConnectionInterface::shared_ptr WriteDataPort<T>::createConnection(ConnectionTypes::ConnectionType con_type)
     {
@@ -449,7 +449,7 @@ namespace RTT
         res->addPort(this);
         return res;
     }
-    
+
     template<class T>
     ConnectionInterface::shared_ptr DataPort<T>::createConnection(ConnectionTypes::ConnectionType con_type)
     {

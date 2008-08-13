@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Apr 22 20:40:59 CEST 2004  FakeAnalogDevice.hpp 
+  tag: Peter Soetens  Thu Apr 22 20:40:59 CEST 2004  FakeAnalogDevice.hpp
 
                         FakeAnalogDevice.hpp -  description
                            -------------------
     begin                : Thu April 22 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -23,8 +23,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef FAKEANALOGDEVICE_HPP
 #define FAKEANALOGDEVICE_HPP
 
@@ -60,17 +60,17 @@ namespace RTT
             delete[] mchannels;
         }
 
-        virtual void rangeSet(unsigned int /*chan*/, 
+        virtual void rangeSet(unsigned int /*chan*/,
                               unsigned int /*range*/) {}
 
-        virtual void arefSet(unsigned int /*chan*/, 
+        virtual void arefSet(unsigned int /*chan*/,
                              unsigned int /*aref*/) {}
 
         virtual unsigned int nbOfChannels() const {
             return nbofchans;
         }
 
-        virtual int read( unsigned int chan, double& value ) 
+        virtual int read( unsigned int chan, double& value )
         {
             if (chan < nbofchans) {
                 value = mchannels[chan] / resolution(chan) + mlowest;
@@ -123,7 +123,7 @@ namespace RTT
             return mbin_range/(mhighest-mlowest);
         }
 
-    };    
+    };
 
 }
 

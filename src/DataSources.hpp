@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  DataSources.hpp 
+  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  DataSources.hpp
 
                         DataSources.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_CORELIB_DATASOURCES_HPP
 #define ORO_CORELIB_DATASOURCES_HPP
 
@@ -50,9 +50,9 @@ namespace RTT
 
     /**
      * A simple, yet very useful DataSource, which keeps a value, and
-     * returns it in its get() method. 
+     * returns it in its get() method.
      * This is an AssignableDataSource, which
-     * thus can be changed. 
+     * thus can be changed.
      * @param T The result data type of get().
      */
     template<typename T>
@@ -188,7 +188,7 @@ namespace RTT
         IndexedValueDataSource()
         {}
 
-        CommandInterface* updateCommand( DataSourceBase* other) 
+        CommandInterface* updateCommand( DataSourceBase* other)
         {
             DataSourceBase::const_ptr r( other );
             typedef typename AssignableDataSource<T>::copy_t copy_t;
@@ -311,7 +311,7 @@ namespace RTT
       /**
        * Create a DataSource which returns the return value of a function
        * \a f which is given argument \a a and \a b.
-       */ 
+       */
     BinaryDataSource( typename DataSource<first_arg_t>::shared_ptr a,
                       typename DataSource<second_arg_t>::shared_ptr b,
                       function f )
@@ -370,7 +370,7 @@ namespace RTT
       /**
        * Create a DataSource which returns the return value of a function
        * \a f which is given argument \a a to \a c.
-       */ 
+       */
     TernaryDataSource( typename DataSource<first_arg_t>::shared_ptr a,
                        typename DataSource<second_arg_t>::shared_ptr b,
                        typename DataSource<third_arg_t>::shared_ptr c,
@@ -440,7 +440,7 @@ namespace RTT
       /**
        * Create a DataSource which returns the return value of a function
        * \a f which is given argument \a a to \a f.
-       */ 
+       */
     SixaryDataSource(
                      typename DataSource<first_arg_t>::shared_ptr a,
                      typename DataSource<second_arg_t>::shared_ptr b,
@@ -517,7 +517,7 @@ namespace RTT
       /**
        * Create a DataSource which returns the return value of a function
        * \a f which is given argument \a a.
-       */ 
+       */
     UnaryDataSource( typename DataSource<arg_t>::shared_ptr a, function f )
       : mdsa( a ), fun( f )
       {
@@ -549,11 +549,11 @@ namespace RTT
   };
 
   /**
-   * A generic N-arity composite DataSource. It collects data sources of the same type 
-   * and passes the values found on to \a function by means of a std::vector. 
+   * A generic N-arity composite DataSource. It collects data sources of the same type
+   * and passes the values found on to \a function by means of a std::vector.
    * @param function Is a struct which defines value_t operator()(const std::vector<arg_t>&),
    * where \a value_t is defined as \a function::result_type
-   * and \a arg_t is defined as \a function::argument_type. 
+   * and \a arg_t is defined as \a function::argument_type.
    */
   template<typename function>
   class NArityDataSource
@@ -570,7 +570,7 @@ namespace RTT
       /**
        * Create a DataSource which returns the return value of a function
        * \a f.
-       */ 
+       */
       NArityDataSource( function f = function() )
           : fun( f )
       {
@@ -579,7 +579,7 @@ namespace RTT
       /**
        * Create a DataSource which returns the return value of a function
        * \a f.
-       */ 
+       */
       NArityDataSource( function f, const std::vector<typename DataSource<arg_t>::shared_ptr >& dsargs )
           : margs( dsargs.size() ), mdsargs(dsargs), fun( f )
       {

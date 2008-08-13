@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Jan 13 10:24:51 CET 2005  BufferLockFree.hpp 
+  tag: Peter Soetens  Thu Jan 13 10:24:51 CET 2005  BufferLockFree.hpp
 
                         BufferLockFree.hpp -  description
                            -------------------
     begin                : Thu January 13 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -37,7 +37,7 @@
 
 #ifndef ORO_BUFFER_LOCK_FREE_HPP
 #define ORO_BUFFER_LOCK_FREE_HPP
- 
+
 #include "os/oro_atomic.h"
 #include "os/CAS.hpp"
 #include "BufferPolicy.hpp"
@@ -67,7 +67,7 @@ namespace RTT
      * @param ReadPolicy The Policy to block (wait) on \a empty (during read),
      * using \a BlockingPolicy, or to return \a false, using \a NonBlockingPolicy (Default).
      * This does not influence partial filled buffer behaviour.
-     * @param WritePolicy The Policy to block (wait) on \a full (during write), 
+     * @param WritePolicy The Policy to block (wait) on \a full (during write),
      * using \a BlockingPolicy, or to return \a false, using \a NonBlockingPolicy (Default).
      * This does not influence partial filled buffer behaviour.
      * @ingroup Ports
@@ -133,7 +133,7 @@ namespace RTT
             return this->Push( d );
         }
 
-        bool Push( param_t item) 
+        bool Push( param_t item)
         {
             Item* mitem = mpool.allocate();
             if ( mitem == 0 ) // queue full.
@@ -149,7 +149,7 @@ namespace RTT
         }
 
         /**
-         * Write a sequence of values to the buffer. 
+         * Write a sequence of values to the buffer.
          * Block if full if Policy is BlockingPolicy.
          * @param d the values to write
          * @return the number of values written (may be less than d.size())
@@ -187,7 +187,7 @@ namespace RTT
             // if orig == 0, then queue is empty
             if (orig == 0)
                 return value_t();
-            
+
             // ok, copy, unlock and return front.
             value_t ret = *orig;
             mpool.unlock( orig );

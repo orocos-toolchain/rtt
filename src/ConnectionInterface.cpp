@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Mar 2 08:30:18 CET 2006  ConnectionInterface.cxx 
+  tag: Peter Soetens  Thu Mar 2 08:30:18 CET 2006  ConnectionInterface.cxx
 
                         ConnectionInterface.cxx -  description
                            -------------------
     begin                : Thu March 02 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "ConnectionInterface.hpp"
 #include "PortInterface.hpp"
@@ -43,23 +43,23 @@
 namespace RTT
 {
 
-    ConnectionInterface::ConnectionInterface() 
-    : mconnected(false) 
+    ConnectionInterface::ConnectionInterface()
+    : mconnected(false)
     { oro_atomic_set(&refcount,0); }
 
     ConnectionInterface::~ConnectionInterface()
     {
     }
-    
+
     bool ConnectionInterface::connected() const
     {
         return mconnected;
     }
 
     bool ConnectionInterface::connect()
-    { 
+    {
         // note, this method is not thread-safe.
-        if (!mconnected) { 
+        if (!mconnected) {
 
             // first check existing connections:
             for ( PList::iterator it( ports.begin() ); it != ports.end(); ++it)
@@ -77,7 +77,7 @@ namespace RTT
 
     bool ConnectionInterface::disconnect()
     {
-        if (mconnected) { 
+        if (mconnected) {
             for ( PList::iterator it( ports.begin() ); it != ports.end(); ++it)
                 (*it)->disconnect();
             mconnected = false;
@@ -85,7 +85,7 @@ namespace RTT
         }
         return false;
     }
-        
+
     bool ConnectionInterface::addPort(PortInterface* r)
     {
         ports.push_back( r );
@@ -104,8 +104,8 @@ namespace RTT
     }
 }
 void intrusive_ptr_add_ref( RTT::ConnectionInterface* p )
-{ 
-    oro_atomic_inc(&(p->refcount) ); 
+{
+    oro_atomic_inc(&(p->refcount) );
 }
 
 void intrusive_ptr_release( RTT::ConnectionInterface* p )

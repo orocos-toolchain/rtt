@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:24 CET 2008  CorbaTemplateProtocol.hpp 
+  tag: FMTC  Tue Mar 11 21:49:24 CET 2008  CorbaTemplateProtocol.hpp
 
                         CorbaTemplateProtocol.hpp -  description
                            -------------------
     begin                : Tue March 11 2008
     copyright            : (C) 2008 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_CORBA_TEMPATE_PROTOCOL_HPP
 #define ORO_CORBA_TEMPATE_PROTOCOL_HPP
 
@@ -61,7 +61,7 @@ namespace RTT
        * This class uses the TypeTransport of Orocos which uses (void*) for
        * passing on data. TAO's CORBA implementation uses virtual inheritance,
        * which does not work well together with (void*). That is, you must cast
-       * back to the exect same type the (void*) originated from and NOT to a 
+       * back to the exect same type the (void*) originated from and NOT to a
        * sub- or super-class. That would have been allowed without virtual inheritance.
        * @warning
        * Hence, this class uses always the same base class (Expression_ptr) to
@@ -99,7 +99,7 @@ namespace RTT
           /**
            * Update \a target with the contents of \a blob which is an object of a \a protocol.
            */
-          virtual bool updateBlob(const void* blob, DataSourceBase::shared_ptr target) const 
+          virtual bool updateBlob(const void* blob, DataSourceBase::shared_ptr target) const
           {
             //This line causes a compile error in DataSourceAdaptor.hpp (where the bug is)
             //Only narrow.
@@ -119,7 +119,7 @@ namespace RTT
           /**
            * Create a DataSource which is a proxy for a remote object.
            */
-          virtual DataSourceBase* proxy( void* data ) const 
+          virtual DataSourceBase* proxy( void* data ) const
           {
             DataSourceBase* result = 0;
             Corba::Expression_ptr e = static_cast<Corba::Expression_ptr>(data);
@@ -132,18 +132,18 @@ namespace RTT
             return result;
           }
 
-          virtual void* server(DataSourceBase::shared_ptr source, bool assignable, void* arg ) const 
+          virtual void* server(DataSourceBase::shared_ptr source, bool assignable, void* arg ) const
           {
               PortableServer::POA_ptr p = static_cast<PortableServer::POA_ptr>(arg);
               if (assignable){
                   return static_cast<Expression_ptr>(Corba::ExpressionServer::CreateAssignableExpression( source, p ));
-                  
+
               } else {
                   return Corba::ExpressionServer::CreateExpression( source, p );
               }
           }
 
-          virtual void* method(DataSourceBase::shared_ptr source, MethodC* orig, void* arg) const 
+          virtual void* method(DataSourceBase::shared_ptr source, MethodC* orig, void* arg) const
           {
               PortableServer::POA_ptr p = static_cast<PortableServer::POA_ptr>(arg);
               return Corba::ExpressionServer::CreateMethod( source, orig, p );
@@ -169,7 +169,7 @@ namespace RTT
               }
               return 0;
           }
-          
+
           virtual DataSourceBase* narrowAssignableDataSource(DataSourceBase* dsb)
           {
               // then try to see if it is a CORBA object.
@@ -185,20 +185,20 @@ namespace RTT
           {
               // Detect corba connection
               Corba::CorbaPort* cp = dynamic_cast<Corba::CorbaPort*>( data );
-              
+
               assert(cp);
 
               return new Corba::CorbaDataObjectProxy<T>("CorbaProxy", cp->getDataChannel());
           }
-          
+
           virtual DataSourceBase* dataProxy( void* data ) const
           {
               Corba::AssignableExpression_ptr ae = static_cast<Corba::AssignableExpression_ptr>(data);
               log(Debug) << "Creating Corba DataSource proxy." << endlog();
               return new Corba::CorbaDataObjectProxy<T>("CorbaProxy", ae );
           }
-          
-          virtual void* dataServer( DataSourceBase::shared_ptr source, void* arg) const 
+
+          virtual void* dataServer( DataSourceBase::shared_ptr source, void* arg) const
           {
               // create a default channel.
               log(Debug) << "Returning Corba Data Object." << endlog();
@@ -209,24 +209,24 @@ namespace RTT
            * Returns a new BufferInterface<T> object mirroring a remote buffer object server.
            * Used to setup a Corba Data Flow.
            */
-          virtual BufferBase* bufferProxy( PortInterface* data ) const 
+          virtual BufferBase* bufferProxy( PortInterface* data ) const
           {
               // Detect corba connection
               Corba::CorbaPort* cp = dynamic_cast<Corba::CorbaPort*>( data );
-              
+
               assert( cp );
-              
+
               return new Corba::CorbaBufferProxy<T>( cp->getBufferChannel() );
           }
 
-          virtual BufferBase* bufferProxy( void* data ) const 
+          virtual BufferBase* bufferProxy( void* data ) const
           {
               Corba::BufferChannel_ptr buf = static_cast<Corba::BufferChannel_ptr>(data);
               log(Debug) << "Creating Corba BufferChannel proxy." << endlog();
               return new Corba::CorbaBufferProxy<T>( buf );
           }
 
-            virtual void* bufferServer( BufferBase::shared_ptr source, void* arg) const 
+            virtual void* bufferServer( BufferBase::shared_ptr source, void* arg) const
           {
               // arg is POA !
               typename RTT::BufferInterface<T>::shared_ptr bi = boost::dynamic_pointer_cast< RTT::BufferInterface<T> >( source );

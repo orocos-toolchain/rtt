@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:07 CET 2006  UnMember.hpp 
+  tag: FMTC  do nov 2 13:06:07 CET 2006  UnMember.hpp
 
                         UnMember.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_UN_MEMBER_HPP
 #define ORO_UN_MEMBER_HPP
 
@@ -64,7 +64,7 @@ namespace RTT
         template<class F>
         class UnMember
         {
-            typedef boost::function_type_signature<F> member_signature; 
+            typedef boost::function_type_signature<F> member_signature;
             typedef typename boost::mpl::erase<typename member_signature::types,
                                                typename boost::mpl::next<typename boost::mpl::begin<member_signature>::type>::type>::type non_member_signature;
         public:
@@ -79,7 +79,7 @@ namespace RTT
         template<class F>
         class ArgMember
         {
-            typedef boost::function_type_signature<F> member_signature; 
+            typedef boost::function_type_signature<F> member_signature;
             // remove the class from the arg list:
             typedef typename boost::mpl::erase<typename member_signature::types,
                                                typename boost::mpl::next<typename boost::mpl::begin<member_signature>::type>::type>::type non_member_signature;
@@ -98,7 +98,7 @@ namespace RTT
         template<class F>
         class UnPointer
         {
-            typedef boost::function_type_signature<F> signature; 
+            typedef boost::function_type_signature<F> signature;
         public:
             typedef typename boost::function_type<boost::plain_function,signature>::type type;
         };

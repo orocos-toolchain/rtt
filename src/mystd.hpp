@@ -324,8 +324,8 @@ namespace RTT
     result_type operator()( int a, int b ) const
       {
           //integer division by zero will throw a fatal
-          //exception, aborting the program (SIGFPE). This is 
-          // unacceptable, the problem is however that 
+          //exception, aborting the program (SIGFPE). This is
+          // unacceptable, the problem is however that
           // we can not signal an erronous expression in Orocos.
           // we propagate zero instead.
         return b == 0 ? 0 : a/b;

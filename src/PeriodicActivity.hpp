@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:19 CET 2004  PeriodicActivity.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:19 CET 2004  PeriodicActivity.hpp
 
                         PeriodicActivity.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef ORO_PERIODIC_ACTIVITY_HPP
 #define ORO_PERIODIC_ACTIVITY_HPP
 
@@ -58,7 +58,7 @@ namespace RTT
      * A PeriodicActivity is executed in a TimerThread. Multiple
      * PeriodicActivities having the same priority and periodicity will be executed
      * in the same TimerThread one after the other.
-     * 
+     *
      * It will execute a RunnableInterface, or the equivalent methods in
      * it's own interface when none is given.
      * When initialize() returns false, it will abort start().
@@ -109,7 +109,7 @@ namespace RTT
          *
          * @param thread
          *        The thread this Activity will be run in. Both period and priority of this activity
-         *        will be the same as \a thread. 
+         *        will be the same as \a thread.
          * @param r
          *        The optional RunnableInterface to run exclusively within this Activity
          */
@@ -147,7 +147,7 @@ namespace RTT
          * Stops and terminates a PeriodicActivity
          */
         virtual ~PeriodicActivity();
-           
+
         /**
          * Run exclusively this RunnableInterface.
          *
@@ -179,12 +179,12 @@ namespace RTT
          * @see RunnableInterface::initialize()
          */
         virtual bool initialize();
-        
+
         /**
          * @see RunnableInterface::step()
          */
         virtual void step();
-        
+
         /**
          * @see RunnableInterface::finalize()
          */

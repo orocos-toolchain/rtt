@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  EventProcessor.hpp 
+  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  EventProcessor.hpp
 
                         EventProcessor.hpp -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_EVENTPROCESSOR_HPP
 #define ORO_EVENTPROCESSOR_HPP
 
@@ -81,7 +81,7 @@ namespace RTT
             bool enabled;
 
             typedef boost::intrusive_ptr< EventCatcher > shared_ptr;
-            
+
         };
 
         void intrusive_ptr_add_ref( EventCatcher* p );
@@ -110,7 +110,7 @@ namespace RTT
                 : f(f_), work(false)
             {
             }
-            
+
             Handle setup( SignalType& sig ) {
                 return sig.setup( boost::bind( &EventCatcherImpl<0, SignalType, ContainerType>::handler,
                                                                         shared_ptr(this)) );
@@ -468,7 +468,7 @@ namespace RTT
      * subclass this class and override step() or other virtual functions.
      * The BlockingEventProcessor is an example of an EventProcessor with
      * a different policy, and can be subclassed in turn.
-     * 
+     *
      * @see CompletionProcessor
      * @ingroup CoreLibEvents
      * @ingroup Processor
@@ -494,7 +494,7 @@ namespace RTT
          * how the arguments are stored in case of an
          * overrun, ie, when the event is fired multiple times,
          * before the asynchronous callback can be called.
-         * 
+         *
          */
         enum AsynStorageType {
             OnlyFirst, /** < Only call the callback once with the first fire() call's arguments */

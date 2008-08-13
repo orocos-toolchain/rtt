@@ -52,7 +52,7 @@
 namespace RTT
 {
     using boost::bind;
-    
+
     using namespace detail;
     using namespace std;
 
@@ -86,7 +86,7 @@ namespace RTT
     // the parser just before it's going to be used, when we know what
     // arguments we want..  See the ArgumentsParser doc for more
     // details..
-    datacall = 
+    datacall =
         ( peerparser.locator() >>
           !(commonparser.identifier >> ".") >>   // just consume, peer locator already has object name
           expect_ident(commonparser.identifier)[bind( &DataCallParser::seenmethodname, this, _1, _2 ) ]
@@ -123,7 +123,7 @@ namespace RTT
                   throw parse_exception_no_such_method_on_component( "DataCall::"+peer->getName(), mmethod );
           }
       }
-           
+
       // create an argument parser for the call..
       // Store everything in the ArgumentsParser ! This DataCallParser instance is recursively called !
       ArgumentsParser* argspar =
@@ -344,7 +344,7 @@ namespace RTT
     indexexp =
         (ch_p('[') >> expression[bind(&ExpressionParser::seen_binary, this, "[]")] >> expect_close( ch_p( ']') ) );
 
-    dotexp = 
+    dotexp =
         +( ch_p('.') >> commonparser.identifier[ bind(&ExpressionParser::seen_dotmember, this, _1, _2)]);
 
     // needs no semantic action, its result is already on top of
@@ -410,12 +410,12 @@ namespace RTT
         break;
     case 'n': total = tsecs / 1000000000.0;
         break;
-    default: 
+    default:
         std::string arg(begin, end);
         throw parse_exception_semantic_error("Expected time expression 's', 'ms', 'us' or 'ns' after integer value, got "+arg);
     };
 
-    parsestack.push( new ConstantDataSource<double>( total ) ); 
+    parsestack.push( new ConstantDataSource<double>( total ) );
 
 //     DataSourceBase::shared_ptr dsb( new DataSourceCondition(
 //       new ConditionDuration( total, _invert_time ) ) );

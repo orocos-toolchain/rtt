@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:41 CET 2006  eventservice_test.cpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:41 CET 2006  eventservice_test.cpp
 
                         eventservice_test.cpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include <Event.hpp>
 #include <Logger.hpp>
 #include <RunnableInterface.hpp>
@@ -36,7 +36,7 @@ using namespace RTT;
 using namespace boost;
 using namespace std;
 
-void 
+void
 EventServiceTest::setUp()
 {
     t_event0 = Event<void(void)>("t_event0");
@@ -44,7 +44,7 @@ EventServiceTest::setUp()
     t_event2 = RTT::Event<void( std::string, double )>("t_event2");
     t_event3 = RTT::Event<void( std::string, double, bool )>("t_event3");
 
-    
+
     event_proc = new EventProcessor();
     act.run(event_proc);
     act.start();
@@ -53,7 +53,7 @@ EventServiceTest::setUp()
 }
 
 
-void 
+void
 EventServiceTest::tearDown()
 {
     act.stop();
@@ -76,7 +76,7 @@ void EventServiceTest::listener1(const std::string& s)
     t_listener_done = true;
     t_listener_string=s;
 }
-void EventServiceTest::completer1(const std::string&s) 
+void EventServiceTest::completer1(const std::string&s)
 {
     t_completer_done = true;
     t_completer_string=s;

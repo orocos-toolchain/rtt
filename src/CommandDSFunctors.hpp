@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:10 CET 2006  CommandDSFunctors.hpp 
+  tag: FMTC  do nov 2 13:06:10 CET 2006  CommandDSFunctors.hpp
 
                         CommandDSFunctors.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_COMMAND_DS_FUNCTORS_HPP
 #define ORO_COMMAND_DS_FUNCTORS_HPP
 
@@ -67,7 +67,7 @@ namespace RTT
 
             void setArguments( DataSourceBase* = 0, DataSourceBase* = 0, DataSourceBase* = 0, DataSourceBase* = 0  ) {}
             void readArguments(){}
-      
+
             bool execute()
             {
                 // the Component pointer is stored in a DataSource
@@ -119,7 +119,7 @@ namespace RTT
             {
             }
 
-            void setArguments( DataSource<Arg2T>* a, DataSourceBase* = 0, DataSourceBase* = 0, DataSourceBase* = 0  ) 
+            void setArguments( DataSource<Arg2T>* a, DataSourceBase* = 0, DataSourceBase* = 0, DataSourceBase* = 0  )
             {
                 aa = a;
             }
@@ -128,7 +128,7 @@ namespace RTT
             {
                 aa->evaluate();
             }
-      
+
             bool execute()
             {
                 boost::shared_ptr<CompT> c =  ds->get().lock();
@@ -160,7 +160,7 @@ namespace RTT
                 return FunctorDS1( ds->copy(alreadyCloned), fun, aa->copy( alreadyCloned ) );
             }
         };
-        
+
     }
 }
 

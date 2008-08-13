@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:58 CEST 2006  ScriptingAccessI.h 
+  tag: Peter Soetens  Mon Jun 26 13:25:58 CEST 2006  ScriptingAccessI.h
 
                         ScriptingAccessI.h -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 // -*- C++ -*-
 //
 // $Id$
@@ -63,7 +63,7 @@
 // Information about TAO is available at:
 //     http://www.cs.wustl.edu/~schmidt/TAO.html
 
-// TAO_IDL - Generated from 
+// TAO_IDL - Generated from
 // be/be_codegen.cpp:844
 
 #ifndef SCRIPTINGACCESSI_H_
@@ -83,17 +83,17 @@ class  Orocos_ScriptingAccess_i : public virtual POA_RTT::Corba::ScriptingAccess
     RTT::ScriptingAccess* mee;
 	PortableServer::POA_var mpoa;
 public:
-  //Constructor 
+  //Constructor
   Orocos_ScriptingAccess_i (RTT::ScriptingAccess* ee, PortableServer::POA_ptr p);
-  
-  //Destructor 
+
+  //Destructor
   virtual ~Orocos_ScriptingAccess_i (void);
 
     PortableServer::POA_ptr _default_POA()
     {
         return PortableServer::POA::_duplicate(mpoa);
     }
-  
+
   virtual
   void loadPrograms (
       const char * code,
@@ -103,7 +103,7 @@ public:
       CORBA::SystemException,
       ::RTT::Corba::ScriptingAccess::LoadException
     ));
-  
+
   virtual
   void unloadProgram (
       const char * name
@@ -112,15 +112,15 @@ public:
       CORBA::SystemException,
       ::RTT::Corba::ScriptingAccess::LoadException
     ));
-  
+
   virtual
   ::RTT::Corba::ScriptingAccess::ProgramNames * getPrograms (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean hasProgram (
       const char * name
@@ -128,7 +128,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Long getProgramLine (
       const char * name
@@ -136,7 +136,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   char * getProgramText (
       const char * name
@@ -144,7 +144,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   char * getProgramStatus (
       const char * name
@@ -152,7 +152,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   void loadStateMachines (
       const char * code,
@@ -162,7 +162,7 @@ public:
       CORBA::SystemException,
       ::RTT::Corba::ScriptingAccess::LoadException
     ));
-  
+
   virtual
   void unloadStateMachine (
       const char * name
@@ -171,15 +171,15 @@ public:
       CORBA::SystemException,
       ::RTT::Corba::ScriptingAccess::LoadException
     ));
-  
+
   virtual
   ::RTT::Corba::ScriptingAccess::StateMachineNames * getStateMachines (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean hasStateMachine (
       const char * name
@@ -187,7 +187,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   char * getStateMachineText (
       const char * name
@@ -195,7 +195,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   char * getStateMachineStatus (
       const char * name
@@ -203,7 +203,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Long getStateMachineLine (
       const char * name
@@ -211,7 +211,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   char * getCurrentState (
       const char * name
@@ -219,7 +219,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Long execute (
       const char * code

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:05:56 CET 2006  DriveInterface.hpp 
+  tag: FMTC  do nov 2 13:05:56 CET 2006  DriveInterface.hpp
 
                         DriveInterface.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #ifndef DEVICE_DRIVERS_DRIVE_INTERFACE_HPP
 #define DEVICE_DRIVERS_DRIVE_INTERFACE_HPP
@@ -75,7 +75,7 @@ namespace RTT
          * @brief Get the enable signal of the drive as a DigitalOutput.
          */
         virtual DigitalOutput* getEnable() = 0;
-  
+
         /**
          * Add an offset to the current drive value.
          * Use this value to compensate for drift when

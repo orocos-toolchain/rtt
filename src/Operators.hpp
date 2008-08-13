@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:25 CET 2004  Operators.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:25 CET 2004  Operators.hpp
 
                         Operators.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef ORO_OPERATORS_HPP
 #define ORO_OPERATORS_HPP
 
@@ -94,10 +94,10 @@ namespace RTT { namespace detail
   };
 
   /**
-   * The Dot Operator allows access to members of composite types, 
+   * The Dot Operator allows access to members of composite types,
    * such as in frame.pos.x .
    * This is used if a dot was parsed on a value type. It is different by semantics of the
-   * UnaryOp because the dot is parsed as a binary operator but 
+   * UnaryOp because the dot is parsed as a binary operator but
    * actually is a unary ( hard to explain, look at the code...)
    */
   class DotOp

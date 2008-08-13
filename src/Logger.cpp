@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 10 15:59:15 CET 2005  Logger.cxx 
+  tag: Peter Soetens  Mon Jan 10 15:59:15 CET 2005  Logger.cxx
 
                         Logger.cxx -  description
                            -------------------
     begin                : Mon January 10 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,9 +34,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
+
 // to retrieve RTAI version, if any.
-//#define OROBLD_OS_LXRT_INTERNAL 
+//#define OROBLD_OS_LXRT_INTERNAL
 #include "os/StartStopManager.hpp"
 #include "os/MutexLock.hpp"
 #include "os/Mutex.hpp"
@@ -61,7 +61,7 @@
 #include <stdlib.h>
 #include "rtt-config.h"
 
-namespace RTT 
+namespace RTT
 {
     using namespace std;
 
@@ -110,7 +110,7 @@ namespace RTT
               inloglevel(Info),
               outloglevel(Warning),
               timestamp(0),
-              started(false), showtime(true), allowRT(false), 
+              started(false), showtime(true), allowRT(false),
               mlogStdOut(true), mlogFile(true),
               moduleptr("Logger")
         {
@@ -126,7 +126,7 @@ namespace RTT
         }
 
         bool maylogStdOut() const {
-            if ( inloglevel <= outloglevel && outloglevel != Never && inloglevel != Never && mlogStdOut) 
+            if ( inloglevel <= outloglevel && outloglevel != Never && inloglevel != Never && mlogStdOut)
                 return true;
             return false;
         }
@@ -284,7 +284,7 @@ namespace RTT
         bool allowRT;
 
         bool mlogStdOut, mlogFile;
-                                            
+
         std::string moduleptr;
 
         OS::Mutex inpguard;
@@ -359,12 +359,12 @@ namespace RTT
         Logger::log().in(modname);
     }
 
-    Logger::In::~In() 
+    Logger::In::~In()
     {
         Logger::log().out(oldmod);
     }
 
-    Logger& Logger::in(const std::string& modname) 
+    Logger& Logger::in(const std::string& modname)
     {
         OS::MutexLock lock( d->inpguard );
         d->moduleptr = modname;
@@ -386,7 +386,7 @@ namespace RTT
 
 
 #define ORO_xstr(s) ORO_str(s)
-#define ORO_str(s) #s        
+#define ORO_str(s) #s
 
     void Logger::startup() {
         if (d->started)
@@ -416,7 +416,7 @@ namespace RTT
         if ( wantedlevel < 0 )
             return;
         d->started = true;
-            
+
         d->timestamp = TimeService::Instance()->getTicks();
         *this<<xtramsg<<Logger::nl;
         *this<< " OROCOS version '" ORO_xstr(RTT_VERSION) "'";
@@ -474,7 +474,7 @@ namespace RTT
     Logger& Logger::operator<<( const char* t ) {
         if ( !d->maylog() )
             return *this;
-        
+
         OS::MutexLock lock( d->inpguard );
         if ( d->maylogStdOut() )
             d->logline << t;

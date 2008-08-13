@@ -61,7 +61,7 @@ namespace RTT
     using namespace boost;
     using namespace detail;
     using boost::bind;
-    
+
     using namespace std;
 
     namespace {
@@ -253,19 +253,19 @@ namespace RTT
         // formal:
         // transition [event] [[ {program} ][ select s]] | [ if c then ][ {program} ][select s][ else [ {program} ][select s]]
         // parsed:
-        // transition [ [if c then ][ {program} ][select s][ else [ {program} ][select s]]] 
+        // transition [ [if c then ][ {program} ][select s][ else [ {program} ][select s]]]
         //          | [ event [[ {program} ][ select s]] | [ if c then ][ {program} ][select s][ else [ {program} ][select s]] ]
         // rules:
         // transition = "transition" >> (transline | eventline)
         // transline  = progselect
         //            | (ifbranch >> !elsebranch)
         // eventline  = eventname >> transline
-        // progselect = (selector | (program >> !selector)) 
+        // progselect = (selector | (program >> !selector))
         // ifbranch   = "if" >> c >> "then" >> progselect
         // elsebranch = "else" >> progselect
         // selector   = "select" >> ...
         // program    = "{" >> ...
-        // 
+        //
 
         // old transition statements
         // the order of rule "transition" vs "transitions" is important
@@ -367,7 +367,7 @@ namespace RTT
         // program name, stack, line offset.
         //cerr << "SGP : Stack is " << curobject->getName() <<endl;
         progParser->initBodyParser( name, curobject, ln_offset );
-        
+
         programBody = progParser->bodyParser();
     }
 
@@ -465,7 +465,7 @@ namespace RTT
         // if omitted, implicitly re-enter current state.
         if (curstate)
             doselect( curstate->getName() );
-        else 
+        else
             doselect(""); // global events/transitions
     }
 
@@ -510,7 +510,7 @@ namespace RTT
             //cerr << "Registering "<<evname<<" handler for SM."<<endl;
             try {
                 res = curtemplate->createEventTransition( peer->events(), evname, evargs, curstate, next_state, curcondition->clone(), transProgram );
-            } 
+            }
             catch( const wrong_number_of_args_exception& e )
                 {
                     throw parse_exception_wrong_number_of_arguments
@@ -565,7 +565,7 @@ namespace RTT
         assert( ! curstate );
 
         // reclaim the defined variables:
-        
+
 
         // Check if the Initial and Final States are ok.
         if ( curtemplate->getInitialState() == 0 )
@@ -619,7 +619,7 @@ namespace RTT
 
         }
 
-        // finally : 
+        // finally :
         curtemplate->finish();
 
         delete progParser;
@@ -740,7 +740,7 @@ namespace RTT
               }
           }
 
-          // will also delete all children : 
+          // will also delete all children :
           curtemplate.reset();
         }
         // should be empty in most cases :
@@ -756,7 +756,7 @@ namespace RTT
               i != machinebuilders.end(); ++i )
           delete i->second;
         machinebuilders.clear();
-        
+
     }
 
     void StateGraphParser::seenstatemachinename( iter_t begin, iter_t end ) {
@@ -774,7 +774,7 @@ namespace RTT
         curobject->setName( curmachinename );
         curtemplate->setTaskObject( curobject ); // store.
         curtemplate->setEventProcessor( context->engine()->events() ); //handle events in TaskContext.
-        
+
         // we pass the plain file positer such that parse errors are
         // refering to correct file line numbers.
         progParser = new ProgramGraphParser(mpositer, context);
@@ -917,7 +917,7 @@ namespace RTT
         // use shared_ptr to release on throw's below.
         ParsedStateMachinePtr nsc( curmachinebuilder->build( isroot ) );
 
-        // we stored the attributes which are params of nsc 
+        // we stored the attributes which are params of nsc
         // in the build operation :
         machineparams_t params = nsc->getParameters();
 

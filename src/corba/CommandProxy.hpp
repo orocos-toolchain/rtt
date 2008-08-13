@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  CommandProxy.hpp 
+  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  CommandProxy.hpp
 
                         CommandProxy.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_CORBA_COMMANDPROXY_HPP
 #define ORO_CORBA_COMMANDPROXY_HPP
 

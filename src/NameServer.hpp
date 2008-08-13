@@ -136,7 +136,7 @@ namespace RTT
         ValueType getObject( const NameType& s ) const
         {
             const_iterator itc = objects.find( s );
-            if ( itc == objects.end() ) 
+            if ( itc == objects.end() )
                 return ValueType();
             return( *itc ).second;
         }

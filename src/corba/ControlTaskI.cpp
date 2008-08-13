@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:22 CET 2008  ControlTaskI.cpp 
+  tag: FMTC  Tue Mar 11 21:49:22 CET 2008  ControlTaskI.cpp
 
                         ControlTaskI.cpp -  description
                            -------------------
     begin                : Tue March 11 2008
     copyright            : (C) 2008 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 // -*- C++ -*-
 //
 // $Id$
@@ -63,7 +63,7 @@
 // Information about TAO is available at:
 //     http://www.cs.wustl.edu/~schmidt/TAO.html
 
-// TAO_IDL - Generated from 
+// TAO_IDL - Generated from
 // be/be_codegen.cpp:910
 
 #include "ControlTaskI.h"
@@ -96,29 +96,29 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
 }
 
  char* Orocos_ControlObject_i::getName (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-      )) 
+      ))
 {
     CORBA::String_var ret = CORBA::string_dup( mobj->getName().c_str() );
     return ret._retn();
 }
 
  char* Orocos_ControlObject_i::getDescription (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
-      )) 
+      ))
 {
     CORBA::String_var ret = CORBA::string_dup( mobj->getDescription().c_str() );
     return ret._retn();
 }
 
 ::RTT::Corba::AttributeInterface_ptr Orocos_ControlObject_i::attributes (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -137,7 +137,7 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
 }
 
 ::RTT::Corba::MethodInterface_ptr Orocos_ControlObject_i::methods (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -156,7 +156,7 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
 }
 
 ::RTT::Corba::CommandInterface_ptr Orocos_ControlObject_i::commands (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -207,7 +207,7 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
 
 
 ::RTT::Corba::ObjectList * Orocos_ControlObject_i::getObjectList (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -218,7 +218,7 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
     result->length( objects.size() );
     for (unsigned int i=0; i != objects.size(); ++i )
         result[i] = CORBA::string_dup( objects[i].c_str() );
-    
+
     return result._retn();
 }
 
@@ -327,7 +327,7 @@ CORBA::Boolean Orocos_ControlTask_i::isConfigured (
     return mtask->isConfigured();
 }
 
-  
+
 CORBA::Boolean Orocos_ControlTask_i::resetError (
     )
     ACE_THROW_SPEC ((
@@ -336,8 +336,8 @@ CORBA::Boolean Orocos_ControlTask_i::resetError (
 {
     return mtask->resetError();
 }
-  
-  
+
+
 CORBA::Boolean Orocos_ControlTask_i::activate (
     )
     ACE_THROW_SPEC ((
@@ -346,7 +346,7 @@ CORBA::Boolean Orocos_ControlTask_i::activate (
 {
     return mtask->activate();
 }
-  
+
 CORBA::Boolean Orocos_ControlTask_i::inFatalError (
     )
     ACE_THROW_SPEC ((
@@ -355,8 +355,8 @@ CORBA::Boolean Orocos_ControlTask_i::inFatalError (
 {
     return mtask->inFatalError();
 }
-  
-    
+
+
 CORBA::Boolean Orocos_ControlTask_i::inRunTimeWarning (
     )
     ACE_THROW_SPEC ((
@@ -366,8 +366,8 @@ CORBA::Boolean Orocos_ControlTask_i::inRunTimeWarning (
     return mtask->inRunTimeWarning();
 }
 
-  
-    
+
+
 CORBA::Boolean Orocos_ControlTask_i::inRunTimeError (
     )
     ACE_THROW_SPEC ((
@@ -376,8 +376,8 @@ CORBA::Boolean Orocos_ControlTask_i::inRunTimeError (
 {
     return mtask->inRunTimeError();
 }
-  
-    
+
+
 CORBA::Long Orocos_ControlTask_i::getWarningCount (
     )
     ACE_THROW_SPEC ((
@@ -387,8 +387,8 @@ CORBA::Long Orocos_ControlTask_i::getWarningCount (
     return mtask->getWarningCount();
 }
 
-  
-    
+
+
 CORBA::Long Orocos_ControlTask_i::getErrorCount (
     )
     ACE_THROW_SPEC ((
@@ -397,10 +397,10 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
 {
     return mtask->getErrorCount();
 }
-  
+
 
 ::RTT::Corba::ScriptingAccess_ptr Orocos_ControlTask_i::scripting (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -415,7 +415,7 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
 }
 
 ::RTT::Corba::ServiceInterface_ptr Orocos_ControlTask_i::services (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -428,9 +428,9 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
     }
     return ::RTT::Corba::ServiceInterface::_duplicate( mService.in() );
 }
-  
+
 ::RTT::Corba::DataFlowInterface_ptr Orocos_ControlTask_i::ports (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -443,11 +443,11 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
     }
     return ::RTT::Corba::DataFlowInterface::_duplicate( mDataFlow.in() );
 }
-  
+
 
 
 ::RTT::Corba::ControlTask::ControlTaskNames * Orocos_ControlTask_i::getPeerList (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -458,7 +458,7 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
     result->length( peers.size() );
     for (unsigned int i=0; i != peers.size(); ++i )
         result[i] = CORBA::string_dup( peers[i].c_str() );
-    
+
     return result._retn();
 }
 

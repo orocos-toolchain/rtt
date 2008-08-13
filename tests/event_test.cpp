@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 10 15:59:51 CET 2005  event_test.cpp 
+  tag: Peter Soetens  Mon Jan 10 15:59:51 CET 2005  event_test.cpp
 
                         event_test.cpp -  description
                            -------------------
     begin                : Mon January 10 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include <Event.hpp>
 #include <Logger.hpp>
@@ -36,7 +36,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( EventTest );
 using namespace RTT;
 using namespace boost;
 
-void 
+void
 EventTest::setUp()
 {
     t_event = Event<void(void)>("t_event");
@@ -50,7 +50,7 @@ EventTest::setUp()
 }
 
 
-void 
+void
 EventTest::tearDown()
 {
     act.stop();
@@ -93,7 +93,7 @@ void EventTest::reset()
     t_listener_what = "";
 }
 
-void 
+void
 EventTest::testEmpty()
 {
     t_event();
@@ -150,7 +150,7 @@ struct Runner : public RunnableInterface
         result = (i == data);
     }
 };
-        
+
 struct SelfRemover : public RunnableInterface
 {
     Event<void(void)>& e;
@@ -158,7 +158,7 @@ struct SelfRemover : public RunnableInterface
     SelfRemover( Event<void(void)>& e_ ) : e(e_) {
         act.run(&ep);
     }
-    
+
     SlaveActivity act;
     EventProcessor ep;
 
@@ -203,7 +203,7 @@ struct SelfRemover : public RunnableInterface
         h2.disconnect();
     }
 };
-        
+
 struct CrossRemover : public RunnableInterface
 {
     Event<void(void)>& e;
@@ -270,7 +270,7 @@ struct CrossRemover : public RunnableInterface
         }
     }
 };
-        
+
 
 void EventTest::testTask()
 {
@@ -335,7 +335,7 @@ void EventTest::testEventArgs()
     CPPUNIT_ASSERT_EQUAL( float(0.0),  float_sub );
 
     CPPUNIT_ASSERT(CompletionProcessor::Instance()->start());
-    
+
     h1.disconnect();
     h2.disconnect();
     float_sum = 0;
@@ -468,7 +468,7 @@ void EventTest::testRTEvent()
     CPPUNIT_ASSERT( hc.connected() );
 
     t_event();
-    
+
 
     hl.disconnect();
     CPPUNIT_ASSERT( !hl.connected() );

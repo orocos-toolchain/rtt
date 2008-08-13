@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  MarshallerAdaptors.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  MarshallerAdaptors.hpp
 
                         MarshallerAdaptors.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef MARSHALLERADAPTOR_HPP
 #define MARSHALLERADAPTOR_HPP
 
@@ -51,7 +51,7 @@ namespace RTT
     public:
     };
 
-    
+
     template< class Marshaller, class OutputStream>
     class PropertyAdaptor
     {
@@ -71,14 +71,14 @@ namespace RTT
         /**
          * Setup a new marshalling configuration to a specific stream.
          */
-        MarshallConfiguration( OutputStream& o_stream ) 
+        MarshallConfiguration( OutputStream& o_stream )
             : header_marshaller(o_stream), body_marshaller(o_stream), output(o_stream)
             {}
 
         HeaderMarshaller& header() { return header_marshaller; }
         BodyMarshaller&   body()   { return body_marshaller;   }
         OutputStream&     stream() { return output;            }
-        
+
         protected:
         HeaderMarshaller header_marshaller;
         BodyMarshaller   body_marshaller;
@@ -93,14 +93,14 @@ namespace RTT
     class DemarshallConfiguration
     {
         public:
-        DemarshallConfiguration( InputStream& i_stream ) 
+        DemarshallConfiguration( InputStream& i_stream )
             : header_demarshaller(i_stream), body_demarshaller(i_stream), input(i_stream)
             {}
 
         HeaderDemarshaller& header() { return header_demarshaller; }
         BodyDemarshaller&   body()   { return body_demarshaller;   }
         InputStream&        stream() { return input;               }
-        
+
         protected:
         HeaderDemarshaller header_demarshaller;
         BodyDemarshaller   body_demarshaller;

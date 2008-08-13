@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:38 CET 2006  Handle.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:38 CET 2006  Handle.hpp
 
                         Handle.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_CORELIB_SIGNAL_HANDLE_HPP
 #define ORO_CORELIB_SIGNAL_HANDLE_HPP
 
@@ -101,9 +101,9 @@ namespace RTT
          */
 		bool disconnect();
 
-        /** 
+        /**
          * Inspect if this Handle represents a connected signal and slot.
-         * 
+         *
          * @return true if a connection is present.
          */
         bool connected() const;

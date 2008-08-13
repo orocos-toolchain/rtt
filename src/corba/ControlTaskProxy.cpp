@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:09:49 CET 2006  ControlTaskProxy.cxx 
+  tag: Peter Soetens  Wed Jan 18 14:09:49 CET 2006  ControlTaskProxy.cxx
 
                         ControlTaskProxy.cxx -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,13 +34,13 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
+
 /**
  * * * * B I G  N O T E * * * *
  * This class uses the TypeTransport of Orocos which uses (void*) for
  * passing on data. TAO's CORBA implementation uses virtual inheritance,
  * which does not work well together with (void*). That is, you must cast
- * back to the exect same type the (void*) originated from and NOT to a 
+ * back to the exect same type the (void*) originated from and NOT to a
  * sub- or super-class. That would have been allowed without virtual inheritance.
  *
  * Hence, this class uses always the same base class (Expression_ptr) to
@@ -95,8 +95,8 @@ namespace RTT
         proxies.erase(this);
     }
 
-    ControlTaskProxy::ControlTaskProxy(std::string name, bool is_ior) 
-        : TaskContext("NotFound") 
+    ControlTaskProxy::ControlTaskProxy(std::string name, bool is_ior)
+        : TaskContext("NotFound")
     {
         Logger::In in("ControlTaskProxy");
         this->clear();
@@ -151,7 +151,7 @@ namespace RTT
         this->synchronizeOnce();
     }
 
-    ControlTaskProxy::ControlTaskProxy( ::RTT::Corba::ControlTask_ptr taskc) 
+    ControlTaskProxy::ControlTaskProxy( ::RTT::Corba::ControlTask_ptr taskc)
         : TaskContext("CORBAProxy"), mtask( Corba::ControlTask::_duplicate(taskc) )
     {
         Logger::In in("ControlTaskProxy");
@@ -231,7 +231,7 @@ namespace RTT
             Expression_var expr = mtask->attributes()->getProperty( props[i].name.in() );
             if ( CORBA::is_nil( expr ) ) {
                 log(Error) <<"Property "<< string(props[i].name.in()) << " present in getPropertyList() but not accessible."<<endlog();
-                continue; 
+                continue;
             }
 #if 0 // This code may trigger endless recurse if server has recursive prop bags.
       // By using Property<PropertyBag>::narrow( ... ) this is no longer needed.
@@ -255,7 +255,7 @@ namespace RTT
                 TypeInfo* ti = TypeInfoRepository::Instance()->type( tn.in() );
                 Logger::log() <<Logger::Info << "Looking up Property " << tn.in();
                 if ( ti && ti->getProtocol(ORO_CORBA_PROTOCOL_ID)) {
-                    this->attributes()->addProperty( ti->buildProperty( props[i].name.in(), props[i].description.in(), 
+                    this->attributes()->addProperty( ti->buildProperty( props[i].name.in(), props[i].description.in(),
                                                                         ti->getProtocol(ORO_CORBA_PROTOCOL_ID)->proxy( expr.in() ) ) );
                     Logger::log() <<Logger::Info <<" found!"<<endlog();
                 }
@@ -269,14 +269,14 @@ namespace RTT
       log(Debug) << "Fetching Attributes."<<endlog();
         // add attributes not yet added by properties:
         AttributeInterface::AttributeNames_var attrs = mtask->attributes()->getAttributeList();
-        
+
         for (size_t i=0; i != attrs->length(); ++i) {
             if ( this->attributes()->hasAttribute( string(attrs[i].in()) ) )
                 continue; // previously added.
             Expression_var expr = mtask->attributes()->getAttribute( attrs[i].in() );
             if ( CORBA::is_nil( expr ) ) {
                 log(Error) <<"Attribute "<< string(attrs[i].in()) << " present in getAttributeList() but not accessible."<<endlog();
-                continue; 
+                continue;
             }
             AssignableExpression_var as_expr = AssignableExpression::_narrow( expr.in()  );
             // If the type is known, immediately build the correct attribute and datasource,
@@ -338,14 +338,14 @@ namespace RTT
             // add attributes:
             log(Debug) << plist[i] << ": fetching Attributes."<<endlog();
             AttributeInterface::AttributeNames_var attrs = cobj->attributes()->getAttributeList();
-        
+
             for (size_t j=0; j != attrs->length(); ++j) {
                 if ( tobj->attributes()->hasAttribute( string(attrs[j].in()) ) )
                     continue; // previously added.
                 Expression_var expr = cobj->attributes()->getAttribute( attrs[j].in() );
                 if ( CORBA::is_nil( expr ) ) {
                     log(Error) <<"Attribute "<< string(attrs[j].in()) << " present in getAttributeList() but not accessible."<<endlog();
-                    continue; 
+                    continue;
                 }
                 AssignableExpression_var as_expr = AssignableExpression::_narrow( expr.in()  );
                 // If the type is known, immediately build the correct attribute and datasource,
@@ -478,8 +478,8 @@ namespace RTT
                 log(Debug) << "Existing proxy found !" <<endlog();
                 return it->first;
             }
-        
-        
+
+
         // XXX TODO complete this code
         for (ControlTaskServer::ServerMap::iterator it = ControlTaskServer::servers.begin(); it != ControlTaskServer::servers.end(); ++it)
             if ( it->second->server()->_is_equivalent( t ) ) {
@@ -510,7 +510,7 @@ namespace RTT
         }
         return false;
     }
-    
+
     bool ControlTaskProxy::stop() {
         try {
             if (mtask)
@@ -522,7 +522,7 @@ namespace RTT
         }
         return false;
     }
-    
+
     bool ControlTaskProxy::activate() {
         try {
             if (mtask)
@@ -534,7 +534,7 @@ namespace RTT
         }
         return false;
     }
-    
+
     bool ControlTaskProxy::resetError() {
         try {
             if (mtask)
@@ -578,7 +578,7 @@ namespace RTT
         }
         return false;
     }
-    
+
     bool ControlTaskProxy::cleanup() {
         try {
             if (mtask)
@@ -590,7 +590,7 @@ namespace RTT
         }
         return false;
     }
-    
+
     bool ControlTaskProxy::isConfigured() const {
         try {
             if (mtask)
@@ -803,7 +803,7 @@ namespace RTT
         }
         return false;
     }
-    
+
     bool ControlTaskProxy::ready()
     {
         if (!mtask) {
@@ -820,7 +820,7 @@ namespace RTT
         }
         return false;
     }
-    
+
     Corba::ControlTask_ptr ControlTaskProxy::server() const {
         if ( !mtask )
             return 0;

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  DigitalOutput.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  DigitalOutput.hpp
 
                         DigitalOutput.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -36,8 +36,8 @@
  ***************************************************************************/
 #ifndef DIGITAL_OUTPUT_HPP
 #define DIGITAL_OUTPUT_HPP
- 
- 
+
+
 #include "DigitalOutInterface.hpp"
 
 namespace RTT
@@ -56,7 +56,7 @@ namespace RTT
     public:
         /**
          * Create a new Relay acting on a digital output device.
-         * 
+         *
          * @param dig_out The digital output device to use
          * @param relay_nr The bit number to use on \a dig_out
          * @param _invert Set to true if \a isOn() must return inverted signal
@@ -72,8 +72,8 @@ namespace RTT
         DigitalOutput ( bool initial_state = false )
             : board( 0 ), relaynumber( 0 ), invert(initial_state)
         {}
-      
-      
+
+
         /**
          * Destruct a DigitalOutput
          */

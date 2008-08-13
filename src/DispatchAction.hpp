@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:04 CET 2006  DispatchAction.hpp 
+  tag: FMTC  do nov 2 13:06:04 CET 2006  DispatchAction.hpp
 
                         DispatchAction.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_DISPATCH_ACTION_HPP
 #define ORO_DISPATCH_ACTION_HPP
 
@@ -66,7 +66,7 @@ namespace RTT
             // if the command was not dispatched yet,
             // do this and return the result.
             if ( !mdi->sent() )
-                return mdi->dispatch(); 
+                return mdi->dispatch();
             // if it was dispatched and already executed,
             // return the result of the command function
             if ( mdi->executed() )
@@ -87,7 +87,7 @@ namespace RTT
         virtual DispatchAction* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             return new DispatchAction( mdi->copy(alreadyCloned));
         }
-        
+
     };
 
 }

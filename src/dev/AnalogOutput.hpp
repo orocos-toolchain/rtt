@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Apr 22 20:40:58 CEST 2004  AnalogOutput.hpp 
+  tag: Peter Soetens  Thu Apr 22 20:40:58 CEST 2004  AnalogOutput.hpp
 
                         AnalogOutput.hpp -  description
                            -------------------
     begin                : Thu April 22 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef ANALOGOUTPUT_HPP
 #define ANALOGOUTPUT_HPP
 
@@ -43,7 +43,7 @@
 namespace RTT
 {
 
-    
+
 
     /**
      * A class representing an analog output channel.

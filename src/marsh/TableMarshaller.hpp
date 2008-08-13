@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  TableMarshaller.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  TableMarshaller.hpp
 
                         TableMarshaller.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef PI_PROPERTIES_TABLESERIALIZER
 #define PI_PROPERTIES_TABLESERIALIZER
 
@@ -52,14 +52,14 @@ namespace RTT
      * the columns.
      */
     template<typename o_stream>
-    class TableMarshaller 
+    class TableMarshaller
         : public Marshaller, public StreamProcessor<o_stream>
     {
         std::string msep;
         public:
         typedef o_stream output_stream;
         typedef o_stream OutputStream;
-            
+
         /**
          * Create a new marshaller, streaming the data to a stream.
          * @param os The stream to write the data to (i.e. cerr)
@@ -72,8 +72,8 @@ namespace RTT
 
             virtual ~TableMarshaller() {}
 
-			virtual void serialize(PropertyBase* v) 
-			{ 
+			virtual void serialize(PropertyBase* v)
+			{
                 *this->s << msep;
                 Property<PropertyBag>* bag = dynamic_cast< Property<PropertyBag>* >( v );
                 if ( bag )
@@ -83,8 +83,8 @@ namespace RTT
                     *this->s << v->getDataSource();
                 }
 			}
-			
-            virtual void serialize(const PropertyBag &v) 
+
+            virtual void serialize(const PropertyBag &v)
 			{
                 for (
                     PropertyBag::const_iterator i = v.getProperties().begin();
@@ -95,7 +95,7 @@ namespace RTT
                 }
 			}
 
-            virtual void flush() 
+            virtual void flush()
             {
                 // TODO : buffer for formatting and flush here.
                 *this->s << msep <<std::endl;

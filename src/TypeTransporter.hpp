@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:25 CET 2008  TypeTransporter.hpp 
+  tag: FMTC  Tue Mar 11 21:49:25 CET 2008  TypeTransporter.hpp
 
                         TypeTransporter.hpp -  description
                            -------------------
     begin                : Tue March 11 2008
     copyright            : (C) 2008 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_TYPE_TRANSPORTER_HPP
 #define ORO_TYPE_TRANSPORTER_HPP
 
@@ -53,7 +53,7 @@ namespace RTT
          * must support in order to allow Orocos components to
          * remotely communicate data.
          *
-         * @warning This class requires that you cast objects to (void*). 
+         * @warning This class requires that you cast objects to (void*).
          * If your objects use virtual inheritance, you \b must cast to and
          * from the same type and not to a sub- or super-class. If you fail
          * to do so, you'll get immediate hard to debug crashes, as objects
@@ -129,7 +129,7 @@ namespace RTT
         /**
          * A class which registers TransportProtocol instances to types.
          * In order to register a transport for some types,
-         * inherit from this class and add an instance to 
+         * inherit from this class and add an instance to
          * the TypeInfoRepository.
          * The TypeInfoRepository will call the registerType callback
          * for each type present or added.

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:10 CET 2006  LocalCommand.hpp 
+  tag: FMTC  do nov 2 13:06:10 CET 2006  LocalCommand.hpp
 
                         LocalCommand.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_LOCAL_COMMAND_HPP
 #define ORO_LOCAL_COMMAND_HPP
 
@@ -81,9 +81,9 @@ namespace RTT
 
             bool isInverted() const { return minvert; }
 
-            /** 
+            /**
              * Call this operator if the LocalCommand takes no arguments.
-             * 
+             *
              * @return true if ready and succesfully queued.
              */
             bool invoke() {
@@ -147,22 +147,22 @@ namespace RTT
          *
          */
         template<class CommandT>
-        class LocalCommand 
+        class LocalCommand
             : public Invoker<CommandT,LocalCommandImpl<CommandT> >
         {
         public:
             typedef CommandT Signature;
 
-            /** 
+            /**
              * Create a LocalCommand object which executes a member function of a class that
              * inherits from a TaskContext.
-             * 
+             *
              * @param name The name of this command.
              * @param com A pointer to the member function to execute when the command is invoked.
              * @param con A pointer to the member function that evaluates if the command is done.
              * @param t A pointer to an object of this class, which will receive and process the command.
              * @param invert Invert the result of \a con when evaluating the completion of the command.
-             * 
+             *
              */
             template<class CommandF, class ConditionF, class ObjectT>
             LocalCommand(CommandF com, ConditionF con, ObjectT t, bool invert = false)
@@ -172,18 +172,18 @@ namespace RTT
                 this->mcp = t->engine()->commands();
             }
 
-            /** 
+            /**
              * Create a LocalCommand object which executes a member function of a class that
              * is \b not a TaskContext.
-             * 
-             * 
+             *
+             *
              * @param name The name of this command.
              * @param com A pointer to the member function to execute when the command is invoked.
              * @param con A pointer to the member function that evaluates if the command is done.
              * @param t A pointer to an object of the class which has \a com and \a con.
              * @param commandp The CommandProcessor which will execute this LocalCommand.
              * @param invert Invert the result of \a con when evaluating the completion of the command.
-             * 
+             *
              */
             template<class CommandF, class ConditionF, class ObjectT>
             LocalCommand(CommandF com, ConditionF con, ObjectT t, CommandProcessor* commandp, bool invert = false)
@@ -193,9 +193,9 @@ namespace RTT
                 this->mcp = commandp;
             }
 
-            /** 
+            /**
              * Create a LocalCommand object which executes a plain 'C' function.
-             * 
+             *
              * @param name The name of this command.
              * @param com A pointer to the 'C' function to execute when the command is invoked.
              * @param con A pointer to the 'C' function that evaluates if the command is done.
@@ -230,17 +230,17 @@ namespace RTT
                 this->mexec = true;
                 return this->mvalid;
             }
-        
+
             virtual bool done() const {
                 if (this->mexec && this->mvalid )
                     return this->check() != this->minvert;
                 return false;
             }
-     
+
             virtual void reset() {
                 this->minvoked = (false);
                 this->maccept = (false);
-                this->mvalid = (false); 
+                this->mvalid = (false);
                 this->mexec = (false);
             }
 
@@ -267,12 +267,12 @@ namespace RTT
                 return new detail::ConditionFunctor<bool(void)>( boost::bind<bool>( boost::mem_fn(&LocalCommand::done), this) );
             }
 
-            /** 
+            /**
              * Creates a clone of this LocalCommand object.
              * Use this method to get a new command object
              * which has its own state information.
-             * 
-             * @return 
+             *
+             * @return
              */
             virtual DispatchInterface* clone() const {
                 return new LocalCommand(*this);

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:21 CET 2008  PropertyDemarshaller.hpp 
+  tag: FMTC  Tue Mar 11 21:49:21 CET 2008  PropertyDemarshaller.hpp
 
                         PropertyDemarshaller.hpp -  description
                            -------------------
     begin                : Tue March 11 2008
     copyright            : (C) 2008 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #ifndef PROPERTY_DEMARSHALLER
 #define PROPERTY_DEMARSHALLER

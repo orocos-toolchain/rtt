@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 10 16:16:56 CEST 2002  DigitalOutInterface.hpp 
+  tag: Peter Soetens  Thu Oct 10 16:16:56 CEST 2002  DigitalOutInterface.hpp
 
                         DigitalOutInterface.hpp -  description
                            -------------------
     begin                : Thu October 10 2002
     copyright            : (C) 2002 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 
 #ifndef DIGITALOUTINTERFACE_HPP
 #define DIGITALOUTINTERFACE_HPP
@@ -49,7 +49,7 @@ namespace RTT
      * bits at once. When there are N bits, the bits are numbered from Zero to N-1.
      *
      * @invariant Bit 0 denotes the first digital output on the card.
-     * @invariant No more than 32 bits can be addressed 
+     * @invariant No more than 32 bits can be addressed
      * @see TemplateDigitalOut
      * @ingroup DeviceInterface
      */
@@ -100,7 +100,7 @@ namespace RTT
              * Sets the n'th output to \a value
              */
             virtual void setBit( unsigned int bit, bool value ) = 0;
-                
+
             /**
              * Sets a sequence of bits to pattern \a value between \a start_bit and \a stop_bit inclusive.
              * For example, setSequence(3, 3, 1) is equivalent to setBit(3, 1).
@@ -118,7 +118,7 @@ namespace RTT
              * where start_bit occurs at position zero in the returned result.
              */
             virtual unsigned int checkSequence( unsigned int start_bit, unsigned int stop_bit ) const = 0;
-            
+
             /**
              * Query the number of outputs of this card
              * @return the number of digital output channels addressable

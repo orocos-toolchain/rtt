@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  PeerParser.hpp 
+  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  PeerParser.hpp
 
                         PeerParser.hpp -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #ifndef ORO_PEERPARSER_HPP
 #define ORO_PEERPARSER_HPP
@@ -46,7 +46,7 @@
 #include <string>
 #include "../rtt-config.h"
 
-namespace RTT 
+namespace RTT
 {
     class TaskContext;
     class OperationInterface;
@@ -112,12 +112,12 @@ namespace RTT
          * Returns the last matching object name.
          */
         std::string object();
-        
+
         /**
          * Returns the last matching TaskObject or zero if not found.
          */
         OperationInterface* taskObject();
     };
 }}
-            
+
 #endif

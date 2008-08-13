@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:09:48 CET 2006  ControlTaskProxy.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:09:48 CET 2006  ControlTaskProxy.hpp
 
                         ControlTaskProxy.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,10 +34,10 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
-#ifndef ORO_CORBA_CONTROLTASK_PROXY_HPP 
-#define ORO_CORBA_CONTROLTASK_PROXY_HPP 
- 
+
+#ifndef ORO_CORBA_CONTROLTASK_PROXY_HPP
+#define ORO_CORBA_CONTROLTASK_PROXY_HPP
+
 
 #include "../rtt-config.h"
 #ifndef _REENTRANT
@@ -57,7 +57,7 @@ namespace RTT
     /**
      * Thrown if a server does not exist or has the wrong type.
      */
-    struct IllegalServer 
+    struct IllegalServer
         : public std::exception
     {
         std::string reason;
@@ -68,7 +68,7 @@ namespace RTT
 
     /**
      * This class manages the access of remote TaskContext Corba Servers
-     * and a Corba Object Request Broker (Orb) which connects to these 
+     * and a Corba Object Request Broker (Orb) which connects to these
      * servers.
      * @ingroup CompIDL
      */

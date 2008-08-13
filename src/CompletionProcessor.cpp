@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:29 CEST 2004  CompletionProcessor.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:29 CEST 2004  CompletionProcessor.cxx
 
                         CompletionProcessor.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -80,7 +80,7 @@ namespace RTT
     }
 
     CompletionProcessor::CompletionProcessor()
-        : NonPeriodicActivity( OS::LowestPriority + 2* OS::IncreasePriority, 
+        : NonPeriodicActivity( OS::LowestPriority + 2* OS::IncreasePriority,
                                "CompletionProcessor", this ) // execute 'BlockingEventProcessor' base class.
     {
         Logger::log() << Logger::Info << "CompletionProcessor created with priority ";

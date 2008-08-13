@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  AttributeBase.hpp 
+  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  AttributeBase.hpp
 
                         AttributeBase.hpp -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_ATTRIBUTE_BASE_HPP
 #define ORO_ATTRIBUTE_BASE_HPP
 
@@ -58,18 +58,18 @@ namespace RTT
          */
         AttributeBase();
 
-        /** 
+        /**
          * Create an AttributeBase known by a name.
-         * 
+         *
          * @param name The name.
          */
         AttributeBase(const std::string& name);
 
         virtual ~AttributeBase();
 
-        /** 
+        /**
          * Get the name of this instance.
-         * 
+         *
          * @return the name
          */
         const std::string& getName() const;

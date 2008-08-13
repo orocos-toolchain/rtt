@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:25 CET 2008  Timer.cpp 
+  tag: FMTC  Tue Mar 11 21:49:25 CET 2008  Timer.cpp
 
                         Timer.cpp -  description
                            -------------------
     begin                : Tue March 11 2008
     copyright            : (C) 2008 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include "Timer.hpp"
 #include "os/MutexLock.hpp"
 #include "os/SingleThread.hpp"
@@ -117,7 +117,7 @@ namespace RTT
         msem.signal();
         return true;
     }
-        
+
     Timer::Timer(TimerId max_timers, int scheduler, int priority)
         : mThread(0), msem(0), mdo_quit(false)
     {
@@ -133,7 +133,7 @@ namespace RTT
     {
         delete mThread;
     }
-            
+
 
     void Timer::timeout(TimerId timer_id)
     {
@@ -169,7 +169,7 @@ namespace RTT
 
         Time now = mTimeserv->getNSecs();
         Time due_time = now + Seconds_to_nsecs( wait_time );
-            
+
         {
             OS::MutexLock locker(m);
             mtimers[timer_id].first  = due_time;
@@ -209,7 +209,7 @@ namespace RTT
         mtimers[timer_id].second = 0;
         return true;
     }
-        
+
 
 
 }

@@ -13,7 +13,7 @@
 //------------------------------------------------------------------------------
 namespace boost {
 //------------------------------------------------------------------------------
-namespace function_types 
+namespace function_types
 {
   namespace detail
   {
@@ -30,7 +30,7 @@ namespace function_types
   }
   template<typename T> struct function_type_parameters
     : detail::parameters_impl
-      < typename function_type_signature<T>::types 
+      < typename function_type_signature<T>::types
       , typename detail::tag_core_type_id
         < typename function_type_signature<T>::kind >::type
       >

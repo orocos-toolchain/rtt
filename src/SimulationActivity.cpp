@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  SimulationActivity.cxx 
+  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  SimulationActivity.cxx
 
                         SimulationActivity.cxx -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,14 +34,14 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include "SimulationActivity.hpp"
 #include "SimulationThread.hpp"
 
 namespace RTT
 {
-    
+
     SimulationActivity::SimulationActivity(Seconds period, RunnableInterface* r )
         :PeriodicActivity(period,SimulationThread::Instance(), r)
     {
@@ -65,7 +65,7 @@ namespace RTT
         }
         return false;
     }
-        
+
 
     // COPY/PASTE from PeriodicActivity.cxx
     bool SimulationActivity::start()
@@ -74,7 +74,7 @@ namespace RTT
             //Logger::log() << Logger::Error << "PeriodicActivity : no timer, already active or thread not running." << Logger::endl;
             return false;
         }
-	
+
         active = true;
         bool inError = !this->initialize();
         if ( inError ) {

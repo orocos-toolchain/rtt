@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Jul 15 11:21:02 CEST 2004  Property.cxx 
+  tag: Peter Soetens  Thu Jul 15 11:21:02 CEST 2004  Property.cxx
 
                         Property.cxx -  description
                            -------------------
     begin                : Thu July 15 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens at mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *

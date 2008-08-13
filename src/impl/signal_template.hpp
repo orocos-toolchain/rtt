@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:38 CET 2006  signal_template.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:38 CET 2006  signal_template.hpp
 
                         signal_template.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #ifndef OROCOS_SIGNAL_TEMPLATE_HEADER_INCLUDED
 #define OROCOS_SIGNAL_TEMPLATE_HEADER_INCLUDED
@@ -142,7 +142,7 @@ namespace RTT {
             if (this->emitting)
                 return detail::NA<R>::na(); // avoid uglyness : Handlers calling emit.
             this->emitting = true;
-            
+
             // this code did initially not work under gcc 4.0/ubuntu breezy.
             // connection_t::get() const becomes an undefined symbol.
             // works under gcc 3.4
@@ -188,6 +188,6 @@ namespace RTT {
 } // namespace sigslot
 
 
-#undef OROCOS_SIGNAL_N 
+#undef OROCOS_SIGNAL_N
 #undef OROCOS_SIGNAL_CONNECTION_N
 

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:58 CEST 2006  AttributesI.h 
+  tag: Peter Soetens  Mon Jun 26 13:25:58 CEST 2006  AttributesI.h
 
                         AttributesI.h -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 // -*- C++ -*-
 //
 // $Id$
@@ -63,7 +63,7 @@
 // Information about TAO is available at:
 //     http://www.cs.wustl.edu/~schmidt/TAO.html
 
-// TAO_IDL - Generated from 
+// TAO_IDL - Generated from
 // be/be_codegen.cpp:844
 
 #ifndef ATTRIBUTESI_H_
@@ -84,34 +84,34 @@ class  Orocos_AttributeInterface_i : public virtual POA_RTT::Corba::AttributeInt
     RTT::PropertyBag* mbag;
 	PortableServer::POA_var mpoa;
 public:
-  //Constructor 
+  //Constructor
   Orocos_AttributeInterface_i ( RTT::AttributeRepository* ar, PortableServer::POA_ptr the_poa);
   Orocos_AttributeInterface_i ( RTT::PropertyBag* bag, PortableServer::POA_ptr the_poa );
-  
-  //Destructor 
+
+  //Destructor
   virtual ~Orocos_AttributeInterface_i (void);
 
     PortableServer::POA_ptr _default_POA()
     {
         return PortableServer::POA::_duplicate(mpoa);
     }
-  
+
   virtual
   ::RTT::Corba::AttributeInterface::AttributeNames * getAttributeList (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   ::RTT::Corba::AttributeInterface::PropertyNames * getPropertyList (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   ::RTT::Corba::Expression_ptr getAttribute (
       const char * name
@@ -119,7 +119,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   ::RTT::Corba::Expression_ptr getProperty (
       const char * name

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Fri Feb 24 17:02:57 CET 2006  EventCallBack.hpp 
+  tag: Peter Soetens  Fri Feb 24 17:02:57 CET 2006  EventCallBack.hpp
 
                         EventCallBack.hpp -  description
                            -------------------
     begin                : Fri February 24 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_EXEC_EVENT_CALLBACK_HPP
 #define ORO_EXEC_EVENT_CALLBACK_HPP
 

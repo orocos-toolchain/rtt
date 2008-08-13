@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:19 CET 2004  Property.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:19 CET 2004  Property.hpp
 
                         Property.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef ORO_PROPERTY_HPP
 #define ORO_PROPERTY_HPP
 
@@ -60,14 +60,14 @@ namespace RTT
 	 * @brief A property represents a named value of any type with a description.
      *
 	 * A property is a tuple of a name, a description and a variable of any
-	 * type. It's purpose is to provide an easy to manipulate parameter of an 
+	 * type. It's purpose is to provide an easy to manipulate parameter of an
      * object by external entities. They can be grouped in PropertyBag objects
      * and a Property can contain a PropertyBag itself.
      *
-     * If you do not provide a name nor description when constructing the 
+     * If you do not provide a name nor description when constructing the
      * Property object, it will be uninitialised and ready() will return false.
      * Such an object may not be used (set(), get(),...) until it has been
-     * initialised from another Property. Otherwise, an exception (or assert) will be 
+     * initialised from another Property. Otherwise, an exception (or assert) will be
      * thrown.
      *
      * @param T The type of the data contained within the Property.
@@ -232,7 +232,7 @@ namespace RTT
          * @warning This function is not suitable
          * for remote (distributed) access of properties,
          * use operator=() or set( param_t v ) to assign a value.
-         * 
+         *
          */
         reference_t value()
         {
@@ -259,10 +259,10 @@ namespace RTT
         static Property<T>* narrow( PropertyBase* prop );
 
         virtual void identify( PropertyIntrospection* pi);
-        
+
         virtual void identify( PropertyBagVisitor* pi);
-        
-        virtual bool update( const PropertyBase* other) 
+
+        virtual bool update( const PropertyBase* other)
         {
             const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
             if ( origin != 0 ) {
@@ -280,7 +280,7 @@ namespace RTT
             return 0;
         }
 
-        virtual bool refresh( const PropertyBase* other) 
+        virtual bool refresh( const PropertyBase* other)
         {
             const Property<T>* origin = dynamic_cast< const Property<T>* >( other );
             if ( origin != 0 && _value ) {
@@ -421,7 +421,7 @@ namespace RTT
                 return new Property<T>( propbase->getName(), propbase->getDescription(), result );
             }
 #endif
-        } 
+        }
         return 0;
     }
 

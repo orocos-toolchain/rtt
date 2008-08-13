@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  ExecutionEngine.cxx 
+  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  ExecutionEngine.cxx
 
                         ExecutionEngine.cxx -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include <Logger.hpp>
 #include <ExecutionEngine.hpp>
@@ -50,7 +50,7 @@ namespace RTT
      * the taskc pointer as a reference in order to keep
      * track of the owner of this EE.
      */
-    
+
     using namespace std;
 
     ExecutionEngine::ExecutionEngine( TaskCore* owner )
@@ -59,7 +59,7 @@ namespace RTT
     {
         this->setup();
     }
-        
+
     ExecutionEngine::~ExecutionEngine()
     {
         Logger::In in("~ExecutionEngine");
@@ -137,7 +137,7 @@ namespace RTT
             eproc->setActivity(t);
 
         RunnableInterface::setActivity(t);
-        
+
         // if an owner is present, print some info.
         if (taskc) {
             if ( t )
@@ -169,7 +169,7 @@ namespace RTT
 
     bool ExecutionEngine::start()
     {
-        if (this->getActivity() == 0) 
+        if (this->getActivity() == 0)
             return false;
         // identical to starting the activity if Stopped
         if (estate == Stopped ) {
@@ -272,7 +272,7 @@ namespace RTT
         }
         return false;
     }
-    
+
     bool ExecutionEngine::initialize() {
         if ( this->startContexts() == false )
             return false;
@@ -321,7 +321,7 @@ namespace RTT
                 taskc->errorHook();
             // If an error occured (Running=>FatalError state), abort all !
             if ( taskc->mTaskState == TaskCore::FatalError) {
-                this->getActivity()->stop(); // calls finalize() 
+                this->getActivity()->stop(); // calls finalize()
                 return;
             }
         }
@@ -379,7 +379,7 @@ namespace RTT
 #else
         return 0;
 #endif
-        
+
     }
 
     ProgramProcessor* ExecutionEngine::programs() const {
@@ -412,7 +412,7 @@ namespace RTT
         cproc = c;
 #endif
     }
-    
+
     void ExecutionEngine::setProgramProcessor(ProgramProcessor* p) {
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
         delete pproc;

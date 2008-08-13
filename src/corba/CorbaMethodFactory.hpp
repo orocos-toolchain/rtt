@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  CorbaMethodFactory.hpp 
+  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  CorbaMethodFactory.hpp
 
                         CorbaMethodFactory.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,12 +34,12 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #ifndef ORO_CORBAMETHODFACTORY_HPP
 #define ORO_CORBAMETHODFACTORY_HPP
- 
+
 #include "../OperationInterface.hpp"
 #include "../FactoryExceptions.hpp"
 #include "ExpressionProxy.hpp"
@@ -67,7 +67,7 @@ namespace RTT
 
         CorbaMethodFactory( const std::string& method_name, Corba::MethodInterface_ptr fact, PortableServer::POA_ptr the_poa )
             : RTT::detail::OperationFactoryPart<DataSourceBase*>("Corba Method"),
-              mfact(Corba::MethodInterface::_duplicate(fact) ), 
+              mfact(Corba::MethodInterface::_duplicate(fact) ),
               mpoa(PortableServer::POA::_duplicate(the_poa)),
               method(method_name)
         {}

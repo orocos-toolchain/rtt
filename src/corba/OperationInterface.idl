@@ -36,7 +36,7 @@ module RTT
      */
     interface MethodInterface
     {
-    
+
       /**
        * Get a list of all methods.
        */
@@ -113,14 +113,14 @@ module RTT
       Command createCommand(in string command, in Arguments args) raises ( NoSuchNameException,
 									   WrongNumbArgException,
 									   WrongTypeArgException);
-    
+
       /**
        * Create a command of an object with any arguments.
        */
       Command createCommandAny(in string command, in AnyArguments args) raises ( NoSuchNameException,
 										 WrongNumbArgException,
 										 WrongTypeArgException);
-    
+
     };
   };
 };

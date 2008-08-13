@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Sat May 21 20:15:51 CEST 2005  fosi_internal.hpp 
+  tag: Peter Soetens  Sat May 21 20:15:51 CEST 2005  fosi_internal.hpp
 
                         fosi_internal.hpp -  description
                            -------------------
     begin                : Sat May 21 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
     ***************************************************************************
     *   This library is free software; you can redistribute it and/or         *
     *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
     *   Suite 330, Boston, MA  02111-1307  USA                                *
     *                                                                         *
     ***************************************************************************/
- 
- 
+
+
 #include "../ThreadInterface.hpp"
 #include "fosi.h"
 #include "../fosi_internal_interface.hpp"
@@ -47,7 +47,7 @@
 #include <cstdlib>
 using namespace std;
 
-#define INTERNAL_QUAL 
+#define INTERNAL_QUAL
 
 namespace RTT
 { namespace OS { namespace detail {
@@ -76,8 +76,8 @@ namespace RTT
 					   int priority,
 					   const char * name,
 					   int sched_type,
-					   void * (*start_routine)(void *), 
-					   ThreadInterface* obj) 
+					   void * (*start_routine)(void *),
+					   ThreadInterface* obj)
 	{
         int rv; // return value
         rtos_task_check_priority( &sched_type, &priority );
@@ -89,7 +89,7 @@ namespace RTT
 	    if ( strlen(name) == 0 )
             name = "Thread";
 	    task->name = strcpy( (char*)malloc( (strlen(name) + 1) * sizeof(char)), name);
-      
+
 	    if ( (rv = pthread_attr_init(&(task->attr))) != 0 ){
             return rv;
 	    }
@@ -110,7 +110,7 @@ namespace RTT
                 return rv;
             }
 	    }
-	    rv = pthread_create(&(task->thread), &(task->attr), 
+	    rv = pthread_create(&(task->thread), &(task->attr),
                               start_routine, obj);
         log(Debug) <<"Created Posix thread "<< task->thread <<endlog();
         return rv;
@@ -146,7 +146,7 @@ namespace RTT
         }
         return -1;
     }
-        
+
     INTERNAL_QUAL int rtos_task_get_scheduler(const RTOS_TASK* task) {
         int policy = -1;
         struct sched_param param;
@@ -163,7 +163,7 @@ namespace RTT
 	    // set next wake-up time.
 	    mytask->periodMark = ticks2timespec( nano2ticks( rtos_get_time_ns() + nanosecs ) );
 	}
-        
+
 	INTERNAL_QUAL void rtos_task_set_period( RTOS_TASK* mytask, NANO_TIME nanosecs )
 	{
         rtos_task_make_periodic(mytask, nanosecs);
@@ -171,7 +171,7 @@ namespace RTT
 
 	INTERNAL_QUAL NANO_TIME rtos_task_get_period(const RTOS_TASK* t) {
 	    return t->period;
-	} 
+	}
 
 	INTERNAL_QUAL int rtos_task_wait_period( RTOS_TASK* task )
 	{

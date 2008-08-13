@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:58 CEST 2006  CORBAExpression.hpp 
+  tag: Peter Soetens  Mon Jun 26 13:25:58 CEST 2006  CORBAExpression.hpp
 
                         CORBAExpression.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_CORBAEXPRESSION_HPP
 #define ORO_CORBAEXPRESSION_HPP
 
@@ -119,7 +119,7 @@ namespace RTT
 
         virtual DataSource<T>* clone() const {
             return new CORBAExpression<T>( Corba::Expression::_duplicate( mexpr.in() ) );
-        } 
+        }
 
         virtual DataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             alreadyCloned[this] = const_cast<CORBAExpression<T>*>(this);
@@ -177,7 +177,7 @@ namespace RTT
 
         virtual DataSource<void>* clone() const {
             return new CORBAExpression<void>( Corba::Expression::_duplicate( mexpr.in() ) );
-        } 
+        }
 
         virtual DataSource<void>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             alreadyCloned[this] = const_cast<CORBAExpression<void>*>(this);
@@ -215,7 +215,7 @@ namespace RTT
                 return Corba::AssignableExpression::_duplicate( mexpr );
             return 0;
         }
-        
+
         void* server(int p, void* arg) const
         {
             if ( p == ORO_CORBA_PROTOCOL_ID)
@@ -262,7 +262,7 @@ namespace RTT
         }
 
         using AssignableDataSource<T>::update;
-        
+
         virtual bool update(const CORBA::Any& any) {
             // send update and get result back.
             if ( mexpr->set( any ) ) {
@@ -272,7 +272,7 @@ namespace RTT
             return false;
         }
 
-        ::RTT::CommandInterface* updateCommand( DataSourceBase* other) 
+        ::RTT::CommandInterface* updateCommand( DataSourceBase* other)
         {
             ::RTT::CommandInterface* ci = storage->updateCommand(other);
             if (ci)
@@ -290,7 +290,7 @@ namespace RTT
 
         virtual AssignableDataSource<T>* clone() const {
             return new CORBAAssignableExpression<T>( Corba::AssignableExpression::_duplicate( mexpr.in() ) );
-        } 
+        }
 
         virtual AssignableDataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const {
             alreadyCloned[this] = const_cast<CORBAAssignableExpression<T>*>(this);

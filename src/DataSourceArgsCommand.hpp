@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:11 CET 2006  DataSourceArgsCommand.hpp 
+  tag: FMTC  do nov 2 13:06:11 CET 2006  DataSourceArgsCommand.hpp
 
                         DataSourceArgsCommand.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_DATASOURCE_ARGS_COMMAND_HPP
 #define ORO_DATASOURCE_ARGS_COMMAND_HPP
 
@@ -142,17 +142,17 @@ namespace RTT
                 mexec = true;
                 return mvalid;
             }
-        
+
             virtual bool done() const {
                 if (mexec && mvalid )
                     return mcon.evaluate() != minvert;
                 return false;
             }
-     
+
             virtual void reset() {
                 minvoked = (false);
                 maccept = (false);
-                mvalid = (false); 
+                mvalid = (false);
                 mexec = (false);
             }
 

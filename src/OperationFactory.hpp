@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:07 CET 2006  OperationFactory.hpp 
+  tag: FMTC  do nov 2 13:06:07 CET 2006  OperationFactory.hpp
 
                         OperationFactory.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_OPERATION_FACTORY_HPP
 #define ORO_OPERATION_FACTORY_HPP
 
@@ -151,7 +151,7 @@ namespace RTT
                 std::vector< ArgumentDescription > mlist;
                 return mlist;
             }
-            
+
             ResultT produce(
                             const std::vector<DataSourceBase::shared_ptr>& args) const
             {
@@ -250,11 +250,11 @@ namespace RTT
 
                 typename DataSource<arg1_type>::shared_ptr a =
                     AdaptDataSource<arg1_type>()( DataSourceTypeInfo<arg1_type>::getTypeInfo()->convert(args[0]) );
-                if ( !a ) 
+                if ( !a )
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 1, DataSource<arg1_type>::GetType(), args[0]->getType() ), ResultT());
                 typename DataSource<arg2_type>::shared_ptr b =
                     AdaptDataSource<arg2_type>()( DataSourceTypeInfo<arg2_type>::getTypeInfo()->convert(args[1]) );
-                if ( !b ) 
+                if ( !b )
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 2, DataSource<arg2_type>::GetType(), args[1]->getType() ), ResultT());
 
                 return fun.create(a.get(), b.get() );
@@ -313,15 +313,15 @@ namespace RTT
 
                 typename DataSource<arg1_type>::shared_ptr a =
                     AdaptDataSource<arg1_type>()( DataSourceTypeInfo<arg1_type>::getTypeInfo()->convert(args[0]) );
-                if ( !a ) 
+                if ( !a )
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 1, DataSource<arg1_type>::GetType(), args[0]->getType() ), ResultT());
                 typename DataSource<arg2_type>::shared_ptr b =
                     AdaptDataSource<arg2_type>()( DataSourceTypeInfo<arg2_type>::getTypeInfo()->convert(args[1]) );
-                if ( !b ) 
+                if ( !b )
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 2, DataSource<arg2_type>::GetType(), args[1]->getType() ), ResultT());
                 typename DataSource<arg3_type>::shared_ptr c =
                     AdaptDataSource<arg3_type>()( DataSourceTypeInfo<arg3_type>::getTypeInfo()->convert(args[2]) );
-                if ( !c ) 
+                if ( !c )
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 3, DataSource<arg3_type>::GetType(), args[2]->getType() ), ResultT());
 
                 return fun.create(a.get(), b.get(), c.get() );
@@ -386,15 +386,15 @@ namespace RTT
 
                 typename DataSource<arg1_type>::shared_ptr a =
                     AdaptDataSource<arg1_type>()( DataSourceTypeInfo<arg1_type>::getTypeInfo()->convert(args[0]) );
-                if ( !a ) 
+                if ( !a )
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 1, DataSource<arg1_type>::GetType(), args[0]->getType() ), ResultT());
                 typename DataSource<arg2_type>::shared_ptr b =
                     AdaptDataSource<arg2_type>()( DataSourceTypeInfo<arg2_type>::getTypeInfo()->convert(args[1]) );
-                if ( !b ) 
+                if ( !b )
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 2, DataSource<arg2_type>::GetType(), args[1]->getType() ), ResultT());
                 typename DataSource<arg3_type>::shared_ptr c =
                     AdaptDataSource<arg3_type>()( DataSourceTypeInfo<arg3_type>::getTypeInfo()->convert(args[2]) );
-                if ( !c ) 
+                if ( !c )
                     ORO_THROW_OR_RETURN(wrong_types_of_args_exception( 3, DataSource<arg3_type>::GetType(), args[2]->getType() ), ResultT());
                 typename DataSource<arg4_type>::shared_ptr d =
                     AdaptDataSource<arg4_type>()( DataSourceTypeInfo<arg4_type>::getTypeInfo()->convert(args[3]) );
@@ -410,7 +410,7 @@ namespace RTT
     }
 
     /**
-     * @brief This factory is a template for creating parts. 
+     * @brief This factory is a template for creating parts.
      */
     template<typename ResultT>
     class OperationFactory
@@ -458,11 +458,11 @@ namespace RTT
             return data.find( name ) != data.end();
         }
 
-        /** 
+        /**
          * Query the number of arguments of an operation
-         * 
+         *
          * @param name The name of the operation
-         * 
+         *
          * @return The arity, or -1 if \a name is not found.
          */
         int getArity( const std::string& name ) const
@@ -471,12 +471,12 @@ namespace RTT
             if ( i == data.end() || i->second == 0 ) return -1;
             return i->second->arity();
         }
-        /** 
-         * Produce an object that contains an operation. 
-         * 
+        /**
+         * Produce an object that contains an operation.
+         *
          * @param name The name of the operation
          * @param args The arguments filled in as properties.
-         * 
+         *
          * @return a new object.
          */
         ResultT produce( const std::string& name, const PropertyBag& args ) const
@@ -490,12 +490,12 @@ namespace RTT
             return i->second->produce(dsVect);
         }
 
-        /** 
+        /**
          * Produce an object that contains an operation
-         * 
+         *
          * @param name The name of the operation
          * @param args The arguments filled in as data sources.
-         * 
+         *
          * @return a new object
          */
         ResultT produce( const std::string& name,
@@ -506,11 +506,11 @@ namespace RTT
             return i->second->produce( args );
         }
 
-        /** 
+        /**
          * Get the names and descriptions of all arguments of an operation.
-         * 
+         *
          * @param name The name of the operation
-         * 
+         *
          * @return A list of descriptions.
          */
         Descriptions getArgumentList( const std::string& name ) const
@@ -520,11 +520,11 @@ namespace RTT
             return i->second->getArgumentList();
         }
 
-        /** 
+        /**
          * Get the type name of the result type of an operation.
-         * 
+         *
          * @param name The name of the operation
-         * 
+         *
          * @return A name of a data type.
          */
         std::string getResultType( const std::string& name ) const
@@ -534,11 +534,11 @@ namespace RTT
             return i->second->resultType();
         }
 
-        /** 
+        /**
          * Get the description of an operation
-         * 
+         *
          * @param name The name of the operation
-         * 
+         *
          * @return A user readable description.
          */
         std::string getDescription( const std::string& name ) const
@@ -548,9 +548,9 @@ namespace RTT
             return i->second->description();
         }
 
-        /** 
+        /**
          * Add a new operation to the interface.
-         * 
+         *
          * @param name The name of the operation
          * @param part A part which creates the operation.
          */
@@ -564,9 +564,9 @@ namespace RTT
             data[name] = part;
         }
 
-        /** 
+        /**
          * Remove an added operation from the interface
-         * 
+         *
          * @param name The name of the operation
          */
         void remove( const std::string& name )

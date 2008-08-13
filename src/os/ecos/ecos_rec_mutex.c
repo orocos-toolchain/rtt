@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: 
+  tag:
 
                         ecos_rec_mutex.c -  description
                            -------------------
     begin                : Jan 21 2006
     copyright            : (C) 2006 Klaas Gadeyne
     email                : firstname lastname at fmtc be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -26,7 +26,7 @@
  ***************************************************************************/
 
 #include <rtt/os/ecos_rec_mutex.h>
- 
+
 void cyg_recursive_mutex_init( cyg_recursive_mutex_t *mx )
 {
   cyg_mutex_init(&(mx->mutex));

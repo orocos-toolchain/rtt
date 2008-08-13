@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 10 15:59:50 CET 2005  types_test.cpp 
+  tag: Peter Soetens  Mon Jan 10 15:59:50 CET 2005  types_test.cpp
 
                         types_test.cpp -  description
                            -------------------
     begin                : Mon January 10 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "types_test.hpp"
 #include <unistd.h>
@@ -35,7 +35,7 @@ using namespace std;
 CPPUNIT_TEST_SUITE_REGISTRATION( TypesTest );
 
 
-void 
+void
 TypesTest::setUp()
 {
     tc =  new TaskContext( "root" );
@@ -45,7 +45,7 @@ TypesTest::setUp()
 }
 
 
-void 
+void
 TypesTest::tearDown()
 {
     tsim->stop();
@@ -54,7 +54,7 @@ TypesTest::tearDown()
 }
 
 
-bool TypesTest::assertBool( bool b) { 
+bool TypesTest::assertBool( bool b) {
     return b;
 }
 bool TypesTest::assertMsg( bool b, const std::string& msg) {
@@ -78,7 +78,7 @@ void TypesTest::testTypes()
     // XXX
     // for some reason, we can not compare the double6D's one fails
     // to parse, the others assert false, thus inequality.
-    string test = 
+    string test =
         // Line 2:
         string("var int i2 = -1, j = 10, k; set k = 20\n") +
         "do test.assert( i2 == -1 ) ; do test.assert( j == 10 ); do test.assert(k == 20)\n" +
@@ -178,10 +178,10 @@ void TypesTest::testTypes()
         +"} }\n"
         +"final state Fini {} }\n"
         +"RootMachine X x\n";
-    
+
     string prog = string("program x {\n") + test + "}\n";
     executeStates(state);
-                          
+
     // execute
     executePrograms(prog);
 
@@ -213,14 +213,14 @@ void TypesTest::testConversions()
     string prog = string("program x {\n") +
         "var int i = 3.0\n" +
         "var double d = float(10.0*i)\n"+
-        "do test.assert( float(d) == float(30.0) )\n" +        
+        "do test.assert( float(d) == float(30.0) )\n" +
         "var float f = 5\n" +
         "set f = double(5) * double(-1) + i\n" +
         "set i = f\n" +
         "set f = i\n" +
         "set i = double(float(int(f)))\n" +
         "set f = int(float(double(int(3.333))))\n" +
-        "do test.assert( f == 3 )\n" +        
+        "do test.assert( f == 3 )\n" +
         "}";
     // execute
     executePrograms(prog);
@@ -366,5 +366,5 @@ void TypesTest::executeStates(const std::string& state )
     tc->engine()->states()->unloadStateMachine( (*pg_list.begin())->getName() );
 }
 
-    
+
 

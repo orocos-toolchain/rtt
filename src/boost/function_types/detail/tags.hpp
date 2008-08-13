@@ -22,11 +22,11 @@ namespace boost { namespace function_types {
 //------------------------------------------------------------------------------
 // Constants
 //------------------------------------------------------------------------------
-namespace constants 
+namespace constants
 {
   enum tag_bits
   {
-  // These are encoded with the lowest two bits to get nice ordinals when 
+  // These are encoded with the lowest two bits to get nice ordinals when
   // masking out the attributes
     static_function           =  0x01
   , member_function           =  0x02
@@ -42,7 +42,7 @@ namespace constants
   , pointer                   =  0x80
   // The next marks the two above as unset
   , plain                     = 0x100
-  // Testing semantic is: "is at least as cv-qualified as ?" 
+  // Testing semantic is: "is at least as cv-qualified as ?"
   , const_qualified           = 0x200
   , volatile_qualified        = 0x400
   // Both bits above (to ease notation)
@@ -53,7 +53,7 @@ namespace constants
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   enum predefined_tag_constants
   {
-    no_function 
+    no_function
       = unknown_or_template
   , any_function
       = xxx_function
@@ -106,14 +106,14 @@ namespace boost { namespace function_types { namespace detail {
 //------------------------------------------------------------------------------
 // Test if a tag represents a subset of a set represented by another tag
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-template<typename Tag, typename Set> 
+template<typename Tag, typename Set>
 struct tag_represents_subset_of
   : mpl::equal_to< mpl::bitand_<Tag,Set>, Set >
 { };
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Extract a type tag of the basic function type (member or non-member)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-template<typename Tag> 
+template<typename Tag>
 struct tag_core_type_id
   : mpl::bitand_< Tag, core_type_mask >
 { };
@@ -121,11 +121,11 @@ struct tag_core_type_id
 // ( Integral value of static_function is 1 )
 typedef tag_core_type_id<plain_function>::type static_function;
 // ( Integral value of member_function is 2 )
-typedef tag_core_type_id<member_function_pointer>::type 
+typedef tag_core_type_id<member_function_pointer>::type
   member_function;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Change the kind of function a tag represents
-template<typename Tag, typename FromKind, typename ToKind> 
+template<typename Tag, typename FromKind, typename ToKind>
 struct transmute_tag
   : mpl::bitxor_< Tag, FromKind, ToKind >
 { };
@@ -148,7 +148,7 @@ struct concretize_tag_to_default
     < set_bits_if_not
       < Tag
       , mpl::shift_right<Tag, n_bits>
-      , defaultcall 
+      , defaultcall
       >
     , mpl::bitand_<Tag, variadic_mask>
     , non_variadic

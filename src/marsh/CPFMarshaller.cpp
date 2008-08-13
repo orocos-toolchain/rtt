@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:20 CET 2008  CPFMarshaller.cpp 
+  tag: FMTC  Tue Mar 11 21:49:20 CET 2008  CPFMarshaller.cpp
 
                         CPFMarshaller.cpp -  description
                            -------------------
     begin                : Tue March 11 2008
     copyright            : (C) 2008 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include "CPFMarshaller.hpp"
 #include "../rtt-config.h"
 
@@ -43,7 +43,7 @@ namespace RTT
 {
     template<class T>
     void CPFMarshaller<std::ostream>::doWrite( const Property<T> &v, const std::string& type )
-    { 
+    {
         *(this->s) <<indent << "<simple ";
         if ( !v.getName().empty() )
             *(this->s) <<"name=\"" << this->escape( v.getName() ) <<"\" ";
@@ -54,7 +54,7 @@ namespace RTT
     }
 
     void CPFMarshaller<std::ostream>::doWrite( const Property<std::string> &v, const std::string& type )
-    { 
+    {
         *(this->s) <<indent << "<simple ";
         if ( !v.getName().empty() )
             *(this->s) <<"name=\"" << this->escape( v.getName() ) <<"\" ";
@@ -64,7 +64,7 @@ namespace RTT
         *(this->s) << "<value>" << this->escape( v.get() ) << "</value></simple>\n";
     }
 
-    
+
     std::string CPFMarshaller<std::ostream>::escape(std::string s)
     {
         std::string::size_type n=0;
@@ -90,50 +90,50 @@ namespace RTT
         return s;
     }
 
-    
+
     void CPFMarshaller<std::ostream>::introspect(PropertyBase* pb)
     {
         PropertyIntrospection::introspect( pb );
     }
 
-    
-    void CPFMarshaller<std::ostream>::introspect(Property<bool> &v) 
-    { 
+
+    void CPFMarshaller<std::ostream>::introspect(Property<bool> &v)
+    {
         doWrite( v, "boolean");
     }
 
-    
-    void CPFMarshaller<std::ostream>::introspect(Property<char> &v) 
-    { 
+
+    void CPFMarshaller<std::ostream>::introspect(Property<char> &v)
+    {
         doWrite( v, "char");
     }
 
-    
-    void CPFMarshaller<std::ostream>::introspect(Property<int> &v) 
-    { 
+
+    void CPFMarshaller<std::ostream>::introspect(Property<int> &v)
+    {
         doWrite( v, "long");
     }
-			
-    
-    void CPFMarshaller<std::ostream>::introspect(Property<unsigned int> &v) 
-    { 
+
+
+    void CPFMarshaller<std::ostream>::introspect(Property<unsigned int> &v)
+    {
         doWrite( v, "ulong");
     }
-			
-    
-    void CPFMarshaller<std::ostream>::introspect(Property<double> &v) 
+
+
+    void CPFMarshaller<std::ostream>::introspect(Property<double> &v)
     {
         doWrite( v, "double");
     }
 
-    
-    void CPFMarshaller<std::ostream>::introspect(Property<std::string> &v) 
+
+    void CPFMarshaller<std::ostream>::introspect(Property<std::string> &v)
     {
         doWrite( v, "string");
     }
-			
-    
-    void CPFMarshaller<std::ostream>::introspect(Property<PropertyBag> &b) 
+
+
+    void CPFMarshaller<std::ostream>::introspect(Property<PropertyBag> &b)
     {
         PropertyBag v = b.get();
         *(this->s) <<indent<<"<struct name=\""<<escape(b.getName())<<"\" type=\""<< escape(v.getType())<< "\">\n";
@@ -143,17 +143,17 @@ namespace RTT
 
         b.value().identify(this);
 
-        indent = indent.substr(0, indent.length()-3); 
+        indent = indent.substr(0, indent.length()-3);
         *(this->s) <<indent<<"</struct>\n";
     }
 
-    CPFMarshaller<std::ostream>::CPFMarshaller(std::ostream &os) 
+    CPFMarshaller<std::ostream>::CPFMarshaller(std::ostream &os)
         : StreamProcessor<std::ostream>(os), indent("  ")
     {
     }
 
     CPFMarshaller<std::ostream>::CPFMarshaller(const std::string& filename)
-        : StreamProcessor<std::ostream>(mfile), 
+        : StreamProcessor<std::ostream>(mfile),
           mfile(filename.c_str(), std::fstream::out),
           indent("  ")
     {
@@ -163,15 +163,15 @@ namespace RTT
         }
     }
 
-    
+
     void CPFMarshaller<std::ostream>::serialize(PropertyBase* v)
     {
         if (s)
             v->identify( this );
     }
 
-    
-    void CPFMarshaller<std::ostream>::serialize(const PropertyBag &v) 
+
+    void CPFMarshaller<std::ostream>::serialize(const PropertyBag &v)
     {
         if ( !s )
             return;
@@ -184,7 +184,7 @@ namespace RTT
         *(this->s) << "</properties>\n";
     }
 
-    
+
     void CPFMarshaller<std::ostream>::flush()
     {
         if (s)

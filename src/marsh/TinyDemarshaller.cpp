@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:20 CET 2008  TinyDemarshaller.cpp 
+  tag: FMTC  Tue Mar 11 21:49:20 CET 2008  TinyDemarshaller.cpp
 
                         TinyDemarshaller.cpp -  description
                            -------------------
     begin                : Tue March 11 2008
     copyright            : (C) 2008 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include "marsh/TinyDemarshaller.hpp"
 
 
@@ -61,7 +61,7 @@ namespace RTT
 {
     namespace detail
     {
-        class Tiny2CPFHandler 
+        class Tiny2CPFHandler
         {
             /**
              * Stores the results of the parsing.
@@ -113,7 +113,7 @@ namespace RTT
                                     " Value should contain a single character, got '"+ value_string +"'." << endlog();
                                 return false;
                             }
-                            else 
+                            else
                                 bag_stack.top().first->add
                                     ( new Property<char>( name, description, value_string[0] ) );
                         }
@@ -123,11 +123,11 @@ namespace RTT
                                     " Value should contain a single unsigned character, got '"+ value_string +"'." << endlog();
                                 return false;
                             }
-                            else 
+                            else
                                 bag_stack.top().first->add
                                     ( new Property<unsigned char>( name, description, value_string[0] ) );
                         }
-                        else if ( type == "long" || type == "short") 
+                        else if ( type == "long" || type == "short")
                         {
                             int v;
                             if ( sscanf(value_string.c_str(), "%d", &v) == 1)
@@ -138,7 +138,7 @@ namespace RTT
                                 return false;
                             }
                         }
-                        else if ( type == "ulong" || type == "ushort") 
+                        else if ( type == "ulong" || type == "ushort")
                         {
                             unsigned int v;
                             if ( sscanf(value_string.c_str(), "%u", &v) == 1)
@@ -149,7 +149,7 @@ namespace RTT
                                 return false;
                             }
                         }
-                        else if ( type == "double") 
+                        else if ( type == "double")
                         {
                             double v;
                             if ( sscanf(value_string.c_str(), "%lf", &v) == 1 )
@@ -159,9 +159,9 @@ namespace RTT
                                 log(Error) << "Wrong value for property '"+type+"'." \
                                     " Value should contain a double value, got '"+ value_string +"'." << endlog();
                                 return false;
-                            } 
+                            }
                         }
-                        else if ( type == "float") 
+                        else if ( type == "float")
                         {
                             float v;
                             if ( sscanf(value_string.c_str(), "%f", &v) == 1 )
@@ -173,7 +173,7 @@ namespace RTT
                                 return false;
                             }
                         }
-                        else if ( type == "string") 
+                        else if ( type == "string")
                             bag_stack.top().first->add
                             ( new Property<std::string>( name, description, value_string ) );
                         tag_stack.pop();
@@ -224,13 +224,13 @@ namespace RTT
                 if ( ln == "properties" )
                     tag_stack.push( TAG_PROPERTIES );
                 else
-                    if ( ln == "simple" ) 
+                    if ( ln == "simple" )
                     {
                         tag_stack.push( TAG_SIMPLE );
                         while (attributes)
                         {
                             std::string an = attributes->Name();
-                            if ( an == "name") 
+                            if ( an == "name")
                             {
                                 name = attributes->Value();
                             }
@@ -247,7 +247,7 @@ namespace RTT
                             while (attributes)
                                 {
                                     std::string an = attributes->Name();
-                                    if ( an == "name") 
+                                    if ( an == "name")
                                         {
                                             name = attributes->Value();
                                         }
@@ -266,12 +266,12 @@ namespace RTT
 
                             Property<PropertyBag> *prop;
                             prop = new Property<PropertyBag>(name,"",PropertyBag(type));
-                            
+
                             // take reference to bag itself !
                             bag_stack.push(std::make_pair( &(prop->value()), prop));
                         }
                         else
-                                if ( ln == "description") 
+                                if ( ln == "description")
                                     tag_stack.push( TAG_DESCRIPTION );
                                 else
                                     if ( ln == "value"  )
@@ -310,7 +310,7 @@ namespace RTT
                 TiXmlNode* pChild;
                 TiXmlText* pText;
                 int t = pParent->Type();
-        
+
                 switch ( t )
                     {
                     case TiXmlNode::ELEMENT:
@@ -318,7 +318,7 @@ namespace RTT
                         this->startElement( pParent->Value(), pParent->ToElement()->FirstAttribute() );
 
                         // recurse in children, if any
-                        for ( pChild = pParent->FirstChild(); pChild != 0; pChild = pChild->NextSibling()) 
+                        for ( pChild = pParent->FirstChild(); pChild != 0; pChild = pChild->NextSibling())
                             {
                                 if ( this->populateBag( pChild ) == false)
                                     return false;
@@ -346,7 +346,7 @@ namespace RTT
             }
         };
     }
-     
+
     using namespace detail;
 
     struct TinyDemarshaller::D {
@@ -372,7 +372,7 @@ namespace RTT
     {
         delete d;
     }
-    
+
     bool TinyDemarshaller::deserialize( PropertyBag &v )
     {
         Logger::In in("TinyDemarshaller");

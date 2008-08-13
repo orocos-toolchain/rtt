@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 10 16:16:57 CEST 2002  BufferInterface.hpp 
+  tag: Peter Soetens  Thu Oct 10 16:16:57 CEST 2002  BufferInterface.hpp
 
                         BufferInterface.hpp -  description
                            -------------------
     begin                : Thu October 10 2002
     copyright            : (C) 2002 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef ORO_CORELIB_BUFFERINTERFACE_HPP
 #define ORO_CORELIB_BUFFERINTERFACE_HPP
 

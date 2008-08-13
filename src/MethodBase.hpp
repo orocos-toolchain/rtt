@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:11 CET 2006  MethodBase.hpp 
+  tag: FMTC  do nov 2 13:06:11 CET 2006  MethodBase.hpp
 
                         MethodBase.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,17 +34,17 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_METHOD_BASE_HPP
 #define ORO_METHOD_BASE_HPP
 
 #include "Invoker.hpp"
 #include "ActionInterface.hpp"
-        
+
 namespace RTT
 {
-    namespace detail 
+    namespace detail
     {
         /**
          * The base class for all method implementations. Both local and remove

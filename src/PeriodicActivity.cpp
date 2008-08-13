@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:29 CEST 2004  PeriodicActivity.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:29 CEST 2004  PeriodicActivity.cxx
 
                         PeriodicActivity.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -47,7 +47,7 @@
 
 namespace RTT
 {
-    
+
     PeriodicActivity::PeriodicActivity(int priority, Seconds period, RunnableInterface* r )
         : runner(r), running(false), active(false),
           thread_( TimerThread::Instance(priority,period) )
@@ -97,7 +97,7 @@ namespace RTT
         thread_->start();
     }
 
-     
+
     bool PeriodicActivity::run( RunnableInterface* r )
     {
         if ( isRunning() )
@@ -119,7 +119,7 @@ namespace RTT
         // If thread is not yet running, try to start it.
         if ( !thread_->isRunning() && thread_->start() == false )
             return false;
-	
+
         active = true;
         bool inError = !this->initialize();
         if ( inError ) {
@@ -171,7 +171,7 @@ namespace RTT
         return thread_->getPeriod();
     }
 
-    bool PeriodicActivity::initialize() { 
+    bool PeriodicActivity::initialize() {
         if (runner != 0)
             return runner->initialize();
         else
@@ -182,12 +182,12 @@ namespace RTT
     {
         return false;
     }
-        
+
     bool PeriodicActivity::trigger()
     {
         return false;
     }
-        
+
     void PeriodicActivity::step()
     {
         // override this method to avoid running runner.

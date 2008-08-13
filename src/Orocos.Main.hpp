@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:21 CET 2004  Orocos.Main.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:21 CET 2004  Orocos.Main.hpp
 
                         Orocos.Main.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,11 +33,11 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 /**
  * @mainpage RTT Online API Documentation
- * 
+ *
  * @section intro Introduction
  * This is the Online API documentation of the Orocos Real-Time Toolkit.
  *
@@ -50,16 +50,16 @@
  *
  * You will most likely also need to read the <a href="http://www.orocos.org/rtt/">online manuals</a>.
  *
- * @section corelib Real-Time Toolkit classes (RTT) 
+ * @section corelib Real-Time Toolkit classes (RTT)
  *
  * The classes in the RTT namespace form the application independent
- * control services which defines the portable framework for 
+ * control services which defines the portable framework for
  * defining software components.
  *
  * A component is implemented using the RTT::TaskContext class. The
  * Component interface consits of five parts: events: RTT::Event, commands:
  * RTT::Command, methods: RTT::Method, properties: RTT::Property,
- * RTT::Attribute and data ports: RTT::DataPort, RTT::BufferPort. 
+ * RTT::Attribute and data ports: RTT::DataPort, RTT::BufferPort.
  *
  * A Component is run by a RTT::PeriodicActivity or
  * RTT::NonPeriodicActivity which attaches a thread to the Execution Engine.
@@ -81,7 +81,7 @@
  * The RTT must be compiled with the --enable-corba flag in order to
  * enable this extension.
  *
- * @section devdrivers Hardware Access and Device Interface 
+ * @section devdrivers Hardware Access and Device Interface
  *
  * Orocos has an abstraction layer and some utility classes to access
  * common devices (IO, encoders,...) from applications. The Device

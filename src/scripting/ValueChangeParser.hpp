@@ -97,7 +97,7 @@ namespace RTT { namespace detail
     void seentype( iter_t begin, iter_t end );
     void seenindexassignment();
     void seensizehint();
-    void seenproperty(); 
+    void seenproperty();
 
     rule_t constantdefinition, aliasdefinition, variabledefinition,
         variableassignment, variablechange, paramdefinition, baredefinition,
@@ -123,7 +123,7 @@ namespace RTT { namespace detail
       /**
        * Create a ValueChangeParser which operates and stores values in a task.
        * Use definedvalues() to get the values added to \a tc, use store()
-       * to store the added values in another task context as well. 
+       * to store the added values in another task context as well.
        * After reset(), \a tc will be cleared of all the stored values.
        * \a tc is thus used as a temporary storage container.
        * If you want the new added values in a different \a storage, use
@@ -132,7 +132,7 @@ namespace RTT { namespace detail
       ValueChangeParser( TaskContext* tc, OperationInterface* storage= 0);
 
       /**
-       * Clear assignCommands(), definedValues() and 
+       * Clear assignCommands(), definedValues() and
        * definedNames(). Does not delete any variables or commands.
        */
       void clear();

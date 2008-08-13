@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  TypeInfoName.hpp 
+  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  TypeInfoName.hpp
 
                         TypeInfoName.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_TYPEINFO_NAME_HPP
 #define ORO_TYPEINFO_NAME_HPP
 
@@ -54,7 +54,7 @@ namespace RTT
     {
         const std::string tname;
     public:
-        EmptyTypeInfo(std::string name) 
+        EmptyTypeInfo(std::string name)
             : tname(name)
         {
         }
@@ -146,7 +146,7 @@ namespace RTT
      * @see TemplateTypeInfo for adding full type info to Orocos.
      */
     template<typename T>
-    struct RTT_API TypeInfoName 
+    struct RTT_API TypeInfoName
         : public EmptyTypeInfo
     {
         /**
@@ -154,15 +154,15 @@ namespace RTT
          * This causes a switch from 'unknown' type to basic
          * type information for type T.
          * @param name the 'Orocos' type name.
-         * 
+         *
          */
-        TypeInfoName(std::string name) 
-            : EmptyTypeInfo(name) 
+        TypeInfoName(std::string name)
+            : EmptyTypeInfo(name)
         {
             Logger::In in("TypeInfoName");
             // Install the type info object for T.
             if ( detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject != 0) {
-                Logger::log() << Logger::Warning << "Overriding TypeInfo for '" 
+                Logger::log() << Logger::Warning << "Overriding TypeInfo for '"
                               << detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject->getTypeName()
                               << "'." << Logger::endl;
                 delete detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject;

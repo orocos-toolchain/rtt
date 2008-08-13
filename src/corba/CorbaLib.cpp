@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:22 CET 2008  CorbaLib.cpp 
+  tag: FMTC  Tue Mar 11 21:49:22 CET 2008  CorbaLib.cpp
 
                         CorbaLib.cpp -  description
                            -------------------
     begin                : Tue March 11 2008
     copyright            : (C) 2008 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,14 +34,14 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include "CorbaTemplateProtocol.hpp"
 #include "os/StartStopManager.hpp"
 
 namespace RTT {
     namespace Corba {
-        
+
         using namespace RTT::detail;
 
         /**
@@ -50,7 +50,7 @@ namespace RTT {
         class CorbaFallBackProtocol
             : public TypeTransporter
         {
-            virtual void* createBlob(DataSourceBase::shared_ptr source) const 
+            virtual void* createBlob(DataSourceBase::shared_ptr source) const
             {
                 Logger::In in("CorbaFallBackProtocol");
                 log(Error) << "Failing Corba::Any creation of type "<< source->getTypeName()<<"." <<Logger::endl;
@@ -60,11 +60,11 @@ namespace RTT {
             /**
              * Update \a target with the contents of \a blob which is an object of a \a protocol.
              */
-            virtual bool updateBlob(const void* blob, DataSourceBase::shared_ptr target) const 
+            virtual bool updateBlob(const void* blob, DataSourceBase::shared_ptr target) const
             {
                 Logger::In in("CorbaFallBackProtocol");
                 log(Debug) << "Failing conversion of type "<<target->getTypeName()<<"." <<Logger::endl;
-                return false; 
+                return false;
             }
 
             /**
@@ -74,7 +74,7 @@ namespace RTT {
             virtual DataSourceBase* proxy(void* data ) const {
                 DataSourceBase* result = 0;
                 Corba::Expression_ptr e = static_cast<Corba::Expression_ptr>(data);
-                
+
                 // return a dumb proxy.
                 result = ExpressionProxy::Create( e ).get();
                 return result;
@@ -84,7 +84,7 @@ namespace RTT {
              * Create a server for a DataSource, which can be picked up by a proxy.
              * Used to export local data to a network.
              */
-            virtual void* server(DataSourceBase::shared_ptr source, bool assignable, void* arg) const 
+            virtual void* server(DataSourceBase::shared_ptr source, bool assignable, void* arg) const
             {
                 // Return a dumb server, it will return empty any's using the methods above.
                 PortableServer::POA_ptr p = static_cast<PortableServer::POA_ptr>(arg);
@@ -141,7 +141,7 @@ namespace RTT {
                 return new Corba::CorbaBufferProxy<detail::UnknownType>( buf );
             }
 
-            virtual void* bufferServer( BufferBase::shared_ptr source, void* arg) const 
+            virtual void* bufferServer( BufferBase::shared_ptr source, void* arg) const
             {
               // arg is POA !
               log(Warning) << "Can not create a useful server for an unknown data type." << endlog();
@@ -223,6 +223,6 @@ namespace RTT {
         OS::InitFunction CorbaLoader( &loadCorbaLib );
     }
 
-    
+
 }
 

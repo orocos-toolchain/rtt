@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  Types.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  Types.cxx
 
                         Types.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -58,7 +58,7 @@
 namespace RTT {
     namespace {
         using namespace detail;
-        
+
         /**
          * This struct has the sole purpose of invoking
          * the Import function.
@@ -99,9 +99,9 @@ namespace RTT
         }
     }
 
-    DataSourceBase::shared_ptr TypeInfo::construct(const std::vector<DataSourceBase::shared_ptr>& args) const 
+    DataSourceBase::shared_ptr TypeInfo::construct(const std::vector<DataSourceBase::shared_ptr>& args) const
     {
-        
+
         DataSourceBase::shared_ptr ds;
         if ( args.empty() ) {
             AttributeBase* ab = this->buildVariable("constructor");
@@ -124,7 +124,7 @@ namespace RTT
         constructors.push_back(tb);
     }
 
-    DataSourceBase::shared_ptr TypeInfo::convert(DataSourceBase::shared_ptr arg) const 
+    DataSourceBase::shared_ptr TypeInfo::convert(DataSourceBase::shared_ptr arg) const
     {
         DataSourceBase::shared_ptr ds;
         Constructors::const_iterator i= constructors.begin();
@@ -167,11 +167,11 @@ namespace RTT
         transporters[protocol_id] = tt;
         return true;
     }
-    
+
     TypeTransporter* TypeInfo::getProtocol(int protocol_id) const
     {
         // if the protocol is unknown to this type, return the protocol of the 'unknown type'
-        // type, which is a fallback such that we won't have to return zero, but can 
+        // type, which is a fallback such that we won't have to return zero, but can
         // gracefully fall-back.
         // In order to not endlessly recurse, we check if we aren't the UnknownType !
         if ( protocol_id > int(transporters.size()) || transporters[protocol_id] == 0) {
@@ -197,7 +197,7 @@ namespace RTT
 
     boost::shared_ptr<TypeInfoRepository> TypeInfoRepository::Instance()
     {
-        if ( typerepos ) 
+        if ( typerepos )
             return typerepos;
         typerepos.reset( new TypeInfoRepository() );
 
@@ -229,7 +229,7 @@ namespace RTT
         data[ tname ] = t;
         Logger::log() << Logger::Debug << "Registered Type '"<<tname <<"' to the Orocos Type System."<<Logger::endl;
         for(Transports::iterator it = transports.begin(); it != transports.end(); ++it)
-            if ( (*it)->registerTransport( tname, t) )  
+            if ( (*it)->registerTransport( tname, t) )
                 log(Info) << "Registered new '"<< (*it)->getTransportName()<<"' transport for " << tname <<endlog();
         return true;
     }

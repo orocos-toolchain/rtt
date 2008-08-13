@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Apr 5 16:53:25 CEST 2005  DataSourceAdaptor.hpp 
+  tag: Peter Soetens  Tue Apr 5 16:53:25 CEST 2005  DataSourceAdaptor.hpp
 
                         DataSourceAdaptor.hpp -  description
                            -------------------
     begin                : Tue April 05 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,7 +34,7 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
+
 #include "DataSource.hpp"
 
 #ifndef DATASOURCE_ADAPTOR_HPP
@@ -94,7 +94,7 @@ namespace RTT
 
         DataSourceAdaptor( typename DataSource<From>::shared_ptr orig)
             : orig_(orig) {}
-    
+
         virtual typename DataSource<To>::result_t  get() const { return orig_->get(); }
 
         virtual typename DataSource<To>::result_t  value() const { return orig_->value(); }
@@ -138,7 +138,7 @@ namespace RTT
 
         DataSourceAdaptor( typename DataSource<From>::shared_ptr orig)
             : orig_(orig) {}
-    
+
         virtual typename DataSource<To>::result_t  get() const { return orig_->get(); }
 
         virtual typename DataSource<To>::result_t  value() const { return orig_->value(); }
@@ -184,7 +184,7 @@ namespace RTT
 
         DataSourceAdaptor( typename DataSource<From>::shared_ptr orig)
             : orig_(orig) {}
-    
+
         virtual typename DataSource<To>::result_t  get() const { return orig_->get(); }
 
         virtual typename DataSource<To>::result_t  value() const { return orig_->value(); }
@@ -212,7 +212,7 @@ namespace RTT
 
         /**
          * Adapt from non-const reference-type to non-const reference-type, yielding an AssignableDataSource,
-         * since references are always assignable. 
+         * since references are always assignable.
          * Specialises for example DataSourceAdaptor<int &, int&> (Rare case).
          */
     template<class TFrom>
@@ -225,7 +225,7 @@ namespace RTT
 
         DataSourceAdaptor( typename DataSource<From>::shared_ptr orig)
             : orig_(orig) {}
-    
+
         virtual typename DataSource<To>::result_t  get() const { return orig_->get(); }
 
         virtual typename DataSource<To>::result_t  value() const { return orig_->value(); }
@@ -309,7 +309,7 @@ namespace RTT
     /**
      * DataSourceAdaptor specialisation to not return a reference to a stack
      * based variable ( case (4bis) ).
-     * Specialises for example 
+     * Specialises for example
      * DataSourceAdaptor<const int, const int&>
      */
     template<class TFrom>
@@ -525,7 +525,7 @@ namespace RTT
             // complete type failure.
             return 0;
         }
-        
+
     };
 
     /**
@@ -560,7 +560,7 @@ namespace RTT
             // complete type failure.
             return 0;
         }
-        
+
     };
 
 #ifndef ORO_EMBEDDED
@@ -588,7 +588,7 @@ namespace RTT
             // complete type failure.
             return 0;
         }
-        
+
     };
 
     /**
@@ -624,7 +624,7 @@ namespace RTT
             // complete type failure.
             return 0;
         }
-        
+
     };
 
     /**
@@ -648,17 +648,17 @@ namespace RTT
             AssignableDataSource<TResult>* t2 = AssignableDataSource<TResult>::narrow( dsb.get() );
             if (t2 && &(t2->set()) != 0 )
                 return new detail::AssignableDataSourceAdaptor<TResult, TResult&>( t2 );
-            
+
             // complete type failure.
             return 0;
         }
-        
+
     };
 
 #endif
 
     /**
-     * Try to adapt a DataSourceBase to a DataSource< by const reference > 
+     * Try to adapt a DataSourceBase to a DataSource< by const reference >
      * Allows all conversions. This one is used for assignments of class types.
      */
     template<class TResult>
@@ -699,7 +699,7 @@ namespace RTT
             // complete type failure.
             return 0;
         }
-        
+
     };
 }
 

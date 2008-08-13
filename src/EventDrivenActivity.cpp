@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  EventDrivenActivity.cxx 
+  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  EventDrivenActivity.cxx
 
                         EventDrivenActivity.cxx -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
@@ -82,11 +82,11 @@ namespace RTT
                 h.disconnect();
                 if (runner)
                     runner->finalize() ;
-                else 
+                else
                     this->finalize();
                 return true;
             }
-        else 
+        else
             return false;
     }
 
@@ -112,7 +112,7 @@ namespace RTT
     {
         if ( running )
             return false;
-            
+
         event = _event;
         return true;
     }
@@ -122,7 +122,7 @@ namespace RTT
     {
         if (runner)
             runner->step() ;
-        else 
+        else
             this->step();
     }
 

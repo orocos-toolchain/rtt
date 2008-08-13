@@ -81,7 +81,7 @@ namespace RTT
      * bag may change the relative order of the elements.
      *
      * @section usage Using PropertyBags
-     * To add a Property<ClassT> \a prop to a PropertyBag \a bag, use 
+     * To add a Property<ClassT> \a prop to a PropertyBag \a bag, use
      * @verbatim
      bag.add(&prop).
      @endverbatim
@@ -402,7 +402,7 @@ namespace RTT
      * Use copyProperties if you want complete duplication.
      * @param target The bag in which the property must be updated.
      * @param source The bag containing \a prop as one of its children.
-     * @param path The path to a property in \a source (or in a sub-bag of \a source), 
+     * @param path The path to a property in \a source (or in a sub-bag of \a source),
      * which must be created or updated in \a target.
      * @param separator The token to separate properties in the \a path,
      * @ingroup CoreLibProperties
@@ -417,7 +417,7 @@ namespace RTT
      *
      * @param target The bag in which the property exists and must be refreshed.
      * @param source The bag containing \a prop as one of its children.
-     * @param path The path to a property in \a source (or in a sub-bag of \a source), 
+     * @param path The path to a property in \a source (or in a sub-bag of \a source),
      * which must be created or updated in \a target.
      * @param separator The token to separate properties in the \a path,
      * @ingroup CoreLibProperties

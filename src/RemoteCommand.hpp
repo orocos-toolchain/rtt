@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:09 CET 2006  RemoteCommand.hpp 
+  tag: FMTC  do nov 2 13:06:09 CET 2006  RemoteCommand.hpp
 
                         RemoteCommand.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_REMOTE_COMMAND_HPP
 #define ORO_REMOTE_COMMAND_HPP
 
@@ -73,9 +73,9 @@ namespace RTT
                 : mcom()
             {}
 
-            /** 
+            /**
              * Call this operator if the RemoteCommand takes no arguments.
-             * 
+             *
              * @return true if ready and succesfully sent.
              */
             bool invoke() {
@@ -115,15 +115,15 @@ namespace RTT
          *
          */
         template<class CommandT>
-        class RemoteCommand 
+        class RemoteCommand
             : public Invoker<CommandT,RemoteCommandImpl<CommandT> >
         {
         public:
             typedef CommandT Signature;
 
-            /** 
+            /**
              * Create a RemoteCommand object which executes a remote command
-             * 
+             *
              * @param name The name of this command.
              * @param com The OperationFactory for commands.
              */
@@ -148,11 +148,11 @@ namespace RTT
             virtual bool execute() {
                 return this->mcom.execute();
             }
-        
+
             virtual bool done() const {
                 return this->mcom.done();
             }
-     
+
             virtual void reset() {
                 return this->mcom.reset();
             }
@@ -178,12 +178,12 @@ namespace RTT
                 return new detail::ConditionFunctor<bool(void)>( boost::bind<bool>( boost::mem_fn(&RemoteCommand::done), this) );
             }
 
-            /** 
+            /**
              * Creates a clone of this RemoteCommand object.
              * Use this method to get a new command object
              * which has its own state information.
-             * 
-             * @return 
+             *
+             * @return
              */
             virtual DispatchInterface* clone() const {
                 return new RemoteCommand(*this);

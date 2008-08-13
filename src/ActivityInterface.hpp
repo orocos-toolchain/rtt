@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:19 CET 2004  RunnableActivityInterface.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:19 CET 2004  RunnableActivityInterface.hpp
 
                         ActivityInterface.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef ORO_ACTIVITY_INTERFACE_HPP
 #define ORO_ACTIVITY_INTERFACE_HPP
 
@@ -80,7 +80,7 @@ namespace RTT
          * RunnableInterface::step() or RunnableInterface::loop() in
          * a thread.
          * @see isPeriodic()
-         * 
+         *
          * @return true if the activity is started, false otherwise
          */
         virtual bool start() = 0;
@@ -138,7 +138,7 @@ namespace RTT
          * Execute this activity such that it \a executes a step or loop of the RunnableInterface.
          * When you invoke execute() you intend to call the step() or loop() methods.
          * Some activity implementations allow a user controlled execute, others ignore it.
-         * 
+         *
          * @retval true When this->isActive() and the implementation allows external
          * executes.
          * @retval false When !this->isActive() or the implementation does not
@@ -153,7 +153,7 @@ namespace RTT
          * This allows a separation between actually executing code (execute()) and notifying that
          * code must be executed (trigger()). A trigger may be ignored by the
          * implementation.
-         * 
+         *
          * @retval true When this->isActive() and the implementation allows external
          * triggers.
          * @retval false When !this->isActive() or the implementation does not

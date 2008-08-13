@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  DeviceInterface.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  DeviceInterface.hpp
 
                         DeviceInterface.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 /**
  * @defgroup DeviceInterface Device Interfaces
  * @brief Abstraction APIs for hardware devices ('cards') such as IO, counters,
@@ -42,7 +42,7 @@
  *
  * The Orocos Device Interface classes are DigitalInInterface, DigitalOutInterface,
  * AnalogInInterface, AnalogOutInterface, SensorInterface, EncoderInterface,...
- * 
+ *
  * Only header files are found in this package. In order to decouple device creation
  * and device location, some classes have been extended with a (process-local) nameserver.
  * See the NameServer class.

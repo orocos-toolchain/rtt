@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Apr 5 16:53:25 CEST 2005  NonPeriodicActivity.cxx 
+  tag: Peter Soetens  Tue Apr 5 16:53:25 CEST 2005  NonPeriodicActivity.cxx
 
                         NonPeriodicActivity.cxx -  description
                            -------------------
     begin                : Tue April 05 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif
@@ -68,7 +68,7 @@ namespace RTT
             runner->setActivity(this);
     }
 
-    NonPeriodicActivity::~NonPeriodicActivity() 
+    NonPeriodicActivity::~NonPeriodicActivity()
     {
         this->stop();
         if ( runner )
@@ -99,7 +99,7 @@ namespace RTT
         return true;
     }
 
-    void NonPeriodicActivity::loop() { 
+    void NonPeriodicActivity::loop() {
         if ( runner )
             runner->loop();
     }

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  GraphCopier.hpp 
+  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  GraphCopier.hpp
 
                         GraphCopier.hpp -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,12 +34,12 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include "FunctionGraph.hpp"
 
     namespace {
-        
+
         using namespace RTT;
         using namespace boost;
 

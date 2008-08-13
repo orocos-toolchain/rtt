@@ -12,14 +12,14 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #include "function_type_signature.hpp"
 //------------------------------------------------------------------------------
-namespace boost { 
+namespace boost {
 //------------------------------------------------------------------------------
-namespace function_types 
+namespace function_types
 {
   template<typename Kind, typename T> struct is_function_type
     : detail::tag_represents_subset_of
       < typename function_type_signature<T>::kind
-      , Kind 
+      , Kind
       >
   { };
 }

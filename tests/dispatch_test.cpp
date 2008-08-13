@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 10 15:59:51 CET 2005  dispatch_test.cpp 
+  tag: Peter Soetens  Mon Jan 10 15:59:51 CET 2005  dispatch_test.cpp
 
                         dispatch_test.cpp -  description
                            -------------------
     begin                : Mon January 10 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "dispatch_test.hpp"
 #include <unistd.h>
@@ -41,8 +41,8 @@ DispatchTest::DispatchTest()
       ltask(0.01, ltc.engine())
 {}
 
- 
-void 
+
+void
 DispatchTest::setUp()
 {
     ltc.clear();
@@ -59,7 +59,7 @@ DispatchTest::setUp()
 }
 
 
-void 
+void
 DispatchTest::tearDown()
 {
     gtc.removePeer( "space" );
@@ -67,7 +67,7 @@ DispatchTest::tearDown()
 }
 
 
-bool DispatchTest::assertBool( bool b) { 
+bool DispatchTest::assertBool( bool b) {
     return b;
 }
 bool DispatchTest::assertMsg( bool b, const std::string& msg) {
@@ -139,7 +139,7 @@ void DispatchTest::testDispatchFailure()
 void DispatchTest::testDispatchCondition()
 {
     // see if checking a remote condition works
-    // also tests peerparser in expressions 
+    // also tests peerparser in expressions
     string prog = string("program x { if ( space.subspace.test.assert(true) ) then \n")
         + "do space.subspace.test.instantDone() \n"
         + "else \n"
@@ -214,7 +214,7 @@ void DispatchTest::testDispatchUntil()
         + "} \n"
         + "do space.subspace.test.instantDone()\n"
         + "until { \n"
-        + " if done then continue \n" 
+        + " if done then continue \n"
         + "} \n"
         + " }";
     this->doDispatch( prog, &gtc );
@@ -295,5 +295,5 @@ void DispatchTest::finishDispatch(TaskContext* tc, std::string prog_name)
 
 }
 
-    
+
 

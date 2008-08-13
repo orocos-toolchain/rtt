@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:12 CET 2006  CommandDS.hpp 
+  tag: FMTC  do nov 2 13:06:12 CET 2006  CommandDS.hpp
 
                         CommandDS.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_TASK_COMMAND_DS_HPP
 #define ORO_TASK_COMMAND_DS_HPP
 
@@ -63,9 +63,9 @@ namespace RTT
     public:
         typedef CommandT Signature;
 
-        /** 
+        /**
          * Create a Command object which executes a plain 'C' function.
-         * 
+         *
          * @param name The name of this command.
          * @param com A pointer to the 'C' function to execute when the command is invoked.
          * @param con A pointer to the 'C' function that evaluates if the command is done.
@@ -89,34 +89,34 @@ namespace RTT
             return this->condition();
         }
 
-        /** 
+        /**
          * Returns true if the condition is inverted.
-         * 
+         *
          * @return true if inverted
          */
         bool isInverted() const {
             return minvert;
         }
 
-        /** 
+        /**
          * Returns a pointer to the CommandProcessor which will
          * process this command.
-         * 
+         *
          * @return the pointer.
          */
         CommandProcessor* getCommandProcessor() const {
             return mcp;
         }
 
-        /** 
+        /**
          * Returns the name of this Command object.
-         * 
+         *
          * @return the name.
          */
         const std::string& getName() const {
             return mname;
         }
-        
+
     };
 
     template<class ComF, class ConF>

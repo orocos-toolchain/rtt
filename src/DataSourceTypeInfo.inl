@@ -7,9 +7,9 @@ namespace RTT
 {
     namespace detail {
         template< class T>
-        const std::string& DataSourceTypeInfo<T>::getType() { 
+        const std::string& DataSourceTypeInfo<T>::getType() {
             if (!TypeInfoObject)
-                return DataSourceTypeInfo<UnknownType>::getType(); 
+                return DataSourceTypeInfo<UnknownType>::getType();
             return TypeInfoObject->getTypeName();
         }
 
@@ -19,10 +19,10 @@ namespace RTT
         }
 
         template< class T>
-        const TypeInfo* DataSourceTypeInfo<T>::getTypeInfo() { 
+        const TypeInfo* DataSourceTypeInfo<T>::getTypeInfo() {
             if (!TypeInfoObject)
                 return DataSourceTypeInfo<UnknownType>::getTypeInfo();
-            return TypeInfoObject; 
+            return TypeInfoObject;
         }
 
         template< class T>

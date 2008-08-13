@@ -128,9 +128,9 @@ namespace RTT
         {
         }
 
-        /** 
+        /**
          * Event objects may be copied.
-         * 
+         *
          * @param m the original
          */
         Event(const Event& m)
@@ -138,11 +138,11 @@ namespace RTT
               mname(m.mname)
         {}
 
-        /** 
+        /**
          * Event objects may be assigned
-         * 
+         *
          * @param m the original
-         * 
+         *
          * @return *this
          */
         Event& operator=(const Event& m)
@@ -154,9 +154,9 @@ namespace RTT
             return *this;
         }
 
-        /** 
+        /**
          * Initialise a nameless Event object from an implementation.
-         * 
+         *
          * @param implementation The implementation which is acquired
          * by the Event object. If it has the wrong type, it is freed.
          */
@@ -169,12 +169,12 @@ namespace RTT
             }
         }
 
-        /** 
+        /**
          * Event objects may be assigned to an implementation.
-         * 
+         *
          * @param implementation the implementation, if it is not suitable,
          * it is freed.
-         * 
+         *
          * @return *this;
          */
         Event& operator=(boost::shared_ptr<ActionInterface> implementation)
@@ -188,9 +188,9 @@ namespace RTT
             return *this;
         }
 
-        /** 
+        /**
          * Check if this Event is ready for execution.
-         * 
+         *
          * @return true if so.
          */
         bool ready() const {

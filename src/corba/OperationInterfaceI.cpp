@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:24 CET 2008  OperationInterfaceI.cpp 
+  tag: FMTC  Tue Mar 11 21:49:24 CET 2008  OperationInterfaceI.cpp
 
                         OperationInterfaceI.cpp -  description
                            -------------------
     begin                : Tue March 11 2008
     copyright            : (C) 2008 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 // -*- C++ -*-
 //
 // $Id$
@@ -63,7 +63,7 @@
 // Information about TAO is available at:
 //     http://www.cs.wustl.edu/~schmidt/TAO.html
 
-// TAO_IDL - Generated from 
+// TAO_IDL - Generated from
 // be/be_codegen.cpp:910
 
 #include "OperationInterfaceI.h"
@@ -123,7 +123,7 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
     }
     return ret._retn();
 }
-  
+
  char * Orocos_MethodInterface_i::getResultType (
       const char* method
     )
@@ -136,7 +136,7 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
         throw ::RTT::Corba::NoSuchNameException( method );
     return CORBA::string_dup( mfact->getResultType( string(method) ).c_str() );
 }
-  
+
  char * Orocos_MethodInterface_i::getDescription (
       const char* method
     )
@@ -261,7 +261,7 @@ Orocos_CommandInterface_i::~Orocos_CommandInterface_i (void)
     return ret._retn();
 }
 
-  
+
  char * Orocos_CommandInterface_i::getResultType (
       const char* command
     )
@@ -274,7 +274,7 @@ Orocos_CommandInterface_i::~Orocos_CommandInterface_i (void)
         throw ::RTT::Corba::NoSuchNameException( command );
     return CORBA::string_dup( mfact->getResultType( string(command) ).c_str() );
 }
-  
+
  char * Orocos_CommandInterface_i::getDescription (
       const char* command
     )

@@ -1,5 +1,5 @@
 /***************************************************************************
- tag: Peter Soetens  Wed Apr 17 16:01:31 CEST 2002  TimeService.cpp 
+ tag: Peter Soetens  Wed Apr 17 16:01:31 CEST 2002  TimeService.cpp
 
                        TimeService.cpp -  description
                           -------------------
@@ -93,7 +93,7 @@ namespace RTT
         else
             {
                 // start counting from _now_ + old offset
-                offset = offset + rtos_get_time_ticks(); 
+                offset = offset + rtos_get_time_ticks();
             }
     }
 

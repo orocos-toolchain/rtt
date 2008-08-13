@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:23 CET 2008  OperationsI.cpp 
+  tag: FMTC  Tue Mar 11 21:49:23 CET 2008  OperationsI.cpp
 
                         OperationsI.cpp -  description
                            -------------------
     begin                : Tue March 11 2008
     copyright            : (C) 2008 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 // -*- C++ -*-
 //
 // $Id$
@@ -63,7 +63,7 @@
 // Information about TAO is available at:
 //     http://www.cs.wustl.edu/~schmidt/TAO.html
 
-// TAO_IDL - Generated from 
+// TAO_IDL - Generated from
 // be/be_codegen.cpp:910
 
 #include "OperationsI.h"
@@ -91,7 +91,7 @@ Orocos_Action_i::~Orocos_Action_i (void)
 }
 
 CORBA::Boolean Orocos_Action_i::execute (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -132,7 +132,7 @@ CORBA::Boolean Orocos_Action_i::executeAny (
 
 
 void Orocos_Action_i::reset (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -161,7 +161,7 @@ Orocos_Command_i::~Orocos_Command_i (void)
 }
 
 CORBA::Boolean Orocos_Command_i::execute (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -205,7 +205,7 @@ CORBA::Boolean Orocos_Command_i::executeAny (
 
 
 CORBA::Boolean Orocos_Command_i::done (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -218,7 +218,7 @@ CORBA::Boolean Orocos_Command_i::done (
 }
 
 CORBA::Boolean Orocos_Command_i::executed (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -229,7 +229,7 @@ CORBA::Boolean Orocos_Command_i::executed (
 }
 
 CORBA::Boolean Orocos_Command_i::sent (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -240,7 +240,7 @@ CORBA::Boolean Orocos_Command_i::sent (
 }
 
 CORBA::Boolean Orocos_Command_i::accepted (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -251,7 +251,7 @@ CORBA::Boolean Orocos_Command_i::accepted (
 }
 
 CORBA::Boolean Orocos_Command_i::valid (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -262,7 +262,7 @@ CORBA::Boolean Orocos_Command_i::valid (
 }
 
 void Orocos_Command_i::reset (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -273,7 +273,7 @@ void Orocos_Command_i::reset (
 }
 
 void Orocos_Command_i::destroyCommand (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException

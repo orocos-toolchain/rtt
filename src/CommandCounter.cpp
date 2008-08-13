@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:36 CEST 2004  CommandCounter.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:36 CEST 2004  CommandCounter.cxx
 
                         CommandCounter.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -38,7 +38,7 @@
 
 namespace RTT
 {
-	 
+
 	 CommandCounter::CommandCounter()
 	 	:counter(0)
 	 {
@@ -59,9 +59,9 @@ namespace RTT
 
 	 void CommandCounter::reset()
 	 {
-	 	counter = 0; 
+	 	counter = 0;
 	 }
-	 
+
 	 int CommandCounter::getCounter()
 	 {
 	 	return counter;

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 10 15:59:15 CET 2005  oro_system.h 
+  tag: Peter Soetens  Mon Jan 10 15:59:15 CET 2005  oro_system.h
 
                         oro_system.h -  description
                            -------------------
     begin                : Mon January 10 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,7 +34,7 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
+
 #include "../../rtt-config.h"
 #ifndef __ARCH_x86_64_ORO_SYSTEM__
 #define __ARCH_x86_64_ORO_SYSTEM__

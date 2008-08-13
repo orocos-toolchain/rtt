@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:07 CET 2006  Method.hpp 
+  tag: FMTC  do nov 2 13:06:07 CET 2006  Method.hpp
 
                         Method.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_TASK_METHOD_HPP
 #define ORO_TASK_METHOD_HPP
 
@@ -55,11 +55,11 @@ namespace RTT
      * @ingroup RTTComponentInterface
      */
 
-    
+
     /**
      * A method which executes a function.
      *
-     * Usage: 
+     * Usage:
      @code
      Method<double(int, double)> mymeth("name", &Class::foo, &c);
      double result = mymeth( 3, 1.9);
@@ -82,7 +82,7 @@ namespace RTT
         typedef typename boost::function_traits<Signature>::result_type result_type;
         typedef boost::function_traits<Signature> traits;
         typedef boost::shared_ptr< detail::MethodBase<FunctionT> > MethodBasePtr;
-    
+
         /**
          * Create an empty Method object.
          * Use assignment to initialise it.
@@ -101,9 +101,9 @@ namespace RTT
             : Base(), mname(name)
         {}
 
-        /** 
+        /**
          * Method objects may be copied.
-         * 
+         *
          * @param m the original
          */
         Method(const Method& m)
@@ -111,11 +111,11 @@ namespace RTT
               mname(m.mname)
         {}
 
-        /** 
+        /**
          * Method objects may be assigned
-         * 
+         *
          * @param m the original
-         * 
+         *
          * @return *this
          */
         Method& operator=(const Method& m)
@@ -127,9 +127,9 @@ namespace RTT
             return *this;
         }
 
-        /** 
+        /**
          * Initialise a nameless Method object from an implementation.
-         * 
+         *
          * @param implementation The implementation which is acquired
          * by the Method object. If it has the wrong type, it is freed.
          */
@@ -142,12 +142,12 @@ namespace RTT
             }
         }
 
-        /** 
+        /**
          * Method objects may be assigned to an implementation.
-         * 
+         *
          * @param implementation the implementation, if it is not suitable,
          * it is freed.
-         * 
+         *
          * @return *this
          */
         Method& operator=(boost::shared_ptr<ActionInterface> implementation)
@@ -161,10 +161,10 @@ namespace RTT
             return *this;
         }
 
-        /** 
+        /**
          * Construct a Method from a class member pointer and an
          * object of that class.
-         * 
+         *
          * @param name The name of this method
          * @param meth A pointer to a class member function
          * @param object An object of the class which has \a meth as member function.
@@ -175,9 +175,9 @@ namespace RTT
               mname(name)
         {}
 
-        /** 
+        /**
          * Construct a Method from a function pointer or function object.
-         * 
+         *
          * @param name the name of this method
          * @param meth an pointer to a function or function object.
          */
@@ -194,9 +194,9 @@ namespace RTT
         {
         }
 
-        /** 
+        /**
          * Check if this Method is ready for execution.
-         * 
+         *
          * @return true if so.
          */
         bool ready() const {
@@ -224,21 +224,21 @@ namespace RTT
         }
     };
 
-    /** 
+    /**
      * Create a Method which executes a function locally.
-     * 
+     *
      * @param name The name of the resulting Method object
      * @param method A pointer to a member function to be executed.
      * @param object A pointer to the object which has the above member function.
-     */    
+     */
     template<class F, class O>
     Method< typename detail::UnMember<F>::type > method(std::string name, F method, O object) {
         return Method<  typename detail::UnMember<F>::type >(name, method, object);
     }
 
-    /** 
+    /**
      * Create a Method which executes a function locally.
-     * 
+     *
      * @param name The name of the resulting Method object
      * @param method A pointer to a function to be executed.
      */
@@ -246,9 +246,9 @@ namespace RTT
     Method<F> method(std::string name, F method) {
         return Method<F>(name, method);
     }
-    /** 
+    /**
      * Create a Method which executes a function locally.
-     * 
+     *
      * @param name The name of the resulting Method object
      * @param method A pointer to a function to be executed.
      */

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:22 CET 2008  AttributesI.cpp 
+  tag: FMTC  Tue Mar 11 21:49:22 CET 2008  AttributesI.cpp
 
                         AttributesI.cpp -  description
                            -------------------
     begin                : Tue March 11 2008
     copyright            : (C) 2008 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 // -*- C++ -*-
 //
 // $Id$
@@ -63,7 +63,7 @@
 // Information about TAO is available at:
 //     http://www.cs.wustl.edu/~schmidt/TAO.html
 
-// TAO_IDL - Generated from 
+// TAO_IDL - Generated from
 // be/be_codegen.cpp:910
 
 #include "AttributesI.h"
@@ -100,7 +100,7 @@ Orocos_AttributeInterface_i::~Orocos_AttributeInterface_i (void)
 }
 
 ::RTT::Corba::AttributeInterface::AttributeNames * Orocos_AttributeInterface_i::getAttributeList (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -117,7 +117,7 @@ Orocos_AttributeInterface_i::~Orocos_AttributeInterface_i (void)
 }
 
 ::RTT::Corba::AttributeInterface::PropertyNames * Orocos_AttributeInterface_i::getPropertyList (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException

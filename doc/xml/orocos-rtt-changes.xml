@@ -152,6 +152,14 @@
 	      </ulink>.
 	  </para>
 	</listitem>
+	<listitem>
+	  <para>
+	    The main() function has been removed from the Orocos
+	    library and is now a macro that expands in user code. This
+	    greatly improves debugging, as some (most) debuggers don't
+	    look in libraries for the main() function.
+	  </para>
+	</listitem>
       </itemizedlist>
     </section>
     <section>
@@ -288,13 +296,29 @@
 	  </para>
 	</listitem>
 	<listitem>
+	  <para>The ComediPulseTrainGenerator and ComediEncoder
+	  classes (previously only compatible with a patched version
+	  of Comedi) have been rewritten such that they now use the
+	  ComediLib 0.8 API. This also caused a change in the
+	  ComediPulseTrainGenerator constructor:  the subdevice
+	  specifies the counter to be used (starting from '2') and the channel parameter
+	  has been dropped. 
+	  </para>
+	  <para>
+	    See also
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=542">
+	      Comedi layer is lagging behind comedi releases
+	      </ulink>.
+	  </para>
+	</listitem>
+	<listitem>
 	  <para> The <classname>RTT::Axis</classname> and related
 	  classes from the OCL hardware package have been moved to the
 	  <classname>OCL</classname> namespace.
 	  </para>
 	  <para> See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=">
-	      Move Axes classes to OCL namespace.
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=571">
+	      hardware/axes/dev classes should not be RTT namespace.
 	      </ulink>.
 	  </para>
 	</listitem>
@@ -319,9 +343,9 @@
 	    exported as a ControlTask CORBA server using the naming
 	    service.  If the naming service is not available, set the
 	    boolean property <option>UseNamingService</option> to 0. In that
-	    case, an IOR file is generated. Currently, it is not possible
-	    to create a server from the scripting interface, although
-	    the deployer itself is a CORBA server.
+	    case, an IOR file is generated. The <function>server()</function>
+	    method of the deployer adds the same functionality in the
+	    scripting interface.
 	  </para>
 	  <para>
 	    CORBA proxies can be created in three ways: by using the

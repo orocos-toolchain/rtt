@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 10 16:21:19 CEST 2002  MultiVector.hpp 
+  tag: Peter Soetens  Thu Oct 10 16:21:19 CEST 2002  MultiVector.hpp
 
                         MultiVector.hpp -  description
                            -------------------
     begin                : Thu October 10 2002
     copyright            : (C) 2002 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 
 #ifndef MULTIVECTOR_HPP
 #define MULTIVECTOR_HPP
@@ -76,7 +76,7 @@ namespace RTT
         enum Size {size = S};
 
         /**
-         * You can use DataType if you want to refer to 
+         * You can use DataType if you want to refer to
          * a pointer holding S elements
          */
         typedef T DataType[ S ];
@@ -266,7 +266,7 @@ namespace RTT
             return tmp;
         }
 
-        /** 
+        /**
          * Assigns all elements of this MultiVector to all elements
          * of another MultiVector.
          *
@@ -281,7 +281,7 @@ namespace RTT
             return *this;
         }
 
-        /** 
+        /**
          * Compares all elements of this MultiVector to all elements
          * of another MultiVector.
          *
@@ -296,7 +296,7 @@ namespace RTT
             return true;
         }
 
-        /** 
+        /**
          * Compares elements of this MultiVector are different from elements
          * of another MultiVector.
          *
@@ -352,7 +352,7 @@ namespace RTT
             }
          *
          */
-        
+
         /**
          * Assigns a scalar value to all elements of this Multivector
          * and returns a reference of the result.
@@ -370,7 +370,7 @@ namespace RTT
 
         /**
          * Not checked index operator to the internal data
-         * 
+         *
          * @param i
          *        The element to be accessed starting from zero.
          */
@@ -381,19 +381,19 @@ namespace RTT
     };
 
     template<unsigned S, typename D>
-    MultiVector<S,D> operator * ( const D d, const MultiVector<S,D>& v ) 
+    MultiVector<S,D> operator * ( const D d, const MultiVector<S,D>& v )
     {
         return v*d;
     }
 
     template<unsigned S, typename D>
-    MultiVector<S,D> operator + ( const D d, const MultiVector<S,D>& v ) 
+    MultiVector<S,D> operator + ( const D d, const MultiVector<S,D>& v )
     {
         return v+d;
     }
 
     template<unsigned S, typename D>
-    MultiVector<S,D> operator - ( const D d, const MultiVector<S,D>& v ) 
+    MultiVector<S,D> operator - ( const D d, const MultiVector<S,D>& v )
     {
         return v-d;
     }
@@ -413,7 +413,7 @@ namespace RTT
      * A MultiVector consisting of 6 booleans
      */
 	typedef MultiVector<6, bool> Bool6D;
-	
+
     /**
      * A MultiVector consisting of 6 longs
      */
@@ -428,8 +428,8 @@ namespace RTT
      * Output to standard C++ output stream
      */
     template <unsigned int S, class T>
-    std::ostream &operator<<(std::ostream &os, MultiVector<S,T> &q) 
-    { 
+    std::ostream &operator<<(std::ostream &os, MultiVector<S,T> &q)
+    {
 #ifdef OS_HAVE_STREAMS
         std::stringstream ss;
         ss << "(";
@@ -439,15 +439,15 @@ namespace RTT
         ss << q[ S - 1 ] << ")";
         os << ss.str();
 #endif
-        return os; 
-    } 
+        return os;
+    }
 
     /**
      * Output to standard C++ input stream
      */
     template <unsigned int S, class T>
-    std::istream &operator>>(std::istream &os, MultiVector<S,T> &q) 
-    { 
+    std::istream &operator>>(std::istream &os, MultiVector<S,T> &q)
+    {
 #ifdef OS_HAVE_STREAMS
         MultiVector<S, T> p;
         char c;
@@ -462,8 +462,8 @@ namespace RTT
         if ( os )
             q = p;
 #endif
-        return os; 
-    } 
+        return os;
+    }
 
 }
 

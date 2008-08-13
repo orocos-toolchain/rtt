@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:05:56 CET 2006  signature2.hpp 
+  tag: FMTC  do nov 2 13:05:56 CET 2006  signature2.hpp
 
                         signature2.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #define OROCOS_SIGNATURE_NUM_ARGS 2
 #define OROCOS_SIGNATURE_TEMPLATE_PARMS typename T1, typename T2
 #define OROCOS_SIGNATURE_TEMPLATE_ARGS T1, T2

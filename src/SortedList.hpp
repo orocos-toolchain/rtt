@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  SortedList.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  SortedList.hpp
 
                         SortedList.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_SORTED_LIST_HPP
 #define ORO_SORTED_LIST_HPP
 
@@ -69,7 +69,7 @@ namespace RTT
             typedef NodeType* NodeType_sptr;
             DataType key;
             NodeType_sptr next;
-            
+
             NodeType(const DataType& data)
                 : key(data)
             {}
@@ -87,7 +87,7 @@ namespace RTT
          * Node shared pointer type.
          */
         typedef typename NodeType::NodeType_sptr Node_sptr;
-    
+
         MemoryPool<Node> mpool;
 
         Node_sptr head;
@@ -112,7 +112,7 @@ namespace RTT
                     t_next = t->next;
                 } while (is_marked_reference(t_next) || (t->key < search_key));
                 right_node = t;
-                
+
                 if (left_node_next == right_node)
                     if ((right_node != this->tail) && is_marked_reference(right_node->next))
                         goto search_again;
@@ -209,13 +209,13 @@ namespace RTT
                     return true;
             } while (true);
         }
-        
+
         /**
          * Erase a node.
          * @param key An inserted key object.
          * @return true on success, false if \a key not present in list.
          */
-        bool erase(const DataType& search_key) 
+        bool erase(const DataType& search_key)
         {
             Node_sptr right_node, right_node_next, left_node;
 

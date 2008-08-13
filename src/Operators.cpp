@@ -55,7 +55,7 @@
 namespace RTT
 {
     using namespace detail;
-    
+
     namespace {
         boost::shared_ptr<OperatorRepository> reg;
     }

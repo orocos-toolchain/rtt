@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:09:48 CET 2006  ControlTaskI.h 
+  tag: Peter Soetens  Wed Jan 18 14:09:48 CET 2006  ControlTaskI.h
 
                         ControlTaskI.h -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 // -*- C++ -*-
 //
 // $Id$
@@ -63,7 +63,7 @@
 // Information about TAO is available at:
 //     http://www.cs.wustl.edu/~schmidt/TAO.html
 
-// TAO_IDL - Generated from 
+// TAO_IDL - Generated from
 // be/be_codegen.cpp:844
 
 #ifndef CONTROLTASKI_H_
@@ -94,10 +94,10 @@ protected:
     CTObjMap ctobjmap;
 
 public:
-  //Constructor 
+  //Constructor
   Orocos_ControlObject_i (RTT::OperationInterface* orig, PortableServer::POA_ptr the_poa);
-  
-  //Destructor 
+
+  //Destructor
   virtual ~Orocos_ControlObject_i (void);
 
     PortableServer::POA_ptr _default_POA()
@@ -107,7 +107,7 @@ public:
 
   virtual
   char * getName (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -115,31 +115,31 @@ public:
 
   virtual
   char * getDescription (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   ::RTT::Corba::AttributeInterface_ptr attributes (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   ::RTT::Corba::MethodInterface_ptr methods (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   ::RTT::Corba::CommandInterface_ptr commands (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -150,7 +150,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   ::RTT::Corba::ControlObject* getObject(const char*)
     ACE_THROW_SPEC ((
@@ -165,7 +165,7 @@ public:
 
 };
 
-class  Orocos_ControlTask_i 
+class  Orocos_ControlTask_i
 : public virtual POA_RTT::Corba::ControlTask, public virtual PortableServer::RefCountServantBase,
   public Orocos_ControlObject_i
 {
@@ -176,10 +176,10 @@ protected:
 	::RTT::Corba::ServiceInterface_var mService;
 	::RTT::Corba::DataFlowInterface_var mDataFlow;
 public:
-  //Constructor 
+  //Constructor
   Orocos_ControlTask_i (RTT::TaskContext* orig, PortableServer::POA_ptr the_poa);
-  
-  //Destructor 
+
+  //Destructor
   virtual ~Orocos_ControlTask_i (void);
 
   void shutdownCORBA();
@@ -190,109 +190,109 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean start (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean stop (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean isActive (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean isRunning (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean configure (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean cleanup (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean resetError (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean activate (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean isConfigured (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean inFatalError (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
     virtual
   CORBA::Boolean inRunTimeWarning (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
     virtual
   CORBA::Boolean inRunTimeError (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
     virtual
   CORBA::Long getWarningCount (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
     virtual
   CORBA::Long getErrorCount (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
 
   virtual
   ::RTT::Corba::ScriptingAccess_ptr scripting (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -300,29 +300,29 @@ public:
 
   virtual
   ::RTT::Corba::ServiceInterface_ptr services (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   ::RTT::Corba::DataFlowInterface_ptr ports (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
-  
+
+
   virtual
   ::RTT::Corba::ControlTask::ControlTaskNames * getPeerList (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   ::RTT::Corba::ControlTask_ptr getPeer (
       const char * name
@@ -330,7 +330,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean addPeer (
       ::RTT::Corba::ControlTask_ptr p,
@@ -339,7 +339,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean hasPeer (
       const char * name
@@ -347,7 +347,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean removePeer (
       const char * name
@@ -355,7 +355,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean connectPeers (
       ::RTT::Corba::ControlTask_ptr p
@@ -363,7 +363,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean disconnectPeers (
       const char * name
@@ -379,7 +379,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
 };
 
 

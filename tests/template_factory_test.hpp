@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:41 CET 2006  template_factory_test.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:41 CET 2006  template_factory_test.hpp
 
                         template_factory_test.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef TEMPLATE_FACTORYTEST_H
 #define TEMPLATE_FACTORYTEST_H
 

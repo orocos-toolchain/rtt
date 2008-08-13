@@ -2,7 +2,7 @@
 #define ORO_CORELIB_LOGGER_INL
 
 /**
- * @file Logger.inl 
+ * @file Logger.inl
  * Provides empty inlines when no logging is used, which the
  * compiler can optimize out.
  */
@@ -74,11 +74,11 @@ namespace RTT
     {
     }
 
-    inline Logger::In::~In() 
+    inline Logger::In::~In()
     {
     }
 
-    inline Logger& Logger::in(const std::string&) 
+    inline Logger& Logger::in(const std::string&)
     {
         return *this;
     }

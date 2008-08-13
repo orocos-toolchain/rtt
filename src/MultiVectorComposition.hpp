@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Sat May 21 20:15:51 CEST 2005  MultiVectorComposition.hpp 
+  tag: Peter Soetens  Sat May 21 20:15:51 CEST 2005  MultiVectorComposition.hpp
 
                         MultiVectorComposition.hpp -  description
                            -------------------
     begin                : Sat May 21 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,9 +34,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
- 
+
+
+
 #ifndef MULTIVECTOR_COMPOSITION_HPP
 #define MULTIVECTOR_COMPOSITION_HPP
 

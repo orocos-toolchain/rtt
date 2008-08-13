@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:09 CET 2006  OperationInterface.hpp 
+  tag: FMTC  do nov 2 13:06:09 CET 2006  OperationInterface.hpp
 
                         OperationInterface.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_OPERATION_INTERFACE_HPP
 #define ORO_OPERATION_INTERFACE_HPP
 
@@ -140,40 +140,40 @@ namespace RTT
          */
         virtual const std::string& getDescription() const = 0;
 
-        /** 
-         * Add a new child interface to this interface. 
-         * 
+        /**
+         * Add a new child interface to this interface.
+         *
          * @param obj This object becomes owned by this interface.
-         * 
+         *
          * @return true if it cuold be added, false if such
          * object already exists.
          */
         virtual bool addObject( OperationInterface *obj );
 
-        /** 
+        /**
          * Get a pointer to a previously added TaskObject
-         * 
+         *
          * @param obj_name The name of the TaskObject
-         * 
+         *
          * @return the pointer
          */
         virtual OperationInterface* getObject(const std::string& obj_name );
 
-        /** 
+        /**
          * Get a list of all the object names of this interface
-         * 
+         *
          * @return a list of string names.
          */
         virtual ObjectList getObjectList() const;
 
-        /** 
+        /**
          * Remove and delete a previously added TaskObject.
          * Deletion will only occur if \a obj_name's parent is \a this.
-         * You can avoid deletion by first calling 
+         * You can avoid deletion by first calling
          * @code this->getObject( obj_name )->setParent(0); @endcode
-         * 
+         *
          * @param obj_name The name of the TaskObject to remove
-         * 
+         *
          * @return true if found and removed, false otherwise.
          */
         virtual bool removeObject(const std::string& obj_name );

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  TypeStream.cxx 
+  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  TypeStream.cxx
 
                         TypeStream.cxx -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include <TypeStream.hpp>
 #include <sstream>
 
@@ -49,11 +49,11 @@ namespace {
         int ch;
         int count;
         count=-1;
-        do { 
+        do {
             if( !is )
                 return '!';
 
-            ch = is.get(); 
+            ch = is.get();
             count++;
         } while ((ch==' ')||(ch=='\n')||(ch=='\t'));
         if (countp!=NULL) *countp =  count;
@@ -63,7 +63,7 @@ namespace {
     // Eats whites, returns, tabs and the delim character
     //  Checks wether delim char. is encountered.
     bool Eat( std::istream& is, int delim )
-    {   
+    {
         if( !is )
             return false;
         int ch;
@@ -71,7 +71,7 @@ namespace {
         if (ch != delim) {
             return false;
         }
-        ch=_EatSpace(is);   
+        ch=_EatSpace(is);
         is.putback(ch);
         return true;
     }
@@ -80,7 +80,7 @@ namespace {
     //  Checks wether delim char. is encountered.
     // EatEnd does not eat all space-like char's at the end.
     bool EatEnd( std::istream& is, int delim )
-    {   
+    {
         if( !is )
             return false;
         int ch;

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 10 15:59:51 CET 2005  function_test.cpp 
+  tag: Peter Soetens  Mon Jan 10 15:59:51 CET 2005  function_test.cpp
 
                         function_test.cpp -  description
                            -------------------
     begin                : Mon January 10 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "function_test.hpp"
 #include <unistd.h>
@@ -39,7 +39,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( FunctionTest );
     {}
 
 
-void 
+void
 FunctionTest::setUp()
 {
     // ltc has a test object
@@ -49,13 +49,13 @@ FunctionTest::setUp()
 }
 
 
-void 
+void
 FunctionTest::tearDown()
 {
 }
 
 
-bool FunctionTest::assertBool( bool b) { 
+bool FunctionTest::assertBool( bool b) {
     return b;
 }
 bool FunctionTest::assertMsg( bool b, const std::string& msg) {
@@ -334,5 +334,5 @@ void FunctionTest::finishFunction(TaskContext* tc, std::string prog_name)
     tc->engine()->programs()->unloadProgram( prog_name );
 }
 
-    
+
 

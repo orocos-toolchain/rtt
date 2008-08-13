@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  ExpressionProxy.cxx 
+  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  ExpressionProxy.cxx
 
                         ExpressionProxy.cxx -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include <Types.hpp>
 #include "OperationsI.h"
@@ -53,7 +53,7 @@ namespace RTT
     ExpressionProxy::EMap ExpressionProxy::proxies;
     ExpressionProxy::DMap ExpressionProxy::dproxies;
 
-    ExpressionProxy::ExpressionProxy( ::RTT::Corba::Expression_ptr e) 
+    ExpressionProxy::ExpressionProxy( ::RTT::Corba::Expression_ptr e)
         : mdata( ::RTT::Corba::Expression::_duplicate(e) )
     {
         try {
@@ -100,7 +100,7 @@ namespace RTT
             dsb = builder->getProtocol(ORO_CORBA_PROTOCOL_ID)->proxy( t );
         else
             return Create( t ); // failed, create default proxy.
-        
+
         dproxies[t] = dsb;
         return dsb;
     }

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:57 CEST 2006  TryCommand.cxx 
+  tag: Peter Soetens  Mon Jun 26 13:25:57 CEST 2006  TryCommand.cxx
 
                         TryCommand.cxx -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,15 +34,15 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include <Logger.hpp>
 #include "TryCommand.hpp"
 #include <DataSources.hpp>
 
-namespace RTT 
+namespace RTT
 {
-    
+
     using namespace detail;
 
         TryCommand::TryCommand( CommandInterface* command,
@@ -67,7 +67,7 @@ namespace RTT
     bool TryCommand::valid() const {
         // ok to check conditions if command is valid or it failed.
         // we assume here that c behaves as a DispatchAction:
-        
+
         return _result->get() == false || c->valid();
     }
 

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  TableHeaderMarshaller.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  TableHeaderMarshaller.hpp
 
                         TableHeaderMarshaller.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef PI_PROPERTIES_TABLEHEADER_SERIALIZER
 #define PI_PROPERTIES_TABLEHEADER_SERIALIZER
 
@@ -52,7 +52,7 @@ namespace RTT
      * @todo : build a tree for formatting and print all on flush().
      */
     template<typename o_stream>
-    class TableHeaderMarshaller 
+    class TableHeaderMarshaller
     : public Marshaller, public StreamProcessor<o_stream>
     {
         int level;
@@ -61,7 +61,7 @@ namespace RTT
         public:
             typedef o_stream output_stream;
             typedef o_stream OutputStream;
-            
+
             TableHeaderMarshaller(output_stream &os) :
                     StreamProcessor<o_stream>(os), level(0), line(1)
             {
@@ -70,9 +70,9 @@ namespace RTT
             }
 
             virtual ~TableHeaderMarshaller() {}
-            
-			virtual void serialize(PropertyBase* v) 
-			{ 
+
+			virtual void serialize(PropertyBase* v)
+			{
                 Property<PropertyBag>* bag = dynamic_cast< Property<PropertyBag>* >( v );
                 if ( bag )
                     this->serialize( *bag );
@@ -81,7 +81,7 @@ namespace RTT
 			}
 
 
-            virtual void serialize(const PropertyBag &v) 
+            virtual void serialize(const PropertyBag &v)
 			{
                 // A Bag has no name
                 //
@@ -106,7 +106,7 @@ namespace RTT
                     i != v.getProperties().end();
                     i++ )
                 {
-                    
+
                     this->serialize(*i);
                 }
                 --level;
@@ -124,11 +124,11 @@ namespace RTT
                     header.push_back(std::string(""));
                 }
                 header[line-1] += std::string(" | ") + s;
-               
+
                 return header[line-1].length();
             }
 
-            virtual void serialize(const Property<PropertyBag> &v) 
+            virtual void serialize(const Property<PropertyBag> &v)
 			{
                 if ( line == int(header.size() ) )
                     header.push_back(std::string(""));
@@ -147,12 +147,12 @@ namespace RTT
                 /**
                  * Print our name
                  */
-                
+
                 std::string name = v.getName();
                 if ( v.get().getType() != "type_less")
                     name+= std::string(" <") + v.get().getType() + std::string(">");
                 store( name ) ;
-                
+
                 /**
                  * Serialize all properties on the line below.
                  */
@@ -162,7 +162,7 @@ namespace RTT
                 else
                     serialize(v.get());
                 line--;
-                
+
                 /**
                  * Pad this line with spaces
                  */
@@ -170,7 +170,7 @@ namespace RTT
                     header[line-1] += std::string( header[line].length() - header[line-1].length(), ' ');
             }
 
-            virtual void flush() 
+            virtual void flush()
             {
                 for (std::vector<std::string>::iterator it = header.begin(); it != header.end(); ++it)
                     if ( !it->empty())

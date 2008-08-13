@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  CorbaConversion.cxx 
+  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  CorbaConversion.cxx
 
                         CorbaConversion.cxx -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include "CorbaConversion.hpp"
 #include "PropertyBag.hpp"
 #include "AttributesC.h"
@@ -64,7 +64,7 @@ namespace RTT
                 Corba::Expression_var expr = attrs->getProperty( props[i].name.in() );
                 if ( CORBA::is_nil( expr ) ) {
                     Logger::log() <<Logger::Error <<"Property "<< std::string(props[i].name.in()) << " present in getPropertyList() but not accessible."<<Logger::endl;
-                    continue; 
+                    continue;
                 }
 #if 0 // This code may trigger endless recurse if server has recursive prop bags.
       // By using Property<PropertyBag>::narrow( ... ) this is no longer needed.
@@ -85,7 +85,7 @@ namespace RTT
                     TypeInfo* ti = TypeInfoRepository::Instance()->type( tn.in() );
                     Logger::log() <<Logger::Info << "Looking up Property " << tn.in();
                     if ( ti && ti->getProtocol(ORO_CORBA_PROTOCOL_ID) ) {
-                        _value.add( ti->buildProperty( props[i].name.in(), props[i].description.in(), 
+                        _value.add( ti->buildProperty( props[i].name.in(), props[i].description.in(),
                                                                             ti->getProtocol(ORO_CORBA_PROTOCOL_ID)->proxy( expr.in() ) ) );
                         Logger::log() <<Logger::Info<<" found!"<<Logger::endl;
                     }

@@ -1,5 +1,5 @@
 /***************************************************************************
- tag: Peter Soetens  Wed Apr 17 16:01:31 CEST 2002  TimerThread.cpp 
+ tag: Peter Soetens  Wed Apr 17 16:01:31 CEST 2002  TimerThread.cpp
 
                        TimerThread.cpp -  description
                           -------------------
@@ -128,8 +128,8 @@ namespace RTT
 
     void TimerThread::finalize() {
         MutexLock lock(mutex);
-        
-        for( ActivityList::iterator t_iter = tasks.begin(); t_iter != tasks.end(); ++t_iter) 
+
+        for( ActivityList::iterator t_iter = tasks.begin(); t_iter != tasks.end(); ++t_iter)
             if ( *t_iter )
                 (*t_iter)->stop(); // stop() calls us back to removeActivity (recursive mutex).
         if ( cleanup )
@@ -138,13 +138,13 @@ namespace RTT
 
     void TimerThread::step() {
         MutexLock lock(mutex);
-        
+
         // The size of the tasks vector does not change during add/remove, thus
         // t_iter is never invalidated.
-        for( ActivityList::iterator t_iter = tasks.begin(); t_iter != tasks.end(); ++t_iter) 
+        for( ActivityList::iterator t_iter = tasks.begin(); t_iter != tasks.end(); ++t_iter)
         	if ( *t_iter )
         		(*t_iter)->step();
-                        
+
         if ( cleanup )
             this->reorderList();
     }

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  SimulationActivity.hpp 
+  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  SimulationActivity.hpp
 
                         SimulationActivity.hpp -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef TASKSIMULATION_HPP
 #define TASKSIMULATION_HPP
 
@@ -47,10 +47,10 @@ namespace RTT
      * @brief A SimulationActivity is a PeriodicActivity which is used
      * for simulation.
      *
-     * They all run in the same thread, which updates the 
+     * They all run in the same thread, which updates the
      * the system clock such that the SimulationActivity appears to run
      * in realtime, while it runs 'as fast as possible'.
-     * 
+     *
      * They will run in the SimulationThread. See SimulationThread::Instance
      * for setting the smallest activity period in the system.
      * @ingroup CoreLibActivities
@@ -88,7 +88,7 @@ namespace RTT
          * Destroys this instance. The Activity is stopped.
          */
         virtual  ~SimulationActivity();
-                                 
+
     };
 
 }

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:19 CET 2006  CorbaPort.hpp 
+  tag: FMTC  do nov 2 13:06:19 CET 2006  CorbaPort.hpp
 
                         CorbaPort.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,9 +34,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
- 
+
+
+
 #ifndef ORO_CORBA_PORT_HPP
 #define ORO_CORBA_PORT_HPP
 
@@ -52,7 +52,7 @@
 namespace RTT
 { namespace Corba {
 
-    /** 
+    /**
      * A port used by ControlTaskProxy objects to connect
      * a corba data or buffer channel as an Orocos Port.
      */
@@ -74,7 +74,7 @@ namespace RTT
             if ( conn->getBuffer() ) {
                 // OK: we have a buffered connection.
                 if (mdflow->getConnectionModel(this->getName().c_str()) != DataFlowInterface::Buffered)
-                    return false; 
+                    return false;
                 detail::TypeTransporter* tt = getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
                 if (tt) {
                     BufferChannel_var bc = (BufferChannel_ptr)tt->bufferServer( conn->getBuffer(), 0);
@@ -87,7 +87,7 @@ namespace RTT
             }
             if ( conn->getDataSource() ) {
                 if (mdflow->getConnectionModel(this->getName().c_str()) != DataFlowInterface::Data)
-                    return false; 
+                    return false;
                 detail::TypeTransporter* tt = getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
                 if (tt) {
                     Expression_var expr = (Expression_ptr)tt->dataServer(conn->getDataSource(), 0);
@@ -97,7 +97,7 @@ namespace RTT
                         return false;
                     }
                     if (mdflow->connectDataPort(this->getName().c_str(), ae.in() ) ) {
-                        dc=conn;    
+                        dc=conn;
                         return true;
                     }
                 }
@@ -113,7 +113,7 @@ namespace RTT
               mdflow( DataFlowInterface::_duplicate(dflow) )
         {
         }
-        
+
         CorbaPort(const std::string& name, DataFlowInterface_ptr dflow, AssignableExpression_ptr datachannel, PortableServer::POA_ptr )
             : PortInterface(name),
               mdatachannel(AssignableExpression::_duplicate(datachannel)), mbufchannel(0),
@@ -154,7 +154,7 @@ namespace RTT
         }
 
         virtual const TypeInfo* getTypeInfo() const {
-            TypeInfo* ret = TypeInfoRepository::Instance()->type( mdflow->getDataType(this->getName().c_str()) ) ; 
+            TypeInfo* ret = TypeInfoRepository::Instance()->type( mdflow->getDataType(this->getName().c_str()) ) ;
             if (ret) return ret;
             return detail::DataSourceTypeInfo<detail::UnknownType>::getTypeInfo();
         }
@@ -181,7 +181,7 @@ namespace RTT
                 detail::TypeTransporter* tt = conn->getTypeInfo()->getProtocol( ORO_CORBA_PROTOCOL_ID );
                 if (tt) {
                     //let remote side create to local server.
-                    Corba::BufferChannel_var bufs = (Corba::BufferChannel_ptr) tt->bufferServer(impl, 0); 
+                    Corba::BufferChannel_var bufs = (Corba::BufferChannel_ptr) tt->bufferServer(impl, 0);
                     mdflow->connectBufferPort( this->getName().c_str(), bufs.in() );
                     dc = conn;
                     return true;
@@ -203,7 +203,7 @@ namespace RTT
             }
             return false;
         }
-        
+
         virtual void disconnect() {
             // disconnect the remote port
             mdflow->disconnect( this->getName().c_str() );
@@ -221,7 +221,7 @@ namespace RTT
         /**
          * Create a remote server to which one can connect to.
          */
-        virtual ConnectionInterface::shared_ptr createConnection(ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree) 
+        virtual ConnectionInterface::shared_ptr createConnection(ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree)
         {
             Logger::In in("CorbaPort");
             // create a connection one can write to.
@@ -233,12 +233,12 @@ namespace RTT
             // read ports do not create writable connections.
             return 0;
         }
-        
+
         virtual ConnectionInterface::shared_ptr createConnection( BufferBase::shared_ptr buf )
         {
             ConnectionInterface::shared_ptr ci;
             if (mdflow->getConnectionModel(this->getName().c_str()) != DataFlowInterface::Buffered)
-                return ci; 
+                return ci;
             detail::TypeTransporter* tt = getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
             if (tt) {
                 BufferChannel_var bc = (BufferChannel_ptr)tt->bufferServer(buf, 0);
@@ -254,7 +254,7 @@ namespace RTT
         {
             ConnectionInterface::shared_ptr ci;
             if (mdflow->getConnectionModel(this->getName().c_str()) != DataFlowInterface::Data)
-                return ci; 
+                return ci;
             detail::TypeTransporter* tt = getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
             if (tt) {
                 Expression_var ex = (Expression_ptr)tt->dataServer(data, 0);

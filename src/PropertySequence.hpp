@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:19 CET 2004  PropertySequence.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:19 CET 2004  PropertySequence.hpp
 
                         PropertySequence.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef PI_PROPERTY_SEQUENCE_HPP
 #define PI_PROPERTY_SEQUENCE_HPP
 
@@ -49,7 +49,7 @@ namespace RTT
 {
 	/**
 	 * @brief A container for a sequence of properties of the same type Property<T> [EXPERIMENTAL]
-     * 
+     *
 	 * This class groups properties of equal types into a single
 	 * container. It is used for optimised access to fixed type contents. It
      * is thus very much like a vector.
@@ -75,7 +75,7 @@ namespace RTT
      *
      * The elements in a PropertySequence are <em>unordered</em>. Operations on the
      * sequence may change the relative order of the elements.
-     * 
+     *
 	 * @see PropertyBag
      * @param T The type of the sequence.
      * @note THIS CLASS IS EXPERIMENTAL AND SHOULD NOT BE USED BY THE UNWARY
@@ -122,7 +122,7 @@ namespace RTT
             {
                 _properties.push_back(p);
             }
-            
+
 			/**
 			 * Remove a property from the container.
 			 * @param p Pointer to the property to be removed.
@@ -142,7 +142,7 @@ namespace RTT
             {
                 _properties.clear();
             }
-                
+
 
 			/**
 			 * List all properties.
@@ -174,7 +174,7 @@ namespace RTT
                     return ( *i );
                 return 0;
             }
-            
+
             /**
              * This assignment assigns all
              * PropertyBases of another sequence in this sequence, making
@@ -194,7 +194,7 @@ namespace RTT
             }
 
             /**
-             * The update operator. 
+             * The update operator.
              * It updates this sequence so it contains all PropertyBases
              * of another sequence, removing own PropertyBases if duplicate names
              * exist in the source sequence.
@@ -213,7 +213,7 @@ namespace RTT
                 }
                 return *this;
             }
-            
+
             const std::string& getType() const { return type;}
 
 			const PropertyContainerType& getProperties() const { return _properties; }
@@ -238,28 +238,28 @@ namespace RTT
      *        possibly modifying, deleting or creating new Property objects.
      * @{
      */
-    
+
     /**
      * This function refreshes the values of the properties in one PropertySequence with
      * the values of the properties of another PropertySequence.
      * No new properties will be created.
-     * 
+     *
      * You can use this function to update the properties of a fixed sequence.
      */
     template< class T>
     void refreshProperties(PropertySequence<T>& target, const PropertySequence<T>& source);
-    
+
     /**
-     * @brief This function updates the values of Property objects of one Sequence with the 
-     * values of Property objects of another sequence. 
+     * @brief This function updates the values of Property objects of one Sequence with the
+     * values of Property objects of another sequence.
      * It creates new Property instances using if a Property
      * is not present in the target and class copy on that Property.
-     * 
+     *
      * You can use this function to add a copy of the contents of a property sequence.
      */
     template< class T>
     void copyProperties(PropertySequence<T>& target, const PropertySequence<T>& source);
-        
+
     /**
      * This function iterates over a PropertySequence and deletes all Property objects in
      * it without recursion.

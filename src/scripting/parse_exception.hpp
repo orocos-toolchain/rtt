@@ -124,7 +124,7 @@ namespace RTT
 
         /**
          * A Fatal Semantic parse exception means the parser
-         * knows that the parsing failed dramatically and 
+         * knows that the parsing failed dramatically and
          * should not be passed to another parser. for
          * example, a missing argument, or the incorrect type.
          */
@@ -241,8 +241,8 @@ namespace RTT
 
         /**
          * An exception which a parser may throw to indicate that
-         * it failed to understand the input, and thus can not 
-         * interpret its validity. It is the equivalent of a 
+         * it failed to understand the input, and thus can not
+         * interpret its validity. It is the equivalent of a
          * failing parser rule.
          */
         class RTT_EXPORT parse_exception_parser_fail
@@ -469,7 +469,7 @@ namespace RTT
         {
             std::string margsig;
         public:
-            parse_exception_no_such_constructor(const std::string& tname, 
+            parse_exception_no_such_constructor(const std::string& tname,
                                                 std::vector<DataSourceBase::shared_ptr> args);
 
             const std::string what() const { return margsig; }

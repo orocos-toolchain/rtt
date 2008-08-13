@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  TaskContext.cxx 
+  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  TaskContext.cxx
 
                         TaskContext.cxx -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "TaskContext.hpp"
 #include <CommandInterface.hpp>
@@ -59,7 +59,7 @@
 
 namespace RTT
 {
-    
+
     using namespace boost;
     using namespace std;
 
@@ -433,19 +433,19 @@ namespace RTT
 
         OperationInterface::clear();
     }
-    
+
     bool TaskContext::ready()
     {
         return true;
     }
 
-    bool connectPorts(TaskContext* A, TaskContext* B) { 
+    bool connectPorts(TaskContext* A, TaskContext* B) {
         return A->connectPorts(B);
     }
 
     bool connectPeers(TaskContext* A, TaskContext* B) {
         return A->connectPeers(B);
     }
-    
+
 }
 

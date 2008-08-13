@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 10 15:59:51 CET 2005  program_test.cpp 
+  tag: Peter Soetens  Mon Jan 10 15:59:51 CET 2005  program_test.cpp
 
                         program_test.cpp -  description
                            -------------------
     begin                : Mon January 10 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "program_test.hpp"
 #include <unistd.h>
@@ -40,7 +40,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( ProgramTest );
     {}
 
 
-void 
+void
 ProgramTest::setUp()
 {
     Attribute<int> init_var("tvar_i");
@@ -60,7 +60,7 @@ ProgramTest::setUp()
 }
 
 
-void 
+void
 ProgramTest::tearDown()
 {
     delete const_i;
@@ -68,7 +68,7 @@ ProgramTest::tearDown()
 }
 
 
-bool ProgramTest::assertBool( bool b) { 
+bool ProgramTest::assertBool( bool b) {
     return b;
 }
 bool ProgramTest::assertMsg( bool b, const std::string& msg) {
@@ -352,7 +352,7 @@ void ProgramTest::testProgramUntil()
         + "} \n"
         + "do neverDone()\n"
         + "until { \n"
-        + " if done then continue \n" 
+        + " if done then continue \n"
         + " if test.increase() == 10 then continue \n" // we continue after 10 checks
         + "} \n"
         + " }";
@@ -425,7 +425,7 @@ void ProgramTest::loopProgram( ProgramInterfacePtr f)
         //std::cerr << ".";
     }
 }
-        
+
 
 void ProgramTest::finishProgram(TaskContext* tc, std::string prog_name)
 {
@@ -435,5 +435,5 @@ void ProgramTest::finishProgram(TaskContext* tc, std::string prog_name)
 
 }
 
-    
+
 

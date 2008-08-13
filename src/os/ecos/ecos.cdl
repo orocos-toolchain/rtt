@@ -25,7 +25,7 @@ Set the stack size of the ecos threads
 "
 	flavor data
 	# FIXME: For some f*cking reason, this doesn't work (although it
-	# works with the net packages belonging to ecos 
+	# works with the net packages belonging to ecos
 	# default_value (CYGNUM_HAL_STACK_SIZE_TYPICAL*2)
 	default_value 65536
     }
@@ -34,7 +34,7 @@ Set the stack size of the ecos threads
     cdl_component OROSEM_OS_SCHEDTYPE {
 	display "Scheduling Algorithm for Threads"
 	description "
-This option sets the default scheduling algorithm for the threads.  
+This option sets the default scheduling algorithm for the threads.
 Only the CYGSEM_KERNEL_SCHED_MLQUEUE option is tested at this moment.
 "
 	flavor data

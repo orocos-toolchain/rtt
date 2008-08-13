@@ -14,7 +14,7 @@
 //------------------------------------------------------------------------------
 namespace boost {
 //------------------------------------------------------------------------------
-namespace function_types 
+namespace function_types
 {
   namespace detail
   {
@@ -22,7 +22,7 @@ namespace function_types
       : mpl::at_c< S, 0 >
     { };
 
-    template<typename S> 
+    template<typename S>
     struct result_impl <S,no_function>
     { };
   }

@@ -23,8 +23,8 @@ template<typename Tag, typename Ts> struct function_type;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 namespace detail
 {
-  template<typename T, typename S, std::size_t N = ::boost::mpl::size<S>::value> 
-  struct function_type_impl; 
+  template<typename T, typename S, std::size_t N = ::boost::mpl::size<S>::value>
+  struct function_type_impl;
 
   template<typename T> struct to_sequence;
 }
@@ -33,16 +33,16 @@ template<typename T> struct function_type_signature;  // fwd.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 template<typename Tag, typename Ts> struct function_type
 {
-  typedef typename 
+  typedef typename
     detail::function_type_impl
     < typename detail::concretize_tag_to_default<Tag>::type
     , typename detail::to_sequence<Ts>::type
     , ::boost::mpl::size< typename detail::to_sequence<Ts>::type >::value
-    >::type  
+    >::type
   type;
 };
 //------------------------------------------------------------------------------
-namespace detail { 
+namespace detail {
 //------------------------------------------------------------------------------
 // Specialize signature for non-sequence types / strip decoration if signature
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -58,7 +58,7 @@ struct to_sequence
   type;
 };
 template<typename T>
-struct to_sequence< function_type_signature<T> > 
+struct to_sequence< function_type_signature<T> >
 {
   typedef typename function_type_signature<T>::types type;
 };
@@ -69,8 +69,8 @@ struct empty_on_error { };
 
 template<typename Tag, typename CorrespTo, typename S, std::size_t N>
 struct corresponding_plain_function
-{ 
-  typedef typename 
+{
+  typedef typename
     function_type_impl
     < typename transmute_tag<Tag, CorrespTo, plain_function>::type
     , S
@@ -92,7 +92,7 @@ struct ref_decorated
 };
 
 template<typename Tag, typename S, std::size_t N>
-struct function_type_impl 
+struct function_type_impl
   : mpl::if_
     < tag_represents_subset_of< Tag, function_pointer >
     , ptr_decorated<corresponding_plain_function<Tag,function_pointer,S,N> >
@@ -100,7 +100,7 @@ struct function_type_impl
       < tag_represents_subset_of< Tag, function_reference >
       , ref_decorated<corresponding_plain_function<Tag,function_reference,S,N> >
       , empty_on_error
-      >::type 
+      >::type
     >::type
 { };
 //------------------------------------------------------------------------------

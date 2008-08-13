@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:19 CET 2006  CorbaDataObject.hpp 
+  tag: FMTC  do nov 2 13:06:19 CET 2006  CorbaDataObject.hpp
 
                         CorbaDataObject.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,9 +34,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
- 
+
+
+
 #ifndef ORO_CORBA_DATAOBJECT_HPP
 #define ORO_CORBA_DATAOBJECT_HPP
 
@@ -53,11 +53,11 @@ namespace RTT
 
     /**
      * A class which serves local data and provides it to the Corba Event Service as
-     * well. 
+     * well.
      *
      * It is a servant in the Corba PullSupplier role: it allows
      * remote consumers (readers) to pull the latest value of this DataObject.
-     * pull() and try_pull() are hence equivalent. 
+     * pull() and try_pull() are hence equivalent.
      *
      * It is a servant in the Corba PushConsumer role as well: it allows
      * remote producers (writers) to push a new value to this DataObject.
@@ -84,15 +84,15 @@ namespace RTT
             CosEventChannelAdmin::ProxyPushSupplier_var cproxy;
 
         public:
-            /** 
+            /**
              * Construct a CorbaDataObject which uses the Corba Event Service
              * as transport medium.
-             * 
+             *
              * @param _name The name of this CorbaDataObject.
              * @param ec The event service which transfers data of type \a T
              */
             CorbaDataObjectPushI(typename DataObjectInterface<T>::shared_ptr impl, CosEventChannelAdmin::EventChannel_ptr ec )
-                : mimpl(impl), mec(CosEventChannelAdmin::EventChannel::_duplicate(ec) ) 
+                : mimpl(impl), mec(CosEventChannelAdmin::EventChannel::_duplicate(ec) )
             {
                 log(Info) << "Creating Event Channel Push Consumer." << endlog();
                 // This part lets suppliers write our data by calling push()
@@ -151,15 +151,15 @@ namespace RTT
             CosEventChannelAdmin::ProxyPullConsumer_var sproxy;
 
         public:
-            /** 
+            /**
              * Construct a CorbaDataObject which uses the Corba Event Service
              * as transport medium.
-             * 
+             *
              * @param _name The name of this CorbaDataObject.
              * @param ec The event service which transfers data of type \a T
              */
             CorbaDataObjectPullI(typename DataObjectInterface<T>::shared_ptr impl, CosEventChannelAdmin::EventChannel_ptr ec )
-                : mimpl(impl), mec(CosEventChannelAdmin::EventChannel::_duplicate(ec) ) 
+                : mimpl(impl), mec(CosEventChannelAdmin::EventChannel::_duplicate(ec) )
             {
                 log(Info) << "Creating Event Channel Pull Supplier." << endlog();
                 // This part lets consumers read our data by calling pull()
@@ -167,7 +167,7 @@ namespace RTT
                 sproxy = sadm->obtain_pull_consumer();
                 // implicitly activate object.
                 CosEventComm::PullSupplier_var pulsup = POA_CosEventComm::PullSupplier::_this();
-                sproxy->connect_pull_supplier( pulsup.in() ); 
+                sproxy->connect_pull_supplier( pulsup.in() );
             }
 
             /**
@@ -187,7 +187,7 @@ namespace RTT
                 ACE_THROW_SPEC ((
                                  CORBA::SystemException,
                                  ::CosEventComm::Disconnected
-                                 )) 
+                                 ))
             {
                 Logger::In in("CorbaDataObjectPullI::pull");
                 log(Debug) << "Returning DataObject value."<<endlog();
@@ -232,10 +232,10 @@ namespace RTT
         //! the Channel
         CosEventChannelAdmin::EventChannel_var mec;
     public:
-        /** 
+        /**
          * Construct a CorbaDataObject which uses the Corba Event Service
          * as transport medium.
-         * 
+         *
          * @param _name The name of this CorbaDataObject.
          * @param ec The event service which transfers data of type \a T
          */
@@ -271,7 +271,7 @@ namespace RTT
         virtual const std::string& getName() const {
             return mimpl->getName();
         }
-            
+
         CorbaDataObject<DataType>* clone() const {
             return new CorbaDataObject<DataType>( mimpl, mec.in() );
         }
@@ -285,4 +285,4 @@ namespace RTT
 }}
 
 #endif
-    
+

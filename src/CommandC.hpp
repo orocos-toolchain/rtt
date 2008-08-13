@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  CommandC.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  CommandC.hpp
 
                         CommandC.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_EXECUTION_COMMANDC_HPP
 #define ORO_EXECUTION_COMMANDC_HPP
 
@@ -188,7 +188,7 @@ namespace RTT
 
 namespace RTT
 {
- 
+
         template< class ArgT >
         CommandC& CommandC::argC( const ArgT a )
         {

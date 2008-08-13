@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  Types.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  Types.hpp
 
                         Types.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef ORO_TEMPLATE_TYPEINFO_HPP
 #define ORO_TEMPLATE_TYPEINFO_HPP
 
@@ -74,7 +74,7 @@ namespace RTT
 #endif
                 return os;
             }
-        };            
+        };
         template<typename T>
         struct TypeStreamSelector<T,false>
         {
@@ -110,7 +110,7 @@ namespace RTT
      *
      * @section compose composeTypeImpl() and decomposeTypeImpl()
      * The decomposeTypeImpl function is a function which converts user data
-	 * into property bags of native C++ primitive types. The primitive types are then 
+	 * into property bags of native C++ primitive types. The primitive types are then
      * typically used to write the data to screen or to disk. The inverse operation
      * is done by composeTypeImpl, which reassembles a Property from its composite parts.
 	 *
@@ -120,7 +120,7 @@ namespace RTT
      * such that class \a T is decomposed in primitive property types.
 	 *
      * Example for type MyClass :
-     * \code 
+     * \code
      *  struct MyClass {
      *      bool var1;
      *      double var2;
@@ -135,9 +135,9 @@ namespace RTT
      *      // Put var1 and var2 in the bag
      *      result.add( new Property<bool>("Var1","Description", c.var1 );
      *      result.add( new Property<double("Var2","Description", c.var2 );
-     *	    
+     *
      *      return true; // done !
-     *  } 
+     *  }
      *  bool composeTypeImpl(const PropertyBag& bag, MyClass &result)
      *  {
      *      // Read the variables from the bag and write them to result.
@@ -145,17 +145,17 @@ namespace RTT
      *         std::cerr << "Wrong type encountered when composing "<< this->getTypeName()<<std::endl;
      *         return false;
      *      }
-     *      if ( bag.find("Var1") == 0 || bag.find("Var2") == 0 ) { 
+     *      if ( bag.find("Var1") == 0 || bag.find("Var2") == 0 ) {
      *         std::cerr << "Missing properties when composing "<< this->getTypeName()<<std::endl;
      *         return false;
      *      }
      *      // Read var1 and var2 from the bag
      *      result.var1 = bag.getProperty<bool>("Var1")->get();
      *      result.var2 = bag.getProperty<bool>("Var2")->get();
-     *	    
+     *
      *      return true; // done !
-     *  } 
-     * \endcode 
+     *  }
+     * \endcode
      */
     template<typename T, bool use_ostream = false> //, typename ParamT = T>
     class TemplateTypeInfo
@@ -180,14 +180,14 @@ namespace RTT
          * This causes a switch from 'unknown' type to basic
          * type information for type T.
          * @param name the 'Orocos' type name.
-         * 
+         *
          */
-        TemplateTypeInfo(std::string name) 
+        TemplateTypeInfo(std::string name)
             : tname(name)
         {
             // Install the type info object for T.
             if ( detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject != 0) {
-                Logger::log() << Logger::Warning << "Overriding TypeInfo for '" 
+                Logger::log() << Logger::Warning << "Overriding TypeInfo for '"
                               << detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject->getTypeName()
                               << "'." << Logger::endl;
                 delete detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject;
@@ -198,7 +198,7 @@ namespace RTT
 
         AttributeBase* buildConstant(std::string name, DataSourceBase::shared_ptr dsb) const
         {
-            typename DataSource<PropertyType>::shared_ptr res = 
+            typename DataSource<PropertyType>::shared_ptr res =
                 AdaptDataSource<PropertyType>()( detail::DataSourceTypeInfo<PropertyType>::getTypeInfo()->convert(dsb));
             if ( res ) {
                 res->get();
@@ -464,7 +464,7 @@ namespace RTT
         {
             typedef typename boost::function_traits<S>::result_type result_type;
             typedef typename boost::function_traits<S>::arg1_type arg1_type;
-            
+
             bool automatic;
             template<class FInit>
             TemplateConstructor( FInit f, bool autom)
@@ -526,7 +526,7 @@ namespace RTT
                 }
                 return DataSourceBase::shared_ptr();
             }
-            
+
         };
 
         template<class S>
@@ -546,7 +546,7 @@ namespace RTT
                 }
                 return DataSourceBase::shared_ptr();
             }
-            
+
         };
 
         template<class S>
@@ -566,7 +566,7 @@ namespace RTT
                 }
                 return DataSourceBase::shared_ptr();
             }
-            
+
         };
 
         template<class S>
@@ -586,13 +586,13 @@ namespace RTT
                 }
                 return DataSourceBase::shared_ptr();
             }
-            
+
         };
     }
 
     /**
      * Create a new Constructor.
-     * 
+     *
      * @param foo A pointer to the 'C' function which creates an object.
      * @param automatic Set to true to allow automatic conversion (without warning) to this type.
      * @return a Constructor object suitable for the type system.
@@ -604,10 +604,10 @@ namespace RTT
 
     /**
      * Create a new Constructor.
-     * 
+     *
      * @param obj A function object which has operator().
      * @param automatic Set to true to allow automatic conversion (without warning) to this type.
-     * 
+     *
      * @return a Constructor object suitable for the type system.
      */
     template<class Object>

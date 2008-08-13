@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:58 CEST 2006  CorbaCommandFactory.hpp 
+  tag: Peter Soetens  Mon Jun 26 13:25:58 CEST 2006  CorbaCommandFactory.hpp
 
                         CorbaCommandFactory.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_CORBACOMMANDFACTORY_HPP
 #define ORO_CORBACOMMANDFACTORY_HPP
 
@@ -63,7 +63,7 @@ namespace RTT
         typedef std::vector<std::string> Commands;
         typedef std::vector<DataSourceBase::shared_ptr> Arguments;
 
-        CorbaCommandFactory(const std::string& command, Corba::CommandInterface_ptr fact, PortableServer::POA_ptr the_poa) 
+        CorbaCommandFactory(const std::string& command, Corba::CommandInterface_ptr fact, PortableServer::POA_ptr the_poa)
             : RTT::detail::OperationFactoryPart<DispatchInterface*>("Corba Command"),
               com(command), mfact( Corba::CommandInterface::_duplicate(fact) ),
               mpoa(PortableServer::POA::_duplicate(the_poa) )
@@ -75,12 +75,12 @@ namespace RTT
             return this->getArgumentList().size();
         }
 
-        virtual std::string resultType() const 
+        virtual std::string resultType() const
         {
             return "bool";
         }
 
-        virtual std::string description() const 
+        virtual std::string description() const
         {
             try {
                 CORBA::String_var result = mfact->getDescription( com.c_str() );
@@ -110,7 +110,7 @@ namespace RTT
             return ret;
         }
 
-        virtual DispatchInterface* produce(const Arguments& args) const 
+        virtual DispatchInterface* produce(const Arguments& args) const
         {
             Corba::Arguments_var nargs = new Corba::Arguments();
             nargs->length( args.size() );

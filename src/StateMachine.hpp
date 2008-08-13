@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  StateMachineTree.hpp 
+  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  StateMachineTree.hpp
 
                         StateMachineTree.hpp -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef HIERARCHICAL_STATE_MACHINE_HPP
 #define HIERARCHICAL_STATE_MACHINE_HPP
 
@@ -56,8 +56,8 @@
 
 namespace RTT
 {
-    
-    
+
+
 
     class TaskContext;
     class EventService;
@@ -98,7 +98,7 @@ namespace RTT
         typedef std::vector< boost::tuple<EventService*,
                                           std::string, std::vector<DataSourceBase::shared_ptr>,
                                           StateInterface*,
-                                          ConditionInterface*, boost::shared_ptr<ProgramInterface>, 
+                                          ConditionInterface*, boost::shared_ptr<ProgramInterface>,
                                           Handle,
                                           StateInterface*, boost::shared_ptr<ProgramInterface> > > EventList;
         typedef std::map< StateInterface*, EventList > EventMap;
@@ -247,7 +247,7 @@ namespace RTT
         inline bool isReactive() const { return current != 0 && smStatus != Status::running; }
 
         /**
-         * Query if the state machine is reacting to events \em and 
+         * Query if the state machine is reacting to events \em and
          * evaluating transition conditions.
          */
         inline bool isAutomatic() const { return smStatus == Status::running; }
@@ -322,7 +322,7 @@ namespace RTT
          * this->requestState( this->nextState() ) may return false.
          * Use this method instead to automatically go to the next state.
          *
-         * @param stepping provide true if the transition evaluations should 
+         * @param stepping provide true if the transition evaluations should
          * be executed one at a time.
          * @return The current state.
          */
@@ -403,8 +403,8 @@ namespace RTT
          * if executePending returns true.
          *
          * Due to the pending requests, the currentState() may have changed.
-         * 
-         * @param stepping provide true if the pending programs should 
+         *
+         * @param stepping provide true if the pending programs should
          * be executed one step at a time.
          * @retval true if nothing was pending @retval false if there was
          * some program executing.
@@ -612,7 +612,7 @@ namespace RTT
          * Inspect if the StateMachine is interruptible by events.
          * Only the run program may be interrupted, or if no program is
          * currently executed.
-         */ 
+         */
         bool interruptible() const;
 
     protected:
@@ -700,7 +700,7 @@ namespace RTT
         bool mstep;
 
         int evaluating;
-    }; 
+    };
 }
 
 #endif

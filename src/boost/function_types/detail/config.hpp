@@ -9,7 +9,7 @@
 //==============================================================================
 // User configuration
 //==============================================================================
-// These macros have to be defined before the inclusion of the first library 
+// These macros have to be defined before the inclusion of the first library
 // header in order to take effect.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The default settings in this file must be in sync with the preprocessed files
@@ -19,7 +19,7 @@
 //==============================================================================
 // Maximum arity
 //------------------------------------------------------------------------------
-#ifndef BOOST_FT_MAX_ARITY 
+#ifndef BOOST_FT_MAX_ARITY
 #   define BOOST_FT_MAX_ARITY 10
 #elif !defined(BOOST_FT_PREPROCESSING_MODE)
 #   define BOOST_FT_PREPROCESSING_MODE
@@ -28,7 +28,7 @@
 // Calling conventions
 //------------------------------------------------------------------------------
 // Custom calling conventions are disabled by default since they are not part of
-// the C++ language standard. 
+// the C++ language standard.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #ifndef BOOST_FT_CALLING_CONVENTIONS
 #   define BOOST_FT_CALLING_CONVENTIONS \

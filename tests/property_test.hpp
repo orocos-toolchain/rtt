@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Apr 5 16:53:26 CEST 2005  property_test.hpp 
+  tag: Peter Soetens  Tue Apr 5 16:53:26 CEST 2005  property_test.hpp
 
                         property_test.hpp -  description
                            -------------------
     begin                : Tue April 05 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef PROPERTYTEST_H
 #define PROPERTYTEST_H
 

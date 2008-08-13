@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  TemplateMemberFactory.hpp 
+  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  TemplateMemberFactory.hpp
 
                         TemplateMemberFactory.hpp -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef FUNCTORDATASOURCE_HPP
 #define FUNCTORDATASOURCE_HPP
 
@@ -76,7 +76,7 @@ namespace RTT
                 // and can not be given non-const temporaries or literal constants.
                 // thus _to_be_sure_, we _must_ copy the result to a local variable
                 // and then pass that variable on. Fortunately, if Arg1T is a reference,
-                // this does not involve a value copy and if Arg1T is a value, 
+                // this does not involve a value copy and if Arg1T is a value,
                 // the gen( ) function takes a reference to it, thus, again,
                 // no additional copy is made.
                 Arg1T a1 = arg1->get();
@@ -177,7 +177,7 @@ namespace RTT
                 // and can not be given non-const temporaries or literal constants.
                 // thus _to_be_sure_, we _must_ copy the result to a local variable
                 // and then pass that variable on. Fortunately, if Arg1T is a reference,
-                // this does not involve a value copy and if Arg1T is a value, 
+                // this does not involve a value copy and if Arg1T is a value,
                 // the gen( ) function takes a reference to it, thus, again,
                 // no additional copy is made.
                 Arg1T a1 = arg1->get();
@@ -264,8 +264,8 @@ namespace RTT
             FunctorT gen;
             store_type res;
 
-            result_type result() { 
-                return *res; 
+            result_type result() {
+                return *res;
             }
 
             FunctionForwarder(FunctorT& f)
@@ -283,7 +283,7 @@ namespace RTT
                 // and can not be given non-const temporaries or literal constants.
                 // thus _to_be_sure_, we _must_ copy the result to a local variable
                 // and then pass that variable on. Fortunately, if Arg1T is a reference,
-                // this does not involve a value copy and if Arg1T is a value, 
+                // this does not involve a value copy and if Arg1T is a value,
                 // the gen( ) function takes a reference to it, thus, again,
                 // no additional copy is made.
                 Arg1T a1 = arg1->get();
@@ -419,7 +419,7 @@ namespace RTT
       {
       }
 
-      void setArguments(DataSource<Arg1T>* a1) 
+      void setArguments(DataSource<Arg1T>* a1)
       {
           arg1 = a1;
       }
@@ -479,7 +479,7 @@ namespace RTT
                 return empty_return;
         }
 
-        value_t value() const 
+        value_t value() const
         {
             return res;
         }
@@ -525,7 +525,7 @@ namespace RTT
     value_t get() const
       {
         Arg1T a = arg1->get();
-        boost::shared_ptr<ComponentT> c = ds->get().lock(); 
+        boost::shared_ptr<ComponentT> c = ds->get().lock();
         if (c) {
             ComponentT* ct = c.get();
             res = gen( ct, a );
@@ -535,12 +535,12 @@ namespace RTT
             return empty_return;
       }
 
-      void setArguments(DataSource<Arg1T>* a1) 
+      void setArguments(DataSource<Arg1T>* a1)
       {
           arg1 = a1;
       }
 
-        value_t value() const 
+        value_t value() const
         {
             return res;
         }
@@ -575,7 +575,7 @@ namespace RTT
       {
       }
 
-      void setArguments(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2) 
+      void setArguments(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2)
       {
           arg1 = a1;
           arg2 = a2;
@@ -612,13 +612,13 @@ namespace RTT
     typename DataSource<Arg3T>::shared_ptr arg3;
   public:
       typedef boost::intrusive_ptr< FunctorDataSource3<FunctorT,Arg1T,Arg2T,Arg3T> > shared_ptr;
-      
+
       FunctorDataSource3( FunctorT g, DataSource<Arg1T>* a1 = 0, DataSource<Arg2T>* a2 = 0, DataSource<Arg3T>* a3 = 0)
           : ff( g ), arg1( a1 ), arg2(a2), arg3(a3)
       {
       }
 
-      void setArguments(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2, DataSource<Arg3T>* a3) 
+      void setArguments(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2, DataSource<Arg3T>* a3)
       {
           arg1 = a1;
           arg2 = a2;
@@ -670,7 +670,7 @@ namespace RTT
           return ff.result();
       }
 
-      void setArguments(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2, DataSource<Arg3T>* a3, DataSource<Arg4T>* a4) 
+      void setArguments(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2, DataSource<Arg3T>* a3, DataSource<Arg4T>* a4)
       {
           arg1 = a1;
           arg2 = a2;
@@ -722,7 +722,7 @@ namespace RTT
 
       void setArguments(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2,
                         DataSource<Arg3T>* a3, DataSource<Arg4T>* a4,
-                        DataSource<Arg5T>* a5) 
+                        DataSource<Arg5T>* a5)
       {
           arg1 = a1;
           arg2 = a2;
@@ -776,7 +776,7 @@ namespace RTT
 
       void setArguments(DataSource<Arg1T>* a1, DataSource<Arg2T>* a2,
                         DataSource<Arg3T>* a3, DataSource<Arg4T>* a4,
-                        DataSource<Arg5T>* a5, DataSource<Arg6T>* a6) 
+                        DataSource<Arg5T>* a5, DataSource<Arg6T>* a6)
       {
           arg1 = a1;
           arg2 = a2;

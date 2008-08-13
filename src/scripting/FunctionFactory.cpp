@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  FunctionFactory.cxx 
+  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  FunctionFactory.cxx
 
                         FunctionFactory.cxx -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include "scripting/FunctionFactory.hpp"
 
 #include "ExecutionEngine.hpp"
@@ -57,7 +57,7 @@
 namespace RTT
 {
     using namespace boost;
-    
+
 
         FunctionFactory::FunctionFactory(ProgramInterfacePtr pi, ExecutionEngine* procs)
             : detail::OperationFactoryPart<DispatchInterface*>("A function."), func(pi), proc(procs) {}
@@ -101,7 +101,7 @@ namespace RTT
             CommandComposite* icom=  new CommandComposite();
 
             // get the correct pointers.
-            origlist = fcopy->getArguments(); 
+            origlist = fcopy->getArguments();
             std::vector<DataSourceBase::shared_ptr>::const_iterator dit = args.begin();
             std::vector<AttributeBase*>::const_iterator tit =  origlist.begin();
 #ifndef ORO_EMBEDDED
@@ -128,7 +128,7 @@ namespace RTT
 
             // the args of the copy can now safely be removed (saves memory):
             //fcopy->clearArguments();
-                
+
             // the command gets ownership of the new function :
             // this command is a DispatchInterface...
             return new CommandExecFunction( icom, fcopy, proc->programs() );

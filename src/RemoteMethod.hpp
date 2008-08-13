@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:09 CET 2006  RemoteMethod.hpp 
+  tag: FMTC  do nov 2 13:06:09 CET 2006  RemoteMethod.hpp
 
                         RemoteMethod.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_REMOTE_METHOD_HPP
 #define ORO_REMOTE_METHOD_HPP
 
@@ -72,9 +72,9 @@ namespace RTT
                 : mmeth()
             {}
 
-            /** 
+            /**
              * Call this operator if the RemoteMethod takes no arguments.
-             * 
+             *
              * @return true if ready and succesfully sent.
              */
             result_type invoke() {
@@ -119,15 +119,15 @@ namespace RTT
          *
          */
         template<class MethodT>
-        class RemoteMethod 
+        class RemoteMethod
             : public Invoker<MethodT,RemoteMethodImpl<MethodT> >
         {
         public:
             typedef MethodT Signature;
 
-            /** 
+            /**
              * Create a RemoteMethod object which executes a remote method
-             * 
+             *
              * @param name The name of this method.
              * @param com The OperationFactory for methods.
              */
@@ -150,12 +150,12 @@ namespace RTT
                 return this->mmeth.execute();
             }
 
-            /** 
+            /**
              * Creates a clone of this RemoteMethod object.
              * Use this method to get a new method object
              * which has its own state information.
-             * 
-             * @return 
+             *
+             * @return
              */
             virtual ActionInterface* clone() const {
                 return new RemoteMethod(*this);

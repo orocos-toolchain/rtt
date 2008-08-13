@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Sat May 7 12:56:51 CEST 2005  gnulinux.h 
+  tag: Peter Soetens  Sat May 7 12:56:51 CEST 2005  gnulinux.h
 
                         gnulinux.h -  description
                            -------------------
     begin                : Sat May 07 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 /**
  * @file gnulinux.h

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  MemoryPool.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  MemoryPool.hpp
 
                         MemoryPool.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_MEMORY_POOL_HPP
 #define ORO_MEMORY_POOL_HPP
 
@@ -54,7 +54,7 @@ namespace RTT
      * memory for a type \a T. It returns in allocate objects of type \a T*.
      * Any number of concurrent threads may invoke allocate(), deallocate(),
      * lock() and unlock(). However, reserve() and shrink() may not be concurrently invoked.
-     * 
+     *
      * @param T A class type for which memory will be allocated.
      * @see FixedSizeMemoryPool for a more memory efficient fixed size
      * memory pool.
@@ -118,7 +118,7 @@ namespace RTT
          * memory allocated will be doubled when growing. For example,
          * if the startsize is 4 and 5 items or more are needed, 8 new additional
          * will be allocated, totalling in 12 available items. If later on
-         * 13 items or more are needed, 16 new additional items are allocated, 
+         * 13 items or more are needed, 16 new additional items are allocated,
          * totalling in 12+16=28 items and so on. Must be at least 1.
          * @param initial_value The initial value for all the
          * data returned the \em first time by allocate().
@@ -143,7 +143,7 @@ namespace RTT
             for ( typename PoolType::iterator it = mpool.begin(); it != mpool.end(); ++it ) {
                 delete[] it->second;
             }
-            
+
         }
 
         /**
@@ -170,7 +170,7 @@ namespace RTT
          */
         void reserve()
         {
-            // instead of allocating individual elements, we 
+            // instead of allocating individual elements, we
             // allocate increasingly growing lock-free 'queues' filled with
             // memory blocks. used_cap and alloc_cnt track the actually used
             // and memory available in the pool.
@@ -299,7 +299,7 @@ namespace RTT
                 mpool.enqueue( static_cast<void*>(&mpit[i]) );
             }
         }
-        
+
         /** The pool stores memory as void pointers */
         typedef AtomicQueue<void*> QueueType;
 
@@ -376,7 +376,7 @@ namespace RTT
         }
 
         /**
-         * Decrease the reference count of a piece of memory \a m, 
+         * Decrease the reference count of a piece of memory \a m,
          * which becomes available for allocation.
          */
         bool deallocate( pointer m )

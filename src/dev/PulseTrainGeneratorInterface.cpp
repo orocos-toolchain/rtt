@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Klaas Gadeyne  Fri Sep 22 13:19:07 CEST 2006  PulseTrainGeneratorInterface.cpp 
+  tag: Klaas Gadeyne  Fri Sep 22 13:19:07 CEST 2006  PulseTrainGeneratorInterface.cpp
 
                         PulseTrainGeneratorInterface.cpp -  description
                            -------------------
     begin                : Fri Sep 22 13:19:07 CEST 2006
     copyright            : (C) 2006 FMTC
     email                : klaas gadeyne at fmtc be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *

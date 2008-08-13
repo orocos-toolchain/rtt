@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Mar 2 08:30:17 CET 2006  BufferPort.hpp 
+  tag: Peter Soetens  Thu Mar 2 08:30:17 CET 2006  BufferPort.hpp
 
                         BufferPort.hpp -  description
                            -------------------
     begin                : Thu March 02 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_EXECUTION_BUFFER_PORT_HPP
 #define ORO_EXECUTION_BUFFER_PORT_HPP
 
@@ -72,7 +72,7 @@ namespace RTT
         BufferPortBase(const std::string& name) : PortInterface(name), mconn() {}
 
         ~BufferPortBase() {
-            if (mconn) 
+            if (mconn)
                 mconn->removePort(this);
         }
 
@@ -80,7 +80,7 @@ namespace RTT
          * Clears all contents of this buffer.
          */
         void clear() {
-#ifndef ORO_EMBEDDED            
+#ifndef ORO_EMBEDDED
             try {
 #endif
                 if ( mconn )
@@ -98,7 +98,7 @@ namespace RTT
          * @return number of items.
          */
         BufferBase::size_type size() const {
-#ifndef ORO_EMBEDDED            
+#ifndef ORO_EMBEDDED
             try {
 #endif
                 if ( mconn )
@@ -117,7 +117,7 @@ namespace RTT
          * @return maximum number of items.
          */
         BufferBase::size_type capacity() const {
-#ifndef ORO_EMBEDDED            
+#ifndef ORO_EMBEDDED
             try {
 #endif
                 if ( mconn )
@@ -129,13 +129,13 @@ namespace RTT
 #endif
             return 0;
         }
-            
+
         /**
          * Check if this buffer is empty.
          * @return true if size() == 0
          */
         bool empty() const {
-#ifndef ORO_EMBEDDED            
+#ifndef ORO_EMBEDDED
             try {
 #endif
                 if ( mconn )
@@ -147,7 +147,7 @@ namespace RTT
 #endif
             return true;
         }
-            
+
         /**
          * Check if this buffer is full.
          * @return true if size() == capacity()
@@ -240,7 +240,7 @@ namespace RTT
         using BufferPortBase<T>::mconn;
         using BufferPortBase<T>::operator=;
     public:
-        
+
         /**
          * Construct an unconnected Port to a readable buffer.
          * @param name The name of this port.
@@ -251,7 +251,7 @@ namespace RTT
          * Pop a value from the buffer of this Port's connection.
          * @param data The location where to store the popped value.
          * @retval this->buffer()->Pop(data) if this->connected()
-         * @retval false if !this->connected() 
+         * @retval false if !this->connected()
          */
         bool Pop(T& data)
         {
@@ -383,7 +383,7 @@ namespace RTT
         virtual PortInterface::PortType getPortType() const { return PortInterface::WritePort; }
 
         ConnectionInterface::shared_ptr createConnection(ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree);
-        
+
         virtual PortInterface* clone() const {
             return new WriteBufferPort<T>( this->getName(), buf_size, minitial_value );
         }
@@ -447,7 +447,7 @@ namespace RTT
          * Pop a value from the buffer of this Port's connection.
          * @param data The location where to store the popped value.
          * @retval this->buffer()->Pop(data) if this->connected()
-         * @retval false if !this->connected() 
+         * @retval false if !this->connected()
          */
         bool Pop(T& data)
         {

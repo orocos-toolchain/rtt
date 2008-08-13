@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  Attribute.hpp 
+  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  Attribute.hpp
 
                         Attribute.hpp -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_CORELIB_ATTRIBUTE_HPP
 #define ORO_CORELIB_ATTRIBUTE_HPP
 
@@ -65,9 +65,9 @@ namespace RTT
         {
         }
 
-        /** 
+        /**
          * Create an Attribute with a given name and a \b default value.
-         * 
+         *
          * @param name The name of this instance.
          */
         Attribute(const std::string& name)
@@ -77,7 +77,7 @@ namespace RTT
 
         /**
          * Create an Attribute with a name and a given value \a t.
-         * 
+         *
          * @param name The name of this instance.
          * @param t The value for initialisation.
          */
@@ -89,7 +89,7 @@ namespace RTT
 
         /**
          * Create an Attribute which uses a DataSource \a d.
-         * 
+         *
          * @param name The name
          * @param d The data source to read from and write to.
          */
@@ -290,7 +290,7 @@ namespace RTT
             return new Constant<T>( mname, data.get() );
         }
 
-        Constant<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate ) 
+        Constant<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& replacements, bool instantiate )
         {
             // 'symbolic' copy, ConstantDataSource returns 'this' on copy...
             Constant<T>* ret = new Constant<T>( mname, data.get() );

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Sat May 21 20:15:51 CEST 2005  PropertyParser.cxx 
+  tag: Peter Soetens  Sat May 21 20:15:51 CEST 2005  PropertyParser.cxx
 
                         PropertyParser.cxx -  description
                            -------------------
     begin                : Sat May 21 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "PropertyParser.hpp"
 #include "parser-debug.hpp"
@@ -51,7 +51,7 @@ namespace RTT
 {
     using boost::bind;
     using namespace detail;
-    
+
 
     namespace {
         enum PropertyErrors { bag_not_found };
@@ -136,4 +136,4 @@ namespace RTT
         return propertylocator;
     }
 }
-            
+

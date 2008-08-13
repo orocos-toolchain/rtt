@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  RealTimeToolkit.cxx 
+  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  RealTimeToolkit.cxx
 
                         RealTimeToolkit.cxx -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "rtt-config.h"
 #include <RealTimeToolkit.hpp>
@@ -54,7 +54,7 @@
 namespace RTT
 {
     using namespace std;
-    
+
 
     RealTimeToolkitPlugin RealTimeToolkit;
 
@@ -120,7 +120,7 @@ namespace RTT
 
     };
 
-    bool RealTimeToolkitPlugin::loadTypes() 
+    bool RealTimeToolkitPlugin::loadTypes()
     {
         TypeInfoRepository::shared_ptr ti = TypeInfoRepository::Instance();
 
@@ -140,7 +140,7 @@ namespace RTT
         // the latter causes capacity changes, probably due to the copy-on-write implementation of string(). Assignment
         // from a c-style string obviously disables a copy-on-write connection.
         ti->addType( new TemplateContainerTypeInfo<std::string, int, char, ArrayIndexChecker<std::string>,AlwaysAssignChecker<std::string>, true >("string") );
-        
+
         return true;
     }
 
@@ -176,7 +176,7 @@ namespace RTT
         };
 
         /**
-         * Helper DataSource for constructing arrays with a variable number of 
+         * Helper DataSource for constructing arrays with a variable number of
          * parameters.
          */
         typedef NArityDataSource<array_varargs_ctor> ArrayDataSource;
@@ -201,7 +201,7 @@ namespace RTT
                 }
                 return vds;
             }
-            
+
         };
 
         struct array_ctor2
@@ -222,7 +222,7 @@ namespace RTT
             double float_to_double( float val ) {return val;}
             float double_to_float( double val ) {return val;}
 
-            
+
             int float_to_int(float f) { return int(f); }
             float int_to_float(int i) { return i; }
             int double_to_int(double f) { return int(f); }
@@ -276,7 +276,7 @@ namespace RTT
             }
         };
 
-                    
+
 #ifndef ORO_EMBEDDED
         struct array_index
             : public std::binary_function<const std::vector<double>&, int, double>
@@ -382,7 +382,7 @@ namespace RTT
         oreg->add( newBinaryOperator( ">=", std::greater_equal<float>() ) );
         oreg->add( newBinaryOperator( "==", std::equal_to<float>() ) );
         oreg->add( newBinaryOperator( "!=", std::not_equal_to<float>() ) );
-#endif        
+#endif
         // strings
         // causes memory allocation....
         oreg->add( newBinaryOperator( "+", std::plus<std::string>() ) );

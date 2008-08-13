@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  do nov 2 13:06:00 CET 2006  tinystr.h 
+  tag: Peter Soetens  do nov 2 13:06:00 CET 2006  tinystr.h
 
                         tinystr.h -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@gmail.com
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 /*
 www.sourceforge.net/projects/tinyxml
 Original file by Yves Berquin.
@@ -277,7 +277,7 @@ class TiXmlString
 			// to the normal allocation, although use an 'int' for systems
 			// that are overly picky about structure alignment.
 			const size_type bytesNeeded = sizeof(Rep) + cap;
-			const size_type intsNeeded = ( bytesNeeded + sizeof(int) - 1 ) / sizeof( int ); 
+			const size_type intsNeeded = ( bytesNeeded + sizeof(int) - 1 ) / sizeof( int );
 			rep_ = reinterpret_cast<Rep*>( new int[ intsNeeded ] );
 
 			rep_->str[ rep_->size = sz ] = '\0';

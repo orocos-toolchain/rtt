@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:26:02 CEST 2006  generictask_test.cpp 
+  tag: Peter Soetens  Mon Jun 26 13:26:02 CEST 2006  generictask_test.cpp
 
                         generictask_test_2.cpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "generictask_test_2.hpp"
 #include <unistd.h>
@@ -37,7 +37,7 @@ using namespace std;
 CPPUNIT_TEST_SUITE_REGISTRATION( Generic_TaskTest_2 );
 
 
-void 
+void
 Generic_TaskTest_2::setUp()
 {
     tc =  new TaskContext( "root" );
@@ -47,7 +47,7 @@ Generic_TaskTest_2::setUp()
 }
 
 
-void 
+void
 Generic_TaskTest_2::tearDown()
 {
 //     if ( tc->getPeer("programs") )
@@ -58,7 +58,7 @@ Generic_TaskTest_2::tearDown()
     delete tsim;
 }
 
-bool Generic_TaskTest_2::assertBool( bool b) { 
+bool Generic_TaskTest_2::assertBool( bool b) {
     return b;
 }
 
@@ -336,7 +336,7 @@ void Generic_TaskTest_2::testCommand()
     CPPUNIT_ASSERT( tsim->start()) ;
     // execute commands and check status:
     CPPUNIT_ASSERT( com0() );
-    
+
     CPPUNIT_ASSERT( com11(1) );
     CPPUNIT_ASSERT( com10(1) );
 
@@ -403,7 +403,7 @@ void Generic_TaskTest_2::testCommandFactory()
     CPPUNIT_ASSERT( tsim->start()) ;
     // execute commands and check status:
     CPPUNIT_ASSERT( com0() );
-    
+
     CPPUNIT_ASSERT( com11(1) );
     CPPUNIT_ASSERT( com10(1) );
 
@@ -430,7 +430,7 @@ void Generic_TaskTest_2::testCommandFactory()
     // not existing:
     cvoid = to.commands()->getCommand<bool(void)>("voidm");
     CPPUNIT_ASSERT( cvoid.ready() == false );
-    
+
     cvoid.reset();
     CPPUNIT_ASSERT( cvoid() == false);
     CPPUNIT_ASSERT( cvoid.accepted() == false);
@@ -438,7 +438,7 @@ void Generic_TaskTest_2::testCommandFactory()
     CPPUNIT_ASSERT( cvoid.sent() == false);
     CPPUNIT_ASSERT( cvoid.valid() == false);
     CPPUNIT_ASSERT( cvoid.done() == false);
-    
+
 }
 
 void Generic_TaskTest_2::testCommandFromDS()
@@ -543,7 +543,7 @@ void Generic_TaskTest_2::testDSCommand()
 
     // this actually works ! the command will detect the deleted pointer.
     //ptr.reset();
-    
+
     CPPUNIT_ASSERT( tsim->start()) ;
 
     CommandC c0  = to.commands()->create("c0");
@@ -642,7 +642,7 @@ void Generic_TaskTest_2::testAddCommand()
     CPPUNIT_ASSERT( tsim->start()) ;
     // execute commands and check status:
     CPPUNIT_ASSERT( com0() );
-    
+
     CPPUNIT_ASSERT( com11(1) );
     CPPUNIT_ASSERT( com10(1) );
 

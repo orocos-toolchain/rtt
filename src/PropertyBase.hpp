@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  PropertyBase.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  PropertyBase.hpp
 
                         PropertyBase.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef PI_PROPERTYBASE
 #define PI_PROPERTYBASE
 
@@ -161,7 +161,7 @@ namespace RTT
         /**
          * Copy an \a other Property onto this property.
          * Update does a full update of the name, description and value, adding extra
-         * information if necessary, or in case of a Property<PropertyBag> adding all 
+         * information if necessary, or in case of a Property<PropertyBag> adding all
          * Properties.
          * @return false if the Properties are of different type.
          */

@@ -45,7 +45,7 @@
 namespace RTT
 {
 
-	
+
 
     /**
      * Based on the software patterns 'command' and

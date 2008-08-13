@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 10 15:59:51 CET 2005  logger_test.cpp 
+  tag: Peter Soetens  Mon Jan 10 15:59:51 CET 2005  logger_test.cpp
 
                         logger_test.cpp -  description
                            -------------------
     begin                : Mon January 10 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "logger_test.hpp"
 #include <unistd.h>
@@ -36,14 +36,14 @@ class Dummy {};
 
 #define QS 10
 
-void 
+void
 LoggerTest::setUp()
 {
     logger = Logger::Instance();
 }
 
 
-void 
+void
 LoggerTest::tearDown()
 {
 }
@@ -113,4 +113,4 @@ void LoggerTest::testThreadLog()
   t->stop();
   t2->stop();
 
-}    
+}

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:05:59 CET 2006  CPFDTD.hpp 
+  tag: FMTC  do nov 2 13:05:59 CET 2006  CPFDTD.hpp
 
                         CPFDTD.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,12 +34,12 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 namespace RTT
 {
-    namespace detail 
+    namespace detail
     {
         extern const char* cpf_dtd;
     }

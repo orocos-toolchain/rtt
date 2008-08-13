@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:58 CEST 2006  CorbaConversion.hpp 
+  tag: Peter Soetens  Mon Jun 26 13:25:58 CEST 2006  CorbaConversion.hpp
 
                         CorbaConversion.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,15 +34,15 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_CORBA_CONVERSION_HPP
 #define ORO_CORBA_CONVERSION_HPP
 
 #include <string>
 #include <vector>
 #include <tao/Version.h>
-#if TAO_MAJOR_VERSION == 1 && TAO_MINOR_VERSION <= 4 
+#if TAO_MAJOR_VERSION == 1 && TAO_MINOR_VERSION <= 4
 #include <tao/Any.h>
 #else // TAO 1.5 and higher
 #include <tao/AnyTypeCode/Any.h>
@@ -326,8 +326,8 @@ namespace RTT
         }
 
     };
- 
-    
+
+
 }
 
 #endif

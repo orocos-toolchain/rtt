@@ -41,7 +41,7 @@
 
 namespace RTT
 {
-	
+
 
     int EdgeCondition::condition_counter = 0;
 
@@ -83,7 +83,7 @@ namespace RTT
         : condition( orig.getCondition()->clone() ), rank( orig.getRank() )
     {
     }
-    
+
     EdgeCondition EdgeCondition::copy( std::map<const DataSourceBase*, DataSourceBase*>& replacementdss ) const {
         // copy to set the rank right :
         EdgeCondition ret( *this );

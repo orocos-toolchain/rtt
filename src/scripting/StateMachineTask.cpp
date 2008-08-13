@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  StateMachineTask.cpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  StateMachineTask.cpp
 
                         StateMachineTask.cpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "StateMachineTask.hpp"
 
@@ -47,7 +47,7 @@
 
 namespace RTT
 {
-    
+
     using namespace detail;
 
         void StateMachineTask::createCommandFactory() {
@@ -119,7 +119,7 @@ namespace RTT
         {
             // if this gets copied, all created commands will use the new instance of StateMachineTask to
             // call the member functions. Further more, all future commands for the copy will also call the new instance
-            // while future commands for the original will still call the original. 
+            // while future commands for the original will still call the original.
             StateMachineTask* tmp = new StateMachineTask( newsc, this->mengine );
             replacements[ _this.get() ] = tmp->_this.get(); // put 'newsc' in map
 

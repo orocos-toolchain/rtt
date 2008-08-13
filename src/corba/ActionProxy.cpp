@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  ActionProxy.cxx 
+  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  ActionProxy.cxx
 
                         ActionProxy.cxx -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "OperationsI.h"
 #include "ActionProxy.hpp"
@@ -49,7 +49,7 @@ namespace RTT
 {
     std::map<Corba::Action_ptr, ActionProxy*> ActionProxy::proxies;
 
-    ActionProxy::ActionProxy( ::RTT::Corba::Action_ptr e) 
+    ActionProxy::ActionProxy( ::RTT::Corba::Action_ptr e)
         : mdata( ::RTT::Corba::Action::_duplicate(e) )
     {
         try {

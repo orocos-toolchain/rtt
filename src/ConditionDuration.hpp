@@ -54,7 +54,7 @@ namespace RTT
     {
         typedef TimeService::nsecs nsecs;
         typedef TimeService::ticks ticks;
-        
+
     public:
         /**
          * Create a condition that changes after t nano seconds

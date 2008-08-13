@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: 
+  tag:
 
                         ecos_rec_mutex.h -  description
                            -------------------
     begin                : Jan 21 2006
     copyright            : (C) 2006 Klaas Gadeyne
     email                : firstname lastname at fmtc be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -24,8 +24,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_OS_ECOS_REC_MUTEX_HPP
 #define ORO_OS_ECOS_REC_MUTEX_HPP
 
@@ -36,7 +36,7 @@ extern "C"
 {
 #endif
 
-typedef struct 
+typedef struct
 {
   cyg_mutex_t     mutex;
   cyg_handle_t    owner;

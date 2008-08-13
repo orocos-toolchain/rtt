@@ -31,12 +31,12 @@ module RTT
        * Return the name of this object.
        */
       string getName();
-    
+
       /**
        * Return the description of this object.
        */
       string getDescription();
-    
+
       /**
        * Query the attributes of this interface.
        */
@@ -211,7 +211,7 @@ module RTT
 
       /**
        * Connect all compatible and equally named
-       * data ports with another ControlTask's 
+       * data ports with another ControlTask's
        * data ports.
        */
       boolean connectPorts( in ControlTask p );

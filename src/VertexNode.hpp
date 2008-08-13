@@ -49,7 +49,7 @@ namespace RTT
 
 // adjacency_list has some very short template parameter names,
 // which may be defined as macros on some OS's. So undef here.
-#undef DS	
+#undef DS
 #undef OEL
 #undef VL
 #undef VP

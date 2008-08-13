@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  DataSourceGenerator.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  DataSourceGenerator.hpp
 
                         DataSourceGenerator.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_EXECUTION_DATASOURCE_GENERATOR_HPP
 #define ORO_EXECUTION_DATASOURCE_GENERATOR_HPP
 
@@ -75,9 +75,9 @@ namespace RTT
      * A function object which returns a vector of DataSources.
      * You can provide plain value types (int, double,...) or DataSourceBase derived
      * types. If you want the DataSource to be a reference to
-     * an existing variable, use the \a ref() function. For example : 
+     * an existing variable, use the \a ref() function. For example :
      * @verbatim
-     
+
      DataSourceBase::shared_ptr arg2 = ...
      ValueDataSource<ClassX>::shared_ptr arg3 = ...
      double arg4 = 1.234;

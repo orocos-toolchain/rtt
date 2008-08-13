@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  SlaveActivity.hpp 
+  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  SlaveActivity.hpp
 
                         SlaveActivity.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_SLAVE_ACTIVITY_HPP
 #define ORO_SLAVE_ACTIVITY_HPP
 
@@ -53,7 +53,7 @@ namespace RTT
      * @brief An ActivityInterface implementation which executes
      * 'step' upon the invocation of 'execute()', which is called by
      * another Activity.  The SlaveActivity can only be started if the
-     * master is active or if no master is present. If a master is used, 
+     * master is active or if no master is present. If a master is used,
      * this activity takes periodicity over from the master. If no
      * master is present, use one of the alternative constructors to make
      * a periodic slave or a non periodic slave.
@@ -69,7 +69,7 @@ namespace RTT
      * In the non periodic
      * case, trigger() is called upon the master (causing it to
      * execute), in the periodic case, it is ignored (you can not
-     * trigger periodic activities). 
+     * trigger periodic activities).
      * @ingroup CoreLibActivities
      */
     class SlaveActivity

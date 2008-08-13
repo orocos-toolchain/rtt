@@ -35,7 +35,7 @@ IF (ENABLE_TESTS)
     ADD_EXECUTABLE( task-test ${DO_EXCLUDE} test-runner.cpp tasks_test.cpp taskthread_test.cpp tasks_multiple_test.cpp )
     TARGET_LINK_LIBRARIES( task-test orocos-rtt-${OROCOS_TARGET} ${CPPUNIT} )
     SET_TARGET_PROPERTIES( task-test PROPERTIES
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")    
+    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")
     ADD_TEST( task-test task-test )
 
     ADD_EXECUTABLE( event-test ${DO_EXCLUDE} test-runner.cpp event_test.cpp eventservice_test.cpp )
@@ -55,7 +55,7 @@ IF (ENABLE_TESTS)
     SET_TARGET_PROPERTIES( parser-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")
     ADD_TEST( parser-test parser-test )
-    
+
     ADD_EXECUTABLE( program-test ${DO_EXCLUDE} test-runner.cpp program_test.cpp function_test.cpp )
     TARGET_LINK_LIBRARIES( program-test orocos-rtt-${OROCOS_TARGET} ${CPPUNIT})
     SET_TARGET_PROPERTIES( program-test PROPERTIES
@@ -83,7 +83,7 @@ IF (ENABLE_TESTS)
       SET(ORO_EXTRA_TESTS "corba-test")
     ENDIF(ENABLE_CORBA)
 
-    ADD_CUSTOM_TARGET(check ctest -V 
+    ADD_CUSTOM_TARGET(check ctest -V
       DEPENDS core-test task-test event-test taskcontext-test parser-test program-test state-test dev-test ${ORO_EXTRA_TESTS}
       WORKING_DIRECTORY ${PROJ_BINARY_DIR}/tests)
 

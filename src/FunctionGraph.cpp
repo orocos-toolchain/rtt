@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  FunctionGraph.cxx 
+  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  FunctionGraph.cxx
 
                         FunctionGraph.cxx -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include "FunctionGraph.hpp"
 #include "GraphCopier.hpp"
 #include "AttributeBase.hpp"
@@ -53,8 +53,8 @@ namespace RTT
 {
     using namespace boost;
     using namespace std;
-    
-    
+
+
 
     FunctionGraph::FunctionGraph(const std::string& _name)
         : myName(_name), pausing(false), mstep(false), context(0)
@@ -201,7 +201,7 @@ namespace RTT
         }
         return false;
     }
-            
+
 
     bool FunctionGraph::executeUntil()
     {
@@ -231,7 +231,7 @@ namespace RTT
                 pStatus = Status::error;
                 return false;
             }
-        
+
             // Branch selecting Logic :
             if ( cmap[current].isValid() ) {
                 for ( tie(ei, ei_end) = boost::out_edges( current, program ); ei != ei_end; ++ei) {
@@ -353,12 +353,12 @@ namespace RTT
 //         this->debugPrintout();
 //         std::cerr << "Empty ret: " <<std::endl;
 //         ret->debugPrintout();
-        // The replacementdss map contains mappings from this->datasource to copy->datasource, 
+        // The replacementdss map contains mappings from this->datasource to copy->datasource,
         // thus we can rebuild a vector<AttributeBase*>, which will be automagically be
         // found by copy_graph.
         // func args are never instantiated, so that we can keep making copies.
         for (unsigned int i=0; i < args.size(); ++i)
-            ret->addArgument( args[i]->copy( replacementdss, false ) ); 
+            ret->addArgument( args[i]->copy( replacementdss, false ) );
 
         boost::copy_graph( program, ret->program,
                            boost::vertex_copy( GraphVertexCopier( program, ret->program, replacementdss ) ).

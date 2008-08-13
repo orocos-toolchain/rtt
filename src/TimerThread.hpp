@@ -1,5 +1,5 @@
 /***************************************************************************
- tag: Peter Soetens  Wed Apr 17 16:01:36 CEST 2002  TimerThread.h 
+ tag: Peter Soetens  Wed Apr 17 16:01:36 CEST 2002  TimerThread.h
 
                        TimerThread.h -  description
                           -------------------
@@ -79,7 +79,7 @@ namespace RTT
         /**
          * Create a periodic Timer thread.
          *
-         * @param priority 
+         * @param priority
          *        The priority of this thread
          * @param periodicity
          *        The periodicity of this thread in seconds (e.g. 0.001 = 1000Hz )
@@ -89,9 +89,9 @@ namespace RTT
         /**
          * Create a periodic Timer thread with a given scheduler type.
          *
-         * @param scheduler 
+         * @param scheduler
          *        The scheduler in which this thread runs
-         * @param priority 
+         * @param priority
          *        The priority of this thread within \a scheduler
          * @param periodicity
          *        The periodicity of this thread in seconds (e.g. 0.001 = 1000Hz )
@@ -109,7 +109,7 @@ namespace RTT
          */
         bool addActivity( PeriodicActivity* t );
 
-        bool removeActivity( PeriodicActivity* t );        
+        bool removeActivity( PeriodicActivity* t );
 
         /**
          * Create a TimerThread with a given priority and periodicity,

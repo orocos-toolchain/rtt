@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  SimulationThread.cxx 
+  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  SimulationThread.cxx
 
                         SimulationThread.cxx -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "SimulationThread.hpp"
 #include "TimeService.hpp"
@@ -60,7 +60,7 @@ namespace RTT
 
 namespace RTT
 {
-    
+
     // The static class variables
     SimulationThreadPtr SimulationThread::_instance;
 
@@ -83,7 +83,7 @@ namespace RTT
 
     SimulationThread::SimulationThread(double period)
         : TimerThread( OS::LowestPriority,
-                      "SimulationThread", 
+                      "SimulationThread",
                       period),
           beat( TimeService::Instance() ), maxsteps_(0), sim_running(false)
     {
@@ -108,7 +108,7 @@ namespace RTT
         maxsteps_ = 0;
         return OS::PeriodicThread::start();
     }
-    
+
     bool SimulationThread::start(unsigned int maxsteps)
     {
         if (maxsteps == 0)
@@ -138,7 +138,7 @@ namespace RTT
         Logger::In in("SimulationThread");
         Logger::log() << Logger::Info << "SimulationThread takes over system time."<<Logger::nl;
         Logger::log() << Logger::Info << "System time will increase significantly faster."<<Logger::endl;
-        
+
         // we will update the clock in step()
         beat->enableSystemClock( false );
 

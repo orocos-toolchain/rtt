@@ -1,5 +1,5 @@
 /***************************************************************************
- tag: Peter Soetens  Wed Apr 17 16:01:36 CEST 2002  TimeService.h 
+ tag: Peter Soetens  Wed Apr 17 16:01:36 CEST 2002  TimeService.h
 
                        TimeService.h -  description
                           -------------------
@@ -81,7 +81,7 @@ namespace RTT
 
         /**
          * Get current tick of the System clock
-         * 
+         *
          * @return current tick of the system clock
          * @deprecated by getTicks()
          */
@@ -89,14 +89,14 @@ namespace RTT
 
         /**
          * Get current tick of the System clock
-         * 
+         *
          * @return current tick of the system clock
          */
         ticks getTicks() const;
 
         /**
          * Get clicks passed since a certain moment
-         * 
+         *
          * @return ticks passed since \a relativeTime unless \a relativeTime
          *         is zero, then sets \a relativeTime = timeGet() and returns zero
          * @deprecated by getTicks()
@@ -105,7 +105,7 @@ namespace RTT
 
         /**
          * Get clicks passed since a certain moment
-         * 
+         *
          * @return ticks passed since \a relativeTime unless \a relativeTime
          *         is zero, then sets \a relativeTime = timeGet() and returns zero
          */
@@ -114,14 +114,14 @@ namespace RTT
         /**
          * Get clicks passed since a certain moment.
          * If \a relativeTime is zero, the absolute system time is given.
-         * 
+         *
          * @return ticks passed since \a relativeTime.
          */
         ticks ticksSince( ticks relativeTime ) const;
 
         /**
          * Get the time in seconds passed since a certain moment
-         * 
+         *
          * @realtime
          * @runtime
          * @return seconds passed since \a relativeTime unless \a relativeTime
@@ -132,7 +132,7 @@ namespace RTT
 
         /**
          * Get the time in seconds passed since a certain moment
-         * 
+         *
          * @realtime
          * @runtime
          * @return seconds passed since \a relativeTime unless \a relativeTime
@@ -143,7 +143,7 @@ namespace RTT
         /**
          * Get Seconds passed since a certain moment.
          * If \a relativeTime is zero, the absolute syteme time is given.
-         * 
+         *
          * @return Seconds passed since \a relativeTime.
          */
         Seconds secondsSince( ticks relativeTime ) const;
@@ -160,17 +160,17 @@ namespace RTT
          * \a secondsChange.
          */
         void enableSystemClock( bool yes_no );
-	
+
         /**
          * Get current nsecs of the System clock
-         * 
+         *
          * @return current nsecs of the system clock
          */
         nsecs getNSecs() const;
 
         /**
          * Get nsecs passed since a certain moment
-         * 
+         *
          * @return nsecs passed since \a relativeTime unless \a relativeTime
          *         is zero, then sets \a relativeTime = timeGet() and returns zero
          */

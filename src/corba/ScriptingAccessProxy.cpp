@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  ScriptingAccessProxy.cxx 
+  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  ScriptingAccessProxy.cxx
 
                         ScriptingAccessProxy.cxx -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "ScriptingAccessProxy.hpp"
 #include "ScriptingAccessC.h"
@@ -46,7 +46,7 @@ namespace RTT
 {namespace Corba
 {
     using namespace std;
-    
+
 
     ScriptingAccessProxy::~ScriptingAccessProxy()
     {
@@ -75,7 +75,7 @@ namespace RTT
             }
         return true;
     }
-    
+
     bool ScriptingAccessProxy::unloadProgram( string name, bool do_throw ){
         try {
             msa->unloadProgram( name.c_str() );
@@ -100,15 +100,15 @@ namespace RTT
     int ScriptingAccessProxy::getProgramLine(string name) const {
         return msa->getProgramLine( name.c_str() );
     }
-    
+
     bool ScriptingAccessProxy::hasProgram(string name) const {
         return msa->hasProgram( name.c_str() );
     }
-    
+
     string ScriptingAccessProxy::getProgramText(string name ) const {
         return msa->getProgramText( name.c_str() );
     }
-        
+
     string ScriptingAccessProxy::getProgramStatus(string name ) const {
         return msa->getProgramStatus( name.c_str() );
     }
@@ -125,7 +125,7 @@ namespace RTT
             }
         return true;
     }
-    
+
     bool ScriptingAccessProxy::unloadStateMachine( string name, bool do_throw ) {
         try {
             msa->unloadStateMachine( name.c_str() );
@@ -150,11 +150,11 @@ namespace RTT
     bool ScriptingAccessProxy::hasStateMachine(string name ) const {
         return msa->hasStateMachine( name.c_str() );
     }
-    
+
     string ScriptingAccessProxy::getStateMachineText(string name ) const {
         return msa->getStateMachineText( name.c_str() );
     }
-    
+
     string ScriptingAccessProxy::getStateMachineStatus(string name ) const {
         return msa->getStateMachineStatus( name.c_str() );
     }
@@ -162,7 +162,7 @@ namespace RTT
     int ScriptingAccessProxy::getStateMachineLine(string name ) const {
         return msa->getStateMachineLine( name.c_str() );
     }
-    
+
     string ScriptingAccessProxy::getCurrentState( string name ) const {
         return msa->getCurrentState( name.c_str() );
     }

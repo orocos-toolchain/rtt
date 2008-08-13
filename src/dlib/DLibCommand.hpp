@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:04 CET 2006  DLibCommand.hpp 
+  tag: FMTC  do nov 2 13:06:04 CET 2006  DLibCommand.hpp
 
                         DLibCommand.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_DLIB_COMMAND_HPP
 #define ORO_DLIB_COMMAND_HPP
 
@@ -86,9 +86,9 @@ namespace RTT
             {
             }
 
-            /** 
+            /**
              * Call this operator if the DLibCommand takes no arguments.
-             * 
+             *
              * @return true if ready and succesfully sent.
              */
             bool invoke() {
@@ -136,15 +136,15 @@ namespace RTT
          * DLib Command Protocol.
          */
         template<class CommandT, class ProtocolT>
-        class DLibCommand 
+        class DLibCommand
             : public detail::Invoker<CommandT,DLibCommandImpl<CommandT,ProtocolT> >
         {
         public:
             typedef CommandT Signature;
 
-            /** 
+            /**
              * Create a DLibCommand object which executes a remote command
-             * 
+             *
              * @param component The name of the target component.
              * @param name The name of this command.
              */
@@ -171,11 +171,11 @@ namespace RTT
             virtual bool execute() {
                 return false;
             }
-        
+
             virtual bool done() const {
                 return this->protocol->getCommandStatus(this->id) == DispatchInterface::Done;
             }
-     
+
             virtual void reset() {
                 return this->protocol->resetCommand(this->id);
             }
@@ -201,12 +201,12 @@ namespace RTT
                 return new detail::ConditionFunctor<bool(void)>( boost::bind<bool>( boost::mem_fn(&DLibCommand::done), this) );
             }
 
-            /** 
+            /**
              * Creates a clone of this DLibCommand object.
              * Use this method to get a new command object
              * which has its own state information.
-             * 
-             * @return 
+             *
+             * @return
              */
             virtual DispatchInterface* clone() const {
                 return new DLibCommand(*this);

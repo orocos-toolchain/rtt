@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:21 CET 2006  CorbaBufferProxy.cpp 
+  tag: FMTC  do nov 2 13:06:21 CET 2006  CorbaBufferProxy.cpp
 
                         CorbaBufferProxy.cpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,17 +34,17 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:21 CET 2006  CorbaBufferProxy.cpp 
+  tag: FMTC  do nov 2 13:06:21 CET 2006  CorbaBufferProxy.cpp
 
                         CorbaBufferProxy.cpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -72,6 +72,6 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include "CorbaBufferProxy.hpp"

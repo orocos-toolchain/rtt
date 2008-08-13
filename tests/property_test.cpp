@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Apr 5 16:53:26 CEST 2005  property_test.cpp 
+  tag: Peter Soetens  Tue Apr 5 16:53:26 CEST 2005  property_test.cpp
 
                         property_test.cpp -  description
                            -------------------
     begin                : Tue April 05 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,10 +15,10 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
- 
- 
+
+
+
+
 
 
 #include "property_test.hpp"
@@ -37,7 +37,7 @@ using namespace RTT;
 using namespace boost;
 using namespace std;
 
-void 
+void
 PropertyTest::setUp()
 {
     intref = 99;
@@ -48,7 +48,7 @@ PropertyTest::setUp()
 }
 
 
-void 
+void
 PropertyTest::tearDown()
 {
     delete pi1;
@@ -63,28 +63,28 @@ void PropertyTest::testPrimitives()
     *pi2 = 0;
 
     // update semantics
-    pi1->update( *pi2 ); 
+    pi1->update( *pi2 );
     CPPUNIT_ASSERT_EQUAL( pi2->get(), pi1->get() );
     CPPUNIT_ASSERT_EQUAL( pi1ref->getName(), pi1->getName() );
     CPPUNIT_ASSERT_EQUAL( pi1ref->getDescription(), pi1->getDescription() );
     *pi2 = 0;
-    
+
     // update with PropertyBase.
-    CPPUNIT_ASSERT( pi1->update( pi2 ) ); 
+    CPPUNIT_ASSERT( pi1->update( pi2 ) );
     CPPUNIT_ASSERT_EQUAL( pi2->get(), pi1->get() );
     CPPUNIT_ASSERT_EQUAL( pi1ref->getName(), pi1->getName() );
     CPPUNIT_ASSERT_EQUAL( pi1ref->getDescription(), pi1->getDescription() );
     *pi2 = 0;
 
     // copy semantics
-    pi1->copy( *pi2 ); 
+    pi1->copy( *pi2 );
     CPPUNIT_ASSERT_EQUAL( pi2->get(), pi1->get() );
     CPPUNIT_ASSERT_EQUAL( pi2ref->getName(), pi1->getName() );
     CPPUNIT_ASSERT_EQUAL( pi2ref->getDescription(), pi1->getDescription() );
     pi1->copy( *pi1ref );
 
     // copy with PropertyBase.
-    CPPUNIT_ASSERT( pi1->copy( pi2 ) ); 
+    CPPUNIT_ASSERT( pi1->copy( pi2 ) );
     CPPUNIT_ASSERT_EQUAL( pi2->get(), pi1->get() );
     CPPUNIT_ASSERT_EQUAL( pi2ref->getName(), pi1->getName() );
     CPPUNIT_ASSERT_EQUAL( pi2ref->getDescription(), pi1->getDescription() );
@@ -98,7 +98,7 @@ void PropertyTest::testBags()
     Property<double> pd("pd","pdd", +1.0);
     Property<std::string> ps("ps","psd", "std::string");
     Property<char> pc("pc","pcd", 'c');
-    
+
     Property<PropertyBag> subbag1("s1", "s1d");
     Property<PropertyBag> subbag2("s2", "s2d");
 
@@ -125,7 +125,7 @@ void PropertyTest::testBags()
     CPPUNIT_ASSERT( findProperty( bag, "/s1/s2", "/" ) == &subbag2 );
     CPPUNIT_ASSERT( findProperty( bag, "/s1/s2/ps", "/" ) == &ps );
     CPPUNIT_ASSERT( findProperty( bag, "s1.s2.pc" ) == &pc );
-                    
+
 }
 void PropertyTest::testBagOperations()
 {
@@ -294,7 +294,7 @@ void PropertyTest::testUpdate()
     CPPUNIT_ASSERT( res );
     CPPUNIT_ASSERT( res->getName() == "p1" );
     CPPUNIT_ASSERT( res->get() == -1 );
-    
+
 }
 
 // This test does not yet test all types !
@@ -371,7 +371,7 @@ void PropertyTest::testPropMarshVect()
     CPPUNIT_ASSERT( bag.ready() );
     CPPUNIT_ASSERT( bag.getDescription() == "p1d" );
     CPPUNIT_ASSERT( bag.rvalue().size() == 7 );
-    
+
     // update bag -> array.
     CPPUNIT_ASSERT( updateProperties( source, target) );
 
@@ -400,5 +400,5 @@ void PropertyTest::testPropMarshVect()
     //cout << p1 << endl;
     CPPUNIT_ASSERT( p1.rvalue().size() == 6 );
     CPPUNIT_ASSERT( p1.rvalue()[0] == 1 );
-    
+
 }

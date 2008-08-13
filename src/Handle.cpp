@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  Handle.cxx 
+  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  Handle.cxx
 
                         Handle.cxx -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include "Handle.hpp"
 
 
@@ -55,7 +55,7 @@ namespace RTT
     Handle::Handle(const Handle& hs)
         : m_conn( hs.m_conn )
     {
-    } 
+    }
 
     Handle::~Handle()
     {
@@ -91,7 +91,7 @@ namespace RTT
     ScopedHandle::ScopedHandle(const Handle& hs)
         : Handle( hs )
     {
-    } 
+    }
 
 
     ScopedHandle::~ScopedHandle()
@@ -101,7 +101,7 @@ namespace RTT
     CleanupHandle::CleanupHandle(const Handle& hs)
         : Handle( hs )
     {
-    } 
+    }
 
     CleanupHandle::~CleanupHandle()
     {

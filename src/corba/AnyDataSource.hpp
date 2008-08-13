@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:24 CET 2008  AnyDataSource.hpp 
+  tag: FMTC  Tue Mar 11 21:49:24 CET 2008  AnyDataSource.hpp
 
                         AnyDataSource.hpp -  description
                            -------------------
     begin                : Tue March 11 2008
     copyright            : (C) 2008 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,15 +34,15 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_CORBA_ANYDATASOURCE_HPP
 #define ORO_CORBA_ANYDATASOURCE_HPP
 
 #include "DataSource.hpp"
 #include <tao/corba.h>
 #include <tao/Version.h>
-#if TAO_MAJOR_VERSION == 1 && TAO_MINOR_VERSION <= 4 
+#if TAO_MAJOR_VERSION == 1 && TAO_MINOR_VERSION <= 4
 #include <tao/Any.h>
 #else // TAO 1.5 and higher
 #include <tao/AnyTypeCode/Any.h>

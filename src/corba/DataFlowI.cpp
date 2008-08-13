@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:24 CET 2008  DataFlowI.cpp 
+  tag: FMTC  Tue Mar 11 21:49:24 CET 2008  DataFlowI.cpp
 
                         DataFlowI.cpp -  description
                            -------------------
     begin                : Tue March 11 2008
     copyright            : (C) 2008 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 // -*- C++ -*-
 //
 // $Id$
@@ -63,7 +63,7 @@
 // Information about TAO is available at:
 //     http://www.cs.wustl.edu/~schmidt/TAO.html
 
-// TAO_IDL - Generated from 
+// TAO_IDL - Generated from
 // be/be_codegen.cpp:910
 
 #include "DataFlowI.h"
@@ -91,7 +91,7 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
 }
 
 ::RTT::Corba::DataFlowInterface::PortNames * RTT_Corba_DataFlowInterface_i::getPorts (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -105,7 +105,7 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
 
     for (unsigned int i=0; i != ports.size(); ++i )
         pn[i] = CORBA::string_dup( ports[i].c_str() );
-    
+
     return pn._retn();
 }
 
@@ -251,7 +251,7 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
         return ::RTT::Corba::DataFlowInterface::ConnectionModel();
     return ::RTT::Corba::DataFlowInterface::ConnectionModel( int(p->getConnectionModel()) );
 }
-  
+
 
 ::RTT::Corba::DataFlowInterface::PortType RTT_Corba_DataFlowInterface_i::getPortType (
     const char * port_name
@@ -301,7 +301,7 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::isConnected (
             return true;
         }
     } catch(...) {
-        // evalutate() threw, so disconnect
+        // evaluate() threw, so disconnect
         // note: should we disconnect the port or the complete connection() ?
         p->connection()->disconnect();
     }
@@ -367,7 +367,7 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectBufferPort (
     detail::TypeTransporter* tt = p->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
     if (tt) {
         BufferBase::shared_ptr buf_impl( tt->bufferProxy( buffer ) );
-    
+
         ConnectionInterface::shared_ptr ci = p->createConnection ( buf_impl );
         return ci->connect();
     }
@@ -375,8 +375,8 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectBufferPort (
 }
 
 CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectPorts (
-     const char * local_name, 
-     ::RTT::Corba::DataFlowInterface_ptr remote_ports, 
+     const char * local_name,
+     ::RTT::Corba::DataFlowInterface_ptr remote_ports,
      const char * remote_name
     )
     ACE_THROW_SPEC ((

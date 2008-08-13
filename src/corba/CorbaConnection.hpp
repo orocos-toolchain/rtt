@@ -50,7 +50,7 @@ namespace RTT
             virtual bool removePort(PortInterface* r);
 
             virtual const RTT::TypeInfo* getTypeInfo() const;
-            
+
             virtual int serverProtocol();
         };
 

@@ -173,12 +173,12 @@ namespace RTT
                 return true;
             }
             // failed to create: store port for later adding.
-            ConnectionInterface::addPort( p ); 
+            ConnectionInterface::addPort( p );
             return true;
         }
-        
+
         const TypeInfo* CorbaConnection::getTypeInfo() const {
-            TypeInfo* ret = TypeInfoRepository::Instance()->type( mdflow->getDataType( mname.c_str()) ) ; 
+            TypeInfo* ret = TypeInfoRepository::Instance()->type( mdflow->getDataType( mname.c_str()) ) ;
             if (ret) return ret;
             return detail::DataSourceTypeInfo<detail::UnknownType>::getTypeInfo();
         }

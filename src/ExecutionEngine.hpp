@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  ExecutionEngine.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  ExecutionEngine.hpp
 
                         ExecutionEngine.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_EXECUTION_ENGINE_HPP
 #define ORO_EXECUTION_ENGINE_HPP
 
@@ -78,7 +78,7 @@ namespace RTT
      *
      * @par Changing the Execution Policy
      * One can subclass this class in order to change the run-time
-     * behaviour. Use TaskCore::setExecutionEngine in order to 
+     * behaviour. Use TaskCore::setExecutionEngine in order to
      * install a new ExecutionEngine in a component. All Members of
      * this class are protected and thus accessible in a subclass.
      * @ingroup Processor
@@ -125,13 +125,13 @@ namespace RTT
         bool startContexts();
     public:
         /**
-         * Create an execution engine with a CommandProcessor, ProgramProcessor 
+         * Create an execution engine with a CommandProcessor, ProgramProcessor
          * and StateMachineProcessor.
          * @param owner The TaskCore in which this execution engine executes.
          * It may be null, in that case no TaskCore owns this execution engine.
          */
         ExecutionEngine( TaskCore* owner = 0);
-        
+
         ~ExecutionEngine();
 
         /**
@@ -185,22 +185,22 @@ namespace RTT
          */
         TaskCore* getTaskCore() const { return taskc; }
 
-        /** 
+        /**
          * Return the CommandProcessor of this engine.
          */
         CommandProcessor* commands() const;
 
-        /** 
+        /**
          * Return the ProgramProcessor of this engine.
          */
         ProgramProcessor* programs() const;
 
-        /** 
+        /**
          * Return the StateMachineProcessor of this engine.
          */
         StateMachineProcessor* states() const;
 
-        /** 
+        /**
          * Return the EventProcessor of this engine.
          */
         EventProcessor* events() const;

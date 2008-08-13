@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: 
+  tag:
 
                         fosi.hpp -  description
                            -------------------
     begin                : Jan 21 2006
     copyright            : (C) 2006 Klaas Gadeyne
     email                : firstname lastname at fmtc be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -61,13 +61,13 @@ extern "C"
     cyg_thread thread;
     // its name
     char * name;
-    
+
     // And its handle
     cyg_handle_t handle;
-    
+
     // Stack pointer
     char * stack;
-    
+
     /* bool to fake soft or hard RT behaviour (ecos does not
        differentiate between hard and soft realtime)
     */
@@ -77,7 +77,7 @@ extern "C"
     // periodic threads)
     // Next firetime
     NANO_TIME periodMark;
-    // the period 
+    // the period
     NANO_TIME period;
     cyg_handle_t counter_hdl;
     cyg_handle_t sys_clk_hdl;
@@ -182,7 +182,7 @@ extern "C"
   typedef cyg_mutex_t rt_mutex_t;
   typedef cyg_recursive_mutex_t rt_rec_mutex_t;
 
-  // 
+  //
   static inline int rtos_mutex_init(rt_mutex_t* m)
   {
     cyg_mutex_init(m);
@@ -222,7 +222,7 @@ extern "C"
   {
     if (cyg_mutex_trylock(m) == true)
       return 0;
-    else 
+    else
       return -1;
   }
 

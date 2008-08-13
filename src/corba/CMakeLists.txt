@@ -5,7 +5,7 @@ INCLUDE (${PROJ_SOURCE_DIR}/config/DependentOption.cmake)
 IF(ENABLE_CORBA)
   MESSAGE( "CORBA Support enabled.")
   # Finally:
-  
+
   # Add includes / lib paths if necessary
   IF( NOT ${ACE_DIR} STREQUAL /usr/include )
     INCLUDE_DIRECTORIES( ${ACE_DIR} )
@@ -28,7 +28,7 @@ IF(ENABLE_CORBA)
       LINK_LIBRARIES( TAO TAO_IDL_BE )
       SET(RTT_LINKFLAGS "${RTT_LINKFLAGS} -lTAO_IDL_BE" CACHE INTERNAL "")
   ENDIF( NOT TAO_15 )
- 
+
   FILE( GLOB IDLS [^.]*.idl )
   FILE( GLOB CPPS [^.]*.cpp )
   FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
@@ -51,7 +51,7 @@ IF(ENABLE_CORBA)
 
 IF ( BUILD_STATIC )
   ADD_LIBRARY(orocos-rtt-corba_static-${OROCOS_TARGET} STATIC ${CPPS})
-  SET_TARGET_PROPERTIES( orocos-rtt-corba_static-${OROCOS_TARGET} 
+  SET_TARGET_PROPERTIES( orocos-rtt-corba_static-${OROCOS_TARGET}
   PROPERTIES DEFINE_SYMBOL "RTT_DLL_EXPORT"
   OUTPUT_NAME orocos-rtt-corba-${OROCOS_TARGET}
   CLEAN_DIRECT_OUTPUT 1

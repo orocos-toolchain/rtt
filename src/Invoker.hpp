@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:05:58 CET 2006  Invoker.hpp 
+  tag: FMTC  do nov 2 13:05:58 CET 2006  Invoker.hpp
 
                         Invoker.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_INVOKER_BASE_HPP
 #define ORO_INVOKER_BASE_HPP
 
@@ -112,7 +112,7 @@ namespace RTT
 
         template<int, class F, class BaseImpl>
         struct InvokerImpl;
-        
+
         template<class F, class BaseImpl>
         struct InvokerImpl<0,F,BaseImpl>
             : public BaseImpl
@@ -196,7 +196,7 @@ namespace RTT
             {
                 return BaseImpl::template invoke<arg1_type, arg2_type, arg3_type, arg4_type>(t1, t2, t3, t4);
             }
-            
+
         };
 
         /**
@@ -218,7 +218,7 @@ namespace RTT
          */
         template<int, class Signature, class ToInvoke>
         struct InvokerSignature;
-        
+
         template<class F, class ToInvoke>
         struct InvokerSignature<0,F,ToInvoke>
         {
@@ -337,7 +337,7 @@ namespace RTT
                     return (*impl)(t1, t2, t3, t4);
                 return NA<result_type>::na();
             }
-            
+
         protected:
             ToInvoke impl;
         };

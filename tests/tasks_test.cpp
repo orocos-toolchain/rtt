@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 10 15:59:49 CET 2005  tasks_test.cpp 
+  tag: Peter Soetens  Mon Jan 10 15:59:49 CET 2005  tasks_test.cpp
 
                         tasks_test.cpp -  description
                            -------------------
     begin                : Mon January 10 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "tasks_test.hpp"
 #include <unistd.h>
@@ -56,14 +56,14 @@ struct TestPeriodic
 {
     int overfail, underfail, succ;
     bool stepped;
-     
+
     TimeService::ticks ts;
-    
+
     TestPeriodic()
         : overfail(0), underfail(0), succ(0), stepped(false)
     {
     }
-    
+
     bool initialize() {
         this->reset();
         return true;
@@ -93,7 +93,7 @@ struct TestPeriodic
         if (overfail || underfail)
             cerr <<"overfail is:"<<overfail<<", underfail is:"<<underfail<< " success is: "<<succ<<endl;
     }
-        
+
     void reset() {
         overfail = 0;
         underfail = 0;
@@ -184,7 +184,7 @@ struct TestSelfRemove
     }
 };
 
-void 
+void
 ActivitiesTest::setUp()
 {
     t_task_prio = new PeriodicActivity( 15, 0.01 );
@@ -198,7 +198,7 @@ ActivitiesTest::setUp()
 }
 
 
-void 
+void
 ActivitiesTest::tearDown()
 {
     delete t_task_prio;
@@ -232,7 +232,7 @@ void ActivitiesTest::testOverrun()
 
   t->start();
   sleep(2);
-  
+
   r = !t->isRunning();
 
   t->run(0);
@@ -240,7 +240,7 @@ void ActivitiesTest::testOverrun()
   CPPUNIT_ASSERT_MESSAGE( "Failed to detect step overrun in Thread", r);
 
   CPPUNIT_ASSERT_MESSAGE( "Failed to execute finalize in emergencyStop", run->fini );
-  
+
 }
 
 
@@ -353,7 +353,7 @@ void ActivitiesTest::testRemoveRunnableInterface()
 void ActivitiesTest::testStart()
 {
     CPPUNIT_ASSERT( t_task_prio->start());
-    
+
     CPPUNIT_ASSERT( t_task_prio->isRunning() );
 }
 
@@ -374,7 +374,7 @@ void ActivitiesTest::testRunnableInterfaceExecution() {
 void ActivitiesTest::testStop()
 {
     CPPUNIT_ASSERT( t_task_prio->stop());
-    
+
     CPPUNIT_ASSERT( !t_task_prio->isRunning() );
 }
 
@@ -387,5 +387,5 @@ void ActivitiesTest::testRemoveAllocate()
 {
     CPPUNIT_ASSERT( t_task_prio->run( 0 ) );
 }
-    
+
 

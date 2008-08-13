@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  XMLMarshaller.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  XMLMarshaller.hpp
 
                         XMLMarshaller.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef PI_PROPERTIES_XMLSERIALIZER
 #define PI_PROPERTIES_XMLSERIALIZER
 
@@ -50,9 +50,9 @@ namespace RTT
      * @warning: No Orocos class exists yet which can read the XML data back in.
      */
 	template<typename o_stream>
-    class XMLMarshaller 
-		: public Marshaller, 
-          protected PropertyIntrospection, 
+    class XMLMarshaller
+		: public Marshaller,
+          protected PropertyIntrospection,
           public StreamProcessor<o_stream>
     {
     protected:
@@ -61,47 +61,47 @@ namespace RTT
             PropertyIntrospection::introspect( pb );
         }
 
-        virtual void introspect(Property<bool> &v) 
-        { 
-            *(this->s) << "<bool id=\""<< v.getName() 
+        virtual void introspect(Property<bool> &v)
+        {
+            *(this->s) << "<bool id=\""<< v.getName()
                        <<"\" description=\"" << v.getDescription() <<"\">"
                        << v.get() << "</bool>\n";
         }
 
-        virtual void introspect(Property<char> &v) 
-        { 
-            *(this->s) << "<char id=\""<< v.getName() 
+        virtual void introspect(Property<char> &v)
+        {
+            *(this->s) << "<char id=\""<< v.getName()
                        <<"\" description=\"" << v.getDescription() <<"\">"
                        << v.get() << "</char>\n";
         }
-        virtual void introspect(Property<int> &v) 
-        { 
-            *(this->s) << "<int id=\""<< v.getName() 
+        virtual void introspect(Property<int> &v)
+        {
+            *(this->s) << "<int id=\""<< v.getName()
                        <<"\" description=\"" << v.getDescription() <<"\">"
                        << v.get() << "</int>\n";
         }
 
-        virtual void introspect(Property<unsigned int> &v) 
-        { 
-            *(this->s) << "<uint id=\""<< v.getName() 
+        virtual void introspect(Property<unsigned int> &v)
+        {
+            *(this->s) << "<uint id=\""<< v.getName()
                        <<"\" description=\"" << v.getDescription() <<"\">"
                        << v.get() << "</uint>\n";
         }
 
-        virtual void introspect(Property<double> &v) 
+        virtual void introspect(Property<double> &v)
         {
-            *(this->s) << "<double id=\""<< v.getName() 
+            *(this->s) << "<double id=\""<< v.getName()
                        <<"\" description=\"" << v.getDescription() <<"\">"
                        << v.get() << "</double>\n";
         }
-        virtual void introspect(Property<std::string> &v) 
+        virtual void introspect(Property<std::string> &v)
         {
-            *(this->s) << "<string id=\""<< v.getName() 
+            *(this->s) << "<string id=\""<< v.getName()
                        <<"\" description=\"" << v.getDescription() <<"\">"
                        << v.get() << "</string>\n";
         }
 
-        virtual void introspect(Property<PropertyBag> &v) 
+        virtual void introspect(Property<PropertyBag> &v)
         {
             introspect(v.get(), v.getName());
         }
@@ -131,8 +131,8 @@ namespace RTT
         virtual void serialize(PropertyBase* p) {
             p->identify(this);
         }
-				
-        virtual void serialize(const PropertyBag &v) 
+
+        virtual void serialize(const PropertyBag &v)
         {
             *(this->s) <<"<bag type=\""<<v.getType()<<"\">"<< std::endl;
             for (

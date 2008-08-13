@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:11 CET 2006  CommandFunctors.hpp 
+  tag: FMTC  do nov 2 13:06:11 CET 2006  CommandFunctors.hpp
 
                         CommandFunctors.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_COMMANDFUNCTORS_HPP
 #define ORO_COMMANDFUNCTORS_HPP
 
@@ -50,8 +50,8 @@
 
 namespace RTT
 {
-    
-    
+
+
 
     namespace detail {
 
@@ -73,14 +73,14 @@ namespace RTT
             {
             }
 
-            void setArguments( DataSourceBase* = 0, DataSourceBase* = 0, DataSourceBase* = 0, DataSourceBase* = 0  ) 
+            void setArguments( DataSourceBase* = 0, DataSourceBase* = 0, DataSourceBase* = 0, DataSourceBase* = 0  )
             {
             }
 
             void readArguments()
             {
             }
-      
+
             bool execute()
             {
                 return fun();
@@ -114,7 +114,7 @@ namespace RTT
             {
             }
 
-            void setArguments( DataSource<Arg1T>* a, DataSourceBase* = 0, DataSourceBase* = 0, DataSourceBase* = 0  ) 
+            void setArguments( DataSource<Arg1T>* a, DataSourceBase* = 0, DataSourceBase* = 0, DataSourceBase* = 0  )
             {
                 aa = a;
             }
@@ -123,7 +123,7 @@ namespace RTT
             {
                 aa->evaluate();
             }
-      
+
             bool execute()
             {
                 Arg1T a = aa->value();
@@ -159,7 +159,7 @@ namespace RTT
             {
             }
 
-            void setArguments( DataSource<Arg1T>* a, DataSource<Arg2T>* b, DataSourceBase* = 0, DataSourceBase* = 0  ) 
+            void setArguments( DataSource<Arg1T>* a, DataSource<Arg2T>* b, DataSourceBase* = 0, DataSourceBase* = 0  )
             {
                 aa = a;
                 bb = b;
@@ -170,7 +170,7 @@ namespace RTT
                 aa->evaluate();
                 bb->evaluate();
             }
-      
+
             bool execute()
             {
                 Arg1T a = aa->value();
@@ -212,7 +212,7 @@ namespace RTT
             {
             }
 
-            void setArguments( DataSource<Arg1T>* a, DataSource<Arg2T>* b, DataSource<Arg3T>* c, DataSourceBase* = 0  ) 
+            void setArguments( DataSource<Arg1T>* a, DataSource<Arg2T>* b, DataSource<Arg3T>* c, DataSourceBase* = 0  )
             {
                 aa = a;
                 bb = b;
@@ -225,7 +225,7 @@ namespace RTT
                 bb->evaluate();
                 cc->evaluate();
             }
-      
+
             bool execute()
             {
                 Arg1T a = aa->value();
@@ -272,7 +272,7 @@ namespace RTT
             {
             }
 
-            void setArguments( DataSource<Arg1T>* a, DataSource<Arg2T>* b, DataSource<Arg3T>* c, DataSource<Arg4T>* d  ) 
+            void setArguments( DataSource<Arg1T>* a, DataSource<Arg2T>* b, DataSource<Arg3T>* c, DataSource<Arg4T>* d  )
             {
                 aa = a;
                 bb = b;
@@ -287,7 +287,7 @@ namespace RTT
                 cc->evaluate();
                 dd->evaluate();
             }
-      
+
             bool execute()
             {
                 Arg1T a = aa->value();
@@ -332,12 +332,12 @@ namespace RTT
             typedef FunctionT Function;
             typedef boost::function<FunctionT> FunctionImpl;
 
-            Functor<FunctionT>(FunctionImpl impl) 
+            Functor<FunctionT>(FunctionImpl impl)
                 : FunctorImpl<boost::function_traits<FunctionT>::arity,FunctionImpl>(impl)
             {}
 
             // Allow construction from base class.
-            Functor<FunctionT>(FunctorImpl<boost::function_traits<FunctionT>::arity,FunctionImpl> impl) 
+            Functor<FunctionT>(FunctorImpl<boost::function_traits<FunctionT>::arity,FunctionImpl> impl)
                 : FunctorImpl<boost::function_traits<FunctionT>::arity,FunctionImpl>(impl)
             {}
         };
@@ -375,7 +375,7 @@ namespace RTT
             virtual void readArguments() { com.readArguments(); }
 
             virtual bool execute() { return com.execute(); }
-            
+
             virtual CommandFunctor<Signature,FunctorT>* clone() const
             {
                 return new CommandFunctor( com );
@@ -410,7 +410,7 @@ namespace RTT
             virtual void readArguments() { }
 
             virtual bool execute() { return com(); }
-            
+
             virtual CommandFunction* clone() const
             {
                 return new CommandFunction( com );
@@ -449,7 +449,7 @@ namespace RTT
             }
 
             virtual bool evaluate() { return con.evaluate() != minvert; }
-            
+
             virtual ConditionFunctor<Signature,FunctorT>* clone() const
             {
                 return new ConditionFunctor( con, minvert );
@@ -483,7 +483,7 @@ namespace RTT
             }
 
             virtual bool evaluate() { return con() != minvert; }
-            
+
             virtual ConditionFunction* clone() const
             {
                 return new ConditionFunction( con, minvert );

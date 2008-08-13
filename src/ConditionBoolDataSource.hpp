@@ -45,7 +45,7 @@
 namespace RTT
 {
 
-    
+
 
     /**
      * A Condition which holds a boolean DataSource.

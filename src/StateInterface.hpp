@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 10 16:16:58 CEST 2002  StateInterface.hpp 
+  tag: Peter Soetens  Thu Oct 10 16:16:58 CEST 2002  StateInterface.hpp
 
                         StateInterface.hpp -  description
                            -------------------
     begin                : Thu October 10 2002
     copyright            : (C) 2002 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef EXECUTION_STATEINTERFACE_HPP
 #define EXECUTION_STATEINTERFACE_HPP
 
@@ -59,7 +59,7 @@ namespace RTT
      * be called before any transition is evaluated.
      *
      * Thus when we are in state A and want to switch to state B, the
-     * following happens : 
+     * following happens :
      * @verbatim
      * in State A :
      *   call A->run();
@@ -67,7 +67,7 @@ namespace RTT
      *   call A->onExit();
      *   call B->onEntry();
      *   return true;
-     * else 
+     * else
      *   call A->handle();
      *   return false;
      * @endverbatim

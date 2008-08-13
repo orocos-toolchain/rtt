@@ -16,7 +16,7 @@
 //------------------------------------------------------------------------------
 namespace boost {
 //------------------------------------------------------------------------------
-namespace function_types 
+namespace function_types
 {
   namespace detail
   {
@@ -24,7 +24,7 @@ namespace function_types
       : mpl::at< S, mpl::plus<I,K> >
     { };
 
-    template<typename S,typename I> 
+    template<typename S,typename I>
     struct parameter_impl<S,no_function,I>
     { };
   }

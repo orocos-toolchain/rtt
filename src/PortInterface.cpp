@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Mar 2 08:30:18 CET 2006  PortInterface.cxx 
+  tag: Peter Soetens  Thu Mar 2 08:30:18 CET 2006  PortInterface.cxx
 
                         PortInterface.cxx -  description
                            -------------------
     begin                : Thu March 02 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "PortInterface.hpp"
 
@@ -48,7 +48,7 @@ namespace RTT
     PortInterface::~PortInterface() {}
 
     bool PortInterface::setName(const std::string& name)
-    { 
+    {
         if ( !connected() ) {
             portname = name;
             return true;
@@ -57,11 +57,11 @@ namespace RTT
     }
 
     bool PortInterface::ready() const {
-#ifndef ORO_EMBEDDED  
+#ifndef ORO_EMBEDDED
         try {
 #endif
             return this->connected() && this->connection()->getDataSource()->evaluate();
-#ifndef ORO_EMBEDDED            
+#ifndef ORO_EMBEDDED
         } catch(...)
         {}
         return false;
@@ -74,7 +74,7 @@ namespace RTT
 
         // The aim of this function is to create a connection between
         // this and other at all costs.
-        
+
         /*
            L->connectTo(R);
             1. If both ports are not connected:
@@ -98,13 +98,13 @@ namespace RTT
             3. if both ports are connected:
                * fail.
            R->connectTo(L);
-            
-            The idea is that connections are created from writer to reader, no matter 
-            which one is remote or local, because the writer has the initialisation 
+
+            The idea is that connections are created from writer to reader, no matter
+            which one is remote or local, because the writer has the initialisation
             and/or buffer capacity. So where the writer is, the server is created and
             the reader creates a proxy. Once one of remote/local is connected, it is
             easy, always create a proxy to it.
-         * 
+         *
          */
 
         // if both are not connected, create a new one:
@@ -133,7 +133,7 @@ namespace RTT
                 return false;
             }
 
-            
+
             // if here, both were readers or both refused to create a connection.
             Logger::In in("PortInterface::connectTo");
             log(Warning) << "Creating a temporary default Writer." << endlog();
@@ -163,7 +163,7 @@ namespace RTT
             // remove clone from new connection.
             ci->removePort(aclone);
             delete aclone;
-            
+
             // finally a connection object !
             // 1. connect other.
             if ( other->connectTo( ci ) == false )

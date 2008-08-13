@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Fri Feb 11 15:59:13 CET 2005  time_test.cpp 
+  tag: Peter Soetens  Fri Feb 11 15:59:13 CET 2005  time_test.cpp
 
                         time_test.cpp -  description
                            -------------------
     begin                : Fri February 11 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include "time_test.hpp"
 #include <boost/bind.hpp>
 #include <Timer.hpp>
@@ -31,7 +31,7 @@ using namespace std;
 using namespace RTT;
 using namespace boost;
 
-void 
+void
 TimeTest::setUp()
 {
     hbg = TimeService::Instance();
@@ -50,15 +50,15 @@ TimeTest::setUp()
 }
 
 
-void 
+void
 TimeTest::tearDown()
 {
     hbg->enableSystemClock( true );
 }
 
-#define CPPUNIT_ASSERT_EQUAL_EPS(a, b, eps)  if ( !( -(eps) < ((a)-(b)) && (eps) > ((a)-(b)) ) ) {  CPPUNIT_ASSERT_EQUAL( a,b); }	   
+#define CPPUNIT_ASSERT_EQUAL_EPS(a, b, eps)  if ( !( -(eps) < ((a)-(b)) && (eps) > ((a)-(b)) ) ) {  CPPUNIT_ASSERT_EQUAL( a,b); }
 
-void 
+void
 TimeTest::testSecondsConversion()
 {
     // Test one way
@@ -80,7 +80,7 @@ TimeTest::testSecondsConversion()
     CPPUNIT_ASSERT_EQUAL( small_S , nsecs_to_Seconds( Seconds_to_nsecs(small_S) ));
 }
 
-void 
+void
 TimeTest::testTicksConversion()
 {
     // Test ticks conversion invariance :
@@ -94,7 +94,7 @@ TimeTest::testTicksConversion()
     CPPUNIT_ASSERT_EQUAL_EPS( small_t , TimeService::nsecs2ticks( TimeService::ticks2nsecs( small_t )), margin * 2);
 }
 
-void 
+void
 TimeTest::testTimeProgress()
 {
     // A time measurement takes time :
@@ -128,7 +128,7 @@ TimeTest::testTimeProgress()
     CPPUNIT_ASSERT( t !=  hbg->getTicks() );
     CPPUNIT_ASSERT( TimeService::ticks(0) !=  hbg->ticksSince(t) );
     CPPUNIT_ASSERT( Seconds(0.0) !=  hbg->secondsSince(t) );
-    
+
 }
 
 struct TestTimer

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  TaskContext.hpp 
+  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  TaskContext.hpp
 
                         TaskContext.hpp -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_TASK_CONTEXT_HPP
 #define ORO_TASK_CONTEXT_HPP
 
@@ -71,7 +71,7 @@ namespace RTT
      *
      * @par TaskContext state behaviour
      * When a TaskContext is created it defaults to the 'Stopped' state or
-     * the 'PreOperational' state. If it is 'Stopped', it can be start()'ed as 
+     * the 'PreOperational' state. If it is 'Stopped', it can be start()'ed as
      * soon as an activity object is attached to it. If it is 'PreOperational',
      * it must first be configure()'d before it can be started. You can choose
      * between both using the constructor.
@@ -110,7 +110,7 @@ namespace RTT
 
         /**
          * Create a TaskContext.
-         * It's ExecutionEngine will be newly constructed with private 
+         * It's ExecutionEngine will be newly constructed with private
          * processing of commands, events, programs and state machines.
          * @param name The name of this component.
          * @param initial_state Provide the \a PreOperational parameter flag here
@@ -119,7 +119,7 @@ namespace RTT
         TaskContext( const std::string& name, TaskState initial_state = Stopped );
 
         /**
-         * Create a TaskContext. 
+         * Create a TaskContext.
          * Its commands programs and state machines are processed by \a parent.
          * Use this constructor to share execution engines among task contexts, such that
          * the execution of their functionality is serialised (executed in the same thread).
@@ -153,7 +153,7 @@ namespace RTT
 
         /**
          * Call this function to force a TaskContext to export its
-         * Data Flow ports as scripting objects. 
+         * Data Flow ports as scripting objects.
          * @deprecated Do not use this function, it is no longer
          * required.
          */
@@ -224,17 +224,17 @@ namespace RTT
          */
         virtual TaskContext* getPeer(const std::string& peer_name ) const;
 
-        /** 
+        /**
          * Add a new TaskObject to this TaskContext.
-         * 
+         *
          * @param obj This object becomes owned by this TaskContext.
-         * 
+         *
          * @return true if it cuold be added, false if such
          * object already exists.
          */
         virtual bool addObject( OperationInterface *obj );
 
-        /** 
+        /**
          * Clear the complete interface of this Component.
          * This method removes all objects and all methods, commands,
          * events, properties and ports from the interface of this TaskContext.
@@ -250,7 +250,7 @@ namespace RTT
          * TaskContext is local.
          */
         virtual bool ready();
-        
+
         /**
          * Get access to high level controls for
          * programs, state machines and scripting
@@ -331,7 +331,7 @@ namespace RTT
         DataFlowInterface* ports() {
             return &dataPorts;
         }
-        
+
         /**
          * Get the Data flow ports of this task.
          */
@@ -344,7 +344,7 @@ namespace RTT
         TaskContext( TaskContext& );
     protected:
         std::string mdescription;
-    
+
         typedef std::map< std::string, TaskContext* > PeerMap;
         typedef std::vector< TaskContext* > Users;
         typedef std::vector< OperationInterface* > Objects;
@@ -391,7 +391,7 @@ namespace RTT
 
     /**
      * Set up the Execution Flow (who knows who)
-     * between A and B in both directions. Both will be able to 
+     * between A and B in both directions. Both will be able to
      * use each other's interface.
      * @see TaskContext::connectPeers
      */

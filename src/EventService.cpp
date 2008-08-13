@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  EventService.cxx 
+  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  EventService.cxx
 
                         EventService.cxx -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include "EventService.hpp"
 #include "mystd.hpp"
 
@@ -74,7 +74,7 @@ namespace RTT
     {
         return this->getArity(name);
     }
-            
+
     bool EventService::removeEvent( const std::string& ename ) {
         if ( mevents.count(ename) == 0 )
             return false;
@@ -92,7 +92,7 @@ namespace RTT
         this->remove( ename );
         return true;
     }
-        
+
     void EventService::clear() {
         for (Hooks::iterator it = mhooks.begin(); it !=mhooks.end(); ++it )
             delete it->second;
@@ -122,7 +122,7 @@ namespace RTT
     }
 
     Handle EventService::setupSyn(const std::string& ename,
-                                               boost::function<void(void)> func,          
+                                               boost::function<void(void)> func,
                                                std::vector<DataSourceBase::shared_ptr> args ) const {
         if ( mhooks.count(ename) != 1 ) {
             log(Error) << "Can not create connection to '"<<ename<<"': no such Event."<<endlog();
@@ -131,11 +131,11 @@ namespace RTT
         detail::EventHookBase* ehi = mhooks.find(ename)->second->produce( args );
 
         // ehi is stored _inside_ the connection object !
-        return ehi->setupSyn( func ); 
+        return ehi->setupSyn( func );
     }
-        
+
     Handle EventService::setupAsyn(const std::string& ename,
-                                                boost::function<void(void)> afunc,          
+                                                boost::function<void(void)> afunc,
                                                 const std::vector<DataSourceBase::shared_ptr>& args,
                                                 EventProcessor* ep /* = CompletionProcessor::Instance()*/,
                                                 EventProcessor::AsynStorageType s_type) const {
@@ -146,7 +146,7 @@ namespace RTT
         detail::EventHookBase* ehi = mhooks.find(ename)->second->produce( args );
 
         // ehi is stored _inside_ the connection object !
-        return ehi->setupAsyn( afunc, ep, s_type ); 
+        return ehi->setupAsyn( afunc, ep, s_type );
     }
 
     ActionInterface* EventService::getEvent(const std::string& ename,const std::vector<DataSourceBase::shared_ptr>& args) const

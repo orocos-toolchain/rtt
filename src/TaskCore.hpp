@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:07 CET 2006  TaskCore.hpp 
+  tag: FMTC  do nov 2 13:06:07 CET 2006  TaskCore.hpp
 
                         TaskCore.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_TASK_CORE_HPP
 #define ORO_TASK_CORE_HPP
 
@@ -125,7 +125,7 @@ namespace RTT
          * Stopped state is entered, if it returns false, the \a PreOperational
          * state is entered, and the user is as such forced to call \a configure()
          * in order to enter the \a Stopped state again.
-         * - 
+         * -
          *
          */
         enum TaskState { Init,           //! The state during component construction.
@@ -136,11 +136,11 @@ namespace RTT
                          Running,        //! The state indicating the component is running [green].
                          RunTimeWarning, //! The state indicating that a run-time warning has occured [yellow] and needs attention.
                          RunTimeError    //! The state indicating that a run-time error has occured [red] and needs attention.
-        }; 
-        
+        };
+
         /**
          * Create a TaskCore.
-         * It's ExecutionEngine will be newly constructed with private 
+         * It's ExecutionEngine will be newly constructed with private
          * processing of commands, events, programs and state machines.
          * @param name The name of this component.
          * @param initial_state Provide the \a PreOperational parameter flag here
@@ -168,18 +168,18 @@ namespace RTT
 
         /**
          * Returns the number of times the RunTimeWarning state
-         * was \b entered. 
+         * was \b entered.
          */
         int getWarningCount() const;
 
         /**
          * Returns the number of times the RunTimeError state
-         * was \b entered. 
+         * was \b entered.
          */
         int getErrorCount() const;
 
         /**
-         * @name Script Methods 
+         * @name Script Methods
          *
          * These TaskCore functions are exported in a TaskContext as script
          * methods and are for configuration, starting and stopping
@@ -199,8 +199,8 @@ namespace RTT
          * which must return \a true in order to allow this processing.
          * You can override this method to do something else or in addition
          * to starting the ExecutionEngine.
-         * @retval false 
-         * - if activateHook() returned false 
+         * @retval false
+         * - if activateHook() returned false
          * - if the engine was not assigned to an ActivityInterface
          * - if the component was already active.
          * @retval true if the \a Active state was entered.
@@ -212,14 +212,14 @@ namespace RTT
          * already running) and executes the \a updateHook() with each period.
          * This function calls the user function \a startHook(), which must return \a true in order to
          * allow this component to run.
-         * @retval false 
+         * @retval false
          * - if startHook() returned false
          * - if the engine was not assigned to an ActivityInterface
          * - if the component was already running.
          * @retval true if the \a Running state was entered.
          */
         virtual bool start();
-        
+
         /**
          * This method stops the execution engine of this component.
          * You can override this method to do something else or in addition
@@ -239,7 +239,7 @@ namespace RTT
         /**
          * If the component entered the \a FatalError state, call this method
          * to recover. It will call the user function \a resetHook(): if
-         * it returns false, the \a PreOperational state is entered, if 
+         * it returns false, the \a PreOperational state is entered, if
          * it returns true, the \a Stopped state is entered.
          * You can not use this method to recover from the RunTimeWarning or
          * RunTimeError states, use recover() instead.
@@ -335,7 +335,7 @@ namespace RTT
 
         /**
          * Use this method to re-set the execution engine
-         * of this task core. 
+         * of this task core.
          * @param engine The new execution engine which will execute
          * this TaskCore or null if a new execution engine must be
          * created (the old is deleted in that case).
@@ -379,7 +379,7 @@ namespace RTT
          * implementation is an empty function.
          */
         virtual void cleanupHook();
-  
+
         /**
          * Implement this method such that it contains the code which
          * will be executed when \a activate() is called. Return false
@@ -462,7 +462,7 @@ namespace RTT
 
         /**
          * Implement this method to recover from the FatalError state.
-         * Return false if no recovery was possible and the 
+         * Return false if no recovery was possible and the
          * \a PreOperational state must be entered. Return true
          * to allow transition to the \a Stopped state.
          */
@@ -487,14 +487,14 @@ namespace RTT
          * Call this method from any place to indicate that this
          * component encountered a fatal error.  The ExecutionEngine
          * is stopped, stopHook() is called and the component waits
-         * for a resetError(). 
+         * for a resetError().
          */
         virtual void fatal();
 
         /**
          * Call this method in a Running state to indicate that the
          * run-time warning or error conditions are gone and nominal
-         * operation is resumed. You can not use this method to 
+         * operation is resumed. You can not use this method to
          * recover from a fatal() error. Use resetError() instead.
          */
         virtual void recovered();

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Apr 5 16:53:26 CEST 2005  taskthread_test.cpp 
+  tag: Peter Soetens  Tue Apr 5 16:53:26 CEST 2005  taskthread_test.cpp
 
                         taskthread_test.cpp -  description
                            -------------------
     begin                : Tue April 05 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,9 +15,9 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
- 
+
+
+
 
 #include "taskthread_test.hpp"
 #include <unistd.h>
@@ -147,7 +147,7 @@ struct TestAllocate
     }
 };
 
-void 
+void
 ActivitiesThreadTest::setUp()
 {
     t_task_np = new TestActivity<PeriodicActivity>(3, 0.01, true );
@@ -156,7 +156,7 @@ ActivitiesThreadTest::setUp()
 }
 
 
-void 
+void
 ActivitiesThreadTest::tearDown()
 {
     delete t_task_np;
@@ -201,18 +201,18 @@ void ActivitiesThreadTest::testPeriodic()
     CPPUNIT_ASSERT( m2task.isRunning() == false );
 
     // Different Scheduler (don't test if invalid priorities)
-    bprio = 15; 
+    bprio = 15;
     rtsched = ORO_SCHED_RT;
     if ( OS::CheckPriority( rtsched, bprio ) ) {
         PeriodicActivity m3task(ORO_SCHED_OTHER, 15, 0.01);
-        bprio = 15; 
+        bprio = 15;
         rtsched = ORO_SCHED_OTHER;
         if ( OS::CheckPriority( rtsched, bprio ) ) {
             CPPUNIT_ASSERT( mtask.thread() != m3task.thread() );
             CPPUNIT_ASSERT_EQUAL( ORO_SCHED_OTHER, m3task.thread()->getScheduler() );
         }
     }
-    
+
     // Starting thread if thread not running
     CPPUNIT_ASSERT( mtask.thread()->stop() );
     CPPUNIT_ASSERT( mtask.thread()->isRunning() == false );
@@ -333,7 +333,7 @@ void ActivitiesThreadTest::testSlave()
     CPPUNIT_ASSERT( !mslave.isRunning() );
 
     r.reset(true);
-    
+
     // periodic:
     SlaveActivity mslave_p(0.001, &r);
     CPPUNIT_ASSERT( mslave_p.isActive() == false );
@@ -357,7 +357,7 @@ void ActivitiesThreadTest::testSlave()
     CPPUNIT_ASSERT( !mslave_p.isActive() );
     CPPUNIT_ASSERT( !mslave_p.isRunning() );
     CPPUNIT_ASSERT( !mslave_p.execute() );
-    
+
 }
 
 void ActivitiesThreadTest::testScheduler()
@@ -400,17 +400,17 @@ void ActivitiesThreadTest::testThreadConfig()
     CPPUNIT_ASSERT( tt->isRunning() == false );
 
     CPPUNIT_ASSERT_EQUAL( 0.0123, tt->getPeriod());
-    
+
     // only do this if valid priority/scheduler range:
     if ( OS::CheckPriority( rtsched, bprio ) == true)
     {
         CPPUNIT_ASSERT_EQUAL( bprio, tt->getPriority());
-    
+
         // different priority, different thread.
         TimerThreadPtr tt2 = TimerThread::Instance(bprio - 1, 0.0123);
         CPPUNIT_ASSERT( tt2 != 0 );
         CPPUNIT_ASSERT( tt2 != tt );
-        
+
         // different period, different thread.
         TimerThreadPtr tt3 = TimerThread::Instance(bprio, 0.123);
         CPPUNIT_ASSERT( tt3 != 0 );
@@ -435,7 +435,7 @@ void ActivitiesThreadTest::testThreadConfig()
     if ( tt->setPriority( 4 ) ) {
         CPPUNIT_ASSERT_EQUAL( tt->getPriority(), 4 );
 
-        // even if the priority was changed after construction, 
+        // even if the priority was changed after construction,
         // the thread can be found:
         CPPUNIT_ASSERT( tt == TimerThread::Instance(4,0.0123) );
     }
@@ -451,7 +451,7 @@ void ActivitiesThreadTest::testThreadConfig()
     CPPUNIT_ASSERT( tt->setScheduler(ORO_SCHED_OTHER) == false );
     Logger::log().setLogLevel( ll );
     CPPUNIT_ASSERT( tt->setPeriod(0.3) == false );
-    
+
     // reconfigure periodicity
     CPPUNIT_ASSERT( tt->stop() );
     CPPUNIT_ASSERT( tt->setPeriod(0.3) );
@@ -521,5 +521,5 @@ void ActivitiesThreadTest::testRemoveAllocate()
 {
     CPPUNIT_ASSERT( t_task_np->run( 0 ) );
 }
-    
+
 

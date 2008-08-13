@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Mar 2 08:30:17 CET 2006  ConnectionFactory.hpp 
+  tag: Peter Soetens  Thu Mar 2 08:30:17 CET 2006  ConnectionFactory.hpp
 
                         ConnectionFactory.hpp -  description
                            -------------------
     begin                : Thu March 02 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_EXECUTION_CONNECTION_FACTORY_HPP
 #define ORO_EXECUTION_CONNECTION_FACTORY_HPP
 
@@ -58,16 +58,16 @@ namespace RTT
     class ConnectionFactory
     {
     public:
-        /** 
+        /**
          * Create an empty Buffered data connection.
-         * 
+         *
          * @param size The maximum capacity of the connnection's buffer
          * @param initial_value The initial value of all elements within
          * the buffer. Use this parameter if the data uses dynamic memory
          * or requires an initial state.
          * @param type The connection type: lock based or lock-free. The
          * latter is highly advised.
-         * 
+         *
          * @return a new connection object
          * @see BufferInterface for a look at the internal buffer structure
          * @see ReadBufferPort, WriteBufferPort, BufferPort for ports to which this
@@ -75,15 +75,15 @@ namespace RTT
          */
         BufferConnection<T>* createBuffer(int size, const T& initial_value = T(), ConnectionTypes::ConnectionType type = ConnectionTypes::lockfree);
 
-        /** 
+        /**
          * Create an empty unbuffered data connection.
-         * 
+         *
          * @param initial_value The initial value of all elements within
          * the buffer. Use this parameter if the data uses dynamic memory
          * or requires an initial state.
          * @param type The connection type: lock based or lock-free. The
          * latter is highly advised.
-         * 
+         *
          * @return a new connection object
          * @see DataObjectInterface for a look at the internal data sharing structure
          * @see ReadDataPort, WriteDataPort for ports to which this

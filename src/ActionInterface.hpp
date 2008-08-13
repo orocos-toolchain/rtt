@@ -57,7 +57,7 @@ namespace RTT {
      *
      * @section cc Copy versus clone semantics
      * @par Copy is used to copy a whole tree of actions,
-     * storing common information in web of \a DataSource's. 
+     * storing common information in web of \a DataSource's.
      * The DataSource 'web' will be copied such that an
      * entirely new action tree references the new DataSources.
      * @par When clone is used, the Datasources remain

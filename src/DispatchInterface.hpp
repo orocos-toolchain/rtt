@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:57 CEST 2006  DispatchInterface.hpp 
+  tag: Peter Soetens  Mon Jun 26 13:25:57 CEST 2006  DispatchInterface.hpp
 
                         DispatchInterface.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,11 +34,11 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_EXECUTION_DISPATCHINTERFACE_HPP
 #define ORO_EXECUTION_DISPATCHINTERFACE_HPP
- 
+
 #include "CommandInterface.hpp"
 #include "ConditionInterface.hpp"
 #include <boost/shared_ptr.hpp>
@@ -112,7 +112,7 @@ namespace RTT
 
         /**
          * Returns true if the command was valid, i.e. the command itself
-         * was executed and returned true. 
+         * was executed and returned true.
          */
         virtual bool valid() const = 0;
 

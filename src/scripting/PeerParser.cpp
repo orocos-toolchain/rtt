@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  PeerParser.cxx 
+  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  PeerParser.cxx
 
                         PeerParser.cxx -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "PeerParser.hpp"
 #include "parser-debug.hpp"
@@ -77,7 +77,7 @@ namespace RTT
             //std::cerr<<"Peerparser operating in "<<  context->getName()<<std::endl;
             mlastobject = "this";
 
-            // if size() > 1, it must be a peer 
+            // if size() > 1, it must be a peer
             while ( callqueue.size() > 0 && _peer->hasPeer( callqueue.front() ) ) {
                 //std::cerr<< _peer->getName() <<" has peer " << callqueue.front()<<std::endl;
                 _peer = _peer->getPeer( callqueue.front() );
@@ -127,7 +127,7 @@ namespace RTT
         {
             BOOST_SPIRIT_DEBUG_RULE( peerpath );
             BOOST_SPIRIT_DEBUG_RULE( peerlocator );
-            peerpath = 
+            peerpath =
                 ( +(commonparser.notassertingidentifier >> ".")[bind( &PeerParser::seenobjectname, this, _1, _2 ) ] )[bind(&PeerParser::done, this)];
 
             // find as far as possible a peer without throwing an exception
@@ -220,4 +220,4 @@ namespace RTT
     }
 
 }
-            
+

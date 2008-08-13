@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:25 CET 2008  Timer.hpp 
+  tag: FMTC  Tue Mar 11 21:49:25 CET 2008  Timer.hpp
 
                         Timer.hpp -  description
                            -------------------
     begin                : Tue March 11 2008
     copyright            : (C) 2008 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_RTT_TIMER_HPP
 #define ORO_RTT_TIMER_HPP
 
@@ -89,7 +89,7 @@ namespace RTT
         void loop();
 
         bool breakLoop();
-        
+
     public:
         /**
          * Create a timer object which can hold \a max_timers timers.
@@ -105,7 +105,7 @@ namespace RTT
         Timer(TimerId max_timers, int scheduler = -1, int priority = 0);
 
         ~Timer();
-            
+
         /**
          * This function is called each time an armed or periodic timer expires.
          * The user must implement this method to catch the time outs.
@@ -123,7 +123,7 @@ namespace RTT
          * Start a periodic timer which starts first over \a period
          * seconds and then every \a period seconds.
          * @param timer_id The number of the timer, starting from zero.
-         * @param period The period when the timer should expire. 
+         * @param period The period when the timer should expire.
          * This is a floating point number.
          * @see killTimer to disable it again.
          */

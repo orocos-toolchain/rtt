@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  AttributeRepository.hpp 
+  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  AttributeRepository.hpp
 
                         AttributeRepository.hpp -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ATTRIBUTEREPOSITORY_HPP
 #define ATTRIBUTEREPOSITORY_HPP
 
@@ -106,7 +106,7 @@ namespace RTT
         }
 
         /**
-         * Retrieve a Attribute by name. Returns zero if 
+         * Retrieve a Attribute by name. Returns zero if
          * no Attribute<T> by that name exists.
          * @example
            Attribute<double> d_attr = getAttribute<double>("Xval");
@@ -136,7 +136,7 @@ namespace RTT
         }
 
         /**
-         * Retrieve a Constant by name. Returns zero if 
+         * Retrieve a Constant by name. Returns zero if
          * no Constant<T> by that name exists.
          * @example
            Constant<double> d_const = getConstant<double>("Xconst");
@@ -176,7 +176,7 @@ namespace RTT
 
         /**
          * Get a pointer to the attribute with name \a name.  If no such value exists, this method
-         * returns 0. It can be used to retrieve added constants, 
+         * returns 0. It can be used to retrieve added constants,
          * attributes or data objects. Both Attribute and Constant
          * can work with this function.
          * @example
@@ -216,12 +216,12 @@ namespace RTT
          * @deprecated by getAttributes()
          */
         AttributeNames names() const;
-          
+
         /**
          * Return the names of all attributes in this repository.
          */
         AttributeNames getAttributes() const;
-          
+
         /**
          * Return a bag of all properties.
          * @return null if none present.
@@ -229,7 +229,7 @@ namespace RTT
          * AttributeRepository, but accessed using TaskContext::properties().
          */
         PropertyBag* properties() const;
-          
+
     };
 }
 

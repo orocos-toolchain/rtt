@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  DataSourceBase.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  DataSourceBase.hpp
 
                         DataSourceBase.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #ifndef CORELIB_DATASOURCE_BASE_HPP
 #define CORELIB_DATASOURCE_BASE_HPP
@@ -66,7 +66,7 @@ namespace RTT
    * DataSourceBase::shared_ptr or DataSource<T>::shared_ptr to deal
    * with cleanup of allocated DataSources. You are not allowed to delete
    * a DataSource. If you must have the pointer of a DataSource, use
-   * the \a .get() method of the \a shared_ptr class. 
+   * the \a .get() method of the \a shared_ptr class.
    *
    * Once a newly created DataSource is assigned to a \a shared_ptr,
    * it will be deleted when that pointer goes out of scope and is not
@@ -127,7 +127,7 @@ namespace RTT
       virtual bool evaluate() const = 0;
 
       /**
-       * In case the DataSource returns a 'reference' type, 
+       * In case the DataSource returns a 'reference' type,
        * call this method to notify it that the data was updated
        * in the course of an invocation of get().
        */
@@ -152,7 +152,7 @@ namespace RTT
 
       /**
        * Update \a part of the value of this DataSource with the value of an \a other DataSource.
-       * Update does a partial update of the value, according to \a part, which is 
+       * Update does a partial update of the value, according to \a part, which is
        * most likely an index or hash value of some type.
        * @return false if the DataSources are of different type OR if the
        * contents of this DataSource can not be partially updated.
@@ -161,7 +161,7 @@ namespace RTT
 
       /**
        * Generate a CommandInterface object which will partially update this DataSource
-       * with the value of another DataSource when execute()'ed. \a part is an index or 
+       * with the value of another DataSource when execute()'ed. \a part is an index or
        * hash value of some type.
        * @return zero if the DataSource types do not match OR if the
        * contents of this DataSource can not be partially updated.
@@ -218,7 +218,7 @@ namespace RTT
        * @see TypeInfo
        */
       bool decomposeType( PropertyBag& targetbag );
-            
+
       /**
        * Compose the contents of this object from another datasource.
        * @see TypeInfo
@@ -239,7 +239,7 @@ namespace RTT
        * DataSource. This \b does trigger the evaluation() of this
        * data source. Equivalent to this->evaluate(); this->createBlob();
        * @return a valid object or nill if this type is
-       * not supported. 
+       * not supported.
        */
       virtual void* getBlob(int protocol);
 
@@ -260,7 +260,7 @@ namespace RTT
 
       /**
        * Create an object server which 'mirrors' this DataSource.
-       * @return The existing server if serverProtocol() == \a protocol, or a 
+       * @return The existing server if serverProtocol() == \a protocol, or a
        * \a new server object reference otherwise.
        * @see Operations.idl
        */
@@ -268,7 +268,7 @@ namespace RTT
 
       /**
        * Create an object server which 'mirrors' this DataSource.
-       * @return The existing server if serverProtocol() == \a protocol, or a 
+       * @return The existing server if serverProtocol() == \a protocol, or a
        * \a new method object reference otherwise.
        * @see Operations.idl
        */

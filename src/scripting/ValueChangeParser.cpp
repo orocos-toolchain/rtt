@@ -47,7 +47,7 @@
 namespace RTT
 {
     using namespace detail;
-    
+
     using namespace std;
 
     using namespace boost;;
@@ -70,7 +70,7 @@ namespace RTT
 
 
     ValueChangeParser::ValueChangeParser( TaskContext* pc, OperationInterface* storage )
-        : type( 0 ), context( pc ), mstore( storage ? storage : pc ), 
+        : type( 0 ), context( pc ), mstore( storage ? storage : pc ),
           expressionparser( pc ), peerparser( pc ), sizehint(-1),
           typerepos( TypeInfoRepository::Instance() )
     {
@@ -95,9 +95,9 @@ namespace RTT
             "const"
             // the type
                 >> expect_type( type_name[bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
-                >> constdecl[bind( &ValueChangeParser::seenconstantdefinition, this )] 
+                >> constdecl[bind( &ValueChangeParser::seenconstantdefinition, this )]
                 >> *(ch_p(',') >> constdecl[bind( &ValueChangeParser::seenconstantdefinition, this )] );
-                                                                                   
+
 
         aliasdefinition =
             "alias"
@@ -114,8 +114,8 @@ namespace RTT
                 >> expect_type( type_name[bind( &ValueChangeParser::seentype, this, _1, _2 ) ])
                 >> vardecl[bind( &ValueChangeParser::seenvariabledefinition, this ) ]
                 >> *(ch_p(',') >> vardecl[bind( &ValueChangeParser::seenvariabledefinition, this ) ] );
-    
-        variableassignment = 
+
+        variableassignment =
             "set" >> expect_change(variablechange);
 
         /**
@@ -330,7 +330,7 @@ namespace RTT
 
         OperationInterface* peername = peerparser.taskObject();
         peerparser.reset();
- 
+
         // if bag is non-null, 'valuename' must be one of its properties :
         if ( propparser.bag() && propparser.property() ) {
             // propparser.property() is the Property<PropertyBag> of a nested bag() :
@@ -352,7 +352,7 @@ namespace RTT
                 // SIDENOTE: now, we must be sure that if this program gets copied,
                 // the DS still points to the peer's attribute, and not to a new copy. Attribute and Properties
                 // takes care of this by definition, but the variable of a loaded StateMachine or program
-                // must first get an instantiation-copy() before they become uncopyable. 
+                // must first get an instantiation-copy() before they become uncopyable.
                 if ( !var ) {
                     //DumpObject( context );
                     throw parse_exception_semantic_error(  "In "+context->getName()+": Attribute \"" + valuename + "\" not defined in task '"+peername->getName()+"'." );
@@ -416,7 +416,7 @@ namespace RTT
             else
                 return;
 #endif
-        } 
+        }
         if ( !index_ds && var) {
 #ifndef ORO_EMBEDDED
             try {
@@ -490,7 +490,7 @@ namespace RTT
     void ValueChangeParser::clear()
     {
         assigncommands.clear();
-    
+
         definedvalues.clear();
 
         definednames.clear();

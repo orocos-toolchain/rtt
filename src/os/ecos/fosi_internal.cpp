@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: 
+  tag:
 
                         fosi_internal.hpp -  description
                            -------------------
     begin                : Jan 21 2006
     copyright            : (C) 2006 Klaas Gadeyne
     email                : firstname lastname at fmtc be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -24,8 +24,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include <pkgconf/kernel.h>
 #include <pkgconf/os_ecos.h>
 #include "ThreadInterface.hpp"
@@ -35,7 +35,7 @@
 #include <iostream>
 #include <string>
 
-#define INTERNAL_QUAL 
+#define INTERNAL_QUAL
 
 namespace RTT
 {namespace OS {
@@ -53,18 +53,18 @@ namespace RTT
 	}
 
 
-    INTERNAL_QUAL int rtos_task_create(RTOS_TASK * task, 
+    INTERNAL_QUAL int rtos_task_create(RTOS_TASK * task,
 				       int priority,
 				       const char * name,
 				       int sched_type,
-				       void * (*start_routine)(void *), 
+				       void * (*start_routine)(void *),
 				       ThreadInterface* obj) {
       /* sched_type is unused in eCos */
       // Allocate room for threads name
       if ( strlen(name) == 0 )
           name = "Thread";
       task->name = strcpy( (char*)malloc( (strlen(name) + 1) * sizeof(char)), name);
-      
+
       // Allocate necessary stack...
       task->stack = (char *)malloc(OROSEM_OS_ECOS_STACK_SIZE);
 
@@ -207,7 +207,7 @@ namespace RTT
               return 0;
           return -1;
       }
-      
+
       INTERNAL_QUAL int rtos_task_get_scheduler(const RTOS_TASK* mytask) {
           return SCHED_ECOS_FIFO;
       }
@@ -222,7 +222,7 @@ namespace RTT
         return 0;
     }
 
-      INTERNAL_QUAL int rtos_task_check_priority(int* scheduler, int* priority) 
+      INTERNAL_QUAL int rtos_task_check_priority(int* scheduler, int* priority)
       {
           int ret = 0;
           ret = rtos_task_check_scheduler(&scheduler);
@@ -231,11 +231,11 @@ namespace RTT
 
           return ret;
       }
-          
-          
-          
 
-    
+
+
+
+
 
   }
 }}

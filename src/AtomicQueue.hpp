@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  AtomicQueue.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  AtomicQueue.hpp
 
                         AtomicQueue.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,11 +34,11 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_QUEUE_LOCK_FREE_HPP
 #define ORO_QUEUE_LOCK_FREE_HPP
- 
+
 #include <vector>
 #include "os/oro_atomic.h"
 #include "os/CAS.hpp"
@@ -57,7 +57,7 @@ namespace RTT
      * @param ReadPolicy The Policy to block (wait) on \a empty (during dequeue)
      * using \a BlockingPolicy, or to return \a false, using \a NonBlockingPolicy (Default).
      * This does not influence partial filled queue behaviour.
-     * @param WritePolicy The Policy to block (wait) on \a full (during enqueue), 
+     * @param WritePolicy The Policy to block (wait) on \a full (during enqueue),
      * using \a BlockingPolicy, or to return \a false, using \a NonBlockingPolicy (Default).
      * This does not influence partial filled buffer behaviour.
      * @ingroup CoreLibBuffers
@@ -66,7 +66,7 @@ namespace RTT
     class AtomicQueue
     {
     public:
-        /** 
+        /**
          * @brief The maximum number of threads.
          *
          * The number of threads which may concurrently access this buffer.

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  CommandProcessor.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  CommandProcessor.hpp
 
                         CommandProcessor.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #ifndef ORO_COMMAND_PROCESSOR_HPP
 #define ORO_COMMAND_PROCESSOR_HPP
@@ -104,7 +104,7 @@ namespace RTT
          *
          * @return The command number. You can check if the given command was processed
          * by calling CommandProcessor::isProcessed( command id ). The command number is reset to one
-         * each time the CommandProcessor is (re-)started. 
+         * each time the CommandProcessor is (re-)started.
          * @return 0 when the CommandProcessor is not running or does not accept commands.
          * @see isProcessed, acceptCommands
          */

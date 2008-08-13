@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:19 CET 2004  PropertyIntrospection.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:19 CET 2004  PropertyIntrospection.hpp
 
                         PropertyIntrospection.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef PI_PROPERTYINTROSPECTION_HPP
 #define PI_PROPERTYINTROSPECTION_HPP
 
@@ -53,7 +53,7 @@ namespace RTT
      * A class which implements this interface can call
      * <tt>bag.identify( this );</tt>. For each property,
      * introspect(PropertyBase* p) is called, unless
-     * the property contains a bag, then 
+     * the property contains a bag, then
      * introspect(Property<PropertyBag>& p) is called,
      * upon which you may call identify again on it's value().
      * The marshallers use this technique.
@@ -78,7 +78,7 @@ namespace RTT
 
 	/**
 	 * An interface which all classes which wish to visit
-     * a Property should implement. When you call 
+     * a Property should implement. When you call
      * PropertyBase::identify( PropertyIntrospection* ), the object
      * will call one of below methods to expose its type to the caller.
 	 *
@@ -109,38 +109,38 @@ namespace RTT
          * @param v The property to be introspectd.
          */
         virtual void introspect(Property<bool> &v) = 0;
-			
+
         /**
          * introspect a property of type char.
          * @param v The property to be introspectd.
          */
         virtual void introspect(Property<char> &v) = 0;
-			
+
         /**
          * introspect a property of type int.
          * @param v The property to be introspectd.
          */
         virtual void introspect(Property<int> &v) = 0;
-			
+
         /**
          * introspect a property of type unsigned int.
          * @param v The property to be introspectd.
          */
         virtual void introspect(Property<unsigned int> &v) = 0;
-			
+
         /**
          * introspect a property of type double.
          * @param v The property to be introspectd.
          */
         virtual void introspect(Property<double> &v) = 0;
-			
+
         /**
          * introspect a property of type string.
          * @param v The property to be introspectd.
          */
         virtual void introspect(Property<std::string> &v) = 0;
 
-        /** 
+        /**
          * Unknown types must decompose theirselves into the primitives.
          * @see TemplateTypeInfo
          */

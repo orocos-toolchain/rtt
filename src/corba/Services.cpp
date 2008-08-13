@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:21 CET 2006  Services.cpp 
+  tag: FMTC  do nov 2 13:06:21 CET 2006  Services.cpp
 
                         Services.cpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include "Services.hpp"
 #include "ApplicationServer.hpp"
 #include "Logger.hpp"
@@ -48,7 +48,7 @@
 #include <orbsvcs/CosEvent/CEC_Default_Factory.h>
 #endif
 
-namespace RTT 
+namespace RTT
 { namespace Corba {
 
     bool Services::MayShutdown = true;
@@ -95,7 +95,7 @@ namespace RTT
             } catch (...) {
                 log(Error) << "Exception during resolving of Notification service." <<endlog();
             }
-                
+
             if (CORBA::is_nil( obj ) ) {
                 log(Error) << "Could not locate Notification service." <<endlog();
                 return 0;
@@ -130,13 +130,13 @@ namespace RTT
 
         // create a default channel, use the Root POA.
         TAO_CEC_EventChannel_Attributes attributes(ControlTaskProxy::ProxyPOA(), ControlTaskProxy::ProxyPOA() );
-        
+
         TAO_CEC_EventChannel* ec = new TAO_CEC_EventChannel( attributes, new TAO_CEC_Default_Factory(), 1 );
 
         log(Info) << "Created a TAO_CEC_EventChannel." << endlog();
         // implicitly activate it.
         return ec->_this();
     }
-#endif    
+#endif
 
 }}

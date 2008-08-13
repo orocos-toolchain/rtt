@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:41 CET 2006  template_factory_test.cpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:41 CET 2006  template_factory_test.cpp
 
                         template_factory_test.cpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "template_factory_test.hpp"
 #include <unistd.h>
@@ -39,7 +39,7 @@ using namespace std;
 CPPUNIT_TEST_SUITE_REGISTRATION( Template_FactoryTest );
 
 
-void 
+void
 Template_FactoryTest::setUp()
 {
     tc =  new TaskContext( "root" );
@@ -55,7 +55,7 @@ Template_FactoryTest::setUp()
 }
 
 
-void 
+void
 Template_FactoryTest::tearDown()
 {
 //     if ( tc->getPeer("programs") )
@@ -67,7 +67,7 @@ Template_FactoryTest::tearDown()
     delete event_proc;
 }
 
-bool Template_FactoryTest::assertBool( bool b) { 
+bool Template_FactoryTest::assertBool( bool b) {
     return b;
 }
 
@@ -307,7 +307,7 @@ void Template_FactoryTest::testEventC()
     CPPUNIT_ASSERT_EQUAL( float(0.0),  float_sub );
 
     CompletionProcessor::Instance()->start();
-    
+
     h1.disconnect();
     h2.disconnect();
     float_sum = 0;

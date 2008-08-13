@@ -35,7 +35,7 @@
 
 namespace RTT
 {
-    /** 
+    /**
      * The AxisInterface  represents an axis from a control
      * point of view
      * @ingroup DeviceInterface
@@ -99,7 +99,7 @@ namespace RTT
          * @brief Get the enable signal of the Axis as a DigitalOutput.
          */
         virtual DigitalOutput* getEnable() = 0;
-  
+
         /**
          * @brief Retrieve a sensor from the Axis.
          */
@@ -109,7 +109,7 @@ namespace RTT
          * @brief Retrieve a list of the sensor from the Axis.
          */
         virtual std::vector<std::string> sensorList() const = 0;
-  
+
         /**
          * @brief Retrieve a switch (digital input) from the Axis.
          */
@@ -119,7 +119,7 @@ namespace RTT
          * @brief Retrieve a list of the digital input switches from the Axis.
          */
         virtual std::vector<std::string> switchList() const = 0;
-  
+
         /**
          * @brief Retrieve a counter from the Axis.
          */
@@ -129,7 +129,7 @@ namespace RTT
          * @brief Retrieve a list of the counter from the Axis.
          */
         virtual std::vector<std::string> counterList() const = 0;
-  
+
     };
 
 

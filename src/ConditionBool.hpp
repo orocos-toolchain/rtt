@@ -44,7 +44,7 @@
 namespace RTT
 {
 
-    
+
 
 
     class ConditionBool :

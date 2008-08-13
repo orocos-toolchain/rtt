@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 10 15:59:51 CET 2005  buffers_test.cpp 
+  tag: Peter Soetens  Mon Jan 10 15:59:51 CET 2005  buffers_test.cpp
 
                         buffers_test.cpp -  description
                            -------------------
     begin                : Mon January 10 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "buffers_test.hpp"
 #include <unistd.h>
@@ -31,7 +31,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( BuffersTest );
 using namespace RTT;
 
 struct Dummy {
-    Dummy(double a = 0.0, double b =1.0, double c=2.0) 
+    Dummy(double a = 0.0, double b =1.0, double c=2.0)
         :d1(a), d2(b), d3(c) {}
     double d1;
     double d2;
@@ -58,7 +58,7 @@ struct Dummy {
 //         d3 = d.d3;
 //         return *this;
 //     }
-        
+
 };
 
     std::ostream& operator<<( std::ostream& os, const Dummy& d )  {
@@ -68,7 +68,7 @@ struct Dummy {
 
 #define QS 10
 
-void 
+void
 BuffersTest::setUp()
 {
     aqueue = new AtomicQueue<Dummy*>(QS);
@@ -89,7 +89,7 @@ BuffersTest::setUp()
 }
 
 
-void 
+void
 BuffersTest::tearDown()
 {
     aqueue->clear();
@@ -100,7 +100,7 @@ BuffersTest::tearDown()
     delete dataobj;
 
     //delete mslist;
-    
+
     delete listlockfree;
 
     delete mpool;
@@ -379,7 +379,7 @@ void BuffersTest::testDObjLockFree()
     dataobj->Set( *c );
     CPPUNIT_ASSERT_EQUAL( *c, dataobj->Get() );
     int i = 0;
-    while ( i != 3.5*DataObjectLockFree<Dummy>::MAX_THREADS ) { 
+    while ( i != 3.5*DataObjectLockFree<Dummy>::MAX_THREADS ) {
         dataobj->Set( *c );
         dataobj->Set( d );
         ++i;
@@ -516,7 +516,7 @@ void BuffersTest::testSortedList()
     // 7 elements.
     mslist->reserve(7);
     CPPUNIT_ASSERT( mslist->empty() );
-    
+
     // empty list has no keys.
     CPPUNIT_ASSERT( mslist->hasKey(Dummy()) == false );
 
@@ -549,7 +549,7 @@ void BuffersTest::testSortedList()
 
     CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,7)) == true );
     CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,7)) == false );
-    
+
     CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,4)) == true );
     CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,4)) == false );
 
@@ -566,13 +566,13 @@ void BuffersTest::testSortedList()
     CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,3)) == true );
     CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,5)) == true );
     CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,6)) == true );
-    
+
     CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,1)) == true );
     CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,6)) == true );
     CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,5)) == true );
     CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,2)) == true );
     CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,3)) == true );
-    
+
     CPPUNIT_ASSERT( mslist->empty() );
 }
 #endif
@@ -585,7 +585,7 @@ struct LLFWorker : public RTT::OS::RunnableInterface
     int i;
     int appends;
     int erases;
-    LLFWorker(T* l ) : stop(false), mlst(l), i(1) {} 
+    LLFWorker(T* l ) : stop(false), mlst(l), i(1) {}
     bool initialize() {
         stop = false; i = 1;
         appends = 0; erases = 0;
@@ -615,7 +615,7 @@ struct LLFGrower : public RTT::OS::RunnableInterface
     typedef ListLockFree<Dummy> T;
     T* mlst;
     int i;
-    LLFGrower(T* l ) : stop(false), mlst(l), i(1) {} 
+    LLFGrower(T* l ) : stop(false), mlst(l), i(1) {}
     bool initialize() {
         stop = false; i = 1;
         return true;
@@ -649,7 +649,7 @@ void BuffersTest::testListLockFree()
         boost::scoped_ptr<SingleThread> bthread( new SingleThread(20,"ThreadB", bworker ));
         boost::scoped_ptr<SingleThread> cthread( new SingleThread(20,"ThreadC", cworker ));
         boost::scoped_ptr<SingleThread> gthread( new SingleThread(20,"ThreadG", grower ));
-    
+
         // avoid system lock-ups
         athread->setScheduler(ORO_SCHED_OTHER);
         bthread->setScheduler(ORO_SCHED_OTHER);
@@ -665,7 +665,7 @@ void BuffersTest::testListLockFree()
         sleep(1);
         gthread->stop();
         sleep(1);
-    
+
         athread->stop();
         bthread->stop();
         cthread->stop();
@@ -704,7 +704,7 @@ struct AQWorker : public RTT::OS::RunnableInterface
     T* mlst;
     int appends;
     int erases;
-    AQWorker(T* l ) : stop(false), mlst(l),appends(0), erases(0) {} 
+    AQWorker(T* l ) : stop(false), mlst(l),appends(0), erases(0) {}
     bool initialize() {
         stop = false;
         appends = 0; erases = 0;
@@ -737,7 +737,7 @@ struct AQGrower : public RTT::OS::RunnableInterface
     typedef QueueType T;
     T* mlst;
     int i;
-    AQGrower(T* l ) : stop(false), mlst(l), i(0) {} 
+    AQGrower(T* l ) : stop(false), mlst(l), i(0) {}
     bool initialize() {
         stop = false; i = 0;
         return true;
@@ -775,7 +775,7 @@ void BuffersTest::testAtomicQueue()
         boost::scoped_ptr<SingleThread> bthread( new SingleThread(20,"ThreadB", bworker ));
         boost::scoped_ptr<SingleThread> cthread( new SingleThread(20,"ThreadC", cworker ));
         boost::scoped_ptr<SingleThread> gthread( new SingleThread(20,"ThreadG", grower ));
-    
+
         // avoid system lock-ups
         athread->setScheduler(ORO_SCHED_OTHER);
         bthread->setScheduler(ORO_SCHED_OTHER);
@@ -807,7 +807,7 @@ void BuffersTest::testAtomicQueue()
     //cout << "Left in Queue: "<< i <<endl;
 
     // assert: sum queues == sum dequeues
-    CPPUNIT_ASSERT( aworker->appends + bworker->appends + cworker->appends + grower->i 
+    CPPUNIT_ASSERT( aworker->appends + bworker->appends + cworker->appends + grower->i
                     == aworker->erases + bworker->erases + cworker->erases + i );
 
     delete aworker;

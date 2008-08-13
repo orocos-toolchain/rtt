@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 10 15:59:16 CET 2005  Logger.hpp 
+  tag: Peter Soetens  Mon Jan 10 15:59:16 CET 2005  Logger.hpp
 
                         Logger.hpp -  description
                            -------------------
     begin                : Mon January 10 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_CORELIB_lOGGER_HPP
 #define ORO_CORELIB_lOGGER_HPP
 
@@ -51,21 +51,21 @@
 #include <iostream>            // for std::cerr
 #endif
 
-namespace RTT 
+namespace RTT
 {
     /**
-     * A simple logging class to debug/ analyse what is 
+     * A simple logging class to debug/ analyse what is
      * going on in the Orocos system. You MUST NOT use this
      * logger in a HARD realtime task or thread.
      *
      * You can disable all logging at compile time by
      * defining \a OROBLD_DISABLE_LOGGING (not advised for normal usage).
-     * This class can log to a console, and/or to a file and/or to an 
+     * This class can log to a console, and/or to a file and/or to an
      * internal buffer which may be emptied by another class. This
      * is decided upon compile time and can not be changed during runtime.
      * Both printf/iostream are supported.
      *
-     * Example Usage : 
+     * Example Usage :
      * @verbatim
      Logger::log() << Logger::Error << "An error Occured !" << Logger::endl;
      Logger::log() << Logger::Debug << "All debug info ..." << Logger::endl;
@@ -76,7 +76,7 @@ namespace RTT
      * ( a file or std output ) with logToStream() and setStdStream(). Additionally,
      * an \a orocos.log  which is always logs
      * at log level 'Info'.
-     * 
+     *
      * If you set an environment variable \a ORO_LOGLEVEL=0..6, this value will be used
      * to determine the output level until overriden by the application (if so).
      * The \a ORO_LOGLEVEL has the same effect on the 'orocos.log' file, but can not lower it below "Info".
@@ -88,7 +88,7 @@ namespace RTT
      * to confirm this choice. AGAIN: THIS WILL BREAK REAL-TIME PERFORMANCE.
      * @ingroup CoreLib
      */
-    class Logger 
+    class Logger
     {
         class D;
         D* d;
@@ -195,7 +195,7 @@ namespace RTT
          * Delete the singleton logger.
          */
         static void Release();
-        
+
         /**
          * As Instance(), but more userfriendly.
          */
@@ -227,7 +227,7 @@ namespace RTT
          * Set the standard output stream. (default is cerr).
          */
         void setStdStream( std::ostream& stdos  );
-        
+
         /**
          * Send (user defined) data into this logger. All data with lower priority than
          * the current loglevel will be discarded. If any loglevel (thus in or out)
@@ -243,14 +243,14 @@ namespace RTT
         Logger& operator<<(LogLevel ll);
 
         /**
-         * Log a string. This is equivalent to the templated 
+         * Log a string. This is equivalent to the templated
          * operator<<, but reduces code size since it is compiled
          * only once.
          */
         Logger& operator<<(const std::string&);
 
         /**
-         * Log a text message. This is equivalent to the templated 
+         * Log a text message. This is equivalent to the templated
          * operator<<, but reduces code size since it is compiled
          * only once.
          */
@@ -285,9 +285,9 @@ namespace RTT
          * at least one line.
          */
         void logendl();
-        
+
         /**
-         * Add newline without flushing buffers. 
+         * Add newline without flushing buffers.
          * If you need to log a lot of lines, this is advised with
          * a flush or endl at the end.
          */
@@ -296,7 +296,7 @@ namespace RTT
     private:
         /**
          * Returns true if the next message will be logged.
-         * Returns false if the LogLevel is RealTime and 
+         * Returns false if the LogLevel is RealTime and
          * allowRealTime() was not called or if the logger
          * was not started.
          */
@@ -328,26 +328,26 @@ namespace RTT
      */
     static inline Logger& log(LoggerLevel ll) { return Logger::log(Logger::LogLevel(ll)); }
 
-    /** 
+    /**
      * Function to tell the logger that the log message ended.
      * Usage: log() << "Message" << endlog();
      */
     static inline Logger::LogFunction endlog() {return Logger::endl; }
 
-    /** 
-     * Function to tell the logger that the log message ended and 
+    /**
+     * Function to tell the logger that the log message ended and
      * specify the LoggerLevel of that message
      * Usage: log() << "Error Message" << endlog(Error);
      */
     static inline Logger::LogFunction endlog(LoggerLevel ll) { log(ll); return Logger::endl; }
 
-    /** 
+    /**
      * Function to tell the logger that a newline may be inserted in the log message.
      * Usage: log() << "Message on line 1" << nlog() << "Message on line 2" << endlog();
      */
     static inline Logger::LogFunction nlog() {return Logger::nl; }
 
-    /** 
+    /**
      * Function to tell the logger that the logs may be flushed.
      * Usage: log() << "Message on line 1" << flushlog();
      */

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:21 CET 2008  ScriptingAccessI.cpp 
+  tag: FMTC  Tue Mar 11 21:49:21 CET 2008  ScriptingAccessI.cpp
 
                         ScriptingAccessI.cpp -  description
                            -------------------
     begin                : Tue March 11 2008
     copyright            : (C) 2008 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 // -*- C++ -*-
 //
 // $Id$
@@ -63,7 +63,7 @@
 // Information about TAO is available at:
 //     http://www.cs.wustl.edu/~schmidt/TAO.html
 
-// TAO_IDL - Generated from 
+// TAO_IDL - Generated from
 // be/be_codegen.cpp:910
 
 #include "ScriptingAccessI.h"
@@ -125,7 +125,7 @@ void Orocos_ScriptingAccess_i::unloadProgram (
 }
 
 ::RTT::Corba::ScriptingAccess::ProgramNames * Orocos_ScriptingAccess_i::getPrograms (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -215,7 +215,7 @@ void Orocos_ScriptingAccess_i::unloadStateMachine (
 }
 
 ::RTT::Corba::ScriptingAccess::StateMachineNames * Orocos_ScriptingAccess_i::getStateMachines (
-    
+
   )
   ACE_THROW_SPEC ((
     CORBA::SystemException
@@ -302,5 +302,5 @@ CORBA::Long Orocos_ScriptingAccess_i::execute (
         return 0;
     Orocos_Command_i* com = new Orocos_Command_i( ret, mpoa.in() );
     return com->_this();
-    
+
 }

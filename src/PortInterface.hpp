@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Mar 2 08:30:18 CET 2006  PortInterface.hpp 
+  tag: Peter Soetens  Thu Mar 2 08:30:18 CET 2006  PortInterface.hpp
 
                         PortInterface.hpp -  description
                            -------------------
     begin                : Thu March 02 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_EXECUTION_PORT_INTERFACE_HPP
 #define ORO_EXECUTION_PORT_INTERFACE_HPP
 
@@ -47,7 +47,7 @@
 namespace RTT
 {
 
-    /** 
+    /**
      * A Port of a task is used to connect it with other tasks
      * using a Connector. The Connector can be a Buffer or a
      * DataObject.
@@ -58,7 +58,7 @@ namespace RTT
         friend class ConnectionInterface;
         std::string portname;
         PortInterface(const std::string& name);
-        
+
         /**
          * Connects this port to a connection object.
          * This function must test if this port is compatible with \a conn.
@@ -71,13 +71,13 @@ namespace RTT
          * outbound or both.
          */
         enum PortType { ReadPort, WritePort, ReadWritePort };
- 
+
         /**
          * This enum classifies the kind of data connections
 	 * that are available through ports: buffered or data
          */
         enum ConnectionModel { Buffered, Data };
- 
+
         virtual ~PortInterface();
 
         /**

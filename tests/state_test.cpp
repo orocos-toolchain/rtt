@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 10 15:59:51 CET 2005  state_test.cpp 
+  tag: Peter Soetens  Mon Jan 10 15:59:51 CET 2005  state_test.cpp
 
                         state_test.cpp -  description
                            -------------------
     begin                : Mon January 10 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include <rtt-config.h>
 #include "state_test.hpp"
@@ -45,7 +45,7 @@ StateTest::StateTest()
 {}
 
 
-void 
+void
 StateTest::setUp()
 {
     d_event = Event<void(double)>("d_event");
@@ -64,7 +64,7 @@ StateTest::setUp()
 }
 
 
-void 
+void
 StateTest::tearDown()
 {
     // if a test failed, we must still stop :
@@ -72,7 +72,7 @@ StateTest::tearDown()
 }
 
 
-bool StateTest::assertBool( bool b) { 
+bool StateTest::assertBool( bool b) {
     return b;
 }
 bool StateTest::assertMsg( bool b, const std::string& msg) {
@@ -242,10 +242,10 @@ void StateTest::testStateFailure()
         + "     do test.assert( test.i() != 1)\n" // fail if i == 1
         + " }\n"
         + " handle {\n"
-        + "     do test.assert( test.i != 2)\n" 
+        + "     do test.assert( test.i != 2)\n"
         + " }\n"
         + " exit {\n"
-        + "     do test.assert( test.i != 3)\n" 
+        + "     do test.assert( test.i != 3)\n"
         + " }\n"
         + " transitions {\n"
         + "     select FINI\n"
@@ -255,13 +255,13 @@ void StateTest::testStateFailure()
         + " }\n"
         + " final state FINI {\n"
         + " entry {\n"
-        + "     do test.assert( test.i != 4)\n" 
+        + "     do test.assert( test.i != 4)\n"
         + " }\n"
         + " handle {\n"
-        + "     do test.assert( test.i != 5)\n" 
+        + "     do test.assert( test.i != 5)\n"
         + " }\n"
         + " exit {\n"
-        + "     do test.assert( test.i != 6)\n" 
+        + "     do test.assert( test.i != 6)\n"
         + " }\n"
         + " transitions {\n"
         + "     select INIT\n"
@@ -277,7 +277,7 @@ void StateTest::testStateFailure()
 
         // assert that an error happened :
         CPPUNIT_ASSERT( gtc.engine()->states()->getStateMachineStatus("x") == StateMachine::Status::error );
-        
+
         this->finishState( &gtc, "x");
     }
 }
@@ -448,16 +448,16 @@ void StateTest::testStateTransitions()
         + "  } select TRANS_SHOULD_NOT_CHECK\n" // should never be reached.
         + "  if i == 10 then {\n"
         + "    set i = i + 1;\n" // execute this program
-        + "  } select TEST_ENTRY\n" 
+        + "  } select TEST_ENTRY\n"
         + " }\n"
         + " }\n"
         + " state TEST_ENTRY {\n" // test if entry was executed one time
         + " transitions {\n"
         + "  if k != i then {\n"
-        + "  } select RUN_FAILED\n" 
+        + "  } select RUN_FAILED\n"
         + "  if j != 1 then {\n"
-        + "  } select ENTRY_FAILED\n" 
-        + "  else select FINI\n" 
+        + "  } select ENTRY_FAILED\n"
+        + "  else select FINI\n"
         + " }\n"
         + " }\n"
         + " state TRANS_SHOULD_NOT_CHECK {\n" // failure state
@@ -485,11 +485,11 @@ void StateTest::testStateGlobalTransitions()
     string prog = string("StateMachine X {\n")
         + " var int gi = 0;\n" // transition counter
         + " transitions {\n"
-        
+
         + "  if gi < 5 then {\n"
         + "    set gi = gi + 1;\n" // execute this program
         + "  } select INIT\n" // test EXPLICIT transition to self: no entry/exit.
-        
+
         + "  if gi < 10 then {\n"
         + "    if gi < 5 then do test.assert(false);\n"
         + "    set gi = gi + 1;\n" // execute this program
@@ -498,7 +498,7 @@ void StateTest::testStateGlobalTransitions()
         + "   do test.assert(false);\n"
         + "  } select TRANS_SHOULD_NOT_CHECK\n" // should never be reached.
         + "  if gi >= 10 then {\n"
-        + "  } select FINI\n" // we must be checked before 
+        + "  } select FINI\n" // we must be checked before
         + " }\n"
         + " initial state INIT {\n"
         + " var int i = 0;\n" // transition counter
@@ -861,7 +861,7 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     // Alternative way: test ScriptingAccess as well.
     try {
         tc->scripting()->loadStateMachines( prog, std::string("state_test.cpp"), true );
-    } 
+    }
     catch( const file_parse_exception& exc )
         {
             CPPUNIT_ASSERT_MESSAGE( exc.what(), false );
@@ -968,5 +968,5 @@ void StateTest::finishState(TaskContext* tc, std::string prog_name)
 
 }
 
-    
+
 

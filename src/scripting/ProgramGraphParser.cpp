@@ -51,8 +51,8 @@ namespace RTT
 {
   using namespace boost;
   using namespace detail;
-  
-  
+
+
 
     namespace {
         assertion<std::string> expect_opencurly("Open curly brace '{' expected.");
@@ -73,7 +73,7 @@ namespace RTT
 
   ProgramGraphParser::ProgramGraphParser( iter_t& positer, TaskContext* t)
       : rootc( t ),context( 0 ), fcontext(0), mpositer( positer ),
-        mcallfunc(), 
+        mcallfunc(),
         implcond(0), mcondition(0), try_cond(0),
         conditionparser( rootc ),
         commandparser( rootc, true ), // as_action == true
@@ -192,11 +192,11 @@ namespace RTT
     dostatement =
         (str_p( "do" ) [ bind( &ProgramGraphParser::startofnewstatement, this, "do" ) ]
          >> (expect_command ( commandparser.parser()[ bind( &ProgramGraphParser::seencommandcall, this ) ] )
-             >> *andpart)[bind( &ProgramGraphParser::seencommands, this )] >> !terminationpart 
+             >> *andpart)[bind( &ProgramGraphParser::seencommands, this )] >> !terminationpart
          ) [ bind( &ProgramGraphParser::seendostatement, this ) ];
 
     // a try statement: "try xxx <and y> <and...> until { terminationclauses } catch { stuff to do once on any error} "
-    trystatement = 
+    trystatement =
         (str_p("try") [ bind(&ProgramGraphParser::startofnewstatement, this, "try")]
          >> (expect_command ( commandparser.parser()[ bind( &ProgramGraphParser::seencommandcall, this ) ] )
              >> *andpart)[bind( &ProgramGraphParser::seencommands, this )] >> !terminationpart
@@ -204,7 +204,7 @@ namespace RTT
          >> !catchpart;
 
   }
-  
+
     void ProgramGraphParser::initBodyParser(const std::string& name, OperationInterface* stck, int offset) {
         ln_offset = offset;
         assert(program_builder != 0 );
@@ -222,7 +222,7 @@ namespace RTT
         // store the variables in the program's taskcontext object.
         valuechangeparser.store( context );
         valuechangeparser.reset();
-        
+
         // Fake a 'return' statement at the last line.
         program_builder->returnFunction( new ConditionTrue, mpositer.get_position().line - ln_offset );
         program_builder->proceedToNext( mpositer.get_position().line - ln_offset);
@@ -689,9 +689,9 @@ namespace RTT
       // set the program text in each function :
       for (funcmap::iterator it= mfuncs.begin();it!=mfuncs.end();++it) {
           it->second->setText( program_text );      // set text.
-          function_list.push_back( it->second ); 
+          function_list.push_back( it->second );
       }
-      
+
       this->cleanup();
       return function_list;
     }
@@ -804,7 +804,7 @@ namespace RTT
         // See : adding implicit term condition if no if .. then branches were defined.
         implcond = new ConditionBinaryCompositeOR( tryresult->clone(), implcond );
     }
-        
+
     program_builder->setCommand( compcmnd ); // this deletes the old command (hence the clone) !
 
     implcond_v.push_back( implcond );

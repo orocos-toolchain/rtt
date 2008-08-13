@@ -13,16 +13,16 @@
 //------------------------------------------------------------------------------
 namespace boost {
 //------------------------------------------------------------------------------
-namespace function_types 
+namespace function_types
 {
   namespace detail
   {
     template<typename S,typename K> struct class_impl
     { };
 
-    template<typename S> 
+    template<typename S>
     struct class_impl<S,member_function>
-      : mpl::at_c< S,1 > 
+      : mpl::at_c< S,1 >
     { };
   }
 

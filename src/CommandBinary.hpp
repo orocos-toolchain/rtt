@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  CommandBinary.hpp 
+  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  CommandBinary.hpp
 
                         CommandBinary.hpp -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_COMMANDBINARY_HPP
 #define ORO_COMMANDBINARY_HPP
 
@@ -44,7 +44,7 @@
 
 namespace RTT
 {
-    
+
 
     struct CommandBinary : public CommandInterface
     {
@@ -86,14 +86,14 @@ namespace RTT
 
 #endif
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  CommandBinary.hpp 
+  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  CommandBinary.hpp
 
                         CommandBinary.hpp -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -121,8 +121,8 @@ namespace RTT
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_COMMANDBINARY_HPP
 #define ORO_COMMANDBINARY_HPP
 
@@ -131,7 +131,7 @@ namespace RTT
 
 namespace RTT
 {
-    
+
 
     struct CommandBinary : public CommandInterface
     {

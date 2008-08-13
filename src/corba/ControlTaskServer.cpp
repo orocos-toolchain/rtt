@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:09:49 CET 2006  ControlTaskServer.cxx 
+  tag: Peter Soetens  Wed Jan 18 14:09:49 CET 2006  ControlTaskServer.cxx
 
                         ControlTaskServer.cxx -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "ControlTaskServer.hpp"
 #include "ControlTaskProxy.hpp"
@@ -71,7 +71,7 @@ namespace RTT
         try {
             CORBA::Object_var rootObj = orb->resolve_initial_references("NameService");
             CosNaming::NamingContext_var rootNC = CosNaming::NamingContext::_narrow(rootObj.in());
-            
+
             if (CORBA::is_nil( rootNC.in() ) ) {
                 log(Warning) << "ControlTask '"<< mtaskcontext->getName() << "' could not find CORBA Naming Service."<<endlog();
             } else {
@@ -95,7 +95,7 @@ namespace RTT
   }
 
 
-  
+
 
     ControlTaskServer::ControlTaskServer(TaskContext* taskc, bool use_naming)
       :mtaskcontext(taskc), muse_naming(use_naming)
@@ -111,7 +111,7 @@ namespace RTT
             PortableServer::POAManager_var poa_manager =
                 poa->the_POAManager ();
 
-            //poa = POAUtility::create_basic_POA( poa, poa_manager, taskc->getName().c_str(), 0, 1); 
+            //poa = POAUtility::create_basic_POA( poa, poa_manager, taskc->getName().c_str(), 0, 1);
             //            poa_manager->activate ();
 
             // TODO : Use a better suited POA than create_basic_POA, use the 'session' or so type
@@ -119,7 +119,7 @@ namespace RTT
             // The POA for the Server's objects:
 //             PortableServer::POA_var objpoa = POAUtility::create_basic_POA(poa,
 //                                                               poa_manager,
-//                                                               std::string(taskc->getName() + "OBJPOA").c_str(), 
+//                                                               std::string(taskc->getName() + "OBJPOA").c_str(),
 //                                                               0, 0); // Not persistent, allow implicit.
 
             // The servant : TODO : cleanup servant in destructor !
@@ -139,7 +139,7 @@ namespace RTT
                     rootObj = orb->resolve_initial_references("NameService");
                     rootNC = CosNaming::NamingContext::_narrow(rootObj.in());
                 } catch (...) {}
-            
+
                 if (CORBA::is_nil( rootNC.in() ) ) {
                     log(Warning) << "ControlTask '"<< taskc->getName() << "' could not find CORBA Naming Service."<<endlog();
                     log() <<"Writing IOR to 'std::cerr' and file '" << taskc->getName() <<".ior'"<<endlog();
@@ -191,7 +191,7 @@ namespace RTT
             else {
                 log(Info) <<"ControlTask '"<< taskc->getName() << "' is not using the CORBA Naming Service."<<endlog();
                 log() <<"Writing IOR to 'std::cerr' and file '" << taskc->getName() <<".ior'"<<endlog();
-                
+
                 // this part only publishes the IOR to a file.
                 CORBA::String_var ior = orb->object_to_string( mtask.in() );
                 std::cerr << ior.in() <<std::endl;
@@ -249,13 +249,13 @@ namespace RTT
         }
     }
 
-    void ControlTaskServer::ShutdownOrb(bool wait_for_completion) 
+    void ControlTaskServer::ShutdownOrb(bool wait_for_completion)
     {
         Logger::In in("ShutdownOrb");
         DoShutdownOrb(wait_for_completion);
     }
 
-    void ControlTaskServer::DoShutdownOrb(bool wait_for_completion) 
+    void ControlTaskServer::DoShutdownOrb(bool wait_for_completion)
     {
         if ( CORBA::is_nil(orb) ) {
             log(Error) << "Orb Shutdown...failed! Orb is nil." << endlog();

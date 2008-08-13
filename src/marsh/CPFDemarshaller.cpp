@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Apr 5 16:53:25 CEST 2005  CPFDemarshaller.cxx 
+  tag: Peter Soetens  Tue Apr 5 16:53:25 CEST 2005  CPFDemarshaller.cxx
 
                         CPFDemarshaller.cxx -  description
                            -------------------
     begin                : Tue April 05 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "marsh/CPFDemarshaller.hpp"
 #include "marsh/CPFDTD.hpp"
@@ -151,7 +151,7 @@ namespace RTT
                             if ( value_string.length() != 1 )
                                 throw SAXException(std::string("Wrong value for property '"+type+"'." \
                                                                " Value should contain a single character, got '"+ value_string +"'.").c_str());
-                            else 
+                            else
                                 bag_stack.top().first->add
                                     ( new Property<char>( name, description, value_string[0] ) );
                         }
@@ -159,11 +159,11 @@ namespace RTT
                             if ( value_string.length() != 1 )
                                 throw SAXException(std::string("Wrong value for property '"+type+"'." \
                                                                " Value should contain a single unsigned character, got '"+ value_string +"'.").c_str());
-                            else 
+                            else
                                 bag_stack.top().first->add
                                     ( new Property<unsigned char>( name, description, value_string[0] ) );
                         }
-                        else if ( type == "long" || type == "short") 
+                        else if ( type == "long" || type == "short")
                         {
                             int v;
                             if ( sscanf(value_string.c_str(), "%d", &v) == 1)
@@ -172,7 +172,7 @@ namespace RTT
                                 throw SAXException(std::string("Wrong value for property '"+type+"'." \
                                                                " Value should contain an integer value, got '"+ value_string +"'.").c_str());
                         }
-                        else if ( type == "ulong" || type == "ushort") 
+                        else if ( type == "ulong" || type == "ushort")
                         {
                             unsigned int v;
                             if ( sscanf(value_string.c_str(), "%u", &v) == 1)
@@ -181,7 +181,7 @@ namespace RTT
                                 throw SAXException(std::string("Wrong value for property '"+type+"'." \
                                                                " Value should contain an integer value, got '"+ value_string +"'.").c_str());
                         }
-                        else if ( type == "double") 
+                        else if ( type == "double")
                         {
                             double v;
                             if ( sscanf(value_string.c_str(), "%lf", &v) == 1 )
@@ -191,7 +191,7 @@ namespace RTT
                                 throw SAXException(std::string("Wrong value for property '"+type+"'." \
                                                                " Value should contain a double value, got '"+ value_string +"'.").c_str());
                         }
-                        else if ( type == "float") 
+                        else if ( type == "float")
                         {
                             float v;
                             if ( sscanf(value_string.c_str(), "%f", &v) == 1 )
@@ -201,7 +201,7 @@ namespace RTT
                                 throw SAXException(std::string("Wrong value for property '"+type+"'." \
                                                                " Value should contain a float value, got '"+ value_string +"'.").c_str());
                         }
-                        else if ( type == "string") 
+                        else if ( type == "string")
                             bag_stack.top().first->add
                             ( new Property<std::string>( name, description, value_string ) );
                         tag_stack.pop();
@@ -254,7 +254,7 @@ namespace RTT
                 if ( ln == "properties" )
                     tag_stack.push( TAG_PROPERTIES );
                 else
-                    if ( ln == "simple" ) 
+                    if ( ln == "simple" )
                     {
 
                         tag_stack.push( TAG_SIMPLE );
@@ -262,7 +262,7 @@ namespace RTT
                         {
                             std::string an;
                             XMLChToStdString( attributes.getLocalName(ac), an );
-                            if ( an == "name") 
+                            if ( an == "name")
                             {
                                 XMLChToStdString( attributes.getValue(ac), name);
                             }
@@ -279,11 +279,11 @@ namespace RTT
                             {
                                 std::string an;
                                 XMLChToStdString( attributes.getLocalName(ac), an );
-                                if ( an == "name") 
+                                if ( an == "name")
                                 {
                                     XMLChToStdString( attributes.getValue(ac), name);
                                 }
-                                else if ( an == "type") 
+                                else if ( an == "type")
                                 {
                                     XMLChToStdString( attributes.getValue(ac), type);
                                 }
@@ -298,12 +298,12 @@ namespace RTT
 
                             Property<PropertyBag> *prop;
                             prop = new Property<PropertyBag>(name,"",PropertyBag(type));
-                            
+
                             // take reference to bag itself !
                             bag_stack.push(std::make_pair( &(prop->value()), prop));
                         }
                         else
-                                if ( ln == "description") 
+                                if ( ln == "description")
                                     tag_stack.push( TAG_DESCRIPTION );
                                 else
                                     if ( ln == "value"  )
@@ -388,7 +388,7 @@ namespace RTT
             {
                 Logger::log() << Logger::Error << "Failed to open file " <<filename << Logger::endl;
                 Logger::log() << Logger::Error << xe.getMessage() << Logger::endl;
-                
+
                 fis = 0;
             }
         catch ( ... )
@@ -403,7 +403,7 @@ namespace RTT
         delete fis;
         XMLPlatformUtils::Terminate();
     }
-    
+
     bool CPFDemarshaller::deserialize( PropertyBag &v )
     {
         if ( fis == 0 )

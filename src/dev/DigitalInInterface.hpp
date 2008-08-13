@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 10 16:16:56 CEST 2002  DigitalInInterface.hpp 
+  tag: Peter Soetens  Thu Oct 10 16:16:56 CEST 2002  DigitalInInterface.hpp
 
                         DigitalInInterface.hpp -  description
                            -------------------
     begin                : Thu October 10 2002
     copyright            : (C) 2002 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 
 #ifndef DIGITALININTERFACE_HPP
 #define DIGITALININTERFACE_HPP
@@ -58,7 +58,7 @@ namespace RTT
         /**
          * Construct a nameserved DigitalInInterface instance.
          * The object can then be retrieved using DigitalInInterface::nameserver .
-         * 
+         *
          * @param name
          *        The name which will refer to this instance.
          */
@@ -97,7 +97,7 @@ namespace RTT
              * @return true if the bit is low (0), false otherwise.
              */
             virtual bool isOff( unsigned int bit = 0) const = 0;
-            
+
             /**
              * Inspect a bit.
              *
@@ -115,13 +115,13 @@ namespace RTT
              *         where bit zero equals the value of \a start_bit.
              */
             virtual unsigned int readSequence(unsigned int start_bit, unsigned int stop_bit) const = 0;
-            
+
             /**
              * Returns the number of bits that can be read for
              * digital input.
              */
             virtual unsigned int nbOfInputs() const = 0;
-            
+
     };
 };
 

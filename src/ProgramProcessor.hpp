@@ -69,7 +69,7 @@ namespace RTT
      * ProgramInterface::execute() of all loaded programs in each step(). Within
      * the same step(), after all programs are executed, any loaded
      * function is executed. The functions are automatically unloaded
-     * when they are in error or finished. 
+     * when they are in error or finished.
      *
      * If you want to change this
      * policy, subclass the ProgramProcessor and override the virtual
@@ -104,7 +104,7 @@ namespace RTT
          * @deprecated by unloadProgram
          */
         bool deleteProgram(const std::string& name);
-        
+
         /**
          * Unload a program from this processor.
          * @throw program_unload_exception if the program is
@@ -133,7 +133,7 @@ namespace RTT
 
         /**
          * Run a given function in step() or loop(). The function may only
-         * be destroyed after isFunctionFinished() returns true,the 
+         * be destroyed after isFunctionFinished() returns true,the
          * Processor is stopped or removeFunction() was invoked. The number of functions the Processor can
          * run in parallel is set in its constructor argument \a queue_size. In
          * addition to that number, a queue of the same size is allocated for

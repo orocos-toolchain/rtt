@@ -1,5 +1,5 @@
 /***************************************************************************
- tag: Peter Soetens  Mon Jun 10 14:22:14 CEST 2002  Axis.hpp 
+ tag: Peter Soetens  Mon Jun 10 14:22:14 CEST 2002  Axis.hpp
 
                           HomingInterface.hpp -  description
                           -------------------
@@ -55,19 +55,19 @@ public:
     virtual ~HomingInterface();
 
     /**
-     * Returns true if a 'home switch event' has occurred 
+     * Returns true if a 'home switch event' has occurred
      * (e.g. a home switch pulsed or changed its state) since
      * the last reset.
      */
     virtual bool homingStatus() = 0;
 
-    
+
     /**
      * Sets the homingstatus to false.
      */
     virtual void resetHomingStatus() = 0;
 
-    
+
     /**
      * Returns the recommended drive value for coarse movement to
      * the home switch. If the axis is driven with this value,

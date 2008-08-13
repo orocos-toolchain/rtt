@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:25 CET 2008  TaskCore.cpp 
+  tag: FMTC  Tue Mar 11 21:49:25 CET 2008  TaskCore.cpp
 
                         TaskCore.cpp -  description
                            -------------------
     begin                : Tue March 11 2008
     copyright            : (C) 2008 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "TaskCore.hpp"
 #include "ExecutionEngine.hpp"
@@ -43,7 +43,7 @@
 
 namespace RTT
 {
-    
+
     using namespace std;
 
     TaskCore::TaskCore(const std::string& name, TaskState initial_state /*= Stopped*/ )
@@ -73,7 +73,7 @@ namespace RTT
         }
         // Note: calling cleanup() here has no use or even dangerous, as
         // cleanupHook() is a virtual function and the user code is already
-        // destroyed. The user's subclass is responsible to make this state 
+        // destroyed. The user's subclass is responsible to make this state
         // transition in its destructor if required.
     }
 
@@ -179,7 +179,7 @@ namespace RTT
 
     void TaskCore::cleanupHook() {
     }
-  
+
     bool TaskCore::isRunning() const {
         return mTaskState >= Running;
     }
@@ -213,10 +213,10 @@ namespace RTT
     bool TaskCore::configureHook() {
         return true;
     }
-        
+
     void TaskCore::errorHook() {
     }
-        
+
     bool TaskCore::startup()
     {
         return true;
@@ -257,7 +257,7 @@ namespace RTT
         // cleanup:
         if ( ee->getParent() == this )
             delete ee;
-        else 
+        else
             ee->removeChild(this);
         // set new:
         if ( engine ) {

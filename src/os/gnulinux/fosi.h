@@ -1,5 +1,5 @@
 /***************************************************************************
- tag: Peter Soetens  Mon Jun 10 14:42:55 CEST 2002  fosi.h 
+ tag: Peter Soetens  Mon Jun 10 14:42:55 CEST 2002  fosi.h
 
                        fosi.h -  description
                           -------------------
@@ -19,7 +19,7 @@
 
 /**
  * This file translates the FOSI (Framework Operating System Interface) from
- * orocos calls to native RTOS calls  
+ * orocos calls to native RTOS calls
  *
  * TODO : split in multiple files
  */
@@ -69,7 +69,7 @@ extern "C"
 
     TIME_SPEC periodMark;
     NANO_TIME period;
-  
+
     char* name;
 
     int priority;
@@ -96,11 +96,11 @@ extern "C"
         TIME_SPEC tv;
         clock_gettime(CLOCK_MONOTONIC, &tv);
         // we can not include the C++ Time.hpp header !
-#ifdef __cplusplus 
+#ifdef __cplusplus
         return NANO_TIME( tv.tv_sec ) * 1000000000LL + NANO_TIME( tv.tv_nsec );
 #else
         return ( NANO_TIME ) ( tv.tv_sec * 1000000000LL ) + ( NANO_TIME ) ( tv.tv_nsec );
-#endif 
+#endif
     }
 
     /**

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:18 CET 2006  CorbaBuffer.hpp 
+  tag: FMTC  do nov 2 13:06:18 CET 2006  CorbaBuffer.hpp
 
                         CorbaBuffer.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #ifndef ORO_CORBA_BUFFER_HPP
 #define ORO_CORBA_BUFFER_HPP
@@ -104,7 +104,7 @@ namespace RTT
             virtual CosEventChannelAdmin::EventChannel_ptr getChannel()
                 ACE_THROW_SPEC ((
                                  CORBA::SystemException
-                                 )) 
+                                 ))
             {
                 return CosEventChannelAdmin::EventChannel::_duplicate(mec);
             }
@@ -186,7 +186,7 @@ namespace RTT
                 ACE_THROW_SPEC ((
                                  CORBA::SystemException,
                                  ::CosEventComm::Disconnected
-                                 )) 
+                                 ))
             {
                 ReferenceDataSource<T> rds(  mimpl->front()  );
                 rds.ref();
@@ -258,12 +258,12 @@ namespace RTT
         virtual CosEventChannelAdmin::EventChannel_ptr getChannel()
             ACE_THROW_SPEC ((
                              CORBA::SystemException
-                             )) 
+                             ))
         {
             return CosEventChannelAdmin::EventChannel::_duplicate(mec);
         }
 
-        virtual CORBA::Long capacity() 
+        virtual CORBA::Long capacity()
             ACE_THROW_SPEC ((
                              CORBA::SystemException
                              ))
@@ -271,7 +271,7 @@ namespace RTT
             return mimpl->capacity();
         }
 
-        virtual CORBA::Long size() 
+        virtual CORBA::Long size()
             ACE_THROW_SPEC ((
                              CORBA::SystemException
                              ))
@@ -279,7 +279,7 @@ namespace RTT
             return mimpl->size();
         }
 
-        virtual void clear() 
+        virtual void clear()
             ACE_THROW_SPEC ((
                              CORBA::SystemException
                              ))
@@ -287,7 +287,7 @@ namespace RTT
             mimpl->clear();
         }
 
-        virtual CORBA::Boolean empty() 
+        virtual CORBA::Boolean empty()
             ACE_THROW_SPEC ((
                              CORBA::SystemException
                              ))
@@ -295,7 +295,7 @@ namespace RTT
             return mimpl->empty();
         }
 
-        virtual CORBA::Boolean full() 
+        virtual CORBA::Boolean full()
             ACE_THROW_SPEC ((
                              CORBA::SystemException
                              ))

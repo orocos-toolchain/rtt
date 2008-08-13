@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Jul 15 11:21:23 CEST 2004  parser-debug.hpp 
+  tag: Peter Soetens  Thu Jul 15 11:21:23 CEST 2004  parser-debug.hpp
 
                         parser-debug.hpp -  description
                            -------------------
     begin                : Thu July 15 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens at mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -45,7 +45,7 @@
  * Do not set BOOST_SPIRIT_DEBUG in a single file, this will
  * not work.
  */
-//#define BOOST_SPIRIT_DEBUG 
+//#define BOOST_SPIRIT_DEBUG
 #ifndef BOOST_SPIRIT_DEBUG_OUT
 #define BOOST_SPIRIT_DEBUG_OUT std::cerr
 #endif

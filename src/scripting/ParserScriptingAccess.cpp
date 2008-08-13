@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:57 CEST 2006  ParserScriptingAccess.cxx 
+  tag: Peter Soetens  Mon Jun 26 13:25:57 CEST 2006  ParserScriptingAccess.cxx
 
                         ParserScriptingAccess.cxx -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "ParserScriptingAccess.hpp"
 #include "StatementProcessor.hpp"
@@ -204,7 +204,7 @@ Use this object in order to load or query programs or state machines.");
       return exec;
 
     }
-    
+
     bool ParserScriptingAccess::loadPrograms( std::string file, bool do_throw /*= false*/ )
     {
         std::ifstream inputfile(file.c_str());
@@ -270,7 +270,7 @@ Use this object in order to load or query programs or state machines.");
           }
       // never reached
     }
-    
+
     bool ParserScriptingAccess::unloadProgram( string name, bool do_throw ){
         Logger::In in("ParserScriptingAccess::unloadProgram");
         try {
@@ -306,7 +306,7 @@ Use this object in order to load or query programs or state machines.");
       return this->loadStateMachines( text, file, do_throw );
     }
 
-    bool ParserScriptingAccess::loadStateMachines( string code, string filename, bool mrethrow ) 
+    bool ParserScriptingAccess::loadStateMachines( string code, string filename, bool mrethrow )
     {
         Logger::In in("ParserScriptingAccess::loadStateMachine");
         Parser parser;
@@ -356,12 +356,12 @@ Use this object in order to load or query programs or state machines.");
         // never reached
         return false;
     }
-    
+
     bool ParserScriptingAccess::unloadStateMachine( string name, bool do_throw ) {
         Logger::In in("ParserScriptingAccess::unloadStateMachine");
         try {
             Logger::log() << Logger::Info << "Unloading StateMachine '"<< name <<"'"<< Logger::endl;
-            if (mparent->engine()->states()->unloadStateMachine(name) == false) 
+            if (mparent->engine()->states()->unloadStateMachine(name) == false)
                 return false;
         } catch (program_unload_exception& e ) {
             Logger::log() << Logger::Error << "Could not unload StateMachine '"<< name <<"' :" << Logger::nl;

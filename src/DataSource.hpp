@@ -85,7 +85,7 @@ namespace RTT
        */
       typedef typename boost::remove_const<typename boost::remove_reference<T>::type>::type value_t;
       typedef T result_t;
-      
+
       typedef typename boost::intrusive_ptr<DataSource<T> > shared_ptr;
 
       typedef typename boost::intrusive_ptr<const DataSource<T> > const_ptr;

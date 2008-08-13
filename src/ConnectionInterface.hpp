@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Mar 2 08:30:17 CET 2006  ConnectionInterface.hpp 
+  tag: Peter Soetens  Thu Mar 2 08:30:17 CET 2006  ConnectionInterface.hpp
 
                         ConnectionInterface.hpp -  description
                            -------------------
     begin                : Thu March 02 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_EXECUTION_CONNECTION_INTERFACE_HPP
 #define ORO_EXECUTION_CONNECTION_INTERFACE_HPP
 
@@ -81,7 +81,7 @@ namespace RTT
      *  is connected() at the same time. If one tries to connect() a
      * connection in which one ore more subscribers are already participating
      * in the connection, the connect() method fails.
-     * 
+     *
      * @par Reference counting
      * ConnectionInterface objects are reference counted. That means that
      * if no object holds a pointer to this object, it will be destroyed.
@@ -92,7 +92,7 @@ namespace RTT
      * and BufferConnection classes have not been made thread-safe. This means that
      * multiple threads calling connect()/disconnect() on the same or related
      * connections may crash the system. Since connection setup is seen as
-     * an application configuration step, executed by a single configurator, 
+     * an application configuration step, executed by a single configurator,
      * Locking was not added. If this policy does not match your application setup,
      * write your own ConnectionInterface subclass, or submit a bug report.
      *
@@ -146,25 +146,25 @@ namespace RTT
          */
         virtual bool disconnect();
 
-        /** 
+        /**
          * Add a Port to the connection.
          * If this->connected(), also immediately connect \a p
          * to this connection.
-         * 
+         *
          * @param p A port which wants to read or write data from this connection.
-         * 
+         *
          * @return true if \a p has the correct type and could
          * be added
          */
         virtual bool addPort(PortInterface* p);
 
-        /** 
+        /**
          * Remove a Port from the connection.
          * If this->connected(), also immediately disconnect \a p
          * from this connection.
-         * 
+         *
          * @param p A port which no longer wants to read or write data from this connection.
-         * 
+         *
          * @return true if \a p was present.
          */
         virtual bool removePort(PortInterface* p);

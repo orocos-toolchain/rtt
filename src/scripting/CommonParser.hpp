@@ -44,7 +44,7 @@ namespace RTT { namespace detail
 
   /**
    * @brief This class contains some very common parser definitions.
-   * @todo check the identifier parser implementation of asserting when 
+   * @todo check the identifier parser implementation of asserting when
    * a keyword is wrongly used as an identifier. In current implementation
    * it almost never throws.
    */
@@ -68,7 +68,7 @@ namespace RTT { namespace detail
       rule_t notassertingidentifier;
       lexeme_rule_t lexeme_identifier;
       lexeme_rule_t lexeme_notassertingidentifier;
-      
+
       //@{
       /**
        * End Of Statement Parser. Identifies the end of a statement

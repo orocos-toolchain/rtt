@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Sat May 7 12:56:52 CEST 2005  PropertyCommands.hpp 
+  tag: Peter Soetens  Sat May 7 12:56:52 CEST 2005  PropertyCommands.hpp
 
                         PropertyCommands.hpp -  description
                            -------------------
     begin                : Sat May 07 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,11 +34,11 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
+
 #ifndef ORO_PROPERTY_HPP
 // #error "Do not include this file directly, but only through Property.hpp"
 #else
- 
+
 #ifndef ORO_CORELIB_PROPERTY_COMMANDS
 #define ORO_CORELIB_PROPERTY_COMMANDS
 

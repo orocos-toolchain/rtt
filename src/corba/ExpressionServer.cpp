@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  ExpressionServer.cxx 
+  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  ExpressionServer.cxx
 
                         ExpressionServer.cxx -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include "ExpressionServer.hpp"
 #include "ApplicationServer.hpp"
 #include "Logger.hpp"
@@ -44,7 +44,7 @@
 namespace RTT
 {namespace Corba
 {
-    
+
 
 
     ExpressionServer::EServantMap ExpressionServer::EServants;
@@ -126,7 +126,7 @@ namespace RTT
         }
         // now populate the map with the new clones:
         EServants.insert( sclone_map.begin(), sclone_map.end() );
-            
+
         /**
          * Update maps
          */

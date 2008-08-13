@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  CommandProcessor.cxx 
+  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  CommandProcessor.cxx
 
                         CommandProcessor.cxx -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include "CommandProcessor.hpp"
 #include <CommandInterface.hpp>
 #include <AtomicQueue.hpp>
@@ -45,7 +45,7 @@ namespace RTT
 {
 
     using namespace std;
-    
+
     using namespace OS;
 
     CommandProcessor::CommandProcessor(int queue_size)

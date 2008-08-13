@@ -41,7 +41,7 @@
 
 namespace RTT
 {
-    
+
 
 	VertexNode::VertexNode()
         : command( new CommandNOP ),

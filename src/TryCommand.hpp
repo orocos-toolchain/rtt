@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  TryCommand.hpp 
+  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  TryCommand.hpp
 
                         TryCommand.hpp -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_TRY_COMMAND_HPP
 #define ORO_TRY_COMMAND_HPP
 
@@ -44,10 +44,10 @@
 #include "Logger.hpp"
 #include "DataSource.hpp"
 
-namespace RTT 
+namespace RTT
 {
-    
-    
+
+
 
     /**
      * A command which tries another command
@@ -99,7 +99,7 @@ namespace RTT
     public:
         /**
          * Pass TryCommand::result() to the first parameter of the command
-         * you want to check. If \a invert is \a true, 
+         * you want to check. If \a invert is \a true,
          * TryCommandResult::evaluate() will return true if the original command failed.
          * If \a invert is \a false, evaluate() will return the return value of the
          * original command.
@@ -168,5 +168,5 @@ namespace RTT
         ConditionInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const;
     };
 }
-    
+
 #endif

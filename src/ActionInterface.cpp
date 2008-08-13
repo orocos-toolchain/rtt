@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Jul 20 15:13:14 CEST 2004  ActionInterface.cxx 
+  tag: Peter Soetens  Tue Jul 20 15:13:14 CEST 2004  ActionInterface.cxx
 
                         ActionInterface.cxx -  description
                            -------------------
     begin                : Tue July 20 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma implementation
 #endif

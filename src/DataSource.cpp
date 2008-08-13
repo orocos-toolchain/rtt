@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  DataSource.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:37 CEST 2004  DataSource.cxx
 
                         DataSource.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -51,7 +51,7 @@ namespace RTT
     DataSourceBase::~DataSourceBase()
     {
     }
-    
+
     void DataSourceBase::reset()
     {
     }
@@ -79,7 +79,7 @@ namespace RTT
         DataSourceBase::shared_ptr mobj(this);
         return mobj->getTypeInfo()->decomposeType( mobj, targetbag );
     }
-            
+
     bool DataSourceBase::composeType( DataSourceBase::shared_ptr source)
     {
         DataSourceBase::shared_ptr mobj(this);
@@ -122,7 +122,7 @@ namespace RTT
 #endif
         return 0;
     }
-    
+
     void* DataSourceBase::getBlob(int protocol)
     {
         this->evaluate();
@@ -133,7 +133,7 @@ namespace RTT
 #endif
         return 0;
     }
-    
+
     bool DataSourceBase::updateBlob(int protocol, const void* data)
     {
         return false; // overridden in AssignableDataSource<T>
@@ -170,10 +170,10 @@ namespace RTT
 
         const std::string& DataSourceTypeInfo<UnknownType>::getType() { return getTypeInfo()->getTypeName(); }
         const std::string& DataSourceTypeInfo<UnknownType>::getQualifier() { return noqual; }
-        TypeInfo* DataSourceTypeInfo<UnknownType>::getTypeInfo() { 
+        TypeInfo* DataSourceTypeInfo<UnknownType>::getTypeInfo() {
             if (!TypeInfoObject)
                 TypeInfoObject = new TypeInfoName<UnknownType>("unknown_t");
-            return TypeInfoObject; 
+            return TypeInfoObject;
         }
 
         const std::string DataSourceTypeInfo<UnknownType>::noqual("");
@@ -189,7 +189,7 @@ namespace RTT
 
         const std::string& DataSourceTypeInfo<void>::getType() { return tname; }
         const std::string& DataSourceTypeInfo<void>::getQualifier() { return DataSourceTypeInfo<UnknownType>::noqual; }
-        const TypeInfo* DataSourceTypeInfo<void>::getTypeInfo() { 
+        const TypeInfo* DataSourceTypeInfo<void>::getTypeInfo() {
             return DataSourceTypeInfo<UnknownType>::getTypeInfo();
         }
 

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:06 CET 2006  ExecutionAccess.hpp 
+  tag: FMTC  do nov 2 13:06:06 CET 2006  ExecutionAccess.hpp
 
                         ExecutionAccess.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_EXECUTION_ACCESS_HPP
 #define ORO_EXECUTION_ACCESS_HPP
 
@@ -95,38 +95,38 @@ namespace RTT
          * @name Script Program Methods
          * @{
          */
-        /** 
+        /**
          * Check if a program is loaded
-         * 
+         *
          * @param name The name of the program.
-         * 
+         *
          * @return True if so.
          */
         virtual bool hasProgram(const std::string& name) const;
 
-        /** 
+        /**
          * Inspect if a loaded program is in the running state
-         * 
+         *
          * @param name The name of the Program.
-         * 
+         *
          * @return true if so.
          */
         bool isProgramRunning(const std::string& name) const;
 
-        /** 
+        /**
          * Inspect if a loaded program is in the paused state
-         * 
+         *
          * @param name The name of the Program.
-         * 
+         *
          * @return true if so.
          */
         bool isProgramPaused(const std::string& name) const;
 
-        /** 
+        /**
          * Inspect if a loaded program is in the error state
-         * 
+         *
          * @param name The name of the Program.
-         * 
+         *
          * @return true if so.
          */
         bool inProgramError(const std::string& name) const;
@@ -189,11 +189,11 @@ namespace RTT
          * @name Script State Machine Methods
          * @{
          */
-        /** 
+        /**
          * Check if a state machine is loaded.
-         * 
+         *
          * @param name The name of the state machine.
-         * 
+         *
          * @return True if so.
          */
         virtual bool hasStateMachine(const std::string& name) const;

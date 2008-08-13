@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Apr 22 20:40:57 CEST 2004  CommandFunction.hpp 
+  tag: Peter Soetens  Thu Apr 22 20:40:57 CEST 2004  CommandFunction.hpp
 
                         CommandFunctor.hpp -  description
                            -------------------
     begin                : Thu April 22 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,9 +33,9 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
- 
+ ***************************************************************************/
+
+
 #ifndef ORO_COMMANDFUNCTOR_HPP
 #define ORO_COMMANDFUNCTOR_HPP
 
@@ -105,7 +105,7 @@ namespace RTT
      * d = newCommandFunctor( boost::function<bool(void)>(boost::bind(&myFun2, _class)) );
      * bool result = d->execute(); // returns myFun2( _class );
      * @endverbatim
-     * 
+     *
      */
     template<>
     class CommandFunctor< boost::function< bool(void) > >

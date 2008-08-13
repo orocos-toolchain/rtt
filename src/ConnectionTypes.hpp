@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Mar 2 08:30:18 CET 2006  ConnectionTypes.hpp 
+  tag: Peter Soetens  Thu Mar 2 08:30:18 CET 2006  ConnectionTypes.hpp
 
                         ConnectionTypes.hpp -  description
                            -------------------
     begin                : Thu March 02 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_EXECUTION_CONNECTION_TYPE_HPP
 #define ORO_EXECUTION_CONNECTION_TYPE_HPP
 

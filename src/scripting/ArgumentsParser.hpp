@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  ArgumentsParser.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  ArgumentsParser.hpp
 
                         ArgumentsParser.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef ARGUMENTSPARSER_HPP
 #define ARGUMENTSPARSER_HPP
 
@@ -50,8 +50,8 @@
 
 namespace RTT  { namespace detail
 {
-  
-  
+
+
 
   /**
    * This is a parser that you construct to parse a set of arguments.

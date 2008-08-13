@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:19 CET 2006  CorbaDataObjectProxy.hpp 
+  tag: FMTC  do nov 2 13:06:19 CET 2006  CorbaDataObjectProxy.hpp
 
                         CorbaDataObjectProxy.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,9 +34,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
- 
+
+
+
 #ifndef ORO_CORBA_DATAOBJECTPROXY_HPP
 #define ORO_CORBA_DATAOBJECTPROXY_HPP
 
@@ -65,15 +65,15 @@ namespace RTT
         std::string name;
         AssignableExpression_var mec;
     public:
-        /** 
+        /**
          * Construct a CorbaDataObject which uses the Corba Event Service
          * as transport medium.
-         * 
+         *
          * @param _name The name of this CorbaDataObject.
          * @param ec The event service which transfers data of type \a T
          */
         CorbaDataObjectProxy(const std::string& _name, AssignableExpression_ptr ec )
-            : name(_name), mec(AssignableExpression::_duplicate(ec) ) 
+            : name(_name), mec(AssignableExpression::_duplicate(ec) )
         {
         }
 
@@ -82,10 +82,10 @@ namespace RTT
          */
         ~CorbaDataObjectProxy() {
         }
-        
-        /** 
+
+        /**
          * Return the name of this CorbaDataObject.
-         * 
+         *
          * @return The name
          */
         const std::string& getName() const { return name;}
@@ -99,7 +99,7 @@ namespace RTT
          * The type of the data.
          */
         typedef T DataType;
-            
+
         /**
          * Get a copy of the Data of the module.
          *
@@ -123,20 +123,20 @@ namespace RTT
          * @return The result of the module.
          */
         DataType Get() const { DataType p; this->Get(p); return p; }
-            
+
         /**
          * Set the data to a certain value.
          *
          * @param push The data which must be set.
          */
-        void Set( const DataType& push ) { 
+        void Set( const DataType& push ) {
             // Trick: we must create a datasource to convert 'push' to
             // an Any. We do not convert it ourselves, since this would
             // invoke Get() first.
             ValueDataSource<T> vds(push);
             vds.ref();
             CORBA::Any_var toset = (CORBA::Any_ptr)vds.createBlob(ORO_CORBA_PROTOCOL_ID);
-            mec->set( toset.in() ); 
+            mec->set( toset.in() );
         }
 
         CorbaDataObjectProxy<DataType>* clone() const {
@@ -151,4 +151,4 @@ namespace RTT
 }}
 
 #endif
-    
+

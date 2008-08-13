@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Fri Feb 11 15:59:13 CET 2005  time_test.hpp 
+  tag: Peter Soetens  Fri Feb 11 15:59:13 CET 2005  time_test.hpp
 
                         time_test.hpp -  description
                            -------------------
     begin                : Fri February 11 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #ifndef TIMETEST_H
 #define TIMETEST_H

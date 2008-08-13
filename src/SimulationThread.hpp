@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  SimulationThread.hpp 
+  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  SimulationThread.hpp
 
                         SimulationThread.hpp -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #ifndef SIMULATIONTHREAD_HPP
 #define SIMULATIONTHREAD_HPP
@@ -57,7 +57,7 @@ namespace RTT
      * perfect scheduler by executing all activities one after the
      * other in a continuous loop and updating the system time, such
      * that it appears to the activities as they are executed periodically.
-     * 
+     *
      * All your activities in the same program must be a SimulationActivity for this
      * to work, since the TimeService global time is updated when this thread runs.
      *

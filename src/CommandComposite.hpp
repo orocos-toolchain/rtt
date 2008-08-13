@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:21 CET 2004  CommandComposite.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:21 CET 2004  CommandComposite.hpp
 
                         CommandComposite.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 
 #include "CommandInterface.hpp"
 #include <vector>
@@ -99,9 +99,9 @@ namespace RTT
 
         /**
          * add a command to the vect
-         * 
+         *
          */
-        virtual void add(CommandInterface * com) {		
+        virtual void add(CommandInterface * com) {
             vect.push_back(com);
         };
 
@@ -109,7 +109,7 @@ namespace RTT
         {
             return new CommandComposite( *this );
         }
-			
+
         virtual CommandInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
         {
             CommandComposite* res = new CommandComposite();
@@ -117,7 +117,7 @@ namespace RTT
                 res->add( (*it)->copy(alreadyCloned) );
             return res;
         }
-			
+
     private:
         std::vector<CommandInterface*> vect;
     };

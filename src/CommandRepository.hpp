@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:10 CET 2006  CommandRepository.hpp 
+  tag: FMTC  do nov 2 13:06:10 CET 2006  CommandRepository.hpp
 
                         CommandRepository.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_COMMAND_REPOSITORY_HPP
 #define ORO_COMMAND_REPOSITORY_HPP
 
@@ -68,7 +68,7 @@ namespace RTT
         inline T* getpointer(T* t) {
             return t;
         }
-        
+
         typedef std::map<std::string,DispatchInterface*> SimpleCommands;
         SimpleCommands simplecommands;
     public:
@@ -76,14 +76,14 @@ namespace RTT
 
         ~CommandRepository();
 
-        /** 
+        /**
          * Return the pointer to an added command for use in a Command object.
          * Store the result in a Command<\a Signature> object.
-         * 
+         *
          * @param name The name of the command to retrieve.
          * @param Signature The function signature of the command, for
          * example: getCommand<bool(int,double)>("name");
-         * 
+         *
          * @return A new pointer to a Command, or null if it does not exist.
          */
         template<class Signature>
@@ -128,14 +128,14 @@ namespace RTT
          * Removes a previously added command.
          */
         void removeCommand(const std::string& name);
-        
-        /** 
-         * Add a Command object to the command interface. The command is 
+
+        /**
+         * Add a Command object to the command interface. The command is
          * added to the C++ interface and not added to the scripting interface.
          * @see getCommand to retrieve it.
-         * 
+         *
          * @param com A pointer to a Command object.
-         * 
+         *
          * @return true if the command could be added.
          */
         template<class CommandT>
@@ -156,16 +156,16 @@ namespace RTT
         }
 
 
-        /** 
+        /**
          * Add a Command object, which takes no arguments, to the command interface.
          * The command is added to the C++ and to the scripting interface.
          * @param c A pointer to the existing command.
          * @param description A user readable description of what this command does.
-         * 
+         *
          * @return true if the command could be added.
          */
         template<class CommandT>
-        bool addCommand( CommandT com, const char* description) 
+        bool addCommand( CommandT com, const char* description)
         {
             Logger::In in("CommandRepository");
             typedef typename boost::remove_pointer<CommandT>::type CommandVT;
@@ -184,23 +184,23 @@ namespace RTT
             if ( this->addCommand( c ) == false )
                 return false;
             // Next, add it to the Command from 'DataSource' interface.
-            this->add( c->getName(), new detail::OperationFactoryPart0<DispatchInterface*, detail::DataSourceArgsCommand<ComSig> >( 
+            this->add( c->getName(), new detail::OperationFactoryPart0<DispatchInterface*, detail::DataSourceArgsCommand<ComSig> >(
                   detail::DataSourceArgsCommand<ComSig>(lc->getCommandFunction(),
-                                        lc->getConditionFunction(), 
+                                        lc->getConditionFunction(),
                                         lc->getCommandProcessor(), lc->isInverted() ), description) );
             return true;
         }
 
-        /** 
+        /**
          * Add a Command object, which takes one argument, to the
          * command interface. The command is added to the C++ and to the
          * scripting interface.
-         * 
+         *
          * @param c A pointer to the existing command.
          * @param description A user readable description of what this command does.
          * @param arg1 A single word name of the argument.
          * @param arg1_description A user readable description of the argument.
-         * 
+         *
          * @return true if the command could be added.
          */
         template<class CommandT>
@@ -221,26 +221,26 @@ namespace RTT
             }
             if ( this->addCommand( c ) == false )
                 return false;
-            this->add( c->getName(), new detail::OperationFactoryPart1<DispatchInterface*, detail::DataSourceArgsCommand<ComSig> >( 
+            this->add( c->getName(), new detail::OperationFactoryPart1<DispatchInterface*, detail::DataSourceArgsCommand<ComSig> >(
                   detail::DataSourceArgsCommand<ComSig>(lc->getCommandFunction(),
-                                        lc->getConditionFunction(), 
-                                        lc->getCommandProcessor(), lc->isInverted() ), 
+                                        lc->getConditionFunction(),
+                                        lc->getCommandProcessor(), lc->isInverted() ),
                   description, arg1, arg1_description) );
             return true;
         }
 
-        /** 
+        /**
          * Add a Command object, which takes two arguments, to the
          * command interface.
          * The command is added to the C++ and to the scripting interface.
-         * 
+         *
          * @param c A pointer to the Command object.
          * @param description A user readable description of what this command does.
          * @param arg1 A single word name of the first argument.
          * @param arg1_description A user readable description of the first argument.
          * @param arg2 A single word name of the second argument.
          * @param arg2_description A user readable description of the second argument.
-         * 
+         *
          * @return true if the command could be added.
          */
         template<class CommandT>
@@ -262,21 +262,21 @@ namespace RTT
             }
             if ( this->addCommand( c ) == false )
                 return false;
-            this->add( c->getName(), new detail::OperationFactoryPart2<DispatchInterface*, detail::DataSourceArgsCommand<ComSig> >( 
+            this->add( c->getName(), new detail::OperationFactoryPart2<DispatchInterface*, detail::DataSourceArgsCommand<ComSig> >(
                   detail::DataSourceArgsCommand<ComSig>(lc->getCommandFunction(),
-                                        lc->getConditionFunction(), 
-                                        lc->getCommandProcessor(), lc->isInverted() ), 
+                                        lc->getConditionFunction(),
+                                        lc->getCommandProcessor(), lc->isInverted() ),
                   description, arg1, arg1_description,
                   arg2, arg2_description) );
             return true;
         }
 
 
-        /** 
+        /**
          * Add a Command object, which takes three arguments, to the
          * command interface.
          * The command is added to the C++ and to the scripting interface.
-         * 
+         *
          * @param c A pointer to the Command object.
          * @param description A user readable description of what this command does.
          * @param arg1 A single word name of the first argument.
@@ -285,7 +285,7 @@ namespace RTT
          * @param arg2_description A user readable description of the second argument.
          * @param arg3 A single word name of the third argument.
          * @param arg3_description A user readable description of the third argument.
-         * 
+         *
          * @return true if the command could be added.
          */
         template<class CommandT>
@@ -308,21 +308,21 @@ namespace RTT
             }
             if ( this->addCommand( c ) == false )
                 return false;
-            this->add( c->getName(), new detail::OperationFactoryPart3<DispatchInterface*, detail::DataSourceArgsCommand<ComSig> >( 
+            this->add( c->getName(), new detail::OperationFactoryPart3<DispatchInterface*, detail::DataSourceArgsCommand<ComSig> >(
                   detail::DataSourceArgsCommand<ComSig>(lc->getCommandFunction(),
-                                               lc->getConditionFunction(), 
-                                               lc->getCommandProcessor(), lc->isInverted() ), 
+                                               lc->getConditionFunction(),
+                                               lc->getCommandProcessor(), lc->isInverted() ),
                   description, arg1, arg1_description,
                   arg2, arg2_description,
                   arg3, arg3_description) );
             return true;
         }
 
-        /** 
+        /**
          * Add a Command object, which takes four arguments, to the
          * command interface.
          * The command is added to the C++ and to the scripting interface.
-         * 
+         *
          * @param c A pointer to the Command object.
          * @param description A user readable description of what this command does.
          * @param arg1 A single word name of the first argument.
@@ -333,7 +333,7 @@ namespace RTT
          * @param arg3_description A user readable description of the third argument.
          * @param arg4 A single word name of the fourth argument.
          * @param arg4_description A user readable description of the fourth argument.
-         * 
+         *
          * @return true if the command could be added.
          */
         template<class CommandT>
@@ -357,10 +357,10 @@ namespace RTT
             }
             if ( this->addCommand( c ) == false )
                 return false;
-            this->add( c->getName(), new detail::OperationFactoryPart4<DispatchInterface*, detail::DataSourceArgsCommand<ComSig> >( 
+            this->add( c->getName(), new detail::OperationFactoryPart4<DispatchInterface*, detail::DataSourceArgsCommand<ComSig> >(
                   detail::DataSourceArgsCommand<ComSig>(lc->getCommandFunction(),
-                                               lc->getConditionFunction(), 
-                                               lc->getCommandProcessor(), lc->isInverted() ), 
+                                               lc->getConditionFunction(),
+                                               lc->getCommandProcessor(), lc->isInverted() ),
                   description, arg1, arg1_description,
                   arg2, arg2_description,
                   arg3, arg3_description,
@@ -368,12 +368,12 @@ namespace RTT
             return true;
         }
 
-        /** 
+        /**
          * For internal use only. Retrieve a previously added Command.
-         * 
+         *
          * @param name The name of the Command
          * @param args A vector of command arguments.
-         * 
+         *
          * @return A dispatchable object which is a new Command object.
          */
         DispatchInterface* getCommand( std::string name,
@@ -388,7 +388,7 @@ namespace RTT
          * during program execution. Required in scripting for state machines.
          */
         template<class CommandT,class CompT>
-        bool addCommandDS( DataSource< boost::weak_ptr<CompT> >* wp, CommandT c, const char* description) 
+        bool addCommandDS( DataSource< boost::weak_ptr<CompT> >* wp, CommandT c, const char* description)
         {
             using namespace detail;
             typedef typename CommandT::Signature ComSig;
@@ -397,9 +397,9 @@ namespace RTT
             typedef FunctorDS0<ComSig> CommandF;
             typedef detail::DataSourceArgsCommand<ComSig,
                                   CommandF> DSComm;
-            this->add( c.getName(), new detail::OperationFactoryPart0<DispatchInterface*, DSComm>( 
+            this->add( c.getName(), new detail::OperationFactoryPart0<DispatchInterface*, DSComm>(
                         DSComm( CommandF(wp, c.getCommandFunction()),
-                                CommandF(wp, c.getConditionFunction()), 
+                                CommandF(wp, c.getConditionFunction()),
                                 c.getCommandProcessor(), c.isInverted() ),
                         description) );
             return true;
@@ -421,20 +421,20 @@ namespace RTT
                                   CommandF> DSComm;
             if ( this->hasMember(c.getName() ) )
                 return false;
-            this->add( c.getName(), new detail::OperationFactoryPart1<DispatchInterface*, DSComm, typename DSComm::traits::arg2_type>( 
+            this->add( c.getName(), new detail::OperationFactoryPart1<DispatchInterface*, DSComm, typename DSComm::traits::arg2_type>(
                         DSComm( CommandF(wp, c.getCommandFunction()),
-                                CommandF(wp, c.getConditionFunction()), 
+                                CommandF(wp, c.getConditionFunction()),
                                 c.getCommandProcessor(), c.isInverted() ),
                         description, arg1, arg1_description) );
             return true;
         }
 
-        /** 
+        /**
          * For internal use Only. Retrieve the completion condition of a previously added Command.
-         * 
+         *
          * @param name The name of the Command
          * @param args A vector of command arguments
-         * 
+         *
          * @return A condition which evaluates the command's completion.
          */
         ConditionInterface* getCondition( std::string name,
@@ -446,12 +446,12 @@ namespace RTT
             return ret;
         }
 
-        /** 
+        /**
          * Create a CommandC container object, which can be used
          * to access an added Command.
-         * 
+         *
          * @param name The name of the Command
-         * 
+         *
          * @return A new CommandC object.
          */
         CommandC create(std::string name) {

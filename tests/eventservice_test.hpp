@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 10 15:59:18 CET 2005  event_test.hpp 
+  tag: Peter Soetens  Mon Jan 10 15:59:18 CET 2005  event_test.hpp
 
                         event_test.hpp -  description
                            -------------------
     begin                : Mon January 10 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef EVENT_SERVICE_TEST_H
 #define EVENT_SERVICE_TEST_H
 

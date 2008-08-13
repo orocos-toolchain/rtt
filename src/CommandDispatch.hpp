@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  CommandDispatch.hpp 
+  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  CommandDispatch.hpp
 
                         CommandDispatch.hpp -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -35,9 +35,9 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef EXECUTION_COMMAND_DISPATCH 
-#define EXECUTION_COMMAND_DISPATCH 
- 
+#ifndef EXECUTION_COMMAND_DISPATCH
+#define EXECUTION_COMMAND_DISPATCH
+
 #include "DataSource.hpp"
 #include "DispatchInterface.hpp"
 #include "ConditionInterface.hpp"
@@ -79,7 +79,7 @@ namespace RTT
             void reset() { mexecuted=false; mvalid=true; }
             virtual Dispatcher* clone() const { return new Dispatcher(cd); }
         } dispatcher;
-            
+
     public:
         /**
          * Create a command to dispatch another command \a c to a CommandProcessor \a p.
@@ -131,7 +131,7 @@ namespace RTT
 
         /**
          * Returns true if the command was valid, i.e. the command itself
-         * was executed and returned true. 
+         * was executed and returned true.
          */
         bool valid() const;
 

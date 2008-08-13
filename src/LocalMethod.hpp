@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:05 CET 2006  LocalMethod.hpp 
+  tag: FMTC  do nov 2 13:06:05 CET 2006  LocalMethod.hpp
 
                         LocalMethod.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_LOCAL_METHOD_HPP
 #define ORO_LOCAL_METHOD_HPP
 
@@ -115,7 +115,7 @@ namespace RTT
         /**
          * A method which executes a local function.
          *
-         * Usage: 
+         * Usage:
          @code
          LocalMethod<double(int, double)> mymeth( &Class::foo, &c);
          double result = mymeth( 3, 1.9);
@@ -137,10 +137,10 @@ namespace RTT
             LocalMethod()
             {}
 
-            /** 
+            /**
              * Construct a LocalMethod from a class member pointer and an
              * object of that class.
-             * 
+             *
              * @param name The name of this method
              * @param meth A pointer to a class member function
              * @param object An object of the class which has \a meth as member function.
@@ -151,9 +151,9 @@ namespace RTT
                 this->mmeth = detail::MethodBinder<Signature>()(meth, object);
             }
 
-            /** 
+            /**
              * Construct a LocalMethod from a function pointer or function object.
-             * 
+             *
              * @param name the name of this method
              * @param meth an pointer to a function or function object.
              */
@@ -163,7 +163,7 @@ namespace RTT
                 this->mmeth = meth;
             }
 
-            boost::function<Signature> getMethodFunction() const 
+            boost::function<Signature> getMethodFunction() const
             {
                 return this->mmeth;
             }

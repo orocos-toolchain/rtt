@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:05:58 CET 2006  signature_template.hpp 
+  tag: FMTC  do nov 2 13:05:58 CET 2006  signature_template.hpp
 
                         signature_template.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 // Include the appropriate functionN header
 #define OROCOS_SIGNATURE_FUNCTION_N BOOST_JOIN(boost::function,OROCOS_SIGNATURE_NUM_ARGS)
@@ -54,5 +54,5 @@
 
 #undef OROCOS_SIGNATURE_COMMA_IF_NONZERO_ARGS
 #undef OROCOS_SIGNATURE_FUNCTION_N_HEADER
-#undef OROCOS_SIGNATURE_FUNCTION_N 
+#undef OROCOS_SIGNATURE_FUNCTION_N
 

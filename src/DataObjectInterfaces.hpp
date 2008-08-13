@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  DataObjectInterfaces.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:26 CET 2004  DataObjectInterfaces.hpp
 
                         DataObjectInterfaces.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef CORELIB_DATAOBJECTINTERFACES_HPP
 #define CORELIB_DATAOBJECTINTERFACES_HPP
 
@@ -87,7 +87,7 @@ namespace RTT
          * The type of the data.
          */
         typedef T DataType;
-            
+
         /**
          * Get a copy of the Data of this data object.
          *
@@ -109,9 +109,9 @@ namespace RTT
          */
         virtual void Set( const DataType& push ) = 0;
 
-        /** 
+        /**
          * Return the name of this DataObject.
-         * 
+         *
          * @return The name
          */
         virtual const std::string& getName() const = 0;
@@ -162,7 +162,7 @@ namespace RTT
         : public DataObjectInterface<T>
     {
         mutable OS::Mutex lock;
-            
+
         /**
          * One element of Data.
          */
@@ -170,17 +170,17 @@ namespace RTT
 
         std::string name;
     public:
-        /** 
+        /**
          * Construct a DataObjectLocked by name.
-         * 
+         *
          * @param _name The name of this DataObject.
          */
         DataObjectLocked(const std::string& _name, const T& initial_value = T() )
             : data(initial_value), name(_name) {}
 
-        /** 
+        /**
          * Return the name of this DataObject.
-         * 
+         *
          * @return The name
          */
         const std::string& getName() const { return name;}
@@ -194,7 +194,7 @@ namespace RTT
          * The type of the data.
          */
         typedef T DataType;
-            
+
         /**
          * Get a copy of the Data of the module.
          *
@@ -259,7 +259,7 @@ namespace RTT
     {
         mutable OS::Mutex lock;
         mutable bool dirty_flag;
-            
+
         /**
          * One element of Data.
          */
@@ -268,17 +268,17 @@ namespace RTT
 
         std::string name;
     public:
-        /** 
+        /**
          * Construct a DataObjectPriorityGet by name.
-         * 
+         *
          * @param _name The name of this DataObject.
          */
         DataObjectPrioritySet(const std::string& _name, const T& initial_value = T() )
             : data(initial_value), mcopy(), name(_name) {}
 
-        /** 
+        /**
          * Return the name of this DataObject.
-         * 
+         *
          * @return The name
          */
         const std::string& getName() const { return name;}
@@ -292,7 +292,7 @@ namespace RTT
          * The type of the data.
          */
         typedef T DataType;
-            
+
         /**
          * Get a copy of the Data of the module.
          *
@@ -313,12 +313,12 @@ namespace RTT
          *
          * @param push The data which must be set.
          */
-        void Set( const DataType& push ) 
-        { 
-            OS::MutexTryLock locker(lock); 
-            if (locker.isSuccessful()) 
-                {data = push; dirty_flag = false;} 
-            else 
+        void Set( const DataType& push )
+        {
+            OS::MutexTryLock locker(lock);
+            if (locker.isSuccessful())
+                {data = push; dirty_flag = false;}
+            else
                 {mcopy = push; dirty_flag = true;}
         }
 
@@ -366,7 +366,7 @@ namespace RTT
         : public DataObjectInterface<T>
     {
         mutable OS::Mutex lock;
-            
+
         /**
          * One element of Data.
          */
@@ -375,17 +375,17 @@ namespace RTT
 
         std::string name;
     public:
-        /** 
+        /**
          * Construct a DataObjectPriorityGet by name.
-         * 
+         *
          * @param _name The name of this DataObject.
          */
         DataObjectPriorityGet(const std::string& _name, const T& initial_value = T()  )
             : data(initial_value), mcopy(), name(_name) {}
 
-        /** 
+        /**
          * Return the name of this DataObject.
-         * 
+         *
          * @return The name
          */
         const std::string& getName() const { return name;}
@@ -399,22 +399,22 @@ namespace RTT
          * The type of the data.
          */
         typedef T DataType;
-            
+
         /**
          * Get a copy of the Data of the module.
          *
          * @param pull A copy of the data.
          */
-        void Get( DataType& pull ) const 
-        { 
+        void Get( DataType& pull ) const
+        {
             // If two low priority gets access this method,
-            // while Set() is in copy, 
+            // while Set() is in copy,
             // the second one will pull in the copy which
             // is modified by the Set().
-            OS::MutexTryLock locker(lock); 
-            if ( locker.isSuccessful() ) 
-                {pull = data;} 
-            else 
+            OS::MutexTryLock locker(lock);
+            if ( locker.isSuccessful() )
+                {pull = data;}
+            else
                 {pull = mcopy;}
         }
 
@@ -430,11 +430,11 @@ namespace RTT
          *
          * @param push The data which must be set.
          */
-        void Set( const DataType& push ) 
-        { 
+        void Set( const DataType& push )
+        {
             {
-                OS::MutexLock locker(lock); 
-                data = push; 
+                OS::MutexLock locker(lock);
+                data = push;
             }
             mcopy = data;
         }
@@ -452,7 +452,7 @@ namespace RTT
      * @brief This DataObject is a Lock-Free implementation,
      * such that reads and writes can happen concurrently without priority
      * inversions.
-     * 
+     *
      * When there are more writes than reads, the last write will
      * be returned. The internal buffer can get full if too many
      * concurrent reads are taking to long. In that case, each new
@@ -486,10 +486,10 @@ namespace RTT
          */
         typedef T DataType;
 
-        /** 
+        /**
          * @brief The maximum number of threads.
          *
-         * The size of the buffer is for now statically determined, 
+         * The size of the buffer is for now statically determined,
          * which allows for 7 readers and 1 writer (a total of 8 threads !)
          * This is to be improved, although knowing the max number of
          * threads in a RT application is not so hard.
@@ -532,16 +532,16 @@ namespace RTT
         std::string name;
 
     public:
-            
-        /** 
+
+        /**
          * Construct a DataObjectLockFree by name.
-         * 
+         *
          * @param _name The name of this DataObject.
          * @param initial_value The initial value of this DataObject.
          */
-        DataObjectLockFree(const std::string& _name, const T& initial_value = T() ) 
-            : read_ptr(&data[ 0 ]), 
-              write_ptr(&data[ 1 ]), 
+        DataObjectLockFree(const std::string& _name, const T& initial_value = T() )
+            : read_ptr(&data[ 0 ]),
+              write_ptr(&data[ 1 ]),
               name(_name)
         {
             // prepare the buffer.
@@ -552,9 +552,9 @@ namespace RTT
             data[BUF_LEN-1].next = &data[0];
         }
 
-        /** 
+        /**
          * Return the name of this DataObject.
-         * 
+         *
          * @return The name
          */
         const std::string& getName() const { return name;}
@@ -572,7 +572,7 @@ namespace RTT
          * @return A copy of the data.
          */
         DataType Get() const {DataType cache; Get(cache); return cache; }
-            
+
         /**
          * Get a copy of the Data (non allocating).
          * If pull has reserved enough memory to store the copy,
@@ -580,8 +580,8 @@ namespace RTT
          *
          * @param pull A copy of the data.
          */
-        void Get( DataType& pull ) const 
-        {   
+        void Get( DataType& pull ) const
+        {
             PtrType reading;
             // loop to combine Read/Modify of counter
             // This avoids a race condition where read_ptr
@@ -589,7 +589,7 @@ namespace RTT
             do {
                 reading = read_ptr;            // copy buffer location
                 oro_atomic_inc(&reading->counter); // lock buffer, no more writes
-                if ( reading != read_ptr )     // if read_ptr changed, 
+                if ( reading != read_ptr )     // if read_ptr changed,
                     oro_atomic_dec(&reading->counter); // better to start over.
                 else
                     break;
@@ -605,11 +605,11 @@ namespace RTT
          *
          * @param push The data which must be set.
          */
-        void Set( const DataType& push ) 
+        void Set( const DataType& push )
         {
             /**
              * This method can not be called concurrently (only one
-             * producer). With a minimum of 3 buffers, if the 
+             * producer). With a minimum of 3 buffers, if the
              * write_ptr+1 field is not occupied, it will remain so
              * because the read_ptr is at write_ptr-1 (and can
              * not increment the counter on write_ptr+1). Hence, no
@@ -660,17 +660,17 @@ namespace RTT
 
         std::string name;
     public:
-        /** 
+        /**
          * Construct a DataObject by name.
-         * 
+         *
          * @param _name The name of this DataObject.
          */
         DataObject(const std::string& _name, const T& initial_value = T()  )
             : data(initial_value), name(_name) {}
 
-        /** 
+        /**
          * Return the name of this DataObject.
-         * 
+         *
          * @return The name
          */
         const std::string& getName() const { return name;}
@@ -684,7 +684,7 @@ namespace RTT
          * The type of the data.
          */
         typedef T DataType;
-            
+
         /**
          * Get a copy of the Data of the module.
          *
@@ -698,7 +698,7 @@ namespace RTT
          * @return The result of the module.
          */
         DataType Get() const { return data; }
-            
+
         /**
          * Set the data to a certain value.
          *
@@ -718,4 +718,4 @@ namespace RTT
 }
 
 #endif
-    
+

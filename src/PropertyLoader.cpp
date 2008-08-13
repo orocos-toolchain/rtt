@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Sat May 7 12:56:52 CEST 2005  PropertyLoader.cxx 
+  tag: Peter Soetens  Sat May 7 12:56:52 CEST 2005  PropertyLoader.cxx
 
                         PropertyLoader.cxx -  description
                            -------------------
     begin                : Sat May 07 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "PropertyLoader.hpp"
 #include "rtt-config.h"
@@ -56,7 +56,7 @@ bool PropertyLoader::load(const std::string& filename, TaskContext* target) cons
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
         log(Error) << "No Property Demarshaller configured !" << endlog();
         return false;
-    
+
 #else
     if ( target->properties() == 0) {
         log(Error) << "TaskContext " <<target->getName()<<" has no Properties to configure." << endlog();
@@ -119,7 +119,7 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* target,
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
         log(Error) << "No Property Demarshaller configured !" << endlog();
         return false;
-    
+
 #else
     if ( target->properties() == 0) {
         log(Error) << "TaskContext " <<target->getName()<<" has no Properties to configure." << endlog();
@@ -178,7 +178,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target, bool
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
         log(Error) << "No Property Marshaller configured !" << endlog();
         return false;
-    
+
 #else
     if ( target->properties() == 0 ) {
         log(Error) << "TaskContext "<< target->getName()
@@ -230,7 +230,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* target, bool
         deletePropertyBag( allProps );
         deletePropertyBag( decompProps );
         return false;
-    } 
+    }
     // ok, finish.
     // serialize and cleanup
     std::ofstream file( filename.c_str() );
@@ -258,7 +258,7 @@ bool PropertyLoader::configure(const std::string& filename, TaskContext* task, c
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
     log(Error) << "No Property Demarshaller configured !" << endlog();
     return false;
-    
+
 #else
     log(Info) << "Reading Property '" <<name
               <<"' from file '"<<filename<<"'."<< endlog();
@@ -298,7 +298,7 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* task, const 
 #ifndef OROPKG_CORELIB_PROPERTIES_MARSHALLING
         log(Error) << "No Property Marshaller configured !" << endlog();
         return false;
-    
+
 #else
     PropertyBag fileProps;
     // Update exising file ?
@@ -328,14 +328,14 @@ bool PropertyLoader::save(const std::string& filename, TaskContext* task, const 
 
     bool failure;
     failure = ! updateProperty( fileProps, taskProps, name );
-    
+
     deletePropertyBag( taskProps );
 
     if ( failure ) {
         log(Error) << "Could not update properties of file "<< filename <<"."<<endlog();
         deletePropertyBag( fileProps );
         return false;
-    }        
+    }
     // serialize and cleanup
     std::ofstream file( filename.c_str() );
     if ( file )

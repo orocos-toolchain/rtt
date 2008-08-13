@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  EventService.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  EventService.hpp
 
                         EventService.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef EVENT_SERVICE_HPP
 #define EVENT_SERVICE_HPP
 
@@ -59,7 +59,7 @@ namespace RTT
     /**
      * The EventService represents the event interface. It stores pointers
      * to event objects and allows clients to retrieve event objects which
-     * can then be emitted or subscribed to. 
+     * can then be emitted or subscribed to.
      *
      */
     class EventService
@@ -98,7 +98,7 @@ namespace RTT
 
         void setEventProcessor(EventProcessor* ep);
 
-        /** 
+        /**
          * Clear all added methods from the repository, saving memory space.
          */
         void clear();
@@ -107,15 +107,15 @@ namespace RTT
          * Returns the names of all events added to this interface.
          * @see getNames() to get a list of all events available to scripting.
          */
-        std::vector<std::string> getEvents() const; 
+        std::vector<std::string> getEvents() const;
 
-        /** 
+        /**
          * Add an Event to the event interface. This version
          * of addEvent only adds \a e to the C++ interface and
          * not to the scripting interface.
-         * 
+         *
          * @param e The event to add
-         * 
+         *
          * @return True if the event's name was unique
          * and could be added.
          */
@@ -173,7 +173,7 @@ namespace RTT
 
             this->add(e->getName(),
                       new detail::OperationFactoryPart0<ActionInterface*,
-                      detail::DataSourceArgsEvent<typename EventT::Signature> >( boost::bind(&EventT::operator(),e), description) ); 
+                      detail::DataSourceArgsEvent<typename EventT::Signature> >( boost::bind(&EventT::operator(),e), description) );
 
             this->mhooks[e->getName()]
                 = new detail::FunctorFactoryPart0<detail::EventHookBase*, detail::EventHookGenerator<EventT> >( detail::EventHookGenerator<EventT>(e) );
@@ -204,7 +204,7 @@ namespace RTT
                       new detail::OperationFactoryPart1<ActionInterface*,
                       detail::DataSourceArgsEvent<typename EventT::Signature> >( boost::bind(&EventT::operator(),e, _1),
                       description,
-                      arg1, arg1_description) ); 
+                      arg1, arg1_description) );
 
             this->mhooks[e->getName()]
                 = new detail::FunctorFactoryPart1<detail::EventHookBase*, detail::EventHookGenerator<EventT> >( detail::EventHookGenerator<EventT>(e) );
@@ -239,7 +239,7 @@ namespace RTT
                       detail::DataSourceArgsEvent<typename EventT::Signature> >( boost::bind(&EventT::operator(),e,_1,_2),
                       description,
                       arg1, arg1_description,
-                      arg2, arg2_description) ); 
+                      arg2, arg2_description) );
 
             this->mhooks[e->getName()]
                 = new detail::FunctorFactoryPart2<detail::EventHookBase*, detail::EventHookGenerator<EventT> >( detail::EventHookGenerator<EventT>(e) );
@@ -278,7 +278,7 @@ namespace RTT
                       description,
                       arg1, arg1_description,
                       arg2, arg2_description,
-                      arg3, arg3_description)); 
+                      arg3, arg3_description));
 
             this->mhooks[e->getName()]
                 = new detail::FunctorFactoryPart3<detail::EventHookBase*, detail::EventHookGenerator<EventT> >( detail::EventHookGenerator<EventT>(e) );
@@ -339,13 +339,13 @@ namespace RTT
          * @retval -1 The event does not exist.
          * @return The number of arguments (may be zero).
          */
-        int arity(const std::string& name) const;            
-        
+        int arity(const std::string& name) const;
+
         /**
          * Remove an added Event from this Service.
          */
         bool removeEvent( const std::string& ename );
-        
+
         /**
          * Setup an object to emit events with arguments.
          * Use this method as in
@@ -390,9 +390,9 @@ namespace RTT
          * where \a Tn is the type of the n'th argument of the Event.
          */
         Handle setupSyn(const std::string& ename,
-                        boost::function<void(void)> func,          
+                        boost::function<void(void)> func,
                         std::vector<DataSourceBase::shared_ptr> args ) const;
-        
+
         /**
          * For internal use only. Setup a asynchronous Event handler which will set \a args and
          * call \a afunc asynchronously (in task \a t) when event \a ename occurs.
@@ -408,18 +408,18 @@ namespace RTT
          * @{
          */
         Handle setupAsyn(const std::string& ename,
-                         boost::function<void(void)> afunc,          
+                         boost::function<void(void)> afunc,
                          const std::vector<DataSourceBase::shared_ptr>& args,
                          ActivityInterface* t,
                          EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst) const;
-        
+
         Handle setupAsyn(const std::string& ename,
-                         boost::function<void(void)> afunc,          
+                         boost::function<void(void)> afunc,
                          const std::vector<DataSourceBase::shared_ptr>& args,
                          EventProcessor* ep = CompletionProcessor::Instance(),
                          EventProcessor::AsynStorageType s_type = EventProcessor::OnlyFirst) const;
         //!@}
-        
+
         /**
          * For internal use only. Get an event which takes its arguments by Datasource.
          * Call \a result->execute() to emit the event with the given \a args.

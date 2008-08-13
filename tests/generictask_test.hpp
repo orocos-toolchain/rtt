@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:26:02 CEST 2006  generictask_test.hpp 
+  tag: Peter Soetens  Mon Jun 26 13:26:02 CEST 2006  generictask_test.hpp
 
                         generictask_test.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef GENERIC_TASK_H
 #define GENERIC_TASK_H
 
@@ -40,7 +40,7 @@ class Generic_TaskTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testCRMethod );
     CPPUNIT_TEST( testMethodsC );
     CPPUNIT_TEST( testAddMethod );
-    
+
     CPPUNIT_TEST_SUITE_END();
 
     TaskContext* tc;

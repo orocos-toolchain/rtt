@@ -47,8 +47,8 @@ namespace RTT
 {
     using namespace detail;
     using boost::bind;
-    
-    
+
+
 
     ConditionParser::ConditionParser( TaskContext* c )
         : ds_bool( 0 ), context( c ), expressionparser( c )

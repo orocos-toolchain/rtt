@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Mar 2 08:30:18 CET 2006  DataFlowInterface.hpp 
+  tag: Peter Soetens  Thu Mar 2 08:30:18 CET 2006  DataFlowInterface.hpp
 
                         DataFlowInterface.hpp -  description
                            -------------------
     begin                : Thu March 02 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_EXECUTION_DATA_FLOW_INTERFACE_HPP
 #define ORO_EXECUTION_DATA_FLOW_INTERFACE_HPP
 
@@ -125,11 +125,11 @@ namespace RTT
          */
         PortInterface* getPort(const std::string& name) const;
 
-        /** 
+        /**
          * Get the description of an added Port.
-         * 
+         *
          * @param name The port name
-         * 
+         *
          * @return The description or "" if it does not exist.
          */
         std::string getPortDescription(const std::string& name) const;

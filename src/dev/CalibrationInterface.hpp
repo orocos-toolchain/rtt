@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue May 4 16:49:13 CEST 2004  CalibrationInterface.hpp 
+  tag: Peter Soetens  Tue May 4 16:49:13 CEST 2004  CalibrationInterface.hpp
 
                         CalibrationInterface.hpp -  description
                            -------------------
     begin                : Tue May 04 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef CALIBRATION_INTERFACE_HPP
 #define CALIBRATION_INTERFACE_HPP
 
@@ -58,15 +58,15 @@ namespace RTT
          */
         virtual void calibrate() { calibrated  = true;}
 
-        /** 
+        /**
          * @brief Inspect if a calibration has been done.
-         * 
-         * 
+         *
+         *
          * @return True if so.
          */
         virtual bool isCalibrated() const { return calibrated; }
 
-        /** 
+        /**
          * @brief Undo any previous calibration
          * ( this function may have no effect ).
          */

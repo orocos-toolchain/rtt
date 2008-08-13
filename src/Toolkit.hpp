@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  Toolkit.hpp 
+  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  Toolkit.hpp
 
                         Toolkit.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_TOOLKIT_HPP
 #define ORO_TOOLKIT_HPP
 
@@ -57,7 +57,7 @@ namespace RTT
         virtual ~ToolkitPlugin() {}
 
         /**
-         * Implement this method to add types to the 
+         * Implement this method to add types to the
          * Orocos type system.
          * @see The TypeRepository for adding the types.
          * @see The TypeInfo class for the interface of a 'type'

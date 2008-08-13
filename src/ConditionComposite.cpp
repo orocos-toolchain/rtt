@@ -38,7 +38,7 @@
 
 namespace RTT
 {
-    
+
 
   bool ConditionCompositeNOT::evaluate()
   {

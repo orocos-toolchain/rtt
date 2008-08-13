@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:21 CET 2004  ProgramInterface.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:21 CET 2004  ProgramInterface.hpp
 
                         ProgramInterface.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef PROGRAMINTERFACE_HPP
 #define	PROGRAMINTERFACE_HPP
 
@@ -52,7 +52,7 @@ namespace RTT
     typedef boost::weak_ptr<ProgramInterface> ProgramInterfaceWPtr;
 
 	/**
-	 * @brief A Program represents a collection of 
+	 * @brief A Program represents a collection of
 	 * instructions that can be stepwise executed.
 	 */
 	class ProgramInterface
@@ -117,29 +117,29 @@ namespace RTT
          * Reset the execution point to the beginning of this program interface.
          */
         virtual void reset() = 0;
-	
+
         /**
          * Returns true if the program is running.
          */
         inline bool isRunning() const { return pStatus == Status::running; }
-	
+
         /**
          * Returns true if the program is paused.
          */
         inline bool isPaused() const { return pStatus == Status::paused; }
-	
+
         /**
          * Returns true if the program is not executing (stopped) or not loaded.
          */
         inline bool isStopped() const { return pStatus == Status::stopped || pStatus == Status::unloaded ; }
-	
+
         /**
          * Returns true if the program is in error.
          */
         inline bool inError() const { return pStatus == Status::error; }
 
         virtual bool stepDone() const = 0;
-	
+
         /**
          * Return the current 'line number' of the program.
          */

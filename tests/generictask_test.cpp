@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:26:02 CEST 2006  generictask_test.cpp 
+  tag: Peter Soetens  Mon Jun 26 13:26:02 CEST 2006  generictask_test.cpp
 
                         generictask_test.cpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "generictask_test.hpp"
 #include <unistd.h>
@@ -40,7 +40,7 @@ using namespace std;
 CPPUNIT_TEST_SUITE_REGISTRATION( Generic_TaskTest );
 
 
-void 
+void
 Generic_TaskTest::setUp()
 {
     tc =  new TaskContext( "root" );
@@ -49,7 +49,7 @@ Generic_TaskTest::setUp()
 }
 
 
-void 
+void
 Generic_TaskTest::tearDown()
 {
 //     if ( tc->getPeer("programs") )
@@ -60,7 +60,7 @@ Generic_TaskTest::tearDown()
     delete tsim;
 }
 
-bool Generic_TaskTest::assertBool( bool b) { 
+bool Generic_TaskTest::assertBool( bool b) {
     return b;
 }
 
@@ -109,7 +109,7 @@ void Generic_TaskTest::testMethodsC()
     mc = tc->getObject("methods")->methods()->create("m3").ret( r ).argC(1).argC(1.0).argC(true);
     CPPUNIT_ASSERT( mc.execute() );
     CPPUNIT_ASSERT( r == -4.0 );
-    
+
 #if 0
         +" set r = methods.m0()\n"
         +" do methods.assert( r == -1.0 )\n"
@@ -174,7 +174,7 @@ void Generic_TaskTest::testMethodFactory()
     CPPUNIT_ASSERT( tsim->start()) ;
     // execute methods and check status:
     CPPUNIT_ASSERT_EQUAL( -1.0, mm0() );
-    
+
     CPPUNIT_ASSERT_EQUAL( -2.0, mm1(1) );
     CPPUNIT_ASSERT_EQUAL( -3.0, mm2(1, 2.0) );
 
@@ -199,7 +199,7 @@ void Generic_TaskTest::testMethodFactory()
 
     // this line may not crash:
     mvoid();
-    
+
 }
 
 void Generic_TaskTest::testCRMethod()
@@ -289,7 +289,7 @@ void Generic_TaskTest::testDSMethod()
 
     // this actually works ! the method will detect the deleted pointer.
     //ptr.reset();
-    
+
     CPPUNIT_ASSERT( tsim->start()) ;
 
     double ret;

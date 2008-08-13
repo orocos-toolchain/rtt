@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 10 15:59:15 CET 2005  oro_atomic.h 
+  tag: Peter Soetens  Mon Jan 10 15:59:15 CET 2005  oro_atomic.h
 
                         oro_atomic.h -  description
                            -------------------
     begin                : Mon January 10 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "../../rtt-config.h"
 #ifndef __ARCH_x86_64_ORO_ATOMIC__
@@ -64,27 +64,27 @@ typedef struct { volatile int counter; } oro_atomic_t;
 /**
  * oro_atomic_read - read atomic variable
  * @v: pointer of type oro_atomic_t
- * 
+ *
  * Atomically reads the value of @v.  Note that the guaranteed
  * useful range of an oro_atomic_t is only 24 bits.
- */ 
+ */
 #define oro_atomic_read(v)		((v)->counter)
 
 /**
  * oro_atomic_set - set atomic variable
  * @v: pointer of type oro_atomic_t
  * @i: required value
- * 
+ *
  * Atomically sets the value of @v to @i.  Note that the guaranteed
  * useful range of an oro_atomic_t is only 24 bits.
- */ 
+ */
 #define oro_atomic_set(v,i)		(((v)->counter) = (i))
 
 /**
  * oro_atomic_add - add integer to atomic variable
  * @i: integer value to add
  * @v: pointer of type oro_atomic_t
- * 
+ *
  * Atomically adds @i to @v.  Note that the guaranteed useful range
  * of an oro_atomic_t is only 24 bits.
  */
@@ -100,7 +100,7 @@ static __inline__ void oro_atomic_add(int i, oro_atomic_t *v)
  * oro_atomic_sub - subtract the atomic variable
  * @i: integer value to subtract
  * @v: pointer of type oro_atomic_t
- * 
+ *
  * Atomically subtracts @i from @v.  Note that the guaranteed
  * useful range of an oro_atomic_t is only 24 bits.
  */
@@ -116,7 +116,7 @@ static __inline__ void oro_atomic_sub(int i, oro_atomic_t *v)
  * oro_atomic_sub_and_test - subtract value from variable and test result
  * @i: integer value to subtract
  * @v: pointer of type oro_atomic_t
- * 
+ *
  * Atomically subtracts @i from @v and returns
  * true if the result is zero, or false for all
  * other cases.  Note that the guaranteed
@@ -136,10 +136,10 @@ static __inline__ int oro_atomic_sub_and_test(int i, oro_atomic_t *v)
 /**
  * oro_atomic_inc - increment atomic variable
  * @v: pointer of type oro_atomic_t
- * 
+ *
  * Atomically increments @v by 1.  Note that the guaranteed
  * useful range of an oro_atomic_t is only 24 bits.
- */ 
+ */
 static __inline__ void oro_atomic_inc(oro_atomic_t *v)
 {
 	__asm__ __volatile__(
@@ -151,10 +151,10 @@ static __inline__ void oro_atomic_inc(oro_atomic_t *v)
 /**
  * oro_atomic_dec - decrement atomic variable
  * @v: pointer of type oro_atomic_t
- * 
+ *
  * Atomically decrements @v by 1.  Note that the guaranteed
  * useful range of an oro_atomic_t is only 24 bits.
- */ 
+ */
 static __inline__ void oro_atomic_dec(oro_atomic_t *v)
 {
 	__asm__ __volatile__(
@@ -166,12 +166,12 @@ static __inline__ void oro_atomic_dec(oro_atomic_t *v)
 /**
  * oro_atomic_dec_and_test - decrement and test
  * @v: pointer of type oro_atomic_t
- * 
+ *
  * Atomically decrements @v by 1 and
  * returns true if the result is 0, or false for all other
  * cases.  Note that the guaranteed
  * useful range of an oro_atomic_t is only 24 bits.
- */ 
+ */
 static __inline__ int oro_atomic_dec_and_test(oro_atomic_t *v)
 {
 	unsigned char c;
@@ -184,14 +184,14 @@ static __inline__ int oro_atomic_dec_and_test(oro_atomic_t *v)
 }
 
 /**
- * oro_atomic_inc_and_test - increment and test 
+ * oro_atomic_inc_and_test - increment and test
  * @v: pointer of type oro_atomic_t
- * 
+ *
  * Atomically increments @v by 1
  * and returns true if the result is zero, or false for all
  * other cases.  Note that the guaranteed
  * useful range of an oro_atomic_t is only 24 bits.
- */ 
+ */
 static __inline__ int oro_atomic_inc_and_test(oro_atomic_t *v)
 {
 	unsigned char c;
@@ -207,12 +207,12 @@ static __inline__ int oro_atomic_inc_and_test(oro_atomic_t *v)
  * oro_atomic_add_negative - add and test if negative
  * @v: pointer of type oro_atomic_t
  * @i: integer value to add
- * 
+ *
  * Atomically adds @i to @v and returns true
  * if the result is negative, or false when
  * result is greater than or equal to zero.  Note that the guaranteed
  * useful range of an oro_atomic_t is only 24 bits.
- */ 
+ */
 static __inline__ int oro_atomic_add_negative(int i, oro_atomic_t *v)
 {
 	unsigned char c;

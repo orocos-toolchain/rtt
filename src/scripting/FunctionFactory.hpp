@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  FunctionFactory.hpp 
+  tag: Peter Soetens  Tue Dec 21 22:43:08 CET 2004  FunctionFactory.hpp
 
                         FunctionFactory.hpp -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef FUNCTIONFACTORY_HPP
 #define FUNCTIONFACTORY_HPP
 
@@ -51,8 +51,8 @@ namespace RTT
 {
     class ExecutionEngine;
 
-    
-    
+
+
 
     /**
      * A CommandFactory which delivers commands which execute

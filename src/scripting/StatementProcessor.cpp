@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:57 CEST 2006  StatementProcessor.cxx 
+  tag: Peter Soetens  Mon Jun 26 13:25:57 CEST 2006  StatementProcessor.cxx
 
                         StatementProcessor.cxx -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "StatementProcessor.hpp"
 #include "Parser.hpp"
@@ -81,7 +81,7 @@ namespace RTT
                         comms.erase(it);
                         it = comms.begin(); // reset !
                         continue;
-                    } 
+                    }
                     if ( it->get<1>()->executed() == true ) {
                         if ( it->get<1>()->valid() == false ) {
                             Logger::log() <<Logger::Error<<"Command ("<<it->get<0>()<<") '"<< it->get<3>() << "' was executed but rejected." <<Logger::endl;
@@ -113,7 +113,7 @@ namespace RTT
             return seq -1;
         }
 
-        void printResult( DataSourceBase* ds, bool recurse) { 
+        void printResult( DataSourceBase* ds, bool recurse) {
             std::string prompt(" = ");
             // setup prompt :
             Logger::log() << Logger::Info <<prompt;
@@ -224,7 +224,7 @@ namespace RTT
                 ds->evaluate();
                 Logger::log() << "( result type '"+ds->getType()+"' not known to TaskBrowser )" ;
             }
-	
+
         }
 
     };
@@ -239,17 +239,17 @@ namespace RTT
     StatementProcessor::~StatementProcessor() {
         delete d;
     }
-    
+
     void StatementProcessor::checkFinished() {
         Logger::In in("StatementProcessor");
         d->checkFinished();
     }
-    
+
     DispatchInterface::shared_ptr StatementProcessor::getCommand(int cnr) {
         Logger::In in("StatementProcessor");
         return d->getCommand(cnr);
     }
-    
+
     int StatementProcessor::execute(const std::string& comm)
     {
         Logger::In in("StatementProcessor");
@@ -258,15 +258,15 @@ namespace RTT
 
         TaskContext* taskcontext = d->tc;
 
-        // Minor hack : also check if it was an attribute of current TC, for example, 
+        // Minor hack : also check if it was an attribute of current TC, for example,
         // if both the object and attribute with that name exist. the if
         // statement after this one would return and not give the expr parser
-        // time to evaluate 'comm'. 
+        // time to evaluate 'comm'.
         if ( taskcontext->attributes()->getValue( comm ) ) {
                 d->printResult( taskcontext->attributes()->getValue( comm )->getDataSource().get(), true );
                 return 0;
         }
-                    
+
         Parser _parser;
         std::pair< CommandInterface*, ConditionInterface*> comcon;
         DispatchInterface* command;
@@ -298,7 +298,7 @@ namespace RTT
                 // ignore, try next parser
                 Logger::log() << Logger::Debug << "Ignoring ValueChange exception :"<<Logger::nl;
                 Logger::log() << Logger::Debug << pe.what() <<Logger::nl;
-        } catch ( parse_exception& pe ) { 
+        } catch ( parse_exception& pe ) {
             // syntactic errors must be reported immediately
             Logger::log() << Logger::Error << "parse_exception :";
             Logger::log() << Logger::Error << pe.what() <<Logger::nl;
@@ -328,7 +328,7 @@ namespace RTT
                 // ignore, try next parser
                 Logger::log() << Logger::Debug << "Ignoring Expression exception :"<<Logger::nl;
                 Logger::log() << Logger::Debug << pe.what() <<Logger::nl;
-        } catch ( parse_exception& pe ) { 
+        } catch ( parse_exception& pe ) {
             // ignore, try next parser
             Logger::log() << Logger::Debug << "Ignoring Expression parse_exception :"<<Logger::nl;
             Logger::log() << Logger::Debug << pe.what() <<Logger::nl;
@@ -347,7 +347,7 @@ namespace RTT
             Logger::log() << Logger::Error << "Illegal Input."<<Logger::nl;
             return -1;
         }
-                
+
         if ( command == 0 ) { // this should not be reached
             Logger::log() << Logger::Error << "Uncaught : Illegal command."<<Logger::nl;
             return -1;
@@ -355,6 +355,6 @@ namespace RTT
 
         return d->add( command, condition, comm);
     }
-    
+
 }
 

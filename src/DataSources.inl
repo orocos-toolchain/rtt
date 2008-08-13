@@ -156,7 +156,7 @@ namespace RTT
             : BoundT( data )
         {
         }
-        
+
         template< typename BoundT>
         UnboundDataSource<BoundT>::UnboundDataSource( )
         {

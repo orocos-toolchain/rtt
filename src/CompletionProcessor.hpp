@@ -1,5 +1,5 @@
 /***************************************************************************
- tag: Peter Soetens  Mon Jun 10 14:32:45 CEST 2002  CompletionProcessor.hpp 
+ tag: Peter Soetens  Mon Jun 10 14:32:45 CEST 2002  CompletionProcessor.hpp
 
                        CompletionProcessor.hpp -  description
                           -------------------
@@ -30,19 +30,19 @@ namespace RTT
     /**
      * @brief An activity which executes asynchronous (defered) handlers
      * of Events.
-     * 
-     * This is an utility class which can be used to execute Event 
+     *
+     * This is an utility class which can be used to execute Event
      * callback functions in a thread. It's purpose is to allow a way
      * to process not real-time event callback functions, without
      * disturbing the emitor of the event.
-     * If the user requires a 
+     * If the user requires a
      * not real-time, complex or lengthy callback execution, it can
      * be done in this activity.
      *
      * @ingroup CoreLibEvents
      */
-    class CompletionProcessor 
-        : public BlockingEventProcessor, 
+    class CompletionProcessor
+        : public BlockingEventProcessor,
           public NonPeriodicActivity
     {
     public:
@@ -71,7 +71,7 @@ namespace RTT
     private:
         /**
          * Singleton
-         */    
+         */
         static boost::shared_ptr<CompletionProcessor> cp;
     };
 }

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:06 CET 2006  Command.hpp 
+  tag: FMTC  do nov 2 13:06:06 CET 2006  Command.hpp
 
                         Command.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_TASK_COMMAND_HPP
 #define ORO_TASK_COMMAND_HPP
 
@@ -90,7 +90,7 @@ namespace RTT
      * @ingroup Commands
      */
     template<class CommandT>
-    class Command 
+    class Command
         : public detail::InvokerSignature<boost::function_traits<CommandT>::arity, CommandT, detail::CommandBase<CommandT>* >
     {
     protected:
@@ -148,16 +148,16 @@ namespace RTT
             return *this;
         }
 
-        /** 
+        /**
          * Create a Command object which executes a member function of a class that
          * inherits from a TaskContext.
-         * 
+         *
          * @param name The name of this command.
          * @param com A pointer to the member function to execute when the command is invoked.
          * @param con A pointer to the member function that evaluates if the command is done.
          * @param t A pointer to an object of this class, which will receive and process the command.
          * @param invert Invert the result of \a con when evaluating the completion of the command.
-         * 
+         *
          */
         template<class CommandF, class ConditionF, class ObjectT>
         Command(std::string name, CommandF com, ConditionF con, ObjectT t, bool invert = false)
@@ -166,18 +166,18 @@ namespace RTT
         {
         }
 
-        /** 
+        /**
          * Create a Command object which executes a member function of a class that
          * is \b not a TaskContext.
-         * 
-         * 
+         *
+         *
          * @param name The name of this command.
          * @param com A pointer to the member function to execute when the command is invoked.
          * @param con A pointer to the member function that evaluates if the command is done.
          * @param t A pointer to an object of the class which has \a com and \a con.
          * @param commandp The CommandProcessor which will execute this Command.
          * @param invert Invert the result of \a con when evaluating the completion of the command.
-         * 
+         *
          */
         template<class CommandF, class ConditionF, class ObjectT>
         Command(std::string name, CommandF com, ConditionF con, ObjectT t, CommandProcessor* commandp, bool invert = false)
@@ -186,9 +186,9 @@ namespace RTT
         {
         }
 
-        /** 
+        /**
          * Create a Command object which executes a plain 'C' function.
-         * 
+         *
          * @param name The name of this command.
          * @param com A pointer to the 'C' function to execute when the command is invoked.
          * @param con A pointer to the 'C' function that evaluates if the command is done.
@@ -202,10 +202,10 @@ namespace RTT
         {
         }
 
-        /** 
+        /**
          * Construct a Command which uses a ready-made implementation.
          * If the implementation is of the wrong type, it is freed.
-         * 
+         *
          * @param implementation An implementation which will be owned
          * by the command. If it is unusable, it is freed.
          */
@@ -216,7 +216,7 @@ namespace RTT
             // If not convertible, delete the implementation.
             if ( !this->impl && implementation) {
                 log(Error) << "Tried to assign Command from incompatible type."<< endlog();
-                delete implementation; 
+                delete implementation;
             }
         }
 
@@ -228,10 +228,10 @@ namespace RTT
             delete this->impl;
         }
 
-        /** 
+        /**
          * A Command objects may be assigned to an implementation.
          * If the implementation is of the wrong type, it is freed.
-         * 
+         *
          * @param implementation An implementation which will be owned
          * by the command. If it is unusable, it is freed.
          */
@@ -265,7 +265,7 @@ namespace RTT
             if (!this->impl) return false;
             return this->impl->done();
         }
-     
+
         /**
          * After reset(), another attempt to dispatch
          * the command will be done when invoked.
@@ -305,36 +305,36 @@ namespace RTT
 
         /**
          * Returns true if the command was valid, i.e. the command function itself
-         * was executed and returned true. 
+         * was executed and returned true.
          */
         bool valid() const {
             if (!this->impl) return false;
             return this->impl->valid();
         }
 
-        /** 
+        /**
          * Returns the name of this Command object.
-         * 
+         *
          * @return the name.
          */
         const std::string& getName() const {
             return mname;
         }
 
-        /** 
+        /**
          * The Command class is just a wrapper around an implementation,
          * this function returns the implementation. Make a clone() if you
          * want to keep the pointer.
-         * 
+         *
          * @return The implementation
          */
         detail::CommandBase<CommandT>* getCommandImpl() const {
             return this->impl;
         }
 
-        /** 
+        /**
          * Change the implementation of this Command, delete the old one.
-         * 
+         *
          * @param new_impl The new implementation.
          */
         void setCommandImpl(detail::CommandBase<CommandT>* new_impl) const {
@@ -343,11 +343,11 @@ namespace RTT
         }
     };
 
-    /** 
+    /**
      * Factory function to create a Command object which executes a member function
      * of an object. The object inherits from the TaskCore class and the command
      * is executed in the ExecutionEngine's CommandProcessor of that object.
-     * 
+     *
      * @param name The name of the command.
      * @param command A pointer to a member function of \a object, which is executed as
      * the command function
@@ -356,7 +356,7 @@ namespace RTT
      * @param object A pointer to an object which has \a command and \a condition as functions
      * and inherits from TaskCore.
      * @param invert Set to true to invert the result of \a condition.
-     * 
+     *
      * @return A new Command object.
      */
     template<class ComF, class ConF, class Object>
@@ -364,10 +364,10 @@ namespace RTT
         return Command<  typename detail::UnMember<ComF>::type >(name, command, condition, object, invert);
     }
 
-    /** 
+    /**
      * Factory function to create a Command object which executes a member function
      * of an object. A CommandProcessor is given in which the command is executed.
-     * 
+     *
      * @param name The name of the command
      * @param command A pointer to a member function of \a object, which is executed as
      * the command function
@@ -376,7 +376,7 @@ namespace RTT
      * @param object A pointer to an object which has \a command and \a condition as functions
      * @param cp The command processor which will execute the command.
      * @param invert Set to true to invert the result of \a condition.
-     * 
+     *
      * @return A new Command object.
      */
     template<class ComF, class ConF, class Object>
@@ -384,9 +384,9 @@ namespace RTT
         return Command<  typename detail::UnMember<ComF>::type >(name, command, condition, object, cp, invert);
     }
 
-    /** 
+    /**
      * Factory function to create a Command object which executes a 'C' function.
-     * 
+     *
      * @param name The name of the command object
      * @param command A pointer to a function, which is executed as
      * the command function
@@ -394,7 +394,7 @@ namespace RTT
      * as completion condition
      * @param cp The command processor which will execute the command.
      * @param invert Set to true to invert the result of \a condition.
-     * 
+     *
      * @return A new Command object.
      */
     template<class ComF, class ConF>

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 10 16:16:56 CEST 2002  AnalogOutInterface.hpp 
+  tag: Peter Soetens  Thu Oct 10 16:16:56 CEST 2002  AnalogOutInterface.hpp
 
                         AnalogOutInterface.hpp -  description
                            -------------------
     begin                : Thu October 10 2002
     copyright            : (C) 2002 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,7 +33,7 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
+ ***************************************************************************/
 /* Klaas Gadeyne, Mon August 11 2003
    - Added "channel" param to lowest(), highest(), resolution() calls (these
    are mostly configurable on a per channel basis.  If not, there's
@@ -44,7 +44,7 @@
    Klaas Gadeyne, Wed August 20 2003
    - Added rangeSet() and arefSet() methods, that allready existed in
    the comedi implementations of these interfaces
-*/ 
+*/
 
 #ifndef ANALOGOUTINTERFACE_HPP
 #define ANALOGOUTINTERFACE_HPP
@@ -58,9 +58,9 @@ namespace RTT
     /**
      * An interface for writing analog output, like
      * for addressing a whole subdevice in comedi
-     * 
+     *
      * Measurement Unit (MU) : Unit of what is actually read on the analog channel (e.g. Volt)
-     * 
+     *
      * @ingroup DeviceInterface
      */
     class AnalogOutInterface
@@ -95,24 +95,24 @@ namespace RTT
         virtual ~AnalogOutInterface()
         {}
 
-        /** 
+        /**
          * Set the range of a particular channel.  We took (for
          * now) the comedi API for this, where every range
          * (eg. -5/+5 V) corresponds to an unsigned int.  You
          * should provide a mapping from that int to a particular
          * range in your driver documentation
          */
-        virtual void rangeSet(unsigned int chan, 
+        virtual void rangeSet(unsigned int chan,
                               unsigned int range) = 0;
 
-        /** 
+        /**
          * Set the analog reference of a particular channel.  We took (for
          * now) the comedi API for this, where every aref
          * (eg. Analog reference set to ground (aka AREF_GROUND)
          * corresponds to an unsigned int.
          * @see AnalogReference.
          */
-	    virtual void arefSet(unsigned int chan, 
+	    virtual void arefSet(unsigned int chan,
                              unsigned int aref) = 0;
 
         /**
@@ -158,7 +158,7 @@ namespace RTT
          * Resolution is expressed in bits / MU
          */
         virtual double resolution(unsigned int chan) const = 0;
-            
+
         /**
          * Returns the total number of channels.
          */

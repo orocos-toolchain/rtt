@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  ProgramProcessor.cxx 
+  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  ProgramProcessor.cxx
 
                         ProgramProcessor.cxx -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "ProgramProcessor.hpp"
 #include "ProgramInterface.hpp"
@@ -50,7 +50,7 @@ namespace RTT
 {
     using namespace boost;
     using namespace std;
-    
+
 
     ProgramProcessor::ProgramProcessor(int f_queue_size)
         : programs( new ProgMap(4) ),

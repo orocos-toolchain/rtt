@@ -48,7 +48,7 @@ using namespace boost;
 namespace RTT
 {
   using namespace detail;
-  
+
 
   Parser::ParsedFunctions Parser::parseFunction( const std::string& text, TaskContext* c, const std::string& filename)
   {

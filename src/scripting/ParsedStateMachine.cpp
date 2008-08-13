@@ -42,7 +42,7 @@ namespace RTT {
     using namespace boost::lambda;
     using boost::tuples::get;
     /**
-     * @todo 
+     * @todo
      * 1. add copy/clone semantics to StateInterface and StateMachine.
      * 2a. rewrite ParsedStateMachine::copy to use (1)
      * 2b. remove all old StateMachine in DataSource code ( code is deprecated by StateMachineCommands implementation)
@@ -84,7 +84,7 @@ namespace RTT {
             // copy the submachines....
             assert( dynamic_cast<ParsedStateMachine*>( i->get() ) == static_cast<ParsedStateMachine*>( i->get() ));
             ParsedStateMachine* oldmachine = static_cast<ParsedStateMachine*>( i->get() );
-            ParsedStateMachinePtr newmachine(oldmachine->copy( replacements, instantiate )); 
+            ParsedStateMachinePtr newmachine(oldmachine->copy( replacements, instantiate ));
             // I would think that providing 'instantiate' would not hurt...
             // XXX? previously, the instantiate flag was not given to copy, does it now break apps ?
 
@@ -97,7 +97,7 @@ namespace RTT {
             ret->setInitCommand( this->getInitCommand()->copy(replacements) );
             // test :
             //ret->getInitCommand()->execute();
-        } 
+        }
 
         // First make a copy of all states.  All states are either
         // known by their name or by a transition from or to them...
@@ -157,7 +157,7 @@ namespace RTT {
                     eprog.reset( egraph->copy(replacements) );
 #ifndef NDEBUG
                 bool eresult =
-#endif                    
+#endif
                     ret->createEventTransition(es, ename, newargs, fromState, toState, condition, tprog, elseState, eprog );
                 assert( eresult );
             }

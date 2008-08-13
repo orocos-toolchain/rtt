@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:26:02 CEST 2006  generictask_test.cpp 
+  tag: Peter Soetens  Mon Jun 26 13:26:02 CEST 2006  generictask_test.cpp
 
                         generictask_test_3.cpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "generictask_test_3.hpp"
 #include <unistd.h>
@@ -35,7 +35,7 @@ using namespace std;
 CPPUNIT_TEST_SUITE_REGISTRATION( Generic_TaskTest_3 );
 
 // Test TaskContext states.
-class StatesTC 
+class StatesTC
     : public RTT::TaskContext
 {
 public:
@@ -110,7 +110,7 @@ public:
 };
 
 
-void 
+void
 Generic_TaskTest_3::setUp()
 {
     tc =  new TaskContext( "root", TaskContext::Stopped );
@@ -121,7 +121,7 @@ Generic_TaskTest_3::setUp()
 }
 
 
-void 
+void
 Generic_TaskTest_3::tearDown()
 {
 //     if ( tc->getPeer("programs") )
@@ -464,7 +464,7 @@ void Generic_TaskTest_3::testFailingTCStates()
     CPPUNIT_ASSERT( stc->resetError() == true ); // brings us to Stopped.
     CPPUNIT_ASSERT( stc->didreset == true );
     CPPUNIT_ASSERT( stc->isConfigured() == true);
-   
+
 }
 
 void Generic_TaskTest_3::testExecutionEngine()
@@ -511,7 +511,7 @@ void Generic_TaskTest_3::testProperties()
     CPPUNIT_ASSERT(tc->properties()->addProperty( &s2 ) );
     s1 = tc->properties()->getProperty<string>("hello");
     CPPUNIT_ASSERT( s1.ready() );
-    
+
     CPPUNIT_ASSERT_EQUAL(std::string("hello"), s1.getName() );
     CPPUNIT_ASSERT_EQUAL(std::string("description"), s1.getDescription() );
     CPPUNIT_ASSERT_EQUAL(std::string("world"), s1.get() );
@@ -520,7 +520,7 @@ void Generic_TaskTest_3::testProperties()
     s1.set("universe");
     CPPUNIT_ASSERT_EQUAL(std::string("universe"), s2.get() );
 
-#if 0    
+#if 0
     CPPUNIT_ASSERT(tc->writeProperties("Generic_TaskTest_3_Properties.cpf"));
     CPPUNIT_ASSERT( tc->readProperties("Generic_TaskTest_3_Properties.cpf"));
 #endif
@@ -539,7 +539,7 @@ void Generic_TaskTest_3::testAttributes()
     i1.set( 3 );
     CPPUNIT_ASSERT_EQUAL( double(1.234), d1.get() );
     CPPUNIT_ASSERT_EQUAL( int(3), i1.get() );
-    
+
     CPPUNIT_ASSERT_EQUAL( double(1.234), tc->attributes()->getAttribute<double>("d1")->get() );
     CPPUNIT_ASSERT_EQUAL( int(3),        tc->attributes()->getAttribute<int>("i1")->get() );
 
@@ -553,7 +553,7 @@ void Generic_TaskTest_3::testAttributes()
     CPPUNIT_ASSERT(tc->attributes()->addAttribute( &s2 ) );
     s1 = tc->attributes()->getAttribute<string>("hello");
     CPPUNIT_ASSERT( s1.ready() );
-    
+
     CPPUNIT_ASSERT_EQUAL(std::string("hello"), s1.getName() );
     CPPUNIT_ASSERT_EQUAL(std::string("world"), s1.get() );
 
@@ -641,7 +641,7 @@ void Generic_TaskTest_3::testPorts()
     dp.Set( 5.0 );
     dp2.Get( dat );
     CPPUNIT_ASSERT( dat == 5.0 );
-    
+
     dp2.Set( 6.0 );
     CPPUNIT_ASSERT( dp.Get() == 6.0 );
 
@@ -676,7 +676,7 @@ void Generic_TaskTest_3::testPorts()
     CPPUNIT_ASSERT( bp2.Pop( val ) );
     CPPUNIT_ASSERT( val == 5.0 );
     CPPUNIT_ASSERT( bp2.Pop( val ) == false );
-    
+
     CPPUNIT_ASSERT( bp2.Push( 5.0 ) );
     CPPUNIT_ASSERT( bp.Pop( val ) );
     CPPUNIT_ASSERT( val == 5.0 );
@@ -688,7 +688,7 @@ void Generic_TaskTest_3::testPorts()
     CPPUNIT_ASSERT( bp.connected() );
     CPPUNIT_ASSERT( bp.buffer()->capacity() == 10 );
 
-    
+
 }
 
 void Generic_TaskTest_3::testPortObjects()
@@ -712,7 +712,7 @@ void Generic_TaskTest_3::testPortObjects()
     // Set initial value
     wdp.Set( 1.0 );
     dp.Set( 2.0 );
-    
+
     // Connect ports.
     wdp.connectTo( &rdp );
     dp.connectTo( &dp2 );

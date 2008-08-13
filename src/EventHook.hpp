@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  EventHook.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  EventHook.hpp
 
                         EventHook.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,11 +34,11 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef EVENT_HOOK_HPP
 #define EVENT_HOOK_HPP
- 
+
 
 #include "Event.hpp"
 #include "ActivityInterface.hpp"
@@ -108,13 +108,13 @@ namespace RTT{
                 return h;
             }
 
-            Ret synop() 
+            Ret synop()
             {
                 mfunc();
                 return Ret();
             }
 
-            Ret asynop() 
+            Ret asynop()
             {
                 mfunc();
                 return Ret();
@@ -134,7 +134,7 @@ namespace RTT{
             typename AssignableDataSource<A1>::shared_ptr ma1;
 
             //boost::shared_ptr<EventHookBase> seh;
-            
+
         public:
             EventHook1( EventT* source, typename AssignableDataSource<A1>::shared_ptr a1 )
                 : msource(source), ma1(a1) //, seh(this)
@@ -153,7 +153,7 @@ namespace RTT{
                 return h;
             }
 
-            Ret synop(A1 arg1) 
+            Ret synop(A1 arg1)
             {
                 // set the received args.
                 ma1->set(arg1);
@@ -161,7 +161,7 @@ namespace RTT{
                 return Ret();
             }
 
-            Ret asynop(A1 arg1) 
+            Ret asynop(A1 arg1)
             {
                 // set the received args.
                 ma1->set(arg1);
@@ -185,7 +185,7 @@ namespace RTT{
             typename AssignableDataSource<A2>::shared_ptr ma2;
 
             //boost::shared_ptr<EventHookBase> seh;
-            
+
         public:
             EventHook2( EventT* source,
                         typename AssignableDataSource<A1>::shared_ptr a1,
@@ -204,7 +204,7 @@ namespace RTT{
                 return h;
             }
 
-            Ret synop(A1 arg1, A2 arg2) 
+            Ret synop(A1 arg1, A2 arg2)
             {
                 // set the received args.
                 ma1->set(arg1);
@@ -212,7 +212,7 @@ namespace RTT{
                 mfunc();
                 return Ret();
             }
-            Ret asynop(A1 arg1, A2 arg2) 
+            Ret asynop(A1 arg1, A2 arg2)
             {
                 // set the received args.
                 ma1->set(arg1);
@@ -240,7 +240,7 @@ namespace RTT{
             typename AssignableDataSource<A3>::shared_ptr ma3;
 
             //boost::shared_ptr<EventHookBase> seh;
-            
+
         public:
             EventHook3( EventT* source,
                         typename AssignableDataSource<A1>::shared_ptr a1,
@@ -260,7 +260,7 @@ namespace RTT{
                 return h;
             }
 
-            Ret synop(A1 arg1, A2 arg2, A3 arg3) 
+            Ret synop(A1 arg1, A2 arg2, A3 arg3)
             {
                 // set the received args.
                 ma1->set(arg1);
@@ -269,7 +269,7 @@ namespace RTT{
                 mfunc();
                 return Ret();
             }
-            Ret asynop(A1 arg1, A2 arg2, A3 arg3) 
+            Ret asynop(A1 arg1, A2 arg2, A3 arg3)
             {
                 // set the received args.
                 ma1->set(arg1);

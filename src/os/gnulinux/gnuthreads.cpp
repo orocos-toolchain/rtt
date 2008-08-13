@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:57 CEST 2006  gnuthreads.cxx 
+  tag: Peter Soetens  Mon Jun 26 13:25:57 CEST 2006  gnuthreads.cxx
 
                         gnuthreads.cxx -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include <os/threads.hpp>
 
@@ -43,9 +43,9 @@ namespace RTT
 { namespace OS {
 
     const int LowestPriority = 1;
-    
+
     const int HighestPriority = 99;
 
     const int IncreasePriority = 1;
-    
+
 }}

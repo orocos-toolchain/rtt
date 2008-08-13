@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  ConnectionC.cxx 
+  tag: Peter Soetens  Wed Jan 18 14:11:40 CET 2006  ConnectionC.cxx
 
                         ConnectionC.cxx -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include "EventService.hpp"
 #include "ConnectionC.hpp"
 #include "FactoryExceptions.hpp"
@@ -46,10 +46,10 @@
 
 namespace RTT
 {
-    
+
     using namespace detail;
     using namespace boost;
-    
+
     class ConnectionC::D
     {
     public:
@@ -62,7 +62,7 @@ namespace RTT
         Handle h;
 
         /**
-         * This method creates connections and stores the Handle objects 
+         * This method creates connections and stores the Handle objects
          * in \a h.
          */
         void checkAndCreate() {
@@ -85,13 +85,13 @@ namespace RTT
             }
         }
 
-        void callback(EventCallBack* ecb) { 
+        void callback(EventCallBack* ecb) {
             if (syn_ecb || asyn_ecb) {
                 Logger::log() << Logger::Error << "Ignoring added Synchronous 'callback': already present."<<Logger::endl;
                 delete ecb;
                 return;
             }
-            syn_ecb = ecb; 
+            syn_ecb = ecb;
         }
         void callback(EventCallBack* ecb, EventProcessor* ep, EventProcessor::AsynStorageType s_type) {
             if (syn_ecb || asyn_ecb) {
@@ -137,7 +137,7 @@ namespace RTT
     ConnectionC::ConnectionC()
         : d(0)
     {}
-    
+
     ConnectionC::ConnectionC(const EventService* gcf, const std::string& name)
         : d( gcf ? new D( gcf, name ) : 0 )
     {

@@ -6,7 +6,7 @@
 #define RTT_VERSION_MINOR @RTT_VERSION_MINOR@
 #define RTT_VERSION_PATCH @RTT_VERSION_PATCH@
 
-// if not defined, show an error 
+// if not defined, show an error
 #ifndef OROCOS_TARGET
 // OROCOS_TARGET is only used to include the file targets/OROCOS_TARGET
 #error "You _must_ define OROCOS_TARGET to an installed target (for example: -DOROCOS_TARGET=gnulinux )"
@@ -55,8 +55,8 @@
 #else
    // NOT GNU
 #  define RTT_API
-#  define RTT_EXPORT 
-#  define RTT_HIDE   
+#  define RTT_EXPORT
+#  define RTT_HIDE
 #endif
 
 #endif

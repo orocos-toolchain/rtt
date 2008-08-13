@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  INIMarshaller.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  INIMarshaller.hpp
 
                         INIMarshaller.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef PI_PROPERTIES_INISERIALIZER
 #define PI_PROPERTIES_INISERIALIZER
 
@@ -57,12 +57,12 @@ namespace RTT
           protected PropertyBagVisitor
     {
     protected:
-        virtual void introspect(const PropertyBase* v) 
-        { 
+        virtual void introspect(const PropertyBase* v)
+        {
             _os << v->getName() << " = " << v << "\n";
         }
 
-        virtual void introspect(const Property<PropertyBag> &b) 
+        virtual void introspect(const Property<PropertyBag> &b)
         {
             _os <<"[" << b.getName()<< "]\n";
             b.value().identify(this);
@@ -79,13 +79,13 @@ namespace RTT
             p->identify(this);
         }
 
-        virtual void serialize(const PropertyBag &v) 
+        virtual void serialize(const PropertyBag &v)
         {
             _os << "[properties]\n";
             v.identify(this);
             _os << "\n";
         }
-	
+
 		virtual void flush()
         {
             _os.flush();

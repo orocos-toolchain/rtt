@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  signal_base.cxx 
+  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  signal_base.cxx
 
                         signal_base.cxx -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #include "impl/signal_base.hpp"
 
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
@@ -78,7 +78,7 @@ namespace RTT {
             if( !m_sig ) return;
             mconnected = false;
             signal_base* copy = m_sig;
-            m_sig = 0; 
+            m_sig = 0;
             copy->conn_destroy(this);
             // after this point this object may be destructed !
         }
@@ -108,7 +108,7 @@ namespace RTT {
             // derived class must make sure that list contained enough list items !
             //assert( itend != mconnections.end() );
 
-            // connection (push_back) in emit() does not invalidate iterators, so this 
+            // connection (push_back) in emit() does not invalidate iterators, so this
             // function is straightforwardly implemented.
             OS::MutexLock lock(m);
 #ifdef ORO_SIGNAL_USE_RT_LIST
@@ -200,7 +200,7 @@ namespace RTT {
                 mconnections.erase( --(mconnections.end()) );
                 --concount;
             }
-#endif            
+#endif
             // remove zeros. too expensive ?
             //itend = std::remove( mconnections.begin(), itend, 0);
         }

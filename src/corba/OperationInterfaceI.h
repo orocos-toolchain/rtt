@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  FactoriesI.h 
+  tag: Peter Soetens  Mon Jun 26 13:25:59 CEST 2006  FactoriesI.h
 
                         FactoriesI.h -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 // -*- C++ -*-
 //
 // $Id$
@@ -63,7 +63,7 @@
 // Information about TAO is available at:
 //     http://www.cs.wustl.edu/~schmidt/TAO.html
 
-// TAO_IDL - Generated from 
+// TAO_IDL - Generated from
 // be/be_codegen.cpp:844
 
 #ifndef FACTORIESI_H_
@@ -84,24 +84,24 @@ class  Orocos_MethodInterface_i
     RTT::MethodFactory* mfact;
     PortableServer::POA_var mpoa;
 public:
-  //Constructor 
+  //Constructor
   Orocos_MethodInterface_i (RTT::MethodFactory* mfact, PortableServer::POA_ptr the_poa);
-  
-  //Destructor 
+
+  //Destructor
   virtual ~Orocos_MethodInterface_i (void);
 
     PortableServer::POA_ptr _default_POA()
     {
         return PortableServer::POA::_duplicate(mpoa);
     }
-  
+
   virtual
   ::RTT::Corba::MethodList * getMethods (
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   ::RTT::Corba::Descriptions * getArguments (
       const char* method
@@ -110,7 +110,7 @@ public:
       CORBA::SystemException
       ,::RTT::Corba::NoSuchNameException
     ));
-  
+
   virtual
   char * getResultType (
       const char* method
@@ -119,7 +119,7 @@ public:
       CORBA::SystemException
       ,::RTT::Corba::NoSuchNameException
     ));
-  
+
   virtual
   char * getDescription (
       const char* method
@@ -128,7 +128,7 @@ public:
       CORBA::SystemException
       ,::RTT::Corba::NoSuchNameException
     ));
-  
+
   virtual
   ::RTT::Corba::Method_ptr createMethod (
       const char * method,
@@ -161,17 +161,17 @@ class  Orocos_CommandInterface_i
     RTT::CommandFactory* mfact;
     PortableServer::POA_var mpoa;
 public:
-  //Constructor 
+  //Constructor
   Orocos_CommandInterface_i (RTT::CommandFactory* fact, PortableServer::POA_ptr the_poa);
-  
-  //Destructor 
+
+  //Destructor
   virtual ~Orocos_CommandInterface_i (void);
 
     PortableServer::POA_ptr _default_POA()
     {
         return PortableServer::POA::_duplicate(mpoa);
     }
-  
+
   virtual
   ::RTT::Corba::CommandList * getCommands (
     )
@@ -187,7 +187,7 @@ public:
       CORBA::SystemException
     ,::RTT::Corba::NoSuchNameException
     ));
-  
+
   virtual
   char * getResultType (
       const char* command
@@ -196,7 +196,7 @@ public:
       CORBA::SystemException
     ,::RTT::Corba::NoSuchNameException
     ));
-  
+
   virtual
   char * getDescription (
       const char* command
@@ -205,7 +205,7 @@ public:
       CORBA::SystemException
     ,::RTT::Corba::NoSuchNameException
     ));
-  
+
   virtual
   ::RTT::Corba::Command_ptr createCommand (
       const char * command,
@@ -217,7 +217,7 @@ public:
     ,::RTT::Corba::WrongNumbArgException
     ,::RTT::Corba::WrongTypeArgException
     ));
-  
+
   virtual
   ::RTT::Corba::Command_ptr createCommandAny (
       const char * command,

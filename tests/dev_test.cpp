@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 10 15:59:51 CET 2005  dev_test.cpp 
+  tag: Peter Soetens  Mon Jan 10 15:59:51 CET 2005  dev_test.cpp
 
                         dev_test.cpp -  description
                            -------------------
     begin                : Mon January 10 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,8 +15,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "dev_test.hpp"
 #include "FakeAnalogDevice.hpp"
@@ -36,13 +36,13 @@ CPPUNIT_TEST_SUITE_REGISTRATION( DevTest );
 
 using namespace RTT;
 
-void 
+void
 DevTest::setUp()
 {
 }
 
 
-void 
+void
 DevTest::tearDown()
 {
 }

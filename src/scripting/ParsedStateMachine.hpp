@@ -43,7 +43,7 @@
 #include "../DataSource.hpp"
 #include <boost/shared_ptr.hpp>
 
-namespace RTT 
+namespace RTT
 {
     class TaskObject;
     class StateMachineTask;

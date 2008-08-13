@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Klaas Gadeyne Thu Sep 21 17:29:27 CEST 2006 PulseTrainGeneratorInterface.hpp 
+  tag: Klaas Gadeyne Thu Sep 21 17:29:27 CEST 2006 PulseTrainGeneratorInterface.hpp
 
                         PulseTrainGeneratorInterface.hpp -  description
                            -------------------
     begin                : Thu Sep 21 17:29:27 CEST 2006
     copyright            : (C) 2006 FMTC
     email                : klaas gadeyne at fmtc be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -23,8 +23,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef PULSETRAINGENERATOR_HPP
 #define PULSETRAINGENERATOR_HPP
 
@@ -86,7 +86,7 @@ namespace RTT
 	 * @pre PulseWidth should be smaller than PulsePeriod
          */
         virtual bool pulsePeriodSet(psecs picos) = 0;
-           
+
         /**
          * @brief Start the pulse train generation.
          */
@@ -101,14 +101,14 @@ namespace RTT
 
 #endif
 /***************************************************************************
-  tag: Klaas Gadeyne Thu Sep 21 17:29:27 CEST 2006 PulseTrainGeneratorInterface.hpp 
+  tag: Klaas Gadeyne Thu Sep 21 17:29:27 CEST 2006 PulseTrainGeneratorInterface.hpp
 
                         PulseTrainGeneratorInterface.hpp -  description
                            -------------------
     begin                : Thu Sep 21 17:29:27 CEST 2006
     copyright            : (C) 2006 FMTC
     email                : klaas gadeyne at fmtc be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU Lesser General Public            *
@@ -125,8 +125,8 @@ namespace RTT
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef PULSETRAINGENERATOR_HPP
 #define PULSETRAINGENERATOR_HPP
 
@@ -188,7 +188,7 @@ namespace RTT
 	 * @pre PulseWidth should be smaller than PulsePeriod
          */
         virtual bool pulsePeriodSet(psecs picos) = 0;
-           
+
         /**
          * @brief Start the pulse train generation.
          */

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:57 CEST 2006  ScriptingAccess.cxx 
+  tag: Peter Soetens  Mon Jun 26 13:25:57 CEST 2006  ScriptingAccess.cxx
 
                         ScriptingAccess.cxx -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #include "ScriptingAccess.hpp"
 #include "Logger.hpp"
@@ -52,7 +52,7 @@
 namespace RTT
 {
     using namespace std;
-    
+
 
     ScriptingAccess::~ScriptingAccess()
     {
@@ -81,7 +81,7 @@ namespace RTT
       Logger::log() << Logger::Error << "No Parser available to load '"+filename+"' ." << Logger::endl;
       return Functions();
     }
-    
+
     bool ScriptingAccess::loadPrograms( std::string file, bool do_throw /*= false*/ )
     {
         Logger::In in("ScriptingAccess::loadProgram");
@@ -95,7 +95,7 @@ namespace RTT
         Logger::log() << Logger::Error << "No Parser available to load '"+filename+"' ." << Logger::endl;
         return false;
     }
-    
+
     bool ScriptingAccess::unloadProgram( string name, bool do_throw ){
         Logger::In in("ScriptingAccess::unloadProgram");
         Logger::log() << Logger::Error << "No Parser available to unload '"+name+"' ." << Logger::endl;
@@ -126,7 +126,7 @@ namespace RTT
         return -1;
 #endif
     }
-    
+
     string ScriptingAccess::getProgramText(string name ) const {
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
         const ProgramInterfacePtr pi = mparent->engine()->programs()->getProgram(name);
@@ -135,7 +135,7 @@ namespace RTT
         return "";
 #endif
     }
-        
+
     string ScriptingAccess::getProgramStatus(string name ) const {
 #ifdef OROPKG_EXECUTION_ENGINE_PROGRAMS
         return mparent->engine()->programs()->getProgramStatusStr(name);
@@ -151,13 +151,13 @@ namespace RTT
         return false;
     }
 
-    bool ScriptingAccess::loadStateMachines( string code, string filename, bool mrethrow ) 
+    bool ScriptingAccess::loadStateMachines( string code, string filename, bool mrethrow )
     {
         Logger::In in("ScriptingAccess::loadStateMachine");
         Logger::log() << Logger::Error << "No Parser available to load '"+filename+"' ." << Logger::endl;
         return false;
     }
-    
+
     bool ScriptingAccess::unloadStateMachine( string name, bool do_throw ) {
         Logger::In in("ScriptingAccess::unloadStateMachine");
         Logger::log() << Logger::Error << "No Parser available to unload '"+name+"' ." << Logger::endl;
@@ -189,7 +189,7 @@ namespace RTT
         return "";
 #endif
     }
-    
+
     string ScriptingAccess::getStateMachineStatus(string name ) const {
 #ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
         return mparent->engine()->states()->getStateMachineStatusStr(name);
@@ -206,7 +206,7 @@ namespace RTT
         return -1;
 #endif
     }
-    
+
     string ScriptingAccess::getCurrentState( string name ) const {
 #ifdef OROPKG_EXECUTION_ENGINE_STATEMACHINES
         const StateMachinePtr sm = mparent->engine()->states()->getStateMachine(name);

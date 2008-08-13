@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  ListLockFree.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  ListLockFree.hpp
 
                         ListLockFree.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,11 +34,11 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_LIST_LOCK_FREE_HPP
 #define ORO_LIST_LOCK_FREE_HPP
- 
+
 #include <vector>
 #include "os/oro_atomic.h"
 #include "os/CAS.hpp"
@@ -51,7 +51,7 @@
 namespace RTT
 {
     namespace detail {
-        struct IntrusiveStorage 
+        struct IntrusiveStorage
         {
             oro_atomic_t ref;
             IntrusiveStorage() {
@@ -83,7 +83,7 @@ namespace RTT
     class ListLockFree
     {
     public:
-        /** 
+        /**
          * @brief The maximum number of threads.
          *
          * The number of threads which may concurrently access this buffer.
@@ -104,7 +104,7 @@ namespace RTT
             BufferType data;
         };
 
-        struct StorageImpl : public detail::IntrusiveStorage 
+        struct StorageImpl : public detail::IntrusiveStorage
         {
             Item* items;
             StorageImpl(size_t alloc) : items( new Item[alloc] ) {
@@ -262,7 +262,7 @@ namespace RTT
             // if it detects we updated active, it will find an
             // empty buf in the new buf. If it gets there before
             // our CAS, our CAS will fail and we try to recopy
-            // everything. This retry may be unnessessary 
+            // everything. This retry may be unnessessary
             // if the data already is in the new buf, but for this
             // cornercase, we must be sure.
 
@@ -315,7 +315,7 @@ namespace RTT
          * @param d the value to write
          * @return false if the list is full.
          */
-        bool append( value_t item ) 
+        bool append( value_t item )
         {
             Item* orig=0;
             Storage bufptr;
@@ -364,7 +364,7 @@ namespace RTT
         }
 
         /**
-         * Append a sequence of values to the list. 
+         * Append a sequence of values to the list.
          * @param items the values to append.
          * @return the number of values written (may be less than d.size())
          */
@@ -379,7 +379,7 @@ namespace RTT
                     oro_atomic_dec(&orig->count);
                     oro_atomic_dec(&usingbuf->count);
                 }
-                    
+
                 orig = lockAndGetActive( bufptr );
                 int maxwrite = orig->data.capacity() - orig->data.size();
                 if ( maxwrite == 0 ) {
@@ -462,7 +462,7 @@ namespace RTT
          * from multiple threads.
          * @param func The function to apply.
          * @param blank The 'blank' item. Each item of this list will
-         * be compared to this item using operator==(), if it matches, 
+         * be compared to this item using operator==(), if it matches,
          * it is considered blank, and func is \b not applied.
          * @see erase_and_blank
          */
@@ -490,7 +490,7 @@ namespace RTT
                 ++it;
             }
             blankp = 0;
-            
+
             oro_atomic_dec( &orig->count ); //lockAndGetActive
             oro_atomic_dec( &newp->count ); //findEmptyBuf
         }
@@ -500,7 +500,7 @@ namespace RTT
          * If during an apply_and_blank, the erase_and_blank function
          * is called, that element will not be subject to \a func if
          * not yet processed. You may call this function concurrently
-         * from multiple threads. 
+         * from multiple threads.
          * @warning It is possible that \a item is being processed
          * within apply_and_blank. In that case the 'blank' operation
          * has no effect.
@@ -627,7 +627,7 @@ namespace RTT
                     oro_atomic_dec( &orig->count );
                 bufptr = bufs;
                 orig = blankp;
-                if (orig == 0) 
+                if (orig == 0)
                     return 0; // no blankp.
                 // also check that orig points into bufptr.
                 if ( pointsTo(orig, bufptr) )

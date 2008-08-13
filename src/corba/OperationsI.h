@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:58 CEST 2006  ExecutionI.h 
+  tag: Peter Soetens  Mon Jun 26 13:25:58 CEST 2006  ExecutionI.h
 
                         ExecutionI.h -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 // -*- C++ -*-
 //
 // $Id$
@@ -63,7 +63,7 @@
 // Information about TAO is available at:
 //     http://www.cs.wustl.edu/~schmidt/TAO.html
 
-// TAO_IDL - Generated from 
+// TAO_IDL - Generated from
 // be/be_codegen.cpp:859
 
 // must be outside of #ifdef macro.
@@ -109,7 +109,7 @@ public:
         morig = new_ds;
     }
 
-  // Constructor 
+  // Constructor
   Orocos_AnyExpression_i (RTT::DataSourceBase::shared_ptr orig, PortableServer::POA_ptr the_poa)
       : morig( orig ), last_value( (CORBA::Any_ptr)morig->createBlob(ORO_CORBA_PROTOCOL_ID) ) // create default Any.
         , mpoa( PortableServer::POA::_duplicate(the_poa) )
@@ -119,23 +119,23 @@ public:
     {
         return PortableServer::POA::_duplicate(mpoa);
     }
-  
-  // Destructor 
+
+  // Destructor
     virtual ~Orocos_AnyExpression_i (void) {}
-  
+
   virtual
   CORBA::Any* value (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
       return new CORBA::Any( last_value.in() );
   }
-  
+
   virtual
   CORBA::Boolean evaluate (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -146,20 +146,20 @@ public:
       RTT::AnyConversion<bool>::update( last_value.in(), result );
       return result;
   }
-  
+
   virtual
   CORBA::Any * get (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
       return (CORBA::Any*)morig->getBlob(ORO_CORBA_PROTOCOL_ID);
   }
-  
+
   virtual
   char * getType (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -169,7 +169,7 @@ public:
 
   virtual
   char * toString (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -181,7 +181,7 @@ public:
 
   virtual
   char * getTypeName (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -211,12 +211,12 @@ public:
         morig = new_ds;
     }
 
-  // Constructor 
+  // Constructor
   Orocos_AnyAssignableExpression_i (RTT::DataSourceBase::shared_ptr orig, PortableServer::POA_ptr the_poa)
       : Orocos_AnyExpression_i(orig, the_poa), mset( orig )
    {}
-  
-  // Destructor 
+
+  // Destructor
     virtual ~Orocos_AnyAssignableExpression_i (void) {}
 
   virtual
@@ -236,7 +236,7 @@ public:
     ACE_THROW_SPEC ((
       CORBA::SystemException
       )) {
-      
+
       if ( !mset->getTypeInfo()->fromString( value, mset ) ) {
           RTT::log(RTT::Error) << "Corba::AssignableExpression: Could not assign string to "<<mset->getType() <<"." <<RTT::endlog()
 							   <<" Tried to assign as "<< RTT::DataSource<ResultType>::GetType() << " to native type "<< RTT::DataSource<SourceType>::GetType()<< RTT::endlog();
@@ -244,7 +244,7 @@ public:
       }
       return true;
   }
-      
+
 };
 
 
@@ -256,20 +256,20 @@ class  Orocos_Action_i
     RTT::CommandInterface* mcom;
     PortableServer::POA_var mpoa;
 public:
-  //Constructor 
+  //Constructor
   Orocos_Action_i ( RTT::MethodC* orig, RTT::CommandInterface* com, PortableServer::POA_ptr the_poa );
 
     PortableServer::POA_ptr _default_POA()
     {
         return PortableServer::POA::_duplicate(mpoa);
     }
-  
-  //Destructor 
+
+  //Destructor
     virtual ~Orocos_Action_i (void);
-  
+
   virtual
   CORBA::Boolean execute (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -287,7 +287,7 @@ public:
 
   virtual
   void reset (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -314,17 +314,17 @@ public:
         morig = new_ds;
     }
 
-  //Constructor 
+  //Constructor
   Orocos_AnyMethod_i (RTT::MethodC orig, RTT::DataSourceBase::shared_ptr datas, PortableServer::POA_ptr the_poa )
       : Orocos_AnyExpression_i( datas, the_poa ), mmethodc(orig)
     {}
-  
-  //Destructor 
+
+  //Destructor
     virtual ~Orocos_AnyMethod_i (void) {}
-  
+
   virtual
   CORBA::Boolean execute (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -359,7 +359,7 @@ public:
 
   virtual
   void reset(
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
@@ -386,7 +386,7 @@ protected:
     RTT::CommandC* mcomm;
     PortableServer::POA_var mpoa;
 public:
-  //Constructor 
+  //Constructor
     /**
      * Create a CORBA servant for a CommandC object.
      * @param orig A CommandC object being ready for receiving arg() calls. This is required
@@ -404,18 +404,18 @@ public:
     {
         return PortableServer::POA::_duplicate(mpoa);
     }
-  
-  //Destructor 
+
+  //Destructor
   virtual ~Orocos_Command_i (void);
-  
+
   virtual
   CORBA::Boolean execute (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean executeAny (
       const ::RTT::Corba::AnyArguments& args
@@ -428,52 +428,52 @@ public:
 
   virtual
   CORBA::Boolean sent (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean accepted (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean executed (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean valid (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   CORBA::Boolean done (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual
   void reset (
-      
+
     )
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));
-  
+
   virtual void destroyCommand()
     ACE_THROW_SPEC ((
       CORBA::SystemException

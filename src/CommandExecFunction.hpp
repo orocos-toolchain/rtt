@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  CommandExecFunction.hpp 
+  tag: Peter Soetens  Tue Dec 21 22:43:07 CET 2004  CommandExecFunction.hpp
 
                         CommandExecFunction.hpp -  description
                            -------------------
     begin                : Tue December 21 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef COMMAND_EXEC_FUNCTION_HPP
 #define COMMAND_EXEC_FUNCTION_HPP
 
@@ -84,7 +84,7 @@ namespace RTT
     /**
      * A command which queues (dispatches) a FunctionFraph for execution
      * in a ProgramProcessor. See ConditionExecFunction to check if
-     * it is done or not. 
+     * it is done or not.
      */
     class CommandExecFunction
         : public DispatchInterface
@@ -127,7 +127,7 @@ namespace RTT
             return !isqueued;
         }
 
-        bool dispatch() 
+        bool dispatch()
         {
             return execute();
         }
@@ -182,13 +182,13 @@ namespace RTT
         {
             return new ConditionExecFunction( _v.get() );
         }
-        
+
         DispatchInterface* clone() const
         {
             // _v is shared_ptr, so don't clone.
             return new CommandExecFunction( minit->clone(), _foo, _proc, _v.get(), maccept.get() );
         }
-        
+
         DispatchInterface* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
         {
             // this may seem strange, but :
@@ -199,7 +199,7 @@ namespace RTT
             AssignableDataSource<bool>* acpy = maccept->copy(alreadyCloned);
             return new CommandExecFunction( minit->copy(alreadyCloned), fcpy , _proc, vcpy, acpy );
         }
-        
+
     };
 
 }

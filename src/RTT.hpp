@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:55 CEST 2006  RTT.hpp 
+  tag: Peter Soetens  Mon Jun 26 13:25:55 CEST 2006  RTT.hpp
 
                         RTT.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,18 +34,18 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
-#include "rtt-config.h" 
+
+#include "rtt-config.h"
 
 /**
  * @file RTT.hpp
- * This file includes the commonly used header files from the 
+ * This file includes the commonly used header files from the
  * whole Orocos Real-Time Toolkit.
  */
- 
+
 /**
  * @brief State Machines, Activities, XML Properties, Scripting,...
- * 
+ *
  *
  * The Real-Time Toolkit is documented in <a href="../../orocos-manual.html">
  * The Orocos Real-Time Toolkit Online Manual</a>

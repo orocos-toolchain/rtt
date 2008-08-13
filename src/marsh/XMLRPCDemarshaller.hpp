@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  XMLRPCDemarshaller.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  XMLRPCDemarshaller.hpp
 
                         XMLRPCDemarshaller.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef PI_PROPERTIES_XMLRPCDESERIALIZER
 #define PI_PROPERTIES_XMLRPCDESERIALIZER
 
@@ -64,7 +64,7 @@ namespace RTT
     //using namespace rt_std; // Should be removed soon
     using std::cerr;
     using std::endl;
-    
+
 #ifdef XERCES_CPP_NAMESPACE
     using namespace XERCES_CPP_NAMESPACE;
 #endif
@@ -96,12 +96,12 @@ namespace RTT
                 else
                     if ( !strcmp( ln, "boolean" ) )
                     {
-						//bool v;	
+						//bool v;
 						std::stringstream buffer;
 						buffer << value.sv;
 
                         bag.add( new Property<bool>( name, "", true ) );
-								
+
                         state_stack.pop();
                     }
                     else
@@ -188,10 +188,10 @@ namespace RTT
                     case STATE_STRING:
                         value.sv = XMLString::transcode( chars );
                         break;
-                        
+
 					case STATE_BOOLEAN:
                         string_value = XMLString::transcode( chars );
-							
+
                             break;
                     // TODO convert content to these types
 					case STATE_INT:
@@ -232,7 +232,7 @@ namespace RTT
         InputSource* fis;
 
     public:
-        
+
         /**
          * Read Properties from a local file.
          */
@@ -249,7 +249,7 @@ namespace RTT
             delete fis;
             XMLPlatformUtils::Terminate();
         }
-    
+
             virtual bool deserialize( PropertyBag &v )
             {
                 try

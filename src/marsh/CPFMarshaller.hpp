@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  CPFMarshaller.hpp 
+  tag: Peter Soetens  Mon Jan 19 14:11:20 CET 2004  CPFMarshaller.hpp
 
                         CPFMarshaller.hpp -  description
                            -------------------
     begin                : Mon January 19 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef PI_PROPERTIES_CPFSERIALIZER
 #define PI_PROPERTIES_CPFSERIALIZER
 
@@ -85,13 +85,13 @@ namespace RTT
         virtual void introspect(Property<char> &v);
 
         virtual void introspect(Property<int> &v);
-			
+
         virtual void introspect(Property<unsigned int> &v);
-			
+
         virtual void introspect(Property<double> &v);
 
         virtual void introspect(Property<std::string> &v);
-			
+
         virtual void introspect(Property<PropertyBag> &b);
 
     public:

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:30 CEST 2004  PropertyBag.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:30 CEST 2004  PropertyBag.cxx
 
                         PropertyBag.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -161,7 +161,7 @@ namespace RTT
             }
         return names;
     }
-        
+
 
     void PropertyBag::identify( PropertyIntrospection* pi ) const
     {
@@ -341,7 +341,7 @@ namespace RTT
 
         // Make an updated if present, create if not present
         //iterate over source, update or clone PropertyBases
-    
+
         PropertyBag::Names allnames = source.list();
         std::unique(allnames.begin(), allnames.end());
         PropertyBag::Names::const_iterator it( allnames.begin() );
@@ -575,7 +575,7 @@ namespace RTT
                     }
                     it = target.getProperties().begin(); // reset iterator
                     continue;                            // do not increase it
-                } 
+                }
                 // the bag is empty now, but it must stay in target.
             }
             ++it;

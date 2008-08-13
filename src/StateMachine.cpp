@@ -52,7 +52,7 @@ namespace RTT
     using boost::tuples::get;
     using namespace std;
     using namespace boost;
-    
+
 
     std::string StateMachine::emptyString;
 
@@ -64,7 +64,7 @@ namespace RTT
     {
         this->addState(0); // allows global state transitions
     }
- 
+
     StateMachine::StateMachine(StateMachinePtr parent, EventProcessor* tc, const string& name )
         : smpStatus(nill), _parent (parent) , _name(name), eproc(tc), smStatus(Status::unloaded), smp(0),
           initstate(0), finistate(0), current( 0 ), next(0), initc(0),
@@ -118,8 +118,8 @@ namespace RTT
 
     bool StateMachine::automatic()
     {
-        // if you go from reactive to automatic, 
-        // first execute the run program, before 
+        // if you go from reactive to automatic,
+        // first execute the run program, before
         // evaluating transitions.
         if ( smStatus != Status::inactive && smStatus != Status::unloaded ) {
             smStatus = Status::running;
@@ -281,7 +281,7 @@ namespace RTT
 
         // this will try to execute the state change atomically
         return this->requestStateChange( finistate );
-        
+
     }
 
     void StateMachine::changeState(StateInterface* newState, ProgramInterface* transProg, bool stepping) {
@@ -313,7 +313,7 @@ namespace RTT
                 // WARNING : asyn events may still come in, check in the event handler
                 // for 'late' events.
                 disableEvents(current);
-                // reset handle and run, in case it is still set ( during error 
+                // reset handle and run, in case it is still set ( during error
                 // or when an event arrived ).
                 currentRun = 0;
                 currentHandle = 0;
@@ -443,7 +443,7 @@ namespace RTT
     }
 
     int StateMachine::checkConditions( StateInterface* state, bool stepping ) {
-        
+
         // if the preconditions of \a state are checked the first time in stepping mode, reset the iterators.
         if ( !checking_precond || !stepping ) {
             prec_it = precondMap.equal_range(state); // state is the _target_ state
@@ -451,7 +451,7 @@ namespace RTT
 
         // will be set to true if stepping below.
         //checking_precond = false;
-        
+
         while ( prec_it.first != prec_it.second ) {
             if (checking_precond == false && stepping ) {
                 evaluating = prec_it.first->second.second; // indicate we will evaluate this line (if any).
@@ -473,7 +473,7 @@ namespace RTT
         checking_precond = false;
         return 1; // success !
     }
-        
+
 
     StateInterface* StateMachine::nextState()
     {
@@ -638,7 +638,7 @@ namespace RTT
         // insert both from and to in the statemap
         TransList::iterator it;
         for ( it= stateMap[from].begin(); it != stateMap[from].end() && get<2>(*it) >= priority; ++it)
-            ; // this ';' is intentional 
+            ; // this ';' is intentional
         stateMap[from].insert(it, boost::make_tuple( cnd, to, priority, line, transprog ) );
         stateMap[to]; // insert empty vector for 'to' state.
     }
@@ -646,7 +646,7 @@ namespace RTT
     bool StateMachine::createEventTransition( EventService* es,
                                               const std::string& ename, vector<DataSourceBase::shared_ptr> args,
                                               StateInterface* from, StateInterface* to,
-                                              ConditionInterface* guard, boost::shared_ptr<ProgramInterface> transprog, 
+                                              ConditionInterface* guard, boost::shared_ptr<ProgramInterface> transprog,
                                               StateInterface* elseto, boost::shared_ptr<ProgramInterface> elseprog )
     {
         Logger::In in("StateMachine::createEventTransition");
@@ -657,15 +657,15 @@ namespace RTT
 
         if ( !( es && guard ) ) {
             Logger::log() << Logger::Error << "Invalid arguments for event '"<< ename <<"'. ";
-            if (!es) 
+            if (!es)
                 Logger::log() <<"EventService was null. ";
-            if (!guard) 
+            if (!guard)
                 Logger::log() <<"Guard Condition was null. ";
             Logger::log()<<Logger::endl;
             return false;
         }
 
-        if ( to == 0 ) 
+        if ( to == 0 )
             to = from;
 
         // get ename from event service, provide args as arguments
@@ -701,7 +701,7 @@ namespace RTT
     void StateMachine::eventTransition(StateInterface* from, ConditionInterface* c, ProgramInterface* p, StateInterface* to, ProgramInterface* elsep, StateInterface* elseto )
     {
         // called by event to begin Transition to 'to'.
-        // This interrupts the current run program at an interruption point ? 
+        // This interrupts the current run program at an interruption point ?
         // the transition and/or exit program can cleanup...
 
         // this will never be called if the event connection is destroyed, unless called from the
@@ -799,7 +799,7 @@ namespace RTT
     {
         assert(s);
         currentHandle = s->getHandleProgram();
-        if ( currentHandle ) { 
+        if ( currentHandle ) {
             currentHandle->reset();
             if (currentHandle->start() == false)
                 smStatus = Status::error;
@@ -944,7 +944,7 @@ namespace RTT
         }
 
         if ( currentProg && !currentProg->isStopped() )
-            return false; 
+            return false;
 
         cp = currentProg = 0;
         return true;
@@ -1017,7 +1017,7 @@ namespace RTT
         if ( current == 0 ) {
             return false;
         }
-        
+
         // disable global events
         disableEvents(0);
 

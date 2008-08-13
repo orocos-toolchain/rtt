@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:58 CEST 2006  ExpressionProxy.hpp 
+  tag: Peter Soetens  Mon Jun 26 13:25:58 CEST 2006  ExpressionProxy.hpp
 
                         ExpressionProxy.hpp -  description
                            -------------------
     begin                : Mon June 26 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef ORO_CORBA_EXPRESSIONPROXY_HPP
 #define ORO_CORBA_EXPRESSIONPROXY_HPP
 
@@ -81,7 +81,7 @@ namespace RTT
          */
         template<class T>
         static DataSource<T>* NarrowDataSource(::RTT::Corba::Expression_ptr expr) {
-            
+
             CORBA::Any_var any = expr->value();
             typename DataSource<T>::value_t target = typename DataSource<T>::value_t();
             ReferenceDataSource<T> rds( target );
@@ -90,7 +90,7 @@ namespace RTT
                 Logger::log() <<Logger::Debug<< "Found valid conversion from server "<< expr->getType()
                               <<" to local "<< DataSource<T>::GetType()<<Logger::endl;
                 return new CORBAExpression<T>( expr );
-            } 
+            }
             return 0; // not convertible.
         }
 
@@ -115,7 +115,7 @@ namespace RTT
          */
         template<class T>
         static AssignableDataSource<T>* NarrowAssignableDataSource( ::RTT::Corba::Expression_ptr expr) {
-            
+
             Corba::AssignableExpression_var ret = Corba::AssignableExpression::_narrow( expr );
             if ( ret ) {
                 CORBA::Any_var any = ret->value();
@@ -130,7 +130,7 @@ namespace RTT
             }
             return 0; // not convertible.
         }
-            
+
         /**
          * Create an Orocos DataSource<T> proxy.
          * @param T the type of data the Expression supposedly has.
@@ -140,7 +140,7 @@ namespace RTT
         DataSource<T>* narrowDataSource() const {
             return NarrowDataSource<T>( mdata );
         }
-            
+
         /**
          * Create an Orocos DataSource<void> proxy.
          * @return A new DataSource.
@@ -148,7 +148,7 @@ namespace RTT
         DataSource<void>* narrowDataSource() const {
             return new CORBAExpression<void>( mdata.in() );
         }
-            
+
         /**
          * Create an Orocos AssignableDataSource<T> proxy.
          * @param T the type of data the Expression supposedly has.
@@ -158,7 +158,7 @@ namespace RTT
         AssignableDataSource<T>* narrowAssignableDataSource() const {
             return NarrowAssignableDataSource<T>( mdata.in() );
         }
-            
+
         /**
          * Get the Corba Object reference of the Expression.
          * This object universally identifies the remote Expression Object
@@ -202,15 +202,15 @@ namespace RTT
             return 0;
         }
 
-        virtual void* server(int p, void* arg) { 
+        virtual void* server(int p, void* arg) {
             if (p == ORO_CORBA_PROTOCOL_ID)
-                return Corba::Expression::_duplicate(mdata.in()); 
+                return Corba::Expression::_duplicate(mdata.in());
             return 0;
         }
 
-        virtual void* server(int p, void* arg) const { 
+        virtual void* server(int p, void* arg) const {
             if (p == ORO_CORBA_PROTOCOL_ID)
-                return Corba::Expression::_duplicate(mdata.in()); 
+                return Corba::Expression::_duplicate(mdata.in());
             return 0;
         }
 
@@ -225,7 +225,7 @@ namespace RTT
         struct CreateConstantHelper
         {
             static DataSource<T>* Create(const CORBA::Any& any) {
-                
+
                 typename DataSource<T>::value_t target = typename DataSource<T>::value_t();
                 ReferenceDataSource<T> rds( target );
                 rds.ref();
@@ -233,7 +233,7 @@ namespace RTT
                     Logger::log() <<Logger::Debug<< "Found valid conversion from CORBA::Any "
                                   <<" to local constant "<< DataSource<T>::GetType()<<Logger::endl;
                     return new ConstantDataSource<T>( target );
-                } 
+                }
                 return 0; // not convertible.
             }
         };
@@ -250,7 +250,7 @@ namespace RTT
         struct CreateConstantHelper<const T&>
         {
             static DataSource<const T&>* Create(const CORBA::Any& any) {
-                
+
                 typename DataSource<T>::value_t target = typename DataSource<T>::value_t();
                 ReferenceDataSource<T> rds( target );
                 rds.ref();
@@ -258,7 +258,7 @@ namespace RTT
                     Logger::log() <<Logger::Debug<< "Found valid conversion from CORBA::Any "
                                   <<" to local constant "<< DataSource<const T&>::GetType()<<Logger::endl;
                     return new ConstantDataSource<const T&>( target );
-                } 
+                }
                 return 0; // not convertible.
             }
         };

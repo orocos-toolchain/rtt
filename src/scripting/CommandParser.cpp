@@ -111,7 +111,7 @@ namespace RTT
           throw parse_exception_no_such_component( peer->getName(), mcurobject+"."+mcurmethod );
       else {
           if ( obj->methods()->hasMember(mcurmethod) == false && obj->commands()->hasMember(mcurmethod) == false && obj->events()->hasMember(mcurmethod) == false) {
-              if ( mcurobject == "this" ) 
+              if ( mcurobject == "this" )
                   mcurobject = peer->getName();
               throw parse_exception_no_such_method_on_component( mcurobject, mcurmethod );
           }

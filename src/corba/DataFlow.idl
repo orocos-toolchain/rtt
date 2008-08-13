@@ -13,7 +13,7 @@ module RTT
      * some query methods for reading the buffer's state.
      * @ingroup CompIDL
      */
-    interface BufferChannel 
+    interface BufferChannel
     {
 
       boolean push(in any value);
@@ -54,7 +54,7 @@ module RTT
       PortNames getPorts();
 
       /**
-       * Creates a data connection for an Orocos data port. 
+       * Creates a data connection for an Orocos data port.
        * You may use the returned AssignableExpression
        * to write data to it or read data from it.
        *
@@ -104,7 +104,7 @@ module RTT
        * Disconnects this port.
        */
       void disconnect(in string port_name);
-      
+
       /**
        * Connect a data port from this interface with an external
        * data channel.
@@ -115,7 +115,7 @@ module RTT
        * Connect a buffer port from this interface with an external
        * buffer channel.
        */
-      boolean connectBufferPort(in string port_name, in BufferChannel buffer); 
+      boolean connectBufferPort(in string port_name, in BufferChannel buffer);
 
       /**
        * Connect the given named port to the given remote port

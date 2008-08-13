@@ -1,13 +1,13 @@
 // $Id: AnalogInInterface.hpp,v 1.10 2003/08/20 08:16:55 kgadeyne Exp $
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 10 16:16:56 CEST 2002  AnalogInInterface.hpp 
+  tag: Peter Soetens  Thu Oct 10 16:16:56 CEST 2002  AnalogInInterface.hpp
 
                         AnalogInInterface.hpp -  description
                            -------------------
     begin                : Thu October 10 2002
     copyright            : (C) 2002 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -46,7 +46,7 @@
    - Added rangeSet() and arefSet() methods, that allready existed in
    the comedi implementations of these interfaces
 */
-   
+
 #ifndef ANALOGININTERFACE_HPP
 #define ANALOGININTERFACE_HPP
 
@@ -60,7 +60,7 @@ namespace RTT
      * for addressing a whole subdevice in comedi
      *
      *  Unit (MU) : Unit of what is actually read on the analog channel (e.g. Volt)
-     * 
+     *
      * @ingroup DeviceInterface
      */
     class AnalogInInterface
@@ -76,11 +76,11 @@ namespace RTT
                                Differential, /** Differential reference */
                                Other /** Undefined */
         };
-            
+
         /**
          * Create a not nameserved AnalogInInterface instance.
          */
-        AnalogInInterface( ) 
+        AnalogInInterface( )
         {}
 
         /**
@@ -94,24 +94,24 @@ namespace RTT
         virtual ~AnalogInInterface()
         {}
 
-        /** 
+        /**
          * Set the range of a particular channel.  We took (for
          * now) the comedi API for this, where every range
          * (eg. -5/+5 V) corresponds to an unsigned int.  You
          * should provide a mapping from that int to a particular
          * range in your driver documentation
          */
-        virtual void rangeSet(unsigned int chan, 
+        virtual void rangeSet(unsigned int chan,
                               unsigned int range) = 0;
 
-        /** 
+        /**
          * Set the analog reference of a particular channel.  We took (for
          * now) the comedi API for this, where every aref
          * (eg. Analog reference set to ground (aka AREF_GROUND)
          * corresponds to an unsigned int.
          * @see AnalogReference
          */
-	    virtual void arefSet(unsigned int chan, 
+	    virtual void arefSet(unsigned int chan,
                              unsigned int aref) = 0;
 
         /**

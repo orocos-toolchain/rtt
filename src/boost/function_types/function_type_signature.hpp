@@ -19,7 +19,7 @@ namespace boost { namespace function_types {
 //------------------------------------------------------------------------------
 template<typename T> struct function_type_signature;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-namespace detail 
+namespace detail
 {
   template<typename T> struct signature_impl;
 }
@@ -30,17 +30,17 @@ template<typename T> struct function_type_signature
 //------------------------------------------------------------------------------
 namespace detail {
 //------------------------------------------------------------------------------
-struct signature_mpl_sequence_tag; 
+struct signature_mpl_sequence_tag;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 struct nullary_signature_base
 {
   typedef mpl::vector0<> types;
   typedef mpl::vector0<> representee;
   typedef mpl::size_t<0> arity;
-  typedef no_function kind;  
+  typedef no_function kind;
   typedef signature_mpl_sequence_tag tag;
 };
-// -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  - 
+// -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 template<typename Signature, typename T, typename KindFuncSpec>
 struct transmuted_signature_base
 {
@@ -50,13 +50,13 @@ struct transmuted_signature_base
   typedef typename KindFuncSpec::type kind;
   typedef signature_mpl_sequence_tag tag;
 };
-// -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  - 
+// -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 template
 < typename Signature
 , typename T
 , typename IfKind
-, typename ThenKind 
-, typename ElseBase 
+, typename ThenKind
+, typename ElseBase
 >
 struct conditioned_transmuted_signature_base
   : mpl::if_
@@ -75,10 +75,10 @@ struct conditioned_transmuted_signature_base
 #include BOOST_FT_DEPENDENCIES(signature_impl_spec)
 #include BOOST_FT_PREPROCESSED(signature_impl_spec)
 //------------------------------------------------------------------------------
-namespace boost 
+namespace boost
 {
   using function_types::function_type_signature;
-} 
+}
 //------------------------------------------------------------------------------
 // MPL Random Acess Sequence interface
 #include BOOST_FT_DEPENDENCIES(signature_random_access)

@@ -66,7 +66,7 @@ namespace RTT
         {
             timestamp = hb->getTicks();
         }
-        
+
         virtual ~ConditionExpire()
         {}
 
