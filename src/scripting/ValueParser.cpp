@@ -139,7 +139,7 @@ namespace RTT
         // nested property case :
         if ( ! propparser.bag()->find( name ) ) {
             //std::cerr << "In "<<peer->getName() <<" : " << name << " not present"<<std::endl;
-            throw_(begin, "Property " + name + " not present in PropertyBag "+propparser.property()->getName()+" in "+ peer->getName()+".");
+            throw parse_exception_semantic_error("Property " + name + " not present in PropertyBag "+propparser.property()->getName()+" in "+ peer->getName()+".");
         }
         ret = propparser.bag()->find( name )->getDataSource();
         propparser.reset();
