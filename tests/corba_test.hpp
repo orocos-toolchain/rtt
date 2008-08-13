@@ -30,17 +30,17 @@ class CorbaTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testConnectPortsRRC );
     CPPUNIT_TEST( testConnections );
     CPPUNIT_TEST( cleanupCorba );
-    
+
     CPPUNIT_TEST_SUITE_END();
 
     TaskContext* tc;
     TaskContext* t2;
-    Corba::ControlTaskProxy* tp;
+    TaskContext* tp;
     Corba::ControlTaskServer* ts;
-    Corba::ControlTaskProxy* tp2;
+    TaskContext* tp2;
     Corba::ControlTaskServer* ts2;
     TaskObject* createMethodFactory();
-    
+
     // Ports
     DataPort<double>* md1;
     DataPort<double>* md1bis;
