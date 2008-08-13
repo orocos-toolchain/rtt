@@ -1,7 +1,7 @@
 Source: orocos-rtt
 Priority: optional
 Maintainer: Peter Soetens <peter.soetens@fmtc.be>
-Build-Depends: debhelper (>= 5), cmake, libboost-dev, libboost-graph-dev, xsltproc, doxygen, libtao-dev, libtao-orbsvcs-dev, xenomai-dev, xenomai, dia, inkscape
+Build-Depends: debhelper (>= 5), cmake, libboost-dev, libboost-graph-dev, xsltproc, doxygen, libtao-dev, libtao-orbsvcs-dev, xenomai-dev | libxenomai-dev, xenomai | libxenomai1, dia, inkscape
 Standards-Version: 3.7.2
 Section: libs
 
