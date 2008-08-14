@@ -65,9 +65,12 @@ namespace RTT
         }
 
         mports.push_back( std::make_pair(port,std::string()) );
+        // NOTE: the API says this is not done, but for backwards compatibility
+        // we leave it anyway inhere. :-(
         OperationInterface* ms = this->createPortObject( port->getName());
         if ( ms )
             mparent->addObject( ms );
+        // END NOTE.
         return true;
     }
 
@@ -75,6 +78,11 @@ namespace RTT
         if (this->addPort(port) == false)
             return false;
         mports.back().second = description;
+        OperationInterface* ms = this->createPortObject( port->getName());
+        if ( ms ) {
+            mparent->removeObject( ms->getName() ); // See NOTE above.
+            mparent->addObject( ms );
+        }
         return true;
     }
 
