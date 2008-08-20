@@ -119,7 +119,7 @@ namespace RTT
         static void DestroyOrb();
 
         /**
-         * Factory method: create a CORBA connection to an existing ControlTaskServer.
+         * Factory method: create a CORBA Proxy for an existing ControlTaskServer.
          * @param name The name of the ControlTaskServer to connect to or the Object Reference of the object to connect to
          * @param is_ior set to \a true if \a name is an IOR. Defaults to false.
          * @retval 0 if the ORB is not initialised
@@ -128,10 +128,13 @@ namespace RTT
         static ControlTaskProxy* Create(std::string name, bool is_ior = false);
 
         /**
-         * Factory method: create a CORBA connection to an existing ControlTaskServer.
-         * @param task The Object to connect to.
+         * Factory method: create a CORBA Proxy for an existing ControlTaskServer.
+         * This method may in fact return the real TaskContext in case the servant
+         * of \a task is in the same process.
+         * @param task The Object to create a proxy for.
          * @retval 0 if the ORB is not initialised
-         * @return A new or previously created CORBA proxy for \a task.
+         * @return A new or previously created CORBA proxy for \a task, or the TaskContext
+         * itself.
          */
         static TaskContext* Create(::RTT::Corba::ControlTask_ptr task);
 
