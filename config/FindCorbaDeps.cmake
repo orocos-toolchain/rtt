@@ -63,7 +63,7 @@ INCLUDE (${PROJ_SOURCE_DIR}/config/FindPkgConfig.cmake)
     FIND_PROGRAM( ORO_TAOIDL_EXECUTABLE tao_idl )
 
     IF( NOT ORO_TAOIDL_EXECUTABLE )
-      MESSAGE( FATAL "TAO Headers found but no tao_idl !")
+      MESSAGE( FATAL_ERROR "TAO Headers found but no tao_idl !")
     ELSE( NOT ORO_TAOIDL_EXECUTABLE )
       MESSAGE( "tao_idl: ${ORO_TAOIDL_EXECUTABLE}")
     ENDIF( NOT ORO_TAOIDL_EXECUTABLE )
