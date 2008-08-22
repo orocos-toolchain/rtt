@@ -238,8 +238,8 @@ namespace RTT
         : public BufferPortBase<T>
     {
         using BufferPortBase<T>::mconn;
-        using BufferPortBase<T>::operator=;
     public:
+        using BufferPortBase<T>::operator=;
 
         /**
          * Construct an unconnected Port to a readable buffer.
@@ -329,8 +329,8 @@ namespace RTT
 
         T minitial_value;
         using BufferPortBase<T>::mconn;
-        using BufferPortBase<T>::operator=;
     public:
+        using BufferPortBase<T>::operator=;
         /**
          * Construct an unconnected Port to a writeable buffer.
          * @param name The name of this port.
@@ -423,8 +423,9 @@ namespace RTT
 
         T minitial_value;
         using BufferPortBase<T>::mconn;
-        using BufferPortBase<T>::operator=;
     public:
+        using BufferPortBase<T>::operator=;
+
         typedef PortInterface::PortType PortType;
         typedef PortInterface::ConnectionModel ConnectionModel;
 
