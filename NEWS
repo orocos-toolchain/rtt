@@ -1,3 +1,36 @@
+           The Orocos Real-Time Toolkit v1.6.0.
+           ====================================
+
+  The Orocos development team is pleased to announce the next major
+feature release of the Real-Time Toolkit, a C++ toolkit for building
+ component based, real-time robotics and machine control applications.
+
+You can download this release from
+  <http://www.orocos.org/stable/rtt/v1.6.0/orocos-rtt-1.6.0-src.tar.bz2>
+and read the installation instructions on
+  <http://www.orocos.org/stable/documentation/rtt/v1.6.x/doc-xml/orocos-installation.html>
+
+
+The Real-Time Toolkit (RTT) library allows application designers to
+build highly configurable and interactive component-based real-time
+control applications. This release's major feature highlights are:
+
+ * Much improved error reporting and usability in various places
+ * Improved the scripting language and state machine definitions
+ * More transparent network communication 
+ * Many small improvements suggested by the user community.
+
+If you'd like a high level overview of the Orocos libraries, visit
+  <http://www.orocos.org/stable/documentation/rtt/v1.6.x/doc-xml/orocos-overview.html>
+If you'd like to get started building your own components, visit
+  <http://www.orocos.org/stable/documentation/rtt/v1.6.x/doc-xml/orocos-components-manual.html>
+
+This release is backwards compatible with the 1.0.x and 1.2.x releases, although
+some functionality has been deprecated or alternative usage patterns
+are preferred. These and other changes and improvements can be found
+in the Orocos RTT Changes document on
+  <http://www.orocos.org/stable/documentation/rtt/v1.6.x/doc-xml/orocos-rtt-changes.html>
+
            The Orocos Real-Time Toolkit v1.4.1.
            ====================================
 

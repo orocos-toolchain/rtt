@@ -22,7 +22,7 @@
       <para>
 	This document describes the &orocos; Component Model, which
 	allows to design Real-Time software components which
-	transparantly communicate with each other.
+	transparently communicate with each other.
       </para>
     </abstract>
     
@@ -67,7 +67,7 @@
 	<caption>
 	  <para>
 	    Components run in (periodic) threads and can communicate
-	    transparantly. The Orocos RTT does a 'best effort' to
+	    transparently. The Orocos RTT does a 'best effort' to
 	    deliver the highest performance to the highest priority
 	    threads.
 	  </para>

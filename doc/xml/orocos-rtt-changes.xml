@@ -138,6 +138,19 @@
 	    the transitions of the current state.
 	  </para>
 	</listitem>
+	<listitem>
+	  <para>
+	    There was a bug in the parser such that calling a method on an
+	    unknown object resulted in calling the method on the current object.
+	    This had very confusing consequences, such as when using:
+	    <programlisting>  do scripting.loadProgram("the_program.ops");
+  do the_program.start();</programlisting>
+            Which would load fine, but start() would return in error. The
+	    correct behaviour is to signal an error during loading that
+	    'the_program' is not yet known (It only becomes known after
+	    loadProgram is executed).
+	  </para>
+	</listitem>
       </itemizedlist>
     </section>
     <section>
@@ -145,8 +158,19 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    An initial Max OSX port has been done, and stable enough for broader testing.
-	    If you like to contribute, see
+	    The RTT has been adapted for the Preempt-RT Linux kernel
+	    patch, using the monotonic real-time clock infrastructure for
+	    real-time periodic execution. See
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=">
+
+	      </ulink>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    An initial Max OSX port has been done (RTT and OCL), and
+	    stable enough for broader testing.  If you like to
+	    contribute, see
 	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=533">
 	      Mac OS X port
 	      </ulink>.
@@ -157,7 +181,8 @@
 	    The main() function has been removed from the Orocos
 	    library and is now a macro that expands in user code. This
 	    greatly improves debugging, as some (most) debuggers don't
-	    look in libraries for the main() function.
+	    look in libraries for the main() function. Also, this makes
+	    it easier to define your own ORO_main function.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -327,6 +352,12 @@
     <section>
       <title>Improvements</title>
       <itemizedlist>
+	<listitem>
+	  <para>
+	    Most components in the OCL are now at run-time loadable
+	    by the DeploymentComponent (deployer application).
+	  </para>
+	</listitem>
 	<listitem>
 	  <para>
 	    Orocos better intercepts lost connections to remote TaskContexts.
