@@ -130,7 +130,7 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
     }
 
     //use this->isConnected() to thoroughly check the liveness of the connection.
-    ConnectionInterface::shared_ptr ci;
+    RTT::ConnectionInterface::shared_ptr ci;
     if ( this->isConnected(port_name) == false) {
         ci = p->createConnection();
         // A newly created connection starts unconnected.
@@ -179,7 +179,7 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
         return 0;
     }
 
-    ConnectionInterface::shared_ptr ci;
+    RTT::ConnectionInterface::shared_ptr ci;
     if ( this->isConnected(port_name) == false) {
         ci = p->createConnection();
         // A newly created connection starts unconnected.
@@ -223,7 +223,7 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
         RTT::log() << "No such Port: "<< port_name <<endlog(Error);
         return 0;
     }
-    ConnectionInterface::shared_ptr ci;
+    RTT::ConnectionInterface::shared_ptr ci;
     if ( this->isConnected(port_name) == false) {
         RTT::log() << "Can not create DataObject for unconnected Port: "<< port_name <<endlog(Error);
         return 0;
@@ -341,7 +341,7 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectDataPort (
     if (tt) {
         DataSourceBase::shared_ptr data_impl( tt->dataProxy( data ) );
         assert(data_impl);
-        ConnectionInterface::shared_ptr ci = p->createConnection ( data_impl );
+        RTT::ConnectionInterface::shared_ptr ci = p->createConnection ( data_impl );
         assert(ci);
         ci->connect();
         return ci->connected();
@@ -368,7 +368,7 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectBufferPort (
     if (tt) {
         BufferBase::shared_ptr buf_impl( tt->bufferProxy( buffer ) );
 
-        ConnectionInterface::shared_ptr ci = p->createConnection ( buf_impl );
+        RTT::ConnectionInterface::shared_ptr ci = p->createConnection ( buf_impl );
         return ci->connect();
     }
     return false;

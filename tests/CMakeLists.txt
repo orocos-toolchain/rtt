@@ -1,4 +1,9 @@
 IF (ENABLE_TESTS)
+
+  IF(ENABLE_CORBA)
+	INCLUDE (${PROJ_SOURCE_DIR}/config/UseCorba.cmake)
+  ENDIF(ENABLE_CORBA)
+
     # See ADD_TEST() below.
     ENABLE_TESTING()
     SET(COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")
@@ -76,7 +81,7 @@ IF (ENABLE_TESTS)
 
     IF(ENABLE_CORBA)
       ADD_EXECUTABLE( corba-test ${DO_EXCLUDE} test-runner.cpp corba_test.cpp )
-      TARGET_LINK_LIBRARIES( corba-test orocos-rtt-${OROCOS_TARGET} orocos-rtt-corba-${OROCOS_TARGET} ${CPPUNIT} )
+      TARGET_LINK_LIBRARIES( corba-test orocos-rtt-${OROCOS_TARGET} orocos-rtt-corba-${OROCOS_TARGET} ${CPPUNIT} ${ORO_ACETAO_LIBRARIES})
       SET_TARGET_PROPERTIES( corba-test PROPERTIES
       COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")
       ADD_TEST( corba-test corba-test )

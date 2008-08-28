@@ -48,6 +48,7 @@
 #include <tao/corba.h>
 #include <tao/PortableServer/PortableServer.h>
 #include "CorbaConnection.hpp"
+#include "CorbaLib.hpp"
 
 namespace RTT
 { namespace Corba {
@@ -64,8 +65,8 @@ namespace RTT
         AssignableExpression_var mdatachannel;
         BufferChannel_var mbufchannel;
         DataFlowInterface_var mdflow;
-        mutable ConnectionInterface::shared_ptr dc;
-        bool connect(ConnectionInterface::shared_ptr conn)
+        mutable RTT::ConnectionInterface::shared_ptr dc;
+        bool connect(RTT::ConnectionInterface::shared_ptr conn)
         {
             if ( dc || !conn )
                 return false;
@@ -163,7 +164,7 @@ namespace RTT
             return mdflow->isConnected( this->getName().c_str() );
         }
 
-        virtual ConnectionInterface::shared_ptr connection() const {
+        virtual RTT::ConnectionInterface::shared_ptr connection() const {
             // return a connection object if remote side is connected.
             if ( !dc && this->connected() )
                 dc = new CorbaConnection(this->getName(), mdflow.in(), 0 );
@@ -172,7 +173,7 @@ namespace RTT
 
         using PortInterface::connectTo;
 
-        virtual bool connectTo( ConnectionInterface::shared_ptr conn ) {
+        virtual bool connectTo( RTT::ConnectionInterface::shared_ptr conn ) {
             // Since a connection is given, an existing impl exists.
             if (this->getConnectionModel() == Buffered ) {
                 BufferBase::shared_ptr impl = conn->getBuffer();
@@ -221,12 +222,12 @@ namespace RTT
         /**
          * Create a remote server to which one can connect to.
          */
-        virtual ConnectionInterface::shared_ptr createConnection(ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree)
+        virtual RTT::ConnectionInterface::shared_ptr createConnection(ConnectionTypes::ConnectionType con_type = ConnectionTypes::lockfree)
         {
             Logger::In in("CorbaPort");
             // create a connection one can write to.
             if ( this->getPortType() != ReadPort ) {
-                ConnectionInterface::shared_ptr ci = new CorbaConnection( this->getName(), mdflow.in(), 0 );
+                RTT::ConnectionInterface::shared_ptr ci = new CorbaConnection( this->getName(), mdflow.in(), 0 );
                 ci->addPort(this);
                 return ci;
             }
@@ -234,9 +235,9 @@ namespace RTT
             return 0;
         }
 
-        virtual ConnectionInterface::shared_ptr createConnection( BufferBase::shared_ptr buf )
+        virtual RTT::ConnectionInterface::shared_ptr createConnection( BufferBase::shared_ptr buf )
         {
-            ConnectionInterface::shared_ptr ci;
+            RTT::ConnectionInterface::shared_ptr ci;
             if (mdflow->getConnectionModel(this->getName().c_str()) != DataFlowInterface::Buffered)
                 return ci;
             detail::TypeTransporter* tt = getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
@@ -250,9 +251,9 @@ namespace RTT
             return ci;
         }
 
-        virtual ConnectionInterface::shared_ptr createConnection( DataSourceBase::shared_ptr data )
+        virtual RTT::ConnectionInterface::shared_ptr createConnection( DataSourceBase::shared_ptr data )
         {
-            ConnectionInterface::shared_ptr ci;
+            RTT::ConnectionInterface::shared_ptr ci;
             if (mdflow->getConnectionModel(this->getName().c_str()) != DataFlowInterface::Data)
                 return ci;
             detail::TypeTransporter* tt = getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
