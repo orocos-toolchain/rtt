@@ -22,6 +22,8 @@
 #include <unistd.h>
 #include <iostream>
 #include "Ports.hpp"
+#include "DataObjectInterfaces.hpp"
+#include "BufferLocked.hpp"
 
 #include "SlaveActivity.hpp"
 #include "SimulationActivity.hpp"
@@ -688,6 +690,69 @@ void Generic_TaskTest_3::testPorts()
     CPPUNIT_ASSERT( bp.connected() );
     CPPUNIT_ASSERT( bp.buffer()->capacity() == 10 );
 
+
+}
+
+void Generic_TaskTest_3::testConnections()
+{
+    WriteDataPort<double> wdp("WDName");
+    ReadDataPort<double> rdp("RDName");
+    DataPort<double> dp("DName");
+    DataPort<double> dp2("D2Name");
+
+    CPPUNIT_ASSERT( wdp.getPortType() == PortInterface::WritePort );
+    CPPUNIT_ASSERT( rdp.getPortType() == PortInterface::ReadPort );
+    CPPUNIT_ASSERT( dp.getPortType() == PortInterface::ReadWritePort );
+
+    // Test initial value
+    wdp.Set( 1.0 );
+    dp.Set( 2.0 );
+
+    WriteBufferPort<double> wbp("WBName", 10);
+    ReadBufferPort<double> rbp("RBName");
+    BufferPort<double> bp("BName", 10);
+    BufferPort<double> bp2("B2Name", 10);
+
+    CPPUNIT_ASSERT( wbp.getPortType() == PortInterface::WritePort );
+    CPPUNIT_ASSERT( rbp.getPortType() == PortInterface::ReadPort );
+    CPPUNIT_ASSERT( bp.getPortType() == PortInterface::ReadWritePort );
+
+    CPPUNIT_ASSERT( tc->ports()->addPort( &wdp ));
+    CPPUNIT_ASSERT( tc->ports()->addPort( &rdp ));
+    CPPUNIT_ASSERT( tc->ports()->addPort( &dp ));
+    CPPUNIT_ASSERT( tc->ports()->addPort( &dp2 ));
+
+    // test setting the connection object
+    wdp = new DataObject<double>("");
+    rdp = new DataObject<double>("");
+    dp = new DataObject<double>("");
+    dp2 = new DataObject<double>("");
+
+    CPPUNIT_ASSERT( wdp.connected() );
+    CPPUNIT_ASSERT( rdp.connected() );
+    CPPUNIT_ASSERT( dp.connected() );
+    CPPUNIT_ASSERT( dp2.connected() );
+
+    CPPUNIT_ASSERT( dynamic_cast<DataObject<double>* >( wdp.connection()->getDataSource().get() ) );
+    CPPUNIT_ASSERT( dynamic_cast<DataObject<double>* >( rdp.connection()->getDataSource().get() ) );
+    CPPUNIT_ASSERT( dynamic_cast<DataObject<double>* >( dp.connection()->getDataSource().get() ) );
+    CPPUNIT_ASSERT( dynamic_cast<DataObject<double>* >( dp2.connection()->getDataSource().get() ) );
+
+    // test setting the connection object
+    wbp = new BufferLocked<double>(10);
+    rbp = new BufferLocked<double>(11);
+    bp = new BufferLocked<double>(12);
+    bp2 = new BufferLocked<double>(13);
+
+    CPPUNIT_ASSERT( wbp.connected() );
+    CPPUNIT_ASSERT( rbp.connected() );
+    CPPUNIT_ASSERT( bp.connected() );
+    CPPUNIT_ASSERT( bp2.connected() );
+
+    CPPUNIT_ASSERT( dynamic_cast<BufferLocked<double>* >( wbp.connection()->getBuffer().get() ) );
+    CPPUNIT_ASSERT( dynamic_cast<BufferLocked<double>* >( rbp.connection()->getBuffer().get() ) );
+    CPPUNIT_ASSERT( dynamic_cast<BufferLocked<double>* >( bp.connection()->getBuffer().get() ) );
+    CPPUNIT_ASSERT( dynamic_cast<BufferLocked<double>* >( bp2.connection()->getBuffer().get() ) );
 
 }
 
