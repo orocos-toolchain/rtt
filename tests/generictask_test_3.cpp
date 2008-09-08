@@ -649,10 +649,11 @@ void Generic_TaskTest_3::testPorts()
 
     dp.disconnect();
     dp2.disconnect();
+#ifndef OROPKG_OS_MACOSX
     dp = new DataObject<double>("Data",10.0);
     CPPUNIT_ASSERT( dp.connected() );
     CPPUNIT_ASSERT( dp.Get() == 10.0 );
-
+#endif
     // Test buffer transfer
     double val;
     CPPUNIT_ASSERT( wbp.Push( 5.0 ) );
@@ -686,10 +687,11 @@ void Generic_TaskTest_3::testPorts()
 
     bp.disconnect();
     bp2.disconnect();
+#ifndef OROPKG_OS_MACOSX
     bp = new BufferLockFree<double>(10);
     CPPUNIT_ASSERT( bp.connected() );
     CPPUNIT_ASSERT( bp.buffer()->capacity() == 10 );
-
+#endif
 
 }
 

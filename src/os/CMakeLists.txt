@@ -9,6 +9,7 @@ ADD_SUBDIRECTORY( gnulinux )
 ADD_SUBDIRECTORY( lxrt )
 ADD_SUBDIRECTORY( xenomai )
 ADD_SUBDIRECTORY( ecos )
+ADD_SUBDIRECTORY( macosx )
 
 # Supported Hardware
 ADD_SUBDIRECTORY( oro_i386 )

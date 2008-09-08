@@ -4,25 +4,15 @@
 #                                                         #
 ###########################################################
 
-# The cmake version is f*cked up, i.e. the spirit of cmake.
-INCLUDE( config/CheckIncludeFileCXX.cmake )
-
 # Look for boost
 IF (NOT CMAKE_CROSS_COMPILE)
-
-SET(BOOST_INSTALL "" CACHE STRING "Specify the location (e.g. /opt/include) in which the Boost/C++ headers have been installed.")
-
-# This is the Orocos version of the macro:
-IF( BOOST_INSTALL )
-MESSAGE("-- Looking for Boost/C++ headers in ${BOOST_INSTALL}")
-SET(CMAKE_REQUIRED_INCLUDES ${BOOST_INSTALL})
-SET( RTT_CFLAGS "${RTT_CFLAGS} -I${BOOST_INSTALL}" )
-ENDIF( BOOST_INSTALL )
-CHECK_INCLUDE_FILE_CXX( boost/shared_ptr.hpp BOOST)
-CHECK_INCLUDE_FILE_CXX( boost/spirit.hpp BOOST_SPIRIT)
-CHECK_INCLUDE_FILE_CXX( boost/graph/adjacency_list.hpp BOOST_GRAPH)
+MESSAGE("-- Looking for Boost/C++ headers --")
+FIND_PATH( BOOST boost/shared_ptr.hpp )
+FIND_PATH( BOOST_SPIRIT boost/spirit.hpp )
+FIND_PATH( BOOST_GRAPH boost/graph/adjacency_list.hpp )
 IF(BOOST AND BOOST_GRAPH AND BOOST_SPIRIT)
   MESSAGE("-- Looking for Boost headers - found")
+  SET( RTT_CFLAGS "${RTT_CFLAGS} -I${BOOST}" )
   SET(ORO_SUPPORT_BOOST TRUE CACHE INTERNAL "" FORCE)
 ELSE(BOOST AND BOOST_GRAPH AND BOOST_SPIRIT)
   MESSAGE("-- Looking for Boost headers - not found")
@@ -35,11 +25,9 @@ ENDIF (NOT CMAKE_CROSS_COMPILE)
 IF (NOT CMAKE_CROSS_COMPILE )
   FIND_LIBRARY(XERCES NAMES xerces-c 
     PATHS /usr/local/lib /usr/lib )
-  CHECK_INCLUDE_FILE_CXX( xercesc/util/PlatformUtils.hpp XERCES_HEADERS)
+  FIND_PATH( XERCES_HEADERS xercesc/util/PlatformUtils.hpp)
 ELSE (NOT CMAKE_CROSS_COMPILE )
-  FIND_LIBRARY(XERCES NAMES xerces-c 
-    NO_DEFAULT_PATH
-    )
+  FIND_LIBRARY(XERCES NAMES xerces-c NO_DEFAULT_PATH )
 ENDIF (NOT CMAKE_CROSS_COMPILE )
 IF ( XERCES AND XERCES_HEADERS)
   MESSAGE("-- Looking for Xerces - found")
@@ -62,7 +50,7 @@ ELSE ( XERCES AND XERCES_HEADERS )
   SET(OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER "TinyDemarshaller")
 ENDIF ( XERCES AND XERCES_HEADERS )
 
-SET( OROCOS_TARGET gnulinux CACHE STRING "The Operating System target. One of [lxrt gnulinux xenomai]")
+SET( OROCOS_TARGET gnulinux CACHE STRING "The Operating System target. One of [lxrt gnulinux xenomai macosx]")
 STRING(TOUPPER ${OROCOS_TARGET} OROCOS_TARGET_CAP)
 
 SET(LINUX_SOURCE_DIR ${LINUX_SOURCE_DIR} CACHE PATH "path to linux source dir" FORCE)
@@ -144,6 +132,15 @@ IF(OROCOS_TARGET STREQUAL "gnulinux")
 ELSE(OROCOS_TARGET STREQUAL "gnulinux")
   SET(OROPKG_OS_GNULINUX FALSE CACHE INTERNAL "" FORCE)
 ENDIF(OROCOS_TARGET STREQUAL "gnulinux")
+
+IF(OROCOS_TARGET STREQUAL "macosx")
+  SET(OROPKG_OS_MACOSX TRUE CACHE INTERNAL "" FORCE)
+  SET(RTT_LINKFLAGS "${RTT_LINKFLAGS} -lpthread" CACHE INTERNAL "")
+  LINK_LIBRARIES(pthread dl)
+ELSE(OROCOS_TARGET STREQUAL "macosx")
+  SET(OROPKG_OS_MACOSX FALSE CACHE INTERNAL "" FORCE)
+ENDIF(OROCOS_TARGET STREQUAL "macosx")
+
 
 IF(OROCOS_TARGET STREQUAL "ecos")
 

@@ -75,6 +75,12 @@
 	<revremark>Improved/fixed Debian/Ubuntu package install instructions.</revremark>
       </revision>
     </revhistory>
+    <revnumber>1.5.0</revnumber>
+	<date>02 Aug 2008</date>
+	<authorinitials>kg</authorinitials>
+	<revremark>Added Mac OS X install instructions.</revremark>
+      </revision>
+    </revhistory>
 
     <legalnotice>
       <para>
@@ -104,10 +110,12 @@
 	  &orocos; was designed with portability in mind. Currently, we support RTAI/LXRT
 	  (<ulink url="http://www.rtai.org">http://www.rtai.org</ulink>), GNU/Linux
 	  userspace, Xenomai (<ulink
-	    url="http://www.xenomai.org">Xenomai.org</ulink>). So,
-	  you can first write your software as a normal Linux program, using the framework
-	  for testing and debugging purposes in plain userspace Linux and recompile
-	  later to another real-time target.
+	    url="http://www.xenomai.org">Xenomai.org</ulink>) and Mac OS X (<ulink
+	    url="http://www.apple.com/macosx/">apple.com</ulink>). So,
+	  you can first write your software as a normal Linux/Mac OS X
+	  program, using the framework for testing and debugging
+	  purposes in plain userspace (Linux/Mac OS X) and recompile
+	  later to a real-time target.
 	</para>
       </section>
       <section id="vers-scheme">
@@ -186,7 +194,10 @@
 	  </tgroup>
 	</table>
 	<para>
-	  All these packages are provided by most Linux distributions.
+	  All these packages are provided by most Linux distributions.  In Mac OS X, 
+	  you can install them easily using <ulink 
+	  url="http://www.finkproject.org">fink</ulink> or <ulink 
+	  url="http://www.macports.org/">macports</a>.
 	  Take also a look on the Orocos.org <ulink
 	  url="http://www.orocos.org/rtt/source">RTT download</ulink> page
 	  for the latest information.
@@ -266,6 +277,7 @@
 	<title>Orocos Build and Configuration Tools </title>
 	<para>
 	  The tool you will need is <command>cmake</command>
+	  Most linux distros have a cmake package, and so do fink/macports in OS X.
 	  In Debian, you can use the official Debian version using
 	  <screen>  apt-get install cmake</screen>
 	  If this does not work for you, you can download cmake from
@@ -273,15 +285,25 @@
 	</para>
       </section>
       <section>
-	<title>Quick Installation Instructions</title> 
-	<para> 
+	<para>
+	<title>Download and extract the RTT packages</title>
 	  Download the <filename>orocos-rtt-&oversion;-src.tar.bz2</filename> package from the
 	  Orocos webpage.
 	</para>
 	<para>
 	  Extract it using :
 	  <screen><command>  tar -xvjf orocos-rtt-&oversion;-src.tar.bz2</command></screen>
-	  Then proceed as in:
+        </para>
+	<para>
+	  The next section provides quick installation instructions if you
+	  want to install the RTT on GNU/Linux.  Please check out
+	  section FIXME for installation on other OSes and/or if you
+	  want to change the default configuration settings.
+	</para>
+      </section>
+      <section>
+	<title>Quick Installation Instructions for GNU/Linux</title> 
+	<para>
 	  <screen><command> 
   mkdir orocos-rtt-&oversion;/build 
   cd orocos-rtt-&oversion;/build
@@ -317,11 +339,14 @@
       <section>
 	<title>Real-Time Toolkit Configuration</title>
 	<para>
-	  The RTT can be configured depending on you target. 
+	  The RTT can be configured depending on your target. 
 	  For embedded targets, the large scripting infrastructure and
 	  use of exceptions can be left out. When CORBA is available,
 	  an additional library is built which allows components to
 	  communicate over a network.
+	  
+	  Also, when building for another OS than GNU/Linux, you will have to 
+	  build the RTT using cmake.
 	</para>
 	<para>
 	  In order to configure the RTT in detail, you
@@ -426,6 +451,21 @@
   <section id="install-configure">
     <title>Detailed Configuration using 'CMake'</title>
       <para>
+	If you have some of the orocos dependencies installed in
+	non-standard locations, you have to specify
+	this using cmake variables <emphasis>before</emphasis> running
+	the cmake configuration.  Specify header locations using
+	the <option>CMAKE_INCLUDE_PATH</option> variable (e.g. using
+	bash and fink in Mac OS X, the boost library headers are
+	installed in /sw/include, so you would specify <screen>export
+	CMAKE_INCLUDE_PATH=/sw/include</screen>. 
+	For libraries in none default locations, use
+	the <option>CMAKE_LIBRARY_PATH</option> variable.  For more
+	information,
+	see <ulink url="http://www.cmake.org/Wiki/CMake_Useful_Variables#Environment_Variables">cmake
+	useful variables</ulink> link.
+      </para>
+      <para>
 	In order to start cmake configuration, in your build
 	directory, run <command>ccmake ..</command> .  Press 'c' (from
 	'c'onfigure), watch the output, press 'e' (from 'e'xit) and
@@ -441,6 +481,7 @@
 	on of the following supported targets (all in lowercase):
 	<itemizedlist>
 	  <listitem><para>gnulinux</para></listitem>
+	  <listitem><para>macosx</para></listitem>
 	  <listitem><para>xenomai</para></listitem>
 	  <listitem><para>lxrt</para></listitem>
 	</itemizedlist>

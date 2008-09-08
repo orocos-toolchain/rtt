@@ -280,8 +280,10 @@ namespace RTT
     {
         // just signal if already active.
         if ( isActive() ) {
+#ifndef OROPKG_OS_MACOSX
             if ( rtos_sem_value(&sem) > 0 )
                 return false;
+#endif
             rtos_sem_signal(&sem);
             return true;
         }

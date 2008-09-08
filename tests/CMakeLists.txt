@@ -27,7 +27,7 @@ IF (ENABLE_TESTS)
 
     # Copy over CPF files.
     ADD_CUSTOM_TARGET(prep-cpf
-      cp -a "${CMAKE_CURRENT_SOURCE_DIR}/*.cpf" "${CMAKE_CURRENT_BINARY_DIR}"
+      cp -R "${CMAKE_CURRENT_SOURCE_DIR}/*.cpf" "${CMAKE_CURRENT_BINARY_DIR}"
       )
 
     # repeat for each test

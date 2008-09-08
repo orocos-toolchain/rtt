@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Orocos configure script."
+echo "Orocos configure script.  WARNING: ONLY WORKS FOR GNULINUX INSTALLATIONS"
 
 function usage
 {

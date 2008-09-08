@@ -54,3 +54,7 @@
 #ifdef OROPKG_OS_ECOS
  #include "ecos/fosi.h"
 #endif
+
+#ifdef OROPKG_OS_MACOSX
+  #include "macosx/fosi.h"
+#endif

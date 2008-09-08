@@ -75,12 +75,14 @@ namespace RTT
                 count.wait();
             }
         }
+#ifndef OROPKG_OS_MACOSX
         void reset( int c ) {
             while( c > count.value() )
                 count.signal();
             while( c < count.value() )
                 count.wait();
         }
+#endif
     private:
         OS::Semaphore count;
     };

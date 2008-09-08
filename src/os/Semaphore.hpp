@@ -141,10 +141,12 @@ namespace RTT
         /**
          * Return the current count of this semaphore.
          */
+#ifndef OROPKG_OS_MACOSX
         int value()
         {
             return rtos_sem_value( &sem );
         }
+#endif
     };
 }}
 
