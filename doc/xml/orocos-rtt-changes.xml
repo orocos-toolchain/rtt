@@ -161,16 +161,16 @@
 	    The RTT has been adapted for the Preempt-RT Linux kernel
 	    patch, using the monotonic real-time clock infrastructure for
 	    real-time periodic execution. See
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=">
-
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=565">
+	       Periodicity of thread not guaranteed under (preempt-rt) gnulinux
 	      </ulink>.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    An initial Max OSX port has been done (RTT and OCL), and
-	    stable enough for broader testing.  If you like to
-	    contribute, see
+	    An initial Max OS-X port has been done (RTT and OCL), and
+	    stable enough for broader testing. The Orocos target name for
+	    Mac OS-X is 'macosx'.  See
 	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=533">
 	      Mac OS X port
 	      </ulink>.
@@ -364,6 +364,11 @@
 	    The Orocos Component Library's deployer and taskbrowser use
 	    this infrastructure to detect and cope with lost connections.
 	  </para>
+	  <para> See also
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=566">
+	      CORBA Connections may cause TRANSIENT exception when server exited
+	      </ulink>.
+	  </para>
 	</listitem>
 	<listitem>
 	  <para>
@@ -384,6 +389,11 @@
 	    literally. This is done by specifying the 'type' field of the component
 	    as "CORBA", "IORFile" or "IOR" and providing the registered name,
 	    IOR file location or IOR respectively in the 'name' field.
+	  </para>
+	  <para> See also
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=534">
+	      [Project] deployer can not connect to CORBA components
+	      </ulink>.
 	  </para>
 	</listitem>
 	<listitem>
@@ -414,6 +424,13 @@
 	    The deployer does 'spell' checking for unknown or misspelled
 	    XML 'name' attributes, which goes further than the standard
 	    XML syntax checking.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The DeploymentComponent can be configured itself by using its
+	    name in the XML configuration file. In this way, you can add
+	    an activity or load a script into this component.
 	  </para>
 	</listitem>
 	<listitem>
