@@ -44,21 +44,23 @@ namespace RTT
 
 	INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main_task)
 	{
-	    main_task->name = "main";
-            main_task->thread = 0;
+        const char* name = "main";
+	    main_task->name = strcpy( (char*)malloc( (strlen(name) + 1) * sizeof(char)), name);
+        main_task->thread = 0;
 	    pthread_attr_init( &(main_task->attr) );
 	    struct sched_param sp;
 	    sp.sched_priority=0;
 	    // Set priority
 	    // fixme check return value and bail out if necessary
 	    pthread_attr_setschedparam(&(main_task->attr), &sp);
-            main_task->priority = sp.sched_priority;
+        main_task->priority = sp.sched_priority;
 	    return 0;
 	}
 
 	INTERNAL_QUAL int rtos_task_delete_main(RTOS_TASK* main_task)
 	{
-            pthread_attr_destroy( &(main_task->attr) );
+        pthread_attr_destroy( &(main_task->attr) );
+        free( main_task->name );
 	    return 0;
 	}
 

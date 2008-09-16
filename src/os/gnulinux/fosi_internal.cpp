@@ -54,7 +54,8 @@ namespace RTT
 
 	INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main_task)
 	{
-	    main_task->name = "main";
+        const char* name = "main";
+	    main_task->name = strcpy( (char*)malloc( (strlen(name) + 1) * sizeof(char)), name);
         main_task->thread = 0;
 	    pthread_attr_init( &(main_task->attr) );
 	    struct sched_param sp;
@@ -69,6 +70,7 @@ namespace RTT
 	INTERNAL_QUAL int rtos_task_delete_main(RTOS_TASK* main_task)
 	{
         pthread_attr_destroy( &(main_task->attr) );
+        free(main_task->name);
 	    return 0;
 	}
 

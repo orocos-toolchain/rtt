@@ -90,7 +90,9 @@ namespace RTT
             while ( rt_get_adr( name ) != 0 ) // check for existing 'MAINTHREAD'
                 ++name;
 
-            main_task->name = "main";
+            
+            const char* tname = "main";
+            main_task->name = strcpy( (char*)malloc( (strlen(tname) + 1) * sizeof(char)), tname);
 
             if( !(main_task->rtaitask = rt_task_init(name, 10,0,0)) ) // priority, stack, msg_size
                 {
@@ -134,6 +136,7 @@ namespace RTT
             // we don't stop the timer
             //stop_rt_timer();
             rt_task_delete(main_task->rtaitask);
+            free(main_task->name);
             munlockall();
             return 0;
         }

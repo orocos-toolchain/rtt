@@ -43,12 +43,14 @@ namespace RTT
   namespace detail {
 	INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main_task)
 	{
-	    main_task->name = "main";
+        const char* name = "main";
+	    main_task->name = strcpy( (char*)malloc( (strlen(name) + 1) * sizeof(char)), name);
 	    return 0;
 	}
 
 	INTERNAL_QUAL int rtos_task_delete_main(RTOS_TASK* main_task)
 	{
+        free(main_task->name);
 	    return 0;
 	}
 
