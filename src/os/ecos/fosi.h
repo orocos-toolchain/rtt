@@ -60,7 +60,7 @@ extern "C"
     // the thread
     cyg_thread thread;
     // its name
-    char * name;
+    const char * name;
 
     // And its handle
     cyg_handle_t handle;
