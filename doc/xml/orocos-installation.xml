@@ -74,7 +74,7 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Improved/fixed Debian/Ubuntu package install instructions.</revremark>
       </revision>
-    </revhistory>
+    <revision>
     <revnumber>1.5.0</revnumber>
 	<date>02 Aug 2008</date>
 	<authorinitials>kg</authorinitials>
@@ -197,7 +197,7 @@
 	  All these packages are provided by most Linux distributions.  In Mac OS X, 
 	  you can install them easily using <ulink 
 	  url="http://www.finkproject.org">fink</ulink> or <ulink 
-	  url="http://www.macports.org/">macports</a>.
+	  url="http://www.macports.org/">macports</ulink>.
 	  Take also a look on the Orocos.org <ulink
 	  url="http://www.orocos.org/rtt/source">RTT download</ulink> page
 	  for the latest information.
@@ -285,8 +285,8 @@
 	</para>
       </section>
       <section>
-	<para>
 	<title>Download and extract the RTT packages</title>
+	<para>
 	  Download the <filename>orocos-rtt-&oversion;-src.tar.bz2</filename> package from the
 	  Orocos webpage.
 	</para>
