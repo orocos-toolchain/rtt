@@ -101,7 +101,7 @@ extern "C" {
 
 	typedef struct {
 		pthread_t thread;
-		const char * name;
+		char * name;
 		int priority;
 
 		RTOS_RTAI_TASK* rtaitask;

@@ -70,7 +70,7 @@ extern "C"
     TIME_SPEC periodMark;
     NANO_TIME period;
 
-    const char* name;
+    char* name;
 
     int priority;
   } RTOS_TASK;

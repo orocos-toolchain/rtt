@@ -52,7 +52,7 @@ extern "C"
         NANO_TIME periodMark;
         NANO_TIME period;
   
-        const char* name;
+        char* name;
 
         int priority;
     } RTOS_TASK;

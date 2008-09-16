@@ -94,7 +94,7 @@ extern "C" {
 
     // Thread/Task related.
     typedef struct {
-        const char * name;
+        char * name;
         RTOS_XENO_TASK xenotask;
         RTOS_XENO_TASK* xenoptr;
         int sched_type;
