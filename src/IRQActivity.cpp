@@ -70,7 +70,13 @@ bool IRQActivity::start()
         return false;
     }
 
-    return NonPeriodicActivity::start();
+    if (! NonPeriodicActivity::start())
+    {
+        rt_intr_delete(&m_handle);
+        return false;
+    }
+
+    return true;
 }
 
 void IRQActivity::loop()
