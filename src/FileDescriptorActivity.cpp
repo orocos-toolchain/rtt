@@ -81,7 +81,13 @@ bool FileDescriptorActivity::start()
     if (pipe(m_interrupt_pipe) == -1)
         return false;
 
-    return NonPeriodicActivity::start();
+    if (!NonPeriodicActivity::start())
+    {
+        close(m_interrupt_pipe[0]);
+        close(m_interrupt_pipe[1]);
+        return false;
+    }
+    return true;
 }
 
 void FileDescriptorActivity::loop()
@@ -136,7 +142,7 @@ bool FileDescriptorActivity::stop()
         }
 
         close(m_interrupt_pipe[0]);
-        close(m_interrupt_pipe[1]); // read side closed by breakLoop 
+        close(m_interrupt_pipe[1]);
         return true;
     }
     else
