@@ -1,0 +1,5 @@
+usr/lib/liborocos-rtt-@TARGET@.a
+usr/lib/liborocos-rtt-@TARGET@.so
+usr/lib/pkgconfig/orocos-rtt-@TARGET@.pc
+usr/include/rtt/targets/@TARGET@
+usr/include/rtt/os/@TARGET@
