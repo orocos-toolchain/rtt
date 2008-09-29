@@ -27,10 +27,10 @@ endif
 
 # shared library versions, option 1
 #version=1.1.0
-#major=1
+#major=1.4
 # option 2, assuming the library is created as build/src/libfoo.so.2.0.5 or so
-version=`find . -name liborocos-rtt.*.so.* | head -1 | awk '{if (match($$0,/[0-9]+\.[0-9]+\.[0-9]+$$/)) print substr($$0,RSTART)}'`
-major=`find . -name liborocos-rtt.*.so.* | awk '{if (match($$0,/\.so\.[0-9]+$$/)) print substr($$0,RSTART+4)}'`
+version=`find . -name liborocos-rtt-gnulinux*.so.* | awk '{if (match($$0,/[0-9]+\.[0-9]+\.[0-9]+$$/)) print substr($$0,RSTART)}' | head -1`
+major=`find . -name liborocos-rtt-gnulinux*.so.* | awk '{if (match($$0,/\.so\.[0-9]+\.[0-9]+$$/)) print substr($$0,RSTART+4)}' | head -1`
 
 configure: configure-stamp
 configure-stamp:
@@ -114,7 +114,7 @@ binary-arch: build install
 #	dh_installinfo
 	dh_installman
 	dh_link
-	dh_strip --dbg-package=orocos-rtt-dbg
+	dh_strip --dbg-package=orocos-rtt-dbg$(major)
 	dh_compress
 	dh_fixperms
 #	dh_perl

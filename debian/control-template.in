@@ -1,8 +1,10 @@
-Package: liborocos-rtt-corba-@TARGET@-dev
+Package: liborocos-rtt-corba-@TARGET@@LIBVER@-dev
 Section: libdevel
 Architecture: any
-Depends: liborocos-rtt-corba-@TARGET@1.4 (= ${Source-Version}), liborocos-rtt-corba-common-dev
-Conflicts: liborocos-rtt-dev
+Depends: liborocos-rtt-corba-@TARGET@@LIBVER@ (= ${Source-Version}), liborocos-rtt-corba-common@LIBVER@-dev
+Conflicts: liborocos-rtt-dev, liborocos-rtt-corba-@TARGET@-dev
+Replaces:  liborocos-rtt-corba-@TARGET@-dev
+Provides: liborocos-rtt-corba-@TARGET@-dev
 Description: Orocos Real-Time Toolkit for CORBA development files (@TARGET@)
  Orocos (http://www.orocos.org) is the acronym of the
  Open Robot Control Software project. The project's aim is to develop
@@ -20,10 +22,10 @@ Description: Orocos Real-Time Toolkit for CORBA development files (@TARGET@)
  .
  This package provides the headers for developing Orocos applications.
 
-Package: liborocos-rtt-corba-@TARGET@1.4
+Package: liborocos-rtt-corba-@TARGET@@LIBVER@
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, liborocos-rtt-@TARGET@1.4
+Depends: ${shlibs:Depends}, liborocos-rtt-@TARGET@@LIBVER@
 Conflicts: liborocos-rtt1
 Description: Orocos Real-Time Toolkit for CORBA library (@TARGET@)
  Orocos (http://www.orocos.org) is the acronym of the
@@ -42,11 +44,13 @@ Description: Orocos Real-Time Toolkit for CORBA library (@TARGET@)
  .
  This package provides the RTT library.
 
-Package: liborocos-rtt-@TARGET@-dev
+Package: liborocos-rtt-@TARGET@@LIBVER@-dev
 Section: libdevel
 Architecture: any
-Depends: liborocos-rtt-@TARGET@1.4 (= ${Source-Version}), liborocos-rtt-common-dev @TARGET-DEV@
-Conflicts: liborocos-rtt-dev
+Depends: liborocos-rtt-@TARGET@@LIBVER@ (= ${Source-Version}), liborocos-rtt-common@LIBVER@-dev @TARGET-DEV@
+Conflicts: liborocos-rtt-dev, liborocos-rtt-@TARGET@-dev
+Replaces:  liborocos-rtt-@TARGET@-dev
+Provides:  liborocos-rtt-@TARGET@-dev
 Description: Orocos Real-Time Toolkit for CORBA development files (@TARGET@)
  Orocos (http://www.orocos.org) is the acronym of the
  Open Robot Control Software project. The project's aim is to develop
@@ -64,7 +68,7 @@ Description: Orocos Real-Time Toolkit for CORBA development files (@TARGET@)
  .
  This package provides the headers for developing Orocos applications.
 
-Package: liborocos-rtt-@TARGET@1.4
+Package: liborocos-rtt-@TARGET@@LIBVER@
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}

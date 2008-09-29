@@ -5,20 +5,25 @@ Build-Depends: debhelper (>= 5), cmake,libboost-dev,libboost-graph-dev,xsltproc,
 Standards-Version: 3.7.2
 Section: libs
 
-Package: orocos-rtt-dbg
+Package: orocos-rtt-dbg1.4
 Section: libdevel
 Priority: extra
 Architecture: any
-Depends: liborocos-rtt-common-dev (= ${binary:Version})
+Depends: liborocos-rtt-common1.4-dev (= ${binary:Version})
+Conflicts: orocos-rtt-dbg
+Replaces:  orocos-rtt-dbg
+Provides:  orocos-rtt-dbg
 Description: Orocos Real-Time Toolkit (debug symbols)
  .
  This package contains the debugging symbols.
 
-Package: liborocos-rtt-common-dev
+Package: liborocos-rtt-common1.4-dev
 Section: libs
 Architecture: any
 Depends: libboost-dev, libboost-graph-dev
-Conflicts: liborocos-rtt-dev
+Conflicts: liborocos-rtt-dev, liborocos-rtt-common-dev
+Replaces:  liborocos-rtt-common-dev
+Provides:  liborocos-rtt-common-dev
 Description: Orocos Real-Time Toolkit common development files
  Orocos (http://www.orocos.org) is the acronym of the
  Open Robot Control Software project. The project's aim is to develop
@@ -36,11 +41,13 @@ Description: Orocos Real-Time Toolkit common development files
  .
  This package provides the RTT library.
 
-Package: liborocos-rtt-corba-common-dev
+Package: liborocos-rtt-corba-common1.4-dev
 Section: libs
 Architecture: any
-Depends: liborocos-rtt-common-dev, libtao-dev, libtao-orbsvcs-dev 
-Conflicts: liborocos-rtt-dev
+Depends: liborocos-rtt-common1.4-dev, libtao-dev, libtao-orbsvcs-dev 
+Conflicts: liborocos-rtt-dev, liborocos-rtt-corba-common-dev
+Replaces: liborocos-rtt-corba-common-dev
+Provides: liborocos-rtt-corba-common-dev
 Description: Orocos Real-Time Toolkit common CORBA development files
  Orocos (http://www.orocos.org) is the acronym of the
  Open Robot Control Software project. The project's aim is to develop
@@ -58,11 +65,13 @@ Description: Orocos Real-Time Toolkit common CORBA development files
  .
  This package provides the RTT library.
 
-Package: liborocos-rtt-corba-gnulinux-dev
+Package: liborocos-rtt-corba-gnulinux1.4-dev
 Section: libdevel
 Architecture: any
-Depends: liborocos-rtt-corba-gnulinux1.4 (= ${Source-Version}), liborocos-rtt-corba-common-dev
-Conflicts: liborocos-rtt-dev
+Depends: liborocos-rtt-corba-gnulinux1.4 (= ${Source-Version}), liborocos-rtt-corba-common1.4-dev
+Conflicts: liborocos-rtt-dev, liborocos-rtt-corba-gnulinux-dev
+Replaces:  liborocos-rtt-corba-gnulinux-dev
+Provides: liborocos-rtt-corba-gnulinux-dev
 Description: Orocos Real-Time Toolkit for CORBA development files (gnulinux)
  Orocos (http://www.orocos.org) is the acronym of the
  Open Robot Control Software project. The project's aim is to develop
@@ -102,11 +111,13 @@ Description: Orocos Real-Time Toolkit for CORBA library (gnulinux)
  .
  This package provides the RTT library.
 
-Package: liborocos-rtt-gnulinux-dev
+Package: liborocos-rtt-gnulinux1.4-dev
 Section: libdevel
 Architecture: any
-Depends: liborocos-rtt-gnulinux1.4 (= ${Source-Version}), liborocos-rtt-common-dev 
-Conflicts: liborocos-rtt-dev
+Depends: liborocos-rtt-gnulinux1.4 (= ${Source-Version}), liborocos-rtt-common1.4-dev 
+Conflicts: liborocos-rtt-dev, liborocos-rtt-gnulinux-dev
+Replaces:  liborocos-rtt-gnulinux-dev
+Provides:  liborocos-rtt-gnulinux-dev
 Description: Orocos Real-Time Toolkit for CORBA development files (gnulinux)
  Orocos (http://www.orocos.org) is the acronym of the
  Open Robot Control Software project. The project's aim is to develop
@@ -146,11 +157,13 @@ Description: Orocos Real-Time Toolkit for CORBA library (gnulinux)
  .
  This package provides the RTT library.
 
-Package: liborocos-rtt-corba-lxrt-dev
+Package: liborocos-rtt-corba-lxrt1.4-dev
 Section: libdevel
 Architecture: any
-Depends: liborocos-rtt-corba-lxrt1.4 (= ${Source-Version}), liborocos-rtt-corba-common-dev
-Conflicts: liborocos-rtt-dev
+Depends: liborocos-rtt-corba-lxrt1.4 (= ${Source-Version}), liborocos-rtt-corba-common1.4-dev
+Conflicts: liborocos-rtt-dev, liborocos-rtt-corba-lxrt-dev
+Replaces:  liborocos-rtt-corba-lxrt-dev
+Provides: liborocos-rtt-corba-lxrt-dev
 Description: Orocos Real-Time Toolkit for CORBA development files (lxrt)
  Orocos (http://www.orocos.org) is the acronym of the
  Open Robot Control Software project. The project's aim is to develop
@@ -190,11 +203,13 @@ Description: Orocos Real-Time Toolkit for CORBA library (lxrt)
  .
  This package provides the RTT library.
 
-Package: liborocos-rtt-lxrt-dev
+Package: liborocos-rtt-lxrt1.4-dev
 Section: libdevel
 Architecture: any
-Depends: liborocos-rtt-lxrt1.4 (= ${Source-Version}), liborocos-rtt-common-dev 
-Conflicts: liborocos-rtt-dev
+Depends: liborocos-rtt-lxrt1.4 (= ${Source-Version}), liborocos-rtt-common1.4-dev 
+Conflicts: liborocos-rtt-dev, liborocos-rtt-lxrt-dev
+Replaces:  liborocos-rtt-lxrt-dev
+Provides:  liborocos-rtt-lxrt-dev
 Description: Orocos Real-Time Toolkit for CORBA development files (lxrt)
  Orocos (http://www.orocos.org) is the acronym of the
  Open Robot Control Software project. The project's aim is to develop
@@ -234,11 +249,13 @@ Description: Orocos Real-Time Toolkit for CORBA library (lxrt)
  .
  This package provides the RTT library.
 
-Package: liborocos-rtt-corba-xenomai-dev
+Package: liborocos-rtt-corba-xenomai1.4-dev
 Section: libdevel
 Architecture: any
-Depends: liborocos-rtt-corba-xenomai1.4 (= ${Source-Version}), liborocos-rtt-corba-common-dev
-Conflicts: liborocos-rtt-dev
+Depends: liborocos-rtt-corba-xenomai1.4 (= ${Source-Version}), liborocos-rtt-corba-common1.4-dev
+Conflicts: liborocos-rtt-dev, liborocos-rtt-corba-xenomai-dev
+Replaces:  liborocos-rtt-corba-xenomai-dev
+Provides: liborocos-rtt-corba-xenomai-dev
 Description: Orocos Real-Time Toolkit for CORBA development files (xenomai)
  Orocos (http://www.orocos.org) is the acronym of the
  Open Robot Control Software project. The project's aim is to develop
@@ -278,11 +295,13 @@ Description: Orocos Real-Time Toolkit for CORBA library (xenomai)
  .
  This package provides the RTT library.
 
-Package: liborocos-rtt-xenomai-dev
+Package: liborocos-rtt-xenomai1.4-dev
 Section: libdevel
 Architecture: any
-Depends: liborocos-rtt-xenomai1.4 (= ${Source-Version}), liborocos-rtt-common-dev , xenomai-dev | libxenomai-dev
-Conflicts: liborocos-rtt-dev
+Depends: liborocos-rtt-xenomai1.4 (= ${Source-Version}), liborocos-rtt-common1.4-dev , xenomai-dev | libxenomai-dev
+Conflicts: liborocos-rtt-dev, liborocos-rtt-xenomai-dev
+Replaces:  liborocos-rtt-xenomai-dev
+Provides:  liborocos-rtt-xenomai-dev
 Description: Orocos Real-Time Toolkit for CORBA development files (xenomai)
  Orocos (http://www.orocos.org) is the acronym of the
  Open Robot Control Software project. The project's aim is to develop
