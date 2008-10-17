@@ -131,8 +131,8 @@ namespace RTT
         : public DataPortBase<T>
     {
         using DataPortBase<T>::mconn;
-        using DataPortBase<T>::operator=;
     public:
+        using DataPortBase<T>::operator=;
         typedef T DataType;
 
         /**
@@ -218,8 +218,8 @@ namespace RTT
         : public DataPortBase<T>
     {
         using DataPortBase<T>::mconn;
-        using DataPortBase<T>::operator=;
     public:
+        using DataPortBase<T>::operator=;
         typedef T DataType;
 
         /**
@@ -296,8 +296,8 @@ namespace RTT
     protected:
         T minitial_value;
         using DataPortBase<T>::mconn;
-        using DataPortBase<T>::operator=;
     public:
+        using DataPortBase<T>::operator=;
         typedef T DataType;
         /**
          * Construct an unconnected Port to a writable DataObject.
