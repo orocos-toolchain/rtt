@@ -95,6 +95,7 @@ INCLUDE (${CMAKE_ROOT}/Modules/CMakeDetermineCXXCompiler.cmake)
 # -W... or alike. The user's application is compiled with these flags !
 SET( RTT_CFLAGS "" CACHE INTERNAL "")
 SET( RTT_LINKFLAGS "" CACHE INTERNAL "")
+SET( RTT_USER_LINKFLAGS "" CACHE INTERNAL "")
 
 INCLUDE(config/check_depend.cmake)
 INCLUDE(config/global_setup.cmake)
