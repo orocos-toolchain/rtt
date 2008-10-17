@@ -95,7 +95,6 @@ namespace RTT
 
         /**
          * Returns true if this Port is ready to be used.
-         * Identical to connected().
          */
         bool ready() const;
 
