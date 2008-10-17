@@ -129,7 +129,17 @@ namespace RTT
                     Logger::log() <<" See PeriodicThread::setMaxOverrun() for info." << Logger::endl;
                 }
 #ifndef ORO_EMBEDDED
-            } catch( ... ) {
+            } catch( std::exception const& e ) {
+#ifdef OROPKG_OS_THREAD_SCOPE
+                if ( task->d )
+                    task->d->switchOff( bit );
+#endif
+                task->emergencyStop();
+                Logger::In in(rtos_task_get_name(task->getTask()));
+                Logger::log() << Logger::Fatal << rtos_task_get_name(task->getTask()) <<" caught a C++ exception, stopped thread !"<<Logger::endl;
+                Logger::log() << Logger::Fatal << "exception was: " << e.what() << Logger::endl;
+            } catch (...)
+            {
 #ifdef OROPKG_OS_THREAD_SCOPE
                 if ( task->d )
                     task->d->switchOff( bit );
