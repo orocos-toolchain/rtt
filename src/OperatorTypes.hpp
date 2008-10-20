@@ -112,45 +112,6 @@ namespace RTT
         };
 
         /**
-         * An operator which reads a three DataSources
-         * and returns a modified result.
-         */
-        template<typename function>
-        class TernaryOperator
-            : public TernaryOp
-        {
-            typedef typename function::first_argument_type arg1_t;
-            typedef typename function::second_argument_type arg2_t;
-            typedef typename function::third_argument_type arg3_t;
-            typedef typename function::result_type result_t;
-            const char* mop;
-            function fun;
-        public:
-            TernaryOperator( const char* op, function f )
-                : mop( op ), fun( f )
-            {
-            }
-            DataSource<result_t>* build( const std::string& op, DataSourceBase* a,
-                                         DataSourceBase* b, DataSourceBase* c )
-            {
-                // operation (+,-,...) and first argument type must match.
-                if ( op != mop || a->getTypeInfo() != DataSourceTypeInfo<arg1_t>::getTypeInfo() ) return 0;
-                log(Debug) << "TernaryOperator: "<< op << endlog();
-                typename DataSource<arg1_t>::shared_ptr arg1 =
-                    AdaptDataSource<arg1_t>()( a ); // first argument must be exact match.
-                typename DataSource<arg2_t>::shared_ptr arg2 =
-                    AdaptDataSource<arg2_t>()( DataSourceTypeInfo<arg2_t>::getTypeInfo()->convert(b) );
-                typename DataSource<arg3_t>::shared_ptr arg3 =
-                    AdaptDataSource<arg3_t>()( DataSourceTypeInfo<arg3_t>::getTypeInfo()->convert(c) );
-                //         Logger::log() << "arg1 : "<< arg1 <<" second arg: "<<arg2<<"..." << Logger::endl;
-                //         Logger::log() << "arg1 was: "<< typeid(arg1).name()  <<" a was: "<<typeid(a).name()<<"..." << Logger::endl;
-                if ( !arg1 || ! arg2 || !arg3) return 0;
-                //         Logger::log() << "success !"<< Logger::endl;
-                return new TernaryDataSource<function>( arg1, arg2, arg3, fun );
-            }
-        };
-
-        /**
          *  Dot : '.' for member access of composite values
          */
         template<typename function>
@@ -201,16 +162,6 @@ namespace RTT
     newBinaryOperator( const char* op, function f )
     {
         return new detail::BinaryOperator<function>( op, f );
-    }
-
-    /**
-     * helper function to create a new BinaryOperator
-     */
-    template<typename function>
-    detail::TernaryOperator<function>*
-    newTernaryOperator( const char* op, function f )
-    {
-        return new detail::TernaryOperator<function>( op, f );
     }
 
     /**

@@ -250,7 +250,6 @@ namespace RTT
     BOOST_SPIRIT_DEBUG_RULE( atomicexpression );
     BOOST_SPIRIT_DEBUG_RULE( time_expression );
     BOOST_SPIRIT_DEBUG_RULE( time_spec );
-    BOOST_SPIRIT_DEBUG_RULE( doubleindexexp );
     BOOST_SPIRIT_DEBUG_RULE( indexexp );
     BOOST_SPIRIT_DEBUG_RULE( comma );
     BOOST_SPIRIT_DEBUG_RULE( close_brace );
@@ -340,11 +339,7 @@ namespace RTT
       | my_guard( datacallparser.parser() )[&handle_no_datacall]
                             [bind( &ExpressionParser::seendatacall, this ) ]
         // or an index or dot expression
-        ) >> ! dotexp >> !doubleindexexp >> !indexexp;
-
-        // take index of an atomicexpression
-    doubleindexexp =(ch_p('[') >> expression >> ch_p( ',' ) >> expression[bind( &ExpressionParser::seen_ternary, this,"[,]" ) ]>> expect_close(ch_p(']')));
-
+        ) >> ! dotexp >> !indexexp;
     // take index of an atomicexpression
     indexexp =
         (ch_p('[') >> expression[bind(&ExpressionParser::seen_binary, this, "[]")] >> expect_close( ch_p( ']') ) );
@@ -503,25 +498,6 @@ namespace RTT
       opreg->applyBinary( op, arg2.get(), arg1.get() );
     if ( ! ret )
       throw parse_exception_fatal_semantic_error( "Cannot apply binary operation "+ arg2->getType() +" " + op +
-                                            " "+arg1->getType() +"." );
-    parsestack.push( ret );
-  };
-
-  void ExpressionParser::seen_ternary( const std::string& op )
-  {
-    DataSourceBase::shared_ptr arg1( parsestack.top() );
-    parsestack.pop();
-    DataSourceBase::shared_ptr arg2( parsestack.top() );
-    parsestack.pop();
-    DataSourceBase::shared_ptr arg3( parsestack.top() );
-    parsestack.pop();
-
-    // Arg3 is the first (!) argument, as it was pushed on the stack
-    // first.
-    DataSourceBase::shared_ptr ret =
-      opreg->applyTernary( op, arg3.get(), arg2.get(), arg1.get() );
-    if ( ! ret )
-      throw parse_exception_fatal_semantic_error( "Cannot apply ternary operation "+ arg3->getType() +" " + op +" "+ arg2->getType() +
                                             " "+arg1->getType() +"." );
     parsestack.push( ret );
   };

@@ -93,22 +93,6 @@ namespace RTT { namespace detail
       const std::string& op, DataSourceBase* a, DataSourceBase* b ) = 0;
   };
 
-  class TernaryOp
-  {
-  public:
-    virtual ~TernaryOp();
-    /**
-     * If op is the operator you are responsible for, and if the
-     * argument DataSource's are of the correct type, then return an
-     * appropriate DataSource ( i.e. a DataSource that will apply a
-     * certain operation on the values it gets from its argument
-     * DataSources, and will return that value ).
-     * Otherwise, return 0.
-     */
-    virtual DataSourceBase* build(
-        const std::string& op, DataSourceBase* a, DataSourceBase* b, DataSourceBase* c ) = 0;
-  };
-
   /**
    * The Dot Operator allows access to members of composite types,
    * such as in frame.pos.x .
@@ -140,7 +124,6 @@ namespace RTT { namespace detail
     std::vector<detail::DotOp*> dotops;
     std::vector<detail::UnaryOp*> unaryops;
     std::vector<detail::BinaryOp*> binaryops;
-    std::vector<detail::TernaryOp*> ternaryops;
     OperatorRepository();
     OperatorRepository( const OperatorRepository& );
 
@@ -148,15 +131,14 @@ namespace RTT { namespace detail
     void add( detail::UnaryOp* o );
     void add( detail::DotOp* o );
     void add( detail::BinaryOp* o );
-    void add( detail::TernaryOp* o );
 
       typedef boost::shared_ptr<OperatorRepository> shared_ptr;
     ~OperatorRepository();
     static shared_ptr Instance();
     DataSourceBase* applyDot( const std::string& member, DataSourceBase* value );
     DataSourceBase* applyUnary( const std::string& op, DataSourceBase* a );
-    DataSourceBase* applyBinary( const std::string& op, DataSourceBase* a, DataSourceBase* b );
-    DataSourceBase* applyTernary( const std::string& op, DataSourceBase* a, DataSourceBase* b,  DataSourceBase* c );
+    DataSourceBase* applyBinary(
+      const std::string& op, DataSourceBase* a, DataSourceBase* b );
   };
 }
 

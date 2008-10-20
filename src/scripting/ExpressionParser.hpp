@@ -110,7 +110,7 @@ namespace RTT { namespace detail
       divexp, modexp, plusexp, minusexp, smallereqexp, smallerexp,
       greatereqexp, greaterexp, equalexp, notequalexp, orexp, andexp,
       ifthenelseexp, dotexp, groupexp, atomicexpression,
-        time_expression, time_spec, indexexp, doubleindexexp, comma, open_brace, close_brace;
+      time_expression, time_spec, indexexp, comma, open_brace, close_brace;
 
     /**
      * The parse stack..  see the comment for this class ( scroll up
@@ -133,7 +133,6 @@ namespace RTT { namespace detail
 
     void seen_unary( const std::string& op );
     void seen_binary( const std::string& op );
-    void seen_ternary( const std::string& op );
     void seen_dotmember( iter_t begin, iter_t end );
     void seenvalue();
     void seendatacall();

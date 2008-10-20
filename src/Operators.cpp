@@ -90,17 +90,11 @@ namespace RTT
     binaryops.push_back( b );
   }
 
-  void OperatorRepository::add( TernaryOp* b )
-  {
-    ternaryops.push_back( b );
-  }
-
   OperatorRepository::~OperatorRepository()
   {
     delete_all( unaryops.begin(), unaryops.end() );
     delete_all( dotops.begin(), dotops.end() );
     delete_all( binaryops.begin(), binaryops.end() );
-    delete_all( ternaryops.begin(), ternaryops.end() );
  }
 
   DataSourceBase* OperatorRepository::applyDot(
@@ -142,19 +136,6 @@ namespace RTT
     return 0;
   }
 
-  DataSourceBase* OperatorRepository::applyTernary(
-      const std::string& op, DataSourceBase* a, DataSourceBase* b, DataSourceBase* c )
-  {
-    typedef std::vector<TernaryOp*> vec;
-    typedef vec::iterator iter;
-    for ( iter i = ternaryops.begin(); i != ternaryops.end(); ++i )
-    {
-        DataSourceBase* ret = (*i)->build( op, a, b, c );
-        if ( ret ) return ret;
-    }
-    return 0;
-  }
-
   DotOp::~DotOp()
   {
   }
@@ -164,10 +145,6 @@ namespace RTT
   }
 
   BinaryOp::~BinaryOp()
-  {
-  }
-
-  TernaryOp::~TernaryOp()
   {
   }
 }
