@@ -322,6 +322,11 @@ namespace RTT
         d->allowRT = false;
     }
 
+    const TimeService::ticks Logger::getReferenceTime()const
+    {
+        return d->timestamp;
+    }
+        
     std::ostream&
     Logger::nl(std::ostream& __os)
     {

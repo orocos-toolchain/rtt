@@ -51,6 +51,8 @@
 #include <iostream>            // for std::cerr
 #endif
 
+#include "TimeService.hpp"
+
 namespace RTT
 {
     /**
@@ -93,6 +95,12 @@ namespace RTT
         class D;
         D* d;
     public:
+
+        /**
+         * Function to get the loggers starting timestamp
+         */
+        const TimeService::ticks getReferenceTime()const;
+        
         /**
          * Enumerate all log-levels from absolute silence to
          * everything.
