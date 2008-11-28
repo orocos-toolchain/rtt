@@ -485,7 +485,7 @@ namespace RTT
                     }
             }
         updated_ports.reserve(port_count);
-        return TaskContext::start();
+        return TaskCore::start();
     }
 
     void TaskContext::dataOnPort(PortInterface* port)
