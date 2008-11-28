@@ -12,20 +12,26 @@ DataDrivenTask::DataDrivenTask(const std::string& name, ExecutionEngine* parent,
 bool DataDrivenTask::start()
 {
     EventDrivenActivity* activity = dynamic_cast<EventDrivenActivity*>(engine()->getActivity());
-    if (! activity)
-        return false;
-
-    DataFlowInterface::Ports ports = this->ports()->getPorts();
-    for (DataFlowInterface::Ports::iterator it = ports.begin(); it != ports.end(); ++it)
+    if (activity)
     {
-        int porttype = (*it)->getPortType();
-        if (porttype == PortInterface::ReadPort || porttype == PortInterface::ReadWritePort)
+        log(Info) << getName() << " is attached to an EventDrivenActivity. Registering ports." << endlog();
+        DataFlowInterface::Ports ports = this->ports()->getPorts();
+        for (DataFlowInterface::Ports::iterator it = ports.begin(); it != ports.end(); ++it)
         {
-            PortInterface::NewDataEvent* ev = (*it)->getNewDataEvent();
+            int porttype = (*it)->getPortType();
+            if (porttype == PortInterface::ReadPort || porttype == PortInterface::ReadWritePort)
+            {
+                PortInterface::NewDataEvent* ev = (*it)->getNewDataEvent();
+                if (!activity->addEvent(ev))
+                    return false;
 
-            if (!activity->addEvent(ev))
-                return false;
+                log(Info) << getName() << " will be triggered when new data is available on " << (*it)->getName() << endlog();
+            }
         }
+    }
+    else
+    {
+        log(Warning) << "activity is not an EventDrivenActivity" << endlog();
     }
 
     return TaskContext::start();
