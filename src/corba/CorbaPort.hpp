@@ -129,6 +129,12 @@ namespace RTT
         {
         }
 
+        ~CorbaPort()
+        {
+            if ( dc )
+                dc->removePort(this);
+        }
+
         AssignableExpression_ptr getDataChannel()
         {
             if ( mdatachannel.in() )
