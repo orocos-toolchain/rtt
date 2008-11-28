@@ -135,7 +135,7 @@ namespace RTT
 
         virtual bool isActive() const;
 
-    private:
+    protected:
         RunnableInterface*      runner;
 };
 

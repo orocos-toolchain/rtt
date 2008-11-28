@@ -360,7 +360,16 @@ namespace RTT
             try {
 #endif
                 if ( mconn )
-                    return mconn->buffer()->Push(data);
+                {
+                    bool ret = mconn->buffer()->Push(data);
+                    if (ret)
+                    {
+                        this->signal();
+                        mconn->signal();
+                    }
+                    return ret;
+                }
+
 #ifndef ORO_EMBEDDED
             } catch (...) {
                 mconn = 0;

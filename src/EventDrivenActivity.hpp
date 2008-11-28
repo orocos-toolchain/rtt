@@ -38,8 +38,7 @@
 #ifndef TASK_EVENT_DRIVEN_HPP
 #define TASK_EVENT_DRIVEN_HPP
 
-#include "ActivityInterface.hpp"
-#include "RunnableInterface.hpp"
+#include "NonPeriodicActivity.hpp"
 #include "Event.hpp"
 
 #ifdef ORO_PRAGMA_INTERFACE
@@ -58,65 +57,59 @@ namespace RTT
      * in a given thread.
      */
     class EventDrivenActivity
-        :public ActivityInterface
+        : public NonPeriodicActivity
     {
-        Handle h;
+        typedef std::vector<Handle> Handles;
+        typedef std::vector< Event< void() >* > Events;
+        Events events;
+        Handles handles;
+
     public:
         /**
-         * Create an EventDrivenActivity with a given event and optional
-         * RunnableInterface instance.
-         * @param _event The Event which will trigger execution of this task,
-         *        once this task is started.
-         * @param _r The optional runner, if none, this->step() is called.
-         * @param thread The EventProcessor which will execute the asynchronous completion.
+         * Create an EventDrivenActivity which will run in a separate thread,
+         * using its own event processor. The default scheduler for
+         * EventDrivenActivity objects is ORO_SCHED_RT.
+         *
+         * @param priority The priority of the underlying thread.
+         * @param _r The optional runner, if none, this->loop() is called.
          */
-        EventDrivenActivity( Event<void(void)>* _event, EventProcessor* thread, RunnableInterface* _r = 0 );
+        EventDrivenActivity(int priority, RunnableInterface* _r = 0 );
+
+        /**
+         * Create an EventDrivenActivity which will run in a separate thread,
+         * using its own event processor.
+         * @param scheduler
+         *        The scheduler in which the activitie's thread must run. Use ORO_SCHED_OTHER or
+         *        ORO_SCHED_RT.
+         * @param priority The priority of the underlying thread.
+         * @param _r The optional runner, if none, this->loop() is called.
+         */
+        EventDrivenActivity(int scheduler, int priority, RunnableInterface* _r = 0 );
+
+        /**
+         * Create an EventDrivenActivity which will run in a separate thread,
+         * using its own event processor.
+         * @param priority The priority of the underlying thread.
+         * @param name The name of the underlying thread.
+         * @param _r The optional runner, if none, this->loop() is called.
+         */
+        EventDrivenActivity(int priority, const std::string& name, RunnableInterface* _r = 0 );
 
         /**
          * Cleanup and notify the RunnableInterface that we are gone.
          */
         ~EventDrivenActivity();
 
-        virtual Seconds getPeriod() const { return 0; }
-
-        EventProcessor* processor() const { return mthread; }
-
-        bool initialize() { return  true;}
-        void step() {}
-        void finalize() {}
-
         bool start();
-
-        bool trigger();
-
         bool stop();
-
-        bool isRunning() const {
-            return running;
-        }
-
-        /**
-         * Run another (or self in case of null)
-         * task.
-         */
-        bool run(RunnableInterface* _r);
+        void loop();
 
         /**
          * Set the Event which will trigger the execution
          * of this task, once started.
          */
-        bool setEvent( Event<void(void)>* _event);
-
-        bool isPeriodic() const;
-    protected:
-
-        void handler();
-    private:
-        Event<void(void)>* event;
-        RunnableInterface*          runner;
-        bool running;
-        EventProcessor* mthread;
-};
+        bool addEvent( Event<void(void)>* _event);
+    };
 
 }
 

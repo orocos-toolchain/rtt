@@ -244,7 +244,13 @@ namespace RTT
             try {
 #endif
                 if ( mconn )
-                    return mconn->data()->Set(data);
+                {
+                    mconn->data()->Set(data);
+                    this->signal();
+                    mconn->signal();
+                    return;
+                }
+
 #ifndef ORO_EMBEDDED
             } catch (...) {
                 mconn = 0;

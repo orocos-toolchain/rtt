@@ -54,9 +54,12 @@ namespace RTT
      */
     class PortInterface
     {
+    public:
+        typedef RTT::Event< void() > NewDataEvent;
     protected:
         friend class ConnectionInterface;
         std::string portname;
+        NewDataEvent* new_data_event;
         PortInterface(const std::string& name);
 
         /**
@@ -97,6 +100,17 @@ namespace RTT
          * Returns true if this Port is ready to be used.
          */
         bool ready() const;
+
+        /**
+         * Call this method to signal that new data is available on this port
+         */
+        void signal();
+
+        /**
+         * Returns an Event object which is triggered every time new data is
+         * made available on this port
+         */
+        NewDataEvent* getNewDataEvent();
 
         /**
          * Get the ConnectionModel of this port.

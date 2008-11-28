@@ -43,9 +43,12 @@
 namespace RTT
 {
 
-    PortInterface::PortInterface(const std::string& name) : portname(name) {}
+    PortInterface::PortInterface(const std::string& name) : portname(name), new_data_event(0) {}
 
-    PortInterface::~PortInterface() {}
+    PortInterface::~PortInterface()
+    {
+        delete new_data_event;
+    }
 
     bool PortInterface::setName(const std::string& name)
     {
@@ -200,5 +203,18 @@ namespace RTT
 
     int PortInterface::serverProtocol() const {
         return 0;
+    }
+
+    void PortInterface::signal()
+    {
+        if (new_data_event)
+            (*new_data_event)();
+    }
+
+    PortInterface::NewDataEvent* PortInterface::getNewDataEvent()
+    {
+        if (!new_data_event)
+            new_data_event = new NewDataEvent(getName() + "Trigger");
+        return new_data_event;
     }
 }

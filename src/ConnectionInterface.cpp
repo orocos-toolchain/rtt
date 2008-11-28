@@ -102,6 +102,16 @@ namespace RTT
         }
         return false;
     }
+
+    void ConnectionInterface::signal()
+    {
+        for ( PList::iterator it( ports.begin() ); it != ports.end(); ++it)
+        {
+            int porttype = (*it)->getPortType();
+            if (porttype == PortInterface::ReadPort || porttype == PortInterface::ReadWritePort)
+                (*it)->signal();
+        }
+    }
 }
 void intrusive_ptr_add_ref( RTT::ConnectionInterface* p )
 {

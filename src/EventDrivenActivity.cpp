@@ -41,93 +41,65 @@
 #pragma implementation
 #endif
 #include "EventDrivenActivity.hpp"
+#include "CompletionProcessor.hpp"
 #include "TimerThread.hpp"
 #include <boost/bind.hpp>
 
 
 namespace RTT
 {
+    EventDrivenActivity::EventDrivenActivity(int priority, RunnableInterface* _r )
+        : NonPeriodicActivity(priority, _r) { }
 
-    EventDrivenActivity::EventDrivenActivity( Event<void(void)>* _event, EventProcessor* thread, RunnableInterface* _r  )
-        : event(_event), runner(_r), running(false), mthread(thread)
-    {
-        if (runner)
-            runner->setActivity(this);
-    }
+    EventDrivenActivity::EventDrivenActivity(int scheduler, int priority, RunnableInterface* _r )
+        : NonPeriodicActivity(scheduler, priority, _r) { }
+
+    EventDrivenActivity::EventDrivenActivity(int priority, const std::string& name, RunnableInterface* _r )
+        : NonPeriodicActivity(priority, name, _r) { }
 
     EventDrivenActivity::~EventDrivenActivity()
-    {
-        stop();
-        if (runner)
-            runner->setActivity(0);
-    }
+    { this->stop(); }
 
 
     bool EventDrivenActivity::start()
     {
-        if ( !running && event )
-            if ( runner ? runner->initialize() : this->initialize() )
-                {
-                    // handler is executed asynchronously
-                    h = event->connect( boost::bind(&EventDrivenActivity::handler, this), mthread );
-                    return true;
-                }
-        return false;
+        if (! NonPeriodicActivity::start())
+            return false;
+
+        for (Events::iterator ev = events.begin(); ev != events.end(); ++ev)
+        {
+            Handle h = (*ev)->connect( boost::bind(&EventDrivenActivity::trigger, this) );
+            if (!h)
+            {
+                for_each(handles.begin(), handles.end(), boost::bind(&Handle::disconnect, _1));
+                handles.clear();
+                return false;
+            }
+
+            handles.push_back(h);
+        }
+        return true;
+    }
+
+    void EventDrivenActivity::loop()
+    {
+        if ( runner )
+            runner->step();
     }
 
     bool EventDrivenActivity::stop()
     {
-        if ( running && event )
-            {
-                h.disconnect();
-                if (runner)
-                    runner->finalize() ;
-                else
-                    this->finalize();
-                return true;
-            }
-        else
+        for_each(handles.begin(), handles.end(), boost::bind(&Handle::disconnect, _1));
+        handles.clear();
+        return NonPeriodicActivity::stop();
+    }
+
+    bool EventDrivenActivity::addEvent( Event<void(void)>* _event)
+    {
+        if ( isActive() )
             return false;
-    }
-
-    bool EventDrivenActivity::trigger()
-    {
-        return false;
-    }
-
-     bool EventDrivenActivity::run(RunnableInterface* _r)
-    {
-        if ( running )
-            return false;
-
-        if (runner)
-            runner->setActivity(0);
-        runner = _r;
-        if (runner)
-            runner->setActivity(this);
-        return true;
-    }
-
-    bool EventDrivenActivity::setEvent( Event<void(void)>* _event)
-    {
-        if ( running )
-            return false;
-
-        event = _event;
-        return true;
-    }
-
-
-    void EventDrivenActivity::handler()
-    {
-        if (runner)
-            runner->step() ;
-        else
-            this->step();
-    }
-
-    bool EventDrivenActivity::isPeriodic() const
-    {
+            
+        events.push_back(_event);
         return true;
     }
 }

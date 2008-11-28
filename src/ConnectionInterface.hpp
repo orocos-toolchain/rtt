@@ -181,6 +181,14 @@ namespace RTT
             return 0;
         }
 
+        /**
+         * Signals that a new data sample has been written on this connection
+         *
+         * This is to be called by source ports when new data is written on the
+         * connection
+         */
+        void signal();
+
     };
 }
 
