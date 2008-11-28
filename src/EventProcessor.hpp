@@ -48,6 +48,7 @@
 #include "ListLockFree.hpp"
 #include "boost/tuple/tuple.hpp"
 #include "NA.hpp"
+#include "os/Atomic.hpp"
 
 namespace RTT
 {
@@ -63,8 +64,14 @@ namespace RTT
 
             /**
              * Calls mep->getActivity()->trigger()
+             * and increases work count.
              */
             void signalWork();
+
+            /**
+             * Decreases work count.
+             */ 
+            void signalWorkDone();
 
             /**
              * EventProcessor is used to signal the destruction
@@ -128,6 +135,7 @@ namespace RTT
                     return;
                 f();
                 work = false;
+                signalWorkDone();
             }
         };
 
@@ -166,6 +174,7 @@ namespace RTT
                     return;
                 f( _a1.val() );
                 _a1.clear();
+                signalWorkDone();
             }
         };
 
@@ -257,6 +266,7 @@ namespace RTT
                     return;
                 f( get<0>(args.val()), get<1>(args.val()) );
                 args.clear();
+                signalWorkDone();
             }
         };
 
@@ -299,6 +309,7 @@ namespace RTT
                     return;
                 f( get<0>(args.val()), get<1>(args.val()), get<2>(args.val()) );
                 args.clear();
+                signalWorkDone();
             }
         };
 
@@ -347,6 +358,7 @@ namespace RTT
                     return;
                 f( get<0>(args.val()), get<1>(args.val()), get<2>(args.val()), get<3>(args.val()) );
                 args.clear();
+                signalWorkDone();
             }
         };
 
@@ -399,6 +411,7 @@ namespace RTT
                     return;
                 f( get<0>(args.val()), get<1>(args.val()), get<2>(args.val()), get<3>(args.val()), get<4>(args.val()) );
                 args.clear();
+                signalWorkDone();
             }
         };
 
@@ -449,6 +462,7 @@ namespace RTT
                     return;
                 f( get<0>(args.val()), get<1>(args.val()), get<2>(args.val()), get<3>(args.val()), get<4>(args.val()), get<5>(args.val()) );
                 args.clear();
+                signalWorkDone();
             }
         };
     }
@@ -477,6 +491,7 @@ namespace RTT
         : public RunnableInterface
     {
     protected:
+        friend class EventCatcher;
         /**
          * The EC is released when the connection it is used in is
          * deleted *and* it is removed from this vector.
@@ -487,6 +502,7 @@ namespace RTT
         friend class detail::EventCatcher;
         void destroyed( detail::EventCatcher* ec );
 
+        OS::AtomicInt has_work;
     public:
 
         /**
@@ -518,6 +534,8 @@ namespace RTT
          * Force the loop() method to return.
          */
         bool breakLoop();
+
+        bool hasWork();
 
         /**
          * Connect a function to an Event and process upon each event the function in this

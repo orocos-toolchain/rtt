@@ -148,15 +148,6 @@ namespace RTT
          */
         virtual ~PeriodicActivity();
 
-        /**
-         * Run exclusively this RunnableInterface.
-         *
-         * @param r
-         *        The RunnableInterface to run exclusively.
-         * @return true if succeeded, false otherwise
-         */
-        bool run( RunnableInterface* r );
-
         virtual bool start();
 
         virtual bool execute();
@@ -192,12 +183,6 @@ namespace RTT
 
     protected:
         void init();
-
-        /**
-         * When runner != 0 it will be executed instead of
-         * this instances initialize(), step() and finalize() functions
-         */
-        RunnableInterface* runner;
 
         /**
          * State info.

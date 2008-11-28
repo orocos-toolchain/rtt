@@ -42,31 +42,23 @@
 namespace RTT
 {
     SlaveActivity::SlaveActivity( ActivityInterface* master, RunnableInterface* run /*= 0*/ )
-        :mmaster(master), mperiod( master->getPeriod() ), runner(run), running(false), active(false)
+        :ActivityInterface(run), mmaster(master), mperiod( master->getPeriod() ), running(false), active(false)
     {
-        if (runner)
-            runner->setActivity(this);
     }
 
     SlaveActivity::SlaveActivity( double period, RunnableInterface* run /*= 0*/ )
-        :mmaster(0), mperiod(period), runner(run), running(false), active(false)
+        :ActivityInterface(run), mmaster(0), mperiod(period), running(false), active(false)
     {
-        if (runner)
-            runner->setActivity(this);
     }
 
     SlaveActivity::SlaveActivity( RunnableInterface* run /*= 0*/ )
-        :mmaster(0), mperiod(0.0), runner(run), running(false), active(false)
+        :ActivityInterface(run), mmaster(0), mperiod(0.0), running(false), active(false)
     {
-        if (runner)
-            runner->setActivity(this);
     }
 
     SlaveActivity::~SlaveActivity()
     {
         stop();
-        if (runner)
-            runner->setActivity(0);
     }
 
     Seconds SlaveActivity::getPeriod() const

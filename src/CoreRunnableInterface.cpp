@@ -47,24 +47,33 @@ namespace RTT
     RunnableInterface::~RunnableInterface() {
         if ( this->owner_task && this->owner_task->isRunning() ) {
             Logger::In in("~RunnableInterface()");
-            Logger::log() << Logger::Critical
-                    <<"Activity still running, but RunnableInterface destroyed! Stop the task"
-                    " before deleting this object. Crash may be imminent."<<Logger::endl;
+            log(Critical)
+            <<"Activity still running, but RunnableInterface destroyed! Stop the task"
+            " before deleting this object. Crash may be imminent."<<endlog();
         }
         if ( this->owner_task )
-            this->owner_task->run(0);
-        assert( owner_task == 0);
+            this->owner_task->disableRun();
     }
 
-  RunnableInterface::RunnableInterface() : owner_task(0) {}
+    RunnableInterface::RunnableInterface() : owner_task(0) {}
 
-  void RunnableInterface::setActivity( ActivityInterface* task ) {
-    owner_task = task;
-    // also change the thread if the activity changes.
-    if ( owner_task )
-        this->setThread( owner_task->thread() );
-    else
-        this->setThread( 0 );
-  }
+    bool RunnableInterface::hasWork() {
+        return false;
+    }
+
+    void RunnableInterface::setActivity( ActivityInterface* task ) {
+        if (owner_task) {
+            // notify old owner he's out.
+            owner_task->disableRun();
+        }
+
+        owner_task = task;
+    }
+
+    OS::ThreadInterface* RunnableInterface::getThread() const {
+        if (owner_task)
+            return owner_task->thread();
+        return OS::RunnableInterface::getThread();
+    }
 
 }

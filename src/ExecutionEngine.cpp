@@ -138,23 +138,23 @@ namespace RTT
 
         RunnableInterface::setActivity(t);
 
-        // if an owner is present, print some info.
-        if (taskc) {
-            if ( t )
-                if ( ! t->isPeriodic() ) {
-                    Logger::log() << Logger::Info << taskc->getName()+" is not periodic."<< Logger::endl;
-                } else {
-                    Logger::log() << Logger::Info << taskc->getName()+" is periodic."<< Logger::endl;
-                }
-            else
-                Logger::log() << Logger::Info << taskc->getName()+" is disconnected from its activity."<< Logger::endl;
-        }
+//        // if an owner is present, print some info.
+//        if (taskc) {
+//            if ( t )
+//                if ( ! t->isPeriodic() ) {
+//                    Logger::log() << Logger::Info << taskc->getName()+" is not periodic."<< Logger::endl;
+//                } else {
+//                    Logger::log() << Logger::Info << taskc->getName()+" is periodic."<< Logger::endl;
+//                }
+//            else
+//                Logger::log() << Logger::Info << taskc->getName()+" is disconnected from its activity."<< Logger::endl;
+//        }
     }
 
     bool ExecutionEngine::activate()
     {
         // only do this from stopped.
-        if (estate != Stopped || this->getActivity() == 0)
+        if (estate != Stopped ||  ! this->getActivity() )
             return false;
         // Note: use this flag to communicate to startContexts (called within start() below).
         estate = Activating;
@@ -169,7 +169,7 @@ namespace RTT
 
     bool ExecutionEngine::start()
     {
-        if (this->getActivity() == 0)
+        if ( !this->getActivity() )
             return false;
         // identical to starting the activity if Stopped
         if (estate == Stopped ) {
@@ -189,7 +189,7 @@ namespace RTT
 
     bool ExecutionEngine::stop()
     {
-        if ( this->getActivity() == 0 )
+        if ( !this->getActivity() )
             return false;
         if (this->getActivity()->stop() ) {
             assert( estate == Stopped );
@@ -288,6 +288,11 @@ namespace RTT
         if ( eproc ) ret =eproc->initialize();
         assert (ret);
         return ret;
+    }
+
+    bool ExecutionEngine::hasWork()
+    {
+        return cproc->hasWork() && eproc->hasWork();
     }
 
     void ExecutionEngine::step() {

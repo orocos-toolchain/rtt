@@ -44,6 +44,7 @@ class ActivitiesThreadTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testPeriodic );
     CPPUNIT_TEST( testNonPeriodic );
     CPPUNIT_TEST( testSlave );
+    CPPUNIT_TEST( testSequential );
     CPPUNIT_TEST( testScheduler );
 
 #ifndef ORO_EMBEDDED
@@ -73,6 +74,7 @@ public:
     void testPeriodic();
     void testNonPeriodic();
     void testSlave();
+    void testSequential();
 
     void testScheduler();
 

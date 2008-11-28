@@ -45,46 +45,26 @@
 namespace RTT
 {
     NonPeriodicActivity::NonPeriodicActivity(int priority, RunnableInterface* _r )
-        : OS::SingleThread(priority, "NonPeriodicActivity" ),
-          runner(_r)
+        : ActivityInterface(_r),
+        OS::SingleThread(priority, "NonPeriodicActivity" )
     {
-        if ( runner )
-            runner->setActivity(this);
     }
 
     NonPeriodicActivity::NonPeriodicActivity(int scheduler, int priority, RunnableInterface* _r )
-        : OS::SingleThread(scheduler, priority, "NonPeriodicActivity" ),
-          runner(_r)
+        : ActivityInterface(_r),
+        OS::SingleThread(scheduler, priority, "NonPeriodicActivity" )
     {
-        if ( runner )
-            runner->setActivity(this);
     }
 
     NonPeriodicActivity::NonPeriodicActivity(int priority, const std::string& name, RunnableInterface* _r )
-        : OS::SingleThread(priority, name ),
-          runner(_r)
+        : ActivityInterface(_r),
+        OS::SingleThread(priority, name )
     {
-        if ( runner )
-            runner->setActivity(this);
     }
 
     NonPeriodicActivity::~NonPeriodicActivity()
     {
         this->stop();
-        if ( runner )
-            runner->setActivity( 0 );
-    }
-
-    bool NonPeriodicActivity::run( RunnableInterface* r )
-    {
-        if ( isActive() )
-            return false;
-        if (runner)
-            runner->setActivity(0);
-        runner = r;
-        if (runner)
-            runner->setActivity(this);
-        return true;
     }
 
     Seconds NonPeriodicActivity::getPeriod() const { return 0; }

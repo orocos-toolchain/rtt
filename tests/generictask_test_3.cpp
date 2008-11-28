@@ -140,7 +140,7 @@ void Generic_TaskTest_3::testPeriod()
 {
     // check unconfigured TC
     TaskContext pertc("PerTC");
-    CPPUNIT_ASSERT( pertc.getPeriod() < 0.0 );
+    CPPUNIT_ASSERT( pertc.getPeriod() == 0.0 );
 
     // check periodic TC
     SlaveActivity sa(1.0, pertc.engine());

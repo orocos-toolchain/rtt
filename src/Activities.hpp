@@ -47,6 +47,7 @@
  * Activities execute functions in a thread.
  */
 #include "SlaveActivity.hpp"
+#include "SequentialActivity.hpp"
 #include "PeriodicActivity.hpp"
 #include "NonPeriodicActivity.hpp"
 #include "RunnableInterface.hpp"

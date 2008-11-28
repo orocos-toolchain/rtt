@@ -89,6 +89,7 @@ namespace RTT
         virtual bool initialize();
         virtual void step();
         virtual void finalize();
+        virtual bool hasWork();
 
         /**
          * Queue and execute (process) a given command. The command is

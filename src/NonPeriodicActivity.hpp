@@ -63,6 +63,7 @@ namespace RTT
     {
     public:
         using OS::SingleThread::run;
+        using ActivityInterface::run;
 
         /**
          * Create an NonPeriodicActivity with a given priority and
@@ -98,16 +99,10 @@ namespace RTT
 
         /**
          * Run another (or self in case of null)
-         * task.
-         */
-        bool run( RunnableInterface* r );
-
-        /**
-         * Run another (or self in case of null)
          * task. This overload is needed to redirect
          * the call of run( 0 ) to the correct function.
          */
-        bool run( int ) { RunnableInterface* d(0); return NonPeriodicActivity::run( d ); }
+        bool run( int ) { RunnableInterface* d(0); return ActivityInterface::run(d); }
 
         virtual Seconds getPeriod() const ;
 
@@ -135,8 +130,6 @@ namespace RTT
 
         virtual bool isActive() const;
 
-    protected:
-        RunnableInterface*      runner;
 };
 
 }

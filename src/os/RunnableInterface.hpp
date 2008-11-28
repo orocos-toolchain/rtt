@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 10 16:16:58 CEST 2002  RunnableInterface.hpp 
+  tag: Peter Soetens  Thu Oct 10 16:16:58 CEST 2002  RunnableInterface.hpp
 
                         RunnableInterface.hpp -  description
                            -------------------
     begin                : Thu October 10 2002
     copyright            : (C) 2002 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 
 
 
@@ -51,12 +51,12 @@ namespace RTT
      * It defines three methods for executing functionality. It allows
      * to execute code in a PeriodicThreadInterface or SingleThreadInterface, which define the
      * control methods as starting and stopping (periodic) threads.
-     * 
+     *
      * In a start-run-stop cycle, before step() is called the first time,
      * initialize() will be called in the thread that started this RunnableInterface.
-     * When step() is ran the last time in this cycle, finalize() will be 
+     * When step() is ran the last time in this cycle, finalize() will be
      * called, after it finishes, in the threaad that stopped this RunnableInterface.
-     * 
+     *
      * A non periodic thread will call \a loop(), which indicates that the
      * RunnableInterface is allowed to block ( step() is not allowed to block ).
      * By default, loop() calls step(), but a subclass may override the loop() method
@@ -98,7 +98,7 @@ namespace RTT
 
         /**
          * The method that will be executed once when this
-         * class is run in a non periodic thread. The default 
+         * class is run in a non periodic thread. The default
          * implementation calls step() once.
          */
         virtual void loop();
@@ -121,16 +121,16 @@ namespace RTT
          */
         virtual void finalize() = 0;
 
-      /**
-       * Get the thread this object is run in.
-       * @return a pointer to the thread or 0 if not run by a thread.
-       */
-      ThreadInterface* getThread() const;
+        /**
+        * Get the thread this object is run in.
+        * @return a pointer to the thread or 0 if not run by a thread.
+        */
+        virtual ThreadInterface* getThread() const;
 
-      /**
-       * Set the thread this object will be run in.
-       */
-      virtual void setThread(ThreadInterface* t);
+        /**
+        * Set the thread this object will be run in.
+        */
+        virtual void setThread(ThreadInterface* t);
     };
 
 }}

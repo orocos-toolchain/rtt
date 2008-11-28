@@ -395,7 +395,9 @@ void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test
     ProgramInterfacePtr pi = *pg_list.begin();
 
     tc->engine()->programs()->loadProgram( pi );
-    CPPUNIT_ASSERT( gtask.start() );
+    CPPUNIT_ASSERT( gtc.start() );
+    CPPUNIT_ASSERT( gtc.isActive() );
+    CPPUNIT_ASSERT( gtc.isRunning() );
     CPPUNIT_ASSERT( pi->start() );
     CPPUNIT_ASSERT( SimulationThread::Instance()->run(1000) );
 

@@ -40,6 +40,7 @@
 
 #include "Time.hpp"
 #include "os/ThreadInterface.hpp"
+#include <boost/shared_ptr.hpp>
 
 namespace RTT
 {
@@ -60,9 +61,26 @@ namespace RTT
      */
     class ActivityInterface
     {
+    protected:
+        RunnableInterface* runner;
 
+        /**
+         * This method is only meant for RunnableInterface (ie \a runner)
+         * in order to inform the ActivityInterface it should
+         * no longer be used. run(0) can not be used in this case
+         * because it would recurse.
+         */
+        void disableRun() { runner = 0; }
     public:
-        virtual ~ActivityInterface() {}
+        friend class RunnableInterface;
+
+        typedef boost::shared_ptr<ActivityInterface> shared_ptr;
+
+        ActivityInterface() : runner(0) {}
+
+        ActivityInterface(RunnableInterface* run);
+
+        virtual ~ActivityInterface();
 
         /**
          * Run exclusively this RunnableInterface.
@@ -71,7 +89,7 @@ namespace RTT
          *        The RunnableInterface to run exclusively.
          * @return true if succeeded, false otherwise
          */
-        virtual bool run( RunnableInterface* r ) = 0;
+        virtual bool run( RunnableInterface* r );
 
         /**
          * Start the activity.
@@ -137,7 +155,11 @@ namespace RTT
         /**
          * Execute this activity such that it \a executes a step or loop of the RunnableInterface.
          * When you invoke execute() you intend to call the step() or loop() methods.
-         * Some activity implementations allow a user controlled execute, others ignore it.
+         * Some activity implementations allow a user controlled execute, others ignore it,
+         * in which case execute() returns false.
+         *
+         * Semantics: If execute() returns true, the activity has been executed exactly once
+         * during execute().
          *
          * @retval true When this->isActive() and the implementation allows external
          * executes.
@@ -152,7 +174,10 @@ namespace RTT
          * to notify the instance that calls execute(), that execute() should be called.
          * This allows a separation between actually executing code (execute()) and notifying that
          * code must be executed (trigger()). A trigger may be ignored by the
-         * implementation.
+         * implementation, in which case trigger returns false.
+         *
+         * Semantics: If trigger() returns true, the activity will be executed at least
+         * once from the moment trigger() is called.
          *
          * @retval true When this->isActive() and the implementation allows external
          * triggers.

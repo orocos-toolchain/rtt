@@ -56,6 +56,7 @@
 #include "scripting/ParserExecutionAccess.hpp"
 #endif
 #include "MarshallingAccess.hpp"
+#include "SequentialActivity.hpp"
 
 namespace RTT
 {
@@ -77,6 +78,7 @@ namespace RTT
 #endif
            ,marshAcc( new MarshallingAccess(this) )
            ,dataPorts(this)
+           ,our_act( new SequentialActivity( this->engine() ) )
     {
         this->setup();
     }
@@ -95,6 +97,7 @@ namespace RTT
 #endif
            ,marshAcc( new MarshallingAccess(this) )
            ,dataPorts(this)
+           ,our_act( parent ? 0 : new SequentialActivity( this->engine() ) )
     {
         this->setup();
     }
@@ -423,6 +426,24 @@ namespace RTT
             return false;
         obj->setEngine( this->engine() );
         return true;
+    }
+
+    void TaskContext::setActivity(RTT::ActivityInterface* new_act)
+    {
+        if (this->isActive())
+            return;
+        if ( new_act == 0) {
+            new_act = new SequentialActivity();
+        }
+//        if ( this->engine()->getActivity() )
+//            this->engine()->getActivity()->run(0);
+        new_act->run( this->engine() );
+        our_act = ActivityInterface::shared_ptr( new_act );
+    }
+
+    ActivityInterface::shared_ptr TaskContext::getActivity()
+    {
+        return our_act;
     }
 
     void TaskContext::clear()

@@ -136,7 +136,6 @@ namespace RTT
     private:
         ActivityInterface* mmaster;
         double mperiod;
-        RunnableInterface* runner;
         bool running;
         bool active;
 };

@@ -87,12 +87,16 @@ namespace RTT
         }
     }
 
+    bool CommandProcessor::hasWork()
+    {
+        return ! a_queue->isEmpty();
+    }
+
     int CommandProcessor::process( CommandInterface* c )
     {
         if (accept && c) {
             int result = a_queue->enqueueCounted( c );
-            if ( this->getActivity() )
-                this->getActivity()->trigger();
+            this->getActivity()->trigger();
             return result;
         }
         return 0;

@@ -235,6 +235,23 @@ namespace RTT
         virtual bool addObject( OperationInterface *obj );
 
         /**
+         * Sets the activity of this TaskContext. The
+         * activity is owned by the TaskContext and you should
+         * not hold a pointer to it after this call. Use
+         * getActivity() lateron to retrieve a safe pointer to it.
+         * @param new_act The new activity for this TaskContext,
+         * which becomes owned by this TaskContext.
+         */
+        void setActivity( ActivityInterface* new_act );
+
+        /**
+         * Get a safe pointer to the activity running this
+         * component.
+         * @return Our activity.
+         */
+        ActivityInterface::shared_ptr getActivity();
+
+        /**
          * Clear the complete interface of this Component.
          * This method removes all objects and all methods, commands,
          * events, properties and ports from the interface of this TaskContext.
@@ -404,6 +421,12 @@ namespace RTT
          * The task-local ports.
          */
         DataFlowInterface dataPorts;
+
+        /**
+         * This pointer tracks our activity which is set by
+         * setActivity. By default, a SequentialActivity is assigned.
+         */
+        ActivityInterface::shared_ptr our_act;
     };
 
     /**

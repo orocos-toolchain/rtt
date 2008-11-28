@@ -84,14 +84,14 @@ namespace RTT
 
     bool TaskCore::doUpdate()
     {
-        if ( this->engine()->getActivity() == 0 )
+        if ( !this->engine()->getActivity() )
             return false;
         return this->engine()->getActivity()->execute();
     }
 
     bool TaskCore::doTrigger()
     {
-        if ( this->engine()->getActivity() == 0 )
+        if ( !this->engine()->getActivity() )
             return false;
         return this->engine()->getActivity()->trigger();
     }

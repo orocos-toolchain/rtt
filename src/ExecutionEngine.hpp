@@ -165,6 +165,8 @@ namespace RTT
 
         virtual void setActivity(ActivityInterface* t);
 
+        virtual bool hasWork();
+
         /**
          * The TaskCore which created this ExecutionEngine.
          */

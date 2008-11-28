@@ -60,6 +60,7 @@ struct TestActivity
     }
     void step() {
         stepped = true;
+        CPPUNIT_ASSERT(this->isRunning());
 #ifndef ORO_EMBEDDED
         if ( _dothrow )
             throw A();
@@ -91,14 +92,20 @@ struct TestRunner
 
     bool initialize() {
         init    = true;
+        CPPUNIT_ASSERT(getActivity()->isActive());
+        CPPUNIT_ASSERT(!getActivity()->isRunning());
         return result;
     }
     void step() {
         stepped = true;
+        CPPUNIT_ASSERT(getActivity()->isActive());
+        CPPUNIT_ASSERT(getActivity()->isRunning());
     }
 
     void loop() {
         looped = true;
+        CPPUNIT_ASSERT(getActivity()->isActive());
+        CPPUNIT_ASSERT(getActivity()->isRunning());
     }
 
     bool breakLoop() {
@@ -108,6 +115,8 @@ struct TestRunner
 
     void finalize() {
         fini   = true;
+        CPPUNIT_ASSERT(getActivity()->isActive());
+        CPPUNIT_ASSERT(!getActivity()->isRunning());
     }
 
     void reset(bool fail) {
@@ -358,6 +367,52 @@ void ActivitiesThreadTest::testSlave()
     CPPUNIT_ASSERT( !mslave_p.isRunning() );
     CPPUNIT_ASSERT( !mslave_p.execute() );
 
+}
+
+void ActivitiesThreadTest::testSequential()
+{
+    // Test sequential activities
+    TestRunner r(true);
+
+    SequentialActivity mtask(&r);
+    CPPUNIT_ASSERT( mtask.isActive() == false );
+    CPPUNIT_ASSERT( mtask.isRunning() == false );
+    CPPUNIT_ASSERT( mtask.isPeriodic() == false );
+    CPPUNIT_ASSERT( mtask.getPeriod() == 0.0 );
+    CPPUNIT_ASSERT( mtask.execute() == false );
+    CPPUNIT_ASSERT( mtask.trigger() == false );
+    CPPUNIT_ASSERT( mtask.thread() == OS::MainThread::Instance() );
+
+    // starting...
+    CPPUNIT_ASSERT( mtask.start() == true );
+    CPPUNIT_ASSERT( r.init == true );
+
+    CPPUNIT_ASSERT( mtask.isActive() == true );
+    CPPUNIT_ASSERT( mtask.isRunning() == false );
+    CPPUNIT_ASSERT( mtask.start() == false );
+
+    // calls step()
+    CPPUNIT_ASSERT( mtask.trigger() );
+    CPPUNIT_ASSERT( r.stepped == true );
+    CPPUNIT_ASSERT( mtask.execute() == false );
+
+    // stopping...
+    CPPUNIT_ASSERT( mtask.stop() == true );
+    CPPUNIT_ASSERT( r.fini == true );
+    CPPUNIT_ASSERT( mtask.isRunning() == false );
+    CPPUNIT_ASSERT( mtask.isActive() == false );
+    CPPUNIT_ASSERT( mtask.stop() == false );
+
+    CPPUNIT_ASSERT( mtask.execute() == false );
+    CPPUNIT_ASSERT( mtask.trigger() == false );
+
+    r.reset(false);
+    CPPUNIT_ASSERT( mtask.start() == false );
+    CPPUNIT_ASSERT( r.init == true );
+
+    CPPUNIT_ASSERT( mtask.isActive() == false );
+    CPPUNIT_ASSERT( mtask.isRunning() == false );
+    CPPUNIT_ASSERT( mtask.start() == false );
 }
 
 void ActivitiesThreadTest::testScheduler()

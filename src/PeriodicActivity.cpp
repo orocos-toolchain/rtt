@@ -49,35 +49,35 @@ namespace RTT
 {
 
     PeriodicActivity::PeriodicActivity(int priority, Seconds period, RunnableInterface* r )
-        : runner(r), running(false), active(false),
+        : ActivityInterface(r), running(false), active(false),
           thread_( TimerThread::Instance(priority,period) )
     {
         this->init();
     }
 
     PeriodicActivity::PeriodicActivity(int scheduler, int priority, Seconds period, RunnableInterface* r )
-        : runner(r), running(false), active(false),
+        : ActivityInterface(r), running(false), active(false),
           thread_( TimerThread::Instance(scheduler, priority,period) )
     {
         this->init();
     }
 
     PeriodicActivity::PeriodicActivity(TimerThreadPtr thread, RunnableInterface* r )
-        : runner(r), running(false), active(false),
+        : ActivityInterface(r), running(false), active(false),
           thread_( thread )
     {
         this->init();
     }
 
     PeriodicActivity::PeriodicActivity(Seconds period, TimerThreadPtr thread, RunnableInterface* r )
-        : runner(r), running(false), active(false),
+        : ActivityInterface(r), running(false), active(false),
           thread_(thread)
     {
         this->init();
     }
 
     PeriodicActivity::PeriodicActivity(secs s, nsecs ns, TimerThreadPtr thread, RunnableInterface* r )
-        : runner(r),
+        : ActivityInterface(r),
           running(false), active(false),
           thread_(thread)
     {
@@ -87,27 +87,10 @@ namespace RTT
     PeriodicActivity::~PeriodicActivity()
     {
         stop();
-        if (runner)
-            runner->setActivity(0);
     }
 
     void PeriodicActivity::init() {
-        if (runner)
-            runner->setActivity(this);
         thread_->start();
-    }
-
-
-    bool PeriodicActivity::run( RunnableInterface* r )
-    {
-        if ( isRunning() )
-            return false;
-        if (runner)
-            runner->setActivity(0);
-        runner = r;
-        if (runner)
-            runner->setActivity(this);
-        return true;
     }
 
     bool PeriodicActivity::start()

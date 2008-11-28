@@ -68,6 +68,18 @@ namespace RTT
          * Checks if this is still in a task and if so, issues a critical warning.
          */
         ~RunnableInterface();
+
+        /**
+         * This method is for 'intelligent' activity implementations
+         * that wish to see if it is required to call step() (again).
+         * By default, \a false is returned. You should only return \a true in
+         * case there is a temporary reason to (re-)run step.
+         * @return \a true if this object should be run.
+         * @see SequentialActivity implementation to see how this can be
+         * of use.
+         */
+        virtual bool hasWork();
+
         /**
          * @brief Query for the task this interface is run in.
          *
@@ -86,6 +98,8 @@ namespace RTT
          * @param task The ActivityInterface running this interface.
          */
         virtual void setActivity( ActivityInterface* task );
+
+        virtual OS::ThreadInterface* getThread() const;
     };
 
 

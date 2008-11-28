@@ -57,7 +57,13 @@ namespace RTT
 
         void EventCatcher::signalWork()
         {
+            mep->has_work.inc();
             mep->getActivity()->trigger();
+        }
+
+        void EventCatcher::signalWorkDone()
+        {
+            mep->has_work.dec();
         }
 
         void intrusive_ptr_add_ref( EventCatcher* p ) { ++p->refCount; }
@@ -68,7 +74,7 @@ namespace RTT
     using namespace detail;
 
     EventProcessor::EventProcessor()
-        : catchers(4)
+        : catchers(4), has_work(0)
     {
     }
 
@@ -108,6 +114,11 @@ namespace RTT
         if ( catchers.empty() )
             return;
         catchers.apply( boost::bind(&EventCatcher::complete, _1 ) );
+    }
+
+    bool EventProcessor::hasWork()
+    {
+        return has_work.read() != 0;
     }
 
     bool EventProcessor::breakLoop() {
