@@ -251,6 +251,23 @@ namespace RTT
          */
         virtual bool ready();
 
+        bool start();
+
+        /**
+         * Hook called in the Running state.
+         *
+         * This default implementation calls updateHook(updated_ports)
+         */
+        void updateHook();
+
+        /**
+         * This method gets called when new data is available on some input ports. The ports
+         * are listed as argument to the method
+         *
+         * The default implementation does nothing;
+         */
+        virtual void updateHook(std::vector<PortInterface*> const& updated_ports);
+
         /**
          * Get access to high level controls for
          * programs, state machines and scripting
@@ -375,6 +392,13 @@ namespace RTT
 
         void setup();
 
+    protected:
+        std::vector< PortInterface* > updated_ports;
+        /**
+         * This callback is called each time data arrived on an
+         * event port.
+         */
+        void dataOnPort(PortInterface*);
     private:
         /**
          * The task-local ports.
