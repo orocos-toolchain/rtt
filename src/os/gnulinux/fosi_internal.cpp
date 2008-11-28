@@ -249,22 +249,25 @@ namespace RTT
                 *priority = 99;
                 ret = -1;
             }
-            // and limit them according to pam_Limits
-            struct rlimit	r;
-            if (0 == getrlimit(RLIMIT_RTPRIO, &r))
+            // and limit them according to pam_Limits (only if not root)
+            if ( geteuid() != 0 )
             {
-                if (*priority > (int)r.rlim_cur)
+                struct rlimit	r;
+                if (0 == getrlimit(RLIMIT_RTPRIO, &r))
                 {
-                    log(Warning) << "Forcing priority ("<<*priority<<") of thread with !SCHED_OTHER policy to the pam_limit of " << r.rlim_cur <<endlog();
-                    *priority = r.rlim_cur;
+                    if (*priority > (int)r.rlim_cur)
+                    {
+                        log(Warning) << "Forcing priority ("<<*priority<<") of thread with !SCHED_OTHER policy to the pam_limit of " << r.rlim_cur <<endlog();
+                        *priority = r.rlim_cur;
+                        ret = -1;
+                    }
+                }
+                else
+                {
+                    // this should not be possible, but do something intelligent
+                    *priority = 1;
                     ret = -1;
                 }
-            }
-            else
-            {
-                // this should not be possible, but do something intelligent
-                *priority = 1;
-                ret = -1;
             }
         }
         return ret;
