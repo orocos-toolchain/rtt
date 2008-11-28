@@ -11,53 +11,35 @@ DataDrivenTask::DataDrivenTask(const std::string& name, ExecutionEngine* parent,
 
 bool DataDrivenTask::start()
 {
-    EventDrivenActivity* activity = dynamic_cast<EventDrivenActivity*>(engine()->getActivity());
-    if (activity)
+    size_t port_count = 0;
+    const DataFlowInterface::Ports& ports = this->ports()->getEventPorts();
+    for (DataFlowInterface::Ports::const_iterator it = ports.begin(); it != ports.end(); ++it)
     {
-        size_t port_count = 0;
-        log(Info) << getName() << " is attached to an EventDrivenActivity. Registering ports." << endlog();
-        DataFlowInterface::Ports ports = this->ports()->getPorts();
-        for (DataFlowInterface::Ports::iterator it = ports.begin(); it != ports.end(); ++it)
+        int porttype = (*it)->getPortType();
+        if (porttype == PortInterface::ReadPort || porttype == PortInterface::ReadWritePort)
         {
-            int porttype = (*it)->getPortType();
-            if (porttype == PortInterface::ReadPort || porttype == PortInterface::ReadWritePort)
-            {
-                PortInterface::NewDataEvent* ev = (*it)->getNewDataEvent();
-                if (!activity->addEvent(ev))
-                    return false;
-                port_count++;
-
-                log(Info) << getName() << " will be triggered when new data is available on " << (*it)->getName() << endlog();
-            }
+            (*it)->getNewDataOnPortEvent()->connect(boost::bind(&DataDrivenTask::dataOnPort, this, _1), this->events()->getEventProcessor());
+            port_count++;
+            log(Info) << getName() << " will be triggered when new data is available on " << (*it)->getName() << endlog();
         }
-        updated_ports.resize(port_count);
     }
-    else
-    {
-        log(Warning) << "activity is not an EventDrivenActivity" << endlog();
-    }
-
+    updated_ports.reserve(port_count);
     return TaskContext::start();
+}
+
+void DataDrivenTask::dataOnPort(PortInterface* port)
+{
+    // Since this handler is executed in our thread, we are always running.
+    if (find(updated_ports.begin(), updated_ports.end(), port) == updated_ports.end() )
+        updated_ports.push_back(port);
+    // this is in essence superfluous. We are already triggered.
+    //this->getActivity()->trigger();
 }
 
 void DataDrivenTask::updateHook()
 {
-    EventDrivenActivity* activity = dynamic_cast<EventDrivenActivity*>(engine()->getActivity());
-    if (activity)
-    {
-        typedef std::vector< Event<void()>* > TriggerSet;
-        TriggerSet const& updates = activity->getWakeupEvents();
-        updated_ports.clear();
-
-        for (TriggerSet::const_iterator it = updates.begin(); it != updates.end(); ++it)
-        {
-            PortInterface::NewDataEvent* ev = static_cast<PortInterface::NewDataEvent*>(*it);
-            if (ev)
-                updated_ports.push_back(ev->getPort());
-        }
-    }
-
     updateHook(updated_ports);
+    updated_ports.clear();
 }
 
 void DataDrivenTask::updateHook(std::vector<PortInterface*> const& updated_ports)

@@ -53,9 +53,6 @@ namespace RTT
      */
     class DataFlowInterface
     {
-        typedef std::vector<std::pair<PortInterface*,std::string> > PortStore;
-        PortStore mports;
-        OperationInterface* mparent;
     public:
         /**
          * A sequence of pointers to ports.
@@ -86,12 +83,40 @@ namespace RTT
         bool addPort(PortInterface* port);
 
         /**
+         * Add an Event triggering Port to this task. It is only added to the C++
+         * interface and can not be used in scripting.
+         * @param port The port to add.
+         * @return true if the port could be added, false if already added.
+         * @param callback (Optional) provide a function which will be called asynchronously
+         * when new data arrives on this port. You can add more functions by using the port
+         * directly using PortInterface::getNewDataOnPort().
+         */
+        bool addEventPort(PortInterface* port, PortInterface::NewDataOnPortEvent::SlotFunction callback = PortInterface::NewDataOnPortEvent::SlotFunction() );
+
+        /**
+         * Returns the list of all ports emitting events when new
+         * data arrives.
+         */
+        const Ports& getEventPorts() const;
+
+        /**
          * Add a Port to the interface of this task. It is added to
          * both the C++ interface and the scripting interface.
          * @param port The port to add.
          * @param description A user readable description of this port.
          */
         bool addPort(PortInterface* port, std::string description);
+
+        /**
+         * Add an Event triggering Port to the interface of this task. It is added to
+         * both the C++ interface and the scripting interface.
+         * @param port The port to add.
+         * @param description A user readable description of this port.
+         * @param callback (Optional) provide a function which will be called asynchronously
+         * when new data arrives on this port. You can add more functions by using the port
+         * directly using PortInterface::getNewDataOnPort().
+         */
+        bool addEventPort(PortInterface* port, std::string description, PortInterface::NewDataOnPortEvent::SlotFunction callback = PortInterface::NewDataOnPortEvent::SlotFunction() );
 
         /**
          * Remove a Port from this interface.
@@ -156,6 +181,12 @@ namespace RTT
          * all associated TaskObjects.
          */
         void clear();
+    protected:
+        typedef std::vector<std::pair<PortInterface*,std::string> > PortStore;
+        Ports eports;
+        PortStore mports;
+        OperationInterface* mparent;
+
     };
 
 }

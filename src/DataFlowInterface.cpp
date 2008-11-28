@@ -74,6 +74,16 @@ namespace RTT
         return true;
     }
 
+    bool DataFlowInterface::addEventPort(PortInterface* port, PortInterface::NewDataOnPortEvent::SlotFunction callback) {
+        if (this->addPort(port)) {
+            if (callback)
+                port->getNewDataOnPortEvent()->connect(callback, mparent->events()->getEventProcessor() );
+            eports.push_back(port);
+            return true;
+        }
+        return false;
+    }
+
     bool DataFlowInterface::addPort(PortInterface* port, std::string description) {
         if (this->addPort(port) == false)
             return false;
@@ -86,6 +96,21 @@ namespace RTT
         return true;
     }
 
+    bool DataFlowInterface::addEventPort(PortInterface* port, std::string description, PortInterface::NewDataOnPortEvent::SlotFunction callback) {
+        if (this->addPort(port)) {
+            if (callback)
+                port->getNewDataOnPortEvent()->connect(callback, mparent->events()->getEventProcessor() );
+            eports.push_back(port);
+            return true;
+        }
+        return false;
+    }
+
+    const DataFlowInterface::Ports& DataFlowInterface::getEventPorts() const
+    {
+        return eports;
+    }
+
     void DataFlowInterface::removePort(const std::string& name) {
         for ( PortStore::iterator it(mports.begin());
               it != mports.end();
@@ -93,6 +118,9 @@ namespace RTT
             if ( it->first->getName() == name ) {
                 if (mparent)
                     mparent->removeObject( name );
+                Ports::iterator ep = find(eports.begin(), eports.end(),it->first);
+                if ( ep!= eports.end() )
+                    eports.erase( ep );
                 mports.erase(it);
                 return;
             }

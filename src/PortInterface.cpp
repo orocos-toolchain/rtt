@@ -43,11 +43,11 @@
 namespace RTT
 {
 
-    PortInterface::PortInterface(const std::string& name) : portname(name), new_data_event(0) {}
+    PortInterface::PortInterface(const std::string& name) : portname(name), new_data_on_port_event(0) {}
 
     PortInterface::~PortInterface()
     {
-        delete new_data_event;
+        delete new_data_on_port_event;
 
     }
 
@@ -208,14 +208,14 @@ namespace RTT
 
     void PortInterface::signal()
     {
-        if (new_data_event)
-            (*new_data_event)();
+        if (new_data_on_port_event)
+            (*new_data_on_port_event)(this);
     }
 
-    PortInterface::NewDataEvent* PortInterface::getNewDataEvent()
+    PortInterface::NewDataOnPortEvent* PortInterface::getNewDataOnPortEvent()
     {
-        if (!new_data_event)
-            new_data_event = new NewDataEvent(this);
-        return new_data_event;
+        if (!new_data_on_port_event)
+            new_data_on_port_event = new NewDataOnPortEvent( this->getName() );
+        return new_data_on_port_event;
     }
 }

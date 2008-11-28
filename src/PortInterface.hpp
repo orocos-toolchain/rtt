@@ -55,22 +55,11 @@ namespace RTT
     class PortInterface
     {
     public:
-        class NewDataEvent : public Event< void() >
-        {
-            PortInterface* port;
-
-        public:
-            NewDataEvent(PortInterface* port)
-                : Event< void() >(port->getName() + "Trigger")
-                , port(port) {}
-
-            PortInterface* getPort() const { return port; }
-        };
-
+    	typedef Event<void(PortInterface*)> NewDataOnPortEvent;
     protected:
         friend class ConnectionInterface;
         std::string portname;
-        NewDataEvent* new_data_event;
+        NewDataOnPortEvent* new_data_on_port_event;
         PortInterface(const std::string& name);
 
         /**
@@ -121,7 +110,7 @@ namespace RTT
          * Returns an Event object which is triggered every time new data is
          * made available on this port
          */
-        NewDataEvent* getNewDataEvent();
+        NewDataOnPortEvent* getNewDataOnPortEvent();
 
         /**
          * Get the ConnectionModel of this port.

@@ -145,6 +145,10 @@ namespace RTT
          * @param Signature Signature of the Event, for example void(int, int)
          * @param ename The name of the event to lookup.
          * @return A shared pointer which is to be assigned to an Event object.
+         * @internal We need Signature for two reasons: 1. for consistency with the general
+         * getPrimitive<T>(name) API in RTT and 2. because we may need the type to reconstruct the
+         * object dynamically, for example, when the Event is remote. See the CommandRepository
+         * for and example where this is necessary (see also RTT::RemoteCommand )
          */
         template<class Signature>
         boost::shared_ptr<ActionInterface> getEvent(const std::string& ename)
