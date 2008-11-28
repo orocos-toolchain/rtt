@@ -76,7 +76,7 @@ namespace RTT
 
         // The set of wakeup events (i.e. the events which triggered the
         // current wakeup of the activity)
-        typedef std::set< Event< void() >* > Wakeup;
+        typedef std::vector< Event< void() >* > Wakeup;
         Wakeup   m_wakeup;
 
         // The trigger method, called by the event. \c event_id is the index of
@@ -128,7 +128,7 @@ namespace RTT
          * is only valid in the associated RunnableInterface's step() method
          * (and, by extension, in the TaskContext hook functions)
          */
-        std::set<Event<void()>*> const& getWakeupEvents() const;
+        std::vector<Event<void()>*> const& getWakeupEvents() const;
 
         /**
          * Set the Event which will trigger the execution

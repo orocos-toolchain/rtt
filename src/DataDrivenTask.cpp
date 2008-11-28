@@ -14,6 +14,7 @@ bool DataDrivenTask::start()
     EventDrivenActivity* activity = dynamic_cast<EventDrivenActivity*>(engine()->getActivity());
     if (activity)
     {
+        size_t port_count = 0;
         log(Info) << getName() << " is attached to an EventDrivenActivity. Registering ports." << endlog();
         DataFlowInterface::Ports ports = this->ports()->getPorts();
         for (DataFlowInterface::Ports::iterator it = ports.begin(); it != ports.end(); ++it)
@@ -24,10 +25,12 @@ bool DataDrivenTask::start()
                 PortInterface::NewDataEvent* ev = (*it)->getNewDataEvent();
                 if (!activity->addEvent(ev))
                     return false;
+                port_count++;
 
                 log(Info) << getName() << " will be triggered when new data is available on " << (*it)->getName() << endlog();
             }
         }
+        updated_ports.resize(port_count);
     }
     else
     {
@@ -40,24 +43,24 @@ bool DataDrivenTask::start()
 void DataDrivenTask::updateHook()
 {
     EventDrivenActivity* activity = dynamic_cast<EventDrivenActivity*>(engine()->getActivity());
-    std::set< PortInterface* > updated_ports;
     if (activity)
     {
-        typedef std::set< Event<void()>* > TriggerSet;
-        TriggerSet updates = activity->getWakeupEvents();
+        typedef std::vector< Event<void()>* > TriggerSet;
+        TriggerSet const& updates = activity->getWakeupEvents();
+        updated_ports.clear();
 
         for (TriggerSet::const_iterator it = updates.begin(); it != updates.end(); ++it)
         {
             PortInterface::NewDataEvent* ev = static_cast<PortInterface::NewDataEvent*>(*it);
             if (ev)
-                updated_ports.insert(ev->getPort());
+                updated_ports.push_back(ev->getPort());
         }
     }
 
     updateHook(updated_ports);
 }
 
-void DataDrivenTask::updateHook(std::set<PortInterface*> const& updated_ports)
+void DataDrivenTask::updateHook(std::vector<PortInterface*> const& updated_ports)
 {
 }
 

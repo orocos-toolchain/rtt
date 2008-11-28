@@ -76,6 +76,7 @@ namespace RTT
     {
         delete m_pending_events;
         m_pending_events = new Triggers(4 * m_events.size());
+        m_wakeup.reserve(m_events.size());
 
         for (Events::iterator it = m_events.begin(); it != m_events.end(); ++it)
         {
@@ -120,7 +121,8 @@ namespace RTT
                 if (! pending)
                     return;
 
-                m_wakeup.insert(pending);
+                if (std::find(m_wakeup.begin(), m_wakeup.end(), pending) == m_wakeup.end())
+                m_wakeup.push_back(pending);
             } while(!m_pending_events->empty());
 
             if ( runner )
@@ -128,7 +130,7 @@ namespace RTT
         }
     }
 
-    std::set<Event<void()>*> const& EventDrivenActivity::getWakeupEvents() const
+    std::vector<Event<void()>*> const& EventDrivenActivity::getWakeupEvents() const
     {
         return m_wakeup;
     }

@@ -7,6 +7,8 @@
 namespace RTT {
     class DataDrivenTask : public TaskContext
     {
+        std::vector< PortInterface* > updated_ports;
+
     public:
         /**
          * Create a DataDrivenTask.
@@ -52,7 +54,7 @@ namespace RTT {
          *
          * The default implementation does nothing;
          */
-        virtual void updateHook(std::set<PortInterface*> const& updated_ports);
+        virtual void updateHook(std::vector<PortInterface*> const& updated_ports);
     };
 }
 
