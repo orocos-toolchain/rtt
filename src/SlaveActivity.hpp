@@ -124,8 +124,6 @@ namespace RTT
 
         bool isRunning() const;
 
-        bool run(RunnableInterface* _r);
-
         bool isPeriodic() const;
 
         bool isActive() const;

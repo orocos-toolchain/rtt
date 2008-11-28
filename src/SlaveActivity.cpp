@@ -136,18 +136,6 @@ namespace RTT
         return running;
     }
 
-    bool SlaveActivity::run(RunnableInterface* _r)
-    {
-        if (active)
-            return false;
-        if (runner)
-            runner->setActivity(0);
-        runner = _r;
-        if (runner)
-            runner->setActivity(this);
-        return true;
-    }
-
     bool SlaveActivity::isPeriodic() const
     {
         return mperiod != 0.0;
