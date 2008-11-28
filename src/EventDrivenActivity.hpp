@@ -40,6 +40,8 @@
 
 #include "NonPeriodicActivity.hpp"
 #include "Event.hpp"
+#include "BufferLockFree.hpp"
+#include <set>
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
@@ -59,10 +61,27 @@ namespace RTT
     class EventDrivenActivity
         : public NonPeriodicActivity
     {
-        typedef std::vector<Handle> Handles;
+        // The set of events that can trigger this activity
         typedef std::vector< Event< void() >* > Events;
-        Events events;
-        Handles handles;
+        Events   m_events;
+
+        // The set of connection handles which link m_events with the activity
+        typedef std::vector<Handle> Handles;
+        Handles  m_handles;
+
+        // The set of pending events (i.e. events that have been emitted since
+        // the last time the activity went to sleep)
+        typedef BufferLockFree< Event< void() >*, BlockingPolicy, NonBlockingPolicy > Triggers;
+        Triggers* m_pending_events;
+
+        // The set of wakeup events (i.e. the events which triggered the
+        // current wakeup of the activity)
+        typedef std::set< Event< void() >* > Wakeup;
+        Wakeup   m_wakeup;
+
+        // The trigger method, called by the event. \c event_id is the index of
+        // the event in m_events.
+        void event_trigger(Event<void()>* event);
 
     public:
         /**
@@ -103,6 +122,13 @@ namespace RTT
         bool start();
         bool stop();
         void loop();
+        bool breakLoop();
+
+        /** Returns the set of events that caused the activity to wake up. This
+         * is only valid in the associated RunnableInterface's step() method
+         * (and, by extension, in the TaskContext hook functions)
+         */
+        std::set<Event<void()>*> const& getWakeupEvents() const;
 
         /**
          * Set the Event which will trigger the execution

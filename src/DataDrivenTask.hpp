@@ -2,6 +2,7 @@
 #define OROCOS_RTT_DATA_DRIVEN_TASK_HPP
 
 #include "TaskContext.hpp"
+#include <set>
 
 namespace RTT {
     class DataDrivenTask : public TaskContext
@@ -9,8 +10,10 @@ namespace RTT {
     public:
         /**
          * Create a DataDrivenTask.
+         *
          * It's ExecutionEngine will be newly constructed with private 
          * processing of commands, events, programs and state machines.
+         *
          * @param name The name of this component.
          * @param initial_state Provide the \a PreOperational parameter flag here
          * to force users in calling configure(), before they call start().
@@ -19,9 +22,11 @@ namespace RTT {
 
         /**
          * Create a DataDrivenTask. 
+         *
          * Its commands programs and state machines are processed by \a parent.
          * Use this constructor to share execution engines among task contexts, such that
          * the execution of their functionality is serialised (executed in the same thread).
+         *
          * @param name The name of this component.
          * @param initial_state Provide the \a PreOperational parameter flag here
          * to force users in calling configure(), before they call start().
@@ -30,9 +35,24 @@ namespace RTT {
 
         /**
          * Starts this task. It creates a separate thread for it and starts
-         * listening to the trigger events.
+         * waiting for new data to be available on input ports
          */
         bool start();
+
+        /**
+         * Hook called in the Running state.
+         *
+         * The default implementation calls updateHook(updated_ports)
+         */
+        void updateHook();
+
+        /**
+         * This method gets called when new data is available on some input ports. The ports
+         * are listed as argument to the method
+         *
+         * The default implementation does nothing;
+         */
+        virtual void updateHook(std::set<PortInterface*> const& updated_ports);
     };
 }
 

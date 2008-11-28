@@ -48,6 +48,7 @@ namespace RTT
     PortInterface::~PortInterface()
     {
         delete new_data_event;
+
     }
 
     bool PortInterface::setName(const std::string& name)
@@ -214,7 +215,7 @@ namespace RTT
     PortInterface::NewDataEvent* PortInterface::getNewDataEvent()
     {
         if (!new_data_event)
-            new_data_event = new NewDataEvent(getName() + "Trigger");
+            new_data_event = new NewDataEvent(this);
         return new_data_event;
     }
 }

@@ -55,7 +55,18 @@ namespace RTT
     class PortInterface
     {
     public:
-        typedef RTT::Event< void() > NewDataEvent;
+        class NewDataEvent : public Event< void() >
+        {
+            PortInterface* port;
+
+        public:
+            NewDataEvent(PortInterface* port)
+                : Event< void() >(port->getName() + "Trigger")
+                , port(port) {}
+
+            PortInterface* getPort() const { return port; }
+        };
+
     protected:
         friend class ConnectionInterface;
         std::string portname;

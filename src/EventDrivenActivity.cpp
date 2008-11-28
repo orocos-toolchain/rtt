@@ -49,48 +49,94 @@
 namespace RTT
 {
     EventDrivenActivity::EventDrivenActivity(int priority, RunnableInterface* _r )
-        : NonPeriodicActivity(priority, _r) { }
+        : NonPeriodicActivity(priority, _r), m_pending_events(0) { }
 
     EventDrivenActivity::EventDrivenActivity(int scheduler, int priority, RunnableInterface* _r )
-        : NonPeriodicActivity(scheduler, priority, _r) { }
+        : NonPeriodicActivity(scheduler, priority, _r), m_pending_events(0) { }
 
     EventDrivenActivity::EventDrivenActivity(int priority, const std::string& name, RunnableInterface* _r )
-        : NonPeriodicActivity(priority, name, _r) { }
+        : NonPeriodicActivity(priority, name, _r), m_pending_events(0) { }
 
     EventDrivenActivity::~EventDrivenActivity()
-    { this->stop(); }
+    {
+        this->stop();
+        delete m_pending_events;
+    }
 
+    void EventDrivenActivity::event_trigger(Event<void()>* event)
+    {
+        if (!isRunning())
+            return;
+
+        m_pending_events->Push( event );
+        trigger();
+    }
 
     bool EventDrivenActivity::start()
     {
-        if (! NonPeriodicActivity::start())
-            return false;
+        delete m_pending_events;
+        m_pending_events = new Triggers(4 * m_events.size());
 
-        for (Events::iterator ev = events.begin(); ev != events.end(); ++ev)
+        for (Events::iterator it = m_events.begin(); it != m_events.end(); ++it)
         {
-            Handle h = (*ev)->connect( boost::bind(&EventDrivenActivity::trigger, this) );
+            Event<void(void)>& ev = **it;
+            Handle h = ev.connect( boost::bind(&EventDrivenActivity::event_trigger, this, *it) );
             if (!h)
             {
-                for_each(handles.begin(), handles.end(), boost::bind(&Handle::disconnect, _1));
-                handles.clear();
+                for_each(m_handles.begin(), m_handles.end(), boost::bind(&Handle::disconnect, _1));
+                m_handles.clear();
                 return false;
             }
 
-            handles.push_back(h);
+            m_handles.push_back(h);
         }
+
+        if (! NonPeriodicActivity::start())
+        {
+            for_each(m_handles.begin(), m_handles.end(), boost::bind(&Handle::disconnect, _1));
+            m_handles.clear();
+            return false;
+        }
+
+        return true;
+    }
+
+    bool EventDrivenActivity::breakLoop()
+    {
+        m_pending_events->Push(NULL);
         return true;
     }
 
     void EventDrivenActivity::loop()
     {
-        if ( runner )
-            runner->step();
+        while (true)
+        {
+            m_wakeup.clear();
+
+            do
+            {
+                Event<void()>* pending;
+                m_pending_events->Pop(pending);
+                if (! pending)
+                    return;
+
+                m_wakeup.insert(pending);
+            } while(!m_pending_events->empty());
+
+            if ( runner )
+                runner->step();
+        }
+    }
+
+    std::set<Event<void()>*> const& EventDrivenActivity::getWakeupEvents() const
+    {
+        return m_wakeup;
     }
 
     bool EventDrivenActivity::stop()
     {
-        for_each(handles.begin(), handles.end(), boost::bind(&Handle::disconnect, _1));
-        handles.clear();
+        for_each(m_handles.begin(), m_handles.end(), boost::bind(&Handle::disconnect, _1));
+        m_handles.clear();
         return NonPeriodicActivity::stop();
     }
 
@@ -99,7 +145,7 @@ namespace RTT
         if ( isActive() )
             return false;
             
-        events.push_back(_event);
+        m_events.push_back(_event);
         return true;
     }
 }

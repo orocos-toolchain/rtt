@@ -37,3 +37,27 @@ bool DataDrivenTask::start()
     return TaskContext::start();
 }
 
+void DataDrivenTask::updateHook()
+{
+    EventDrivenActivity* activity = dynamic_cast<EventDrivenActivity*>(engine()->getActivity());
+    std::set< PortInterface* > updated_ports;
+    if (activity)
+    {
+        typedef std::set< Event<void()>* > TriggerSet;
+        TriggerSet updates = activity->getWakeupEvents();
+
+        for (TriggerSet::const_iterator it = updates.begin(); it != updates.end(); ++it)
+        {
+            PortInterface::NewDataEvent* ev = static_cast<PortInterface::NewDataEvent*>(*it);
+            if (ev)
+                updated_ports.insert(ev->getPort());
+        }
+    }
+
+    updateHook(updated_ports);
+}
+
+void DataDrivenTask::updateHook(std::set<PortInterface*> const& updated_ports)
+{
+}
+
