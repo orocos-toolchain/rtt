@@ -70,7 +70,7 @@ namespace RTT
          * no longer be used. run(0) can not be used in this case
          * because it would recurse.
          */
-        void disableRun() { runner = 0; }
+        void disableRun(RunnableInterface* caller) { if (caller == runner) runner = 0; }
     public:
         friend class RunnableInterface;
 

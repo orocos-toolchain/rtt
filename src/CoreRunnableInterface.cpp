@@ -52,7 +52,7 @@ namespace RTT
             " before deleting this object. Crash may be imminent."<<endlog();
         }
         if ( this->owner_task )
-            this->owner_task->disableRun();
+            this->owner_task->disableRun(this);
     }
 
     RunnableInterface::RunnableInterface() : owner_task(0) {}
@@ -64,7 +64,7 @@ namespace RTT
     void RunnableInterface::setActivity( ActivityInterface* task ) {
         if (owner_task) {
             // notify old owner he's out.
-            owner_task->disableRun();
+            owner_task->disableRun(this);
         }
 
         owner_task = task;
