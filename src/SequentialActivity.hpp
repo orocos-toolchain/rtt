@@ -14,9 +14,11 @@ namespace RTT
      * The presence of this activity object indicates that the TaskContext does
      * not have its own active thread, but executes all asynchronous operations
      * (such as commands and events) in the thread of the caller, so in fact
-     * synchronously.
+     * synchronously. The SequentialActivity uses a Mutex lock to guard against
+     * concurrent executions and makes your TaskContext equally thread-safe as
+     * the other activity implementations.
      *
-     * This activity emulates the same behaviour as a NonSequentialActivity, but
+     * This activity emulates the same behaviour as a NonPeriodicActivity, but
      * without using a thread.
      *
      * \section ExecReact Reactions to execute():

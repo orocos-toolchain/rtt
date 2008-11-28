@@ -892,7 +892,8 @@ the_data_port.     cd            ls
   };</programlisting>
     <para>
       When <function>configure()</function> is called, the
-      <function>configureHook()</function> is executed and must return
+      <function>configureHook()</function> (which <emphasis>you</emphasis>
+      must implement!) is executed and must return
       false if it failed. The TaskContext drops to the
       <function>PreOperational</function> state in that case.
       When <function>configureHook()</function> succeeds, the
@@ -924,13 +925,17 @@ the_data_port.     cd            ls
 	need to use one of the
 	<classname>RTT::ActivityInterface</classname> classes from the
 	RTT, for example <classname>RTT::PeriodicActivity</classname>
-	or <classname>RTT::NonPeriodicActivity</classname>.  This
+	or <classname>RTT::NonPeriodicActivity</classname> create a periodic
+		or non periodic thread which executes your task.  This
 	relation is shown in <xref linkend="fig-task-execution" />.
-	The Activity classes will allocate a thread which executes the
+	The Activity classes may allocate a thread which executes the
 	Execution Engine. The chosen
 	<classname>ActivityInterface</classname> object will invoke
 	the Execution Engine, which will in turn invoke the
-	application's hooks above.
+	application's hooks above. When created, the TaskContext is assigned
+	the <classname>RTT::SequentialActivity</classname> by default.
+	This means it has no internal thread and executes its functions
+	at the grace (i.e. in the thread context) of the caller.
       </para>
       <figure id="fig-task-execution">
       <title>
@@ -944,7 +949,7 @@ the_data_port.     cd            ls
 	  <imagedata fileref="images/hires/TaskContextExecution" />
 	</imageobject>
 	<caption>
-	  <para>You can make a TaskContext '(re-)active' by creating
+	  <para>You can make a TaskContext 'active' by creating
 	  an Activity object which executes its Execution Engine.
 	  The Execution Engine delegates all work to specific
 	  'Processors' and user code in updateHook().
@@ -1852,8 +1857,8 @@ the_data_port.     cd            ls
       certain values. Properties have the advantage of being writable
       to an XML format, hence can store 'persistent' state.  For
       example, a control parameter. Attributes are lightweight values
-      which can be read and written during run-time, for example, the
-      current measured temperature.  </para></note>
+      which can be read and written during run-time, and expose C++ class
+      	members to the scripting layer.  </para></note>
       <mediaobject>
 	<imageobject role="fo">
 	  <imagedata width="5cm" fileref="images/PropertyInterface" />
@@ -1987,7 +1992,7 @@ the_data_port.     cd            ls
       </para>
     </section>
     <section>
-      <title>Storing and Loading Task Properties</title>
+      <title>Reading and writing Task Properties from XML</title>
       <para>
 	See <xref linkend="task-property-config" /> for storing and loading
 	the Properties to and from files, in order to store a TaskContext's state.
