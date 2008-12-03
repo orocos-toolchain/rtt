@@ -117,7 +117,7 @@
 	</para>
       </note>
       <section>
-	<title>Displaying</title>
+	<title>Displaying and Reading</title>
 	<para>
 	  In order to tell Orocos how to display your type, you
 	  may overload the <function>TemplateTypeInfo::write</function> fuction
@@ -125,12 +125,21 @@
 	</para>
 	<programlisting>  #include &lt;rtt/TemplateTypeInfo.hpp>
   #include &lt;ostream>
+  #include &lt;istream>
 
+  // Displaying:
   std::ostream&amp; operator&lt;&lt;(std::ostream&amp; os, const ControlData&amp; cd) {
-     return os &lt;&lt; '('&lt;&lt; cd.x &lt;&lt; cd.y &lt;&lt; cd.z &lt;&lt; '): ' &lt;&lt; cd.sample_nbr;
+     return os &lt;&lt; '('&lt;&lt; cd.x &lt;&lt; ',' &lt;&lt; cd.y &lt;&lt; ',' &lt;&lt; cd.z &lt;&lt; '): ' &lt;&lt; cd.sample_nbr;
+  }
+
+  // Reading (not sufficient for scripting):
+  std::istream&amp; operator&gt;&gt;(std::istream&amp; is, ControlData&amp; cd) {
+     char c;
+     double x,y,z,n;
+     return os >> c >> x >> c >> y >> c >> z >> c >> c >> n; // 'c' reads '(' ',' ',' ')' and ':'
   }
   // ...
-  // 'true' argument: <emphasis> it has operator&lt;&lt;</emphasis>
+  // 'true' argument: <emphasis> it has operator&lt;&lt; and operator&gt;&gt;</emphasis>
   struct ControlDataTypeInfo
     : public RTT::TemplateTypeInfo&lt;ControlData,<emphasis>true</emphasis>>
   {
@@ -145,7 +154,10 @@
 	<para>
 	  If you use the above line of code to add the type, Orocos will be
 	  able to display it as well, for example in the TaskBrowser or
-	  in the ReportingComponent.
+	  in the ReportingComponent. Other subsystems may use your operators
+	  to exchange data in a text-based form. However, in order to
+	  'construct' your type in a script or at the TaskBrowser prompt,
+	  you need to add a constructor as shown in <xref linkend="overloading-constructors" />. 
 	</para>
       </section>
       <section>
@@ -349,6 +361,11 @@ bool loadOperators() {
 	  Say that the ControlData struct has a constructor:
 	</para>
 	<programlisting>  struct ControlData {
+    // Don't forget to supply the default constructor
+    // as well.
+    ControlData() 
+      : x(0), y(0), z(0), sample_nbr(0)
+    {}
     ControlData(double a, double b, double c) 
       : x(a), y(b), z(c), sample_nbr(0)
     {}
@@ -361,6 +378,7 @@ bool loadOperators() {
 	  type info:
         </para>
 	<programlisting>
+  // This 'factory' function constructs one object.
   ControlData createCD(double a, double b, double c) {
     return ControlData(a,b,c);
   }
