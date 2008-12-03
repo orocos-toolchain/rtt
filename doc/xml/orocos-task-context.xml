@@ -1345,12 +1345,20 @@ the_data_port.     cd            ls
     </section>
     <section>
       <title>The Data Flow Interface</title>
-      <note><title>Purpose</title><para>The 'Data Flow' is
-      a 'stream of data' between tasks. A classical control
-      loop can be implemented using the Data Flow interface.
-      The data is passed buffered or unbuffered from one
-      task to another.
-      </para></note>
+      <note><title>Purpose</title>
+	<para>The 'Data Flow' is a 'stream of data' between tasks
+	  which are used to perform calculations. A classical control
+	  loop can be implemented using the Data Flow interface.  The
+	  data is passed buffered or unbuffered from one task to
+	  others. A Task can be woken up if data arrives at one or
+	  more ports or it can 'poll' for new data on its ports.
+	</para>
+	<para>
+	  Reading and writing data ports is always real-time and
+	  thread-safe, on the condition that copying your data
+	  (i.e. your copy constructor) is as well.
+	</para>
+      </note>
       <mediaobject>
 	<imageobject role="fo">
 	  <imagedata width="5cm" fileref="images/DataFlowInterface" />
@@ -1372,7 +1380,8 @@ the_data_port.     cd            ls
       <para>
 	A Data Port can offer read-only, write-only or read-write access
 	to the unbuffered data. A Buffer Port can offer read-only,
-	write-only and read-write access to the buffered data.
+	write-only and read-write access to the buffered data. Finally,
+	you can opt that new data on selected ports wakes up your task.
 	The example below shows all these possibilities.
       </para>
       <section>
@@ -1419,7 +1428,10 @@ the_data_port.     cd            ls
 	outbufPort("Packet_1", 15), // note: buffer size
 	rwbufPort("Packet_2", 30)
     {
-       this->ports()->addPort( &amp;indatPort, "Input Data Port" );
+       // an 'EventPort' wakes our task up when data arrives.
+       this->ports()->addEventPort( &amp;indatPort, "Event driven Input Data Port" );
+
+       // These ports do not wake up our task
        this->ports()->addPort( &amp;outdatPort, "Output Data Port" );
        this->ports()->addPort( &amp;rwdatPort, "Read-Write Data Port" );
 
@@ -1437,11 +1449,22 @@ the_data_port.     cd            ls
 	The example starts with declaring all the ports of MyTask. A
 	template parameter '&lt;double&gt;' specifies the type of data
 	the task wants to exchange through that port. Logically, if
-	two tasks are connected, they must agree on this type.  The
+	two ore more tasks are connected, they must agree on this type.  The
 	constructor of MyTask initialises each port with a name.  This
-	name is used to 'match' ports between connected tasks
+	name can be used to 'match' ports between connected tasks
 	( using 'connectPorts', see <xref linkend="connect-tasks" /> ),
 	but it is possible to connect Ports with different names as well.
+      </para>
+      <para>
+	There are two ways to add a port to the TaskContext interface:
+	using <function>addPort()</function>
+	or <function>addEventPort()</function>. In the latter case,
+	new data arriving on the port will wake up ('trigger') the
+	activity of our TaskContext and updateHook() get's executed.
+	If you want to know which port caused the wake-up, do not implement
+	<function>updateHook()</function> but use 
+	<function>updateHook(const std::vector&lt;PortInterface*&gt;& updatedPorts)</function>
+	which provides you a list of all ports having received new data.
       </para>
       <para>
 	Write and read-write Buffers take besides a name, the prefered
@@ -1510,6 +1533,11 @@ the_data_port.     cd            ls
        return true;
      }
 
+     /**
+      * Note: use updateHook(const std::vector&lt;PortInterface*&gt;&)
+      * instead for having information about the updated event 
+      * driven ports.
+      */
      void updateHook() {
        // Read and write the Data Flow:
        // Unbuffered:
@@ -1577,6 +1605,8 @@ the_data_port.     cd            ls
 	  can happen in a script. Also, the TaskBrowser can then
 	  be used to inspect the contents of the DataFlow on-line.
 	</para>
+	<note><para>In scripting, it is currently not yet possible to 
+	    know which event port woke your task up.</para></note>
 	<para>
 	  A small program script could be loaded into MyTask with
 	  the following contents:
@@ -1622,7 +1652,13 @@ the_data_port.     cd            ls
       <note><title>Purpose</title><para>A task's methods are intended
       to be called 'synchronously' by the caller, i.e. are directly
       executed like a function in the thread of the caller. Use it to
-      'calculate' a result or change a parameter.</para></note>
+      'calculate' a result or change a parameter.</para>
+      <para>
+	Calling methods is real-time but not thread-safe and should
+	for a <emphasis>running</emphasis> component be guarded with a
+	Mutex if it's functionality requires so.
+      </para>
+      </note>
       <mediaobject>
 	<imageobject role="fo">
 	  <imagedata width="5cm" fileref="images/MethodInterface" />
@@ -1857,8 +1893,14 @@ the_data_port.     cd            ls
       certain values. Properties have the advantage of being writable
       to an XML format, hence can store 'persistent' state.  For
       example, a control parameter. Attributes are lightweight values
-      which can be read and written during run-time, and expose C++ class
-      	members to the scripting layer.  </para></note>
+      which can be read and written during run-time, and expose C++
+      class members to the scripting layer.</para>
+      <para>
+	Reading and writing properties and attributes is real-time but
+	not thread-safe and should for a <emphasis>running</emphasis>
+	component be limited to the task's own activity.
+      </para>
+      </note>
       <mediaobject>
 	<imageobject role="fo">
 	  <imagedata width="5cm" fileref="images/PropertyInterface" />
@@ -2001,11 +2043,21 @@ the_data_port.     cd            ls
   </section>
   <section>
     <title>The Command Interface</title>
-      <note><title>Purpose</title><para>A task's commands are intended
-      to be called 'asynchronously', thus <emphasis>sent</emphasis> by the caller
-      to the receiver. Use it to 'reach a goal' in the receiver, typically
-      this takes time to accomplish. Command functions are, in contrast with methods,
-      executed by the receiver's thread.</para></note>
+      <note><title>Purpose</title>
+	<para>
+	  A task's command functions are intended to be executed 'in
+	  the owner's thread', thus are
+	  executed <emphasis>asynchronously</emphasis> with respect to
+	  the caller. Use it to 'reach a goal' or do a lengthy
+	  calculation in the receiver. Command functions are, in
+	  contrast with methods, executed by the receiver's thread
+	</para>
+	<para>
+	  Calling and executing commands is real-time and thread-safe
+	  with respect to updateHook, scripting etc running in the
+	  receiving component.
+	</para>
+      </note>
       <mediaobject>
 	<imageobject role="fo">
 	  <imagedata width="5cm" fileref="images/CommandInterface" />
@@ -2016,21 +2068,30 @@ the_data_port.     cd            ls
       </mediaobject>
     <para>
       The command interface is very similar to the Method interface above.
-      The diffence with methods is two-fold:
+      The diffence with methods are:
     </para>
     <itemizedlist>
-      <listitem><para>The 'command function' of the TaskContext is executed
-      in the thread of the receiving TaskContext. Is is an asynchronous function call.</para></listitem>
+      <listitem><para>The 'command function' of the TaskContext is
+	  executed in the thread of the receiving TaskContext. Is is
+	  an asynchronous function call.</para></listitem>
+      <listitem><para>The arguments of the 'command function' 
+	  are stored in a command object which makes them available
+	  when the function is finally executed in the receiving thread.
+	  This allows multiple commands to be queued at the same time
+	  with different arguments.
+        </para></listitem>
+      <listitem><para>The return value of a command function must
+          always be a bool.</para></listitem>
       <listitem><para>There is a second function, the 'completion
-      condition' which is called to check if the command's
-      <emphasis>effect</emphasis> is done.  Take a command to move to
-      a position for example. The 'command function' programs the
-      target position, while the 'completion condition' will check if
-      the target position has been reached, long after the command
-      function has been executed. Commands will often work together
-      with the <function>updateHook()</function> function which
-      further processes the command's data.
-    </para>
+	  condition' which is called to check if the command's
+	  <emphasis>effect</emphasis> is done.  Take a command to move to
+	  a position for example. The 'command function' programs the
+	  target position, while the 'completion condition' will check if
+	  the target position has been reached, long after the command
+	  function has been executed. Commands will often work together
+	  with the <function>updateHook()</function> function which
+	  further processes the command's data.
+	</para>
       </listitem>
     </itemizedlist>
     <section>
@@ -2248,11 +2309,20 @@ the_data_port.     cd            ls
   </section>
   <section>
     <title>The Event Interface</title>
-      <note><title>Purpose</title><para>A task's events are intended
-      to be 'emitted', thus <emphasis>published</emphasis> by the task
-      to subscribers. Use it to 'notify' interested parties of a
-      change in the system. It allows you to have one or more
-      functions called when an event happens.</para></note>
+      <note><title>Purpose</title>
+	<para>A task's events are intended to be 'emitted',
+	  thus <emphasis>published</emphasis> by the task to
+	  subscribers. Use it to 'notify' interested parties of a
+	  change in the system. It allows you to have one or more
+	  functions called when an event happens.
+	</para>
+	<para>
+	  Publishing and reacting to an event is real-time. Only
+	  'asynchronous' callbacks are thread-safe with respect
+	  to updateHook, scripting etc running in the
+	  receiving component.
+	</para>
+      </note>
       <mediaobject>
 	<imageobject role="fo">
 	  <imagedata width="5cm" fileref="images/EventInterface" />
