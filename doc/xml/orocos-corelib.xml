@@ -505,7 +505,8 @@ ORO_main( int argc, char** argv)
       </para>
       <para>
 	Note that although there may be a master, it is still the
-	user's responsibility to call <function>execute()</function>.
+	user's responsibility to get a pointer to the slave and
+	call <function>execute()</function>.
       </para>
       <para>
 	There is also a <function>trigger()</function> function for
