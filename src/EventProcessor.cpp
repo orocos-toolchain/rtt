@@ -78,7 +78,7 @@ namespace RTT
     {
     }
 
-    static void clearEP(EventCatcher* ec) {
+    static void clearEP(detail::EventCatcher* ec) {
         ec->mep = 0;
     }
 
@@ -97,11 +97,11 @@ namespace RTT
         catchers.shrink();
     }
 
-    static void enableAll( EventCatcher* eci ) {
+    static void enableAll( detail::EventCatcher* eci ) {
         eci->enabled = true;
     }
 
-    static void disableAll( EventCatcher* eci ) {
+    static void disableAll( detail::EventCatcher* eci ) {
         eci->enabled = false;
     }
 
@@ -113,7 +113,7 @@ namespace RTT
     void EventProcessor::step() {
         if ( catchers.empty() )
             return;
-        catchers.apply( boost::bind(&EventCatcher::complete, _1 ) );
+        catchers.apply( boost::bind(&detail::EventCatcher::complete, _1 ) );
     }
 
     bool EventProcessor::hasWork()
