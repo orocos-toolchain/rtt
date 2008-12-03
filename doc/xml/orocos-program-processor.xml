@@ -158,29 +158,6 @@
       </para>
     </section>
     <section>
-      <title>Running the Execution Engine</title>
-      <para>
-	In order to start a task context, its execution engine must be
-	run in a periodic corelib task.
-      </para>
-      <programlisting>
-  #include &lt;rtt/TaskContext.hpp&gt;
-  #include &lt;rtt/PeriodicActivity.hpp&gt;
-
-  RTT::TaskContext mytaskC;
-  RTT::PeriodicActivity ptask(5, 0.01 ); // Periodic task 100Hz.
-
-  ptask.run( mytaskC.engine() ); // run the execution engine.
-
-  ptask.start();
-      </programlisting>
-      <para>
-	After it is started, it will execute all the processors in each
-	periodic step. First the Program Processor, then the State Machine
-	Processor, then the Command Processor and finally the Event Processor.
-      </para>
-    </section>
-    <section>
       <title>Executing Programs</title>
       <para>
 	The <classname>RTT::FunctionGraph</classname> is a tree composed
