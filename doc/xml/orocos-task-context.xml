@@ -131,9 +131,9 @@
 	<glossentry>
 	  <glossterm>Execution Engine</glossterm>
 	  <glossdef>
-	    <para> provides a real-time program execution framework.
-	    It executes the real-time programs and scripts which
-	    interact with other tasks.
+	    <para> 
+	    executes the commands, events, real-time programs and scripts 
+	    in a component.
 	    </para>
 	  </glossdef>
 	</glossentry>
@@ -967,8 +967,8 @@ the_data_port.     cd            ls
   using namespace RTT;
 
   <classname>RTT::TaskContext</classname>* a_task = new MyTask("the_task");
-  // create a periodic activity with priority=5, period=1000Hz
-  <classname>RTT::PeriodicActivity</classname> act(5, 0.001, a_task->engine() );
+  // Set a periodic activity with priority=5, period=1000Hz
+  a_task->setActivity( new <classname>RTT::PeriodicActivity</classname>( 5, 0.001 ));
   // ... start the execution engine of a_task :
   a_task->start(); 
   // ...
@@ -1017,7 +1017,7 @@ the_data_port.     cd            ls
 
   <classname>RTT::TaskContext</classname>* a_task = new MyTask("the_task");
   // create a non periodic activity with priority=5
-  <classname>RTT::NonPeriodicActivity</classname> nonpAct(5, a_task->engine() );
+  a_task->setActivity(new <classname>RTT::NonPeriodicActivity</classname>(5) );
   // ... start the execution engine of a_task :
   a_task->start();
   // ...
@@ -1054,7 +1054,7 @@ the_data_port.     cd            ls
             // This is special for non periodic activities, it makes
             // the TaskContext call updateHook() again after
             // commands and events are processed.</emphasis>
-            this->engine()->getActivity()->trigger(); 
+            this->getActivity()->trigger(); 
        }
 
   };</programlisting></para>
@@ -2476,7 +2476,7 @@ the_data_port.     cd            ls
 	asynchronously. During setup, the <classname>RTT::EventProcessor</classname> of
 	b_task's Execution Engine is used to process the event.
 	<programlisting>  <classname>RTT::TaskContext</classname> b_task("BTask");
-  <classname>RTT::PeriodicActivity</classname> ptask_b(5, 0.1); // priority, period
+  b_task.setActivity( new <classname>RTT::PeriodicActivity</classname>(5, 0.1) ); // priority, period
   ptask_b.run( &amp;b_task );
   ptask_b.start();
 
@@ -2942,7 +2942,7 @@ the_data_port.     cd            ls
 	  reference for more program related functions. One can
 	  get a pointer to a program by calling:
 	</para>
-	<programlisting>  ProgramInterface* foo = this->engine()->getProgram("foo");
+	<programlisting>  ProgramInterface* foo = this->engine()->programs()->getProgram("foo");
   if (foo != 0) {
     bool result = foo->start(); // try to start the program !
     if (result == false) {
