@@ -92,7 +92,7 @@ namespace RTT
          */
         double value()
         {
-            double r;
+            double r = 0.0;
             board->read(channel, r);
             return r;
         }
@@ -102,7 +102,7 @@ namespace RTT
          */
         int rawValue()
         {
-            int r;
+            int r = 0;
             board->rawRead(channel, r);
             return r;
         }
