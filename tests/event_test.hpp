@@ -39,6 +39,7 @@ class EventTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testRTEvent );
     CPPUNIT_TEST( testSelfRemoval );
     CPPUNIT_TEST( testCrossRemoval );
+    CPPUNIT_TEST( testConcurrentEmit );
     CPPUNIT_TEST_SUITE_END();
 
     RTT::Event<void( void )> t_event;
@@ -75,6 +76,7 @@ public:
     void testRTEvent();
     void testSelfRemoval();
     void testCrossRemoval();
+    void testConcurrentEmit();
 };
 
 

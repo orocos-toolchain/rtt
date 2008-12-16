@@ -25,6 +25,7 @@
 #include <SimulationThread.hpp>
 #include <NonPeriodicActivity.hpp>
 #include <CompletionProcessor.hpp>
+#include <os/Atomic.hpp>
 
 #include "event_test.hpp"
 #include <boost/bind.hpp>
@@ -301,6 +302,59 @@ void EventTest::testCrossRemoval()
     CPPUNIT_ASSERT( task.start() );
     CPPUNIT_ASSERT( SimulationThread::Instance()->run(100) );
     CPPUNIT_ASSERT( task.stop() );
+}
+
+static OS::AtomicInt testConcurrentEmitHandlerCount;
+
+void testConcurrentEmitHandler(void)
+{
+    testConcurrentEmitHandlerCount.inc();
+}
+
+class EmitAndcount
+    :public RunnableInterface
+{
+public:
+    EmitAndcount(Event<void(void)> &ev)
+        : mev(ev), count(0) {}
+    Event<void(void)> &mev;
+    int count;
+    bool initialize() { return true;}
+    void step() {}
+    void finalize() {}
+    void loop()
+    {
+        mev();
+        ++count;
+        this->getActivity()->trigger();
+    }
+};
+
+void EventTest::testConcurrentEmit()
+{
+    Event<void(void)> event("Event");
+    CPPUNIT_ASSERT( event.ready() );
+    EmitAndcount arunobj(event);
+    EmitAndcount brunobj(event);
+    EmitAndcount crunobj(event);
+    EmitAndcount drunobj(event);
+    NonPeriodicActivity atask(0, &arunobj);
+    NonPeriodicActivity btask(0, &brunobj);
+    NonPeriodicActivity ctask(0, &crunobj);
+    NonPeriodicActivity dtask(0, &drunobj);
+    Handle h = event.connect( &testConcurrentEmitHandler );
+    CPPUNIT_ASSERT( h.connected() );
+    atask.start();
+    btask.start();
+    ctask.start();
+    dtask.start();
+    sleep(1);
+    atask.stop();
+    btask.stop();
+    ctask.stop();
+    dtask.stop();
+    // Verify that all emits also caused the handler to be called.
+    CPPUNIT_ASSERT_EQUAL( arunobj.count + brunobj.count + crunobj.count + drunobj.count, testConcurrentEmitHandlerCount.read() );
 }
 
 void EventTest::testBlockingTask()
