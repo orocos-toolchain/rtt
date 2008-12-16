@@ -57,6 +57,10 @@ namespace RTT
      * method.
      * The resolution of this class depends completely on the timer
      * resolution of the underlying operating system.
+     *
+     * If you do not attach an activity, the Timer will create a thread
+     * of its own and start it. That thread will be stopped and cleaned up
+     * when the Timer is destroyed.
      */
     class Timer
         : protected RunnableInterface
@@ -93,7 +97,8 @@ namespace RTT
     public:
         /**
          * Create a timer object which can hold \a max_timers timers.
-         * A Timer must be executed in a SingleThread or it will refuse to start.
+         * A Timer must be executed in a non periodic thread (or the main thread)
+         * or it will refuse to start.
          * If \a scheduler is set to -1 (default) no thread is created and you need
          * to attach a thread yourself to this Timer.
          * @param max_timers The initial amount of timers this Timer can monitor.
