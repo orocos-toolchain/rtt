@@ -4,8 +4,8 @@
 #include <list>
 #include "oro_allocator.hpp"
 
-namspace RTT { namespace OS {
-	
+namespace RTT { namespace OS {
+
     /**
      * Implements a list with real-time insertion/removal
      * of elements. All std::list<T> functions remain
@@ -27,7 +27,7 @@ namspace RTT { namespace OS {
             // by list<>.
         }
         /**
-         * Grow memory pool for list elements. 
+         * Grow memory pool for list elements.
          * @throw bad_alloc if no more memory available.
          */
         void rt_grow(std::size_t items)

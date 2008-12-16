@@ -332,6 +332,7 @@ public:
 
 void EventTest::testConcurrentEmit()
 {
+    testConcurrentEmitHandlerCount.set(0);
     Event<void(void)> event("Event");
     CPPUNIT_ASSERT( event.ready() );
     EmitAndcount arunobj(event);

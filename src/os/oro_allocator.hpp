@@ -44,11 +44,11 @@ namespace RTT { namespace OS {
         typedef typename Alloc::difference_type difference_type;
         //...
     public:
-        pointer address(reference x) const { 
-            return Alloc().address(x); 
+        pointer address(reference x) const {
+            return Alloc().address(x);
         }
-        
-        const_pointer address(const_reference x) const { 
+
+        const_pointer address(const_reference x) const {
             return Alloc().address(x);
         }
     public:
@@ -56,7 +56,7 @@ namespace RTT { namespace OS {
             pointer ret = 0;
             if (n == 0)
                 return ret;
-            ORO_OS::MutexLock lock( pool_lock );
+            MutexLock lock( pool_lock );
             // if present in pool, return pool item
             std::pair<pool_it,pool_it> r = pool.equal_range( n );
             while ( r.first != r.second && r.first->second == 0  )
@@ -74,12 +74,12 @@ namespace RTT { namespace OS {
             pool.insert( typename pool_type::value_type(n,ret) );     // store free location.
             ret = this->_grow(n, hint);
             //std::cerr << "Allocated ungrown: "<< ret<<" of size "<<n<<" in "<<typeid(ret).name()<<std::endl;
-            
+
             return ret;
         }
 
         void deallocate(pointer p, size_type n) {
-            ORO_OS::MutexLock lock( pool_lock );
+            MutexLock lock( pool_lock );
             std::pair<pool_it,pool_it> r = pool.equal_range( n );
 //             if ( find( r.first, r.second, typename pool_type::value_type(n,p) ) != r.second )
 //                 assert(false && "Do not deallocate twice !");
@@ -96,11 +96,11 @@ namespace RTT { namespace OS {
             this->_shrink(p,n);
         }
 
-        size_type max_size() const { 
+        size_type max_size() const {
             return Alloc().max_size();
         }
 
-        void construct(pointer p, const value_type& x) { 
+        void construct(pointer p, const value_type& x) {
             Alloc().construct(p, x);
         }
 
@@ -110,7 +110,7 @@ namespace RTT { namespace OS {
          * Grow local pool with room for at least \a n additional items.
          */
         void grow(size_type n, const_pointer hint = 0) {
-            ORO_OS::MutexLock lock( pool_lock );
+            MutexLock lock( pool_lock );
             pointer ret = this->_grow(n, hint);
             pool.insert( typename pool_type::value_type( n,ret ) );     // store mem location.
             //std::cerr << "Added   : "<< ret<<" of size "<<n<<" in "<<typeid(ret).name()<<std::endl;
@@ -122,7 +122,7 @@ namespace RTT { namespace OS {
         void shrink(size_type n) {
             if (n == 0)
                 return;
-            ORO_OS::MutexLock lock( pool_lock );
+            MutexLock lock( pool_lock );
             std::pair<pool_it,pool_it> r = pool.equal_range( n );
             while ( r.first != r.second && r.first->second == 0  )
                 ++r.first;
@@ -139,13 +139,13 @@ namespace RTT { namespace OS {
         local_allocator() {}
         local_allocator(const local_allocator&) {}
         ~local_allocator() {}
-        template <class U, class A> 
+        template <class U, class A>
         local_allocator(const local_allocator<U,A>&) {}
 
         template <class U>
         struct rebind { typedef local_allocator<U, typename Alloc::template rebind<U>::other > other; };
     private:
-        ORO_OS::Mutex pool_lock;
+        Mutex pool_lock;
         /**
          * Allocate for at least \a n additional items.
          */
@@ -162,7 +162,7 @@ namespace RTT { namespace OS {
         // the pool stores block-size/pointer pairs. Also uses Alloc for allocation.
 #ifdef ORO_USE_SGI_EXT
         // hash_multimap is non-standard C++. use std::multimap instead...
-        typedef std::hash_multimap< size_t, pointer> pool_type; 
+        typedef std::hash_multimap< size_t, pointer> pool_type;
 #else
         typedef std::multimap< size_t, pointer> pool_type;
 #endif
@@ -179,35 +179,35 @@ namespace RTT { namespace OS {
             }
         };
         static pool_wrapper_type pool;
-        
+
     };
 
     template< class T, class A>
     typename local_allocator<T,A>::pool_wrapper_type local_allocator<T,A>::pool;
 
 //     template< class T, class A>
-//     ORO_OS::Mutex local_allocator<T,A>::pool_lock;
+//     Mutex local_allocator<T,A>::pool_lock;
 
     template <class T, class A, class A2>
-    inline bool operator==(const local_allocator<T,A>& , 
+    inline bool operator==(const local_allocator<T,A>& ,
                            const local_allocator<T,A2>& ) {
         return false;
     }
-    
+
     template <class T, class A, class A2>
-    inline bool operator!=(const local_allocator<T,A>& , 
+    inline bool operator!=(const local_allocator<T,A>& ,
                            const local_allocator<T,A2>& ) {
         return true;
     }
 
     template <class T, class A>
-    inline bool operator==(const local_allocator<T,A>& , 
+    inline bool operator==(const local_allocator<T,A>& ,
                            const local_allocator<T,A>& ) {
         return true;;
     }
-    
+
     template <class T, class A>
-    inline bool operator!=(const local_allocator<T,A>&, 
+    inline bool operator!=(const local_allocator<T,A>&,
                            const local_allocator<T,A>&) {
         return false;
     }
@@ -218,8 +218,8 @@ namespace RTT { namespace OS {
         typedef void    value_type;
         typedef void*       pointer;
         typedef const void* const_pointer;
-        
-        template <class U> 
+
+        template <class U>
         struct rebind { typedef local_allocator<U> other; };
     };
 
@@ -242,12 +242,12 @@ namespace RTT { namespace OS {
         typedef std::ptrdiff_t    difference_type;
         //...
     public:
-        pointer address(reference x) const { 
-            return &x; 
+        pointer address(reference x) const {
+            return &x;
         }
-        
-        const_pointer address(const_reference x) const { 
-            return &x; 
+
+        const_pointer address(const_reference x) const {
+            return &x;
         }
     public:
         pointer allocate(size_type n, const_pointer = 0) {
@@ -261,12 +261,12 @@ namespace RTT { namespace OS {
             std::free(p);
         }
 
-        size_type max_size() const { 
+        size_type max_size() const {
             return static_cast<size_type>(-1) / sizeof(value_type);
         }
 
-        void construct(pointer p, const value_type& x) { 
-            new(p) value_type(x); 
+        void construct(pointer p, const value_type& x) {
+            new(p) value_type(x);
         }
 
         void destroy(pointer p) { p->~value_type(); }
@@ -275,23 +275,23 @@ namespace RTT { namespace OS {
         malloc_allocator() {}
         malloc_allocator(const malloc_allocator&) {}
         ~malloc_allocator() {}
-        template <class U> 
+        template <class U>
         malloc_allocator(const malloc_allocator<U>&) {}
 
-        template <class U> 
+        template <class U>
         struct rebind { typedef malloc_allocator<U> other; };
     private:
         void operator=(const malloc_allocator&);
     };
 
     template <class T>
-    inline bool operator==(const malloc_allocator<T>&, 
+    inline bool operator==(const malloc_allocator<T>&,
                            const malloc_allocator<T>&) {
         return true;
     }
-    
+
     template <class T>
-    inline bool operator!=(const malloc_allocator<T>&, 
+    inline bool operator!=(const malloc_allocator<T>&,
                            const malloc_allocator<T>&) {
         return false;
     }
@@ -301,8 +301,8 @@ namespace RTT { namespace OS {
         typedef void        value_type;
         typedef void*       pointer;
         typedef const void* const_pointer;
-        
-        template <class U> 
+
+        template <class U>
         struct rebind { typedef malloc_allocator<U> other; };
     }
 #endif
