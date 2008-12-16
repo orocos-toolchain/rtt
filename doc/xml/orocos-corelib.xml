@@ -492,7 +492,7 @@ ORO_main( int argc, char** argv)
   // a 'slave' without explicit master, with period of 1KHz.
   <classname>RTT::SlaveActivity</classname> slave_two( 0.001 );
   // a 'slave' without explicit master, not periodic.
-  <classname>RTT::SlaveActivity</classname> slave_three();
+  <classname>RTT::SlaveActivity</classname> slave_three;
 
   slave_two.start();   // ok: start periodic without master
   slave_two.execute(); // ok, calls 'step()', repeat...
