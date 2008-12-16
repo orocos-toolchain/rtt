@@ -48,7 +48,7 @@
 #include <boost/bind.hpp>
 #include <boost/lambda/casts.hpp>
 #else
-#include "os/MutexLock.hpp"
+#include "../os/MutexLock.hpp"
 #endif
 #endif // !OROCOS_SIGNAL_TEMPLATE_HEADER_INCLUDED
 
@@ -139,8 +139,6 @@ namespace RTT {
 		R emit(OROCOS_SIGNATURE_PARMS)
 		{
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
-            if (this->emitting)
-                return detail::NA<R>::na(); // avoid uglyness : Handlers calling emit.
             this->emitting = true;
 
             // this code did initially not work under gcc 4.0/ubuntu breezy.

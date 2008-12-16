@@ -46,7 +46,8 @@
  * This is the most reliable real-time
  * connection list policy.
  */
-#define ORO_SIGNAL_USE_RT_LIST
+//#define ORO_SIGNAL_USE_RT_LIST
+#define ORO_SIGNAL_USE_LIST_LOCK_FREE
 
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
 #include "../ListLockFree.hpp"

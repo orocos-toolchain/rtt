@@ -187,15 +187,12 @@ struct SelfRemover : public RunnableInterface
     }
 
     void handle(void) {
-        // this is dirty, user !
-        // first disconnect self, then emit() within emit() !
+        // do not emit within handle!
+        // first disconnect self, then reconnect
         h1.disconnect();
         h2.disconnect();
-        e();
         h1.connect();
         h2.connect();
-        // emit within emit should not come through (possible recursive stack blowup).
-        e();
         h1.disconnect();
         h2.disconnect();
     }
