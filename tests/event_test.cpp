@@ -319,12 +319,14 @@ public:
     bool initialize() { return true;}
     void step() {}
     void finalize() {}
+    bool breakLoop() { return true; }
     void loop()
     {
         mev();
         ++count;
         this->getActivity()->trigger();
     }
+
 };
 
 void EventTest::testConcurrentEmit()
@@ -342,15 +344,15 @@ void EventTest::testConcurrentEmit()
     NonPeriodicActivity dtask(0, &drunobj);
     Handle h = event.connect( &testConcurrentEmitHandler );
     CPPUNIT_ASSERT( h.connected() );
-    atask.start();
-    btask.start();
-    ctask.start();
-    dtask.start();
+    CPPUNIT_ASSERT( atask.start() );
+    CPPUNIT_ASSERT( btask.start() );
+    CPPUNIT_ASSERT( ctask.start() );
+    CPPUNIT_ASSERT( dtask.start() );
     sleep(1);
-    atask.stop();
-    btask.stop();
-    ctask.stop();
-    dtask.stop();
+    CPPUNIT_ASSERT( atask.stop() );
+    CPPUNIT_ASSERT( btask.stop() );
+    CPPUNIT_ASSERT( ctask.stop() );
+    CPPUNIT_ASSERT( dtask.stop() );
     // Verify that all emits also caused the handler to be called.
     CPPUNIT_ASSERT_EQUAL( arunobj.count + brunobj.count + crunobj.count + drunobj.count, testConcurrentEmitHandlerCount.read() );
 }
