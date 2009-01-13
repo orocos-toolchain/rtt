@@ -59,17 +59,21 @@ namespace RTT
      * which can be started many times.  The first invocation of
      * start() invokes the initialize() function and runs the loop()
      * method in the thread.  When loop() returns the thread waits for
-     * another start() to execute loop() again. When stop() is called
-     * when the thread is still executing loop() and breakLoop()
+     * another start() to execute loop() again. In that case,
+     * initialize() is not executed. 
+     *
+     * When stop() is called
+     * and the thread is still executing loop() and breakLoop()
      * returns \a true (\b not the default), the stop() function
-     * succeeds and the finalize() method is called by stop(). A next
-     * invocation of start() will again call initialize() before
-     * loop() is executed and so on. The user must provide an
-     * implementation of breakLoop() returning \a true to make stop()
-     * work while loop() is being executed. stop() will not execute
-     * finalize() if the thread executes loop() and breakLoop() is not
-     * reimplemented to return true. If the thread was not executing
+     * succeeds and the finalize() method is called by stop().
+     * If the thread was not executing
      * loop(), stop will always call finalize() and return success. 
+     *
+     * The user must provide an
+     * implementation of breakLoop() returning \a true to make stop()
+     * work while loop() is being executed. stop() will fail and not execute
+     * finalize() if the thread executes loop() and breakLoop() is not
+     * reimplemented to return true.
      *
      * When a RunnableInterface object is given, the above methods
      * initialize(), loop(), breakLoop() and finalize() are called

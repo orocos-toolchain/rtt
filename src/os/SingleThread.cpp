@@ -281,8 +281,18 @@ namespace RTT
         // just signal if already active.
         if ( isActive() ) {
 #ifndef OROPKG_OS_MACOSX
+            // This is a 'weak' race condition.
+            // it could be that sem becomes zero
+            // after this check. Technically, this means
+            // loop is being executed (preemption) during start().
+            // For most user code, this is sufficient though, as it
+            // can not know the difference between executing loop()
+            // *in* start or *right after* start (the latter is 
+            // guaranteed by the API). 
+            // @see ActivityInterface::trigger for how trigger uses this
+            // assumption.
             if ( rtos_sem_value(&sem) > 0 )
-                return false;
+                return true;
 #endif
             rtos_sem_signal(&sem);
             return true;

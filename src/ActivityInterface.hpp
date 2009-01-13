@@ -170,11 +170,13 @@ namespace RTT
         virtual bool execute() = 0;
 
         /**
-         * Trigger that work has to be done. When you invoke trigger(), you intend
-         * to notify the instance that calls execute(), that execute() should be called.
-         * This allows a separation between actually executing code (execute()) and notifying that
-         * code must be executed (trigger()). A trigger may be ignored by the
-         * implementation, in which case trigger returns false.
+         * Trigger that work has to be done. When you invoke
+         * trigger(), you intend to notify the mechanism that calls
+         * execute(), that execute() should be called.  This allows a
+         * separation between actually executing code (execute()) and
+         * notifying that code must be executed (trigger()). A trigger
+         * may be ignored by the implementation, in which case trigger
+         * returns false.
          *
          * Semantics: If trigger() returns true, the activity will be executed at least
          * once from the moment trigger() is called.
