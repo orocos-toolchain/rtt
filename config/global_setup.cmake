@@ -59,7 +59,7 @@ ENDIF ( DOXYGEN )
 #
 # An option for tests, to make it easy to turn off all tests
 #
-OPTION( ENABLE_TESTS "Turn me off to disable compilation of all tests" ON )
+OPTION( ENABLE_TESTS "Turn me off to disable compilation of all tests" OFF )
 IF( ENABLE_TESTS )
   IF (NOT CMAKE_CROSS_COMPILE )
     FIND_LIBRARY(CPPUNIT NAMES cppunit PATHS /usr/local/lib /usr/lib )
