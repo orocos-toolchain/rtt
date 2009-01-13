@@ -87,7 +87,7 @@ namespace RTT
     bool NonPeriodicActivity::breakLoop() {
         if ( runner )
             return runner->breakLoop();
-        return true;
+        return false;
     }
 
     void NonPeriodicActivity::finalize() {
