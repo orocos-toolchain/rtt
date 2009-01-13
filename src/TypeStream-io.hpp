@@ -35,45 +35,27 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef TYPESTREAM_IO_HPP
+#define TYPESTREAM_IO_HPP 1
 
-#include <TypeStream.hpp>
-#include <TypeStream-io.hpp>
-#include <sstream>
+#include <iostream>
 
-namespace RTT
-{
+namespace RTT {
+    // Code ripped from KDL 0.2
 
 
-    using namespace std;
-    std::ostream& operator<<(std::ostream& os, const std::vector<double>& v)
-    {
-        std::stringstream ss;
-        ss << "{";
-        for(unsigned int  i = 0; i < v.size(); ++i) {
-            ss << v[i];
-            if (i + 1 != v.size() ) {
-                ss << ", ";
-            }
-        }
-        ss << "}";
-        os << ss.str();
-        return os;
-    }
+    // Eats space-like characters and comments
+    // possibly returns the number of space-like characters eaten.
+    extern int _EatSpace( std::istream& is,int* countp=NULL);
 
-    std::istream& operator>>(std::istream& os, std::vector<double>& v)
-    {
-        std::vector<double> t( v.size() );
-        Eat( os, '{' );
-        for(unsigned int  i = 0; i < v.size(); ++i) {
-            os >> t[i];
-            if (i + 1 != v.size() ) {
-                Eat(os, ',');
-            }
-        }
-        EatEnd( os, '}' );
-        if (os )
-            v = t;
-        return os;
-    }
+    // Eats whites, returns, tabs and the delim character
+    //  Checks wether delim char. is encountered.
+    extern bool Eat( std::istream& is, int delim );
+
+    // Eats whites, returns, tabs and the delim character
+    //  Checks wether delim char. is encountered.
+    // EatEnd does not eat all space-like char's at the end.
+    extern bool EatEnd( std::istream& is, int delim );
 }
 
+#endif
