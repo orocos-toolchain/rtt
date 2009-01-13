@@ -167,8 +167,9 @@ namespace RTT
             return true;
         }
 
-        if ( running )
+        if ( running ) {
             if (runner) runner->step(); else this->step();
+        }
         return running;
     }
 

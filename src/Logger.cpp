@@ -132,7 +132,7 @@ namespace RTT
         }
 
         bool maylogFile() const {
-            if ( inloglevel <= Info || inloglevel <= outloglevel  && mlogFile)
+            if ( (inloglevel <= Info || inloglevel <= outloglevel)  && mlogFile)
                 return true;
             return false;
         }
@@ -326,7 +326,7 @@ namespace RTT
     {
         return d->timestamp;
     }
-        
+
     std::ostream&
     Logger::nl(std::ostream& __os)
     {

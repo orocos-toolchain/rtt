@@ -184,12 +184,13 @@ namespace RTT
             // use it->stop() to remove an item from this list.
             for(std::vector<ProgramInterface*>::iterator it = funcs.begin();
                 it != funcs.end(); ++it )
-                if ( *it )
+                if ( *it ) {
                     if ( (*it)->isStopped() || (*it)->inError() ){
                         (*it)->setProgramProcessor(0);
                         (*it) = 0;
                     } else
                         (*it)->execute();
+                }
         }
     }
 

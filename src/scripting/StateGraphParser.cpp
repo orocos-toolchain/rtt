@@ -441,11 +441,12 @@ namespace RTT
         peer    = peerparser->taskObject();
         peerparser->reset();
 
-        if (peer->events()->hasEvent(evname) == false )
+        if (peer->events()->hasEvent(evname) == false ) {
             if (curstate)
                 ORO_THROW( parse_exception_fatal_semantic_error("In state "+curstate->getName()+": Event "+evname+" not found in Task "+peer->getName() ));
             else
                 ORO_THROW( parse_exception_fatal_semantic_error("In statemachine: Event "+evname+" not found in Task "+peer->getName() ));
+        }
 
         argsparser =
             new ArgumentsParser( *expressionparser, context, peer,
