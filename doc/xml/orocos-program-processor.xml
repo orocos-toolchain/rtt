@@ -191,7 +191,7 @@
 	      <imagedata fileref="images/ProgramTransitions" />
 	    </imageobject>
 	    <imageobject role="fo">
-	      <imagedata fileref="images/hires/ProgramTransitions" />
+	      <imagedata fileref="images/hires/ProgramTransitions"  width="100%" scalefit="1"/>
 	    </imageobject>
 	  </mediaobject>
 	</figure>
@@ -206,7 +206,7 @@
 	      <imagedata fileref="images/ProgramStates" />
 	    </imageobject>
 	    <imageobject role="fo">
-	      <imagedata fileref="images/hires/ProgramStates" />
+	      <imagedata fileref="images/hires/ProgramStates"  width="100%" scalefit="1"/>
 	    </imageobject>
 	  </mediaobject>
 	</figure>
@@ -265,7 +265,7 @@
 	      <imagedata fileref="images/StateTransitions" />
 	    </imageobject>
 	    <imageobject role="fo">
-	      <imagedata fileref="images/hires/StateTransitions" />
+	      <imagedata fileref="images/hires/StateTransitions"  width="100%" scalefit="1"/>
 	    </imageobject>
 	  </mediaobject>
 	</figure>
@@ -293,7 +293,7 @@
 	      <imagedata fileref="images/MachineStates" />
 	    </imageobject>
 	    <imageobject role="fo">
-	      <imagedata fileref="images/hires/MachineStates" />
+	      <imagedata fileref="images/hires/MachineStates"  width="100%" scalefit="1"/>
 	    </imageobject>
 	</mediaobject>
 	</figure>
@@ -344,7 +344,7 @@
 	    <imagedata fileref="images/TaskCommandSerialisation" />
 	  </imageobject>
 	  <imageobject role="fo">
-	    <imagedata fileref="images/hires/TaskCommandSerialisation" />
+	    <imagedata fileref="images/hires/TaskCommandSerialisation"  width="100%" scalefit="1"/>
 	  </imageobject>
 	  <caption>
 	    <para>

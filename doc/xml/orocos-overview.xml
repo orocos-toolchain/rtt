@@ -48,7 +48,7 @@
 	<revnumber>0.22.0</revnumber>
 	<date>7 March 2006</date>
 	<authorinitials>ps</authorinitials>
-	<revremark>Added section 'Building Orocos Applications"</revremark>
+	<revremark>Added section 'Building Orocos Applications'</revremark>
       </revision>
       <revision>
 	<revnumber>1.0.2</revnumber>
@@ -91,7 +91,7 @@
 	  <imagedata fileref="images/RTT_KDL_BFL_400" />
 	</imageobject>
 	<imageobject role="fo">
-	  <imagedata fileref="images/RTT_KDL_BFL_fill" />
+	  <imagedata fileref="images/RTT_KDL_BFL_fill"  width="100%" scalefit="1"/>
 	</imageobject>
       </mediaobject>
     </figure>
@@ -158,7 +158,7 @@
 	<imagedata fileref="images/FrameworkOverview" />
       </imageobject>
       <imageobject role="fo">
-	<imagedata fileref="images/hires/FrameworkOverview" />
+	<imagedata fileref="images/hires/FrameworkOverview"  width="100%" scalefit="1"/>
       </imageobject>
     </mediaobject>
     <para>
@@ -248,7 +248,7 @@
 	    <imagedata fileref="images/RealTimeToolkit" />
 	  </imageobject>
 	  <imageobject role="fo">
-	    <imagedata fileref="images/hires/RealTimeToolkit" />
+	    <imagedata fileref="images/hires/RealTimeToolkit"  width="100%" scalefit="1"/>
 	  </imageobject>
 	</mediaobject>
       </figure>
@@ -291,7 +291,7 @@
 	      <imagedata fileref="images/ComponentInterface" />
 	  </imageobject>
 	    <imageobject role="fo">
-	      <imagedata fileref="images/hires/ComponentInterface" />
+	      <imagedata fileref="images/hires/ComponentInterface"  width="100%" scalefit="1"/>
 	  </imageobject>
 	  </mediaobject>
 	</figure>
@@ -372,7 +372,7 @@
 	      <imagedata fileref="images/ComponentImplementation" />
 	  </imageobject>
 	    <imageobject role="fo">
-	      <imagedata fileref="images/hires/ComponentImplementation" />
+	      <imagedata fileref="images/hires/ComponentImplementation"  width="100%" scalefit="1"/>
 	  </imageobject>
 	  </mediaobject>
 	</figure>

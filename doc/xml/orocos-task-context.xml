@@ -160,7 +160,7 @@
 	  <imagedata fileref="images/ATaskContext" />
 	</imageobject>
 	<imageobject role="fo">
-	  <imagedata fileref="images/hires/ATaskContext" />
+	  <imagedata fileref="images/hires/ATaskContext" width="100%" scalefit="1"/>
 	</imageobject>
 	<caption>
 	  <para>The Execution Flow is formed by Programs and
@@ -198,7 +198,7 @@
 	  <imagedata fileref="images/HelloWorld" />
 	</imageobject>
 	<imageobject role="fo">
-	  <imagedata fileref="images/hires/HelloWorld" />
+	  <imagedata fileref="images/hires/HelloWorld"  width="100%" scalefit="1"/>
 	</imageobject>
 	<caption>
 	  <para>Our hello world component.
@@ -749,7 +749,7 @@ the_data_port.     cd            ls
 	  <imagedata fileref="images/ComponentArch-2" />
 	</imageobject>
 	<imageobject role="fo">
-	  <imagedata fileref="images/hires/ComponentArch-2" />
+	  <imagedata fileref="images/hires/ComponentArch-2"  width="100%" scalefit="1"/>
 	</imageobject>
 	<caption>
 	  <para>
@@ -779,7 +779,7 @@ the_data_port.     cd            ls
 	  <imagedata fileref="images/ComponentStates" />
 	</imageobject>
 	<imageobject role="fo">
-	  <imagedata fileref="images/hires/ComponentStates" />
+	  <imagedata fileref="images/hires/ComponentStates"  width="100%" scalefit="1"/>
 	</imageobject>
 	<caption>
 	  <para>
@@ -946,7 +946,7 @@ the_data_port.     cd            ls
 	  <imagedata fileref="images/TaskContextExecution" />
 	</imageobject>
 	<imageobject role="fo">
-	  <imagedata fileref="images/hires/TaskContextExecution" />
+	  <imagedata fileref="images/hires/TaskContextExecution"  width="100%" scalefit="1"/>
 	</imageobject>
 	<caption>
 	  <para>You can make a TaskContext 'active' by creating
@@ -1094,7 +1094,7 @@ the_data_port.     cd            ls
 	    <imagedata fileref="images/ComponentStatesExtended" />
 	  </imageobject>
 	  <imageobject role="fo">
-	    <imagedata fileref="images/hires/ComponentStatesExtended" />
+	    <imagedata fileref="images/hires/ComponentStatesExtended"  width="100%" scalefit="1"/>
 	  </imageobject>
 	  <caption>
 	    <para>
@@ -1329,7 +1329,7 @@ the_data_port.     cd            ls
 	  <imagedata fileref="images/ATaskContext" />
 	</imageobject>
 	<imageobject role="fo">
-	  <imagedata fileref="images/hires/ATaskContext" />
+	  <imagedata fileref="images/hires/ATaskContext"  width="100%" scalefit="1"/>
 	</imageobject>
 	<caption>
 	  <para>
@@ -1463,7 +1463,7 @@ the_data_port.     cd            ls
 	activity of our TaskContext and updateHook() get's executed.
 	If you want to know which port caused the wake-up, do not implement
 	<function>updateHook()</function> but use 
-	<function>updateHook(const std::vector&lt;PortInterface*&gt;& updatedPorts)</function>
+	<function>updateHook(const std::vector&lt;PortInterface*&gt;&amp; updatedPorts)</function>
 	which provides you a list of all ports having received new data.
       </para>
       <para>
@@ -1534,7 +1534,7 @@ the_data_port.     cd            ls
      }
 
      /**
-      * Note: use updateHook(const std::vector&lt;PortInterface*&gt;&)
+      * Note: use updateHook(const std::vector&lt;PortInterface*&gt;&amp;)
       * instead for having information about the updated event 
       * driven ports.
       */
@@ -2530,7 +2530,7 @@ the_data_port.     cd            ls
 	  <imagedata fileref="images/ConnectPeers" />
 	</imageobject>
 	<imageobject role="fo">
-	  <imagedata fileref="images/hires/ConnectPeers" />
+	  <imagedata fileref="images/hires/ConnectPeers"  width="100%" scalefit="1"/>
 	</imageobject>
 	<caption>
 	  <para>
@@ -2614,7 +2614,7 @@ the_data_port.     cd            ls
 	  <imagedata fileref="images/DataFlowTopology" />
 	</imageobject>
 	<imageobject role="fo">
-	  <imagedata fileref="images/hires/DataFlowTopology" />
+	  <imagedata fileref="images/hires/DataFlowTopology"  width="100%" scalefit="1"/>
 	</imageobject>
 	<caption>
 	  <para>
@@ -2670,7 +2670,7 @@ the_data_port.     cd            ls
 	  <imagedata fileref="images/DataFlowDisconnect" />
 	</imageobject>
 	<imageobject role="fo">
-	  <imagedata fileref="images/hires/DataFlowDisconnect" />
+	  <imagedata fileref="images/hires/DataFlowDisconnect"  width="100%" scalefit="1"/>
 	</imageobject>
 	<caption>
 	  <para>
@@ -3021,7 +3021,7 @@ the_data_port.     cd            ls
 	    <imagedata fileref="images/DeploymentLevels" />
 	  </imageobject>
 	  <imageobject role="fo">
-	    <imagedata fileref="images/hires/DeploymentLevels" />
+	    <imagedata fileref="images/hires/DeploymentLevels"  width="100%" scalefit="1"/>
 	  </imageobject>
 	  <caption>
 	    <para>
@@ -3150,7 +3150,7 @@ the_data_port.     cd            ls
 	    <imagedata fileref="images/CoreVsContext" />
 	  </imageobject>
 	  <imageobject role="fo">
-	    <imagedata fileref="images/hires/CoreVsContext" />
+	    <imagedata fileref="images/hires/CoreVsContext"  width="100%" scalefit="1"/>
 	  </imageobject>
 	  <caption>
 	    <para>

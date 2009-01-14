@@ -116,7 +116,7 @@
 	      <imagedata fileref="images/fdi" />
 	    </imageobject>
 	    <imageobject role="fo">
-	      <imagedata fileref="images/hires/fdi" />
+	      <imagedata fileref="images/hires/fdi"  width="100%" scalefit="1"/>
 	    </imageobject>
 	  </mediaobject>
 	</figure>

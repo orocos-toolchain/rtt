@@ -1808,6 +1808,8 @@
     </para>
     <example>
       <title>StateMachine Example (state.osd)</title>
+      <para>Below is a state machine script example.</para>
+    </example>
       <programlisting>
   StateMachine MachineMachine
   {
@@ -1818,18 +1820,18 @@
        * The kernel is not running yet...
        */
       initial state init_state {
-  	transition select startup_state
+          transition select startup_state
       }
   
       /**
        * Kernel is running, select the components.
        */
       state startup_state {
-  	entry {
-  	    do Kernel.startComponent("HWSensor")
-  	    do Kernel.startComponent("MoveToGenerator")
-  	    }
-  	transition select stop_state
+          entry {
+              do Kernel.startComponent("HWSensor")
+              do Kernel.startComponent("MoveToGenerator")
+              }
+          transition select stop_state
       }
   
       /**
@@ -1837,10 +1839,10 @@
        * is stopped.
        */
       final state fini_state {
-  	entry {
-  	    do Kernel.stopComponent("HWSensor")
-  	    do Kernel.stopComponent("MoveToGenerator")
-  	    }
+          entry {
+              do Kernel.stopComponent("HWSensor")
+              do Kernel.stopComponent("MoveToGenerator")
+              }
       }
   
       /**
@@ -1848,13 +1850,14 @@
        * machine.
        */
       state stop_state {
-  	entry {
-  	    // stop some components
-  	    do Kernel.stopComponent("HWEffector")
-  	    do Kernel.stopComponent("PIDController")
-	    do PIDController.reset()
-  	transition if HMI.start_pushed() &amp;&amp; error == 0 then
-	    select run_state
+          entry {
+              // stop some components
+              do Kernel.stopComponent("HWEffector")
+              do Kernel.stopComponent("PIDController")
+              do PIDController.reset()
+          }
+          transition if HMI.start_pushed() &amp;&amp; error == 0 then
+            select run_state
       }
   
       /**
@@ -1863,17 +1866,17 @@
        * the machine.
        */
       state run_state {
-  	entry {
-  	    // make sure we are not moving
-  	    do MoveToGenerator.safeStop()
-  	    // Select components controlling the machine
-  	    do Kernel.startComponent("PIDController")
-  	    do Kernel.startComponent("HWEffector")
-  	    }
+          entry {
+              // make sure we are not moving
+              do MoveToGenerator.safeStop()
+              // Select components controlling the machine
+              do Kernel.startComponent("PIDController")
+              do Kernel.startComponent("HWEffector")
+              }
   
-  	transition if HMI.stop_pushed() then
+          transition if HMI.stop_pushed() then
             select stop_state
-  	transition if HMI.start_program() then
+          transition if HMI.start_program() then
             select exec_state
       }
   
@@ -1882,28 +1885,31 @@
        * program.
        */
       state exec_state {
-  	entry {
-  	    do MyProgram.start()
-  	    }
+          entry {
+              do MyProgram.start()
+              }
   
-  	exit {
-	    set error = MyPorgram.inError()
-  	    do MyProgram.stop()
-  	    }
+          exit {
+            set error = MyPorgram.inError()
+              do MyProgram.stop()
+              }
   
-  	transition if HMI.stop_program() then
-  	    select run_state
-	// Detect Program Failure :
-	transition if MyProgram.inError() then
-	    select stop_state
+          transition if HMI.stop_program() then
+              select run_state
+        // Detect Program Failure :
+        transition if MyProgram.inError() then
+            select stop_state
       }
   }
   
   RootMachine MainMachine mainMachine
       </programlisting>
-    </example>
     <example>
       <title>Program example (program.ops)</title>
+      <para>
+	Below is a program script example.
+      </para>
+    </example>
       <programlisting>
   /**
    * This program is executed in the exec_state.
@@ -1967,6 +1973,5 @@
   
   	do HMI.display("Program Ended\n")
   }  </programlisting>
-    </example>
   </section>
 </article>

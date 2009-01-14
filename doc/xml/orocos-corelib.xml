@@ -329,7 +329,7 @@
 	      <imagedata fileref="images/execution-sequence" />
 	    </imageobject>
 	    <imageobject role="fo">
-	      <imagedata fileref="images/hires/execution-sequence" />
+	      <imagedata fileref="images/hires/execution-sequence"  width="50%" scalefit="1"/>
 	    </imageobject>
 	    <!--
 	    <caption><para>
@@ -644,7 +644,7 @@ ORO_main( int argc, char** argv)
 	    <imagedata fileref="images/CommandExecution" />
 	  </imageobject>
 	  <imageobject role="fo">
-	    <imagedata fileref="images/hires/CommandExecution" />
+	    <imagedata fileref="images/hires/CommandExecution"  width="100%" scalefit="1"/>
 	  </imageobject>
 	  <caption>
 	    <para>
@@ -685,7 +685,7 @@ ORO_main( int argc, char** argv)
 	<imagedata fileref="images/TaskEventSerialisation" />
       </imageobject>
       <imageobject role="fo">
-	<imagedata fileref="images/hires/TaskEventSerialisation" />
+	<imagedata fileref="images/hires/TaskEventSerialisation"  width="100%" scalefit="1"/>
       </imageobject>
       <caption><para>Activity A1 runs in PeriodicThread (a) while Activity A2
       runs in PeriodicThread (b). At some time, A1 registers a
@@ -713,68 +713,75 @@ ORO_main( int argc, char** argv)
 	This example shows how a synchronous and asynchronous handler
 	are connected to an Event.
       </para>
-      <programlisting>#include &lt;rtt/Event.hpp>
+      </example>
+      <para>
+      <programlisting> #include &lt;rtt/Event.hpp>
 
-using boost::bind;
+ using boost::bind;
 
-class SafetyStopRobot
-{
-public:
+ class SafetyStopRobot {
+ public:
     void handle_now() {
         // Synchronous Handler code
-    std::cout &lt;&lt; " Putting the robot in a safe state fast !" &lt;&lt; std::endl;
+        std::cout &lt;&lt; " Putting the robot in a safe state fast !" &lt;&lt; std::endl;
     }
-};
+ };
 
-Class NotifyUser
-{
-public:
+ class NotifyUser {
+ public:
     void handle_later() {
-	    //Asynchronous Completer code
-	    std::cout &lt;&lt; "The program stopped the robot !"&lt;&lt;std::endl;
+        //Asynchronous Completer code
+        std::cout &lt;&lt; "The program stopped the robot !"&lt;&lt;std::endl;
     }
-};
+ };
 
-...
-SafetyStopRobot safety;
-NotifyUser      notify;
+ SafetyStopRobot safety;
+ NotifyUser      notify;</programlisting>
+      </para>
+      <para>
+      Now we will connect these handler functions to an event. Each event-handler connection
+      is stored in a Handle object, for later reference and connection management.
+      <programlisting> // The &lt;..> means the callback functions must be of type "void foo(void)"
+ <classname>RTT::Event</classname>&lt;void(void)> emergencyStop("EmergencyStop");
+ // Use ready() to see if the event is initialised.
+ assert( emergencyStop.ready() );
+ <classname>RTT::Handle</classname> emergencyHandle;
+ <classname>RTT::Handle</classname> notifyHandle;
 
-// The &lt;..> means the callback functions must be of type "void foo(void)"
-<classname>RTT::Event</classname>&lt;void(void)> emergencyStop("EmergencyStop");
-// Use ready() to see if the event is initialised.
-assert( emergencyStop.ready() );
-<classname>RTT::Handle</classname> emergencyHandle;
-<classname>RTT::Handle</classname> notifyHandle;
-
-// boost::bind is a way to connect the method of an object instance to
-// an event.
-std::cout &lt;&lt; "Register appropriate handlers to the Emergency Stop Event\n";
-emergencyHandle = 
+ // boost::bind is a way to connect the method of an object instance to
+ // an event.
+ std::cout &lt;&lt; "Register appropriate handlers to the Emergency Stop Event\n";
+ emergencyHandle = 
    emergencyStop.connect( bind( &amp;SafetyStopRobot::handle_now, &amp;safety));
-assert( emergencyHandle.connected() );
+ assert( emergencyHandle.connected() );
 
-notifyHandle = 
+ notifyHandle = 
    emergencyStop.connect( bind( &amp;NotifyUser::handle_later, &amp;notify),
                           CompletionProcessor::Instance() );
-assert( notifyHandle.connected() );
+ assert( notifyHandle.connected() );</programlisting>
+      </para>
+      <para>
+      Finally, we emit the event and see how the handler functions are called:
+      <programlisting> std::cout &lt;&lt; "Emit/Call the event\n";
+ emergencyStop();
 
-std::cout &lt;&lt; "Emit/Call the event\n";
-emergencyStop();
+ // Disconnecting the notify callback...
+ notifyHandle.disconnect();
 
-// Disconnecting the notify callback...
-notifyHandle.disconnect();
-
-// Only synchronous callback :
-std::cout &lt;&lt; "Doing a quiet safety stop..."&lt;&lt;std::endl;
-emergencyStop(); // User not notified</programlisting>
+ // Only synchronous callback :
+ std::cout &lt;&lt; "Doing a quiet safety stop..."&lt;&lt;std::endl;
+ emergencyStop(); // User not notified</programlisting></para>
+      <para>
+	The program will output these messages:
       <screen>
-	  Register appropriate handlers to the Emergency Stop Event
-	  Emit the event
-	   Putting the robot in a safe state fast !
-	  The program stopped the robot !
-	  Doing a quiet safety stop...
-	   Putting the robot in a safe state fast !
+     Register appropriate handlers to the Emergency Stop Event
+     Emit the event
+      Putting the robot in a safe state fast !
+     The program stopped the robot !
+     Doing a quiet safety stop...
+      Putting the robot in a safe state fast !
       </screen>
+      </para>
       <para>
 	If you want to find out how boost::bind works, see the Boost
 	<ulink url="http://www.boost.org/libs/bind/bind.html">bind manual</ulink>.
@@ -793,7 +800,6 @@ emergencyStop(); // User not notified</programlisting>
   void foo() { ... }
   event.connect( &amp;foo );</programlisting>
       </para>
-    </example>
     <para>
       Whether your <function>handle()</function> and <function>complete()</function>
       methods contain deterministic code or not is up to you. It depends on the choice of the
@@ -1272,7 +1278,7 @@ emergencyStop(); // User not notified</programlisting>
 	<imagedata fileref="images/DataObjectBuffer" />
       </imageobject>
       <imageobject role="fo">
-	<imagedata fileref="images/hires/DataObjectBuffer" />
+	<imagedata fileref="images/hires/DataObjectBuffer"  width="50%" scalefit="1"/>
       </imageobject>
       <caption><para>DataObjects are most suitable for single writer, many readers,
       and always return the last written value. Buffers have a fixed queue length
