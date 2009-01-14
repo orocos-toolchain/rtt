@@ -15,7 +15,7 @@
  -->
   <xsl:param name="draft.mode" select="'no'"/>
   <xsl:param name="paper.type" select="'A4'"/>
-  <xsl:param name="fop.extensions" select="1"/>
+  <!--<xsl:param name="fop.extensions" select="1"/>-->
   <xsl:param name="chapter.autolabel" select="1"></xsl:param>
   <xsl:param name="appendix.autolabel" select="1"></xsl:param>
   <xsl:param name="section.autolabel" select="1"></xsl:param>
@@ -53,7 +53,13 @@
   <xsl:param name="hyphenate.verbatim" select="0"></xsl:param>
 
 <xsl:attribute-set name="monospace.verbatim.properties"
-		   use-attribute-sets="verbatim.properties">
+		   use-attribute-sets="verbatim.properties monospace.properties">
+  <xsl:attribute name="space-before.minimum">0.4em</xsl:attribute>
+  <xsl:attribute name="space-before.optimum">0.5em</xsl:attribute>
+  <xsl:attribute name="space-before.maximum">0.6em</xsl:attribute>
+  <xsl:attribute name="space-after.minimum">0.4em</xsl:attribute>
+  <xsl:attribute name="space-after.optimum">0.5em</xsl:attribute>
+  <xsl:attribute name="space-after.maximum">0.6em</xsl:attribute>
   <xsl:attribute name="wrap-option">wrap</xsl:attribute>
   <xsl:attribute name="hyphenation-character">\</xsl:attribute>
   <xsl:attribute name="font-size">11pt</xsl:attribute>
@@ -111,6 +117,8 @@
   </xsl:template>
 
   <xsl:param name="body.font.master" select="12" />
+  <!-- the middle field (of three) gets 80% of the width -->
+  <xsl:param name="header.column.widths">1 8 1</xsl:param>
 
 <!--   <xsl:param name="linenumbering.extension" select="0"></xsl:param> -->
 <!--   <xsl:param name="use.extensions" select="1"></xsl:param> -->
