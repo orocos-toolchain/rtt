@@ -52,10 +52,15 @@ namespace RTT
 
         INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main)
         {
-            // first check if root.
+            // first check if root (or if have sufficient privileges)
             if ( geteuid() != 0 ) {
+#if ((CONFIG_XENO_VERSION_MAJOR*100)+(CONFIG_XENO_VERSION_MINOR*10)+CONFIG_XENO_REVISION_LEVEL) >= 232
+                printf( "WARNING: You are not root. This program *may* require that you are root.\n");
+                // \todo verify have sufficient privileges
+#else
                 printf( "You are not root. This program requires that you are root.\n");
                 exit(1);
+#endif
             }
 
             // locking of all memory for this process
