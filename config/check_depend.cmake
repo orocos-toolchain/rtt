@@ -109,6 +109,24 @@ IF(OROCOS_TARGET STREQUAL "xenomai")
     SET( XENOMAI_INCLUDE_DIR "${XENOMAI_INSTALL_DIR}/xenomai/include" )
     SET( XENOMAI_INSTALL_DIR "${XENOMAI_INSTALL_DIR}/xenomai")
   ENDIF(EXISTS ${XENOMAI_INSTALL_DIR}/xenomai/include/native/task.h)
+  # the recommended CMake method
+  IF (NOT XENOMAI_INCLUDE_DIR)
+	# use different variable than XENOMAI_INCLUDE_DIR, as the first SET in the
+	# block above resets things and breaks the CMake cache when you rerun
+	# cmake/ccmake.
+	FIND_PATH(XENOMAI_INCLUDE_PATH native/task.h)
+    FIND_LIBRARY(XENOMAI_INSTALL_LIB native)
+#	MESSAGE(STATUS "Xenomai: include ${XENOMAI_INCLUDE_DIR}")
+#	MESSAGE(STATUS "Xenomai: library ${XENOMAI_INSTALL_LIB}")
+	IF ( XENOMAI_INCLUDE_PATH AND XENOMAI_INSTALL_LIB )
+	  SET(XENOMAI_INCLUDE_DIR ${XENOMAI_INCLUDE_PATH})
+	  # presume XENOMAI_INSTALL_LIB is of form /path/to/lib/libnative.so, and
+	  # so need to strip back to /path/to
+	  GET_FILENAME_COMPONENT(XENOMAI_INSTALL_LIB2 ${XENOMAI_INSTALL_LIB} PATH)
+	  GET_FILENAME_COMPONENT(XENOMAI_INSTALL_DIR ${XENOMAI_INSTALL_LIB2} PATH)
+      MESSAGE("-- Looking for XENOMAI - found in ${XENOMAI_INSTALL_DIR}")
+	ENDIF ( XENOMAI_INCLUDE_PATH AND XENOMAI_INSTALL_LIB )
+  ENDIF (NOT XENOMAI_INCLUDE_DIR)
 
   IF ( XENOMAI_INCLUDE_DIR )
     SET(XENOMAI_SUPPORT TRUE CACHE INTERNAL "" FORCE)
@@ -118,7 +136,7 @@ IF(OROCOS_TARGET STREQUAL "xenomai")
     LINK_LIBRARIES(native pthread dl)
     LINK_DIRECTORIES(${XENOMAI_INSTALL_DIR}/lib)
   ELSE( XENOMAI_INCLUDE_DIR )
-    MESSAGE(FATAL_ERROR "-- Looking for XENOMAI - not found (tried: ${XENOMAI_INSTALL_DIR}/include/native/task.h and ${XENOMAI_INSTALL_DIR}/include/xenomai/native/task.h)")
+    MESSAGE(FATAL_ERROR "-- Looking for XENOMAI - not found (tried: ${XENOMAI_INSTALL_DIR}/include/native/task.h, ${XENOMAI_INSTALL_DIR}/include/xenomai/native/task.h and CMAKE_INCLUDE_PATH environment variable)")
     SET(XENOMAI_SUPPORT FALSE CACHE INTERNAL "" FORCE)
   ENDIF( XENOMAI_INCLUDE_DIR )
 ELSE(OROCOS_TARGET STREQUAL "xenomai")
