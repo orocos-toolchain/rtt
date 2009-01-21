@@ -4,8 +4,8 @@
 [
 <!ENTITY cvs         "<acronym>CVS</acronym>">
 <!ENTITY orocos      "<acronym>Orocos</acronym>">
-<!ENTITY oldversion  "1.4">
-<!ENTITY version     "1.6">
+<!ENTITY oldversion  "1.6">
+<!ENTITY version     "1.8">
 <!ENTITY rtai        "<acronym>RTAI</acronym>">
 <!ENTITY rtos        "<acronym>RTOS</acronym>">
 ]
@@ -43,261 +43,92 @@
 	  in order to upgrade to this release.
 	</para>
       </listitem>
-      <listitem>
-	<para> The <classname>RTT::AnalogInInterface</classname>,
-	<classname>RTT::AnalogOutInterface</classname>
-	<classname>RTT::AnalogInput</classname> and
-	<classname>RTT::AnalogOutput</classname> classes have a
-	slightly changed interface. This makes them incompatible with
-	RTT 1.4 and older. The template parameter has been dropped
-	and the default 'raw' value is now <option>int</option>. In this
-	way, two's complement and unsigned A/D converters are supported
-	upto 31 bits. This change did also change the Comedi API in OCL,
-	see below.
-	</para>
-	<para>
-	  See also
-	  <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=488">
-	    AnalogIn/OutInterface is an atrocity.
-	    </ulink>.
-	</para>
-      </listitem>
     </itemizedlist>
   </section>
   <section>
     <title>Improvements</title>
     <section>
-      <title>Scripting</title>
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    Scripting now supports automatic type converions. This
-	    means you can provide an integer argument where a double
-	    is expected and vice verse. The 'C++ style cast' is supported
-	    as well. One can write for example
-	    <programlisting>var int i = int(3.456); // i == 3</programlisting>
-	    Conversions that reduce precision will print a Logger warning during
-	    parsing, unless this explicit cast is used.
-	  </para>
-	<para>
-	  See also
-	  <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=516">
-	    [Scripting]No conversions available from int -> double ->...
-	    </ulink>.
-	</para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Scripting now also supports the C 'float' type. You can now write
-	    <programlisting>var float f = 10.0f;</programlisting>
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Event based transitions in statemachines are now always
-	    asynchronous and can be received during the entry and run
-	    programs. State machines can react immediately in the same
-	    state to events emited in the entry program.  Events
-	    emited in the run program can only be processed in the next
-	    execution step of the state machine.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Event transitions in statemachines can now be written more
-	    naturally.  The if and select statements are optional when
-	    a transition program is given. For example:
-	    <programlisting>  transition some_event(a) { do foo(a); }
-  transition some_event(a) if (a &lt; 10.0) then { do foo(a); }
-	    </programlisting>
-	  </para>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=544">
-	         Unable have event transition with no select statements
-	      </ulink>.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The transition syntax has been unified. One can write both condition
-	    and event transitions in transitions blocks or with the keyword
-	    transition. For example:
-	    <programlisting>  transition if (a &lt; 10.0) { do foo(a); }
-  transitions {
-      some_event(a) if (a &lt; 10.0) then { do foo(a); }
-      // ... repeat
-  }</programlisting>
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Both condition and event transitions can be specified at the
-	    top level of a state machine. These 'global' transitions apply
-	    to any state of that state machine and are evaluated after
-	    the transitions of the current state.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    There was a bug in the parser such that calling a method on an
-	    unknown object resulted in calling the method on the current object.
-	    This had very confusing consequences, such as when using:
-	    <programlisting>  do scripting.loadProgram("the_program.ops");
-  do the_program.start();</programlisting>
-            Which would load fine, but start() would return in error. The
-	    correct behaviour is to signal an error during loading that
-	    'the_program' is not yet known (It only becomes known after
-	    loadProgram is executed).
-	  </para>
-	</listitem>
-      </itemizedlist>
-    </section>
-    <section>
       <title>OS Abstraction</title>
       <itemizedlist>
 	<listitem>
 	  <para>
-	    The RTT has been adapted for the Preempt-RT Linux kernel
-	    patch, using the monotonic real-time clock infrastructure for
-	    real-time periodic execution. See
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=565">
-	       Periodicity of thread not guaranteed under (preempt-rt) gnulinux
-	      </ulink>.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    An initial Max OS-X port has been done (RTT and OCL), and
-	    stable enough for broader testing. The Orocos target name for
-	    Mac OS-X is 'macosx'.  See
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=533">
-	      Mac OS X port
-	      </ulink>.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The main() function has been removed from the Orocos
-	    library and is now a macro that expands in user code. This
-	    greatly improves debugging, as some (most) debuggers don't
-	    look in libraries for the main() function. Also, this makes
-	    it easier to define your own ORO_main function.
+	    A thread creation bug (a regression) was fixed when running in the gnulinux target and no
+	    pam limits were set.
 	  </para>
 	</listitem>
       </itemizedlist>
     </section>
     <section>
-      <title>RTT classes</title>
+      <title>TaskContext</title>
       <itemizedlist>
 	<listitem>
 	  <para>
-	    The <classname>RTT::DataPort</classname> and
-	    <classname>RTT::BufferPort</classname> classes and base
-	    classes have been refactored for lower code size and
-	    faster execution. This change is backwards compatible,
-	    except for the (internal)
-	    <function>createConnection(PortInterface*)</function>
-	    function, which has disappeared. Use
-	    <function>connectTo(PortInterface*)</function> instead.
+	    The <classname>RTT::TaskContext</classname> has gained a
+	    new default execution model. Previously, a newly created
+	    TaskContext object could not be started and had no
+	    activity assigned. With this release, each created
+	    TaskContext gets automatically a
+	    <classname>RTT::SequentialActivity</classname> assigned,
+	    which allows it to start running and process commands and
+	    events. There is no thread created for this Activity,
+	    the commands and events are processed in the thread of the
+	    caller (thus sequentially). This activity implementation is equally
+	    thread-safe as the other RTT activities. See the Component Builder's Manual for
+	    an example.
 	  </para>
 	  <para>
 	    See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=527">
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=">
 	      </ulink>.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    It is now possible to load <emphasis>new</emphasis>
-	    Properties from XML files into a TaskContext. This is done
-	    using the <function>loadProperties()</function> function,
-	    available in the C++ MarshallingAccess interface and also
-	    in the scripting interface. This allows to load new parameters
-	    into a component, even after it was compiled. You can use this
-	    to provide extra parameters to (multiple) scripts for example.
+	    The TaskContext has gained <classname>RTT::Event</classname>
+	    based Data and Buffer port processing. This allows non-periodic
+	    or sequential TaskContext objects to wake up when input on plain data ports arrives.
+	    A new function <function>ports()->addEventPort( &amp;a_port, "Description")</function>
+	    has been added to the interface to register a port for event-based
+	    reception. See the Component Builder's Manual for an example.
 	  </para>
+	  <para> Contributed by S. Joyeux. </para>
 	  <para>
 	    See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=512">
-	      [Project] Allow to load extra properties from file in a TaskContext
+	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=">
 	      </ulink>.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The <classname>RTT::TaskContext</classname> interface classes
-	    (commands, methods, events, properties,...) now all have a
-	    <function>remove...()</function> function to selectively remove
-	    elements from the interface again.
-	  </para>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=524">
-	      Method-Command repositories do not have removeX
-	      </ulink>.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The <classname>RTT::Logger</classname> class has been restored
-	    to correctly log the [Location] tag after recursing into functions.
-	  </para>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=545">
-	         Logger In() instances do not nest correctly 
-	      </ulink>.
+	    The <classname>RTT::TaskContext</classname> interface gained
+	    a <function>getActivity()</function> function which always returns
+	    a valid object and is equivalent to the old notation
+	    <function>engine()->getActivity()</function>. Further more, the
+	    <function>setActivity(ActivityInterface* )</function> function has
+	    been added to assign an activity to a TaskContext. The TaskContext
+	    <emphasis>owns</emphasis> the assigned activity object and manages memory
+	    allocation. The new usage pattern is then for example: 
+	    <programlisting>  a_task.setActivity( new PeriodicActivity(0.01) );</programlisting>
 	  </para>
 	</listitem>
       </itemizedlist>
     </section>
     <section>
-      <title>Corba Support</title>
+      <title>RTT Classes</title>
       <itemizedlist>
 	<listitem>
 	  <para>
-	    CORBA DataPorts have been thoroughly tested and fixed.
-	    They now respect connection direction and can also be connected
-	    using only the IDL interface. Also, the ports disconnect
-	    automatically when a remote connection no longer exists, making
-	    it free again to setup a new connection.
-	  </para>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=532">
-	      Corba Data/Buffer ports do not respect connection direction
-	      </ulink>.
-	  </para>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=527">
-	      Can not connect ports using only IDL interface
-	      </ulink>.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Completely transparant Method and Command invocation in
-	    C++ on remote CORBA TaskContexts has been added (this was 
-	    already available in the scripting interface). This
-	    feature however increases code size, even if CORBA is not
-	    used. A CMake variable ORO_REMOTING has been defined which
-	    allows to turn this feature off. It is enabled by default
-	    if you build the RTT with the CORBA protocol library.
-	  </para>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=520">
-	      getMethod&lt;...&gt;("name") does not work for remote/CORBA components
-	      </ulink>.
+	    The <classname>RTT::Logger</classname> class has been extended such that
+	    it can be queried for the current 'log message' time. The OCL
+	    ReportingComponent can use this to synchronise data logs with message
+	    logs.
 	  </para>
 	</listitem>
       </itemizedlist>
     </section>
   </section>
   <section>
-    <title>Orocos Component Library</title>
+    <title>Orocos Component Library (OCL)</title>
     <section>
       <title>Caveats</title>
       <itemizedlist>
@@ -309,42 +140,13 @@
 	  </para>
 	</listitem>
 	<listitem>
-	  <para>The Comedi API in OCL has changed to the API of the new
-	  RTT base classes.  Also, Comedi classes moved from
-	  the RTT to the OCL namespace. 
-	  </para>
 	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=488">
-	      AnalogIn/OutInterface is an atrocity.
-	      </ulink>.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>The ComediPulseTrainGenerator and ComediEncoder
-	  classes (previously only compatible with a patched version
-	  of Comedi) have been rewritten such that they now use the
-	  ComediLib 0.8 API. This also caused a change in the
-	  ComediPulseTrainGenerator constructor:  the subdevice
-	  specifies the counter to be used (starting from '2') and the channel parameter
-	  has been dropped. 
-	  </para>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=542">
-	      Comedi layer is lagging behind comedi releases
-	      </ulink>.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para> The <classname>RTT::Axis</classname> and related
-	  classes from the OCL hardware package have been moved to the
-	  <classname>OCL</classname> namespace.
-	  </para>
-	  <para> See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=571">
-	      hardware/axes/dev classes should not be RTT namespace.
-	      </ulink>.
+	    The interface of the <classname>OCL::DeploymentComponent</classname> changed slightly.
+	    <function>kickOut(void)</function> has been renamed to <function>kickOutAll(void)</function>
+	    and two new functions <function>kickOut(std::string file_name)</function>,
+	    <function>kickOutComponent(std::string comp_name)</function> which unload a series
+	    of components described in a file or a single component by name respectively.
+	    This was done for equivalence with the <function>kickStart*</function> methods.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -354,92 +156,39 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    Most components in the OCL are now at run-time loadable
-	    by the DeploymentComponent (deployer application).
+	    The <classname>OCL::DeploymentComponent</classname> has better
+	    support for unloading/reloading components using XML files and
+	    error handling during the configuration steps. Loading additional
+	    components in a configured and running system is now possible.
+	  </para>
+	  <para> Contributed by D. Faconti </para>
+	</listitem>
+	<listitem>
+	  <para> The DeploymentComponent gained the ability to use
+	  <option>LoadProperties</option> (in addition to the
+	  <option>UpdateProperties</option> and
+	  <option>PropertyFile</option> elements) in the XML
+	  configuration file. This allows to load new properties into
+	  any existing component. </para>
+	  <para>Finally, a <option>Properties</option> element has
+	  been added in case you want to set (default) properties in
+	  the deployment XML file. This makes the use of an external
+	  property file optional.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    Orocos better intercepts lost connections to remote TaskContexts.
-	    The Orocos Component Library's deployer and taskbrowser use
-	    this infrastructure to detect and cope with lost connections.
-	  </para>
-	  <para> See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=566">
-	      CORBA Connections may cause TRANSIENT exception when server exited
-	      </ulink>.
+	    It is now possible to specify which component is
+	    <emphasis>Master</emphasis> when specifying a Slave
+	    activity in the deployment XML file. Also, each slave
+	    becomes automatically a peer of its master.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The OCL CORBA deployer can now create CORBA servers and
-	    CORBA proxies for any component type. When a local
-	    component is created, one can set the boolean
-	    <option>Server</option> property to 1, in which case it is
-	    exported as a ControlTask CORBA server using the naming
-	    service.  If the naming service is not available, set the
-	    boolean property <option>UseNamingService</option> to 0. In that
-	    case, an IOR file is generated. The <function>server()</function>
-	    method of the deployer adds the same functionality in the
-	    scripting interface.
-	  </para>
-	  <para>
-	    CORBA proxies can be created in three ways: by using the
-	    naming service, by using an IOR file or by specifying the IOR
-	    literally. This is done by specifying the 'type' field of the component
-	    as "CORBA", "IORFile" or "IOR" and providing the registered name,
-	    IOR file location or IOR respectively in the 'name' field.
-	  </para>
-	  <para> See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=534">
-	      [Project] deployer can not connect to CORBA components
-	      </ulink>.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The <option>AutoConnect</option> feature of the deployer
-	    now also works across distributed components, provided
-	    that both components have the AutoConnect option set in
-	    the XML configuration and that one is known as a peer to
-	    the other.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    An <option>Include</option> feature has been added to
-	    the deployer's XML file syntax. This directive allows to
-	    include another XML file in place such that you can better
-	    manage multiple XML files or share XML files between users.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The deployer logs improved diagnostics in stopComponents,
-	    startComponents,...  family of functions.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The deployer does 'spell' checking for unknown or misspelled
-	    XML 'name' attributes, which goes further than the standard
-	    XML syntax checking.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The DeploymentComponent can be configured itself by using its
-	    name in the XML configuration file. In this way, you can add
-	    an activity or load a script into this component.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    The taskbrowser can be compiled with the -DNO_GPL flag
-	    such that it does not contain any GPL'ed code. This flag
-	    removes the dependency on the GPL readline
-	    library. TAB-completion and history are not available in
-	    that case.
+	    The Deployment component now looks for a 'site local' XML file
+	    in the current directory. This allows to pre-set the component
+	    path and load local libraries or site specific components.
 	  </para>
 	</listitem>
       </itemizedlist>
