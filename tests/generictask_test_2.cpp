@@ -314,6 +314,7 @@ void Generic_TaskTest_2::testRemoteCommand()
     com11(1); // execute
 
 }
+
 void Generic_TaskTest_2::testCommand()
 {
     Command<bool(void)> com0("command", &Generic_TaskTest_2::cd0, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
@@ -336,34 +337,79 @@ void Generic_TaskTest_2::testCommand()
     CPPUNIT_ASSERT( tsim->start()) ;
     // execute commands and check status:
     CPPUNIT_ASSERT( com0() );
+    verifydispatch(*com0.getCommandImpl());
 
+    CPPUNIT_ASSERT( com11(1) );
+    verifydispatch(*com11.getCommandImpl());
+    CPPUNIT_ASSERT( com10(1) );
+    verifydispatch(*com10.getCommandImpl());
+
+    CPPUNIT_ASSERT( com22(1, 1.0) );
+    verifydispatch(*com22.getCommandImpl());
+    CPPUNIT_ASSERT( com20(1, 1.0) );
+    verifydispatch(*com20.getCommandImpl());
+    CPPUNIT_ASSERT( com21(1, 1.0) );
+    verifydispatch(*com21.getCommandImpl());
+
+    CPPUNIT_ASSERT( com33(1, 1.0, char('a') ) );
+    verifydispatch(*com33.getCommandImpl());
+    CPPUNIT_ASSERT( com30(1, 1.0, char('a') ) );
+    verifydispatch(*com30.getCommandImpl());
+    CPPUNIT_ASSERT( com31(1, 1.0, char('a') ) );
+    verifydispatch(*com31.getCommandImpl());
+
+    CPPUNIT_ASSERT( com44(1, 1.0, char('a'),true) );
+    verifydispatch(*com44.getCommandImpl());
+    CPPUNIT_ASSERT( com40(1, 1.0, char('a'),true) );
+    verifydispatch(*com40.getCommandImpl());
+    CPPUNIT_ASSERT( com41(1, 1.0, char('a'),true) );
+    verifydispatch(*com41.getCommandImpl());
+
+    CPPUNIT_ASSERT( tsim->stop() );
+}
+
+void Generic_TaskTest_2::testCommandProcessor()
+{
+    Command<bool(void)> com0("command", &Generic_TaskTest_2::cd0, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
+    Command<bool(int)> com11("command", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn1, this, tc->engine()->commands() );
+    Command<bool(int)> com10("command", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
+
+    // start the activity, such that commands are accepted.
+    CPPUNIT_ASSERT( tsim->start()) ;
+    // execute commands and check status:
+    CPPUNIT_ASSERT( com0() );
     CPPUNIT_ASSERT( com11(1) );
     CPPUNIT_ASSERT( com10(1) );
 
-    CPPUNIT_ASSERT( com22(1, 1.0) );
-    CPPUNIT_ASSERT( com20(1, 1.0) );
-    CPPUNIT_ASSERT( com21(1, 1.0) );
+    CPPUNIT_ASSERT( com0.sent() );
+    CPPUNIT_ASSERT( com0.accepted() );
+    CPPUNIT_ASSERT( com11.sent() );
+    CPPUNIT_ASSERT( com11.accepted() );
+    CPPUNIT_ASSERT( com10.sent() );
+    CPPUNIT_ASSERT( com10.accepted() );
 
-    CPPUNIT_ASSERT( com33(1, 1.0, char('a') ) );
-    CPPUNIT_ASSERT( com30(1, 1.0, char('a') ) );
-    CPPUNIT_ASSERT( com31(1, 1.0, char('a') ) );
+    CPPUNIT_ASSERT( !com0.executed() );
+    CPPUNIT_ASSERT( !com0.valid() );
+    CPPUNIT_ASSERT( !com0.done() );
+    CPPUNIT_ASSERT( !com11.executed() );
+    CPPUNIT_ASSERT( !com11.valid() );
+    CPPUNIT_ASSERT( !com11.done() );
+    CPPUNIT_ASSERT( !com10.executed() );
+    CPPUNIT_ASSERT( !com10.valid() );
+    CPPUNIT_ASSERT( !com10.done() );
 
-    CPPUNIT_ASSERT( com44(1, 1.0, char('a'),true) );
-    CPPUNIT_ASSERT( com40(1, 1.0, char('a'),true) );
-    CPPUNIT_ASSERT( com41(1, 1.0, char('a'),true) );
+    // This executes all queued commands.
+    CPPUNIT_ASSERT( SimulationThread::Instance()->run(1) );
 
-    verifydispatch(*com0.getCommandImpl());
-    verifydispatch(*com11.getCommandImpl());
-    verifydispatch(*com10.getCommandImpl());
-    verifydispatch(*com22.getCommandImpl());
-    verifydispatch(*com20.getCommandImpl());
-    verifydispatch(*com21.getCommandImpl());
-    verifydispatch(*com33.getCommandImpl());
-    verifydispatch(*com30.getCommandImpl());
-    verifydispatch(*com31.getCommandImpl());
-    verifydispatch(*com44.getCommandImpl());
-    verifydispatch(*com40.getCommandImpl());
-    verifydispatch(*com41.getCommandImpl());
+    CPPUNIT_ASSERT( com0.executed() );
+    CPPUNIT_ASSERT( com0.valid() );
+    CPPUNIT_ASSERT( com0.done() );
+    CPPUNIT_ASSERT( com11.executed() );
+    CPPUNIT_ASSERT( com11.valid() );
+    CPPUNIT_ASSERT( com11.done() );
+    CPPUNIT_ASSERT( com10.executed() );
+    CPPUNIT_ASSERT( com10.valid() );
+    CPPUNIT_ASSERT( com10.done() );
 
     CPPUNIT_ASSERT( tsim->stop() );
 }
@@ -403,12 +449,12 @@ void Generic_TaskTest_2::testCommandFactory()
     CPPUNIT_ASSERT( tsim->start()) ;
     // execute commands and check status:
     CPPUNIT_ASSERT( com0() );
+    verifydispatch(*com0.getCommandImpl());
 
     CPPUNIT_ASSERT( com11(1) );
-    CPPUNIT_ASSERT( com10(1) );
-
-    verifydispatch(*com0.getCommandImpl());
     verifydispatch(*com11.getCommandImpl());
+
+    CPPUNIT_ASSERT( com10(1) );
     verifydispatch(*com10.getCommandImpl());
 
     // test error cases:
@@ -640,35 +686,35 @@ void Generic_TaskTest_2::testAddCommand()
 
     // start the activity, such that commands are accepted.
     CPPUNIT_ASSERT( tsim->start()) ;
+
     // execute commands and check status:
     CPPUNIT_ASSERT( com0() );
+    verifydispatch(*com0.getCommandImpl());
 
     CPPUNIT_ASSERT( com11(1) );
+    verifydispatch(*com11.getCommandImpl());
     CPPUNIT_ASSERT( com10(1) );
+    verifydispatch(*com10.getCommandImpl());
 
     CPPUNIT_ASSERT( com22(1, 1.0) );
+    verifydispatch(*com22.getCommandImpl());
     CPPUNIT_ASSERT( com20(1, 1.0) );
+    verifydispatch(*com20.getCommandImpl());
     CPPUNIT_ASSERT( com21(1, 1.0) );
+    verifydispatch(*com21.getCommandImpl());
 
     CPPUNIT_ASSERT( com33(1, 1.0, char('a') ) );
+    verifydispatch(*com33.getCommandImpl());
     CPPUNIT_ASSERT( com30(1, 1.0, char('a') ) );
+    verifydispatch(*com30.getCommandImpl());
     CPPUNIT_ASSERT( com31(1, 1.0, char('a') ) );
+    verifydispatch(*com31.getCommandImpl());
 
     CPPUNIT_ASSERT( com44(1, 1.0, char('a'),true) );
-    CPPUNIT_ASSERT( com40(1, 1.0, char('a'),true) );
-    CPPUNIT_ASSERT( com41(1, 1.0, char('a'),true) );
-
-    verifydispatch(*com0.getCommandImpl());
-    verifydispatch(*com11.getCommandImpl());
-    verifydispatch(*com10.getCommandImpl());
-    verifydispatch(*com22.getCommandImpl());
-    verifydispatch(*com20.getCommandImpl());
-    verifydispatch(*com21.getCommandImpl());
-    verifydispatch(*com33.getCommandImpl());
-    verifydispatch(*com30.getCommandImpl());
-    verifydispatch(*com31.getCommandImpl());
     verifydispatch(*com44.getCommandImpl());
+    CPPUNIT_ASSERT( com40(1, 1.0, char('a'),true) );
     verifydispatch(*com40.getCommandImpl());
+    CPPUNIT_ASSERT( com41(1, 1.0, char('a'),true) );
     verifydispatch(*com41.getCommandImpl());
 
     CPPUNIT_ASSERT( tsim->stop() );

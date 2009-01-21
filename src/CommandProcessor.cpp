@@ -76,14 +76,16 @@ namespace RTT
     {
         // execute one command from the AtomicQueue.
         CommandInterface* com(0);
-        int res = a_queue->dequeueCounted( com );
-        if ( com ) {
-            // note : the command's result is discarded.
-            // Wrap your command (ie CommandDispatch) to keep track
-            // of the result of enqueued commands.
-            com->execute();
-            // let the user know this command was processed.
-            coms_processed = res;
+        while ( !a_queue->isEmpty() ) {
+            int res = a_queue->dequeueCounted( com );
+            if ( com ) {
+                // note : the command's result is discarded.
+                // Wrap your command (ie CommandDispatch) to keep track
+                // of the result of enqueued commands.
+                com->execute();
+                // let the user know this command was processed.
+                coms_processed = res;
+            }
         }
     }
 

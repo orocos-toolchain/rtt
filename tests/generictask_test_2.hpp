@@ -33,6 +33,7 @@ class Generic_TaskTest_2 : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE( Generic_TaskTest_2 );
 
     CPPUNIT_TEST( testCommand );
+    CPPUNIT_TEST( testCommandProcessor );
     CPPUNIT_TEST( testRemoteCommand );
     CPPUNIT_TEST( testCommandsC );
     CPPUNIT_TEST( testCommandFromDS );
@@ -99,6 +100,7 @@ public:
     void testCSCRCommand();
     void testCommandsC();
     void testCommand();
+    void testCommandProcessor();
     void testRemoteCommand();
     void testCommandFactory();
     void testCommandFromDS();
