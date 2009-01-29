@@ -36,6 +36,7 @@
  ***************************************************************************/
 #include "os/rtstreams.hpp"
 #include "os/fosi.h"
+#include <cstring>
 
 namespace RTT
 {namespace rt_std
