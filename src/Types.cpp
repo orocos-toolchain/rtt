@@ -38,17 +38,18 @@
 
 #include "rtt-config.h"
 
-#include <sstream>
 #include <MultiVector.hpp>
 #include <Logger.hpp>
 #include "Attribute.hpp"
 #include "DataSourceAdaptor.hpp"
 #include "TypeTransporter.hpp"
+#include "TransportPlugin.hpp"
 #include <TypeStream.hpp>
 #include <mystd.hpp>
 
 #ifdef OROCFG_CORELIB_REALTIME_TOOLKIT_IMPORT
 #include <RealTimeToolkit.hpp>
+#include <Toolkit.hpp>
 #endif
 
 #include <functional>
@@ -256,7 +257,7 @@ namespace RTT
         return keys( data );
     }
 
-    void TypeInfoRepository::registerTransport( TransportRegistrator* tr )
+    void TypeInfoRepository::registerTransport( TransportPlugin* tr )
     {
         transports.reserve( transports.size() + 1 );
         transports.push_back( tr );

@@ -1,11 +1,6 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  RealTimeToolkit.hpp
-
-                        RealTimeToolkit.hpp -  description
-                           -------------------
-    begin                : Mon June 26 2006
-    copyright            : (C) 2006 Peter Soetens
-    email                : peter.soetens@fmtc.be
+ Copyright (c) 2009 S Roderick <xxxkiwi DOT xxxnet AT macxxx DOT comxxx>
+                               (remove the x's above)
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -35,33 +30,40 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef ORO_PLUGIN_HPP
+#define ORO_PLUGIN_HPP 1
 
-#ifndef ORO_REALTIME_TOOLKIT_HPP
-#define ORO_REALTIME_TOOLKIT_HPP
-
-#include "ToolkitPlugin.hpp"
-
-namespace RTT
-{
+/**
+ * @file Plugin.hpp
+ * This file defines the Orocos plugin API.
+ * A plugin is a dynamic library which has a unique name and
+ * can be loaded in a running application. In case the loading
+ * is done by an Orocos TaskContext, the plugin is notified of
+ * the loading TaskContext. A plugin can reject to load, in which
+ * case the library should be unloaded from the application again.
+ * Once loaded, a plugin remains in the current process until the
+ * process exits.
+ */
+#include <string>
+namespace RTT { class TaskContext; }
+extern "C" {
+    /**
+     * Instructs this plugin to load itself into the application.
+     * Implement in this function any startup code your plugin requires.
+     * This function should not throw.
+     *
+     * @param t The optional TaskContext which is loading this plugin.
+     * May be zero.
+     * @return true if the initialisation succeeded, false if the
+     * plugin could not do so.
+     */
+    bool loadRTTPlugin( RTT::TaskContext* t );
 
     /**
-     * This interface defines the types of the realTime package.
+     * Return the unique name of this plugin. No two plugins with
+     * the same name will be allowed to live in a single process.
      */
-    class RealTimeToolkitPlugin
-       : public ToolkitPlugin
-    {
-    public:
-        virtual std::string getName();
-
-        virtual bool loadTypes();
-        virtual bool loadOperators();
-        virtual bool loadConstructors();
-    };
-
-    /**
-     * The single global instance of the RealTime Toolkit.
-     */
-    extern RealTimeToolkitPlugin RealTimeToolkit;
+    std::string getRTTPluginName();
 }
 
 #endif

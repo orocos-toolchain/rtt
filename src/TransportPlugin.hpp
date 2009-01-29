@@ -1,11 +1,6 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 26 13:25:56 CEST 2006  RealTimeToolkit.hpp
-
-                        RealTimeToolkit.hpp -  description
-                           -------------------
-    begin                : Mon June 26 2006
-    copyright            : (C) 2006 Peter Soetens
-    email                : peter.soetens@fmtc.be
+ Copyright (c) 2009 S Roderick <xxxkiwi DOT xxxnet AT macxxx DOT comxxx>
+                               (remove the x's above)
 
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
@@ -36,32 +31,48 @@
  ***************************************************************************/
 
 
-#ifndef ORO_REALTIME_TOOLKIT_HPP
-#define ORO_REALTIME_TOOLKIT_HPP
+#ifndef ORO_TRANSPORTPLUGIN_HPP
+#define ORO_TRANSPORTPLUGIN_HPP 1
 
-#include "ToolkitPlugin.hpp"
+#include <string>
+#include "Types.hpp"
 
 namespace RTT
 {
 
     /**
-     * This interface defines the types of the realTime package.
+     * A class which registers TransportProtocol instances to types.
+     * Use the ORO_TOOLKIT_PLUGIN macro to have the plugin framework 
+     * automatically load all types supported by this plugin (using 
+     * registerTransport() below).
      */
-    class RealTimeToolkitPlugin
-       : public ToolkitPlugin
+    class TransportPlugin
     {
     public:
-        virtual std::string getName();
+        virtual ~TransportPlugin() {}
 
-        virtual bool loadTypes();
-        virtual bool loadOperators();
-        virtual bool loadConstructors();
+        /**
+         * Add a transport for the given type to the TypeInfo
+         * instance.
+         * @param type_name The name of the type to transport
+         * @param ti The typ to which transports may be added.
+         * @return false if no transport was added, true otherwise.
+         */
+        virtual bool registerTransport(std::string type_name, TypeInfo* ti) = 0;
+
+        /**
+         * Returns the (protocol) name of this transport.
+         * e.g. "CORBA"
+         */
+        virtual std::string getTransportName() const = 0;
+
+        /**
+         * Each plugin must have a unique name.
+         * e.g. "CorbaKDL"
+         */
+        virtual std::string getName() const = 0;
     };
 
-    /**
-     * The single global instance of the RealTime Toolkit.
-     */
-    extern RealTimeToolkitPlugin RealTimeToolkit;
 }
 
 #endif

@@ -37,6 +37,8 @@
 
 
 #include "CorbaTemplateProtocol.hpp"
+#include "TransportPlugin.hpp"
+#include "Toolkit.hpp"
 #include "os/StartStopManager.hpp"
 
 namespace RTT {
@@ -174,8 +176,8 @@ namespace RTT {
 
         };
 
-        struct CorbaLibRegistrator
-            : public TransportRegistrator
+        struct CorbaLibPlugin
+            : public TransportPlugin
         {
             bool registerTransport(std::string name, TypeInfo* ti)
             {
@@ -205,7 +207,11 @@ namespace RTT {
                 return "CORBA";
             }
 
-        } CorbaLibRegistrator;
+            std::string getName() const {
+                return "CorbaRealtime";
+            }
+
+        } CorbaLibPlugin;
 
         /**
          * This struct has the sole purpose of invoking
@@ -213,9 +219,8 @@ namespace RTT {
          */
         int loadCorbaLib()
         {
-            log(Info) << "Loading CorbaLib in RTT type system." <<endlog();
-            TypeInfoRepository::Instance()->registerTransport( &CorbaLibRegistrator );
-            // register fallback.
+            RTT::Toolkit::Import(CorbaLibPlugin);
+            // register fallback also.
             DataSourceTypeInfo<UnknownType>::getTypeInfo()->addProtocol( ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol() );
             return 0;
         }

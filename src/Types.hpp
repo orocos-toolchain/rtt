@@ -60,9 +60,9 @@ namespace RTT
     class PropertyBase;
     class PropertyBag;
     class AttributeBase;
+    class TransportPlugin;
 
     namespace detail {
-        class TransportRegistrator;
         class TypeTransporter;
     }
 
@@ -250,7 +250,7 @@ namespace RTT
         typedef std::map<std::string, TypeInfo*> map_t;
         map_t data;
 
-        typedef std::vector<detail::TransportRegistrator*> Transports;
+        typedef std::vector<TransportPlugin*> Transports;
         Transports transports;
     public:
         ~TypeInfoRepository();
@@ -275,13 +275,14 @@ namespace RTT
          * Call this function to add a new (network) transport
          * for Orocos types.
          */
-        void registerTransport( detail::TransportRegistrator* tr );
+        void registerTransport( TransportPlugin* tr );
 
         /**
          * Dump all known types, along with transports and their types, to
          * the log.
          */
         void logTypeInfo() const;
+
     };
 }
 

@@ -125,33 +125,6 @@ namespace RTT
              */
             virtual DataSourceBase* narrowAssignableDataSource(DataSourceBase* dsb) = 0;
         };
-
-        /**
-         * A class which registers TransportProtocol instances to types.
-         * In order to register a transport for some types,
-         * inherit from this class and add an instance to
-         * the TypeInfoRepository.
-         * The TypeInfoRepository will call the registerType callback
-         * for each type present or added.
-         */
-        struct RTT_API TransportRegistrator
-        {
-            virtual ~TransportRegistrator() {}
-
-            /**
-             * Add a transport for the given type to the TypeInfo
-             * instance.
-             * @param type_name The name of the type to transport
-             * @param ti The typ to which transports may be added.
-             * @return false if no transport was added, true otherwise.
-             */
-            virtual bool registerTransport(std::string type_name, TypeInfo* ti) = 0;
-
-            /**
-             * Returns the (protocol) name of this transport.
-             */
-            virtual std::string getTransportName() const = 0;
-        };
     }
 }
 

@@ -45,60 +45,8 @@
 namespace RTT
 {
 
-    /**
-     * This interface defines how additional toolkits
-     * are loaded into Orocos.
-     * A ToolkitPlugin defines additional user data types for a Toolkit.
-     * @ingroup CoreLib
-     */
-    class ToolkitPlugin
-    {
-    public:
-        virtual ~ToolkitPlugin() {}
-
-        /**
-         * Implement this method to add types to the
-         * Orocos type system.
-         * @see The TypeRepository for adding the types.
-         * @see The TypeInfo class for the interface of a 'type'
-         * @see The TemplateTypeInfo class for easy addition of new user types
-         * in scripting, XML,...
-         * @see The TypeInfoName class for only 'name' addition of a user type
-         * @see The TemplateIndexTypeInfo for adding container types.
-         * @see The RealTimeToolkit for an implementation example.
-         */
-        virtual bool loadTypes() = 0;
-
-        /**
-         * Implement this method to load Scripting
-         * operators on types, such as '+', '*', ...
-         * @see The OperatorRepository for adding the Operators
-         * @see The detail::UnaryOp, detail::BinaryOp and detail::DotOp
-         * classes for the interface of an operation.
-         * @see The newUnaryOperator, newBinaryOperator and newDotOperator
-         * functions for creating new operator objects.
-         * @see The RealTimeToolkit for an implementation example.
-         */
-        virtual bool loadOperators() = 0;
-
-        /**
-         * Implement this method to load Scripting
-         * constructors of types, such as in C++.
-         * Default constructors (which take no arguments)
-         * need not to be added.
-         * @see The TypeInfo class for adding a constructor to a type
-         * @see The TypeBuilder class for the interface of a constructor.
-         * @see The newConstructor utility function for creating a new
-         * constructor object.
-         * @see The RealTimeToolkit for an implementation example.
-         */
-        virtual bool loadConstructors() = 0;
-
-        /**
-         * Each plugin must have a unique name.
-         */
-        virtual std::string getName() = 0;
-    };
+    class ToolkitPlugin;
+    class TransportPlugin;
 
     /**
      * This class allows the Orocos Real-Time Toolkit to be extended
@@ -108,7 +56,10 @@ namespace RTT
      */
     class Toolkit
     {
+        /** Loaded tools. */
         static std::vector<ToolkitPlugin*> Tools;
+        /** Loaded transports. */
+        static std::vector<TransportPlugin*> Transports;
     public:
         /**
          * Import a plugin into Orocos.
@@ -118,16 +69,32 @@ namespace RTT
          * be considered as an error.
          */
         static void Import( ToolkitPlugin& tkp );
+        /**
+         * Import a transport plugin into Orocos.
+         * One may try to load the same transport plugin multiple
+         * times from different places. Only the first
+         * import will succeed. Multiple imports will not
+         * be considered as an error.
+         */
+        static void Import( TransportPlugin& tr );
 
         /**
          * Get the names of all imported tools.
          */
         static std::vector<std::string> getTools();
+        /**
+         * Get the names of all imported transports.
+         */
+        static std::vector<std::string> getTransports();
 
         /**
          * Check if a tool with given name was already imported.
          */
         static bool hasTool( const std::string& toolname );
+        /**
+         * Check if a transport with given name was already imported.
+         */
+        static bool hasTransport( const std::string& transportname );
     };
 
 }

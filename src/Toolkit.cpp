@@ -37,6 +37,8 @@
 
 
 #include <Toolkit.hpp>
+#include <ToolkitPlugin.hpp>
+#include <TransportPlugin.hpp>
 #include <Logger.hpp>
 #include <algorithm>
 
@@ -45,6 +47,7 @@ namespace RTT
     using namespace std;
 
     std::vector<ToolkitPlugin*> Toolkit::Tools;
+    std::vector<TransportPlugin*> Toolkit::Transports;
 
     void Toolkit::Import( ToolkitPlugin& tkpr )
     {
@@ -70,6 +73,21 @@ namespace RTT
         }
     }
 
+    void Toolkit::Import( TransportPlugin& trpr )
+    {
+        TransportPlugin* trp = &trpr;
+        Logger::In in("Toolkit");
+        if ( find( Transports.begin(), Transports.end(), trp ) != Transports.end() ) {
+            Logger::log() <<Logger::Debug << "Transport "<<trp->getName() <<" already loaded."<<Logger::endl;
+            return;
+        }
+
+        Logger::log() <<Logger::Info << "Loading Transport "<<trp->getName() <<"."<<Logger::endl;
+        Transports.push_back( trp );
+
+        TypeInfoRepository::Instance()->registerTransport( trp );
+    }
+
     std::vector<std::string> Toolkit::getTools()
     {
         std::vector<std::string> ret;
@@ -79,11 +97,29 @@ namespace RTT
         return ret;
     }
 
+    std::vector<std::string> Toolkit::getTransports()
+    {
+        std::vector<std::string> ret;
+        for (std::vector<TransportPlugin*>::const_iterator it = Transports.begin();
+             it != Transports.end(); ++it)
+            ret.push_back( (*it)->getName() );
+        return ret;
+    }
+
     bool Toolkit::hasTool( const std::string& toolname )
     {
         for (std::vector<ToolkitPlugin*>::const_iterator it = Tools.begin();
              it != Tools.end(); ++it)
             if ((*it)->getName() == toolname)
+                return true;
+        return false;
+    }
+
+    bool Toolkit::hasTransport( const std::string& transportname )
+    {
+        for (std::vector<TransportPlugin*>::const_iterator it = Transports.begin();
+             it != Transports.end(); ++it)
+            if ((*it)->getName() == transportname)
                 return true;
         return false;
     }
