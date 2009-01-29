@@ -142,8 +142,10 @@ namespace RTT
                     || p->getTypeInfo()->getTypeName() != std::string( tname.in() ))
             {
                 log(Error) << "Can not connect incompatible ports. Local: "
-                           << p->getName() << ". Remote: " << mname<<endlog();
-                log(Error) << "Local/Remote model: "<<  p->getConnectionModel() <<" " << mdflow->getConnectionModel(mname.c_str());
+                           << p->getName() << " (" << p->getTypeInfo()->getTypeName()
+                           << "). Remote: " << mname << "(" << tname << "," << std::string( tname.in() )
+                           << ")" << endlog();
+                log(Error) << "Local/Remote model: "<<  p->getConnectionModel() <<" " << int(mdflow->getConnectionModel(mname.c_str())) <<endlog();
                 return false;
             }
 

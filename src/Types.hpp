@@ -229,6 +229,11 @@ namespace RTT
 
         detail::TypeTransporter* getProtocol(int protocol_id) const;
 
+        /** 
+         * Return a list of protocols that have transporters
+         */
+        std::vector<int> getTransportNames() const;
+        
         /**
          * @}
          */
@@ -271,6 +276,12 @@ namespace RTT
          * for Orocos types.
          */
         void registerTransport( detail::TransportRegistrator* tr );
+
+        /**
+         * Dump all known types, along with transports and their types, to
+         * the log.
+         */
+        void logTypeInfo() const;
     };
 }
 

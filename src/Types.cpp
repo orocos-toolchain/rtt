@@ -38,6 +38,7 @@
 
 #include "rtt-config.h"
 
+#include <sstream>
 #include <MultiVector.hpp>
 #include <Logger.hpp>
 #include "Attribute.hpp"
@@ -185,6 +186,22 @@ namespace RTT
         return transporters[protocol_id];
     }
 
+    std::vector<int> TypeInfo::getTransportNames() const
+    {
+        std::vector<int>    ret;
+        for (size_t i=0; i<transporters.size(); ++i)
+        {   
+            // dump only protocols with an actual transporter
+            // NB the transporter does not have a name, so you have to manually
+            // match the protocol number to an actual transport
+            if (0 != transporters[i])
+            {
+                ret.push_back(i);
+            }
+        }
+        return ret;
+    }
+
     namespace {
         boost::shared_ptr<TypeInfoRepository> typerepos;
     }
@@ -249,4 +266,32 @@ namespace RTT
             if ( tr->registerTransport( i->first , i->second ) )
                 log(Info) << "Registered new '"<< tr->getTransportName()<<"' transport for " << i->first <<endlog();
     }
+
+    void TypeInfoRepository::logTypeInfo() const
+    {
+        // dump the names of all known types
+        Logger::log() << Logger::Debug << "Types known to the Orocos Type System."<<Logger::endl;
+        for(map_t::const_iterator it = data.begin(); it != data.end(); ++it)
+        {
+            std::vector<int>    transports;
+            transports = it->second->getTransportNames();
+            Logger::log() << Logger::Debug << "-- " << it->first 
+                          << " (" << (*it).second->getTypeName() << ") protocols [";
+            for (std::vector<int>::const_iterator   iter=transports.begin();
+                 iter != transports.end();
+                 ++iter) 
+            {
+                Logger::log() << *iter;
+            }
+            Logger::log() << "]" << Logger::endl;
+        }
+        // dump the names of all known transports
+        Logger::log() << Logger::Debug << "Transports known to the Orocos Type System."<<Logger::endl;
+        for(Transports::const_iterator it = transports.begin(); it != transports.end(); ++it)
+        {
+            Logger::log() << Logger::Debug << "-- " << (*it)->getTransportName() << Logger::endl;
+        }
+    }
+
+
 }

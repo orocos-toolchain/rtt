@@ -40,6 +40,7 @@
 #define ORO_EXECUTION_DATA_PORT_INTERFACE_HPP
 
 #include <string>
+#include "Logger.hpp"
 #include "PortInterface.hpp"
 #include "DataConnection.hpp"
 #include "OperationInterface.hpp"
@@ -442,6 +443,23 @@ namespace RTT
     ConnectionInterface::shared_ptr DataPortBase<T>::createConnection(DataSourceBase::shared_ptr data)
     {
         DataObjectInterface<T>* doi = dynamic_cast< DataObjectInterface<T>* >( data.get() );
+        if (!doi)
+        {
+            // use this to figure out what is actually registered.
+            log(Error) << "Dynamic cast failed for "
+                       << "'" << typeid(data.get()).name() << "', '" 
+                       << data->getType() << "', '" 
+                       << data->getTypeName() << "'" 
+                       << ". Do your typenames not match?" << endlog();
+            TypeInfoRepository::Instance()->logTypeInfo();
+        }
+        /* If the doi doesn't cast and the following assert fires,
+           then you may have misnamed your types when registering. Both the
+           types registered with the RTT toolkit as well as the types registered
+           with any transport (eg CORBA), must all have the *exact same name*. 
+           If not, then the above cast fails. FYI ...
+        */
+        assert(doi && "Dynamic cast failed! See log file for details.");
         ConnectionInterface::shared_ptr ci( new DataConnection<T>( doi ) );
         ci->addPort(this);
         return ci;
