@@ -44,13 +44,14 @@
 #include "parser-types.hpp"
 
 #include <boost/bind.hpp>
-#include <iostream>
+#include <boost/iterator/iterator_traits.hpp>
 
 namespace RTT
 {
     using boost::bind;
     using namespace detail;
     using namespace std;
+    using namespace boost;
 
     namespace {
         enum PeerErrors { peer_not_found };
@@ -59,13 +60,12 @@ namespace RTT
         /**
          * set by locatepeer, read by handle_no_peer
          */
-        static std::ptrdiff_t advance_on_error = 0;
+        static iterator_difference<iter_t>::type advance_on_error = 0;
     }
 
     error_status<> handle_no_peer(scanner_t const& scan, parser_error<PeerErrors, iter_t>&e )
     {
         //std::cerr<<"Returning accept, advance "<<advance_on_error<<std::endl;
-        scan.first += advance_on_error;
         int length = advance_on_error;
         advance_on_error = 0;
         // ok, got as far as possible, _peer contains the furthest we got.
@@ -168,19 +168,19 @@ namespace RTT
                                 ("Attempt to use TaskContext "+name+" which is not ready to use." );
             }
             mcurobject = _peer;
-            advance_on_error += end - begin;
+            advance_on_error += end.base() - begin.base();
 
             //cout << "PP located "<<name <<endl;
         }
         else if ( mcurobject->getObject(name) ) {
             mcurobject = mcurobject->getObject(name);
-            advance_on_error += end - begin;
+            advance_on_error += end.base() - begin.base();
         }
         else {
             if ( name == "states" || name == "programs") {
                 log(Warning) << "'"<<name<<"' peer not found. The use of '"<<name<<"' has been deprecated."<<endlog();
                 log(Warning) << "Modify your script to use the program's or state machine's name directly."<<endlog();
-                advance_on_error += end - begin;
+                advance_on_error += end.base() - begin.base();
                 return;
             }
             //cout << "PP failed "<<name <<endl;

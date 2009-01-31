@@ -51,6 +51,7 @@ namespace RTT
 {
     using boost::bind;
     using namespace detail;
+    using namespace boost;
 
 
     namespace {
@@ -60,14 +61,13 @@ namespace RTT
         /**
          * set by locateproperty, read by handle_no_property
          */
-        static std::ptrdiff_t advance_on_error = 0;
+        static iterator_difference<iter_t>::type advance_on_error = 0;
     }
 
     error_status<> handle_no_property(scanner_t const& scan, parser_error<PropertyErrors, iter_t>&e )
     {
         //std::cerr<<"Returning accept"<<std::endl;
         // ok, got as far as possible, _property contains the furthest we got.
-        scan.first += advance_on_error;
         return error_status<>( error_status<>::accept, advance_on_error );
     }
 
@@ -111,7 +111,7 @@ namespace RTT
             if ( propbag ) {
                 //std::cerr<< "PropParser: is a bag." <<std::endl;
                 // success
-                advance_on_error += end - begin;
+                advance_on_error += end.base() - begin.base();
                 _bag = &(propbag->set());
                 _property = propbase;
             }
