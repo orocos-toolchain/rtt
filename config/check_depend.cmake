@@ -63,25 +63,50 @@ INCLUDE(${PROJ_SOURCE_DIR}/config/FindCorbaDeps.cmake)
 
 IF(OROCOS_TARGET STREQUAL "lxrt")
   SET(OROPKG_OS_LXRT TRUE CACHE INTERNAL "" FORCE)
-  # Look for LXRT
   SET(RTAI_INSTALL_DIR ${RTAI_INSTALL_DIR} CACHE PATH "path to rtai installation dir" FORCE)
+  # Look for LXRT
+  # the recommended CMake method
+  IF (NOT RTAI_INCLUDE_DIR)
+	# use different variable than RTAI_INCLUDE_DIR, as the first SET in the
+	# block below resets things and breaks the CMake cache when you rerun
+	# cmake/ccmake.
+	FIND_PATH(RTAI_INCLUDE_PATH rtai/rtai_lxrt.h)
+	FIND_LIBRARY(RTAI_INSTALL_LIB lxrt)
+#	MESSAGE(STATUS "RTAI: include ${RTAI_INCLUDE_PATH}")
+#	MESSAGE(STATUS "RTAI: library ${RTAI_INSTALL_LIB}")
+	IF ( RTAI_INCLUDE_PATH AND RTAI_INSTALL_LIB )
+	  SET(RTAI_INCLUDE_DIR ${RTAI_INCLUDE_PATH}/rtai)
+	  # presume RTAI_INSTALL_LIB is of form /path/to/lib/libnative.so, and
+	  # so need to strip back to /path/to
+	  GET_FILENAME_COMPONENT(RTAI_INSTALL_LIB2 ${RTAI_INSTALL_LIB} PATH)
+	  GET_FILENAME_COMPONENT(RTAI_INSTALL_DIR ${RTAI_INSTALL_LIB2} PATH)
+	  MESSAGE("-- Looking for RTAI/LXRT - found in ${RTAI_INSTALL_DIR}")
+	ENDIF ( RTAI_INCLUDE_PATH AND RTAI_INSTALL_LIB )
+  ENDIF (NOT RTAI_INCLUDE_DIR)
+
   IF (RTAI_INSTALL_DIR STREQUAL "")
     SET(RTAI_INSTALL_DIR "/usr/realtime")
   ENDIF (RTAI_INSTALL_DIR STREQUAL "")
-  IF(EXISTS ${RTAI_INSTALL_DIR}/include/rtai_lxrt.h)
-    MESSAGE("-- Looking for LXRT - found in ${RTAI_INSTALL_DIR}")
+
+  IF( EXISTS ${RTAI_INSTALL_DIR}/include/rtai_lxrt.h)
+    MESSAGE("-- Looking for RTAI/LXRT - found in ${RTAI_INSTALL_DIR}")
+    SET( RTAI_INCLUDE_DIR ${RTAI_INSTALL_DIR}/include)
+  ENDIF( EXISTS ${RTAI_INSTALL_DIR}/include/rtai_lxrt.h)
+
+  #If RTAI_INCLUDE_DIR has been defined, you must have defined also
+  # RTAI_INSTALL_DIR.
+  IF( RTAI_INCLUDE_DIR && RTAI_INSTALL_DIR)
     SET(OROPKG_SUPPORT_RTAI TRUE CACHE INTERNAL "" FORCE)
-    INCLUDE_DIRECTORIES(${RTAI_INSTALL_DIR}/include ${LINUX_SOURCE_DIR}/include)
-    SET(RTT_CFLAGS "${RTT_CFLAGS} -I${RTAI_INSTALL_DIR}/include -I${LINUX_SOURCE_DIR}/include" CACHE INTERNAL "")
+    INCLUDE_DIRECTORIES(${RTAI_INCLUDE_DIR} ${LINUX_SOURCE_DIR}/include)
+    SET(RTT_CFLAGS "${RTT_CFLAGS} -I${RTAI_INCLUDE_DIR} -I${LINUX_SOURCE_DIR}/include" CACHE INTERNAL "")
     SET(RTT_LINKFLAGS "${RTT_LINKFLAGS} -L${RTAI_INSTALL_DIR}/lib -llxrt -lpthread" CACHE INTERNAL "")
     LINK_LIBRARIES(lxrt pthread dl)
     LINK_DIRECTORIES(${RTAI_INSTALL_DIR}/lib)
-  ELSE(EXISTS ${RTAI_INSTALL_DIR}/include/rtai_lxrt.h)
-    MESSAGE(FATAL_ERROR "-- Looking for LXRT - not found (tried: ${RTAI_INSTALL_DIR}/include/rtai_lxrt.h)")
+  ELSE( RTAI_INCLUDE_DIR && RTAI_INSTALL_DIR )
+    MESSAGE(FATAL_ERROR "-- Looking for LXRT - not found (tried: ${RTAI_INSTALL_DIR}/include/rtai_lxrt.h, ${CMAKE_INCLUDE_PATH})")
     SET(OROPKG_SUPPORT_RTAI FALSE CACHE INTERNAL "" FORCE)
-  ENDIF(EXISTS ${RTAI_INSTALL_DIR}/include/rtai_lxrt.h)
+  ENDIF( RTAI_INCLUDE_DIR && RTAI_INSTALL_DIR )
 ELSE(OROCOS_TARGET STREQUAL "lxrt")
-  SET(RTAI_INSTALL_DIR "/usr/realtime" CACHE INTERNAL "path to rtai installation dir")
   SET(OROPKG_OS_LXRT FALSE CACHE INTERNAL "" FORCE)
 ENDIF(OROCOS_TARGET STREQUAL "lxrt")
 
