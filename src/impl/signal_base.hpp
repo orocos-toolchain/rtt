@@ -49,6 +49,7 @@
 //#define ORO_SIGNAL_USE_RT_LIST
 #define ORO_SIGNAL_USE_LIST_LOCK_FREE
 
+#include "os/Atomic.hpp"
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
 #include "../ListLockFree.hpp"
 #include <boost/shared_ptr.hpp>
@@ -85,7 +86,7 @@ namespace RTT
              * We require an internal refcount to ease self-addition
              * and removal of this connection.
              */
-            int refcount;
+            OS::AtomicInt refcount;
 
             /**
              * Increase the reference count by one.
