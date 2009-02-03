@@ -72,6 +72,9 @@ IF( ENABLE_TESTS )
   ENDIF ( CPPUNIT AND CPPUNIT_HEADERS )
 ENDIF(ENABLE_TESTS )
 
+# Enable boost tests (just a port of the CPPUNIT tests above, removes a library dependancy)
+OPTION( ENABLE_BOOST_TESTS "Turn me off to disable compilation of all tests" ON )
+
 #
 # STATIC or SHARED
 #
