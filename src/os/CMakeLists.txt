@@ -10,6 +10,7 @@ ADD_SUBDIRECTORY( lxrt )
 ADD_SUBDIRECTORY( xenomai )
 ADD_SUBDIRECTORY( ecos )
 ADD_SUBDIRECTORY( macosx )
+ADD_SUBDIRECTORY( win32 )
 
 # Supported Hardware
 ADD_SUBDIRECTORY( oro_i386 )

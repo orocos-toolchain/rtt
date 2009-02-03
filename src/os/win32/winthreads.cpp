@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  Tue Mar 11 21:49:19 CET 2008  fosi_internal.hpp 
+  tag: Peter Soetens  Mon Jun 26 13:25:57 CEST 2006  gnuthreads.cxx
 
-                        fosi_internal.hpp -  description
+                        gnuthreads.cxx -  description
                            -------------------
-    begin                : Tue March 11 2008
-    copyright            : (C) 2008 FMTC
+    begin                : Mon June 26 2006
+    copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,27 +34,19 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
-#include "../rtt-config.h"
-
-#ifdef OROPKG_OS_GNULINUX
- #include "gnulinux/fosi_internal.hpp"
-#endif
-
-#ifdef OROPKG_OS_LXRT
- #include "lxrt/fosi_internal.hpp"
-#endif
 
 
-#ifdef OROPKG_OS_XENOMAI
- #include "xenomai/fosi_internal.hpp"
-#endif
 
-#ifdef OROPKG_OS_ECOS
- #include "ecos/fosi_internal.hpp"
-#endif
+#include <os/threads.hpp>
+#include <windows.h>
 
-#ifdef OROPKG_OS_WIN32
- #include "win32/fosi_internal.hpp"
-#endif
+namespace RTT
+{ namespace OS {
+
+    const int LowestPriority = -15;
+
+    const int HighestPriority = 15;
+
+    const int IncreasePriority = 1;
+
+}}
