@@ -56,7 +56,7 @@ namespace RTT
      * @param T The result data type of get().
      */
     template<typename T>
-    class ValueDataSource
+    class RTT_API ValueDataSource
         : public AssignableDataSource<T>
     {
     protected:
@@ -102,7 +102,7 @@ namespace RTT
      * @param T Any type of data, except being a non-const reference.
      */
     template<typename T>
-    class ConstantDataSource
+    class RTT_API ConstantDataSource
         : public DataSource<T>
     {
         /**
@@ -136,7 +136,7 @@ namespace RTT
      * @param T The result data type of get().
      */
     template<typename T>
-    class ReferenceDataSource
+    class RTT_API ReferenceDataSource
         : public AssignableDataSource<T>
     {
         // a reference to a value_t
