@@ -15,7 +15,7 @@ MESSAGE("CMAKE_VERSION: ${CMAKE_VERSION}")
 #
 # If we're using gcc, make sure the version is OK.
 #
-SET(RTT_CXXFLAGS "")
+SET(RTT_CFLAGS "")
 # this is a workaround distcc:
 IF ( CMAKE_CXX_COMPILER_ARG1 )
   STRING(REPLACE " " "" CMAKE_CXX_COMPILER_ARG1 ${CMAKE_CXX_COMPILER_ARG1} )
@@ -30,7 +30,7 @@ IF ( ${CXX_HAS_VERSION} EQUAL 0 )
   # We are assuming here that -dumpversion is gcc specific.
   IF( CXX_VERSION MATCHES "4\\.[0-9](\\.[0-9])?" )
     MESSAGE("Detected gcc4: ${CXX_VERSION}")
-    #SET(RTT_CXXFLAGS "-fvisibility-inlines-hidden")
+    SET(RTT_CFLAGS "-Wno-deprecated")
     SET(RTT_GCC_HASVISIBILITY TRUE)
   ELSE(CXX_VERSION MATCHES "4\\.[0-9](\\.[0-9])?")
     IF( CXX_VERSION MATCHES "3\\.[0-9](\\.[0-9])?" )
