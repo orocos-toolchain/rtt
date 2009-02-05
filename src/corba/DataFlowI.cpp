@@ -232,11 +232,11 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
     }
 
     ::RTT::Corba::Expression_var ret = (::RTT::Corba::Expression_ptr)ci->getDataSource()->server(ORO_CORBA_PROTOCOL_ID, 0);
-    if ( CORBA::is_nil( ret ) ) {
-        RTT::log() << "Could not create DataObject for connected Port: "<< port_name <<endlog(Error);
-        return 0;
-    }
-    return ret._retn();
+    if ( !CORBA::is_nil( ret ) )
+        return ret._retn();
+
+    RTT::log() << "Could not create DataObject for connected Port: "<< port_name <<endlog(Error);
+    return 0;
 }
 
 ::RTT::Corba::DataFlowInterface::ConnectionModel RTT_Corba_DataFlowInterface_i::getConnectionModel (
