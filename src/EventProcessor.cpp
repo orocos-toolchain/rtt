@@ -121,11 +121,6 @@ namespace RTT
         return has_work.read() != 0;
     }
 
-    bool EventProcessor::hasWork()
-    {
-        return has_work.read() != 0;
-    }
-
     bool EventProcessor::breakLoop() {
         // override default breakLoop()
         return true;
