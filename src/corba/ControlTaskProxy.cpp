@@ -417,7 +417,7 @@ namespace RTT
             // First initialize the ORB, that will remove some arguments...
             orb =
                 CORBA::ORB_init (argc, const_cast<char**>(argv),
-                                 "" /* the ORB name, it can be anything! */);
+                                 "omniORB4");
             // Also activate the POA Manager, since we may get call-backs !
             CORBA::Object_var poa_object =
                 orb->resolve_initial_references ("RootPOA");
