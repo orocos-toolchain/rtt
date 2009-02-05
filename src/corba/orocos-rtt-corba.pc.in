@@ -7,6 +7,6 @@ Name: Orocos-RTT-CORBA                                     # human-readable name
 Description: Open Robot Control Software: Real-Time Tookit # human-readable description
 Requires: orocos-rtt-@OROCOS_TARGET@
 Version: @RTT_VERSION@
-Libs: -L${libdir} -lorocos-rtt-corba-@OROCOS_TARGET@ @RTT_CORBA_LINKFLAGS@
-Libs.private: 
-Cflags: @RTT_CORBA_CFLAGS@
+Libs: -L${libdir} -lorocos-rtt-corba-@OROCOS_TARGET@
+Libs.private: @RTT_CORBA_LINKFLAGS@
+Cflags: @RTT_CORBA_CFLAGS@ -I${includedir}/rtt/corba
