@@ -466,7 +466,7 @@ namespace RTT
         return 0;
     }
 
-    TaskContext* ControlTaskProxy::Create(::RTT::Corba::ControlTask_ptr t) {
+    TaskContext* ControlTaskProxy::Create(::RTT::Corba::ControlTask_ptr t, bool force_remote) {
         Logger::In in("ControlTaskProxy::Create");
         if ( CORBA::is_nil(orb) ) {
             log(Error) << "Can not create proxy when ORB is nill !"<<endlog();
@@ -484,14 +484,16 @@ namespace RTT
                 log(Debug) << "Existing proxy found !" <<endlog();
                 return it->first;
             }
-
-
-        // XXX TODO complete this code
-        for (ControlTaskServer::ServerMap::iterator it = ControlTaskServer::servers.begin(); it != ControlTaskServer::servers.end(); ++it)
-            if ( it->second->server()->_is_equivalent( t ) ) {
-                log(Debug) << "Local server found !" <<endlog();
-                return it->first;
-            }
+        
+        // Check if the ControlTask is actually a local TaskContext
+        if (! force_remote)
+        {
+            for (ControlTaskServer::ServerMap::iterator it = ControlTaskServer::servers.begin(); it != ControlTaskServer::servers.end(); ++it)
+                if ( it->second->server()->_is_equivalent( t ) ) {
+                    log(Debug) << "Local server found !" <<endlog();
+                    return it->first;
+                }
+        }
 
         log(Debug) << "No local taskcontext found..." <<endlog();
         // create new:

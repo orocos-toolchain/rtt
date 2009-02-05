@@ -141,7 +141,7 @@ namespace RTT
          * @return A new or previously created CORBA proxy for \a task, or the TaskContext
          * itself.
          */
-        static TaskContext* Create(::RTT::Corba::ControlTask_ptr task);
+        static TaskContext* Create(::RTT::Corba::ControlTask_ptr task, bool force_remote = false);
 
         /**
          * Get the Corba Object of the ControlTask.

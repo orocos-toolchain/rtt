@@ -26,6 +26,7 @@
 #include <OperationInterface.hpp>
 
 using namespace std;
+using Corba::ControlTaskProxy;
 
 // Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( CorbaTest );
@@ -107,7 +108,7 @@ void CorbaTest::testRemoteMethodC()
 {
 
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
 
     // This test tests 'transparant' remote invocation of Orocos MethodC objects.
     MethodC mc;
@@ -135,7 +136,7 @@ void CorbaTest::testRemoteMethod()
 {
 
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
 
     // This test tests 'transparant' remote invocation of Orocos methods.
     // This requires the RemoteMethod class, which does not work yet.
@@ -156,7 +157,7 @@ void CorbaTest::testAnyMethod()
 {
 
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server() , true);
 
     // This test tests the createMethodAny() function of the server.
     Corba::ControlObject_var co = ts->server()->getObject("methods");
@@ -234,7 +235,7 @@ void CorbaTest::testPorts()
     // test create channel functions of dataflowinterface.
     // write to corba read from C++ and vice verse.
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
 
     // DATA PORTS
     ::RTT::Corba::AssignableExpression_var unknown_data = ts->server()->ports()->createDataChannel("does_not_exist");
@@ -301,10 +302,10 @@ void CorbaTest::testPorts()
 void CorbaTest::testConnectPortsIDL()
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
-
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
+    
     // Default direction is from ts to ts2, but it will also need to
     // connect ports from ts2 to ts when ts is reader and ts2 is writer.
     CPPUNIT_ASSERT( ts->server()->connectPorts( ts2->server() ) );
@@ -316,9 +317,9 @@ void CorbaTest::testConnectPortsIDL()
 void CorbaTest::testConnectPortsLR()
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
     CPPUNIT_ASSERT( connectPorts(tc, tp2 ) );
 
@@ -328,10 +329,10 @@ void CorbaTest::testConnectPortsLR()
 }
 void CorbaTest::testConnectPortsRL()
 {
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    ts  = Corba::ControlTaskServer::Create( tc, false ); //no-naming
+    tp  = Corba::ControlTaskProxy::Create( ts->server(), true );
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
     CPPUNIT_ASSERT( connectPorts(tp, t2 ) );
 
@@ -343,9 +344,9 @@ void CorbaTest::testConnectPortsRL()
 void CorbaTest::testConnectPortsRR()
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
     CPPUNIT_ASSERT( connectPorts(tp, tp2 ) );
 
@@ -357,9 +358,9 @@ void CorbaTest::testConnectPortsRR()
 void CorbaTest::testConnectPortsLRC()
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
     // test connecting to existing connection:
     ConnectionInterface::shared_ptr ci = md1->createConnection(ConnectionTypes::lockfree);
@@ -375,9 +376,9 @@ void CorbaTest::testConnectPortsLRC()
 void CorbaTest::testConnectPortsRLC()
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
     // test connecting to existing connection:
     ConnectionInterface::shared_ptr ci = md1->createConnection(ConnectionTypes::lockfree);
@@ -394,9 +395,9 @@ void CorbaTest::testConnectPortsRLC()
 void CorbaTest::testConnectPortsRRC()
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
     // test connecting to existing connection:
     ConnectionInterface::shared_ptr ci = md1->createConnection(ConnectionTypes::lockfree);
@@ -534,9 +535,9 @@ void CorbaTest::testConnections()
 {
     // This test tests the differen port-to-port connections.
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
     // incompatible type should fail
     CPPUNIT_ASSERT( !ts->server()->ports()->connectPorts("md", ts2->server()->ports(), "mb") );
