@@ -10,7 +10,7 @@
   <articleinfo>
     <title>Extending the Real-Time Toolkit</title>
     <copyright>
-      <year>2006</year>
+      <year>2006,2007,2009</year>
       <holder>Peter Soetens, FMTC</holder>
     </copyright>
 
@@ -27,6 +27,12 @@
     </abstract>
 
     <revhistory>
+      <revision>
+	<revnumber>1.8.0</revnumber>
+	<date>5 Feb 2009</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Added Dot operator</revremark>
+      </revision>
       <revision>
 	<revnumber>1.0.1</revnumber>
 	<date>24 Nov 2006</date>
@@ -395,6 +401,105 @@ bool loadOperators() {
 	  Multiple constructors can be added for the same type. The first
 	  one that matches with the given arguments is then taken.
 	</para>
+      </section>
+      <section id="dot-operator">
+	<title>Calling Member functions</title>
+	<para>
+	  Orocos allows to call small functions on data types in order
+	  to extract meta data or individual elements.
+	  Say that the ControlData struct has a helper function
+	  to determine if the data is valid and a function for each
+	  data part:
+	</para>
+	<programlisting>  struct ControlData {
+
+    // Returns true if the data corresponds to a measurement.
+    bool isValid() { return sample_nbr >= 0; }
+
+    // Returns x,y,z
+    double getX() { return x; }
+    double getY() { return y; }
+    double getZ() { return z; }
+
+    double x, y, z;
+    int sample_nbr;
+  }</programlisting>
+        <para>
+	  The question is now how to access these values in scripting.
+	  The RTT calls this 'dot' operators. They allow you to write:
+        </para>
+	<programlisting>  var ControlData cd = ...;
+
+  if ( cd.valid ) {
+    double norm_square = cd.x*cd.x + cd.y*cd.y + cd.z*cd.z ;
+    // ...
+  }</programlisting>
+        <para>
+	  In order to add the <option>.x</option>, <option>.y</option>,
+	  <option>.z</option> and <option>.valid</option> 'dot' operators
+	  to the 'ControlData' type you need to add these pieces of code
+	  to your toolkit:
+        </para>
+	<programlisting>
+  // These 'query' structs use ControlData
+  struct get_cd_valid
+     : public std::unary_function&lt;ControlData, bool&gt;
+  {
+      bool operator()(ControlData&amp; data ) const
+      {
+          return data.isValid();
+      }
+  };
+
+  // These 'query' structs use ControlData
+  struct get_cd_x
+     : public std::unary_function&lt;ControlData, double&gt;
+  {
+      double operator()(ControlData&amp; data ) const
+      {
+          return data.getX();
+      }
+  };
+
+  // These 'query' structs use ControlData
+  struct get_cd_y
+     : public std::unary_function&lt;ControlData, double&gt;
+  {
+      double operator()(ControlData&amp; data ) const
+      {
+          return data.getY();
+      }
+  };
+
+  // These 'query' structs use ControlData
+  struct get_cd_z
+     : public std::unary_function&lt;ControlData, double&gt;
+  {
+      double operator()(ControlData&amp; data ) const
+      {
+          return data.getZ();
+      }
+  };
+
+  // Finally, add these helper structs to the OperatorRepository:
+  OperatorRepository::shared_ptr oreg = OperatorRepository::Instance();
+  oreg->add( newDotOperator( "valid",  get_cd_valid() ) );
+  oreg->add( newDotOperator( "x",  get_cd_x() ) );
+  oreg->add( newDotOperator( "y",  get_cd_y() ) );
+  oreg->add( newDotOperator( "z",  get_cd_z() ) );</programlisting>
+	<para>
+	  The dot operator (<classname>RTT::detail::DotOp</classname>) is
+	  <emphasis>ONLY</emphasis> for reading. You can not use it to 
+	  write to a data type. So this will not work:
+	</para>
+	<programlisting>  var ControlData cd = ControlData(3.4, 5.0, 1.7);
+
+  cd.x = 0.0; // error!</programlisting>
+	<para>
+	  The current work-around is to write:
+	</para>
+	<programlisting>  var ControlData cd = ControlData(3.4, 5.0, 1.7);
+  cd = ControlData(0.0, cd.y, cd.z); // use its constructor !</programlisting>
       </section>
     </section>
   </section>
