@@ -184,9 +184,16 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
         ci = p->createConnection();
         // A newly created connection starts unconnected.
         if (ci)
-            ci->connect();
+        {
+            if (!ci->connect())
+                RTT::log(Error) << "Failed to connect the newly created CORBA Buffer Connection for Port: "<< port_name <<endlog(Error);
+        }
+        else
+            RTT::log(Error) << "Failed to create CORBA Buffer Connection for Port: "<< port_name << ". Are you trying to create a buffer channel on a readonly port ?" << endlog(Error);
     } else {
         ci = p->connection();
+        if (! ci)
+            RTT::log(Error) << "Failed to obtain CORBA Buffer Connection for Port: "<< port_name <<endlog(Error);
     }
 
     // use the datasource to obtain the protocol.
