@@ -63,6 +63,6 @@ ENDIF( BUILD_STATIC )
 
   INSTALL_TARGETS(/lib orocos-rtt-corba_dynamic-${OROCOS_TARGET})
   INSTALL_FILES( /lib/pkgconfig FILES orocos-rtt-corba-${OROCOS_TARGET}.pc)
-
+  INSTALL_FILES( /include/rtt/corba FILES rtt-corba-config.h )
 ENDIF(ENABLE_CORBA)
 
