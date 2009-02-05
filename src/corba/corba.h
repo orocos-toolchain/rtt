@@ -4,7 +4,7 @@
 #if CORBA_IS_TAO
 #include <tao/corba.h>
 #define CORBA_SERVANT(f) f ## "S.h"
-#define CORBA_EXCEPTION_INFO(x) x._info.c_str()
+#define CORBA_EXCEPTION_INFO(x) x._info().c_str()
 #else
 #include <omniORB4/CORBA.h>
 namespace CORBA {
