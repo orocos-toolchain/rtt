@@ -49,7 +49,7 @@
 //#define ORO_SIGNAL_USE_RT_LIST
 #define ORO_SIGNAL_USE_LIST_LOCK_FREE
 
-#include "os/Atomic.hpp"
+#include "../os/Atomic.hpp"
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
 #include "../ListLockFree.hpp"
 #include <boost/shared_ptr.hpp>
@@ -58,7 +58,7 @@
 #include "../os/Mutex.hpp"
 #include "../os/rt_list.hpp"
 #else
-#include "os/Mutex.hpp"
+#include "../os/Mutex.hpp"
 #include <list>
 #endif
 #endif
