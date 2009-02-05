@@ -105,12 +105,12 @@ namespace RTT
         }
     };
 
-    template<class Type>
+    template<class Type, class _CorbaType = Type>
     struct AnyConversionHelper
     {
-        typedef Type CorbaType;
+        typedef _CorbaType CorbaType;
         typedef Type StdType;
-        static const Type& toAny(const Type& t ) {
+        static CorbaType toAny( Type t ) {
             //Logger::log() << Logger::Debug << "Converting type "<<detail::DataSourceTypeInfo<Type>::getType()<<" to same CORBA type." <<Logger::endl;
             return t;
         }
@@ -122,7 +122,9 @@ namespace RTT
         }
 
         static bool update(const CORBA::Any& any, StdType& _value) {
-            if ( any >>= _value ) {
+	    CorbaType temp;
+            if ( any >>= temp ) {
+		_value = temp;
                 return true;
             }
             return false;
@@ -131,7 +133,7 @@ namespace RTT
         static CORBA::Any_ptr createAny( const Type& t ) {
             CORBA::Any_ptr ret = new CORBA::Any();
             //Logger::log() << Logger::Debug << "Creating Corba::Any from "<<detail::DataSourceTypeInfo<Type>::getType()<<"." <<Logger::endl;
-            *ret <<= toAny( t );
+            *ret <<= toAny( static_cast<CorbaType>(t) );
             return ret;
         }
 
@@ -144,13 +146,13 @@ namespace RTT
     struct AnyConversion<float> : public AnyConversionHelper<float> {};
 
     template<>
-    struct AnyConversion<int> : public AnyConversionHelper<int> {};
+    struct AnyConversion<int> : public AnyConversionHelper<int, CORBA::Long> {};
 
     template<>
     struct AnyConversion<long> : public AnyConversionHelper<long> {};
 
     template<>
-    struct AnyConversion<unsigned int> : public AnyConversionHelper<unsigned int> {};
+    struct AnyConversion<unsigned int> : public AnyConversionHelper<unsigned int, CORBA::ULong> {};
 
     template<>
     struct AnyConversion<CORBA::Any_ptr>
