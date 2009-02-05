@@ -43,6 +43,7 @@
 #ifndef _REENTRANT
 #define _REENTRANT
 #endif
+#include "corba.h"
 #ifdef CORBA_IS_TAO
 #include <tao/corba.h>
 #include "ControlTaskS.h"

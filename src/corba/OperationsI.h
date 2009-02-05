@@ -73,6 +73,7 @@
 #define INCLUDE_EXECUTIONI_H_
 
 #include "OperationsC.h"
+#include "corba.h"
 #ifdef CORBA_IS_TAO
 #include "OperationsS.h"
 #endif

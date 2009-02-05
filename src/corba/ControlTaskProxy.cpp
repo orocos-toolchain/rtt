@@ -64,6 +64,7 @@
 #include "CommandInterface.hpp"
 #include "Types.hpp"
 #include "corba.h"
+#include "corba.h"
 #ifdef CORBA_IS_TAO
 #include "orbsvcs/CosNamingC.h"
 #include <ace/String_Base.h>

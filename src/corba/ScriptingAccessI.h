@@ -71,6 +71,7 @@
 
 #include "../rtt-config.h"
 #include "corba.h"
+#include "corba.h"
 #ifdef CORBA_IS_TAO
 #include "ScriptingAccessS.h"
 #else

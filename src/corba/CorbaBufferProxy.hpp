@@ -43,6 +43,7 @@
 #include "../BufferInterface.hpp"
 #include "corba.h"
 #include "DataFlowC.h"
+#include "corba.h"
 #ifdef CORBA_IS_TAO
 #include "DataFlowS.h"
 #endif

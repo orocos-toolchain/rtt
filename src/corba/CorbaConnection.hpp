@@ -3,6 +3,7 @@
 
 #include "../ConnectionInterface.hpp"
 #include "DataFlowC.h"
+#include "corba.h"
 #ifdef CORBA_IS_TAO
 #include <tao/corba.h>
 #include <tao/PortableServer/PortableServer.h>

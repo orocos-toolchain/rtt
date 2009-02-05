@@ -3,11 +3,8 @@
 
 #define RTT_CORBA_IMPLEMENTATION @CORBA_IMPLEMENTATION@
 
-#ifeq (RTT_CORBA_IMPLEMENTATION, TAO)
-#define CORBA_IS_TAO
-#else
-#define CORBA_IS_OMNIORB
-#endif
+#cmakedefine CORBA_IS_TAO 1
+#cmakedefine CORBA_IS_OMNIORB 1
 
 #endif
 

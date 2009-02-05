@@ -41,6 +41,7 @@
 
 #include "DataSource.hpp"
 #include "corba.h"
+#include "corba.h"
 #ifdef CORBA_IS_TAO
 #include <tao/Version.h>
 #if TAO_MAJOR_VERSION == 1 && TAO_MINOR_VERSION <= 4

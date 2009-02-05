@@ -41,6 +41,7 @@
 #include "CommandProxy.hpp"
 #include "ConditionInterface.hpp"
 
+#include "corba.h"
 #ifdef CORBA_IS_TAO
 #include <ace/String_Base.h>
 #endif

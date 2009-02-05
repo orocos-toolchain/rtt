@@ -41,6 +41,7 @@
 
 #include "../rtt-config.h"
 #include "corba.h"
+#include "corba.h"
 #ifdef CORBA_IS_TAO
 #include <tao/PortableServer/PortableServer.h>
 #else

@@ -39,6 +39,7 @@
 
 #include "ControlTaskServer.hpp"
 #include "ControlTaskProxy.hpp"
+#include "corba.h"
 #ifdef CORBA_IS_TAO
 #include "ControlTaskS.h"
 #include <orbsvcs/CosNamingC.h>

@@ -42,6 +42,7 @@
 #include "ExpressionProxy.hpp"
 #include <iostream>
 
+#include "corba.h"
 #ifdef CORBA_IS_TAO
 #include <ace/String_Base.h>
 #endif

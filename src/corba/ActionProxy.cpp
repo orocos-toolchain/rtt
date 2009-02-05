@@ -40,6 +40,7 @@
 #include "OperationsI.h"
 #include "ActionProxy.hpp"
 
+#include "corba.h"
 #ifdef CORBA_IS_TAO
 #include <ace/String_Base.h>
 #endif

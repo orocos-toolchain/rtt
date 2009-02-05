@@ -41,6 +41,7 @@
 
 #include "Services.hpp"
 #include "ServicesC.h"
+#include "corba.h"
 #ifdef CORBA_IS_TAO
 #include "ServicesS.h"
 #endif

@@ -1,6 +1,7 @@
 #ifndef ORO_CORBA_SUPPORT_HH
 #define ORO_CORBA_SUPPORT_HH
 
+#include "rtt-corba-config.h"
 #if CORBA_IS_TAO
 #include <tao/corba.h>
 #define CORBA_SERVANT(f) f ## "S.h"
