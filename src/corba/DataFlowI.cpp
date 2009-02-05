@@ -154,7 +154,7 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
 
     ::RTT::Corba::AssignableExpression_var ec = ::RTT::Corba::AssignableExpression::_narrow( ret.in() );
 
-    if ( ec.in() )
+    if ( !CORBA::is_nil(ec) )
         return ec._retn();
 
     RTT::log() << "Could not create DataChannel for Port (try BufferChannel ?): "<< port_name <<endlog(Error);
@@ -203,7 +203,7 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
     // use the getBuffer method to obtain the buffer.
     ::RTT::Corba::BufferChannel_var ret = static_cast<BufferChannel_ptr>(ci->getDataSource()->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID)->bufferServer( ci->getBuffer(), 0 ));
 
-    if ( ret.in() )
+    if ( !CORBA::is_nil(ret) )
         return ret._retn();
     RTT::log() << "Could not create BufferChannel for Port (try DataChannel?): "<< port_name <<endlog(Error);
     return 0;

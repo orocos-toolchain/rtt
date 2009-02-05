@@ -139,8 +139,8 @@ namespace RTT
                     rootObj = orb->resolve_initial_references("NameService");
                     rootNC = CosNaming::NamingContext::_narrow(rootObj.in());
                 } catch (...) {}
-
-                if (CORBA::is_nil( rootNC.in() ) ) {
+            
+                if (CORBA::is_nil( rootNC ) ) {
                     log(Warning) << "ControlTask '"<< taskc->getName() << "' could not find CORBA Naming Service."<<endlog();
                     log() <<"Writing IOR to 'std::cerr' and file '" << taskc->getName() <<".ior'"<<endlog();
 
@@ -213,7 +213,7 @@ namespace RTT
     }
 
     bool ControlTaskServer::InitOrb(int argc, char* argv[] ) {
-        if ( orb.in() )
+        if ( !CORBA::is_nil(orb) )
             return false;
         try {
             // First initialize the ORB, that will remove some arguments...
@@ -367,7 +367,7 @@ namespace RTT
     }
 
     ControlTaskServer* ControlTaskServer::Create(TaskContext* tc, bool use_naming) {
-        if ( !orb )
+        if ( CORBA::is_nil(orb) )
             return 0;
 
         if ( servers.count(tc) ) {
@@ -382,7 +382,7 @@ namespace RTT
     }
 
     ControlTask_ptr ControlTaskServer::CreateServer(TaskContext* tc, bool use_naming) {
-        if ( !orb )
+        if ( CORBA::is_nil(orb) )
             return 0;
 
         if ( servers.count(tc) ) {

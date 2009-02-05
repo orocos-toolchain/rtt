@@ -81,7 +81,7 @@ namespace RTT
         virtual void readArguments() {}
 
         virtual bool ready() const {
-            return mdata.in();
+            return !CORBA::is_nil(mdata);
         }
 
         virtual bool dispatch() {

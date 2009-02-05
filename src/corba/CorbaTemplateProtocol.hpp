@@ -157,7 +157,7 @@ namespace RTT
               if ( dsb->serverProtocol() == ORO_CORBA_PROTOCOL_ID && dsb->getTypeName() == DataSource<T>::GetTypeName() ) {
                   Logger::log() << Logger::Debug << "Trying to narrow server "<<dsb->getType()<<" to local "<<DataSource<T>::GetType() <<Logger::endl;
                   Corba::Expression_var expr = (Corba::Expression_ptr)dsb->server(ORO_CORBA_PROTOCOL_ID, 0) ;
-                  assert( expr.in() );
+                  assert( !CORBA::is_nil(expr) );
                   return Corba::ExpressionProxy::NarrowDataSource<T>( expr.in() );
               }
               Logger::log() << Logger::Debug << "Failed to narrow server "<<dsb->getType()<<" to local "<<DataSource<T>::GetType() <<Logger::endl;

@@ -48,7 +48,7 @@ namespace RTT
             // getDataSource returns data value or buffer's front() value
             // Data case
             if (tt && mdflow->getConnectionModel( mname.c_str() ) == DataFlowInterface::Data) {
-                if (mdatachannel.in() )
+                if (!CORBA::is_nil(mdatachannel))
                     return tt->dataProxy( (void*)mdatachannel.in() );
                 return tt->dataProxy( mdflow->createDataChannel(mname.c_str() ) );
             }
@@ -59,7 +59,7 @@ namespace RTT
                 BufferChannel_var buf = mdflow->createBufferChannel(mname.c_str());
                 // get the front() data object
                 Expression_var front = mdflow->createDataObject(mname.c_str());
-                if ( front.in() == 0 )
+                if (CORBA::is_nil(front))
                     return DataSourceBase::shared_ptr();
                 // convert to local data object
                 DataSourceBase::shared_ptr ds = ExpressionProxy::CreateDataSource( front.in() );
@@ -79,7 +79,7 @@ namespace RTT
                 return lcc->getBuffer();
             detail::TypeTransporter* tt = getTypeInfo()->getProtocol( ORO_CORBA_PROTOCOL_ID );
             if (tt && mdflow->getConnectionModel(mname.c_str()) == DataFlowInterface::Buffered) {
-                if ( mbufchannel.in() )
+                if ( !CORBA::is_nil(mbufchannel) )
                     return BufferBase::shared_ptr( tt->bufferProxy( (void*) mbufchannel.in() ) );
                 return BufferBase::shared_ptr( tt->bufferProxy( mdflow->createBufferChannel(mname.c_str() ) ) );
             }

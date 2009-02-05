@@ -117,7 +117,7 @@ namespace RTT
         static AssignableDataSource<T>* NarrowAssignableDataSource( ::RTT::Corba::Expression_ptr expr) {
 
             Corba::AssignableExpression_var ret = Corba::AssignableExpression::_narrow( expr );
-            if ( ret ) {
+            if ( !CORBA::is_nil(ret) ) {
                 CORBA::Any_var any = ret->value();
                 typename DataSource<T>::value_t target = typename DataSource<T>::value_t();
                 ReferenceDataSource<T> rds( target );

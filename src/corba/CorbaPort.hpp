@@ -137,14 +137,14 @@ namespace RTT
 
         AssignableExpression_ptr getDataChannel()
         {
-            if ( mdatachannel.in() )
+            if ( !CORBA::is_nil(mdatachannel) )
                 return AssignableExpression::_duplicate(mdatachannel);
             return mdflow->createDataChannel( this->getName().c_str() );
         }
 
         BufferChannel_ptr getBufferChannel()
         {
-            if ( mbufchannel.in() )
+            if ( !CORBA::is_nil(mbufchannel) )
                 return BufferChannel::_duplicate(mbufchannel);
             return mdflow->createBufferChannel( this->getName().c_str() );
         }
@@ -249,7 +249,7 @@ namespace RTT
             detail::TypeTransporter* tt = getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID);
             if (tt) {
                 BufferChannel_var bc = (BufferChannel_ptr)tt->bufferServer(buf, 0);
-                if (bc.in() ) {
+                if (! CORBA::is_nil(bc) ) {
                     ci = new CorbaConnection( this->getName(), mdflow.in(), bc.in(), 0 );
                     ci->addPort(this);
                 } // else: leave ci empty.

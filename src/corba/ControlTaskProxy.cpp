@@ -113,8 +113,8 @@ namespace RTT
             } else {
                 // NameService
                 CORBA::Object_var rootObj = orb->resolve_initial_references("NameService");
-                CosNaming::NamingContext_var rootContext = CosNaming::NamingContext::_narrow(rootObj.in());
-                if (CORBA::is_nil(rootContext.in() )) {
+                CosNaming::NamingContext_var rootContext = CosNaming::NamingContext::_narrow(rootObj);
+                if (CORBA::is_nil(rootContext)) {
                     log(Error) << "ControlTaskProxy could not acquire NameService."<<endlog();
                     throw IllegalServer();
                 }
@@ -128,7 +128,7 @@ namespace RTT
                 CORBA::Object_var task_object = rootContext->resolve(serverName);
                 mtask = Corba::ControlTask::_narrow (task_object.in ());
             }
-            if ( CORBA::is_nil( mtask.in() ) ) {
+            if ( CORBA::is_nil( mtask ) ) {
                 Logger::log() << Logger::Error << "Failed to acquire ControlTaskServer '"+name+"'."<<endlog();
                 throw IllegalServer();
             }
@@ -175,7 +175,7 @@ namespace RTT
     void ControlTaskProxy::synchronizeOnce()
     {
         // Add here the interfaces that need to be synchronised only once at creation time.
-        if (!mtask)
+        if (CORBA::is_nil(mtask))
             return;
         log(Info) << "Creating Proxy interface for " << mtask_name <<endlog();
         log(Debug) << "Fetching ScriptingAccess."<<endlog();
@@ -192,7 +192,7 @@ namespace RTT
     {
         // Add here the interfaces that need to be synchronised every time a lookup is done.
         // Detect already added parts of an interface, does not yet detect removed parts...
-        if (!mtask)
+        if (CORBA::is_nil(mtask))
             return;
 
         // load command and method factories.
@@ -404,7 +404,7 @@ namespace RTT
     }
 
     bool ControlTaskProxy::InitOrb(int argc, char* argv[] ) {
-        if ( orb.in() )
+        if ( !CORBA::is_nil(orb) )
             return false;
 
         try {
@@ -466,7 +466,7 @@ namespace RTT
             log(Error) << "Can not create proxy when ORB is nill !"<<endlog();
             return 0;
         }
-        if ( !t ) {
+        if ( CORBA::is_nil(t) ) {
             log(Error) << "Can not create proxy for nill peer !" <<endlog();
             return 0;
         }
@@ -501,10 +501,10 @@ namespace RTT
 
     bool ControlTaskProxy::start() {
         try {
-            if (mtask)
+            if (! CORBA::is_nil(mtask) )
                 return mtask->start();
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -513,10 +513,10 @@ namespace RTT
 
     bool ControlTaskProxy::stop() {
         try {
-            if (mtask)
+            if (! CORBA::is_nil(mtask) )
                 return mtask->stop();
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -525,10 +525,10 @@ namespace RTT
 
     bool ControlTaskProxy::activate() {
         try {
-            if (mtask)
+            if (! CORBA::is_nil(mtask) )
                 return mtask->activate();
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -537,10 +537,10 @@ namespace RTT
 
     bool ControlTaskProxy::resetError() {
         try {
-            if (mtask)
+            if (! CORBA::is_nil(mtask) )
                 return mtask->resetError();
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -549,30 +549,30 @@ namespace RTT
 
     bool ControlTaskProxy::isActive() const {
         try {
-            if (mtask)
+            if (! CORBA::is_nil(mtask) )
                 return mtask->isActive();
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
         }
         return false;
     }
 
     bool ControlTaskProxy::isRunning() const {
         try {
-            if (mtask)
+            if (! CORBA::is_nil(mtask) )
                 return mtask->isRunning();
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
         }
         return false;
     }
 
     bool ControlTaskProxy::configure() {
         try {
-            if (mtask)
+            if (! CORBA::is_nil(mtask) )
                 return mtask->configure();
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -581,10 +581,10 @@ namespace RTT
 
     bool ControlTaskProxy::cleanup() {
         try {
-            if (mtask)
+            if (! CORBA::is_nil(mtask) )
                 return mtask->cleanup();
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -593,70 +593,70 @@ namespace RTT
 
     bool ControlTaskProxy::isConfigured() const {
         try {
-            if (mtask)
+            if (! CORBA::is_nil(mtask) )
                 return mtask->isConfigured();
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
         }
         return false;
     }
 
     bool ControlTaskProxy::inFatalError() const {
         try {
-            if (mtask)
+            if (! CORBA::is_nil(mtask) )
                 return mtask->inFatalError();
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
         }
         return false;
     }
 
     bool ControlTaskProxy::inRunTimeWarning() const {
         try {
-            if (mtask)
+            if (! CORBA::is_nil(mtask) )
                 return mtask->inRunTimeWarning();
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
         }
         return false;
     }
 
     bool ControlTaskProxy::inRunTimeError() const {
         try {
-            if (mtask)
+            if (! CORBA::is_nil(mtask) )
                 return mtask->inRunTimeError();
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
         }
         return false;
     }
 
     int ControlTaskProxy::getErrorCount() const {
         try {
-            if (mtask)
+            if (! CORBA::is_nil(mtask) )
                 return mtask->getErrorCount();
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
         }
         return -1;
     }
 
     int ControlTaskProxy::getWarningCount() const {
         try {
-            if (mtask)
+            if (! CORBA::is_nil(mtask) )
                 return mtask->getWarningCount();
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
         }
         return -1;
     }
 
     TaskContext::TaskState ControlTaskProxy::getTaskState() const {
         try {
-            if (mtask)
+            if (! CORBA::is_nil(mtask) )
                 return TaskContext::TaskState( mtask->getTaskState() );
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
         }
         return TaskContext::Init;
     }
@@ -669,7 +669,7 @@ namespace RTT
     bool ControlTaskProxy::addPeer( TaskContext* peer, std::string alias /*= ""*/ )
     {
         try {
-            if (!mtask)
+            if (CORBA::is_nil(mtask))
                 return false;
 
             // if peer is a proxy, add the proxy, otherwise, create new server.
@@ -688,7 +688,7 @@ namespace RTT
                 return true;
             }
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -698,11 +698,11 @@ namespace RTT
     void ControlTaskProxy::removePeer( const std::string& name )
     {
         try {
-            if (!mtask)
+            if (CORBA::is_nil(mtask))
                 return;
             mtask->removePeer( name.c_str() );
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -711,11 +711,11 @@ namespace RTT
     void ControlTaskProxy::removePeer( TaskContext* peer )
     {
         try {
-            if (!mtask)
+            if (CORBA::is_nil(mtask))
                 return;
             mtask->removePeer( peer->getName().c_str() );
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -724,12 +724,12 @@ namespace RTT
     bool ControlTaskProxy::connectPeers( TaskContext* peer )
     {
         try {
-            if (!mtask)
+            if (CORBA::is_nil(mtask))
                 return false;
             ControlTaskServer* newpeer = ControlTaskServer::Create(peer);
             return mtask->connectPeers( newpeer->server() );
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -739,10 +739,10 @@ namespace RTT
     void ControlTaskProxy::disconnectPeers( const std::string& name )
     {
         try {
-            if (mtask)
+            if (! CORBA::is_nil(mtask) )
                 mtask->disconnectPeers( name.c_str() );
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -753,13 +753,13 @@ namespace RTT
 
         TaskContext::PeerList vlist;
         try {
-            if (mtask) {
+            if (! CORBA::is_nil(mtask) ) {
                 Corba::ControlTask::ControlTaskNames_var plist = mtask->getPeerList();
                 for( size_t i =0; i != plist->length(); ++i)
                     vlist.push_back( std::string( plist[i] ) );
             }
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
         }
         return vlist;
     }
@@ -767,9 +767,10 @@ namespace RTT
     bool ControlTaskProxy::hasPeer( const std::string& peer_name ) const
     {
         try {
-            return mtask && mtask->hasPeer( peer_name.c_str() );
+            if (! CORBA::is_nil(mtask))
+                return mtask->hasPeer( peer_name.c_str() );
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
         }
         return false;
     }
@@ -777,14 +778,14 @@ namespace RTT
     TaskContext* ControlTaskProxy::getPeer(const std::string& peer_name ) const
     {
         try {
-            if ( !mtask )
+            if (CORBA::is_nil(mtask))
                 return 0;
             Corba::ControlTask_ptr ct = mtask->getPeer( peer_name.c_str() );
-            if ( !ct )
+            if ( CORBA::is_nil(ct) )
                 return 0;
             return ControlTaskProxy::Create( ct );
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
         }
         return 0;
     }
@@ -792,12 +793,12 @@ namespace RTT
     bool ControlTaskProxy::connectPorts( TaskContext* peer )
     {
         try {
-            if (!mtask)
+            if (CORBA::is_nil(mtask))
                 return false;
             ControlTaskServer* newpeer = ControlTaskServer::Create(peer);
             return mtask->connectPorts( newpeer->server() );
         } catch(...) {
-            mtask = 0;
+            mtask = ControlTask::_nil();
             this->setName("NotFound");
             this->clear();
         }
@@ -806,7 +807,7 @@ namespace RTT
 
     bool ControlTaskProxy::ready()
     {
-        if (!mtask) {
+        if (CORBA::is_nil(mtask)) {
             this->clear();
             return false;
         }
@@ -816,21 +817,21 @@ namespace RTT
         } catch(...) {
             // we could also try to re-establish the connection in case of naming...
             this->clear();
-            mtask = 0;
+            mtask = ControlTask::_nil();
         }
         return false;
     }
 
     Corba::ControlTask_ptr ControlTaskProxy::server() const {
-        if ( !mtask )
+        if ( CORBA::is_nil(mtask) )
             return 0;
         return Corba::ControlTask::_duplicate(mtask);
     }
 
     PortableServer::POA_ptr ControlTaskProxy::ProxyPOA() {
-        if ( !orb.in() )
+        if ( CORBA::is_nil(orb) )
             return 0;
-        if (!proxy_poa.in() ) {
+        if ( CORBA::is_nil(proxy_poa) ) {
             CORBA::Object_var poa_object =
                 orb->resolve_initial_references ("RootPOA");
 

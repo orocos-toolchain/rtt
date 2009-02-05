@@ -87,7 +87,7 @@ namespace RTT
         CORBAExpression( Corba::Expression_ptr expr )
             : mexpr( Corba::Expression::_duplicate( expr ) ), last_value()
         {
-            assert( mexpr.in() );
+            assert( !CORBA::is_nil(mexpr) );
         }
 
         void* server(int p, void* arg)

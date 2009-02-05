@@ -62,7 +62,7 @@ namespace RTT
                 ApplicationServer::orb->resolve_initial_references ("NameService" );
 
             // Need to check return value for errors.
-            if (CORBA::is_nil (naming_obj.in ())) {
+            if (CORBA::is_nil (naming_obj)) {
                 log(Error) << "Could not locate Naming service." <<endlog();
                 ACE_THROW (CORBA::UNKNOWN ());
             }
