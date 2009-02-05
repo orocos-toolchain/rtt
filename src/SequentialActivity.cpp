@@ -89,9 +89,14 @@ namespace RTT
 
     bool SequentialActivity::trigger()
     {
-        // this guards against recursive triggers.
+        // This function may recurse, in which case it returns true.
+        // We could also rely on the MutexTryLock to fail, but in 
+        // case an OS only has recursive mutexes, we'd need to
+        // check running anyway before calling runner->step(). So
+        // we moved that piece of code up front.
+        // The other thread will complete the work. (hasWork).
         if (running)
-            return false;
+            return true;
         if ( active ) {
             bool did_step = false;
             do {
