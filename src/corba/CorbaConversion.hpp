@@ -41,6 +41,8 @@
 
 #include <string>
 #include <vector>
+
+#ifdef CORBA_IS_TAO
 #include <tao/Version.h>
 #if TAO_MAJOR_VERSION == 1 && TAO_MINOR_VERSION <= 4
 #include <tao/Any.h>
@@ -48,6 +50,11 @@
 #include <tao/AnyTypeCode/Any.h>
 #endif
 #include <tao/CORBA_String.h>
+#else
+#include "corba.h"
+#include <omniORB4/stringtypes.h>
+#endif
+
 #include "OrocosTypesC.h"
 #include "../Logger.hpp"
 #include "../DataSourceTypeInfo.hpp"

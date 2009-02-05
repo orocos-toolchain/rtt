@@ -67,7 +67,12 @@
 // be/be_codegen.cpp:910
 
 #include "DataFlowI.h"
+#include "corba.h"
+#ifdef CORBA_IS_TAO
 #include "DataFlowS.h"
+#else
+#include "DataFlowC.h"
+#endif
 #include "../PortInterface.hpp"
 #include "../ConnectionInterface.hpp"
 #include "../Logger.hpp"

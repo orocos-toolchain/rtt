@@ -63,10 +63,16 @@
 
 #include "CommandInterface.hpp"
 #include "Types.hpp"
+#include "corba.h"
+#ifdef CORBA_IS_TAO
 #include "orbsvcs/CosNamingC.h"
+#include <ace/String_Base.h>
+#else
+#include <omniORB4/Naming.hh>
+#endif
 #include <iostream>
 
-#include <ace/String_Base.h>
+
 
 using namespace std;
 
@@ -140,7 +146,7 @@ namespace RTT
         }
         catch (CORBA::Exception &e) {
             log(Error)<< "CORBA exception raised when resolving Object !" << endlog();
-            Logger::log() << e._info().c_str() << endlog();
+            Logger::log() << CORBA_EXCEPTION_INFO(e) << endlog();
             throw;
         }
         catch (...) {
@@ -164,7 +170,7 @@ namespace RTT
         }
         catch (CORBA::Exception &e) {
             log(Error) << "CORBA exception raised when creating ControlTaskProxy!" << Logger::nl;
-            Logger::log() << e._info().c_str() << endlog();
+            Logger::log() << CORBA_EXCEPTION_INFO(e) << endlog();
         }
         catch (...) {
             throw;
@@ -425,7 +431,7 @@ namespace RTT
         }
         catch (CORBA::Exception &e) {
             log(Error) << "Orb Init : CORBA exception raised!" << Logger::nl;
-            Logger::log() << e._info().c_str() << endlog();
+            Logger::log() << CORBA_EXCEPTION_INFO(e) << endlog();
         }
         return false;
     }
@@ -440,7 +446,7 @@ namespace RTT
         }
         catch (CORBA::Exception &e) {
             log(Error) << "Orb Init : CORBA exception raised!" << Logger::nl;
-            Logger::log() << e._info().c_str() << endlog();
+            Logger::log() << CORBA_EXCEPTION_INFO(e) << endlog();
         }
     }
 

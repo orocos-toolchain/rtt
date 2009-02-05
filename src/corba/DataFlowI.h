@@ -70,7 +70,11 @@
 #define DATAFLOWI_H_
 
 #include "../rtt-config.h"
+#ifdef CORBA_IS_TAO
 #include "DataFlowS.h"
+#else
+#include "DataFlowC.h"
+#endif
 #include "../DataFlowInterface.hpp"
 #include "../BufferInterface.hpp"
 #include "CorbaConversion.hpp"

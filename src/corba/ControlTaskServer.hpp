@@ -43,10 +43,15 @@
 #ifndef _REENTRANT
 #define _REENTRANT
 #endif
+#ifdef CORBA_IS_TAO
 #include <tao/corba.h>
+#include "ControlTaskS.h"
+#else
+#include <omniORB4/CORBA.h>
+#include "ControlTaskC.h"
+#endif
 #include "../TaskContext.hpp"
 #include "ApplicationServer.hpp"
-#include "ControlTaskS.h"
 #include "../ActivityInterface.hpp"
 
 namespace RTT

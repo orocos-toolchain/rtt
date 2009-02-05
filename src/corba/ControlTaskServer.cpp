@@ -39,16 +39,19 @@
 
 #include "ControlTaskServer.hpp"
 #include "ControlTaskProxy.hpp"
+#ifdef CORBA_IS_TAO
 #include "ControlTaskS.h"
+#include <orbsvcs/CosNamingC.h>
+// ACE Specific, for printing exceptions.
+#include <ace/SString.h>
+#else
+#include <omniORB4/Naming.hh>
+#endif
 #include "ControlTaskC.h"
 #include "ControlTaskI.h"
 #include "POAUtility.h"
-#include <orbsvcs/CosNamingC.h>
 #include <iostream>
 #include <fstream>
-
-// ACE Specific, for printing exceptions.
-#include <ace/SString.h>
 
 #include "os/threads.hpp"
 #include "NonPeriodicActivity.hpp"
@@ -207,7 +210,7 @@ namespace RTT
         }
         catch (CORBA::Exception &e) {
             log(Error) << "CORBA exception raised!" << endlog();
-            log() << e._info().c_str() << endlog();
+            log() << CORBA_EXCEPTION_INFO(e) << endlog();
         }
 
     }
@@ -232,7 +235,7 @@ namespace RTT
         }
         catch (CORBA::Exception &e) {
             log(Error) << "Orb Init : CORBA exception raised!" << endlog();
-            log() << e._info().c_str() << endlog();
+            log() << CORBA_EXCEPTION_INFO(e) << endlog();
         }
         return false;
 
@@ -271,7 +274,7 @@ namespace RTT
         }
         catch (CORBA::Exception &e) {
             log(Error) << "Orb Shutdown...failed! CORBA exception raised." << endlog();
-            log() << e._info().c_str() << endlog();
+            log() << CORBA_EXCEPTION_INFO(e) << endlog();
             return;
         }
     }
@@ -290,7 +293,7 @@ namespace RTT
         }
         catch (CORBA::Exception &e) {
             log(Error) << "Orb Run : CORBA exception raised!" << endlog();
-            log() << e._info().c_str() << endlog();
+            log() << CORBA_EXCEPTION_INFO(e) << endlog();
         }
     }
 
@@ -361,7 +364,7 @@ namespace RTT
         }
         catch (CORBA::Exception &e) {
             log(Error) << "Orb Destroy : CORBA exception raised!" << endlog();
-            log() << e._info().c_str() << endlog();
+            log() << CORBA_EXCEPTION_INFO(e) << endlog();
         }
 
     }

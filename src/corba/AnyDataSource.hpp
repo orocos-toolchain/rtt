@@ -40,12 +40,14 @@
 #define ORO_CORBA_ANYDATASOURCE_HPP
 
 #include "DataSource.hpp"
-#include <tao/corba.h>
+#include "corba.h"
+#ifdef CORBA_IS_TAO
 #include <tao/Version.h>
 #if TAO_MAJOR_VERSION == 1 && TAO_MINOR_VERSION <= 4
 #include <tao/Any.h>
 #else // TAO 1.5 and higher
 #include <tao/AnyTypeCode/Any.h>
+#endif
 #endif
 
 namespace RTT

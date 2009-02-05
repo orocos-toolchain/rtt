@@ -45,6 +45,7 @@
 #include "../DataSources.hpp"
 #include "OperationsC.h"
 #include "CorbaLib.hpp"
+#include "corba.h"
 
 namespace RTT
 { namespace Corba {

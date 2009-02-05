@@ -40,6 +40,7 @@
 #include "ApplicationServer.hpp"
 #include "Logger.hpp"
 #include "ControlTaskProxy.hpp"
+#include "corba.h"
 
 // See comment below.
 #if 0
@@ -64,7 +65,7 @@ namespace RTT
             // Need to check return value for errors.
             if (CORBA::is_nil (naming_obj)) {
                 log(Error) << "Could not locate Naming service." <<endlog();
-                ACE_THROW (CORBA::UNKNOWN ());
+                ACE_THROW_SPEC (CORBA::UNKNOWN ());
             }
 
             naming_context_ =

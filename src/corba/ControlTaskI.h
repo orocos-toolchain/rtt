@@ -70,7 +70,13 @@
 #define CONTROLTASKI_H_
 
 #include "../rtt-config.h"
+#include "corba.h"
+#ifdef CORBA_IS_TAO
 #include "ControlTaskS.h"
+#else
+#include "ControlTaskC.h"
+#endif
+
 #include "OperationInterfaceC.h"
 #include "AttributesC.h"
 #include "ScriptingAccessC.h"
@@ -152,7 +158,7 @@ public:
     ));
 
   virtual
-  ::RTT::Corba::ControlObject* getObject(const char*)
+  ::RTT::Corba::ControlObject_ptr getObject(const char*)
     ACE_THROW_SPEC ((
       CORBA::SystemException
     ));

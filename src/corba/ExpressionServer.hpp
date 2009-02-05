@@ -41,7 +41,11 @@
 
 #include "../DataSourceBase.hpp"
 #include "OperationsC.h"
-#include "tao/PortableServer/PortableServer.h"
+#ifdef CORBA_IS_TAO
+#include <tao/PortableServer/PortableServer.h>
+#else
+#include <omniORB4/poa.h>
+#endif
 
 
 // forward decl.

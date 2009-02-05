@@ -43,7 +43,12 @@
 #ifndef _REENTRANT
 #define _REENTRANT
 #endif
+#ifdef CORBA_IS_TAO
 #include <tao/corba.h>
+#else
+#include <omniORB4/CORBA.h>
+#endif
+
 #include <exception>
 #include "../TaskContext.hpp"
 #include <string>

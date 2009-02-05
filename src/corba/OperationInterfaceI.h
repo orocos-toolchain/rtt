@@ -70,7 +70,12 @@
 #define FACTORIESI_H_
 
 #include "../rtt-config.h"
+#include "corba.h"
+#ifdef CORBA_IS_TAO
 #include "OperationInterfaceS.h"
+#else
+#include "OperationInterfaceC.h"
+#endif
 #include "../OperationInterface.hpp"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)

@@ -41,10 +41,11 @@
 #define ORO_CORBA_BUFFER_PROXY_HPP
 
 #include "../BufferInterface.hpp"
+#include "corba.h"
 #include "DataFlowC.h"
+#ifdef CORBA_IS_TAO
 #include "DataFlowS.h"
-#include "orbsvcs/CosEventChannelAdminC.h"
-#include "orbsvcs/CosEventCommC.h"
+#endif
 #include "../DataSources.hpp"
 #include "CorbaLib.hpp"
 

@@ -43,10 +43,10 @@
 #include <string>
 #include "../PortInterface.hpp"
 #include "DataFlowC.h"
-#include "orbsvcs/CosEventChannelAdminC.h"
-#include "orbsvcs/CosEventCommC.h"
-#include <tao/corba.h>
+#include "corba.h"
+#ifdef CORBA_IS_TAO
 #include <tao/PortableServer/PortableServer.h>
+#endif
 #include "CorbaConnection.hpp"
 #include "CorbaLib.hpp"
 

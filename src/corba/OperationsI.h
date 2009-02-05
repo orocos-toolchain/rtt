@@ -73,7 +73,9 @@
 #define INCLUDE_EXECUTIONI_H_
 
 #include "OperationsC.h"
+#ifdef CORBA_IS_TAO
 #include "OperationsS.h"
+#endif
 #include "CorbaConversion.hpp"
 #include "AnyDataSource.hpp"
 #include "../DispatchInterface.hpp"

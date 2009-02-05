@@ -41,7 +41,9 @@
 
 #include "Services.hpp"
 #include "ServicesC.h"
+#ifdef CORBA_IS_TAO
 #include "ServicesS.h"
+#endif
 
 #include "../Logger.hpp"
 #include "ControlTaskServer.hpp"

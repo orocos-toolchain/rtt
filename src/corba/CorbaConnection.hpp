@@ -3,8 +3,13 @@
 
 #include "../ConnectionInterface.hpp"
 #include "DataFlowC.h"
+#ifdef CORBA_IS_TAO
 #include <tao/corba.h>
 #include <tao/PortableServer/PortableServer.h>
+#else
+#include <omniORB4/CORBA.h>
+#include <omniORB4/poa.h>
+#endif
 
 
 namespace RTT

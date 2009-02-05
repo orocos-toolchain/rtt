@@ -41,7 +41,9 @@
 #include "CommandProxy.hpp"
 #include "ConditionInterface.hpp"
 
+#ifdef CORBA_IS_TAO
 #include <ace/String_Base.h>
+#endif
 
 using namespace std;
 
@@ -57,7 +59,7 @@ namespace RTT
         }
         catch (CORBA::Exception &e) {
             Logger::log() <<Logger::Error << "CORBA exception raised when creating CommandProxy!" << Logger::nl;
-            Logger::log() << e._info().c_str() << Logger::endl;
+            Logger::log() << CORBA_EXCEPTION_INFO(e) << Logger::endl;
         }
         catch (...) {
             throw;

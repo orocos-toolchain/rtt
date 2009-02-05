@@ -70,7 +70,12 @@
 #define SCRIPTINGACCESSI_H_
 
 #include "../rtt-config.h"
+#include "corba.h"
+#ifdef CORBA_IS_TAO
 #include "ScriptingAccessS.h"
+#else
+#include "ScriptingAccessC.h"
+#endif
 #include "OperationsC.h"
 #include "../ScriptingAccess.hpp"
 

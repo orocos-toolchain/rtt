@@ -40,8 +40,12 @@
 #define RTT_CORBA_POAUTILITY_H_
 
 #include "../rtt-config.h"
-#include <tao/corba.h>
+#include "corba.h"
+#ifdef CORBA_IS_TAO
 #include <tao/PortableServer/PortableServer.h>
+#else
+#include <omniORB4/CORBA.h>
+#endif
 
 
 
