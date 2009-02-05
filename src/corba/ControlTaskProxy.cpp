@@ -824,13 +824,13 @@ namespace RTT
 
     Corba::ControlTask_ptr ControlTaskProxy::server() const {
         if ( CORBA::is_nil(mtask) )
-            return 0;
+            return ControlTask::_nil();
         return Corba::ControlTask::_duplicate(mtask);
     }
 
     PortableServer::POA_ptr ControlTaskProxy::ProxyPOA() {
         if ( CORBA::is_nil(orb) )
-            return 0;
+            return PortableServer::POA::_nil();
         if ( CORBA::is_nil(proxy_poa) ) {
             CORBA::Object_var poa_object =
                 orb->resolve_initial_references ("RootPOA");

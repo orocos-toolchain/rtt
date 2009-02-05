@@ -120,13 +120,13 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
   // Add your implementation here
     PortInterface* p = mdf->getPort(port_name);
 
-    if ( p == 0) {
+    if (p == 0) {
         RTT::log() << "No such Port: "<< port_name <<endlog(Error);
-        return 0;
+        return AssignableExpression::_nil();
     }
     else if (p->getConnectionModel() != PortInterface::Data) {
 	RTT::log(Error) << port_name << " is not a data port" << RTT::endlog(Error);
-	return 0;
+	return AssignableExpression::_nil();
     }
 
     //use this->isConnected() to thoroughly check the liveness of the connection.
@@ -142,12 +142,12 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
 
     if ( !ci ) {
         RTT::log() << "Failed to create CORBA Data Connection for Port: "<< port_name <<endlog(Error);
-        return 0;
+        return AssignableExpression::_nil();
     }
     else if ( ci->getDataSource()->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID) == 0 )
     {
         RTT::log() << "CORBA transport unavailable in data connection for port: "<< port_name << endlog(Error);
-        return 0;
+        return AssignableExpression::_nil();
     }
 
     ::RTT::Corba::Expression_var ret = static_cast<Expression_ptr>(ci->getDataSource()->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID)->dataServer( ci->getDataSource(), 0 ));
@@ -158,7 +158,7 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
         return ec._retn();
 
     RTT::log() << "Could not create DataChannel for Port (try BufferChannel ?): "<< port_name <<endlog(Error);
-    return 0;
+    return AssignableExpression::_nil();
 }
 
 ::RTT::Corba::BufferChannel_ptr RTT_Corba_DataFlowInterface_i::createBufferChannel (
@@ -172,11 +172,11 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
     PortInterface* p = mdf->getPort(port_name);
     if ( p == 0) {
         RTT::log() << "No such Port: "<< port_name <<endlog(Error);
-        return 0;
+        return BufferChannel::_nil();
     }
     else if (p->getConnectionModel() != PortInterface::Buffered) {
         RTT::log(Error) << port_name << " is not a buffer port" << RTT::endlog(Error);
-        return 0;
+        return BufferChannel::_nil();
     }
 
     RTT::ConnectionInterface::shared_ptr ci;
@@ -191,13 +191,12 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
 
     // use the datasource to obtain the protocol.
     if ( !ci ) {
-        RTT::log() << "Failed to create CORBA Buffer Connection for Port: "<< port_name <<endlog(Error);
-        return 0;
+        return BufferChannel::_nil();
     }
     else if ( ci->getDataSource()->getTypeInfo()->getProtocol(ORO_CORBA_PROTOCOL_ID) == 0 )
     {
         RTT::log() << "CORBA transport unavailable for connection on port: "<< port_name << endlog(Error);
-        return 0;
+        return BufferChannel::_nil();
     }
 
     // use the getBuffer method to obtain the buffer.
@@ -205,8 +204,9 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
 
     if ( !CORBA::is_nil(ret) )
         return ret._retn();
+
     RTT::log() << "Could not create BufferChannel for Port (try DataChannel?): "<< port_name <<endlog(Error);
-    return 0;
+    return BufferChannel::_nil();
 }
 
 ::RTT::Corba::Expression_ptr RTT_Corba_DataFlowInterface_i::createDataObject (
@@ -221,12 +221,12 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
     PortInterface* p = mdf->getPort(port_name);
     if ( p == 0) {
         RTT::log() << "No such Port: "<< port_name <<endlog(Error);
-        return 0;
+        return Expression::_nil();
     }
     RTT::ConnectionInterface::shared_ptr ci;
     if ( this->isConnected(port_name) == false) {
         RTT::log() << "Can not create DataObject for unconnected Port: "<< port_name <<endlog(Error);
-        return 0;
+        return Expression::_nil();
     } else {
         ci = p->connection();
     }
@@ -236,7 +236,7 @@ RTT_Corba_DataFlowInterface_i::~RTT_Corba_DataFlowInterface_i (void)
         return ret._retn();
 
     RTT::log() << "Could not create DataObject for connected Port: "<< port_name <<endlog(Error);
-    return 0;
+    return Expression::_nil();
 }
 
 ::RTT::Corba::DataFlowInterface::ConnectionModel RTT_Corba_DataFlowInterface_i::getConnectionModel (
@@ -292,8 +292,9 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::isConnected (
   // Add your implementation here
   // Add your implementation here
     PortInterface* p = mdf->getPort(port_name);
-    if ( p == 0)
-        return 0;
+    if (p == 0)
+        return false;
+
     // this is CORBA: double check if connection is really real.
     try {
         // if the connection points to dead data, this throws TRANSIENT.
@@ -331,8 +332,8 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectDataPort (
     ))
 {
     PortInterface* p = mdf->getPort(port_name);
-    if ( p == 0)
-        return 0;
+    if (p == 0)
+        return false;
     else if (p->getConnectionModel() != PortInterface::Data)
         RTT::log(Error) << port_name << " is not a data port" << RTT::endlog(Error);
 
@@ -358,8 +359,9 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectBufferPort (
     ))
 {
     PortInterface* p = mdf->getPort(port_name);
-    if ( p == 0)
-        return 0;
+    if (p == 0)
+        return false;
+
     else if (p->getConnectionModel() != PortInterface::Buffered)
         RTT::log(Error) << port_name << " is not a buffer port" << RTT::endlog(Error);
 
@@ -393,7 +395,7 @@ CORBA::Boolean RTT_Corba_DataFlowInterface_i::connectPorts (
     if (remote_model != p->getConnectionModel())
     {
         RTT::log(Error) << "Incompatible connection models between ports "<<local_name<< " and "<<remote_name << RTT::endlog();
-        return 0;
+        return false;
     }
 
     return p->connectTo( &cport );

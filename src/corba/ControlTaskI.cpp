@@ -202,7 +202,7 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
     }
     // clear cache if possible.
     ctobjmap.erase( pname );
-    return 0;
+    return RTT::Corba::ControlObject::_nil();
 }
 
 
@@ -477,7 +477,7 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
         // do not export it to the naming service.
         return ControlTaskServer::CreateServer( task, false );
     }
-    return 0;
+    return RTT::Corba::ControlTask::_nil();
 }
 
 CORBA::Boolean Orocos_ControlTask_i::addPeer (

@@ -354,7 +354,7 @@ public:
     } catch ( RTT::wrong_types_of_args_exception& wta ) {
         throw ::RTT::Corba::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
     }
-    return 0;
+    return false;
   }
 
   virtual

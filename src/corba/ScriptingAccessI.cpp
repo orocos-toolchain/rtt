@@ -299,7 +299,7 @@ CORBA::Long Orocos_ScriptingAccess_i::execute (
 {
     DispatchInterface::shared_ptr ret = mee->getCommand(ticket);
     if ( !ret )
-        return 0;
+        return Command::_nil();
     Orocos_Command_i* com = new Orocos_Command_i( ret, mpoa.in() );
     return com->_this();
 

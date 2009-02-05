@@ -130,6 +130,7 @@ void CorbaTest::testRemoteMethodC()
 
 }
 
+
 void CorbaTest::testRemoteMethod()
 {
 
@@ -236,6 +237,10 @@ void CorbaTest::testPorts()
     tp = Corba::ControlTaskProxy::Create( ts->server() );
 
     // DATA PORTS
+    ::RTT::Corba::AssignableExpression_var unknown_data = ts->server()->ports()->createDataChannel("does_not_exist");
+    CPPUNIT_ASSERT( CORBA::is_nil(unknown_data) );
+    ::RTT::Corba::AssignableExpression_var buffer_as_data = ts->server()->ports()->createDataChannel("mb");
+    CPPUNIT_ASSERT( CORBA::is_nil(buffer_as_data) );
     ::RTT::Corba::AssignableExpression_var data = ts->server()->ports()->createDataChannel("md");
     CPPUNIT_ASSERT( data.in() );
 
@@ -254,6 +259,10 @@ void CorbaTest::testPorts()
     CPPUNIT_ASSERT_EQUAL( -5.0, value );
 
     // BUFFER PORTS
+    ::RTT::Corba::BufferChannel_var unknown_buf = ts->server()->ports()->createBufferChannel("does_not_exist");
+    CPPUNIT_ASSERT( CORBA::is_nil(unknown_buf) );
+    ::RTT::Corba::BufferChannel_var data_as_buffer = ts->server()->ports()->createBufferChannel("md");
+    CPPUNIT_ASSERT( CORBA::is_nil(data_as_buffer) );
     ::RTT::Corba::BufferChannel_var buf = ts->server()->ports()->createBufferChannel("mb");
     CPPUNIT_ASSERT(buf.in());
     CPPUNIT_ASSERT_EQUAL( buf->size(), mb1->size() );

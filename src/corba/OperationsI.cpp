@@ -127,7 +127,7 @@ CORBA::Boolean Orocos_Action_i::executeAny (
     } catch ( RTT::wrong_types_of_args_exception& wta ) {
         throw ::RTT::Corba::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
     }
-    return 0;
+    return false;
   }
 
 
@@ -200,7 +200,7 @@ CORBA::Boolean Orocos_Command_i::executeAny (
     } catch (wrong_types_of_args_exception& wta ) {
         throw ::RTT::Corba::WrongTypeArgException( wta.whicharg, wta.expected_.c_str(), wta.received_.c_str() );
     }
-    return 0;
+    return false;
   }
 
 

@@ -383,7 +383,7 @@ namespace RTT
 
     ControlTask_ptr ControlTaskServer::CreateServer(TaskContext* tc, bool use_naming) {
         if ( CORBA::is_nil(orb) )
-            return 0;
+            return ControlTask::_nil();
 
         if ( servers.count(tc) ) {
             log(Debug) << "Returning existing ControlTaskServer for "<<tc->getName()<<endlog();
