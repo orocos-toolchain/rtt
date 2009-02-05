@@ -156,8 +156,8 @@ MACRO(ORO_ADD_CORBA_SERVERS _sources _headers)
       GET_FILENAME_COMPONENT(_basename ${_tmp_FILE} NAME_WE)
       GET_FILENAME_COMPONENT(_filedir ${_tmp_FILE} PATH)
 
-      SET(_out  ${CMAKE_CURRENT_BINARY_DIR}/${_basename}C.cc)
-      SET(_outh ${CMAKE_CURRENT_BINARY_DIR}/${_basename}C.h ${CMAKE_CURRENT_BINARY_DIR}/${_basename}DynSK.cc)
+      SET(_out  ${CMAKE_CURRENT_BINARY_DIR}/${_basename}C.cc ${CMAKE_CURRENT_BINARY_DIR}/${_basename}DynSK.cc)
+      SET(_outh ${CMAKE_CURRENT_BINARY_DIR}/${_basename}C.h)
 
       IF (NOT HAVE_${_basename}_SERVER_RULE)
          SET(HAVE_${_basename}_SERVER_RULE ON)
