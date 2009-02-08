@@ -82,7 +82,7 @@ extern "C"
 
 	// high-resolution time to timespec
 	// hrt is in ticks
-	inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
+	static inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
 	{
 		TIME_SPEC timevl;
 		timevl.tv_sec = hrt / 1000000000LL;
@@ -90,7 +90,7 @@ extern "C"
 		return timevl;
 	}
 
-    inline NANO_TIME rtos_get_time_ns( void )
+    static inline NANO_TIME rtos_get_time_ns( void )
     {
 
         TIME_SPEC tv;
@@ -107,12 +107,12 @@ extern "C"
      * This function should return ticks,
      * but we use ticks == nsecs in userspace
      */
-    inline NANO_TIME rtos_get_time_ticks()
+    static inline NANO_TIME rtos_get_time_ticks()
     {
         return rtos_get_time_ns();
     }
 
-    inline int rtos_nanosleep( const TIME_SPEC * rqtp, TIME_SPEC * rmtp )
+    static inline int rtos_nanosleep( const TIME_SPEC * rqtp, TIME_SPEC * rmtp )
     {
         //    return usleep(rqtp->tv_nsec/1000L);
         return nanosleep( rqtp, rmtp );
@@ -123,13 +123,13 @@ extern "C"
      * The HBGenerator needs this for accurate timekeeping,
      * which is an anachronism in userspace.
      */
-    inline
+    static inline
     long long nano2ticks( long long nano )
     {
         return nano;
     }
 
-    inline
+    static inline
     long long ticks2nano( long long count )
     {
         return count;
