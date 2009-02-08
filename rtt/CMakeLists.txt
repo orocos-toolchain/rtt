@@ -80,6 +80,39 @@ CMAKE_DEPENDENT_OPTION(ORO_ACT_DEFAULT_SEQUENTIAL "Make the default activity a S
 ### POSIX Message queues for IPC dataflow
 OPTION(ENABLE_MQ "Enable real-time posix message queues for data-flow." ON)
 
+### TLSF
+OPTION(ENABLE_RT_MALLOC "Enable RT memory management" ON)
+
+IF ( ENABLE_RT_MALLOC )
+    SET(TLSF_FLAGS "")
+    OPTION( ENABLE_RT_MALLOC_SBRK "Enable RT memory management with sbrk support" ON)
+    OPTION( ENABLE_RT_MALLOC_MMAP "Enable RT memory management with mmap support" ON)
+    OPTION( ENABLE_RT_MALLOC_STATS "Enable RT memory management with statistics" ON)
+    OPTION( ENABLE_RT_MALLOC_DEBUG "Enable RT memory management debugging" OFF)
+    
+    IF (ENABLE_RT_MALLOC_SBRK)
+        SET( TLSF_FLAGS "${TLSF_FLAGS} -DUSE_SBRK")
+    ENDIF (ENABLE_RT_MALLOC_SBRK)
+    IF (ENABLE_RT_MALLOC_MMAP)
+        SET( TLSF_FLAGS "${TLSF_FLAGS} -DUSE_MMAP -D_GNU_SOURCE")
+    ENDIF (ENABLE_RT_MALLOC_MMAP)
+    IF (ENABLE_RT_MALLOC_STATS)
+        SET( TLSF_FLAGS "${TLSF_FLAGS} -DTLSF_STATISTIC")
+    ENDIF (ENABLE_RT_MALLOC_STATS)
+    IF (ENABLE_RT_MALLOC_DEBUG)
+        SET( TLSF_FLAGS "${TLSF_FLAGS} -D_DEBUG_TLSF_")
+    ENDIF (ENABLE_RT_MALLOC_DEBUG)
+    
+    SET_SOURCE_FILES_PROPERTIES( os/tlsf/tlsf.c PROPERTIES
+                                COMPILE_FLAGS "${TLSF_FLAGS}")
+
+    GLOBAL_ADD_SRC( os/tlsf/tlsf.c )
+    GLOBAL_ADD_INCLUDE( rtt/os/tlsf tlsf/tlsf.h )
+
+    GET_SOURCE_FILE_PROPERTY( TLSF os/tlsf/tlsf.c COMPILE_FLAGS)
+    MESSAGE( "TLSF settings: ${TLSF}")
+
+ENDIF (ENABLE_RT_MALLOC )
 
 
 ###

@@ -19,8 +19,16 @@
 #ifndef _TLSF_H_
 #define _TLSF_H_
 
-#include <sys/types.h>
+/* We avoid name clashes with other projects and
+ * only make the required function available
+ */
+#include "../fosi.h"
+#define tlsf_malloc oro_rt_malloc
+#define tlsf_free oro_rt_free
+#define tlsf_realloc oro_rt_realloc
+#define tlsf_calloc oro_rt_calloc
 
+#ifdef ORO_MEMORY_POOL
 extern size_t init_memory_pool(size_t, void *);
 extern size_t get_used_size(void *);
 extern size_t get_max_size(void *);
@@ -30,6 +38,7 @@ extern void *malloc_ex(size_t, void *);
 extern void free_ex(void *, void *);
 extern void *realloc_ex(void *, size_t, void *);
 extern void *calloc_ex(size_t, size_t, void *);
+#endif
 
 extern void *tlsf_malloc(size_t size);
 extern void tlsf_free(void *ptr);
