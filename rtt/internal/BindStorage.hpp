@@ -559,6 +559,18 @@ namespace RTT
          * command and condition function objects. It can store both
          * pointers to member functions (with their object pointer) and
          * plain C functions.
+         *
+         * There is no constructor and all functions are
+         * implemented in the BindStorageImpl base classes.
+         *
+         * First create the BindStorage object,
+         * then use setup() to register the two functions. Next store()
+         * stores the arguments to the functions and exec() executes the
+         * command function from setup with the stored arguments.
+         *
+         * @param ToBind A function signature (like: 'bool(int)') for which
+         * two functions can be bound (command and condition fcn).
+         *
          */
         template<class ToBind>
         struct BindStorage
@@ -614,6 +626,17 @@ namespace RTT
             }
         };
 
+        /**
+         * Very simple \b factory class to bind a member function to an
+         * object pointer and leave the arguments open. The operator()
+         * returns a boost::function<F> object.
+         *
+         * There is no constructor and the operator() is
+         * implemented in the MethodBinderImpl base classes.
+         * @param F A function signature (like 'int(double)')
+         * which is the signature of the member function to be bound
+         * and the boost::function signature to return.
+         */
         template<class F>
         struct MethodBinder
             : public MethodBinderImpl<boost::function_traits<F>::arity, F>
