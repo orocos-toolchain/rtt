@@ -284,6 +284,12 @@ namespace RTT
         void logTypeInfo() const;
 
     };
+
+    /**
+     * Obtain a pointer to the global type system.
+     * This is a short notation for TypeInfoRepository::Instance().
+     */
+    TypeInfoRepository* types();
 }
 
 #endif

@@ -213,6 +213,8 @@ namespace RTT
     {
     }
 
+    TypeInfoRepository* types() { return TypeInfoRepository::Instance(); }
+
     boost::shared_ptr<TypeInfoRepository> TypeInfoRepository::Instance()
     {
         if ( typerepos )
