@@ -31,7 +31,7 @@
 	<revnumber>1.8.0</revnumber>
 	<date>5 Feb 2009</date>
 	<authorinitials>ps</authorinitials>
-	<revremark>Added Dot operator</revremark>
+	<revremark>Added Dot operator and toolkit plugin examples</revremark>
       </revision>
       <revision>
 	<revnumber>1.0.1</revnumber>
@@ -95,7 +95,14 @@
     double x, y, z;
     int sample_nbr;
   }</programlisting>
-        How can you tell Orocos how to handle this type ? A helper
+        When you would use a DataPort&lt;ControlData&gt; and ask the
+	taskbrowser to display the data port. You would see:
+	<screen>  ... <emphasis>unknown_t</emphasis> ... </screen>
+	instead of <emphasis>ControlData</emphasis>. Orocos has no
+	clue on the name of your data and how to display it.
+      </para>
+      <para>
+        How can you tell Orocos how to handle this data type? A helper
 	class is provided which you can extend to fit your needs,
 	<classname>RTT::TemplateTypeInfo</classname>.
 	<programlisting>  #include &lt;rtt/TemplateTypeInfo.hpp>
@@ -113,7 +120,7 @@
 	</programlisting>
 	From now on, Orocos knows the 'ControlData' type name and allows
 	you to create a scripting variable of that type. It does however
-	not know yet how to display it or write it to an XML file.
+	not know yet how to display its contents or how to write it to an XML file.
       </para>
       <note>
 	<para>
@@ -323,7 +330,81 @@
 	Mimick the code of the
 	<classname>RTT::RealTimeToolkitPlugin</classname> and
 	<classname>KDL::KDLToolkitPlugin</classname> to build
-	your own.
+	your own. 
+      </para>
+      <para> Your toolkit header file might look like:
+      <programlisting>  #ifndef ORO_MY_TOOLKIT_HPP
+  #define ORO_MY_TOOLKIT_HPP
+
+  #include &lt;rtt/Toolkit.hpp&gt;
+
+  namespace MyApp
+  {
+    /**
+     * This interface defines the types of my application
+     */
+    class MyToolkitPlugin
+       : public RTT::ToolkitPlugin
+    {
+    public:
+        virtual std::string getName();
+
+        virtual bool loadTypes();
+        virtual bool loadConstructors();
+        virtual bool loadOperators();
+    };
+
+    /**
+     * The single global instance of the My Toolkit.
+     */
+    extern MyToolkitPlugin MyToolkit;
+  }
+  #endif</programlisting>
+      The mytoolkit.cpp files looks like:
+      <programlisting>
+  #include "mytoolkit.hpp"
+
+  namespace MyApp {
+    std::string MyTookitPlugin::getName() { return "MyToolkit"; }
+
+    bool MyToolkitPlugin::loadTypes() {
+      // Tell Orocos the name and type of this struct
+      RTT::TypeInfoRepository::Instance()->addType( new ControlDataTypeInfo() );
+    }  
+
+    /** ...Add the other example code of this manual here as well... */
+    bool MyToolkitPlugin::loadConstructors() {
+      // ...
+    }
+    bool MyToolkitPlugin::loadOperators() {
+      // ...
+    }
+
+    /** The global instance of MyToolkitPlugin */
+    MyToolkitPlugin MyToolkit;
+
+  } // namespace MyApp
+
+  /** Register the global object as a plugin */
+  ORO_TOOLKIT_PLUGIN( MyApp::MyToolkit ); </programlisting></para>
+      <para>
+	Next compile the .cpp file as a shared library. 
+      </para>
+      <para>
+	You have now two options to get the plugin used 
+	in your application:
+	<itemizedlist><listitem><para>Using a direct include and import statement:
+	<programlisting>  #include "mytoolkit.hpp"
+  // somewhere in your code:
+  RTT::Toolkit::Import( MyApp::MyToolkit );</programlisting>
+      </para></listitem>
+	<listitem><para>Using the deployer application. In that case,
+	put it in
+	<filename>&lt;ComponentPath&gt;/rtt/&lt;target&gt;/plugins</filename>
+	where <emphasis>ComponentPath</emphasis> is mostly /usr/lib or
+	/usr/local/lib and <emphasis>target</emphasis> is your
+	OROCOS_TARGET.</para></listitem>
+	</itemizedlist>
       </para>
       <section id="overloading-operators">
 	<title>Loading Operators</title>
