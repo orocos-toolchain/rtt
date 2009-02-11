@@ -76,6 +76,8 @@ namespace RTT
 
     bool PropertyBag::ownProperty(PropertyBase* p)
     {
+        if (p == 0)
+            return false;
         if ( ! p->ready() )
             return false;
         removeProperty(p);
@@ -86,6 +88,8 @@ namespace RTT
 
     bool PropertyBag::ownsProperty(PropertyBase* p)
     {
+        if (p == 0)
+            return false;
         iterator i = std::find(mowned_props.begin(), mowned_props.end(), p);
         if ( i != mowned_props.end() )
             return true;
@@ -94,6 +98,8 @@ namespace RTT
 
     bool PropertyBag::addProperty(PropertyBase *p)
     {
+        if (p == 0)
+            return false;
         if ( ! p->ready() )
             return false;
         mproperties.push_back(p);
@@ -102,6 +108,8 @@ namespace RTT
 
     bool PropertyBag::removeProperty(PropertyBase *p)
     {
+        if (p == 0)
+            return false;
         iterator i = std::find(mproperties.begin(), mproperties.end(), p);
         if ( i != mproperties.end() ) {
             mproperties.erase(i);

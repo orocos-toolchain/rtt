@@ -74,7 +74,7 @@ namespace RTT
 
         /**
          * Write the XML cpf file with the properties of the given TaskContext.
-         * The file is first read in, the resulting tree is updated with the task's
+         * The file is first read into memory, the resulting tree is updated with the task's
          * properties and then written to disk again. This allows to share files
          * between tasks.
          * @param filename The file to read from and write to (updating).

@@ -249,13 +249,32 @@ namespace RTT
         void identify( PropertyBagVisitor* pi ) const;
 
         /**
-         * Find the PropertyBase with name \a name.
+         * Find the PropertyBase with name \a name. This function returns the first match.
          *
          * @param  name The name of the property to search for.
          * @return The PropertyBase with this name, zero
          *         if it does not exist.
          */
         PropertyBase* find(const std::string& name) const;
+
+        /**
+         * Finds the PropertyBase by value. This function returns the first match.
+         * @param value The value the Property should have
+         * @param T The data type of the value.
+         * @return a pointer to the property or zero if not found.
+         */
+        template<class T>
+        PropertyBase* findValue(const T& value) const {
+            for ( const_iterator i = mproperties.begin();
+                  i != mproperties.end();
+                  i++ )
+                {
+                    Property<T> p = *i;
+                    if (p.ready() && (p.value() == value))
+                        return *i;
+                }
+            return 0;
+        }
 
         /**
          * This assignment assigns all
