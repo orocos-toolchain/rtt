@@ -49,6 +49,9 @@
 #include <omniORB4/Naming.hh>
 #endif
 #include "ControlTaskC.h"
+#include "tao/TimeBaseC.h"
+#include "tao/Messaging/Messaging.h"
+#include "tao/Messaging/Messaging_RT_PolicyC.h"
 #include "ControlTaskI.h"
 #include "POAUtility.h"
 #include <iostream>
@@ -213,32 +216,6 @@ namespace RTT
             log(Error) << "CORBA exception raised!" << endlog();
             log() << CORBA_EXCEPTION_INFO(e) << endlog();
         }
-
-    }
-
-    bool ControlTaskServer::InitOrb(int argc, char* argv[] ) {
-        if ( !CORBA::is_nil(orb) )
-            return false;
-        try {
-            // First initialize the ORB, that will remove some arguments...
-            orb =
-                CORBA::ORB_init (argc, argv,
-                                 "" /* the ORB name, it can be anything! */);
-            CORBA::Object_var poa_object =
-                orb->resolve_initial_references ("RootPOA");
-            rootPOA =
-                PortableServer::POA::_narrow (poa_object.in ());
-            PortableServer::POAManager_var poa_manager =
-                rootPOA->the_POAManager ();
-            poa_manager->activate ();
-
-            return true;
-        }
-        catch (CORBA::Exception &e) {
-            log(Error) << "Orb Init : CORBA exception raised!" << endlog();
-            log() << CORBA_EXCEPTION_INFO(e) << endlog();
-        }
-        return false;
 
     }
 

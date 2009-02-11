@@ -100,8 +100,8 @@ IF (ACE_CONFIG AND TAO_ORB AND TAO_ORBSVCS )
         ENDIF( NOT ${ORBSVCS_DIR} STREQUAL /usr AND NOT ${ORBSVCS_DIR} STREQUAL ${TAO_DIR})
 
         # Is used for building  the library
-        LIST(APPEND CORBA_LIBRARIES TAO TAO_PortableServer TAO_CosNaming ACE )
-        LIST(APPEND CORBA_LDFLAGS -lTAO -lTAO_PortableServer -lTAO_CosNaming -lACE)
+        LIST(APPEND CORBA_LIBRARIES TAO TAO_PortableServer TAO_CosNaming TAO_Messaging ACE )
+        LIST(APPEND CORBA_LDFLAGS -lTAO -lTAO_PortableServer -lTAO_CosNaming -lTAO_Messaging -lACE)
 
         IF(APPLE)
             # Mac OS X needs this define (or _POSIX_C_SOURCE) to pick up some type

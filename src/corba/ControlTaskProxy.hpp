@@ -114,12 +114,6 @@ namespace RTT
         ~ControlTaskProxy();
 
         /**
-         * Invoke this method once to initialise the Orb which will
-         * connect to the task servers.
-         */
-        static bool InitOrb(int argc, char* argv[] );
-
-        /**
          * Invoke this method once to cleanup the orb.
          */
         static void DestroyOrb();

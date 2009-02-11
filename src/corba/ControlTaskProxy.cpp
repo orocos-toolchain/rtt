@@ -66,6 +66,9 @@
 #include "corba.h"
 #include "corba.h"
 #ifdef CORBA_IS_TAO
+#include "tao/TimeBaseC.h"
+#include "tao/Messaging/Messaging.h"
+#include "tao/Messaging/Messaging_RT_PolicyC.h"
 #include "orbsvcs/CosNamingC.h"
 #include <ace/String_Base.h>
 #else
@@ -410,33 +413,6 @@ namespace RTT
         }
     }
 
-    bool ControlTaskProxy::InitOrb(int argc, char* argv[] ) {
-        if ( !CORBA::is_nil(orb) )
-            return false;
-
-        try {
-            // First initialize the ORB, that will remove some arguments...
-            orb =
-                CORBA::ORB_init (argc, const_cast<char**>(argv),
-                                 "omniORB4");
-            // Also activate the POA Manager, since we may get call-backs !
-            CORBA::Object_var poa_object =
-                orb->resolve_initial_references ("RootPOA");
-            rootPOA =
-                PortableServer::POA::_narrow (poa_object.in ());
-            PortableServer::POAManager_var poa_manager =
-                rootPOA->the_POAManager ();
-            poa_manager->activate ();
-
-            return true;
-        }
-        catch (CORBA::Exception &e) {
-            log(Error) << "Orb Init : CORBA exception raised!" << Logger::nl;
-            Logger::log() << CORBA_EXCEPTION_INFO(e) << endlog();
-        }
-        return false;
-    }
-
     void ControlTaskProxy::DestroyOrb()
     {
         try {
@@ -450,7 +426,6 @@ namespace RTT
             Logger::log() << CORBA_EXCEPTION_INFO(e) << endlog();
         }
     }
-
 
     ControlTaskProxy* ControlTaskProxy::Create(std::string name, bool is_ior /*=false*/) {
         if ( CORBA::is_nil(orb) || name.empty() )

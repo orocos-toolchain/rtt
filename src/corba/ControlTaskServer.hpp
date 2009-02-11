@@ -101,12 +101,6 @@ namespace RTT
     public:
 
         /**
-         * Invoke this method once to initialise the Orb which will
-         * run the task servers.
-         */
-        static bool InitOrb(int argc, char* argv[] );
-
-        /**
          * Invoke this method once to shutdown the Orb which is
          * running the task servers in RunOrb(). When this function
          * returns, no CORBA invocations are in progress, unless wait_for_completion is false.
