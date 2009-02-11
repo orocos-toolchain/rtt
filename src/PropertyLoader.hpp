@@ -90,6 +90,7 @@ namespace RTT
          * @param filename The file to read from.
          * @param target   The TaskContext to configure.
          * @param name The path to or name of a property in \a target.
+         * Separate path components with dots. For example, to safe property x: bag_1.bag_2.x
          * @return true on success, false on error, consult Logger output for messages.
          */
         bool configure(const std::string& filename, TaskContext* target, const std::string& name) const;
@@ -98,7 +99,8 @@ namespace RTT
          * Write a single property to a file, or update an existing file.
          * @param filename The file to update or write to.
          * @param target   The TaskContext to configure.
-         * @param name The path to or name of a property in \a target.
+         * @param name The path to or name of a property in \a target. 
+         * Separate path components with dots. For example, to safe property x: bag_1.bag_2.x
          * @return true on success, false on error, consult Logger output for messages.
          */
         bool save(const std::string& filename, TaskContext* target, const std::string& name) const;

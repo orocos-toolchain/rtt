@@ -91,8 +91,8 @@ namespace RTT
          * Read a single property from a file. The name may be a 'path' like
          * location of a Property in the hierarchy.
          * @param name The name of the property in the file. For example
-         * "MyProp" for a top-level property or "Settings::XML::Editor" to
-         * specify a ::-separated 'path' to a property.
+         * "MyProp" for a top-level property or "Settings.XML.Editor" to
+         * specify a dot-separated 'path' to the property 'Editor'.
          * @param filename The name of the file in which to lookup \a name.
          */
         bool readProperty(const std::string& name,const std::string& filename);
@@ -122,8 +122,8 @@ namespace RTT
          * Write a single property to a file. The name may be a 'path' like
          * location of a Property in the hierarchy.
          * @param name The name of the property in the file. For example
-         * "MyProp" for a top-level property or "Settings::XML::Editor" to
-         * specify a ::-separated 'path' to a property.
+         * "MyProp" for a top-level property or "Settings.XML.Editor" to
+         * specify a dot-separated 'path' to the property 'Editor'.
          * @param filename The name of the file in which to write \a name.
          */
         bool writeProperty(const std::string& name, const std::string& filename);
