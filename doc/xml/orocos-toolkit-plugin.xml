@@ -116,7 +116,7 @@
   };
 
   // Tell Orocos the name and type of this struct:
-  RTT::TypeInfoRepository::Instance()->addType( new ControlDataTypeInfo() );
+  RTT::types()->addType( new ControlDataTypeInfo() );
 	</programlisting>
 	From now on, Orocos knows the 'ControlData' type name and allows
 	you to create a scripting variable of that type. It does however
@@ -162,7 +162,7 @@
   };
 
   // Tell Orocos the name and type of this struct
-  RTT::TypeInfoRepository::Instance()->addType( new ControlDataTypeInfo() );
+  RTT::types()->addType( new ControlDataTypeInfo() );
 	</programlisting>
 	<para>
 	  If you use the above line of code to add the type, Orocos will be
@@ -369,7 +369,7 @@
 
     bool MyToolkitPlugin::loadTypes() {
       // Tell Orocos the name and type of this struct
-      RTT::TypeInfoRepository::Instance()->addType( new ControlDataTypeInfo() );
+      RTT::types()->addType( new ControlDataTypeInfo() );
     }  
 
     /** ...Add the other example code of this manual here as well... */
@@ -415,13 +415,13 @@
 	  It looks something like this:
 	  <programlisting>
 bool loadOperators() {
-  OperatorRepository::shared_ptr or = OperatorRepository::Instance();
+  OperatorRepository::shared_ptr oreg = RTT::operators();
   // boolean stuff:
-  or->add( newUnaryOperator( &quot;!&quot;, std::logical_not&lt;bool&gt;() ) );
-  or->add( newBinaryOperator( &quot;&amp;&amp;&quot;, std::logical_and&lt;bool&gt;() ) );
-  or->add( newBinaryOperator( &quot;||&quot;, std::logical_or&lt;bool&gt;() ) );
-  or->add( newBinaryOperator( &quot;==&quot;, std::equal_to&lt;bool&gt;() ) );
-  or->add( newBinaryOperator( &quot;!=&quot;, std::not_equal_to&lt;bool&gt;() ) );
+  oreg->add( newUnaryOperator( &quot;!&quot;, std::logical_not&lt;bool&gt;() ) );
+  oreg->add( newBinaryOperator( &quot;&amp;&amp;&quot;, std::logical_and&lt;bool&gt;() ) );
+  oreg->add( newBinaryOperator( &quot;||&quot;, std::logical_or&lt;bool&gt;() ) );
+  oreg->add( newBinaryOperator( &quot;==&quot;, std::equal_to&lt;bool&gt;() ) );
+  oreg->add( newBinaryOperator( &quot;!=&quot;, std::not_equal_to&lt;bool&gt;() ) );
   return true;
 } </programlisting>
 	  Adding your own should not be terribly hard.  The hardest
@@ -472,7 +472,7 @@ bool loadOperators() {
 
   // Tell Orocos a constructor is available:
   // Attention: "ControlData" must have been added before with 'addType' !
-  RTT::TypeInfoRepository::Instance()->type("ControlData")->addConstructor( newConstructor(&amp;createCD) );
+  RTT::types()->type("ControlData")->addConstructor( newConstructor(&amp;createCD) );
 	</programlisting>
 	<para>
 	  From now on, one can write in a script:
@@ -563,7 +563,7 @@ bool loadOperators() {
   };
 
   // Finally, add these helper structs to the OperatorRepository:
-  OperatorRepository::shared_ptr oreg = OperatorRepository::Instance();
+  OperatorRepository::shared_ptr oreg = RTT::operators();
   oreg->add( newDotOperator( "valid",  get_cd_valid() ) );
   oreg->add( newDotOperator( "x",  get_cd_x() ) );
   oreg->add( newDotOperator( "y",  get_cd_y() ) );
