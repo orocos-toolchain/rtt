@@ -226,6 +226,9 @@ namespace RTT
             }
 
             virtual bool execute() {
+                // do not allow to execute twice or if not queued.
+                if (!this->maccept || this->mexec)
+                    return false;
                 this->mvalid = this->exec();
                 this->mexec = true;
                 return this->mvalid;
