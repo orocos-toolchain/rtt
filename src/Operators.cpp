@@ -148,7 +148,7 @@ namespace RTT
   {
   }
 
-    OperatorRepository::shared_ptr OperatorRepository::operators() {
+    OperatorRepository::shared_ptr operators() {
         return OperatorRepository::Instance();
     }
 }
