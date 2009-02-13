@@ -119,27 +119,38 @@ namespace RTT { namespace detail
      * This class builds on upon construction all expression
      * operators known to Orocos. Mainly used for scripting.
      */
-  class OperatorRepository
-  {
-    std::vector<detail::DotOp*> dotops;
-    std::vector<detail::UnaryOp*> unaryops;
-    std::vector<detail::BinaryOp*> binaryops;
-    OperatorRepository();
-    OperatorRepository( const OperatorRepository& );
+    class OperatorRepository
+    {
+        std::vector<detail::DotOp*> dotops;
+        std::vector<detail::UnaryOp*> unaryops;
+        std::vector<detail::BinaryOp*> binaryops;
+        OperatorRepository();
+        OperatorRepository( const OperatorRepository& );
 
-  public:
-    void add( detail::UnaryOp* o );
-    void add( detail::DotOp* o );
-    void add( detail::BinaryOp* o );
+    public:
+        void add( detail::UnaryOp* o );
+        void add( detail::DotOp* o );
+        void add( detail::BinaryOp* o );
 
-      typedef boost::shared_ptr<OperatorRepository> shared_ptr;
-    ~OperatorRepository();
-    static shared_ptr Instance();
-    DataSourceBase* applyDot( const std::string& member, DataSourceBase* value );
-    DataSourceBase* applyUnary( const std::string& op, DataSourceBase* a );
-    DataSourceBase* applyBinary(
-      const std::string& op, DataSourceBase* a, DataSourceBase* b );
-  };
+        typedef boost::shared_ptr<OperatorRepository> shared_ptr;
+        ~OperatorRepository();
+        /**
+         * Returns a shared pointer to the singleton of this class.
+         */
+        static shared_ptr Instance();
+        DataSourceBase* applyDot( const std::string& member, DataSourceBase* value );
+        DataSourceBase* applyUnary( const std::string& op, DataSourceBase* a );
+        DataSourceBase* applyBinary(
+                                    const std::string& op, DataSourceBase* a, DataSourceBase* b );
+    };
+
+    /**
+     * This global function provides the short notation for
+     * OperatorRepository::Instance()
+     */
+    OperatorRepository::shared_ptr operators() {
+        return OperatorRepository::Instance();
+    }
 }
 
 #endif
