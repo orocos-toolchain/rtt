@@ -147,4 +147,8 @@ namespace RTT
   BinaryOp::~BinaryOp()
   {
   }
+
+    OperatorRepository::shared_ptr OperatorRepository::operators() {
+        return OperatorRepository::Instance();
+    }
 }

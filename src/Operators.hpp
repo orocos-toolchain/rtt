@@ -148,9 +148,7 @@ namespace RTT { namespace detail
      * This global function provides the short notation for
      * OperatorRepository::Instance()
      */
-    OperatorRepository::shared_ptr operators() {
-        return OperatorRepository::Instance();
-    }
+    OperatorRepository::shared_ptr operators();
 }
 
 #endif
