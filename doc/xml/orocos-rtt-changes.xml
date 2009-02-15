@@ -88,11 +88,6 @@
 	    thread-safe as the other RTT activities. See the Component Builder's Manual for
 	    an example.
 	  </para>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=">
-	      </ulink>.
-	  </para>
 	</listitem>
 	<listitem>
 	  <para>
@@ -104,11 +99,6 @@
 	    reception. See the Component Builder's Manual for an example.
 	  </para>
 	  <para> Contributed by S. Joyeux. </para>
-	  <para>
-	    See also
-	    <ulink url="https://www.fmtc.be/bugzilla/orocos/show_bug.cgi?id=">
-	      </ulink>.
-	  </para>
 	</listitem>
 	<listitem>
 	  <para>
