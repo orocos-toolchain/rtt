@@ -39,7 +39,9 @@ class EventTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testRTEvent );
     CPPUNIT_TEST( testSelfRemoval );
     CPPUNIT_TEST( testCrossRemoval );
+#ifdef OROCOS_TARGET_GNULINUX
     CPPUNIT_TEST( testConcurrentEmit );
+#endif
     CPPUNIT_TEST_SUITE_END();
 
     RTT::Event<void( void )> t_event;
