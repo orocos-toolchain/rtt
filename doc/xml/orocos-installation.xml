@@ -16,7 +16,7 @@
     </title>
     <subtitle><emphasis>Real-Time Toolkit Version &oversion;</emphasis></subtitle>
     <copyright>
-      <year>2002,2003,2004,2005,2006,2007</year>
+      <year>2002,2003,2004,2005,2006,2007,2008,2009</year>
       <holder>Peter Soetens</holder>
       <holder>FMTC</holder>
     </copyright>
@@ -205,7 +205,7 @@
       </section>
     </section>
     <section id="install-debian">
-      <title>Installing on Debian Etch</title>
+      <title>Installing on Debian Etch (x86 only !)</title>
       <para>
 	The Orocos Real-Time Toolkit and Component Library have been
 	prepared as Debian packages for Debian Etch. See below for 
@@ -229,16 +229,17 @@
       <para>
 	Next, for Debian Etch, type:
 	<programlisting>  $ sudo apt-get update
-  $ sudo apt-get install liborocos-rtt-corba-<emphasis>gnulinux</emphasis>-dev</programlisting>
-        You can install Orocos for additional targets by replacing
-        <emphasis>gnulinux</emphasis> by another target name (see above) if you
-	want real-time performance. All targets can be installed at the same time.
+  $ sudo apt-get install liborocos-rtt-corba-<emphasis>gnulinux1.8</emphasis>-dev</programlisting>
+        You can install Orocos for additional targets (or versions) by replacing
+        <emphasis>gnulinux1.8</emphasis> by another target name (or version).
+	All target libraries can be installed at the same time,
+	the -dev header files only for a single target and version at a time.
       </para>
       <para>
 	For your application development, you'll most likely use the Orocos
 	Component library as well:
-	<programlisting>  $ sudo apt-get install orocos-ocl-<emphasis>gnulinux</emphasis>-dev orocos-ocl-<emphasis>gnulinux</emphasis>-bin</programlisting>
-	Again, you may install additional targets.
+	<programlisting>  $ sudo apt-get install orocos-ocl-<emphasis>gnulinux1.8</emphasis>-dev orocos-ocl-<emphasis>gnulinux1.8</emphasis>-bin</programlisting>
+	Again, you may install additional targets and/or versions.
       </para>
       <para>
 	We recommend using the <filename>pkg-config</filename> tool
@@ -309,7 +310,6 @@
   cd orocos-rtt-&oversion;/build
   ../configure --with-&lt;target&gt; [--prefix=/usr/local][--with-linux=/usr/src/linux]
   make
-  make check
   make install</command> </screen>
         </para>
 	<para>
@@ -390,6 +390,13 @@
 	    choose to build the RTT as a static library
 	    (<option>BUILD_STATIC</option>).
 	  </para>
+	  <warning>
+	    <para> The Embedded flavour is not compatible with the
+	    Orocos Component Library (OCL) and should only be enabled
+	    for specific setups and only by users that understand the
+	    consequences of this flag.   
+	    </para>
+	  </warning>
 	  <para>
 	    Alternatively, when you use the configure wrapper, you
 	    can specify:
@@ -838,8 +845,9 @@
 	which contains a variety of demo programs.
       </para>
       <para>
-	If you built the RTT yourself, you can issue a <command>make
-	check</command> in the build directory, which will test the
+	If you built the RTT yourself, you can issue a 
+	<screen> cmake .. -DENABLE_TESTS=ON
+ make check</screen> in the build directory, which will test the
 	RTT against your current target.
       </para>
     </section>
@@ -1019,8 +1027,7 @@
     </para>
     <para>
       For having native cross compilation support, you must upgrade to
-      CMake 2.6.0 (not released yet of this writing) or later and
-      follow the instructions on the
+      CMake 2.6.0 or later and follow the instructions on the
       <ulink url="http://www.cmake.org/Wiki/CMake_Cross_Compiling">
       CMake Cross Compiling page</ulink>.
     </para>
