@@ -3,6 +3,7 @@
 
 #include "rtt-corba-config.h"
 #if CORBA_IS_TAO
+#include <ace/SString.h>
 #include <tao/corba.h>
 #define CORBA_SERVANT(f) f ## "S.h"
 #define CORBA_EXCEPTION_INFO(x) x._info().c_str()
