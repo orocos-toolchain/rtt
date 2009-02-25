@@ -35,7 +35,7 @@ namespace RTT
              */
             result_type invoke()
             {
-                LocalMessageBase<FunctionT>* c = this->clone();
+                LocalMessageBase<FunctionT>* c = this->cloneM();
                 return mmp->process(this);
             }
 
@@ -77,6 +77,21 @@ namespace RTT
                 return mmesg(t1, t2, t3, t4);
             }
 
+            /**
+             * RT-Clone. May slice since we only need execute() from
+             * ActionInterface.  operator() remains unimplemented !
+             * @return
+             */
+            LocalMessageImpl<FunctionT>* cloneM() = 0;
+
+            /**
+             * Used by C++ interface. Slices. operator() remains unimplemented !
+             * @return
+             */
+            ActionInterface* clone() const
+            {
+                return new LocalMessageImpl<Signature>(*this);
+            }
         };
 
         /**
@@ -107,7 +122,7 @@ namespace RTT
             template<class M, class ObjectType>
             LocalMessage(M mesg, ObjectType object)
             {
-                this->mmesg = detail::MessageBinder<Signature>()(mesg, object);
+                this->setup(mesg, object);
                 this->mmp = object->engine()->messages();
             }
 
@@ -123,7 +138,7 @@ namespace RTT
             template<class M, class ObjectType>
             LocalMessage(M mesg, ObjectType object, TaskContext* taskc)
             {
-                this->mmesg = detail::MessageBinder<Signature>()(mesg, object);
+                this->setup(mesg, object);
                 this->mmp = taskc->engine()->messages();
             }
 
@@ -136,24 +151,16 @@ namespace RTT
             template<class M>
             LocalMessage(M mesg, TaskContext* taskc)
             {
-                this->mmesg = mesg;
+                this->setup(mesg);
                 this->mmp = taskc->engine()->messages();
             }
 
             boost::function<Signature> getMessageFunction() const
             {
-                return this->mmesg;
+                return this->function();
             }
 
-            ActionInterface* clone() const
-            {
-                return new LocalMessage<Signature>(*this);
-            }
 
-            MessageBase<Signature>* cloneI() const
-            {
-                return new LocalMessage<Signature>(*this);
-            }
         };
     }
 }

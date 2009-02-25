@@ -6,6 +6,8 @@
 
 namespace RTT
 {
+    namespace detail
+    {
 
         /**
          * Store a bound argument which may be a reference, const reference or
@@ -57,30 +59,25 @@ namespace RTT
 
             // stores the original function pointer
             boost::function<ToBind> exec;
-            boost::function<ToBind> check;
 
-            template<class F, class C, class ObjectType>
-            void setup(F f, C c, ObjectType t)
+            template<class F, class ObjectType>
+            void setup(F f, ObjectType t)
             {
                 exec = quickbind<F,ObjectType>( f, t); // allocates
-                check  = quickbind<C,ObjectType>( c, t); // allocates
             }
 
-            template<class F, class C>
-            void setup(F f, C c)
+            template<class F>
+            void setup(F f)
             {
                 exec = f;
-                check = c;
             }
 
-            void setup(boost::function<ToBind> f, boost::function<ToBind> c)
+            void setup(boost::function<ToBind> f)
             {
                 exec = f;
-                check = c;
             }
 
-            boost::function<ToBind> command() const {return exec;}
-            boost::function<ToBind> condition() const {return check;}
+            boost::function<ToBind> function() const {return exec;}
         };
 
         /**
@@ -121,7 +118,7 @@ namespace RTT
                 mesg = f;
             }
 
-            boost::function<ToBind> command() const {return mesg;}
+            boost::function<ToBind> function() const {return mesg;}
         };
 
         template<class ToBind>
@@ -133,37 +130,32 @@ namespace RTT
 
             // stores the original function pointer
             boost::function<ToBind> mesg;
-            boost::function<ToBind> cond;
+
             // Store the arguments.
             mutable MStore<arg1_type> a1;
             mutable MStore<arg2_type> a2;
 
             void store(arg1_type t1, arg2_type t2) { a1(t1); a2(t2); }
             bool exec() { return mesg( a1(), a2() ); }
-            bool check() const { return cond( a1(), a2() ); }
 
-            template<class F, class C, class ObjectType>
-            void setup(F f, C c, ObjectType t)
+            template<class F, class ObjectType>
+            void setup(F f, ObjectType t)
             {
                 mesg = boost::bind<bool>( boost::mem_fn(f), t, _1, _2 ); // allocates
-                cond = quickbind<C,ObjectType>( c, t); // allocates
             }
 
-            template<class F, class C>
-            void setup(F f, C c)
+            template<class F>
+            void setup(F f)
             {
                 mesg = boost::bind<bool>( f, _1, _2 ); // allocates
-                cond = quickbindC<C>(c);
             }
 
-            void setup(boost::function<ToBind> f, boost::function<ToBind> c)
+            void setup(boost::function<ToBind> f)
             {
                 mesg = f;
-                cond = c;
             }
 
-            boost::function<ToBind> command() const {return mesg;}
-            boost::function<ToBind> condition() const {return cond;}
+            boost::function<ToBind> function() const {return mesg;}
         };
 
         template<class ToBind>
@@ -176,7 +168,6 @@ namespace RTT
 
             // stores the original function pointer
             boost::function<ToBind> mesg;
-            boost::function<ToBind> cond;
             // Store the arguments.
             mutable MStore<arg1_type> a1;
             mutable MStore<arg2_type> a2;
@@ -184,17 +175,14 @@ namespace RTT
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3) { a1(t1); a2(t2); a3(t3); }
             bool exec() { return mesg( a1(), a2(), a3() ); }
-            bool check() const { return cond( a1(), a2(), a3() ); }
 
-            template<class F, class C, class ObjectType>
-            void setup(F f, C c, ObjectType t)
+            template<class F, class ObjectType>
+            void setup(F f, ObjectType t)
             {
                 mesg = boost::bind<bool>( boost::mem_fn(f), t, _1, _2, _3 ); // allocates
-                cond = quickbind<C,ObjectType>( c, t); // allocates
             }
 
-            boost::function<ToBind> command() const {return mesg;}
-            boost::function<ToBind> condition() const {return cond;}
+            boost::function<ToBind> function() const {return mesg;}
         };
 
         template<class ToBind>
@@ -208,7 +196,6 @@ namespace RTT
 
             // stores the original function pointer
             boost::function<ToBind> mesg;
-            boost::function<ToBind> cond;
             // Store the arguments.
             mutable MStore<arg1_type> a1;
             mutable MStore<arg2_type> a2;
@@ -217,22 +204,19 @@ namespace RTT
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4) { a1(t1); a2(t2); a3(t3); a4(t4); }
             bool exec() { return mesg( a1(), a2(), a3(), a4() ); }
-            bool check() const { return cond( a1(), a2(), a3(), a4() ); }
 
-            template<class F, class C, class ObjectType>
-            void setup(F f, C c, ObjectType t)
+            template<class F, class ObjectType>
+            void setup(F f, ObjectType t)
             {
                 mesg = boost::bind<bool>( boost::mem_fn(f), t, _1, _2, _3, _4 ); // allocates
-                cond = quickbind<C,ObjectType>( c, t); // allocates
             }
 
-            boost::function<ToBind> command() const {return mesg;}
-            boost::function<ToBind> condition() const {return cond;}
+            boost::function<ToBind> function() const {return mesg;}
         };
 
 
         /**
-         * A helper-class for the Command implementation which stores the
+         * A helper-class for the Message implementation which stores the
          * command and condition function objects. It can store both
          * pointers to member functions (with their object pointer) and
          * plain C functions.
@@ -255,69 +239,6 @@ namespace RTT
         {
         };
 
-        template<int, class F>
-        struct MethodBinderImpl;
-
-        template<class F>
-        struct MethodBinderImpl<0,F>
-        {
-            template<class M, class O>
-            boost::function<F> operator()(M m, O o) {
-                return boost::bind( boost::mem_fn(m), o );
-            }
-        };
-
-        template<class F>
-        struct MethodBinderImpl<1,F>
-        {
-            template<class M, class O>
-            boost::function<F> operator()(M m, O o) {
-                return boost::bind( boost::mem_fn(m), o, _1 );
-            }
-        };
-
-        template<class F>
-        struct MethodBinderImpl<2,F>
-        {
-            template<class M, class O>
-            boost::function<F> operator()(M m, O o) {
-                return boost::bind( boost::mem_fn(m), o, _1, _2 );
-            }
-        };
-
-        template<class F>
-        struct MethodBinderImpl<3,F>
-        {
-            template<class M, class O>
-            boost::function<F> operator()(M m, O o) {
-                return boost::bind( boost::mem_fn(m), o, _1, _2, _3 );
-            }
-        };
-
-        template<class F>
-        struct MethodBinderImpl<4,F>
-        {
-            template<class M, class O>
-            boost::function<F> operator()(M m, O o) {
-                return boost::bind( boost::mem_fn(m), o, _1, _2, _3, _4 );
-            }
-        };
-
-        /**
-         * Very simple \b factory class to bind a member function to an
-         * object pointer and leave the arguments open. The operator()
-         * returns a boost::function<F> object.
-         *
-         * There is no constructor and the operator() is
-         * implemented in the MethodBinderImpl base classes.
-         * @param F A function signature (like 'int(double)')
-         * which is the signature of the member function to be bound
-         * and the boost::function signature to return.
-         */
-        template<class F>
-        struct MethodBinder
-            : public MethodBinderImpl<boost::function_traits<F>::arity, F>
-        {};
     }
 }
 #endif
