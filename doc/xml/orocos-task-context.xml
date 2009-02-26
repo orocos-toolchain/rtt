@@ -1480,7 +1480,15 @@ the_data_port.     cd            ls
 	  ports which are for reading data, and use <function>addPort()</function> for ports
 	  which are for writing data.
 	</para>
-      </note>
+	<para>
+		In the current implementation, addEventPort() must happen before you start() the TaskContext
+		the first time.
+		Any ports added after your component has been started the first time will not cause
+		them to wake up your component. So even stopping and starting wil not solve this. Therefor,
+		it is recommended to only use addEventPort in your component's contructor (as shown in the
+		example above). This issue is being looked at.
+	</para>
+	</note>
       <para>
 	Write and read-write Buffers take besides a name, the prefered
 	buffer size as a parameter. In the example, these are the

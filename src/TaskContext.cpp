@@ -167,6 +167,10 @@ namespace RTT
         this->methods()
             ->addMethod( method("trigger",&TaskContext::doTrigger, this),
                          "Trigger the update method for execution in the thread of this task.\n Only succeeds if the task isRunning() and allowed by the Activity executing this task." );
+
+        // See TaskContext::start().
+        updated_ports.reserve(0);
+
     }
 
         TaskContext::~TaskContext()
@@ -199,6 +203,8 @@ namespace RTT
 
     void TaskContext::exportPorts()
     {
+        // This function is only used by the IOComponent, probably in the wrong way,
+        // since DataFlowInterface::addPort does the port object creation already.
         DataFlowInterface::Ports myports = this->ports()->getPorts();
         for (DataFlowInterface::Ports::iterator it = myports.begin();
              it != myports.end();
@@ -473,19 +479,32 @@ namespace RTT
         size_t port_count = 0;
         if ( this->isRunning() )
             return false;
+        // Workaround for multiple registrations in 1.8.x:
+        if ( updated_ports.capacity() != 0) {
+            // do not register event handles a second time.
+            // This belongs more during the configure() step than during the start() step.
+            // should addEventPort cause the TC to drop back to Unconfigured or should
+            // the code below be executed during addEventPort ?
+            return TaskCore::start();
+        }
         const DataFlowInterface::Ports& ports = this->ports()->getEventPorts();
         for (DataFlowInterface::Ports::const_iterator it = ports.begin(); it != ports.end(); ++it)
             {
                 int porttype = (*it)->getPortType();
                 if (porttype == PortInterface::ReadPort || porttype == PortInterface::ReadWritePort)
                     {
-                        (*it)->getNewDataOnPortEvent()->connect(boost::bind(&TaskContext::dataOnPort, this, _1), this->engine()->events());
-                        port_count++;
-                        log(Info) << getName() << " will be triggered when new data is available on " << (*it)->getName() << endlog();
+                        Handle h = (*it)->getNewDataOnPortEvent()->connect(boost::bind(&TaskContext::dataOnPort, this, _1), this->engine()->events());
+                        if (h) {
+                            port_count++;
+                            log(Info) << getName() << " will be triggered when new data is available on " << (*it)->getName() << endlog();
+                        } else {
+                            log(Error) << getName() << " can't connect to event of " << (*it)->getName() << endlog();
+                            return false;
+                        }
                     }
             }
         updated_ports.reserve(port_count);
-        return TaskCore::start();
+        return TaskCore::start(); // calls startHook()
     }
 
     void TaskContext::dataOnPort(PortInterface* port)
