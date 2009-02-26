@@ -1462,10 +1462,25 @@ the_data_port.     cd            ls
 	new data arriving on the port will wake up ('trigger') the
 	activity of our TaskContext and updateHook() get's executed.
 	If you want to know which port caused the wake-up, do not implement
-	<function>updateHook()</function> but use 
+	<function>updateHook()</function> (ie remove this function from your component) and use 
 	<function>updateHook(const std::vector&lt;PortInterface*&gt;&amp; updatedPorts)</function>
 	which provides you a list of all ports having received new data.
       </para>
+      <note>
+	<para>
+	  Only <classname>RTT::ReadDataPort</classname>, <classname>RTT::DataPort</classname>,
+	  <classname>RTT::ReadBufferPort</classname> and <classname>RTT::BufferPort</classname>
+	  added with <function>addEventPort()</function>  will cause your component to be triggered
+	  (ie wake up and call updateHook).
+	</para>
+	<para>
+	  Adding a <classname>RTT::WriteDataPort</classname> or <classname>RTT::WriteBufferPort</classname>
+	  with <function>addEventPort()</function> is allowed but has no influence on the event
+	  being emitted or not. The rule of thumb is to only use <function>addEventPort()</function> for
+	  ports which are for reading data, and use <function>addPort()</function> for ports
+	  which are for writing data.
+	</para>
+      </note>
       <para>
 	Write and read-write Buffers take besides a name, the prefered
 	buffer size as a parameter. In the example, these are the
