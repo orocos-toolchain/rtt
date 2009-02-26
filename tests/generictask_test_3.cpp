@@ -111,11 +111,29 @@ public:
     bool do_error;
 };
 
+class EventPortsTC : public TaskContext
+{
+public:
+    bool had_event;
+    int  nb_events;
+    EventPortsTC(): TaskContext("eptc") { resetStats(); }
+    void updateHook(std::vector<PortInterface*> const& updated_ports)
+    {
+        nb_events += updated_ports.size();
+        had_event = true;
+    }
+    void resetStats() {
+        nb_events = 0;
+        had_event = false;
+    }
+};
 
 void
 Generic_TaskTest_3::setUp()
 {
     tc =  new TaskContext( "root", TaskContext::Stopped );
+    tce = new EventPortsTC();
+    tc2 = new EventPortsTC();
     stc = new StatesTC();
     tsim = new SimulationActivity(0.001, tc->engine() );
     stsim = new SimulationActivity(0.001, stc->engine() );
@@ -694,6 +712,127 @@ void Generic_TaskTest_3::testPorts()
 #endif
 
 }
+
+void Generic_TaskTest_3::testEventPorts()
+{
+    // Data ports
+    WriteDataPort<double> wdp("WDName");
+    ReadDataPort<double> rdp("RDName");
+    DataPort<double> dp("DName");
+    DataPort<double> dp2("D2Name");
+
+    CPPUNIT_ASSERT( tce->ports()->addEventPort( &wdp ));
+    CPPUNIT_ASSERT( tc2->ports()->addEventPort( &rdp ));
+    CPPUNIT_ASSERT( tce->ports()->addEventPort( &dp ));
+    CPPUNIT_ASSERT( tc2->ports()->addEventPort( &dp2 ));
+
+    // Buffer ports
+    WriteBufferPort<double> wbp("WBName", 10);
+    ReadBufferPort<double> rbp("RBName");
+    BufferPort<double> bp("BName", 10);
+    BufferPort<double> bp2("B2Name", 10);
+
+    CPPUNIT_ASSERT( tce->ports()->addEventPort( &wbp ));
+    CPPUNIT_ASSERT( tc2->ports()->addEventPort( &rbp ));
+    CPPUNIT_ASSERT( tce->ports()->addEventPort( &bp ));
+    CPPUNIT_ASSERT( tc2->ports()->addEventPort( &bp2 ));
+
+    // Connect 3 data ports
+    CPPUNIT_ASSERT(wdp.connectTo( &rdp ) );
+    CPPUNIT_ASSERT(dp.connectTo( rdp.connection() ));
+
+    // Connect 3 buffer ports
+    CPPUNIT_ASSERT(wbp.connectTo( &rbp ) );
+    CPPUNIT_ASSERT(bp.connectTo( rbp.connection() ));
+
+    wdp.Set(1.0);
+    CPPUNIT_ASSERT( tc2->had_event == false );
+    CPPUNIT_ASSERT_EQUAL( tc2->nb_events, 0 ); // not running.
+    CPPUNIT_ASSERT( tce->had_event == false );
+    CPPUNIT_ASSERT_EQUAL( tce->nb_events, 0 ); // not running.
+
+    // After addEventPort, do the start (SequentialActivity)
+    tce->start();
+    tc2->start();
+
+    // Test data transfer
+    CPPUNIT_ASSERT( rdp.Get() == 1.0 );
+    wdp.Set( 3.0 );
+    CPPUNIT_ASSERT( rdp.Get() == 3.0 );
+    CPPUNIT_ASSERT( dp.Get() == 3.0 );
+    CPPUNIT_ASSERT( tc2->had_event );
+    CPPUNIT_ASSERT_EQUAL( 1, tc2->nb_events ); // 1 event port connected
+    tc2->resetStats();
+
+    // Test Reconnection after tasks are running:
+    dp.disconnect();
+    CPPUNIT_ASSERT( dp.connectTo( &dp2 ) );
+    CPPUNIT_ASSERT( dp.connected() );
+    CPPUNIT_ASSERT( dp2.connected() );
+
+    double dat;
+    dp.Set( 5.0 );
+    dp2.Get( dat );
+    CPPUNIT_ASSERT( dat == 5.0 );
+    CPPUNIT_ASSERT( tce->had_event );
+    CPPUNIT_ASSERT( tc2->had_event );
+    CPPUNIT_ASSERT_EQUAL( tc2->nb_events, 1 ); // 1 event port.
+
+    dp2.Set( 6.0 );
+    CPPUNIT_ASSERT( dp.Get() == 6.0 );
+    CPPUNIT_ASSERT( tce->had_event );
+    CPPUNIT_ASSERT_EQUAL( tce->nb_events, 1 ); // 1 event port fired.
+
+#if 0
+    dp.disconnect();
+    dp2.disconnect();
+#ifndef OROPKG_OS_MACOSX
+    dp = new DataObject<double>("Data",10.0);
+    CPPUNIT_ASSERT( dp.connected() );
+    CPPUNIT_ASSERT( dp.Get() == 10.0 );
+#endif
+    // Test buffer transfer
+    double val;
+    CPPUNIT_ASSERT( wbp.Push( 5.0 ) );
+    CPPUNIT_ASSERT( rbp.Pop( val ) );
+    CPPUNIT_ASSERT( val == 5.0 );
+
+    CPPUNIT_ASSERT( wbp.Push( 6.0 ) );
+    CPPUNIT_ASSERT( bp.Pop( val ) );
+    CPPUNIT_ASSERT( val == 6.0 );
+
+    CPPUNIT_ASSERT( bp.Push( 5.0 ) );
+    CPPUNIT_ASSERT( bp.Pop( val ) );
+    CPPUNIT_ASSERT( val == 5.0 );
+    CPPUNIT_ASSERT( bp.Pop( val ) == false );
+
+    // Test Buffer-to-Buffer:
+    bp.disconnect();
+    CPPUNIT_ASSERT( bp.connectTo( &bp2 ) );
+    CPPUNIT_ASSERT( bp.connected() );
+    CPPUNIT_ASSERT( bp2.connected() );
+
+    CPPUNIT_ASSERT( bp.Push( 5.0 ) );
+    CPPUNIT_ASSERT( bp2.Pop( val ) );
+    CPPUNIT_ASSERT( val == 5.0 );
+    CPPUNIT_ASSERT( bp2.Pop( val ) == false );
+
+    CPPUNIT_ASSERT( bp2.Push( 5.0 ) );
+    CPPUNIT_ASSERT( bp.Pop( val ) );
+    CPPUNIT_ASSERT( val == 5.0 );
+    CPPUNIT_ASSERT( bp2.Pop( val ) == false );
+
+    bp.disconnect();
+    bp2.disconnect();
+#ifndef OROPKG_OS_MACOSX
+    bp = new BufferLockFree<double>(10);
+    CPPUNIT_ASSERT( bp.connected() );
+    CPPUNIT_ASSERT( bp.buffer()->capacity() == 10 );
+#endif
+#endif
+
+}
+
 
 void Generic_TaskTest_3::testConnections()
 {

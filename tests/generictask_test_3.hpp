@@ -28,6 +28,7 @@
 using namespace RTT;
 
 class StatesTC;
+class EventPortsTC;
 
 class Generic_TaskTest_3 : public CppUnit::TestFixture
 {
@@ -35,6 +36,7 @@ class Generic_TaskTest_3 : public CppUnit::TestFixture
     CPPUNIT_TEST( testPeriod );
     CPPUNIT_TEST( testExecutionEngine );
     CPPUNIT_TEST( testPorts );
+    CPPUNIT_TEST( testEventPorts );
     CPPUNIT_TEST( testConnections );
     CPPUNIT_TEST( testPortObjects );
     CPPUNIT_TEST( testProperties );
@@ -45,6 +47,8 @@ class Generic_TaskTest_3 : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE_END();
 
     TaskContext* tc;
+    EventPortsTC* tce;
+    EventPortsTC* tc2;
     StatesTC* stc;
     ActivityInterface* tsim;
     ActivityInterface* stsim;
@@ -59,6 +63,7 @@ public:
     void testProperties();
     void testAttributes();
     void testPorts();
+    void testEventPorts();
     void testConnections();
     void testPortObjects();
     void testTCStates();
