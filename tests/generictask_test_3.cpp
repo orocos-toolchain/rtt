@@ -760,8 +760,11 @@ void Generic_TaskTest_3::testEventPorts()
     wdp.Set( 3.0 );
     CPPUNIT_ASSERT( rdp.Get() == 3.0 );
     CPPUNIT_ASSERT( dp.Get() == 3.0 );
+    CPPUNIT_ASSERT( tce->had_event );
+    CPPUNIT_ASSERT_EQUAL( 1, tce->nb_events ); // 1 event port (dp) fired.
     CPPUNIT_ASSERT( tc2->had_event );
-    CPPUNIT_ASSERT_EQUAL( 1, tc2->nb_events ); // 1 event port connected
+    CPPUNIT_ASSERT_EQUAL( 1, tc2->nb_events ); // 1 event port (rdp) connected
+    tce->resetStats();
     tc2->resetStats();
 
     // Test Reconnection after tasks are running:
@@ -775,15 +778,21 @@ void Generic_TaskTest_3::testEventPorts()
     dp2.Get( dat );
     CPPUNIT_ASSERT( dat == 5.0 );
     CPPUNIT_ASSERT( tce->had_event );
+    CPPUNIT_ASSERT_EQUAL( 1, tce->nb_events ); // 1 event port (dp) fired.
     CPPUNIT_ASSERT( tc2->had_event );
-    CPPUNIT_ASSERT_EQUAL( tc2->nb_events, 1 ); // 1 event port.
+    CPPUNIT_ASSERT_EQUAL( 1, tc2->nb_events ); // 1 event port (dp2).
+    tce->resetStats();
+    tc2->resetStats();
 
     dp2.Set( 6.0 );
     CPPUNIT_ASSERT( dp.Get() == 6.0 );
     CPPUNIT_ASSERT( tce->had_event );
-    CPPUNIT_ASSERT_EQUAL( tce->nb_events, 1 ); // 1 event port fired.
+    CPPUNIT_ASSERT_EQUAL( 1, tce->nb_events ); // 1 event port fired.
+    CPPUNIT_ASSERT( tc2->had_event );
+    CPPUNIT_ASSERT_EQUAL( 1, tc2->nb_events ); // 1 event port fired.
+    tce->resetStats();
+    tc2->resetStats();
 
-#if 0
     dp.disconnect();
     dp2.disconnect();
 #ifndef OROPKG_OS_MACOSX
@@ -791,46 +800,25 @@ void Generic_TaskTest_3::testEventPorts()
     CPPUNIT_ASSERT( dp.connected() );
     CPPUNIT_ASSERT( dp.Get() == 10.0 );
 #endif
-    // Test buffer transfer
+    // Each time, each TC must receive one event.
     double val;
     CPPUNIT_ASSERT( wbp.Push( 5.0 ) );
     CPPUNIT_ASSERT( rbp.Pop( val ) );
-    CPPUNIT_ASSERT( val == 5.0 );
-
-    CPPUNIT_ASSERT( wbp.Push( 6.0 ) );
-    CPPUNIT_ASSERT( bp.Pop( val ) );
-    CPPUNIT_ASSERT( val == 6.0 );
-
-    CPPUNIT_ASSERT( bp.Push( 5.0 ) );
-    CPPUNIT_ASSERT( bp.Pop( val ) );
-    CPPUNIT_ASSERT( val == 5.0 );
-    CPPUNIT_ASSERT( bp.Pop( val ) == false );
-
-    // Test Buffer-to-Buffer:
-    bp.disconnect();
-    CPPUNIT_ASSERT( bp.connectTo( &bp2 ) );
-    CPPUNIT_ASSERT( bp.connected() );
-    CPPUNIT_ASSERT( bp2.connected() );
+    CPPUNIT_ASSERT( tce->had_event );
+    CPPUNIT_ASSERT_EQUAL( 1, tce->nb_events ); // 1 event port (bp) fired.
+    CPPUNIT_ASSERT( tc2->had_event );
+    CPPUNIT_ASSERT_EQUAL( 1, tc2->nb_events ); // 1 event ports (rbp) fired.
+    tce->resetStats();
+    tc2->resetStats();
 
     CPPUNIT_ASSERT( bp.Push( 5.0 ) );
-    CPPUNIT_ASSERT( bp2.Pop( val ) );
-    CPPUNIT_ASSERT( val == 5.0 );
-    CPPUNIT_ASSERT( bp2.Pop( val ) == false );
-
-    CPPUNIT_ASSERT( bp2.Push( 5.0 ) );
     CPPUNIT_ASSERT( bp.Pop( val ) );
-    CPPUNIT_ASSERT( val == 5.0 );
-    CPPUNIT_ASSERT( bp2.Pop( val ) == false );
-
-    bp.disconnect();
-    bp2.disconnect();
-#ifndef OROPKG_OS_MACOSX
-    bp = new BufferLockFree<double>(10);
-    CPPUNIT_ASSERT( bp.connected() );
-    CPPUNIT_ASSERT( bp.buffer()->capacity() == 10 );
-#endif
-#endif
-
+    CPPUNIT_ASSERT( tce->had_event );
+    CPPUNIT_ASSERT_EQUAL( 1, tce->nb_events ); // 1 event port (bp) fired.
+    CPPUNIT_ASSERT( tc2->had_event );
+    CPPUNIT_ASSERT_EQUAL( 1, tc2->nb_events ); // 1 event port (rbp) fired.
+    tce->resetStats();
+    tc2->resetStats();
 }
 
 

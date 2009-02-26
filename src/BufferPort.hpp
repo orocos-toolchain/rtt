@@ -359,15 +359,9 @@ namespace RTT
 #ifndef ORO_EMBEDDED
             try {
 #endif
-                if ( mconn )
-                {
-                    bool ret = mconn->buffer()->Push(data);
-                    if (ret)
-                    {
-                        this->signal();
-                        mconn->signal();
-                    }
-                    return ret;
+                if ( mconn && mconn->buffer()->Push(data) ) {
+                    mconn->signal();
+                    return true;
                 }
 
 #ifndef ORO_EMBEDDED
@@ -503,8 +497,10 @@ namespace RTT
 #ifndef ORO_EMBEDDED
             try {
 #endif
-                if ( mconn )
-                    return mconn->buffer()->Push(data);
+                if ( mconn && mconn->buffer()->Push(data) ) {
+                    mconn->signal();
+                    return true;
+                }
 #ifndef ORO_EMBEDDED
             } catch (...) {
                 mconn = 0;

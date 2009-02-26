@@ -247,7 +247,6 @@ namespace RTT
                 if ( mconn )
                 {
                     mconn->data()->Set(data);
-                    this->signal();
                     mconn->signal();
                     return;
                 }
@@ -328,8 +327,11 @@ namespace RTT
 #ifndef ORO_EMBEDDED
             try {
 #endif
-                if ( mconn )
-                    return mconn->data()->Set(data);
+                if ( mconn ) {
+                    mconn->data()->Set(data);
+                    mconn->signal();
+                    return;
+                }
 #ifndef ORO_EMBEDDED
             } catch (...) {
                 mconn = 0;
@@ -447,16 +449,16 @@ namespace RTT
         {
             // use this to figure out what is actually registered.
             log(Error) << "Dynamic cast failed for "
-                       << "'" << typeid(data.get()).name() << "', '" 
-                       << data->getType() << "', '" 
-                       << data->getTypeName() << "'" 
+                       << "'" << typeid(data.get()).name() << "', '"
+                       << data->getType() << "', '"
+                       << data->getTypeName() << "'"
                        << ". Do your typenames not match?" << endlog();
             TypeInfoRepository::Instance()->logTypeInfo();
         }
         /* If the doi doesn't cast and the following assert fires,
            then you may have misnamed your types when registering. Both the
            types registered with the RTT toolkit as well as the types registered
-           with any transport (eg CORBA), must all have the *exact same name*. 
+           with any transport (eg CORBA), must all have the *exact same name*.
            If not, then the above cast fails. FYI ...
         */
         assert(doi && "Dynamic cast failed! See log file for details.");
