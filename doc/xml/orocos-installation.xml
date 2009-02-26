@@ -711,9 +711,9 @@
       <title>Configuring for CORBA</title>
       <para>
 	In case your application benefits from remote access over a
-	network, the RTT can be used with 'The Ace Orb' or
-	<emphasis>TAO</emphasis>. The RTT was tested with TAO 1.3.x
-	and 1.4.x. There are two major TAO development lines. One line
+	network, the RTT can be used with 'The Ace Orb' (
+	<emphasis>TAO</emphasis>) or OMNIORB-4. The RTT was tested with TAO 1.3.x,
+	1.4.x, 1.5x and 1.6.x and OMNIORB 4.1.x. There are two major TAO development lines. One line
 	is prepared by <ulink url="http://www.ociweb.com">OCI (Object Computing
 	Inc.)</ulink> and the other by the <ulink
 	url="http://www.dre.vanderbilt.edu/">DOC group</ulink>. You
@@ -770,15 +770,23 @@
 	</para>
       </section>
       <section>
-	<title>Configuring the RTT for TAO</title>
+	<title>Configuring the RTT for TAO or OMNIORB</title>
 	<para>
-	  Orocos will first try to detect your location of ACE and TAO
-	  using the ACE_ROOT and TAO_ROOT variables. If these are set, you can enable
-	  CORBA support (<option>ENABLE_CORBA</option>) within CMake.
+	  Orocos RTT defaults to TAO. If you want to use the
+	  OMNIORB implementation, run from your build directory:
+	  <screen>  cmake .. -DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=OMNIORB </screen>
+	  To specify TAO explicitly (or change back) use:
+	  <screen>  cmake .. -DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=TAO </screen>
+	</para>
+	<para>
+	  The RTT will first try to detect your location of ACE and
+	  TAO using the ACE_ROOT and TAO_ROOT variables. If these are
+	  set, you can enable CORBA support
+	  (<option>ENABLE_CORBA</option>) within CMake.
 	</para>
 	<para>
 	  Alternatively, when you use the configure wrapper, you
-	  can specify:
+	  can specify (defaults to TAO):
 	</para>
 	<screen>  ../configure --enable-corba</screen>
       </section>
