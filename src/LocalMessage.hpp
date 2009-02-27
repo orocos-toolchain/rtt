@@ -26,7 +26,7 @@ namespace RTT
             typedef bool result_type;
 
             bool execute() {
-                mmesg.exec();
+                mmesg.execute();
                 return true;
             }
 
@@ -35,8 +35,7 @@ namespace RTT
              */
             result_type invoke()
             {
-                LocalMessageBase<FunctionT>* c = this->cloneM();
-                return mmp->process(this);
+                return mmp->process( mmesg.rtclone() );
             }
 
             /**
@@ -45,8 +44,8 @@ namespace RTT
             template<class T1>
             result_type invoke(T1 t)
             {
-                LocalMessageImpl<FunctionT>* c = this->cloneM(); // RT-clone
-                c->mmesg.store(t);
+                MessageStorage<FunctionT>* c = mmesg.rtclone();
+                c->store(t);
                 return mmp->process( c );
             }
 
@@ -56,7 +55,9 @@ namespace RTT
             template<class T1, class T2>
             result_type invoke(T1 t1, T2 t2)
             {
-                return mmesg(t1, t2);
+                MessageStorage<FunctionT>* c = mmesg.rtclone();
+                c->store(t1,t2);
+                return mmp->process( c );
             }
 
             /**
@@ -65,7 +66,9 @@ namespace RTT
             template<class T1, class T2, class T3>
             result_type invoke(T1 t1, T2 t2, T3 t3)
             {
-                return mmesg(t1, t2, t3);
+                MessageStorage<FunctionT>* c = mmesg.rtclone();
+                c->store(t1,t2,t3);
+                return mmp->process( c );
             }
 
             /**
@@ -74,24 +77,11 @@ namespace RTT
             template<class T1, class T2, class T3, class T4>
             result_type invoke(T1 t1, T2 t2, T3 t3, T4 t4)
             {
-                return mmesg(t1, t2, t3, t4);
+                MessageStorage<FunctionT>* c = mmesg.rtclone();
+                c->store(t1,t2,t3,t4);
+                return mmp->process( c );
             }
 
-            /**
-             * RT-Clone. May slice since we only need execute() from
-             * ActionInterface.  operator() remains unimplemented !
-             * @return
-             */
-            LocalMessageImpl<FunctionT>* cloneM() = 0;
-
-            /**
-             * Used by C++ interface. Slices. operator() remains unimplemented !
-             * @return
-             */
-            ActionInterface* clone() const
-            {
-                return new LocalMessageImpl<Signature>(*this);
-            }
         };
 
         /**

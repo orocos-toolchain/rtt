@@ -1,6 +1,5 @@
 
 #include "MessageProcessor.hpp"
-#include <ActionInterface.hpp>
 #include <AtomicQueue.hpp>
 
 namespace RTT
@@ -11,7 +10,7 @@ namespace RTT
     using namespace OS;
 
     MessageProcessor::MessageProcessor(int queue_size)
-        :a_queue( new AtomicQueue<CommandInterface*>(queue_size) ),
+        :a_queue( new AtomicQueue<ExecutableInterface*>(queue_size) ),
          accept(false)
     {
     }
@@ -36,11 +35,10 @@ namespace RTT
 	void MessageProcessor::step()
     {
         // execute one command from the AtomicQueue.
-        ActionInterface* com(0);
+        ExecutableInterface* com(0);
         while ( !a_queue->isEmpty() ) {
             a_queue->dequeue( com );
             com->execute();
-            rt_free( com );
         }
     }
 
@@ -49,7 +47,7 @@ namespace RTT
         return ! a_queue->isEmpty();
     }
 
-    bool MessageProcessor::process( ActionInterface* c )
+    bool MessageProcessor::process( ExecutableInterface* c )
     {
         if (accept && c) {
             bool result = a_queue->enqueue( c );

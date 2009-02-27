@@ -4,7 +4,7 @@
 #define ORO_MESSAGE_PROCESSOR_HPP
 
 #include "RunnableInterface.hpp"
-#include "ActionInterface.hpp"
+#include "ExecutableInterface.hpp"
 #include "BufferPolicy.hpp"
 
 #include <string>
@@ -55,7 +55,7 @@ namespace RTT
          * @return false when the MessageProcessor is not running or does not accept messages.
          * @see acceptMessages
          */
-        virtual bool process(ActionInterface* c);
+        virtual bool process(ExecutableInterface* c);
 
         /**
          * Should the MessageProcessor accept or reject messages in \a process().
@@ -65,7 +65,7 @@ namespace RTT
 
     protected:
 
-        AtomicQueue<ActionInterface*,NonBlockingPolicy,NonBlockingPolicy>* a_queue;
+        AtomicQueue<ExecutableInterface*,NonBlockingPolicy,NonBlockingPolicy>* a_queue;
 
         bool accept;
     };

@@ -3,6 +3,7 @@
 #define ORO_TASK_MESSAGE_STORAGE_HPP
 
 #include "BindStorage.hpp"
+#include "ExecutableInterface.hpp"
 
 namespace RTT
 {
@@ -54,30 +55,32 @@ namespace RTT
          */
         template<class ToBind>
         struct MessageStorageImpl<0, ToBind>
+            : public ExecutableInterface
         {
             typedef bool result_type;
 
             // stores the original function pointer
-            boost::function<ToBind> exec;
+            boost::function<ToBind> mesg;
 
+            void execute() { mesg(); delete this; }
             template<class F, class ObjectType>
             void setup(F f, ObjectType t)
             {
-                exec = quickbind<F,ObjectType>( f, t); // allocates
+                mesg = quickbind<F,ObjectType>( f, t); // allocates
             }
 
             template<class F>
             void setup(F f)
             {
-                exec = f;
+                mesg = f;
             }
 
             void setup(boost::function<ToBind> f)
             {
-                exec = f;
+                mesg = f;
             }
 
-            boost::function<ToBind> function() const {return exec;}
+            boost::function<ToBind> function() const {return mesg;}
         };
 
         /**
@@ -85,6 +88,7 @@ namespace RTT
          */
         template<class ToBind>
         struct MessageStorageImpl<1, ToBind>
+            : public ExecutableInterface
         {
             typedef void result_type;
             typedef typename boost::function_traits<ToBind>::arg1_type   arg1_type;
@@ -95,7 +99,7 @@ namespace RTT
             mutable MStore<arg1_type> a1;
 
             void store(arg1_type t1) { a1(t1); }
-            void exec() { mesg( a1() ); }
+            void execute() { mesg( a1() ); delete this; }
 
             /**
              * The object already stores the user class function pointer and
@@ -123,6 +127,7 @@ namespace RTT
 
         template<class ToBind>
         struct MessageStorageImpl<2, ToBind>
+        : public ExecutableInterface
         {
             typedef bool result_type;
             typedef typename boost::function_traits<ToBind>::arg1_type   arg1_type;
@@ -136,7 +141,7 @@ namespace RTT
             mutable MStore<arg2_type> a2;
 
             void store(arg1_type t1, arg2_type t2) { a1(t1); a2(t2); }
-            bool exec() { return mesg( a1(), a2() ); }
+            void execute() { mesg( a1(), a2() ); delete this; }
 
             template<class F, class ObjectType>
             void setup(F f, ObjectType t)
@@ -160,6 +165,7 @@ namespace RTT
 
         template<class ToBind>
         struct MessageStorageImpl<3, ToBind>
+        : public ExecutableInterface
         {
             typedef bool result_type;
             typedef typename boost::function_traits<ToBind>::arg1_type   arg1_type;
@@ -174,7 +180,7 @@ namespace RTT
             mutable MStore<arg3_type> a3;
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3) { a1(t1); a2(t2); a3(t3); }
-            bool exec() { return mesg( a1(), a2(), a3() ); }
+            void execute() { mesg( a1(), a2(), a3() ); delete this; }
 
             template<class F, class ObjectType>
             void setup(F f, ObjectType t)
@@ -187,6 +193,7 @@ namespace RTT
 
         template<class ToBind>
         struct MessageStorageImpl<4, ToBind>
+            : public ExecutableInterface
         {
             typedef bool result_type;
             typedef typename boost::function_traits<ToBind>::arg1_type   arg1_type;
@@ -203,7 +210,7 @@ namespace RTT
             mutable MStore<arg4_type> a4;
 
             void store(arg1_type t1, arg2_type t2, arg3_type t3, arg4_type t4) { a1(t1); a2(t2); a3(t3); a4(t4); }
-            bool exec() { return mesg( a1(), a2(), a3(), a4() ); }
+            void execute() { mesg( a1(), a2(), a3(), a4() ); delete this; }
 
             template<class F, class ObjectType>
             void setup(F f, ObjectType t)
@@ -212,6 +219,8 @@ namespace RTT
             }
 
             boost::function<ToBind> function() const {return mesg;}
+
+
         };
 
 
@@ -237,6 +246,10 @@ namespace RTT
         struct MessageStorage
             : public MessageStorageImpl<boost::function_traits<ToBind>::arity, ToBind>
         {
+                MessateStorage<ToBind>* rtclone() const
+                {
+                    return new MessageStorage<ToBind>(this);
+                }
         };
 
     }
