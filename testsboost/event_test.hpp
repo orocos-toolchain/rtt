@@ -54,20 +54,6 @@ public:
 
     int float_listener(float a, float b);
     int float_completer(float a, float b);
-
-    void testEmpty();
-    void testSyncListener();
-    void testSyncListenerString();
-    void testSyncListenerSyncCompleter();
-    void testSyncListenerThreadCompleter();
-    void testCompletionProcessor();
-    void testTask();
-    void testBlockingTask();
-    void testEventArgs();
-    void testRTEvent();
-    void testSelfRemoval();
-    void testCrossRemoval();
 };
-
 
 #endif  // EVENTTEST_H
