@@ -34,8 +34,9 @@ class Generic_TaskTest_3 : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE( Generic_TaskTest_3 );
     CPPUNIT_TEST( testPeriod );
     CPPUNIT_TEST( testExecutionEngine );
-    CPPUNIT_TEST( testPorts );
-    CPPUNIT_TEST( testConnections );
+    CPPUNIT_TEST( testPortSimpleConnections );
+    CPPUNIT_TEST( testPortForkedConnections );
+    CPPUNIT_TEST( testPortTaskInterface );
     CPPUNIT_TEST( testPortObjects );
     CPPUNIT_TEST( testProperties );
     CPPUNIT_TEST( testAttributes );
@@ -58,8 +59,9 @@ public:
     void testExecutionEngine();
     void testProperties();
     void testAttributes();
-    void testPorts();
-    void testConnections();
+    void testPortSimpleConnections();
+    void testPortForkedConnections();
+    void testPortTaskInterface();
     void testPortObjects();
     void testTCStates();
     void testSpecialTCStates();

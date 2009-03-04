@@ -1,54 +1,351 @@
-/***************************************************************************
-  tag: Peter Soetens  Thu Mar 2 08:30:17 CET 2006  Ports.hpp
-
-                        Ports.hpp -  description
-                           -------------------
-    begin                : Thu March 02 2006
-    copyright            : (C) 2006 Peter Soetens
-    email                : peter.soetens@fmtc.be
-
- ***************************************************************************
- *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU General Public                   *
- *   License as published by the Free Software Foundation;                 *
- *   version 2 of the License.                                             *
- *                                                                         *
- *   As a special exception, you may use this file as part of a free       *
- *   software library without restriction.  Specifically, if other files   *
- *   instantiate templates or use macros or inline functions from this     *
- *   file, or you compile this file and link it with other files to        *
- *   produce an executable, this file does not by itself cause the         *
- *   resulting executable to be covered by the GNU General Public          *
- *   License.  This exception does not however invalidate any other        *
- *   reasons why the executable file might be covered by the GNU General   *
- *   Public License.                                                       *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU General Public             *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 59 Temple Place,                                    *
- *   Suite 330, Boston, MA  02111-1307  USA                                *
- *                                                                         *
- ***************************************************************************/
-
-
 #ifndef ORO_EXECUTION_PORTS_HPP
 #define ORO_EXECUTION_PORTS_HPP
 
-/**
- * @defgroup Ports Data Transfer Ports
- * The data flow between components is realised by Ports which are
- * connected. Ports can be buffered or unbuffered, read-only, write-only
- * or read-write.
- * @ingroup RTTComponentInterface
- */
+#include <Connections.hpp>
+#include <PortInterface.hpp>
 
-#include "DataPort.hpp"
-#include "BufferPort.hpp"
+#include <DataObjectInterfaces.hpp>
+#include <BufferLocked.hpp>
+#include <BufferLockFree.hpp>
+#include <TaskObject.hpp>
 
+namespace RTT
+{
+    class TypeInfo;
+    template<typename T> class WritePort;
+    template<typename T> class ReadPort;
+
+    template<typename T>
+    class ConnWriterEndpoint : public ConnElement<T>
+    {
+        WritePort<T>* port;
+
+    public:
+        ConnWriterEndpoint(WritePort<T>* port)
+            : port(port) { }
+
+        /** Writes a new sample on this connection */
+        virtual bool write(typename ConnElement<T>::param_t sample)
+        {
+            typename ConnElement<T>::shared_ptr reader = boost::static_pointer_cast< ConnElement<T> >(this->reader);
+            if (reader)
+                return boost::static_pointer_cast< ConnElement<T> >(reader)->write(sample);
+            return false;
+        }
+
+        /** Writes a new sample on this connection
+         * This should never be called, as all connections are supposed to have
+         * a data storage element */
+        virtual bool read(typename ConnElement<T>::reference_t sample)
+        { return false; }
+
+        virtual void disconnect(bool writer_to_reader)
+        {
+            if (!writer_to_reader)
+            {
+                WritePort<T>* port = this->port;
+                if (!port)
+                    return;
+
+                for (std::list<WritePortInterface::ConnDescriptor>::iterator it =
+                        port->connections.begin();
+                        it != port->connections.end();
+                        ++it)
+                {
+                    if (it->get<1>() == this)
+                    {
+                        port->connections.erase(it);
+                        return;
+                    }
+                }
+            }
+            else
+                ConnElement<T>::disconnect(writer_to_reader);
+        }
+    };
+
+    template<typename T>
+    class ConnReaderEndpoint : public ConnElement<T>
+    {
+        ReadPort<T>* port;
+
+    public:
+        ConnReaderEndpoint(ReadPort<T>* port)
+            : port(port)
+        {
+            port->writer = this;
+        }
+
+        /** Writes a new sample on this connection
+         * This should never be called, as all connections are supposed to have
+         * a data storage element */
+        virtual bool write(typename ConnElement<T>::param_t sample)
+        { return false; }
+
+        /** Reads a new sample on this connection */
+        virtual bool read(typename ConnElement<T>::reference_t sample)
+        {
+            typename ConnElement<T>::shared_ptr writer = static_cast< ConnElement<T>* >(this->writer);
+            if (writer)
+                return writer->read(sample);
+            else return false;
+        }
+
+        virtual void disconnect(bool writer_to_reader)
+        {
+            if (writer_to_reader)
+            {
+                ReadPort<T>* port = this->port;
+                this->port = 0;
+                if (port)
+                    port->writer = 0;
+            }
+            else
+                ConnElement<T>::disconnect(writer_to_reader);
+        }
+
+        virtual void signal() const
+        {
+            ReadPort<T>* port = this->port;
+            if (port && port->new_data_on_port_event)
+                (*port->new_data_on_port_event)(port);
+        }
+    };
+
+    class ConnFactory
+    {
+    public:
+
+        /** This method is analoguous to the static ConnFactory::buildWriterHalf.
+         * It is provided for remote connection building: for these connections,
+         * no template can be used and therefore the connection setup should be
+         * done based on the TypeInfo object
+         */
+        virtual ConnElementBase* buildReaderHalf(TypeInfo const* type_info,
+                PortInterface& writer, PortInterface& reader, ConnPolicy const& policy) = 0;
+
+        /** This method creates the connection element that will store data
+         * inside the connection, based on the given policy
+         */
+        template<typename T>
+        static ConnElementBase* buildDataStorage(ConnPolicy const& policy)
+        {
+            if (policy.type == ConnPolicy::DATA)
+            {
+                DataObjectInterface<T>* data_object = 0;
+                if (policy.lock_policy == ConnPolicy::LOCKED)
+                    data_object = new DataObjectLocked<T>("");
+                else
+                    data_object = new DataObjectLockFree<T>("");
+
+                return new ConnDataElement<T>(data_object);
+            }
+            else if (policy.type == ConnPolicy::BUFFER)
+            {
+                BufferInterface<T>* buffer_object = 0;
+                if (policy.lock_policy == ConnPolicy::LOCKED)
+                    buffer_object = new BufferLocked<T>(policy.size);
+                else
+                    buffer_object = new BufferLockFree<T>(policy.size);
+
+                return new ConnBufferElement<T>(typename BufferInterface<T>::shared_ptr(buffer_object));
+            }
+            return NULL;
+        }
+
+        /** During the process of building a connection between two ports, this
+         * method builds the first half (starting from the source). In the
+         * returned pair, the first element is the connection element that
+         * should be connected to the port, and the second element is the one
+         * that will be connected to the sink-half of the connection
+         *
+         * The \c sink argument is the connection element that has been returned
+         * by buildWriterHalf.
+         *
+         * @see buildWriterHalf
+         */
+        template<typename T>
+        static ConnElementBase* buildWriterHalf(WritePort<T>& writer, ReadPort<T>& reader,
+                ConnPolicy const& policy, ConnElementBase* sink)
+        {
+            ConnElementBase* endpoint = new ConnWriterEndpoint<T>(&writer);
+            if (policy.pull)
+            {
+                ConnElementBase* data_object = buildDataStorage<T>(policy);
+                endpoint->setReader(data_object);
+                data_object->setReader(sink);
+            }
+            else
+                endpoint->setReader(sink);
+
+            return endpoint;
+        }
+
+        /** During the process of building a connection between two ports, this
+         * method builds the second half (starting from the source). The
+         * returned value is the connection element that should be connected to
+         * the end of the source-half.
+         *
+         * @see buildSourceHalf
+         */
+        template<typename T>
+        static ConnElementBase* buildReaderHalf(WritePort<T>& writer, ReadPort<T>& reader, 
+                ConnPolicy const& policy)
+        {
+            ConnElementBase* endpoint = new ConnReaderEndpoint<T>(&reader);
+            if (!policy.pull)
+            {
+                ConnElementBase* data_object = buildDataStorage<T>(policy);
+                data_object->setReader(endpoint);
+                return data_object;
+            }
+            else return endpoint;
+        }
+    };
+
+    template<typename T>
+    class ReadPort : public ReadPortInterface
+    {
+        friend class ConnReaderEndpoint<T>;
+
+    public:
+        ReadPort(std::string const& name, ConnPolicy const& default_policy = ConnPolicy())
+            : ReadPortInterface(name, default_policy) {}
+
+        bool read(typename ConnElement<T>::reference_t sample)
+        {
+            typename ConnElement<T>::shared_ptr writer = static_cast< ConnElement<T>* >(this->writer);
+            if (writer)
+                return writer->read(sample);
+            else return false;
+        }
+
+        /** Returns the TypeInfo object for the port's type */
+        virtual const TypeInfo* getTypeInfo() const
+        { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
+
+        /**
+         * Create a clone of this port with the same name
+         */
+        virtual PortInterface* clone() const
+        { return new ReadPort<T>(this->getName()); }
+
+        /**
+         * Create the anti-clone (inverse port) of this port with the same name
+         * A port for reading will return a new port for writing and
+         * vice versa.
+         */
+        virtual PortInterface* antiClone() const
+        { return new WritePort<T>(this->getName()); }
+
+        /**
+         * Create accessor Object for this Port, for addition to a
+         * TaskContext Object interface.
+         */
+        virtual TaskObject* createPortObject()
+        {
+            TaskObject* object = ReadPortInterface::createPortObject();
+            object->methods()->addMethod( method("read", &ReadPort<T>::read, this),
+                    "Reads a sample from the port.",
+                    "sample", "");
+            return object;
+        }
+    };
+
+    template<typename T>
+    class WritePort : public WritePortInterface
+    {
+        friend class ConnWriterEndpoint<T>;
+
+    public:
+        WritePort(std::string const& name)
+            : WritePortInterface(name) {}
+
+        bool write(typename ConnElement<T>::param_t sample)
+        {
+            bool result = false;
+            for (std::list<ConnDescriptor>::iterator it = connections.begin();
+                    it != connections.end(); ++it)
+            {
+                typename ConnElement<T>::shared_ptr reader = boost::static_pointer_cast< ConnElement<T> >(it->get<1>());
+                if (reader->write(sample))
+                    result = true;
+            }
+
+            return result;
+        }
+
+        /** Returns the TypeInfo object for the port's type */
+        virtual const TypeInfo* getTypeInfo() const
+        { return detail::DataSourceTypeInfo<T>::getTypeInfo(); }
+
+        /**
+         * Create a clone of this port with the same name
+         */
+        virtual PortInterface* clone() const
+        { return new WritePort<T>(this->getName()); }
+
+        /**
+         * Create the anti-clone (inverse port) of this port with the same name
+         * A port for reading will return a new port for writing and
+         * vice versa.
+         */
+        virtual PortInterface* antiClone() const
+        { return new ReadPort<T>(this->getName()); }
+
+        using WritePortInterface::createConnection;
+
+        /** Connects this write port to the given read port, using the given
+         * policy */
+        virtual bool createConnection( ReadPortInterface& reader_, ConnPolicy const& policy )
+        {
+            ReadPort<T>* reader = dynamic_cast<ReadPort<T>*>(&reader_);
+            if (!reader)
+                return false;
+
+            ConnElementBase* reader_endpoint;
+            if (reader->isLocal())
+                reader_endpoint = ConnFactory::buildReaderHalf(*this, *reader, policy);
+            else
+            {
+                TypeInfo const* type_info = getTypeInfo();
+                if (!type_info->getProtocol(reader->serverProtocol()))
+                {
+                    // This type cannot be marshalled into the right transporter
+                    return false;
+                }
+                else if (type_info)
+                {
+                    reader_endpoint = reader->
+                        getConnFactory()->buildReaderHalf(type_info, *this, *reader, policy);
+                }
+                else
+                {
+                    // There is no type info registered for this type
+                    return false;
+                }
+            }
+
+            ConnElementBase* writer_endpoint = ConnFactory::buildWriterHalf(*this, *reader, policy, reader_endpoint);
+            connections.push_back( boost::make_tuple(reader, writer_endpoint, policy) );
+            return true;
+        }
+
+        /**
+         * Create accessor Object for this Port, for addition to a
+         * TaskContext Object interface.
+         */
+        virtual TaskObject* createPortObject()
+        {
+            TaskObject* object = WritePortInterface::createPortObject();
+            object->methods()->addMethod( method("write", &WritePort<T>::write, this),
+                    "Writes a sample on the port.",
+                    "sample", "");
+            return object;
+        }
+    };
+
+}
 
 #endif
+

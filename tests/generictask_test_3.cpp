@@ -30,6 +30,7 @@
 #include "SimulationThread.hpp"
 
 #include <boost/function_types/function_type_signature.hpp>
+#include "Method.hpp"
 
 using namespace std;
 
@@ -565,306 +566,244 @@ void Generic_TaskTest_3::testAttributes()
 
 }
 
-void Generic_TaskTest_3::testPorts()
+void Generic_TaskTest_3::testPortTaskInterface()
 {
-    WriteDataPort<double> wdp("WDName");
-    ReadDataPort<double> rdp("RDName");
-    DataPort<double> dp("DName");
-    DataPort<double> dp2("D2Name");
+    ReadPort<int> rp1("Port1");
+    WritePort<int> wp1("Port1");
+    ReadPort<int> rp2("Port2");
+    WritePort<int> wp2("Port2");
 
-    CPPUNIT_ASSERT( wdp.getPortType() == PortInterface::WritePort );
-    CPPUNIT_ASSERT( rdp.getPortType() == PortInterface::ReadPort );
-    CPPUNIT_ASSERT( dp.getPortType() == PortInterface::ReadWritePort );
-
-    // Test initial value
-    wdp.Set( 1.0 );
-    dp.Set( 2.0 );
-
-    WriteBufferPort<double> wbp("WBName", 10);
-    ReadBufferPort<double> rbp("RBName");
-    BufferPort<double> bp("BName", 10);
-    BufferPort<double> bp2("B2Name", 10);
-
-    CPPUNIT_ASSERT( wbp.getPortType() == PortInterface::WritePort );
-    CPPUNIT_ASSERT( rbp.getPortType() == PortInterface::ReadPort );
-    CPPUNIT_ASSERT( bp.getPortType() == PortInterface::ReadWritePort );
-
-    CPPUNIT_ASSERT( tc->ports()->addPort( &wdp ));
-    CPPUNIT_ASSERT( tc->ports()->addPort( &rdp ));
-    CPPUNIT_ASSERT( tc->ports()->addPort( &dp ));
-    CPPUNIT_ASSERT( tc->ports()->addPort( &dp2 ));
+    CPPUNIT_ASSERT( tc->ports()->addPort( &wp1 ));
+    CPPUNIT_ASSERT( tc->ports()->addPort( &rp2 ));
 
     // check adding same port twice.
-    CPPUNIT_ASSERT( tc->ports()->addPort( &wdp ) == false);
+    CPPUNIT_ASSERT( tc->ports()->addPort( &wp1 ) == false);
     {
         // also check adding different port with same name.
-        DataPort<double> tdp("WDName");
-        CPPUNIT_ASSERT( tc->ports()->addPort( &tdp ) == false);
+        ReadPort<double> other_rp("Port1");
+        CPPUNIT_ASSERT( tc->ports()->addPort( &other_rp ) == false);
     }
 
-    CPPUNIT_ASSERT( tc->ports()->addPort( &wbp ));
-    CPPUNIT_ASSERT( tc->ports()->addPort( &rbp ));
-    CPPUNIT_ASSERT( tc->ports()->addPort( &bp ));
-    CPPUNIT_ASSERT( tc->ports()->addPort( &bp2 ));
+    {
+        auto_ptr<TaskContext> tc1(new TaskContext( "tc", TaskContext::Stopped ));
+        auto_ptr<TaskContext> tc2(new TaskContext( "tc2", TaskContext::Stopped ));
 
-    // Test connection creation.
-    CPPUNIT_ASSERT(wdp.connectTo( &rdp ) );
-    CPPUNIT_ASSERT(dp.connectTo( rdp.connection() ));
+        tc1->ports()->addPort(&rp1);
+        tc1->ports()->addPort(&wp2);
+        tc2->ports()->addPort(&rp2);
+        tc2->ports()->addPort(&wp1);
 
-    CPPUNIT_ASSERT(wbp.connectTo( &rbp ) );
-    CPPUNIT_ASSERT(bp.connectTo( rbp.connection() ));
+        CPPUNIT_ASSERT( tc1->connectPorts(tc2.get()) );
+        CPPUNIT_ASSERT( wp1.connected() );
+        CPPUNIT_ASSERT( rp1.connected() );
+        wp1.write(2);
+        int value = 0;
+        CPPUNIT_ASSERT( rp1.read(value) );
+        CPPUNIT_ASSERT_EQUAL(2, value);
 
-    CPPUNIT_ASSERT( wdp.connected() );
-    CPPUNIT_ASSERT( rdp.connected() );
-    CPPUNIT_ASSERT( dp.connected() );
+        CPPUNIT_ASSERT( wp2.connected() );
+        CPPUNIT_ASSERT( rp2.connected() );
+        wp2.write(3);
+        value = 0;
+        CPPUNIT_ASSERT( rp2.read(value) );
+        CPPUNIT_ASSERT_EQUAL(3, value);
+    }
 
-    CPPUNIT_ASSERT( wbp.connected() );
-    CPPUNIT_ASSERT( rbp.connected() );
-    CPPUNIT_ASSERT( bp.connected() );
-
-    // Test data transfer
-    CPPUNIT_ASSERT( rdp.Get() == 1.0 );
-    wdp.Set( 3.0 );
-    CPPUNIT_ASSERT( rdp.Get() == 3.0 );
-    CPPUNIT_ASSERT( dp.Get() == 3.0 );
-    double dat = 0.0;
-    dp.Get( dat );
-    CPPUNIT_ASSERT( dat == 3.0 );
-    dat = 0.0;
-    rdp.Get( dat );
-    CPPUNIT_ASSERT( dat == 3.0 );
-
-    // Test Data-to-Data:
-    dp.disconnect();
-    CPPUNIT_ASSERT( dp.connectTo( &dp2 ) );
-    CPPUNIT_ASSERT( dp.connected() );
-    CPPUNIT_ASSERT( dp2.connected() );
-
-    dp.Set( 5.0 );
-    dp2.Get( dat );
-    CPPUNIT_ASSERT( dat == 5.0 );
-
-    dp2.Set( 6.0 );
-    CPPUNIT_ASSERT( dp.Get() == 6.0 );
-
-    dp.disconnect();
-    dp2.disconnect();
-#ifndef OROPKG_OS_MACOSX
-    dp = new DataObject<double>("Data",10.0);
-    CPPUNIT_ASSERT( dp.connected() );
-    CPPUNIT_ASSERT( dp.Get() == 10.0 );
-#endif
-    // Test buffer transfer
-    double val;
-    CPPUNIT_ASSERT( wbp.Push( 5.0 ) );
-    CPPUNIT_ASSERT( rbp.Pop( val ) );
-    CPPUNIT_ASSERT( val == 5.0 );
-
-    CPPUNIT_ASSERT( wbp.Push( 6.0 ) );
-    CPPUNIT_ASSERT( bp.Pop( val ) );
-    CPPUNIT_ASSERT( val == 6.0 );
-
-    CPPUNIT_ASSERT( bp.Push( 5.0 ) );
-    CPPUNIT_ASSERT( bp.Pop( val ) );
-    CPPUNIT_ASSERT( val == 5.0 );
-    CPPUNIT_ASSERT( bp.Pop( val ) == false );
-
-    // Test Buffer-to-Buffer:
-    bp.disconnect();
-    CPPUNIT_ASSERT( bp.connectTo( &bp2 ) );
-    CPPUNIT_ASSERT( bp.connected() );
-    CPPUNIT_ASSERT( bp2.connected() );
-
-    CPPUNIT_ASSERT( bp.Push( 5.0 ) );
-    CPPUNIT_ASSERT( bp2.Pop( val ) );
-    CPPUNIT_ASSERT( val == 5.0 );
-    CPPUNIT_ASSERT( bp2.Pop( val ) == false );
-
-    CPPUNIT_ASSERT( bp2.Push( 5.0 ) );
-    CPPUNIT_ASSERT( bp.Pop( val ) );
-    CPPUNIT_ASSERT( val == 5.0 );
-    CPPUNIT_ASSERT( bp2.Pop( val ) == false );
-
-    bp.disconnect();
-    bp2.disconnect();
-#ifndef OROPKG_OS_MACOSX
-    bp = new BufferLockFree<double>(10);
-    CPPUNIT_ASSERT( bp.connected() );
-    CPPUNIT_ASSERT( bp.buffer()->capacity() == 10 );
-#endif
-
+    // Tasks have been destroyed, but the ports not. Automatic disconnection
+    // is done when port objects are disconnected
+    CPPUNIT_ASSERT( rp1.connected() );
+    CPPUNIT_ASSERT( rp2.connected() );
+    CPPUNIT_ASSERT( wp1.connected() );
+    CPPUNIT_ASSERT( wp2.connected() );
 }
 
-void Generic_TaskTest_3::testConnections()
+void Generic_TaskTest_3::testPortSimpleConnections()
 {
-    WriteDataPort<double> wdp("WDName");
-    ReadDataPort<double> rdp("RDName");
-    DataPort<double> dp("DName");
-    DataPort<double> dp2("D2Name");
+    WritePort<int> wp("WriterName");
+    ReadPort<int> rp("ReaderName", ConnPolicy::data());
 
-    CPPUNIT_ASSERT( wdp.getPortType() == PortInterface::WritePort );
-    CPPUNIT_ASSERT( rdp.getPortType() == PortInterface::ReadPort );
-    CPPUNIT_ASSERT( dp.getPortType() == PortInterface::ReadWritePort );
+    CPPUNIT_ASSERT( !wp.connected() );
+    CPPUNIT_ASSERT( !rp.connected() );
+    {
+        int value;
+        CPPUNIT_ASSERT( !rp.read(value) );
+        CPPUNIT_ASSERT( !wp.write(value) );
+    }
 
-    // Test initial value
-    wdp.Set( 1.0 );
-    dp.Set( 2.0 );
+    wp.createConnection(rp);
+    CPPUNIT_ASSERT( wp.connected() );
+    CPPUNIT_ASSERT( rp.connected() );
 
-    WriteBufferPort<double> wbp("WBName", 10);
-    ReadBufferPort<double> rbp("RBName");
-    BufferPort<double> bp("BName", 10);
-    BufferPort<double> bp2("B2Name", 10);
+    { 
+        int value = 0;
+        CPPUNIT_ASSERT( !rp.read(value) );
+        CPPUNIT_ASSERT( wp.write(1) );
+        CPPUNIT_ASSERT( rp.read(value) );
+        CPPUNIT_ASSERT( 1 == value );
+    }
 
-    CPPUNIT_ASSERT( wbp.getPortType() == PortInterface::WritePort );
-    CPPUNIT_ASSERT( rbp.getPortType() == PortInterface::ReadPort );
-    CPPUNIT_ASSERT( bp.getPortType() == PortInterface::ReadWritePort );
+    rp.clear();
+    { 
+        int value = 0;
+        CPPUNIT_ASSERT( !rp.read(value) );
+        wp.write(1);
+        CPPUNIT_ASSERT( rp.read(value) );
+        CPPUNIT_ASSERT( 1 == value );
+    }
 
-    CPPUNIT_ASSERT( tc->ports()->addPort( &wdp ));
-    CPPUNIT_ASSERT( tc->ports()->addPort( &rdp ));
-    CPPUNIT_ASSERT( tc->ports()->addPort( &dp ));
-    CPPUNIT_ASSERT( tc->ports()->addPort( &dp2 ));
+    // Try disconnecting starting at the writer. Disconnecting from the reader
+    // will be done later
+    wp.disconnect();
+    CPPUNIT_ASSERT( !wp.connected() );
+    CPPUNIT_ASSERT( !rp.connected() );
+    {
+        int value;
+        CPPUNIT_ASSERT( !wp.write(value) );
+        CPPUNIT_ASSERT( !rp.read(value) );
+    }
+    wp.disconnect(); // calling it when not connected should be fine as well
 
-    // test setting the connection object
-    wdp = new DataObject<double>("");
-    rdp = new DataObject<double>("");
-    dp = new DataObject<double>("");
-    dp2 = new DataObject<double>("");
+    { 
+        int value = 0;
+        CPPUNIT_ASSERT( !rp.read(value) );
+        wp.createBufferConnection(rp, 4);
+        CPPUNIT_ASSERT( !rp.read(value) );
+        CPPUNIT_ASSERT( wp.write(1) );
+        CPPUNIT_ASSERT( wp.write(2) );
+        CPPUNIT_ASSERT( wp.write(3) );
+        CPPUNIT_ASSERT( wp.write(4) );
+        CPPUNIT_ASSERT( !wp.write(5) );
+        CPPUNIT_ASSERT_EQUAL(0, value);
+        CPPUNIT_ASSERT( rp.read(value) );
+        CPPUNIT_ASSERT_EQUAL(1, value);
+        CPPUNIT_ASSERT( rp.read(value) );
+        CPPUNIT_ASSERT_EQUAL(2, value);
 
-    CPPUNIT_ASSERT( wdp.connected() );
-    CPPUNIT_ASSERT( rdp.connected() );
-    CPPUNIT_ASSERT( dp.connected() );
-    CPPUNIT_ASSERT( dp2.connected() );
+        rp.clear();
+        CPPUNIT_ASSERT( !rp.read(value) );
+        CPPUNIT_ASSERT( wp.write(10) );
+        CPPUNIT_ASSERT( wp.write(20) );
+        CPPUNIT_ASSERT( rp.read(value) );
+        CPPUNIT_ASSERT_EQUAL(10, value);
+        CPPUNIT_ASSERT( rp.read(value) );
+        CPPUNIT_ASSERT_EQUAL(20, value);
+        CPPUNIT_ASSERT( !rp.read(value) );
+    }
 
-    CPPUNIT_ASSERT( dynamic_cast<DataObject<double>* >( wdp.connection()->getDataSource().get() ) );
-    CPPUNIT_ASSERT( dynamic_cast<DataObject<double>* >( rdp.connection()->getDataSource().get() ) );
-    CPPUNIT_ASSERT( dynamic_cast<DataObject<double>* >( dp.connection()->getDataSource().get() ) );
-    CPPUNIT_ASSERT( dynamic_cast<DataObject<double>* >( dp2.connection()->getDataSource().get() ) );
+    // Try disconnecting from the reader this time
+    rp.disconnect();
+    CPPUNIT_ASSERT( !wp.connected() );
+    CPPUNIT_ASSERT( !rp.connected() );
+    {
+        int value;
+        CPPUNIT_ASSERT( !wp.write(value) );
+        CPPUNIT_ASSERT( !rp.read(value) );
+    }
+    rp.disconnect(); // calling it when not connected should be fine as well
 
-    // test setting the connection object
-    wbp = new BufferLocked<double>(10);
-    rbp = new BufferLocked<double>(11);
-    bp = new BufferLocked<double>(12);
-    bp2 = new BufferLocked<double>(13);
+    // Test automatic disconnection because of port destruction
+    {
+        ReadPort<int> rp("ReaderName", ConnPolicy::data());
+        CPPUNIT_ASSERT(wp.createConnection(rp));
+        CPPUNIT_ASSERT( wp.connected() );
+        CPPUNIT_ASSERT( rp.connected() );
+    }
+    CPPUNIT_ASSERT( !wp.connected() );
+}
 
-    CPPUNIT_ASSERT( wbp.connected() );
-    CPPUNIT_ASSERT( rbp.connected() );
-    CPPUNIT_ASSERT( bp.connected() );
-    CPPUNIT_ASSERT( bp2.connected() );
+void Generic_TaskTest_3::testPortForkedConnections()
+{
+    WritePort<int> wp("W");
+    ReadPort<int> rp1("R1", ConnPolicy::data());
+    ReadPort<int> rp2("R2", ConnPolicy::buffer(4));
 
-    CPPUNIT_ASSERT( dynamic_cast<BufferLocked<double>* >( wbp.connection()->getBuffer().get() ) );
-    CPPUNIT_ASSERT( dynamic_cast<BufferLocked<double>* >( rbp.connection()->getBuffer().get() ) );
-    CPPUNIT_ASSERT( dynamic_cast<BufferLocked<double>* >( bp.connection()->getBuffer().get() ) );
-    CPPUNIT_ASSERT( dynamic_cast<BufferLocked<double>* >( bp2.connection()->getBuffer().get() ) );
+    wp.createConnection(rp1);
+    CPPUNIT_ASSERT( wp.connected() );
+    CPPUNIT_ASSERT( rp1.connected() );
+    CPPUNIT_ASSERT( !rp2.connected() );
+    wp.createConnection(rp2);
+    CPPUNIT_ASSERT( wp.connected() );
+    CPPUNIT_ASSERT( rp1.connected() );
+    CPPUNIT_ASSERT( rp2.connected() );
 
+    CPPUNIT_ASSERT( wp.write(10) );
+    CPPUNIT_ASSERT( wp.write(15) );
+    CPPUNIT_ASSERT( wp.write(20) );
+    CPPUNIT_ASSERT( wp.write(25) );
+    CPPUNIT_ASSERT( wp.write(30) );
+
+    int value = 0;
+    CPPUNIT_ASSERT( rp1.read(value));
+    CPPUNIT_ASSERT_EQUAL(30, value);
+
+    CPPUNIT_ASSERT( rp2.read(value));
+    CPPUNIT_ASSERT_EQUAL(10, value);
+    CPPUNIT_ASSERT( rp2.read(value));
+    CPPUNIT_ASSERT_EQUAL(15, value);
+    CPPUNIT_ASSERT( rp2.read(value));
+    CPPUNIT_ASSERT_EQUAL(20, value);
+    CPPUNIT_ASSERT( rp2.read(value));
+    CPPUNIT_ASSERT_EQUAL(25, value);
+    CPPUNIT_ASSERT( !rp2.read(value));
+
+    // Now removes only the buffer port
+    wp.disconnect(rp2);
+    CPPUNIT_ASSERT( wp.connected() );
+    CPPUNIT_ASSERT( rp1.connected() );
+    CPPUNIT_ASSERT( !rp2.connected() );
+
+    CPPUNIT_ASSERT( wp.write(10) );
+    CPPUNIT_ASSERT( rp1.read(value));
+    CPPUNIT_ASSERT_EQUAL(10, value);
+
+    // And finally the other port as well
+    wp.disconnect(rp1);
+    CPPUNIT_ASSERT( !wp.connected() );
+    CPPUNIT_ASSERT( !rp1.connected() );
+    CPPUNIT_ASSERT( !rp2.connected() );
 }
 
 void Generic_TaskTest_3::testPortObjects()
 {
-    WriteDataPort<double> wdp("WDName");
-    ReadDataPort<double> rdp("RDName");
-    DataPort<double> dp("DName");
-    DataPort<double> dp2("D2Name");
+    WritePort<double> wp1("Write");
+    ReadPort<double>  rp1("Read");
 
-    tc->ports()->addPort( &wdp );
-    tc->ports()->addPort( &rdp );
-    tc->ports()->addPort( &dp );
-    tc->ports()->addPort( &dp2 );
+    tc->ports()->addPort( &wp1 );
+    tc->ports()->addPort( &rp1 );
 
     // Check if ports were added as objects as well
-    CPPUNIT_ASSERT( tc->getObject("WDName") != 0 );
-    CPPUNIT_ASSERT( tc->getObject("RDName") != 0 );
-    CPPUNIT_ASSERT( tc->getObject("DName") != 0 );
-    CPPUNIT_ASSERT( tc->getObject("D2Name") != 0 );
+    CPPUNIT_ASSERT( tc->getObject("Write") != 0 );
+    CPPUNIT_ASSERT( tc->getObject("Read") != 0 );
 
     // Set initial value
-    wdp.Set( 1.0 );
-    dp.Set( 2.0 );
+    wp1.write( 1.0 );
 
     // Connect ports.
-    wdp.connectTo( &rdp );
-    dp.connectTo( &dp2 );
-
-    WriteBufferPort<double> wbp("WBName", 10);
-    ReadBufferPort<double> rbp("RBName");
-    BufferPort<double> bp("BName", 10);
-    BufferPort<double> bp2("B2Name", 10);
-
-    tc->ports()->addPort( &wbp );
-    tc->ports()->addPort( &rbp );
-    tc->ports()->addPort( &bp );
-    tc->ports()->addPort( &bp2 );
-
-    // Check if ports were added as objects as well
-    CPPUNIT_ASSERT( tc->getObject("WBName") != 0 );
-    CPPUNIT_ASSERT( tc->getObject("RBName") != 0 );
-    CPPUNIT_ASSERT( tc->getObject("BName") != 0 );
-    CPPUNIT_ASSERT( tc->getObject("B2Name") != 0 );
-
-    // Connect ports.
-    wbp.connectTo( &rbp );
-    bp.connectTo( &bp2 );
+    wp1.createConnection( rp1 );
 
     // Test Methods set/get
-    Method<void(const double&)> mset;
-    Method<double(void)> mget;
+    Method<bool(double)> mset;
+    Method<bool(double&)> mget;
 
-    mset = tc->getObject("WDName")->methods()->getMethod<void(const double&)>("Set");
+    mset = tc->getObject("Write")->methods()->getMethod<bool(double)>("write");
     CPPUNIT_ASSERT( mset.ready() );
 
-    mget = tc->getObject("RDName")->methods()->getMethod<double(void)>("Get");
+    mget = tc->getObject("Read")->methods()->getMethod<bool(double&)>("read");
     CPPUNIT_ASSERT( mget.ready() );
 
     mset( 3.991 );
 
-    CPPUNIT_ASSERT( mget() == 3.991 );
+    double get_value;
+    CPPUNIT_ASSERT( mget(get_value) );
+    CPPUNIT_ASSERT_EQUAL( 3.991, get_value );
 
-    // Test Methods for DataPort
-    mset = tc->getObject("DName")->methods()->getMethod<void(const double&)>("Set");
-    CPPUNIT_ASSERT( mset.ready() );
+    //// Finally, check cleanup. Ports and port objects must be gone:
+    tc->ports()->removePort("Reader");
+    CPPUNIT_ASSERT( tc->getObject("Reader") == 0 );
+    CPPUNIT_ASSERT( tc->ports()->getPort("Reader") == 0 );
 
-    mget = tc->getObject("D2Name")->methods()->getMethod<double(void)>("Get");
-    CPPUNIT_ASSERT( mget.ready() );
-
-    mset( 3.992 );
-
-    CPPUNIT_ASSERT( mget() == 3.992 );
-
-    // Test Methods push/pull
-    Method<bool(const double&)> mpush;
-    Method<bool(double&)> mpop;
-
-    mpush = tc->getObject("WBName")->methods()->getMethod<bool(const double&)>("Push");
-    CPPUNIT_ASSERT( mpush.ready() );
-
-    mpop = tc->getObject("RBName")->methods()->getMethod<bool(double&)>("Pop");
-    CPPUNIT_ASSERT( mpop.ready() );
-
-    CPPUNIT_ASSERT( mpush( 3.991 ) );
-
-    double ret;
-    CPPUNIT_ASSERT( mpop(ret) );
-
-    CPPUNIT_ASSERT( ret == 3.991 );
-
-    // Test Methods push/pop for DataPort
-    mpush = tc->getObject("BName")->methods()->getMethod<bool(const double&)>("Push");
-    CPPUNIT_ASSERT( mpush.ready() );
-
-    mpop = tc->getObject("B2Name")->methods()->getMethod<bool(double&)>("Pop");
-    CPPUNIT_ASSERT( mpop.ready() );
-
-    CPPUNIT_ASSERT( mpush( 3.993 ) );
-
-    CPPUNIT_ASSERT( mpop(ret) );
-
-    CPPUNIT_ASSERT( ret == 3.993 );
-
-    // Finally, check cleanup. Ports and port objects must be gone:
-    tc->ports()->removePort("RDName");
-    CPPUNIT_ASSERT( tc->getObject("RDName") == 0 );
-    CPPUNIT_ASSERT( tc->ports()->getPort("RDName") == 0 );
-
-    tc->ports()->removePort("BName");
-    CPPUNIT_ASSERT( tc->getObject("BName") == 0 );
-    CPPUNIT_ASSERT( tc->ports()->getPort("BName") == 0 );
+    tc->ports()->removePort("Writer");
+    CPPUNIT_ASSERT( tc->getObject("Writer") == 0 );
+    CPPUNIT_ASSERT( tc->ports()->getPort("Writer") == 0 );
 }
+

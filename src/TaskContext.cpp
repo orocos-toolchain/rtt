@@ -218,12 +218,12 @@ namespace RTT
         bool failure = false;
         const std::string& location = this->getName();
         Logger::In in( location.c_str()  );
-        // connect our write ports to the read ports of 'peer'.
-        // and vice versa.
+
         DataFlowInterface::Ports myports = this->ports()->getPorts();
         for (DataFlowInterface::Ports::iterator it = myports.begin();
              it != myports.end();
              ++it) {
+
             // Then try to get the peer port's connection
             PortInterface* peerport = peer->ports()->getPort( (*it)->getName() );
             if ( !peerport ) {
@@ -231,55 +231,23 @@ namespace RTT
                 continue;
             }
 
-            // Detect already connected ports.
-            if ( peerport->connected() && (*it)->connected() ) {
-                if (peerport->connection() == (*it)->connection() )
-                    continue;
-                log(Warning) << "Ports '"<< peerport->getName() << "' of task " <<peer->getName() << " and task " << getName()
-                      << " have the same name but are not connected to each other." << endlog();
-            }
-
-            // NOTE: all code below can be replaced by a single line:
-            // peerport->connectTo( *it ) || (*it)->connectTo(peerport);
-            // but that has less informational log messages.
-
-            // Our port is connected thus peerport is not connected.
-            if ( (*it)->connected() ) {
-                // ask peer to connect to us:
-                if ( peerport->connectTo( *it ) ) {
-                    log(Info)<< "Connected Port " << (*it)->getName()
-                                  << " of peer Task "<<peer->getName() << " to existing connection." << endlog();
+            // Try to find a way to connect them
+            WritePortInterface* this_w = dynamic_cast<WritePortInterface*>(*it);
+            ReadPortInterface* other_r = dynamic_cast<ReadPortInterface*>(peerport);
+            if (this_w && other_r)
+                failure = failure || !this_w->createConnection(*other_r);
+            else
+            {
+                WritePortInterface* other_w = dynamic_cast<WritePortInterface*>(peerport);
+                ReadPortInterface* this_r = dynamic_cast<ReadPortInterface*>(*it);
+                if (other_w && this_r)
+                    failure = failure || !other_w->createConnection(*this_r);
+                else
+                {
+                    log(Debug)<< "Data flow direction incompatible between ports "
+                        << getName() << "::" << (*it)->getName() << " and "
+                        << peer->getName() << "::" << (*it)->getName() << endlog();
                 }
-                else {
-                    log(Error)<< "Failed to connect Port " << (*it)->getName()
-                                  << " of peer Task "<<peer->getName() << " to existing connection." << endlog();
-                    failure = true;
-                }
-                continue;
-            }
-
-            // Peer port is connected thus our port is not connected.
-            if ( peerport->connected() ) {
-                if ( (*it)->connectTo( peerport ) ) {
-                    log(Info)<< "Added Port " << (*it)->getName()
-                                  << " to existing connection of peer Task "<<peer->getName() << "." << endlog();
-                }
-                else {
-                    log(Error)<< "Not connecting Port " << (*it)->getName()
-                                  << " to existing connection of peer Task "<<peer->getName() << "." << endlog();
-                    failure = true;
-                }
-                continue;
-            }
-
-            // Last resort: both not connected: create new connection.
-            if ( !(*it)->connectTo( peerport ) ) {
-                // real error msg will be produced by factory itself.
-                log(Warning)<< "Failed to connect Port " << (*it)->getName() << " of " << getName() << " to peer Task "<<peer->getName() <<"." << endlog();
-                failure = true;
-            } else {
-                // all went fine, add peerport as well, will always succeed:
-                log(Info)<< "Connected Port " << (*it)->getName() << " to peer Task "<<peer->getName() <<"." << endlog();
             }
         }
         return !failure;
@@ -476,10 +444,10 @@ namespace RTT
         const DataFlowInterface::Ports& ports = this->ports()->getEventPorts();
         for (DataFlowInterface::Ports::const_iterator it = ports.begin(); it != ports.end(); ++it)
             {
-                int porttype = (*it)->getPortType();
-                if (porttype == PortInterface::ReadPort || porttype == PortInterface::ReadWritePort)
+                ReadPortInterface* read_port = dynamic_cast<ReadPortInterface*>(*it);
+                if (read_port)
                     {
-                        (*it)->getNewDataOnPortEvent()->connect(boost::bind(&TaskContext::dataOnPort, this, _1), this->engine()->events());
+                        read_port->getNewDataOnPortEvent()->connect(boost::bind(&TaskContext::dataOnPort, this, _1), this->engine()->events());
                         port_count++;
                         log(Info) << getName() << " will be triggered when new data is available on " << (*it)->getName() << endlog();
                     }

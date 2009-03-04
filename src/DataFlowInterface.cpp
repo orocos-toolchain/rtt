@@ -38,6 +38,8 @@
 
 #include "DataFlowInterface.hpp"
 #include "Logger.hpp"
+#include "OperationInterface.hpp"
+#include "TaskObject.hpp"
 
 namespace RTT
 {
@@ -74,7 +76,7 @@ namespace RTT
         return true;
     }
 
-    bool DataFlowInterface::addEventPort(PortInterface* port, PortInterface::NewDataOnPortEvent::SlotFunction callback) {
+    bool DataFlowInterface::addEventPort(ReadPortInterface* port, ReadPortInterface::NewDataOnPortEvent::SlotFunction callback) {
         if (this->addPort(port)) {
             if (callback)
                 port->getNewDataOnPortEvent()->connect(callback, mparent->events()->getEventProcessor() );
@@ -96,8 +98,8 @@ namespace RTT
         return true;
     }
 
-    bool DataFlowInterface::addEventPort(PortInterface* port, std::string description, PortInterface::NewDataOnPortEvent::SlotFunction callback) {
-        if (this->addPort(port)) {
+    bool DataFlowInterface::addEventPort(ReadPortInterface* port, std::string description, ReadPortInterface::NewDataOnPortEvent::SlotFunction callback) {
+        if (this->addPort(port, description)) {
             if (callback)
                 port->getNewDataOnPortEvent()->connect(callback, mparent->events()->getEventProcessor() );
             eports.push_back(port);

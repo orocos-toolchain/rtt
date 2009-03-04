@@ -1,221 +1,130 @@
-/***************************************************************************
-  tag: Peter Soetens  Thu Mar 2 08:30:18 CET 2006  PortInterface.cxx
-
-                        PortInterface.cxx -  description
-                           -------------------
-    begin                : Thu March 02 2006
-    copyright            : (C) 2006 Peter Soetens
-    email                : peter.soetens@fmtc.be
-
- ***************************************************************************
- *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU General Public                   *
- *   License as published by the Free Software Foundation;                 *
- *   version 2 of the License.                                             *
- *                                                                         *
- *   As a special exception, you may use this file as part of a free       *
- *   software library without restriction.  Specifically, if other files   *
- *   instantiate templates or use macros or inline functions from this     *
- *   file, or you compile this file and link it with other files to        *
- *   produce an executable, this file does not by itself cause the         *
- *   resulting executable to be covered by the GNU General Public          *
- *   License.  This exception does not however invalidate any other        *
- *   reasons why the executable file might be covered by the GNU General   *
- *   Public License.                                                       *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU General Public             *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 59 Temple Place,                                    *
- *   Suite 330, Boston, MA  02111-1307  USA                                *
- *                                                                         *
- ***************************************************************************/
-
-
-
 #include "PortInterface.hpp"
+#include "TaskObject.hpp"
+#include "Method.hpp"
 
+using namespace RTT;
+using namespace std;
 
-namespace RTT
+PortInterface::PortInterface(const std::string& name)
+    : name(name) {}
+
+bool PortInterface::setName(const std::string& name)
 {
-
-    PortInterface::PortInterface(const std::string& name) : portname(name), new_data_on_port_event(0) {}
-
-    PortInterface::~PortInterface()
-    {
-        delete new_data_on_port_event;
-
+    if ( !connected() ) {
+        this->name = name;
+        return true;
     }
+    return false;
+}
 
-    bool PortInterface::setName(const std::string& name)
-    {
-        if ( !connected() ) {
-            portname = name;
-            return true;
-        }
-        return false;
-    }
+ConnFactory* PortInterface::getConnFactory() { return 0; }
+bool PortInterface::isLocal() const
+{ return true; }
+int PortInterface::serverProtocol() const
+{ return 0; }
 
-    bool PortInterface::ready() const {
+
+TaskObject* PortInterface::createPortObject()
+{
 #ifndef ORO_EMBEDDED
-        try {
+    TaskObject* to = new TaskObject( this->getName() );
+    to->methods()->addMethod( method("name",&PortInterface::getName, this),
+            "Returns the port name.");
+    to->methods()->addMethod( method("connected",&PortInterface::connected, this),
+            "Check if this port is connected and ready for use.");
+    to->methods()->addMethod( method("disconnect",&PortInterface::disconnect, this),
+            "Disconnects this port from any connection it is part of.");
+    return to;
+#else
+    return 0;
 #endif
-            return this->connected() && this->connection()->getDataSource()->evaluate();
-#ifndef ORO_EMBEDDED
-        } catch(...)
-        {}
-        return false;
-#endif
-    }
+}
 
-    bool PortInterface::connectTo( PortInterface* other ) {
-        if ( this->ready() || !other )
-            return false;
+ReadPortInterface::ReadPortInterface(std::string const& name, ConnPolicy const& default_policy)
+    : PortInterface(name)
+    , writer(NULL) 
+    , default_policy(default_policy)
+    , new_data_on_port_event(0) {}
 
-        // The aim of this function is to create a connection between
-        // this and other at all costs.
+ReadPortInterface::~ReadPortInterface()
+{
+    disconnect();
+}
 
-        /*
-           L->connectTo(R);
-            1. If both ports are not connected:
-              1a) if L is a writer:
-                  * create a local server, instruct the remote port to create a proxy
-                     which connects to this server.
-              1b) if L is a reader:
-                   1ba) if R is a writer:
-                        * create a remote server, instruct the local port to create a
-                           proxy which connects to this server.
-                    1bb) if R is a reader:
-                        * create a local default server (very ugly with buffers), instruct
-                          the remote port to create a proxy which connects to this server
-            2. If one of both ports is connected:
-               2a) if L is connected
-               * create a server on the local side, instruct the remote port to create a
-                  proxy which connects to this server
-               2b) if R is connected
-               *  create a remote server, instruct the local port to create a proxy which
-                  connects to this server.
-            3. if both ports are connected:
-               * fail.
-           R->connectTo(L);
+ConnPolicy ReadPortInterface::getDefaultPolicy() const
+{ return default_policy; }
 
-            The idea is that connections are created from writer to reader, no matter
-            which one is remote or local, because the writer has the initialisation
-            and/or buffer capacity. So where the writer is, the server is created and
-            the reader creates a proxy. Once one of remote/local is connected, it is
-            easy, always create a proxy to it.
-         *
-         */
+ReadPortInterface::NewDataOnPortEvent* ReadPortInterface::getNewDataOnPortEvent()
+{
+    if (!new_data_on_port_event)
+        new_data_on_port_event = new NewDataOnPortEvent( this->getName() );
+    return new_data_on_port_event;
+}
 
-        // if both are not connected, create a new one:
-        if ( !other->ready() ) {
-            if ( this->getPortType() != ReadPort ) { // we are a writer
-                ConnectionInterface::shared_ptr ci = this->createConnection(); //creates a 'server'
-                if (ci) {
-                    ci->addPort( other );
-                    ci->connect();
-                    assert(ci->connected());
-                    return true;
-                }
-                this->disconnect();
-                return false;
-            }
-            if (other->getPortType() != ReadPort ) { // other can write
-                ConnectionInterface::shared_ptr ci = other->createConnection(); // creates a 'server'
-                if (ci) {
-                    ci->addPort(this);
-                    ci->connect();
-                    assert(ci->connected());
-                    return true;
-                }
-                // failed, cleanup.
-                other->disconnect();
-                return false;
-            }
+/** Returns true if this port is connected */
+bool ReadPortInterface::connected() const
+{ return writer; }
 
+void ReadPortInterface::clear()
+{ if (writer) writer->clear(); }
 
-            // if here, both were readers or both refused to create a connection.
-            Logger::In in("PortInterface::connectTo");
-            log(Warning) << "Creating a temporary default Writer." << endlog();
-            // create a writer:
-            PortInterface* aclone = 0;
-            ConnectionInterface::shared_ptr ci;
-            // only try this with local ports...
-            if ( other->serverProtocol() == 0 ) {
-                aclone  = other->antiClone();
-                // clumsy way of working:
-                ci = aclone->createConnection();
-                // this can still fail
-                if (!ci) {
-                    delete aclone;
-                    aclone = 0;
-                }
-            }
-            if ( this->serverProtocol() == 0) {
-                aclone = this->antiClone();
-                ci = aclone->createConnection();
-            }
-            if (!ci) {
-                log(Warning) <<"Complete failure to connect read ports. Neither port wants to create a connection."<< endlog();
-                delete aclone;
-                return false;
-            }
-            // remove clone from new connection.
-            ci->removePort(aclone);
-            delete aclone;
+void ReadPortInterface::disconnect()
+{
+    ConnElementBase::shared_ptr source = this->writer;
+    this->writer = 0;
+    if (source)
+        source->disconnect(false);
+}
 
-            // finally a connection object !
-            // 1. connect other.
-            if ( other->connectTo( ci ) == false )
-                return false;
+WritePortInterface::WritePortInterface(std::string const& name)
+    : PortInterface(name) { }
 
-            // 2. connect this.
-            if ( this->connectTo( ci ) )
-                return ci->connect();
-            // failed (type mismatch), cleanup.
-            other->disconnect();
-            return false;
+WritePortInterface::~WritePortInterface()
+{
+    disconnect();
+}
+
+/** Returns true if this port is connected */
+bool WritePortInterface::connected() const
+{ return !connections.empty(); }
+
+void WritePortInterface::disconnect(PortInterface& port)
+{
+    for (list<ConnDescriptor>::iterator it = connections.begin(); it != connections.end(); ++it)
+    {
+        if (it->get<0>() == &port)
+        {
+            it->get<1>()->disconnect(true);
+            connections.erase(it);
+            return;
         }
-        return this->connectTo( other->connection() );
-    }
-
-    ConnectionInterface::shared_ptr PortInterface::createConnection(ConnectionTypes::ConnectionType con_type )
-    {
-        return ConnectionInterface::shared_ptr();
-    }
-
-    ConnectionInterface::shared_ptr PortInterface::createConnection(BufferBase::shared_ptr )
-    {
-        return ConnectionInterface::shared_ptr();
-    }
-
-    ConnectionInterface::shared_ptr PortInterface::createConnection(DataSourceBase::shared_ptr )
-    {
-        return ConnectionInterface::shared_ptr();
-    }
-
-    TaskObject* PortInterface::createPortObject() {
-        return 0;
-    }
-
-    int PortInterface::serverProtocol() const {
-        return 0;
-    }
-
-    void PortInterface::signal()
-    {
-        if (new_data_on_port_event)
-            (*new_data_on_port_event)(this);
-    }
-
-    PortInterface::NewDataOnPortEvent* PortInterface::getNewDataOnPortEvent()
-    {
-        if (!new_data_on_port_event)
-            new_data_on_port_event = new NewDataOnPortEvent( this->getName() );
-        return new_data_on_port_event;
     }
 }
+
+/** Removes any connection that either go to or come from this port */
+void WritePortInterface::disconnect()
+{
+    list<ConnDescriptor> connections = this->connections;
+    this->connections.clear();
+
+    for (list<ConnDescriptor>::iterator it = connections.begin(); it != connections.end(); ++it)
+        it->get<1>()->disconnect(true);
+}
+
+/** Connects this write port to the given read port, using a single-data
+ * policy with the given locking mechanism */
+bool WritePortInterface::createDataConnection( ReadPortInterface& reader, int lock_policy )
+{ return createConnection( reader, ConnPolicy::data(lock_policy) ); }
+
+/** Connects this write port to the given read port, using a buffered
+ * policy, with the buffer of the given size and the given locking
+ * mechanism */
+bool WritePortInterface::createBufferConnection( ReadPortInterface& reader, int size, int lock_policy )
+{ return createConnection( reader, ConnPolicy::buffer(size, lock_policy) ); }
+
+/** Connects this write port to the given read port, using the as policy
+ * the default policy of the reader port
+ */
+bool WritePortInterface::createConnection( ReadPortInterface& reader )
+{ return createConnection(reader, reader.getDefaultPolicy()); }
+
