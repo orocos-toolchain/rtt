@@ -257,12 +257,54 @@ namespace RTT
     {
         friend class ConnWriterEndpoint<T>;
 
+        bool written;
+        typename DataObjectInterface<T>::shared_ptr last_written_value;
+
     public:
-        WritePort(std::string const& name)
-            : WritePortInterface(name) {}
+        WritePort(std::string const& name, bool keep_last_written_value = false)
+            : WritePortInterface(name)
+            , written(false)
+        {
+            if (keep_last_written_value)
+                keepLastWrittenValue(true);
+        }
+
+        bool keepsLastWrittenValue() const { return last_written_value; }
+        void keepLastWrittenValue(bool new_flag)
+        {
+            if (new_flag)
+            {
+                if (!last_written_value)
+                    last_written_value = new DataObjectLockFree<T>(getName() + "Last");
+            }
+            else
+                last_written_value = 0;
+        }
+        T getLastWrittenValue() const
+        {
+            typename DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
+            if (written && last_written_value)
+                return last_written_value->Get();
+            else return T();
+        }
+        bool getLastWrittenValue(T& sample) const
+        {
+            typename DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
+            if (written && last_written_value)
+            {
+                sample = last_written_value->Get();
+                return true;
+            }
+            return false;
+        }
 
         bool write(typename ConnElement<T>::param_t sample)
         {
+            typename DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
+            if (last_written_value)
+                last_written_value->Set(sample);
+            written = true;
+
             bool result = false;
             for (std::list<ConnDescriptor>::iterator it = connections.begin();
                     it != connections.end(); ++it)
@@ -326,8 +368,20 @@ namespace RTT
                 }
             }
 
-            ConnElementBase* writer_endpoint = ConnFactory::buildWriterHalf(*this, *reader, policy, reader_endpoint);
+            typename ConnElement<T>::shared_ptr writer_endpoint =
+                static_cast< ConnElement<T>* >(ConnFactory::buildWriterHalf(*this, *reader, policy, reader_endpoint));
             connections.push_back( boost::make_tuple(reader, writer_endpoint, policy) );
+
+            if (policy.init && written)
+            {
+                typename DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
+                if (last_written_value)
+                {
+                    T sample;
+                    last_written_value->Get(sample);
+                    writer_endpoint->write(sample);
+                }
+            }
             return true;
         }
 

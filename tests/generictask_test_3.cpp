@@ -617,6 +617,33 @@ void Generic_TaskTest_3::testPortTaskInterface()
     CPPUNIT_ASSERT( wp2.connected() );
 }
 
+void Generic_TaskTest_3::testPortConnectionInitialization()
+{
+    WritePort<int> wp("WriterName", true);
+    ReadPort<int> rp("ReaderName", ConnPolicy::data(true));
+
+    wp.createConnection(rp);
+    int value = 0;
+    CPPUNIT_ASSERT( !rp.read(value) );
+    CPPUNIT_ASSERT( !wp.getLastWrittenValue(value) );
+    wp.write(10);
+    CPPUNIT_ASSERT( rp.read(value) );
+
+    wp.disconnect(rp);
+    CPPUNIT_ASSERT( !wp.connected() );
+    CPPUNIT_ASSERT( !rp.connected() );
+
+    value = 0;
+    CPPUNIT_ASSERT( wp.getLastWrittenValue(value) );
+    CPPUNIT_ASSERT_EQUAL( 10, value );
+    CPPUNIT_ASSERT_EQUAL( 10, wp.getLastWrittenValue() );
+
+    value = 0;
+    wp.createConnection(rp);
+    CPPUNIT_ASSERT( rp.read(value) );
+    CPPUNIT_ASSERT_EQUAL( 10, value );
+}
+
 void Generic_TaskTest_3::testPortSimpleConnections()
 {
     WritePort<int> wp("WriterName");

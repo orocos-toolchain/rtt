@@ -119,6 +119,9 @@ namespace RTT
         WritePortInterface(std::string const& name);
         ~WritePortInterface();
 
+        virtual bool keepsLastWrittenValue() const = 0;
+        virtual void keepLastWrittenValue(bool new_flag) = 0;
+
         void disconnect(PortInterface& port);
 
         virtual void disconnect();

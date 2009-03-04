@@ -46,25 +46,33 @@ namespace RTT {
         static const int LOCK_FREE = 1;
         static const int UNSYNC    = 2;
 
-        static ConnPolicy buffer(int size, int lock_policy = LOCK_FREE, bool pull = false)
+        static ConnPolicy buffer(int size, int lock_policy = LOCK_FREE, bool init_connection = false, bool pull = false)
         {
             ConnPolicy result(BUFFER, lock_policy);
+            result.init = init_connection;
             result.pull = pull;
             result.size = size;
             return result;
         }
-        static ConnPolicy data(int lock_policy = LOCK_FREE, bool pull = false)
+        static ConnPolicy data(int lock_policy = LOCK_FREE, bool init_connection = true, bool pull = false)
         {
             ConnPolicy result(DATA, lock_policy);
+            result.init = init_connection;
             result.pull = pull;
             return result;
         }
 
         explicit ConnPolicy(int type = DATA, int lock_policy = LOCK_FREE)
-            : type(type), lock_policy(lock_policy), pull(false), size(0) {}
+            : type(type), init(false), lock_policy(lock_policy), pull(false), size(0) {}
 
         /** This is the type for the data holding element in the connection */
         int    type;
+        /** If true, one should initialize the connection's value with the last
+         * value written on the writer port. This is only possible if the writer
+         * port has the keepsLastWrittenValue() flag set (i.e. if it remembers
+         * what was the last written value).
+         */
+        bool   init;
         /** This is the locking policy on the connection */
         int    lock_policy;
         /** If true, then the sink will have to pull data. Otherwise, it is pushed
