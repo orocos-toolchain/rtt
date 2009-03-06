@@ -150,10 +150,22 @@ namespace RTT {
         typedef typename boost::call_traits<T>::reference reference_t;
 
         /** Writes a new sample on this connection */
-        virtual bool write(param_t sample) = 0;
+        virtual bool write(param_t sample)
+        {
+            typename ConnElement<T>::shared_ptr reader = boost::static_pointer_cast< ConnElement<T> >(this->reader);
+            if (reader)
+                return boost::static_pointer_cast< ConnElement<T> >(reader)->write(sample);
+            return false;
+        }
 
         /** Reads a new sample from this connection */
-        virtual bool read(reference_t sample) = 0;
+        virtual bool read(reference_t sample)
+        {
+            typename ConnElement<T>::shared_ptr writer = static_cast< ConnElement<T>* >(this->writer);
+            if (writer)
+                return writer->read(sample);
+            else return false;
+        }
     };
 }
 
