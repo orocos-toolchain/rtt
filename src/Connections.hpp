@@ -74,11 +74,8 @@ namespace RTT {
         virtual bool write(param_t sample)
         {
             if (buffer->Push(sample))
-            {
                 this->signal();
-                return true;
-            }
-            return false;
+            return true;
         }
 
         /** Pops and returns the first element of the FIFO

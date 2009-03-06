@@ -155,7 +155,11 @@ namespace RTT {
         typedef typename boost::call_traits<T>::param_type param_t;
         typedef typename boost::call_traits<T>::reference reference_t;
 
-        /** Writes a new sample on this connection */
+        /** Writes a new sample on this connection. \a sample is the sample to
+         * write. The return value indicates if this connection is dangling
+         * (i.e. should be removed) or is still alive. In no ways does it
+         * indicate if the sample has reached the other side
+         */
         virtual bool write(param_t sample)
         {
             typename ConnElement<T>::shared_ptr reader = boost::static_pointer_cast< ConnElement<T> >(this->reader);
@@ -164,7 +168,11 @@ namespace RTT {
             return false;
         }
 
-        /** Reads a new sample from this connection */
+        /** Reads a sample from the connection. \a sample is a reference which
+         * will get updated if a sample is available. The method returns true
+         * if a sample was available, and false otherwise. If false is returned,
+         * then \a sample is not modified by the method
+         */
         virtual bool read(reference_t sample)
         {
             typename ConnElement<T>::shared_ptr writer = static_cast< ConnElement<T>* >(this->writer);

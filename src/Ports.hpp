@@ -192,6 +192,11 @@ namespace RTT
         ReadPort(std::string const& name, ConnPolicy const& default_policy = ConnPolicy())
             : ReadPortInterface(name, default_policy) {}
 
+        /** Reads a sample from the connection. \a sample is a reference which
+         * will get updated if a sample is available. The method returns true
+         * if a sample was available, and false otherwise. If false is returned,
+         * then \a sample is not modified by the method
+         */
         bool read(typename ConnElement<T>::reference_t sample)
         {
             typename ConnElement<T>::shared_ptr writer = static_cast< ConnElement<T>* >(this->writer);
@@ -278,23 +283,21 @@ namespace RTT
             return false;
         }
 
-        bool write(typename ConnElement<T>::param_t sample)
+        void write(typename ConnElement<T>::param_t sample)
         {
             typename DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
             if (last_written_value)
                 last_written_value->Set(sample);
             written = true;
 
-            bool result = false;
-            for (std::list<ConnDescriptor>::iterator it = connections.begin();
-                    it != connections.end(); ++it)
+            std::list<ConnDescriptor>::iterator it = connections.begin();
+            while(it != connections.end())
             {
                 typename ConnElement<T>::shared_ptr reader = boost::static_pointer_cast< ConnElement<T> >(it->get<1>());
                 if (reader->write(sample))
-                    result = true;
+                    ++it;
+                else connections.erase(it++);
             }
-
-            return result;
         }
 
         /** Returns the TypeInfo object for the port's type */

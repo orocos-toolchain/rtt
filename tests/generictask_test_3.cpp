@@ -654,7 +654,7 @@ void Generic_TaskTest_3::testPortSimpleConnections()
     {
         int value;
         CPPUNIT_ASSERT( !rp.read(value) );
-        CPPUNIT_ASSERT( !wp.write(value) );
+        wp.write(value); // just checking if is works or if it crashes
     }
 
     wp.createConnection(rp);
@@ -664,7 +664,7 @@ void Generic_TaskTest_3::testPortSimpleConnections()
     { 
         int value = 0;
         CPPUNIT_ASSERT( !rp.read(value) );
-        CPPUNIT_ASSERT( wp.write(1) );
+        wp.write(1);
         CPPUNIT_ASSERT( rp.read(value) );
         CPPUNIT_ASSERT( 1 == value );
     }
@@ -685,7 +685,7 @@ void Generic_TaskTest_3::testPortSimpleConnections()
     CPPUNIT_ASSERT( !rp.connected() );
     {
         int value;
-        CPPUNIT_ASSERT( !wp.write(value) );
+        wp.write(value);
         CPPUNIT_ASSERT( !rp.read(value) );
     }
     wp.disconnect(); // calling it when not connected should be fine as well
@@ -695,11 +695,11 @@ void Generic_TaskTest_3::testPortSimpleConnections()
         CPPUNIT_ASSERT( !rp.read(value) );
         wp.createBufferConnection(rp, 4);
         CPPUNIT_ASSERT( !rp.read(value) );
-        CPPUNIT_ASSERT( wp.write(1) );
-        CPPUNIT_ASSERT( wp.write(2) );
-        CPPUNIT_ASSERT( wp.write(3) );
-        CPPUNIT_ASSERT( wp.write(4) );
-        CPPUNIT_ASSERT( !wp.write(5) );
+        wp.write(1);
+        wp.write(2);
+        wp.write(3);
+        wp.write(4);
+        wp.write(5);
         CPPUNIT_ASSERT_EQUAL(0, value);
         CPPUNIT_ASSERT( rp.read(value) );
         CPPUNIT_ASSERT_EQUAL(1, value);
@@ -708,8 +708,8 @@ void Generic_TaskTest_3::testPortSimpleConnections()
 
         rp.clear();
         CPPUNIT_ASSERT( !rp.read(value) );
-        CPPUNIT_ASSERT( wp.write(10) );
-        CPPUNIT_ASSERT( wp.write(20) );
+        wp.write(10);
+        wp.write(20);
         CPPUNIT_ASSERT( rp.read(value) );
         CPPUNIT_ASSERT_EQUAL(10, value);
         CPPUNIT_ASSERT( rp.read(value) );
@@ -723,7 +723,7 @@ void Generic_TaskTest_3::testPortSimpleConnections()
     CPPUNIT_ASSERT( !rp.connected() );
     {
         int value;
-        CPPUNIT_ASSERT( !wp.write(value) );
+        wp.write(value);
         CPPUNIT_ASSERT( !rp.read(value) );
     }
     rp.disconnect(); // calling it when not connected should be fine as well
@@ -753,11 +753,11 @@ void Generic_TaskTest_3::testPortForkedConnections()
     CPPUNIT_ASSERT( rp1.connected() );
     CPPUNIT_ASSERT( rp2.connected() );
 
-    CPPUNIT_ASSERT( wp.write(10) );
-    CPPUNIT_ASSERT( wp.write(15) );
-    CPPUNIT_ASSERT( wp.write(20) );
-    CPPUNIT_ASSERT( wp.write(25) );
-    CPPUNIT_ASSERT( wp.write(30) );
+    wp.write(10);
+    wp.write(15);
+    wp.write(20);
+    wp.write(25);
+    wp.write(30);
 
     int value = 0;
     CPPUNIT_ASSERT( rp1.read(value));
@@ -779,7 +779,7 @@ void Generic_TaskTest_3::testPortForkedConnections()
     CPPUNIT_ASSERT( rp1.connected() );
     CPPUNIT_ASSERT( !rp2.connected() );
 
-    CPPUNIT_ASSERT( wp.write(10) );
+    wp.write(10);
     CPPUNIT_ASSERT( rp1.read(value));
     CPPUNIT_ASSERT_EQUAL(10, value);
 
@@ -809,10 +809,10 @@ void Generic_TaskTest_3::testPortObjects()
     wp1.createConnection( rp1 );
 
     // Test Methods set/get
-    Method<bool(double)> mset;
+    Method<void(double)> mset;
     Method<bool(double&)> mget;
 
-    mset = tc->getObject("Write")->methods()->getMethod<bool(double)>("write");
+    mset = tc->getObject("Write")->methods()->getMethod<void(double)>("write");
     CPPUNIT_ASSERT( mset.ready() );
 
     mget = tc->getObject("Read")->methods()->getMethod<bool(double&)>("read");
