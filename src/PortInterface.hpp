@@ -48,7 +48,7 @@ namespace RTT
         /** The ConnFactory object that allows to build the ConnElement chain
          * needed to build connections to or from this port
          */
-        ConnFactory* getConnFactory();
+        virtual ConnFactory* getConnFactory();
 
         /** Returns true if this port is located on this process, and false
          * otherwise
