@@ -104,7 +104,7 @@ namespace RTT
          * done based on the TypeInfo object
          */
         virtual ConnElementBase* buildReaderHalf(TypeInfo const* type_info,
-                PortInterface& writer, PortInterface& reader, ConnPolicy const& policy) = 0;
+                PortInterface& reader, ConnPolicy const& policy) = 0;
 
         /** This method creates the connection element that will store data
          * inside the connection, based on the given policy
@@ -147,8 +147,7 @@ namespace RTT
          * @see buildWriterHalf
          */
         template<typename T>
-        static ConnElementBase* buildWriterHalf(WritePort<T>& writer, ReadPort<T>& reader,
-                ConnPolicy const& policy, ConnElementBase* sink)
+        static ConnElementBase* buildWriterHalf(WritePort<T>& writer, ConnPolicy const& policy, ConnElementBase* sink)
         {
             ConnElementBase* endpoint = new ConnWriterEndpoint<T>(&writer);
             if (policy.pull)
@@ -171,8 +170,7 @@ namespace RTT
          * @see buildSourceHalf
          */
         template<typename T>
-        static ConnElementBase* buildReaderHalf(WritePort<T>& writer, ReadPort<T>& reader, 
-                ConnPolicy const& policy)
+        static ConnElementBase* buildReaderHalf(ReadPort<T>& reader, ConnPolicy const& policy)
         {
             ConnElementBase* endpoint = new ConnReaderEndpoint<T>(&reader);
             if (!policy.pull)
@@ -351,7 +349,7 @@ namespace RTT
             }
 
             typename ConnElement<T>::shared_ptr writer_endpoint =
-                static_cast< ConnElement<T>* >(ConnFactory::buildWriterHalf(*this, *reader, policy, reader_endpoint));
+                static_cast< ConnElement<T>* >(ConnFactory::buildWriterHalf(*this, policy, reader_endpoint));
             connections.push_back( boost::make_tuple(reader, writer_endpoint, policy) );
 
             if (policy.init && written)
