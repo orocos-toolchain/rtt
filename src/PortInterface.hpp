@@ -90,7 +90,7 @@ namespace RTT
         NewDataOnPortEvent* new_data_on_port_event;
 
     public:
-        ReadPortInterface(std::string const& name, ConnPolicy const& default_policy);
+        ReadPortInterface(std::string const& name, ConnPolicy const& default_policy = ConnPolicy());
         ~ReadPortInterface();
 
         ConnPolicy getDefaultPolicy() const;
