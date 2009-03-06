@@ -321,36 +321,43 @@ namespace RTT
          * policy */
         virtual bool createConnection( ReadPortInterface& reader_, ConnPolicy const& policy )
         {
-            ReadPort<T>* reader = dynamic_cast<ReadPort<T>*>(&reader_);
-            if (!reader)
-                return false;
+            ConnElementBase* reader_endpoint = 0;
+            if (reader_.isLocal())
+            {
+                ReadPort<T>* reader = dynamic_cast<ReadPort<T>*>(&reader_);
+                if (!reader)
+                {
+                    log(Error) << "port " << reader_.getName() << " is not of the wrong specialization" << endlog();
+                    return false;
+                }
 
-            ConnElementBase* reader_endpoint;
-            if (reader->isLocal())
-                reader_endpoint = ConnFactory::buildReaderHalf(*this, *reader, policy);
+                reader_endpoint = ConnFactory::buildReaderHalf(*reader, policy);
+            }
             else
             {
                 TypeInfo const* type_info = getTypeInfo();
-                if (!type_info->getProtocol(reader->serverProtocol()))
+                if (!type_info || reader_.getTypeInfo() != type_info)
                 {
+                    log(Error) << "type of port " << getName() << " is not registered into the type system, cannot marshal it into the right transporter" << endlog();
+                    // There is no type info registered for this type
+                    return false;
+                }
+                else if (!type_info->getProtocol(reader_.serverProtocol()))
+                {
+                    log(Error) << "type " << type_info->getTypeName() << " cannot be marshalled into the right transporter" << endlog();
                     // This type cannot be marshalled into the right transporter
                     return false;
                 }
-                else if (type_info)
-                {
-                    reader_endpoint = reader->
-                        getConnFactory()->buildReaderHalf(type_info, *this, *reader, policy);
-                }
                 else
                 {
-                    // There is no type info registered for this type
-                    return false;
+                    reader_endpoint = reader_.
+                        getConnFactory()->buildReaderHalf(type_info, reader_, policy);
                 }
             }
 
             typename ConnElement<T>::shared_ptr writer_endpoint =
                 static_cast< ConnElement<T>* >(ConnFactory::buildWriterHalf(*this, policy, reader_endpoint));
-            connections.push_back( boost::make_tuple(reader, writer_endpoint, policy) );
+            connections.push_back( boost::make_tuple(&reader_, writer_endpoint, policy) );
 
             if (policy.init && written)
             {

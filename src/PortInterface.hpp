@@ -112,7 +112,7 @@ namespace RTT
     class WritePortInterface : public PortInterface
     {
     protected:
-        typedef boost::tuple<ReadPortInterface*, ConnElementBase::shared_ptr, ConnPolicy> ConnDescriptor;
+        typedef boost::tuple<PortInterface*, ConnElementBase::shared_ptr, ConnPolicy> ConnDescriptor;
         std::list< ConnDescriptor > connections;
 
     public:
