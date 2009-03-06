@@ -19,7 +19,7 @@ bool PortInterface::setName(const std::string& name)
 
 ConnFactory* PortInterface::getConnFactory() { return 0; }
 bool PortInterface::isLocal() const
-{ return true; }
+{ return serverProtocol() == 0; }
 int PortInterface::serverProtocol() const
 { return 0; }
 
