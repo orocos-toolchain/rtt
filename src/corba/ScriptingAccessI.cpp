@@ -89,6 +89,11 @@ Orocos_ScriptingAccess_i::~Orocos_ScriptingAccess_i (void)
 {
 }
 
+PortableServer::POA_ptr Orocos_ScriptingAccess_i::_default_POA()
+{
+    return PortableServer::POA::_duplicate(mpoa);
+}
+
 void Orocos_ScriptingAccess_i::loadPrograms (
     const char * code,
     const char * filename

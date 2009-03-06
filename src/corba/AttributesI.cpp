@@ -91,6 +91,11 @@ Orocos_AttributeInterface_i::Orocos_AttributeInterface_i (PropertyBag* bag, Port
 {
 }
 
+PortableServer::POA_ptr Orocos_AttributeInterface_i::_default_POA()
+{
+    return PortableServer::POA::_duplicate(mpoa);
+}
+
 // Implementation skeleton destructor
 Orocos_AttributeInterface_i::~Orocos_AttributeInterface_i (void)
 {

@@ -83,16 +83,38 @@ using namespace RTT::Corba;
 
 // ControlObject:
 Orocos_ControlObject_i::Orocos_ControlObject_i (RTT::OperationInterface* orig, PortableServer::POA_ptr the_poa )
-    : mobj( orig ), mMFact(), mCFact(), mpoa( PortableServer::POA::_duplicate(the_poa) )
+    : mpoa( PortableServer::POA::_duplicate(the_poa) )
+    , mobj( orig ), mAttrs_i(0), mMFact_i(0), mCFact_i(0)
 {
 }
 
 // Implementation skeleton destructor
 Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
 {
+    if (!CORBA::is_nil(mAttrs))
+    {
+        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mAttrs_i);
+        mpoa->deactivate_object(oid.in());
+    }
+    if (!CORBA::is_nil(mMFact))
+    {
+        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mMFact_i);
+        mpoa->deactivate_object(oid.in());
+    }
+    if (!CORBA::is_nil(mCFact))
+    {
+        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mCFact_i);
+        mpoa->deactivate_object(oid.in());
+    }
+
     // FIXME free up cache ? This is done by refcountservantbase ?
 //     for( CTObjMap::iterator it = ctobjmap.begin(); it != ctobjmap.end; ++it)
 //         delete it->second;
+}
+
+PortableServer::POA_ptr Orocos_ControlObject_i::_default_POA()
+{
+    return PortableServer::POA::_duplicate(mpoa);
 }
 
  char* Orocos_ControlObject_i::getName (
@@ -124,16 +146,17 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
     CORBA::SystemException
   ))
 {
-    if ( CORBA::is_nil( mAttrs) ) {
+    if (CORBA::is_nil(mAttrs)) {
         log(Debug) << "Creating AttributeInterface."<<endlog();
+        Orocos_AttributeInterface_i* mserv;
+        mAttrs_i = mserv = new Orocos_AttributeInterface_i( mobj->attributes(), mpoa );
         try {
-            Orocos_AttributeInterface_i* attrs = new Orocos_AttributeInterface_i( mobj->attributes(), mpoa.in() );
-            mAttrs = attrs->_this();
+            mAttrs   = mserv->_this();
         } catch( ... ) {
             log(Error) << "Failed to create AttributeInterface." <<endlog();
         }
     }
-    return AttributeInterface::_duplicate( mAttrs.in() );
+    return AttributeInterface::_duplicate(mAttrs.in());
 }
 
 ::RTT::Corba::MethodInterface_ptr Orocos_ControlObject_i::methods (
@@ -145,7 +168,8 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
 {
     if ( CORBA::is_nil( mMFact ) ) {
         log(Debug) << "Creating MethodInterface."<<endlog();
-        Orocos_MethodInterface_i* mserv = new Orocos_MethodInterface_i( mobj->methods(), mpoa.in() );
+        Orocos_MethodInterface_i* mserv;
+        mMFact_i = mserv = new Orocos_MethodInterface_i( mobj->methods(), mpoa );
         try {
             mMFact = mserv->_this();
         } catch( ... ) {
@@ -163,9 +187,10 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
   ))
 {
     if ( CORBA::is_nil( mCFact ) ) {
+        log(Debug) << "Creating CommandInterface."<<endlog();
+        Orocos_CommandInterface_i* mserv;
+        mCFact_i = mserv = new Orocos_CommandInterface_i( mobj->commands(), mpoa );
         try {
-            log(Debug) << "Creating CommandInterface."<<endlog();
-            Orocos_CommandInterface_i* mserv = new Orocos_CommandInterface_i( mobj->commands(), mpoa.in() );
             mCFact = mserv->_this();
         } catch( ... ) {
             log(Error) << "Failed to create CommandInterface." <<endlog();
@@ -195,7 +220,7 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
             // create or lookup new server for this object.
             // FIXME free up cache ? This is done by refcountservantbase ?
             //delete ctobjmap[pname];
-            ctobjmap[pname] = new Orocos_ControlObject_i(task, mpoa.in() );
+            ctobjmap[pname] = new Orocos_ControlObject_i(task, mpoa );
         }
         ret = ctobjmap[pname];
         return ret->_this();
@@ -253,6 +278,21 @@ Orocos_ControlTask_i::Orocos_ControlTask_i (TaskContext* orig, PortableServer::P
 // Implementation skeleton destructor
 Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
 {
+    if (!CORBA::is_nil(mEEFact))
+    {
+        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mEEFact_i);
+        mpoa->deactivate_object(oid.in());
+    }
+    if (!CORBA::is_nil(mService))
+    {
+        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mService_i);
+        mpoa->deactivate_object(oid.in());
+    }
+    if (!CORBA::is_nil(mDataFlow))
+    {
+        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mDataFlow_i);
+        mpoa->deactivate_object(oid.in());
+    }
 }
 
 ::RTT::Corba::TaskState Orocos_ControlTask_i::getTaskState (
@@ -408,7 +448,8 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
 {
     if ( CORBA::is_nil( mEEFact ) ) {
         log(Debug) << "Creating ScriptingAccess."<<endlog();
-        Orocos_ScriptingAccess_i* mserv = new Orocos_ScriptingAccess_i( mtask->scripting(), mpoa.in() );
+        Orocos_ScriptingAccess_i* mserv;
+        mEEFact_i = mserv = new Orocos_ScriptingAccess_i( mtask->scripting(), mpoa );
         mEEFact = mserv->_this();
     }
     return ::RTT::Corba::ScriptingAccess::_duplicate( mEEFact.in() );
@@ -423,7 +464,8 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
 {
     if ( CORBA::is_nil( mService ) ) {
         log(Debug) << "Creating Services."<<endlog();
-        RTT_Corba_ServiceInterface_i* mserv = new RTT_Corba_ServiceInterface_i();
+        RTT_Corba_ServiceInterface_i* mserv;
+        mService_i = mserv = new RTT_Corba_ServiceInterface_i( mpoa );
         mService = mserv->_this();
     }
     return ::RTT::Corba::ServiceInterface::_duplicate( mService.in() );
@@ -438,7 +480,8 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
 {
     if ( CORBA::is_nil( mDataFlow ) ) {
         log(Debug) << "Creating DataFlowInterface."<<endlog();
-        RTT_Corba_DataFlowInterface_i* mserv = new RTT_Corba_DataFlowInterface_i( mtask->ports() );
+        RTT::Corba::DataFlowInterface_i* mserv;
+        mDataFlow_i = mserv = new RTT::Corba::DataFlowInterface_i( mtask->ports(), mpoa );
         mDataFlow = mserv->_this();
     }
     return ::RTT::Corba::DataFlowInterface::_duplicate( mDataFlow.in() );

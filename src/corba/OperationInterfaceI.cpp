@@ -87,6 +87,11 @@ Orocos_MethodInterface_i::~Orocos_MethodInterface_i (void)
 {
 }
 
+PortableServer::POA_ptr Orocos_MethodInterface_i::_default_POA()
+{
+    return PortableServer::POA::_duplicate(mpoa);
+}
+
 ::RTT::Corba::MethodList * Orocos_MethodInterface_i::getMethods (
   )
   ACE_THROW_SPEC ((
@@ -223,6 +228,11 @@ Orocos_CommandInterface_i::Orocos_CommandInterface_i (CommandFactory* gcf, Porta
 // Implementation skeleton destructor
 Orocos_CommandInterface_i::~Orocos_CommandInterface_i (void)
 {
+}
+
+PortableServer::POA_ptr Orocos_CommandInterface_i::_default_POA()
+{
+    return PortableServer::POA::_duplicate(mpoa);
 }
 
 ::RTT::Corba::CommandList * Orocos_CommandInterface_i::getCommands (
