@@ -59,7 +59,6 @@
 #include "CorbaCommandFactory.hpp"
 #include "CORBAExpression.hpp"
 #include "ScriptingAccessProxy.hpp"
-#include "CorbaPort.hpp"
 
 #include "CommandInterface.hpp"
 #include "Types.hpp"
@@ -72,6 +71,8 @@
 #include <omniORB4/Naming.hh>
 #endif
 #include <iostream>
+
+#include "../TaskObject.hpp"
 
 
 
@@ -309,16 +310,16 @@ namespace RTT
         }
 
         log(Debug) << "Fetching Ports."<<endlog();
-        DataFlowInterface_var dfact = mtask->ports();
-        if (dfact) {
-            DataFlowInterface::PortNames_var objs;
-            objs = dfact->getPorts();
-            for ( size_t i=0; i < objs->length(); ++i) {
-                if (this->ports()->getPort( objs[i].in() ))
-                    continue; // already added.
-                this->ports()->addPort( new CorbaPort( objs[i].in(), dfact.in(), ProxyPOA() ) );
-            }
-        }
+        //DataFlowInterface_var dfact = mtask->ports();
+        //if (dfact) {
+        //    DataFlowInterface::PortNames_var objs;
+        //    objs = dfact->getPorts();
+        //    for ( size_t i=0; i < objs->length(); ++i) {
+        //        if (this->ports()->getPort( objs[i].in() ))
+        //            continue; // already added.
+        //        this->ports()->addPort( new CorbaPort( objs[i].in(), dfact.in(), ProxyPOA() ) );
+        //    }
+        //}
 
         this->fetchObjects(this, mtask.in() );
 

@@ -39,12 +39,12 @@
 #ifndef ORO_CORBA_TEMPATE_PROTOCOL_HPP
 #define ORO_CORBA_TEMPATE_PROTOCOL_HPP
 
+#include "CorbaTypeTransporter.hpp"
 #include "../Types.hpp"
+#include "../Ports.hpp"
 #include "ExpressionProxy.hpp"
 
-#include "CorbaPort.hpp"
 #include "CorbaDataObjectProxy.hpp"
-#include "CorbaBufferProxy.hpp"
 #include "ExpressionServer.hpp"
 #include "DataFlowI.h"
 
@@ -73,7 +73,7 @@ namespace RTT
        */
       template<class T>
       class CorbaTemplateProtocol
-          : public TypeTransporter
+          : public CorbaTypeTransporter
       {
       public:
           /**
@@ -84,6 +84,16 @@ namespace RTT
            * When Properties of \a T are constructed, they are non-const, non-reference.
            */
           typedef typename Property<T>::DataSourceType PropertyType;
+
+          ConnElement_i* createConnElement_i(PortableServer::POA_ptr poa) const
+          { return new RemoteConnElement<T>(*this, poa); }
+
+          ConnElementBase* buildReaderHalf(RTT::ReadPortInterface& reader, RTT::ConnPolicy const& policy) const
+          {
+              return ConnFactory::buildReaderHalf(
+                      static_cast<RTT::ReadPort<T>&>(reader),
+                      policy);
+          }
 
           /**
            * Create an transportable object for a \a protocol which contains the value of \a source.
@@ -183,12 +193,13 @@ namespace RTT
 
           virtual DataSourceBase* dataProxy( PortInterface* data ) const
           {
+              return 0;
               // Detect corba connection
-              Corba::CorbaPort* cp = dynamic_cast<Corba::CorbaPort*>( data );
+              //Corba::CorbaPort* cp = dynamic_cast<Corba::CorbaPort*>( data );
 
-              assert(cp);
+              //assert(cp);
 
-              return new Corba::CorbaDataObjectProxy<T>("CorbaProxy", cp->getDataChannel());
+              //return new Corba::CorbaDataObjectProxy<T>("CorbaProxy", cp->getDataChannel());
           }
 
           virtual DataSourceBase* dataProxy( void* data ) const
@@ -212,27 +223,30 @@ namespace RTT
           virtual BufferBase* bufferProxy( PortInterface* data ) const
           {
               // Detect corba connection
-              Corba::CorbaPort* cp = dynamic_cast<Corba::CorbaPort*>( data );
+              //Corba::CorbaPort* cp = dynamic_cast<Corba::CorbaPort*>( data );
 
-              assert( cp );
+              //assert( cp );
 
-              return new Corba::CorbaBufferProxy<T>( cp->getBufferChannel() );
+              //return new Corba::CorbaBufferProxy<T>( cp->getBufferChannel() );
+              return 0;
           }
 
           virtual BufferBase* bufferProxy( void* data ) const
           {
-              Corba::BufferChannel_ptr buf = static_cast<Corba::BufferChannel_ptr>(data);
-              log(Debug) << "Creating Corba BufferChannel proxy." << endlog();
-              return new Corba::CorbaBufferProxy<T>( buf );
+              //Corba::BufferChannel_ptr buf = static_cast<Corba::BufferChannel_ptr>(data);
+              //log(Debug) << "Creating Corba BufferChannel proxy." << endlog();
+              //return new Corba::CorbaBufferProxy<T>( buf );
+              return 0;
           }
 
             virtual void* bufferServer( BufferBase::shared_ptr source, void* arg) const
           {
+              return 0;
               // arg is POA !
-              typename RTT::BufferInterface<T>::shared_ptr bi = boost::dynamic_pointer_cast< RTT::BufferInterface<T> >( source );
-              log(Debug) << "Creating Corba BufferChannel." << endlog();
-              RTT_Corba_BufferChannel_i<T>* cbuf = new RTT_Corba_BufferChannel_i<T>( bi );
-              return cbuf->_this();
+              // typename RTT::BufferInterface<T>::shared_ptr bi = boost::dynamic_pointer_cast< RTT::BufferInterface<T> >( source );
+              // log(Debug) << "Creating Corba BufferChannel." << endlog();
+              // RTT_Corba_BufferChannel_i<T>* cbuf = new RTT_Corba_BufferChannel_i<T>( bi );
+              // return cbuf->_this();
           }
       };
 }

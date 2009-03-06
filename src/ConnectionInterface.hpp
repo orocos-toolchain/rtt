@@ -111,6 +111,12 @@ namespace RTT {
         ConnElementBase* writer;
         shared_ptr   reader;
 
+        /** Increases the reference count */
+        void ref();
+        /** Decreases the reference count, and deletes the object if it is zero
+         */
+        void deref();
+
     public:
         ConnElementBase();
         virtual ~ConnElementBase() {}

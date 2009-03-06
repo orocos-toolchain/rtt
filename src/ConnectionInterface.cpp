@@ -49,13 +49,19 @@ void ConnElementBase::clear()
 void ConnElementBase::signal() const
 { if (reader) reader->signal(); }
 
-void RTT::intrusive_ptr_add_ref( ConnElementBase* p )
+void ConnElementBase::ref()
 {
-    oro_atomic_inc(&(p->refcount) );
+    oro_atomic_inc(&refcount);
 }
 
-void RTT::intrusive_ptr_release( ConnElementBase* p )
+void ConnElementBase::deref()
 {
-    if ( oro_atomic_dec_and_test(&(p->refcount) ) ) delete p;
+    if ( oro_atomic_dec_and_test(&refcount) ) delete this;
 }
+
+void RTT::intrusive_ptr_add_ref( ConnElementBase* p )
+{ p->ref(); }
+
+void RTT::intrusive_ptr_release( ConnElementBase* p )
+{ p->deref(); }
 
