@@ -24,6 +24,7 @@
 
 #include <Method.hpp>
 #include <OperationInterface.hpp>
+#include <corba/DataFlowI.h>
 
 using namespace std;
 using Corba::ControlTaskProxy;
@@ -35,42 +36,40 @@ void
 CorbaTest::setUp()
 {
     // connect DataPorts
-    md1 = new DataPort<double>("md", 1.0);
-    md1bis = new DataPort<double>("mdbis", 2.0); // a free port.
-    md2 = new DataPort<double>("md", -1.0);
-    // connect Write to Read ports (connection direction testing)
-    mdr1 = new ReadDataPort<double>("mdrwA");
-    mdr2 = new ReadDataPort<double>("mdrwB");
-    mdw1 = new WriteDataPort<double>("mdrwB", 1.0);
-    mdw2 = new WriteDataPort<double>("mdrwA", -1.0);
+    mr1 = new ReadPort<double>("mr");
+    mw1 = new WritePort<double>("mw");
 
-    // connect BufferPorts
-    mb1 = new BufferPort<double>("mb", 10, 1.0);
-    mb2 = new BufferPort<double>("mb", 20, -1.0);
+    mr2 = new ReadPort<double>("mr");
+    mw2 = new WritePort<double>("mw");
 
     tc =  new TaskContext( "root" );
     tc->addObject( this->createMethodFactory() );
-    t2 = new TaskContext("other");
+    tc->ports()->addPort( mr1 );
+    tc->ports()->addPort( mw1 );
 
-    tc->ports()->addPort( md1 );
-    tc->ports()->addPort( md1bis );
-    t2->ports()->addPort( md2 );
-    tc->ports()->addPort( mdr1 );
-    t2->ports()->addPort( mdr2 );
-    tc->ports()->addPort( mdw1 );
-    t2->ports()->addPort( mdw2 );
-    tc->ports()->addPort( mb1 );
-    t2->ports()->addPort( mb2 );
+    t2 = new TaskContext("other");
+    t2->ports()->addPort( mr2 );
+    t2->ports()->addPort( mw2 );
+
+    ts2 = ts = 0;
+    tp2 = tp = 0;
 }
 
 
 void
 CorbaTest::tearDown()
 {
-    //delete tc;
-    //delete ts;
-    //delete tp;
+    delete tp;
+    delete ts;
+    delete tp2;
+    delete ts2;
+    delete tc;
+    delete t2;
 
+    delete mr1;
+    delete mw1;
+    delete mr2;
+    delete mw2;
 }
 
 bool CorbaTest::assertBool( bool b) {
@@ -230,326 +229,134 @@ void CorbaTest::testAnyMethod()
     CPPUNIT_ASSERT(m4->executeAny( any_args.in() ));
 }
 
-void CorbaTest::testPorts()
-{
-    // test create channel functions of dataflowinterface.
-    // write to corba read from C++ and vice verse.
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
+// TODO: test connectPorts on task contexts
 
-    // DATA PORTS
-    ::RTT::Corba::AssignableExpression_var unknown_data = ts->server()->ports()->createDataChannel("does_not_exist");
-    CPPUNIT_ASSERT( CORBA::is_nil(unknown_data) );
-    ::RTT::Corba::AssignableExpression_var buffer_as_data = ts->server()->ports()->createDataChannel("mb");
-    CPPUNIT_ASSERT( CORBA::is_nil(buffer_as_data) );
-    ::RTT::Corba::AssignableExpression_var data = ts->server()->ports()->createDataChannel("md");
-    CPPUNIT_ASSERT( data.in() );
-
-    CORBA::Any_var any = new CORBA::Any();
-    double value = 5.0;
-    // Write from corba, read from C++
-    any <<= value;
-    CPPUNIT_ASSERT( data->set( any.in() ) );
-    CPPUNIT_ASSERT_EQUAL( value, md1->Get() );
-
-    // Write from C++, read from corba
-    value = -5.0;
-    md1->Set( value );
-    any = data->get();
-    any >>= value;
-    CPPUNIT_ASSERT_EQUAL( -5.0, value );
-
-    // BUFFER PORTS
-    ::RTT::Corba::BufferChannel_var unknown_buf = ts->server()->ports()->createBufferChannel("does_not_exist");
-    CPPUNIT_ASSERT( CORBA::is_nil(unknown_buf) );
-    ::RTT::Corba::BufferChannel_var data_as_buffer = ts->server()->ports()->createBufferChannel("md");
-    CPPUNIT_ASSERT( CORBA::is_nil(data_as_buffer) );
-    ::RTT::Corba::BufferChannel_var buf = ts->server()->ports()->createBufferChannel("mb");
-    CPPUNIT_ASSERT(buf.in());
-    CPPUNIT_ASSERT_EQUAL( buf->size(), mb1->size() );
-    CPPUNIT_ASSERT_EQUAL( buf->capacity(), mb1->capacity() );
-
-    any = new CORBA::Any();
-    value = 5.0;
-    // Write from corba, read from C++
-    any <<= value;
-    CPPUNIT_ASSERT( buf->push( any.in() ) );
-    CPPUNIT_ASSERT_EQUAL( buf->size(), mb1->size() );
-
-    CPPUNIT_ASSERT_EQUAL( 5.0, mb1->front() );
-    CPPUNIT_ASSERT( mb1->Pop( value ) );
-    CPPUNIT_ASSERT_EQUAL( 5.0, value );
-    CPPUNIT_ASSERT_EQUAL( buf->size(), mb1->size() );
-
-    // Write from C++, read from corba
-    value = -5.0;
-    mb1->Push( value );
-    CPPUNIT_ASSERT_EQUAL( buf->size(), mb1->size() );
-
-    any = buf->front();
-    value = 0.0;
-    any >>= value;
-    CPPUNIT_ASSERT_EQUAL( -5.0, value );
-    CPPUNIT_ASSERT( buf->pull( any.out() ) );
-    value = 0.0;
-    any >>= value;
-    CPPUNIT_ASSERT_EQUAL( -5.0, value );
-    CPPUNIT_ASSERT_EQUAL( buf->size(), mb1->size() );
-
-}
-
-// Test the IDL connectPorts statement.
-void CorbaTest::testConnectPortsIDL()
+void CorbaTest::testDataFlowInterface()
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
     tp = Corba::ControlTaskProxy::Create( ts->server(), true );
-    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
-    
-    // Default direction is from ts to ts2, but it will also need to
-    // connect ports from ts2 to ts when ts is reader and ts2 is writer.
-    CPPUNIT_ASSERT( ts->server()->connectPorts( ts2->server() ) );
+    Corba::DataFlowInterface_var ports = ts->server()->ports();
 
-    testPortStats();
-    testPortDisconnect();
+    Corba::DataFlowInterface::PortNames_var names =
+	ports->getPorts();
+
+    CPPUNIT_ASSERT_EQUAL(CORBA::ULong(2), names->length());
+    CPPUNIT_ASSERT_EQUAL(string("mr"), string(names[0]));
+    CPPUNIT_ASSERT_EQUAL(string("mw"), string(names[1]));
+
+    // Now check directions
+    CPPUNIT_ASSERT_EQUAL(RTT::Corba::DataFlowInterface::Writer,
+	    ports->getPortType("mw"));
+    CPPUNIT_ASSERT_EQUAL(RTT::Corba::DataFlowInterface::Reader,
+	    ports->getPortType("mr"));
+
+    // And check type names
+    CPPUNIT_ASSERT_EQUAL(string("double"),
+	    string(ports->getDataType("mw")));
 }
 
-void CorbaTest::testConnectPortsLR()
+void CorbaTest::testPortDataConnection()
 {
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
-    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
+    // This test assumes that there is a data connection mw1 => mr2
+    // Check if connection succeeded both ways:
+    CPPUNIT_ASSERT( mw1->connected() );
+    CPPUNIT_ASSERT( mr2->connected() );
 
-    CPPUNIT_ASSERT( connectPorts(tc, tp2 ) );
+    double value = 0;
 
-    testPortStats();
-    testPortDisconnect();
+    // Check if no-data works
+    CPPUNIT_ASSERT( !mr2->read(value) );
 
+    // Check if writing works
+    mw1->write(1.0);
+    CPPUNIT_ASSERT( mr2->read(value) );
+    CPPUNIT_ASSERT_EQUAL( 1.0, value );
+    mw1->write(2.0);
+    CPPUNIT_ASSERT( mr2->read(value) );
+    CPPUNIT_ASSERT_EQUAL( 2.0, value );
 }
-void CorbaTest::testConnectPortsRL()
+
+void CorbaTest::testPortBufferConnection()
 {
+    // This test assumes that there is a buffer connection mw1 => mr2 of size 3
+    // Check if connection succeeded both ways:
+    CPPUNIT_ASSERT( mw1->connected() );
+    CPPUNIT_ASSERT( mr2->connected() );
+
+    double value = 0;
+
+    // Check if no-data works
+    CPPUNIT_ASSERT( !mr2->read(value) );
+
+    // Check if writing works
+    mw1->write(1.0);
+    mw1->write(2.0);
+    mw1->write(3.0);
+    mw1->write(4.0);
+    CPPUNIT_ASSERT( mr2->read(value) );
+    CPPUNIT_ASSERT_EQUAL( 1.0, value );
+    CPPUNIT_ASSERT( mr2->read(value) );
+    CPPUNIT_ASSERT_EQUAL( 2.0, value );
+    CPPUNIT_ASSERT( mr2->read(value) );
+    CPPUNIT_ASSERT_EQUAL( 3.0, value );
+    CPPUNIT_ASSERT( !mr2->read(value) );
+}
+
+void CorbaTest::testPortDisconnect(bool from_writer)
+{
+    CPPUNIT_ASSERT( mw1->connected() );
+    CPPUNIT_ASSERT( mr2->connected() );
+
+    if (from_writer)
+        mw1->disconnect();
+    else
+        mr2->disconnect();
+
+    CPPUNIT_ASSERT( !mw1->connected() );
+    CPPUNIT_ASSERT( !mr2->connected() );
+
+    // TODO: check that disconnecting from the reader works as well
+}
+
+void CorbaTest::testPortConnections()
+{
+    // This test tests the differen port-to-port connections.
     ts  = Corba::ControlTaskServer::Create( tc, false ); //no-naming
     tp  = Corba::ControlTaskProxy::Create( ts->server(), true );
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
     tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
-    CPPUNIT_ASSERT( connectPorts(tp, t2 ) );
+    // TODO: check that reader-to-reader and writer-to-writer does not work
 
-    testPortStats();
-    testPortDisconnect();
+    RTT::Corba::ConnPolicy policy;
+    policy.type = RTT::Corba::Data;
+    policy.init = false;
+    policy.lock_policy = RTT::Corba::LockFree;
+    policy.size = 0;
 
-}
+    policy.type = RTT::Corba::Data;
+    policy.pull = false;
+    CPPUNIT_ASSERT( ts->server()->ports()->createConnection("mw", ts2->server()->ports(), "mr", policy) );
+    testPortDataConnection();
+    testPortDisconnect(true);
 
-void CorbaTest::testConnectPortsRR()
-{
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
-    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
+    policy.type = RTT::Corba::Data;
+    policy.pull = true;
+    CPPUNIT_ASSERT( ts->server()->ports()->createConnection("mw", ts2->server()->ports(), "mr", policy) );
+    testPortDataConnection();
+    testPortDisconnect(false);
 
-    CPPUNIT_ASSERT( connectPorts(tp, tp2 ) );
+    policy.type = RTT::Corba::Buffer;
+    policy.pull = false;
+    policy.size = 3;
+    CPPUNIT_ASSERT( ts->server()->ports()->createConnection("mw", ts2->server()->ports(), "mr", policy) );
+    testPortBufferConnection();
+    testPortDisconnect(true);
 
-    testPortStats();
-    testPortDisconnect();
-
-}
-
-void CorbaTest::testConnectPortsLRC()
-{
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
-    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
-
-    // test connecting to existing connection:
-    ConnectionInterface::shared_ptr ci = md1->createConnection(ConnectionTypes::lockfree);
-    CPPUNIT_ASSERT( md1->connectTo(ci) );
-    CPPUNIT_ASSERT( ci->connect() );
-
-    CPPUNIT_ASSERT( connectPorts(tc, tp2 ) );
-
-    testPortStats();
-    testPortDisconnect();
-
-}
-void CorbaTest::testConnectPortsRLC()
-{
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
-    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
-
-    // test connecting to existing connection:
-    ConnectionInterface::shared_ptr ci = md1->createConnection(ConnectionTypes::lockfree);
-    CPPUNIT_ASSERT( md1->connectTo(ci) );
-    CPPUNIT_ASSERT( ci->connect() );
-
-    CPPUNIT_ASSERT( connectPorts(tp, t2 ) );
-
-    testPortStats();
-    testPortDisconnect();
-
-}
-
-void CorbaTest::testConnectPortsRRC()
-{
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
-    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
-
-    // test connecting to existing connection:
-    ConnectionInterface::shared_ptr ci = md1->createConnection(ConnectionTypes::lockfree);
-    CPPUNIT_ASSERT( md1->connectTo(ci) );
-    CPPUNIT_ASSERT( ci->connect() );
-
-    CPPUNIT_ASSERT( connectPorts(tp, tp2 ) );
-
-    testPortStats();
-    testPortDisconnect();
-
-}
-
-
-void CorbaTest::testPortStats()
-{
-    // ALWAYS connect from tc/tp TO t2/tp2
-    // The test assumes the connection direction is tc->t2.
-    // Tests if ports are correctly working, this test is called by the other test functions.
-    // DATA PORTS
-    // Check if connection succeeded both ways:
-    CPPUNIT_ASSERT( md1->connected() );
-    CPPUNIT_ASSERT( md2->connected() );
-    // Check if both ports return same initial value:
-    CPPUNIT_ASSERT_EQUAL( 1.0, md1->Get() );
-    CPPUNIT_ASSERT_EQUAL( 1.0, md2->Get() );
-
-    // Check writing from both ways:
-    md1->Set( 3.0 );
-    CPPUNIT_ASSERT_EQUAL( 3.0, md1->Get() );
-    CPPUNIT_ASSERT_EQUAL( 3.0, md2->Get() );
-    md2->Set( -3.0 );
-    CPPUNIT_ASSERT_EQUAL( -3.0, md1->Get() );
-    CPPUNIT_ASSERT_EQUAL( -3.0, md2->Get() );
-
-    // READ/WRITE DATA PORTS
-    // Check if connection succeeded both ways:
-    CPPUNIT_ASSERT( mdr1->connected() );
-    CPPUNIT_ASSERT( mdr2->connected() );
-    CPPUNIT_ASSERT( mdw1->connected() );
-    CPPUNIT_ASSERT( mdw2->connected() );
-    // Check if both ports return same initial value:
-    CPPUNIT_ASSERT_EQUAL( -1.0, mdr1->Get() );
-    //CPPUNIT_ASSERT_EQUAL( 1.0, mdw1->Get() );
-    CPPUNIT_ASSERT_EQUAL( 1.0, mdr2->Get() );
-    //CPPUNIT_ASSERT_EQUAL( -1.0, mdw2->Get() );
-
-    // Check writing from both ways:
-    mdw1->Set( 3.0 );
-    //CPPUNIT_ASSERT_EQUAL( 3.0, mdw1->Get() );
-    CPPUNIT_ASSERT_EQUAL( 3.0, mdr2->Get() );
-    mdw2->Set( -3.0 );
-    //CPPUNIT_ASSERT_EQUAL( -3.0, mdw2->Get() );
-    CPPUNIT_ASSERT_EQUAL( -3.0, mdr1->Get() );
-
-    //
-    // BUFFER PORTS
-    // Check if connection succeeded both ways:
-    double val = 0.0;
-    CPPUNIT_ASSERT( mb1->connected() );
-    CPPUNIT_ASSERT( mb2->connected() );
-    CPPUNIT_ASSERT_EQUAL( 10, mb2->capacity() );
-    CPPUNIT_ASSERT_EQUAL( 0, mb1->size() );
-    CPPUNIT_ASSERT_EQUAL( 0, mb2->size() );
-
-    // Check writing from both ways:
-    CPPUNIT_ASSERT( mb1->Push( 3.0 ) );
-    CPPUNIT_ASSERT( mb1->front() == 3.0 );
-    CPPUNIT_ASSERT( mb2->front() == 3.0 );
-    CPPUNIT_ASSERT_EQUAL( 1, mb1->size() );
-    CPPUNIT_ASSERT_EQUAL( 1, mb2->size() );
-    CPPUNIT_ASSERT( mb2->Pop( val ));
-    CPPUNIT_ASSERT( val == 3.0 );
-    CPPUNIT_ASSERT_EQUAL( 0, mb1->size() );
-    CPPUNIT_ASSERT_EQUAL( 0, mb2->size() );
-
-    CPPUNIT_ASSERT( mb2->Push( -3.0 ) );
-    CPPUNIT_ASSERT( mb1->front() == -3.0 );
-    CPPUNIT_ASSERT( mb2->front() == -3.0 );
-    CPPUNIT_ASSERT_EQUAL( 1, mb1->size() );
-    CPPUNIT_ASSERT_EQUAL( 1, mb2->size() );
-    CPPUNIT_ASSERT( mb2->Pop( val ));
-    CPPUNIT_ASSERT( val == -3.0 );
-    CPPUNIT_ASSERT_EQUAL( 0, mb1->size() );
-    CPPUNIT_ASSERT_EQUAL( 0, mb2->size() );
-}
-
-void CorbaTest::testPortDisconnect()
-{
-    // Connection management.
-    // DATA PORTS
-    CPPUNIT_ASSERT( md1->connected() );
-    CPPUNIT_ASSERT( md2->connected() );
-
-    // store -3.0 in connection.
-    md1->Set( -3.0 );
-
-    md1->disconnect();
-    md2->disconnect();
-
-    CPPUNIT_ASSERT( !md1->connected() );
-    CPPUNIT_ASSERT( !md2->connected() );
-
-    // Check no writing from both ways:
-    md1->Set( 3.0 );
-    CPPUNIT_ASSERT_EQUAL( 3.0, md1->Get() );
-    CPPUNIT_ASSERT( 3.0 != md2->Get() );
-    md2->Set( 6.0 );
-    CPPUNIT_ASSERT_EQUAL( 3.0, md1->Get() );
-    CPPUNIT_ASSERT_EQUAL( 6.0, md2->Get() );
-
-    //
-    // BUFFER PORTS
-    // Check if connection succeeded both ways:
-    double val = 0.0;
-    CPPUNIT_ASSERT( mb1->connected() );
-    CPPUNIT_ASSERT( mb2->connected() );
-
-    // Store a value.
-    CPPUNIT_ASSERT( mb1->Push( 3.0 ) );
-
-    // Disconnect
-    mb1->disconnect();
-    mb2->disconnect();
-
-    // should fail
-    CPPUNIT_ASSERT( !mb1->Push( 3.0 ) );
-    CPPUNIT_ASSERT( !mb2->Pop( val ));
-
-    CPPUNIT_ASSERT( !mb2->Push( -3.0 ) );
-    CPPUNIT_ASSERT( !mb2->Pop( val ));
-}
-
-void CorbaTest::testConnections()
-{
-    // This test tests the differen port-to-port connections.
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
-    ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
-
-    // incompatible type should fail
-    CPPUNIT_ASSERT( !ts->server()->ports()->connectPorts("md", ts2->server()->ports(), "mb") );
-
-    CPPUNIT_ASSERT( ts->server()->ports()->connectPorts("md", ts2->server()->ports(), "md") );
-    CPPUNIT_ASSERT( ts->server()->ports()->connectPorts("mb", ts2->server()->ports(), "mb") );
-    CPPUNIT_ASSERT( ts->server()->ports()->connectPorts("mdrwA", ts2->server()->ports(), "mdrwA") );
-    CPPUNIT_ASSERT( ts->server()->ports()->connectPorts("mdrwB", ts2->server()->ports(), "mdrwB") );
-
-    testPortStats();
-    testPortDisconnect();
-
-
+    policy.type = RTT::Corba::Buffer;
+    policy.pull = true;
+    CPPUNIT_ASSERT( ts->server()->ports()->createConnection("mw", ts2->server()->ports(), "mr", policy) );
+    testPortBufferConnection();
+    testPortDisconnect(false);
 }
 

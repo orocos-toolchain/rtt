@@ -3,9 +3,8 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <Ports.hpp>
 #include <TaskContext.hpp>
-#include <DataPort.hpp>
-#include <BufferPort.hpp>
 #include <corba/ControlTaskServer.hpp>
 #include <corba/ControlTaskProxy.hpp>
 #include <string>
@@ -20,15 +19,8 @@ class CorbaTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testRemoteMethodC );
     CPPUNIT_TEST( testRemoteMethod );
     CPPUNIT_TEST( testAnyMethod );
-    CPPUNIT_TEST( testPorts );
-    CPPUNIT_TEST( testConnectPortsIDL );
-    CPPUNIT_TEST( testConnectPortsRL );
-    CPPUNIT_TEST( testConnectPortsLR );
-    CPPUNIT_TEST( testConnectPortsRR );
-    CPPUNIT_TEST( testConnectPortsLRC );
-    CPPUNIT_TEST( testConnectPortsRLC );
-    CPPUNIT_TEST( testConnectPortsRRC );
-    CPPUNIT_TEST( testConnections );
+    CPPUNIT_TEST( testDataFlowInterface );
+    CPPUNIT_TEST( testPortConnections );
     CPPUNIT_TEST( cleanupCorba );
 
     CPPUNIT_TEST_SUITE_END();
@@ -42,15 +34,10 @@ class CorbaTest : public CppUnit::TestFixture
     TaskObject* createMethodFactory();
 
     // Ports
-    DataPort<double>* md1;
-    DataPort<double>* md1bis;
-    DataPort<double>* md2;
-    ReadDataPort<double>* mdr1;
-    ReadDataPort<double>* mdr2;
-    WriteDataPort<double>* mdw1;
-    WriteDataPort<double>* mdw2;
-    BufferPort<double>* mb1;
-    BufferPort<double>* mb2;
+    ReadPort<double>*  mr1;
+    WritePort<double>* mw1;
+    ReadPort<double>*  mr2;
+    WritePort<double>* mw2;
 
     // ref/const-ref tests:
     double ret;
@@ -86,19 +73,14 @@ public:
     void testRemoteMethod();
     void testAnyMethod();
 
-    void testPorts();
-    void testConnectPortsIDL();
-    void testConnectPortsRL();
-    void testConnectPortsLR();
-    void testConnectPortsRR();
-    void testConnectPortsRLC();
-    void testConnectPortsLRC();
-    void testConnectPortsRRC();
-    void testConnections();
+    void testDataFlowInterface();
+
+    void testPortConnections();
 
     // helper test functions
-    void testPortStats();
-    void testPortDisconnect();
+    void testPortDataConnection();
+    void testPortBufferConnection();
+    void testPortDisconnect(bool from_writer);
 };
 
 #endif
