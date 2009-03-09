@@ -47,7 +47,10 @@ void ConnElementBase::clear()
 }
 
 void ConnElementBase::signal() const
-{ if (reader) reader->signal(); }
+{
+    ConnElementBase::shared_ptr reader = this->reader;
+    if (reader) reader->signal();
+}
 
 void ConnElementBase::ref()
 {

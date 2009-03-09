@@ -255,6 +255,15 @@ void CorbaTest::testDataFlowInterface()
 	    string(ports->getDataType("mw")));
 }
 
+#define ASSERT_PORT_SIGNALLING(code, read_port) \
+    signalled_port = 0; \
+    code; \
+    CPPUNIT_ASSERT( read_port == signalled_port );
+
+void CorbaTest::new_data_listener(PortInterface* port)
+{
+    signalled_port = port;
+}
 void CorbaTest::testPortDataConnection()
 {
     // This test assumes that there is a data connection mw1 => mr2
@@ -267,11 +276,12 @@ void CorbaTest::testPortDataConnection()
     // Check if no-data works
     CPPUNIT_ASSERT( !mr2->read(value) );
 
-    // Check if writing works
-    mw1->write(1.0);
+    // Check if writing works (including signalling)
+    ASSERT_PORT_SIGNALLING(mw1->write(1.0), mr2)
     CPPUNIT_ASSERT( mr2->read(value) );
     CPPUNIT_ASSERT_EQUAL( 1.0, value );
-    mw1->write(2.0);
+
+    ASSERT_PORT_SIGNALLING(mw1->write(2.0), mr2);
     CPPUNIT_ASSERT( mr2->read(value) );
     CPPUNIT_ASSERT_EQUAL( 2.0, value );
 }
@@ -289,10 +299,10 @@ void CorbaTest::testPortBufferConnection()
     CPPUNIT_ASSERT( !mr2->read(value) );
 
     // Check if writing works
-    mw1->write(1.0);
-    mw1->write(2.0);
-    mw1->write(3.0);
-    mw1->write(4.0);
+    ASSERT_PORT_SIGNALLING(mw1->write(1.0), mr2);
+    ASSERT_PORT_SIGNALLING(mw1->write(2.0), mr2);
+    ASSERT_PORT_SIGNALLING(mw1->write(3.0), mr2);
+    ASSERT_PORT_SIGNALLING(mw1->write(4.0), 0);
     CPPUNIT_ASSERT( mr2->read(value) );
     CPPUNIT_ASSERT_EQUAL( 1.0, value );
     CPPUNIT_ASSERT( mr2->read(value) );
@@ -326,6 +336,11 @@ void CorbaTest::testPortConnections()
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
     tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
+    // Set up an event handler to check if signalling works properly as well
+    Handle hl( mr2->getNewDataOnPortEvent()->setup(
+                boost::bind(&CorbaTest::new_data_listener, this, _1) ) );
+    hl.connect();
+
     // TODO: check that reader-to-reader and writer-to-writer does not work
 
     RTT::Corba::ConnPolicy policy;
@@ -334,11 +349,11 @@ void CorbaTest::testPortConnections()
     policy.lock_policy = RTT::Corba::LockFree;
     policy.size = 0;
 
-    policy.type = RTT::Corba::Data;
-    policy.pull = false;
-    CPPUNIT_ASSERT( ts->server()->ports()->createConnection("mw", ts2->server()->ports(), "mr", policy) );
-    testPortDataConnection();
-    testPortDisconnect(true);
+    //policy.type = RTT::Corba::Data;
+    //policy.pull = false;
+    //CPPUNIT_ASSERT( ts->server()->ports()->createConnection("mw", ts2->server()->ports(), "mr", policy) );
+    //testPortDataConnection();
+    //testPortDisconnect(true);
 
     policy.type = RTT::Corba::Data;
     policy.pull = true;
@@ -353,10 +368,10 @@ void CorbaTest::testPortConnections()
     testPortBufferConnection();
     testPortDisconnect(true);
 
-    policy.type = RTT::Corba::Buffer;
-    policy.pull = true;
-    CPPUNIT_ASSERT( ts->server()->ports()->createConnection("mw", ts2->server()->ports(), "mr", policy) );
-    testPortBufferConnection();
-    testPortDisconnect(false);
+    //policy.type = RTT::Corba::Buffer;
+    //policy.pull = true;
+    //CPPUNIT_ASSERT( ts->server()->ports()->createConnection("mw", ts2->server()->ports(), "mr", policy) );
+    //testPortBufferConnection();
+    //testPortDisconnect(false);
 }
 

@@ -33,6 +33,9 @@ class CorbaTest : public CppUnit::TestFixture
     Corba::ControlTaskServer* ts2;
     TaskObject* createMethodFactory();
 
+    PortInterface* signalled_port;
+    void new_data_listener(PortInterface* port);
+
     // Ports
     ReadPort<double>*  mr1;
     WritePort<double>* mw1;

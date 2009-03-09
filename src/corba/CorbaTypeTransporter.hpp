@@ -46,7 +46,7 @@ namespace RTT {
 
             void remoteSignal()
             { RTT::ConnElement<T>::signal(); }
-            void signal()
+            void signal() const
             { remote_side->remoteSignal(); }
 
             void remoteDisconnect(bool writer_to_reader)

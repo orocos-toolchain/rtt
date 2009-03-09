@@ -23,7 +23,7 @@ module RTT
         void setRemoteSide(in ConnElement writer);
         boolean read(out any sample);
         oneway void write(in any sample);
-        void remoteSignal();
+        oneway void remoteSignal();
         void remoteDisconnect(in boolean writer_to_reader);
     };
 

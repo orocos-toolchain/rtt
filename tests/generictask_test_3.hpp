@@ -39,6 +39,7 @@ class Generic_TaskTest_3 : public CppUnit::TestFixture
     CPPUNIT_TEST( testPortConnectionInitialization );
     CPPUNIT_TEST( testPortTaskInterface );
     CPPUNIT_TEST( testPortObjects );
+    CPPUNIT_TEST( testPortSignalling );
     CPPUNIT_TEST( testProperties );
     CPPUNIT_TEST( testAttributes );
     CPPUNIT_TEST( testTCStates );
@@ -50,6 +51,9 @@ class Generic_TaskTest_3 : public CppUnit::TestFixture
     StatesTC* stc;
     ActivityInterface* tsim;
     ActivityInterface* stsim;
+
+    PortInterface* signalled_port;
+    void new_data_listener(PortInterface*);
 
 public:
 
@@ -65,6 +69,7 @@ public:
     void testPortForkedConnections();
     void testPortTaskInterface();
     void testPortObjects();
+    void testPortSignalling();
     void testTCStates();
     void testSpecialTCStates();
     void testFailingTCStates();

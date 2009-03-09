@@ -834,3 +834,35 @@ void Generic_TaskTest_3::testPortObjects()
     CPPUNIT_ASSERT( tc->ports()->getPort("Writer") == 0 );
 }
 
+void Generic_TaskTest_3::new_data_listener(PortInterface* port)
+{
+    signalled_port = port;
+}
+
+void Generic_TaskTest_3::testPortSignalling()
+{
+    WritePort<double> wp1("Write");
+    ReadPort<double>  rp1("Read");
+
+    Handle hl( rp1.getNewDataOnPortEvent()->setup(
+                boost::bind(&Generic_TaskTest_3::new_data_listener, this, _1) ) );
+    hl.connect();
+
+    wp1.createConnection(rp1, ConnPolicy::data());
+    signalled_port = 0;
+    wp1.write(0.1);
+    CPPUNIT_ASSERT(&rp1 == signalled_port);
+
+    wp1.disconnect();
+    wp1.createConnection(rp1, ConnPolicy::buffer(2));
+    signalled_port = 0;
+    wp1.write(0.1);
+    CPPUNIT_ASSERT(&rp1 == signalled_port);
+    signalled_port = 0;
+    wp1.write(0.1);
+    CPPUNIT_ASSERT(&rp1 == signalled_port);
+    signalled_port = 0;
+    wp1.write(0.1);
+    CPPUNIT_ASSERT(0 == signalled_port);
+}
+
