@@ -77,7 +77,7 @@ void ReadPortInterface::disconnect()
 }
 
 WritePortInterface::WritePortInterface(std::string const& name)
-    : PortInterface(name) { }
+    : PortInterface(name), connections(10) { }
 
 WritePortInterface::~WritePortInterface()
 {
@@ -88,43 +88,46 @@ WritePortInterface::~WritePortInterface()
 bool WritePortInterface::connected() const
 { return !connections.empty(); }
 
+bool WritePortInterface::eraseMatchingConnection(PortInterface const* port, ConnDescriptor& descriptor)
+{
+    if (port == descriptor.get<0>())
+    {
+        descriptor.get<1>()->disconnect(true);
+        return true;
+    }
+    else return false;
+}
 void WritePortInterface::disconnect(PortInterface& port)
 {
-    for (list<ConnDescriptor>::iterator it = connections.begin(); it != connections.end(); ++it)
-    {
-        if (it->get<0>() == &port)
-        {
-            it->get<1>()->disconnect(true);
-            connections.erase(it);
-            return;
-        }
+    connections.delete_if( boost::bind(&WritePortInterface::eraseMatchingConnection, this, &port, _1) );
+}
+
+bool WritePortInterface::eraseConnection(ConnDescriptor& descriptor)
+{
+    descriptor.get<1>()->disconnect(true);
+    return true;
+}
+
+void WritePortInterface::disconnect()
+{
+    connections.delete_if( boost::bind(&WritePortInterface::eraseConnection, this, _1) );
+}
+
+void WritePortInterface::addConnection(ConnDescriptor const& descriptor)
+{
+    if (!connections.append(descriptor))
+    { OS::MutexLock locker(connection_resize_mtx);
+        connections.grow(1);
+        connections.append(descriptor);
     }
 }
 
-/** Removes any connection that either go to or come from this port */
-void WritePortInterface::disconnect()
-{
-    list<ConnDescriptor> connections = this->connections;
-    this->connections.clear();
-
-    for (list<ConnDescriptor>::iterator it = connections.begin(); it != connections.end(); ++it)
-        it->get<1>()->disconnect(true);
-}
-
-/** Connects this write port to the given read port, using a single-data
- * policy with the given locking mechanism */
 bool WritePortInterface::createDataConnection( ReadPortInterface& reader, int lock_policy )
 { return createConnection( reader, ConnPolicy::data(lock_policy) ); }
 
-/** Connects this write port to the given read port, using a buffered
- * policy, with the buffer of the given size and the given locking
- * mechanism */
 bool WritePortInterface::createBufferConnection( ReadPortInterface& reader, int size, int lock_policy )
 { return createConnection( reader, ConnPolicy::buffer(size, lock_policy) ); }
 
-/** Connects this write port to the given read port, using the as policy
- * the default policy of the reader port
- */
 bool WritePortInterface::createConnection( ReadPortInterface& reader )
 { return createConnection(reader, reader.getDefaultPolicy()); }
 

@@ -2,9 +2,9 @@
 #define ORO_EXECUTION_PORT_INTERRFACE_HPP
 
 #include <string>
-#include <Connections.hpp>
-#include <list>
-#include <Events.hpp>
+#include "Connections.hpp"
+#include "Events.hpp"
+#include "ListLockFree.hpp"
 
 namespace RTT
 {
@@ -113,7 +113,17 @@ namespace RTT
     {
     protected:
         typedef boost::tuple<PortInterface*, ConnElementBase::shared_ptr, ConnPolicy> ConnDescriptor;
-        std::list< ConnDescriptor > connections;
+        ListLockFree< ConnDescriptor > connections;
+
+        /** Helper method for disconnect(PortInterface*) */
+        bool eraseMatchingConnection(PortInterface const* port, ConnDescriptor& descriptor);
+        /** Helper method for disconnect() */
+        bool eraseConnection(ConnDescriptor& descriptor);
+
+        /** Mutex for when it is needed to resize the connections list */
+        OS::Mutex connection_resize_mtx;
+        /** Helper method for WritePort<T>::createConnection */
+        void addConnection(ConnDescriptor const& descriptor);
 
     public:
         WritePortInterface(std::string const& name);

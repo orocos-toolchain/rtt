@@ -25,11 +25,13 @@ void ConnElementBase::disconnect(bool writer_to_reader)
 {
     if (writer_to_reader)
     {
+        shared_ptr reader = this->reader;
         if (reader)
             reader->disconnect(true);
     }
     else
     {
+        shared_ptr writer = this->writer;
         if (writer)
             writer->disconnect(false);
     }
@@ -48,7 +50,7 @@ void ConnElementBase::clear()
 
 void ConnElementBase::signal() const
 {
-    ConnElementBase::shared_ptr reader = this->reader;
+    shared_ptr reader = this->reader;
     if (reader) reader->signal();
 }
 

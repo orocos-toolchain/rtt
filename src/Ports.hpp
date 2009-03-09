@@ -20,6 +20,10 @@ namespace RTT
     {
         WritePort<T>* port;
 
+        /** Helper method for disconnect(bool) */
+        bool eraseThisConnection(typename WritePort<T>::ConnDescriptor& connection)
+        { return (connection.template get<1>() == this); }
+
     public:
         ConnWriterEndpoint(WritePort<T>* port)
             : port(port) { }
@@ -38,17 +42,9 @@ namespace RTT
                 if (!port)
                     return;
 
-                for (std::list<WritePortInterface::ConnDescriptor>::iterator it =
-                        port->connections.begin();
-                        it != port->connections.end();
-                        ++it)
-                {
-                    if (it->get<1>() == this)
-                    {
-                        port->connections.erase(it);
-                        return;
-                    }
-                }
+                port->connections.delete_if(boost::bind(
+                            &ConnWriterEndpoint<T>::eraseThisConnection, this, _1)
+                        );
             }
             else
                 ConnElement<T>::disconnect(writer_to_reader);
@@ -245,6 +241,15 @@ namespace RTT
         bool written;
         typename DataObjectInterface<T>::shared_ptr last_written_value;
 
+        bool do_write(typename ConnElement<T>::param_t sample, ConnDescriptor descriptor)
+        {
+            typename ConnElement<T>::shared_ptr reader
+                = boost::static_pointer_cast< ConnElement<T> >(descriptor.get<1>());
+            if (reader->write(sample))
+                return false;
+            else return true;
+        }
+
     public:
         WritePort(std::string const& name, bool keep_last_written_value = false)
             : WritePortInterface(name)
@@ -290,14 +295,9 @@ namespace RTT
                 last_written_value->Set(sample);
             written = true;
 
-            std::list<ConnDescriptor>::iterator it = connections.begin();
-            while(it != connections.end())
-            {
-                typename ConnElement<T>::shared_ptr reader = boost::static_pointer_cast< ConnElement<T> >(it->get<1>());
-                if (reader->write(sample))
-                    ++it;
-                else connections.erase(it++);
-            }
+            connections.delete_if( boost::bind(
+                        &WritePort<T>::do_write, this, boost::ref(sample), _1)
+                    );
         }
 
         /** Returns the TypeInfo object for the port's type */
@@ -360,7 +360,7 @@ namespace RTT
 
             typename ConnElement<T>::shared_ptr writer_endpoint =
                 static_cast< ConnElement<T>* >(ConnFactory::buildWriterHalf(*this, policy, reader_endpoint));
-            connections.push_back( boost::make_tuple(&reader_, writer_endpoint, policy) );
+            addConnection( boost::make_tuple(&reader_, writer_endpoint, policy) );
 
             if (policy.init && written)
             {
