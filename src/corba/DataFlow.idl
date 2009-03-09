@@ -34,6 +34,15 @@ module RTT
      */
     exception NoCorbaTransport {};
 
+    enum PortType { Reader, Writer };
+
+    struct PortDescription
+    {
+        PortType type;
+        string   name;
+        string   type_name;
+    };
+
     /**
      * An interface to access the dataflow
      * of a ControlTask object. Data ports are exported as
@@ -44,12 +53,17 @@ module RTT
     interface DataFlowInterface
     {
       typedef sequence<string> PortNames;
-      enum PortType { Reader, Writer };
+      typedef sequence<PortDescription> PortDescriptions;
 
       /**
        * Returns the names of the ports of this component.
        */
       PortNames getPorts();
+
+      /**
+       * Returns the names of the ports of this component.
+       */
+      PortDescriptions getPortDescriptions();
 
       /**
        * Returns the type of the given port
@@ -74,6 +88,12 @@ module RTT
        */
       void disconnect(in string port_name)
             raises(NoSuchPortException);
+
+      /** 
+       * Removes the specified connection
+       */
+      void disconnectPort(in string writer_name,
+            in DataFlowInterface reader_iface, in string reader_name);
 
       /**
        * Creates the reader-half of the connection for the given read port and

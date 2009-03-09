@@ -73,6 +73,7 @@
 #include <iostream>
 
 #include "../TaskObject.hpp"
+#include "RemotePorts.hpp"
 
 
 
@@ -100,6 +101,8 @@ namespace RTT
             deleteProperties( *this->properties() );
         }
         this->attributes()->clear();
+        for (list<PortInterface*>::iterator it = port_proxies.begin(); it != port_proxies.end(); ++it)
+            delete *it;
         proxies.erase(this);
     }
 
@@ -310,16 +313,35 @@ namespace RTT
         }
 
         log(Debug) << "Fetching Ports."<<endlog();
-        //DataFlowInterface_var dfact = mtask->ports();
-        //if (dfact) {
-        //    DataFlowInterface::PortNames_var objs;
-        //    objs = dfact->getPorts();
-        //    for ( size_t i=0; i < objs->length(); ++i) {
-        //        if (this->ports()->getPort( objs[i].in() ))
-        //            continue; // already added.
-        //        this->ports()->addPort( new CorbaPort( objs[i].in(), dfact.in(), ProxyPOA() ) );
-        //    }
-        //}
+        DataFlowInterface_var dfact = mtask->ports();
+        TypeInfoRepository::shared_ptr type_repo = TypeInfoRepository::Instance();
+        if (dfact) {
+            DataFlowInterface::PortDescriptions_var objs = dfact->getPortDescriptions();
+            for ( size_t i=0; i < objs->length(); ++i) {
+                PortDescription port = objs[i];
+                if (this->ports()->getPort( port.name.in() ))
+                    continue; // already added.
+
+                TypeInfo const* type_info = type_repo->type(port.type_name.in());
+                if (!type_info)
+                {
+                    log(Warning) << "remote port " << port.name
+                        << " has a type that cannot be marshalled over CORBA: " << port.type_name << ". "
+                        << "It is ignored by ControlTaskProxy" << endlog();
+                }
+                else
+                {
+                    PortInterface* new_port;
+                    if (port.type == RTT::Corba::Reader)
+                        new_port = new RemoteReadPort( type_info, dfact.in(), port.name.in(), ProxyPOA() );
+                    else
+                        new_port = new RemoteWritePort( type_info, dfact.in(), port.name.in(), ProxyPOA() );
+
+                    this->ports()->addPort(new_port);
+                    port_proxies.push_back(new_port); // see comment in definition of port_proxies
+                }
+            }
+        }
 
         this->fetchObjects(this, mtask.in() );
 

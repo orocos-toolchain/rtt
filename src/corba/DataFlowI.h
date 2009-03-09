@@ -57,6 +57,7 @@
 
 namespace RTT {
     class DataFlowInterface;
+    class ReadPortInterface;
 
     namespace Corba {
         class CorbaTypeTransporter;
@@ -68,7 +69,7 @@ namespace RTT {
         protected:
             ConnElement_var remote_side;
             RTT::detail::TypeTransporter const& transport;
-		PortableServer::POA_var mpoa;
+            PortableServer::POA_var mpoa;
 
         public:
             // standard constructor
@@ -76,9 +77,8 @@ namespace RTT {
 			  PortableServer::POA_ptr poa);
             virtual ~ConnElement_i();
 
-		PortableServer::POA_ptr _default_POA();
+            PortableServer::POA_ptr _default_POA();
 
-            // methods corresponding to defined IDL attributes and operations
             void setRemoteSide(ConnElement_ptr remote);
 	};
 
@@ -98,10 +98,14 @@ namespace RTT {
 
             // methods corresponding to defined IDL attributes and operations
             Corba::DataFlowInterface::PortNames* getPorts();
-            Corba::DataFlowInterface::PortType getPortType(const char* port_name);
+            Corba::DataFlowInterface::PortDescriptions* getPortDescriptions();
+            Corba::PortType getPortType(const char* port_name);
             char* getDataType(const char* port_name);
             ::CORBA::Boolean isConnected(const char* port_name);
             void disconnect(const char* port_name);
+            void disconnectPort(
+                    const char* writer_port,
+		    DataFlowInterface_ptr reader_interface, const char* reader_port);
 
             ConnElement_ptr buildReaderHalf(const char* reader_port, const ConnPolicy& policy);
 

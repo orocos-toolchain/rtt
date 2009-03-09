@@ -25,6 +25,7 @@
 #include <Method.hpp>
 #include <OperationInterface.hpp>
 #include <corba/DataFlowI.h>
+#include <corba/RemotePorts.hpp>
 
 using namespace std;
 using Corba::ControlTaskProxy;
@@ -245,9 +246,9 @@ void CorbaTest::testDataFlowInterface()
     CPPUNIT_ASSERT_EQUAL(string("mw"), string(names[1]));
 
     // Now check directions
-    CPPUNIT_ASSERT_EQUAL(RTT::Corba::DataFlowInterface::Writer,
+    CPPUNIT_ASSERT_EQUAL(RTT::Corba::Writer,
 	    ports->getPortType("mw"));
-    CPPUNIT_ASSERT_EQUAL(RTT::Corba::DataFlowInterface::Reader,
+    CPPUNIT_ASSERT_EQUAL(RTT::Corba::Reader,
 	    ports->getPortType("mr"));
 
     // And check type names
@@ -312,66 +313,130 @@ void CorbaTest::testPortBufferConnection()
     CPPUNIT_ASSERT( !mr2->read(value) );
 }
 
-void CorbaTest::testPortDisconnect(bool from_writer)
+void CorbaTest::testPortDisconnected()
 {
-    CPPUNIT_ASSERT( mw1->connected() );
-    CPPUNIT_ASSERT( mr2->connected() );
-
-    if (from_writer)
-        mw1->disconnect();
-    else
-        mr2->disconnect();
-
     CPPUNIT_ASSERT( !mw1->connected() );
     CPPUNIT_ASSERT( !mr2->connected() );
-
-    // TODO: check that disconnecting from the reader works as well
 }
 
 void CorbaTest::testPortConnections()
 {
     // This test tests the differen port-to-port connections.
     ts  = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp  = Corba::ControlTaskProxy::Create( ts->server(), true );
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
-    // Set up an event handler to check if signalling works properly as well
-    Handle hl( mr2->getNewDataOnPortEvent()->setup(
-                boost::bind(&CorbaTest::new_data_listener, this, _1) ) );
-    hl.connect();
-
-    // TODO: check that reader-to-reader and writer-to-writer does not work
-
+    // Create a default CORBA policy specification
     RTT::Corba::ConnPolicy policy;
     policy.type = RTT::Corba::Data;
     policy.init = false;
     policy.lock_policy = RTT::Corba::LockFree;
     policy.size = 0;
 
-    //policy.type = RTT::Corba::Data;
-    //policy.pull = false;
-    //CPPUNIT_ASSERT( ts->server()->ports()->createConnection("mw", ts2->server()->ports(), "mr", policy) );
-    //testPortDataConnection();
-    //testPortDisconnect(true);
+    // Set up an event handler to check if signalling works properly as well
+    Handle hl( mr2->getNewDataOnPortEvent()->setup(
+                boost::bind(&CorbaTest::new_data_listener, this, _1) ) );
+    hl.connect();
+
+    Corba::DataFlowInterface_var ports  = ts->server()->ports();
+    Corba::DataFlowInterface_var ports2 = ts2->server()->ports();
+
+    // Test cases that should not connect
+    CPPUNIT_ASSERT( !ports->createConnection("mw", ports2, "does_not_exist", policy) );
+    CPPUNIT_ASSERT( !ports->createConnection("does_not_exist", ports2, "mr", policy) );
+    CPPUNIT_ASSERT( !ports->createConnection("does_not_exist", ports2, "does_not_exist", policy) );
+    CPPUNIT_ASSERT( !ports->createConnection("mw", ports2, "mw", policy) );
+    CPPUNIT_ASSERT( !ports->createConnection("mr", ports2, "mr", policy) );
+    CPPUNIT_ASSERT( !ports->createConnection("mr", ports2, "mw", policy) );
+
+    // WARNING: in the following, there is four configuration tested. There is
+    // also three different ways to disconnect. We need to test those three
+    // "disconnection methods", so beware when you change something ...
+
+    policy.type = RTT::Corba::Data;
+    policy.pull = false;
+    CPPUNIT_ASSERT( ports->createConnection("mw", ports2, "mr", policy) );
+    testPortDataConnection();
+    ports->disconnect("mw");
+    testPortDisconnected();
 
     policy.type = RTT::Corba::Data;
     policy.pull = true;
-    CPPUNIT_ASSERT( ts->server()->ports()->createConnection("mw", ts2->server()->ports(), "mr", policy) );
+    CPPUNIT_ASSERT( ports->createConnection("mw", ports2, "mr", policy) );
     testPortDataConnection();
-    testPortDisconnect(false);
+    ports2->disconnect("mr");
+    testPortDisconnected();
 
     policy.type = RTT::Corba::Buffer;
     policy.pull = false;
     policy.size = 3;
-    CPPUNIT_ASSERT( ts->server()->ports()->createConnection("mw", ts2->server()->ports(), "mr", policy) );
+    CPPUNIT_ASSERT( ports->createConnection("mw", ports2, "mr", policy) );
     testPortBufferConnection();
-    testPortDisconnect(true);
+    ports->disconnect("mw");
+    testPortDisconnected();
 
-    //policy.type = RTT::Corba::Buffer;
-    //policy.pull = true;
-    //CPPUNIT_ASSERT( ts->server()->ports()->createConnection("mw", ts2->server()->ports(), "mr", policy) );
-    //testPortBufferConnection();
-    //testPortDisconnect(false);
+    policy.type = RTT::Corba::Buffer;
+    policy.pull = true;
+    CPPUNIT_ASSERT( ports->createConnection("mw", ports2, "mr", policy) );
+    testPortBufferConnection();
+    // Here, check removal of specific connections. So first add another
+    // connection ...
+    mw1->createConnection(*mr1);
+    // Remove the remote connection
+    ports->disconnectPort("mw", ports2, "mr");
+    // Check it is removed
+    CPPUNIT_ASSERT(mw1->connected());
+    CPPUNIT_ASSERT(mr1->connected());
+    CPPUNIT_ASSERT(!mr2->connected());
+}
+
+void CorbaTest::testPortProxying()
+{
+    ts  = Corba::ControlTaskServer::Create( tc, false ); //no-naming
+    tp  = Corba::ControlTaskProxy::Create( ts->server(), true );
+    ts2  = Corba::ControlTaskServer::Create( t2, false ); //no-naming
+    tp2  = Corba::ControlTaskProxy::Create( ts2->server(), true );
+
+    PortInterface* untyped_port;
+     
+    untyped_port = tp->ports()->getPort("mr");
+    CPPUNIT_ASSERT(untyped_port);
+    ReadPortInterface* read_port = dynamic_cast<ReadPortInterface*>(tp->ports()->getPort("mr"));
+    CPPUNIT_ASSERT(read_port);
+     
+    untyped_port = tp->ports()->getPort("mr");
+    CPPUNIT_ASSERT(untyped_port);
+    WritePortInterface* write_port = dynamic_cast<WritePortInterface*>(tp2->ports()->getPort("mw"));
+    CPPUNIT_ASSERT(write_port);
+
+    // Just make sure 'read_port' and 'write_port' are actually proxies and not
+    // the real thing
+    CPPUNIT_ASSERT(dynamic_cast<Corba::RemoteReadPort*>(read_port));
+    CPPUNIT_ASSERT(dynamic_cast<Corba::RemoteWritePort*>(write_port));
+
+    CPPUNIT_ASSERT(!read_port->connected());
+    CPPUNIT_ASSERT(read_port->getTypeInfo() == mr1->getTypeInfo());
+    CPPUNIT_ASSERT(!write_port->connected());
+    CPPUNIT_ASSERT(write_port->getTypeInfo() == mw2->getTypeInfo());
+
+    mw2->createConnection(*read_port);
+    CPPUNIT_ASSERT(read_port->connected());
+    CPPUNIT_ASSERT(write_port->connected());
+    read_port->disconnect();
+    CPPUNIT_ASSERT(!read_port->connected());
+    CPPUNIT_ASSERT(!write_port->connected());
+
+    mw2->createConnection(*read_port);
+    CPPUNIT_ASSERT(read_port->connected());
+    CPPUNIT_ASSERT(write_port->connected());
+    write_port->disconnect();
+    CPPUNIT_ASSERT(!read_port->connected());
+    CPPUNIT_ASSERT(!write_port->connected());
+
+    // Test cloning
+    auto_ptr<ReadPortInterface> read_clone(dynamic_cast<ReadPortInterface*>(read_port->clone()));
+    CPPUNIT_ASSERT(mw2->createConnection(*read_clone));
+    CPPUNIT_ASSERT(read_clone->connected());
+    CPPUNIT_ASSERT(!read_port->connected());
+    mw2->disconnect();
 }
 

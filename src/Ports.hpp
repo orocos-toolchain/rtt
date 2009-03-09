@@ -1,13 +1,14 @@
 #ifndef ORO_EXECUTION_PORTS_HPP
 #define ORO_EXECUTION_PORTS_HPP
 
-#include <Connections.hpp>
-#include <PortInterface.hpp>
+#include "Connections.hpp"
+#include "PortInterface.hpp"
 
-#include <DataObjectInterfaces.hpp>
-#include <BufferLocked.hpp>
-#include <BufferLockFree.hpp>
-#include <TaskObject.hpp>
+#include "DataObjectInterfaces.hpp"
+#include "BufferLocked.hpp"
+#include "BufferLockFree.hpp"
+#include "TaskObject.hpp"
+#include "Method.hpp"
 
 namespace RTT
 {
@@ -22,7 +23,13 @@ namespace RTT
 
         /** Helper method for disconnect(bool) */
         bool eraseThisConnection(typename WritePort<T>::ConnDescriptor& connection)
-        { return (connection.template get<1>() == this); }
+        {
+            if (connection.template get<1>() == this)
+            {
+                delete connection.template get<0>();
+                return true;
+            } else return false;
+        }
 
     public:
         ConnWriterEndpoint(WritePort<T>* port)
@@ -100,7 +107,7 @@ namespace RTT
          * done based on the TypeInfo object
          */
         virtual ConnElementBase* buildReaderHalf(TypeInfo const* type_info,
-                PortInterface& reader, ConnPolicy const& policy) = 0;
+                ReadPortInterface& reader, ConnPolicy const& policy) = 0;
 
         /** This method creates the connection element that will store data
          * inside the connection, based on the given policy
@@ -365,7 +372,7 @@ namespace RTT
 
             typename ConnElement<T>::shared_ptr writer_endpoint =
                 static_cast< ConnElement<T>* >(ConnFactory::buildWriterHalf(*this, policy, reader_endpoint));
-            addConnection( boost::make_tuple(&reader_, writer_endpoint, policy) );
+            addConnection( boost::make_tuple(reader_.getPortID(), writer_endpoint, policy) );
 
             if (policy.init && written)
             {

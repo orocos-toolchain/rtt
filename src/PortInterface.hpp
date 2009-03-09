@@ -13,8 +13,27 @@ namespace RTT
     class TaskObject;
     class ConnElementBase;
 
+    /** This class is used in places where a permanent representation of a
+     * reference to a port is needed, like in WritePortInterface.
+     *
+     * It is usually returned by PortInterface::getPortID, and used by
+     * PortInterface::isSameID(PortID const&)
+     */
+    class PortID
+    {
+    public:
+        virtual ~PortID() {}
+    };
+
     class PortInterface
     {
+        struct PortID : public RTT::PortID
+        {
+            PortInterface const* ptr;
+            PortID(PortInterface const* obj)
+                : ptr(obj) {}
+        };
+
         std::string name;
 
     protected:
@@ -22,6 +41,9 @@ namespace RTT
 
     public:
         virtual ~PortInterface() {}
+
+        virtual RTT::PortID* getPortID() const;
+        virtual bool isSameID(RTT::PortID const& id) const;
 
         /**
          * Get the name of this Port.
@@ -61,14 +83,19 @@ namespace RTT
         virtual int serverProtocol() const;
 
         /**
-         * Create a clone of this port with the same name
+         * Create a local clone of this port with the same name. If this port is
+         * a local port, this is an object of the same type and same name. If
+         * this object is a remote port, then it is a local port of the same
+         * type and same name.
          */
         virtual PortInterface* clone() const = 0;
 
         /**
-         * Create the anti-clone (inverse port) of this port with the same name
-         * A port for reading will return a new port for writing and
-         * vice versa.
+         * Create a local clone of this port with the same name. If this port is
+         * a local port, this is an object of the inverse direction (read for
+         * write and write for read), and same name. If this object is a remote
+         * port, then it is a local port of the inverse direction and with the
+         * same name.
          */
         virtual PortInterface* antiClone() const = 0;
 
@@ -115,7 +142,7 @@ namespace RTT
     class WritePortInterface : public PortInterface
     {
     protected:
-        typedef boost::tuple<PortInterface*, ConnElementBase::shared_ptr, ConnPolicy> ConnDescriptor;
+        typedef boost::tuple<RTT::PortID*, ConnElementBase::shared_ptr, ConnPolicy> ConnDescriptor;
         ListLockFree< ConnDescriptor > connections;
 
         /** Helper method for disconnect(PortInterface*) */

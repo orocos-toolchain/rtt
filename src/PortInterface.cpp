@@ -23,6 +23,15 @@ bool PortInterface::isLocal() const
 int PortInterface::serverProtocol() const
 { return 0; }
 
+bool PortInterface::isSameID(RTT::PortID const& id) const
+{ 
+    PortID const* real_id = dynamic_cast<PortID const*>(&id);
+    if (!real_id)
+        return false;
+    else return real_id->ptr == this;
+}
+RTT::PortID* PortInterface::getPortID() const
+{ return new PortID(this); }
 
 TaskObject* PortInterface::createPortObject()
 {
@@ -92,9 +101,10 @@ bool WritePortInterface::connected() const
 
 bool WritePortInterface::eraseMatchingConnection(PortInterface const* port, ConnDescriptor& descriptor)
 {
-    if (port == descriptor.get<0>())
+    if (port->isSameID(*descriptor.get<0>()))
     {
         descriptor.get<1>()->disconnect(true);
+        delete descriptor.get<0>();
         return true;
     }
     else return false;
@@ -107,6 +117,7 @@ void WritePortInterface::disconnect(PortInterface& port)
 bool WritePortInterface::eraseConnection(ConnDescriptor& descriptor)
 {
     descriptor.get<1>()->disconnect(true);
+    delete descriptor.get<0>();
     return true;
 }
 

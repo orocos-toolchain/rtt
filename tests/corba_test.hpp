@@ -21,6 +21,7 @@ class CorbaTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testAnyMethod );
     CPPUNIT_TEST( testDataFlowInterface );
     CPPUNIT_TEST( testPortConnections );
+    CPPUNIT_TEST( testPortProxying );
     CPPUNIT_TEST( cleanupCorba );
 
     CPPUNIT_TEST_SUITE_END();
@@ -79,11 +80,12 @@ public:
     void testDataFlowInterface();
 
     void testPortConnections();
+    void testPortProxying();
 
     // helper test functions
     void testPortDataConnection();
     void testPortBufferConnection();
-    void testPortDisconnect(bool from_writer);
+    void testPortDisconnected();
 };
 
 #endif

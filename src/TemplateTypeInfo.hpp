@@ -42,6 +42,7 @@
 #include "Property.hpp"
 #include "Attribute.hpp"
 #include "Logger.hpp"
+#include "Ports.hpp"
 #include <ostream>
 #include "FunctorFactory.hpp"
 #include "DataSourceArgsMethod.hpp"
@@ -323,6 +324,10 @@ namespace RTT
         virtual bool composeTypeImpl(const PropertyBag& source,  typename AssignableDataSource<T>::reference_t result) const {
             return false;
         }
+
+      
+        ReadPortInterface*  readPort(std::string const& name) const { return new ReadPort<T>(name); }  
+        WritePortInterface* writePort(std::string const& name) const { return new WritePort<T>(name); }  
 
     };
 

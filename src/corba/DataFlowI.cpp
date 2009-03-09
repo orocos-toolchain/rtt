@@ -49,6 +49,8 @@
 #include "CorbaTypeTransporter.hpp"
 #include "../Ports.hpp"
 
+#include "RemotePorts.hpp"
+
 #include <iostream>
 
 using namespace RTT::Corba;
@@ -63,74 +65,6 @@ static RTT::ConnPolicy toRTT(RTT::Corba::ConnPolicy const& corba_policy)
     policy.size        = corba_policy.size;
     return policy;
 }
-
-static RTT::Corba::ConnPolicy toCORBA(RTT::ConnPolicy const& policy)
-{
-    RTT::Corba::ConnPolicy corba_policy;
-    corba_policy.type        = RTT::Corba::ConnectionModel(policy.type);
-    corba_policy.init        = policy.init;
-    corba_policy.lock_policy = RTT::Corba::LockPolicy(policy.lock_policy);
-    corba_policy.pull        = policy.pull;
-    corba_policy.size        = policy.size;
-    return corba_policy;
-}
-
-namespace
-{
-    // This implementation of a remote port is private to the connection-establishment code, and
-    // should not be use outside of this file without proper review
-    class RemoteReadPort
-        : public RTT::ReadPortInterface
-        , public RTT::ConnFactory
-    {
-	RTT::TypeInfo const* type_info;
-        DataFlowInterface_var dataflow;
-        PortableServer::POA_var mpoa;
-
-    public:
-        RemoteReadPort(RTT::TypeInfo const* type_info, DataFlowInterface_var dataflow, std::string const& name,
-                PortableServer::POA_ptr poa);
-
-        DataFlowInterface_var getDataFlowInterface() const { return dataflow; }
-
-        ConnFactory* getConnFactory() { return this; }
-        RTT::ConnElementBase* buildReaderHalf(RTT::TypeInfo const* type,
-                RTT::PortInterface& reader_,
-                RTT::ConnPolicy const& policy);
-
-	RTT::TypeInfo const* getTypeInfo() const { return type_info; }
-	RTT::PortInterface* clone() const { return 0; }
-	RTT::PortInterface* antiClone() const { return 0; }
-	int serverProtocol() const { return ORO_CORBA_PROTOCOL_ID; }
-    };
-
-    RemoteReadPort::RemoteReadPort(RTT::TypeInfo const* type_info,
-	    DataFlowInterface_var dataflow, std::string const& reader_port,
-            PortableServer::POA_ptr poa)
-        : RTT::ReadPortInterface(reader_port)
-	, type_info(type_info)
-        , dataflow(dataflow)
-        , mpoa(PortableServer::POA::_duplicate(poa)) { }
-
-    RTT::ConnElementBase* RemoteReadPort::buildReaderHalf(RTT::TypeInfo const* type,
-            RTT::PortInterface& reader_,
-            RTT::ConnPolicy const& policy)
-    {
-        ConnElement_var remote =
-            dataflow->buildReaderHalf(CORBA::string_dup(getName().c_str()), toCORBA(policy));
-
-        ConnElement_i*  local;
-        PortableServer::ServantBase_var servant = local =
-            static_cast<CorbaTypeTransporter*>(type->getProtocol(ORO_CORBA_PROTOCOL_ID))->createConnElement_i(mpoa);
-
-	local->setRemoteSide(remote);
-	remote->setRemoteSide(local->_this());
-
-        // The ConnElementBase object that represents reader_half on this side
-        return dynamic_cast<RTT::ConnElementBase*>(local);
-    }
-}
-
 
 
 DataFlowInterface_i::DataFlowInterface_i (RTT::DataFlowInterface* interface, PortableServer::POA_ptr poa)
@@ -148,7 +82,6 @@ PortableServer::POA_ptr DataFlowInterface_i::_default_POA()
 
 DataFlowInterface::PortNames * DataFlowInterface_i::getPorts()
 {
-  // Add your implementation here
     ::RTT::DataFlowInterface::PortNames ports = mdf->getPortNames();
 
     RTT::Corba::DataFlowInterface::PortNames_var pn = new RTT::Corba::DataFlowInterface::PortNames();
@@ -160,15 +93,48 @@ DataFlowInterface::PortNames * DataFlowInterface_i::getPorts()
     return pn._retn();
 }
 
-DataFlowInterface::PortType DataFlowInterface_i::getPortType(const char * port_name)
+DataFlowInterface::PortDescriptions* DataFlowInterface_i::getPortDescriptions()
+{
+    RTT::DataFlowInterface::PortNames ports = mdf->getPortNames();
+    RTT::Corba::DataFlowInterface::PortDescriptions_var result = new RTT::Corba::DataFlowInterface::PortDescriptions();
+    result->length( ports.size() );
+
+    unsigned int j = 0;
+    for (unsigned int i = 0; i < ports.size(); ++i)
+    {
+        PortDescription port_desc;
+
+        PortInterface* port = mdf->getPort(ports[i]);
+        port_desc.name = CORBA::string_dup(ports[i].c_str());
+
+        TypeInfo const* type_info = port->getTypeInfo();
+        if (!type_info || !type_info->getProtocol(ORO_CORBA_PROTOCOL_ID))
+        {
+            log(Warning) << "the type of port " << ports[i] << " is not registered into the Orocos type system. It is ignored by the CORBA layer." << endlog();
+            continue;
+        }
+
+        port_desc.type_name = CORBA::string_dup(type_info->getTypeName().c_str());
+        if (dynamic_cast<ReadPortInterface*>(port))
+            port_desc.type = Corba::Reader;
+        else
+            port_desc.type = Corba::Writer;
+
+        result[j++] = port_desc;
+    }
+    result->length( j );
+    return result._retn();
+}
+
+PortType DataFlowInterface_i::getPortType(const char * port_name)
 {
     RTT::PortInterface* p = mdf->getPort(port_name);
     if (p == 0)
         throw NoSuchPortException();
 
     if (dynamic_cast<ReadPortInterface*>(p))
-        return RTT::Corba::DataFlowInterface::Reader;
-    else return RTT::Corba::DataFlowInterface::Writer;
+        return RTT::Corba::Reader;
+    else return RTT::Corba::Writer;
 }
 
 char* DataFlowInterface_i::getDataType(const char * port_name)
@@ -191,11 +157,25 @@ CORBA::Boolean DataFlowInterface_i::isConnected(const char * port_name)
 void DataFlowInterface_i::disconnect(const char * port_name)
 {
     RTT::PortInterface* p = mdf->getPort(port_name);
-    if ( p == 0)
-        throw NoSuchPortException();
+    if (p == 0)
+        return;
+
     p->disconnect();
 }
 
+void DataFlowInterface_i::disconnectPort(
+        const char* writer_port,
+        DataFlowInterface_ptr reader_interface, const char* reader_port)
+{
+    RTT::WritePortInterface* writer = 
+        dynamic_cast<RTT::WritePortInterface*>(mdf->getPort(writer_port));
+    if (writer == 0)
+        return;
+
+    PortableServer::POA_var poa = _default_POA();
+    RemoteReadPort reader(writer->getTypeInfo(), reader_interface, reader_port, poa);
+    writer->disconnect(reader);
+}
 
 ConnElement_ptr DataFlowInterface_i::buildReaderHalf(
         const char* reader_port, ConnPolicy const& corba_policy)
@@ -227,27 +207,27 @@ ConnElement_ptr DataFlowInterface_i::buildReaderHalf(
 {
     RTT::WritePortInterface* writer = dynamic_cast<RTT::WritePortInterface*>(mdf->getPort(writer_port));
     if (writer == 0)
-        throw NoSuchPortException();
+        return false;
 
-    RemoteReadPort port(writer->getTypeInfo(), reader_interface, reader_port, mpoa);
-    return writer->createConnection(port, toRTT(policy));
+    try {
+        if (reader_interface->getPortType(reader_port) != Corba::Reader)
+            return false;
+
+        RemoteReadPort port(writer->getTypeInfo(), reader_interface, reader_port, mpoa);
+        return writer->createConnection(port, toRTT(policy));
+    } catch (...) {
+        return false;
+    }
 }
 
 // standard constructor
 ConnElement_i::ConnElement_i(RTT::detail::TypeTransporter const& transport,
 	  PortableServer::POA_ptr poa)
     : transport(transport)
-    , mpoa(PortableServer::POA::_duplicate(poa)){}
-ConnElement_i::~ConnElement_i() { }
-
+    , mpoa(PortableServer::POA::_duplicate(poa)) {}
+ConnElement_i::~ConnElement_i() {}
 PortableServer::POA_ptr ConnElement_i::_default_POA()
-{
-    return PortableServer::POA::_duplicate(mpoa);
-}
-
-// methods corresponding to defined IDL attributes and operations
+{ return PortableServer::POA::_duplicate(mpoa); }
 void ConnElement_i::setRemoteSide(ConnElement_ptr remote)
-{
-    this->remote_side = remote;
-}
+{ this->remote_side = remote; }
 
