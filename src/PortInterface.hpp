@@ -106,6 +106,9 @@ namespace RTT
          */
         void clear();
 
+        /** Returns the event object that gets emitted when new data is
+         * available for this port. It gets deleted when the port is deleted.
+         */
         NewDataOnPortEvent* getNewDataOnPortEvent();
     };
 

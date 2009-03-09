@@ -116,7 +116,9 @@ namespace RTT
                 else
                     data_object = new DataObjectLockFree<T>("");
 
-                return new ConnDataElement<T>(data_object);
+                ConnDataElement<T>* result = new ConnDataElement<T>(data_object);
+                data_object->deref(); // data objects are initialized with a refcount of 1
+                return result;
             }
             else if (policy.type == ConnPolicy::BUFFER)
             {
@@ -265,7 +267,10 @@ namespace RTT
             if (new_flag)
             {
                 if (!last_written_value)
+                {
                     last_written_value = new DataObjectLockFree<T>(getName() + "Last");
+                    last_written_value->deref(); // Data objects are initialized with a refcount of 1
+                }
             }
             else
                 last_written_value = 0;

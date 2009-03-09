@@ -49,6 +49,8 @@ ReadPortInterface::ReadPortInterface(std::string const& name, ConnPolicy const& 
 ReadPortInterface::~ReadPortInterface()
 {
     disconnect();
+    if (new_data_on_port_event)
+        delete new_data_on_port_event;
 }
 
 ConnPolicy ReadPortInterface::getDefaultPolicy() const
