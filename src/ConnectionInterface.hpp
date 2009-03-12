@@ -1,7 +1,7 @@
 #ifndef ORO_EXECUTION_CONNECTION_INTERFACE_HPP
 #define ORO_EXECUTION_CONNECTION_INTERFACE_HPP
 
-#include <os/oro_atomic.h>
+#include "os/oro_atomic.h"
 #include <utility>
 #include <boost/intrusive_ptr.hpp>
 #include <boost/call_traits.hpp>

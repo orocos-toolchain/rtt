@@ -1,7 +1,7 @@
 #ifndef ORO_EXECUTION_CONNECTIONS_HPP
 #define ORO_EXECUTION_CONNECTIONS_HPP
 
-#include <ConnectionInterface.hpp>
+#include "ConnectionInterface.hpp"
 
 namespace RTT {
     /** A connection element that stores a single data sample
