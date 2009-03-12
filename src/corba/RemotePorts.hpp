@@ -80,6 +80,8 @@ namespace RTT {
 
             RTT::PortInterface* clone() const;
             RTT::PortInterface* antiClone() const;
+
+            RTT::DataSourceBase* getDataSource();
         };
     }
 }

@@ -63,6 +63,9 @@ RemoteReadPort::RemoteReadPort(RTT::TypeInfo const* type_info,
     : RemotePort< RTT::ReadPortInterface >(type_info, dataflow, reader_port, poa)
 {}
 
+RTT::DataSourceBase* RemoteReadPort::getDataSource()
+{ throw std::runtime_error("ReadPort::getDataSource() is not supported in CORBA port proxies"); }
+
 RTT::ConnElementBase* RemoteReadPort::buildReaderHalf(RTT::TypeInfo const* type,
         RTT::ReadPortInterface& reader_,
         RTT::ConnPolicy const& policy)

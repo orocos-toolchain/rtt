@@ -188,14 +188,62 @@ namespace RTT
         }
     };
 
+    /** This class represents a read port using the data source interface.
+     * Beware that, depending on the connection used, ports actually change
+     * their state when read. For instance, a buffer connection *will* lose one
+     * element when get() or evaluate() are called. For that reason, it is
+     * considered bad practice to use a data source on a read port that is bound
+     * to a buffer connection.
+     *
+     * This class should not be used directly in normal code. What you would
+     * usually do is create a new read port using WritePort::antiClone() and
+     * call ReadPortInterface::getDataSource() to get the corresponding data
+     * source.  This is your duty to destroy the port when it is not needed
+     * anymore.
+     */
+    template<typename T>
+    class ReadPortSource : public DataSource<T>
+    {
+        ReadPort<T>& reader;
+
+    public:
+        ReadPortSource(ReadPort<T>& port)
+            : reader(port) { }
+
+        void reset() { reader.clear(); }
+        bool evaluate() const
+        {
+            T result;
+            return reader.read(result);
+        }
+
+        typename DataSource<T>::result_t value() const
+        { return get(); }
+        typename DataSource<T>::result_t get() const
+        {
+            T result;
+            if (reader.read(result))
+                return result;
+            else return T();
+        }
+        DataSource<T>* clone() const
+        { return new ReadPortSource<T>(reader); }
+        DataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
+        { return const_cast<ReadPortSource<T>*>(this); }
+    };
+
     template<typename T>
     class ReadPort : public ReadPortInterface
     {
         friend class ConnReaderEndpoint<T>;
+        ReadPortSource<T>* data_source;
 
     public:
         ReadPort(std::string const& name, ConnPolicy const& default_policy = ConnPolicy())
-            : ReadPortInterface(name, default_policy) {}
+            : ReadPortInterface(name, default_policy)
+            , data_source(0) {}
+
+        ~ReadPort() { delete data_source; }
 
         /** Reads a sample from the connection. \a sample is a reference which
          * will get updated if a sample is available. The method returns true
@@ -228,6 +276,18 @@ namespace RTT
         virtual PortInterface* antiClone() const
         { return new WritePort<T>(this->getName()); }
 
+        /** Returns a DataSourceBase interface to read this port. The returned
+         * data source is always the same object and will be destroyed when the
+         * port is destroyed.
+         */
+        DataSourceBase* getDataSource()
+        {
+            if (data_source) return data_source;
+            data_source = new ReadPortSource<T>(*this);
+            data_source->ref();
+            return data_source;
+        }
+
         /**
          * Create accessor Object for this Port, for addition to a
          * TaskContext Object interface.
@@ -241,7 +301,6 @@ namespace RTT
             return object;
         }
     };
-
     template<typename T>
     class WritePort : public WritePortInterface
     {

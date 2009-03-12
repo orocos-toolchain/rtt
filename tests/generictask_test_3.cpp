@@ -866,3 +866,21 @@ void Generic_TaskTest_3::testPortSignalling()
     CPPUNIT_ASSERT(0 == signalled_port);
 }
 
+void Generic_TaskTest_3::testPortDataSource()
+{
+    WritePort<int> wp1("Write");
+    auto_ptr<ReadPortInterface> reader(dynamic_cast<ReadPortInterface*>(wp1.antiClone()));
+    CPPUNIT_ASSERT(wp1.connectTo(*reader, ConnPolicy::buffer(2)));
+
+    DataSource<int>::shared_ptr source = static_cast< DataSource<int>* >(reader->getDataSource());
+    CPPUNIT_ASSERT(source);
+
+    CPPUNIT_ASSERT(!source->evaluate());
+    wp1.write(10);
+    wp1.write(20);
+    CPPUNIT_ASSERT_EQUAL(10, source->value());
+    CPPUNIT_ASSERT_EQUAL(20, source->value());
+    CPPUNIT_ASSERT_EQUAL(0, source->get());
+    CPPUNIT_ASSERT(!source->evaluate());
+}
+

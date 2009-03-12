@@ -122,6 +122,12 @@ namespace RTT
 
         ConnPolicy getDefaultPolicy() const;
 
+        /** Returns a DataSourceBase interface to read this port. The returned
+         * data source is always the same object and will be destroyed when the
+         * port is destroyed.
+         */
+        virtual DataSourceBase* getDataSource() = 0;
+
         /** Removes any connection that either go to or come from this port */
         virtual void disconnect();
 
