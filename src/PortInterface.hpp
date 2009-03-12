@@ -104,6 +104,14 @@ namespace RTT
          * TaskContext Object interface.
          */
         virtual TaskObject* createPortObject();
+
+        /** Connects this port with \a other, using the given policy Unlike
+         * WritePortInterface::createConnection, \a other can be the write port
+         * and \c this the read port.
+         *
+         * @returns true on success, false on failure
+         */
+        bool connectTo(PortInterface& other, ConnPolicy const& policy);
     };
 
     class ReadPortInterface : public PortInterface

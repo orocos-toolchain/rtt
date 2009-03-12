@@ -23,6 +23,25 @@ bool PortInterface::isLocal() const
 int PortInterface::serverProtocol() const
 { return 0; }
 
+bool PortInterface::connectTo(PortInterface& other, ConnPolicy const& policy)
+{
+    WritePortInterface* writer;
+    ReadPortInterface* reader;
+    
+    writer = dynamic_cast<WritePortInterface*>(this);
+    if (writer)
+        reader = dynamic_cast<ReadPortInterface*>(&other);
+    else
+    {
+        writer = dynamic_cast<WritePortInterface*>(&other);
+        reader = dynamic_cast<ReadPortInterface*>(this);
+    }
+
+    if (writer && reader)
+        return writer->createConnection(*reader, policy);
+    else return false;
+}
+
 bool PortInterface::isSameID(RTT::PortID const& id) const
 { 
     PortID const* real_id = dynamic_cast<PortID const*>(&id);
