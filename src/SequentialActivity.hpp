@@ -22,7 +22,7 @@ namespace RTT
      * without using a thread.
      *
      * \section ExecReact Reactions to execute():
-     * This causes step() to be executed.
+     * Always returns false.
      *
      * \section TrigReact Reactions to trigger():
      * This causes step() to be executed.

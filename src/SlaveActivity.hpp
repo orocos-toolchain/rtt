@@ -52,24 +52,38 @@ namespace RTT
     /**
      * @brief An ActivityInterface implementation which executes
      * 'step' upon the invocation of 'execute()', which is called by
-     * another Activity.  The SlaveActivity can only be started if the
+     * another Activity ('master').  The SlaveActivity can only be started if the
      * master is active or if no master is present. If a master is used,
      * this activity takes periodicity over from the master. If no
      * master is present, use one of the alternative constructors to make
      * a periodic slave or a non periodic slave.
+     * 
+     * Any activity object can be a master of a SlaveActivity,
+     * including itself.  A master needs to keep track of its slave
+     * itself. There is no standard mechanism in RTT in which masters
+     * execute slaves. You need to code this yourself in your master
+     * activity by calling execute() on each Slave.
+     *
+     * The only thing a slave does/can do is 
+     * * be started and stopped independently.
+     * * notifying its master that it was triggered (if present)
+     * * copying the periodic/thread properties of its master (if present)
      *
      * \section ExecReact Reactions to execute():
+     *
      * In the non periodic case, RunnableInterface::loop() is called, in the
      * periodic case, RunnableInterface::step() is called. In case the
      * RunnableInterface did not implement loop(), step() is invoked by default.
      * If no RunnableInterface is given, said functions are called upon
      * SlaveActivity itself.
      *
-     * \section TrigReact Reactions to trigger():
-     * In the non periodic
-     * case, trigger() is called upon the master (causing it to
-     * execute), in the periodic case, it is ignored (you can not
-     * trigger periodic activities).
+     * \section TrigReact Reactions to trigger(): 
+     *
+     * trigger() is ignored and returns false when no master is present.
+     *
+     * When there is a master: In the non periodic case, trigger() is
+     * called upon the master (causing it to execute), in the periodic
+     * case, it is ignored (you can not trigger periodic activities).
      * @ingroup CoreLibActivities
      */
     class SlaveActivity
