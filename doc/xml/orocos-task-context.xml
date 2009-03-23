@@ -2451,6 +2451,8 @@ the_data_port.     cd            ls
   // Class callback:
   Reactor r;
 
+  // WARNING: this requires events to be registered to
+  // the scripting interface (see warning note below).
   <classname>RTT::Handle</classname> h
     = a_task.events()->setupConnection("move")
                  .callback( &amp;r, &amp;Reactor::react_callback )
@@ -2466,6 +2468,8 @@ the_data_port.     cd            ls
   h.disconnect(); // disconnect again.
 
   // 'C' Function callback:
+  // WARNING: this requires events to be registered to
+  // the scripting interface (see warning note below).
   h = a_task.events()->setupConnection("move")
                  .callback( &amp;foo_callback )
                  .handle();
@@ -2474,6 +2478,19 @@ the_data_port.     cd            ls
   move_event(4.0, 5.0, 6.0)
 
   // now foo_callback is called with arguments.	</programlisting>
+      <warning>
+	<para>
+	  The RTT makes the distinction between adding a primitive to
+	  the C++ interface and adding to the C++ &amp; scripting
+	  interface.  For using the event callback mechanism, you
+	  always need to add to the C++ &amp; scripting interface,
+	  since it requires that functionality.  You must use
+	  <function>addEvent(&amp;ev, "description", "arg1", "arg1
+	  description", "arg2",...)</function> to register your event
+	  to that interface. <emphasis>Don't use
+	  <function>addEvent(&amp;ev);</function></emphasis>
+	</para>
+      </warning>
       <note>
 	<para>
 	  Using the <function>boost::bind</function> function is not yet supported
@@ -2503,6 +2520,7 @@ the_data_port.     cd            ls
   ptask_b.run( &amp;b_task );
   ptask_b.start();
 
+  // WARNING: see the warning above about using callback
   <classname>RTT::Handle</classname> h3 
     = a_task.events()->setupConnection("move")
                             .callback(&amp;r, &amp;react_callback,
