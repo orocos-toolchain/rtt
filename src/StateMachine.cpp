@@ -309,10 +309,6 @@ namespace RTT
             }
         else
             {
-                // disable all events of current state.
-                // WARNING : asyn events may still come in, check in the event handler
-                // for 'late' events.
-                disableEvents(current);
                 // reset handle and run, in case it is still set ( during error
                 // or when an event arrived ).
                 currentRun = 0;
@@ -887,7 +883,6 @@ namespace RTT
             }
             // make change transition after exit of previous state:
             current = next;
-            enableEvents( current );
         }
 
         if ( currentEntry ) {
@@ -999,7 +994,9 @@ namespace RTT
         reqstep = stateMap.find( next )->second.begin();
         reqend = stateMap.find( next )->second.end();
 
-        enableEvents(0); // enable global events
+        // Enable all event handlers
+        for( EventMap::iterator it = eventMap.begin(); it != eventMap.end(); ++it)
+            enableEvents( it->first );
 
         // execute the entry program of the initial state.
         if ( this->executePending() ) {
@@ -1018,8 +1015,9 @@ namespace RTT
             return false;
         }
 
-        // disable global events
-        disableEvents(0);
+        // disable all event handlers
+        for( EventMap::iterator it = eventMap.begin(); it != eventMap.end(); ++it)
+            disableEvents( it->first );
 
         // whatever state we are in, leave it.
         // but if current exit is in error, skip it alltogether.
