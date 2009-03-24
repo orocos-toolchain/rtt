@@ -24,6 +24,8 @@
 
 #include <Method.hpp>
 #include <OperationInterface.hpp>
+#include <boost/test/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
 
 using namespace std;
 
@@ -101,7 +103,7 @@ TaskObject* CorbaTest::createMethodFactory()
 }
 
 // Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( CorbaTest );
+BOOST_FIXTURE_TEST_SUITE(  CorbaTestSuite,  CorbaTest )
 
 BOOST_AUTO_TEST_CASE( testRemoteMethodC )
 {
@@ -113,20 +115,20 @@ BOOST_AUTO_TEST_CASE( testRemoteMethodC )
     MethodC mc;
     double r = 0.0;
     mc = tp->getObject("methods")->methods()->create("vm0");
-    CPPUNIT_ASSERT( mc.execute() );
-    CPPUNIT_ASSERT( r == 0.0 );
+    BOOST_CHECK( mc.execute() );
+    BOOST_CHECK( r == 0.0 );
 
     mc = tp->getObject("methods")->methods()->create("m0").ret( r );
-    CPPUNIT_ASSERT( mc.execute() );
-    CPPUNIT_ASSERT( r == -1.0 );
+    BOOST_CHECK( mc.execute() );
+    BOOST_CHECK( r == -1.0 );
 
     mc = tp->getObject("methods")->methods()->create("m2").argC(1).argC(1.0).ret( r );
-    CPPUNIT_ASSERT( mc.execute() );
-    CPPUNIT_ASSERT( r == -3.0 );
+    BOOST_CHECK( mc.execute() );
+    BOOST_CHECK( r == -3.0 );
 
     mc = tp->getObject("methods")->methods()->create("m3").ret( r ).argC(1).argC(1.0).argC(true);
-    CPPUNIT_ASSERT( mc.execute() );
-    CPPUNIT_ASSERT( r == -4.0 );
+    BOOST_CHECK( mc.execute() );
+    BOOST_CHECK( r == -4.0 );
 
 }
 
@@ -144,14 +146,14 @@ BOOST_AUTO_TEST_CASE( testRemoteMethod )
     Method<double(int,double,bool)> m3 = tp->getObject("methods")->methods()->getMethod<double(int,double,bool)>("m3");
     Method<double(int,double,bool,std::string)> m4 = tp->getObject("methods")->methods()->getMethod<double(int,double,bool,std::string)>("m4");
 
-    CPPUNIT_ASSERT_EQUAL( -1.0, m0() );
-    CPPUNIT_ASSERT_EQUAL( -2.0, m1(1) );
-    CPPUNIT_ASSERT_EQUAL( -3.0, m2(1, 2.0) );
-    CPPUNIT_ASSERT_EQUAL( -4.0, m3(1, 2.0, false) );
-    CPPUNIT_ASSERT_EQUAL( -5.0, m4(1, 2.0, false,"hello") );
+    BOOST_CHECK_EQUAL( -1.0, m0() );
+    BOOST_CHECK_EQUAL( -2.0, m1(1) );
+    BOOST_CHECK_EQUAL( -3.0, m2(1, 2.0) );
+    BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, false) );
+    BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, false,"hello") );
 }
 
-void CorbaTest::testAnyMethod()
+BOOST_AUTO_TEST_CASE( testAnyMethod )
 {
 
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
@@ -159,31 +161,31 @@ void CorbaTest::testAnyMethod()
 
     // This test tests the createMethodAny() function of the server.
     Corba::ControlObject_var co = ts->server()->getObject("methods");
-    CPPUNIT_ASSERT( co.in() );
+    BOOST_CHECK( co.in() );
 
     Corba::MethodInterface_var methods = co->methods();
-    CPPUNIT_ASSERT( methods.in() );
+    BOOST_CHECK( methods.in() );
 
     Corba::AnyArguments_var any_args = new Corba::AnyArguments(0);
     Corba::Method_var vm0 = methods->createMethodAny("vm0", any_args.in());
-    CPPUNIT_ASSERT( vm0.in() );
+    BOOST_CHECK( vm0.in() );
 
-    CPPUNIT_ASSERT( vm0->executeAny( any_args.in() ) );
+    BOOST_CHECK( vm0->executeAny( any_args.in() ) );
 
     Corba::Method_var m0 = methods->createMethodAny("m0", any_args.in());
-    CPPUNIT_ASSERT( m0.in() );
+    BOOST_CHECK( m0.in() );
 
-    CPPUNIT_ASSERT( m0->executeAny( any_args.in() ) );
+    BOOST_CHECK( m0->executeAny( any_args.in() ) );
 
     any_args = new Corba::AnyArguments(1);
     any_args->length(1);
     unsigned int index = 0;
     any_args[index] <<= (CORBA::Long) 1;
     Corba::Method_var m1;
-    CPPUNIT_ASSERT_NO_THROW( m1 = methods->createMethodAny("m1", any_args.in()));
-    CPPUNIT_ASSERT( m1.in() );
+    BOOST_CHECK_NO_THROW( m1 = methods->createMethodAny("m1", any_args.in()));
+    BOOST_CHECK( m1.in() );
 
-    CPPUNIT_ASSERT(m1->executeAny( any_args.in() ));
+    BOOST_CHECK(m1->executeAny( any_args.in() ));
 
     any_args = new Corba::AnyArguments(2);
     any_args->length(2);
@@ -192,10 +194,10 @@ void CorbaTest::testAnyMethod()
     ++index;
     any_args[index] <<= (CORBA::Double) 2.0;
     Corba::Method_var m2;
-    CPPUNIT_ASSERT_NO_THROW( m2 = methods->createMethodAny("m2", any_args.in()));
-    CPPUNIT_ASSERT( m2.in() );
+    BOOST_CHECK_NO_THROW( m2 = methods->createMethodAny("m2", any_args.in()));
+    BOOST_CHECK( m2.in() );
 
-    CPPUNIT_ASSERT(m2->executeAny( any_args.in() ));
+    BOOST_CHECK(m2->executeAny( any_args.in() ));
 
     any_args = new Corba::AnyArguments(3);
     any_args->length(3);
@@ -206,10 +208,10 @@ void CorbaTest::testAnyMethod()
     ++index;
     any_args[index] <<= CORBA::Any::from_boolean( false );
     Corba::Method_var m3;
-    CPPUNIT_ASSERT_NO_THROW( m3= methods->createMethodAny("m3", any_args.in()) );
-    CPPUNIT_ASSERT( m3.in() );
+    BOOST_CHECK_NO_THROW( m3= methods->createMethodAny("m3", any_args.in()) );
+    BOOST_CHECK( m3.in() );
 
-    CPPUNIT_ASSERT(m3->executeAny( any_args.in() ));
+    BOOST_CHECK(m3->executeAny( any_args.in() ));
 
     any_args = new Corba::AnyArguments(4);
     any_args->length(4);
@@ -222,10 +224,10 @@ void CorbaTest::testAnyMethod()
     ++index;
     any_args[index] <<= "hello";
     Corba::Method_var m4;
-    CPPUNIT_ASSERT_NO_THROW ( m4 = methods->createMethodAny("m4", any_args.in()) );
-    CPPUNIT_ASSERT( m4.in() );
+    BOOST_CHECK_NO_THROW ( m4 = methods->createMethodAny("m4", any_args.in()) );
+    BOOST_CHECK( m4.in() );
 
-    CPPUNIT_ASSERT(m4->executeAny( any_args.in() ));
+    BOOST_CHECK(m4->executeAny( any_args.in() ));
 }
 
 BOOST_AUTO_TEST_CASE( testPorts )
@@ -237,54 +239,54 @@ BOOST_AUTO_TEST_CASE( testPorts )
 
     // DATA PORTS
     ::RTT::Corba::AssignableExpression_var data = ts->server()->ports()->createDataChannel("md");
-    CPPUNIT_ASSERT( data.in() );
+    BOOST_CHECK( data.in() );
 
     CORBA::Any_var any = new CORBA::Any();
     double value = 5.0;
     // Write from corba, read from C++
     any <<= value;
-    CPPUNIT_ASSERT( data->set( any.in() ) );
-    CPPUNIT_ASSERT_EQUAL( value, md1->Get() );
+    BOOST_CHECK( data->set( any.in() ) );
+    BOOST_CHECK_EQUAL( value, md1->Get() );
 
     // Write from C++, read from corba
     value = -5.0;
     md1->Set( value );
     any = data->get();
     any >>= value;
-    CPPUNIT_ASSERT_EQUAL( -5.0, value );
+    BOOST_CHECK_EQUAL( -5.0, value );
 
     // BUFFER PORTS
     ::RTT::Corba::BufferChannel_var buf = ts->server()->ports()->createBufferChannel("mb");
-    CPPUNIT_ASSERT(buf.in());
-    CPPUNIT_ASSERT_EQUAL( buf->size(), mb1->size() );
-    CPPUNIT_ASSERT_EQUAL( buf->capacity(), mb1->capacity() );
+    BOOST_CHECK(buf.in());
+    BOOST_CHECK_EQUAL( buf->size(), mb1->size() );
+    BOOST_CHECK_EQUAL( buf->capacity(), mb1->capacity() );
 
     any = new CORBA::Any();
     value = 5.0;
     // Write from corba, read from C++
     any <<= value;
-    CPPUNIT_ASSERT( buf->push( any.in() ) );
-    CPPUNIT_ASSERT_EQUAL( buf->size(), mb1->size() );
+    BOOST_CHECK( buf->push( any.in() ) );
+    BOOST_CHECK_EQUAL( buf->size(), mb1->size() );
 
-    CPPUNIT_ASSERT_EQUAL( 5.0, mb1->front() );
-    CPPUNIT_ASSERT( mb1->Pop( value ) );
-    CPPUNIT_ASSERT_EQUAL( 5.0, value );
-    CPPUNIT_ASSERT_EQUAL( buf->size(), mb1->size() );
+    BOOST_CHECK_EQUAL( 5.0, mb1->front() );
+    BOOST_CHECK( mb1->Pop( value ) );
+    BOOST_CHECK_EQUAL( 5.0, value );
+    BOOST_CHECK_EQUAL( buf->size(), mb1->size() );
 
     // Write from C++, read from corba
     value = -5.0;
     mb1->Push( value );
-    CPPUNIT_ASSERT_EQUAL( buf->size(), mb1->size() );
+    BOOST_CHECK_EQUAL( buf->size(), mb1->size() );
 
     any = buf->front();
     value = 0.0;
     any >>= value;
-    CPPUNIT_ASSERT_EQUAL( -5.0, value );
-    CPPUNIT_ASSERT( buf->pull( any.out() ) );
+    BOOST_CHECK_EQUAL( -5.0, value );
+    BOOST_CHECK( buf->pull( any.out() ) );
     value = 0.0;
     any >>= value;
-    CPPUNIT_ASSERT_EQUAL( -5.0, value );
-    CPPUNIT_ASSERT_EQUAL( buf->size(), mb1->size() );
+    BOOST_CHECK_EQUAL( -5.0, value );
+    BOOST_CHECK_EQUAL( buf->size(), mb1->size() );
 
 }
 
@@ -298,7 +300,7 @@ BOOST_AUTO_TEST_CASE( testConnectPortsIDL )
 
     // Default direction is from ts to ts2, but it will also need to
     // connect ports from ts2 to ts when ts is reader and ts2 is writer.
-    CPPUNIT_ASSERT( ts->server()->connectPorts( ts2->server() ) );
+    BOOST_CHECK( ts->server()->connectPorts( ts2->server() ) );
 
     testPortStats();
     testPortDisconnect();
@@ -311,7 +313,7 @@ BOOST_AUTO_TEST_CASE( testConnectPortsLR )
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
     tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
 
-    CPPUNIT_ASSERT( connectPorts(tc, tp2 ) );
+    BOOST_CHECK( connectPorts(tc, tp2 ) );
 
     testPortStats();
     testPortDisconnect();
@@ -324,7 +326,7 @@ BOOST_AUTO_TEST_CASE( testConnectPortsRL )
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
     tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
 
-    CPPUNIT_ASSERT( connectPorts(tp, t2 ) );
+    BOOST_CHECK( connectPorts(tp, t2 ) );
 
     testPortStats();
     testPortDisconnect();
@@ -338,7 +340,7 @@ BOOST_AUTO_TEST_CASE( testConnectPortsRR )
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
     tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
 
-    CPPUNIT_ASSERT( connectPorts(tp, tp2 ) );
+    BOOST_CHECK( connectPorts(tp, tp2 ) );
 
     testPortStats();
     testPortDisconnect();
@@ -354,10 +356,10 @@ BOOST_AUTO_TEST_CASE( testConnectPortsLRC )
 
     // test connecting to existing connection:
     ConnectionInterface::shared_ptr ci = md1->createConnection(ConnectionTypes::lockfree);
-    CPPUNIT_ASSERT( md1->connectTo(ci) );
-    CPPUNIT_ASSERT( ci->connect() );
+    BOOST_CHECK( md1->connectTo(ci) );
+    BOOST_CHECK( ci->connect() );
 
-    CPPUNIT_ASSERT( connectPorts(tc, tp2 ) );
+    BOOST_CHECK( connectPorts(tc, tp2 ) );
 
     testPortStats();
     testPortDisconnect();
@@ -373,10 +375,10 @@ BOOST_AUTO_TEST_CASE( testConnectPortsRLC )
 
     // test connecting to existing connection:
     ConnectionInterface::shared_ptr ci = md1->createConnection(ConnectionTypes::lockfree);
-    CPPUNIT_ASSERT( md1->connectTo(ci) );
-    CPPUNIT_ASSERT( ci->connect() );
+    BOOST_CHECK( md1->connectTo(ci) );
+    BOOST_CHECK( ci->connect() );
 
-    CPPUNIT_ASSERT( connectPorts(tp, t2 ) );
+    BOOST_CHECK( connectPorts(tp, t2 ) );
 
     testPortStats();
     testPortDisconnect();
@@ -392,134 +394,14 @@ BOOST_AUTO_TEST_CASE( testConnectPortsRRC )
 
     // test connecting to existing connection:
     ConnectionInterface::shared_ptr ci = md1->createConnection(ConnectionTypes::lockfree);
-    CPPUNIT_ASSERT( md1->connectTo(ci) );
-    CPPUNIT_ASSERT( ci->connect() );
+    BOOST_CHECK( md1->connectTo(ci) );
+    BOOST_CHECK( ci->connect() );
 
-    CPPUNIT_ASSERT( connectPorts(tp, tp2 ) );
+    BOOST_CHECK( connectPorts(tp, tp2 ) );
 
     testPortStats();
     testPortDisconnect();
 
-}
-
-
-BOOST_AUTO_TEST_CASE( testPortStats )
-{
-    // ALWAYS connect from tc/tp TO t2/tp2
-    // The test assumes the connection direction is tc->t2.
-    // Tests if ports are correctly working, this test is called by the other test functions.
-    // DATA PORTS
-    // Check if connection succeeded both ways:
-    CPPUNIT_ASSERT( md1->connected() );
-    CPPUNIT_ASSERT( md2->connected() );
-    // Check if both ports return same initial value:
-    CPPUNIT_ASSERT_EQUAL( 1.0, md1->Get() );
-    CPPUNIT_ASSERT_EQUAL( 1.0, md2->Get() );
-
-    // Check writing from both ways:
-    md1->Set( 3.0 );
-    CPPUNIT_ASSERT_EQUAL( 3.0, md1->Get() );
-    CPPUNIT_ASSERT_EQUAL( 3.0, md2->Get() );
-    md2->Set( -3.0 );
-    CPPUNIT_ASSERT_EQUAL( -3.0, md1->Get() );
-    CPPUNIT_ASSERT_EQUAL( -3.0, md2->Get() );
-
-    // READ/WRITE DATA PORTS
-    // Check if connection succeeded both ways:
-    CPPUNIT_ASSERT( mdr1->connected() );
-    CPPUNIT_ASSERT( mdr2->connected() );
-    CPPUNIT_ASSERT( mdw1->connected() );
-    CPPUNIT_ASSERT( mdw2->connected() );
-    // Check if both ports return same initial value:
-    CPPUNIT_ASSERT_EQUAL( -1.0, mdr1->Get() );
-    //CPPUNIT_ASSERT_EQUAL( 1.0, mdw1->Get() );
-    CPPUNIT_ASSERT_EQUAL( 1.0, mdr2->Get() );
-    //CPPUNIT_ASSERT_EQUAL( -1.0, mdw2->Get() );
-
-    // Check writing from both ways:
-    mdw1->Set( 3.0 );
-    //CPPUNIT_ASSERT_EQUAL( 3.0, mdw1->Get() );
-    CPPUNIT_ASSERT_EQUAL( 3.0, mdr2->Get() );
-    mdw2->Set( -3.0 );
-    //CPPUNIT_ASSERT_EQUAL( -3.0, mdw2->Get() );
-    CPPUNIT_ASSERT_EQUAL( -3.0, mdr1->Get() );
-
-    //
-    // BUFFER PORTS
-    // Check if connection succeeded both ways:
-    double val = 0.0;
-    CPPUNIT_ASSERT( mb1->connected() );
-    CPPUNIT_ASSERT( mb2->connected() );
-    CPPUNIT_ASSERT_EQUAL( 10, mb2->capacity() );
-    CPPUNIT_ASSERT_EQUAL( 0, mb1->size() );
-    CPPUNIT_ASSERT_EQUAL( 0, mb2->size() );
-
-    // Check writing from both ways:
-    CPPUNIT_ASSERT( mb1->Push( 3.0 ) );
-    CPPUNIT_ASSERT( mb1->front() == 3.0 );
-    CPPUNIT_ASSERT( mb2->front() == 3.0 );
-    CPPUNIT_ASSERT_EQUAL( 1, mb1->size() );
-    CPPUNIT_ASSERT_EQUAL( 1, mb2->size() );
-    CPPUNIT_ASSERT( mb2->Pop( val ));
-    CPPUNIT_ASSERT( val == 3.0 );
-    CPPUNIT_ASSERT_EQUAL( 0, mb1->size() );
-    CPPUNIT_ASSERT_EQUAL( 0, mb2->size() );
-
-    CPPUNIT_ASSERT( mb2->Push( -3.0 ) );
-    CPPUNIT_ASSERT( mb1->front() == -3.0 );
-    CPPUNIT_ASSERT( mb2->front() == -3.0 );
-    CPPUNIT_ASSERT_EQUAL( 1, mb1->size() );
-    CPPUNIT_ASSERT_EQUAL( 1, mb2->size() );
-    CPPUNIT_ASSERT( mb2->Pop( val ));
-    CPPUNIT_ASSERT( val == -3.0 );
-    CPPUNIT_ASSERT_EQUAL( 0, mb1->size() );
-    CPPUNIT_ASSERT_EQUAL( 0, mb2->size() );
-}
-
-BOOST_AUTO_TEST_CASE( testPortDisconnect )
-{
-    // Connection management.
-    // DATA PORTS
-    CPPUNIT_ASSERT( md1->connected() );
-    CPPUNIT_ASSERT( md2->connected() );
-
-    // store -3.0 in connection.
-    md1->Set( -3.0 );
-
-    md1->disconnect();
-    md2->disconnect();
-
-    CPPUNIT_ASSERT( !md1->connected() );
-    CPPUNIT_ASSERT( !md2->connected() );
-
-    // Check no writing from both ways:
-    md1->Set( 3.0 );
-    CPPUNIT_ASSERT_EQUAL( 3.0, md1->Get() );
-    CPPUNIT_ASSERT( 3.0 != md2->Get() );
-    md2->Set( 6.0 );
-    CPPUNIT_ASSERT_EQUAL( 3.0, md1->Get() );
-    CPPUNIT_ASSERT_EQUAL( 6.0, md2->Get() );
-
-    //
-    // BUFFER PORTS
-    // Check if connection succeeded both ways:
-    double val = 0.0;
-    CPPUNIT_ASSERT( mb1->connected() );
-    CPPUNIT_ASSERT( mb2->connected() );
-
-    // Store a value.
-    CPPUNIT_ASSERT( mb1->Push( 3.0 ) );
-
-    // Disconnect
-    mb1->disconnect();
-    mb2->disconnect();
-
-    // should fail
-    CPPUNIT_ASSERT( !mb1->Push( 3.0 ) );
-    CPPUNIT_ASSERT( !mb2->Pop( val ));
-
-    CPPUNIT_ASSERT( !mb2->Push( -3.0 ) );
-    CPPUNIT_ASSERT( !mb2->Pop( val ));
 }
 
 BOOST_AUTO_TEST_CASE( testConnections )
@@ -531,12 +413,12 @@ BOOST_AUTO_TEST_CASE( testConnections )
     tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
 
     // incompatible type should fail
-    CPPUNIT_ASSERT( !ts->server()->ports()->connectPorts("md", ts2->server()->ports(), "mb") );
+    BOOST_CHECK( !ts->server()->ports()->connectPorts("md", ts2->server()->ports(), "mb") );
 
-    CPPUNIT_ASSERT( ts->server()->ports()->connectPorts("md", ts2->server()->ports(), "md") );
-    CPPUNIT_ASSERT( ts->server()->ports()->connectPorts("mb", ts2->server()->ports(), "mb") );
-    CPPUNIT_ASSERT( ts->server()->ports()->connectPorts("mdrwA", ts2->server()->ports(), "mdrwA") );
-    CPPUNIT_ASSERT( ts->server()->ports()->connectPorts("mdrwB", ts2->server()->ports(), "mdrwB") );
+    BOOST_CHECK( ts->server()->ports()->connectPorts("md", ts2->server()->ports(), "md") );
+    BOOST_CHECK( ts->server()->ports()->connectPorts("mb", ts2->server()->ports(), "mb") );
+    BOOST_CHECK( ts->server()->ports()->connectPorts("mdrwA", ts2->server()->ports(), "mdrwA") );
+    BOOST_CHECK( ts->server()->ports()->connectPorts("mdrwB", ts2->server()->ports(), "mdrwB") );
 
     testPortStats();
     testPortDisconnect();
@@ -545,3 +427,124 @@ BOOST_AUTO_TEST_CASE( testConnections )
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+
+void CorbaTest::testPortStats()
+{
+    // ALWAYS connect from tc/tp TO t2/tp2
+    // The test assumes the connection direction is tc->t2.
+    // Tests if ports are correctly working, this test is called by the other test functions.
+    // DATA PORTS
+    // Check if connection succeeded both ways:
+    BOOST_CHECK( md1->connected() );
+    BOOST_CHECK( md2->connected() );
+    // Check if both ports return same initial value:
+    BOOST_CHECK_EQUAL( 1.0, md1->Get() );
+    BOOST_CHECK_EQUAL( 1.0, md2->Get() );
+
+    // Check writing from both ways:
+    md1->Set( 3.0 );
+    BOOST_CHECK_EQUAL( 3.0, md1->Get() );
+    BOOST_CHECK_EQUAL( 3.0, md2->Get() );
+    md2->Set( -3.0 );
+    BOOST_CHECK_EQUAL( -3.0, md1->Get() );
+    BOOST_CHECK_EQUAL( -3.0, md2->Get() );
+
+    // READ/WRITE DATA PORTS
+    // Check if connection succeeded both ways:
+    BOOST_CHECK( mdr1->connected() );
+    BOOST_CHECK( mdr2->connected() );
+    BOOST_CHECK( mdw1->connected() );
+    BOOST_CHECK( mdw2->connected() );
+    // Check if both ports return same initial value:
+    BOOST_CHECK_EQUAL( -1.0, mdr1->Get() );
+    //BOOST_CHECK_EQUAL( 1.0, mdw1->Get() );
+    BOOST_CHECK_EQUAL( 1.0, mdr2->Get() );
+    //BOOST_CHECK_EQUAL( -1.0, mdw2->Get() );
+
+    // Check writing from both ways:
+    mdw1->Set( 3.0 );
+    //BOOST_CHECK_EQUAL( 3.0, mdw1->Get() );
+    BOOST_CHECK_EQUAL( 3.0, mdr2->Get() );
+    mdw2->Set( -3.0 );
+    //BOOST_CHECK_EQUAL( -3.0, mdw2->Get() );
+    BOOST_CHECK_EQUAL( -3.0, mdr1->Get() );
+
+    //
+    // BUFFER PORTS
+    // Check if connection succeeded both ways:
+    double val = 0.0;
+    BOOST_CHECK( mb1->connected() );
+    BOOST_CHECK( mb2->connected() );
+    BOOST_CHECK_EQUAL( 10, mb2->capacity() );
+    BOOST_CHECK_EQUAL( 0, mb1->size() );
+    BOOST_CHECK_EQUAL( 0, mb2->size() );
+
+    // Check writing from both ways:
+    BOOST_CHECK( mb1->Push( 3.0 ) );
+    BOOST_CHECK( mb1->front() == 3.0 );
+    BOOST_CHECK( mb2->front() == 3.0 );
+    BOOST_CHECK_EQUAL( 1, mb1->size() );
+    BOOST_CHECK_EQUAL( 1, mb2->size() );
+    BOOST_CHECK( mb2->Pop( val ));
+    BOOST_CHECK( val == 3.0 );
+    BOOST_CHECK_EQUAL( 0, mb1->size() );
+    BOOST_CHECK_EQUAL( 0, mb2->size() );
+
+    BOOST_CHECK( mb2->Push( -3.0 ) );
+    BOOST_CHECK( mb1->front() == -3.0 );
+    BOOST_CHECK( mb2->front() == -3.0 );
+    BOOST_CHECK_EQUAL( 1, mb1->size() );
+    BOOST_CHECK_EQUAL( 1, mb2->size() );
+    BOOST_CHECK( mb2->Pop( val ));
+    BOOST_CHECK( val == -3.0 );
+    BOOST_CHECK_EQUAL( 0, mb1->size() );
+    BOOST_CHECK_EQUAL( 0, mb2->size() );
+}
+
+void CorbaTest::testPortDisconnect()
+{
+    // Connection management.
+    // DATA PORTS
+    BOOST_CHECK( md1->connected() );
+    BOOST_CHECK( md2->connected() );
+
+    // store -3.0 in connection.
+    md1->Set( -3.0 );
+
+    md1->disconnect();
+    md2->disconnect();
+
+    BOOST_CHECK( !md1->connected() );
+    BOOST_CHECK( !md2->connected() );
+
+    // Check no writing from both ways:
+    md1->Set( 3.0 );
+    BOOST_CHECK_EQUAL( 3.0, md1->Get() );
+    BOOST_CHECK( 3.0 != md2->Get() );
+    md2->Set( 6.0 );
+    BOOST_CHECK_EQUAL( 3.0, md1->Get() );
+    BOOST_CHECK_EQUAL( 6.0, md2->Get() );
+
+    //
+    // BUFFER PORTS
+    // Check if connection succeeded both ways:
+    double val = 0.0;
+    BOOST_CHECK( mb1->connected() );
+    BOOST_CHECK( mb2->connected() );
+
+    // Store a value.
+    BOOST_CHECK( mb1->Push( 3.0 ) );
+
+    // Disconnect
+    mb1->disconnect();
+    mb2->disconnect();
+
+    // should fail
+    BOOST_CHECK( !mb1->Push( 3.0 ) );
+    BOOST_CHECK( !mb2->Pop( val ));
+
+    BOOST_CHECK( !mb2->Push( -3.0 ) );
+    BOOST_CHECK( !mb2->Pop( val ));
+}
+
