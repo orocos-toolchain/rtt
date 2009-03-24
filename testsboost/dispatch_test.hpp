@@ -35,9 +35,7 @@ public:
     TaskContext gtc;
     TaskContext mtc;
     TaskContext ltc;
-    SimulationActivity gtask;
-    SimulationActivity mtask;
-    SimulationActivity ltask;
+
     TaskObject* createObject(std::string a, CommandProcessor* cp);
 
     bool true_genCom() { return true; }

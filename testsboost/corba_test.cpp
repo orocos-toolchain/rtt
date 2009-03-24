@@ -27,9 +27,6 @@
 
 using namespace std;
 
-// Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( CorbaTest );
-
 void
 CorbaTest::setUp()
 {
@@ -103,7 +100,10 @@ TaskObject* CorbaTest::createMethodFactory()
     return to;
 }
 
-void CorbaTest::testRemoteMethodC()
+// Registers the fixture into the 'registry'
+CPPUNIT_TEST_SUITE_REGISTRATION( CorbaTest );
+
+BOOST_AUTO_TEST_CASE( testRemoteMethodC )
 {
 
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
@@ -130,7 +130,7 @@ void CorbaTest::testRemoteMethodC()
 
 }
 
-void CorbaTest::testRemoteMethod()
+BOOST_AUTO_TEST_CASE( testRemoteMethod )
 {
 
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
@@ -228,7 +228,7 @@ void CorbaTest::testAnyMethod()
     CPPUNIT_ASSERT(m4->executeAny( any_args.in() ));
 }
 
-void CorbaTest::testPorts()
+BOOST_AUTO_TEST_CASE( testPorts )
 {
     // test create channel functions of dataflowinterface.
     // write to corba read from C++ and vice verse.
@@ -289,7 +289,7 @@ void CorbaTest::testPorts()
 }
 
 // Test the IDL connectPorts statement.
-void CorbaTest::testConnectPortsIDL()
+BOOST_AUTO_TEST_CASE( testConnectPortsIDL )
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
     tp = Corba::ControlTaskProxy::Create( ts->server() );
@@ -304,7 +304,7 @@ void CorbaTest::testConnectPortsIDL()
     testPortDisconnect();
 }
 
-void CorbaTest::testConnectPortsLR()
+BOOST_AUTO_TEST_CASE( testConnectPortsLR )
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
     tp = Corba::ControlTaskProxy::Create( ts->server() );
@@ -317,7 +317,7 @@ void CorbaTest::testConnectPortsLR()
     testPortDisconnect();
 
 }
-void CorbaTest::testConnectPortsRL()
+BOOST_AUTO_TEST_CASE( testConnectPortsRL )
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
     tp = Corba::ControlTaskProxy::Create( ts->server() );
@@ -331,7 +331,7 @@ void CorbaTest::testConnectPortsRL()
 
 }
 
-void CorbaTest::testConnectPortsRR()
+BOOST_AUTO_TEST_CASE( testConnectPortsRR )
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
     tp = Corba::ControlTaskProxy::Create( ts->server() );
@@ -345,7 +345,7 @@ void CorbaTest::testConnectPortsRR()
 
 }
 
-void CorbaTest::testConnectPortsLRC()
+BOOST_AUTO_TEST_CASE( testConnectPortsLRC )
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
     tp = Corba::ControlTaskProxy::Create( ts->server() );
@@ -363,7 +363,8 @@ void CorbaTest::testConnectPortsLRC()
     testPortDisconnect();
 
 }
-void CorbaTest::testConnectPortsRLC()
+
+BOOST_AUTO_TEST_CASE( testConnectPortsRLC )
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
     tp = Corba::ControlTaskProxy::Create( ts->server() );
@@ -382,7 +383,7 @@ void CorbaTest::testConnectPortsRLC()
 
 }
 
-void CorbaTest::testConnectPortsRRC()
+BOOST_AUTO_TEST_CASE( testConnectPortsRRC )
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
     tp = Corba::ControlTaskProxy::Create( ts->server() );
@@ -402,7 +403,7 @@ void CorbaTest::testConnectPortsRRC()
 }
 
 
-void CorbaTest::testPortStats()
+BOOST_AUTO_TEST_CASE( testPortStats )
 {
     // ALWAYS connect from tc/tp TO t2/tp2
     // The test assumes the connection direction is tc->t2.
@@ -475,7 +476,7 @@ void CorbaTest::testPortStats()
     CPPUNIT_ASSERT_EQUAL( 0, mb2->size() );
 }
 
-void CorbaTest::testPortDisconnect()
+BOOST_AUTO_TEST_CASE( testPortDisconnect )
 {
     // Connection management.
     // DATA PORTS
@@ -521,7 +522,7 @@ void CorbaTest::testPortDisconnect()
     CPPUNIT_ASSERT( !mb2->Pop( val ));
 }
 
-void CorbaTest::testConnections()
+BOOST_AUTO_TEST_CASE( testConnections )
 {
     // This test tests the differen port-to-port connections.
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
@@ -543,3 +544,4 @@ void CorbaTest::testConnections()
 
 }
 
+BOOST_AUTO_TEST_SUITE_END()

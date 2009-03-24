@@ -31,57 +31,56 @@ IF (ENABLE_BOOST_TESTS)
 
     # Copy over CPF files.
     CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/property_test_vect.cpf 
-                   ${PROJ_BINARY_DIR}/property_test_vect.cpf COPYONLY)
+                   ${CMAKE_CURRENT_BINARY_DIR}/property_test_vect.cpf COPYONLY)
 
     # repeat for each test 
-    ADD_EXECUTABLE( core-test ${DO_EXCLUDE} test-runner.cpp  buffers_test.cpp logger_test.cpp property_test.cpp) # time_test.cpp       
+    ADD_EXECUTABLE( core-test ${DO_EXCLUDE} test-runner.cpp  buffers_test.cpp logger_test.cpp property_test.cpp time_test.cpp )
     TARGET_LINK_LIBRARIES( core-test orocos-rtt-${OROCOS_TARGET} )
     SET_TARGET_PROPERTIES( core-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}" LINK_FLAGS "${RTT_LINKFLAGS}")
-    ADD_TEST( core-test ${PROJ_BINARY_DIR}/bin/core-test )
+    ADD_TEST( core-test ${CMAKE_CURRENT_BINARY_DIR}/core-test )
 
     ADD_EXECUTABLE( task-test ${DO_EXCLUDE} test-runner.cpp tasks_test.cpp taskthread_test.cpp tasks_multiple_test.cpp )
     TARGET_LINK_LIBRARIES( task-test orocos-rtt-${OROCOS_TARGET} )
     SET_TARGET_PROPERTIES( task-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}" LINK_FLAGS "${RTT_LINKFLAGS}")
-    ADD_TEST( task-test ${PROJ_BINARY_DIR}/bin/task-test )
+    ADD_TEST( task-test ${CMAKE_CURRENT_BINARY_DIR}/task-test )
 
     ADD_EXECUTABLE( event-test ${DO_EXCLUDE} test-runner.cpp event_test.cpp eventservice_test.cpp )
     TARGET_LINK_LIBRARIES( event-test orocos-rtt-${OROCOS_TARGET} )
     SET_TARGET_PROPERTIES( event-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}" LINK_FLAGS "${RTT_LINKFLAGS}")
-    ADD_TEST( event-test ${PROJ_BINARY_DIR}/bin/event-test )
+    ADD_TEST( event-test ${CMAKE_CURRENT_BINARY_DIR}/event-test )
 
-    ADD_EXECUTABLE( taskcontext-test ${DO_EXCLUDE} test-runner.cpp generictask_test.cpp generictask_test_2.cpp generictask_test_3.cpp) #  
+    ADD_EXECUTABLE( taskcontext-test ${DO_EXCLUDE} test-runner.cpp generictask_test.cpp generictask_test_2.cpp generictask_test_3.cpp)
     TARGET_LINK_LIBRARIES( taskcontext-test orocos-rtt-${OROCOS_TARGET} )
     SET_TARGET_PROPERTIES( taskcontext-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}" LINK_FLAGS "${RTT_LINKFLAGS}")
-    ADD_TEST( taskcontext-test ${PROJ_BINARY_DIR}/bin/taskcontext-test )
+    ADD_TEST( taskcontext-test ${CMAKE_CURRENT_BINARY_DIR}/taskcontext-test )
 
     ADD_EXECUTABLE( parser-test ${DO_EXCLUDE} test-runner.cpp types_test.cpp template_factory_test.cpp dispatch_test.cpp )
     TARGET_LINK_LIBRARIES( parser-test orocos-rtt-${OROCOS_TARGET} )
     SET_TARGET_PROPERTIES( parser-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}" LINK_FLAGS "${RTT_LINKFLAGS}")
-    # ADD_TEST( parser-test ${PROJ_BINARY_DIR}/bin/parser-test )
+    ADD_TEST( parser-test ${CMAKE_CURRENT_BINARY_DIR}/parser-test )
 
     ADD_EXECUTABLE( program-test ${DO_EXCLUDE} test-runner.cpp program_test.cpp function_test.cpp )
     TARGET_LINK_LIBRARIES( program-test orocos-rtt-${OROCOS_TARGET} )
     SET_TARGET_PROPERTIES( program-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}" LINK_FLAGS "${RTT_LINKFLAGS}")
-    ADD_TEST( program-test ${PROJ_BINARY_DIR}/bin/program-test )
+    ADD_TEST( program-test ${CMAKE_CURRENT_BINARY_DIR}/program-test )
 
     ADD_EXECUTABLE( state-test ${DO_EXCLUDE} test-runner.cpp state_test.cpp )
     TARGET_LINK_LIBRARIES( state-test orocos-rtt-${OROCOS_TARGET} )
     SET_TARGET_PROPERTIES( state-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}" LINK_FLAGS "${RTT_LINKFLAGS}")
-    ADD_TEST( state-test ${PROJ_BINARY_DIR}/bin/state-test )
+    ADD_TEST( state-test ${CMAKE_CURRENT_BINARY_DIR}/state-test )
 
     ADD_EXECUTABLE( dev-test ${DO_EXCLUDE} test-runner.cpp dev_test.cpp )
     TARGET_LINK_LIBRARIES( dev-test orocos-rtt-${OROCOS_TARGET} )
     SET_TARGET_PROPERTIES( dev-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}" LINK_FLAGS "${RTT_LINKFLAGS}")
-    ADD_TEST( dev-test "${PROJ_BINARY_DIR}/bin/dev-test" )
-	MESSAGE( "${PROJ_BINARY_DIR}/bin/dev-test")
+    ADD_TEST( dev-test ${CMAKE_CURRENT_BINARY_DIR}/dev-test )
 	
     ADD_CUSTOM_TARGET(check ctest -V 
       DEPENDS core-test task-test event-test taskcontext-test parser-test program-test state-test dev-test ${ORO_EXTRA_TESTS}

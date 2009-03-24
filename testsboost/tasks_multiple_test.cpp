@@ -30,9 +30,6 @@ using namespace RTT;
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-// Registers the fixture into the 'registry'
-BOOST_FIXTURE_TEST_SUITE( ActivitiesMultipleTestSuite, ActivitiesMultipleTest )
-
     void ActivitiesMultipleTest::setUp()
     {
         nr_of_p = TimerThread::MAX_ACTIVITIES/2;
@@ -67,7 +64,26 @@ BOOST_FIXTURE_TEST_SUITE( ActivitiesMultipleTestSuite, ActivitiesMultipleTest )
         nr_of_np = np_tasks.size();
     }
 
-    void ActivitiesMultipleTest::testMultiple()
+void ActivitiesMultipleTest::tearDown()
+    {
+        // stop to be sure that task does not access memory during destruction.
+        for (NPI i=np_tasks.begin(); i != np_tasks.end(); ++i)
+            {
+                (*i)->stop();
+                delete *i;
+            }
+        for (PI i=p_tasks.begin(); i != p_tasks.end(); ++i)
+            {
+                (*i)->stop();
+                delete *i;
+            }
+    }
+
+
+// Registers the fixture into the 'registry'
+BOOST_FIXTURE_TEST_SUITE( ActivitiesMultipleTestSuite, ActivitiesMultipleTest )
+
+    BOOST_AUTO_TEST_CASE( testMultiple )
     {
         for (NPI i=np_tasks.begin(); i != np_tasks.end(); ++i)
             {
@@ -152,21 +168,6 @@ BOOST_FIXTURE_TEST_SUITE( ActivitiesMultipleTestSuite, ActivitiesMultipleTest )
         BOOST_CHECK_MESSAGE(totInit == totFins, errInitP );
         BOOST_CHECK_MESSAGE(totSteps >= totInit, errStepP );
         //BOOST_CHECK_MESSAGE(errFinP, totFins == (nr_of_p-2) * 10 );
-    }
-
-    void ActivitiesMultipleTest::tearDown()
-    {
-        // stop to be sure that task does not access memory during destruction.
-        for (NPI i=np_tasks.begin(); i != np_tasks.end(); ++i)
-            {
-                (*i)->stop();
-                delete *i;
-            }
-        for (PI i=p_tasks.begin(); i != p_tasks.end(); ++i)
-            {
-                (*i)->stop();
-                delete *i;
-            }
     }
 
 BOOST_AUTO_TEST_SUITE_END()

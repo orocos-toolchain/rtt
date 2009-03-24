@@ -63,7 +63,7 @@ public:
     int increase();
     void resetI();
     void doState( const std::string& prog, TaskContext*, bool test=true );
-    void finishState( TaskContext* , std::string );
+    void finishState( TaskContext* , std::string, bool test=true );
 
     bool true_genCom() { return true; }
     bool false_genCom() { return false; }

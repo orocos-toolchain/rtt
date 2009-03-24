@@ -34,9 +34,6 @@ using namespace std;
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-// Registers the fixture into the 'registry'
-BOOST_FIXTURE_TEST_SUITE(  TypesTestSuite,  TypesTest )
-
 
 void
 TypesTest::setUp()
@@ -75,6 +72,8 @@ bool TypesTest::assertMsg( bool b, const std::string& msg) {
         return to;
     }
 
+// Registers the fixture into the 'registry'
+BOOST_FIXTURE_TEST_SUITE(  TypesTestSuite,  TypesTest )
 
 BOOST_AUTO_TEST_CASE( testTypes )
 {
@@ -82,7 +81,7 @@ BOOST_AUTO_TEST_CASE( testTypes )
     // for some reason, we can not compare the double6D's one fails
     // to parse, the others assert false, thus inequality.
     string test =
-        // Line 2:
+        // Line 2 (see below):
         string("var int i2 = -1, j = 10, k; set k = 20\n") +
         "do test.assert( i2 == -1 ) ; do test.assert( j == 10 ); do test.assert(k == 20)\n" +
         "var double d = 10.0\n"+
@@ -115,13 +114,13 @@ BOOST_AUTO_TEST_CASE( testTypes )
         // 30:
         "do test.assert( ar[9] == 9.0 )\n"+
         "do test.assert( ar[10] == 0.0 )\n"+
-        "var array ar1(12,2.0)\n"+
+        "var array ar1(12) = array(12,2.0)\n"+
         "do test.assert(ar1.size == 12)\n"+
         "do test.assert(ar1[0] == 2.0)\n"+
         "var array ar2 = array(5,3.0)\n"+
         "do test.assert(ar2.size == 5)\n"+
         "do test.assert(ar2[0] == 3.0)\n"+
-        "var array ar3(2.0,3.0,4.0)\n"+
+        "var array ar3 = array(2.0,3.0,4.0)\n"+
         "do test.assert(ar3.size == 3)\n"+
         //40:
         "do test.assert(ar3[0]==2.0)\n"+
@@ -135,7 +134,7 @@ BOOST_AUTO_TEST_CASE( testTypes )
         "do test.assert(ar4[3]==5.0)\n"+
         "var string str(10) = \"hello\"\n"+
         // 50:
-        "do test.assert( str.size == 10)\n"+
+        "do test.assert( str.size == 5)\n"+
         "do test.assert( str.capacity == 10)\n"+
         "set str[0] = 'a'\n"+
         "set str[1] = 'b'\n"+
@@ -150,16 +149,17 @@ BOOST_AUTO_TEST_CASE( testTypes )
         "do test.assert( str[9] == '\\0' )\n"+
         "do test.assert( str[10] == '\\0' )\n"+
         // various array constructors
-        "var array ar2 = array(10.,5.)\n"+
+        "set ar2 = array(10.,5.)\n"+
         "do test.assert( ar2.size == 2)\n"+
         "do test.assert( ar2.capacity == 2)\n"+
         "do test.assert( ar2[0] == 10.0 )\n"+
         "do test.assert( ar2[1] == 5.0 )\n"+
-        "var array ar3 = array(10.)\n"+
+        "set ar3 = array(10.)\n"+
         "do test.assert( ar3.size == 1)\n"+
+        // 70:
         "do test.assert( ar3.capacity == 1)\n"+
         "do test.assert( ar3[0] == 10.0 )\n"+
-        "var array ar4 = array(2, 7.)\n"+
+        "set ar4 = array(2, 7.)\n"+
         "do test.assert( ar4.size == 2)\n"+
         "do test.assert( ar4.capacity == 2)\n"+
         "do test.assert( ar4[0] == 7.0 )\n"+
@@ -168,11 +168,13 @@ BOOST_AUTO_TEST_CASE( testTypes )
         "set ar2 = ar4\n"+
         "do test.assert( ar2.size == 2)\n"+
         "do test.assert( ar2.capacity == 2)\n"+
+        // 80:
         "do test.assert( ar2[0] == 7.0 )\n"+
         "do test.assert( ar2[1] == 7.0 )\n"+
-        "set ar = ar2\n"+
+        "do test.assert( ar.capacity == 10)\n"+ // pre-condition
+        "set ar = ar2\n"+                       // assignment must keep capacity and only change size
         "do test.assert( ar.size == 2)\n"+
-        "do test.assert( ar.capacity == 10)\n"+
+        "do test.assert( ar.capacity == 10)\n"+ // check keeping capacity: ar(10) vs ar2(2)
         "do test.assert( ar2[0] == 7.0 )\n"+
         "do test.assert( ar2[1] == 7.0 )\n";
 
@@ -190,7 +192,7 @@ BOOST_AUTO_TEST_CASE( testTypes )
 
 }
 
-void TypesTest::testOperators()
+BOOST_AUTO_TEST_CASE( testOperators )
 {
     string prog = string("program x {\n") +
         "var int i = 3\n" +
@@ -211,7 +213,7 @@ void TypesTest::testOperators()
     executePrograms(prog);
 }
 
-void TypesTest::testConversions()
+BOOST_AUTO_TEST_CASE( testConversions )
 {
     string prog = string("program x {\n") +
         "var int i = 3.0\n" +
@@ -228,7 +230,8 @@ void TypesTest::testConversions()
     // execute
     executePrograms(prog);
 }
-void TypesTest::testProperties()
+
+BOOST_AUTO_TEST_CASE( testProperties )
 {
     string prog = string("program x {\n") +
         "do test.assert( Double1 == 1.234 )\n" +
@@ -285,6 +288,8 @@ void TypesTest::testProperties()
     BOOST_CHECK_EQUAL( 2.321, pv.value()[2] );
     BOOST_CHECK_EQUAL( 3.321, pv.value()[3] );
 }
+
+BOOST_AUTO_TEST_SUITE_END()
 
 void TypesTest::executePrograms(const std::string& prog )
 {
@@ -368,6 +373,3 @@ void TypesTest::executeStates(const std::string& state )
     tsim->stop();
     tc->engine()->states()->unloadStateMachine( (*pg_list.begin())->getName() );
 }
-
-BOOST_AUTO_TEST_SUITE_END()
-

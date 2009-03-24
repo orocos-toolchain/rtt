@@ -32,16 +32,10 @@ using namespace std;
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-// Registers the fixture into the 'registry'
-BOOST_FIXTURE_TEST_SUITE(  DispatchTestSuite,  DispatchTest )
-
 DispatchTest::DispatchTest()
     : gtc("root"),
       mtc("space"),
-      ltc("subspace"),
-      gtask(0.1, gtc.engine() ),
-      mtask(0.05, mtc.engine()),
-      ltask(0.01, ltc.engine())
+      ltc("subspace")
 {
 	setUp();
 }
@@ -61,6 +55,9 @@ DispatchTest::setUp()
     gtc.addPeer( &mtc );
     mtc.connectPeers( &ltc );
 
+    gtc.setActivity( new SimulationActivity(0.1) );
+    mtc.setActivity( new SimulationActivity(0.05) );
+    ltc.setActivity( new SimulationActivity(0.01) );
 }
 
 
@@ -106,6 +103,8 @@ TaskObject* DispatchTest::createObject(string a, CommandProcessor* cp)
     return dat;
 }
 
+// Registers the fixture into the 'registry'
+BOOST_FIXTURE_TEST_SUITE(  DispatchTestSuite,  DispatchTest )
 
 BOOST_AUTO_TEST_CASE( testParseDispatch)
 {
@@ -266,6 +265,7 @@ BOOST_AUTO_TEST_CASE( testDispatchMany)
     this->finishDispatch( &gtc, "x" );
 }
 
+BOOST_AUTO_TEST_SUITE_END()
 
 void DispatchTest::doDispatch( const std::string& prog, TaskContext* tc )
 {
@@ -282,23 +282,22 @@ void DispatchTest::doDispatch( const std::string& prog, TaskContext* tc )
             BOOST_CHECK( false );
         }
     BOOST_CHECK( tc->engine()->programs()->loadProgram( *pg_list.begin() ) );
-    BOOST_CHECK(ltask.start());
-    BOOST_CHECK(mtask.start());
-    BOOST_CHECK(gtask.start());
+    BOOST_CHECK(ltc.start());
+    BOOST_CHECK(mtc.start());
+    BOOST_CHECK(gtc.start());
     BOOST_CHECK( tc->engine()->programs()->getProgram( (*pg_list.begin())->getName() )->start() );
 
+    SimulationThread::Instance()->stop();
     SimulationThread::Instance()->run(1000);
 }
 
 void DispatchTest::finishDispatch(TaskContext* tc, std::string prog_name)
 {
-    BOOST_CHECK(gtask.stop());
-    BOOST_CHECK(mtask.stop());
-    BOOST_CHECK(ltask.stop());
+    BOOST_CHECK(gtc.stop());
+    BOOST_CHECK(mtc.stop());
+    BOOST_CHECK(ltc.stop());
     tc->engine()->programs()->getProgram( prog_name )->stop();
     BOOST_CHECK( tc->engine()->programs()->unloadProgram( prog_name ) );
 
 }
-
-BOOST_AUTO_TEST_SUITE_END()
 

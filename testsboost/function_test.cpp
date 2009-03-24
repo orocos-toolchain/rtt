@@ -32,9 +32,6 @@ using namespace std;
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-BOOST_FIXTURE_TEST_SUITE( FunctionTestSuite, FunctionTest )
-// Registers the fixture into the 'registry'
-
     FunctionTest::FunctionTest()
         : gtc("root" ),
           gtask( 0.01, gtc.engine() )
@@ -48,7 +45,7 @@ FunctionTest::setUp()
 {
     // ltc has a test object
     gtc.addObject(this->createObject("test", gtc.engine()->commands() ) );
-
+    gtask.start();
     i = 0;
 }
 
@@ -111,6 +108,9 @@ OperationInterface* FunctionTest::createObject(string a, CommandProcessor* cp)
                                     "fails in command and condition" );
     return dat;
 }
+
+BOOST_FIXTURE_TEST_SUITE( FunctionTestSuite, FunctionTest )
+// Registers the fixture into the 'registry'
 
 BOOST_AUTO_TEST_CASE( testSimpleFunction)
 {
@@ -302,6 +302,8 @@ BOOST_AUTO_TEST_CASE( testFunctionFail)
     this->finishFunction( &gtc, "x");
 }
 
+BOOST_AUTO_TEST_SUITE_END()
+
 void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool test )
 {
     BOOST_CHECK( tc->engine() );
@@ -319,10 +321,12 @@ void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool te
             BOOST_CHECK_MESSAGE(false , "No program parsed in test.");
         }
     ProgramProcessor* pp = tc->engine()->programs();
-    pp->loadProgram( *pg_list.begin() );
-    pp->getProgram( (*pg_list.begin())->getName() )->start();
+    BOOST_CHECK( pp->loadProgram( *pg_list.begin() ) );
+    BOOST_CHECK( pp->getProgram( (*pg_list.begin())->getName() )->start() );
+
+    BOOST_CHECK( SimulationThread::Instance()->stop() );
     BOOST_CHECK( SimulationThread::Instance()->run(1000) );
-    gtask.stop();
+    BOOST_CHECK( gtask.stop() );
 
     if (test ) {
         stringstream errormsg;
@@ -337,7 +341,5 @@ void FunctionTest::finishFunction(TaskContext* tc, std::string prog_name)
     tc->engine()->programs()->getProgram( prog_name )->stop();
     tc->engine()->programs()->unloadProgram( prog_name );
 }
-
-BOOST_AUTO_TEST_SUITE_END()
 
 

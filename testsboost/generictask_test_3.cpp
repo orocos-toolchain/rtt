@@ -114,10 +114,6 @@ public:
     bool do_error;
 };
 
-// Registers the fixture into the 'registry'
-BOOST_FIXTURE_TEST_SUITE(  Generic_TaskTest3Suite,  Generic_TaskTest_3 )
-
-
 void
 Generic_TaskTest_3::setUp()
 {
@@ -142,11 +138,15 @@ Generic_TaskTest_3::tearDown()
     delete stsim;
 }
 
+// Registers the fixture into the 'registry'
+BOOST_FIXTURE_TEST_SUITE(  Generic_TaskTest3Suite,  Generic_TaskTest_3 )
+
+
 BOOST_AUTO_TEST_CASE( testPeriod)
 {
     // check unconfigured TC
     TaskContext pertc("PerTC");
-    BOOST_CHECK( pertc.getPeriod() < 0.0 );
+    BOOST_CHECK( pertc.getPeriod() == 0.0 );
 
     // check periodic TC
     SlaveActivity sa(1.0, pertc.engine());

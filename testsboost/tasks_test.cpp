@@ -188,9 +188,6 @@ struct TestSelfRemove
     }
 };
 
-BOOST_FIXTURE_TEST_SUITE( ActivitiesTestSuite, ActivitiesTest )
-
-
 void
 ActivitiesTest::setUp()
 {
@@ -217,6 +214,8 @@ ActivitiesTest::tearDown()
     delete t_self_remove;
 }
 
+BOOST_FIXTURE_TEST_SUITE( ActivitiesTestSuite, ActivitiesTest )
+
 BOOST_AUTO_TEST_CASE( testFailInit )
 {
     t_task_prio->run( t_run_int_fail );
@@ -226,6 +225,7 @@ BOOST_AUTO_TEST_CASE( testFailInit )
 
 }
 
+#if 0
 BOOST_AUTO_TEST_CASE( testOverrun )
 {
   bool r = false;
@@ -249,6 +249,7 @@ BOOST_AUTO_TEST_CASE( testOverrun )
   BOOST_CHECK_MESSAGE( run->fini, "Failed to execute finalize in emergencyStop" );
 
 }
+#endif
 
 
 BOOST_AUTO_TEST_CASE( testThreads )
@@ -345,6 +346,8 @@ BOOST_AUTO_TEST_CASE( testAllocation )
     testRemoveAllocate();
 }
 
+BOOST_AUTO_TEST_SUITE_END()
+
 void ActivitiesTest::testAddRunnableInterface()
 {
     bool adding_prio = t_task_prio->run( t_run_int_prio );
@@ -394,6 +397,4 @@ void ActivitiesTest::testRemoveAllocate()
 {
     BOOST_CHECK( t_task_prio->run( 0 ) );
 }
-
-BOOST_AUTO_TEST_SUITE_END()
 

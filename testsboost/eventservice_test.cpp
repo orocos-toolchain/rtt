@@ -36,9 +36,6 @@ using namespace std;
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-// Registers the fixture into the 'registry'
-BOOST_FIXTURE_TEST_SUITE(  EventServiceTestSuite,  EventServiceTest )
-
 
 void
 EventServiceTest::setUp()
@@ -140,6 +137,9 @@ void EventServiceTest::cleanup()
     es->removeEvent( "t_event2" );
     es->removeEvent( "t_event3" );
 }
+
+// Registers the fixture into the 'registry'
+BOOST_FIXTURE_TEST_SUITE(  EventServiceTestSuite,  EventServiceTest )
 
 BOOST_AUTO_TEST_CASE( testAddRemove )
 {

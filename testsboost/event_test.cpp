@@ -30,6 +30,9 @@
 #include <boost/bind.hpp>
 #include <boost/scoped_ptr.hpp>
 
+#include <boost/test/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
+
 using namespace RTT;
 using namespace boost;
 
@@ -121,15 +124,12 @@ struct SelfRemover : public RunnableInterface
     }
 
     void handle(void) {
-        // this is dirty, user !
-        // first disconnect self, then emit() within emit() !
+        // do not emit within handle!
+        // first disconnect self, then reconnect
         h1.disconnect();
         h2.disconnect();
-        e();
         h1.connect();
         h2.connect();
-        // emit within emit should not come through (possible recursive stack blowup).
-        e();
         h1.disconnect();
         h2.disconnect();
     }
@@ -206,19 +206,6 @@ struct CrossRemover : public RunnableInterface
     }
 };
 
-// Registers the fixture into the 'registry'
-#include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
-
-
-
-//CPPUNIT_TEST_SUITE_REGISTRATION( EventTest );
-
-
-BOOST_FIXTURE_TEST_SUITE( EventTestSuite, EventTest )
-
-
-
 void
 EventTest::setUp()
 {
@@ -276,6 +263,8 @@ void EventTest::reset()
     t_listener_what = "";
 }
 
+
+BOOST_FIXTURE_TEST_SUITE( EventTestSuite, EventTest )
 
 BOOST_AUTO_TEST_CASE( testEmpty )
 {
