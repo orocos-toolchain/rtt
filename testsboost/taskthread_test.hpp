@@ -37,8 +37,6 @@ struct TestActivity;
 class ActivitiesThreadTest
 {
 public:
-    // Allocation Test : [disabled, kills RTAI/LXRT]
-    //CPPUNIT_TEST( testAddAllocate );
 
     TestActivity<PeriodicActivity>* t_task_np;
     TestActivity<PeriodicActivity>* t_task_np_bad;
@@ -59,9 +57,8 @@ public:
     void testPeriodic();
     void testNonPeriodic();
     void testSlave();
-
+    void testSequential();
     void testScheduler();
-
     void testAllocation();
     void testRemoveAllocate();
     void testAddAllocate();

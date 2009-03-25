@@ -113,11 +113,29 @@ public:
     bool validreset, didreset, didactivate, validactivate;
     bool do_error;
 };
+class EventPortsTC : public TaskContext
+{
+public:
+    bool had_event;
+    int  nb_events;
+    EventPortsTC(): TaskContext("eptc") { resetStats(); }
+    void updateHook(std::vector<PortInterface*> const& updated_ports)
+    {
+        nb_events += updated_ports.size();
+        had_event = true;
+    }
+    void resetStats() {
+        nb_events = 0;
+        had_event = false;
+    }
+};
 
 void
 Generic_TaskTest_3::setUp()
 {
     tc =  new TaskContext( "root", TaskContext::Stopped );
+    tce = new EventPortsTC();
+    tc2 = new EventPortsTC();
     stc = new StatesTC();
     tsim = new SimulationActivity(0.001, tc->engine() );
     stsim = new SimulationActivity(0.001, stc->engine() );
@@ -133,6 +151,8 @@ Generic_TaskTest_3::tearDown()
     tsim->stop();
     stsim->stop();
     delete tc;
+    delete tce;
+    delete tc2;
     delete tsim;
     delete stc;
     delete stsim;
@@ -700,6 +720,114 @@ BOOST_AUTO_TEST_CASE( testPorts)
     BOOST_CHECK( bp.buffer()->capacity() == 10 );
 #endif
 
+}
+
+BOOST_AUTO_TEST_CASE( testEventPorts )
+{
+    // Data ports
+    WriteDataPort<double> wdp("WDName");
+    ReadDataPort<double> rdp("RDName");
+    DataPort<double> dp("DName");
+    DataPort<double> dp2("D2Name");
+
+    BOOST_CHECK( tce->ports()->addEventPort( &wdp ));
+    BOOST_CHECK( tc2->ports()->addEventPort( &rdp ));
+    BOOST_CHECK( tce->ports()->addEventPort( &dp ));
+    BOOST_CHECK( tc2->ports()->addEventPort( &dp2 ));
+
+    // Buffer ports
+    WriteBufferPort<double> wbp("WBName", 10);
+    ReadBufferPort<double> rbp("RBName");
+    BufferPort<double> bp("BName", 10);
+    BufferPort<double> bp2("B2Name", 10);
+
+    BOOST_CHECK( tce->ports()->addEventPort( &wbp ));
+    BOOST_CHECK( tc2->ports()->addEventPort( &rbp ));
+    BOOST_CHECK( tce->ports()->addEventPort( &bp ));
+    BOOST_CHECK( tc2->ports()->addEventPort( &bp2 ));
+
+    // Connect 3 data ports
+    BOOST_CHECK(wdp.connectTo( &rdp ) );
+    BOOST_CHECK(dp.connectTo( rdp.connection() ));
+
+    // Connect 3 buffer ports
+    BOOST_CHECK(wbp.connectTo( &rbp ) );
+    BOOST_CHECK(bp.connectTo( rbp.connection() ));
+
+    wdp.Set(1.0);
+    BOOST_CHECK( tc2->had_event == false );
+    BOOST_CHECK_EQUAL( tc2->nb_events, 0 ); // not running.
+    BOOST_CHECK( tce->had_event == false );
+    BOOST_CHECK_EQUAL( tce->nb_events, 0 ); // not running.
+
+    // After addEventPort, do the start (SequentialActivity)
+    tce->start();
+    tc2->start();
+
+    // Test data transfer
+    BOOST_CHECK( rdp.Get() == 1.0 );
+    wdp.Set( 3.0 );
+    BOOST_CHECK( rdp.Get() == 3.0 );
+    BOOST_CHECK( dp.Get() == 3.0 );
+    BOOST_CHECK( tce->had_event );
+    BOOST_CHECK_EQUAL( 1, tce->nb_events ); // 1 event port (dp) fired.
+    BOOST_CHECK( tc2->had_event );
+    BOOST_CHECK_EQUAL( 1, tc2->nb_events ); // 1 event port (rdp) connected
+    tce->resetStats();
+    tc2->resetStats();
+
+    // Test Reconnection after tasks are running:
+    dp.disconnect();
+    BOOST_CHECK( dp.connectTo( &dp2 ) );
+    BOOST_CHECK( dp.connected() );
+    BOOST_CHECK( dp2.connected() );
+
+    double dat;
+    dp.Set( 5.0 );
+    dp2.Get( dat );
+    BOOST_CHECK( dat == 5.0 );
+    BOOST_CHECK( tce->had_event );
+    BOOST_CHECK_EQUAL( 1, tce->nb_events ); // 1 event port (dp) fired.
+    BOOST_CHECK( tc2->had_event );
+    BOOST_CHECK_EQUAL( 1, tc2->nb_events ); // 1 event port (dp2).
+    tce->resetStats();
+    tc2->resetStats();
+
+    dp2.Set( 6.0 );
+    BOOST_CHECK( dp.Get() == 6.0 );
+    BOOST_CHECK( tce->had_event );
+    BOOST_CHECK_EQUAL( 1, tce->nb_events ); // 1 event port fired.
+    BOOST_CHECK( tc2->had_event );
+    BOOST_CHECK_EQUAL( 1, tc2->nb_events ); // 1 event port fired.
+    tce->resetStats();
+    tc2->resetStats();
+
+    dp.disconnect();
+    dp2.disconnect();
+#ifndef OROPKG_OS_MACOSX
+    dp = new DataObject<double>("Data",10.0);
+    BOOST_CHECK( dp.connected() );
+    BOOST_CHECK( dp.Get() == 10.0 );
+#endif
+    // Each time, each TC must receive one event.
+    double val;
+    BOOST_CHECK( wbp.Push( 5.0 ) );
+    BOOST_CHECK( rbp.Pop( val ) );
+    BOOST_CHECK( tce->had_event );
+    BOOST_CHECK_EQUAL( 1, tce->nb_events ); // 1 event port (bp) fired.
+    BOOST_CHECK( tc2->had_event );
+    BOOST_CHECK_EQUAL( 1, tc2->nb_events ); // 1 event ports (rbp) fired.
+    tce->resetStats();
+    tc2->resetStats();
+
+    BOOST_CHECK( bp.Push( 5.0 ) );
+    BOOST_CHECK( bp.Pop( val ) );
+    BOOST_CHECK( tce->had_event );
+    BOOST_CHECK_EQUAL( 1, tce->nb_events ); // 1 event port (bp) fired.
+    BOOST_CHECK( tc2->had_event );
+    BOOST_CHECK_EQUAL( 1, tc2->nb_events ); // 1 event port (rbp) fired.
+    tce->resetStats();
+    tc2->resetStats();
 }
 
 BOOST_AUTO_TEST_CASE( testConnections)

@@ -25,6 +25,7 @@
 #include <SimulationThread.hpp>
 #include <NonPeriodicActivity.hpp>
 #include <CompletionProcessor.hpp>
+#include <os/Atomic.hpp>
 
 #include "event_test.hpp"
 #include <boost/bind.hpp>
@@ -263,6 +264,33 @@ void EventTest::reset()
     t_listener_what = "";
 }
 
+static OS::AtomicInt testConcurrentEmitHandlerCount;
+
+void testConcurrentEmitHandler(void)
+{
+    testConcurrentEmitHandlerCount.inc();
+}
+
+class EmitAndcount
+    :public RunnableInterface
+{
+public:
+    EmitAndcount(Event<void(void)> &ev)
+        : mev(ev), count(0) {}
+    Event<void(void)> &mev;
+    int count;
+    bool initialize() { return true;}
+    void step() {}
+    void finalize() {}
+    bool breakLoop() { return true; }
+    void loop()
+    {
+        mev();
+        ++count;
+        this->getActivity()->trigger();
+    }
+
+};
 
 BOOST_FIXTURE_TEST_SUITE( EventTestSuite, EventTest )
 
@@ -300,6 +328,34 @@ BOOST_AUTO_TEST_CASE( testCrossRemoval )
     BOOST_CHECK( task.start() );
     BOOST_CHECK( SimulationThread::Instance()->run(100) );
     BOOST_CHECK( task.stop() );
+}
+
+BOOST_AUTO_TEST_CASE( testConcurrentEmit )
+{
+    testConcurrentEmitHandlerCount.set(0);
+    Event<void(void)> event("Event");
+    BOOST_CHECK( event.ready() );
+    EmitAndcount arunobj(event);
+    EmitAndcount brunobj(event);
+    EmitAndcount crunobj(event);
+    EmitAndcount drunobj(event);
+    NonPeriodicActivity atask(0, &arunobj);
+    NonPeriodicActivity btask(0, &brunobj);
+    NonPeriodicActivity ctask(0, &crunobj);
+    NonPeriodicActivity dtask(0, &drunobj);
+    Handle h = event.connect( &testConcurrentEmitHandler );
+    BOOST_CHECK( h.connected() );
+    BOOST_CHECK( atask.start() );
+    BOOST_CHECK( btask.start() );
+    BOOST_CHECK( ctask.start() );
+    BOOST_CHECK( dtask.start() );
+    sleep(1);
+    BOOST_CHECK( atask.stop() );
+    BOOST_CHECK( btask.stop() );
+    BOOST_CHECK( ctask.stop() );
+    BOOST_CHECK( dtask.stop() );
+    // Verify that all emits also caused the handler to be called.
+    BOOST_CHECK_EQUAL( arunobj.count + brunobj.count + crunobj.count + drunobj.count, testConcurrentEmitHandlerCount.read() );
 }
 
 BOOST_AUTO_TEST_CASE( testBlockingTask )

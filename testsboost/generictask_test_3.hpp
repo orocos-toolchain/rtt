@@ -26,11 +26,14 @@
 using namespace RTT;
 
 class StatesTC;
+class EventPortsTC;
 
 class Generic_TaskTest_3
 {
 public:
 	TaskContext* tc;
+    EventPortsTC* tce;
+    EventPortsTC* tc2;
     StatesTC* stc;
     ActivityInterface* tsim;
     ActivityInterface* stsim;
@@ -46,6 +49,7 @@ public:
     void testProperties();
     void testAttributes();
     void testPorts();
+    void testEventPorts();
     void testConnections();
     void testPortObjects();
     void testTCStates();
