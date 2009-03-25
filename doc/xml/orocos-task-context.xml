@@ -1502,31 +1502,14 @@ the_data_port.     cd            ls
 	Finally, a 'write' port can take an initial value in the
 	constructor as well. This value will be used when the connection
 	between two ports is created in order to initialise the connection
-	( using 'connectPorts', see <xref linkend="connect-tasks" /> ).
+	( using 'connectPorts', see <xref linkend="connect-tasks" /> for a full
+	example).
 	If a 'write' port is connected to an existing connection, the
 	initial value (and buffer size) are ignored and the settings of
 	the existing connection are not touched. You can modify the
 	initial value with the 'Set( value )' function in both Buffer
 	and Data write ports.
       </para>
-      <note>
-	<para>
-	  Alternatively, you can connect buffers in your
-	  main() program by writing:
-	  <programlisting>  #include &lt;rtt/ConnectionFactory.hpp&gt;
-  // ...
-  int buf_size = 100;
-  <classname>RTT::ConnectionFactory</classname>&lt;double&gt; cf;
-  <classname>RTT::ConnectionInterface</classname>::shared_ptr con =
-    cf.createBuffer(a_task->ports()->getPort("SetPoint_X"), 
-                    b_task->ports()->getPort("SetPoint_X"), 
-                    buf_size);
-  if (con)
-     con->connect();</programlisting>
-	<emphasis>before</emphasis> the tasks are connected. 
-	This connection will then take precedence. 
-	</para>
-      </note>
       </section>
       <section>
 	<title>Using the Data Flow Interface in C++</title>
@@ -2640,10 +2623,47 @@ the_data_port.     cd            ls
 	connections.
       </para>
       <para>
-	Before calling <function>connectPorts</function>, one may connect
-	individual ports using <function>a_port.connectTo(&amp;b_port);</function>
-	when complexer data flow networks need to be formed.
-    </para>
+	Before calling <function>connectPorts</function>, one may connect individual ports,
+	e.g., when the portnames do not match or when complexer data
+	flow networks need to be formed. Suppose that Task A has a
+	port a_port, Task B a b_port and Task C a c_port (all are of type PortInterface*). Then
+	(shared) connections are made as follows:
+	<programlisting>  b_port->connectTo( a_port );
+  c_port->connectTo( a_port );</programlisting>
+	Note that the order of ports matters; the following would NOT work:
+	<programlisting>  a_port->connectTo( b_port ); // ok...
+  a_port->connectTo( c_port ); // returns false !</programlisting>
+         It would leave c_port unconnected, because a_port already has a connection
+	 and refuses to connect in that case.
+      </para>
+      <note>
+	<para>
+	  Only use this note if you're an advanced user:
+	</para>
+	<para>
+	  In case you want to override buffer/port parameters when
+	  you connect ports, you can connect ports in your
+	  main() program by writing:
+	  <programlisting>  #include &lt;rtt/ConnectionFactory.hpp&gt;
+  // ...
+  int buf_size = 100;
+  <classname>RTT::ConnectionFactory</classname>&lt;double&gt; cf;
+
+  // creates an 'unconnected' connection object:
+  <classname>RTT::ConnectionInterface</classname>::shared_ptr con =
+    cf.createBuffer(a_task->ports()->getPort("SetPoint_X"), 
+                    b_task->ports()->getPort("SetPoint_X"), 
+                    buf_size); // use createDataObject() for data ports.
+
+  // if all went well, 'connect' the connection object:
+  if (con)
+     con->connect(); // this is mandatory ! </programlisting>
+	 Do this <emphasis>before</emphasis> the ports are connected. 
+	 Then connect all other necessary ports to that connection, using
+	 <programlisting>c_port.connectTo( con );</programlisting>.
+	</para>
+      </note>
+
     <example><title>TaskContext Data Flow Topology Example</title>
     <para>This diagram shows some possible topologies. Four tasks,
     "A", "B", "C" and "D" have each a port "MyData" and a port "MyData2".
