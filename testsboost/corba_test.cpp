@@ -264,25 +264,25 @@ BOOST_AUTO_TEST_CASE( testPorts )
     BOOST_CHECK( CORBA::is_nil(data_as_buffer) );
     ::RTT::Corba::BufferChannel_var buf = ts->server()->ports()->createBufferChannel("mb");
     BOOST_CHECK(buf.in());
-    BOOST_CHECK_EQUAL( buf->size(), mb1->size() );
-    BOOST_CHECK_EQUAL( buf->capacity(), mb1->capacity() );
+    BOOST_CHECK_EQUAL( (int)buf->size(), mb1->size() );
+    BOOST_CHECK_EQUAL( (int)buf->capacity(), mb1->capacity() );
 
     any = new CORBA::Any();
     value = 5.0;
     // Write from corba, read from C++
     any <<= value;
     BOOST_CHECK( buf->push( any.in() ) );
-    BOOST_CHECK_EQUAL( buf->size(), mb1->size() );
+    BOOST_CHECK_EQUAL( (int)buf->size(), mb1->size() );
 
     BOOST_CHECK_EQUAL( 5.0, mb1->front() );
     BOOST_CHECK( mb1->Pop( value ) );
     BOOST_CHECK_EQUAL( 5.0, value );
-    BOOST_CHECK_EQUAL( buf->size(), mb1->size() );
+    BOOST_CHECK_EQUAL( (int)buf->size(), mb1->size() );
 
     // Write from C++, read from corba
     value = -5.0;
     mb1->Push( value );
-    BOOST_CHECK_EQUAL( buf->size(), mb1->size() );
+    BOOST_CHECK_EQUAL( (int)buf->size(), mb1->size() );
 
     any = buf->front();
     value = 0.0;
@@ -292,7 +292,7 @@ BOOST_AUTO_TEST_CASE( testPorts )
     value = 0.0;
     any >>= value;
     BOOST_CHECK_EQUAL( -5.0, value );
-    BOOST_CHECK_EQUAL( buf->size(), mb1->size() );
+    BOOST_CHECK_EQUAL( (int)buf->size(), mb1->size() );
 
 }
 
