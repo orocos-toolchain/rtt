@@ -32,6 +32,7 @@ class Generic_TaskTest_2 : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( Generic_TaskTest_2 );
 
+    CPPUNIT_TEST( testCommandThreading );
     CPPUNIT_TEST( testCommand );
     CPPUNIT_TEST( testCommandProcessor );
     CPPUNIT_TEST( testRemoteCommand );
@@ -51,7 +52,6 @@ class Generic_TaskTest_2 : public CppUnit::TestFixture
 
     // ref/const-ref tests:
     double ret;
-
     bool cn1r(double& a) { a = ret; return true; }
     bool cd1r(double& a) { a = ret * 2; return true; }
     bool cn1cr(const double& a) { ret = a; return true; }
@@ -74,11 +74,12 @@ class Generic_TaskTest_2 : public CppUnit::TestFixture
     // test const std::string& argument for command_ds
     bool comstr(const std::string& cs) { return !cs.empty(); }
 
-    bool cd0()  { return true; }
-    bool cd1(int i)  { return true; }
-    bool cd2(int i, double d)  { return true; }
-    bool cd3(int i, double d, char c)  { return true; }
-    bool cd4(int i, double d, char c, bool b)  { return true; }
+    int cd0count,cd1count,cd2count,cd3count,cd4count;
+    bool cd0()  { cd0count++; return true; }
+    bool cd1(int i)  { cd1count++; return true; }
+    bool cd2(int i, double d)  { cd2count++; return true; }
+    bool cd3(int i, double d, char c)  { cd3count++; return true; }
+    bool cd4(int i, double d, char c, bool b)  { cd4count++; return true; }
     bool cn0() const  { return true; }
     bool cn1(int i) const  { CPPUNIT_ASSERT_EQUAL(1, i); return true; }
     bool cn2(int i, double d) const  { CPPUNIT_ASSERT_EQUAL(1, i); CPPUNIT_ASSERT_EQUAL(1.0,d); return true; }
@@ -95,6 +96,7 @@ public:
     void setUp();
     void tearDown();
 
+    void testCommandThreading();
     void testAddCommand();
     void testCRCommand();
     void testCSCRCommand();

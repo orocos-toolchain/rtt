@@ -220,14 +220,15 @@ namespace RTT
                 if (this->minvoked && !this->done() ) // if invoked and not ready.
                     return false;
                 this->reset();
+                // race: maccepted may become true only after process+step ran.
                 this->maccept = this->mcp->process( this );
                 this->minvoked = true;
                 return this->maccept;
             }
 
             virtual bool execute() {
-                // do not allow to execute twice or if not queued.
-                if (!this->maccept || this->mexec)
+                // do not allow to execute twice
+                if ( this->mexec )
                     return false;
                 this->mvalid = this->exec();
                 this->mexec = true;

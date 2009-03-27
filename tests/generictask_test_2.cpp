@@ -44,6 +44,11 @@ Generic_TaskTest_2::setUp()
     tc->addObject( this->createCommandFactory() );
     tsim = new SimulationActivity(0.001, tc->engine() );
     SimulationThread::Instance()->stop();
+    cd0count = 0;
+    cd1count = 0;
+    cd2count = 0;
+    cd3count = 0;
+    cd4count = 0;
 }
 
 
@@ -80,6 +85,53 @@ TaskObject* Generic_TaskTest_2::createCommandFactory()
     to->commands()->addCommand( command("c41", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn1, this, tc->engine()->commands()), "c4d","a","ad","a","ad","a","ad","a","ad");
     to->commands()->addCommand( command("c44", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn4, this, tc->engine()->commands()), "c4d","a","ad","a","ad","a","ad","a","ad");
     return to;
+}
+
+struct Sender: public TaskContext
+{
+    Command<bool(void)> com0;
+    Command<bool(int)> com1;
+    int com0count,com1count;
+    TaskContext* mrecv;
+
+    Sender(TaskContext* receiver)
+        : TaskContext("Sender"),
+          com0count(0),
+          com1count(0)
+    {
+        mrecv = receiver;
+        com0 = mrecv->getObject("commands")->commands()->getCommand<bool(void)>("c00");
+        com1 = mrecv->getObject("commands")->commands()->getCommand<bool(int)>("c11");
+        CPPUNIT_ASSERT(com0.ready());
+        CPPUNIT_ASSERT(com1.ready());
+    }
+
+    void updateHook() {
+        //CPPUNIT_ASSERT(com0.ready());
+        //CPPUNIT_ASSERT( com0() );
+        if (com0())
+            com0count++;
+        //this->stop();
+    }
+};
+
+void Generic_TaskTest_2::testCommandThreading()
+{
+    tsim->run(0);
+    Sender scomp ( tc ); // tc is receiver.
+
+    new NonPeriodicActivity(ORO_SCHED_RT, 1, tc->engine() );
+    new PeriodicActivity(ORO_SCHED_OTHER, 0, 0.1, scomp.engine());
+    CPPUNIT_ASSERT( tc->start() );
+    CPPUNIT_ASSERT( scomp.start() );
+    //while(1)
+    sleep(1);
+    CPPUNIT_ASSERT( scomp.stop() );
+    CPPUNIT_ASSERT( tc->stop() );
+    CPPUNIT_ASSERT_EQUAL(scomp.com0count, cd0count);
+    CPPUNIT_ASSERT_EQUAL(scomp.com1count, cd1count);
+    delete tc->engine()->getActivity();
+    delete scomp.engine()->getActivity();
 }
 
 void Generic_TaskTest_2::testCommandsC()
