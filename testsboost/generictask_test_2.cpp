@@ -44,6 +44,11 @@ Generic_TaskTest_2::setUp()
     tsim = new SimulationActivity(0.001, tc->engine() );
     tc->setActivity( tsim );
     SimulationThread::Instance()->stop();
+    cd0count = 0;
+    cd1count = 0;
+    cd2count = 0;
+    cd3count = 0;
+    cd4count = 0;
 }
 
 
@@ -81,6 +86,33 @@ TaskObject* Generic_TaskTest_2::createCommandFactory()
     return to;
 }
 
+
+struct Sender: public TaskContext
+{
+    Command<bool(void)> com0;
+    Command<bool(int)> com1;
+    int com0count,com1count;
+    TaskContext* mrecv;
+
+    Sender(TaskContext* receiver)
+        : TaskContext("Sender"),
+          com0count(0),
+          com1count(0)
+    {
+        mrecv = receiver;
+        com0 = mrecv->getObject("commands")->commands()->getCommand<bool(void)>("c00");
+        com1 = mrecv->getObject("commands")->commands()->getCommand<bool(int)>("c11");
+        BOOST_CHECK(com0.ready());
+        BOOST_CHECK(com1.ready());
+    }
+
+    void updateHook() {
+        if (com0())
+            com0count++;
+        if (com1(3))
+            com1count++;
+    }
+};
 
 void Generic_TaskTest_2::verifydispatch(DispatchInterface& com)
 {
@@ -126,6 +158,24 @@ void Generic_TaskTest_2::verifycommand(CommandC& com)
 
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE(  Generic_TaskTest2Suite,  Generic_TaskTest_2 )
+
+BOOST_AUTO_TEST_CASE( testCommandThreading )
+{
+    // Sends periodic commands.
+    Sender scomp ( tc ); // tc is receiver.
+
+    tc->setActivity( new NonPeriodicActivity(ORO_SCHED_OTHER, 0) );
+    scomp.setActivity( new PeriodicActivity(ORO_SCHED_OTHER, 0, 0.01) );
+
+    BOOST_CHECK( tc->start() );
+    BOOST_CHECK( scomp.start() );
+    sleep(1);
+    BOOST_CHECK( scomp.stop() );
+    BOOST_CHECK( tc->stop() );
+
+    BOOST_CHECK_EQUAL(scomp.com0count, cd0count);
+    BOOST_CHECK_EQUAL(scomp.com1count, cd1count);
+}
 
 BOOST_AUTO_TEST_CASE( testCommandsC)
 {
