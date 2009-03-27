@@ -132,10 +132,6 @@ ADD_SUBDIRECTORY(tests)
 
 #CONFIGURE_FILE( orocos-rtt.pc.in orocos-rtt-${OROCOS_TARGET}.pc @ONLY)
 #INSTALL_FILES( /lib/pkgconfig FILES orocos-rtt-${OROCOS_TARGET}.pc)
-CONFIGURE_FILE(Doxyfile.in Doxyfile @ONLY)
-
-# provide a link to src. Used by Doxygen.
-EXECUTE_PROCESS(COMMAND ln -nfs ${PROJ_SOURCE_DIR}/src ${PROJ_BINARY_DIR}/rtt ERROR_QUIET)
 
 ############################################################
 ##                                                         #
@@ -183,7 +179,7 @@ ENDIF ( "${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" STREQUAL "2.4" )
 
 
 #############################
-#			    #
+#                           #
 # Building Doxygen documents#
 #                           #
 #############################
@@ -194,6 +190,11 @@ ADD_DEPENDENCIES(docs dochtml docpdf)
 IF (DOXYGEN)
   ADD_CUSTOM_TARGET(docapi "doxygen" "Doxyfile")
   ADD_DEPENDENCIES(docs docapi)
+  CONFIGURE_FILE(Doxyfile.in Doxyfile @ONLY)
+
+  # provide a link to src. Used by Doxygen.
+  EXECUTE_PROCESS(COMMAND ln -nfs ${PROJ_SOURCE_DIR}/src ${PROJ_BINARY_DIR}/rtt ERROR_QUIET)
+
 ENDIF (DOXYGEN)
 
 
