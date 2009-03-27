@@ -149,7 +149,7 @@
   std::istream&amp; operator&gt;&gt;(std::istream&amp; is, ControlData&amp; cd) {
      char c;
      double x,y,z,n;
-     return os >> c >> x >> c >> y >> c >> z >> c >> c >> n; // 'c' reads '(' ',' ',' ')' and ':'
+     return is >> c >> x >> c >> y >> c >> z >> c >> c >> n; // 'c' reads '(' ',' ',' ')' and ':'
   }
   // ...
   // 'true' argument: <emphasis> it has operator&lt;&lt; and operator&gt;&gt;</emphasis>
