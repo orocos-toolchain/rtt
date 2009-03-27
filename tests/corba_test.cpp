@@ -266,25 +266,25 @@ void CorbaTest::testPorts()
     CPPUNIT_ASSERT( CORBA::is_nil(data_as_buffer) );
     ::RTT::Corba::BufferChannel_var buf = ts->server()->ports()->createBufferChannel("mb");
     CPPUNIT_ASSERT(buf.in());
-    CPPUNIT_ASSERT_EQUAL( buf->size(), mb1->size() );
-    CPPUNIT_ASSERT_EQUAL( buf->capacity(), mb1->capacity() );
+    CPPUNIT_ASSERT_EQUAL( (int)buf->size(), mb1->size() );
+    CPPUNIT_ASSERT_EQUAL( (int)buf->capacity(), mb1->capacity() );
 
     any = new CORBA::Any();
     value = 5.0;
     // Write from corba, read from C++
     any <<= value;
     CPPUNIT_ASSERT( buf->push( any.in() ) );
-    CPPUNIT_ASSERT_EQUAL( buf->size(), mb1->size() );
+    CPPUNIT_ASSERT_EQUAL( (int)buf->size(), mb1->size() );
 
     CPPUNIT_ASSERT_EQUAL( 5.0, mb1->front() );
     CPPUNIT_ASSERT( mb1->Pop( value ) );
     CPPUNIT_ASSERT_EQUAL( 5.0, value );
-    CPPUNIT_ASSERT_EQUAL( buf->size(), mb1->size() );
+    CPPUNIT_ASSERT_EQUAL( (int)buf->size(), mb1->size() );
 
     // Write from C++, read from corba
     value = -5.0;
     mb1->Push( value );
-    CPPUNIT_ASSERT_EQUAL( buf->size(), mb1->size() );
+    CPPUNIT_ASSERT_EQUAL( (int)buf->size(), mb1->size() );
 
     any = buf->front();
     value = 0.0;
@@ -294,7 +294,7 @@ void CorbaTest::testPorts()
     value = 0.0;
     any >>= value;
     CPPUNIT_ASSERT_EQUAL( -5.0, value );
-    CPPUNIT_ASSERT_EQUAL( buf->size(), mb1->size() );
+    CPPUNIT_ASSERT_EQUAL( (int)buf->size(), mb1->size() );
 
 }
 
