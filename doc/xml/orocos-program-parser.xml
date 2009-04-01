@@ -498,7 +498,7 @@
   using namespace RTT;
 
   <classname>RTT::TaskContext</classname>   tc;
-  tc.setActivity( new <classname>RTT::PeriodicActivity</classname> ptask(5, 0.01) );
+  tc.setActivity( new <classname>RTT::PeriodicActivity</classname>(5, 0.01) );
 
   // Watch Logger output for errors :
   tc.scripting()->loadPrograms("program.ops");
@@ -1061,7 +1061,7 @@
   using namespace RTT;
 
   <classname>RTT::TaskContext</classname>   tc;
-  tc.setActivity( new <classname>RTT::PeriodicActivity</classname> ptask(5, 0.01) );
+  tc.setActivity( new <classname>RTT::PeriodicActivity</classname>(5, 0.01) );
 
   tc.scripting()->loadStateMachines( "state-machine.osd" );
 
