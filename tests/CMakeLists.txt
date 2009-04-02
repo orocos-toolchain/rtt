@@ -81,6 +81,13 @@ IF (ENABLE_TESTS AND CPPUNIT)
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")
     ADD_TEST( dev-test dev-test )
 
+    ADD_EXECUTABLE( specactivities-test ${DO_EXCLUDE} test-runner.cpp
+        specialized_activities.cpp)
+    TARGET_LINK_LIBRARIES( specactivities-test orocos-rtt-${OROCOS_TARGET} ${CPPUNIT} )
+    SET_TARGET_PROPERTIES( specactivities-test PROPERTIES
+        COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")
+    ADD_TEST( specactivities-test specactivities-test )
+
     IF(ENABLE_CORBA)
       ADD_EXECUTABLE( corba-test ${DO_EXCLUDE} test-runner.cpp corba_test.cpp )
       TARGET_LINK_LIBRARIES( corba-test orocos-rtt-${OROCOS_TARGET} orocos-rtt-corba-${OROCOS_TARGET} ${CPPUNIT} ${ORO_ACETAO_LIBRARIES})
