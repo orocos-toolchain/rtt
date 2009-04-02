@@ -92,8 +92,8 @@ namespace RTT
          * when new data arrives on this port. You can add more functions by using the port
          * directly using PortInterface::getNewDataOnPort().
          */
-        bool addEventPort(ReadPortInterface* port,
-                ReadPortInterface::NewDataOnPortEvent::SlotFunction callback = ReadPortInterface::NewDataOnPortEvent::SlotFunction() );
+        bool addEventPort(InputPortInterface* port,
+                InputPortInterface::NewDataOnPortEvent::SlotFunction callback = InputPortInterface::NewDataOnPortEvent::SlotFunction() );
 
         /**
          * Returns the list of all ports emitting events when new
@@ -118,7 +118,7 @@ namespace RTT
          * when new data arrives on this port. You can add more functions by using the port
          * directly using PortInterface::getNewDataOnPort().
          */
-        bool addEventPort(ReadPortInterface* port, std::string description, ReadPortInterface::NewDataOnPortEvent::SlotFunction callback = ReadPortInterface::NewDataOnPortEvent::SlotFunction() );
+        bool addEventPort(InputPortInterface* port, std::string description, InputPortInterface::NewDataOnPortEvent::SlotFunction callback = InputPortInterface::NewDataOnPortEvent::SlotFunction() );
 
         /**
          * Remove a Port from this interface.

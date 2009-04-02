@@ -17,7 +17,7 @@ bool PortInterface::setName(const std::string& name)
     return false;
 }
 
-ConnFactory* PortInterface::getConnFactory() { return 0; }
+ChannelFactory* PortInterface::getConnFactory() { return 0; }
 bool PortInterface::isLocal() const
 { return serverProtocol() == 0; }
 int PortInterface::serverProtocol() const
@@ -25,16 +25,16 @@ int PortInterface::serverProtocol() const
 
 bool PortInterface::connectTo(PortInterface& other, ConnPolicy const& policy)
 {
-    WritePortInterface* writer;
-    ReadPortInterface* reader;
+    OutputPortInterface* writer;
+    InputPortInterface* reader;
     
-    writer = dynamic_cast<WritePortInterface*>(this);
+    writer = dynamic_cast<OutputPortInterface*>(this);
     if (writer)
-        reader = dynamic_cast<ReadPortInterface*>(&other);
+        reader = dynamic_cast<InputPortInterface*>(&other);
     else
     {
-        writer = dynamic_cast<WritePortInterface*>(&other);
-        reader = dynamic_cast<ReadPortInterface*>(this);
+        writer = dynamic_cast<OutputPortInterface*>(&other);
+        reader = dynamic_cast<InputPortInterface*>(this);
     }
 
     if (writer && reader)
@@ -68,23 +68,23 @@ TaskObject* PortInterface::createPortObject()
 #endif
 }
 
-ReadPortInterface::ReadPortInterface(std::string const& name, ConnPolicy const& default_policy)
+InputPortInterface::InputPortInterface(std::string const& name, ConnPolicy const& default_policy)
     : PortInterface(name)
     , writer(NULL) 
     , default_policy(default_policy)
     , new_data_on_port_event(0) {}
 
-ReadPortInterface::~ReadPortInterface()
+InputPortInterface::~InputPortInterface()
 {
     disconnect();
     if (new_data_on_port_event)
         delete new_data_on_port_event;
 }
 
-ConnPolicy ReadPortInterface::getDefaultPolicy() const
+ConnPolicy InputPortInterface::getDefaultPolicy() const
 { return default_policy; }
 
-ReadPortInterface::NewDataOnPortEvent* ReadPortInterface::getNewDataOnPortEvent()
+InputPortInterface::NewDataOnPortEvent* InputPortInterface::getNewDataOnPortEvent()
 {
     if (!new_data_on_port_event)
         new_data_on_port_event = new NewDataOnPortEvent( this->getName() );
@@ -92,33 +92,33 @@ ReadPortInterface::NewDataOnPortEvent* ReadPortInterface::getNewDataOnPortEvent(
 }
 
 /** Returns true if this port is connected */
-bool ReadPortInterface::connected() const
+bool InputPortInterface::connected() const
 { return writer; }
 
-void ReadPortInterface::clear()
+void InputPortInterface::clear()
 { if (writer) writer->clear(); }
 
-void ReadPortInterface::disconnect()
+void InputPortInterface::disconnect()
 {
-    ConnElementBase::shared_ptr source = this->writer;
+    ChannelElementBase::shared_ptr source = this->writer;
     this->writer = 0;
     if (source)
         source->disconnect(false);
 }
 
-WritePortInterface::WritePortInterface(std::string const& name)
+OutputPortInterface::OutputPortInterface(std::string const& name)
     : PortInterface(name), connections(10) { }
 
-WritePortInterface::~WritePortInterface()
+OutputPortInterface::~OutputPortInterface()
 {
     disconnect();
 }
 
 /** Returns true if this port is connected */
-bool WritePortInterface::connected() const
+bool OutputPortInterface::connected() const
 { return !connections.empty(); }
 
-bool WritePortInterface::eraseMatchingConnection(PortInterface const* port, ConnDescriptor& descriptor)
+bool OutputPortInterface::eraseMatchingConnection(PortInterface const* port, ChannelDescriptor& descriptor)
 {
     if (port->isSameID(*descriptor.get<0>()))
     {
@@ -128,24 +128,24 @@ bool WritePortInterface::eraseMatchingConnection(PortInterface const* port, Conn
     }
     else return false;
 }
-void WritePortInterface::disconnect(PortInterface& port)
+void OutputPortInterface::disconnect(PortInterface& port)
 {
-    connections.delete_if( boost::bind(&WritePortInterface::eraseMatchingConnection, this, &port, _1) );
+    connections.delete_if( boost::bind(&OutputPortInterface::eraseMatchingConnection, this, &port, _1) );
 }
 
-bool WritePortInterface::eraseConnection(ConnDescriptor& descriptor)
+bool OutputPortInterface::eraseConnection(ChannelDescriptor& descriptor)
 {
     descriptor.get<1>()->disconnect(true);
     delete descriptor.get<0>();
     return true;
 }
 
-void WritePortInterface::disconnect()
+void OutputPortInterface::disconnect()
 {
-    connections.delete_if( boost::bind(&WritePortInterface::eraseConnection, this, _1) );
+    connections.delete_if( boost::bind(&OutputPortInterface::eraseConnection, this, _1) );
 }
 
-void WritePortInterface::addConnection(ConnDescriptor const& descriptor)
+void OutputPortInterface::addConnection(ChannelDescriptor const& descriptor)
 {
     if (!connections.append(descriptor))
     { OS::MutexLock locker(connection_resize_mtx);
@@ -154,12 +154,12 @@ void WritePortInterface::addConnection(ConnDescriptor const& descriptor)
     }
 }
 
-bool WritePortInterface::createDataConnection( ReadPortInterface& reader, int lock_policy )
+bool OutputPortInterface::createDataConnection( InputPortInterface& reader, int lock_policy )
 { return createConnection( reader, ConnPolicy::data(lock_policy) ); }
 
-bool WritePortInterface::createBufferConnection( ReadPortInterface& reader, int size, int lock_policy )
+bool OutputPortInterface::createBufferConnection( InputPortInterface& reader, int size, int lock_policy )
 { return createConnection( reader, ConnPolicy::buffer(size, lock_policy) ); }
 
-bool WritePortInterface::createConnection( ReadPortInterface& reader )
+bool OutputPortInterface::createConnection( InputPortInterface& reader )
 { return createConnection(reader, reader.getDefaultPolicy()); }
 

@@ -1,22 +1,22 @@
-#ifndef ORO_EXECUTION_CONNECTIONS_HPP
-#define ORO_EXECUTION_CONNECTIONS_HPP
+#ifndef ORO_EXECUTION_CHANNELS_HPP
+#define ORO_EXECUTION_CHANNELS_HPP
 
-#include "ConnectionInterface.hpp"
+#include "ChannelInterface.hpp"
 
 namespace RTT {
     /** A connection element that stores a single data sample
      */
     template<typename T>
-    class ConnDataElement : public ConnElement<T>
+    class ChannelDataElement : public ChannelElement<T>
     {
         bool written;
         typename DataObjectInterface<T>::shared_ptr data;
 
     public:
-        typedef typename ConnElement<T>::param_t param_t;
-        typedef typename ConnElement<T>::reference_t reference_t;
+        typedef typename ChannelElement<T>::param_t param_t;
+        typedef typename ChannelElement<T>::reference_t reference_t;
 
-        ConnDataElement(typename DataObjectInterface<T>::shared_ptr sample)
+        ChannelDataElement(typename DataObjectInterface<T>::shared_ptr sample)
             : written(false), data(sample) {}
 
         /** Update the data sample stored in this element.
@@ -49,22 +49,22 @@ namespace RTT {
         virtual void clear()
         {
             written = false;
-            ConnElement<T>::clear();
+            ChannelElement<T>::clear();
         }
     };
 
     /** A connection element that can store a fixed number of data samples.
      */
     template<typename T>
-    class ConnBufferElement : public ConnElement<T>
+    class ChannelBufferElement : public ChannelElement<T>
     {
         typename BufferInterface<T>::shared_ptr buffer;
 
     public:
-        typedef typename ConnElement<T>::param_t param_t;
-        typedef typename ConnElement<T>::reference_t reference_t;
+        typedef typename ChannelElement<T>::param_t param_t;
+        typedef typename ChannelElement<T>::reference_t reference_t;
 
-        ConnBufferElement(typename BufferInterface<T>::shared_ptr buffer)
+        ChannelBufferElement(typename BufferInterface<T>::shared_ptr buffer)
             : buffer(buffer) {}
  
         /** Appends a sample at the end of the FIFO
@@ -92,7 +92,7 @@ namespace RTT {
         virtual void clear()
         { 
             buffer->clear();
-            ConnElement<T>::clear();
+            ChannelElement<T>::clear();
         }
     };
 }

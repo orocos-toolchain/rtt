@@ -43,7 +43,7 @@
 #include "DataFlowC.h"
 #endif
 #include "../PortInterface.hpp"
-#include "../ConnectionInterface.hpp"
+#include "../ChannelInterface.hpp"
 #include "../Logger.hpp"
 #include "ControlTaskProxy.hpp"
 #include "CorbaTypeTransporter.hpp"
@@ -115,7 +115,7 @@ DataFlowInterface::PortDescriptions* DataFlowInterface_i::getPortDescriptions()
         }
 
         port_desc.type_name = CORBA::string_dup(type_info->getTypeName().c_str());
-        if (dynamic_cast<ReadPortInterface*>(port))
+        if (dynamic_cast<InputPortInterface*>(port))
             port_desc.type = Corba::Reader;
         else
             port_desc.type = Corba::Writer;
@@ -132,7 +132,7 @@ PortType DataFlowInterface_i::getPortType(const char * port_name)
     if (p == 0)
         throw NoSuchPortException();
 
-    if (dynamic_cast<ReadPortInterface*>(p))
+    if (dynamic_cast<InputPortInterface*>(p))
         return RTT::Corba::Reader;
     else return RTT::Corba::Writer;
 }
@@ -167,20 +167,20 @@ void DataFlowInterface_i::disconnectPort(
         const char* writer_port,
         DataFlowInterface_ptr reader_interface, const char* reader_port)
 {
-    RTT::WritePortInterface* writer = 
-        dynamic_cast<RTT::WritePortInterface*>(mdf->getPort(writer_port));
+    RTT::OutputPortInterface* writer = 
+        dynamic_cast<RTT::OutputPortInterface*>(mdf->getPort(writer_port));
     if (writer == 0)
         return;
 
     PortableServer::POA_var poa = _default_POA();
-    RemoteReadPort reader(writer->getTypeInfo(), reader_interface, reader_port, poa);
+    RemoteInputPort reader(writer->getTypeInfo(), reader_interface, reader_port, poa);
     writer->disconnect(reader);
 }
 
-ConnElement_ptr DataFlowInterface_i::buildReaderHalf(
+ChannelElement_ptr DataFlowInterface_i::buildReaderHalf(
         const char* reader_port, ConnPolicy const& corba_policy)
 {
-    RTT::ReadPortInterface* reader = dynamic_cast<RTT::ReadPortInterface*>(mdf->getPort(reader_port));
+    RTT::InputPortInterface* reader = dynamic_cast<RTT::InputPortInterface*>(mdf->getPort(reader_port));
     if (reader == 0)
         throw NoSuchPortException();
 
@@ -193,19 +193,19 @@ ConnElement_ptr DataFlowInterface_i::buildReaderHalf(
     if (!transporter)
         throw NoCorbaTransport();
 
-    RTT::ConnElementBase* element = transporter->buildReaderHalf(*reader, toRTT(corba_policy));
-    ConnElement_i* this_element;
-    PortableServer::ServantBase_var servant = this_element = transporter->createConnElement_i(mpoa);
-    dynamic_cast<ConnElementBase*>(this_element)->setReader(element);
+    RTT::ChannelElementBase* element = transporter->buildReaderHalf(*reader, toRTT(corba_policy));
+    ChannelElement_i* this_element;
+    PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mpoa);
+    dynamic_cast<ChannelElementBase*>(this_element)->setReader(element);
 
-    return RTT::Corba::ConnElement::_duplicate(this_element->_this());
+    return RTT::Corba::ChannelElement::_duplicate(this_element->_this());
 }
 
 ::CORBA::Boolean DataFlowInterface_i::createConnection(
         const char* writer_port, DataFlowInterface_ptr reader_interface,
         const char* reader_port, ConnPolicy const& policy)
 {
-    RTT::WritePortInterface* writer = dynamic_cast<RTT::WritePortInterface*>(mdf->getPort(writer_port));
+    RTT::OutputPortInterface* writer = dynamic_cast<RTT::OutputPortInterface*>(mdf->getPort(writer_port));
     if (writer == 0)
         return false;
 
@@ -213,7 +213,7 @@ ConnElement_ptr DataFlowInterface_i::buildReaderHalf(
         if (reader_interface->getPortType(reader_port) != Corba::Reader)
             return false;
 
-        RemoteReadPort port(writer->getTypeInfo(), reader_interface, reader_port, mpoa);
+        RemoteInputPort port(writer->getTypeInfo(), reader_interface, reader_port, mpoa);
         return writer->createConnection(port, toRTT(policy));
     } catch (...) {
         return false;
@@ -221,13 +221,13 @@ ConnElement_ptr DataFlowInterface_i::buildReaderHalf(
 }
 
 // standard constructor
-ConnElement_i::ConnElement_i(RTT::detail::TypeTransporter const& transport,
+ChannelElement_i::ChannelElement_i(RTT::detail::TypeTransporter const& transport,
 	  PortableServer::POA_ptr poa)
     : transport(transport)
     , mpoa(PortableServer::POA::_duplicate(poa)) {}
-ConnElement_i::~ConnElement_i() {}
-PortableServer::POA_ptr ConnElement_i::_default_POA()
+ChannelElement_i::~ChannelElement_i() {}
+PortableServer::POA_ptr ChannelElement_i::_default_POA()
 { return PortableServer::POA::_duplicate(mpoa); }
-void ConnElement_i::setRemoteSide(ConnElement_ptr remote)
+void ChannelElement_i::setRemoteSide(ChannelElement_ptr remote)
 { this->remote_side = remote; }
 

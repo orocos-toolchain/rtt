@@ -2,19 +2,19 @@
 #define ORO_EXECUTION_PORT_INTERRFACE_HPP
 
 #include <string>
-#include "Connections.hpp"
+#include "Channels.hpp"
 #include "Events.hpp"
 #include "ListLockFree.hpp"
 
 namespace RTT
 {
-    class ConnFactory;
+    class ChannelFactory;
     class TypeInfo;
     class TaskObject;
-    class ConnElementBase;
+    class ChannelElementBase;
 
     /** This class is used in places where a permanent representation of a
-     * reference to a port is needed, like in WritePortInterface.
+     * reference to a port is needed, like in OutputPortInterface.
      *
      * It is usually returned by PortInterface::getPortID, and used by
      * PortInterface::isSameID(PortID const&)
@@ -67,10 +67,10 @@ namespace RTT
         /** Removes any connection that either go to or come from this port */
         virtual void disconnect() = 0;
 
-        /** The ConnFactory object that allows to build the ConnElement chain
+        /** The ChannelFactory object that allows to build the ChannelElement chain
          * needed to build connections to or from this port
          */
-        virtual ConnFactory* getConnFactory();
+        virtual ChannelFactory* getConnFactory();
 
         /** Returns true if this port is located on this process, and false
          * otherwise
@@ -105,8 +105,8 @@ namespace RTT
          */
         virtual TaskObject* createPortObject();
 
-        /** Connects this port with \a other, using the given policy Unlike
-         * WritePortInterface::createConnection, \a other can be the write port
+        /** Channelects this port with \a other, using the given policy Unlike
+         * OutputPortInterface::createConnection, \a other can be the write port
          * and \c this the read port.
          *
          * @returns true on success, false on failure
@@ -114,19 +114,19 @@ namespace RTT
         bool connectTo(PortInterface& other, ConnPolicy const& policy);
     };
 
-    class ReadPortInterface : public PortInterface
+    class InputPortInterface : public PortInterface
     {
     public:
         typedef Event<void(PortInterface*)> NewDataOnPortEvent;
 
     protected:
-        ConnElementBase* writer;
+        ChannelElementBase* writer;
         ConnPolicy default_policy;
         NewDataOnPortEvent* new_data_on_port_event;
 
     public:
-        ReadPortInterface(std::string const& name, ConnPolicy const& default_policy = ConnPolicy());
-        ~ReadPortInterface();
+        InputPortInterface(std::string const& name, ConnPolicy const& default_policy = ConnPolicy());
+        ~InputPortInterface();
 
         ConnPolicy getDefaultPolicy() const;
 
@@ -153,25 +153,25 @@ namespace RTT
         NewDataOnPortEvent* getNewDataOnPortEvent();
     };
 
-    class WritePortInterface : public PortInterface
+    class OutputPortInterface : public PortInterface
     {
     protected:
-        typedef boost::tuple<RTT::PortID*, ConnElementBase::shared_ptr, ConnPolicy> ConnDescriptor;
-        ListLockFree< ConnDescriptor > connections;
+        typedef boost::tuple<RTT::PortID*, ChannelElementBase::shared_ptr, ConnPolicy> ChannelDescriptor;
+        ListLockFree< ChannelDescriptor > connections;
 
         /** Helper method for disconnect(PortInterface*) */
-        bool eraseMatchingConnection(PortInterface const* port, ConnDescriptor& descriptor);
+        bool eraseMatchingConnection(PortInterface const* port, ChannelDescriptor& descriptor);
         /** Helper method for disconnect() */
-        bool eraseConnection(ConnDescriptor& descriptor);
+        bool eraseConnection(ChannelDescriptor& descriptor);
 
         /** Mutex for when it is needed to resize the connections list */
         OS::Mutex connection_resize_mtx;
-        /** Helper method for WritePort<T>::createConnection */
-        void addConnection(ConnDescriptor const& descriptor);
+        /** Helper method for OutputPort<T>::createConnection */
+        void addConnection(ChannelDescriptor const& descriptor);
 
     public:
-        WritePortInterface(std::string const& name);
-        ~WritePortInterface();
+        OutputPortInterface(std::string const& name);
+        ~OutputPortInterface();
 
         virtual bool keepsLastWrittenValue() const = 0;
         virtual void keepLastWrittenValue(bool new_flag) = 0;
@@ -182,23 +182,23 @@ namespace RTT
 
         virtual bool connected() const;
 
-        /** Connects this write port to the given read port, using a single-data
+        /** Channelects this write port to the given read port, using a single-data
          * policy with the given locking mechanism */
-        bool createDataConnection( ReadPortInterface& sink, int lock_policy = ConnPolicy::LOCK_FREE );
+        bool createDataConnection( InputPortInterface& sink, int lock_policy = ConnPolicy::LOCK_FREE );
 
-        /** Connects this write port to the given read port, using a buffered
+        /** Channelects this write port to the given read port, using a buffered
          * policy, with the buffer of the given size and the given locking
          * mechanism */
-        bool createBufferConnection( ReadPortInterface& sink, int size, int lock_policy = ConnPolicy::LOCK_FREE );
+        bool createBufferConnection( InputPortInterface& sink, int size, int lock_policy = ConnPolicy::LOCK_FREE );
 
-        /** Connects this write port to the given read port, using the as policy
+        /** Channelects this write port to the given read port, using the as policy
          * the default policy of the sink port
          */
-        bool createConnection( ReadPortInterface& sink );
+        bool createConnection( InputPortInterface& sink );
 
-        /** Connects this write port to the given read port, using the given
+        /** Channelects this write port to the given read port, using the given
          * policy */
-        virtual bool createConnection( ReadPortInterface& sink, ConnPolicy const& policy ) = 0;
+        virtual bool createConnection( InputPortInterface& sink, ConnPolicy const& policy ) = 0;
     };
 }
 

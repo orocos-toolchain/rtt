@@ -76,7 +76,7 @@ namespace RTT
         return true;
     }
 
-    bool DataFlowInterface::addEventPort(ReadPortInterface* port, ReadPortInterface::NewDataOnPortEvent::SlotFunction callback) {
+    bool DataFlowInterface::addEventPort(InputPortInterface* port, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
         if (this->addPort(port)) {
             if (callback)
                 port->getNewDataOnPortEvent()->connect(callback, mparent->events()->getEventProcessor() );
@@ -98,7 +98,7 @@ namespace RTT
         return true;
     }
 
-    bool DataFlowInterface::addEventPort(ReadPortInterface* port, std::string description, ReadPortInterface::NewDataOnPortEvent::SlotFunction callback) {
+    bool DataFlowInterface::addEventPort(InputPortInterface* port, std::string description, InputPortInterface::NewDataOnPortEvent::SlotFunction callback) {
         if (this->addPort(port, description)) {
             if (callback)
                 port->getNewDataOnPortEvent()->connect(callback, mparent->events()->getEventProcessor() );

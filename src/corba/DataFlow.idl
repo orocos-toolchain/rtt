@@ -18,9 +18,9 @@ module RTT
         long size;
     };
 
-    interface ConnElement
+    interface ChannelElement
     {
-        void setRemoteSide(in ConnElement writer);
+        void setRemoteSide(in ChannelElement writer);
         boolean read(out any sample);
         oneway void write(in any sample);
         oneway void remoteSignal();
@@ -99,7 +99,7 @@ module RTT
        * Creates the reader-half of the connection for the given read port and
        * the given policy
        */
-      ConnElement buildReaderHalf(in string reader_port, in ConnPolicy policy)
+      ChannelElement buildReaderHalf(in string reader_port, in ConnPolicy policy)
             raises(NoCorbaTransport);
 
       /**

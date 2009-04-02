@@ -333,9 +333,9 @@ namespace RTT
                 {
                     PortInterface* new_port;
                     if (port.type == RTT::Corba::Reader)
-                        new_port = new RemoteReadPort( type_info, dfact.in(), port.name.in(), ProxyPOA() );
+                        new_port = new RemoteInputPort( type_info, dfact.in(), port.name.in(), ProxyPOA() );
                     else
-                        new_port = new RemoteWritePort( type_info, dfact.in(), port.name.in(), ProxyPOA() );
+                        new_port = new RemoteOutputPort( type_info, dfact.in(), port.name.in(), ProxyPOA() );
 
                     this->ports()->addPort(new_port);
                     port_proxies.push_back(new_port); // see comment in definition of port_proxies

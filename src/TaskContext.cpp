@@ -48,7 +48,7 @@
 
 #include "DataSource.hpp"
 #include "Method.hpp"
-#include "ConnectionInterface.hpp"
+#include "ChannelInterface.hpp"
 
 #include "rtt-config.h"
 #if !defined(ORO_EMBEDDED) && defined(OROPKG_EXECUTION_PROGRAM_PARSER)
@@ -232,14 +232,14 @@ namespace RTT
             }
 
             // Try to find a way to connect them
-            WritePortInterface* this_w = dynamic_cast<WritePortInterface*>(*it);
-            ReadPortInterface* other_r = dynamic_cast<ReadPortInterface*>(peerport);
+            OutputPortInterface* this_w = dynamic_cast<OutputPortInterface*>(*it);
+            InputPortInterface* other_r = dynamic_cast<InputPortInterface*>(peerport);
             if (this_w && other_r)
                 failure = failure || !this_w->createConnection(*other_r);
             else
             {
-                WritePortInterface* other_w = dynamic_cast<WritePortInterface*>(peerport);
-                ReadPortInterface* this_r = dynamic_cast<ReadPortInterface*>(*it);
+                OutputPortInterface* other_w = dynamic_cast<OutputPortInterface*>(peerport);
+                InputPortInterface* this_r = dynamic_cast<InputPortInterface*>(*it);
                 if (other_w && this_r)
                     failure = failure || !other_w->createConnection(*this_r);
                 else
@@ -444,7 +444,7 @@ namespace RTT
         const DataFlowInterface::Ports& ports = this->ports()->getEventPorts();
         for (DataFlowInterface::Ports::const_iterator it = ports.begin(); it != ports.end(); ++it)
             {
-                ReadPortInterface* read_port = dynamic_cast<ReadPortInterface*>(*it);
+                InputPortInterface* read_port = dynamic_cast<InputPortInterface*>(*it);
                 if (read_port)
                     {
                         read_port->getNewDataOnPortEvent()->connect(boost::bind(&TaskContext::dataOnPort, this, _1), this->engine()->events());

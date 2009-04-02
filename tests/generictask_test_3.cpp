@@ -568,10 +568,10 @@ void Generic_TaskTest_3::testAttributes()
 
 void Generic_TaskTest_3::testPortTaskInterface()
 {
-    ReadPort<int> rp1("Port1");
-    WritePort<int> wp1("Port1");
-    ReadPort<int> rp2("Port2");
-    WritePort<int> wp2("Port2");
+    InputPort<int> rp1("Port1");
+    OutputPort<int> wp1("Port1");
+    InputPort<int> rp2("Port2");
+    OutputPort<int> wp2("Port2");
 
     CPPUNIT_ASSERT( tc->ports()->addPort( &wp1 ));
     CPPUNIT_ASSERT( tc->ports()->addPort( &rp2 ));
@@ -580,7 +580,7 @@ void Generic_TaskTest_3::testPortTaskInterface()
     CPPUNIT_ASSERT( tc->ports()->addPort( &wp1 ) == false);
     {
         // also check adding different port with same name.
-        ReadPort<double> other_rp("Port1");
+        InputPort<double> other_rp("Port1");
         CPPUNIT_ASSERT( tc->ports()->addPort( &other_rp ) == false);
     }
 
@@ -619,8 +619,8 @@ void Generic_TaskTest_3::testPortTaskInterface()
 
 void Generic_TaskTest_3::testPortConnectionInitialization()
 {
-    WritePort<int> wp("WriterName", true);
-    ReadPort<int> rp("ReaderName", ConnPolicy::data(true));
+    OutputPort<int> wp("WriterName", true);
+    InputPort<int> rp("ReaderName", ConnPolicy::data(true));
 
     wp.createConnection(rp);
     int value = 0;
@@ -646,8 +646,8 @@ void Generic_TaskTest_3::testPortConnectionInitialization()
 
 void Generic_TaskTest_3::testPortSimpleConnections()
 {
-    WritePort<int> wp("WriterName");
-    ReadPort<int> rp("ReaderName", ConnPolicy::data());
+    OutputPort<int> wp("WriterName");
+    InputPort<int> rp("ReaderName", ConnPolicy::data());
 
     CPPUNIT_ASSERT( !wp.connected() );
     CPPUNIT_ASSERT( !rp.connected() );
@@ -730,7 +730,7 @@ void Generic_TaskTest_3::testPortSimpleConnections()
 
     // Test automatic disconnection because of port destruction
     {
-        ReadPort<int> rp("ReaderName", ConnPolicy::data());
+        InputPort<int> rp("ReaderName", ConnPolicy::data());
         CPPUNIT_ASSERT(wp.createConnection(rp));
         CPPUNIT_ASSERT( wp.connected() );
         CPPUNIT_ASSERT( rp.connected() );
@@ -740,9 +740,9 @@ void Generic_TaskTest_3::testPortSimpleConnections()
 
 void Generic_TaskTest_3::testPortForkedConnections()
 {
-    WritePort<int> wp("W");
-    ReadPort<int> rp1("R1", ConnPolicy::data());
-    ReadPort<int> rp2("R2", ConnPolicy::buffer(4));
+    OutputPort<int> wp("W");
+    InputPort<int> rp1("R1", ConnPolicy::data());
+    InputPort<int> rp2("R2", ConnPolicy::buffer(4));
 
     wp.createConnection(rp1);
     CPPUNIT_ASSERT( wp.connected() );
@@ -792,8 +792,8 @@ void Generic_TaskTest_3::testPortForkedConnections()
 
 void Generic_TaskTest_3::testPortObjects()
 {
-    WritePort<double> wp1("Write");
-    ReadPort<double>  rp1("Read");
+    OutputPort<double> wp1("Write");
+    InputPort<double>  rp1("Read");
 
     tc->ports()->addPort( &wp1 );
     tc->ports()->addPort( &rp1 );
@@ -841,8 +841,8 @@ void Generic_TaskTest_3::new_data_listener(PortInterface* port)
 
 void Generic_TaskTest_3::testPortSignalling()
 {
-    WritePort<double> wp1("Write");
-    ReadPort<double>  rp1("Read");
+    OutputPort<double> wp1("Write");
+    InputPort<double>  rp1("Read");
 
     Handle hl( rp1.getNewDataOnPortEvent()->setup(
                 boost::bind(&Generic_TaskTest_3::new_data_listener, this, _1) ) );
@@ -868,8 +868,8 @@ void Generic_TaskTest_3::testPortSignalling()
 
 void Generic_TaskTest_3::testPortDataSource()
 {
-    WritePort<int> wp1("Write");
-    auto_ptr<ReadPortInterface> reader(dynamic_cast<ReadPortInterface*>(wp1.antiClone()));
+    OutputPort<int> wp1("Write");
+    auto_ptr<InputPortInterface> reader(dynamic_cast<InputPortInterface*>(wp1.antiClone()));
     CPPUNIT_ASSERT(wp1.connectTo(*reader, ConnPolicy::buffer(2)));
 
     DataSource<int>::shared_ptr source = static_cast< DataSource<int>* >(reader->getDataSource());

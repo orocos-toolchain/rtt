@@ -85,13 +85,13 @@ namespace RTT
            */
           typedef typename Property<T>::DataSourceType PropertyType;
 
-          ConnElement_i* createConnElement_i(PortableServer::POA_ptr poa) const
-          { return new RemoteConnElement<T>(*this, poa); }
+          ChannelElement_i* createChannelElement_i(PortableServer::POA_ptr poa) const
+          { return new RemoteChannelElement<T>(*this, poa); }
 
-          ConnElementBase* buildReaderHalf(RTT::ReadPortInterface& reader, RTT::ConnPolicy const& policy) const
+          ChannelElementBase* buildReaderHalf(RTT::InputPortInterface& reader, RTT::ConnPolicy const& policy) const
           {
-              return ConnFactory::buildReaderHalf(
-                      static_cast<RTT::ReadPort<T>&>(reader),
+              return ChannelFactory::buildReaderHalf(
+                      static_cast<RTT::InputPort<T>&>(reader),
                       policy);
           }
 

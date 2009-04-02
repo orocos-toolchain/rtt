@@ -137,9 +137,9 @@ namespace RTT
             return false;
         }
 
-        virtual ReadPortInterface* readPort(std::string const& name) const
+        virtual InputPortInterface* readPort(std::string const& name) const
         { return 0; }
-        virtual WritePortInterface* writePort(std::string const& name) const
+        virtual OutputPortInterface* writePort(std::string const& name) const
         { return 0; }
     };
 

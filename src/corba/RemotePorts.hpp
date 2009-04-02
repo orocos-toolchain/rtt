@@ -2,7 +2,7 @@
 #define RTT_CORBA_REMOTE_PORTS_HPP
 
 #include "PortInterface.hpp"
-#include "ConnectionInterface.hpp"
+#include "ChannelInterface.hpp"
 #include "Ports.hpp"
 #include "DataFlowI.h"
 
@@ -43,11 +43,11 @@ namespace RTT {
             void disconnect();
         };
 
-        class RemoteWritePort
-            : public RemotePort<RTT::WritePortInterface>
+        class RemoteOutputPort
+            : public RemotePort<RTT::OutputPortInterface>
         {
         public:
-            RemoteWritePort(RTT::TypeInfo const* type_info,
+            RemoteOutputPort(RTT::TypeInfo const* type_info,
                     DataFlowInterface_ptr dataflow,
                     std::string const& name,
                     PortableServer::POA_ptr poa);
@@ -55,27 +55,27 @@ namespace RTT {
             bool keepsLastWrittenValue() const;
             void keepLastWrittenValue(bool new_flag);
 
-            using RTT::WritePortInterface::createConnection;
-            bool createConnection( ReadPortInterface& sink, RTT::ConnPolicy const& policy );
+            using RTT::OutputPortInterface::createConnection;
+            bool createConnection( InputPortInterface& sink, RTT::ConnPolicy const& policy );
 
             RTT::PortInterface* clone() const;
             RTT::PortInterface* antiClone() const;
         };
 
-        class RemoteReadPort
-            : public RemotePort<RTT::ReadPortInterface>
-            , public RTT::ConnFactory
+        class RemoteInputPort
+            : public RemotePort<RTT::InputPortInterface>
+            , public RTT::ChannelFactory
         {
         public:
-            RemoteReadPort(RTT::TypeInfo const* type_info,
+            RemoteInputPort(RTT::TypeInfo const* type_info,
                     DataFlowInterface_ptr dataflow,
                     std::string const& name,
                     PortableServer::POA_ptr poa);
 
-            ConnFactory* getConnFactory();
+            ChannelFactory* getConnFactory();
 
-            RTT::ConnElementBase* buildReaderHalf(RTT::TypeInfo const* type,
-                    RTT::ReadPortInterface& reader_,
+            RTT::ChannelElementBase* buildReaderHalf(RTT::TypeInfo const* type,
+                    RTT::InputPortInterface& reader_,
                     RTT::ConnPolicy const& policy);
 
             RTT::PortInterface* clone() const;

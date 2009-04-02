@@ -1,7 +1,7 @@
 #ifndef ORO_EXECUTION_PORTS_HPP
 #define ORO_EXECUTION_PORTS_HPP
 
-#include "Connections.hpp"
+#include "Channels.hpp"
 #include "PortInterface.hpp"
 
 #include "DataObjectInterfaces.hpp"
@@ -13,16 +13,16 @@
 namespace RTT
 {
     class TypeInfo;
-    template<typename T> class WritePort;
-    template<typename T> class ReadPort;
+    template<typename T> class OutputPort;
+    template<typename T> class InputPort;
 
     template<typename T>
-    class ConnWriterEndpoint : public ConnElement<T>
+    class ChannelWriterEndpoint : public ChannelElement<T>
     {
-        WritePort<T>* port;
+        OutputPort<T>* port;
 
         /** Helper method for disconnect(bool) */
-        bool eraseThisConnection(typename WritePort<T>::ConnDescriptor& connection)
+        bool eraseThisConnection(typename OutputPort<T>::ChannelDescriptor& connection)
         {
             if (connection.template get<1>() == this)
             {
@@ -32,39 +32,39 @@ namespace RTT
         }
 
     public:
-        ConnWriterEndpoint(WritePort<T>* port)
+        ChannelWriterEndpoint(OutputPort<T>* port)
             : port(port) { }
 
         /** Writes a new sample on this connection
          * This should never be called, as all connections are supposed to have
          * a data storage element */
-        virtual bool read(typename ConnElement<T>::reference_t sample)
+        virtual bool read(typename ChannelElement<T>::reference_t sample)
         { return false; }
 
         virtual void disconnect(bool writer_to_reader)
         {
             if (!writer_to_reader)
             {
-                WritePort<T>* port = this->port;
+                OutputPort<T>* port = this->port;
                 if (!port)
                     return;
 
                 port->connections.delete_if(boost::bind(
-                            &ConnWriterEndpoint<T>::eraseThisConnection, this, _1)
+                            &ChannelWriterEndpoint<T>::eraseThisConnection, this, _1)
                         );
             }
             else
-                ConnElement<T>::disconnect(writer_to_reader);
+                ChannelElement<T>::disconnect(writer_to_reader);
         }
     };
 
     template<typename T>
-    class ConnReaderEndpoint : public ConnElement<T>
+    class ChannelReaderEndpoint : public ChannelElement<T>
     {
-        ReadPort<T>* port;
+        InputPort<T>* port;
 
     public:
-        ConnReaderEndpoint(ReadPort<T>* port)
+        ChannelReaderEndpoint(InputPort<T>* port)
             : port(port)
         {
             port->writer = this;
@@ -73,47 +73,47 @@ namespace RTT
         /** Writes a new sample on this connection
          * This should never be called, as all connections are supposed to have
          * a data storage element */
-        virtual bool write(typename ConnElement<T>::param_t sample)
+        virtual bool write(typename ChannelElement<T>::param_t sample)
         { return false; }
 
         virtual void disconnect(bool writer_to_reader)
         {
             if (writer_to_reader)
             {
-                ReadPort<T>* port = this->port;
+                InputPort<T>* port = this->port;
                 this->port = 0;
                 if (port)
                     port->writer = 0;
             }
             else
-                ConnElement<T>::disconnect(writer_to_reader);
+                ChannelElement<T>::disconnect(writer_to_reader);
         }
 
         virtual void signal() const
         {
-            ReadPort<T>* port = this->port;
+            InputPort<T>* port = this->port;
             if (port && port->new_data_on_port_event)
                 (*port->new_data_on_port_event)(port);
         }
     };
 
-    class ConnFactory
+    class ChannelFactory
     {
     public:
 
-        /** This method is analoguous to the static ConnFactory::buildWriterHalf.
+        /** This method is analoguous to the static ChannelFactory::buildWriterHalf.
          * It is provided for remote connection building: for these connections,
          * no template can be used and therefore the connection setup should be
          * done based on the TypeInfo object
          */
-        virtual ConnElementBase* buildReaderHalf(TypeInfo const* type_info,
-                ReadPortInterface& reader, ConnPolicy const& policy) = 0;
+        virtual ChannelElementBase* buildReaderHalf(TypeInfo const* type_info,
+                InputPortInterface& reader, ConnPolicy const& policy) = 0;
 
         /** This method creates the connection element that will store data
          * inside the connection, based on the given policy
          */
         template<typename T>
-        static ConnElementBase* buildDataStorage(ConnPolicy const& policy)
+        static ChannelElementBase* buildDataStorage(ConnPolicy const& policy)
         {
             if (policy.type == ConnPolicy::DATA)
             {
@@ -123,7 +123,7 @@ namespace RTT
                 else
                     data_object = new DataObjectLockFree<T>("");
 
-                ConnDataElement<T>* result = new ConnDataElement<T>(data_object);
+                ChannelDataElement<T>* result = new ChannelDataElement<T>(data_object);
                 data_object->deref(); // data objects are initialized with a refcount of 1
                 return result;
             }
@@ -135,7 +135,7 @@ namespace RTT
                 else
                     buffer_object = new BufferLockFree<T>(policy.size);
 
-                return new ConnBufferElement<T>(typename BufferInterface<T>::shared_ptr(buffer_object));
+                return new ChannelBufferElement<T>(typename BufferInterface<T>::shared_ptr(buffer_object));
             }
             return NULL;
         }
@@ -152,12 +152,12 @@ namespace RTT
          * @see buildWriterHalf
          */
         template<typename T>
-        static ConnElementBase* buildWriterHalf(WritePort<T>& writer, ConnPolicy const& policy, ConnElementBase* sink)
+        static ChannelElementBase* buildWriterHalf(OutputPort<T>& writer, ConnPolicy const& policy, ChannelElementBase* sink)
         {
-            ConnElementBase* endpoint = new ConnWriterEndpoint<T>(&writer);
+            ChannelElementBase* endpoint = new ChannelWriterEndpoint<T>(&writer);
             if (policy.pull)
             {
-                ConnElementBase* data_object = buildDataStorage<T>(policy);
+                ChannelElementBase* data_object = buildDataStorage<T>(policy);
                 endpoint->setReader(data_object);
                 data_object->setReader(sink);
             }
@@ -175,12 +175,12 @@ namespace RTT
          * @see buildSourceHalf
          */
         template<typename T>
-        static ConnElementBase* buildReaderHalf(ReadPort<T>& reader, ConnPolicy const& policy)
+        static ChannelElementBase* buildReaderHalf(InputPort<T>& reader, ConnPolicy const& policy)
         {
-            ConnElementBase* endpoint = new ConnReaderEndpoint<T>(&reader);
+            ChannelElementBase* endpoint = new ChannelReaderEndpoint<T>(&reader);
             if (!policy.pull)
             {
-                ConnElementBase* data_object = buildDataStorage<T>(policy);
+                ChannelElementBase* data_object = buildDataStorage<T>(policy);
                 data_object->setReader(endpoint);
                 return data_object;
             }
@@ -196,18 +196,18 @@ namespace RTT
      * to a buffer connection.
      *
      * This class should not be used directly in normal code. What you would
-     * usually do is create a new read port using WritePort::antiClone() and
-     * call ReadPortInterface::getDataSource() to get the corresponding data
+     * usually do is create a new read port using OutputPort::antiClone() and
+     * call InputPortInterface::getDataSource() to get the corresponding data
      * source.  This is your duty to destroy the port when it is not needed
      * anymore.
      */
     template<typename T>
-    class ReadPortSource : public DataSource<T>
+    class InputPortSource : public DataSource<T>
     {
-        ReadPort<T>& reader;
+        InputPort<T>& reader;
 
     public:
-        ReadPortSource(ReadPort<T>& port)
+        InputPortSource(InputPort<T>& port)
             : reader(port) { }
 
         void reset() { reader.clear(); }
@@ -227,32 +227,32 @@ namespace RTT
             else return T();
         }
         DataSource<T>* clone() const
-        { return new ReadPortSource<T>(reader); }
+        { return new InputPortSource<T>(reader); }
         DataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
-        { return const_cast<ReadPortSource<T>*>(this); }
+        { return const_cast<InputPortSource<T>*>(this); }
     };
 
     template<typename T>
-    class ReadPort : public ReadPortInterface
+    class InputPort : public InputPortInterface
     {
-        friend class ConnReaderEndpoint<T>;
-        ReadPortSource<T>* data_source;
+        friend class ChannelReaderEndpoint<T>;
+        InputPortSource<T>* data_source;
 
     public:
-        ReadPort(std::string const& name, ConnPolicy const& default_policy = ConnPolicy())
-            : ReadPortInterface(name, default_policy)
+        InputPort(std::string const& name, ConnPolicy const& default_policy = ConnPolicy())
+            : InputPortInterface(name, default_policy)
             , data_source(0) {}
 
-        ~ReadPort() { delete data_source; }
+        ~InputPort() { delete data_source; }
 
         /** Reads a sample from the connection. \a sample is a reference which
          * will get updated if a sample is available. The method returns true
          * if a sample was available, and false otherwise. If false is returned,
          * then \a sample is not modified by the method
          */
-        bool read(typename ConnElement<T>::reference_t sample)
+        bool read(typename ChannelElement<T>::reference_t sample)
         {
-            typename ConnElement<T>::shared_ptr writer = static_cast< ConnElement<T>* >(this->writer);
+            typename ChannelElement<T>::shared_ptr writer = static_cast< ChannelElement<T>* >(this->writer);
             if (writer)
                 return writer->read(sample);
             else return false;
@@ -266,7 +266,7 @@ namespace RTT
          * Create a clone of this port with the same name
          */
         virtual PortInterface* clone() const
-        { return new ReadPort<T>(this->getName()); }
+        { return new InputPort<T>(this->getName()); }
 
         /**
          * Create the anti-clone (inverse port) of this port with the same name
@@ -274,7 +274,7 @@ namespace RTT
          * vice versa.
          */
         virtual PortInterface* antiClone() const
-        { return new WritePort<T>(this->getName()); }
+        { return new OutputPort<T>(this->getName()); }
 
         /** Returns a DataSourceBase interface to read this port. The returned
          * data source is always the same object and will be destroyed when the
@@ -283,7 +283,7 @@ namespace RTT
         DataSourceBase* getDataSource()
         {
             if (data_source) return data_source;
-            data_source = new ReadPortSource<T>(*this);
+            data_source = new InputPortSource<T>(*this);
             data_source->ref();
             return data_source;
         }
@@ -294,33 +294,33 @@ namespace RTT
          */
         virtual TaskObject* createPortObject()
         {
-            TaskObject* object = ReadPortInterface::createPortObject();
-            object->methods()->addMethod( method("read", &ReadPort<T>::read, this),
+            TaskObject* object = InputPortInterface::createPortObject();
+            object->methods()->addMethod( method("read", &InputPort<T>::read, this),
                     "Reads a sample from the port.",
                     "sample", "");
             return object;
         }
     };
     template<typename T>
-    class WritePort : public WritePortInterface
+    class OutputPort : public OutputPortInterface
     {
-        friend class ConnWriterEndpoint<T>;
+        friend class ChannelWriterEndpoint<T>;
 
         bool written;
         typename DataObjectInterface<T>::shared_ptr last_written_value;
 
-        bool do_write(typename ConnElement<T>::param_t sample, ConnDescriptor descriptor)
+        bool do_write(typename ChannelElement<T>::param_t sample, ChannelDescriptor descriptor)
         {
-            typename ConnElement<T>::shared_ptr reader
-                = boost::static_pointer_cast< ConnElement<T> >(descriptor.get<1>());
+            typename ChannelElement<T>::shared_ptr reader
+                = boost::static_pointer_cast< ChannelElement<T> >(descriptor.get<1>());
             if (reader->write(sample))
                 return false;
             else return true;
         }
 
     public:
-        WritePort(std::string const& name, bool keep_last_written_value = false)
-            : WritePortInterface(name)
+        OutputPort(std::string const& name, bool keep_last_written_value = false)
+            : OutputPortInterface(name)
             , written(false)
         {
             if (keep_last_written_value)
@@ -359,7 +359,7 @@ namespace RTT
             return false;
         }
 
-        void write(typename ConnElement<T>::param_t sample)
+        void write(typename ChannelElement<T>::param_t sample)
         {
             typename DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
             if (last_written_value)
@@ -367,7 +367,7 @@ namespace RTT
             written = true;
 
             connections.delete_if( boost::bind(
-                        &WritePort<T>::do_write, this, boost::ref(sample), _1)
+                        &OutputPort<T>::do_write, this, boost::ref(sample), _1)
                     );
         }
 
@@ -379,7 +379,7 @@ namespace RTT
          * Create a clone of this port with the same name
          */
         virtual PortInterface* clone() const
-        { return new WritePort<T>(this->getName()); }
+        { return new OutputPort<T>(this->getName()); }
 
         /**
          * Create the anti-clone (inverse port) of this port with the same name
@@ -387,25 +387,25 @@ namespace RTT
          * vice versa.
          */
         virtual PortInterface* antiClone() const
-        { return new ReadPort<T>(this->getName()); }
+        { return new InputPort<T>(this->getName()); }
 
-        using WritePortInterface::createConnection;
+        using OutputPortInterface::createConnection;
 
-        /** Connects this write port to the given read port, using the given
+        /** Channelects this write port to the given read port, using the given
          * policy */
-        virtual bool createConnection( ReadPortInterface& reader_, ConnPolicy const& policy )
+        virtual bool createConnection( InputPortInterface& reader_, ConnPolicy const& policy )
         {
-            ConnElementBase* reader_endpoint = 0;
+            ChannelElementBase* reader_endpoint = 0;
             if (reader_.isLocal())
             {
-                ReadPort<T>* reader = dynamic_cast<ReadPort<T>*>(&reader_);
+                InputPort<T>* reader = dynamic_cast<InputPort<T>*>(&reader_);
                 if (!reader)
                 {
                     log(Error) << "port " << reader_.getName() << " is not of the wrong specialization" << endlog();
                     return false;
                 }
 
-                reader_endpoint = ConnFactory::buildReaderHalf(*reader, policy);
+                reader_endpoint = ChannelFactory::buildReaderHalf(*reader, policy);
             }
             else
             {
@@ -429,8 +429,8 @@ namespace RTT
                 }
             }
 
-            typename ConnElement<T>::shared_ptr writer_endpoint =
-                static_cast< ConnElement<T>* >(ConnFactory::buildWriterHalf(*this, policy, reader_endpoint));
+            typename ChannelElement<T>::shared_ptr writer_endpoint =
+                static_cast< ChannelElement<T>* >(ChannelFactory::buildWriterHalf(*this, policy, reader_endpoint));
             addConnection( boost::make_tuple(reader_.getPortID(), writer_endpoint, policy) );
 
             if (policy.init && written)
@@ -452,8 +452,8 @@ namespace RTT
          */
         virtual TaskObject* createPortObject()
         {
-            TaskObject* object = WritePortInterface::createPortObject();
-            object->methods()->addMethod( method("write", &WritePort<T>::write, this),
+            TaskObject* object = OutputPortInterface::createPortObject();
+            object->methods()->addMethod( method("write", &OutputPort<T>::write, this),
                     "Writes a sample on the port.",
                     "sample", "");
             return object;

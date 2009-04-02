@@ -38,10 +38,10 @@ class CorbaTest : public CppUnit::TestFixture
     void new_data_listener(PortInterface* port);
 
     // Ports
-    ReadPort<double>*  mr1;
-    WritePort<double>* mw1;
-    ReadPort<double>*  mr2;
-    WritePort<double>* mw2;
+    InputPort<double>*  mr1;
+    OutputPort<double>* mw1;
+    InputPort<double>*  mr2;
+    OutputPort<double>* mw2;
 
     // ref/const-ref tests:
     double ret;

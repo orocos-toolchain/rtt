@@ -326,8 +326,8 @@ namespace RTT
         }
 
       
-        ReadPortInterface*  readPort(std::string const& name) const { return new ReadPort<T>(name); }  
-        WritePortInterface* writePort(std::string const& name) const { return new WritePort<T>(name); }  
+        InputPortInterface*  readPort(std::string const& name) const { return new InputPort<T>(name); }  
+        OutputPortInterface* writePort(std::string const& name) const { return new OutputPort<T>(name); }  
 
     };
 

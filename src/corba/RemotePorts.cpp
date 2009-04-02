@@ -57,54 +57,54 @@ bool RemotePort<BaseClass>::isSameID(RTT::PortID const& id) const
     return real_id->dataflow == dataflow && real_id->name == this->getName();
 }
 
-RemoteReadPort::RemoteReadPort(RTT::TypeInfo const* type_info,
+RemoteInputPort::RemoteInputPort(RTT::TypeInfo const* type_info,
         DataFlowInterface_ptr dataflow, std::string const& reader_port,
         PortableServer::POA_ptr poa)
-    : RemotePort< RTT::ReadPortInterface >(type_info, dataflow, reader_port, poa)
+    : RemotePort< RTT::InputPortInterface >(type_info, dataflow, reader_port, poa)
 {}
 
-RTT::DataSourceBase* RemoteReadPort::getDataSource()
-{ throw std::runtime_error("ReadPort::getDataSource() is not supported in CORBA port proxies"); }
+RTT::DataSourceBase* RemoteInputPort::getDataSource()
+{ throw std::runtime_error("InputPort::getDataSource() is not supported in CORBA port proxies"); }
 
-RTT::ConnElementBase* RemoteReadPort::buildReaderHalf(RTT::TypeInfo const* type,
-        RTT::ReadPortInterface& reader_,
+RTT::ChannelElementBase* RemoteInputPort::buildReaderHalf(RTT::TypeInfo const* type,
+        RTT::InputPortInterface& reader_,
         RTT::ConnPolicy const& policy)
 {
-    ConnElement_var remote =
+    ChannelElement_var remote =
         dataflow->buildReaderHalf(CORBA::string_dup(getName().c_str()), toCORBA(policy));
 
-    ConnElement_i*  local;
+    ChannelElement_i*  local;
     PortableServer::ServantBase_var servant = local =
         static_cast<CorbaTypeTransporter*>(type->getProtocol(ORO_CORBA_PROTOCOL_ID))
-                            ->createConnElement_i(mpoa);
+                            ->createChannelElement_i(mpoa);
 
     local->setRemoteSide(remote);
     remote->setRemoteSide(local->_this());
 
-    // The ConnElementBase object that represents reader_half on this side
-    return dynamic_cast<RTT::ConnElementBase*>(local);
+    // The ChannelElementBase object that represents reader_half on this side
+    return dynamic_cast<RTT::ChannelElementBase*>(local);
 }
 
-RTT::ConnFactory* RemoteReadPort::getConnFactory() { return this; }
-RTT::PortInterface* RemoteReadPort::clone() const
+RTT::ChannelFactory* RemoteInputPort::getConnFactory() { return this; }
+RTT::PortInterface* RemoteInputPort::clone() const
 { return type_info->readPort(getName()); }
-RTT::PortInterface* RemoteReadPort::antiClone() const
+RTT::PortInterface* RemoteInputPort::antiClone() const
 { return type_info->writePort(getName()); }
 
-RemoteWritePort::RemoteWritePort(RTT::TypeInfo const* type_info,
+RemoteOutputPort::RemoteOutputPort(RTT::TypeInfo const* type_info,
         DataFlowInterface_ptr dataflow, std::string const& reader_port,
         PortableServer::POA_ptr poa)
-    : RemotePort< RTT::WritePortInterface >(type_info, dataflow, reader_port, poa)
+    : RemotePort< RTT::OutputPortInterface >(type_info, dataflow, reader_port, poa)
 {}
 
-bool RemoteWritePort::keepsLastWrittenValue() const
+bool RemoteOutputPort::keepsLastWrittenValue() const
 { return false; }
-void RemoteWritePort::keepLastWrittenValue(bool new_flag)
-{ throw std::runtime_error("WritePort::keepLastWrittenValue() is not supported in CORBA port proxies"); }
-bool RemoteWritePort::createConnection( ReadPortInterface& sink, RTT::ConnPolicy const& policy )
-{ throw std::runtime_error("WritePort::createConnection() is not supported in CORBA port proxies"); }
-RTT::PortInterface* RemoteWritePort::clone() const
+void RemoteOutputPort::keepLastWrittenValue(bool new_flag)
+{ throw std::runtime_error("OutputPort::keepLastWrittenValue() is not supported in CORBA port proxies"); }
+bool RemoteOutputPort::createConnection( InputPortInterface& sink, RTT::ConnPolicy const& policy )
+{ throw std::runtime_error("OutputPort::createConnection() is not supported in CORBA port proxies"); }
+RTT::PortInterface* RemoteOutputPort::clone() const
 { return type_info->writePort(getName()); }
-RTT::PortInterface* RemoteWritePort::antiClone() const
+RTT::PortInterface* RemoteOutputPort::antiClone() const
 { return type_info->readPort(getName()); }
 

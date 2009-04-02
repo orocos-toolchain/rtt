@@ -61,8 +61,8 @@ namespace RTT
     class PropertyBag;
     class AttributeBase;
     class TransportPlugin;
-    class ReadPortInterface;
-    class WritePortInterface;
+    class InputPortInterface;
+    class OutputPortInterface;
 
     namespace detail {
         class TypeTransporter;
@@ -237,16 +237,16 @@ namespace RTT
         std::vector<int> getTransportNames() const;
         
         /**
-         * Returns a new ReadPort<T> object where T is the type represented by
+         * Returns a new InputPort<T> object where T is the type represented by
          * this TypeInfo object.
          */
-        virtual ReadPortInterface* readPort(std::string const& name) const = 0;
+        virtual InputPortInterface* readPort(std::string const& name) const = 0;
         
         /**
-         * Returns a new WritePort<T> object where T is the type represented by
+         * Returns a new OutputPort<T> object where T is the type represented by
          * this TypeInfo object.
          */
-        virtual WritePortInterface* writePort(std::string const& name) const = 0;
+        virtual OutputPortInterface* writePort(std::string const& name) const = 0;
     };
 
     /**

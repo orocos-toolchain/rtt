@@ -46,7 +46,7 @@
 #include "DataFlowC.h"
 #endif
 #include "CorbaConversion.hpp"
-#include "../ConnectionInterface.hpp"
+#include "../ChannelInterface.hpp"
 #include "../DataSources.hpp"
 #include "../TypeTransporter.hpp"
 
@@ -57,29 +57,29 @@
 
 namespace RTT {
     class DataFlowInterface;
-    class ReadPortInterface;
+    class InputPortInterface;
 
     namespace Corba {
         class CorbaTypeTransporter;
 
-        class ConnElement_i
-            : public POA_RTT::Corba::ConnElement
+        class ChannelElement_i
+            : public POA_RTT::Corba::ChannelElement
             , public virtual PortableServer::RefCountServantBase
         {
         protected:
-            ConnElement_var remote_side;
+            ChannelElement_var remote_side;
             RTT::detail::TypeTransporter const& transport;
             PortableServer::POA_var mpoa;
 
         public:
             // standard constructor
-            ConnElement_i(detail::TypeTransporter const& transport,
+            ChannelElement_i(detail::TypeTransporter const& transport,
 			  PortableServer::POA_ptr poa);
-            virtual ~ConnElement_i();
+            virtual ~ChannelElement_i();
 
             PortableServer::POA_ptr _default_POA();
 
-            void setRemoteSide(ConnElement_ptr remote);
+            void setRemoteSide(ChannelElement_ptr remote);
 	};
 
         class DataFlowInterface_i
@@ -107,7 +107,7 @@ namespace RTT {
                     const char* writer_port,
 		    DataFlowInterface_ptr reader_interface, const char* reader_port);
 
-            ConnElement_ptr buildReaderHalf(const char* reader_port, const ConnPolicy& policy);
+            ChannelElement_ptr buildReaderHalf(const char* reader_port, const ConnPolicy& policy);
 
             ::CORBA::Boolean createConnection(
                     const char* writer_port,

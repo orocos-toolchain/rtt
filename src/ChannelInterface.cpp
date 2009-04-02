@@ -1,27 +1,27 @@
-#include "Connections.hpp"
+#include "Channels.hpp"
 #include <os/Atomic.hpp>
 
 using namespace RTT;
 
-ConnElementBase::ConnElementBase()
+ChannelElementBase::ChannelElementBase()
     : writer(0)
 
 {
     oro_atomic_set(&refcount,0);
 }
 
-void ConnElementBase::setReader(shared_ptr new_reader)
+void ChannelElementBase::setReader(shared_ptr new_reader)
 {
     reader = new_reader;
     reader->writer = this;
 }
 
-void ConnElementBase::removeWriter()
+void ChannelElementBase::removeWriter()
 { writer = 0; }
-void ConnElementBase::removeReader()
+void ChannelElementBase::removeReader()
 { reader = 0; }
 
-void ConnElementBase::disconnect(bool writer_to_reader)
+void ChannelElementBase::disconnect(bool writer_to_reader)
 {
     if (writer_to_reader)
     {
@@ -37,36 +37,36 @@ void ConnElementBase::disconnect(bool writer_to_reader)
     }
 }
 
-ConnElementBase::shared_ptr ConnElementBase::getWriter()
+ChannelElementBase::shared_ptr ChannelElementBase::getWriter()
 { return writer; }
-ConnElementBase::shared_ptr ConnElementBase::getReader()
+ChannelElementBase::shared_ptr ChannelElementBase::getReader()
 { return reader; }
 
-void ConnElementBase::clear()
+void ChannelElementBase::clear()
 {
     shared_ptr writer_ = writer;
     if (writer_) writer_->clear();
 }
 
-void ConnElementBase::signal() const
+void ChannelElementBase::signal() const
 {
     shared_ptr reader = this->reader;
     if (reader) reader->signal();
 }
 
-void ConnElementBase::ref()
+void ChannelElementBase::ref()
 {
     oro_atomic_inc(&refcount);
 }
 
-void ConnElementBase::deref()
+void ChannelElementBase::deref()
 {
     if ( oro_atomic_dec_and_test(&refcount) ) delete this;
 }
 
-void RTT::intrusive_ptr_add_ref( ConnElementBase* p )
+void RTT::intrusive_ptr_add_ref( ChannelElementBase* p )
 { p->ref(); }
 
-void RTT::intrusive_ptr_release( ConnElementBase* p )
+void RTT::intrusive_ptr_release( ChannelElementBase* p )
 { p->deref(); }
 

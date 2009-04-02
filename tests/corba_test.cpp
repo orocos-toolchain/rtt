@@ -37,11 +37,11 @@ void
 CorbaTest::setUp()
 {
     // connect DataPorts
-    mr1 = new ReadPort<double>("mr");
-    mw1 = new WritePort<double>("mw");
+    mr1 = new InputPort<double>("mr");
+    mw1 = new OutputPort<double>("mw");
 
-    mr2 = new ReadPort<double>("mr");
-    mw2 = new WritePort<double>("mw");
+    mr2 = new InputPort<double>("mr");
+    mw2 = new OutputPort<double>("mw");
 
     tc =  new TaskContext( "root" );
     tc->addObject( this->createMethodFactory() );
@@ -400,18 +400,18 @@ void CorbaTest::testPortProxying()
      
     untyped_port = tp->ports()->getPort("mr");
     CPPUNIT_ASSERT(untyped_port);
-    ReadPortInterface* read_port = dynamic_cast<ReadPortInterface*>(tp->ports()->getPort("mr"));
+    InputPortInterface* read_port = dynamic_cast<InputPortInterface*>(tp->ports()->getPort("mr"));
     CPPUNIT_ASSERT(read_port);
      
     untyped_port = tp->ports()->getPort("mr");
     CPPUNIT_ASSERT(untyped_port);
-    WritePortInterface* write_port = dynamic_cast<WritePortInterface*>(tp2->ports()->getPort("mw"));
+    OutputPortInterface* write_port = dynamic_cast<OutputPortInterface*>(tp2->ports()->getPort("mw"));
     CPPUNIT_ASSERT(write_port);
 
     // Just make sure 'read_port' and 'write_port' are actually proxies and not
     // the real thing
-    CPPUNIT_ASSERT(dynamic_cast<Corba::RemoteReadPort*>(read_port));
-    CPPUNIT_ASSERT(dynamic_cast<Corba::RemoteWritePort*>(write_port));
+    CPPUNIT_ASSERT(dynamic_cast<Corba::RemoteInputPort*>(read_port));
+    CPPUNIT_ASSERT(dynamic_cast<Corba::RemoteOutputPort*>(write_port));
 
     CPPUNIT_ASSERT(!read_port->connected());
     CPPUNIT_ASSERT(read_port->getTypeInfo() == mr1->getTypeInfo());
@@ -433,7 +433,7 @@ void CorbaTest::testPortProxying()
     CPPUNIT_ASSERT(!write_port->connected());
 
     // Test cloning
-    auto_ptr<ReadPortInterface> read_clone(dynamic_cast<ReadPortInterface*>(read_port->clone()));
+    auto_ptr<InputPortInterface> read_clone(dynamic_cast<InputPortInterface*>(read_port->clone()));
     CPPUNIT_ASSERT(mw2->createConnection(*read_clone));
     CPPUNIT_ASSERT(read_clone->connected());
     CPPUNIT_ASSERT(!read_port->connected());

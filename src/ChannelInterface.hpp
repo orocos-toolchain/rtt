@@ -1,5 +1,5 @@
-#ifndef ORO_EXECUTION_CONNECTION_INTERFACE_HPP
-#define ORO_EXECUTION_CONNECTION_INTERFACE_HPP
+#ifndef ORO_EXECUTION_CHANNEL_INTERFACE_HPP
+#define ORO_EXECUTION_CHANNEL_INTERFACE_HPP
 
 #include "os/oro_atomic.h"
 #include <utility>
@@ -7,7 +7,7 @@
 #include <boost/call_traits.hpp>
 
 namespace RTT {
-    class ConnElementBase;
+    class ChannelElementBase;
 
     template <typename T> class DataObjectInterface;
     template <typename T> class BufferInterface;
@@ -77,38 +77,38 @@ namespace RTT {
         int    lock_policy;
         /** If true, then the sink will have to pull data. Otherwise, it is pushed
          * from the source. In both cases, the reader side is notified that new
-         * data is available by ConnElementBase::signal()
+         * data is available by ChannelElementBase::signal()
          */
         bool   pull;
         /** If the connection is a buffered connection, the size of the buffer */
         int    size;
     };
 
-    class ConnElementBase;
-    void intrusive_ptr_add_ref( ConnElementBase* e );
-    void intrusive_ptr_release( ConnElementBase* e );
+    class ChannelElementBase;
+    void intrusive_ptr_add_ref( ChannelElementBase* e );
+    void intrusive_ptr_release( ChannelElementBase* e );
 
     /** In the data flow implementation, a connection is a chain of
-     * ConnElementBase objects. Creating a new connection is chaining various
-     * types of ConnElement objects to respect the prescribed connection policy
+     * ChannelElementBase objects. Creating a new connection is chaining various
+     * types of ChannelElement objects to respect the prescribed connection policy
      * (ConnPolicy).
      *
-     * ConnElementBase objects are refcounted. In the chain, only the writer
+     * ChannelElementBase objects are refcounted. In the chain, only the writer
      * holds a pointer to the reader. The reader holds a simple pointer to its
      * writer.
      */
-    class ConnElementBase
+    class ChannelElementBase
     {
     public:
-        typedef boost::intrusive_ptr<ConnElementBase> shared_ptr;
+        typedef boost::intrusive_ptr<ChannelElementBase> shared_ptr;
 
     private:
         oro_atomic_t refcount;
-        friend void intrusive_ptr_add_ref( ConnElementBase* e );
-        friend void intrusive_ptr_release( ConnElementBase* e );
+        friend void intrusive_ptr_add_ref( ChannelElementBase* e );
+        friend void intrusive_ptr_release( ChannelElementBase* e );
 
     protected:
-        ConnElementBase* writer;
+        ChannelElementBase* writer;
         shared_ptr   reader;
 
         /** Increases the reference count */
@@ -118,13 +118,13 @@ namespace RTT {
         void deref();
 
     public:
-        ConnElementBase();
-        virtual ~ConnElementBase() {}
+        ChannelElementBase();
+        virtual ~ChannelElementBase() {}
 
         void removeWriter();
-        ConnElementBase::shared_ptr getWriter();
+        ChannelElementBase::shared_ptr getWriter();
         void removeReader();
-        ConnElementBase::shared_ptr getReader();
+        ChannelElementBase::shared_ptr getReader();
         void setReader(shared_ptr new_reader);
 
         /** Signals that there is new data available on this connection
@@ -133,7 +133,7 @@ namespace RTT {
         virtual void signal() const;
 
         /** Clears any data stored in the connection. It means that
-         * ConnElement::read() will return false afterwards (provided that no
+         * ChannelElement::read() will return false afterwards (provided that no
          * new data has been written on the meantime of course)
          *
          * By default, it forwards the calls to its sources
@@ -143,15 +143,15 @@ namespace RTT {
         virtual void disconnect(bool writer_to_reader);
     };
 
-    /** A typed version of ConnElementBase. It defines generic methods that are
+    /** A typed version of ChannelElementBase. It defines generic methods that are
      * type-specific (like write and read)
      */
     template<typename T>
-    class ConnElement : public ConnElementBase
+    class ChannelElement : public ChannelElementBase
     {
     public:
         typedef T value_t;
-        typedef boost::intrusive_ptr< ConnElement<T> > shared_ptr;
+        typedef boost::intrusive_ptr< ChannelElement<T> > shared_ptr;
         typedef typename boost::call_traits<T>::param_type param_t;
         typedef typename boost::call_traits<T>::reference reference_t;
 
@@ -162,9 +162,9 @@ namespace RTT {
          */
         virtual bool write(param_t sample)
         {
-            typename ConnElement<T>::shared_ptr reader = boost::static_pointer_cast< ConnElement<T> >(this->reader);
+            typename ChannelElement<T>::shared_ptr reader = boost::static_pointer_cast< ChannelElement<T> >(this->reader);
             if (reader)
-                return boost::static_pointer_cast< ConnElement<T> >(reader)->write(sample);
+                return boost::static_pointer_cast< ChannelElement<T> >(reader)->write(sample);
             return false;
         }
 
@@ -175,7 +175,7 @@ namespace RTT {
          */
         virtual bool read(reference_t sample)
         {
-            typename ConnElement<T>::shared_ptr writer = static_cast< ConnElement<T>* >(this->writer);
+            typename ChannelElement<T>::shared_ptr writer = static_cast< ChannelElement<T>* >(this->writer);
             if (writer)
                 return writer->read(sample);
             else return false;
