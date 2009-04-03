@@ -698,6 +698,12 @@
       </para>
       <section>
 	<title>TAO installation (Optional)</title>
+	<important>
+	  <para>Debian or Ubuntu users can skip this step and just
+	  do <command>sudo aptitude install libtao-orbsvcs-dev tao-idl gperf-ace tao-naming</command> .
+	  Orocos software will automatically detect the installed TAO software.
+	  </para>
+	</important>
 	<note>
 	  <para>
 	    If your distribution does not provide the TAO libraries,
@@ -708,9 +714,9 @@
 	  </para>
 	  <para>
 	    Orocos requires the ACE, TAO and TAO-orbsvcs libraries and
-	    header files to be installed on your workstation and
-	    <emphasis>that the ACE_ROOT and TAO_ROOT variables are
-	    set.</emphasis>
+	    header files to be installed on your workstation. If you
+	    used manual installation, <emphasis> the ACE_ROOT and
+	    TAO_ROOT variables must be set.</emphasis>
 	  </para>
 	</note>
 	<para>
@@ -737,15 +743,16 @@
 	<title>Configuring the RTT for TAO or OMNIORB</title>
 	<para>
 	  Orocos RTT defaults to TAO. If you want to use the
-	  OMNIORB implementation, run from your build directory:
+	  OMNIORB implementation, run from your <filename>build</filename> directory:
 	  <screen>  cmake .. -DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=OMNIORB </screen>
 	  To specify TAO explicitly (or change back) use:
 	  <screen>  cmake .. -DENABLE_CORBA=ON -DCORBA_IMPLEMENTATION=TAO </screen>
 	</para>
 	<para>
 	  The RTT will first try to detect your location of ACE and
-	  TAO using the ACE_ROOT and TAO_ROOT variables. If these are
-	  set, you can enable CORBA support
+	  TAO using the ACE_ROOT and TAO_ROOT variables and if these
+	  are not set, using the standard include paths. If TAO or
+	  OMNIORB is found you can enable CORBA support
 	  (<option>ENABLE_CORBA</option>) within CMake.
 	</para>
       </section>
