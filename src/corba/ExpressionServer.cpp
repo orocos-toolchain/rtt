@@ -72,7 +72,7 @@ namespace RTT
         // try to retrieve:
         Corba::AssignableExpression_ptr result = AServers[ expr ];
         if ( !CORBA::is_nil(result) )
-            return Corba::AssignableExpression::_duplicate(result);
+            return Corba::Expression::_duplicate(result);
         // create new:
         if ( CORBA::is_nil(p) )
             p = ApplicationServer::rootPOA.in();
