@@ -212,14 +212,14 @@ namespace RTT
         void* server(int p, void* arg)
         {
             if ( p == ORO_CORBA_PROTOCOL_ID)
-                return Corba::AssignableExpression::_duplicate( mexpr );
+                return Corba::Expression::_duplicate( mexpr );
             return 0;
         }
 
         void* server(int p, void* arg) const
         {
             if ( p == ORO_CORBA_PROTOCOL_ID)
-                return Corba::AssignableExpression::_duplicate( mexpr );
+                return Corba::Expression::_duplicate( mexpr );
             return 0;
         }
 
