@@ -11,7 +11,7 @@
   <articleinfo>
     <title>Distributing Orocos Components with CORBA</title>
     <copyright>
-      <year>2006, 2007</year>
+      <year>2006, 2007, 2008, 2009</year>
       <holder>FMTC, Peter Soetens</holder>
     </copyright>
 
@@ -48,6 +48,12 @@
 	<date>3 August 2007</date>
 	<authorinitials>ps</authorinitials>
 	<revremark>1.2.2 release updates, added corbaloc options.</revremark>
+      </revision>
+      <revision>
+	<revnumber>0.05</revnumber>
+	<date>9 April 2009</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Put proxy server as mandatory.</revremark>
       </revision>
     </revhistory>
 
@@ -214,6 +220,7 @@
       Next, in order to connect to your component, you need to create
       a 'proxy' in another file:
       <programlisting>  // client.cpp
+  #include &lt;rtt/corba/ControlTaskServer.hpp>
   #include &lt;rtt/corba/ControlTaskProxy.hpp>
 
   #include &lt;rtt/TaskBrowser.hpp>
@@ -227,6 +234,9 @@
      // Setup Corba:
      <classname>RTT::Corba::ControlTaskProxy</classname>::InitOrb(argc, argv);
 
+     // Setup a thread to handle call-backs to our components.
+     <classname>RTT::Corba::ControlTaskProxy</classname>::ThreadOrb();
+
      // Get a pointer to the component above
      <classname>RTT::TaskContext</classname>* component = ControlTaskProxy::Create( "HelloWorld" );
 
@@ -234,6 +244,8 @@
      <classname>OCL::TaskBrowser</classname> browse( component );
      browse.loop();
 
+     // Stop ORB thread:
+     <classname>RTT::Corba::ControlTaskServer</classname>::ShutdownOrb();
      // Cleanup Corba:
      ControlTaskProxy::DestroyOrb();
      return 0;
