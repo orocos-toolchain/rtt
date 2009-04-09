@@ -116,9 +116,9 @@ DataFlowInterface::PortDescriptions* DataFlowInterface_i::getPortDescriptions()
 
         port_desc.type_name = CORBA::string_dup(type_info->getTypeName().c_str());
         if (dynamic_cast<InputPortInterface*>(port))
-            port_desc.type = Corba::Reader;
+            port_desc.type = Corba::Input;
         else
-            port_desc.type = Corba::Writer;
+            port_desc.type = Corba::Output;
 
         result[j++] = port_desc;
     }
@@ -133,8 +133,8 @@ PortType DataFlowInterface_i::getPortType(const char * port_name)
         throw NoSuchPortException();
 
     if (dynamic_cast<InputPortInterface*>(p))
-        return RTT::Corba::Reader;
-    else return RTT::Corba::Writer;
+        return RTT::Corba::Input;
+    else return RTT::Corba::Output;
 }
 
 char* DataFlowInterface_i::getDataType(const char * port_name)
@@ -210,7 +210,7 @@ ChannelElement_ptr DataFlowInterface_i::buildReaderHalf(
         return false;
 
     try {
-        if (reader_interface->getPortType(reader_port) != Corba::Reader)
+        if (reader_interface->getPortType(reader_port) != Corba::Input)
             return false;
 
         RemoteInputPort port(writer->getTypeInfo(), reader_interface, reader_port, mpoa);

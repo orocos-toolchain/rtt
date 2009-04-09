@@ -332,7 +332,7 @@ namespace RTT
                 else
                 {
                     PortInterface* new_port;
-                    if (port.type == RTT::Corba::Reader)
+                    if (port.type == RTT::Corba::Input)
                         new_port = new RemoteInputPort( type_info, dfact.in(), port.name.in(), ProxyPOA() );
                     else
                         new_port = new RemoteOutputPort( type_info, dfact.in(), port.name.in(), ProxyPOA() );

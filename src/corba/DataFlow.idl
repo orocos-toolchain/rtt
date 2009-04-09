@@ -34,7 +34,7 @@ module RTT
      */
     exception NoCorbaTransport {};
 
-    enum PortType { Reader, Writer };
+    enum PortType { Input, Output };
 
     struct PortDescription
     {
