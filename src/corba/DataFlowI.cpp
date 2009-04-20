@@ -229,5 +229,5 @@ ChannelElement_i::~ChannelElement_i() {}
 PortableServer::POA_ptr ChannelElement_i::_default_POA()
 { return PortableServer::POA::_duplicate(mpoa); }
 void ChannelElement_i::setRemoteSide(ChannelElement_ptr remote)
-{ this->remote_side = remote; }
+{ this->remote_side = RTT::Corba::ChannelElement::_duplicate(remote); }
 
