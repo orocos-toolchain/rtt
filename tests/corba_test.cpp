@@ -246,9 +246,9 @@ void CorbaTest::testDataFlowInterface()
     CPPUNIT_ASSERT_EQUAL(string("mw"), string(names[1]));
 
     // Now check directions
-    CPPUNIT_ASSERT_EQUAL(RTT::Corba::Writer,
+    CPPUNIT_ASSERT_EQUAL(RTT::Corba::Output,
 	    ports->getPortType("mw"));
-    CPPUNIT_ASSERT_EQUAL(RTT::Corba::Reader,
+    CPPUNIT_ASSERT_EQUAL(RTT::Corba::Input,
 	    ports->getPortType("mr"));
 
     // And check type names
