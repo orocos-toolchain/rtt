@@ -54,7 +54,7 @@ bool RemotePort<BaseClass>::isSameID(RTT::PortID const& id) const
 {
     PortID const* real_id = dynamic_cast<PortID const*>(&id);
     if (!real_id) return false;
-    return real_id->dataflow == dataflow && real_id->name == this->getName();
+    return real_id->dataflow->_is_equivalent(dataflow) && real_id->name == this->getName();
 }
 
 RemoteInputPort::RemoteInputPort(RTT::TypeInfo const* type_info,
