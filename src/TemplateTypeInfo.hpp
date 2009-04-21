@@ -255,6 +255,9 @@ namespace RTT
         virtual DataSourceBase::shared_ptr buildValue() const {
             return new ValueDataSource<PropertyType>();
         }
+        virtual DataSourceBase::shared_ptr buildReference(void* ptr) const {
+            return new ReferenceDataSource<PropertyType>(*static_cast<PropertyType*>(ptr));
+        }
 
         virtual std::ostream& write( std::ostream& os, DataSourceBase::shared_ptr in ) const {
             typename DataSource<T>::shared_ptr d = AdaptDataSource<T>()( in );

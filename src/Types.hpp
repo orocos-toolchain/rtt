@@ -166,6 +166,12 @@ namespace RTT
          * Build a ValueDataSource of this type.
          */
         virtual DataSourceBase::shared_ptr buildValue() const = 0;
+
+        /** Build a ReferenceDataSource of this type, pointing to the given
+         * pointer
+         */
+        virtual DataSourceBase::shared_ptr buildReference(void* ptr) const = 0;
+
         /** @} */
 
         /**
