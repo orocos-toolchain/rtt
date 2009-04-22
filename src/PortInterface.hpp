@@ -136,6 +136,13 @@ namespace RTT
          */
         virtual DataSourceBase* getDataSource() = 0;
 
+        /** Reads the port and updates the value hold by the given data source.
+         * This is only valid for local ports.
+         *
+         * \a source has to be an assignable data source
+         */
+        virtual bool read(DataSourceBase::shared_ptr source);
+
         /** Removes any connection that either go to or come from this port */
         virtual void disconnect();
 
@@ -181,6 +188,11 @@ namespace RTT
         virtual void disconnect();
 
         virtual bool connected() const;
+
+        /** Writes to the port the value contained by the given data source.
+         * This is only valid for local ports.
+         */
+        virtual void write(DataSourceBase::shared_ptr source);
 
         /** Channelects this write port to the given read port, using a single-data
          * policy with the given locking mechanism */

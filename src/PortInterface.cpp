@@ -91,6 +91,8 @@ InputPortInterface::NewDataOnPortEvent* InputPortInterface::getNewDataOnPortEven
     return new_data_on_port_event;
 }
 
+bool InputPortInterface::read(DataSourceBase::shared_ptr source)
+{ throw std::runtime_error("calling default InputPortInterface::read(datasource) implementation"); }
 /** Returns true if this port is connected */
 bool InputPortInterface::connected() const
 { return writer; }
@@ -154,6 +156,9 @@ void OutputPortInterface::addConnection(ChannelDescriptor const& descriptor)
     }
 }
 
+
+void OutputPortInterface::write(DataSourceBase::shared_ptr source)
+{ throw std::runtime_error("calling default OutputPortInterface::write(datasource) implementation"); }
 bool OutputPortInterface::createDataConnection( InputPortInterface& reader, int lock_policy )
 { return createConnection( reader, ConnPolicy::data(lock_policy) ); }
 

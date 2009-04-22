@@ -246,6 +246,18 @@ namespace RTT
 
         ~InputPort() { delete data_source; }
 
+        bool read(DataSourceBase::shared_ptr source)
+        {
+            typename AssignableDataSource<T>::shared_ptr ds =
+                boost::dynamic_pointer_cast< AssignableDataSource<T> >(source);
+            if (! ds)
+            {
+                log(Error) << "trying to read to an incompatible data source" << endlog();
+                return false;
+            }
+            return read(ds->set());
+        }
+
         /** Reads a sample from the connection. \a sample is a reference which
          * will get updated if a sample is available. The method returns true
          * if a sample was available, and false otherwise. If false is returned,
@@ -296,7 +308,9 @@ namespace RTT
         virtual TaskObject* createPortObject()
         {
             TaskObject* object = InputPortInterface::createPortObject();
-            object->methods()->addMethod( method("read", &InputPort<T>::read, this),
+            // Force resolution on the overloaded write method
+            typedef bool (InputPort<T>::*ReadSample)(typename ChannelElement<T>::reference_t);
+            object->methods()->addMethod( method("read", static_cast<ReadSample>(&InputPort<T>::read), this),
                     "Reads a sample from the port.",
                     "sample", "");
             return object;
@@ -370,6 +384,23 @@ namespace RTT
             connections.delete_if( boost::bind(
                         &OutputPort<T>::do_write, this, boost::ref(sample), _1)
                     );
+        }
+
+        void write(DataSourceBase::shared_ptr source)
+        {
+            typename AssignableDataSource<T>::shared_ptr ds =
+                boost::dynamic_pointer_cast< AssignableDataSource<T> >(source);
+            if (ds)
+                write(ds->rvalue());
+            else
+            {
+                typename DataSource<T>::shared_ptr ds =
+                    boost::dynamic_pointer_cast< DataSource<T> >(source);
+                if (ds)
+                    write(ds->get());
+                else
+                    log(Error) << "trying to write from an incompatible data source" << endlog();
+            }
         }
 
         /** Returns the TypeInfo object for the port's type */
@@ -454,7 +485,10 @@ namespace RTT
         virtual TaskObject* createPortObject()
         {
             TaskObject* object = OutputPortInterface::createPortObject();
-            object->methods()->addMethod( method("write", &OutputPort<T>::write, this),
+            // Force resolution on the overloaded write method
+            typedef void (OutputPort<T>::*WriteSample)(typename ChannelElement<T>::param_t);
+            object->methods()->addMethod(
+                    method("write", static_cast<WriteSample>(&OutputPort::write), this),
                     "Writes a sample on the port.",
                     "sample", "");
             return object;
