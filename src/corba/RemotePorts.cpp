@@ -87,9 +87,9 @@ RTT::ChannelElementBase* RemoteInputPort::buildReaderHalf(RTT::TypeInfo const* t
 
 RTT::ChannelFactory* RemoteInputPort::getConnFactory() { return this; }
 RTT::PortInterface* RemoteInputPort::clone() const
-{ return type_info->readPort(getName()); }
+{ return type_info->inputPort(getName()); }
 RTT::PortInterface* RemoteInputPort::antiClone() const
-{ return type_info->writePort(getName()); }
+{ return type_info->outputPort(getName()); }
 
 RemoteOutputPort::RemoteOutputPort(RTT::TypeInfo const* type_info,
         DataFlowInterface_ptr dataflow, std::string const& reader_port,
@@ -104,7 +104,7 @@ void RemoteOutputPort::keepLastWrittenValue(bool new_flag)
 bool RemoteOutputPort::createConnection( InputPortInterface& sink, RTT::ConnPolicy const& policy )
 { throw std::runtime_error("OutputPort::createConnection() is not supported in CORBA port proxies"); }
 RTT::PortInterface* RemoteOutputPort::clone() const
-{ return type_info->writePort(getName()); }
+{ return type_info->outputPort(getName()); }
 RTT::PortInterface* RemoteOutputPort::antiClone() const
-{ return type_info->readPort(getName()); }
+{ return type_info->inputPort(getName()); }
 

@@ -246,13 +246,13 @@ namespace RTT
          * Returns a new InputPort<T> object where T is the type represented by
          * this TypeInfo object.
          */
-        virtual InputPortInterface* readPort(std::string const& name) const = 0;
+        virtual InputPortInterface* inputPort(std::string const& name) const = 0;
         
         /**
          * Returns a new OutputPort<T> object where T is the type represented by
          * this TypeInfo object.
          */
-        virtual OutputPortInterface* writePort(std::string const& name) const = 0;
+        virtual OutputPortInterface* outputPort(std::string const& name) const = 0;
     };
 
     /**
