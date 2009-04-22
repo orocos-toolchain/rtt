@@ -44,10 +44,15 @@ namespace RTT {
             { this->deref(); }
 
 
-            void remoteSignal()
-            { RTT::ChannelElement<T>::signal(); }
-            void signal() const
-            { remote_side->remoteSignal(); }
+            CORBA::Boolean remoteSignal()
+            { return RTT::ChannelElement<T>::signal(); }
+            bool signal() const
+            {
+                try
+                { return remote_side->remoteSignal(); }
+                catch(CORBA::Exception&)
+                { return false; }
+            }
 
             void remoteDisconnect(bool writer_to_reader)
             {
@@ -59,7 +64,9 @@ namespace RTT {
 
             void disconnect(bool writer_to_reader)
             {
-		remote_side->remoteDisconnect(writer_to_reader);
+                try { remote_side->remoteDisconnect(writer_to_reader); }
+                catch(CORBA::Exception&) {}
+
 		remote_side = 0;
 		PortableServer::ObjectId_var oid=mpoa->servant_to_id(this);
 		mpoa->deactivate_object(oid.in());
@@ -68,13 +75,17 @@ namespace RTT {
             bool read(typename RTT::ChannelElement<T>::reference_t sample)
             {
                 ::CORBA::Any_var remote_value;
-                if (remote_side->read(remote_value))
+                try
                 {
-                    transport.updateBlob(&remote_value.in(), data_source);
-                    sample = data_source->rvalue();
-                    return true;
+                    if (remote_side->read(remote_value))
+                    {
+                        transport.updateBlob(&remote_value.in(), data_source);
+                        sample = data_source->rvalue();
+                        return true;
+                    }
+                    else return false;
                 }
-                else return false;
+                catch(CORBA::Exception&) { return false; }
             }
 
             ::CORBA::Boolean read(::CORBA::Any_OUT_arg sample)
@@ -91,14 +102,21 @@ namespace RTT {
             {
                 data_source->set(sample);
                 CORBA::Any_var ret = static_cast<CORBA::Any*>(transport.createBlob(data_source));
-                remote_side->write(ret.in());
-		return true;
+                try
+                {
+                    remote_side->write(ret.in()); 
+                    return true;
+                }
+                catch(CORBA::Exception& e)
+                {
+                    return false;
+                }
             }
 
-            void write(const ::CORBA::Any& sample)
+            bool write(const ::CORBA::Any& sample)
             {
                 transport.updateBlob(&sample, data_source);
-                RTT::ChannelElement<T>::write(data_source->rvalue());
+                return RTT::ChannelElement<T>::write(data_source->rvalue());
             }
 
         };

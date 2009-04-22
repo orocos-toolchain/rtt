@@ -25,8 +25,7 @@ namespace RTT {
         {
             data->Set(sample);
             written = true;
-            this->signal();
-            return true;
+            return this->signal();
         }
 
         /** Reads the last sample given to write()
@@ -74,7 +73,7 @@ namespace RTT {
         virtual bool write(param_t sample)
         {
             if (buffer->Push(sample))
-                this->signal();
+                return this->signal();
             return true;
         }
 

@@ -48,10 +48,11 @@ void ChannelElementBase::clear()
     if (writer_) writer_->clear();
 }
 
-void ChannelElementBase::signal() const
+bool ChannelElementBase::signal() const
 {
     shared_ptr reader = this->reader;
-    if (reader) reader->signal();
+    if (reader) return reader->signal();
+    return true;
 }
 
 void ChannelElementBase::ref()

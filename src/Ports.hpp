@@ -89,11 +89,12 @@ namespace RTT
                 ChannelElement<T>::disconnect(writer_to_reader);
         }
 
-        virtual void signal() const
+        virtual bool signal() const
         {
             InputPort<T>* port = this->port;
             if (port && port->new_data_on_port_event)
                 (*port->new_data_on_port_event)(port);
+            return true;
         }
     };
 

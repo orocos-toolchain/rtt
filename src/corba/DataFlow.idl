@@ -22,8 +22,8 @@ module RTT
     {
         void setRemoteSide(in ChannelElement writer);
         boolean read(out any sample);
-        oneway void write(in any sample);
-        oneway void remoteSignal();
+        boolean write(in any sample);
+        boolean remoteSignal();
         void remoteDisconnect(in boolean writer_to_reader);
     };
 

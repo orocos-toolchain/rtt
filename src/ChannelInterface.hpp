@@ -129,8 +129,10 @@ namespace RTT {
 
         /** Signals that there is new data available on this connection
          * By default, it forwards the calls to its sinks
+         *
+         * @returns false if an error occured that requires the channel to be invalidated. In no ways it indicates that the sample has been received by the other side of the channel.
          */
-        virtual void signal() const;
+        virtual bool signal() const;
 
         /** Clears any data stored in the connection. It means that
          * ChannelElement::read() will return false afterwards (provided that no
@@ -156,9 +158,9 @@ namespace RTT {
         typedef typename boost::call_traits<T>::reference reference_t;
 
         /** Writes a new sample on this connection. \a sample is the sample to
-         * write. The return value indicates if this connection is dangling
-         * (i.e. should be removed) or is still alive. In no ways does it
-         * indicate if the sample has reached the other side
+         * write. 
+         *
+         * @returns false if an error occured that requires the channel to be invalidated. In no ways it indicates that the sample has been received by the other side of the channel.
          */
         virtual bool write(param_t sample)
         {
