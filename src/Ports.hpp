@@ -330,7 +330,11 @@ namespace RTT
                 = boost::static_pointer_cast< ChannelElement<T> >(descriptor.get<1>());
             if (reader->write(sample))
                 return false;
-            else return true;
+            else
+            {
+                log(Error) << "a channel of " << getName() << " has been invalidated during write(), it will be removed" << endlog();
+                return true;
+            }
         }
 
     public:
