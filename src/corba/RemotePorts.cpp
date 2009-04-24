@@ -70,8 +70,15 @@ RTT::ChannelElementBase* RemoteInputPort::buildReaderHalf(RTT::TypeInfo const* t
         RTT::InputPortInterface& reader_,
         RTT::ConnPolicy const& policy)
 {
-    ChannelElement_var remote =
-        dataflow->buildReaderHalf(CORBA::string_dup(getName().c_str()), toCORBA(policy));
+    ChannelElement_var remote;
+    try {
+        remote = dataflow->buildReaderHalf(CORBA::string_dup(getName().c_str()), toCORBA(policy));
+    }
+    catch(CORBA::Exception&)
+    {
+        log(Error) << "caught CORBA exception while creating port's input half" << endlog();
+        return NULL;
+    }
 
     ChannelElement_i*  local;
     PortableServer::ServantBase_var servant = local =

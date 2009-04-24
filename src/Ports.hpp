@@ -465,6 +465,9 @@ namespace RTT
                 }
             }
 
+            if (!reader_endpoint)
+                return false;
+
             typename ChannelElement<T>::shared_ptr writer_endpoint =
                 static_cast< ChannelElement<T>* >(ChannelFactory::buildWriterHalf(*this, policy, reader_endpoint));
             addConnection( boost::make_tuple(reader_.getPortID(), writer_endpoint, policy) );
