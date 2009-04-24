@@ -10,7 +10,7 @@
 // Provide a dump RT_INTR type. start() always returns false on non-Xenomai
 // OSes.
 struct RT_INTR { };
-#warning "IRQACtivity is not available on Xenomai. It will fail on startup"
+#warning "IRQActivity is available only on Xenomai. It will fail on startup"
 #endif
 
 namespace RTT {
