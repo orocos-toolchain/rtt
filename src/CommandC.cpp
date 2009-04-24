@@ -234,6 +234,12 @@ namespace RTT
         return false;
     }
 
+    DispatchInterface::Status CommandC::status() const {
+	if (cc)
+            return cc->status();
+	return DispatchInterface::NotReady;
+    }
+
     void CommandC::reset()
     {
         if (cc)

@@ -143,6 +143,8 @@ namespace RTT
          */
         bool done() const;
 
+	DispatchInterface::Status status() const;
+
         virtual ConditionInterface* createCondition() const;
 
         DispatchInterface* clone() const;
