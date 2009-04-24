@@ -215,9 +215,10 @@ ChannelElement_ptr DataFlowInterface_i::buildReaderHalf(
 
         RemoteInputPort port(writer->getTypeInfo(), reader_interface, reader_port, mpoa);
         return writer->createConnection(port, toRTT(policy));
-    } catch (...) {
-        return false;
     }
+    catch(CORBA::COMM_FAILURE&) { throw; }
+    catch(CORBA::TRANSIENT&) { throw; }
+    catch(...) { return false; }
 }
 
 // standard constructor
