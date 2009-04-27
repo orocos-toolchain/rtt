@@ -2,46 +2,29 @@
 #define FILEDESCRIPTOR_ACTIVITY_HPP
 
 #include "NonPeriodicActivity.hpp"
+#include <set>
 
 namespace RTT {
     /** An activity which is triggered by the availability of data on a given
      * file descriptor. step() (and hence the RunnableInterface's step() method)
      * is called when data is available or when an error is encountered on the
      * file descriptor.
-     *
-     * The file descriptor can be given by two means:
-     * <ul>
-     *   <li> setFileDescriptor is called
-     *   <li> one of the underlying task contexts (if any) subclasses the
-     *   FileDescriptorActivity::Provider interface. In that case, the
-     *   getFileDescriptor() method of that task context is called to
-     *   get the descriptor
-     * </ul>
      */
     class FileDescriptorActivity : public NonPeriodicActivity
     {
+        std::set<int> m_watched_fds;
         bool m_running;
-        int  m_fd;
-        int  m_timeout;
-        bool m_close_on_stop;
         int  m_interrupt_pipe[2];
+        int  m_timeout;
+        fd_set m_fd_set;
+        fd_set m_fd_work;
+        bool m_error;
         RunnableInterface* runner;
 
         static const int CMD_BREAK_LOOP = 0;
         static const int CMD_TRIGGER    = 1;
 
     public:
-        /** If this interface is derived from one of the TaskContext objects
-         * which are executed by this activity, then the activity can
-         * auto-configure itself (i.e. it can get the file descriptor from
-         * that task context). Otherwise, setFileDescriptor must be called
-         * explicitely
-         */
-        struct Provider {
-            virtual int getFileDescriptor() const = 0;
-            virtual int getTimeout() const { return 0; }
-        };
-
         /**
          * Create a FileDescriptorActivity with a given priority and RunnableInterface
          * instance. The default scheduler for NonPeriodicActivity
@@ -76,25 +59,49 @@ namespace RTT {
 
         bool isRunning() const;
 
-        /** Returns the file descriptor the activity is listening to. Returns -1
-         * if no file descriptor is set
-         */
-        int  getFileDescriptor() const;
         /** Sets the file descriptor the activity should be listening to.
          * @arg close_on_stop { if true, the file descriptor will be closed by the
          * activity when stop() is called. Otherwise, the file descriptor is
          * left as-is.}
+         *
+         * @param fd the file descriptor
+         * @param close_on_stop if true, the FD will be closed automatically when the activity is stopped
          */
-        void setFileDescriptor(int fd, bool close_on_stop = false);
+        void watch(int fd);
 
-        /** Returns the timeout waiting on the file descriptor in milliseconds.
-         * Zero means infinity (no timeout)
+        /** Removes a file descriptor from the set of watched FDs
+         *
+         * The FD is never closed, even though close_on_stop was set to true in
+         * watchFileDescriptor
          */
-        int  getTimeout() const;
-        /** Sets the timeout waiting on the file descriptor, in milliseconds.
-         * Zero means infinity (no timeout)
+        void unwatch(int fd);
+
+        /** True if this specific FD is being watched by the activity
+         */
+        bool isWatched(int fd) const;
+
+        /** True if this specific FD has been updated. This should only be
+         * called from the RunnableInterface this activity is driving.
+         */
+        bool isUpdated(int fd) const;
+
+        /** True if one of the file descriptors has a problem (for instance it
+         * has been closed)
+         *
+         * This should only be used from within the RunnableInterface this
+         * activity is driving.
+         */
+        bool hasError() const;
+
+        /** Sets the timeout, in milliseconds, for waiting on the IO. Set to 0
+         * for infinity.
          */
         void setTimeout(int timeout);
+
+        /** Get the timeout, in milliseconds, for waiting on the IO. Set to 0
+         * for infinity.
+         */
+        int getTimeout() const;
 
         virtual bool start();
         virtual void loop();

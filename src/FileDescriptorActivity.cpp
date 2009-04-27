@@ -22,8 +22,10 @@ const int FileDescriptorActivity::CMD_TRIGGER;
 FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* _r )
     : NonPeriodicActivity(priority, _r)
     , m_running(false)
-    , m_fd(-1), m_timeout(0), m_close_on_stop(false)
-    , runner(_r) {}
+    , runner(_r)
+{
+    FD_ZERO(&m_fd_set);
+}
 
 /**
  * Create a FileDescriptorActivity with a given scheduler type, priority and
@@ -37,8 +39,10 @@ FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* 
 FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, RunnableInterface* _r )
     : NonPeriodicActivity(scheduler, priority, _r)
     , m_running(false)
-    , m_fd(-1), m_timeout(0), m_close_on_stop(false)
-    , runner(_r) {}
+    , runner(_r)
+{
+    FD_ZERO(&m_fd_set);
+}
 
 /**
  * Create a FileDescriptorActivity with a given priority, name and
@@ -50,8 +54,11 @@ FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, Runn
 FileDescriptorActivity::FileDescriptorActivity(int priority, const std::string& name, RunnableInterface* _r )
     : NonPeriodicActivity(priority, name, _r)
     , m_running(false)
-    , m_fd(-1), m_timeout(0), m_close_on_stop(false)
-    , runner(_r) {}
+    , m_timeout(0)
+    , runner(_r)
+{
+    FD_ZERO(&m_fd_set);
+}
 
 FileDescriptorActivity::~FileDescriptorActivity()
 {
@@ -60,39 +67,33 @@ FileDescriptorActivity::~FileDescriptorActivity()
 
 bool FileDescriptorActivity::isRunning() const
 { return NonPeriodicActivity::isRunning() && m_running; }
-
-int FileDescriptorActivity::getTimeout() const { return m_timeout; }
+int FileDescriptorActivity::getTimeout() const
+{ return m_timeout; }
 void FileDescriptorActivity::setTimeout(int timeout)
+{ m_timeout = timeout; }
+void FileDescriptorActivity::watch(int fd)
 {
-    m_timeout = timeout;
+    m_watched_fds.insert(fd);
+    FD_SET(fd, &m_fd_set);
 }
-int FileDescriptorActivity::getFileDescriptor() const { return m_fd; }
-void FileDescriptorActivity::setFileDescriptor(int fd, bool close_on_stop)
+void FileDescriptorActivity::unwatch(int fd)
 {
-    m_fd = fd;
-    m_close_on_stop = close_on_stop;
+    m_watched_fds.erase(fd);
+    FD_CLR(fd, &m_fd_set);
 }
+bool FileDescriptorActivity::isUpdated(int fd) const
+{ return FD_ISSET(fd, &m_fd_work); }
+bool FileDescriptorActivity::hasError() const
+{ return m_error; }
+bool FileDescriptorActivity::isWatched(int fd) const
+{ return FD_ISSET(fd, &m_fd_set); }
 
 bool FileDescriptorActivity::start()
 {
-    if (m_fd == -1)
-    { // no FD explicitely set. Try to find one.
-        ExecutionEngine* engine = dynamic_cast<ExecutionEngine*>(runner);
-        if (engine)
-        {
-            Provider* fd_provider = dynamic_cast<Provider*>(engine->getParent());
-            if (fd_provider)
-            {
-                m_fd      = fd_provider->getFileDescriptor();
-                m_timeout = fd_provider->getTimeout();
-                m_close_on_stop = false;
-            }
-            
-        }
-    }
-
-    if (m_fd == -1)
+    // Check that there is FDs set ...
+    if (m_watched_fds.empty())
         return false;
+
     if (pipe(m_interrupt_pipe) == -1)
         return false;
 
@@ -110,61 +111,74 @@ bool FileDescriptorActivity::trigger()
 
 void FileDescriptorActivity::loop()
 {
-    if (m_fd == -1)
-        return;
-
-    int fd   = m_fd;
     int pipe = m_interrupt_pipe[0];
-    int max  = fd > pipe ? fd : pipe;
+    int max_fd = std::max(pipe, *m_watched_fds.rbegin());
 
     while(true)
     {
-        fd_set set;
-        FD_ZERO(&set);
-        FD_SET(fd, &set);
-        FD_SET(pipe, &set);
-
+        m_fd_work = m_fd_set;
+        FD_SET(pipe, &m_fd_work);
         
         int ret;
         m_running = false;
         if (m_timeout == 0)
-            ret = select(max + 1, &set, NULL, NULL, NULL);
+            ret = select(max_fd + 1, &m_fd_work, NULL, NULL, NULL);
         else
         {
             timeval timeout = { m_timeout / 1000, (m_timeout % 1000) * 1000 };
-            ret = select(max + 1, &set, NULL, NULL, &timeout);
+            ret = select(max_fd + 1, &m_fd_work, NULL, NULL, &timeout);
         }
 
-        // If true, step() will be called at the end of the loop. The other
-        // option would be to put the management of the m_running flag in our
-        // implementation of step(), but that would make the subclassing of
-        // FileDescriptorActivity harder.
-        bool do_step = false;
-        if (ret > 0 && FD_ISSET(pipe, &set)) // breakLoop request
+        if (ret == -1)
         {
-            boost::uint8_t code;
-            read(pipe, &code, 1);
-            if (code == CMD_BREAK_LOOP)
+            if (errno != EBADF)
+            {
+                log(Error) << "internal error in FileDescriptorActivity: got errno = " << errno << endlog();
                 break;
-            else if (code == CMD_TRIGGER)
-                do_step = true;
+            }
+            else
+                m_error = true;
         }
-        if (ret == -1 || ret == 0 || FD_ISSET(fd, &set)) // data is available
-            do_step = true;
+        else
+            m_error = false;
 
-        if (do_step)
+        if (ret > 0 && FD_ISSET(pipe, &m_fd_work)) // breakLoop or trigger requests
         {
-            try
+            // Empty all commands queued in the pipe
+            fd_set watch_pipe;
+            FD_ZERO(&watch_pipe);
+            FD_SET(pipe, &watch_pipe);
+
+            bool do_break = false, do_trigger = false;
+            timeval timeout;
+            do
             {
-                m_running = true;
-                step();
-                m_running = false;
+                boost::uint8_t code;
+                read(pipe, &code, 1);
+                if (code == CMD_BREAK_LOOP)
+                    do_break = true;
+                else
+                    do_trigger = true;
+
+                timeout.tv_sec  = 0;
+                timeout.tv_usec = 0;
             }
-            catch(...)
-            {
-                m_running = false;
-                throw;
-            }
+            while(select(pipe + 1, &watch_pipe, NULL, NULL, &timeout) > 0);
+
+            if (do_break)
+                break;
+        }
+
+        try
+        {
+            m_running = true;
+            step();
+            m_running = false;
+        }
+        catch(...)
+        {
+            m_running = false;
+            throw;
         }
     }
 }
@@ -192,12 +206,6 @@ bool FileDescriptorActivity::stop()
     // value.
     if (NonPeriodicActivity::stop())
     {
-        if (m_fd != -1 && m_close_on_stop)
-        {
-            close(m_fd);
-            m_fd = -1;
-        }
-
         close(m_interrupt_pipe[0]);
         close(m_interrupt_pipe[1]);
         return true;
