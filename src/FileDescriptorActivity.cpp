@@ -145,14 +145,14 @@ void FileDescriptorActivity::loop()
             m_error = false;
 
         if (ret > 0 && FD_ISSET(pipe, &m_fd_work)) // breakLoop or trigger requests
-        {
-            // Empty all commands queued in the pipe
+        { // Empty all commands queued in the pipe
+
+            // These variables are used in order to loop with select(). See the
+            // while() condition below.
             fd_set watch_pipe;
-            FD_ZERO(&watch_pipe);
-            FD_SET(pipe, &watch_pipe);
+            timeval timeout;
 
             bool do_break = false, do_trigger = false;
-            timeval timeout;
             do
             {
                 boost::uint8_t code;
@@ -162,6 +162,9 @@ void FileDescriptorActivity::loop()
                 else
                     do_trigger = true;
 
+                // Initialize the values for the next select() call
+                FD_ZERO(&watch_pipe);
+                FD_SET(pipe, &watch_pipe);
                 timeout.tv_sec  = 0;
                 timeout.tv_usec = 0;
             }
