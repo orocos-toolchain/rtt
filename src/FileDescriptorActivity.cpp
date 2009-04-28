@@ -22,6 +22,7 @@ const int FileDescriptorActivity::CMD_TRIGGER;
 FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* _r )
     : NonPeriodicActivity(priority, _r)
     , m_running(false)
+    , m_timeout(0)
     , runner(_r)
 {
     FD_ZERO(&m_fd_set);
@@ -39,6 +40,7 @@ FileDescriptorActivity::FileDescriptorActivity(int priority, RunnableInterface* 
 FileDescriptorActivity::FileDescriptorActivity(int scheduler, int priority, RunnableInterface* _r )
     : NonPeriodicActivity(scheduler, priority, _r)
     , m_running(false)
+    , m_timeout(0)
     , runner(_r)
 {
     FD_ZERO(&m_fd_set);
