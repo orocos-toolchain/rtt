@@ -33,7 +33,8 @@ IF (ENABLE_TESTS AND CPPUNIT)
       )
 
     # repeat for each test
-    ADD_EXECUTABLE( core-test ${DO_EXCLUDE} test-runner.cpp time_test.cpp property_test.cpp logger_test.cpp buffers_test.cpp )
+    ADD_EXECUTABLE( core-test ${DO_EXCLUDE} test-runner.cpp time_test.cpp
+        property_test.cpp logger_test.cpp buffers_test.cpp ptr_test.cpp)
     TARGET_LINK_LIBRARIES( core-test orocos-rtt-${OROCOS_TARGET} ${CPPUNIT} )
     SET_TARGET_PROPERTIES( core-test PROPERTIES
     COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")
