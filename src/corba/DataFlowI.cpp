@@ -55,6 +55,8 @@
 
 using namespace RTT::Corba;
 
+DataFlowInterface_i::ServantMap DataFlowInterface_i::s_servant_map;
+
 static RTT::ConnPolicy toRTT(RTT::Corba::ConnPolicy const& corba_policy)
 {
     RTT::ConnPolicy policy;
@@ -73,7 +75,40 @@ DataFlowInterface_i::DataFlowInterface_i (RTT::DataFlowInterface* interface, Por
 }
 
 DataFlowInterface_i::~DataFlowInterface_i ()
-{  }
+{
+}
+
+void DataFlowInterface_i::registerServant(DataFlowInterface_ptr objref, RTT::DataFlowInterface* obj)
+{
+    s_servant_map.push_back(
+            std::make_pair(
+                DataFlowInterface_var(RTT::Corba::DataFlowInterface::_duplicate(objref)),
+                obj)
+            );
+}
+void DataFlowInterface_i::deregisterServant(RTT::DataFlowInterface* obj)
+{
+    for (ServantMap::iterator it = s_servant_map.begin();
+            it != s_servant_map.end(); ++it)
+    {
+        if (it->second == obj)
+        {
+            s_servant_map.erase(it);
+            return;
+        }
+    }
+}
+
+RTT::DataFlowInterface* DataFlowInterface_i::getLocalInterface(DataFlowInterface_ptr objref)
+{
+    for (ServantMap::const_iterator it = s_servant_map.begin();
+            it != s_servant_map.end(); ++it)
+    {
+        if (it->first->_is_equivalent(objref))
+            return it->second;
+    }
+    return NULL;
+}
 
 PortableServer::POA_ptr DataFlowInterface_i::_default_POA()
 {
@@ -208,6 +243,27 @@ ChannelElement_ptr DataFlowInterface_i::buildReaderHalf(
     RTT::OutputPortInterface* writer = dynamic_cast<RTT::OutputPortInterface*>(mdf->getPort(writer_port));
     if (writer == 0)
         return false;
+
+    // Check if +reader_interface+ is local. If it is, use the non-CORBA
+    // connection.
+    RTT::DataFlowInterface* local_interface = DataFlowInterface_i::getLocalInterface(reader_interface);
+    if (local_interface)
+    {
+        RTT::InputPortInterface* reader =
+            dynamic_cast<RTT::InputPortInterface*>(local_interface->getPort(reader_port));
+        if (!reader)
+        {
+            log(Warning) << "CORBA: createConnection() target is not an input port" << endlog();
+            return false;
+        }
+
+        log(Debug) << "CORBA: createConnection() is creating a LOCAL connection between " <<
+           writer_port << " and " << reader_port << endlog();
+        return writer->createConnection(*reader, toRTT(policy));
+    }
+    else
+        log(Debug) << "CORBA: createConnection() is creating a REMOTE connection between " <<
+           writer_port << " and " << reader_port << endlog();
 
     try {
         if (reader_interface->getPortType(reader_port) != Corba::Input)

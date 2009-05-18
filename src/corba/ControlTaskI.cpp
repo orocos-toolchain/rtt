@@ -290,6 +290,7 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
     }
     if (!CORBA::is_nil(mDataFlow))
     {
+        DataFlowInterface_i::deregisterServant(mtask->ports());
         PortableServer::ObjectId_var oid = mpoa->servant_to_id(mDataFlow_i);
         mpoa->deactivate_object(oid.in());
     }
@@ -483,6 +484,7 @@ CORBA::Long Orocos_ControlTask_i::getErrorCount (
         RTT::Corba::DataFlowInterface_i* mserv;
         mDataFlow_i = mserv = new RTT::Corba::DataFlowInterface_i( mtask->ports(), mpoa );
         mDataFlow = mserv->_this();
+        DataFlowInterface_i::registerServant(mDataFlow, mtask->ports());
     }
     return ::RTT::Corba::DataFlowInterface::_duplicate( mDataFlow.in() );
 }

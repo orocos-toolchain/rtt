@@ -49,6 +49,7 @@
 #include "../ChannelInterface.hpp"
 #include "../DataSources.hpp"
 #include "../TypeTransporter.hpp"
+#include <list>
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -89,12 +90,21 @@ namespace RTT {
             RTT::DataFlowInterface* mdf;
 	    PortableServer::POA_var mpoa;
 
+            typedef std::list<
+                std::pair<RTT::Corba::DataFlowInterface_var, RTT::DataFlowInterface*>
+                > ServantMap;
+            static ServantMap s_servant_map;
+
         public:
             // standard constructor
             DataFlowInterface_i(RTT::DataFlowInterface* interface, PortableServer::POA_ptr poa);
             virtual ~DataFlowInterface_i();
 
-		PortableServer::POA_ptr _default_POA();
+            static void registerServant(DataFlowInterface_ptr objref, RTT::DataFlowInterface* obj);
+            static void deregisterServant(RTT::DataFlowInterface* obj);
+            static RTT::DataFlowInterface* getLocalInterface(DataFlowInterface_ptr objref);
+
+            PortableServer::POA_ptr _default_POA();
 
             // methods corresponding to defined IDL attributes and operations
             Corba::DataFlowInterface::PortNames* getPorts();
