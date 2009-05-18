@@ -82,6 +82,7 @@ namespace RTT
         rtos_sem_signal( &(task->confDone) );
 
         while ( !task->prepareForExit ) {
+            bool has_exception = false;
             try {
                 while(1) 
                     {
@@ -117,7 +118,16 @@ namespace RTT
 #endif
                         }
                     }
+            } catch(std::exception const& e) {
+                Logger::log() << Logger::Fatal << "Single Thread "<< task->getName() <<" caught a C++ exception: " << e.what() << ", stopping thread !"<<Logger::endl;
+                has_exception = true;
             } catch( ... ) {
+                Logger::log() << Logger::Fatal << "Single Thread "<< task->getName() <<" caught a C++ exception, stopping thread !"<<Logger::endl;
+                has_exception = true;
+            }
+
+            if (has_exception)
+            {
 #ifdef OROPKG_OS_THREAD_SCOPE
                 if ( task->d )
                     task->d->switchOff( bit );
@@ -125,7 +135,6 @@ namespace RTT
                 // set state to not running
                 task->inloop = false;
                 task->active = false;
-                Logger::log() << Logger::Fatal << "Single Thread "<< task->getName() <<" caught a C++ exception, stopping thread !"<<Logger::endl;
                 task->finalize();
             }
         }
