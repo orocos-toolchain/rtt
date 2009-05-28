@@ -94,7 +94,7 @@ extern "C"
     {
 
         TIME_SPEC tv;
-        clock_gettime(CLOCK_MONOTONIC, &tv);
+        clock_gettime(CLOCK_REALTIME, &tv);
         // we can not include the C++ Time.hpp header !
 #ifdef __cplusplus
         return NANO_TIME( tv.tv_sec ) * 1000000000LL + NANO_TIME( tv.tv_nsec );

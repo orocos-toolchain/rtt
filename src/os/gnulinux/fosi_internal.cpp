@@ -181,7 +181,7 @@ namespace RTT
             return 0;
 
         // inspired by nanosleep man page for this construct:
-        while ( clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &(task->periodMark), NULL) == -1 && errno == EINTR ) {
+        while ( clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &(task->periodMark), NULL) == -1 && errno == EINTR ) {
             errno = 0;
         }
 
