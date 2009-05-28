@@ -48,6 +48,7 @@
 #undef EP
 #undef GP
 #undef EL
+#define BOOST_NO_HASH
 #include <boost/graph/adjacency_list.hpp>
 using boost::property;
 
