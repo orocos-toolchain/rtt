@@ -117,7 +117,7 @@ namespace RTT {
                     const char* writer_port,
 		    DataFlowInterface_ptr reader_interface, const char* reader_port);
 
-            ChannelElement_ptr buildReaderHalf(const char* reader_port, const ConnPolicy& policy);
+            ChannelElement_ptr buildOutputHalf(const char* reader_port, const ConnPolicy& policy);
 
             ::CORBA::Boolean createConnection(
                     const char* writer_port,

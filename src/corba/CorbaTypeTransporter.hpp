@@ -14,7 +14,7 @@ namespace RTT {
 	{
 	public:
 	    virtual ChannelElement_i* createChannelElement_i(PortableServer::POA_ptr poa) const = 0;
-	    virtual ChannelElementBase* buildReaderHalf(RTT::InputPortInterface& reader,
+	    virtual ChannelElementBase* buildOutputHalf(RTT::InputPortInterface& port,
 		    RTT::ConnPolicy const& policy) const = 0;
 
 	};

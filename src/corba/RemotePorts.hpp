@@ -64,7 +64,7 @@ namespace RTT {
 
         class RemoteInputPort
             : public RemotePort<RTT::InputPortInterface>
-            , public RTT::ChannelFactory
+            , public RTT::ConnFactory
         {
         public:
             RemoteInputPort(RTT::TypeInfo const* type_info,
@@ -72,9 +72,9 @@ namespace RTT {
                     std::string const& name,
                     PortableServer::POA_ptr poa);
 
-            ChannelFactory* getConnFactory();
+            ConnFactory* getConnFactory();
 
-            RTT::ChannelElementBase* buildReaderHalf(RTT::TypeInfo const* type,
+            RTT::ChannelElementBase* buildOutputHalf(RTT::TypeInfo const* type,
                     RTT::InputPortInterface& reader_,
                     RTT::ConnPolicy const& policy);
 

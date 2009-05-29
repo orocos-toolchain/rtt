@@ -4,54 +4,54 @@
 using namespace RTT;
 
 ChannelElementBase::ChannelElementBase()
-    : writer(0)
+    : input(0)
 
 {
     oro_atomic_set(&refcount,0);
 }
 
-void ChannelElementBase::setReader(shared_ptr new_reader)
+void ChannelElementBase::setOutput(shared_ptr output)
 {
-    reader = new_reader;
-    reader->writer = this;
+    this->output = output;
+    output->input = this;
 }
 
-void ChannelElementBase::removeWriter()
-{ writer = 0; }
-void ChannelElementBase::removeReader()
-{ reader = 0; }
+void ChannelElementBase::removeInput()
+{ input = 0; }
+void ChannelElementBase::removeOutput()
+{ output = 0; }
 
-void ChannelElementBase::disconnect(bool writer_to_reader)
+void ChannelElementBase::disconnect(bool forward)
 {
-    if (writer_to_reader)
+    if (forward)
     {
-        shared_ptr reader = this->reader;
-        if (reader)
-            reader->disconnect(true);
+        shared_ptr output = this->output;
+        if (output)
+            output->disconnect(true);
     }
     else
     {
-        shared_ptr writer = this->writer;
-        if (writer)
-            writer->disconnect(false);
+        shared_ptr input = this->input;
+        if (input)
+            input->disconnect(false);
     }
 }
 
-ChannelElementBase::shared_ptr ChannelElementBase::getWriter()
-{ return writer; }
-ChannelElementBase::shared_ptr ChannelElementBase::getReader()
-{ return reader; }
+ChannelElementBase::shared_ptr ChannelElementBase::getInput()
+{ return input; }
+ChannelElementBase::shared_ptr ChannelElementBase::getOutput()
+{ return output; }
 
 void ChannelElementBase::clear()
 {
-    shared_ptr writer_ = writer;
-    if (writer_) writer_->clear();
+    shared_ptr input_ = input;
+    if (input_) input_->clear();
 }
 
 bool ChannelElementBase::signal() const
 {
-    shared_ptr reader = this->reader;
-    if (reader) return reader->signal();
+    shared_ptr output = this->output;
+    if (output) return output->signal();
     return true;
 }
 

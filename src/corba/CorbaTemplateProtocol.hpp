@@ -88,10 +88,10 @@ namespace RTT
           ChannelElement_i* createChannelElement_i(PortableServer::POA_ptr poa) const
           { return new RemoteChannelElement<T>(*this, poa); }
 
-          ChannelElementBase* buildReaderHalf(RTT::InputPortInterface& reader, RTT::ConnPolicy const& policy) const
+          ChannelElementBase* buildOutputHalf(RTT::InputPortInterface& port, RTT::ConnPolicy const& policy) const
           {
-              return ChannelFactory::buildReaderHalf(
-                      static_cast<RTT::InputPort<T>&>(reader),
+              return ConnFactory::buildOutputHalf(
+                      static_cast<RTT::InputPort<T>&>(port),
                       policy);
           }
 
