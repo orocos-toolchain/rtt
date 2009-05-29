@@ -258,6 +258,7 @@ namespace RTT
         else {
             var = type->buildVariable(valuename,sizehint);
         }
+        sizehint = -1;
         mstore->attributes()->setValue( var );
         definedvalues.push_back( var );
         definednames.push_back( valuename );
@@ -291,6 +292,7 @@ namespace RTT
         else {
             var = type->buildVariable(valuename,sizehint);
         }
+        sizehint = -1;
         mstore->attributes()->setValue( var );
         definedvalues.push_back( var );
         definednames.push_back( valuename );
