@@ -24,6 +24,7 @@
 #include <ExecutionEngine.hpp>
 #include <TaskContext.hpp>
 #include <string>
+#include <iostream>
 
 using namespace RTT;
 
@@ -36,6 +37,7 @@ public:
     TaskObject* createMethodFactory();
     bool assertBool( bool );
     bool assertMsg( bool, const std::string& msg);
+    void print(int i) { std::cout<<"print:"<<i<<std::endl;}
     void executePrograms(const std::string& prog);
     void executeStates(const std::string& state);
 public:
