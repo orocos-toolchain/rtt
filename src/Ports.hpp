@@ -16,23 +16,16 @@ namespace RTT
     template<typename T> class OutputPort;
     template<typename T> class InputPort;
 
+    /** This is a channel element that represents the input endpoint of a
+     * connection, i.e. the part that is connected to the OutputPort
+     */
     template<typename T>
-    class ChannelWriterEndpoint : public ChannelElement<T>
+    class ConnInputEndpoint : public ChannelElement<T>
     {
         OutputPort<T>* port;
 
-        /** Helper method for disconnect(bool) */
-        bool eraseThisConnection(typename OutputPort<T>::ChannelDescriptor& connection)
-        {
-            if (connection.template get<1>() == this)
-            {
-                delete connection.template get<0>();
-                return true;
-            } else return false;
-        }
-
     public:
-        ChannelWriterEndpoint(OutputPort<T>* port)
+        ConnInputEndpoint(OutputPort<T>* port)
             : port(port) { }
 
         /** Writes a new sample on this connection
@@ -41,33 +34,37 @@ namespace RTT
         virtual bool read(typename ChannelElement<T>::reference_t sample)
         { return false; }
 
-        virtual void disconnect(bool writer_to_reader)
+        virtual void disconnect(bool forward)
         {
-            if (!writer_to_reader)
+            if (forward)
+            {
+                this->port = NULL;
+                ChannelElement<T>::disconnect(true);
+            }
+            else
             {
                 OutputPort<T>* port = this->port;
                 if (!port)
                     return;
 
-                port->connections.delete_if(boost::bind(
-                            &ChannelWriterEndpoint<T>::eraseThisConnection, this, _1)
-                        );
+                port->removeConnection(this);
             }
-            else
-                ChannelElement<T>::disconnect(writer_to_reader);
         }
     };
 
+    /** This is a channel element that represents the output endpoint of a
+     * connection, i.e. the part that is connected to the InputPort
+     */
     template<typename T>
-    class ChannelReaderEndpoint : public ChannelElement<T>
+    class ConnOutputEndpoint : public ChannelElement<T>
     {
         InputPort<T>* port;
 
     public:
-        ChannelReaderEndpoint(InputPort<T>* port)
+        ConnOutputEndpoint(InputPort<T>* port)
             : port(port)
         {
-            port->writer = this;
+            port->setInputChannel(this);
         }
 
         /** Writes a new sample on this connection
@@ -76,17 +73,18 @@ namespace RTT
         virtual bool write(typename ChannelElement<T>::param_t sample)
         { return false; }
 
-        virtual void disconnect(bool writer_to_reader)
+        virtual void disconnect(bool forward)
         {
-            if (writer_to_reader)
+            InputPort<T>* port = this->port;
+            this->port = 0;
+
+            if (forward)
             {
-                InputPort<T>* port = this->port;
-                this->port = 0;
                 if (port)
-                    port->writer = 0;
+                    port->clearInputChannel();
             }
             else
-                ChannelElement<T>::disconnect(writer_to_reader);
+                ChannelElement<T>::disconnect(false);
         }
 
         virtual bool signal() const
@@ -98,17 +96,20 @@ namespace RTT
         }
     };
 
-    class ChannelFactory
+    /** This class provides the basic tools to create channels that represent
+     * connections between two ports
+     */
+    class ConnFactory
     {
     public:
 
-        /** This method is analoguous to the static ChannelFactory::buildWriterHalf.
+        /** This method is analoguous to the static ConnFactory::buildOutputHalf.
          * It is provided for remote connection building: for these connections,
          * no template can be used and therefore the connection setup should be
          * done based on the TypeInfo object
          */
-        virtual ChannelElementBase* buildReaderHalf(TypeInfo const* type_info,
-                InputPortInterface& reader, ConnPolicy const& policy) = 0;
+        virtual ChannelElementBase* buildOutputHalf(TypeInfo const* type_info,
+                InputPortInterface& output, ConnPolicy const& policy) = 0;
 
         /** This method creates the connection element that will store data
          * inside the connection, based on the given policy
@@ -142,47 +143,47 @@ namespace RTT
         }
 
         /** During the process of building a connection between two ports, this
-         * method builds the first half (starting from the source). In the
+         * method builds the input half (starting from the OutputPort). In the
          * returned pair, the first element is the connection element that
          * should be connected to the port, and the second element is the one
-         * that will be connected to the sink-half of the connection
+         * that will be connected to the output-half of the connection
          *
-         * The \c sink argument is the connection element that has been returned
-         * by buildWriterHalf.
+         * The \c output_channel argument is the connection element that has been returned
+         * by buildOutputHalf.
          *
-         * @see buildWriterHalf
+         * @see buildOutputHalf
          */
         template<typename T>
-        static ChannelElementBase* buildWriterHalf(OutputPort<T>& writer, ConnPolicy const& policy, ChannelElementBase* sink)
+        static ChannelElementBase* buildInputHalf(OutputPort<T>& port, ConnPolicy const& policy, ChannelElementBase* output_channel)
         {
-            ChannelElementBase* endpoint = new ChannelWriterEndpoint<T>(&writer);
+            ChannelElementBase* endpoint = new ConnInputEndpoint<T>(&port);
             if (policy.pull)
             {
                 ChannelElementBase* data_object = buildDataStorage<T>(policy);
-                endpoint->setReader(data_object);
-                data_object->setReader(sink);
+                endpoint->setOutput(data_object);
+                data_object->setOutput(output_channel);
             }
             else
-                endpoint->setReader(sink);
+                endpoint->setOutput(output_channel);
 
             return endpoint;
         }
 
         /** During the process of building a connection between two ports, this
-         * method builds the second half (starting from the source). The
-         * returned value is the connection element that should be connected to
-         * the end of the source-half.
+         * method builds the output part of the channel, that is the half that
+         * is connected to the input port. The returned value is the connection
+         * element that should be connected to the end of the input-half.
          *
-         * @see buildSourceHalf
+         * @see buildInputHalf
          */
         template<typename T>
-        static ChannelElementBase* buildReaderHalf(InputPort<T>& reader, ConnPolicy const& policy)
+        static ChannelElementBase* buildOutputHalf(InputPort<T>& port, ConnPolicy const& policy)
         {
-            ChannelElementBase* endpoint = new ChannelReaderEndpoint<T>(&reader);
+            ChannelElementBase* endpoint = new ConnOutputEndpoint<T>(&port);
             if (!policy.pull)
             {
                 ChannelElementBase* data_object = buildDataStorage<T>(policy);
-                data_object->setReader(endpoint);
+                data_object->setOutput(endpoint);
                 return data_object;
             }
             else return endpoint;
@@ -205,17 +206,17 @@ namespace RTT
     template<typename T>
     class InputPortSource : public DataSource<T>
     {
-        InputPort<T>& reader;
+        InputPort<T>& port;
 
     public:
         InputPortSource(InputPort<T>& port)
-            : reader(port) { }
+            : port(port) { }
 
-        void reset() { reader.clear(); }
+        void reset() { port.clear(); }
         bool evaluate() const
         {
             T result;
-            return reader.read(result);
+            return port.read(result);
         }
 
         typename DataSource<T>::result_t value() const
@@ -223,12 +224,12 @@ namespace RTT
         typename DataSource<T>::result_t get() const
         {
             T result;
-            if (reader.read(result))
+            if (port.read(result))
                 return result;
             else return T();
         }
         DataSource<T>* clone() const
-        { return new InputPortSource<T>(reader); }
+        { return new InputPortSource<T>(port); }
         DataSource<T>* copy( std::map<const DataSourceBase*, DataSourceBase*>& alreadyCloned ) const
         { return const_cast<InputPortSource<T>*>(this); }
     };
@@ -236,7 +237,7 @@ namespace RTT
     template<typename T>
     class InputPort : public InputPortInterface
     {
-        friend class ChannelReaderEndpoint<T>;
+        friend class ConnOutputEndpoint<T>;
         InputPortSource<T>* data_source;
 
     public:
@@ -265,9 +266,9 @@ namespace RTT
          */
         bool read(typename ChannelElement<T>::reference_t sample)
         {
-            typename ChannelElement<T>::shared_ptr writer = static_cast< ChannelElement<T>* >(this->writer);
-            if (writer)
-                return writer->read(sample);
+            typename ChannelElement<T>::shared_ptr input = static_cast< ChannelElement<T>* >(this->channel);
+            if (input)
+                return input->read(sample);
             else return false;
         }
 
@@ -319,16 +320,16 @@ namespace RTT
     template<typename T>
     class OutputPort : public OutputPortInterface
     {
-        friend class ChannelWriterEndpoint<T>;
+        friend class ConnInputEndpoint<T>;
 
         bool written;
         typename DataObjectInterface<T>::shared_ptr last_written_value;
 
         bool do_write(typename ChannelElement<T>::param_t sample, ChannelDescriptor descriptor)
         {
-            typename ChannelElement<T>::shared_ptr reader
+            typename ChannelElement<T>::shared_ptr output
                 = boost::static_pointer_cast< ChannelElement<T> >(descriptor.get<1>());
-            if (reader->write(sample))
+            if (output->write(sample))
                 return false;
             else
             {
@@ -429,30 +430,31 @@ namespace RTT
 
         /** Channelects this write port to the given read port, using the given
          * policy */
-        virtual bool createConnection( InputPortInterface& reader_, ConnPolicy const& policy )
+        virtual bool createConnection(InputPortInterface& input_port, ConnPolicy const& policy)
         {
-            ChannelElementBase* reader_endpoint = 0;
-            if (reader_.isLocal())
+            // This is the input channel element of the output half
+            ChannelElementBase* output_half = 0;
+            if (input_port.isLocal())
             {
-                InputPort<T>* reader = dynamic_cast<InputPort<T>*>(&reader_);
-                if (!reader)
+                InputPort<T>* input_p = dynamic_cast<InputPort<T>*>(&input_port);
+                if (!input_p)
                 {
-                    log(Error) << "port " << reader_.getName() << " is not of the wrong specialization" << endlog();
+                    log(Error) << "port " << input_port.getName() << " is not compatible with " << getName() << endlog();
                     return false;
                 }
 
-                reader_endpoint = ChannelFactory::buildReaderHalf(*reader, policy);
+                output_half = ConnFactory::buildOutputHalf(*input_p, policy);
             }
             else
             {
                 TypeInfo const* type_info = getTypeInfo();
-                if (!type_info || reader_.getTypeInfo() != type_info)
+                if (!type_info || input_port.getTypeInfo() != type_info)
                 {
                     log(Error) << "type of port " << getName() << " is not registered into the type system, cannot marshal it into the right transporter" << endlog();
                     // There is no type info registered for this type
                     return false;
                 }
-                else if (!type_info->getProtocol(reader_.serverProtocol()))
+                else if (!type_info->getProtocol(input_port.serverProtocol()))
                 {
                     log(Error) << "type " << type_info->getTypeName() << " cannot be marshalled into the right transporter" << endlog();
                     // This type cannot be marshalled into the right transporter
@@ -460,18 +462,23 @@ namespace RTT
                 }
                 else
                 {
-                    reader_endpoint = reader_.
-                        getConnFactory()->buildReaderHalf(type_info, reader_, policy);
+                    output_half = input_port.
+                        getConnFactory()->buildOutputHalf(type_info, input_port, policy);
                 }
             }
 
-            if (!reader_endpoint)
+            if (!output_half)
                 return false;
 
-            typename ChannelElement<T>::shared_ptr writer_endpoint =
-                static_cast< ChannelElement<T>* >(ChannelFactory::buildWriterHalf(*this, policy, reader_endpoint));
-            addConnection( boost::make_tuple(reader_.getPortID(), writer_endpoint, policy) );
+            // This this the input channel element of the whole connection
+            typename ChannelElement<T>::shared_ptr channel_input =
+                static_cast< ChannelElement<T>* >(ConnFactory::buildInputHalf(*this, policy, output_half));
 
+            // Register the channel's input 
+            addConnection( input_port.getPortID(), channel_input, policy );
+
+            // Initialize the new channel with last written data if requested
+            // (and available)
             if (policy.init && written)
             {
                 typename DataObjectInterface<T>::shared_ptr last_written_value = this->last_written_value;
@@ -479,7 +486,7 @@ namespace RTT
                 {
                     T sample;
                     last_written_value->Get(sample);
-                    writer_endpoint->write(sample);
+                    channel_input->write(sample);
                 }
             }
             return true;

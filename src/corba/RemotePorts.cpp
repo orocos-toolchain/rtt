@@ -66,13 +66,13 @@ RemoteInputPort::RemoteInputPort(RTT::TypeInfo const* type_info,
 RTT::DataSourceBase* RemoteInputPort::getDataSource()
 { throw std::runtime_error("InputPort::getDataSource() is not supported in CORBA port proxies"); }
 
-RTT::ChannelElementBase* RemoteInputPort::buildReaderHalf(RTT::TypeInfo const* type,
+RTT::ChannelElementBase* RemoteInputPort::buildOutputHalf(RTT::TypeInfo const* type,
         RTT::InputPortInterface& reader_,
         RTT::ConnPolicy const& policy)
 {
     ChannelElement_var remote;
     try {
-        remote = dataflow->buildReaderHalf(CORBA::string_dup(getName().c_str()), toCORBA(policy));
+        remote = dataflow->buildOutputHalf(CORBA::string_dup(getName().c_str()), toCORBA(policy));
     }
     catch(CORBA::Exception&)
     {
@@ -92,7 +92,7 @@ RTT::ChannelElementBase* RemoteInputPort::buildReaderHalf(RTT::TypeInfo const* t
     return dynamic_cast<RTT::ChannelElementBase*>(local);
 }
 
-RTT::ChannelFactory* RemoteInputPort::getConnFactory() { return this; }
+RTT::ConnFactory* RemoteInputPort::getConnFactory() { return this; }
 RTT::PortInterface* RemoteInputPort::clone() const
 { return type_info->inputPort(getName()); }
 RTT::PortInterface* RemoteInputPort::antiClone() const

@@ -212,14 +212,14 @@ void DataFlowInterface_i::disconnectPort(
     writer->disconnect(reader);
 }
 
-ChannelElement_ptr DataFlowInterface_i::buildReaderHalf(
-        const char* reader_port, ConnPolicy const& corba_policy)
+ChannelElement_ptr DataFlowInterface_i::buildOutputHalf(
+        const char* port_name, ConnPolicy const& corba_policy)
 {
-    RTT::InputPortInterface* reader = dynamic_cast<RTT::InputPortInterface*>(mdf->getPort(reader_port));
-    if (reader == 0)
+    RTT::InputPortInterface* port = dynamic_cast<RTT::InputPortInterface*>(mdf->getPort(port_name));
+    if (port == 0)
         throw NoSuchPortException();
 
-    TypeInfo const* type_info = reader->getTypeInfo();
+    TypeInfo const* type_info = port->getTypeInfo();
     if (!type_info)
         throw NoCorbaTransport();
 
@@ -228,10 +228,10 @@ ChannelElement_ptr DataFlowInterface_i::buildReaderHalf(
     if (!transporter)
         throw NoCorbaTransport();
 
-    RTT::ChannelElementBase* element = transporter->buildReaderHalf(*reader, toRTT(corba_policy));
+    RTT::ChannelElementBase* element = transporter->buildOutputHalf(*port, toRTT(corba_policy));
     ChannelElement_i* this_element;
     PortableServer::ServantBase_var servant = this_element = transporter->createChannelElement_i(mpoa);
-    dynamic_cast<ChannelElementBase*>(this_element)->setReader(element);
+    dynamic_cast<ChannelElementBase*>(this_element)->setOutput(element);
 
     return RTT::Corba::ChannelElement::_duplicate(this_element->_this());
 }

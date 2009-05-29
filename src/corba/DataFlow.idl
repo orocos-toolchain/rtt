@@ -99,7 +99,7 @@ module RTT
        * Creates the reader-half of the connection for the given read port and
        * the given policy
        */
-      ChannelElement buildReaderHalf(in string reader_port, in ConnPolicy policy)
+      ChannelElement buildOutputHalf(in string port, in ConnPolicy policy)
             raises(NoCorbaTransport);
 
       /**

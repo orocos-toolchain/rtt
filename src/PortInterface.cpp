@@ -17,30 +17,11 @@ bool PortInterface::setName(const std::string& name)
     return false;
 }
 
-ChannelFactory* PortInterface::getConnFactory() { return 0; }
+ConnFactory* PortInterface::getConnFactory() { return 0; }
 bool PortInterface::isLocal() const
 { return serverProtocol() == 0; }
 int PortInterface::serverProtocol() const
 { return 0; }
-
-bool PortInterface::connectTo(PortInterface& other, ConnPolicy const& policy)
-{
-    OutputPortInterface* writer;
-    InputPortInterface* reader;
-    
-    writer = dynamic_cast<OutputPortInterface*>(this);
-    if (writer)
-        reader = dynamic_cast<InputPortInterface*>(&other);
-    else
-    {
-        writer = dynamic_cast<OutputPortInterface*>(&other);
-        reader = dynamic_cast<InputPortInterface*>(this);
-    }
-
-    if (writer && reader)
-        return writer->createConnection(*reader, policy);
-    else return false;
-}
 
 bool PortInterface::isSameID(RTT::PortID const& id) const
 { 
@@ -70,7 +51,7 @@ TaskObject* PortInterface::createPortObject()
 
 InputPortInterface::InputPortInterface(std::string const& name, ConnPolicy const& default_policy)
     : PortInterface(name)
-    , writer(NULL) 
+    , channel(NULL) 
     , default_policy(default_policy)
     , new_data_on_port_event(0) {}
 
@@ -91,25 +72,43 @@ InputPortInterface::NewDataOnPortEvent* InputPortInterface::getNewDataOnPortEven
     return new_data_on_port_event;
 }
 
+bool InputPortInterface::connectTo(PortInterface& other, ConnPolicy const& policy)
+{
+    OutputPortInterface* output = dynamic_cast<OutputPortInterface*>(&other);
+    if (! output)
+        return false;
+    return output->createConnection(*this, policy);
+}
+
+
+void InputPortInterface::setInputChannel(ChannelElementBase* channel_output)
+{ this->channel = channel_output; }
+void InputPortInterface::clearInputChannel()
+{ this->channel = 0; }
+
 bool InputPortInterface::read(DataSourceBase::shared_ptr source)
 { throw std::runtime_error("calling default InputPortInterface::read(datasource) implementation"); }
 /** Returns true if this port is connected */
 bool InputPortInterface::connected() const
-{ return writer; }
+{ return channel; }
 
 void InputPortInterface::clear()
-{ if (writer) writer->clear(); }
+{
+    ChannelElementBase::shared_ptr channel = this->channel;
+    if (channel)
+        channel->clear();
+}
 
 void InputPortInterface::disconnect()
 {
-    ChannelElementBase::shared_ptr source = this->writer;
-    this->writer = 0;
-    if (source)
-        source->disconnect(false);
+    ChannelElementBase::shared_ptr channel = this->channel;
+    this->channel = 0;
+    if (channel)
+        channel->disconnect(false);
 }
 
 OutputPortInterface::OutputPortInterface(std::string const& name)
-    : PortInterface(name), connections(10) { }
+    : PortInterface(name), channels(10), connections(10) { }
 
 OutputPortInterface::~OutputPortInterface()
 {
@@ -118,24 +117,26 @@ OutputPortInterface::~OutputPortInterface()
 
 /** Returns true if this port is connected */
 bool OutputPortInterface::connected() const
-{ return !connections.empty(); }
+{ return !channels.empty(); }
 
-bool OutputPortInterface::eraseMatchingConnection(PortInterface const* port, ChannelDescriptor& descriptor)
+bool OutputPortInterface::eraseIfMatchingPort(PortInterface const* port, ChannelDescriptor& descriptor)
 {
     if (port->isSameID(*descriptor.get<0>()))
     {
         descriptor.get<1>()->disconnect(true);
+        removeChannel(descriptor.get<1>());
         delete descriptor.get<0>();
         return true;
     }
     else return false;
 }
+
 void OutputPortInterface::disconnect(PortInterface& port)
 {
-    connections.delete_if( boost::bind(&OutputPortInterface::eraseMatchingConnection, this, &port, _1) );
+    connections.delete_if( boost::bind(&OutputPortInterface::eraseIfMatchingPort, this, &port, _1) );
 }
 
-bool OutputPortInterface::eraseConnection(ChannelDescriptor& descriptor)
+bool OutputPortInterface::eraseConnection(OutputPortInterface::ChannelDescriptor& descriptor)
 {
     descriptor.get<1>()->disconnect(true);
     delete descriptor.get<0>();
@@ -144,11 +145,14 @@ bool OutputPortInterface::eraseConnection(ChannelDescriptor& descriptor)
 
 void OutputPortInterface::disconnect()
 {
+    channels.clear();
     connections.delete_if( boost::bind(&OutputPortInterface::eraseConnection, this, _1) );
 }
 
-void OutputPortInterface::addConnection(ChannelDescriptor const& descriptor)
+void OutputPortInterface::addConnection(RTT::PortID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy)
 {
+    ChannelDescriptor descriptor = boost::make_tuple(port_id, channel_input, policy);
+    addChannel(descriptor.get<1>());
     if (!connections.append(descriptor))
     { OS::MutexLock locker(connection_resize_mtx);
         connections.grow(1);
@@ -156,15 +160,44 @@ void OutputPortInterface::addConnection(ChannelDescriptor const& descriptor)
     }
 }
 
+void OutputPortInterface::addChannel(ChannelElementBase::shared_ptr channel)
+{
+    if (!channels.append(channel))
+    { OS::MutexLock locker(connection_resize_mtx);
+        channels.grow(1);
+        channels.append(channel);
+    }
+}
+
+void OutputPortInterface::removeChannel(ChannelElementBase::shared_ptr channel)
+{
+    channels.delete_if( boost::bind(std::equal_to<ChannelElementBase::shared_ptr>(), channel, _1));
+}
+
+bool OutputPortInterface::matchConnectionChannel(ChannelElementBase::shared_ptr channel, ChannelDescriptor const& descriptor) const
+{ return (channel == descriptor.get<1>()); }
+bool OutputPortInterface::removeConnection(ChannelElementBase::shared_ptr channel)
+{
+    removeChannel(channel);
+    connections.delete_if( bind(&OutputPortInterface::matchConnectionChannel, this, channel, _1) );
+}
 
 void OutputPortInterface::write(DataSourceBase::shared_ptr source)
 { throw std::runtime_error("calling default OutputPortInterface::write(datasource) implementation"); }
-bool OutputPortInterface::createDataConnection( InputPortInterface& reader, int lock_policy )
-{ return createConnection( reader, ConnPolicy::data(lock_policy) ); }
+bool OutputPortInterface::createDataConnection( InputPortInterface& input, int lock_policy )
+{ return createConnection( input, ConnPolicy::data(lock_policy) ); }
 
-bool OutputPortInterface::createBufferConnection( InputPortInterface& reader, int size, int lock_policy )
-{ return createConnection( reader, ConnPolicy::buffer(size, lock_policy) ); }
+bool OutputPortInterface::createBufferConnection( InputPortInterface& input, int size, int lock_policy )
+{ return createConnection( input, ConnPolicy::buffer(size, lock_policy) ); }
 
-bool OutputPortInterface::createConnection( InputPortInterface& reader )
-{ return createConnection(reader, reader.getDefaultPolicy()); }
+bool OutputPortInterface::createConnection( InputPortInterface& input )
+{ return createConnection(input, input.getDefaultPolicy()); }
+
+bool OutputPortInterface::connectTo(PortInterface& other, ConnPolicy const& policy)
+{
+    InputPortInterface* input  = dynamic_cast<InputPortInterface*>(&other);
+    if (! input)
+        return false;
+    return createConnection(*input, policy);
+}
 

@@ -88,14 +88,12 @@ namespace RTT {
     void intrusive_ptr_add_ref( ChannelElementBase* e );
     void intrusive_ptr_release( ChannelElementBase* e );
 
-    /** In the data flow implementation, a connection is a chain of
-     * ChannelElementBase objects. Creating a new connection is chaining various
-     * types of ChannelElement objects to respect the prescribed connection policy
-     * (ConnPolicy).
+    /** In the data flow implementation, a channel is created by chaining
+     * ChannelElementBase objects.
      *
-     * ChannelElementBase objects are refcounted. In the chain, only the writer
-     * holds a pointer to the reader. The reader holds a simple pointer to its
-     * writer.
+     * ChannelElementBase objects are refcounted. In the chain, an element
+     * maintains the refcount for its successor, and holds a simple pointer to
+     * its predecessor.
      */
     class ChannelElementBase
     {
@@ -108,8 +106,8 @@ namespace RTT {
         friend void intrusive_ptr_release( ChannelElementBase* e );
 
     protected:
-        ChannelElementBase* writer;
-        shared_ptr   reader;
+        ChannelElementBase* input;
+        shared_ptr          output;
 
         /** Increases the reference count */
         void ref();
@@ -121,28 +119,32 @@ namespace RTT {
         ChannelElementBase();
         virtual ~ChannelElementBase() {}
 
-        void removeWriter();
-        ChannelElementBase::shared_ptr getWriter();
-        void removeReader();
-        ChannelElementBase::shared_ptr getReader();
-        void setReader(shared_ptr new_reader);
+        void removeInput();
+        ChannelElementBase::shared_ptr getInput();
+        void removeOutput();
+        ChannelElementBase::shared_ptr getOutput();
+        void setOutput(shared_ptr output);
 
-        /** Signals that there is new data available on this connection
-         * By default, it forwards the calls to its sinks
+        /** Signals that there is new data available on this channel
+         * By default, the channel element forwards the call to its output
          *
          * @returns false if an error occured that requires the channel to be invalidated. In no ways it indicates that the sample has been received by the other side of the channel.
          */
         virtual bool signal() const;
 
-        /** Clears any data stored in the connection. It means that
+        /** Clears any data stored by the channel. It means that
          * ChannelElement::read() will return false afterwards (provided that no
          * new data has been written on the meantime of course)
          *
-         * By default, it forwards the calls to its sources
+         * By default, the channel element forwards the calls to its input
          */
         virtual void clear();
 
-        virtual void disconnect(bool writer_to_reader);
+        /** Performs a disconnection of this channel's endpoints. If
+         * \a forward is true, then the disconnection is initiated by the input
+         * endpoint. Otherwise, it has been initiated by the output endpoint.
+         */
+        virtual void disconnect(bool forward);
     };
 
     /** A typed version of ChannelElementBase. It defines generic methods that are
@@ -164,9 +166,9 @@ namespace RTT {
          */
         virtual bool write(param_t sample)
         {
-            typename ChannelElement<T>::shared_ptr reader = boost::static_pointer_cast< ChannelElement<T> >(this->reader);
-            if (reader)
-                return boost::static_pointer_cast< ChannelElement<T> >(reader)->write(sample);
+            typename ChannelElement<T>::shared_ptr output = boost::static_pointer_cast< ChannelElement<T> >(this->output);
+            if (output)
+                return output->write(sample);
             return false;
         }
 
@@ -177,9 +179,9 @@ namespace RTT {
          */
         virtual bool read(reference_t sample)
         {
-            typename ChannelElement<T>::shared_ptr writer = static_cast< ChannelElement<T>* >(this->writer);
-            if (writer)
-                return writer->read(sample);
+            typename ChannelElement<T>::shared_ptr input = static_cast< ChannelElement<T>* >(this->input);
+            if (input)
+                return input->read(sample);
             else return false;
         }
     };
