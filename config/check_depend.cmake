@@ -4,56 +4,46 @@
 #                                                         #
 ###########################################################
 
+# Modules path (for searching FindXXX.cmake files)
+LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/config")
+
 # Look for boost
-IF (NOT CMAKE_CROSS_COMPILE)
-MESSAGE("-- Looking for Boost/C++ headers --")
-FIND_PATH( BOOST_DIR boost/shared_ptr.hpp )
-FIND_PATH( HAS_BOOST_SPIRIT boost/spirit.hpp )
-FIND_PATH( HAS_BOOST_GRAPH boost/graph/adjacency_list.hpp )
-IF(BOOST_DIR AND HAS_BOOST_GRAPH AND HAS_BOOST_SPIRIT)
-  MESSAGE("-- Looking for Boost headers - found")
-  IF (NOT BOOST_DIR STREQUAL "/usr/include")
+IF (NOT CMAKE_CROSS_COMPILE) # NOTE: What happens if CMAKE_CROSS_COMPILE is TRUE?
+  FIND_PACKAGE(Boost 1.32 REQUIRED)
+  IF(Boost_FOUND)
+    IF (NOT Boost_INCLUDE_DIRS STREQUAL "/usr/include")
       SET( RTT_CFLAGS "${RTT_CFLAGS} -I${BOOST_DIR}" )
-  ENDIF (NOT BOOST_DIR STREQUAL "/usr/include")
-  SET(ORO_SUPPORT_BOOST TRUE CACHE INTERNAL "" FORCE)
-ELSE(BOOST_DIR AND HAS_BOOST_GRAPH AND HAS_BOOST_SPIRIT)
-  MESSAGE("-- Looking for Boost headers - not found")
-  SET(ORO_SUPPORT_BOOST FALSE CACHE INTERNAL "" FORCE)
-  MESSAGE( FATAL_ERROR "Install Boost C++ (libboost-dev, libboost-graph-dev) version 0.32.0 or newer.")
-ENDIF(BOOST_DIR AND HAS_BOOST_GRAPH AND HAS_BOOST_SPIRIT)
+    ENDIF (NOT Boost_INCLUDE_DIRS STREQUAL "/usr/include")
+    SET(ORO_SUPPORT_BOOST TRUE CACHE INTERNAL "" FORCE)
+  ELSE(Boost_FOUND)
+    SET(ORO_SUPPORT_BOOST FALSE CACHE INTERNAL "" FORCE)
+  ENDIF(Boost_FOUND)
 ENDIF (NOT CMAKE_CROSS_COMPILE)
 
-# Look for Xerces (Do not change these SET statements !)
-IF (NOT CMAKE_CROSS_COMPILE )
-  FIND_LIBRARY(XERCES NAMES xerces-c 
-    PATHS /usr/local/lib /usr/lib )
-  FIND_PATH( XERCES_HEADERS xercesc/util/PlatformUtils.hpp)
-ELSE (NOT CMAKE_CROSS_COMPILE )
-  FIND_LIBRARY(XERCES NAMES xerces-c NO_DEFAULT_PATH )
-ENDIF (NOT CMAKE_CROSS_COMPILE )
-IF ( XERCES AND XERCES_HEADERS)
-  MESSAGE("-- Looking for Xerces - found")
-  SET( RTT_CFLAGS "${RTT_CFLAGS} -I${XERCES_HEADERS}" )
-  GET_FILENAME_COMPONENT(XERCES_LIB_PATH ${XERCES} PATH)
-  LINK_DIRECTORIES(${XERCES_LIB_PATH})
+# Look for Xerces 
+
+# If a nonstandard path is used when crosscompiling, uncomment the following lines
+# IF(NOT CMAKE_CROSS_COMPILE) # NOTE: There now exists a standard CMake variable named CMAKE_CROSSCOMPILING
+#   set(Xerces_ROOT_DIR /path/to/xerces CACHE INTERNAL "" FORCE) # you can also use set(ENV{Xerces_ROOT_DIR} /path/to/xerces)
+# ENDIF(NOT CMAKE_CROSS_COMPILE)
+
+FIND_PACKAGE(Xerces)
+
+IF(Xerces_FOUND)
   SET(OROPKG_SUPPORT_XERCES_C TRUE CACHE INTERNAL "" FORCE)
-  LINK_LIBRARIES(xerces-c)
+  INCLUDE_DIRECTORIES(${Xerces_INCLUDE_DIRS})
+  LINK_LIBRARIES(${Xerces_LIBRARIES}) # NOTE: Deprecated command
   SET(ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE "\"marsh/CPFMarshaller.hpp\"")
   SET(OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER "CPFMarshaller")
   SET(ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE "\"marsh/CPFDemarshaller.hpp\"")
   SET(OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER "CPFDemarshaller")
-ELSE ( XERCES AND XERCES_HEADERS )
-  IF (NOT XERCES_HEADERS)
-    MESSAGE("-- Looking for Xerces - headers not found")
-  ENDIF (NOT XERCES_HEADERS)
-
+ELSE(Xerces_FOUND)
   SET(OROPKG_SUPPORT_XERCES_C FALSE CACHE INTERNAL "" FORCE)
-
   SET(ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE "\"marsh/CPFMarshaller.hpp\"")
   SET(OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER "CPFMarshaller")
   SET(ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE "\"marsh/TinyDemarshaller.hpp\"")
   SET(OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER "TinyDemarshaller")
-ENDIF ( XERCES AND XERCES_HEADERS )
+ENDIF(Xerces_FOUND)
 
 SET( OROCOS_TARGET gnulinux CACHE STRING "The Operating System target. One of [lxrt gnulinux xenomai macosx]")
 STRING(TOUPPER ${OROCOS_TARGET} OROCOS_TARGET_CAP)
