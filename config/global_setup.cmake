@@ -46,12 +46,12 @@ ENDIF ( ${CXX_HAS_VERSION} EQUAL 0)
 #
 # Check for Doxygen and enable documentation building
 #
-INCLUDE( ${CMAKE_ROOT}/Modules/FindDoxygen.cmake )
-IF ( DOXYGEN )
+find_package( Doxygen )
+IF ( DOXYGEN_EXECUTABLE )
   MESSAGE( STATUS "Found Doxygen -- API documentation can be built" )
-ELSE ( DOXYGEN )
+ELSE ( DOXYGEN_EXECUTABLE )
   MESSAGE( STATUS "Doxygen not found -- unable to build documentation" )
-ENDIF ( DOXYGEN )
+ENDIF ( DOXYGEN_EXECUTABLE )
 
 
 #
@@ -75,18 +75,32 @@ ENDIF (NOT CORBA_IMPLEMENTATION)
 if (ENABLE_CORBA)
     IF(${CORBA_IMPLEMENTATION} STREQUAL "TAO")
         # Look for TAO and ACE
-        INCLUDE(${PROJ_SOURCE_DIR}/config/FindTAO.cmake)
-        IF(NOT FOUND_TAO)
-            MESSAGE(FATAL_ERROR "cannot find TAO")
-        ELSEIF(NOT FOUND_TAO)
-            MESSAGE(STATUS "CORBA enabled: TAO")
-        ENDIF(NOT FOUND_TAO)
+	find_package(ACE REQUIRED)
+        find_package(TAO REQUIRED IDL PortableServer CosNaming)
+        IF(NOT TAO_FOUND)
+            MESSAGE(FATAL_ERROR "Cannot find TAO")
+        ELSE(NOT TAO_FOUND)
+            MESSAGE(STATUS "CORBA enabled: ${TAO_FOUND_COMPONENTS}")
+
+	    # Copy flags:
+            SET(CORBA_INCLUDE_DIRS ${TAO_INCLUDE_DIRS})
+            SET(CORBA_LIBRARIES ${TAO_LIBRARIES})
+	    SET(CORBA_DEFINITIONS ${TAO_DEFINITIONS})
+
+        ENDIF(NOT TAO_FOUND)
     ELSEIF(${CORBA_IMPLEMENTATION} STREQUAL "OMNIORB")
         INCLUDE(${PROJ_SOURCE_DIR}/config/FindOmniORB.cmake)
         IF(NOT OMNIORB4_FOUND)
             MESSAGE(FATAL_ERROR "cannot find OmniORB4")
-        ELSEIF(NOT OMNIORB4_FOUND)
+        ELSE(NOT OMNIORB4_FOUND)
             MESSAGE(STATUS "CORBA enabled: OMNIORB")
+
+	    # Copy flags:
+	    SET(CORBA_LIBRARIES ${OMNIORB4_LIBRARIES})
+	    SET(CORBA_CFLAGS ${OMNIORB4_CPP_FLAGS})
+	    SET(CORBA_INCLUDE_DIRS ${OMNIORB4_INCLUDE_DIR})
+	    SET(CORBA_DEFINITIONS ${OMNIORB4_DEFINITIONS})
+
         ENDIF(NOT OMNIORB4_FOUND)
     ELSE(${CORBA_IMPLEMENTATION} STREQUAL "TAO")
         MESSAGE(FATAL_ERROR "Unknown CORBA implementation '${CORBA_IMPLEMENTATION}': must be TAO or OMNIORB.")

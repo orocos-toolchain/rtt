@@ -20,7 +20,7 @@ macro( create_pc_flags CM_DEFINES CM_INCLUDES CM_LIBRARIES PC_DEFINES PC_INCLUDE
       get_filename_component(PC_LIBPATH ${ITEM} PATH)
       get_filename_component(_PC_LIB ${ITEM} NAME_WE)
       string(REGEX REPLACE "^lib" "" PC_LIB ${_PC_LIB} )
-      if (PC_LIBPATH)
+      if (PC_LIBPATH AND NOT ${PC_LIBPATH} STREQUAL "/usr/lib" )
 	set( ${PC_LIBRARIES} "${${PC_LIBRARIES}} -L${PC_LIBPATH} -l${PC_LIB}")
       else()
 	set( ${PC_LIBRARIES} "${${PC_LIBRARIES}} -l${PC_LIB}")
@@ -29,7 +29,7 @@ macro( create_pc_flags CM_DEFINES CM_INCLUDES CM_LIBRARIES PC_DEFINES PC_INCLUDE
   endforeach()
 
   foreach( ITEM ${CM_INCLUDES})
-    if( ITEM )
+    if( ITEM AND NOT ${ITEM} STREQUAL "/usr/include")
       set( ${PC_INCLUDES} "${${PC_INCLUDES}} -I${ITEM}")
     endif()
   endforeach()

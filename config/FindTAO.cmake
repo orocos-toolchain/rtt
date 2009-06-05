@@ -1,123 +1,152 @@
-# Locate TAO install directory
-
-INCLUDE (${PROJ_SOURCE_DIR}/config/FindPkgConfig.cmake)
+#
+# This Find function defines:
+# TAO_FOUND
+# TAO_INCLUDE_DIRS
+# TAO_LIBRARIES
+# TAO_DEFINITIONS
 
 MESSAGE ( STATUS "Looking for TAO with orbsvcs...")
 
-# DOES NOT WORK: TAO_ID.pc not found on debian system... detect .so files instead !
-#PKGCONFIG( "TAO_PortableServer" TAO_FOUND TAO_INCLUDE_DIRS TAO_DEFINES TAO_LINK_DIRS TAO_LIBS )
-#PKGCONFIG( "TAO_CosNaming" TAONAMING_FOUND TAONAMING_INCLUDE_DIRS TAONAMING_DEFINES TAONAMING_LINK_DIRS TAONAMING_LIBS )
+SET (TAO_FOUND TRUE)
+SET (TAO_LIBRARIES "")
+SET (TAO_INCLUDE_DIRS "")
+SET (TAO_DEFINITIONS "")
 
-SET(ACE_DIR $ENV{ACE_ROOT})
-SET(TAO_DIR $ENV{TAO_ROOT})
-MESSAGE( "ACE_DIR is '${ACE_DIR}' TAO_DIR is ''${TAO_DIR}'" )
+# Verify that we got some ACE up in this joint
+FIND_PACKAGE (ACE)
+IF (ACE_FOUND)
+    LIST (APPEND TAO_FOUND_COMPONENTS "ACE")
+    LIST (APPEND TAO_LIBRARIES ${ACE_LIBRARIES})
+    LIST (APPEND TAO_INCLUDE_DIRS ${ACE_INCLUDE_DIR})
+    SET (TAO_DEFINITIONS ${ACE_DEFINITIONS} "_REENTRANT")
+ELSE ()
+    LIST (APPEND TAO_MISSING_COMPONENTS "ACE")
+    SET (TAO_FOUND FALSE)
+ENDIF ()
 
-IF (NOT ACE_DIR)
-    SET(ACE_DIR /usr)
-ENDIF (NOT ACE_DIR)
-IF (NOT TAO_DIR)
-    SET(TAO_DIR /usr)
-ENDIF (NOT TAO_DIR)
+# See if TAO_ROOT is not already set in CMake
+IF (NOT TAO_ROOT)
+    # See if TAO_ROOT is set in process environment
+    IF (DEFINED ENV{TAO_ROOT})
+        SET (TAO_ROOT "$ENV{TAO_ROOT}")
+    # If ACE_ROOT is set, maybe TAO is there too
+    ELSEIF (ACE_ROOT)
+        SET (TAO_ROOT "${ACE_ROOT}")
+    ENDIF ()
+ENDIF ()
+
+# If TAO_ROOT is available, set up our hints
+IF (TAO_ROOT)
+    SET (TAO_INCLUDE_HINTS HINTS "${TAO_ROOT}/include")
+    SET (TAO_LIBRARY_HINTS HINTS "${TAO_ROOT}/lib")
+    SET (TAO_RUNTIME_HINTS HINTS "${TAO_ROOT}/bin")
+ENDIF ()
 
 # See if headers are present.
-FIND_FILE(ACE_CONFIG config-all.h ${ACE_DIR}/include/ace )
-FIND_FILE(TAO_ORB ORB.h ${TAO_DIR}/include/tao )
-FIND_FILE(TAO_15 Any.h ${TAO_DIR}/include/tao/AnyTypeCode )
+find_path(TAO_INCLUDE_DIR NAMES "tao/corba.h" ${TAO_INCLUDE_HINTS})
+find_library (TAO_LIBRARY NAMES "TAO" ${TAO_LIBRARY_HINTS})
 
-# try to find orbsvcs (FIX: include CosNaming.idl ourselves ??)
+# A test for seeing which version of TAO.. :-(
+find_path(TAO_15 NAMES "tao/AnyTypeCode/Any.h" ${TAO_INCLUDE_HINTS} )
+
+IF (TAO_INCLUDE_DIR AND TAO_LIBRARY)
+    SET (TAO_TAO_FOUND TRUE)
+    LIST (APPEND TAO_FOUND_COMPONENTS "TAO")
+    LIST (APPEND TAO_LIBRARIES ${TAO_LIBRARY})
+    LIST (APPEND TAO_INCLUDE_DIRS ${TAO_INCLUDE_DIR})
+ELSE ()
+    SET (TAO_FOUND FALSE)
+    LIST (APPEND TAO_MISSING_COMPONENTS ${TAO})
+ENDIF ()
+MARK_AS_ADVANCED (TAO_INCLUDE_DIR TAO_LIBRARY)
+
+# try to find orbsvcs. May be in two locations.
 IF (NOT ORBSVCS_DIR )
-    FIND_FILE(TAO_ORBSVCS CosNaming.idl ${TAO_DIR}/include/orbsvcs/orbsvcs)
-    IF (TAO_ORBSVCS)
-        SET( ORBSVCS_DIR ${TAO_DIR}/include/orbsvcs )
-    ELSE (TAO_ORBSVCS)
-        FIND_FILE(TAO_ORBSVCS CosNaming.idl ${TAO_DIR}/include/orbsvcs )
-        SET( ORBSVCS_DIR ${TAO_DIR}/include )
-    ENDIF (TAO_ORBSVCS)
+    find_path(TAO_ORBSVCS NAMES "orbsvcs/CosNaming.idl" ${TAO_INCLUDE_HINTS} PATH_SUFFIXES orbsvcs )
+    SET( ORBSVCS_DIR ${TAO_ORBSVCS} )
 ENDIF (NOT ORBSVCS_DIR )
 
-IF (NOT ACE_CONFIG )
-    MESSAGE( "ACE config-all.h not found in ${ACE_DIR}/include/ace.")
-ELSE(NOT ACE_CONFIG ) 
-    MESSAGE( "ACE config-all.h found in ${ACE_DIR}/include/ace.")
-ENDIF (NOT ACE_CONFIG )
-
-IF (NOT TAO_ORB )
-    MESSAGE( "TAO ORB.h not found in ${TAO_DIR}/include/tao.")
-ELSE (NOT TAO_ORB )
-    MESSAGE( "TAO ORB.h found in ${TAO_DIR}/include/tao.")
-ENDIF (NOT TAO_ORB )
+IF (NOT TAO_INCLUDE_DIR )
+    MESSAGE( STATUS "TAO tao/corba.h not found.")
+ELSE ()
+    MESSAGE( STATUS "TAO tao/corba.h found in ${TAO_INCLUDE_DIR}.")
+ENDIF ()
 
 IF (NOT TAO_15 )
-    MESSAGE( "Assuming TAO < 1.5 (based on location of Any.h)")
+    MESSAGE( STATUS "Assuming TAO < 1.5 (based on location of Any.h)")
 ELSE (NOT TAO_15 )
-    MESSAGE( "Assuming TAO >= 1.5 (based on location of Any.h)")
+    MESSAGE( STATUS "Assuming TAO >= 1.5 (based on location of Any.h)")
 ENDIF (NOT TAO_15 )
 
 IF (NOT TAO_ORBSVCS )
-    MESSAGE( "TAO orbsvcs/CosNaming.idl not found in ${ORBSVCS_DIR}.")
+    MESSAGE( STATUS "TAO orbsvcs/CosNaming.idl not found.")
 ELSE (NOT TAO_ORBSVCS )
-    MESSAGE( "TAO orbsvcs/CosNaming.idl found in ${ORBSVCS_DIR}.")
+    MESSAGE( STATUS "TAO orbsvcs/CosNaming.idl found in ${ORBSVCS_DIR}.")
+    LIST (APPEND TAO_INCLUDE_DIRS ${ORBSVCS_DIR})
 ENDIF (NOT TAO_ORBSVCS )
 
-IF (ACE_CONFIG AND TAO_ORB AND TAO_ORBSVCS )
-    MESSAGE ( "TAO with orbsvcs found.")
+IF (ACE_FOUND AND TAO_FOUND AND TAO_ORBSVCS )
+    MESSAGE ( "Looking for components: ${TAO_FIND_COMPONENTS}")
 
-    FIND_PROGRAM( ORO_TAOIDL_EXECUTABLE tao_idl PATHS "${ACE_DIR}/bin" NO_DEFAULT_PATH )
-    FIND_PROGRAM( ORO_TAOIDL_EXECUTABLE tao_idl )
+    # See what components were requested
+    FOREACH (COMPONENT ${TAO_FIND_COMPONENTS})
+      IF (COMPONENT STREQUAL "IDL")
+        # special case for the IDL compiler program
+        FIND_PROGRAM (TAO_IDL_EXECUTABLE "tao_idl" ${TAO_RUNTIME_HINTS})
+        IF (TAO_IDL_EXECUTABLE)
+          SET (TAO_IDL_FOUND TRUE)
+          LIST (APPEND TAO_FOUND_COMPONENTS "IDL")
+        ELSE ()
+          SET (TAO_IDL_FOUND FALSE)
+          SET (TAO_FOUND FALSE)
+          LIST (APPEND TAO_MISSING_COMPONENTS "IDL")
+        ENDIF ()
+        MARK_AS_ADVANCED (TAO_IDL_EXECUTABLE)
+      ELSE ()
+        # Find a TAO shared library
+        FIND_LIBRARY (TAO_${COMPONENT}_LIBRARY NAMES "TAO_${COMPONENT}" ${TAO_LIBRARY_HINTS})
+        IF (TAO_${COMPONENT}_LIBRARY)
+          SET (TAO_${COMPONENT}_FOUND TRUE)
+          LIST (APPEND TAO_FOUND_COMPONENTS ${COMPONENT})
+          LIST (APPEND TAO_LIBRARIES ${TAO_${COMPONENT}_LIBRARY})
+        ELSE ()
+          SET (TAO_${COMPONENT}_FOUND FALSE)
+          SET (TAO_FOUND FALSE)
+          LIST (APPEND TAO_MISSING_COMPONENTS ${COMPONENT})
+        ENDIF ()
+        MARK_AS_ADVANCED (TAO_${COMPONENT}_LIBRARY)
+      ENDIF ()
+    ENDFOREACH ()
 
-    IF( NOT ORO_TAOIDL_EXECUTABLE )
-        MESSAGE( FATAL "TAO Headers found but no tao_idl !")
-    ELSE( NOT ORO_TAOIDL_EXECUTABLE )
-        MESSAGE( "tao_idl: ${ORO_TAOIDL_EXECUTABLE}")
-        SET(FOUND_TAO TRUE)
-	SET(CORBA_IS_TAO 1)
+    IF( NOT TAO_IDL_FOUND )
+        MESSAGE( STATUS "TAO Headers found but no tao_idl !")
+        SET(TAO_FOUND FALSE)
+    ELSE( NOT TAO_IDL_FOUND )
+        MESSAGE( STATUS "tao_idl: ${TAO_IDL_EXECUTABLE}")
 
-        SET(CORBA_CFLAGS "")
-        SET(CORBA_INCLUDE_DIRS "")
-        SET(CORBA_LDFLAGS "")
-        SET(CORBA_LIBRARIES "")
-        SET(CORBA_LIBRARY_DIRS "")
-        SET(CORBA_DEFINES "") #-DCORBA_IS_TAO)
-
-        # Set include/link variables
-        IF( NOT ${ACE_DIR} STREQUAL /usr )
-            LIST(APPEND CORBA_INCLUDE_DIRS "${ACE_DIR}/include")
-            LIST(APPEND CORBA_CFLAGS "-I${ACE_DIR}/include")
-            LIST(APPEND CORBA_LINK_DIRECTORIES "${ACE_DIR}/lib")
-            LIST(APPEND CORBA_LDFLAGS "-L${ACE_DIR}/lib")
-        ENDIF( NOT ${ACE_DIR} STREQUAL /usr )
-        IF( NOT ${TAO_DIR} STREQUAL /usr AND NOT ${TAO_DIR} STREQUAL ${ACE_DIR})
-            LIST(APPEND CORBA_INCLUDE_DIRS "${TAO_DIR}/include")
-            LIST(APPEND CORBA_CFLAGS "-I${TAO_DIR}/include")
-            LIST(APPEND CORBA_LINK_DIRECTORIES "${TAO_DIR}/lib")
-            LIST(APPEND CORBA_LDFLAGS "-L${TAO_DIR}/lib")
-        ENDIF( NOT ${TAO_DIR} STREQUAL /usr AND NOT ${TAO_DIR} STREQUAL ${ACE_DIR})
-        IF( NOT ${ORBSVCS_DIR} STREQUAL /usr AND NOT ${ORBSVCS_DIR} STREQUAL ${TAO_DIR})
-            LIST(APPEND CORBA_INCLUDE_DIRS "${ORBSVCS_DIR}")
-            LIST(APPEND CORBA_CFLAGS "-I${ORBSVCS_DIR}")
-            LIST(APPEND CORBA_LINK_DIRECTORIES "${ORBSVCS_DIR}/lib")
-            LIST(APPEND CORBA_LDFLAGS "-L${ORBSVCS_DIR}/lib")
-        ENDIF( NOT ${ORBSVCS_DIR} STREQUAL /usr AND NOT ${ORBSVCS_DIR} STREQUAL ${TAO_DIR})
-
-        # Is used for building  the library
-        LIST(APPEND CORBA_LIBRARIES TAO TAO_PortableServer TAO_CosNaming ACE )
-        LIST(APPEND CORBA_LDFLAGS -lTAO -lTAO_PortableServer -lTAO_CosNaming -lACE)
-
+	#Tweaking:
         IF(APPLE)
             # Mac OS X needs this define (or _POSIX_C_SOURCE) to pick up some type
             # definitions that ACE/TAO needs. Personally, I think this is a bug in
             # ACE/TAO, but ....
-            LIST(APPEND CORBA_CFLAGS -D_DARWIN_C_SOURCE)
+            LIST(APPEND TAO_DEFINITIONS "_DARWIN_C_SOURCE")
             # and needs additional libraries 
-            LIST(APPEND CORBA_LIBRARIES TAO_AnyTypeCode)
+            LIST(APPEND TAO_LIBRARIES TAO_AnyTypeCode)
         ENDIF(APPLE)
 
         IF( NOT TAO_15 )
-            LIST(APPEND CORBA_LIBRARIES TAO_IDL_BE)
-            LIST(APPEND CORBA_LDFLAGS -lTAO_IDL_BE)
+            LIST(APPEND TAO_LIBRARIES TAO_IDL_BE)
         ENDIF( NOT TAO_15 )
-    ENDIF( NOT ORO_TAOIDL_EXECUTABLE )
-ENDIF (ACE_CONFIG AND TAO_ORB AND TAO_ORBSVCS )
+
+    ENDIF( NOT TAO_IDL_FOUND )
+ENDIF (ACE_FOUND AND TAO_FOUND AND TAO_ORBSVCS )
+
+# Bail if we were required to find all components and missed at least one
+IF (TAO_FIND_REQUIRED AND NOT TAO_FOUND)
+    MESSAGE (FATAL_ERROR "Could not find TAO: Missing components " ${TAO_MISSING_COMPONENTS})
+ENDIF ()
+
+
 
 # Generate all files required for a corba server app.
 # ORO_ADD_CORBA_SERVERS( foo_SRCS foo_HPPS file.idl ... ) 
@@ -145,7 +174,7 @@ MACRO(ORO_ADD_CORBA_SERVERS _sources _headers)
 	 # CMake atrocity: if none of these OUTPUT files is used in a target in the current CMakeLists.txt file,
 	 # the ADD_CUSTOM_COMMAND is plainly ignored and left out of the make files.
          ADD_CUSTOM_COMMAND(OUTPUT ${_tserver} ${_server} ${_client} ${_tserverh} ${_serverh} ${_clienth}
-          COMMAND ${ORO_TAOIDL_EXECUTABLE} ${_current_FILE} -o ${CMAKE_CURRENT_BINARY_DIR} -I${CMAKE_CURRENT_SOURCE_DIR} -I${ORBSVCS_DIR}
+          COMMAND ${TAO_IDL_EXECUTABLE} ${_current_FILE} -o ${CMAKE_CURRENT_BINARY_DIR} -I${CMAKE_CURRENT_SOURCE_DIR} -I${ORBSVCS_DIR}
           DEPENDS ${_tmp_FILE}
          )
      ENDIF (NOT HAVE_${_basename}_SERVER_RULE)
