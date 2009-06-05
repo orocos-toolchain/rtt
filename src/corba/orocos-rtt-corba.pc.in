@@ -9,4 +9,4 @@ Requires: orocos-rtt-@OROCOS_TARGET@
 Version: @RTT_VERSION@
 Libs: -L${libdir} -lorocos-rtt-corba-@OROCOS_TARGET@
 Libs.private: @RTT_CORBA_LINKFLAGS@
-Cflags: @RTT_CORBA_CFLAGS@ -I${includedir}/rtt/corba
+Cflags: -I${includedir}/rtt/corba @RTT_CORBA_DEFINES@ @RTT_CORBA_CFLAGS@
