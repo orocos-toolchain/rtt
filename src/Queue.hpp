@@ -1,4 +1,7 @@
 
+#ifndef ORO_QUEUE_HPP
+#define ORO_QUEUE_HPP
+
 #include "rtt-config.h"
 
 /**
@@ -41,3 +44,5 @@ namespace RTT
         {}
     };
 }
+
+#endif
