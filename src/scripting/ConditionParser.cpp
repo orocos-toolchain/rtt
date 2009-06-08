@@ -37,7 +37,6 @@
 #include "ConditionFalse.hpp"
 #include "ConditionBoolDataSource.hpp"
 #include "ConditionComposite.hpp"
-#include "ConditionCompare.hpp"
 
 #include <boost/bind.hpp>
 

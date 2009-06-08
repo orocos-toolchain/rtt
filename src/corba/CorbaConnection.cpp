@@ -125,7 +125,7 @@ namespace RTT
                 return lcc->removePort(r);
         }
 
-        int CorbaConnection::serverProtocol()
+        int CorbaConnection::serverProtocol() const
         {
             return ORO_CORBA_PROTOCOL_ID;
         }
