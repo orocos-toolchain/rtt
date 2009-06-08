@@ -43,7 +43,7 @@
 
 namespace RTT {
 
-#ifndef ORO_EMBEDDED
+#if !defined(ORO_EMBEDDED) && defined(__GNUC__)
      template class Property<double>;
      template class Property<bool>;
      template class Property<float>;

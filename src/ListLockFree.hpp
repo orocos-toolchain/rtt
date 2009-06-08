@@ -650,9 +650,6 @@ namespace RTT
         }
 
     };
-
-    extern template class ListLockFree<double>;
-
 }
 
 #endif

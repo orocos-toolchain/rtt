@@ -425,7 +425,7 @@ namespace RTT
         return 0;
     }
 
-#ifndef ORO_EMBEDDED
+#if !defined(ORO_EMBEDDED) && defined(__GNUC__)
     extern template class Property<double>;
     extern template class Property<bool>;
     extern template class Property<float>;

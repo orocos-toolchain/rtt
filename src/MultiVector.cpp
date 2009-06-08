@@ -40,9 +40,11 @@
 #endif
 #include "MultiVector.hpp"
 
+#ifdef __GNUC__
 namespace RTT {
     template class MultiVector<6, double>;
     template class MultiVector<6, int>;
     template class MultiVector<6, bool>;
     template class MultiVector<6, long>;
 }
+#endif
