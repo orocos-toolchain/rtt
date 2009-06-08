@@ -44,7 +44,7 @@
 
 #include "../rtt-config.h"
 
-#if OS_NO_ASM
+#if defined(OROBLD_OS_NO_ASM)
 #define ORO_SIGNAL_USE_RT_LIST
 #else
 #define ORO_SIGNAL_USE_LIST_LOCK_FREE
