@@ -37,22 +37,36 @@
  
  
 #include "../rtt-config.h"
-#ifdef OROBLD_OS_AGNOSTIC
-# if defined( OROBLD_OS_ARCH_i386 )
-#  include "oro_i386/oro_atomic.h"
-# elif defined( OROBLD_OS_ARCH_x86_64 )
-#  include "oro_x86_64/oro_atomic.h"
-# elif defined( OROBLD_OS_ARCH_ppc )
-#  include "oro_powerpc/oro_atomic.h"
+#if defined(OROBLD_OS_AGNOSTIC) || defined(OROBLD_OS_NO_ASM)
+# if defined(OROBLD_OS_NO_ASM)
+#  include "oro_noasm/oro_atomic.h"
+# else
+#  if defined( OROBLD_OS_ARCH_i386 )
+#   include "oro_i386/oro_atomic.h"
+#  elif defined( OROBLD_OS_ARCH_x86_64 )
+#   include "oro_x86_64/oro_atomic.h"
+#  elif defined( OROBLD_OS_ARCH_ppc )
+#   include "oro_powerpc/oro_atomic.h"
+#  endif
 # endif
 #else
 
+/**
+ * Warning: you're including a system header here, which may
+ * not be fit for user-space compilation and may give compile
+ * errors, warnings or not working code.
+ */
 #include <asm/atomic.h>
 
 // Orocos API:
 #define oro_atomic_inc atomic_inc
 #define oro_atomic_t atomic_t
 #define ORO_ATOMIC_INIT ATOMIC_INIT
+
+// These two are Orocos specific:
+#define ORO_ATOMIC_SETUP atomic_set
+#define ORO_ATOMIC_CLEANUP( v ) 
+
 #define oro_atomic_read atomic_read
 #define oro_atomic_set atomic_set
 #define oro_atomic_add atomic_add

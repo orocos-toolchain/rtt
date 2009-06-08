@@ -52,7 +52,12 @@ namespace RTT
     public:
         AtomicInt( int value = 0 )
         {
-            oro_atomic_set(&_val, value);
+            ORO_ATOMIC_SETUP( &_val, value);
+        }
+
+        ~AtomicInt()
+        {
+            ORO_ATOMIC_CLEANUP( &_val );
         }
 
         /**

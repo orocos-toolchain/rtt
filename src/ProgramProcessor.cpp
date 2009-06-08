@@ -39,7 +39,7 @@
 
 #include "ProgramProcessor.hpp"
 #include "ProgramInterface.hpp"
-#include <AtomicQueue.hpp>
+#include "Queue.hpp"
 #include <Logger.hpp>
 #include <Exceptions.hpp>
 
@@ -55,7 +55,7 @@ namespace RTT
     ProgramProcessor::ProgramProcessor(int f_queue_size)
         : programs( new ProgMap(4) ),
           funcs( f_queue_size ),
-          f_queue( new AtomicQueue<ProgramInterface*>(f_queue_size) )
+          f_queue( new Queue<ProgramInterface*>(f_queue_size) )
     {
     }
 

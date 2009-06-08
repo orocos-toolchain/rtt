@@ -42,12 +42,13 @@
 #include <boost/intrusive_ptr.hpp>
 #include <boost/function.hpp>
 
-/**
- * This is the most reliable real-time
- * connection list policy.
- */
-//#define ORO_SIGNAL_USE_RT_LIST
+#include "../rtt-config.h"
+
+#if OS_NO_ASM
+#define ORO_SIGNAL_USE_RT_LIST
+#else
 #define ORO_SIGNAL_USE_LIST_LOCK_FREE
+#endif
 
 #include "../os/Atomic.hpp"
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE

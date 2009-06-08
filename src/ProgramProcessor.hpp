@@ -48,13 +48,10 @@
 #include <string>
 #include <vector>
 
-#include "rtt-config.h"
-
 namespace RTT
 {
     template< class T, class RP, class WP>
-    class AtomicQueue;
-
+    class Queue;
 }
 
 namespace RTT
@@ -168,8 +165,7 @@ namespace RTT
 
         std::vector<ProgramInterface*> funcs;
 
-        AtomicQueue<ProgramInterface*,NonBlockingPolicy,NonBlockingPolicy>* f_queue;
-
+        Queue<ProgramInterface*,NonBlockingPolicy,NonBlockingPolicy>* f_queue;
     };
 
 }
