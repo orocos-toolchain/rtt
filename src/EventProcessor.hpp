@@ -45,7 +45,7 @@
 #include <boost/shared_ptr.hpp>
 #include <vector>
 #include "DataObjectInterfaces.hpp"
-#include "ListLockFree.hpp"
+#include "List.hpp"
 #include "boost/tuple/tuple.hpp"
 #include "NA.hpp"
 #include "os/Atomic.hpp"
@@ -70,7 +70,7 @@ namespace RTT
 
             /**
              * Decreases work count.
-             */ 
+             */
             void signalWorkDone();
 
             /**
@@ -496,8 +496,8 @@ namespace RTT
          * The EC is released when the connection it is used in is
          * deleted *and* it is removed from this vector.
          */
-        typedef ListLockFree<detail::EventCatcher*> List;
-        List catchers;
+        typedef List<detail::EventCatcher*> ECList;
+        ECList catchers;
 
         friend class detail::EventCatcher;
         void destroyed( detail::EventCatcher* ec );

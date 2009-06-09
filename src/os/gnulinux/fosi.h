@@ -45,8 +45,6 @@ extern "C"
 #include <float.h>
 #include <assert.h>
 #include "../oro_limits.h"
-	// Orocos Implementation (i386 specific)
-#include "../oro_atomic.h"
 
     // Time Related
 #include <sys/time.h>

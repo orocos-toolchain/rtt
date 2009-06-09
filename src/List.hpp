@@ -37,7 +37,7 @@ namespace RTT
          */
         List( int qsize, int t = ORONUM_OS_MAX_THREADS)
 #if defined(OROBLD_OS_NO_ASM)
-            : ListLocked<T(qsize,t)
+            : ListLocked<T>(qsize,t)
 #else
             : ListLockFree<T>(qsize,t)
 #endif

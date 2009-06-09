@@ -57,6 +57,7 @@ namespace RTT
      * @param DataType_ Must be a pointer type or integer or any
      * object which has or for which you defined an operator<() and operator==()
      * since the list is sorted.
+     * @deprecated This class is nowhere used and not unit tested.
      */
     template<class DataType_>
     class SortedList

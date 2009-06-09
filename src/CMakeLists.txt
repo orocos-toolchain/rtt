@@ -22,6 +22,9 @@ MARK_AS_ADVANCED(FORCE OS_MAX_CONC_ACCESS)
 OPTION(OS_THREAD_SCOPE "Enable to monitor thread execution times through ThreadScope API." OFF)
 OPTION(CONFIG_FORCE_UP "Enable to optimise for single core/cpu systems." OFF)
 
+# Notify unit tests that no assembly must be tested.
+SET(TESTS_OS_NO_ASM ${OS_NO_ASM} PARENT_SCOPE)
+
 ### Embedded
 OPTION(OS_EMBEDDED "Build/Customise for embedded Operating System" OFF)
 CMAKE_DEPENDENT_OPTION(OS_NOEXCEPTIONS "Disable exceptions." ON "OS_EMBEDDED" OFF)
@@ -71,6 +74,12 @@ SET(ENV{GLOBAL_LIBRARY_SRCS})
 
 FILE( GLOB CPPS [^.]*.cpp )
 FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
+
+## Exceptions:
+if ( OS_NO_ASM )
+  file( GLOB ASM_FILES *ListLockFree.cpp *BufferLockFree.cpp )
+  list( REMOVE_ITEM CPPS ${ASM_FILES} )
+endif()
 
 GLOBAL_ADD_INCLUDE( rtt ${HPPS})
 GLOBAL_ADD_INCLUDE( rtt rtt-config.h)

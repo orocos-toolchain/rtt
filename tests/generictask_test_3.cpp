@@ -714,7 +714,7 @@ BOOST_AUTO_TEST_CASE( testPorts)
 
     bp.disconnect();
     bp2.disconnect();
-#ifndef OROPKG_OS_MACOSX
+#if !defined( OROPKG_OS_MACOSX ) && !defined(OROBLD_OS_NO_ASM)
     bp = new BufferLockFree<double>(10);
     BOOST_CHECK( bp.connected() );
     BOOST_CHECK( bp.buffer()->capacity() == 10 );

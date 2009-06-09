@@ -43,7 +43,7 @@
 #include <boost/intrusive_ptr.hpp>
 #include <map>
 #include <string>
-#include "os/oro_atomic.h"
+#include "os/Atomic.hpp"
 #include "rtt-config.h"
 #include "CommandInterface.hpp"
 
@@ -86,7 +86,7 @@ namespace RTT
          much desired, and that refcounting happens in an efficient way,
          which is also nice :)
       */
-      mutable oro_atomic_t refcount;
+      mutable OS::AtomicInt refcount;
 
       /** the destructor is private.  You are not allowed to delete this
        * class yourself, use a shared pointer !
