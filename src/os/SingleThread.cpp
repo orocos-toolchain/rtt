@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:28 CEST 2004  SingleThread.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:28 CEST 2004  SingleThread.cxx
 
                         SingleThread.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -54,7 +54,7 @@ namespace RTT
 { namespace OS {
     using namespace detail;
 
-    void *singleThread_f(void* t) 
+    void *singleThread_f(void* t)
     {
         /**
          * This is one time initialisation
@@ -83,7 +83,7 @@ namespace RTT
 
         while ( !task->prepareForExit ) {
             try {
-                while(1) 
+                while(1)
                     {
                         rtos_sem_wait( &(task->sem) );
                         // this mutex guarantees that stop() waits
@@ -129,17 +129,17 @@ namespace RTT
                 task->finalize();
             }
         }
-            
+
         rtos_sem_signal( &(task->confDone) );
 
         return 0;
     }
 
-  SingleThread::SingleThread(int _priority, 
-                             const std::string& name, 
-                             RunnableInterface* r) 
+  SingleThread::SingleThread(int _priority,
+                             const std::string& name,
+                             RunnableInterface* r)
       : msched_type(ORO_SCHED_RT),
-        active(false), prepareForExit(false), 
+        active(false), prepareForExit(false),
         inloop(false), runloop(false), runComp(r)
 #ifdef OROPKG_OS_THREAD_SCOPE
         , d(NULL)
@@ -148,11 +148,11 @@ namespace RTT
         this->setup(_priority, name);
     }
 
-    SingleThread::SingleThread(int scheduler, int _priority, 
-                               const std::string& name, 
+    SingleThread::SingleThread(int scheduler, int _priority,
+                               const std::string& name,
                                RunnableInterface* r)
         : msched_type(scheduler),
-          active(false), prepareForExit(false), 
+          active(false), prepareForExit(false),
           inloop(false), runloop(false), runComp(r)
 #ifdef OROPKG_OS_THREAD_SCOPE
         , d(NULL)
@@ -161,14 +161,14 @@ namespace RTT
         this->setup(_priority, name);
     }
 
-    void SingleThread::setup(int _priority, const std::string& name) 
+    void SingleThread::setup(int _priority, const std::string& name)
     {
         Logger::In in("SingleThread");
         Logger::log() << Logger::Debug << "Creating." <<Logger::endl;
 
         rtos_sem_init( &sem, 0 );
         rtos_sem_init( &confDone, 0 );
-	
+
 #ifdef OROPKG_OS_THREAD_SCOPE
         // Check if threadscope device already exsists
         {
@@ -180,9 +180,9 @@ namespace RTT
             }
 	}
 #endif
-	int rv = rtos_task_create( &rtos_task, _priority, name.c_str(), msched_type, singleThread_f, this);
+	int rv = rtos_task_create( &rtos_task, _priority, name.c_str(), msched_type, 0, singleThread_f, this);
 	if ( rv != 0 ) {
-	    Logger::log() << Logger::Critical << "Could not create thread "
+	    log(Critical) << "Could not create thread "
 			  << rtos_task_get_name(&rtos_task) <<"."<<Logger::endl;
 
 	    rtos_sem_destroy( &sem );
@@ -197,7 +197,7 @@ namespace RTT
 
     if (runComp)
         runComp->setThread(this);
-	
+
 	const char* modname = getName();
 	Logger::In in2(modname);
 	log(Info)<< "SingleThread created with priority " << getPriority()
@@ -211,8 +211,8 @@ namespace RTT
 	}
 #endif
     }
-    
-    SingleThread::~SingleThread() 
+
+    SingleThread::~SingleThread()
     {
         Logger::In in("~SingleThread");
         if ( this->isRunning() && this->stop() == false )
@@ -224,7 +224,7 @@ namespace RTT
         runloop = false;
         prepareForExit = true;
         rtos_sem_signal( &sem );
-        
+
         // Wait for the 'ok' answer of the thread.
         rtos_sem_wait( &confDone );
         log(Debug) << "Terminating "<< this->getName();
@@ -242,16 +242,16 @@ namespace RTT
 
     bool SingleThread::setScheduler(int sched_type)
     {
-        if ( !active ) 
+        if ( !active )
             {
                 msched_type = sched_type;
                 rtos_sem_signal(&sem);
                 return true;
             }
-        log() << "Failed to change scheduler for "<< rtos_task_get_name(&rtos_task) <<" since thread is still running."<<endlog(Warning);
+        log(Warning) << "Failed to change scheduler for "<< rtos_task_get_name(&rtos_task) <<" since thread is still running."<<endlog();
         return false;
 
-#if 0 
+#if 0
         // Alternative is not possible for RTAI: can only rt_make_hard_realtime() of current thread!
         if ( rtos_task_set_scheduler(&rtos_task, sched_type) == 0)
             return true;
@@ -276,7 +276,7 @@ namespace RTT
         return true;
     }
 
-    bool SingleThread::start() 
+    bool SingleThread::start()
     {
         // just signal if already active.
         if ( isActive() ) {
@@ -287,8 +287,8 @@ namespace RTT
             // loop is being executed (preemption) during start().
             // For most user code, this is sufficient though, as it
             // can not know the difference between executing loop()
-            // *in* start or *right after* start (the latter is 
-            // guaranteed by the API). 
+            // *in* start or *right after* start (the latter is
+            // guaranteed by the API).
             // @see ActivityInterface::trigger for how trigger uses this
             // assumption.
             if ( rtos_sem_value(&sem) > 0 )
@@ -314,14 +314,14 @@ namespace RTT
         rtos_task_yield( &rtos_task );
     }
 
-    bool SingleThread::stop() 
+    bool SingleThread::stop()
     {
         if ( !isActive() ) return false;
 
         // if inloop and breakloop does not work, sorry.
         {
             runloop = false;
-            if ( inloop ) { 
+            if ( inloop ) {
                 if ( !this->breakLoop() ) {
                     log(Warning) << "Failed to stop thread " << this->getName() << ": breakLoop() returned false."<<endlog();
                     runloop = true;
@@ -364,7 +364,7 @@ namespace RTT
     }
 
     bool SingleThread::initialize()
-    { 
+    {
         if ( runComp != 0 )
             return runComp->initialize();
         return true;
@@ -380,8 +380,8 @@ namespace RTT
     {
         return rtos_task_get_name(&rtos_task);
     }
-    
-    bool SingleThread::setPriority(int p) 
+
+    bool SingleThread::setPriority(int p)
     {
         return rtos_task_set_priority(&rtos_task, p) == 0;
     }
@@ -390,5 +390,5 @@ namespace RTT
     {
         return rtos_task_get_priority(&rtos_task);
     }
-   
+
 }}

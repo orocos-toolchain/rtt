@@ -78,6 +78,7 @@ namespace RTT
 					   int priority,
 					   const char * name,
 					   int sched_type,
+					   size_t stack_size,
 					   void * (*start_routine)(void *),
 					   ThreadInterface* obj)
 	{

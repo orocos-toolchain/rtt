@@ -24,6 +24,7 @@
 #include <PeriodicActivity.hpp>
 #include <SimulationActivity.hpp>
 #include <SlaveActivity.hpp>
+#include <Activity.hpp>
 
 using namespace RTT;
 
@@ -42,6 +43,7 @@ public:
     TestActivity<PeriodicActivity>* t_task_np_bad;
     TestActivity<PeriodicActivity>* t_task_p;
     TestActivity<SlaveActivity>*          t_task_slave;
+    TestActivity<Activity>*         t_task_a;
 
     RunnableInterface* t_run_allocate;
 

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon May 10 19:10:28 CEST 2004  PeriodicThread.cxx 
+  tag: Peter Soetens  Mon May 10 19:10:28 CEST 2004  PeriodicThread.cxx
 
                         PeriodicThread.cxx -  description
                            -------------------
     begin                : Mon May 10 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -52,7 +52,7 @@ namespace RTT
     using RTT::Logger;
     using namespace detail;
 
-    void *periodicThread(void* t) 
+    void *periodicThread(void* t)
     {
         /**
          * This is one time initialisation
@@ -77,7 +77,7 @@ namespace RTT
                 /**
                  * The real task starts here.
                  */
-                while(1) 
+                while(1)
                     {
                         if( !task->running ) { // more efficient than calling isRunning()
                             // consider this the 'configuration state'
@@ -150,7 +150,7 @@ namespace RTT
             }
 #endif // !ORO_EMBEDDED
         } // while (!prepareForExit)
-    
+
         rtos_sem_signal( &(task->confDone));
 
         return 0;
@@ -160,16 +160,17 @@ namespace RTT
     {
         // set state to not running
         this->running = false;
+        this->active = false;
         // execute finalize in current mode, even if hard.
         this->finalize();
     }
 
-    PeriodicThread::PeriodicThread(int _priority, 
-                                   const std::string & name, 
-                                   Seconds periods, 
+    PeriodicThread::PeriodicThread(int _priority,
+                                   const std::string & name,
+                                   Seconds periods,
                                    RunnableInterface* r) :
         msched_type(ORO_SCHED_RT), running(false), prepareForExit(false),
-        wait_for_step(true), runComp(r), 
+        wait_for_step(true), runComp(r),
         maxOverRun( OROSEM_OS_PERIODIC_THREADS_MAX_OVERRUN),
         period(Seconds_to_nsecs(periods))    // Do not call setPeriod(), since the semaphores are not yet used !
 #ifdef OROPKG_OS_THREAD_SCOPE
@@ -179,12 +180,12 @@ namespace RTT
         this->setup(_priority, name);
     }
 
-    PeriodicThread::PeriodicThread(int scheduler, int _priority, 
-                                   const std::string & name, 
-                                   Seconds periods, 
+    PeriodicThread::PeriodicThread(int scheduler, int _priority,
+                                   const std::string & name,
+                                   Seconds periods,
                                    RunnableInterface* r) :
         msched_type(scheduler), running(false), prepareForExit(false),
-        wait_for_step(true), runComp(r), 
+        wait_for_step(true), runComp(r),
         maxOverRun( OROSEM_OS_PERIODIC_THREADS_MAX_OVERRUN),
         period(Seconds_to_nsecs(periods))    // Do not call setPeriod(), since the semaphores are not yet used !
 #ifdef OROPKG_OS_THREAD_SCOPE
@@ -194,11 +195,11 @@ namespace RTT
         this->setup(_priority, name);
     }
 
-    void PeriodicThread::setup(int _priority, const std::string& name) 
+    void PeriodicThread::setup(int _priority, const std::string& name)
     {
         Logger::In in("PeriodicThread");
         int ret;
-        
+
         log(Info) << "Creating PeriodicThread for scheduler: "<< msched_type << endlog();
         ret = rtos_sem_init(&sem, 0);
         if ( ret != 0 ) {
@@ -235,7 +236,7 @@ namespace RTT
             }
         }
 #endif
-        int rv = rtos_task_create(&rtos_task, _priority, name.c_str(), msched_type, periodicThread, this );
+        int rv = rtos_task_create(&rtos_task, _priority, name.c_str(), msched_type, 0, periodicThread, this );
         if ( rv != 0 ) {
             Logger::log() << Logger::Critical << "Could not create thread "
                           << rtos_task_get_name(&rtos_task) <<"."<<Logger::endl;
@@ -247,9 +248,9 @@ namespace RTT
             return;
 #endif
         }
- 
+
         rtos_sem_wait(&confDone); // wait until thread is created.
- 
+
         const char* modname = getName();
         Logger::In in2(modname);
         log(Info)<< "PeriodicThread created with scheduler type '"<< getScheduler() <<"', priority " << getPriority()
@@ -261,8 +262,8 @@ namespace RTT
         }
 #endif
     }
-    
-    PeriodicThread::~PeriodicThread() 
+
+    PeriodicThread::~PeriodicThread()
     {
         Logger::In in("~PeriodicThread");
         if (this->isRunning())
@@ -292,18 +293,20 @@ namespace RTT
     }
 
 
-    bool PeriodicThread::start() 
+    bool PeriodicThread::start()
     {
         if ( running ) return false;
         Logger::In in("PeriodicThread::start");
 
         Logger::log() << Logger::Debug << "Periodic Thread "<< rtos_task_get_name(&rtos_task) <<" started."<<Logger::endl;
 
+        active = true;
         bool result;
         result = this->initialize();
 
         if (result == false) {
             Logger::log() << Logger::Critical << "Periodic Thread "<< rtos_task_get_name(&rtos_task) <<" failed to initialize()."<<Logger::endl;
+            active = false;
             return false;
         }
 
@@ -322,7 +325,7 @@ namespace RTT
         return true;
     }
 
-    bool PeriodicThread::stop() 
+    bool PeriodicThread::stop()
     {
         if ( !running ) return false;
 
@@ -341,7 +344,7 @@ namespace RTT
                 ret = rtos_sem_wait_timed( &confDone, 5*period );
                 // if ret == 0, confDone was signaled.
                 cnt++;
-            } 
+            }
 
         if ( ret != 0 ) {
             Logger::log() << Logger::Debug << " failed."<<Logger::endl;
@@ -356,7 +359,7 @@ namespace RTT
         // from now on, the thread waits on sem.
 
         this->finalize();
-
+        active = false;
         return true;
     }
 
@@ -365,10 +368,16 @@ namespace RTT
         return running;
     }
 
+    bool PeriodicThread::isActive() const
+    {
+        return running;
+    }
+
+
     bool PeriodicThread::setScheduler(int sched_type)
     {
         Logger::In in("PeriodicThread::setScheduler");
-        if ( !running ) 
+        if ( !running )
             {
                 if ( OS::CheckScheduler(sched_type) == false)
                     return false;
@@ -378,7 +387,7 @@ namespace RTT
                 }
 
                 log(Info) << "Setting scheduler type for Thread "<< rtos_task_get_name(&rtos_task) <<" to "<< sched_type <<endlog();
-                msched_type = sched_type; 
+                msched_type = sched_type;
                 rtos_sem_signal(&sem);
                 rtos_sem_wait(&confDone);
             }
@@ -394,7 +403,7 @@ namespace RTT
             }
         return true;
 
-#if 0 
+#if 0
         // Alternative is not possible for RTAI: can only rt_make_hard_realtime() of calling thread!
         if ( rtos_task_set_scheduler(&rtos_task, sched_type) == 0)
             return true;
@@ -420,11 +429,11 @@ namespace RTT
                 msched_type = rtos_task_get_scheduler(&rtos_task);
             }
     }
-        
+
 
     void PeriodicThread::step()
     {
-        if ( runComp )        
+        if ( runComp )
             runComp->step();
     }
 
@@ -432,7 +441,7 @@ namespace RTT
     {
         if ( runComp )
             return runComp->initialize();
-            
+
         return true;
     }
 
@@ -456,7 +465,7 @@ namespace RTT
         return true;
     }
 
-    bool PeriodicThread::setPeriod(secs s, nsecs ns) 
+    bool PeriodicThread::setPeriod(secs s, nsecs ns)
     {
         if ( isRunning() ) return false;
         period = ns + 1000*1000*1000*s;
@@ -468,7 +477,7 @@ namespace RTT
         return true;
     }
 
-    bool PeriodicThread::setPeriod( TIME_SPEC p) 
+    bool PeriodicThread::setPeriod( TIME_SPEC p)
     {
         return this->setPeriod( p.tv_sec, p.tv_nsec );
     }
@@ -479,12 +488,12 @@ namespace RTT
         ns = period - s*1000*1000*1000;
     }
 
-    bool PeriodicThread::setPriority(int p) 
+    bool PeriodicThread::setPriority(int p)
     {
         return rtos_task_set_priority(&rtos_task, p) == 0;
     }
 
-    int PeriodicThread::getPriority() const 
+    int PeriodicThread::getPriority() const
     {
         return rtos_task_get_priority(&rtos_task);
     }
@@ -517,7 +526,7 @@ namespace RTT
 
         prepareForExit = true;
         rtos_sem_signal(&sem);
-    
+
         rtos_sem_wait(&confDone); // this is strictly not necessary
         rtos_task_delete(&rtos_task); // this joins the thread.
 
@@ -546,4 +555,4 @@ namespace RTT
     }
 
 }}
-    
+

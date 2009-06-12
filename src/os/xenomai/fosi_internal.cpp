@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  fosi_internal.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  fosi_internal.hpp
 
                         fosi_internal.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,15 +34,15 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #define OROBLD_OS_INTERNAL
 #include "os/ThreadInterface.hpp"
 #include "fosi.h"
 #include "../fosi_internal_interface.hpp"
 #include <cassert>
-#define INTERNAL_QUAL 
+#define INTERNAL_QUAL
 
 #include "Logger.hpp"
 
@@ -174,8 +174,9 @@ namespace RTT
                                            int priority,
                                            const char* name,
                                            int sched_type,
+                                           size_t stack_size,
                                            void * (*start_routine)(void *),
-                                           ThreadInterface* obj) 
+                                           ThreadInterface* obj)
         {
             if ( priority < 1 )
                 priority = 1;
@@ -266,7 +267,7 @@ namespace RTT
                     return 0;
                 } else
                     return -1;
-            else if ( sched_type == SCHED_XENOMAI_SOFT) 
+            else if ( sched_type == SCHED_XENOMAI_SOFT)
                 // This mode setting is only temporary. See rtos_task_wait_period() as well !
                 if (rt_task_set_mode( T_PRIMARY, 0, 0 ) == 0 ) {
                     t->sched_type = SCHED_XENOMAI_SOFT;
@@ -284,7 +285,7 @@ namespace RTT
             RT_TASK* tt = mytask->xenoptr;
             RT_TASK_INFO info;
             if ( tt )
-                if ( rt_task_inquire( tt, &info) == 0 ) 
+                if ( rt_task_inquire( tt, &info) == 0 )
                     if ( info.status & XNRELAX )
                         return SCHED_XENOMAI_SOFT;
                     else
@@ -315,7 +316,7 @@ namespace RTT
         {
             // detect overrun.
 #if CONFIG_XENO_VERSION_MAJOR == 2 && CONFIG_XENO_VERSION_MINOR == 0
-            if ( rt_task_wait_period() == -ETIMEDOUT) 
+            if ( rt_task_wait_period() == -ETIMEDOUT)
                 return 1;
 #else // 2.1, 2.2, 2.3, 2.4,...
             long unsigned int overrun = 0;
@@ -340,7 +341,7 @@ namespace RTT
             // WORK AROUND constness: (need non-const mytask)
             RT_TASK* tt = mytask->xenoptr;
             if ( tt )
-                if ( rt_task_inquire ( tt, &info) == 0 ) 
+                if ( rt_task_inquire ( tt, &info) == 0 )
                     return info.bprio;
             return -1;
         }

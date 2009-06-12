@@ -24,6 +24,7 @@
 #include <PeriodicActivity.hpp>
 #include <SimulationActivity.hpp>
 #include <NonPeriodicActivity.hpp>
+#include <Activity.hpp>
 
 using namespace RTT;
 using namespace RTT::detail;
@@ -35,11 +36,14 @@ class ActivitiesTest
 {
 public:
     PeriodicActivity*   t_task_prio;
+    Activity*           t_act;
 
     TestRunnableInterface*  t_run_int_prio;
     TestRunnableInterface*  t_run_int_fail;
+    TestRunnableInterface*  t_run_int_act;
 
     RunnableInterface* t_run_allocate;
+    RunnableInterface* t_run_allocate_act;
     TestSelfRemove* t_self_remove;
 
     ActivitiesTest(){setUp();};
@@ -59,6 +63,12 @@ public:
     void testSelfRemove();
 
     void testNonPeriodic();
+
+    void testThread();
+    void testActivityNP();
+    void testActivityNPSelfRemove();
+    void testActivityPSelfRemove();
+    void testActivityBreakLoop();
 
     void testAllocation();
     void testRemoveAllocate();

@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 10 14:43:13 CEST 2002  PeriodicThread.hpp 
+  tag: Peter Soetens  Mon Jun 10 14:43:13 CEST 2002  PeriodicThread.hpp
 
                         PeriodicThread.hpp -  description
                            -------------------
     begin                : Mon June 10 2002
     copyright            : (C) 2002 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,7 +33,7 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
+ ***************************************************************************/
 
 #ifndef ORO_PERIODIC_THREAD_HPP
 #define ORO_PERIODIC_THREAD_HPP
@@ -48,7 +48,7 @@
 #include <string>
 
 namespace RTT
-{ 
+{
     class DigitalOutInterface;
 
     namespace OS {
@@ -62,8 +62,8 @@ namespace RTT
      * set by \a setMaxOverrun(). Overruns must be accumulated 'on average' to trigger this behavior:
      * one not overrunning step() compensates for one overrunning step().
      */
-    class PeriodicThread 
-        : public OS::ThreadInterface 
+    class PeriodicThread
+        : public OS::ThreadInterface
     {
         friend void* periodicThread( void* t );
 
@@ -79,7 +79,7 @@ namespace RTT
          *                 the thread's own virtual functions are executed.
          */
         PeriodicThread(int priority,const std::string & name, double period, OS::RunnableInterface* r=0);
-    
+
         /**
          * Create a Thread with a given scheduler type, priority and a name.
          *
@@ -91,59 +91,31 @@ namespace RTT
          *                 the thread's own virtual functions are executed.
          */
         PeriodicThread(int scheduler, int priority,const std::string & name, double period, OS::RunnableInterface* r=0);
-    
+
         virtual ~PeriodicThread();
 
         virtual bool run( OS::RunnableInterface* r);
 
-        /**
-         * Start the thread
-         */
         virtual bool start();
-        /**
-         * Stop the thread
-         */
+
         virtual bool stop();
-        /**
-         * Set the periodicity of this thread
-         * in seconds.
-         */
+
         bool setPeriod( Seconds s );
-        /**
-         * Set the periodicity of this thread
-         * (seconds, nanoseconds)
-         */
+
         bool setPeriod( secs s, nsecs ns );
-        /**
-         * Get the periodicity of this thread
-         * (seconds, nanoseconds)
-         */
+
         void getPeriod( secs& s, nsecs& ns ) const;
 
-        /**
-         * Get the periodicity of this thread in seconds.
-         */
         virtual Seconds getPeriod() const;
 
-        /**
-         * Get the periodicity of this thread in nano-seconds.
-         */
         virtual nsecs getPeriodNS() const;
 
-        /**
-         * Returns whether the thread is running
-         */
         virtual bool isRunning() const;
 
-        /**
-         * Read the name of this task
-         */
+        virtual bool isActive() const;
+
         virtual const char* getName() const;
 
-        /**
-         * Get the RTOS_TASK pointer
-         * FIXME should this be a const?
-         */
         virtual RTOS_TASK * getTask(){return &rtos_task;};
 
         virtual bool setScheduler(int sched_type);
@@ -162,8 +134,9 @@ namespace RTT
 
         void setMaxOverrun( int m );
         int getMaxOverrun() const;
+
         /**
-         * Exit and destroy the thread 
+         * Exit and destroy the thread
          * @pre  this is only called from within the destructor.
          * @post the thread does no longer exist.
          */
@@ -182,7 +155,7 @@ namespace RTT
         virtual bool setToStop();
 
         virtual void step();
-    
+
         virtual bool initialize();
 
         virtual void finalize();
@@ -212,7 +185,7 @@ namespace RTT
          * When set to 1, the thread will run, when set to 0
          * the thread will stop
          */
-        bool running;
+        bool active, running;
 
         bool prepareForExit;
 
@@ -233,7 +206,7 @@ namespace RTT
 #ifdef OROPKG_OS_THREAD_SCOPE
 	// Pointer to Threadscope device
         DigitalOutInterface * d;
-#endif    
+#endif
     };
 
 }}

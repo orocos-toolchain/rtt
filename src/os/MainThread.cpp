@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:03 CET 2006  MainThread.cpp 
+  tag: FMTC  do nov 2 13:06:03 CET 2006  MainThread.cpp
 
                         MainThread.cpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,16 +34,16 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
 
-// this file must be included always first. 
+
+
+// this file must be included always first.
 #include "os/fosi_internal_interface.hpp"
 #include "os/MainThread.hpp"
 
 namespace RTT
 { namespace OS {
-    
+
     using namespace detail;
 
     boost::shared_ptr<ThreadInterface> MainThread::mt;
@@ -56,7 +56,7 @@ namespace RTT
     MainThread::~MainThread() {
         rtos_task_delete_main(&main_task);
     }
-    
+
     ThreadInterface* MainThread::Instance()
     {
         if (mt)
@@ -69,23 +69,24 @@ namespace RTT
     {
         mt.reset();
     }
-        
+
     bool MainThread::run( OS::RunnableInterface* ) { return false; }
 
     bool MainThread::start()  { return false; }
 
     bool MainThread::stop()  { return false; }
 
-    ThreadInterface::Seconds MainThread::getPeriod() const { return 0; }
+    Seconds MainThread::getPeriod() const { return 0; }
 
-    ThreadInterface::nsecs MainThread::getPeriodNS() const { return 0; }
+    nsecs MainThread::getPeriodNS() const { return 0; }
 
     bool MainThread::isRunning() const { return true; }
+    bool MainThread::isActive() const { return true; }
 
     const char* MainThread::getName() const { return "main"; }
 
     RTOS_TASK * MainThread::getTask() { return &main_task; }
-      
+
     bool MainThread::setScheduler(int sched_type)
     {
         if ( rtos_task_set_scheduler(&main_task, sched_type) == 0)
@@ -97,7 +98,7 @@ namespace RTT
         return rtos_task_get_scheduler(&main_task);
     }
 
-    bool MainThread::setPriority(int p) 
+    bool MainThread::setPriority(int p)
     {
         return rtos_task_set_priority(&main_task, p) == 0;
     }
@@ -105,6 +106,11 @@ namespace RTT
     int MainThread::getPriority() const
     {
         return rtos_task_get_priority(&main_task);
+    }
+
+    bool MainThread::setPeriod(Seconds period)
+    {
+        return false;
     }
 
     void MainThread::yield()

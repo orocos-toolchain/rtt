@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Sat May 21 20:15:50 CEST 2005  fosi_internal.hpp 
+  tag: Peter Soetens  Sat May 21 20:15:50 CEST 2005  fosi_internal.hpp
 
                         fosi_internal.hpp -  description
                            -------------------
     begin                : Sat May 21 2005
     copyright            : (C) 2005 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef OS_FOSI_INTERNAL_HPP
 #define OS_FOSI_INTERNAL_HPP
 #define OROBLD_OS_LXRT_INTERNAL
@@ -49,7 +49,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include "../../rtt-config.h"
-#define INTERNAL_QUAL 
+#define INTERNAL_QUAL
 
 #include <string.h>
 
@@ -58,7 +58,7 @@
 namespace RTT
 { namespace OS {
     namespace detail {
-        
+
         INTERNAL_QUAL int rtos_task_create_main(RTOS_TASK* main_task)
         {
             if ( geteuid() != 0 ) {
@@ -81,7 +81,7 @@ namespace RTT
             /* check to see if rtai_lxrt module is loaded */
             //         struct module_info modInfo;
             //         size_t retSize;
-            //         if ( query_module("rtai_lxrt", QM_INFO, &modInfo, 
+            //         if ( query_module("rtai_lxrt", QM_INFO, &modInfo,
             //                           sizeof(modInfo), &retSize) != 0 ) {
             //             std::cerr <<"It appears the rtai_lxrt module is not loaded !"<<std::endl;
             //             exit();
@@ -90,7 +90,7 @@ namespace RTT
             while ( rt_get_adr( name ) != 0 ) // check for existing 'MAINTHREAD'
                 ++name;
 
-            
+
             const char* tname = "main";
             main_task->name = strcpy( (char*)malloc( (strlen(tname) + 1) * sizeof(char)), tname);
 
@@ -108,7 +108,7 @@ namespace RTT
 
             // Avoid the LXRT CHANGED MODE (TRAP), PID = 4088, VEC = 14, SIGNO = 11. warning
             rt_task_use_fpu(main_task->rtaitask, 1);
-                
+
 #ifdef OROSEM_OS_LXRT_PERIODIC
             rt_set_periodic_mode();
             start_rt_timer( nano2count( NANO_TIME(ORODAT_OS_LXRT_PERIODIC_TICK*1000*1000*1000) ) );
@@ -191,8 +191,9 @@ namespace RTT
                                            int priority,
                                            const char* name,
                                            int sched_type,
+                                           size_t stack_size,
                                            void * (*start_routine)(void *),
-                                           ThreadInterface* obj) 
+                                           ThreadInterface* obj)
         {
             char taskName[7];
             if ( strlen(name) == 0 )
@@ -211,17 +212,17 @@ namespace RTT
             // Set and truncate name
             task->name = strcpy( (char*)malloc( (strlen(name)+1)*sizeof(char) ), name);
             // name, priority, stack_size, msg_size, policy, cpus_allowed ( 1111 = 4 first cpus)
-      
+
             // Set priority
             task->priority = priority;
-	    
+
             RTAI_Thread* rt = (RTAI_Thread*)malloc( sizeof(RTAI_Thread) );
             rt->priority = priority;
             rt->data = obj;
             rt->wrapper = start_routine;
             rt->task = task;
             rt->tnum = task_num;
-            return pthread_create(&(task->thread), 0, 
+            return pthread_create(&(task->thread), 0,
                                   rtai_thread_wrapper, rt);
         }
 
@@ -262,8 +263,15 @@ namespace RTT
 
         INTERNAL_QUAL void rtos_task_make_periodic(RTOS_TASK* mytask, NANO_TIME nanosecs )
         {
+            if (rt_whoami() == mytask) {
+                // do not suspend/resume my own thread
+                // do best effort to change period.
+                rtos_task_set_period(mytask,nanosecs);
+                return;
+            }
+            // other thread is instructing us:
             if (nanosecs == 0) {
-                // in RTAI, to drop from periodic to non periodic, do a 
+                // in RTAI, to drop from periodic to non periodic, do a
                 // suspend/resume cycle.
                 rt_task_suspend( mytask->rtaitask );
                 rt_task_resume( mytask->rtaitask );
@@ -292,13 +300,13 @@ namespace RTT
         }
 
         INTERNAL_QUAL void rtos_task_delete(RTOS_TASK* mytask) {
-            if ( pthread_join((mytask->thread),0) != 0 ) 
+            if ( pthread_join((mytask->thread),0) != 0 )
                 Logger::log() << Logger::Critical << "Failed to join "<< mytask->name <<"."<< Logger::endl;
 
             free( mytask->name );
             // rt_task_delete is done in wrapper !
         }
-    
+
         INTERNAL_QUAL int rtos_task_check_priority(int* scheduler, int* priority)
         {
             int ret = 0;
@@ -336,7 +344,7 @@ namespace RTT
         {
             return t->name;
         }
-        
+
         INTERNAL_QUAL int rtos_task_get_priority(const RTOS_TASK *t)
         {
             return t->priority;
