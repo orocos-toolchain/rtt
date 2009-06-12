@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Mon Jun 10 14:43:39 CEST 2002  fosi.h 
+  tag: Peter Soetens  Mon Jun 10 14:43:39 CEST 2002  fosi.h
 
                         fosi.h -  description
                            -------------------
     begin                : Mon June 10 2002
     copyright            : (C) 2002 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,11 +15,11 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 /**
  * This file translates the FOSI (Framework Operating System Interface) from
- * orocos calls to native RTOS calls  
+ * orocos calls to native RTOS calls
  *
  */
 
@@ -39,7 +39,7 @@
 #include <stdarg.h>
 #include <sys/types.h>
 #include <sched.h>
-#include <assert.h> 
+#include <assert.h>
 #include <limits.h>
 #include <float.h>
 #include "../oro_limits.h"
@@ -92,9 +92,9 @@ extern "C" {
 
   typedef rt_sem_t rt_mutex_t;
   typedef rt_sem_t rt_rec_mutex_t;
-	
+
 	// Time Related
-	
+
 	typedef long long NANO_TIME;
 	typedef long long TICK_TIME;
 	typedef struct timespec TIME_SPEC;
@@ -120,7 +120,7 @@ extern "C" {
 
 
 // rtai undef cfr boost::graph library adjacency_list.hpp:443
-#undef DS	
+#undef DS
 #undef OEL
 #undef VL
 #undef VP
@@ -129,7 +129,7 @@ extern "C" {
 #undef EL
 
 #ifndef OROBLD_OS_AGNOSTIC
-	
+
 	// hrt is in ticks
 inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
 {
@@ -155,7 +155,7 @@ inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
 #define CHK_LXRT_CALL()
 #define CHK_LXRT_PTR( a )
 #endif
-    
+
 inline NANO_TIME rtos_get_time_ns(void) { return rt_get_time_ns(); }
 
 inline TICK_TIME rtos_get_time_ticks(void) { return rt_get_time(); }
@@ -165,7 +165,7 @@ inline TICK_TIME ticksPerSec(void) { return nano2count( 1000 * 1000 * 1000 ); }
 	inline TICK_TIME nano2ticks(NANO_TIME t) { return nano2count(t); }
 	inline NANO_TIME ticks2nano(TICK_TIME t) { return count2nano(t); }
 
-inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp) 
+inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
 {
     CHK_LXRT_CALL();
     nanosleep(rqtp,rmtp); // rtai 24.1.9
@@ -292,6 +292,19 @@ inline int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
         CHK_LXRT_CALL();
         return rt_sem_wait_if(m->sem) > 0 ? 0 : -EAGAIN;
     }
+
+    static inline int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
+    {
+        CHK_LXRT_CALL();
+        return rt_sem_wait_until(m->sem, nano2count(abs_time)) < SEM_TIMOUT ? 0 : -EAGAIN;
+    }
+
+    static inline int rtos_mutex_rec_lock_until( rt_rec_mutex_t* m, NANO_TIME abs_time)
+    {
+        CHK_LXRT_CALL();
+        return rt_sem_wait_until(m->sem, nano2count(abs_time)) < SEM_TIMOUT ? 0 : -EAGAIN;
+    }
+
 
     static inline int rtos_mutex_unlock( rt_mutex_t* m)
     {

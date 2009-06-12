@@ -51,7 +51,7 @@ extern "C"
 
         NANO_TIME periodMark;
         NANO_TIME period;
-  
+
         char* name;
 
         int priority;
@@ -61,7 +61,7 @@ extern "C"
 #define ORO_SCHED_RT    SCHED_FIFO /** Posix FIFO scheduler */
 #define ORO_SCHED_OTHER SCHED_OTHER /** Posix normal scheduler */
 
-    /* 
+    /*
      * Time Related stuff
      */
 #include <sys/time.h>
@@ -71,7 +71,7 @@ extern "C"
     typedef struct timespec TIME_SPEC;
 
     /* fake clock_gettime for systems like darwin */
-    #define  CLOCK_REALTIME 0 
+    #define  CLOCK_REALTIME 0
     inline int clock_gettime(int clk_id /*ignored*/, struct timespec *tp)
     {
         struct timeval now;
@@ -80,12 +80,12 @@ extern "C"
             tp->tv_sec = 0;
             tp->tv_nsec = 0;
             return rv;
-        } 
+        }
         tp->tv_sec = now.tv_sec;
         tp->tv_nsec = now.tv_usec * 1000;
         return 0;
-    }   
-    
+    }
+
     // high-resolution time to timespec
     inline TIME_SPEC ticks2timespec(TICK_TIME hrt)
     {
@@ -100,11 +100,11 @@ extern "C"
         TIME_SPEC tv;
         clock_gettime(CLOCK_REALTIME, &tv);
         // we can not include the C++ Time.hpp header !
-#ifdef __cplusplus 
+#ifdef __cplusplus
         return NANO_TIME( tv.tv_sec ) * 1000000000LL + NANO_TIME( tv.tv_nsec );
 #else
         return ( NANO_TIME ) ( tv.tv_sec * 1000000000LL ) + ( NANO_TIME ) ( tv.tv_nsec );
-#endif 
+#endif
     }
 
     /**
@@ -134,12 +134,12 @@ extern "C"
 
     /*
      * Semaphore functions
-     * See 
+     * See
      * http://developer.apple.com/documentation/Darwin/Conceptual/KernelProgramming/synchronization/chapter_15_section_2.html
      */
 #include <mach/semaphore.h>
     typedef semaphore_t rt_sem_t;
-    
+
     static inline int rtos_sem_init(rt_sem_t* m, int value )
     {
         return semaphore_create(mach_task_self(), m, SYNC_POLICY_FIFO, value);
@@ -204,7 +204,7 @@ extern "C"
     /* 		return -1; */
     /*     } */
 
-    
+
     /*
      * Mutex functions
      */
@@ -252,6 +252,18 @@ extern "C"
     static inline int rtos_mutex_rec_trylock( rt_mutex_t* m)
     {
         return pthread_mutex_trylock(m);
+    }
+
+    static inline int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
+    {
+        TIME_SPEC arg_time = ticks2timespec( abs_time );
+        return pthread_mutex_timedlock(m, &arg_time);
+    }
+
+    static inline int rtos_mutex_rec_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
+    {
+        TIME_SPEC arg_time = ticks2timespec( abs_time );
+        return pthread_mutex_timedlock(m, &arg_time);
     }
 
     static inline int rtos_mutex_unlock( rt_mutex_t* m)
