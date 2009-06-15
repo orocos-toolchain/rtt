@@ -243,7 +243,6 @@ namespace RTT
         INTERNAL_QUAL int rtos_task_set_scheduler(RTOS_TASK* t, int s) {
             Logger::In in( t->name );
             if ( t->rtaitask != rt_buddy() ) {
-                log(Error) << "RTAI/LXRT can not change the scheduler type from another thread." <<endlog();
                 return -1;
             }
             if (rtos_task_check_scheduler(&s) == -1)

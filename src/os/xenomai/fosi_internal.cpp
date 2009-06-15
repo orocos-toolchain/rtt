@@ -254,7 +254,6 @@ namespace RTT
             Logger::In in( t->name );
             // xenoptr was initialised from the thread wrapper.
             if (t->xenoptr != rt_task_self() ) {
-                log(Error) << "Xenomai can not change the scheduler type from another thread." <<endlog();
                 return -1;
             }
 
