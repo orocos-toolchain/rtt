@@ -159,6 +159,8 @@ else()
 endif()
 
 # The machine type is tested using compiler macros in rtt-config.h.in
+# Add found include dirs.
+INCLUDE_DIRECTORIES( ${OROCOS-RTT_INCLUDE_DIRS} )
 
 #
 # If we're using gcc, make sure the version is OK.
