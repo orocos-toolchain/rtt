@@ -169,7 +169,7 @@ namespace RTT
         {
             if ( trylock() ) {
                 unlock();
-                rtos_mutex_destroy( &recm );
+                rtos_mutex_rec_destroy( &recm );
             }
         }
 
@@ -204,7 +204,7 @@ namespace RTT
         */
         virtual bool timedlock(Seconds s)
         {
-            if ( rtos_mutex_lock_until( &recm, rtos_get_time_ns() + Seconds_to_nsecs(s) ) == 0 )
+            if ( rtos_mutex_rec_lock_until( &recm, rtos_get_time_ns() + Seconds_to_nsecs(s) ) == 0 )
                 return true;
             return false;
         }
