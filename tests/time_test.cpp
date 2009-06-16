@@ -44,9 +44,9 @@ TimeTest::TimeTest()
     //long_S  = 4.503599627370496e14;
     normal_ns = 1000000000; // 1s
     normal_S = 1.0; // 1s
-    small_ns = 1;  //  1ns
-    small_S = 1e-9; //  1ns
-    small_t = 1;
+    small_ns = 10;  //  10ns
+    small_S = 10e-9; //  10ns
+    small_t = 10;
     normal_t = 1000000000; // 1e9 ticks
     long_t  = long_ns;     // == 2^53
 }
@@ -106,23 +106,23 @@ BOOST_AUTO_TEST_CASE( testSecondsConversion )
 BOOST_AUTO_TEST_CASE( testTicksConversion )
 {
     // Test ticks conversion invariance :
-    // Allow rounding error of '2'. ( < 3 )
-    int margin = 3;
+    // margin is in % rounding error.
+    int margin = 1;
+    int small_margin = 10; // 10% of 10ns : allow a one-off.
 
     BOOST_REQUIRE_CLOSE( long_ns  , TimeService::ticks2nsecs( TimeService::nsecs2ticks( long_ns )), margin );
     BOOST_REQUIRE_CLOSE( normal_ns, TimeService::ticks2nsecs( TimeService::nsecs2ticks( normal_ns )), margin );
-    BOOST_REQUIRE_CLOSE( small_ns , TimeService::ticks2nsecs( TimeService::nsecs2ticks( small_ns )), margin );
-    BOOST_REQUIRE_CLOSE( long_t  , TimeService::nsecs2ticks( TimeService::ticks2nsecs( long_t )), margin * 2);
-    BOOST_REQUIRE_CLOSE( normal_t, TimeService::nsecs2ticks( TimeService::ticks2nsecs( normal_t )), margin * 2);
-    BOOST_REQUIRE_CLOSE( small_t , TimeService::nsecs2ticks( TimeService::ticks2nsecs( small_t )), margin * 2);
+    BOOST_REQUIRE_CLOSE( small_ns , TimeService::ticks2nsecs( TimeService::nsecs2ticks( small_ns )), small_margin );
+    BOOST_REQUIRE_CLOSE( long_t  , TimeService::nsecs2ticks( TimeService::ticks2nsecs( long_t )), margin );
+    BOOST_REQUIRE_CLOSE( normal_t, TimeService::nsecs2ticks( TimeService::ticks2nsecs( normal_t )), margin );
+    BOOST_REQUIRE_CLOSE( small_t , TimeService::nsecs2ticks( TimeService::ticks2nsecs( small_t )), small_margin );
 }
 
 BOOST_AUTO_TEST_CASE( testTimeProgress )
 {
     // A time measurement takes time :
     TimeService::ticks t = hbg->getTicks();
-    sleep(10);
-    std::cout << "Get ticks: " << t << " == " << hbg->getTicks() << std::endl;
+    usleep(100000);
     BOOST_CHECK( t !=  hbg->getTicks() );
     BOOST_CHECK( 0 !=  hbg->ticksSince(t) );
     BOOST_CHECK( 0 !=  hbg->secondsSince(t) );
