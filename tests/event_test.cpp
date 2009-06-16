@@ -330,6 +330,7 @@ BOOST_AUTO_TEST_CASE( testCrossRemoval )
     BOOST_CHECK( task.stop() );
 }
 
+#ifdef OROCOS_TARGET_GNULINUX
 BOOST_AUTO_TEST_CASE( testConcurrentEmit )
 {
     testConcurrentEmitHandlerCount.set(0);
@@ -339,10 +340,10 @@ BOOST_AUTO_TEST_CASE( testConcurrentEmit )
     EmitAndcount brunobj(event);
     EmitAndcount crunobj(event);
     EmitAndcount drunobj(event);
-    NonPeriodicActivity atask(0, &arunobj);
-    NonPeriodicActivity btask(0, &brunobj);
-    NonPeriodicActivity ctask(0, &crunobj);
-    NonPeriodicActivity dtask(0, &drunobj);
+    NonPeriodicActivity atask(ORO_SCHED_OTHER, 0, &arunobj);
+    NonPeriodicActivity btask(ORO_SCHED_OTHER, 0, &brunobj);
+    NonPeriodicActivity ctask(ORO_SCHED_OTHER, 0, &crunobj);
+    NonPeriodicActivity dtask(ORO_SCHED_OTHER, 0, &drunobj);
     Handle h = event.connect( &testConcurrentEmitHandler );
     BOOST_CHECK( h.connected() );
     BOOST_CHECK( atask.start() );
@@ -357,6 +358,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentEmit )
     // Verify that all emits also caused the handler to be called.
     BOOST_CHECK_EQUAL( arunobj.count + brunobj.count + crunobj.count + drunobj.count, testConcurrentEmitHandlerCount.read() );
 }
+#endif
 
 BOOST_AUTO_TEST_CASE( testBlockingTask )
 {
@@ -364,7 +366,7 @@ BOOST_AUTO_TEST_CASE( testBlockingTask )
     Runner runobj(event);
     NonPeriodicActivity task(15, &runobj);
     BOOST_CHECK(task.start());
-    sleep(1);
+    usleep(100000);
     BOOST_CHECK(task.stop());
 
     BOOST_CHECK( runobj.result );
@@ -498,7 +500,7 @@ BOOST_AUTO_TEST_CASE( testCompletionProcessor )
     t_event();
 
     // This will block until all completers are processed.
-    sleep(1);
+    usleep(100000);
     h2.disconnect();
     BOOST_CHECK( !h2.connected() );
     // CP must be called.
