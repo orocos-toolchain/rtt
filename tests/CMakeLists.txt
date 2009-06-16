@@ -26,6 +26,13 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
     CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/property_test_vect.cpf 
                    ${CMAKE_CURRENT_BINARY_DIR}/property_test_vect.cpf COPYONLY)
 
+    ADD_EXECUTABLE( main-test ${DO_EXCLUDE} test-main.cpp )
+    TARGET_LINK_LIBRARIES( main-test orocos-rtt-${OROCOS_TARGET} )
+    SET_TARGET_PROPERTIES( main-test PROPERTIES
+    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}" 
+    COMPILE_DEFINITIONS ${OROCOS-RTT_DEFINITIONS} )
+    ADD_TEST( main-test ${CMAKE_CURRENT_BINARY_DIR}/main-test )
+
     ADD_EXECUTABLE( list-test ${DO_EXCLUDE} test-runner.cpp  listlocked_test.cpp )
     TARGET_LINK_LIBRARIES( list-test orocos-rtt-${OROCOS_TARGET} )
     SET_TARGET_PROPERTIES( list-test PROPERTIES
@@ -105,7 +112,7 @@ IF (BUILD_TESTING OR ENABLE_TESTS)
     ENDIF(ENABLE_CORBA)
 	
     ADD_CUSTOM_TARGET(check ctest -V 
-      DEPENDS core-test list-test task-test event-test taskcontext-test parser-test program-test state-test dev-test ${ORO_EXTRA_TESTS}
+      DEPENDS main-test core-test list-test task-test event-test taskcontext-test parser-test program-test state-test dev-test ${ORO_EXTRA_TESTS}
         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
     
     #ADD_DEPENDENCIES(check prep-cpf)
