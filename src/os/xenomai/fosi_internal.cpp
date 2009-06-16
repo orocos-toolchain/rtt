@@ -161,6 +161,7 @@ namespace RTT
             // store 'self'
             RTOS_TASK* task = ((ThreadInterface*)((XenoCookie*)cookie)->data)->getTask();
             task->xenoptr = rt_task_self();
+            assert( task->xenoptr );
 
             // create hard mode by default.
             rt_task_set_mode( 0, T_PRIMARY, 0 );
@@ -178,17 +179,14 @@ namespace RTT
                                            void * (*start_routine)(void *),
                                            ThreadInterface* obj)
         {
-            if ( priority < 1 )
-                priority = 1;
-            if ( priority > 99)
-                priority = 99;
+            rtos_task_check_priority(&sched_type, &priority);
             XenoCookie* xcookie = (XenoCookie*)malloc( sizeof(XenoCookie) );
             xcookie->data = obj;
             xcookie->wrapper = start_routine;
             if ( name == 0 || strlen(name) == 0)
                 name = "XenoThread";
             task->name = strncpy( (char*)malloc( (strlen(name)+1)*sizeof(char) ), name, strlen(name)+1 );
-            task->sched_type = SCHED_XENOMAI_HARD; // default
+            task->sched_type = sched_type; // User requested scheduler.
             int rv;
             // task, name, stack, priority, mode, fun, arg
             // UGLY, how can I check in Xenomai that a name is in use before calling rt_task_spawn ???
@@ -210,6 +208,7 @@ namespace RTT
             if ( rv != 0) {
                 log(Error) << name << " : CANNOT INIT Xeno TASK " << task->name <<" error code: "<< rv << endlog();
             }
+            rt_task_yield();
             return rv;
         }
 
@@ -240,7 +239,7 @@ namespace RTT
             *priority = 1;
             ret = -1;
         }
-        if (*priority >= 99){
+        if (*priority > 99){
             log(Warning) << "Forcing priority ("<<*priority<<") of thread to 99." <<endlog();
             *priority = 99;
             ret = -1;
