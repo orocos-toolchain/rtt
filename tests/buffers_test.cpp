@@ -96,7 +96,7 @@ void subOne(Dummy& d)
 
 struct LLFWorker : public RTT::OS::RunnableInterface
 {
-    bool stop;
+    volatile bool stop;
     typedef ListLockFree<Dummy> T;
     T* mlst;
     int i;
@@ -128,7 +128,7 @@ struct LLFWorker : public RTT::OS::RunnableInterface
 
 struct LLFGrower : public RTT::OS::RunnableInterface
 {
-    bool stop;
+    volatile bool stop;
     typedef ListLockFree<Dummy> T;
     T* mlst;
     int i;
@@ -190,7 +190,7 @@ struct AQWorker : public RTT::OS::RunnableInterface
 
 struct AQGrower : public RTT::OS::RunnableInterface
 {
-    bool stop;
+    volatile bool stop;
     typedef QueueType T;
     T* mlst;
     int i;
@@ -674,6 +674,8 @@ BOOST_AUTO_TEST_CASE( testSortedList )
 }
 #endif
 
+#ifdef OROPKG_OS_GNULINUX
+
 BOOST_AUTO_TEST_CASE( testListLockFree )
 {
     LLFWorker* aworker = new LLFWorker( listlockfree );
@@ -682,16 +684,10 @@ BOOST_AUTO_TEST_CASE( testListLockFree )
     LLFGrower* grower = new LLFGrower( listlockfree );
 
     {
-        boost::scoped_ptr<SingleThread> athread( new SingleThread(20,"ThreadA", aworker ));
-        boost::scoped_ptr<SingleThread> bthread( new SingleThread(20,"ThreadB", bworker ));
-        boost::scoped_ptr<SingleThread> cthread( new SingleThread(20,"ThreadC", cworker ));
-        boost::scoped_ptr<SingleThread> gthread( new SingleThread(20,"ThreadG", grower ));
-
-        // avoid system lock-ups
-        athread->setScheduler(ORO_SCHED_OTHER);
-        bthread->setScheduler(ORO_SCHED_OTHER);
-        cthread->setScheduler(ORO_SCHED_OTHER);
-        gthread->setScheduler(ORO_SCHED_OTHER);
+        boost::scoped_ptr<Thread> athread( new Thread(ORO_SCHED_OTHER, 0, 0, "ThreadA", aworker ));
+        boost::scoped_ptr<Thread> bthread( new Thread(ORO_SCHED_OTHER, 0, 0, "ThreadB", bworker ));
+        boost::scoped_ptr<Thread> cthread( new Thread(ORO_SCHED_OTHER, 0, 0, "ThreadC", cworker ));
+        boost::scoped_ptr<Thread> gthread( new Thread(ORO_SCHED_OTHER, 0, 0, "ThreadG", grower ));
 
         athread->start();
         bthread->start();
@@ -733,6 +729,7 @@ BOOST_AUTO_TEST_CASE( testListLockFree )
     delete cworker;
     delete grower;
 }
+#endif
 
 #ifdef OROPKG_OS_GNULINUX
 BOOST_AUTO_TEST_CASE( testAtomicQueue )
@@ -759,7 +756,7 @@ BOOST_AUTO_TEST_CASE( testAtomicQueue )
         bthread->start();
         cthread->start();
         gthread->start();
-        sleep(10);
+        sleep(3);
         gthread->stop();
         athread->stop();
         bthread->stop();
