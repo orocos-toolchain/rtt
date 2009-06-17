@@ -1,6 +1,9 @@
 #ifndef ORO_OROCOS_TYPES_IDL
 #define ORO_OROCOS_TYPES_IDL
 
+//resolves LNK2005
+#include <tao/orb.idl>
+
 module RTT
 {
   module Corba

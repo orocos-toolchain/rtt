@@ -374,7 +374,8 @@ namespace RTT
          * @param i
          *        The element to be accessed starting from zero.
          */
-        T& operator[] ( int i )
+		//replaced int parameter with unsigned int to unconfuse MSVC
+        T& operator[] ( unsigned int i )
         {
             return data[ i ];
         }

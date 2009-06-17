@@ -1,6 +1,8 @@
 #ifndef ORO_CORBA_SCRIPTINGACCESS_IDL
 #define ORO_CORBA_SCRIPTINGACCESS_IDL
 
+//resolves LNK2005
+#include <tao/orb.idl>
 #include "Operations.idl"
 
 module RTT
