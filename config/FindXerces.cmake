@@ -1,6 +1,6 @@
 ################################################################################
 #
-# CMake script for finding Xerces.
+# CMake script for finding XERCES.
 # If the optional XERCES_ROOT_DIR environment variable exists, header files and
 # libraries will be searched in the XERCES_ROOT_DIR/include and XERCES_ROOT_DIR/libs
 # directories, respectively. Otherwise the default CMake search process will be
@@ -16,30 +16,21 @@
 include(LibFindMacros)
 
 # Get hint from environment variable (if any)
-if(NOT $ENV{XERCES_ROOT_DIR} STREQUAL "")
-  set(XERCES_ROOT_DIR $ENV{XERCES_ROOT_DIR} CACHE PATH "Xerces base directory location (optional, used for nonstandard installation paths)" FORCE)
+if(NOT XERCES_ROOT_DIR AND DEFINED ENV{XERCES_ROOT_DIR})
+  set(XERCES_ROOT_DIR "$ENV{XERCES_ROOT_DIR}" CACHE PATH "XERCES base directory location (optional, used for nonstandard installation paths)")
   mark_as_advanced(XERCES_ROOT_DIR)
 endif()
 
-# Header files to find
-set(header_NAME xercesc/dom/DOM.hpp)
-
-# Libraries to find
-set(xerces_c_NAME      xerces-c)
-set(xerces_depdom_NAME xerces-depdom)
+# Search path for nonstandard locations
+if(XERCES_ROOT_DIR)
+  set(XERCES_INCLUDE_PATH PATHS "${XERCES_ROOT_DIR}/include" NO_DEFAULT_PATH)
+  set(XERCES_LIBRARY_PATH PATHS "${XERCES_ROOT_DIR}/lib" NO_DEFAULT_PATH)
+endif()
 
 # Find headers and libraries
-if(XERCES_ROOT_DIR)
-  # Use location specified by environment variable
-  find_path(XERCES_INCLUDE_DIR        NAMES ${header_NAME}        PATHS ${XERCES_ROOT_DIR}/include NO_DEFAULT_PATH)
-  find_library(XERCES_C_LIBRARY       NAMES ${xerces_c_NAME}      PATHS ${XERCES_ROOT_DIR}/lib     NO_DEFAULT_PATH)
-  find_library(XERCES_depdom_LIBRARY  NAMES ${xerces_depdom_NAME} PATHS ${XERCES_ROOT_DIR}/lib     NO_DEFAULT_PATH)
-else()
-  # Use default CMake search process
-  find_path(XERCES_INCLUDE_DIR       NAMES ${header_NAME})
-  find_library(XERCES_C_LIBRARY      NAMES ${xerces_c_NAME})
-  find_library(XERCES_DEPDOM_LIBRARY NAMES ${xerces_depdom_NAME})
-endif()
+find_path(XERCES_INCLUDE_DIR       NAMES xercesc/dom/DOM.hpp ${XERCES_INCLUDE_PATH})
+find_library(XERCES_C_LIBRARY      NAMES xerces-c            ${XERCES_LIBRARY_PATH})
+find_library(XERCES_DEPDOM_LIBRARY NAMES xerces-depdom       ${XERCES_LIBRARY_PATH})
 
 # Set the include dir variables and the libraries and let libfind_process do the rest.
 # NOTE: Singular variables for this library, plural for libraries this this lib depends on.
