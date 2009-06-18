@@ -14,7 +14,7 @@
     </title>
     <subtitle>Designing Real-Time Orocos Applications</subtitle>
     <copyright>
-      <year>2004,2005,2006,2007,2008</year>
+      <year>2004,2005,2006,2007,2008,2009</year>
       <holder>Peter Soetens</holder>
     </copyright>
     
@@ -696,20 +696,20 @@ the_data_port.     cd            ls
     </section>
   </section>
   <section id="basic-task">
-    <title>Setting Up a Basic Task</title>
+    <title>Setting Up a Basic Component</title>
     <para>
-      Tasks are 
+      Components are 
       implemented by the <classname>RTT::TaskContext</classname> class.
       It is useful speaking of a context because it defines
       the context in which an activity (a program) operates. 
-      It defines the interface of the task, its properties,
-      its peer tasks and uses its
+      It defines the interface of the component, its properties,
+      its peer components and uses its
       <classname>RTT::ExecutionEngine</classname> to execute its
       programs and to process commands and events.
     </para>
     <para>
-      This section walks you through the definition of an example task
-      in order to show you how you could build your own task.
+      This section walks you through the definition of an example component
+      in order to show you how you could build your own component.
     </para>
     <important>
       <para>
@@ -733,7 +733,7 @@ the_data_port.     cd            ls
       </programlisting>
     </para>
     <para>
-      The argument is the (unique) name of the task.
+      The argument is the (unique) name of the component.
     </para>
     <para>
       A task's interface consists of : Commands, Methods, Ports,
@@ -918,24 +918,25 @@ the_data_port.     cd            ls
     </para>
     </section>
     <section>
-      <title>Starting Task Execution</title>
+      <title>Starting a Component</title>
       <para>
-	The functionality of a task, i.e. its algorithm, is executed
+	The functionality of a component, i.e. its algorithm, is executed
 	by its internal Execution Engine.  To run a TaskContext, you
 	need to use one of the
 	<classname>RTT::ActivityInterface</classname> classes from the
-	RTT, for example <classname>RTT::PeriodicActivity</classname>
-	or <classname>RTT::NonPeriodicActivity</classname> create a periodic
-		or non periodic thread which executes your task.  This
+	RTT, most likely <classname>RTT::Activity</classname>
+	or <classname>RTT::SlaveActivity</classname> create a threaded
+	or non-threaded activity which executes your task.  This
 	relation is shown in <xref linkend="fig-task-execution" />.
-	The Activity classes may allocate a thread which executes the
+	The RTT::Activity class allocates a thread which executes the
 	Execution Engine. The chosen
 	<classname>ActivityInterface</classname> object will invoke
 	the Execution Engine, which will in turn invoke the
 	application's hooks above. When created, the TaskContext is assigned
-	the <classname>RTT::SequentialActivity</classname> by default.
-	This means it has no internal thread and executes its functions
-	at the grace (i.e. in the thread context) of the caller.
+	the default <classname>RTT::Activity</classname> by default.
+	This means it has an internal thread which can receive commands
+	and process events but does not execute user code in 
+	updateHook() periodically.
       </para>
       <figure id="fig-task-execution">
       <title>
@@ -957,19 +958,20 @@ the_data_port.     cd            ls
 	</caption>
       </mediaobject>
     </figure>
-    <section><title>Periodic Task Execution</title>
+    <section><title>Periodic Execution</title>
       <para>
 	A common task in control is executing an algorithm periodically.
-	This is done by attaching a periodic activity to the Execution Engine.
+	This is done by attaching an activity to the Execution Engine
+	which has a periodic execution time set.
 	<programlisting>
-  #include &lt;rtt/PeriodicActivity.hpp&gt;
+  #include &lt;rtt/Activity.hpp&gt;
 
   using namespace RTT;
 
   <classname>RTT::TaskContext</classname>* a_task = new MyTask("the_task");
   // Set a periodic activity with priority=5, period=1000Hz
-  a_task->setActivity( new <classname>RTT::PeriodicActivity</classname>( 5, 0.001 ));
-  // ... start the execution engine of a_task :
+  a_task->setActivity( new <classname>RTT::Activity</classname>( 5, 0.001 ));
+  // ... start the component:
   a_task->start(); 
   // ...
   a_task->stop();</programlisting></para>
@@ -983,6 +985,15 @@ the_data_port.     cd            ls
 	machines are brought into the final state and no more commands
 	or events are accepted.
       </para>
+      <para>
+	You don't need to create a new Activity if you want to switch
+	to periodic execution, you can also use the <function>setPeriod</function>
+	function:
+	<programlisting>
+  // In your TaskContext's configureHook():
+  bool configureHook() {
+      return this->setPeriod(0.001); // set to 1000Hz execution mode.
+  }</programlisting></para>
       <para>
 	An <function>updateHook()</function> function of a periodic
 	task could look like:
@@ -1002,30 +1013,21 @@ the_data_port.     cd            ls
 
   };</programlisting></para>
        <para>You can find more detailed information in
-       <xref linkend="corelib-periodic-activity" /> in the CoreLib
+       <xref linkend="corelib-activity" /> in the CoreLib
        reference.</para>
     </section>
-    <section><title>Non Periodic Task Execution</title>
+    <section><title>Default Component Execution Semantics</title>
       <para>
-	A TaskContext can also be run in a non periodic activity. This
-	is useful when <function>updateHook()</function> must wait on
+	A TaskContext is run by default by a non periodic RTT:Activity object. This
+	is useful when <function>updateHook()</function> only needs
+	to process data when it arrives or must wait on
 	network connections or does any other blocking operation.
-	<programlisting>
-  #include &lt;rtt/NonPeriodicActivity.hpp&gt;
-
-  using namespace RTT;
-
-  <classname>RTT::TaskContext</classname>* a_task = new MyTask("the_task");
-  // create a non periodic activity with priority=5
-  a_task->setActivity(new <classname>RTT::NonPeriodicActivity</classname>(5) );
-  // ... start the execution engine of a_task :
-  a_task->start();
-  // ...
-  a_task->stop();</programlisting></para>
+      </para>
       <para>
-	In case the Execution Engine waits for new Commands or Events to
+	Upon start(), the Execution Engine waits for new Commands or Events to
 	come in to be executed. Each time such an event happens, the user's
-	application code (<function>updateHook()</function>) is called as well.
+	application code (<function>updateHook()</function>) is called each
+	time an event or command arrives.
       </para>
       <para>
 	An <function>updateHook()</function> function of a non periodic
@@ -1071,7 +1073,7 @@ the_data_port.     cd            ls
 	</para>
       </warning>
        <para>You can find more detailed information in
-       <xref linkend="corelib-non-periodic-activity" /> in the CoreLib
+       <xref linkend="corelib-activity" /> in the CoreLib
        reference.</para>
       </section>
     </section>
@@ -1272,7 +1274,7 @@ the_data_port.     cd            ls
  };</programlisting>
       </para>
       <para>
-	Finally, you start this component with a NonPeriodicActivity,
+	Finally, you start this component with a non periodic Activity,
 	which allows you to wait in updateHook() for as long as you
 	want. Commands and events are processed when you leave the
 	function, that's why you can not use a while(1) {} loop within
@@ -2499,7 +2501,7 @@ the_data_port.     cd            ls
 	asynchronously. During setup, the <classname>RTT::EventProcessor</classname> of
 	b_task's Execution Engine is used to process the event.
 	<programlisting>  <classname>RTT::TaskContext</classname> b_task("BTask");
-  b_task.setActivity( new <classname>RTT::PeriodicActivity</classname>(5, 0.1) ); // priority, period
+  b_task.setActivity( new <classname>RTT::Activity</classname>(5, 0.1) ); // priority, period
   ptask_b.run( &amp;b_task );
   ptask_b.start();
 
