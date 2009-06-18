@@ -165,7 +165,6 @@ namespace RTT
                 Logger::log() << Logger::Warning << "Overriding TypeInfo for '"
                               << detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject->getTypeName()
                               << "'." << Logger::endl;
-                delete detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject;
             }
             detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
         }

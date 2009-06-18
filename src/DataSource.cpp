@@ -190,9 +190,10 @@ namespace RTT
         const std::string& DataSourceTypeInfo<void>::getType() { return tname; }
         const std::string& DataSourceTypeInfo<void>::getQualifier() { return DataSourceTypeInfo<UnknownType>::noqual; }
         const TypeInfo* DataSourceTypeInfo<void>::getTypeInfo() {
-            return DataSourceTypeInfo<UnknownType>::getTypeInfo();
+            if (!TypeInfoObject)
+                return DataSourceTypeInfo<UnknownType>::getTypeInfo();
+            return TypeInfoObject;
         }
-
     }
 }
 
