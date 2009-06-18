@@ -43,6 +43,7 @@
 #include <map>
 #include <string>
 #include "PortInterface.hpp"
+#include "OperationInterface.hpp"
 
 namespace RTT
 {

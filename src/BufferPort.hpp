@@ -44,6 +44,7 @@
 #include "BufferConnection.hpp"
 #include "OperationInterface.hpp"
 #include "Method.hpp"
+#include "TaskObject.hpp"
 
 namespace RTT
 {

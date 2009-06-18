@@ -42,10 +42,11 @@
 #include <string>
 #include "ConnectionTypes.hpp"
 #include "ConnectionInterface.hpp"
-#include "TaskObject.hpp"
+#include "Event.hpp"
 
 namespace RTT
 {
+    class TaskObject;
 
     /**
      * A Port of a task is used to connect it with other tasks
