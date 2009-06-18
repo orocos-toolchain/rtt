@@ -136,6 +136,8 @@ Generic_TaskTest_3::setUp()
     tc =  new TaskContext( "root", TaskContext::Stopped );
     tce = new EventPortsTC();
     tc2 = new EventPortsTC();
+    tce->setActivity( new SequentialActivity() );
+    tc2->setActivity( new SequentialActivity() );
     stc = new StatesTC();
     tsim = new SimulationActivity(0.001, tc->engine() );
     stsim = new SimulationActivity(0.001, stc->engine() );
