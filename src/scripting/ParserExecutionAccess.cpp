@@ -40,6 +40,7 @@
 #include "ParserExecutionAccess.hpp"
 #include "Logger.hpp"
 #include "TaskContext.hpp"
+#include "TaskObject.hpp"
 #include "Method.hpp"
 #include "Command.hpp"
 
