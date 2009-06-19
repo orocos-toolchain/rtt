@@ -25,6 +25,7 @@
 #include <CommandDS.hpp>
 #include <OperationInterface.hpp>
 #include <RemoteCommand.hpp>
+#include <TaskObject.hpp>
 
 #include <SimulationActivity.hpp>
 #include <SimulationThread.hpp>

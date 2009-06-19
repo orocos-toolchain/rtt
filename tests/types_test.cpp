@@ -28,6 +28,7 @@
 #include <TaskContext.hpp>
 #include <ProgramProcessor.hpp>
 #include <StateMachineProcessor.hpp>
+#include <TaskObject.hpp>
 
 using namespace std;
 
