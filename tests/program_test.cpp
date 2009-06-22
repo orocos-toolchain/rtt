@@ -26,6 +26,7 @@
 #include <SimulationThread.hpp>
 #include <Method.hpp>
 #include <Command.hpp>
+#include <TaskObject.hpp>
 
 
 using namespace std;

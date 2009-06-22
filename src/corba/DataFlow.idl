@@ -7,30 +7,40 @@ module RTT
 {
   module Corba
   {
-
-    /**
-     * A buffer consists of an event channel and
-     * some query methods for reading the buffer's state.
-     * @ingroup CompIDL
-     */
-    interface BufferChannel
+    enum ConnectionModel { Data, Buffer };
+    enum LockPolicy { Locked, LockFree };
+    struct ConnPolicy
     {
+        ConnectionModel type;
+        boolean init;
+        LockPolicy lock_policy;
+        boolean pull;
+        long size;
+    };
 
-      boolean push(in any value);
+    interface ChannelElement
+    {
+        void setRemoteSide(in ChannelElement writer);
+        boolean read(out any sample);
+        boolean write(in any sample);
+        boolean remoteSignal();
+        void remoteDisconnect(in boolean writer_to_reader);
+    };
 
-      boolean pull(out any value);
+    /** Emitted when information is requested on a port that does not exist */
+    exception NoSuchPortException {};
+    /** Emitted during connections, when there is no CORBA transport defined
+     * for the data type of the given ports
+     */
+    exception NoCorbaTransport {};
 
-      any front();
+    enum PortType { Input, Output };
 
-      boolean full();
-
-      boolean empty();
-
-      long capacity();
-
-      long size();
-
-      void clear();
+    struct PortDescription
+    {
+        PortType type;
+        string   name;
+        string   type_name;
     };
 
     /**
@@ -42,11 +52,8 @@ module RTT
      */
     interface DataFlowInterface
     {
-
       typedef sequence<string> PortNames;
-
-      enum PortType { ReadPort, WritePort, ReadWritePort };
-      enum ConnectionModel { Buffered, Data };
+      typedef sequence<PortDescription> PortDescriptions;
 
       /**
        * Returns the names of the ports of this component.
@@ -54,74 +61,58 @@ module RTT
       PortNames getPorts();
 
       /**
-       * Creates a data connection for an Orocos data port.
-       * You may use the returned AssignableExpression
-       * to write data to it or read data from it.
-       *
+       * Returns the names of the ports of this component.
        */
-      AssignableExpression createDataChannel(in string port_name);
+      PortDescriptions getPortDescriptions();
 
       /**
-       * Creates an buffered channel for an Orocos port which will be used
-       * in a 'push' or 'pull' model. You may use the returned BufferChannel
-       * to write data to it or read data from it.
-       *
+       * Returns the type of the given port
        */
-      BufferChannel createBufferChannel(in string port_name);
+      PortType getPortType(in string port_name)
+            raises(NoSuchPortException);
 
       /**
-       * Creates a read-only data object which represents the status
-       * of a Data or Buffer Channel connection. For a DataChannel, it returns the
-       * current value, for a BufferChannel, it returns the value of
-       * the front() element.
-       * If the port is not connected, nill is returned.
+       * Returns the data type for the given port
        */
-      Expression createDataObject(in string port_name);
+      string getDataType(in string port_name)
+            raises(NoSuchPortException);
 
       /**
-       * Check the kind of channel one can get from a given port
+       * Check if the given port is already connected to something
        */
-      ConnectionModel getConnectionModel(in string port_name);
+      boolean isConnected(in string port_name)
+            raises(NoSuchPortException);
 
       /**
-       * Check if a port will read from or write to a Channel.
+       * Disconnects this port from all connections it is part of
        */
-      PortType getPortType(in string port_name);
+      void disconnect(in string port_name)
+            raises(NoSuchPortException);
+
+      /** 
+       * Removes the specified connection
+       */
+      void disconnectPort(in string writer_name,
+            in DataFlowInterface reader_iface, in string reader_name);
 
       /**
-       * Get the type of data this port processes.
+       * Creates the reader-half of the connection for the given read port and
+       * the given policy
        */
-      string getDataType(in string port_name);
-
-      /**
-       * Check if a port is already connected. If so, one can join
-       * in by using the create methods above. If not, the create
-       * methods above will setup a new connection.
-       */
-      boolean isConnected(in string port_name);
-
-      /**
-       * Disconnects this port.
-       */
-      void disconnect(in string port_name);
-
-      /**
-       * Connect a data port from this interface with an external
-       * data channel.
-       */
-      boolean connectDataPort(in string port_name, in AssignableExpression data);
-
-      /**
-       * Connect a buffer port from this interface with an external
-       * buffer channel.
-       */
-      boolean connectBufferPort(in string port_name, in BufferChannel buffer);
+      ChannelElement buildOutputHalf(in string port, in ConnPolicy policy)
+            raises(NoCorbaTransport);
 
       /**
        * Connect the given named port to the given remote port
+       *
+       * The local port needs to be the reader, while the remote port is the
+       * writer
        */
-      boolean connectPorts(in string local_port, in DataFlowInterface remote_ports, in string remote_port);
+      boolean createConnection(in string local_port, in DataFlowInterface remote_ports,
+            in string remote_port, in ConnPolicy policy)
+            raises(NoSuchPortException);
     };
   };
 };
 #endif
+

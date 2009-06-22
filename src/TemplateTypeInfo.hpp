@@ -42,6 +42,7 @@
 #include "Property.hpp"
 #include "Attribute.hpp"
 #include "Logger.hpp"
+#include "Ports.hpp"
 #include <ostream>
 #include "FunctorFactory.hpp"
 #include "DataSourceArgsMethod.hpp"
@@ -253,6 +254,9 @@ namespace RTT
         virtual DataSourceBase::shared_ptr buildValue() const {
             return new ValueDataSource<PropertyType>();
         }
+        virtual DataSourceBase::shared_ptr buildReference(void* ptr) const {
+            return new ReferenceDataSource<PropertyType>(*static_cast<PropertyType*>(ptr));
+        }
 
         virtual std::ostream& write( std::ostream& os, DataSourceBase::shared_ptr in ) const {
             typename DataSource<T>::shared_ptr d = AdaptDataSource<T>()( in );
@@ -322,6 +326,10 @@ namespace RTT
         virtual bool composeTypeImpl(const PropertyBag& source,  typename AssignableDataSource<T>::reference_t result) const {
             return false;
         }
+
+      
+        InputPortInterface*  inputPort(std::string const& name) const { return new InputPort<T>(name); }  
+        OutputPortInterface* outputPort(std::string const& name) const { return new OutputPort<T>(name); }  
 
     };
 

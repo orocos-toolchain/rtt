@@ -1,221 +1,203 @@
-/***************************************************************************
-  tag: Peter Soetens  Thu Mar 2 08:30:18 CET 2006  PortInterface.cxx
-
-                        PortInterface.cxx -  description
-                           -------------------
-    begin                : Thu March 02 2006
-    copyright            : (C) 2006 Peter Soetens
-    email                : peter.soetens@fmtc.be
-
- ***************************************************************************
- *   This library is free software; you can redistribute it and/or         *
- *   modify it under the terms of the GNU General Public                   *
- *   License as published by the Free Software Foundation;                 *
- *   version 2 of the License.                                             *
- *                                                                         *
- *   As a special exception, you may use this file as part of a free       *
- *   software library without restriction.  Specifically, if other files   *
- *   instantiate templates or use macros or inline functions from this     *
- *   file, or you compile this file and link it with other files to        *
- *   produce an executable, this file does not by itself cause the         *
- *   resulting executable to be covered by the GNU General Public          *
- *   License.  This exception does not however invalidate any other        *
- *   reasons why the executable file might be covered by the GNU General   *
- *   Public License.                                                       *
- *                                                                         *
- *   This library is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *
- *   Lesser General Public License for more details.                       *
- *                                                                         *
- *   You should have received a copy of the GNU General Public             *
- *   License along with this library; if not, write to the Free Software   *
- *   Foundation, Inc., 59 Temple Place,                                    *
- *   Suite 330, Boston, MA  02111-1307  USA                                *
- *                                                                         *
- ***************************************************************************/
-
-
-
 #include "PortInterface.hpp"
+#include "TaskObject.hpp"
+#include "Method.hpp"
 
+using namespace RTT;
+using namespace std;
 
-namespace RTT
+PortInterface::PortInterface(const std::string& name)
+    : name(name) {}
+
+bool PortInterface::setName(const std::string& name)
 {
+    if ( !connected() ) {
+        this->name = name;
+        return true;
+    }
+    return false;
+}
 
-    PortInterface::PortInterface(const std::string& name) : portname(name), new_data_on_port_event(0) {}
+ConnFactory* PortInterface::getConnFactory() { return 0; }
+bool PortInterface::isLocal() const
+{ return serverProtocol() == 0; }
+int PortInterface::serverProtocol() const
+{ return 0; }
 
-    PortInterface::~PortInterface()
-    {
+bool PortInterface::isSameID(RTT::PortID const& id) const
+{ 
+    PortID const* real_id = dynamic_cast<PortID const*>(&id);
+    if (!real_id)
+        return false;
+    else return real_id->ptr == this;
+}
+RTT::PortID* PortInterface::getPortID() const
+{ return new PortID(this); }
+
+TaskObject* PortInterface::createPortObject()
+{
+#ifndef ORO_EMBEDDED
+    TaskObject* to = new TaskObject( this->getName() );
+    to->methods()->addMethod( method("name",&PortInterface::getName, this),
+            "Returns the port name.");
+    to->methods()->addMethod( method("connected",&PortInterface::connected, this),
+            "Check if this port is connected and ready for use.");
+    to->methods()->addMethod( method("disconnect",&PortInterface::disconnect, this),
+            "Disconnects this port from any connection it is part of.");
+    return to;
+#else
+    return 0;
+#endif
+}
+
+InputPortInterface::InputPortInterface(std::string const& name, ConnPolicy const& default_policy)
+    : PortInterface(name)
+    , channel(NULL) 
+    , default_policy(default_policy)
+    , new_data_on_port_event(0) {}
+
+InputPortInterface::~InputPortInterface()
+{
+    disconnect();
+    if (new_data_on_port_event)
         delete new_data_on_port_event;
+}
 
-    }
+ConnPolicy InputPortInterface::getDefaultPolicy() const
+{ return default_policy; }
 
-    bool PortInterface::setName(const std::string& name)
-    {
-        if ( !connected() ) {
-            portname = name;
-            return true;
-        }
+InputPortInterface::NewDataOnPortEvent* InputPortInterface::getNewDataOnPortEvent()
+{
+    if (!new_data_on_port_event)
+        new_data_on_port_event = new NewDataOnPortEvent( this->getName() );
+    return new_data_on_port_event;
+}
+
+bool InputPortInterface::connectTo(PortInterface& other, ConnPolicy const& policy)
+{
+    OutputPortInterface* output = dynamic_cast<OutputPortInterface*>(&other);
+    if (! output)
         return false;
-    }
-
-    bool PortInterface::ready() const {
-#ifndef ORO_EMBEDDED
-        try {
-#endif
-            return this->connected() && this->connection()->getDataSource()->evaluate();
-#ifndef ORO_EMBEDDED
-        } catch(...)
-        {}
-        return false;
-#endif
-    }
-
-    bool PortInterface::connectTo( PortInterface* other ) {
-        if ( this->ready() || !other )
-            return false;
-
-        // The aim of this function is to create a connection between
-        // this and other at all costs.
-
-        /*
-           L->connectTo(R);
-            1. If both ports are not connected:
-              1a) if L is a writer:
-                  * create a local server, instruct the remote port to create a proxy
-                     which connects to this server.
-              1b) if L is a reader:
-                   1ba) if R is a writer:
-                        * create a remote server, instruct the local port to create a
-                           proxy which connects to this server.
-                    1bb) if R is a reader:
-                        * create a local default server (very ugly with buffers), instruct
-                          the remote port to create a proxy which connects to this server
-            2. If one of both ports is connected:
-               2a) if L is connected
-               * create a server on the local side, instruct the remote port to create a
-                  proxy which connects to this server
-               2b) if R is connected
-               *  create a remote server, instruct the local port to create a proxy which
-                  connects to this server.
-            3. if both ports are connected:
-               * fail.
-           R->connectTo(L);
-
-            The idea is that connections are created from writer to reader, no matter
-            which one is remote or local, because the writer has the initialisation
-            and/or buffer capacity. So where the writer is, the server is created and
-            the reader creates a proxy. Once one of remote/local is connected, it is
-            easy, always create a proxy to it.
-         *
-         */
-
-        // if both are not connected, create a new one:
-        if ( !other->ready() ) {
-            if ( this->getPortType() != ReadPort ) { // we are a writer
-                ConnectionInterface::shared_ptr ci = this->createConnection(); //creates a 'server'
-                if (ci) {
-                    ci->addPort( other );
-                    ci->connect();
-                    assert(ci->connected());
-                    return true;
-                }
-                this->disconnect();
-                return false;
-            }
-            if (other->getPortType() != ReadPort ) { // other can write
-                ConnectionInterface::shared_ptr ci = other->createConnection(); // creates a 'server'
-                if (ci) {
-                    ci->addPort(this);
-                    ci->connect();
-                    assert(ci->connected());
-                    return true;
-                }
-                // failed, cleanup.
-                other->disconnect();
-                return false;
-            }
+    return output->createConnection(*this, policy);
+}
 
 
-            // if here, both were readers or both refused to create a connection.
-            Logger::In in("PortInterface::connectTo");
-            log(Warning) << "Creating a temporary default Writer." << endlog();
-            // create a writer:
-            PortInterface* aclone = 0;
-            ConnectionInterface::shared_ptr ci;
-            // only try this with local ports...
-            if ( other->serverProtocol() == 0 ) {
-                aclone  = other->antiClone();
-                // clumsy way of working:
-                ci = aclone->createConnection();
-                // this can still fail
-                if (!ci) {
-                    delete aclone;
-                    aclone = 0;
-                }
-            }
-            if ( this->serverProtocol() == 0) {
-                aclone = this->antiClone();
-                ci = aclone->createConnection();
-            }
-            if (!ci) {
-                log(Warning) <<"Complete failure to connect read ports. Neither port wants to create a connection."<< endlog();
-                delete aclone;
-                return false;
-            }
-            // remove clone from new connection.
-            ci->removePort(aclone);
-            delete aclone;
+void InputPortInterface::setInputChannel(ChannelElementBase* channel_output)
+{ this->channel = channel_output; }
+void InputPortInterface::clearInputChannel()
+{ this->channel = 0; }
 
-            // finally a connection object !
-            // 1. connect other.
-            if ( other->connectTo( ci ) == false )
-                return false;
+bool InputPortInterface::read(DataSourceBase::shared_ptr source)
+{ throw std::runtime_error("calling default InputPortInterface::read(datasource) implementation"); }
+/** Returns true if this port is connected */
+bool InputPortInterface::connected() const
+{ return channel; }
 
-            // 2. connect this.
-            if ( this->connectTo( ci ) )
-                return ci->connect();
-            // failed (type mismatch), cleanup.
-            other->disconnect();
-            return false;
-        }
-        return this->connectTo( other->connection() );
-    }
+void InputPortInterface::clear()
+{
+    ChannelElementBase::shared_ptr channel = this->channel;
+    if (channel)
+        channel->clear();
+}
 
-    ConnectionInterface::shared_ptr PortInterface::createConnection(ConnectionTypes::ConnectionType con_type )
+void InputPortInterface::disconnect()
+{
+    ChannelElementBase::shared_ptr channel = this->channel;
+    this->channel = 0;
+    if (channel)
+        channel->disconnect(false);
+}
+
+OutputPortInterface::OutputPortInterface(std::string const& name)
+    : PortInterface(name), channels(10), connections(10) { }
+
+OutputPortInterface::~OutputPortInterface()
+{
+    disconnect();
+}
+
+/** Returns true if this port is connected */
+bool OutputPortInterface::connected() const
+{ return !channels.empty(); }
+
+bool OutputPortInterface::eraseIfMatchingPort(PortInterface const* port, ChannelDescriptor& descriptor)
+{
+    if (port->isSameID(*descriptor.get<0>()))
     {
-        return ConnectionInterface::shared_ptr();
+        descriptor.get<1>()->disconnect(true);
+        removeChannel(descriptor.get<1>());
+        delete descriptor.get<0>();
+        return true;
     }
+    else return false;
+}
 
-    ConnectionInterface::shared_ptr PortInterface::createConnection(BufferBase::shared_ptr )
-    {
-        return ConnectionInterface::shared_ptr();
-    }
+void OutputPortInterface::disconnect(PortInterface& port)
+{
+    connections.delete_if( boost::bind(&OutputPortInterface::eraseIfMatchingPort, this, &port, _1) );
+}
 
-    ConnectionInterface::shared_ptr PortInterface::createConnection(DataSourceBase::shared_ptr )
-    {
-        return ConnectionInterface::shared_ptr();
-    }
+bool OutputPortInterface::eraseConnection(OutputPortInterface::ChannelDescriptor& descriptor)
+{
+    descriptor.get<1>()->disconnect(true);
+    delete descriptor.get<0>();
+    return true;
+}
 
-    TaskObject* PortInterface::createPortObject() {
-        return 0;
-    }
+void OutputPortInterface::disconnect()
+{
+    channels.clear();
+    connections.delete_if( boost::bind(&OutputPortInterface::eraseConnection, this, _1) );
+}
 
-    int PortInterface::serverProtocol() const {
-        return 0;
-    }
-
-    void PortInterface::signal()
-    {
-        if (new_data_on_port_event)
-            (*new_data_on_port_event)(this);
-    }
-
-    PortInterface::NewDataOnPortEvent* PortInterface::getNewDataOnPortEvent()
-    {
-        if (!new_data_on_port_event)
-            new_data_on_port_event = new NewDataOnPortEvent( this->getName() );
-        return new_data_on_port_event;
+void OutputPortInterface::addConnection(RTT::PortID* port_id, ChannelElementBase::shared_ptr channel_input, ConnPolicy const& policy)
+{
+    ChannelDescriptor descriptor = boost::make_tuple(port_id, channel_input, policy);
+    addChannel(descriptor.get<1>());
+    if (!connections.append(descriptor))
+    { OS::MutexLock locker(connection_resize_mtx);
+        connections.grow(1);
+        connections.append(descriptor);
     }
 }
+
+void OutputPortInterface::addChannel(ChannelElementBase::shared_ptr channel)
+{
+    if (!channels.append(channel))
+    { OS::MutexLock locker(connection_resize_mtx);
+        channels.grow(1);
+        channels.append(channel);
+    }
+}
+
+void OutputPortInterface::removeChannel(ChannelElementBase::shared_ptr channel)
+{
+    channels.delete_if( boost::bind(std::equal_to<ChannelElementBase::shared_ptr>(), channel, _1));
+}
+
+bool OutputPortInterface::matchConnectionChannel(ChannelElementBase::shared_ptr channel, ChannelDescriptor const& descriptor) const
+{ return (channel == descriptor.get<1>()); }
+bool OutputPortInterface::removeConnection(ChannelElementBase::shared_ptr channel)
+{
+    removeChannel(channel);
+    connections.delete_if( bind(&OutputPortInterface::matchConnectionChannel, this, channel, _1) );
+}
+
+void OutputPortInterface::write(DataSourceBase::shared_ptr source)
+{ throw std::runtime_error("calling default OutputPortInterface::write(datasource) implementation"); }
+bool OutputPortInterface::createDataConnection( InputPortInterface& input, int lock_policy )
+{ return createConnection( input, ConnPolicy::data(lock_policy) ); }
+
+bool OutputPortInterface::createBufferConnection( InputPortInterface& input, int size, int lock_policy )
+{ return createConnection( input, ConnPolicy::buffer(size, lock_policy) ); }
+
+bool OutputPortInterface::createConnection( InputPortInterface& input )
+{ return createConnection(input, input.getDefaultPolicy()); }
+
+bool OutputPortInterface::connectTo(PortInterface& other, ConnPolicy const& policy)
+{
+    InputPortInterface* input  = dynamic_cast<InputPortInterface*>(&other);
+    if (! input)
+        return false;
+    return createConnection(*input, policy);
+}
+

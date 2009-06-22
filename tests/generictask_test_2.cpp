@@ -28,6 +28,7 @@
 
 #include <SimulationActivity.hpp>
 #include <SimulationThread.hpp>
+#include <TaskObject.hpp>
 
 #include <boost/function_types/function_type_signature.hpp>
 

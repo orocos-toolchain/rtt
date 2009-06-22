@@ -139,6 +139,12 @@ module RTT
     };
 
     /**
+     * The processing state of a command
+     */
+    enum CommandStatus
+    { NotReady, Ready, Sent, NotAccepted, Accepted, Executed, NotValid, Valid, Done };
+
+    /**
      * A command consists of an action to be
      * executed remotely and a condition, to be
      * evaluated remotely.
@@ -158,6 +164,8 @@ module RTT
        */
       boolean executeAny(in AnyArguments args) raises (WrongNumbArgException,
 						       WrongTypeArgException);
+
+      CommandStatus status();
 
       /**
        * Check if the Command was sent to the receiving task,

@@ -55,6 +55,7 @@
 #include "ApplicationServer.hpp"
 #include "../ActivityInterface.hpp"
 
+class Orocos_ControlTask_i;
 namespace RTT
 {namespace Corba
 {
@@ -78,20 +79,17 @@ namespace RTT
         static ServerMap servers;
         static ActivityInterface* orbrunner;
 
+	PortableServer::POA_var mpoa;
+
         /**
          * Private constructor which creates a new servant.
          */
         ControlTaskServer(TaskContext* taskcontext, bool use_naming);
 
+	PortableServer::ServantBase_var mtask_i;
         Corba::ControlTask_var mtask;
         TaskContext* mtaskcontext;
         bool muse_naming;
-
-      /**
-       * When a ControlTaskServer is destroyed, the object reference
-       * is removed from the Naming Service and the servant is deleted.
-       */
-      ~ControlTaskServer();
 
         /**
          * Internal shutdown function, used
@@ -99,6 +97,12 @@ namespace RTT
          */
         static void DoShutdownOrb(bool wait_for_completion = true);
     public:
+
+	/**
+	 * When a ControlTaskServer is destroyed, the object reference
+	 * is removed from the Naming Service and the servant is deleted.
+	 */
+	~ControlTaskServer();
 
         /**
          * Invoke this method once to initialise the Orb which will

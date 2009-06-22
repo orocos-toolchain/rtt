@@ -89,14 +89,28 @@
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-class  Orocos_ControlObject_i : public virtual POA_RTT::Corba::ControlObject, public virtual PortableServer::RefCountServantBase
+class Orocos_AttributeInterface_i;
+class Orocos_MethodInterface_i;
+class Orocos_CommandInterface_i;
+
+class  Orocos_ControlObject_i
+    : public virtual POA_RTT::Corba::ControlObject
+    , public virtual PortableServer::RefCountServantBase
 {
 protected:
+    PortableServer::POA_var mpoa;
+
+private:
     RTT::OperationInterface* mobj;
-	::RTT::Corba::AttributeInterface_var mAttrs;
-	::RTT::Corba::MethodInterface_var mMFact;
-	::RTT::Corba::CommandInterface_var mCFact;
-	PortableServer::POA_var mpoa;
+
+    RTT::Corba::AttributeInterface_var mAttrs;
+    RTT::Corba::MethodInterface_var    mMFact;
+    RTT::Corba::CommandInterface_var   mCFact;
+
+    PortableServer::ServantBase_var mAttrs_i;
+    PortableServer::ServantBase_var mMFact_i;
+    PortableServer::ServantBase_var mCFact_i;
+
     typedef std::map<std::string, Orocos_ControlObject_i*> CTObjMap;
     CTObjMap ctobjmap;
 
@@ -107,10 +121,7 @@ public:
   //Destructor
   virtual ~Orocos_ControlObject_i (void);
 
-    PortableServer::POA_ptr _default_POA()
-    {
-        return PortableServer::POA::_duplicate(mpoa);
-    }
+    PortableServer::POA_ptr _default_POA();
 
   virtual
   char * getName (
@@ -179,9 +190,14 @@ class  Orocos_ControlTask_i
 protected:
     RTT::TaskContext* mtask;
 
-	::RTT::Corba::ScriptingAccess_var mEEFact;
-	::RTT::Corba::ServiceInterface_var mService;
-	::RTT::Corba::DataFlowInterface_var mDataFlow;
+    RTT::Corba::ScriptingAccess_var mEEFact;
+    RTT::Corba::ServiceInterface_var mService;
+    RTT::Corba::DataFlowInterface_var mDataFlow;
+
+    PortableServer::ServantBase_var mEEFact_i;
+    PortableServer::ServantBase_var mService_i;
+    PortableServer::ServantBase_var mDataFlow_i;
+
 public:
   //Constructor
   Orocos_ControlTask_i (RTT::TaskContext* orig, PortableServer::POA_ptr the_poa);

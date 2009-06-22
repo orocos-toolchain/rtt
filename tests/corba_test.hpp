@@ -3,9 +3,8 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <Ports.hpp>
 #include <TaskContext.hpp>
-#include <DataPort.hpp>
-#include <BufferPort.hpp>
 #include <corba/ControlTaskServer.hpp>
 #include <corba/ControlTaskProxy.hpp>
 #include <string>
@@ -20,15 +19,9 @@ class CorbaTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testRemoteMethodC );
     CPPUNIT_TEST( testRemoteMethod );
     CPPUNIT_TEST( testAnyMethod );
-    CPPUNIT_TEST( testPorts );
-    CPPUNIT_TEST( testConnectPortsIDL );
-    CPPUNIT_TEST( testConnectPortsRL );
-    CPPUNIT_TEST( testConnectPortsLR );
-    CPPUNIT_TEST( testConnectPortsRR );
-    CPPUNIT_TEST( testConnectPortsLRC );
-    CPPUNIT_TEST( testConnectPortsRLC );
-    CPPUNIT_TEST( testConnectPortsRRC );
-    CPPUNIT_TEST( testConnections );
+    CPPUNIT_TEST( testDataFlowInterface );
+    CPPUNIT_TEST( testPortConnections );
+    CPPUNIT_TEST( testPortProxying );
     CPPUNIT_TEST( cleanupCorba );
 
     CPPUNIT_TEST_SUITE_END();
@@ -41,16 +34,14 @@ class CorbaTest : public CppUnit::TestFixture
     Corba::ControlTaskServer* ts2;
     TaskObject* createMethodFactory();
 
+    PortInterface* signalled_port;
+    void new_data_listener(PortInterface* port);
+
     // Ports
-    DataPort<double>* md1;
-    DataPort<double>* md1bis;
-    DataPort<double>* md2;
-    ReadDataPort<double>* mdr1;
-    ReadDataPort<double>* mdr2;
-    WriteDataPort<double>* mdw1;
-    WriteDataPort<double>* mdw2;
-    BufferPort<double>* mb1;
-    BufferPort<double>* mb2;
+    InputPort<double>*  mr1;
+    OutputPort<double>* mw1;
+    InputPort<double>*  mr2;
+    OutputPort<double>* mw2;
 
     // ref/const-ref tests:
     double ret;
@@ -86,19 +77,15 @@ public:
     void testRemoteMethod();
     void testAnyMethod();
 
-    void testPorts();
-    void testConnectPortsIDL();
-    void testConnectPortsRL();
-    void testConnectPortsLR();
-    void testConnectPortsRR();
-    void testConnectPortsRLC();
-    void testConnectPortsLRC();
-    void testConnectPortsRRC();
-    void testConnections();
+    void testDataFlowInterface();
+
+    void testPortConnections();
+    void testPortProxying();
 
     // helper test functions
-    void testPortStats();
-    void testPortDisconnect();
+    void testPortDataConnection();
+    void testPortBufferConnection();
+    void testPortDisconnected();
 };
 
 #endif

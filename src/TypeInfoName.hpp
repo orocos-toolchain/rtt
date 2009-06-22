@@ -100,9 +100,16 @@ namespace RTT
 
         virtual DataSourceBase::shared_ptr buildValue() const {
             Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not build Property of "<<tname<<"."<<Logger::endl;
+            Logger::log() << Logger::Error << "Can not build ValueDataSource of "<<tname<<"."<<Logger::endl;
             return 0;
         }
+
+        virtual DataSourceBase::shared_ptr buildReference(void*) const {
+            Logger::In loc("TypeInfoName");
+            Logger::log() << Logger::Error << "Can not build ReferenceDataSource of "<<tname<<"."<<Logger::endl;
+            return 0;
+        }
+
 
         DataSourceBase::shared_ptr construct(const std::vector<DataSourceBase::shared_ptr>& ) const {
             Logger::In loc("TypeInfoName");
@@ -137,6 +144,10 @@ namespace RTT
             return false;
         }
 
+        virtual InputPortInterface* inputPort(std::string const& name) const
+        { return 0; }
+        virtual OutputPortInterface* outputPort(std::string const& name) const
+        { return 0; }
     };
 
     /**

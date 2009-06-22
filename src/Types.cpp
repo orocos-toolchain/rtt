@@ -93,12 +93,13 @@ namespace RTT
 
     TypeInfo::~TypeInfo()
     {
+        // cleanup transporters
+        for (Transporters::iterator i = transporters.begin(); i != transporters.end(); ++i)
+            delete *i;
+            
         // cleanup constructors
-        Constructors::iterator i= constructors.begin();
-        while (i != constructors.end() ) {
+        for (Constructors::iterator i= constructors.begin(); i != constructors.end(); ++i)
             delete (*i);
-            ++i;
-        }
     }
 
     DataSourceBase::shared_ptr TypeInfo::construct(const std::vector<DataSourceBase::shared_ptr>& args) const

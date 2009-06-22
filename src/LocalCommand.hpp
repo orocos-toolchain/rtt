@@ -264,6 +264,21 @@ namespace RTT
                 return this->mvalid;
             }
 
+	    virtual DispatchInterface::Status status() const {
+		if (!this->minvoked)
+		    return DispatchInterface::Ready;
+		else if (!this->maccept)
+		    return DispatchInterface::NotAccepted;
+		else if (!this->mexec)
+		    return DispatchInterface::Accepted;
+		else if (!this->mvalid)
+		    return DispatchInterface::NotValid;
+                else if (this->check() == this->minvert)
+		    return DispatchInterface::Valid;
+		else
+		    return DispatchInterface::Done;
+	    }
+
             virtual ConditionInterface* createCondition() const
             {
                 // LocalCommands are not used by the Parser, so this method is actually
