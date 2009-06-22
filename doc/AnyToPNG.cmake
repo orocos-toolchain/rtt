@@ -39,7 +39,7 @@ macro( ANY_TO_PNG RESULT)
        set(_current_PNGFILE ${_current_FILE})
        #MESSAGE( "Copying ${_current_FILE} to ${CMAKE_CURRENT_BINARY_DIR}/${_current_PNGFILE}" )
        add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${_current_PNGFILE}
-	 COMMAND cp -a ${CMAKE_CURRENT_SOURCE_DIR}/${_current_FILE} ${_current_PNGFILE}
+	 COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${_current_FILE} ${_current_PNGFILE}
 	 DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${_current_FILE}
 	 )
        list( APPEND ${RESULT} ${CMAKE_CURRENT_BINARY_DIR}/${_current_PNGFILE} )
