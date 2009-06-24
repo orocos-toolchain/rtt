@@ -176,7 +176,7 @@ MACRO(ORO_ADD_CORBA_SERVERS _sources _headers)
 	 # CMake atrocity: if none of these OUTPUT files is used in a target in the current CMakeLists.txt file,
 	 # the ADD_CUSTOM_COMMAND is plainly ignored and left out of the make files.
          ADD_CUSTOM_COMMAND(OUTPUT ${_tserver} ${_server} ${_client} ${_tserverh} ${_serverh} ${_clienth}
-          COMMAND ${TAO_IDL_EXECUTABLE} ${_current_FILE} -o ${CMAKE_CURRENT_BINARY_DIR} -I${CMAKE_CURRENT_SOURCE_DIR} -I${ORBSVCS_DIR}
+          COMMAND ${TAO_IDL_EXECUTABLE} ${_current_FILE} -o ${CMAKE_CURRENT_BINARY_DIR} -I${CMAKE_CURRENT_SOURCE_DIR} -I${ORBSVCS_DIR} -DCORBA_IS_TAO
           DEPENDS ${_tmp_FILE}
          )
      ENDIF (NOT HAVE_${_basename}_SERVER_RULE)
