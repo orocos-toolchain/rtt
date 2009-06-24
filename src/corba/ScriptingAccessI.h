@@ -95,10 +95,7 @@ public:
   //Destructor
   virtual ~Orocos_ScriptingAccess_i (void);
 
-    PortableServer::POA_ptr _default_POA()
-    {
-        return PortableServer::POA::_duplicate(mpoa);
-    }
+    PortableServer::POA_ptr _default_POA();
 
   virtual
   void loadPrograms (

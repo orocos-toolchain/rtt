@@ -121,6 +121,9 @@ namespace RTT
          */
         virtual bool done() const = 0;
 
+	/** Returns the command execution progress */
+	virtual Status status() const = 0;
+
         virtual ConditionInterface* createCondition() const = 0;
 
         virtual DispatchInterface* clone() const = 0;

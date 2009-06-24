@@ -204,6 +204,30 @@ CORBA::Boolean Orocos_Command_i::executeAny (
   }
 
 
+RTT::Corba::CommandStatus Orocos_Command_i::status ( 
+  )
+  ACE_THROW_SPEC ((
+    CORBA::SystemException
+  ))
+{
+    int status = mcomm->status();
+    switch(status)
+    {
+    case DispatchInterface::NotReady:     return RTT::Corba::NotReady;
+    case DispatchInterface::Ready:        return RTT::Corba::Ready;
+    case DispatchInterface::Sent:         return RTT::Corba::Sent;
+    case DispatchInterface::NotAccepted:  return RTT::Corba::NotAccepted;
+    case DispatchInterface::Accepted:     return RTT::Corba::Accepted;
+    case DispatchInterface::Executed:     return RTT::Corba::Executed;
+    case DispatchInterface::NotValid:     return RTT::Corba::NotValid;
+    case DispatchInterface::Valid:        return RTT::Corba::Valid;
+    case DispatchInterface::Done:         return RTT::Corba::Done;
+    default:
+        log(Error) << "wrong status " << status << " returned by command object" << endlog();
+        return RTT::Corba::NotReady;
+    }
+}
+
 CORBA::Boolean Orocos_Command_i::done (
 
   )

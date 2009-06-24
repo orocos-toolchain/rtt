@@ -57,7 +57,15 @@ class RTT_Corba_ServiceInterface_i
     : public virtual POA_RTT::Corba::ServiceInterface,
       public virtual PortableServer::RefCountServantBase
 {
+    PortableServer::POA_var mpoa;
+
 public:
+    RTT_Corba_ServiceInterface_i(PortableServer::POA_ptr poa)
+	  : mpoa(PortableServer::POA::_duplicate(poa)) {}
+
+    PortableServer::POA_ptr _default_POA()
+    { return PortableServer::POA::_duplicate(mpoa); }
+
     virtual char* getLogMessage()
     ACE_THROW_SPEC ((
       CORBA::SystemException

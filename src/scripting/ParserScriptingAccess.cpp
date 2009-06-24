@@ -49,6 +49,7 @@
 #include "StateMachineProcessor.hpp"
 #include <sstream>
 #include <fstream>
+#include "TaskObject.hpp"
 
 namespace RTT
 {

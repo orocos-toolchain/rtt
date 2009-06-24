@@ -312,6 +312,12 @@ namespace RTT
             return this->impl->valid();
         }
 
+	bool status() const {
+	    if (!this->impl) return DispatchInterface::NotReady;
+	    return this->impl->status();
+	}
+
+
         /**
          * Returns the name of this Command object.
          *

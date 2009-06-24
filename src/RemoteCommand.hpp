@@ -173,6 +173,10 @@ namespace RTT
                 return this->mcom.valid();
             }
 
+            virtual DispatchInterface::Status status() const {
+                return this->mcom.status();
+            }
+
             virtual ConditionInterface* createCondition() const
             {
                 return new detail::ConditionFunctor<bool(void)>( boost::bind<bool>( boost::mem_fn(&RemoteCommand::done), this) );

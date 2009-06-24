@@ -175,6 +175,17 @@ namespace RTT
             return maccept->get() && _v->get()->isStopped();
         }
 
+	virtual DispatchInterface::Status status() const {
+            if (!isqueued)
+                return DispatchInterface::Ready;
+            else if (!maccept->get())
+                return DispatchInterface::NotAccepted;
+            else if (!_v->get()->isStopped())
+                return DispatchInterface::Valid;
+            else
+                return DispatchInterface::Done;
+	}
+
         /**
          * Create a condition which checks if this command is finished or not.
          */

@@ -1,1 +1,5 @@
-build
+build*
+.cproject
+.project
+.settings
+

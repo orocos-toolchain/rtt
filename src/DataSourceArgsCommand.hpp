@@ -172,6 +172,21 @@ namespace RTT
                 return mvalid;
             }
 
+	    virtual DispatchInterface::Status status() const {
+		if (!minvoked)
+		    return DispatchInterface::Ready;
+		else if (!maccept)
+		    return DispatchInterface::NotAccepted;
+		else if (!mexec)
+		    return DispatchInterface::Accepted;
+		else if (!mvalid)
+		    return DispatchInterface::NotValid;
+		else if (mcon.evaluate() == minvert)
+		    return DispatchInterface::Valid;
+		else
+		    return DispatchInterface::Done;
+	    }
+
             virtual ConditionInterface* createCondition() const
             {
                 return new detail::ConditionFunctor<CommandT,CommandF>(mcon, minvert);

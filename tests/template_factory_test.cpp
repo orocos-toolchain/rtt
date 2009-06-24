@@ -27,6 +27,7 @@
 #include <DataSourceAdaptor.hpp>
 #include <DataSourceGenerator.hpp>
 #include <ProgramProcessor.hpp>
+#include <TaskObject.hpp>
 
 #include <SimulationActivity.hpp>
 #include <SimulationThread.hpp>

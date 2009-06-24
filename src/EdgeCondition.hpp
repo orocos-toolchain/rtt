@@ -50,6 +50,7 @@
 #undef EL
 #define BOOST_NO_HASH
 #include <boost/graph/adjacency_list.hpp>
+
 using boost::property;
 
 enum edge_condition_t { edge_condition };
