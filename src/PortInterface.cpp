@@ -179,7 +179,7 @@ bool OutputPortInterface::matchConnectionChannel(ChannelElementBase::shared_ptr 
 bool OutputPortInterface::removeConnection(ChannelElementBase::shared_ptr channel)
 {
     removeChannel(channel);
-    connections.delete_if( bind(&OutputPortInterface::matchConnectionChannel, this, channel, _1) );
+    return connections.delete_if( bind(&OutputPortInterface::matchConnectionChannel, this, channel, _1) );
 }
 
 void OutputPortInterface::write(DataSourceBase::shared_ptr source)
