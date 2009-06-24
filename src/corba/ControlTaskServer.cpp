@@ -71,7 +71,7 @@ namespace RTT
 
     servers.erase(mtaskcontext);
 
-    PortableServer::ObjectId_var oid = mpoa->servant_to_id(mtask_i);
+    PortableServer::ObjectId_var oid = mpoa->servant_to_id(mtask_i.in());
     mpoa->deactivate_object(oid);
 
     if (muse_naming) {

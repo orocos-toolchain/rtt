@@ -88,7 +88,7 @@ namespace RTT {
                 catch(CORBA::Exception&) { return false; }
             }
 
-            ::CORBA::Boolean read(::CORBA::Any_OUT_arg sample)
+            ::CORBA::Boolean read(::CORBA::Any_out sample)
             {
                 if (RTT::ChannelElement<T>::read(data_source->set()))
                 {

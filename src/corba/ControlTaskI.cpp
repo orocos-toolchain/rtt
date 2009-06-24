@@ -93,17 +93,17 @@ Orocos_ControlObject_i::~Orocos_ControlObject_i (void)
 {
     if (!CORBA::is_nil(mAttrs))
     {
-        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mAttrs_i);
+        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mAttrs_i.in());
         mpoa->deactivate_object(oid.in());
     }
     if (!CORBA::is_nil(mMFact))
     {
-        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mMFact_i);
+        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mMFact_i.in());
         mpoa->deactivate_object(oid.in());
     }
     if (!CORBA::is_nil(mCFact))
     {
-        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mCFact_i);
+        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mCFact_i.in());
         mpoa->deactivate_object(oid.in());
     }
 
@@ -280,18 +280,18 @@ Orocos_ControlTask_i::~Orocos_ControlTask_i (void)
 {
     if (!CORBA::is_nil(mEEFact))
     {
-        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mEEFact_i);
+        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mEEFact_i.in());
         mpoa->deactivate_object(oid.in());
     }
     if (!CORBA::is_nil(mService))
     {
-        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mService_i);
+        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mService_i.in());
         mpoa->deactivate_object(oid.in());
     }
     if (!CORBA::is_nil(mDataFlow))
     {
         DataFlowInterface_i::deregisterServant(mtask->ports());
-        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mDataFlow_i);
+        PortableServer::ObjectId_var oid = mpoa->servant_to_id(mDataFlow_i.in());
         mpoa->deactivate_object(oid.in());
     }
 }
