@@ -28,8 +28,8 @@ endif
 # shared library versions, option 1
 #version=1.1.0
 #major=1.4
-version=`grep orocos-rtt changelog | head -1 | awk "{print substr(\\$2,2,length(\\$2)-2)}"`
-major=`grep orocos-rtt changelog | head -1 | awk "{print substr(\\$2,2,3)}"`
+version=`grep orocos-rtt debian/changelog | head -1 | awk '{print substr($$2,2,length($$2)-2)}'`
+major=`grep orocos-rtt debian/changelog | head -1 | awk '{print substr($$2,2,3)}'`
 # option 2, assuming the library is created as build/src/libfoo.so.2.0.5 or so
 #version=`find . -name liborocos-rtt-gnulinux*.so.* | awk '{if (match($$0,/[0-9]+\.[0-9]+\.[0-9]+$$/)) print substr($$0,RSTART)}' | head -1`
 #major=`find . -name liborocos-rtt-gnulinux*.so.* | awk '{if (match($$0,/\.so\.[0-9]+\.[0-9]+$$/)) print substr($$0,RSTART+4)}' | head -1`
@@ -60,7 +60,6 @@ clean:
 install: build $(INSTALL_TARGETS)
 	dh_testdir
 	dh_testroot
-	dh_clean -k 
 	dh_installdirs
 
 

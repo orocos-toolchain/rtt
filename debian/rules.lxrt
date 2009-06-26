@@ -3,7 +3,7 @@ configure-lxrt: configure-stamp-lxrt
 configure-stamp-lxrt:
 	mkdir -p dbuild.lxrt
 	cd  dbuild.lxrt; \
-	unset ACE_ROOT TAO_ROOT; CXXFLAGS="$(CFLAGS)" CMAKE_INCLUDE_PATH=/usr/realtime/include CMAKE_LIBRARY_PATH=/usr/realtime/lib cmake .. -DCMAKE_PREFIX=/usr -DENABLE_CORBA=ON -DBUILD_STATIC=ON -DOROCOS_TARGET=lxrt
+	unset ACE_ROOT TAO_ROOT; CXXFLAGS="$(CFLAGS)" CMAKE_INCLUDE_PATH=/usr/realtime/include CMAKE_LIBRARY_PATH=/usr/realtime/lib cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_CORBA=ON -DBUILD_STATIC=ON -DOROCOS_TARGET=lxrt
 	touch configure-stamp-lxrt
 
 build-lxrt: build-stamp-lxrt
