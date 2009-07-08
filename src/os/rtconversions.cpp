@@ -180,7 +180,9 @@ string float_to_string(float f)
     else
         s = ' ';
 
-    snprintf( buffer, 127, "%c%d.%03d", s, pre, post );
+    //snprintf( buffer, 127, "%c%d.%03d", s, pre, post );
+	//replacement with MSVC`s snprintf but it is not ALWAYS null terminating
+	_snprintf( buffer, 127, "%c%d.%03d", s, pre, post );
 
     return string(buffer);
 }

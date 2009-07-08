@@ -40,6 +40,17 @@
 #ifndef ORO_CORBA_DATAOBJECTPROXY_HPP
 #define ORO_CORBA_DATAOBJECTPROXY_HPP
 
+//necessary to keep MSVC happy 
+//avoids redefinitions in winsock2.h
+/*#pragma push_macro("_WINSOCKAPI_")
+#ifndef _WINSOCKAPI_
+#define _WINSOCKAPI_
+#endif
+
+#include <windows.h>
+
+#pragma pop_macro("_WINSOCKAPI_")*/
+/////////////////////////////////////////
 
 #include "../DataObjectInterfaces.hpp"
 #include "../DataSources.hpp"
