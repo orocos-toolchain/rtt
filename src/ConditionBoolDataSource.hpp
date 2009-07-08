@@ -50,7 +50,7 @@ namespace RTT
     /**
      * A Condition which holds a boolean DataSource.
      */
-  class ConditionBoolDataSource
+  class RTT_API ConditionBoolDataSource
     : public ConditionInterface
   {
     DataSource<bool>::shared_ptr data;

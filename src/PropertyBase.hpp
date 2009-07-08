@@ -58,7 +58,7 @@ namespace RTT
 	 * Base class for all properties.
 	 *
 	 */
-    class PropertyBase
+    class RTT_API PropertyBase
     {
     public:
         /**

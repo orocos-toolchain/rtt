@@ -40,6 +40,7 @@
 #define CONDITIONINTERFACE_HPP
 
 #include <map>
+#include "rtt-config.h"
 
 namespace RTT {
     class DataSourceBase;
@@ -57,7 +58,7 @@ namespace RTT
      * level class and replace its use by DataSource<bool>. That
      * would also cause the removal of most Condition* classes.
      */
-    class ConditionInterface
+    class RTT_API ConditionInterface
     {
     public:
         virtual ~ConditionInterface();

@@ -47,7 +47,7 @@ namespace RTT
      * an external object, iterating over the methods
      * of this interface.
      */
-    class ConfigurationInterface
+    class RTT_API ConfigurationInterface
     {
         public:
         virtual ~ConfigurationInterface() {}

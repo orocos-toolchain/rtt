@@ -49,7 +49,7 @@ namespace RTT
     /**
      * A Corba Proxy for the ScriptingAccess class.
      */
-    class ScriptingAccessProxy
+    class RTT_API ScriptingAccessProxy
         : public RTT::ScriptingAccess
     {
     protected:

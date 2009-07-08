@@ -48,22 +48,14 @@ extern "C"
 {
 #endif
 
-int rtos_printf(const char *fmt, ...)
-{
-    va_list list;
-    char printkbuf [2000];
-    printkbuf[0] = '\0';
-    va_start (list, fmt);
-    vsprintf(printkbuf, fmt, list);
-    va_end (list);
-    return printf(printkbuf);
+void sleep(long s){
+	Sleep(s*1000);
 }
 
-void sleep(long ms){
-	Sleep(ms);
+void usleep(long us){
+    Sleep( us / 1000 );
 }
 
 #ifdef __cplusplus
 }
-
 #endif

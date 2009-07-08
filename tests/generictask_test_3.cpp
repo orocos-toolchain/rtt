@@ -19,7 +19,7 @@
 
 
 #include "generictask_test_3.hpp"
-#include <unistd.h>
+
 #include <iostream>
 #include <Ports.hpp>
 #include <DataObjectInterfaces.hpp>

@@ -48,7 +48,7 @@ namespace RTT
     /**
      * A conditional that evaluates to the inverse of another Condition.
      */
-    class ConditionInvert
+    class RTT_API ConditionInvert
         : public ConditionInterface
     {
         ConditionInterface* mc;

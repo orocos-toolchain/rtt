@@ -52,7 +52,7 @@ namespace RTT
      * The Interface of a TaskContext which exposes its data-flow ports.
      * @ingroup Ports
      */
-    class DataFlowInterface
+    class RTT_API DataFlowInterface
     {
     public:
         /**

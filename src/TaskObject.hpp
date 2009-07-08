@@ -48,7 +48,7 @@ namespace RTT
      * A task object groups a set of commands and methods (operations)
      * which may be invoked.
      */
-    class TaskObject
+    class RTT_API TaskObject
         : public OperationInterface
     {
     protected:

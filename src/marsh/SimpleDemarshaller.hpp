@@ -53,7 +53,7 @@ namespace RTT
 	 *
 	 * @see SimpleMarshaller
 	 */
-    class SimpleDemarshaller : public Demarshaller
+    class RTT_API SimpleDemarshaller : public Demarshaller
     {
       static const char TYPECODE_BOOL = 'B';
       static const char TYPECODE_CHAR = 'C';

@@ -47,7 +47,7 @@ namespace RTT
 	 * @brief This command displays a string when executed.
      * @deprecated Remove this low-level class since it's nowhere used.
 	 */
-	class CommandString : public CommandInterface
+	class RTT_API CommandString : public CommandInterface
 	{
 
     public:

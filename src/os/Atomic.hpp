@@ -46,7 +46,7 @@ namespace RTT
     /**
      * C++ abstraction of atomic integer operations.
      */
-    class AtomicInt
+    class RTT_API AtomicInt
     {
         oro_atomic_t _val;
     public:

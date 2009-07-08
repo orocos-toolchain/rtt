@@ -54,7 +54,7 @@ namespace RTT
      *
      * @see MutexLock, MutexTryLock, MutexRecursive
      */
-	class MutexInterface
+	class RTT_API MutexInterface
 	{
 	public:
         virtual ~MutexInterface() {}
@@ -74,7 +74,7 @@ namespace RTT
      *
      * @see MutexLock, MutexTryLock, MutexTimedLock, MutexRecursive
      */
-	class Mutex : public MutexInterface
+	class RTT_API Mutex : public MutexInterface
     {
 	    friend class OS::MutexLock;
 	    friend class OS::MutexTryLock;
@@ -149,7 +149,7 @@ namespace RTT
      *
      * @see MutexLock, MutexTryLock, Mutex
      */
-    class MutexRecursive : public MutexInterface
+    class RTT_API MutexRecursive : public MutexInterface
     {
         public:
         /**

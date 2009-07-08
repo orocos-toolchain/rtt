@@ -58,7 +58,7 @@ namespace RTT
      *
      * @see ConfigurationInterface
      */
-    class Configurator
+    class RTT_API Configurator
         : protected PeriodicActivity
     {
     public:

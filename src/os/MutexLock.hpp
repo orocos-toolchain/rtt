@@ -48,7 +48,7 @@ namespace RTT
      * @brief MutexLock is a scope based Monitor, protecting critical
      * sections with a Mutex object through locking and unlocking it.
      */
-    class MutexLock
+    class RTT_API MutexLock
     {
 
         public:
@@ -84,7 +84,7 @@ namespace RTT
      * and if successful, unlocks it on destruction of the MutexTryLock.
      * Use isSuccessful() to check whether the attempt succeeded.
      */
-    class MutexTryLock
+    class RTT_API MutexTryLock
     {
 
         public:
@@ -143,7 +143,7 @@ namespace RTT
       * the attempt is aborted.
       * Use isSuccessful() to check whether the attempt succeeded.
       */
-     class MutexTimedLock
+     class RTT_API MutexTimedLock
      {
 
          public:

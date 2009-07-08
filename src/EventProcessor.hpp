@@ -57,7 +57,7 @@ namespace RTT
     namespace detail {
         using boost::make_tuple;
 
-        struct EventCatcher {
+        struct RTT_API EventCatcher {
             EventCatcher();
             virtual ~EventCatcher();
             virtual void complete() = 0;
@@ -487,7 +487,7 @@ namespace RTT
      * @ingroup CoreLibEvents
      * @ingroup Processor
      */
-    class EventProcessor
+    class RTT_API EventProcessor
         : public RunnableInterface
     {
     protected:
@@ -603,7 +603,7 @@ namespace RTT
      * The Blocking EventProcessor, extended with a blocking implementation, waiting
      * for one Event to complete in its \a loop().
      */
-    class BlockingEventProcessor
+    class RTT_API BlockingEventProcessor
         : public EventProcessor
     {
     public:

@@ -57,7 +57,7 @@ namespace RTT
      * @see ActivityInterface
      * @ingroup CoreLibActivities
      */
-    class RunnableInterface
+    class RTT_API RunnableInterface
         : public OS::RunnableInterface
     {
         ActivityInterface* owner_task;

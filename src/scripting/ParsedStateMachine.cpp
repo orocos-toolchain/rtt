@@ -39,7 +39,6 @@
 namespace RTT {
     using namespace detail;
     using namespace std;
-    using namespace boost::lambda;
     using boost::tuples::get;
     /**
      * @todo

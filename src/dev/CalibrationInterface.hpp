@@ -38,6 +38,8 @@
 #ifndef CALIBRATION_INTERFACE_HPP
 #define CALIBRATION_INTERFACE_HPP
 
+#include "../rtt-config.h"
+
 namespace RTT
 {
     /**
@@ -46,7 +48,7 @@ namespace RTT
      * @see SensorInterface
      * @ingroup DeviceInterface
      */
-    class CalibrationInterface
+    class RTT_API CalibrationInterface
     {
     protected:
         bool calibrated;

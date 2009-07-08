@@ -78,7 +78,7 @@ namespace RTT
      * servers.
      * @ingroup CompIDL
      */
-    class ControlTaskProxy
+    class RTT_API ControlTaskProxy
         : public TaskContext,
           public ApplicationServer
     {

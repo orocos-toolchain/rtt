@@ -72,7 +72,7 @@ namespace rt_std
      * and ostream. Thanks to the GCC 3.X cleanup, we might be able to mimic
      * quite a lot.
      */
-    class basic_streams
+    class RTT_API basic_streams
     {
 
         public:
@@ -109,7 +109,7 @@ namespace rt_std
      * so no seeking is possible. The problem is otherwise that the
      * string in iostreams would grow unlimited.
      */
-    class basic_istreams
+    class RTT_API basic_istreams
         : virtual public basic_streams
     {
 
@@ -141,7 +141,7 @@ namespace rt_std
      * An basic_ostreams is a stream which can be written to.
      * Read operations will have no effect.
      */
-    class basic_ostreams : virtual public basic_streams
+    class RTT_API basic_ostreams : virtual public basic_streams
     {
 
         public:
@@ -180,7 +180,7 @@ namespace rt_std
     /**
      * An IO stream based on strings.
      */
-    class basic_iostreams
+    class RTT_API basic_iostreams
         : public basic_istreams, public basic_ostreams
     {
         public:
@@ -196,7 +196,7 @@ namespace rt_std
      * to the terminal window. It mimics the behaviour of
      * iostreams cout.
      */
-    class printstream
+    class RTT_API printstream
         : private print_helper, public basic_ostreams
     {
 
@@ -215,7 +215,7 @@ namespace rt_std
     /**
      * Stringstreams, are not guaranteed to be hard realtime.
      */
-    class stringstreams
+    class RTT_API stringstreams
         : private string_helper, public basic_iostreams
         {
             public:

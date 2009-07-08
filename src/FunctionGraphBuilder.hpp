@@ -55,7 +55,7 @@ namespace RTT
      * data contained in a program graph tree, based on the
      * Boost Graph Library.
      */
-    class FunctionGraphBuilder
+    class RTT_API FunctionGraphBuilder
     {
     public:
 

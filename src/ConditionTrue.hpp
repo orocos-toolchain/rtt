@@ -48,7 +48,7 @@ namespace RTT
      * A conditional that evaluates true
      */
 
-    class ConditionTrue
+    class RTT_API ConditionTrue
                 : public ConditionInterface
     {
 
