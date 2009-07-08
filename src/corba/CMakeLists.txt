@@ -67,11 +67,11 @@ CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/corba/orocos-rtt-corba.pc.in ${PROJ_BINAR
 CONFIGURE_FILE( rtt-corba-config.h.in ${CMAKE_CURRENT_BINARY_DIR}/rtt-corba-config.h @ONLY)
 
 IF ( BUILD_STATIC )
-  INSTALL_TARGETS(/lib orocos-rtt-corba_static-${OROCOS_TARGET})
+  INSTALL(TARGETS orocos-rtt-corba-static_${OROCOS_TARGET} ARCHIVE DESTINATION lib )
 ENDIF( BUILD_STATIC )
 
-  INSTALL_TARGETS(/lib orocos-rtt-corba_dynamic-${OROCOS_TARGET})
-  INSTALL_FILES( /lib/pkgconfig FILES orocos-rtt-corba-${OROCOS_TARGET}.pc)
-  INSTALL_FILES( /include/rtt/corba FILES rtt-corba-config.h )
+  INSTALL(FILES orocos-rtt-corba-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
+  INSTALL(TARGETS orocos-rtt-corba-dynamic_${OROCOS_TARGET} LIBRARY DESTINATION lib RUNTIME DESTINATION bin )
+  INSTALL( FILES rtt-corba-config.h DESTINATION include/rtt/corba )
 ENDIF(ENABLE_CORBA)
 
