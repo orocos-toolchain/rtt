@@ -54,6 +54,7 @@ extern "C"
 #endif
 
 #include "../oro_limits.h"
+#include "../../rtt-config.h"
 
     // Time Related
 #ifdef _MSC_VER
@@ -64,8 +65,8 @@ extern "C"
 #include <unistd.h>
 #endif
 
-    void sleep(long s);
-    void usleep(long us);
+    RTT_API void sleep(long s);
+    RTT_API void usleep(long us);
 
     typedef long long NANO_TIME;
     typedef long long TICK_TIME;

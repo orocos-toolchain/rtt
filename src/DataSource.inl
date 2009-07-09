@@ -56,7 +56,7 @@ namespace RTT
   }
 
   template<>
-  bool DataSource<bool>::evaluate() const;
+  RTT_API bool DataSource<bool>::evaluate() const;
 
 
     template<typename T>

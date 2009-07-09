@@ -222,7 +222,7 @@ namespace RTT
      * @param os The stream to print to
      * @param p The property whose value to print.
      */
-    std::ostream& operator<<(std::ostream &os, PropertyBase* p);
+    RTT_API std::ostream& operator<<(std::ostream &os, PropertyBase* p);
 
 
 } // namespace RTT

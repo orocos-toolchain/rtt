@@ -76,10 +76,10 @@ namespace RTT
          * It is the central object which knows about one signal
          * and its slot (the latter in its derived classes).
          */
-        class connection_base
+        class RTT_API connection_base
         {
-            friend void intrusive_ptr_add_ref(connection_base*);
-            friend void intrusive_ptr_release(connection_base*);
+            RTT_API friend void intrusive_ptr_add_ref(connection_base*);
+            RTT_API friend void intrusive_ptr_release(connection_base*);
             bool mconnected;
             signal_base* m_sig;
 
@@ -112,8 +112,8 @@ namespace RTT
             void destroy();
         };
 
-        void intrusive_ptr_add_ref( connection_base* p );
-        void intrusive_ptr_release( connection_base* p );
+        RTT_API void intrusive_ptr_add_ref( connection_base* p );
+        RTT_API void intrusive_ptr_release( connection_base* p );
 
         /**
          * The base signal class which stores connection objects.
@@ -121,7 +121,7 @@ namespace RTT
          * connection/disconnetion of a handler is always thread-safe
          * and real-time.
          */
-        class signal_base
+        class RTT_API signal_base
         {
         public:
             typedef connection_base::shared_ptr        connection_t;
