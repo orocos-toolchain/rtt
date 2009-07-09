@@ -58,7 +58,7 @@ namespace RTT
      * A port used by ControlTaskProxy objects to connect
      * a corba data or buffer channel as an Orocos Port.
      */
-    class RTT_API CorbaPort
+    class RTT_CORBA_API CorbaPort
         : public PortInterface
     {
     protected:

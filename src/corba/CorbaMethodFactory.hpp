@@ -54,7 +54,7 @@ namespace RTT
      * It connects to an Corba::MethodFactory and translates
      * Corba objects to plain C++ objects.
      */
-    class RTT_API CorbaMethodFactory
+    class RTT_CORBA_API CorbaMethodFactory
         : public RTT::detail::OperationFactoryPart<DataSourceBase*>
     {
         Corba::MethodInterface_var mfact;

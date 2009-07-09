@@ -59,7 +59,7 @@ namespace RTT
     /**
      * This class manages the access of remote Expression Corba Servers.
      */
-    class RTT_API ExpressionProxy
+    class RTT_CORBA_API ExpressionProxy
         : public DataSourceBase
     {
     public:
