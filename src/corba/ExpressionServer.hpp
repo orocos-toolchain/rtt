@@ -39,14 +39,15 @@
 #ifndef ORO_CORBA_EXPRESSIONSERVER_HPP
 #define ORO_CORBA_EXPRESSIONSERVER_HPP
 
-#include "../DataSourceBase.hpp"
-#include "OperationsC.h"
+#include "../rtt-config.h"
 #include "corba.h"
 #ifdef CORBA_IS_TAO
 #include <tao/PortableServer/PortableServer.h>
 #else
 #include <omniORB4/poa.h>
 #endif
+#include "OperationsC.h"
+#include "../DataSourceBase.hpp"
 
 
 // forward decl.
