@@ -58,6 +58,7 @@
 #include <map>
 #include <string>
 #include <iostream>
+#include <cstdio>
 
 #include <Property.hpp>
 #include "PropertyIntrospection.hpp"

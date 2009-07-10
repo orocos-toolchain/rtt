@@ -38,6 +38,7 @@
 #include "os/rtconversions.hpp"
 
 #include <string>
+#include <cstdio>
 #include <cstdlib>
 
 using namespace std;
