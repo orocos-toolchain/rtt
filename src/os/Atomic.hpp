@@ -55,10 +55,21 @@ namespace RTT
             ORO_ATOMIC_SETUP( &_val, value);
         }
 
+		AtomicInt(const AtomicInt& orig)
+		{
+			ORO_ATOMIC_SETUP( &_val, oro_atomic_read( &(orig._val) ) );
+		}
+
         ~AtomicInt()
         {
             ORO_ATOMIC_CLEANUP( &_val );
         }
+
+		const AtomicInt& operator=(const AtomicInt& orig)
+		{
+			oro_atomic_set( &_val, oro_atomic_read( &(orig._val)));
+			return *this;
+		}
 
         /**
          * Read the current value of the integer.
