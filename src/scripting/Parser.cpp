@@ -54,8 +54,7 @@ namespace RTT
   {
     our_buffer_t function(text);
     our_pos_iter_t parsebegin( function.begin(), function.end(), filename );
-    our_pos_iter_t parseend; // not used.
-
+    our_pos_iter_t parseend( function.end(), function.end(), filename );
     // The internal parser.
     ProgramGraphParser gram( parsebegin, c );
     ParsedFunctions ret = gram.parseFunction( parsebegin, parseend );
@@ -66,7 +65,7 @@ namespace RTT
   {
     our_buffer_t program(text);
     our_pos_iter_t parsebegin( program.begin(), program.end(), filename );
-    our_pos_iter_t parseend; // not used.
+    our_pos_iter_t parseend( program.end(),program.end(),filename );
 
     // The internal parser.
     ProgramGraphParser gram( parsebegin, c );
@@ -81,7 +80,7 @@ namespace RTT
 
     our_buffer_t program(text);
     our_pos_iter_t parsebegin( program.begin(), program.end(), filename );
-    our_pos_iter_t parseend;
+    our_pos_iter_t parseend( program.end(),program.end(),filename );
 
     // The internal parser.
     StateGraphParser gram( parsebegin, c );
@@ -103,7 +102,7 @@ namespace RTT
   {
     our_buffer_t scopy(s);
     our_pos_iter_t parsebegin( scopy.begin(), scopy.end(), "teststring" );
-    our_pos_iter_t parseend;
+    our_pos_iter_t parseend( scopy.end(), scopy.end(), "teststring" );
 
     ConditionParser parser( tc );
     try
@@ -131,7 +130,7 @@ namespace RTT
     std::string s( _s );
 
     our_pos_iter_t parsebegin( s.begin(), s.end(), "teststring" );
-    our_pos_iter_t parseend;
+    our_pos_iter_t parseend( s.end(), s.end(), "teststring" );
 
     ExpressionParser parser( tc );
     try
@@ -160,7 +159,7 @@ namespace RTT
     std::string s( _s );
 
     our_pos_iter_t parsebegin( s.begin(), s.end(), "teststring" );
-    our_pos_iter_t parseend;
+    our_pos_iter_t parseend( s.end(), s.end(), "teststring" );
 
     ValueChangeParser parser( tc );
     try
@@ -193,7 +192,7 @@ namespace RTT
       // This code is copied from parseCondition
 
     our_pos_iter_t parsebegin( s.begin(), s.end(), "input" );
-    our_pos_iter_t parseend;
+    our_pos_iter_t parseend( s.end(), s.end(), "input" );
 
     CommandParser parser( tc, !dodispatch );
     try
