@@ -131,33 +131,6 @@ struct TestRunner
 };
 
 
-struct TestAllocate
-    : public RunnableInterface
-{
-    std::vector<std::string> v;
-    char*       c;
-    std::string s;
-
-    bool initialize() {
-        c = 0;
-        return true;
-    }
-    void step() {
-        v.resize( 0 );
-        v.resize( 1025, std::string("Goodbye Memory") );
-        delete[] c;
-        c = new char[1025];
-        s = "Hello World ";
-        s += s;
-        s += s;
-    }
-    void finalize() {
-        delete[] c;
-        v.resize(0);
-    }
-};
-
-
 void
 ActivitiesThreadTest::setUp()
 {
@@ -582,12 +555,3 @@ BOOST_AUTO_TEST_CASE( testExceptionRecovery )
 
 BOOST_AUTO_TEST_SUITE_END()
 
-void ActivitiesThreadTest::testAddAllocate()
-{
-    BOOST_CHECK( t_task_np->run( t_run_allocate ) );
-}
-
-void ActivitiesThreadTest::testRemoveAllocate()
-{
-    BOOST_CHECK( t_task_np->run( 0 ) );
-}

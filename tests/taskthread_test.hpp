@@ -45,8 +45,6 @@ public:
     TestActivity<SlaveActivity>*          t_task_slave;
     TestActivity<Activity>*         t_task_a;
 
-    RunnableInterface* t_run_allocate;
-
     ActivitiesThreadTest(){ setUp(); };
     ~ActivitiesThreadTest(){ tearDown(); };
     void setUp();
@@ -62,8 +60,6 @@ public:
     void testSequential();
     void testScheduler();
     void testAllocation();
-    void testRemoveAllocate();
-    void testAddAllocate();
 };
 
 #endif
