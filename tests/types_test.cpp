@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( testTypes )
         "var string str(10) = \"hello\"\n"+
         // 50:
         "do test.assert( str.size == 5)\n"+
-        "do test.assert( str.capacity == 10)\n"+
+        "do test.assert( str.capacity >= 10)\n"+
         "set str[0] = 'a'\n"+
         "set str[1] = 'b'\n"+
         "set str[2] = 'c'\n"+
