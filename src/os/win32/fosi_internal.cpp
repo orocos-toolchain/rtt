@@ -241,7 +241,7 @@ void ErrorHandler(LPTSTR lpszFunction)
 
     INTERNAL_QUAL void rtos_task_delete(RTOS_TASK* mytask) {
       // printf("T:%u -> ", (unsigned int) mytask);
-      printf(" rtos_task_delete ");
+      //printf(" rtos_task_delete ");
       //DWORD exitCode;
       //TerminateThread(mytask->handle, exitCode);
       CloseHandle(mytask->handle);
