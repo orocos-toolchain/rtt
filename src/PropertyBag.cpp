@@ -229,6 +229,34 @@ namespace RTT
         return *this;
     }
 
+    template<>
+    bool Property<PropertyBag>::update( const Property<PropertyBag>& orig)
+    {
+        if ( !ready() )
+            return false;
+        if ( _description.empty() )
+            _description = orig.getDescription();
+        return updateProperties( this->_value->set(), orig.rvalue() );
+    }
+
+    template<>
+    bool Property<PropertyBag>::refresh( const Property<PropertyBag>& orig)
+    {
+        if ( !ready() )
+            return false;
+        return refreshProperties( this->_value->set(), orig.rvalue() );
+    }
+
+    template<>
+    bool Property<PropertyBag>::copy( const Property<PropertyBag>& orig)
+    {
+        if ( !ready() )
+            return false;
+        _name = orig.getName();
+        _description = orig.getDescription();
+        return copyProperties( this->_value->set(), orig.rvalue() );
+    }
+
     PropertyBase* findProperty(const PropertyBag& bag, const std::string& nameSequence, const std::string& separator)
     {
         PropertyBase* result;

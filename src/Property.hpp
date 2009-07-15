@@ -387,34 +387,14 @@ namespace RTT
     /**
      * Partial specialisations in case of PropertyBag.
      */
-	 //  patch pour faire une librairie static plus clean
     template<>
-    RTT_API bool Property<PropertyBag>::update( const Property<PropertyBag>& orig)
-    {
-        if ( !ready() )
-            return false;
-        if ( _description.empty() )
-            _description = orig.getDescription();
-        return updateProperties( this->_value->set(), orig.rvalue() );
-    }
+    RTT_API bool Property<PropertyBag>::update( const Property<PropertyBag>& orig);
 
     template<>
-    RTT_API bool Property<PropertyBag>::refresh( const Property<PropertyBag>& orig)
-    {
-        if ( !ready() )
-            return false;
-        return refreshProperties( this->_value->set(), orig.rvalue() );
-    }
+    RTT_API bool Property<PropertyBag>::refresh( const Property<PropertyBag>& orig);
 
     template<>
-    RTT_API bool Property<PropertyBag>::copy( const Property<PropertyBag>& orig)
-    {
-        if ( !ready() )
-            return false;
-        _name = orig.getName();
-        _description = orig.getDescription();
-        return copyProperties( this->_value->set(), orig.rvalue() );
-    }
+    RTT_API bool Property<PropertyBag>::copy( const Property<PropertyBag>& orig);
 
     template<typename T>
     std::ostream& operator<<(std::ostream &os, Property<T> &p)
