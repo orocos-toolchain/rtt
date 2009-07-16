@@ -44,7 +44,7 @@ BuffersTest::setUp()
 
     lockfree = new BufferLockFree<Dummy>(QS);
 
-    dataobj  = new DataObjectLockFree<Dummy>("name");
+    dataobj  = new DataObjectLockFree<Dummy>();
 
     //mslist =  new SortedList<Dummy>();
 
@@ -490,7 +490,7 @@ BOOST_AUTO_TEST_CASE( testDObjLockFree )
     dataobj->Set( *c );
     BOOST_REQUIRE_EQUAL( *c, dataobj->Get() );
     int i = 0;
-    while ( i != 3.5*DataObjectLockFree<Dummy>::MAX_THREADS ) {
+    while ( i != 3.5*dataobj->MAX_THREADS ) {
         dataobj->Set( *c );
         dataobj->Set( d );
         ++i;

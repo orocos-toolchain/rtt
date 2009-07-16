@@ -121,9 +121,9 @@ namespace RTT
             {
                 DataObjectInterface<T>* data_object = 0;
                 if (policy.lock_policy == ConnPolicy::LOCKED)
-                    data_object = new DataObjectLocked<T>("");
+                    data_object = new DataObjectLocked<T>();
                 else
-                    data_object = new DataObjectLockFree<T>("");
+                    data_object = new DataObjectLockFree<T>();
 
                 ChannelDataElement<T>* result = new ChannelDataElement<T>(data_object);
                 data_object->deref(); // data objects are initialized with a refcount of 1
@@ -354,7 +354,7 @@ namespace RTT
             {
                 if (!last_written_value)
                 {
-                    last_written_value = new DataObjectLockFree<T>(getName() + "Last");
+                    last_written_value = new DataObjectLockFree<T>();
                     last_written_value->deref(); // Data objects are initialized with a refcount of 1
                 }
             }
@@ -428,7 +428,7 @@ namespace RTT
 
         using OutputPortInterface::createConnection;
 
-        /** Channelects this write port to the given read port, using the given
+        /** Connects this write port to the given read port, using the given
          * policy */
         virtual bool createConnection(InputPortInterface& input_port, ConnPolicy const& policy)
         {

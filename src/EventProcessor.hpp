@@ -210,7 +210,7 @@ namespace RTT
             template< class T>
             struct Data
             {
-                Data() : work(false), val_("EventData") {}
+                Data() : work(false), val_() {}
                 bool work;
                 DataObjectLockFree<T> val_;
                 typedef T type;
