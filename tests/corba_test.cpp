@@ -297,7 +297,7 @@ BOOST_AUTO_TEST_CASE( testAnyMethod )
 BOOST_AUTO_TEST_CASE(testDataFlowInterface)
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
+
     Corba::DataFlowInterface_var ports = ts->server()->ports();
 
     Corba::DataFlowInterface::PortNames_var names =
