@@ -36,6 +36,6 @@
  ***************************************************************************/
 namespace RTT {
 	namespace Corba {
-	RTT_API int loadCorbaLib();
+	RTT_CORBA_API int loadCorbaLib();
 }}
 #define ORO_CORBA_PROTOCOL_ID 1

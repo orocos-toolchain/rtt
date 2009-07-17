@@ -60,7 +60,7 @@ namespace RTT
          * A DataSource which holds an any value and
          * returns it in its get() method. It can not be changed after creation.
          */
-        class RTT_API AnyDataSource
+        class RTT_CORBA_API AnyDataSource
             : public DataSource<CORBA::Any_var>
         {
             /**
