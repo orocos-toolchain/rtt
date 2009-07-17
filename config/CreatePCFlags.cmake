@@ -11,9 +11,9 @@ macro( create_pc_flags CM_DEFINES CM_INCLUDES CM_LIBRARIES PC_DEFINES PC_INCLUDE
   set(${PC_INCLUDES} "")
   set(${PC_LIBRARIES} "")
 
-  MESSAGE("Got cmlibs: ${CM_LIBRARIES}")
-  MESSAGE("Got cmcflags: ${CM_INCLUDES}")
-  MESSAGE("Got cmdefs: ${CM_DEFINES}")
+  #MESSAGE("Got cmlibs: ${CM_LIBRARIES}")
+  #MESSAGE("Got cmcflags: ${CM_INCLUDES}")
+  #MESSAGE("Got cmdefs: ${CM_DEFINES}")
 
   foreach( ITEM ${CM_LIBRARIES})
     if( ITEM )
@@ -40,7 +40,7 @@ macro( create_pc_flags CM_DEFINES CM_INCLUDES CM_LIBRARIES PC_DEFINES PC_INCLUDE
     endif()
   endforeach()
 
-  MESSAGE("Computed pclibs: ${${PC_LIBRARIES}}")
-  MESSAGE("Computed pccflags: ${${PC_INCLUDES}}")
-  MESSAGE("Computed pcdefs: ${${PC_DEFINES}}")
+  #MESSAGE("Computed pclibs: ${${PC_LIBRARIES}}")
+  #MESSAGE("Computed pccflags: ${${PC_INCLUDES}}")
+  #MESSAGE("Computed pcdefs: ${${PC_DEFINES}}")
 endmacro()

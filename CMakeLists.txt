@@ -56,10 +56,6 @@ INCLUDE (${CMAKE_ROOT}/Modules/CMakeDetermineCXXCompiler.cmake)
 # Find all installed libraries, compiler etc.
 INCLUDE(config/check_depend.cmake)
 
-# Decide how we will build using the user options and 
-# build environment
-INCLUDE(config/global_setup.cmake)
-
 ## Uninstall target
 CONFIGURE_FILE(
   "${CMAKE_CURRENT_SOURCE_DIR}/config/cmake_uninstall.cmake.in"
