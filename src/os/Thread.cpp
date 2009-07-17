@@ -132,7 +132,7 @@ namespace RTT
                                     if ( cur_period != task->period) {
                                         // reconfigure period before going to sleep
                                         rtos_task_set_period(task->getTask(), task->period);
-                                        cur_period = rtos_task_get_period(task->getTask());
+                                        cur_period = task->period;
                                         break;
                                     }
 

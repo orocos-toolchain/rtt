@@ -172,10 +172,6 @@ namespace RTT
         rtos_task_make_periodic(mytask, nanosecs);
 	}
 
-	INTERNAL_QUAL NANO_TIME rtos_task_get_period(const RTOS_TASK* t) {
-	    return t->period;
-	}
-
 	INTERNAL_QUAL int rtos_task_wait_period( RTOS_TASK* task )
 	{
 	    if ( task->period == 0 )

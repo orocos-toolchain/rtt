@@ -139,13 +139,6 @@ namespace RTT
 		void rtos_task_set_period( RTOS_TASK* mytask, NANO_TIME nanosecs );
 
 		/**
-		 * Get the current set period in nano seconds.
-		 * @param mytask The RTOS task to query.
-		 * @return the period in nanoseconds.
-		 */
-		NANO_TIME rtos_task_get_period( const RTOS_TASK* mytask );
-
-		/**
 		 * This function is called by a periodic thread which
 		 * wants to go to sleep and wake up the next period.
 		 * @param task This must be RTOS_TASK struct of the calling thread.
