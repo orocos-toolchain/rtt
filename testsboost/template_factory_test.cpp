@@ -38,10 +38,6 @@ using namespace std;
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-// Registers the fixture into the 'registry'
-BOOST_FIXTURE_TEST_SUITE(  Template_FactoryTestSuite,  Template_FactoryTest )
-
-
 void
 Template_FactoryTest::setUp()
 {
@@ -130,6 +126,23 @@ void Template_FactoryTest::executePrograms(const Parser::ParsedPrograms& pg_list
     }
 }
 
+
+int Template_FactoryTest::float_listener(float a, float b)
+{
+    Logger::log() << Logger::Debug << "float_listener "<< a<<", "<<b<<Logger::endl;
+    float_sum += a + b;
+    return 1;
+}
+
+int Template_FactoryTest::float_completer(float a, float b)
+{
+    Logger::log() << Logger::Debug << "float_completer "<< a<<", "<<b<<Logger::endl;
+    float_sub -= (a + b);
+    return 1; // ignored...
+}
+
+// Registers the fixture into the 'registry'
+BOOST_FIXTURE_TEST_SUITE(  Template_FactoryTestSuite,  Template_FactoryTest )
 
 BOOST_AUTO_TEST_CASE( testMethods)
 {
@@ -257,22 +270,6 @@ BOOST_AUTO_TEST_CASE( testManual)
     res = GenerateDataSource()( empty1.get(), empty2.get(), empty3.get(), empty4.get() );
     BOOST_CHECK( res.size() == 4 );
 }
-
-
-int Template_FactoryTest::float_listener(float a, float b)
-{
-    Logger::log() << Logger::Debug << "float_listener "<< a<<", "<<b<<Logger::endl;
-    float_sum += a + b;
-    return 1;
-}
-
-int Template_FactoryTest::float_completer(float a, float b)
-{
-    Logger::log() << Logger::Debug << "float_completer "<< a<<", "<<b<<Logger::endl;
-    float_sub -= (a + b);
-    return 1; // ignored...
-}
-
 
 BOOST_AUTO_TEST_CASE( testEventC)
 {

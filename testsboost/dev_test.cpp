@@ -34,8 +34,6 @@ using namespace std;
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-BOOST_FIXTURE_TEST_SUITE( DevTestSuite, DevTest )
-
 using namespace RTT;
 
 void
@@ -48,6 +46,8 @@ void
 DevTest::tearDown()
 {
 }
+
+BOOST_FIXTURE_TEST_SUITE( DevTestSuite, DevTest )
 
 BOOST_AUTO_TEST_CASE( testClasses)
 {

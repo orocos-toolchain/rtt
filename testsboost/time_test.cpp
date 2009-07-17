@@ -25,8 +25,6 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-BOOST_FIXTURE_TEST_SUITE( TimeTestSuite, TimeTest )
-
 #define EPSILON 0.000000002
 
 // Registers the fixture into the 'registry'
@@ -57,6 +55,32 @@ TimeTest::~TimeTest()
 {
     hbg->enableSystemClock( true );
 }
+
+struct TestTimer
+    : public Timer
+{
+    std::vector< std::pair<Timer::TimerId, Seconds> > occured;
+    TimeService::Seconds mstart;
+    TestTimer()
+        :Timer(32, ORO_SCHED_RT, OS::HighestPriority)
+    {
+        occured.reserve(100);
+        mstart = TimeService::Instance()->secondsSince(0);
+    }
+    void timeout(Timer::TimerId id)
+    {
+        Seconds now = TimeService::Instance()->secondsSince( 0 );
+        occured.push_back( std::make_pair(id, now) );
+        //cout << "Occured: "<< id <<" on " << now - mstart <<"\n";
+    }
+
+    ~TestTimer()
+    {
+        cout.flush();
+    }
+};
+
+BOOST_FIXTURE_TEST_SUITE( TimeTestSuite, TimeTest )
 
 BOOST_AUTO_TEST_CASE( testSecondsConversion )
 {
@@ -130,30 +154,6 @@ BOOST_AUTO_TEST_CASE( testTimeProgress )
     BOOST_CHECK( Seconds(0.0) !=  hbg->secondsSince(t) );
 
 }
-
-struct TestTimer
-    : public Timer
-{
-    std::vector< std::pair<Timer::TimerId, Seconds> > occured;
-    TimeService::Seconds mstart;
-    TestTimer()
-        :Timer(32, ORO_SCHED_RT, OS::HighestPriority)
-    {
-        occured.reserve(100);
-        mstart = TimeService::Instance()->secondsSince(0);
-    }
-    void timeout(Timer::TimerId id)
-    {
-        Seconds now = TimeService::Instance()->secondsSince( 0 );
-        occured.push_back( std::make_pair(id, now) );
-        //cout << "Occured: "<< id <<" on " << now - mstart <<"\n";
-    }
-
-    ~TestTimer()
-    {
-        cout.flush();
-    }
-};
 
 BOOST_AUTO_TEST_CASE( testTimers )
 {

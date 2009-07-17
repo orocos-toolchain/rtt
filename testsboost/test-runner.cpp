@@ -41,17 +41,20 @@ BOOST_GLOBAL_FIXTURE( InitOrocos )
 boost::unit_test::test_suite* init_unit_test_suite(int argc, char** argv)
 {
 	__os_init(argc, argv);
+
     // disable logging of errors or warnings if no ORO_LOGLEVEL was set.
-    log(Info) << "Lowering LogLevel to Debug." << endlog();
-    log().setLogLevel(Logger::Debug);
+    if ( log().getLogLevel() == Logger::Warning ) {
+        log(Info) << "Lowering LogLevel to Critical." << endlog();
+        log().setLogLevel(Logger::Critical);
+    } else {
+        log(Info) << "LogLevel unaltered by test-runner." << endlog();
+    }
 
     // Get the top level suite from the registry
-
-    boost::unit_test::unit_test_log.set_threshold_level(boost::unit_test::log_test_units);
+    //boost::unit_test::unit_test_log.set_threshold_level(boost::unit_test::log_error);
 
     // manually adding test suites
     test_suite* test = BOOST_TEST_SUITE("Name of test suite");
-    //test->add(new MathTestSuite);
 
     //
     // Return error code 1 if the one of test failed.

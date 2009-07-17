@@ -38,8 +38,6 @@ using namespace std;
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-BOOST_FIXTURE_TEST_SUITE( StateTestSuite, StateTest )
-
 StateTest::StateTest()
     :gtc("root"),
      gtask( 0.01, gtc.engine() )
@@ -127,6 +125,7 @@ TaskObject* StateTest::createObject(string a)
     return dat;
 }
 
+BOOST_FIXTURE_TEST_SUITE( StateTestSuite, StateTest )
 
 BOOST_AUTO_TEST_CASE( testParseState)
 {
@@ -281,7 +280,7 @@ BOOST_AUTO_TEST_CASE( testStateFailure)
         // assert that an error happened :
         BOOST_CHECK( gtc.engine()->states()->getStateMachineStatus("x") == StateMachine::Status::error );
 
-        this->finishState( &gtc, "x");
+        this->finishState( &gtc, "x", false);
     }
 }
 BOOST_AUTO_TEST_CASE( testStateChildren)
@@ -834,6 +833,9 @@ BOOST_AUTO_TEST_CASE( testStateUntilFail)
 //     this->finishState( &gtc, "x");
 }
 
+
+BOOST_AUTO_TEST_SUITE_END()
+
 void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 {
     BOOST_CHECK( tc->engine() );
@@ -940,15 +942,17 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     }
 }
 
-void StateTest::finishState(TaskContext* tc, std::string prog_name)
+void StateTest::finishState(TaskContext* tc, std::string prog_name, bool test)
 {
     StateMachinePtr sm = tc->engine()->states()->getStateMachine(prog_name);
     BOOST_CHECK( sm );
-    tc->engine()->states()->getStateMachine( prog_name )->stop();
+    BOOST_CHECK( tc->engine()->states()->getStateMachine( prog_name )->stop() );
     BOOST_CHECK( SimulationThread::Instance()->run(500) );
-    stringstream errormsg;
-    errormsg << " on line " << sm->getLineNumber() <<", status is "<< tc->engine()->states()->getStateMachineStatusStr(prog_name) <<endl <<"here  > " << sline << endl;;
-    BOOST_CHECK_MESSAGE( sm->isStopped(), "StateMachine stalled " + errormsg.str() );
+    if (test) {
+        stringstream errormsg;
+        errormsg << " on line " << sm->getLineNumber() <<", status is "<< tc->engine()->states()->getStateMachineStatusStr(prog_name) <<endl <<"here  > " << sline << endl;;
+        BOOST_CHECK_MESSAGE( sm->isStopped(), "StateMachine stalled " + errormsg.str() );
+    }
     // you can call deactivate even when the proc is not running.
     // but deactivation may be 'in progress if exit state has commands in it.
     BOOST_CHECK( tc->engine()->states()->getStateMachine( prog_name )->deactivate() );
@@ -970,7 +974,4 @@ void StateTest::finishState(TaskContext* tc, std::string prog_name)
     }
 
 }
-
-BOOST_AUTO_TEST_SUITE_END()
-
 

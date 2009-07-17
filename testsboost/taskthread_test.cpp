@@ -148,9 +148,6 @@ struct TestAllocate
     }
 };
 
-// Registers the fixture into the 'registry'
-BOOST_FIXTURE_TEST_SUITE( ActivitiesThreadTestSuite, ActivitiesThreadTest )
-
 
 void
 ActivitiesThreadTest::setUp()
@@ -168,6 +165,9 @@ ActivitiesThreadTest::tearDown()
     delete t_task_np_bad;
     delete t_task_p;
 }
+
+// Registers the fixture into the 'registry'
+BOOST_FIXTURE_TEST_SUITE( ActivitiesThreadTestSuite, ActivitiesThreadTest )
 
 BOOST_AUTO_TEST_CASE(testPeriodic )
 {
@@ -396,7 +396,7 @@ BOOST_AUTO_TEST_CASE( testScheduler )
 }
 
 
-void ActivitiesThreadTest::testThreadConfig()
+BOOST_AUTO_TEST_CASE( testThreadConfig )
 {
     int rtsched = ORO_SCHED_RT;
     int bprio = 15;
@@ -517,6 +517,8 @@ BOOST_AUTO_TEST_CASE( testExceptionRecovery )
 }
 #endif
 
+BOOST_AUTO_TEST_SUITE_END()
+
 void ActivitiesThreadTest::testAddAllocate()
 {
     BOOST_CHECK( t_task_np->run( t_run_allocate ) );
@@ -526,5 +528,3 @@ void ActivitiesThreadTest::testRemoveAllocate()
 {
     BOOST_CHECK( t_task_np->run( 0 ) );
 }
-
-BOOST_AUTO_TEST_SUITE_END()

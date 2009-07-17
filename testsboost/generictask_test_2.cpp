@@ -36,16 +36,13 @@ using namespace std;
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-// Registers the fixture into the 'registry'
-BOOST_FIXTURE_TEST_SUITE(  Generic_TaskTest2Suite,  Generic_TaskTest_2 )
-
-
 void
 Generic_TaskTest_2::setUp()
 {
     tc =  new TaskContext( "root" );
     tc->addObject( this->createCommandFactory() );
     tsim = new SimulationActivity(0.001, tc->engine() );
+    tc->setActivity( tsim );
     SimulationThread::Instance()->stop();
 }
 
@@ -58,7 +55,6 @@ Generic_TaskTest_2::tearDown()
     tsim->stop();
     SimulationThread::Instance()->stop();
     delete tc;
-    delete tsim;
 }
 
 bool Generic_TaskTest_2::assertBool( bool b) {
@@ -84,6 +80,52 @@ TaskObject* Generic_TaskTest_2::createCommandFactory()
     to->commands()->addCommand( command("c44", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn4, this, tc->engine()->commands()), "c4d","a","ad","a","ad","a","ad","a","ad");
     return to;
 }
+
+
+void Generic_TaskTest_2::verifydispatch(DispatchInterface& com)
+{
+    BOOST_CHECK( SimulationThread::Instance()->isRunning() == false );
+    BOOST_CHECK( com.sent() );
+    BOOST_CHECK( com.accepted() );
+    BOOST_CHECK( !com.executed() );
+    BOOST_CHECK( !com.valid() );
+    BOOST_CHECK( !com.done() );
+    BOOST_CHECK( SimulationThread::Instance()->run(1) );
+    BOOST_CHECK( com.executed() );
+    BOOST_CHECK( com.valid() );
+    BOOST_CHECK( com.done() );
+    com.reset();
+    BOOST_CHECK( !com.sent() );
+    BOOST_CHECK( !com.accepted() );
+    BOOST_CHECK( !com.executed() );
+    BOOST_CHECK( !com.valid() );
+    BOOST_CHECK( !com.done() );
+}
+
+void Generic_TaskTest_2::verifycommand(CommandC& com)
+{
+    BOOST_CHECK( SimulationThread::Instance()->isRunning() == false );
+    BOOST_CHECK( com.execute() );
+    BOOST_CHECK( com.sent() );
+    BOOST_CHECK( com.accepted() );
+    BOOST_CHECK( !com.executed() );
+    BOOST_CHECK( !com.valid() );
+    BOOST_CHECK( !com.done() );
+    BOOST_CHECK( SimulationThread::Instance()->run(1) );
+    BOOST_CHECK( com.executed() );
+    BOOST_CHECK( com.valid() );
+    BOOST_CHECK( com.done() );
+    com.reset();
+    BOOST_CHECK( !com.sent() );
+    BOOST_CHECK( !com.accepted() );
+    BOOST_CHECK( !com.executed() );
+    BOOST_CHECK( !com.valid() );
+    BOOST_CHECK( !com.done() );
+}
+
+
+// Registers the fixture into the 'registry'
+BOOST_FIXTURE_TEST_SUITE(  Generic_TaskTest2Suite,  Generic_TaskTest_2 )
 
 BOOST_AUTO_TEST_CASE( testCommandsC)
 {
@@ -263,45 +305,6 @@ BOOST_AUTO_TEST_CASE( testCommandsC)
 #endif
 }
 
-void Generic_TaskTest_2::verifydispatch(DispatchInterface& com)
-{
-    BOOST_CHECK( com.sent() );
-    BOOST_CHECK( com.accepted() );
-    BOOST_CHECK( !com.executed() );
-    BOOST_CHECK( !com.valid() );
-    BOOST_CHECK( !com.done() );
-    BOOST_CHECK( SimulationThread::Instance()->run(1) );
-    BOOST_CHECK( com.executed() );
-    BOOST_CHECK( com.valid() );
-    BOOST_CHECK( com.done() );
-    com.reset();
-    BOOST_CHECK( !com.sent() );
-    BOOST_CHECK( !com.accepted() );
-    BOOST_CHECK( !com.executed() );
-    BOOST_CHECK( !com.valid() );
-    BOOST_CHECK( !com.done() );
-}
-
-void Generic_TaskTest_2::verifycommand(CommandC& com)
-{
-    BOOST_CHECK( com.execute() );
-    BOOST_CHECK( com.sent() );
-    BOOST_CHECK( com.accepted() );
-    BOOST_CHECK( !com.executed() );
-    BOOST_CHECK( !com.valid() );
-    BOOST_CHECK( !com.done() );
-    BOOST_CHECK( SimulationThread::Instance()->run(1) );
-    BOOST_CHECK( com.executed() );
-    BOOST_CHECK( com.valid() );
-    BOOST_CHECK( com.done() );
-    com.reset();
-    BOOST_CHECK( !com.sent() );
-    BOOST_CHECK( !com.accepted() );
-    BOOST_CHECK( !com.executed() );
-    BOOST_CHECK( !com.valid() );
-    BOOST_CHECK( !com.done() );
-}
-
 BOOST_AUTO_TEST_CASE( testRemoteCommand)
 {
     Command<bool(void)> com0;
@@ -339,33 +342,32 @@ BOOST_AUTO_TEST_CASE( testCommand)
     BOOST_CHECK( tsim->start()) ;
     // execute commands and check status:
     BOOST_CHECK( com0() );
+    verifydispatch(*com0.getCommandImpl());
 
     BOOST_CHECK( com11(1) );
+    verifydispatch(*com11.getCommandImpl());
     BOOST_CHECK( com10(1) );
+    verifydispatch(*com10.getCommandImpl());
 
     BOOST_CHECK( com22(1, 1.0) );
+    verifydispatch(*com22.getCommandImpl());
     BOOST_CHECK( com20(1, 1.0) );
+    verifydispatch(*com20.getCommandImpl());
     BOOST_CHECK( com21(1, 1.0) );
+    verifydispatch(*com21.getCommandImpl());
 
     BOOST_CHECK( com33(1, 1.0, char('a') ) );
+    verifydispatch(*com33.getCommandImpl());
     BOOST_CHECK( com30(1, 1.0, char('a') ) );
+    verifydispatch(*com30.getCommandImpl());
     BOOST_CHECK( com31(1, 1.0, char('a') ) );
+    verifydispatch(*com31.getCommandImpl());
 
     BOOST_CHECK( com44(1, 1.0, char('a'),true) );
-    BOOST_CHECK( com40(1, 1.0, char('a'),true) );
-    BOOST_CHECK( com41(1, 1.0, char('a'),true) );
-
-    verifydispatch(*com0.getCommandImpl());
-    verifydispatch(*com11.getCommandImpl());
-    verifydispatch(*com10.getCommandImpl());
-    verifydispatch(*com22.getCommandImpl());
-    verifydispatch(*com20.getCommandImpl());
-    verifydispatch(*com21.getCommandImpl());
-    verifydispatch(*com33.getCommandImpl());
-    verifydispatch(*com30.getCommandImpl());
-    verifydispatch(*com31.getCommandImpl());
     verifydispatch(*com44.getCommandImpl());
+    BOOST_CHECK( com40(1, 1.0, char('a'),true) );
     verifydispatch(*com40.getCommandImpl());
+    BOOST_CHECK( com41(1, 1.0, char('a'),true) );
     verifydispatch(*com41.getCommandImpl());
 
     BOOST_CHECK( tsim->stop() );
@@ -406,12 +408,12 @@ BOOST_AUTO_TEST_CASE( testCommandFactory)
     BOOST_CHECK( tsim->start()) ;
     // execute commands and check status:
     BOOST_CHECK( com0() );
+    verifydispatch(*com0.getCommandImpl());
 
     BOOST_CHECK( com11(1) );
-    BOOST_CHECK( com10(1) );
-
-    verifydispatch(*com0.getCommandImpl());
     verifydispatch(*com11.getCommandImpl());
+
+    BOOST_CHECK( com10(1) );
     verifydispatch(*com10.getCommandImpl());
 
     // test error cases:
@@ -643,35 +645,35 @@ BOOST_AUTO_TEST_CASE( testAddCommand)
 
     // start the activity, such that commands are accepted.
     BOOST_CHECK( tsim->start()) ;
+
     // execute commands and check status:
     BOOST_CHECK( com0() );
+    verifydispatch(*com0.getCommandImpl());
 
     BOOST_CHECK( com11(1) );
+    verifydispatch(*com11.getCommandImpl());
     BOOST_CHECK( com10(1) );
+    verifydispatch(*com10.getCommandImpl());
 
     BOOST_CHECK( com22(1, 1.0) );
+    verifydispatch(*com22.getCommandImpl());
     BOOST_CHECK( com20(1, 1.0) );
+    verifydispatch(*com20.getCommandImpl());
     BOOST_CHECK( com21(1, 1.0) );
+    verifydispatch(*com21.getCommandImpl());
 
     BOOST_CHECK( com33(1, 1.0, char('a') ) );
+    verifydispatch(*com33.getCommandImpl());
     BOOST_CHECK( com30(1, 1.0, char('a') ) );
+    verifydispatch(*com30.getCommandImpl());
     BOOST_CHECK( com31(1, 1.0, char('a') ) );
+    verifydispatch(*com31.getCommandImpl());
 
     BOOST_CHECK( com44(1, 1.0, char('a'),true) );
-    BOOST_CHECK( com40(1, 1.0, char('a'),true) );
-    BOOST_CHECK( com41(1, 1.0, char('a'),true) );
-
-    verifydispatch(*com0.getCommandImpl());
-    verifydispatch(*com11.getCommandImpl());
-    verifydispatch(*com10.getCommandImpl());
-    verifydispatch(*com22.getCommandImpl());
-    verifydispatch(*com20.getCommandImpl());
-    verifydispatch(*com21.getCommandImpl());
-    verifydispatch(*com33.getCommandImpl());
-    verifydispatch(*com30.getCommandImpl());
-    verifydispatch(*com31.getCommandImpl());
     verifydispatch(*com44.getCommandImpl());
+    BOOST_CHECK( com40(1, 1.0, char('a'),true) );
     verifydispatch(*com40.getCommandImpl());
+    BOOST_CHECK( com41(1, 1.0, char('a'),true) );
     verifydispatch(*com41.getCommandImpl());
 
     BOOST_CHECK( tsim->stop() );

@@ -33,12 +33,6 @@ using namespace std;
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-BOOST_FIXTURE_TEST_SUITE( ProgramTestSuite, ProgramTest )
-// Registers the fixture into the 'registry'
-
-
-
-
 ProgramTest::ProgramTest()
 	: gtc("root"),
 	  gtask( 0.01, gtc.engine() )
@@ -125,6 +119,9 @@ OperationInterface* ProgramTest::createObject(OperationInterface* dat, CommandPr
                                     "fails in command and condition" );
     return dat;
 }
+
+BOOST_FIXTURE_TEST_SUITE( ProgramTestSuite, ProgramTest )
+// Registers the fixture into the 'registry'
 
 BOOST_AUTO_TEST_CASE(testEmptyProgram)
 {
@@ -382,6 +379,9 @@ BOOST_AUTO_TEST_CASE(testProgramUntilFail)
     this->finishProgram( &gtc, "x");
 }
 
+
+BOOST_AUTO_TEST_SUITE_END()
+
 void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test )
 {
     BOOST_CHECK( tc->engine() );
@@ -441,6 +441,3 @@ void ProgramTest::finishProgram(TaskContext* tc, std::string prog_name)
     tc->engine()->programs()->unloadProgram( prog_name );
 
 }
-
-BOOST_AUTO_TEST_SUITE_END()
-

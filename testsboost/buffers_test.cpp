@@ -27,11 +27,6 @@ using namespace std;
 
 #include <boost/test/unit_test.hpp>
 
-BOOST_FIXTURE_TEST_SUITE( BuffersTestSuite, BuffersTest )
-
-// Registers the fixture into the 'registry'
-//CPPUNIT_TEST_SUITE_REGISTRATION( BuffersTest );
-
 using namespace RTT;
 
 /*
@@ -83,7 +78,149 @@ BuffersTest::tearDown()
     delete fvpool;
 }
 
-void BuffersTest::testAtomic()
+
+void addOne(Dummy& d)
+{
+    ++d.d1;
+    ++d.d2;
+    ++d.d3;
+}
+
+void subOne(Dummy& d)
+{
+    --d.d1;
+    --d.d2;
+    --d.d3;
+}
+
+
+struct LLFWorker : public RTT::OS::RunnableInterface
+{
+    bool stop;
+    typedef ListLockFree<Dummy> T;
+    T* mlst;
+    int i;
+    int appends;
+    int erases;
+    LLFWorker(T* l ) : stop(false), mlst(l), i(1) {}
+    bool initialize() {
+        stop = false; i = 1;
+        appends = 0; erases = 0;
+        return true;
+    }
+    void step() {
+        while (stop == false ) {
+            //cout << "Appending, i="<<i<<endl;
+            while ( mlst->append( Dummy(i,i,i) ) ) { ++i; ++appends; }
+            //cout << "Erasing, i="<<i<<endl;
+            while ( mlst->erase( Dummy(i-1,i-1,i-1) ) ) { --i; ++erases; }
+        }
+        //cout << "Stopping, i="<<i<<endl;
+    }
+
+    void finalize() {}
+
+    bool breakLoop() {
+        stop = true;
+        return true;
+    }
+};
+
+struct LLFGrower : public RTT::OS::RunnableInterface
+{
+    bool stop;
+    typedef ListLockFree<Dummy> T;
+    T* mlst;
+    int i;
+    LLFGrower(T* l ) : stop(false), mlst(l), i(1) {}
+    bool initialize() {
+        stop = false; i = 1;
+        return true;
+    }
+    void step() {
+        // stress growing of list during append/erase.
+        while (stop == false && i < 2500 ) {
+            // reserve is quite slow.
+            mlst->reserve(i);
+            ++i;
+        }
+    }
+
+    void finalize() {}
+
+    bool breakLoop() {
+        stop = true;
+        return true;
+    }
+};
+
+struct AQWorker : public RTT::OS::RunnableInterface
+{
+    bool stop;
+    typedef QueueType T;
+    T* mlst;
+    int appends;
+    int erases;
+    AQWorker(T* l ) : stop(false), mlst(l),appends(0), erases(0) {}
+    bool initialize() {
+        stop = false;
+        appends = 0; erases = 0;
+        return true;
+    }
+    void step() {
+        Dummy* orig = new Dummy( 1,2,3);
+        Dummy* d = orig;
+        while (stop == false ) {
+            //cout << "Appending, i="<<i<<endl;
+            if ( mlst->enqueue( d ) ) { ++appends; }
+            //cout << "Erasing, i="<<i<<endl;
+            if ( mlst->dequeue( d ) ) { ++erases; }
+        }
+        delete orig;
+        //cout << "Stopping, i="<<i<<endl;
+    }
+
+    void finalize() {}
+
+    bool breakLoop() {
+        stop = true;
+        return true;
+    }
+};
+
+struct AQGrower : public RTT::OS::RunnableInterface
+{
+    bool stop;
+    typedef QueueType T;
+    T* mlst;
+    int i;
+    AQGrower(T* l ) : stop(false), mlst(l), i(0) {}
+    bool initialize() {
+        stop = false; i = 0;
+        return true;
+    }
+    void step() {
+        // stress full queue
+        Dummy* orig = new Dummy( 1,2,3);
+        Dummy* d = orig;
+        while (stop == false ) {
+            if ( mlst->enqueue(d) )
+                ++i;
+        }
+        delete orig;
+    }
+
+    void finalize() {}
+
+    bool breakLoop() {
+        stop = true;
+        return true;
+    }
+};
+
+BOOST_FIXTURE_TEST_SUITE( BuffersTestSuite, BuffersTest )
+
+BOOST_AUTO_TEST_CASE( testAtomic )
 {
     /**
      * Single Threaded test for AtomicQueue.
@@ -471,22 +608,8 @@ BOOST_AUTO_TEST_CASE( testMemoryPool )
 
 }
 
-void addOne(Dummy& d)
-{
-    ++d.d1;
-    ++d.d2;
-    ++d.d3;
-}
-
-void subOne(Dummy& d)
-{
-    --d.d1;
-    --d.d2;
-    --d.d3;
-}
-
 #if 0
-void BuffersTest::testSortedList()
+BOOST_AUTO_TEST_CASE( testSortedList )
 {
     // 7 elements.
     mslist->reserve(7);
@@ -552,66 +675,6 @@ void BuffersTest::testSortedList()
 }
 #endif
 
-struct LLFWorker : public RTT::OS::RunnableInterface
-{
-    bool stop;
-    typedef ListLockFree<Dummy> T;
-    T* mlst;
-    int i;
-    int appends;
-    int erases;
-    LLFWorker(T* l ) : stop(false), mlst(l), i(1) {}
-    bool initialize() {
-        stop = false; i = 1;
-        appends = 0; erases = 0;
-        return true;
-    }
-    void step() {
-        while (stop == false ) {
-            //cout << "Appending, i="<<i<<endl;
-            while ( mlst->append( Dummy(i,i,i) ) ) { ++i; ++appends; }
-            //cout << "Erasing, i="<<i<<endl;
-            while ( mlst->erase( Dummy(i-1,i-1,i-1) ) ) { --i; ++erases; }
-        }
-        //cout << "Stopping, i="<<i<<endl;
-    }
-
-    void finalize() {}
-
-    bool breakLoop() {
-        stop = true;
-        return true;
-    }
-};
-
-struct LLFGrower : public RTT::OS::RunnableInterface
-{
-    bool stop;
-    typedef ListLockFree<Dummy> T;
-    T* mlst;
-    int i;
-    LLFGrower(T* l ) : stop(false), mlst(l), i(1) {}
-    bool initialize() {
-        stop = false; i = 1;
-        return true;
-    }
-    void step() {
-        // stress growing of list during append/erase.
-        while (stop == false && i < 2500 ) {
-            // reserve is quite slow.
-            mlst->reserve(i);
-            ++i;
-        }
-    }
-
-    void finalize() {}
-
-    bool breakLoop() {
-        stop = true;
-        return true;
-    }
-};
-
 BOOST_AUTO_TEST_CASE( testListLockFree )
 {
     LLFWorker* aworker = new LLFWorker( listlockfree );
@@ -672,72 +735,8 @@ BOOST_AUTO_TEST_CASE( testListLockFree )
     delete grower;
 }
 
-struct AQWorker : public RTT::OS::RunnableInterface
-{
-    bool stop;
-    typedef QueueType T;
-    T* mlst;
-    int appends;
-    int erases;
-    AQWorker(T* l ) : stop(false), mlst(l),appends(0), erases(0) {}
-    bool initialize() {
-        stop = false;
-        appends = 0; erases = 0;
-        return true;
-    }
-    void step() {
-        Dummy* orig = new Dummy( 1,2,3);
-        Dummy* d = orig;
-        while (stop == false ) {
-            //cout << "Appending, i="<<i<<endl;
-            if ( mlst->enqueue( d ) ) { ++appends; }
-            //cout << "Erasing, i="<<i<<endl;
-            if ( mlst->dequeue( d ) ) { ++erases; }
-        }
-        delete orig;
-        //cout << "Stopping, i="<<i<<endl;
-    }
-
-    void finalize() {}
-
-    bool breakLoop() {
-        stop = true;
-        return true;
-    }
-};
-
-struct AQGrower : public RTT::OS::RunnableInterface
-{
-    bool stop;
-    typedef QueueType T;
-    T* mlst;
-    int i;
-    AQGrower(T* l ) : stop(false), mlst(l), i(0) {}
-    bool initialize() {
-        stop = false; i = 0;
-        return true;
-    }
-    void step() {
-        // stress full queue
-        Dummy* orig = new Dummy( 1,2,3);
-        Dummy* d = orig;
-        while (stop == false ) {
-            if ( mlst->enqueue(d) )
-                ++i;
-        }
-        delete orig;
-    }
-
-    void finalize() {}
-
-    bool breakLoop() {
-        stop = true;
-        return true;
-    }
-};
-
 #ifdef OROPKG_OS_GNULINUX
-void BuffersTest::testAtomicQueue()
+BOOST_AUTO_TEST_CASE( testAtomicQueue )
 {
     QueueType* qt = new QueueType(QS);
     AQWorker* aworker = new AQWorker( qt );

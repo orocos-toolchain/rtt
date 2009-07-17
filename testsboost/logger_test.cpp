@@ -30,10 +30,6 @@ using namespace std;
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-BOOST_FIXTURE_TEST_SUITE( LoggerTestSuite, LoggerTest )
-// Registers the fixture into the 'registry'
-// CPPUNIT_TEST_SUITE_REGISTRATION( LoggerTest );
-
 using namespace RTT;
 
 class Dummy {};
@@ -51,6 +47,25 @@ void
 LoggerTest::tearDown()
 {
 }
+
+struct TestLog
+  : public RTT::OS::RunnableInterface
+{
+  bool fini;
+  bool initialize() { fini = false; return true; }
+
+  void step() {
+      Logger::In in("TLOG");
+      log(Info) << "Hello this is the world speaking elaborately and lengthy...!" <<endlog();
+  }
+
+  void finalize() {
+    fini = true;
+  }
+};
+
+
+BOOST_FIXTURE_TEST_SUITE( LoggerTestSuite, LoggerTest )
 
 BOOST_AUTO_TEST_CASE( testStartStop )
 {
@@ -86,23 +101,7 @@ BOOST_AUTO_TEST_CASE( testNewLog )
     log() << " and std::endl." << std::endl;
 }
 
-struct TestLog
-  : public RTT::OS::RunnableInterface
-{
-  bool fini;
-  bool initialize() { fini = false; return true; }
-
-  void step() {
-      Logger::In in("TLOG");
-      log(Info) << "Hello this is the world speaking elaborately and lengthy...!" <<endlog();
-  }
-
-  void finalize() {
-    fini = true;
-  }
-};
-
- BOOST_AUTO_TEST_CASE( testThreadLog )
+BOOST_AUTO_TEST_CASE( testThreadLog )
 {
   boost::scoped_ptr<TestLog> run( new TestLog() );
   boost::scoped_ptr<RTT::OS::ThreadInterface> t( new RTT::OS::PeriodicThread(25,"ORThread1", 0.001) );

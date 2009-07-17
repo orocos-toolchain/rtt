@@ -39,9 +39,6 @@ using namespace std;
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-// Registers the fixture into the 'registry'
-BOOST_FIXTURE_TEST_SUITE(  Generic_TaskTestSuite,  Generic_TaskTest )
-
 void
 Generic_TaskTest::setUp()
 {
@@ -79,6 +76,10 @@ TaskObject* Generic_TaskTest::createMethodFactory()
     to->methods()->addMethod( method("m4",  &Generic_TaskTest::m4, this), "M4","a","ad","a","ad","a","ad","a","ad");
     return to;
 }
+
+// Registers the fixture into the 'registry'
+BOOST_FIXTURE_TEST_SUITE(  Generic_TaskTestSuite,  Generic_TaskTest )
+
 
 BOOST_AUTO_TEST_CASE(testRemoteMethod)
 {

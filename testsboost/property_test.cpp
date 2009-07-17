@@ -34,8 +34,6 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-BOOST_FIXTURE_TEST_SUITE( PropertyTestSuite, PropertyTest )
-
 // Registers the fixture into the 'registry'
 //CPPUNIT_TEST_SUITE_REGISTRATION( PropertyTest );
 
@@ -62,6 +60,8 @@ PropertyTest::tearDown()
     delete pi1ref;
     delete pi2ref;
 }
+
+BOOST_FIXTURE_TEST_SUITE( PropertyTestSuite, PropertyTest )
 
 BOOST_AUTO_TEST_CASE( testPrimitives )
 {
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE( testComposition )
     Property<std::vector<double> > pvd("pvd","pvd desc", init);
     Property<const std::vector<double>& > pvd_cr("pvd_cr","pvd_cr desc", init);
 
-    std::cout << "\n\n\n "<< std::string( typeid(init).name() ) << "\n\n\n "<<std::endl;
+    //std::cout << "\n\n\n "<< std::string( typeid(init).name() ) << "\n\n\n "<<std::endl;
 
     Property<std::vector<double> > pvd2("pvd 2","pvd desc 2");
     Property<const std::vector<double>& > pvd_cr2("pvd_cr 2","pvd desc 2");
