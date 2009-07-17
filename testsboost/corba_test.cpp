@@ -28,6 +28,7 @@
 #include <boost/test/floating_point_comparison.hpp>
 
 using namespace std;
+using Corba::ControlTaskProxy;
 
 void
 CorbaTest::setUp()
@@ -76,17 +77,6 @@ bool CorbaTest::assertBool( bool b) {
 }
 
 
-void CorbaTest::setupCorba()
-{
-    Corba::ControlTaskProxy::InitOrb(0,0);
-}
-
-void CorbaTest::cleanupCorba()
-{
-    Corba::ControlTaskProxy::DestroyOrb();
-}
-
-
 TaskObject* CorbaTest::createMethodFactory()
 {
     TaskObject* to = new TaskObject("methods");
@@ -105,11 +95,19 @@ TaskObject* CorbaTest::createMethodFactory()
 // Registers the fixture into the 'registry'
 BOOST_FIXTURE_TEST_SUITE(  CorbaTestSuite,  CorbaTest )
 
+
+BOOST_AUTO_TEST_CASE( setupCorba )
+{
+    Corba::ControlTaskProxy::InitOrb(0,0);
+}
+
 BOOST_AUTO_TEST_CASE( testRemoteMethodC )
 {
 
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    BOOST_CHECK( ts );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
+    BOOST_CHECK( tp );
 
     // This test tests 'transparant' remote invocation of Orocos MethodC objects.
     MethodC mc;
@@ -136,7 +134,7 @@ BOOST_AUTO_TEST_CASE( testRemoteMethod )
 {
 
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
 
     // This test tests 'transparant' remote invocation of Orocos methods.
     // This requires the RemoteMethod class, which does not work yet.
@@ -157,7 +155,7 @@ BOOST_AUTO_TEST_CASE( testAnyMethod )
 {
 
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server() , true);
 
     // This test tests the createMethodAny() function of the server.
     Corba::ControlObject_var co = ts->server()->getObject("methods");
@@ -235,9 +233,13 @@ BOOST_AUTO_TEST_CASE( testPorts )
     // test create channel functions of dataflowinterface.
     // write to corba read from C++ and vice verse.
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
 
     // DATA PORTS
+    ::RTT::Corba::AssignableExpression_var unknown_data = ts->server()->ports()->createDataChannel("does_not_exist");
+    BOOST_CHECK( CORBA::is_nil(unknown_data) );
+    ::RTT::Corba::AssignableExpression_var buffer_as_data = ts->server()->ports()->createDataChannel("mb");
+    BOOST_CHECK( CORBA::is_nil(buffer_as_data) );
     ::RTT::Corba::AssignableExpression_var data = ts->server()->ports()->createDataChannel("md");
     BOOST_CHECK( data.in() );
 
@@ -256,6 +258,10 @@ BOOST_AUTO_TEST_CASE( testPorts )
     BOOST_CHECK_EQUAL( -5.0, value );
 
     // BUFFER PORTS
+    ::RTT::Corba::BufferChannel_var unknown_buf = ts->server()->ports()->createBufferChannel("does_not_exist");
+    BOOST_CHECK( CORBA::is_nil(unknown_buf) );
+    ::RTT::Corba::BufferChannel_var data_as_buffer = ts->server()->ports()->createBufferChannel("md");
+    BOOST_CHECK( CORBA::is_nil(data_as_buffer) );
     ::RTT::Corba::BufferChannel_var buf = ts->server()->ports()->createBufferChannel("mb");
     BOOST_CHECK(buf.in());
     BOOST_CHECK_EQUAL( buf->size(), mb1->size() );
@@ -294,9 +300,9 @@ BOOST_AUTO_TEST_CASE( testPorts )
 BOOST_AUTO_TEST_CASE( testConnectPortsIDL )
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
     // Default direction is from ts to ts2, but it will also need to
     // connect ports from ts2 to ts when ts is reader and ts2 is writer.
@@ -309,9 +315,9 @@ BOOST_AUTO_TEST_CASE( testConnectPortsIDL )
 BOOST_AUTO_TEST_CASE( testConnectPortsLR )
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
     BOOST_CHECK( connectPorts(tc, tp2 ) );
 
@@ -321,10 +327,10 @@ BOOST_AUTO_TEST_CASE( testConnectPortsLR )
 }
 BOOST_AUTO_TEST_CASE( testConnectPortsRL )
 {
-    ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    ts  = Corba::ControlTaskServer::Create( tc, false ); //no-naming
+    tp  = Corba::ControlTaskProxy::Create( ts->server(), true );
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
     BOOST_CHECK( connectPorts(tp, t2 ) );
 
@@ -336,9 +342,9 @@ BOOST_AUTO_TEST_CASE( testConnectPortsRL )
 BOOST_AUTO_TEST_CASE( testConnectPortsRR )
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
     BOOST_CHECK( connectPorts(tp, tp2 ) );
 
@@ -350,9 +356,9 @@ BOOST_AUTO_TEST_CASE( testConnectPortsRR )
 BOOST_AUTO_TEST_CASE( testConnectPortsLRC )
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
     // test connecting to existing connection:
     ConnectionInterface::shared_ptr ci = md1->createConnection(ConnectionTypes::lockfree);
@@ -369,9 +375,9 @@ BOOST_AUTO_TEST_CASE( testConnectPortsLRC )
 BOOST_AUTO_TEST_CASE( testConnectPortsRLC )
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
     // test connecting to existing connection:
     ConnectionInterface::shared_ptr ci = md1->createConnection(ConnectionTypes::lockfree);
@@ -388,9 +394,9 @@ BOOST_AUTO_TEST_CASE( testConnectPortsRLC )
 BOOST_AUTO_TEST_CASE( testConnectPortsRRC )
 {
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
     // test connecting to existing connection:
     ConnectionInterface::shared_ptr ci = md1->createConnection(ConnectionTypes::lockfree);
@@ -408,9 +414,9 @@ BOOST_AUTO_TEST_CASE( testConnections )
 {
     // This test tests the differen port-to-port connections.
     ts = Corba::ControlTaskServer::Create( tc, false ); //no-naming
-    tp = Corba::ControlTaskProxy::Create( ts->server() );
+    tp = Corba::ControlTaskProxy::Create( ts->server(), true );
     ts2 = Corba::ControlTaskServer::Create( t2, false ); //no-naming
-    tp2 = Corba::ControlTaskProxy::Create( ts2->server() );
+    tp2 = Corba::ControlTaskProxy::Create( ts2->server(), true );
 
     // incompatible type should fail
     BOOST_CHECK( !ts->server()->ports()->connectPorts("md", ts2->server()->ports(), "mb") );
@@ -424,6 +430,11 @@ BOOST_AUTO_TEST_CASE( testConnections )
     testPortDisconnect();
 
 
+}
+
+BOOST_AUTO_TEST_CASE( cleanupCorba )
+{
+    Corba::ControlTaskProxy::DestroyOrb();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

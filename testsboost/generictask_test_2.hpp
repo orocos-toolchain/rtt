@@ -87,6 +87,7 @@ public:
     void testCSCRCommand();
     void testCommandsC();
     void testCommand();
+    void testCommandProcessor();
     void testRemoteCommand();
     void testCommandFactory();
     void testCommandFromDS();

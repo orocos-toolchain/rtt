@@ -61,6 +61,7 @@ struct TestActivity
     }
     void step() {
         stepped = true;
+        BOOST_CHECK(this->isRunning());
 #ifndef ORO_EMBEDDED
         if ( _dothrow )
             throw A();
@@ -92,14 +93,20 @@ struct TestRunner
 
     bool initialize() {
         init    = true;
+        BOOST_CHECK(getActivity()->isActive());
+        BOOST_CHECK(!getActivity()->isRunning());
         return result;
     }
     void step() {
         stepped = true;
+        BOOST_CHECK(getActivity()->isActive());
+        BOOST_CHECK(getActivity()->isRunning());
     }
 
     void loop() {
         looped = true;
+        BOOST_CHECK(getActivity()->isActive());
+        BOOST_CHECK(getActivity()->isRunning());
     }
 
     bool breakLoop() {
@@ -109,6 +116,8 @@ struct TestRunner
 
     void finalize() {
         fini   = true;
+        BOOST_CHECK(getActivity()->isActive());
+        BOOST_CHECK(!getActivity()->isRunning());
     }
 
     void reset(bool fail) {
@@ -362,7 +371,52 @@ BOOST_AUTO_TEST_CASE( testSlave )
     BOOST_CHECK( !mslave_p.isActive() );
     BOOST_CHECK( !mslave_p.isRunning() );
     BOOST_CHECK( !mslave_p.execute() );
+}
 
+BOOST_AUTO_TEST_CASE( testSequential )
+{
+    // Test sequential activities
+    TestRunner r(true);
+
+    SequentialActivity mtask(&r);
+    BOOST_CHECK( mtask.isActive() == false );
+    BOOST_CHECK( mtask.isRunning() == false );
+    BOOST_CHECK( mtask.isPeriodic() == false );
+    BOOST_CHECK( mtask.getPeriod() == 0.0 );
+    BOOST_CHECK( mtask.execute() == false );
+    BOOST_CHECK( mtask.trigger() == false );
+    BOOST_CHECK( mtask.thread() == OS::MainThread::Instance() );
+
+    // starting...
+    BOOST_CHECK( mtask.start() == true );
+    BOOST_CHECK( r.init == true );
+
+    BOOST_CHECK( mtask.isActive() == true );
+    BOOST_CHECK( mtask.isRunning() == false );
+    BOOST_CHECK( mtask.start() == false );
+
+    // calls step()
+    BOOST_CHECK( mtask.trigger() );
+    BOOST_CHECK( r.stepped == true );
+    BOOST_CHECK( mtask.execute() == false );
+
+    // stopping...
+    BOOST_CHECK( mtask.stop() == true );
+    BOOST_CHECK( r.fini == true );
+    BOOST_CHECK( mtask.isRunning() == false );
+    BOOST_CHECK( mtask.isActive() == false );
+    BOOST_CHECK( mtask.stop() == false );
+
+    BOOST_CHECK( mtask.execute() == false );
+    BOOST_CHECK( mtask.trigger() == false );
+
+    r.reset(false);
+    BOOST_CHECK( mtask.start() == false );
+    BOOST_CHECK( r.init == true );
+
+    BOOST_CHECK( mtask.isActive() == false );
+    BOOST_CHECK( mtask.isRunning() == false );
+    BOOST_CHECK( mtask.start() == false );
 }
 
 BOOST_AUTO_TEST_CASE( testScheduler )
