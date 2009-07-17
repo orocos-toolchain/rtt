@@ -452,6 +452,7 @@ BOOST_AUTO_TEST_CASE( testScheduler )
 }
 
 
+#if !defined( OROCOS_TARGET_WIN32 )
 BOOST_AUTO_TEST_CASE( testThreadConfig )
 {
     int rtsched = ORO_SCHED_RT;
@@ -524,8 +525,9 @@ BOOST_AUTO_TEST_CASE( testThreadConfig )
     BOOST_CHECK( tt->start() );
 
 }
+#endif
 
-#ifndef ORO_EMBEDDED
+#if !defined( ORO_EMBEDDED ) && !defined( OROCOS_TARGET_WIN32 )
 BOOST_AUTO_TEST_CASE( testExceptionRecovery )
 {
     Logger::LogLevel ll = Logger::log().getLogLevel();

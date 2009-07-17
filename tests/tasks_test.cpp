@@ -250,6 +250,7 @@ BOOST_AUTO_TEST_CASE( testFailInit )
 
 }
 
+#if !defined( OROCOS_TARGET_WIN32 )
 BOOST_AUTO_TEST_CASE( testOverrun )
 {
   bool r = false;
@@ -274,6 +275,7 @@ BOOST_AUTO_TEST_CASE( testOverrun )
   BOOST_CHECK_MESSAGE( run->fini, "Failed to execute finalize in emergencyStop" );
 
 }
+#endif
 
 BOOST_AUTO_TEST_CASE( testThread )
 {
