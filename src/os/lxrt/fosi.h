@@ -364,6 +364,10 @@ int rtos_mutex_lock( rt_mutex_t* m);
 
 int rtos_mutex_trylock( rt_mutex_t* m);
 
+int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time);
+
+int rtos_mutex_rec_lock_until( rt_mutex_t* m, NANO_TIME abs_time);
+
 int rtos_mutex_unlock( rt_mutex_t* m);
 
 int rtos_mutex_rec_lock( rt_rec_mutex_t* m);
