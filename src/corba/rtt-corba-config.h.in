@@ -6,5 +6,9 @@
 #cmakedefine CORBA_IS_TAO 1
 #cmakedefine CORBA_IS_OMNIORB 1
 
+#if !defined( CORBA_IS_TAO ) && !defined( CORBA_IS_OMNIORB )
+#  error "Configuration error: neither CORBA_IS_TAO nor CORBA_IS_OMNIORB is defined in rtt-corba-config.h"
+#endif
+
 #endif
 
