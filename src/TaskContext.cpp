@@ -57,9 +57,9 @@
 #endif
 #include "MarshallingAccess.hpp"
 
-#if ORO_ACT_DEFAULT_SEQUENTIAL
+#if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
 #include "SequentialActivity.hpp"
-#elsif ORO_ACT_DEFAULT_ACTIVITY
+#elif defined(ORO_ACT_DEFAULT_ACTIVITY)
 #include "Activity.hpp"
 #endif
 
@@ -85,7 +85,7 @@ namespace RTT
            ,dataPorts(this)
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( new SequentialActivity( this->engine() ) )
-#elsif defined(ORO_ACT_DEFAULT_ACTIVITY)
+#elif defined(ORO_ACT_DEFAULT_ACTIVITY)
            ,our_act( new Activity( this->engine() ) )
 #endif
     {
@@ -108,7 +108,7 @@ namespace RTT
            ,dataPorts(this)
 #if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( parent ? 0 : new SequentialActivity( this->engine() ) )
-#elsif defined(ORO_ACT_DEFAULT_ACTIVITY)
+#elif defined(ORO_ACT_DEFAULT_ACTIVITY)
            ,our_act( parent ? 0 : new Activity( this->engine() ) )
 #endif
     {
