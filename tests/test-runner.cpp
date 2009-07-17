@@ -19,10 +19,6 @@
 #include <os/main.h>
 #include <Logger.hpp>
 
-//#define BOOST_AUTO_TEST_MAIN
-//#include <boost/test/auto_unit_test.hpp>
-
-//#define BOOST_TEST_MODULE "core-test"
 #include <boost/test/included/unit_test.hpp>
 
 using boost::unit_test::test_suite;
@@ -32,7 +28,11 @@ using namespace RTT;
 struct InitOrocos {
 public:
 	InitOrocos(){  }
-	~InitOrocos(){ __os_exit(); }
+	~InitOrocos(){ 
+#ifndef OROCOS_TARGET_XENOMAI
+        __os_exit(); 
+#endif
+}
 
 };
 
@@ -50,14 +50,6 @@ boost::unit_test::test_suite* init_unit_test_suite(int argc, char** argv)
         log(Info) << "LogLevel unaltered by test-runner." << endlog();
     }
 
-    // Get the top level suite from the registry
-    //boost::unit_test::unit_test_log.set_threshold_level(boost::unit_test::log_error);
-
-    // manually adding test suites
-    test_suite* test = BOOST_TEST_SUITE("Name of test suite");
-
-    //
-    // Return error code 1 if the one of test failed.
-    return test;
+    return 0;
 }
 
