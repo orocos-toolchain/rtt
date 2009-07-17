@@ -141,6 +141,8 @@ IF (ACE_FOUND AND TAO_FOUND AND TAO_ORBSVCS )
     ENDIF( NOT TAO_IDL_FOUND )
 ENDIF (ACE_FOUND AND TAO_FOUND AND TAO_ORBSVCS )
 
+MARK_AS_ADVANCED( TAO_15 TAO_ORBSVCS )
+
 # Bail if we were required to find all components and missed at least one
 IF (TAO_FIND_REQUIRED AND NOT TAO_FOUND)
     MESSAGE (FATAL_ERROR "Could not find TAO: Missing components " ${TAO_MISSING_COMPONENTS})
