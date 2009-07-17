@@ -40,7 +40,7 @@
 #define ORO_EXECUTION_CONNECTION_INTERFACE_HPP
 
 #include <boost/intrusive_ptr.hpp>
-#include "os/fosi.h"
+#include "os/Atomic.hpp"
 #include "DataSourceBase.hpp"
 #include "BufferBase.hpp"
 #include <vector>
@@ -103,7 +103,7 @@ namespace RTT
     protected:
         friend void ::intrusive_ptr_add_ref( ConnectionInterface* p );
         friend void ::intrusive_ptr_release( ConnectionInterface* p );
-        oro_atomic_t refcount;
+        OS::AtomicInt refcount;
 
         typedef std::vector<PortInterface*> PList;
         PList ports;

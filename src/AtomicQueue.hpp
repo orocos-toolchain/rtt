@@ -241,6 +241,7 @@ namespace RTT
                 orig = lockAndGetActive();
                 if ( orig->data.size() == orig->data.capacity() ) { // check for full
                     oro_atomic_dec( &orig->count );
+                    write_policy.push(); // return our token.
                     return false;
                 }
                 usingbuf = findEmptyBuf(); // find unused Item in bufs
@@ -286,6 +287,7 @@ namespace RTT
                 orig = lockAndGetActive();
                 if ( orig->data.empty() ) { // check for empty
                     oro_atomic_dec( &orig->count );
+                    read_policy.push();
                     return false;
                 }
                 usingbuf = findEmptyBuf(); // find unused Item in bufs

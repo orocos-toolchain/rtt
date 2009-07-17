@@ -99,8 +99,10 @@ namespace RTT
 #define ORO_CONNECTIONFACTORY_INLINE
 #include "BufferConnection.hpp"
 #include "DataConnection.hpp"
-#include "BufferLocked.hpp"
+#ifndef OROBLD_OS_NO_ASM
 #include "BufferLockFree.hpp"
+#endif
+#include "BufferLocked.hpp"
 #include "DataObjectInterfaces.hpp"
 
 namespace RTT
@@ -109,21 +111,29 @@ namespace RTT
         template<class T>
         BufferConnection<T>* ConnectionFactory<T>::createBuffer(int size, const T& initial_value, ConnectionTypes::ConnectionType type )
         {
+#ifndef OROBLD_OS_NO_ASM
             if (type == ConnectionTypes::lockfree)
                 return new BufferConnection<T>( typename BufferInterface<T>::shared_ptr(new BufferLockFree<T>(size, initial_value)) );
             if (type == ConnectionTypes::locked)
                 return new BufferConnection<T>( typename BufferInterface<T>::shared_ptr(new BufferLocked<T>(size, initial_value)) );
             return 0;
+#else
+            return new BufferConnection<T>( typename BufferInterface<T>::shared_ptr(new BufferLocked<T>(size, initial_value)) );
+#endif
         }
 
         template<class T>
         DataConnection<T>* ConnectionFactory<T>::createDataObject(const T& initial_value, ConnectionTypes::ConnectionType type)
         {
+#ifndef OROBLD_OS_NO_ASM
             if (type == ConnectionTypes::lockfree)
                 return new DataConnection<T>( new DataObjectLockFree<T>("DataObject", initial_value) );
             if (type == ConnectionTypes::locked)
                 return new DataConnection<T>( new DataObjectLocked<T>("DataObject", initial_value) );
             return 0;
+#else
+            return new DataConnection<T>( new DataObjectLocked<T>("DataObject", initial_value) );
+#endif
         }
 }
 #endif

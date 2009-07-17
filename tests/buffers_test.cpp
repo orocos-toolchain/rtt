@@ -29,12 +29,12 @@ using namespace std;
 
 using namespace RTT;
 
-/*
+
 std::ostream& operator<<( std::ostream& os, const Dummy& d )  {
 	os << "(" << d.d1 <<","<<d.d2<<","<<d.d3<<")";
 	return os;
 }
-*/
+
 #define QS 10
 
 void
@@ -225,7 +225,6 @@ BOOST_AUTO_TEST_CASE( testAtomic )
     /**
      * Single Threaded test for AtomicQueue.
      */
-/*
     Dummy* d = new Dummy();
     Dummy* c = d;
 
@@ -258,8 +257,8 @@ BOOST_AUTO_TEST_CASE( testAtomic )
     BOOST_CHECK( aqueue->isEmpty() == true );
 
     delete d;
-    */
 }
+
 BOOST_AUTO_TEST_CASE( testAtomicCounted )
 {
     /**
@@ -489,15 +488,15 @@ BOOST_AUTO_TEST_CASE( testDObjLockFree )
     Dummy* c = new Dummy(2.0, 1.0, 0.0);
     Dummy  d;
     dataobj->Set( *c );
-    //BOOST_REQUIRE_EQUAL( *c, dataobj->Get() );
+    BOOST_REQUIRE_EQUAL( *c, dataobj->Get() );
     int i = 0;
     while ( i != 3.5*DataObjectLockFree<Dummy>::MAX_THREADS ) {
         dataobj->Set( *c );
         dataobj->Set( d );
         ++i;
     }
-    //BOOST_REQUIRE_EQUAL( d , dataobj->Get() );
-    //BOOST_REQUIRE_EQUAL( d , dataobj->Get() );
+    BOOST_REQUIRE_EQUAL( d , dataobj->Get() );
+    BOOST_REQUIRE_EQUAL( d , dataobj->Get() );
 
     delete c;
 }

@@ -3,7 +3,10 @@
 #define ORO_LIST_LOCKED_HPP
 
 #include <boost/intrusive/list.hpp>
+#include <boost/bind.hpp>
+#include <boost/bind/protect.hpp>
 #include <stack>
+#include <vector>
 #include <algorithm>
 #include "os/Mutex.hpp"
 #include "os/MutexLock.hpp"
@@ -41,7 +44,7 @@ namespace RTT
         StackType  mreserved;
         int required;
 
-        OS::Mutex m;
+        mutable OS::Mutex m;
     public:
         /**
          * Create a lock-based list wich can store \a lsize elements.
@@ -90,8 +93,10 @@ namespace RTT
         void grow(size_t items = 1) {
             OS::MutexLock lock(m);
             required += items;
-            if (required > this->capacity()) {
-                this->reserve( required*2 );
+            if (required > mreserved.size() + mlist.size() ) {
+                while ( mreserved.size() + mlist.size() < required * 2) {
+                    mreserved.push( new Cont() );
+                }
             }
         }
         /**
@@ -136,7 +141,7 @@ namespace RTT
             OS::MutexLock lock(m);
             if ( mreserved.empty() )
                 return false;
-            mlist.push_back( this->get_element(item) );
+            mlist.push_back( this->get_item(item) );
             return true;
         }
 
@@ -167,9 +172,9 @@ namespace RTT
         {
             OS::MutexLock lock(m);
             int max = mreserved.size();
-            std::vector<T>::const_iterator it = items.begin();
+            typename std::vector<T>::const_iterator it = items.begin();
             for(; it != items.end() && max != 0; ++it, --max )
-                mlist.push_back( this->get_element(*it) );
+                mlist.push_back( this->get_item(*it) );
             return it - items.begin();
         }
 
@@ -182,7 +187,7 @@ namespace RTT
         bool erase( value_t item )
         {
             OS::MutexLock lock(m);
-            mlist.remove_and_dispose_if( boost::bind(&ListLocked::is_item, this, item, _2), boost::bind(&ListLocked::give_back, this, _1) );
+            mlist.remove_and_dispose_if( boost::bind(&ListLocked::is_item, this, item, _1), boost::bind(&ListLocked::give_back, this, _1) );
             return true;
         }
 
@@ -194,7 +199,9 @@ namespace RTT
         void apply(Function func )
         {
             OS::MutexLock lock(m);
-            std::for_each (mlist.begin(), mlist.end(), func);
+            // A free beer for the one that can express this with a for_each construct.
+            for (Iterator it = mlist.begin(); it != mlist.end(); ++it)
+                func( it->data );
         }
 
         /**
@@ -206,15 +213,20 @@ namespace RTT
         value_t find_if( Function func, value_t blank = value_t() )
         {
             OS::MutexLock lock(m);
-            Iterator it = std::find_if(mlist.begin(), mlist.end(), func);
+            Iterator it = std::find_if(mlist.begin(), mlist.end(), boost::bind(func, boost::bind(&ListLocked::get_data, this,_1)));
             if (it != mlist.end() )
                 return it->data;
             return blank;
         }
     private:
-        void give_back(Cont& cont)
+        /**
+         * This is a dispose function for remove_and_dispose_if
+         * It takes a pointer as argument.
+         * @param cont
+         */
+        void give_back(Cont* cont)
         {
-            mreserved.push( &cont );
+            mreserved.push( cont );
         }
 
         Cont& get_item(value_t item)
@@ -224,7 +236,20 @@ namespace RTT
             c->data = item;
             return *c;
         }
-        bool is_item(value_t item, Cont cont)
+
+        value_t& get_data(Cont& c)
+        {
+            return c.data;
+        }
+
+        /**
+         * This is a predicate function for remove_and_dispose_if
+         * It takes a reference as argument.
+         * @param item
+         * @param cont
+         * @return
+         */
+        bool is_item(value_t item, const Cont& cont)
         {
             return item == cont.data;
         }

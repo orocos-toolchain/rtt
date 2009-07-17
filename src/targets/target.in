@@ -5,16 +5,19 @@
 #define OROCFG_CORELIB_REALTIME_TOOLKIT_IMPORT 1
 
 #cmakedefine OS_NO_ASM
-#ifdef OS_AGNOSTIC
+#ifdef OS_NO_ASM
 #define OROBLD_OS_NO_ASM
 #endif
+
 #cmakedefine OS_AGNOSTIC
 #ifdef OS_AGNOSTIC
 #define OROBLD_OS_AGNOSTIC
 #endif
+
 #define ORONUM_OS_MAX_THREADS @OS_MAX_THREADS@
 #define OROSEM_OS_PERIODIC_THREADS_MAX_OVERRUN 5
 #define OROSEM_OS_LOCK_MEMORY 1
+
 #cmakedefine OS_HAVE_MAIN
 #cmakedefine OS_HAVE_IOSTREAM
 #cmakedefine OS_HAVE_STREAMS

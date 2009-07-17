@@ -45,7 +45,6 @@
 #include "Mutex.hpp"
 #include "MutexLock.hpp"
 #include "Semaphore.hpp"
-#include "CAS.hpp"
 
 namespace RTT
 { 

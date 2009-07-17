@@ -31,7 +31,7 @@ namespace RTT
         typedef std::deque<value_t> BufferType;
         typedef typename BufferType::iterator Iterator;
         typedef typename BufferType::const_iterator CIterator;
-        OS::Mutex lock;
+        mutable OS::Mutex lock;
         BufferType data;
 
         int cap;
@@ -48,8 +48,8 @@ namespace RTT
          * @param lsize the capacity of the queue.
 '        */
         LockedQueue(unsigned int lsize, unsigned int unused = 0)
-            : cap(lsize), 
-              write_policy(lsize), read_policy(0), 
+            : cap(lsize),
+              write_policy(lsize), read_policy(0),
               counter(0), dcounter(0)
         {
             data.resize(lsize);
@@ -170,7 +170,7 @@ namespace RTT
                     return 0;
                 result = data.front();
                 data.pop_front();
-                ret = ++dcounter
+                ret = ++dcounter;
             }
             write_policy.push();
             return ret;
