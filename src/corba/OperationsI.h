@@ -67,13 +67,14 @@
 // be/be_codegen.cpp:859
 
 // must be outside of #ifdef macro.
+#include "../rtt-config.h"
+#include "corba.h"
 #include "../DataSource.hpp"
 
 #ifndef INCLUDE_EXECUTIONI_H_
 #define INCLUDE_EXECUTIONI_H_
 
 #include "OperationsC.h"
-#include "corba.h"
 #ifdef CORBA_IS_TAO
 #include "OperationsS.h"
 #endif

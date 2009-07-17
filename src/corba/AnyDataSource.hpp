@@ -39,8 +39,7 @@
 #ifndef ORO_CORBA_ANYDATASOURCE_HPP
 #define ORO_CORBA_ANYDATASOURCE_HPP
 
-#include "DataSource.hpp"
-#include "corba.h"
+
 #include "corba.h"
 #ifdef CORBA_IS_TAO
 #include <tao/Version.h>
@@ -50,6 +49,8 @@
 #include <tao/AnyTypeCode/Any.h>
 #endif
 #endif
+
+#include "DataSource.hpp"
 
 namespace RTT
 {

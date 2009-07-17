@@ -1,20 +1,20 @@
 #ifndef CORBACONNECTION_HPP_
 #define CORBACONNECTION_HPP_
 
+#if 0
 //necessary to keep MSVC happy 
 //avoids redefinitions in winsock2.h
-/*#pragma push_macro("_WINSOCKAPI_")
+#pragma push_macro("_WINSOCKAPI_")
 #ifndef _WINSOCKAPI_
 #define _WINSOCKAPI_
 #endif
 
 #include <windows.h>
 
-#pragma pop_macro("_WINSOCKAPI_")*/
+#pragma pop_macro("_WINSOCKAPI_")
 /////////////////////////////////////////
+#endif
 
-#include "../ConnectionInterface.hpp"
-#include "DataFlowC.h"
 #include "corba.h"
 #ifdef CORBA_IS_TAO
 #include <tao/corba.h>
@@ -24,6 +24,8 @@
 #include <omniORB4/poa.h>
 #endif
 
+#include "DataFlowC.h"
+#include "../ConnectionInterface.hpp"
 
 namespace RTT
 {
