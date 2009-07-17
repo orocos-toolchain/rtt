@@ -45,6 +45,7 @@
 #include "os/Mutex.hpp"
 #include "os/MutexLock.hpp"
 #include "BufferInterface.hpp"
+#include <deque>
 
 namespace RTT
 {
@@ -70,7 +71,7 @@ namespace RTT
          * Create a buffer of size \a size.
          */
         BufferLocked( size_type size, const T& initial_value = T() )
-            : buf()
+            : cap(size), buf()
         {
             buf.resize(size, initial_value);
             buf.resize(0);
@@ -84,7 +85,7 @@ namespace RTT
         bool Push( param_t item )
         {
             OS::MutexLock locker(lock);
-            if ( buf.capacity() == buf.size() )
+            if (cap == buf.size() )
                 return false;
             buf.push_back( item );
             return true;
@@ -94,7 +95,7 @@ namespace RTT
         {
             OS::MutexLock locker(lock);
             typename std::vector<T>::const_iterator itl( items.begin() );
-            while ( buf.size() != buf.capacity() && itl != items.end() ) {
+            while ( buf.size() != cap && itl != items.end() ) {
                 buf.push_back( *itl );
                 ++itl;
             }
@@ -107,7 +108,7 @@ namespace RTT
             if ( buf.empty() )
                 return false;
             item = buf.front();
-            buf.erase( buf.begin() );
+            buf.pop_front();
             return true;
         }
 
@@ -117,7 +118,7 @@ namespace RTT
             int quant = 0;
             while ( !buf.empty() ) {
                 items.push_back( buf.front() );
-                buf.erase( buf.begin() );
+                buf.pop_front();
                 ++quant;
             }
             return quant;
@@ -134,7 +135,7 @@ namespace RTT
 
         size_type capacity() const {
             OS::MutexLock locker(lock);
-            return buf.capacity();
+            return cap;
         }
 
         size_type size() const {
@@ -148,15 +149,17 @@ namespace RTT
         }
 
         bool empty() const {
+            OS::MutexLock locker(lock);
             return buf.empty();
         }
 
         bool full() const {
             OS::MutexLock locker(lock);
-            return buf.size() ==  buf.capacity();
+            return buf.size() ==  cap;
         }
     private:
-        std::vector<T> buf;
+        std::deque<T> buf;
+        size_type cap;
         mutable OS::Mutex lock;
 
     };
