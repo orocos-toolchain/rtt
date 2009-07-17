@@ -230,8 +230,6 @@ namespace RTT
         }
     };
 
-    extern template class ListLocked<double>;
-
 }
 
 #endif
