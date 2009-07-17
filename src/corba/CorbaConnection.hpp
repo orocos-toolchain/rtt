@@ -1,6 +1,18 @@
 #ifndef CORBACONNECTION_HPP_
 #define CORBACONNECTION_HPP_
 
+//necessary to keep MSVC happy 
+//avoids redefinitions in winsock2.h
+/*#pragma push_macro("_WINSOCKAPI_")
+#ifndef _WINSOCKAPI_
+#define _WINSOCKAPI_
+#endif
+
+#include <windows.h>
+
+#pragma pop_macro("_WINSOCKAPI_")*/
+/////////////////////////////////////////
+
 #include "../ConnectionInterface.hpp"
 #include "DataFlowC.h"
 #include "corba.h"

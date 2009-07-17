@@ -74,15 +74,27 @@ namespace RTT
 
         ValueDataSource( );
 
-        typename DataSource<T>::result_t get() const;
+        typename DataSource<T>::result_t get() const
+		{
+			return mdata;
+		}
 
-        typename DataSource<T>::result_t value() const;
+        typename DataSource<T>::result_t value() const
+		{
+			return mdata;
+		}
 
         void set( typename AssignableDataSource<T>::param_t t );
 
-        typename AssignableDataSource<T>::reference_t set();
+        typename AssignableDataSource<T>::reference_t set()
+		{
+			return mdata;
+		}
 
-        typename AssignableDataSource<T>::const_reference_t rvalue() const;
+        typename AssignableDataSource<T>::const_reference_t rvalue() const
+		{
+			return mdata;
+		}
 
         virtual ValueDataSource<T>* clone() const;
 
@@ -121,9 +133,15 @@ namespace RTT
 
         ConstantDataSource( T value );
 
-        typename DataSource<T>::result_t get() const;
+        typename DataSource<T>::result_t get() const
+		{
+			return mdata;
+		}
 
-        typename DataSource<T>::result_t value() const;
+        typename DataSource<T>::result_t value() const
+		{
+			return mdata;
+		}
 
         virtual ConstantDataSource<T>* clone() const;
 
@@ -151,15 +169,27 @@ namespace RTT
 
         ReferenceDataSource( typename AssignableDataSource<T>::reference_t ref );
 
-        typename DataSource<T>::result_t get() const;
+        typename DataSource<T>::result_t get() const
+		{
+			return mref;
+		}
 
-        typename DataSource<T>::result_t value() const;
+        typename DataSource<T>::result_t value() const
+		{
+			return mref;
+		}
 
         void set( typename AssignableDataSource<T>::param_t t );
 
-        typename AssignableDataSource<T>::reference_t set();
+        typename AssignableDataSource<T>::reference_t set()
+		{
+			return mref;
+		}
 
-        typename AssignableDataSource<T>::const_reference_t rvalue() const;
+        typename AssignableDataSource<T>::const_reference_t rvalue() const
+		{
+			return mref;
+		}
 
         virtual ReferenceDataSource<T>* clone() const;
 
