@@ -43,6 +43,7 @@
 #include <Operators.hpp>
 #include <OperatorTypes.hpp>
 #include <TemplateTypeInfo.hpp>
+#include <TypeInfoName.hpp>
 #include <MultiVector.hpp>
 #include <mystd.hpp>
 
@@ -128,6 +129,7 @@ namespace RTT
         ti->addType( new TemplateTypeInfo<unsigned int, true>("uint") );
         ti->addType( new TemplateTypeInfo<double, true>("double") );
         ti->addType( new BoolTypeInfo() );
+        ti->addType( new TypeInfoName<void>("void"));
 
 #ifndef ORO_EMBEDDED
         ti->addType( new TemplateTypeInfo<PropertyBag, false>("PropertyBag") );
