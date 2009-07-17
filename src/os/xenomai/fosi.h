@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  fosi.h 
+  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  fosi.h
 
                         fosi.h -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,8 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef __FOSI_H
 #define __FOSI_H
 
@@ -140,7 +140,7 @@ inline TICK_TIME timespec2ticks(const TIME_SPEC* ts)
 #define CHK_XENO_CALL()
 #define CHK_XENO_PTR( a )
 #endif
-    
+
 inline NANO_TIME rtos_get_time_ns(void) { return rt_timer_ticks2ns(rt_timer_read()); }
 
 inline TICK_TIME rtos_get_time_ticks(void) { return rt_timer_tsc(); }
@@ -148,7 +148,7 @@ inline TICK_TIME rtos_get_time_ticks(void) { return rt_timer_tsc(); }
 inline TICK_TIME ticksPerSec(void) { return rt_timer_ns2tsc( 1000 * 1000 * 1000 ); }
 
 // WARNING: Orocos 'ticks' are 'Xenomai tsc' and Xenomai `ticks' are not
-// used in the Orocos API. Thus Orocos uses `Xenomai tsc' and `Xenomai ns', 
+// used in the Orocos API. Thus Orocos uses `Xenomai tsc' and `Xenomai ns',
 // yet Xenomai requires `Xenomai ticks' at the interface
 // ==> do not use nano2ticks to convert to `Xenomai ticks' because it
 // converts to `Xenomai tsc'.
@@ -253,6 +253,12 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
         return rt_mutex_lock(m, TM_NONBLOCK);
     }
 
+    static inline int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
+    {
+        CHK_XENO_CALL();
+        return rt_mutex_lock(m, rt_timer_ns2ticks(abs_time) );
+    }
+
     static inline int rtos_mutex_unlock( rt_mutex_t* m)
     {
         CHK_XENO_CALL();
@@ -269,6 +275,12 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
     {
         CHK_XENO_CALL();
         return rtos_mutex_trylock(m);
+    }
+
+    static inline int rtos_mutex_rec_lock_until( rt_rec_mutex_t* m, NANO_TIME abs_time)
+    {
+        CHK_XENO_CALL();
+        return rtos_mutex_lock_until(m, abs_time);
     }
 
     static inline int rtos_mutex_rec_unlock( rt_rec_mutex_t* m)
