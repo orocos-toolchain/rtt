@@ -441,15 +441,15 @@ namespace RTT
         if ( new_act == 0) {
             new_act = new SequentialActivity();
         }
-//        if ( this->engine()->getActivity() )
-//            this->engine()->getActivity()->run(0);
         new_act->run( this->engine() );
         our_act = ActivityInterface::shared_ptr( new_act );
     }
 
-    ActivityInterface::shared_ptr TaskContext::getActivity()
+    ActivityInterface* TaskContext::getActivity()
     {
-        return our_act;
+        if (this->engine()->getActivity() != our_act.get() )
+            return this->engine()->getActivity();
+        return our_act.get();
     }
 
     void TaskContext::clear()

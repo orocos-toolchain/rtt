@@ -245,11 +245,11 @@ namespace RTT
         void setActivity( ActivityInterface* new_act );
 
         /**
-         * Get a safe pointer to the activity running this
+         * Get a pointer to the activity running this
          * component.
          * @return Our activity.
          */
-        ActivityInterface::shared_ptr getActivity();
+        ActivityInterface* getActivity();
 
         /**
          * Clear the complete interface of this Component.
