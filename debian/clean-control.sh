@@ -6,3 +6,6 @@ echo "Detected RTT Major version: $major"
 
 rm -f control
 rm -f orocos*$major*install liborocos*$major*install
+rm -f rules.targets
+
+echo "Done!"

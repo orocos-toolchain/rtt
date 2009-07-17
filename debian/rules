@@ -28,67 +28,40 @@ endif
 # shared library versions, option 1
 #version=1.1.0
 #major=1.4
+version=`grep orocos-rtt changelog | head -1 | awk "{print substr(\\$2,2,length(\\$2)-2)}"`
+major=`grep orocos-rtt changelog | head -1 | awk "{print substr(\\$2,2,3)}"`
 # option 2, assuming the library is created as build/src/libfoo.so.2.0.5 or so
-version=`find . -name liborocos-rtt-gnulinux*.so.* | awk '{if (match($$0,/[0-9]+\.[0-9]+\.[0-9]+$$/)) print substr($$0,RSTART)}' | head -1`
-major=`find . -name liborocos-rtt-gnulinux*.so.* | awk '{if (match($$0,/\.so\.[0-9]+\.[0-9]+$$/)) print substr($$0,RSTART+4)}' | head -1`
+#version=`find . -name liborocos-rtt-gnulinux*.so.* | awk '{if (match($$0,/[0-9]+\.[0-9]+\.[0-9]+$$/)) print substr($$0,RSTART)}' | head -1`
+#major=`find . -name liborocos-rtt-gnulinux*.so.* | awk '{if (match($$0,/\.so\.[0-9]+\.[0-9]+$$/)) print substr($$0,RSTART+4)}' | head -1`
 
-configure: configure-stamp
+include debian/rules.targets
+
+configure: configure-stamp $(CONFIGURE_TARGETS)
 configure-stamp:
 	dh_testdir
-# Add here commands to configure the package.
-# LDFLAGS="-Wl,-z,defs"
-	mkdir -p build.lxrt
-	cd build.lxrt; \
-	unset ACE_ROOT TAO_ROOT; CXXFLAGS="$(CFLAGS)" ../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --enable-corba --enable-static --with-lxrt=/usr/realtime
-
-	mkdir -p build.gnulinux
-	cd  build.gnulinux; \
-	unset ACE_ROOT TAO_ROOT; CXXFLAGS="$(CFLAGS)" ../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --enable-corba --enable-static --with-gnulinux
-
-	mkdir -p build.xenomai
-	cd build.xenomai; \
-	unset ACE_ROOT TAO_ROOT; CXXFLAGS="$(CFLAGS)" ../configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --enable-corba --enable-static --with-xenomai=/usr
 	touch configure-stamp
 
-# Keeps our makefile dependencies ok:
-#	mkdir -p build
-#	touch build/Makefile
-
-build: build-stamp
-build-stamp: configure-stamp
+build: build-stamp $(BUILD_TARGETS)
+build-stamp: configure
 	dh_testdir
-
-# Add here commands to compile the package.
-	cd build.lxrt; $(MAKE) idl ;$(MAKE) $(MAKE_FLAGS); 
-	cd build.gnulinux; $(MAKE) idl ;$(MAKE) $(MAKE_FLAGS); # $(MAKE) docapi dochtml VERBOSE=1
-	cd build.xenomai; $(MAKE) idl ;$(MAKE) $(MAKE_FLAGS); 
-
 	touch build-stamp
-
-	touch $@
 
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp
-	rm -f configure-stamp
+	rm -f build-stamp*
+	rm -f configure-stamp*
 
 # Add here commands to clean up after the build process.
-	-rm -rf build*
+	-rm -rf dbuild.*
 
 	dh_clean 
 
-install: build
+install: build $(INSTALL_TARGETS)
 	dh_testdir
 	dh_testroot
 	dh_clean -k 
 	dh_installdirs
-
-# Each flavor installs in debian/tmp/flavor. Be sure to edit package.install
-# such that the flavor is stripped when building the package.
-	cd build.gnulinux; $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
-	cd build.lxrt; $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
-	cd build.xenomai; $(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 
 
 # Build architecture-independent files here.
