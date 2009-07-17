@@ -24,6 +24,8 @@
 # elif defined( __GNUC__ ) && defined( __ia64__ )
 #  error "ia64 Is not yet supported, contact the orocos-dev mailinglist for further actions."
 #  define OROBLD_OS_ARCH_ia64
+# elif defined( __MINGW32__ ) && defined( __i386__ )
+#  define OROBLD_OS_ARCH_i386
 # else
 #  error "Unknown Processor Architecture"
 #  define OROBLD_OS_ARCH_unknown
@@ -54,9 +56,21 @@
 # endif
 #else
    // NOT GNU
+# if defined(__MINGW__)
+#  if defined(RTT_DLL_EXPORT)
+#   define RTT_API    __declspec(dllexport)
+#   define RTT_EXPORT __declspec(dllexport)
+#   define RTT_HIDE   
+#  else
+#   define RTT_API	 __declspec(dllimport)
+#   define RTT_EXPORT __declspec(dllimport)
+#   define RTT_HIDE 
+#  endif
+# else
 #  define RTT_API
 #  define RTT_EXPORT
 #  define RTT_HIDE
+# endif
 #endif
 
 #endif

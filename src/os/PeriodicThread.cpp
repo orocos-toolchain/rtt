@@ -329,7 +329,7 @@ namespace RTT
     {
         if ( !running ) return false;
 
-        Logger::In in("PeriodicThread::start");
+        Logger::In in("PeriodicThread::stop");
         Logger::log() << Logger::Debug << "Periodic Thread "<< rtos_task_get_name(&rtos_task) <<" stopping...";
 
         running=false;

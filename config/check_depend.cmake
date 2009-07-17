@@ -135,7 +135,7 @@ endif()
 
 
 # Setup flags for ecos
-IF(OROCOS_TARGET STREQUAL "ecos")
+if(OROCOS_TARGET STREQUAL "ecos")
   set(OROPKG_OS_ECOS TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
 
   # We can't really use 'UseEcos.cmake' because we're building a library
@@ -157,6 +157,15 @@ IF(OROCOS_TARGET STREQUAL "ecos")
 else()
   set(OROPKG_OS_ECOS FALSE CACHE INTERNAL "" FORCE)
 endif()
+
+if(OROCOS_TARGET STREQUAL "win32")
+  set(OROPKG_OS_WIN32 TRUE CACHE INTERNAL "" FORCE)
+  #--enable-all-export and --enable-auto-import are already set by cmake.
+  #but we need it here for the unit tests as well.
+  #set(RTT_LINKFLAGS "${RTT_LINKFLAGS} -Wl,--enable-auto-import" CACHE INTERNAL "")
+else(OROCOS_TARGET STREQUAL "win32")
+  set(OROPKG_OS_WIN32 FALSE CACHE INTERNAL "" FORCE)
+endif(OROCOS_TARGET STREQUAL "win32")
 
 # The machine type is tested using compiler macros in rtt-config.h.in
 # Add found include dirs.
