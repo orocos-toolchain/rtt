@@ -164,6 +164,7 @@ ActivitiesThreadTest::setUp()
     t_task_np = new TestActivity<PeriodicActivity>(3, 0.01, true );
     t_task_np_bad = new TestActivity<PeriodicActivity>(3, 0.01, true, true );
     t_task_p = new TestActivity<PeriodicActivity>(3, 0.032, true );
+    t_task_a = new TestActivity<Activity>(3, 0.01, true, true );
 }
 
 
@@ -173,6 +174,7 @@ ActivitiesThreadTest::tearDown()
     delete t_task_np;
     delete t_task_np_bad;
     delete t_task_p;
+    delete t_task_a;
 }
 
 // Registers the fixture into the 'registry'
@@ -531,8 +533,9 @@ BOOST_AUTO_TEST_CASE( testExceptionRecovery )
     BOOST_CHECK(t_task_np->start());
     BOOST_CHECK(t_task_np_bad->start());
     BOOST_CHECK(t_task_p->start());
+    BOOST_CHECK(t_task_a->start());
 
-    sleep(10);
+    sleep(1);
     // thread should stop :
     Logger::log().setLogLevel( ll );
     BOOST_CHECK( !t_task_np_bad->thread()->isRunning() );
@@ -540,25 +543,29 @@ BOOST_AUTO_TEST_CASE( testExceptionRecovery )
     BOOST_CHECK( !t_task_np->isRunning() );
     BOOST_CHECK( !t_task_np_bad->isRunning() );
     BOOST_CHECK( t_task_p->isRunning() );
+    BOOST_CHECK( !t_task_a->isRunning() );
 
     BOOST_CHECK( t_task_np->init );
     BOOST_CHECK( t_task_np_bad->init );
     BOOST_CHECK( t_task_p->init );
+    BOOST_CHECK( t_task_a->init );
 
     BOOST_CHECK( t_task_np->stepped );
     BOOST_CHECK( t_task_np_bad->stepped );
     BOOST_CHECK( t_task_p->stepped );
+    BOOST_CHECK( t_task_a->stepped );
 
     // must be stopped since bad throwed an exception
     BOOST_CHECK( t_task_np->fini );
     BOOST_CHECK( t_task_np_bad->fini );
+    BOOST_CHECK( t_task_a->fini );
 
     t_task_p->stop();
 
     // see if we recovered ok :
     BOOST_CHECK( t_task_np_bad->thread()->start() );
-
     BOOST_CHECK(t_task_np->start());
+    BOOST_CHECK(t_task_a->start());
 
     sleep(1);
     t_task_p->reset(true);
