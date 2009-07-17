@@ -207,7 +207,6 @@ struct CrossRemover : public RunnableInterface
 };
 
 // Registers the fixture into the 'registry'
-
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
@@ -217,6 +216,9 @@ struct CrossRemover : public RunnableInterface
 
 
 BOOST_FIXTURE_TEST_SUITE( EventTestSuite, EventTest )
+
+
+
 void
 EventTest::setUp()
 {
@@ -279,11 +281,6 @@ BOOST_AUTO_TEST_CASE( testEmpty )
 {
     t_event();
 }
-
-
-
-
-
 
 BOOST_AUTO_TEST_CASE( testTask )
 {

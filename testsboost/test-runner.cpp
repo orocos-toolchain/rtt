@@ -47,7 +47,7 @@ boost::unit_test::test_suite* init_unit_test_suite(int argc, char** argv)
 
     // Get the top level suite from the registry
 
-    boost::unit_test::unit_test_log.set_threshold_level(boost::unit_test::log_test_suites);
+    boost::unit_test::unit_test_log.set_threshold_level(boost::unit_test::log_test_units);
 
     // manually adding test suites
     test_suite* test = BOOST_TEST_SUITE("Name of test suite");
