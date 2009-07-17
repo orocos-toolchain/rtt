@@ -55,6 +55,139 @@
     </para>
   </section>
   <section>
+    <title>PeriodicActivity</title>
+    <para>
+      The RTT::PeriodicActivity is an activity that serialises itself
+      in a common thread, such that multiple activities are executed
+      by the same thread.
+    </para>
+    <section>
+      <title>Periodic Activity Ordering</title>
+      <para>
+	In case multiple activities are executed (serialised) in one
+	thread, their execution must be ordered. The order of execution is
+	determined by the order in which they are started. Stopping
+	an activity removes it from the list.
+      </para>
+      <para>
+	<figure><title>Execution sequence diagram</title>
+	  <mediaobject>
+	    <imageobject role="html">
+	      <imagedata fileref="images/execution-sequence" />
+	    </imageobject>
+	    <imageobject role="fo">
+	      <imagedata fileref="images/hires/execution-sequence"  width="50%" scalefit="1"/>
+	    </imageobject>
+	    <!--
+	    <caption><para>
+	  </para></caption>
+	    -->
+	  </mediaobject>
+	</figure>
+      </para>
+      <para>
+	A PeriodicActivity instance is only serialised with another instance
+	if the priorities and periodicities match. Otherwise, a new thread
+	is created.
+      </para>
+    </section>
+    <section>
+      <title>Example Periodic Activity Creation</title>
+      <example>
+	<title>Example Periodic Activity Creation</title>
+	<para>
+	  This example shows how all kinds of activities can be created. When a activity
+	  is started it will add itself to the correct thread.
+	</para>
+	<programlisting>#include "rtt/PeriodicActivity.hpp"
+
+using namespace RTT;
+
+ORO_main( int argc, char** argv)
+{
+  // Define your tasks.
+
+  // ...
+
+  // The threads are created by Orocos.
+  // Both activities run in the same thread:
+  <classname>RTT::PeriodicActivity</classname> fast_activity1(0, 0.001, &amp;vel_loop);
+  <classname>RTT::PeriodicActivity</classname> fast_activity2(0, 0.001, &amp;vel_loop2);
+
+  // This activity is run in its own thread.
+  <classname>RTT::PeriodicActivity</classname> own_activity( 9, 0.05, &amp;kine_loop );
+
+  // This activity is run in its own thread as well.
+  <classname>RTT::PeriodicActivity</classname> own_activity2( 9, 0.5, &amp;kine_loop2 );
+
+  // All is transparent from here on.
+  fast_activity1->start();
+  fast_activity2->start(); // is always run directly after fast_activity1 !
+
+  // ...
+
+  fast_activity1->stop();
+  fast_activity2->stop();
+
+  return 0;
+}</programlisting>
+      </example>
+    </section>
+
+    <section id="corelib-simulation">
+      <title>Simulation</title>
+      <para>
+	The SimulationThread is available to do as fast as possible 
+	execution of SimulationActivity objects. Its priority and
+	simulated periodicity can be changed with the configuration tool, or
+	before its started.
+      </para>
+	<programlisting>#include "rtt/SimulationActivity.hpp"
+
+using namespace RTT;
+
+ORO_main( int argc, char** argv)
+{
+  // Define your activities
+
+  // ...
+
+  // Manually start the simulation thread
+  // 0.001 : The (virtual) period :  no activity can run 'faster' than this.
+  <classname>RTT::SimulationThread</classname>::Instance()->setPeriod( 0.001 );
+  <classname>RTT::SimulationThread</classname>::Instance()->start();
+
+  // Optional, might hang your program :
+  <classname>RTT::SimulationThread</classname>::Instance()->makeHardRealtime();
+
+  // fast_sim_activity will measure 0.001s elapses between each step(),
+  // slow_sim_activity will measure 0.01s elapses in time between each step()
+  <classname>RTT::SimulationActivity</classname> fast_sim_activity(0.001, &amp;vel_loop);
+  <classname>RTT::SimulationActivity</classname> slow_sim_activity(0.01, &amp;pos_loop);
+
+  // All is transparent from here on.
+  fast_sim_activity->start();
+  slow_sim_activity->start();
+
+  // ...
+
+  fast_sim_activity->stop();
+  slow_sim_activity->stop();
+
+  return 0;
+}</programlisting>
+      <warning>
+	<para>
+	  If other threads are running in the same program executable,
+	  they will also 'notice' the fast system time changes if the SimulationThread
+	  is started. It is thus advisable not to mix SimulationThreads with
+	  other threads. Also, any thread with lower priority than the 
+	  SimulationThread will never run.
+	</para>
+      </warning>
+    </section>
+  </section>
+  <section>
     <title>Multi-Threading</title>
     <section id="core-priority-inversions">
       <title>Priority Inversions</title>

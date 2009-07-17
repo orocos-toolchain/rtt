@@ -11,7 +11,7 @@
   <articleinfo>
     <title>The Orocos Core Library Manual</title>
     <copyright>
-      <year>2002-2007</year>
+      <year>2002-2009</year>
       <holder>Peter Soetens, Herman Bruyninckx</holder>
     </copyright>
 
@@ -105,6 +105,12 @@
 	<authorinitials>ps</authorinitials>
 	<revremark>Selecting the scheduler section.</revremark>
       </revision>
+      <revision>
+	<revnumber>1.10.0</revnumber>
+	<date>June 18, 2009</date>
+	<authorinitials>ps</authorinitials>
+	<revremark>Replaced PeriodicActivity and NonPeriodicActivity with Activity.</revremark>
+      </revision>
     </revhistory>
 
     <legalnotice>
@@ -170,48 +176,25 @@
     </para>
   </section>
   <section id="corelib-activities">
-    <title>Periodic and non Periodic Activities</title>
+    <title>Activities</title>
     <para>
       An Activity executes a function when a 'trigger' occurs. Although, 
       ultimately, an activity is executed by a thread, it does not map
       one-to-one on a thread. A thread may execute ('serialise') multiple
       activities. This section gives an introduction to defining periodic activities,
       which are triggered periodically, non periodic activities, which are triggered
-      by the user, and event driven activities, which are run when an Orocos event occurs.
+      by the user, and slave activities, which are run when another activity executes.
     </para>
     <section id="corelib-periodic-activity">
-      <title>Creating a Periodic Activity</title>
+      <title>Executing a Function Periodically</title>
+      <note><para>
+	When you use a TaskContext, the ExecutionEngine is the function
+	to be executed periodically and you don't need to write the classes
+	below.
+      </para>
+      </note>
       <para>
-	If you want to execute functionality in one of the Orocos threads, you need to 
-	create a Activity of a certain type, depending on the thread type. The table
-	below summarises which Activity type there is per thread.
-	<table>
-	  <title>Thread and Activity summary</title>
-	  <!-- one of (graphic mediaobject tgroup) -->
-	  <tgroup cols="2">
-	    <thead>
-	      <row>
-		<!-- one of (entrytbl entry) -->
-		<entry>Thread (created by Orocos)</entry>
-		<entry>Activity (created by User)</entry>
-	      </row>
-	    </thead>
-	    <tbody>
-	      <row>
-		<entry><classname>RTT::TimerThread</classname></entry>
-		<entry><classname>RTT::PeriodicActivity</classname></entry>
-		<!-- one of (entrytbl entry) -->
-	      </row>
-	      <row>
-		<!-- one of (entrytbl entry) -->
-		<entry><classname>RTT::SimulationThread</classname></entry>
-		<entry><classname>RTT::SimulationActivity</classname></entry>
-	      </row>
-	    </tbody>
-	  </tgroup>
-	</table></para>
-      <para>
-	There are two ways to run a function in a periodic activity. By :
+	There are two ways to run a function in a periodically. By :
 	<itemizedlist>
 	  <listitem>
 	    <para>
@@ -222,14 +205,14 @@
 	      RunnableInterface object (i.e. run_impl) can be assigned
 	      to a activity using <synopsis> activity.run(
 	      &amp;run_impl )</synopsis> or at construction time of an
-	      Activity : <synopsis> PeriodicActivity activity(priority,
+	      Activity : <synopsis> Activity activity(priority,
 	      period, &amp;run_impl );</synopsis>.
 	    </para>
 	    <para>
 	      <programlisting>  #include &lt;rtt/RunnableInterface.hpp>
-  #include &lt;rtt/PeriodicActivity.hpp>
+  #include &lt;rtt/Activity.hpp>
 
-  class MyPeriodicActivity
+  class MyPeriodicFunction
 	: public <classname>RTT::RunnableInterface</classname>
   {
   public:
@@ -259,14 +242,14 @@
   };
 
   // ...
-  MyPeriodicActivity run_impl_1;
-  MyPeriodicActivity run_impl_2;
+  MyPeriodicFunction run_impl_1;
+  MyPeriodicFunction run_impl_2;
 
-  <classname>RTT::PeriodicActivity</classname> activity( 15, 0.01 ); // priority=15, period=100Hz
+  <classname>RTT::Activity</classname> activity( 15, 0.01 ); // priority=15, period=100Hz
   activity.run( &amp;run_impl_1 );
   activity.start(); // calls 'step()'
 
-  <classname>RTT::NonPeriodicActivity</classname> npactivity(12); // priority=12, no period.
+  <classname>RTT::Activity</classname> npactivity(12); // priority=12, no period.
   npactivity.run( &amp;run_impl_2);
   activity.start(); // calls 'loop()'
 
@@ -278,12 +261,12 @@
 	      Inheriting from an Activity class and overriding the initialize(), step()
 	      and finalize() methods.
 	      <programlisting>
-  class MyOtherPeriodicActivity
-      : public <classname>RTT::PeriodicActivity</classname>
+  class MyOtherPeriodicFunction
+      : public <classname>RTT::Activity</classname>
   {
   public :
-    MyOtherPeriodicActivity()
-      : <classname>RTT::PeriodicActivity</classname>( 15, 0.01 ) // priority=15, period=100Hz
+    MyOtherPeriodicFunction()
+      : <classname>RTT::Activity</classname>( 15, 0.01 ) // priority=15, period=100Hz
     {
     }
 
@@ -305,7 +288,7 @@
   };
 
   // When started, will call your step
-  MyOtherPeriodicActivity activity;
+  MyOtherPeriodicFunction activity;
   activity.start();  </programlisting>
 	    </para>
 	  </listitem>
@@ -314,108 +297,27 @@
 	was given, it will call its own virtual methods.
       </para>
     </section>
-    <section>
-      <title>Periodic Activity Ordering</title>
-      <para>
-	In case multiple activities are executed (serialised) in one
-	thread, their execution must be ordered. The order of execution is
-	determined by the order in which they are started. Stopping
-	an activity removes it from the list.
-      </para>
-      <para>
-	<figure><title>Execution sequence diagram</title>
-	  <mediaobject>
-	    <imageobject role="html">
-	      <imagedata fileref="images/execution-sequence" />
-	    </imageobject>
-	    <imageobject role="fo">
-	      <imagedata fileref="images/hires/execution-sequence"  width="50%" scalefit="1"/>
-	    </imageobject>
-	    <!--
-	    <caption><para>
-	  </para></caption>
-	    -->
-	  </mediaobject>
-	</figure>
-      </para>
-      <para>
-	A PeriodicActivity instance is only serialised with another instance
-	if the priorities and periodicities match. Otherwise, a new thread
-	is created.
-      </para>
-    </section>
-    <section>
-      <title>Example Periodic Activity Creation</title>
-      <example>
-	<title>Example Periodic Activity Creation</title>
-	<para>
-	  This example shows how all kinds of activities can be created. When a activity
-	  is started it will add itself to the correct thread.
-	</para>
-	<programlisting>#include "rtt/PeriodicActivity.hpp"
-
-using namespace RTT;
-
-ORO_main( int argc, char** argv)
-{
-  // Define your tasks.
-
-  // ...
-
-  // The threads are created by Orocos.
-  // Both activities run in the same thread:
-  <classname>RTT::PeriodicActivity</classname> fast_activity1(0, 0.001, &amp;vel_loop);
-  <classname>RTT::PeriodicActivity</classname> fast_activity2(0, 0.001, &amp;vel_loop2);
-
-  // This activity is run in its own thread.
-  <classname>RTT::PeriodicActivity</classname> own_activity( 9, 0.05, &amp;kine_loop );
-
-  // This activity is run in its own thread as well.
-  <classname>RTT::PeriodicActivity</classname> own_activity2( 9, 0.5, &amp;kine_loop2 );
-
-  // All is transparent from here on.
-  fast_activity1->start();
-  fast_activity2->start(); // is always run directly after fast_activity1 !
-
-  // ...
-
-  fast_activity1->stop();
-  fast_activity2->stop();
-
-  return 0;
-}</programlisting>
-      </example>
-    </section>
     <section id="corelib-non-periodic-activity">
-      <title>Non Periodic Activities</title>
-      <para>
-	Non periodic activities are run in <emphasis>non
-	periodic</emphasis> threads, or possibly
-	<emphasis>after</emphasis> all periodic activities of a
-	certain periodic thread. The latter to avoid excessive jitter
-	in periodic activity execution.
-      </para>
+      <title>Non Periodic Activity Semantics</title>
       <para>
 	If you want to create an activity which reads file-IO, or displays
 	information or does any other possibly blocking operation, the
-	<classname>RTT::NonPeriodicActivity</classname> implementation can be
-	used. When it is <function>start()</function>'ed, its loop()
+	<classname>RTT::Activity</classname> implementation can be
+	used with a period of zero (0). When it is <function>start()</function>'ed, its loop()
 	method will be called exactly once and then it will wait,
-	after which it can be start()'ed again.  Analogous to periodic
-	activities, the user can implement
+	after which it can be start()'ed again.  Analogous to a periodic
+	Activity, the user can implement
 	<function>initialize()</function>, <function>loop()</function>
 	and <function>finalize()</function> functions in a
 	<classname>RTT::RunnableInterface</classname> which will be used by
 	the activity for executing the user's functions. Alternatively,
 	you can reimplement said functions in a derived class of
-	NonPeriodicActivity. The activity's loop() will be executed in its own
-	thread, thus creating a NonPeriodicActivity means creating a new
-	thread :
+	Activity.
       </para>
       <programlisting>  int priority = 5;
   
   <classname>RTT::RunnableInterface</classname>* blocking_activity = ...
-  <classname>RTT::NonPeriodicActivity</classname> activity( priority, blocking_activity );
+  <classname>RTT::Activity</classname> activity( priority, blocking_activity );
   activity.start(); // calls blocking_activity->initialize()
 
   // now blocking_activity->loop() is called in a thread with priority 5.  
@@ -427,11 +329,15 @@ ORO_main( int argc, char** argv)
   // when loop() returned, calls blocking_activity->finalize() :
   activity.stop(); </programlisting>
       <para>
-	The NonPeriodicActivity differs from the
-	<classname>PeriodicActivity</classname> in the way start() and stop()
-	work. Only the first invocation of start() will invoke initialize().
-	Then loop() is executed once. Since the activity may be blocked in the user's loop()
-	function, the user must reimplement the
+	The Activity behaves differently when being non periodic
+	in the way start() and stop()
+	work. Only the first invocation of start() will invoke initialize() and
+	then loop() once.
+	Any subsequent call to start() will cause loop() to be executed again
+	(if it finished in the first place).
+      </para>
+      <para>	
+	Since the user's loop() is allowed to block the user must reimplement the
 	<function>RunnableInterface::breakLoop()</function>
 	function. This function must do whatever necessary to let the
 	user's loop() function return (mostly set a flag).  It must return true on
@@ -445,24 +351,23 @@ ORO_main( int argc, char** argv)
     <section>
       <title>Selecting the Scheduler</title>
       <para>
-	When a <classname>RTT::PeriodicActivity</classname> or
-	<classname>RTT::NonPeriodicActivity</classname> is created, it
-	runs in the default 'ORO_SCHED_RT' scheduler, which is the
-	real-time scheduler if that is present on your platform. You
-	can specify the scheduler type, by providing an extra argument
-	during construction.
+	There are at least two scheduler types in RTT: The real-time
+	scheduler, ORO_SCHED_RT, and the not real-time scheduler, ORO_SCHED_OTHER.
+	In some systems, both may map to the same scheduler. 
       </para>
-      <programlisting>  // Equivalent to PeriodicActivity my_act(OS::HighestPriority, 0.001) :
-  PeriodicActivity my_act(ORO_SCHED_RT, OS::HighestPriority, 0.001);
-
-  // Run in the alternative scheduler (not real-time):
-  PeriodicActivity other_act (ORO_SCHED_OTHER, OS::HighestPriority, 0.01);
-      </programlisting>
       <para>
-	ORO_SCHED_RT and ORO_SCHED_OTHER map to different scheduler policies
-	across operating systems. If your OS only supports one scheduler type,
-	both map to the same scheduler.
+	When a <classname>RTT::Activity</classname>, it
+	runs in the default 'ORO_SCHED_OTHER' scheduler with the lowest priority. You
+	can specify another priority and scheduler type, by providing an extra argument
+	during construction. When a priority is specified, the Activity selects the
+	the ORO_SCHED_RT scheduler.
       </para>
+      <programlisting>  // Equivalent to Activity my_act(OS::HighestPriority, 0.001) :
+  Activity my_act(ORO_SCHED_RT, OS::HighestPriority, 0.001);
+
+  // Run in the default scheduler (not real-time):
+  Activity other_act ( 0.01 );
+      </programlisting>
     </section>
     <section id="corelib-slave-activity">
       <title>Custom or Slave Activities</title>
@@ -477,7 +382,7 @@ ORO_main( int argc, char** argv)
 
   // <emphasis>With master</emphasis>
   // a 'master', any ActivityInterface (even SlaveActivity):
-  <classname>RTT::PeriodicActivity</classname> master_one(9, 0.001 );
+  <classname>RTT::Activity</classname> master_one(9, 0.001 );
   // a 'slave', takes over properties (period,...) of 'master_one':
   <classname>RTT::SlaveActivity</classname> slave_one( &amp;master_one );
 
@@ -569,58 +474,6 @@ ORO_main( int argc, char** argv)
 }</programlisting>
       </example>
       </para>
-    </section>
-    <section id="corelib-simulation">
-      <title>Simulation</title>
-      <para>
-	The SimulationThread is available to do as fast as possible 
-	execution of SimulationActivity objects. Its priority and
-	simulated periodicity can be changed with the configuration tool, or
-	before its started.
-      </para>
-	<programlisting>#include "rtt/SimulationActivity.hpp"
-
-using namespace RTT;
-
-ORO_main( int argc, char** argv)
-{
-  // Define your activities
-
-  // ...
-
-  // Manually start the simulation thread
-  // 0.001 : The (virtual) period :  no activity can run 'faster' than this.
-  <classname>RTT::SimulationThread</classname>::Instance()->setPeriod( 0.001 );
-  <classname>RTT::SimulationThread</classname>::Instance()->start();
-
-  // Optional, might hang your program :
-  <classname>RTT::SimulationThread</classname>::Instance()->makeHardRealtime();
-
-  // fast_sim_activity will measure 0.001s elapses between each step(),
-  // slow_sim_activity will measure 0.01s elapses in time between each step()
-  <classname>RTT::SimulationActivity</classname> fast_sim_activity(0.001, &amp;vel_loop);
-  <classname>RTT::SimulationActivity</classname> slow_sim_activity(0.01, &amp;pos_loop);
-
-  // All is transparent from here on.
-  fast_sim_activity->start();
-  slow_sim_activity->start();
-
-  // ...
-
-  fast_sim_activity->stop();
-  slow_sim_activity->stop();
-
-  return 0;
-}</programlisting>
-      <warning>
-	<para>
-	  If other threads are running in the same program executable,
-	  they will also 'notice' the fast system time changes if the SimulationThread
-	  is started. It is thus advisable not to mix SimulationThreads with
-	  other threads. Also, any thread with lower priority than the 
-	  SimulationThread will never run.
-	</para>
-      </warning>
     </section>
   </section>
   <section id="corelib-commands">
@@ -887,6 +740,11 @@ ORO_main( int argc, char** argv)
     </section>
     <section>
       <title>Choosing the Asynchronous Thread</title>
+      <note>
+	<para>When you use the TaskContext, the thread of the TaskContext is
+	automatically chosen and you do not need to supply an event processor
+	as described below.</para>
+      </note>
       <para>
 	As mentioned before, the asynchronous callback is executed in
 	another thread than the event caller.  The Event
@@ -914,7 +772,7 @@ ORO_main( int argc, char** argv)
 	<methodname>connect</methodname> or <methodname>setup</methodname> method :
 	<programlisting>
   EventProcessor eproc;
-  PeriodicActivity my_act(1, 0.01, &amp;eproc );
+  Activity my_act(1, 0.01, &amp;eproc );
   my_act.start();
 
   event.connect( &amp;asyn_func, &amp;eproc );</programlisting>
@@ -974,10 +832,10 @@ ORO_main( int argc, char** argv)
   ActivityInterface* cp = CompletionProcessor::Instance()</programlisting>
       </para>
       <para>
-	The CompletionProcessor is a <classname>RTT::NonPeriodicActivity</classname>, thus not consuming
+	The CompletionProcessor is a non periodic <classname>RTT::Activity</classname>, thus not consuming
 	time resources when no Events need to be processed. If you need a 
-	hard real-time CompletionProcessor, use a default NonPeriodicActivity ( see
-	<xref linkend="corelib-non-periodic-activity" /> ), call its makeHardRealTime() method
+	hard real-time CompletionProcessor, set the scheduler of the Activity ( see
+	<xref linkend="corelib-non-periodic-activity" /> ),
 	and add an EventProcessor object in <methodname>run()</methodname>.
       </para>
       <para>
