@@ -162,10 +162,16 @@ if(OROCOS_TARGET STREQUAL "win32")
   set(OROPKG_OS_WIN32 TRUE CACHE INTERNAL "" FORCE)
   #--enable-all-export and --enable-auto-import are already set by cmake.
   #but we need it here for the unit tests as well.
-  #set(RTT_LINKFLAGS "${RTT_LINKFLAGS} -Wl,--enable-auto-import" CACHE INTERNAL "")
+  set(CMAKE_LD_FLAGS_ADD "--enable-auto-import" CACHE INTERNAL "")
+  list(APPEND OROCOS-RTT_LIBRARIES kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib  ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib)
+  list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
 else(OROCOS_TARGET STREQUAL "win32")
   set(OROPKG_OS_WIN32 FALSE CACHE INTERNAL "" FORCE)
 endif(OROCOS_TARGET STREQUAL "win32")
+
+if( NOT OROCOS-RTT_DEFINITIONS )
+  message(FATAL_ERROR "No suitable OROCOS_TARGET selected. Use one of 'lxrt,xenomai,gnulinux,win32'")
+endif()
 
 # The machine type is tested using compiler macros in rtt-config.h.in
 # Add found include dirs.
