@@ -1,3 +1,6 @@
+
+#TODO: use the one from cmake 2.6 (identical code)
+#include (CMakeDependentOption.cmake)
 INCLUDE (${PROJ_SOURCE_DIR}/config/DependentOption.cmake)
 
 ###

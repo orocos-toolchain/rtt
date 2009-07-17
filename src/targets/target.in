@@ -57,8 +57,6 @@
 #cmakedefine OROPKG_EXECUTION_ENGINE_STATEMACHINES
 #define ORONUM_EXECUTION_PROC_QUEUE_SIZE @ORONUM_EXECUTION_PROC_QUEUE_SIZE@
 
-#cmakedefine ORO_SUPPORT_BOOST
-
 /** If marshalling is enabled, use these defines. */
 #cmakedefine ENABLE_MARSHALLING
 #ifdef ENABLE_MARSHALLING
