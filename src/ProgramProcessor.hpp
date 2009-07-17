@@ -40,7 +40,7 @@
 
 #include "RunnableInterface.hpp"
 #include "BufferPolicy.hpp"
-#include "ListLockFree.hpp"
+#include "List.hpp"
 #include "ProgramExceptions.hpp"
 #include "ProgramInterface.hpp"
 
@@ -160,7 +160,7 @@ namespace RTT
         ProgramInterfacePtr getProgram(const std::string& name);
 
     protected:
-        typedef ListLockFree<ProgramInterfacePtr> ProgMap;
+        typedef List<ProgramInterfacePtr> ProgMap;
         ProgMap* programs;
 
         std::vector<ProgramInterface*> funcs;
