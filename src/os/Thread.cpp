@@ -129,7 +129,7 @@ namespace RTT
                                     SCOPE_OFF
 
                                     // Check changes in period
-                                    if ( cur_period != task->getTask()->period) {
+                                    if ( cur_period != task->period) {
                                         // reconfigure period before going to sleep
                                         rtos_task_set_period(task->getTask(), task->period);
                                         cur_period = rtos_task_get_period(task->getTask());
@@ -460,6 +460,7 @@ namespace RTT
             log(Info) << "Setting scheduler type for Thread '"
                       << rtos_task_get_name(&rtos_task) << "' to "
                       << sched_type << endlog();
+            rtos_task_set_scheduler(&rtos_task, sched_type); // this may be a no-op, in that case, configure() will pick the change up.
             msched_type = sched_type;
             rtos_sem_signal(&sem);
             return true; // we assume all will go well.
@@ -474,6 +475,10 @@ namespace RTT
         {
             // this function is called from within the thread
             // when we wake up after start()
+            // It is intended to check our scheduler, priority,..., and do the in-thread
+            // stuff that may be required by the RTOS. For example: RTAI requires that
+            // we set the scheduler within the thread itself.
+
             // reconfigure period
             rtos_task_set_period(&rtos_task, period);
 
