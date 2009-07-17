@@ -256,7 +256,9 @@ inline NANO_TIME ticks2nano(TICK_TIME t) { return rt_timer_tsc2ns(t); }
     static inline int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
     {
         CHK_XENO_CALL();
-        return rt_mutex_lock(m, rt_timer_ns2ticks(abs_time) );
+	// @todo: we must migrate to rt_mutex_acquire_until(m, abstime)
+	// also the other lock/unlock functions must become acquire/release.
+        return rt_mutex_lock(m, rt_timer_ns2ticks(abs_time) - rt_timer_read()  );
     }
 
     static inline int rtos_mutex_unlock( rt_mutex_t* m)
