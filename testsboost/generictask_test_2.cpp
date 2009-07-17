@@ -41,7 +41,7 @@ Generic_TaskTest_2::setUp()
 {
     tc =  new TaskContext( "root" );
     tc->addObject( this->createCommandFactory() );
-    tsim = new SimulationActivity(0.001, tc->engine() );
+    tsim = new SimulationActivity(0.001);
     tc->setActivity( tsim );
     SimulationThread::Instance()->stop();
     cd0count = 0;
@@ -57,7 +57,7 @@ Generic_TaskTest_2::tearDown()
 {
 //     if ( tc->getPeer("programs") )
 //         delete tc->getPeer("programs");
-    tsim->stop();
+    tc->stop();
     SimulationThread::Instance()->stop();
     delete tc;
 }
@@ -109,7 +109,7 @@ struct Sender: public TaskContext
     void updateHook() {
         if (com0())
             com0count++;
-        if (com1(3))
+        if (com1(1))
             com1count++;
     }
 };
