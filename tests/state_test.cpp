@@ -32,6 +32,7 @@
 #include <Method.hpp>
 #include <Command.hpp>
 #include <StateMachine.hpp>
+#include <TaskObject.hpp>
 
 using namespace std;
 

@@ -30,6 +30,7 @@
 
 #include <SimulationActivity.hpp>
 #include <SimulationThread.hpp>
+#include <TaskObject.hpp>
 
 #include <rtt-config.h>
 
