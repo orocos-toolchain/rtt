@@ -95,7 +95,7 @@ namespace RTT
      * will disconnect all the Data Flow Ports and remove this object from its
      * Peers.
      */
-    class TaskContext
+    class RTT_API TaskContext
         : public OperationInterface,
           public TaskCore
     {

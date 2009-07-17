@@ -50,7 +50,7 @@ namespace RTT
      * @see also DigitalOutput
      * @ingroup DeviceInterface
      */
-    class DigitalInput
+    class RTT_API DigitalInput
     {
     public:
         /**

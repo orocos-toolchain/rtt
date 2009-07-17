@@ -89,7 +89,7 @@ namespace RTT
       mutable OS::AtomicInt refcount;
 
       /** the destructor is private.  You are not allowed to delete this
-       * class yourself, use a shared pointer !
+       * class RTT_API yourself, use a shared pointer !
        */
       virtual ~DataSourceBase();
 

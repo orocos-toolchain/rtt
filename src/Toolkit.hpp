@@ -41,6 +41,7 @@
 
 #include <string>
 #include <vector>
+#include "rtt-config.h"
 
 namespace RTT
 {
@@ -54,7 +55,7 @@ namespace RTT
      * library foreign to Orocos.
      * @ingroup CoreLib
      */
-    class Toolkit
+    class RTT_API Toolkit
     {
         /** Loaded tools. */
         static std::vector<ToolkitPlugin*> Tools;

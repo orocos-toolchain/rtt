@@ -47,7 +47,7 @@ namespace RTT
      *
      * @ingroup DeviceInterface
      */
-    class AnalogInput
+    class RTT_API AnalogInput
     {
     public:
         /**

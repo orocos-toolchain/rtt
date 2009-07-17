@@ -42,7 +42,7 @@ namespace RTT
 
         BufferType mlist;
         StackType  mreserved;
-        int required;
+        unsigned int required;
 
         mutable OS::Mutex m;
     public:
@@ -53,7 +53,7 @@ namespace RTT
         ListLocked(unsigned int lsize, unsigned int unused = 0 )
             :required(lsize)
         {
-            for(int i=0; i <lsize; ++i)
+            for(unsigned int i=0; i <lsize; ++i)
                 mreserved.push(new Cont());
         }
 
@@ -171,7 +171,7 @@ namespace RTT
         size_t append(const std::vector<T>& items)
         {
             OS::MutexLock lock(m);
-            int max = mreserved.size();
+            unsigned int max = mreserved.size();
             typename std::vector<T>::const_iterator it = items.begin();
             for(; it != items.end() && max != 0; ++it, --max )
                 mlist.push_back( this->get_item(*it) );

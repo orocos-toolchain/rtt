@@ -72,7 +72,7 @@ namespace RTT
      * command queue with for example blocking semantics.
      * @ingroup Processor
      */
-    class CommandProcessor
+    class RTT_API CommandProcessor
         : public RunnableInterface
     {
     public:

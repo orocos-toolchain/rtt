@@ -57,7 +57,7 @@ namespace RTT
      *
      * @ingroup Methods
      */
-    class MethodRepository
+    class RTT_API MethodRepository
         : public OperationFactory<DataSourceBase*>
     {
         template<class T>

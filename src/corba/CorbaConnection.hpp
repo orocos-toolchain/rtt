@@ -31,7 +31,7 @@ namespace RTT
     namespace Corba
     {
 
-        class CorbaConnection : public RTT::ConnectionInterface
+        class RTT_API CorbaConnection : public RTT::ConnectionInterface
         {
             std::string mname;
             AssignableExpression_var mdatachannel;

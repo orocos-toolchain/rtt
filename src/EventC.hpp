@@ -49,7 +49,7 @@ namespace RTT
     /**
      * A user friendly event of a TaskContext.
      */
-    class EventC
+    class RTT_API EventC
     {
         /**
          * The 'd' pointer pattern.

@@ -48,7 +48,7 @@ namespace RTT
      * A conditional that evaluates false
      */
 
-    class ConditionFalse
+    class RTT_API ConditionFalse
                 : public ConditionInterface
     {
 

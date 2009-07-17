@@ -22,7 +22,7 @@ namespace RTT
      *
      * @ingroup CoreLibActivities
      */
-    class Activity: public ActivityInterface, public OS::Thread
+    class RTT_API Activity: public ActivityInterface, public OS::Thread
     {
     public:
         using OS::Thread::run;

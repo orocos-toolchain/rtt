@@ -52,7 +52,7 @@ namespace RTT
      * This class mirrors a Corba Command Factory as a plain C++
      * factory.
      */
-    class CorbaCommandFactory
+    class RTT_API CorbaCommandFactory
         : public RTT::detail::OperationFactoryPart<DispatchInterface*>
     {
         std::string com;

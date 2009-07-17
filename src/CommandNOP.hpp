@@ -47,7 +47,7 @@ namespace RTT
      *
      * This command does nothing when executed.
      */
-    class CommandNOP : public CommandInterface
+    class RTT_API CommandNOP : public CommandInterface
     {
     public:
         /**

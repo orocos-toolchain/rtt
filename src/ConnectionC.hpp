@@ -62,7 +62,7 @@ namespace RTT
      * @important Use the EventService to create ConnectionC objects.
      * @see EventService
      */
-    class ConnectionC
+    class RTT_API ConnectionC
     {
         /**
          * The 'd' pointer pattern.

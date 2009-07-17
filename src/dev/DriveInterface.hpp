@@ -44,14 +44,14 @@
 
 namespace RTT
 {
-    class DigitalOutput;
+    class RTT_API DigitalOutput;
 
     /**
      * @brief A Drive Object controls a single axis. It is responsible
      * for keeping track of its status (enabled, disabled).
      * @ingroup DeviceInterface
      */
-    class DriveInterface
+    class RTT_API DriveInterface
     {
     public:
         virtual ~DriveInterface() {}

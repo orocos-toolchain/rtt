@@ -49,7 +49,7 @@
 
 namespace RTT
 {
-    class DigitalOutInterface;
+    class RTT_API DigitalOutInterface;
 
     namespace OS {
     /**
@@ -62,7 +62,7 @@ namespace RTT
      * set by \a setMaxOverrun(). Overruns must be accumulated 'on average' to trigger this behavior:
      * one not overrunning step() compensates for one overrunning step().
      */
-    class PeriodicThread
+    class RTT_API PeriodicThread
         : public OS::ThreadInterface
     {
         friend void* periodicThread( void* t );

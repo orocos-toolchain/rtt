@@ -66,7 +66,7 @@ namespace RTT
      * supply another period before SimulationActivities are created.
      * @see TimerThread
      */
-    class SimulationThread
+    class RTT_API SimulationThread
         : public TimerThread
     {
     public:

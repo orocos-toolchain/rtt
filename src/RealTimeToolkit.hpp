@@ -47,7 +47,7 @@ namespace RTT
     /**
      * This interface defines the types of the realTime package.
      */
-    class RealTimeToolkitPlugin
+    class RTT_API RealTimeToolkitPlugin
        : public ToolkitPlugin
     {
     public:

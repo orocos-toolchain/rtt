@@ -66,7 +66,7 @@ namespace RTT
      * is called in the calling thread of stop().
      * @ingroup CoreLibActivities
      */
-    class PeriodicActivity
+    class RTT_API PeriodicActivity
         : public ActivityInterface
     {
     public:

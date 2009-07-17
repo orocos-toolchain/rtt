@@ -83,7 +83,7 @@ namespace RTT
      * this class are protected and thus accessible in a subclass.
      * @ingroup Processor
      */
-    class ExecutionEngine
+    class RTT_API ExecutionEngine
         : public RunnableInterface
     {
     protected:

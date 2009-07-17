@@ -49,7 +49,7 @@ namespace RTT
     /**
      * This class manages the access of remote Action Corba Servers.
      */
-    class ActionProxy
+    class RTT_API ActionProxy
         : public CommandInterface
     {
     protected:

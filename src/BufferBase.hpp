@@ -46,7 +46,7 @@ namespace RTT
      * Any Buffer has a capacity, size and can be empty or full.
      * This class contains the type-independent methods of a Buffer.
      */
-    class BufferBase
+    class RTT_API BufferBase
     {
     public:
         typedef int size_type;

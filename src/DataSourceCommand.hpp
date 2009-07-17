@@ -49,7 +49,7 @@ namespace RTT
    * A class that wraps a Command in a DataSource<bool>
    * interface.
    */
-  class DataSourceCommand
+  class RTT_API DataSourceCommand
     : public DataSource<bool>
   {
       CommandInterface* comm;

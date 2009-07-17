@@ -53,7 +53,7 @@ namespace RTT
      * using a Connector. The Connector can be a Buffer or a
      * DataObject.
      */
-    class PortInterface
+    class RTT_API PortInterface
     {
     public:
     	typedef Event<void(PortInterface*)> NewDataOnPortEvent;

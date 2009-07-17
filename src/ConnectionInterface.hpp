@@ -98,7 +98,7 @@ namespace RTT
      *
      * @see PortInterface
      */
-    class ConnectionInterface
+    class RTT_API ConnectionInterface
     {
     protected:
         friend void ::intrusive_ptr_add_ref( ConnectionInterface* p );

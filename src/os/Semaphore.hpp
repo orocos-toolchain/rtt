@@ -58,7 +58,7 @@ namespace RTT
      *          since the initialisation of a semaphore can not be done in hard realtime.
      *
      */
-    class Semaphore 
+    class RTT_API Semaphore 
     {
     private:
         rt_sem_t sem;

@@ -64,7 +64,7 @@ namespace RTT
      @endverbatim
      * @ingroup CoreLibEvents
      */
-	class Handle
+	class RTT_API Handle
 	{
 	private:
 		typedef detail::signal_base           sender_t; //! the signal type
@@ -131,7 +131,7 @@ namespace RTT
      * A scoped connection Handle of a (connected) slot which
      * disconnects a slot from a signal in its destructor.
      */
-	class ScopedHandle
+	class RTT_API ScopedHandle
         :public Handle
 	{
 		ScopedHandle();
@@ -150,7 +150,7 @@ namespace RTT
      * disconnects and cleans up (free all resources)
      * a slot from a signal in its destructor.
      */
-	class CleanupHandle
+	class RTT_API CleanupHandle
         :public Handle
 	{
 		CleanupHandle();
@@ -169,7 +169,7 @@ namespace RTT
 #if 0
 namespace RTT
 {
-    class Handle
+    class RTT_API Handle
     {
         sigslot::handle _c;
         sigslot::handle _c2;

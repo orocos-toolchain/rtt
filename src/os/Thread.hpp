@@ -112,7 +112,7 @@ namespace RTT
          * safe value.
          * @see setPeriod, setScheduler, setPriority, setStackSize
          */
-        class Thread: public OS::ThreadInterface
+        class RTT_API Thread: public OS::ThreadInterface
         {
             friend void* thread_function(void* t);
 

@@ -65,7 +65,7 @@ namespace RTT
      * as step().
      * @ingroup Processor
      */
-    class StateMachineProcessor
+    class RTT_API StateMachineProcessor
         : public RunnableInterface
     {
     public:

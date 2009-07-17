@@ -49,7 +49,7 @@ namespace RTT
     /**
      * This class manages the access of remote Command Corba Servers.
      */
-    class CommandProxy
+    class RTT_API CommandProxy
         : public DispatchInterface
     {
     protected:

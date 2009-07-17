@@ -81,7 +81,7 @@ namespace RTT
 	/**
 	 * This class represents elements in a program tree.
 	 */
-  class VertexNode
+  class RTT_API VertexNode
   {
   public:
       /**
