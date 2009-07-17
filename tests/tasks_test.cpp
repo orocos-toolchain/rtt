@@ -231,6 +231,9 @@ ActivitiesTest::tearDown()
     delete t_run_int_fail;
 
     delete t_run_allocate;
+    delete t_run_allocate_act;
+
+    delete t_self_remove;
 }
 
 BOOST_FIXTURE_TEST_SUITE( ActivitiesTestSuite, ActivitiesTest )
