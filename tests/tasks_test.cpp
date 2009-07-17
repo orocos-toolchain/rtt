@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE( testOverrun )
   // create
   boost::scoped_ptr<TestOverrun> run( new TestOverrun() );
   boost::scoped_ptr<RTT::OS::PeriodicThread> t( new RTT::OS::PeriodicThread(25,"ORThread", 0.1) );
-  BOOST_CHECK_EQUAL(25,t->getPriority() );
+  //BOOST_CHECK_EQUAL(25,t->getPriority() );
   BOOST_CHECK_EQUAL(0.1,t->getPeriod() );
   t->setMaxOverrun(1);
 

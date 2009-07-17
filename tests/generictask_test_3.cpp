@@ -27,6 +27,7 @@
 #include <DataPort.hpp>
 
 #include <SlaveActivity.hpp>
+#include <SequentialActivity.hpp>
 #include <SimulationActivity.hpp>
 #include <SimulationThread.hpp>
 
