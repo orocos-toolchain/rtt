@@ -68,6 +68,12 @@ namespace RTT
          */
         static PortableServer::POA_var rootPOA;
 
+        /**
+         * Invoke this method once to initialise the Orb which will
+         * run the task servers.
+         */
+        static bool InitOrb(int argc, char* argv[],unsigned long orb_timeout=0 );
+
     };
 }}
 
