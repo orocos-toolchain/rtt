@@ -27,6 +27,16 @@ MESSAGE( "Orocos RTT version ${VERSION} (${RTT_VERSION_MAJOR}.${RTT_VERSION_MINO
 SET( PROJ_SOURCE_DIR ${orocos-rtt_SOURCE_DIR} )
 SET( PROJ_BINARY_DIR ${orocos-rtt_BINARY_DIR} )
 
+# Load the optional orocos-rrt.cmake file.
+INCLUDE(${PROJ_SOURCE_DIR}/orocos-rrt.cmake OPTIONAL)
+if (NOT EXISTS ${PROJ_SOURCE_DIR}/orocos-rrt.cmake)
+  # Setup the default settings in case no RobWork.cmake exist.
+  INCLUDE(${PROJ_SOURCE_DIR}/orocos-rrt.default.cmake)
+  MESSAGE(
+    "Warning: No orocos-rrt.cmake file loaded, using default settings. "
+    "See orocos-rrt.default.cmake")
+endif ()
+
 #Use these variables to store build-local flags.
 #They are used when the targets are configured.
 IF ( NOT CMAKE_BUILD_TYPE STREQUAL "None")
