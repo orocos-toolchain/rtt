@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE( testThreadLog )
 
   t->start();
   t2->start();
-  sleep(10);
+  sleep(1);
   t->stop();
   t2->stop();
 
