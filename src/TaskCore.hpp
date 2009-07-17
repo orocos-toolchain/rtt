@@ -53,7 +53,7 @@ namespace RTT
      * tasks may be hard coded and hence, no interface browsing or
      * task browsing is required (for every task).
      */
-    class TaskCore
+    class RTT_API TaskCore
     {
     public:
         /**

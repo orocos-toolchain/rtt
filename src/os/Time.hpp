@@ -41,6 +41,9 @@
 
 #include <cmath>
 
+//rint function support implemented for MSVC
+#include "rint.h"
+
 namespace RTT
 { namespace OS {
 

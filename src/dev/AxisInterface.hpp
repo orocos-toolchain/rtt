@@ -30,6 +30,7 @@
 #include "SensorInterface.hpp"
 #include "DigitalInput.hpp"
 #include "DigitalOutput.hpp"
+#include "../rtt-config.h"
 #include <string>
 #include <vector>
 
@@ -40,7 +41,7 @@ namespace RTT
      * point of view
      * @ingroup DeviceInterface
      */
-    class AxisInterface
+    class RTT_API AxisInterface
     {
     public:
 

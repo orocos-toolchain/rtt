@@ -20,12 +20,11 @@
 #ifndef TASKSTEST_H
 #define TASKSTEST_H
 
-#include <cppunit/extensions/HelperMacros.h>
-
 #include <RTT.hpp>
 #include <PeriodicActivity.hpp>
 #include <SimulationActivity.hpp>
 #include <NonPeriodicActivity.hpp>
+#include <Activity.hpp>
 
 using namespace RTT;
 using namespace RTT::detail;
@@ -33,43 +32,22 @@ using namespace RTT::detail;
 struct TestRunnableInterface;
 struct TestSelfRemove;
 
-class ActivitiesTest : public CppUnit::TestFixture
+class ActivitiesTest
 {
-    CPPUNIT_TEST_SUITE( ActivitiesTest );
-    // Periodic Thread Test :
-    CPPUNIT_TEST( testThreads );
-
-    // Periodic Overrun Thread Test :
-    // Does not work in GNU/Linux nor RAI
-    //CPPUNIT_TEST( testOverrun );
-
-    // Start - Stop Test :
-    CPPUNIT_TEST( testStartStop );
-
-    // Runnable Interface Test :
-    CPPUNIT_TEST( testRunnableInterface );
-    CPPUNIT_TEST( testFailInit );
-
-    // Allocation Test : [disabled, kills RTAI/LXRT]
-    CPPUNIT_TEST( testAddAllocate );
-
-    // Self Removal Test :
-    CPPUNIT_TEST( testSelfRemove );
-
-    // non periodic Test :
-    CPPUNIT_TEST( testNonPeriodic );
-
-    CPPUNIT_TEST_SUITE_END();
-
+public:
     PeriodicActivity*   t_task_prio;
+    Activity*           t_act;
 
     TestRunnableInterface*  t_run_int_prio;
     TestRunnableInterface*  t_run_int_fail;
+    TestRunnableInterface*  t_run_int_act;
 
     RunnableInterface* t_run_allocate;
+    RunnableInterface* t_run_allocate_act;
     TestSelfRemove* t_self_remove;
 
-public:
+    ActivitiesTest(){setUp();};
+    ~ActivitiesTest(){tearDown();};
 
     void setUp();
     void tearDown();
@@ -85,6 +63,12 @@ public:
     void testSelfRemove();
 
     void testNonPeriodic();
+
+    void testThread();
+    void testActivityNP();
+    void testActivityNPSelfRemove();
+    void testActivityPSelfRemove();
+    void testActivityBreakLoop();
 
     void testAllocation();
     void testRemoveAllocate();

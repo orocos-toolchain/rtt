@@ -21,8 +21,6 @@
 #ifndef TASKS_MULTIPLE_TEST_HPP
 #define TASKS_MULTIPLE_TEST_HPP
 
-#include <cppunit/extensions/HelperMacros.h>
-
 #include <PeriodicActivity.hpp>
 
 using namespace RTT;
@@ -81,16 +79,13 @@ typedef DummyTask<PeriodicActivity> DummyNPTask;
  * Test for starting and stopping tasks
  */
 class ActivitiesMultipleTest
-    : public CppUnit::TestFixture
+
 {
 public:
-    CPPUNIT_TEST_SUITE( ActivitiesMultipleTest );
-    // Test Many Activities :
-    CPPUNIT_TEST( testMultiple );
-    CPPUNIT_TEST_SUITE_END();
+	ActivitiesMultipleTest(){setUp();};
+	~ActivitiesMultipleTest(){tearDown();};
 
-public:
-    void setUp();
+	void setUp();
 
     void testMultiple();
 

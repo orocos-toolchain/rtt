@@ -38,10 +38,12 @@
 #ifndef _HOMING_INTERFACE_HPP
 #define _HOMING_INTERFACE_HPP
 
+#include "../rtt-config.h"
+
 namespace RTT
 {
 
-class HomingInterface
+class RTT_API HomingInterface
 {
 public:
 

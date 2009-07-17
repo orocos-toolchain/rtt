@@ -40,6 +40,7 @@
 #define OS_THREADS_HPP
 
 #include "Atomic.hpp"
+#include "../rtt-config.h"
 
 namespace RTT
 { namespace OS {
@@ -50,25 +51,25 @@ namespace RTT
      * increased by one for each PeriodicThread or SingleThread
      * object created and is never decreased.
      */
-    extern AtomicInt threads;
+    extern AtomicInt RTT_API threads;
 
     /**
      * An integer denoting the lowest priority of the
      * selected OS.
      */
-    extern const int LowestPriority;
+    extern const int RTT_API LowestPriority;
 
     /**
      * An integer denoting the highest priority of the
      * selected OS.
      */
-    extern const int HighestPriority;
+    extern const int RTT_API HighestPriority;
 
     /**
      * An interval to be added 'n' times to LowestPriority
      * to get an 'n' times higher priority.
      */
-    extern const int IncreasePriority;
+    extern const int RTT_API IncreasePriority;
 
     /**
      * Check if the scheduler is a valid type in the current process
@@ -76,7 +77,7 @@ namespace RTT
      * @return true if \a sched_type made sense, false if a
      * correction was applied.
      */
-    bool CheckScheduler(int& sched_type);
+    bool RTT_API CheckScheduler(int& sched_type);
 
     /**
      * Check if the scheduler type and priority match and
@@ -86,7 +87,7 @@ namespace RTT
      * @return true if the arguments made sense, false if a
      * correction was applied.
      */ 
-    bool CheckPriority(int& sched_type, int& priority);
+    bool RTT_API CheckPriority(int& sched_type, int& priority);
 
 }}
 #endif

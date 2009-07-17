@@ -47,7 +47,7 @@ namespace RTT
      * An action which invokes a dispatch command
      * in execute().
      */
-    class DispatchAction
+    class RTT_API DispatchAction
         : public ActionInterface
     {
         DispatchInterface*  mdi;

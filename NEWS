@@ -1,3 +1,125 @@
+           The Orocos Real-Time Toolkit v1.8.3.
+           ====================================
+
+The Orocos development team is pleased to announce the third bug fix
+release of the Real-Time Toolkit v1.8, a C++ toolkit for building
+component based, real-time robotics and machine control applications.
+
+You can download this release from
+  <http://www.orocos.org/stable/rtt/v1.8.3/orocos-rtt-1.8.3-src.tar.bz2>
+and read the installation instructions on
+  <http://www.orocos.org/stable/documentation/rtt/v1.8.x/doc-xml/orocos-installation.html>
+
+This release fixes a bug in the CORBA layer causing crashes in certain
+cases. Timeouts when using semaphores in GNU/Linux were fixed.
+Some overall documentation and cmake updates were included in this
+release as well. This release also adds the VectorTemplateComposition
+header for building custom types based on std::vector in the scripting
+language.
+
+           The Orocos Real-Time Toolkit v1.8.2.
+           ====================================
+
+The Orocos development team is pleased to announce the second bug fix
+release of the Real-Time Toolkit v1.8, a C++ toolkit for building
+component based, real-time robotics and machine control applications.
+
+You can download this release from
+  <http://www.orocos.org/stable/rtt/v1.8.2/orocos-rtt-1.8.2-src.tar.bz2>
+and read the installation instructions on
+  <http://www.orocos.org/stable/documentation/rtt/v1.8.x/doc-xml/orocos-installation.html>
+
+This release fixes a bug in Command processing, causing commands not
+to be executed in certain configurations. Also state machine
+event processing has been adapted such that no events are lost.
+Some overall documentation updates were included in this release as well.
+
+           The Orocos Real-Time Toolkit v1.8.1.
+           ====================================
+
+The Orocos development team is pleased to announce first bug fix
+release of the Real-Time Toolkit v1.8, a C++ toolkit for building
+component based, real-time robotics and machine control applications.
+
+You can download this release from
+  <http://www.orocos.org/stable/rtt/v1.8.1/orocos-rtt-1.8.1-src.tar.bz2>
+and read the installation instructions on
+  <http://www.orocos.org/stable/documentation/rtt/v1.8.x/doc-xml/orocos-installation.html>
+
+This release fixes building with certain TAO setups, event ports
+registration and emitting using DataPort and BufferPort and includes
+a way to set a CORBA message timeout using InitORB.
+
+           The Orocos Real-Time Toolkit v1.8.0.
+           ====================================
+
+  The Orocos development team is pleased to announce the next major
+feature release of the Real-Time Toolkit, a C++ toolkit for building
+ component based, real-time robotics and machine control applications.
+
+You can download this release from
+  <http://www.orocos.org/stable/rtt/v1.8.0/orocos-rtt-1.8.0-src.tar.bz2>
+and read the installation instructions on
+  <http://www.orocos.org/stable/documentation/rtt/v1.8.x/doc-xml/orocos-installation.html>
+
+The Real-Time Toolkit (RTT) library allows application designers to
+build highly configurable and interactive component-based real-time
+control applications. This release's major feature highlights are:
+
+ * Event driven data ports allows components to react to new data.
+ * CORBA: Omniorb support as alternative to TAO.
+ * Usability improvements in the OCL library for data logging and
+   application building (deployment).
+ * Standard activity for each newly created component.
+ * Many small improvements suggested by the user community.
+
+If you'd like a high level overview of the Orocos libraries, visit
+  <http://www.orocos.org/stable/documentation/rtt/v1.8.x/doc-xml/orocos-overview.html>
+If you'd like to get started building your own components, visit
+  <http://www.orocos.org/stable/documentation/rtt/v1.8.x/doc-xml/orocos-components-manual.html>
+
+This release is backwards compatible with all 1.x.y releases, although
+some functionality has been deprecated or alternative usage patterns
+are preferred. These and other changes and improvements can be found
+in the Orocos RTT Changes document on
+  <http://www.orocos.org/stable/documentation/rtt/v1.8.x/doc-xml/orocos-rtt-changes.html>
+
+           The Orocos Real-Time Toolkit v1.6.2.
+           ====================================
+
+  The Orocos development team is pleased to announce the second
+bugfix release of the Real-Time Toolkit v1.6, a C++ toolkit for building
+ component based, real-time robotics and machine control applications.
+
+You can download this release from
+  <http://www.orocos.org/stable/rtt/v1.6.1/orocos-rtt-1.6.2-src.tar.bz2>
+and read the installation instructions on
+  <http://www.orocos.org/stable/documentation/rtt/v1.6.x/doc-xml/orocos-installation.html>
+
+Summary of fixed issues:
+ * Fix semaphore timout bug
+ * Fix crashes in CORBA layer
+ * Improve RTAI/Xenomai install path detection
+ * Small compilation fixes in certain setups
+
+           The Orocos Real-Time Toolkit v1.6.1.
+           ====================================
+
+  The Orocos development team is pleased to announce the first
+bugfix release of the Real-Time Toolkit v1.6, a C++ toolkit for building
+ component based, real-time robotics and machine control applications.
+
+You can download this release from
+  <http://www.orocos.org/stable/rtt/v1.6.1/orocos-rtt-1.6.1-src.tar.bz2>
+and read the installation instructions on
+  <http://www.orocos.org/stable/documentation/rtt/v1.6.x/doc-xml/orocos-installation.html>
+
+Summary of fixed issues:
+ * thread creation in GNU/Linux when no pam limits are set,
+ * NonPeriodicActivity::trigger() now always returns true if succesful.
+ * Various build system and documentation fixes.
+ * Fixed issues with Intel and Suse compilers
+
            The Orocos Real-Time Toolkit v1.6.0.
            ====================================
 

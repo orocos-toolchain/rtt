@@ -20,8 +20,6 @@
 #ifndef PROGRAMTEST_H
 #define PROGRAMTEST_H
 
-#include <cppunit/extensions/HelperMacros.h>
-
 #include <scripting/Parser.hpp>
 #include <TaskContext.hpp>
 #include <string>
@@ -29,22 +27,9 @@
 
 using namespace RTT;
 
-class ProgramTest : public CppUnit::TestFixture
+class ProgramTest
 {
-    CPPUNIT_TEST_SUITE( ProgramTest );
-    CPPUNIT_TEST( testEmptyProgram );
-    CPPUNIT_TEST( testReturnProgram );
-    CPPUNIT_TEST( testParseProgram );
-    CPPUNIT_TEST( testProgramFailure );
-    CPPUNIT_TEST( testProgramCondition );
-    CPPUNIT_TEST( testProgramAnd );
-    CPPUNIT_TEST( testProgramTry );
-    CPPUNIT_TEST( testProgramUntil );
-    CPPUNIT_TEST( testProgramBreak );
-    CPPUNIT_TEST( testProgramUntilFail );
-    CPPUNIT_TEST( testProgramTask);
-    CPPUNIT_TEST_SUITE_END();
-
+public:
     Parser parser;
     TaskContext gtc;
     SimulationActivity gtask;
@@ -68,9 +53,9 @@ class ProgramTest : public CppUnit::TestFixture
     int getI() const { return i; }
 
     int i;
-public:
-    ProgramTest();
 
+    ProgramTest();
+    ~ProgramTest(){ tearDown(); };
     void setUp();
     void tearDown();
 

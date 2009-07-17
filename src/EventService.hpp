@@ -62,7 +62,7 @@ namespace RTT
      * can then be emitted or subscribed to.
      *
      */
-    class EventService
+    class RTT_API EventService
         : public OperationFactory< ActionInterface* >
     {
         // creates event hooks

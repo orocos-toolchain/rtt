@@ -21,36 +21,29 @@
 #ifndef TIMETEST_H
 #define TIMETEST_H
 
-#include <cppunit/extensions/HelperMacros.h>
 #include <Time.hpp>
 #include <TimeService.hpp>
 #include <Timer.hpp>
 #include <string>
 #include <rtt-config.h>
 
-class TimeTest : public CppUnit::TestFixture
+class TimeTest
 {
-    CPPUNIT_TEST_SUITE( TimeTest );
-    CPPUNIT_TEST( testSecondsConversion );
-    CPPUNIT_TEST( testTicksConversion );
-    CPPUNIT_TEST( testTimeProgress );
-    CPPUNIT_TEST( testTimers );
-    CPPUNIT_TEST( testTimerPeriod );
-    CPPUNIT_TEST_SUITE_END();
-
-    RTT::TimeService* hbg;
+public:
+	RTT::TimeService* hbg;
     double small_S, normal_S, long_S;
     RTT::TimeService::ticks small_t, normal_t, long_t;
     RTT::nsecs small_ns, normal_ns, long_ns;
-public:
-    void setUp();
-    void tearDown();
+
+	TimeTest();
+	~TimeTest();
 
     void testSecondsConversion();
     void testTicksConversion();
     void testTimeProgress();
     void testTimers();
     void testTimerPeriod();
+
 };
 
 #endif  // TIMETEST_H

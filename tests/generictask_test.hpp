@@ -20,7 +20,6 @@
 #ifndef GENERIC_TASK_H
 #define GENERIC_TASK_H
 
-#include <cppunit/extensions/HelperMacros.h>
 
 #include <TaskContext.hpp>
 #include <string>
@@ -28,21 +27,9 @@
 using namespace RTT;
 using namespace RTT;
 
-class Generic_TaskTest : public CppUnit::TestFixture
+class Generic_TaskTest
 {
-    CPPUNIT_TEST_SUITE( Generic_TaskTest );
-
-    CPPUNIT_TEST( testMethod );
-    CPPUNIT_TEST( testMethodFromDS );
-    CPPUNIT_TEST( testMethodFactory );
-    CPPUNIT_TEST( testRemoteMethod );
-    CPPUNIT_TEST( testDSMethod );
-    CPPUNIT_TEST( testCRMethod );
-    CPPUNIT_TEST( testMethodsC );
-    CPPUNIT_TEST( testAddMethod );
-
-    CPPUNIT_TEST_SUITE_END();
-
+public:
     TaskContext* tc;
     ActivityInterface* tsim;
     TaskObject* createMethodFactory();
@@ -73,6 +60,8 @@ class Generic_TaskTest : public CppUnit::TestFixture
 
     bool assertBool( bool );
 public:
+	Generic_TaskTest(){ setUp(); };
+	~Generic_TaskTest(){ tearDown(); };
 
     void setUp();
     void tearDown();

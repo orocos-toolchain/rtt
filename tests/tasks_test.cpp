@@ -19,7 +19,7 @@
 
 
 #include "tasks_test.hpp"
-#include <unistd.h>
+
 #include <iostream>
 
 #include <PeriodicActivity.hpp>
@@ -30,11 +30,15 @@
 using namespace std;
 using namespace boost;
 
+#include <boost/test/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
+
 // Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( ActivitiesTest );
 
 using namespace RTT;
 using namespace RTT::detail;
+
+#define BOOST_CHECK_EQUAL_MESSAGE(M, v1, v2) BOOST_CHECK_MESSAGE( v1==v2, M)
 
 struct TestOverrun
   : public RTT::OS::RunnableInterface
@@ -105,8 +109,8 @@ struct TestPeriodic
 struct TestRunnableInterface
     : public RunnableInterface
 {
-    bool result;
-    bool init, stepped, fini;
+    bool result, breakl;
+    bool init, stepped, looped, fini;
 
     TestRunnableInterface(bool res)
     {
@@ -124,11 +128,24 @@ struct TestRunnableInterface
         fini   = true;
     }
 
+    void loop() {
+        looped = true;
+        while (breakl == false) {
+            usleep(500000);
+        }
+    }
+
+    bool breakLoop() {
+        return breakl;
+    }
+
     void reset(bool res) {
         result = res;
         init = false;
         stepped = false;
         fini = false;
+        looped = false;
+        breakl = true;
     }
 };
 
@@ -163,13 +180,15 @@ struct TestSelfRemove
 {
     int c;
     bool fini;
+    bool breakl;
     bool initialize() {
         c = 0;
         fini = false;
+        breakl = true;
         return true;
     }
     bool breakLoop() {
-        return true;
+        return breakl;
     }
     void loop() {
         this->getActivity()->stop();
@@ -188,13 +207,16 @@ void
 ActivitiesTest::setUp()
 {
     t_task_prio = new PeriodicActivity( 15, 0.01 );
+    t_act = new Activity(15, 0.01);
 
     t_run_int_prio = new TestRunnableInterface(true);
+    t_run_int_act  = new TestRunnableInterface(true);
     t_run_int_fail = new TestRunnableInterface(false);
 
     t_run_allocate = new TestAllocate();
     t_self_remove  = new TestSelfRemove();
 
+    t_run_allocate_act = new TestAllocate();
 }
 
 
@@ -202,31 +224,45 @@ void
 ActivitiesTest::tearDown()
 {
     delete t_task_prio;
+    delete t_act;
 
     delete t_run_int_prio;
+    delete t_run_int_act;
     delete t_run_int_fail;
 
     delete t_run_allocate;
+    delete t_run_allocate_act;
+
     delete t_self_remove;
 }
 
-void ActivitiesTest::testFailInit()
+BOOST_FIXTURE_TEST_SUITE( ActivitiesTestSuite, ActivitiesTest )
+
+BOOST_AUTO_TEST_CASE( testFailInit )
 {
     t_task_prio->run( t_run_int_fail );
 
-    CPPUNIT_ASSERT( !t_task_prio->start() );
-    CPPUNIT_ASSERT( !t_task_prio->stop() );
+    BOOST_CHECK( !t_task_prio->start() );
+    BOOST_CHECK( !t_task_prio->stop() );
+
+    BOOST_CHECK( t_act->run( t_run_int_fail ) );
+    t_run_int_fail->reset(false);
+
+    BOOST_CHECK( !t_act->start() );
+    BOOST_CHECK( !t_act->stop() );
 
 }
 
-void ActivitiesTest::testOverrun()
+#if !defined( OROCOS_TARGET_WIN32 )
+BOOST_AUTO_TEST_CASE( testOverrun )
 {
   bool r = false;
   // create
   boost::scoped_ptr<TestOverrun> run( new TestOverrun() );
-  boost::scoped_ptr<RTT::OS::ThreadInterface> t( new RTT::OS::PeriodicThread(25,"ORThread", 0.1) );
-  CPPUNIT_ASSERT_EQUAL(25,t->getPriority() );
-  CPPUNIT_ASSERT_EQUAL(0.1,t->getPeriod() );
+  boost::scoped_ptr<RTT::OS::PeriodicThread> t( new RTT::OS::PeriodicThread(25,"ORThread", 0.1) );
+  //BOOST_CHECK_EQUAL(25,t->getPriority() );
+  BOOST_CHECK_EQUAL(0.1,t->getPeriod() );
+  t->setMaxOverrun(1);
 
   t->run( run.get() );
 
@@ -237,14 +273,42 @@ void ActivitiesTest::testOverrun()
 
   t->run(0);
 
-  CPPUNIT_ASSERT_MESSAGE( "Failed to detect step overrun in Thread", r);
+  BOOST_CHECK_MESSAGE( r, "Failed to detect step overrun in Thread");
 
-  CPPUNIT_ASSERT_MESSAGE( "Failed to execute finalize in emergencyStop", run->fini );
+  BOOST_CHECK_MESSAGE( run->fini, "Failed to execute finalize in emergencyStop" );
 
 }
+#endif
 
+BOOST_AUTO_TEST_CASE( testThread )
+{
+  bool r = false;
+  // create
+  boost::scoped_ptr<TestPeriodic> run( new TestPeriodic() );
 
-void ActivitiesTest::testThreads()
+  boost::scoped_ptr<RTT::OS::ThreadInterface> t( new RTT::OS::Thread(ORO_SCHED_RT, RTT::OS::HighestPriority, 0.1, "PThread") );
+  t->run( run.get() );
+
+  r = t->start();
+  BOOST_CHECK_MESSAGE( r, "Failed to start Thread");
+  r = t->stop();
+  BOOST_CHECK_MESSAGE( r, "Failed to stop Thread");
+  BOOST_CHECK_MESSAGE( run->stepped == true, "Step not executed" );
+  BOOST_CHECK_EQUAL_MESSAGE("Periodic Failure: period of step() too long !", run->overfail, 0);
+  BOOST_CHECK_EQUAL_MESSAGE("Periodic Failure: period of step() too short!", run->underfail, 0);
+  run->reset();
+  r = t->start();
+  BOOST_CHECK_MESSAGE( r, "Failed to start Thread");
+  sleep(1);
+  r = t->stop();
+  BOOST_CHECK_MESSAGE( r, "Failed to stop Thread" );
+  BOOST_CHECK_MESSAGE( run->stepped == true, "Step not executed" );
+  BOOST_CHECK_EQUAL_MESSAGE("Periodic Failure: period of step() too long !", run->overfail, 0);
+  BOOST_CHECK_EQUAL_MESSAGE("Periodic Failure: period of step() too short!", run->underfail, 0);
+  t->run(0);
+}
+
+BOOST_AUTO_TEST_CASE( testThreads )
 {
   bool r = false;
   // create
@@ -254,22 +318,26 @@ void ActivitiesTest::testThreads()
   t->run( run.get() );
 
   r = t->start();
-  CPPUNIT_ASSERT_MESSAGE( "Failed to start Thread", r);
+  BOOST_CHECK_MESSAGE( r, "Failed to start Thread");
   r = t->stop();
-  CPPUNIT_ASSERT_MESSAGE( "Failed to stop Thread", r);
-  CPPUNIT_ASSERT_EQUAL_MESSAGE("Periodic Failure: period of step() to long !", run->overfail, 0);
-  CPPUNIT_ASSERT_EQUAL_MESSAGE("Periodic Failure: period of step() to short!", run->underfail, 0);
+  BOOST_CHECK_MESSAGE( r, "Failed to stop Thread");
+  BOOST_CHECK_MESSAGE( run->stepped == true, "Step not executed" );
+  BOOST_CHECK_EQUAL_MESSAGE("Periodic Failure: period of step() too long !", run->overfail, 0);
+  BOOST_CHECK_EQUAL_MESSAGE("Periodic Failure: period of step() too short!", run->underfail, 0);
+  run->reset();
   r = t->start();
-  CPPUNIT_ASSERT_MESSAGE( "Failed to start Thread", r);
+  BOOST_CHECK_MESSAGE( r, "Failed to start Thread");
   sleep(1);
   r = t->stop();
-  CPPUNIT_ASSERT_MESSAGE( "Failed to stop Thread", r);
-  CPPUNIT_ASSERT_EQUAL_MESSAGE("Periodic Failure: period of step() to long !", run->overfail, 0);
-  CPPUNIT_ASSERT_EQUAL_MESSAGE("Periodic Failure: period of step() to short!", run->underfail, 0);
+  BOOST_CHECK_MESSAGE( r, "Failed to stop Thread" );
+  BOOST_CHECK_EQUAL_MESSAGE("Periodic Failure: period of step() too long !", run->overfail, 0);
+  BOOST_CHECK_EQUAL_MESSAGE("Periodic Failure: period of step() too short!", run->underfail, 0);
+  BOOST_CHECK_MESSAGE( run->stepped == true, "Step not executed" );
   t->run(0);
 }
 
-void ActivitiesTest::testNonPeriodic()
+
+BOOST_AUTO_TEST_CASE( testNonPeriodic )
 {
     scoped_ptr<TestRunnableInterface> t_run_int_nonper
         ( new TestRunnableInterface(true) );
@@ -278,47 +346,126 @@ void ActivitiesTest::testNonPeriodic()
         scoped_ptr<NonPeriodicActivity> t_task_nonper
             ( new NonPeriodicActivity( 14 ) );
 
-        CPPUNIT_ASSERT( t_task_nonper->run( t_run_int_nonper.get() ) );
-        CPPUNIT_ASSERT( t_task_nonper->start() );
-        sleep(1);
-        CPPUNIT_ASSERT( t_run_int_nonper->stepped );
-        CPPUNIT_ASSERT( t_run_int_nonper->init );
-        CPPUNIT_ASSERT( t_task_nonper->stop() );
-        CPPUNIT_ASSERT( t_run_int_nonper->fini );
-        CPPUNIT_ASSERT( !t_task_nonper->isRunning() );
-        CPPUNIT_ASSERT( t_task_nonper->run( 0 ) );
-        CPPUNIT_ASSERT( t_task_nonper->start() );
-        CPPUNIT_ASSERT( t_task_nonper->stop() );
+        BOOST_CHECK( t_task_nonper->run( t_run_int_nonper.get() ) );
+        BOOST_CHECK( t_task_nonper->start() );
+        testPause();
+        BOOST_CHECK( t_run_int_nonper->looped );
+        BOOST_CHECK( !t_run_int_nonper->stepped );
+        BOOST_CHECK( t_run_int_nonper->init );
+        BOOST_CHECK( t_task_nonper->stop() );
+        BOOST_CHECK( t_run_int_nonper->fini );
+        BOOST_CHECK( !t_task_nonper->isRunning() );
+        BOOST_CHECK( t_task_nonper->run( 0 ) );
+        BOOST_CHECK( t_task_nonper->start() );
+        BOOST_CHECK( t_task_nonper->stop() );
         // stop() should be fully synchronising...
-        CPPUNIT_ASSERT( !t_task_nonper->isRunning() );
+        BOOST_CHECK( !t_task_nonper->isRunning() );
     }
 }
 
-void ActivitiesTest::testSelfRemove()
+BOOST_AUTO_TEST_CASE( testActivityNP )
+{
+    scoped_ptr<TestRunnableInterface> t_run_int_nonper
+        ( new TestRunnableInterface(true) );
+    // force ordering of scoped_ptr destruction.
+    {
+        scoped_ptr<Activity> t_task_nonper
+            ( new Activity(15) );
+
+        BOOST_CHECK( t_task_nonper->run( t_run_int_nonper.get() ) );
+        BOOST_CHECK( t_task_nonper->start() );
+        testPause();
+        sleep(1);
+        BOOST_CHECK( t_run_int_nonper->looped );
+        BOOST_CHECK( t_run_int_nonper->init );
+        BOOST_CHECK( t_task_nonper->stop() );
+        BOOST_CHECK( t_run_int_nonper->fini );
+        BOOST_CHECK( !t_task_nonper->isRunning() );
+        BOOST_CHECK( t_task_nonper->run( 0 ) );
+        BOOST_CHECK( t_task_nonper->start() );
+        BOOST_CHECK( t_task_nonper->stop() );
+        // stop() should be fully synchronising...
+        BOOST_CHECK( !t_task_nonper->isRunning() );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testActivityBreakLoop )
+{
+    scoped_ptr<TestRunnableInterface> t_run_int_nonper
+        ( new TestRunnableInterface(true) );
+    // force ordering of scoped_ptr destruction.
+    {
+        scoped_ptr<Activity> t_task_nonper
+            ( new Activity(15) );
+
+        BOOST_CHECK( t_task_nonper->run( t_run_int_nonper.get() ) );
+        BOOST_CHECK( t_task_nonper->start() );
+        testPause();
+
+        t_run_int_nonper->breakl = false;
+        BOOST_CHECK( t_task_nonper->start() );
+        testPause();
+        BOOST_CHECK( t_task_nonper->stop() == false );
+
+        t_run_int_nonper->breakl = true;
+        BOOST_CHECK( t_task_nonper->stop() );
+        BOOST_CHECK( t_run_int_nonper->fini );
+        BOOST_CHECK( !t_task_nonper->isRunning() );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testSelfRemove )
 {
     scoped_ptr<TestSelfRemove> t_run_int_nonper
         ( new TestSelfRemove() );
     scoped_ptr<NonPeriodicActivity> t_task_nonper
         ( new NonPeriodicActivity( 14 ) );
-    CPPUNIT_ASSERT( t_task_nonper->run( t_run_int_nonper.get() ) );
-    CPPUNIT_ASSERT( t_task_nonper->start() );
-    CPPUNIT_ASSERT( t_task_prio->run(t_self_remove) );
-    CPPUNIT_ASSERT( t_task_prio->start() );
-    sleep(1);
-    CPPUNIT_ASSERT( !t_task_prio->isRunning() );
-    CPPUNIT_ASSERT( t_self_remove->fini );
-    CPPUNIT_ASSERT( !t_task_nonper->isRunning() );
-    CPPUNIT_ASSERT( t_run_int_nonper->fini );
+    BOOST_CHECK( t_task_nonper->run( t_run_int_nonper.get() ) );
+    BOOST_CHECK( t_task_nonper->start() );
+    BOOST_CHECK( t_task_prio->run(t_self_remove) );
+    BOOST_CHECK( t_task_prio->start() );
+    testPause();
+    BOOST_CHECK( !t_task_prio->isRunning() );
+    BOOST_CHECK( t_self_remove->fini );
+    BOOST_CHECK( !t_task_nonper->isRunning() );
+    BOOST_CHECK( t_run_int_nonper->fini );
 }
 
-void ActivitiesTest::testStartStop()
+BOOST_AUTO_TEST_CASE( testActivityNPSelfRemove )
+{
+    scoped_ptr<TestSelfRemove> t_run_int_nonper
+        ( new TestSelfRemove() );
+    scoped_ptr<Activity> t_task_nonper
+        ( new Activity( 14 ) );
+    BOOST_CHECK( t_task_nonper->run( t_run_int_nonper.get() ) );
+    BOOST_CHECK( t_task_nonper->start() );
+    testPause();
+    BOOST_CHECK( !t_task_nonper->isRunning() );
+    BOOST_CHECK( t_run_int_nonper->fini );
+}
+
+BOOST_AUTO_TEST_CASE( testActivityPSelfRemove )
+{
+    scoped_ptr<TestSelfRemove> t_run_int_per
+        ( new TestSelfRemove() );
+    scoped_ptr<Activity> t_task_per
+        ( new Activity( 14, 0.01 ) );
+    BOOST_CHECK( t_task_per->run( t_run_int_per.get() ) );
+    BOOST_CHECK( t_task_per->start() );
+    testPause();
+    BOOST_CHECK( !t_task_per->isRunning() );
+    BOOST_CHECK( t_run_int_per->fini );
+}
+
+
+BOOST_AUTO_TEST_CASE( testStartStop )
 {
     testStart();
     testPause();
     testStop();
 }
 
-void ActivitiesTest::testRunnableInterface()
+BOOST_AUTO_TEST_CASE( testRunnableInterface )
 {
     testAddRunnableInterface();
     testStart();
@@ -329,7 +476,7 @@ void ActivitiesTest::testRunnableInterface()
     testRemoveRunnableInterface();
 }
 
-void ActivitiesTest::testAllocation()
+BOOST_AUTO_TEST_CASE( testAllocation )
 {
     testAddAllocate();
     testStart();
@@ -338,54 +485,71 @@ void ActivitiesTest::testAllocation()
     testRemoveAllocate();
 }
 
+BOOST_AUTO_TEST_SUITE_END()
+
 void ActivitiesTest::testAddRunnableInterface()
 {
     bool adding_prio = t_task_prio->run( t_run_int_prio );
-    CPPUNIT_ASSERT( adding_prio );
+    BOOST_CHECK( adding_prio );
+
+    bool adding_act = t_act->run( t_run_int_act );
+    BOOST_CHECK( adding_act );
 }
 
 void ActivitiesTest::testRemoveRunnableInterface()
 {
-    CPPUNIT_ASSERT( t_run_int_prio->fini );
-    CPPUNIT_ASSERT( t_task_prio->run( 0 ) );
+    BOOST_CHECK( t_run_int_prio->fini );
+    BOOST_CHECK( t_task_prio->run( 0 ) );
+
+    BOOST_CHECK( t_run_int_act->fini );
+    BOOST_CHECK( t_act->run( 0 ) );
 }
 
 void ActivitiesTest::testStart()
 {
-    CPPUNIT_ASSERT( t_task_prio->start());
+    BOOST_CHECK( t_task_prio->start());
+    BOOST_CHECK( t_task_prio->isRunning() );
 
-    CPPUNIT_ASSERT( t_task_prio->isRunning() );
+    BOOST_CHECK( t_act->start());
+    BOOST_CHECK( t_act->isRunning() );
 }
 
 void ActivitiesTest::testPause()
 {
-    sleep(1);
+    usleep(100000);
 }
 
 void ActivitiesTest::testRunnableInterfaceInit() {
-    CPPUNIT_ASSERT( t_run_int_prio->init );
+    BOOST_CHECK( t_run_int_prio->init );
+    BOOST_CHECK( t_run_int_act->init );
 }
 
 void ActivitiesTest::testRunnableInterfaceExecution() {
 
-    CPPUNIT_ASSERT( t_run_int_prio->stepped );
+    BOOST_CHECK( t_run_int_prio->stepped );
+    BOOST_CHECK( t_run_int_act->stepped );
 }
 
 void ActivitiesTest::testStop()
 {
-    CPPUNIT_ASSERT( t_task_prio->stop());
+    BOOST_CHECK( t_task_prio->stop());
+    BOOST_CHECK( !t_task_prio->isRunning() );
 
-    CPPUNIT_ASSERT( !t_task_prio->isRunning() );
+    BOOST_CHECK( t_act->stop());
+    BOOST_CHECK( !t_act->isRunning() );
 }
 
 void ActivitiesTest::testAddAllocate()
 {
-    CPPUNIT_ASSERT( t_task_prio->run( t_run_allocate ) );
+    BOOST_CHECK( t_task_prio->run( t_run_allocate ) );
+
+    BOOST_CHECK( t_act->run( t_run_allocate_act ) );
 }
 
 void ActivitiesTest::testRemoveAllocate()
 {
-    CPPUNIT_ASSERT( t_task_prio->run( 0 ) );
-}
+    BOOST_CHECK( t_task_prio->run( 0 ) );
 
+    BOOST_CHECK( t_act->run( 0 ) );
+}
 

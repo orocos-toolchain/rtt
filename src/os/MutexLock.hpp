@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Oct 10 16:16:57 CEST 2002  MutexLock.hpp 
+  tag: Peter Soetens  Thu Oct 10 16:16:57 CEST 2002  MutexLock.hpp
 
                         MutexLock.hpp -  description
                            -------------------
     begin                : Thu October 10 2002
     copyright            : (C) 2002 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 #ifndef OS_MUTEXLOCK_HPP
 #define OS_MUTEXLOCK_HPP
 
@@ -48,13 +48,13 @@ namespace RTT
      * @brief MutexLock is a scope based Monitor, protecting critical
      * sections with a Mutex object through locking and unlocking it.
      */
-    class MutexLock
+    class RTT_API MutexLock
     {
 
         public:
             /**
              * Create a lock on a Mutex object.
-             * 
+             *
              * @param mutex The Mutex to be locked.
              */
             MutexLock( OS::MutexInterface &mutex )
@@ -82,8 +82,9 @@ namespace RTT
     /**
      * @brief A MutexTryLock tries to lock an Mutex object on construction
      * and if successful, unlocks it on destruction of the MutexTryLock.
+     * Use isSuccessful() to check whether the attempt succeeded.
      */
-    class MutexTryLock
+    class RTT_API MutexTryLock
     {
 
         public:
@@ -123,8 +124,8 @@ namespace RTT
              */
             OS::MutexInterface *_mutex;
 
-        MutexTryLock()
-        {}
+            MutexTryLock()
+            {}
 
         private:
 
@@ -135,6 +136,66 @@ namespace RTT
 
     };
 
+     /**
+      * @brief A MutexTimedLock locks a Mutex object on construction
+      * and if successful, unlocks it on destruction of the MutexTimedLock.
+      * If the lock can not be acquired within the user provided time limit,
+      * the attempt is aborted.
+      * Use isSuccessful() to check whether the attempt succeeded.
+      */
+     class RTT_API MutexTimedLock
+     {
+
+         public:
+
+             /**
+              * Lock a Mutex object, but don't block longer than a specified
+              * timeout.
+              *
+              * @param mutex The Mutex which should be attempted to be locked
+              * @param timeout The maximum time to wait in seconds.
+              */
+             MutexTimedLock( OS::MutexInterface &mutex, Seconds timeout )
+                     : _mutex( &mutex), successful( mutex.timedlock(timeout) )
+             {
+             }
+
+             /**
+              * Return if the locking of the Mutex was succesfull
+              *
+              * @return true when the Mutex is locked
+              */
+             bool isSuccessful()
+             {
+                 return successful;
+             }
+
+             /**
+              * Releases, if any, a lock on the previously try-locked Mutex
+              */
+             ~MutexTimedLock()
+             {
+                 if ( successful )
+                     _mutex->unlock();
+             }
+
+         protected:
+             /**
+              * The Mutex to lock and unlock
+              */
+             OS::MutexInterface *_mutex;
+
+             MutexTimedLock()
+             {}
+
+         private:
+
+             /**
+              * Stores the state of success
+              */
+             bool successful;
+
+     };
 }}
 
 #endif

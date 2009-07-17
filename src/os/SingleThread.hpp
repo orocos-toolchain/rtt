@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Thu Apr 22 20:40:53 CEST 2004  SingleThread.hpp 
+  tag: Peter Soetens  Thu Apr 22 20:40:53 CEST 2004  SingleThread.hpp
 
                         SingleThread.hpp -  description
                            -------------------
     begin                : Thu April 22 2004
     copyright            : (C) 2004 Peter Soetens
     email                : peter.soetens@mech.kuleuven.ac.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -33,8 +33,8 @@
  *   Foundation, Inc., 59 Temple Place,                                    *
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
- ***************************************************************************/ 
- 
+ ***************************************************************************/
+
 
 #ifndef SINGLE_THREAD_HPP
 #define SINGLE_THREAD_HPP
@@ -50,8 +50,8 @@
 #include <string>
 
 namespace RTT
-{ 
-    class DigitalOutInterface;
+{
+    class RTT_API DigitalOutInterface;
 
     namespace OS {
     /**
@@ -60,14 +60,14 @@ namespace RTT
      * start() invokes the initialize() function and runs the loop()
      * method in the thread.  When loop() returns the thread waits for
      * another start() to execute loop() again. In that case,
-     * initialize() is not executed. 
+     * initialize() is not executed.
      *
      * When stop() is called
      * and the thread is still executing loop() and breakLoop()
      * returns \a true (\b not the default), the stop() function
      * succeeds and the finalize() method is called by stop().
      * If the thread was not executing
-     * loop(), stop will always call finalize() and return success. 
+     * loop(), stop will always call finalize() and return success.
      *
      * The user must provide an
      * implementation of breakLoop() returning \a true to make stop()
@@ -78,10 +78,10 @@ namespace RTT
      * When a RunnableInterface object is given, the above methods
      * initialize(), loop(), breakLoop() and finalize() are called
      * on that object instead of on the SingleThread's virtual functions.
-     * 
+     *
      * @see RunnableInterface
      */
-    class SingleThread 
+    class RTT_API SingleThread
         : public OS::ThreadInterface
     {
         friend void* singleThread_f( void* t );
@@ -95,7 +95,7 @@ namespace RTT
          *                 the thread's own virtual functions are executed.
          */
         SingleThread(int priority, const std::string& name, OS::RunnableInterface* r=0);
-    
+
         /**
          * Create a single-shot Thread with priority \a priority, a \a name and optionally,
          * an object to execute.
@@ -106,7 +106,7 @@ namespace RTT
          *                 the thread's own virtual functions are executed.
          */
         SingleThread(int scheduler, int priority, const std::string& name, OS::RunnableInterface* r=0);
-    
+
         virtual ~SingleThread();
 
         virtual bool run( OS::RunnableInterface* r);
@@ -160,6 +160,7 @@ namespace RTT
         virtual int getScheduler() const;
 
         virtual Seconds getPeriod() const { return 0.0; }
+        virtual bool setPeriod(Seconds period) { return false; }
         virtual nsecs getPeriodNS() const { return 0; }
 
         virtual bool setPriority(int priority);
@@ -173,7 +174,7 @@ namespace RTT
         virtual bool breakLoop();
 
         virtual void loop();
-    
+
         virtual bool initialize();
 
         virtual void finalize();
@@ -236,7 +237,7 @@ namespace RTT
 #ifdef OROPKG_OS_THREAD_SCOPE
 	// Pointer to Threadscope device
         DigitalOutInterface * d;
-#endif    
+#endif
     };
 
 }}

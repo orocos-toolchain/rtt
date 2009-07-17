@@ -174,9 +174,9 @@ namespace RTT
     ret = new ConstantDataSource<int>( i );
   }
 
-  void ValueParser::seenuintconstant( uint i )
+  void ValueParser::seenuintconstant( unsigned int i ) // RobWork uint -> unsigned int
   {
-    ret = new ConstantDataSource<uint>( i );
+    ret = new ConstantDataSource<unsigned int>( i ); // RobWork uint -> unsigned int
   }
 
   void ValueParser::seenfloatconstant( double i )

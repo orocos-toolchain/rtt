@@ -108,7 +108,7 @@ namespace RTT
                     break;
                 ++itl;
             }
-            return (itl - items.begin());
+            return (size_type)(itl - items.begin());
 
         }
         bool Pop( reference_t item )

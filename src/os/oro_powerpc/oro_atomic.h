@@ -117,6 +117,8 @@ static inline void isync(void)
 typedef struct { volatile int counter; } oro_atomic_t;
 
 #define ORO_ATOMIC_INIT(i)		{ (i) }
+#define ORO_ATOMIC_SETUP	oro_atomic_set
+#define ORO_ATOMIC_CLEANUP(v)	
 
 #define oro_atomic_read(v)		((v)->counter)
 #define oro_atomic_set(v,i)		(((v)->counter) = (i))

@@ -56,7 +56,12 @@
 #include "scripting/ParserExecutionAccess.hpp"
 #endif
 #include "MarshallingAccess.hpp"
+
+#if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
 #include "SequentialActivity.hpp"
+#elif defined(ORO_ACT_DEFAULT_ACTIVITY)
+#include "Activity.hpp"
+#endif
 
 namespace RTT
 {
@@ -78,7 +83,11 @@ namespace RTT
 #endif
            ,marshAcc( new MarshallingAccess(this) )
            ,dataPorts(this)
+#if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( new SequentialActivity( this->engine() ) )
+#elif defined(ORO_ACT_DEFAULT_ACTIVITY)
+           ,our_act( new Activity( this->engine() ) )
+#endif
     {
         this->setup();
     }
@@ -97,7 +106,11 @@ namespace RTT
 #endif
            ,marshAcc( new MarshallingAccess(this) )
            ,dataPorts(this)
+#if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
            ,our_act( parent ? 0 : new SequentialActivity( this->engine() ) )
+#elif defined(ORO_ACT_DEFAULT_ACTIVITY)
+           ,our_act( parent ? 0 : new Activity( this->engine() ) )
+#endif
     {
         this->setup();
     }
@@ -439,17 +452,21 @@ namespace RTT
         if (this->isActive())
             return;
         if ( new_act == 0) {
+#if defined(ORO_ACT_DEFAULT_SEQUENTIAL)
             new_act = new SequentialActivity();
+#elseif defined(ORO_ACT_DEFAULT_ACTIVITY)
+            new_act = new Activity();
+#endif
         }
-//        if ( this->engine()->getActivity() )
-//            this->engine()->getActivity()->run(0);
         new_act->run( this->engine() );
         our_act = ActivityInterface::shared_ptr( new_act );
     }
 
-    ActivityInterface::shared_ptr TaskContext::getActivity()
+    ActivityInterface* TaskContext::getActivity()
     {
-        return our_act;
+        if (this->engine()->getActivity() != our_act.get() )
+            return this->engine()->getActivity();
+        return our_act.get();
     }
 
     void TaskContext::clear()

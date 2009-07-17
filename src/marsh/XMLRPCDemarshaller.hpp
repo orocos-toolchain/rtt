@@ -69,7 +69,7 @@ namespace RTT
     using namespace XERCES_CPP_NAMESPACE;
 #endif
 
-    class SAX2XMLRPCHandler : public DefaultHandler
+    class RTT_API SAX2XMLRPCHandler : public DefaultHandler
     {
 
             /**
@@ -223,7 +223,7 @@ namespace RTT
      * A Demarshaller for the XMLRPC Protocol.
      * Similar to the CPFDemarshaller, but less well tested.
      */
-    class XMLRPCDemarshaller
+    class RTT_API XMLRPCDemarshaller
         : public Demarshaller
     {
         typedef unsigned short XMLCh;

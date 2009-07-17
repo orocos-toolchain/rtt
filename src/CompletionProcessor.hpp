@@ -41,7 +41,7 @@ namespace RTT
      *
      * @ingroup CoreLibEvents
      */
-    class CompletionProcessor
+    class RTT_API CompletionProcessor
         : public BlockingEventProcessor,
           public NonPeriodicActivity
     {

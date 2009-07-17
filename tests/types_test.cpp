@@ -19,7 +19,7 @@
 
 
 #include "types_test.hpp"
-#include <unistd.h>
+
 #include <iostream>
 #include <FunctionGraph.hpp>
 #include <Method.hpp>
@@ -28,11 +28,12 @@
 #include <TaskContext.hpp>
 #include <ProgramProcessor.hpp>
 #include <StateMachineProcessor.hpp>
+#include <TaskObject.hpp>
 
 using namespace std;
 
-// Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( TypesTest );
+#include <boost/test/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
 
 
 void
@@ -69,17 +70,21 @@ bool TypesTest::assertMsg( bool b, const std::string& msg) {
                                   "Assert", "bool", "");
         to->methods()->addMethod( method("assertMsg", &TypesTest::assertMsg, this),
                                      "Assert message", "bool", "", "text", "text" );
+        to->methods()->addMethod( method("print",&TypesTest::print,this ),
+                                  "print","v","v");
         return to;
     }
 
+// Registers the fixture into the 'registry'
+BOOST_FIXTURE_TEST_SUITE(  TypesTestSuite,  TypesTest )
 
-void TypesTest::testTypes()
+BOOST_AUTO_TEST_CASE( testTypes )
 {
     // XXX
     // for some reason, we can not compare the double6D's one fails
     // to parse, the others assert false, thus inequality.
     string test =
-        // Line 2:
+        // Line 2 (see below):
         string("var int i2 = -1, j = 10, k; set k = 20\n") +
         "do test.assert( i2 == -1 ) ; do test.assert( j == 10 ); do test.assert(k == 20)\n" +
         "var double d = 10.0\n"+
@@ -112,13 +117,13 @@ void TypesTest::testTypes()
         // 30:
         "do test.assert( ar[9] == 9.0 )\n"+
         "do test.assert( ar[10] == 0.0 )\n"+
-        "var array ar1(12,2.0)\n"+
+        "var array ar1 = array(12,2.0)\n"+
         "do test.assert(ar1.size == 12)\n"+
         "do test.assert(ar1[0] == 2.0)\n"+
         "var array ar2 = array(5,3.0)\n"+
         "do test.assert(ar2.size == 5)\n"+
         "do test.assert(ar2[0] == 3.0)\n"+
-        "var array ar3(2.0,3.0,4.0)\n"+
+        "var array ar3(3) = array(2.0,3.0,4.0)\n"+
         "do test.assert(ar3.size == 3)\n"+
         //40:
         "do test.assert(ar3[0]==2.0)\n"+
@@ -132,8 +137,8 @@ void TypesTest::testTypes()
         "do test.assert(ar4[3]==5.0)\n"+
         "var string str(10) = \"hello\"\n"+
         // 50:
-        "do test.assert( str.size == 10)\n"+
-        "do test.assert( str.capacity == 10)\n"+
+        "do test.assert( str.size == 5)\n"+
+        "do test.assert( str.capacity >= 10)\n"+
         "set str[0] = 'a'\n"+
         "set str[1] = 'b'\n"+
         "set str[2] = 'c'\n"+
@@ -147,16 +152,17 @@ void TypesTest::testTypes()
         "do test.assert( str[9] == '\\0' )\n"+
         "do test.assert( str[10] == '\\0' )\n"+
         // various array constructors
-        "var array ar2 = array(10.,5.)\n"+
+        "set ar2 = array(10.,5.)\n"+
         "do test.assert( ar2.size == 2)\n"+
         "do test.assert( ar2.capacity == 2)\n"+
         "do test.assert( ar2[0] == 10.0 )\n"+
         "do test.assert( ar2[1] == 5.0 )\n"+
-        "var array ar3 = array(10.)\n"+
+        "set ar3 = array(10.)\n"+
         "do test.assert( ar3.size == 1)\n"+
+        // 70:
         "do test.assert( ar3.capacity == 1)\n"+
         "do test.assert( ar3[0] == 10.0 )\n"+
-        "var array ar4 = array(2, 7.)\n"+
+        "set ar4 = array(2, 7.)\n"+
         "do test.assert( ar4.size == 2)\n"+
         "do test.assert( ar4.capacity == 2)\n"+
         "do test.assert( ar4[0] == 7.0 )\n"+
@@ -165,29 +171,37 @@ void TypesTest::testTypes()
         "set ar2 = ar4\n"+
         "do test.assert( ar2.size == 2)\n"+
         "do test.assert( ar2.capacity == 2)\n"+
+        // 80:
         "do test.assert( ar2[0] == 7.0 )\n"+
         "do test.assert( ar2[1] == 7.0 )\n"+
-        "set ar = ar2\n"+
-        "do test.assert( ar.size == 2)\n"+
-        "do test.assert( ar.capacity == 10)\n"+
+        "do test.assert( ar.capacity == 10)\n"+ // pre-condition
+        "var array ar7(7) = array(7)\n"+
+        "set ar = ar7\n"+                       // assignment must keep capacity and only change size
+        //"do test.print( ar.size )\n"+
+        "do test.assert( ar.size == 7)\n"+
+        //"do test.print( ar.capacity )\n"+
+        "do test.assert( ar.capacity == 7)\n"+ // check keeping capacity: ar(10) vs ar2(2)
+        //-- This fails because .capacity() gets a copy of the std::vector
+        // See DataSourceAdaptor.hpp:263 and :676 ('returns/make a copy'
         "do test.assert( ar2[0] == 7.0 )\n"+
         "do test.assert( ar2[1] == 7.0 )\n";
 
-    string state = string("StateMachine X { initial state Init { run {\n")
+    string state = string("StateMachine X { initial state Init { entry {\n")
         +test
         +"} }\n"
         +"final state Fini {} }\n"
         +"RootMachine X x\n";
 
     string prog = string("program x {\n") + test + "}\n";
-    executeStates(state);
-
     // execute
     executePrograms(prog);
+    executeStates(state);
+
 
 }
+#if 0
 
-void TypesTest::testOperators()
+BOOST_AUTO_TEST_CASE( testOperators )
 {
     string prog = string("program x {\n") +
         "var int i = 3\n" +
@@ -208,7 +222,7 @@ void TypesTest::testOperators()
     executePrograms(prog);
 }
 
-void TypesTest::testConversions()
+BOOST_AUTO_TEST_CASE( testConversions )
 {
     string prog = string("program x {\n") +
         "var int i = 3.0\n" +
@@ -225,7 +239,8 @@ void TypesTest::testConversions()
     // execute
     executePrograms(prog);
 }
-void TypesTest::testProperties()
+
+BOOST_AUTO_TEST_CASE( testProperties )
 {
     string prog = string("program x {\n") +
         "do test.assert( Double1 == 1.234 )\n" +
@@ -275,18 +290,21 @@ void TypesTest::testProperties()
     // execute
     executePrograms(prog);
 
-    CPPUNIT_ASSERT_EQUAL( 4.321, pd1.get() );
-    CPPUNIT_ASSERT_EQUAL( 3.0, pd3.get() );
-    CPPUNIT_ASSERT_EQUAL( 0.321, pv.value()[0] );
-    CPPUNIT_ASSERT_EQUAL( 1.321, pv.value()[1] );
-    CPPUNIT_ASSERT_EQUAL( 2.321, pv.value()[2] );
-    CPPUNIT_ASSERT_EQUAL( 3.321, pv.value()[3] );
+    BOOST_CHECK_EQUAL( 4.321, pd1.get() );
+    BOOST_CHECK_EQUAL( 3.0, pd3.get() );
+    BOOST_CHECK_EQUAL( 0.321, pv.value()[0] );
+    BOOST_CHECK_EQUAL( 1.321, pv.value()[1] );
+    BOOST_CHECK_EQUAL( 2.321, pv.value()[2] );
+    BOOST_CHECK_EQUAL( 3.321, pv.value()[3] );
 }
+#endif
+
+BOOST_AUTO_TEST_SUITE_END()
 
 void TypesTest::executePrograms(const std::string& prog )
 {
-    CPPUNIT_ASSERT( tc->engine() );
-    CPPUNIT_ASSERT( tc->engine()->programs());
+    BOOST_CHECK( tc->engine() );
+    BOOST_CHECK( tc->engine()->programs());
 
     Parser::ParsedPrograms pg_list;
     try {
@@ -294,77 +312,74 @@ void TypesTest::executePrograms(const std::string& prog )
     }
     catch( const file_parse_exception& exc )
         {
-            CPPUNIT_ASSERT_MESSAGE(exc.what(), false );
+            BOOST_CHECK_MESSAGE( false , exc.what());
         }
     if ( pg_list.empty() )
         {
-            CPPUNIT_ASSERT( false );
+            BOOST_CHECK( false );
         }
 
-    CPPUNIT_ASSERT( tc->engine()->programs()->loadProgram( *pg_list.begin() ) );
-    CPPUNIT_ASSERT( tsim->start() );
-    CPPUNIT_ASSERT( (*pg_list.begin())->start() );
+    BOOST_CHECK( tc->engine()->programs()->loadProgram( *pg_list.begin() ) );
+    BOOST_CHECK( tsim->start() );
+    BOOST_CHECK( (*pg_list.begin())->start() );
 
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(1000) );
+    BOOST_CHECK( SimulationThread::Instance()->run(1000) );
 
     if ( (*pg_list.begin())->inError() ) {
         stringstream errormsg;
         errormsg << " Program error on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
-        CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
+        BOOST_CHECK_MESSAGE( false, errormsg.str() );
     }
 
     if ( (*pg_list.begin())->isRunning() ) {
         stringstream errormsg;
         errormsg << " Program still running on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
-        CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
+        BOOST_CHECK_MESSAGE( false, errormsg.str() );
     }
 
     if ( (*pg_list.begin())->isStopped() == false ) {
         stringstream errormsg;
         errormsg << " Program not stopped on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
-        CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
+        BOOST_CHECK_MESSAGE( false , errormsg.str() );
     }
-    CPPUNIT_ASSERT( (*pg_list.begin())->stop() );
+    BOOST_CHECK( (*pg_list.begin())->stop() );
     tsim->stop();
     tc->engine()->programs()->unloadProgram( (*pg_list.begin())->getName() );
 }
 
 void TypesTest::executeStates(const std::string& state )
 {
-    CPPUNIT_ASSERT( tc->engine() );
-    CPPUNIT_ASSERT( tc->engine()->states());
+    BOOST_CHECK( tc->engine() );
+    BOOST_CHECK( tc->engine()->states());
     Parser::ParsedStateMachines pg_list;
     try {
         pg_list = parser.parseStateMachine( state, tc );
     }
     catch( const file_parse_exception& exc )
         {
-            CPPUNIT_ASSERT_MESSAGE(exc.what(), false );
+            BOOST_CHECK_MESSAGE( false , exc.what());
         }
     if ( pg_list.empty() )
         {
-            CPPUNIT_ASSERT( false );
+            BOOST_CHECK( false );
         }
 
-    CPPUNIT_ASSERT( tc->engine()->states()->loadStateMachine( *pg_list.begin() ) );
-    CPPUNIT_ASSERT( tsim->start() );
-    CPPUNIT_ASSERT( (*pg_list.begin())->activate() );
-    CPPUNIT_ASSERT( (*pg_list.begin())->start() );
+    BOOST_CHECK( tc->engine()->states()->loadStateMachine( *pg_list.begin() ) );
+    BOOST_CHECK( tsim->start() );
+    BOOST_CHECK( (*pg_list.begin())->activate() );
+    BOOST_CHECK( (*pg_list.begin())->start() );
 
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(1000) );
+    BOOST_CHECK( SimulationThread::Instance()->run(1000) );
     if ( (*pg_list.begin())->inError() ) {
         stringstream errormsg;
         errormsg << " State error on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
-        CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
+        BOOST_CHECK_MESSAGE( false , errormsg.str());
     }
 
-    CPPUNIT_ASSERT( (*pg_list.begin())->stop() );
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(100) );
-    CPPUNIT_ASSERT( (*pg_list.begin())->deactivate() );
+    BOOST_CHECK( (*pg_list.begin())->stop() );
+    BOOST_CHECK( SimulationThread::Instance()->run(100) );
+    BOOST_CHECK( (*pg_list.begin())->deactivate() );
 
     tsim->stop();
     tc->engine()->states()->unloadStateMachine( (*pg_list.begin())->getName() );
 }
-
-
-

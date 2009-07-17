@@ -1,4 +1,6 @@
-INCLUDE (${PROJ_SOURCE_DIR}/config/DependentOption.cmake)
+
+include (CMakeDependentOption)
+include (CreatePCFlags)
 
 ###
 ### List user options first before traversing sub-directories:
@@ -7,6 +9,7 @@ INCLUDE (${PROJ_SOURCE_DIR}/config/DependentOption.cmake)
 ###
 
 ### OS Abstraction
+OPTION(OS_NO_ASM "Do not use any assembler instruction, but stick to ISO C++ as much as possible. This will exclude lock-free and atomic algorithms." OFF)
 OPTION(OS_AGNOSTIC "Do not use asm/system.h and asm/atomic.h global system heades, but use RTT implementations." ON)
 OPTION(OS_HAVE_IOSTREAM "Use C++ iostream library." ON)
 OPTION(OS_HAVE_STREAMS "Use C++ streams library." ON)
@@ -19,10 +22,13 @@ MARK_AS_ADVANCED(FORCE OS_MAX_CONC_ACCESS)
 OPTION(OS_THREAD_SCOPE "Enable to monitor thread execution times through ThreadScope API." OFF)
 OPTION(CONFIG_FORCE_UP "Enable to optimise for single core/cpu systems." OFF)
 
+# Notify unit tests that no assembly must be tested.
+SET(TESTS_OS_NO_ASM ${OS_NO_ASM} PARENT_SCOPE)
+
 ### Embedded
 OPTION(OS_EMBEDDED "Build/Customise for embedded Operating System" OFF)
-DEPENDENT_OPTION(OS_NOEXCEPTIONS "Disable exceptions." ON "OS_EMBEDDED" OFF)
-DEPENDENT_OPTION(OS_EMBEDDED_SCRIPTING "Enable Scripting for embedded Operating System. (requires EXCEPTIONS)" OFF "NOT OS_NOEXCEPTIONS" OFF)
+CMAKE_DEPENDENT_OPTION(OS_NOEXCEPTIONS "Disable exceptions." ON "OS_EMBEDDED" OFF)
+CMAKE_DEPENDENT_OPTION(OS_EMBEDDED_SCRIPTING "Enable Scripting for embedded Operating System. (requires EXCEPTIONS)" OFF "NOT OS_NOEXCEPTIONS" OFF)
 
 #Set build-local CFLAGS.
 IF ( OS_NOEXCEPTIONS )
@@ -35,9 +41,9 @@ ENDIF ( OS_EMBEDDED )
 
 ### Logger
 OPTION(OROBLD_DISABLE_LOGGING "Disable Logging Infrastructure" OFF)
-DEPENDENT_OPTION(OROSEM_PRINTF_LOGGING "Logger uses printf()/fprintf() instead of std::iostream." OFF "NOT OROBLD_DISABLE_LOGGING" OFF)
-DEPENDENT_OPTION(OROSEM_FILE_LOGGING "Logger logs to orocos.log file." ON "NOT OROBLD_DISABLE_LOGGING" OFF)
-DEPENDENT_OPTION(OROSEM_REMOTE_LOGGING "Logger allows remote log retrieval." ON "NOT OROBLD_DISABLE_LOGGING" OFF)
+CMAKE_DEPENDENT_OPTION(OROSEM_PRINTF_LOGGING "Logger uses printf()/fprintf() instead of std::iostream." OFF "NOT OROBLD_DISABLE_LOGGING" OFF)
+CMAKE_DEPENDENT_OPTION(OROSEM_FILE_LOGGING "Logger logs to orocos.log file." ON "NOT OROBLD_DISABLE_LOGGING" OFF)
+CMAKE_DEPENDENT_OPTION(OROSEM_REMOTE_LOGGING "Logger allows remote log retrieval." ON "NOT OROBLD_DISABLE_LOGGING" OFF)
 
 IF (OROSEM_REMOTE_LOGGING AND NOT OROBLD_DISABLE_LOGGING)
   SET(ORONUM_LOGGING_BUFSIZE 1000 CACHE STRING "Maximum number of lines kept for remote log retrieval.")
@@ -47,10 +53,10 @@ ENDIF (OROSEM_REMOTE_LOGGING AND NOT OROBLD_DISABLE_LOGGING)
 
 ### Execution Engine
 OPTION(OROPKG_EXECUTION_ADVANCED "Advanced Execution Engine configuration" OFF)
-DEPENDENT_OPTION(OROPKG_EXECUTION_ENGINE_EVENTS "Enable Event Processing." ON "OROPKG_EXECUTION_ADVANCED" ON)
-DEPENDENT_OPTION(OROPKG_EXECUTION_ENGINE_COMMANDS "Enable Command Processing." ON "OROPKG_EXECUTION_ADVANCED" ON)
-DEPENDENT_OPTION(OROPKG_EXECUTION_ENGINE_PROGRAMS "Enable Program Processing." ON "OROPKG_EXECUTION_ADVANCED" ON)
-DEPENDENT_OPTION(OROPKG_EXECUTION_ENGINE_STATEMACHINES "Enable Statemachine Processing." ON "OROPKG_EXECUTION_ADVANCED" ON)
+CMAKE_DEPENDENT_OPTION(OROPKG_EXECUTION_ENGINE_EVENTS "Enable Event Processing." ON "OROPKG_EXECUTION_ADVANCED" ON)
+CMAKE_DEPENDENT_OPTION(OROPKG_EXECUTION_ENGINE_COMMANDS "Enable Command Processing." ON "OROPKG_EXECUTION_ADVANCED" ON)
+CMAKE_DEPENDENT_OPTION(OROPKG_EXECUTION_ENGINE_PROGRAMS "Enable Program Processing." ON "OROPKG_EXECUTION_ADVANCED" ON)
+CMAKE_DEPENDENT_OPTION(OROPKG_EXECUTION_ENGINE_STATEMACHINES "Enable Statemachine Processing." ON "OROPKG_EXECUTION_ADVANCED" ON)
 IF (OROPKG_EXECUTION_ADVANCED)
   SET(ORONUM_EXECUTION_PROC_QUEUE_SIZE 16 CACHE STRING "Default Command Queue size.")
 ELSE (OROPKG_EXECUTION_ADVANCED)
@@ -59,6 +65,11 @@ ENDIF (OROPKG_EXECUTION_ADVANCED)
 
 ### Marshalling
 OPTION(ENABLE_MARSHALLING "Enable reading and writing Orocos Properties to XML." ON)
+
+### TaskContext & Activities
+OPTION(ORO_ACT_DEFAULT_ACTIVITY "Create default Activity object (thread) for each created TaskContext." ON)
+CMAKE_DEPENDENT_OPTION(ORO_ACT_DEFAULT_SEQUENTIAL "Make the default activity a SequentialActivity (not-threaded) for each created TaskContext." OFF "ORO_ACT_DEFAULT_ACTIVITY" OFF)
+
 
 ###
 #   Collect Sources:
@@ -69,16 +80,16 @@ SET(ENV{GLOBAL_LIBRARY_SRCS})
 FILE( GLOB CPPS [^.]*.cpp )
 FILE( GLOB HPPS [^.]*.hpp [^.]*.h [^.]*.inl)
 
+## Exceptions:
+if ( OS_NO_ASM )
+  file( GLOB ASM_FILES *ListLockFree.cpp *BufferLockFree.cpp )
+  list( REMOVE_ITEM CPPS ${ASM_FILES} )
+endif()
+
 GLOBAL_ADD_INCLUDE( rtt ${HPPS})
 GLOBAL_ADD_INCLUDE( rtt rtt-config.h)
 
 GLOBAL_ADD_SRC( ${CPPS})
-
-IF (ENABLE_MARSHALLING)
-  IF (XERCES AND NOT OS_NOEXCEPTIONS)
-    SET(RTT_LINKFLAGS "${RTT_LINKFLAGS} -lxerces-c" CACHE INTERNAL "")
-  ENDIF(XERCES AND NOT OS_NOEXCEPTIONS)
-ENDIF (ENABLE_MARSHALLING)
 
 ADD_SUBDIRECTORY( marsh )
 ADD_SUBDIRECTORY( os )
@@ -104,6 +115,8 @@ ENDIF ( NOT OS_EMBEDDED OR OS_EMBEDDED_SCRIPTING AND CMAKE_BUILD_TYPE STREQUAL "
 # Settings for building a static library (.a)
 #
 
+INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR}/src ${PROJ_BINARY_DIR}/src ${PROJ_BINARY_DIR}/src/os ${PROJ_BINARY_DIR}/src/os/${OROCOS_TARGET})
+
 #SET(COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}")
 
 IF ( BUILD_STATIC )
@@ -112,7 +125,8 @@ IF ( BUILD_STATIC )
   PROPERTIES DEFINE_SYMBOL "RTT_DLL_EXPORT"
   OUTPUT_NAME orocos-rtt-${OROCOS_TARGET}
 # Set accumulated compilation flags: (.so and .a)
-  COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}"
+  COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
+  COMPILE_DEFINITIONS OROCOS_TARGET=${OROCOS_TARGET}
   VERSION "${RTT_VERSION}"
   CLEAN_DIRECT_OUTPUT 1)
 ENDIF ( BUILD_STATIC )
@@ -124,8 +138,13 @@ ENDIF ( BUILD_STATIC )
   VERSION "${RTT_VERSION}"
   OUTPUT_NAME orocos-rtt-${OROCOS_TARGET}
 # Set accumulated compilation flags: (.so and .a)
-  COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD} ${RTT_CFLAGS} -DOROCOS_TARGET=${OROCOS_TARGET}"
+  COMPILE_FLAGS "${CMAKE_CXX_FLAGS_ADD}"
+  COMPILE_DEFINITIONS OROCOS_TARGET=${OROCOS_TARGET}
   CLEAN_DIRECT_OUTPUT 1)
+  target_link_libraries(orocos-rtt-dynamic_${OROCOS_TARGET} ${OROCOS-RTT_LIBRARIES})
+
+#MESSAGE("Sending includes: ${OROCOS-RTT_INCLUDES} libs: ${OROCOS-RTT_LIBRARIES} rinc: ${RTT_CFLAGS} rlib: ${RTT_LINKFLAGS}")
+create_pc_flags( "${OROCOS-RTT_DEFINITIONS}" "${OROCOS-RTT_INCLUDES}" "${OROCOS-RTT_LIBRARIES}" RTT_DEFINES RTT_CFLAGS RTT_LINKFLAGS)
 
 ### Generate rtt-config.h : HAS NO ACCESS TO SUBDIRECTORY VARIABLES !!!
 CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/rtt-config.h.in ${PROJ_BINARY_DIR}/src/rtt-config.h @ONLY)
@@ -133,9 +152,9 @@ CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/targets/rtt-target.h.in ${PROJ_BINARY_DIR
 CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/targets/target.in ${PROJ_BINARY_DIR}/src/targets/${OROCOS_TARGET} @ONLY)
 CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/orocos-rtt.pc.in ${PROJ_BINARY_DIR}/src/orocos-rtt-${OROCOS_TARGET}.pc @ONLY)
 
-INSTALL_FILES( /lib/pkgconfig FILES orocos-rtt-${OROCOS_TARGET}.pc)
-INSTALL_TARGETS(/lib orocos-rtt-dynamic_${OROCOS_TARGET})
+INSTALL(FILES orocos-rtt-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
+INSTALL(TARGETS orocos-rtt-dynamic_${OROCOS_TARGET} LIBRARY DESTINATION lib RUNTIME DESTINATION bin )
 IF(BUILD_STATIC)
-  INSTALL_TARGETS(/lib orocos-rtt-static_${OROCOS_TARGET})
+  INSTALL(TARGETS orocos-rtt-static_${OROCOS_TARGET} ARCHIVE DESTINATION lib )
 ENDIF(BUILD_STATIC)
 

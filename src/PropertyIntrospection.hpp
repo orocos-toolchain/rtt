@@ -39,6 +39,7 @@
 #define PI_PROPERTYINTROSPECTION_HPP
 
 #include <string>
+#include "rtt-config.h"
 
 namespace RTT
 {
@@ -60,7 +61,7 @@ namespace RTT
      * @see PropertyIntrospection to have a detailed type lookup
      * of a property.
      */
-    class PropertyBagVisitor
+    class RTT_API PropertyBagVisitor
     {
     public:
         virtual ~PropertyBagVisitor()
@@ -87,7 +88,7 @@ namespace RTT
      * @see PropertyBagVisitor to only browse the contents of a PropertyBag
      * hierarchy.
 	 */
-    class PropertyIntrospection
+    class RTT_API PropertyIntrospection
         : public PropertyBagVisitor
     {
     protected:

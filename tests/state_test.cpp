@@ -20,7 +20,7 @@
 
 #include <rtt-config.h>
 #include "state_test.hpp"
-#include <unistd.h>
+
 #include <iostream>
 #include <sstream>
 #ifndef NOPARSER
@@ -32,17 +32,19 @@
 #include <Method.hpp>
 #include <Command.hpp>
 #include <StateMachine.hpp>
+#include <TaskObject.hpp>
 
 using namespace std;
 
-// Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( StateTest );
-
+#include <boost/test/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
 
 StateTest::StateTest()
     :gtc("root"),
      gtask( 0.01, gtc.engine() )
-{}
+{
+	setUp();
+}
 
 
 void
@@ -124,8 +126,9 @@ TaskObject* StateTest::createObject(string a)
     return dat;
 }
 
+BOOST_FIXTURE_TEST_SUITE( StateTestSuite, StateTest )
 
-void StateTest::testParseState()
+BOOST_AUTO_TEST_CASE( testParseState)
 {
     // a state which should never fail
     string prog = string("StateMachine X {\n")
@@ -230,7 +233,7 @@ void StateTest::testParseState()
     this->finishState( &gtc, "x");
 }
 
-void StateTest::testStateFailure()
+BOOST_AUTO_TEST_CASE( testStateFailure)
 {
     // test _command_ (through methods though) failure detection on several places.
     // it is an incomplete test, even more that parsing should fail on the second
@@ -276,12 +279,12 @@ void StateTest::testStateFailure()
         this->doState( prog, &gtc, false );
 
         // assert that an error happened :
-        CPPUNIT_ASSERT( gtc.engine()->states()->getStateMachineStatus("x") == StateMachine::Status::error );
+        BOOST_CHECK( gtc.engine()->states()->getStateMachineStatus("x") == StateMachine::Status::error );
 
-        this->finishState( &gtc, "x");
+        this->finishState( &gtc, "x", false);
     }
 }
-void StateTest::testStateChildren()
+BOOST_AUTO_TEST_CASE( testStateChildren)
 {
     // instantiate two children and check init of vars and params
     string prog = string("StateMachine Y {\n")
@@ -403,7 +406,7 @@ void StateTest::testStateChildren()
     this->finishState( &gtc, "x");
 }
 
-void StateTest::testStateEmpty()
+BOOST_AUTO_TEST_CASE( testStateEmpty)
 {
     // test processing of completely empty states
     string prog = string("StateMachine X {\n")
@@ -423,7 +426,7 @@ void StateTest::testStateEmpty()
      this->finishState( &gtc, "x");
 }
 
-void StateTest::testStateTransitions()
+BOOST_AUTO_TEST_CASE( testStateTransitions)
 {
     // test processing of transition statements.
     string prog = string("StateMachine X {\n")
@@ -475,11 +478,11 @@ void StateTest::testStateTransitions()
         + " RootMachine X x\n" // instantiate a non hierarchical SC
         ;
      this->doState( prog, &gtc );
-     CPPUNIT_ASSERT( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
+     BOOST_CHECK( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
      this->finishState( &gtc, "x");
 }
 
-void StateTest::testStateGlobalTransitions()
+BOOST_AUTO_TEST_CASE( testStateGlobalTransitions)
 {
     // test processing of transition statements.
     string prog = string("StateMachine X {\n")
@@ -536,12 +539,12 @@ void StateTest::testStateGlobalTransitions()
         + " RootMachine X x\n" // instantiate a non hierarchical SC
         ;
      this->doState( prog, &gtc );
-     CPPUNIT_ASSERT( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
+     BOOST_CHECK( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
      this->finishState( &gtc, "x");
 }
 
 
-void StateTest::testStateSubStateVars()
+BOOST_AUTO_TEST_CASE( testStateSubStateVars)
 {
     // test get/set access of substate variables and parameters
     string prog = string("StateMachine Y {\n")
@@ -605,11 +608,11 @@ void StateTest::testStateSubStateVars()
         ;
 
      this->doState( prog, &gtc );
-     CPPUNIT_ASSERT( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
+     BOOST_CHECK( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
      this->finishState( &gtc, "x");
 }
 
-void StateTest::testStateSubStateCommands()
+BOOST_AUTO_TEST_CASE( testStateSubStateCommands)
 {
     // test get/set access of substate variables and parameters
     string prog = string("StateMachine Y {\n")
@@ -692,7 +695,7 @@ void StateTest::testStateSubStateCommands()
      this->finishState( &gtc, "x");
 }
 
-void StateTest::testStateEvents()
+BOOST_AUTO_TEST_CASE( testStateEvents)
 {
     // test event reception in sub states.
     string prog = string("StateMachine Y {\n")
@@ -812,29 +815,32 @@ void StateTest::testStateEvents()
         ;
 
      this->doState( prog, &gtc );
-     //CPPUNIT_ASSERT( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
+     //BOOST_CHECK( gtc.engine()->states()->getStateMachine( "x" )->inState("FINI") );
      this->finishState( &gtc, "x");
 }
 
-void StateTest::testStateUntil()
+BOOST_AUTO_TEST_CASE( testStateUntil)
 {
 //     this->doState( prog, &gtc );
 //     this->finishState( &gtc, "x");
 }
 
-void StateTest::testStateUntilFail()
+BOOST_AUTO_TEST_CASE( testStateUntilFail)
 {
 //     this->doState( prog, &gtc, false );
 
-//     CPPUNIT_ASSERT( gprocessor.getStateMachineStatus("x") == Processor::StateMachineStatus::error );
+//     BOOST_CHECK( gprocessor.getStateMachineStatus("x") == Processor::StateMachineStatus::error );
 
 //     this->finishState( &gtc, "x");
 }
 
+
+BOOST_AUTO_TEST_SUITE_END()
+
 void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 {
-    CPPUNIT_ASSERT( tc->engine() );
-    CPPUNIT_ASSERT( tc->engine()->states());
+    BOOST_CHECK( tc->engine() );
+    BOOST_CHECK( tc->engine()->states());
 
 #if 0
     // Classical way: use parser directly.
@@ -844,18 +850,18 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     }
     catch( const file_parse_exception& exc )
         {
-            CPPUNIT_ASSERT_MESSAGE( exc.what(), false );
+            BOOST_CHECK_MESSAGE( false, exc.what() );
         }
     catch( const parse_exception& exc )
         {
-            CPPUNIT_ASSERT_MESSAGE( exc.what(), false );
+            BOOST_CHECK_MESSAGE( false ,exc.what());
         }
     catch( ... ) {
-            CPPUNIT_ASSERT_MESSAGE( "Uncaught Parse Exception", false );
+            BOOST_CHECK_MESSAGE( false, "Uncaught Parse Exception" );
     }
     if ( pg_list.empty() )
         {
-            CPPUNIT_ASSERT( false );
+            BOOST_CHECK( false );
         }
 #endif
     // Alternative way: test ScriptingAccess as well.
@@ -864,34 +870,34 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
     }
     catch( const file_parse_exception& exc )
         {
-            CPPUNIT_ASSERT_MESSAGE( exc.what(), false );
+            BOOST_CHECK_MESSAGE( false, exc.what() );
         }
     catch( const parse_exception& exc )
         {
-            CPPUNIT_ASSERT_MESSAGE( exc.what(), false );
+            BOOST_CHECK_MESSAGE( false, exc.what() );
         }
     catch( const program_load_exception& e)
         {
-            CPPUNIT_ASSERT_MESSAGE( e.what(), false );
+            BOOST_CHECK_MESSAGE( false, e.what() );
         }
     catch( const std::exception& e ) {
-            CPPUNIT_ASSERT_MESSAGE( e.what(), false );
-            CPPUNIT_ASSERT_MESSAGE( "Uncaught Processor load exception", false );
+            BOOST_CHECK_MESSAGE( false , e.what());
+            BOOST_CHECK_MESSAGE( false, "Uncaught Processor load exception" );
     }
-    CPPUNIT_ASSERT( gtask.start() );
+    BOOST_CHECK( gtask.start() );
     StateMachinePtr sm = tc->engine()->states()->getStateMachine("x");
-    CPPUNIT_ASSERT( sm );
+    BOOST_CHECK( sm );
     CommandInterface* ca = newCommandFunctor(boost::bind(&StateMachine::activate, sm ));
     CommandInterface* cs = newCommandFunctor(boost::bind(&StateMachine::automatic,sm ));
 //      cerr << "Before activate :"<<endl;
 //      tc->getPeer("states")->getPeer("x")->debug(true);
-    CPPUNIT_ASSERT( ca->execute()  );
-    CPPUNIT_ASSERT_MESSAGE( "Error : Activate Command for '"+sm->getName()+"' did not have effect.", sm->isActive() );
+    BOOST_CHECK( ca->execute()  );
+    BOOST_CHECK_MESSAGE( sm->isActive(), "Error : Activate Command for '"+sm->getName()+"' did not have effect." );
 //      cerr << "After activate :"<<endl;
 //      tc->getPeer("states")->getPeer("x")->debug(true);
-    CPPUNIT_ASSERT( gtc.engine()->commands()->process( cs ) != 0 );
+    BOOST_CHECK( gtc.engine()->commands()->process( cs ) != 0 );
 //     while (1)
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(1000) );
+    BOOST_CHECK( SimulationThread::Instance()->run(1000) );
     delete ca;
     delete cs;
 //     cerr << "After run :"<<endl;
@@ -904,7 +910,7 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
 
     if (test ) {
         // check error status of parent :
-        CPPUNIT_ASSERT_MESSAGE( "Error : State Context '"+sm->getName()+"' did not get activated.", sm->isActive() );
+        BOOST_CHECK_MESSAGE( sm->isActive(), "Error : State Context '"+sm->getName()+"' did not get activated." );
         stringstream errormsg;
         int line = sm->getLineNumber();
         errormsg <<" in StateMachine "+sm->getName()
@@ -921,7 +927,7 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
         if ( sm->inError() ) {
             RTT::detail::DumpObject( tc );
         }
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error (inError() == true) encountered" + errormsg.str(), sm->inError() == false );
+        BOOST_CHECK_MESSAGE( sm->inError() == false, "Runtime error (inError() == true) encountered" + errormsg.str() );
         // check error status of all children:
         StateMachine::ChildList cl = sm->getChildren();
         StateMachine::ChildList::iterator clit = cl.begin();
@@ -931,42 +937,42 @@ void StateTest::doState( const std::string& prog, TaskContext* tc, bool test )
                 cerrormsg <<" in state "<<(*clit)->currentState()->getName()<< " on line " <<  (*clit)->getLineNumber() <<" of that StateMachine."<<endl <<"here  > " << sline << endl;
             else
                 cerrormsg <<" (deactivated) on line " <<  (*clit)->getLineNumber() <<" of that StateMachine."<<endl<<"here  > " << sline << endl;
-            CPPUNIT_ASSERT_MESSAGE( "Runtime error (inError() == true) encountered in child "+(*clit)->getName() + cerrormsg.str(), (*clit)->inError() == false );
+            BOOST_CHECK_MESSAGE( (*clit)->inError() == false, "Runtime error (inError() == true) encountered in child "+(*clit)->getName() + cerrormsg.str() );
             ++clit;
         }
     }
 }
 
-void StateTest::finishState(TaskContext* tc, std::string prog_name)
+void StateTest::finishState(TaskContext* tc, std::string prog_name, bool test)
 {
     StateMachinePtr sm = tc->engine()->states()->getStateMachine(prog_name);
-    CPPUNIT_ASSERT( sm );
-    tc->engine()->states()->getStateMachine( prog_name )->stop();
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(500) );
-    stringstream errormsg;
-    errormsg << " on line " << sm->getLineNumber() <<", status is "<< tc->engine()->states()->getStateMachineStatusStr(prog_name) <<endl <<"here  > " << sline << endl;;
-    CPPUNIT_ASSERT_MESSAGE( "StateMachine stalled " + errormsg.str(), sm->isStopped() );
+    BOOST_CHECK( sm );
+    BOOST_CHECK( tc->engine()->states()->getStateMachine( prog_name )->stop() );
+    BOOST_CHECK( SimulationThread::Instance()->run(500) );
+    if (test) {
+        stringstream errormsg;
+        errormsg << " on line " << sm->getLineNumber() <<", status is "<< tc->engine()->states()->getStateMachineStatusStr(prog_name) <<endl <<"here  > " << sline << endl;;
+        BOOST_CHECK_MESSAGE( sm->isStopped(), "StateMachine stalled " + errormsg.str() );
+    }
     // you can call deactivate even when the proc is not running.
     // but deactivation may be 'in progress if exit state has commands in it.
-    CPPUNIT_ASSERT( tc->engine()->states()->getStateMachine( prog_name )->deactivate() );
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(200) );
-    CPPUNIT_ASSERT( tc->engine()->states()->getStateMachine( prog_name )->isActive() == false );
+    BOOST_CHECK( tc->engine()->states()->getStateMachine( prog_name )->deactivate() );
+    BOOST_CHECK( SimulationThread::Instance()->run(200) );
+    BOOST_CHECK( tc->engine()->states()->getStateMachine( prog_name )->isActive() == false );
 
     // only stop now, since deactivate won't work if simtask not running.
-    CPPUNIT_ASSERT( gtask.stop() );
+    BOOST_CHECK( gtask.stop() );
 
     try {
         tc->engine()->states()->unloadStateMachine( prog_name );
     }
     catch( const program_unload_exception& e)
         {
-            CPPUNIT_ASSERT_MESSAGE( e.what(), false );
+            BOOST_CHECK_MESSAGE( false, e.what() );
         }
     catch( ... ) {
-            CPPUNIT_ASSERT_MESSAGE( "Uncaught Processor unload exception", false );
+            BOOST_CHECK_MESSAGE( false, "Uncaught Processor unload exception" );
     }
 
 }
-
-
 

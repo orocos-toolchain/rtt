@@ -57,7 +57,7 @@ namespace RTT
      * are present ) loop() returns immediately.
      * @ingroup CoreLibActivities
      */
-    class NonPeriodicActivity
+    class RTT_API NonPeriodicActivity
         :public ActivityInterface,
          private OS::SingleThread
     {

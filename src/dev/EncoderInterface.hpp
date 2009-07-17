@@ -40,6 +40,7 @@
 
 #include "../NameServer.hpp"
 #include "../NameServerRegistrator.hpp"
+#include "../rtt-config.h"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
@@ -60,7 +61,7 @@ namespace RTT
      * increments.
      * @ingroup DeviceInterface
      */
-    class EncoderInterface
+    class RTT_API EncoderInterface
         : private NameServerRegistrator<EncoderInterface*>
     {
     public:

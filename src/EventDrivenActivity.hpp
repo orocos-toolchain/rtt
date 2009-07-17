@@ -40,7 +40,7 @@
 
 #include "NonPeriodicActivity.hpp"
 #include "Event.hpp"
-#include "BufferLockFree.hpp"
+#include "Buffer.hpp"
 #include <set>
 
 #ifdef ORO_PRAGMA_INTERFACE
@@ -58,7 +58,7 @@ namespace RTT
      * the event is fired. The EventDrivenActivity is run asynchronously
      * in a given thread.
      */
-    class EventDrivenActivity
+    class RTT_API EventDrivenActivity
         : public NonPeriodicActivity
     {
         // The set of events that can trigger this activity
@@ -71,7 +71,7 @@ namespace RTT
 
         // The set of pending events (i.e. events that have been emitted since
         // the last time the activity went to sleep)
-        typedef BufferLockFree< Event< void() >*, BlockingPolicy, NonBlockingPolicy > Triggers;
+        typedef Buffer< Event< void() >*, BlockingPolicy, NonBlockingPolicy > Triggers;
         Triggers* m_pending_events;
 
         // The set of wakeup events (i.e. the events which triggered the

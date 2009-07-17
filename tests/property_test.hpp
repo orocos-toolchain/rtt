@@ -20,7 +20,6 @@
 #ifndef PROPERTYTEST_H
 #define PROPERTYTEST_H
 
-#include <cppunit/extensions/HelperMacros.h>
 #include <Property.hpp>
 #include <PropertyBag.hpp>
 
@@ -35,20 +34,9 @@ struct Composite {
     int a,b,c;
 };
 
-class PropertyTest : public CppUnit::TestFixture
+class PropertyTest
 {
-    CPPUNIT_TEST_SUITE( PropertyTest );
-    CPPUNIT_TEST( testPrimitives );
-    CPPUNIT_TEST( testBags );
-    CPPUNIT_TEST( testComposition );
-    CPPUNIT_TEST( testRepository );
-    CPPUNIT_TEST( testBagOperations );
-    CPPUNIT_TEST( testInit );
-    CPPUNIT_TEST( testUpdate );
-    CPPUNIT_TEST( testPropMarsh );
-    CPPUNIT_TEST( testPropMarshVect );
-    CPPUNIT_TEST_SUITE_END();
-
+public:
     PropertyBag bag1;
     PropertyBag bag2;
     PropertyBase* pb;
@@ -58,15 +46,18 @@ class PropertyTest : public CppUnit::TestFixture
     Property<int>* pi2ref;
     int intref;
     Composite compref;
-public:
+
+    PropertyTest(){ setUp(); };
+    ~PropertyTest(){ tearDown(); };
+
     void setUp();
     void tearDown();
 
     void testPrimitives();
     void testBags();
     void testBagOperations();
-    void testComposition();
     void testRepository();
+    void testComposition();
     void testInit();
     void testUpdate();
     void testPropMarsh();

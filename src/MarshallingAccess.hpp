@@ -41,6 +41,7 @@
 #define ORO_MARSHALLING_ACCESS_HPP
 
 #include <string>
+#include "rtt-config.h"
 
 namespace RTT
 {
@@ -49,7 +50,7 @@ namespace RTT
     /**
      * Load and save properties of a TaskContext.
      */
-    class MarshallingAccess
+    class RTT_API MarshallingAccess
     {
         TaskContext* mparent;
     public:

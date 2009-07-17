@@ -59,8 +59,9 @@ namespace RTT
          * to do so, you'll get immediate hard to debug crashes, as objects
          * appear to be corrupted.
          */
-        struct RTT_API TypeTransporter
+        class RTT_API TypeTransporter
         {
+		public:
             virtual ~TypeTransporter() {}
 
             /**

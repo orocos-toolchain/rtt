@@ -60,6 +60,8 @@
 typedef struct { volatile int counter; } oro_atomic_t;
 
 #define ORO_ATOMIC_INIT(i)	{ (i) }
+#define ORO_ATOMIC_SETUP	oro_atomic_set
+#define ORO_ATOMIC_CLEANUP(v)	
 
 /**
  * oro_atomic_read - read atomic variable

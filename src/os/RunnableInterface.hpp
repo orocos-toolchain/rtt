@@ -41,6 +41,8 @@
 #ifndef OS_RUNNABLEINTERFACE_HPP
 #define OS_RUNNABLEINTERFACE_HPP
 
+#include "../rtt-config.h"
+
 namespace RTT
 { namespace OS {
     class ThreadInterface;
@@ -63,7 +65,7 @@ namespace RTT
      * to put its own blocking functionality in. To break out of the loop() method,
      * reimplement \a breakLoop() such that loop() returns when breakLoop() is called.
      */
-    class RunnableInterface
+    class RTT_API RunnableInterface
     {
       /**
        * The thread which runs this RunnableInterface.
@@ -92,13 +94,13 @@ namespace RTT
 
         /**
          * The method that will be periodically executed when this
-         * class is run in a periodic thread.
+         * class RTT_API is run in a periodic thread.
          */
         virtual void step() = 0;
 
         /**
          * The method that will be executed once when this
-         * class is run in a non periodic thread. The default
+         * class RTT_API is run in a non periodic thread. The default
          * implementation calls step() once.
          */
         virtual void loop();

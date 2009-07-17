@@ -46,14 +46,30 @@ namespace RTT
     /**
      * C++ abstraction of atomic integer operations.
      */
-    class AtomicInt
+    class RTT_API AtomicInt
     {
         oro_atomic_t _val;
     public:
         AtomicInt( int value = 0 )
         {
-            oro_atomic_set(&_val, value);
+            ORO_ATOMIC_SETUP( &_val, value);
         }
+
+		AtomicInt(const AtomicInt& orig)
+		{
+			ORO_ATOMIC_SETUP( &_val, oro_atomic_read( &(orig._val) ) );
+		}
+
+        ~AtomicInt()
+        {
+            ORO_ATOMIC_CLEANUP( &_val );
+        }
+
+		const AtomicInt& operator=(const AtomicInt& orig)
+		{
+			oro_atomic_set( &_val, oro_atomic_read( &(orig._val)));
+			return *this;
+		}
 
         /**
          * Read the current value of the integer.

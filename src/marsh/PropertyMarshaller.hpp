@@ -49,7 +49,7 @@ namespace RTT
      * The file format used by Orocos is the 'Component Property Format'.
      * @see PropertyDemarshaller for reading the result back in.
      */
-    class PropertyMarshaller
+    class RTT_API PropertyMarshaller
         : public Marshaller
     {
         Marshaller* m;

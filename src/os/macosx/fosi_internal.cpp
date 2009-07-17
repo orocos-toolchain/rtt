@@ -1,7 +1,7 @@
 /***************************************************************************
     copyright            : (C) 2008 Klaas Gadeyne
     email                : firstname dot lastname at gmail dot com
- 
+
     ***************************************************************************
     *   This library is free software; you can redistribute it and/or         *
     *   modify it under the terms of the GNU General Public                   *
@@ -29,15 +29,15 @@
     *   Suite 330, Boston, MA  02111-1307  USA                                *
     *                                                                         *
     ***************************************************************************/
- 
- 
+
+
 #include "../ThreadInterface.hpp"
 #include "fosi.h"
 #include "../fosi_internal_interface.hpp"
 #include "../../Logger.hpp"
 #include <cassert>
 
-#define INTERNAL_QUAL 
+#define INTERNAL_QUAL
 
 namespace RTT
 { namespace OS { namespace detail {
@@ -68,8 +68,9 @@ namespace RTT
 					   int priority,
 					   const char * name,
 					   int sched_type,
-					   void * (*start_routine)(void *), 
-					   ThreadInterface* obj) 
+					   size_t stack_size,
+					   void * (*start_routine)(void *),
+					   ThreadInterface* obj)
 	{
             int rv; // return value
             rtos_task_check_priority( &sched_type, &priority );
@@ -81,7 +82,7 @@ namespace RTT
 	    if ( strlen(name) == 0 )
                 name = "Thread";
 	        task->name = strcpy( (char*)malloc( (strlen(name) + 1) * sizeof(char)), name);
-      
+
 	    if ( (rv = pthread_attr_init(&(task->attr))) != 0 ){
                 return rv;
 	    }
@@ -103,14 +104,14 @@ namespace RTT
             return rv;
 	}
 
-	INTERNAL_QUAL void rtos_task_yield(RTOS_TASK* t) 
+	INTERNAL_QUAL void rtos_task_yield(RTOS_TASK* t)
 	{
             int ret = sched_yield();
             if ( ret != 0)
             perror("rtos_task_yield");
 	}
 
-        INTERNAL_QUAL int rtos_task_set_scheduler(RTOS_TASK* task, int sched_type) 
+        INTERNAL_QUAL int rtos_task_set_scheduler(RTOS_TASK* task, int sched_type)
         {
             int policy = -1;
             struct sched_param param;
@@ -127,8 +128,8 @@ namespace RTT
             }
             return -1;
         }
-        
-        INTERNAL_QUAL int rtos_task_get_scheduler(const RTOS_TASK* task) 
+
+        INTERNAL_QUAL int rtos_task_get_scheduler(const RTOS_TASK* task)
         {
             int policy = -1;
             struct sched_param param;
@@ -145,23 +146,18 @@ namespace RTT
 	    // set next wake-up time.
 	    mytask->periodMark = rtos_get_time_ns() + nanosecs;
 	}
-        
+
 	INTERNAL_QUAL void rtos_task_set_period( RTOS_TASK* mytask, NANO_TIME nanosecs )
 	{
 	    mytask->period = nanosecs;
 	    mytask->periodMark = rtos_get_time_ns() + nanosecs;
 	}
 
-	INTERNAL_QUAL NANO_TIME rtos_task_get_period(const RTOS_TASK* t) 
-	{
-	    return t->period;
-	} 
-
 	INTERNAL_QUAL int rtos_task_wait_period( RTOS_TASK* task )
 	{
 	    if ( task->period == 0 )
 		return 0;
-      
+
 	    //rtos_printf("Time is %lld nsec, Mark is %lld nsec.\n",rtos_get_time_ns(), task->periodMark );
 	    // CALCULATE in nsecs
 	    NANO_TIME timeRemaining = task->periodMark - rtos_get_time_ns();
@@ -178,7 +174,7 @@ namespace RTT
 	    return 0;
 	}
 
-	INTERNAL_QUAL void rtos_task_delete(RTOS_TASK* mytask) 
+	INTERNAL_QUAL void rtos_task_delete(RTOS_TASK* mytask)
 	{
             pthread_join( mytask->thread, 0);
             pthread_attr_destroy( &(mytask->attr) );

@@ -19,25 +19,27 @@
 
 
 #include "program_test.hpp"
-#include <unistd.h>
+
 #include <iostream>
 #include <sstream>
 #include <FunctionGraph.hpp>
 #include <SimulationThread.hpp>
 #include <Method.hpp>
 #include <Command.hpp>
+#include <TaskObject.hpp>
 
 
 using namespace std;
 
-// Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( ProgramTest );
+#include <boost/test/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
 
-
-    ProgramTest::ProgramTest()
-        : gtc("root"),
-          gtask( 0.01, gtc.engine() )
-    {}
+ProgramTest::ProgramTest()
+	: gtc("root"),
+	  gtask( 0.01, gtc.engine() )
+{
+	setUp();
+}
 
 
 void
@@ -119,7 +121,10 @@ OperationInterface* ProgramTest::createObject(OperationInterface* dat, CommandPr
     return dat;
 }
 
-void ProgramTest::testEmptyProgram()
+BOOST_FIXTURE_TEST_SUITE( ProgramTestSuite, ProgramTest )
+// Registers the fixture into the 'registry'
+
+BOOST_AUTO_TEST_CASE(testEmptyProgram)
 {
     string prog = "";
     Parser::ParsedPrograms pg_list;
@@ -128,22 +133,22 @@ void ProgramTest::testEmptyProgram()
     }
     catch( const file_parse_exception& exc )
         {
-            CPPUNIT_ASSERT( false );
+            BOOST_CHECK( false );
         }
     if ( !pg_list.empty() )
         {
-            CPPUNIT_ASSERT( false );
+            BOOST_CHECK( false );
         }
 }
 
-void ProgramTest::testReturnProgram()
+BOOST_AUTO_TEST_CASE(testReturnProgram)
 {
     string prog = "program x { return \n }";
     this->doProgram( prog, &gtc );
     this->finishProgram( &gtc, "x");
 }
 
-void ProgramTest::testParseProgram()
+BOOST_AUTO_TEST_CASE(testParseProgram)
 {
     // a program which should never fail
     // test this methods, commands etc.
@@ -173,7 +178,7 @@ void ProgramTest::testParseProgram()
     this->finishProgram( &gtc, "x");
 }
 
-void ProgramTest::testProgramFailure()
+BOOST_AUTO_TEST_CASE(testProgramFailure)
 {
     //also small test for program without newlines
     string prog = string("program x { do test.instantFail() until { ")
@@ -182,11 +187,11 @@ void ProgramTest::testProgramFailure()
 
     this->doProgram( prog, &gtc, false );
 
-    CPPUNIT_ASSERT( gtc.engine()->programs()->getProgramStatus("x") == ProgramInterface::Status::error );
+    BOOST_CHECK( gtc.engine()->programs()->getProgramStatus("x") == ProgramInterface::Status::error );
 
     this->finishProgram( &gtc, "x");
 }
-void ProgramTest::testProgramCondition()
+BOOST_AUTO_TEST_CASE(testProgramCondition)
 {
     // see if checking a remote condition works
     string prog = string("program x { \n")
@@ -231,7 +236,7 @@ void ProgramTest::testProgramCondition()
     this->finishProgram( &gtc, "x");
 }
 
-void ProgramTest::testProgramBreak()
+BOOST_AUTO_TEST_CASE(testProgramBreak)
 {
     // see if  break statement works
     string prog = string("program x { \n")
@@ -274,7 +279,7 @@ void ProgramTest::testProgramBreak()
     this->finishProgram( &gtc, "x");
 }
 
-void ProgramTest::testProgramAnd()
+BOOST_AUTO_TEST_CASE(testProgramAnd)
 {
     // see if checking a remote condition works
     string prog = string("program x { do test.instantDone()\n")
@@ -285,7 +290,7 @@ void ProgramTest::testProgramAnd()
     this->finishProgram( &gtc, "x");
 }
 
-void ProgramTest::testProgramTry()
+BOOST_AUTO_TEST_CASE(testProgramTry)
 {
     // see if checking a remote condition works
     string prog = string("program progtry { try test.instantFail()\n")
@@ -320,7 +325,7 @@ void ProgramTest::testProgramTry()
     this->finishProgram( &gtc, "progtry");
 }
 
-void ProgramTest::testProgramTask()
+BOOST_AUTO_TEST_CASE(testProgramTask)
 {
     // see if checking a remote condition works
     string prog = string("export function foo {\n")
@@ -337,11 +342,11 @@ void ProgramTest::testProgramTask()
         + "do foo()\n"
         + "}";
     this->doProgram( prog, &gtc );
-    CPPUNIT_ASSERT_EQUAL( 4, gtc.attributes()->getAttribute<int>("tvar_i")->get() );
+    BOOST_REQUIRE_EQUAL( 4, gtc.attributes()->getAttribute<int>("tvar_i")->get() );
     this->finishProgram( &gtc, "x");
 }
 
-void ProgramTest::testProgramUntil()
+BOOST_AUTO_TEST_CASE(testProgramUntil)
 {
     // see if checking a remote condition works
     string prog = string("program proguntil {\n")
@@ -360,7 +365,7 @@ void ProgramTest::testProgramUntil()
     this->finishProgram( &gtc, "proguntil");
 }
 
-void ProgramTest::testProgramUntilFail()
+BOOST_AUTO_TEST_CASE(testProgramUntilFail)
 {
     // see if checking a remote condition works
     string prog = string("program x { do test.instantFail()\n")
@@ -370,15 +375,18 @@ void ProgramTest::testProgramUntilFail()
         + " }";
     this->doProgram( prog, &gtc, false );
 
-    CPPUNIT_ASSERT( gtc.engine()->programs()->getProgramStatus("x") == ProgramInterface::Status::error );
+    BOOST_CHECK( gtc.engine()->programs()->getProgramStatus("x") == ProgramInterface::Status::error );
 
     this->finishProgram( &gtc, "x");
 }
 
+
+BOOST_AUTO_TEST_SUITE_END()
+
 void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test )
 {
-    CPPUNIT_ASSERT( tc->engine() );
-    CPPUNIT_ASSERT( tc->engine()->programs());
+    BOOST_CHECK( tc->engine() );
+    BOOST_CHECK( tc->engine()->programs());
 
     Parser::ParsedPrograms pg_list;
     try {
@@ -386,26 +394,24 @@ void ProgramTest::doProgram( const std::string& prog, TaskContext* tc, bool test
     }
     catch( const file_parse_exception& exc )
         {
-            CPPUNIT_ASSERT_MESSAGE( exc.what(), false );
+            BOOST_CHECK_MESSAGE( false, exc.what() );
         }
     if ( pg_list.empty() )
         {
-            CPPUNIT_ASSERT( false );
+            BOOST_CHECK( false );
         }
     ProgramInterfacePtr pi = *pg_list.begin();
 
     tc->engine()->programs()->loadProgram( pi );
-    CPPUNIT_ASSERT( gtc.start() );
-    CPPUNIT_ASSERT( gtc.isActive() );
-    CPPUNIT_ASSERT( gtc.isRunning() );
-    CPPUNIT_ASSERT( pi->start() );
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(1000) );
+    BOOST_CHECK( gtask.start() );
+    BOOST_CHECK( pi->start() );
+    BOOST_CHECK( SimulationThread::Instance()->run(1000) );
 
     if (test ) {
         stringstream errormsg;
         errormsg << " on line " << pi->getLineNumber() <<"."<<endl;
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered" + errormsg.str(), pi->getStatus() != ProgramInterface::Status::error );
-        CPPUNIT_ASSERT_MESSAGE( "Program stalled " + errormsg.str(), pi->getStatus() == ProgramInterface::Status::stopped );
+        BOOST_CHECK_MESSAGE( pi->getStatus() != ProgramInterface::Status::error , "Runtime error encountered" + errormsg.str());
+        BOOST_CHECK_MESSAGE( pi->getStatus() == ProgramInterface::Status::stopped , "Program stalled " + errormsg.str());
 
         // Xtra test, only do it if all previous went ok :
         loopProgram( pi );
@@ -431,11 +437,8 @@ void ProgramTest::loopProgram( ProgramInterfacePtr f)
 
 void ProgramTest::finishProgram(TaskContext* tc, std::string prog_name)
 {
-    CPPUNIT_ASSERT( gtask.stop() );
-    CPPUNIT_ASSERT( tc->engine()->programs()->getProgram( prog_name )->stop() );
+    BOOST_CHECK( gtask.stop() );
+    BOOST_CHECK( tc->engine()->programs()->getProgram( prog_name )->stop() );
     tc->engine()->programs()->unloadProgram( prog_name );
 
 }
-
-
-

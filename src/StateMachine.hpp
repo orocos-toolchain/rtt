@@ -75,7 +75,7 @@ namespace RTT
      * @todo Implement the whole transition mechanism with the
      * Strategy software pattern to allow cleaner implementation.
      */
-    class StateMachine
+    class RTT_API StateMachine
     {
         enum PrivateStatus { nill, gostop, goreset, pausing } smpStatus;
 
@@ -84,7 +84,7 @@ namespace RTT
         /**
          * Enumerates all possible state machine statuses.
          */
-        struct Status {
+        struct RTT_API Status {
             enum StateMachineStatus {inactive, activating, active, requesting, running, stopping, stopped, resetting, deactivating, paused, error, unloaded };
         };
     protected:

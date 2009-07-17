@@ -22,31 +22,9 @@ namespace RTT
     }
 
     template<typename T>
-    typename DataSource<T>::result_t ValueDataSource<T>::value() const
-    {
-        return mdata;
-    }
-
-    template<typename T>
-    typename DataSource<T>::result_t ValueDataSource<T>::get() const
-    {
-        return mdata;
-    }
-
-    template<typename T>
     void ValueDataSource<T>::set( typename AssignableDataSource<T>::param_t t )
     {
         mdata = t;
-    }
-
-    template<typename T>
-    typename AssignableDataSource<T>::reference_t ValueDataSource<T>::set() {
-        return mdata;
-    }
-
-    template<typename T>
-    typename AssignableDataSource<T>::const_reference_t ValueDataSource<T>::rvalue() const {
-        return mdata;
     }
 
     template<typename T>
@@ -78,18 +56,6 @@ namespace RTT
     }
 
     template<typename T>
-    typename DataSource<T>::result_t ConstantDataSource<T>::get() const
-    {
-        return mdata;
-    }
-
-    template<typename T>
-    typename DataSource<T>::result_t ConstantDataSource<T>::value() const
-    {
-        return mdata;
-    }
-
-    template<typename T>
     ConstantDataSource<T>* ConstantDataSource<T>::clone() const
     {
         return new ConstantDataSource<T>(mdata);
@@ -109,33 +75,10 @@ namespace RTT
         : mref( ref )
     {
     }
-
-    template<typename T>
-    typename DataSource<T>::result_t ReferenceDataSource<T>::get() const
-    {
-        return mref;
-    }
-
-    template<typename T>
-    typename DataSource<T>::result_t ReferenceDataSource<T>::value() const
-    {
-        return mref;
-    }
-
     template<typename T>
     void ReferenceDataSource<T>::set( typename AssignableDataSource<T>::param_t t )
     {
         mref = t;
-    }
-
-    template<typename T>
-    typename AssignableDataSource<T>::reference_t ReferenceDataSource<T>::set() {
-        return mref;
-    }
-
-    template<typename T>
-    typename AssignableDataSource<T>::const_reference_t ReferenceDataSource<T>::rvalue() const {
-        return mref;
     }
 
     template<typename T>

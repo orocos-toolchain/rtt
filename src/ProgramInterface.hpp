@@ -55,13 +55,13 @@ namespace RTT
 	 * @brief A Program represents a collection of
 	 * instructions that can be stepwise executed.
 	 */
-	class ProgramInterface
+	class RTT_API ProgramInterface
 	{
     public:
         /**
          * Placeholder of the ProgramStatus.
          */
-        struct Status {
+        struct RTT_API Status {
             /**
              * Enumerates the statuses of a ProgramInterface.
              */

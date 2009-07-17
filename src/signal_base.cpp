@@ -100,7 +100,7 @@ namespace RTT {
         }
 
         void signal_base::conn_connect( connection_t conn ) {
-            assert( conn && "virtually impossible ! only connection base should call this function !" );
+            assert( conn.get() && "virtually impossible ! only connection base should call this function !" );
 
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
             mconnections.append( conn );
@@ -143,7 +143,7 @@ namespace RTT {
         }
 
         void signal_base::conn_disconnect( connection_t conn ) {
-            assert( conn && "virtually impossible ! only connection base should call this function !" );
+            assert( conn.get() && "virtually impossible ! only connection base should call this function !" );
 
 #ifdef ORO_SIGNAL_USE_LIST_LOCK_FREE
             mconnections.erase( conn );

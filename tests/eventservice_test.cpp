@@ -28,13 +28,14 @@
 #include <boost/bind.hpp>
 #include <boost/scoped_ptr.hpp>
 
-// Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( EventServiceTest );
-
-using namespace RTT;
 using namespace RTT;
 using namespace boost;
 using namespace std;
+
+
+#include <boost/test/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
+
 
 void
 EventServiceTest::setUp()
@@ -137,84 +138,87 @@ void EventServiceTest::cleanup()
     es->removeEvent( "t_event3" );
 }
 
-void EventServiceTest::testAddRemove()
+// Registers the fixture into the 'registry'
+BOOST_FIXTURE_TEST_SUITE(  EventServiceTestSuite,  EventServiceTest )
+
+BOOST_AUTO_TEST_CASE( testAddRemove )
 {
     bool result;
     result = es->addEvent( &t_event0 );
-    CPPUNIT_ASSERT( result );
+    BOOST_CHECK( result );
     result = es->addEvent( &t_event1 );
-    CPPUNIT_ASSERT( result );
+    BOOST_CHECK( result );
     result = es->addEvent( &t_event2 );
-    CPPUNIT_ASSERT( result );
+    BOOST_CHECK( result );
     result = es->addEvent( &t_event3 );
-    CPPUNIT_ASSERT( result );
+    BOOST_CHECK( result );
 
     result = es->addEvent( &t_event0 );
-    CPPUNIT_ASSERT( result == false );
+    BOOST_CHECK( result == false );
 
     result = es->removeEvent( "t_event0" );
-    CPPUNIT_ASSERT( result );
+    BOOST_CHECK( result );
     result = es->removeEvent( "t_event1" );
-    CPPUNIT_ASSERT( result );
+    BOOST_CHECK( result );
     result = es->removeEvent( "t_event2" );
-    CPPUNIT_ASSERT( result );
+    BOOST_CHECK( result );
     result = es->removeEvent( "t_event3" );
-    CPPUNIT_ASSERT( result );
+    BOOST_CHECK( result );
 
     result = es->removeEvent( "t_event0" );
-    CPPUNIT_ASSERT( result == false );
+    BOOST_CHECK( result == false );
 }
 
-void EventServiceTest::testSetupSyn()
+BOOST_AUTO_TEST_CASE(  testSetupSyn )
 {
     this->setup();
     Handle h;
     h = es->setupSyn("t_event0", bind(&EventServiceTest::listener0,this), vector<DataSourceBase::shared_ptr>() );
-    CPPUNIT_ASSERT( h );
+    BOOST_CHECK( h );
     h = es->setupSyn("t_event1", bind(&EventServiceTest::listener0,this), GenerateDataSource()(ref(t_listener_string)));
-    CPPUNIT_ASSERT( h );
+    BOOST_CHECK( h );
     h = es->setupSyn("t_event2", bind(&EventServiceTest::listener0,this), GenerateDataSource()(ref(t_listener_string), ref(t_listener_double)));
-    CPPUNIT_ASSERT( h );
+    BOOST_CHECK( h );
     h = es->setupSyn("t_event3", bind(&EventServiceTest::listener0,this), GenerateDataSource()(ref(t_listener_string), ref(t_listener_double),ref(t_listener_bool)));
-    CPPUNIT_ASSERT( h );
+    BOOST_CHECK( h );
 
     this->cleanup();
 }
 
-void EventServiceTest::testSetupAsyn()
+BOOST_AUTO_TEST_CASE( testSetupAsyn)
 {
     this->setup();
     Handle h;
     h = es->setupAsyn("t_event0", bind(&EventServiceTest::completer0,this), vector<DataSourceBase::shared_ptr>(),event_proc );
-    CPPUNIT_ASSERT( h );
+    BOOST_CHECK( h );
     h = es->setupAsyn("t_event1", bind(&EventServiceTest::completer0,this), GenerateDataSource()(ref(t_completer_string)),event_proc);
-    CPPUNIT_ASSERT( h );
+    BOOST_CHECK( h );
     h = es->setupAsyn("t_event2", bind(&EventServiceTest::completer0,this), GenerateDataSource()(ref(t_completer_string), ref(t_completer_double)),event_proc);
-    CPPUNIT_ASSERT( h );
+    BOOST_CHECK( h );
     h = es->setupAsyn("t_event3", bind(&EventServiceTest::completer0,this), GenerateDataSource()(ref(t_completer_string), ref(t_completer_double), ref(t_completer_bool) ),event_proc);
-    CPPUNIT_ASSERT( h );
+    BOOST_CHECK( h );
 
     this->cleanup();
 }
 
-void EventServiceTest::testSetupEmit()
+BOOST_AUTO_TEST_CASE( testSetupEmit)
 {
     this->setup();
 
     ActionInterface::shared_ptr r;
     r.reset( es->getEvent("t_event0", std::vector<DataSourceBase::shared_ptr>() ) );
-    CPPUNIT_ASSERT( r );
+    BOOST_CHECK( r );
     r.reset( es->getEvent("t_event1", GenerateDataSource()(std::string("hello")) ) );
-    CPPUNIT_ASSERT( r );
+    BOOST_CHECK( r );
     r.reset( es->getEvent("t_event2", GenerateDataSource()(std::string("hello"),0.1234) ) );
-    CPPUNIT_ASSERT( r );
+    BOOST_CHECK( r );
     r.reset( es->getEvent("t_event3", GenerateDataSource()(std::string("hello"),0.1234, true) ) );
-    CPPUNIT_ASSERT( r );
+    BOOST_CHECK( r );
 
     this->cleanup();
 }
 
-void EventServiceTest::testEmit0()
+BOOST_AUTO_TEST_CASE( testEmit0)
 {
     this->setup();
 
@@ -224,24 +228,24 @@ void EventServiceTest::testEmit0()
     ActionInterface::shared_ptr r;
     r.reset( es->getEvent("t_event0", std::vector<DataSourceBase::shared_ptr>() ) );
 
-    CPPUNIT_ASSERT( h1.connect() );
+    BOOST_CHECK( h1.connect() );
     r->execute();
-    CPPUNIT_ASSERT( t_listener_done );
+    BOOST_CHECK( t_listener_done );
     this->reset();
-    CPPUNIT_ASSERT( h1.disconnect() );
+    BOOST_CHECK( h1.disconnect() );
 
-    CPPUNIT_ASSERT( h2.connect() );
+    BOOST_CHECK( h2.connect() );
     r->execute();
-    CPPUNIT_ASSERT( !t_completer_done );
+    BOOST_CHECK( !t_completer_done );
     event_proc->step();
-    CPPUNIT_ASSERT( t_completer_done );
+    BOOST_CHECK( t_completer_done );
     this->reset();
-    CPPUNIT_ASSERT( h2.disconnect() );
+    BOOST_CHECK( h2.disconnect() );
 
     this->cleanup();
 }
 
-void EventServiceTest::testEmit1()
+BOOST_AUTO_TEST_CASE( testEmit1)
 {
     this->setup();
 
@@ -252,25 +256,25 @@ void EventServiceTest::testEmit1()
     h2 = es->setupAsyn("t_event1", bind(&EventServiceTest::completer0,this), GenerateDataSource()(ref(t_completer_string)),event_proc);
     r.reset( es->getEvent("t_event1", GenerateDataSource()(std::string("hello")) ) );
 
-    CPPUNIT_ASSERT( h1.connect() );
+    BOOST_CHECK( h1.connect() );
     r->execute();
-    CPPUNIT_ASSERT( t_listener_done );
-    CPPUNIT_ASSERT( t_listener_string == std::string("hello") );
+    BOOST_CHECK( t_listener_done );
+    BOOST_CHECK( t_listener_string == std::string("hello") );
     this->reset();
-    CPPUNIT_ASSERT( h1.disconnect() );
+    BOOST_CHECK( h1.disconnect() );
 
-    CPPUNIT_ASSERT( h2.connect() );
+    BOOST_CHECK( h2.connect() );
     r->execute();
-    CPPUNIT_ASSERT( !t_completer_done );
+    BOOST_CHECK( !t_completer_done );
     event_proc->step();
-    CPPUNIT_ASSERT( t_completer_done );
-    CPPUNIT_ASSERT( t_completer_string == std::string("hello") );
+    BOOST_CHECK( t_completer_done );
+    BOOST_CHECK( t_completer_string == std::string("hello") );
     this->reset();
-    CPPUNIT_ASSERT( h2.disconnect() );
+    BOOST_CHECK( h2.disconnect() );
 
     this->cleanup();
 }
-void EventServiceTest::testEmit2()
+BOOST_AUTO_TEST_CASE( testEmit2)
 {
     this->setup();
     Handle h1, h2;
@@ -282,28 +286,28 @@ void EventServiceTest::testEmit2()
     r.reset( es->getEvent("t_event2", GenerateDataSource()(std::string("hello"),0.1234) ) );
 
 
-    CPPUNIT_ASSERT( h1.connect() );
+    BOOST_CHECK( h1.connect() );
     r->execute();
-    CPPUNIT_ASSERT( t_listener_done );
-    CPPUNIT_ASSERT( t_listener_string == std::string("hello") );
-    CPPUNIT_ASSERT( t_listener_double == 0.1234 );
+    BOOST_CHECK( t_listener_done );
+    BOOST_CHECK( t_listener_string == std::string("hello") );
+    BOOST_CHECK( t_listener_double == 0.1234 );
     this->reset();
-    CPPUNIT_ASSERT( h1.disconnect() );
+    BOOST_CHECK( h1.disconnect() );
 
-    CPPUNIT_ASSERT( h2.connect() );
+    BOOST_CHECK( h2.connect() );
     r->execute();
-    CPPUNIT_ASSERT( !t_completer_done );
+    BOOST_CHECK( !t_completer_done );
     event_proc->step();
-    CPPUNIT_ASSERT( t_completer_done );
-    CPPUNIT_ASSERT( t_completer_string == std::string("hello") );
-    CPPUNIT_ASSERT( t_completer_double == 0.1234 );
+    BOOST_CHECK( t_completer_done );
+    BOOST_CHECK( t_completer_string == std::string("hello") );
+    BOOST_CHECK( t_completer_double == 0.1234 );
     this->reset();
-    CPPUNIT_ASSERT( h2.disconnect() );
+    BOOST_CHECK( h2.disconnect() );
 
     this->cleanup();
 }
 
-void EventServiceTest::testEmit3()
+BOOST_AUTO_TEST_CASE( testEmit3)
 {
     this->setup();
     Handle h1, h2;
@@ -314,25 +318,25 @@ void EventServiceTest::testEmit3()
     r.reset( es->getEvent("t_event3", GenerateDataSource()(std::string("hello"),0.1234, true) ) );
 
 
-    CPPUNIT_ASSERT( h1.connect() );
+    BOOST_CHECK( h1.connect() );
     r->execute();
-    CPPUNIT_ASSERT( t_listener_done );
-    CPPUNIT_ASSERT( t_listener_string == std::string("hello") );
-    CPPUNIT_ASSERT( t_listener_double == 0.1234 );
-    CPPUNIT_ASSERT( t_listener_bool == true );
+    BOOST_CHECK( t_listener_done );
+    BOOST_CHECK( t_listener_string == std::string("hello") );
+    BOOST_CHECK( t_listener_double == 0.1234 );
+    BOOST_CHECK( t_listener_bool == true );
     this->reset();
-    CPPUNIT_ASSERT( h1.disconnect() );
+    BOOST_CHECK( h1.disconnect() );
 
-    CPPUNIT_ASSERT( h2.connect() );
+    BOOST_CHECK( h2.connect() );
     r->execute();
-    CPPUNIT_ASSERT( !t_completer_done );
+    BOOST_CHECK( !t_completer_done );
     event_proc->step();
-    CPPUNIT_ASSERT( t_completer_done );
-    CPPUNIT_ASSERT( t_completer_string == std::string("hello") );
-    CPPUNIT_ASSERT( t_completer_double == 0.1234 );
-    CPPUNIT_ASSERT( t_completer_bool == true );
+    BOOST_CHECK( t_completer_done );
+    BOOST_CHECK( t_completer_string == std::string("hello") );
+    BOOST_CHECK( t_completer_double == 0.1234 );
+    BOOST_CHECK( t_completer_bool == true );
     this->reset();
-    CPPUNIT_ASSERT( h2.disconnect() );
+    BOOST_CHECK( h2.disconnect() );
 
     this->cleanup();
 }
@@ -341,7 +345,7 @@ void Foo3(string, double, bool)
 {
 }
 
-void EventServiceTest::testEventC()
+BOOST_AUTO_TEST_CASE( testEventC)
 {
     // Test EventC and ConnectionC...
     Handle h1, h2, h3;
@@ -352,13 +356,13 @@ void EventServiceTest::testEventC()
         //h1 = es->setupConnection("t_event3").callback( Foo3 ).handle();
         h1 = es->setupConnection("t_event3").callback( this, &EventServiceTest::listener3 ).handle();
     } catch ( std::exception& e ) {
-        CPPUNIT_ASSERT_MESSAGE( e.what(), false );
+        BOOST_CHECK_MESSAGE( e.what(), false );
     }
 
     try {
         h2 = es->setupConnection("t_event3").callback( this, &EventServiceTest::completer3 ,event_proc).handle();
     } catch ( std::exception& e ) {
-        CPPUNIT_ASSERT_MESSAGE( e.what(), false );
+        BOOST_CHECK_MESSAGE( e.what(), false );
     }
 
     EventC evc;
@@ -366,30 +370,31 @@ void EventServiceTest::testEventC()
     try {
         evc = es->setupEmit("t_event3").argC( std::string("hello") ).argC( 0.1234 ).arg( evcarg );
     } catch ( std::exception& e ) {
-        CPPUNIT_ASSERT_MESSAGE( e.what(), false );
+        BOOST_CHECK_MESSAGE( e.what(), false );
     }
 
-    CPPUNIT_ASSERT( h1.connect() );
+    BOOST_CHECK( h1.connect() );
     evc.emit();
-    CPPUNIT_ASSERT( t_listener_done );
-    CPPUNIT_ASSERT( t_listener_string == std::string("hello") );
-    CPPUNIT_ASSERT( t_listener_double == 0.1234 );
-    CPPUNIT_ASSERT( t_listener_bool == evcarg );
+    BOOST_CHECK( t_listener_done );
+    BOOST_CHECK( t_listener_string == std::string("hello") );
+    BOOST_CHECK( t_listener_double == 0.1234 );
+    BOOST_CHECK( t_listener_bool == evcarg );
     this->reset();
-    CPPUNIT_ASSERT( h1.disconnect() );
+    BOOST_CHECK( h1.disconnect() );
 
-    CPPUNIT_ASSERT( h2.connect() );
+    BOOST_CHECK( h2.connect() );
     evc.emit();
-    CPPUNIT_ASSERT( !t_completer_done );
+    BOOST_CHECK( !t_completer_done );
     event_proc->step();
-    CPPUNIT_ASSERT( t_completer_done );
-    CPPUNIT_ASSERT( t_completer_string == std::string("hello") );
-    CPPUNIT_ASSERT( t_completer_double == 0.1234 );
-    CPPUNIT_ASSERT( t_completer_bool == evcarg );
+    BOOST_CHECK( t_completer_done );
+    BOOST_CHECK( t_completer_string == std::string("hello") );
+    BOOST_CHECK( t_completer_double == 0.1234 );
+    BOOST_CHECK( t_completer_bool == evcarg );
     this->reset();
-    CPPUNIT_ASSERT( h2.disconnect() );
+    BOOST_CHECK( h2.disconnect() );
 
     this->cleanup();
 
 }
 
+BOOST_AUTO_TEST_SUITE_END()

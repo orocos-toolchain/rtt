@@ -51,7 +51,7 @@ namespace RTT
      * given by a DataSource.
      * The behaviour can be inverted upon construction.
      */
-    class ConditionDSDuration
+    class RTT_API ConditionDSDuration
         : public ConditionInterface
     {
         typedef TimeService::nsecs nsecs;

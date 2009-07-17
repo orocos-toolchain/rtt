@@ -39,6 +39,7 @@
 #define EDGECONDITION_HPP
 
 #include <map>
+#include "rtt-config.h"
 // adjacency_list has some very short template parameter names,
 // which may be defined as macros on some OS's. So undef here.
 #undef DS
@@ -48,7 +49,6 @@
 #undef EP
 #undef GP
 #undef EL
-
 #define BOOST_NO_HASH
 #include <boost/graph/adjacency_list.hpp>
 
@@ -73,7 +73,7 @@ namespace RTT
      * tree.  It contains a condition which must be satisfied
      * to pass to the next node.
      */
-    class EdgeCondition
+    class RTT_API EdgeCondition
     {
         static int condition_counter;
     public:

@@ -374,7 +374,8 @@ namespace RTT
          * @param i
          *        The element to be accessed starting from zero.
          */
-        T& operator[] ( int i )
+		//replaced int parameter with unsigned int to unconfuse MSVC
+        T& operator[] ( unsigned int i )
         {
             return data[ i ];
         }
@@ -419,10 +420,12 @@ namespace RTT
      */
     typedef MultiVector<6, long> Long6D;
 
+#if !defined(ORO_EMBEDDED) && defined(__GNUC__)
     extern template class MultiVector<6, double>;
     extern template class MultiVector<6, int>;
     extern template class MultiVector<6, bool>;
     extern template class MultiVector<6, long>;
+#endif
 
     /**
      * Output to standard C++ output stream

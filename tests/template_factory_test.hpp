@@ -20,8 +20,6 @@
 #ifndef TEMPLATE_FACTORYTEST_H
 #define TEMPLATE_FACTORYTEST_H
 
-#include <cppunit/extensions/HelperMacros.h>
-
 #include <MultiVector.hpp>
 #include <scripting/Parser.hpp>
 #include <CommandProcessor.hpp>
@@ -30,18 +28,10 @@
 #include <string>
 
 using namespace RTT;
-using namespace RTT;
 
-class Template_FactoryTest : public CppUnit::TestFixture
+class Template_FactoryTest
 {
-    CPPUNIT_TEST_SUITE( Template_FactoryTest );
-    CPPUNIT_TEST( testMethods );
-    CPPUNIT_TEST( testUserMethods );
-    CPPUNIT_TEST( testCommands );
-    CPPUNIT_TEST( testManual );
-    CPPUNIT_TEST( testEventC );
-    CPPUNIT_TEST_SUITE_END();
-
+public:
     Parser parser;
     TaskContext* tc;
     ActivityInterface* tsim;
@@ -87,7 +77,8 @@ class Template_FactoryTest : public CppUnit::TestFixture
 
     bool assertBool( bool );
 public:
-
+	Template_FactoryTest(){ setUp(); };
+	~Template_FactoryTest(){ tearDown(); };
     void setUp();
     void tearDown();
 

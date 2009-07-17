@@ -19,12 +19,13 @@
 
 
 #include "generictask_test_2.hpp"
-#include <unistd.h>
+
 #include <iostream>
 #include <Command.hpp>
 #include <CommandDS.hpp>
 #include <OperationInterface.hpp>
 #include <RemoteCommand.hpp>
+#include <TaskObject.hpp>
 
 #include <SimulationActivity.hpp>
 #include <SimulationThread.hpp>
@@ -33,16 +34,16 @@
 
 using namespace std;
 
-// Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( Generic_TaskTest_2 );
-
+#include <boost/test/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
 
 void
 Generic_TaskTest_2::setUp()
 {
     tc =  new TaskContext( "root" );
     tc->addObject( this->createCommandFactory() );
-    tsim = new SimulationActivity(0.001, tc->engine() );
+    tsim = new SimulationActivity(0.001);
+    tc->setActivity( tsim );
     SimulationThread::Instance()->stop();
     cd0count = 0;
     cd1count = 0;
@@ -57,10 +58,9 @@ Generic_TaskTest_2::tearDown()
 {
 //     if ( tc->getPeer("programs") )
 //         delete tc->getPeer("programs");
-    tsim->stop();
+    tc->stop();
     SimulationThread::Instance()->stop();
     delete tc;
-    delete tsim;
 }
 
 bool Generic_TaskTest_2::assertBool( bool b) {
@@ -87,6 +87,7 @@ TaskObject* Generic_TaskTest_2::createCommandFactory()
     return to;
 }
 
+
 struct Sender: public TaskContext
 {
     Command<bool(void)> com0;
@@ -102,39 +103,82 @@ struct Sender: public TaskContext
         mrecv = receiver;
         com0 = mrecv->getObject("commands")->commands()->getCommand<bool(void)>("c00");
         com1 = mrecv->getObject("commands")->commands()->getCommand<bool(int)>("c11");
-        CPPUNIT_ASSERT(com0.ready());
-        CPPUNIT_ASSERT(com1.ready());
+        BOOST_CHECK(com0.ready());
+        BOOST_CHECK(com1.ready());
     }
 
     void updateHook() {
-        //CPPUNIT_ASSERT(com0.ready());
-        //CPPUNIT_ASSERT( com0() );
         if (com0())
             com0count++;
-        //this->stop();
+        if (com1(1))
+            com1count++;
     }
 };
 
-void Generic_TaskTest_2::testCommandThreading()
+void Generic_TaskTest_2::verifydispatch(DispatchInterface& com)
 {
-    tsim->run(0);
-    Sender scomp ( tc ); // tc is receiver.
-
-    new NonPeriodicActivity(ORO_SCHED_RT, 1, tc->engine() );
-    new PeriodicActivity(ORO_SCHED_OTHER, 0, 0.1, scomp.engine());
-    CPPUNIT_ASSERT( tc->start() );
-    CPPUNIT_ASSERT( scomp.start() );
-    //while(1)
-    sleep(1);
-    CPPUNIT_ASSERT( scomp.stop() );
-    CPPUNIT_ASSERT( tc->stop() );
-    CPPUNIT_ASSERT_EQUAL(scomp.com0count, cd0count);
-    CPPUNIT_ASSERT_EQUAL(scomp.com1count, cd1count);
-    delete tc->engine()->getActivity();
-    delete scomp.engine()->getActivity();
+    BOOST_CHECK( SimulationThread::Instance()->isRunning() == false );
+    BOOST_CHECK( com.sent() );
+    BOOST_CHECK( com.accepted() );
+    BOOST_CHECK( !com.executed() );
+    BOOST_CHECK( !com.valid() );
+    BOOST_CHECK( !com.done() );
+    BOOST_CHECK( SimulationThread::Instance()->run(1) );
+    BOOST_CHECK( com.executed() );
+    BOOST_CHECK( com.valid() );
+    BOOST_CHECK( com.done() );
+    com.reset();
+    BOOST_CHECK( !com.sent() );
+    BOOST_CHECK( !com.accepted() );
+    BOOST_CHECK( !com.executed() );
+    BOOST_CHECK( !com.valid() );
+    BOOST_CHECK( !com.done() );
 }
 
-void Generic_TaskTest_2::testCommandsC()
+void Generic_TaskTest_2::verifycommand(CommandC& com)
+{
+    BOOST_CHECK( SimulationThread::Instance()->isRunning() == false );
+    BOOST_CHECK( com.execute() );
+    BOOST_CHECK( com.sent() );
+    BOOST_CHECK( com.accepted() );
+    BOOST_CHECK( !com.executed() );
+    BOOST_CHECK( !com.valid() );
+    BOOST_CHECK( !com.done() );
+    BOOST_CHECK( SimulationThread::Instance()->run(1) );
+    BOOST_CHECK( com.executed() );
+    BOOST_CHECK( com.valid() );
+    BOOST_CHECK( com.done() );
+    com.reset();
+    BOOST_CHECK( !com.sent() );
+    BOOST_CHECK( !com.accepted() );
+    BOOST_CHECK( !com.executed() );
+    BOOST_CHECK( !com.valid() );
+    BOOST_CHECK( !com.done() );
+}
+
+
+// Registers the fixture into the 'registry'
+BOOST_FIXTURE_TEST_SUITE(  Generic_TaskTest2Suite,  Generic_TaskTest_2 )
+
+BOOST_AUTO_TEST_CASE( testCommandThreading )
+{
+    // Sends periodic commands.
+    Sender scomp ( tc ); // tc is receiver.
+
+    tc->setActivity( new NonPeriodicActivity(ORO_SCHED_OTHER, 0) );
+    scomp.setActivity( new PeriodicActivity(ORO_SCHED_OTHER, 0, 0.01) );
+
+    BOOST_CHECK( tc->start() );
+    BOOST_CHECK( scomp.start() );
+    sleep(1);
+    BOOST_CHECK( scomp.stop() );
+    BOOST_CHECK( tc->stop() );
+
+    BOOST_CHECK_EQUAL(scomp.com0count, cd0count);
+    BOOST_CHECK_EQUAL(scomp.com1count, cd1count);
+}
+
+BOOST_AUTO_TEST_CASE( testCommandsC)
 {
     CommandC cc = tc->getObject("commands")->commands()->create("c00");
     CommandC c20 = tc->getObject("commands")->commands()->create("c20").argC(1).argC(1.0);
@@ -143,66 +187,66 @@ void Generic_TaskTest_2::testCommandsC()
     CommandC c44 = tc->getObject("commands")->commands()->create("c44").argC(1).argC(1.0).argC('a').argC(true);
 
     // CASE 1 : Send command to not running task.
-    CPPUNIT_ASSERT( cc.ready() );
-    CPPUNIT_ASSERT( c20.ready() );
-    CPPUNIT_ASSERT( c32.ready() );
-    CPPUNIT_ASSERT( c33.ready() );
-    CPPUNIT_ASSERT( c44.ready() );
-    CPPUNIT_ASSERT( !cc.sent() );
-    CPPUNIT_ASSERT( !c20.sent() );
-    CPPUNIT_ASSERT( !c32.sent() );
-    CPPUNIT_ASSERT( !c33.sent() );
-    CPPUNIT_ASSERT( !c44.sent() );
-    CPPUNIT_ASSERT( !cc.executed() );
-    CPPUNIT_ASSERT( !c20.executed() );
-    CPPUNIT_ASSERT( !c32.executed() );
-    CPPUNIT_ASSERT( !c33.executed() );
-    CPPUNIT_ASSERT( !c44.executed() );
-    CPPUNIT_ASSERT( !cc.accepted() );
-    CPPUNIT_ASSERT( !c20.accepted() );
-    CPPUNIT_ASSERT( !c32.accepted() );
-    CPPUNIT_ASSERT( !c33.accepted() );
-    CPPUNIT_ASSERT( !c44.accepted() );
-    CPPUNIT_ASSERT( !cc.valid() );
-    CPPUNIT_ASSERT( !c20.valid() );
-    CPPUNIT_ASSERT( !c32.valid() );
-    CPPUNIT_ASSERT( !c33.valid() );
-    CPPUNIT_ASSERT( !c44.valid() );
-    CPPUNIT_ASSERT( !cc.done() );
-    CPPUNIT_ASSERT( !c20.done() );
-    CPPUNIT_ASSERT( !c32.done() );
-    CPPUNIT_ASSERT( !c33.done() );
-    CPPUNIT_ASSERT( !c44.done() );
-    CPPUNIT_ASSERT( !cc.execute() );
-    CPPUNIT_ASSERT( !c20.execute() );
-    CPPUNIT_ASSERT( !c32.execute() );
-    CPPUNIT_ASSERT( !c33.execute() );
-    CPPUNIT_ASSERT( !c44.execute() );
-    CPPUNIT_ASSERT( cc.sent() );
-    CPPUNIT_ASSERT( c20.sent() );
-    CPPUNIT_ASSERT( c32.sent() );
-    CPPUNIT_ASSERT( c33.sent() );
-    CPPUNIT_ASSERT( c44.sent() );
-    CPPUNIT_ASSERT( !cc.accepted() );
-    CPPUNIT_ASSERT( !c20.accepted() );
-    CPPUNIT_ASSERT( !c32.accepted() );
-    CPPUNIT_ASSERT( !c33.accepted() );
-    CPPUNIT_ASSERT( !c44.accepted() );
-    CPPUNIT_ASSERT( !cc.executed() );
-    CPPUNIT_ASSERT( !c20.executed() );
-    CPPUNIT_ASSERT( !c32.executed() );
-    CPPUNIT_ASSERT( !c33.executed() );
-    CPPUNIT_ASSERT( !c44.executed() );
-    CPPUNIT_ASSERT( !cc.valid() );
-    CPPUNIT_ASSERT( !c20.valid() );
-    CPPUNIT_ASSERT( !c32.valid() );
-    CPPUNIT_ASSERT( !c33.valid() );
-    CPPUNIT_ASSERT( !c44.valid() );
-    CPPUNIT_ASSERT( !cc.done() );
-    CPPUNIT_ASSERT( !c20.done() );
-    CPPUNIT_ASSERT( !c32.done() );
-    CPPUNIT_ASSERT( !c33.done() );
-    CPPUNIT_ASSERT( !c44.done() );
+    BOOST_CHECK( cc.ready() );
+    BOOST_CHECK( c20.ready() );
+    BOOST_CHECK( c32.ready() );
+    BOOST_CHECK( c33.ready() );
+    BOOST_CHECK( c44.ready() );
+    BOOST_CHECK( !cc.sent() );
+    BOOST_CHECK( !c20.sent() );
+    BOOST_CHECK( !c32.sent() );
+    BOOST_CHECK( !c33.sent() );
+    BOOST_CHECK( !c44.sent() );
+    BOOST_CHECK( !cc.executed() );
+    BOOST_CHECK( !c20.executed() );
+    BOOST_CHECK( !c32.executed() );
+    BOOST_CHECK( !c33.executed() );
+    BOOST_CHECK( !c44.executed() );
+    BOOST_CHECK( !cc.accepted() );
+    BOOST_CHECK( !c20.accepted() );
+    BOOST_CHECK( !c32.accepted() );
+    BOOST_CHECK( !c33.accepted() );
+    BOOST_CHECK( !c44.accepted() );
+    BOOST_CHECK( !cc.valid() );
+    BOOST_CHECK( !c20.valid() );
+    BOOST_CHECK( !c32.valid() );
+    BOOST_CHECK( !c33.valid() );
+    BOOST_CHECK( !c44.valid() );
+    BOOST_CHECK( !cc.done() );
+    BOOST_CHECK( !c20.done() );
+    BOOST_CHECK( !c32.done() );
+    BOOST_CHECK( !c33.done() );
+    BOOST_CHECK( !c44.done() );
+    BOOST_CHECK( !cc.execute() );
+    BOOST_CHECK( !c20.execute() );
+    BOOST_CHECK( !c32.execute() );
+    BOOST_CHECK( !c33.execute() );
+    BOOST_CHECK( !c44.execute() );
+    BOOST_CHECK( cc.sent() );
+    BOOST_CHECK( c20.sent() );
+    BOOST_CHECK( c32.sent() );
+    BOOST_CHECK( c33.sent() );
+    BOOST_CHECK( c44.sent() );
+    BOOST_CHECK( !cc.accepted() );
+    BOOST_CHECK( !c20.accepted() );
+    BOOST_CHECK( !c32.accepted() );
+    BOOST_CHECK( !c33.accepted() );
+    BOOST_CHECK( !c44.accepted() );
+    BOOST_CHECK( !cc.executed() );
+    BOOST_CHECK( !c20.executed() );
+    BOOST_CHECK( !c32.executed() );
+    BOOST_CHECK( !c33.executed() );
+    BOOST_CHECK( !c44.executed() );
+    BOOST_CHECK( !cc.valid() );
+    BOOST_CHECK( !c20.valid() );
+    BOOST_CHECK( !c32.valid() );
+    BOOST_CHECK( !c33.valid() );
+    BOOST_CHECK( !c44.valid() );
+    BOOST_CHECK( !cc.done() );
+    BOOST_CHECK( !c20.done() );
+    BOOST_CHECK( !c32.done() );
+    BOOST_CHECK( !c33.done() );
+    BOOST_CHECK( !c44.done() );
 
     // Test Reset:
     cc.reset();
@@ -210,91 +254,91 @@ void Generic_TaskTest_2::testCommandsC()
     c32.reset();
     c33.reset();
     c44.reset();
-    CPPUNIT_ASSERT( cc.ready() );
-    CPPUNIT_ASSERT( c20.ready() );
-    CPPUNIT_ASSERT( c32.ready() );
-    CPPUNIT_ASSERT( c33.ready() );
-    CPPUNIT_ASSERT( c44.ready() );
-    CPPUNIT_ASSERT( !cc.sent() );
-    CPPUNIT_ASSERT( !c20.sent() );
-    CPPUNIT_ASSERT( !c32.sent() );
-    CPPUNIT_ASSERT( !c33.sent() );
-    CPPUNIT_ASSERT( !c44.sent() );
-    CPPUNIT_ASSERT( !cc.accepted() );
-    CPPUNIT_ASSERT( !c20.accepted() );
-    CPPUNIT_ASSERT( !c32.accepted() );
-    CPPUNIT_ASSERT( !c33.accepted() );
-    CPPUNIT_ASSERT( !c44.accepted() );
-    CPPUNIT_ASSERT( !cc.executed() );
-    CPPUNIT_ASSERT( !c20.executed() );
-    CPPUNIT_ASSERT( !c32.executed() );
-    CPPUNIT_ASSERT( !c33.executed() );
-    CPPUNIT_ASSERT( !c44.executed() );
-    CPPUNIT_ASSERT( !cc.valid() );
-    CPPUNIT_ASSERT( !c20.valid() );
-    CPPUNIT_ASSERT( !c32.valid() );
-    CPPUNIT_ASSERT( !c33.valid() );
-    CPPUNIT_ASSERT( !c44.valid() );
-    CPPUNIT_ASSERT( !cc.done() );
-    CPPUNIT_ASSERT( !c20.done() );
-    CPPUNIT_ASSERT( !c32.done() );
-    CPPUNIT_ASSERT( !c33.done() );
-    CPPUNIT_ASSERT( !c44.done() );
+    BOOST_CHECK( cc.ready() );
+    BOOST_CHECK( c20.ready() );
+    BOOST_CHECK( c32.ready() );
+    BOOST_CHECK( c33.ready() );
+    BOOST_CHECK( c44.ready() );
+    BOOST_CHECK( !cc.sent() );
+    BOOST_CHECK( !c20.sent() );
+    BOOST_CHECK( !c32.sent() );
+    BOOST_CHECK( !c33.sent() );
+    BOOST_CHECK( !c44.sent() );
+    BOOST_CHECK( !cc.accepted() );
+    BOOST_CHECK( !c20.accepted() );
+    BOOST_CHECK( !c32.accepted() );
+    BOOST_CHECK( !c33.accepted() );
+    BOOST_CHECK( !c44.accepted() );
+    BOOST_CHECK( !cc.executed() );
+    BOOST_CHECK( !c20.executed() );
+    BOOST_CHECK( !c32.executed() );
+    BOOST_CHECK( !c33.executed() );
+    BOOST_CHECK( !c44.executed() );
+    BOOST_CHECK( !cc.valid() );
+    BOOST_CHECK( !c20.valid() );
+    BOOST_CHECK( !c32.valid() );
+    BOOST_CHECK( !c33.valid() );
+    BOOST_CHECK( !c44.valid() );
+    BOOST_CHECK( !cc.done() );
+    BOOST_CHECK( !c20.done() );
+    BOOST_CHECK( !c32.done() );
+    BOOST_CHECK( !c33.done() );
+    BOOST_CHECK( !c44.done() );
 
     // CASE 2 send command to running task
-    CPPUNIT_ASSERT( tsim->start() );
+    BOOST_CHECK( tsim->start() );
 
     // freezed sim thread
-    CPPUNIT_ASSERT( cc.execute() );
-    CPPUNIT_ASSERT( c20.execute() );
-    CPPUNIT_ASSERT( c32.execute() );
-    CPPUNIT_ASSERT( c33.execute() );
-    CPPUNIT_ASSERT( c44.execute() );
-    CPPUNIT_ASSERT( cc.sent() );
-    CPPUNIT_ASSERT( c20.sent() );
-    CPPUNIT_ASSERT( c32.sent() );
-    CPPUNIT_ASSERT( c33.sent() );
-    CPPUNIT_ASSERT( c44.sent() );
-    CPPUNIT_ASSERT( cc.accepted() );
-    CPPUNIT_ASSERT( c20.accepted() );
-    CPPUNIT_ASSERT( c32.accepted() );
-    CPPUNIT_ASSERT( c33.accepted() );
-    CPPUNIT_ASSERT( c44.accepted() );
-    CPPUNIT_ASSERT( !cc.executed() );
-    CPPUNIT_ASSERT( !c20.executed() );
-    CPPUNIT_ASSERT( !c32.executed() );
-    CPPUNIT_ASSERT( !c33.executed() );
-    CPPUNIT_ASSERT( !c44.executed() );
-    CPPUNIT_ASSERT( !cc.valid() );
-    CPPUNIT_ASSERT( !c20.valid() );
-    CPPUNIT_ASSERT( !c32.valid() );
-    CPPUNIT_ASSERT( !c33.valid() );
-    CPPUNIT_ASSERT( !c44.valid() );
-    CPPUNIT_ASSERT( !cc.done() );
-    CPPUNIT_ASSERT( !c20.done() );
-    CPPUNIT_ASSERT( !c32.done() );
-    CPPUNIT_ASSERT( !c33.done() );
-    CPPUNIT_ASSERT( !c44.done() );
+    BOOST_CHECK( cc.execute() );
+    BOOST_CHECK( c20.execute() );
+    BOOST_CHECK( c32.execute() );
+    BOOST_CHECK( c33.execute() );
+    BOOST_CHECK( c44.execute() );
+    BOOST_CHECK( cc.sent() );
+    BOOST_CHECK( c20.sent() );
+    BOOST_CHECK( c32.sent() );
+    BOOST_CHECK( c33.sent() );
+    BOOST_CHECK( c44.sent() );
+    BOOST_CHECK( cc.accepted() );
+    BOOST_CHECK( c20.accepted() );
+    BOOST_CHECK( c32.accepted() );
+    BOOST_CHECK( c33.accepted() );
+    BOOST_CHECK( c44.accepted() );
+    BOOST_CHECK( !cc.executed() );
+    BOOST_CHECK( !c20.executed() );
+    BOOST_CHECK( !c32.executed() );
+    BOOST_CHECK( !c33.executed() );
+    BOOST_CHECK( !c44.executed() );
+    BOOST_CHECK( !cc.valid() );
+    BOOST_CHECK( !c20.valid() );
+    BOOST_CHECK( !c32.valid() );
+    BOOST_CHECK( !c33.valid() );
+    BOOST_CHECK( !c44.valid() );
+    BOOST_CHECK( !cc.done() );
+    BOOST_CHECK( !c20.done() );
+    BOOST_CHECK( !c32.done() );
+    BOOST_CHECK( !c33.done() );
+    BOOST_CHECK( !c44.done() );
     tc->engine()->step();
     tc->engine()->step();
     tc->engine()->step();
     tc->engine()->step();
     tc->engine()->step();
-    CPPUNIT_ASSERT( cc.executed() );
-    CPPUNIT_ASSERT( c20.executed() );
-    CPPUNIT_ASSERT( c32.executed() );
-    CPPUNIT_ASSERT( c33.executed() );
-    CPPUNIT_ASSERT( c44.executed() );
-    CPPUNIT_ASSERT( cc.valid() );
-    CPPUNIT_ASSERT( c20.valid() );
-    CPPUNIT_ASSERT( c32.valid() );
-    CPPUNIT_ASSERT( c33.valid() );
-    CPPUNIT_ASSERT( c44.valid() );
-    CPPUNIT_ASSERT( cc.done() );
-    CPPUNIT_ASSERT( c20.done() );
-    CPPUNIT_ASSERT( c32.done() );
-    CPPUNIT_ASSERT( c33.done() );
-    CPPUNIT_ASSERT( c44.done() );
+    BOOST_CHECK( cc.executed() );
+    BOOST_CHECK( c20.executed() );
+    BOOST_CHECK( c32.executed() );
+    BOOST_CHECK( c33.executed() );
+    BOOST_CHECK( c44.executed() );
+    BOOST_CHECK( cc.valid() );
+    BOOST_CHECK( c20.valid() );
+    BOOST_CHECK( c32.valid() );
+    BOOST_CHECK( c33.valid() );
+    BOOST_CHECK( c44.valid() );
+    BOOST_CHECK( cc.done() );
+    BOOST_CHECK( c20.done() );
+    BOOST_CHECK( c32.done() );
+    BOOST_CHECK( c33.done() );
+    BOOST_CHECK( c44.done() );
     tsim->stop();
 #if 0
     string prog = string("program x { ")
@@ -312,46 +356,7 @@ void Generic_TaskTest_2::testCommandsC()
 #endif
 }
 
-void Generic_TaskTest_2::verifydispatch(DispatchInterface& com)
-{
-    CPPUNIT_ASSERT( com.sent() );
-    CPPUNIT_ASSERT( com.accepted() );
-    CPPUNIT_ASSERT( !com.executed() );
-    CPPUNIT_ASSERT( !com.valid() );
-    CPPUNIT_ASSERT( !com.done() );
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(1) );
-    CPPUNIT_ASSERT( com.executed() );
-    CPPUNIT_ASSERT( com.valid() );
-    CPPUNIT_ASSERT( com.done() );
-    com.reset();
-    CPPUNIT_ASSERT( !com.sent() );
-    CPPUNIT_ASSERT( !com.accepted() );
-    CPPUNIT_ASSERT( !com.executed() );
-    CPPUNIT_ASSERT( !com.valid() );
-    CPPUNIT_ASSERT( !com.done() );
-}
-
-void Generic_TaskTest_2::verifycommand(CommandC& com)
-{
-    CPPUNIT_ASSERT( com.execute() );
-    CPPUNIT_ASSERT( com.sent() );
-    CPPUNIT_ASSERT( com.accepted() );
-    CPPUNIT_ASSERT( !com.executed() );
-    CPPUNIT_ASSERT( !com.valid() );
-    CPPUNIT_ASSERT( !com.done() );
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(1) );
-    CPPUNIT_ASSERT( com.executed() );
-    CPPUNIT_ASSERT( com.valid() );
-    CPPUNIT_ASSERT( com.done() );
-    com.reset();
-    CPPUNIT_ASSERT( !com.sent() );
-    CPPUNIT_ASSERT( !com.accepted() );
-    CPPUNIT_ASSERT( !com.executed() );
-    CPPUNIT_ASSERT( !com.valid() );
-    CPPUNIT_ASSERT( !com.done() );
-}
-
-void Generic_TaskTest_2::testRemoteCommand()
+BOOST_AUTO_TEST_CASE( testRemoteCommand)
 {
     Command<bool(void)> com0;
     Command<bool(int)> com11;
@@ -359,15 +364,14 @@ void Generic_TaskTest_2::testRemoteCommand()
     com0 = new detail::RemoteCommand<bool(void)>(tc->getObject("commands")->commands(), "c00");
     com11 = new detail::RemoteCommand<bool(int)>(tc->getObject("commands")->commands(), "c11");
 
-    CPPUNIT_ASSERT( com0.ready() );
+    BOOST_CHECK( com0.ready() );
     com0(); // execute
 
-    CPPUNIT_ASSERT( com0.ready() );
+    BOOST_CHECK( com0.ready() );
     com11(1); // execute
 
 }
-
-void Generic_TaskTest_2::testCommand()
+BOOST_AUTO_TEST_CASE( testCommand)
 {
     Command<bool(void)> com0("command", &Generic_TaskTest_2::cd0, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
     Command<bool(int)> com11("command", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn1, this, tc->engine()->commands() );
@@ -386,87 +390,41 @@ void Generic_TaskTest_2::testCommand()
     Command<bool(int,double,char,bool)> com41("command", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn1, this, tc->engine()->commands() );
 
     // start the activity, such that commands are accepted.
-    CPPUNIT_ASSERT( tsim->start()) ;
+    BOOST_CHECK( tsim->start()) ;
     // execute commands and check status:
-    CPPUNIT_ASSERT( com0() );
+    BOOST_CHECK( com0() );
     verifydispatch(*com0.getCommandImpl());
 
-    CPPUNIT_ASSERT( com11(1) );
+    BOOST_CHECK( com11(1) );
     verifydispatch(*com11.getCommandImpl());
-    CPPUNIT_ASSERT( com10(1) );
+    BOOST_CHECK( com10(1) );
     verifydispatch(*com10.getCommandImpl());
 
-    CPPUNIT_ASSERT( com22(1, 1.0) );
+    BOOST_CHECK( com22(1, 1.0) );
     verifydispatch(*com22.getCommandImpl());
-    CPPUNIT_ASSERT( com20(1, 1.0) );
+    BOOST_CHECK( com20(1, 1.0) );
     verifydispatch(*com20.getCommandImpl());
-    CPPUNIT_ASSERT( com21(1, 1.0) );
+    BOOST_CHECK( com21(1, 1.0) );
     verifydispatch(*com21.getCommandImpl());
 
-    CPPUNIT_ASSERT( com33(1, 1.0, char('a') ) );
+    BOOST_CHECK( com33(1, 1.0, char('a') ) );
     verifydispatch(*com33.getCommandImpl());
-    CPPUNIT_ASSERT( com30(1, 1.0, char('a') ) );
+    BOOST_CHECK( com30(1, 1.0, char('a') ) );
     verifydispatch(*com30.getCommandImpl());
-    CPPUNIT_ASSERT( com31(1, 1.0, char('a') ) );
+    BOOST_CHECK( com31(1, 1.0, char('a') ) );
     verifydispatch(*com31.getCommandImpl());
 
-    CPPUNIT_ASSERT( com44(1, 1.0, char('a'),true) );
+    BOOST_CHECK( com44(1, 1.0, char('a'),true) );
     verifydispatch(*com44.getCommandImpl());
-    CPPUNIT_ASSERT( com40(1, 1.0, char('a'),true) );
+    BOOST_CHECK( com40(1, 1.0, char('a'),true) );
     verifydispatch(*com40.getCommandImpl());
-    CPPUNIT_ASSERT( com41(1, 1.0, char('a'),true) );
+    BOOST_CHECK( com41(1, 1.0, char('a'),true) );
     verifydispatch(*com41.getCommandImpl());
 
-    CPPUNIT_ASSERT( tsim->stop() );
+    BOOST_CHECK( tsim->stop() );
 }
 
-void Generic_TaskTest_2::testCommandProcessor()
-{
-    Command<bool(void)> com0("command", &Generic_TaskTest_2::cd0, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
-    Command<bool(int)> com11("command", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn1, this, tc->engine()->commands() );
-    Command<bool(int)> com10("command", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
-
-    // start the activity, such that commands are accepted.
-    CPPUNIT_ASSERT( tsim->start()) ;
-    // execute commands and check status:
-    CPPUNIT_ASSERT( com0() );
-    CPPUNIT_ASSERT( com11(1) );
-    CPPUNIT_ASSERT( com10(1) );
-
-    CPPUNIT_ASSERT( com0.sent() );
-    CPPUNIT_ASSERT( com0.accepted() );
-    CPPUNIT_ASSERT( com11.sent() );
-    CPPUNIT_ASSERT( com11.accepted() );
-    CPPUNIT_ASSERT( com10.sent() );
-    CPPUNIT_ASSERT( com10.accepted() );
-
-    CPPUNIT_ASSERT( !com0.executed() );
-    CPPUNIT_ASSERT( !com0.valid() );
-    CPPUNIT_ASSERT( !com0.done() );
-    CPPUNIT_ASSERT( !com11.executed() );
-    CPPUNIT_ASSERT( !com11.valid() );
-    CPPUNIT_ASSERT( !com11.done() );
-    CPPUNIT_ASSERT( !com10.executed() );
-    CPPUNIT_ASSERT( !com10.valid() );
-    CPPUNIT_ASSERT( !com10.done() );
-
-    // This executes all queued commands.
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(1) );
-
-    CPPUNIT_ASSERT( com0.executed() );
-    CPPUNIT_ASSERT( com0.valid() );
-    CPPUNIT_ASSERT( com0.done() );
-    CPPUNIT_ASSERT( com11.executed() );
-    CPPUNIT_ASSERT( com11.valid() );
-    CPPUNIT_ASSERT( com11.done() );
-    CPPUNIT_ASSERT( com10.executed() );
-    CPPUNIT_ASSERT( com10.valid() );
-    CPPUNIT_ASSERT( com10.done() );
-
-    CPPUNIT_ASSERT( tsim->stop() );
-}
-
-void Generic_TaskTest_2::testCommandFactory()
+BOOST_AUTO_TEST_CASE( testCommandFactory)
 {
     // Test the addition of 'simple' commands to the operation interface,
     // and retrieving it back in a new Command object.
@@ -477,69 +435,69 @@ void Generic_TaskTest_2::testCommandFactory()
 
     TaskObject to("task");
 
-    CPPUNIT_ASSERT( to.commands()->addCommand(&com0) );
-    CPPUNIT_ASSERT( ! to.commands()->addCommand(&com0) );
-    CPPUNIT_ASSERT( to.commands()->addCommand(&com11) );
-    CPPUNIT_ASSERT( to.commands()->addCommand(&com10) );
+    BOOST_CHECK( to.commands()->addCommand(&com0) );
+    BOOST_CHECK( ! to.commands()->addCommand(&com0) );
+    BOOST_CHECK( to.commands()->addCommand(&com11) );
+    BOOST_CHECK( to.commands()->addCommand(&com10) );
 
     // test constructor
     Command<bool(void)> rc0 = to.commands()->getCommand<bool(void)>("c0");
-    CPPUNIT_ASSERT( rc0.getCommandImpl() );
-    CPPUNIT_ASSERT( rc0.ready() );
+    BOOST_CHECK( rc0.getCommandImpl() );
+    BOOST_CHECK( rc0.ready() );
 
     // test operator=()
     Command<bool(int)> rc11;
     rc11 = to.commands()->getCommand<bool(int)>("c11");
-    CPPUNIT_ASSERT( rc11.getCommandImpl() );
-    CPPUNIT_ASSERT( rc11.ready() );
+    BOOST_CHECK( rc11.getCommandImpl() );
+    BOOST_CHECK( rc11.ready() );
 
     Command<bool(int)> rc10 = to.commands()->getCommand<bool(int)>("c10");
-    CPPUNIT_ASSERT( rc10.getCommandImpl() );
-    CPPUNIT_ASSERT( rc10.ready() );
+    BOOST_CHECK( rc10.getCommandImpl() );
+    BOOST_CHECK( rc10.ready() );
 
     // start the activity, such that commands are accepted.
-    CPPUNIT_ASSERT( tsim->start()) ;
+    BOOST_CHECK( tsim->start()) ;
     // execute commands and check status:
-    CPPUNIT_ASSERT( com0() );
+    BOOST_CHECK( com0() );
     verifydispatch(*com0.getCommandImpl());
 
-    CPPUNIT_ASSERT( com11(1) );
+    BOOST_CHECK( com11(1) );
     verifydispatch(*com11.getCommandImpl());
 
-    CPPUNIT_ASSERT( com10(1) );
+    BOOST_CHECK( com10(1) );
     verifydispatch(*com10.getCommandImpl());
 
     // test error cases:
     // Add uninitialised command:
     Command<bool(void)> cvoid;
-    CPPUNIT_ASSERT(to.commands()->addCommand( &cvoid ) == false);
+    BOOST_CHECK(to.commands()->addCommand( &cvoid ) == false);
     cvoid = Command<bool(void)>("voidc");
-    CPPUNIT_ASSERT(to.commands()->addCommand( &cvoid ) == false);
+    BOOST_CHECK(to.commands()->addCommand( &cvoid ) == false);
 
     // wrong type:
     cvoid = to.commands()->getCommand<bool(bool)>("c0");
-    CPPUNIT_ASSERT( cvoid.ready() == false );
+    BOOST_CHECK( cvoid.ready() == false );
     // wrong type 2:
     cvoid = to.commands()->getCommand<bool(int)>("c11");
-    CPPUNIT_ASSERT( cvoid.ready() == false );
+    BOOST_CHECK( cvoid.ready() == false );
     // wrong type 3:
     cvoid = to.commands()->getCommand<bool(void)>("c11");
-    CPPUNIT_ASSERT( cvoid.ready() == false );
+    BOOST_CHECK( cvoid.ready() == false );
     // not existing:
     cvoid = to.commands()->getCommand<bool(void)>("voidm");
-    CPPUNIT_ASSERT( cvoid.ready() == false );
+    BOOST_CHECK( cvoid.ready() == false );
 
     cvoid.reset();
-    CPPUNIT_ASSERT( cvoid() == false);
-    CPPUNIT_ASSERT( cvoid.accepted() == false);
-    CPPUNIT_ASSERT( cvoid.executed() == false);
-    CPPUNIT_ASSERT( cvoid.sent() == false);
-    CPPUNIT_ASSERT( cvoid.valid() == false);
-    CPPUNIT_ASSERT( cvoid.done() == false);
+    BOOST_CHECK( cvoid() == false);
+    BOOST_CHECK( cvoid.accepted() == false);
+    BOOST_CHECK( cvoid.executed() == false);
+    BOOST_CHECK( cvoid.sent() == false);
+    BOOST_CHECK( cvoid.valid() == false);
+    BOOST_CHECK( cvoid.done() == false);
 
 }
 
-void Generic_TaskTest_2::testCommandFromDS()
+BOOST_AUTO_TEST_CASE( testCommandFromDS)
 {
     Command<bool(void)> com0("c0", &Generic_TaskTest_2::cd0, &Generic_TaskTest_2::cn0, this, tc->engine()->commands() );
     Command<bool(int)> com11("c11", &Generic_TaskTest_2::cd1, &Generic_TaskTest_2::cn1, this, tc->engine()->commands() );
@@ -558,27 +516,27 @@ void Generic_TaskTest_2::testCommandFromDS()
 
     TaskObject to("task");
 
-    CPPUNIT_ASSERT( to.commands()->addCommand( &com0, "desc" ) );
-    CPPUNIT_ASSERT( ! to.commands()->addCommand( &com0, "desc" ) );
+    BOOST_CHECK( to.commands()->addCommand( &com0, "desc" ) );
+    BOOST_CHECK( ! to.commands()->addCommand( &com0, "desc" ) );
 
-    CPPUNIT_ASSERT( to.commands()->addCommand( &com11, "desc","a1", "d1" ) );
-    CPPUNIT_ASSERT( ! to.commands()->addCommand( &com11, "desc","a1", "d1" ) );
-    CPPUNIT_ASSERT( to.commands()->addCommand( &com10, "desc","a1", "d1" ) );
+    BOOST_CHECK( to.commands()->addCommand( &com11, "desc","a1", "d1" ) );
+    BOOST_CHECK( ! to.commands()->addCommand( &com11, "desc","a1", "d1" ) );
+    BOOST_CHECK( to.commands()->addCommand( &com10, "desc","a1", "d1" ) );
 
-    CPPUNIT_ASSERT( to.commands()->addCommand( &com22, "desc","a1", "d1","a2","d2" ) );
-    CPPUNIT_ASSERT( ! to.commands()->addCommand( &com22, "desc","a1", "d1","a2","d2" ) );
-    CPPUNIT_ASSERT( to.commands()->addCommand( &com20, "desc","a1", "d1","a2","d2" ) );
-    CPPUNIT_ASSERT( to.commands()->addCommand( &com21, "desc","a1", "d1","a2","d2" ) );
+    BOOST_CHECK( to.commands()->addCommand( &com22, "desc","a1", "d1","a2","d2" ) );
+    BOOST_CHECK( ! to.commands()->addCommand( &com22, "desc","a1", "d1","a2","d2" ) );
+    BOOST_CHECK( to.commands()->addCommand( &com20, "desc","a1", "d1","a2","d2" ) );
+    BOOST_CHECK( to.commands()->addCommand( &com21, "desc","a1", "d1","a2","d2" ) );
 
-    CPPUNIT_ASSERT( to.commands()->addCommand( &com33, "desc","a1", "d1","a2","d2","a3","d3" ) );
-    CPPUNIT_ASSERT( ! to.commands()->addCommand( &com33, "desc","a1", "d1","a2","d2","a3","d3" ) );
-    CPPUNIT_ASSERT( to.commands()->addCommand( &com30, "desc","a1", "d1","a2","d2","a3","d3" ) );
-    CPPUNIT_ASSERT( to.commands()->addCommand( &com31, "desc","a1", "d1","a2","d2","a3","d3" ) );
+    BOOST_CHECK( to.commands()->addCommand( &com33, "desc","a1", "d1","a2","d2","a3","d3" ) );
+    BOOST_CHECK( ! to.commands()->addCommand( &com33, "desc","a1", "d1","a2","d2","a3","d3" ) );
+    BOOST_CHECK( to.commands()->addCommand( &com30, "desc","a1", "d1","a2","d2","a3","d3" ) );
+    BOOST_CHECK( to.commands()->addCommand( &com31, "desc","a1", "d1","a2","d2","a3","d3" ) );
 
-    CPPUNIT_ASSERT( to.commands()->addCommand( &com44, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
-    CPPUNIT_ASSERT( ! to.commands()->addCommand( &com44, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
-    CPPUNIT_ASSERT( to.commands()->addCommand( &com40, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
-    CPPUNIT_ASSERT( to.commands()->addCommand( &com41, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
+    BOOST_CHECK( to.commands()->addCommand( &com44, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
+    BOOST_CHECK( ! to.commands()->addCommand( &com44, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
+    BOOST_CHECK( to.commands()->addCommand( &com40, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
+    BOOST_CHECK( to.commands()->addCommand( &com41, "desc","a1", "d1","a2","d2","a3","d3","a4","d4" ) );
 
 
     std::vector<RTT::DataSourceBase::shared_ptr> args;
@@ -595,7 +553,7 @@ void Generic_TaskTest_2::testCommandFromDS()
     CommandC c41 = to.commands()->create("c41").argC(1).argC(1.0).argC('a').argC(true);
     CommandC c44 = to.commands()->create("c44").argC(1).argC(1.0).argC('a').argC(true);
 
-    CPPUNIT_ASSERT( tsim->start()) ;
+    BOOST_CHECK( tsim->start()) ;
     verifycommand(c0);
     verifycommand(c11);
     verifycommand(c10);
@@ -608,10 +566,10 @@ void Generic_TaskTest_2::testCommandFromDS()
     verifycommand(c44);
     verifycommand(c40);
     verifycommand(c41);
-    CPPUNIT_ASSERT( tsim->stop()) ;
+    BOOST_CHECK( tsim->stop()) ;
 }
 
-void Generic_TaskTest_2::testDSCommand()
+BOOST_AUTO_TEST_CASE( testDSCommand)
 {
     TaskObject to("task");
 
@@ -636,24 +594,24 @@ void Generic_TaskTest_2::testDSCommand()
 
     boost::shared_ptr<Generic_TaskTest_2> ptr( new Generic_TaskTest_2() );
     ValueDataSource<boost::weak_ptr<Generic_TaskTest_2> >::shared_ptr wp = new ValueDataSource<boost::weak_ptr<Generic_TaskTest_2> >( ptr );
-    CPPUNIT_ASSERT( to.commands()->addCommandDS( wp.get(), com0, "desc" ) );
-    CPPUNIT_ASSERT( to.commands()->addCommandDS( wp.get(), com1, "desc", "a1", "d1" ) );
+    BOOST_CHECK( to.commands()->addCommandDS( wp.get(), com0, "desc" ) );
+    BOOST_CHECK( to.commands()->addCommandDS( wp.get(), com1, "desc", "a1", "d1" ) );
 
     // this actually works ! the command will detect the deleted pointer.
     //ptr.reset();
 
-    CPPUNIT_ASSERT( tsim->start()) ;
+    BOOST_CHECK( tsim->start()) ;
 
     CommandC c0  = to.commands()->create("c0");
     verifycommand(c0);
     CommandC c1  = to.commands()->create("c1").argC(1);
     verifycommand(c1);
 
-    CPPUNIT_ASSERT( tsim->stop()) ;
+    BOOST_CHECK( tsim->stop()) ;
 
 }
 
-void Generic_TaskTest_2::testCRCommand()
+BOOST_AUTO_TEST_CASE( testCRCommand)
 {
     this->ret = -3.3;
 
@@ -663,27 +621,27 @@ void Generic_TaskTest_2::testCRCommand()
     Command<bool(double&)> c1r = ic1r.getCommandImpl()->clone();
     Command<bool(const double&)> c1cr = ic1cr.getCommandImpl()->clone();
 
-    CPPUNIT_ASSERT( c1r.ready() );
-    CPPUNIT_ASSERT( c1cr.ready() );
+    BOOST_CHECK( c1r.ready() );
+    BOOST_CHECK( c1cr.ready() );
 
-    CPPUNIT_ASSERT( tsim->start()) ;
+    BOOST_CHECK( tsim->start()) ;
     // execute commands and check status:
-    CPPUNIT_ASSERT( c1cr(1.0) );
+    BOOST_CHECK( c1cr(1.0) );
     verifydispatch(*c1cr.getCommandImpl());
-    CPPUNIT_ASSERT_EQUAL( 1.0, ret );
+    BOOST_CHECK_EQUAL( 1.0, ret );
 
     this->ret = -3.3;
     double result = 0.0;
-    CPPUNIT_ASSERT( c1r(result) );
+    BOOST_CHECK( c1r(result) );
     verifydispatch(*c1r.getCommandImpl());
     // ret == -3.3, result == -6.6
-    CPPUNIT_ASSERT_EQUAL( -3.3, ret );
-    CPPUNIT_ASSERT_EQUAL( ret * 2, result );
+    BOOST_CHECK_EQUAL( -3.3, ret );
+    BOOST_CHECK_EQUAL( ret * 2, result );
 
-    CPPUNIT_ASSERT( tsim->stop() ) ;
+    BOOST_CHECK( tsim->stop() ) ;
 }
 
-void Generic_TaskTest_2::testCSCRCommand()
+BOOST_AUTO_TEST_CASE( testCSCRCommand)
 {
     // using a struct:
     CS cs;
@@ -698,22 +656,22 @@ void Generic_TaskTest_2::testCSCRCommand()
 
     Command<bool(CS&)> c1r = ic1r.getCommandImpl()->clone();
     Command<bool(const CS&)> c1cr = ic1cr.getCommandImpl()->clone();
-    CPPUNIT_ASSERT( c1r.ready() );
-    CPPUNIT_ASSERT( c1cr.ready() );
+    BOOST_CHECK( c1r.ready() );
+    BOOST_CHECK( c1cr.ready() );
 
-    CPPUNIT_ASSERT( tsim->start()) ;
+    BOOST_CHECK( tsim->start()) ;
     // execute commands and check status:
-    CPPUNIT_ASSERT( c1cr(cs) );
+    BOOST_CHECK( c1cr(cs) );
     verifydispatch(*c1cr.getCommandImpl());
 
-    CPPUNIT_ASSERT( c1r(cs2) );
+    BOOST_CHECK( c1r(cs2) );
     verifydispatch(*c1r.getCommandImpl());
-    CPPUNIT_ASSERT_EQUAL( 2*cs2.y+2*cs2.z, cs2.x );
+    BOOST_CHECK_CLOSE( 2*cs2.y+2*cs2.z, cs2.x, 0.0001 );
 
-    CPPUNIT_ASSERT( tsim->stop() ) ;
+    BOOST_CHECK( tsim->stop() ) ;
 }
 
-void Generic_TaskTest_2::testAddCommand()
+BOOST_AUTO_TEST_CASE( testAddCommand)
 {
 
     Command<bool(void)> com0("c0");
@@ -737,37 +695,39 @@ void Generic_TaskTest_2::testAddCommand()
     Command<bool(int,double,char,bool)> com41= command("command", &Generic_TaskTest_2::cd4, &Generic_TaskTest_2::cn1, this, tc->engine()->commands() );
 
     // start the activity, such that commands are accepted.
-    CPPUNIT_ASSERT( tsim->start()) ;
+    BOOST_CHECK( tsim->start()) ;
 
     // execute commands and check status:
-    CPPUNIT_ASSERT( com0() );
+    BOOST_CHECK( com0() );
     verifydispatch(*com0.getCommandImpl());
 
-    CPPUNIT_ASSERT( com11(1) );
+    BOOST_CHECK( com11(1) );
     verifydispatch(*com11.getCommandImpl());
-    CPPUNIT_ASSERT( com10(1) );
+    BOOST_CHECK( com10(1) );
     verifydispatch(*com10.getCommandImpl());
 
-    CPPUNIT_ASSERT( com22(1, 1.0) );
+    BOOST_CHECK( com22(1, 1.0) );
     verifydispatch(*com22.getCommandImpl());
-    CPPUNIT_ASSERT( com20(1, 1.0) );
+    BOOST_CHECK( com20(1, 1.0) );
     verifydispatch(*com20.getCommandImpl());
-    CPPUNIT_ASSERT( com21(1, 1.0) );
+    BOOST_CHECK( com21(1, 1.0) );
     verifydispatch(*com21.getCommandImpl());
 
-    CPPUNIT_ASSERT( com33(1, 1.0, char('a') ) );
+    BOOST_CHECK( com33(1, 1.0, char('a') ) );
     verifydispatch(*com33.getCommandImpl());
-    CPPUNIT_ASSERT( com30(1, 1.0, char('a') ) );
+    BOOST_CHECK( com30(1, 1.0, char('a') ) );
     verifydispatch(*com30.getCommandImpl());
-    CPPUNIT_ASSERT( com31(1, 1.0, char('a') ) );
+    BOOST_CHECK( com31(1, 1.0, char('a') ) );
     verifydispatch(*com31.getCommandImpl());
 
-    CPPUNIT_ASSERT( com44(1, 1.0, char('a'),true) );
+    BOOST_CHECK( com44(1, 1.0, char('a'),true) );
     verifydispatch(*com44.getCommandImpl());
-    CPPUNIT_ASSERT( com40(1, 1.0, char('a'),true) );
+    BOOST_CHECK( com40(1, 1.0, char('a'),true) );
     verifydispatch(*com40.getCommandImpl());
-    CPPUNIT_ASSERT( com41(1, 1.0, char('a'),true) );
+    BOOST_CHECK( com41(1, 1.0, char('a'),true) );
     verifydispatch(*com41.getCommandImpl());
 
-    CPPUNIT_ASSERT( tsim->stop() );
+    BOOST_CHECK( tsim->stop() );
 }
+
+BOOST_AUTO_TEST_SUITE_END()

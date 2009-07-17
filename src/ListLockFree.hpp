@@ -465,6 +465,7 @@ namespace RTT
          * be compared to this item using operator==(), if it matches,
          * it is considered blank, and func is \b not applied.
          * @see erase_and_blank
+         * @deprecated This complicated function is nowhere used.
          */
         template<class Function>
         void apply_and_blank(Function func, value_t blank )
@@ -508,6 +509,7 @@ namespace RTT
          * @param blank The 'blank' item to use to blank \a item
          * from the list.
          * @see apply_and_blank
+         * @deprecated This complicated function is nowhere used.
          */
         bool erase_and_blank(value_t item, value_t blank )
         {
@@ -648,9 +650,6 @@ namespace RTT
         }
 
     };
-
-    extern template class ListLockFree<double>;
-
 }
 
 #endif

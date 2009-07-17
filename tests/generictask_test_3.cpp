@@ -19,22 +19,26 @@
 
 
 #include "generictask_test_3.hpp"
-#include <unistd.h>
-#include <iostream>
-#include "Ports.hpp"
-#include "DataObjectInterfaces.hpp"
-#include "BufferLocked.hpp"
 
-#include "SlaveActivity.hpp"
-#include "SimulationActivity.hpp"
-#include "SimulationThread.hpp"
+#include <iostream>
+#include <Ports.hpp>
+#include <DataObjectInterfaces.hpp>
+#include <BufferLocked.hpp>
+#include <DataPort.hpp>
+
+#include <SlaveActivity.hpp>
+#include <SequentialActivity.hpp>
+#include <SimulationActivity.hpp>
+#include <SimulationThread.hpp>
 
 #include <boost/function_types/function_type_signature.hpp>
 
 using namespace std;
+using namespace RTT;
 
-// Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( Generic_TaskTest_3 );
+#include <boost/test/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
+
 
 // Test TaskContext states.
 class StatesTC
@@ -64,29 +68,29 @@ public:
     }
 
     bool configureHook() {
-        CPPUNIT_ASSERT( mTaskState <= Stopped );
+        BOOST_CHECK( mTaskState <= Stopped );
         didconfig = true;
         return validconfig;
     }
 
     bool startHook() {
-        CPPUNIT_ASSERT( mTaskState == Stopped || mTaskState == Active);
+        BOOST_CHECK( mTaskState == Stopped || mTaskState == Active);
         didstart = true;
         return validstart;
     }
 
     void stopHook() {
-        CPPUNIT_ASSERT( mTaskState >= Running || mTaskState == Active || mTaskState == FatalError);
+        BOOST_CHECK( mTaskState >= Running || mTaskState == Active || mTaskState == FatalError);
         didstop = true;
     }
 
     void cleanupHook() {
-        CPPUNIT_ASSERT( mTaskState == Stopped );
+        BOOST_CHECK( mTaskState == Stopped );
         didcleanup = true;
     }
 
     void updateHook() {
-        CPPUNIT_ASSERT( mTaskState == Running );
+        BOOST_CHECK( mTaskState == Running );
         didupdate = true;
         if (do_error)
             this->fatal();
@@ -110,7 +114,6 @@ public:
     bool validreset, didreset, didactivate, validactivate;
     bool do_error;
 };
-
 class EventPortsTC : public TaskContext
 {
 public:
@@ -134,6 +137,8 @@ Generic_TaskTest_3::setUp()
     tc =  new TaskContext( "root", TaskContext::Stopped );
     tce = new EventPortsTC();
     tc2 = new EventPortsTC();
+    tce->setActivity( new SequentialActivity() );
+    tc2->setActivity( new SequentialActivity() );
     stc = new StatesTC();
     tsim = new SimulationActivity(0.001, tc->engine() );
     stsim = new SimulationActivity(0.001, stc->engine() );
@@ -149,245 +154,251 @@ Generic_TaskTest_3::tearDown()
     tsim->stop();
     stsim->stop();
     delete tc;
+    delete tce;
+    delete tc2;
     delete tsim;
     delete stc;
     delete stsim;
 }
 
-void Generic_TaskTest_3::testPeriod()
+// Registers the fixture into the 'registry'
+BOOST_FIXTURE_TEST_SUITE(  Generic_TaskTest3Suite,  Generic_TaskTest_3 )
+
+
+BOOST_AUTO_TEST_CASE( testPeriod)
 {
     // check unconfigured TC
     TaskContext pertc("PerTC");
-    CPPUNIT_ASSERT( pertc.getPeriod() == 0.0 );
+    BOOST_CHECK( pertc.getPeriod() == 0.0 );
 
     // check periodic TC
     SlaveActivity sa(1.0, pertc.engine());
-    CPPUNIT_ASSERT( sa.getPeriod() == 1.0 );
-    CPPUNIT_ASSERT( pertc.getPeriod() == 1.0 );
+    BOOST_CHECK( sa.getPeriod() == 1.0 );
+    BOOST_CHECK( pertc.getPeriod() == 1.0 );
 
     // check non periodic TC
     SlaveActivity sb(0.0, pertc.engine());
-    CPPUNIT_ASSERT( sb.getPeriod() == 0.0 );
-    CPPUNIT_ASSERT( pertc.getPeriod() == 0.0 );
+    BOOST_CHECK( sb.getPeriod() == 0.0 );
+    BOOST_CHECK( pertc.getPeriod() == 0.0 );
 
 }
-void Generic_TaskTest_3::testTCStates()
+BOOST_AUTO_TEST_CASE( testTCStates)
 {
     // Test the states of a Default TC, no user methods.
-    CPPUNIT_ASSERT( tc->getTaskState() == TaskContext::Stopped );
+    BOOST_CHECK( tc->getTaskState() == TaskContext::Stopped );
 
     // Configure in Stop
-    CPPUNIT_ASSERT( tc->isConfigured() == true );
-    CPPUNIT_ASSERT( tc->isRunning() == false );
-    CPPUNIT_ASSERT( tc->isActive() == false );
-    CPPUNIT_ASSERT( tc->configure() == true );
-    CPPUNIT_ASSERT( tc->resetError() == false );
+    BOOST_CHECK( tc->isConfigured() == true );
+    BOOST_CHECK( tc->isRunning() == false );
+    BOOST_CHECK( tc->isActive() == false );
+    BOOST_CHECK( tc->configure() == true );
+    BOOST_CHECK( tc->resetError() == false );
 
     // Stop to Running
-    CPPUNIT_ASSERT( tc->start() == true );
-    CPPUNIT_ASSERT( tc->isRunning() == true );
-    CPPUNIT_ASSERT( tc->isActive() == true );
-    CPPUNIT_ASSERT( tc->configure() == false );
-    CPPUNIT_ASSERT( tc->start() == false );
-    CPPUNIT_ASSERT( tc->cleanup() == false );
-    CPPUNIT_ASSERT( tc->resetError() == false );
+    BOOST_CHECK( tc->start() == true );
+    BOOST_CHECK( tc->isRunning() == true );
+    BOOST_CHECK( tc->isActive() == true );
+    BOOST_CHECK( tc->configure() == false );
+    BOOST_CHECK( tc->start() == false );
+    BOOST_CHECK( tc->cleanup() == false );
+    BOOST_CHECK( tc->resetError() == false );
 
     // Running to Stop
-    CPPUNIT_ASSERT( tc->stop() == true );
-    CPPUNIT_ASSERT( tc->isRunning() == false);
-    CPPUNIT_ASSERT( tc->isActive() == false );
-    CPPUNIT_ASSERT( tc->stop() == false );
-    CPPUNIT_ASSERT( tc->configure() == true );
-    CPPUNIT_ASSERT( tc->isConfigured() == true );
+    BOOST_CHECK( tc->stop() == true );
+    BOOST_CHECK( tc->isRunning() == false);
+    BOOST_CHECK( tc->isActive() == false );
+    BOOST_CHECK( tc->stop() == false );
+    BOOST_CHECK( tc->configure() == true );
+    BOOST_CHECK( tc->isConfigured() == true );
 
     // Stop to Active to Stop
-    CPPUNIT_ASSERT( tc->activate() == true );
-    CPPUNIT_ASSERT( tc->isActive() == true);
-    CPPUNIT_ASSERT( tc->isRunning() == false );
-    CPPUNIT_ASSERT( tc->configure() == false );
-    CPPUNIT_ASSERT( tc->resetError() == false );
-    CPPUNIT_ASSERT( tc->stop() == true );
-    CPPUNIT_ASSERT( tc->isConfigured() == true );
+    BOOST_CHECK( tc->activate() == true );
+    BOOST_CHECK( tc->isActive() == true);
+    BOOST_CHECK( tc->isRunning() == false );
+    BOOST_CHECK( tc->configure() == false );
+    BOOST_CHECK( tc->resetError() == false );
+    BOOST_CHECK( tc->stop() == true );
+    BOOST_CHECK( tc->isConfigured() == true );
 
     // Stop to Active to Running to Stop
-    CPPUNIT_ASSERT( tc->activate() == true );
-    CPPUNIT_ASSERT( tc->start() == true );
-    CPPUNIT_ASSERT( tc->isRunning() == true );
-    CPPUNIT_ASSERT( tc->isActive() == true );
-    CPPUNIT_ASSERT( tc->configure() == false );
-    CPPUNIT_ASSERT( tc->start() == false );
-    CPPUNIT_ASSERT( tc->cleanup() == false );
-    CPPUNIT_ASSERT( tc->resetError() == false );
-    CPPUNIT_ASSERT( tc->stop() == true );
-    CPPUNIT_ASSERT( tc->isConfigured() == true );
+    BOOST_CHECK( tc->activate() == true );
+    BOOST_CHECK( tc->start() == true );
+    BOOST_CHECK( tc->isRunning() == true );
+    BOOST_CHECK( tc->isActive() == true );
+    BOOST_CHECK( tc->configure() == false );
+    BOOST_CHECK( tc->start() == false );
+    BOOST_CHECK( tc->cleanup() == false );
+    BOOST_CHECK( tc->resetError() == false );
+    BOOST_CHECK( tc->stop() == true );
+    BOOST_CHECK( tc->isConfigured() == true );
 
     // Stop to PreOp
-    CPPUNIT_ASSERT( tc->cleanup() == true );
-    CPPUNIT_ASSERT( tc->isConfigured() == false);
-    CPPUNIT_ASSERT( tc->isRunning() == false);
+    BOOST_CHECK( tc->cleanup() == true );
+    BOOST_CHECK( tc->isConfigured() == false);
+    BOOST_CHECK( tc->isRunning() == false);
 
     // PreOp to stop
-    CPPUNIT_ASSERT( tc->configure() == true );
-    CPPUNIT_ASSERT( tc->isConfigured() == true);
-    CPPUNIT_ASSERT( tc->isRunning() == false);
-    CPPUNIT_ASSERT( tc->isActive() == false );
+    BOOST_CHECK( tc->configure() == true );
+    BOOST_CHECK( tc->isConfigured() == true);
+    BOOST_CHECK( tc->isRunning() == false);
+    BOOST_CHECK( tc->isActive() == false );
 
 }
 
-void Generic_TaskTest_3::testSpecialTCStates()
+BOOST_AUTO_TEST_CASE( testSpecialTCStates)
 {
     // Test the states of a Specially crafted TC, requiring configure etc.
-    CPPUNIT_ASSERT( stc->getTaskState() == TaskContext::PreOperational );
+    BOOST_CHECK( stc->getTaskState() == TaskContext::PreOperational );
 
     // PreOperational state:
-    CPPUNIT_ASSERT( stc->isConfigured() == false );
-    CPPUNIT_ASSERT( stc->isRunning() == false );
-    CPPUNIT_ASSERT( stc->configure() == true );
-    CPPUNIT_ASSERT( stc->didconfig == true );
-    CPPUNIT_ASSERT( stc->isConfigured() == true );
+    BOOST_CHECK( stc->isConfigured() == false );
+    BOOST_CHECK( stc->isRunning() == false );
+    BOOST_CHECK( stc->configure() == true );
+    BOOST_CHECK( stc->didconfig == true );
+    BOOST_CHECK( stc->isConfigured() == true );
     // test flags
-    CPPUNIT_ASSERT( stc->didstart == false );
-    CPPUNIT_ASSERT( stc->didupdate == false );
-    CPPUNIT_ASSERT( stc->didstop == false );
-    CPPUNIT_ASSERT( stc->didcleanup == false );
-    CPPUNIT_ASSERT( stc->didactivate == false );
+    BOOST_CHECK( stc->didstart == false );
+    BOOST_CHECK( stc->didupdate == false );
+    BOOST_CHECK( stc->didstop == false );
+    BOOST_CHECK( stc->didcleanup == false );
+    BOOST_CHECK( stc->didactivate == false );
     stc->resetFlags();
 
     // Stopped state:
-    CPPUNIT_ASSERT( stc->start() == true );
-    CPPUNIT_ASSERT( stc->didstart == true );
+    BOOST_CHECK( stc->start() == true );
+    BOOST_CHECK( stc->didstart == true );
     stc->resetFlags();
-    CPPUNIT_ASSERT( stc->isRunning() == true );
-    CPPUNIT_ASSERT( stc->configure() == false );
-    CPPUNIT_ASSERT( stc->start() == false );
-    CPPUNIT_ASSERT( stc->cleanup() == false );
+    BOOST_CHECK( stc->isRunning() == true );
+    BOOST_CHECK( stc->configure() == false );
+    BOOST_CHECK( stc->start() == false );
+    BOOST_CHECK( stc->cleanup() == false );
     // test flags
-    CPPUNIT_ASSERT( stc->didconfig == false );
-    CPPUNIT_ASSERT( stc->didstart == false );
-    CPPUNIT_ASSERT( stc->didupdate == false );
-    CPPUNIT_ASSERT( stc->didstop == false );
-    CPPUNIT_ASSERT( stc->didcleanup == false );
-    CPPUNIT_ASSERT( stc->didactivate == false );
+    BOOST_CHECK( stc->didconfig == false );
+    BOOST_CHECK( stc->didstart == false );
+    BOOST_CHECK( stc->didupdate == false );
+    BOOST_CHECK( stc->didstop == false );
+    BOOST_CHECK( stc->didcleanup == false );
+    BOOST_CHECK( stc->didactivate == false );
     stc->resetFlags();
 
 
     // Running state / updateHook :
     SimulationThread::Instance()->run(1);
     // test flags
-    CPPUNIT_ASSERT( stc->didconfig == false );
-    CPPUNIT_ASSERT( stc->didstart == false );
-    CPPUNIT_ASSERT( stc->didupdate == true );
-    CPPUNIT_ASSERT( stc->didstop == false );
-    CPPUNIT_ASSERT( stc->didcleanup == false );
-    CPPUNIT_ASSERT( stc->didactivate == false );
+    BOOST_CHECK( stc->didconfig == false );
+    BOOST_CHECK( stc->didstart == false );
+    BOOST_CHECK( stc->didupdate == true );
+    BOOST_CHECK( stc->didstop == false );
+    BOOST_CHECK( stc->didcleanup == false );
+    BOOST_CHECK( stc->didactivate == false );
     stc->resetFlags();
 
     // Back to stopped
-    CPPUNIT_ASSERT( stc->stop() == true );
-    CPPUNIT_ASSERT( stc->didstop == true );
+    BOOST_CHECK( stc->stop() == true );
+    BOOST_CHECK( stc->didstop == true );
     // test flags
-    CPPUNIT_ASSERT( stc->didconfig == false );
-    CPPUNIT_ASSERT( stc->didstart == false );
-    CPPUNIT_ASSERT( stc->didupdate == false );
-    CPPUNIT_ASSERT( stc->didstop == true );
-    CPPUNIT_ASSERT( stc->didcleanup == false );
-    CPPUNIT_ASSERT( stc->didactivate == false );
+    BOOST_CHECK( stc->didconfig == false );
+    BOOST_CHECK( stc->didstart == false );
+    BOOST_CHECK( stc->didupdate == false );
+    BOOST_CHECK( stc->didstop == true );
+    BOOST_CHECK( stc->didcleanup == false );
+    BOOST_CHECK( stc->didactivate == false );
     stc->resetFlags();
 
-    CPPUNIT_ASSERT( stc->isRunning() == false);
-    CPPUNIT_ASSERT( stc->stop() == false );
-    CPPUNIT_ASSERT( stc->configure() == true );
-    CPPUNIT_ASSERT( stc->isConfigured() == true );
+    BOOST_CHECK( stc->isRunning() == false);
+    BOOST_CHECK( stc->stop() == false );
+    BOOST_CHECK( stc->configure() == true );
+    BOOST_CHECK( stc->isConfigured() == true );
     // test flags
-    CPPUNIT_ASSERT( stc->didconfig == true );
-    CPPUNIT_ASSERT( stc->didstart == false );
-    CPPUNIT_ASSERT( stc->didupdate == false );
-    CPPUNIT_ASSERT( stc->didstop == false );
-    CPPUNIT_ASSERT( stc->didcleanup == false );
-    CPPUNIT_ASSERT( stc->didactivate == false );
+    BOOST_CHECK( stc->didconfig == true );
+    BOOST_CHECK( stc->didstart == false );
+    BOOST_CHECK( stc->didupdate == false );
+    BOOST_CHECK( stc->didstop == false );
+    BOOST_CHECK( stc->didcleanup == false );
+    BOOST_CHECK( stc->didactivate == false );
     stc->resetFlags();
 
 
     // Active state:
-    CPPUNIT_ASSERT( stc->activate() == true );
-    CPPUNIT_ASSERT( stc->didactivate == true );
+    BOOST_CHECK( stc->activate() == true );
+    BOOST_CHECK( stc->didactivate == true );
     stc->resetFlags();
-    CPPUNIT_ASSERT( stc->isActive() == true );
-    CPPUNIT_ASSERT( stc->configure() == false );
-    CPPUNIT_ASSERT( stc->activate() == false );
-    CPPUNIT_ASSERT( stc->cleanup() == false );
+    BOOST_CHECK( stc->isActive() == true );
+    BOOST_CHECK( stc->configure() == false );
+    BOOST_CHECK( stc->activate() == false );
+    BOOST_CHECK( stc->cleanup() == false );
     // test flags
-    CPPUNIT_ASSERT( stc->didconfig == false );
-    CPPUNIT_ASSERT( stc->didstart == false );
-    CPPUNIT_ASSERT( stc->didupdate == false );
-    CPPUNIT_ASSERT( stc->didstop == false );
-    CPPUNIT_ASSERT( stc->didcleanup == false );
-    CPPUNIT_ASSERT( stc->didactivate == false );
+    BOOST_CHECK( stc->didconfig == false );
+    BOOST_CHECK( stc->didstart == false );
+    BOOST_CHECK( stc->didupdate == false );
+    BOOST_CHECK( stc->didstop == false );
+    BOOST_CHECK( stc->didcleanup == false );
+    BOOST_CHECK( stc->didactivate == false );
     stc->resetFlags();
     // continue to start
-    CPPUNIT_ASSERT( stc->start() == true );
-    CPPUNIT_ASSERT( stc->didstart == true );
+    BOOST_CHECK( stc->start() == true );
+    BOOST_CHECK( stc->didstart == true );
     stc->resetFlags();
-    CPPUNIT_ASSERT( stc->isActive() == true );
-    CPPUNIT_ASSERT( stc->isRunning() == true );
-    CPPUNIT_ASSERT( stc->configure() == false );
-    CPPUNIT_ASSERT( stc->activate() == false );
-    CPPUNIT_ASSERT( stc->cleanup() == false );
-    CPPUNIT_ASSERT( stc->start() == false );
+    BOOST_CHECK( stc->isActive() == true );
+    BOOST_CHECK( stc->isRunning() == true );
+    BOOST_CHECK( stc->configure() == false );
+    BOOST_CHECK( stc->activate() == false );
+    BOOST_CHECK( stc->cleanup() == false );
+    BOOST_CHECK( stc->start() == false );
     // running to stop to active to stop
-    CPPUNIT_ASSERT( stc->stop() == true );
-    CPPUNIT_ASSERT( stc->activate() == true );
+    BOOST_CHECK( stc->stop() == true );
+    BOOST_CHECK( stc->activate() == true );
     stc->resetFlags();
-    CPPUNIT_ASSERT( stc->stop() == true );
-    CPPUNIT_ASSERT( stc->didstop == true );
+    BOOST_CHECK( stc->stop() == true );
+    BOOST_CHECK( stc->didstop == true );
     // test flags
-    CPPUNIT_ASSERT( stc->didconfig == false );
-    CPPUNIT_ASSERT( stc->didstart == false );
-    CPPUNIT_ASSERT( stc->didupdate == false );
-    CPPUNIT_ASSERT( stc->didcleanup == false );
-    CPPUNIT_ASSERT( stc->didactivate == false );
+    BOOST_CHECK( stc->didconfig == false );
+    BOOST_CHECK( stc->didstart == false );
+    BOOST_CHECK( stc->didupdate == false );
+    BOOST_CHECK( stc->didcleanup == false );
+    BOOST_CHECK( stc->didactivate == false );
     stc->resetFlags();
 
     // Stopped to PreOp state:
-    CPPUNIT_ASSERT( stc->cleanup() == true );
-    CPPUNIT_ASSERT( stc->isConfigured() == false);
-    CPPUNIT_ASSERT( stc->isRunning() == false);
+    BOOST_CHECK( stc->cleanup() == true );
+    BOOST_CHECK( stc->isConfigured() == false);
+    BOOST_CHECK( stc->isRunning() == false);
     // test flags
-    CPPUNIT_ASSERT( stc->didconfig == false );
-    CPPUNIT_ASSERT( stc->didstart == false );
-    CPPUNIT_ASSERT( stc->didupdate == false );
-    CPPUNIT_ASSERT( stc->didstop == false );
-    CPPUNIT_ASSERT( stc->didcleanup == true );
-    CPPUNIT_ASSERT( stc->didactivate == false );
+    BOOST_CHECK( stc->didconfig == false );
+    BOOST_CHECK( stc->didstart == false );
+    BOOST_CHECK( stc->didupdate == false );
+    BOOST_CHECK( stc->didstop == false );
+    BOOST_CHECK( stc->didcleanup == true );
+    BOOST_CHECK( stc->didactivate == false );
     stc->resetFlags();
-    CPPUNIT_ASSERT( stc->start() == false );
-    CPPUNIT_ASSERT( stc->cleanup() == false );
+    BOOST_CHECK( stc->start() == false );
+    BOOST_CHECK( stc->cleanup() == false );
     // test flags
-    CPPUNIT_ASSERT( stc->didconfig == false );
-    CPPUNIT_ASSERT( stc->didstart == false );
-    CPPUNIT_ASSERT( stc->didupdate == false );
-    CPPUNIT_ASSERT( stc->didstop == false );
-    CPPUNIT_ASSERT( stc->didcleanup == false );
-    CPPUNIT_ASSERT( stc->didactivate == false );
+    BOOST_CHECK( stc->didconfig == false );
+    BOOST_CHECK( stc->didstart == false );
+    BOOST_CHECK( stc->didupdate == false );
+    BOOST_CHECK( stc->didstop == false );
+    BOOST_CHECK( stc->didcleanup == false );
+    BOOST_CHECK( stc->didactivate == false );
     stc->resetFlags();
 
 
     // PreOperational to Stopped state:
-    CPPUNIT_ASSERT( stc->configure() == true );
-    CPPUNIT_ASSERT( stc->isConfigured() == true);
-    CPPUNIT_ASSERT( stc->isRunning() == false);
+    BOOST_CHECK( stc->configure() == true );
+    BOOST_CHECK( stc->isConfigured() == true);
+    BOOST_CHECK( stc->isRunning() == false);
     // test flags
-    CPPUNIT_ASSERT( stc->didconfig == true );
-    CPPUNIT_ASSERT( stc->didstart == false );
-    CPPUNIT_ASSERT( stc->didupdate == false );
-    CPPUNIT_ASSERT( stc->didstop == false );
-    CPPUNIT_ASSERT( stc->didcleanup == false );
-    CPPUNIT_ASSERT( stc->didactivate == false );
+    BOOST_CHECK( stc->didconfig == true );
+    BOOST_CHECK( stc->didstart == false );
+    BOOST_CHECK( stc->didupdate == false );
+    BOOST_CHECK( stc->didstop == false );
+    BOOST_CHECK( stc->didcleanup == false );
+    BOOST_CHECK( stc->didactivate == false );
     stc->resetFlags();
 
 }
 
-void Generic_TaskTest_3::testFailingTCStates()
+BOOST_AUTO_TEST_CASE( testFailingTCStates)
 {
     // Test the states of a TC failing in transitions
     stc->validconfig = false;
@@ -396,203 +407,203 @@ void Generic_TaskTest_3::testFailingTCStates()
     stc->validreset = false;
 
     // PreOperational state:
-    CPPUNIT_ASSERT( stc->isConfigured() == false );
-    CPPUNIT_ASSERT( stc->isRunning() == false );
-    CPPUNIT_ASSERT( stc->configure() == false );
-    CPPUNIT_ASSERT( stc->didconfig == true );
-    CPPUNIT_ASSERT( stc->isConfigured() == false );
-    CPPUNIT_ASSERT( stc->isRunning() == false );
-    CPPUNIT_ASSERT( stc->isActive() == false );
+    BOOST_CHECK( stc->isConfigured() == false );
+    BOOST_CHECK( stc->isRunning() == false );
+    BOOST_CHECK( stc->configure() == false );
+    BOOST_CHECK( stc->didconfig == true );
+    BOOST_CHECK( stc->isConfigured() == false );
+    BOOST_CHECK( stc->isRunning() == false );
+    BOOST_CHECK( stc->isActive() == false );
     stc->resetFlags();
 
     // Retry:
     stc->validconfig = true;
-    CPPUNIT_ASSERT( stc->configure() == true );
-    CPPUNIT_ASSERT( stc->didconfig == true );
-    CPPUNIT_ASSERT( stc->isConfigured() == true );
-    CPPUNIT_ASSERT( stc->isRunning() == false );
-    CPPUNIT_ASSERT( stc->isActive() == false );
+    BOOST_CHECK( stc->configure() == true );
+    BOOST_CHECK( stc->didconfig == true );
+    BOOST_CHECK( stc->isConfigured() == true );
+    BOOST_CHECK( stc->isRunning() == false );
+    BOOST_CHECK( stc->isActive() == false );
     stc->resetFlags();
 
     // Stopped state:
-    CPPUNIT_ASSERT( stc->start() == false );
-    CPPUNIT_ASSERT( stc->didstart == true );
-    CPPUNIT_ASSERT( stc->isRunning() == false );
-    CPPUNIT_ASSERT( stc->isActive() == false );
-    CPPUNIT_ASSERT( stc->isConfigured() == true );
+    BOOST_CHECK( stc->start() == false );
+    BOOST_CHECK( stc->didstart == true );
+    BOOST_CHECK( stc->isRunning() == false );
+    BOOST_CHECK( stc->isActive() == false );
+    BOOST_CHECK( stc->isConfigured() == true );
     stc->resetFlags();
 
     // Retry:
     stc->validstart = true;
-    CPPUNIT_ASSERT( stc->start() == true );
-    CPPUNIT_ASSERT( stc->didstart == true );
-    CPPUNIT_ASSERT( stc->isConfigured() == true );
-    CPPUNIT_ASSERT( stc->isRunning() == true );
-    CPPUNIT_ASSERT( stc->isActive() == true );
+    BOOST_CHECK( stc->start() == true );
+    BOOST_CHECK( stc->didstart == true );
+    BOOST_CHECK( stc->isConfigured() == true );
+    BOOST_CHECK( stc->isRunning() == true );
+    BOOST_CHECK( stc->isActive() == true );
     stc->resetFlags();
 
     // Stopped to Active
-    CPPUNIT_ASSERT( stc->stop() == true );
-    CPPUNIT_ASSERT( stc->activate() == false );
-    CPPUNIT_ASSERT( stc->didactivate == true );
-    CPPUNIT_ASSERT( stc->isRunning() == false );
-    CPPUNIT_ASSERT( stc->isActive() == false );
-    CPPUNIT_ASSERT( stc->isConfigured() == true );
+    BOOST_CHECK( stc->stop() == true );
+    BOOST_CHECK( stc->activate() == false );
+    BOOST_CHECK( stc->didactivate == true );
+    BOOST_CHECK( stc->isRunning() == false );
+    BOOST_CHECK( stc->isActive() == false );
+    BOOST_CHECK( stc->isConfigured() == true );
     stc->resetFlags();
     // Retry:
     stc->validactivate = true;
-    CPPUNIT_ASSERT( stc->activate() == true );
-    CPPUNIT_ASSERT( stc->didactivate == true );
-    CPPUNIT_ASSERT( stc->isConfigured() == true );
-    CPPUNIT_ASSERT( stc->isActive() == true );
-    CPPUNIT_ASSERT( stc->isRunning() == false );
+    BOOST_CHECK( stc->activate() == true );
+    BOOST_CHECK( stc->didactivate == true );
+    BOOST_CHECK( stc->isConfigured() == true );
+    BOOST_CHECK( stc->isActive() == true );
+    BOOST_CHECK( stc->isRunning() == false );
     stc->resetFlags();
 
     // Active to Running
     stc->validstart = false;
-    CPPUNIT_ASSERT( stc->start() == false );
-    CPPUNIT_ASSERT( stc->didstart == true );
-    CPPUNIT_ASSERT( stc->isRunning() == false );
-    CPPUNIT_ASSERT( stc->isActive() == true );
-    CPPUNIT_ASSERT( stc->isConfigured() == true );
+    BOOST_CHECK( stc->start() == false );
+    BOOST_CHECK( stc->didstart == true );
+    BOOST_CHECK( stc->isRunning() == false );
+    BOOST_CHECK( stc->isActive() == true );
+    BOOST_CHECK( stc->isConfigured() == true );
     stc->resetFlags();
 
     // Retry:
     stc->validstart = true;
-    CPPUNIT_ASSERT( stc->start() == true );
-    CPPUNIT_ASSERT( stc->didstart == true );
-    CPPUNIT_ASSERT( stc->isConfigured() == true );
-    CPPUNIT_ASSERT( stc->isRunning() == true );
-    CPPUNIT_ASSERT( stc->isActive() == true );
+    BOOST_CHECK( stc->start() == true );
+    BOOST_CHECK( stc->didstart == true );
+    BOOST_CHECK( stc->isConfigured() == true );
+    BOOST_CHECK( stc->isRunning() == true );
+    BOOST_CHECK( stc->isActive() == true );
     stc->resetFlags();
 
     // Error state.
     stc->do_error = true;
     // Running state / updateHook :
     SimulationThread::Instance()->run(1);
-    CPPUNIT_ASSERT( stc->inFatalError() == true );
-    CPPUNIT_ASSERT( stc->resetError() == true ); // brings us to PreOp.
-    CPPUNIT_ASSERT( stc->didreset == true );
-    CPPUNIT_ASSERT( stc->isConfigured() == false);
+    BOOST_CHECK( stc->inFatalError() == true );
+    BOOST_CHECK( stc->resetError() == true ); // brings us to PreOp.
+    BOOST_CHECK( stc->didreset == true );
+    BOOST_CHECK( stc->isConfigured() == false);
     // Retry:
-    CPPUNIT_ASSERT( stc->configure() == true);
-    CPPUNIT_ASSERT( stc->start() == true );
+    BOOST_CHECK( stc->configure() == true);
+    BOOST_CHECK( stc->start() == true );
     stc->validreset = true;
     // Running state / updateHook :
     SimulationThread::Instance()->run(1);
-    CPPUNIT_ASSERT( stc->inFatalError() == true );
-    CPPUNIT_ASSERT( stc->resetError() == true ); // brings us to Stopped.
-    CPPUNIT_ASSERT( stc->didreset == true );
-    CPPUNIT_ASSERT( stc->isConfigured() == true);
+    BOOST_CHECK( stc->inFatalError() == true );
+    BOOST_CHECK( stc->resetError() == true ); // brings us to Stopped.
+    BOOST_CHECK( stc->didreset == true );
+    BOOST_CHECK( stc->isConfigured() == true);
 
 }
 
-void Generic_TaskTest_3::testExecutionEngine()
+BOOST_AUTO_TEST_CASE( testExecutionEngine)
 {
     // no owner:
     ExecutionEngine ee1(0);
     ExecutionEngine ee2(0);
 
     // test setActivity:
-    CPPUNIT_ASSERT( tsim->run(&ee1) );
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(5) );
+    BOOST_CHECK( tsim->run(&ee1) );
+    BOOST_CHECK( SimulationThread::Instance()->run(5) );
 
     // this also tests setActivity:
-    CPPUNIT_ASSERT( tsim->run(&ee2) );
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(5) );
+    BOOST_CHECK( tsim->run(&ee2) );
+    BOOST_CHECK( SimulationThread::Instance()->run(5) );
 
     {
         TaskCore tc1("tc1", &ee2);
         TaskCore tc2("tc2", &ee2);
 
         // run with two children.
-        CPPUNIT_ASSERT( SimulationThread::Instance()->run(5) );
+        BOOST_CHECK( SimulationThread::Instance()->run(5) );
     }
     // children removed again:
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(5) );
+    BOOST_CHECK( SimulationThread::Instance()->run(5) );
     tsim->run(0);
 }
 
-void Generic_TaskTest_3::testProperties()
+BOOST_AUTO_TEST_CASE( testProperties)
 {
     Property<double> d1("d1", "desc1", 1.234);
     tc->properties()->addProperty( &d1);
 
-    CPPUNIT_ASSERT_EQUAL( double(1.234), d1.get() );
-    CPPUNIT_ASSERT_EQUAL( double(1.234), tc->properties()->getProperty<double>("d1")->get() );
+    BOOST_CHECK_EQUAL( double(1.234), d1.get() );
+    BOOST_CHECK_EQUAL( double(1.234), tc->properties()->getProperty<double>("d1")->get() );
 
     // test setup of mirror:
     Property<string> s1;
-    CPPUNIT_ASSERT( !s1.ready() );
+    BOOST_CHECK( !s1.ready() );
     Property<string> s2("hello","description", "world");
-    CPPUNIT_ASSERT( s2.ready() );
+    BOOST_CHECK( s2.ready() );
 
-    CPPUNIT_ASSERT(tc->properties()->addProperty( &s1 ) == false);
-    CPPUNIT_ASSERT(tc->properties()->addProperty( &s2 ) );
+    BOOST_CHECK(tc->properties()->addProperty( &s1 ) == false);
+    BOOST_CHECK(tc->properties()->addProperty( &s2 ) );
     s1 = tc->properties()->getProperty<string>("hello");
-    CPPUNIT_ASSERT( s1.ready() );
+    BOOST_CHECK( s1.ready() );
 
-    CPPUNIT_ASSERT_EQUAL(std::string("hello"), s1.getName() );
-    CPPUNIT_ASSERT_EQUAL(std::string("description"), s1.getDescription() );
-    CPPUNIT_ASSERT_EQUAL(std::string("world"), s1.get() );
+    BOOST_CHECK_EQUAL(std::string("hello"), s1.getName() );
+    BOOST_CHECK_EQUAL(std::string("description"), s1.getDescription() );
+    BOOST_CHECK_EQUAL(std::string("world"), s1.get() );
 
     // Test mirroring of 'set' and 'get':
     s1.set("universe");
-    CPPUNIT_ASSERT_EQUAL(std::string("universe"), s2.get() );
+    BOOST_CHECK_EQUAL(std::string("universe"), s2.get() );
 
 #if 0
-    CPPUNIT_ASSERT(tc->writeProperties("Generic_TaskTest_3_Properties.cpf"));
-    CPPUNIT_ASSERT( tc->readProperties("Generic_TaskTest_3_Properties.cpf"));
+    BOOST_CHECK(tc->writeProperties("Generic_TaskTest_3_Properties.cpf"));
+    BOOST_CHECK( tc->readProperties("Generic_TaskTest_3_Properties.cpf"));
 #endif
 }
 
-void Generic_TaskTest_3::testAttributes()
+BOOST_AUTO_TEST_CASE( testAttributes)
 {
     // test attribute repository:
     Attribute<int> i1("i1");
     Attribute<double> d1("d1", 1.234);
-    CPPUNIT_ASSERT( i1.ready() );
-    CPPUNIT_ASSERT( d1.ready() );
-    CPPUNIT_ASSERT(tc->attributes()->addAttribute( &d1 ));
-    CPPUNIT_ASSERT(tc->attributes()->addAttribute( &i1 ));
+    BOOST_CHECK( i1.ready() );
+    BOOST_CHECK( d1.ready() );
+    BOOST_CHECK(tc->attributes()->addAttribute( &d1 ));
+    BOOST_CHECK(tc->attributes()->addAttribute( &i1 ));
 
     i1.set( 3 );
-    CPPUNIT_ASSERT_EQUAL( double(1.234), d1.get() );
-    CPPUNIT_ASSERT_EQUAL( int(3), i1.get() );
+    BOOST_CHECK_EQUAL( double(1.234), d1.get() );
+    BOOST_CHECK_EQUAL( int(3), i1.get() );
 
-    CPPUNIT_ASSERT_EQUAL( double(1.234), tc->attributes()->getAttribute<double>("d1")->get() );
-    CPPUNIT_ASSERT_EQUAL( int(3),        tc->attributes()->getAttribute<int>("i1")->get() );
+    BOOST_CHECK_EQUAL( double(1.234), tc->attributes()->getAttribute<double>("d1")->get() );
+    BOOST_CHECK_EQUAL( int(3),        tc->attributes()->getAttribute<int>("i1")->get() );
 
     // test setup of mirror:
     Attribute<string> s1;
-    CPPUNIT_ASSERT( !s1.ready() );
+    BOOST_CHECK( !s1.ready() );
     Attribute<string> s2("hello","world");
-    CPPUNIT_ASSERT( s2.ready() );
+    BOOST_CHECK( s2.ready() );
 
-    CPPUNIT_ASSERT(tc->attributes()->addAttribute( &s1 ) == false);
-    CPPUNIT_ASSERT(tc->attributes()->addAttribute( &s2 ) );
+    BOOST_CHECK(tc->attributes()->addAttribute( &s1 ) == false);
+    BOOST_CHECK(tc->attributes()->addAttribute( &s2 ) );
     s1 = tc->attributes()->getAttribute<string>("hello");
-    CPPUNIT_ASSERT( s1.ready() );
+    BOOST_CHECK( s1.ready() );
 
-    CPPUNIT_ASSERT_EQUAL(std::string("hello"), s1.getName() );
-    CPPUNIT_ASSERT_EQUAL(std::string("world"), s1.get() );
+    BOOST_CHECK_EQUAL(std::string("hello"), s1.getName() );
+    BOOST_CHECK_EQUAL(std::string("world"), s1.get() );
 
     // Test mirroring of 'set' and 'get':
     s1.set("universe");
-    CPPUNIT_ASSERT_EQUAL(std::string("universe"), s2.get() );
+    BOOST_CHECK_EQUAL(std::string("universe"), s2.get() );
 
 }
 
-void Generic_TaskTest_3::testPorts()
+BOOST_AUTO_TEST_CASE( testPorts)
 {
     WriteDataPort<double> wdp("WDName");
     ReadDataPort<double> rdp("RDName");
     DataPort<double> dp("DName");
     DataPort<double> dp2("D2Name");
 
-    CPPUNIT_ASSERT( wdp.getPortType() == PortInterface::WritePort );
-    CPPUNIT_ASSERT( rdp.getPortType() == PortInterface::ReadPort );
-    CPPUNIT_ASSERT( dp.getPortType() == PortInterface::ReadWritePort );
+    BOOST_CHECK( wdp.getPortType() == PortInterface::WritePort );
+    BOOST_CHECK( rdp.getPortType() == PortInterface::ReadPort );
+    BOOST_CHECK( dp.getPortType() == PortInterface::ReadWritePort );
 
     // Test initial value
     wdp.Set( 1.0 );
@@ -603,117 +614,118 @@ void Generic_TaskTest_3::testPorts()
     BufferPort<double> bp("BName", 10);
     BufferPort<double> bp2("B2Name", 10);
 
-    CPPUNIT_ASSERT( wbp.getPortType() == PortInterface::WritePort );
-    CPPUNIT_ASSERT( rbp.getPortType() == PortInterface::ReadPort );
-    CPPUNIT_ASSERT( bp.getPortType() == PortInterface::ReadWritePort );
+    BOOST_CHECK( wbp.getPortType() == PortInterface::WritePort );
+    BOOST_CHECK( rbp.getPortType() == PortInterface::ReadPort );
+    BOOST_CHECK( bp.getPortType() == PortInterface::ReadWritePort );
 
-    CPPUNIT_ASSERT( tc->ports()->addPort( &wdp ));
-    CPPUNIT_ASSERT( tc->ports()->addPort( &rdp ));
-    CPPUNIT_ASSERT( tc->ports()->addPort( &dp ));
-    CPPUNIT_ASSERT( tc->ports()->addPort( &dp2 ));
+    BOOST_CHECK( tc->ports()->addPort( &wdp ));
+    BOOST_CHECK( tc->ports()->addPort( &rdp ));
+    BOOST_CHECK( tc->ports()->addPort( &dp ));
+    BOOST_CHECK( tc->ports()->addPort( &dp2 ));
 
     // check adding same port twice.
-    CPPUNIT_ASSERT( tc->ports()->addPort( &wdp ) == false);
+    BOOST_CHECK( tc->ports()->addPort( &wdp ) == false);
     {
         // also check adding different port with same name.
         DataPort<double> tdp("WDName");
-        CPPUNIT_ASSERT( tc->ports()->addPort( &tdp ) == false);
+        BOOST_CHECK( tc->ports()->addPort( &tdp ) == false);
     }
 
-    CPPUNIT_ASSERT( tc->ports()->addPort( &wbp ));
-    CPPUNIT_ASSERT( tc->ports()->addPort( &rbp ));
-    CPPUNIT_ASSERT( tc->ports()->addPort( &bp ));
-    CPPUNIT_ASSERT( tc->ports()->addPort( &bp2 ));
+    BOOST_CHECK( tc->ports()->addPort( &wbp ));
+    BOOST_CHECK( tc->ports()->addPort( &rbp ));
+    BOOST_CHECK( tc->ports()->addPort( &bp ));
+    BOOST_CHECK( tc->ports()->addPort( &bp2 ));
 
     // Test connection creation.
-    CPPUNIT_ASSERT(wdp.connectTo( &rdp ) );
-    CPPUNIT_ASSERT(dp.connectTo( rdp.connection() ));
+    BOOST_CHECK(wdp.connectTo( &rdp ) );
+    BOOST_CHECK(dp.connectTo( rdp.connection() ));
 
-    CPPUNIT_ASSERT(wbp.connectTo( &rbp ) );
-    CPPUNIT_ASSERT(bp.connectTo( rbp.connection() ));
+    BOOST_CHECK(wbp.connectTo( &rbp ) );
+    BOOST_CHECK(bp.connectTo( rbp.connection() ));
 
-    CPPUNIT_ASSERT( wdp.connected() );
-    CPPUNIT_ASSERT( rdp.connected() );
-    CPPUNIT_ASSERT( dp.connected() );
+    BOOST_CHECK( wdp.connected() );
+    BOOST_CHECK( rdp.connected() );
+    BOOST_CHECK( dp.connected() );
 
-    CPPUNIT_ASSERT( wbp.connected() );
-    CPPUNIT_ASSERT( rbp.connected() );
-    CPPUNIT_ASSERT( bp.connected() );
+    BOOST_CHECK( wbp.connected() );
+    BOOST_CHECK( rbp.connected() );
+    BOOST_CHECK( bp.connected() );
 
     // Test data transfer
-    CPPUNIT_ASSERT( rdp.Get() == 1.0 );
+    BOOST_CHECK( rdp.Get() == 1.0 );
     wdp.Set( 3.0 );
-    CPPUNIT_ASSERT( rdp.Get() == 3.0 );
-    CPPUNIT_ASSERT( dp.Get() == 3.0 );
+    BOOST_CHECK( rdp.Get() == 3.0 );
+    BOOST_CHECK( dp.Get() == 3.0 );
     double dat = 0.0;
     dp.Get( dat );
-    CPPUNIT_ASSERT( dat == 3.0 );
+    BOOST_CHECK( dat == 3.0 );
     dat = 0.0;
     rdp.Get( dat );
-    CPPUNIT_ASSERT( dat == 3.0 );
+    BOOST_CHECK( dat == 3.0 );
 
     // Test Data-to-Data:
     dp.disconnect();
-    CPPUNIT_ASSERT( dp.connectTo( &dp2 ) );
-    CPPUNIT_ASSERT( dp.connected() );
-    CPPUNIT_ASSERT( dp2.connected() );
+    BOOST_CHECK( dp.connectTo( &dp2 ) );
+    BOOST_CHECK( dp.connected() );
+    BOOST_CHECK( dp2.connected() );
 
     dp.Set( 5.0 );
     dp2.Get( dat );
-    CPPUNIT_ASSERT( dat == 5.0 );
+    BOOST_CHECK( dat == 5.0 );
 
     dp2.Set( 6.0 );
-    CPPUNIT_ASSERT( dp.Get() == 6.0 );
+    BOOST_CHECK( dp.Get() == 6.0 );
 
     dp.disconnect();
     dp2.disconnect();
 #ifndef OROPKG_OS_MACOSX
-    dp = new DataObject<double>("Data",10.0);
-    CPPUNIT_ASSERT( dp.connected() );
-    CPPUNIT_ASSERT( dp.Get() == 10.0 );
+    *((DataPortBase<double>*)&dp) = new DataObject<double>("Data",10.0);
+    //dp = new DataObject<double>("Data",10.0); // TODO the operator= is inaccessible on MinGW 3.4.2
+    BOOST_CHECK( dp.connected() );
+    BOOST_CHECK( dp.Get() == 10.0 );
 #endif
     // Test buffer transfer
     double val;
-    CPPUNIT_ASSERT( wbp.Push( 5.0 ) );
-    CPPUNIT_ASSERT( rbp.Pop( val ) );
-    CPPUNIT_ASSERT( val == 5.0 );
+    BOOST_CHECK( wbp.Push( 5.0 ) );
+    BOOST_CHECK( rbp.Pop( val ) );
+    BOOST_CHECK( val == 5.0 );
 
-    CPPUNIT_ASSERT( wbp.Push( 6.0 ) );
-    CPPUNIT_ASSERT( bp.Pop( val ) );
-    CPPUNIT_ASSERT( val == 6.0 );
+    BOOST_CHECK( wbp.Push( 6.0 ) );
+    BOOST_CHECK( bp.Pop( val ) );
+    BOOST_CHECK( val == 6.0 );
 
-    CPPUNIT_ASSERT( bp.Push( 5.0 ) );
-    CPPUNIT_ASSERT( bp.Pop( val ) );
-    CPPUNIT_ASSERT( val == 5.0 );
-    CPPUNIT_ASSERT( bp.Pop( val ) == false );
+    BOOST_CHECK( bp.Push( 5.0 ) );
+    BOOST_CHECK( bp.Pop( val ) );
+    BOOST_CHECK( val == 5.0 );
+    BOOST_CHECK( bp.Pop( val ) == false );
 
     // Test Buffer-to-Buffer:
     bp.disconnect();
-    CPPUNIT_ASSERT( bp.connectTo( &bp2 ) );
-    CPPUNIT_ASSERT( bp.connected() );
-    CPPUNIT_ASSERT( bp2.connected() );
+    BOOST_CHECK( bp.connectTo( &bp2 ) );
+    BOOST_CHECK( bp.connected() );
+    BOOST_CHECK( bp2.connected() );
 
-    CPPUNIT_ASSERT( bp.Push( 5.0 ) );
-    CPPUNIT_ASSERT( bp2.Pop( val ) );
-    CPPUNIT_ASSERT( val == 5.0 );
-    CPPUNIT_ASSERT( bp2.Pop( val ) == false );
+    BOOST_CHECK( bp.Push( 5.0 ) );
+    BOOST_CHECK( bp2.Pop( val ) );
+    BOOST_CHECK( val == 5.0 );
+    BOOST_CHECK( bp2.Pop( val ) == false );
 
-    CPPUNIT_ASSERT( bp2.Push( 5.0 ) );
-    CPPUNIT_ASSERT( bp.Pop( val ) );
-    CPPUNIT_ASSERT( val == 5.0 );
-    CPPUNIT_ASSERT( bp2.Pop( val ) == false );
+    BOOST_CHECK( bp2.Push( 5.0 ) );
+    BOOST_CHECK( bp.Pop( val ) );
+    BOOST_CHECK( val == 5.0 );
+    BOOST_CHECK( bp2.Pop( val ) == false );
 
     bp.disconnect();
     bp2.disconnect();
-#ifndef OROPKG_OS_MACOSX
+#if !defined( OROPKG_OS_MACOSX ) && !defined(OROBLD_OS_NO_ASM)
     bp = new BufferLockFree<double>(10);
-    CPPUNIT_ASSERT( bp.connected() );
-    CPPUNIT_ASSERT( bp.buffer()->capacity() == 10 );
+    BOOST_CHECK( bp.connected() );
+    BOOST_CHECK( bp.buffer()->capacity() == 10 );
 #endif
 
 }
 
-void Generic_TaskTest_3::testEventPorts()
+BOOST_AUTO_TEST_CASE( testEventPorts )
 {
     // Data ports
     WriteDataPort<double> wdp("WDName");
@@ -721,10 +733,10 @@ void Generic_TaskTest_3::testEventPorts()
     DataPort<double> dp("DName");
     DataPort<double> dp2("D2Name");
 
-    CPPUNIT_ASSERT( tce->ports()->addEventPort( &wdp ));
-    CPPUNIT_ASSERT( tc2->ports()->addEventPort( &rdp ));
-    CPPUNIT_ASSERT( tce->ports()->addEventPort( &dp ));
-    CPPUNIT_ASSERT( tc2->ports()->addEventPort( &dp2 ));
+    BOOST_CHECK( tce->ports()->addEventPort( &wdp ));
+    BOOST_CHECK( tc2->ports()->addEventPort( &rdp ));
+    BOOST_CHECK( tce->ports()->addEventPort( &dp ));
+    BOOST_CHECK( tc2->ports()->addEventPort( &dp2 ));
 
     // Buffer ports
     WriteBufferPort<double> wbp("WBName", 10);
@@ -732,64 +744,64 @@ void Generic_TaskTest_3::testEventPorts()
     BufferPort<double> bp("BName", 10);
     BufferPort<double> bp2("B2Name", 10);
 
-    CPPUNIT_ASSERT( tce->ports()->addEventPort( &wbp ));
-    CPPUNIT_ASSERT( tc2->ports()->addEventPort( &rbp ));
-    CPPUNIT_ASSERT( tce->ports()->addEventPort( &bp ));
-    CPPUNIT_ASSERT( tc2->ports()->addEventPort( &bp2 ));
+    BOOST_CHECK( tce->ports()->addEventPort( &wbp ));
+    BOOST_CHECK( tc2->ports()->addEventPort( &rbp ));
+    BOOST_CHECK( tce->ports()->addEventPort( &bp ));
+    BOOST_CHECK( tc2->ports()->addEventPort( &bp2 ));
 
     // Connect 3 data ports
-    CPPUNIT_ASSERT(wdp.connectTo( &rdp ) );
-    CPPUNIT_ASSERT(dp.connectTo( rdp.connection() ));
+    BOOST_CHECK(wdp.connectTo( &rdp ) );
+    BOOST_CHECK(dp.connectTo( rdp.connection() ));
 
     // Connect 3 buffer ports
-    CPPUNIT_ASSERT(wbp.connectTo( &rbp ) );
-    CPPUNIT_ASSERT(bp.connectTo( rbp.connection() ));
+    BOOST_CHECK(wbp.connectTo( &rbp ) );
+    BOOST_CHECK(bp.connectTo( rbp.connection() ));
 
     wdp.Set(1.0);
-    CPPUNIT_ASSERT( tc2->had_event == false );
-    CPPUNIT_ASSERT_EQUAL( tc2->nb_events, 0 ); // not running.
-    CPPUNIT_ASSERT( tce->had_event == false );
-    CPPUNIT_ASSERT_EQUAL( tce->nb_events, 0 ); // not running.
+    BOOST_CHECK( tc2->had_event == false );
+    BOOST_CHECK_EQUAL( tc2->nb_events, 0 ); // not running.
+    BOOST_CHECK( tce->had_event == false );
+    BOOST_CHECK_EQUAL( tce->nb_events, 0 ); // not running.
 
     // After addEventPort, do the start (SequentialActivity)
     tce->start();
     tc2->start();
 
     // Test data transfer
-    CPPUNIT_ASSERT( rdp.Get() == 1.0 );
+    BOOST_CHECK( rdp.Get() == 1.0 );
     wdp.Set( 3.0 );
-    CPPUNIT_ASSERT( rdp.Get() == 3.0 );
-    CPPUNIT_ASSERT( dp.Get() == 3.0 );
-    CPPUNIT_ASSERT( tce->had_event );
-    CPPUNIT_ASSERT_EQUAL( 1, tce->nb_events ); // 1 event port (dp) fired.
-    CPPUNIT_ASSERT( tc2->had_event );
-    CPPUNIT_ASSERT_EQUAL( 1, tc2->nb_events ); // 1 event port (rdp) connected
+    BOOST_CHECK( rdp.Get() == 3.0 );
+    BOOST_CHECK( dp.Get() == 3.0 );
+    BOOST_CHECK( tce->had_event );
+    BOOST_CHECK_EQUAL( 1, tce->nb_events ); // 1 event port (dp) fired.
+    BOOST_CHECK( tc2->had_event );
+    BOOST_CHECK_EQUAL( 1, tc2->nb_events ); // 1 event port (rdp) connected
     tce->resetStats();
     tc2->resetStats();
 
     // Test Reconnection after tasks are running:
     dp.disconnect();
-    CPPUNIT_ASSERT( dp.connectTo( &dp2 ) );
-    CPPUNIT_ASSERT( dp.connected() );
-    CPPUNIT_ASSERT( dp2.connected() );
+    BOOST_CHECK( dp.connectTo( &dp2 ) );
+    BOOST_CHECK( dp.connected() );
+    BOOST_CHECK( dp2.connected() );
 
     double dat;
     dp.Set( 5.0 );
     dp2.Get( dat );
-    CPPUNIT_ASSERT( dat == 5.0 );
-    CPPUNIT_ASSERT( tce->had_event );
-    CPPUNIT_ASSERT_EQUAL( 1, tce->nb_events ); // 1 event port (dp) fired.
-    CPPUNIT_ASSERT( tc2->had_event );
-    CPPUNIT_ASSERT_EQUAL( 1, tc2->nb_events ); // 1 event port (dp2).
+    BOOST_CHECK( dat == 5.0 );
+    BOOST_CHECK( tce->had_event );
+    BOOST_CHECK_EQUAL( 1, tce->nb_events ); // 1 event port (dp) fired.
+    BOOST_CHECK( tc2->had_event );
+    BOOST_CHECK_EQUAL( 1, tc2->nb_events ); // 1 event port (dp2).
     tce->resetStats();
     tc2->resetStats();
 
     dp2.Set( 6.0 );
-    CPPUNIT_ASSERT( dp.Get() == 6.0 );
-    CPPUNIT_ASSERT( tce->had_event );
-    CPPUNIT_ASSERT_EQUAL( 1, tce->nb_events ); // 1 event port fired.
-    CPPUNIT_ASSERT( tc2->had_event );
-    CPPUNIT_ASSERT_EQUAL( 1, tc2->nb_events ); // 1 event port fired.
+    BOOST_CHECK( dp.Get() == 6.0 );
+    BOOST_CHECK( tce->had_event );
+    BOOST_CHECK_EQUAL( 1, tce->nb_events ); // 1 event port fired.
+    BOOST_CHECK( tc2->had_event );
+    BOOST_CHECK_EQUAL( 1, tc2->nb_events ); // 1 event port fired.
     tce->resetStats();
     tc2->resetStats();
 
@@ -797,41 +809,40 @@ void Generic_TaskTest_3::testEventPorts()
     dp2.disconnect();
 #ifndef OROPKG_OS_MACOSX
     dp = new DataObject<double>("Data",10.0);
-    CPPUNIT_ASSERT( dp.connected() );
-    CPPUNIT_ASSERT( dp.Get() == 10.0 );
+    BOOST_CHECK( dp.connected() );
+    BOOST_CHECK( dp.Get() == 10.0 );
 #endif
     // Each time, each TC must receive one event.
     double val;
-    CPPUNIT_ASSERT( wbp.Push( 5.0 ) );
-    CPPUNIT_ASSERT( rbp.Pop( val ) );
-    CPPUNIT_ASSERT( tce->had_event );
-    CPPUNIT_ASSERT_EQUAL( 1, tce->nb_events ); // 1 event port (bp) fired.
-    CPPUNIT_ASSERT( tc2->had_event );
-    CPPUNIT_ASSERT_EQUAL( 1, tc2->nb_events ); // 1 event ports (rbp) fired.
+    BOOST_CHECK( wbp.Push( 5.0 ) );
+    BOOST_CHECK( rbp.Pop( val ) );
+    BOOST_CHECK( tce->had_event );
+    BOOST_CHECK_EQUAL( 1, tce->nb_events ); // 1 event port (bp) fired.
+    BOOST_CHECK( tc2->had_event );
+    BOOST_CHECK_EQUAL( 1, tc2->nb_events ); // 1 event ports (rbp) fired.
     tce->resetStats();
     tc2->resetStats();
 
-    CPPUNIT_ASSERT( bp.Push( 5.0 ) );
-    CPPUNIT_ASSERT( bp.Pop( val ) );
-    CPPUNIT_ASSERT( tce->had_event );
-    CPPUNIT_ASSERT_EQUAL( 1, tce->nb_events ); // 1 event port (bp) fired.
-    CPPUNIT_ASSERT( tc2->had_event );
-    CPPUNIT_ASSERT_EQUAL( 1, tc2->nb_events ); // 1 event port (rbp) fired.
+    BOOST_CHECK( bp.Push( 5.0 ) );
+    BOOST_CHECK( bp.Pop( val ) );
+    BOOST_CHECK( tce->had_event );
+    BOOST_CHECK_EQUAL( 1, tce->nb_events ); // 1 event port (bp) fired.
+    BOOST_CHECK( tc2->had_event );
+    BOOST_CHECK_EQUAL( 1, tc2->nb_events ); // 1 event port (rbp) fired.
     tce->resetStats();
     tc2->resetStats();
 }
 
-
-void Generic_TaskTest_3::testConnections()
+BOOST_AUTO_TEST_CASE( testConnections)
 {
     WriteDataPort<double> wdp("WDName");
     ReadDataPort<double> rdp("RDName");
     DataPort<double> dp("DName");
     DataPort<double> dp2("D2Name");
 
-    CPPUNIT_ASSERT( wdp.getPortType() == PortInterface::WritePort );
-    CPPUNIT_ASSERT( rdp.getPortType() == PortInterface::ReadPort );
-    CPPUNIT_ASSERT( dp.getPortType() == PortInterface::ReadWritePort );
+    BOOST_CHECK( wdp.getPortType() == PortInterface::WritePort );
+    BOOST_CHECK( rdp.getPortType() == PortInterface::ReadPort );
+    BOOST_CHECK( dp.getPortType() == PortInterface::ReadWritePort );
 
     // Test initial value
     wdp.Set( 1.0 );
@@ -842,30 +853,36 @@ void Generic_TaskTest_3::testConnections()
     BufferPort<double> bp("BName", 10);
     BufferPort<double> bp2("B2Name", 10);
 
-    CPPUNIT_ASSERT( wbp.getPortType() == PortInterface::WritePort );
-    CPPUNIT_ASSERT( rbp.getPortType() == PortInterface::ReadPort );
-    CPPUNIT_ASSERT( bp.getPortType() == PortInterface::ReadWritePort );
+    BOOST_CHECK( wbp.getPortType() == PortInterface::WritePort );
+    BOOST_CHECK( rbp.getPortType() == PortInterface::ReadPort );
+    BOOST_CHECK( bp.getPortType() == PortInterface::ReadWritePort );
 
-    CPPUNIT_ASSERT( tc->ports()->addPort( &wdp ));
-    CPPUNIT_ASSERT( tc->ports()->addPort( &rdp ));
-    CPPUNIT_ASSERT( tc->ports()->addPort( &dp ));
-    CPPUNIT_ASSERT( tc->ports()->addPort( &dp2 ));
+    BOOST_CHECK( tc->ports()->addPort( &wdp ));
+    BOOST_CHECK( tc->ports()->addPort( &rdp ));
+    BOOST_CHECK( tc->ports()->addPort( &dp ));
+    BOOST_CHECK( tc->ports()->addPort( &dp2 ));
 
     // test setting the connection object
-    wdp = new DataObject<double>("");
-    rdp = new DataObject<double>("");
-    dp = new DataObject<double>("");
-    dp2 = new DataObject<double>("");
+    *((DataPortBase<double>*)&wdp) = new DataObject<double>("");
+    *((DataPortBase<double>*)&rdp) = new DataObject<double>("");
+    *((DataPortBase<double>*)&dp) = new DataObject<double>("");
+    *((DataPortBase<double>*)&dp2) = new DataObject<double>("");
+    // TODO the operator= is inaccessible on MinGW 3.4.2
+    //wdp = new DataObject<double>("");
+    //rdp = new DataObject<double>("");
+    //dp = new DataObject<double>("");
+    //dp2 = new DataObject<double>("");
 
-    CPPUNIT_ASSERT( wdp.connected() );
-    CPPUNIT_ASSERT( rdp.connected() );
-    CPPUNIT_ASSERT( dp.connected() );
-    CPPUNIT_ASSERT( dp2.connected() );
 
-    CPPUNIT_ASSERT( dynamic_cast<DataObject<double>* >( wdp.connection()->getDataSource().get() ) );
-    CPPUNIT_ASSERT( dynamic_cast<DataObject<double>* >( rdp.connection()->getDataSource().get() ) );
-    CPPUNIT_ASSERT( dynamic_cast<DataObject<double>* >( dp.connection()->getDataSource().get() ) );
-    CPPUNIT_ASSERT( dynamic_cast<DataObject<double>* >( dp2.connection()->getDataSource().get() ) );
+    BOOST_CHECK( wdp.connected() );
+    BOOST_CHECK( rdp.connected() );
+    BOOST_CHECK( dp.connected() );
+    BOOST_CHECK( dp2.connected() );
+
+    BOOST_CHECK( dynamic_cast<DataObject<double>* >( wdp.connection()->getDataSource().get() ) );
+    BOOST_CHECK( dynamic_cast<DataObject<double>* >( rdp.connection()->getDataSource().get() ) );
+    BOOST_CHECK( dynamic_cast<DataObject<double>* >( dp.connection()->getDataSource().get() ) );
+    BOOST_CHECK( dynamic_cast<DataObject<double>* >( dp2.connection()->getDataSource().get() ) );
 
     // test setting the connection object
     wbp = new BufferLocked<double>(10);
@@ -873,19 +890,19 @@ void Generic_TaskTest_3::testConnections()
     bp = new BufferLocked<double>(12);
     bp2 = new BufferLocked<double>(13);
 
-    CPPUNIT_ASSERT( wbp.connected() );
-    CPPUNIT_ASSERT( rbp.connected() );
-    CPPUNIT_ASSERT( bp.connected() );
-    CPPUNIT_ASSERT( bp2.connected() );
+    BOOST_CHECK( wbp.connected() );
+    BOOST_CHECK( rbp.connected() );
+    BOOST_CHECK( bp.connected() );
+    BOOST_CHECK( bp2.connected() );
 
-    CPPUNIT_ASSERT( dynamic_cast<BufferLocked<double>* >( wbp.connection()->getBuffer().get() ) );
-    CPPUNIT_ASSERT( dynamic_cast<BufferLocked<double>* >( rbp.connection()->getBuffer().get() ) );
-    CPPUNIT_ASSERT( dynamic_cast<BufferLocked<double>* >( bp.connection()->getBuffer().get() ) );
-    CPPUNIT_ASSERT( dynamic_cast<BufferLocked<double>* >( bp2.connection()->getBuffer().get() ) );
+    BOOST_CHECK( dynamic_cast<BufferLocked<double>* >( wbp.connection()->getBuffer().get() ) );
+    BOOST_CHECK( dynamic_cast<BufferLocked<double>* >( rbp.connection()->getBuffer().get() ) );
+    BOOST_CHECK( dynamic_cast<BufferLocked<double>* >( bp.connection()->getBuffer().get() ) );
+    BOOST_CHECK( dynamic_cast<BufferLocked<double>* >( bp2.connection()->getBuffer().get() ) );
 
 }
 
-void Generic_TaskTest_3::testPortObjects()
+BOOST_AUTO_TEST_CASE( testPortObjects)
 {
     WriteDataPort<double> wdp("WDName");
     ReadDataPort<double> rdp("RDName");
@@ -898,10 +915,10 @@ void Generic_TaskTest_3::testPortObjects()
     tc->ports()->addPort( &dp2 );
 
     // Check if ports were added as objects as well
-    CPPUNIT_ASSERT( tc->getObject("WDName") != 0 );
-    CPPUNIT_ASSERT( tc->getObject("RDName") != 0 );
-    CPPUNIT_ASSERT( tc->getObject("DName") != 0 );
-    CPPUNIT_ASSERT( tc->getObject("D2Name") != 0 );
+    BOOST_CHECK( tc->getObject("WDName") != 0 );
+    BOOST_CHECK( tc->getObject("RDName") != 0 );
+    BOOST_CHECK( tc->getObject("DName") != 0 );
+    BOOST_CHECK( tc->getObject("D2Name") != 0 );
 
     // Set initial value
     wdp.Set( 1.0 );
@@ -922,10 +939,10 @@ void Generic_TaskTest_3::testPortObjects()
     tc->ports()->addPort( &bp2 );
 
     // Check if ports were added as objects as well
-    CPPUNIT_ASSERT( tc->getObject("WBName") != 0 );
-    CPPUNIT_ASSERT( tc->getObject("RBName") != 0 );
-    CPPUNIT_ASSERT( tc->getObject("BName") != 0 );
-    CPPUNIT_ASSERT( tc->getObject("B2Name") != 0 );
+    BOOST_CHECK( tc->getObject("WBName") != 0 );
+    BOOST_CHECK( tc->getObject("RBName") != 0 );
+    BOOST_CHECK( tc->getObject("BName") != 0 );
+    BOOST_CHECK( tc->getObject("B2Name") != 0 );
 
     // Connect ports.
     wbp.connectTo( &rbp );
@@ -936,62 +953,64 @@ void Generic_TaskTest_3::testPortObjects()
     Method<double(void)> mget;
 
     mset = tc->getObject("WDName")->methods()->getMethod<void(const double&)>("Set");
-    CPPUNIT_ASSERT( mset.ready() );
+    BOOST_CHECK( mset.ready() );
 
     mget = tc->getObject("RDName")->methods()->getMethod<double(void)>("Get");
-    CPPUNIT_ASSERT( mget.ready() );
+    BOOST_CHECK( mget.ready() );
 
     mset( 3.991 );
 
-    CPPUNIT_ASSERT( mget() == 3.991 );
+    BOOST_CHECK( mget() == 3.991 );
 
     // Test Methods for DataPort
     mset = tc->getObject("DName")->methods()->getMethod<void(const double&)>("Set");
-    CPPUNIT_ASSERT( mset.ready() );
+    BOOST_CHECK( mset.ready() );
 
     mget = tc->getObject("D2Name")->methods()->getMethod<double(void)>("Get");
-    CPPUNIT_ASSERT( mget.ready() );
+    BOOST_CHECK( mget.ready() );
 
     mset( 3.992 );
 
-    CPPUNIT_ASSERT( mget() == 3.992 );
+    BOOST_CHECK( mget() == 3.992 );
 
     // Test Methods push/pull
     Method<bool(const double&)> mpush;
     Method<bool(double&)> mpop;
 
     mpush = tc->getObject("WBName")->methods()->getMethod<bool(const double&)>("Push");
-    CPPUNIT_ASSERT( mpush.ready() );
+    BOOST_CHECK( mpush.ready() );
 
     mpop = tc->getObject("RBName")->methods()->getMethod<bool(double&)>("Pop");
-    CPPUNIT_ASSERT( mpop.ready() );
+    BOOST_CHECK( mpop.ready() );
 
-    CPPUNIT_ASSERT( mpush( 3.991 ) );
+    BOOST_CHECK( mpush( 3.991 ) );
 
     double ret;
-    CPPUNIT_ASSERT( mpop(ret) );
+    BOOST_CHECK( mpop(ret) );
 
-    CPPUNIT_ASSERT( ret == 3.991 );
+    BOOST_CHECK( ret == 3.991 );
 
     // Test Methods push/pop for DataPort
     mpush = tc->getObject("BName")->methods()->getMethod<bool(const double&)>("Push");
-    CPPUNIT_ASSERT( mpush.ready() );
+    BOOST_CHECK( mpush.ready() );
 
     mpop = tc->getObject("B2Name")->methods()->getMethod<bool(double&)>("Pop");
-    CPPUNIT_ASSERT( mpop.ready() );
+    BOOST_CHECK( mpop.ready() );
 
-    CPPUNIT_ASSERT( mpush( 3.993 ) );
+    BOOST_CHECK( mpush( 3.993 ) );
 
-    CPPUNIT_ASSERT( mpop(ret) );
+    BOOST_CHECK( mpop(ret) );
 
-    CPPUNIT_ASSERT( ret == 3.993 );
+    BOOST_CHECK( ret == 3.993 );
 
     // Finally, check cleanup. Ports and port objects must be gone:
     tc->ports()->removePort("RDName");
-    CPPUNIT_ASSERT( tc->getObject("RDName") == 0 );
-    CPPUNIT_ASSERT( tc->ports()->getPort("RDName") == 0 );
+    BOOST_CHECK( tc->getObject("RDName") == 0 );
+    BOOST_CHECK( tc->ports()->getPort("RDName") == 0 );
 
     tc->ports()->removePort("BName");
-    CPPUNIT_ASSERT( tc->getObject("BName") == 0 );
-    CPPUNIT_ASSERT( tc->ports()->getPort("BName") == 0 );
+    BOOST_CHECK( tc->getObject("BName") == 0 );
+    BOOST_CHECK( tc->ports()->getPort("BName") == 0 );
 }
+
+BOOST_AUTO_TEST_SUITE_END()

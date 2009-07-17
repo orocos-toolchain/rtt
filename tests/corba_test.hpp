@@ -1,8 +1,7 @@
 #ifndef CORBA_TEST_H
 #define CORBA_TEST_H
 
-#include <cppunit/extensions/HelperMacros.h>
-
+#include <corba/corba.h>
 #include <TaskContext.hpp>
 #include <DataPort.hpp>
 #include <BufferPort.hpp>
@@ -12,26 +11,11 @@
 
 using namespace RTT;
 
-class CorbaTest : public CppUnit::TestFixture
+class CorbaTest
 {
-    CPPUNIT_TEST_SUITE( CorbaTest );
-
-    CPPUNIT_TEST( setupCorba );
-    CPPUNIT_TEST( testRemoteMethodC );
-    CPPUNIT_TEST( testRemoteMethod );
-    CPPUNIT_TEST( testAnyMethod );
-    CPPUNIT_TEST( testPorts );
-    CPPUNIT_TEST( testConnectPortsIDL );
-    CPPUNIT_TEST( testConnectPortsRL );
-    CPPUNIT_TEST( testConnectPortsLR );
-    CPPUNIT_TEST( testConnectPortsRR );
-    CPPUNIT_TEST( testConnectPortsLRC );
-    CPPUNIT_TEST( testConnectPortsRLC );
-    CPPUNIT_TEST( testConnectPortsRRC );
-    CPPUNIT_TEST( testConnections );
-    CPPUNIT_TEST( cleanupCorba );
-
-    CPPUNIT_TEST_SUITE_END();
+public:
+    CorbaTest() { this->setUp(); }
+    ~CorbaTest() { this->tearDown(); }
 
     TaskContext* tc;
     TaskContext* t2;
@@ -74,27 +58,12 @@ class CorbaTest : public CppUnit::TestFixture
     void vm0(void) { ; }
 
     bool assertBool( bool );
-public:
 
     void setupCorba();
     void cleanupCorba();
 
     void setUp();
     void tearDown();
-
-    void testRemoteMethodC();
-    void testRemoteMethod();
-    void testAnyMethod();
-
-    void testPorts();
-    void testConnectPortsIDL();
-    void testConnectPortsRL();
-    void testConnectPortsLR();
-    void testConnectPortsRR();
-    void testConnectPortsRLC();
-    void testConnectPortsLRC();
-    void testConnectPortsRRC();
-    void testConnections();
 
     // helper test functions
     void testPortStats();

@@ -48,7 +48,7 @@ namespace RTT
      * Load and save property files to a TaskContext's PropertyBag.
      * The default file format is 'cpf' from the CPFMarshaller class.
      */
-    class PropertyLoader
+    class RTT_API PropertyLoader
     {
     public:
 

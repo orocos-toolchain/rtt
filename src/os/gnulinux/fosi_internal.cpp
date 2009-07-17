@@ -78,6 +78,7 @@ namespace RTT
 					   int priority,
 					   const char * name,
 					   int sched_type,
+					   size_t stack_size,
 					   void * (*start_routine)(void *),
 					   ThreadInterface* obj)
 	{
@@ -169,10 +170,6 @@ namespace RTT
 	INTERNAL_QUAL void rtos_task_set_period( RTOS_TASK* mytask, NANO_TIME nanosecs )
 	{
         rtos_task_make_periodic(mytask, nanosecs);
-	}
-
-	INTERNAL_QUAL NANO_TIME rtos_task_get_period(const RTOS_TASK* t) {
-	    return t->period;
 	}
 
 	INTERNAL_QUAL int rtos_task_wait_period( RTOS_TASK* task )

@@ -36,6 +36,9 @@
  ***************************************************************************/
  
 #include "../rtt-config.h"
+#ifdef OROBLD_OS_NO_ASM
+#error "Your build is including a header which includes assembler instructions, though OROBLD_OS_NO_ASM was defined."
+#endif
 #ifdef OROBLD_OS_AGNOSTIC
 # if defined( OROBLD_OS_ARCH_i386 )
 #  include "oro_i386/oro_system.h"

@@ -27,11 +27,15 @@
 #include "MultiVector.hpp"
 #include "marsh/PropertyMarshaller.hpp"
 #include "marsh/PropertyDemarshaller.hpp"
+#include "DataSourceTypeInfo.hpp"
 #include <rtt-config.h>
 #include <iostream>
 
+#include <boost/test/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
+
 // Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( PropertyTest );
+//CPPUNIT_TEST_SUITE_REGISTRATION( PropertyTest );
 
 using namespace RTT;
 using namespace boost;
@@ -57,40 +61,44 @@ PropertyTest::tearDown()
     delete pi2ref;
 }
 
-void PropertyTest::testPrimitives()
+BOOST_FIXTURE_TEST_SUITE( PropertyTestSuite, PropertyTest )
+
+BOOST_AUTO_TEST_CASE( testPrimitives )
 {
     *pi1 = intref;
     *pi2 = 0;
 
     // update semantics
     pi1->update( *pi2 );
-    CPPUNIT_ASSERT_EQUAL( pi2->get(), pi1->get() );
-    CPPUNIT_ASSERT_EQUAL( pi1ref->getName(), pi1->getName() );
-    CPPUNIT_ASSERT_EQUAL( pi1ref->getDescription(), pi1->getDescription() );
+    BOOST_REQUIRE_EQUAL( pi2->get(), pi1->get() );
+    BOOST_REQUIRE_EQUAL( pi1ref->getName(), pi1->getName() );
+    BOOST_REQUIRE_EQUAL( pi1ref->getDescription(), pi1->getDescription() );
     *pi2 = 0;
 
     // update with PropertyBase.
-    CPPUNIT_ASSERT( pi1->update( pi2 ) );
-    CPPUNIT_ASSERT_EQUAL( pi2->get(), pi1->get() );
-    CPPUNIT_ASSERT_EQUAL( pi1ref->getName(), pi1->getName() );
-    CPPUNIT_ASSERT_EQUAL( pi1ref->getDescription(), pi1->getDescription() );
+    BOOST_CHECK( pi1->update( pi2 ) );
+    BOOST_REQUIRE_EQUAL( pi2->get(), pi1->get() );
+    BOOST_REQUIRE_EQUAL( pi1ref->getName(), pi1->getName() );
+    BOOST_REQUIRE_EQUAL( pi1ref->getDescription(), pi1->getDescription() );
     *pi2 = 0;
 
     // copy semantics
     pi1->copy( *pi2 );
-    CPPUNIT_ASSERT_EQUAL( pi2->get(), pi1->get() );
-    CPPUNIT_ASSERT_EQUAL( pi2ref->getName(), pi1->getName() );
-    CPPUNIT_ASSERT_EQUAL( pi2ref->getDescription(), pi1->getDescription() );
+    BOOST_REQUIRE_EQUAL( pi2->get(), pi1->get() );
+    BOOST_REQUIRE_EQUAL( pi2ref->getName(), pi1->getName() );
+    BOOST_REQUIRE_EQUAL( pi2ref->getDescription(), pi1->getDescription() );
     pi1->copy( *pi1ref );
 
     // copy with PropertyBase.
-    CPPUNIT_ASSERT( pi1->copy( pi2 ) );
-    CPPUNIT_ASSERT_EQUAL( pi2->get(), pi1->get() );
-    CPPUNIT_ASSERT_EQUAL( pi2ref->getName(), pi1->getName() );
-    CPPUNIT_ASSERT_EQUAL( pi2ref->getDescription(), pi1->getDescription() );
+    BOOST_CHECK( pi1->copy( pi2 ) );
+    BOOST_REQUIRE_EQUAL( pi2->get(), pi1->get() );
+    BOOST_REQUIRE_EQUAL( pi2ref->getName(), pi1->getName() );
+    BOOST_REQUIRE_EQUAL( pi2ref->getDescription(), pi1->getDescription() );
     pi1->copy( pi1ref );
 }
-void PropertyTest::testBags()
+
+
+BOOST_AUTO_TEST_CASE( testBags )
 {
     PropertyBag bag;
 
@@ -113,21 +121,22 @@ void PropertyTest::testBags()
     subbag2.set().add( &pc );
 
     // non recursive search :
-    CPPUNIT_ASSERT( bag.find( "pf" ) == 0 );
-    CPPUNIT_ASSERT( bag.find( "s1" ) == &subbag1 );
-    CPPUNIT_ASSERT( bag.find( "pi1" ) == pi1 );
+    BOOST_CHECK( bag.find( "pf" ) == 0 );
+    BOOST_CHECK( bag.find( "s1" ) == &subbag1 );
+    BOOST_CHECK( bag.find( "pi1" ) == pi1 );
 
     // recursive search :
-    CPPUNIT_ASSERT( findProperty( bag, "/pf", "/" ) == 0 );
-    CPPUNIT_ASSERT( findProperty( bag, ".pi1" ) == pi1 ); // default is "."
-    CPPUNIT_ASSERT( findProperty( bag, "s1" ) == &subbag1 );
-    CPPUNIT_ASSERT( findProperty( bag, "pi1" ) == pi1 );
-    CPPUNIT_ASSERT( findProperty( bag, "/s1/s2", "/" ) == &subbag2 );
-    CPPUNIT_ASSERT( findProperty( bag, "/s1/s2/ps", "/" ) == &ps );
-    CPPUNIT_ASSERT( findProperty( bag, "s1.s2.pc" ) == &pc );
+    BOOST_CHECK( findProperty( bag, "/pf", "/" ) == 0 );
+    BOOST_CHECK( findProperty( bag, ".pi1" ) == pi1 ); // default is "."
+    BOOST_CHECK( findProperty( bag, "s1" ) == &subbag1 );
+    BOOST_CHECK( findProperty( bag, "pi1" ) == pi1 );
+    BOOST_CHECK( findProperty( bag, "/s1/s2", "/" ) == &subbag2 );
+    BOOST_CHECK( findProperty( bag, "/s1/s2/ps", "/" ) == &ps );
+    BOOST_CHECK( findProperty( bag, "s1.s2.pc" ) == &pc );
 
 }
-void PropertyTest::testBagOperations()
+
+BOOST_AUTO_TEST_CASE( testBagOperations )
 {
 }
 
@@ -147,27 +156,29 @@ bool operator==(const std::vector<double>& a, const std::vector<double>& b)
     return true;
 }
 
-void PropertyTest::testRepository()
+BOOST_AUTO_TEST_CASE( testRepository )
 {
     /**
      * Test all types: create property of type T, decompose it and compose it again.
      */
+	BOOST_MESSAGE("----- Testing testRep");
     std::vector<string> names = TypeInfoRepository::Instance()->getTypes();
     for (std::vector<string>::iterator it = names.begin(); it != names.end(); ++it) {
+    	BOOST_MESSAGE("----------- loop names: " << *it);
         PropertyBase* target;
         Property<PropertyBag> bag("Result","D");
-        CPPUNIT_ASSERT( TypeInfoRepository::Instance()->type( *it ) );
+        BOOST_CHECK( TypeInfoRepository::Instance()->type( *it ) );
         target = TypeInfoRepository::Instance()->type( *it )->buildProperty("Result", "D");
-        CPPUNIT_ASSERT( target );
-        if ( target->getTypeInfo()->decomposeType( target->getDataSource(), bag.value() ) )
-            CPPUNIT_ASSERT( target->getTypeInfo()->composeType( bag.getDataSource() , target->getDataSource() ) );
+        if ( target && target->getTypeInfo()->decomposeType( target->getDataSource(), bag.value() ) )
+            BOOST_CHECK( target->getTypeInfo()->composeType( bag.getDataSource() , target->getDataSource() ) );
         deletePropertyBag( bag.value() );
         delete target;
     }
 
 }
+#include <typeinfo>
 
-void PropertyTest::testComposition()
+BOOST_AUTO_TEST_CASE( testComposition )
 {
     /**
      * test vector
@@ -176,52 +187,56 @@ void PropertyTest::testComposition()
     Property<std::vector<double> > pvd("pvd","pvd desc", init);
     Property<const std::vector<double>& > pvd_cr("pvd_cr","pvd_cr desc", init);
 
+    //std::cout << "\n\n\n "<< std::string( typeid(init).name() ) << "\n\n\n "<<std::endl;
+
     Property<std::vector<double> > pvd2("pvd 2","pvd desc 2");
     Property<const std::vector<double>& > pvd_cr2("pvd_cr 2","pvd desc 2");
 
-    CPPUNIT_ASSERT( pvd.get() == init );
-    CPPUNIT_ASSERT( pvd_cr.get() == init );
-    CPPUNIT_ASSERT( pvd.set() == init );
-    CPPUNIT_ASSERT( pvd_cr.set() == init );
+    BOOST_CHECK( pvd.get() == init );
+    BOOST_CHECK( pvd_cr.get() == init );
+    BOOST_CHECK( pvd.set() == init );
+    BOOST_CHECK( pvd_cr.set() == init );
 
-    CPPUNIT_ASSERT( pvd.getTypeInfo() );
-    CPPUNIT_ASSERT( pvd.getTypeInfo() == pvd_cr.getTypeInfo() );
+    BOOST_CHECK( pvd.getTypeInfo() );
+    BOOST_CHECK( pvd.getTypeInfo() != RTT::detail::DataSourceTypeInfo<RTT::detail::UnknownType>::getTypeInfo() );
+    BOOST_CHECK( pvd.getTypeInfo() == pvd_cr.getTypeInfo() );
+
     // Compatible-type -assignment:
-    CPPUNIT_ASSERT( pvd.getTypeInfo()->composeType( pvd.getDataSource(), pvd2.getDataSource() ) );
-    CPPUNIT_ASSERT( pvd.getTypeInfo()->composeType( pvd_cr.getDataSource(), pvd.getDataSource() ) );
-    CPPUNIT_ASSERT( pvd.getTypeInfo()->composeType( pvd.getDataSource(), pvd_cr.getDataSource() ) );
-    CPPUNIT_ASSERT( pvd.getTypeInfo()->composeType( pvd_cr.getDataSource(), pvd_cr2.getDataSource() ) );
+    BOOST_CHECK( pvd.getTypeInfo()->composeType( pvd.getDataSource(), pvd2.getDataSource() ) );
+    BOOST_CHECK( pvd.getTypeInfo()->composeType( pvd_cr.getDataSource(), pvd.getDataSource() ) );
+    BOOST_CHECK( pvd.getTypeInfo()->composeType( pvd.getDataSource(), pvd_cr.getDataSource() ) );
+    BOOST_CHECK( pvd.getTypeInfo()->composeType( pvd_cr.getDataSource(), pvd_cr2.getDataSource() ) );
 
     Property<PropertyBag> bag("Result","Rd");
     // Decompose to property bag and back:
-    CPPUNIT_ASSERT( pvd.getTypeInfo()->decomposeType( pvd.getDataSource(), bag.value() ) );
-    CPPUNIT_ASSERT( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd2.getDataSource() ) );
-    CPPUNIT_ASSERT( pvd == pvd2 );
+    BOOST_CHECK( pvd.getTypeInfo()->decomposeType( pvd.getDataSource(), bag.value() ) );
+    BOOST_CHECK( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd2.getDataSource() ) );
+    BOOST_CHECK( pvd == pvd2 );
     pvd2.value().clear();
     deletePropertyBag( bag.value() );
 
-    CPPUNIT_ASSERT( pvd.getTypeInfo()->decomposeType( pvd_cr.getDataSource(), bag.value() ) );
-    CPPUNIT_ASSERT( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd_cr2.getDataSource() ) );
-    CPPUNIT_ASSERT( pvd_cr == pvd_cr2);
+    BOOST_CHECK( pvd.getTypeInfo()->decomposeType( pvd_cr.getDataSource(), bag.value() ) );
+    BOOST_CHECK( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd_cr2.getDataSource() ) );
+    BOOST_CHECK( pvd_cr == pvd_cr2);
     pvd_cr2.value().clear();
     deletePropertyBag( bag.value() );
 
     // Cross composition. (const ref to value and vice versa)
-    CPPUNIT_ASSERT( pvd.getTypeInfo()->decomposeType( pvd.getDataSource(), bag.value() ) );
-    CPPUNIT_ASSERT( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd_cr2.getDataSource() ) );
-    CPPUNIT_ASSERT( pvd == pvd_cr2);
+    BOOST_CHECK( pvd.getTypeInfo()->decomposeType( pvd.getDataSource(), bag.value() ) );
+    BOOST_CHECK( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd_cr2.getDataSource() ) );
+    BOOST_CHECK( pvd == pvd_cr2);
     pvd_cr2.value().clear();
     deletePropertyBag( bag.value() );
 
-    CPPUNIT_ASSERT( pvd.getTypeInfo()->decomposeType( pvd_cr.getDataSource(), bag.value() ) );
-    CPPUNIT_ASSERT( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd2.getDataSource() ) );
-    CPPUNIT_ASSERT( pvd_cr == pvd2);
+    BOOST_CHECK( pvd.getTypeInfo()->decomposeType( pvd_cr.getDataSource(), bag.value() ) );
+    BOOST_CHECK( pvd.getTypeInfo()->composeType( bag.getDataSource(), pvd2.getDataSource() ) );
+    BOOST_CHECK( pvd_cr == pvd2);
     pvd2.value().clear();
     deletePropertyBag( bag.value() );
 }
 
 
-void PropertyTest::testInit()
+BOOST_AUTO_TEST_CASE( testInit )
 {
     // See if this compiles fine:
     // detects collisions with other constructors...
@@ -232,23 +247,24 @@ void PropertyTest::testInit()
     // Test null assignment
     PropertyBase* pbase = 0;
     Property<int> p2 = pbase;
-    CPPUNIT_ASSERT( !p2.ready() );
+    BOOST_CHECK( !p2.ready() );
     Property<int> p3;
-    CPPUNIT_ASSERT( !p3.ready() );
+    BOOST_CHECK( !p3.ready() );
 
     p3 = pbase;
-    CPPUNIT_ASSERT( !p3.ready() );
+    BOOST_CHECK( !p3.ready() );
 
     p2 = p3;
-    CPPUNIT_ASSERT( !p2.ready() );
+    BOOST_CHECK( !p2.ready() );
 
     p2 = pi;
-    CPPUNIT_ASSERT( p2.ready() );
+    BOOST_CHECK( p2.ready() );
 
-    CPPUNIT_ASSERT(true);
+    BOOST_CHECK(true);
 }
 
-void PropertyTest::testUpdate()
+
+BOOST_AUTO_TEST_CASE( testUpdate )
 {
     PropertyBag source;
     PropertyBag target;
@@ -272,33 +288,33 @@ void PropertyTest::testUpdate()
     b1c.value().addProperty( &b2c );
     b2c.value().addProperty( &p1c );
 
-    CPPUNIT_ASSERT( p1.get() != p1c.get() );
+    BOOST_CHECK( p1.get() != p1c.get() );
 
-    CPPUNIT_ASSERT( updateProperty(target, source, "b1/b2/p1", "/") );
+    BOOST_CHECK( updateProperty(target, source, "b1/b2/p1", "/") );
 
-    CPPUNIT_ASSERT( p1.get() == -1 );
-    CPPUNIT_ASSERT( p1c.get() == -1 );
+    BOOST_CHECK( p1.get() == -1 );
+    BOOST_CHECK( p1c.get() == -1 );
 
     // creation case:
     target.removeProperty(&b1);
-    CPPUNIT_ASSERT( updateProperty(target, source, "b1/b2/p1", "/") );
+    BOOST_CHECK( updateProperty(target, source, "b1/b2/p1", "/") );
 
     Property<PropertyBag>* bag = target.getProperty<PropertyBag>("b1");
-    CPPUNIT_ASSERT( bag );
-    CPPUNIT_ASSERT( bag->getName() == "b1" );
+    BOOST_CHECK( bag );
+    BOOST_CHECK( bag->getName() == "b1" );
     bag = bag->get().getProperty<PropertyBag>("b2");
-    CPPUNIT_ASSERT( bag );
-    CPPUNIT_ASSERT( bag->getName() == "b2" );
+    BOOST_CHECK( bag );
+    BOOST_CHECK( bag->getName() == "b2" );
 
     Property<int>* res = bag->get().getProperty<int>("p1");
-    CPPUNIT_ASSERT( res );
-    CPPUNIT_ASSERT( res->getName() == "p1" );
-    CPPUNIT_ASSERT( res->get() == -1 );
+    BOOST_CHECK( res );
+    BOOST_CHECK( res->getName() == "p1" );
+    BOOST_CHECK( res->get() == -1 );
 
 }
 
 // This test does not yet test all types !
-void PropertyTest::testPropMarsh()
+BOOST_AUTO_TEST_CASE( testPropMarsh )
 {
     std::string filename = ".property_test.cpf";
 
@@ -323,35 +339,35 @@ void PropertyTest::testPropMarsh()
     {
         // scope required such that file is closed
         PropertyDemarshaller pd( filename );
-        CPPUNIT_ASSERT( pd.deserialize( target ) );
+        BOOST_CHECK( pd.deserialize( target ) );
     }
 
     Property<PropertyBag> bag = target.getProperty<PropertyBag>("b1");
-    CPPUNIT_ASSERT( bag.ready() );
-    CPPUNIT_ASSERT( bag.getDescription() == "b1d" );
+    BOOST_CHECK( bag.ready() );
+    BOOST_CHECK( bag.getDescription() == "b1d" );
 
     bag = bag.rvalue().getProperty<PropertyBag>("b2");
-    CPPUNIT_ASSERT( bag.ready() );
-    CPPUNIT_ASSERT( bag.getDescription() == "b2d" );
+    BOOST_CHECK( bag.ready() );
+    BOOST_CHECK( bag.getDescription() == "b2d" );
 
     Property<int> pi = bag.rvalue().getProperty<int>("p1");
-    CPPUNIT_ASSERT( pi.ready() );
-    CPPUNIT_ASSERT( pi.get() == -1 );
-    CPPUNIT_ASSERT( pi.getDescription() == "p1d" );
-
+    BOOST_CHECK( pi.ready() );
+    BOOST_CHECK( pi.get() == -1 );
+    BOOST_CHECK( pi.getDescription() == "p1d" );
+    deletePropertyBag( target );
 }
 
-void PropertyTest::testPropMarshVect()
+BOOST_AUTO_TEST_CASE( testPropMarshVect )
 {
     std::string filename = ".property_test_vect.cpf";
 
     PropertyBag source; // to file
     PropertyBag target; // from file
 
-    Property<std::vector<double> > p1("p1","p1d", std::vector<double>(7, 1.234) );
+    Property<std::vector<double> >* p1 =  new Property<std::vector<double> >("p1","p1d", std::vector<double>(7, 1.234) );
 
     // setup source tree
-    source.addProperty( &p1 );
+    source.addProperty( p1 );
 
     {
         // scope required such that file is closed
@@ -359,46 +375,50 @@ void PropertyTest::testPropMarshVect()
         pm.serialize( source );
     }
 
-    p1.set() = std::vector<double>(3, 0.234);
+    p1->set() = std::vector<double>(3, 0.234);
     {
         // scope required such that file is closed
         PropertyDemarshaller pd( filename );
-        CPPUNIT_ASSERT( pd.deserialize( target ) );
+        BOOST_CHECK( pd.deserialize( target ) );
     }
 
     // check bag:
     Property<PropertyBag> bag = target.getProperty<PropertyBag>("p1");
-    CPPUNIT_ASSERT( bag.ready() );
-    CPPUNIT_ASSERT( bag.getDescription() == "p1d" );
-    CPPUNIT_ASSERT( bag.rvalue().size() == 7 );
+    BOOST_CHECK( bag.ready() );
+    BOOST_CHECK( bag.getDescription() == "p1d" );
+    BOOST_CHECK( bag.rvalue().size() == 7 );
 
     // update bag -> array.
-    CPPUNIT_ASSERT( updateProperties( source, target) );
+    BOOST_CHECK( updateProperties( source, target) );
 
     //p1 = source.getProperty< std::vector<double> >("p1");
-    CPPUNIT_ASSERT( p1.ready() );
-    CPPUNIT_ASSERT( p1.rvalue().size() == 7 );
-    CPPUNIT_ASSERT( p1.rvalue()[0] == 1.234 );
+    BOOST_CHECK( p1->ready() );
+    BOOST_CHECK( p1->rvalue().size() == 7 );
+    BOOST_CHECK( p1->rvalue()[0] == 1.234 );
 
     // Test legacy:
-    deleteProperties( target );
-    p1.setName("driveLimits");
+    deletePropertyBag( target );
+    p1->setName("driveLimits");
     {
         // scope required such that file is closed
         PropertyDemarshaller pd( "property_test_vect.cpf" );
-        CPPUNIT_ASSERT( pd.deserialize( target ) );
+        BOOST_CHECK( pd.deserialize( target ) );
     }
     bag = target.getProperty<PropertyBag>("driveLimits");
-    CPPUNIT_ASSERT( bag.ready() );
-    CPPUNIT_ASSERT( bag.rvalue().size() == 7 );
+    BOOST_CHECK( bag.ready() );
+    BOOST_CHECK( bag.rvalue().size() == 7 );
 
     // update bag -> array.
-    CPPUNIT_ASSERT( updateProperties( source, target) );
+    BOOST_CHECK( updateProperties( source, target) );
 
     //p1 = source.getProperty< std::vector<double> >("p1");
-    CPPUNIT_ASSERT( p1.ready() );
+    BOOST_CHECK( p1->ready() );
     //cout << p1 << endl;
-    CPPUNIT_ASSERT( p1.rvalue().size() == 6 );
-    CPPUNIT_ASSERT( p1.rvalue()[0] == 1 );
+    BOOST_CHECK( p1->rvalue().size() == 6 );
+    BOOST_CHECK( p1->rvalue()[0] == 1 );
 
+    deletePropertyBag( target );
+    deletePropertyBag( source );
 }
+
+BOOST_AUTO_TEST_SUITE_END()

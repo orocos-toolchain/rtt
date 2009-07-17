@@ -52,11 +52,9 @@
 #include <Property.hpp>
 #include "Attribute.hpp"
 #include "parse_exception.hpp"
-#include <boost/bind.hpp>
 
 namespace RTT
 {
-    using namespace boost;
 
 
         FunctionFactory::FunctionFactory(ProgramInterfacePtr pi, ExecutionEngine* procs)
@@ -86,7 +84,7 @@ namespace RTT
                       ) const {
 
             // check if correct number of args :
-            shared_ptr<ProgramInterface> orig = func;
+            boost::shared_ptr<ProgramInterface> orig = func;
             std::vector<AttributeBase*> origlist = orig->getArguments();
             if ( args.size() != origlist.size() )
                 throw wrong_number_of_args_exception( origlist.size(), args.size() );

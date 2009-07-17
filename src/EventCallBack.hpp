@@ -57,7 +57,7 @@ namespace RTT {
          * function with a list of AssignableDataSources which store
          * the event arguments.
          */
-        struct EventCallBack
+        struct RTT_API EventCallBack
         {
             virtual ~EventCallBack() {}
             virtual void callback() = 0;

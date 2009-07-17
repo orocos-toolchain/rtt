@@ -20,17 +20,11 @@
 #ifndef DEVTEST_H
 #define DEVTEST_H
 
-#include <cppunit/extensions/HelperMacros.h>
-
-class DevTest : public CppUnit::TestFixture
+class DevTest
 {
-    CPPUNIT_TEST_SUITE( DevTest );
-    CPPUNIT_TEST( testClasses );
-    CPPUNIT_TEST( testNaming );
-    CPPUNIT_TEST_SUITE_END();
-
 public:
-
+	DevTest(){ setUp(); };
+	~DevTest(){ tearDown(); };
     void setUp();
     void tearDown();
 

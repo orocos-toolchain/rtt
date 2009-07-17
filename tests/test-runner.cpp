@@ -16,18 +16,33 @@
  *                                                                         *
  ***************************************************************************/
 
-
-
 #include <os/main.h>
-#include <cppunit/CompilerOutputter.h>
-#include <cppunit/extensions/TestFactoryRegistry.h>
-#include <cppunit/ui/text/TestRunner.h>
 #include <Logger.hpp>
+
+#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
+
+using boost::unit_test::test_suite;
 
 using namespace RTT;
 
-int ORO_main(int argc, char** argv)
+struct InitOrocos {
+public:
+	InitOrocos(){  }
+	~InitOrocos(){ 
+#ifndef OROCOS_TARGET_XENOMAI
+        __os_exit(); 
+#endif
+}
+
+};
+
+BOOST_GLOBAL_FIXTURE( InitOrocos )
+
+boost::unit_test::test_suite* init_unit_test_suite(int argc, char** const argv)
 {
+	__os_init(argc, argv);
+
     // disable logging of errors or warnings if no ORO_LOGLEVEL was set.
     if ( log().getLogLevel() == Logger::Warning ) {
         log(Info) << "Lowering LogLevel to Critical." << endlog();
@@ -36,21 +51,6 @@ int ORO_main(int argc, char** argv)
         log(Info) << "LogLevel unaltered by test-runner." << endlog();
     }
 
-    // Get the top level suite from the registry
-    CppUnit::Test *suite = CppUnit::TestFactoryRegistry::getRegistry().makeTest();
-
-    // Adds the test to the list of test to run
-    CppUnit::TextUi::TestRunner runner;
-    runner.addTest( suite );
-
-    // Change the default outputter to a compiler error format outputter
-    runner.setOutputter( new CppUnit::CompilerOutputter( &runner.result(),
-                                                         std::cerr ) );
-
-    // Run the tests.
-    bool wasSucessful = runner.run();
-
-    // Return error code 1 if the one of test failed.
-    return wasSucessful ? 0 : 1;
+    return 0;
 }
 

@@ -20,29 +20,14 @@
 #ifndef EVENTTEST_H
 #define EVENTTEST_H
 
-#include <cppunit/extensions/HelperMacros.h>
+
 #include <Event.hpp>
 #include <SlaveActivity.hpp>
 #include <string>
 
-class EventTest : public CppUnit::TestFixture
+class EventTest
 {
-    CPPUNIT_TEST_SUITE( EventTest );
-    CPPUNIT_TEST( testEmpty );
-    CPPUNIT_TEST( testSyncListener );
-    CPPUNIT_TEST( testSyncListenerString );
-    CPPUNIT_TEST( testSyncListenerThreadCompleter );
-    CPPUNIT_TEST( testCompletionProcessor );
-    CPPUNIT_TEST( testTask );
-    CPPUNIT_TEST( testBlockingTask );
-    CPPUNIT_TEST( testEventArgs );
-    CPPUNIT_TEST( testRTEvent );
-    CPPUNIT_TEST( testSelfRemoval );
-    CPPUNIT_TEST( testCrossRemoval );
-#ifdef OROCOS_TARGET_GNULINUX
-    CPPUNIT_TEST( testConcurrentEmit );
-#endif
-    CPPUNIT_TEST_SUITE_END();
+public:
 
     RTT::Event<void( void )> t_event;
     RTT::Event<void( std::string )> t_event_string;
@@ -54,6 +39,10 @@ class EventTest : public CppUnit::TestFixture
     RTT::SlaveActivity act;
     float float_sum, float_sub;
 public:
+
+	EventTest(){ setUp();};
+	~EventTest(){ tearDown();};
+
     void setUp();
     void tearDown();
 
@@ -65,21 +54,6 @@ public:
 
     int float_listener(float a, float b);
     int float_completer(float a, float b);
-
-    void testEmpty();
-    void testSyncListener();
-    void testSyncListenerString();
-    void testSyncListenerSyncCompleter();
-    void testSyncListenerThreadCompleter();
-    void testCompletionProcessor();
-    void testTask();
-    void testBlockingTask();
-    void testEventArgs();
-    void testRTEvent();
-    void testSelfRemoval();
-    void testCrossRemoval();
-    void testConcurrentEmit();
 };
-
 
 #endif  // EVENTTEST_H

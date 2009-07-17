@@ -56,7 +56,6 @@ namespace RTT
 #undef EP
 #undef GP
 #undef EL
-
 #define BOOST_NO_HASH
 #include <boost/graph/adjacency_list.hpp>
 
@@ -81,7 +80,7 @@ namespace RTT
 	/**
 	 * This class represents elements in a program tree.
 	 */
-  class VertexNode
+  class RTT_API VertexNode
   {
   public:
       /**

@@ -62,7 +62,7 @@ namespace RTT { namespace detail
    * ints (identity operator) etc.  We always provide templates that
    * accept a STL style adaptable functor..
    */
-  class UnaryOp
+  class RTT_API UnaryOp
   {
   public:
     virtual ~UnaryOp();
@@ -77,7 +77,7 @@ namespace RTT { namespace detail
                                    DataSourceBase* a ) = 0;
   };
 
-  class BinaryOp
+  class RTT_API BinaryOp
   {
   public:
     virtual ~BinaryOp();
@@ -100,7 +100,7 @@ namespace RTT { namespace detail
    * UnaryOp because the dot is parsed as a binary operator but
    * actually is a unary ( hard to explain, look at the code...)
    */
-  class DotOp
+  class RTT_API DotOp
   {
   public:
     virtual ~DotOp();
@@ -119,7 +119,7 @@ namespace RTT { namespace detail
      * This class builds on upon construction all expression
      * operators known to Orocos. Mainly used for scripting.
      */
-    class OperatorRepository
+    class RTT_API OperatorRepository
     {
         std::vector<detail::DotOp*> dotops;
         std::vector<detail::UnaryOp*> unaryops;
@@ -148,7 +148,7 @@ namespace RTT { namespace detail
      * This global function provides the short notation for
      * OperatorRepository::Instance()
      */
-    OperatorRepository::shared_ptr operators();
+    RTT_API OperatorRepository::shared_ptr operators();
 }
 
 #endif

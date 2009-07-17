@@ -20,8 +20,6 @@
 #ifndef DISPATCHTEST_H
 #define DISPATCHTEST_H
 
-#include <cppunit/extensions/HelperMacros.h>
-
 #include <scripting/Parser.hpp>
 #include <CommandProcessor.hpp>
 #include <TaskContext.hpp>
@@ -29,30 +27,15 @@
 #include <SimulationActivity.hpp>
 
 using namespace RTT;
-using namespace RTT;
 
-class DispatchTest : public CppUnit::TestFixture
+class DispatchTest
 {
-    CPPUNIT_TEST_SUITE( DispatchTest );
-    CPPUNIT_TEST( testParseDispatch );
-    CPPUNIT_TEST( testDispatchFailure );
-    CPPUNIT_TEST( testDispatchCondition );
-    CPPUNIT_TEST( testDispatchAnd );
-    CPPUNIT_TEST( testDispatchTry );
-    CPPUNIT_TEST( testDispatchUntil );
-    CPPUNIT_TEST( testDispatchUntilFail );
-    CPPUNIT_TEST( testDispatchMany );
-    CPPUNIT_TEST_SUITE_END();
-
-    //CPPUNIT_TEST( testSendDispatch );
-
+public:
     Parser parser;
     TaskContext gtc;
     TaskContext mtc;
     TaskContext ltc;
-    SimulationActivity gtask;
-    SimulationActivity mtask;
-    SimulationActivity ltask;
+
     TaskObject* createObject(std::string a, CommandProcessor* cp);
 
     bool true_genCom() { return true; }
@@ -68,6 +51,7 @@ class DispatchTest : public CppUnit::TestFixture
     void finishDispatch( TaskContext* , std::string );
 public:
     DispatchTest();
+    ~DispatchTest(){ tearDown();};
 
     void setUp();
     void tearDown();

@@ -20,7 +20,7 @@
 
 
 #include "taskthread_test.hpp"
-#include <unistd.h>
+
 #include <iostream>
 
 #include <Activities.hpp>
@@ -32,8 +32,9 @@
 
 using namespace std;
 
-// Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( ActivitiesThreadTest );
+#include <boost/test/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
+
 
 using namespace RTT;
 
@@ -60,7 +61,7 @@ struct TestActivity
     }
     void step() {
         stepped = true;
-        CPPUNIT_ASSERT(this->isRunning());
+        BOOST_CHECK(this->isRunning());
 #ifndef ORO_EMBEDDED
         if ( _dothrow )
             throw A();
@@ -92,20 +93,20 @@ struct TestRunner
 
     bool initialize() {
         init    = true;
-        CPPUNIT_ASSERT(getActivity()->isActive());
-        CPPUNIT_ASSERT(!getActivity()->isRunning());
+        BOOST_CHECK(getActivity()->isActive());
+        BOOST_CHECK(!getActivity()->isRunning());
         return result;
     }
     void step() {
         stepped = true;
-        CPPUNIT_ASSERT(getActivity()->isActive());
-        CPPUNIT_ASSERT(getActivity()->isRunning());
+        BOOST_CHECK(getActivity()->isActive());
+        BOOST_CHECK(getActivity()->isRunning());
     }
 
     void loop() {
         looped = true;
-        CPPUNIT_ASSERT(getActivity()->isActive());
-        CPPUNIT_ASSERT(getActivity()->isRunning());
+        BOOST_CHECK(getActivity()->isActive());
+        BOOST_CHECK(getActivity()->isRunning());
     }
 
     bool breakLoop() {
@@ -115,8 +116,8 @@ struct TestRunner
 
     void finalize() {
         fini   = true;
-        CPPUNIT_ASSERT(getActivity()->isActive());
-        CPPUNIT_ASSERT(!getActivity()->isRunning());
+        BOOST_CHECK(getActivity()->isActive());
+        BOOST_CHECK(!getActivity()->isRunning());
     }
 
     void reset(bool fail) {
@@ -130,38 +131,13 @@ struct TestRunner
 };
 
 
-struct TestAllocate
-    : public RunnableInterface
-{
-    std::vector<std::string> v;
-    char*       c;
-    std::string s;
-
-    bool initialize() {
-        c = 0;
-        return true;
-    }
-    void step() {
-        v.resize( 0 );
-        v.resize( 1025, std::string("Goodbye Memory") );
-        delete[] c;
-        c = new char[1025];
-        s = "Hello World ";
-        s += s;
-        s += s;
-    }
-    void finalize() {
-        delete[] c;
-        v.resize(0);
-    }
-};
-
 void
 ActivitiesThreadTest::setUp()
 {
     t_task_np = new TestActivity<PeriodicActivity>(3, 0.01, true );
     t_task_np_bad = new TestActivity<PeriodicActivity>(3, 0.01, true, true );
     t_task_p = new TestActivity<PeriodicActivity>(3, 0.032, true );
+    t_task_a = new TestActivity<Activity>(3, 0.01, true, true );
 }
 
 
@@ -171,43 +147,47 @@ ActivitiesThreadTest::tearDown()
     delete t_task_np;
     delete t_task_np_bad;
     delete t_task_p;
+    delete t_task_a;
 }
 
-void ActivitiesThreadTest::testPeriodic()
+// Registers the fixture into the 'registry'
+BOOST_FIXTURE_TEST_SUITE( ActivitiesThreadTestSuite, ActivitiesThreadTest )
+
+BOOST_AUTO_TEST_CASE(testPeriodic )
 {
     // Test periodic task sequencing...
 
     PeriodicActivity mtask( 15, 0.01 );
-    CPPUNIT_ASSERT( mtask.isActive() == false );
-    CPPUNIT_ASSERT( mtask.isRunning() == false );
-    CPPUNIT_ASSERT( mtask.thread()->isRunning() );
-    CPPUNIT_ASSERT_EQUAL( 0.01, mtask.thread()->getPeriod() );
+    BOOST_CHECK( mtask.isActive() == false );
+    BOOST_CHECK( mtask.isRunning() == false );
+    BOOST_CHECK( mtask.thread()->isRunning() );
+    BOOST_CHECK_EQUAL( 0.01, mtask.thread()->getPeriod() );
 
     // Adapt priority levels to OS.
     int bprio = 15, rtsched = ORO_SCHED_RT;
     OS::CheckPriority( rtsched, bprio );
 
-    CPPUNIT_ASSERT_EQUAL( bprio, mtask.thread()->getPriority() );
-    CPPUNIT_ASSERT_EQUAL( rtsched, mtask.thread()->getScheduler() );
+    BOOST_CHECK_EQUAL( bprio, mtask.thread()->getPriority() );
+    BOOST_CHECK_EQUAL( rtsched, mtask.thread()->getScheduler() );
 
     PeriodicActivity m2task( 15, 0.01 );
-    CPPUNIT_ASSERT( mtask.thread() == m2task.thread() );
+    BOOST_CHECK( mtask.thread() == m2task.thread() );
 
     // starting...
-    CPPUNIT_ASSERT( mtask.start() == true );
-    CPPUNIT_ASSERT( mtask.isRunning() == true );
-    CPPUNIT_ASSERT( m2task.isRunning() == false );
-    CPPUNIT_ASSERT( m2task.start() == true );
-    CPPUNIT_ASSERT( m2task.isRunning() == true );
+    BOOST_CHECK( mtask.start() == true );
+    BOOST_CHECK( mtask.isRunning() == true );
+    BOOST_CHECK( m2task.isRunning() == false );
+    BOOST_CHECK( m2task.start() == true );
+    BOOST_CHECK( m2task.isRunning() == true );
 
     sleep(1);
 
     // stopping...
-    CPPUNIT_ASSERT( mtask.stop() == true );
-    CPPUNIT_ASSERT( mtask.isRunning() == false );
-    CPPUNIT_ASSERT( m2task.isRunning() == true );
-    CPPUNIT_ASSERT( m2task.stop() == true );
-    CPPUNIT_ASSERT( m2task.isRunning() == false );
+    BOOST_CHECK( mtask.stop() == true );
+    BOOST_CHECK( mtask.isRunning() == false );
+    BOOST_CHECK( m2task.isRunning() == true );
+    BOOST_CHECK( m2task.stop() == true );
+    BOOST_CHECK( m2task.isRunning() == false );
 
     // Different Scheduler (don't test if invalid priorities)
     bprio = 15;
@@ -217,20 +197,20 @@ void ActivitiesThreadTest::testPeriodic()
         bprio = 15;
         rtsched = ORO_SCHED_OTHER;
         if ( OS::CheckPriority( rtsched, bprio ) ) {
-            CPPUNIT_ASSERT( mtask.thread() != m3task.thread() );
-            CPPUNIT_ASSERT_EQUAL( ORO_SCHED_OTHER, m3task.thread()->getScheduler() );
+            BOOST_CHECK( mtask.thread() != m3task.thread() );
+            BOOST_CHECK_EQUAL( ORO_SCHED_OTHER, m3task.thread()->getScheduler() );
         }
     }
 
     // Starting thread if thread not running
-    CPPUNIT_ASSERT( mtask.thread()->stop() );
-    CPPUNIT_ASSERT( mtask.thread()->isRunning() == false );
-    CPPUNIT_ASSERT( mtask.start() );
-    CPPUNIT_ASSERT( mtask.isRunning() == true );
-    CPPUNIT_ASSERT( mtask.thread()->isRunning() == true);
+    BOOST_CHECK( mtask.thread()->stop() );
+    BOOST_CHECK( mtask.thread()->isRunning() == false );
+    BOOST_CHECK( mtask.start() );
+    BOOST_CHECK( mtask.isRunning() == true );
+    BOOST_CHECK( mtask.thread()->isRunning() == true);
 }
 
-void ActivitiesThreadTest::testNonPeriodic()
+BOOST_AUTO_TEST_CASE( testNonPeriodic )
 {
     // Test periodic task sequencing...
 
@@ -240,341 +220,338 @@ void ActivitiesThreadTest::testNonPeriodic()
     int bprio = 15, rtsched = ORO_SCHED_RT;
     OS::CheckPriority( rtsched, bprio );
 
-    CPPUNIT_ASSERT( mtask.isActive() == false );
-    CPPUNIT_ASSERT( mtask.isRunning() == false );
-    CPPUNIT_ASSERT( mtask.thread()->isRunning() == false );
-    CPPUNIT_ASSERT_EQUAL( bprio, mtask.thread()->getPriority() );
-    CPPUNIT_ASSERT_EQUAL( rtsched, mtask.thread()->getScheduler() );
+    BOOST_CHECK( mtask.isActive() == false );
+    BOOST_CHECK( mtask.isRunning() == false );
+    BOOST_CHECK( mtask.thread()->isRunning() == false );
+    BOOST_CHECK_EQUAL( bprio, mtask.thread()->getPriority() );
+    BOOST_CHECK_EQUAL( rtsched, mtask.thread()->getScheduler() );
 
     NonPeriodicActivity m2task( 15 );
-    CPPUNIT_ASSERT( mtask.thread() != m2task.thread() );
+    BOOST_CHECK( mtask.thread() != m2task.thread() );
 
     // starting...
-    CPPUNIT_ASSERT( mtask.start() == true );
-    CPPUNIT_ASSERT( mtask.isActive() == true );
-    CPPUNIT_ASSERT( m2task.isActive() == false );
-    CPPUNIT_ASSERT( m2task.start() == true );
-    CPPUNIT_ASSERT( m2task.isActive() == true );
+    BOOST_CHECK( mtask.start() == true );
+    BOOST_CHECK( mtask.isActive() == true );
+    BOOST_CHECK( m2task.isActive() == false );
+    BOOST_CHECK( m2task.start() == true );
+    BOOST_CHECK( m2task.isActive() == true );
 
     sleep(1);
 
     // stopping...
-    CPPUNIT_ASSERT( mtask.stop() == true );
-    CPPUNIT_ASSERT( mtask.isActive() == false );
-    CPPUNIT_ASSERT( m2task.isActive() == true );
-    CPPUNIT_ASSERT( m2task.stop() == true );
-    CPPUNIT_ASSERT( m2task.isActive() == false );
+    BOOST_CHECK( mtask.stop() == true );
+    BOOST_CHECK( mtask.isActive() == false );
+    BOOST_CHECK( m2task.isActive() == true );
+    BOOST_CHECK( m2task.stop() == true );
+    BOOST_CHECK( m2task.isActive() == false );
 
     // Different Scheduler
     bprio = 15;
     rtsched = ORO_SCHED_OTHER;
     if ( OS::CheckPriority( rtsched, bprio ) ) {
         NonPeriodicActivity m3task(ORO_SCHED_OTHER, 15);
-        CPPUNIT_ASSERT( mtask.thread() != m3task.thread() );
-        CPPUNIT_ASSERT_EQUAL( ORO_SCHED_OTHER, m3task.thread()->getScheduler() );
+        BOOST_CHECK( mtask.thread() != m3task.thread() );
+        BOOST_CHECK_EQUAL( ORO_SCHED_OTHER, m3task.thread()->getScheduler() );
     }
 }
 
-void ActivitiesThreadTest::testSlave()
+BOOST_AUTO_TEST_CASE( testSlave )
 {
     // Test slave activities
     TestRunner r(true);
 
     // without master, NP.
     SlaveActivity mtask(&r);
-    CPPUNIT_ASSERT( mtask.isActive() == false );
-    CPPUNIT_ASSERT( mtask.isRunning() == false );
-    CPPUNIT_ASSERT( mtask.isPeriodic() == false );
-    CPPUNIT_ASSERT( mtask.getPeriod() == 0.0 );
-    CPPUNIT_ASSERT( mtask.execute() == false );
-    CPPUNIT_ASSERT( mtask.thread() == OS::MainThread::Instance() );
+    BOOST_CHECK( mtask.isActive() == false );
+    BOOST_CHECK( mtask.isRunning() == false );
+    BOOST_CHECK( mtask.isPeriodic() == false );
+    BOOST_CHECK( mtask.getPeriod() == 0.0 );
+    BOOST_CHECK( mtask.execute() == false );
+    BOOST_CHECK( mtask.thread() == OS::MainThread::Instance() );
 
     // starting...
-    CPPUNIT_ASSERT( mtask.start() == true );
-    CPPUNIT_ASSERT( r.init == true );
+    BOOST_CHECK( mtask.start() == true );
+    BOOST_CHECK( r.init == true );
 
-    CPPUNIT_ASSERT( mtask.isActive() == true );
-    CPPUNIT_ASSERT( mtask.isRunning() == false );
-    CPPUNIT_ASSERT( mtask.start() == false );
+    BOOST_CHECK( mtask.isActive() == true );
+    BOOST_CHECK( mtask.isRunning() == false );
+    BOOST_CHECK( mtask.start() == false );
 
     // calls loop()
-    CPPUNIT_ASSERT( mtask.execute() );
-    CPPUNIT_ASSERT( r.looped == true );
-    CPPUNIT_ASSERT( mtask.execute() );
+    BOOST_CHECK( mtask.execute() );
+    BOOST_CHECK( r.looped == true );
+    BOOST_CHECK( mtask.execute() );
 
     // stopping...
-    CPPUNIT_ASSERT( mtask.stop() == true );
-    CPPUNIT_ASSERT( r.fini == true );
-    CPPUNIT_ASSERT( mtask.isRunning() == false );
-    CPPUNIT_ASSERT( mtask.isActive() == false );
-    CPPUNIT_ASSERT( mtask.stop() == false );
+    BOOST_CHECK( mtask.stop() == true );
+    BOOST_CHECK( r.fini == true );
+    BOOST_CHECK( mtask.isRunning() == false );
+    BOOST_CHECK( mtask.isActive() == false );
+    BOOST_CHECK( mtask.stop() == false );
 
-    CPPUNIT_ASSERT( mtask.execute() == false );
+    BOOST_CHECK( mtask.execute() == false );
 
     r.reset(true);
 
     // with periodic master:
     SlaveActivity mslave( t_task_np, &r );
-    CPPUNIT_ASSERT( mslave.isActive() == false );
-    CPPUNIT_ASSERT( mslave.isRunning() == false );
-    CPPUNIT_ASSERT( mslave.isPeriodic() == true );
-    CPPUNIT_ASSERT_EQUAL( mslave.getPeriod(), t_task_np->getPeriod() );
-    CPPUNIT_ASSERT( mslave.execute() == false );
-    CPPUNIT_ASSERT( mslave.thread() == t_task_np->thread() );
+    BOOST_CHECK( mslave.isActive() == false );
+    BOOST_CHECK( mslave.isRunning() == false );
+    BOOST_CHECK( mslave.isPeriodic() == true );
+    BOOST_CHECK_EQUAL( mslave.getPeriod(), t_task_np->getPeriod() );
+    BOOST_CHECK( mslave.execute() == false );
+    BOOST_CHECK( mslave.thread() == t_task_np->thread() );
 
-    CPPUNIT_ASSERT( !mslave.start() );
-    CPPUNIT_ASSERT( t_task_np->start() );
-    CPPUNIT_ASSERT( mslave.start() );
-    CPPUNIT_ASSERT( r.init == true );
-    CPPUNIT_ASSERT( mslave.isActive() );
-    CPPUNIT_ASSERT( mslave.isRunning() );
+    BOOST_CHECK( !mslave.start() );
+    BOOST_CHECK( t_task_np->start() );
+    BOOST_CHECK( mslave.start() );
+    BOOST_CHECK( r.init == true );
+    BOOST_CHECK( mslave.isActive() );
+    BOOST_CHECK( mslave.isRunning() );
 
     // calls step()
-    CPPUNIT_ASSERT( mslave.execute() );
-    CPPUNIT_ASSERT( r.stepped == true );
-    CPPUNIT_ASSERT( mslave.execute() );
-    CPPUNIT_ASSERT( !mslave.start() );
+    BOOST_CHECK( mslave.execute() );
+    BOOST_CHECK( r.stepped == true );
+    BOOST_CHECK( mslave.execute() );
+    BOOST_CHECK( !mslave.start() );
 
     // stopping...
-    CPPUNIT_ASSERT( mslave.stop() );
-    CPPUNIT_ASSERT( r.fini == true );
-    CPPUNIT_ASSERT( !mslave.isActive() );
-    CPPUNIT_ASSERT( !mslave.isRunning() );
+    BOOST_CHECK( mslave.stop() );
+    BOOST_CHECK( r.fini == true );
+    BOOST_CHECK( !mslave.isActive() );
+    BOOST_CHECK( !mslave.isRunning() );
 
     r.reset(true);
 
     // periodic:
     SlaveActivity mslave_p(0.001, &r);
-    CPPUNIT_ASSERT( mslave_p.isActive() == false );
-    CPPUNIT_ASSERT( mslave_p.isRunning() == false );
-    CPPUNIT_ASSERT( mslave_p.isPeriodic() == true );
-    CPPUNIT_ASSERT( mslave_p.getPeriod() == 0.001 );
-    CPPUNIT_ASSERT( mslave_p.execute() == false );
-    CPPUNIT_ASSERT( mslave_p.thread() == OS::MainThread::Instance() );
+    BOOST_CHECK( mslave_p.isActive() == false );
+    BOOST_CHECK( mslave_p.isRunning() == false );
+    BOOST_CHECK( mslave_p.isPeriodic() == true );
+    BOOST_CHECK( mslave_p.getPeriod() == 0.001 );
+    BOOST_CHECK( mslave_p.execute() == false );
+    BOOST_CHECK( mslave_p.thread() == OS::MainThread::Instance() );
 
-    CPPUNIT_ASSERT( mslave_p.start() );
-    CPPUNIT_ASSERT( r.init == true );
-    CPPUNIT_ASSERT( mslave_p.isActive() );
-    CPPUNIT_ASSERT( mslave_p.isRunning() );
-    CPPUNIT_ASSERT( mslave_p.execute() );
-    CPPUNIT_ASSERT( r.stepped == true );
-    CPPUNIT_ASSERT( !mslave_p.start() );
+    BOOST_CHECK( mslave_p.start() );
+    BOOST_CHECK( r.init == true );
+    BOOST_CHECK( mslave_p.isActive() );
+    BOOST_CHECK( mslave_p.isRunning() );
+    BOOST_CHECK( mslave_p.execute() );
+    BOOST_CHECK( r.stepped == true );
+    BOOST_CHECK( !mslave_p.start() );
 
     // stopping...
-    CPPUNIT_ASSERT( mslave_p.stop() );
-    CPPUNIT_ASSERT( r.fini == true );
-    CPPUNIT_ASSERT( !mslave_p.isActive() );
-    CPPUNIT_ASSERT( !mslave_p.isRunning() );
-    CPPUNIT_ASSERT( !mslave_p.execute() );
-
+    BOOST_CHECK( mslave_p.stop() );
+    BOOST_CHECK( r.fini == true );
+    BOOST_CHECK( !mslave_p.isActive() );
+    BOOST_CHECK( !mslave_p.isRunning() );
+    BOOST_CHECK( !mslave_p.execute() );
 }
 
-void ActivitiesThreadTest::testSequential()
+BOOST_AUTO_TEST_CASE( testSequential )
 {
     // Test sequential activities
     TestRunner r(true);
 
     SequentialActivity mtask(&r);
-    CPPUNIT_ASSERT( mtask.isActive() == false );
-    CPPUNIT_ASSERT( mtask.isRunning() == false );
-    CPPUNIT_ASSERT( mtask.isPeriodic() == false );
-    CPPUNIT_ASSERT( mtask.getPeriod() == 0.0 );
-    CPPUNIT_ASSERT( mtask.execute() == false );
-    CPPUNIT_ASSERT( mtask.trigger() == false );
-    CPPUNIT_ASSERT( mtask.thread() == OS::MainThread::Instance() );
+    BOOST_CHECK( mtask.isActive() == false );
+    BOOST_CHECK( mtask.isRunning() == false );
+    BOOST_CHECK( mtask.isPeriodic() == false );
+    BOOST_CHECK( mtask.getPeriod() == 0.0 );
+    BOOST_CHECK( mtask.execute() == false );
+    BOOST_CHECK( mtask.trigger() == false );
+    BOOST_CHECK( mtask.thread() == OS::MainThread::Instance() );
 
     // starting...
-    CPPUNIT_ASSERT( mtask.start() == true );
-    CPPUNIT_ASSERT( r.init == true );
+    BOOST_CHECK( mtask.start() == true );
+    BOOST_CHECK( r.init == true );
 
-    CPPUNIT_ASSERT( mtask.isActive() == true );
-    CPPUNIT_ASSERT( mtask.isRunning() == false );
-    CPPUNIT_ASSERT( mtask.start() == false );
+    BOOST_CHECK( mtask.isActive() == true );
+    BOOST_CHECK( mtask.isRunning() == false );
+    BOOST_CHECK( mtask.start() == false );
 
     // calls step()
-    CPPUNIT_ASSERT( mtask.trigger() );
-    CPPUNIT_ASSERT( r.stepped == true );
-    CPPUNIT_ASSERT( mtask.execute() == false );
+    BOOST_CHECK( mtask.trigger() );
+    BOOST_CHECK( r.stepped == true );
+    BOOST_CHECK( mtask.execute() == false );
 
     // stopping...
-    CPPUNIT_ASSERT( mtask.stop() == true );
-    CPPUNIT_ASSERT( r.fini == true );
-    CPPUNIT_ASSERT( mtask.isRunning() == false );
-    CPPUNIT_ASSERT( mtask.isActive() == false );
-    CPPUNIT_ASSERT( mtask.stop() == false );
+    BOOST_CHECK( mtask.stop() == true );
+    BOOST_CHECK( r.fini == true );
+    BOOST_CHECK( mtask.isRunning() == false );
+    BOOST_CHECK( mtask.isActive() == false );
+    BOOST_CHECK( mtask.stop() == false );
 
-    CPPUNIT_ASSERT( mtask.execute() == false );
-    CPPUNIT_ASSERT( mtask.trigger() == false );
+    BOOST_CHECK( mtask.execute() == false );
+    BOOST_CHECK( mtask.trigger() == false );
 
     r.reset(false);
-    CPPUNIT_ASSERT( mtask.start() == false );
-    CPPUNIT_ASSERT( r.init == true );
+    BOOST_CHECK( mtask.start() == false );
+    BOOST_CHECK( r.init == true );
 
-    CPPUNIT_ASSERT( mtask.isActive() == false );
-    CPPUNIT_ASSERT( mtask.isRunning() == false );
-    CPPUNIT_ASSERT( mtask.start() == false );
+    BOOST_CHECK( mtask.isActive() == false );
+    BOOST_CHECK( mtask.isRunning() == false );
+    BOOST_CHECK( mtask.start() == false );
 }
 
-void ActivitiesThreadTest::testScheduler()
+BOOST_AUTO_TEST_CASE( testScheduler )
 {
     int rtsched = ORO_SCHED_OTHER;
     int bprio = 15;
 
     OS::CheckPriority( rtsched, bprio );
     TimerThreadPtr tt = TimerThread::Instance(rtsched, bprio, 0.0123);
-    CPPUNIT_ASSERT( tt != 0 );
+    BOOST_CHECK( tt != 0 );
 
-    CPPUNIT_ASSERT( tt->isRunning() == false );
+    BOOST_CHECK( tt->isRunning() == false );
 
-    CPPUNIT_ASSERT_EQUAL( 0.0123, tt->getPeriod());
+    BOOST_CHECK_EQUAL( 0.0123, tt->getPeriod());
 
-    CPPUNIT_ASSERT_EQUAL( bprio, tt->getPriority());
-    CPPUNIT_ASSERT_EQUAL( rtsched, tt->getScheduler());
+    BOOST_CHECK_EQUAL( bprio, tt->getPriority());
+    BOOST_CHECK_EQUAL( rtsched, tt->getScheduler());
 
     // different scheduler, different thread.
     rtsched = ORO_SCHED_RT;
     bprio = 15;
     if ( OS::CheckPriority( rtsched, bprio ) ) {
         TimerThreadPtr tt2 = TimerThread::Instance(rtsched, bprio, 0.0123);
-        CPPUNIT_ASSERT( tt2 != 0 );
-        CPPUNIT_ASSERT( tt2 != tt );
-        CPPUNIT_ASSERT_EQUAL( rtsched, tt2->getScheduler());
+        BOOST_CHECK( tt2 != 0 );
+        BOOST_CHECK( tt2 != tt );
+        BOOST_CHECK_EQUAL( rtsched, tt2->getScheduler());
 
         tt = TimerThread::Instance(bprio, 0.0123); // ORO_SCHED_RT is the default.
-        CPPUNIT_ASSERT( tt == tt2 );
+        BOOST_CHECK( tt == tt2 );
     }
 }
 
 
-void ActivitiesThreadTest::testThreadConfig()
+#if !defined( OROCOS_TARGET_WIN32 )
+BOOST_AUTO_TEST_CASE( testThreadConfig )
 {
     int rtsched = ORO_SCHED_RT;
     int bprio = 15;
     TimerThreadPtr tt = TimerThread::Instance(bprio, 0.0123);
 
-    CPPUNIT_ASSERT( tt->isRunning() == false );
+    BOOST_CHECK( tt->isRunning() == false );
 
-    CPPUNIT_ASSERT_EQUAL( 0.0123, tt->getPeriod());
+    BOOST_CHECK_EQUAL( 0.0123, tt->getPeriod());
 
     // only do this if valid priority/scheduler range:
     if ( OS::CheckPriority( rtsched, bprio ) == true)
     {
-        CPPUNIT_ASSERT_EQUAL( bprio, tt->getPriority());
+        BOOST_CHECK_EQUAL( bprio, tt->getPriority());
 
         // different priority, different thread.
         TimerThreadPtr tt2 = TimerThread::Instance(bprio - 1, 0.0123);
-        CPPUNIT_ASSERT( tt2 != 0 );
-        CPPUNIT_ASSERT( tt2 != tt );
+        BOOST_CHECK( tt2 != 0 );
+        BOOST_CHECK( tt2 != tt );
 
         // different period, different thread.
         TimerThreadPtr tt3 = TimerThread::Instance(bprio, 0.123);
-        CPPUNIT_ASSERT( tt3 != 0 );
-        CPPUNIT_ASSERT( tt3 != tt );
-        CPPUNIT_ASSERT( tt3 != tt2 );
+        BOOST_CHECK( tt3 != 0 );
+        BOOST_CHECK( tt3 != tt );
+        BOOST_CHECK( tt3 != tt2 );
     }
 
     tt = TimerThread::Instance(bprio, 0.0123);
-    CPPUNIT_ASSERT( tt != 0 );
-    CPPUNIT_ASSERT( tt == TimerThread::Instance(bprio,0.0123) );
+    BOOST_CHECK( tt != 0 );
+    BOOST_CHECK( tt == TimerThread::Instance(bprio,0.0123) );
 
     // switching hard/soft
     // do not ASSERT since the ret-value may be false...
     if ( tt->setScheduler(ORO_SCHED_OTHER) )
-        CPPUNIT_ASSERT( tt->getScheduler() == ORO_SCHED_OTHER );
+        BOOST_CHECK( tt->getScheduler() == ORO_SCHED_OTHER );
     if ( tt->setScheduler(ORO_SCHED_RT) )
-        CPPUNIT_ASSERT( tt->getScheduler() == ORO_SCHED_RT );
+        BOOST_CHECK( tt->getScheduler() == ORO_SCHED_RT );
     tt->setScheduler(ORO_SCHED_OTHER);
     tt->setScheduler(ORO_SCHED_RT);
     tt->setScheduler(ORO_SCHED_OTHER);
     tt->setScheduler(ORO_SCHED_RT);
     if ( tt->setPriority( 4 ) ) {
-        CPPUNIT_ASSERT_EQUAL( tt->getPriority(), 4 );
+        BOOST_CHECK_EQUAL( tt->getPriority(), 4 );
 
         // even if the priority was changed after construction,
         // the thread can be found:
-        CPPUNIT_ASSERT( tt == TimerThread::Instance(4,0.0123) );
+        BOOST_CHECK( tt == TimerThread::Instance(4,0.0123) );
     }
 
-    CPPUNIT_ASSERT( tt->start() );
+    BOOST_CHECK( tt->start() );
 
     sleep(1);
 
     // prints annoying warning messages...
     Logger::LogLevel ll = Logger::log().getLogLevel();
     Logger::log().setLogLevel(Logger::Critical);
-    CPPUNIT_ASSERT( tt->setScheduler(ORO_SCHED_RT) == false );
-    CPPUNIT_ASSERT( tt->setScheduler(ORO_SCHED_OTHER) == false );
+    BOOST_CHECK( tt->setScheduler(ORO_SCHED_RT) == false );
+    BOOST_CHECK( tt->setScheduler(ORO_SCHED_OTHER) == false );
     Logger::log().setLogLevel( ll );
-    CPPUNIT_ASSERT( tt->setPeriod(0.3) == false );
+    BOOST_CHECK( tt->setPeriod(0.3) == false );
 
     // reconfigure periodicity
-    CPPUNIT_ASSERT( tt->stop() );
-    CPPUNIT_ASSERT( tt->setPeriod(0.3) );
-    CPPUNIT_ASSERT_EQUAL( Seconds_to_nsecs(0.3), tt->getPeriodNS() );
+    BOOST_CHECK( tt->stop() );
+    BOOST_CHECK( tt->setPeriod(0.3) );
+    BOOST_CHECK_EQUAL( Seconds_to_nsecs(0.3), tt->getPeriodNS() );
 
     // some quick start/stops.
-    CPPUNIT_ASSERT( tt->start() );
-    CPPUNIT_ASSERT( tt->stop() );
-    CPPUNIT_ASSERT( tt->start() );
+    BOOST_CHECK( tt->start() );
+    BOOST_CHECK( tt->stop() );
+    BOOST_CHECK( tt->start() );
 
 }
+#endif
 
-#ifndef ORO_EMBEDDED
-void ActivitiesThreadTest::testExceptionRecovery()
+#if !defined( ORO_EMBEDDED ) && !defined( OROCOS_TARGET_WIN32 )
+BOOST_AUTO_TEST_CASE( testExceptionRecovery )
 {
     Logger::LogLevel ll = Logger::log().getLogLevel();
     Logger::log().setLogLevel( Logger::Never );
-    CPPUNIT_ASSERT(t_task_np->start());
-    CPPUNIT_ASSERT(t_task_np_bad->start());
-    CPPUNIT_ASSERT(t_task_p->start());
+    BOOST_CHECK(t_task_np->start());
+    BOOST_CHECK(t_task_np_bad->start());
+    BOOST_CHECK(t_task_p->start());
+    BOOST_CHECK(t_task_a->start());
 
     sleep(1);
     // thread should stop :
     Logger::log().setLogLevel( ll );
-    CPPUNIT_ASSERT( !t_task_np_bad->thread()->isRunning() );
+    BOOST_CHECK( !t_task_np_bad->thread()->isRunning() );
 
-    CPPUNIT_ASSERT( !t_task_np->isRunning() );
-    CPPUNIT_ASSERT( !t_task_np_bad->isRunning() );
-    CPPUNIT_ASSERT( t_task_p->isRunning() );
+    BOOST_CHECK( !t_task_np->isRunning() );
+    BOOST_CHECK( !t_task_np_bad->isRunning() );
+    BOOST_CHECK( t_task_p->isRunning() );
+    BOOST_CHECK( !t_task_a->isRunning() );
 
-    CPPUNIT_ASSERT( t_task_np->init );
-    CPPUNIT_ASSERT( t_task_np_bad->init );
-    CPPUNIT_ASSERT( t_task_p->init );
+    BOOST_CHECK( t_task_np->init );
+    BOOST_CHECK( t_task_np_bad->init );
+    BOOST_CHECK( t_task_p->init );
+    BOOST_CHECK( t_task_a->init );
 
-    CPPUNIT_ASSERT( t_task_np->stepped );
-    CPPUNIT_ASSERT( t_task_np_bad->stepped );
-    CPPUNIT_ASSERT( t_task_p->stepped );
+    BOOST_CHECK( t_task_np->stepped );
+    BOOST_CHECK( t_task_np_bad->stepped );
+    BOOST_CHECK( t_task_p->stepped );
+    BOOST_CHECK( t_task_a->stepped );
 
     // must be stopped since bad throwed an exception
-    CPPUNIT_ASSERT( t_task_np->fini );
-    CPPUNIT_ASSERT( t_task_np_bad->fini );
+    BOOST_CHECK( t_task_np->fini );
+    BOOST_CHECK( t_task_np_bad->fini );
+    BOOST_CHECK( t_task_a->fini );
 
     t_task_p->stop();
 
     // see if we recovered ok :
-    CPPUNIT_ASSERT( t_task_np_bad->thread()->start() );
-
-    CPPUNIT_ASSERT(t_task_np->start());
+    BOOST_CHECK( t_task_np_bad->thread()->start() );
+    BOOST_CHECK(t_task_np->start());
+    BOOST_CHECK(t_task_a->start());
 
     sleep(1);
     t_task_p->reset(true);
-    CPPUNIT_ASSERT( t_task_np->isRunning() );
-    CPPUNIT_ASSERT( t_task_np->init );
-    CPPUNIT_ASSERT( t_task_np->stepped );
+    BOOST_CHECK( t_task_np->isRunning() );
+    BOOST_CHECK( t_task_np->init );
+    BOOST_CHECK( t_task_np->stepped );
 
-    CPPUNIT_ASSERT(t_task_np->stop());
-    CPPUNIT_ASSERT( t_task_np->fini );
+    BOOST_CHECK(t_task_np->stop());
+    BOOST_CHECK( t_task_np->fini );
 }
 #endif
 
-void ActivitiesThreadTest::testAddAllocate()
-{
-    CPPUNIT_ASSERT( t_task_np->run( t_run_allocate ) );
-}
-
-void ActivitiesThreadTest::testRemoveAllocate()
-{
-    CPPUNIT_ASSERT( t_task_np->run( 0 ) );
-}
-
+BOOST_AUTO_TEST_SUITE_END()
 

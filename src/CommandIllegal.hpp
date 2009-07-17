@@ -52,7 +52,7 @@ namespace RTT
      * another command.
      * @deprecated Remove this low-level class since it's nowhere used.
      */
-    class CommandIllegal
+    class RTT_API CommandIllegal
         : public CommandInterface
     {
 

@@ -41,7 +41,7 @@
 
 #include <string>
 #include <vector>
-#include "RTT.hpp"
+#include "rtt-config.h"
 #include "CommandRepository.hpp"
 #include "MethodRepository.hpp"
 #ifdef OROPKG_EXECUTION_ENGINE_EVENTS
@@ -58,7 +58,7 @@ namespace RTT
      * methods, events and attributes. OperationInterface objects can be
      * hierarchically nested.
      */
-    class OperationInterface
+    class RTT_API OperationInterface
     {
     protected:
         CommandRepository mcommands;

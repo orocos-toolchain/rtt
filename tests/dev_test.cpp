@@ -21,18 +21,18 @@
 #include "dev_test.hpp"
 #include "FakeAnalogDevice.hpp"
 #include "FakeDigitalDevice.hpp"
-#include "dev/AnalogInput.hpp"
-#include "dev/AnalogOutput.hpp"
-#include "dev/DigitalInput.hpp"
-#include "dev/DigitalOutput.hpp"
+#include <dev/AnalogInput.hpp>
+#include <dev/AnalogOutput.hpp>
+#include <dev/DigitalInput.hpp>
+#include <dev/DigitalOutput.hpp>
 
-#include <unistd.h>
+
 #include <iostream>
 
 using namespace std;
 
-// Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( DevTest );
+#include <boost/test/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
 
 using namespace RTT;
 
@@ -47,7 +47,9 @@ DevTest::tearDown()
 {
 }
 
-void DevTest::testClasses()
+BOOST_FIXTURE_TEST_SUITE( DevTestSuite, DevTest )
+
+BOOST_AUTO_TEST_CASE( testClasses)
 {
     DigitalInput din(true, false); // init, invert
     DigitalOutput dout(false); // init.
@@ -55,16 +57,16 @@ void DevTest::testClasses()
     AnalogOutput aout(0,0);
 
 
-    CPPUNIT_ASSERT( din.isOn() );
+    BOOST_CHECK( din.isOn() );
 
-    CPPUNIT_ASSERT( dout.isOn() == false);
+    BOOST_CHECK( dout.isOn() == false);
     dout.setBit(true);
-    CPPUNIT_ASSERT( dout.isOn() == true);
+    BOOST_CHECK( dout.isOn() == true);
     dout.setBit(false);
-    CPPUNIT_ASSERT( dout.isOn() == false);
+    BOOST_CHECK( dout.isOn() == false);
 }
 
-void DevTest::testNaming()
+BOOST_AUTO_TEST_CASE( testNaming)
 {
 
     FakeAnalogDevice fad;
@@ -76,10 +78,10 @@ void DevTest::testNaming()
     DigitalInInterface* dii = DigitalInInterface::nameserver.getObject("FakeDigitalDevice");
     DigitalOutInterface* doi = DigitalOutInterface::nameserver.getObject("FakeDigitalDevice");
 
-    CPPUNIT_ASSERT( aii );
-    CPPUNIT_ASSERT( aoi );
-    CPPUNIT_ASSERT( dii );
-    CPPUNIT_ASSERT( doi );
+    BOOST_CHECK( aii );
+    BOOST_CHECK( aoi );
+    BOOST_CHECK( dii );
+    BOOST_CHECK( doi );
 
 }
-
+BOOST_AUTO_TEST_SUITE_END()

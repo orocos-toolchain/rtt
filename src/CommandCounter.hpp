@@ -47,7 +47,7 @@ namespace RTT
      *
      * @deprecated Remove this low-level class since it's nowhere used.
      */
-    class CommandCounter
+    class RTT_API CommandCounter
         : public CommandInterface
     {
 

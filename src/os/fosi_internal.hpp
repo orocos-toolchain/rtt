@@ -54,3 +54,7 @@
 #ifdef OROPKG_OS_ECOS
  #include "ecos/fosi_internal.hpp"
 #endif
+
+#ifdef OROPKG_OS_WIN32
+ #include "win32/fosi_internal.hpp"
+#endif

@@ -322,6 +322,8 @@ namespace RTT
         virtual bool composeTypeImpl(const PropertyBag& source,  typename AssignableDataSource<T>::reference_t result) const {
             return false;
         }
+		
+		std::string getTypeIdName() const { return typeid(T).name(); }
 
     };
 
@@ -390,8 +392,8 @@ namespace RTT
     {
         typedef typename boost::remove_const<typename boost::remove_reference<T>::type>::type _T;
     public:
-        using TypeInfo::buildConstant;
-        using TypeInfo::buildVariable;
+        using TemplateTypeInfo<T,has_ostream>::buildConstant;
+        using TemplateTypeInfo<T,has_ostream>::buildVariable;
 
         TemplateContainerTypeInfo(std::string name)
             : TemplateTypeInfo<T, has_ostream>(name) {}
@@ -426,8 +428,8 @@ namespace RTT
     {
         typedef typename boost::remove_const<typename boost::remove_reference<T>::type>::type _T;
     public:
-        using TypeInfo::buildConstant;
-        using TypeInfo::buildVariable;
+        using TemplateTypeInfo<T,has_ostream>::buildConstant;
+        using TemplateTypeInfo<T,has_ostream>::buildVariable;
 
         TemplateIndexTypeInfo(std::string name)
             : TemplateTypeInfo<T, has_ostream>(name) {}

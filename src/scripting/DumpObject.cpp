@@ -42,6 +42,7 @@
 #include "../DataSourceBase.hpp"
 #include "../OperationInterface.hpp"
 #include "../TaskObject.hpp"
+#include "DumpObject.hpp"
 
 
 using namespace std;

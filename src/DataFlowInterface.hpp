@@ -43,6 +43,7 @@
 #include <map>
 #include <string>
 #include "PortInterface.hpp"
+#include "OperationInterface.hpp"
 
 namespace RTT
 {
@@ -51,7 +52,7 @@ namespace RTT
      * The Interface of a TaskContext which exposes its data-flow ports.
      * @ingroup Ports
      */
-    class DataFlowInterface
+    class RTT_API DataFlowInterface
     {
     public:
         /**

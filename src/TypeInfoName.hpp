@@ -100,7 +100,7 @@ namespace RTT
 
         virtual DataSourceBase::shared_ptr buildValue() const {
             Logger::In loc("TypeInfoName");
-            Logger::log() << Logger::Error << "Can not build Property of "<<tname<<"."<<Logger::endl;
+            Logger::log() << Logger::Error << "Can not build ValueDataSource of "<<tname<<"."<<Logger::endl;
             return 0;
         }
 
@@ -136,6 +136,8 @@ namespace RTT
             Logger::log() << Logger::Error << "Can not compose "<<tname<<"."<<Logger::endl;
             return false;
         }
+		
+		virtual std::string getTypeIdName() const { return ""; }
 
     };
 
@@ -165,7 +167,6 @@ namespace RTT
                 Logger::log() << Logger::Warning << "Overriding TypeInfo for '"
                               << detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject->getTypeName()
                               << "'." << Logger::endl;
-                delete detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject;
             }
             detail::DataSourceTypeInfo<T>::value_type_info::TypeInfoObject = this;
         }

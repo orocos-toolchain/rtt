@@ -44,6 +44,7 @@
 #include <boost/bind.hpp>
 #include <vector>
 #include <algorithm>
+#include "../rtt-config.h"
 
 namespace RTT
 { namespace OS {
@@ -57,7 +58,7 @@ namespace RTT
      * first time a global constructor calls this manager, it will be properly
      * constructed.
      */
-    class StartStopManager
+    class RTT_API StartStopManager
     {
         static StartStopManager* mt;
 

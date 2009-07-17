@@ -91,7 +91,7 @@ namespace RTT
                     return false;
                 this->reset();
                 minvoked = true;
-                return maccept = mcp->process( this );
+                return maccept = (mcp->process( this ) != 0) ;
             }
 
             template<class T1>
@@ -102,7 +102,7 @@ namespace RTT
                 // bind types from Storage<Function>
                 this->store( a1 );
                 minvoked = true;
-                return maccept = mcp->process( this );
+                return maccept = (mcp->process( this ) != 0);
             }
 
             template<class T1, class T2>
@@ -113,7 +113,7 @@ namespace RTT
                 // bind types from Storage<Function>
                 this->store( a1, a2 );
                 minvoked = true;
-                return maccept = mcp->process( this );
+                return maccept = (mcp->process( this ) != 0);
             }
 
             template<class T1, class T2, class T3>
@@ -124,7 +124,7 @@ namespace RTT
                 // bind types from Storage<Function>
                 this->store( a1, a2, a3 );
                 minvoked = true;
-                return maccept = mcp->process( this );
+                return maccept = (mcp->process( this ) != 0);
             }
 
             template<class T1, class T2, class T3, class T4>
@@ -135,7 +135,7 @@ namespace RTT
                 // bind types from Storage<Function>
                 this->store( a1, a2, a3, a4 );
                 minvoked = true;
-                return maccept = mcp->process( this );
+                return maccept = (mcp->process( this ) != 0);
             }
         };
 
@@ -221,7 +221,7 @@ namespace RTT
                     return false;
                 this->reset();
                 // race: maccepted may become true only after process+step ran.
-                this->maccept = this->mcp->process( this );
+                this->maccept = (this->mcp->process( this ) != 0);
                 this->minvoked = true;
                 return this->maccept;
             }

@@ -36,16 +36,15 @@
  ***************************************************************************/
 
 
-
-#include <Types.hpp>
-#include "OperationsI.h"
-#include "ExpressionProxy.hpp"
-#include <iostream>
-
 #include "corba.h"
 #ifdef CORBA_IS_TAO
 #include <ace/String_Base.h>
 #endif
+
+#include "OperationsI.h"
+#include <Types.hpp>
+#include "ExpressionProxy.hpp"
+#include <iostream>
 
 using namespace std;
 

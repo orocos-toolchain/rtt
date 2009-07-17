@@ -50,7 +50,7 @@ namespace RTT
      *
      * @ingroup DeviceInterface
      */
-    class AnalogOutput
+    class RTT_API AnalogOutput
     {
     public:
         /**

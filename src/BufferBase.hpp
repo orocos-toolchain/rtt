@@ -39,6 +39,7 @@
 #define ORO_CORELIB_BUFFERBASE_HPP
 
 #include <boost/shared_ptr.hpp>
+#include "rtt-config.h"
 
 namespace RTT
 {
@@ -46,7 +47,7 @@ namespace RTT
      * Any Buffer has a capacity, size and can be empty or full.
      * This class contains the type-independent methods of a Buffer.
      */
-    class BufferBase
+    class RTT_API BufferBase
     {
     public:
         typedef int size_type;

@@ -39,8 +39,7 @@
 #ifndef ORO_CORBA_ANYDATASOURCE_HPP
 #define ORO_CORBA_ANYDATASOURCE_HPP
 
-#include "DataSource.hpp"
-#include "corba.h"
+
 #include "corba.h"
 #ifdef CORBA_IS_TAO
 #include <tao/Version.h>
@@ -51,6 +50,8 @@
 #endif
 #endif
 
+#include "DataSource.hpp"
+
 namespace RTT
 {
     namespace Corba
@@ -59,7 +60,7 @@ namespace RTT
          * A DataSource which holds an any value and
          * returns it in its get() method. It can not be changed after creation.
          */
-        class AnyDataSource
+        class RTT_CORBA_API AnyDataSource
             : public DataSource<CORBA::Any_var>
         {
             /**

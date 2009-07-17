@@ -238,6 +238,7 @@ namespace RTT
          * @}
          */
 
+		 virtual std::string getTypeIdName() const = 0;
     };
 
     /**
@@ -272,6 +273,19 @@ namespace RTT
         std::vector<std::string> getTypes() const;
 
         /**
+         * Return the type info structure of a given type name.
+         */
+        TypeInfo* getTypeById(std::string type_id_name) const;
+
+        /**
+         * Return the type info structure of a given type T.
+         */
+        template<class T>
+        TypeInfo* getTypeInfo() const {
+            return getTypeById( typeid(T).name() );
+        }
+
+        /**
          * Call this function to add a new (network) transport
          * for Orocos types.
          */
@@ -289,7 +303,7 @@ namespace RTT
      * Obtain a pointer to the global type system.
      * This is a short notation for TypeInfoRepository::Instance().
      */
-    TypeInfoRepository::shared_ptr types();
+    RTT_API TypeInfoRepository::shared_ptr types();
 }
 
 #endif

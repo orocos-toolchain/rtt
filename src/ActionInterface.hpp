@@ -40,6 +40,7 @@
 
 #include <map>
 #include <boost/shared_ptr.hpp>
+#include "rtt-config.h"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
@@ -67,7 +68,7 @@ namespace RTT {
      * smart pointers. A clone is thus used for within the
      * existing DataSource web.
      */
-    class ActionInterface
+    class RTT_API ActionInterface
     {
     public:
         /**

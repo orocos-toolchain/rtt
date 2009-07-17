@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  fosi_internal.hpp 
+  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  fosi_internal.hpp
 
                         fosi_internal.hpp -  description
                            -------------------
     begin                : Wed January 18 2006
     copyright            : (C) 2006 Peter Soetens
     email                : peter.soetens@mech.kuleuven.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,15 +34,15 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 
 #define OROBLD_OS_INTERNAL
 #include "os/ThreadInterface.hpp"
 #include "fosi.h"
 #include "../fosi_internal_interface.hpp"
 #include <cassert>
-#define INTERNAL_QUAL 
+#define INTERNAL_QUAL
 
 #include "Logger.hpp"
 
@@ -161,9 +161,7 @@ namespace RTT
             // store 'self'
             RTOS_TASK* task = ((ThreadInterface*)((XenoCookie*)cookie)->data)->getTask();
             task->xenoptr = rt_task_self();
-
-            // create hard mode by default.
-            rt_task_set_mode( 0, T_PRIMARY, 0 );
+            assert( task->xenoptr );
 
             // call user function
             ((XenoCookie*)cookie)->wrapper( ((XenoCookie*)cookie)->data );
@@ -174,24 +172,22 @@ namespace RTT
                                            int priority,
                                            const char* name,
                                            int sched_type,
+                                           size_t stack_size,
                                            void * (*start_routine)(void *),
-                                           ThreadInterface* obj) 
+                                           ThreadInterface* obj)
         {
-            if ( priority < 1 )
-                priority = 1;
-            if ( priority > 99)
-                priority = 99;
+            rtos_task_check_priority(&sched_type, &priority);
             XenoCookie* xcookie = (XenoCookie*)malloc( sizeof(XenoCookie) );
             xcookie->data = obj;
             xcookie->wrapper = start_routine;
             if ( name == 0 || strlen(name) == 0)
                 name = "XenoThread";
             task->name = strncpy( (char*)malloc( (strlen(name)+1)*sizeof(char) ), name, strlen(name)+1 );
-            task->sched_type = SCHED_XENOMAI_HARD; // default
+            task->sched_type = sched_type; // User requested scheduler.
             int rv;
             // task, name, stack, priority, mode, fun, arg
             // UGLY, how can I check in Xenomai that a name is in use before calling rt_task_spawn ???
-            rv = rt_task_spawn(&(task->xenotask), name, 0, priority, T_JOINABLE, rtos_xeno_thread_wrapper, xcookie);
+            rv = rt_task_spawn(&(task->xenotask), name, stack_size, priority, T_JOINABLE, rtos_xeno_thread_wrapper, xcookie);
             if ( rv == -EEXIST ) {
                 free( task->name );
                 task->name = strncpy( (char*)malloc( (strlen(name)+2)*sizeof(char) ), name, strlen(name)+1 );
@@ -199,16 +195,17 @@ namespace RTT
                 task->name[ strlen(name)+1 ] = 0;
                 while ( rv == -EEXIST &&  task->name[ strlen(name) ] != '9') {
                     task->name[ strlen(name) ] += 1;
-                    rv = rt_task_spawn(&(task->xenotask), task->name, 0, priority, T_JOINABLE, rtos_xeno_thread_wrapper, xcookie);
+                    rv = rt_task_spawn(&(task->xenotask), task->name, stack_size, priority, T_JOINABLE, rtos_xeno_thread_wrapper, xcookie);
                 }
             }
             if ( rv == -EEXIST ) {
                 log(Warning) << name << ": an object with that name is already existing in Xenomai." << endlog();
-                rv = rt_task_spawn(&(task->xenotask), 0, 0, priority, T_JOINABLE, rtos_xeno_thread_wrapper, xcookie);
+                rv = rt_task_spawn(&(task->xenotask), 0, stack_size, priority, T_JOINABLE, rtos_xeno_thread_wrapper, xcookie);
             }
             if ( rv != 0) {
                 log(Error) << name << " : CANNOT INIT Xeno TASK " << task->name <<" error code: "<< rv << endlog();
             }
+            rt_task_yield();
             return rv;
         }
 
@@ -239,7 +236,7 @@ namespace RTT
             *priority = 1;
             ret = -1;
         }
-        if (*priority >= 99){
+        if (*priority > 99){
             log(Warning) << "Forcing priority ("<<*priority<<") of thread to 99." <<endlog();
             *priority = 99;
             ret = -1;
@@ -253,7 +250,6 @@ namespace RTT
             Logger::In in( t->name );
             // xenoptr was initialised from the thread wrapper.
             if (t->xenoptr != rt_task_self() ) {
-                log(Error) << "Xenomai can not change the scheduler type from another thread." <<endlog();
                 return -1;
             }
 
@@ -266,7 +262,7 @@ namespace RTT
                     return 0;
                 } else
                     return -1;
-            else if ( sched_type == SCHED_XENOMAI_SOFT) 
+            else if ( sched_type == SCHED_XENOMAI_SOFT)
                 // This mode setting is only temporary. See rtos_task_wait_period() as well !
                 if (rt_task_set_mode( T_PRIMARY, 0, 0 ) == 0 ) {
                     t->sched_type = SCHED_XENOMAI_SOFT;
@@ -284,7 +280,7 @@ namespace RTT
             RT_TASK* tt = mytask->xenoptr;
             RT_TASK_INFO info;
             if ( tt )
-                if ( rt_task_inquire( tt, &info) == 0 ) 
+                if ( rt_task_inquire( tt, &info) == 0 )
                     if ( info.status & XNRELAX )
                         return SCHED_XENOMAI_SOFT;
                     else
@@ -315,7 +311,7 @@ namespace RTT
         {
             // detect overrun.
 #if CONFIG_XENO_VERSION_MAJOR == 2 && CONFIG_XENO_VERSION_MINOR == 0
-            if ( rt_task_wait_period() == -ETIMEDOUT) 
+            if ( rt_task_wait_period() == -ETIMEDOUT)
                 return 1;
 #else // 2.1, 2.2, 2.3, 2.4,...
             long unsigned int overrun = 0;
@@ -340,7 +336,7 @@ namespace RTT
             // WORK AROUND constness: (need non-const mytask)
             RT_TASK* tt = mytask->xenoptr;
             if ( tt )
-                if ( rt_task_inquire ( tt, &info) == 0 ) 
+                if ( rt_task_inquire ( tt, &info) == 0 )
                     return info.bprio;
             return -1;
         }

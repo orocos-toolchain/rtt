@@ -45,7 +45,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "ListLockFree.hpp"
+#include "List.hpp"
 
 #include "rtt-config.h"
 
@@ -65,7 +65,7 @@ namespace RTT
      * as step().
      * @ingroup Processor
      */
-    class StateMachineProcessor
+    class RTT_API StateMachineProcessor
         : public RunnableInterface
     {
     public:
@@ -142,7 +142,7 @@ namespace RTT
         void recursiveUnloadStateMachine( StateMachinePtr sc );
         bool recursiveCheckUnloadStateMachine( StateMachinePtr si );
 
-        typedef ListLockFree<StateMachinePtr> StateMap;
+        typedef List<StateMachinePtr> StateMap;
         StateMap*   states;
 
     };

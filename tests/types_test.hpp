@@ -20,34 +20,30 @@
 #ifndef TYPESTEST_H
 #define TYPESTEST_H
 
-#include <cppunit/extensions/HelperMacros.h>
-
 #include <scripting/Parser.hpp>
 #include <ExecutionEngine.hpp>
 #include <TaskContext.hpp>
 #include <string>
+#include <iostream>
 
 using namespace RTT;
 
-class TypesTest : public CppUnit::TestFixture
+class TypesTest
 {
-    CPPUNIT_TEST_SUITE( TypesTest );
-    //CPPUNIT_TEST( testTypes );
-    CPPUNIT_TEST( testOperators );
-//    CPPUNIT_TEST( testProperties );
-//    CPPUNIT_TEST( testConversions );
-    CPPUNIT_TEST_SUITE_END();
-
+public:
     Parser parser;
     TaskContext* tc;
     ActivityInterface* tsim;
     TaskObject* createMethodFactory();
     bool assertBool( bool );
     bool assertMsg( bool, const std::string& msg);
+    void print(int i) { std::cout<<"print:"<<i<<std::endl;}
     void executePrograms(const std::string& prog);
     void executeStates(const std::string& state);
 public:
 
+	TypesTest(){ setUp();};
+	~TypesTest(){ tearDown(); };
     void setUp();
     void tearDown();
 

@@ -1,221 +1,271 @@
+# Modules path (for searching FindXXX.cmake files)
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/config")
+
+SET(CMAKE_VERSION "${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}")
+MESSAGE(STATUS "CMAKE_VERSION: ${CMAKE_VERSION}")
+
+
+###########################################################
+#                                                         #
+# Some global options we need to set here                 #
+#                                                         #
+###########################################################
+#
+# An option for tests, to make it easy to turn off all tests
+#
+OPTION( ENABLE_TESTS "DEPRECATED Turn me off to disable compilation of all tests" OFF )
+MARK_AS_ADVANCED( ENABLE_TESTS )
+#
+# STATIC or SHARED
+#
+OPTION( BUILD_STATIC "Build Orocos RTT as a static library." ${FORCE_BUILD_STATIC})
+#
+# CORBA
+#
+OPTION( ENABLE_CORBA "Enable CORBA" OFF)
+IF (NOT CORBA_IMPLEMENTATION)
+  SET( CORBA_IMPLEMENTATION "TAO" CACHE STRING "The implementation of CORBA to use (allowed values: TAO or OMNIORB )" )
+ENDIF (NOT CORBA_IMPLEMENTATION)
+#
+# CORBA Remote Methods in C++
+#
+OPTION( ORO_REMOTING "Enable transparant Remote Methods and Commands in C++" ${ENABLE_CORBA} )
+# Force remoting when CORBA is enabled.
+IF ( ENABLE_CORBA AND NOT ORO_REMOTING )
+  MESSAGE( "Forcing ORO_REMOTING to ON")
+  SET( ORO_REMOTING ON CACHE BOOL "Enable transparant Remote Methods and Commands in C++" FORCE)
+ENDIF( ENABLE_CORBA AND NOT ORO_REMOTING )
+
+
 ###########################################################
 #                                                         #
 # Look for dependencies required by individual components #
 #                                                         #
 ###########################################################
 
+
 # Look for boost
-IF (NOT CMAKE_CROSS_COMPILE)
-MESSAGE("-- Looking for Boost/C++ headers --")
-FIND_PATH( BOOST_DIR boost/shared_ptr.hpp )
-FIND_PATH( HAS_BOOST_SPIRIT boost/spirit.hpp )
-FIND_PATH( HAS_BOOST_GRAPH boost/graph/adjacency_list.hpp )
-IF(BOOST_DIR AND HAS_BOOST_GRAPH AND HAS_BOOST_SPIRIT)
-  MESSAGE("-- Looking for Boost headers - found")
-  IF (NOT BOOST_DIR STREQUAL "/usr/include")
-      SET( RTT_CFLAGS "${RTT_CFLAGS} -I${BOOST_DIR}" )
-  ENDIF (NOT BOOST_DIR STREQUAL "/usr/include")
-  SET(ORO_SUPPORT_BOOST TRUE CACHE INTERNAL "" FORCE)
-ELSE(BOOST_DIR AND HAS_BOOST_GRAPH AND HAS_BOOST_SPIRIT)
-  MESSAGE("-- Looking for Boost headers - not found")
-  SET(ORO_SUPPORT_BOOST FALSE CACHE INTERNAL "" FORCE)
-  MESSAGE( FATAL_ERROR "Install Boost C++ (libboost-dev, libboost-graph-dev) version 0.32.0 or newer.")
-ENDIF(BOOST_DIR AND HAS_BOOST_GRAPH AND HAS_BOOST_SPIRIT)
-ENDIF (NOT CMAKE_CROSS_COMPILE)
+find_package(Boost 1.32 COMPONENTS program_options REQUIRED)
 
-# Look for Xerces (Do not change these SET statements !)
-IF (NOT CMAKE_CROSS_COMPILE )
-  FIND_LIBRARY(XERCES NAMES xerces-c 
-    PATHS /usr/local/lib /usr/lib )
-  FIND_PATH( XERCES_HEADERS xercesc/util/PlatformUtils.hpp)
-ELSE (NOT CMAKE_CROSS_COMPILE )
-  FIND_LIBRARY(XERCES NAMES xerces-c NO_DEFAULT_PATH )
-ENDIF (NOT CMAKE_CROSS_COMPILE )
-IF ( XERCES AND XERCES_HEADERS)
-  MESSAGE("-- Looking for Xerces - found")
-  SET( RTT_CFLAGS "${RTT_CFLAGS} -I${XERCES_HEADERS}" )
-  GET_FILENAME_COMPONENT(XERCES_LIB_PATH ${XERCES} PATH)
-  LINK_DIRECTORIES(${XERCES_LIB_PATH})
-  SET(OROPKG_SUPPORT_XERCES_C TRUE CACHE INTERNAL "" FORCE)
-  LINK_LIBRARIES(xerces-c)
-  SET(ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE "\"marsh/CPFMarshaller.hpp\"")
-  SET(OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER "CPFMarshaller")
-  SET(ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE "\"marsh/CPFDemarshaller.hpp\"")
-  SET(OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER "CPFDemarshaller")
-ELSE ( XERCES AND XERCES_HEADERS )
-  IF (NOT XERCES_HEADERS)
-    MESSAGE("-- Looking for Xerces - headers not found")
-  ENDIF (NOT XERCES_HEADERS)
+if(Boost_FOUND)
+  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} )
+  list(APPEND OROCOS-RTT_LIBRARIES ${Boost_LIBRARIES} ) 
+endif(Boost_FOUND)
 
-  SET(OROPKG_SUPPORT_XERCES_C FALSE CACHE INTERNAL "" FORCE)
+# Look for Xerces 
 
-  SET(ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE "\"marsh/CPFMarshaller.hpp\"")
-  SET(OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER "CPFMarshaller")
-  SET(ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE "\"marsh/TinyDemarshaller.hpp\"")
-  SET(OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER "TinyDemarshaller")
-ENDIF ( XERCES AND XERCES_HEADERS )
+# If a nonstandard path is used when crosscompiling, uncomment the following lines
+# IF(NOT CMAKE_CROSS_COMPILE) # NOTE: There now exists a standard CMake variable named CMAKE_CROSSCOMPILING
+#   set(XERCES_ROOT_DIR /path/to/xerces CACHE INTERNAL "" FORCE) # you can also use set(ENV{XERCES_ROOT_DIR} /path/to/xerces)
+# ENDIF(NOT CMAKE_CROSS_COMPILE)
 
-SET( OROCOS_TARGET gnulinux CACHE STRING "The Operating System target. One of [lxrt gnulinux xenomai macosx]")
-STRING(TOUPPER ${OROCOS_TARGET} OROCOS_TARGET_CAP)
+find_package(Xerces)
 
-SET(LINUX_SOURCE_DIR ${LINUX_SOURCE_DIR} CACHE PATH "path to linux source dir" FORCE)
+if(XERCES_FOUND)
+  set(OROPKG_SUPPORT_XERCES_C TRUE CACHE INTERNAL "" FORCE)
+  list(APPEND OROCOS-RTT_INCLUDE_DIRS ${XERCES_INCLUDE_DIRS} )
+  list(APPEND OROCOS-RTT_LIBRARIES ${XERCES_LIBRARIES} ) 
+  set(ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE "\"marsh/CPFMarshaller.hpp\"")
+  set(OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER "CPFMarshaller")
+  set(ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE "\"marsh/CPFDemarshaller.hpp\"")
+  set(OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER "CPFDemarshaller")
+else(XERCES_FOUND)
+  set(OROPKG_SUPPORT_XERCES_C FALSE CACHE INTERNAL "" FORCE)
+  set(ORODAT_CORELIB_PROPERTIES_MARSHALLING_INCLUDE "\"marsh/CPFMarshaller.hpp\"")
+  set(OROCLS_CORELIB_PROPERTIES_MARSHALLING_DRIVER "CPFMarshaller")
+  set(ORODAT_CORELIB_PROPERTIES_DEMARSHALLING_INCLUDE "\"marsh/TinyDemarshaller.hpp\"")
+  set(OROCLS_CORELIB_PROPERTIES_DEMARSHALLING_DRIVER "TinyDemarshaller")
+endif(XERCES_FOUND)
 
-IF(OROCOS_TARGET STREQUAL "lxrt")
-  SET(OROPKG_OS_LXRT TRUE CACHE INTERNAL "" FORCE)
-  SET(RTAI_INSTALL_DIR ${RTAI_INSTALL_DIR} CACHE PATH "path to rtai installation dir" FORCE)
-  # Look for LXRT
-  # the recommended CMake method
-  IF (NOT RTAI_INCLUDE_DIR)
-	# use different variable than RTAI_INCLUDE_DIR, as the first SET in the
-	# block below resets things and breaks the CMake cache when you rerun
-	# cmake/ccmake.
-	FIND_PATH(RTAI_INCLUDE_PATH rtai/rtai_lxrt.h)
-	FIND_LIBRARY(RTAI_INSTALL_LIB lxrt)
-#	MESSAGE(STATUS "RTAI: include ${RTAI_INCLUDE_PATH}")
-#	MESSAGE(STATUS "RTAI: library ${RTAI_INSTALL_LIB}")
-	IF ( RTAI_INCLUDE_PATH AND RTAI_INSTALL_LIB )
-	  SET(RTAI_INCLUDE_DIR ${RTAI_INCLUDE_PATH}/rtai)
-	  # presume RTAI_INSTALL_LIB is of form /path/to/lib/libnative.so, and
-	  # so need to strip back to /path/to
-	  GET_FILENAME_COMPONENT(RTAI_INSTALL_LIB2 ${RTAI_INSTALL_LIB} PATH)
-	  GET_FILENAME_COMPONENT(RTAI_INSTALL_DIR ${RTAI_INSTALL_LIB2} PATH)
-	  MESSAGE("-- Looking for RTAI/LXRT - found in ${RTAI_INSTALL_DIR}")
-	ENDIF ( RTAI_INCLUDE_PATH AND RTAI_INSTALL_LIB )
-  ENDIF (NOT RTAI_INCLUDE_DIR)
+# Check for OS/Target specific dependencies:
+set( OROCOS_TARGET gnulinux CACHE STRING "The Operating System target. One of [lxrt gnulinux xenomai macosx]")
+string(TOUPPER ${OROCOS_TARGET} OROCOS_TARGET_CAP)
+message("Orocos target is ${OROCOS_TARGET}")
 
-  IF (RTAI_INSTALL_DIR STREQUAL "")
-    SET(RTAI_INSTALL_DIR "/usr/realtime")
-  ENDIF (RTAI_INSTALL_DIR STREQUAL "")
+# Setup flags for RTAI/LXRT
+if(OROCOS_TARGET STREQUAL "lxrt")
+  set(OROPKG_OS_LXRT TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
+  set(LINUX_SOURCE_DIR ${LINUX_SOURCE_DIR} CACHE PATH "Path to Linux source dir (required for lxrt target)" FORCE)
 
-  IF( EXISTS ${RTAI_INSTALL_DIR}/include/rtai_lxrt.h)
-    MESSAGE("-- Looking for RTAI/LXRT - found in ${RTAI_INSTALL_DIR}")
-    SET( RTAI_INCLUDE_DIR ${RTAI_INSTALL_DIR}/include)
-  ENDIF( EXISTS ${RTAI_INSTALL_DIR}/include/rtai_lxrt.h)
+  find_package(RTAI REQUIRED)
 
-  #If RTAI_INCLUDE_DIR has been defined, you must have defined also
-  # RTAI_INSTALL_DIR.
-  IF( RTAI_INCLUDE_DIR AND RTAI_INSTALL_DIR)
-    SET(OROPKG_SUPPORT_RTAI TRUE CACHE INTERNAL "" FORCE)
-    INCLUDE_DIRECTORIES(${RTAI_INCLUDE_DIR} ${LINUX_SOURCE_DIR}/include)
-    SET(RTT_CFLAGS "${RTT_CFLAGS} -I${RTAI_INCLUDE_DIR} -I${LINUX_SOURCE_DIR}/include" CACHE INTERNAL "")
-    SET(RTT_LINKFLAGS "${RTT_LINKFLAGS} -L${RTAI_INSTALL_DIR}/lib -llxrt -lpthread" CACHE INTERNAL "")
-    LINK_LIBRARIES(lxrt pthread dl)
-    LINK_DIRECTORIES(${RTAI_INSTALL_DIR}/lib)
-  ELSE( RTAI_INCLUDE_DIR AND RTAI_INSTALL_DIR )
-    MESSAGE(FATAL_ERROR "-- Looking for LXRT - not found (tried: ${RTAI_INSTALL_DIR}/include/rtai_lxrt.h, ${CMAKE_INCLUDE_PATH})")
-    SET(OROPKG_SUPPORT_RTAI FALSE CACHE INTERNAL "" FORCE)
-  ENDIF( RTAI_INCLUDE_DIR AND RTAI_INSTALL_DIR )
-ELSE(OROCOS_TARGET STREQUAL "lxrt")
-  SET(OROPKG_OS_LXRT FALSE CACHE INTERNAL "" FORCE)
-ENDIF(OROCOS_TARGET STREQUAL "lxrt")
+  if(RTAI_FOUND)
+    list(APPEND OROCOS-RTT_INCLUDE_DIRS ${RTAI_INCLUDE_DIRS} )
+    list(APPEND OROCOS-RTT_LIBRARIES ${RTAI_LIBRARIES} pthread dl) 
+    list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
+  endif()
+else()
+  set(OROPKG_OS_LXRT FALSE CACHE INTERNAL "" FORCE)
+endif()
+
+# Setup flags for Xenomai
+if(OROCOS_TARGET STREQUAL "xenomai")
+  set(OROPKG_OS_XENOMAI TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
+
+  find_package(Xenomai REQUIRED)
+
+  if(XENOMAI_FOUND)
+    list(APPEND OROCOS-RTT_INCLUDE_DIRS ${XENOMAI_INCLUDE_DIRS} )
+    list(APPEND OROCOS-RTT_LIBRARIES ${XENOMAI_LIBRARIES} pthread dl) 
+    list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
+  endif()
+else()
+  set(OROPKG_OS_XENOMAI FALSE CACHE INTERNAL "" FORCE)
+endif()
+
+# Setup flags for GNU/Linux
+if(OROCOS_TARGET STREQUAL "gnulinux")
+  set(OROPKG_OS_GNULINUX TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
+
+  list(APPEND OROCOS-RTT_LIBRARIES pthread dl rt) 
+  list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
+else()
+  set(OROPKG_OS_GNULINUX FALSE CACHE INTERNAL "" FORCE)
+endif()
+
+# Setup flags for Mac-OSX
+if(OROCOS_TARGET STREQUAL "macosx")
+  set(OROPKG_OS_MACOSX TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
+
+  list(APPEND OROCOS-RTT_LIBRARIES pthread dl) 
+  list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
+else()
+  set(OROPKG_OS_MACOSX FALSE CACHE INTERNAL "" FORCE)
+endif()
 
 
-IF(OROCOS_TARGET STREQUAL "xenomai")
-  # Look for Xenomai
-  SET(XENOMAI_INSTALL_DIR ${XENOMAI_INSTALL_DIR} CACHE PATH "path to xenomai installation dir" FORCE)
-  IF (XENOMAI_INSTALL_DIR STREQUAL "")
-    SET(XENOMAI_INSTALL_DIR "/usr/realtime")
-  ENDIF (XENOMAI_INSTALL_DIR STREQUAL "")
-  SET(OROPKG_OS_XENOMAI TRUE CACHE INTERNAL "" FORCE)
-  # Standard path of Xenomai: ( XENOMAI_INSTALL_DIR == /usr/realtime )
-  IF(EXISTS ${XENOMAI_INSTALL_DIR}/include/native/task.h)
-    MESSAGE("-- Looking for XENOMAI - found in ${XENOMAI_INSTALL_DIR}/include")
-    SET( XENOMAI_INCLUDE_DIR "${XENOMAI_INSTALL_DIR}/include" )
-  ENDIF(EXISTS ${XENOMAI_INSTALL_DIR}/include/native/task.h)
-  # Debian package of Xenomai: ( XENOMAI_INSTALL_DIR == /usr )
-  IF(EXISTS ${XENOMAI_INSTALL_DIR}/include/xenomai/native/task.h)
-    MESSAGE("-- Looking for XENOMAI - found in ${XENOMAI_INSTALL_DIR}/include/xenomai")
-    SET( XENOMAI_INCLUDE_DIR "${XENOMAI_INSTALL_DIR}/include/xenomai" )
-  ENDIF(EXISTS ${XENOMAI_INSTALL_DIR}/include/xenomai/native/task.h)
-  # Debian package of Xenomai: ( XENOMAI_INSTALL_DIR == /usr/xenomai )
-  IF(EXISTS ${XENOMAI_INSTALL_DIR}/xenomai/include/native/task.h)
-    MESSAGE("-- Looking for XENOMAI - found in ${XENOMAI_INSTALL_DIR}/xenomai/include")
-    SET( XENOMAI_INCLUDE_DIR "${XENOMAI_INSTALL_DIR}/xenomai/include" )
-    SET( XENOMAI_INSTALL_DIR "${XENOMAI_INSTALL_DIR}/xenomai")
-  ENDIF(EXISTS ${XENOMAI_INSTALL_DIR}/xenomai/include/native/task.h)
-  # the recommended CMake method
-  IF (NOT XENOMAI_INCLUDE_DIR)
-	# use different variable than XENOMAI_INCLUDE_DIR, as the first SET in the
-	# block above resets things and breaks the CMake cache when you rerun
-	# cmake/ccmake.
-	FIND_PATH(XENOMAI_INCLUDE_PATH native/task.h)
-    FIND_LIBRARY(XENOMAI_INSTALL_LIB native)
-#	MESSAGE(STATUS "Xenomai: include ${XENOMAI_INCLUDE_DIR}")
-#	MESSAGE(STATUS "Xenomai: library ${XENOMAI_INSTALL_LIB}")
-	IF ( XENOMAI_INCLUDE_PATH AND XENOMAI_INSTALL_LIB )
-	  SET(XENOMAI_INCLUDE_DIR ${XENOMAI_INCLUDE_PATH})
-	  # presume XENOMAI_INSTALL_LIB is of form /path/to/lib/libnative.so, and
-	  # so need to strip back to /path/to
-	  GET_FILENAME_COMPONENT(XENOMAI_INSTALL_LIB2 ${XENOMAI_INSTALL_LIB} PATH)
-	  GET_FILENAME_COMPONENT(XENOMAI_INSTALL_DIR ${XENOMAI_INSTALL_LIB2} PATH)
-      MESSAGE("-- Looking for XENOMAI - found in ${XENOMAI_INSTALL_DIR}")
-	ENDIF ( XENOMAI_INCLUDE_PATH AND XENOMAI_INSTALL_LIB )
-  ENDIF (NOT XENOMAI_INCLUDE_DIR)
+# Setup flags for ecos
+if(OROCOS_TARGET STREQUAL "ecos")
+  set(OROPKG_OS_ECOS TRUE CACHE INTERNAL "This variable is exported to the rtt-config.h file to expose our target choice to the code." FORCE)
 
-  IF ( XENOMAI_INCLUDE_DIR )
-    SET(XENOMAI_SUPPORT TRUE CACHE INTERNAL "" FORCE)
-    INCLUDE_DIRECTORIES( ${XENOMAI_INCLUDE_DIR} )
-    SET(RTT_CFLAGS "${RTT_CFLAGS} -I${XENOMAI_INCLUDE_DIR}" CACHE INTERNAL "")
-    SET(RTT_USER_LINKFLAGS "${RTT_LINKFLAGS} -L${XENOMAI_INSTALL_DIR}/lib -lnative -lpthread" CACHE INTERNAL "")
-    LINK_LIBRARIES(native pthread dl)
-    LINK_DIRECTORIES(${XENOMAI_INSTALL_DIR}/lib)
-  ELSE( XENOMAI_INCLUDE_DIR )
-    MESSAGE(FATAL_ERROR "-- Looking for XENOMAI - not found (tried: ${XENOMAI_INSTALL_DIR}/include/native/task.h, ${XENOMAI_INSTALL_DIR}/include/xenomai/native/task.h and CMAKE_INCLUDE_PATH environment variable)")
-    SET(XENOMAI_SUPPORT FALSE CACHE INTERNAL "" FORCE)
-  ENDIF( XENOMAI_INCLUDE_DIR )
-ELSE(OROCOS_TARGET STREQUAL "xenomai")
-  SET(XENOMAI_INSTALL_DIR "/usr/realtime" CACHE INTERNAL "path to xenomai installation dir")
-  SET(OROPKG_OS_XENOMAI FALSE CACHE INTERNAL "" FORCE)
-ENDIF(OROCOS_TARGET STREQUAL "xenomai")
+  # We can't really use 'UseEcos.cmake' because we're building a library
+  # and not a final application
+  find_package(Ecos REQUIRED)
 
+  if(Ecos_FOUND)
 
-IF(OROCOS_TARGET STREQUAL "gnulinux")
-  SET(OROPKG_OS_GNULINUX TRUE CACHE INTERNAL "" FORCE)
-  SET(RTT_LINKFLAGS "${RTT_LINKFLAGS} -lrt" CACHE INTERNAL "")
-  SET(RTT_USER_LINKFLAGS "${RTT_USER_LINKFLAGS} -lpthread" CACHE INTERNAL "")
-  LINK_LIBRARIES(pthread dl rt)
-ELSE(OROCOS_TARGET STREQUAL "gnulinux")
-  SET(OROPKG_OS_GNULINUX FALSE CACHE INTERNAL "" FORCE)
-ENDIF(OROCOS_TARGET STREQUAL "gnulinux")
+    set(ECOS_SUPPORT TRUE CACHE INTERNAL "" FORCE)
 
-IF(OROCOS_TARGET STREQUAL "macosx")
-  SET(OROPKG_OS_MACOSX TRUE CACHE INTERNAL "" FORCE)
-  SET(RTT_USER_LINKFLAGS "${RTT_USER_LINKFLAGS} -lpthread" CACHE INTERNAL "")
-  LINK_LIBRARIES(pthread dl)
-ELSE(OROCOS_TARGET STREQUAL "macosx")
-  SET(OROPKG_OS_MACOSX FALSE CACHE INTERNAL "" FORCE)
-ENDIF(OROCOS_TARGET STREQUAL "macosx")
+    list(APPEND OROCOS-RTT_INCLUDE_DIRS ${ECOS_INCLUDE_DIRS} )
+    list(APPEND OROCOS-RTT_LIBRARIES ${ECOS_LIBRARIES} pthread dl) 
+    list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
 
+    message( "Turning BUILD_STATIC ON for ecos.")
+    set( FORCE_BUILD_STATIC ON CACHE INTERNAL "Forces to build Orocos RTT as a static library (forced to ON by Ecos)" FORCE)
+    set( BUILD_STATIC ON CACHE BOOL "Build Orocos RTT as a static library (forced to ON by Ecos)" FORCE)
+  endif()
+else()
+  set(OROPKG_OS_ECOS FALSE CACHE INTERNAL "" FORCE)
+endif()
 
-IF(OROCOS_TARGET STREQUAL "ecos")
+if(OROCOS_TARGET STREQUAL "win32")
+  set(OROPKG_OS_WIN32 TRUE CACHE INTERNAL "" FORCE)
+  if (MINGW)
+    #--enable-all-export and --enable-auto-import are already set by cmake.
+    #but we need it here for the unit tests as well.
+    set(CMAKE_LD_FLAGS_ADD "--enable-auto-import" CACHE INTERNAL "")
+  endif()
+  if (MSVC)
+    set(CMAKE_CXX_FLAGS_ADD "/wd 4355 /wd 4251 /wd 4180")
+    list(APPEND OROCOS-RTT_LIBRARIES kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib  ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib)
+  endif()
+  list(APPEND OROCOS-RTT_DEFINITIONS "OROCOS_TARGET=${OROCOS_TARGET}") 
+else(OROCOS_TARGET STREQUAL "win32")
+  set(OROPKG_OS_WIN32 FALSE CACHE INTERNAL "" FORCE)
+endif(OROCOS_TARGET STREQUAL "win32")
 
-  # Look for Ecos
-  SET(ECOS_INSTALL_DIR ${ECOS_INSTALL_DIR} CACHE PATH "path to ecos installation dir" FORCE)
-  IF (ECOS_INSTALL_DIR STREQUAL "")
-    SET(ECOS_INSTALL_DIR "/opt/ecos/install")
-  ENDIF (ECOS_INSTALL_DIR STREQUAL "")
-  SET(OROPKG_OS_ECOS TRUE CACHE INTERNAL "" FORCE)
-  IF(EXISTS ${ECOS_INSTALL_DIR}/include/pkgconf/system.h)
-    MESSAGE("-- Looking for ECOS - found in ${ECOS_INSTALL_DIR}")
-    SET(ECOS_SUPPORT TRUE CACHE INTERNAL "" FORCE)
-    INCLUDE_DIRECTORIES(${ECOS_INSTALL_DIR}/include)
-    SET(RTT_CFLAGS "${RTT_CFLAGS} -I${ECOS_INSTALL_DIR}/include" CACHE INTERNAL "")
-    SET(RTT_LINKFLAGS "${RTT_LINKFLAGS} -L${ECOS_INSTALL_DIR}/lib -ltarget" CACHE INTERNAL "")
-    LINK_LIBRARIES( target )
-    LINK_DIRECTORIES(${ECOS_INSTALL_DIR}/lib)
-  ELSE(EXISTS ${ECOS_INSTALL_DIR}/include/pkgconf/system.h)
-    MESSAGE(FATAL_ERROR "-- Looking for ECOS - not found (tried: ${ECOS_INSTALL_DIR}/include/pkgconf/system.h)")
-    SET(ECOS_SUPPORT FALSE CACHE INTERNAL "" FORCE)
-  ENDIF(EXISTS ${ECOS_INSTALL_DIR}/include/pkgconf/system.h)
-
-  MESSAGE( "Turning BUILD_STATIC ON for ecos.")
-  SET( FORCE_BUILD_STATIC ON CACHE INTERNAL "" FORCE)
-  SET( BUILD_STATIC ON CACHE BOOL "Build Orocos RTT as a static library" FORCE)
-
-ELSE(OROCOS_TARGET STREQUAL "ecos")
-  SET(OROPKG_OS_ECOS FALSE CACHE INTERNAL "" FORCE)
-  SET(ECOS_INSTALL_DIR "/opt/ecos/install" CACHE INTERNAL "path to ecos installation dir")
-ENDIF(OROCOS_TARGET STREQUAL "ecos")
-
+if( NOT OROCOS-RTT_DEFINITIONS )
+  message(FATAL_ERROR "No suitable OROCOS_TARGET selected. Use one of 'lxrt,xenomai,gnulinux,macosx,win32'")
+endif()
 
 # The machine type is tested using compiler macros in rtt-config.h.in
+# Add found include dirs.
+INCLUDE_DIRECTORIES( ${OROCOS-RTT_INCLUDE_DIRS} )
+
+#
+# If we're using gcc, make sure the version is OK.
+#
+IF (CMAKE_COMPILER_IS_GNUCXX)
+  # this is a workaround distcc:
+  IF ( CMAKE_CXX_COMPILER_ARG1 )
+    STRING(REPLACE " " "" CMAKE_CXX_COMPILER_ARG1 ${CMAKE_CXX_COMPILER_ARG1} )
+    #MESSAGE("Invoking: '${CMAKE_CXX_COMPILER_ARG1} -dumpversion'")
+    EXECUTE_PROCESS( COMMAND ${CMAKE_CXX_COMPILER_ARG1} -dumpversion RESULT_VARIABLE CXX_HAS_VERSION OUTPUT_VARIABLE CXX_VERSION)
+  ELSE ( CMAKE_CXX_COMPILER_ARG1 )
+    #MESSAGE("Invoking: ${CMAKE_CXX_COMPILER} -dumpversion")
+    EXECUTE_PROCESS( COMMAND ${CMAKE_CXX_COMPILER} -dumpversion RESULT_VARIABLE CXX_HAS_VERSION OUTPUT_VARIABLE CXX_VERSION)
+  ENDIF ( CMAKE_CXX_COMPILER_ARG1 )
+
+  IF ( ${CXX_HAS_VERSION} EQUAL 0 )
+    # We are assuming here that -dumpversion is gcc specific.
+    IF( CXX_VERSION MATCHES "4\\.[0-9](\\.[0-9])?" )
+      MESSAGE(STATUS "Detected gcc4: ${CXX_VERSION}")
+      SET(RTT_GCC_HASVISIBILITY TRUE)
+    ELSE(CXX_VERSION MATCHES "4\\.[0-9](\\.[0-9])?")
+      IF( CXX_VERSION MATCHES "3\\.[0-9](\\.[0-9])?" )
+	MESSAGE(STATUS "Detected gcc3: ${CXX_VERSION}")
+      ELSE( CXX_VERSION MATCHES "3\\.[0-9](\\.[0-9])?" )
+	MESSAGE("ERROR: You seem to be using gcc version:")
+	MESSAGE("${CXX_VERSION}")
+	MESSAGE( FATAL_ERROR "ERROR: For gcc, Orocos requires version 4.x or 3.x")
+      ENDIF( CXX_VERSION MATCHES "3\\.[0-9](\\.[0-9])?" )
+    ENDIF(CXX_VERSION MATCHES "4\\.[0-9](\\.[0-9])?")
+  ELSE ( ${CXX_HAS_VERSION} EQUAL 0)
+    MESSAGE("Could not determine gcc version: ${CXX_HAS_VERSION}")
+  ENDIF ( ${CXX_HAS_VERSION} EQUAL 0)
+ENDIF()
+
+#
+# Check for Doxygen and enable documentation building
+#
+find_package( Doxygen )
+IF ( DOXYGEN_EXECUTABLE )
+  MESSAGE( STATUS "Found Doxygen -- API documentation can be built" )
+ELSE ( DOXYGEN_EXECUTABLE )
+  MESSAGE( STATUS "Doxygen not found -- unable to build documentation" )
+ENDIF ( DOXYGEN_EXECUTABLE )
+
+#
+# Detect CORBA using user's CORBA_IMPLEMENTATION
+#
+if (ENABLE_CORBA)
+    IF(${CORBA_IMPLEMENTATION} STREQUAL "TAO")
+        # Look for TAO and ACE
+	if(OROCOS_TARGET STREQUAL "win32")
+	  set(XTRA_TAO_LIBS AnyTypeCode)
+	endif()
+        find_package(TAO REQUIRED IDL PortableServer CosNaming ${XTRA_TAO_LIBS})
+        IF(NOT TAO_FOUND)
+            MESSAGE(FATAL_ERROR "Cannot find TAO")
+        ELSE(NOT TAO_FOUND)
+            MESSAGE(STATUS "CORBA enabled: ${TAO_FOUND_COMPONENTS}")
+
+	    # Copy flags:
+            SET(CORBA_INCLUDE_DIRS ${TAO_INCLUDE_DIRS})
+            SET(CORBA_LIBRARIES ${TAO_LIBRARIES})
+	    SET(CORBA_DEFINITIONS ${TAO_DEFINITIONS})
+	    # Flag used in rtt-corba-config.h
+	    SET(CORBA_IS_TAO 1)
+
+        ENDIF(NOT TAO_FOUND)
+    ELSEIF(${CORBA_IMPLEMENTATION} STREQUAL "OMNIORB")
+        INCLUDE(${PROJ_SOURCE_DIR}/config/FindOmniORB.cmake)
+        IF(NOT OMNIORB4_FOUND)
+            MESSAGE(FATAL_ERROR "cannot find OmniORB4")
+        ELSE(NOT OMNIORB4_FOUND)
+            MESSAGE(STATUS "CORBA enabled: OMNIORB")
+
+	    # Copy flags:
+	    SET(CORBA_LIBRARIES ${OMNIORB4_LIBRARIES})
+	    SET(CORBA_CFLAGS ${OMNIORB4_CPP_FLAGS})
+	    SET(CORBA_INCLUDE_DIRS ${OMNIORB4_INCLUDE_DIR})
+	    SET(CORBA_DEFINITIONS ${OMNIORB4_DEFINITIONS})
+	    # Flag used in rtt-corba-config.h
+	    SET(CORBA_IS_OMNIORB 1)
+
+        ENDIF(NOT OMNIORB4_FOUND)
+    ELSE(${CORBA_IMPLEMENTATION} STREQUAL "TAO")
+        MESSAGE(FATAL_ERROR "Unknown CORBA implementation '${CORBA_IMPLEMENTATION}': must be TAO or OMNIORB.")
+    ENDIF(${CORBA_IMPLEMENTATION} STREQUAL "TAO")
+endif (ENABLE_CORBA)
+

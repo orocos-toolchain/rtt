@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: FMTC  do nov 2 13:06:03 CET 2006  MainThread.hpp 
+  tag: FMTC  do nov 2 13:06:03 CET 2006  MainThread.hpp
 
                         MainThread.hpp -  description
                            -------------------
     begin                : do november 02 2006
     copyright            : (C) 2006 FMTC
     email                : peter.soetens@fmtc.be
- 
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,9 +34,9 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
- 
+
+
+
 #ifndef RTT_OS_MAIN_THREAD_HPP
 #define RTT_OS_MAIN_THREAD_HPP
 
@@ -45,11 +45,11 @@
 
 namespace RTT
 { namespace OS {
-    
+
     /**
      * A class which represents the main() thread.
      */
-    class MainThread
+    class RTT_API MainThread
         : public ThreadInterface
     {
         MainThread();
@@ -95,6 +95,11 @@ namespace RTT
         virtual Seconds getPeriod() const;
 
         /**
+         * Returns always false.
+         */
+        virtual bool setPeriod(Seconds period);
+
+        /**
          * Returns zero.
          */
         virtual nsecs getPeriodNS() const;
@@ -105,12 +110,17 @@ namespace RTT
         virtual bool isRunning() const;
 
         /**
+         * Returns always true.
+         */
+        virtual bool isActive() const;
+
+        /**
          * Returns "main".
          */
         virtual const char* getName() const;
 
         virtual RTOS_TASK * getTask();
-      
+
         virtual bool setScheduler(int sched_type);
 
         virtual int getScheduler() const;
@@ -126,7 +136,7 @@ namespace RTT
          */
         unsigned int threadNumber() const;
     protected:
-        
+
     };
 }}
 

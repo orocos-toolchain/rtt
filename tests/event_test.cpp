@@ -31,74 +31,12 @@
 #include <boost/bind.hpp>
 #include <boost/scoped_ptr.hpp>
 
-// Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( EventTest );
+#include <boost/test/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
 
 using namespace RTT;
 using namespace boost;
 
-void
-EventTest::setUp()
-{
-    t_event = Event<void(void)>("t_event");
-    t_event_string = Event<void(std::string)>("t_event_string");
-    t_event_float = Event<int(float, float)>("t_event_float");
-    event_proc = new EventProcessor();
-    act.run( event_proc );
-    reset();
-    // to be sure
-    CompletionProcessor::Instance()->start();
-}
-
-
-void
-EventTest::tearDown()
-{
-    act.stop();
-    delete event_proc;
-}
-
-void EventTest::listener(void)
-{
-    t_listener_value = true;
-}
-
-void EventTest::listenerString(const std::string& what)
-{
-    t_listener_what = what;
-}
-
-void EventTest::completer(void)
-{
-    t_completer_value = true;
-}
-
-int EventTest::float_listener(float a, float b)
-{
-    Logger::log() << Logger::Debug << "float_listener "<< a<<", "<<b<<Logger::endl;
-    float_sum += a + b;
-    return 1;
-}
-
-int EventTest::float_completer(float a, float b)
-{
-    Logger::log() << Logger::Debug << "float_completer "<< a<<", "<<b<<Logger::endl;
-    float_sub -= (a + b);
-    return 1; // ignored...
-}
-
-void EventTest::reset()
-{
-    t_listener_value = false;
-    t_completer_value = false;
-    t_listener_what = "";
-}
-
-void
-EventTest::testEmpty()
-{
-    t_event();
-}
 
 struct Runner : public RunnableInterface
 {
@@ -269,36 +207,61 @@ struct CrossRemover : public RunnableInterface
     }
 };
 
-
-void EventTest::testTask()
+void
+EventTest::setUp()
 {
-    Event<void(int)> event("Event");
-    Runner runobj(event);
-    SimulationActivity task(0.01, &runobj);
-    CPPUNIT_ASSERT( SimulationThread::Instance()->stop() );
-    CPPUNIT_ASSERT(task.start());
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(100) );
-    CPPUNIT_ASSERT( runobj.result );
+    t_event = Event<void(void)>("t_event");
+    t_event_string = Event<void(std::string)>("t_event_string");
+    t_event_float = Event<int(float, float)>("t_event_float");
+    event_proc = new EventProcessor();
+    act.run( event_proc );
+    reset();
+    // to be sure
+    CompletionProcessor::Instance()->start();
 }
 
-void EventTest::testSelfRemoval()
+
+void
+EventTest::tearDown()
 {
-    SelfRemover runobj(t_event);
-    SimulationActivity task(0.01, &runobj);
-    CPPUNIT_ASSERT( SimulationThread::Instance()->stop() );
-    CPPUNIT_ASSERT( task.start() );
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(100) );
-    CPPUNIT_ASSERT( task.stop() );
+    act.stop();
+    delete event_proc;
 }
 
-void EventTest::testCrossRemoval()
+void EventTest::listener(void)
 {
-    CrossRemover runobj(t_event);
-    SimulationActivity task(0.01, &runobj);
-    CPPUNIT_ASSERT( SimulationThread::Instance()->stop() );
-    CPPUNIT_ASSERT( task.start() );
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(100) );
-    CPPUNIT_ASSERT( task.stop() );
+    t_listener_value = true;
+}
+
+void EventTest::listenerString(const std::string& what)
+{
+    t_listener_what = what;
+}
+
+void EventTest::completer(void)
+{
+    t_completer_value = true;
+}
+
+int EventTest::float_listener(float a, float b)
+{
+    Logger::log() << Logger::Debug << "float_listener "<< a<<", "<<b<<Logger::endl;
+    float_sum += a + b;
+    return 1;
+}
+
+int EventTest::float_completer(float a, float b)
+{
+    Logger::log() << Logger::Debug << "float_completer "<< a<<", "<<b<<Logger::endl;
+    float_sub -= (a + b);
+    return 1; // ignored...
+}
+
+void EventTest::reset()
+{
+    t_listener_value = false;
+    t_completer_value = false;
+    t_listener_what = "";
 }
 
 static OS::AtomicInt testConcurrentEmitHandlerCount;
@@ -329,66 +292,106 @@ public:
 
 };
 
-void EventTest::testConcurrentEmit()
+BOOST_FIXTURE_TEST_SUITE( EventTestSuite, EventTest )
+
+BOOST_AUTO_TEST_CASE( testEmpty )
+{
+    t_event();
+}
+
+BOOST_AUTO_TEST_CASE( testTask )
+{
+    Event<void(int)> event("Event");
+    Runner runobj(event);
+    SimulationActivity task(0.01, &runobj);
+    BOOST_CHECK( SimulationThread::Instance()->stop() );
+    BOOST_CHECK(task.start());
+    BOOST_CHECK( SimulationThread::Instance()->run(100) );
+    BOOST_CHECK( runobj.result );
+}
+
+BOOST_AUTO_TEST_CASE( testSelfRemoval )
+{
+    SelfRemover runobj(t_event);
+    SimulationActivity task(0.01, &runobj);
+    BOOST_CHECK( SimulationThread::Instance()->stop() );
+    BOOST_CHECK( task.start() );
+    BOOST_CHECK( SimulationThread::Instance()->run(100) );
+    BOOST_CHECK( task.stop() );
+}
+
+BOOST_AUTO_TEST_CASE( testCrossRemoval )
+{
+    CrossRemover runobj(t_event);
+    SimulationActivity task(0.01, &runobj);
+    BOOST_CHECK( SimulationThread::Instance()->stop() );
+    BOOST_CHECK( task.start() );
+    BOOST_CHECK( SimulationThread::Instance()->run(100) );
+    BOOST_CHECK( task.stop() );
+}
+
+#ifdef OROCOS_TARGET_GNULINUX
+BOOST_AUTO_TEST_CASE( testConcurrentEmit )
 {
     testConcurrentEmitHandlerCount.set(0);
     Event<void(void)> event("Event");
-    CPPUNIT_ASSERT( event.ready() );
+    BOOST_CHECK( event.ready() );
     EmitAndcount arunobj(event);
     EmitAndcount brunobj(event);
     EmitAndcount crunobj(event);
     EmitAndcount drunobj(event);
-    NonPeriodicActivity atask(0, &arunobj);
-    NonPeriodicActivity btask(0, &brunobj);
-    NonPeriodicActivity ctask(0, &crunobj);
-    NonPeriodicActivity dtask(0, &drunobj);
+    NonPeriodicActivity atask(ORO_SCHED_OTHER, 0, &arunobj);
+    NonPeriodicActivity btask(ORO_SCHED_OTHER, 0, &brunobj);
+    NonPeriodicActivity ctask(ORO_SCHED_OTHER, 0, &crunobj);
+    NonPeriodicActivity dtask(ORO_SCHED_OTHER, 0, &drunobj);
     Handle h = event.connect( &testConcurrentEmitHandler );
-    CPPUNIT_ASSERT( h.connected() );
-    CPPUNIT_ASSERT( atask.start() );
-    CPPUNIT_ASSERT( btask.start() );
-    CPPUNIT_ASSERT( ctask.start() );
-    CPPUNIT_ASSERT( dtask.start() );
+    BOOST_CHECK( h.connected() );
+    BOOST_CHECK( atask.start() );
+    BOOST_CHECK( btask.start() );
+    BOOST_CHECK( ctask.start() );
+    BOOST_CHECK( dtask.start() );
     sleep(1);
-    CPPUNIT_ASSERT( atask.stop() );
-    CPPUNIT_ASSERT( btask.stop() );
-    CPPUNIT_ASSERT( ctask.stop() );
-    CPPUNIT_ASSERT( dtask.stop() );
+    BOOST_CHECK( atask.stop() );
+    BOOST_CHECK( btask.stop() );
+    BOOST_CHECK( ctask.stop() );
+    BOOST_CHECK( dtask.stop() );
     // Verify that all emits also caused the handler to be called.
-    CPPUNIT_ASSERT_EQUAL( arunobj.count + brunobj.count + crunobj.count + drunobj.count, testConcurrentEmitHandlerCount.read() );
+    BOOST_CHECK_EQUAL( arunobj.count + brunobj.count + crunobj.count + drunobj.count, testConcurrentEmitHandlerCount.read() );
 }
+#endif
 
-void EventTest::testBlockingTask()
+BOOST_AUTO_TEST_CASE( testBlockingTask )
 {
     Event<void(int)> event("Event");
     Runner runobj(event);
     NonPeriodicActivity task(15, &runobj);
-    CPPUNIT_ASSERT(task.start());
-    sleep(1);
-    CPPUNIT_ASSERT(task.stop());
+    BOOST_CHECK(task.start());
+    usleep(100000);
+    BOOST_CHECK(task.stop());
 
-    CPPUNIT_ASSERT( runobj.result );
+    BOOST_CHECK( runobj.result );
 }
 
-void EventTest::testEventArgs()
+BOOST_AUTO_TEST_CASE( testEventArgs )
 {
     float_sum = 0;
     float_sub = 0;
     // use CompletionProcessor for completer
-    CPPUNIT_ASSERT(CompletionProcessor::Instance()->stop());
+    BOOST_CHECK(CompletionProcessor::Instance()->stop());
     Handle h1 = t_event_float.connect( boost::bind(&EventTest::float_listener, this,_1,_2) );
 
     Handle h2 = t_event_float.connect(boost::bind(&EventTest::float_completer, this, _1, _2),
                                       CompletionProcessor::Instance() );
 
     t_event_float(1.0, 4.0);
-    CPPUNIT_ASSERT_EQUAL( float(5.0), float_sum );
+    BOOST_CHECK_EQUAL( float(5.0), float_sum );
 
     float a = 10.0, b = 5.0;
     t_event_float(a, b);
-    CPPUNIT_ASSERT_EQUAL( float(20.0), float_sum );
-    CPPUNIT_ASSERT_EQUAL( float(0.0),  float_sub );
+    BOOST_CHECK_EQUAL( float(20.0), float_sum );
+    BOOST_CHECK_EQUAL( float(0.0),  float_sub );
 
-    CPPUNIT_ASSERT(CompletionProcessor::Instance()->start());
+    BOOST_CHECK(CompletionProcessor::Instance()->start());
 
     h1.disconnect();
     h2.disconnect();
@@ -396,7 +399,7 @@ void EventTest::testEventArgs()
     float_sub = 0;
 
     // use event processor
-    CPPUNIT_ASSERT(act.start());
+    BOOST_CHECK(act.start());
 
     h1 = t_event_float.connect(boost::bind(&EventTest::float_listener, this,_1,_2));
     h2 = t_event_float.connect(boost::bind(&EventTest::float_completer, this, _1, _2),
@@ -404,45 +407,45 @@ void EventTest::testEventArgs()
 
     // simulate overrun :
     t_event_float(1.0, 4.0);
-    CPPUNIT_ASSERT_EQUAL( float(5.0), float_sum );
+    BOOST_CHECK_EQUAL( float(5.0), float_sum );
 
     t_event_float(a, b);
-    CPPUNIT_ASSERT_EQUAL( float(20.0), float_sum );
+    BOOST_CHECK_EQUAL( float(20.0), float_sum );
 
     event_proc->step();
     act.stop();
     // asyn handlers should reach only last total.
-    CPPUNIT_ASSERT_EQUAL( float(-15.0), float_sub );
+    BOOST_CHECK_EQUAL( float(-15.0), float_sub );
     h1.disconnect();
     h2.disconnect();
 }
 
-void EventTest::testSyncListener()
+BOOST_AUTO_TEST_CASE( testSyncListener )
 {
     // No completer:
     reset();
     Handle h = t_event.connect( boost::bind(&EventTest::listener, this) );
-    CPPUNIT_ASSERT( h.connected() );
+    BOOST_CHECK( h.connected() );
     t_event();
     h.disconnect();
-    CPPUNIT_ASSERT( !h.connected() );
+    BOOST_CHECK( !h.connected() );
 
-    CPPUNIT_ASSERT( t_listener_value );
-    CPPUNIT_ASSERT( !t_completer_value );
+    BOOST_CHECK( t_listener_value );
+    BOOST_CHECK( !t_completer_value );
 }
 
-void EventTest::testSyncListenerThreadCompleter()
+BOOST_AUTO_TEST_CASE( testSyncListenerThreadCompleter )
 {
     // in thread completer:
     reset();
-    CPPUNIT_ASSERT(act.start());
+    BOOST_CHECK(act.start());
     // Manually call step
     event_proc->step();
     Handle h1 = t_event.connect( boost::bind(&EventTest::listener,this));
     Handle h2 = t_event.connect( boost::bind(&EventTest::completer,this),
                                  event_proc );
-    CPPUNIT_ASSERT( h1.connected() );
-    CPPUNIT_ASSERT( h2.connected() );
+    BOOST_CHECK( h1.connected() );
+    BOOST_CHECK( h2.connected() );
 
     // Manually call step
     event_proc->step();
@@ -455,104 +458,107 @@ void EventTest::testSyncListenerThreadCompleter()
     // This will block until all completers are processed.
     h1.disconnect();
     h2.disconnect();
-    CPPUNIT_ASSERT( !h1.connected() );
-    CPPUNIT_ASSERT( !h2.connected() );
+    BOOST_CHECK( !h1.connected() );
+    BOOST_CHECK( !h2.connected() );
 
     // Manually call step
     event_proc->step();
     event_proc->finalize();
 
     // now, both must be called.
-    CPPUNIT_ASSERT( t_listener_value );
-    CPPUNIT_ASSERT( t_completer_value );
+    BOOST_CHECK( t_listener_value );
+    BOOST_CHECK( t_completer_value );
 }
 
-void EventTest::testSyncListenerString()
+BOOST_AUTO_TEST_CASE( testSyncListenerString )
 {
     // No completer:
     reset();
     Handle h = t_event_string.connect( boost::bind(&EventTest::listenerString,this,_1) );
-    CPPUNIT_ASSERT( h.connected() );
+    BOOST_CHECK( h.connected() );
     t_event_string( std::string("What") );
     h.disconnect();
-    CPPUNIT_ASSERT( !h.connected() );
+    BOOST_CHECK( !h.connected() );
 
-    CPPUNIT_ASSERT_EQUAL( t_listener_what, std::string("What") );
-    CPPUNIT_ASSERT( !t_listener_value );
-    CPPUNIT_ASSERT( !t_completer_value );
+    BOOST_CHECK_EQUAL( t_listener_what, std::string("What") );
+    BOOST_CHECK( !t_listener_value );
+    BOOST_CHECK( !t_completer_value );
 }
 
-void EventTest::testCompletionProcessor()
+BOOST_AUTO_TEST_CASE( testCompletionProcessor )
 {
     // in thread completer:
     reset();
 
-    CPPUNIT_ASSERT( CompletionProcessor::Instance()->isActive() );
+    BOOST_CHECK( CompletionProcessor::Instance()->isActive() );
 
     Handle h2 = t_event.connect(boost::bind(&EventTest::completer,this),
                                 CompletionProcessor::Instance()
                                  );
-    CPPUNIT_ASSERT( h2.connected() );
+    BOOST_CHECK( h2.connected() );
 
     t_event();
 
     // This will block until all completers are processed.
-    sleep(1);
+    usleep(100000);
     h2.disconnect();
-    CPPUNIT_ASSERT( !h2.connected() );
+    BOOST_CHECK( !h2.connected() );
     // CP must be called.
-    CPPUNIT_ASSERT( t_completer_value );
+    BOOST_CHECK( t_completer_value );
 }
 
-void EventTest::testRTEvent()
+BOOST_AUTO_TEST_CASE( testRTEvent )
 {
     reset();
 
-    CPPUNIT_ASSERT(act.start());
+    BOOST_CHECK(act.start());
 
     Handle hl( t_event.setup( boost::bind(&EventTest::listener,this) ) );
     Handle hc( t_event.setup( boost::bind(&EventTest::completer,this), event_proc ) );
 
-    CPPUNIT_ASSERT( !hl.connected() );
-    CPPUNIT_ASSERT( !hc.connected() );
+    BOOST_CHECK( !hl.connected() );
+    BOOST_CHECK( !hc.connected() );
 
     hl.connect();
     hc.connect();
-    CPPUNIT_ASSERT( hl.connected() );
-    CPPUNIT_ASSERT( hc.connected() );
+    BOOST_CHECK( hl.connected() );
+    BOOST_CHECK( hc.connected() );
 
     t_event();
 
 
     hl.disconnect();
-    CPPUNIT_ASSERT( !hl.connected() );
-    CPPUNIT_ASSERT( t_listener_value );
-    CPPUNIT_ASSERT( !t_completer_value );
+    BOOST_CHECK( !hl.connected() );
+    BOOST_CHECK( t_listener_value );
+    BOOST_CHECK( !t_completer_value );
 
     event_proc->step();
-    CPPUNIT_ASSERT( t_completer_value );
+    BOOST_CHECK( t_completer_value );
     hc.disconnect();
-    CPPUNIT_ASSERT( !hc.connected() );
+    BOOST_CHECK( !hc.connected() );
 
     reset();
     t_event();
     event_proc->step();
 
-    CPPUNIT_ASSERT( t_completer_value == false );
-    CPPUNIT_ASSERT( t_listener_value == false );
+    BOOST_CHECK( t_completer_value == false );
+    BOOST_CHECK( t_listener_value == false );
 
     hl.connect();
     hc.connect();
     t_event();
 
     hl.disconnect();
-    CPPUNIT_ASSERT( !hl.connected() );
-    CPPUNIT_ASSERT( t_listener_value == true );
-    CPPUNIT_ASSERT( t_completer_value == false );
+    BOOST_CHECK( !hl.connected() );
+    BOOST_CHECK( t_listener_value == true );
+    BOOST_CHECK( t_completer_value == false );
 
     event_proc->step();
     hc.disconnect();
-    CPPUNIT_ASSERT( !hc.connected() );
-    CPPUNIT_ASSERT( t_completer_value == true );
+    BOOST_CHECK( !hc.connected() );
+    BOOST_CHECK( t_completer_value == true );
 
 }
+
+BOOST_AUTO_TEST_SUITE_END()
+

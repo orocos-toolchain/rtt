@@ -43,6 +43,9 @@
 #include "BufferLockFree.hpp"
 
 namespace RTT {
+#if defined(__GNUC__)
     // Force an instantiation, so that the compiler checks the syntax.
     template class BufferLockFree<double>;
+#endif
 }
+

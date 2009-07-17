@@ -38,6 +38,10 @@
 #include "dev/DigitalOutInterface.hpp"
 #include "dev/AnalogInInterface.hpp"
 #include "dev/AnalogOutInterface.hpp"
+#include "dev/AnalogInput.hpp"
+#include "dev/AnalogOutput.hpp"
+#include "dev/DigitalInput.hpp"
+#include "dev/DigitalOutput.hpp"
 
 using namespace RTT;
 

@@ -45,7 +45,7 @@
 #include <boost/shared_ptr.hpp>
 #include <vector>
 #include "DataObjectInterfaces.hpp"
-#include "ListLockFree.hpp"
+#include "List.hpp"
 #include "boost/tuple/tuple.hpp"
 #include "NA.hpp"
 #include "os/Atomic.hpp"
@@ -57,7 +57,7 @@ namespace RTT
     namespace detail {
         using boost::make_tuple;
 
-        struct EventCatcher {
+        struct RTT_API EventCatcher {
             EventCatcher();
             virtual ~EventCatcher();
             virtual void complete() = 0;
@@ -70,7 +70,7 @@ namespace RTT
 
             /**
              * Decreases work count.
-             */ 
+             */
             void signalWorkDone();
 
             /**
@@ -91,8 +91,8 @@ namespace RTT
 
         };
 
-        void intrusive_ptr_add_ref( EventCatcher* p );
-        void intrusive_ptr_release( EventCatcher* p );
+        RTT_API void intrusive_ptr_add_ref( EventCatcher* p );
+        RTT_API void intrusive_ptr_release( EventCatcher* p );
 
         using boost::tuples::get;
 
@@ -487,7 +487,7 @@ namespace RTT
      * @ingroup CoreLibEvents
      * @ingroup Processor
      */
-    class EventProcessor
+    class RTT_API EventProcessor
         : public RunnableInterface
     {
     protected:
@@ -496,10 +496,10 @@ namespace RTT
          * The EC is released when the connection it is used in is
          * deleted *and* it is removed from this vector.
          */
-        typedef ListLockFree<detail::EventCatcher*> List;
-        List catchers;
+        typedef List<detail::EventCatcher*> ECList;
+        ECList catchers;
 
-        friend class detail::EventCatcher;
+        friend struct detail::EventCatcher;
         void destroyed( detail::EventCatcher* ec );
 
         OS::AtomicInt has_work;
@@ -603,7 +603,7 @@ namespace RTT
      * The Blocking EventProcessor, extended with a blocking implementation, waiting
      * for one Event to complete in its \a loop().
      */
-    class BlockingEventProcessor
+    class RTT_API BlockingEventProcessor
         : public EventProcessor
     {
     public:

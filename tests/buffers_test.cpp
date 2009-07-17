@@ -19,52 +19,21 @@
 
 
 #include "buffers_test.hpp"
-#include <unistd.h>
+
 #include <iostream>
 #include <boost/scoped_ptr.hpp>
 
 using namespace std;
 
-// Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( BuffersTest );
+#include <boost/test/unit_test.hpp>
 
 using namespace RTT;
 
-struct Dummy {
-    Dummy(double a = 0.0, double b =1.0, double c=2.0)
-        :d1(a), d2(b), d3(c) {}
-    double d1;
-    double d2;
-    double d3;
-    bool operator==(const Dummy& d) const
-    {
-        return d.d1 == d1 && d.d2 == d2 && d.d3 == d3;
-    }
 
-    bool operator!=(const Dummy& d) const
-    {
-        return d.d1 != d1 || d.d2 != d2 || d.d3 != d3;
-    }
-
-    bool operator<(const Dummy& d) const
-    {
-        return d1+d2+d3 < d.d1 + d.d2 + d.d3;
-    }
-
-//     volatile Dummy& operator=(const Dummy& d) volatile
-//     {
-//         d1 = d.d1;
-//         d2 = d.d2;
-//         d3 = d.d3;
-//         return *this;
-//     }
-
-};
-
-    std::ostream& operator<<( std::ostream& os, const Dummy& d )  {
-        os << "(" << d.d1 <<","<<d.d2<<","<<d.d3<<")";
-        return os;
-    }
+std::ostream& operator<<( std::ostream& os, const Dummy& d )  {
+	os << "(" << d.d1 <<","<<d.d2<<","<<d.d3<<")";
+	return os;
+}
 
 #define QS 10
 
@@ -109,392 +78,6 @@ BuffersTest::tearDown()
     delete fvpool;
 }
 
-void BuffersTest::testAtomic()
-{
-    /**
-     * Single Threaded test for AtomicQueue.
-     */
-
-    Dummy* d = new Dummy;
-    Dummy* c = d;
-
-    CPPUNIT_ASSERT_EQUAL( AtomicQueue<Dummy*>::size_type(QS), aqueue->capacity() );
-    CPPUNIT_ASSERT_EQUAL( AtomicQueue<Dummy*>::size_type(0), aqueue->size() );
-    CPPUNIT_ASSERT( aqueue->isFull() == false );
-    CPPUNIT_ASSERT( aqueue->isEmpty() == true );
-    CPPUNIT_ASSERT( aqueue->dequeue(c) == false );
-    CPPUNIT_ASSERT( c == d );
-
-    for ( int i = 0; i < QS; ++i) {
-        CPPUNIT_ASSERT( aqueue->enqueue( d ) == true);
-        CPPUNIT_ASSERT_EQUAL( AtomicQueue<Dummy*>::size_type(i+1), aqueue->size() );
-    }
-    CPPUNIT_ASSERT_EQUAL( AtomicQueue<Dummy*>::size_type(QS), aqueue->capacity() );
-    CPPUNIT_ASSERT( aqueue->isFull() == true );
-    CPPUNIT_ASSERT( aqueue->isEmpty() == false );
-    CPPUNIT_ASSERT( aqueue->enqueue( d ) == false );
-    CPPUNIT_ASSERT_EQUAL( AtomicQueue<Dummy*>::size_type(QS), aqueue->size() );
-
-    aqueue->dequeue( d );
-    CPPUNIT_ASSERT( aqueue->isFull() == false );
-    CPPUNIT_ASSERT_EQUAL( AtomicQueue<Dummy*>::size_type(QS-1), aqueue->size() );
-
-    for ( int i = 0; i < QS - 1 ; ++i) {
-        CPPUNIT_ASSERT( aqueue->dequeue( d ) == true);
-        CPPUNIT_ASSERT_EQUAL( AtomicQueue<Dummy*>::size_type(QS - 2 - i), aqueue->size() );
-    }
-    CPPUNIT_ASSERT( aqueue->isFull() == false );
-    CPPUNIT_ASSERT( aqueue->isEmpty() == true );
-
-    delete d;
-}
-void BuffersTest::testAtomicCounted()
-{
-    /**
-     * Single Threaded test for AtomicQueue.
-     */
-
-    Dummy* d = new Dummy;
-    Dummy* e = new Dummy;
-    Dummy* c = d;
-
-    CPPUNIT_ASSERT( aqueue->dequeueCounted(c) == 0 );
-    CPPUNIT_ASSERT( c == d );
-
-    // monotonic increasing counts
-    int cache = 1;
-    for ( int i = 0; i < QS; ++i)
-        CPPUNIT_ASSERT( aqueue->enqueueCounted( d ) == cache++ );
-    CPPUNIT_ASSERT( aqueue->isFull() == true );
-    CPPUNIT_ASSERT( aqueue->isEmpty() == false );
-    CPPUNIT_ASSERT( aqueue->enqueueCounted( d ) == 0 );
-
-    CPPUNIT_ASSERT( aqueue->dequeueCounted( d ) == 1 );
-    CPPUNIT_ASSERT( aqueue->isFull() == false );
-
-    cache = 2;
-    for ( int i = 0; i < QS - 1 ; ++i)
-        CPPUNIT_ASSERT( aqueue->dequeueCounted( d ) == cache++ );
-    CPPUNIT_ASSERT( aqueue->isFull() == false );
-    CPPUNIT_ASSERT( aqueue->isEmpty() == true );
-
-    CPPUNIT_ASSERT( aqueue->enqueueCounted( d ) != 0 );
-    CPPUNIT_ASSERT( aqueue->enqueueCounted( e ) != 0 );
-    CPPUNIT_ASSERT( aqueue->enqueueCounted( d ) != 0 );
-    c = 0;
-    CPPUNIT_ASSERT( aqueue->dequeueCounted( c ) != 0 );
-    CPPUNIT_ASSERT( c == d );
-    CPPUNIT_ASSERT( aqueue->dequeueCounted( c ) != 0 );
-    CPPUNIT_ASSERT( c == e );
-    CPPUNIT_ASSERT( aqueue->dequeueCounted( c ) != 0 );
-    CPPUNIT_ASSERT( c == d );
-
-    delete e;
-    delete d;
-}
-
-void BuffersTest::testBufLockFree()
-{
-    /**
-     * Single Threaded test for BufferLockFree.
-     * This is a mixed white/black box test.
-     */
-
-    Dummy* d = new Dummy;
-    Dummy* c = new Dummy(2.0, 1.0, 0.0);
-    Dummy r;
-
-    CPPUNIT_ASSERT( lockfree->read(r) == false );
-    CPPUNIT_ASSERT( lockfree->front() == r ); // return default if empty.
-
-    CPPUNIT_ASSERT( lockfree->write( *d ) );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->read(r) );
-    CPPUNIT_ASSERT( r == *d );
-
-    CPPUNIT_ASSERT( lockfree->write( *c ) );
-    CPPUNIT_ASSERT( lockfree->front() == *c );
-    CPPUNIT_ASSERT( lockfree->read(r) );
-    CPPUNIT_ASSERT( r == *c );
-
-    CPPUNIT_ASSERT( lockfree->write( *d ) );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->write( *c ) );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->write( *d ) );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->write( *c ) );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->write( *d ) );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->write( *c ) );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->write( *d ) );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->write( *c ) );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->write( *d ) );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->write( *c ) );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->write( *c ) == false );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->write( *c ) == false );
-    CPPUNIT_ASSERT( lockfree->write( *c ) == false );
-    CPPUNIT_ASSERT( lockfree->write( *c ) == false );
-    CPPUNIT_ASSERT( lockfree->write( *c ) == false );
-    CPPUNIT_ASSERT( lockfree->write( *c ) == false );
-    CPPUNIT_ASSERT( lockfree->write( *c ) == false );
-    CPPUNIT_ASSERT( lockfree->write( *c ) == false );
-    CPPUNIT_ASSERT( lockfree->write( *c ) == false );
-    CPPUNIT_ASSERT( lockfree->write( *c ) == false );
-    CPPUNIT_ASSERT( lockfree->write( *c ) == false );
-    CPPUNIT_ASSERT( lockfree->write( *c ) == false );
-    CPPUNIT_ASSERT( lockfree->read(r) );
-    CPPUNIT_ASSERT( r == *d );
-    CPPUNIT_ASSERT( lockfree->front() == *c );
-    CPPUNIT_ASSERT( lockfree->read(r) );
-    CPPUNIT_ASSERT( r == *c );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->read(r) );
-    CPPUNIT_ASSERT( r == *d );
-    CPPUNIT_ASSERT( lockfree->front() == *c );
-    CPPUNIT_ASSERT( lockfree->read(r) );
-    CPPUNIT_ASSERT( r == *c );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->read(r) );
-    CPPUNIT_ASSERT( r == *d );
-    CPPUNIT_ASSERT( lockfree->front() == *c );
-
-    // start writing again half-way
-    CPPUNIT_ASSERT( lockfree->write( *d ) );
-    CPPUNIT_ASSERT( lockfree->front() == *c );
-    CPPUNIT_ASSERT( lockfree->write( *c ) );
-    CPPUNIT_ASSERT( lockfree->front() == *c );
-    CPPUNIT_ASSERT( lockfree->write( *d ) );
-    CPPUNIT_ASSERT( lockfree->front() == *c );
-    CPPUNIT_ASSERT( lockfree->write( *c ) );
-    CPPUNIT_ASSERT( lockfree->front() == *c );
-    CPPUNIT_ASSERT( lockfree->write( *d ) );
-    CPPUNIT_ASSERT( lockfree->front() == *c );
-
-    CPPUNIT_ASSERT( lockfree->read(r) );
-    CPPUNIT_ASSERT( r == *c );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->read(r) );
-    CPPUNIT_ASSERT( r == *d );
-    CPPUNIT_ASSERT( lockfree->front() == *c );
-    CPPUNIT_ASSERT( lockfree->read(r) );
-    CPPUNIT_ASSERT( r == *c );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->read(r) );
-    CPPUNIT_ASSERT( r == *d );
-    CPPUNIT_ASSERT( lockfree->front() == *c );
-    CPPUNIT_ASSERT( lockfree->read(r) );
-    CPPUNIT_ASSERT( r == *c );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->read(r) );
-    CPPUNIT_ASSERT( r == *d );
-    CPPUNIT_ASSERT( lockfree->front() == *c );
-    CPPUNIT_ASSERT( lockfree->read(r) );
-    CPPUNIT_ASSERT( r == *c );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->read(r) );
-    CPPUNIT_ASSERT( r == *d );
-    CPPUNIT_ASSERT( lockfree->front() == *c );
-    CPPUNIT_ASSERT( lockfree->read(r) );
-    CPPUNIT_ASSERT( r == *c );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->read(r) );
-    CPPUNIT_ASSERT( r == *d );
-
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-    CPPUNIT_ASSERT( lockfree->read(r) == false );
-    CPPUNIT_ASSERT( lockfree->read(r) == false );
-    CPPUNIT_ASSERT( lockfree->read(r) == false );
-    CPPUNIT_ASSERT( lockfree->read(r) == false );
-    CPPUNIT_ASSERT( lockfree->read(r) == false );
-    CPPUNIT_ASSERT( lockfree->read(r) == false );
-    CPPUNIT_ASSERT( lockfree->read(r) == false );
-    CPPUNIT_ASSERT( lockfree->read(r) == false );
-    CPPUNIT_ASSERT( lockfree->read(r) == false );
-    CPPUNIT_ASSERT( lockfree->read(r) == false );
-    CPPUNIT_ASSERT( lockfree->read(r) == false );
-
-    CPPUNIT_ASSERT( lockfree->write( *c ) );
-    CPPUNIT_ASSERT( lockfree->front() == *c );
-    CPPUNIT_ASSERT( lockfree->write( *d ) );
-    CPPUNIT_ASSERT( lockfree->write( *c ) );
-    CPPUNIT_ASSERT( lockfree->write( *d ) );
-    CPPUNIT_ASSERT( lockfree->write( *c ) );
-
-    std::vector<Dummy> v;
-    CPPUNIT_ASSERT( 5 == lockfree->read(v) );
-    CPPUNIT_ASSERT( v[0] == *c );
-    CPPUNIT_ASSERT( v[1] == *d );
-    CPPUNIT_ASSERT( v[2] == *c );
-    CPPUNIT_ASSERT( v[3] == *d );
-    CPPUNIT_ASSERT( v[4] == *c );
-    CPPUNIT_ASSERT( lockfree->front() == *d );
-
-    BufferBase::size_type sz = 10;
-    CPPUNIT_ASSERT( lockfree->write( *c ) );
-    CPPUNIT_ASSERT( lockfree->write( *d ) );
-    CPPUNIT_ASSERT( lockfree->write( v ) == (int)v.size() );
-    CPPUNIT_ASSERT( lockfree->write( *c ) );
-    CPPUNIT_ASSERT( lockfree->write( *d ) );
-    CPPUNIT_ASSERT( lockfree->write( v ) == 1 );
-    CPPUNIT_ASSERT( lockfree->write( v ) == 0 );
-    CPPUNIT_ASSERT( lockfree->write( v ) == 0 );
-    CPPUNIT_ASSERT( lockfree->write( v ) == 0 );
-    CPPUNIT_ASSERT( lockfree->write( v ) == 0 );
-    CPPUNIT_ASSERT( lockfree->write( v ) == 0 );
-    CPPUNIT_ASSERT( lockfree->write( v ) == 0 );
-    CPPUNIT_ASSERT( lockfree->write( v ) == 0 );
-    CPPUNIT_ASSERT( lockfree->write( v ) == 0 );
-    CPPUNIT_ASSERT( lockfree->write( v ) == 0 );
-    CPPUNIT_ASSERT( lockfree->write( v ) == 0 );
-    CPPUNIT_ASSERT( lockfree->write( v ) == 0 );
-    CPPUNIT_ASSERT( lockfree->write( v ) == 0 );
-    CPPUNIT_ASSERT_EQUAL( sz, lockfree->read(v) );
-    CPPUNIT_ASSERT( v[0] == *c );
-    CPPUNIT_ASSERT( v[1] == *d );
-    CPPUNIT_ASSERT( v[2] == *c );
-    CPPUNIT_ASSERT( v[3] == *d );
-    CPPUNIT_ASSERT( v[4] == *c );
-    CPPUNIT_ASSERT( v[5] == *d );
-    CPPUNIT_ASSERT( v[6] == *c );
-    CPPUNIT_ASSERT( v[7] == *c );
-    CPPUNIT_ASSERT( v[8] == *d );
-    CPPUNIT_ASSERT( v[9] == *c );
-    CPPUNIT_ASSERT( 0 == lockfree->read(v) );
-    delete d;
-    delete c;
-}
-
-void BuffersTest::testDObjLockFree()
-{
-    Dummy* c = new Dummy(2.0, 1.0, 0.0);
-    Dummy  d;
-    dataobj->Set( *c );
-    CPPUNIT_ASSERT_EQUAL( *c, dataobj->Get() );
-    int i = 0;
-    while ( i != 3.5*DataObjectLockFree<Dummy>::MAX_THREADS ) {
-        dataobj->Set( *c );
-        dataobj->Set( d );
-        ++i;
-    }
-    CPPUNIT_ASSERT_EQUAL( d , dataobj->Get() );
-    CPPUNIT_ASSERT_EQUAL( d , dataobj->Get() );
-
-    delete c;
-}
-
-void BuffersTest::testMemoryPool()
-{
-    // Test initial conditions.
-    MemoryPool<Dummy>::size_type sz = QS;
-    // for MemoryPool
-    CPPUNIT_ASSERT_EQUAL( sz, mpool->size() );
-    CPPUNIT_ASSERT_EQUAL( sz, vpool->size() );
-    // for FixedSizeMemoryPool
-    CPPUNIT_ASSERT_EQUAL( sz, fmpool->size() );
-    CPPUNIT_ASSERT_EQUAL( sz, fvpool->size() );
-    // Capacity test
-    CPPUNIT_ASSERT_EQUAL( sz, mpool->capacity() );
-    CPPUNIT_ASSERT_EQUAL( sz, vpool->capacity() );
-    CPPUNIT_ASSERT_EQUAL( sz, fmpool->capacity() );
-    CPPUNIT_ASSERT_EQUAL( sz, fvpool->capacity() );
-
-    // test default initialiser:
-    for (MemoryPool<Dummy>::size_type i = 0; i <3*sz; ++i ) {
-        // MemoryPool:
-        std::vector<Dummy>* v = vpool->allocate();
-        std::vector<Dummy>::size_type szv = QS;
-        CPPUNIT_ASSERT_EQUAL( szv, v->size() );
-        CPPUNIT_ASSERT_EQUAL( szv, v->capacity() );
-        CPPUNIT_ASSERT(vpool->deallocate( v ));
-
-        // FixedSizeMemoryPool:
-        v = fvpool->allocate();
-        CPPUNIT_ASSERT_EQUAL( szv, v->size() );
-        CPPUNIT_ASSERT_EQUAL( szv, v->capacity() );
-        CPPUNIT_ASSERT( fvpool->deallocate( v ) );
-    }
-
-    // test Allocation.
-    std::vector<Dummy*> mpv;
-    // MemoryPool:
-    for (MemoryPool<Dummy>::size_type i = 0; i <sz; ++i ) {
-        mpv.push_back( mpool->allocate() );
-        CPPUNIT_ASSERT_EQUAL( sz - i -1 , mpool->size());
-        CPPUNIT_ASSERT_EQUAL( sz, mpool->capacity() );
-    }
-    for (MemoryPool<Dummy>::size_type i = 0; i <sz; ++i ) {
-        CPPUNIT_ASSERT(mpool->deallocate( mpv.front() ));
-        mpv.erase( mpv.begin() );
-        CPPUNIT_ASSERT_EQUAL( i + 1 , mpool->size());
-        CPPUNIT_ASSERT_EQUAL( sz, mpool->capacity() );
-    }
-    CPPUNIT_ASSERT( mpv.size() == 0 );
-    // FixedSizeMemoryPool:
-    for (MemoryPool<Dummy>::size_type i = 0; i <sz; ++i ) {
-        mpv.push_back( fmpool->allocate() );
-        CPPUNIT_ASSERT_EQUAL( sz - i -1 , fmpool->size());
-        CPPUNIT_ASSERT_EQUAL( sz, fmpool->capacity() );
-    }
-    for (MemoryPool<Dummy>::size_type i = 0; i <sz; ++i ) {
-        CPPUNIT_ASSERT( fmpool->deallocate( mpv.front() ) );
-        mpv.erase( mpv.begin() );
-        CPPUNIT_ASSERT_EQUAL( i + 1 , fmpool->size());
-        CPPUNIT_ASSERT_EQUAL( sz, fmpool->capacity() );
-    }
-
-    // test capacity increasing:
-    for (MemoryPool<Dummy>::size_type i = 0; i <sz; ++i ) {
-        mpool->reserve();
-        vpool->reserve();
-    }
-    CPPUNIT_ASSERT_EQUAL( sz, mpool->capacity() );
-    CPPUNIT_ASSERT_EQUAL( sz, mpool->size() );
-    CPPUNIT_ASSERT_EQUAL( sz, vpool->capacity() );
-    CPPUNIT_ASSERT_EQUAL( sz, vpool->size() );
-
-    // the following reserve() allocates new chunks.
-    mpool->reserve();
-    vpool->reserve();
-    CPPUNIT_ASSERT_EQUAL( sz + 2*sz, mpool->capacity() );
-    CPPUNIT_ASSERT_EQUAL( sz + 2*sz, mpool->size() );
-    CPPUNIT_ASSERT_EQUAL( sz + 2*sz, vpool->capacity() );
-    CPPUNIT_ASSERT_EQUAL( sz + 2*sz, vpool->size() );
-    for (MemoryPool<Dummy>::size_type i = 0; i <sz; ++i ) {
-        mpool->reserve();
-        vpool->reserve();
-    }
-    CPPUNIT_ASSERT_EQUAL( sz + 2*sz, mpool->capacity() );
-    CPPUNIT_ASSERT_EQUAL( sz + 2*sz, mpool->size() );
-    CPPUNIT_ASSERT_EQUAL( sz + 2*sz, vpool->capacity() );
-    CPPUNIT_ASSERT_EQUAL( sz + 2*sz, vpool->size() );
-
-    // Extra:
-    // test default initialiser for extra reserved chunks:
-    std::vector< std::vector<Dummy>* > vv;
-    for (MemoryPool<Dummy>::size_type i = 0; i < sz+ 2*sz; ++i ) {
-        // MemoryPool:
-        std::vector<Dummy>* v = vpool->allocate();
-        std::vector<Dummy>::size_type szv = QS;
-        vv.push_back( v );
-        CPPUNIT_ASSERT_EQUAL( szv, v->size() );
-        CPPUNIT_ASSERT_EQUAL( szv, v->capacity() );
-    }
-    CPPUNIT_ASSERT_EQUAL( MemoryPool<Dummy>::size_type(0), vpool->size() );
-    for (MemoryPool<Dummy>::size_type i = 0; i < sz+ 2*sz; ++i ) {
-        // MemoryPool:
-        CPPUNIT_ASSERT( vpool->deallocate( vv.back() ) );
-        vv.erase( vv.end() - 1 );
-    }
-
-}
 
 void addOne(Dummy& d)
 {
@@ -510,76 +93,10 @@ void subOne(Dummy& d)
     --d.d3;
 }
 
-#if 0
-void BuffersTest::testSortedList()
-{
-    // 7 elements.
-    mslist->reserve(7);
-    CPPUNIT_ASSERT( mslist->empty() );
-
-    // empty list has no keys.
-    CPPUNIT_ASSERT( mslist->hasKey(Dummy()) == false );
-
-    // empty list fails to erase key.
-    CPPUNIT_ASSERT( mslist->erase(Dummy()) == false );
-
-    // insert element once
-    CPPUNIT_ASSERT( mslist->insert(Dummy(1,2,1)) == true );
-    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,1)) == true );
-
-    CPPUNIT_ASSERT( mslist->insert(Dummy(1,2,1)) == false );
-    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,1)) == true );
-
-    // erase element once
-    CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,1)) == true );
-    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,1)) == false );
-    CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,1)) == false );
-    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,1)) == false );
-
-    CPPUNIT_ASSERT( mslist->insert(Dummy(1,2,1)) == true );
-    CPPUNIT_ASSERT( mslist->insert(Dummy(1,2,2)) == true );
-    CPPUNIT_ASSERT( mslist->insert(Dummy(1,2,3)) == true );
-    CPPUNIT_ASSERT( mslist->insert(Dummy(1,2,4)) == true );
-    CPPUNIT_ASSERT( mslist->insert(Dummy(1,2,5)) == true );
-    CPPUNIT_ASSERT( mslist->insert(Dummy(1,2,6)) == true );
-    CPPUNIT_ASSERT( mslist->insert(Dummy(1,2,7)) == true );
-
-    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,4)) == true );
-    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,7)) == true );
-
-    CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,7)) == true );
-    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,7)) == false );
-
-    CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,4)) == true );
-    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,4)) == false );
-
-    mslist->applyOnData( &addOne );
-    CPPUNIT_ASSERT( mslist->hasKey(Dummy(2,3,2)) == true );
-    CPPUNIT_ASSERT( mslist->hasKey(Dummy(2,3,3)) == true );
-    CPPUNIT_ASSERT( mslist->hasKey(Dummy(2,3,4)) == true );
-    CPPUNIT_ASSERT( mslist->hasKey(Dummy(2,3,6)) == true );
-    CPPUNIT_ASSERT( mslist->hasKey(Dummy(2,3,7)) == true );
-
-    mslist->applyOnData( &subOne );
-    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,1)) == true );
-    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,2)) == true );
-    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,3)) == true );
-    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,5)) == true );
-    CPPUNIT_ASSERT( mslist->hasKey(Dummy(1,2,6)) == true );
-
-    CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,1)) == true );
-    CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,6)) == true );
-    CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,5)) == true );
-    CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,2)) == true );
-    CPPUNIT_ASSERT( mslist->erase(Dummy(1,2,3)) == true );
-
-    CPPUNIT_ASSERT( mslist->empty() );
-}
-#endif
 
 struct LLFWorker : public RTT::OS::RunnableInterface
 {
-    bool stop;
+    volatile bool stop;
     typedef ListLockFree<Dummy> T;
     T* mlst;
     int i;
@@ -611,7 +128,7 @@ struct LLFWorker : public RTT::OS::RunnableInterface
 
 struct LLFGrower : public RTT::OS::RunnableInterface
 {
-    bool stop;
+    volatile bool stop;
     typedef ListLockFree<Dummy> T;
     T* mlst;
     int i;
@@ -636,66 +153,6 @@ struct LLFGrower : public RTT::OS::RunnableInterface
         return true;
     }
 };
-
-void BuffersTest::testListLockFree()
-{
-    LLFWorker* aworker = new LLFWorker( listlockfree );
-    LLFWorker* bworker = new LLFWorker( listlockfree );
-    LLFWorker* cworker = new LLFWorker( listlockfree );
-    LLFGrower* grower = new LLFGrower( listlockfree );
-
-    {
-        boost::scoped_ptr<SingleThread> athread( new SingleThread(20,"ThreadA", aworker ));
-        boost::scoped_ptr<SingleThread> bthread( new SingleThread(20,"ThreadB", bworker ));
-        boost::scoped_ptr<SingleThread> cthread( new SingleThread(20,"ThreadC", cworker ));
-        boost::scoped_ptr<SingleThread> gthread( new SingleThread(20,"ThreadG", grower ));
-
-        // avoid system lock-ups
-        athread->setScheduler(ORO_SCHED_OTHER);
-        bthread->setScheduler(ORO_SCHED_OTHER);
-        cthread->setScheduler(ORO_SCHED_OTHER);
-        gthread->setScheduler(ORO_SCHED_OTHER);
-
-        athread->start();
-        bthread->start();
-        cthread->start();
-
-        sleep(1);
-        gthread->start();
-        sleep(1);
-        gthread->stop();
-        sleep(1);
-
-        athread->stop();
-        bthread->stop();
-        cthread->stop();
-    }
-
-#if 0
-    cout << "Athread appends: " << aworker->appends<<endl;
-    cout << "Athread erases: " << aworker->erases<<endl;
-    cout << "Bthread appends: " << bworker->appends<<endl;
-    cout << "Bthread erases: " << bworker->erases<<endl;
-    cout << "Cthread appends: " << cworker->appends<<endl;
-    cout << "Cthread erases: " << cworker->erases<<endl;
-    cout << "List capacity: "<< listlockfree->capacity()<<endl;
-    cout << "List size: "<< listlockfree->size()<<endl;
-//     while( listlockfree->empty() == false ) {
-//         Dummy d =  listlockfree->back();
-//         //cout << "Left: "<< d <<endl;
-//         CPPUNIT_ASSERT( listlockfree->erase( d ) );
-//     }
-#endif
-
-    CPPUNIT_ASSERT( aworker->appends == aworker->erases );
-    CPPUNIT_ASSERT( bworker->appends == bworker->erases );
-    CPPUNIT_ASSERT( cworker->appends == cworker->erases );
-
-    delete aworker;
-    delete bworker;
-    delete cworker;
-    delete grower;
-}
 
 struct AQWorker : public RTT::OS::RunnableInterface
 {
@@ -733,7 +190,7 @@ struct AQWorker : public RTT::OS::RunnableInterface
 
 struct AQGrower : public RTT::OS::RunnableInterface
 {
-    bool stop;
+    volatile bool stop;
     typedef QueueType T;
     T* mlst;
     int i;
@@ -761,8 +218,521 @@ struct AQGrower : public RTT::OS::RunnableInterface
     }
 };
 
+BOOST_FIXTURE_TEST_SUITE( BuffersTestSuite, BuffersTest )
 
-void BuffersTest::testAtomicQueue()
+BOOST_AUTO_TEST_CASE( testAtomic )
+{
+    /**
+     * Single Threaded test for AtomicQueue.
+     */
+    Dummy* d = new Dummy();
+    Dummy* c = d;
+
+    BOOST_REQUIRE_EQUAL( AtomicQueue<Dummy*>::size_type(QS), aqueue->capacity() );
+    BOOST_REQUIRE_EQUAL( AtomicQueue<Dummy*>::size_type(0), aqueue->size() );
+    BOOST_CHECK( aqueue->isFull() == false );
+    BOOST_CHECK( aqueue->isEmpty() == true );
+    BOOST_CHECK( aqueue->dequeue(c) == false );
+    BOOST_CHECK( c == d );
+
+    for ( int i = 0; i < QS; ++i) {
+        BOOST_CHECK( aqueue->enqueue( d ) == true);
+        BOOST_REQUIRE_EQUAL( AtomicQueue<Dummy*>::size_type(i+1), aqueue->size() );
+    }
+    BOOST_REQUIRE_EQUAL( AtomicQueue<Dummy*>::size_type(QS), aqueue->capacity() );
+    BOOST_CHECK( aqueue->isFull() == true );
+    BOOST_CHECK( aqueue->isEmpty() == false );
+    BOOST_CHECK( aqueue->enqueue( d ) == false );
+    BOOST_REQUIRE_EQUAL( AtomicQueue<Dummy*>::size_type(QS), aqueue->size() );
+
+    aqueue->dequeue( d );
+    BOOST_CHECK( aqueue->isFull() == false );
+    BOOST_REQUIRE_EQUAL( AtomicQueue<Dummy*>::size_type(QS-1), aqueue->size() );
+
+    for ( int i = 0; i < QS - 1 ; ++i) {
+        BOOST_CHECK( aqueue->dequeue( d ) == true);
+        BOOST_REQUIRE_EQUAL( AtomicQueue<Dummy*>::size_type(QS - 2 - i), aqueue->size() );
+    }
+    BOOST_CHECK( aqueue->isFull() == false );
+    BOOST_CHECK( aqueue->isEmpty() == true );
+
+    delete d;
+}
+
+BOOST_AUTO_TEST_CASE( testAtomicCounted )
+{
+    /**
+     * Single Threaded test for AtomicQueue.
+     */
+
+    Dummy* d = new Dummy;
+    Dummy* e = new Dummy;
+    Dummy* c = d;
+
+    BOOST_CHECK( aqueue->dequeueCounted(c) == 0 );
+    BOOST_CHECK( c == d );
+
+    // monotonic increasing counts
+    int cache = 1;
+    for ( int i = 0; i < QS; ++i)
+        BOOST_CHECK( aqueue->enqueueCounted( d ) == cache++ );
+    BOOST_CHECK( aqueue->isFull() == true );
+    BOOST_CHECK( aqueue->isEmpty() == false );
+    BOOST_CHECK( aqueue->enqueueCounted( d ) == 0 );
+
+    BOOST_CHECK( aqueue->dequeueCounted( d ) == 1 );
+    BOOST_CHECK( aqueue->isFull() == false );
+
+    cache = 2;
+    for ( int i = 0; i < QS - 1 ; ++i)
+        BOOST_CHECK( aqueue->dequeueCounted( d ) == cache++ );
+    BOOST_CHECK( aqueue->isFull() == false );
+    BOOST_CHECK( aqueue->isEmpty() == true );
+
+    BOOST_CHECK( aqueue->enqueueCounted( d ) != 0 );
+    BOOST_CHECK( aqueue->enqueueCounted( e ) != 0 );
+    BOOST_CHECK( aqueue->enqueueCounted( d ) != 0 );
+    c = 0;
+    BOOST_CHECK( aqueue->dequeueCounted( c ) != 0 );
+    BOOST_CHECK( c == d );
+    BOOST_CHECK( aqueue->dequeueCounted( c ) != 0 );
+    BOOST_CHECK( c == e );
+    BOOST_CHECK( aqueue->dequeueCounted( c ) != 0 );
+    BOOST_CHECK( c == d );
+
+    delete e;
+    delete d;
+}
+
+BOOST_AUTO_TEST_CASE( testBufLockFree )
+{
+    /**
+     * Single Threaded test for BufferLockFree.
+     * This is a mixed white/black box test.
+     */
+
+    Dummy* d = new Dummy;
+    Dummy* c = new Dummy(2.0, 1.0, 0.0);
+    Dummy r;
+
+    BOOST_CHECK( lockfree->read(r) == false );
+    BOOST_CHECK( lockfree->front() == r ); // return default if empty.
+
+    BOOST_CHECK( lockfree->write( *d ) );
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( r == *d );
+
+    BOOST_CHECK( lockfree->write( *c ) );
+    BOOST_CHECK( lockfree->front() == *c );
+    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( r == *c );
+
+    BOOST_CHECK( lockfree->write( *d ) );
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->write( *c ) );
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->write( *d ) );
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->write( *c ) );
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->write( *d ) );
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->write( *c ) );
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->write( *d ) );
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->write( *c ) );
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->write( *d ) );
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->write( *c ) );
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->write( *c ) == false );
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->write( *c ) == false );
+    BOOST_CHECK( lockfree->write( *c ) == false );
+    BOOST_CHECK( lockfree->write( *c ) == false );
+    BOOST_CHECK( lockfree->write( *c ) == false );
+    BOOST_CHECK( lockfree->write( *c ) == false );
+    BOOST_CHECK( lockfree->write( *c ) == false );
+    BOOST_CHECK( lockfree->write( *c ) == false );
+    BOOST_CHECK( lockfree->write( *c ) == false );
+    BOOST_CHECK( lockfree->write( *c ) == false );
+    BOOST_CHECK( lockfree->write( *c ) == false );
+    BOOST_CHECK( lockfree->write( *c ) == false );
+    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( lockfree->front() == *c );
+    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( lockfree->front() == *c );
+    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( lockfree->front() == *c );
+
+    // start writing again half-way
+    BOOST_CHECK( lockfree->write( *d ) );
+    BOOST_CHECK( lockfree->front() == *c );
+    BOOST_CHECK( lockfree->write( *c ) );
+    BOOST_CHECK( lockfree->front() == *c );
+    BOOST_CHECK( lockfree->write( *d ) );
+    BOOST_CHECK( lockfree->front() == *c );
+    BOOST_CHECK( lockfree->write( *c ) );
+    BOOST_CHECK( lockfree->front() == *c );
+    BOOST_CHECK( lockfree->write( *d ) );
+    BOOST_CHECK( lockfree->front() == *c );
+
+    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( lockfree->front() == *c );
+    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( lockfree->front() == *c );
+    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( lockfree->front() == *c );
+    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( r == *d );
+    BOOST_CHECK( lockfree->front() == *c );
+    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( r == *c );
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->read(r) );
+    BOOST_CHECK( r == *d );
+
+    BOOST_CHECK( lockfree->front() == *d );
+    BOOST_CHECK( lockfree->read(r) == false );
+    BOOST_CHECK( lockfree->read(r) == false );
+    BOOST_CHECK( lockfree->read(r) == false );
+    BOOST_CHECK( lockfree->read(r) == false );
+    BOOST_CHECK( lockfree->read(r) == false );
+    BOOST_CHECK( lockfree->read(r) == false );
+    BOOST_CHECK( lockfree->read(r) == false );
+    BOOST_CHECK( lockfree->read(r) == false );
+    BOOST_CHECK( lockfree->read(r) == false );
+    BOOST_CHECK( lockfree->read(r) == false );
+    BOOST_CHECK( lockfree->read(r) == false );
+
+    BOOST_CHECK( lockfree->write( *c ) );
+    BOOST_CHECK( lockfree->front() == *c );
+    BOOST_CHECK( lockfree->write( *d ) );
+    BOOST_CHECK( lockfree->write( *c ) );
+    BOOST_CHECK( lockfree->write( *d ) );
+    BOOST_CHECK( lockfree->write( *c ) );
+
+    std::vector<Dummy> v;
+    BOOST_CHECK( 5 == lockfree->read(v) );
+    BOOST_CHECK( v[0] == *c );
+    BOOST_CHECK( v[1] == *d );
+    BOOST_CHECK( v[2] == *c );
+    BOOST_CHECK( v[3] == *d );
+    BOOST_CHECK( v[4] == *c );
+    BOOST_CHECK( lockfree->front() == *d );
+
+    BufferBase::size_type sz = 10;
+    BOOST_CHECK( lockfree->write( *c ) );
+    BOOST_CHECK( lockfree->write( *d ) );
+    BOOST_CHECK( lockfree->write( v ) == (int)v.size() );
+    BOOST_CHECK( lockfree->write( *c ) );
+    BOOST_CHECK( lockfree->write( *d ) );
+    BOOST_CHECK( lockfree->write( v ) == 1 );
+    BOOST_CHECK( lockfree->write( v ) == 0 );
+    BOOST_CHECK( lockfree->write( v ) == 0 );
+    BOOST_CHECK( lockfree->write( v ) == 0 );
+    BOOST_CHECK( lockfree->write( v ) == 0 );
+    BOOST_CHECK( lockfree->write( v ) == 0 );
+    BOOST_CHECK( lockfree->write( v ) == 0 );
+    BOOST_CHECK( lockfree->write( v ) == 0 );
+    BOOST_CHECK( lockfree->write( v ) == 0 );
+    BOOST_CHECK( lockfree->write( v ) == 0 );
+    BOOST_CHECK( lockfree->write( v ) == 0 );
+    BOOST_CHECK( lockfree->write( v ) == 0 );
+    BOOST_CHECK( lockfree->write( v ) == 0 );
+    BOOST_REQUIRE_EQUAL( sz, lockfree->read(v) );
+    BOOST_CHECK( v[0] == *c );
+    BOOST_CHECK( v[1] == *d );
+    BOOST_CHECK( v[2] == *c );
+    BOOST_CHECK( v[3] == *d );
+    BOOST_CHECK( v[4] == *c );
+    BOOST_CHECK( v[5] == *d );
+    BOOST_CHECK( v[6] == *c );
+    BOOST_CHECK( v[7] == *c );
+    BOOST_CHECK( v[8] == *d );
+    BOOST_CHECK( v[9] == *c );
+    BOOST_CHECK( 0 == lockfree->read(v) );
+    delete d;
+    delete c;
+}
+
+BOOST_AUTO_TEST_CASE( testDObjLockFree )
+{
+    Dummy* c = new Dummy(2.0, 1.0, 0.0);
+    Dummy  d;
+    dataobj->Set( *c );
+    BOOST_REQUIRE_EQUAL( *c, dataobj->Get() );
+    int i = 0;
+    while ( i != 3.5*DataObjectLockFree<Dummy>::MAX_THREADS ) {
+        dataobj->Set( *c );
+        dataobj->Set( d );
+        ++i;
+    }
+    BOOST_REQUIRE_EQUAL( d , dataobj->Get() );
+    BOOST_REQUIRE_EQUAL( d , dataobj->Get() );
+
+    delete c;
+}
+
+BOOST_AUTO_TEST_CASE( testMemoryPool )
+{
+    // Test initial conditions.
+    MemoryPool<Dummy>::size_type sz = QS;
+    // for MemoryPool
+    BOOST_REQUIRE_EQUAL( sz, mpool->size() );
+    BOOST_REQUIRE_EQUAL( sz, vpool->size() );
+    // for FixedSizeMemoryPool
+    BOOST_REQUIRE_EQUAL( sz, fmpool->size() );
+    BOOST_REQUIRE_EQUAL( sz, fvpool->size() );
+    // Capacity test
+    BOOST_REQUIRE_EQUAL( sz, mpool->capacity() );
+    BOOST_REQUIRE_EQUAL( sz, vpool->capacity() );
+    BOOST_REQUIRE_EQUAL( sz, fmpool->capacity() );
+    BOOST_REQUIRE_EQUAL( sz, fvpool->capacity() );
+
+    // test default initialiser:
+    for (MemoryPool<Dummy>::size_type i = 0; i <3*sz; ++i ) {
+        // MemoryPool:
+        std::vector<Dummy>* v = vpool->allocate();
+        std::vector<Dummy>::size_type szv = QS;
+        BOOST_REQUIRE_EQUAL( szv, v->size() );
+        BOOST_REQUIRE_EQUAL( szv, v->capacity() );
+        BOOST_CHECK(vpool->deallocate( v ));
+
+        // FixedSizeMemoryPool:
+        v = fvpool->allocate();
+        BOOST_REQUIRE_EQUAL( szv, v->size() );
+        BOOST_REQUIRE_EQUAL( szv, v->capacity() );
+        BOOST_CHECK( fvpool->deallocate( v ) );
+    }
+
+    // test Allocation.
+    std::vector<Dummy*> mpv;
+    // MemoryPool:
+    for (MemoryPool<Dummy>::size_type i = 0; i <sz; ++i ) {
+        mpv.push_back( mpool->allocate() );
+        BOOST_REQUIRE_EQUAL( sz - i -1 , mpool->size());
+        BOOST_REQUIRE_EQUAL( sz, mpool->capacity() );
+    }
+    for (MemoryPool<Dummy>::size_type i = 0; i <sz; ++i ) {
+        BOOST_CHECK(mpool->deallocate( mpv.front() ));
+        mpv.erase( mpv.begin() );
+        BOOST_REQUIRE_EQUAL( i + 1 , mpool->size());
+        BOOST_REQUIRE_EQUAL( sz, mpool->capacity() );
+    }
+    BOOST_CHECK( mpv.size() == 0 );
+    // FixedSizeMemoryPool:
+    for (MemoryPool<Dummy>::size_type i = 0; i <sz; ++i ) {
+        mpv.push_back( fmpool->allocate() );
+        BOOST_REQUIRE_EQUAL( sz - i -1 , fmpool->size());
+        BOOST_REQUIRE_EQUAL( sz, fmpool->capacity() );
+    }
+    for (MemoryPool<Dummy>::size_type i = 0; i <sz; ++i ) {
+        BOOST_CHECK( fmpool->deallocate( mpv.front() ) );
+        mpv.erase( mpv.begin() );
+        BOOST_REQUIRE_EQUAL( i + 1 , fmpool->size());
+        BOOST_REQUIRE_EQUAL( sz, fmpool->capacity() );
+    }
+
+    // test capacity increasing:
+    for (MemoryPool<Dummy>::size_type i = 0; i <sz; ++i ) {
+        mpool->reserve();
+        vpool->reserve();
+    }
+    BOOST_REQUIRE_EQUAL( sz, mpool->capacity() );
+    BOOST_REQUIRE_EQUAL( sz, mpool->size() );
+    BOOST_REQUIRE_EQUAL( sz, vpool->capacity() );
+    BOOST_REQUIRE_EQUAL( sz, vpool->size() );
+
+    // the following reserve() allocates new chunks.
+    mpool->reserve();
+    vpool->reserve();
+    BOOST_REQUIRE_EQUAL( sz + 2*sz, mpool->capacity() );
+    BOOST_REQUIRE_EQUAL( sz + 2*sz, mpool->size() );
+    BOOST_REQUIRE_EQUAL( sz + 2*sz, vpool->capacity() );
+    BOOST_REQUIRE_EQUAL( sz + 2*sz, vpool->size() );
+    for (MemoryPool<Dummy>::size_type i = 0; i <sz; ++i ) {
+        mpool->reserve();
+        vpool->reserve();
+    }
+    BOOST_REQUIRE_EQUAL( sz + 2*sz, mpool->capacity() );
+    BOOST_REQUIRE_EQUAL( sz + 2*sz, mpool->size() );
+    BOOST_REQUIRE_EQUAL( sz + 2*sz, vpool->capacity() );
+    BOOST_REQUIRE_EQUAL( sz + 2*sz, vpool->size() );
+
+    // Extra:
+    // test default initialiser for extra reserved chunks:
+    std::vector< std::vector<Dummy>* > vv;
+    for (MemoryPool<Dummy>::size_type i = 0; i < sz+ 2*sz; ++i ) {
+        // MemoryPool:
+        std::vector<Dummy>* v = vpool->allocate();
+        std::vector<Dummy>::size_type szv = QS;
+        vv.push_back( v );
+        BOOST_REQUIRE_EQUAL( szv, v->size() );
+        BOOST_REQUIRE_EQUAL( szv, v->capacity() );
+    }
+    BOOST_REQUIRE_EQUAL( MemoryPool<Dummy>::size_type(0), vpool->size() );
+    for (MemoryPool<Dummy>::size_type i = 0; i < sz+ 2*sz; ++i ) {
+        // MemoryPool:
+        BOOST_CHECK( vpool->deallocate( vv.back() ) );
+        vv.erase( vv.end() - 1 );
+    }
+
+}
+
+#if 0
+BOOST_AUTO_TEST_CASE( testSortedList )
+{
+    // 7 elements.
+    mslist->reserve(7);
+    BOOST_CHECK( mslist->empty() );
+
+    // empty list has no keys.
+    BOOST_CHECK( mslist->hasKey(Dummy()) == false );
+
+    // empty list fails to erase key.
+    BOOST_CHECK( mslist->erase(Dummy()) == false );
+
+    // insert element once
+    BOOST_CHECK( mslist->insert(Dummy(1,2,1)) == true );
+    BOOST_CHECK( mslist->hasKey(Dummy(1,2,1)) == true );
+
+    BOOST_CHECK( mslist->insert(Dummy(1,2,1)) == false );
+    BOOST_CHECK( mslist->hasKey(Dummy(1,2,1)) == true );
+
+    // erase element once
+    BOOST_CHECK( mslist->erase(Dummy(1,2,1)) == true );
+    BOOST_CHECK( mslist->hasKey(Dummy(1,2,1)) == false );
+    BOOST_CHECK( mslist->erase(Dummy(1,2,1)) == false );
+    BOOST_CHECK( mslist->hasKey(Dummy(1,2,1)) == false );
+
+    BOOST_CHECK( mslist->insert(Dummy(1,2,1)) == true );
+    BOOST_CHECK( mslist->insert(Dummy(1,2,2)) == true );
+    BOOST_CHECK( mslist->insert(Dummy(1,2,3)) == true );
+    BOOST_CHECK( mslist->insert(Dummy(1,2,4)) == true );
+    BOOST_CHECK( mslist->insert(Dummy(1,2,5)) == true );
+    BOOST_CHECK( mslist->insert(Dummy(1,2,6)) == true );
+    BOOST_CHECK( mslist->insert(Dummy(1,2,7)) == true );
+
+    BOOST_CHECK( mslist->hasKey(Dummy(1,2,4)) == true );
+    BOOST_CHECK( mslist->hasKey(Dummy(1,2,7)) == true );
+
+    BOOST_CHECK( mslist->erase(Dummy(1,2,7)) == true );
+    BOOST_CHECK( mslist->hasKey(Dummy(1,2,7)) == false );
+
+    BOOST_CHECK( mslist->erase(Dummy(1,2,4)) == true );
+    BOOST_CHECK( mslist->hasKey(Dummy(1,2,4)) == false );
+
+    mslist->applyOnData( &addOne );
+    BOOST_CHECK( mslist->hasKey(Dummy(2,3,2)) == true );
+    BOOST_CHECK( mslist->hasKey(Dummy(2,3,3)) == true );
+    BOOST_CHECK( mslist->hasKey(Dummy(2,3,4)) == true );
+    BOOST_CHECK( mslist->hasKey(Dummy(2,3,6)) == true );
+    BOOST_CHECK( mslist->hasKey(Dummy(2,3,7)) == true );
+
+    mslist->applyOnData( &subOne );
+    BOOST_CHECK( mslist->hasKey(Dummy(1,2,1)) == true );
+    BOOST_CHECK( mslist->hasKey(Dummy(1,2,2)) == true );
+    BOOST_CHECK( mslist->hasKey(Dummy(1,2,3)) == true );
+    BOOST_CHECK( mslist->hasKey(Dummy(1,2,5)) == true );
+    BOOST_CHECK( mslist->hasKey(Dummy(1,2,6)) == true );
+
+    BOOST_CHECK( mslist->erase(Dummy(1,2,1)) == true );
+    BOOST_CHECK( mslist->erase(Dummy(1,2,6)) == true );
+    BOOST_CHECK( mslist->erase(Dummy(1,2,5)) == true );
+    BOOST_CHECK( mslist->erase(Dummy(1,2,2)) == true );
+    BOOST_CHECK( mslist->erase(Dummy(1,2,3)) == true );
+
+    BOOST_CHECK( mslist->empty() );
+}
+#endif
+
+#ifdef OROPKG_OS_GNULINUX
+
+BOOST_AUTO_TEST_CASE( testListLockFree )
+{
+    LLFWorker* aworker = new LLFWorker( listlockfree );
+    LLFWorker* bworker = new LLFWorker( listlockfree );
+    LLFWorker* cworker = new LLFWorker( listlockfree );
+    LLFGrower* grower = new LLFGrower( listlockfree );
+
+    {
+        boost::scoped_ptr<Thread> athread( new Thread(ORO_SCHED_OTHER, 0, 0, "ThreadA", aworker ));
+        boost::scoped_ptr<Thread> bthread( new Thread(ORO_SCHED_OTHER, 0, 0, "ThreadB", bworker ));
+        boost::scoped_ptr<Thread> cthread( new Thread(ORO_SCHED_OTHER, 0, 0, "ThreadC", cworker ));
+        boost::scoped_ptr<Thread> gthread( new Thread(ORO_SCHED_OTHER, 0, 0, "ThreadG", grower ));
+
+        athread->start();
+        bthread->start();
+        cthread->start();
+
+        sleep(1);
+        gthread->start();
+        sleep(1);
+        gthread->stop();
+        sleep(1);
+
+        athread->stop();
+        bthread->stop();
+        cthread->stop();
+    }
+
+#if 0
+    cout << "Athread appends: " << aworker->appends<<endl;
+    cout << "Athread erases: " << aworker->erases<<endl;
+    cout << "Bthread appends: " << bworker->appends<<endl;
+    cout << "Bthread erases: " << bworker->erases<<endl;
+    cout << "Cthread appends: " << cworker->appends<<endl;
+    cout << "Cthread erases: " << cworker->erases<<endl;
+    cout << "List capacity: "<< listlockfree->capacity()<<endl;
+    cout << "List size: "<< listlockfree->size()<<endl;
+//     while( listlockfree->empty() == false ) {
+//         Dummy d =  listlockfree->back();
+//         //cout << "Left: "<< d <<endl;
+//         BOOST_CHECK( listlockfree->erase( d ) );
+//     }
+#endif
+
+    BOOST_CHECK( aworker->appends == aworker->erases );
+    BOOST_CHECK( bworker->appends == bworker->erases );
+    BOOST_CHECK( cworker->appends == cworker->erases );
+
+    delete aworker;
+    delete bworker;
+    delete cworker;
+    delete grower;
+}
+#endif
+
+#ifdef OROPKG_OS_GNULINUX
+BOOST_AUTO_TEST_CASE( testAtomicQueue )
 {
     QueueType* qt = new QueueType(QS);
     AQWorker* aworker = new AQWorker( qt );
@@ -786,7 +756,7 @@ void BuffersTest::testAtomicQueue()
         bthread->start();
         cthread->start();
         gthread->start();
-        sleep(10);
+        sleep(3);
         gthread->stop();
         athread->stop();
         bthread->stop();
@@ -799,15 +769,15 @@ void BuffersTest::testAtomicQueue()
     int i = 0; // left-over count
     Dummy* d = 0;
     while( qt->size() != 0 ) {
-        CPPUNIT_ASSERT( qt->dequeue(d) == true);
-        CPPUNIT_ASSERT( d );
+        BOOST_CHECK( qt->dequeue(d) == true);
+        BOOST_CHECK( d );
         i++;
     }
-    CPPUNIT_ASSERT( qt->dequeue(d) == false );
+    BOOST_CHECK( qt->dequeue(d) == false );
     //cout << "Left in Queue: "<< i <<endl;
 
     // assert: sum queues == sum dequeues
-    CPPUNIT_ASSERT( aworker->appends + bworker->appends + cworker->appends + grower->i
+    BOOST_CHECK( aworker->appends + bworker->appends + cworker->appends + grower->i
                     == aworker->erases + bworker->erases + cworker->erases + i );
 
     delete aworker;
@@ -815,3 +785,5 @@ void BuffersTest::testAtomicQueue()
     delete cworker;
     delete grower;
 }
+#endif
+BOOST_AUTO_TEST_SUITE_END()

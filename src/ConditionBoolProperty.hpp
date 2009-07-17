@@ -51,7 +51,7 @@ namespace RTT
    * Property<bool>.
    * @deprecated Remove this low-level class since it's nowhere used.
    */
-  class ConditionBoolProperty
+  class RTT_API ConditionBoolProperty
     : public ConditionInterface
   {
     const Property<bool>& mprop;

@@ -20,26 +20,15 @@
 #ifndef EVENT_SERVICE_TEST_H
 #define EVENT_SERVICE_TEST_H
 
-#include <cppunit/extensions/HelperMacros.h>
+
 #include <Event.hpp>
 #include <EventService.hpp>
 #include <SlaveActivity.hpp>
 #include <string>
 
-class EventServiceTest : public CppUnit::TestFixture
+class EventServiceTest
 {
-    CPPUNIT_TEST_SUITE( EventServiceTest );
-    CPPUNIT_TEST( testAddRemove );
-    CPPUNIT_TEST( testSetupSyn );
-    CPPUNIT_TEST( testSetupAsyn );
-    CPPUNIT_TEST( testSetupEmit );
-    CPPUNIT_TEST( testEmit0 );
-    CPPUNIT_TEST( testEmit1 );
-    CPPUNIT_TEST( testEmit2 );
-    CPPUNIT_TEST( testEmit3 );
-    CPPUNIT_TEST( testEventC );
-    CPPUNIT_TEST_SUITE_END();
-
+public:
     RTT::Event<void( void )> t_event0;
     RTT::Event<void( std::string )> t_event1;
     RTT::Event<void( std::string, double )> t_event2;
@@ -56,6 +45,9 @@ class EventServiceTest : public CppUnit::TestFixture
     RTT::EventService* es;
     RTT::SlaveActivity act;
 public:
+	EventServiceTest(){ setUp(); };
+	~EventServiceTest(){ tearDown(); };
+
     void setUp();
     void tearDown();
 

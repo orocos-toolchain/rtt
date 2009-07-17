@@ -20,7 +20,6 @@
 #ifndef STATETEST_H
 #define STATETEST_H
 
-#include <cppunit/extensions/HelperMacros.h>
 
 //#define NOPARSER
 #ifndef NOPARSER
@@ -32,10 +31,10 @@
 #include <SimulationActivity.hpp>
 
 using namespace RTT;
-using namespace RTT;
 
-class StateTest : public CppUnit::TestFixture
+class StateTest
 {
+	/*
     CPPUNIT_TEST_SUITE( StateTest );
     CPPUNIT_TEST( testParseState );
     //CPPUNIT_TEST( testStateFailure );
@@ -48,7 +47,8 @@ class StateTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testStateGlobalTransitions );
 //     CPPUNIT_TEST( testStateUntilFail );
     CPPUNIT_TEST_SUITE_END();
-
+*/
+public:
 #ifndef NOPARSER
     Parser parser;
 #endif
@@ -63,7 +63,7 @@ class StateTest : public CppUnit::TestFixture
     int increase();
     void resetI();
     void doState( const std::string& prog, TaskContext*, bool test=true );
-    void finishState( TaskContext* , std::string );
+    void finishState( TaskContext* , std::string, bool test=true );
 
     bool true_genCom() { return true; }
     bool false_genCom() { return false; }
@@ -76,6 +76,7 @@ class StateTest : public CppUnit::TestFixture
     std::string sline;
 public:
     StateTest();
+    ~StateTest(){ tearDown();};
 
     void setUp();
     void tearDown();

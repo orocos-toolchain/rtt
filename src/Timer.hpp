@@ -62,7 +62,7 @@ namespace RTT
      * of its own and start it. That thread will be stopped and cleaned up
      * when the Timer is destroyed.
      */
-    class Timer
+    class RTT_API Timer
         : protected RunnableInterface
     {
     public:

@@ -41,6 +41,7 @@
 
 #include "../NameServer.hpp"
 #include "../NameServerRegistrator.hpp"
+#include "../rtt-config.h"
 
 namespace RTT
 {
@@ -51,7 +52,7 @@ namespace RTT
      * @see TemplateDigitalIn
      * @ingroup DeviceInterface
      */
-    class DigitalInInterface
+    class RTT_API DigitalInInterface
         : private NameServerRegistrator<DigitalInInterface*>
     {
         public:

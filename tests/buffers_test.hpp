@@ -16,11 +16,8 @@
  *                                                                         *
  ***************************************************************************/
 
-
 #ifndef BUFFERSTEST_H
 #define BUFFERSTEST_H
-
-#include <cppunit/extensions/HelperMacros.h>
 
 #include <RTT.hpp>
 #include <AtomicQueue.hpp>
@@ -31,30 +28,50 @@
 //#include <SortedList.hpp>
 
 #include <os/SingleThread.hpp>
+#include <os/Thread.hpp>
 #include <rtt-config.h>
 
 using namespace RTT;
 using namespace RTT::OS;
 
-class Dummy;
+class Dummy {
+public:
+    Dummy(double a = 0.0, double b =1.0, double c=2.0)
+        :d1(a), d2(b), d3(c) {}
+    double d1;
+    double d2;
+    double d3;
+    bool operator==(const Dummy& d) const
+    {
+        return d.d1 == d1 && d.d2 == d2 && d.d3 == d3;
+    }
+
+    bool operator!=(const Dummy& d) const
+    {
+        return d.d1 != d1 || d.d2 != d2 || d.d3 != d3;
+    }
+
+    bool operator<(const Dummy& d) const
+    {
+        return d1+d2+d3 < d.d1 + d.d2 + d.d3;
+    }
+/*
+     volatile Dummy& operator=(const Dummy& d) volatile
+     {
+         d1 = d.d1;
+         d2 = d.d2;
+         d3 = d.d3;
+         return *this;
+     }
+*/
+};
+
 
 typedef AtomicQueue<Dummy*> QueueType;
 
-class BuffersTest : public CppUnit::TestFixture
+class BuffersTest
 {
-    CPPUNIT_TEST_SUITE( BuffersTest );
-    CPPUNIT_TEST( testAtomic );
-    CPPUNIT_TEST( testAtomicCounted );
-#ifdef OROPKG_OS_GNULINUX
-    // this test assumes a not real-time OS.
-    //CPPUNIT_TEST( testListLockFree );
-    CPPUNIT_TEST( testAtomicQueue );
-#endif
-    CPPUNIT_TEST( testBufLockFree );
-    CPPUNIT_TEST( testDObjLockFree );
-    //CPPUNIT_TEST( testSortedList );
-    CPPUNIT_TEST( testMemoryPool );
-    CPPUNIT_TEST_SUITE_END();
+public:
 
     AtomicQueue<Dummy*>* aqueue;
 
@@ -70,8 +87,9 @@ class BuffersTest : public CppUnit::TestFixture
     MemoryPool<std::vector<Dummy> >* vpool;
     FixedSizeMemoryPool<Dummy>* fmpool;
     FixedSizeMemoryPool<std::vector<Dummy> >* fvpool;
-public:
 
+    BuffersTest(){setUp();};
+    ~BuffersTest(){tearDown();};
     void setUp();
     void tearDown();
 

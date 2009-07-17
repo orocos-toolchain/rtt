@@ -40,7 +40,7 @@
 
 #include "RunnableInterface.hpp"
 #include "BufferPolicy.hpp"
-#include "ListLockFree.hpp"
+#include "List.hpp"
 #include "ProgramExceptions.hpp"
 #include "ProgramInterface.hpp"
 
@@ -48,13 +48,10 @@
 #include <string>
 #include <vector>
 
-#include "rtt-config.h"
-
 namespace RTT
 {
     template< class T, class RP, class WP>
-    class AtomicQueue;
-
+    class Queue;
 }
 
 namespace RTT
@@ -76,7 +73,7 @@ namespace RTT
      * functions, such as step().
      * @ingroup Processor
      */
-    class ProgramProcessor
+    class RTT_API ProgramProcessor
         : public RunnableInterface
     {
     public:
@@ -163,13 +160,12 @@ namespace RTT
         ProgramInterfacePtr getProgram(const std::string& name);
 
     protected:
-        typedef ListLockFree<ProgramInterfacePtr> ProgMap;
+        typedef List<ProgramInterfacePtr> ProgMap;
         ProgMap* programs;
 
         std::vector<ProgramInterface*> funcs;
 
-        AtomicQueue<ProgramInterface*,NonBlockingPolicy,NonBlockingPolicy>* f_queue;
-
+        Queue<ProgramInterface*,NonBlockingPolicy,NonBlockingPolicy>* f_queue;
     };
 
 }

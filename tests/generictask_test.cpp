@@ -19,7 +19,7 @@
 
 
 #include "generictask_test.hpp"
-#include <unistd.h>
+
 #include <iostream>
 #include <FunctionGraph.hpp>
 #include <Ports.hpp>
@@ -36,9 +36,8 @@
 
 using namespace std;
 
-// Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( Generic_TaskTest );
-
+#include <boost/test/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
 
 void
 Generic_TaskTest::setUp()
@@ -78,37 +77,41 @@ TaskObject* Generic_TaskTest::createMethodFactory()
     return to;
 }
 
-void Generic_TaskTest::testRemoteMethod()
+// Registers the fixture into the 'registry'
+BOOST_FIXTURE_TEST_SUITE(  Generic_TaskTestSuite,  Generic_TaskTest )
+
+
+BOOST_AUTO_TEST_CASE(testRemoteMethod)
 {
     Method<double(void)> m0;
     boost::shared_ptr<ActionInterface> implementation( new detail::RemoteMethod<double(void)>(tc->getObject("methods")->methods(),"m0") );
     m0 = implementation;
-    CPPUNIT_ASSERT( m0.ready() );
+    BOOST_CHECK( m0.ready() );
 
     Method<double(int)> m1;
     implementation.reset( new detail::RemoteMethod<double(int)>(tc->getObject("methods")->methods(),"m1") );
     m1 = implementation;
-    CPPUNIT_ASSERT( m1.ready() );
+    BOOST_CHECK( m1.ready() );
 
-    CPPUNIT_ASSERT_EQUAL( -2.0, m1(1) );
-    CPPUNIT_ASSERT_EQUAL( -1.0, m0() );
+    BOOST_CHECK_EQUAL( -2.0, m1(1) );
+    BOOST_CHECK_EQUAL( -1.0, m0() );
 }
 
-void Generic_TaskTest::testMethodsC()
+BOOST_AUTO_TEST_CASE(testMethodsC)
 {
     MethodC mc;
     double r = 0.0;
     mc = tc->getObject("methods")->methods()->create("m0").ret( r );
-    CPPUNIT_ASSERT( mc.execute() );
-    CPPUNIT_ASSERT( r == -1.0 );
+    BOOST_CHECK( mc.execute() );
+    BOOST_CHECK( r == -1.0 );
 
     mc = tc->getObject("methods")->methods()->create("m2").argC(1).argC(1.0).ret( r );
-    CPPUNIT_ASSERT( mc.execute() );
-    CPPUNIT_ASSERT( r == -3.0 );
+    BOOST_CHECK( mc.execute() );
+    BOOST_CHECK( r == -3.0 );
 
     mc = tc->getObject("methods")->methods()->create("m3").ret( r ).argC(1).argC(1.0).argC(true);
-    CPPUNIT_ASSERT( mc.execute() );
-    CPPUNIT_ASSERT( r == -4.0 );
+    BOOST_CHECK( mc.execute() );
+    BOOST_CHECK( r == -4.0 );
 
 #if 0
         +" set r = methods.m0()\n"
@@ -124,7 +127,7 @@ void Generic_TaskTest::testMethodsC()
 #endif
 }
 
-void Generic_TaskTest::testMethod()
+BOOST_AUTO_TEST_CASE(testMethod)
 {
     Method<double(void)> m0("m0", &Generic_TaskTest::m0, this);
     Method<double(int)> m1("m1", &Generic_TaskTest::m1, this);
@@ -132,14 +135,14 @@ void Generic_TaskTest::testMethod()
     Method<double(int,double,bool)> m3("m3", &Generic_TaskTest::m3, this);
     Method<double(int,double,bool,std::string)> m4("m4", &Generic_TaskTest::m4, this);
 
-    CPPUNIT_ASSERT_EQUAL( -1.0, m0() );
-    CPPUNIT_ASSERT_EQUAL( -2.0, m1(1) );
-    CPPUNIT_ASSERT_EQUAL( -3.0, m2(1, 2.0) );
-    CPPUNIT_ASSERT_EQUAL( -4.0, m3(1, 2.0, false) );
-    CPPUNIT_ASSERT_EQUAL( -5.0, m4(1, 2.0, false,"hello") );
+    BOOST_CHECK_EQUAL( -1.0, m0() );
+    BOOST_CHECK_EQUAL( -2.0, m1(1) );
+    BOOST_CHECK_EQUAL( -3.0, m2(1, 2.0) );
+    BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, false) );
+    BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, false,"hello") );
 }
 
-void Generic_TaskTest::testMethodFactory()
+BOOST_AUTO_TEST_CASE(testMethodFactory)
 {
     // Test the addition of 'simple' methods to the operation interface,
     // and retrieving it back in a new Method object.
@@ -150,59 +153,59 @@ void Generic_TaskTest::testMethodFactory()
 
     TaskObject to("task");
 
-    CPPUNIT_ASSERT( to.methods()->addMethod(&m0) );
-    CPPUNIT_ASSERT( ! to.methods()->addMethod(&m0) );
-    CPPUNIT_ASSERT( to.methods()->addMethod(&m1) );
-    CPPUNIT_ASSERT( to.methods()->addMethod(&m2) );
+    BOOST_CHECK( to.methods()->addMethod(&m0) );
+    BOOST_CHECK( ! to.methods()->addMethod(&m0) );
+    BOOST_CHECK( to.methods()->addMethod(&m1) );
+    BOOST_CHECK( to.methods()->addMethod(&m2) );
 
     // test constructor
     Method<double(void)> mm0 = to.methods()->getMethod<double(void)>("m0");
-    CPPUNIT_ASSERT( mm0.getMethodImpl() );
-    CPPUNIT_ASSERT( mm0.ready() );
+    BOOST_CHECK( mm0.getMethodImpl() );
+    BOOST_CHECK( mm0.ready() );
 
     // test operator=()
     Method<double(int)> mm1;
     mm1 = to.methods()->getMethod<double(int)>("m1");
-    CPPUNIT_ASSERT( mm1.getMethodImpl() );
-    CPPUNIT_ASSERT( mm1.ready() );
+    BOOST_CHECK( mm1.getMethodImpl() );
+    BOOST_CHECK( mm1.ready() );
 
     Method<double(int,double)> mm2 = to.methods()->getMethod<double(int,double)>("m2");
-    CPPUNIT_ASSERT( mm2.getMethodImpl() );
-    CPPUNIT_ASSERT( mm2.ready() );
+    BOOST_CHECK( mm2.getMethodImpl() );
+    BOOST_CHECK( mm2.ready() );
 
     // start the activity, such that methods are accepted.
-    CPPUNIT_ASSERT( tsim->start()) ;
+    BOOST_CHECK( tsim->start()) ;
     // execute methods and check status:
-    CPPUNIT_ASSERT_EQUAL( -1.0, mm0() );
+    BOOST_CHECK_EQUAL( -1.0, mm0() );
 
-    CPPUNIT_ASSERT_EQUAL( -2.0, mm1(1) );
-    CPPUNIT_ASSERT_EQUAL( -3.0, mm2(1, 2.0) );
+    BOOST_CHECK_EQUAL( -2.0, mm1(1) );
+    BOOST_CHECK_EQUAL( -3.0, mm2(1, 2.0) );
 
     // test error cases:
     // Add uninitialised method:
     Method<void(void)> mvoid;
-    CPPUNIT_ASSERT(to.methods()->addMethod( &mvoid ) == false);
+    BOOST_CHECK(to.methods()->addMethod( &mvoid ) == false);
     mvoid = Method<void(void)>("voidm");
-    CPPUNIT_ASSERT(to.methods()->addMethod( &mvoid ) == false);
+    BOOST_CHECK(to.methods()->addMethod( &mvoid ) == false);
 
     // wrong type 1:
     mvoid = to.methods()->getMethod<void(void)>("m1");
-    CPPUNIT_ASSERT( mvoid.ready() == false );
+    BOOST_CHECK( mvoid.ready() == false );
     // wrong type 2:
     mvoid = to.methods()->getMethod<void(bool)>("m1");
     // wrong type 3:
     mvoid = to.methods()->getMethod<double(void)>("m0");
-    CPPUNIT_ASSERT( mvoid.ready() == false );
+    BOOST_CHECK( mvoid.ready() == false );
     // non existing
     mvoid = to.methods()->getMethod<void(void)>("voidm");
-    CPPUNIT_ASSERT( mvoid.ready() == false );
+    BOOST_CHECK( mvoid.ready() == false );
 
     // this line may not crash:
     mvoid();
 
 }
 
-void Generic_TaskTest::testCRMethod()
+BOOST_AUTO_TEST_CASE(testCRMethod)
 {
     this->ret = -3.3;
 
@@ -212,17 +215,17 @@ void Generic_TaskTest::testCRMethod()
     Method<double(double&)> m1r("m1r", &Generic_TaskTest::m1r, this);
     Method<double(const double&)> m1cr("m1cr", &Generic_TaskTest::m1cr, this);
 
-    CPPUNIT_ASSERT_EQUAL( -3.3, m0r() );
-    CPPUNIT_ASSERT_EQUAL( -3.3, m0cr() );
+    BOOST_CHECK_EQUAL( -3.3, m0r() );
+    BOOST_CHECK_EQUAL( -3.3, m0cr() );
 
     double value = 5.3;
-    CPPUNIT_ASSERT_EQUAL( 5.3*2, m1r(value) );
-    CPPUNIT_ASSERT_EQUAL( 5.3*2, value );
-    CPPUNIT_ASSERT_EQUAL( 5.3, m1cr(5.3) );
+    BOOST_CHECK_EQUAL( 5.3*2, m1r(value) );
+    BOOST_CHECK_EQUAL( 5.3*2, value );
+    BOOST_CHECK_EQUAL( 5.3, m1cr(5.3) );
 }
 
 
-void Generic_TaskTest::testMethodFromDS()
+BOOST_AUTO_TEST_CASE(testMethodFromDS)
 {
     TaskObject to("task");
 
@@ -250,19 +253,19 @@ void Generic_TaskTest::testMethodFromDS()
     MethodC mc4( to.methods(), "m4");
     mc4.argC(1).argC(2.0).argC(false).argC(std::string("hello")).ret(ret);
 
-    CPPUNIT_ASSERT( mc0.execute() );
-    CPPUNIT_ASSERT_EQUAL(-1.0, ret);
-    CPPUNIT_ASSERT( mc1.execute() );
-    CPPUNIT_ASSERT_EQUAL(-2.0, ret);
-    CPPUNIT_ASSERT( mc2.execute() );
-    CPPUNIT_ASSERT_EQUAL(-3.0, ret);
-    CPPUNIT_ASSERT( mc3.execute() );
-    CPPUNIT_ASSERT_EQUAL(-4.0, ret);
-    CPPUNIT_ASSERT( mc4.execute() );
-    CPPUNIT_ASSERT_EQUAL(-5.0, ret);
+    BOOST_CHECK( mc0.execute() );
+    BOOST_CHECK_EQUAL(-1.0, ret);
+    BOOST_CHECK( mc1.execute() );
+    BOOST_CHECK_EQUAL(-2.0, ret);
+    BOOST_CHECK( mc2.execute() );
+    BOOST_CHECK_EQUAL(-3.0, ret);
+    BOOST_CHECK( mc3.execute() );
+    BOOST_CHECK_EQUAL(-4.0, ret);
+    BOOST_CHECK( mc4.execute() );
+    BOOST_CHECK_EQUAL(-5.0, ret);
 }
 
-void Generic_TaskTest::testDSMethod()
+BOOST_AUTO_TEST_CASE(testDSMethod)
 {
     TaskObject to("task");
 
@@ -284,27 +287,27 @@ void Generic_TaskTest::testDSMethod()
 
     boost::shared_ptr<Generic_TaskTest> ptr( new Generic_TaskTest() );
     ValueDataSource<boost::weak_ptr<Generic_TaskTest> >::shared_ptr wp = new ValueDataSource<boost::weak_ptr<Generic_TaskTest> >( ptr );
-    CPPUNIT_ASSERT( to.methods()->addMethodDS( wp.get(), meth0, "desc" ) );
-    CPPUNIT_ASSERT( to.methods()->addMethodDS( wp.get(), meth1, "desc", "a1", "d1" ) );
+    BOOST_CHECK( to.methods()->addMethodDS( wp.get(), meth0, "desc" ) );
+    BOOST_CHECK( to.methods()->addMethodDS( wp.get(), meth1, "desc", "a1", "d1" ) );
 
     // this actually works ! the method will detect the deleted pointer.
     //ptr.reset();
 
-    CPPUNIT_ASSERT( tsim->start()) ;
+    BOOST_CHECK( tsim->start()) ;
 
     double ret;
     MethodC c0  = to.methods()->create("m0").ret(ret);
-    CPPUNIT_ASSERT( c0.execute() );
-    CPPUNIT_ASSERT_EQUAL( -1.0, ret );
+    BOOST_CHECK( c0.execute() );
+    BOOST_CHECK_EQUAL( -1.0, ret );
     MethodC c1  = to.methods()->create("m1").argC(1).ret(ret);
-    CPPUNIT_ASSERT( c1.execute() );
-    CPPUNIT_ASSERT_EQUAL( -2.0, ret );
+    BOOST_CHECK( c1.execute() );
+    BOOST_CHECK_EQUAL( -2.0, ret );
 
-    CPPUNIT_ASSERT( tsim->stop()) ;
+    BOOST_CHECK( tsim->stop()) ;
 
 }
 
-void Generic_TaskTest::testAddMethod()
+BOOST_AUTO_TEST_CASE(testAddMethod)
 {
     Method<double(void)> m0 = method("m0", &Generic_TaskTest::m0, this);
 
@@ -313,10 +316,11 @@ void Generic_TaskTest::testAddMethod()
     Method<double(int,double,bool)> m3 = method("m3", &Generic_TaskTest::m3, this);
     Method<double(int,double,bool,std::string)> m4 = method("m4", &Generic_TaskTest::m4, this);
 
-    CPPUNIT_ASSERT_EQUAL( -1.0, m0() );
-    CPPUNIT_ASSERT_EQUAL( -2.0, m1(1) );
-    CPPUNIT_ASSERT_EQUAL( -3.0, m2(1, 2.0) );
-    CPPUNIT_ASSERT_EQUAL( -4.0, m3(1, 2.0, false) );
-    CPPUNIT_ASSERT_EQUAL( -5.0, m4(1, 2.0, false,"hello") );
+    BOOST_CHECK_EQUAL( -1.0, m0() );
+    BOOST_CHECK_EQUAL( -2.0, m1(1) );
+    BOOST_CHECK_EQUAL( -3.0, m2(1, 2.0) );
+    BOOST_CHECK_EQUAL( -4.0, m3(1, 2.0, false) );
+    BOOST_CHECK_EQUAL( -5.0, m4(1, 2.0, false,"hello") );
 }
 
+BOOST_AUTO_TEST_SUITE_END()

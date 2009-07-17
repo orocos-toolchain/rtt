@@ -21,11 +21,10 @@
 #ifndef TASKSTHREADTEST_H
 #define TASKSTHREADTEST_H
 
-#include <cppunit/extensions/HelperMacros.h>
-
 #include <PeriodicActivity.hpp>
 #include <SimulationActivity.hpp>
 #include <SlaveActivity.hpp>
+#include <Activity.hpp>
 
 using namespace RTT;
 
@@ -36,34 +35,18 @@ struct TestActivity;
 /**
  * Tests task-thread relationships.
  */
-class ActivitiesThreadTest : public CppUnit::TestFixture
+class ActivitiesThreadTest
 {
-    CPPUNIT_TEST_SUITE( ActivitiesThreadTest );
-    // Configuration Test :
-    CPPUNIT_TEST( testThreadConfig );
-    CPPUNIT_TEST( testPeriodic );
-    CPPUNIT_TEST( testNonPeriodic );
-    CPPUNIT_TEST( testSlave );
-    CPPUNIT_TEST( testSequential );
-    CPPUNIT_TEST( testScheduler );
-
-#ifndef ORO_EMBEDDED
-    CPPUNIT_TEST( testExceptionRecovery );
-#endif
-
-    // Allocation Test : [disabled, kills RTAI/LXRT]
-    //CPPUNIT_TEST( testAddAllocate );
-
-    CPPUNIT_TEST_SUITE_END();
+public:
 
     TestActivity<PeriodicActivity>* t_task_np;
     TestActivity<PeriodicActivity>* t_task_np_bad;
     TestActivity<PeriodicActivity>* t_task_p;
     TestActivity<SlaveActivity>*          t_task_slave;
+    TestActivity<Activity>*         t_task_a;
 
-    RunnableInterface* t_run_allocate;
-public:
-
+    ActivitiesThreadTest(){ setUp(); };
+    ~ActivitiesThreadTest(){ tearDown(); };
     void setUp();
     void tearDown();
 
@@ -75,12 +58,8 @@ public:
     void testNonPeriodic();
     void testSlave();
     void testSequential();
-
     void testScheduler();
-
     void testAllocation();
-    void testRemoveAllocate();
-    void testAddAllocate();
 };
 
 #endif

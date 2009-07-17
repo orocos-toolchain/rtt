@@ -54,7 +54,7 @@ namespace RTT
     /**
      * Helper class which locates common CORBA services.
      */
-    class Services
+    class RTT_CORBA_API Services
     {
     protected:
         //! Handle to the name service.

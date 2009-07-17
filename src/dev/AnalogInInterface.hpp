@@ -52,6 +52,7 @@
 
 #include "../NameServer.hpp"
 #include "../NameServerRegistrator.hpp"
+#include "../rtt-config.h"
 
 namespace RTT
 {
@@ -63,7 +64,7 @@ namespace RTT
      *
      * @ingroup DeviceInterface
      */
-    class AnalogInInterface
+    class RTT_API AnalogInInterface
         : private NameServerRegistrator<AnalogInInterface*>
     {
     public:

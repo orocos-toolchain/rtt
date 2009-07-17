@@ -36,6 +36,15 @@
  ***************************************************************************/
 
 
+#include "corba.h"
+#ifdef CORBA_IS_TAO
+#include <tao/corba.h>
+#include <tao/PortableServer/PortableServer.h>
+#else
+#include <omniORB4/CORBA.h>
+#include <omniORB4/poa.h>
+#endif
+
 #include "CorbaTemplateProtocol.hpp"
 #include "TransportPlugin.hpp"
 #include "Toolkit.hpp"
@@ -52,10 +61,15 @@ namespace RTT {
         class CorbaFallBackProtocol
             : public TypeTransporter
         {
+            bool warn;
+        public:
+            CorbaFallBackProtocol(bool do_warn = true) : warn(do_warn) {}
             virtual void* createBlob(DataSourceBase::shared_ptr source) const
             {
-                Logger::In in("CorbaFallBackProtocol");
-                log(Error) << "Failing Corba::Any creation of type "<< source->getTypeName()<<"." <<Logger::endl;
+                if (warn) {
+                    Logger::In in("CorbaFallBackProtocol");
+                    log(Error) << "Could not send data of type '"<< source->getTypeName()<<"' : data type not known to CORBA Transport." <<Logger::endl;
+                }
                 return new CORBA::Any();
             }
 
@@ -64,8 +78,10 @@ namespace RTT {
              */
             virtual bool updateBlob(const void* blob, DataSourceBase::shared_ptr target) const
             {
-                Logger::In in("CorbaFallBackProtocol");
-                log(Debug) << "Failing conversion of type "<<target->getTypeName()<<"." <<Logger::endl;
+                if (warn) {
+                    Logger::In in("CorbaFallBackProtocol");
+                    log(Error) << "Could not update type '"<<target->getTypeName()<<"' with received data : data type not known to CORBA Transport." <<Logger::endl;
+                }
                 return false;
             }
 
@@ -112,13 +128,17 @@ namespace RTT {
              * Used to setup a Corba Data Flow.
              */
             virtual DataSourceBase* dataProxy( PortInterface* data ) const {
-                log(Warning) << "Can not create a proxy for data connection of remote port "<<data->getName() <<endlog();
+                if (warn) {
+                    log(Warning) << "Can not create a proxy for data connection of remote port "<<data->getName() <<endlog();
+                }
                 Corba::CorbaPort* cp = dynamic_cast<Corba::CorbaPort*>( data );
                 return new Corba::CorbaDataObjectProxy<detail::UnknownType>("CorbaProxy", cp->getDataChannel());
             }
 
             virtual DataSourceBase* dataProxy( void* data ) const {
-                log(Warning) << "Can not create a proxy for data connection." <<endlog();
+                if (warn) {
+                    log(Warning) << "Can not create a proxy for data connection." <<endlog();
+                }
                 Corba::AssignableExpression_ptr ae = static_cast<Corba::AssignableExpression_ptr>(data);
                 return new Corba::CorbaDataObjectProxy<detail::UnknownType>("CorbaProxy", ae );
             }
@@ -132,24 +152,30 @@ namespace RTT {
              * Used to setup a Corba Data Flow.
              */
             virtual BufferBase* bufferProxy( PortInterface* data ) const {
-                log(Warning) << "Can not create a proxy for buffer connection of remote port "<<data->getName() <<endlog();
+                if (warn) {
+                    log(Warning) << "Can not create a proxy for buffer connection of remote port "<<data->getName() <<endlog();
+                }
                 Corba::CorbaPort* cp = dynamic_cast<Corba::CorbaPort*>( data );
                 return new Corba::CorbaBufferProxy<detail::UnknownType>( cp->getBufferChannel() );
             }
 
             virtual BufferBase* bufferProxy( void* data ) const {
-                log(Warning) << "Can not create a proxy for buffer connection." <<endlog();
+                if (warn) {
+                    log(Warning) << "Can not create a proxy for buffer connection." <<endlog();
+                }
                 Corba::BufferChannel_ptr buf = static_cast<Corba::BufferChannel_ptr>(data);
                 return new Corba::CorbaBufferProxy<detail::UnknownType>( buf );
             }
 
             virtual void* bufferServer( BufferBase::shared_ptr source, void* arg) const
             {
-              // arg is POA !
-              log(Warning) << "Can not create a useful server for an unknown data type." << endlog();
-              RTT_Corba_BufferChannel_i<UnknownType>* cbuf = new RTT_Corba_BufferChannel_i<UnknownType>( source );
-              // activate servant:
-              return cbuf->_this();
+                // arg is POA !
+                if (warn) {
+                    log(Warning) << "Can not create a useful server for an unknown data type." << endlog();
+                }
+                RTT_Corba_BufferChannel_i<UnknownType>* cbuf = new RTT_Corba_BufferChannel_i<UnknownType>( source );
+                // activate servant:
+                return cbuf->_this();
             }
 
             /**
@@ -159,7 +185,9 @@ namespace RTT {
              */
             virtual DataSourceBase* narrowDataSource(DataSourceBase* dsb)
             {
-                log(Warning) << "Corba: Do not know how to narrow to " << dsb->getTypeName() << endlog();
+                if (warn) {
+                    log(Warning) << "Corba: Do not know how to narrow to " << dsb->getTypeName() << endlog();
+                }
                 return 0;
             }
 
@@ -170,7 +198,9 @@ namespace RTT {
              */
             virtual DataSourceBase* narrowAssignableDataSource(DataSourceBase* dsb)
             {
-                log(Warning) << "Corba: Do not know how to narrow to " << dsb->getTypeName() << endlog();
+                if (warn) {
+                    log(Warning) << "Corba: Do not know how to narrow to " << dsb->getTypeName() << endlog();
+                }
                 return 0;
             }
 
@@ -200,6 +230,8 @@ namespace RTT {
                     return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol<bool>() );
                 if ( name == "array" )
                     return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaTemplateProtocol< std::vector<double> >() );
+                if ( name == "void" )
+                    return ti->addProtocol(ORO_CORBA_PROTOCOL_ID, new CorbaFallBackProtocol(false)); // warn=false
                 return false;
             }
 

@@ -20,24 +20,17 @@
 #ifndef LOGGERTEST_H
 #define LOGGERTEST_H
 
-#include <cppunit/extensions/HelperMacros.h>
-
 #include <Logger.hpp>
 
 using namespace RTT;
 
-class LoggerTest : public CppUnit::TestFixture
+class LoggerTest
 {
-    Logger* logger;
-    CPPUNIT_TEST_SUITE( LoggerTest );
-    CPPUNIT_TEST( testStartStop );
-    CPPUNIT_TEST( testLogEnv );
-    CPPUNIT_TEST( testNewLog );
-    CPPUNIT_TEST( testThreadLog );
-    CPPUNIT_TEST_SUITE_END();
-
 public:
+	Logger* logger;
 
+	LoggerTest(){setUp();};
+	~LoggerTest(){tearDown();};
     void setUp();
     void tearDown();
 

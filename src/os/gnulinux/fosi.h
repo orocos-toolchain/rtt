@@ -45,8 +45,6 @@ extern "C"
 #include <float.h>
 #include <assert.h>
 #include "../oro_limits.h"
-	// Orocos Implementation (i386 specific)
-#include "../oro_atomic.h"
 
     // Time Related
 #include <sys/time.h>
@@ -231,6 +229,18 @@ extern "C"
     static inline int rtos_mutex_rec_lock( rt_mutex_t* m)
     {
         return pthread_mutex_lock(m);
+    }
+
+    static inline int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
+    {
+        TIME_SPEC arg_time = ticks2timespec( abs_time );
+        return pthread_mutex_timedlock(m, &arg_time);
+    }
+
+    static inline int rtos_mutex_rec_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
+    {
+        TIME_SPEC arg_time = ticks2timespec( abs_time );
+        return pthread_mutex_timedlock(m, &arg_time);
     }
 
     static inline int rtos_mutex_trylock( rt_mutex_t* m)

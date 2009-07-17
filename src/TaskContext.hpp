@@ -95,7 +95,7 @@ namespace RTT
      * will disconnect all the Data Flow Ports and remove this object from its
      * Peers.
      */
-    class TaskContext
+    class RTT_API TaskContext
         : public OperationInterface,
           public TaskCore
     {
@@ -245,11 +245,11 @@ namespace RTT
         void setActivity( ActivityInterface* new_act );
 
         /**
-         * Get a safe pointer to the activity running this
+         * Get a pointer to the activity running this
          * component.
          * @return Our activity.
          */
-        ActivityInterface::shared_ptr getActivity();
+        ActivityInterface* getActivity();
 
         /**
          * Clear the complete interface of this Component.
@@ -434,7 +434,7 @@ namespace RTT
      * directions, by matching port names.
      * @see TaskContext::connectPorts
      */
-    bool connectPorts(TaskContext* A, TaskContext* B);
+    RTT_API bool connectPorts(TaskContext* A, TaskContext* B);
 
     /**
      * Set up the Execution Flow (who knows who)
@@ -442,7 +442,7 @@ namespace RTT
      * use each other's interface.
      * @see TaskContext::connectPeers
      */
-    bool connectPeers(TaskContext* A, TaskContext* B);
+    RTT_API bool connectPeers(TaskContext* A, TaskContext* B);
 }
 
 #endif

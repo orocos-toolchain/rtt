@@ -1,6 +1,11 @@
 #ifndef ORO_OPERATION_INTERFACE_IDL
 #define ORO_OPERATION_INTERFACE_IDL
 
+#ifdef CORBA_IS_TAO
+//resolves LNK2005
+#include <tao/orb.idl>
+#endif
+
 #include "Operations.idl"
 
 module RTT

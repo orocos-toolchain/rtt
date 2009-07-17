@@ -19,7 +19,7 @@
 
 
 #include "template_factory_test.hpp"
-#include <unistd.h>
+
 #include <iostream>
 #include <FunctionGraph.hpp>
 #include <Command.hpp>
@@ -30,14 +30,14 @@
 
 #include <SimulationActivity.hpp>
 #include <SimulationThread.hpp>
+#include <TaskObject.hpp>
 
 #include <rtt-config.h>
 
 using namespace std;
 
-// Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( Template_FactoryTest );
-
+#include <boost/test/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
 
 void
 Template_FactoryTest::setUp()
@@ -47,7 +47,7 @@ Template_FactoryTest::setUp()
     tc->addObject( this->createUserMethodFactory() );
     tc->addObject( this->createCommandFactory() );
     t_event_float = RTT::Event<int( float, float )>("FloatEvent");
-    CPPUNIT_ASSERT( tc->events()->addEvent( &t_event_float, "Description","a1","d1", "a2", "d2" ) );
+    BOOST_CHECK( tc->events()->addEvent( &t_event_float, "Description","a1","d1", "a2", "d2" ) );
     tsim = new SimulationActivity(0.001, tc->engine() );
     event_proc = new EventProcessor();
     act.run(event_proc);
@@ -115,20 +115,37 @@ TaskObject* Template_FactoryTest::createCommandFactory()
 void Template_FactoryTest::executePrograms(const Parser::ParsedPrograms& pg_list )
 {
     tc->engine()->programs()->loadProgram( *pg_list.begin() );
-    CPPUNIT_ASSERT( tsim->start() );
-    CPPUNIT_ASSERT( (*pg_list.begin())->start() );
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(1000) );
-    CPPUNIT_ASSERT( (*pg_list.begin())->stop() );
+    BOOST_CHECK( tsim->start() );
+    BOOST_CHECK( (*pg_list.begin())->start() );
+    BOOST_CHECK( SimulationThread::Instance()->run(1000) );
+    BOOST_CHECK( (*pg_list.begin())->stop() );
     tsim->stop();
     if ( (*pg_list.begin())->inError() ) {
         stringstream errormsg;
         errormsg << " Program error on line " << (*pg_list.begin())->getLineNumber() <<"."<<endl;
-        CPPUNIT_ASSERT_MESSAGE( errormsg.str(), false );
+        BOOST_CHECK_MESSAGE( false ,errormsg.str());
     }
 }
 
 
-void Template_FactoryTest::testMethods()
+int Template_FactoryTest::float_listener(float a, float b)
+{
+    Logger::log() << Logger::Debug << "float_listener "<< a<<", "<<b<<Logger::endl;
+    float_sum += a + b;
+    return 1;
+}
+
+int Template_FactoryTest::float_completer(float a, float b)
+{
+    Logger::log() << Logger::Debug << "float_completer "<< a<<", "<<b<<Logger::endl;
+    float_sub -= (a + b);
+    return 1; // ignored...
+}
+
+// Registers the fixture into the 'registry'
+BOOST_FIXTURE_TEST_SUITE(  Template_FactoryTestSuite,  Template_FactoryTest )
+
+BOOST_AUTO_TEST_CASE( testMethods)
 {
     string prog = std::string("program x { ")
         +" var double r = 0.0\n"
@@ -150,17 +167,17 @@ void Template_FactoryTest::testMethods()
     }
     catch( const file_parse_exception& exc )
         {
-            CPPUNIT_ASSERT_MESSAGE(exc.what(), false );
+            BOOST_CHECK_MESSAGE(false , exc.what());
         }
     if ( pg_list.empty() )
         {
-            CPPUNIT_ASSERT( false );
+            BOOST_CHECK( false );
         }
     // execute
     executePrograms( pg_list );
 }
-
-void Template_FactoryTest::testUserMethods()
+#if !defined(OROCOS_TARGET_WIN32)
+BOOST_AUTO_TEST_CASE( testUserMethods)
 {
     string prog = std::string("program x {\n")
         +" var array vin = array(4)\n"
@@ -185,17 +202,18 @@ void Template_FactoryTest::testUserMethods()
     }
     catch( const file_parse_exception& exc )
         {
-            CPPUNIT_ASSERT_MESSAGE(exc.what(), false );
+            BOOST_CHECK_MESSAGE( false , exc.what());
         }
     if ( pg_list.empty() )
         {
-            CPPUNIT_ASSERT( false );
+            BOOST_CHECK( false );
         }
     // execute
     executePrograms( pg_list );
 }
+#endif
 
-void Template_FactoryTest::testCommands()
+BOOST_AUTO_TEST_CASE( testCommands)
 {
     string prog = string("program x { ")
         +" do commands.c00()\n"
@@ -214,30 +232,30 @@ void Template_FactoryTest::testCommands()
     }
     catch( const file_parse_exception& exc )
         {
-            CPPUNIT_ASSERT_MESSAGE(exc.what(), false );
+            BOOST_CHECK_MESSAGE( false , exc.what());
         }
     if ( pg_list.empty() )
         {
-            CPPUNIT_ASSERT( false );
+            BOOST_CHECK( false );
         }
     // execute
         executePrograms( pg_list );
 }
 
-void Template_FactoryTest::testManual()
+BOOST_AUTO_TEST_CASE( testManual)
 {
     // test manual invocation of factory methods by users:
 
     // C++ POD :
     vector<DataSourceBase::shared_ptr> res;
     res = GenerateDataSource()( 1 );
-    CPPUNIT_ASSERT( res.size() == 1 );
+    BOOST_CHECK( res.size() == 1 );
     res = GenerateDataSource()(1, 1.0 );
-    CPPUNIT_ASSERT( res.size() == 2 );
+    BOOST_CHECK( res.size() == 2 );
     res = GenerateDataSource()(1, 1.0, true );
-    CPPUNIT_ASSERT( res.size() == 3 );
+    BOOST_CHECK( res.size() == 3 );
     res = GenerateDataSource()(1, 1.0, true, "c" );
-    CPPUNIT_ASSERT( res.size() == 4 );
+    BOOST_CHECK( res.size() == 4 );
 
     // C++ DataSources :
     DataSourceBase::shared_ptr empty1;
@@ -246,32 +264,16 @@ void Template_FactoryTest::testManual()
     ValueDataSource<string>::shared_ptr empty4;
 
     res = GenerateDataSource()( empty1.get() );
-    CPPUNIT_ASSERT( res.size() == 1 );
+    BOOST_CHECK( res.size() == 1 );
     res = GenerateDataSource()( empty1.get(), empty2.get() );
-    CPPUNIT_ASSERT( res.size() == 2 );
+    BOOST_CHECK( res.size() == 2 );
     res = GenerateDataSource()( empty1.get(), empty2.get(), empty3.get() );
-    CPPUNIT_ASSERT( res.size() == 3 );
+    BOOST_CHECK( res.size() == 3 );
     res = GenerateDataSource()( empty1.get(), empty2.get(), empty3.get(), empty4.get() );
-    CPPUNIT_ASSERT( res.size() == 4 );
+    BOOST_CHECK( res.size() == 4 );
 }
 
-
-int Template_FactoryTest::float_listener(float a, float b)
-{
-    Logger::log() << Logger::Debug << "float_listener "<< a<<", "<<b<<Logger::endl;
-    float_sum += a + b;
-    return 1;
-}
-
-int Template_FactoryTest::float_completer(float a, float b)
-{
-    Logger::log() << Logger::Debug << "float_completer "<< a<<", "<<b<<Logger::endl;
-    float_sub -= (a + b);
-    return 1; // ignored...
-}
-
-
-void Template_FactoryTest::testEventC()
+BOOST_AUTO_TEST_CASE( testEventC)
 {
     float_sum = 0;
     float_sub = 0;
@@ -283,28 +285,28 @@ void Template_FactoryTest::testEventC()
     cc.callback( this, &Template_FactoryTest::float_completer, CompletionProcessor::Instance() );
     Handle h2 = cc.handle();
 
-    CPPUNIT_ASSERT( h1.connect() );
-    CPPUNIT_ASSERT( h2.connect() );
+    BOOST_CHECK( h1.connect() );
+    BOOST_CHECK( h2.connect() );
 
     // first test ConnectionC callbacks.
     t_event_float(1.0, 4.0);
-    CPPUNIT_ASSERT_EQUAL( float(5.0), float_sum );
-    CPPUNIT_ASSERT_EQUAL( float(0.0),  float_sub );
+    BOOST_CHECK_EQUAL( float(5.0), float_sum );
+    BOOST_CHECK_EQUAL( float(0.0),  float_sub );
     float_sum = float_sub = 0.0;
 
     // OK, now test if the EventC emission works.
     EventC mevent;
-    CPPUNIT_ASSERT_NO_THROW( mevent = tc->events()->setupEmit("FloatEvent").argC(float(1.0)).argC(float(4.0)) );
-    CPPUNIT_ASSERT( mevent.ready() );
+    BOOST_CHECK_NO_THROW( mevent = tc->events()->setupEmit("FloatEvent").argC(float(1.0)).argC(float(4.0)) );
+    BOOST_CHECK( mevent.ready() );
     mevent.emit();
-    CPPUNIT_ASSERT_EQUAL( float(5.0), float_sum );
-    CPPUNIT_ASSERT_EQUAL( float(0.0),  float_sub );
+    BOOST_CHECK_EQUAL( float(5.0), float_sum );
+    BOOST_CHECK_EQUAL( float(0.0),  float_sub );
 
     float a = 10.0, b = 5.0;
-    CPPUNIT_ASSERT_NO_THROW( mevent = tc->events()->setupEmit("FloatEvent").arg(a).arg(b) );
+    BOOST_CHECK_NO_THROW( mevent = tc->events()->setupEmit("FloatEvent").arg(a).arg(b) );
     mevent.emit();
-    CPPUNIT_ASSERT_EQUAL( float(20.0), float_sum );
-    CPPUNIT_ASSERT_EQUAL( float(0.0),  float_sub );
+    BOOST_CHECK_EQUAL( float(20.0), float_sum );
+    BOOST_CHECK_EQUAL( float(0.0),  float_sub );
 
     CompletionProcessor::Instance()->start();
 
@@ -314,7 +316,7 @@ void Template_FactoryTest::testEventC()
     float_sub = 0;
 
     // use event processor
-    CPPUNIT_ASSERT(act.start());
+    BOOST_CHECK(act.start());
 
     cc = tc->events()->setupConnection("FloatEvent").callback( this, &Template_FactoryTest::float_listener);
     h1 = cc.handle();
@@ -327,17 +329,18 @@ void Template_FactoryTest::testEventC()
     // simulate overrun :
     mevent = tc->events()->setupEmit("FloatEvent").argC(float(1.0)).argC(float(4.0));
     mevent.emit();
-    CPPUNIT_ASSERT_EQUAL( float(5.0), float_sum );
+    BOOST_CHECK_EQUAL( float(5.0), float_sum );
 
     mevent = tc->events()->setupEmit("FloatEvent").arg(a).arg(b);
     mevent.emit();
-    CPPUNIT_ASSERT_EQUAL( float(20.0), float_sum );
+    BOOST_CHECK_EQUAL( float(20.0), float_sum );
 
     event_proc->step();
     event_proc->finalize();
     // asyn handlers should reach only last total.
-    CPPUNIT_ASSERT_EQUAL( float(-15.0), float_sub );
+    BOOST_CHECK_EQUAL( float(-15.0), float_sub );
     h1.disconnect();
     h2.disconnect();
 }
 
+BOOST_AUTO_TEST_SUITE_END()

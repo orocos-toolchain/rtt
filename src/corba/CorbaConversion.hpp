@@ -141,22 +141,22 @@ namespace RTT
     };
 
     template<>
-    struct AnyConversion<double> : public AnyConversionHelper<double> {};
+    struct RTT_CORBA_API AnyConversion<double> : public AnyConversionHelper<double> {};
 
     template<>
-    struct AnyConversion<float> : public AnyConversionHelper<float> {};
+    struct RTT_CORBA_API AnyConversion<float> : public AnyConversionHelper<float> {};
 
     template<>
-    struct AnyConversion<int> : public AnyConversionHelper<int, CORBA::Long> {};
+    struct RTT_CORBA_API AnyConversion<int> : public AnyConversionHelper<int, CORBA::Long> {};
+
+    //template<>
+    //struct RTT_CORBA_API AnyConversion<long> : public AnyConversionHelper<long> {};
 
     template<>
-    struct AnyConversion<long> : public AnyConversionHelper<long> {};
+    struct RTT_CORBA_API AnyConversion<unsigned int> : public AnyConversionHelper<unsigned int, CORBA::ULong> {};
 
     template<>
-    struct AnyConversion<unsigned int> : public AnyConversionHelper<unsigned int, CORBA::ULong> {};
-
-    template<>
-    struct AnyConversion<CORBA::Any_ptr>
+    struct RTT_CORBA_API AnyConversion<CORBA::Any_ptr>
     {
         typedef CORBA::Any_ptr CorbaType;
         typedef CORBA::Any_ptr StdType;
@@ -174,7 +174,7 @@ namespace RTT
     };
 
     template<>
-    struct AnyConversion<CORBA::Any_var>
+    struct RTT_CORBA_API AnyConversion<CORBA::Any_var>
     {
         typedef CORBA::Any_ptr CorbaType;
         typedef CORBA::Any_var StdType;
@@ -192,7 +192,7 @@ namespace RTT
     };
 
     template<>
-    struct AnyConversion<PropertyBag>
+    struct RTT_CORBA_API AnyConversion<PropertyBag>
     {
         typedef Corba::AttributeInterface_ptr CorbaType;
         typedef PropertyBag StdType;
@@ -202,7 +202,7 @@ namespace RTT
     };
 
     template<>
-    struct AnyConversion<bool>
+    struct RTT_CORBA_API AnyConversion<bool>
     {
         typedef CORBA::Boolean CorbaType;
         typedef bool StdType;
@@ -234,7 +234,7 @@ namespace RTT
     };
 
     template<>
-    struct AnyConversion<char>
+    struct RTT_CORBA_API AnyConversion<char>
     {
         typedef CORBA::Char CorbaType;
         typedef char StdType;
@@ -265,7 +265,7 @@ namespace RTT
     };
 
     template<>
-    struct AnyConversion<std::string>
+    struct RTT_CORBA_API AnyConversion<std::string>
     {
         typedef const char* CorbaType;
         typedef std::string StdType;
@@ -297,16 +297,16 @@ namespace RTT
     };
 
     template<>
-    struct AnyConversion< std::vector<double> >
+    struct RTT_CORBA_API AnyConversion< std::vector<double> >
     {
         typedef Corba::DoubleSequence CorbaType;
         typedef std::vector<double> StdType;
         static CorbaType* toAny(const std::vector<double>& orig) {
             //Logger::log() << Logger::Debug << "Converting type 'std::vector<double>' to sequence<CORBA::Double>." <<Logger::endl;
             CorbaType* ret = new CorbaType();
-            ret->length( orig.size() );
+            ret->length( (CORBA::ULong)(orig.size()) );
             for( size_t i = 0; i != orig.size(); ++i)
-                (*ret)[i] = orig[i];
+                (*ret)[(CORBA::ULong)(i)] = orig[i];
             return ret;
         }
 
@@ -314,7 +314,7 @@ namespace RTT
             StdType ret;
             ret.resize( t->length() );
             for( size_t i = 0; i != t->length(); ++i)
-                ret[i] = (*t)[i];
+                ret[i] = (*t)[(CORBA::ULong)(i)];
             return ret;
         }
 
@@ -323,7 +323,7 @@ namespace RTT
             if ( any >>= result ) {
                 _value.resize( result->length() );
                 for( size_t i = 0; i != result->length(); ++i)
-                    _value[i] = (*result)[i];
+                    _value[i] = (*result)[(CORBA::ULong)(i)];
                 return true;
             }
             return false;

@@ -19,32 +19,35 @@
 
 
 #include "function_test.hpp"
-#include <unistd.h>
+
 #include <iostream>
 #include <sstream>
 #include <FunctionGraph.hpp>
 #include <SimulationThread.hpp>
 #include <Method.hpp>
 #include <Command.hpp>
+#include <TaskObject.hpp>
 
 using namespace std;
 
-// Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( FunctionTest );
-
+#include <boost/test/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
 
     FunctionTest::FunctionTest()
         : gtc("root" ),
           gtask( 0.01, gtc.engine() )
-    {}
+    {
+    	setUp();
+    }
 
 
 void
 FunctionTest::setUp()
 {
+    BOOST_CHECK( SimulationThread::Instance()->stop() );
     // ltc has a test object
     gtc.addObject(this->createObject("test", gtc.engine()->commands() ) );
-
+    gtask.start();
     i = 0;
 }
 
@@ -108,7 +111,10 @@ OperationInterface* FunctionTest::createObject(string a, CommandProcessor* cp)
     return dat;
 }
 
-void FunctionTest::testSimpleFunction()
+BOOST_FIXTURE_TEST_SUITE( FunctionTestSuite, FunctionTest )
+// Registers the fixture into the 'registry'
+
+BOOST_AUTO_TEST_CASE( testSimpleFunction)
 {
     string prog = string("function foo { \n")
         + " do test.assert( test.isTrue( true ) )\n"
@@ -123,7 +129,7 @@ void FunctionTest::testSimpleFunction()
     this->finishFunction( &gtc, "x");
 }
 
-void FunctionTest::testExportFunction()
+BOOST_AUTO_TEST_CASE( testExportFunction)
 {
     string prog = string("export function foo { \n")
         + " do test.assert( test.isTrue( true ) )\n"
@@ -136,7 +142,7 @@ void FunctionTest::testExportFunction()
     this->finishFunction( &gtc, "x");
 }
 
-void FunctionTest::testRecFunction()
+BOOST_AUTO_TEST_CASE( testRecFunction)
 {
     string prog = string("export function foo { \n")
         + " do this.foo()\n" // recursive is forbidden.
@@ -164,12 +170,12 @@ void FunctionTest::testRecFunction()
                 {
                     return;
                 }
-            CPPUNIT_ASSERT_MESSAGE( "Recursive 'call' function was accepted, while it is illegal.", false );
+            BOOST_CHECK_MESSAGE( false, "Recursive 'call' function was accepted, while it is illegal." );
         }
-    CPPUNIT_ASSERT_MESSAGE( "Recursive 'do' function was accepted, while it is illegal.", false );
+    BOOST_CHECK_MESSAGE( false , "Recursive 'do' function was accepted, while it is illegal.");
 }
 
-void FunctionTest::testCallFunction()
+BOOST_AUTO_TEST_CASE( testCallFunction)
 {
     string prog = string("function foo(int a, string b, bool c) { \n")
         + " do test.assert( test.isTrue( true ) )\n"
@@ -185,7 +191,7 @@ void FunctionTest::testCallFunction()
     this->finishFunction( &gtc, "x");
 }
 
-void FunctionTest::testFunctionStack()
+BOOST_AUTO_TEST_CASE( testFunctionStack)
 {
     string prog = string("export function foo { \n")
         +"  var double a = 1.234\n"
@@ -215,7 +221,7 @@ void FunctionTest::testFunctionStack()
 }
 
 
-void FunctionTest::testFunctionExportArgs()
+BOOST_AUTO_TEST_CASE( testFunctionExportArgs)
 {
     // Test if the foo args are init'ed correctly.
     string prog =
@@ -241,7 +247,7 @@ void FunctionTest::testFunctionExportArgs()
     this->finishFunction( &gtc, "x");
 }
 
-void FunctionTest::testFunctionCallArgs()
+BOOST_AUTO_TEST_CASE( testFunctionCallArgs)
 {
     // Test if the foo args are init'ed correctly.
     string prog =
@@ -270,7 +276,7 @@ void FunctionTest::testFunctionCallArgs()
     this->finishFunction( &gtc, "x");
 }
 
-void FunctionTest::testFunctionFail()
+BOOST_AUTO_TEST_CASE( testFunctionFail)
 {
     // Test if obj-function error is propagated correctly to
     // calling program or function
@@ -298,33 +304,36 @@ void FunctionTest::testFunctionFail()
     this->finishFunction( &gtc, "x");
 }
 
+BOOST_AUTO_TEST_SUITE_END()
+
 void FunctionTest::doFunction( const std::string& prog, TaskContext* tc, bool test )
 {
-    CPPUNIT_ASSERT( tc->engine() );
-    CPPUNIT_ASSERT( tc->engine()->programs());
+    BOOST_CHECK( tc->engine() );
+    BOOST_CHECK( tc->engine()->programs());
     Parser::ParsedPrograms pg_list;
     try {
         pg_list = parser.parseProgram( prog, tc );
     }
     catch( const file_parse_exception& exc )
         {
-            CPPUNIT_ASSERT_MESSAGE( exc.what(), false );
+            BOOST_CHECK_MESSAGE( false , exc.what() );
         }
     if ( pg_list.empty() )
         {
-            CPPUNIT_ASSERT_MESSAGE("No program parsed in test.", false );
+            BOOST_CHECK_MESSAGE(false , "No program parsed in test.");
         }
     ProgramProcessor* pp = tc->engine()->programs();
-    pp->loadProgram( *pg_list.begin() );
-    pp->getProgram( (*pg_list.begin())->getName() )->start();
-    CPPUNIT_ASSERT( SimulationThread::Instance()->run(1000) );
-    gtask.stop();
+    BOOST_CHECK( pp->loadProgram( *pg_list.begin() ) );
+    BOOST_CHECK( pp->getProgram( (*pg_list.begin())->getName() )->start() );
+
+    BOOST_CHECK( SimulationThread::Instance()->run(1000) );
+    BOOST_CHECK( gtask.stop() );
 
     if (test ) {
         stringstream errormsg;
         errormsg << " on line " << pp->getProgram("x")->getLineNumber() <<"."<<endl;
-        CPPUNIT_ASSERT_MESSAGE( "Runtime error encountered" + errormsg.str(), pp->getProgramStatus("x") != ProgramInterface::Status::error );
-        CPPUNIT_ASSERT_MESSAGE( "Program stalled " + errormsg.str(), pp->getProgramStatus("x") == ProgramInterface::Status::stopped );
+        BOOST_CHECK_MESSAGE( pp->getProgramStatus("x") != ProgramInterface::Status::error , "Runtime error encountered" + errormsg.str());
+        BOOST_CHECK_MESSAGE( pp->getProgramStatus("x") == ProgramInterface::Status::stopped, "Program stalled " + errormsg.str() );
     }
 }
 
@@ -333,6 +342,5 @@ void FunctionTest::finishFunction(TaskContext* tc, std::string prog_name)
     tc->engine()->programs()->getProgram( prog_name )->stop();
     tc->engine()->programs()->unloadProgram( prog_name );
 }
-
 
 

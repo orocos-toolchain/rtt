@@ -37,6 +37,10 @@
 
 #include "os/StartStopManager.hpp"
 
+//needed for std::bind1st and std::mem_fun to compile under MSVC
+#include <functional>
+
+
 namespace RTT
 { namespace OS {
 

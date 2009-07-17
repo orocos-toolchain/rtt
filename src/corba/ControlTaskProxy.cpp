@@ -60,6 +60,7 @@
 #include "CORBAExpression.hpp"
 #include "ScriptingAccessProxy.hpp"
 #include "CorbaPort.hpp"
+#include "TaskObject.hpp"
 
 #include "CommandInterface.hpp"
 #include "Types.hpp"

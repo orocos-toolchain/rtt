@@ -20,8 +20,6 @@
 #ifndef FUNCTIONTEST_H
 #define FUNCTIONTEST_H
 
-#include <cppunit/extensions/HelperMacros.h>
-
 #include <scripting/Parser.hpp>
 #include <ExecutionEngine.hpp>
 #include <TaskContext.hpp>
@@ -29,21 +27,10 @@
 #include <SimulationActivity.hpp>
 
 using namespace RTT;
-using namespace RTT;
 
-class FunctionTest : public CppUnit::TestFixture
+class FunctionTest
 {
-    CPPUNIT_TEST_SUITE( FunctionTest );
-    CPPUNIT_TEST( testSimpleFunction );
-   CPPUNIT_TEST( testRecFunction );
-    CPPUNIT_TEST( testCallFunction );
-    CPPUNIT_TEST( testExportFunction );
-   CPPUNIT_TEST( testFunctionStack );
-    CPPUNIT_TEST( testFunctionCallArgs );
-    CPPUNIT_TEST( testFunctionExportArgs );
-   CPPUNIT_TEST( testFunctionFail );
-    CPPUNIT_TEST_SUITE_END();
-
+public:
     Parser parser;
     TaskContext gtc;
     SimulationActivity gtask;
@@ -65,6 +52,7 @@ class FunctionTest : public CppUnit::TestFixture
     int i;
 public:
     FunctionTest();
+    ~FunctionTest(){tearDown();};
 
     void setUp();
     void tearDown();

@@ -44,9 +44,9 @@
 namespace RTT
 {
 
-    DataSourceBase::DataSourceBase() { oro_atomic_set(&refcount,0); }
-    void DataSourceBase::ref() const { oro_atomic_inc(&refcount); }
-    void DataSourceBase::deref() const { if ( oro_atomic_dec_and_test(&refcount) ) delete this; }
+    DataSourceBase::DataSourceBase() : refcount(0) {  }
+    void DataSourceBase::ref() const { refcount.inc(); }
+    void DataSourceBase::deref() const { if ( refcount.dec_and_test() ) delete this; }
 
     DataSourceBase::~DataSourceBase()
     {
@@ -190,9 +190,10 @@ namespace RTT
         const std::string& DataSourceTypeInfo<void>::getType() { return tname; }
         const std::string& DataSourceTypeInfo<void>::getQualifier() { return DataSourceTypeInfo<UnknownType>::noqual; }
         const TypeInfo* DataSourceTypeInfo<void>::getTypeInfo() {
-            return DataSourceTypeInfo<UnknownType>::getTypeInfo();
+            if (!TypeInfoObject)
+                return DataSourceTypeInfo<UnknownType>::getTypeInfo();
+            return TypeInfoObject;
         }
-
     }
 }
 

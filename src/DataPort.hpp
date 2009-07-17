@@ -46,6 +46,7 @@
 #include "OperationInterface.hpp"
 #include "Method.hpp"
 #include "ConnectionTypes.hpp"
+#include "TaskObject.hpp"
 
 namespace RTT
 {

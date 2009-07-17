@@ -20,8 +20,6 @@
 #ifndef GENERIC_TASK_3_H
 #define GENERIC_TASK_3_H
 
-#include <cppunit/extensions/HelperMacros.h>
-
 #include "TaskContext.hpp"
 #include <string>
 
@@ -30,23 +28,10 @@ using namespace RTT;
 class StatesTC;
 class EventPortsTC;
 
-class Generic_TaskTest_3 : public CppUnit::TestFixture
+class Generic_TaskTest_3
 {
-    CPPUNIT_TEST_SUITE( Generic_TaskTest_3 );
-    CPPUNIT_TEST( testPeriod );
-    CPPUNIT_TEST( testExecutionEngine );
-    CPPUNIT_TEST( testPorts );
-    CPPUNIT_TEST( testEventPorts );
-    CPPUNIT_TEST( testConnections );
-    CPPUNIT_TEST( testPortObjects );
-    CPPUNIT_TEST( testProperties );
-    CPPUNIT_TEST( testAttributes );
-    CPPUNIT_TEST( testTCStates );
-    CPPUNIT_TEST( testSpecialTCStates );
-    CPPUNIT_TEST( testFailingTCStates );
-    CPPUNIT_TEST_SUITE_END();
-
-    TaskContext* tc;
+public:
+	TaskContext* tc;
     EventPortsTC* tce;
     EventPortsTC* tc2;
     StatesTC* stc;
@@ -54,7 +39,8 @@ class Generic_TaskTest_3 : public CppUnit::TestFixture
     ActivityInterface* stsim;
 
 public:
-
+	Generic_TaskTest_3(){ setUp();};
+	~Generic_TaskTest_3(){ tearDown();};
     void setUp();
     void tearDown();
 

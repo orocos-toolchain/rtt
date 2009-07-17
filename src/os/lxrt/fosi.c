@@ -198,6 +198,18 @@ int rtos_nanosleep(const TIME_SPEC *rqtp, TIME_SPEC *rmtp)
         return rt_sem_wait_if(m->sem) > 0 ? 0 : -EAGAIN;
     }
 
+    int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
+    {
+        CHK_LXRT_CALL();
+        return rt_sem_wait_until(m->sem, nano2count(abs_time)) < SEM_TIMOUT ? 0 : -EAGAIN;
+    }
+
+    int rtos_mutex_rec_lock_until( rt_rec_mutex_t* m, NANO_TIME abs_time)
+    {
+        CHK_LXRT_CALL();
+        return rt_sem_wait_until(m->sem, nano2count(abs_time)) < SEM_TIMOUT ? 0 : -EAGAIN;
+    }
+
     int rtos_mutex_rec_unlock( rt_rec_mutex_t* m)
     {
         CHK_LXRT_CALL();
