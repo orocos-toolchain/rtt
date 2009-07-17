@@ -49,9 +49,9 @@ int rtos_printf(const char *fmt, ...)
     char printkbuf [2000];
     printkbuf[0] = '\0';
     va_start (list, fmt);
-    vsprintf(printkbuf, fmt, list);
+    vsnprintf(printkbuf,2000, fmt, list);
     va_end (list);
-    return printf(printkbuf);
+    return printf("%s",printkbuf);
 }
 
 
