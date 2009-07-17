@@ -1,0 +1,37 @@
+#!/bin/bash -x
+
+patch=/tmp/trigger-bug.patch
+
+# 0  : success
+# 125: uncompilable
+# 1: failure
+
+function failure
+{
+cd ..
+patch -p0 -R < $patch
+exit 1
+}
+
+function success
+{
+cd ..
+patch -p0 -R < $patch
+exit 0
+}
+
+function notbuildable
+{
+cd ..
+patch -p0 -R < $patch
+exit 125
+}
+
+patch -p0 < $patch
+cd build
+make -j2 || notbuildable
+make taskcontext-test || notbuildable
+./tests/taskcontext-test || failure
+
+success
+
