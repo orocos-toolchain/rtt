@@ -2,14 +2,6 @@ INCLUDE(CTest)
 
 IF (BUILD_TESTING OR ENABLE_TESTS)
 
-   # Look for boost test
-   find_package(Boost 1.32 COMPONENTS unit_test_framework REQUIRED)
-
-   if(Boost_FOUND)
-     list(APPEND TEST_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} )
-     list(APPEND TEST_LIBRARIES ${Boost_LIBRARIES} )
-   endif(Boost_FOUND)
-
     # See ADD_TEST() below.
     ENABLE_TESTING()
     INCLUDE_DIRECTORIES( ${PROJ_SOURCE_DIR}/src ${PROJ_BINARY_DIR}/src ${PROJ_BINARY_DIR}/src/os ${PROJ_BINARY_DIR}/src/os/${OROCOS_TARGET})
