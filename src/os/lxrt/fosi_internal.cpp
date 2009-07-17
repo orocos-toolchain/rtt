@@ -183,6 +183,7 @@ namespace RTT
             rt_make_soft_real_time();
             // cleanup here to avoid "LXRT Releases PID" warnings.
             rt_task_delete(task->rtaitask);
+            task->rtaitask = 0;
             // See rtos_task_delete for further cleanups.
             return data;
         }
@@ -216,17 +217,28 @@ namespace RTT
             // Set priority
             task->priority = priority;
 
+            // Set rtai task struct to zero
+            task->rtaitask = 0;
+
             RTAI_Thread* rt = (RTAI_Thread*)malloc( sizeof(RTAI_Thread) );
             rt->priority = priority;
             rt->data = obj;
             rt->wrapper = start_routine;
             rt->task = task;
             rt->tnum = task_num;
-            return pthread_create(&(task->thread), 0,
+            int retv = pthread_create(&(task->thread), 0,
                                   rtai_thread_wrapper, rt);
+            // poll for thread creation to be done.
+            int timeout = 0;
+            while ( task->rtaitask == 0 && ++timeout < 20)
+                usleep(100000);
+            return timeout <  20 ? retv : -1;
         }
 
-        INTERNAL_QUAL void rtos_task_yield(RTOS_TASK*) {
+        INTERNAL_QUAL void rtos_task_yield(RTOS_TASK* mytask) {
+            if (mytask->rtaitask == 0)
+                return;
+
             rt_task_yield();
         }
 
@@ -242,7 +254,7 @@ namespace RTT
 
         INTERNAL_QUAL int rtos_task_set_scheduler(RTOS_TASK* t, int s) {
             Logger::In in( t->name );
-            if ( t->rtaitask != rt_buddy() ) {
+            if ( t->rtaitask == 0 || t->rtaitask != rt_buddy() ) {
                 return -1;
             }
             if (rtos_task_check_scheduler(&s) == -1)
@@ -262,7 +274,9 @@ namespace RTT
 
         INTERNAL_QUAL void rtos_task_make_periodic(RTOS_TASK* mytask, NANO_TIME nanosecs )
         {
-            if (rt_whoami() == mytask) {
+            if (mytask->rtaitask == 0)
+                return;
+            if (rt_buddy() == mytask->rtaitask) {
                 // do not suspend/resume my own thread
                 // do best effort to change period.
                 rtos_task_set_period(mytask,nanosecs);
@@ -284,6 +298,8 @@ namespace RTT
 
         INTERNAL_QUAL void rtos_task_set_period( RTOS_TASK* mytask, NANO_TIME nanosecs )
         {
+            if (mytask->rtaitask == 0)
+                return;
             if ( nanosecs == 0 )
                 rt_set_period(mytask->rtaitask, 0 );
             else
@@ -292,6 +308,8 @@ namespace RTT
 
         INTERNAL_QUAL int rtos_task_wait_period( RTOS_TASK* mytask )
         {
+            if (mytask->rtaitask == 0)
+                return -1;
             // only in RTAI 3.2, this returns overrun or not.
             // so do not use retval for compatibility reasons.
             rt_task_wait_period();
@@ -330,6 +348,10 @@ namespace RTT
         INTERNAL_QUAL int rtos_task_set_priority(RTOS_TASK * mytask, int priority)
         {
             int rv;
+
+            if (mytask->rtaitask == 0)
+                return -1;
+
             // returns the *old* priority.
             rv = rt_change_prio( mytask->rtaitask, priority);
             if (rv == mytask->priority) {
