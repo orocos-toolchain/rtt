@@ -129,7 +129,6 @@ INCLUDE_DIRECTORIES(${PROJ_SOURCE_DIR}/src ${PROJ_BINARY_DIR}/src ${PROJ_BINARY_
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(doc)
 ADD_SUBDIRECTORY(tests)
-ADD_SUBDIRECTORY(testsboost) # boost tests instead of cppunit
 
 #CONFIGURE_FILE( orocos-rtt.pc.in orocos-rtt-${OROCOS_TARGET}.pc @ONLY)
 #INSTALL_FILES( /lib/pkgconfig FILES orocos-rtt-${OROCOS_TARGET}.pc)

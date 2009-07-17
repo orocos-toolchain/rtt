@@ -183,13 +183,6 @@
 		TAO can be used to set up communication between components.
 		</entry>
 	      </row>
-	      <row>
-		<entry>CppUnit Library</entry>
-		<entry>1.9.6 (Optional)</entry>
-		<entry><ulink url="http://cppunit.sourceforge.net/cgi-bin/moin.cgi">CppUnit website.</ulink>
-		  Only needed if you want to run the Orocos tests.
-		</entry>
-	      </row>
 	    </tbody>
 	  </tgroup>
 	</table>

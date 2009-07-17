@@ -58,22 +58,6 @@ ENDIF ( DOXYGEN )
 # An option for tests, to make it easy to turn off all tests
 #
 OPTION( ENABLE_TESTS "Turn me off to disable compilation of all tests" OFF )
-IF( ENABLE_TESTS )
-  IF (NOT CMAKE_CROSS_COMPILE )
-    FIND_LIBRARY(CPPUNIT NAMES cppunit PATHS /usr/local/lib /usr/lib )
-    FIND_PATH( CPPUNIT_HEADERS cppunit/TestRunner.h)
-  ELSE (NOT CMAKE_CROSS_COMPILE )
-    FIND_LIBRARY(CPPUNIT NAMES cppunit NO_DEFAULT_PATH )
-  ENDIF (NOT CMAKE_CROSS_COMPILE )
-  IF ( CPPUNIT AND CPPUNIT_HEADERS)
-    MESSAGE("-- Looking for Cppunit - found")
-  ELSE ( CPPUNIT AND CPPUNIT_HEADERS )
-    MESSAGE( FATAL_ERROR "-- Looking for Cppunit - not found")
-  ENDIF ( CPPUNIT AND CPPUNIT_HEADERS )
-ENDIF(ENABLE_TESTS )
-
-# Enable boost tests (just a port of the CPPUNIT tests above, removes a library dependancy)
-OPTION( ENABLE_BOOST_TESTS "Turn me off to disable compilation of all tests" ON )
 
 #
 # STATIC or SHARED
