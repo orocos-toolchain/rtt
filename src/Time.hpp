@@ -40,6 +40,11 @@
 
 #include <cmath>
 
+/****************************************
+*	 Implementation of rint for MSVC	*
+****************************************/
+#include "os/rint.h"
+
 /**
  * @defgroup CoreLibTime Time measurement classes.
  * Time measurement and time keeping.

@@ -1,6 +1,8 @@
 #ifndef ORO_CORBA_ATTRIBUTES
 #define ORO_CORBA_ATTRIBUTES
 
+//resolves LNK2005
+#include <tao/orb.idl>
 #include "Operations.idl"
 
 module RTT

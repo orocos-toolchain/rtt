@@ -84,8 +84,14 @@ namespace RTT
   // documentation for more details, as that's where I got it from..
   // we use __typeof__ instead of typeof because it is not disabled by
   // using gcc -ansi
+
+  //TODO: this typeof replaced by boost header might not work.
 #   define RULE( name, def ) \
-      __typeof__( (def) ) name = (def)
+	boost::spirit::contiguous<boost::spirit::sequence<boost::spirit::alpha_parser,boost::spirit::kleene_star<boost::spirit::chset<char> > > > name = (def)
+      //BOOST_TYPE_OF(( (def) ) name = (def)
+  // typeof is not a native c/c++ construct and is gcc specific
+  //__typeof__( (def) ) name = (def)
+  
 
 
 #if 1
@@ -136,7 +142,23 @@ namespace RTT
         comment_p( "/*", "*/" ) | (space_p - eol_p) | eol_skip_p  )
 
   // here are the typedef's for the scanner, and the rule types..
-  typedef __typeof__( SKIP_PARSER ) skip_parser_t;
+  //typedef __typeof__ ( SKIP_PARSER ) skip_parser_t;
+	
+	//register SKIP_PARSER with typeof system 
+	//struct X {};
+	//BOOST_TYPEOF_REGISTER_TYPE(X);
+	//TODO:
+	//typedef alternative<chlit<>, alternative<chlit<>, alternative<chlit<>, alternative<chlit<>, chlit<> > > > > skip_parser_t;
+	typedef boost::spirit::alternative<boost::spirit::alternative<boost::spirit::alternative<boost::spirit::alternative<boost::spirit::confix_parser<boost::spirit::impl::string_as_parser::type,boost::spirit::kleene_star<boost::spirit::anychar_parser>,boost::spirit::alternative<boost::spirit::eol_parser,boost::spirit::end_parser>,boost::spirit::unary_parser_category,boost::spirit::non_nested,boost::spirit::is_lexeme>,boost::spirit::confix_parser<boost::spirit::impl::string_as_parser::type,boost::spirit::kleene_star<boost::spirit::anychar_parser>,boost::spirit::alternative<boost::spirit::eol_parser,boost::spirit::end_parser>,boost::spirit::unary_parser_category,boost::spirit::non_nested,boost::spirit::is_lexeme> >,boost::spirit::confix_parser<boost::spirit::impl::string_as_parser::type,boost::spirit::kleene_star<boost::spirit::anychar_parser>,boost::spirit::impl::string_as_parser::type,boost::spirit::unary_parser_category,boost::spirit::non_nested,boost::spirit::is_lexeme> >,boost::spirit::difference<boost::spirit::space_parser,boost::spirit::eol_parser> >,boost::spirit::functor_parser<RTT::eol_skip_functor> > skip_parser_t;
+	//typedef BOOST_TYPEOF( SKIP_PARSER ) skip_parser_t;
+	/*typedef
+		alternative<alternative<space_parser, sequence<sequence<
+               strlit<const char*>, kleene_star<difference<anychar_parser,
+               chlit<char> > > >, chlit<char> > >, sequence<sequence<
+               strlit<const char*>, kleene_star<difference<anychar_parser,
+               strlit<const char*> > > >, strlit<const char*> > >
+	skip_parser_t;*/
+
 #else
   // we need to know what type the skip parser will be in order to be
   // able to know what types the scanner and rule will be exactly.

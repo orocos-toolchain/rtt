@@ -304,9 +304,9 @@ namespace RTT
         static CorbaType* toAny(const std::vector<double>& orig) {
             //Logger::log() << Logger::Debug << "Converting type 'std::vector<double>' to sequence<CORBA::Double>." <<Logger::endl;
             CorbaType* ret = new CorbaType();
-            ret->length( orig.size() );
+            ret->length( (CORBA::ULong)(orig.size()) );
             for( size_t i = 0; i != orig.size(); ++i)
-                (*ret)[i] = orig[i];
+                (*ret)[(CORBA::ULong)(i)] = orig[i];
             return ret;
         }
 
@@ -314,7 +314,7 @@ namespace RTT
             StdType ret;
             ret.resize( t->length() );
             for( size_t i = 0; i != t->length(); ++i)
-                ret[i] = (*t)[i];
+                ret[i] = (*t)[(CORBA::ULong)(i)];
             return ret;
         }
 
@@ -323,7 +323,7 @@ namespace RTT
             if ( any >>= result ) {
                 _value.resize( result->length() );
                 for( size_t i = 0; i != result->length(); ++i)
-                    _value[i] = (*result)[i];
+                    _value[i] = (*result)[(CORBA::ULong)(i)];
                 return true;
             }
             return false;

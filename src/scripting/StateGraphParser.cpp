@@ -636,8 +636,11 @@ namespace RTT
 
     std::vector<ParsedStateMachinePtr> StateGraphParser::parse( iter_t& begin, iter_t end )
     {
-        skip_parser_t skip_parser = SKIP_PARSER;
-        iter_pol_t iter_policy( skip_parser );
+        //skip_parser_t skip_parser = SKIP_PARSER;
+        //iter_pol_t iter_policy( skip_parser );
+		//#define SKIP_PARSER
+        iter_pol_t iter_policy( ( comment_p( "#" ) | comment_p( "//" ) | \
+        comment_p( "/*", "*/" ) | (space_p - eol_p) | eol_skip_p  ) );
         scanner_pol_t policies( iter_policy );
         scanner_t scanner( begin, end, policies );
 

@@ -499,7 +499,7 @@ namespace RTT
         typedef List<detail::EventCatcher*> ECList;
         ECList catchers;
 
-        friend class detail::EventCatcher;
+        friend struct detail::EventCatcher;
         void destroyed( detail::EventCatcher* ec );
 
         OS::AtomicInt has_work;

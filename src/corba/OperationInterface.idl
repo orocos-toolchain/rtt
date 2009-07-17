@@ -1,6 +1,8 @@
 #ifndef ORO_OPERATION_INTERFACE_IDL
 #define ORO_OPERATION_INTERFACE_IDL
 
+//resolves LNK2005
+#include <tao/orb.idl>
 #include "Operations.idl"
 
 module RTT

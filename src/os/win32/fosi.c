@@ -37,7 +37,9 @@
 
 
 #include "fosi.h"
+#ifdef __MINGW32__
 #include <unistd.h>
+#endif
 #include <stdarg.h>
 
 #undef rtos_printf
@@ -52,7 +54,11 @@ int rtos_printf(const char *fmt, ...)
     return printf(printkbuf);
 }
 
-void sleep(long ms){
-	Sleep(ms);
+void sleep(long s){
+    Sleep( ms*1000 );
+}
+
+void usleep(long us){
+    Sleep( us / 1000 );
 }
 

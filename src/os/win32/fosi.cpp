@@ -1,12 +1,12 @@
 /***************************************************************************
-  tag: Peter Soetens  Wed Jan 18 14:11:39 CET 2006  Time.hpp 
+  tag: Peter Soetens  Mon Jan 10 15:59:15 CET 2005  fosi.c
 
-                        Time.hpp -  description
+                        fosi.c -  description
                            -------------------
-    begin                : Wed January 18 2006
-    copyright            : (C) 2006 Peter Soetens
-    email                : peter.soetens@mech.kuleuven.be
- 
+    begin                : Mon January 10 2005
+    copyright            : (C) 2005 Peter Soetens
+    email                : peter.soetens@mech.kuleuven.ac.be
+
  ***************************************************************************
  *   This library is free software; you can redistribute it and/or         *
  *   modify it under the terms of the GNU General Public                   *
@@ -34,46 +34,36 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
- 
- 
-#ifndef OS_TIME_HPP
-#define OS_TIME_HPP
 
-#include <cmath>
 
-//rint function support implemented for MSVC
-#include "rint.h"
+#include "fosi.h"
+//linux specific
+//#include <unistd.h>
+#include <stdarg.h>
 
-namespace RTT
-{ namespace OS {
+#undef rtos_printf
 
-    typedef double Seconds;
-    typedef long secs;
-    typedef long msecs;
-    typedef long usecs;
-    typedef long long nsecs;
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-    const long MSECS_IN_SECS = 1000;
-    const long USECS_IN_SECS = 1000 * MSECS_IN_SECS;
-    const long NSECS_IN_SECS = 1000 * USECS_IN_SECS;
+int rtos_printf(const char *fmt, ...)
+{
+    va_list list;
+    char printkbuf [2000];
+    printkbuf[0] = '\0';
+    va_start (list, fmt);
+    vsprintf(printkbuf, fmt, list);
+    va_end (list);
+    return printf(printkbuf);
+}
 
-    const long USECS_IN_MSECS = 1000;
-    const long NSECS_IN_MSECS = 1000 * USECS_IN_MSECS;
+void sleep(long ms){
+	Sleep(ms);
+}
 
-    const long NSECS_IN_USECS = 1000;
-
-    inline msecs secs_to_msecs(const secs s) { return s * MSECS_IN_SECS; }
-    inline usecs secs_to_usecs(const secs s) { return s * USECS_IN_SECS; }
-    inline nsecs secs_to_nsecs(const secs s) { return s * NSECS_IN_SECS; }
-
-    inline usecs msecs_to_usecs(const msecs ms) { return ms * USECS_IN_MSECS; }
-    inline nsecs msecs_to_nsecs(const msecs ms) { return ms * NSECS_IN_MSECS; }
-
-    inline nsecs usecs_to_nsecs(const usecs us) { return us * NSECS_IN_USECS; }
-
-    inline nsecs Seconds_to_nsecs(const Seconds s) { return nsecs( rint( s * secs_to_nsecs(1) ) ); }
-    inline Seconds nsecs_to_Seconds(const nsecs ns) { return Seconds( ns ) / Seconds(NSECS_IN_SECS); }
-
-}}
+#ifdef __cplusplus
+}
 
 #endif

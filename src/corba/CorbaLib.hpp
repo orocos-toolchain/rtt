@@ -34,7 +34,8 @@
  *   Suite 330, Boston, MA  02111-1307  USA                                *
  *                                                                         *
  ***************************************************************************/
-
-
-
+namespace RTT {
+	namespace Corba {
+	int loadCorbaLib();
+}}
 #define ORO_CORBA_PROTOCOL_ID 1

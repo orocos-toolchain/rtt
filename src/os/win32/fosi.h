@@ -20,8 +20,6 @@
 /**
  * This file translates the FOSI (Framework Operating System Interface) from
  * orocos calls to native RTOS calls
- *
- * TODO : split in multiple files
  */
 
 #ifndef __FOSI_H
@@ -36,27 +34,40 @@ extern "C"
 
 #define _XOPEN_SOURCE 600   // use all Posix features.
 
-#include <stdio.h>
+#ifdef _MSC_VER
+#include <cstdio>
 #include <windows.h>
+#include <cstdlib>
+#include <cerrno>
+#include <cstring>
+#include <climits>
+#include <cfloat>
+#include <cassert>
+#else // MINGW32
+#include <stdio.h>
 #include <stdlib.h>
-
-//#include <semaphore.h>
-//#include <pthread.h>
 #include <errno.h>
 #include <string.h>
 #include <limits.h>
 #include <float.h>
 #include <assert.h>
+#endif
+
 #include "../oro_limits.h"
 	// Orocos Implementation (i386 specific)
 #include "../oro_atomic.h"
 
     // Time Related
+#ifdef _MSC_VER
+#include <ctime>
+#else // MINGW32
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
+#endif
 
-void sleep(long ms);
+    void sleep(long s);
+    void usleep(long us);
 
     typedef long long NANO_TIME;
     typedef long long TICK_TIME;
@@ -81,12 +92,17 @@ void sleep(long ms);
 #define ORO_SCHED_RT    0 /** Linux FIFO scheduler */
 #define ORO_SCHED_OTHER 1 /** Linux normal scheduler */
 
-    struct timespec{
+#ifdef _MSC_VER
+    //conflicts with another struct under MSVC
+    struct oro_timespec {
         time_t tv_sec;
         long tv_nsec;
     };
 
+    typedef struct oro_timespec TIME_SPEC;
+#else // MINGW32
     typedef struct timespec TIME_SPEC;
+#endif
 
 	// high-resolution time to timespec
 	// hrt is in ticks
@@ -101,8 +117,8 @@ void sleep(long ms);
 		timevl.tv_nsec = hrt*( 1000000000LL / freq.QuadPart );
 */
 		TIME_SPEC timevl;
-		timevl.tv_sec = hrt / 1000000000LL;
-		timevl.tv_nsec = hrt % 1000000000LL;
+		timevl.tv_sec = (time_t)(hrt / 1000000000LL);
+		timevl.tv_nsec = (long)(hrt % 1000000000LL);
 		return timevl;
 	}
 
@@ -129,7 +145,7 @@ void sleep(long ms);
     inline int rtos_nanosleep( const TIME_SPEC * rqtp, TIME_SPEC * rmtp )
     {
     	// printf("rtos_nanosleep %li ", (rqtp->tv_sec * 1000L + rqtp->tv_nsec/1000000L));
-        Sleep(rqtp->tv_sec * 1000L + rqtp->tv_nsec/1000000L);
+        Sleep(DWORD(rqtp->tv_sec * 1000L) + rqtp->tv_nsec/1000000L);
         return 0;
     }
 
@@ -173,7 +189,7 @@ void sleep(long ms);
 
     static inline void printSem(rt_sem_t* m){
     	DWORD tid = GetCurrentThreadId();
-    	printf("T:%u -> S:%u  ", (unsigned int)tid, (unsigned int) m);
+    	printf("T:%u -> S:%p  ", (unsigned int)tid,m);
     }
 
     static inline int rtos_sem_init(rt_sem_t* m, int value )
@@ -278,7 +294,7 @@ void sleep(long ms);
     	if(!lockSem(m)) return -1;
     	m->count--;
     	unlockSem(m);
-    	DWORD res = WaitForSingleObject(m->sem, delay/1000000LL);
+    	DWORD res = WaitForSingleObject(m->sem, (DWORD)(delay)/1000000LL);
     	if( res==WAIT_OBJECT_0 ){
     		return 0;
     	}
@@ -320,7 +336,7 @@ void sleep(long ms);
 
     static inline void printMutex(rt_mutex_t* m){
     	DWORD tid = GetCurrentThreadId();
-    	printf("T:%u -> S:%u  ", (unsigned int)tid, (unsigned int) m);
+    	printf("T:%u -> S:%p  ", (unsigned int)tid,m);
     }
 
     static inline int rtos_mutex_init(rt_mutex_t* m)
