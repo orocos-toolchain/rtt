@@ -330,7 +330,12 @@ namespace RTT
                 // breakLoop was ok, wait for loop() to return.
             }
             // always take this lock, but after breakLoop was called !
-            MutexLock lock(breaker);
+            MutexTimedLock lock(breaker, 1.0);
+            if ( !lock.isSuccessful() ) {
+                log(Error) << "Failed to stop thread " << this->getName() << ": breakLoop() returned true, but loop() function did not return after 1 second."<<endlog();
+                runloop = true;
+                return false;
+            }
         }
 
         // from this point on, inloop == false, unless self called stop()
