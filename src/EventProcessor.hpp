@@ -91,8 +91,8 @@ namespace RTT
 
         };
 
-        void intrusive_ptr_add_ref( EventCatcher* p );
-        void intrusive_ptr_release( EventCatcher* p );
+        RTT_API void intrusive_ptr_add_ref( EventCatcher* p );
+        RTT_API void intrusive_ptr_release( EventCatcher* p );
 
         using boost::tuples::get;
 

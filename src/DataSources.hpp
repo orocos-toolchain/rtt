@@ -105,7 +105,7 @@ namespace RTT
      * Specialisation for const std::string& to keep capacity when set( ... ) is called.
      */
     template<>
-    void ValueDataSource<std::string>::set(  AssignableDataSource<std::string>::param_t t );
+    RTT_API void ValueDataSource<std::string>::set(  AssignableDataSource<std::string>::param_t t );
 
 
     /**
