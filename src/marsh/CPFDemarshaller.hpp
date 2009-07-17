@@ -57,7 +57,7 @@ namespace RTT
      * from a Component Property File (CPF) following the CORBA 3 standard.
      * @see CPFMarshaller to create CPF files.
      */
-    class CPFDemarshaller
+    class RTT_API CPFDemarshaller
         : public Demarshaller
     {
 #ifdef XERCES_CPP_NAMESPACE

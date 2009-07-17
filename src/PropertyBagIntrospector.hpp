@@ -54,7 +54,7 @@ namespace RTT
      * @brief This class fills up a given bag with
      * the results of an introspection.
      */
-    class PropertyBagIntrospector
+    class RTT_API PropertyBagIntrospector
         : public PropertyBagVisitor
     {
         std::stack<PropertyBag*> mystack;

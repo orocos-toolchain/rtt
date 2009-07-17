@@ -7,5 +7,6 @@
 ****************************************/
 
 #ifdef _MSC_VER
-double rint( double value );
+#include "../rtt-config.h"
+RTT_API double rint( double value );
 #endif

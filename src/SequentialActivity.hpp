@@ -29,7 +29,7 @@ namespace RTT
      *
      * @ingroup CoreLibActivities
      */
-    class SequentialActivity
+    class RTT_API SequentialActivity
         :public ActivityInterface
     {
     public:

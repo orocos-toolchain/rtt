@@ -42,6 +42,8 @@
  * Prototype definitions of common os init/exit calls.
  */
 
+#include "../rtt-config.h"
+
 #ifdef __cplusplus
 extern "C"
 #endif
@@ -50,7 +52,7 @@ extern "C"
  * using the RTT services. You do not need this
  * when you use ORO_main().
  */
-int __os_init(int argc, char** argv );
+RTT_API int __os_init(int argc, char** argv );
 
 #ifdef __cplusplus
 extern "C"
@@ -60,7 +62,7 @@ extern "C"
  * using the RTT services, just before returning. 
  * You do not need this when you use ORO_main().
  */
-void __os_exit(void);
+RTT_API void __os_exit(void);
 
 #ifdef __cplusplus
 extern "C"
@@ -69,7 +71,7 @@ extern "C"
  * Internal: Inform the user that a failure occured.
  * @see ORO_main
  */
-void __os_printFailure();
+RTT_API void __os_printFailure();
 
 #ifdef __cplusplus
 extern "C"
@@ -79,5 +81,5 @@ extern "C"
  * exception catching at run-time.
  * @see ORO_main
  */
-int __os_checkException(int&, char**);
+RTT_API int __os_checkException(int&, char**);
 

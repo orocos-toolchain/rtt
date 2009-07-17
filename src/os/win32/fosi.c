@@ -35,30 +35,18 @@
  *                                                                         *
  ***************************************************************************/
 
-
+#if 0
 #include "fosi.h"
 #ifdef __MINGW32__
 #include <unistd.h>
 #endif
-#include <stdarg.h>
-
-#undef rtos_printf
-int rtos_printf(const char *fmt, ...)
-{
-    va_list list;
-    char printkbuf [2000];
-    printkbuf[0] = '\0';
-    va_start (list, fmt);
-    vsprintf(printkbuf, fmt, list);
-    va_end (list);
-    return printf(printkbuf);
-}
 
 void sleep(long s){
-    Sleep( ms*1000 );
+    Sleep( s*1000 );
 }
 
 void usleep(long us){
     Sleep( us / 1000 );
 }
 
+#endif

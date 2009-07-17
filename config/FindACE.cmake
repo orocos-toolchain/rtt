@@ -32,7 +32,7 @@ ENDIF ()
 
 # Find headers and libraries
 find_path(ACE_INCLUDE_DIR NAMES ace/ACE.h ${ACE_INCLUDE_HINTS})
-find_library(ACE_LIBRARY NAMES ACE ${ACE_LIBRARY_HINTS})
+find_library(ACE_LIBRARY NAMES ACE ACEd ${ACE_LIBRARY_HINTS})
 
 # Set ACE_FOUND honoring the QUIET and REQUIRED arguments
 find_package_handle_standard_args(ACE DEFAULT_MSG ACE_LIBRARY ACE_INCLUDE_DIR)

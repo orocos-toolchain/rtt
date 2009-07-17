@@ -56,7 +56,7 @@ namespace RTT
      * executed by the caller.
      * @deprecated This class is nowhere used and to low level for users.
      */
-    class CommandDispatch
+    class RTT_API CommandDispatch
         : public DispatchInterface
     {
         bool send;

@@ -49,7 +49,7 @@ namespace RTT
     /**
      * A class which represents the main() thread.
      */
-    class MainThread
+    class RTT_API MainThread
         : public ThreadInterface
     {
         MainThread();

@@ -55,7 +55,7 @@ namespace RTT
      * It allows to store objects of these types and retrieve this type.
      * It is used by the script parsers to browse the attributes and properties of a TaskContext.
      */
-    class AttributeRepository
+    class RTT_API AttributeRepository
     {
         typedef std::vector<AttributeBase*> map_t;
         map_t values;

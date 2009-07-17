@@ -75,7 +75,7 @@ namespace RTT
      * @ingroup RTTComponentInterface
 	 */
     template<typename T>
-    class RTT_EXPORT Property
+    class Property
         : public PropertyBase
     {
     public:
@@ -388,13 +388,13 @@ namespace RTT
      * Partial specialisations in case of PropertyBag.
      */
     template<>
-    bool Property<PropertyBag>::update( const Property<PropertyBag>& orig);
+    RTT_API bool Property<PropertyBag>::update( const Property<PropertyBag>& orig);
 
     template<>
-    bool Property<PropertyBag>::refresh( const Property<PropertyBag>& orig);
+    RTT_API bool Property<PropertyBag>::refresh( const Property<PropertyBag>& orig);
 
     template<>
-    bool Property<PropertyBag>::copy( const Property<PropertyBag>& orig);
+    RTT_API bool Property<PropertyBag>::copy( const Property<PropertyBag>& orig);
 
     template<typename T>
     std::ostream& operator<<(std::ostream &os, Property<T> &p)
@@ -453,7 +453,7 @@ namespace RTT
     }
 
     template<>
-    void Property<PropertyBag>::identify( PropertyBagVisitor* pbi);
+    RTT_API void Property<PropertyBag>::identify( PropertyBagVisitor* pbi);
 }
 
 #endif

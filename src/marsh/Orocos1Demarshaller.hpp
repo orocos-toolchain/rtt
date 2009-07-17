@@ -49,7 +49,7 @@ namespace RTT
 	 * A demarshaller which parses data compatible with the previous Orocos property system.
 	 * @bug Not working yet :-)
 	 */
-    class Orocos1Demarshaller : public Demarshaller
+    class RTT_API Orocos1Demarshaller : public Demarshaller
     {
         public:
         typedef std::istream input_stream;

@@ -39,18 +39,19 @@
 #ifndef ORO_CORBA_EXPRESSIONSERVER_HPP
 #define ORO_CORBA_EXPRESSIONSERVER_HPP
 
-#include "../DataSourceBase.hpp"
-#include "OperationsC.h"
+#include "../rtt-config.h"
 #include "corba.h"
 #ifdef CORBA_IS_TAO
 #include <tao/PortableServer/PortableServer.h>
 #else
 #include <omniORB4/poa.h>
 #endif
+#include "OperationsC.h"
+#include "../DataSourceBase.hpp"
 
 
 // forward decl.
-class Orocos_AnyExpression_i;
+class RTT_CORBA_API Orocos_AnyExpression_i;
 
 namespace RTT
 {namespace Corba
@@ -61,7 +62,7 @@ namespace RTT
      * Especially, it also takes care of the copy/clone semantics and informs the
      * servants when a DataSource copy() operation changed the location of a DataSource it was using.
      */
-    class ExpressionServer
+    class RTT_CORBA_API ExpressionServer
     {
     protected:
         typedef std::map<DataSourceBase::const_ptr, Orocos_AnyExpression_i* > EServantMap;

@@ -26,7 +26,7 @@
 #include <dev/DigitalInput.hpp>
 #include <dev/DigitalOutput.hpp>
 
-#include <unistd.h>
+
 #include <iostream>
 
 using namespace std;

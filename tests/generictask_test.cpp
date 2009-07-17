@@ -19,7 +19,7 @@
 
 
 #include "generictask_test.hpp"
-#include <unistd.h>
+
 #include <iostream>
 #include <FunctionGraph.hpp>
 #include <Ports.hpp>

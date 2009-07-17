@@ -39,13 +39,15 @@
 #ifndef ORO_DUMP_OBJECT_HPP
 #define ORO_DUMP_OBJECT_HPP
 
+#include "../rtt-config.h"
+
 namespace RTT{
     class OperationInterface;
 }
 
 namespace RTT { namespace detail {
 
-void DumpObject(RTT::OperationInterface* obj);
+RTT_API void DumpObject(RTT::OperationInterface* obj);
 
 }}
 #endif

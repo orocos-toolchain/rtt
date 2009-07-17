@@ -56,7 +56,7 @@ namespace RTT
      * @param T The result data type of get().
      */
     template<typename T>
-    class RTT_API ValueDataSource
+    class ValueDataSource
         : public AssignableDataSource<T>
     {
     protected:
@@ -74,15 +74,27 @@ namespace RTT
 
         ValueDataSource( );
 
-        typename DataSource<T>::result_t get() const;
+        typename DataSource<T>::result_t get() const
+		{
+			return mdata;
+		}
 
-        typename DataSource<T>::result_t value() const;
+        typename DataSource<T>::result_t value() const
+		{
+			return mdata;
+		}
 
         void set( typename AssignableDataSource<T>::param_t t );
 
-        typename AssignableDataSource<T>::reference_t set();
+        typename AssignableDataSource<T>::reference_t set()
+		{
+			return mdata;
+		}
 
-        typename AssignableDataSource<T>::const_reference_t rvalue() const;
+        typename AssignableDataSource<T>::const_reference_t rvalue() const
+		{
+			return mdata;
+		}
 
         virtual ValueDataSource<T>* clone() const;
 
@@ -93,7 +105,7 @@ namespace RTT
      * Specialisation for const std::string& to keep capacity when set( ... ) is called.
      */
     template<>
-    void ValueDataSource<std::string>::set(  AssignableDataSource<std::string>::param_t t );
+    RTT_API void ValueDataSource<std::string>::set(  AssignableDataSource<std::string>::param_t t );
 
 
     /**
@@ -102,7 +114,7 @@ namespace RTT
      * @param T Any type of data, except being a non-const reference.
      */
     template<typename T>
-    class RTT_API ConstantDataSource
+    class ConstantDataSource
         : public DataSource<T>
     {
         /**
@@ -121,9 +133,15 @@ namespace RTT
 
         ConstantDataSource( T value );
 
-        typename DataSource<T>::result_t get() const;
+        typename DataSource<T>::result_t get() const
+		{
+			return mdata;
+		}
 
-        typename DataSource<T>::result_t value() const;
+        typename DataSource<T>::result_t value() const
+		{
+			return mdata;
+		}
 
         virtual ConstantDataSource<T>* clone() const;
 
@@ -136,7 +154,7 @@ namespace RTT
      * @param T The result data type of get().
      */
     template<typename T>
-    class RTT_API ReferenceDataSource
+    class ReferenceDataSource
         : public AssignableDataSource<T>
     {
         // a reference to a value_t
@@ -151,15 +169,27 @@ namespace RTT
 
         ReferenceDataSource( typename AssignableDataSource<T>::reference_t ref );
 
-        typename DataSource<T>::result_t get() const;
+        typename DataSource<T>::result_t get() const
+		{
+			return mref;
+		}
 
-        typename DataSource<T>::result_t value() const;
+        typename DataSource<T>::result_t value() const
+		{
+			return mref;
+		}
 
         void set( typename AssignableDataSource<T>::param_t t );
 
-        typename AssignableDataSource<T>::reference_t set();
+        typename AssignableDataSource<T>::reference_t set()
+		{
+			return mref;
+		}
 
-        typename AssignableDataSource<T>::const_reference_t rvalue() const;
+        typename AssignableDataSource<T>::const_reference_t rvalue() const
+		{
+			return mref;
+		}
 
         virtual ReferenceDataSource<T>* clone() const;
 

@@ -19,6 +19,7 @@
 #include <os/main.h>
 #include <Logger.hpp>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/test/included/unit_test.hpp>
 
 using boost::unit_test::test_suite;
@@ -38,7 +39,7 @@ public:
 
 BOOST_GLOBAL_FIXTURE( InitOrocos )
 
-boost::unit_test::test_suite* init_unit_test_suite(int argc, char** argv)
+boost::unit_test::test_suite* init_unit_test_suite(int argc, char** const argv)
 {
 	__os_init(argc, argv);
 

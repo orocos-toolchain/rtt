@@ -68,7 +68,7 @@ namespace RTT
      *
      * @see PeriodicActivity
      */
-    class TimerThread
+    class RTT_API TimerThread
         : public OS::PeriodicThread
     {
         typedef std::vector<PeriodicActivity*> ActivityList ;

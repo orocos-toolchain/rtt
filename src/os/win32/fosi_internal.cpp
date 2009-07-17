@@ -137,6 +137,7 @@ void ErrorHandler(LPTSTR lpszFunction)
                        int priority,
                        const char * name,
                        int sched_type,
+                       unsigned int stack_size,
                        void * (*start_routine)(void *),
                        ThreadInterface* obj)
     {
@@ -240,7 +241,7 @@ void ErrorHandler(LPTSTR lpszFunction)
 
     INTERNAL_QUAL void rtos_task_delete(RTOS_TASK* mytask) {
       // printf("T:%u -> ", (unsigned int) mytask);
-      printf(" rtos_task_delete ");
+      //printf(" rtos_task_delete ");
       //DWORD exitCode;
       //TerminateThread(mytask->handle, exitCode);
       CloseHandle(mytask->handle);

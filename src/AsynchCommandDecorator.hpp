@@ -61,7 +61,7 @@ namespace RTT
      * will return false until the AsynchCommandDecorator
      * is \a reset().
      */
-    class AsynchCommandDecorator: public CommandInterface
+    class RTT_API AsynchCommandDecorator: public CommandInterface
     {
 
     public:

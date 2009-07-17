@@ -86,7 +86,7 @@ namespace RTT
      * case, it is ignored (you can not trigger periodic activities).
      * @ingroup CoreLibActivities
      */
-    class SlaveActivity
+    class RTT_API SlaveActivity
         :public ActivityInterface
     {
     public:

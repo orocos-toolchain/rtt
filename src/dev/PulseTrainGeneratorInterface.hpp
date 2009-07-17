@@ -31,6 +31,7 @@
 #include "../NameServer.hpp"
 #include "../NameServerRegistrator.hpp"
 #include "../Time.hpp" // Orocos Time types
+#include "../rtt-config.h"
 
 #ifdef ORO_PRAGMA_INTERFACE
 #pragma interface
@@ -43,7 +44,7 @@ namespace RTT
      * simulation of encoder like behaviour.
      *
      */
-    class PulseTrainGeneratorInterface
+    class RTT_API PulseTrainGeneratorInterface
         : private NameServerRegistrator<PulseTrainGeneratorInterface*>
     {
     public:

@@ -89,7 +89,7 @@ namespace RTT
       mutable OS::AtomicInt refcount;
 
       /** the destructor is private.  You are not allowed to delete this
-       * class yourself, use a shared pointer !
+       * class RTT_API yourself, use a shared pointer !
        */
       virtual ~DataSourceBase();
 
@@ -279,11 +279,11 @@ namespace RTT
      * Stream the contents of this object.
      * @see TypeInfo
      */
-    std::ostream& operator<<(std::ostream& os, DataSourceBase::shared_ptr dsb );
+    RTT_API std::ostream& operator<<(std::ostream& os, DataSourceBase::shared_ptr dsb );
 
 }
 
-void intrusive_ptr_add_ref(const RTT::DataSourceBase* p );
-void intrusive_ptr_release(const RTT::DataSourceBase* p );
+RTT_API void intrusive_ptr_add_ref(const RTT::DataSourceBase* p );
+RTT_API void intrusive_ptr_release(const RTT::DataSourceBase* p );
 
 #endif

@@ -55,7 +55,7 @@ namespace RTT
      * for setting the smallest activity period in the system.
      * @ingroup CoreLibActivities
      */
-    class SimulationActivity
+    class RTT_API SimulationActivity
         : public PeriodicActivity
     {
     public:

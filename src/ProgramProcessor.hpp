@@ -73,7 +73,7 @@ namespace RTT
      * functions, such as step().
      * @ingroup Processor
      */
-    class ProgramProcessor
+    class RTT_API ProgramProcessor
         : public RunnableInterface
     {
     public:

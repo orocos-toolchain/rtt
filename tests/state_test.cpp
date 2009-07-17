@@ -20,7 +20,7 @@
 
 #include <rtt-config.h>
 #include "state_test.hpp"
-#include <unistd.h>
+
 #include <iostream>
 #include <sstream>
 #ifndef NOPARSER

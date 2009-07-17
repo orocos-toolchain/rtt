@@ -1,8 +1,20 @@
 #ifndef CORBACONNECTION_HPP_
 #define CORBACONNECTION_HPP_
 
-#include "../ConnectionInterface.hpp"
-#include "DataFlowC.h"
+#if 0
+//necessary to keep MSVC happy 
+//avoids redefinitions in winsock2.h
+#pragma push_macro("_WINSOCKAPI_")
+#ifndef _WINSOCKAPI_
+#define _WINSOCKAPI_
+#endif
+
+#include <windows.h>
+
+#pragma pop_macro("_WINSOCKAPI_")
+/////////////////////////////////////////
+#endif
+
 #include "corba.h"
 #ifdef CORBA_IS_TAO
 #include <tao/corba.h>
@@ -12,6 +24,8 @@
 #include <omniORB4/poa.h>
 #endif
 
+#include "DataFlowC.h"
+#include "../ConnectionInterface.hpp"
 
 namespace RTT
 {
@@ -19,7 +33,7 @@ namespace RTT
     namespace Corba
     {
 
-        class CorbaConnection : public RTT::ConnectionInterface
+        class RTT_CORBA_API CorbaConnection : public RTT::ConnectionInterface
         {
             std::string mname;
             AssignableExpression_var mdatachannel;

@@ -48,7 +48,7 @@ namespace RTT
     /**
      * Dispatch a CommandInterface to a CommandProcessor and track its status.
      */
-    class DispatchInterface
+    class RTT_API DispatchInterface
         : public CommandInterface
     {
     public:

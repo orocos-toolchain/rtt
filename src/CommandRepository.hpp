@@ -57,7 +57,7 @@ namespace RTT
      * can be used by other tasks or from scripts.
      * @ingroup Commands
      */
-    class CommandRepository
+    class RTT_API CommandRepository
         : public OperationFactory<DispatchInterface*>
     {
         template<class T>

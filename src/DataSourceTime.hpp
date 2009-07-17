@@ -45,7 +45,7 @@ namespace RTT
      * A DataSource which returns the time elapsed since the last reset
      * in Seconds.
      */
-    class DataSourceTime
+    class RTT_API DataSourceTime
         : public DataSource<TimeService::Seconds>
     {
         TimeService::ticks stamp;

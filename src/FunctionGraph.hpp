@@ -56,7 +56,7 @@ namespace RTT
      * much in common with a program but is only
      * used for storing a Graph.
      */
-    class FunctionGraph
+    class RTT_API FunctionGraph
         :public ProgramInterface
     {
     public:

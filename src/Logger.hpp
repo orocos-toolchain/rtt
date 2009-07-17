@@ -90,7 +90,7 @@ namespace RTT
      * to confirm this choice. AGAIN: THIS WILL BREAK REAL-TIME PERFORMANCE.
      * @ingroup CoreLib
      */
-    class Logger
+    class RTT_API Logger
     {
         class D;
         D* d;
@@ -146,7 +146,7 @@ namespace RTT
          Logger::log() << Logger::Info << "A message in module 'Logger'..."<<Logger::endl;
          @endverbatim
         */
-        struct In {
+        struct RTT_API In {
             In(const std::string& module);
             ~In();
 			std::string oldmod;

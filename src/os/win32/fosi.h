@@ -54,8 +54,7 @@ extern "C"
 #endif
 
 #include "../oro_limits.h"
-	// Orocos Implementation (i386 specific)
-#include "../oro_atomic.h"
+#include "../../rtt-config.h"
 
     // Time Related
 #ifdef _MSC_VER
@@ -66,8 +65,8 @@ extern "C"
 #include <unistd.h>
 #endif
 
-    void sleep(long s);
-    void usleep(long us);
+    RTT_API void sleep(long s);
+    RTT_API void usleep(long us);
 
     typedef long long NANO_TIME;
     typedef long long TICK_TIME;
@@ -95,7 +94,7 @@ extern "C"
 #ifdef _MSC_VER
     //conflicts with another struct under MSVC
     struct oro_timespec {
-        time_t tv_sec;
+        long tv_sec;
         long tv_nsec;
     };
 
@@ -117,7 +116,7 @@ extern "C"
 		timevl.tv_nsec = hrt*( 1000000000LL / freq.QuadPart );
 */
 		TIME_SPEC timevl;
-		timevl.tv_sec = (time_t)(hrt / 1000000000LL);
+		timevl.tv_sec = (long)(hrt / 1000000000LL);
 		timevl.tv_nsec = (long)(hrt % 1000000000LL);
 		return timevl;
 	}
@@ -394,7 +393,7 @@ extern "C"
 
     static inline int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
     {
-    	if( WaitForSingleObject(*m, (abs_time - rtos_get_time_ns())/1000000LL ) == WAIT_OBJECT_0 )
+    	if( WaitForSingleObject(*m, (DWORD)((abs_time - rtos_get_time_ns())/1000000LL) ) == WAIT_OBJECT_0 )
     		return 0;
         return -1;
     }

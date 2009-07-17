@@ -45,7 +45,7 @@ namespace RTT {
   /**
    * Compose an 'AND' function of two Conditions.
    */
-  class ConditionBinaryCompositeAND
+  class RTT_API ConditionBinaryCompositeAND
     : public ConditionInterface
   {
     ConditionInterface* lhs;
@@ -92,7 +92,7 @@ namespace RTT {
     /*
      * Compose an 'OR' function of two Conditions.
      */
-  class ConditionBinaryCompositeOR
+  class RTT_API ConditionBinaryCompositeOR
     : public ConditionInterface
   {
     ConditionInterface* lhs;
@@ -137,7 +137,7 @@ namespace RTT {
       }
   };
 
-  class ConditionCompositeNOT
+  class RTT_API ConditionCompositeNOT
     : public ConditionInterface
   {
     ConditionInterface* cond;

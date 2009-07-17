@@ -95,7 +95,7 @@ namespace RTT
 	 * @see PropertyBase, Property, BagOperations
      * @ingroup CoreLibProperties
 	 */
-    class RTT_EXPORT PropertyBag
+    class RTT_API PropertyBag
     {
     public:
         /**
@@ -361,7 +361,7 @@ namespace RTT
      * Defaults to ".".
      * @ingroup CoreLibProperties
      */
-    PropertyBase* findProperty(const PropertyBag& bag, const std::string& path, const std::string& separator = std::string(".") );
+    RTT_API PropertyBase* findProperty(const PropertyBag& bag, const std::string& path, const std::string& separator = std::string(".") );
 
     /**
      * This function refreshes the values of the properties in one PropertyBag with
@@ -376,7 +376,7 @@ namespace RTT
      * returns false.
      * @ingroup CoreLibProperties
      */
-    bool refreshProperties(const PropertyBag& target, const PropertyBag& source, bool strict=false);
+    RTT_API bool refreshProperties(const PropertyBag& target, const PropertyBag& source, bool strict=false);
 
     /**
      * Refresh one Property in the target bag with the new value.
@@ -385,7 +385,7 @@ namespace RTT
      * name in \a target.
      * @ingroup CoreLibProperties
      */
-    bool refreshProperty(const PropertyBag& target, const PropertyBase& source);
+    RTT_API bool refreshProperty(const PropertyBag& target, const PropertyBase& source);
 
     /**
      * This function copies (recursively) the Properties of one Bag into
@@ -397,7 +397,7 @@ namespace RTT
      * @param source The bag containing properties for \a target.
      * @ingroup CoreLibProperties
      */
-    bool copyProperties(PropertyBag& target, const PropertyBag& source);
+    RTT_API bool copyProperties(PropertyBag& target, const PropertyBag& source);
 
     /**
      * This function updates (recursively) the values of Property objects of one Bag with the
@@ -410,7 +410,7 @@ namespace RTT
      * @param source The bag containing new values, descriptions or properties for \a target.
      * @ingroup CoreLibProperties
      */
-    bool updateProperties(PropertyBag& target, const PropertyBag& source);
+    RTT_API bool updateProperties(PropertyBag& target, const PropertyBag& source);
 
     /**
      * This function updates (recursively) the values of a single Property object of one Bag with the
@@ -426,7 +426,7 @@ namespace RTT
      * @param separator The token to separate properties in the \a path,
      * @ingroup CoreLibProperties
      */
-    bool updateProperty(PropertyBag& target, const PropertyBag& source, const std::string& path, const std::string& separator = ".");
+    RTT_API bool updateProperty(PropertyBag& target, const PropertyBag& source, const std::string& path, const std::string& separator = ".");
 
     /**
      * This function refreshes (recursively) the values of a single Property object of one Bag with the
@@ -441,7 +441,7 @@ namespace RTT
      * @param separator The token to separate properties in the \a path,
      * @ingroup CoreLibProperties
      */
-    bool refreshProperty(PropertyBag& target, const PropertyBag& source, const std::string& path, const std::string& separator = ".");
+    RTT_API bool refreshProperty(PropertyBag& target, const PropertyBag& source, const std::string& path, const std::string& separator = ".");
 
     /**
      * This function iterates over a PropertyBag and deletes all Property objects in
@@ -451,7 +451,7 @@ namespace RTT
      *       anymore.
      * @ingroup CoreLibProperties
      */
-    void deleteProperties(PropertyBag& target);
+    RTT_API void deleteProperties(PropertyBag& target);
 
     /**
      * This function iterates over a PropertyBag and recursively deletes all Property objects.
@@ -460,7 +460,7 @@ namespace RTT
      *       anymore.
      * @ingroup CoreLibProperties
      */
-    void deletePropertyBag(PropertyBag& target);
+    RTT_API void deletePropertyBag(PropertyBag& target);
 
     /**
      * This function flattens a PropertyBag recursively.
@@ -471,7 +471,7 @@ namespace RTT
      * root of \a target with the path prefixed.
      * @ingroup CoreLibProperties
      */
-    void flattenPropertyBag(PropertyBag& target, const std::string& separator=".");
+    RTT_API void flattenPropertyBag(PropertyBag& target, const std::string& separator=".");
 
     /**
      * @}

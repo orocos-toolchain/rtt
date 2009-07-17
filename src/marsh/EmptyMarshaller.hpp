@@ -46,7 +46,7 @@ namespace RTT
     /**
      * @brief A Dummy Empty Marshaller.
      */
-    class EmptyMarshaller
+    class RTT_API EmptyMarshaller
         : public Marshaller
     {
     public:

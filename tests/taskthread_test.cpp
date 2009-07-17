@@ -20,7 +20,7 @@
 
 
 #include "taskthread_test.hpp"
-#include <unistd.h>
+
 #include <iostream>
 
 #include <Activities.hpp>
@@ -127,33 +127,6 @@ struct TestRunner
         fini = false;
         looped = false;
         broke = false;
-    }
-};
-
-
-struct TestAllocate
-    : public RunnableInterface
-{
-    std::vector<std::string> v;
-    char*       c;
-    std::string s;
-
-    bool initialize() {
-        c = 0;
-        return true;
-    }
-    void step() {
-        v.resize( 0 );
-        v.resize( 1025, std::string("Goodbye Memory") );
-        delete[] c;
-        c = new char[1025];
-        s = "Hello World ";
-        s += s;
-        s += s;
-    }
-    void finalize() {
-        delete[] c;
-        v.resize(0);
     }
 };
 
@@ -452,6 +425,7 @@ BOOST_AUTO_TEST_CASE( testScheduler )
 }
 
 
+#if !defined( OROCOS_TARGET_WIN32 )
 BOOST_AUTO_TEST_CASE( testThreadConfig )
 {
     int rtsched = ORO_SCHED_RT;
@@ -524,8 +498,9 @@ BOOST_AUTO_TEST_CASE( testThreadConfig )
     BOOST_CHECK( tt->start() );
 
 }
+#endif
 
-#ifndef ORO_EMBEDDED
+#if !defined( ORO_EMBEDDED ) && !defined( OROCOS_TARGET_WIN32 )
 BOOST_AUTO_TEST_CASE( testExceptionRecovery )
 {
     Logger::LogLevel ll = Logger::log().getLogLevel();
@@ -580,12 +555,3 @@ BOOST_AUTO_TEST_CASE( testExceptionRecovery )
 
 BOOST_AUTO_TEST_SUITE_END()
 
-void ActivitiesThreadTest::testAddAllocate()
-{
-    BOOST_CHECK( t_task_np->run( t_run_allocate ) );
-}
-
-void ActivitiesThreadTest::testRemoveAllocate()
-{
-    BOOST_CHECK( t_task_np->run( 0 ) );
-}

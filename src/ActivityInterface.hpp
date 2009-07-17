@@ -59,7 +59,7 @@ namespace RTT
      * @see RunnableInterface
      * @ingroup CoreLibActivities
      */
-    class ActivityInterface
+    class RTT_API ActivityInterface
     {
     protected:
         RunnableInterface* runner;

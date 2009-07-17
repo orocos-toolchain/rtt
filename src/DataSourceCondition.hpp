@@ -48,7 +48,7 @@ namespace RTT
    * A class that wraps a Condition in a DataSource<bool>
    * interface.
    */
-  class DataSourceCondition
+  class RTT_API DataSourceCondition
     : public DataSource<bool>
   {
       ConditionInterface* cond;

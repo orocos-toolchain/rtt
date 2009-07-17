@@ -115,7 +115,6 @@ namespace RTT
          */
         explicit Event(const std::string name )
             : Base( EventBasePtr(new detail::LocalEvent<Signature>()) ),
-              NameServerRegistrator<EventType*>(nameserver, name, this),
               mname(name)
         {
             Logger::log() << Logger::Debug << "Event Created with name  : "<< name << Logger::endl;

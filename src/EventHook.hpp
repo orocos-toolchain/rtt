@@ -58,7 +58,7 @@ namespace RTT{
          * this hook is destroyed. A smart pointer trick makes sure
          * that connection will clean us up during its destruction.
          */
-        struct EventHookBase
+        struct RTT_API EventHookBase
         {
             virtual ~EventHookBase() {}
 

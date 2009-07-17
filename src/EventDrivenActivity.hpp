@@ -58,7 +58,7 @@ namespace RTT
      * the event is fired. The EventDrivenActivity is run asynchronously
      * in a given thread.
      */
-    class EventDrivenActivity
+    class RTT_API EventDrivenActivity
         : public NonPeriodicActivity
     {
         // The set of events that can trigger this activity

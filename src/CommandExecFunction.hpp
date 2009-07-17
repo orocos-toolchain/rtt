@@ -53,7 +53,7 @@ namespace RTT
     /**
      * A condition which checks if a CommandExecFunction is done or not.
      */
-    class ConditionExecFunction
+    class RTT_API ConditionExecFunction
         : public ConditionInterface
     {
         DataSource<ProgramInterface*>::shared_ptr _v;
@@ -86,7 +86,7 @@ namespace RTT
      * in a ProgramProcessor. See ConditionExecFunction to check if
      * it is done or not.
      */
-    class CommandExecFunction
+    class RTT_API CommandExecFunction
         : public DispatchInterface
     {
         CommandInterface* minit;
