@@ -1,3 +1,14 @@
+usr/include/rtt/Activity.hpp
+usr/include/rtt/SequentialActivity.hpp
+usr/include/rtt/TypeStream-io.hpp
+usr/include/rtt/Plugin.hpp
+usr/include/rtt/TransportPlugin.hpp
+usr/include/rtt/ListLocked.hpp
+usr/include/rtt/Queue.hpp
+usr/include/rtt/ToolkitPlugin.hpp
+usr/include/rtt/LockedQueue.hpp
+usr/include/rtt/Buffer.hpp
+usr/include/rtt/List.hpp
 usr/include/rtt/rtt-config.h
 usr/include/rtt/boost
 usr/include/rtt/ActionInterface.hpp
@@ -231,4 +242,8 @@ usr/include/rtt/os/rtstreambufs.hpp
 usr/include/rtt/os/rtstreams.hpp
 usr/include/rtt/os/startstop.h
 usr/include/rtt/os/threads.hpp
+usr/include/rtt/os/rt_list.hpp
+usr/include/rtt/os/rint.h
+usr/include/rtt/os/oro_allocator.hpp
+usr/include/rtt/os/Thread.hpp
 
