@@ -128,20 +128,7 @@ ENDIF( OMNIORB4_LIBRARY_omnithread )
 ENDIF( OMNIORB4_LIBRARY_omniORB4 )
 ENDIF( OMNIORB4_INCLUDE_DIR )
 
-IF( OMNIORB4_FOUND )
-  SET(CORBA_LIBRARIES ${OMNIORB4_LIBRARIES})
-  SET(CORBA_LDFLAGS -l${OMNIORB4_LIBRARY_omniORB4} -l${OMNIORB4_LIBRARY_Dynamic4} -l${OMNIORB4_LIBRARY_omnithread})
-  IF(OMNIORB4_LIBRARY_COS4)
-    LIST(APPEND OMNIORB4_LDFLAGS
-        -l${OMNIORB4_LIBRARY_COS4}            # mandatory on FC2 and graal
-        -l${OMNIORB4_LIBRARY_COSDynamic4}     # mandatory on FC2 and graal
-        )
-  ENDIF(OMNIORB4_LIBRARY_COS4)
-  SET(CORBA_CFLAGS ${OMNIORB4_CPP_FLAGS})
-  SET(CORBA_INCLUDE_DIRS ${OMNIORB4_INCLUDE_DIR})
-  SET(CORBA_DEFINES "") #-DCORBA_IS_OMNIORB)
-
-ELSE( OMNIORB4_FOUND )
+IF( NOT OMNIORB4_FOUND )
   MESSAGE("omniORB installation was not found. Please provide OMNIORB4_DIR:")
   MESSAGE("  - through the GUI when working with ccmake, ")
   MESSAGE("  - as a command line argument when working with cmake e.g. ")
@@ -153,7 +140,7 @@ ELSE( OMNIORB4_FOUND )
   MESSAGE("    omniORB installation...")
 
   SET( OMNIORB4_DIR "" CACHE PATH "Root of omniORB instal tree." )
-ENDIF( OMNIORB4_FOUND )
+ENDIF( NOT OMNIORB4_FOUND )
 
 # Generate all files required for a corba server app.
 # ORO_ADD_CORBA_SERVERS( foo_SRCS foo_HPPS file.idl ... ) 
