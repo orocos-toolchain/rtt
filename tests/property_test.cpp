@@ -200,6 +200,7 @@ BOOST_AUTO_TEST_CASE( testComposition )
     BOOST_CHECK( pvd.getTypeInfo() );
     BOOST_CHECK( pvd.getTypeInfo() != RTT::detail::DataSourceTypeInfo<RTT::detail::UnknownType>::getTypeInfo() );
     BOOST_CHECK( pvd.getTypeInfo() == pvd_cr.getTypeInfo() );
+
     // Compatible-type -assignment:
     BOOST_CHECK( pvd.getTypeInfo()->composeType( pvd.getDataSource(), pvd2.getDataSource() ) );
     BOOST_CHECK( pvd.getTypeInfo()->composeType( pvd_cr.getDataSource(), pvd.getDataSource() ) );
@@ -261,6 +262,7 @@ BOOST_AUTO_TEST_CASE( testInit )
 
     BOOST_CHECK(true);
 }
+
 
 BOOST_AUTO_TEST_CASE( testUpdate )
 {
@@ -352,7 +354,7 @@ BOOST_AUTO_TEST_CASE( testPropMarsh )
     BOOST_CHECK( pi.ready() );
     BOOST_CHECK( pi.get() == -1 );
     BOOST_CHECK( pi.getDescription() == "p1d" );
-
+    deletePropertyBag( target );
 }
 
 BOOST_AUTO_TEST_CASE( testPropMarshVect )
@@ -362,10 +364,10 @@ BOOST_AUTO_TEST_CASE( testPropMarshVect )
     PropertyBag source; // to file
     PropertyBag target; // from file
 
-    Property<std::vector<double> > p1("p1","p1d", std::vector<double>(7, 1.234) );
+    Property<std::vector<double> >* p1 =  new Property<std::vector<double> >("p1","p1d", std::vector<double>(7, 1.234) );
 
     // setup source tree
-    source.addProperty( &p1 );
+    source.addProperty( p1 );
 
     {
         // scope required such that file is closed
@@ -373,7 +375,7 @@ BOOST_AUTO_TEST_CASE( testPropMarshVect )
         pm.serialize( source );
     }
 
-    p1.set() = std::vector<double>(3, 0.234);
+    p1->set() = std::vector<double>(3, 0.234);
     {
         // scope required such that file is closed
         PropertyDemarshaller pd( filename );
@@ -390,13 +392,13 @@ BOOST_AUTO_TEST_CASE( testPropMarshVect )
     BOOST_CHECK( updateProperties( source, target) );
 
     //p1 = source.getProperty< std::vector<double> >("p1");
-    BOOST_CHECK( p1.ready() );
-    BOOST_CHECK( p1.rvalue().size() == 7 );
-    BOOST_CHECK( p1.rvalue()[0] == 1.234 );
+    BOOST_CHECK( p1->ready() );
+    BOOST_CHECK( p1->rvalue().size() == 7 );
+    BOOST_CHECK( p1->rvalue()[0] == 1.234 );
 
     // Test legacy:
-    deleteProperties( target );
-    p1.setName("driveLimits");
+    deletePropertyBag( target );
+    p1->setName("driveLimits");
     {
         // scope required such that file is closed
         PropertyDemarshaller pd( "property_test_vect.cpf" );
@@ -410,11 +412,13 @@ BOOST_AUTO_TEST_CASE( testPropMarshVect )
     BOOST_CHECK( updateProperties( source, target) );
 
     //p1 = source.getProperty< std::vector<double> >("p1");
-    BOOST_CHECK( p1.ready() );
+    BOOST_CHECK( p1->ready() );
     //cout << p1 << endl;
-    BOOST_CHECK( p1.rvalue().size() == 6 );
-    BOOST_CHECK( p1.rvalue()[0] == 1 );
+    BOOST_CHECK( p1->rvalue().size() == 6 );
+    BOOST_CHECK( p1->rvalue()[0] == 1 );
 
+    deletePropertyBag( target );
+    deletePropertyBag( source );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
