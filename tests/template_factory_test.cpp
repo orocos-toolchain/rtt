@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE( testMethods)
     // execute
     executePrograms( pg_list );
 }
-
+#if !defined(OROCOS_TARGET_WIN32)
 BOOST_AUTO_TEST_CASE( testUserMethods)
 {
     string prog = std::string("program x {\n")
@@ -211,6 +211,7 @@ BOOST_AUTO_TEST_CASE( testUserMethods)
     // execute
     executePrograms( pg_list );
 }
+#endif
 
 BOOST_AUTO_TEST_CASE( testCommands)
 {
