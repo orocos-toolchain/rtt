@@ -85,7 +85,7 @@ namespace RTT
     void seennamedconstant( iter_t begin, iter_t end );
     void seenboolconstant( iter_t begin, iter_t end );
     void seenintconstant( int c );
-    void seenuintconstant( uint c );
+    void seenuintconstant( unsigned int c ); // RobWork uint -> unsigned int
     void seencharconstant( iter_t c );
     void seenfloatconstant( double c );
     void seendoubleconstant( double c );
