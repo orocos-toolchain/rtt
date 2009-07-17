@@ -55,8 +55,8 @@ namespace RTT
     public:
         const EventService* mgcf;
         std::string mname;
-        EventCallBack* syn_ecb;
-        EventCallBack* asyn_ecb;
+        shared_ptr<EventCallBack> syn_ecb;
+        shared_ptr<EventCallBack> asyn_ecb;
         EventProcessor::AsynStorageType ms_type;
         EventProcessor* mep;
         Handle h;
@@ -73,7 +73,7 @@ namespace RTT
                 h = mgcf->setupSyn(mname, bind(&EventCallBack::callback, syn_ecb), syn_ecb->args());
                 if (!h)
                     Logger::log() << Logger::Error << "Creating Syn connection to "+ mname +" failed."<<Logger::endl;
-                syn_ecb = 0;
+                syn_ecb.reset();
             }
             if (asyn_ecb) {
                 Logger::log() << Logger::Info << "Creating Asyn connection to "+ mname +"."<<Logger::endl;
@@ -81,7 +81,7 @@ namespace RTT
                 h = mgcf->setupAsyn(mname, bind(&EventCallBack::callback, asyn_ecb), asyn_ecb->args(), mep, ms_type);
                 if (!h)
                     Logger::log() << Logger::Error << "Creating ASyn connection to "+ mname +" failed."<<Logger::endl;
-                asyn_ecb = 0;
+                asyn_ecb.reset();
             }
         }
 
@@ -91,7 +91,7 @@ namespace RTT
                 delete ecb;
                 return;
             }
-            syn_ecb = ecb;
+            syn_ecb.reset( ecb );
         }
         void callback(EventCallBack* ecb, EventProcessor* ep, EventProcessor::AsynStorageType s_type) {
             if (syn_ecb || asyn_ecb) {
@@ -99,11 +99,11 @@ namespace RTT
                 delete ecb;
                 return;
             }
-            asyn_ecb = ecb; mep = ep; ms_type = s_type;
+            asyn_ecb.reset( ecb ); mep = ep; ms_type = s_type;
         }
 
         D( const EventService* gcf, const std::string& name)
-            : mgcf(gcf), mname(name), syn_ecb(0), asyn_ecb(0), mep(0), h()
+            : mgcf(gcf), mname(name), syn_ecb(), asyn_ecb(), mep(0), h()
         {
         }
 
