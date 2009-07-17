@@ -665,7 +665,7 @@ BOOST_AUTO_TEST_CASE( testCSCRCommand)
 
     BOOST_CHECK( c1r(cs2) );
     verifydispatch(*c1r.getCommandImpl());
-    BOOST_CHECK_EQUAL( 2*cs2.y+2*cs2.z, cs2.x );
+    BOOST_CHECK_CLOSE( 2*cs2.y+2*cs2.z, cs2.x, 0.0001 );
 
     BOOST_CHECK( tsim->stop() ) ;
 }

@@ -322,7 +322,7 @@ namespace RTT
         d->allowRT = false;
     }
 
-    const TimeService::ticks Logger::getReferenceTime()const
+    TimeService::ticks Logger::getReferenceTime()const
     {
         return d->timestamp;
     }

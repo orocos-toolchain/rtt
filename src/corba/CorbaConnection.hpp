@@ -57,7 +57,7 @@ namespace RTT
 
             virtual const RTT::TypeInfo* getTypeInfo() const;
 
-            virtual int serverProtocol();
+            virtual int serverProtocol() const;
         };
 
     }
