@@ -48,12 +48,10 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
-#include "rtt-config.h"
-
 namespace RTT
 {
     template< class T, class RP, class WP>
-    class AtomicQueue;
+    class Queue;
 }
 
 namespace RTT
@@ -124,7 +122,7 @@ namespace RTT
 
     protected:
 
-        AtomicQueue<CommandInterface*,NonBlockingPolicy,NonBlockingPolicy>* a_queue;
+        Queue<CommandInterface*,NonBlockingPolicy,NonBlockingPolicy>* a_queue;
 
         /**
          * Counting how much commands we processed.

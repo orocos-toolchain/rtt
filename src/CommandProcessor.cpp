@@ -38,7 +38,7 @@
 
 #include "CommandProcessor.hpp"
 #include <CommandInterface.hpp>
-#include <AtomicQueue.hpp>
+#include "Queue.hpp"
 #include <Logger.hpp>
 
 namespace RTT
@@ -49,7 +49,7 @@ namespace RTT
     using namespace OS;
 
     CommandProcessor::CommandProcessor(int queue_size)
-        :a_queue( new AtomicQueue<CommandInterface*>(queue_size) ),
+        :a_queue( new Queue<CommandInterface*>(queue_size) ),
          coms_processed(0),
          accept(false)
     {
