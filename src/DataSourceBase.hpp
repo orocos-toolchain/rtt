@@ -74,7 +74,7 @@ namespace RTT
    *
    * @see DataSource
    */
-  class DataSourceBase
+  class RTT_API DataSourceBase
   {
   protected:
       /**

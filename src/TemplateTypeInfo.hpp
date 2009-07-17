@@ -322,6 +322,8 @@ namespace RTT
         virtual bool composeTypeImpl(const PropertyBag& source,  typename AssignableDataSource<T>::reference_t result) const {
             return false;
         }
+		
+		std::string getTypeIdName() const { return typeid(T).name(); }
 
     };
 

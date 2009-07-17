@@ -48,7 +48,7 @@ namespace RTT
      * An attribute is a minimalistic, named placeholder for data.
      * It is a light-weight equivalent of a Property.
      */
-    class AttributeBase
+    class RTT_API AttributeBase
     {
     protected:
         std::string mname;

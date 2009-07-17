@@ -240,6 +240,16 @@ namespace RTT
     }
 
 
+	TypeInfo* TypeInfoRepository::getTypeById(std::string type_id_name) const {
+		// Ask each type for its type id name.
+    	map_t::const_iterator i = data.begin();
+		for (; i != data.end(); ++i){
+			if (i->second->getTypeIdName() == type_id_name)
+				return i->second;
+		}
+		return 0;
+    }
+	
     bool TypeInfoRepository::addType(TypeInfo* t)
     {
         std::string tname = t->getTypeName();

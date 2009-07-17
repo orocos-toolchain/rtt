@@ -238,6 +238,7 @@ namespace RTT
          * @}
          */
 
+		 virtual std::string getTypeIdName() const = 0;
     };
 
     /**
@@ -270,6 +271,19 @@ namespace RTT
          * List all types.
          */
         std::vector<std::string> getTypes() const;
+
+        /**
+         * Return the type info structure of a given type name.
+         */
+        TypeInfo* getTypeById(std::string type_id_name) const;
+
+        /**
+         * Return the type info structure of a given type T.
+         */
+        template<class T>
+        TypeInfo* getTypeInfo() const {
+            return getTypeById( typeid(T).name() );
+        }
 
         /**
          * Call this function to add a new (network) transport

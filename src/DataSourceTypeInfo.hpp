@@ -40,6 +40,7 @@
 #define DATASOURCE_TYPE_INFO_HPP
 
 #include <string>
+#include <typeinfo>
 #include "rtt-config.h"
 
 namespace RTT

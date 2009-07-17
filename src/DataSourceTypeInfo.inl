@@ -8,10 +8,8 @@ namespace RTT
     namespace detail {
         template< class T>
         const std::string& DataSourceTypeInfo<T>::getType() {
-            if (!TypeInfoObject)
-                return DataSourceTypeInfo<UnknownType>::getType();
-            return TypeInfoObject->getTypeName();
-        }
+			return getTypeInfo()->getTypeName();
+		}
 
         template< class T>
         const std::string& DataSourceTypeInfo<T>::getQualifier() {
@@ -20,8 +18,11 @@ namespace RTT
 
         template< class T>
         const TypeInfo* DataSourceTypeInfo<T>::getTypeInfo() {
-            if (!TypeInfoObject)
-                return DataSourceTypeInfo<UnknownType>::getTypeInfo();
+            if (!TypeInfoObject) {
+                TypeInfoObject = TypeInfoRepository::Instance()->getTypeInfo<T>();
+                if (!TypeInfoObject)
+                    return DataSourceTypeInfo<UnknownType>::getTypeInfo();
+            }
             return TypeInfoObject;
         }
 
