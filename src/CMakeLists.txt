@@ -152,9 +152,9 @@ CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/targets/rtt-target.h.in ${PROJ_BINARY_DIR
 CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/targets/target.in ${PROJ_BINARY_DIR}/src/targets/${OROCOS_TARGET} @ONLY)
 CONFIGURE_FILE( ${PROJ_SOURCE_DIR}/src/orocos-rtt.pc.in ${PROJ_BINARY_DIR}/src/orocos-rtt-${OROCOS_TARGET}.pc @ONLY)
 
-INSTALL_FILES( /lib/pkgconfig FILES orocos-rtt-${OROCOS_TARGET}.pc)
-INSTALL_TARGETS(/lib orocos-rtt-dynamic_${OROCOS_TARGET})
+INSTALL(FILES orocos-rtt-${OROCOS_TARGET}.pc DESTINATION  lib/pkgconfig )
+INSTALL(TARGETS orocos-rtt-dynamic_${OROCOS_TARGET} LIBRARY DESTINATION lib RUNTIME DESTINATION bin )
 IF(BUILD_STATIC)
-  INSTALL_TARGETS(/lib orocos-rtt-static_${OROCOS_TARGET})
+  INSTALL(TARGETS orocos-rtt-static_${OROCOS_TARGET} ARCHIVE DESTINATION lib )
 ENDIF(BUILD_STATIC)
 

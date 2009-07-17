@@ -96,14 +96,10 @@ ADD_SUBDIRECTORY(tests)
 ADD_CUSTOM_TARGET(docs echo "Documentation built.")
 ADD_DEPENDENCIES(docs dochtml docpdf)
 
-IF (DOXYGEN)
-  ADD_CUSTOM_TARGET(docapi "doxygen" "Doxyfile")
+IF (DOXYGEN_EXECUTABLE)
+  ADD_CUSTOM_TARGET(docapi ${DOXYGEN_EXECUTABLE} "Doxyfile")
   ADD_DEPENDENCIES(docs docapi)
   CONFIGURE_FILE(Doxyfile.in Doxyfile @ONLY)
-
-  # provide a link to src. Used only by Doxygen.
-  EXECUTE_PROCESS(COMMAND create_symlink ${PROJ_SOURCE_DIR}/src ${PROJ_BINARY_DIR}/rtt ERROR_QUIET)
-
-ENDIF (DOXYGEN)
+ENDIF (DOXYGEN_EXECUTABLE)
 
 
