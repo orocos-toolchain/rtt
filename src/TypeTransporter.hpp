@@ -69,6 +69,15 @@ namespace RTT
             virtual void* createBlob(DataSourceBase::shared_ptr source) const = 0;
 
             /**
+             * Reuse an existing marshalled object, and update it with the
+             * content of \a source. If reusing is not possible, it should
+             * delete \a blob and call createBlob
+             *
+             * @return the blob, which is either \a blob or a new one.
+             */
+            virtual void* reuseBlob(void* blob, DataSourceBase::shared_ptr source) const = 0;
+
+            /**
              * Update \a target with the contents of \a blob which is an object of a \a protocol.
              */
             virtual bool updateBlob(const void* blob, DataSourceBase::shared_ptr target) const = 0;

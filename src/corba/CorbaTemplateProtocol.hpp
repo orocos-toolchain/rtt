@@ -107,6 +107,17 @@ namespace RTT
           }
 
           /**
+           * CORBA::Any is not reusable, so deletes the old any and calls
+           * createBlob
+           */
+          virtual void* reuseBlob(void* blob, DataSourceBase::shared_ptr source) const
+          {
+              if (blob)
+                  delete static_cast<CORBA::Any*>(blob);
+              return createBlob(source);
+          }
+
+          /**
            * Update \a target with the contents of \a blob which is an object of a \a protocol.
            */
           virtual bool updateBlob(const void* blob, DataSourceBase::shared_ptr target) const

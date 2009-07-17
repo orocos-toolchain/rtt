@@ -235,6 +235,19 @@ namespace RTT
       virtual void* createBlob(int protocol);
 
       /**
+       * Reuses a transportable data object previously created by \a createBlob,
+       * and update it with the value of this data source. This does \b not
+       * trigger the evaluation() of this data source.
+       *
+       * If reusing the data object is not possible, deletes it and returns a
+       * new one by calling createBlob. Only the returned value should be used
+       * further on.
+       *
+       * @return a valid object or nill if this type is not supported.
+       */
+      virtual void* reuseBlob(int protocol, void* blob);
+
+      /**
        * Creates a transportable data object with the \b current value of this
        * DataSource. This \b does trigger the evaluation() of this
        * data source. Equivalent to this->evaluate(); this->createBlob();

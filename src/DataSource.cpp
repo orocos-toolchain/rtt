@@ -134,6 +134,16 @@ namespace RTT
         return 0;
     }
 
+    void* DataSourceBase::reuseBlob(int protocol, void* blob)
+    {
+#ifndef ORO_EMBEDDED
+        detail::TypeTransporter* tt = getTypeInfo()->getProtocol(protocol);
+        if ( tt )
+            return tt->reuseBlob( blob, DataSourceBase::shared_ptr(this) );
+#endif
+        return 0;
+    }
+
     bool DataSourceBase::updateBlob(int protocol, const void* data)
     {
         return false; // overridden in AssignableDataSource<T>
