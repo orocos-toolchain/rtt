@@ -356,6 +356,9 @@ namespace RTT
      * AssignableDataSourceAdaptor allows a conversion from an AssignableDataSource<T>
      * to DataSource<[const] T [&]> which will return the result of the AssignableDataSource<T>::set()
      * method in its get() (thus a reference to a heaped value).
+     *
+     * This class always makes a copy of the data during get() or value(). Use updated() if you
+     * modified this copy (for example because this class returns a reference to it).
      */
     template<class From, class To>
     struct AssignableDataSourceAdaptor
