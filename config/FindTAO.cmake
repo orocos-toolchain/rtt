@@ -44,7 +44,7 @@ ENDIF ()
 
 # See if headers are present.
 find_path(TAO_INCLUDE_DIR NAMES "tao/corba.h" ${TAO_INCLUDE_HINTS})
-find_library (TAO_LIBRARY NAMES "TAO" ${TAO_LIBRARY_HINTS})
+find_library (TAO_LIBRARY NAMES TAO TAOd ${TAO_LIBRARY_HINTS})
 
 # A test for seeing which version of TAO.. :-(
 find_path(TAO_15 NAMES "tao/AnyTypeCode/Any.h" ${TAO_INCLUDE_HINTS} )
@@ -104,7 +104,7 @@ IF (ACE_FOUND AND TAO_FOUND AND TAO_ORBSVCS )
         MARK_AS_ADVANCED (TAO_IDL_EXECUTABLE)
       ELSE ()
         # Find a TAO shared library
-        FIND_LIBRARY (TAO_${COMPONENT}_LIBRARY NAMES "TAO_${COMPONENT}" ${TAO_LIBRARY_HINTS})
+        FIND_LIBRARY (TAO_${COMPONENT}_LIBRARY NAMES "TAO_${COMPONENT}" "TAO_${COMPONENT}d" ${TAO_LIBRARY_HINTS})
         IF (TAO_${COMPONENT}_LIBRARY)
           SET (TAO_${COMPONENT}_FOUND TRUE)
           LIST (APPEND TAO_FOUND_COMPONENTS ${COMPONENT})
