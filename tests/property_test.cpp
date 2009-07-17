@@ -169,8 +169,7 @@ BOOST_AUTO_TEST_CASE( testRepository )
         Property<PropertyBag> bag("Result","D");
         BOOST_CHECK( TypeInfoRepository::Instance()->type( *it ) );
         target = TypeInfoRepository::Instance()->type( *it )->buildProperty("Result", "D");
-        BOOST_CHECK( target );
-        if ( target->getTypeInfo()->decomposeType( target->getDataSource(), bag.value() ) )
+        if ( target && target->getTypeInfo()->decomposeType( target->getDataSource(), bag.value() ) )
             BOOST_CHECK( target->getTypeInfo()->composeType( bag.getDataSource() , target->getDataSource() ) );
         deletePropertyBag( bag.value() );
         delete target;
