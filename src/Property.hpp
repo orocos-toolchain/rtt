@@ -389,7 +389,7 @@ namespace RTT
      */
 	 //  patch pour faire une librairie static plus clean
     template<>
-    bool Property<PropertyBag>::update( const Property<PropertyBag>& orig)
+    RTT_API bool Property<PropertyBag>::update( const Property<PropertyBag>& orig)
     {
         if ( !ready() )
             return false;
@@ -399,7 +399,7 @@ namespace RTT
     }
 
     template<>
-    bool Property<PropertyBag>::refresh( const Property<PropertyBag>& orig)
+    RTT_API bool Property<PropertyBag>::refresh( const Property<PropertyBag>& orig)
     {
         if ( !ready() )
             return false;
@@ -407,7 +407,7 @@ namespace RTT
     }
 
     template<>
-    bool Property<PropertyBag>::copy( const Property<PropertyBag>& orig)
+    RTT_API bool Property<PropertyBag>::copy( const Property<PropertyBag>& orig)
     {
         if ( !ready() )
             return false;
@@ -473,7 +473,7 @@ namespace RTT
     }
 
     template<>
-    void Property<PropertyBag>::identify( PropertyBagVisitor* pbi);
+    RTT_API void Property<PropertyBag>::identify( PropertyBagVisitor* pbi);
 }
 
 #endif

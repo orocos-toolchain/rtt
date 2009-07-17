@@ -52,7 +52,7 @@ namespace RTT
      * @ingroup CoreLib
      */
     template<typename T>
-    class RTT_API Attribute
+    class Attribute
         : public AttributeBase
     {
         typename AssignableDataSource<T>::shared_ptr data;
@@ -212,7 +212,7 @@ namespace RTT
      * @ingroup CoreLib
      */
     template<typename T>
-    class RTT_API Constant
+    class Constant
         : public AttributeBase
     {
     public:
@@ -307,7 +307,7 @@ namespace RTT
      * expressions.
      */
     template<typename T>
-    class RTT_API Alias
+    class Alias
         : public AttributeBase
     {
         typename DataSource<T>::shared_ptr data;
