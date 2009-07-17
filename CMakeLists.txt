@@ -53,14 +53,6 @@ INCLUDE (${CMAKE_ROOT}/Modules/CMakeDetermineCXXCompiler.cmake)
 #                                                 #
 ###################################################
 
-# Put your 'flags' inhere if you want them to apear in the
-# rtt.pc file. Various .cmake scripts below do
-# this. These flags should ONLY by -I or -D flags, NOT -O.. 
-# -W... or alike. The user's application is compiled with these flags !
-SET( RTT_CFLAGS "" CACHE INTERNAL "")
-SET( RTT_LINKFLAGS "" CACHE INTERNAL "")
-SET( RTT_USER_LINKFLAGS "" CACHE INTERNAL "")
-
 # Find all installed libraries, compiler etc.
 INCLUDE(config/check_depend.cmake)
 
