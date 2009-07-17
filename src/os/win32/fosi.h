@@ -392,6 +392,18 @@ extern "C"
         return rtos_mutex_trylock(m);
     }
 
+    static inline int rtos_mutex_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
+    {
+    	if( WaitForSingleObject(*m, (abs_time - rtos_get_time_ns())/1000000LL ) == WAIT_OBJECT_0 )
+    		return 0;
+        return -1;
+    }
+
+    static inline int rtos_mutex_rec_lock_until( rt_mutex_t* m, NANO_TIME abs_time)
+    {
+        return rtos_mutex_lock_until(m, abs_time);
+    }
+
     static inline int rtos_mutex_rec_lock( rt_rec_mutex_t* m)
     {
         return rtos_mutex_lock(m);
