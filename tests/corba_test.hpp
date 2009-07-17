@@ -1,6 +1,7 @@
 #ifndef CORBA_TEST_H
 #define CORBA_TEST_H
 
+#include <corba/corba.h>
 #include <TaskContext.hpp>
 #include <DataPort.hpp>
 #include <BufferPort.hpp>
