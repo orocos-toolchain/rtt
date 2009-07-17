@@ -13,7 +13,8 @@ MESSAGE(STATUS "CMAKE_VERSION: ${CMAKE_VERSION}")
 #
 # An option for tests, to make it easy to turn off all tests
 #
-OPTION( ENABLE_TESTS "Turn me off to disable compilation of all tests" OFF )
+OPTION( ENABLE_TESTS "DEPRECATED Turn me off to disable compilation of all tests" OFF )
+MARK_AS_ADVANCED( ENABLE_TESTS )
 #
 # STATIC or SHARED
 #
@@ -218,6 +219,8 @@ if (ENABLE_CORBA)
             SET(CORBA_INCLUDE_DIRS ${TAO_INCLUDE_DIRS})
             SET(CORBA_LIBRARIES ${TAO_LIBRARIES})
 	    SET(CORBA_DEFINITIONS ${TAO_DEFINITIONS})
+	    # Flag used in rtt-corba-config.h
+	    SET(CORBA_IS_TAO 1)
 
         ENDIF(NOT TAO_FOUND)
     ELSEIF(${CORBA_IMPLEMENTATION} STREQUAL "OMNIORB")
@@ -232,6 +235,8 @@ if (ENABLE_CORBA)
 	    SET(CORBA_CFLAGS ${OMNIORB4_CPP_FLAGS})
 	    SET(CORBA_INCLUDE_DIRS ${OMNIORB4_INCLUDE_DIR})
 	    SET(CORBA_DEFINITIONS ${OMNIORB4_DEFINITIONS})
+	    # Flag used in rtt-corba-config.h
+	    SET(CORBA_IS_OMNIORB 1)
 
         ENDIF(NOT OMNIORB4_FOUND)
     ELSE(${CORBA_IMPLEMENTATION} STREQUAL "TAO")
