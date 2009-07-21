@@ -92,7 +92,9 @@ void FileDescriptorActivity::unwatch(int fd)
 bool FileDescriptorActivity::isUpdated(int fd) const
 { return FD_ISSET(fd, &m_fd_work); }
 bool FileDescriptorActivity::hasError() const
-{ return m_error; }
+{ return m_has_error; }
+bool FileDescriptorActivity::hasTimeout() const
+{ return m_has_timeout; }
 bool FileDescriptorActivity::isWatched(int fd) const
 { return FD_ISSET(fd, &m_fd_set); }
 
@@ -137,18 +139,15 @@ void FileDescriptorActivity::loop()
             ret = select(max_fd + 1, &m_fd_work, NULL, NULL, &timeout);
         }
 
+        m_has_error   = false;
+        m_has_timeout = false;
         if (ret == -1)
         {
-            if (errno != EBADF)
-            {
-                log(Error) << "internal error in FileDescriptorActivity: got errno = " << errno << endlog();
-                break;
-            }
-            else
-                m_error = true;
+            log(Error) << "FileDescriptorActivity: error in select(), errno = " << errno << endlog();
+            m_has_error = true;
         }
-        else
-            m_error = false;
+        else if (ret == 0)
+            m_has_timeout = true;
 
         if (ret > 0 && FD_ISSET(pipe, &m_fd_work)) // breakLoop or trigger requests
         { // Empty all commands queued in the pipe

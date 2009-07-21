@@ -18,7 +18,8 @@ namespace RTT {
         int  m_timeout;
         fd_set m_fd_set;
         fd_set m_fd_work;
-        bool m_error;
+        bool m_has_error;
+        bool m_has_timeout;
         RunnableInterface* runner;
 
         static const int CMD_BREAK_LOOP = 0;
@@ -84,6 +85,15 @@ namespace RTT {
          * called from the RunnableInterface this activity is driving.
          */
         bool isUpdated(int fd) const;
+
+        /** True if the RunnableInterface has been triggered because of a
+         * timeout, instead of because of new data is available.
+         *
+         * This should only be used from within the RunnableInterface this
+         * activity is driving, i.e. in TaskContext::updateHook() or
+         * TaskContext::errorHook().
+         */
+        bool hasTimeout() const;
 
         /** True if one of the file descriptors has a problem (for instance it
          * has been closed)
