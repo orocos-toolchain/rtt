@@ -75,6 +75,12 @@ void FileDescriptorActivity::setTimeout(int timeout)
 { m_timeout = timeout; }
 void FileDescriptorActivity::watch(int fd)
 {
+    if (fd < 0)
+    {
+        log(Error) << "negative file descriptor given to FileDescriptorActivity::watch" << endlog();
+        return;
+    }
+
     m_watched_fds.insert(fd);
     FD_SET(fd, &m_fd_set);
 }
