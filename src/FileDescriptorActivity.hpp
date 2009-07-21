@@ -130,8 +130,11 @@ namespace RTT {
          */
         bool isWatched(int fd) const;
 
-        /** True if this specific FD has been updated. This should only be
-         * called from the RunnableInterface this activity is driving.
+        /** True if this specific FD has new data.
+         *
+         * This should only be used from within the RunnableInterface this
+         * activity is driving, i.e. in TaskContext::updateHook() or
+         * TaskContext::errorHook().
          */
         bool isUpdated(int fd) const;
 
@@ -148,17 +151,21 @@ namespace RTT {
          * has been closed)
          *
          * This should only be used from within the RunnableInterface this
-         * activity is driving.
+         * activity is driving, i.e. in TaskContext::updateHook() or
+         * TaskContext::errorHook().
          */
         bool hasError() const;
 
         /** Sets the timeout, in milliseconds, for waiting on the IO. Set to 0
-         * for infinity.
+         * for blocking behaviour (no timeout).
+         *
+         * In the task's updateHook(), the actual trigger reason can be tested
+         * with hasError(), hasTimeout() and isUpdated()
          */
         void setTimeout(int timeout);
 
         /** Get the timeout, in milliseconds, for waiting on the IO. Set to 0
-         * for infinity.
+         * for blocking behaviour (no timeout).
          */
         int getTimeout() const;
 
