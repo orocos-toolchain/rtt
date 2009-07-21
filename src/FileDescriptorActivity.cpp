@@ -102,10 +102,16 @@ bool FileDescriptorActivity::start()
 {
     // Check that there is FDs set ...
     if (m_watched_fds.empty())
+    {
+        log(Error) << "FileDescriptorActivity: no descriptors added to watch" << endlog();
         return false;
+    }
 
     if (pipe(m_interrupt_pipe) == -1)
+    {
+        log(Error) << "FileDescriptorActivity: cannot create control pipe" << endlog();
         return false;
+    }
 
     if (!NonPeriodicActivity::start())
     {
